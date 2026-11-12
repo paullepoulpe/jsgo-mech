@@ -1,0 +1,2853 @@
+/*
+ * Copyright 2008 The Closure Compiler Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.javascript.jscomp;
+
+import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
+import com.google.javascript.jscomp.testing.JSChunkGraphBuilder;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+/**
+ * Verifies that valid candidates for inlining are inlined, but that no dangerous inlining occurs.
+ */
+@RunWith(JUnit4.class)
+public final class InlineVariablesTest extends CompilerTestCase {
+
+  private boolean inlineLocalsOnly = false;
+
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    enableNormalize();
+    // TODO(bradfordcsmith): Stop normalizing the expected output or document why it is necessary.
+    enableNormalizeExpectedOutput();
+    disableCompareJsDoc();
+    // NOTE: We are not enabling var checks here, so it is OK to use undeclared variables in
+    // these tests. They will be treated as if they were externs.
+  }
+
+  @Override
+  protected CompilerPass getProcessor(final Compiler compiler) {
+    return new InlineVariables(
+        compiler, inlineLocalsOnly ? InlineVariables.Mode.LOCALS_ONLY : InlineVariables.Mode.ALL);
+  }
+
+  @Override
+  @After
+  public void tearDown() {
+    inlineLocalsOnly = false;
+  }
+
+  @Test
+  public void testArgAlias() {
+    // same scope
+    test(
+        """
+        function foo(arg) {
+          const argAlias = arg;
+          const argAliasAlias = argAlias
+          use(argAliasAlias);
+        }
+        """,
+        """
+        function foo(arg) {
+          use(arg);
+        }
+        """);
+    // nested scope
+    test(
+        """
+        function foo(arg) {
+          const argAlias = arg;
+          {
+            const argAliasAlias = argAlias
+            use(argAliasAlias);
+          }
+        }
+        """,
+        """
+        function foo(arg) {
+          {
+            use(arg);
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineExpressionUsingAlias() {
+    test(
+        """
+        function foo(arg1, arg2) {
+          const arg1Alias = arg1;
+          const arg2Alias = arg2;
+        // Create an inner scope to force analysis of `product` before the alias
+        // variables.
+          {
+            const product = arg1Alias * arg2Alias;
+        // Use `product` twice so if it gets inlined, it will have to create new
+        // references to the operands.
+        // Either the expression should not be inlined, or some effort will have
+        // to be made to avoid creating new references to `arg1Alias` and `arg2Alias`
+        // before they are considered for inlining themselves.
+            use(product);
+            use(product);
+          }
+        }
+        """,
+        """
+        function foo(arg1, arg2) {
+          {
+            const product = arg1 * arg2;
+            use(product);
+            use(product);
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testPassDoesntProduceInvalidCode1() {
+    testSame(
+        """
+        function f(x = void 0) {
+          var z;
+          {
+            const y = {};
+            x && (y['x'] = x);
+            z = y;
+          }
+          return z;
+        }
+        """);
+  }
+
+  @Test
+  public void testPassDoesntProduceInvalidCode2() {
+    testSame(
+        """
+        function f(x = void 0) {
+          {
+            var z;
+            const y = {};
+            x && (y['x'] = x);
+            z = y;
+          }
+          return z;
+        }
+        """);
+  }
+
+  @Test
+  public void testPassDoesntProduceInvalidCode3() {
+    test(
+        """
+        function f(x = void 0) {
+          var z;
+          const y = {};
+          x && (y['x'] = x);
+          z = y;
+          {
+            return z;
+          }
+        }
+        """,
+        """
+        function f(x = void 0) {
+
+          const y = {};
+          x && (y['x'] = x);
+          y;
+          {
+            return y;
+          }
+        }
+        """);
+  }
+
+  // Test respect for scopes and blocks
+
+  @Test
+  public void testInlineGlobal() {
+    test("var x = 1; var z = x;", "var z = 1;");
+  }
+
+  @Test
+  public void testNoInlineAnnotation() {
+    testSame("/** @noinline */ var x = 1; use(x);");
+    test(
+        "/** @noinline */ var x = 1; use(x); var z = x; use(z);", //
+        "/** @noinline */ var x = 1; use(x);            use(x);");
+  }
+
+  @Test
+  public void testNoInlineExportedName() {
+    testSame("var _x = 1; var z = _x;");
+  }
+
+  @Test
+  public void testNoInlineExportedName2() {
+    testSame(
+        """
+        var f = function() {};
+        var _x = f;
+        var y = function() { _x(); };
+        var _y = f;
+        """);
+  }
+
+  @Test
+  public void testDontTreatLocalVariablesAsExportedByConvention() {
+    // In the GoogleCodingConvention, globals starting with "_" are exported. (see the above two
+    // tests). Verify that we don't accidentally apply the same convention to locals.
+    test("function f() { var _x = 1; var z = _x; }", "function f() { var z = 1; }");
+  }
+
+  @Test
+  public void testDoNotInlineIncrement() {
+    testSame("var x = 1; x++;");
+  }
+
+  @Test
+  public void testDoNotInlineDecrement() {
+    testSame("var x = 1; x--;");
+  }
+
+  @Test
+  public void testDoNotInlineIntoLhsOfAssign() {
+    testSame("var x = 1; x += 3;");
+  }
+
+  @Test
+  public void testInlineIntoRhsOfAssign() {
+    test("var x = 1; var y = x;", "var y = 1;");
+  }
+
+  @Test
+  public void testInlineInFunction1() {
+    test(
+        "function baz() { var x = 1; var z = x; }", //
+        "function baz() { var z = 1;            }");
+  }
+
+  @Test
+  public void testInlineInFunction2() {
+    test(
+        """
+        function baz() {
+          var a = new obj();
+          result = a;
+        }
+        """,
+        """
+        function baz() {
+          result = new obj();
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineInFunction3() {
+    testSame(
+        """
+        function baz() {
+          var a = new obj();
+          (function(){a;})();
+          result = a;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineInFunction4() {
+    testSame(
+        """
+        function baz() {
+          var a = new obj();
+          foo.result = a;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineInFunction5() {
+    testSame(
+        """
+        function baz() {
+        var a = (foo = new obj());
+        foo.x();
+        result = a;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineInFunction6() {
+    test(
+        "function baz() { { var x = 1; var z = x; } }", //
+        "function baz() { { var z = 1;            } }");
+  }
+
+  @Test
+  public void testInlineInFunction7() {
+    test(
+        "function baz() { var x = 1; { var z = x; } }", //
+        "function baz() {            { var z = 1; } }");
+  }
+
+  @Test
+  public void testInlineIntoArrowFunction1() {
+    test(
+        "var x = 0; var f = () => x + 1;", //
+        "           var f = () => 0 + 1;");
+  }
+
+  @Test
+  public void testInlineIntoArrowFunction2() {
+    test(
+        "var x = 0; var f = () => { return x + 1; }", //
+        "           var f = () => { return 0 + 1; }");
+  }
+
+  @Test
+  public void testInlineAcrossChunks() {
+    // TODO(kushal): Make decision about overlap with CrossChunkCodeMotion
+    test(
+        srcs(
+            JSChunkGraphBuilder.forUnordered()
+                .addChunk("var a = 2;")
+                .addChunk("var b = a;")
+                .build()),
+        // Note that there's nothing ensuring "var a = 2;" will be loaded before "var b = a;", but
+        // if it's not, this code would be broken uncompiled and we'd get an "a is not defined"
+        // error, so the compiler inlines anyway.
+        expected("", "var b = 2;"));
+  }
+
+  @Test
+  public void testInliningAcrossSiblingChunk_assignmentChunkIsFirst() {
+    test(
+        srcs(
+            JSChunkGraphBuilder.forTree()
+                .addChunk("var a;") // root chunk
+                // Two child chunks that both depend on the root chunk. Neither is guaranteed
+                // to be loaded, and if both load the order is not guaranteed.
+                .addChunk("a = true;")
+                .addChunk("function foo() { if (a) console.log('test'); } foo();")
+                .build()),
+        // The expected code has the correct behavior. The compiler doesn't know whether `a = true;`
+        // will execute before the second child chunk or not.
+        expected(
+            "var a;",
+            // root
+            "a = true;", // child 1
+            "(function() { if (a) console.log('test'); })();")); // child 2
+  }
+
+  @Test
+  public void testInliningAcrossSiblingChunk_useChunkIsFirst() {
+    test(
+        srcs(
+            JSChunkGraphBuilder.forTree()
+                .addChunk("var a;") // root chunk
+                // Two child chunks that both depend on the root chunk. Neither is guaranteed
+                // to be loaded, and if both load the order is not guaranteed.
+                .addChunk("function foo() { if (a) console.log('test'); } foo();")
+                .addChunk("a = true;")
+                .build()),
+        // the expected code has the correct behavior. The compiler doesn't know whether `a = true;`
+        // will execute before the first child chunk or not.
+        expected(
+            "var a;", // root
+            "(function() { if (a) console.log('test'); })();", // child 1
+            "a = true;")); // child 2
+  }
+
+  @Test
+  public void testDoNotExitConditional1() {
+    test(
+        "if (true) { var x = 1; } var z = x; use(z);", //
+        "if (true) { var x = 1; }            use(x);");
+  }
+
+  @Test
+  public void testDoNotExitConditional2() {
+    test(
+        "if (true) var x = 1; var z = x; use(z);", //
+        "if (true) var x = 1;            use(x);");
+  }
+
+  @Test
+  public void testDoNotExitConditional3() {
+    test(
+        "var x; if (true) x=1; var z = x; use(z);", //
+        "var x; if (true) x=1;            use(x);");
+  }
+
+  @Test
+  public void testDoNotExitLoop() {
+    test(
+        "while (z) { var x = 3; } var y = x; use(y);", //
+        "while (z) { var x = 3; }            use(x);");
+  }
+
+  @Test
+  public void testDoNotExitForLoop() {
+    test(
+        "for (var i = 1; false; false) var z = i;", //
+        "for (         ; false; false) var z = 1;");
+    testSame("for (; false; false) var i = 1; var z = i;");
+    testSame("for (var i in {}); var z = i;");
+  }
+
+  @Test
+  public void testConstInLoopAssignedOnceInLifetime() {
+    test(
+        """
+        for (; z; ) {
+          const x = 1;
+          use(x);
+        }
+        """,
+        """
+        for (; z; ) {
+          use(1);
+        }
+        """);
+
+    test(
+        """
+        function foo(arg) {
+          for (; z; ) {
+            const alias = arg;
+            use(alias);
+            use2(alias);
+          }
+        }
+        """,
+        """
+        function foo(arg) {
+          for (; z; ) {
+            use(arg);
+            use2(arg);
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineSubscopeAlias() {
+    test(
+        """
+        var x = function() {
+          var self = this;
+          return function() {
+            var y = self;
+            use(y);
+          }
+        }
+        """,
+        """
+        var x = function() {
+          var self = this;
+          return function() {
+
+            use(self);
+          }
+        }
+        """);
+    test(
+        """
+        var x = function() {
+          var y = [1];
+          return function() {
+            var z = y;
+            use(z);
+          };
+        }
+        """,
+        """
+        var x = function() {
+          var y = [1];
+          return function() {
+
+            use(y);
+          };
+        }
+        """);
+    test(
+        """
+        var x = function() {
+          var y = 1;
+          return function() {
+            var z = y;
+            use(z);
+          };
+        }
+        """,
+        """
+        var x = function() {
+
+          return function() {
+
+            use(1);
+          };
+        }
+        """);
+  }
+
+  @Test
+  public void testDoNotExitTry() {
+    testSame("try { var x = y; } catch (e) {} var z = y; ");
+    testSame("try { throw e; var x = 1; } catch (e) {} var z = x; ");
+  }
+
+  @Test
+  public void testDoNotEnterCatch() {
+    testSame("try { } catch (e) { var z = e; } ");
+  }
+
+  @Test
+  public void testDoNotEnterFinally() {
+    test(
+        """
+        try { throw e; var x = 1; } catch (e) {}
+        finally  { var z = x; use(z); }
+        """,
+        """
+        try { throw e; var x = 1; } catch (e) {}
+        finally  {            use(x); }
+        """);
+  }
+
+  @Test
+  public void testInsideIfConditional() {
+    test("var a = foo(); if (a) { alert(3); }", "if (foo()) { alert(3); }");
+    test("var a; a = foo(); if (a) { alert(3); }", "if (foo()) { alert(3); }");
+  }
+
+  @Test
+  public void testOnlyReadAtInitialization() {
+    test("var a; a = foo();", "foo();");
+    test("var a; if (a = foo()) { alert(3); }", "if (foo()) { alert(3); }");
+    test("var a; switch (a = foo()) {}", "switch(foo()) {}");
+    test(
+        "var a; function f(){ return a = foo(); }", //
+        "       function f(){ return     foo(); }");
+    test(
+        "function f(){ var a; return a = foo(); }", //
+        "function f(){        return     foo(); }");
+    test("var a; with (a = foo()) { alert(3); }", "with (foo()) { alert(3); }");
+
+    test("var a; b = (a = foo());", "b = foo();");
+    test(
+        "var a; while(a = foo()) { alert(3); }", //
+        "       while(    foo()) { alert(3); }");
+    test(
+        "var a; for(;a = foo();) { alert(3); }", //
+        "       for(;    foo();) { alert(3); }");
+    test(
+        "var a; do {} while(a = foo()) { alert(3); }", //
+        "       do {} while(    foo()) { alert(3); }");
+  }
+
+  @Test
+  public void testImmutableWithSingleReferenceAfterInitialzation() {
+    test("var a; a = 1;", "1;");
+    test("var a; if (a = 1) { alert(3); }", "if (1) { alert(3); }");
+    test("var a; switch (a = 1) {}", "switch(1) {}");
+    test(
+        "var a; function f(){ return a = 1; }", //
+        "       function f(){ return 1; }");
+    test(
+        "function f(){ var a; return a = 1; }", //
+        "function f(){        return     1; }");
+    test("var a; with (a = 1) { alert(3); }", "with (1) { alert(3); }");
+
+    test("var a; b = (a = 1);", "b = 1;");
+    test(
+        "var a; while(a = 1) { alert(3); }", //
+        "       while(    1) { alert(3); }");
+    test(
+        "var a; for(;a = 1;) { alert(3); }", //
+        "       for(;    1;) { alert(3); }");
+    test(
+        "var a; do {} while(a = 1) { alert(3); }", //
+        "       do {} while(    1) { alert(3); }");
+  }
+
+  @Test
+  public void testSingleReferenceAfterInitialzation() {
+    test("var a; a = foo();a;", "foo();");
+    testSame("var a; if (a = foo()) { alert(3); } a;");
+    testSame("var a; switch (a = foo()) {} a;");
+    testSame("var a; function f(){ return a = foo(); } a;");
+    testSame("function f(){ var a; return a = foo(); a;}");
+    testSame("var a; with (a = foo()) { alert(3); } a;");
+    testSame("var a; b = (a = foo()); a;");
+    testSame("var a; while(a = foo()) { alert(3); } a;");
+    testSame("var a; for(;a = foo();) { alert(3); } a;");
+    testSame("var a; do {} while(a = foo()) { alert(3); } a;");
+  }
+
+  @Test
+  public void testInsideIfBranch() {
+    testSame("var a = foo(); if (1) { alert(a); }");
+  }
+
+  @Test
+  public void testInsideAndConditional() {
+    test("var a = foo(); a && alert(3);", "foo() && alert(3);");
+  }
+
+  @Test
+  public void testInsideAndBranch() {
+    testSame("var a = foo(); 1 && alert(a);");
+  }
+
+  @Test
+  public void testInsideOrBranch() {
+    testSame("var a = foo(); 1 || alert(a);");
+  }
+
+  @Test
+  public void testInsideHookBranch() {
+    testSame("var a = foo(); 1 ? alert(a) : alert(3)");
+  }
+
+  @Test
+  public void testInsideHookConditional() {
+    test(
+        "var a = foo(); a ? alert(1) : alert(3)", //
+        "        foo()    ? alert(1) : alert(3)");
+  }
+
+  @Test
+  public void testInsideOrBranchInsideIfConditional() {
+    testSame("var a = foo(); if (x || a) {}");
+  }
+
+  @Test
+  public void testInsideOrBranchInsideIfConditionalWithConstant() {
+    // We don't inline non-immutable constants into branches.
+    testSame("var a = [false]; if (x || a) {}");
+  }
+
+  @Test
+  public void testCrossFunctionsAsLeftLeaves() {
+    // Ensures getNext() understands how to walk past a function leaf
+    test(
+        srcs("var x = function() {};", "", "function cow() {} var z = x;"),
+        expected("", "", "function cow() {} var z = function() {};"));
+    test(
+        srcs("var x = function() {};", "", "var cow = function() {}; var z = x;"),
+        expected("", "", "var cow = function() {}; var z = function() {};"));
+    test(
+        "var x = a; (function() { a++; })(); var z = x; use(z);",
+        "var x = a; (function() { a++; })();            use(x);");
+    test(
+        """
+        var x = a;
+        function cow(){ a++; }
+        cow();
+        var z = x;
+        """,
+        """
+        var x = a;
+         // declaration removed
+        (function(){ a++; })();
+         // unused `z` removed
+        """);
+    test(
+        "var x = a; cow(); var z = x; z; function cow() { a++; };",
+        "var x = a; cow();            x; function cow() { a++; };");
+  }
+
+  // Test movement of constant values
+
+  @Test
+  public void testDoCrossFunction() {
+    test(
+        "var x = 1; foo(); var z = x; use(z);", //
+        "           foo();            use(1);");
+  }
+
+  @Test
+  public void testDoNotCrossReferencingFunction() {
+    test(
+        """
+        var f = function() { var z = x; };
+        var x = 1;
+        f();
+        var z = x;
+        use(z)
+        f();
+        """,
+        """
+        var f = function() { var z$jscomp$1 = x; };
+        var x = 1;
+        f();
+
+        use(x)
+        f();
+        """);
+  }
+
+  // Test tricky declarations and references
+
+  @Test
+  public void testChainedAssignment() {
+    test("var a = 2, b = 2; var c = b;", "var a = 2; var c = 2;");
+    test("var a = 2, b = 2; var c = a;", "var b = 2; var c = 2;");
+    test("var a = b = 2; var f = 3; var c = a;", "var f = 3; var c = b = 2;");
+    testSame("var a = b = 2; var c = b;");
+  }
+
+  @Test
+  public void testForIn() {
+    testSame("for (var i in j) { var c = i; }");
+    testSame("var i = 0; for (i in j) ;");
+    testSame("var i = 0; for (i in j) { var c = i; }");
+    testSame("i = 0; for (var i in j) { var c = i; }");
+    testSame("var j = {'key':'value'}; for (var i in j) {print(i)};");
+  }
+
+  // Test movement of values that have (may) side effects
+
+  @Test
+  public void testDoCrossNewVariables() {
+    test("var x = foo(); var z = x;", "var z = foo();");
+  }
+
+  @Test
+  public void testAliasAfterFunctionCall() {
+    test(
+        "var x = foo(); bar(); var z = x; use(z);", //
+        "var x = foo(); bar();            use(x);");
+  }
+
+  // Test movement of values that are complex but lack side effects
+
+  @Test
+  public void testDoNotCrossAssignment() {
+    test(
+        "var x = {}; var y = x.a; x.a = 1; var z = y; use(z);", //
+        "var x = {}; var y = x.a; x.a = 1;            use(y);");
+    testSame("var a = this.id; foo(this.id = 3, a);");
+  }
+
+  @Test
+  public void testAliasAfterDelete() {
+    test(
+        "var x = {}; var y = x.a; delete x.a; var z = y; use(z);", //
+        "var x = {}; var y = x.a; delete x.a;            use(y);");
+  }
+
+  @Test
+  public void testInlineAliasButNotSnapshot() {
+    test(
+        "var b = 1; var a = b; b += 2; var c = a; use(c);", //
+        "var b = 1; var a = b; b += 2;            use(a);");
+  }
+
+  @Test
+  public void testAliasAfterIncrement() {
+    test(
+        "var a = b.c; b.c++; var d = a; use(d);", //
+        "var a = b.c; b.c++;            use(a);");
+  }
+
+  @Test
+  public void testConstructorBeforeAlias() {
+    test(
+        "var a = b; new Foo(); var c = a; use(c);", //
+        "var a = b; new Foo();            use(a);");
+  }
+
+  @Test
+  public void testDoNotInlineAliasAssignedBeforeAliasedVar() {
+    // TODO(bradfordcsmith): This is consistent with past behavior, but it would be good to fix it.
+    // Assumes we do not rely on undefined variables (not technically correct!)
+    test(
+        "var a = b; var b = 3; alert(a)", //
+        "           var b = 3; alert(b);");
+    test(
+        """
+        f();
+        function f() {
+          var alias = original;
+          alert(alias)
+        }
+        var original = 3;
+        """,
+        """
+        f();
+        function f() {
+
+          alert(original)
+        }
+        var original = 3;
+        """);
+    test(
+        """
+        f();
+        var original = 3;
+        function f() {
+          var alias = original;
+          alert(alias)
+        }
+        """,
+        """
+        f();
+        var original = 3;
+        function f() {
+
+          alert(original)
+        }
+        """);
+  }
+
+  @Test
+  public void testOverlappingInlines() {
+    String source =
+        """
+        a = function(el, x, opt_y) {
+          var cur = bar(el);
+          opt_y = x.y;
+          x = x.x;
+          var dx = x - cur.x;
+          var dy = opt_y - cur.y;
+          foo(
+              el,
+              el.offsetLeft + dx,
+              el.offsetTop + dy);
+        };
+        """;
+    String expected =
+        """
+        a = function(el, x, opt_y) {
+          var cur = bar(el);
+          opt_y = x.y;
+          x = x.x;
+          foo(
+              el,
+              el.offsetLeft + (x - cur.x),
+              el.offsetTop + (opt_y - cur.y));
+        };
+        """;
+
+    test(source, expected);
+  }
+
+  @Test
+  public void testOverlappingInlineFunctions() {
+    String source =
+        """
+        a = function() {
+          var b = function(args) {var n;};
+          var c = function(args) {};
+          d(b,c);
+        };
+        """;
+    String expected =
+        """
+        a = function() {
+          d(function(args){var n;}, function(args){});
+        };
+        """;
+
+    test(source, expected);
+  }
+
+  @Test
+  public void testInlineIntoLoops() {
+    test(
+        "var x = true; while (true) alert(   x);", //
+        "              while (true) alert(true);");
+    test(
+        "var x = true; while (true) for (var i in {}) alert(   x);",
+        "              while (true) for (var i in {}) alert(true);");
+    testSame("var x = [true]; while (true) alert(x);");
+  }
+
+  @Test
+  public void testInlineIntoFunction() {
+    test(
+        "var x = false; var f = function() { alert(    x); };",
+        "               var f = function() { alert(false); };");
+    testSame("var x = [false]; var f = function() { alert(x); };");
+  }
+
+  @Test
+  public void testNoInlineIntoNamedFunction() {
+    testSame("f(); var x = false; function f() { alert(x); };");
+  }
+
+  @Test
+  public void testInlineIntoNestedNonHoistedNamedFunctions() {
+    test(
+        "f(); var x = false; if (false) function f() { alert(    x); };",
+        "f();                if (false) function f() { alert(false); };");
+  }
+
+  @Test
+  public void testNoInlineIntoNestedNamedFunctions() {
+    testSame("f(); var x = false; function f() { if (false) { alert(x); } };");
+  }
+
+  @Test
+  public void testNoInlineMutatedVariable() {
+    testSame("var x = false; if (true) { var y = x; x = true; }");
+  }
+
+  @Test
+  public void testInlineImmutableMultipleTimes() {
+    test(
+        "var x = null; var y =    x, z =    x;", //
+        "              var y = null, z = null;");
+    test(
+        "var x = 3; var y = x, z = x;", //
+        "           var y = 3, z = 3;");
+  }
+
+  @Test
+  public void testInlineStringMultipleTimesAllStrings() {
+    test(
+        """
+        var x = 'abcdefghijklmnopqrstuvwxyz';
+        var y = x, z = x;
+        """,
+        """
+        var y = 'abcdefghijklmnopqrstuvwxyz',
+            z = 'abcdefghijklmnopqrstuvwxyz';
+        """);
+  }
+
+  @Test
+  public void testNoInlineBackwards() {
+    testSame("var y = x; var x = null;");
+  }
+
+  @Test
+  public void testNoInlineOutOfBranch() {
+    testSame("if (true) var x = null; var y = x;");
+  }
+
+  @Test
+  public void testInterferingInlines() {
+    test(
+        "var a = 3; var f = function() { var x = a; alert(x); };",
+        "           var f = function() {            alert(3); };");
+  }
+
+  @Test
+  public void testInlineIntoTryCatch() {
+    test(
+        """
+        var a = true;
+        try { var b = a; }
+        catch (e) { var c = a + b; var d = true; }
+        finally { var f = a + b + c + d; }
+        """,
+        """
+        try { var b = true; }
+        catch (e) { var c = true + b; var d = true; }
+        finally { var f = true + b + c + d; }
+        """);
+  }
+
+  // Make sure that we still inline constants that are not provably
+  // written before they're read.
+  @Test
+  public void testInlineConstants() {
+    test(
+        "function foo() { return  XXX; } var XXX = true;", //
+        "function foo() { return true; }                ");
+  }
+
+  @Test
+  public void testInlineStringWhenWorthwhile() {
+    test("var x = 'a'; foo(x, x, x);", "foo('a', 'a', 'a');");
+  }
+
+  @Test
+  public void testInlineConstantAlias() {
+    test(
+        "var XXX = new Foo(); q(XXX); var YYY = XXX; bar(YYY)",
+        "var XXX = new Foo(); q(XXX);                bar(XXX)");
+  }
+
+  @Test
+  public void testInlineConstantAliasWithAnnotation() {
+    test(
+        "/** @const */ var xxx = new Foo(); q(xxx); var YYY = xxx; bar(YYY)",
+        "/** @const */ var xxx = new Foo(); q(xxx);                bar(xxx)");
+  }
+
+  @Test
+  public void testInlineConstantAliasWithNonConstant() {
+    test(
+        "var XXX = new Foo(); q(XXX); var y = XXX; bar(  y); baz(  y)",
+        "var XXX = new Foo(); q(XXX);              bar(XXX); baz(XXX)");
+  }
+
+  @Test
+  public void testCascadingInlines() {
+    test(
+        """
+        var XXX = 4;
+        function f() {
+          var YYY = XXX;
+          bar(YYY);
+          baz(YYY);
+        }
+        """,
+        """
+        function f() {
+          bar(4);
+          baz(4);
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineGetpropIntoCall() {
+    test("var a = b; a();", "b();");
+    test("var a = b.c; f(a);", "f(b.c);");
+    testSame("var a = b.c; a();");
+  }
+
+  @Test
+  public void testInlineFunctionDeclaration() {
+    test(
+        "var f = function () {}; var a =              f;", //
+        "                        var a = function () {};");
+    test(
+        "var f = function () {}; foo(); var a =              f;", //
+        "                        foo(); var a = function () {};");
+    test(
+        "var f = function () {}; foo(             f);", //
+        "                        foo(function () {});");
+
+    test(
+        "var f = function () {}; function g() {var a = f; return a;}", //
+        "var f = function () {}; function g() {           return f;}");
+    testSame("var f = function () {}; function g() {h(f);}");
+  }
+
+  @Test
+  public void test2388531() {
+    testSame(
+        """
+        var f = function () {};
+        var g = function () {};
+        goog.inherits(f, g);
+        """);
+    testSame(
+        """
+        var f = function () {};
+        var g = function () {};
+        goog$inherits(f, g);
+        """);
+  }
+
+  @Test
+  public void testRecursiveFunction1() {
+    testSame("var x = 0; (function x() { return x ? x() : 3; })();");
+  }
+
+  @Test
+  public void testRecursiveFunction2() {
+    testSame("function y() { return y(); }");
+  }
+
+  @Test
+  public void testUnreferencedBleedingFunction() {
+    testSame("var x = function y() {}");
+  }
+
+  @Test
+  public void testReferencedBleedingFunction() {
+    testSame("var x = function y() { return y(); }");
+  }
+
+  @Test
+  public void testInlineAliases1() {
+    test(
+        "var x = this.foo(); this.bar(); var y = x; this.baz(y);",
+        "var x = this.foo(); this.bar();            this.baz(x);");
+  }
+
+  @Test
+  public void testInlineAliases1b() {
+    test(
+        "var x = this.foo(); this.bar(); var y; y = x; this.baz(y);",
+        "var x = this.foo(); this.bar();            x; this.baz(x);");
+  }
+
+  @Test
+  public void testInlineAliases1c() {
+    test(
+        "var x; x = this.foo(); this.bar(); var y = x; this.baz(y);",
+        "var x; x = this.foo(); this.bar();            this.baz(x);");
+  }
+
+  @Test
+  public void testInlineAliases1d() {
+    test(
+        "var x; x = this.foo(); this.bar(); var y; y = x; this.baz(y);",
+        "var x; x = this.foo(); this.bar();            x; this.baz(x);");
+  }
+
+  @Test
+  public void testInlineAliases2() {
+    test(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y = x;
+          this.baz(y);
+        }
+        """,
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          this.baz(x);
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineAliases2b() {
+    test(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y;
+          y = x;
+          this.baz(y);
+        }
+        """,
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+
+          x;
+          this.baz(x);
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineAliases2c() {
+    test(
+        """
+        var x;
+        x = this.foo();
+        this.bar();
+        function f() {
+          var y = x;
+          this.baz(y);
+        }
+        """,
+        """
+        var x;
+        x = this.foo();
+        this.bar();
+        function f() {
+          this.baz(x);
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineAliases2d() {
+    test(
+        """
+        var x;
+        x = this.foo();
+        this.bar();
+        function f() {
+          var y;
+          y = x;
+          this.baz(y);
+        }
+        """,
+        """
+        var x;
+        x = this.foo();
+        this.bar();
+        function f() {
+
+          x;
+          this.baz(x);
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineAliasesInLoop() {
+    test(
+        """
+        function f() {
+          var x = extern();
+          for (var i = 0; i < 5; i++) {
+            (function() {
+               var y = x; window.setTimeout(function() { extern(y); }, 0);
+             })();
+          }
+        }
+        """,
+        """
+        function f() {
+          var x = extern();
+          for (var i = 0; i < 5; i++) {
+            (function() {
+               window.setTimeout(function() { extern(x); }, 0);
+             })();
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliasesInLoop() {
+    testSame(
+        """
+        function f() {
+          for (var i = 0; i < 5; i++) {
+            var x = extern();
+            (function() {
+               var y = x; window.setTimeout(function() { extern(y); }, 0);
+             })();
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases1() {
+    testSame("var x = this.foo(); this.bar(); var y = x; x = 3; this.baz(y);");
+  }
+
+  @Test
+  public void testNoInlineAliases1b() {
+    testSame("var x = this.foo(); this.bar(); var y; y = x; x = 3; this.baz(y);");
+  }
+
+  @Test
+  public void testNoInlineAliases2() {
+    testSame("var x = this.foo(); this.bar(); var y = x; y = 3; this.baz(y); ");
+  }
+
+  @Test
+  public void testNoInlineAliases2b() {
+    testSame("var x = this.foo(); this.bar(); var y; y = x; y = 3; this.baz(y); ");
+  }
+
+  @Test
+  public void testNoInlineAliases3() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y = x;
+          g();
+          this.baz(y);
+        }
+        function g() {
+          x = 3;
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases3b() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+
+        function f() {
+        var y;
+        y = x;
+        g();
+        this.baz(y);
+        }
+        function g() {
+        x = 3;
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases4() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y = x;
+          y = 3;
+          this.baz(y);
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases4b() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y;
+          y = x;
+          y = 3;
+          this.baz(y);
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases5() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        var y = x;
+        this.bing();
+        this.baz(y);
+        x = 3;
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases5b() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        var y;
+        y = x;
+        this.bing();
+        this.baz(y);
+        x = 3;
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases6() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        var y = x;
+        this.bing();
+        this.baz(y);
+        y = 3;
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases6b() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        var y;
+        y = x;
+        this.bing();
+        this.baz(y);
+        y = 3;
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases7() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y = x;
+          this.bing();
+          this.baz(y);
+          x = 3;
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases7b() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y;
+          y = x;
+          this.bing();
+          this.baz(y);
+          x = 3;
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases8() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y = x;
+          this.baz(y);
+          y = 3;
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineAliases8b() {
+    testSame(
+        """
+        var x = this.foo();
+        this.bar();
+        function f() {
+          var y;
+          y = x;
+          this.baz(y);
+          y = 3;
+        }
+        """);
+  }
+
+  @Test
+  public void testSideEffectOrder() {
+    // z can not be changed by the call to y, so x can be inlined.
+    String EXTERNS = "var z; function f(){}";
+    test(
+        externs(EXTERNS), //
+        srcs("var x = f(y.a, y); z =          x"),
+        expected("               z = f(y.a, y);"));
+    // z.b can be changed by the call to y, so x can not be inlined.
+    testSame(externs(EXTERNS), srcs("var x = f(y.a, y); z.b = x;"));
+  }
+
+  @Test
+  public void testInlineParameterAlias1() {
+    test(
+        """
+        function f(x) {
+          var y = x;
+          g();
+          y;y;
+        }
+        """,
+        """
+        function f(x) {
+          g();
+          x;x;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineParameterAlias2() {
+    test(
+        """
+        function f(x) {
+          var y; y = x;
+          g();
+          y;y;
+        }
+        """,
+        """
+        function f(x) {
+          x;
+          g();
+          x;x;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineFunctionAlias1a() {
+    test(
+        """
+        function f(x) {}
+        var y = f;
+        g();
+        y();y();
+        """,
+        """
+        var y = function(x) {};
+        g();
+        y();y();
+        """);
+  }
+
+  @Test
+  public void testInlineFunctionAlias1b() {
+    test(
+        """
+        function f(x) {};
+        f;var y = f;
+        g();
+        y();y();
+        """,
+        """
+        function f(x) {};
+        f;g();
+        f();f();
+        """);
+  }
+
+  @Test
+  public void testInlineFunctionAlias2a() {
+    test(
+        """
+        function f(x) {}
+        var y; y = f;
+        g();
+        y();y();
+        """,
+        """
+        var y; y = function(x) {};
+        g();
+        y();y();
+        """);
+  }
+
+  @Test
+  public void testInlineFunctionAlias2b() {
+    test(
+        """
+        function f(x) {};
+        f; var y; y = f;
+        g();
+        y();y();
+        """,
+        """
+        function f(x) {};
+        f; f;
+        g();
+        f();f();
+        """);
+  }
+
+  @Test
+  public void testInlineSwitchVar() {
+    test(
+        "var x = y; switch (x) {}", //
+        "           switch (y) {}");
+  }
+
+  @Test
+  public void testInlineSwitchLet() {
+    test(
+        "let x = y; switch (x) {}", //
+        "           switch (y) {}");
+  }
+
+  // Successfully inlines 'values' and 'e'
+  @Test
+  public void testInlineIntoForLoop1() {
+    test(
+        """
+        function calculate_hashCode() {
+          var values = [1, 2, 3, 4, 5];
+          var hashCode = 1;
+          for (var $array = values, i = 0; i < $array.length; i++) {
+            var e = $array[i];
+            hashCode = 31 * hashCode + calculate_hashCode(e);
+          }
+          return hashCode;
+        }
+        """,
+        """
+        function calculate_hashCode() {
+          var hashCode = 1;
+          var $array = [1, 2, 3, 4, 5];
+          var i = 0;
+          for (; i < $array.length; i++) {
+            hashCode = 31 * hashCode + calculate_hashCode($array[i]);
+          }
+          return hashCode;
+        }
+        """);
+  }
+
+  // Inlines 'e' but fails to inline 'values'
+  // TODO(tbreisacher): Investigate and see if we can improve this.
+  @Test
+  public void testInlineIntoForLoop2() {
+    test(
+        """
+        function calculate_hashCode() {
+          let values = [1, 2, 3, 4, 5];
+          let hashCode = 1;
+          for (let $array = values, i = 0; i < $array.length; i++) {
+            let e = $array[i];
+            hashCode = 31 * hashCode + calculate_hashCode(e);
+          }
+          return hashCode;
+        }
+        """,
+        """
+        function calculate_hashCode() {
+          let values = [1, 2, 3, 4, 5];
+          let hashCode = 1;
+          for (let $array = values, i = 0; i < $array.length; i++) {
+            hashCode = 31 * hashCode + calculate_hashCode($array[i]);
+          }
+          return hashCode;
+        }
+        """);
+  }
+
+  // This used to be inlined, but regressed when we switched to the ES6 scope creator.
+  @Test
+  public void testNoInlineCatchAliasVar1() {
+    testSame(
+        """
+        try {
+        } catch (e) {
+          var y = e;
+          g();
+          y;y;
+        }
+        """);
+  }
+
+  // This used to be inlined, but regressed when we switched to the ES6 scope creator.
+  @Test
+  public void testNoInlineCatchAliasVar2() {
+    testSame(
+        """
+        try {
+        } catch (e) {
+          var y; y = e;
+          g();
+          y;y;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineCatchAliasLet1() {
+    test(
+        """
+        try {
+        } catch (e) {
+          let y = e;
+          g();
+          y;y;
+        }
+        """,
+        """
+        try {
+        } catch (e) {
+          g();
+          e;e;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineCatchAliasLet2() {
+    test(
+        """
+        try {
+        } catch (e) {
+          let y; y = e;
+          g();
+          y;y;
+        }
+        """,
+        """
+        try {
+        } catch (e) {
+          e;
+          g();
+          e;e;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineThis() {
+    test(
+        """
+        /** @constructor */
+        function C() {}
+
+        C.prototype.m = function() {
+          var self = this;
+          if (true) {
+            alert(self);
+          }
+        };
+        """,
+        """
+        (/** @constructor */
+        function() {}).prototype.m = function() {
+          if (true) {
+            alert(this);
+          }
+        };
+        """);
+  }
+
+  @Test
+  public void testVarInBlock1() {
+    test(
+        "function f(x) { if (true) {var y = x; y; y;} }", //
+        "function f(x) { if (true) {           x; x;} }");
+  }
+
+  @Test
+  public void testVarInBlock2() {
+    test(
+        "function f(x) { switch (0) { case 0: { var y = x; y; y; } } }",
+        "function f(x) { switch (0) { case 0: { x; x; } } }");
+  }
+
+  @Test
+  public void testLocalsOnly1() {
+    inlineLocalsOnly = true;
+    test(
+        "var x=1; x; function f() {var x = 1; x;}", //
+        "var x=1; x; function f() {           1;}");
+  }
+
+  @Test
+  public void testLocalsOnly2() {
+    inlineLocalsOnly = true;
+    test(
+        """
+        /** @const */
+        var X=1;
+        X;
+        function f() {
+          /** @const */
+          var X = 1; X;
+        }
+        """,
+        """
+        /** @const */
+        var X=1;
+        X;
+        function f() {
+          1;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineUndefined1() {
+    test("var x; x;", "void 0;");
+  }
+
+  @Test
+  public void testInlineUndefined2() {
+    testSame("var x; x++;");
+  }
+
+  @Test
+  public void testInlineUndefined3() {
+    testSame("var x; var x;");
+  }
+
+  @Test
+  public void testInlineUndefined4() {
+    test("var x; x; x;", "void 0; void 0;");
+  }
+
+  @Test
+  public void testInlineUndefined5() {
+    testSame("var x; for(x in a) {}");
+  }
+
+  @Test
+  public void testIssue90() {
+    test(
+        "var x;      x && alert(1)", //
+        "       void 0 && alert(1)");
+  }
+
+  @Test
+  public void testRenamePropertyFunction() {
+    testSame(
+        """
+        var JSCompiler_renameProperty;
+        JSCompiler_renameProperty('foo')
+        """);
+  }
+
+  @Test
+  public void testThisAlias() {
+    test(
+        "function f() { var a = this;    a.y();    a.z(); }", //
+        "function f() {               this.y(); this.z(); }");
+  }
+
+  @Test
+  public void testThisEscapedAlias() {
+    testSame("function f() { var a = this; var g = function() { a.y(); }; a.z(); }");
+  }
+
+
+  @Test
+  public void testThisAlias_classMemberFieldDef() {
+    testSame(
+        """
+        function f() {
+          var self = this;
+          use(self);
+          class H {
+            owner = self;
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testThisAlias_classStaticMemberFieldDef() {
+    testSame(
+        """
+        function f() {
+          var self = this;
+          use(self);
+          class H {
+            static owner = self;
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testThisAlias_classComputedFieldDefValue() {
+    testSame(
+        """
+        function f() {
+          var self = this;
+          use(self);
+          class H {
+            ['owner'] = self;
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testThisAlias_classComputedFieldDefKey() {
+    test(
+        """
+        function f() {
+          var self = this;
+          use(self);
+          class H {
+            [self] = 1;
+          }
+        }
+        """,
+        """
+        function f() {
+          use(this);
+          class H {
+            [this] = 1;
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testThisAlias_classStaticBlock() {
+    testSame(
+        """
+        function f() {
+          var self = this;
+          use(self);
+          class H {
+            static {
+              use(self);
+            }
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testThisAlias_globalClassMemberFieldDef() {
+    testSame(
+        """
+        var self = this;
+        use(self);
+        class H {
+          owner = self;
+        }
+        """);
+  }
+
+  @Test
+  public void testInlineNamedFunction() {
+    test("function f() {} f();", "(function(){})()");
+  }
+
+  @Test
+  public void testIssue378ModifiedArguments1() {
+    testSame(
+        """
+        function g(callback) {
+          var f = callback;
+          arguments[0] = this;
+          f.apply(this, arguments);
+        }
+        """);
+  }
+
+  @Test
+  public void testIssue378ModifiedArguments2() {
+    testSame(
+        """
+        function g(callback) {
+          /** @const */
+          var f = callback;
+          arguments[0] = this;
+          f.apply(this, arguments);
+        }
+        """);
+  }
+
+  @Test
+  public void testIssue378EscapedArguments1() {
+    testSame(
+        """
+        function g(callback) {
+          var f = callback;
+          h(arguments,this);
+          f.apply(this, arguments);
+        }
+        function h(a,b) {
+          a[0] = b;
+        }
+        """);
+  }
+
+  @Test
+  public void testIssue378EscapedArguments2() {
+    testSame(
+        """
+        function g(callback) {
+          /** @const */
+          var f = callback;
+          h(arguments,this);
+          f.apply(this);
+        }
+        function h(a,b) {
+          a[0] = b;
+        }
+        """);
+  }
+
+  @Test
+  public void testIssue378EscapedArguments3() {
+    test(
+        """
+        function g(callback) {
+          var f = callback;
+          f.apply(this, arguments);
+        }
+        """,
+        """
+        function g(callback) {
+
+          callback.apply(this, arguments);
+        }
+        """);
+  }
+
+  @Test
+  public void testIssue378EscapedArguments4() {
+    test(
+        """
+        function g(callback) {
+          var f = callback;
+          h(arguments[0],this);
+          f.apply(this, arguments);
+        }
+        function h(a,b) {
+          a[0] = b;
+        }
+        """,
+        """
+        function g(callback) {
+
+          h(arguments[0],this);
+          callback.apply(this, arguments);
+        }
+        function h(a,b) {
+          a[0] = b;
+        }
+        """);
+  }
+
+  @Test
+  public void testIssue378ArgumentsRead1() {
+    test(
+        """
+        function g(callback) {
+          var f = callback;
+          var g = arguments[0];
+          f.apply(this, arguments);
+        }
+        """,
+        """
+        function g(callback) {
+
+          var g = arguments[0];
+          callback.apply(this, arguments);
+        }
+        """);
+  }
+
+  @Test
+  public void testIssue378ArgumentsRead2() {
+    test(
+        """
+        function g(callback) {
+          var f = callback;
+          h(arguments[0],this);
+          f.apply(this, arguments[0]);
+        }
+        function h(a,b) {
+          a[0] = b;
+        }
+        """,
+        """
+        function g(callback) {
+          h(arguments[0],this);
+          callback.apply(this, arguments[0]);
+        }
+        function h(a,b) {
+          a[0] = b;
+        }
+        """);
+  }
+
+  @Test
+  public void testArgumentsModifiedInOuterFunction() {
+    test(
+        """
+        function g(callback) {
+          var f = callback;
+          arguments[0] = this;
+          f.apply(this, arguments);
+          function inner(callback) {
+            var x = callback;
+            x.apply(this);
+          }
+        }
+        """,
+        """
+        function g(callback) {
+          var f = callback;
+          arguments[0] = this;
+          f.apply(this, arguments);
+          function inner(callback) {
+            callback.apply(this);
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testArgumentsModifiedInInnerFunction() {
+    test(
+        """
+        function g(callback) {
+          var f = callback;
+          f.apply(this, arguments);
+          function inner(callback) {
+            var x = callback;
+            arguments[0] = this;
+            x.apply(this);
+          }
+        }
+        """,
+        """
+        function g(callback) {
+          callback.apply(this, arguments);
+          function inner(callback) {
+            var x = callback;
+            arguments[0] = this;
+            x.apply(this);
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlineRedeclaredExterns() {
+    String externs = "var test = 1;";
+    String code = "/** @suppress {duplicate} */ var test = 2;alert(test);";
+    testSame(externs(externs), srcs(code));
+  }
+
+  @Test
+  public void testBug6598844() {
+    testSame(
+        """
+        function F() { this.a = 0; }
+        F.prototype.inc = function() { this.a++; return 10; };
+        F.prototype.bar = function() { var x = this.inc(); this.a += x; };
+        """);
+  }
+
+  @Test
+  public void testExternalIssue1053() {
+    testSame("var u; function f() { u = Random(); var x = u; f(); alert(x===u)}");
+  }
+
+  @Test
+  public void testHoistedFunction1() {
+    test("var x = 1; function f() { return x; }", "function f() { return 1; }");
+  }
+
+  @Test
+  public void testHoistedFunction2() {
+    testSame(
+        """
+        var impl_0;
+        b(a());
+        function a() { impl_0 = {}; }
+        function b() { window['f'] = impl_0; }
+        """);
+  }
+
+  @Test
+  public void testHoistedFunction3() {
+    testSame(
+        """
+        var impl_0;
+        b();
+        impl_0 = 1;
+        function b() { window['f'] = impl_0; }
+        """);
+  }
+
+  @Test
+  public void testHoistedFunction4() {
+    test(
+        """
+        var impl_0;
+        impl_0 = 1;
+        b();
+        function b() { window['f'] = impl_0; }
+        """,
+        """
+        1;
+        b();
+        function b() { window['f'] = 1; }
+        """);
+  }
+
+  @Test
+  public void testHoistedFunction5() {
+    testSame(
+        """
+        a();
+        var debug = 1;
+        function b() { return debug; }
+        function a() { return b(); }
+        """);
+  }
+
+  @Test
+  public void testHoistedFunction6() {
+    test(
+        """
+        var debug = 1;
+        a();
+        function b() { return debug; }
+        function a() { return b(); }
+        """,
+        """
+        a();
+        function b() { return 1; }
+        function a() { return b(); }
+        """);
+  }
+
+  @Test
+  public void testIssue354() {
+    test(
+        """
+        var enabled = true;
+        function Widget() {}
+        Widget.prototype = {
+          frob: function() {
+            search();
+          }
+        };
+        function search() {
+          if (enabled)
+            alert(1);
+          else
+            alert(2);
+        }
+        window.foo = new Widget();
+        window.bar = search;
+        """,
+        """
+        function Widget() {}
+        Widget.prototype = {
+          frob: function() {
+            search();
+          }
+        };
+        function search() {
+          if (true)
+            alert(1);
+          else
+            alert(2);
+        }
+        window.foo = new Widget();
+        window.bar = search;
+        """);
+  }
+
+  // Test respect for scopes and blocks
+  @Test
+  public void testIssue1177() {
+    testSame("function x_64(){var x_7;for(;;);var x_68=x_7=x_7;}");
+    testSame("function x_64(){var x_7;for(;;);var x_68=x_7=x_7++;}");
+    testSame("function x_64(){var x_7;for(;;);var x_68=x_7=x_7*2;}");
+  }
+
+  // GitHub issue #1234: https://github.com/google/closure-compiler/issues/1234
+  @Test
+  public void testSwitchGithubIssue1234() {
+    testSame(
+        """
+        var x;
+        switch ('a') {
+          case 'a':
+            break;
+          default:
+            x = 1;
+            break;
+        }
+        use(x);
+        """);
+  }
+
+  @Test
+  public void testLateGuardedAssign() {
+    test(
+        """
+        let x;
+        function f() {
+          x === void 0 && (x = 1);
+          const y = x;
+          use(y);
+        }
+        """,
+        """
+        let x;
+        function f() {
+          x === void 0 && (x = 1);
+
+          use(x);
+        }
+        """);
+  }
+
+  @Test
+  public void testLetConst() {
+    test(
+        """
+        function f(x) {
+          if (true) {
+            let y = x; y; y;
+          }
+        }
+        """,
+        """
+        function f(x) {
+          if (true) {
+            x; x;
+          }
+        }
+        """);
+
+    test(
+        """
+        function f(x) {
+          if (true) {
+            const y = x; y; y;
+            }
+          }
+        """,
+        """
+        function f(x) {
+          if (true) {
+            x; x;
+          }
+        }
+        """);
+
+    test(
+        """
+        function f(x) {
+          let y;
+          {
+            let y = x; y;
+          }
+        }
+        """,
+        """
+        function f(x) {
+          let y;
+          {
+            x;
+          }
+        }
+        """);
+
+    test(
+        """
+        function f(x) {
+          let y = x; y; const g = 2;
+          {
+            const g = 3; let y = g; y;
+          }
+        }
+        """,
+        """
+        function f(x) {
+          x;
+          {3;}
+        }
+        """);
+  }
+
+  @Test
+  public void testGenerators() {
+    test(
+        """
+        function* f() {
+          let x = 1;
+          yield x;
+        }
+        """,
+        """
+        function* f() {
+          yield 1;
+        }
+        """);
+
+    test(
+        """
+        function* f(x) {
+          let y = x++
+          yield y;
+        }
+        """,
+        """
+        function* f(x) {
+          yield x++;
+        }
+        """);
+  }
+
+  @Test
+  public void testForOf() {
+    testSame(" var i = 0; for(i of n) {}");
+
+    testSame("for( var i of n) { var x = i; }");
+  }
+
+  @Test
+  public void testTemplateStrings() {
+    test(
+        " var name = 'Foo'; `Hello ${name}`", //
+        "                   `Hello ${'Foo'}`");
+
+    test(
+        "var name = 'Foo'; var foo = name; `Hello ${foo}`", //
+        "                                  `Hello ${'Foo'}`");
+
+    test(
+        "var age = 3; `Age: ${age}`", //
+        "             `Age: ${3}`");
+  }
+
+  @Test
+  public void testTaggedTemplateLiterals() {
+    test(
+        """
+        var name = 'Foo';
+        function myTag(strings, nameExp, numExp) {
+          var modStr;
+          if (numExp > 2) {
+            modStr = nameExp + 'Bar'
+          } else {
+            modStr = nameExp + 'BarBar'
+          }
+        }
+        var output = myTag`My name is ${name} ${3}`;
+        """,
+        """
+        var output = function(strings, nameExp, numExp) {
+          var modStr;
+          if (numExp > 2) {
+            modStr = nameExp + 'Bar'
+          } else {
+            modStr = nameExp + 'BarBar'
+          }
+        }`My name is ${'Foo'} ${3}`;
+        """);
+
+    test(
+        """
+        var name = 'Foo';
+        function myTag(strings, nameExp, numExp) {
+          var modStr;
+          if (numExp > 2) {
+            modStr = nameExp + 'Bar'
+          } else {
+            modStr = nameExp + 'BarBar'
+          }
+        }
+        var output = myTag`My name is ${name} ${3}`;
+        output = myTag`My name is ${name} ${2}`;
+        """,
+        """
+        function myTag(strings, nameExp, numExp) {
+          var modStr;
+          if (numExp > 2) {
+            modStr = nameExp + 'Bar'
+          } else {
+            modStr = nameExp + 'BarBar'
+          }
+        }
+        var output = myTag`My name is ${'Foo'} ${3}`;
+        output = myTag`My name is ${'Foo'} ${2}`;
+        """);
+  }
+
+  @Test
+  public void testDestructuring() {
+    test(
+        """
+        var [a, b, c] = [1, 2, 3]
+        var x = a;
+        x; x;
+        """,
+        """
+        var a;
+        var b;
+        var c;
+        [a, b, c] = [1, 2, 3]
+        var x = a; // we fail to inline a into x because normalization adds stub declaration
+        // for a. But that's an acceptable compromise.
+        x; x;
+        """);
+
+    testSame("var x = 1; ({[0]: x} = {});");
+  }
+
+  @Test
+  public void dontInlineConditionalDefaultValueAssignment() {
+    testSame("let x; const {y = (x = 0)} = obj(); use(x);");
+  }
+
+  @Test
+  public void testFunctionInlinedAcrossScript() {
+    String[] srcs = {
+      "function f() {}", //
+      "use(f);"
+    };
+
+    String[] expected = {
+      "", //
+      "use(function() {});"
+    };
+
+    test(srcs(srcs), expected(expected));
+  }
+
+  @Test
+  public void testFunctionVarInliningElidesFunctionName() {
+    // When there's only one reference to a function name (e.g. in the rhs of an assignment), we
+    // should elide that function name.
+    test(
+        "function notRecursive(x) { return 4 }; exports.y = notRecursive;",
+        ";exports.y = function(x) { return 4; }");
+
+    // In this case, the function is recursive, so there's more than one reference, we should keep
+    // the name.
+    testSame(
+        """
+        function factorial(x) { if (x == 1) return 1; return x + factorial(x - 1); };
+        exports.x = factorial;
+        """);
+  }
+
+  @Test
+  public void testNoInlinePastOptionalChainGetProp() {
+    test(
+        """
+        function f() {
+          var t = this.consume();
+          var ready = this?.ready;
+          return t + ready;
+        }
+        """,
+        """
+        function f() {
+          var t = this.consume();
+          return t + this?.ready;
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlinePastOptionalChainGetElem() {
+    test(
+        """
+        function f() {
+          var t = this.consume();
+          var ready = this?.['ready'];
+          return t + ready;
+        }
+        """,
+        """
+        function f() {
+          var t = this.consume();
+          return t + this?.['ready'];
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlinePastGetProp() {
+    test(
+        """
+        function f() {
+          var t = this.consume();
+          var ready = this.ready;
+          return t + ready;
+        }
+        """,
+        """
+        function f() {
+          var t = this.consume();
+          return t + this.ready;
+        }
+        """);
+  }
+
+  @Test
+  public void testNoInlinePastOptionalChainCall() {
+    testSame(
+        """
+        function f() {
+          var t = this.consume();
+          var ready = this?.ready();
+          return t + ready;
+        }
+        """);
+  }
+
+  @Test
+  public void testCrossScopeAliasChainWithInterveningReassignment() {
+    test(
+        """
+        function f() {
+          var C = compute();
+          var D = C;
+          {
+            let A = D;
+            C = attacker();
+            sink(A); sink(A);
+          }
+        }
+        """,
+        """
+        function f() {
+          var C = compute();
+          {
+            let A = C;
+            C = attacker();
+            sink(A); sink(A);
+          }
+        }
+        """);
+  }
+
+  @Test
+  public void testClassDeclaration_notInlined() {
+    // When there's only one reference to a class name (e.g. in the rhs of an assignment), we
+    // should elide that class name.
+    testSame("class MyClass { foo() {} } ns.y = MyClass;");
+  }
+
+  @Test
+  public void testClassExpressionInlined() {
+    test("var C = class {}; use(C);", "use(class {});");
+    test("const C = class {}; use(C);", "use(class {});");
+    test("let C = class {}; use(C);", "use(class {});");
+  }
+
+  @Test
+  public void testModerateMotionStepLimit_doesNotInlinedAcrossTooManyNodes() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("var C = class {};\n");
+    // Generate enough side-effect-free class declarations to exceed MAX_MODERATE_MOTION_STEPS
+    // (5000)
+    for (int i = 0; i < 1000; i++) {
+      sb.append("class Extra").append(i).append(" { foo() {} }\n");
+    }
+    sb.append("use(C);\n");
+    testSame(sb.toString());
+  }
+
+  @Test
+  public void testClassExpressionWithExtendsInlined() {
+    test(
+        "var C = class extends Base { foo() {} }; use(C);",
+        "use(class extends Base { foo() {} });");
+  }
+
+  @Test
+  public void testClassWithSideEffectsNotMovedAcrossCalls() {
+    testSame(
+        """
+        var C = class { static { doSideEffects(); } };
+        doSomething();
+        use(C);
+        """);
+  }
+
+  @Test
+  public void testClassWithSideEffectingStaticField_notMovedAcrossCalls() {
+    testSame(
+        """
+        var C = class { static x = doSideEffects(); };
+        doSomething();
+        use(C);
+        """);
+  }
+
+  @Test
+  public void testClassWithPureStaticField_inlinedAcrossCalls() {
+    testSame(
+        """
+        var C = class { static x = 1; };
+        doSomething();
+        use(C);
+        """);
+  }
+
+  @Test
+  public void testClassWithImpureStaticField_notInlinedAcrossCalls() {
+    testSame(
+        """
+        var C = class { static x = compute(); };
+        doSomething();
+        use(C);
+        """);
+  }
+
+  @Test
+  public void testClassWithSideEffectingComputedProperty_notMovedAcrossCalls() {
+    testSame(
+        """
+        var C = class { [computeKey()]() {} };
+        doSomething();
+        use(C);
+        """);
+  }
+
+  @Test
+  public void testClassWithInstanceFieldSideEffects_canMoveBeforeInstantiation() {
+    testSame(
+        """
+        var C = class { x = compute(); };
+        doSomething();
+        use(C);
+        """);
+  }
+
+  @Test
+  public void testClassWithImpureExtendsNotMovedAcrossCalls() {
+    testSame(
+        """
+        var C = class extends getBase() {};
+        doSomething();
+        use(C);
+        """);
+  }
+
+  @Test
+  public void testField_declaredConstAssignedInsideInstanceFieldInitializer() {
+    // TODO(b/572004916): @const assigned in field initializer is inlined before instantiation
+    setLanguageOut(LanguageMode.ECMASCRIPT_2022);
+    test(
+        """
+        /** @const */ var a;
+        class C {
+          x = (a = 1);
+        }
+        alert(a);
+        new C();
+        """,
+        """
+        class C {
+          x = 1;
+        }
+        alert(1);
+        new C();
+        """);
+  }
+
+  @Test
+  public void testField_declaredConstAssignedInsideInstanceFieldInitializer_local() {
+    // TODO(b/572004916): local @const assigned in field initializer is inlined before instantiation
+    setLanguageOut(LanguageMode.ECMASCRIPT_2022);
+    test(
+        """
+        function f() {
+          /** @const */ var a;
+          class C {
+            x = (a = 1);
+          }
+          alert(a);
+          return new C();
+        }
+        """,
+        """
+        function f() {
+          class C {
+            x = 1;
+          }
+          alert(1);
+          return new C();
+        }
+        """);
+  }
+
+  @Test
+  public void testNeverAssignedLetAndVar_referencedInEarlierHoistedFunction() {
+    // Baseline: when declared lexically before `isDebugMode`, never-assigned `let` folds to
+    // `void 0`.
+    test(
+        """
+        let googDebugOverride;
+        function isDebugMode() {
+          return googDebugOverride ?? false;
+        }
+        use(isDebugMode());
+        use(isDebugMode());
+        """,
+        """
+        function isDebugMode() {
+          return void 0 ?? false;
+        }
+        use(isDebugMode());
+        use(isDebugMode());
+        """);
+
+    // TODO(b/581117790): InlineVariables fails to inline never-assigned `let` or `var` to `void 0`
+    // when a hoisted function declared earlier in AST order reads it, even when the function is
+    // only called after the declaration (because ReferenceCollector visits `isDebugMode` before
+    // `googDebugOverride`, causing StandardVarExpert#hasValidDeclaration to reject
+    // `references.get(0)`).
+    testSame(
+        """
+        function isDebugMode() {
+          return googDebugOverride ?? false;
+        }
+        let googDebugOverride;
+        use(isDebugMode());
+        use(isDebugMode());
+        """);
+    testSame(
+        """
+        function isDebugMode() {
+          return googDebugOverride ?? false;
+        }
+        var googDebugOverride;
+        use(isDebugMode());
+        use(isDebugMode());
+        """);
+
+    // Soundness guard: calling `isDebugMode()` before `let googDebugOverride;` executes throws a
+    // TDZ ReferenceError at runtime and must not be folded to `void 0`.
+    testSame(
+        """
+        function isDebugMode() {
+          return googDebugOverride ?? false;
+        }
+        use(isDebugMode());
+        use(isDebugMode());
+        let googDebugOverride;
+        """);
+  }
+
+  @Test
+  public void testHoistedFunctionDeclaredBeforeInitializedVar() {
+    // Mirror of `testHoistedFunction6` with hoisted functions placed at the top of the scope.
+    // TODO(b/581117790): Because ReferenceCollector traverses `b` and `a` at their declaration
+    // sites rather than at `a()`, `debug` is not considered well-defined and fails to inline `1`.
+    testSame(
+        """
+        function b() { return debug; }
+        function a() { return b(); }
+        var debug = 1;
+        a();
+        a();
+        """);
+  }
+
+  @Test
+  public void testNeverAssignedVar_referencedInEarlierArrowFunction() {
+    // TODO(b/581117790): `var` has no temporal dead zone, so a never-assigned `var` is
+    // unconditionally `undefined` throughout its hoist scope, but StandardVarExpert assumes
+    // `references.get(0)` is the declaration and fails to inline `void 0`.
+    testSame(
+        """
+        const isDebugMode = () => googDebugOverride ?? false;
+        var googDebugOverride;
+        use(isDebugMode());
+        use(isDebugMode());
+        """);
+  }
+}

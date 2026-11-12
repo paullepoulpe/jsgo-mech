@@ -1,0 +1,803 @@
+/*
+ * Copyright 2017 The Closure Compiler Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.javascript.jscomp;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.javascript.rhino.testing.NodeSubject.assertNode;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.truth.Correspondence;
+import com.google.javascript.jscomp.ReferenceCollector.Behavior;
+import com.google.javascript.rhino.Node;
+import com.google.javascript.rhino.Token;
+import java.util.ArrayList;
+import java.util.List;
+import org.jspecify.annotations.Nullable;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+@RunWith(JUnit4.class)
+public final class ReferenceCollectorTest extends CompilerTestCase {
+  private @Nullable Behavior behavior;
+  private Predicate<Var> varFilter = Predicates.alwaysTrue();
+  private boolean collectHoistedFunctionsInReferenceOrder = true;
+
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    behavior = null;
+    varFilter = Predicates.alwaysTrue();
+    collectHoistedFunctionsInReferenceOrder = true;
+  }
+
+  @Override
+  protected CompilerPass getProcessor(final Compiler compiler) {
+    ScopeCreator scopeCreator = new SyntacticScopeCreator(compiler);
+    return new ReferenceCollector(
+        compiler,
+        this.behavior,
+        scopeCreator,
+        this.varFilter,
+        this.collectHoistedFunctionsInReferenceOrder);
+  }
+
+  @Override
+  public CompilerOptions getOptions() {
+    CompilerOptions options = super.getOptions();
+    options.setWarningLevel(DiagnosticGroups.MODULE_LOAD, CheckLevel.OFF);
+    return options;
+  }
+
+  private void testBehavior(String js, Behavior behavior) {
+    this.behavior = behavior;
+    testSame(js);
+  }
+
+  private static final Correspondence<Reference, Boolean> IS_DECLARATION =
+      Correspondence.transforming(Reference::isDeclaration, "isDeclaration() is");
+
+  @Test
+  public void testIterableRest_declaration() {
+    testBehavior(
+        "let [x, ...arr] = [1, 2, 3]; [x, ...arr] = [4, 5, 6];",
+        (NodeTraversal t, ReferenceMap rm) -> {
+          ReferenceCollection arrReferenceCollection = rm.getReferences(t.getScope().getVar("arr"));
+          assertThat(arrReferenceCollection)
+              .comparingElementsUsing(IS_DECLARATION)
+              .containsExactly(true, false)
+              .inOrder();
+        });
+  }
+
+  @Test
+  public void testObjectRest_declaration() {
+    testBehavior(
+        "let {x, ...obj} = {x: 1, y: 2, z: 3}; ({x, ...obj} = {x: 4, q: 5, u: 6});",
+        (NodeTraversal t, ReferenceMap rm) -> {
+          ReferenceCollection objReferenceCollection = rm.getReferences(t.getScope().getVar("obj"));
+          assertThat(objReferenceCollection)
+              .comparingElementsUsing(IS_DECLARATION)
+              .containsExactly(true, false)
+              .inOrder();
+        });
+  }
+
+  @Test
+  public void testClass() {
+    testBehavior(
+        """
+        class Foo {}
+        """,
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isGlobal()) {
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("Foo"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+            assertThat(x).comparingElementsUsing(IS_DECLARATION).containsExactly(true).inOrder();
+          }
+        });
+  }
+
+  @Test
+  public void testClass_withInstantiation() {
+    testBehavior(
+        """
+        class Foo {}
+        new Foo();
+        """,
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isGlobal()) {
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("Foo"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            // TODO(lharker): we should consider this well-defined.
+            assertThat(x.isWellDefined()).isFalse();
+            assertThat(x)
+                .comparingElementsUsing(IS_DECLARATION)
+                .containsExactly(true, false)
+                .inOrder();
+          }
+        });
+  }
+
+  @Test
+  public void testClassExpression_assignedToConst_andInstantiated() {
+    testBehavior(
+        """
+        const Foo = class {};
+        new Foo();
+        """,
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isGlobal()) {
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("Foo"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+          }
+        });
+  }
+
+  @Test
+  public void testNamedClassExpression_assignedToConst_andInstantiated() {
+    testBehavior(
+        """
+        const Foo = class Bar {};
+        new Foo();
+        """,
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isGlobal()) {
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("Foo"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+          }
+        });
+  }
+
+  @Test
+  public void testClassField_referencingGlobalVariable_escapeIffInstanceFields() {
+    testBehavior(
+        """
+        const instance1 = 0;
+        const instance2 = 1;
+        const static1 = 2;
+        const static2 = 3;
+        const computedKeyRef = 4;
+        class Foo {
+          instance1 = instance1;
+          ['instance2'] = instance2;
+          static static1 = static1;
+          static ['static2'] = static2;
+          [computedKeyRef] = 0;
+        }
+        """,
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isGlobal()) {
+            ReferenceCollection instance1 = rm.getReferences(t.getScope().getVar("instance1"));
+            ReferenceCollection instance2 = rm.getReferences(t.getScope().getVar("instance2"));
+            ReferenceCollection static1 = rm.getReferences(t.getScope().getVar("static1"));
+            ReferenceCollection static2 = rm.getReferences(t.getScope().getVar("static2"));
+            ReferenceCollection computedKeyRef =
+                rm.getReferences(t.getScope().getVar("computedKeyRef"));
+
+            assertThat(instance1.isEscaped()).isTrue();
+            assertThat(instance2.isEscaped()).isTrue();
+            assertThat(static1.isEscaped()).isFalse();
+            assertThat(static2.isEscaped()).isFalse();
+            assertThat(computedKeyRef.isEscaped()).isFalse();
+          }
+        });
+  }
+
+  @Test
+  public void testImport1() {
+    testBehavior(
+        "import x from '/m';",
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isModuleScope()) {
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+            assertThat(x).comparingElementsUsing(IS_DECLARATION).containsExactly(true).inOrder();
+          }
+        });
+  }
+
+  @Test
+  public void testImport2() {
+    testBehavior(
+        "import {x} from '/m';",
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isModuleScope()) {
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+            assertThat(x).comparingElementsUsing(IS_DECLARATION).containsExactly(true).inOrder();
+          }
+        });
+  }
+
+  @Test
+  public void testImport2_alternate() {
+    testBehavior(
+        "import {x as x} from '/m';",
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isModuleScope()) {
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+            assertThat(x).comparingElementsUsing(IS_DECLARATION).containsExactly(true).inOrder();
+          }
+        });
+  }
+
+  @Test
+  public void testImport3() {
+    testBehavior(
+        "import {y as x} from '/m';",
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isModuleScope()) {
+            assertThat(t.getScope().getVar("y")).isNull();
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+            assertThat(x).comparingElementsUsing(IS_DECLARATION).containsExactly(true).inOrder();
+          }
+        });
+  }
+
+  @Test
+  public void testImport4() {
+    testBehavior(
+        "import * as x from '/m';",
+        (NodeTraversal t, ReferenceMap rm) -> {
+          if (t.getScope().isModuleScope()) {
+            Var var = t.getScope().getVar("x");
+            checkNotNull(var);
+            ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+            checkNotNull(x);
+
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            assertThat(x.isWellDefined()).isTrue();
+            assertThat(x).comparingElementsUsing(IS_DECLARATION).containsExactly(true).inOrder();
+          }
+        });
+  }
+
+  @Test
+  public void testVarInBlock() {
+    testBehavior(
+        """
+        function f(x) {
+          if (true) {
+            var y = x;
+            y;
+            y;
+          }
+        }
+        """,
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isBlockScope() && t.getScope().getParent().isFunctionBlockScope()) {
+              ReferenceCollection y = rm.getReferences(t.getScope().getVar("y"));
+              assertThat(y.isAssignedOnceInLifetime()).isTrue();
+              assertThat(y.isWellDefined()).isTrue();
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testVarInLoopNotAssignedOnlyOnceInLifetime() {
+    Behavior behavior =
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isBlockScope()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.isAssignedOnceInLifetime()).isFalse();
+            }
+          }
+        };
+    testBehavior("while (true) { var x = 0; }", behavior);
+  }
+
+  @Test
+  public void testLetInLoopAssignedOnceInLifetime() {
+    Behavior behavior =
+        (t, rm) -> {
+          if (t.getScope().isBlockScope()) {
+            Var xVar = t.getScope().getVar("x");
+            assertThat(xVar).isNotNull();
+            assertThat(xVar.isLet()).isTrue();
+            ReferenceCollection x = rm.getReferences(xVar);
+            assertThat(x.isAssignedOnceInLifetime()).isTrue();
+          }
+        };
+    testBehavior("while (true) { let x = 0; }", behavior);
+  }
+
+  /**
+   * Although there is only one assignment to x in the code, it's in a function which could be
+   * called multiple times, so {@code isAssignedOnceInLifetime()} returns false.
+   */
+  @Test
+  public void testVarInFunctionNotAssignedOnlyOnceInLifetime() {
+    Behavior behavior =
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isGlobal()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.isAssignedOnceInLifetime()).isFalse();
+            }
+          }
+        };
+    testBehavior("var x; function f() { x = 0; }", behavior);
+    testBehavior("let x; function f() { x = 0; }", behavior);
+  }
+
+  @Test
+  public void testParameterAssignedOnlyOnceInLifetime() {
+    testBehavior(
+        "function f(x) { x; }",
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isFunctionScope()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testModifiedParameterNotAssignedOnlyOnceInLifetime() {
+    testBehavior(
+        "function f(x) { x = 3; }",
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isFunctionScope()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.isAssignedOnceInLifetime()).isFalse();
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testVarAssignedOnceInLifetime1() {
+    Behavior behavior =
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isFunctionBlockScope()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            }
+          }
+        };
+    testBehavior("function f() { var x = 0; }", behavior);
+    testBehavior("function f() { let x = 0; }", behavior);
+  }
+
+  @Test
+  public void testVarAssignedOnceInLifetime2() {
+    testBehavior(
+        "function f() { { let x = 0; } }",
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isBlockScope() && !t.getScope().isFunctionBlockScope()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.isAssignedOnceInLifetime()).isTrue();
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testVarAssignedOnceInLifetime3() {
+    Behavior behavior =
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isCatchScope()) {
+              ReferenceCollection e = rm.getReferences(t.getScope().getVar("e"));
+              assertThat(e.isAssignedOnceInLifetime()).isTrue();
+              ReferenceCollection y = rm.getReferences(t.getScope().getVar("y"));
+              assertThat(y.isAssignedOnceInLifetime()).isTrue();
+              assertThat(y.isWellDefined()).isTrue();
+            }
+          }
+        };
+    testBehavior(
+        """
+        try {
+        } catch (e) {
+          var y = e;
+          g();
+          y;y;
+        }
+        """,
+        behavior);
+    testBehavior(
+        """
+        try {
+        } catch (e) {
+          var y; y = e;
+          g();
+          y;y;
+        }
+        """,
+        behavior);
+  }
+
+  @Test
+  public void testLetAssignedOnceInLifetime1() {
+    testBehavior(
+        """
+        try {
+        } catch (e) {
+          let y = e;
+          g();
+          y;y;
+        }
+        """,
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isCatchScope()) {
+              ReferenceCollection e = rm.getReferences(t.getScope().getVar("e"));
+              assertThat(e.isAssignedOnceInLifetime()).isTrue();
+              ReferenceCollection y = rm.getReferences(t.getScope().getVar("y"));
+              assertThat(y.isAssignedOnceInLifetime()).isTrue();
+              assertThat(y.isWellDefined()).isTrue();
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testLetAssignedOnceInLifetime2() {
+    testBehavior(
+        """
+        try {
+        } catch (e) {
+          let y; y = e;
+          g();
+          y;y;
+        }
+        """,
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isCatchScope()) {
+              ReferenceCollection e = rm.getReferences(t.getScope().getVar("e"));
+              assertThat(e.isAssignedOnceInLifetime()).isTrue();
+              ReferenceCollection y = rm.getReferences(t.getScope().getVar("y"));
+              assertThat(y.isAssignedOnceInLifetime()).isTrue();
+              assertThat(y.isWellDefined()).isTrue();
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testBasicBlocks() {
+    testBehavior(
+        """
+        var x = 0;
+        switch (x) {
+          case 0:
+            x;
+        }
+        """,
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isGlobal()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.references).hasSize(3);
+              assertNode(x.references.get(0).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              assertNode(x.references.get(1).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              assertNode(x.references.get(2).getBasicBlock().getRoot()).hasType(Token.CASE);
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testBasicBlocksInConditionals() {
+    testBehavior(
+        """
+        var x = 0;
+        x || 3;
+        3 || x;
+        const [y = (x = 1)] = [];
+        """,
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isGlobal()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.references).hasSize(4);
+              // first child of || is not a boundary, but the second child is.
+              assertNode(x.references.get(0).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              assertNode(x.references.get(1).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              assertNode(x.references.get(2).getBasicBlock().getRoot()).hasType(Token.NAME);
+              // second child of `y = (x = 1)` is a boundary
+              assertNode(x.references.get(3).getBasicBlock().getRoot()).hasType(Token.ASSIGN);
+            }
+          }
+        });
+  }
+
+  @Test
+  public void nullishCoalesce() {
+    testBehavior(
+        "var x = 0; var y = x ?? (x = 1)",
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isGlobal()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.references).hasSize(3);
+              assertNode(x.references.get(0).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              assertNode(x.references.get(1).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              // first child of ?? is not a boundary, but the second child is.
+              assertNode(x.references.get(2).getBasicBlock().getRoot()).hasType(Token.ASSIGN);
+            }
+          }
+        });
+  }
+
+  @Test
+  public void optChain() {
+    testBehavior(
+        "var x = 0; var y = x?.(x = 1)",
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isGlobal()) {
+              ReferenceCollection x = rm.getReferences(t.getScope().getVar("x"));
+              assertThat(x.references).hasSize(3);
+              assertNode(x.references.get(0).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              assertNode(x.references.get(1).getBasicBlock().getRoot()).hasType(Token.ROOT);
+              // first child of `?.` is not a boundary, but the second child is.
+              assertNode(x.references.get(2).getBasicBlock().getRoot()).hasType(Token.ASSIGN);
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testThis() {
+    testBehavior(
+        """
+        /** @constructor */
+        function C() {}
+
+        C.prototype.m = function m() {
+          var self = this;
+          if (true) {
+            alert(self);
+          }
+        };
+        """,
+        new Behavior() {
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+            if (t.getScope().isFunctionBlockScope()
+                && t.getScopeRoot().getParent().getFirstChild().matchesName("m")) {
+              ReferenceCollection self = rm.getReferences(t.getScope().getVar("self"));
+              assertThat(self.isEscaped()).isFalse();
+            }
+          }
+        });
+  }
+
+  @Test
+  public void testProcessScopeThatsNotABasicBlock() {
+    // Tests the case where the scope we pass in is not really a basic block, but we create a new
+    // basic block anyway because ReferenceCollector expects all nodes to be in a block.
+    Compiler compiler = createCompiler();
+    SyntacticScopeCreator syntacticScopeCreator = new SyntacticScopeCreator(compiler);
+    ReferenceCollector referenceCollectingCallback =
+        new ReferenceCollector(
+            compiler,
+            new Behavior() {
+              @Override
+              public void afterExitScope(NodeTraversal t, ReferenceMap rm) {
+                ReferenceCollection y = rm.getReferences(t.getScope().getVar("y"));
+                assertThat(y.isWellDefined()).isTrue();
+                BasicBlock firstBasicBlock = y.references.get(0).getBasicBlock();
+                assertNode(firstBasicBlock.getRoot()).hasType(Token.BLOCK);
+                assertNode(firstBasicBlock.getRoot().getParent()).hasType(Token.SCRIPT);
+
+                // We do not create a new BasicBlock for the second { use(y); }
+                BasicBlock secondBasicBlock = y.references.get(1).getBasicBlock();
+                assertNode(secondBasicBlock.getRoot()).hasType(Token.BLOCK);
+                assertNode(secondBasicBlock.getRoot().getParent()).hasType(Token.IF);
+              }
+            },
+            syntacticScopeCreator);
+
+    String js = "let x = 5; { let y = x + 1; if (true) { { use(y); } } }";
+    Node root = compiler.parseTestCode(js);
+    Node block = root.getSecondChild();
+
+    Scope globalScope = syntacticScopeCreator.createScope(root, null);
+    Scope blockScope = syntacticScopeCreator.createScope(block, globalScope);
+    referenceCollectingCallback.processScope(blockScope);
+  }
+
+  @Test
+  public void testBehavior_hoistedFunctionsInReferenceOrder_true() {
+    List<String> visitedReferenceNames = new ArrayList<>();
+    this.collectHoistedFunctionsInReferenceOrder = true;
+    testBehavior(
+        """
+        f();
+        var z = 1;
+        function f() {
+          return z;
+        }
+        """,
+        new Behavior() {
+          @Override
+          public void afterVisitNode(
+              NodeTraversal t, Node n, @Nullable Node parent, @Nullable Reference addedReference) {
+            if (addedReference != null) {
+              visitedReferenceNames.add(addedReference.getNode().getString());
+            }
+          }
+
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap referenceMap) {}
+        });
+
+    // When collectHoistedFunctionsInReferenceOrder is true:
+    // Visiting call `f()` jumps to hoisted function `f()` via maybeJumpToHoistedFunction.
+    // The declaration reference for `f` is added directly and does not pass through afterVisitNode.
+    // The body of `f()` is traversed, visiting `z` inside `return z;`.
+    // Then afterVisitNode runs for the referencing `f()` call.
+    // Then `var z = 1;` is visited.
+    // The declaration `function f() { ... }` is skipped in the outer traversal.
+    assertThat(visitedReferenceNames).containsExactly("z", "f", "z").inOrder();
+  }
+
+  @Test
+  public void testBehavior_hoistedFunctionsInReferenceOrder_declaredBeforeFirstCall() {
+    List<String> visitedReferenceNames = new ArrayList<>();
+    this.collectHoistedFunctionsInReferenceOrder = true;
+    testBehavior(
+        """
+        function f() {
+          return z;
+        }
+        let z;
+        f();
+        """,
+        new Behavior() {
+          @Override
+          public void afterVisitNode(
+              NodeTraversal t, Node n, @Nullable Node parent, @Nullable Reference addedReference) {
+            if (addedReference != null) {
+              visitedReferenceNames.add(addedReference.getNode().getString());
+            }
+          }
+
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap referenceMap) {
+            if (t.getScope().isGlobal()) {
+              ReferenceCollection z = referenceMap.getReferences(t.getScope().getVar("z"));
+              // TODO(b/581117790): Even with collectHoistedFunctionsInReferenceOrder = true,
+              // shouldTraverse() traverses `function f()` immediately on first AST encounter when
+              // `f` has not been referenced yet, recording the read of `z` inside `f()` before
+              // `let z;` rather than deferring traversal of `f()` until its first reference at
+              // `f();`.
+              assertThat(z)
+                  .comparingElementsUsing(IS_DECLARATION)
+                  .containsExactly(false, true)
+                  .inOrder();
+            }
+          }
+        });
+
+    assertThat(visitedReferenceNames).containsExactly("f", "z", "z", "f").inOrder();
+  }
+
+  @Test
+  public void testBehavior_hoistedFunctionsInReferenceOrder_false() {
+    List<String> visitedReferenceNames = new ArrayList<>();
+    this.collectHoistedFunctionsInReferenceOrder = false;
+    testBehavior(
+        """
+        f();
+        var z = 1;
+        function f() {
+          return z;
+        }
+        """,
+        new Behavior() {
+          @Override
+          public void afterVisitNode(
+              NodeTraversal t, Node n, @Nullable Node parent, @Nullable Reference addedReference) {
+            if (addedReference != null) {
+              visitedReferenceNames.add(addedReference.getNode().getString());
+            }
+          }
+
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap referenceMap) {}
+        });
+
+    // When collectHoistedFunctionsInReferenceOrder is false:
+    // Traversal proceeds in pure AST order without out-of-order jumping:
+    // 1. `f();` -> afterVisitNode for `f`
+    // 2. `var z = 1;` -> afterVisitNode for `z`
+    // 3. `function f() { return z; }` -> afterVisitNode for `f`, then afterVisitNode for `z`
+    assertThat(visitedReferenceNames).containsExactly("f", "z", "f", "z").inOrder();
+  }
+
+  @Test
+  public void testBehavior_afterVisitNode_nullReferenceWhenRejectedByVarFilter() {
+    List<String> nonNullReferenceNames = new ArrayList<>();
+    List<String> filteredOutNames = new ArrayList<>();
+    // Filter out variable "z"
+    this.varFilter = v -> !v.getName().equals("z");
+    this.collectHoistedFunctionsInReferenceOrder = false;
+    testBehavior(
+        """
+        var x = 1;
+        var z = 2;
+        """,
+        new Behavior() {
+          @Override
+          public void afterVisitNode(
+              NodeTraversal t, Node n, @Nullable Node parent, @Nullable Reference addedReference) {
+            if (n.isName()) {
+              if (addedReference != null) {
+                nonNullReferenceNames.add(n.getString());
+              } else {
+                filteredOutNames.add(n.getString());
+              }
+            }
+          }
+
+          @Override
+          public void afterExitScope(NodeTraversal t, ReferenceMap referenceMap) {}
+        });
+
+    assertThat(nonNullReferenceNames).containsExactly("x");
+    assertThat(filteredOutNames).containsExactly("z");
+  }
+}

@@ -1,0 +1,296 @@
+/*
+ * Copyright 2021 The Closure Compiler Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.javascript.jscomp;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+/**
+ * Test cases for transpilation pass that replaces the logical assignment operators (`||=`, `&&=`,
+ * `??=`).
+ */
+@RunWith(JUnit4.class)
+public final class RewriteLogicalAssignmentOperatorsTest extends CompilerTestCase {
+
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+    enableTypeInfoValidation();
+    enableTypeCheck();
+    replaceTypesWithColors();
+    enableMultistageCompilation();
+  }
+
+  @Override
+  protected CompilerPass getProcessor(Compiler compiler) {
+    return new RewriteLogicalAssignmentOperatorsPass(compiler);
+  }
+
+  @Test
+  public void testSimple() {
+    test(srcs("a ||= b"), expected("a || (a = b);"));
+    test(srcs("a &&= b"), expected("a && (a = b);"));
+    test(srcs("a ??= b"), expected("a ?? (a = b);"));
+  }
+
+  @Test
+  public void testPropertyReference() {
+    test(
+        srcs("a.x ||= b"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            ($jscomp$logical$assign$tmpm1146332801$0 = a).x
+               ||
+            ($jscomp$logical$assign$tmpm1146332801$0.x = b);
+            """));
+    test(
+        srcs("a.foo &&= null"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            ($jscomp$logical$assign$tmpm1146332801$0 = a).foo
+               &&
+            ($jscomp$logical$assign$tmpm1146332801$0.foo = null);
+            """));
+    test(
+        srcs(
+            """
+            foo().x = null;
+            foo().x ??= y
+            """),
+        expected(
+            """
+            foo().x = null;
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            ($jscomp$logical$assign$tmpm1146332801$0 = foo()).x
+               ??
+            ($jscomp$logical$assign$tmpm1146332801$0.x = y);
+            """));
+  }
+
+  @Test
+  public void testPropertyReferenceElement() {
+    test(
+        srcs("a[x] ||= b"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            let $jscomp$logical$assign$tmpindexm1146332801$0;
+            ($jscomp$logical$assign$tmpm1146332801$0 = a)
+            [$jscomp$logical$assign$tmpindexm1146332801$0 = x]
+               ||
+            ($jscomp$logical$assign$tmpm1146332801$0
+            [$jscomp$logical$assign$tmpindexm1146332801$0] = b);
+            """));
+    test(
+        srcs("a[x + 5 + 's'] &&= b"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            let $jscomp$logical$assign$tmpindexm1146332801$0;
+            ($jscomp$logical$assign$tmpm1146332801$0 = a)
+            [$jscomp$logical$assign$tmpindexm1146332801$0 = (x + 5 + 's')]
+               &&
+            ($jscomp$logical$assign$tmpm1146332801$0
+            [$jscomp$logical$assign$tmpindexm1146332801$0] = b);
+            """));
+    test(
+        srcs("foo[x] ??= bar[y]"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            let $jscomp$logical$assign$tmpindexm1146332801$0;
+            ($jscomp$logical$assign$tmpm1146332801$0 = foo)
+            [$jscomp$logical$assign$tmpindexm1146332801$0 = x]
+               ??
+            ($jscomp$logical$assign$tmpm1146332801$0
+            [$jscomp$logical$assign$tmpindexm1146332801$0] = bar[y]);
+            """));
+  }
+
+  @Test
+  public void testInExpressions() {
+    test(srcs("a ?? (b ??= 1) ?? (c ??= 2)"), expected("a ?? (b ?? (b = 1)) ?? (c ?? (c = 2));"));
+    test(
+        srcs("for (let x = foo(); !x.b; x.b ||= {}) {}"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            for (let x = foo(); !x.b;
+            ($jscomp$logical$assign$tmpm1146332801$0 = x).b
+               ||
+            ($jscomp$logical$assign$tmpm1146332801$0.b = {})
+            ) {}
+            """));
+    test(
+        srcs("for (let x = foo; !x[b]; x[b] &&= {}) {}"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            let $jscomp$logical$assign$tmpindexm1146332801$0;
+            for (let x = foo; !x[b];
+            ($jscomp$logical$assign$tmpm1146332801$0 = x)
+            [$jscomp$logical$assign$tmpindexm1146332801$0 = b]
+               &&
+            ($jscomp$logical$assign$tmpm1146332801$0
+            [$jscomp$logical$assign$tmpindexm1146332801$0] = {})
+            ) {}
+            """));
+    test(
+        srcs(
+            """
+            a = 4;
+            do {
+              a = a - 1;
+            } while (a ||= null);
+            """),
+        expected(
+            """
+            a = 4;
+            do {
+              a = a - 1;
+            } while (a || (a = null));
+            """));
+    test(
+        srcs(
+            """
+            foo().x = 4;
+            do {
+              foo().x = foo().x - 1;
+            } while (foo().x ||= null);
+            """),
+        expected(
+            """
+            foo().x = 4;
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            do {
+              foo().x = foo().x - 1;
+            } while (($jscomp$logical$assign$tmpm1146332801$0 = foo()).x
+                      ||
+                     ($jscomp$logical$assign$tmpm1146332801$0.x = null));
+            """));
+    test(
+        srcs(
+            """
+            foo[x] = 4;
+            do {
+              foo[x] = foo[x] - 1;
+            } while (foo[x] &&= null);
+            """),
+        expected(
+            """
+            foo[x] = 4;
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            let $jscomp$logical$assign$tmpindexm1146332801$0;
+            do {
+              foo[x] = foo[x] - 1;
+            } while (($jscomp$logical$assign$tmpm1146332801$0 = foo)
+                     [$jscomp$logical$assign$tmpindexm1146332801$0 = x]
+                      &&
+                     ($jscomp$logical$assign$tmpm1146332801$0
+                     [$jscomp$logical$assign$tmpindexm1146332801$0] = null));
+            """));
+  }
+
+  @Test
+  public void testNestedPropertyReference() {
+    test(
+        srcs("a ||= (b &&= (c ??= d));"), //
+        expected("a || (a = (b && (b = (c ?? (c = d)))));"));
+
+    test(
+        srcs("a.x ??= (b.x ||= {});"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            let $jscomp$logical$assign$tmpm1146332801$1;
+            (($jscomp$logical$assign$tmpm1146332801$1 = a).x
+               ??
+            ($jscomp$logical$assign$tmpm1146332801$1.x =
+            ($jscomp$logical$assign$tmpm1146332801$0 = b).x
+               ||
+            ($jscomp$logical$assign$tmpm1146332801$0.x = {})));
+            """));
+
+    test(
+        srcs("a[x] &&= (b[x] ??= a[x]);"),
+        expected(
+            """
+            let $jscomp$logical$assign$tmpm1146332801$0;
+            let $jscomp$logical$assign$tmpindexm1146332801$0;
+            let $jscomp$logical$assign$tmpm1146332801$1;
+            let $jscomp$logical$assign$tmpindexm1146332801$1;
+            ($jscomp$logical$assign$tmpm1146332801$1 = a)
+            [$jscomp$logical$assign$tmpindexm1146332801$1 = x]
+               &&
+            ($jscomp$logical$assign$tmpm1146332801$1
+            [$jscomp$logical$assign$tmpindexm1146332801$1] =
+            ($jscomp$logical$assign$tmpm1146332801$0 = b)
+            [$jscomp$logical$assign$tmpindexm1146332801$0 = x]
+               ??
+            ($jscomp$logical$assign$tmpm1146332801$0
+            [$jscomp$logical$assign$tmpindexm1146332801$0] = a[x]));
+            """));
+  }
+
+  @Test
+  public void testArrowFunction() {
+    test(
+        srcs("const f = (a, b) => a.x ||= b;"),
+        expected(
+            """
+            const f = (a, b) => {
+              let $jscomp$logical$assign$tmpm1146332801$0;
+              return ($jscomp$logical$assign$tmpm1146332801$0 = a).x
+                  || ($jscomp$logical$assign$tmpm1146332801$0.x = b);
+            };
+            """));
+
+    test(
+        srcs("const f = (map, k, v) => (map[k] ??= v);"),
+        expected(
+            """
+            const f = (map, k, v) => {
+              let $jscomp$logical$assign$tmpm1146332801$0;
+              let $jscomp$logical$assign$tmpindexm1146332801$0;
+              return ($jscomp$logical$assign$tmpm1146332801$0 = map)
+                  [$jscomp$logical$assign$tmpindexm1146332801$0 = k]
+                  ??
+                  ($jscomp$logical$assign$tmpm1146332801$0
+                  [$jscomp$logical$assign$tmpindexm1146332801$0] = v);
+            };
+            """));
+
+    test(
+        srcs("const f = (a) => (b) => a[b] &&= 1;"),
+        expected(
+            """
+            const f = (a) => (b) => {
+              let $jscomp$logical$assign$tmpm1146332801$0;
+              let $jscomp$logical$assign$tmpindexm1146332801$0;
+              return ($jscomp$logical$assign$tmpm1146332801$0 = a)
+                  [$jscomp$logical$assign$tmpindexm1146332801$0 = b]
+                  &&
+                  ($jscomp$logical$assign$tmpm1146332801$0
+                  [$jscomp$logical$assign$tmpindexm1146332801$0] = 1);
+            };
+            """));
+  }
+}
