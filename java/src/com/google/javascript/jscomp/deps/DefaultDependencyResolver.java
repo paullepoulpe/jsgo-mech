@@ -20,7 +20,7 @@ import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.LoggerErrorManager;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -78,7 +78,7 @@ public final class DefaultDependencyResolver implements DependencyResolver  {
   @Override
   public List<String> getDependencies(Collection<String> symbols)
       throws ServiceException {
-    return getDependencies(symbols, new HashSet<String>());
+    return getDependencies(symbols, new LinkedHashSet<String>());
   }
 
   /**

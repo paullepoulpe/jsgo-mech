@@ -49,7 +49,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -690,10 +690,10 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
   }
 
   private void clearCommonState() {
-    this.reservedNamesForScope = MultimapBuilder.hashKeys().arrayListValues().build();
+    this.reservedNamesForScope = MultimapBuilder.linkedHashKeys().arrayListValues().build();
     this.functionsWithNonEmptyReturns = new LinkedHashSet<>();
     this.escapedVarNames = new LinkedHashSet<>();
-    this.assignedVarNames = HashMultiset.create();
+    this.assignedVarNames = LinkedHashMultiset.create();
     this.weakImports = new ArrayList<>();
     this.unresolvedNodes = new ArrayList<>();
     this.undeclaredNamesForClosure = new LinkedHashSet<>();

@@ -28,8 +28,9 @@ import static com.google.javascript.jscomp.ClosurePrimitiveErrors.MODULE_USES_GO
 import static com.google.javascript.jscomp.ClosureRewriteModule.ILLEGAL_MODULE_RENAMING_CONFLICT;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
+import java.util.LinkedHashMap;
 import com.google.javascript.jscomp.CompilerOptions.ChunkOutputType;
 import com.google.javascript.jscomp.ModuleRenaming.GlobalizedModuleName;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
@@ -47,7 +48,6 @@ import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSTypeNative;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -220,7 +220,7 @@ public final class Es6RewriteModules implements CompilerPass, NodeTraversal.Call
     private Table<Node, String, String> renameTable;
 
     void rewrite(Node scriptNode) {
-      renameTable = HashBasedTable.create();
+      renameTable = Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
       NodeTraversal.traverse(compiler, scriptNode, this);
 
       if (!renameTable.isEmpty()) {

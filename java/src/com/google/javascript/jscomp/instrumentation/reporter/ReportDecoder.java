@@ -35,9 +35,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -165,7 +164,7 @@ public final class ReportDecoder {
     Matcher matcher =
         Pattern.compile(instrumentationArrayName + "\\.push\\(['\"](.*?)['\"]\\)")
             .matcher(fileContent);
-    final HashSet<String> encodedPoints = new HashSet<>();
+    final LinkedHashSet<String> encodedPoints = new LinkedHashSet<>();
     while (matcher.find()) {
       encodedPoints.add(matcher.group(1));
     }
@@ -191,8 +190,8 @@ public final class ReportDecoder {
    * source code will cause differences in some instrumentation points.
    */
   public static ReportProfile mergeProfiles(List<ReportProfile> profiles) {
-    Map<InstrumentationPoint, Long> frequencies = new HashMap<>();
-    Map<InstrumentationPoint, Presence> presences = new HashMap<>();
+    Map<InstrumentationPoint, Long> frequencies = new LinkedHashMap<>();
+    Map<InstrumentationPoint, Presence> presences = new LinkedHashMap<>();
     for (ReportProfile profile : profiles) {
       for (FileProfile fileProfile : profile.getFileProfileList()) {
         for (InstrumentationPointStats pointStats :

@@ -16,7 +16,7 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.javascript.rhino.IR;
@@ -63,7 +63,7 @@ class FunctionRewriter implements CompilerPass {
             new EmptyFunctionReducer(),
             new IdentityReducer());
 
-    Multimap<Reducer, Reduction> reductionMap = HashMultimap.create();
+    Multimap<Reducer, Reduction> reductionMap = LinkedHashMultimap.create();
 
     // Accumulate possible reductions in the reduction multi-map.  They
     // will be applied in the loop below.

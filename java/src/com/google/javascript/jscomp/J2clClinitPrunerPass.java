@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
@@ -118,7 +118,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
   }
 
   private Multimap<String, Node> collectClinitReferences(Node root) {
-    final Multimap<String, Node> clinitReferences = HashMultimap.create();
+    final Multimap<String, Node> clinitReferences = LinkedHashMultimap.create();
     NodeTraversal.traverse(
         compiler,
         root,

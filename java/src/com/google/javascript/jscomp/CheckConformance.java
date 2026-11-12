@@ -23,7 +23,7 @@ import static com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllo
 import static com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior.UNSPECIFIED;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.CompilerOptions.ConformanceReportingMode;
@@ -208,7 +208,7 @@ public final class CheckConformance implements NodeTraversal.Callback, CompilerP
       AbstractCompiler compiler,
       ImmutableList<ConformanceConfig> configs,
       ConformanceReportingMode reportingMode) {
-    HashMultimap<Precondition, Rule> builder = HashMultimap.create();
+    LinkedHashMultimap<Precondition, Rule> builder = LinkedHashMultimap.create();
 
     boolean isLibraryLevelReportingMode =
         reportingMode != null

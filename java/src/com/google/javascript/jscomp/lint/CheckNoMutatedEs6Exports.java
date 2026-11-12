@@ -46,7 +46,7 @@ public final class CheckNoMutatedEs6Exports implements NodeTraversal.Callback, C
 
   private final AbstractCompiler compiler;
   private final Multimap<String, Node> mutatedNames =
-      MultimapBuilder.hashKeys().hashSetValues().build();
+      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
   private final Set<String> exportedLocalNames = new LinkedHashSet<>();
 
   public CheckNoMutatedEs6Exports(AbstractCompiler compiler) {

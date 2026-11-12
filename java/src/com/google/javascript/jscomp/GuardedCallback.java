@@ -16,7 +16,7 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
@@ -109,18 +109,18 @@ abstract class GuardedCallback<T> implements NodeTraversal.Callback {
   // child any node, its values in this map are moved into `guarded` and
   // `installedGuards` (the latter allowing removal at the correct time).
   private final SetMultimap<Node, T> registeredGuards =
-      MultimapBuilder.hashKeys().hashSetValues().build();
+      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
   // Set of currently-guarded resources.  Elements are added to this set
   // just before traversing the second or later (i.e. "then" or "else")
   // child of a short-circuiting conditional node, and then removed after
   // traversing the last child.  It is a multiset so that multiple adds
   // of the same resource require the same number of removals before the
   // resource becomes unguarded.
-  private final Multiset<T> guarded = HashMultiset.create();
+  private final Multiset<T> guarded = LinkedHashMultiset.create();
   // Resources that are currently installed as guarded but will need to
   // be removed from `guarded` after visiting all the key nodes' children.
   private final ListMultimap<Node, T> installedGuards =
-      MultimapBuilder.hashKeys().arrayListValues().build();
+      MultimapBuilder.linkedHashKeys().arrayListValues().build();
   // A stack of `Context` objects describing the current node's context:
   // specifically, whether it is inherently safe, and a link to one or
   // more conditional nodes in the current statement directly above it

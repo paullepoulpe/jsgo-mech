@@ -26,7 +26,9 @@ import static com.google.javascript.jscomp.serialization.TypePointers.isAxiomati
 import static com.google.javascript.jscomp.serialization.TypePointers.trimOffset;
 import static com.google.javascript.jscomp.serialization.TypePointers.untrimOffset;
 
-import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
+import java.util.LinkedHashMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -39,7 +41,6 @@ import com.google.javascript.jscomp.colors.ColorId;
 import com.google.javascript.jscomp.colors.ColorRegistry;
 import com.google.javascript.jscomp.colors.StandardColors;
 import java.util.ArrayDeque;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -138,7 +139,7 @@ public final class ColorPool {
         new LinkedIdentityHashMap<>();
     private final LinkedHashMap<ColorId, Color> idToColor = new LinkedHashMap<>();
     private final ColorRegistry.Builder registry = ColorRegistry.builder();
-    private final HashBasedTable<ColorId, ShardView, TypeProto> idToProto = HashBasedTable.create();
+    private final Table<ColorId, ShardView, TypeProto> idToProto = Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
     private boolean forTesting = false;
 
     private final ArrayDeque<ColorId> reconcilationDebugStack = new ArrayDeque<>();

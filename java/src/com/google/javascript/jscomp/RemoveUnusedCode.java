@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -112,7 +112,7 @@ class RemoveUnusedCode implements CompilerPass {
   private final Set<String> pinnedPropertyNames = new LinkedHashSet<>(IMPLICITLY_USED_PROPERTIES);
 
   /** Stores Removable objects for each property name that is currently considered removable. */
-  private final Multimap<String, Removable> removablesForPropertyNames = HashMultimap.create();
+  private final Multimap<String, Removable> removablesForPropertyNames = LinkedHashMultimap.create();
 
   /** Single value to use for all vars for which we cannot remove anything at all. */
   private final VarInfo canonicalUnremovableVarInfo;
@@ -126,7 +126,7 @@ class RemoveUnusedCode implements CompilerPass {
    * "Promise" and "Map", static methods on global names such as "Array.from" and "Math.fround", and
    * instance properties such as "String.prototype.repeat" and "Promise.prototype.finally".
    */
-  private final Multimap<String, PolyfillInfo> polyfills = HashMultimap.create();
+  private final Multimap<String, PolyfillInfo> polyfills = LinkedHashMultimap.create();
 
   private final Set<Node> guardedUsages = new LinkedHashSet<>();
 

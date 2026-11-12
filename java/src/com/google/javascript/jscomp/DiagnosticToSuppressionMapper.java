@@ -22,7 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.Gson;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +58,7 @@ public final class DiagnosticToSuppressionMapper {
 
   @VisibleForTesting
   ImmutableSortedMap<String, String> createSuppressionMap() {
-    Set<String> validSuppressions = new HashSet<>(this.validSuppressions);
+    Set<String> validSuppressions = new LinkedHashSet<>(this.validSuppressions);
     // deprecated in favor of "visibility"
     validSuppressions.remove("accessControls");
     validSuppressions.remove("missingSourcesWarnings");

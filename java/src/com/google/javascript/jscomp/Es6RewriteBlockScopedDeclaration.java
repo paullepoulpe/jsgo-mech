@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
@@ -365,7 +364,7 @@ public final class Es6RewriteBlockScopedDeclaration extends AbstractPostOrderCal
     private final SetMultimap<Node, LoopObject> nodesRequiringLoopObjectsClosureMap =
         LinkedHashMultimap.create();
     private final SetMultimap<Node, String> nodesHandledForLoopObjectClosure =
-        HashMultimap.create();
+        LinkedHashMultimap.create();
     private final SetMultimap<Var, Node> referenceMap = LinkedHashMultimap.create();
 
     @Override

@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -709,7 +709,7 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
     ContextualRenamer() {
       scopeRoot = null;
       global = true;
-      nameUsage = HashMultiset.create();
+      nameUsage = LinkedHashMultiset.create();
 
       hoistRenamer = this;
     }

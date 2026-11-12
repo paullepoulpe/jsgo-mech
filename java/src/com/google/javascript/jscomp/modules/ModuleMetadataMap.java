@@ -217,7 +217,7 @@ public final class ModuleMetadataMap {
       return new AutoValue_ModuleMetadataMap_ModuleMetadata.Builder();
     }
 
-    // Use reference equality to prevent bad HashSet<ModuleMetadata> performance on GWT.
+    // Use reference equality to prevent bad LinkedHashSet<ModuleMetadata> performance on GWT.
     // GatherModuleMetadata is guaranteed to create exactly one ModuleMetadata instance for each
     // input module.
     // NOTE(user): consider removing this override now that GWT & J2CL builds are gone.

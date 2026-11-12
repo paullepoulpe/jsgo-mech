@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multiset;
@@ -138,7 +138,7 @@ class ScopedAliases implements CompilerPass {
 
   private static final QualifiedName GOOG_MODULE_GET = QualifiedName.of("goog.module.get");
 
-  private final Multiset<String> scopedAliasNames = HashMultiset.create();
+  private final Multiset<String> scopedAliasNames = LinkedHashMultiset.create();
   private final Set<String> closureNamespaces;
   private final InvalidModuleGetHandling invalidModuleGetHandling;
 

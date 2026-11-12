@@ -30,7 +30,7 @@ import static com.google.javascript.jscomp.ClosurePrimitiveErrors.INVALID_REQUIR
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -642,7 +642,7 @@ public final class ClosureRewriteModule implements CompilerPass {
   private static final class GlobalRewriteState {
     private final Map<String, ScriptDescription> scriptDescriptionsByGoogModuleNamespace =
         new LinkedHashMap<>();
-    private final Multimap<Node, String> namespaceIdsByScriptNode = HashMultimap.create();
+    private final Multimap<Node, String> namespaceIdsByScriptNode = LinkedHashMultimap.create();
     private final Set<String> providedNamespaces = new LinkedHashSet<>();
 
     boolean containsModule(String namespaceId) {

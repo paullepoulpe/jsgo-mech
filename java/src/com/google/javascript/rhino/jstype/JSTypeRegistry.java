@@ -54,7 +54,9 @@ import static com.google.javascript.rhino.jstype.JSTypeNative.VOID_TYPE;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
-import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
+import java.util.LinkedHashMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -62,7 +64,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Table;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.HamtPMap;
 import com.google.javascript.rhino.JSDocInfo;
@@ -76,7 +77,6 @@ import com.google.javascript.rhino.StaticSlot;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.NamedType.ResolutionKind;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -215,7 +215,7 @@ public final class JSTypeRegistry {
   // CPU time on bounds checking inside get().
   private final JSType[] nativeTypes;
 
-  private final Table<Node, String, JSType> scopedNameTable = HashBasedTable.create();
+  private final Table<Node, String, JSType> scopedNameTable = Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
 
   // Only needed for type resolution at the moment
   private final transient Map<String, ClosureNamespace> closureNamespaces = new LinkedHashMap<>();
@@ -239,7 +239,7 @@ public final class JSTypeRegistry {
   // wrong in some cases. See b/116853368. Probably NamedType should be responsible for
   // applying nullability to forward references instead of the type expression evaluation.
   private final Multimap<Node, String> nonNullableTypeNames =
-      MultimapBuilder.hashKeys().hashSetValues().build();
+      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
 
   // Types that have been "forward-declared."
   // If these types are not declared anywhere in the binary, we shouldn't
@@ -250,7 +250,7 @@ public final class JSTypeRegistry {
   // "Reference" types are excluded because those already exist in eachRefTypeIndexedByProperty to
   // avoid blowing up the size of this map.
   private final transient SetMultimap<String, JSType> nonRefTypesIndexedByProperty =
-      MultimapBuilder.hashKeys().linkedHashSetValues().build();
+      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
 
   private JSType sentinelObjectLiteral;
 
@@ -270,7 +270,7 @@ public final class JSTypeRegistry {
 
   // A map of properties to each reference type on which those properties have been declared.
   private final SetMultimap<String, ObjectType> eachRefTypeIndexedByProperty =
-      MultimapBuilder.SetMultimapBuilder.hashKeys().linkedHashSetValues().build();
+      MultimapBuilder.SetMultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
 
   // A single empty TemplateTypeMap, which can be safely reused in cases where
   // there are no template types.

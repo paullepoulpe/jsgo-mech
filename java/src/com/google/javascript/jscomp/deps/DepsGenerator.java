@@ -38,7 +38,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +164,7 @@ public class DepsGenerator {
    */
   protected void cleanUpDuplicatedFiles(Map<String, DependencyInfo> depsFiles,
       Map<String, DependencyInfo> jsFiles) {
-    Set<String> depsPathsCopy = new HashSet<>(depsFiles.keySet());
+    Set<String> depsPathsCopy = new LinkedHashSet<>(depsFiles.keySet());
     for (String path : depsPathsCopy) {
       if (mergeStrategy != InclusionStrategy.WHEN_IN_SRCS) {
         jsFiles.remove(path);

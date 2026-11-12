@@ -23,7 +23,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
@@ -34,8 +34,8 @@ import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -55,12 +55,12 @@ public final class ApplySuggestedFixes {
    */
   public static void applySuggestedFixesToFiles(Iterable<SuggestedFix> fixes)
       throws IOException {
-    Set<String> filenames = new HashSet<>();
+    Set<String> filenames = new LinkedHashSet<>();
     for (SuggestedFix fix : fixes) {
       filenames.addAll(fix.getReplacements().keySet());
     }
 
-    Map<String, String> filenameToCodeMap = new HashMap<>();
+    Map<String, String> filenameToCodeMap = new LinkedHashMap<>();
     for (String filename : filenames) {
       filenameToCodeMap.put(filename, Files.asCharSource(new File(filename), UTF_8).read());
     }
@@ -178,7 +178,7 @@ public final class ApplySuggestedFixes {
   }
 
   private static class ReplacementMap {
-    private final SetMultimap<String, CodeReplacement> map = HashMultimap.create();
+    private final SetMultimap<String, CodeReplacement> map = LinkedHashMultimap.create();
 
     void putIfNoOverlap(SuggestedFix fix) {
       if (canPut(fix)) {

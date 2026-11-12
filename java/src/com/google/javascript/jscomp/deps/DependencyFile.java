@@ -22,7 +22,7 @@ import static com.google.javascript.jscomp.deps.DefaultDependencyResolver.CLOSUR
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.LoggerErrorManager;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 public final class DependencyFile implements SourceFile {
 
   /** Map of name spaces to their dependency info. */
-  private final Map<String, DependencyInfo> dependencies = new HashMap<>();
+  private final Map<String, DependencyInfo> dependencies = new LinkedHashMap<>();
 
   /** A source file to delegate functionality too. */
   private final SourceFile delegate;

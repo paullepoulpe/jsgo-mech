@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.rhino.jstype.JSTypeNative.UNKNOWN_TYPE;
 import static java.util.Comparator.comparingInt;
 
-import com.google.common.collect.HashMultiset;
+import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.javascript.jscomp.CodingConvention.AssertionFunctionLookup;
 import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
@@ -48,7 +48,7 @@ class TypeInferencePass {
   private final AssertionFunctionLookup assertionFunctionLookup;
 
   // (stepCount, Token) -> populationCount
-  private final @Nullable LinkedHashMap<Integer, HashMultiset<Token>> stepCountHistogram;
+  private final @Nullable LinkedHashMap<Integer, LinkedHashMultiset<Token>> stepCountHistogram;
 
   TypeInferencePass(
       AbstractCompiler compiler,
@@ -164,7 +164,7 @@ class TypeInferencePass {
 
         LinearFlowState<?> state = node.getAnnotation();
         this.stepCountHistogram
-            .computeIfAbsent(state.getStepCount(), (k) -> HashMultiset.create())
+            .computeIfAbsent(state.getStepCount(), (k) -> LinkedHashMultiset.create())
             .add(node.getValue().getToken());
       }
     }

@@ -22,9 +22,10 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
+import java.util.LinkedHashMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.CodingConvention.SubclassRelationship;
 import com.google.javascript.jscomp.diagnostic.LogFile;
 import com.google.javascript.jscomp.modules.ModuleMap;
@@ -41,7 +42,6 @@ import com.google.javascript.rhino.StaticSymbolTable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,7 +113,7 @@ class GlobalNamespace
   private final Map<String, Name> nameMap = new LinkedHashMap<>();
 
   /** Maps names (e.g. "a.b.c") and MODULE_BODY nodes to Names in that module */
-  private final Table<ModuleMetadata, String, Name> nameMapByModule = HashBasedTable.create();
+  private final Table<ModuleMetadata, String, Name> nameMapByModule = Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
 
   /** Limits traversal to scripts matching the given predicate. */
   private Predicate<Node> shouldTraverseScript = (n) -> true;

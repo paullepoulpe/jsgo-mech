@@ -18,10 +18,11 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
+import java.util.LinkedHashMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Table;
 import com.google.javascript.jscomp.GlobalNamespace.Name;
 import com.google.javascript.jscomp.GlobalNamespace.Ref;
 import com.google.javascript.jscomp.PolymerPass.MemberDefinition;
@@ -34,7 +35,6 @@ import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +68,7 @@ final class PolymerBehaviorExtractor {
   private final ModuleMap moduleMap;
 
   private final Table<String, ModuleMetadata, ResolveBehaviorNameResult> resolveMemoized =
-      HashBasedTable.create();
+      Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
   private final Map<String, ResolveBehaviorNameResult> globalResolveMemoized =
       new LinkedHashMap<>();
 

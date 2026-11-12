@@ -30,7 +30,7 @@ import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.JSError;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class FixingErrorManager extends BasicErrorManager {
   private ErrorToFixMapper fixer;
-  private final HashMap<JSError, SuggestedFix> sureFixes = new HashMap<>();
+  private final LinkedHashMap<JSError, SuggestedFix> sureFixes = new LinkedHashMap<>();
   private final ListMultimap<JSError, SuggestedFix> multiFixes = ArrayListMultimap.create();
   private final ImmutableSet<DiagnosticType> unfixableErrors;
 

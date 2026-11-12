@@ -34,11 +34,9 @@ import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSTypeNative;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Iterator;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -1083,13 +1081,13 @@ final class Es6RewriteGenerators implements CompilerPass {
 
     /** State machine context that is used during generator function transpilation. */
     private class TranspilationContext {
-      final HashMap<String, LabelCases> namedLabels = new LinkedHashMap<>();
+      final LinkedHashMap<String, LabelCases> namedLabels = new LinkedHashMap<>();
       final ArrayDeque<Case> breakCases = new ArrayDeque<>();
       final ArrayDeque<Case> continueCases = new ArrayDeque<>();
 
       final ArrayDeque<CatchCase> catchCases = new ArrayDeque<>();
       final ArrayDeque<Case> finallyCases = new ArrayDeque<>();
-      final HashSet<String> catchNames = new LinkedHashSet<>();
+      final LinkedHashSet<String> catchNames = new LinkedHashSet<>();
 
       /** All "case" sections that will be added to generator program. */
       final ArrayList<Case> allCases = new ArrayList<>();
