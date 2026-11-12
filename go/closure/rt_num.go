@@ -380,3 +380,5 @@ func System_arraycopy(src any, sp int32, dst any, dp int32, n int32) {
 		reflect.Copy(reflect.ValueOf(dst).Slice(int(dp), int(dp+n)), reflect.ValueOf(src).Slice(int(sp), int(sp+n)))
 	}
 }
+
+func Integer_sum(a, b int32) int32 { return a + b }

@@ -40,6 +40,9 @@ func classOf_(name string) *Class {
 
 // catch_ turns a recovered panic value into a Java exception object.
 func catch_(r any) any {
+	if _, ok := r.(interface{ as_Throwable() *Throwable }); ok {
+		return r
+	}
 	switch e := r.(type) {
 	case runtime.Error:
 		msg := e.Error()
