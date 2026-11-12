@@ -210,7 +210,10 @@ final class Emitter extends StmtEmitter {
         sb.append("func (this *").append(n).append(") self() any {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn this.self_\n}\n\n");
       }
     }
-    for (TypeElement a = sup; a != null; a = cx.superclass(a)) {
+    boolean pastLibrary = false;
+    for (TypeElement a = sup; a != null && !pastLibrary; a = cx.superclass(a)) {
+      // Only the nearest library superclass: the runtime's structs need not mirror the JDK's hierarchy.
+      if (!cx.isSource(a)) pastLibrary = true;
       String an = cx.className(a);
       sb.append("func (this *").append(n).append(") up_").append(an).append("() *").append(an)
           .append(" {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn &this.").append(an).append("\n}\n\n");
@@ -262,7 +265,7 @@ final class Emitter extends StmtEmitter {
         b.append("{\n").append(indent(blockCode((BlockTree) t), "\t")).append("}\n");
       }
     }
-    file.append("func (this *").append(n).append(") finit_").append(n).append("() {\n").append(indent(finish(b.toString()), "\t")).append("\n}\n\n");
+    file.append("func (this *").append(n).append(") finit_").append(n).append("() {\n").append(indent(guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     mc = null;
   }
 
@@ -332,7 +335,13 @@ final class Emitter extends StmtEmitter {
   }
 
   String newPrologue(TypeElement te, String n) {
-    StringBuilder b = new StringBuilder("this := &" + n + "{}\n");
+    StringBuilder b = new StringBuilder();
+    if (cx.initGuards) {
+      for (TypeElement c = te; c != null && cx.isSource(c); c = cx.superclass(c)) {
+        if (cx.hasClinit(c) && c.getKind() != ElementKind.ENUM && !enumLike(c)) b.append(cx.className(c)).append("_clinit()\n");
+      }
+    }
+    b.append("this := &" + n + "{}\n");
     if (cx.hasSelf(te)) b.append("this.self_ = this\n");
     if (needsZero(te)) b.append("this.zero_").append(n).append("()\n");
     return b.toString();
@@ -410,7 +419,7 @@ final class Emitter extends StmtEmitter {
     }
     String init = cx.ctorName(e, "init_");
     file.append("func (this *").append(n).append(") ").append(init).append("(").append(join(enumDecl, p.decl)).append(") {\n")
-        .append(indent(finish(b.toString()), "\t")).append("\n}\n\n");
+        .append(indent(guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
       String[] extras = creationExtras(te);
       file.append("func ").append(cx.ctorName(e, "new_")).append("(").append(join(extras[0], enumDecl, p.decl)).append(") *").append(n).append(" {\n")
@@ -486,7 +495,8 @@ final class Emitter extends StmtEmitter {
     if (!mc.isVoid && (sts.isEmpty() || !(sts.get(sts.size() - 1) instanceof ReturnTree || sts.get(sts.size() - 1) instanceof ThrowTree))) {
       b.append("panic(\"unreachable\")\n");
     }
-    file.append(head).append(retSuffix(ret)).append(" {\n").append(indent(finish(b.toString()), "\t")).append("\n}\n\n");
+    String own = cx.initGuards && isStatic && cx.hasClinit(te) ? n + "_clinit()\n" : "";
+    file.append(head).append(retSuffix(ret)).append(" {\n").append(indent(own + guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     mc = null;
   }
 
@@ -687,9 +697,15 @@ final class Emitter extends StmtEmitter {
       }
     }
     if (decls.length() > 0) file.append(decls).append("\n");
-    if (init.length() > 0) {
+    if (init.length() > 0 || cx.hasClinit(te)) {
       String fn = n + "_clinit";
-      file.append("func ").append(fn).append("() {\n").append(indent(finish(init.toString()), "\t")).append("\n}\n\n");
+      StringBuilder pro = new StringBuilder("if " + fn + "_done {\n\treturn\n}\n" + fn + "_done = true\n");
+      TypeElement sup = cx.superclass(te);
+      if (cx.initGuards && sup != null && cx.hasClinit(sup)) pro.append(cx.className(sup)).append("_clinit()\n");
+      String post = "";
+      if (cx.initGuards) pro.append("defer func() { initOrder_ = append(initOrder_, " + quote(cx.elems.getBinaryName(te).toString()) + ") }()\n");
+      file.append("var ").append(fn).append("_done bool\n\n");
+      file.append("func ").append(fn).append("() {\n").append(indent(pro + guards() + finish(init.toString()) + "\n" + post, "\t")).append("\n}\n\n");
       cx.clinits.add(fn);
       cx.clinitOwner.put(fn, cx.elems.getBinaryName(te).toString());
     }

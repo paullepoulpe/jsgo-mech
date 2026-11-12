@@ -101,9 +101,9 @@ func boolstr_(b bool) string {
 
 func istr_(i int64) string { return strconv.FormatInt(i, 10) }
 
-func dstr_(d float64) string { return Double_toString_double(d) }
+func dstr_(d float64) string { return Double_toString(d) }
 
-func fstr_(f float32) string { return Double_toString_double(float64(f)) }
+func fstr_(f float32) string { return Double_toString(float64(f)) }
 
 // objstr_ is String.valueOf(Object).
 func objstr_(v any) string {
@@ -285,3 +285,7 @@ func objhash_(a any) int32 {
 	}
 	return Object_hashCode(a)
 }
+
+var nan_ = math.NaN()
+var posinf_ = math.Inf(1)
+var neginf_ = math.Inf(-1)

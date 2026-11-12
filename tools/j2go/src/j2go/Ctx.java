@@ -45,7 +45,9 @@ final class Ctx {
       "org.kohsuke.args4j.spi.OptionHandler", "org.kohsuke.args4j.spi.StringOptionHandler",
       "org.kohsuke.args4j.spi.BooleanOptionHandler", "org.kohsuke.args4j.spi.IntOptionHandler",
       "org.kohsuke.args4j.spi.StopOptionHandler", "com.google.gson.TypeAdapter",
-      "java.lang.Enum"));
+      "java.lang.Enum", "java.util.ArrayList", "com.google.gson.reflect.TypeToken",
+      "com.google.common.cache.CacheLoader", "com.google.common.escape.Escaper",
+      "java.util.zip.GZIPOutputStream", "java.io.FilterInputStream"));
 
   static final Set<String> GO_RESERVED = new HashSet<>(List.of(
       "break", "default", "func", "interface", "select", "case", "defer", "go", "map", "struct", "chan",
@@ -74,10 +76,11 @@ final class Ctx {
     return null;
   }
 
-  /** The superclass, or null for none / java.lang.Object. */
+  /** The superclass, or null for none / java.lang.Object. Package-private library classes are skipped. */
   TypeElement superclass(TypeElement te) {
     if (te.getKind().isInterface()) return null;
     TypeElement s = typeElement(te.getSuperclass());
+    while (s != null && !isSource(s) && !s.getModifiers().contains(Modifier.PUBLIC)) s = typeElement(s.getSuperclass());
     if (s == null || s.getQualifiedName().contentEquals("java.lang.Object")) return null;
     if (ANY_TYPES.contains(s.getQualifiedName().toString())) return null;
     return s;
@@ -91,6 +94,33 @@ final class Ctx {
   /** Static-initializer functions, in emission order. */
   final List<String> clinits = new ArrayList<>();
   final Map<String, String> clinitOwner = new LinkedHashMap<>();
+
+  /** Instrumented output: every function first makes sure the classes whose statics it touches are initialized. */
+  boolean initGuards = System.getenv("J2GO_INIT_GUARDS") != null;
+  private final Map<TypeElement, Boolean> clinitCache = new HashMap<>();
+
+  /** True if the class has a static initializer function. */
+  boolean hasClinit(TypeElement te) {
+    if (!isSource(te)) return false;
+    return clinitCache.computeIfAbsent(te, k -> {
+      if (te.getKind() == ElementKind.ENUM) return true;
+      for (Element e : te.getEnclosedElements()) {
+        if (e.getKind() == ElementKind.ENUM_CONSTANT) return true;
+        if (e.getKind() == ElementKind.FIELD && e.getModifiers().contains(Modifier.STATIC)) {
+          VariableElement f = (VariableElement) e;
+          Object cv = f.getConstantValue();
+          if (cv == null) return true;
+          if (cv instanceof Double d && (d.isNaN() || d.isInfinite())) return true;
+          if (cv instanceof Float fl && (fl.isNaN() || fl.isInfinite())) return true;
+        }
+      }
+      ClassTree ct = trees.getTree(te);
+      if (ct != null) {
+        for (Tree m : ct.getMembers()) if (m instanceof BlockTree b && b.isStatic()) return true;
+      }
+      return false;
+    });
+  }
 
   boolean isExtendable(TypeElement te) {
     if (EXTENDABLE.contains(te.getQualifiedName().toString())) return true;
@@ -384,7 +414,9 @@ final class Ctx {
     for (TypeMirror st : supers) {
       TypeElement s = typeElement(st);
       if (s == null || !seen.add(s)) continue;
-      for (Element e : s.getEnclosedElements()) {
+      // A package-private library class (AbstractStringBuilder) is an implementation detail: look through it.
+      boolean hidden = !isSource(s) && !s.getModifiers().contains(Modifier.PUBLIC);
+      if (!hidden) for (Element e : s.getEnclosedElements()) {
         if (e.getKind() != ElementKind.METHOD || !e.getSimpleName().equals(m.getSimpleName())) continue;
         ExecutableElement m2 = (ExecutableElement) e;
         if (m2.getModifiers().contains(Modifier.STATIC) || m2.getModifiers().contains(Modifier.PRIVATE)) continue;
@@ -631,7 +663,7 @@ final class Ctx {
   }
 
   private String nameRoot(ExecutableElement r, Set<ExecutableElement> conflict) {
-    String base = safe(r.getSimpleName().toString());
+    String base = safeMember(r.getSimpleName().toString());
     TypeElement owner = ownerOf(r);
     if (!isSource(owner)) return externalMethodName(r);
     if (conflict == null) return base;
@@ -659,6 +691,77 @@ final class Ctx {
     return GO_RESERVED.contains(n) ? n + "_" : n;
   }
 
+  static final Set<String> GO_KEYWORDS = Set.of(
+      "break", "default", "func", "interface", "select", "case", "defer", "go", "map", "struct", "chan",
+      "else", "goto", "package", "switch", "const", "fallthrough", "if", "range", "type", "continue",
+      "for", "import", "return", "var");
+
+  /** Names of methods and fields: only Go keywords are a problem there. */
+  static String safeMember(String n) {
+    if (n.indexOf('$') >= 0) n = n.replace("$", "_d_");
+    return GO_KEYWORDS.contains(n) ? n + "_" : n;
+  }
+
+  /** How often each library method or constructor is used (instance methods: by group root). */
+  final Map<ExecutableElement, Integer> useCount = new HashMap<>();
+  /** Every type that appears as the type of an expression, plus the source classes. */
+  final Set<TypeElement> seenTypes = new LinkedHashSet<>();
+  private final Map<TypeElement, Set<TypeElement>> subsCache = new HashMap<>();
+  private Map<ExecutableElement, String> extNames;
+
+  void countUse(ExecutableElement e) {
+    if (e.getKind() == ElementKind.METHOD && !e.getModifiers().contains(Modifier.STATIC)) {
+      useCount.merge(root(e), 1, Integer::sum);
+    }
+    useCount.merge(e, 1, Integer::sum);
+  }
+
+  private Set<TypeElement> subs(TypeElement o) {
+    return subsCache.computeIfAbsent(o, k -> {
+      Set<TypeElement> out = new HashSet<>();
+      TypeMirror ot = erase(o.asType());
+      for (TypeElement t : seenTypes) if (types.isSubtype(erase(t.asType()), ot)) out.add(t);
+      out.add(o);
+      return out;
+    });
+  }
+
+  private String stableKey(ExecutableElement e) {
+    return ownerOf(e).getQualifiedName() + "." + e.getSimpleName() + sigToken(e);
+  }
+
+  /** Orders overloads: most used first. */
+  private List<ExecutableElement> byUse(Collection<ExecutableElement> c) {
+    List<ExecutableElement> l = new ArrayList<>(c);
+    l.sort(Comparator.<ExecutableElement>comparingInt(e -> -useCount.getOrDefault(e, 0)).thenComparing(this::stableKey));
+    return l;
+  }
+
+  static String overloadSuffix(ExecutableElement e, String sig) {
+    return e.getParameters().isEmpty() ? "_0" : sig;
+  }
+
+  private void assignExternalNames() {
+    extNames = new HashMap<>();
+    seenTypes.addAll(source);
+    for (Set<ExecutableElement> group : extRootsByName.values()) {
+      List<ExecutableElement> plain = new ArrayList<>();
+      for (ExecutableElement r : byUse(group)) {
+        String name = safeMember(r.getSimpleName().toString());
+        boolean clash = false;
+        for (ExecutableElement p : plain) {
+          if (!Collections.disjoint(subs(ownerOf(r)), subs(ownerOf(p)))) clash = true;
+        }
+        if (clash) {
+          extNames.put(r, name + overloadSuffix(r, sigToken(r)));
+        } else {
+          extNames.put(r, name);
+          plain.add(r);
+        }
+      }
+    }
+  }
+
   // ---- external member names
 
   /** How often each external overload is used; filled by a pre-pass, used to pick plain names. */
@@ -676,11 +779,9 @@ final class Ctx {
 
   String externalMethodName(ExecutableElement m) {
     ExecutableElement r = root(m);
-    String name = safe(r.getSimpleName().toString());
-    // A name shared by several library method groups is told apart by parameter types.
-    Set<ExecutableElement> set = extRootsByName.get(r.getSimpleName().toString());
-    if (set == null || set.size() <= 1 || r.getParameters().isEmpty()) return name;
-    return name + sigToken(r);
+    if (extNames == null) assignExternalNames();
+    String n = extNames.get(r);
+    return n != null ? n : safeMember(r.getSimpleName().toString());
   }
 
   boolean rootIsObject(ExecutableElement m) {
@@ -691,7 +792,7 @@ final class Ctx {
     ExecutableElement r = root(m);
     String n = methodNames.get(r);
     if (n == null) {
-      n = isSource(ownerOf(r)) ? safe(r.getSimpleName().toString()) : externalMethodName(r);
+      n = isSource(ownerOf(r)) ? safeMember(r.getSimpleName().toString()) : externalMethodName(r);
       methodNames.put(r, n);
     }
     return n;
@@ -717,11 +818,16 @@ final class Ctx {
       }
     }
     if (!isSource(owner)) {
-      // Static-style helpers for library types: all overloads of the name count.
-      same = 0;
+      // Helpers for library types: among the overloads the program uses, the most used has the plain name.
+      List<ExecutableElement> used = new ArrayList<>();
       for (Element e : owner.getEnclosedElements()) {
-        if (e.getKind() == ElementKind.METHOD && e.getSimpleName().equals(m.getSimpleName())) same++;
+        if (e.getKind() == ElementKind.METHOD && e.getSimpleName().equals(m.getSimpleName())
+            && (useCount.containsKey(e) || e == m)) used.add((ExecutableElement) e);
       }
+      List<ExecutableElement> sorted = byUse(used);
+      n = sorted.get(0) == m ? base : base + overloadSuffix(m, sigToken(m));
+      staticNames.put(m, n);
+      return n;
     }
     n = same > 1 && !m.getParameters().isEmpty() ? base + sigToken(m) : base;
     if (same > 1 && m.getParameters().isEmpty() && isSource(owner)) n = base + "_0";
@@ -735,6 +841,13 @@ final class Ctx {
     for (Element e : owner.getEnclosedElements()) if (e.getKind() == ElementKind.CONSTRUCTOR) n++;
     String base = prefix + className(owner);
     if (n <= 1) return base;
+    if (!isSource(owner) && !isExtendable(owner)) {
+      List<ExecutableElement> used = new ArrayList<>();
+      for (Element e : owner.getEnclosedElements()) {
+        if (e.getKind() == ElementKind.CONSTRUCTOR && (useCount.containsKey(e) || e == c)) used.add((ExecutableElement) e);
+      }
+      if (byUse(used).get(0) == c) return base;
+    }
     return base + (c.getParameters().isEmpty() ? "_0" : sigToken(c));
   }
 
@@ -745,7 +858,7 @@ final class Ctx {
     if (f.getModifiers().contains(Modifier.STATIC)) {
       n = className(owner) + "_" + f.getSimpleName().toString().replace("$", "_d_");
     } else {
-      n = safe(f.getSimpleName().toString());
+      n = safeMember(f.getSimpleName().toString());
       if (instanceMethodNames.contains(n) || n.equals("self") || n.equals("toString") || n.equals("hashCode")
           || n.equals("equals") || n.equals("name") || n.equals("ordinal")) {
         n = n + "_";

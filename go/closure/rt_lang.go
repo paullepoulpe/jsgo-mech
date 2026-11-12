@@ -73,3 +73,30 @@ func closeResource_(r any) {
 		c.close()
 	}
 }
+
+// flushStd_ flushes the standard streams before the process exits.
+var flushStd_ = func() {}
+
+// ---- static initialization
+
+// initOrder_ records, in an instrumented build, the classes in the order their
+// static initialization completed.
+var initOrder_ []string
+
+// initFailures_ are the static initializers that panicked at startup.
+var initFailures_ []string
+
+// runClinit_ runs one class's static initializer. A failure is remembered and
+// does not stop the others: Java would only fail when the class is first used.
+func runClinit_(f func()) {
+	defer func() {
+		if r := recover(); r != nil {
+			msg := fmt.Sprint(r)
+			if t, ok := r.(interface{ toString() string }); ok {
+				msg = t.toString()
+			}
+			initFailures_ = append(initFailures_, msg)
+		}
+	}()
+	f()
+}

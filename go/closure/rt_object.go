@@ -169,9 +169,6 @@ func (this *Enum) init_Enum(name string, ordinal int32) {
 func (this *Enum) name() string     { return this.name_ }
 func (this *Enum) ordinal() int32   { return this.ordinal_ }
 func (this *Enum) toString() string { return this.name_ }
-func (this *Enum) hashCode() int32  { return identityHash_(this.self_) }
-
-func (this *Enum) equals(o any) bool { return this.self_ == o }
 
 func (this *Enum) compareTo(o any) int32 {
 	return this.ordinal_ - o.(interface{ ordinal() int32 }).ordinal()

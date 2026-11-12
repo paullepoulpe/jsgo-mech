@@ -46,6 +46,8 @@ abstract class Base {
     List<String> pre = new ArrayList<>();
     Set<String> hoisted = new HashSet<>();
     boolean staticCtx;
+    /** Classes whose static state this function touches (instrumented output only). */
+    Set<TypeElement> touched = new LinkedHashSet<>();
     /** Go expression for the receiver object: "this", or null in a static context. */
   }
 
@@ -163,6 +165,22 @@ abstract class Base {
       mc.names.put(e, n);
     }
     return n;
+  }
+
+  void touch(TypeElement te) {
+    if (cx.initGuards && mc != null && cx.hasClinit(te)) mc.touched.add(te);
+  }
+
+  /** In instrumented output, the calls that initialize the touched classes, to put at function entry. */
+  String guards() {
+    if (!cx.initGuards || mc == null || mc.touched.isEmpty()) return "";
+    StringBuilder sb = new StringBuilder();
+    TypeElement self = cc() == null ? null : cc().te;
+    for (TypeElement te : mc.touched) {
+      if (te.equals(self)) continue;
+      sb.append(cx.className(te)).append("_clinit()\n");
+    }
+    return sb.toString();
   }
 
   RuntimeException unsupported(Tree t, String what) {

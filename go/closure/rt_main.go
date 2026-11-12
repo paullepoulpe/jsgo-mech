@@ -1,0 +1,55 @@
+package closure
+
+import (
+	"fmt"
+	"os"
+	"runtime/debug"
+)
+
+// Main is the process entry point. While the port is being brought up it
+// understands a few test commands before the real command line:
+//
+//	mech -parse file.js     parse and print one file
+func Main(args []string) (code int) {
+	defer func() {
+		if r := recover(); r != nil {
+			if t, ok := r.(interface{ toString() string }); ok {
+				fmt.Fprintln(os.Stderr, "uncaught exception:", t.toString())
+			} else {
+				fmt.Fprintln(os.Stderr, "panic:", r)
+			}
+			os.Stderr.Write(debug.Stack())
+			code = 70
+		}
+	}()
+	if len(args) == 1 && args[0] == "-init-order" {
+		// An instrumented build prints the order to use for static initialization.
+		for _, c := range initOrder_ {
+			fmt.Println(c)
+		}
+		for _, f := range initFailures_ {
+			fmt.Fprintln(os.Stderr, "init failure:", f)
+		}
+		return 0
+	}
+	if os.Getenv("JSGO_DEBUG_INIT") != "" {
+		for _, f := range initFailures_ {
+			fmt.Fprintln(os.Stderr, "init failure:", f)
+		}
+	}
+	if len(args) == 2 && args[0] == "-parse" {
+		src, err := os.ReadFile(args[1])
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return 1
+		}
+		compiler := new_Compiler_0()
+		compiler.initOptions(new_CompilerOptions())
+		n := compiler.parseTestCode_String(string(src))
+		fmt.Println(compiler.toSource_Node(n))
+		return 0
+	}
+	CommandLineRunner_main(args)
+	flushStd_()
+	return 0
+}

@@ -122,7 +122,7 @@ final class Stubs {
           sb.append("func (this *").append(n).append(") self() any {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn this.self_\n}\n\n");
         }
       }
-      for (TypeElement a = sup; a != null; a = cx.superclass(a)) {
+      for (TypeElement a = sup; a != null && !types.contains(n) && a == sup; a = cx.superclass(a)) {
         String an = cx.className(a);
         if (methods.contains(n + ".up_" + an)) continue;
         sb.append("func (this *").append(n).append(") up_").append(an).append("() *").append(an)

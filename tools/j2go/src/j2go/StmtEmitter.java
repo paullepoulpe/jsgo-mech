@@ -634,6 +634,7 @@ abstract class StmtEmitter extends ExprEmitter {
     inner.hoisted = saved.hoisted;
     inner.staticCtx = saved.staticCtx;
     inner.usedLabels = saved.usedLabels;
+    inner.touched = saved.touched;
     inner.isVoid = false;
     inner.ret = ty;
     mc = inner;

@@ -357,8 +357,20 @@ abstract class ExprEmitter extends Base {
   }
 
   String staticField(VariableElement f) {
+    if (!cx.isSource(cx.ownerOf(f)) && f.getConstantValue() != null) {
+      // A library constant: its value, typed.
+      Object v = f.getConstantValue();
+      String gt = cx.goType(f.asType());
+      if (v instanceof String str) return quote(str);
+      if (v instanceof Character c) return gt + "(" + charLit(c) + ")";
+      if (v instanceof Boolean) return v.toString();
+      if (v instanceof Double d && (d.isNaN() || d.isInfinite())) return d.isNaN() ? "nan_" : d > 0 ? "posinf_" : "neginf_";
+      if (v instanceof Float fl && (fl.isNaN() || fl.isInfinite())) return fl.isNaN() ? "float32(nan_)" : fl > 0 ? "float32(posinf_)" : "float32(neginf_)";
+      return gt + "(" + v + ")";
+    }
     String n = cx.fieldName(f);
     if (!cx.isSource(cx.ownerOf(f))) cx.extVars.putIfAbsent(n, cx.goType(f.asType()));
+    else if (f.getConstantValue() == null) touch(cx.ownerOf(f));
     return n;
   }
 
@@ -830,6 +842,7 @@ abstract class ExprEmitter extends Base {
     boolean src = cx.isSource(owner);
     boolean isStatic = e.getModifiers().contains(Modifier.STATIC);
     if (isStatic) {
+      touch(owner);
       List<TypeMirror> params = ownParams(e);
       TypeMirror ret = cx.erase(e.getReturnType());
       String name = cx.staticMethodName(e);
@@ -946,6 +959,7 @@ abstract class ExprEmitter extends Base {
       }
     }
     if (ctor == null) throw unsupported(t, "unresolved constructor");
+    touch(te);
     List<String> pre = new ArrayList<>();
     if (cx.isSource(te)) {
       if (cx.hasOuter(te)) {
@@ -1010,7 +1024,10 @@ abstract class ExprEmitter extends Base {
 
   String adapterName(TypeElement fi) {
     String n = cx.className(fi) + "_fn";
-    if (!cx.isSource(fi)) cx.extAdapters.add(fi);
+    if (!cx.isSource(fi) && cx.extAdapters.add(fi)) {
+      ExecutableElement m = cx.functionalMethod(fi);
+      cx.noteMethodOn(cx.ownerOf(cx.root(m)), cx.methodName(m), cx.groupParams(m), cx.groupReturn(m));
+    }
     return n;
   }
 
@@ -1028,6 +1045,7 @@ abstract class ExprEmitter extends Base {
     inner.counter = saved.counter;
     inner.hoisted = saved.hoisted;
     inner.staticCtx = saved.staticCtx;
+    inner.touched = saved.touched;
     inner.isVoid = ret.getKind() == TypeKind.VOID;
     inner.ret = inner.isVoid ? null : ret;
     mc = inner;
