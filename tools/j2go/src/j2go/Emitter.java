@@ -247,6 +247,7 @@ final class Emitter extends StmtEmitter {
     stubs(te);
     bridges(te);
     extBridges(te);
+    guarded("args4j table of " + n, () -> args4jTable(te));
     if (te.getKind() == ElementKind.RECORD) recordMembers(te);
     statics(ct, te, enumConsts);
   }
@@ -531,6 +532,75 @@ final class Emitter extends StmtEmitter {
           .append(ret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm)).append("_default(")
           .append(join(self, argNames(ps.size()))).append(")\n}\n\n");
     }
+  }
+
+  static String annotationString(Object v) {
+    return v == null ? "" : v.toString();
+  }
+
+  /**
+   * For a class whose fields carry args4j @Option / @Argument annotations: a table that gives the
+   * command-line parser what Java gets by reflection (annotation values, a getter and a setter).
+   */
+  void args4jTable(TypeElement te) {
+    String n = cx.className(te);
+    StringBuilder rows = new StringBuilder();
+    mc = new MethodCtx();
+    for (Element e : te.getEnclosedElements()) {
+      if (e.getKind() != ElementKind.FIELD) continue;
+      VariableElement f = (VariableElement) e;
+      for (AnnotationMirror am : f.getAnnotationMirrors()) {
+        String an = ((TypeElement) am.getAnnotationType().asElement()).getQualifiedName().toString();
+        boolean isOption = an.equals("org.kohsuke.args4j.Option");
+        if (!isOption && !an.equals("org.kohsuke.args4j.Argument")) continue;
+        Map<String, Object> vals = new HashMap<>();
+        cx.elems.getElementValuesWithDefaults(am).forEach((k, v) -> vals.put(k.getSimpleName().toString(), v.getValue()));
+        TypeMirror ft = f.asType();
+        TypeMirror elem = ft;
+        boolean multi = false;
+        TypeElement fte = Ctx.typeElement(cx.erase(ft));
+        if (fte != null && cx.types.isSubtype(cx.erase(ft), cx.erase(cx.elems.getTypeElement("java.util.Collection").asType()))) {
+          multi = true;
+          List<? extends TypeMirror> targs = ((DeclaredType) ft).getTypeArguments();
+          elem = targs.isEmpty() ? objectType() : targs.get(0);
+        }
+        String fn = "this." + cx.fieldName(f);
+        StringBuilder r = new StringBuilder("{");
+        r.append("field: ").append(quote(f.getSimpleName().toString())).append(", option: ").append(isOption);
+        if (isOption) {
+          r.append(", name: ").append(quote(annotationString(vals.get("name"))));
+          StringBuilder al = new StringBuilder();
+          Object aliases = vals.get("aliases");
+          if (aliases instanceof List<?> l) for (Object a : l) al.append(al.length() > 0 ? ", " : "").append(quote(((AnnotationValue) a).getValue().toString()));
+          r.append(", aliases: []string{").append(al).append("}");
+        }
+        r.append(", usage: ").append(quote(annotationString(vals.get("usage"))));
+        r.append(", metaVar: ").append(quote(annotationString(vals.get("metaVar"))));
+        r.append(", required: ").append(Boolean.TRUE.equals(vals.get("required")));
+        r.append(", hidden: ").append(Boolean.TRUE.equals(vals.get("hidden")));
+        r.append(", multi: ").append(multi);
+        r.append(", typ: ").append(quote(cx.erase(elem).toString()));
+        Object h = vals.get("handler");
+        if (h instanceof TypeMirror ht) {
+          TypeElement hte = Ctx.typeElement(ht);
+          r.append(", handler: ").append(quote(hte.getQualifiedName().toString()));
+          if (cx.isSource(hte)) {
+            for (Element c : hte.getEnclosedElements()) {
+              if (c.getKind() == ElementKind.CONSTRUCTOR && ((ExecutableElement) c).getParameters().size() == 3) {
+                r.append(", newHandler: func(p *CmdLineParser, o *OptionDef, s Setter) any { return ")
+                    .append(cx.coerce(cx.ctorName((ExecutableElement) c, "new_") + "(p, o, s)", hte.asType(), objectType())).append(" }");
+              }
+            }
+          }
+        }
+        r.append(", get: func() any { return ").append(cx.coerce(fn, ft, objectType())).append(" }");
+        r.append(", set: func(v any) { ").append(fn).append(" = ").append(cx.coerce("v", objectType(), ft)).append(" }");
+        rows.append("\t\t").append(r).append("},\n");
+      }
+    }
+    mc = null;
+    if (rows.length() == 0) return;
+    file.append("func (this *").append(n).append(") args4jFields_() []*args4jField_ {\n\treturn []*args4jField_{\n").append(rows).append("\t}\n}\n\n");
   }
 
   void extBridges(TypeElement te) {

@@ -14,9 +14,9 @@ import (
 // ---- iteration helpers
 
 type sliceIter_ struct {
-	items  *[]any
-	i      int
-	del    func(i int)
+	items *[]any
+	i     int
+	del   func(i int)
 }
 
 func (it *sliceIter_) hasNext() bool { return it.i < len(*it.items) }
