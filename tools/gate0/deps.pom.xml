@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Test and annotation-processor dependencies of the Java tree. Used only by
+     tools/gate0/build.sh to download jars (mvn dependency:copy-dependencies). -->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>jsgo-mech</groupId>
+  <artifactId>gate0-deps</artifactId>
+  <version>0</version>
+  <dependencies>
+    <dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version></dependency>
+    <dependency><groupId>com.google.truth</groupId><artifactId>truth</artifactId><version>1.4.4</version></dependency>
+    <dependency><groupId>com.google.truth.extensions</groupId><artifactId>truth-proto-extension</artifactId><version>1.4.4</version></dependency>
+    <dependency><groupId>org.mockito</groupId><artifactId>mockito-core</artifactId><version>5.14.2</version></dependency>
+    <dependency><groupId>com.google.guava</groupId><artifactId>guava-testlib</artifactId><version>33.4.6-jre</version></dependency>
+    <dependency><groupId>com.google.jimfs</groupId><artifactId>jimfs</artifactId><version>1.2</version></dependency>
+    <dependency><groupId>io.github.java-diff-utils</groupId><artifactId>java-diff-utils</artifactId><version>4.12</version></dependency>
+    <dependency><groupId>com.google.auto.value</groupId><artifactId>auto-value</artifactId><version>1.11.0</version></dependency>
+    <dependency><groupId>com.google.auto.value</groupId><artifactId>auto-value-annotations</artifactId><version>1.11.0</version></dependency>
+  </dependencies>
+</project>
