@@ -3,6 +3,7 @@ package closure
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"runtime/debug"
 	"runtime/pprof"
 	"strings"
@@ -30,6 +31,32 @@ func Main(args []string) (code int) {
 			code = 70
 		}
 	}()
+	// Measuring hooks, each writing a file when the program exits:
+	//   JSGO_MEMSTATS=<file>     runtime.MemStats totals as one line of JSON
+	//   JSGO_MEM_PROFILE=<file>  pprof allocation profile (every 4096 bytes sampled; read it with
+	//                            `go tool pprof -sample_index=alloc_objects`)
+	//   JSGO_CPU_PROFILE=<file>  pprof CPU profile
+	if f := os.Getenv("JSGO_MEMSTATS"); f != "" {
+		stop := flushStd_
+		flushStd_ = func() {
+			var m runtime.MemStats
+			runtime.ReadMemStats(&m)
+			os.WriteFile(f, []byte(fmt.Sprintf("{\"mallocs\":%d,\"total_alloc\":%d,\"num_gc\":%d,\"pause_total_ns\":%d,\"gc_cpu_fraction\":%g,\"heap_sys\":%d,\"heap_alloc\":%d}\n",
+				m.Mallocs, m.TotalAlloc, m.NumGC, m.PauseTotalNs, m.GCCPUFraction, m.HeapSys, m.HeapAlloc)), 0644)
+			stop()
+		}
+	}
+	if f := os.Getenv("JSGO_MEM_PROFILE"); f != "" {
+		runtime.MemProfileRate = 4096
+		stop := flushStd_
+		flushStd_ = func() {
+			if out, err := os.Create(f); err == nil {
+				pprof.Lookup("allocs").WriteTo(out, 0)
+				out.Close()
+			}
+			stop()
+		}
+	}
 	if f := os.Getenv("JSGO_CPU_PROFILE"); f != "" {
 		out, err := os.Create(f)
 		if err == nil {
