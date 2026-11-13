@@ -24,6 +24,7 @@ import com.google.javascript.rhino.RhinoStringPool;
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Aggregates strings into a {@link StringPool}
@@ -74,7 +75,10 @@ public final class StringPool {
 
   public StringPoolProto toProto() {
     StringPoolProto.Builder builder = StringPoolProto.newBuilder().setMaxLength(this.maxLength);
-    this.pool.stream().skip(1).map(Wtf8::encodeToWtf8).forEachOrdered(builder::addStrings);
+    List<String> strings = this.pool.asList();
+    for (int i = 1; i < strings.size(); i++) {
+      builder.addStrings(Wtf8.encodeToWtf8(strings.get(i)));
+    }
     return builder.build();
   }
 

@@ -16,7 +16,6 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -123,8 +122,13 @@ public class J2clPass implements CompilerPass {
               .safeNameIdSupplier(safeNameIdSupplier)
               .assumeStrictThis(true)
               .build();
-      ImmutableSet<String> fnNamesToInline =
-          inlineSpecs.stream().flatMap(b -> b.fnNamesToInline.stream()).collect(toImmutableSet());
+      ImmutableSet.Builder<String> fnNamesToInlineBuilder = ImmutableSet.builder();
+      for (InlineSpec b : inlineSpecs) {
+        for (String fnName : b.fnNamesToInline) {
+          fnNamesToInlineBuilder.add(fnName);
+        }
+      }
+      ImmutableSet<String> fnNamesToInline = fnNamesToInlineBuilder.build();
       this.injector.setKnownConstantFunctions(fnNamesToInline);
     }
 

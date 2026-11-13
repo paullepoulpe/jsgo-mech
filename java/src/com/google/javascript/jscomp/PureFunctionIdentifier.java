@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.joining;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
@@ -227,11 +226,13 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
           // renaming well. So don't report this error, as it's not particularly helpful.
           continue;
         }
-        String sideEffectfulDefinitions =
-            summary.impureFunctionReasonsForDebugging.stream()
-                .sorted(SOURCE_LOCATION_COMPARATOR)
-                .map(PureFunctionIdentifier::formatSourceLocation)
-                .collect(joining("\n  "));
+        List<Node> sortedReasons = new ArrayList<>(summary.impureFunctionReasonsForDebugging);
+        sortedReasons.sort(SOURCE_LOCATION_COMPARATOR);
+        List<String> formattedReasons = new ArrayList<>();
+        for (Node reason : sortedReasons) {
+          formattedReasons.add(formatSourceLocation(reason));
+        }
+        String sideEffectfulDefinitions = String.join("\n  ", formattedReasons);
         compiler.report(
             JSError.make(
                 function,

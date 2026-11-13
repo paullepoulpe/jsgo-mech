@@ -16,7 +16,6 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
@@ -31,7 +30,6 @@ import com.google.javascript.rhino.jstype.JSType;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -475,8 +473,12 @@ public interface CodingConvention extends Serializable {
      * primitive to spec.
      */
     static AssertionFunctionLookup of(Collection<AssertionFunctionSpec> specs) {
-      ImmutableMap<Object, AssertionFunctionSpec> idToSpecMap =
-          specs.stream().collect(toImmutableMap(AssertionFunctionSpec::getId, Function.identity()));
+      ImmutableMap.Builder<Object, AssertionFunctionSpec> idToSpecMapBuilder =
+          ImmutableMap.builder();
+      for (AssertionFunctionSpec spec : specs) {
+        idToSpecMapBuilder.put(spec.getId(), spec);
+      }
+      ImmutableMap<Object, AssertionFunctionSpec> idToSpecMap = idToSpecMapBuilder.buildOrThrow();
 
       return new AssertionFunctionLookup(idToSpecMap);
     }

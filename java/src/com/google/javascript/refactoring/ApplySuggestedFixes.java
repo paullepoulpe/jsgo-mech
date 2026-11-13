@@ -17,8 +17,6 @@
 package com.google.javascript.refactoring;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.Streams.stream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Joiner;
@@ -38,8 +36,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.IntStream;
 
 /**
  * Class that applies suggested fixes to code or files.
@@ -87,24 +83,35 @@ public final class ApplySuggestedFixes {
     }
     int alternativeCount = Iterables.getFirst(fixChoices, null).getAlternatives().size();
     Preconditions.checkArgument(
-        stream(fixChoices)
-            .map(f -> f.getAlternatives().size())
-            .allMatch(Predicate.isEqual(alternativeCount)),
+        allHaveAlternativeCount(fixChoices, alternativeCount),
         "All SuggestedFixAlternatives must offer an equal number of choices for this "
             + "utility to make sense");
-    return IntStream.range(0, alternativeCount)
-        .mapToObj(i -> applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap))
-        .collect(toImmutableList());
+    ImmutableList.Builder<ImmutableMap<String, String>> result = ImmutableList.builder();
+    for (int i = 0; i < alternativeCount; i++) {
+      result.add(applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap));
+    }
+    return result.build();
+  }
+
+  private static boolean allHaveAlternativeCount(
+      Iterable<SuggestedFix> fixChoices, int alternativeCount) {
+    for (SuggestedFix f : fixChoices) {
+      if (f.getAlternatives().size() != alternativeCount) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static ImmutableMap<String, String> applySuggestedFixChoicesToCode(
       Iterable<SuggestedFix> fixChoices,
       final int choiceIndex,
       Map<String, String> fileNameToCodeMap) {
-    ImmutableList<SuggestedFix> chosenFixes =
-        stream(fixChoices)
-            .map(choices -> choices.getAlternatives().get(choiceIndex))
-            .collect(toImmutableList());
+    ImmutableList.Builder<SuggestedFix> chosenFixesBuilder = ImmutableList.builder();
+    for (SuggestedFix choices : fixChoices) {
+      chosenFixesBuilder.add(choices.getAlternatives().get(choiceIndex));
+    }
+    ImmutableList<SuggestedFix> chosenFixes = chosenFixesBuilder.build();
     return applySuggestedFixesToCode(chosenFixes, fileNameToCodeMap);
   }
 

@@ -16,8 +16,6 @@
 
 package com.google.javascript.jscomp.lint;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.javascript.jscomp.DiagnosticType;
@@ -25,6 +23,8 @@ import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 
@@ -133,8 +133,10 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
   }
 
   private void checkCanonical(NodeTraversal t) {
+    List<String> sortedProvides = new ArrayList<>(originalProvides);
+    Collections.sort(sortedProvides);
     @Nullable ImmutableList<String> canonicalProvides =
-        originalProvides.stream().sorted().distinct().collect(toImmutableList());
+        ImmutableList.copyOf(new LinkedHashSet<>(sortedProvides));
     if (!originalProvides.equals(canonicalProvides)) {
       needsFix = true;
       replacement =

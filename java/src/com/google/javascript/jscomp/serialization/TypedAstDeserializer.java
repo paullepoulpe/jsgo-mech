@@ -17,7 +17,6 @@
 package com.google.javascript.jscomp.serialization;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.javascript.jscomp.base.JSCompObjects.identical;
 
 import com.google.auto.value.AutoValue;
@@ -45,7 +44,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
@@ -107,9 +105,11 @@ public final class TypedAstDeserializer {
       boolean includeTypeInformation,
       boolean resolveSourceMapAnnotations,
       boolean parseInlineSourceMaps) {
-    ImmutableMap<String, SourceFile> sourceFilesByName =
-        requiredInputFiles.stream()
-            .collect(toImmutableMap(SourceFile::getName, Function.identity()));
+    ImmutableMap.Builder<String, SourceFile> sourceFilesByNameBuilder = ImmutableMap.builder();
+    for (SourceFile file : requiredInputFiles) {
+      sourceFilesByNameBuilder.put(file.getName(), file);
+    }
+    ImmutableMap<String, SourceFile> sourceFilesByName = sourceFilesByNameBuilder.buildOrThrow();
     return deserialize(
         compiler,
         syntheticExterns,

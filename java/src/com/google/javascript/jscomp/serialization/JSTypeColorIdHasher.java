@@ -17,7 +17,6 @@
 package com.google.javascript.jscomp.serialization;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableMap;
@@ -39,11 +38,12 @@ final class JSTypeColorIdHasher {
   private final ImmutableMap<ObjectType, ColorId> standardColorObjectIds;
 
   JSTypeColorIdHasher(JSTypeRegistry registry) {
-    this.standardColorObjectIds =
-        NATIVE_TYPE_TO_ID.entrySet().stream()
-            .collect(
-                toImmutableMap(
-                    (e) -> registry.getNativeObjectType(e.getKey()), Map.Entry::getValue));
+    ImmutableMap.Builder<ObjectType, ColorId> standardColorObjectIdsBuilder =
+        ImmutableMap.builder();
+    for (Map.Entry<JSTypeNative, ColorId> e : NATIVE_TYPE_TO_ID.entrySet()) {
+      standardColorObjectIdsBuilder.put(registry.getNativeObjectType(e.getKey()), e.getValue());
+    }
+    this.standardColorObjectIds = standardColorObjectIdsBuilder.buildOrThrow();
   }
 
   ColorId hashObjectType(ObjectType type) {

@@ -34,7 +34,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Streams;
 import com.google.common.io.BaseEncoding;
 import com.google.debugging.sourcemap.SourceMapConsumerV3;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
@@ -132,8 +131,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import org.jspecify.annotations.Nullable;
 
@@ -1691,33 +1688,13 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       // Note that a qname can actually be renamed multiple times during compilation,
       // so we need a multimap here.
       final Multimap<String, String> originalToNewQNameMap = LinkedHashMultimap.create();
-      // Get a stream of top level statement nodes that contain at least one reference to one of the
-      // qnames we are interested in. Take note of relevant renamings while we're at it.
-      final Stream<Node> statementStream =
-          getTopLevelStatements(jsRoot)
-              .filter(
-                  (Node statement) ->
-                      // filter to just those statements containing interesting qnames
-                      NodeUtil.has(
-                          statement,
-                          (Node n) -> {
-                            checkNotNull(n);
-                            if (!n.isQualifiedName()) {
-                              return false;
-                            }
-                            String qname = n.getQualifiedName();
-                            if (qnameSet.contains(qname)) {
-                              return true;
-                            }
-                            String originalQname = n.getOriginalQualifiedName();
-                            if (originalQname != null && qnameSet.contains(originalQname)) {
-                              originalToNewQNameMap.put(originalQname, qname);
-                              return true;
-                            } else {
-                              return false;
-                            }
-                          },
-                          node -> true));
+      // Get the top level statement nodes. Below they are filtered to those that contain at least
+      // one reference to one of the qnames we are interested in, taking note of relevant renamings
+      // while we're at it.
+      // NOTE: the filtering (and so the recording of renamings) happens statement by statement in
+      // the loop at the end, i.e. after the renamings have been printed, exactly as it did when
+      // this was a lazily evaluated stream.
+      final List<Node> statements = getTopLevelStatements(jsRoot);
       builder.append("//\n");
       builder.append("// closure-compiler: Printing all of the top-level statements\n");
       builder.append("// that contain references to these qualified names.\n");
@@ -1729,18 +1706,41 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         }
       }
       builder.append("//\n");
-      statementStream.forEach(
-          (Node statement) ->
-              builder
-                  .append(String.format("// %s\n", statement.getLocation()))
-                  .append(toSource(statement))
-                  .append("\n"));
+      for (Node statement : statements) {
+        // filter to just those statements containing interesting qnames
+        if (!NodeUtil.has(
+            statement,
+            (Node n) -> {
+              checkNotNull(n);
+              if (!n.isQualifiedName()) {
+                return false;
+              }
+              String qname = n.getQualifiedName();
+              if (qnameSet.contains(qname)) {
+                return true;
+              }
+              String originalQname = n.getOriginalQualifiedName();
+              if (originalQname != null && qnameSet.contains(originalQname)) {
+                originalToNewQNameMap.put(originalQname, qname);
+                return true;
+              } else {
+                return false;
+              }
+            },
+            node -> true)) {
+          continue;
+        }
+        builder
+            .append(String.format("// %s\n", statement.getLocation()))
+            .append(toSource(statement))
+            .append("\n");
+      }
     }
     return builder.toString();
   }
 
-  private Stream<Node> getTopLevelStatements(Node root) {
-    Stream.Builder<Node> builder = Stream.builder();
+  private List<Node> getTopLevelStatements(Node root) {
+    List<Node> result = new ArrayList<>();
     NodeTraversal.traverse(
         this,
         root,
@@ -1748,14 +1748,14 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
           @Override
           public boolean shouldTraverse(NodeTraversal t, Node n, Node parent) {
             if (NodeUtil.isStatement(n)) {
-              builder.add(n);
+              result.add(n);
               return false;
             } else {
               return true;
             }
           }
         });
-    return builder.build();
+    return result;
   }
 
   @Override
@@ -2655,10 +2655,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   Node parseTestCode(ImmutableList<String> code) {
     initCompilerOptionsIfTesting();
     initBasedOnOptions();
-    return parseCodeHelper(
-        Streams.mapWithIndex(
-                code.stream(), (value, index) -> SourceFile.fromCode("testcode" + index, value))
-            .collect(Collectors.toList()));
+    List<SourceFile> sources = new ArrayList<>();
+    for (int index = 0; index < code.size(); index++) {
+      sources.add(SourceFile.fromCode("testcode" + index, code.get(index)));
+    }
+    return parseCodeHelper(sources);
   }
 
   private Node parseCodeHelper(SourceFile src) {

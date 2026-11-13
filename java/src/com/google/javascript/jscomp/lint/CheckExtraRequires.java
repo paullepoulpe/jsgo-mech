@@ -26,6 +26,7 @@ import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.rhino.JSDocInfo;
+import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import java.util.LinkedHashMap;
@@ -261,9 +262,10 @@ public class CheckExtraRequires extends NodeTraversal.AbstractPostOrderCallback
     if (info == null) {
       return;
     }
-    info.getTypeExpressions().stream()
-        .flatMap(e -> e.getAllTypeNames().stream())
-        .map(QualifiedName::of)
-        .forEach(this::addUsagesOfAllPrefixes);
+    for (JSTypeExpression e : info.getTypeExpressions()) {
+      for (String typeName : e.getAllTypeNames()) {
+        addUsagesOfAllPrefixes(QualifiedName.of(typeName));
+      }
+    }
   }
 }

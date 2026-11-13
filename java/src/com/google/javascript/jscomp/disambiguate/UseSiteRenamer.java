@@ -16,9 +16,6 @@
 
 package com.google.javascript.jscomp.disambiguate;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static java.util.function.Function.identity;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -93,8 +90,11 @@ final class UseSiteRenamer {
    */
   private static ImmutableMap<ColorGraphNode, String> createAllClusterNames(
       PropertyClustering prop) {
-    return prop.getClusters().allRepresentatives().stream()
-        .collect(toImmutableMap(identity(), (r) -> createClusterName(prop, r)));
+    ImmutableMap.Builder<ColorGraphNode, String> result = ImmutableMap.builder();
+    for (ColorGraphNode r : prop.getClusters().allRepresentatives()) {
+      result.put(r, createClusterName(prop, r));
+    }
+    return result.buildOrThrow();
   }
 
   private static String createClusterName(PropertyClustering prop, ColorGraphNode rep) {

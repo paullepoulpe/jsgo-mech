@@ -18,7 +18,6 @@ package com.google.javascript.refactoring;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Streams.stream;
 import static java.lang.Math.min;
 import static java.util.Objects.requireNonNull;
 
@@ -637,6 +636,15 @@ public final class SuggestedFix {
       return addImport(m, namespace, ImportType.REQUIRE_TYPE, scriptMetadata);
     }
 
+    private static String firstUnusedAlias(String namespace, ScriptMetadata scriptMetadata) {
+      for (String a : RequireAliasGenerator.over(namespace)) {
+        if (!scriptMetadata.usesName(a)) {
+          return a;
+        }
+      }
+      throw new AssertionError();
+    }
+
     /** Adds a goog.require/requireType for the given namespace if it does not already exist. */
     @CanIgnoreReturnValue
     public Builder addImport(
@@ -657,11 +665,7 @@ public final class SuggestedFix {
            */
           alias = namespace;
         } else {
-          alias =
-              stream(RequireAliasGenerator.over(namespace))
-                  .filter((a) -> !scriptMetadata.usesName(a))
-                  .findFirst()
-                  .orElseThrow(AssertionError::new);
+          alias = firstUnusedAlias(namespace, scriptMetadata);
         }
         scriptMetadata.addAlias(namespace, alias);
       } else {

@@ -18,8 +18,6 @@ package com.google.javascript.jscomp.serialization;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.javascript.jscomp.serialization.TypePointers.isAxiomatic;
 import static java.util.Comparator.naturalOrder;
 
@@ -43,8 +41,11 @@ import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.ObjectType;
 import com.google.javascript.rhino.jstype.UnionType;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
 
@@ -242,11 +243,19 @@ final class JSTypeReconserializer {
           altRecords.equals(record.unionMembers),
           "Unions with same ID must have same members: %s => %s == %s",
           unionId,
-          altRecords.stream().map((r) -> r.colorId).collect(toImmutableSet()),
-          record.unionMembers.stream().map((r) -> r.colorId).collect(toImmutableSet()));
+          colorIdsOf(altRecords),
+          colorIdsOf(record.unionMembers));
     }
 
     return record;
+  }
+
+  private static ImmutableSet<ColorId> colorIdsOf(Collection<SeenTypeRecord> records) {
+    ImmutableSet.Builder<ColorId> result = ImmutableSet.builder();
+    for (SeenTypeRecord r : records) {
+      result.add(r.colorId);
+    }
+    return result.build();
   }
 
   private SeenTypeRecord recordObjectType(ObjectType type) {
@@ -298,13 +307,30 @@ final class JSTypeReconserializer {
     return TypeProto.newBuilder()
         .setUnion(
             UnionTypeProto.newBuilder()
-                .addAllUnionMember(
-                    seen.unionMembers.stream()
-                        .map((r) -> r.pointer)
-                        .sorted()
-                        .collect(toImmutableList()))
+                .addAllUnionMember(sortedPointersOf(seen.unionMembers))
                 .build())
         .build();
+  }
+
+  private static ImmutableList<Integer> sortedPointersOf(Collection<SeenTypeRecord> records) {
+    List<Integer> result = new ArrayList<>();
+    for (SeenTypeRecord r : records) {
+      result.add(r.pointer);
+    }
+    Collections.sort(result);
+    return ImmutableList.copyOf(result);
+  }
+
+  private ImmutableList<Integer> serializeInvolvedTypes(Collection<JSType> types) {
+    LinkedHashSet<Integer> distinctPointers = new LinkedHashSet<>();
+    for (JSType t : types) {
+      checkState(!t.isUnionType(), t);
+      // Ensure all types are recorded before reconciliation.
+      distinctPointers.add(this.serializeType(t));
+    }
+    List<Integer> result = new ArrayList<>(distinctPointers);
+    Collections.sort(result);
+    return ImmutableList.copyOf(result);
   }
 
   private TypeProto reconcileObjectTypes(SeenTypeRecord seen) {
@@ -455,14 +481,7 @@ final class JSTypeReconserializer {
                   debugInfo
                       .addMismatchBuilder()
                       .setSourceRef(location.getLocation())
-                      .addAllInvolvedColor(
-                          types.stream()
-                              .peek((t) -> checkState(!t.isUnionType(), t))
-                              // Ensure all types are recorded before reconciliation.
-                              .map(this::serializeType)
-                              .distinct()
-                              .sorted()
-                              .collect(toImmutableList())));
+                      .addAllInvolvedColor(serializeInvolvedTypes(types)));
     }
 
     this.state = State.GENERATING_POOL;

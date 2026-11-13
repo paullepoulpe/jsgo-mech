@@ -16,9 +16,6 @@
 
 package com.google.javascript.jscomp.deps;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.Streams.stream;
-
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -55,7 +52,11 @@ public interface DependencyInfo {
     }
 
     public static ImmutableList<String> asSymbolList(Iterable<Require> requires) {
-      return stream(requires).map(Require::getSymbol).collect(toImmutableList());
+      ImmutableList.Builder<String> result = ImmutableList.builder();
+      for (Require require : requires) {
+        result.add(require.getSymbol());
+      }
+      return result.build();
     }
 
     public static Require googRequireSymbol(String symbol) {

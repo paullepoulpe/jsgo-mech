@@ -36,10 +36,10 @@ import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 /** Detects all potential usages of polyfilled classes or methods */
@@ -114,11 +114,11 @@ final class PolyfillUsageFinder {
       this.methods = methods;
       this.statics = statics;
       this.byNativeVersion = byNativeVersion;
-      this.suffixes =
-          ImmutableSet.copyOf(
-              statics.keySet().stream()
-                  .map(arg -> arg.substring(arg.lastIndexOf('.') + 1))
-                  .collect(Collectors.toList()));
+      List<String> suffixList = new ArrayList<>();
+      for (String arg : statics.keySet()) {
+        suffixList.add(arg.substring(arg.lastIndexOf('.') + 1));
+      }
+      this.suffixes = ImmutableSet.copyOf(suffixList);
     }
 
     /**

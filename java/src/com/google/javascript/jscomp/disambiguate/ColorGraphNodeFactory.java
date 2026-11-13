@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.disambiguate;
 
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.colors.Color;
@@ -64,6 +63,14 @@ class ColorGraphNodeFactory {
     return ColorGraphNode.create(key, id);
   }
 
+  private ImmutableSet<Color> simplifyColors(ImmutableSet<Color> types) {
+    ImmutableSet.Builder<Color> result = ImmutableSet.builder();
+    for (Color type : types) {
+      result.add(simplifyColor(type));
+    }
+    return result.build();
+  }
+
   // Merges different colors with the same ambiguation-behavior into one
   private Color simplifyColor(@Nullable Color type) {
     if (type == null) {
@@ -74,8 +81,7 @@ class ColorGraphNodeFactory {
       // First remove null/void, then recursively simplify any primitive components
       type = type.subtractNullOrVoid();
       return type.isUnion()
-          ? Color.createUnion(
-              type.getUnionElements().stream().map(this::simplifyColor).collect(toImmutableSet()))
+          ? Color.createUnion(simplifyColors(type.getUnionElements()))
           : simplifyColor(type);
     } else if (type.getBoxId() != null) {
       return this.registry.get(type.getBoxId());

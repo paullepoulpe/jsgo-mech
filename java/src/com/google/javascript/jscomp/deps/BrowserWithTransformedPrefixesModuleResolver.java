@@ -16,9 +16,7 @@
 
 package com.google.javascript.jscomp.deps;
 
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.joining;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -29,7 +27,11 @@ import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModuleResolverFactory;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -88,21 +90,23 @@ public class BrowserWithTransformedPrefixesModuleResolver extends ModuleResolver
       PathEscaper pathEscaper,
       ImmutableMap<String, String> prefixReplacements) {
     super(modulePaths, moduleRootPaths, errorHandler, pathEscaper);
-    this.prefixReplacements =
-        prefixReplacements.entrySet().stream()
-            .map(entry -> PrefixReplacement.of(entry.getKey(), entry.getValue()))
-            .sorted(
-                // Sort by length in descending order to prefixes are applied most specific to
-                // least specific.
-                Comparator.<PrefixReplacement>comparingInt(r -> r.prefix().length())
-                    .reversed()
-                    .thenComparing(PrefixReplacement::prefix))
-            .collect(toImmutableSet());
-    this.expectedPrefixes =
-        this.prefixReplacements.stream()
-            .map(PrefixReplacement::prefix)
-            .sorted()
-            .collect(joining(", "));
+    List<PrefixReplacement> sortedReplacements = new ArrayList<>();
+    for (Map.Entry<String, String> entry : prefixReplacements.entrySet()) {
+      sortedReplacements.add(PrefixReplacement.of(entry.getKey(), entry.getValue()));
+    }
+    sortedReplacements.sort(
+        // Sort by length in descending order to prefixes are applied most specific to
+        // least specific.
+        Comparator.<PrefixReplacement>comparingInt(r -> r.prefix().length())
+            .reversed()
+            .thenComparing(PrefixReplacement::prefix));
+    this.prefixReplacements = ImmutableSet.copyOf(sortedReplacements);
+    List<String> sortedPrefixes = new ArrayList<>();
+    for (PrefixReplacement replacement : this.prefixReplacements) {
+      sortedPrefixes.add(replacement.prefix());
+    }
+    Collections.sort(sortedPrefixes);
+    this.expectedPrefixes = String.join(", ", sortedPrefixes);
   }
 
   private @Nullable String replacePathPrefixes(String moduleAddress) {

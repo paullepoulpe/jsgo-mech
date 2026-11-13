@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -434,11 +433,18 @@ public class DepsGenerator {
     // the resulting depgraph is valid. But we don't want to write this "fake" provide
     // back out, so remove it here.
     return SimpleDependencyInfo.Builder.from(info)
-        .setProvides(
-            info.getProvides().stream()
-                .filter(p -> !p.equals(info.getPathRelativeToClosureBase()))
-                .collect(Collectors.toList()))
+        .setProvides(providesWithoutRelativePath(info))
         .build();
+  }
+
+  private static List<String> providesWithoutRelativePath(DependencyInfo info) {
+    List<String> result = new ArrayList<>();
+    for (String p : info.getProvides()) {
+      if (!p.equals(info.getPathRelativeToClosureBase())) {
+        result.add(p);
+      }
+    }
+    return result;
   }
 
   /**

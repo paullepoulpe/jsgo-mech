@@ -26,15 +26,18 @@ import static java.util.Comparator.comparingLong;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.Multiset;
 import com.google.javascript.jscomp.CompilerOptions.TracerMode;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A PerformanceTracker collects statistics about the runtime of each pass, and how much a pass
@@ -467,24 +470,23 @@ public final class PerformanceTracker {
             "",
             "Summary:",
             "pass,runtime,allocMem,runs,changingRuns,astReduction,reduction,gzReduction"));
-    this.passSummary.entrySet().stream()
-        .sorted(comparingLong((e) -> e.getValue().runtime))
-        .map(
-            (entry) -> {
-              String key = entry.getKey();
-              Stats stats = entry.getValue();
-              return String.format(
-                  "%s,%d,%d,%d,%d,%d,%d,%d",
-                  key,
-                  stats.runtime,
-                  stats.allocMem,
-                  stats.runs,
-                  stats.changes,
-                  stats.astDiff,
-                  stats.diff,
-                  stats.gzDiff);
-            })
-        .forEach(output::println);
+    List<Map.Entry<String, Stats>> sortedPassSummary = new ArrayList<>(this.passSummary.entrySet());
+    sortedPassSummary.sort(comparingLong((e) -> e.getValue().runtime));
+    for (Map.Entry<String, Stats> entry : sortedPassSummary) {
+      String key = entry.getKey();
+      Stats stats = entry.getValue();
+      output.println(
+          String.format(
+              "%s,%d,%d,%d,%d,%d,%d,%d",
+              key,
+              stats.runtime,
+              stats.allocMem,
+              stats.runs,
+              stats.changes,
+              stats.astDiff,
+              stats.diff,
+              stats.gzDiff));
+    }
 
     output.println(
         lines(
@@ -512,10 +514,14 @@ public final class PerformanceTracker {
               "", //
               "Input AST Manifest:",
               "token,count"));
-      this.astManifest.entrySet().stream()
-          .map((e) -> String.format("%s,%d", e.getElement(), e.getCount()))
-          .sorted()
-          .forEach(output::println);
+      List<String> manifestLines = new ArrayList<>();
+      for (Multiset.Entry<Token> e : this.astManifest.entrySet()) {
+        manifestLines.add(String.format("%s,%d", e.getElement(), e.getCount()));
+      }
+      Collections.sort(manifestLines);
+      for (String line : manifestLines) {
+        output.println(line);
+      }
     }
 
     output.println();

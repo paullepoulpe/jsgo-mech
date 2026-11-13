@@ -16,6 +16,7 @@
 
 package com.google.javascript.jscomp;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.base.Tri;
 import org.jspecify.annotations.Nullable;
 
@@ -40,10 +41,28 @@ public final class DiagnosticGroupWarningsGuard extends WarningsGuard {
   @Override
   public Tri mustRunChecks(DiagnosticGroup otherGroup) {
     if (this.level.isOn()) {
-      return otherGroup.getTypes().stream().anyMatch(this.group::matches) ? Tri.TRUE : Tri.UNKNOWN;
+      return groupMatchesAny(otherGroup.getTypes()) ? Tri.TRUE : Tri.UNKNOWN;
     } else {
-      return otherGroup.getTypes().stream().allMatch(this.group::matches) ? Tri.FALSE : Tri.UNKNOWN;
+      return groupMatchesAll(otherGroup.getTypes()) ? Tri.FALSE : Tri.UNKNOWN;
     }
+  }
+
+  private boolean groupMatchesAny(ImmutableSet<DiagnosticType> types) {
+    for (DiagnosticType type : types) {
+      if (this.group.matches(type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean groupMatchesAll(ImmutableSet<DiagnosticType> types) {
+    for (DiagnosticType type : types) {
+      if (!this.group.matches(type)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

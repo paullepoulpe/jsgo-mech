@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -480,8 +479,10 @@ final class PolymerClassDefinition {
     if (behaviorProps == null) {
       return;
     }
-    Set<String> elementPropNames =
-        polymerElementProps.stream().map(x -> x.name.getString()).collect(Collectors.toCollection(LinkedHashSet::new));
+    Set<String> elementPropNames = new LinkedHashSet<>();
+    for (MemberDefinition x : polymerElementProps) {
+      elementPropNames.add(x.name.getString());
+    }
     Iterator<Map.Entry<MemberDefinition, BehaviorDefinition>> behaviorsItr =
         behaviorProps.entrySet().iterator();
     while (behaviorsItr.hasNext()) {

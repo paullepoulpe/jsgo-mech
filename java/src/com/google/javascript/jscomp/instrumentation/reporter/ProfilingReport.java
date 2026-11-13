@@ -16,8 +16,6 @@
 
 package com.google.javascript.jscomp.instrumentation.reporter;
 
-import static java.util.stream.Collectors.joining;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile;
@@ -29,8 +27,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * A class that maintains all information about the production instrumentation results which will be
@@ -55,16 +51,18 @@ final class ProfilingReport {
       Map<String, InstrumentationPoint> instrumentationMapping,
       ImmutableList<Map<String, Long>> allInstrumentationReports) {
 
-    List<ReportProfile> profiles =
-        allInstrumentationReports.stream()
-            .map((report) -> ReportDecoder.decodeReport(instrumentationMapping, report))
-            .collect(Collectors.toList());
+    List<ReportProfile> profiles = new ArrayList<>();
+    for (Map<String, Long> report : allInstrumentationReports) {
+      profiles.add(ReportDecoder.decodeReport(instrumentationMapping, report));
+    }
 
+    ImmutableMap.Builder<InstrumentationPoint, InstrumentationPointMetrics> metricsBuilder =
+        ImmutableMap.builder();
+    for (InstrumentationPoint point : instrumentationMapping.values()) {
+      metricsBuilder.put(point, new InstrumentationPointMetrics());
+    }
     Map<InstrumentationPoint, InstrumentationPointMetrics> metrics =
-        instrumentationMapping.values().stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    Function.identity(), (point) -> new InstrumentationPointMetrics()));
+        metricsBuilder.buildOrThrow();
 
     for (ReportProfile profile : profiles) {
       for (FileProfile fileProfile : profile.getFileProfileList()) {
@@ -115,7 +113,11 @@ final class ProfilingReport {
               String.valueOf(entry.getValue().numberOfReports)));
     }
 
-    return output.stream().map((row) -> String.join("\t", row)).collect(joining("\n"));
+    List<String> rows = new ArrayList<>();
+    for (List<String> row : output) {
+      rows.add(String.join("\t", row));
+    }
+    return String.join("\n", rows);
   }
 
   /** Metrics collected for particular InstrumentationPoint across all reports. */

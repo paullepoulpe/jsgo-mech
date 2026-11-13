@@ -17,11 +17,7 @@
 package com.google.javascript.jscomp.disambiguate;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
-import static com.google.common.collect.ImmutableSortedSet.toImmutableSortedSet;
 import static java.util.Comparator.comparingInt;
-import static java.util.Comparator.naturalOrder;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ComparisonChain;
@@ -51,8 +47,10 @@ import com.google.javascript.jscomp.graph.FixedPointGraphTraversal;
 import com.google.javascript.jscomp.graph.LowestCommonAncestorFinder;
 import com.google.javascript.rhino.Node;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 /** Assembles the various parts of the diambiguator to execute them as a compiler pass. */
@@ -100,10 +98,13 @@ public final class DisambiguateProperties implements CompilerPass {
         new LogFile.StreamedJsonProducer() {
           @Override
           public void writeJson(JsonWriter writer) throws IOException {
+            ImmutableSortedSet.Builder<PropertyReferenceIndexJson> propRefsJsonBuilder =
+                ImmutableSortedSet.naturalOrder();
+            for (PropertyClustering prop : propIndex.values()) {
+              propRefsJsonBuilder.add(new PropertyReferenceIndexJson(prop));
+            }
             ImmutableSortedSet<PropertyReferenceIndexJson> propRefsJson =
-                propIndex.values().stream()
-                    .map(PropertyReferenceIndexJson::new)
-                    .collect(toImmutableSortedSet(naturalOrder()));
+                propRefsJsonBuilder.build();
 
             writer.beginObject();
             for (PropertyReferenceIndexJson propRef : propRefsJson) {
@@ -134,11 +135,14 @@ public final class DisambiguateProperties implements CompilerPass {
 
     this.logForDiagnostics(
         "graph",
-        () ->
-            graph.getNodes().stream()
-                .map(TypeNodeJson::new)
-                .sorted(comparingInt((x) -> x.index))
-                .collect(toImmutableList()));
+        () -> {
+          List<TypeNodeJson> result = new ArrayList<>();
+          for (DiGraphNode<ColorGraphNode, Object> n : graph.getNodes()) {
+            result.add(new TypeNodeJson(n));
+          }
+          result.sort(comparingInt((x) -> x.index));
+          return ImmutableList.copyOf(result);
+        });
 
     invalidateBasedOnType(flattener);
 
@@ -198,15 +202,15 @@ public final class DisambiguateProperties implements CompilerPass {
   private static ImmutableMap<String, Object> buildRenamingIndex(
       LinkedHashMap<String, PropertyClustering> props, UseSiteRenamer renamer) {
     ImmutableSetMultimap<String, String> newNames = renamer.getRenamingIndex();
-    return props.values().stream()
-        .collect(
-            toImmutableSortedMap(
-                naturalOrder(),
-                PropertyClustering::getName,
-                prop ->
-                    prop.isInvalidated()
-                        ? prop.getLastInvalidation()
-                        : ImmutableSortedSet.copyOf(newNames.get(prop.getName()))));
+    ImmutableSortedMap.Builder<String, Object> result = ImmutableSortedMap.naturalOrder();
+    for (PropertyClustering prop : props.values()) {
+      result.put(
+          prop.getName(),
+          prop.isInvalidated()
+              ? prop.getLastInvalidation()
+              : ImmutableSortedSet.copyOf(newNames.get(prop.getName())));
+    }
+    return result.buildOrThrow();
   }
 
   private static void invalidateWellKnownProperties(
@@ -280,15 +284,23 @@ public final class DisambiguateProperties implements CompilerPass {
       }
 
       if (color.isUnion()) {
-        return color.getUnionElements().stream()
-            .anyMatch(element -> mayHaveProperty(element, propertyName));
+        for (Color element : color.getUnionElements()) {
+          if (mayHaveProperty(element, propertyName)) {
+            return true;
+          }
+        }
+        return false;
       }
 
       if (color.getOwnProperties().contains(propertyName)) {
         return true;
       }
-      return this.registry.getDisambiguationSupertypes(color).stream()
-          .anyMatch(element -> mayHaveProperty(element, propertyName));
+      for (Color element : this.registry.getDisambiguationSupertypes(color)) {
+        if (mayHaveProperty(element, propertyName)) {
+          return true;
+        }
+      }
+      return false;
 
     } finally {
       this.mayHavePropertySeenSet.remove(color);
@@ -339,10 +351,12 @@ public final class DisambiguateProperties implements CompilerPass {
       if (prop.isInvalidated()) {
         this.refs = ImmutableSortedSet.of();
       } else {
-        this.refs =
-            prop.getUseSites().entrySet().stream()
-                .map((e) -> new PropertyReferenceJson(e.getKey(), e.getValue()))
-                .collect(toImmutableSortedSet(naturalOrder()));
+        ImmutableSortedSet.Builder<PropertyReferenceJson> refsBuilder =
+            ImmutableSortedSet.naturalOrder();
+        for (Map.Entry<Node, ColorGraphNode> e : prop.getUseSites().entrySet()) {
+          refsBuilder.add(new PropertyReferenceJson(e.getKey(), e.getValue()));
+        }
+        this.refs = refsBuilder.build();
       }
     }
 
@@ -418,15 +432,18 @@ public final class DisambiguateProperties implements CompilerPass {
       this.index = t.getIndex();
       this.colorId = t.getColor().getId().toString();
       this.invalidating = t.getColor().isInvalidating();
-      this.edges =
-          n.getOutEdges().stream()
-              .map(TypeEdgeJson::new)
-              .collect(toImmutableSortedSet(naturalOrder()));
-      this.props =
-          t.getAssociatedProps().entrySet().stream()
-              .collect(
-                  toImmutableSortedMap(
-                      naturalOrder(), e -> e.getKey().getName(), Map.Entry::getValue));
+      ImmutableSortedSet.Builder<TypeEdgeJson> edgesBuilder = ImmutableSortedSet.naturalOrder();
+      for (DiGraphEdge<ColorGraphNode, Object> e : n.getOutEdges()) {
+        edgesBuilder.add(new TypeEdgeJson(e));
+      }
+      this.edges = edgesBuilder.build();
+      ImmutableSortedMap.Builder<String, PropAssociation> propsBuilder =
+          ImmutableSortedMap.naturalOrder();
+      for (Map.Entry<PropertyClustering, PropAssociation> e :
+          t.getAssociatedProps().entrySet()) {
+        propsBuilder.put(e.getKey().getName(), e.getValue());
+      }
+      this.props = propsBuilder.buildOrThrow();
     }
 
     @Override

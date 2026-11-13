@@ -19,7 +19,6 @@ package com.google.javascript.jscomp.js;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -171,9 +170,13 @@ public final class RuntimeJsLibManager {
     if (this.mode != RuntimeLibraryMode.EXTERN_FIELD_NAMES) {
       return ImmutableList.of();
     }
-    return internedFields.values().stream()
-        .filter(InternalField::isInjected)
-        .collect(toImmutableList());
+    ImmutableList.Builder<ExternedField> result = ImmutableList.builder();
+    for (InternalField field : internedFields.values()) {
+      if (field.isInjected()) {
+        result.add(field);
+      }
+    }
+    return result.build();
   }
 
   private InternalField createField(String fieldName) {

@@ -17,15 +17,12 @@
 package com.google.javascript.jscomp.serialization;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.google.common.collect.ImmutableSortedSet.toImmutableSortedSet;
-import static com.google.common.collect.Streams.stream;
 import static com.google.javascript.jscomp.serialization.TypePointers.isAxiomatic;
 import static com.google.javascript.jscomp.serialization.TypePointers.trimOffset;
-import static java.util.Comparator.naturalOrder;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonWriter;
@@ -207,9 +204,11 @@ final class SerializeTypesToPointers {
    */
   private ImmutableSortedSet<TypeMismatchJson> logTypeMismatches(
       Iterable<TypeMismatch> typeMismatches, JSTypeReconserializer serializer, TypePool typePool) {
-    return stream(typeMismatches)
-        .map(mismatch -> TypeMismatchJson.create(mismatch, serializer, typePool))
-        .collect(toImmutableSortedSet(naturalOrder()));
+    ImmutableSortedSet.Builder<TypeMismatchJson> result = ImmutableSortedSet.naturalOrder();
+    for (TypeMismatch mismatch : typeMismatches) {
+      result.add(TypeMismatchJson.create(mismatch, serializer, typePool));
+    }
+    return result.build();
   }
 
   /** Returns the compact, HTML-safe JSON text of an array with one object per mismatch. */
@@ -307,10 +306,11 @@ final class SerializeTypesToPointers {
       TypeProto typeProto = typePool.getTypeList().get(trimOffset(poolOffset));
       switch (typeProto.getKindCase()) {
         case UNION -> {
-          return ColorId.union(
-              typeProto.getUnion().getUnionMemberList().stream()
-                  .map(pointer -> typePointerToId(pointer, typePool))
-                  .collect(toImmutableSet()));
+          ImmutableSet.Builder<ColorId> memberIds = ImmutableSet.builder();
+          for (Integer pointer : typeProto.getUnion().getUnionMemberList()) {
+            memberIds.add(typePointerToId(pointer, typePool));
+          }
+          return ColorId.union(memberIds.build());
         }
         case OBJECT -> {
           return ColorId.fromBytes(typeProto.getObject().getUuid());

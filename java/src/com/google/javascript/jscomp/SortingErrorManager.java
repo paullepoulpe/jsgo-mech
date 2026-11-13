@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -102,10 +101,13 @@ public class SortingErrorManager implements ErrorManager {
   }
 
   private ImmutableList<JSError> filterToListOf(CheckLevel level) {
-    return messages.stream()
-        .filter((e) -> e.level == level)
-        .map((e) -> e.error)
-        .collect(toImmutableList());
+    ImmutableList.Builder<JSError> result = ImmutableList.builder();
+    for (ErrorWithLevel e : messages) {
+      if (e.level == level) {
+        result.add(e.error);
+      }
+    }
+    return result.build();
   }
 
   // TODO(b/114762232): It should be invalid to report errors during the execution of this method;

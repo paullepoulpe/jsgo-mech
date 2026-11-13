@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.joining;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.rhino.Node;
@@ -29,6 +28,7 @@ import com.google.javascript.rhino.jstype.JSType.Nullability;
 import com.google.javascript.rhino.jstype.JSTypeNative;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.ObjectType;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -293,7 +293,11 @@ class TypedCodeGenerator extends CodeGenerator {
       StringBuilder sb, Collection<? extends JSType> typeParams) {
     if (!typeParams.isEmpty()) {
       sb.append(" * @template ");
-      sb.append(typeParams.stream().map(this::formatTypeVar).collect(joining(",")));
+      List<String> formattedTypeParams = new ArrayList<>();
+      for (JSType typeParam : typeParams) {
+        formattedTypeParams.add(formatTypeVar(typeParam));
+      }
+      sb.append(String.join(",", formattedTypeParams));
       sb.append("\n");
     }
   }

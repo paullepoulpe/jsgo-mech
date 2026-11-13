@@ -34,8 +34,10 @@ import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.JSTypeResolver;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /** A compiler pass to run the type inference analysis. */
@@ -131,18 +133,18 @@ class TypeInferencePass {
         histogram.log("step_count token population");
 
         int[] totals = new int[] {0, 0};
-        this.stepCountHistogram.keySet().stream()
-            .sorted(Comparator.<Integer>naturalOrder().reversed())
-            .forEach(
-                (stepCount) ->
-                    this.stepCountHistogram.get(stepCount).entrySet().stream()
-                        .sorted(comparingInt(Multiset.Entry::getCount))
-                        .forEach(
-                            (e) -> {
-                              totals[0] += stepCount * e.getCount();
-                              totals[1] += e.getCount();
-                              histogram.log("%s %s %s", stepCount, e.getElement(), e.getCount());
-                            }));
+        List<Integer> stepCounts = new ArrayList<>(this.stepCountHistogram.keySet());
+        stepCounts.sort(Comparator.<Integer>naturalOrder().reversed());
+        for (Integer stepCount : stepCounts) {
+          List<Multiset.Entry<Token>> entries =
+              new ArrayList<>(this.stepCountHistogram.get(stepCount).entrySet());
+          entries.sort(comparingInt(Multiset.Entry::getCount));
+          for (Multiset.Entry<Token> e : entries) {
+            totals[0] += stepCount * e.getCount();
+            totals[1] += e.getCount();
+            histogram.log("%s %s %s", stepCount, e.getElement(), e.getCount());
+          }
+        }
         histogram.log("%s TOTAL %s", totals[0], totals[1]);
       }
     }

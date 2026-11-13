@@ -18,8 +18,6 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Ascii;
@@ -2387,8 +2385,11 @@ public final class ConformanceRules {
 
     public SecuritySensitiveAttributes(
         Collection<String> bannedAtrrs, Supplier<GlobalNamespace> globalNamespaceSupplier) {
-      this.bannedAtrrs =
-          bannedAtrrs.stream().map(s -> s.toLowerCase(Locale.ROOT)).collect(toImmutableSet());
+      ImmutableSet.Builder<String> bannedAtrrsBuilder = ImmutableSet.builder();
+      for (String s : bannedAtrrs) {
+        bannedAtrrsBuilder.add(s.toLowerCase(Locale.ROOT));
+      }
+      this.bannedAtrrs = bannedAtrrsBuilder.build();
       this.globalNamespaceSupplier = globalNamespaceSupplier;
     }
 
@@ -2768,10 +2769,11 @@ public final class ConformanceRules {
     public BanExecCommand(AbstractCompiler compiler, Requirement requirement)
         throws InvalidRequirementSpec {
       super(compiler, requirement);
-      bannedAttrs =
-          requirement.getValueList().stream()
-              .map(v -> v.toLowerCase(Locale.ROOT))
-              .collect(toImmutableList());
+      ImmutableList.Builder<String> bannedAttrsBuilder = ImmutableList.builder();
+      for (String v : requirement.getValueList()) {
+        bannedAttrsBuilder.add(v.toLowerCase(Locale.ROOT));
+      }
+      bannedAttrs = bannedAttrsBuilder.build();
     }
 
     @Override

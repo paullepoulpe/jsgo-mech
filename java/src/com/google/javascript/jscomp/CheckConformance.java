@@ -18,7 +18,6 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior.RECORD_ONLY;
 import static com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior.UNSPECIFIED;
 
@@ -32,6 +31,7 @@ import com.google.javascript.rhino.Node;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.TextFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -236,9 +236,11 @@ public final class CheckConformance implements NodeTraversal.Callback, CompilerP
         ruleToBehavior.put(rule, behavior);
       }
     }
-    return builder.asMap().entrySet().stream()
-        .map((e) -> new Category(e.getKey(), ImmutableList.copyOf(e.getValue())))
-        .collect(toImmutableList());
+    ImmutableList.Builder<Category> result = ImmutableList.builder();
+    for (Map.Entry<Precondition, Collection<Rule>> e : builder.asMap().entrySet()) {
+      result.add(new Category(e.getKey(), ImmutableList.copyOf(e.getValue())));
+    }
+    return result.build();
   }
 
   private static boolean validateBehaviorSettingOfConfigs(

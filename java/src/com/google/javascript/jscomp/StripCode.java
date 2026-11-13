@@ -18,7 +18,6 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.CodingConvention.SubclassRelationship;
@@ -29,7 +28,6 @@ import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -69,13 +67,13 @@ class StripCode implements CompilerPass {
       DiagnosticType.error("JSC_STRIP_ASSIGNMENT_ERROR", "Unable to strip assignment to {0}");
 
   /**
-   * Returns a stream containing `s` and, if `s` contains a ".", also all the possible collapsed
+   * Returns a list containing `s` and, if `s` contains a ".", also all the possible collapsed
    * forms of `s`. (e.g. for `'a.b.c'` we generate `'a$b.c'` and `'a$b$c'`)
    *
    * <p>StripCode now runs after `CollapseProperties`, so it needs to look for both the original and
    * collapsed versions of qualified names.
    */
-  private static Stream<String> toStreamWithCollapsedVersions(String s) {
+  private static ArrayList<String> toListWithCollapsedVersions(String s) {
     final ArrayList<String> possibleForms = new ArrayList<>();
     possibleForms.add(s);
     final char[] chars = s.toCharArray();
@@ -85,7 +83,7 @@ class StripCode implements CompilerPass {
         possibleForms.add(new String(chars));
       }
     }
-    return possibleForms.stream();
+    return possibleForms;
   }
 
   /**
@@ -102,24 +100,33 @@ class StripCode implements CompilerPass {
 
     this.compiler = compiler;
 
-    this.stripNameSuffixes =
-        stripNameSuffixes.stream()
-            .flatMap(StripCode::toStreamWithCollapsedVersions)
-            .collect(toImmutableSet());
-    this.stripNamePrefixes =
-        stripNamePrefixes.stream()
-            .flatMap(StripCode::toStreamWithCollapsedVersions)
-            .collect(toImmutableSet());
+    ImmutableSet.Builder<String> stripNameSuffixesBuilder = ImmutableSet.builder();
+    for (String s : stripNameSuffixes) {
+      for (String form : toListWithCollapsedVersions(s)) {
+        stripNameSuffixesBuilder.add(form);
+      }
+    }
+    this.stripNameSuffixes = stripNameSuffixesBuilder.build();
+    ImmutableSet.Builder<String> stripNamePrefixesBuilder = ImmutableSet.builder();
+    for (String s : stripNamePrefixes) {
+      for (String form : toListWithCollapsedVersions(s)) {
+        stripNamePrefixesBuilder.add(form);
+      }
+    }
+    this.stripNamePrefixes = stripNamePrefixesBuilder.build();
 
-    Stream<String> stripTypesStream = stripTypes.stream();
+    ArrayList<String> stripTypesToAdjust = new ArrayList<>(stripTypes);
     // Add "tweak" class stripping if requested
     if (enableTweakStripping) {
-      stripTypesStream = Stream.concat(stripTypesStream, Stream.of("goog.tweak"));
+      stripTypesToAdjust.add("goog.tweak");
     }
-    ImmutableSet<String> stripTypesAdjusted =
-        stripTypesStream
-            .flatMap(StripCode::toStreamWithCollapsedVersions)
-            .collect(toImmutableSet());
+    ImmutableSet.Builder<String> stripTypesAdjustedBuilder = ImmutableSet.builder();
+    for (String s : stripTypesToAdjust) {
+      for (String form : toListWithCollapsedVersions(s)) {
+        stripTypesAdjustedBuilder.add(form);
+      }
+    }
+    ImmutableSet<String> stripTypesAdjusted = stripTypesAdjustedBuilder.build();
 
     // Iteration overhead was a high cost in this pass. Using a native array
     // is trivial and avoid those costs.
@@ -130,19 +137,27 @@ class StripCode implements CompilerPass {
     // names.
     // TODO(johnlenz): I'm not sure what the original intent of "type prefix" stripping was.
     // Verify that we can always assume a complete namespace and simplify this logic.
-    this.stripTypePrefixesList =
-        // look for both non-collapsed and collapsed child names
-        stripTypesAdjusted.stream()
-            .flatMap(s -> Stream.of(s + ".", s + "$"))
-            .toArray(String[]::new);
+    ArrayList<String> stripTypePrefixes = new ArrayList<>();
+    for (String s : stripTypesAdjusted) {
+      // look for both non-collapsed and collapsed child names
+      stripTypePrefixes.add(s + ".");
+      stripTypePrefixes.add(s + "$");
+    }
+    this.stripTypePrefixesList = stripTypePrefixes.toArray(new String[0]);
 
     // Precalculate the lowercase versions of the string to avoid repeated
     // lowercase conversions.
-    this.stripNamePrefixesLowerCaseList =
-        this.stripNamePrefixes.stream().map(s -> s.toLowerCase(Locale.ROOT)).toArray(String[]::new);
+    ArrayList<String> stripNamePrefixesLowerCase = new ArrayList<>();
+    for (String s : this.stripNamePrefixes) {
+      stripNamePrefixesLowerCase.add(s.toLowerCase(Locale.ROOT));
+    }
+    this.stripNamePrefixesLowerCaseList = stripNamePrefixesLowerCase.toArray(new String[0]);
 
-    this.stripNameSuffixesLowerCaseList =
-        this.stripNameSuffixes.stream().map(s -> s.toLowerCase(Locale.ROOT)).toArray(String[]::new);
+    ArrayList<String> stripNameSuffixesLowerCase = new ArrayList<>();
+    for (String s : this.stripNameSuffixes) {
+      stripNameSuffixesLowerCase.add(s.toLowerCase(Locale.ROOT));
+    }
+    this.stripNameSuffixesLowerCaseList = stripNameSuffixesLowerCase.toArray(new String[0]);
   }
 
   @Override

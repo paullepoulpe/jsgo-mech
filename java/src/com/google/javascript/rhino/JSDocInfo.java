@@ -2707,9 +2707,19 @@ public class JSDocInfo implements Serializable {
       return interfaceType != null && addUnique(EXTENDED_INTERFACES, interfaceType);
     }
 
+    private static boolean containsEquivalent(
+        ArrayList<JSTypeExpression> list, JSTypeExpression elem) {
+      for (JSTypeExpression existing : list) {
+        if (elem.isEquivalentTo(existing)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     private boolean addUnique(Property<ArrayList<JSTypeExpression>> prop, JSTypeExpression elem) {
       ArrayList<JSTypeExpression> list = getPropWithDefault(prop, ArrayList::new);
-      if (list.stream().anyMatch(elem::isEquivalentTo)) {
+      if (containsEquivalent(list, elem)) {
         return false;
       } else {
         list.add(elem);

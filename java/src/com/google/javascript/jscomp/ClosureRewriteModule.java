@@ -18,7 +18,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.javascript.jscomp.AstFactory.type;
 import static com.google.javascript.jscomp.ClosurePrimitiveErrors.GOOG_MODULE_GET_OF_WEAK_MODULE;
 import static com.google.javascript.jscomp.ClosurePrimitiveErrors.INVALID_FORWARD_DECLARE_NAMESPACE;
@@ -790,14 +789,15 @@ public final class ClosureRewriteModule implements CompilerPass {
    * synthetic externs)
    */
   private void declareSyntheticExterns() {
-    ImmutableList<Node> vars =
-        syntheticExterns.values().stream()
-            // Skip roots of goog.provide or goog.module.declareLegacyNamespace();
-            .filter((lhs) -> !isNameInGlobalScope(lhs.getString()))
-            .map(
-                (lhs) ->
-                    IR.var(astFactory.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs))
-            .collect(toImmutableList());
+    ImmutableList.Builder<Node> varsBuilder = ImmutableList.builder();
+    for (Node lhs : syntheticExterns.values()) {
+      // Skip roots of goog.provide or goog.module.declareLegacyNamespace();
+      if (!isNameInGlobalScope(lhs.getString())) {
+        varsBuilder.add(
+            IR.var(astFactory.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs));
+      }
+    }
+    ImmutableList<Node> vars = varsBuilder.build();
 
     if (vars.isEmpty()) {
       return;

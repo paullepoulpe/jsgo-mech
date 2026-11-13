@@ -820,9 +820,9 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
                   this.getModule(),
                   currentScope,
                   compiler.getInput(NodeUtil.getInputId(moduleBody)));
-          unresolvedImports.entrySet().stream()
-              .map(entry -> new WeakModuleImport(entry.getKey(), entry.getValue(), currentScope))
-              .forEachOrdered(weakImports::add);
+          for (Map.Entry<Node, ScopedName> entry : unresolvedImports.entrySet()) {
+            weakImports.add(new WeakModuleImport(entry.getKey(), entry.getValue(), currentScope));
+          }
         }
         default ->
             // This should have been a build-breaking DUPLICATE_NAMESPACE_AND_MODULE error in

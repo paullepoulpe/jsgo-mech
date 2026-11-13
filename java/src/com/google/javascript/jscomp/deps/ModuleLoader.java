@@ -18,9 +18,6 @@ package com.google.javascript.jscomp.deps;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableMultiset.toImmutableMultiset;
-import static com.google.common.collect.ImmutableSortedSet.toImmutableSortedSet;
-import static com.google.common.collect.Streams.stream;
 import static java.util.Comparator.naturalOrder;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -28,13 +25,16 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
@@ -272,25 +272,26 @@ public final class ModuleLoader {
    * resolved.
    */
   private ImmutableList<String> createRootPaths(Iterable<String> roots) {
-    return stream(roots)
-        .map(this.pathResolver)
-        .map(this.pathEscaper::escape)
-        .map((n) -> isAmbiguousIdentifier(n) ? (MODULE_SLASH + n) : n)
-        .collect(toImmutableSortedSet(BEST_MATCH_PATH_ORDERING))
-        .asList();
+    ImmutableSortedSet.Builder<String> result =
+        new ImmutableSortedSet.Builder<>(BEST_MATCH_PATH_ORDERING);
+    for (String root : roots) {
+      String n = this.pathEscaper.escape(this.pathResolver.apply(root));
+      result.add(isAmbiguousIdentifier(n) ? (MODULE_SLASH + n) : n);
+    }
+    return result.build().asList();
   }
 
   /** @return List of normalized modules which always have a leading slash */
   private ImmutableSet<String> resolvePaths(Iterable<? extends DependencyInfo> inputs) {
-    ImmutableMultiset<String> dupeModulePaths =
-        stream(inputs)
-            .map(DependencyInfo::getName)
-            .map(this.pathResolver)
-            .map(this.pathEscaper::escape)
-            .map((p) -> normalize(p, this.moduleRootPaths))
-            .map((n) -> isAmbiguousIdentifier(n) ? (MODULE_SLASH + n) : n)
-            .sorted(BEST_MATCH_PATH_ORDERING) // Sort so that this errors are easier to read.
-            .collect(toImmutableMultiset());
+    List<String> sortedModulePaths = new ArrayList<>();
+    for (DependencyInfo input : inputs) {
+      String p = this.pathEscaper.escape(this.pathResolver.apply(input.getName()));
+      String n = normalize(p, this.moduleRootPaths);
+      sortedModulePaths.add(isAmbiguousIdentifier(n) ? (MODULE_SLASH + n) : n);
+    }
+    // Sort so that this errors are easier to read.
+    sortedModulePaths.sort(BEST_MATCH_PATH_ORDERING);
+    ImmutableMultiset<String> dupeModulePaths = ImmutableMultiset.copyOf(sortedModulePaths);
 
     checkState(
         dupeModulePaths.size() == dupeModulePaths.elementSet().size(),

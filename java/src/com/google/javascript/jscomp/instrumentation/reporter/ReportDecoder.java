@@ -43,8 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -101,10 +99,10 @@ public final class ReportDecoder {
     List<String> functionNames = parseJsonStringList(functionNamesAsJsonArray);
 
     List<String> typesAsStringList = parseJsonStringList(typesAsJsonArray);
-    List<InstrumentationPoint.Type> types =
-        typesAsStringList.stream()
-            .map(InstrumentationPoint.Type::valueOf)
-            .collect(Collectors.toList());
+    List<InstrumentationPoint.Type> types = new ArrayList<>();
+    for (String typeAsString : typesAsStringList) {
+      types.add(InstrumentationPoint.Type.valueOf(typeAsString));
+    }
 
     for (int i = 3; i < linesOfFile.size(); ++i) {
       String lineItem = linesOfFile.get(i);
@@ -173,14 +171,14 @@ public final class ReportDecoder {
   public static ReportProfile decodeReport(
       Map<String, InstrumentationPoint> mapping, Map<String, Long> frequencies) {
     // Decode each entry into InstrumentionPoint.
-    Stream<InstrumentationPointStats> instrumentationPoints =
-        mapping.entrySet().stream()
-            .map(
-                (entry) ->
-                    InstrumentationPointStats.newBuilder()
-                        .setPoint(entry.getValue())
-                        .setTimesExecuted(frequencies.getOrDefault(entry.getKey(), 0L))
-                        .build());
+    List<InstrumentationPointStats> instrumentationPoints = new ArrayList<>();
+    for (Map.Entry<String, InstrumentationPoint> entry : mapping.entrySet()) {
+      instrumentationPoints.add(
+          InstrumentationPointStats.newBuilder()
+              .setPoint(entry.getValue())
+              .setTimesExecuted(frequencies.getOrDefault(entry.getKey(), 0L))
+              .build());
+    }
 
     return ReportDecoder.createReportProfile(instrumentationPoints);
   }
@@ -211,18 +209,18 @@ public final class ReportDecoder {
     while (matcher.find()) {
       encodedPoints.add(matcher.group(1));
     }
-    Stream<InstrumentationPointStats> instrumentationPoints =
-        mapping.entrySet().stream()
-            .map(
-                (entry) ->
-                    InstrumentationPointStats.newBuilder()
-                        .setPoint(entry.getValue())
-                        .setTimesExecuted(0)
-                        .setPointPresence(
-                            encodedPoints.contains(entry.getKey())
-                                ? Presence.PRESENT
-                                : Presence.STATICALLY_REMOVED)
-                        .build());
+    List<InstrumentationPointStats> instrumentationPoints = new ArrayList<>();
+    for (Map.Entry<String, InstrumentationPoint> entry : mapping.entrySet()) {
+      instrumentationPoints.add(
+          InstrumentationPointStats.newBuilder()
+              .setPoint(entry.getValue())
+              .setTimesExecuted(0)
+              .setPointPresence(
+                  encodedPoints.contains(entry.getKey())
+                      ? Presence.PRESENT
+                      : Presence.STATICALLY_REMOVED)
+              .build());
+    }
     return ReportDecoder.createReportProfile(instrumentationPoints);
   }
 
@@ -256,15 +254,15 @@ public final class ReportDecoder {
         }
       }
     }
-    Stream<InstrumentationPointStats> finalPoints =
-        frequencies.entrySet().stream()
-            .map(
-                (Map.Entry<InstrumentationPoint, Long> entry) ->
-                    InstrumentationPointStats.newBuilder()
-                        .setPoint(entry.getKey())
-                        .setTimesExecuted(entry.getValue())
-                        .setPointPresence(presences.get(entry.getKey()))
-                        .build());
+    List<InstrumentationPointStats> finalPoints = new ArrayList<>();
+    for (Map.Entry<InstrumentationPoint, Long> entry : frequencies.entrySet()) {
+      finalPoints.add(
+          InstrumentationPointStats.newBuilder()
+              .setPoint(entry.getKey())
+              .setTimesExecuted(entry.getValue())
+              .setPointPresence(presences.get(entry.getKey()))
+              .build());
+    }
     return ReportDecoder.createReportProfile(finalPoints);
   }
 
@@ -273,31 +271,29 @@ public final class ReportDecoder {
    * return as ReportProfile.
    */
   private static ReportProfile createReportProfile(
-      Stream<InstrumentationPointStats> instrumentationPoints) {
-    List<FileProfile> fileProfiles =
-        instrumentationPoints
-            .sorted(
-                comparing(
-                        (InstrumentationPointStats pointStats) ->
-                            pointStats.getPoint().getFileName())
-                    .thenComparingInt(
-                        (InstrumentationPointStats pointStats) ->
-                            pointStats.getPoint().getLineNumber()))
-            .collect(
-                Collectors.groupingBy(
-                    (InstrumentationPointStats pointStats) -> pointStats.getPoint().getFileName(),
-                    LinkedHashMap::new,
-                    Collectors.toList()))
-            .entrySet()
-            .stream()
-            .map(
-                (entry) ->
-                    FileProfile.newBuilder()
-                        .setFileName(entry.getKey())
-                        .addAllInstrumentationPointsStats(entry.getValue())
-                        .build())
-            .sorted(comparing(FileProfile::getFileName))
-            .collect(Collectors.toList());
+      List<InstrumentationPointStats> instrumentationPoints) {
+    List<InstrumentationPointStats> sortedPoints = new ArrayList<>(instrumentationPoints);
+    sortedPoints.sort(
+        comparing(
+                (InstrumentationPointStats pointStats) -> pointStats.getPoint().getFileName())
+            .thenComparingInt(
+                (InstrumentationPointStats pointStats) -> pointStats.getPoint().getLineNumber()));
+    LinkedHashMap<String, List<InstrumentationPointStats>> pointsByFileName =
+        new LinkedHashMap<>();
+    for (InstrumentationPointStats pointStats : sortedPoints) {
+      pointsByFileName
+          .computeIfAbsent(pointStats.getPoint().getFileName(), (k) -> new ArrayList<>())
+          .add(pointStats);
+    }
+    List<FileProfile> fileProfiles = new ArrayList<>();
+    for (Map.Entry<String, List<InstrumentationPointStats>> entry : pointsByFileName.entrySet()) {
+      fileProfiles.add(
+          FileProfile.newBuilder()
+              .setFileName(entry.getKey())
+              .addAllInstrumentationPointsStats(entry.getValue())
+              .build());
+    }
+    fileProfiles.sort(comparing(FileProfile::getFileName));
 
     return ReportProfile.newBuilder().addAllFileProfile(fileProfiles).build();
 

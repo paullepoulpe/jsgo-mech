@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Streams.stream;
 import static com.google.javascript.rhino.jstype.JSTypeNative.ARRAY_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.BIGINT_OBJECT_FUNCTION_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.BIGINT_TYPE;
@@ -35,7 +34,6 @@ import static com.google.javascript.rhino.jstype.JSTypeNative.STRING_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.SYMBOL_OBJECT_FUNCTION_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.UNKNOWN_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.VOID_TYPE;
-import static java.util.stream.Collectors.joining;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -71,6 +69,7 @@ import com.google.javascript.rhino.jstype.TemplateType;
 import com.google.javascript.rhino.jstype.TemplateTypeMap;
 import com.google.javascript.rhino.jstype.TemplatizedType;
 import com.google.javascript.rhino.jstype.UnionType;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1672,14 +1671,16 @@ public final class TypeCheck implements NodeTraversal.Callback, CompilerPass {
     // if it ran on more things. Consider a precondition on the arguments.
 
     boolean declaredOverride = declaresOverride(info);
-    @Nullable ObjectType supertypeWithProperty =
-        stream(receiverType.getImplicitPrototypeChain())
-            // We want to report the supertype that actually had the overridden declaration.
-            .filter((type) -> type.hasOwnProperty(propertyName))
-            // We only care about the lowest match in the chain because it must be the most
-            // specific.
-            .findFirst()
-            .orElse(null);
+    @Nullable ObjectType supertypeWithProperty = null;
+    for (ObjectType type : receiverType.getImplicitPrototypeChain()) {
+      // We want to report the supertype that actually had the overridden declaration.
+      if (type.hasOwnProperty(propertyName)) {
+        // We only care about the lowest match in the chain because it must be the most
+        // specific.
+        supertypeWithProperty = type;
+        break;
+      }
+    }
 
     if (supertypeWithProperty == null) {
       // TODO(b/144327372): stop loosening typechecking for forward supertype references once
@@ -2549,7 +2550,11 @@ public final class TypeCheck implements NodeTraversal.Callback, CompilerPass {
 
     List<FunctionType> loopPath = functionType.checkExtendsLoop();
     if (loopPath != null) {
-      String strPath = loopPath.stream().map(FunctionType::getDisplayName).collect(joining(" -> "));
+      List<String> displayNames = new ArrayList<>();
+      for (FunctionType loopType : loopPath) {
+        displayNames.add(loopType.getDisplayName());
+      }
+      String strPath = String.join(" -> ", displayNames);
       compiler.report(
           JSError.make(n, INTERFACE_EXTENDS_LOOP, loopPath.get(0).getDisplayName(), strPath));
     }

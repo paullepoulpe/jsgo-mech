@@ -18,7 +18,6 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -137,15 +136,17 @@ public class RewritePolyfills implements CompilerPass {
     if (this.injectPolyfillsNewerThan != null) {
       ImmutableList<Polyfill> polyfillsToInject =
           polyfills.getPolyfillsNewerThan(this.injectPolyfillsNewerThan);
-      librariesToInject =
-          polyfillsToInject.stream()
-              // Skip polyfills that have no associated library. This is true for language
-              // features like `Proxy` and `String.raw` that have no associated polyfill, hence
-              // there's
-              // nothing to inject here.
-              .filter(p -> !p.library.isEmpty())
-              .map(p -> p.library)
-              .collect(toImmutableList());
+      ImmutableList.Builder<String> librariesToInjectBuilder = ImmutableList.builder();
+      for (Polyfill p : polyfillsToInject) {
+        // Skip polyfills that have no associated library. This is true for language
+        // features like `Proxy` and `String.raw` that have no associated polyfill, hence
+        // there's
+        // nothing to inject here.
+        if (!p.library.isEmpty()) {
+          librariesToInjectBuilder.add(p.library);
+        }
+      }
+      librariesToInject = librariesToInjectBuilder.build();
     } else {
       librariesToInject = ImmutableList.copyOf(this.libraries);
     }

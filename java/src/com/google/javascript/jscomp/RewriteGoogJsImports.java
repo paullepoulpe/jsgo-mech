@@ -18,7 +18,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
@@ -29,6 +28,7 @@ import com.google.javascript.jscomp.modules.Module;
 import com.google.javascript.jscomp.modules.ModuleMap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
@@ -347,6 +347,15 @@ public class RewriteGoogJsImports implements CompilerPass {
     return null;
   }
 
+  private static boolean allFromGoog(Collection<Binding> bindings, ModulePath googJsPath) {
+    for (Binding b : bindings) {
+      if (b.originatingExport().modulePath() != googJsPath) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @Override
   public void process(Node externs, Node root) {
     googModule = null;
@@ -363,16 +372,14 @@ public class RewriteGoogJsImports implements CompilerPass {
         ModulePath googJsPath = compiler.getInput(googJsScriptNode.getInputId()).getPath();
         googModule = moduleMap.getModule(googJsPath);
         checkNotNull(googModule);
-        Predicate<Binding> isFromGoog =
-            (Binding b) -> b.originatingExport().modulePath() == googJsPath;
         checkState(
-            googModule.boundNames().values().stream().allMatch(isFromGoog),
+            allFromGoog(googModule.boundNames().values(), googJsPath),
             "goog.js should never import anything");
         checkState(
             !googModule.namespace().containsKey("default"),
             "goog.js should never have a default export.");
         checkState(
-            googModule.namespace().values().stream().allMatch(isFromGoog),
+            allFromGoog(googModule.namespace().values(), googJsPath),
             "goog.js should never export from anything.");
       }
     } else {

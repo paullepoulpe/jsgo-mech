@@ -17,7 +17,6 @@
 package com.google.javascript.jscomp.lint;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
@@ -37,6 +36,7 @@ import com.google.javascript.rhino.QualifiedName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 
@@ -453,10 +453,10 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
       // namespace will use this primitive. This makes the logic simpler and cannot change runtime
       // behavior, but may produce spurious changes when multiple aliasing imports of differing
       // strength exist (which are already in violation of the style guide).
-      ImportPrimitive strongestPrimitive =
-          allImports.stream()
-              .map(ImportStatement::primitive)
-              .reduce(ImportPrimitive.WEAKEST, ImportPrimitive::stronger);
+      ImportPrimitive strongestPrimitive = ImportPrimitive.WEAKEST;
+      for (ImportStatement i : allImports) {
+        strongestPrimitive = ImportPrimitive.stronger(strongestPrimitive, i.primitive());
+      }
 
       // Emit each aliasing import separately, as deduplicating them would require code references
       // to be rewritten.
@@ -469,19 +469,26 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
       // Emit a single destructuring import with a non-empty pattern, merged from the existing
       // destructuring imports.
       boolean hasDestructuring = false;
-      ImmutableList<Node> destructuringNodes =
-          allImports.stream()
-              .filter(ImportStatement::isDestructuring)
-              .flatMap(i -> i.nodes().stream())
-              .collect(toImmutableList());
+      ImmutableList.Builder<Node> destructuringNodesBuilder = ImmutableList.builder();
+      for (ImportStatement i : allImports) {
+        if (i.isDestructuring()) {
+          for (Node node : i.nodes()) {
+            destructuringNodesBuilder.add(node);
+          }
+        }
+      }
+      ImmutableList<Node> destructuringNodes = destructuringNodesBuilder.build();
+      List<DestructuringBinding> sortedDestructures = new ArrayList<>();
+      for (ImportStatement i : allImports) {
+        if (i.isDestructuring()) {
+          for (DestructuringBinding binding : i.destructures()) {
+            sortedDestructures.add(binding.canonicalizeShorthandProperties());
+          }
+        }
+      }
+      Collections.sort(sortedDestructures);
       ImmutableList<DestructuringBinding> destructures =
-          allImports.stream()
-              .filter(ImportStatement::isDestructuring)
-              .flatMap(i -> i.destructures().stream())
-              .map(DestructuringBinding::canonicalizeShorthandProperties)
-              .sorted()
-              .distinct()
-              .collect(toImmutableList());
+          ImmutableList.copyOf(new LinkedHashSet<>(sortedDestructures));
       if (!destructures.isEmpty()) {
         canonicalImports.add(
             ImportStatement.of(
@@ -495,11 +502,15 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
 
       // Emit a standalone import unless an aliasing or destructuring one already exists.
       if (!hasAliasing && !hasDestructuring) {
-        ImmutableList<Node> standaloneNodes =
-            allImports.stream()
-                .filter(ImportStatement::isStandalone)
-                .flatMap(i -> i.nodes().stream())
-                .collect(toImmutableList());
+        ImmutableList.Builder<Node> standaloneNodesBuilder = ImmutableList.builder();
+        for (ImportStatement i : allImports) {
+          if (i.isStandalone()) {
+            for (Node node : i.nodes()) {
+              standaloneNodesBuilder.add(node);
+            }
+          }
+        }
+        ImmutableList<Node> standaloneNodes = standaloneNodesBuilder.build();
         canonicalImports.add(
             ImportStatement.of(
                 standaloneNodes,

@@ -20,7 +20,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.ClosurePrimitiveErrors.INVALID_CLOSURE_CALL_SCOPE_ERROR;
 import static com.google.javascript.rhino.jstype.JSTypeNative.NUMBER_STRING_BOOLEAN;
-import static java.util.stream.Collectors.toCollection;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -501,18 +500,21 @@ class ProcessDefines implements CompilerPass {
 
   private void collectValidDefineValueExpressions() {
 
-    LinkedHashSet<Name> namesToCheck =
-        this.namespace.getAllSymbols().stream()
-            .filter(ProcessDefines::isGlobalConst)
-            .collect(toCollection(LinkedHashSet::new));
+    LinkedHashSet<Name> namesToCheck = new LinkedHashSet<>();
+    for (Name name : this.namespace.getAllSymbols()) {
+      if (isGlobalConst(name)) {
+        namesToCheck.add(name);
+      }
+    }
 
     // All defines are implicitly valid in the values of other defines.
     for (Define define : this.defineByDefineName.values()) {
       namesToCheck.remove(define.name);
-      define.name.getRefs().stream()
-          .filter((r) -> !r.isSet())
-          .map(Ref::getNode)
-          .forEachOrdered(this.validDefineValueExpressions::add);
+      for (Ref r : define.name.getRefs()) {
+        if (!r.isSet()) {
+          this.validDefineValueExpressions.add(r.getNode());
+        }
+      }
     }
 
     // Do a breadth-first search of all const names to find those defined in terms of valid values.

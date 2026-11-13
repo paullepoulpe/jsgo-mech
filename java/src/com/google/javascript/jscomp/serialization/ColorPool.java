@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.serialization;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.javascript.jscomp.base.JSCompObjects.identical;
 import static com.google.javascript.jscomp.serialization.MalformedTypedAstException.checkWellFormed;
 import static com.google.javascript.jscomp.serialization.TypePointers.OFFSET_TO_AXIOMATIC_COLOR;
@@ -235,6 +234,14 @@ public final class ColorPool {
       this.protoToShard.forEach((unused, shard) -> fn.accept(shard));
     }
 
+    private ImmutableList<ImmutableMap<ShardView, TypeProto>> reconcilationDebugStackProtos() {
+      ImmutableList.Builder<ImmutableMap<ShardView, TypeProto>> result = ImmutableList.builder();
+      for (ColorId stackId : this.reconcilationDebugStack) {
+        result.add(ImmutableMap.copyOf(this.idToProto.row(stackId)));
+      }
+      return result.build();
+    }
+
     private Color lookupOrReconcileColor(ColorId id) {
       this.reconcilationDebugStack.addLast(id);
       try {
@@ -242,11 +249,7 @@ public final class ColorPool {
         if (existing != null) {
           if (identical(existing, PENDING_COLOR)) {
             throw new MalformedTypedAstException(
-                "Cyclic Color structure detected: "
-                    + this.reconcilationDebugStack.stream()
-                        .map(this.idToProto::row)
-                        .map(ImmutableMap::copyOf)
-                        .collect(toImmutableList()));
+                "Cyclic Color structure detected: " + reconcilationDebugStackProtos());
           }
           return existing;
         }

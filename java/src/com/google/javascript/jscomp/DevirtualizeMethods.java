@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.alwaysTrue;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -115,23 +114,25 @@ class DevirtualizeMethods implements OptimizeCalls.CallGraphCompilerPass {
     // `A::foo` before `B::foo` is defined.
     Node canonicalDefinitionSite = Iterables.get(functionsBySite.keySet(), 0);
 
-    ImmutableList<Node> callSites =
-        sites.stream()
-            // If a site has no associated functions, it must be a call site.
-            .filter((s) -> !functionsBySite.containsKey(s))
-            .collect(toImmutableList());
+    ImmutableList.Builder<Node> callSitesBuilder = ImmutableList.builder();
+    for (Node s : sites) {
+      // If a site has no associated functions, it must be a call site.
+      if (!functionsBySite.containsKey(s)) {
+        callSitesBuilder.add(s);
+      }
+    }
+    ImmutableList<Node> callSites = callSitesBuilder.build();
     if (callSites.isEmpty()) {
       return; // No need to devirtualize without calls.
     }
 
     // Check that this method is safe for devirtualization. These are in (estimated) increasing
     // order of cost.
-    if (!functionsBySite.keySet().stream().allMatch((s) -> isEligibleDefinitionSite(name, s))) {
+    if (!allEligibleDefinitionSites(name, functionsBySite.keySet())) {
       return;
-    } else if (!functionsBySite.values().stream().allMatch(this::isEligibleDefinitionFunction)) {
+    } else if (!allEligibleDefinitionFunctions(functionsBySite.values())) {
       return;
-    } else if (!callSites.stream()
-        .allMatch((c) -> isEligibleCallSite(c, canonicalDefinitionSite))) {
+    } else if (!allEligibleCallSites(callSites, canonicalDefinitionSite)) {
       return;
     } else if (!allDefinitionsEquivalent(functionsBySite.values())) {
       // Remember that this is only valid because we already checked the scoping of the definitions.
@@ -253,6 +254,33 @@ class DevirtualizeMethods implements OptimizeCalls.CallGraphCompilerPass {
    *   <li>Be for a prototype method
    * </ul>
    */
+  private boolean allEligibleDefinitionSites(String name, Collection<Node> definitionSites) {
+    for (Node s : definitionSites) {
+      if (!isEligibleDefinitionSite(name, s)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean allEligibleDefinitionFunctions(Collection<Node> definitionFunctions) {
+    for (Node f : definitionFunctions) {
+      if (!isEligibleDefinitionFunction(f)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean allEligibleCallSites(Collection<Node> callSites, Node definitionSite) {
+    for (Node c : callSites) {
+      if (!isEligibleCallSite(c, definitionSite)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private boolean isEligibleDefinitionSite(String name, Node definitionSite) {
     switch (definitionSite.getToken()) {
       case GETPROP, MEMBER_FUNCTION_DEF, STRING_KEY, MEMBER_FIELD_DEF -> {}
@@ -388,7 +416,12 @@ class DevirtualizeMethods implements OptimizeCalls.CallGraphCompilerPass {
     Node definition = Iterables.get(definitions, 0);
     checkArgument(definition.isFunction(), definition);
 
-    return definitions.stream().allMatch((d) -> compiler.areNodesEqualForInlining(d, definition));
+    for (Node d : definitions) {
+      if (!compiler.areNodesEqualForInlining(d, definition)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

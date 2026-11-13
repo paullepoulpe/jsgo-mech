@@ -16,12 +16,12 @@
 
 package com.google.javascript.jscomp.deps;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.javascript.jscomp.ErrorManager;
@@ -174,11 +174,7 @@ public final class DepsFileRegexParser extends JsFileLineParser {
         DependencyInfo depInfo =
             SimpleDependencyInfo.builder(path, filePath)
                 .setProvides(provides)
-                .setRequires(
-                    parseJsStringArray(depArgsMatch.group(3))
-                        .stream()
-                        .map(Require::parsedFromDeps)
-                        .collect(toImmutableList()))
+                .setRequires(requiresParsedFromDeps(parseJsStringArray(depArgsMatch.group(3))))
                 .setLoadFlags(loadFlags)
                 .build();
 
@@ -191,6 +187,14 @@ public final class DepsFileRegexParser extends JsFileLineParser {
 
     return !shortcutMode || hasDependencies ||
         CharMatcher.whitespace().matchesAllOf(line);
+  }
+
+  private static ImmutableList<Require> requiresParsedFromDeps(List<String> symbols) {
+    ImmutableList.Builder<Require> result = ImmutableList.builder();
+    for (String symbol : symbols) {
+      result.add(Require.parsedFromDeps(symbol));
+    }
+    return result.build();
   }
 
   private Map<String, String> parseLoadFlags(String loadFlags) throws ParseException {

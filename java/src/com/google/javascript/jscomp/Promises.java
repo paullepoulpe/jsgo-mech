@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.rhino.jstype.JSType;
@@ -153,11 +152,14 @@ final class Promises {
         maybeThenable.isUnionType()
             ? maybeThenable.toMaybeUnionType().getAlternates()
             : ImmutableList.of(maybeThenable);
-    ImmutableList<JSType> asyncTemplateAlternates =
-        alternates.stream()
-            .filter((t) -> t.isSubtypeOf(iThenableOfUnknownType)) // Discard "synchronous" types.
-            .map((t) -> getTemplateTypeOfThenable(registry, t)) // Unwrap "asynchronous" types.
-            .collect(toImmutableList());
+    ImmutableList.Builder<JSType> asyncTemplateAlternatesBuilder = ImmutableList.builder();
+    for (JSType t : alternates) {
+      if (t.isSubtypeOf(iThenableOfUnknownType)) { // Discard "synchronous" types.
+        // Unwrap "asynchronous" types.
+        asyncTemplateAlternatesBuilder.add(getTemplateTypeOfThenable(registry, t));
+      }
+    }
+    ImmutableList<JSType> asyncTemplateAlternates = asyncTemplateAlternatesBuilder.build();
 
     if (asyncTemplateAlternates.isEmpty()) {
       return unknownType;

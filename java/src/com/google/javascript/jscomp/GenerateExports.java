@@ -127,9 +127,9 @@ public class GenerateExports implements CompilerPass {
     // Pick an arbitrary @export to report the warning on.
     final Node errorLocation;
     if (!exports.isEmpty()) {
-      errorLocation = exports.values().stream().findFirst().get();
+      errorLocation = exports.values().iterator().next();
     } else {
-      errorLocation = es6Exports.keySet().stream().findFirst().get();
+      errorLocation = es6Exports.keySet().iterator().next();
     }
 
     if (this.exportSymbolFunction == null || this.exportPropertyFunction == null) {

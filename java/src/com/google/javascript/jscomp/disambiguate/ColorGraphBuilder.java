@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.disambiguate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.colors.Color;
@@ -125,10 +124,11 @@ final class ColorGraphBuilder {
      * would help, we could be more careful.
      */
     checkState(!unionNode.getOutEdges().isEmpty());
-    ImmutableSet<ColorGraphNode> graphNodes =
-        flatUnion.getColor().getUnionElements().stream()
-            .map(this.nodeFactory::createNode)
-            .collect(toImmutableSet());
+    ImmutableSet.Builder<ColorGraphNode> graphNodesBuilder = ImmutableSet.builder();
+    for (Color element : flatUnion.getColor().getUnionElements()) {
+      graphNodesBuilder.add(this.nodeFactory.createNode(element));
+    }
+    ImmutableSet<ColorGraphNode> graphNodes = graphNodesBuilder.build();
     for (ColorGraphNode lca : this.lcaFinder.findAll(graphNodes)) {
       this.connectSourceToDest(
           checkNotNull(this.colorHoldsInstanceGraph.getNode(lca)), EdgeReason.ALGEBRAIC, unionNode);

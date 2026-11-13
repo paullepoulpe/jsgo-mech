@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.Comparator.comparingInt;
 
 import com.google.common.collect.ImmutableList;
@@ -27,9 +26,11 @@ import com.google.javascript.jscomp.deps.SortedDependencies;
 import com.google.javascript.jscomp.graph.DiGraph;
 import com.google.javascript.jscomp.graph.DominatorTree;
 import com.google.javascript.jscomp.graph.LinkedDirectedGraph;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -117,10 +118,15 @@ final class PruningAnalysis {
       }
     }
 
-    return bottleneckBlame.entrySet().stream()
-        .sorted(comparingInt((Map.Entry<String, Integer> entry) -> entry.getValue()).reversed())
-        .limit(BOTTLENECK_THRESHOLD)
-        .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+    List<Map.Entry<String, Integer>> sortedBlame = new ArrayList<>(bottleneckBlame.entrySet());
+    sortedBlame.sort(
+        comparingInt((Map.Entry<String, Integer> entry) -> entry.getValue()).reversed());
+    ImmutableMap.Builder<String, Integer> result = ImmutableMap.builder();
+    for (int i = 0; i < sortedBlame.size() && i < BOTTLENECK_THRESHOLD; i++) {
+      Map.Entry<String, Integer> entry = sortedBlame.get(i);
+      result.put(entry.getKey(), entry.getValue());
+    }
+    return result.buildOrThrow();
   }
 
   private DiGraph<String, String> buildGraph() {

@@ -15,8 +15,6 @@
  */
 package com.google.javascript.jscomp;
 
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -30,16 +28,20 @@ public class ConformanceAllowlister {
 
   public static ImmutableSet<String> getViolatingPaths(
       Compiler compiler, Node externs, Node ast, Requirement requirement) {
-    return getConformanceErrors(compiler, externs, ast, requirement).stream()
-        .map(JSError::sourceName)
-        .collect(toImmutableSet());
+    ImmutableSet.Builder<String> result = ImmutableSet.builder();
+    for (JSError error : getConformanceErrors(compiler, externs, ast, requirement)) {
+      result.add(error.sourceName());
+    }
+    return result.build();
   }
 
   public static ImmutableSet<Node> getViolatingNodes(
       Compiler compiler, Node externs, Node ast, Requirement requirement) {
-    return getConformanceErrors(compiler, externs, ast, requirement).stream()
-        .map(JSError::node)
-        .collect(toImmutableSet());
+    ImmutableSet.Builder<Node> result = ImmutableSet.builder();
+    for (JSError error : getConformanceErrors(compiler, externs, ast, requirement)) {
+      result.add(error.node());
+    }
+    return result.build();
   }
 
   public static ImmutableList<JSError> getConformanceErrors(

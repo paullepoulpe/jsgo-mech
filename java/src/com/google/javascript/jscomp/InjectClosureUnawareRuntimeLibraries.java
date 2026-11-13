@@ -17,8 +17,6 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static java.util.function.Function.identity;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.js.RuntimeJsLibManager;
@@ -88,9 +86,11 @@ final class InjectClosureUnawareRuntimeLibraries implements CompilerPass {
   }
 
   private void injectFieldsIntoCallSites() {
-    var fieldsByName =
-        shadowCompiler.getRuntimeJsLibManager().getExternedFields().stream()
-            .collect(toImmutableMap(ExternedField::qualifiedName, identity()));
+    ImmutableMap.Builder<String, ExternedField> fieldsByNameBuilder = ImmutableMap.builder();
+    for (ExternedField field : shadowCompiler.getRuntimeJsLibManager().getExternedFields()) {
+      fieldsByNameBuilder.put(field.qualifiedName(), field);
+    }
+    ImmutableMap<String, ExternedField> fieldsByName = fieldsByNameBuilder.buildOrThrow();
 
     for (ClosureUnawareCallSite callSite : closureUnawareCalls) {
       Set<ExternedField> toInject =

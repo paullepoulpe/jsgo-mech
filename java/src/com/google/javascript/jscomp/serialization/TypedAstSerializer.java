@@ -19,8 +19,8 @@ package com.google.javascript.jscomp.serialization;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.javascript.jscomp.AbstractCompiler;
@@ -86,12 +86,7 @@ final class TypedAstSerializer {
     }
 
     SourceFilePool sourceFiles =
-        SourceFilePool.newBuilder()
-            .addAllSourceFile(
-                this.sourceFilePointers.keySet().stream()
-                    .map(SourceFile::getProto)
-                    .collect(toImmutableList()))
-            .build();
+        SourceFilePool.newBuilder().addAllSourceFile(sourceFileProtos()).build();
 
     if (this.compiler.getExternProperties() != null) {
       ExternsSummary.Builder externsSummary = ExternsSummary.newBuilder();
@@ -107,6 +102,14 @@ final class TypedAstSerializer {
         .setStringPool(this.stringPool.build().toProto())
         .setSourceFilePool(sourceFiles)
         .build();
+  }
+
+  private ImmutableList<SourceFileProto> sourceFileProtos() {
+    ImmutableList.Builder<SourceFileProto> result = ImmutableList.builder();
+    for (SourceFile sourceFile : this.sourceFilePointers.keySet()) {
+      result.add(sourceFile.getProto());
+    }
+    return result.build();
   }
 
   private LazyAst serializeScriptNode(Node script) {

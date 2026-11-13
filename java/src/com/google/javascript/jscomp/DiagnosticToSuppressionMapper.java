@@ -15,9 +15,6 @@
  */
 package com.google.javascript.jscomp;
 
-import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
-import static java.util.Comparator.naturalOrder;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -80,10 +77,11 @@ public final class DiagnosticToSuppressionMapper {
       }
     }
 
-    return diagnosticToSuppression.entrySet().stream()
-        .collect(
-            toImmutableSortedMap(
-                naturalOrder(), (entrySet) -> entrySet.getKey().key, Map.Entry::getValue));
+    ImmutableSortedMap.Builder<String, String> result = ImmutableSortedMap.naturalOrder();
+    for (Map.Entry<DiagnosticType, String> entrySet : diagnosticToSuppression.entrySet()) {
+      result.put(entrySet.getKey().key, entrySet.getValue());
+    }
+    return result.buildOrThrow();
   }
 
   /** Use a more targeted suppression if one exists. */
@@ -115,8 +113,8 @@ public final class DiagnosticToSuppressionMapper {
     System.out.println("| Error | Suppression tag |");
     System.out.println("|---|---|");
 
-    diagnosticToSuppression.entrySet().stream()
-        .map(e -> String.format("|%s|%s|", e.getKey(), e.getValue()))
-        .forEachOrdered(System.out::println);
+    for (Map.Entry<String, String> e : diagnosticToSuppression.entrySet()) {
+      System.out.println(String.format("|%s|%s|", e.getKey(), e.getValue()));
+    }
   }
 }

@@ -44,9 +44,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerArray;
-import java.util.stream.Stream;
 
 /**
  * An interning pool for strings used by the Rhino package.
@@ -117,8 +117,9 @@ public final class RhinoStringPool {
       return this.pool.get(offset);
     }
 
-    public Stream<String> stream() {
-      return this.pool.stream();
+    /** Returns a read-only view of the strings, which are not necessarily interned yet. */
+    public List<String> asList() {
+      return Collections.unmodifiableList(this.pool);
     }
   }
 
