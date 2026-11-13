@@ -6,6 +6,7 @@ built by tools/gate0/build.sh, and compares stdout, stderr, exit status and
 every output file. The stock results are cached in .cache/e2e/stock.
 
   python3 -I tools/gate0/e2e.py [case ...]
+  python3 -I tools/gate0/e2e.py --go <binary> [case ...]   # compare the Go translation instead
 """
 import base64, glob, hashlib, os, shutil, subprocess, sys, tarfile, urllib.request
 
@@ -103,7 +104,7 @@ def cases():
     }
 
 
-def run(java_args, name, flags, inputs, outdir):
+def run(argv, name, flags, inputs, outdir):
     """Runs one compile in a fresh directory that sees the inputs as node_modules/."""
     shutil.rmtree(outdir, ignore_errors=True)
     os.makedirs(outdir)
@@ -115,19 +116,23 @@ def run(java_args, name, flags, inputs, outdir):
     env = {k: v for k, v in os.environ.items() if k not in ("JAVA_TOOL_OPTIONS", "_JAVA_OPTIONS", "JDK_JAVA_OPTIONS")}
     env["LC_ALL"] = "C.UTF-8"
     with open(os.path.join(outdir, "stdout"), "wb") as o, open(os.path.join(outdir, "stderr"), "wb") as e:
-        p = subprocess.run(["java", "-Xss8m"] + java_args + ["--flagfile=flags.txt"], cwd=outdir, env=env, stdout=o, stderr=e)
+        p = subprocess.run(argv + ["--flagfile=flags.txt"], cwd=outdir, env=env, stdout=o, stderr=e)
     open(os.path.join(outdir, "exit"), "w").write(str(p.returncode))
 
 
 def main():
     os.makedirs(INPUTS, exist_ok=True)
     fetch_inputs()
-    stock = ["-jar", os.path.join(CACHE, "closure-unshaded.jar")]
-    built = ["-cp", os.path.join(CACHE, "build", "main") + ":" + os.path.join(CACHE, "build", "stock-libs.jar"),
+    stock = ["java", "-Xss8m", "-jar", os.path.join(CACHE, "closure-unshaded.jar")]
+    built = ["java", "-Xss8m", "-cp", os.path.join(CACHE, "build", "main") + ":" + os.path.join(CACHE, "build", "stock-libs.jar"),
              "com.google.javascript.jscomp.CommandLineRunner"]
+    args = sys.argv[1:]
+    if args[:1] == ["--go"]:
+        built = [os.path.abspath(args[1])]
+        args = args[2:]
     all_cases = cases()
     bad = 0
-    for name in sys.argv[1:] or all_cases:
+    for name in args or all_cases:
         flags, inputs, outputs = all_cases[name]
         sdir = os.path.join(CACHE, "e2e", "stock", name)
         if not os.path.exists(os.path.join(sdir, "exit")):

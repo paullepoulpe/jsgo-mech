@@ -288,6 +288,11 @@ abstract class ExprEmitter extends Base {
         Object cv = constOf(t);
         if (cv != null) return cv.toString();
         UnaryTree u = (UnaryTree) t;
+        if (t.getKind() == Tree.Kind.UNARY_MINUS && strip(u.getExpression()) instanceof LiteralTree lit
+            && (lit.getValue() instanceof Double dz && dz == 0.0 || lit.getValue() instanceof Float fz && fz == 0.0f)) {
+          // Go has no negative-zero constant.
+          return lit.getValue() instanceof Float ? "float32(negzero_)" : "negzero_";
+        }
         String op = t.getKind() == Tree.Kind.UNARY_MINUS ? "-" : t.getKind() == Tree.Kind.UNARY_PLUS ? "+" : "^";
         return "(" + op + exprAs(u.getExpression(), typeOf(t)) + ")";
       }
@@ -379,14 +384,14 @@ abstract class ExprEmitter extends Base {
     Element e = elemOf(t);
     if (name.equals("this")) return "this";
     if (e == null) throw unsupported(t, "unresolved identifier " + name);
-    if (isLocalKind(e)) return cx.coerce(localRef(e), e.asType(), typeOf(t));
+    if (isLocalKind(e)) return cx.coerce(frozenRead(e, localRef(e)), e.asType(), typeOf(t));
     switch (e.getKind()) {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
-        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
+        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(frozenRead(f, staticField(f)), f.asType(), typeOf(t));
         Recv r = implicitRecv(cx.ownerOf(f));
         noteField(f);
-        return cx.coerce(r.code + "." + cx.fieldName(f), f.asType(), typeOf(t));
+        return cx.coerce(frozenRead(f, r.code + "." + cx.fieldName(f)), f.asType(), typeOf(t));
       }
       default:
         throw unsupported(t, "identifier of kind " + e.getKind());
@@ -427,7 +432,7 @@ abstract class ExprEmitter extends Base {
         } else {
           recv = expr(q);
         }
-        return cx.coerce(recv + "." + fn, f.asType(), typeOf(t));
+        return cx.coerce(frozenRead(f, recv + "." + fn), f.asType(), typeOf(t));
       }
       default:
         throw unsupported(t, "member of kind " + e.getKind());
@@ -438,6 +443,12 @@ abstract class ExprEmitter extends Base {
     if (cx.isSource(cx.ownerOf(f)) || f.getModifiers().contains(Modifier.STATIC)) return;
     cx.className(cx.ownerOf(f));
     cx.extFields.computeIfAbsent(cx.ownerOf(f), k -> new TreeMap<>()).put(cx.fieldName(f), cx.goType(f.asType()));
+  }
+
+  /** A read of a variable that the same expression also assigns: made a call, so that Go orders it. */
+  String frozenRead(Element e, String code) {
+    if (mc == null || !mc.frozen.contains(e)) return code;
+    return "func() " + cx.goType(e.asType()) + " { return " + code + " }()";
   }
 
   static final class LValue {
@@ -858,7 +869,7 @@ abstract class ExprEmitter extends Base {
     Ctx.K ok = cx.kind(owner.asType());
     ExecutableElement re = cx.root(e);
     TypeElement ro = cx.ownerOf(re);
-    if (!src && ok != Ctx.K.STR && ok != Ctx.K.ANY && re != e && !superCall
+    if (!src && ok != Ctx.K.STR && re != e && !superCall
         && (cx.kind(ro.asType()) == Ctx.K.ANY && ro.getQualifiedName().contentEquals("java.lang.Object")
             || !cx.isSource(ro) && ro.getKind().isInterface() && re.isDefault())) {
       // Declared again by a library type, but really Object's method or an interface default:
@@ -891,6 +902,11 @@ abstract class ExprEmitter extends Base {
       if (sup == null) {
         // super.m() on an interface default or on Object.
         target = "this." + impl;
+      } else if (!src) {
+        // The library superclass's own method, past any dispatching stub of the classes in between.
+        TypeElement lib = sup;
+        while (lib != null && cx.isSource(lib)) lib = cx.superclass(lib);
+        target = "this." + cx.className(lib == null ? sup : lib) + "." + impl;
       } else {
         target = "this." + cx.className(sup) + "." + impl;
       }

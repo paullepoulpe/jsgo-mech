@@ -289,3 +289,5 @@ func objhash_(a any) int32 {
 var nan_ = math.NaN()
 var posinf_ = math.Inf(1)
 var neginf_ = math.Inf(-1)
+
+var negzero_ = math.Copysign(0, -1)

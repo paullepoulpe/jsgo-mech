@@ -510,8 +510,18 @@ final class Emitter extends StmtEmitter {
       List<TypeMirror> ps = cx.groupParams(r);
       TypeMirror ret = cx.groupReturn(r);
       String body;
-      if (cx.hasSelf(te)) {
-        body = (ret.getKind() == TypeKind.VOID ? "" : "return ") + "this.self_.(interface{ " + name + "_impl" + cx.goSig(ps, ret) + " })." + name + "_impl(" + argNames(ps.size()) + ")";
+      String ret0 = ret.getKind() == TypeKind.VOID ? "" : "return ";
+      String iface = "interface{ " + name + "_impl" + cx.goSig(ps, ret) + " }";
+      TypeElement ro = cx.ownerOf(r);
+      TypeElement sup = cx.superclass(te);
+      boolean libraryImpl = !cx.isSource(ro) && !ro.getKind().isInterface() && !r.getModifiers().contains(Modifier.ABSTRACT)
+          && !ro.getQualifiedName().contentEquals("java.lang.Object") && sup != null;
+      if (libraryImpl && cx.hasSelf(te)) {
+        // The library superclass implements the method: classes that do not override it use that.
+        body = "if o, ok := this.self_.(" + iface + "); ok {\n\t\t" + ret0 + "o." + name + "_impl(" + argNames(ps.size()) + ")\n"
+            + (ret0.isEmpty() ? "\t\treturn\n" : "") + "\t}\n\t" + ret0 + "this." + cx.className(sup) + "." + name + "(" + argNames(ps.size()) + ")";
+      } else if (cx.hasSelf(te)) {
+        body = ret0 + "this.self_.(" + iface + ")." + name + "_impl(" + argNames(ps.size()) + ")";
       } else {
         body = "panic(\"abstract method " + n + "." + name + "\")";
       }
@@ -710,8 +720,10 @@ final class Emitter extends StmtEmitter {
             if (m instanceof MethodTree mt && mt.getName().contentEquals("<init>")) ctor = (ExecutableElement) elemOf(mt);
           }
         }
+        mc.touched.clear();
         String call = cx.ctorName(ctor, "new_") + "(" + join(quote(v.getName().toString()), Integer.toString(ord), argList(ctor, ownParams(ctor), args(nc.getArguments()))) + ")";
-        init.append(withPre(fn + " = " + cx.coerce(call, made.asType(), te.asType()))).append("\n");
+        String line = withPre(fn + " = " + cx.coerce(call, made.asType(), te.asType()));
+        init.append(guards()).append(line).append("\n");
       } catch (RuntimeException ex) {
         init.setLength(mark);
         errors.add(n + " enum constant " + v.getName() + ": " + ex);
@@ -744,8 +756,10 @@ final class Emitter extends StmtEmitter {
           int mark = init.length();
           try {
             ExpressionTree ie = v.getInitializer();
+            mc.touched.clear();
             String val = ie instanceof NewArrayTree na && na.getType() == null ? newArray(na, (ArrayType) ft) : exprAs(ie, ft);
-            init.append(withPre(fn + " = " + val)).append("\n");
+            String line = withPre(fn + " = " + val);
+            init.append(guards()).append(line).append("\n");
           } catch (UnsupportedOperationException | ClassCastException | NullPointerException | IndexOutOfBoundsException ex) {
             init.setLength(mark);
             mc.pre.clear();
@@ -758,7 +772,17 @@ final class Emitter extends StmtEmitter {
       } else if (m instanceof BlockTree b && b.isStatic()) {
         int mark = init.length();
         try {
-          init.append("{\n").append(indent(blockCode(b), "\t")).append("}\n");
+          // In instrumented output each statement initializes the classes it touches just before it runs,
+          // which is when Java would.
+          StringBuilder bb = new StringBuilder();
+          for (StatementTree st : b.getStatements()) {
+            mc.touched.clear();
+            String code = stmt(st);
+            bb.append(guards());
+            if (!code.isEmpty()) bb.append(code).append("\n");
+          }
+          mc.touched.clear();
+          init.append("{\n").append(indent(bb.toString(), "\t")).append("}\n");
         } catch (UnsupportedOperationException | ClassCastException | NullPointerException | IndexOutOfBoundsException ex) {
           init.setLength(mark);
           errors.add(n + " static block: " + ex);
@@ -775,7 +799,8 @@ final class Emitter extends StmtEmitter {
       String post = "";
       if (cx.initGuards) pro.append("defer func() { initOrder_ = append(initOrder_, " + quote(cx.elems.getBinaryName(te).toString()) + ") }()\n");
       file.append("var ").append(fn).append("_done bool\n\n");
-      file.append("func ").append(fn).append("() {\n").append(indent(pro + guards() + finish(init.toString()) + "\n" + post, "\t")).append("\n}\n\n");
+      mc.touched.clear();
+      file.append("func ").append(fn).append("() {\n").append(indent(pro + finish(init.toString()) + "\n" + post, "\t")).append("\n}\n\n");
       cx.clinits.add(fn);
       cx.clinitOwner.put(fn, cx.elems.getBinaryName(te).toString());
     }

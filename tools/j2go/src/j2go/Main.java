@@ -81,12 +81,14 @@ public final class Main {
     }
     // Pass 2: the library methods in use, so that their Go names can tell overloads apart.
     for (CompilationUnitTree cu : units) {
+      // The translator's own test programs must not change which overload is the most used.
+      final boolean counted = !cu.getSourceFile().getName().contains("/selftest/");
       new TreePathScanner<Void, Void>() {
         void note(Tree t) {
           Element e = trees.getElement(new TreePath(getCurrentPath(), t));
           if (e instanceof ExecutableElement m) {
             cx.noteExtRoot(m);
-            cx.countUse(m);
+            if (counted) cx.countUse(m);
           }
         }
 
@@ -107,7 +109,7 @@ public final class Main {
         @Override
         public Void visitNewClass(NewClassTree t, Void v) {
           Element e = trees.getElement(getCurrentPath());
-          if (e instanceof ExecutableElement m) cx.countUse(m);
+          if (e instanceof ExecutableElement m && counted) cx.countUse(m);
           return super.visitNewClass(t, v);
         }
 
@@ -122,7 +124,7 @@ public final class Main {
           Element e = trees.getElement(getCurrentPath());
           if (e instanceof ExecutableElement m) {
             cx.noteExtRoot(m);
-            cx.countUse(m);
+            if (counted) cx.countUse(m);
           }
           return super.visitMemberReference(t, v);
         }

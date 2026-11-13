@@ -63,8 +63,82 @@ abstract class StmtEmitter extends ExprEmitter {
   }
 
   String stmt(StatementTree s) {
-    String code = stmt0(s);
-    return withPre(code);
+    Set<Element> saved = mc.frozen;
+    mc.frozen = frozenFor(s);
+    try {
+      String code = stmt0(s);
+      return withPre(code);
+    } finally {
+      mc.frozen = saved;
+    }
+  }
+
+  /** The variables that the statement's own expressions assign as a side effect of a larger expression. */
+  Set<Element> frozenFor(StatementTree s) {
+    List<ExpressionTree> roots = new ArrayList<>();
+    switch (s.getKind()) {
+      case EXPRESSION_STATEMENT: roots.add(((ExpressionStatementTree) s).getExpression()); break;
+      case VARIABLE: roots.add(((VariableTree) s).getInitializer()); break;
+      case RETURN: roots.add(((ReturnTree) s).getExpression()); break;
+      case IF: roots.add(((IfTree) s).getCondition()); break;
+      case WHILE_LOOP: roots.add(((WhileLoopTree) s).getCondition()); break;
+      case DO_WHILE_LOOP: roots.add(((DoWhileLoopTree) s).getCondition()); break;
+      case SWITCH: roots.add(((SwitchTree) s).getExpression()); break;
+      case THROW: roots.add(((ThrowTree) s).getExpression()); break;
+      case YIELD: roots.add(((YieldTree) s).getValue()); break;
+      case ENHANCED_FOR_LOOP: roots.add(((EnhancedForLoopTree) s).getExpression()); break;
+      case FOR_LOOP: {
+        ForLoopTree f = (ForLoopTree) s;
+        roots.add(f.getCondition());
+        for (ExpressionStatementTree u : f.getUpdate()) roots.add(u.getExpression());
+        break;
+      }
+      default: return Set.of();
+    }
+    Set<Element> out = new HashSet<>();
+    for (ExpressionTree root0 : roots) {
+      if (root0 == null) continue;
+      final ExpressionTree root = strip(root0);
+      new com.sun.source.util.TreeScanner<Void, Void>() {
+        void target(ExpressionTree t, Tree self) {
+          if (self == root) return; // the statement itself is the assignment: nothing embedded
+          Element e = elemOf(strip(t));
+          if (e != null && (isLocalKind(e) || e.getKind() == ElementKind.FIELD)) out.add(e);
+        }
+
+        @Override
+        public Void visitAssignment(AssignmentTree t, Void v) {
+          target(t.getVariable(), t);
+          return super.visitAssignment(t, v);
+        }
+
+        @Override
+        public Void visitCompoundAssignment(CompoundAssignmentTree t, Void v) {
+          target(t.getVariable(), t);
+          return super.visitCompoundAssignment(t, v);
+        }
+
+        @Override
+        public Void visitUnary(UnaryTree t, Void v) {
+          switch (t.getKind()) {
+            case POSTFIX_INCREMENT, POSTFIX_DECREMENT, PREFIX_INCREMENT, PREFIX_DECREMENT: target(t.getExpression(), t); break;
+            default: break;
+          }
+          return super.visitUnary(t, v);
+        }
+
+        @Override
+        public Void visitLambdaExpression(LambdaExpressionTree t, Void v) {
+          return null;
+        }
+
+        @Override
+        public Void visitClass(ClassTree t, Void v) {
+          return null;
+        }
+      }.scan(root, null);
+    }
+    return out.isEmpty() ? Set.of() : out;
   }
 
   /** Takes the declarations that the header expressions of a statement asked for. */
