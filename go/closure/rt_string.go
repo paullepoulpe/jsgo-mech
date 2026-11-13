@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"unicode"
 	"unicode/utf8"
+	"unsafe"
 )
 
 func isASCII_(s string) bool {
@@ -69,7 +70,9 @@ var indexNext_ atomic.Uint32
 
 func indexOf_(s string) *u16index_ {
 	for i := range indexCache_ {
-		if c := indexCache_[i].Load(); c != nil && len(c.s) == len(s) && c.s == s {
+		// The same string, not an equal one: comparing contents would cost a pass over a
+		// megabyte-sized source text on every lookup.
+		if c := indexCache_[i].Load(); c != nil && len(c.s) == len(s) && unsafe.StringData(c.s) == unsafe.StringData(s) {
 			return c
 		}
 	}
