@@ -273,6 +273,8 @@ final class Emitter extends StmtEmitter {
     for (int k = 0; k < 2; k++) {
       String rec = n + (k == 0 ? "_ns_" : "_ps_"), acc = k == 0 ? "ns_" : "ps_", tab = n + "_" + acc + "chunks_";
       sb.append("type ").append(rec).append(" struct {\n");
+      // The handle's own value, for box_ to point an interface at.
+      if (k == 0) sb.append("\tself_ uint32\n");
       for (VariableElement f : k == 0 ? ns : ps) sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
       sb.append("}\n\n");
       sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]").append(rec).append("\n\n");
@@ -282,9 +284,11 @@ final class Emitter extends StmtEmitter {
     // Chunk 0 is never allocated: handle 0 is null, and reaching for its record is a nil dereference.
     sb.append("var ").append(n).append("_count_ uint32 = handleChunkSize_\n\n");
     sb.append("func ").append(n).append("_alloc_() ").append(n).append(" {\n\th := ").append(n).append("_count_\n\tif uint16(h) == 0 {\n\t\thandleGrow_(h)\n")
-        .append(alloc).append("\t}\n\t").append(n).append("_count_ = h + 1\n\treturn ").append(n).append("(h)\n}\n\n");
+        .append(alloc).append("\t}\n\t").append(n).append("_count_ = h + 1\n\t").append(n).append("(h).ns_().self_ = h\n\treturn ").append(n).append("(h)\n}\n\n");
     sb.append(recv(te)).append("handle_() uint32 {\n\treturn uint32(this)\n}\n\n");
-    sb.append(recv(te)).append("box_() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn this\n}\n\n");
+    // Boxing allocates nothing: the interface's data word points at the record's self_.
+    sb.append("var ").append(n).append("_proto_ any = ").append(n).append("(0)\n\n");
+    sb.append(recv(te)).append("box_() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn handleBox_(").append(n).append("_proto_, &this.ns_().self_)\n}\n\n");
     sb.append("func ").append(n).append("_of_(v any) ").append(n).append(" {\n\tif v == nil {\n\t\treturn 0\n\t}\n\treturn v.(").append(n).append(")\n}\n\n");
     // For JSGO_HANDLE_STATS: how many objects exist and how often each field is set.
     sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + ps.size()).append("]int\n")
