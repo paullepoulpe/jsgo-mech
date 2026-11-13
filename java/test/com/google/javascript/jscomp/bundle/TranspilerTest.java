@@ -17,18 +17,17 @@
 package com.google.javascript.jscomp.bundle;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Answers.RETURNS_SMART_NULLS;
-import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.JSError;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link Transpiler}. */
 @RunWith(JUnit4.class)
@@ -37,8 +36,23 @@ public final class TranspilerTest {
   private Source.Transformer transpiler;
   private Transpiler.CompilerSupplier compiler;
 
-  @Mock(answer = RETURNS_SMART_NULLS)
-  Transpiler.CompilerSupplier mockCompiler;
+  FakeCompilerSupplier mockCompiler;
+
+  /** Fake that returns the canned result for the given arguments, like the mock it replaces. */
+  private static final class FakeCompilerSupplier extends Transpiler.CompilerSupplier {
+    final Map<List<Object>, Transpiler.CompileResult> compileResults = new HashMap<>();
+    final Map<String, String> runtimes = new HashMap<>();
+
+    @Override
+    public Transpiler.CompileResult compile(Path path, String code) {
+      return compileResults.get(ImmutableList.of(path, code));
+    }
+
+    @Override
+    public String runtime(String library) {
+      return runtimes.getOrDefault(library, "");
+    }
+  }
 
   private static final Path FOO_JS = Path.of("foo.js");
   private static final Path SOURCE_JS = Path.of("source.js");
@@ -46,7 +60,7 @@ public final class TranspilerTest {
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
+    mockCompiler = new FakeCompilerSupplier();
     transpiler = new Transpiler(mockCompiler, "es6_runtime");
     compiler = Transpiler.compilerSupplier();
   }
@@ -55,9 +69,10 @@ public final class TranspilerTest {
 
   @Test
   public void testTranspiler_transpile() {
-    when(mockCompiler.runtime("es6_runtime")).thenReturn("$jscomp.es6();");
-    when(mockCompiler.compile(FOO_JS, "bar"))
-        .thenReturn(new Transpiler.CompileResult("result", NO_ERRORS, true, "srcmap"));
+    mockCompiler.runtimes.put("es6_runtime", "$jscomp.es6();");
+    mockCompiler.compileResults.put(
+        ImmutableList.of(FOO_JS, "bar"),
+        new Transpiler.CompileResult("result", NO_ERRORS, true, "srcmap"));
     assertThat(transpiler.transform(source(FOO_JS, "bar")))
         .isEqualTo(
             Source.builder()
@@ -71,8 +86,9 @@ public final class TranspilerTest {
 
   @Test
   public void testTranspiler_noTranspilation() {
-    when(mockCompiler.compile(FOO_JS, "bar"))
-        .thenReturn(new Transpiler.CompileResult("result", NO_ERRORS, false, "srcmap"));
+    mockCompiler.compileResults.put(
+        ImmutableList.of(FOO_JS, "bar"),
+        new Transpiler.CompileResult("result", NO_ERRORS, false, "srcmap"));
     assertThat(transpiler.transform(source(FOO_JS, "bar"))).isEqualTo(source(FOO_JS, "bar"));
   }
 

@@ -17,17 +17,19 @@
 package com.google.javascript.jscomp.bundle;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.common.cache.CacheBuilder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link Source} and its nested classes. */
 @RunWith(JUnit4.class)
@@ -38,19 +40,38 @@ public final class CachedTransformerTest {
   private static final Source BAZ = Source.builder().setCode("baz").build();
   private static final Source QUX = Source.builder().setCode("qux").build();
 
-  @Mock Function<Source, Source> delegate;
+  FakeDelegate delegate;
+
+  /**
+   * Fake that returns the canned results for the given argument (the last one repeating) and
+   * records the calls, like the mock it replaces.
+   */
+  private static final class FakeDelegate implements Function<Source, Source> {
+    final Map<Source, List<Source>> applyResults = new HashMap<>();
+    final List<Source> applyCalls = new ArrayList<>();
+
+    @Override
+    public Source apply(Source input) {
+      applyCalls.add(input);
+      List<Source> results = applyResults.get(input);
+      if (results == null) {
+        return null;
+      }
+      return results.get(Math.min(Collections.frequency(applyCalls, input), results.size()) - 1);
+    }
+  }
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
+    delegate = new FakeDelegate();
   }
 
   @Test
   public void testDelegates() {
     Source.Transformer cached =
         new CachedTransformer(Source.Transformer.of(delegate), CacheBuilder.newBuilder());
-    when(delegate.apply(FOO)).thenReturn(BAR);
-    when(delegate.apply(BAZ)).thenReturn(QUX);
+    delegate.applyResults.put(FOO, Arrays.asList(BAR));
+    delegate.applyResults.put(BAZ, Arrays.asList(QUX));
 
     assertThat(cached.transform(FOO)).isSameInstanceAs(BAR);
     assertThat(cached.transform(BAZ)).isSameInstanceAs(QUX);
@@ -60,10 +81,10 @@ public final class CachedTransformerTest {
   public void testCaches() {
     Source.Transformer cached =
         new CachedTransformer(Source.Transformer.of(delegate), CacheBuilder.newBuilder());
-    when(delegate.apply(FOO)).thenReturn(BAR).thenReturn(null);
+    delegate.applyResults.put(FOO, Arrays.asList(BAR, null));
 
     assertThat(cached.transform(FOO)).isSameInstanceAs(BAR);
     assertThat(cached.transform(FOO)).isSameInstanceAs(BAR);
-    verify(delegate).apply(FOO);
+    assertThat(Collections.frequency(delegate.applyCalls, FOO)).isEqualTo(1);
   }
 }

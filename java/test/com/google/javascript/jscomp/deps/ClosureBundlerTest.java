@@ -17,9 +17,8 @@ package com.google.javascript.jscomp.deps;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.mockito.Mockito.RETURNS_SMART_NULLS;
-import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.bundle.TranspilationException;
 import com.google.javascript.jscomp.transpile.BaseTranspiler;
@@ -27,10 +26,12 @@ import com.google.javascript.jscomp.transpile.TranspileResult;
 import com.google.javascript.jscomp.transpile.Transpiler;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
 
 /** Tests for ClosureBundler */
 @RunWith(JUnit4.class)
@@ -40,6 +41,22 @@ public final class ClosureBundlerTest {
       SimpleDependencyInfo.builder("", "").setGoogModule(true).build();
 
   private static final DependencyInfo TRADITIONAL = SimpleDependencyInfo.builder("", "").build();
+
+  /** Fake that returns the canned result for the given arguments, like the mock it replaces. */
+  private static final class FakeTranspiler implements Transpiler {
+    final Map<List<Object>, TranspileResult> transpileResults = new HashMap<>();
+    String runtime = "";
+
+    @Override
+    public TranspileResult transpile(URI path, String code) {
+      return transpileResults.get(ImmutableList.of(path, code));
+    }
+
+    @Override
+    public String runtime() {
+      return runtime;
+    }
+  }
 
   @Test
   public void testGoogModule() throws IOException {
@@ -121,10 +138,10 @@ public final class ClosureBundlerTest {
     String input = "goog.module('Foo');\nclass Foo {}";
     URI uri = new URI("foo.js");
 
-    Transpiler transpiler = Mockito.mock(Transpiler.class, RETURNS_SMART_NULLS);
-    when(transpiler.runtime()).thenReturn("RUNTIME;");
-    when(transpiler.transpile(uri, input))
-        .thenReturn(new TranspileResult(uri, input, "TRANSPILED;", ""));
+    FakeTranspiler transpiler = new FakeTranspiler();
+    transpiler.runtime = "RUNTIME;";
+    transpiler.transpileResults.put(
+        ImmutableList.of(uri, input), new TranspileResult(uri, input, "TRANSPILED;", ""));
 
     ClosureBundler bundler = new ClosureBundler(transpiler).withPath("foo.js");
     StringBuilder sb = new StringBuilder();

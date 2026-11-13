@@ -47,7 +47,6 @@ import static com.google.javascript.rhino.Token.SUPER;
 import static com.google.javascript.rhino.Token.YIELD;
 import static com.google.javascript.rhino.testing.NodeSubject.assertNode;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -86,8 +85,6 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 /**
  * Tests for NodeUtil.
@@ -5189,7 +5186,7 @@ public final class NodeUtilTest {
 
     @Test
     public void testVisitPreOrder() {
-      NodeUtil.Visitor visitor = Mockito.mock(NodeUtil.Visitor.class);
+      RecordingVisitor visitor = new RecordingVisitor();
       NodeUtil.visitPreOrder(buildTestTree(), visitor);
       assertThat(getNodeStringsFromMockVisitor(visitor))
           .containsExactly("A", "B", "C", "D", "E", "F", "G")
@@ -5198,7 +5195,7 @@ public final class NodeUtilTest {
 
     @Test
     public void testVisitPostOrder() {
-      NodeUtil.Visitor visitor = Mockito.mock(NodeUtil.Visitor.class);
+      RecordingVisitor visitor = new RecordingVisitor();
       NodeUtil.visitPostOrder(buildTestTree(), visitor);
       assertThat(getNodeStringsFromMockVisitor(visitor))
           .containsExactly("C", "D", "B", "F", "G", "E", "A")
@@ -5304,11 +5301,20 @@ public final class NodeUtilTest {
       return a;
     }
 
+    /** Fake that records the visited nodes, like the mock it replaces. */
+    private static final class RecordingVisitor implements NodeUtil.Visitor {
+      final List<Node> visitCalls = new ArrayList<>();
+
+      @Override
+      public void visit(Node node) {
+        visitCalls.add(node);
+      }
+    }
+
     private static ImmutableList<String> getNodeStringsFromMockVisitor(
-        NodeUtil.Visitor mockVisitor) {
-      ArgumentCaptor<Node> captor = ArgumentCaptor.forClass(Node.class);
-      verify(mockVisitor, Mockito.atLeastOnce()).visit(captor.capture());
-      return captor.getAllValues().stream().map(Node::getString).collect(toImmutableList());
+        RecordingVisitor mockVisitor) {
+      assertThat(mockVisitor.visitCalls).isNotEmpty();
+      return mockVisitor.visitCalls.stream().map(Node::getString).collect(toImmutableList());
     }
   }
 

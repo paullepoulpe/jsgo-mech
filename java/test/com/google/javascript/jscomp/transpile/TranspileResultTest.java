@@ -18,7 +18,7 @@ package com.google.javascript.jscomp.transpile;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.common.testing.EqualsTester;
+import com.google.javascript.jscomp.testing.EqualsTester;
 import java.net.URI;
 import org.junit.Test;
 import org.junit.runner.RunWith;

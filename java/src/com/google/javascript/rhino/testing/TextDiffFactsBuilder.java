@@ -41,15 +41,12 @@ package com.google.javascript.rhino.testing;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.truth.Fact.fact;
-import static java.util.stream.Collectors.joining;
 
-import com.github.difflib.DiffUtils;
-import com.github.difflib.UnifiedDiffUtils;
-import com.github.difflib.patch.Patch;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.truth.Fact;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -83,15 +80,137 @@ public final class TextDiffFactsBuilder {
    * text strings, which must be specified by calling their methods before calling this one.
    */
   public ImmutableList<Fact> build() {
-    // The diff algorithm expects to work on a list, so we need to split the text into
-    // lines.
+    // Split the text into lines and diff them with a plain longest-common-subsequence table.
     final Splitter lineSplitter = Splitter.on('\n');
     final List<String> expectedLines = lineSplitter.splitToList(checkNotNull(expectedText));
     final List<String> actualLines = lineSplitter.splitToList(checkNotNull(actualText));
-    final Patch<String> patch = DiffUtils.diff(expectedLines, actualLines);
     final List<String> unifiedDiff =
-        UnifiedDiffUtils.generateUnifiedDiff(
-            "expected", "actual", expectedLines, patch, /* contextSize= */ 10);
-    return ImmutableList.of(fact(title, unifiedDiff.stream().collect(joining("\n"))));
+        generateUnifiedDiff(expectedLines, actualLines, /* contextSize= */ 10);
+    return ImmutableList.of(fact(title, String.join("\n", unifiedDiff)));
+  }
+
+  /**
+   * Returns the unified diff ("--- expected", "+++ actual", then "@@" hunks whose lines are
+   * prefixed with ' ', '-' or '+') that turns {@code expected} into {@code actual}, or an empty
+   * list when they are equal.
+   */
+  private static List<String> generateUnifiedDiff(
+      List<String> expected, List<String> actual, int contextSize) {
+    // Lines before `prefix` and after the last `suffix` lines are common to both texts.
+    int prefix = 0;
+    while (prefix < expected.size()
+        && prefix < actual.size()
+        && expected.get(prefix).equals(actual.get(prefix))) {
+      prefix++;
+    }
+    int suffix = 0;
+    while (suffix < expected.size() - prefix
+        && suffix < actual.size() - prefix
+        && expected
+            .get(expected.size() - 1 - suffix)
+            .equals(actual.get(actual.size() - 1 - suffix))) {
+      suffix++;
+    }
+    final int n = expected.size() - prefix - suffix;
+    final int m = actual.size() - prefix - suffix;
+    // lcs[i][j] is the length of the longest common subsequence of the middle parts from i and j.
+    final int[][] lcs = new int[n + 1][m + 1];
+    for (int i = n - 1; i >= 0; i--) {
+      for (int j = m - 1; j >= 0; j--) {
+        lcs[i][j] =
+            expected.get(prefix + i).equals(actual.get(prefix + j))
+                ? lcs[i + 1][j + 1] + 1
+                : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
+      }
+    }
+    // One entry per output line: its tag (' ', '-' or '+') and its text.
+    final List<Character> tags = new ArrayList<>();
+    final List<String> lines = new ArrayList<>();
+    for (int i = 0; i < prefix; i++) {
+      tags.add(' ');
+      lines.add(expected.get(i));
+    }
+    int i = 0;
+    int j = 0;
+    while (i < n || j < m) {
+      if (i < n && j < m && expected.get(prefix + i).equals(actual.get(prefix + j))) {
+        tags.add(' ');
+        lines.add(expected.get(prefix + i));
+        i++;
+        j++;
+      } else if (i < n && (j == m || lcs[i + 1][j] >= lcs[i][j + 1])) {
+        tags.add('-');
+        lines.add(expected.get(prefix + i));
+        i++;
+      } else {
+        tags.add('+');
+        lines.add(actual.get(prefix + j));
+        j++;
+      }
+    }
+    for (int k = expected.size() - suffix; k < expected.size(); k++) {
+      tags.add(' ');
+      lines.add(expected.get(k));
+    }
+
+    final List<String> result = new ArrayList<>();
+    int expectedLine = 1; // 1-based line number in `expected` of entry `pos`
+    int actualLine = 1; // 1-based line number in `actual` of entry `pos`
+    int pos = 0;
+    while (pos < tags.size()) {
+      if (tags.get(pos) == ' ') {
+        expectedLine++;
+        actualLine++;
+        pos++;
+        continue;
+      }
+      // A hunk starts contextSize lines before a change and ends contextSize lines after the last
+      // change that is followed by more than 2 * contextSize common lines.
+      final int hunkStart = Math.max(0, pos - contextSize);
+      int lastChange = pos;
+      for (int k = pos + 1; k < tags.size() && k <= lastChange + 2 * contextSize + 1; k++) {
+        if (tags.get(k) != ' ') {
+          lastChange = k;
+        }
+      }
+      final int hunkEnd = Math.min(tags.size(), lastChange + 1 + contextSize);
+      int expectedCount = 0;
+      int actualCount = 0;
+      for (int k = hunkStart; k < hunkEnd; k++) {
+        if (tags.get(k) != '+') {
+          expectedCount++;
+        }
+        if (tags.get(k) != '-') {
+          actualCount++;
+        }
+      }
+      if (result.isEmpty()) {
+        result.add("--- expected");
+        result.add("+++ actual");
+      }
+      result.add(
+          "@@ -"
+              + (expectedLine - (pos - hunkStart))
+              + ","
+              + expectedCount
+              + " +"
+              + (actualLine - (pos - hunkStart))
+              + ","
+              + actualCount
+              + " @@");
+      for (int k = hunkStart; k < hunkEnd; k++) {
+        result.add(tags.get(k) + lines.get(k));
+      }
+      for (int k = pos; k < hunkEnd; k++) {
+        if (tags.get(k) != '+') {
+          expectedLine++;
+        }
+        if (tags.get(k) != '-') {
+          actualLine++;
+        }
+      }
+      pos = hunkEnd;
+    }
+    return result;
   }
 }

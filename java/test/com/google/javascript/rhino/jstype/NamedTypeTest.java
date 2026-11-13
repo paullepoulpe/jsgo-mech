@@ -44,7 +44,7 @@ import static com.google.javascript.rhino.testing.TypeSubject.assertType;
 import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.testing.EqualsTester;
+import com.google.javascript.jscomp.testing.EqualsTester;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.jstype.NamedType.ResolutionKind;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;

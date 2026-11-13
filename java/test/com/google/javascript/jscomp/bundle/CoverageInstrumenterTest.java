@@ -17,8 +17,6 @@
 package com.google.javascript.jscomp.bundle;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Answers.RETURNS_SMART_NULLS;
-import static org.mockito.Mockito.when;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -27,12 +25,13 @@ import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Precision;
 import com.google.javascript.jscomp.JSError;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link CoverageInstrumenter}. */
 @RunWith(JUnit4.class)
@@ -41,8 +40,23 @@ public final class CoverageInstrumenterTest {
   private Source.Transformer instrumenter;
   private CoverageInstrumenter.CompilerSupplier compiler;
 
-  @Mock(answer = RETURNS_SMART_NULLS)
-  CoverageInstrumenter.CompilerSupplier mockCompiler;
+  FakeCompilerSupplier mockCompiler;
+
+  /** Fake that returns the canned result for the given arguments, like the mock it replaces. */
+  private static final class FakeCompilerSupplier extends CoverageInstrumenter.CompilerSupplier {
+    final Map<List<Object>, CoverageInstrumenter.CompileResult> compileResults = new HashMap<>();
+    final Map<String, String> runtimes = new HashMap<>();
+
+    @Override
+    public CoverageInstrumenter.CompileResult compile(Path path, String code) {
+      return compileResults.get(ImmutableList.of(path, code));
+    }
+
+    @Override
+    public String runtime(String library) {
+      return runtimes.getOrDefault(library, "");
+    }
+  }
 
   private static final Path FOO_JS = Path.of("foo.js");
   private static final Path SOURCE_JS = Path.of("source.js");
@@ -50,7 +64,7 @@ public final class CoverageInstrumenterTest {
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
+    mockCompiler = new FakeCompilerSupplier();
     instrumenter = new CoverageInstrumenter(mockCompiler);
     compiler = CoverageInstrumenter.compilerSupplier();
   }
@@ -59,8 +73,9 @@ public final class CoverageInstrumenterTest {
 
   @Test
   public void testCoverageInstrumenter_instrument() {
-    when(mockCompiler.compile(FOO_JS, "bar"))
-        .thenReturn(new CoverageInstrumenter.CompileResult("result", NO_ERRORS, true, "srcmap"));
+    mockCompiler.compileResults.put(
+        ImmutableList.of(FOO_JS, "bar"),
+        new CoverageInstrumenter.CompileResult("result", NO_ERRORS, true, "srcmap"));
     assertThat(instrumenter.transform(source(FOO_JS, "bar")))
         .isEqualTo(
             Source.builder()
@@ -73,8 +88,9 @@ public final class CoverageInstrumenterTest {
 
   @Test
   public void testCoverageInstrumenter_noInstrumentation() {
-    when(mockCompiler.compile(FOO_JS, "bar"))
-        .thenReturn(new CoverageInstrumenter.CompileResult("result", NO_ERRORS, false, "srcmap"));
+    mockCompiler.compileResults.put(
+        ImmutableList.of(FOO_JS, "bar"),
+        new CoverageInstrumenter.CompileResult("result", NO_ERRORS, false, "srcmap"));
     assertThat(instrumenter.transform(source(FOO_JS, "bar"))).isEqualTo(source(FOO_JS, "bar"));
   }
 

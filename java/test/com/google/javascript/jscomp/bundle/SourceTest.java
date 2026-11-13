@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.testing.EqualsTester;
+import com.google.javascript.jscomp.testing.EqualsTester;
 import java.nio.file.Path;
 import org.junit.Test;
 import org.junit.runner.RunWith;

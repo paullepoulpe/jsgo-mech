@@ -19,7 +19,7 @@ package com.google.javascript.jscomp.regex;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import com.google.common.testing.EqualsTester;
+import com.google.javascript.jscomp.testing.EqualsTester;
 import java.util.BitSet;
 import java.util.Random;
 import org.junit.Test;

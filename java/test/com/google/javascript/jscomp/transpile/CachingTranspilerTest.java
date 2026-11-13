@@ -17,19 +17,20 @@
 package com.google.javascript.jscomp.transpile;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Answers.RETURNS_SMART_NULLS;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableList;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link CachingTranspiler}. */
 @RunWith(JUnit4.class)
@@ -37,8 +38,30 @@ public final class CachingTranspilerTest {
 
   private Transpiler transpiler;
 
-  @Mock(answer = RETURNS_SMART_NULLS)
-  Transpiler delegate;
+  FakeTranspiler delegate;
+
+  /**
+   * Fake that returns the canned result for the given arguments and records the calls, like the
+   * mock it replaces.
+   */
+  private static final class FakeTranspiler implements Transpiler {
+    final Map<List<Object>, TranspileResult> transpileResults = new HashMap<>();
+    String runtime = "";
+    final List<List<Object>> transpileCalls = new ArrayList<>();
+    int runtimeCalls = 0;
+
+    @Override
+    public TranspileResult transpile(URI path, String code) {
+      transpileCalls.add(ImmutableList.of(path, code));
+      return transpileResults.get(ImmutableList.of(path, code));
+    }
+
+    @Override
+    public String runtime() {
+      runtimeCalls++;
+      return runtime;
+    }
+  }
 
   private static final URI FOO_JS;
   private static final URI BAR_JS;
@@ -63,29 +86,30 @@ public final class CachingTranspilerTest {
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
+    delegate = new FakeTranspiler();
     transpiler = new CachingTranspiler(delegate, CacheBuilder.newBuilder());
   }
 
   @Test
   public void testTranspileDelegates() {
-    when(delegate.transpile(FOO_JS, "bar")).thenReturn(RESULT1);
+    delegate.transpileResults.put(ImmutableList.of(FOO_JS, "bar"), RESULT1);
     assertThat(transpiler.transpile(FOO_JS, "bar")).isSameInstanceAs(RESULT1);
   }
 
   @Test
   public void testTranspileCaches() {
-    when(delegate.transpile(FOO_JS, "bar")).thenReturn(RESULT1);
+    delegate.transpileResults.put(ImmutableList.of(FOO_JS, "bar"), RESULT1);
     assertThat(transpiler.transpile(FOO_JS, "bar")).isSameInstanceAs(RESULT1);
     assertThat(transpiler.transpile(FOO_JS, "bar")).isSameInstanceAs(RESULT1);
-    verify(delegate).transpile(FOO_JS, "bar");
+    assertThat(Collections.frequency(delegate.transpileCalls, ImmutableList.of(FOO_JS, "bar")))
+        .isEqualTo(1);
   }
 
   @Test
   public void testTranspileDependsOnBothPathAndCode() {
-    when(delegate.transpile(FOO_JS, "bar")).thenReturn(RESULT1);
-    when(delegate.transpile(BAR_JS, "bar")).thenReturn(RESULT2);
-    when(delegate.transpile(FOO_JS, "bard")).thenReturn(RESULT3);
+    delegate.transpileResults.put(ImmutableList.of(FOO_JS, "bar"), RESULT1);
+    delegate.transpileResults.put(ImmutableList.of(BAR_JS, "bar"), RESULT2);
+    delegate.transpileResults.put(ImmutableList.of(FOO_JS, "bard"), RESULT3);
     assertThat(transpiler.transpile(FOO_JS, "bar")).isSameInstanceAs(RESULT1);
     assertThat(transpiler.transpile(BAR_JS, "bar")).isSameInstanceAs(RESULT2);
     assertThat(transpiler.transpile(FOO_JS, "bard")).isSameInstanceAs(RESULT3);
@@ -93,15 +117,15 @@ public final class CachingTranspilerTest {
 
   @Test
   public void testRuntimeDelegates() {
-    when(delegate.runtime()).thenReturn("xyzzy");
+    delegate.runtime = "xyzzy";
     assertThat(transpiler.runtime()).isSameInstanceAs("xyzzy");
   }
 
   @Test
   public void testRuntimeCaches() {
-    when(delegate.runtime()).thenReturn("xyzzy");
+    delegate.runtime = "xyzzy";
     assertThat(transpiler.runtime()).isSameInstanceAs("xyzzy");
     assertThat(transpiler.runtime()).isSameInstanceAs("xyzzy");
-    verify(delegate).runtime();
+    assertThat(delegate.runtimeCalls).isEqualTo(1);
   }
 }
