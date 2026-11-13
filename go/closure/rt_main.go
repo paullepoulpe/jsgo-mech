@@ -54,8 +54,8 @@ func Main(args []string) (code int) {
 		}
 		compiler := new_Compiler_0()
 		compiler.initOptions(new_CompilerOptions())
-		n := compiler.parseTestCode_String(string(src))
-		fmt.Println(compiler.toSource_Node(n))
+		n := compiler.parseTestCode(string(src))
+		fmt.Println(compiler.toSource_1(n))
 		return 0
 	}
 	CommandLineRunner_main(args)

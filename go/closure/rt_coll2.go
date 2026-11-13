@@ -16,13 +16,6 @@ type TreeMap struct {
 }
 
 func new_TreeMap() *TreeMap                        { return &TreeMap{} }
-func new_TreeMap_Comparator(c Comparator) *TreeMap { return &TreeMap{cmp: c} }
-func new_TreeMap_Map(m Map) *TreeMap {
-	this := &TreeMap{}
-	this.putAll(m)
-	return this
-}
-
 func (this *TreeMap) compare(a, b any) int32 {
 	if this.cmp != nil {
 		return this.cmp.compare(a, b)
@@ -144,12 +137,6 @@ type TreeSet struct {
 
 func new_TreeSet() *TreeSet                        { return &TreeSet{} }
 func new_TreeSet_Comparator(c Comparator) *TreeSet { return &TreeSet{cmp: c} }
-func new_TreeSet_Collection(c Collection) *TreeSet {
-	this := &TreeSet{}
-	this.addAll(c)
-	return this
-}
-
 func (this *TreeSet) compare(a, b any) int32 {
 	if this.cmp != nil {
 		return this.cmp.compare(a, b)
@@ -423,10 +410,6 @@ func EnumSet_of_Enum_EnumArr(e *Enum, rest []*Enum) *EnumSet {
 		s.add(x.self())
 	}
 	return s
-}
-
-func EnumSet_complementOf(o *EnumSet) *EnumSet {
-	panic("EnumSet.complementOf")
 }
 
 // ---- BitSet

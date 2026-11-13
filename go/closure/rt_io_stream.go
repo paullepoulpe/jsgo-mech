@@ -73,11 +73,6 @@ func to_InputStream(v any) *InputStream {
 	return v.(interface{ as_InputStream() *InputStream }).as_InputStream()
 }
 
-func is_InputStream(v any) bool {
-	_, ok := v.(interface{ as_InputStream() *InputStream })
-	return ok
-}
-
 func (this *InputStream) self() any {
 	if this == nil {
 		return nil
@@ -366,22 +361,6 @@ type FilterInputStream struct {
 
 func (this *FilterInputStream) as_FilterInputStream() *FilterInputStream { return this }
 
-func to_FilterInputStream(v any) *FilterInputStream {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_FilterInputStream() *FilterInputStream
-	}).as_FilterInputStream()
-}
-
-func is_FilterInputStream(v any) bool {
-	_, ok := v.(interface {
-		as_FilterInputStream() *FilterInputStream
-	})
-	return ok
-}
-
 func (this *FilterInputStream) self() any {
 	if this == nil {
 		return nil
@@ -409,13 +388,6 @@ type BufferedInputStream struct {
 	FilterInputStream
 }
 
-func (this *BufferedInputStream) up_FilterInputStream() *FilterInputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.FilterInputStream
-}
-
 func new_BufferedInputStream(in *InputStream) *BufferedInputStream {
 	return new_BufferedInputStream_InputStream_int(in, 8192)
 }
@@ -439,17 +411,6 @@ type ObjectInputStream struct {
 	InputStream
 }
 
-func (this *ObjectInputStream) up_InputStream() *InputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.InputStream
-}
-
-func (this *ObjectInputStream) defaultReadObject() {
-	panic(new_UnsupportedOperationException_String("Java serialization is not supported").self())
-}
-
 // ---- java.io.OutputStream
 
 type OutputStream struct {
@@ -468,11 +429,6 @@ func to_OutputStream(v any) *OutputStream {
 		return nil
 	}
 	return v.(interface{ as_OutputStream() *OutputStream }).as_OutputStream()
-}
-
-func is_OutputStream(v any) bool {
-	_, ok := v.(interface{ as_OutputStream() *OutputStream })
-	return ok
 }
 
 func (this *OutputStream) self() any {
@@ -592,9 +548,6 @@ func newOutputStream_(w io.Writer, flusher func(), closer func()) *OutputStream 
 	return this
 }
 
-// OutputStream_nullOutputStream discards everything.
-func OutputStream_nullOutputStream() *OutputStream { return newOutputStream_(io.Discard, nil, nil) }
-
 // ---- ByteArrayOutputStream
 
 type ByteArrayOutputStream struct {
@@ -613,15 +566,6 @@ func new_ByteArrayOutputStream() *ByteArrayOutputStream {
 	this := &ByteArrayOutputStream{}
 	this.self_ = this
 	this.dst_ = &this.buf_
-	return this
-}
-
-func new_ByteArrayOutputStream_int(n int32) *ByteArrayOutputStream {
-	if n < 0 {
-		panic(new_IllegalArgumentException_String("Negative initial size: " + istr_(int64(n))).self())
-	}
-	this := new_ByteArrayOutputStream()
-	this.buf_.Grow(int(n))
 	return this
 }
 
@@ -692,14 +636,6 @@ func new_FileOutputStream(name string) *FileOutputStream {
 	return new_FileOutputStream_String_boolean(name, false)
 }
 
-func new_FileOutputStream_File(f *File) *FileOutputStream {
-	return new_FileOutputStream_String_boolean(f.path_, false)
-}
-
-func new_FileOutputStream_File_boolean(f *File, appendTo bool) *FileOutputStream {
-	return new_FileOutputStream_String_boolean(f.path_, appendTo)
-}
-
 // ---- FilterOutputStream, BufferedOutputStream
 
 type FilterOutputStream struct {
@@ -708,22 +644,6 @@ type FilterOutputStream struct {
 }
 
 func (this *FilterOutputStream) as_FilterOutputStream() *FilterOutputStream { return this }
-
-func to_FilterOutputStream(v any) *FilterOutputStream {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_FilterOutputStream() *FilterOutputStream
-	}).as_FilterOutputStream()
-}
-
-func is_FilterOutputStream(v any) bool {
-	_, ok := v.(interface {
-		as_FilterOutputStream() *FilterOutputStream
-	})
-	return ok
-}
 
 func (this *FilterOutputStream) self() any {
 	if this == nil {
@@ -758,13 +678,6 @@ func (this *FilterOutputStream) init_FilterOutputStream(out *OutputStream) {
 
 type BufferedOutputStream struct {
 	FilterOutputStream
-}
-
-func (this *BufferedOutputStream) up_FilterOutputStream() *FilterOutputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.FilterOutputStream
 }
 
 func new_BufferedOutputStream(out *OutputStream) *BufferedOutputStream {
@@ -819,19 +732,9 @@ func new_PrintStream(out *OutputStream) *PrintStream {
 	return newPrintStream_(out, false, StandardCharsets_UTF_8)
 }
 
-func new_PrintStream_OutputStream_boolean(out *OutputStream, autoFlush bool) *PrintStream {
-	return newPrintStream_(out, autoFlush, StandardCharsets_UTF_8)
-}
-
-func new_PrintStream_OutputStream_boolean_Charset(out *OutputStream, autoFlush bool, cs *Charset) *PrintStream {
-	return newPrintStream_(out, autoFlush, cs)
-}
-
 func new_PrintStream_String(name string) *PrintStream {
 	return newPrintStream_(new_FileOutputStream(name).up_OutputStream(), false, StandardCharsets_UTF_8)
 }
-
-func new_PrintStream_File(f *File) *PrintStream { return new_PrintStream_String(f.path_) }
 
 // guard_ runs one output operation the way PrintStream does: an IOException
 // is not thrown but remembered for checkError().
@@ -993,15 +896,3 @@ func init() {
 	}
 }
 
-func System_setOut(p *PrintStream) { System_out = p }
-func System_setErr(p *PrintStream) { System_err = p }
-func System_setIn(in *InputStream) { System_in = in }
-
-func System_lineSeparator() string { return "\n" }
-
-func System_getenv(name string) string {
-	if v, ok := os.LookupEnv(name); ok {
-		return v
-	}
-	return nullstr_
-}

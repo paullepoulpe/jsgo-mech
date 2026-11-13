@@ -1932,7 +1932,7 @@ var baseCases_ = [][]string{
 	{"b64d", "Y Q==", "EX:IllegalArgumentException"},
 	{"b64d", "YW-j", "EX:IllegalArgumentException"},
 	{"b64d", "aGVsbG8gd29ybGQ=", "68656c6c6f20776f726c64"},
-	{"misc", "007/1234/h\u00c9llo/H\u00e9LLO/true/false/false/Optional.of(x)/Optional.absent()/1502476692/2040732332/Optional[x]/Optional.empty/120/Predicates.alwaysTrue()/Predicates.equalTo(x)/Functions.identity()/str{a=1, b=null, c=true, d=s}/String{x=[1, 2]}/\\Qa.b\\E/\\Qa\\E\\\\E\\Qb\\E/a\\$b\\\\c"},
+	{"misc", "007/1234/h\u00c9llo/H\u00e9LLO/true/false/false/Optional.of(x)/Optional.absent()/1502476692/2040732332/Optional[x]/Optional.empty/120/Predicates.alwaysTrue()/Predicates.equalTo(x)/Functions.identity()/str{a=1, b=null, c=true, d=s}/String{x=[1, 2]}/a\\.b/a\\\\Eb"},
 	{"random", "0", "0,1,4,9,15,53,591027245,251269761,1283218719,42,21,1085665355,7105486291024734541,true,0.9828195255872982"},
 	{"random", "1", "0,0,1,6,54,904,357252217,13136569,327998473,13,10,-258276172,-8225913900319941199,true,0.9370821488959696"},
 	{"random", "42", "0,0,6,0,70,525,297510752,196118093,1939977182,26,23,1639144584,5086654115216342560,false,0.762090173108902"},

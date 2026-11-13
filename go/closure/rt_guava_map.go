@@ -280,20 +280,12 @@ func ImmutableMap_of() *ImmutableMap { return emptyImmMap_ }
 
 func ImmutableMap_of_Object_Object(p0 any, p1 any) *ImmutableMap { return immMapOf_(p0, p1) }
 
-func ImmutableMap_of_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any) *ImmutableMap {
-	return immMapOf_(p0, p1, p2, p3)
-}
-
 func ImmutableMap_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableMap {
 	return immMapOf_(p0, p1, p2, p3, p4, p5)
 }
 
 func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any) *ImmutableMap {
 	return immMapOf_(p0, p1, p2, p3, p4, p5, p6, p7)
-}
-
-func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any) *ImmutableMap {
-	return immMapOf_(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9)
 }
 
 func ImmutableMap_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any, p7 any, p8 any, p9 any, p10 any, p11 any, p12 any, p13 any, p14 any, p15 any, p16 any, p17 any, p18 any, p19 any) *ImmutableMap {
@@ -317,8 +309,6 @@ func ImmutableBiMap_copyOf(p0 Map) *ImmutableBiMap {
 	keys, vals := mapKV_(p0)
 	return immMap_(imBiMap_, keys, vals, nil, false)
 }
-
-func ImmutableSortedMap_of() *ImmutableSortedMap { return emptyImmSortedMap_ }
 
 func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
 	if im, ok := p0.(*ImmutableMap); ok && im.kind == imSorted_ && im.cmp == nil {
@@ -360,17 +350,9 @@ func (this *ImmutableMap_Builder) up_ImmutableMap_Builder() *ImmutableMap_Builde
 
 func new_ImmutableMap_Builder() *ImmutableMap_Builder { return &ImmutableMap_Builder{} }
 func ImmutableMap_builder() *ImmutableMap_Builder     { return &ImmutableMap_Builder{} }
-func ImmutableMap_builderWithExpectedSize(n int32) *ImmutableMap_Builder {
-	return &ImmutableMap_Builder{}
-}
-func ImmutableBiMap_builder() *ImmutableBiMap_Builder { return &ImmutableMap_Builder{kind: imBiMap_} }
 func ImmutableSortedMap_naturalOrder() *ImmutableSortedMap_Builder {
 	return &ImmutableMap_Builder{kind: imSorted_}
 }
-func ImmutableSortedMap_orderedBy(p0 Comparator) *ImmutableSortedMap_Builder {
-	return &ImmutableMap_Builder{kind: imSorted_, cmp: p0}
-}
-
 func (this *ImmutableMap_Builder) put(p0 any, p1 any) *ImmutableMap_Builder {
 	if p0 == nil {
 		throwNPE_("null key in entry: null=" + objstr_(p1))
@@ -409,13 +391,6 @@ func (this *ImmutableMap_Builder) buildKeepingLast() *ImmutableMap {
 	return this.make_(true)
 }
 
-func mapBuilderCollector_(mk func() *ImmutableMap_Builder, kf Function, vf Function) Collector {
-	return &guavaCollector_{
-		sup: func() any { return mk() },
-		acc: func(a, v any) { a.(*ImmutableMap_Builder).put(kf.apply(v), vf.apply(v)) },
-		fin: func(a any) any { return a.(*ImmutableMap_Builder).buildOrThrow() },
-	}
-}
 
 // ---- ImmutableMultimap (list- or set-valued)
 
@@ -641,27 +616,4 @@ func immMultimapCopy_(set bool, p0 Multimap) *ImmutableMultimap {
 func ImmutableSetMultimap_copyOf(p0 Multimap) *ImmutableSetMultimap {
 	return immMultimapCopy_(true, p0)
 }
-func ImmutableListMultimap_copyOf(p0 Multimap) *ImmutableListMultimap {
-	return immMultimapCopy_(false, p0)
-}
-func ImmutableMultimap_copyOf(p0 Multimap) *ImmutableMultimap {
-	if im, ok := p0.(*ImmutableMultimap); ok {
-		return im
-	}
-	return immMultimapCopy_(false, p0)
-}
-
-func Multimaps_index(p0 Iterable, p1 Function_base) *ImmutableListMultimap {
-	b := ImmutableListMultimap_builder()
-	for it := p0.iterator(); it.hasNext(); {
-		v := it.next()
-		if v == nil {
-			throwNPE_("null")
-		}
-		b.put(p1.apply(v), v)
-	}
-	return b.build()
-}
-
 func Multimaps_asMap(p0 ListMultimap) Map            { return p0.asMap() }
-func Multimaps_asMap_SetMultimap(p0 SetMultimap) Map { return p0.asMap() }

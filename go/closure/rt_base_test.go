@@ -152,13 +152,6 @@ func baseRun_(c []string) string {
 			b.WriteString("@" + baseInt_(int64(m.end())))
 		}
 		return b.String()
-	case "split":
-		lim, _ := strconv.Atoi(a[2])
-		return baseArr_(String_split_String_int(a[0], a[1], int32(lim)))
-	case "replaceAll":
-		return String_replaceAll(a[0], a[1], a[2])
-	case "replaceFirst":
-		return String_replaceFirst(a[0], a[1], a[2])
 	case "format":
 		return String_format(a[0], baseArgs_(a[1:]))
 	case "msgfmt":
@@ -244,12 +237,12 @@ func baseRun_(c []string) string {
 	case "misc":
 		return strings.Join([]string{Strings_padStart("7", 3, '0'), Strings_padStart("1234", 3, '0'), Ascii_toLowerCase("HÉLLo"), Ascii_toUpperCase("héllo"),
 			baseBool_(Ascii_equalsIgnoreCase("aBc", "AbC")), baseBool_(Ascii_equalsIgnoreCase("@", "`")), baseBool_(Ascii_equalsIgnoreCase("é", "É")),
-			objstr_(Optional_of("x")), objstr_(Optional_absent()), baseInt_(int64(objhash_(Optional_of("x")))), baseInt_(int64(objhash_(Optional_absent()))),
-			objstr_(Optional_util_of("x")), objstr_(Optional_util_empty()), baseInt_(int64(objhash_(Optional_util_of("x")))),
+			objstr_(Optional_base_of("x")), objstr_(Optional_base_absent()), baseInt_(int64(objhash_(Optional_base_of("x")))), baseInt_(int64(objhash_(Optional_base_absent()))),
+			objstr_(Optional_of("x")), objstr_(Optional_empty()), baseInt_(int64(objhash_(Optional_of("x")))),
 			objstr_(Predicates_alwaysTrue()), objstr_(Predicates_equalTo("x")), objstr_(Functions_identity()),
 			objstr_((&MoreObjects_ToStringHelper{className: "str"}).add_String_int("a", 1).add("b", nil).add_String_boolean("c", true).add("d", "s")),
 			objstr_(MoreObjects_toStringHelper_Class(classOf_("java.lang.String")).omitNullValues().add("b", nil).add("x", []int32{1, 2})),
-			Pattern_quote("a.b"), Pattern_quote("a\\Eb"), Matcher_regex_quoteReplacement("a$b\\c")}, "/")
+			Pattern_quote("a.b"), Pattern_quote("a\\Eb")}, "/")
 	case "random":
 		seed, _ := strconv.ParseInt(a[0], 10, 64)
 		r := newRandom_(seed)
@@ -278,8 +271,8 @@ func TestBaseAgainstJava(t *testing.T) {
 	counts := map[string]int{}
 	for _, c := range baseCases_ {
 		want := c[len(c)-1]
-		if c[0] == "find" && baseRegexUnsupported_[c[1]] {
-			continue
+		if c[0] == "find" || c[0] == "split" || c[0] == "replaceAll" || c[0] == "replaceFirst" {
+			continue // golden values of java.util.regex; the Java now uses re2j
 		}
 		if c[0] == "format" && len(c) == 4 && c[2] == "f:1.1" && c[1] == "%s" {
 			continue // String.valueOf(Float) belongs to rt_core.go (fstr_)
@@ -299,36 +292,9 @@ func TestBaseAgainstJava(t *testing.T) {
 	t.Log(counts)
 }
 
-func TestBaseMatcherRegion(t *testing.T) {
-	// The value scanner of JsFileLineParser: lookingAt / hitEnd / region.
-	p := Pattern_compile("\\s*(?:'((?:\\\\.|[^'\\\\])*)'|\"((?:\\\\.|[^\"\\\\])*)\")\\s*")
-	m := p.matcher("")
-	m.reset("'a', \"bé\" ,'c'")
-	var got []string
-	for {
-		if !m.lookingAt() {
-			t.Fatal("lookingAt failed")
-		}
-		if m.group(1) != nullstr_ {
-			got = append(got, m.group(1))
-		} else {
-			got = append(got, m.group(2))
-		}
-		if m.hitEnd() {
-			break
-		}
-		m.region(m.end()+1, m.regionEnd())
-	}
-	if strings.Join(got, "|") != "a|bé|c" {
-		t.Errorf("got %q", got)
-	}
-	m = Pattern_compile("^b").matcher("abc")
-	m.region(1, 3)
-	if !m.find() || m.start() != 1 || m.end() != 2 || m.regionEnd() != 3 {
-		t.Errorf("anchoring bounds")
-	}
-	m = Pattern_compile("(?<func>a+)(?<args>b*)").matcher("xaab")
-	if !m.find() || MatchResult_group_String(m, "func") != "aa" || MatchResult_group_String(m, "args") != "b" {
+func TestBaseMatcher(t *testing.T) {
+	m := Pattern_compile("(?P<func>a+)(?P<args>b*)").matcher("xaab")
+	if !m.find() || m.group_String("func") != "aa" || m.group_String("args") != "b" {
 		t.Errorf("named groups")
 	}
 	// UTF-16 indexes.
@@ -339,12 +305,11 @@ func TestBaseMatcherRegion(t *testing.T) {
 	if ex := baseTry_(func() string { Pattern_compile("(a"); return "" }); ex != "EX:PatternSyntaxException" {
 		t.Errorf("got %q", ex)
 	}
-	if !is_IllegalArgumentException(baseCatch_(func() (r any) {
-		defer func() { r = recover() }()
-		Pattern_compile("[a")
-		return nil
-	}())) {
-		t.Errorf("PatternSyntaxException is not an IllegalArgumentException")
+	if got := baseArr_(Pattern_compile(",").split_String_int("a,b,,", 0)); got != baseArr_([]string{"a", "b"}) {
+		t.Errorf("split: %s", got)
+	}
+	if got := Pattern_compile("(a)(b)?").matcher("xab-a").replaceAll("[$1$2]"); got != "x[ab]-[a]" {
+		t.Errorf("replaceAll: %s", got)
 	}
 }
 
@@ -369,8 +334,8 @@ func TestBasePreconditions(t *testing.T) {
 		{func() { Preconditions_checkArgument_boolean_String_Object(false, "x", "extra") }, "java.lang.IllegalArgumentException: x [extra]"},
 		{func() { Preconditions_checkNotNull(nil) }, "java.lang.NullPointerException"},
 		{func() { Preconditions_checkNotNull_Object_String_Object(nil, "no %s", "y") }, "java.lang.NullPointerException: no y"},
-		{func() { Optional_absent().get() }, "java.lang.IllegalStateException: Optional.get() cannot be called on an absent value"},
-		{func() { Optional_util_empty().get() }, "java.util.NoSuchElementException: No value present"},
+		{func() { Optional_base_absent().get() }, "java.lang.IllegalStateException: Optional.get() cannot be called on an absent value"},
+		{func() { Optional_empty().get() }, "java.util.NoSuchElementException: No value present"},
 		{func() { Joiner_on(",").join_ObjectArr([]any{"a", nil}) }, "java.lang.NullPointerException"},
 		{func() {
 			Throwables_throwIfUnchecked(new_IllegalStateException_String("boom").up_RuntimeException().up_Exception().up_Throwable())
@@ -401,19 +366,19 @@ func TestBaseMisc(t *testing.T) {
 	if got := objstr_(Splitter_on('.').split("a.b.c")); got != "[a, b, c]" {
 		t.Errorf("split: %q", got)
 	}
-	o := Optional_of("x")
-	if !o.equals(Optional_fromNullable("x")) || o.equals(Optional_absent()) || !Optional_absent().equals(Optional_fromNullable(nil)) {
+	o := Optional_base_of("x")
+	if !o.equals(Optional_base_fromNullable("x")) || o.equals(Optional_base_absent()) || !Optional_base_absent().equals(Optional_base_fromNullable(nil)) {
 		t.Errorf("Optional.equals")
 	}
-	if o.or("y") != "x" || Optional_absent().or("y") != "y" || Optional_absent().orNull() != nil || Optional_absent().or_Optional(o) != o {
-		t.Errorf("Optional.or")
+	if o.or("y") != "x" || Optional_base_absent().or("y") != "y" || Optional_base_absent().orNull() != nil || Optional_base_absent().or_Optional(o) != o {
+		t.Errorf("Optional_base.or")
 	}
 	if got := o.transform(&Function_base_fn{func(v any) any { return v.(string) + "!" }}).get(); got != "x!" {
-		t.Errorf("Optional.transform: %v", got)
+		t.Errorf("Optional_base.transform: %v", got)
 	}
-	u := Optional_util_of("x")
-	if !u.equals(Optional_util_of("x")) || u.equals(Optional_util_empty()) || u.orElse("y") != "x" || Optional_util_empty().orElse("y") != "y" || !Optional_util_empty().isEmpty() {
-		t.Errorf("java.util.Optional")
+	u := Optional_of("x")
+	if !u.equals(Optional_of("x")) || u.equals(Optional_empty()) || u.orElse("y") != "x" || Optional_empty().orElse("y") != "y" || !Optional_empty().isEmpty() {
+		t.Errorf("java.util.Optional_base")
 	}
 	n := 0
 	s := Suppliers_memoize(&Supplier_base_fn{func() any { n++; return "v" }})

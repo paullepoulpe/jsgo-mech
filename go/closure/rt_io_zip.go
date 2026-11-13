@@ -75,13 +75,6 @@ type ZipEntry struct {
 	size_ int64
 }
 
-func new_ZipEntry(name string) *ZipEntry {
-	if name == nullstr_ {
-		panic(new_NullPointerException_String("name").self())
-	}
-	return &ZipEntry{name_: name, size_: -1}
-}
-
 func zipEntryOf_(f *zip.File, cs *Charset) *ZipEntry {
 	name := f.Name
 	if f.NonUTF8 && cs != nil {
@@ -236,13 +229,6 @@ type InflaterInputStream struct {
 	FilterInputStream
 }
 
-func (this *InflaterInputStream) up_FilterInputStream() *FilterInputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.FilterInputStream
-}
-
 // ZipInputStream reads the archive from its stream when the first entry is
 // asked for, and then serves the entries in the order of the archive.
 type ZipInputStream struct {
@@ -352,13 +338,6 @@ type GZIPInputStream struct {
 	InflaterInputStream
 }
 
-func (this *GZIPInputStream) up_InflaterInputStream() *InflaterInputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.InflaterInputStream
-}
-
 func new_GZIPInputStream(in *InputStream, size int32) *GZIPInputStream {
 	if in == nil {
 		panic(new_NullPointerException_0().self())
@@ -381,10 +360,6 @@ func new_GZIPInputStream(in *InputStream, size int32) *GZIPInputStream {
 	return this
 }
 
-func new_GZIPInputStream_InputStream(in *InputStream) *GZIPInputStream {
-	return new_GZIPInputStream(in, 512)
-}
-
 // ---- Deflater, DeflaterOutputStream, GZIPOutputStream
 
 type Deflater struct {
@@ -395,12 +370,6 @@ const Deflater_DEFAULT_COMPRESSION int32 = -1
 const Deflater_BEST_SPEED int32 = 1
 const Deflater_BEST_COMPRESSION int32 = 9
 const Deflater_NO_COMPRESSION int32 = 0
-
-func new_Deflater_int(level int32) *Deflater {
-	d := &Deflater{level_: -1}
-	d.setLevel(level)
-	return d
-}
 
 func (this *Deflater) setLevel(level int32) {
 	if (level < 0 || level > 9) && level != -1 {
@@ -486,22 +455,6 @@ type GZIPOutputStream struct {
 }
 
 func (this *GZIPOutputStream) as_GZIPOutputStream() *GZIPOutputStream { return this }
-
-func to_GZIPOutputStream(v any) *GZIPOutputStream {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_GZIPOutputStream() *GZIPOutputStream
-	}).as_GZIPOutputStream()
-}
-
-func is_GZIPOutputStream(v any) bool {
-	_, ok := v.(interface {
-		as_GZIPOutputStream() *GZIPOutputStream
-	})
-	return ok
-}
 
 func (this *GZIPOutputStream) self() any {
 	if this == nil {

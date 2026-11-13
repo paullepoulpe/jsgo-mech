@@ -212,12 +212,24 @@ final class Ctx {
     return bin.replace('$', '_').replace('.', '_');
   }
 
+  private static final String[] JDK_PACKAGES = {
+    "java.lang", "java.util", "java.util.function", "java.io", "java.util.concurrent", "java.nio.file"
+  };
+
   String className(TypeElement te) {
     String n = classNames.get(te);
     if (n != null) return n;
     n = rawName(te);
-    if (classByName.containsKey(n)) {
-      String pkg = elems.getPackageOf(te).getQualifiedName().toString();
+    String pkg = elems.getPackageOf(te).getQualifiedName().toString();
+    // A library class keeps its simple name unless a translated class or a core JDK class has it;
+    // the rule must not depend on which class is met first.
+    boolean taken = classByName.containsKey(n);
+    if (!taken && !pkg.startsWith("java.") && te.getNestingKind() == NestingKind.TOP_LEVEL) {
+      for (String jdk : JDK_PACKAGES) {
+        if (elems.getTypeElement(jdk + "." + n) != null) taken = true;
+      }
+    }
+    if (taken) {
       n = n + "_" + pkg.substring(pkg.lastIndexOf('.') + 1);
       while (classByName.containsKey(n)) n += "_";
     }

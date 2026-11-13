@@ -65,23 +65,6 @@ func isNumber_(v any) bool {
 	return false
 }
 
-func isCharSequence_(v any) bool {
-	switch v.(type) {
-	case string, *StringBuilder:
-		return true
-	}
-	return false
-}
-
-func isComparable_(v any) bool {
-	switch v.(type) {
-	case string, int32, int64, int16, int8, uint16, float32, float64, bool:
-		return true
-	}
-	_, ok := v.(interface{ compareTo(any) int32 })
-	return ok
-}
-
 // sstr_ is a String operand of string concatenation: null prints as "null".
 func sstr_(s string) string {
 	if s == nullstr_ {
@@ -243,19 +226,6 @@ func newstrarr_(n int32) []string {
 	a := make([]string, n)
 	for i := range a {
 		a[i] = nullstr_
-	}
-	return a
-}
-
-func newarr2_[T any](n, m int32) [][]T {
-	a := make([][]T, n)
-	for i := range a {
-		a[i] = make([]T, m)
-		if s, ok := any(a[i]).([]string); ok {
-			for j := range s {
-				s[j] = nullstr_
-			}
-		}
 	}
 	return a
 }

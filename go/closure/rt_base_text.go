@@ -372,18 +372,6 @@ type Escaper struct {
 
 func (this *Escaper) as_Escaper() *Escaper { return this }
 
-func to_Escaper(v any) *Escaper {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Escaper() *Escaper }).as_Escaper()
-}
-
-func is_Escaper(v any) bool {
-	_, ok := v.(interface{ as_Escaper() *Escaper })
-	return ok
-}
-
 func (this *Escaper) self() any {
 	if this == nil {
 		return nil
@@ -530,18 +518,6 @@ func Chars_asList(a []uint16) List {
 	return listOf_(items)
 }
 
-func Chars_toArray(c Collection) []uint16 {
-	items := c.toArray_0()
-	out := make([]uint16, len(items))
-	for i, v := range items {
-		if v == nil {
-			panic(new_NullPointerException_0().self())
-		}
-		out[i] = v.(uint16)
-	}
-	return out
-}
-
 // ---- StringTokenizer
 
 type StringTokenizer struct {
@@ -610,8 +586,6 @@ type Locale struct {
 
 var Locale_ROOT = &Locale{""}
 
-func (this *Locale) toString() string { return this.tag }
-
 // ---- AtomicIntegerArray
 
 type AtomicIntegerArray struct {
@@ -648,63 +622,5 @@ type Random struct {
 	seed int64
 }
 
-func newRandom_(seed int64) *Random {
-	r := &Random{}
-	r.setSeed(seed)
-	return r
-}
-
-func (this *Random) setSeed(seed int64) {
-	this.seed = (seed ^ 0x5DEECE66D) & (1<<48 - 1)
-}
-
-func (this *Random) next_(bits uint) int32 {
-	this.seed = (this.seed*0x5DEECE66D + 0xB) & (1<<48 - 1)
-	return int32(this.seed >> (48 - bits))
-}
-
-func (this *Random) nextInt() int32 { return this.next_(32) }
-
-func (this *Random) nextInt_int(bound int32) int32 {
-	if bound <= 0 {
-		argFail_("bound must be positive")
-	}
-	r := this.next_(31)
-	m := bound - 1
-	if bound&m == 0 {
-		return int32((int64(bound) * int64(r)) >> 31)
-	}
-	for u := r; ; u = this.next_(31) {
-		r = u % bound
-		if u-r+m >= 0 {
-			return r
-		}
-	}
-}
-
-func (this *Random) nextLong() int64 {
-	hi := int64(this.next_(32))
-	return hi<<32 + int64(this.next_(32))
-}
-
-func (this *Random) nextBoolean() bool { return this.next_(1) != 0 }
-
-func (this *Random) nextDouble() float64 {
-	hi := int64(this.next_(26))
-	return float64(hi<<27+int64(this.next_(27))) / float64(int64(1)<<53)
-}
-
 // ---- String <-> bytes
 
-func charsetName_(cs *Charset) (name string) {
-	name = "UTF-8"
-	if cs == nil {
-		return
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			name = "UTF-8"
-		}
-	}()
-	return cs.name()
-}

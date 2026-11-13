@@ -151,8 +151,6 @@ var murmur3_128_ = &hashFunction_{"Hashing.murmur3_128(0)", func(b []byte) *Hash
 
 func Hashing_farmHashFingerprint64() HashFunction { return farmHashFingerprint64_ }
 
-func Hashing_murmur3_128() HashFunction { return murmur3_128_ }
-
 // ---- FarmHash Fingerprint64 (farmhashna::Hash64)
 
 const (

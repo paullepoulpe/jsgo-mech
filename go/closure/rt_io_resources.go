@@ -61,26 +61,6 @@ func (this *Class) getResource(name string) *URL {
 
 // ---- com.google.common.io.Resources
 
-func Resources_getResource(name string) *URL {
-	if _, ok := resourceBytes_(name); !ok {
-		panic(new_IllegalArgumentException_String("resource " + name + " not found.").self())
-	}
-	return resourceURL_(name)
-}
-
-func Resources_toString(url *URL, cs *Charset) string {
-	in := url.openStream()
-	defer in.close()
-	s, _ := cs.decode_(readAllBytes_(in))
-	return s
-}
-
-func Resources_toByteArray(url *URL) []int8 {
-	in := url.openStream()
-	defer in.close()
-	return i8_(readAllBytes_(in))
-}
-
 // ---- java.util.ResourceBundle, backed by the embedded .properties files
 
 type ResourceBundle struct {

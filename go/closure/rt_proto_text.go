@@ -52,36 +52,9 @@ func pbEscapeBytes_(b []byte) string {
 	return sb.String()
 }
 
-func TextFormat_escapeBytes(p0 *ByteString) string { return pbEscapeBytes_(p0.b_) }
-
-func TextFormat_escapeBytes_byteArr(p0 []int8) string { return pbEscapeBytes_(pbU8_(p0)) }
-
-func TextFormat_escapeText(p0 string) string { return pbEscapeBytes_([]byte(p0)) }
-
-func TextFormat_escapeDoubleQuotesAndBackslashes(p0 string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(p0, "\\", "\\\\"), "\"", "\\\"")
-}
-
-func TextFormat_unescapeBytes(p0 any) *ByteString {
-	b, err := pbUnescape_(objstr_(p0))
-	if err != "" {
-		panic(pbNewInvalidEscape_(err).self())
-	}
-	return &ByteString{b_: b}
-}
-
-func TextFormat_unescapeText(p0 string) string { return TextFormat_unescapeBytes(p0).toStringUtf8() }
-
 // TextFormat_InvalidEscapeSequenceException is TextFormat.InvalidEscapeSequenceException.
 type TextFormat_InvalidEscapeSequenceException struct {
 	IOException
-}
-
-func pbNewInvalidEscape_(msg string) *TextFormat_InvalidEscapeSequenceException {
-	e := &TextFormat_InvalidEscapeSequenceException{}
-	e.self_ = e
-	e.init_IOException_String(msg)
-	return e
 }
 
 func pbHexVal_(c byte) int {
@@ -209,10 +182,6 @@ func (this *TextFormat_Printer) shortDebugString(p0 MessageOrBuilder) string {
 
 func (this *TextFormat_Printer) print(p0 MessageOrBuilder, p1 Appendable) {
 	p1.(interface{ append(string) *StringBuilder }).append(this.printToString(p0))
-}
-
-func TextFormat_shortDebugString(p0 MessageOrBuilder) string {
-	return pbText_(pbDataOf_(p0), true, true)
 }
 
 type pbTextOut_ struct {
@@ -418,16 +387,6 @@ type TextFormat_ParseException struct {
 	column_ int32
 }
 
-func (this *TextFormat_ParseException) up_IOException() *IOException {
-	if this == nil {
-		return nil
-	}
-	return &this.IOException
-}
-
-func (this *TextFormat_ParseException) getLine() int32   { return this.line_ }
-func (this *TextFormat_ParseException) getColumn() int32 { return this.column_ }
-
 func init() {
 	javaNames_["TextFormat_ParseException"] = "com.google.protobuf.TextFormat$ParseException"
 	javaNames_["TextFormat_InvalidEscapeSequenceException"] = "com.google.protobuf.TextFormat$InvalidEscapeSequenceException"
@@ -448,8 +407,6 @@ type TextFormat_Parser struct {
 }
 
 var pbDefaultParser_ = &TextFormat_Parser{}
-
-func TextFormat_getParser() *TextFormat_Parser { return pbDefaultParser_ }
 
 // merge is TextFormat.Parser.merge(CharSequence, Message.Builder).
 func (this *TextFormat_Parser) merge(p0 any, p1 Message_Builder) {

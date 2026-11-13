@@ -13,13 +13,6 @@ type JsonToken struct {
 	Enum
 }
 
-func (this *JsonToken) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
 func newJsonToken_(name string, ordinal int32) *JsonToken {
 	t := &JsonToken{}
 	t.self_ = t
@@ -39,10 +32,6 @@ var JsonToken_NULL = newJsonToken_("NULL", 8)
 var JsonToken_END_DOCUMENT = newJsonToken_("END_DOCUMENT", 9)
 
 var JsonToken_values_ = []*JsonToken{JsonToken_BEGIN_ARRAY, JsonToken_END_ARRAY, JsonToken_BEGIN_OBJECT, JsonToken_END_OBJECT, JsonToken_NAME, JsonToken_STRING, JsonToken_NUMBER, JsonToken_BOOLEAN, JsonToken_NULL, JsonToken_END_DOCUMENT}
-
-func JsonToken_values() []*JsonToken {
-	return append([]*JsonToken(nil), JsonToken_values_...)
-}
 
 // ---- exceptions private to the reader
 

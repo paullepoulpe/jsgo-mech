@@ -279,7 +279,7 @@ func (this *ImmutableCollection) clear()                      { throwUOE_() }
 func (this *ImmutableCollection) removeAll(c Collection) bool { throwUOE_(); return false }
 func (this *ImmutableCollection) retainAll(c Collection) bool { throwUOE_(); return false }
 func (this *ImmutableCollection) remove_Object(v any) bool    { throwUOE_(); return false }
-func (this *ImmutableCollection) removeIf(p Predicate) bool   { throwUOE_(); return false }
+func (this *ImmutableCollection) removeIf(p Predicate_base) bool   { throwUOE_(); return false }
 
 func (this *ImmutableCollection) asList() *ImmutableList {
 	if this.kind == icList_ {
@@ -482,16 +482,8 @@ func ImmutableList_of_Object_Object_Object(p0 any, p1 any, p2 any) *ImmutableLis
 	return immList_([]any{p0, p1, p2})
 }
 
-func ImmutableList_of_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3})
-}
-
 func ImmutableList_of_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any) *ImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4})
-}
-
-func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableList {
-	return immList_([]any{p0, p1, p2, p3, p4, p5})
 }
 
 func ImmutableList_of_Object_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any, p6 any) *ImmutableList {
@@ -534,14 +526,6 @@ func ImmutableList_copyOf_Iterable(p0 Iterable) *ImmutableList {
 
 func ImmutableList_copyOf_ObjectArr(p0 []any) *ImmutableList {
 	return immList_(append([]any(nil), p0...))
-}
-
-func ImmutableList_copyOf_Iterator(p0 Iterator) *ImmutableList {
-	var s []any
-	for p0.hasNext() {
-		s = append(s, p0.next())
-	}
-	return immList_(s)
 }
 
 func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
@@ -850,26 +834,3 @@ func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
 // java.util.stream.Collector has no methods the translated code calls, so the
 // Go interface is empty; these collectors expose the Java accessor methods.
 
-type guavaCollector_ struct {
-	sup func() any
-	acc func(a, v any)
-	fin func(a any) any
-}
-
-func (c *guavaCollector_) supplier() Supplier      { return &Supplier_fn{c.sup} }
-func (c *guavaCollector_) accumulator() BiConsumer { return &BiConsumer_fn{c.acc} }
-func (c *guavaCollector_) finisher() Function      { return &Function_fn{c.fin} }
-func (c *guavaCollector_) combiner() BinaryOperator {
-	return &BinaryOperator_fn{func(a, b any) any {
-		throwUOE_()
-		return nil
-	}}
-}
-
-func collBuilderCollector_(mk func() *ImmutableCollection_Builder) Collector {
-	return &guavaCollector_{
-		sup: func() any { return mk() },
-		acc: func(a, v any) { a.(*ImmutableCollection_Builder).add(v) },
-		fin: func(a any) any { return a.(*ImmutableCollection_Builder).build() },
-	}
-}

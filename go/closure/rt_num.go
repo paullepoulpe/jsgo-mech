@@ -16,9 +16,9 @@ func numberFormat_(s string) any {
 	return new_NumberFormatException_String("For input string: \"" + s + "\"").self()
 }
 
-func Integer_parseInt(s string) int32 { return Integer_parseInt_String_int(s, 10) }
+func Integer_parseInt_String(s string) int32 { return Integer_parseInt(s, 10) }
 
-func Integer_parseInt_String_int(s string, radix int32) int32 {
+func Integer_parseInt(s string, radix int32) int32 {
 	if s == nullstr_ || s == "" || s == "+" || s == "-" || strings.ContainsAny(s, "_ ") {
 		panic(numberFormat_(s))
 	}
@@ -27,10 +27,6 @@ func Integer_parseInt_String_int(s string, radix int32) int32 {
 		panic(numberFormat_(s))
 	}
 	return int32(v)
-}
-
-func Integer_parseInt_CharSequence_int_int_int(cs any, a int32, b int32, radix int32) int32 {
-	return Integer_parseInt_String_int(String_substring(csString_(cs), a, b), radix)
 }
 
 func Integer_valueOf(i int32) any                 { return i }
@@ -55,9 +51,7 @@ func Integer_compare(a, b int32) int32 {
 	return 0
 }
 
-func Long_parseLong(s string) int64 { return Long_parseLong_String_int(s, 10) }
-
-func Long_parseLong_String_int(s string, radix int32) int64 {
+func Long_parseLong(s string, radix int32) int64 {
 	if s == nullstr_ || s == "" || strings.ContainsAny(s, "_ ") {
 		panic(numberFormat_(s))
 	}
@@ -68,8 +62,6 @@ func Long_parseLong_String_int(s string, radix int32) int64 {
 	return v
 }
 
-func Long_valueOf(i int64) any                       { return i }
-func Long_longValue(v any) int64                     { return unbox_[int64](v) }
 func Long_toString(i int64) string                   { return strconv.FormatInt(i, 10) }
 func Long_toString_long_int(i int64, r int32) string { return strconv.FormatInt(i, int(r)) }
 func Long_toHexString(i int64) string                { return strconv.FormatUint(uint64(i), 16) }
@@ -92,16 +84,6 @@ func Boolean_valueOf(b bool) any      { return b }
 func Boolean_booleanValue(v any) bool { return v.(bool) }
 
 func Number_doubleValue(v any) float64 { return unbox_[float64](v) }
-func Number_intValue(v any) int32 {
-	switch x := v.(type) {
-	case float64:
-		return f2i_[int32](x)
-	case int64:
-		return int32(x)
-	}
-	return unbox_[int32](v)
-}
-
 // ---- Double
 
 // javaFloat_ formats in the style of Double.toString from the shortest digits
@@ -181,12 +163,6 @@ func Double_doubleToLongBits(d float64) int64 {
 	return int64(math.Float64bits(d))
 }
 
-func Double_equals(a any, b any) bool {
-	x := a.(float64)
-	y, ok := b.(float64)
-	return ok && Double_doubleToLongBits(x) == Double_doubleToLongBits(y)
-}
-
 func Double_compare(a, b float64) int32 {
 	if a < b {
 		return -1
@@ -241,7 +217,6 @@ func Math_abs(d float64) float64    { return math.Abs(d) }
 func Math_cbrt(d float64) float64   { return math.Cbrt(d) }
 func Math_ceil(d float64) float64   { return math.Ceil(d) }
 func Math_floor(d float64) float64  { return math.Floor(d) }
-func Math_sqrt(d float64) float64   { return math.Sqrt(d) }
 func Math_pow(a, b float64) float64 { return math.Pow(a, b) }
 
 func Math_abs_int(i int32) int32 {
@@ -340,7 +315,6 @@ func Objects_requireNonNull(v any, msg string) any {
 var startTime_ = time.Now()
 
 func System_currentTimeMillis() int64 { return time.Now().UnixMilli() }
-func System_nanoTime() int64          { return int64(time.Since(startTime_)) }
 func System_exit(code int32)          { flushStd_(); os.Exit(int(code)) }
 func System_identityHashCode(v any) int32 {
 	if v == nil {
@@ -388,4 +362,3 @@ func System_arraycopy(src any, sp int32, dst any, dp int32, n int32) {
 	}
 }
 
-func Integer_sum(a, b int32) int32 { return a + b }

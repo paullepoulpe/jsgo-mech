@@ -38,8 +38,6 @@ type FileSystemException struct {
 	file_ string
 }
 
-func (this *FileSystemException) getFile() string { return this.file_ }
-
 type NoSuchFileException struct{ FileSystemException }
 type AccessDeniedException struct{ FileSystemException }
 type FileAlreadyExistsException struct{ FileSystemException }
@@ -294,71 +292,6 @@ func (this *File) hashCode() int32 { return String_hashCode(this.path_) ^ 123432
 
 func (this *File) compareTo(o any) int32 { return String_compareTo(this.path_, o.(*File).path_) }
 
-// dirNames_ lists a directory in the order the operating system returns it,
-// which is the order Java iterates it in.
-func dirNames_(dir string) ([]string, bool) {
-	if dir == "" {
-		dir = "."
-	}
-	f, err := os.Open(dir)
-	if err != nil {
-		return nil, false
-	}
-	defer f.Close()
-	names, err := f.Readdirnames(-1)
-	if err != nil {
-		return nil, false
-	}
-	return names, true
-}
-
-func realpath_(p string) (string, error) {
-	// A small realpath: resolve links component by component.
-	if _, err := os.Lstat(p); err != nil {
-		return "", err
-	}
-	parts := strings.Split(p, "/")
-	cur := ""
-	for depth, i := 0, 0; i < len(parts); i++ {
-		name := parts[i]
-		if name == "" || name == "." {
-			continue
-		}
-		if name == ".." {
-			if j := strings.LastIndexByte(cur, '/'); j >= 0 {
-				cur = cur[:j]
-			}
-			continue
-		}
-		next := cur + "/" + name
-		st, err := os.Lstat(next)
-		if err != nil {
-			return "", err
-		}
-		if st.Mode()&os.ModeSymlink != 0 {
-			depth++
-			if depth > 40 {
-				return "", syscall.ELOOP
-			}
-			target, err := os.Readlink(next)
-			if err != nil {
-				return "", err
-			}
-			rest := append(strings.Split(target, "/"), parts[i+1:]...)
-			if strings.HasPrefix(target, "/") {
-				cur = ""
-			}
-			parts, i = rest, -1
-			continue
-		}
-		cur = next
-	}
-	if cur == "" {
-		cur = "/"
-	}
-	return cur, nil
-}
-
 // ---- java.nio.file.Path
 
 type unixPath_ struct {
@@ -378,14 +311,6 @@ func asPath_(p Path) *unixPath_ {
 		panic(new_NullPointerException_0().self())
 	}
 	return p.(*unixPath_)
-}
-
-// optPath_ is a Path that is null when p is nil.
-func optPath_(p *unixPath_) Path {
-	if p == nil {
-		return nil
-	}
-	return p
 }
 
 func Path_of(first string, more []string) Path {
@@ -408,8 +333,6 @@ func Path_of(first string, more []string) Path {
 	return pathOf_(s)
 }
 
-func Paths_get(first string, more []string) Path { return Path_of(first, more) }
-
 func Path_resolve(p Path, other string) Path { return p.resolve_Path(pathOf_(other)) }
 
 func Path_resolveSibling(p Path, other string) Path {
@@ -417,10 +340,6 @@ func Path_resolveSibling(p Path, other string) Path {
 }
 
 func Path_toFile(p Path) *File { return new_File(asPath_(p).s_) }
-
-func Path_startsWith(p Path, other string) bool { return asPath_(p).startsWith(pathOf_(other)) }
-
-func Path_endsWith(p Path, other string) bool { return asPath_(p).endsWith(pathOf_(other)) }
 
 func (this *unixPath_) toString() string { return this.s_ }
 
@@ -866,13 +785,6 @@ type FileVisitResult struct {
 	Enum
 }
 
-func (this *FileVisitResult) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
 func newFileVisitResult_(name string, ordinal int32) *FileVisitResult {
 	e := &FileVisitResult{}
 	e.self_ = e
@@ -907,13 +819,6 @@ type LinkOption struct {
 	Enum
 }
 
-func (this *LinkOption) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
 var LinkOption_NOFOLLOW_LINKS = func() *LinkOption {
 	e := &LinkOption{}
 	e.self_ = e
@@ -923,13 +828,6 @@ var LinkOption_NOFOLLOW_LINKS = func() *LinkOption {
 
 type StandardOpenOption struct {
 	Enum
-}
-
-func (this *StandardOpenOption) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
 }
 
 func newStandardOpenOption_(name string, ordinal int32) *StandardOpenOption {
@@ -956,17 +854,7 @@ type FileTime struct {
 	ns_ int64 // nanoseconds since the epoch
 }
 
-func FileTime_fromMillis(ms int64) *FileTime { return &FileTime{ms * 1e6} }
-
 func (this *FileTime) toMillis() int64 { return floorDiv_(this.ns_, 1e6) }
-
-func floorDiv_(a, b int64) int64 {
-	q := a / b
-	if a%b != 0 && (a < 0) != (b < 0) {
-		q--
-	}
-	return q
-}
 
 func (this *FileTime) equals(o any) bool {
 	t, ok := o.(*FileTime)
@@ -999,26 +887,9 @@ type fileAttributes_ struct {
 	st_ os.FileInfo
 }
 
-func (this *fileAttributes_) isDirectory() bool    { return this.st_.IsDir() }
-func (this *fileAttributes_) isRegularFile() bool  { return this.st_.Mode().IsRegular() }
-func (this *fileAttributes_) isSymbolicLink() bool { return this.st_.Mode()&os.ModeSymlink != 0 }
-func (this *fileAttributes_) size() int64          { return this.st_.Size() }
-
-func (this *fileAttributes_) isOther() bool {
-	return !this.isDirectory() && !this.isRegularFile() && !this.isSymbolicLink()
-}
-
-func (this *fileAttributes_) lastModifiedTime() *FileTime {
-	return &FileTime{this.st_.ModTime().UnixNano()}
-}
-
-func (this *fileAttributes_) lastAccessTime() *FileTime { return this.lastModifiedTime() }
-func (this *fileAttributes_) creationTime() *FileTime   { return this.lastModifiedTime() }
-func (this *fileAttributes_) fileKey() any              { return nil }
-
 // ---- java.nio.file.Files
 
-type Files_file struct{}
+type Files_io_file struct{}
 
 func noFollow_(opts []*LinkOption) bool {
 	for _, o := range opts {
@@ -1040,30 +911,7 @@ func statPath_(p Path, opts []*LinkOption) (os.FileInfo, error) {
 	return os.Stat(s)
 }
 
-func Files_file_exists(p Path, opts []*LinkOption) bool {
-	_, err := statPath_(p, opts)
-	return err == nil
-}
-
-func Files_file_isDirectory(p Path, opts []*LinkOption) bool {
-	st, err := statPath_(p, opts)
-	return err == nil && st.IsDir()
-}
-
-func Files_file_isRegularFile(p Path, opts []*LinkOption) bool {
-	st, err := statPath_(p, opts)
-	return err == nil && st.Mode().IsRegular()
-}
-
-func Files_file_size(p Path) int64 {
-	st, err := statPath_(p, nil)
-	if err != nil {
-		panic(nioError_(asPath_(p).s_, err))
-	}
-	return st.Size()
-}
-
-func Files_file_getLastModifiedTime(p Path, opts []*LinkOption) *FileTime {
+func Files_getLastModifiedTime(p Path, opts []*LinkOption) *FileTime {
 	st, err := statPath_(p, opts)
 	if err != nil {
 		panic(nioError_(asPath_(p).s_, err))
@@ -1071,7 +919,7 @@ func Files_file_getLastModifiedTime(p Path, opts []*LinkOption) *FileTime {
 	return &FileTime{st.ModTime().UnixNano()}
 }
 
-func Files_file_createDirectories(p Path, attrs []FileAttribute) Path {
+func Files_createDirectories(p Path, attrs []FileAttribute) Path {
 	s := asPath_(p).s_
 	if err := os.MkdirAll(s, 0o777); err != nil {
 		if st, e := os.Stat(s); e == nil && !st.IsDir() {
@@ -1082,17 +930,9 @@ func Files_file_createDirectories(p Path, attrs []FileAttribute) Path {
 	return p
 }
 
-func Files_file_readAllBytes(p Path) []int8 {
-	b, err := os.ReadFile(asPath_(p).s_)
-	if err != nil {
-		panic(nioError_(asPath_(p).s_, err))
-	}
-	return i8_(b)
-}
-
-// Files_file_readString decodes the whole file; malformed input throws a
+// Files_readString decodes the whole file; malformed input throws a
 // CharacterCodingException.
-func Files_file_readString(p Path, cs *Charset) string {
+func Files_readString(p Path, cs *Charset) string {
 	if cs == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -1103,7 +943,7 @@ func Files_file_readString(p Path, cs *Charset) string {
 	return cs.decodeStrict_(b)
 }
 
-func Files_file_newInputStream(p Path, opts []OpenOption) *InputStream {
+func Files_newInputStream(p Path, opts []OpenOption) *InputStream {
 	s := asPath_(p).s_
 	f, err := os.Open(s)
 	if err != nil {
@@ -1112,14 +952,14 @@ func Files_file_newInputStream(p Path, opts []OpenOption) *InputStream {
 	return newInputStream_(f, func() { f.Close() })
 }
 
-func Files_file_newBufferedReader(p Path, cs *Charset) *BufferedReader {
+func Files_newBufferedReader(p Path, cs *Charset) *BufferedReader {
 	if cs == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return new_BufferedReader(newStrictReader_(Files_file_newInputStream(p, nil), cs).up_Reader())
+	return new_BufferedReader(newStrictReader_(Files_newInputStream(p, nil), cs).up_Reader())
 }
 
-func Files_file_newOutputStream(p Path, opts []OpenOption) *OutputStream {
+func Files_newOutputStream(p Path, opts []OpenOption) *OutputStream {
 	s := asPath_(p).s_
 	flags := os.O_WRONLY
 	if len(opts) == 0 {
@@ -1153,43 +993,6 @@ func Files_file_newOutputStream(p Path, opts []OpenOption) *OutputStream {
 	return newFileOutputStream_(f).up_OutputStream()
 }
 
-func Files_file_newBufferedWriter(p Path, cs *Charset, opts []OpenOption) *BufferedWriter {
-	if cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	enc := newEncoder_(cs)
-	enc.mode_ = encReport_ // this writer's encoder reports unmappable characters
-	return new_BufferedWriter(newOutputStreamWriter_(Files_file_newOutputStream(p, opts), enc).up_Writer())
-}
-
-func Files_file_write(p Path, b []int8, opts []OpenOption) Path {
-	out := Files_file_newOutputStream(p, opts)
-	defer out.close()
-	out.write_byteArr(b)
-	return p
-}
-
-func Files_file_writeString(p Path, s any, cs *Charset, opts []OpenOption) Path {
-	return Files_file_write(p, String_getBytes(csString_(s), cs), opts)
-}
-
-func Files_file_deleteIfExists(p Path) bool {
-	err := os.Remove(asPath_(p).s_)
-	if err == nil {
-		return true
-	}
-	if errors.Is(err, syscall.ENOENT) {
-		return false
-	}
-	panic(nioError_(asPath_(p).s_, err))
-}
-
-func Files_file_delete(p Path) {
-	if err := os.Remove(asPath_(p).s_); err != nil {
-		panic(nioError_(asPath_(p).s_, err))
-	}
-}
-
 // ---- Files.walkFileTree
 
 type SimpleFileVisitor struct {
@@ -1197,22 +1000,6 @@ type SimpleFileVisitor struct {
 }
 
 func (this *SimpleFileVisitor) as_SimpleFileVisitor() *SimpleFileVisitor { return this }
-
-func to_SimpleFileVisitor(v any) *SimpleFileVisitor {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_SimpleFileVisitor() *SimpleFileVisitor
-	}).as_SimpleFileVisitor()
-}
-
-func is_SimpleFileVisitor(v any) bool {
-	_, ok := v.(interface {
-		as_SimpleFileVisitor() *SimpleFileVisitor
-	})
-	return ok
-}
 
 func (this *SimpleFileVisitor) self() any {
 	if this == nil {
@@ -1222,12 +1009,6 @@ func (this *SimpleFileVisitor) self() any {
 }
 
 func (this *SimpleFileVisitor) init_SimpleFileVisitor() {}
-
-func new_SimpleFileVisitor() *SimpleFileVisitor {
-	this := &SimpleFileVisitor{}
-	this.self_ = this
-	return this
-}
 
 func (this *SimpleFileVisitor) preVisitDirectory(dir any, attrs BasicFileAttributes) *FileVisitResult {
 	if dir == nil || attrs == nil {
@@ -1350,7 +1131,7 @@ func (w *treeWalk_) walk_(p *unixPath_, depth int32) (r *FileVisitResult) {
 	return r
 }
 
-func Files_file_walkFileTree(start Path, options Set, maxDepth int32, visitor FileVisitor) Path {
+func Files_walkFileTree(start Path, options Set, maxDepth int32, visitor FileVisitor) Path {
 	if maxDepth < 0 {
 		panic(new_IllegalArgumentException_String("'maxDepth' is negative").self())
 	}
@@ -1366,6 +1147,3 @@ func Files_file_walkFileTree(start Path, options Set, maxDepth int32, visitor Fi
 	return start
 }
 
-func Files_file_walkFileTree_Path_FileVisitor(start Path, visitor FileVisitor) Path {
-	return Files_file_walkFileTree(start, nil, 0x7fffffff, visitor)
-}

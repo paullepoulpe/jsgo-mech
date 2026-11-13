@@ -28,12 +28,6 @@ func CharStreams_readLines(r Readable) List {
 	}
 }
 
-func CharStreams_copy(from Readable, to Appendable) int64 {
-	s := readAll_(readerOf_(from))
-	to.append_CharSequence(s)
-	return int64(String_length(s))
-}
-
 type ByteStreams struct{}
 
 // ByteStreams_limit is a stream of at most limit bytes of in. Closing it
@@ -57,15 +51,6 @@ func ByteStreams_limit(in *InputStream, limit int64) *InputStream {
 	return out
 }
 
-func ByteStreams_toByteArray(in *InputStream) []int8 { return i8_(readAllBytes_(in)) }
-
-func ByteStreams_copy(from *InputStream, to *OutputStream) int64 {
-	if from == nil || to == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return from.transferTo(to)
-}
-
 // ---- CharSource, CharSink
 
 type CharSource struct {
@@ -81,8 +66,6 @@ func CharSource_wrap(cs any) *CharSource {
 	s := csString_(cs)
 	return &CharSource{load_: func() string { return s }, desc_: "CharSource.wrap(...)"}
 }
-
-func CharSource_empty() *CharSource { return CharSource_wrap("") }
 
 func (this *CharSource) read() string { return this.load_() }
 
@@ -114,38 +97,12 @@ type CharSink struct {
 	append_ bool
 }
 
-// write replaces (or, in append mode, extends) the file with the characters.
-func (this *CharSink) write(cs any) {
-	if cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	out := new_FileOutputStream_String_boolean(this.file_.path_, this.append_)
-	defer out.close()
-	out.write_byteArr(String_getBytes(csString_(cs), this.cs_))
-}
-
-func (this *CharSink) openStream() *Writer {
-	out := new_FileOutputStream_String_boolean(this.file_.path_, this.append_)
-	return new_OutputStreamWriter(out.up_OutputStream(), this.cs_).up_Writer()
-}
-
-func (this *CharSink) toString() string {
-	return "Files.asCharSink(" + this.file_.path_ + ", " + this.cs_.name_ + ")"
-}
-
 // ---- com.google.common.io.Files
 
 type Files struct{}
 
 type FileWriteMode struct {
 	Enum
-}
-
-func (this *FileWriteMode) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
 }
 
 var FileWriteMode_APPEND = func() *FileWriteMode {
@@ -166,7 +123,7 @@ func readFile_(f *File) []byte {
 	return b
 }
 
-func Files_asCharSource(f *File, cs *Charset) *CharSource {
+func Files_io_asCharSource(f *File, cs *Charset) *CharSource {
 	if f == nil || cs == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -179,58 +136,15 @@ func Files_asCharSource(f *File, cs *Charset) *CharSource {
 	}
 }
 
-func Files_asCharSink(f *File, cs *Charset, modes []*FileWriteMode) *CharSink {
-	if f == nil || cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	sink := &CharSink{file_: f, cs_: cs}
-	for _, m := range modes {
-		if m == FileWriteMode_APPEND {
-			sink.append_ = true
-		}
-	}
-	return sink
-}
+func Files_io_toByteArray(f *File) []int8 { return i8_(readFile_(f)) }
 
-func Files_newReader(f *File, cs *Charset) *BufferedReader {
-	if f == nil || cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return new_BufferedReader(new_InputStreamReader(new_FileInputStream(f.path_).up_InputStream(), cs).up_Reader())
-}
-
-func Files_newWriter(f *File, cs *Charset) *BufferedWriter {
-	if f == nil || cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return new_BufferedWriter(new_OutputStreamWriter(new_FileOutputStream(f.path_).up_OutputStream(), cs).up_Writer())
-}
-
-func Files_toByteArray(f *File) []int8 { return i8_(readFile_(f)) }
-
-func Files_write(b []int8, f *File) {
+func Files_io_write(b []int8, f *File) {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
 	}
 	out := new_FileOutputStream(f.path_)
 	defer out.close()
 	out.write_byteArr(b)
-}
-
-func Files_getFileExtension(fullName string) string {
-	name := new_File(fullName).getName()
-	if i := strings.LastIndexByte(name, '.'); i >= 0 {
-		return name[i+1:]
-	}
-	return ""
-}
-
-func Files_getNameWithoutExtension(file string) string {
-	name := new_File(file).getName()
-	if i := strings.LastIndexByte(name, '.'); i >= 0 {
-		return name[:i]
-	}
-	return name
 }
 
 // ---- com.google.common.cache
@@ -257,18 +171,6 @@ type CacheLoader struct {
 
 func (this *CacheLoader) as_CacheLoader() *CacheLoader { return this }
 
-func to_CacheLoader(v any) *CacheLoader {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_CacheLoader() *CacheLoader }).as_CacheLoader()
-}
-
-func is_CacheLoader(v any) bool {
-	_, ok := v.(interface{ as_CacheLoader() *CacheLoader })
-	return ok
-}
-
 func (this *CacheLoader) self() any {
 	if this == nil {
 		return nil
@@ -284,68 +186,12 @@ type functionCacheLoader_ struct {
 	f_ Function_base
 }
 
-func (this *functionCacheLoader_) load(key any) any {
-	if key == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return this.f_.apply(key)
-}
-
-func CacheLoader_from(f Function_base) *CacheLoader {
-	if f == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	l := &functionCacheLoader_{f_: f}
-	l.self_ = l
-	return &l.CacheLoader
-}
-
 type CacheBuilder struct {
 	maximumSize_ int64
 	listener_    RemovalListener
 }
 
 func CacheBuilder_newBuilder() *CacheBuilder { return &CacheBuilder{maximumSize_: -1} }
-
-// CacheBuilder_from reads a cache specification ("maximumSize=100,..."). Only
-// the size bound has an effect here; time-based expiry, weak references,
-// statistics and the concurrency level are accepted and ignored.
-func CacheBuilder_from(spec string) *CacheBuilder {
-	b := CacheBuilder_newBuilder()
-	for _, kv := range strings.Split(spec, ",") {
-		kv = strings.TrimSpace(kv)
-		if kv == "" {
-			continue
-		}
-		key, value, hasValue := strings.Cut(kv, "=")
-		key, value = strings.TrimSpace(key), strings.TrimSpace(value)
-		switch key {
-		case "maximumSize", "maximumWeight":
-			n, err := strconv.ParseInt(value, 10, 64)
-			if !hasValue || err != nil {
-				panic(new_IllegalArgumentException_String("key " + key + " value set to " + value + ", must be integer").self())
-			}
-			if key == "maximumSize" {
-				b.maximumSize(n)
-			}
-		case "initialCapacity", "concurrencyLevel":
-			if _, err := strconv.ParseInt(value, 10, 32); !hasValue || err != nil {
-				panic(new_IllegalArgumentException_String("key " + key + " value set to " + value + ", must be integer").self())
-			}
-		case "weakKeys", "softValues", "weakValues", "recordStats":
-			if hasValue {
-				panic(new_IllegalArgumentException_String("key " + key + " does not take values").self())
-			}
-		case "expireAfterAccess", "expireAfterWrite", "refreshAfterWrite":
-			if !hasValue || value == "" {
-				panic(new_IllegalArgumentException_String("value of key " + key + " omitted").self())
-			}
-		default:
-			panic(new_IllegalArgumentException_String("unknown key " + key).self())
-		}
-	}
-	return b
-}
 
 func (this *CacheBuilder) maximumSize(n int64) *CacheBuilder {
 	if this.maximumSize_ != -1 {

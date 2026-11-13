@@ -152,22 +152,6 @@ func new_JsonPrimitive(p0 string) *JsonPrimitive {
 	return newJsonPrimitive_(p0)
 }
 
-func new_JsonPrimitive_String(p0 string) *JsonPrimitive { return new_JsonPrimitive(p0) }
-
-func new_JsonPrimitive_Boolean(p0 any) *JsonPrimitive {
-	if p0 == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return newJsonPrimitive_(p0.(bool))
-}
-
-func new_JsonPrimitive_Number(p0 any) *JsonPrimitive {
-	if p0 == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return newJsonPrimitive_(p0)
-}
-
 func newJsonNull_() *JsonNull {
 	this := &JsonNull{}
 	this.self_ = this
@@ -175,8 +159,6 @@ func newJsonNull_() *JsonNull {
 }
 
 var JsonNull_INSTANCE = newJsonNull_()
-
-func new_JsonNull() *JsonNull { return newJsonNull_() }
 
 // ---- JsonElement
 
@@ -276,9 +258,9 @@ func (this *JsonElement) getAsInt() int32 {
 	p := this.single_()
 	switch v := p.value_.(type) {
 	case string:
-		return Integer_parseInt(v)
+		return Integer_parseInt_String(v)
 	case bool:
-		return Integer_parseInt(boolstr_(v))
+		return Integer_parseInt_String(boolstr_(v))
 	case int32:
 		return v
 	case int64:
@@ -301,9 +283,9 @@ func (this *JsonElement) getAsLong() int64 {
 	p := this.single_()
 	switch v := p.value_.(type) {
 	case string:
-		return Long_parseLong(v)
+		return Long_parseLong_String(v)
 	case bool:
-		return Long_parseLong(boolstr_(v))
+		return Long_parseLong_String(boolstr_(v))
 	case int32:
 		return int64(v)
 	case int64:
@@ -633,14 +615,6 @@ func gsonReadElement_(r *JsonReader) *JsonElement {
 
 type JsonParser struct{}
 
-func new_JsonParser() *JsonParser { return &JsonParser{} }
-
-func JsonParser_parseString(json string) *JsonElement {
-	return gsonParseReader_(newJsonReaderFromString_(json), true)
-}
-
-func (this *JsonParser) parse(json string) *JsonElement { return JsonParser_parseString(json) }
-
 func JsonParser_parseReader_JsonReader(r *JsonReader) *JsonElement {
 	return gsonParseReader_(r, false)
 }
@@ -693,4 +667,15 @@ func gsonParseReader_(r *JsonReader, full bool) *JsonElement {
 		}
 	}
 	return e
+}
+
+func (this *JsonElement) getAsNumber() any {
+	p := this.single_()
+	if s, ok := p.value_.(string); ok {
+		return gsonLazyNumber_(s)
+	}
+	if gsonIsNumber_(p.value_) {
+		return p.value_
+	}
+	panic(new_UnsupportedOperationException_String("Primitive is neither a number nor a string").self())
 }

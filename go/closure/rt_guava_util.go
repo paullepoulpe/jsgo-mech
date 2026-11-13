@@ -50,17 +50,6 @@ func (this *UnmodifiableIterator) hasNext() bool { return this.it.hasNext() }
 func (this *UnmodifiableIterator) next() any     { return this.it.next() }
 func (this *UnmodifiableIterator) remove()       { throwUOE_() }
 
-func Iterators_filter(p0 Iterator, p1 Predicate) *UnmodifiableIterator {
-	return &UnmodifiableIterator{it: filterIter_(p0, p1.apply)}
-}
-
-func Iterators_unmodifiableIterator(p0 Iterator) *UnmodifiableIterator {
-	if u, ok := p0.(*UnmodifiableIterator); ok {
-		return u
-	}
-	return &UnmodifiableIterator{it: p0}
-}
-
 type peekIter_ struct {
 	it     Iterator
 	has    bool
@@ -179,19 +168,12 @@ func Iterables_contains(p0 Iterable, p1 any) bool {
 	return false
 }
 
-func Iterables_filter(p0 Iterable, p1 Predicate) Iterable {
+func Iterables_filter(p0 Iterable, p1 Predicate_base) Iterable {
 	return &iterView_{func() Iterator { return filterIter_(p0.iterator(), p1.apply) }}
 }
 
 func Iterables_transform(p0 Iterable, p1 Function_base) Iterable {
 	return &iterView_{func() Iterator { return mapIter_(p0.iterator(), p1.apply) }}
-}
-
-func Iterables_unmodifiableIterable(p0 Iterable) Iterable {
-	if v, ok := p0.(*ImmutableCollection); ok {
-		return v
-	}
-	return &iterView_{func() Iterator { return &UnmodifiableIterator{it: p0.iterator()} }}
 }
 
 func Iterables_skip(p0 Iterable, p1 int32) Iterable {
@@ -204,27 +186,6 @@ func Iterables_skip(p0 Iterable, p1 int32) Iterable {
 			it.next()
 		}
 		return it
-	}}
-}
-
-func Iterables_limit(p0 Iterable, p1 int32) Iterable {
-	if p1 < 0 {
-		throwIAE_("limit is negative")
-	}
-	return &iterView_{func() Iterator {
-		it := p0.iterator()
-		var n int32
-		return &funcIter_{
-			has: func() bool { return n < p1 && it.hasNext() },
-			nxt: func() any {
-				if n >= p1 {
-					panic(new_NoSuchElementException_0().self())
-				}
-				n++
-				return it.next()
-			},
-			del: func() { Iterator_remove(it) },
-		}
 	}}
 }
 
@@ -288,13 +249,6 @@ func Iterables_getLast(p0 Iterable) any {
 	return v
 }
 
-func Iterables_getLast_Iterable_Object(p0 Iterable, p1 any) any {
-	if Iterables_isEmpty(p0) {
-		return p1
-	}
-	return Iterables_getLast(p0)
-}
-
 func Iterables_getOnlyElement(p0 Iterable) any {
 	it := p0.iterator()
 	if !it.hasNext() {
@@ -315,16 +269,6 @@ func Iterables_getOnlyElement(p0 Iterable) any {
 	return nil
 }
 
-func Iterables_indexOf(p0 Iterable, p1 Predicate) int32 {
-	var i int32
-	for it := p0.iterator(); it.hasNext(); i++ {
-		if p1.apply(it.next()) {
-			return i
-		}
-	}
-	return -1
-}
-
 // ---- Lists
 
 func Lists_charactersOf(p0 string) *ImmutableList {
@@ -334,14 +278,6 @@ func Lists_charactersOf(p0 string) *ImmutableList {
 		out[i] = c
 	}
 	return &ImmutableCollection{kind: icList_, items: out}
-}
-
-func Lists_newArrayList(p0 Iterator) *ArrayList {
-	l := new_ArrayList_0()
-	for p0.hasNext() {
-		l.add(p0.next())
-	}
-	return l
 }
 
 // Lists.reverse: a live reversed view (an ImmutableList reverses to a copy).
@@ -355,15 +291,6 @@ func Lists_reverse(p0 List) List {
 		setf:  func(i int32, v any) any { return p0.set(p0.size()-1-i, v) },
 		rmAt:  func(i int32) any { return p0.remove(p0.size() - 1 - i) },
 		addAt: func(i int32, v any) { p0.add_int_Object(p0.size()-i, v) },
-	}
-}
-
-// Lists.transform: a lazy view; the function runs on every access.
-func Lists_transform(p0 List, p1 Function_base) List {
-	return &viewList_{
-		sz:   p0.size,
-		at:   func(i int32) any { return p1.apply(p0.get(i)) },
-		rmAt: func(i int32) any { return p1.apply(p0.remove(i)) },
 	}
 }
 
@@ -445,13 +372,7 @@ func Sets_newIdentityHashSet() Set { return identitySet_() }
 
 func Sets_newLinkedHashSetWithExpectedSize(p0 int32) *LinkedHashSet { return new_LinkedHashSet() }
 
-func Sets_newHashSetWithExpectedSize(p0 int32) *HashSet { return new_HashSet() }
-
 func Maps_newLinkedHashMapWithExpectedSize(p0 int32) *LinkedHashMap { return new_LinkedHashMap() }
-
-func Maps_newHashMapWithExpectedSize(p0 int32) *HashMap { return new_HashMap() }
-
-func Maps_immutableEntry(p0 any, p1 any) Map_Entry { return &immEntry_{key: p0, val: p1} }
 
 // ---- Ordering (translated classes extend it and override compare)
 
@@ -461,18 +382,6 @@ type Ordering struct {
 }
 
 func (this *Ordering) as_Ordering() *Ordering { return this }
-
-func to_Ordering(v any) *Ordering {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Ordering() *Ordering }).as_Ordering()
-}
-
-func is_Ordering(v any) bool {
-	_, ok := v.(interface{ as_Ordering() *Ordering })
-	return ok
-}
 
 func (this *Ordering) self() any {
 	if this == nil {
@@ -735,8 +644,6 @@ func (this *interner_) intern(v any) any {
 
 // The interner holds its samples strongly (nothing observes the difference).
 func Interners_newWeakInterner() Interner   { return &interner_{m: new_LinkedHashMap()} }
-func Interners_newStrongInterner() Interner { return &interner_{m: new_LinkedHashMap()} }
-
 // ---- MultimapBuilder
 
 type MultimapBuilder struct {
@@ -756,19 +663,7 @@ type MultimapBuilder_ListMultimapBuilder struct{ MultimapBuilder }
 
 type MultimapBuilder_SetMultimapBuilder struct{ MultimapBuilder }
 
-func (this *MultimapBuilder_ListMultimapBuilder) up_MultimapBuilder() *MultimapBuilder {
-	return &this.MultimapBuilder
-}
-
-func (this *MultimapBuilder_SetMultimapBuilder) up_MultimapBuilder() *MultimapBuilder {
-	return &this.MultimapBuilder
-}
-
 func MultimapBuilder_linkedHashKeys() *MultimapBuilder_MultimapBuilderWithKeys {
-	return &MultimapBuilder_MultimapBuilderWithKeys{}
-}
-
-func MultimapBuilder_hashKeys() *MultimapBuilder_MultimapBuilderWithKeys {
 	return &MultimapBuilder_MultimapBuilderWithKeys{}
 }
 

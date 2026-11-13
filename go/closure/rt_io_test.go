@@ -407,9 +407,9 @@ func TestIOFile(t *testing.T) {
 	if ex := throws_(func() { new_File(dir + "/nope/f").createNewFile() }); !is_IOException(ex) || !strings.Contains(msgOf_(ex), "No such file or directory") {
 		t.Errorf("createNewFile in a missing directory threw %v", msgOf_(ex))
 	}
-	Files_write(i8_([]byte("data")), f)
+	Files_io_write(i8_([]byte("data")), f)
 	eq_(t, "length", f.length(), int64(4))
-	eq_(t, "toByteArray", string(u8_(Files_toByteArray(f))), "data")
+	eq_(t, "toByteArray", string(u8_(Files_io_toByteArray(f))), "data")
 	list := d.listFiles()
 	if len(list) != 1 || list[0].getPath() != dir+"/p/q/f.txt" {
 		t.Errorf("listFiles: %v", list)
@@ -582,7 +582,7 @@ func TestIOWalkFileTree(t *testing.T) {
 		} else {
 			opts = EnumSet_noneOf(nil)
 		}
-		Files_file_walkFileTree(Path_of(dir, nil), opts, depth, v)
+		Files_walkFileTree(Path_of(dir, nil), opts, depth, v)
 		for i := range v.log {
 			v.log[i] = strings.ReplaceAll(v.log[i], dir, "D")
 		}
@@ -600,7 +600,7 @@ func TestIOWalkFileTree(t *testing.T) {
 
 	// A missing start file goes to visitFileFailed, which rethrows by default.
 	v := new_SimpleFileVisitor()
-	ex := throws_(func() { Files_file_walkFileTree(Path_of(dir+"/missing", nil), nil, 10, v) })
+	ex := throws_(func() { Files_walkFileTree(Path_of(dir+"/missing", nil), nil, 10, v) })
 	if !is_IOException(ex) || msgOf_(ex) != "java.nio.file.NoSuchFileException: "+dir+"/missing" {
 		t.Errorf("walk of a missing file threw %v", msgOf_(ex))
 	}
@@ -609,40 +609,40 @@ func TestIOWalkFileTree(t *testing.T) {
 func TestIONioFiles(t *testing.T) {
 	dir := t.TempDir()
 	p := Path_of(dir, []string{"x", "y", "f.txt"})
-	Files_file_createDirectories(p.getParent(), nil)
-	Files_file_createDirectories(p.getParent(), nil) // existing is fine
-	w := Files_file_newBufferedWriter(p, StandardCharsets_UTF_8, nil)
+	Files_createDirectories(p.getParent(), nil)
+	Files_createDirectories(p.getParent(), nil) // existing is fine
+	w := Files_newBufferedWriter(p, StandardCharsets_UTF_8, nil)
 	w.write("héllo\n")
 	w.close()
-	eq_(t, "readString", Files_file_readString(p, StandardCharsets_UTF_8), "héllo\n")
-	out := Files_file_newOutputStream(p, []OpenOption{StandardOpenOption_CREATE, StandardOpenOption_APPEND})
+	eq_(t, "readString", Files_readString(p, StandardCharsets_UTF_8), "héllo\n")
+	out := Files_newOutputStream(p, []OpenOption{StandardOpenOption_CREATE, StandardOpenOption_APPEND})
 	out.write_byteArr(i8_([]byte("more\xff")))
 	out.close()
-	br := Files_file_newBufferedReader(p, StandardCharsets_ISO_8859_1)
+	br := Files_newBufferedReader(p, StandardCharsets_ISO_8859_1)
 	eq_(t, "line 1", br.readLine(), "hÃ©llo")
 	eq_(t, "line 2", br.readLine(), "moreÿ")
 	eq_(t, "end", br.readLine(), nullstr_)
 	br.close()
-	if ex := throws_(func() { Files_file_readString(p, StandardCharsets_UTF_8) }); !is_CharacterCodingException(ex) ||
+	if ex := throws_(func() { Files_readString(p, StandardCharsets_UTF_8) }); !is_CharacterCodingException(ex) ||
 		msgOf_(ex) != "java.nio.charset.MalformedInputException: Input length = 1" {
 		t.Errorf("readString of malformed input threw %v", msgOf_(ex))
 	}
-	if ex := throws_(func() { Files_file_newBufferedReader(p, StandardCharsets_UTF_8).readLine() }); !is_CharacterCodingException(ex) {
+	if ex := throws_(func() { Files_newBufferedReader(p, StandardCharsets_UTF_8).readLine() }); !is_CharacterCodingException(ex) {
 		t.Errorf("newBufferedReader of malformed input threw %v", msgOf_(ex))
 	}
 	missing := Path_of(dir, []string{"nope.txt"})
 	for _, f := range []func(){
-		func() { Files_file_readString(missing, StandardCharsets_UTF_8) },
-		func() { Files_file_newBufferedReader(missing, StandardCharsets_UTF_8) },
-		func() { Files_file_getLastModifiedTime(missing, nil) },
-		func() { Files_file_newOutputStream(Path_of(dir, []string{"no", "f"}), nil) },
+		func() { Files_readString(missing, StandardCharsets_UTF_8) },
+		func() { Files_newBufferedReader(missing, StandardCharsets_UTF_8) },
+		func() { Files_getLastModifiedTime(missing, nil) },
+		func() { Files_newOutputStream(Path_of(dir, []string{"no", "f"}), nil) },
 	} {
 		if ex := throws_(f); !is_IOException(ex) || !strings.HasPrefix(msgOf_(ex), "java.nio.file.NoSuchFileException: "+dir) {
 			t.Errorf("missing file threw %v", msgOf_(ex))
 		}
 	}
-	t1 := Files_file_getLastModifiedTime(p, []*LinkOption{})
-	t2 := Files_file_getLastModifiedTime(p, nil)
+	t1 := Files_getLastModifiedTime(p, []*LinkOption{})
+	t2 := Files_getLastModifiedTime(p, nil)
 	if !objequals_(t1, t2) || t1.compareTo(t2) != 0 || objhash_(t1) != objhash_(t2) {
 		t.Error("FileTime equality")
 	}
@@ -651,14 +651,14 @@ func TestIONioFiles(t *testing.T) {
 
 	// Guava's Files.
 	f := Path_toFile(p)
-	Files_asCharSink(f, StandardCharsets_UTF_8, []*FileWriteMode{}).write("one\ntwo\n")
-	Files_asCharSink(f, StandardCharsets_UTF_8, []*FileWriteMode{FileWriteMode_APPEND}).write(new_StringBuilder_String("three"))
-	src := Files_asCharSource(f, StandardCharsets_UTF_8)
+	Files_io_asCharSink(f, StandardCharsets_UTF_8, []*FileWriteMode{}).write("one\ntwo\n")
+	Files_io_asCharSink(f, StandardCharsets_UTF_8, []*FileWriteMode{FileWriteMode_APPEND}).write(new_StringBuilder_String("three"))
+	src := Files_io_asCharSource(f, StandardCharsets_UTF_8)
 	eq_(t, "CharSource.read", src.read(), "one\ntwo\nthree")
 	eq_(t, "CharSource.openStream", readAll_(src.openStream()), "one\ntwo\nthree")
-	eq_(t, "Files.newReader", Files_newReader(f, StandardCharsets_UTF_8).readLine(), "one")
+	eq_(t, "Files.newReader", Files_io_newReader(f, StandardCharsets_UTF_8).readLine(), "one")
 	eq_(t, "CharSource.wrap", CharSource_wrap("abc").read(), "abc")
-	if ex := throws_(func() { Files_asCharSource(new_File(dir+"/zz"), StandardCharsets_UTF_8).read() }); !is_FileNotFoundException(ex) {
+	if ex := throws_(func() { Files_io_asCharSource(new_File(dir+"/zz"), StandardCharsets_UTF_8).read() }); !is_FileNotFoundException(ex) {
 		t.Errorf("CharSource of a missing file threw %v", msgOf_(ex))
 	}
 }

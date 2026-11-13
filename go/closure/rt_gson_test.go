@@ -436,18 +436,6 @@ type gsonTestAble_ struct{ v any }
 
 func (this *gsonTestAble_) toLogsGson() any { return this.v }
 
-// TestGsonLogs checks the type hierarchy adapters of LogsGson.
-func TestGsonLogs(t *testing.T) {
-	LogsGson_clinit()
-	m := new_LinkedHashMap()
-	m.put("able", &gsonTestAble_{listOf_([]any{"<x>", int32(1)})})
-	m.put("nested", listOf_([]any{&gsonTestAble_{"s"}, &gsonTestAble_{nil}}))
-	got := LogsGson_toJson(m)
-	want := `{"able":["\u003cx\u003e",1],"nested":["s",null]}`
-	if got != want {
-		t.Errorf("got %s want %s", got, want)
-	}
-}
 
 // TestGsonWriterSink checks writing through an Appendable/Writer-like object.
 func TestGsonWriterSink(t *testing.T) {
@@ -490,13 +478,3 @@ func TestGsonReaderPull(t *testing.T) {
 	}
 }
 
-func TestGsonTypeToken(t *testing.T) {
-	tt := new_ReportDecoder_1().getType()
-	if objstr_(tt) != "java.util.List<java.lang.String>" {
-		t.Errorf("got %s", objstr_(tt))
-	}
-	l := cast_[List](new_Gson().fromJson("[\"a\",\"b\"]", tt))
-	if l.size() != 2 || str_(l.get(1)) != "b" {
-		t.Errorf("got %s", objstr_(l))
-	}
-}

@@ -32,9 +32,6 @@ func new_SAXParseException_(msg string, line int32) *SAXParseException {
 	return this
 }
 
-func (this *SAXParseException) getLineNumber() int32   { return this.line_ }
-func (this *SAXParseException) getColumnNumber() int32 { return -1 }
-
 // ---- InputSource
 
 type InputSource struct {
@@ -52,21 +49,6 @@ func new_InputSource(in *InputStream) *InputSource {
 func new_InputSource_Reader(r *Reader) *InputSource {
 	return &InputSource{chars_: r, systemId_: nullstr_, publicId_: nullstr_, encoding_: nullstr_}
 }
-
-func new_InputSource_String(systemId string) *InputSource {
-	return &InputSource{systemId_: systemId, publicId_: nullstr_, encoding_: nullstr_}
-}
-
-func (this *InputSource) getByteStream() *InputStream   { return this.bytes_ }
-func (this *InputSource) setByteStream(in *InputStream) { this.bytes_ = in }
-func (this *InputSource) getCharacterStream() *Reader   { return this.chars_ }
-func (this *InputSource) setCharacterStream(r *Reader)  { this.chars_ = r }
-func (this *InputSource) getSystemId() string           { return this.systemId_ }
-func (this *InputSource) setSystemId(id string)         { this.systemId_ = id }
-func (this *InputSource) getPublicId() string           { return this.publicId_ }
-func (this *InputSource) setPublicId(id string)         { this.publicId_ = id }
-func (this *InputSource) getEncoding() string           { return this.encoding_ }
-func (this *InputSource) setEncoding(enc string)        { this.encoding_ = enc }
 
 // ---- SAXParserFactory, SAXParser
 

@@ -106,8 +106,6 @@ func Charset_isSupported(name string) bool {
 	return charsets_[strings.ToLower(name)] != nil
 }
 
-func Charset_defaultCharset() *Charset { return StandardCharsets_UTF_8 }
-
 func (this *Charset) name() string        { return this.name_ }
 func (this *Charset) displayName() string { return this.name_ }
 func (this *Charset) toString() string    { return this.name_ }
@@ -572,13 +570,6 @@ func (this *CharacterCodingException) init_CharacterCodingException() {
 	this.IOException.init_IOException_0()
 }
 
-func new_CharacterCodingException() *CharacterCodingException {
-	this := &CharacterCodingException{}
-	this.self_ = this
-	this.init_CharacterCodingException()
-	return this
-}
-
 // MalformedInputException is java.nio.charset.MalformedInputException.
 type MalformedInputException struct {
 	CharacterCodingException
@@ -640,11 +631,6 @@ func to_Reader(v any) *Reader {
 		return nil
 	}
 	return v.(interface{ as_Reader() *Reader }).as_Reader()
-}
-
-func is_Reader(v any) bool {
-	_, ok := v.(interface{ as_Reader() *Reader })
-	return ok
 }
 
 func (this *Reader) self() any {
@@ -908,13 +894,6 @@ func new_BufferedReader(r *Reader) *BufferedReader {
 	return this
 }
 
-func new_BufferedReader_Reader_int(r *Reader, size int32) *BufferedReader {
-	if size <= 0 {
-		panic(new_IllegalArgumentException_String("Buffer size <= 0").self())
-	}
-	return new_BufferedReader(r)
-}
-
 // readLine returns the next line without its terminator (\n, \r or \r\n), or
 // null at the end of the text.
 func (this *BufferedReader) readLine() string { return this.readLine_() }
@@ -937,11 +916,6 @@ func to_Writer(v any) *Writer {
 		return nil
 	}
 	return v.(interface{ as_Writer() *Writer }).as_Writer()
-}
-
-func is_Writer(v any) bool {
-	_, ok := v.(interface{ as_Writer() *Writer })
-	return ok
 }
 
 func (this *Writer) self() any {
@@ -1046,13 +1020,6 @@ func new_StringWriter() *StringWriter {
 	this.sink_ = func(s string) { this.sb_.append(s) }
 	this.keepOpen_ = true // closing a StringWriter has no effect
 	return this
-}
-
-func new_StringWriter_int(n int32) *StringWriter {
-	if n < 0 {
-		panic(new_IllegalArgumentException_String("Negative buffer size").self())
-	}
-	return new_StringWriter()
 }
 
 func (this *StringWriter) toString() string { return this.sb_.toString() }
@@ -1168,13 +1135,6 @@ func new_BufferedWriter(w *Writer) *BufferedWriter {
 		this.flushBuffer_()
 	}
 	return this
-}
-
-func new_BufferedWriter_Writer_int(w *Writer, size int32) *BufferedWriter {
-	if size <= 0 {
-		panic(new_IllegalArgumentException_String("Buffer size <= 0").self())
-	}
-	return new_BufferedWriter(w)
 }
 
 func (this *BufferedWriter) flushBuffer_() {

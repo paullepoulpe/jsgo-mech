@@ -171,10 +171,6 @@ func asciiPrefix_(s string, n int) bool {
 	return true
 }
 
-func shortASCII_(s string) bool { return len(s) < 256 && isASCII_(s) }
-
-func longASCII_(s string) bool { return len(s) >= 256 && indexOf_(s).ascii }
-
 func allASCII_(s string) bool {
 	if len(s) < 256 {
 		return isASCII_(s)
@@ -556,8 +552,6 @@ func String_toUpperCase(s string, l *Locale) string {
 	return strings.ToUpper(s)
 }
 
-func String_repeat(s string, n int32) string { return strings.Repeat(s, int(n)) }
-
 func String_replace(s string, a any, b any) string {
 	return strings.ReplaceAll(s, csString_(a), csString_(b))
 }
@@ -617,12 +611,6 @@ func CharSequence_charAt(v any, i int32) uint16 {
 		return x.charAt(i)
 	}
 	panic(new_NullPointerException_0().self())
-}
-
-func CharSequence_toString(v any) string { return csString_(v) }
-
-func CharSequence_subSequence(v any, a int32, b int32) any {
-	return String_substring(csString_(v), a, b)
 }
 
 // ---- java.lang.StringBuilder
@@ -869,8 +857,6 @@ func (this *StringBuilder) compareTo(o any) int32 {
 
 func Character_charValue(v any) uint16 { return v.(uint16) }
 
-func Character_valueOf(c uint16) any { return c }
-
 func Character_isSupplementaryCodePoint(cp int32) bool { return cp >= 0x10000 && cp <= 0x10FFFF }
 
 func Character_toChars(cp int32) []uint16 {
@@ -898,24 +884,6 @@ func Character_isLetter(c uint16) bool {
 func Character_isLetterOrDigit(c uint16) bool { return Character_isLetter(c) || Character_isDigit(c) }
 
 func Character_isUpperCase(c uint16) bool { return unicode.IsUpper(rune(c)) }
-func Character_isLowerCase(c uint16) bool { return unicode.IsLower(rune(c)) }
-
-func Character_toUpperCase(c uint16) uint16 {
-	r := unicode.ToUpper(rune(c))
-	if r > 0xFFFF {
-		return c
-	}
-	return uint16(r)
-}
-
-func Character_toLowerCase(c uint16) uint16 {
-	r := unicode.ToLower(rune(c))
-	if r > 0xFFFF {
-		return c
-	}
-	return uint16(r)
-}
-
 func Character_isWhitespace(cp int32) bool {
 	switch cp {
 	case '\t', '\n', 0x0B, '\f', '\r', 0x1C, 0x1D, 0x1E, 0x1F:

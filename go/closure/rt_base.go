@@ -1,7 +1,7 @@
 package closure
 
-// com.google.common.base: Preconditions, Strings, Ascii, MoreObjects, Optional,
-// Predicates, Functions, Suppliers, Throwables, CaseFormat; java.util.Optional.
+// com.google.common.base: Preconditions, Strings, Ascii, MoreObjects, Optional_base,
+// Predicates, Functions, Suppliers, Throwables, CaseFormat; java.util.Optional_base.
 
 import (
 	"strings"
@@ -446,41 +446,41 @@ func (this *MoreObjects_ToStringHelper) toString() string {
 	return sb.String()
 }
 
-// ---- com.google.common.base.Optional
+// ---- com.google.common.base.Optional_base
 
-type Optional struct {
+type Optional_base struct {
 	present bool
 	value   any
 }
 
-var optionalAbsent_ = &Optional{}
+var optionalAbsent_ = &Optional_base{}
 
-func Optional_absent() *Optional { return optionalAbsent_ }
+func Optional_base_absent() *Optional_base { return optionalAbsent_ }
 
-func Optional_fromNullable(v any) *Optional {
+func Optional_base_fromNullable(v any) *Optional_base {
 	if v == nil {
 		return optionalAbsent_
 	}
-	return &Optional{true, v}
+	return &Optional_base{true, v}
 }
 
-func Optional_of(v any) *Optional {
+func Optional_base_of(v any) *Optional_base {
 	if v == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return &Optional{true, v}
+	return &Optional_base{true, v}
 }
 
-func (this *Optional) get() any {
+func (this *Optional_base) get() any {
 	if !this.present {
 		stateFail_("Optional.get() cannot be called on an absent value")
 	}
 	return this.value
 }
 
-func (this *Optional) isPresent() bool { return this.present }
+func (this *Optional_base) isPresent() bool { return this.present }
 
-func (this *Optional) or(def any) any {
+func (this *Optional_base) or(def any) any {
 	if def == nil {
 		nullFail_("use Optional.orNull() instead of Optional.or(null)")
 	}
@@ -490,9 +490,9 @@ func (this *Optional) or(def any) any {
 	return def
 }
 
-func (this *Optional) orNull() any { return this.value }
+func (this *Optional_base) orNull() any { return this.value }
 
-func (this *Optional) or_Optional(o *Optional) *Optional {
+func (this *Optional_base) or_Optional(o *Optional_base) *Optional_base {
 	if o == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -502,7 +502,7 @@ func (this *Optional) or_Optional(o *Optional) *Optional {
 	return o
 }
 
-func (this *Optional) transform(f Function_base) *Optional {
+func (this *Optional_base) transform(f Function_base) *Optional_base {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -513,11 +513,11 @@ func (this *Optional) transform(f Function_base) *Optional {
 	if r == nil {
 		nullFail_("the Function passed to Optional.transform() must not return null.")
 	}
-	return &Optional{true, r}
+	return &Optional_base{true, r}
 }
 
-func (this *Optional) equals(o any) bool {
-	x, ok := o.(*Optional)
+func (this *Optional_base) equals(o any) bool {
+	x, ok := o.(*Optional_base)
 	if !ok || x == nil {
 		return false
 	}
@@ -527,61 +527,61 @@ func (this *Optional) equals(o any) bool {
 	return objequals_(this.value, x.value)
 }
 
-func (this *Optional) hashCode() int32 {
+func (this *Optional_base) hashCode() int32 {
 	if !this.present {
 		return 0x79a31aac
 	}
 	return 0x598df91c + objhash_(this.value)
 }
 
-func (this *Optional) toString() string {
+func (this *Optional_base) toString() string {
 	if !this.present {
 		return "Optional.absent()"
 	}
 	return "Optional.of(" + objstr_(this.value) + ")"
 }
 
-// ---- java.util.Optional
+// ---- java.util.Optional_base
 
-type Optional_util struct {
+type Optional struct {
 	value any
 }
 
-var optionalUtilEmpty_ = &Optional_util{}
+var optionalUtilEmpty_ = &Optional{}
 
-func Optional_util_empty() *Optional_util { return optionalUtilEmpty_ }
+func Optional_empty() *Optional { return optionalUtilEmpty_ }
 
-func Optional_util_of(v any) *Optional_util {
+func Optional_of(v any) *Optional {
 	if v == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return &Optional_util{v}
+	return &Optional{v}
 }
 
-func (this *Optional_util) get() any {
+func (this *Optional) get() any {
 	if this.value == nil {
 		panic(new_NoSuchElementException_String("No value present").self())
 	}
 	return this.value
 }
 
-func (this *Optional_util) ifPresent(c Consumer) {
+func (this *Optional) ifPresent(c Consumer) {
 	if this.value != nil {
 		c.accept(this.value)
 	}
 }
 
-func (this *Optional_util) isEmpty() bool   { return this.value == nil }
-func (this *Optional_util) isPresent() bool { return this.value != nil }
+func (this *Optional) isEmpty() bool   { return this.value == nil }
+func (this *Optional) isPresent() bool { return this.value != nil }
 
-func (this *Optional_util) orElse(def any) any {
+func (this *Optional) orElse(def any) any {
 	if this.value != nil {
 		return this.value
 	}
 	return def
 }
 
-func (this *Optional_util) orElseThrow(s Supplier) any {
+func (this *Optional) orElseThrow(s Supplier) any {
 	if this.value != nil {
 		return this.value
 	}
@@ -592,14 +592,14 @@ func (this *Optional_util) orElseThrow(s Supplier) any {
 	panic(ex)
 }
 
-func (this *Optional_util) equals(o any) bool {
-	x, ok := o.(*Optional_util)
+func (this *Optional) equals(o any) bool {
+	x, ok := o.(*Optional)
 	return ok && x != nil && objequals_(this.value, x.value)
 }
 
-func (this *Optional_util) hashCode() int32 { return objhash_(this.value) }
+func (this *Optional) hashCode() int32 { return objhash_(this.value) }
 
-func (this *Optional_util) toString() string {
+func (this *Optional) toString() string {
 	if this.value == nil {
 		return "Optional.empty"
 	}
@@ -614,9 +614,9 @@ func (alwaysTruePredicate_) apply(any) bool   { return true }
 func (alwaysTruePredicate_) test(any) bool    { return true }
 func (alwaysTruePredicate_) toString() string { return "Predicates.alwaysTrue()" }
 
-var alwaysTrue_ Predicate = alwaysTruePredicate_{}
+var alwaysTrue_ Predicate_base = alwaysTruePredicate_{}
 
-func Predicates_alwaysTrue() Predicate { return alwaysTrue_ }
+func Predicates_alwaysTrue() Predicate_base { return alwaysTrue_ }
 
 type isNullPredicate_ struct{}
 
@@ -639,7 +639,7 @@ func (this *equalToPredicate_) equals(o any) bool {
 	return ok && objequals_(this.target, x.target)
 }
 
-func Predicates_equalTo(target any) Predicate {
+func Predicates_equalTo(target any) Predicate_base {
 	if target == nil {
 		return isNullPredicate_{}
 	}
@@ -647,11 +647,6 @@ func Predicates_equalTo(target any) Predicate {
 }
 
 type identityFunction_ struct{}
-
-func (identityFunction_) apply(v any) any  { return v }
-func (identityFunction_) toString() string { return "Functions.identity()" }
-
-func Functions_identity() Function_base { return identityFunction_{} }
 
 type memoizingSupplier_ struct {
 	delegate Supplier_base

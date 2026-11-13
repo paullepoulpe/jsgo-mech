@@ -609,7 +609,7 @@ func TestGuavaRangeSet(t *testing.T) {
 func TestGuavaIterables(t *testing.T) {
 	a := listOf_([]any{int32(1), int32(2), int32(3)})
 	b := listOf_([]any{int32(4)})
-	even := &Predicate_fn{func(v any) bool { return v.(int32)%2 == 0 }}
+	even := &Predicate_base_fn{func(v any) bool { return v.(int32)%2 == 0 }}
 	guavaStr_(t, Iterables_concat(a, b), "[1, 2, 3, 4]")
 	guavaStr_(t, Iterables_concat_Iterable_Iterable_Iterable(b, a, b), "[4, 1, 2, 3, 4]")
 	guavaStr_(t, Iterables_concat_Iterable(listOf_([]any{a, listOf_(nil), b})), "[1, 2, 3, 4]")
@@ -621,7 +621,7 @@ func TestGuavaIterables(t *testing.T) {
 	guavaStr_(t, Iterables_skip(a, 3), "[4]")
 	guavaStr_(t, Iterables_skip(a, 9), "[]")
 	guavaEq_(t, Iterables_size(tr), int32(4))
-	guavaEq_(t, Iterables_isEmpty(Iterables_filter(b, &Predicate_fn{func(v any) bool { return false }})), true)
+	guavaEq_(t, Iterables_isEmpty(Iterables_filter(b, &Predicate_base_fn{func(v any) bool { return false }})), true)
 	guavaEq_(t, Iterables_contains(tr, int32(20)), true)
 	guavaEq_(t, Iterables_get(tr, 1), int32(20))
 	guavaEq_(t, Iterables_getFirst(a, nil), int32(1))
@@ -629,7 +629,7 @@ func TestGuavaIterables(t *testing.T) {
 	guavaEq_(t, Iterables_getLast(tr), int32(40))
 	guavaEq_(t, Iterables_getOnlyElement(b), int32(4))
 	guavaEq_(t, Iterables_indexOf(a, even), int32(1))
-	guavaEq_(t, Iterables_indexOf(b, &Predicate_fn{func(v any) bool { return false }}), int32(-1))
+	guavaEq_(t, Iterables_indexOf(b, &Predicate_base_fn{func(v any) bool { return false }}), int32(-1))
 	guavaThrew_(t, "NoSuchElementException", func() { Iterables_getOnlyElement(listOf_(nil)) })
 	guavaThrew_(t, "NoSuchElementException", func() { Iterables_getLast(Iterables_skip(a, 9)) })
 	guavaThrew_(t, "IndexOutOfBoundsException", func() { Iterables_get(tr, 9) })

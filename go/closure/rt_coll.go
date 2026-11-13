@@ -72,12 +72,6 @@ func Iterator_remove(it Iterator) {
 	r.remove()
 }
 
-func Iterator_forEachRemaining(it Iterator, c Consumer) {
-	for it.hasNext() {
-		c.accept(it.next())
-	}
-}
-
 func Iterable_forEach(it Iterable, c Consumer) {
 	for i := it.iterator(); i.hasNext(); {
 		c.accept(i.next())
@@ -189,11 +183,6 @@ func to_ArrayList(v any) *ArrayList {
 		return nil
 	}
 	return v.(interface{ as_ArrayList() *ArrayList }).as_ArrayList()
-}
-
-func is_ArrayList(v any) bool {
-	_, ok := v.(interface{ as_ArrayList() *ArrayList })
-	return ok
 }
 
 func (this *ArrayList) self() any {
@@ -803,8 +792,6 @@ type LinkedHashMap struct {
 
 func new_LinkedHashMap() *LinkedHashMap { return &LinkedHashMap{} }
 
-func new_LinkedHashMap_int(n int32) *LinkedHashMap { return &LinkedHashMap{} }
-
 func new_LinkedHashMap_Map(m Map) *LinkedHashMap {
 	this := &LinkedHashMap{}
 	this.putAll(m)
@@ -897,8 +884,6 @@ func mapToString_(m Map) string {
 }
 
 type HashMap struct{ LinkedHashMap }
-
-func new_HashMap() *HashMap { return &HashMap{} }
 
 type ConcurrentHashMap struct{ LinkedHashMap }
 
@@ -1038,17 +1023,6 @@ func removeAll_(s Collection, c Collection) bool {
 	return changed
 }
 
-func retainAll_(s Collection, c Collection) bool {
-	changed := false
-	for it := s.iterator(); it.hasNext(); {
-		if !c.contains(it.next()) {
-			Iterator_remove(it)
-			changed = true
-		}
-	}
-	return changed
-}
-
 // ---- LinkedHashSet (and HashSet)
 
 type LinkedHashSet struct {
@@ -1061,8 +1035,6 @@ func new_LinkedHashSet() *LinkedHashSet {
 	this.t = &this.table
 	return this
 }
-
-func new_LinkedHashSet_int(n int32) *LinkedHashSet { return new_LinkedHashSet() }
 
 func new_LinkedHashSet_Collection(c Collection) *LinkedHashSet {
 	this := new_LinkedHashSet()
@@ -1090,12 +1062,6 @@ func (this *LinkedHashSet) hashCode() int32   { return setHash_(this) }
 func (this *LinkedHashSet) toString() string  { return collToString_(this) }
 
 type HashSet struct{ LinkedHashSet }
-
-func new_HashSet() *HashSet {
-	this := &HashSet{}
-	this.t = &this.table
-	return this
-}
 
 func identitySet_() *LinkedHashSet {
 	this := new_LinkedHashSet()
@@ -1131,8 +1097,6 @@ func compareNatural_(a, b any) int32 {
 	}
 	panic(new_ClassCastException_String(goTypeName_(a) + " is not Comparable").self())
 }
-
-func Comparable_compareTo(a any, b any) int32 { return compareNatural_(a, b) }
 
 type cmpFunc_ struct{ f func(a, b any) int32 }
 
@@ -1177,10 +1141,6 @@ func Comparator_thenComparing(c Comparator, f Function) Comparator {
 
 func Comparator_thenComparingInt(c Comparator, f ToIntFunction) Comparator {
 	return Comparator_thenComparing_Comparator(c, Comparator_comparingInt(f))
-}
-
-func Comparator_thenComparingLong(c Comparator, f ToLongFunction) Comparator {
-	return Comparator_thenComparing_Comparator(c, Comparator_comparingLong(f))
 }
 
 func Map_Entry_comparingByKey() Comparator {
@@ -1230,8 +1190,6 @@ func Collections_fill(l List, v any) {
 func Collections_emptyList() List              { return listOf_(nil) }
 func Collections_emptyIterator() Iterator      { var e []any; return &sliceIter_{items: &e} }
 func Collections_singletonList(v any) List     { return listOf_([]any{v}) }
-func Collections_synchronizedList(l List) List { return l }
-
 func Collections_nCopies(n int32, v any) List {
 	items := make([]any, n)
 	for i := range items {
@@ -1246,8 +1204,6 @@ func Collections_unmodifiableCollection(c Collection) Collection { return c }
 func Collections_unmodifiableList(l List) List                   { return l }
 func Collections_unmodifiableMap(m Map) Map                      { return m }
 func Collections_unmodifiableSet(s Set) Set                      { return s }
-func Collections_unmodifiableSortedSet(s SortedSet) SortedSet    { return s }
-
 // ---- Map defaults
 
 func Map_getOrDefault(m Map, k any, def any) any {
@@ -1273,19 +1229,6 @@ func Map_computeIfAbsent(m Map, k any, f Function) any {
 	if v != nil {
 		m.put(k, v)
 	}
-	return v
-}
-
-func Map_compute(m Map, k any, f BiFunction) any {
-	old := m.get(k)
-	v := f.apply(k, old)
-	if v == nil {
-		if old != nil || m.containsKey(k) {
-			m.remove(k)
-		}
-		return nil
-	}
-	m.put(k, v)
 	return v
 }
 
@@ -1326,10 +1269,6 @@ func Map_replace(m Map, k any, oldV any, newV any) bool {
 }
 
 type AbstractMap_SimpleImmutableEntry struct{ hentry_ }
-
-func new_AbstractMap_SimpleImmutableEntry(k any, v any) *AbstractMap_SimpleImmutableEntry {
-	return &AbstractMap_SimpleImmutableEntry{hentry_{key: k, val: v}}
-}
 
 func (e *AbstractMap_SimpleImmutableEntry) setValue(v any) any {
 	panic(new_UnsupportedOperationException_0().self())

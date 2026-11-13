@@ -534,20 +534,6 @@ func (this *AbstractMessage) up_AbstractMessageLite() *AbstractMessageLite {
 	return &this.AbstractMessageLite
 }
 
-func (this *GeneratedMessage) up_AbstractMessage() *AbstractMessage {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMessage
-}
-
-func (this *GeneratedMessage_ExtendableMessage) up_GeneratedMessage() *GeneratedMessage {
-	if this == nil {
-		return nil
-	}
-	return &this.GeneratedMessage
-}
-
 func (this *AbstractMessageLite) toBuilder() MessageLite_Builder {
 	b := this.d_.newBuilder_()
 	this.copyInto_(&b.pbData_, false)
@@ -645,27 +631,6 @@ type GeneratedMessage_ExtendableBuilder struct {
 
 func (this *AbstractMessageLite_Builder) pbb_() *AbstractMessageLite_Builder { return this }
 
-func (this *AbstractMessage_Builder) up_AbstractMessageLite_Builder() *AbstractMessageLite_Builder {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMessageLite_Builder
-}
-
-func (this *GeneratedMessage_Builder) up_AbstractMessage_Builder() *AbstractMessage_Builder {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMessage_Builder
-}
-
-func (this *GeneratedMessage_ExtendableBuilder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
-	if this == nil {
-		return nil
-	}
-	return &this.GeneratedMessage_Builder
-}
-
 func (this *AbstractMessageLite_Builder) pbBuild_() any {
 	m := this.d_.newMsg_()
 	this.copyInto_(&m.pbData_, true)
@@ -738,35 +703,6 @@ func (this *AbstractMessageLite_Builder) mergeDelimitedFrom(p0 *InputStream) boo
 	}
 	this.mergeBytes_(data, true)
 	return true
-}
-
-func (this *AbstractMessage_Builder) getAllFields() Map { return pbAllFields_(&this.pbData_) }
-
-func (this *AbstractMessage_Builder) getDescriptorForType() *Descriptors_Descriptor {
-	return this.d_.descriptor_()
-}
-
-func (this *AbstractMessage_Builder) hasField(p0 *Descriptors_FieldDescriptor) bool {
-	return pbHasField_(&this.pbData_, p0)
-}
-
-func (this *AbstractMessage_Builder) getField(p0 *Descriptors_FieldDescriptor) any {
-	return pbGetField_(&this.pbData_, p0)
-}
-
-func (this *AbstractMessage_Builder) getRepeatedFieldCount(p0 *Descriptors_FieldDescriptor) int32 {
-	return this.cnt_(p0.f_.idx)
-}
-
-// mergeFrom is Message.Builder.mergeFrom(Message).
-func (this *AbstractMessage_Builder) mergeFrom(p0 Message) Message_Builder {
-	this.mergeData_(pbDataOf_(p0))
-	return this.me_.(Message_Builder)
-}
-
-func (this *AbstractMessage_Builder) clearField(p0 *Descriptors_FieldDescriptor) Message_Builder {
-	this.v_[p0.f_.idx] = nil
-	return this.me_.(Message_Builder)
 }
 
 // ---- helpers the generated builder accessors call
@@ -918,10 +854,6 @@ func pbParseCoded_(d *pbDesc_, in *CodedInputStream) any {
 	return m.me_
 }
 
-func pbParseStream_(d *pbDesc_, in *InputStream) any {
-	return pbParse_(d, pbReadAll_(in), true)
-}
-
 // pbParseDelimited_ returns nil at end of stream, as parseDelimitedFrom does.
 func pbParseDelimited_(d *pbDesc_, in *InputStream) any {
 	data, ok := pbReadDelimited_(in)
@@ -929,13 +861,6 @@ func pbParseDelimited_(d *pbDesc_, in *InputStream) any {
 		return nil
 	}
 	return pbParse_(d, data, true)
-}
-
-func pbBuilderFrom_(d *pbDesc_, proto any) any {
-	if proto == nil {
-		pbNPE_()
-	}
-	return proto.(pbM_).pbm_().toBuilder()
 }
 
 // ---------------------------------------------------------------- wire format: sizes and writing
@@ -1553,35 +1478,6 @@ type Descriptors_Descriptor struct {
 	d_ *pbDesc_
 }
 
-func (this *Descriptors_Descriptor) up_Descriptors_GenericDescriptor() *Descriptors_GenericDescriptor {
-	if this == nil {
-		return nil
-	}
-	return &this.Descriptors_GenericDescriptor
-}
-
-func (this *Descriptors_Descriptor) getFields() List {
-	out := make([]any, len(this.d_.fields))
-	for i, f := range this.d_.fields {
-		out[i] = f.descriptor_()
-	}
-	return listOf_(out)
-}
-
-func (this *Descriptors_Descriptor) findFieldByName(p0 string) *Descriptors_FieldDescriptor {
-	if f := this.d_.byName[p0]; f != nil {
-		return f.descriptor_()
-	}
-	return nil
-}
-
-func (this *Descriptors_Descriptor) findFieldByNumber(p0 int32) *Descriptors_FieldDescriptor {
-	if f := this.d_.field_(p0); f != nil {
-		return f.descriptor_()
-	}
-	return nil
-}
-
 type Descriptors_EnumValueDescriptor struct {
 	Descriptors_GenericDescriptor
 	num_   int32
@@ -1673,16 +1569,6 @@ func pbGetField_(d *pbData_, fd *Descriptors_FieldDescriptor) any {
 	return pbReflect_(f, d.get_(f.idx))
 }
 
-func pbHasField_(d *pbData_, fd *Descriptors_FieldDescriptor) bool {
-	if fd.f_.owner != d.d_ {
-		panic(new_IllegalArgumentException_String("FieldDescriptor does not match message type.").self())
-	}
-	if fd.f_.rep {
-		panic(new_UnsupportedOperationException_String("hasField() called on a repeated field.").self())
-	}
-	return d.v_[fd.f_.idx] != nil
-}
-
 // pbAllFields_ is getAllFields(): the set fields in field-number order.
 func pbAllFields_(d *pbData_) Map {
 	m := new_TreeMap()
@@ -1707,13 +1593,6 @@ func pbEnumNumber_(num int32, unrecognized bool) int32 {
 		panic(new_IllegalArgumentException_String("Can't get the number of an unknown enum value.").self())
 	}
 	return num
-}
-
-func pbEnumValueOf_(javaName string, name string) {
-	if name == nullstr_ {
-		panic(new_NullPointerException_String("Name is null").self())
-	}
-	panic(new_IllegalArgumentException_String("No enum constant " + javaName + "." + name).self())
 }
 
 // ---------------------------------------------------------------- byte slices and streams
@@ -1864,8 +1743,6 @@ type ByteString struct {
 
 var ByteString_EMPTY = &ByteString{}
 
-func ByteString_empty() *ByteString { return ByteString_EMPTY }
-
 func ByteString_copyFrom(p0 []int8) *ByteString {
 	if len(p0) == 0 {
 		if p0 == nil {
@@ -1876,23 +1753,6 @@ func ByteString_copyFrom(p0 []int8) *ByteString {
 	return &ByteString{b_: append([]byte(nil), pbU8_(p0)...)}
 }
 
-func ByteString_copyFrom_byteArr_int_int(p0 []int8, p1 int32, p2 int32) *ByteString {
-	if p1 < 0 || p2 < 0 || int(p1)+int(p2) > len(p0) {
-		panic(new_IndexOutOfBoundsException_0().self())
-	}
-	return ByteString_copyFrom(p0[p1 : p1+p2])
-}
-
-func ByteString_copyFromUtf8(p0 string) *ByteString {
-	if p0 == nullstr_ {
-		pbNPE_()
-	}
-	if p0 == "" {
-		return ByteString_EMPTY
-	}
-	return &ByteString{b_: []byte(p0)}
-}
-
 func ByteString_newOutput(p0 int32) *ByteString_Output {
 	o := &ByteString_Output{}
 	o.self_ = o
@@ -1901,8 +1761,6 @@ func ByteString_newOutput(p0 int32) *ByteString_Output {
 	}
 	return o
 }
-
-func ByteString_newOutput_0() *ByteString_Output { return ByteString_newOutput(128) }
 
 func (this *ByteString) size() int32   { return int32(len(this.b_)) }
 func (this *ByteString) isEmpty() bool { return len(this.b_) == 0 }
@@ -2082,12 +1940,6 @@ var pbEmptyRegistry_ = &ExtensionRegistry{}
 
 func ExtensionRegistry_getEmptyRegistry() *ExtensionRegistry { return pbEmptyRegistry_ }
 
-func ExtensionRegistry_newInstance() *ExtensionRegistry { return &ExtensionRegistry{} }
-
-func ExtensionRegistryLite_getEmptyRegistry() *ExtensionRegistryLite {
-	return &pbEmptyRegistry_.ExtensionRegistryLite
-}
-
 // ---------------------------------------------------------------- CodedInputStream
 
 type CodedInputStream struct {
@@ -2107,10 +1959,6 @@ func CodedInputStream_newInstance(p0 *InputStream) *CodedInputStream {
 		pbNPE_()
 	}
 	return &CodedInputStream{in_: p0, limit_: math.MaxInt, recLimit_: 100, alias_: true}
-}
-
-func CodedInputStream_newInstance_byteArr(p0 []int8) *CodedInputStream {
-	return &CodedInputStream{buf_: pbU8_(p0), limit_: math.MaxInt, recLimit_: 100}
 }
 
 // fill_ makes n bytes available at pos_ if the input has them.
@@ -2400,14 +2248,6 @@ type CodedOutputStream struct {
 	out_ *OutputStream
 }
 
-func CodedOutputStream_newInstance(p0 *OutputStream) *CodedOutputStream {
-	return &CodedOutputStream{out_: p0}
-}
-
-func CodedOutputStream_newInstance_OutputStream_int(p0 *OutputStream, p1 int32) *CodedOutputStream {
-	return &CodedOutputStream{out_: p0}
-}
-
 func (this *CodedOutputStream) flush() {
 	if this.out_ != nil && len(this.buf_) > 0 {
 		pbWriteStream_(this.out_, this.buf_)
@@ -2499,14 +2339,3 @@ func (this *CodedOutputStream) writeMessage(p0 int32, p1 MessageLite) {
 	this.writeMessageNoTag(p1)
 }
 
-func CodedOutputStream_computeUInt32SizeNoTag(p0 int32) int32 {
-	return int32(pbVarintSize_(uint64(uint32(p0))))
-}
-
-func CodedOutputStream_computeInt32SizeNoTag(p0 int32) int32 {
-	return int32(pbVarintSize_(uint64(int64(p0))))
-}
-
-func CodedOutputStream_computeTagSize(p0 int32) int32 {
-	return int32(pbVarintSize_(uint64(uint32(p0) << 3)))
-}

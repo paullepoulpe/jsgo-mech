@@ -58,8 +58,6 @@ func (this *Runtime) gc() { runtime.GC() }
 
 func (this *Runtime) exit(code int32) { System_exit(code) }
 
-func System_gc() { runtime.GC() }
-
 // ---- java.lang.Thread
 
 type ThreadGroup struct{}
@@ -76,18 +74,6 @@ type Thread struct {
 }
 
 func (this *Thread) as_Thread() *Thread { return this }
-
-func to_Thread(v any) *Thread {
-	if v == nil {
-		return nil
-	}
-	return v.(interface{ as_Thread() *Thread }).as_Thread()
-}
-
-func is_Thread(v any) bool {
-	_, ok := v.(interface{ as_Thread() *Thread })
-	return ok
-}
 
 func (this *Thread) self() any {
 	if this == nil {
@@ -132,12 +118,6 @@ func new_Thread_Runnable(r Runnable) *Thread {
 	return new_Thread_ThreadGroup_Runnable_String_long(nil, r, nextThreadName_(), 0)
 }
 
-func new_Thread_Runnable_String(r Runnable, name string) *Thread {
-	return new_Thread_ThreadGroup_Runnable_String_long(nil, r, name, 0)
-}
-
-func new_Thread_0() *Thread { return new_Thread_Runnable(nil) }
-
 func Thread_currentThread() *Thread { return threads_[len(threads_)-1] }
 
 // Thread_interrupted reports and clears the interrupt status of the current thread.
@@ -147,15 +127,6 @@ func Thread_interrupted() bool {
 	t.interrupted_ = false
 	return was
 }
-
-func Thread_sleep(ms int64) {
-	if ms < 0 {
-		panic(new_IllegalArgumentException_String("timeout value is negative").self())
-	}
-	time.Sleep(time.Duration(ms) * time.Millisecond)
-}
-
-func Thread_yield() {}
 
 // run runs the thread's Runnable, if it has one.
 func (this *Thread) run() {
@@ -224,8 +195,6 @@ type ThreadLocal struct {
 
 func new_ThreadLocal() *ThreadLocal { return &ThreadLocal{} }
 
-func ThreadLocal_withInitial(s Supplier) *ThreadLocal { return &ThreadLocal{initial_: s} }
-
 func (this *ThreadLocal) get() any {
 	if !this.set_ {
 		this.set_ = true
@@ -260,20 +229,6 @@ func new_Throwable_String(m string) *Throwable {
 	this := &Throwable{}
 	this.self_ = this
 	this.init_Throwable_String(m)
-	return this
-}
-
-func new_Throwable_String_Throwable(m string, c *Throwable) *Throwable {
-	this := &Throwable{}
-	this.self_ = this
-	this.init_Throwable_String_Throwable(m, c)
-	return this
-}
-
-func new_Throwable_Throwable(c *Throwable) *Throwable {
-	this := &Throwable{}
-	this.self_ = this
-	this.init_Throwable_Throwable(c)
 	return this
 }
 
@@ -347,13 +302,6 @@ type TimeUnit struct {
 	nanos_ int64
 }
 
-func (this *TimeUnit) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
 func newTimeUnit_(name string, ordinal int32, nanos int64) *TimeUnit {
 	e := &TimeUnit{nanos_: nanos}
 	e.self_ = e
@@ -368,37 +316,6 @@ var TimeUnit_SECONDS = newTimeUnit_("SECONDS", 3, 1e9)
 var TimeUnit_MINUTES = newTimeUnit_("MINUTES", 4, 60e9)
 var TimeUnit_HOURS = newTimeUnit_("HOURS", 5, 3600e9)
 var TimeUnit_DAYS = newTimeUnit_("DAYS", 6, 86400e9)
-
-// convert_ converts d of this unit to the unit of to nanoseconds, saturating.
-func (this *TimeUnit) convert_(d int64, to int64) int64 {
-	if this.nanos_ >= to {
-		f := this.nanos_ / to
-		if d > 0x7fffffffffffffff/f {
-			return 0x7fffffffffffffff
-		}
-		if d < -0x8000000000000000/f {
-			return -0x8000000000000000
-		}
-		return d * f
-	}
-	return d / (to / this.nanos_)
-}
-
-func (this *TimeUnit) toNanos(d int64) int64   { return this.convert_(d, 1) }
-func (this *TimeUnit) toMicros(d int64) int64  { return this.convert_(d, 1e3) }
-func (this *TimeUnit) toMillis(d int64) int64  { return this.convert_(d, 1e6) }
-func (this *TimeUnit) toSeconds(d int64) int64 { return this.convert_(d, 1e9) }
-func (this *TimeUnit) toMinutes(d int64) int64 { return this.convert_(d, 60e9) }
-func (this *TimeUnit) toHours(d int64) int64   { return this.convert_(d, 3600e9) }
-func (this *TimeUnit) toDays(d int64) int64    { return this.convert_(d, 86400e9) }
-
-func (this *TimeUnit) convert(d int64, from *TimeUnit) int64 { return from.convert_(d, this.nanos_) }
-
-func (this *TimeUnit) sleep(d int64) {
-	if d > 0 {
-		time.Sleep(time.Duration(this.toNanos(d)))
-	}
-}
 
 // ---- futures
 
@@ -444,10 +361,6 @@ func runTask_(task func() any) *future_ {
 	}()
 	return f
 }
-
-func Futures_immediateFuture(v any) ListenableFuture { return &future_{value_: v} }
-
-func Futures_immediateFailedFuture(t *Throwable) ListenableFuture { return &future_{failed_: t} }
 
 // Futures_allAsList is a future of the list of all results, which fails if
 // any of the futures failed.
@@ -552,22 +465,6 @@ type ThreadPoolExecutor struct {
 
 func (this *ThreadPoolExecutor) as_ThreadPoolExecutor() *ThreadPoolExecutor { return this }
 
-func to_ThreadPoolExecutor(v any) *ThreadPoolExecutor {
-	if v == nil {
-		return nil
-	}
-	return v.(interface {
-		as_ThreadPoolExecutor() *ThreadPoolExecutor
-	}).as_ThreadPoolExecutor()
-}
-
-func is_ThreadPoolExecutor(v any) bool {
-	_, ok := v.(interface {
-		as_ThreadPoolExecutor() *ThreadPoolExecutor
-	})
-	return ok
-}
-
 func (this *ThreadPoolExecutor) self() any {
 	if this == nil {
 		return nil
@@ -617,16 +514,6 @@ func Executors_newSingleThreadExecutor(factory ThreadFactory) ExecutorService {
 	return newExecutor_(factory)
 }
 
-func Executors_newSingleThreadExecutor_0() ExecutorService { return newExecutor_(nil) }
-
-func Executors_newFixedThreadPool(n int32) ExecutorService { return newExecutor_(nil) }
-
-func Executors_newCachedThreadPool() ExecutorService { return newExecutor_(nil) }
-
-func Executors_defaultThreadFactory() ThreadFactory {
-	return &ThreadFactory_fn{func(r Runnable) *Thread { return new_Thread_Runnable(r) }}
-}
-
 // ---- Guava: MoreExecutors
 
 type MoreExecutors struct{}
@@ -665,10 +552,6 @@ func MoreExecutors_listeningDecorator(delegate ExecutorService) ListeningExecuto
 
 // directExecutor_ runs each task in the calling thread.
 type directExecutor_ struct{}
-
-func (directExecutor_) execute(task Runnable) { task.run() }
-
-func MoreExecutors_directExecutor() Executor { return directExecutor_{} }
 
 // ---- java.lang.management
 
@@ -851,8 +734,6 @@ func Logger_getLogger(name string) *Logger {
 	}
 	return l
 }
-
-func Logger_getGlobal() *Logger { return Logger_getLogger("global") }
 
 func (this *Logger) getName() string    { return this.name_ }
 func (this *Logger) getParent() *Logger { return this.parent_ }
