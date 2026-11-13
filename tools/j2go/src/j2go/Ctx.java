@@ -437,6 +437,9 @@ final class Ctx {
     return "obj_(" + code + ")";
   }
 
+  /** Go interface types that some conversion casts to: each gets a function icast_I. */
+  final TreeSet<String> icasts = new TreeSet<>();
+
   /** Go code converting {@code code}, an expression of Java type {@code from}, to Java type {@code to}. */
   String coerce(String code, TypeMirror from, TypeMirror to) {
     from = erase(from);
@@ -456,16 +459,22 @@ final class Ctx {
           case ARR: return "any(" + code + ")";
           default: return "any(" + code + ")";
         }
-      case IFACE:
+      case IFACE: {
+        // Performance rule: a cast to an interface goes through a generated non-generic function
+        // (icast_I, in g_0casts.go). Go caches a type assertion to an interface per assertion
+        // site; inside the generic cast_ it cannot, and looks the method table up each time.
+        String cast = "icast_" + gt;
+        icasts.add(gt);
         switch (kf) {
-          case CLS: return "cast_[" + gt + "](" + canon(code, from) + ")";
+          case CLS: return cast + "(" + canon(code, from) + ")";
           case IFACE:
             if (types.isSubtype(from, to)) return gt + "(" + code + ")";
-            return "cast_[" + gt + "](" + code + ")";
-          case STR: return "cast_[" + gt + "](strobj_(" + code + "))";
-          case PRIM: return "cast_[" + gt + "](any(" + gf + "(" + code + ")))";
-          default: return "cast_[" + gt + "](" + code + ")";
+            return cast + "(" + code + ")";
+          case STR: return cast + "(strobj_(" + code + "))";
+          case PRIM: return cast + "(any(" + gf + "(" + code + ")))";
+          default: return cast + "(" + code + ")";
         }
+      }
       case CLS: {
         TypeElement tt = typeElement(to);
         String src;
