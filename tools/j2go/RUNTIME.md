@@ -42,6 +42,7 @@ inputs and on a directory tree it builds.
 | `String` | `string`; a null String is the constant `nullstr_` |
 | `Object`, type variables, `Integer`/`Long`/… boxes, `Number`, `CharSequence`, `Comparable` | `any` |
 | a class `Foo` | `*Foo` (pointer to struct) |
+| a handle class `Node` (`tools/j2go/handles.txt`) | `Node`, a `uint32` handle; 0 is null |
 | an interface `Bar` | Go interface `Bar` |
 | `T[]` | `[]T` (`Object[]` and every array of a type variable is `[]any`) |
 
@@ -50,7 +51,8 @@ Generics are erased: collections hold `any`.
 **Values inside `any`:** a `String` is a Go `string` (and a null String is
 `nil`, never `nullstr_`: use `strobj_(s)` to box and `str_(v)` to unbox); an
 `Integer` is an `int32`, `Long` an `int64`, `Character` a `uint16`, `Boolean`
-a `bool`, `Double` a `float64`; an object is a pointer to its struct; `null` is
+a `bool`, `Double` a `float64`; an object is a pointer to its struct (an object of a handle class is the
+handle value: box with `n.box_()`, unbox with `Node_of_(v)`); `null` is
 `nil`. Never put a typed nil pointer in an `any` or an interface: use
 `obj_(p)`, which returns a nil `any` for a nil pointer.
 

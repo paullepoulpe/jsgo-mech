@@ -58,6 +58,120 @@ final class Ctx {
       "init", "main", "float32", "float64", "int8", "int16", "int32", "int64", "uint8", "uint16",
       "uint32", "uint64", "uintptr", "comparable", "this"));
 
+  // ---------------------------------------------------------------- handle classes
+
+  /** Classes whose objects are 32-bit handles into a store instead of pointers (tools/j2go/handles.txt). */
+  final LinkedHashSet<TypeElement> handles = new LinkedHashSet<>();
+  /** Enums that are the type of a field of a handle class: such a field holds ordinal+1. */
+  final LinkedHashSet<TypeElement> handleEnums = new LinkedHashSet<>();
+  /** Violations of what a handle class may be or may be used for. */
+  final List<String> handleErrors = new ArrayList<>();
+
+  boolean isHandle(TypeElement te) {
+    return te != null && handles.contains(te);
+  }
+
+  boolean isHandleType(TypeMirror t) {
+    t = erase(t);
+    return t != null && t.getKind() == TypeKind.DECLARED && isHandle(typeElement(t));
+  }
+
+  /** The Go type of a reference to class te: a pointer to its struct, or the handle type itself. */
+  String ref(TypeElement te) {
+    return isHandle(te) ? className(te) : "*" + className(te);
+  }
+
+  /** Go spelling of Java null at type t. */
+  String nil(TypeMirror t) {
+    if (kind(t) == K.STR) return "nullstr_";
+    return isHandleType(t) ? "0" : "nil";
+  }
+
+  static List<VariableElement> instanceFields(TypeElement te) {
+    List<VariableElement> out = new ArrayList<>();
+    for (Element e : te.getEnclosedElements()) {
+      if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC)) out.add((VariableElement) e);
+    }
+    return out;
+  }
+
+  /** The enum a handle-class field of type t stores by ordinal, or null. */
+  TypeElement storedEnum(TypeMirror t) {
+    TypeElement te = kind(t) == K.CLS ? typeElement(erase(t)) : null;
+    return te != null && te.getKind() == ElementKind.ENUM && isSource(te) ? te : null;
+  }
+
+  /** True if field f of a handle class holds no Go pointer: it lives in the record the collector never scans. */
+  boolean pointerFree(VariableElement f) {
+    return kind(f.asType()) == K.PRIM || isHandleType(f.asType()) || storedEnum(f.asType()) != null;
+  }
+
+  /** Go type of the stored form of handle-class field f. */
+  String storedType(VariableElement f) {
+    TypeElement en = storedEnum(f.asType());
+    if (en == null) return goType(f.asType());
+    return enumConstants(en) < 256 ? "uint8" : "uint16";
+  }
+
+  static int enumConstants(TypeElement en) {
+    int n = 0;
+    for (Element e : en.getEnclosedElements()) if (e.getKind() == ElementKind.ENUM_CONSTANT) n++;
+    return n;
+  }
+
+  /** The storage location of instance field f of the object recv (a Go lvalue). */
+  String fieldLoc(String recv, VariableElement f) {
+    if (!isHandle(ownerOf(f))) return recv + "." + fieldName(f);
+    return recv + (pointerFree(f) ? ".ns_()." : ".ps_().") + fieldName(f);
+  }
+
+  /** Go expression reading instance field f of recv, at the Go type of f's Java type. */
+  String fieldGet(String recv, VariableElement f) {
+    String loc = fieldLoc(recv, f);
+    TypeElement en = isHandle(ownerOf(f)) ? storedEnum(f.asType()) : null;
+    return en == null ? loc : className(en) + "_byOrd1_[" + loc + "]";
+  }
+
+  /** Go statement storing value (of the Go type of f's Java type) into instance field f of recv. */
+  String fieldSet(String recv, VariableElement f, String value) {
+    return fieldLoc(recv, f) + " = " + stored(f, value);
+  }
+
+  String stored(VariableElement f, String value) {
+    TypeElement en = f.getModifiers().contains(Modifier.STATIC) || !isHandle(ownerOf(f)) ? null : storedEnum(f.asType());
+    return en == null ? value : className(en) + "_ord1_(" + value + ")";
+  }
+
+  /** Registers the classes named in handles.txt and checks that each may be a handle class. */
+  void registerHandles(List<String> names) {
+    for (String qn : names) {
+      TypeElement te = elems.getTypeElement(qn);
+      if (te == null || !isSource(te)) {
+        handleErrors.add(qn + ": not a class of the translated sources");
+        continue;
+      }
+      TypeElement sup = typeElement(te.getSuperclass());
+      if (te.getKind() != ElementKind.CLASS) handleErrors.add(qn + ": is " + te.getKind().toString().toLowerCase() + ", not a plain class");
+      else if (sup == null || !sup.getQualifiedName().contentEquals("java.lang.Object")) handleErrors.add(qn + ": extends " + sup);
+      if (subclasses.containsKey(te)) handleErrors.add(qn + ": has subclasses: " + subclasses.get(te));
+      if (te.getNestingKind() != NestingKind.TOP_LEVEL && !te.getModifiers().contains(Modifier.STATIC)) {
+        handleErrors.add(qn + ": is an inner or local class (it would need an enclosing instance)");
+      }
+      for (Element e : te.getEnclosedElements()) {
+        if (e.getKind() == ElementKind.METHOD && e.getSimpleName().contentEquals("finalize") && ((ExecutableElement) e).getParameters().isEmpty()) {
+          handleErrors.add(qn + ": declares finalize(); handles are never collected");
+        }
+      }
+      handles.add(te);
+    }
+    for (TypeElement te : handles) {
+      for (VariableElement f : instanceFields(te)) {
+        TypeElement en = storedEnum(f.asType());
+        if (en != null) handleEnums.add(en);
+      }
+    }
+  }
+
   Ctx(Trees trees, Types types, Elements elems) {
     this.trees = trees;
     this.types = types;
@@ -296,7 +410,7 @@ final class Ctx {
       case PRIM: return primName(t.getKind());
       case STR: return "string";
       case ARR: return "[]" + goType(((ArrayType) t).getComponentType());
-      case CLS: return "*" + className(typeElement(t));
+      case CLS: return ref(typeElement(t));
       case IFACE: return className(typeElement(t));
       case VOID: return "";
       default: return "any";
@@ -317,6 +431,7 @@ final class Ctx {
   /** Expression (taking a canonical `any`) that yields a class-typed value as its most derived object. */
   String canon(String code, TypeMirror from) {
     TypeElement te = typeElement(erase(from));
+    if (isHandle(te)) return code + ".box_()";
     if (code.equals("this") && !hasSelf(te)) return "any(this)";
     if (hasSelf(te) && !isLeaf(te)) return code + ".self()";
     return "obj_(" + code + ")";
@@ -328,7 +443,7 @@ final class Ctx {
     to = erase(to);
     K kf = kind(from), kt = kind(to);
     if (kt == K.VOID) return code;
-    if (kf == K.NULL) return kt == K.STR ? "nullstr_" : "nil";
+    if (kf == K.NULL) return nil(to);
     if (kf == K.VOID) return code;
     String gf = goType(from), gt = goType(to);
     if (gf.equals(gt)) return code;
@@ -365,6 +480,7 @@ final class Ctx {
           case PRIM: src = "any(" + code + ")"; break;
           default: src = code;
         }
+        if (isHandle(tt)) return gt + "_of_(" + src + ")";
         if (isLeaf(tt)) return "cast_[" + gt + "](" + src + ")";
         return "to_" + className(tt) + "(" + src + ")";
       }

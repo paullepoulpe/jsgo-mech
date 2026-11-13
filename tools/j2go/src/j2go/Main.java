@@ -14,6 +14,86 @@ import javax.tools.*;
  * <pre>java -cp ... j2go.Main &lt;classpath&gt; &lt;outdir&gt; &lt;init-order-file or -&gt; @files.txt</pre>
  */
 public final class Main {
+  /**
+   * A handle is a number, not an object: code may compare handles with == and hash them by identity,
+   * but it cannot lock one, wait on one, clone one bitwise or hold one weakly.
+   */
+  static void checkHandleUses(Ctx cx, Trees trees, CompilationUnitTree cu) {
+    new TreePathScanner<Void, Void>() {
+      javax.lang.model.type.TypeMirror typeOf(Tree t) {
+        try {
+          return trees.getTypeMirror(new TreePath(getCurrentPath(), t));
+        } catch (RuntimeException ex) {
+          return null;
+        }
+      }
+
+      void fail(Tree t, TypeElement te, String what) {
+        long pos = trees.getSourcePositions().getStartPosition(cu, t);
+        cx.handleErrors.add(te.getQualifiedName() + ": " + what + " at " + cu.getSourceFile().getName() + ":" + (pos < 0 ? -1 : cu.getLineMap().getLineNumber(pos)));
+      }
+
+      TypeElement handleOf(Tree t) {
+        javax.lang.model.type.TypeMirror tm = typeOf(t);
+        return tm != null && cx.isHandleType(tm) ? Ctx.typeElement(cx.erase(tm)) : null;
+      }
+
+      TypeElement enclosingHandle() {
+        for (TreePath p = getCurrentPath(); p != null; p = p.getParentPath()) {
+          if (p.getLeaf() instanceof ClassTree) return trees.getElement(p) instanceof TypeElement te && cx.isHandle(te) ? te : null;
+        }
+        return null;
+      }
+
+      @Override
+      public Void visitSynchronized(SynchronizedTree t, Void v) {
+        TypeElement te = handleOf(t.getExpression());
+        if (te != null) fail(t, te, "synchronized on it");
+        return super.visitSynchronized(t, v);
+      }
+
+      @Override
+      public Void visitMethod(MethodTree t, Void v) {
+        if (t.getModifiers().getFlags().contains(Modifier.SYNCHRONIZED) && !t.getModifiers().getFlags().contains(Modifier.STATIC)) {
+          TypeElement te = enclosingHandle();
+          if (te != null) fail(t, te, "synchronized instance method");
+        }
+        return super.visitMethod(t, v);
+      }
+
+      @Override
+      public Void visitMethodInvocation(MethodInvocationTree t, Void v) {
+        Element e = trees.getElement(new TreePath(getCurrentPath(), t.getMethodSelect()));
+        if (e instanceof ExecutableElement m && !m.getModifiers().contains(Modifier.STATIC)
+            && ((TypeElement) m.getEnclosingElement()).getQualifiedName().contentEquals("java.lang.Object")
+            && Set.of("wait", "notify", "notifyAll", "clone", "finalize").contains(m.getSimpleName().toString())) {
+          TypeElement te = t.getMethodSelect() instanceof MemberSelectTree ms && !ms.getExpression().toString().equals("super")
+              ? handleOf(ms.getExpression()) : enclosingHandle();
+          if (te != null) fail(t, te, "Object." + m.getSimpleName() + "() on it");
+        }
+        return super.visitMethodInvocation(t, v);
+      }
+
+      @Override
+      public Void visitNewClass(NewClassTree t, Void v) {
+        javax.lang.model.type.TypeMirror tm = typeOf(t);
+        TypeElement made = tm == null ? null : Ctx.typeElement(cx.erase(tm));
+        if (made != null && (made.getQualifiedName().toString().startsWith("java.lang.ref.") || made.getQualifiedName().contentEquals("java.util.WeakHashMap"))) {
+          for (ExpressionTree arg : t.getArguments()) {
+            TypeElement te = handleOf(arg);
+            if (te != null) fail(t, te, "held by a " + made.getSimpleName());
+          }
+          if (tm instanceof javax.lang.model.type.DeclaredType dt) {
+            for (javax.lang.model.type.TypeMirror ta : dt.getTypeArguments()) {
+              if (cx.isHandleType(ta)) fail(t, Ctx.typeElement(cx.erase(ta)), "held by a " + made.getSimpleName());
+            }
+          }
+        }
+        return super.visitNewClass(t, v);
+      }
+    }.scan(cu, null);
+  }
+
   public static void main(String[] a) throws Exception {
     JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
     StandardJavaFileManager fm = jc.getStandardFileManager(null, null, null);
@@ -140,6 +220,23 @@ public final class Main {
       preload.add(task.getElements().getTypeElement(qn));
     }
     cx.registerSourcesDone();
+    // Handle classes: listed in the files named by J2GO_HANDLES (default tools/j2go/handles.txt).
+    List<String> handleNames = new ArrayList<>();
+    for (String hf : System.getenv().getOrDefault("J2GO_HANDLES", "tools/j2go/handles.txt").split(":")) {
+      if (hf.isEmpty() || !Files.exists(Path.of(hf))) continue;
+      for (String l : Files.readAllLines(Path.of(hf))) {
+        l = l.replaceAll("#.*", "").trim();
+        if (!l.isEmpty()) handleNames.add(l);
+      }
+    }
+    cx.registerHandles(handleNames);
+    if (!cx.handles.isEmpty()) {
+      for (CompilationUnitTree cu : units) checkHandleUses(cx, trees, cu);
+    }
+    if (!cx.handleErrors.isEmpty()) {
+      for (String e : cx.handleErrors) System.err.println("handle class " + e);
+      System.exit(1);
+    }
     cx.assignClassNames();
     cx.analyzeMethods();
     Files.createDirectories(out);

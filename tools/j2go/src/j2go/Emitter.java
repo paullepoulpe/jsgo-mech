@@ -175,11 +175,12 @@ final class Emitter extends StmtEmitter {
   void structDecl(ClassTree ct, TypeElement te) {
     String n = cx.className(te);
     TypeElement sup = cx.superclass(te);
-    StringBuilder sb = new StringBuilder("type " + n + " struct {\n");
+    boolean handle = cx.isHandle(te);
+    StringBuilder sb = new StringBuilder(handle ? "" : "type " + n + " struct {\n");
     if (sup != null) sb.append("\t").append(cx.className(sup)).append("\n");
     if (cx.declaresSelf(te)) sb.append("\tself_ any\n");
     ClassCtx c = cc();
-    if (c.hasOuter) sb.append("\touter_ *").append(cx.className(cx.enclosingClass(te))).append("\n");
+    if (c.hasOuter) sb.append("\touter_ ").append(cx.ref(cx.enclosingClass(te))).append("\n");
     for (VariableElement cap : c.captures) {
       sb.append("\tcap_").append(Ctx.safe(cap.getSimpleName().toString())).append(" ").append(cx.goType(cap.asType())).append("\n");
     }
@@ -192,14 +193,14 @@ final class Emitter extends StmtEmitter {
         if (fe.getKind() == ElementKind.ENUM_CONSTANT) {
           enumConsts.add(v);
         } else if (!fe.getModifiers().contains(Modifier.STATIC)) {
-          sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.goType(fe.asType())).append("\n");
+          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.goType(fe.asType())).append("\n");
           if (v.getInitializer() != null) instanceInits.add(v);
         }
       } else if (m instanceof BlockTree b && !b.isStatic()) {
         instanceInits.add(b);
       }
     }
-    sb.append("}\n\n");
+    sb.append(handle ? handleDecl(te) : "}\n\n");
     boolean leaf = cx.isLeaf(te);
     if (!leaf) {
       sb.append("func (this *").append(n).append(") as_").append(n).append("() *").append(n).append(" { return this }\n\n");
@@ -219,18 +220,18 @@ final class Emitter extends StmtEmitter {
           .append(" {\n\tif this == nil {\n\t\treturn nil\n\t}\n\treturn &this.").append(an).append("\n}\n\n");
     }
     if (needsZero(te)) {
-      sb.append("func (this *").append(n).append(") zero_").append(n).append("() {\n");
+      sb.append(recv(te)).append("zero_").append(n).append("() {\n");
       if (needsZero(sup)) sb.append("\tthis.").append(cx.className(sup)).append(".zero_").append(cx.className(sup)).append("()\n");
       for (Element e : te.getEnclosedElements()) {
         if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) {
-          sb.append("\tthis.").append(cx.fieldName((VariableElement) e)).append(" = nullstr_\n");
+          sb.append("\t").append(cx.fieldLoc("this", (VariableElement) e)).append(" = nullstr_\n");
         }
       }
       sb.append("}\n\n");
     }
     file.append(sb);
     boolean hasFinit = !instanceInits.isEmpty();
-    if (hasFinit) guarded("field initializers of " + n, () -> finit(n, instanceInits));
+    if (hasFinit) guarded("field initializers of " + n, () -> finit(te, n, instanceInits));
     boolean anyCtor = false;
     for (Tree m : ct.getMembers()) {
       if (m instanceof MethodTree mt && mt.getName().contentEquals("<init>")) {
@@ -252,7 +253,66 @@ final class Emitter extends StmtEmitter {
     statics(ct, te, enumConsts);
   }
 
-  void finit(String n, List<Tree> inits) {
+  /** Receiver clause of an instance method of class te. */
+  String recv(TypeElement te) {
+    return "func (this " + cx.ref(te) + ") ";
+  }
+
+  /**
+   * The storage of a handle class: the handle type, one record type for the fields the collector need
+   * not look at and one for the others, the chunk tables, the accessors and the allocator.
+   */
+  String handleDecl(TypeElement te) {
+    String n = cx.className(te);
+    List<VariableElement> ns = new ArrayList<>(), ps = new ArrayList<>();
+    for (VariableElement f : Ctx.instanceFields(te)) (cx.pointerFree(f) ? ns : ps).add(f);
+    // Widest first, so that the pointer-free record has no padding between fields.
+    ns.sort(Comparator.comparingInt((VariableElement f) -> -storedSize(f)));
+    StringBuilder sb = new StringBuilder("type " + n + " uint32\n\n");
+    StringBuilder alloc = new StringBuilder();
+    for (int k = 0; k < 2; k++) {
+      String rec = n + (k == 0 ? "_ns_" : "_ps_"), acc = k == 0 ? "ns_" : "ps_", tab = n + "_" + acc + "chunks_";
+      sb.append("type ").append(rec).append(" struct {\n");
+      for (VariableElement f : k == 0 ? ns : ps) sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
+      sb.append("}\n\n");
+      sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]").append(rec).append("\n\n");
+      sb.append(recv(te)).append(acc).append("() *").append(rec).append(" {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
+      alloc.append("\t\t").append(tab).append("[h>>handleShift_] = new([handleChunkSize_]").append(rec).append(")\n");
+    }
+    // Chunk 0 is never allocated: handle 0 is null, and reaching for its record is a nil dereference.
+    sb.append("var ").append(n).append("_count_ uint32 = handleChunkSize_\n\n");
+    sb.append("func ").append(n).append("_alloc_() ").append(n).append(" {\n\th := ").append(n).append("_count_\n\tif uint16(h) == 0 {\n\t\thandleGrow_(h)\n")
+        .append(alloc).append("\t}\n\t").append(n).append("_count_ = h + 1\n\treturn ").append(n).append("(h)\n}\n\n");
+    sb.append(recv(te)).append("handle_() uint32 {\n\treturn uint32(this)\n}\n\n");
+    sb.append(recv(te)).append("box_() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn this\n}\n\n");
+    sb.append("func ").append(n).append("_of_(v any) ").append(n).append(" {\n\tif v == nil {\n\t\treturn 0\n\t}\n\treturn v.(").append(n).append(")\n}\n\n");
+    // For JSGO_HANDLE_STATS: how many objects exist and how often each field is set.
+    sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + ps.size()).append("]int\n")
+        .append("\t\tfor h := ").append(n).append("(handleChunkSize_); uint32(h) < ").append(n).append("_count_; h++ {\n");
+    StringBuilder names = new StringBuilder();
+    int i = 0;
+    for (List<VariableElement> l : List.of(ns, ps)) {
+      for (VariableElement f : l) {
+        String loc = cx.fieldLoc("h", f), gt = cx.storedType(f);
+        String unset = cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\"" : loc + " == " + (gt.equals("bool") ? "false" : cx.pointerFree(f) ? "0" : "nil");
+        sb.append("\t\t\tif !(").append(unset).append(") {\n\t\t\t\tc[").append(i++).append("]++\n\t\t\t}\n");
+        names.append(quote(f.getSimpleName() + " (" + gt + (l == ns ? ", pointer-free)" : ")"))).append(", ");
+      }
+    }
+    sb.append("\t\t}\n\t\treturn handleStatsText_(").append(quote(n)).append(", ").append(n).append("_count_, []string{").append(names).append("}, c[:])\n\t})\n}\n\n");
+    return sb.toString();
+  }
+
+  int storedSize(VariableElement f) {
+    switch (cx.storedType(f)) {
+      case "int64", "float64": return 8;
+      case "int16", "uint16": return 2;
+      case "int8", "uint8", "bool": return 1;
+      default: return 4;
+    }
+  }
+
+  void finit(TypeElement te, String n, List<Tree> inits) {
     mc = new MethodCtx();
     StringBuilder b = new StringBuilder();
     for (Tree t : inits) {
@@ -261,12 +321,12 @@ final class Emitter extends StmtEmitter {
         TypeMirror ft = cx.erase(f.asType());
         ExpressionTree init = v.getInitializer();
         String val = init instanceof NewArrayTree na && na.getType() == null ? newArray(na, (ArrayType) ft) : exprAs(init, ft);
-        b.append(withPre("this." + cx.fieldName(f) + " = " + val)).append("\n");
+        b.append(withPre(cx.fieldSet("this", f, val))).append("\n");
       } else {
         b.append("{\n").append(indent(blockCode((BlockTree) t), "\t")).append("}\n");
       }
     }
-    file.append("func (this *").append(n).append(") finit_").append(n).append("() {\n").append(indent(guards() + finish(b.toString()), "\t")).append("\n}\n\n");
+    file.append(recv(te)).append("finit_").append(n).append("() {\n").append(indent(guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     mc = null;
   }
 
@@ -323,7 +383,7 @@ final class Emitter extends StmtEmitter {
     ClassCtx c = cc();
     StringBuilder d = new StringBuilder(), set = new StringBuilder();
     if (c.hasOuter) {
-      d.append("outer_ *").append(cx.className(cx.enclosingClass(te)));
+      d.append("outer_ ").append(cx.ref(cx.enclosingClass(te)));
       set.append("this.outer_ = outer_\n");
     }
     for (VariableElement cap : c.captures) {
@@ -342,7 +402,7 @@ final class Emitter extends StmtEmitter {
         if (cx.hasClinit(c) && c.getKind() != ElementKind.ENUM && !enumLike(c)) b.append(cx.className(c)).append("_clinit()\n");
       }
     }
-    b.append("this := &" + n + "{}\n");
+    b.append(cx.isHandle(te) ? "this := " + n + "_alloc_()\n" : "this := &" + n + "{}\n");
     if (cx.hasSelf(te)) b.append("this.self_ = this\n");
     if (needsZero(te)) b.append("this.zero_").append(n).append("()\n");
     return b.toString();
@@ -361,9 +421,9 @@ final class Emitter extends StmtEmitter {
       else b.append("this.").append(cx.className(sup)).append(".init_").append(cx.className(sup)).append("(").append(enumArgs).append(")\n");
     }
     if (hasFinit) b.append("this.finit_").append(n).append("()\n");
-    file.append("func (this *").append(n).append(") init_").append(n).append("(").append(enumDecl).append(") {\n").append(indent(b.toString(), "\t")).append("}\n\n");
+    file.append(recv(te)).append("init_").append(n).append("(").append(enumDecl).append(") {\n").append(indent(b.toString(), "\t")).append("}\n\n");
     if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
-      file.append("func new_").append(n).append("(").append(join(extras[0], enumDecl)).append(") *").append(n).append(" {\n")
+      file.append("func new_").append(n).append("(").append(join(extras[0], enumDecl)).append(") ").append(cx.ref(te)).append(" {\n")
           .append(indent(newPrologue(te, n) + extras[1] + "this.init_" + n + "(" + enumArgs + ")\nreturn this\n", "\t")).append("}\n\n");
     }
   }
@@ -419,11 +479,11 @@ final class Emitter extends StmtEmitter {
       b.append(stmts(body.subList(start, body.size())));
     }
     String init = cx.ctorName(e, "init_");
-    file.append("func (this *").append(n).append(") ").append(init).append("(").append(join(enumDecl, p.decl)).append(") {\n")
+    file.append(recv(te)).append(init).append("(").append(join(enumDecl, p.decl)).append(") {\n")
         .append(indent(guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     if (!te.getModifiers().contains(Modifier.ABSTRACT)) {
       String[] extras = creationExtras(te);
-      file.append("func ").append(cx.ctorName(e, "new_")).append("(").append(join(extras[0], enumDecl, p.decl)).append(") *").append(n).append(" {\n")
+      file.append("func ").append(cx.ctorName(e, "new_")).append("(").append(join(extras[0], enumDecl, p.decl)).append(") ").append(cx.ref(te)).append(" {\n")
           .append(indent(newPrologue(te, n) + extras[1] + "this." + init + "(" + join(enumArgs, p.names) + ")\nreturn this\n", "\t")).append("}\n\n");
     }
     mc = null;
@@ -486,7 +546,7 @@ final class Emitter extends StmtEmitter {
     } else {
       ret = cx.groupReturn(e);
       p = params(mt.getParameters(), cx.groupParams(e));
-      head = "func (this *" + n + ") " + cx.implName(e, te) + "(" + p.decl + ")";
+      head = recv(te) + cx.implName(e, te) + "(" + p.decl + ")";
     }
     mc.isVoid = ret.getKind() == TypeKind.VOID;
     mc.ret = mc.isVoid ? null : ret;
@@ -525,7 +585,7 @@ final class Emitter extends StmtEmitter {
       } else {
         body = "panic(\"abstract method " + n + "." + name + "\")";
       }
-      file.append("func (this *").append(n).append(") ").append(name).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t").append(body).append("\n}\n\n");
+      file.append(recv(te)).append(name).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t").append(body).append("\n}\n\n");
     }
   }
 
@@ -538,7 +598,7 @@ final class Emitter extends StmtEmitter {
       List<TypeMirror> ps = cx.groupParams(dm);
       TypeMirror ret = cx.groupReturn(dm);
       String self = cx.coerce("this", te.asType(), it.asType());
-      file.append("func (this *").append(n).append(") ").append(cx.implName(dm, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
+      file.append(recv(te)).append(cx.implName(dm, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
           .append(ret.getKind() == TypeKind.VOID ? "" : "return ").append(cx.className(it)).append("_").append(cx.methodName(dm)).append("_default(")
           .append(join(self, argNames(ps.size()))).append(")\n}\n\n");
     }
@@ -621,7 +681,7 @@ final class Emitter extends StmtEmitter {
       List<TypeMirror> ps = cx.groupParams(dm);
       TypeMirror ret = cx.groupReturn(dm);
       String self = cx.coerce("this", te.asType(), cx.ownerOf(dm).asType());
-      file.append("func (this *").append(n).append(") ").append(cx.implName(dm, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
+      file.append(recv(te)).append(cx.implName(dm, te)).append(paramList(ps)).append(retSuffix(ret)).append(" {\n\t")
           .append(cx.defaultBridgeBody(dm, self)).append("\n}\n\n");
     }
   }
@@ -734,6 +794,15 @@ final class Emitter extends StmtEmitter {
       decls.append("var ").append(n).append("_values_ []*").append(n).append("\n");
       init.append(n).append("_values_ = []*").append(n).append("{").append(String.join(", ", constNames)).append("}\n");
       init.append("registerEnum_(").append(quote(cx.erase(te.asType()).toString())).append(", enumValues_(").append(n).append("_values_))\n");
+      if (cx.handleEnums.contains(te)) {
+        // Fields of handle classes hold this enum as ordinal+1 (0 is null); these convert both ways.
+        boolean small = Ctx.enumConstants(te) < 256;
+        String ot = small ? "uint8" : "uint16";
+        decls.append("var ").append(n).append("_byOrd1_ [").append(small ? 256 : 65536).append("]*").append(n).append("\n");
+        init.append("for i_, v_ := range ").append(n).append("_values_ {\n\t").append(n).append("_byOrd1_[i_+1] = v_\n}\n");
+        file.append("func ").append(n).append("_ord1_(v *").append(n).append(") ").append(ot).append(" {\n\tif v == nil {\n\t\treturn 0\n\t}\n\treturn ")
+            .append(ot).append("(v.Enum.ordinal_ + 1)\n}\n\n");
+      }
       file.append("func ").append(n).append("_values() []*").append(n).append(" {\n\treturn append([]*").append(n).append("(nil), ").append(n).append("_values_...)\n}\n\n");
       file.append("func ").append(n).append("_valueOf(name string) *").append(n).append(" {\n\tfor _, v := range ").append(n)
           .append("_values_ {\n\t\tif v.Enum.name() == name {\n\t\t\treturn v\n\t\t}\n\t}\n\tpanic(enumValueOfFail_(").append(quote(te.getSimpleName().toString())).append(", name))\n}\n\n");

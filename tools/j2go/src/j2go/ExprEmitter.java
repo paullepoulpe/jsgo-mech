@@ -409,7 +409,7 @@ abstract class ExprEmitter extends Base {
         if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
         Recv r = implicitRecv(cx.ownerOf(f));
         noteField(f);
-        return cx.coerce(r.code + "." + cx.fieldName(f), f.asType(), typeOf(t));
+        return cx.coerce(cx.fieldGet(r.code, f), f.asType(), typeOf(t));
       }
       default:
         throw unsupported(t, "identifier of kind " + e.getKind());
@@ -442,7 +442,6 @@ abstract class ExprEmitter extends Base {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
         if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
-        String fn = cx.fieldName(f);
         noteField(f);
         String recv;
         if (q instanceof IdentifierTree id && id.getName().contentEquals("super")) {
@@ -450,7 +449,7 @@ abstract class ExprEmitter extends Base {
         } else {
           recv = expr(q);
         }
-        return cx.coerce(recv + "." + fn, f.asType(), typeOf(t));
+        return cx.coerce(cx.fieldGet(recv, f), f.asType(), typeOf(t));
       }
       default:
         throw unsupported(t, "member of kind " + e.getKind());
@@ -466,6 +465,8 @@ abstract class ExprEmitter extends Base {
   static final class LValue {
     String code;
     TypeMirror type;
+    /** The field assigned, when its stored form may differ from its value (Ctx.stored). */
+    VariableElement field;
   }
 
   LValue lvalue(ExpressionTree t0) {
@@ -483,7 +484,8 @@ abstract class ExprEmitter extends Base {
       VariableElement f = (VariableElement) e;
       lv.type = cx.erase(f.asType());
       if (f.getModifiers().contains(Modifier.STATIC)) lv.code = staticField(f);
-      else lv.code = implicitRecv(cx.ownerOf(f)).code + "." + cx.fieldName(f);
+      else lv.code = cx.fieldLoc(implicitRecv(cx.ownerOf(f)).code, f);
+      lv.field = f;
       noteField(f);
       return lv;
     }
@@ -495,8 +497,9 @@ abstract class ExprEmitter extends Base {
       } else {
         ExpressionTree q = ms.getExpression();
         String recv = q instanceof IdentifierTree id && id.getName().contentEquals("super") ? "this" : expr(q);
-        lv.code = recv + "." + cx.fieldName(f);
+        lv.code = cx.fieldLoc(recv, f);
       }
+      lv.field = f;
       return lv;
     }
     if (t instanceof ArrayAccessTree a) {
@@ -661,8 +664,7 @@ abstract class ExprEmitter extends Base {
       ExpressionTree x = kl == Ctx.K.NULL ? r : l;
       Ctx.K kx = kl == Ctx.K.NULL ? kr : kl;
       if (kx == Ctx.K.NULL) return op.equals("==") ? "true" : "false";
-      if (kx == Ctx.K.STR) return "(" + expr(x) + " " + op + " nullstr_)";
-      return "(" + expr(x) + " " + op + " nil)";
+      return "(" + expr(x) + " " + op + " " + cx.nil(kl == Ctx.K.NULL ? tr : tl) + ")";
     }
     if (kl == Ctx.K.PRIM || kr == Ctx.K.PRIM) {
       TypeMirror p = promote(tl, tr);
@@ -1235,7 +1237,8 @@ abstract class ExprEmitter extends Base {
       case ASSIGNMENT: {
         AssignmentTree a = (AssignmentTree) t;
         LValue lv = lvalue(a.getVariable());
-        return lv.code + " = " + exprAs(a.getExpression(), lv.type);
+        String val = exprAs(a.getExpression(), lv.type);
+        return lv.code + " = " + (lv.field == null ? val : cx.stored(lv.field, val));
       }
       case POSTFIX_INCREMENT, POSTFIX_DECREMENT, PREFIX_INCREMENT, PREFIX_DECREMENT:
         return incDecStmt((UnaryTree) t);

@@ -24,6 +24,7 @@ segment appended.
 | `int`, `long`, `char`, `boolean`, `double`… | `int32`, `int64`, `uint16`, `bool`, `float64`… |
 | `String` | `string` (UTF-8); `null` is the constant `nullstr_` |
 | class, enum, record | pointer to a struct |
+| handle class (see below) | `uint32` handle |
 | interface | Go interface |
 | `Object`, boxed primitives, type variables | `any` |
 | array | slice |
@@ -41,6 +42,30 @@ through `self_` (the most-derived object, stored once at construction) to
 pointer to a superclass pointer, `to_Sub(v)` converts back, and a class-typed
 value placed in an `any` or an interface is always the most-derived pointer, so
 that identity and type tests work.
+
+**Handle classes.** A class named in `tools/j2go/handles.txt` (today only
+`com.google.javascript.rhino.Node`) is not a pointer to a struct but a 32-bit
+handle, `type C uint32`, with 0 for `null`. Its instance fields are split by
+type into two generated records per object: `C_ns_` for the fields that hold no
+Go pointer (primitives, references to handle classes, and enum-typed fields,
+kept as ordinal+1 and converted through the table `E_byOrd1_`), and `C_ps_` for
+the rest. Records live in chunks of 65536 that are allocated on demand and
+never moved or freed; a chunk of `C_ns_` records has no pointers, so the
+collector never scans it and never follows a link between two such objects.
+`x.f` becomes `x.ns_().f` or `x.ps_().f`; the accessor is an index into a table
+of chunks. Chunk 0 is never allocated, so using the fields of handle 0 is a Go
+nil dereference, which the runtime already reports as a
+`NullPointerException`. Methods take the handle by value
+(`func (this C) m()`), `new_C…` returns a handle from `C_alloc_()`, and a handle
+that goes into an `any` (erased generics, `Object`) is boxed by `x.box_()` and
+unboxed by `C_of_(v)`; `null` is a nil `any`, never a boxed 0. Everything else
+(arrays `[]C`, `==`, `instanceof`, casts, lambdas, varargs) follows from the Go
+type. The translator refuses a handle class that is not a plain class without a
+superclass or subclasses, is an inner class, declares `finalize`, or is used
+with `synchronized`, `wait`/`notify`, `Object.clone` or a weak reference;
+nothing in the translator knows a class by name. `JSGO_HANDLE_STATS=1` makes the
+Go program print, at exit, how many objects of each handle class exist and how
+often each field is set. `go/closure/rt_handles.go` is the handwritten part.
 
 **Constructors.** `new_C(args)` allocates, `init_C(args)` runs the constructor
 body (calling the superclass's `init_`), `finit_C()` runs field initializers.

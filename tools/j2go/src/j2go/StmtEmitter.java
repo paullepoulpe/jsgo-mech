@@ -277,8 +277,11 @@ abstract class StmtEmitter extends ExprEmitter {
       }
       case SWITCH:
         return switchStmt((SwitchTree) s);
-      case SYNCHRONIZED:
-        return "{\n" + indent(blockCode(((SynchronizedTree) s).getBlock()), "\t") + "}";
+      case SYNCHRONIZED: {
+        SynchronizedTree t = (SynchronizedTree) s;
+        if (cx.isHandleType(typeOf(t.getExpression()))) throw unsupported(s, "synchronized on a handle class");
+        return "{\n" + indent(blockCode(t.getBlock()), "\t") + "}";
+      }
       case RETURN: {
         ReturnTree t = (ReturnTree) s;
         if (t.getExpression() == null) return returnCode(null);
@@ -543,7 +546,7 @@ abstract class StmtEmitter extends ExprEmitter {
           pendingDefault = true;
         } else if (l instanceof ConstantCaseLabelTree cl) {
           ExpressionTree ce = cl.getConstantExpression();
-          if (ce.getKind() == Tree.Kind.NULL_LITERAL) pendingLabels.add(patterns ? "sel_ == nil" : "nil");
+          if (ce.getKind() == Tree.Kind.NULL_LITERAL) pendingLabels.add(patterns ? "sel_ == " + cx.nil(selType) : cx.nil(selType));
           else pendingLabels.add(patterns ? "sel_ == " + caseLabel(ce, selType) : caseLabel(ce, selType));
         } else if (l instanceof PatternCaseLabelTree pl) {
           if (!(pl.getPattern() instanceof BindingPatternTree bp)) throw unsupported(c, "case pattern");

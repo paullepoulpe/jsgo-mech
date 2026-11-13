@@ -1,0 +1,4 @@
+# Handle classes: fully-qualified names of classes whose objects the Go translation represents
+# as a 32-bit handle into a store (type C uint32; 0 is null) instead of a pointer to a struct.
+# The translator checks each one (tools/j2go/README.md, "Handle classes").
+com.google.javascript.rhino.Node
