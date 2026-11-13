@@ -47,6 +47,7 @@ import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.ZipArchive;
 import com.google.javascript.jscomp.base.SimpleJsonException;
 import com.google.javascript.jscomp.base.SimpleJsonValue;
@@ -56,6 +57,7 @@ import com.google.javascript.jscomp.deps.SourceCodeEscapers;
 import com.google.javascript.jscomp.ijs.IjsErrors;
 import com.google.javascript.jscomp.js.RuntimeJsLibManager;
 import com.google.javascript.jscomp.parsing.Config;
+import com.google.javascript.jscomp.resources.ResourceLoader;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.TokenStream;
@@ -144,9 +146,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   private final Io.Input in;
 
-  private final Io.Output defaultJsOutput;
+  private final Output defaultJsOutput;
 
-  private final Io.Output err;
+  private final Output err;
 
   private A compiler;
 
@@ -188,14 +190,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   private final List<JsonFileSpec> filesToStreamOut = new ArrayList<>();
 
   AbstractCommandLineRunner() {
-    this(Io.stdin(), Io.stdout(), Io.stderr());
+    this(Io.stdin(), Output.stdout(), Output.stderr());
   }
 
-  AbstractCommandLineRunner(Io.Output out, Io.Output err) {
+  AbstractCommandLineRunner(Output out, Output err) {
     this(Io.stdin(), out, err);
   }
 
-  AbstractCommandLineRunner(Io.Input in, Io.Output out, Io.Output err) {
+  AbstractCommandLineRunner(Io.Input in, Output out, Output err) {
     this.config = new CommandLineConfig();
     this.in = checkNotNull(in);
     this.defaultJsOutput = checkNotNull(out);
@@ -463,7 +465,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     options.setAngularPass(config.angularPass);
 
     if (!config.jsonWarningsFile.isEmpty()) {
-      Outcome<Io.Output> jsonWarnings = Io.openOutput(config.jsonWarningsFile, Charsets.UTF_8, false);
+      Outcome<Output> jsonWarnings = Output.open(config.jsonWarningsFile, Charsets.UTF_8, false);
       if (jsonWarnings.isErr()) {
         return Outcome.err(jsonWarnings.error());
       }
@@ -541,15 +543,15 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   protected abstract String getVersionText();
 
   private static Outcome<byte[]> getExternsInput() {
-    Outcome<byte[]> input = Io.readResource(AbstractCommandLineRunner.class, "/externs.zip");
-    if (input.isOk() && input.get() == null) {
-      // In some environments, the externs.zip is relative to this class.
-      input = Io.readResource(AbstractCommandLineRunner.class, "externs.zip");
+    Optional<byte[]> input = Io.readResource("externs.zip");
+    if (input.isEmpty()) {
+      // In some environments, the externs.zip is next to this class.
+      input = Io.readResource(ResourceLoader.JSCOMP + "externs.zip");
     }
-    if (input.isOk()) {
-      checkNotNull(input.get());
+    if (input.isEmpty()) {
+      return Outcome.err(new IOException("Cannot read zip file externs.zip"));
     }
-    return input;
+    return Outcome.ok(input.get());
   }
 
   /** Runs the Compiler and calls System.exit() with the exit status of the compiler. */
@@ -561,8 +563,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         if (resultOutcome.error() instanceof FlagUsageException e) {
           err.println(e.getMessage());
           result = -1;
+        } else if (resultOutcome.error() instanceof IOException e) {
+          // An I/O failure: its message says which file and what went wrong.
+          err.println("ERROR - " + e.getMessage());
+          result = -2;
         } else {
-          // An I/O failure: reported like any unexpected failure of the run.
           err.printStackTrace(resultOutcome.error());
           result = -2;
         }
@@ -578,13 +583,22 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   }
 
   /** Returns the PrintStream for writing errors associated with this AbstractCommandLineRunner. */
-  protected final Io.Output getErrorPrintStream() {
+  protected final Output getErrorPrintStream() {
     return err;
+  }
+
+  /** All of standard input, as text in the input charset (invalid bytes become U+FFFD). */
+  private Outcome<String> readStdin() {
+    Outcome<byte[]> bytes = this.in.readBytes();
+    if (bytes.isErr()) {
+      return Outcome.err(bytes.error());
+    }
+    return Outcome.ok(Charsets.decode(bytes.get(), inputCharset));
   }
 
   public Outcome<List<JsonFileSpec>> parseJsonFilesFromInputStream() throws IOException {
     List<JsonFileSpec> jsonFiles = new ArrayList<>();
-    Outcome<String> json = this.in.readText(inputCharset);
+    Outcome<String> json = readStdin();
     if (json.isErr()) {
       return Outcome.err(json.error());
     }
@@ -720,7 +734,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         }
 
         this.err.println(WAITING_FOR_INPUT_WARNING);
-        Outcome<String> stdinCode = this.in.readText(inputCharset);
+        Outcome<String> stdinCode = readStdin();
         if (stdinCode.isErr()) {
           throw new RuntimeException(stdinCode.error());
         }
@@ -1207,7 +1221,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   private Outcome<Appendable> createDefaultOutput() {
     boolean writeOutputToFile = !config.jsOutputFile.isEmpty();
     if (writeOutputToFile) {
-      Outcome<Io.Output> output = fileNameToLegacyOutputWriter(Optional.of(config.jsOutputFile));
+      Outcome<Output> output = fileNameToLegacyOutputWriter(Optional.of(config.jsOutputFile));
       if (output.isErr()) {
         return Outcome.err(output.error());
       }
@@ -1218,7 +1232,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   }
 
   private static Outcome<Void> closeAppendable(Appendable output) {
-    if (output instanceof Io.Output out) {
+    if (output instanceof Output out) {
       out.flush();
       return closeOutput(out);
     }
@@ -1226,11 +1240,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   }
 
   // I/O failures in this class are error outcomes carrying the IOException, like the flag usage
-  // errors; run() tells the two apart and ends the run on an I/O failure with a stack trace and
-  // exit status -2, as it always did.
+  // errors; run() tells the two apart and ends the run on an I/O failure with "ERROR - " and the
+  // failure's message, and exit status -2 as it always did.
 
   /** Closes the output, if there is one; a failed write or close of it is an I/O failure. */
-  private static Outcome<Void> closeOutput(Io.@Nullable Output output) {
+  private static Outcome<Void> closeOutput(@Nullable Output output) {
     if (output != null) {
       return output.close();
     }
@@ -1763,11 +1777,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
       // Output the externs if required.
       if (options.getExternExportsPath().isPresent()) {
-        Outcome<Io.Output> eeOutOutcome = openExternExportsStream(options, config.jsOutputFile);
+        Outcome<Output> eeOutOutcome = openExternExportsStream(options, config.jsOutputFile);
         if (eeOutOutcome.isErr()) {
           return Outcome.err(eeOutOutcome.error());
         }
-        Io.Output eeOut = eeOutOutcome.get();
+        Output eeOut = eeOutOutcome.get();
         Outcome<Void> eeOutClosed;
         try {
           eeOut.append(result.externExport.orElse(null));
@@ -1906,7 +1920,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
     jsonWriter.endArray();
     // The JSON goes to the output stream as UTF-8, and the stream is closed.
-    Io.Output out = defaultJsOutput.encodedAs(Charsets.UTF_8);
+    Output out = defaultJsOutput.encodedAs(Charsets.UTF_8);
     out.print(jsonWriter.toString());
     Outcome<Void> outClosed1 = closeOutput(out);
     if (outClosed1.isErr()) {
@@ -1932,7 +1946,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     // If the source map path is in fact a pattern for each
     // chunk, create a stream per-chunk. Otherwise, create
     // a single source map.
-    Io.Output mapFileOut = null;
+    Output mapFileOut = null;
 
     // When the json_streams flag is specified, sourcemaps are always generated
     // per chunk
@@ -1962,7 +1976,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
           if (sourceMapPath.isErr()) {
             return Outcome.err(sourceMapPath.error());
           }
-          Outcome<Io.Output> mapFileOutOutcome = fileNameToOutputWriter2(Optional.ofNullable(sourceMapPath.get()));
+          Outcome<Output> mapFileOutOutcome = fileNameToOutputWriter2(Optional.ofNullable(sourceMapPath.get()));
           if (mapFileOutOutcome.isErr()) {
             return Outcome.err(mapFileOutOutcome.error());
           }
@@ -1975,11 +1989,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         }
         String chunkFilename = chunkFilenameOutcome.get();
         maybeCreateDirsForPath(chunkFilename);
-        Outcome<Io.Output> writerOutcome = fileNameToLegacyOutputWriter(Optional.of(chunkFilename));
+        Outcome<Output> writerOutcome = fileNameToLegacyOutputWriter(Optional.of(chunkFilename));
         if (writerOutcome.isErr()) {
           return Outcome.err(writerOutcome.error());
         }
-        Io.Output writer = writerOutcome.get();
+        Output writer = writerOutcome.get();
         Outcome<Void> writerClosed;
         try {
           if (options.shouldGatherSourceMapInfo()) {
@@ -2129,7 +2143,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @param path The path of the generated JS source file.
    * @return The stream or null if no extern-ed exports are being generated.
    */
-  private Outcome<Io.@Nullable Output> openExternExportsStream(B options, String path) {
+  private Outcome<@Nullable Output> openExternExportsStream(B options, String path) {
     final Optional<String> externExportsPath = options.getExternExportsPath();
     if (externExportsPath.isEmpty()) {
       return Outcome.ok(null);
@@ -2186,12 +2200,12 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * Converts a file name into an output taking in account the output charset. Returns null if the
    * file name is null.
    */
-  private Outcome<Io.@Nullable Output> fileNameToLegacyOutputWriter(Optional<String> fileName) {
+  private Outcome<@Nullable Output> fileNameToLegacyOutputWriter(Optional<String> fileName) {
     if (fileName.isEmpty()) {
       return Outcome.ok(null);
     }
     if (isInTestMode()) {
-      return Outcome.ok(Io.nullOutput());
+      return Outcome.ok(Output.discard());
     }
 
     return openOutputFile(fileName.get(), legacyOutputCharset.orElse(Charsets.UTF_8));
@@ -2201,24 +2215,24 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * Converts a file name into an output taking in account the output charset. Returns null if the
    * file name is null.
    */
-  private Outcome<Io.@Nullable Output> fileNameToOutputWriter2(Optional<String> fileName) {
+  private Outcome<@Nullable Output> fileNameToOutputWriter2(Optional<String> fileName) {
     if (fileName.isEmpty()) {
       return Outcome.ok(null);
     }
     if (isInTestMode()) {
-      return Outcome.ok(Io.nullOutput());
+      return Outcome.ok(Output.discard());
     }
 
     return openOutputFile(fileName.get(), outputCharset2.orElse(Charsets.UTF_8));
   }
 
   /** Creates (or empties) the file and returns a buffered output that encodes with the charset. */
-  private static Outcome<Io.Output> openOutputFile(String fileName, String charset) {
-    return Io.openOutput(fileName, charset, false);
+  private static Outcome<Output> openOutputFile(String fileName, String charset) {
+    return Output.open(fileName, charset, false);
   }
 
   /** Create a writer with the legacy output charset. */
-  private Io.Output streamToLegacyOutputWriter(Io.Output stream) {
+  private Output streamToLegacyOutputWriter(Output stream) {
     if (legacyOutputCharset.isEmpty()) {
       return stream.encodedAs(Charsets.UTF_8);
     } else {
@@ -2243,11 +2257,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
     String outName = outNameOutcome.get();
     maybeCreateDirsForPath(outName);
-    Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(Optional.of(outName));
+    Outcome<Output> outOutcome = fileNameToOutputWriter2(Optional.of(outName));
     if (outOutcome.isErr()) {
       return Outcome.err(outOutcome.error());
     }
-    Io.Output out = outOutcome.get();
+    Output out = outOutcome.get();
     Outcome<Void> outClosed;
     try {
       compiler.getSourceMap().appendTo(out, Optional.of(associatedName));
@@ -2360,13 +2374,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       if (compiler.getStringMap() == null) {
         // Ensure an empty file is created if there is no string map.
         // This avoids confusing some build tools that expect to see the file, even if it is empty.
-        Outcome<Boolean> created = Io.createNewFile(config.stringMapOutputPath);
-        if (created.isErr()) {
-          return Outcome.err(created.error());
-        }
-        if (!created.get()) {
+        if (Io.exists(config.stringMapOutputPath)) {
           return Outcome.err(
               new IOException("Could not create file: " + config.stringMapOutputPath));
+        }
+        Outcome<Void> created = Io.writeBytes(config.stringMapOutputPath, new byte[0]);
+        if (created.isErr()) {
+          return Outcome.err(created.error());
         }
       } else {
         Outcome<Void> savedStringMap = compiler.getStringMap().save(config.stringMapOutputPath);
@@ -2497,11 +2511,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
           if (chunkOutputPath.isErr()) {
             return Outcome.err(chunkOutputPath.error());
           }
-          Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(Optional.ofNullable(chunkOutputPath.get()));
+          Outcome<Output> outOutcome = fileNameToOutputWriter2(Optional.ofNullable(chunkOutputPath.get()));
           if (outOutcome.isErr()) {
             return Outcome.err(outOutcome.error());
           }
-          Io.Output out = outOutcome.get();
+          Output out = outOutcome.get();
           Outcome<Void> outClosed;
           try {
             if (isManifest) {
@@ -2525,11 +2539,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         if (outputPath.isErr()) {
           return Outcome.err(outputPath.error());
         }
-        Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(Optional.ofNullable(outputPath.get()));
+        Outcome<Output> outOutcome = fileNameToOutputWriter2(Optional.ofNullable(outputPath.get()));
         if (outOutcome.isErr()) {
           return Outcome.err(outOutcome.error());
         }
-        Io.Output out = outOutcome.get();
+        Output out = outOutcome.get();
         Outcome<Void> outClosed;
         try {
           if (config.chunk.isEmpty()) {
@@ -2566,11 +2580,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   /** Creates a file containing the current chunk graph in JSON serialization. */
   private Outcome<Void> outputChunkGraphJson() throws IOException {
     if (config.outputChunkDependencies.isPresent() && config.outputChunkDependencies.get().length() != 0) {
-      Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(config.outputChunkDependencies);
+      Outcome<Output> outOutcome = fileNameToOutputWriter2(config.outputChunkDependencies);
       if (outOutcome.isErr()) {
         return Outcome.err(outOutcome.error());
       }
-      Io.Output out = outOutcome.get();
+      Output out = outOutcome.get();
       Outcome<Void> outClosed;
       try {
         printChunkGraphJsonTo(out);

@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.base.FilePaths;
-import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.parsing.Config.JsDocParsing;
 import com.google.javascript.refactoring.ApplySuggestedFixes;
@@ -113,7 +113,7 @@ public final class Linter {
   }
 
   void lint(String filename) {
-    lint(FilePaths.clean(filename), new Compiler(Io.stdout()));
+    lint(FilePaths.clean(filename), new Compiler(Output.stdout()));
   }
 
   void lint(String path, Compiler compiler) {
@@ -151,7 +151,7 @@ public final class Linter {
 
   /** @return Whether any fixes were applied. */
   private Outcome<Boolean> fix(String filename, ImmutableSet<DiagnosticType> unfixableErrors) {
-    Compiler compiler = new Compiler(Io.stdout());
+    Compiler compiler = new Compiler(Output.stdout());
     FixingErrorManager errorManager = new FixingErrorManager(unfixableErrors);
     compiler.setErrorManager(errorManager);
     errorManager.setCompiler(compiler);

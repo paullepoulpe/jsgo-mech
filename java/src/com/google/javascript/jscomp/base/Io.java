@@ -16,8 +16,6 @@
 
 package com.google.javascript.jscomp.base;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,19 +24,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -47,20 +42,23 @@ import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
-import org.jspecify.annotations.Nullable;
 
 /**
- * The compiler's only door to the outside world: every file-system, stream, zip, charset, classpath
- * resource and URI operation of the production code is a static method here, and this is the only
- * production file that uses java.io, java.nio.file, java.nio.charset, java.util.zip, java.net or
- * Guava's io package (tools/prep/14_find_io_uses checks that).
+ * The compiler's only door to the outside world, and the one production class that is written by
+ * hand for every platform instead of being translated: this is the only production file that
+ * uses java.io, java.nio, java.util.zip, java.net or Guava's io package (tools/prep/14_find_io_uses
+ * checks that).
  *
- * <p>Operations work on whole values (a file's text, a zip entry's bytes) and name things by
- * {@code String}: paths, charset names, URIs. An operation that can fail for reasons outside the
- * program returns an {@link Outcome} carrying the {@link IOException}; nothing here throws for an
- * expected failure. The groups, in order: charsets; whole files and file facts; the text sinks
- * ({@link Output}) and the text source ({@link Input}); zip and gzip; classpath resources; path
- * and URI arithmetic on strings; in-memory helpers whose behaviour a JDK I/O class defines.
+ * <p>It holds only what needs the operating system (files, directories, the standard streams,
+ * bundled resources) and the codecs every platform's library has (UTF-8, DEFLATE, gzip, base64).
+ * Everything built on top is ordinary code next to this class: {@link Charsets}, {@link
+ * TextFiles}, {@link Output}, {@link FilePaths}, {@link Glob}, {@link ZipArchive}, {@link Uris}.
+ *
+ * <p>The comment of each method is its whole contract; no behaviour of a JDK class is implied.
+ * Paths, names and texts are {@code String}s, data is {@code byte[]}. An operation that can fail
+ * for reasons outside the program returns an {@link Outcome} whose error is a plain {@link
+ * IOException} with exactly the message its comment gives, so that every platform reports the
+ * same text; nothing here throws for such a failure.
  */
 public final class Io {
   private Io() {}
@@ -124,55 +122,44 @@ public final class Io {
     }
   }
 
-  // ---- Whole files and file facts
+  // ---- Files and directories
 
-  /** The file's text; malformed input becomes U+FFFD. */
-  public static Outcome<String> readText(String path, String charset) {
-    Outcome<byte[]> bytes = readBytes(path);
-    if (bytes.isErr()) {
-      return Outcome.err(bytes.error());
-    }
-    return Outcome.ok(Charsets.decode(bytes.get(), charset));
-  }
-
-  /** The file's text; malformed input is an error for which {@link #isDecodingError} is true. */
-  public static Outcome<String> readTextStrict(String path, String charset) {
-    try {
-      Optional<String> text = Charsets.decodeStrict(Files.readAllBytes(Path.of(path)), charset);
-      if (text.isEmpty()) {
-        return Outcome.err(new CharacterCodingException());
-      }
-      return Outcome.ok(text.get());
-    } catch (IOException e) {
-      return Outcome.err(e);
-    }
-  }
-
-  public static boolean isDecodingError(@Nullable Throwable error) {
-    return error instanceof CharacterCodingException;
-  }
-
+  /**
+   * The content of the file. Errors: "(path): No such file" if nothing has that path, "(path):
+   * Cannot read file" for every other failure (a directory, no permission, a failed read).
+   */
   public static Outcome<byte[]> readBytes(String path) {
+    if (!new File(path).exists()) {
+      return Outcome.err(new IOException(path + ": No such file"));
+    }
     try (InputStream in = new FileInputStream(path)) {
       return Outcome.ok(in.readAllBytes());
     } catch (IOException e) {
-      return Outcome.err(e);
+      return Outcome.err(new IOException(path + ": Cannot read file"));
     }
   }
 
-  /** Creates or truncates the file; unmappable characters become the charset's replacement. */
-  public static Outcome<Void> writeText(String path, String charset, String text) {
-    return writeBytes(path, Charsets.encode(text, charset));
-  }
-
-  /** Creates or truncates the file. */
+  /**
+   * Makes the bytes the content of the file, creating it if needed (its directory must exist).
+   * Error: "(path): Cannot write file".
+   */
   public static Outcome<Void> writeBytes(String path, byte[] bytes) {
     try (OutputStream out = new FileOutputStream(path)) {
       out.write(bytes);
       return Outcome.ok();
     } catch (IOException e) {
-      return Outcome.err(e);
+      return Outcome.err(new IOException(path + ": Cannot write file"));
     }
+  }
+
+  /** Whether the path names something: a file, a directory, or a link to one. */
+  public static boolean exists(String path) {
+    return new File(path).exists();
+  }
+
+  /** Whether the path names a directory, or a link to one. */
+  public static boolean isDirectory(String path) {
+    return new File(path).isDirectory();
   }
 
   /**
@@ -187,26 +174,12 @@ public final class Io {
     }
   }
 
-  public static boolean exists(String path) {
-    return new File(path).exists();
-  }
-
-  public static boolean isDirectory(String path) {
-    return new File(path).isDirectory();
-  }
-
-  /** Creates the directory and its missing parents; false (no error) if it creates nothing. */
-  public static boolean mkdirs(String path) {
-    return new File(path).mkdirs();
-  }
-
-  /** Creates an empty file; ok(false) if the file exists already. */
-  public static Outcome<Boolean> createNewFile(String path) {
-    try {
-      return Outcome.ok(new File(path).createNewFile());
-    } catch (IOException e) {
-      return Outcome.err(e);
-    }
+  /**
+   * Creates the directory and its missing parents. A failure is not reported: writing the file
+   * that was to go there fails instead.
+   */
+  public static void mkdirs(String path) {
+    new File(path).mkdirs();
   }
 
   /**
@@ -234,7 +207,7 @@ public final class Io {
     if (names == null || around.contains(canonical)) {
       return;
     }
-    java.util.Arrays.sort(names);
+    Arrays.sort(names);
     around.add(canonical);
     for (String name : names) {
       File entry = new File(directory, name);
@@ -247,143 +220,91 @@ public final class Io {
     around.remove(around.size() - 1);
   }
 
-  // ---- Text sinks and the text source
+  /** The absolute path of the process's working directory. */
+  public static String workingDirectory() {
+    return Path.of("").toAbsolutePath().toString();
+  }
+
+  // ---- Byte sinks (a file being written, standard output, standard error) and standard input
 
   /**
-   * A text sink: standard output/error (or another byte stream a test supplies), or a file being
-   * written piecemeal. Never throws: a write error is remembered and reported by {@link #close}.
+   * Somewhere bytes go, piece by piece. Nothing is buffered: each {@link #write} hands its bytes
+   * to the operating system. Never throws.
    */
-  public static final class Output implements Appendable {
-    // Exactly one of stream and writer is non-null.
-    private final @Nullable PrintStream stream;
-    private final @Nullable Writer writer;
-    private @Nullable IOException error;
+  public static final class Sink {
+    private final OutputStream stream;
+    // The path of a file; empty for a standard stream, whose failures are ignored.
+    private final Optional<String> path;
+    private boolean closed = false;
+    private boolean failed = false;
 
-    private Output(@Nullable PrintStream stream, @Nullable Writer writer) {
+    private Sink(OutputStream stream, Optional<String> path) {
       this.stream = stream;
-      this.writer = writer;
+      this.path = path;
     }
 
-    public void print(String s) {
-      if (stream != null) {
-        stream.print(s);
+    /** Writes the bytes. Ignored after {@link #close}; a failure is remembered for close. */
+    public void write(byte[] bytes) {
+      if (closed) {
         return;
       }
       try {
-        writer.write(String.valueOf(s));
-      } catch (IOException e) {
-        error = error == null ? e : error;
-      }
-    }
-
-    /** Prints the text and the platform's line separator. */
-    public void println(String s) {
-      if (stream != null) {
-        stream.println(s);
-      } else {
-        print(String.valueOf(s) + System.lineSeparator());
-      }
-    }
-
-    /** Prints the throwable and its stack trace, as Throwable.printStackTrace does. */
-    public void printStackTrace(Throwable t) {
-      StringWriter trace = new StringWriter();
-      t.printStackTrace(new PrintWriter(trace));
-      print(trace.toString());
-    }
-
-    @Override
-    public Output append(@Nullable CharSequence s) {
-      print(String.valueOf(s));
-      return this;
-    }
-
-    @Override
-    public Output append(@Nullable CharSequence s, int start, int end) {
-      print(String.valueOf(s).substring(start, end));
-      return this;
-    }
-
-    @Override
-    public Output append(char c) {
-      print(String.valueOf(c));
-      return this;
-    }
-
-    public void flush() {
-      if (stream != null) {
-        stream.flush();
-        return;
-      }
-      try {
-        writer.flush();
-      } catch (IOException e) {
-        error = error == null ? e : error;
-      }
-    }
-
-    /** Flushes and closes the sink (and what it writes to); reports the first write error. */
-    public Outcome<Void> close() {
-      if (stream != null) {
-        stream.close();
-      } else {
-        try {
-          writer.close();
-        } catch (IOException e) {
-          error = error == null ? e : error;
+        stream.write(bytes, 0, bytes.length);
+        if (path.isEmpty()) {
+          stream.flush();
         }
+      } catch (IOException e) {
+        failed = true;
       }
-      return error == null ? Outcome.ok() : Outcome.err(error);
     }
 
     /**
-     * A buffering sink that encodes text with the charset (unmappable characters become its
-     * replacement) and writes the bytes where this stream sink writes its bytes.
+     * Closes the file or stream; a second close does nothing and succeeds. Error, for a file, if
+     * a write or this close failed: "(path): Cannot write file". Closing standard output or
+     * standard error always succeeds and makes every later write to that stream, through any
+     * sink, do nothing.
      */
-    public Output encodedAs(String charset) {
-      return new Output(
-          null, new BufferedWriter(new OutputStreamWriter(stream, Charset.forName(Charsets.name(charset)))));
+    public Outcome<Void> close() {
+      if (closed) {
+        return Outcome.ok();
+      }
+      closed = true;
+      try {
+        stream.close();
+      } catch (IOException e) {
+        failed = true;
+      }
+      if (failed && path.isPresent()) {
+        return Outcome.err(new IOException(path.get() + ": Cannot write file"));
+      }
+      return Outcome.ok();
     }
   }
 
-  /** The process's standard output as it is now. */
-  public static Output stdout() {
-    return new Output(System.out, null);
+  /** The process's standard output. A failed write to it is ignored. */
+  public static Sink stdout() {
+    return new Sink(System.out, Optional.empty());
   }
 
-  /** The process's standard error as it is now. */
-  public static Output stderr() {
-    return new Output(System.err, null);
-  }
-
-  /** A sink that keeps what is written to it to itself. */
-  public static Output nullOutput() {
-    return new Output(null, new StringWriter());
-  }
-
-  /** For tests and embedders that hold a java.io stream: the sink that prints to it. */
-  public static Output outputToStream(PrintStream stream) {
-    return new Output(stream, null);
+  /** The process's standard error. A failed write to it is ignored. */
+  public static Sink stderr() {
+    return new Sink(System.err, Optional.empty());
   }
 
   /**
-   * Opens (creating if needed) the file now, truncating it or, with {@code append}, keeping its
-   * content. Text is buffered and encoded with the charset, replacing what cannot be encoded.
+   * Opens the file for writing now, creating it if needed (its directory must exist) and
+   * emptying it or, with {@code append}, keeping its content and adding to it. Error: "(path):
+   * Cannot write file".
    */
-  public static Outcome<Output> openOutput(String path, String charset, boolean append) {
+  public static Outcome<Sink> openFile(String path, boolean append) {
     try {
-      return Outcome.ok(
-          new Output(
-              null,
-              new BufferedWriter(
-                  new OutputStreamWriter(
-                      new FileOutputStream(path, append), Charset.forName(Charsets.name(charset))))));
+      return Outcome.ok(new Sink(new FileOutputStream(path, append), Optional.of(path)));
     } catch (IOException e) {
-      return Outcome.err(e);
+      return Outcome.err(new IOException(path + ": Cannot write file"));
     }
   }
 
-  /** A byte source that is read once, whole: standard input (or a stream a test supplies). */
+  /** A byte source that is read once, whole: standard input. */
   public static final class Input {
     private final InputStream stream;
 
@@ -391,32 +312,27 @@ public final class Io {
       this.stream = stream;
     }
 
-    /** Everything up to end of input, decoded (malformed input becomes U+FFFD); not closed. */
-    public Outcome<String> readText(String charset) {
+    /** Everything up to the end of the input. Error: "stdin: Cannot read file". */
+    public Outcome<byte[]> readBytes() {
       try {
-        return Outcome.ok(Charsets.decode(stream.readAllBytes(), charset));
+        return Outcome.ok(stream.readAllBytes());
       } catch (IOException e) {
-        return Outcome.err(e);
+        return Outcome.err(new IOException("stdin: Cannot read file"));
       }
     }
   }
 
-  /** The process's standard input as it is now. */
+  /** The process's standard input. */
   public static Input stdin() {
     return new Input(System.in);
   }
 
-  /** For tests and embedders that hold a java.io stream: the source that reads it. */
-  public static Input inputFromStream(InputStream stream) {
-    return new Input(stream);
-  }
-
-  // ---- Zip and gzip
+  // ---- Codecs
 
   /**
    * The data of a raw DEFLATE stream (RFC 1951), which is what a zip entry of method 8 holds.
-   * Bytes after the end of the stream are ignored. The error message of a malformed or truncated
-   * stream is "Malformed compressed data".
+   * Bytes after the end of the stream are ignored. Error, for a malformed or truncated stream:
+   * "Malformed compressed data".
    */
   public static Outcome<byte[]> inflate(byte[] deflated) {
     Inflater inflater = new Inflater(true);
@@ -426,7 +342,8 @@ public final class Io {
     try {
       while (!inflater.finished()) {
         int n = inflater.inflate(buffer);
-        if (n == 0 && !inflater.finished() && (inflater.needsInput() || inflater.needsDictionary())) {
+        if (n == 0 && !inflater.finished()) {
+          // More input or a preset dictionary is needed.
           return Outcome.err(new IOException("Malformed compressed data"));
         }
         data.write(buffer, 0, n);
@@ -439,7 +356,10 @@ public final class Io {
     return Outcome.ok(data.toByteArray());
   }
 
-  /** Gzips at the fastest compression level. */
+  /**
+   * A gzip file (RFC 1952) with one member that holds the data. Which bytes exactly is up to the
+   * platform (compression is quick rather than thorough); {@link #gunzip} gives the data back.
+   */
   public static byte[] gzip(byte[] data) {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     try (GZIPOutputStream out =
@@ -455,62 +375,66 @@ public final class Io {
     return bytes.toByteArray();
   }
 
-  public static Outcome<byte[]> gunzip(byte[] data) {
-    try (GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(data))) {
+  /**
+   * The data of a gzip file (RFC 1952) with one member. Error, if the bytes are not that (a wrong
+   * header, malformed or truncated compressed data, a wrong checksum or length): "Malformed gzip
+   * data". What bytes after the member lead to is not defined.
+   */
+  public static Outcome<byte[]> gunzip(byte[] gzipped) {
+    try (GZIPInputStream in = new GZIPInputStream(new ByteArrayInputStream(gzipped))) {
       return Outcome.ok(in.readAllBytes());
     } catch (IOException e) {
-      return Outcome.err(e);
+      return Outcome.err(new IOException("Malformed gzip data"));
     }
   }
 
-  // ---- Classpath resources
-
-  public static boolean resourceExists(Class<?> relativeTo, String name) {
-    return relativeTo.getResource(name) != null;
-  }
-
-  /** The resource's bytes; ok(null) if there is no such resource. */
-  public static Outcome<byte[]> readResource(Class<?> relativeTo, String name) {
-    try (InputStream in = relativeTo.getResourceAsStream(name)) {
-      return Outcome.ok(in == null ? null : in.readAllBytes());
-    } catch (IOException e) {
-      return Outcome.err(e);
-    }
-  }
-
-  // ---- The working directory (path arithmetic is in FilePaths)
-
-  /** The absolute path of the process's working directory. */
-  public static String workingDirectory() {
-    return Path.of("").toAbsolutePath().toString();
-  }
-
-  // ---- In-memory helpers
-
-  /**
-   * The lines of the text as BufferedReader.readLine returns them: terminated by \n, \r or \r\n,
-   * terminators dropped, no empty last line after a final terminator.
-   */
-  public static List<String> splitLines(String text) {
-    List<String> lines = new ArrayList<>();
-    BufferedReader reader = new BufferedReader(new StringReader(text));
-    try {
-      for (Optional<String> line = Optional.ofNullable(reader.readLine()); line.isPresent(); line = Optional.ofNullable(reader.readLine())) {
-        lines.add(line.orElse(null));
-      }
-    } catch (IOException e) {
-      throw new AssertionError(e); // reading from memory
-    }
-    return lines;
-  }
-
-  /** Standard base64 with padding. */
+  /** Standard base64 (RFC 4648, alphabet A-Z a-z 0-9 + /) with "=" padding. */
   public static String base64Encode(byte[] bytes) {
     return com.google.common.io.BaseEncoding.base64().encode(bytes);
   }
 
-  /** Decodes standard base64 (padding optional); IllegalArgumentException if it is not base64. */
+  /**
+   * The bytes of standard base64 text, with or without its "=" padding;
+   * IllegalArgumentException if the text is anything else.
+   */
   public static byte[] base64Decode(String text) {
     return com.google.common.io.BaseEncoding.base64().decode(text);
+  }
+
+  // ---- Files bundled with the compiler; the report of an unexpected failure
+
+  /**
+   * The content of a file that is bundled with the compiler (externs.zip, the runtime libraries),
+   * by its full name with "/" between the parts and none in front, such as
+   * "com/google/javascript/jscomp/js/polyfills.txt"; empty if there is no such file.
+   */
+  public static Optional<byte[]> readResource(String name) {
+    try (InputStream in = Io.class.getClassLoader().getResourceAsStream(name)) {
+      return in == null ? Optional.empty() : Optional.of(in.readAllBytes());
+    } catch (IOException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * The text a platform prints for an uncaught failure: the throwable, where it was thrown, and
+   * the same for its causes; it ends with a line feed. The details are the platform's.
+   */
+  public static String stackTraceText(Throwable t) {
+    StringWriter trace = new StringWriter();
+    t.printStackTrace(new PrintWriter(trace));
+    return trace.toString();
+  }
+
+  // ---- For tests and embedders that hold java.io streams (Java only)
+
+  /** An unbuffered UTF-8 text sink that prints to the stream; closing it closes the stream. */
+  public static Output outputToStream(PrintStream stream) {
+    return Output.to(new Sink(stream, Optional.empty()));
+  }
+
+  /** A source that reads the stream. */
+  public static Input inputFromStream(InputStream stream) {
+    return new Input(stream);
   }
 }

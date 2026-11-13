@@ -16,7 +16,7 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -39,7 +39,7 @@ final class JvmMetrics {
   private static final long ONE_MEGA_BYTE = 1L << 20L;
   private static final long ONE_GIGA_BYTE = 1L << 30L;
 
-  public static void maybeWriteJvmMetrics(Io.Output out, Optional<String> options) {
+  public static void maybeWriteJvmMetrics(Output out, Optional<String> options) {
     if (options.isEmpty()) {
       return;
     }
@@ -78,7 +78,7 @@ final class JvmMetrics {
   }
 
   private static void writeMetrics(
-      Io.Output out, String type, boolean verbose, boolean pretty) {
+      Output out, String type, boolean verbose, boolean pretty) {
 
     if (type.equals("gc") || type.equalsIgnoreCase("all")) {
       writeGarbageCollectionStats(out, verbose, pretty);
@@ -92,7 +92,7 @@ final class JvmMetrics {
   }
 
   private static void writeJitMetrics(
-      Io.Output out, boolean verbose, boolean pretty) {
+      Output out, boolean verbose, boolean pretty) {
 
     CompilationMXBean cBean = ManagementFactory.getCompilationMXBean();
 
@@ -113,7 +113,7 @@ final class JvmMetrics {
   }
 
   private static void writeOverallMemoryUsage(
-      Io.Output out, MemoryUsage usage, String prefix, boolean pretty) {
+      Output out, MemoryUsage usage, String prefix, boolean pretty) {
     if (pretty) {
       out.print(String.format("\t%s\n", prefix));
       out.print(String.format("\t\tavailable         : %s\n", formatBytes(usage.getMax())));
@@ -128,7 +128,7 @@ final class JvmMetrics {
   }
 
   private static void writePoolMemoryUsage(
-      Io.Output out,
+      Output out,
       MemoryUsage usage,
       MemoryUsage peakUsage,
       Optional<String> prefix,
@@ -151,7 +151,7 @@ final class JvmMetrics {
   }
 
   private static void writeMemoryMetrics(
-      Io.Output out, boolean verbose, boolean pretty) {
+      Output out, boolean verbose, boolean pretty) {
     if (pretty) {
       out.println("\nMemory usage");
     }
@@ -204,7 +204,7 @@ final class JvmMetrics {
   }
 
   private static void writeGarbageCollectionStats(
-      Io.Output out, boolean verbose, boolean pretty) {
+      Output out, boolean verbose, boolean pretty) {
     List<GarbageCollectorMXBean> gcBeans =
         ManagementFactory.getGarbageCollectorMXBeans();
 

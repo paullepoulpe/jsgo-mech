@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorWithLevel;
 import com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt;
 import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.TokenUtil;
@@ -35,7 +36,7 @@ import java.util.Optional;
  * JSON objects.
  */
 public class JsonErrorReportGenerator implements ErrorReportGenerator {
-  private final Io.Output stream;
+  private final Output stream;
   private final SourceExcerptProvider sourceExcerptProvider;
   private static final LineNumberingFormatter excerptFormatter = new LineNumberingFormatter();
 
@@ -46,7 +47,7 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
    *     not close the stream
    * @param sourceExcerptProvider used to retrieve the source context which generated the error
    */
-  public JsonErrorReportGenerator(Io.Output stream, SourceExcerptProvider sourceExcerptProvider) {
+  public JsonErrorReportGenerator(Output stream, SourceExcerptProvider sourceExcerptProvider) {
     this.stream = stream;
     this.sourceExcerptProvider = sourceExcerptProvider;
   }

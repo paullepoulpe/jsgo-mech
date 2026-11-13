@@ -31,6 +31,7 @@ import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.TextFiles;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import java.io.IOException;
@@ -448,7 +449,7 @@ public class DepsGenerator {
   private static Outcome<List<DependencyInfo>> parseDepsFile(
       DepsFileRegexParser depsParser, SourceFile file) {
     Outcome<String> code = file.readCodeWithoutCaching();
-    if (Io.isDecodingError(code.error())) {
+    if (TextFiles.isDecodingError(code.error())) {
       depsParser.reportReadError(file.getName());
       return Outcome.ok(new ArrayList<>());
     }

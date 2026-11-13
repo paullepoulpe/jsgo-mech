@@ -25,7 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import java.util.Optional;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public final class JsFileRegexParserTest {
 
   @Before
   public void setUp() {
-    errorManager = new PrintStreamErrorManager(Io.stderr());
+    errorManager = new PrintStreamErrorManager(Output.stderr());
     parser = new JsFileRegexParser(errorManager);
     parser.setShortcutMode(true);
   }

@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
-import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -211,14 +211,14 @@ public final class JsFileLineParserTest {
   }
 
   private void assertStrip(String expected, String input) {
-    ErrorManager errorManager = new PrintStreamErrorManager(Io.stderr());
+    ErrorManager errorManager = new PrintStreamErrorManager(Output.stderr());
     TestParser parser = new TestParser(errorManager);
     parser.doParse("file", input);
     assertThat(parser.toString()).isEqualTo(expected);
   }
 
   private void assertBlocks(String expected, String input) {
-    ErrorManager errorManager = new PrintStreamErrorManager(Io.stderr());
+    ErrorManager errorManager = new PrintStreamErrorManager(Output.stderr());
     TestParser parser = new TestParser(errorManager);
     parser.doParse("file", input);
     assertThat(parser.comments.toString()).isEqualTo(expected);

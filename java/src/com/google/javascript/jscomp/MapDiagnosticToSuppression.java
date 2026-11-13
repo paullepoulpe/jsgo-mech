@@ -16,8 +16,8 @@
 package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat;
-import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.parsing.ParserRunner;
 
 /**
@@ -51,7 +51,7 @@ public final class MapDiagnosticToSuppression {
   }
 
   private static void printHelp() {
-    Io.stdout().println("Usage: MapDiagnosticToSuppression --output={json,md}");
+    Output.stdout().println("Usage: MapDiagnosticToSuppression --output={json,md}");
   }
 
   private void printSuppressions(String[] args) {
@@ -67,7 +67,7 @@ public final class MapDiagnosticToSuppression {
     Outcome<Void> parsed = parser.parseArgument(args);
     if (parsed.isErr()) {
       CmdLineException ex = (CmdLineException) parsed.error();
-      Io.stderr().println("Could not parse arguments: " + ex);
+      Output.stderr().println("Could not parse arguments: " + ex);
       printHelp();
       return;
     }

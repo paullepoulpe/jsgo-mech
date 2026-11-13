@@ -26,6 +26,7 @@ import com.google.errorprone.annotations.Immutable;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleBiMap;
+import com.google.javascript.jscomp.base.TextFiles;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
@@ -110,7 +111,7 @@ public final class VariableMap implements Serializable {
   /** Deserializes the variable map from the bytes of a stream of lines. */
   public static Outcome<VariableMap> fromStreamBytes(byte[] bytes) {
     ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
-    for (String line : Io.splitLines(Io.utf8String(bytes))) {
+    for (String line : TextFiles.splitLines(Io.utf8String(bytes))) {
       if (line.isEmpty()) {
         continue;
       }

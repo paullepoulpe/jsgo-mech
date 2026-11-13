@@ -49,6 +49,7 @@ import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleJsonValue;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
@@ -275,7 +276,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    */
   public static final Logger logger = Logger.getLogger("com.google.javascript.jscomp");
 
-  private final Io.Output outStream;
+  private final Output outStream;
 
   private String lastPassName;
 
@@ -307,11 +308,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   /** Creates a Compiler that reports errors and warnings to its logger. */
   public Compiler() {
-    this((Io.Output) null);
+    this((Output) null);
   }
 
   /** Creates a Compiler that reports errors and warnings to an output stream. */
-  public Compiler(Io.@Nullable Output outStream) {
+  public Compiler(@Nullable Output outStream) {
     changeTracker.addChangeHandler(changeTracker.getRecentChange());
     this.outStream = outStream;
     this.moduleTypesByName = new LinkedHashMap<>();
@@ -512,7 +513,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       logToFile("warningsGuard.log", () -> warningsGuard.toString());
     } else {
       // Debug logging is not enabled, so use stderr
-      final Io.Output err = Io.stderr();
+      final Output err = Output.stderr();
       err.println("==== Externs ====");
       err.println(String.valueOf(externs));
       err.println("==== Inputs ====");
@@ -746,12 +747,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     String path =
         String.join(
             "",
-            "/runtime_libs.typedast");
+            "runtime_libs.typedast");
 
-    Outcome<byte[]> typedAsts = Io.readResource(Compiler.class, path);
-    if (typedAsts.isErr()) {
-      throw new IllegalArgumentException(
-          "Cannot read from TypedAST input stream", typedAsts.error());
+    java.util.Optional<byte[]> typedAsts = Io.readResource(path);
+    if (typedAsts.isEmpty()) {
+      throw new IllegalArgumentException("Cannot read from TypedAST input stream");
     }
 
     TypedAstDeserializer.DeserializedAst astData =
@@ -1198,7 +1198,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       if (options.getTracerOutput().isEmpty()) {
         tracker.outputTracerReport(this.outStream);
       } else {
-        Outcome<Io.Output> out = Io.openOutput(options.getTracerOutput().get(), Charsets.UTF_8, false);
+        Outcome<Output> out = Output.open(options.getTracerOutput().get(), Charsets.UTF_8, false);
         if (out.isErr()) {
           throw new RuntimeException(out.error());
         }
@@ -1589,14 +1589,14 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         log.logString(currentJsSource);
       }
     } else {
-      Io.stderr().println("");
+      Output.stderr().println("");
       if (debugMessage.isPresent()) {
-        Io.stderr().println("// DEBUG: " + debugMessage.get());
+        Output.stderr().println("// DEBUG: " + debugMessage.get());
       }
-      Io.stderr().println("// " + passName + " yields:");
-      Io.stderr().println("// ************************************");
-      Io.stderr().println(currentJsSource);
-      Io.stderr().println("// ************************************");
+      Output.stderr().println("// " + passName + " yields:");
+      Output.stderr().println("// ************************************");
+      Output.stderr().println(currentJsSource);
+      Output.stderr().println("// ************************************");
     }
 
     this.lastJsSource = java.util.Optional.of(currentJsSource);
@@ -4138,7 +4138,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         !hasTypeCheckingRun(),
         "runtime library injected after type checking but before optimization colors");
     String originalCode =
-        ResourceLoader.loadTextResource(Compiler.class, "js/" + resourceName + ".js");
+        ResourceLoader.loadTextResource(ResourceLoader.JSCOMP + "js/" + resourceName + ".js");
 
     SourceFile source = SourceFile.fromCode(path, originalCode);
     addFilesToSourceMap(ImmutableList.of(source));

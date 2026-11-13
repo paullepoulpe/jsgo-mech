@@ -25,11 +25,13 @@ import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import java.util.Optional;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import java.util.function.Supplier;
 
 /**
- * An implementation that adapts an {@link Io.Output} and writes to a real file.
+ * An implementation that adapts an {@link Output} and writes to a real file.
  *
  * <p>This class is designed to be super-sourceable by J2CL, since JS environments often don't have
  * file APIs. Doing so enables logging statements to be checked-in.
@@ -38,20 +40,23 @@ final class WritingLogFile extends LogFile {
 
   @MustBeClosed
   static LogFile create(String file) {
-    Io.mkdirs(FilePaths.parent(file).orElse(null));
+    Optional<String> directory = FilePaths.parent(file);
+    if (directory.isPresent()) {
+      Io.mkdirs(directory.get());
+    }
     // The log allows the logged string to contain invalid Unicode (it replaces invalid character
     // sequences but doesn't throw). This is useful in cases where the source code contains invalid
     // Unicode (e.g., inside strings).
-    Outcome<Io.Output> writer = Io.openOutput(file, Charsets.UTF_8, true);
+    Outcome<Output> writer = Output.open(file, Charsets.UTF_8, true);
     if (writer.isErr()) {
       throw new RuntimeException(writer.error());
     }
     return new WritingLogFile(writer.get());
   }
 
-  private final Io.Output writer;
+  private final Output writer;
 
-  private WritingLogFile(Io.Output writer) {
+  private WritingLogFile(Output writer) {
     this.writer = writer;
   }
 

@@ -18,7 +18,7 @@ package com.google.javascript.jscomp;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
@@ -99,15 +99,15 @@ public final class DiagnosticToSuppressionMapper {
       writer.name(entry.getKey()).stringValue(Optional.ofNullable(entry.getValue()));
     }
     writer.endObject();
-    Io.stdout().println(writer.toString());
+    Output.stdout().println(writer.toString());
   }
 
   private static void printAsMarkdown(ImmutableSortedMap<String, String> diagnosticToSuppression) {
-    Io.stdout().println("| Error | Suppression tag |");
-    Io.stdout().println("|---|---|");
+    Output.stdout().println("| Error | Suppression tag |");
+    Output.stdout().println("|---|---|");
 
     for (Map.Entry<String, String> e : diagnosticToSuppression.entrySet()) {
-      Io.stdout().println(String.format("|%s|%s|", e.getKey(), e.getValue()));
+      Output.stdout().println(String.format("|%s|%s|", e.getKey(), e.getValue()));
     }
   }
 }

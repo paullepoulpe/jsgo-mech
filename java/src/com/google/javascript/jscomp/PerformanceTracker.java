@@ -26,7 +26,7 @@ import static java.util.Comparator.comparingLong;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.CompilerOptions.TracerMode;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
@@ -417,7 +417,7 @@ public final class PerformanceTracker {
    * Prints a summary, which contains aggregate stats for all runs of each pass and a log, which
    * contains stats for each individual run.
    */
-  public void outputTracerReport(Io.Output output) {
+  public void outputTracerReport(Output output) {
     JvmMetrics.maybeWriteJvmMetrics(output, Optional.of("verbose:pretty:all"));
     calcTotalStats();
 

@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
+
 
 
 /**
@@ -27,7 +28,7 @@ import com.google.javascript.jscomp.base.Io;
  */
 public class PrintStreamErrorReportGenerator implements SortingErrorManager.ErrorReportGenerator {
   private final MessageFormatter formatter;
-  private final Io.Output stream;
+  private final Output stream;
   private final int summaryDetailLevel;
 
   /**
@@ -38,7 +39,7 @@ public class PrintStreamErrorReportGenerator implements SortingErrorManager.Erro
    *     not close the stream
    */
   public PrintStreamErrorReportGenerator(
-      MessageFormatter formatter, Io.Output stream, int summaryDetailLevel) {
+      MessageFormatter formatter, Output stream, int summaryDetailLevel) {
     this.formatter = formatter;
     this.stream = stream;
     this.summaryDetailLevel = summaryDetailLevel;

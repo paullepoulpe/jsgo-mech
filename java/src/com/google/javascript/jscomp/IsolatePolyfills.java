@@ -63,7 +63,7 @@ class IsolatePolyfills implements CompilerPass {
     this(
         compiler,
         Polyfills.fromTable(
-            ResourceLoader.loadTextResource(IsolatePolyfills.class, "js/polyfills.txt")));
+            ResourceLoader.loadTextResource(ResourceLoader.JSCOMP + "js/polyfills.txt")));
   }
 
   @VisibleForTesting

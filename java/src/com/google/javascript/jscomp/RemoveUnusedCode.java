@@ -163,7 +163,7 @@ class RemoveUnusedCode implements CompilerPass {
     this.disambiguateProperties = builder.disambiguatePropertiesField;
     this.polyfillsFromTable =
         Polyfills.fromTable(
-            ResourceLoader.loadTextResource(RemoveUnusedCode.class, "js/polyfills.txt"));
+            ResourceLoader.loadTextResource(ResourceLoader.JSCOMP + "js/polyfills.txt"));
     this.polyfillUsageFinder =
         new PolyfillUsageFinder(compiler, this.polyfillsFromTable, this.disambiguateProperties);
     this.assumeGettersArePure = builder.assumeGettersArePureField;

@@ -15,8 +15,8 @@
  */
 package com.google.javascript.jscomp;
 
-import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,8 @@ public final class LinterMain {
     Outcome<Void> done = new LinterMain().run(args);
     if (done.isErr()) {
       // An I/O failure ends the program the way an uncaught exception does.
-      Io.stderr().print("Exception in thread \"main\" ");
-      Io.stderr().printStackTrace(done.error());
+      Output.stderr().print("Exception in thread \"main\" ");
+      Output.stderr().printStackTrace(done.error());
       System.exit(1);
     }
   }

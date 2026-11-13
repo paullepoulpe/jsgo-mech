@@ -23,7 +23,7 @@ import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.parsing.TypeTransformationParser.Keywords;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.JSTypeExpression;
@@ -740,7 +740,7 @@ class TypeTransformation {
   private JSType evalPrintType(Node ttlAst, NameResolver nameResolver) {
     JSType type = evalInternal(getCallArgument(ttlAst, 1), nameResolver);
     String msg = getCallArgument(ttlAst, 0).getString() + type;
-    Io.stdout().println(msg);
+    Output.stdout().println(msg);
     return type;
   }
 

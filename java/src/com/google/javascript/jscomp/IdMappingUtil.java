@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.SimpleBiMap;
+import com.google.javascript.jscomp.base.TextFiles;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -67,7 +68,7 @@ public final class IdMappingUtil {
     private int lineIndex = 0;
 
     public MappingReader(String text) {
-      this.lines = Io.splitLines(text);
+      this.lines = TextFiles.splitLines(text);
     }
 
     public boolean next() {

@@ -23,9 +23,10 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.base.Charsets;
-import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
+import com.google.javascript.jscomp.base.TextFiles;
 import com.google.re2j.Pattern;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -131,7 +132,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    * @return The lines of the file.
    */
   public static Set<String> loadAllowlistedJsWarningsFile(String file) {
-    Outcome<String> text = Io.readText(file, Charsets.UTF_8);
+    Outcome<String> text = TextFiles.read(file, Charsets.UTF_8);
     if (text.isErr()) {
       throw new RuntimeException(text.error());
     }
@@ -147,7 +148,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
   static Set<String> loadAllowlistedJsWarningsText(String text) {
     Set<String> result = new LinkedHashSet<>();
 
-    result.addAll(Io.splitLines(text));
+    result.addAll(TextFiles.splitLines(text));
 
     return result;
   }
@@ -243,7 +244,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
      * later.
      */
     public Outcome<Void> writeAllowlist(String out) {
-      Outcome<Io.Output> stream = Io.openOutput(out, Charsets.UTF_8, false);
+      Outcome<Output> stream = Output.open(out, Charsets.UTF_8, false);
       if (stream.isErr()) {
         return Outcome.err(stream.error());
       }
@@ -255,7 +256,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
      * Writes the warnings collected in a format that the AllowlistWarningsGuard can read back
      * later.
      */
-    public void appendAllowlist(Io.Output out) {
+    public void appendAllowlist(Output out) {
       out.append("# This is a list of legacy warnings that have yet to be fixed.\n");
 
       if (productName.isPresent() && !productName.get().isEmpty() && !warnings.isEmpty()) {

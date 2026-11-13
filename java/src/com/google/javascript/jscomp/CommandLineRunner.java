@@ -42,7 +42,9 @@ import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Glob;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.TextFiles;
 import com.google.javascript.jscomp.deps.ClosureBundler;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
@@ -1159,7 +1161,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                     "version"))
             .immutableCopy();
 
-    private void printUsage(Io.Output ps) {
+    private void printUsage(Output ps) {
       StringBuilder outputStream = new StringBuilder();
 
       boolean isFirst = true;
@@ -1198,7 +1200,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       }
 
       // The usage text goes to the stream as UTF-8.
-      Io.Output encoded = ps.encodedAs(Charsets.UTF_8);
+      Output encoded = ps.encodedAs(Charsets.UTF_8);
       encoded.print(outputStream.toString());
       encoded.flush();
       ps.flush();
@@ -1281,7 +1283,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           "    " + input.substring(foundMatch ? endIndex + 1 : endIndex), outputStream);
     }
 
-    private static void printShortUsageAfterErrors(Io.Output ps) {
+    private static void printShortUsageAfterErrors(Output ps) {
       ps.print("Sample usage: ");
       ps.println(
           "--compilation_level (-O) VAL --externs VAL --js VAL"
@@ -1442,7 +1444,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   private boolean runCompiler = false;
 
   /** Cached error stream to avoid passing it as a parameter to helper functions. */
-  private Io.@Nullable Output errorStream;
+  private @Nullable Output errorStream;
 
   /**
    * Create a new command-line runner. You should only need to call the constructor if you're
@@ -1450,15 +1452,15 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
    */
   protected CommandLineRunner(String[] args) {
     super();
-    initConfigFromFlags(args, Io.stdout(), Io.stderr());
+    initConfigFromFlags(args, Output.stdout(), Output.stderr());
   }
 
-  protected CommandLineRunner(String[] args, Io.Output out, Io.Output err) {
+  protected CommandLineRunner(String[] args, Output out, Output err) {
     super(out, err);
     initConfigFromFlags(args, out, err);
   }
 
-  protected CommandLineRunner(String[] args, Io.Input in, Io.Output out, Io.Output err) {
+  protected CommandLineRunner(String[] args, Io.Input in, Output out, Output err) {
     super(in, out, err);
     initConfigFromFlags(args, out, err);
   }
@@ -1511,7 +1513,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   private Outcome<Void> processFlagFile(String flagFileString) {
-    Outcome<String> buffer = Io.readTextStrict(flagFileString, Charsets.UTF_8);
+    Outcome<String> buffer = TextFiles.readStrict(flagFileString, Charsets.UTF_8);
     if (buffer.isErr()) {
       return Outcome.err(buffer.error());
     }
@@ -1652,7 +1654,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     return Outcome.ok();
   }
 
-  private void initConfigFromFlags(String[] args, Io.Output out, Io.Output err) {
+  private void initConfigFromFlags(String[] args, Output out, Output err) {
 
     errorStream = err;
     List<String> processedArgs = processArgs(args);
@@ -1663,7 +1665,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     FlagInputs flagInputs = new FlagInputs();
     Outcome<Void> flagInputsRead = readFlagInputs(processedArgs, flagInputs);
     if (flagInputsRead.isErr() && flagInputsRead.error() instanceof IOException) {
-      reportError("ERROR - ioException: " + flagInputsRead.error());
+      reportError("ERROR - " + flagInputsRead.error().getMessage());
     } else if (flagInputsRead.isErr()) {
       CmdLineException e = (CmdLineException) flagInputsRead.error();
       reportError(e.getMessage());
@@ -1689,7 +1691,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     if (flags.outputWrapperFile.isPresent() && !flags.outputWrapperFile.get().isEmpty()) {
       Outcome<String> outputWrapper =
-          Io.readText(FilePaths.clean(flags.outputWrapperFile.get()), Charsets.UTF_8);
+          TextFiles.read(FilePaths.clean(flags.outputWrapperFile.get()), Charsets.UTF_8);
       if (outputWrapper.isErr()) {
         reportError("ERROR - invalid output_wrapper_file specified.");
       } else {
@@ -2159,7 +2161,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   private static Outcome<ConformanceConfig> loadConformanceConfig(String configFile) {
-    Outcome<String> text = Io.readText(FilePaths.clean(configFile), Charsets.UTF_8);
+    Outcome<String> text = TextFiles.read(FilePaths.clean(configFile), Charsets.UTF_8);
     if (text.isErr()) {
       return Outcome.err(text.error());
     }

@@ -77,7 +77,7 @@ public class RewritePolyfills implements CompilerPass {
         compiler,
         compiler.getRuntimeJsLibManager(),
         Polyfills.fromTable(
-            ResourceLoader.loadTextResource(RewritePolyfills.class, "js/polyfills.txt")),
+            ResourceLoader.loadTextResource(ResourceLoader.JSCOMP + "js/polyfills.txt")),
         injectPolyfills,
         isolatePolyfills,
         injectPolyfillsNewerThan,

@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
+
 
 
 /**
@@ -32,7 +33,7 @@ import com.google.javascript.jscomp.base.Io;
 @Deprecated
 public class PrintStreamErrorManager extends BasicErrorManager {
   private final MessageFormatter formatter;
-  private final Io.Output stream;
+  private final Output stream;
   private int summaryDetailLevel = 1;
 
   /**
@@ -42,7 +43,7 @@ public class PrintStreamErrorManager extends BasicErrorManager {
    *     printed. This class does not close the stream
    */
   public PrintStreamErrorManager(MessageFormatter formatter,
-                                 Io.Output stream) {
+                                 Output stream) {
     this.formatter = formatter;
     this.stream = stream;
   }
@@ -50,7 +51,7 @@ public class PrintStreamErrorManager extends BasicErrorManager {
   /**
    * Creates an instance with a source-less error formatter.
    */
-  public PrintStreamErrorManager(Io.Output stream) {
+  public PrintStreamErrorManager(Output stream) {
     this(ErrorFormat.SOURCELESS.toFormatter(null, false), stream);
   }
 

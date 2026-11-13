@@ -103,7 +103,7 @@ public final class RuntimeJsLibManager {
 
     private static ImmutableMap<String, String> loadFields() {
       String transpilationLibsTxt =
-          ResourceLoader.loadTextResource(RuntimeJsLibManager.class, "transpilation_libs.txt");
+          ResourceLoader.loadTextResource(ResourceLoader.JSCOMP + "js/transpilation_libs.txt");
 
       ImmutableMap.Builder<String, String> allFields = ImmutableMap.builder();
       for (String line : Splitter.on('\n').omitEmptyStrings().split(transpilationLibsTxt)) {

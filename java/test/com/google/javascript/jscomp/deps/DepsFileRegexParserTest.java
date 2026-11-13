@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public final class DepsFileRegexParserTest {
 
   @Before
   public void setUp() {
-    errorManager = new PrintStreamErrorManager(Io.stderr());
+    errorManager = new PrintStreamErrorManager(Output.stderr());
     parser = new DepsFileRegexParser(errorManager);
     parser.setShortcutMode(true);
   }

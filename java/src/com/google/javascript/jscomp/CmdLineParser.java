@@ -25,6 +25,8 @@ import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
+import com.google.javascript.jscomp.base.TextFiles;
 import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -683,11 +685,11 @@ public final class CmdLineParser {
         if (!Io.exists(file)) {
           return Outcome.err(new CmdLineException(this, "No such file: " + file));
         }
-        Outcome<String> text = Io.readText(file, Charsets.UTF_8);
+        Outcome<String> text = TextFiles.read(file, Charsets.UTF_8);
         if (text.isErr()) {
           return Outcome.err(new CmdLineException(this, "Failed to parse " + file, text.error()));
         }
-        result.addAll(Io.splitLines(text.get()));
+        result.addAll(TextFiles.splitLines(text.get()));
       } else {
         result.add(arg);
       }

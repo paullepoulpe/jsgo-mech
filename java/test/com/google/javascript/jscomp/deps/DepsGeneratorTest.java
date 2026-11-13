@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
 import com.google.javascript.jscomp.SourceFile;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Output;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public final class DepsGeneratorTest {
 
   @Before
   public void setUp() throws Exception {
-    errorManager = new PrintStreamErrorManager(Io.stderr());
+    errorManager = new PrintStreamErrorManager(Output.stderr());
   }
 
   // TODO(johnplaisted): This should eventually be an error. For now people are relying on this

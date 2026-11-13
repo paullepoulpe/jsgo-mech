@@ -19,33 +19,30 @@ package com.google.javascript.jscomp.resources;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.base.Io;
-import com.google.javascript.jscomp.base.Outcome;
+import java.util.Optional;
 
 /**
- * Utility class that handles resource loading.
+ * Utility class that handles resource loading. A resource is named in full, with "/" between the
+ * parts and none in front: {@code JSCOMP + "js/polyfills.txt"}.
  */
 public final class ResourceLoader {
-  public static String loadTextResource(Class<?> clazz, String path) {
-    Outcome<byte[]> bytes = Io.readResource(clazz, path);
-    if (bytes.isErr()) {
-      throw new RuntimeException(bytes.error());
-    }
-    if (bytes.get() == null) {
-      if (!resourceExists(clazz, path)) {
-        throw new RuntimeException("No such resource: " + path);
-      }
-      throw new NullPointerException();
+  /** The name prefix of the resources next to the compiler's classes. */
+  public static final String JSCOMP = "com/google/javascript/jscomp/";
+
+  public static String loadTextResource(String name) {
+    Optional<byte[]> bytes = Io.readResource(name);
+    if (bytes.isEmpty()) {
+      throw new RuntimeException("No such resource: " + name);
     }
     return Io.utf8String(bytes.get());
   }
 
-  public static ImmutableMap<String, String> loadPropertiesMap(
-      Class<?> clazz, String resourceName) {
-    return PropertiesParser.parse(loadTextResource(clazz, resourceName));
+  public static ImmutableMap<String, String> loadPropertiesMap(String resourceName) {
+    return PropertiesParser.parse(loadTextResource(resourceName));
   }
 
-  public static boolean resourceExists(Class<?> clazz, String path) {
-    return Io.resourceExists(clazz, path);
+  public static boolean resourceExists(String name) {
+    return Io.readResource(name).isPresent();
   }
 
   private ResourceLoader() {}

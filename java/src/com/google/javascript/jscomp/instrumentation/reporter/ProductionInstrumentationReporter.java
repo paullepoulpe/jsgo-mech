@@ -26,8 +26,10 @@ import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Output;
 import com.google.javascript.jscomp.base.SimpleJsonException;
 import com.google.javascript.jscomp.base.SimpleJsonValue;
+import com.google.javascript.jscomp.base.TextFiles;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,13 +52,13 @@ final class ProductionInstrumentationReporter {
   public static void main(String[] args) {
     Outcome<Void> done = new ProductionInstrumentationReporter().doMain(args);
     if (done.isErr()) {
-      Io.stderr().println(done.errorMessage().get());
+      Output.stderr().println(done.errorMessage().get());
     }
   }
 
   /** This function reads a file at the given filePath and converts the contents into a string. */
   public static Outcome<String> readFile(String filePath) {
-    return Io.readTextStrict(filePath, Charsets.UTF_8);
+    return TextFiles.readStrict(filePath, Charsets.UTF_8);
   }
 
   /**
@@ -147,7 +149,7 @@ final class ProductionInstrumentationReporter {
    * being provided by fileContents.
    */
   private Outcome<Void> createFile(String fileName, String fileContents) {
-    return Io.writeText(fileName, Charsets.UTF_8, fileContents);
+    return TextFiles.write(fileName, Charsets.UTF_8, fileContents);
   }
 
   private Outcome<Void> doMain(String[] args) {
@@ -200,7 +202,7 @@ final class ProductionInstrumentationReporter {
     Outcome<Void> parsed = parser.parseArgument(args);
     if (parsed.isErr()) {
       CmdLineException e = (CmdLineException) parsed.error();
-      Io.stderr().println(e.getMessage());
+      Output.stderr().println(e.getMessage());
       return;
     }
   }

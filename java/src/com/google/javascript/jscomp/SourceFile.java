@@ -26,8 +26,8 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.FilePaths;
-import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.TextFiles;
 import com.google.javascript.jscomp.base.ZipArchive;
 import com.google.javascript.jscomp.serialization.SourceFileProto;
 import com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDisk;
@@ -965,19 +965,12 @@ public final class SourceFile implements StaticSourceFile {
 
       @Override
       Outcome<String> loadUncachedCode() {
-        Outcome<String> text = Io.readTextStrict(this.relativePath, this.serializableCharset);
-        if (Io.isDecodingError(text.error())) {
-          return Outcome.err(
-              new IOException(
-                  "Failed to read: " + this.relativePath + ", is this input UTF-8 encoded?",
-                  text.error()));
-        }
-        return text;
+        return TextFiles.readStrict(this.relativePath, this.serializableCharset);
       }
 
       @Override
       Outcome<String> loadUncachedText() {
-        return Io.readTextStrict(this.relativePath, this.serializableCharset);
+        return TextFiles.readStrict(this.relativePath, this.serializableCharset);
       }
 
       @Override

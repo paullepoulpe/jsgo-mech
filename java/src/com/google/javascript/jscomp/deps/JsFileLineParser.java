@@ -24,8 +24,8 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
-import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.TextFiles;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import java.util.ArrayList;
@@ -127,7 +127,7 @@ public abstract class JsFileLineParser {
     this.filePath = Optional.of(filePath);
     parseSucceeded = true;
 
-    List<String> lines = Io.splitLines(fileContents);
+    List<String> lines = TextFiles.splitLines(fileContents);
     int lineIndex = 0;
 
     // Parse all lines.
