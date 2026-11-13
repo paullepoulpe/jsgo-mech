@@ -283,7 +283,7 @@ abstract class ExprEmitter extends Base {
       case POSTFIX_INCREMENT, POSTFIX_DECREMENT, PREFIX_INCREMENT, PREFIX_DECREMENT:
         return incDecExpr((UnaryTree) t);
       case LOGICAL_COMPLEMENT:
-        return "!" + paren(cond(((UnaryTree) t).getExpression()));
+        return "!" + atomOrParen(cond(((UnaryTree) t).getExpression()));
       case UNARY_MINUS, UNARY_PLUS, BITWISE_COMPLEMENT: {
         Object cv = constOf(t);
         if (cv != null) return cv.toString();
@@ -305,6 +305,18 @@ abstract class ExprEmitter extends Base {
         }
         throw unsupported(t, "expression " + t.getKind());
     }
+  }
+
+  /** Parenthesizes unless the code is a single operand (a name, a selector chain, a call). */
+  static String atomOrParen(String s) {
+    int depth = 0;
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == '(' || c == '[' || c == '{') depth++;
+      else if (c == ')' || c == ']' || c == '}') depth--;
+      else if (depth == 0 && (c == ' ' || c == '"' || c == '\'' || c == '!' || c == '-' || c == '+' || c == '*' || c == '&' || c == '<' || c == '>' || c == '=')) return paren(s);
+    }
+    return s;
   }
 
   static String paren(String s) {

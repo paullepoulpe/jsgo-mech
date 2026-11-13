@@ -41,7 +41,7 @@ abstract class StmtEmitter extends ExprEmitter {
       }
       sb.append(line).append('\n');
     }
-    if (sb.length() > 0) sb.setLength(sb.length() - 1);
+    while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '\n') sb.setLength(sb.length() - 1);
     return sb.toString();
   }
 
