@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.errorprone.annotations.Keep;
@@ -56,7 +55,6 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.StringWriter;
-import java.lang.reflect.AnnotatedElement;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
@@ -80,18 +78,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.NamedOptionDef;
-import org.kohsuke.args4j.Option;
-import org.kohsuke.args4j.OptionDef;
-import org.kohsuke.args4j.spi.FieldSetter;
-import org.kohsuke.args4j.spi.IntOptionHandler;
-import org.kohsuke.args4j.spi.OptionHandler;
-import org.kohsuke.args4j.spi.Parameters;
-import org.kohsuke.args4j.spi.Setter;
-import org.kohsuke.args4j.spi.StringOptionHandler;
 
 /**
  * CommandLineRunner translates flags into Java API calls on the Compiler.
@@ -150,818 +136,913 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     private static final List<FlagEntry<JsSourceType>> mixedJsSources =
         Collections.synchronizedList(new ArrayList<FlagEntry<JsSourceType>>());
 
-    @Option(
-        name = "--browser_featureset_year",
-        usage =
-            "shortcut for defining "
-                + "goog.FEATURESET_YEAR=YYYY."
-                + " The minimum valid value of the browser year is 2012")
     private Integer browserFeaturesetYear = 0;
 
-    @Option(
-        name = "--help",
-        handler = BooleanOptionHandler.class,
-        usage = "Displays this message on stdout and exit")
     private boolean displayHelp = false;
 
-    @Option(
-        name = "--print_tree",
-        hidden = true,
-        handler = BooleanOptionHandler.class,
-        usage = "Prints out the parse tree and exits")
     private boolean printTree = false;
 
-    @Option(
-        name = "--print_tree_json",
-        hidden = true,
-        handler = BooleanOptionHandler.class,
-        usage = "Prints out the parse tree as json and exits")
     private boolean printTreeJson = false;
 
-    @Option(
-        name = "--print_ast",
-        hidden = true,
-        handler = BooleanOptionHandler.class,
-        usage = "Prints a dot file describing the internal abstract syntax" + " tree and exits")
     private boolean printAst = false;
 
-    @Option(
-        name = "--emit_use_strict",
-        handler = BooleanOptionHandler.class,
-        usage = "Start output with \"'use strict';\".")
     private boolean emitUseStrict = false;
 
-    @Option(
-        name = "--strict_mode_input",
-        handler = BooleanOptionHandler.class,
-        usage = "Assume input sources are to run in strict mode.")
     private boolean strictModeInput = true;
 
     // Turn on (very slow) extra validity checks for use when modifying the compiler.
-    @Option(
-        name = "--jscomp_dev_mode",
-        hidden = true,
-        // no usage
-        aliases = {"--dev_mode"})
     private CompilerOptions.DevMode jscompDevMode = CompilerOptions.DevMode.OFF;
 
-    @Option(
-        name = "--logging_level",
-        hidden = true,
-        usage =
-            "The logging level (standard java.util.logging.Level"
-                + " values) for Compiler progress. Does not control errors or"
-                + " warnings for the JavaScript code under compilation")
     private String loggingLevel = Level.WARNING.getName();
 
-    @Option(
-        name = "--externs",
-        usage = "The file containing JavaScript externs. You may specify" + " multiple")
     private List<String> externs = new ArrayList<>();
 
     @Keep
-    @Option(
-        name = "--js",
-        handler = JsOptionHandler.class,
-        usage =
-            "The JavaScript filename. You may specify multiple. "
-                + "The flag name is optional, because args are interpreted as files by default. "
-                + "You may also use minimatch-style glob patterns. For example, use "
-                + "--js='**.js' --js='!**_test.js' to recursively include all "
-                + "js files that do not end in _test.js")
     private List<String> js = new ArrayList<>();
 
-    @Option(
-        name = "--jszip",
-        hidden = true,
-        handler = JsZipOptionHandler.class,
-        usage = "The JavaScript zip filename. You may specify multiple.")
     private @Nullable List<String> unusedJsZip = null;
 
-    @Option(
-        name = "--js_output_file",
-        usage = "Primary output filename. If not specified, output is " + "written to stdout")
     private String jsOutputFile = "";
 
-    @Option(
-        name = "--chunk",
-        usage =
-            "A JavaScript chunk specification. The format is "
-                + "<name>:<num-js-files>[:[<dep>,...][:]]]. Chunk names must be "
-                + "unique. Each dep is the name of a chunk that this chunk "
-                + "depends on. Chunks must be listed in dependency order, and JS "
-                + "source files must be listed in the corresponding order. Where "
-                + "--chunk flags occur in relation to --js flags is unimportant. "
-                + "<num-js-files> may be set to 'auto' for the first chunk if it "
-                + "has no dependencies. "
-                + "Provide the value 'auto' to trigger chunk creation from CommonJS "
-                + "modules.")
     private List<String> chunk = new ArrayList<>();
 
-    @Option(
-        name = "--filename_to_save_to",
-        usage = "Filename to save state so that the compilation can be resumed later.",
-        hidden = true)
     private @Nullable String filenameToSaveTo = null;
 
-    @Option(
-        name = "--filename_to_restore_from",
-        usage = "Filename where a compilation state was previously saved.",
-        hidden = true)
     private @Nullable String filenameToRestoreFrom = null;
 
-    @Option(
-        name = "--segment_of_compilation_to_run",
-        usage = "Which segment of the compilation to run.",
-        hidden = true)
     private @Nullable SegmentOfCompilationToRun segmentOfCompilationToRun =
         SegmentOfCompilationToRun.ENTIRE_COMPILATION;
 
-    @Option(
-        name = "--variable_renaming_report",
-        usage =
-            "File where the serialized version of the variable "
-                + "renaming map produced should be saved")
     private String variableMapOutputFile = "";
 
-    @Option(
-        name = "--instrument_mapping_report",
-        usage =
-            "File where the encoded parameters created by Production Instrumentation are mapped to"
-                + " their pre-encoded values. The %outname% placeholder will expand to the name of"
-                + " the output file that the source map corresponds to. Must be used in tandem with"
-                + " --instrument_for_coverage_option=PRODUCTION")
     private String instrumentationMappingOutputFile = "";
 
-    @Option(
-        name = "--create_renaming_reports",
-        hidden = true,
-        handler = BooleanOptionHandler.class,
-        usage =
-            "If true, variable renaming and property renaming report "
-                + "files will be produced as {binary name}_vars_renaming_report.out "
-                + "and {binary name}_props_renaming_report.out. Note that this flag "
-                + "cannot be used in conjunction with either variable_renaming_report "
-                + "or property_renaming_report")
     private boolean createNameMapFiles = false;
 
-    @Option(
-        name = "--source_map_include_content",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Includes sources content into source map. Greatly increases "
-                + "the size of source maps but offers greater portability")
     private boolean sourceMapIncludeSourcesContent = false;
 
-    @Option(
-        name = "--property_renaming_report",
-        usage =
-            "File where the serialized version of the property "
-                + "renaming map produced should be saved")
     private String propertyMapOutputFile = "";
 
-    @Option(
-        name = "--third_party",
-        handler = BooleanOptionHandler.class,
-        usage = "Check source validity but do not enforce Closure style " + "rules and conventions")
     private boolean thirdParty = false;
 
-    @Option(
-        name = "--summary_detail_level",
-        hidden = true,
-        usage =
-            "Controls how detailed the compilation summary is. Values:"
-                + " 0 (never print summary), 1 (print summary only if there are "
-                + "errors or warnings), 2 (print summary if the 'checkTypes' "
-                + "diagnostic  group is enabled, see --jscomp_warning), "
-                + "3 (always print summary). The default level is 1")
     private int summaryDetailLevel = 1;
 
-    @Option(
-        name = "--isolation_mode",
-        usage =
-            """
-            If set to IIFE the compiler output will follow the form:
-              (function(){%output%}).call(this);
-            Options: NONE, IIFE\
-            """)
     private IsolationMode isolationMode = IsolationMode.NONE;
 
-    @Option(
-        name = "--output_wrapper",
-        usage =
-            "Interpolate output into this string at the place denoted"
-                + " by the marker token %output%. Use marker token %output|jsstring%"
-                + " to do js string escaping on the output."
-                + " Consider using the --isolation_mode flag instead.")
     private String outputWrapper = "";
 
-    @Option(
-        name = "--output_wrapper_file",
-        usage =
-            "Loads the specified file and passes the file contents to the --output_wrapper flag,"
-                + " replacing the value if it exists. This is useful if you want special"
-                + " characters like newline in the wrapper.")
     private String outputWrapperFile = "";
 
-    @Option(
-        name = "--chunk_wrapper",
-        usage =
-            "An output wrapper for a JavaScript chunk (optional). "
-                + "The format is <name>:<wrapper>. The chunk name must correspond "
-                + "with a chunk specified using --chunk. The wrapper must "
-                + "contain %s as the code placeholder. "
-                + "Alternately, %output% can be used in place of %s. "
-                + "%n% can be used to represent a newline. "
-                + "The %basename% placeholder can "
-                + "also be used to substitute the base name of the chunk output file.")
     private List<String> chunkWrapper = new ArrayList<>();
 
-    @Option(
-        name = "--chunk_output_path_prefix",
-        usage =
-            "Prefix for filenames of compiled JS chunks. "
-                + "<chunk-name>.js will be appended to this prefix. Directories "
-                + "will be created as needed. Use with --chunk")
     private String chunkOutputPathPrefix = "./";
 
-    @Option(
-        name = "--create_source_map",
-        usage =
-            "If specified, a source map file mapping the generated "
-                + "source files back to the original source file will be "
-                + "output to the specified path. The %outname% placeholder will "
-                + "expand to the name of the output file that the source map "
-                + "corresponds to.")
     private String createSourceMap = "";
 
-    @Option(
-        name = "--source_map_format",
-        hidden = true,
-        usage =
-            "The source map format to produce. "
-                + "Options are V3 and DEFAULT, which are equivalent.")
     private SourceMap.Format sourceMapFormat = SourceMap.Format.DEFAULT;
 
-    @Option(
-        name = "--source_map_location_mapping",
-        usage =
-            "Source map location mapping separated by a '|' "
-                + "(i.e. filesystem-path|webserver-path)")
     private List<String> sourceMapLocationMapping = new ArrayList<>();
 
-    @Option(
-        name = "--source_map_input",
-        usage =
-            "Source map locations for input files, separated by a '|', "
-                + "(i.e. input-file-path|input-source-map)")
     private List<String> sourceMapInputs = new ArrayList<>();
 
-    @Option(
-        name = "--parse_inline_source_maps",
-        handler = BooleanOptionHandler.class,
-        usage = "Parse inline source maps (//# sourceMappingURL=data:...)")
     private Boolean parseInlineSourceMaps = true;
 
-    @Option(
-        name = "--apply_input_source_maps",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Apply input source maps to the output source map, i.e. have the result map back"
-                + " to original inputs.  Input sourcemaps can be located in 2 ways:\n"
-                + " 1) by the//# sourceMappingURL=<url>. \n"
-                + " 2) using the--source_map_location_mapping flag.\n"
-                + "sourceMappingURL=<url> can read both paths and inline Base64 encoded"
-                + " sourcemaps. For inline Base64 encoded sourcemaps, see"
-                + " --parse_inline_source_maps.")
     private boolean applyInputSourceMaps = true;
 
     // Used to define the flag, values are stored by the handler.
     @SuppressWarnings("unused")
-    @Option(
-        name = "--jscomp_error",
-        handler = WarningGuardErrorOptionHandler.class,
-        usage =
-            "Make the named class of warnings an error. Must be one "
-                + "of the error group items. '*' adds all supported.")
     private List<String> jscompError = new ArrayList<>();
 
     // Used to define the flag, values are stored by the handler.
     @SuppressWarnings("unused")
-    @Option(
-        name = "--jscomp_warning",
-        handler = WarningGuardWarningOptionHandler.class,
-        usage =
-            "Make the named class of warnings a normal warning. Must be one "
-                + "of the error group items. '*' adds all supported.")
     private List<String> jscompWarning = new ArrayList<>();
 
     // Used to define the flag, values are stored by the handler.
     @SuppressWarnings("unused")
-    @Option(
-        name = "--jscomp_off",
-        handler = WarningGuardOffOptionHandler.class,
-        usage =
-            "Turn off the named class of warnings. Must be one "
-                + "of the error group items. '*' adds all supported.")
     private List<String> jscompOff = new ArrayList<>();
 
-    @Option(
-        name = "--define",
-        aliases = {"--D", "-D"},
-        usage =
-            "Override the value of a variable annotated @define. "
-                + "The format is <name>[=<val>], where <name> is the name of a @define "
-                + "variable and <val> is a boolean, number, or a single-quoted string "
-                + "that contains no single quotes. If [=<val>] is omitted, "
-                + "the variable is marked true")
     private List<String> define = new ArrayList<>();
 
-    @Option(
-        name = "--charset",
-        usage =
-            "Input and output charset for all files. By default, we "
-                + "accept UTF-8 as input and output US_ASCII")
     private String charset = "";
 
-    @Option(
-        name = "--compilation_level",
-        aliases = {"-O"},
-        usage =
-            "Specifies the compilation level to use. Options: "
-                + "BUNDLE, "
-                + "WHITESPACE_ONLY, "
-                + "SIMPLE (default), "
-                + "TRANSPILE_ONLY,"
-                + "ADVANCED")
     private String compilationLevel = "SIMPLE";
 
     private @Nullable CompilationLevel compilationLevelParsed = null;
 
-    @Option(
-        name = "--num_parallel_threads",
-        hidden = true,
-        handler = IntOptionHandler.class,
-        usage = "Use multiple threads to parallelize parts of the compilation.")
     private int numParallelThreads = 1;
 
-    @Option(
-        name = "--checks_only",
-        aliases = {"--checks-only"},
-        handler = BooleanOptionHandler.class,
-        usage = "Don't generate output. Run checks, but no optimization passes.")
     private boolean checksOnly = false;
 
-    @Option(
-        name = "--incremental_check_mode",
-        usage = "Generate or check externs-like .i.js files representing individual libraries.")
     private CompilerOptions.IncrementalCheckMode incrementalCheckMode =
         CompilerOptions.IncrementalCheckMode.OFF;
 
-    @Option(
-        name = "--continue_after_errors",
-        handler = BooleanOptionHandler.class,
-        usage = "Continue trying to compile after an error is encountered.")
     private boolean continueAfterErrors = false;
 
-    @Option(
-        name = "--use_types_for_optimization",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Enable or disable the optimizations "
-                + "based on available type information. Inaccurate type annotations "
-                + "may result in incorrect results.")
     private boolean useTypesForOptimization = true;
 
-    @Option(
-        name = "--assume_function_wrapper",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Enable additional optimizations based on the assumption that the output will be"
-                + " wrapped with a function wrapper.  This flag is used to indicate that"
-                + " \"global\" declarations will not actually be global but instead isolated to"
-                + " the compilation unit. This enables additional optimizations.")
     private boolean assumeFunctionWrapper = false;
 
-    @Option(
-        name = "--warning_level",
-        aliases = {"-W"},
-        usage = "Specifies the warning level to use. Options: " + "QUIET, DEFAULT, VERBOSE")
     private WarningLevel warningLevel = WarningLevel.DEFAULT;
 
-    @Option(
-        name = "--debug",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Enable debugging options. Property renaming uses long mangled names which can be "
-                + "mapped back to the original name.")
     private boolean debug = false;
 
-    @Option(
-        name = "--typed_ast_output_file",
-        usage = "Sets file to output in-progress typedAST format. DO NOT USE!",
-        hidden = true)
     private @Nullable String typedAstOutputFile = null;
 
-    @Option(
-        name = "--generate_exports",
-        handler = BooleanOptionHandler.class,
-        usage = "Generates export code for those marked with @export")
     private boolean generateExports = true;
 
-    @Option(
-        name = "--export_local_property_definitions",
-        handler = BooleanOptionHandler.class,
-        usage = "Generates export code for local properties marked with @export")
     private boolean exportLocalPropertyDefinitions = true;
 
-    @Option(
-        name = "--formatting",
-        usage =
-            "Specifies which formatting options, if any, should be "
-                + "applied to the output JS. Options: "
-                + "PRETTY_PRINT, PRINT_INPUT_DELIMITER, SINGLE_QUOTES")
     private List<FormattingOption> formatting = new ArrayList<>();
 
-    @Option(
-        name = "--process_common_js_modules",
-        handler = BooleanOptionHandler.class,
-        usage = "Process CommonJS modules to a concatenable form.")
     private boolean processCommonJsModules = false;
 
-    @Option(
-        name = "--js_module_root",
-        usage = "Path prefixes to be removed from ES6 & CommonJS modules.")
     private List<String> moduleRoot = new ArrayList<>();
 
-    @Option(
-        name = "--process_closure_primitives",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Processes built-ins from the Closure library, such as "
-                + "goog.require(), goog.provide(), and goog.exportSymbol(). "
-                + "True by default.")
     private boolean processClosurePrimitives = true;
 
-    @Option(
-        name = "--angular_pass",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Generate $inject properties for AngularJS for functions " + "annotated with @ngInject")
     private boolean angularPass = false;
 
-    @Option(name = "--polymer_version", usage = "Which version of Polymer is being used (1 or 2).")
     private @Nullable Integer polymerVersion = null;
 
-    @Option(
-        name = "--chrome_pass",
-        handler = BooleanOptionHandler.class,
-        usage = "Enable Chrome-specific options for handling cr.* functions.",
-        hidden = true)
     private boolean chromePass = false;
 
-    @Option(
-        name = "--j2cl_pass",
-        hidden = true,
-        usage =
-            "Rewrite J2CL output to be compiler-friendly if enabled (ON or AUTO). "
-                + "Options:OFF, ON, AUTO(default)")
     private String j2clPassMode = "AUTO";
 
-    @Option(
-        name = "--remove_j2cl_asserts",
-        hidden = true,
-        usage = "Remove calls to J2CL assertions.")
     private boolean removeJ2cLAsserts = true;
 
-    @Option(
-        name = "--output_manifest",
-        usage =
-            "Prints out a list of all the files in the compilation. "
-                + "If --dependency_mode=PRUNE or PRUNE_LEGACY is specified, this will not include "
-                + "files that got dropped because they were not required. "
-                + "The %outname% placeholder expands to the JS output file. "
-                + "If you're using modularization, using %outname% will create "
-                + "a manifest for each module.")
     private String outputManifest = "";
 
-    @Option(
-        name = "--output_chunk_dependencies",
-        usage = "Prints out a JSON file of dependencies between chunks.")
     private String outputChunkDependencies = "";
 
-    @Option(
-        name = "--language_in",
-        usage =
-            "Sets the language spec to which input sources should conform. "
-                + "Options: ECMASCRIPT3, ECMASCRIPT5, ECMASCRIPT5_STRICT, "
-                + "ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, "
-                + "ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020,"
-                + "ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported),"
-                + "UNSTABLE (for testing only)")
     private String languageIn = "STABLE";
 
-    @Option(
-        name = "--language_out",
-        usage =
-            "Sets the language spec to which output should conform. "
-                + "Options: ECMASCRIPT3, ECMASCRIPT5, "
-                + "ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, "
-                + "ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020, "
-                + "ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported)")
     private String languageOut = "ECMASCRIPT_NEXT";
 
-    @Option(
-        name = "--version",
-        handler = BooleanOptionHandler.class,
-        usage = "Prints the compiler version to stdout and exit.")
     private boolean version = false;
 
-    @Option(
-        name = "--translations_file",
-        hidden = true,
-        usage = "Source of translated messages. Currently only supports XTB.")
     private String translationsFile = "";
 
-    @Option(
-        name = "--translations_project",
-        hidden = true,
-        usage =
-            "Scopes all translations to the specified project."
-                + "When specified, we will use different message ids so that messages "
-                + "in different projects can have different translations.")
     private @Nullable String translationsProject = null;
 
-    @Option(
-        name = "--flagfile",
-        hidden = true,
-        usage = "A file (or files) containing additional command-line options.")
     private List<String> flagFiles = new ArrayList<>();
 
-    @Option(
-        name = "--warnings_allowlist_file",
-        usage =
-            "A file containing warnings to suppress. Each line should be "
-                + "of the form\n"
-                + "<file-name>:<line-number>?  <warning-description>",
-        aliases = {"--warnings_whitelist_file"})
     private String warningsAllowlistFile = "";
 
-    @Option(
-        name = "--hide_warnings_for",
-        usage =
-            "If specified, files whose path contains this string will "
-                + "have their warnings hidden. You may specify multiple.")
     private List<String> hideWarningsFor = new ArrayList<>();
 
-    @Option(
-        name = "--extra_annotation_name",
-        usage = "A allowlist of tag names in JSDoc. You may specify multiple")
     private List<String> extraAnnotationName = new ArrayList<>();
 
-    @Option(
-        name = "--tracer_mode",
-        hidden = true,
-        usage =
-            "Shows the duration of each compiler pass and the impact to "
-                + "the compiled output size. "
-                + "Options: ALL, AST_SIZE, RAW_SIZE, TIMING_ONLY, OFF")
     private CompilerOptions.TracerMode tracerMode = CompilerOptions.TracerMode.OFF;
 
-    @Option(
-        name = "--rename_variable_prefix",
-        usage = "Specifies a prefix that will be prepended to all variables.")
     private @Nullable String renamePrefix = null;
 
-    @Option(
-        name = "--rename_prefix_namespace",
-        usage =
-            "Specifies the name of an object that will be used to store all "
-                + "non-extern globals")
     private @Nullable String renamePrefixNamespace = null;
 
-    @Option(
-        name = "--conformance_configs",
-        usage = "A list of JS Conformance configurations in text protocol buffer format.")
     private List<String> conformanceConfigs = new ArrayList<>();
 
-    @Option(
-        name = "--env",
-        usage =
-            "Determines the set of builtin externs to load. "
-                + "Options: BROWSER, CUSTOM. Defaults to BROWSER.")
     private CompilerOptions.Environment environment = CompilerOptions.Environment.BROWSER;
 
-    @Option(
-        name = "--json_streams",
-        usage =
-            "Specifies whether standard input and output streams will be "
-                + "a JSON array of sources. Each source will be an object of the "
-                + "form {path: filename, src: file_contents, source_map: srcmap_contents }. "
-                + "Intended for use by stream-based build systems such as gulpjs. "
-                + "Options: NONE, IN, OUT, BOTH. Defaults to NONE.")
     private CompilerOptions.JsonStreamMode jsonStreamMode = CompilerOptions.JsonStreamMode.NONE;
 
-    @Option(
-        name = "--preserve_type_annotations",
-        hidden = true,
-        handler = BooleanOptionHandler.class,
-        usage = "Preserves type annotations.")
     private boolean preserveTypeAnnotations = false;
 
-    @Option(
-        name = "--inject_libraries",
-        handler = BooleanOptionHandler.class,
-        usage = "Allow injecting runtime libraries.")
     private boolean injectLibraries = true;
 
-    @Option(
-        name = "--force_inject_library",
-        usage =
-            "Force injection of named runtime libraries. "
-                + "The format is <name> where <name> is the name of a runtime library. "
-                + "Possible libraries include: base, es6_runtime")
     private List<String> forceInjectLibraries = new ArrayList<>();
 
-    @Option(
-        name = "--dependency_mode",
-        usage =
-            "Specifies how the compiler should determine the set and order of files for a "
-                + "compilation. Options: NONE the compiler will include all src files in the order "
-                + "listed, SORT_ONLY the compiler will include all source files in dependency "
-                + "order, PRUNE files will only be included if they are transitive dependencies "
-                + "of files listed in the --entry_point flag and then sorted in dependency order, "
-                + "PRUNE_LEGACY same as PRUNE but files that do not goog.provide a namespace and "
-                + "are not modules will be automatically added as --entry_point entries. Defaults "
-                + "to PRUNE_LEGACY if entry points are defined, otherwise to NONE.")
     private @Nullable DependencyMode dependencyMode =
         null; // so we can tell whether it was explicitly set
 
-    @Option(
-        name = "--entry_point",
-        usage =
-            "A file or namespace to use as the starting point for determining "
-                + "which src files to include in the compilation. ES6 and CommonJS "
-                + "modules are specified as file paths (without the extension). "
-                + "Closure-library namespaces are specified with a \"goog:\" prefix. "
-                + "Example: --entry_point=goog:goog.Promise")
     private List<String> entryPoint = new ArrayList<>();
 
-    @Option(
-        name = "--rewrite_polyfills",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Injects polyfills for ES2015+ library classes and methods used in source. See also"
-                + " the \"Polyfills\" GitHub Wiki page.")
     private boolean rewritePolyfills = true;
 
-    @Option(
-        name = "--isolate_polyfills",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Hides injected polyfills from the global scope and any external code. See the"
-                + " the \"Polyfills\" GitHub Wiki page for details.")
     private boolean isolatePolyfills = false;
 
-    @Option(
-        name = "--print_source_after_each_pass",
-        handler = BooleanOptionHandler.class,
-        hidden = true,
-        usage = "Whether to iteratively print resulting JS source per pass.")
     private boolean printSourceAfterEachPass = false;
 
-    @Option(
-        name = "--module_resolution",
-        usage =
-            "Specifies how the compiler locates modules. BROWSER requires all module imports "
-                + "to begin with a '.' or '/' and have a file extension. NODE uses the node module "
-                + "rules. WEBPACK looks up modules from a special lookup map.")
     private ModuleLoader.ResolutionMode moduleResolutionMode = ModuleLoader.ResolutionMode.BROWSER;
 
-    @Option(
-        name = "--browser_resolver_prefix_replacements",
-        usage =
-            "Prefixes to replace in ES6 import paths before resolving. "
-                + "module_resolution must be BROWSER_WITH_TRANSFORMED_PREFIXES to take effect.")
     private Map<String, String> browserResolverPrefixReplacements = new LinkedHashMap<>();
 
-    @Option(
-        name = "--package_json_entry_names",
-        usage =
-            "Ordered list of entries to look for in package.json files when processing modules"
-                + " with the NODE module resolution strategy (i.e. esnext:main,browser,main)."
-                + " Defaults to a list with the following entries: \"browser\", \"module\","
-                + " \"main\".")
     private @Nullable String packageJsonEntryNames = null;
 
-    @Option(name = "--error_format", usage = "Specifies format for error messages.")
     private ErrorFormatOption errorFormat = ErrorFormatOption.STANDARD;
 
-    @Option(
-        name = "--renaming",
-        handler = BooleanOptionHandler.class,
-        usage = "Disables variable renaming. Cannot be used with ADVANCED optimizations.")
     private boolean renaming = true;
 
-    @Option(
-        name = "--help_markdown",
-        handler = BooleanOptionHandler.class,
-        hidden = true,
-        usage = "Prints markdown formatted flag usage")
     private boolean helpMarkdown = false;
 
-    @Option(
-        name = "--instrument_for_coverage_option",
-        usage =
-            """
-            Enable code instrumentation to perform code coverage analysis. Options are:
-             1. NONE (default)
-             2. LINE - Instrument code by line.
-             3. BRANCH - Instrument code by branch.
-             4. PRODUCTION - Function Instrumentation on compiled JS code.
-            """)
     private String instrumentForCoverageOption = "NONE";
 
-    @Option(
-        name = "--production_instrumentation_array_name",
-        usage =
-            "Name of the global array used by production instrumentation. The array name should be"
-                + " declared as an extern so it is not renamed by the compiler. A function that"
-                + " parses the global array should also be included. This flag is to be used in"
-                + " tandem with --instrument_code=PRODUCTION")
     private String productionInstrumentationArrayName = "";
 
-    @Option(
-        name = "--chunk_output_type",
-        usage =
-            "Indicates what format the compiler should use for output chunks. GLOBAL_NAMESPACE is "
-                + "typically used in conjunction with --rename_prefix_namespace. ES_MODULES "
-                + "outputs chunks as proper modules with 'import' and 'export' statements.")
     private ChunkOutputType chunkOutputType = ChunkOutputType.GLOBAL_NAMESPACE;
 
     private InstrumentOption instrumentCodeParsed = InstrumentOption.NONE;
 
-    @Option(
-        name = "--allow_dynamic_import",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Indicates that the compiler should allow dynamic import expressions. Dynamic import "
-                + "expressions are not yet fully supported and may lead to broken output code.")
     private boolean allowDynamicImport = true;
 
-    @Option(
-        name = "--dynamic_import_alias",
-        usage =
-            "Instructs the compiler to replace dynamic imports expressions with a function call "
-                + "using the specified name. Allows dynamic import expressions to be externally "
-                + "polyfilled when the output language level does not natively support them. "
-                + "An alias of 'import' is allowed.")
     private @Nullable String dynamicImportAlias = null;
 
-    @Option(
-        name = "--assume_static_inheritance_is_not_used",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Assume that static (class-side) inheritance is not being used and that static"
-                + " methods will not be referenced via `this` or through subclasses. This enables"
-                + " optimizations that could break code that did those things.")
     private boolean assumeStaticInheritanceIsNotUsed = true;
 
-    @Option(
-        name = "--assume_no_prototype_method_enumeration",
-        handler = BooleanOptionHandler.class,
-        usage =
-            "Assume that prototype method enumeration is not being used. This allows the compiler "
-                + "to move a prototype method declaration into a deeper chunk without creating "
-                + "stub functions in a parent chunk.")
     private boolean assumeNoPrototypeMethodEnumeration = false;
 
-    @Option(
-        name = "--variable_map_input_file",
-        usage =
-            "File containing the serialized version of the variable "
-                + "renaming map produced by a previous compilation")
     private String variableMapInputFile = "";
 
-    @Option(
-        name = "--property_map_input_file",
-        usage =
-            "File containing the serialized version of the property "
-                + "renaming map produced by a previous compilation")
     private String propertyMapInputFile = "";
 
-    @Option(
-        name = "--expected_diagnostics",
-        usage =
-            "Expected diagnostics in the format [(line,col)]CODE:regex. "
-                + "CODE is the JSCompiler DiagnosticType key. regex matches the description.")
     private List<String> expectedDiagnostics = new ArrayList<>();
 
-    @Argument private List<String> arguments = new ArrayList<>();
+    private List<String> arguments = new ArrayList<>();
     private final CmdLineParser parser;
 
     Flags() {
-      parser = new CmdLineParser(this);
+      parser = new CmdLineParser();
+      // The table of flags: one entry per flag, in the order in which the fields are declared.
+      parser
+          .option("--browser_featureset_year")
+          .usage(
+              "shortcut for defining "
+                  + "goog.FEATURESET_YEAR=YYYY."
+                  + " The minimum valid value of the browser year is 2012")
+          .integer(() -> browserFeaturesetYear, v -> browserFeaturesetYear = v);
+      parser
+          .option("--help")
+          .usage("Displays this message on stdout and exit")
+          .bool(() -> displayHelp, v -> displayHelp = v);
+      parser
+          .option("--print_tree")
+          .hidden(true)
+          .usage("Prints out the parse tree and exits")
+          .bool(() -> printTree, v -> printTree = v);
+      parser
+          .option("--print_tree_json")
+          .hidden(true)
+          .usage("Prints out the parse tree as json and exits")
+          .bool(() -> printTreeJson, v -> printTreeJson = v);
+      parser
+          .option("--print_ast")
+          .hidden(true)
+          .usage("Prints a dot file describing the internal abstract syntax" + " tree and exits")
+          .bool(() -> printAst, v -> printAst = v);
+      parser
+          .option("--emit_use_strict")
+          .usage("Start output with \"'use strict';\".")
+          .bool(() -> emitUseStrict, v -> emitUseStrict = v);
+      parser
+          .option("--strict_mode_input")
+          .usage("Assume input sources are to run in strict mode.")
+          .bool(() -> strictModeInput, v -> strictModeInput = v);
+      parser
+          .option("--jscomp_dev_mode")
+          .aliases("--dev_mode")
+          .hidden(true)
+          .enumValue(CompilerOptions.DevMode.values(), () -> jscompDevMode, v -> jscompDevMode = v);
+      parser
+          .option("--logging_level")
+          .hidden(true)
+          .usage(
+              "The logging level (standard java.util.logging.Level"
+                  + " values) for Compiler progress. Does not control errors or"
+                  + " warnings for the JavaScript code under compilation")
+          .string(() -> loggingLevel, v -> loggingLevel = v);
+      parser
+          .option("--externs")
+          .usage("The file containing JavaScript externs. You may specify" + " multiple")
+          .stringList(() -> externs, v -> externs = v);
+      parser
+          .option("--js")
+          .usage(
+              "The JavaScript filename. You may specify multiple. "
+                  + "The flag name is optional, because args are interpreted as files by default. "
+                  + "You may also use minimatch-style glob patterns. For example, use "
+                  + "--js='**.js' --js='!**_test.js' to recursively include all "
+                  + "js files that do not end in _test.js")
+          .stringEach(v -> js = addMultiFlagValue(js, v, JsSourceType.JS, mixedJsSources));
+      parser
+          .option("--jszip")
+          .hidden(true)
+          .usage("The JavaScript zip filename. You may specify multiple.")
+          .stringEach(
+              v ->
+                  unusedJsZip =
+                      addMultiFlagValue(unusedJsZip, v, JsSourceType.JS_ZIP, mixedJsSources));
+      parser
+          .option("--js_output_file")
+          .usage("Primary output filename. If not specified, output is " + "written to stdout")
+          .string(() -> jsOutputFile, v -> jsOutputFile = v);
+      parser
+          .option("--chunk")
+          .usage(
+              "A JavaScript chunk specification. The format is "
+                  + "<name>:<num-js-files>[:[<dep>,...][:]]]. Chunk names must be "
+                  + "unique. Each dep is the name of a chunk that this chunk "
+                  + "depends on. Chunks must be listed in dependency order, and JS "
+                  + "source files must be listed in the corresponding order. Where "
+                  + "--chunk flags occur in relation to --js flags is unimportant. "
+                  + "<num-js-files> may be set to 'auto' for the first chunk if it "
+                  + "has no dependencies. "
+                  + "Provide the value 'auto' to trigger chunk creation from CommonJS "
+                  + "modules.")
+          .stringList(() -> chunk, v -> chunk = v);
+      parser
+          .option("--filename_to_save_to")
+          .hidden(true)
+          .usage("Filename to save state so that the compilation can be resumed later.")
+          .string(() -> filenameToSaveTo, v -> filenameToSaveTo = v);
+      parser
+          .option("--filename_to_restore_from")
+          .hidden(true)
+          .usage("Filename where a compilation state was previously saved.")
+          .string(() -> filenameToRestoreFrom, v -> filenameToRestoreFrom = v);
+      parser
+          .option("--segment_of_compilation_to_run")
+          .hidden(true)
+          .usage("Which segment of the compilation to run.")
+          .enumValue(
+              SegmentOfCompilationToRun.values(),
+              () -> segmentOfCompilationToRun,
+              v -> segmentOfCompilationToRun = v);
+      parser
+          .option("--variable_renaming_report")
+          .usage(
+              "File where the serialized version of the variable "
+                  + "renaming map produced should be saved")
+          .string(() -> variableMapOutputFile, v -> variableMapOutputFile = v);
+      parser
+          .option("--instrument_mapping_report")
+          .usage(
+              "File where the encoded parameters created by Production Instrumentation are mapped to"
+                  + " their pre-encoded values. The %outname% placeholder will expand to the name of"
+                  + " the output file that the source map corresponds to. Must be used in tandem with"
+                  + " --instrument_for_coverage_option=PRODUCTION")
+          .string(
+              () -> instrumentationMappingOutputFile,
+              v -> instrumentationMappingOutputFile = v);
+      parser
+          .option("--create_renaming_reports")
+          .hidden(true)
+          .usage(
+              "If true, variable renaming and property renaming report "
+                  + "files will be produced as {binary name}_vars_renaming_report.out "
+                  + "and {binary name}_props_renaming_report.out. Note that this flag "
+                  + "cannot be used in conjunction with either variable_renaming_report "
+                  + "or property_renaming_report")
+          .bool(() -> createNameMapFiles, v -> createNameMapFiles = v);
+      parser
+          .option("--source_map_include_content")
+          .usage(
+              "Includes sources content into source map. Greatly increases "
+                  + "the size of source maps but offers greater portability")
+          .bool(() -> sourceMapIncludeSourcesContent, v -> sourceMapIncludeSourcesContent = v);
+      parser
+          .option("--property_renaming_report")
+          .usage(
+              "File where the serialized version of the property "
+                  + "renaming map produced should be saved")
+          .string(() -> propertyMapOutputFile, v -> propertyMapOutputFile = v);
+      parser
+          .option("--third_party")
+          .usage(
+              "Check source validity but do not enforce Closure style " + "rules and conventions")
+          .bool(() -> thirdParty, v -> thirdParty = v);
+      parser
+          .option("--summary_detail_level")
+          .hidden(true)
+          .usage(
+              "Controls how detailed the compilation summary is. Values:"
+                  + " 0 (never print summary), 1 (print summary only if there are "
+                  + "errors or warnings), 2 (print summary if the 'checkTypes' "
+                  + "diagnostic  group is enabled, see --jscomp_warning), "
+                  + "3 (always print summary). The default level is 1")
+          .integer(() -> summaryDetailLevel, v -> summaryDetailLevel = v);
+      parser
+          .option("--isolation_mode")
+          .usage(
+              """
+              If set to IIFE the compiler output will follow the form:
+                (function(){%output%}).call(this);
+              Options: NONE, IIFE\
+              """)
+          .enumValue(IsolationMode.values(), () -> isolationMode, v -> isolationMode = v);
+      parser
+          .option("--output_wrapper")
+          .usage(
+              "Interpolate output into this string at the place denoted"
+                  + " by the marker token %output%. Use marker token %output|jsstring%"
+                  + " to do js string escaping on the output."
+                  + " Consider using the --isolation_mode flag instead.")
+          .string(() -> outputWrapper, v -> outputWrapper = v);
+      parser
+          .option("--output_wrapper_file")
+          .usage(
+              "Loads the specified file and passes the file contents to the --output_wrapper flag,"
+                  + " replacing the value if it exists. This is useful if you want special"
+                  + " characters like newline in the wrapper.")
+          .string(() -> outputWrapperFile, v -> outputWrapperFile = v);
+      parser
+          .option("--chunk_wrapper")
+          .usage(
+              "An output wrapper for a JavaScript chunk (optional). "
+                  + "The format is <name>:<wrapper>. The chunk name must correspond "
+                  + "with a chunk specified using --chunk. The wrapper must "
+                  + "contain %s as the code placeholder. "
+                  + "Alternately, %output% can be used in place of %s. "
+                  + "%n% can be used to represent a newline. "
+                  + "The %basename% placeholder can "
+                  + "also be used to substitute the base name of the chunk output file.")
+          .stringList(() -> chunkWrapper, v -> chunkWrapper = v);
+      parser
+          .option("--chunk_output_path_prefix")
+          .usage(
+              "Prefix for filenames of compiled JS chunks. "
+                  + "<chunk-name>.js will be appended to this prefix. Directories "
+                  + "will be created as needed. Use with --chunk")
+          .string(() -> chunkOutputPathPrefix, v -> chunkOutputPathPrefix = v);
+      parser
+          .option("--create_source_map")
+          .usage(
+              "If specified, a source map file mapping the generated "
+                  + "source files back to the original source file will be "
+                  + "output to the specified path. The %outname% placeholder will "
+                  + "expand to the name of the output file that the source map "
+                  + "corresponds to.")
+          .string(() -> createSourceMap, v -> createSourceMap = v);
+      parser
+          .option("--source_map_format")
+          .hidden(true)
+          .usage(
+              "The source map format to produce. "
+                  + "Options are V3 and DEFAULT, which are equivalent.")
+          .enumValue(SourceMap.Format.values(), () -> sourceMapFormat, v -> sourceMapFormat = v);
+      parser
+          .option("--source_map_location_mapping")
+          .usage(
+              "Source map location mapping separated by a '|' "
+                  + "(i.e. filesystem-path|webserver-path)")
+          .stringList(() -> sourceMapLocationMapping, v -> sourceMapLocationMapping = v);
+      parser
+          .option("--source_map_input")
+          .usage(
+              "Source map locations for input files, separated by a '|', "
+                  + "(i.e. input-file-path|input-source-map)")
+          .stringList(() -> sourceMapInputs, v -> sourceMapInputs = v);
+      parser
+          .option("--parse_inline_source_maps")
+          .usage("Parse inline source maps (//# sourceMappingURL=data:...)")
+          .bool(() -> parseInlineSourceMaps, v -> parseInlineSourceMaps = v);
+      parser
+          .option("--apply_input_source_maps")
+          .usage(
+              "Apply input source maps to the output source map, i.e. have the result map back"
+                  + " to original inputs.  Input sourcemaps can be located in 2 ways:\n"
+                  + " 1) by the//# sourceMappingURL=<url>. \n"
+                  + " 2) using the--source_map_location_mapping flag.\n"
+                  + "sourceMappingURL=<url> can read both paths and inline Base64 encoded"
+                  + " sourcemaps. For inline Base64 encoded sourcemaps, see"
+                  + " --parse_inline_source_maps.")
+          .bool(() -> applyInputSourceMaps, v -> applyInputSourceMaps = v);
+      parser
+          .option("--jscomp_error")
+          .usage(
+              "Make the named class of warnings an error. Must be one "
+                  + "of the error group items. '*' adds all supported.")
+          .stringEach(
+              v -> jscompError = addMultiFlagValue(jscompError, v, CheckLevel.ERROR, guardLevels));
+      parser
+          .option("--jscomp_warning")
+          .usage(
+              "Make the named class of warnings a normal warning. Must be one "
+                  + "of the error group items. '*' adds all supported.")
+          .stringEach(
+              v ->
+                  jscompWarning =
+                      addMultiFlagValue(jscompWarning, v, CheckLevel.WARNING, guardLevels));
+      parser
+          .option("--jscomp_off")
+          .usage(
+              "Turn off the named class of warnings. Must be one "
+                  + "of the error group items. '*' adds all supported.")
+          .stringEach(
+              v -> jscompOff = addMultiFlagValue(jscompOff, v, CheckLevel.OFF, guardLevels));
+      parser
+          .option("--define")
+          .aliases("--D", "-D")
+          .usage(
+              "Override the value of a variable annotated @define. "
+                  + "The format is <name>[=<val>], where <name> is the name of a @define "
+                  + "variable and <val> is a boolean, number, or a single-quoted string "
+                  + "that contains no single quotes. If [=<val>] is omitted, "
+                  + "the variable is marked true")
+          .stringList(() -> define, v -> define = v);
+      parser
+          .option("--charset")
+          .usage(
+              "Input and output charset for all files. By default, we "
+                  + "accept UTF-8 as input and output US_ASCII")
+          .string(() -> charset, v -> charset = v);
+      parser
+          .option("--compilation_level")
+          .aliases("-O")
+          .usage(
+              "Specifies the compilation level to use. Options: "
+                  + "BUNDLE, "
+                  + "WHITESPACE_ONLY, "
+                  + "SIMPLE (default), "
+                  + "TRANSPILE_ONLY,"
+                  + "ADVANCED")
+          .string(() -> compilationLevel, v -> compilationLevel = v);
+      parser
+          .option("--num_parallel_threads")
+          .hidden(true)
+          .usage("Use multiple threads to parallelize parts of the compilation.")
+          .integer(() -> numParallelThreads, v -> numParallelThreads = v);
+      parser
+          .option("--checks_only")
+          .aliases("--checks-only")
+          .usage("Don't generate output. Run checks, but no optimization passes.")
+          .bool(() -> checksOnly, v -> checksOnly = v);
+      parser
+          .option("--incremental_check_mode")
+          .usage("Generate or check externs-like .i.js files representing individual libraries.")
+          .enumValue(
+              CompilerOptions.IncrementalCheckMode.values(),
+              () -> incrementalCheckMode,
+              v -> incrementalCheckMode = v);
+      parser
+          .option("--continue_after_errors")
+          .usage("Continue trying to compile after an error is encountered.")
+          .bool(() -> continueAfterErrors, v -> continueAfterErrors = v);
+      parser
+          .option("--use_types_for_optimization")
+          .usage(
+              "Enable or disable the optimizations "
+                  + "based on available type information. Inaccurate type annotations "
+                  + "may result in incorrect results.")
+          .bool(() -> useTypesForOptimization, v -> useTypesForOptimization = v);
+      parser
+          .option("--assume_function_wrapper")
+          .usage(
+              "Enable additional optimizations based on the assumption that the output will be"
+                  + " wrapped with a function wrapper.  This flag is used to indicate that"
+                  + " \"global\" declarations will not actually be global but instead isolated to"
+                  + " the compilation unit. This enables additional optimizations.")
+          .bool(() -> assumeFunctionWrapper, v -> assumeFunctionWrapper = v);
+      parser
+          .option("--warning_level")
+          .aliases("-W")
+          .usage("Specifies the warning level to use. Options: " + "QUIET, DEFAULT, VERBOSE")
+          .enumValue(WarningLevel.values(), () -> warningLevel, v -> warningLevel = v);
+      parser
+          .option("--debug")
+          .usage(
+              "Enable debugging options. Property renaming uses long mangled names which can be "
+                  + "mapped back to the original name.")
+          .bool(() -> debug, v -> debug = v);
+      parser
+          .option("--typed_ast_output_file")
+          .hidden(true)
+          .usage("Sets file to output in-progress typedAST format. DO NOT USE!")
+          .string(() -> typedAstOutputFile, v -> typedAstOutputFile = v);
+      parser
+          .option("--generate_exports")
+          .usage("Generates export code for those marked with @export")
+          .bool(() -> generateExports, v -> generateExports = v);
+      parser
+          .option("--export_local_property_definitions")
+          .usage("Generates export code for local properties marked with @export")
+          .bool(() -> exportLocalPropertyDefinitions, v -> exportLocalPropertyDefinitions = v);
+      parser
+          .option("--formatting")
+          .usage(
+              "Specifies which formatting options, if any, should be "
+                  + "applied to the output JS. Options: "
+                  + "PRETTY_PRINT, PRINT_INPUT_DELIMITER, SINGLE_QUOTES")
+          .enumList(FormattingOption.values(), () -> formatting, v -> formatting = v);
+      parser
+          .option("--process_common_js_modules")
+          .usage("Process CommonJS modules to a concatenable form.")
+          .bool(() -> processCommonJsModules, v -> processCommonJsModules = v);
+      parser
+          .option("--js_module_root")
+          .usage("Path prefixes to be removed from ES6 & CommonJS modules.")
+          .stringList(() -> moduleRoot, v -> moduleRoot = v);
+      parser
+          .option("--process_closure_primitives")
+          .usage(
+              "Processes built-ins from the Closure library, such as "
+                  + "goog.require(), goog.provide(), and goog.exportSymbol(). "
+                  + "True by default.")
+          .bool(() -> processClosurePrimitives, v -> processClosurePrimitives = v);
+      parser
+          .option("--angular_pass")
+          .usage(
+              "Generate $inject properties for AngularJS for functions " + "annotated with @ngInject")
+          .bool(() -> angularPass, v -> angularPass = v);
+      parser
+          .option("--polymer_version")
+          .usage("Which version of Polymer is being used (1 or 2).")
+          .integer(() -> polymerVersion, v -> polymerVersion = v);
+      parser
+          .option("--chrome_pass")
+          .hidden(true)
+          .usage("Enable Chrome-specific options for handling cr.* functions.")
+          .bool(() -> chromePass, v -> chromePass = v);
+      parser
+          .option("--j2cl_pass")
+          .hidden(true)
+          .usage(
+              "Rewrite J2CL output to be compiler-friendly if enabled (ON or AUTO). "
+                  + "Options:OFF, ON, AUTO(default)")
+          .string(() -> j2clPassMode, v -> j2clPassMode = v);
+      parser
+          .option("--remove_j2cl_asserts")
+          .hidden(true)
+          .usage("Remove calls to J2CL assertions.")
+          .flag(() -> removeJ2cLAsserts, v -> removeJ2cLAsserts = v);
+      parser
+          .option("--output_manifest")
+          .usage(
+              "Prints out a list of all the files in the compilation. "
+                  + "If --dependency_mode=PRUNE or PRUNE_LEGACY is specified, this will not include "
+                  + "files that got dropped because they were not required. "
+                  + "The %outname% placeholder expands to the JS output file. "
+                  + "If you're using modularization, using %outname% will create "
+                  + "a manifest for each module.")
+          .string(() -> outputManifest, v -> outputManifest = v);
+      parser
+          .option("--output_chunk_dependencies")
+          .usage("Prints out a JSON file of dependencies between chunks.")
+          .string(() -> outputChunkDependencies, v -> outputChunkDependencies = v);
+      parser
+          .option("--language_in")
+          .usage(
+              "Sets the language spec to which input sources should conform. "
+                  + "Options: ECMASCRIPT3, ECMASCRIPT5, ECMASCRIPT5_STRICT, "
+                  + "ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, "
+                  + "ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020,"
+                  + "ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported),"
+                  + "UNSTABLE (for testing only)")
+          .string(() -> languageIn, v -> languageIn = v);
+      parser
+          .option("--language_out")
+          .usage(
+              "Sets the language spec to which output should conform. "
+                  + "Options: ECMASCRIPT3, ECMASCRIPT5, "
+                  + "ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, "
+                  + "ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020, "
+                  + "ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported)")
+          .string(() -> languageOut, v -> languageOut = v);
+      parser
+          .option("--version")
+          .usage("Prints the compiler version to stdout and exit.")
+          .bool(() -> version, v -> version = v);
+      parser
+          .option("--translations_file")
+          .hidden(true)
+          .usage("Source of translated messages. Currently only supports XTB.")
+          .string(() -> translationsFile, v -> translationsFile = v);
+      parser
+          .option("--translations_project")
+          .hidden(true)
+          .usage(
+              "Scopes all translations to the specified project."
+                  + "When specified, we will use different message ids so that messages "
+                  + "in different projects can have different translations.")
+          .string(() -> translationsProject, v -> translationsProject = v);
+      parser
+          .option("--flagfile")
+          .hidden(true)
+          .usage("A file (or files) containing additional command-line options.")
+          .stringList(() -> flagFiles, v -> flagFiles = v);
+      parser
+          .option("--warnings_allowlist_file")
+          .aliases("--warnings_whitelist_file")
+          .usage(
+              "A file containing warnings to suppress. Each line should be "
+                  + "of the form\n"
+                  + "<file-name>:<line-number>?  <warning-description>")
+          .string(() -> warningsAllowlistFile, v -> warningsAllowlistFile = v);
+      parser
+          .option("--hide_warnings_for")
+          .usage(
+              "If specified, files whose path contains this string will "
+                  + "have their warnings hidden. You may specify multiple.")
+          .stringList(() -> hideWarningsFor, v -> hideWarningsFor = v);
+      parser
+          .option("--extra_annotation_name")
+          .usage("A allowlist of tag names in JSDoc. You may specify multiple")
+          .stringList(() -> extraAnnotationName, v -> extraAnnotationName = v);
+      parser
+          .option("--tracer_mode")
+          .hidden(true)
+          .usage(
+              "Shows the duration of each compiler pass and the impact to "
+                  + "the compiled output size. "
+                  + "Options: ALL, AST_SIZE, RAW_SIZE, TIMING_ONLY, OFF")
+          .enumValue(CompilerOptions.TracerMode.values(), () -> tracerMode, v -> tracerMode = v);
+      parser
+          .option("--rename_variable_prefix")
+          .usage("Specifies a prefix that will be prepended to all variables.")
+          .string(() -> renamePrefix, v -> renamePrefix = v);
+      parser
+          .option("--rename_prefix_namespace")
+          .usage(
+              "Specifies the name of an object that will be used to store all "
+                  + "non-extern globals")
+          .string(() -> renamePrefixNamespace, v -> renamePrefixNamespace = v);
+      parser
+          .option("--conformance_configs")
+          .usage("A list of JS Conformance configurations in text protocol buffer format.")
+          .stringList(() -> conformanceConfigs, v -> conformanceConfigs = v);
+      parser
+          .option("--env")
+          .usage(
+              "Determines the set of builtin externs to load. "
+                  + "Options: BROWSER, CUSTOM. Defaults to BROWSER.")
+          .enumValue(CompilerOptions.Environment.values(), () -> environment, v -> environment = v);
+      parser
+          .option("--json_streams")
+          .usage(
+              "Specifies whether standard input and output streams will be "
+                  + "a JSON array of sources. Each source will be an object of the "
+                  + "form {path: filename, src: file_contents, source_map: srcmap_contents }. "
+                  + "Intended for use by stream-based build systems such as gulpjs. "
+                  + "Options: NONE, IN, OUT, BOTH. Defaults to NONE.")
+          .enumValue(
+              CompilerOptions.JsonStreamMode.values(),
+              () -> jsonStreamMode,
+              v -> jsonStreamMode = v);
+      parser
+          .option("--preserve_type_annotations")
+          .hidden(true)
+          .usage("Preserves type annotations.")
+          .bool(() -> preserveTypeAnnotations, v -> preserveTypeAnnotations = v);
+      parser
+          .option("--inject_libraries")
+          .usage("Allow injecting runtime libraries.")
+          .bool(() -> injectLibraries, v -> injectLibraries = v);
+      parser
+          .option("--force_inject_library")
+          .usage(
+              "Force injection of named runtime libraries. "
+                  + "The format is <name> where <name> is the name of a runtime library. "
+                  + "Possible libraries include: base, es6_runtime")
+          .stringList(() -> forceInjectLibraries, v -> forceInjectLibraries = v);
+      parser
+          .option("--dependency_mode")
+          .usage(
+              "Specifies how the compiler should determine the set and order of files for a "
+                  + "compilation. Options: NONE the compiler will include all src files in the order "
+                  + "listed, SORT_ONLY the compiler will include all source files in dependency "
+                  + "order, PRUNE files will only be included if they are transitive dependencies "
+                  + "of files listed in the --entry_point flag and then sorted in dependency order, "
+                  + "PRUNE_LEGACY same as PRUNE but files that do not goog.provide a namespace and "
+                  + "are not modules will be automatically added as --entry_point entries. Defaults "
+                  + "to PRUNE_LEGACY if entry points are defined, otherwise to NONE.")
+          .enumValue(DependencyMode.values(), () -> dependencyMode, v -> dependencyMode = v);
+      parser
+          .option("--entry_point")
+          .usage(
+              "A file or namespace to use as the starting point for determining "
+                  + "which src files to include in the compilation. ES6 and CommonJS "
+                  + "modules are specified as file paths (without the extension). "
+                  + "Closure-library namespaces are specified with a \"goog:\" prefix. "
+                  + "Example: --entry_point=goog:goog.Promise")
+          .stringList(() -> entryPoint, v -> entryPoint = v);
+      parser
+          .option("--rewrite_polyfills")
+          .usage(
+              "Injects polyfills for ES2015+ library classes and methods used in source. See also"
+                  + " the \"Polyfills\" GitHub Wiki page.")
+          .bool(() -> rewritePolyfills, v -> rewritePolyfills = v);
+      parser
+          .option("--isolate_polyfills")
+          .usage(
+              "Hides injected polyfills from the global scope and any external code. See the"
+                  + " the \"Polyfills\" GitHub Wiki page for details.")
+          .bool(() -> isolatePolyfills, v -> isolatePolyfills = v);
+      parser
+          .option("--print_source_after_each_pass")
+          .hidden(true)
+          .usage("Whether to iteratively print resulting JS source per pass.")
+          .bool(() -> printSourceAfterEachPass, v -> printSourceAfterEachPass = v);
+      parser
+          .option("--module_resolution")
+          .usage(
+              "Specifies how the compiler locates modules. BROWSER requires all module imports "
+                  + "to begin with a '.' or '/' and have a file extension. NODE uses the node module "
+                  + "rules. WEBPACK looks up modules from a special lookup map.")
+          .enumValue(
+              ModuleLoader.ResolutionMode.values(),
+              () -> moduleResolutionMode,
+              v -> moduleResolutionMode = v);
+      parser
+          .option("--browser_resolver_prefix_replacements")
+          .usage(
+              "Prefixes to replace in ES6 import paths before resolving. "
+                  + "module_resolution must be BROWSER_WITH_TRANSFORMED_PREFIXES to take effect.")
+          .map(() -> browserResolverPrefixReplacements, v -> browserResolverPrefixReplacements = v);
+      parser
+          .option("--package_json_entry_names")
+          .usage(
+              "Ordered list of entries to look for in package.json files when processing modules"
+                  + " with the NODE module resolution strategy (i.e. esnext:main,browser,main)."
+                  + " Defaults to a list with the following entries: \"browser\", \"module\","
+                  + " \"main\".")
+          .string(() -> packageJsonEntryNames, v -> packageJsonEntryNames = v);
+      parser
+          .option("--error_format")
+          .usage("Specifies format for error messages.")
+          .enumValue(ErrorFormatOption.values(), () -> errorFormat, v -> errorFormat = v);
+      parser
+          .option("--renaming")
+          .usage("Disables variable renaming. Cannot be used with ADVANCED optimizations.")
+          .bool(() -> renaming, v -> renaming = v);
+      parser
+          .option("--help_markdown")
+          .hidden(true)
+          .usage("Prints markdown formatted flag usage")
+          .bool(() -> helpMarkdown, v -> helpMarkdown = v);
+      parser
+          .option("--instrument_for_coverage_option")
+          .usage(
+              """
+              Enable code instrumentation to perform code coverage analysis. Options are:
+               1. NONE (default)
+               2. LINE - Instrument code by line.
+               3. BRANCH - Instrument code by branch.
+               4. PRODUCTION - Function Instrumentation on compiled JS code.
+              """)
+          .string(() -> instrumentForCoverageOption, v -> instrumentForCoverageOption = v);
+      parser
+          .option("--production_instrumentation_array_name")
+          .usage(
+              "Name of the global array used by production instrumentation. The array name should be"
+                  + " declared as an extern so it is not renamed by the compiler. A function that"
+                  + " parses the global array should also be included. This flag is to be used in"
+                  + " tandem with --instrument_code=PRODUCTION")
+          .string(
+              () -> productionInstrumentationArrayName,
+              v -> productionInstrumentationArrayName = v);
+      parser
+          .option("--chunk_output_type")
+          .usage(
+              "Indicates what format the compiler should use for output chunks. GLOBAL_NAMESPACE is "
+                  + "typically used in conjunction with --rename_prefix_namespace. ES_MODULES "
+                  + "outputs chunks as proper modules with 'import' and 'export' statements.")
+          .enumValue(ChunkOutputType.values(), () -> chunkOutputType, v -> chunkOutputType = v);
+      parser
+          .option("--allow_dynamic_import")
+          .usage(
+              "Indicates that the compiler should allow dynamic import expressions. Dynamic import "
+                  + "expressions are not yet fully supported and may lead to broken output code.")
+          .bool(() -> allowDynamicImport, v -> allowDynamicImport = v);
+      parser
+          .option("--dynamic_import_alias")
+          .usage(
+              "Instructs the compiler to replace dynamic imports expressions with a function call "
+                  + "using the specified name. Allows dynamic import expressions to be externally "
+                  + "polyfilled when the output language level does not natively support them. "
+                  + "An alias of 'import' is allowed.")
+          .string(() -> dynamicImportAlias, v -> dynamicImportAlias = v);
+      parser
+          .option("--assume_static_inheritance_is_not_used")
+          .usage(
+              "Assume that static (class-side) inheritance is not being used and that static"
+                  + " methods will not be referenced via `this` or through subclasses. This enables"
+                  + " optimizations that could break code that did those things.")
+          .bool(() -> assumeStaticInheritanceIsNotUsed, v -> assumeStaticInheritanceIsNotUsed = v);
+      parser
+          .option("--assume_no_prototype_method_enumeration")
+          .usage(
+              "Assume that prototype method enumeration is not being used. This allows the compiler "
+                  + "to move a prototype method declaration into a deeper chunk without creating "
+                  + "stub functions in a parent chunk.")
+          .bool(
+              () -> assumeNoPrototypeMethodEnumeration,
+              v -> assumeNoPrototypeMethodEnumeration = v);
+      parser
+          .option("--variable_map_input_file")
+          .usage(
+              "File containing the serialized version of the variable "
+                  + "renaming map produced by a previous compilation")
+          .string(() -> variableMapInputFile, v -> variableMapInputFile = v);
+      parser
+          .option("--property_map_input_file")
+          .usage(
+              "File containing the serialized version of the property "
+                  + "renaming map produced by a previous compilation")
+          .string(() -> propertyMapInputFile, v -> propertyMapInputFile = v);
+      parser
+          .option("--expected_diagnostics")
+          .usage(
+              "Expected diagnostics in the format [(line,col)]CODE:regex. "
+                  + "CODE is the JSCompiler DiagnosticType key. regex matches the description.")
+          .stringList(() -> expectedDiagnostics, v -> expectedDiagnostics = v);
+      parser.argument(() -> arguments, v -> arguments = v);
     }
 
     /** Parse the given args list. */
@@ -1139,14 +1220,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
             StringWriter stringWriter = new StringWriter();
             parser.printUsage(
                 stringWriter,
-                null,
-                (optionHandler) -> {
-                  if (optionHandler.option instanceof NamedOptionDef namedOptionDef) {
-                    return !optionHandler.option.hidden()
-                        && optionName.equals(namedOptionDef.name().replaceFirst("^--", ""));
-                  }
-                  return false;
-                });
+                (option) ->
+                    !option.hidden() && optionName.equals(option.name().replaceFirst("^--", "")));
             stringWriter.flush();
             String rawOptionUsage = stringWriter.toString();
             int delimiterIndex = rawOptionUsage.indexOf(" : ");
@@ -1169,14 +1244,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           outputStream.write(BOLD_PREFIX + categoryName + ":\n" + NORMAL_PREFIX);
           parser.printUsage(
               outputStream,
-              null,
-              (optionHandler) -> {
-                if (optionHandler.option instanceof NamedOptionDef namedOptionDef) {
-                  return !optionHandler.option.hidden()
-                      && options.contains(namedOptionDef.name().replaceFirst("^--", ""));
-                }
-                return false;
-              });
+              (option) ->
+                  !option.hidden() && options.contains(option.name().replaceFirst("^--", "")));
         }
 
         if (suffix != null) {
@@ -1306,142 +1375,29 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       return Splitter.on(',').splitToList(packageJsonEntryNames);
     }
 
-    // Our own option parser to be backwards-compatible.
-    // It needs to be public because of the crazy reflection that args4j does.
-    public static class BooleanOptionHandler extends OptionHandler<Boolean> {
-      private static final ImmutableSet<String> TRUES = ImmutableSet.of("true", "on", "yes", "1");
-      private static final ImmutableSet<String> FALSES = ImmutableSet.of("false", "off", "no", "0");
-
-      // Handlers are used reflectively by args4j
-      @Keep
-      public BooleanOptionHandler(
-          CmdLineParser parser, OptionDef option, Setter<? super Boolean> setter) {
-        super(parser, option, setter);
+    /**
+     * Appends a value to the values of a flag that may be given several times, and records it
+     * together with the kind of the flag in the list that preserves the original order of such
+     * flags.
+     *
+     * @return the list of values of the flag, which is created if it was null
+     */
+    private static <T> List<String> addMultiFlagValue(
+        @Nullable List<String> values, String value, T flag, List<FlagEntry<T>> entries) {
+      // On windows, some quoted values seem to preserve the quotes as part of the value.
+      String normalizedValue = value;
+      if (value != null
+          && value.length() > 0
+          && (value.substring(0, 1).equals("'") || value.substring(0, 1).equals("\""))
+          && value.substring(value.length() - 1).equals(value.substring(0, 1))) {
+        normalizedValue = value.substring(1, value.length() - 1);
       }
-
-      @Override
-      public int parseArguments(Parameters params) throws CmdLineException {
-        String param = null;
-        try {
-          param = params.getParameter(0);
-        } catch (CmdLineException e) {
-          param = null; // to stop linter complaints
-        }
-
-        if (param == null) {
-          setter.addValue(true);
-          return 0;
-        } else {
-          String lowerParam = Ascii.toLowerCase(param);
-          if (TRUES.contains(lowerParam)) {
-            setter.addValue(true);
-          } else if (FALSES.contains(lowerParam)) {
-            setter.addValue(false);
-          } else {
-            setter.addValue(true);
-            return 0;
-          }
-          return 1;
-        }
+      if (values == null) {
+        values = new ArrayList<>();
       }
-
-      @Override
-      public String getDefaultMetaVariable() {
-        return null;
-      }
-    }
-
-    // Our own parser for warning guards that preserves the original order
-    // of the flags.
-    public static class WarningGuardErrorOptionHandler extends StringOptionHandler {
-      // Handlers are used reflectively by args4j
-      @Keep
-      public WarningGuardErrorOptionHandler(
-          CmdLineParser parser, OptionDef option, Setter<? super String> setter) {
-        super(parser, option, new MultiFlagSetter<>(setter, CheckLevel.ERROR, guardLevels));
-      }
-    }
-
-    public static class WarningGuardWarningOptionHandler extends StringOptionHandler {
-      // Handlers are used reflectively by args4j
-      @Keep
-      public WarningGuardWarningOptionHandler(
-          CmdLineParser parser, OptionDef option, Setter<? super String> setter) {
-        super(parser, option, new MultiFlagSetter<>(setter, CheckLevel.WARNING, guardLevels));
-      }
-    }
-
-    public static class WarningGuardOffOptionHandler extends StringOptionHandler {
-      // Handlers are used reflectively by args4j
-      @Keep
-      public WarningGuardOffOptionHandler(
-          CmdLineParser parser, OptionDef option, Setter<? super String> setter) {
-        super(parser, option, new MultiFlagSetter<>(setter, CheckLevel.OFF, guardLevels));
-      }
-    }
-
-    public static class JsOptionHandler extends StringOptionHandler {
-      // Handlers are used reflectively by args4j
-      @Keep
-      public JsOptionHandler(
-          CmdLineParser parser, OptionDef option, Setter<? super String> setter) {
-        super(parser, option, new MultiFlagSetter<>(setter, JsSourceType.JS, mixedJsSources));
-      }
-    }
-
-    public static class JsZipOptionHandler extends StringOptionHandler {
-      // Handlers are used reflectively by args4j
-      @Keep
-      public JsZipOptionHandler(
-          CmdLineParser parser, OptionDef option, Setter<? super String> setter) {
-        super(parser, option, new MultiFlagSetter<>(setter, JsSourceType.JS_ZIP, mixedJsSources));
-      }
-    }
-
-    private static class MultiFlagSetter<T> implements Setter<String> {
-      private final Setter<? super String> proxy;
-      private final T flag;
-      private final List<FlagEntry<T>> entries;
-
-      private MultiFlagSetter(Setter<? super String> proxy, T flag, List<FlagEntry<T>> entries) {
-        this.proxy = proxy;
-        this.flag = flag;
-        this.entries = entries;
-      }
-
-      @Override
-      public boolean isMultiValued() {
-        return proxy.isMultiValued();
-      }
-
-      @Override
-      public Class<String> getType() {
-        return (Class<String>) proxy.getType();
-      }
-
-      @Override
-      public void addValue(String value) throws CmdLineException {
-        // On windows, some quoted values seem to preserve the quotes as part of the value.
-        String normalizedValue = value;
-        if (value != null
-            && value.length() > 0
-            && (value.substring(0, 1).equals("'") || value.substring(0, 1).equals("\""))
-            && value.substring(value.length() - 1).equals(value.substring(0, 1))) {
-          normalizedValue = value.substring(1, value.length() - 1);
-        }
-        proxy.addValue(normalizedValue);
-        entries.add(new FlagEntry<>(flag, normalizedValue));
-      }
-
-      @Override
-      public FieldSetter asFieldSetter() {
-        return proxy.asFieldSetter();
-      }
-
-      @Override
-      public AnnotatedElement asAnnotatedElement() {
-        return proxy.asAnnotatedElement();
-      }
+      values.add(normalizedValue);
+      entries.add(new FlagEntry<>(flag, normalizedValue));
+      return values;
     }
   }
 
@@ -1489,8 +1445,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   private static List<String> processArgs(String[] args) {
-    // Args4j has a different format that the old command-line parser.
-    // So we use some voodoo to get the args into the format that args4j
+    // CmdLineParser has a different format that the old command-line parser.
+    // So we use some voodoo to get the args into the format that CmdLineParser
     // expects.
     Pattern argPattern = Pattern.compile("(--?[a-zA-Z_]+)=(.*)", Pattern.DOTALL);
     Pattern quotesPattern = Pattern.compile("^['\"](.*)['\"]$");

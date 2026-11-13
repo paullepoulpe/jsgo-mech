@@ -17,9 +17,6 @@ package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat;
 import com.google.javascript.jscomp.parsing.ParserRunner;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
 
 /**
  * Prints out a map from diagnostic id to suppression.
@@ -41,12 +38,8 @@ import org.kohsuke.args4j.Option;
  */
 public final class MapDiagnosticToSuppression {
 
-  @Option(
-      name = "--output",
-      usage = "Sets the desired output format.\n" + "Options: md, json" + "Default: json")
   private OutputFormat output = OutputFormat.JSON;
 
-  @Option(name = "--help", usage = "Usage")
   private boolean help = false;
 
   private MapDiagnosticToSuppression() {}
@@ -60,7 +53,15 @@ public final class MapDiagnosticToSuppression {
   }
 
   private void printSuppressions(String[] args) {
-    CmdLineParser parser = new CmdLineParser(this);
+    CmdLineParser parser = new CmdLineParser();
+    parser
+        .option("--output")
+        .usage("Sets the desired output format.\n" + "Options: md, json" + "Default: json")
+        .enumValue(OutputFormat.values(), () -> output, v -> output = v);
+    parser
+        .option("--help")
+        .usage("Usage")
+        .flag(() -> help, v -> help = v);
     try {
       parser.parseArgument(args);
     } catch (CmdLineException ex) {

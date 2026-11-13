@@ -19,10 +19,6 @@ import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
 
 /**
  * Minimal binary that just runs the "lint" checks which can be run on a single file at a time. This
@@ -30,22 +26,27 @@ import org.kohsuke.args4j.Option;
  * information.
  */
 public final class LinterMain {
-  @Option(name = "--fix", usage = "Fix lint warnings automatically")
   private boolean fix = false;
 
-  @Option(
-      name = "--resolution_mode",
-      usage = "Expected path resolution mode for resolving module specifiers.")
   private ResolutionMode resolutionMode = ResolutionMode.BROWSER;
 
-  @Argument private List<String> files = new ArrayList<>();
+  private List<String> files = new ArrayList<>();
 
   public static void main(String[] args) throws IOException, CmdLineException {
     new LinterMain().run(args);
   }
 
   private void run(String[] args) throws IOException, CmdLineException {
-    CmdLineParser parser = new CmdLineParser(this);
+    CmdLineParser parser = new CmdLineParser();
+    parser
+        .option("--fix")
+        .usage("Fix lint warnings automatically")
+        .flag(() -> fix, v -> fix = v);
+    parser
+        .option("--resolution_mode")
+        .usage("Expected path resolution mode for resolving module specifiers.")
+        .enumValue(ResolutionMode.values(), () -> resolutionMode, v -> resolutionMode = v);
+    parser.argument(() -> files, v -> files = v);
     parser.parseArgument(args);
 
     Linter linter = Linter.builder().withModuleResolutionMode(resolutionMode).build();
