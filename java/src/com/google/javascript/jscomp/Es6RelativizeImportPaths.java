@@ -17,6 +17,7 @@
 package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.rhino.Node;
@@ -95,7 +96,13 @@ public class Es6RelativizeImportPaths implements CompilerPass {
         newSpecifier = "/" + newSpecifier;
       }
 
-      newSpecifier = Io.pathRelativize(Io.pathParent(scriptPath.get()).get(), newSpecifier);
+      Optional<String> relativeSpecifier =
+          FilePaths.relativize(FilePaths.parent(scriptPath.get()).get(), newSpecifier);
+      if (relativeSpecifier.isEmpty()) {
+        throw new IllegalArgumentException(
+            "No relative path from " + scriptPath.get() + " to " + newSpecifier);
+      }
+      newSpecifier = relativeSpecifier.get();
 
       // Relativizing two paths with the same directory yields an ambiguous path rather than one
       // starting with "./".

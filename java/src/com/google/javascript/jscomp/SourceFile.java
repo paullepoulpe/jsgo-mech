@@ -25,6 +25,7 @@ import static java.lang.Math.min;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.javascript.jscomp.base.Charsets;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.serialization.SourceFileProto;
@@ -530,7 +531,7 @@ public final class SourceFile implements StaticSourceFile {
     if (entryNames.isErr()) {
       return Outcome.err(entryNames.error());
     }
-    final String absoluteZipPath = Io.pathToAbsolute(zipName);
+    final String absoluteZipPath = FilePaths.toAbsolute(zipName);
     List<SourceFile> sourceFiles = new ArrayList<>();
 
     for (String entryName : entryNames.get()) {
@@ -857,7 +858,7 @@ public final class SourceFile implements StaticSourceFile {
       }
 
       return new SourceFile(
-          new CodeLoader.OnDisk(Io.pathString(this.path.get()), this.charset),
+          new CodeLoader.OnDisk(FilePaths.clean(this.path.get()), this.charset),
           displayPath.get(),
           this.kind);
     }

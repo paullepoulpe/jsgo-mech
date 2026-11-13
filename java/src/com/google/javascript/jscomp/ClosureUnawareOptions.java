@@ -16,7 +16,7 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.js.RuntimeJsLibManager;
 import java.util.Optional;
 
@@ -152,7 +152,7 @@ class ClosureUnawareOptions {
     Optional<String> debugLogDirectory = original.getDebugLogDirectory();
     if (debugLogDirectory.isPresent()) {
       shadowOptions.setDebugLogDirectory(
-          Optional.of(Io.pathResolve(debugLogDirectory.get(), "./TranspileAndOptimizeClosureUnaware")));
+          Optional.of(FilePaths.resolve(debugLogDirectory.get(), "./TranspileAndOptimizeClosureUnaware")));
     }
   }
 }

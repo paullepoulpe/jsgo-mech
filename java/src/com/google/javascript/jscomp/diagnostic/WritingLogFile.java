@@ -22,6 +22,7 @@ import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import com.google.errorprone.annotations.MustBeClosed;
 import com.google.javascript.jscomp.base.Charsets;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
@@ -37,7 +38,7 @@ final class WritingLogFile extends LogFile {
 
   @MustBeClosed
   static LogFile create(String file) {
-    Io.mkdirs(Io.pathParent(file).orElse(null));
+    Io.mkdirs(FilePaths.parent(file).orElse(null));
     // The log allows the logged string to contain invalid Unicode (it replaces invalid character
     // sequences but doesn't throw). This is useful in cases where the source code contains invalid
     // Unicode (e.g., inside strings).

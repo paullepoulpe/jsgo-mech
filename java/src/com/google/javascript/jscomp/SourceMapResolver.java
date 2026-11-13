@@ -17,6 +17,7 @@ package com.google.javascript.jscomp;
 
 
 import com.google.common.collect.ImmutableSet;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
@@ -93,15 +94,15 @@ public final class SourceMapResolver {
    */
   static @Nullable SourceFile getRelativePath(String baseFilePath, String relativePath) {
     return SourceFile.builder()
-        .withPath(Io.pathNormalize(resolveSibling(baseFilePath, relativePath)))
+        .withPath(FilePaths.normalize(resolveSibling(baseFilePath, relativePath)))
         .withKind(SourceKind.NON_CODE)
         .build();
   }
 
   /** Resolves the path against the directory of the base file. */
   private static String resolveSibling(String baseFilePath, String path) {
-    Optional<String> directory = Io.pathParent(baseFilePath);
-    return directory.isEmpty() ? Io.pathString(path) : Io.pathResolve(directory.get(), path);
+    Optional<String> directory = FilePaths.parent(baseFilePath);
+    return directory.isEmpty() ? FilePaths.clean(path) : FilePaths.resolve(directory.get(), path);
   }
 
   /**

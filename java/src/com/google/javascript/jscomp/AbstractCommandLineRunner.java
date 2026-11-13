@@ -42,6 +42,7 @@ import com.google.javascript.jscomp.CompilerOptions.OutputJs;
 import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.CompilerOptions.TweakProcessing;
 import com.google.javascript.jscomp.base.Charsets;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Json;
@@ -328,7 +329,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
 
     if (!config.warningsAllowFile.isEmpty()) {
-      addAllowlistWarningsGuard(options, Io.pathString(config.warningsAllowFile));
+      addAllowlistWarningsGuard(options, FilePaths.clean(config.warningsAllowFile));
     }
 
     if (!config.hideWarningsFor.isEmpty()) {
@@ -1102,7 +1103,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (!isOutputInJson()) {
       maybeCreateDirsForPath(fileName);
     }
-    String baseName = Io.pathFileName(fileName);
+    String baseName = FilePaths.fileName(fileName);
     writeOutput(
         out,
         compiler,
@@ -1191,7 +1192,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   /** Creates any directories necessary to write a file that will have a given path prefix. */
   private static void maybeCreateDirsForPath(String pathPrefix) {
     if (!Strings.isNullOrEmpty(pathPrefix)) {
-      Optional<String> parent = Io.pathParent(pathPrefix);
+      Optional<String> parent = FilePaths.parent(pathPrefix);
       if (parent.isPresent()) {
         Io.mkdirs(parent.get());
       }
@@ -2131,8 +2132,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     String exPath = externExportsPath.get();
 
-    if (!exPath.contains(Io.separator())) {
-      exPath = Io.pathParent(path).orElse("null") + Io.separator() + exPath;
+    if (!exPath.contains(FilePaths.SEPARATOR)) {
+      exPath = FilePaths.parent(path).orElse("null") + FilePaths.SEPARATOR + exPath;
     }
 
     return fileNameToOutputWriter2(Optional.of(exPath));
@@ -2273,18 +2274,18 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
     } else {
       // Get the path of the output file.
-      String outputFileName = Io.pathFileName(outputFile);
+      String outputFileName = FilePaths.fileName(outputFile);
 
       // Strip the .js from the name.
       if (outputFileName.endsWith(".js")) {
         outputFileName = outputFileName.substring(0, outputFileName.length() - 3);
       }
 
-      Optional<String> fileParent = Io.pathParent(outputFile);
+      Optional<String> fileParent = FilePaths.parent(outputFile);
       if (fileParent.isEmpty()) {
         basePath = outputFileName;
       } else {
-        basePath = fileParent.get() + Io.separator() + outputFileName;
+        basePath = fileParent.get() + FilePaths.SEPARATOR + outputFileName;
       }
     }
 

@@ -38,6 +38,7 @@ import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.DependencyOptions.DependencyMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
 import com.google.javascript.jscomp.base.Charsets;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
@@ -1687,7 +1688,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     if (flags.outputWrapperFile.isPresent() && !flags.outputWrapperFile.get().isEmpty()) {
       Outcome<String> outputWrapper =
-          Io.readText(Io.pathString(flags.outputWrapperFile.get()), Charsets.UTF_8);
+          Io.readText(FilePaths.clean(flags.outputWrapperFile.get()), Charsets.UTF_8);
       if (outputWrapper.isErr()) {
         reportError("ERROR - invalid output_wrapper_file specified.");
       } else {
@@ -1916,7 +1917,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     if (flags.typedAstOutputFile.isPresent()) {
-      options.setTypedAstOutputFile(Optional.of(Io.pathString(flags.typedAstOutputFile.get())));
+      options.setTypedAstOutputFile(Optional.of(FilePaths.clean(flags.typedAstOutputFile.get())));
     }
     options.setGenerateExports(flags.generateExports);
     options.setExportLocalPropertyDefinitions(flags.exportLocalPropertyDefinitions);
@@ -2157,7 +2158,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   private static Outcome<ConformanceConfig> loadConformanceConfig(String configFile) {
-    Outcome<String> text = Io.readText(Io.pathString(configFile), Charsets.UTF_8);
+    Outcome<String> text = Io.readText(FilePaths.clean(configFile), Charsets.UTF_8);
     if (text.isErr()) {
       return Outcome.err(text.error());
     }
@@ -2215,20 +2216,20 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     for (String pattern : patterns) {
       if (!pattern.contains("*") && !pattern.startsWith("!")) {
         if (Io.isDirectory(pattern)) {
-          String directory = Io.pathString(pattern);
+          String directory = FilePaths.clean(pattern);
           Outcome<Void> matched =
               matchPaths(
-                  directory.endsWith(Io.separator())
+                  directory.endsWith(FilePaths.SEPARATOR)
                       ? directory + "**.js"
-                      : directory + Io.separator() + "**.js",
+                      : directory + FilePaths.SEPARATOR + "**.js",
                   allJsInputs,
                   excludes);
           if (matched.isErr()) {
             return Outcome.err(matched.error());
           }
         } else {
-          String original = Io.pathString(pattern);
-          String pathStringAbsolute = Io.pathToAbsolute(Io.pathNormalize(original));
+          String original = FilePaths.clean(pattern);
+          String pathStringAbsolute = FilePaths.toAbsolute(FilePaths.normalize(original));
           if (!excludes.contains(pathStringAbsolute)) {
             allJsInputs.put(pathStringAbsolute, original);
           }
@@ -2251,11 +2252,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       pattern = pattern.substring(1);
     }
 
-    String separator = Io.separator().equals("\\") ? "\\\\" : Io.separator();
+    String separator = FilePaths.SEPARATOR;
 
     // Split the pattern into two pieces: the globbing part
     // and the non-globbing prefix.
-    List<String> patternParts = Splitter.on(Io.separator()).splitToList(pattern);
+    List<String> patternParts = Splitter.on(FilePaths.SEPARATOR).splitToList(pattern);
     String prefix = ".";
     for (int i = 0; i < patternParts.size(); i++) {
       if (patternParts.get(i).contains("*")) {
@@ -2273,7 +2274,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       return Outcome.err(matches.error());
     }
     for (String p : matches.get()) {
-      String pathStringAbsolute = Io.pathToAbsolute(Io.pathNormalize(p));
+      String pathStringAbsolute = FilePaths.toAbsolute(FilePaths.normalize(p));
       if (remove) {
         excludes.add(pathStringAbsolute);
         allJsInputs.remove(pathStringAbsolute);

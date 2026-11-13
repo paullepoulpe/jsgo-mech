@@ -25,7 +25,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.Immutable;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.deps.DependencyInfo;
 import java.util.Objects;
 import java.util.Optional;
@@ -144,7 +144,7 @@ public record Source(
     }
 
     public Builder setPath(String path) {
-      this.path = Optional.of(Io.pathString(path));
+      this.path = Optional.of(FilePaths.clean(path));
       return this;
     }
     public Builder setSourceMap(String sourceMap) {

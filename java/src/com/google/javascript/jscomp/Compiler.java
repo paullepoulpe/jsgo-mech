@@ -46,6 +46,7 @@ import com.google.javascript.jscomp.JSChunkGraph.DependencyManagementResult;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
 import com.google.javascript.jscomp.base.Charsets;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleJsonValue;
@@ -1537,8 +1538,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     }
 
     java.util.Optional<String> dir = getOptions().getDebugLogDirectory();
-    String relativeParts = Io.pathString(firstNamePart, restNameParts);
-    String file = Io.pathResolve(Io.pathResolve(dir.get(), owner.getSimpleName()), relativeParts);
+    String relativeParts = FilePaths.join(firstNamePart, restNameParts);
+    String file = FilePaths.resolve(FilePaths.resolve(dir.get(), owner.getSimpleName()), relativeParts);
 
     // If a filter list for log file names was provided, only create a log file if any
     // of the filter strings matches.

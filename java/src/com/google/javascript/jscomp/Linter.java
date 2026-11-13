@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
@@ -112,7 +113,7 @@ public final class Linter {
   }
 
   void lint(String filename) {
-    lint(Io.pathString(filename), new Compiler(Io.stdout()));
+    lint(FilePaths.clean(filename), new Compiler(Io.stdout()));
   }
 
   void lint(String path, Compiler compiler) {
@@ -155,7 +156,7 @@ public final class Linter {
     compiler.setErrorManager(errorManager);
     errorManager.setCompiler(compiler);
 
-    lint(Io.pathString(filename), compiler);
+    lint(FilePaths.clean(filename), compiler);
 
     Collection<SuggestedFix> fixes = errorManager.getSureFixes();
     if (!fixes.isEmpty()) {

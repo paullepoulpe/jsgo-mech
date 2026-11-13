@@ -526,48 +526,11 @@ public final class Io {
     }
   }
 
-  // ---- Path arithmetic on strings (a syntactically invalid path is an InvalidPathException)
+  // ---- The working directory (path arithmetic is in FilePaths)
 
-  /** The name separator of paths: "/" or "\\". */
-  public static String separator() {
-    return File.separator;
-  }
-
-  /** The path in its normal spelling: redundant separators removed. */
-  public static String pathString(String first, String... more) {
-    return Path.of(first, more).toString();
-  }
-
-  /** The last name of the path; "" if it has none. */
-  public static String pathFileName(String path) {
-    Path name = Path.of(path).getFileName();
-    return name == null ? "" : name.toString();
-  }
-
-  /** The path without its last name; null if that leaves nothing. */
-  public static Optional<String> pathParent(String path) {
-    Path parent = Path.of(path).getParent();
-    return parent == null ? Optional.empty() : Optional.ofNullable(parent.toString());
-  }
-
-  /** The path with "." and "name/.." elements removed. */
-  public static String pathNormalize(String path) {
-    return Path.of(path).normalize().toString();
-  }
-
-  /** The path resolved against the working directory if it is relative. */
-  public static String pathToAbsolute(String path) {
-    return Path.of(path).toAbsolutePath().toString();
-  }
-
-  /** {@code other} if it is absolute, else {@code path/other}. */
-  public static String pathResolve(String path, String other) {
-    return Path.of(path).resolve(other).toString();
-  }
-
-  /** The relative path from {@code path} to {@code other}. */
-  public static String pathRelativize(String path, String other) {
-    return Path.of(path).relativize(Path.of(other)).toString();
+  /** The absolute path of the process's working directory. */
+  public static String workingDirectory() {
+    return Path.of("").toAbsolutePath().toString();
   }
 
   // ---- URI arithmetic on strings (java.net.URI semantics)

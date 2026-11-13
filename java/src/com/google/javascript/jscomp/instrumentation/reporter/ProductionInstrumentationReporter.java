@@ -22,6 +22,7 @@ import com.google.common.primitives.Longs;
 import com.google.javascript.jscomp.CmdLineException;
 import com.google.javascript.jscomp.CmdLineParser;
 import com.google.javascript.jscomp.base.Charsets;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
@@ -67,7 +68,7 @@ final class ProductionInstrumentationReporter {
     ImmutableList.Builder<Map<String, Long>> result = ImmutableList.builder();
 
     for (final String fileEntry : Io.listDirectory(folder)) {
-      Outcome<String> executionResult = readFile(Io.pathToAbsolute(fileEntry));
+      Outcome<String> executionResult = readFile(FilePaths.toAbsolute(fileEntry));
       if (executionResult.isErr()) {
         return Outcome.err(executionResult.error());
       }

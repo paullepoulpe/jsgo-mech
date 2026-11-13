@@ -30,7 +30,7 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleMultiset;
 import java.util.ArrayList;
@@ -326,34 +326,32 @@ public final class ModuleLoader {
   }
 
   public static Outcome<String> relativePathFrom(String fromUriPath, String toUriPath) {
-    try {
-      String toPath = Io.pathString(toUriPath);
-      Optional<String> fromFolder = Io.pathParent(fromUriPath);
+    String toPath = FilePaths.clean(toUriPath);
+    Optional<String> fromFolder = FilePaths.parent(fromUriPath);
 
-      // if the from URIs are simple names without paths, they are in the same folder
-      // example: m0.js
-      if (fromFolder.isEmpty() && Io.pathParent(toUriPath).isEmpty()) {
-        return Outcome.ok("./" + toUriPath);
-      } else if (fromFolder.isEmpty()
-          && (toUriPath.startsWith(".")
-              || toPath.startsWith("/")
-              || toPath.startsWith("\\"))) {
-        return Outcome.ok(toUriPath);
-      } else if (fromFolder.isEmpty()) {
-        return Outcome.err(
-            new IllegalArgumentException("Relative path between URIs cannot be calculated"));
-      }
-
-      String calculatedPath = Io.pathRelativize(fromFolder.get(), toUriPath);
-      if (calculatedPath.startsWith(".") || calculatedPath.startsWith("/")) {
-        return Outcome.ok(calculatedPath);
-      }
-      return Outcome.ok("./" + calculatedPath);
-    } catch (IllegalArgumentException e) {
-      // The InvalidPathException of Path.of and the IllegalArgumentException of Path.relativize
-      // (JDK calls without a non-throwing equivalent).
-      return Outcome.err(e);
+    // if the from URIs are simple names without paths, they are in the same folder
+    // example: m0.js
+    if (fromFolder.isEmpty() && FilePaths.parent(toUriPath).isEmpty()) {
+      return Outcome.ok("./" + toUriPath);
+    } else if (fromFolder.isEmpty()
+        && (toUriPath.startsWith(".")
+            || toPath.startsWith("/")
+            || toPath.startsWith("\\"))) {
+      return Outcome.ok(toUriPath);
+    } else if (fromFolder.isEmpty()) {
+      return Outcome.err(
+          new IllegalArgumentException("Relative path between URIs cannot be calculated"));
     }
+
+    Optional<String> calculatedPath = FilePaths.relativize(fromFolder.get(), toUriPath);
+    if (calculatedPath.isEmpty()) {
+      return Outcome.err(
+          new IllegalArgumentException("Relative path between URIs cannot be calculated"));
+    }
+    if (calculatedPath.get().startsWith(".") || calculatedPath.get().startsWith("/")) {
+      return Outcome.ok(calculatedPath.get());
+    }
+    return Outcome.ok("./" + calculatedPath.get());
   }
 
   public void setErrorHandler(ErrorHandler errorHandler) {
@@ -408,7 +406,7 @@ public final class ModuleLoader {
     ABSOLUTE {
       @Override
       public String apply(String path) {
-        return Io.pathToAbsolute(path);
+        return FilePaths.toAbsolute(path);
       }
     };
   }

@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.base.Charsets;
+import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Outcome;
@@ -678,7 +679,7 @@ public final class CmdLineParser {
     List<String> result = new ArrayList<>();
     for (String arg : args) {
       if (arg.startsWith("@")) {
-        String file = Io.pathString(arg.substring(1));
+        String file = FilePaths.clean(arg.substring(1));
         if (!Io.exists(file)) {
           return Outcome.err(new CmdLineException(this, "No such file: " + file));
         }
