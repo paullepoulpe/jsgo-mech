@@ -17,7 +17,6 @@
 package com.google.debugging.sourcemap;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
@@ -55,7 +54,7 @@ public final class SourceMapConsumerV3Test {
                 .setMappings("AAAAA,QAASA,UAAS,EAAG;")
                 .setSources("testcode")
                 .setNames("__BASIC__")
-                .build()));
+                .build())).get();
 
     assertThat(consumer.getOriginalSources()).containsExactly("testcode");
     assertThat(consumer.getSourceRoot()).isNull();
@@ -77,7 +76,7 @@ public final class SourceMapConsumerV3Test {
                         .setMappings("AAAAA,QAASA,UAAS,EAAG;")
                         .setSources("testcode.js")
                         .setNames("foo"))
-                .build()));
+                .build())).get();
   }
 
   @Test
@@ -96,7 +95,7 @@ public final class SourceMapConsumerV3Test {
                         .setMappings("AAAAA,QAASA,UAAS,EAAG;")
                         .setSources("testcode.js")
                         .setNames("foo"))
-                .build()));
+                .build())).get();
   }
 
   @Test
@@ -116,7 +115,7 @@ public final class SourceMapConsumerV3Test {
                         .setMappings("AAAAA,QAASA,UAAS,EAAG;")
                         .setSources("testcode.js")
                         .setNames("foo"))
-                .build()));
+                .build())).get();
   }
 
   @Test
@@ -131,7 +130,7 @@ public final class SourceMapConsumerV3Test {
                 .setSourceRoot("http://server/path/")
                 .setSources("testcode")
                 .setNames("__BASIC__")
-                .build()));
+                .build())).get();
 
     //By default sourceRoot is not prepended
     assertThat(consumer.getOriginalSources()).containsExactly("testcode");
@@ -151,7 +150,7 @@ public final class SourceMapConsumerV3Test {
                 .setNames("__BASIC__")
                 .setCustomProperty("x_org_int", 2)
                 .setCustomProperty("x_org_array", ImmutableList.of())
-                .build()));
+                .build())).get();
 
     Map<String, Object> exts = consumer.getExtensions();
 
@@ -172,7 +171,7 @@ public final class SourceMapConsumerV3Test {
                 .setMappings("AAAAA,QAASA,UAAS,EAAG;")
                 .setSources("testcode")
                 .setNames("__BASIC__")
-                .build()));
+                .build())).get();
 
     OriginalMapping mapping = consumer.getMappingForLine(1, 1);
 
@@ -205,7 +204,7 @@ public final class SourceMapConsumerV3Test {
                     """)
                 .setSources("testcode")
                 .setNames("Shape", "id", "Rectangle", "s")
-                .build()));
+                .build())).get();
 
     OriginalMapping mapping = consumer.getMappingForLine(40, 10);
 
@@ -238,7 +237,7 @@ public final class SourceMapConsumerV3Test {
                 .setMappings(mappings.toString())
                 .setSources("testcode")
                 .setNames("foo")
-                .build()));
+                .build())).get();
 
     assertThat(consumer.getLineCount()).isEqualTo(1);
     OriginalMapping mapping = consumer.getMappingForLine(1, 1);
@@ -260,7 +259,7 @@ public final class SourceMapConsumerV3Test {
                 .setMappings("A,CAAA,EAAAA;")
                 .setSources("testcode")
                 .setNames("name1")
-                .build()));
+                .build())).get();
 
     OriginalMapping m1 = consumer.getMappingForLine(1, 1); // col 0
     OriginalMapping m2 = consumer.getMappingForLine(1, 2); // col 1
@@ -288,7 +287,7 @@ public final class SourceMapConsumerV3Test {
                 .setMappings("AAAAA,QAASA,UAAS,EAAG;")
                 .setSources("testcode")
                 .setNames("__BASIC__")
-                .build()));
+                .build())).get();
 
     Collection<OriginalMapping> reverse = consumer.getReverseMapping("testcode", 0, 0);
     assertThat(reverse).isNotEmpty();
@@ -324,7 +323,7 @@ public final class SourceMapConsumerV3Test {
                   .setMappings(mappings.toString())
                   .setSources("testcode")
                   .setNames("foo")
-                  .build()));
+                  .build())).get();
 
       for (int col = 0; col < numEntries; col++) {
         OriginalMapping mapping = consumer.getMappingForLine(1, col + 1);
@@ -347,7 +346,7 @@ public final class SourceMapConsumerV3Test {
                 .setMappings("AAAAA,QAASA,UAAS,EAAG;")
                 .setSources("testcode")
                 .setNames("__BASIC__")
-                .build()));
+                .build())).get();
 
     List<String> symbols = new ArrayList<>();
     consumer.visitMappings(
@@ -365,21 +364,21 @@ public final class SourceMapConsumerV3Test {
     // A VLQ of length 2, e.g. "AA" -> [0, 0]
     String invalidMappings = "AA;";
 
-    SourceMapParseException expected =
-        assertThrows(
-            SourceMapParseException.class,
-            () ->
-                consumer.parse(
-                    GSON.toJson(
-                        TestJsonBuilder.create()
-                            .setVersion(3)
-                            .setFile("testcode")
-                            .setLineCount(1)
-                            .setMappings(invalidMappings)
-                            .setSources("testcode")
-                            .setNames("foo")
-                            .build())));
+    Throwable expected =
+        consumer
+            .parse(
+                GSON.toJson(
+                    TestJsonBuilder.create()
+                        .setVersion(3)
+                        .setFile("testcode")
+                        .setLineCount(1)
+                        .setMappings(invalidMappings)
+                        .setSources("testcode")
+                        .setNames("foo")
+                        .build()))
+            .error();
 
+    assertThat(expected).isInstanceOf(SourceMapParseException.class);
     assertThat(expected).hasMessageThat().contains("Unexpected number of values for entry:2");
   }
 }

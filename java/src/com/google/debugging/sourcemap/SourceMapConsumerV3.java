@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.debugging.sourcemap.Base64VLQ.CharIterator;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Precision;
+import com.google.javascript.jscomp.base.Outcome;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,27 +64,30 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
    * Parses the given contents containing a source map.
    */
   @Override
-  public void parse(String contents) throws SourceMapParseException {
-    SourceMapObject sourceMapObject = SourceMapObjectParser.parse(contents);
-    parse(sourceMapObject, null);
+  public Outcome<Void> parse(String contents) {
+    Outcome<SourceMapObject> sourceMapObject = SourceMapObjectParser.parse(contents);
+    if (sourceMapObject.isErr()) {
+      return Outcome.err(sourceMapObject.error());
+    }
+    return parse(sourceMapObject.get(), null);
   }
 
   /** Parses the given contents containing a source map. */
-  public void parse(SourceMapObject sourceMapObject, @Nullable SourceMapSupplier sectionSupplier)
-      throws SourceMapParseException {
+  public Outcome<Void> parse(
+      SourceMapObject sourceMapObject, @Nullable SourceMapSupplier sectionSupplier) {
     if (sourceMapObject.getVersion() != 3) {
-      throw new SourceMapParseException("Unknown version: " + sourceMapObject.getVersion());
+      return Outcome.err(
+          new SourceMapParseException("Unknown version: " + sourceMapObject.getVersion()));
     }
 
     file = sourceMapObject.getFile();
     if (file != null && file.isEmpty()) {
-      throw new SourceMapParseException("File entry is empty");
+      return Outcome.err(new SourceMapParseException("File entry is empty"));
     }
 
     if (sourceMapObject.getSections() != null) {
       // Looks like a index map, try to parse it that way.
-      parseMetaMap(sourceMapObject, sectionSupplier);
-      return;
+      return parseMetaMap(sourceMapObject, sectionSupplier);
     }
 
     lineCount = sourceMapObject.getLineCount();
@@ -114,15 +118,20 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
     // The value type of each extension is the native JSON type (e.g. JsonObject, or JSONObject
     // when compiled with GWT).
     extensions.putAll(sourceMapObject.getExtensions());
-    mappings =
+    Outcome<Mappings> built =
         new MappingBuilder(
                 sourceMapObject.getMappings(), lineCount, useCompactMappings, estimatedEntries)
             .build();
+    if (built.isErr()) {
+      return Outcome.err(built.error());
+    }
+    mappings = built.get();
+    return Outcome.ok();
   }
 
   /** */
-  private void parseMetaMap(SourceMapObject sourceMapObject, SourceMapSupplier sectionSupplier)
-      throws SourceMapParseException {
+  private Outcome<Void> parseMetaMap(
+      SourceMapObject sourceMapObject, SourceMapSupplier sectionSupplier) {
     if (sectionSupplier == null) {
       sectionSupplier = new DefaultSourceMapSupplier();
     }
@@ -132,7 +141,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
           || sourceMapObject.getMappings() != null
           || (sourceMapObject.getSources() != null && sourceMapObject.getSources().length > 0)
           || sourceMapObject.getNames() != null) {
-        throw new SourceMapParseException("Invalid map format");
+        return Outcome.err(new SourceMapParseException("Invalid map format"));
       }
 
       // Build up a new source map in a new generator using the mappings of this metamap. The new
@@ -144,17 +153,22 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
           mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue());
         }
         if (mapSectionContents == null) {
-          throw new SourceMapParseException("Unable to retrieve: " + section.getSectionValue());
+          return Outcome.err(
+              new SourceMapParseException("Unable to retrieve: " + section.getSectionValue()));
         }
-        generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents);
+        Outcome<Void> merged =
+            generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents);
+        if (merged.isErr()) {
+          return Outcome.err(merged.error());
+        }
       }
 
       StringBuilder sb = new StringBuilder();
       generator.appendTo(sb, sourceMapObject.getFile());
-      parse(sb.toString());
+      return parse(sb.toString());
 
     } catch (IOException ex) {
-      throw new SourceMapParseException("IO exception: " + ex);
+      return Outcome.err(new SourceMapParseException("IO exception: " + ex));
     }
   }
 
@@ -277,7 +291,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
       this.lineStart = new int[estimatedLines + 1];
     }
 
-    Mappings build() throws SourceMapParseException {
+    Outcome<Mappings> build() {
       int[] temp = new int[MAX_ENTRY_VALUES];
 
       int entriesCount = 0;
@@ -301,15 +315,19 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
             entryValues++;
           }
 
-          setEntry(
-              entriesCount,
-              temp,
-              entryValues,
-              previousCol,
-              previousSrcId,
-              previousSrcLine,
-              previousSrcColumn,
-              previousNameId);
+          Outcome<Void> entrySet =
+              setEntry(
+                  entriesCount,
+                  temp,
+                  entryValues,
+                  previousCol,
+                  previousSrcId,
+                  previousSrcLine,
+                  previousSrcColumn,
+                  previousNameId);
+          if (entrySet.isErr()) {
+            return Outcome.err(entrySet.error());
+          }
           validateEntry(entriesCount, line);
 
           previousCol = getGeneratedColumn(entriesCount);
@@ -338,7 +356,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
 
       trim(entriesCount, linesCount);
 
-      return new Mappings(flatEntries, lineStart, lineCount, entrySize);
+      return Outcome.ok(new Mappings(flatEntries, lineStart, lineCount, entrySize));
     }
 
     private int getLineStart(int line) {
@@ -352,7 +370,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
       lineStart[line] = entriesCount;
     }
 
-    private void setEntry(
+    private Outcome<Void> setEntry(
         int entriesCount,
         int[] vals,
         int entryValues,
@@ -360,8 +378,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
         int previousSrcId,
         int previousSrcLine,
         int previousSrcColumn,
-        int previousNameId)
-        throws SourceMapParseException {
+        int previousNameId) {
       if (entriesCount + entrySize > flatEntries.length) {
         flatEntries = Arrays.copyOf(flatEntries, flatEntries.length * 2);
       }
@@ -369,7 +386,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
       // unique source files and names are both small enough (under 65535) that their IDs
       // can be bit-packed into a single integer. Otherwise, they each get their own integer.
       if (entrySize == 4) {
-        setEntryCompact(
+        return setEntryCompact(
             entriesCount,
             vals,
             entryValues,
@@ -379,7 +396,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
             previousSrcColumn,
             previousNameId);
       } else {
-        setEntryNormal(
+        return setEntryNormal(
             entriesCount,
             vals,
             entryValues,
@@ -391,7 +408,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
       }
     }
 
-    private void setEntryCompact(
+    private Outcome<Void> setEntryCompact(
         int entriesCount,
         int[] vals,
         int entryValues,
@@ -399,8 +416,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
         int previousSrcId,
         int previousSrcLine,
         int previousSrcColumn,
-        int previousNameId)
-        throws SourceMapParseException {
+        int previousNameId) {
       // The `vals` array holds the decoded VLQ values in the exact order established
       // by the SourceMap V3 specification:
       // [generatedCol, sourceFileId, sourceLine, sourceCol, nameId]
@@ -428,13 +444,15 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
           int nameId = vals[4] + previousNameId;
           flatEntries[entriesCount + 3] = (srcId << 16) | (nameId & 0xFFFF);
         }
-        default ->
-            throw new SourceMapParseException(
-                "Unexpected number of values for entry:" + entryValues);
+        default -> {
+          return Outcome.err(
+              new SourceMapParseException("Unexpected number of values for entry:" + entryValues));
+        }
       }
+      return Outcome.ok();
     }
 
-    private void setEntryNormal(
+    private Outcome<Void> setEntryNormal(
         int entriesCount,
         int[] vals,
         int entryValues,
@@ -442,8 +460,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
         int previousSrcId,
         int previousSrcLine,
         int previousSrcColumn,
-        int previousNameId)
-        throws SourceMapParseException {
+        int previousNameId) {
       // The `vals` array holds the decoded VLQ values in the exact order established
       // by the SourceMap V3 specification:
       // [generatedCol, sourceFileId, sourceLine, sourceCol, nameId]
@@ -471,10 +488,12 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
           flatEntries[entriesCount + 3] = vals[1] + previousSrcId;
           flatEntries[entriesCount + 4] = vals[4] + previousNameId;
         }
-        default ->
-            throw new SourceMapParseException(
-                "Unexpected number of values for entry:" + entryValues);
+        default -> {
+          return Outcome.err(
+              new SourceMapParseException("Unexpected number of values for entry:" + entryValues));
+        }
       }
+      return Outcome.ok();
     }
 
     private int getSourceFileId(int index) {

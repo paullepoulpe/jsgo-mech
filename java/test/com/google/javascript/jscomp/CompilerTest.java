@@ -415,7 +415,7 @@ public final class CompilerTest {
     StringWriter out = new StringWriter();
     sourceMap.appendTo(out, "source.js.map");
     SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
-    consumer.parse(out.toString());
+    consumer.parse(out.toString()).get();
     // Column 5 contains the first actually mapped code ('x').
     OriginalMapping mapping = consumer.getMappingForLine(1, 5);
     assertThat(mapping.getOriginalFile()).isEqualTo("input.ts");
@@ -447,7 +447,7 @@ public final class CompilerTest {
     StringWriter out = new StringWriter();
     sourceMap.appendTo(out, "source.js.map");
     SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
-    consumer.parse(out.toString());
+    consumer.parse(out.toString()).get();
     assertThat(consumer.getOriginalSources()).containsExactly("temp/test/foo.ts");
     assertThat(consumer.getOriginalSourcesContent()).containsExactly(SOURCE_MAP_TEST_CONTENT);
     assertThat(consumer.getOriginalNames()).containsExactly("X", "input", "y", "console", "log");
@@ -481,7 +481,7 @@ public final class CompilerTest {
     StringWriter out = new StringWriter();
     sourceMap.appendTo(out, "testcode-compiled.js");
     SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
-    consumer.parse(out.toString());
+    consumer.parse(out.toString()).get();
 
     // Column 9 (0-based) is where the minified function name `a` appears in
     // "function a(){return 1}alert(a());".

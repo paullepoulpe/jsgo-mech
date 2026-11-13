@@ -34,6 +34,7 @@ import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.jscomp.SourceMap;
 import com.google.javascript.jscomp.SourceMap.DetailLevel;
 import com.google.javascript.jscomp.WarningsGuard;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.testing.TestErrorManager;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -220,12 +221,12 @@ public abstract class SourceMapTestCase {
     // Ensure the token counts match.
     assertThat(resultTokens).hasSize(originalTokens.size());
 
-    SourceMapping reader;
-    try {
-      reader = SourceMapConsumerFactory.parse(sourceMapFileContent, supplier);
-    } catch (SourceMapParseException e) {
-      throw new RuntimeException("unexpected exception", e);
+    Outcome<SourceMapping> readerOutcome =
+        SourceMapConsumerFactory.parse(sourceMapFileContent, supplier);
+    if (readerOutcome.isErr()) {
+      throw new RuntimeException("unexpected exception", readerOutcome.error());
     }
+    SourceMapping reader = readerOutcome.get();
 
     // Map the tokens from the generated source back to the
     // input source and ensure that the map is correct.

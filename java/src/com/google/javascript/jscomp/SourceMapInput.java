@@ -55,31 +55,32 @@ public final class SourceMapInput {
         errorManager.report(error.defaultLevel(), error);
         return parsedSourceMap;
       }
-      try {
-        String sourceMapContents = codeRes.get();
-        SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
-        consumer.parse(sourceMapContents);
-
-        // Detect an empty "default" source map provided by Gulp. We do not want
-        // to treat this file as having a real source map (implying this is an
-        // intermediate source file). Rather, this is the original source file.
-        // https://github.com/gulp-sourcemaps/gulp-sourcemaps/blob/91b94954/src/init/index.js#L116-L124
-        if (consumer.getFile() != null
-            && !consumer.getFile().isEmpty()
-            && consumer.getOriginalSources().size() == 1
-            && consumer.getOriginalSources().contains(consumer.getFile())
-            && consumer.getOriginalSourcesContent().size() == 1
-            && consumer.getOriginalNames().isEmpty()
-            && consumer.getLineCount() == -1) {
-          consumer = null;
-        }
-
-        parsedSourceMap = consumer;
-      } catch (SourceMapParseException e) {
+      String sourceMapContents = codeRes.get();
+      SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
+      Outcome<Void> parsed = consumer.parse(sourceMapContents);
+      if (parsed.isErr()) {
+        SourceMapParseException e = (SourceMapParseException) parsed.error();
         JSError error =
             JSError.make(SourceMapInput.SOURCEMAP_PARSE_FAILED, sourceMapPath, e.getMessage());
         errorManager.report(error.defaultLevel(), error);
+        return parsedSourceMap;
       }
+
+      // Detect an empty "default" source map provided by Gulp. We do not want
+      // to treat this file as having a real source map (implying this is an
+      // intermediate source file). Rather, this is the original source file.
+      // https://github.com/gulp-sourcemaps/gulp-sourcemaps/blob/91b94954/src/init/index.js#L116-L124
+      if (consumer.getFile() != null
+          && !consumer.getFile().isEmpty()
+          && consumer.getOriginalSources().size() == 1
+          && consumer.getOriginalSources().contains(consumer.getFile())
+          && consumer.getOriginalSourcesContent().size() == 1
+          && consumer.getOriginalNames().isEmpty()
+          && consumer.getLineCount() == -1) {
+        consumer = null;
+      }
+
+      parsedSourceMap = consumer;
     }
     return parsedSourceMap;
   }

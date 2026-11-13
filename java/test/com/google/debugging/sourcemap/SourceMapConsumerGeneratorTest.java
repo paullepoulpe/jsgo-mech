@@ -126,7 +126,7 @@ public final class SourceMapConsumerGeneratorTest {
       ImmutableMap<String, String> sourceFiles, String concatenatedFile, String sourcemap)
       throws Exception {
     SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
-    consumer.parse(sourcemap);
+    consumer.parse(sourcemap).get();
     AtomicInteger mappingsCount = new AtomicInteger();
     Set<String> seenSymbols = new HashSet<>();
     consumer.visitMappings(

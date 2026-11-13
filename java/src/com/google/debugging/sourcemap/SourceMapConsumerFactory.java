@@ -18,6 +18,7 @@ package com.google.debugging.sourcemap;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.javascript.jscomp.base.Outcome;
 import org.jspecify.annotations.Nullable;
 
 /** Detect and parse the provided source map. */
@@ -30,7 +31,7 @@ public final class SourceMapConsumerFactory {
    * @param contents The string representing the source map file contents.
    * @return The parsed source map.
    */
-  public static SourceMapping parse(String contents) throws SourceMapParseException {
+  public static Outcome<SourceMapping> parse(String contents) {
      return parse(contents, null);
   }
 
@@ -39,29 +40,39 @@ public final class SourceMapConsumerFactory {
    * @param supplier A supplier for any referenced maps.
    * @return The parsed source map.
    */
-  public static SourceMapping parse(String contents, @Nullable SourceMapSupplier supplier)
-      throws SourceMapParseException {
+  public static Outcome<SourceMapping> parse(
+      String contents, @Nullable SourceMapSupplier supplier) {
     // Version 1, starts with a magic string
     if (contents.startsWith("/** Begin line maps. **/")) {
-      throw new SourceMapParseException(
-          "This appears to be a V1 SourceMap, which is not supported.");
+      return Outcome.err(
+          new SourceMapParseException(
+              "This appears to be a V1 SourceMap, which is not supported."));
     } else if (contents.startsWith("{")){
-      SourceMapObject sourceMapObject = SourceMapObjectParser.parse(contents);
+      Outcome<SourceMapObject> sourceMapObjectOutcome = SourceMapObjectParser.parse(contents);
+      if (sourceMapObjectOutcome.isErr()) {
+        return Outcome.err(sourceMapObjectOutcome.error());
+      }
+      SourceMapObject sourceMapObject = sourceMapObjectOutcome.get();
 
       // Check basic assertions about the format.
-      return switch (sourceMapObject.getVersion()) {
+      switch (sourceMapObject.getVersion()) {
         case 3 -> {
           SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
-          consumer.parse(sourceMapObject, supplier);
-          yield consumer;
+          Outcome<Void> parsed = consumer.parse(sourceMapObject, supplier);
+          if (parsed.isErr()) {
+            return Outcome.err(parsed.error());
+          }
+          return Outcome.ok(consumer);
         }
-        default ->
-            throw new SourceMapParseException(
-                "Unknown source map version:" + sourceMapObject.getVersion());
-      };
+        default -> {
+          return Outcome.err(
+              new SourceMapParseException(
+                  "Unknown source map version:" + sourceMapObject.getVersion()));
+        }
+      }
     }
 
-    throw new SourceMapParseException("unable to detect source map format");
+    return Outcome.err(new SourceMapParseException("unable to detect source map format"));
   }
 
   /**
@@ -70,17 +81,24 @@ public final class SourceMapConsumerFactory {
    * @param contents The string representing the source map file contents.
    * @return The parsed source map.
    */
-  public static SourceMapConsumerV3 parseFast(String contents) throws SourceMapParseException {
+  public static Outcome<SourceMapConsumerV3> parseFast(String contents) {
     if (contents.startsWith("{")) {
-      SourceMapObject sourceMapObject = SourceMapObjectParser.parseFast(contents);
+      Outcome<SourceMapObject> sourceMapObjectOutcome = SourceMapObjectParser.parseFast(contents);
+      if (sourceMapObjectOutcome.isErr()) {
+        return Outcome.err(sourceMapObjectOutcome.error());
+      }
+      SourceMapObject sourceMapObject = sourceMapObjectOutcome.get();
       checkArgument(
           sourceMapObject.getVersion() == 3,
           "Unknown source map version:%s",
           sourceMapObject.getVersion());
       SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
-      consumer.parse(sourceMapObject, null);
-      return consumer;
+      Outcome<Void> parsed = consumer.parse(sourceMapObject, null);
+      if (parsed.isErr()) {
+        return Outcome.err(parsed.error());
+      }
+      return Outcome.ok(consumer);
     }
-    throw new SourceMapParseException("unable to detect source map format");
+    return Outcome.err(new SourceMapParseException("unable to detect source map format"));
   }
 }

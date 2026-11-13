@@ -25,6 +25,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.google.javascript.jscomp.base.Outcome;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -37,7 +38,7 @@ import org.jspecify.annotations.Nullable;
 
 /** Java implementation of the source map parser. */
 public class SourceMapObjectParser {
-  public static SourceMapObject parse(String contents) throws SourceMapParseException {
+  public static Outcome<SourceMapObject> parse(String contents) {
 
     SourceMapObject.Builder builder = SourceMapObject.builder();
 
@@ -53,7 +54,11 @@ public class SourceMapObjectParser {
       if (sourceMapRoot.has("sections")) {
         ImmutableList.Builder<SourceMapSection> listBuilder = ImmutableList.builder();
         for (JsonElement each : sourceMapRoot.get("sections").getAsJsonArray()) {
-          listBuilder.add(buildSection(each.getAsJsonObject()));
+          Outcome<SourceMapSection> section = buildSection(each.getAsJsonObject());
+          if (section.isErr()) {
+            return Outcome.err(section.error());
+          }
+          listBuilder.add(section.get());
         }
         builder.setSections(listBuilder.build());
       }
@@ -71,87 +76,174 @@ public class SourceMapObjectParser {
       builder.setExtensions(Collections.unmodifiableMap(extensions));
 
     } catch (JsonParseException ex) {
-      throw new SourceMapParseException("JSON parse exception: " + ex);
+      return Outcome.err(new SourceMapParseException("JSON parse exception: " + ex));
     }
 
-    return builder.build();
+    return Outcome.ok(builder.build());
   }
 
   // TODO: fenghaolw - Migrate everyone to use this method and rename it to parse.
-  public static SourceMapObject parseFast(String contents) throws SourceMapParseException {
+  public static Outcome<SourceMapObject> parseFast(String contents) {
     SourceMapObject.Builder builder = SourceMapObject.builder();
     builder.setLineCount(-1);
 
+    // The catch below used to rewrap every exception of the parse, the parser's own
+    // SourceMapParseException included; an error outcome is rewrapped in the same way.
+    Outcome<Void> parsed;
     try {
-      SourceMapJsonLexer lexer = new SourceMapJsonLexer(contents);
-      lexer.beginObject();
-      Map<String, Object> extensions = new LinkedHashMap<>();
+      parsed = parseFastInto(builder, contents);
+    } catch (Exception ex) {
+      return Outcome.err(new SourceMapParseException("Parse exception: " + ex));
+    }
+    if (parsed.isErr()) {
+      return Outcome.err(new SourceMapParseException("Parse exception: " + parsed.error()));
+    }
 
-      while (lexer.hasNext()) {
-        String name = lexer.nextName();
-        switch (name) {
-          case "version" -> builder.setVersion(lexer.nextInt());
-          case "file" -> builder.setFile(lexer.nextStringOrNull());
-          case "lineCount" -> builder.setLineCount(lexer.nextInt());
-          case "mappings" -> builder.setMappings(lexer.nextStringOrNull());
-          case "sourceRoot" -> builder.setSourceRoot(lexer.nextStringOrNull());
-          case "sections" -> {
-            String rawSections = lexer.nextRawValue();
-            JsonArray sectionsArray = parseJsonArray(rawSections);
-            ImmutableList.Builder<SourceMapSection> listBuilder = ImmutableList.builder();
-            for (JsonElement each : sectionsArray) {
-              listBuilder.add(buildSection(each.getAsJsonObject()));
-            }
-            builder.setSections(listBuilder.build());
+    return Outcome.ok(builder.build());
+  }
+
+  private static Outcome<Void> parseFastInto(SourceMapObject.Builder builder, String contents) {
+    SourceMapJsonLexer lexer = new SourceMapJsonLexer(contents);
+    Outcome<Void> begun = lexer.beginObject();
+    if (begun.isErr()) {
+      return Outcome.err(begun.error());
+    }
+    Map<String, Object> extensions = new LinkedHashMap<>();
+
+    while (lexer.hasNext()) {
+      Outcome<String> nameOutcome = lexer.nextName();
+      if (nameOutcome.isErr()) {
+        return Outcome.err(nameOutcome.error());
+      }
+      String name = nameOutcome.get();
+      switch (name) {
+        case "version" -> {
+          Outcome<Integer> version = lexer.nextInt();
+          if (version.isErr()) {
+            return Outcome.err(version.error());
           }
-          case "sources" -> builder.setSources(readStringArray(lexer));
-          case "sourcesContent" -> builder.setSourcesContent(readStringArray(lexer));
-          case "names" -> builder.setNames(readStringArray(lexer));
-          default -> {
-            if (name.startsWith("x_")) {
-              extensions.put(name, parseJsonElement(lexer.nextRawValue()));
-            } else {
-              lexer.skipValue();
+          builder.setVersion(version.get());
+        }
+        case "file" -> {
+          Outcome<@Nullable String> file = lexer.nextStringOrNull();
+          if (file.isErr()) {
+            return Outcome.err(file.error());
+          }
+          builder.setFile(file.get());
+        }
+        case "lineCount" -> {
+          Outcome<Integer> lineCount = lexer.nextInt();
+          if (lineCount.isErr()) {
+            return Outcome.err(lineCount.error());
+          }
+          builder.setLineCount(lineCount.get());
+        }
+        case "mappings" -> {
+          Outcome<@Nullable String> mappings = lexer.nextStringOrNull();
+          if (mappings.isErr()) {
+            return Outcome.err(mappings.error());
+          }
+          builder.setMappings(mappings.get());
+        }
+        case "sourceRoot" -> {
+          Outcome<@Nullable String> sourceRoot = lexer.nextStringOrNull();
+          if (sourceRoot.isErr()) {
+            return Outcome.err(sourceRoot.error());
+          }
+          builder.setSourceRoot(sourceRoot.get());
+        }
+        case "sections" -> {
+          Outcome<String> rawSections = lexer.nextRawValue();
+          if (rawSections.isErr()) {
+            return Outcome.err(rawSections.error());
+          }
+          JsonArray sectionsArray = parseJsonArray(rawSections.get());
+          ImmutableList.Builder<SourceMapSection> listBuilder = ImmutableList.builder();
+          for (JsonElement each : sectionsArray) {
+            Outcome<SourceMapSection> section = buildSection(each.getAsJsonObject());
+            if (section.isErr()) {
+              return Outcome.err(section.error());
+            }
+            listBuilder.add(section.get());
+          }
+          builder.setSections(listBuilder.build());
+        }
+        case "sources" -> {
+          Outcome<String @Nullable []> sources = readStringArray(lexer);
+          if (sources.isErr()) {
+            return Outcome.err(sources.error());
+          }
+          builder.setSources(sources.get());
+        }
+        case "sourcesContent" -> {
+          Outcome<String @Nullable []> sourcesContent = readStringArray(lexer);
+          if (sourcesContent.isErr()) {
+            return Outcome.err(sourcesContent.error());
+          }
+          builder.setSourcesContent(sourcesContent.get());
+        }
+        case "names" -> {
+          Outcome<String @Nullable []> names = readStringArray(lexer);
+          if (names.isErr()) {
+            return Outcome.err(names.error());
+          }
+          builder.setNames(names.get());
+        }
+        default -> {
+          if (name.startsWith("x_")) {
+            Outcome<String> rawValue = lexer.nextRawValue();
+            if (rawValue.isErr()) {
+              return Outcome.err(rawValue.error());
+            }
+            extensions.put(name, parseJsonElement(rawValue.get()));
+          } else {
+            Outcome<Void> skipped = lexer.skipValue();
+            if (skipped.isErr()) {
+              return Outcome.err(skipped.error());
             }
           }
         }
-        lexer.checkComma();
       }
-      lexer.endObject();
-      lexer.skipWhitespace();
-      if (lexer.pos < lexer.length) {
-        throw new SourceMapParseException("Unexpected trailing characters");
+      Outcome<Void> comma = lexer.checkComma();
+      if (comma.isErr()) {
+        return Outcome.err(comma.error());
       }
-      builder.setExtensions(Collections.unmodifiableMap(extensions));
-
-    } catch (Exception ex) {
-      throw new SourceMapParseException("Parse exception: " + ex);
     }
-
-    return builder.build();
+    Outcome<Void> ended = lexer.endObject();
+    if (ended.isErr()) {
+      return Outcome.err(ended.error());
+    }
+    lexer.skipWhitespace();
+    if (lexer.pos < lexer.length) {
+      return Outcome.err(new SourceMapParseException("Unexpected trailing characters"));
+    }
+    builder.setExtensions(Collections.unmodifiableMap(extensions));
+    return Outcome.ok();
   }
 
-  private static SourceMapSection buildSection(JsonObject section) throws SourceMapParseException {
+  private static Outcome<SourceMapSection> buildSection(JsonObject section) {
     JsonObject offset = section.get("offset").getAsJsonObject();
     int line = offset.get("line").getAsInt();
     int column = offset.get("column").getAsInt();
 
     if (section.has("map") && section.has("url")) {
-      throw new SourceMapParseException(
-          "Invalid map format: section may not have both 'map' and 'url'");
+      return Outcome.err(
+          new SourceMapParseException(
+              "Invalid map format: section may not have both 'map' and 'url'"));
     } else if (section.has("url")) {
-      return SourceMapSection.forURL(section.get("url").getAsString(), line, column);
+      return Outcome.ok(SourceMapSection.forURL(section.get("url").getAsString(), line, column));
     } else if (section.has("map")) {
       JsonElement map = section.get("map");
       String mapStr =
           map.isJsonPrimitive() && map.getAsJsonPrimitive().isString()
               ? map.getAsString()
               : map.toString();
-      return SourceMapSection.forMap(mapStr, line, column);
+      return Outcome.ok(SourceMapSection.forMap(mapStr, line, column));
     }
 
-    throw new SourceMapParseException(
-        "Invalid map format: section must have either 'map' or 'url'");
+    return Outcome.err(
+        new SourceMapParseException(
+            "Invalid map format: section must have either 'map' or 'url'"));
   }
 
   private static @Nullable String getStringOrNull(JsonObject object, String key) {
@@ -174,21 +266,33 @@ public class SourceMapObjectParser {
     return result;
   }
 
-  private static String @Nullable [] readStringArray(SourceMapJsonLexer lexer)
-      throws SourceMapParseException {
+  private static Outcome<String @Nullable []> readStringArray(SourceMapJsonLexer lexer) {
     lexer.skipWhitespace();
     if (lexer.pos < lexer.length && lexer.json.startsWith("null", lexer.pos)) {
       lexer.pos += 4;
-      return null;
+      return Outcome.ok(null);
     }
     List<String> list = new ArrayList<>();
-    lexer.beginArray();
-    while (lexer.hasNext()) {
-      list.add(lexer.nextStringOrNull());
-      lexer.checkComma();
+    Outcome<Void> begun = lexer.beginArray();
+    if (begun.isErr()) {
+      return Outcome.err(begun.error());
     }
-    lexer.endArray();
-    return list.toArray(new String[0]);
+    while (lexer.hasNext()) {
+      Outcome<@Nullable String> item = lexer.nextStringOrNull();
+      if (item.isErr()) {
+        return Outcome.err(item.error());
+      }
+      list.add(item.get());
+      Outcome<Void> comma = lexer.checkComma();
+      if (comma.isErr()) {
+        return Outcome.err(comma.error());
+      }
+    }
+    Outcome<Void> ended = lexer.endArray();
+    if (ended.isErr()) {
+      return Outcome.err(ended.error());
+    }
+    return Outcome.ok(list.toArray(new String[0]));
   }
 
   /**

@@ -583,8 +583,8 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
 
     SourceMapGeneratorV3 generator = new SourceMapGeneratorV3();
 
-    generator.mergeMapSection(0, 0, result1.sourceMapFileContent);
-    generator.mergeMapSection(offset.getLine(), offset.getColumn(), result2.sourceMapFileContent);
+    generator.mergeMapSection(0, 0, result1.sourceMapFileContent).get();
+    generator.mergeMapSection(offset.getLine(), offset.getColumn(), result2.sourceMapFileContent).get();
 
     StringBuilder mapContents = new StringBuilder();
     generator.appendTo(mapContents, "out.js");
@@ -620,8 +620,8 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
 
     // combine the two
     sourceMapGeneratorV3 = new SourceMapGeneratorV3();
-    sourceMapGeneratorV3.mergeMapSection(0, 0, sourceMap1);
-    sourceMapGeneratorV3.mergeMapSection(4, 0, sourceMap2);
+    sourceMapGeneratorV3.mergeMapSection(0, 0, sourceMap1).get();
+    sourceMapGeneratorV3.mergeMapSection(4, 0, sourceMap2).get();
     sourceMapGeneratorV3.appendTo(w, "foobar.js.sourcemap");
     String combinedMap = w.toString();
 
@@ -649,11 +649,11 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
   public void testSourceMapExtensions() throws Exception {
     // generating the json
     SourceMapGeneratorV3 mapper = new SourceMapGeneratorV3();
-    mapper.addExtension("x_google_foo", new JsonObject());
-    mapper.addExtension("x_google_test", parseJsonObject("{\"number\" : 1}"));
-    mapper.addExtension("x_google_array", new JsonArray());
-    mapper.addExtension("x_google_int", 2);
-    mapper.addExtension("x_google_str", "Some text");
+    mapper.addExtension("x_google_foo", new JsonObject()).get();
+    mapper.addExtension("x_google_test", parseJsonObject("{\"number\" : 1}")).get();
+    mapper.addExtension("x_google_array", new JsonArray()).get();
+    mapper.addExtension("x_google_int", 2).get();
+    mapper.addExtension("x_google_str", "Some text").get();
 
     mapper.removeExtension("x_google_foo");
     StringBuilder out = new StringBuilder();
@@ -689,11 +689,11 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
         "names":["__BASIC__"],
         "x_company_foo":2
         }
-        """);
+        """).get();
 
     assertThat(mapper.hasExtension("x_company_foo")).isFalse();
 
-    mapper.addExtension("x_company_baz", 2);
+    mapper.addExtension("x_company_baz", 2).get();
 
     mapper.mergeMapSection(
         0,
@@ -715,7 +715,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
           public Object merge(String extensionKey, Object currentValue, Object newValue) {
             return (Integer) currentValue + ((JsonPrimitive) newValue).getAsInt();
           }
-        });
+        }).get();
 
     assertThat(mapper.getExtension("x_company_baz")).isEqualTo(5);
     assertThat(((JsonPrimitive) mapper.getExtension("x_company_bar")).getAsBoolean()).isFalse();

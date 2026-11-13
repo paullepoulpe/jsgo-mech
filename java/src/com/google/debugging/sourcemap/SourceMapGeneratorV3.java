@@ -21,6 +21,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 
 import com.google.common.base.Preconditions;
 import com.google.debugging.sourcemap.SourceMapConsumerV3.EntryVisitor;
+import com.google.javascript.jscomp.base.Outcome;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -287,12 +288,15 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
    * @param column The column offset
    * @param mapSectionContents The map section to be appended
    */
-  public void mergeMapSection(int line, int column, String mapSectionContents)
-      throws SourceMapParseException {
+  public Outcome<Void> mergeMapSection(int line, int column, String mapSectionContents) {
     setStartingPosition(line, column);
     SourceMapConsumerV3 section = new SourceMapConsumerV3();
-    section.parse(mapSectionContents);
+    Outcome<Void> parsed = section.parse(mapSectionContents);
+    if (parsed.isErr()) {
+      return Outcome.err(parsed.error());
+    }
     section.visitMappings(new ConsumerEntryVisitor());
+    return Outcome.ok();
   }
 
   /**
@@ -305,12 +309,14 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
    * @param mapSectionContents The map section to be appended
    * @param mergeAction The merge action for conflicting extensions
    */
-  public void mergeMapSection(
-      int line, int column, String mapSectionContents, ExtensionMergeAction mergeAction)
-      throws SourceMapParseException {
+  public Outcome<Void> mergeMapSection(
+      int line, int column, String mapSectionContents, ExtensionMergeAction mergeAction) {
     setStartingPosition(line, column);
     SourceMapConsumerV3 section = new SourceMapConsumerV3();
-    section.parse(mapSectionContents);
+    Outcome<Void> parsed = section.parse(mapSectionContents);
+    if (parsed.isErr()) {
+      return Outcome.err(parsed.error());
+    }
     section.visitMappings(new ConsumerEntryVisitor());
     for (Entry<String, Object> entry : section.getExtensions().entrySet()) {
        String extensionKey = entry.getKey();
@@ -323,6 +329,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
          extensions.put(extensionKey, entry.getValue());
        }
      }
+    return Outcome.ok();
   }
 
   /**
@@ -434,15 +441,15 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
    *
    * @param name The name of the extension with format organization_field
    * @param object The value of the extension as a valid json value
-   * @throws SourceMapParseException  if extension name is malformed
+   * @return an error outcome with a SourceMapParseException if extension name is malformed
    */
-  public void addExtension(String name, Object object)
-      throws SourceMapParseException{
+  public Outcome<Void> addExtension(String name, Object object) {
     if (!name.startsWith("x_")){
-      throw new SourceMapParseException("Extension '" + name +
-                                        "' must start with 'x_'");
+      return Outcome.err(
+          new SourceMapParseException("Extension '" + name + "' must start with 'x_'"));
     }
     this.extensions.put(name, object);
+    return Outcome.ok();
   }
 
   /**

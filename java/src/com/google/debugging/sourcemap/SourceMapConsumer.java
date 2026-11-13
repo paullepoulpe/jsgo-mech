@@ -16,6 +16,8 @@
 
 package com.google.debugging.sourcemap;
 
+import com.google.javascript.jscomp.base.Outcome;
+
 /**
  * A SourceMapConsumer is a SourceMapping provide that can parse from a raw
  * string.
@@ -26,5 +28,5 @@ public interface SourceMapConsumer extends SourceMapping {
    * Parses the given contents containing a source map to provide initialize
    * a class providing SourceMapping.
    */
-  public void parse(String contents) throws SourceMapParseException;
+  public Outcome<Void> parse(String contents);
 }

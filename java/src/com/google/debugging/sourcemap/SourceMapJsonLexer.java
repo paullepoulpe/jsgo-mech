@@ -17,6 +17,7 @@ package com.google.debugging.sourcemap;
 
 import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.Outcome;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -54,68 +55,74 @@ final class SourceMapJsonLexer {
     return c != ']' && c != '}';
   }
 
-  void beginObject() throws SourceMapParseException {
+  Outcome<Void> beginObject() {
     skipWhitespace();
     if (pos < length && json.charAt(pos) == '{') {
       pos++;
     } else {
-      throw new SourceMapParseException("Expected '{'");
+      return Outcome.err(new SourceMapParseException("Expected '{'"));
     }
+    return Outcome.ok();
   }
 
-  void endObject() throws SourceMapParseException {
+  Outcome<Void> endObject() {
     skipWhitespace();
     if (pos < length && json.charAt(pos) == '}') {
       pos++;
     } else {
-      throw new SourceMapParseException("Expected '}'");
+      return Outcome.err(new SourceMapParseException("Expected '}'"));
     }
+    return Outcome.ok();
   }
 
-  void beginArray() throws SourceMapParseException {
+  Outcome<Void> beginArray() {
     skipWhitespace();
     if (pos < length && json.charAt(pos) == '[') {
       pos++;
     } else {
-      throw new SourceMapParseException("Expected '['");
+      return Outcome.err(new SourceMapParseException("Expected '['"));
     }
+    return Outcome.ok();
   }
 
-  void endArray() throws SourceMapParseException {
+  Outcome<Void> endArray() {
     skipWhitespace();
     if (pos < length && json.charAt(pos) == ']') {
       pos++;
     } else {
-      throw new SourceMapParseException("Expected ']'");
+      return Outcome.err(new SourceMapParseException("Expected ']'"));
     }
+    return Outcome.ok();
   }
 
-  @CanIgnoreReturnValue
-  String nextName() throws SourceMapParseException {
-    String name = nextString();
+  Outcome<String> nextName() {
+    Outcome<String> nameOutcome = nextString();
+    if (nameOutcome.isErr()) {
+      return Outcome.err(nameOutcome.error());
+    }
+    String name = nameOutcome.get();
     skipWhitespace();
     if (pos < length && json.charAt(pos) == ':') {
       pos++;
     } else {
-      throw new SourceMapParseException("Expected ':'");
+      return Outcome.err(new SourceMapParseException("Expected ':'"));
     }
-    return name;
+    return Outcome.ok(name);
   }
 
-  @Nullable String nextStringOrNull() throws SourceMapParseException {
+  Outcome<@Nullable String> nextStringOrNull() {
     skipWhitespace();
     if (pos < length && json.startsWith("null", pos)) {
       pos += 4;
-      return null;
+      return Outcome.ok(null);
     }
     return nextString();
   }
 
-  @CanIgnoreReturnValue
-  String nextString() throws SourceMapParseException {
+  Outcome<String> nextString() {
     skipWhitespace();
     if (pos >= length || json.charAt(pos) != '"') {
-      throw new SourceMapParseException("Expected string");
+      return Outcome.err(new SourceMapParseException("Expected string"));
     }
     pos++; // skip quote
     int start = pos;
@@ -132,19 +139,23 @@ final class SourceMapJsonLexer {
       pos++;
     }
     if (pos >= length) {
-      throw new SourceMapParseException("Unterminated string");
+      return Outcome.err(new SourceMapParseException("Unterminated string"));
     }
     String result;
     if (!hasEscape) {
       result = json.substring(start, pos);
     } else {
-      result = unescape(json, start, pos);
+      Outcome<String> unescaped = unescape(json, start, pos);
+      if (unescaped.isErr()) {
+        return Outcome.err(unescaped.error());
+      }
+      result = unescaped.get();
     }
     pos++; // skip quote
-    return result;
+    return Outcome.ok(result);
   }
 
-  int nextInt() throws SourceMapParseException {
+  Outcome<Integer> nextInt() {
     skipWhitespace();
     int start = pos;
     if (pos < length && json.charAt(pos) == '-') {
@@ -154,47 +165,75 @@ final class SourceMapJsonLexer {
       pos++;
     }
     if (start == pos) {
-      throw new SourceMapParseException("Expected integer");
+      return Outcome.err(new SourceMapParseException("Expected integer"));
     }
     // The token is an optional '-' and ASCII digits, on which Ints.tryParse and Integer.parseInt
     // agree.
     Integer value = Ints.tryParse(json.substring(start, pos));
     if (value == null) {
-      throw new SourceMapParseException("Invalid integer: " + json.substring(start, pos));
+      return Outcome.err(
+          new SourceMapParseException("Invalid integer: " + json.substring(start, pos)));
     }
-    return value;
+    return Outcome.ok(value);
   }
 
-  String nextRawValue() throws SourceMapParseException {
+  Outcome<String> nextRawValue() {
     skipWhitespace();
     int start = pos;
-    skipValue();
-    return json.substring(start, pos);
+    Outcome<Void> skipped = skipValue();
+    if (skipped.isErr()) {
+      return Outcome.err(skipped.error());
+    }
+    return Outcome.ok(json.substring(start, pos));
   }
 
-  void skipValue() throws SourceMapParseException {
+  Outcome<Void> skipValue() {
     skipWhitespace();
     if (pos >= length) {
-      throw new SourceMapParseException("Unexpected end of input");
+      return Outcome.err(new SourceMapParseException("Unexpected end of input"));
     }
     char c = json.charAt(pos);
     if (c == '{') {
       pos++;
       while (hasNext()) {
-        nextName();
-        skipValue();
-        checkComma();
+        Outcome<String> name = nextName();
+        if (name.isErr()) {
+          return Outcome.err(name.error());
+        }
+        Outcome<Void> skipped = skipValue();
+        if (skipped.isErr()) {
+          return Outcome.err(skipped.error());
+        }
+        Outcome<Void> comma = checkComma();
+        if (comma.isErr()) {
+          return Outcome.err(comma.error());
+        }
       }
-      endObject();
+      Outcome<Void> ended = endObject();
+      if (ended.isErr()) {
+        return Outcome.err(ended.error());
+      }
     } else if (c == '[') {
       pos++;
       while (hasNext()) {
-        skipValue();
-        checkComma();
+        Outcome<Void> skipped = skipValue();
+        if (skipped.isErr()) {
+          return Outcome.err(skipped.error());
+        }
+        Outcome<Void> comma = checkComma();
+        if (comma.isErr()) {
+          return Outcome.err(comma.error());
+        }
       }
-      endArray();
+      Outcome<Void> ended = endArray();
+      if (ended.isErr()) {
+        return Outcome.err(ended.error());
+      }
     } else if (c == '"') {
-      nextString();
+      Outcome<String> string = nextString();
+      if (string.isErr()) {
+        return Outcome.err(string.error());
+      }
     } else if (c == 't' && json.startsWith("true", pos)) {
       pos += 4;
     } else if (c == 'f' && json.startsWith("false", pos)) {
@@ -215,18 +254,20 @@ final class SourceMapJsonLexer {
         pos++;
       }
     } else {
-      throw new SourceMapParseException("Unexpected character: " + c);
+      return Outcome.err(new SourceMapParseException("Unexpected character: " + c));
     }
+    return Outcome.ok();
   }
 
-  void checkComma() throws SourceMapParseException {
+  Outcome<Void> checkComma() {
     boolean hasComma = tryConsumeComma();
     if (hasComma && !hasNext()) {
-      throw new SourceMapParseException("Unexpected trailing comma");
+      return Outcome.err(new SourceMapParseException("Unexpected trailing comma"));
     }
     if (!hasComma && hasNext()) {
-      throw new SourceMapParseException("Expected ','");
+      return Outcome.err(new SourceMapParseException("Expected ','"));
     }
+    return Outcome.ok();
   }
 
   @CanIgnoreReturnValue
@@ -253,7 +294,7 @@ final class SourceMapJsonLexer {
     return true;
   }
 
-  private static String unescape(String s, int start, int end) throws SourceMapParseException {
+  private static Outcome<String> unescape(String s, int start, int end) {
     StringBuilder sb = new StringBuilder(end - start);
     for (int i = start; i < end; i++) {
       char c = s.charAt(i);
@@ -271,11 +312,13 @@ final class SourceMapJsonLexer {
           case 't' -> sb.append('\t');
           case 'u' -> {
             if (i + 4 >= end) {
-              throw new SourceMapParseException("Invalid unicode escape sequence");
+              return Outcome.err(
+                  new SourceMapParseException("Invalid unicode escape sequence"));
             }
             if (!isParsableHex4(s, i + 1)) {
-              throw new SourceMapParseException(
-                  "Invalid unicode escape: " + s.substring(i + 1, i + 5));
+              return Outcome.err(
+                  new SourceMapParseException(
+                      "Invalid unicode escape: " + s.substring(i + 1, i + 5)));
             }
             sb.append((char) Integer.parseInt(s, i + 1, i + 5, 16));
             i += 4;
@@ -286,6 +329,6 @@ final class SourceMapJsonLexer {
         sb.append(c);
       }
     }
-    return sb.toString();
+    return Outcome.ok(sb.toString());
   }
 }

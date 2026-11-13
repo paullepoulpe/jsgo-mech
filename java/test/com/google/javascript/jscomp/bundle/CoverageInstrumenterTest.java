@@ -127,7 +127,7 @@ public final class CoverageInstrumenterTest {
 
     // Ensure that source map for "x" is correct.
     SourceMapConsumerV3 sourceMap = new SourceMapConsumerV3();
-    sourceMap.parse(result.sourceMap);
+    sourceMap.parse(result.sourceMap).get();
     OriginalMapping mappingFoX = sourceMap.getMappingForLine(1, result.source.indexOf("x=42") + 1);
     assertThat(mappingFoX)
         .isEqualTo(
