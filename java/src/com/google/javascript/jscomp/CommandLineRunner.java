@@ -1054,7 +1054,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     /** Parse the given args list. */
     private void parse(List<String> args) throws CmdLineException {
-      parser.parseArgument(args);
+      parser.parseArgumentCollection(args);
 
       compilationLevelParsed = CompilationLevel.fromString(Ascii.toUpperCase(compilationLevel));
       if (compilationLevelParsed == null) {
@@ -1903,7 +1903,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     options.setRewritePolyfills(
         flags.rewritePolyfills
-            && options.getLanguageIn().toFeatureSet().contains(FeatureSet.ES2015));
+            && options.getLanguageIn().toFeatureSet().containsFeatureSet(FeatureSet.ES2015));
     options.setIsolatePolyfills(flags.isolatePolyfills);
 
     if (!flags.translationsFile.isEmpty()) {
@@ -1996,7 +1996,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       options.setEmitUseStrict(false);
 
       if (level == CompilationLevel.ADVANCED_OPTIMIZATIONS) {
-        options.setExtractPrototypeMemberDeclarations(
+        options.setExtractPrototypeMemberDeclarationsMode(
             ExtractPrototypeMemberDeclarationsMode.USE_CHUNK_TEMP);
       }
     }

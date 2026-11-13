@@ -75,7 +75,7 @@ public final class RefactoringDriver {
 
   private static Compiler createCompiler(
       List<SourceFile> inputs, List<SourceFile> externs, CompilerOptions compilerOptions) {
-    Compiler compiler = new Compiler(new BlackHoleErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new BlackHoleErrorManager());
     compiler.disableThreads();
     compiler.compile(externs, inputs, compilerOptions);
     return compiler;
@@ -120,7 +120,7 @@ public final class RefactoringDriver {
     public Builder() {}
 
     @CanIgnoreReturnValue
-    public Builder addExternsFromFile(String filename) {
+    public Builder addExternsFromFileString(String filename) {
       externs.add(SourceFile.fromFile(filename));
       return this;
     }
@@ -144,7 +144,7 @@ public final class RefactoringDriver {
     }
 
     @CanIgnoreReturnValue
-    public Builder addInputsFromFile(String filename) {
+    public Builder addInputsFromFileString(String filename) {
       inputs.add(SourceFile.fromFile(filename));
       return this;
     }

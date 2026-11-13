@@ -106,8 +106,8 @@ public enum Keywords {
     return value;
   }
 
-  public static boolean isKeyword(String value) {
-    return get(value) != null;
+  public static boolean isKeywordString(String value) {
+    return getString(value) != null;
   }
 
   public static boolean isKeyword(TokenType token) {
@@ -129,7 +129,7 @@ public enum Keywords {
     return KEYWORDS_BY_NAME.get(value).type;
   }
 
-  public static Keywords get(String value) {
+  public static Keywords getString(String value) {
     return KEYWORDS_BY_NAME.get(value);
   }
 

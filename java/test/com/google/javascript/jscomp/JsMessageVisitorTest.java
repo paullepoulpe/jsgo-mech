@@ -394,7 +394,7 @@ public final class JsMessageVisitorTest {
           }
         }
         """);
-    assertOneError(MESSAGE_HAS_NO_VALUE);
+    assertOneErrorDiagnosticType(MESSAGE_HAS_NO_VALUE);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -407,7 +407,7 @@ public final class JsMessageVisitorTest {
           MSG_WITH_NO_RHS;
         }
         """);
-    assertOneError(MESSAGE_HAS_NO_VALUE);
+    assertOneErrorDiagnosticType(MESSAGE_HAS_NO_VALUE);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -420,7 +420,7 @@ public final class JsMessageVisitorTest {
           static MSG_STATIC_FIELD_WITH_NO_RHS;
         }
         """);
-    assertOneError(MESSAGE_HAS_NO_VALUE);
+    assertOneErrorDiagnosticType(MESSAGE_HAS_NO_VALUE);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -615,7 +615,7 @@ public final class JsMessageVisitorTest {
     extractMessages("goog.getMsg('a')");
     assertThat(messages).isEmpty();
 
-    assertOneError(JsMessageVisitor.MESSAGE_NODE_IS_ORPHANED);
+    assertOneErrorDiagnosticType(JsMessageVisitor.MESSAGE_NODE_IS_ORPHANED);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -629,7 +629,7 @@ public final class JsMessageVisitorTest {
         """);
     assertThat(messages).isEmpty();
 
-    assertOneError(JsMessageVisitor.MESSAGE_NODE_IS_ORPHANED);
+    assertOneErrorDiagnosticType(JsMessageVisitor.MESSAGE_NODE_IS_ORPHANED);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -863,7 +863,7 @@ public final class JsMessageVisitorTest {
 
     assertOneMessage();
     assertThat(compiler.getErrors()).isEmpty();
-    assertOneWarning(
+    assertOneWarningString(
         "Message value of MSG_FOO is just an empty string. Empty messages are forbidden.");
   }
 
@@ -877,7 +877,7 @@ public final class JsMessageVisitorTest {
 
     assertOneMessage();
     assertThat(compiler.getErrors()).isEmpty();
-    assertOneWarning(
+    assertOneWarningString(
         "Message value of MSG_BAR is just an empty string. Empty messages are forbidden.");
   }
 
@@ -885,7 +885,7 @@ public final class JsMessageVisitorTest {
   public void testMsgVarWithoutAssignment() {
     extractMessages("var MSG_SILLY;");
 
-    assertOneError(JsMessageVisitor.MESSAGE_HAS_NO_VALUE);
+    assertOneErrorDiagnosticType(JsMessageVisitor.MESSAGE_HAS_NO_VALUE);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -1135,7 +1135,7 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
         (function () {/** @desc Hello2 */ var MSG_HELLO = goog.getMsg('a')})
         """);
 
-    assertOneError(JsMessageVisitor.MESSAGE_DUPLICATE_KEY);
+    assertOneErrorDiagnosticType(JsMessageVisitor.MESSAGE_DUPLICATE_KEY);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -1225,7 +1225,7 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
         /** @desc Hello */
         var MSG_HELLO_3 = goog.getMsgWithFallback(MSG_HELLO_1, MSG_HELLO_2);
         """);
-    assertOneError(MESSAGE_TREE_MALFORMED);
+    assertOneErrorDiagnosticType(MESSAGE_TREE_MALFORMED);
     assertThat(compiler.getWarnings()).isEmpty();
   }
 
@@ -1497,11 +1497,11 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
   }
 
   private void assertOneError(DiagnosticType type, String description) {
-    assertOneError(type);
+    assertOneErrorDiagnosticType(type);
     assertOneError(description);
   }
 
-  private void assertOneError(DiagnosticType type) {
+  private void assertOneErrorDiagnosticType(DiagnosticType type) {
     assertThat(compiler.getErrors())
         .comparingElementsUsing(DIAGNOSTIC_EQUALITY)
         .containsExactly(type);
@@ -1515,7 +1515,7 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
 
   private void assertOneWarning(DiagnosticType type, String description) {
     assertOneWarning(type);
-    assertOneWarning(description);
+    assertOneWarningString(description);
   }
 
   private void assertOneWarning(DiagnosticType type) {
@@ -1524,7 +1524,7 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
         .containsExactly(type);
   }
 
-  private void assertOneWarning(String description) {
+  private void assertOneWarningString(String description) {
     assertThat(compiler.getWarnings())
         .comparingElementsUsing(DESCRIPTION_EQUALITY)
         .containsExactly(description);

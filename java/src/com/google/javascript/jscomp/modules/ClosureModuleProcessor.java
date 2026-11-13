@@ -132,7 +132,7 @@ final class ClosureModuleProcessor implements ModuleProcessor {
       Require require = requiresByLocalName.get(name);
       Import importRecord = require.importRecord();
 
-      UnresolvedModule requested = moduleRequestResolver.resolve(importRecord);
+      UnresolvedModule requested = moduleRequestResolver.resolveImport(importRecord);
 
       if (requested == null) {
         return ResolveExportResult.ERROR;

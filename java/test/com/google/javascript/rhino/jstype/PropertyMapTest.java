@@ -73,7 +73,7 @@ public class PropertyMapTest {
     assertThat(empty.getAllKeys())
         .isEqualTo(new PropertyMap.AllKeys(ImmutableSortedSet.of(), ImmutableSet.of()));
     assertThat(empty.getPrimaryParent()).isNull();
-    assertThat(empty.getOwnProperty("x")).isNull();
+    assertThat(empty.getOwnPropertyString("x")).isNull();
     assertThat(empty.getOwnProperty(symbolKey)).isNull();
   }
 
@@ -81,9 +81,9 @@ public class PropertyMapTest {
   public void getAllKeys_returnsBothSymbolAndStringKeys() {
     PropertyMap properties = new PropertyMap();
 
-    properties.putProperty("x", new Property("x", numberType, /* inferred= */ false, null));
+    properties.putPropertyString("x", new Property("x", numberType, /* inferred= */ false, null));
     properties.putProperty(
-        symbolKey, new Property(symbolKey, numberType, /* inferred= */ false, null));
+        symbolKey, Property.createFromKey(symbolKey, numberType, /* inferred= */ false, null));
 
     assertThat(properties.getAllKeys().stringKeys()).containsExactly("x");
     assertThat(properties.getAllKeys().knownSymbolKeys()).containsExactly(symbolKey.symbol());
@@ -93,7 +93,7 @@ public class PropertyMapTest {
   public void getAllKeys_cachesStringKeyResult() {
     PropertyMap properties = new PropertyMap();
 
-    properties.putProperty("x", new Property("x", numberType, /* inferred= */ false, null));
+    properties.putPropertyString("x", new Property("x", numberType, /* inferred= */ false, null));
 
     var result1 = properties.getAllKeys().stringKeys();
     var result2 = properties.getAllKeys().stringKeys();
@@ -105,7 +105,7 @@ public class PropertyMapTest {
     PropertyMap properties = new PropertyMap();
 
     properties.putProperty(
-        symbolKey, new Property(symbolKey, numberType, /* inferred= */ false, null));
+        symbolKey, Property.createFromKey(symbolKey, numberType, /* inferred= */ false, null));
 
     var result1 = properties.getAllKeys().knownSymbolKeys();
     var result2 = properties.getAllKeys().knownSymbolKeys();
@@ -123,7 +123,7 @@ public class PropertyMapTest {
     assertThat(properties.getAllKeys().stringKeys()).isEmpty();
 
     // Invalidate the cache.
-    properties.putProperty("x", new Property("x", numberType, /* inferred= */ false, null));
+    properties.putPropertyString("x", new Property("x", numberType, /* inferred= */ false, null));
 
     // getAllKeys() should recalculate the result.
     assertThat(properties.getAllKeys().stringKeys()).containsExactly("x");
@@ -141,7 +141,7 @@ public class PropertyMapTest {
 
     // Invalidate the cache.
     properties.putProperty(
-        symbolKey, new Property(symbolKey, numberType, /* inferred= */ false, null));
+        symbolKey, Property.createFromKey(symbolKey, numberType, /* inferred= */ false, null));
 
     // getAllKeys() should recalculate the result.
     assertThat(properties.getAllKeys().knownSymbolKeys()).containsExactly(symbolKey.symbol());
@@ -155,8 +155,8 @@ public class PropertyMapTest {
     PropertyMap child = new PropertyMap();
     child.setParentSource(childType);
 
-    assertThat(child.getOwnProperty("x")).isNull();
-    assertThat(child.findClosest("x").getValue().getType()).isEqualTo(numberType);
+    assertThat(child.getOwnPropertyString("x")).isNull();
+    assertThat(child.findClosestString("x").getValue().getType()).isEqualTo(numberType);
     assertThat(child.findClosest(new Property.StringKey("x")).getValue().getType())
         .isEqualTo(numberType);
   }
@@ -164,7 +164,7 @@ public class PropertyMapTest {
   @Test
   public void lookUpKeysFromParent_symbolKey() {
     ObjectType parentType = registry.createRecordType(ImmutableMap.of()).assertObjectType();
-    parentType.defineDeclaredProperty(symbolKey, numberType, null);
+    parentType.defineDeclaredPropertyKey(symbolKey, numberType, null);
     ObjectType childType = registry.createObjectType("Child", parentType);
     PropertyMap child = new PropertyMap();
     child.setParentSource(childType);

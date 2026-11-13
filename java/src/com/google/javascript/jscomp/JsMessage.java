@@ -770,7 +770,7 @@ public record JsMessage(
      * @return 64 bit hash value
      */
     static long hash64(@Nullable String value) {
-      return hash64(value, SEED64);
+      return hash64String(value, SEED64);
     }
 
     /**
@@ -780,7 +780,7 @@ public record JsMessage(
      * @param seed the seed
      * @return 64 bit hash value
      */
-    private static long hash64(@Nullable String value, long seed) {
+    private static long hash64String(@Nullable String value, long seed) {
       if (value == null) {
         return hash64(null, 0, 0, seed);
       }

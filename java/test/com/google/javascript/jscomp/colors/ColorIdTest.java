@@ -66,7 +66,7 @@ public final class ColorIdTest {
 
   @Test
   public void equals_fromByteStringVsFromAscii() {
-    assertEqualsAndRelatedMethods(A, ColorId.fromBytes(ByteString.copyFrom(bytes(97))));
+    assertEqualsAndRelatedMethods(A, ColorId.fromBytesByteString(ByteString.copyFrom(bytes(97))));
   }
 
   @Test
@@ -115,15 +115,15 @@ public final class ColorIdTest {
 
   @Test
   public void fromUnsigned_noSignExtension() {
-    assertThat(ColorId.fromUnsigned((byte) -1).toString()).isEqualTo("ff");
+    assertThat(ColorId.fromUnsignedByte((byte) -1).toString()).isEqualTo("ff");
     // -1 is an int by default
     assertThat(ColorId.fromUnsigned(-1).toString()).isEqualTo("ffffffff");
-    assertThat(ColorId.fromUnsigned(-1L).toString()).isEqualTo("ffffffffffffffff");
+    assertThat(ColorId.fromUnsignedLong(-1L).toString()).isEqualTo("ffffffffffffffff");
   }
 
   @Test
   public void roundtrip_throughByteString() {
-    assertEqualsAndRelatedMethods(A, ColorId.fromBytes(A.asByteString()));
+    assertEqualsAndRelatedMethods(A, ColorId.fromBytesByteString(A.asByteString()));
   }
 
   @Test

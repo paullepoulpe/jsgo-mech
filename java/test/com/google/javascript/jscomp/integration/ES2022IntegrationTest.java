@@ -105,7 +105,7 @@ public final class ES2022IntegrationTest extends IntegrationTestCase {
   public void publicClassFields_supportedInChecksOnlyMode3() {
     CompilerOptions options = checksOnlyCompilerOptions();
 
-    test(
+    testDiagnosticGroupArray(
         options,
         new String[] {
           """
@@ -176,7 +176,7 @@ public final class ES2022IntegrationTest extends IntegrationTestCase {
     CompilerOptions options = checksOnlyCompilerOptions();
 
     // test will give JSC_ILLEGAL_PROPERTY_ACCESS error because @dict or @restricted is missing
-    test(
+    testDiagnosticGroupArray(
         options,
         new String[] {
           """
@@ -363,14 +363,14 @@ public final class ES2022IntegrationTest extends IntegrationTestCase {
         """;
 
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
-    test(
+    testDiagnosticGroupArray(
         options,
         new String[] {src},
         (String[]) null,
         new DiagnosticGroup[] {DiagnosticGroups.PARSING, DiagnosticGroups.PARSING});
 
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2022);
-    test(
+    testDiagnosticGroupArray(
         options,
         new String[] {src},
         (String[]) null,
@@ -389,14 +389,14 @@ public final class ES2022IntegrationTest extends IntegrationTestCase {
         """;
 
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
-    test(
+    testDiagnosticGroupArray(
         options,
         new String[] {srcInFunction},
         (String[]) null,
         new DiagnosticGroup[] {DiagnosticGroups.PARSING, DiagnosticGroups.PARSING});
 
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2022);
-    test(
+    testDiagnosticGroupArray(
         options,
         new String[] {srcInFunction},
         (String[]) null,
@@ -1344,14 +1344,14 @@ public final class ES2022IntegrationTest extends IntegrationTestCase {
     //   undeclared").
     // Why it's a bug: the error is false, because `#x` is a private name declared in `C`, not a
     //   variable. Valid code fails to compile.
-    test(checkSymbols, js, DiagnosticGroups.UNDEFINED_VARIABLES);
+    testStringDiagnosticGroup(checkSymbols, js, DiagnosticGroups.UNDEFINED_VARIABLES);
     // TODO(b/236744850): `TypeCheck` reports a brand check on a struct.
     // Current behavior: `TypeCheck` reports the warning `JSC_IN_USED_WITH_STRUCT` ("Cannot use
     //   the IN operator with structs"), because class instances are structs.
     // Why it's a bug: the warning is false, because `#x in this` only checks whether `this` has
     //   the private field `#x`, which is fine on a struct. In strict builds, the warning is an
     //   error, so valid code fails to compile.
-    test(checkTypes, js, DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(checkTypes, js, DiagnosticGroups.CHECK_TYPES);
   }
 
   @Test

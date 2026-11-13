@@ -111,7 +111,7 @@ public final class RuntimeLibraryTypedAstInjectionTest extends CompilerTestCase 
     ensureLibraryInjected("util/global");
     disableTypeCheck();
 
-    testNoWarning(srcs("globalThis"));
+    testNoWarningSources(srcs("globalThis"));
 
     ImmutableList<Node> objectNameNodes =
         findNodesNamed(this.getLastCompiler().getRoot(), "globalThis");

@@ -227,7 +227,7 @@ abstract class DataFlowAnalysis<N, L extends LatticeElement> {
         // If there is a change in the current node, we want to grab the list
         // of nodes that this node affects.
         List<? extends DiGraphNode<N, Branch>> nextNodes =
-            isForward() ? cfg.getDirectedSuccNodes(curNode) : cfg.getDirectedPredNodes(curNode);
+            isForward() ? cfg.getDirectedSuccNodesDiGraphNode(curNode) : cfg.getDirectedPredNodesDiGraphNode(curNode);
 
         for (DiGraphNode<N, Branch> nextNode : nextNodes) {
           if (nextNode != cfg.getImplicitReturn()) {

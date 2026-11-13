@@ -67,19 +67,19 @@ public final class Es6RewriteBlockScopedDeclarationTest extends CompilerTestCase
   private void loopClosureTest(Externs externs, Sources srcs, Expected originalExpected) {
     // change the "LOOP" in expected with "$jscomp$loop$m123..456" name
     Expected modifiedExpected =
-        expected(
+        expectedList(
             UnitTestUtils.updateGenericVarNamesInExpectedFiles(
                 (FlatSources) srcs, originalExpected, ImmutableMap.of("LOOP", "$jscomp$loop$")));
     // change the "$PARAM" in expected with "$jscomp$loop_param$m123..456" parameter name
     modifiedExpected =
-        expected(
+        expectedList(
             UnitTestUtils.updateGenericVarNamesInExpectedFiles(
                 (FlatSources) srcs,
                 modifiedExpected,
                 ImmutableMap.of("$PARAM", "$jscomp$loop_param$")));
     // change the "$THIS" and "$ARGUMENTS" in expected with "$jscomp$this$" and "$jscomp$arguments$"
     modifiedExpected =
-        expected(
+        expectedList(
             UnitTestUtils.updateGenericVarNamesInExpectedFiles(
                 (FlatSources) srcs,
                 modifiedExpected,
@@ -540,7 +540,7 @@ public final class Es6RewriteBlockScopedDeclarationTest extends CompilerTestCase
             }
             """);
 
-    testSame(srcs);
+    testSameTestPartVarargs(srcs);
   }
 
   @Test
@@ -2278,7 +2278,7 @@ public final class Es6RewriteBlockScopedDeclarationTest extends CompilerTestCase
   @Test
   public void testUniqueIdAcrossMultipleFiles() {
     Sources srcs =
-        srcs(
+        srcsStringVarargs(
             """
             for (const i in [0, 1]) {
               let f = function() {
@@ -2300,7 +2300,7 @@ public final class Es6RewriteBlockScopedDeclarationTest extends CompilerTestCase
             }
             """);
     Expected expected =
-        expected(
+        expectedStringVarargs(
             """
             var i;
             for (i in [0, 1]) {

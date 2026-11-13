@@ -224,11 +224,11 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
       @Nullable Node moduleScopeRoot) {
     Node parent = n.getParent();
     if (currentModuleInfo == null) {
-      if (NodeUtil.isCallTo(n, GOOG_MODULE)) {
+      if (NodeUtil.isCallToQualifiedName(n, GOOG_MODULE)) {
         t.report(n, GOOG_MODULE_IN_NON_MODULE);
       } else if (NodeUtil.isGoogModuleDeclareLegacyNamespaceCall(n)) {
         t.report(n, DECLARE_LEGACY_NAMESPACE_IN_NON_MODULE);
-      } else if (NodeUtil.isCallTo(n, GOOG_PROVIDE)) {
+      } else if (NodeUtil.isCallToQualifiedName(n, GOOG_PROVIDE)) {
         // This error is reported here, rather than in a provide-specific pass, because it
         // must be reported prior to ClosureRewriteModule converting legacy goog.modules into
         // goog.provides.

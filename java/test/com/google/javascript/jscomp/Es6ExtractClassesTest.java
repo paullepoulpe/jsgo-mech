@@ -242,8 +242,8 @@ public final class Es6ExtractClassesTest extends CompilerTestCase {
   @Test
   public void testFilenameContainsAt() {
     test(
-        srcs(SourceFile.fromCode("unusual@name", "alert(class {});")),
-        expected(
+        srcsSourceFileVarargs(SourceFile.fromCode("unusual@name", "alert(class {});")),
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "unusual@name",
                 """
@@ -255,8 +255,8 @@ public final class Es6ExtractClassesTest extends CompilerTestCase {
   @Test
   public void testFilenameContainsPlus() {
     test(
-        srcs(SourceFile.fromCode("+some/+path/file", "alert(class {});")),
-        expected(
+        srcsSourceFileVarargs(SourceFile.fromCode("+some/+path/file", "alert(class {});")),
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "+path/file",
                 """

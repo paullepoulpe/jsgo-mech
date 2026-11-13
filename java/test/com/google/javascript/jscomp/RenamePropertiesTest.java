@@ -329,14 +329,14 @@ public final class RenamePropertiesTest extends CompilerTestCase {
     Result result = compiler.getResult();
     assertThat(result.success).isTrue();
 
-    assertThat(compiler.toSource(chunk1))
+    assertThat(compiler.toSourceJSChunk(chunk1))
         .isEqualTo(
             """
             function Bar(){}Bar.prototype.b=function(x){};\
             var foo;foo.b(foo);foo.f=foo;foo.a=foo;\
             """);
 
-    assertThat(compiler.toSource(chunk2))
+    assertThat(compiler.toSourceJSChunk(chunk2))
         .isEqualTo(
             """
             function Far(){}Far.prototype.c=function(y){};\
@@ -349,7 +349,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
     // in chunk 2, because "getC" occurs more total times across all chunks.
     // Might be better to give early chunks the shortest names, but this is
     // how the pass currently works.
-    assertThat(compiler.toSource(chunk3))
+    assertThat(compiler.toSourceJSChunk(chunk3))
         .isEqualTo(
             """
             function Car(){}Car.prototype.d=function(z){};\
@@ -802,7 +802,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
           set baz(v) {}
         }
         """;
-    testSame(externs(externs), srcs("new Foo().helloWorld; new Foo().bar; new Foo().baz = 1;"));
+    testSameTestPartVarargs(externs(externs), srcs("new Foo().helloWorld; new Foo().bar; new Foo().baz = 1;"));
   }
 
   @Test
@@ -977,7 +977,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
         };
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -992,7 +992,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
                 Bar.prototype.getA = function(){};
                 bar.getA();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1019,7 +1019,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
         };
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1033,7 +1033,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
                 var bar = {myProp: 0};
                 f(bar[JSCompiler_renameProperty('myProp')]);
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1059,7 +1059,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
         };
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1073,7 +1073,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
                 var bar = {myProp: 0};
                 f(JSCompiler_renameProperty('otherProp.myProp.someProp'));
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """

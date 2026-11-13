@@ -219,7 +219,7 @@ abstract class AbstractPeepholeOptimization {
    */
   protected boolean isEcmaScript5OrGreater() {
     return compiler != null
-        && compiler.getOptions().getOutputFeatureSet().contains(FeatureSet.ES5);
+        && compiler.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet.ES5);
   }
 
   /** Returns the current coding convention. */

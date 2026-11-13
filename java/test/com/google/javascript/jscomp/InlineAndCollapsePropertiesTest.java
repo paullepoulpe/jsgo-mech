@@ -131,7 +131,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
     // InlineAndCollapseProperties runs in that test case except for the addition of one line of
     // JSDoc to make the unit test recognize a function declaration as a class declaration.
     test(
-        externs(
+        externsList(
             ImmutableList.of(
                 new TestExternsBuilder()
                     .addObject()
@@ -219,7 +219,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testDoNotCollapseDeletedProperty() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             const global = window;
@@ -428,7 +428,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testGitHubIssue3733() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             const X = {Y: 1};
@@ -915,7 +915,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
         /** @constructor */ var a$b = function() {}; var a$b$c = 1; var d = null;
         a$b$c == a$b$c;
         """);
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {}; /** @constructor */ a.b = function() {}; a.b.c = 1; var d = a?.b;
@@ -1867,7 +1867,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
         var x = function(){use(ns$Foo$EventType$A)};
         use(x);
         """);
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var ns = {};
@@ -1904,7 +1904,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
         var x = function(){use(ns$Foo$EventType.A)};
         use(x);
         """);
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var ns = {};
@@ -1940,7 +1940,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
         var x=function(){use(ns$Foo$Other$X)};
         use(x)
         """);
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var ns = {};
@@ -1967,7 +1967,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testGlobalAlias_propertyOnExternedConstructor_isNotChanged() {
-    testSame(
+    testSameTestPartVarargs(
         externs("/** @constructor */ var blob = function() {}"),
         srcs(
             """
@@ -3722,7 +3722,7 @@ public final class InlineAndCollapsePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testDontInlinePropertiesOnEscapedNamespace() {
-    testSame(
+    testSameTestPartVarargs(
         externs("function use(obj) {}"),
         srcs(
             """
@@ -3780,7 +3780,7 @@ use(Foo$Bar$baz$A);
 
   @Test
   public void testDontInlinePropertiesOnNamespace_withNoCollapse() {
-    testSame(
+    testSameTestPartVarargs(
         externs("function use(obj) {}"),
         srcs(
             """
@@ -4189,8 +4189,8 @@ use(Foo$Bar$baz$A);
             .build();
 
     test(
-        srcs(chunks[0], chunks[1]),
-        expected(
+        srcsJSChunkVarargs(chunks[0], chunks[1]),
+        expectedStringVarargs(
             """
             var mods$fn;
             function f() {
@@ -4221,8 +4221,8 @@ use(Foo$Bar$baz$A);
             .build();
 
     test(
-        srcs(chunks[0], chunks[1]),
-        expected(
+        srcsJSChunkVarargs(chunks[0], chunks[1]),
+        expectedStringVarargs(
             // We don't need to add a stub declaration of 'mods' as this pass isn't collapsing it.
             // The input code is responsible for avoiding unsafe 'mods' cross-chunk accesses.
             """
@@ -4263,8 +4263,8 @@ use(Foo$Bar$baz$A);
             .build();
 
     test(
-        srcs(chunks[0], chunks[1], chunks[2]),
-        expected(
+        srcsJSChunkVarargs(chunks[0], chunks[1], chunks[2]),
+        expectedStringVarargs(
             "var mods$fn;",
             """
             function f() {
@@ -4301,8 +4301,8 @@ use(Foo$Bar$baz$A);
             .build();
 
     test(
-        srcs(chunks[0], chunks[1]),
-        expected(
+        srcsJSChunkVarargs(chunks[0], chunks[1]),
+        expectedStringVarargs(
             """
             var mods$a$crossChunk;
             var mods$a;
@@ -4343,8 +4343,8 @@ use(Foo$Bar$baz$A);
             .build();
 
     test(
-        srcs(chunks[0], chunks[1]),
-        expected(
+        srcsJSChunkVarargs(chunks[0], chunks[1]),
+        expectedStringVarargs(
             """
             var modFactory;
             var factories$one = function() {};
@@ -4378,8 +4378,8 @@ use(Foo$Bar$baz$A);
             .build();
 
     test(
-        srcs(chunks[0], chunks[1]),
-        expected(
+        srcsJSChunkVarargs(chunks[0], chunks[1]),
+        expectedStringVarargs(
             """
             var registry$mod;
             var factories$one = function() {};
@@ -4418,8 +4418,8 @@ use(Foo$Bar$baz$A);
             .build();
 
     test(
-        srcs(chunks[0], chunks[1]),
-        expected(
+        srcsJSChunkVarargs(chunks[0], chunks[1]),
+        expectedStringVarargs(
             // m1
             """
             var factories$one = function() {};

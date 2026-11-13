@@ -148,7 +148,7 @@ public final class Es6RewriteModulesWithGoogInteropTest extends CompilerTestCase
 
   void testModules(String input, String expected) {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "closure_base.js", new TestExternsBuilder().addClosureExterns().build()),
             CLOSURE_PROVIDE,
@@ -157,7 +157,7 @@ public final class Es6RewriteModulesWithGoogInteropTest extends CompilerTestCase
             CLOSURE_LEGACY_MODULE,
             CLOSURE_LEGACY_DESTRUCTURED_MODULE,
             SourceFile.fromCode("testcode", input)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "closure_base.js", new TestExternsBuilder().addClosureExterns().build()),
             CLOSURE_PROVIDE,
@@ -169,8 +169,8 @@ public final class Es6RewriteModulesWithGoogInteropTest extends CompilerTestCase
   }
 
   void testModulesError(String input, DiagnosticType error) {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             CLOSURE_PROVIDE,
             CLOSURE_MODULE,
             CLOSURE_LEGACY_MODULE,
@@ -180,45 +180,45 @@ public final class Es6RewriteModulesWithGoogInteropTest extends CompilerTestCase
 
   @Test
   public void testClosureFilesUnchanged() {
-    testSame(srcs(CLOSURE_BASE, CLOSURE_PROVIDE, CLOSURE_MODULE, CLOSURE_LEGACY_MODULE));
+    testSameTestPartVarargs(srcsSourceFileVarargs(CLOSURE_BASE, CLOSURE_PROVIDE, CLOSURE_MODULE, CLOSURE_LEGACY_MODULE));
   }
 
   @Test
   public void testGoogRequireInNonEs6ModuleUnchanged() {
-    testSame(
-        srcs(new TestExternsBuilder().addClosureExterns().build(), "goog.require('foo.bar');"));
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(new TestExternsBuilder().addClosureExterns().build(), "goog.require('foo.bar');"));
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "var bar = goog.require('foo.bar');"));
   }
 
   @Test
   public void testGoogRequireTypeInNonEs6ModuleUnchanged() {
-    testSame(
-        srcs(new TestExternsBuilder().addClosureExterns().build(), "goog.requireType('foo.bar');"));
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(new TestExternsBuilder().addClosureExterns().build(), "goog.requireType('foo.bar');"));
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "var bar = goog.requireType('foo.bar');"));
   }
 
   @Test
   public void testForwardDeclareInNonEs6ModuleUnchanged() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "goog.forwardDeclare('foo.bar');"));
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "var bar = goog.forwardDeclare('foo.bar');"));
   }
 
   @Test
   public void testGoogRequireInEs6ModuleDoesNotExistIsError() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "export var x; goog.require('foo.bar');"),
         error(MISSING_MODULE_OR_PROVIDE));
@@ -226,8 +226,8 @@ public final class Es6RewriteModulesWithGoogInteropTest extends CompilerTestCase
 
   @Test
   public void testGoogRequireTypeInEs6ModuleDoesNotExistIsError() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "export var x; goog.requireType('foo.bar');"),
         error(MISSING_MODULE_OR_PROVIDE));
@@ -500,13 +500,13 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogModuleGetForEs6Module() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export {}; goog.declareModuleId('es6');"),
             SourceFile.fromCode(
                 "closure.js",
                 "goog.module('my.module'); function f() { const y = goog.module.get('es6'); }")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "/** @const */ var module$es6 = {};"),
             SourceFile.fromCode(
@@ -516,13 +516,13 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogModuleGetForEs6ModuleDeclaresNamespace() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export let y; goog.declareModuleId('es6');"),
             SourceFile.fromCode(
                 "closure.js",
                 "goog.module('my.module'); function f() { return goog.module.get('es6').y; }")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -538,11 +538,11 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testDeclareModuleId() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export var x; goog.declareModuleId('my.es6');"),
             SourceFile.fromCode("goog.js", "const es6 = goog.require('my.es6'); use(es6, es6.x);")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -556,11 +556,11 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogRequireForDeclareModuleId() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export var x; goog.declareModuleId('my.es6');"),
             SourceFile.fromCode("goog.js", "const es6 = goog.require('my.es6'); use(es6, es6.x);")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -574,7 +574,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogRequireForDeclareModuleId_inGoogLoadModule() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export var x; goog.declareModuleId('my.es6');"),
             SourceFile.fromCode(
@@ -587,7 +587,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 return exports;
                 });
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -610,7 +610,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogRequireTypeForDeclareModuleId() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export class x {}; goog.declareModuleId('my.es6');"),
             SourceFile.fromCode(
@@ -621,7 +621,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 /** @param {es6.x} a */
                 function f(a) {}
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -644,7 +644,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogRequireTypeForDeclareModuleId_inLoadModule() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export class x {}; goog.declareModuleId('my.es6');"),
             SourceFile.fromCode(
@@ -658,7 +658,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 return exports;
                 });
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -684,7 +684,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogRequireTypeForDeclareModuleId_lateLoaded() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "goog.js",
@@ -695,7 +695,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 function f(a) {}
                 """),
             SourceFile.fromCode("es6.js", "export class x {}; goog.declareModuleId('my.es6');")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "goog.js",
@@ -718,11 +718,11 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogRequireForDeclareModuleIdWithDestructure() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export var x, z; goog.declareModuleId('my.es6');"),
             SourceFile.fromCode("goog.js", "const {x, z: y} = goog.require('my.es6'); use(x, y);")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -744,7 +744,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogRequireTypeForDeclareModuleIdWithDestructure() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js", "export class x {} export class z {} goog.declareModuleId('my.es6');"),
@@ -758,7 +758,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                  */
                 function f(a, b) {}
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -856,8 +856,8 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
 
   @Test
   public void testGoogRequireTypeForNonEs6LhsNonConst1() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("es6.js", "export var x; goog.declareModuleId('es6');"),
             SourceFile.fromCode(
                 "closure.js",
@@ -870,8 +870,8 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
 
   @Test
   public void testGoogRequireTypeForNonEs6LhsNonConst2() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("es6.js", "export var x; goog.declareModuleId('es6');"),
             SourceFile.fromCode(
                 "closure.js",
@@ -995,7 +995,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testRequireAndStoreGlobalUnqualifiedProvide() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("provide.js", "goog.provide('foo')"),
             SourceFile.fromCode(
@@ -1005,7 +1005,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 use(foo);
                 export {};
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("provide.js", "goog.provide('foo')"),
             SourceFile.fromCode(
@@ -1113,7 +1113,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testForwardDeclareEs6Module() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js", "export {}; goog.declareModuleId('es6'); export class Type {}"),
@@ -1125,7 +1125,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 let /** !alias.Type */ x;
                 alias;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -1143,7 +1143,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 """)));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js", "export {}; goog.declareModuleId('es6'); export class Type {}"),
@@ -1157,8 +1157,8 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 """)),
         warning(UNRECOGNIZED_TYPE_ERROR));
 
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export {}; goog.declareModuleId('es6');"),
             SourceFile.fromCode(
@@ -1175,12 +1175,12 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testWarnAboutRequireEs6FromEs6() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("first.js", "goog.declareModuleId('first'); export {};"),
             SourceFile.fromCode(
                 "second.js", "const first = goog.require('first'); export {first};")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("first.js", "/** @const */ var module$first = {};"),
             SourceFile.fromCode(
@@ -1193,11 +1193,11 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
         warning(Es6RewriteModules.SHOULD_IMPORT_ES6_MODULE));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("first.js", "goog.declareModuleId('no.alias'); export {};"),
             SourceFile.fromCode("second.js", "goog.require('no.alias'); export {};")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("first.js", "/** @const */ var module$first = {};"),
             SourceFile.fromCode("second.js", "/** @const */ var module$second = {};")),
@@ -1209,7 +1209,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
     // TODO(tjgq): Make these warn once there's a requireType equivalent for ES6 modules.
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "goog.declareModuleId('es6'); export class Type {};"),
             SourceFile.fromCode(
@@ -1219,7 +1219,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 const alias = goog.requireType('es6');
                 let /** !alias.Type */ x;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -1236,7 +1236,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 """)));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "goog.declareModuleId('es6'); export class Type {}"),
             SourceFile.fromCode(
@@ -1252,12 +1252,12 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testGoogModuleGetEs6ModuleInEs6Module() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("first.js", "goog.declareModuleId('first'); export let x;"),
             SourceFile.fromCode(
                 "second.js", "export function foo() { return goog.module.get('first').x; }")),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "first.js",
@@ -1280,7 +1280,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
   @Test
   public void testForwardDeclareEs6ModuleInEs6Module() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export class Type {} goog.declareModuleId('es6');"),
             SourceFile.fromCode(
@@ -1291,7 +1291,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 let /** !alias.Type */ x;
                 alias;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode(
                 "es6.js",
@@ -1309,7 +1309,7 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 """)));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export class Type {} goog.declareModuleId('es6');"),
             SourceFile.fromCode(
@@ -1322,8 +1322,8 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
                 """)),
         warning(UNRECOGNIZED_TYPE_ERROR));
 
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             CLOSURE_BASE,
             SourceFile.fromCode("es6.js", "export class Type {} goog.declareModuleId('es6');"),
             SourceFile.fromCode(
@@ -1342,14 +1342,14 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
     ignoreWarnings(MISSING_MODULE_OR_PROVIDE, POSSIBLE_INEXISTENT_PROPERTY);
 
     test(
-        srcs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             """
             const missing = goog.require('is.missing');
             use(missing, missing.x);
             export {};
             """),
-        expected(
+        expectedStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             """
             use(is.missing, is.missing.x);
@@ -1357,14 +1357,14 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             """
             const {prop} = goog.require('is.missing');
             use(prop, prop.x);
             export {};
             """),
-        expected(
+        expectedStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             """
             use(is.missing.prop, is.missing.prop.x);
@@ -1372,14 +1372,14 @@ use(closure.legacy.destructured.module.a, closure.legacy.destructured.module.a.d
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             """
             import missing, {y} from 'goog:is.missing';
             use(missing, missing.x, y);
             export {};
             """),
-        expected(
+        expectedStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             """
             use(is.missing, is.missing.x, is.missing.y);

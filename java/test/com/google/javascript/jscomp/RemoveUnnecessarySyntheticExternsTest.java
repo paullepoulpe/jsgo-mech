@@ -116,7 +116,7 @@ public final class RemoveUnnecessarySyntheticExternsTest extends CompilerTestCas
     this.syntheticExternsToAdd.add(createUnfulfilledDeclaration("x"));
     this.syntheticExternsToAdd.add(createUnfulfilledDeclaration("y"));
 
-    testExternChanges(externs("var x;"), srcs(""), expected("var y;", "var x;"));
+    testExternChanges(externs("var x;"), srcs(""), expectedStringVarargs("var y;", "var x;"));
     testExternChanges(externs("var x;"), srcs("var y;"), expected("var x;"));
   }
 

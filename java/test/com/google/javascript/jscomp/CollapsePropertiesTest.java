@@ -981,7 +981,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
             var a$b$c = 0; /** @enum */ var a$b = {c: a$b$c};
             var d = 1; d = a$b; d.c = 1; a$b$c != d.c;
             """));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {}; /** @enum */ a.b = {c: 0};
@@ -994,7 +994,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         var a = {}; /** @nocollapse @enum */ a.b = {c: 0};
         var d = 1; d = a.b; d.c = 1; a.b.c == d.c;
         """);
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {}; /** @nocollapse @enum */ a.b = {c: 0};
@@ -1013,7 +1013,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
             /** @enum */ var a$b = { /** @nocollapse */ c: 0};
             var d = 1; d = a$b; d.c = 1; a$b.c == d.c;
             """));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {}; /** @enum */ a.b = {/** @nocollapse */ c: 0};
@@ -1037,7 +1037,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
             var a$b$c = 0; /** @enum */ var a$b = {c: a$b$c};
             for (var p in a$b) { f(a$b[p]); }
             """));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {}; /** @enum */ a.b = {c: 0};
@@ -1075,7 +1075,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
             a$b$c;
             searchEnum(a$b)
             """));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {};
@@ -1101,7 +1101,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
             var a$b$c = {d: 1}; /** @enum {Object} */ var a$b = {c: a$b$c}; a$b$c.d;
             searchEnum(a$b)
             """));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {};
@@ -1280,7 +1280,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         a$b.c == d.c;
         """,
         warning(PARTIAL_NAMESPACE_WARNING));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {};
@@ -1302,7 +1302,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         "var a = {}; a.b = {}; /** @constructor */ a.b.c = function(){}; f(a.b); a.b.c;",
         "var a$b = {}; /** @constructor */ a$b.c = function(){}; f(a$b); a$b.c;",
         warning(PARTIAL_NAMESPACE_WARNING));
-    testSame(
+    testSameTestPartVarargs(
         srcs("var a = {}; a.b = {}; /** @constructor */ a.b.c = function(){}; f?.(a?.b); a.b?.c;"),
         // 2 warnings (`a` and `a.b`)
         warning(PARTIAL_NAMESPACE_WARNING),
@@ -1315,7 +1315,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         "var a = {}; a.b = {}; /** @constructor */ a.b.c = function(){}; new f(a.b); a.b.c;",
         "var a$b = {}; /** @constructor */ a$b.c = function(){}; new f(a$b); a$b.c;",
         warning(PARTIAL_NAMESPACE_WARNING));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var a = {};
@@ -3106,7 +3106,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         delete x.foo;
         """,
         warning(NAMESPACE_REDEFINED_WARNING));
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var x = {};
@@ -4614,8 +4614,8 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
 
     ignoreWarnings(LOAD_WARNING);
     test(
-        srcs("import * as a from './a.js'; let b = a.b;", "var a = {}; a.b = 5;"),
-        expected("import * as a$jscomp$1 from './a.js'; let b = a$jscomp$1.b;", "var a$b = 5;"));
+        srcsStringVarargs("import * as a from './a.js'; let b = a.b;", "var a = {}; a.b = 5;"),
+        expectedStringVarargs("import * as a$jscomp$1 from './a.js'; let b = a$jscomp$1.b;", "var a$b = 5;"));
   }
 
   @Test
@@ -4652,7 +4652,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         SourceFile.fromCode(
             "entry.js", "var mod = module$mod1$default; alert(module$mod1$default);"));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 
   @Test
@@ -4681,7 +4681,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         SourceFile.fromCode(
             "entry.js", "alert($jscompDefaultExport$$module$mod1); alert(bar$$module$mod1);"));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 
   @Test
@@ -4723,7 +4723,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
             alert(bar$$module$mod1);
             """));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 
   @Test
@@ -4758,7 +4758,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         SourceFile.fromCode(
             "entry.js", "var mod = module$mod1$default; alert(module$mod1$default.bar.baz);"));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 
   @Test
@@ -4793,7 +4793,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
     expected.add(
         SourceFile.fromCode("entry.js", "alert($jscompDefaultExport$$module$mod1.bar.baz);"));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 
   @Test
@@ -4825,7 +4825,7 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
         SourceFile.fromCode(
             "entry.js", "var mod = module$mod1$default; alert(module$mod1$default.bar);"));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 
   @Test
@@ -4937,6 +4937,6 @@ public final class CollapsePropertiesTest extends CompilerTestCase {
             /** @const */ var module$mod1$default = 123;
             """));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 }

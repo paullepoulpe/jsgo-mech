@@ -83,7 +83,7 @@ public final class FixedPointGraphTraversal<N, E> {
     for (DiGraphNode<N, E> node : graph.getNodes()) {
       nodes.add(node.getValue());
     }
-    computeFixedPoint(graph, nodes);
+    computeFixedPointSet(graph, nodes);
   }
 
   /**
@@ -94,7 +94,7 @@ public final class FixedPointGraphTraversal<N, E> {
   public void computeFixedPoint(DiGraph<N, E> graph, N entry) {
     Set<N> entrySet = new LinkedHashSet<>();
     entrySet.add(entry);
-    computeFixedPoint(graph, entrySet);
+    computeFixedPointSet(graph, entrySet);
   }
 
   // We cube the number of nodes to estimate the largest number of iterations we should allow before
@@ -111,7 +111,7 @@ public final class FixedPointGraphTraversal<N, E> {
    * @param graph The graph to traverse.
    * @param entrySet The nodes to begin traversing from.
    */
-  public void computeFixedPoint(DiGraph<N, E> graph, Set<N> entrySet) {
+  public void computeFixedPointSet(DiGraph<N, E> graph, Set<N> entrySet) {
     long cycleCount = 0;
     long nodeCount = min(graph.getNodeCount(), MAX_NODE_COUNT_FOR_ITERATION_LIMIT);
 

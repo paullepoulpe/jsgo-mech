@@ -44,7 +44,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   }
 
   private void testDoesntChange(Sources js) {
-    testSame(js);
+    testSameTestPartVarargs(js);
   }
 
   // Nearly all of the tests in this file were written at a time when
@@ -57,7 +57,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testInlineCollapsedProp() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -75,7 +75,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
                 var A$$0x = null;
                 var x = A.x;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -91,7 +91,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testNoInlineNonJ2clProps() {
     testDoesntChange(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -114,7 +114,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testNoInlineNonJ2clPropsValue() {
     testDoesntChange(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -137,7 +137,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testNoStripDefineProperties() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -168,7 +168,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
                   },
                 });
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -194,7 +194,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testInlineDefinePropertiesGetter() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -215,7 +215,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
                 A.$x = 3;
                 var xx = A.x;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -231,7 +231,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testInlineDefinePropertiesSetter() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -252,7 +252,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
                 A.$x = 3;
                 A.x = 10;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -268,7 +268,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testInlineGettersInQualifier() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -289,7 +289,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
                 A.$x = null;
                 var xy = A.x.y;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -305,7 +305,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testInlineGettersInQualifierNoSetter() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -323,7 +323,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
                 A.$x = null;
                 var xy = A.x.y;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -339,7 +339,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testNoInlineCompoundAssignment() {
     testDoesntChange(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -366,7 +366,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   public void testNoInlineIncrementGetter() {
     // Test ++
     testDoesntChange(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -390,7 +390,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
 
     // Test --
     testDoesntChange(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -416,7 +416,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
   @Test
   public void testNoInlineSetterOnlyGetter() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """
@@ -434,7 +434,7 @@ public class J2clPropertyInlinerPassTest extends CompilerTestCase {
                 A.$x = null;
                 A.x = null;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "someFile.js",
                 """

@@ -45,10 +45,10 @@ class MemoizedScopeCreator implements ScopeCreator {
   }
 
   @Override
-  public AbstractScope<?, ?> createScope(Node n, AbstractScope<?, ?> parent) {
+  public AbstractScope<?, ?> createScopeAbstractScope(Node n, AbstractScope<?, ?> parent) {
     AbstractScope<?, ?> scope = scopesByScopeRoot.get(n);
     if (scope == null) {
-      scope = delegate.createScope(n, parent);
+      scope = delegate.createScopeAbstractScope(n, parent);
       scopesByScopeRoot.put(n, scope);
     } else {
       checkState(parent == scope.getParent());

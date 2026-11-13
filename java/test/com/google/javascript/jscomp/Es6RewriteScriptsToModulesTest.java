@@ -60,8 +60,8 @@ public final class Es6RewriteScriptsToModulesTest extends CompilerTestCase {
 
   @Test
   public void testNonImportedScript() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("/script.js", ""),
             SourceFile.fromCode("/module.js", "export default 'foo';")));
   }

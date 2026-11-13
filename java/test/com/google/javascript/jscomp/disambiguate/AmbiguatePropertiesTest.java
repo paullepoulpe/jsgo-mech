@@ -673,7 +673,7 @@ public final class AmbiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testReadPropertyOfGlobalThis() {
-    testSame(externs(EXTERNS + "Object.prototype.prop;"), srcs("f(this.prop);"));
+    testSameTestPartVarargs(externs(EXTERNS + "Object.prototype.prop;"), srcs("f(this.prop);"));
   }
 
   @Test
@@ -838,7 +838,7 @@ public final class AmbiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testTypeMismatch() {
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
     testSame(
         """
         /** @constructor */var Foo = function(){};
@@ -1050,7 +1050,7 @@ public final class AmbiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testInterfaceWithSubInterfaceAndDirectImplementors() {
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
     test(
         """
         /** @interface */ function Foo(){};
@@ -2257,7 +2257,7 @@ public final class AmbiguatePropertiesTest extends CompilerTestCase {
   public void testObjectPatternQuotedStringKey_notAmbiguated() {
     // this emits a warning for a computed property access on a struct, since property ambiguation
     // will break this code.
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
     test(
         """
         class Foo {
@@ -2277,7 +2277,7 @@ public final class AmbiguatePropertiesTest extends CompilerTestCase {
   public void testObjectPatternComputedProperty_notAmbiguated() {
     // this emits a warning for a computed property access on a struct, since property ambiguation
     // will break this code.
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
     test(
         """
         class Foo {
@@ -2454,7 +2454,7 @@ public final class AmbiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void testObjectUsedAsMapIsInvalidating() {
-    ignoreWarnings(DiagnosticGroups.MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MISSING_PROPERTIES);
     test(
         """
         /** @param {!Object<string>} obj$jscomp$6 */

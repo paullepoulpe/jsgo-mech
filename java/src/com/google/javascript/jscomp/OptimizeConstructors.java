@@ -385,10 +385,10 @@ class OptimizeConstructors implements CompilerPass, OptimizeCalls.CallGraphCompi
     Node arg = superCall.getSecondChild();
     while (param != null) {
       if (param.isRest()) {
-        if (!arg.isSpread() || !param.getFirstChild().matchesName(arg.getFirstChild())) {
+        if (!arg.isSpread() || !param.getFirstChild().matchesNameNode(arg.getFirstChild())) {
           return false;
         }
-      } else if (!param.matchesName(arg)) {
+      } else if (!param.matchesNameNode(arg)) {
         // not a simple parameter list or matching call args
         return false;
       }

@@ -151,7 +151,7 @@ public record JSError(
    * @param type The DiagnosticType
    * @param arguments Arguments to be incorporated into the message
    */
-  public static JSError make(Node start, Node end, DiagnosticType type, String... arguments) {
+  public static JSError makeNode(Node start, Node end, DiagnosticType type, String... arguments) {
     return builder(type, arguments).setNodeRange(start, end).build();
   }
 

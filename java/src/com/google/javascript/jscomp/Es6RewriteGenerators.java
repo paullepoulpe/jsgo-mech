@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -368,7 +369,7 @@ final class Es6RewriteGenerators implements CompilerPass {
                 "",
                 IR.paramList(context.getJsContextNameNode(originalGeneratorBody)),
                 generatorBody,
-                type(programType));
+                typeColor(programType));
 
         // $jscomp.generator.createGenerator
         Node createGenerator = astFactory.createQName(namespace, jscompCreateGenerator);
@@ -403,7 +404,7 @@ final class Es6RewriteGenerators implements CompilerPass {
       if (shouldAddFinalJump) {
         finalBlock.addChildToBack(
             context.callContextMethodResult(
-                originalGeneratorBody, "jumpToEnd", type(StandardColors.NULL_OR_VOID)));
+                originalGeneratorBody, "jumpToEnd", typeColor(StandardColors.NULL_OR_VOID)));
       }
       context.currentCase.jumpTo(context.programEndCase, finalBlock);
       context.currentCase.mayFallThrough = true;
@@ -840,7 +841,7 @@ final class Es6RewriteGenerators implements CompilerPass {
       // "$for$in.getNext()"
       Node forInGetNext =
           astFactory
-              .createGetProp(forIn.cloneNode(), "getNext", type(StandardColors.TOP_OBJECT))
+              .createGetProp(forIn.cloneNode(), "getNext", typeColor(StandardColors.TOP_OBJECT))
               .srcref(detachedExpr);
 
       // "(i = $for$in.getNext()) != null"
@@ -851,7 +852,7 @@ final class Es6RewriteGenerators implements CompilerPass {
                       .createAssign(
                           target.setColor(nullableStringType),
                           astFactory
-                              .createCall(forInGetNext, type(nullableStringType))
+                              .createCall(forInGetNext, typeColor(nullableStringType))
                               .srcref(detachedExpr))
                       .srcref(detachedExpr),
                   astFactory.createNull().srcref(forIn))
@@ -1466,7 +1467,7 @@ final class Es6RewriteGenerators implements CompilerPass {
        */
       Node createJumpToNode(Case section, Node sourceNode) {
         return returnContextMethod(
-            sourceNode, "jumpTo", type(StandardColors.NULL_OR_VOID), section.getNumber(sourceNode));
+            sourceNode, "jumpTo", typeColor(StandardColors.NULL_OR_VOID), section.getNumber(sourceNode));
       }
 
       /** Instructs a state machine program to jump to a selected case section. */
@@ -1489,7 +1490,7 @@ final class Es6RewriteGenerators implements CompilerPass {
                     callContextMethodResult(
                         sourceNode,
                         "jumpTo",
-                        type(StandardColors.NULL_OR_VOID),
+                        typeColor(StandardColors.NULL_OR_VOID),
                         section.getNumber(sourceNode)),
                     createBreakNodeFor(sourceNode))
                 .srcref(sourceNode);
@@ -1519,7 +1520,7 @@ final class Es6RewriteGenerators implements CompilerPass {
           callContextMethodResult(
                   sourceNode,
                   jumpMethod,
-                  type(StandardColors.NULL_OR_VOID),
+                  typeColor(StandardColors.NULL_OR_VOID),
                   section.getNumber(sourceNode))
               .insertBefore(sourceNode);
           sourceNode.replaceWith(createBreakNodeFor(sourceNode));
@@ -1536,7 +1537,7 @@ final class Es6RewriteGenerators implements CompilerPass {
               returnContextMethod(
                   sourceNode,
                   jumpMethod,
-                  type(StandardColors.NULL_OR_VOID),
+                  typeColor(StandardColors.NULL_OR_VOID),
                   section.getNumber(sourceNode)));
         }
       }
@@ -1555,7 +1556,7 @@ final class Es6RewriteGenerators implements CompilerPass {
         args.add(jumpToSection.getNumber(sourceNode));
         context.writeGeneratedNode(
             returnContextMethod(
-                sourceNode, "yield", type(StandardColors.UNKNOWN), args.toArray(new Node[0])));
+                sourceNode, "yield", typeColor(StandardColors.UNKNOWN), args.toArray(new Node[0])));
         context.currentCase.mayFallThrough = false;
       }
 
@@ -1568,7 +1569,7 @@ final class Es6RewriteGenerators implements CompilerPass {
             returnContextMethod(
                 sourceNode,
                 "yieldAll",
-                type(StandardColors.UNKNOWN),
+                typeColor(StandardColors.UNKNOWN),
                 expression,
                 jumpToSection.getNumber(sourceNode)));
         context.currentCase.mayFallThrough = false;
@@ -1577,15 +1578,15 @@ final class Es6RewriteGenerators implements CompilerPass {
       /** Instructs a state machine program to return a given expression. */
       Node returnExpression(Node sourceNode, @Nullable Node expression) {
         if (expression == null) {
-          return callContextMethod(sourceNode, "return", type(StandardColors.NULL_OR_VOID));
+          return callContextMethod(sourceNode, "return", typeColor(StandardColors.NULL_OR_VOID));
         }
         return callContextMethod(
-            sourceNode, "return", type(StandardColors.NULL_OR_VOID), expression);
+            sourceNode, "return", typeColor(StandardColors.NULL_OR_VOID), expression);
       }
 
       /** Instructs a state machine program to consume a yield result after yielding. */
       Node yieldResult(Node sourceNode) {
-        return callContextMethod(sourceNode, "getYieldResultJsc", type(StandardColors.UNKNOWN));
+        return callContextMethod(sourceNode, "getYieldResultJsc", typeColor(StandardColors.UNKNOWN));
       }
 
       /** Adds references to catch and finally blocks to the transpilation context. */
@@ -1656,7 +1657,7 @@ final class Es6RewriteGenerators implements CompilerPass {
             callContextMethodResult(
                 sourceNode,
                 methodName,
-                type(StandardColors.NULL_OR_VOID),
+                typeColor(StandardColors.NULL_OR_VOID),
                 args.toArray(new Node[0])));
       }
 
@@ -1677,7 +1678,7 @@ final class Es6RewriteGenerators implements CompilerPass {
             callContextMethodResult(
                 sourceNode,
                 "leaveTryBlock",
-                type(StandardColors.NULL_OR_VOID),
+                typeColor(StandardColors.NULL_OR_VOID),
                 args.toArray(new Node[0])));
       }
 
@@ -1702,7 +1703,7 @@ final class Es6RewriteGenerators implements CompilerPass {
             callContextMethod(
                 exceptionName,
                 "enterCatchBlock",
-                type(StandardColors.UNKNOWN),
+                typeColor(StandardColors.UNKNOWN),
                 args.toArray(new Node[0]));
         exceptionName.setColor(enterCatchBlockCall.getColor());
         writeGeneratedNode(
@@ -1757,7 +1758,7 @@ final class Es6RewriteGenerators implements CompilerPass {
             callContextMethodResult(
                 sourceNode,
                 "enterFinallyBlock",
-                type(StandardColors.NULL_OR_VOID),
+                typeColor(StandardColors.NULL_OR_VOID),
                 args.toArray(new Node[0])));
 
         ++nestedFinallyBlockCount;
@@ -1776,7 +1777,7 @@ final class Es6RewriteGenerators implements CompilerPass {
             callContextMethodResult(
                 sourceNode,
                 "leaveFinallyBlock",
-                type(StandardColors.NULL_OR_VOID),
+                typeColor(StandardColors.NULL_OR_VOID),
                 args.toArray(new Node[0])));
       }
 

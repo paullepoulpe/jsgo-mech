@@ -158,7 +158,7 @@ public final class ReplaceMessages {
           astFactory.createCall(newCallee, type(callNode), msgPropertiesNode).srcref(callNode);
       // If the result of this call (the message) is unused, there is no reason for optimizations
       // to preserve it.
-      newCallNode.setSideEffectFlags(SideEffectFlags.NO_SIDE_EFFECTS);
+      newCallNode.setSideEffectFlagsInt(SideEffectFlags.NO_SIDE_EFFECTS);
       if (placeholdersNode != null) {
         checkState(placeholdersNode.isObjectLit(), placeholdersNode);
         // put quotes around the keys so they won't get renamed.
@@ -209,7 +209,7 @@ public final class ReplaceMessages {
               .srcref(callNode);
       // If the result of this call (the message) is unused, there is no reason for optimizations
       // to preserve it.
-      newCallNode.setSideEffectFlags(SideEffectFlags.NO_SIDE_EFFECTS);
+      newCallNode.setSideEffectFlagsInt(SideEffectFlags.NO_SIDE_EFFECTS);
       callNode.replaceWith(newCallNode);
       compiler.reportChangeToEnclosingScope(newCallNode);
     }

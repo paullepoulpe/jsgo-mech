@@ -97,7 +97,7 @@ public class NodeTest {
     // properties yet, by cloning the orignal node before adding the side effect flags to it.
     final Node restored = original.cloneNode();
 
-    original.setSideEffectFlags(testFlags);
+    original.setSideEffectFlagsInt(testFlags);
     final long serializedProperties = original.serializeProperties();
 
     restored.deserializeProperties(serializedProperties, false);
@@ -579,50 +579,50 @@ public class NodeTest {
 
   @Test
   public void testMatchesQualifiedName2() {
-    assertThat(IR.name("a").matchesQualifiedName(qname("a"))).isTrue();
-    assertThat(IR.name("a").matchesQualifiedName(qname("a.b"))).isFalse();
+    assertThat(IR.name("a").matchesQualifiedNameNode(qname("a"))).isTrue();
+    assertThat(IR.name("a").matchesQualifiedNameNode(qname("a.b"))).isFalse();
 
-    assertThat(qname("a.b").matchesQualifiedName(qname("a"))).isFalse();
-    assertThat(qname("a.b").matchesQualifiedName(qname("a.b"))).isTrue();
-    assertThat(qname("a.b").matchesQualifiedName(qname(".b"))).isFalse();
-    assertThat(qname("a.b").matchesQualifiedName(qname("this.b"))).isFalse();
+    assertThat(qname("a.b").matchesQualifiedNameNode(qname("a"))).isFalse();
+    assertThat(qname("a.b").matchesQualifiedNameNode(qname("a.b"))).isTrue();
+    assertThat(qname("a.b").matchesQualifiedNameNode(qname(".b"))).isFalse();
+    assertThat(qname("a.b").matchesQualifiedNameNode(qname("this.b"))).isFalse();
 
-    assertThat(qname("this.b").matchesQualifiedName(qname("a"))).isFalse();
-    assertThat(qname("this.b").matchesQualifiedName(qname("a.b"))).isFalse();
-    assertThat(qname("this.b").matchesQualifiedName(qname("super.b"))).isFalse();
-    assertThat(qname("this.b").matchesQualifiedName(qname("this.b"))).isTrue();
+    assertThat(qname("this.b").matchesQualifiedNameNode(qname("a"))).isFalse();
+    assertThat(qname("this.b").matchesQualifiedNameNode(qname("a.b"))).isFalse();
+    assertThat(qname("this.b").matchesQualifiedNameNode(qname("super.b"))).isFalse();
+    assertThat(qname("this.b").matchesQualifiedNameNode(qname("this.b"))).isTrue();
 
-    assertThat(qname("super.b").matchesQualifiedName(qname("a"))).isFalse();
-    assertThat(qname("super.b").matchesQualifiedName(qname("a.b"))).isFalse();
-    assertThat(qname("super.b").matchesQualifiedName(qname("this.b"))).isFalse();
-    assertThat(qname("super.b").matchesQualifiedName(qname("super.b"))).isTrue();
+    assertThat(qname("super.b").matchesQualifiedNameNode(qname("a"))).isFalse();
+    assertThat(qname("super.b").matchesQualifiedNameNode(qname("a.b"))).isFalse();
+    assertThat(qname("super.b").matchesQualifiedNameNode(qname("this.b"))).isFalse();
+    assertThat(qname("super.b").matchesQualifiedNameNode(qname("super.b"))).isTrue();
 
-    assertThat(qname("a.b.c").matchesQualifiedName(qname("a.b.c"))).isTrue();
-    assertThat(qname("a.b.c").matchesQualifiedName(qname("a.b.c"))).isTrue();
+    assertThat(qname("a.b.c").matchesQualifiedNameNode(qname("a.b.c"))).isTrue();
+    assertThat(qname("a.b.c").matchesQualifiedNameNode(qname("a.b.c"))).isTrue();
 
-    assertThat(IR.number(0).matchesQualifiedName(qname("a.b"))).isFalse();
-    assertThat(IR.arraylit().matchesQualifiedName(qname("a.b"))).isFalse();
-    assertThat(IR.objectlit().matchesQualifiedName(qname("a.b"))).isFalse();
-    assertThat(IR.string("").matchesQualifiedName(qname("a.b"))).isFalse();
-    assertThat(IR.getelem(IR.name("a"), IR.string("b")).matchesQualifiedName(qname("a.b")))
+    assertThat(IR.number(0).matchesQualifiedNameNode(qname("a.b"))).isFalse();
+    assertThat(IR.arraylit().matchesQualifiedNameNode(qname("a.b"))).isFalse();
+    assertThat(IR.objectlit().matchesQualifiedNameNode(qname("a.b"))).isFalse();
+    assertThat(IR.string("").matchesQualifiedNameNode(qname("a.b"))).isFalse();
+    assertThat(IR.getelem(IR.name("a"), IR.string("b")).matchesQualifiedNameNode(qname("a.b")))
         .isFalse();
     assertThat( // a[b].c
             IR.getprop(IR.getelem(IR.name("a"), IR.string("b")), "c")
-                .matchesQualifiedName(qname("a.b.c")))
+                .matchesQualifiedNameNode(qname("a.b.c")))
         .isFalse();
     assertThat( // a.b[c]
             IR.getelem(IR.getprop(IR.name("a"), "b"), IR.string("c")).matchesQualifiedName("a.b.c"))
         .isFalse();
-    assertThat(IR.call(IR.name("a")).matchesQualifiedName(qname("a"))).isFalse();
+    assertThat(IR.call(IR.name("a")).matchesQualifiedNameNode(qname("a"))).isFalse();
     assertThat( // a().b
-            IR.getprop(IR.call(IR.name("a")), "b").matchesQualifiedName(qname("a.b")))
+            IR.getprop(IR.call(IR.name("a")), "b").matchesQualifiedNameNode(qname("a.b")))
         .isFalse();
     assertThat( // (a.b)()
-            IR.call(IR.getprop(IR.name("a"), "b")).matchesQualifiedName(qname("a.b")))
+            IR.call(IR.getprop(IR.name("a"), "b")).matchesQualifiedNameNode(qname("a.b")))
         .isFalse();
-    assertThat(IR.string("a").matchesQualifiedName(qname("a"))).isFalse();
-    assertThat(IR.regexp(IR.string("x")).matchesQualifiedName(qname("x"))).isFalse();
-    assertThat(new Node(Token.INC, IR.name("x")).matchesQualifiedName(qname("x"))).isFalse();
+    assertThat(IR.string("a").matchesQualifiedNameNode(qname("a"))).isFalse();
+    assertThat(IR.regexp(IR.string("x")).matchesQualifiedNameNode(qname("x"))).isFalse();
+    assertThat(new Node(Token.INC, IR.name("x")).matchesQualifiedNameNode(qname("x"))).isFalse();
   }
 
   @Test
@@ -640,11 +640,11 @@ public class NodeTest {
 
   @Test
   public void testMatchesNameNodes() {
-    assertThat(IR.name("a").matchesName(qname("a"))).isTrue();
-    assertThat(IR.name("a").matchesName(qname("a.b"))).isFalse();
+    assertThat(IR.name("a").matchesNameNode(qname("a"))).isTrue();
+    assertThat(IR.name("a").matchesNameNode(qname("a.b"))).isFalse();
 
-    assertThat(IR.thisNode().matchesName(qname("this"))).isFalse();
-    assertThat(IR.superNode().matchesName(qname("super"))).isFalse();
+    assertThat(IR.thisNode().matchesNameNode(qname("this"))).isFalse();
+    assertThat(IR.superNode().matchesNameNode(qname("super"))).isFalse();
   }
 
   public static Node qname(String name) {
@@ -704,7 +704,7 @@ public class NodeTest {
   @Test
   public void testSharedProps1() {
     Node n = getCall("A");
-    n.setSideEffectFlags(5);
+    n.setSideEffectFlagsInt(5);
     Node m = new Node(Token.TRUE);
     m.clonePropsFrom(n);
     assertThat(n.getPropListHeadForTesting()).isEqualTo(m.getPropListHeadForTesting());
@@ -715,16 +715,16 @@ public class NodeTest {
   @Test
   public void testSharedProps2() {
     Node n = getCall("A");
-    n.setSideEffectFlags(5);
+    n.setSideEffectFlagsInt(5);
     Node m = getCall("B");
     m.clonePropsFrom(n);
 
-    n.setSideEffectFlags(6);
+    n.setSideEffectFlagsInt(6);
     assertThat(n.getSideEffectFlags()).isEqualTo(6);
     assertThat(m.getSideEffectFlags()).isEqualTo(5);
     assertThat(m.getPropListHeadForTesting() == n.getPropListHeadForTesting()).isFalse();
 
-    m.setSideEffectFlags(7);
+    m.setSideEffectFlagsInt(7);
     assertThat(n.getSideEffectFlags()).isEqualTo(6);
     assertThat(m.getSideEffectFlags()).isEqualTo(7);
   }
@@ -732,11 +732,11 @@ public class NodeTest {
   @Test
   public void testSharedProps3() {
     Node n = getCall("A");
-    n.setSideEffectFlags(2);
+    n.setSideEffectFlagsInt(2);
     n.putBooleanProp(Node.INCRDECR_PROP, true);
     Node m = new Node(Token.TRUE);
     m.clonePropsFrom(n);
-    n.setSideEffectFlags(4);
+    n.setSideEffectFlagsInt(4);
 
     assertThat(n.getSideEffectFlags()).isEqualTo(4);
     assertThat(m.getSideEffectFlags()).isEqualTo(2);

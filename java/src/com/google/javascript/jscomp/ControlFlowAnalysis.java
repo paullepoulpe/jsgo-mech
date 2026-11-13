@@ -257,7 +257,7 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
       ++priorityCounter;
       current.setPriority(priorityCounter);
 
-      List<? extends DiGraphNode<Node, Branch>> successors = cfg.getDirectedSuccNodes(current);
+      List<? extends DiGraphNode<Node, Branch>> successors = cfg.getDirectedSuccNodesDiGraphNode(current);
       worklist.addAll(successors);
     }
   }

@@ -5395,7 +5395,7 @@ public class JSTypeTest extends BaseJSTypeTestCase {
                         registry.createTemplateType("A", NUMBER_TYPE),
                         registry.createTemplateType("B", STRING_TYPE)),
                     /* isAbstract= */ false));
-    JSType templatizedInstance = registry.createTemplatizedType(
+    JSType templatizedInstance = registry.createTemplatizedTypeImmutableList(
         templatizedCtor.getInstanceType(),
         ImmutableList.of(NUMBER_TYPE));
 
@@ -6042,8 +6042,8 @@ public class JSTypeTest extends BaseJSTypeTestCase {
         registry.createObjectType(null, registry.createAnonymousObjectType(null));
     ObjectType sub = registry.createObjectType(null, sup);
 
-    sup.defineProperty("base", getBottomType(), false, null);
-    sub.defineProperty("sub", getBottomType(), false, null);
+    sup.definePropertyString("base", getBottomType(), false, null);
+    sub.definePropertyString("sub", getBottomType(), false, null);
 
     assertThat(sup.hasProperty("base")).isTrue();
     assertThat(sup.hasProperty("sub")).isFalse();
@@ -6073,25 +6073,25 @@ public class JSTypeTest extends BaseJSTypeTestCase {
     sup.defineProperty(baseSymbol, getBottomType(), false, null);
     sub.defineProperty(subSymbol, getBottomType(), false, null);
 
-    assertThat(sup.hasProperty(baseSymbol)).isTrue();
-    assertThat(sup.hasProperty(subSymbol)).isFalse();
-    assertThat(sup.hasOwnProperty(baseSymbol)).isTrue();
-    assertThat(sup.hasOwnProperty(subSymbol)).isFalse();
-    assertThat(sup.hasOwnProperty(noneSymbol)).isFalse();
+    assertThat(sup.hasPropertyKey(baseSymbol)).isTrue();
+    assertThat(sup.hasPropertyKey(subSymbol)).isFalse();
+    assertThat(sup.hasOwnPropertyKey(baseSymbol)).isTrue();
+    assertThat(sup.hasOwnPropertyKey(subSymbol)).isFalse();
+    assertThat(sup.hasOwnPropertyKey(noneSymbol)).isFalse();
     assertThat(sup.hasOwnProperty("none")).isFalse();
 
-    assertThat(sub.hasProperty(baseSymbol)).isTrue();
-    assertThat(sub.hasProperty(subSymbol)).isTrue();
-    assertThat(sub.hasOwnProperty(baseSymbol)).isFalse();
-    assertThat(sub.hasOwnProperty(subSymbol)).isTrue();
-    assertThat(sub.hasOwnProperty(noneSymbol)).isFalse();
+    assertThat(sub.hasPropertyKey(baseSymbol)).isTrue();
+    assertThat(sub.hasPropertyKey(subSymbol)).isTrue();
+    assertThat(sub.hasOwnPropertyKey(baseSymbol)).isFalse();
+    assertThat(sub.hasOwnPropertyKey(subSymbol)).isTrue();
+    assertThat(sub.hasOwnPropertyKey(noneSymbol)).isFalse();
     assertThat(sub.hasOwnProperty("none")).isFalse();
   }
 
   @Test
   public void testNamedTypeHasOwnProperty() {
-    namedGoogBar.getImplicitPrototype().defineProperty("base", getBottomType(), false, null);
-    namedGoogBar.defineProperty("sub", getBottomType(), false, null);
+    namedGoogBar.getImplicitPrototype().definePropertyString("base", getBottomType(), false, null);
+    namedGoogBar.definePropertyString("sub", getBottomType(), false, null);
 
     assertThat(namedGoogBar.hasOwnProperty("base")).isFalse();
     assertThat(namedGoogBar.hasProperty("base")).isTrue();
@@ -6101,8 +6101,8 @@ public class JSTypeTest extends BaseJSTypeTestCase {
 
   @Test
   public void testInterfaceHasOwnProperty() {
-    interfaceInstType.defineProperty("base", getBottomType(), false, null);
-    subInterfaceInstType.defineProperty("sub", getBottomType(), false, null);
+    interfaceInstType.definePropertyString("base", getBottomType(), false, null);
+    subInterfaceInstType.definePropertyString("sub", getBottomType(), false, null);
 
     assertThat(interfaceInstType.hasProperty("base")).isTrue();
     assertThat(interfaceInstType.hasProperty("sub")).isFalse();
@@ -6125,18 +6125,18 @@ public class JSTypeTest extends BaseJSTypeTestCase {
     interfaceInstType.defineProperty(baseSymbol, getBottomType(), false, null);
     subInterfaceInstType.defineProperty(subSymbol, getBottomType(), false, null);
 
-    assertThat(interfaceInstType.hasProperty(baseSymbol)).isTrue();
-    assertThat(interfaceInstType.hasProperty(subSymbol)).isFalse();
-    assertThat(interfaceInstType.hasOwnProperty(baseSymbol)).isTrue();
-    assertThat(interfaceInstType.hasOwnProperty(subSymbol)).isFalse();
-    assertThat(interfaceInstType.hasOwnProperty(noneSymbol)).isFalse();
+    assertThat(interfaceInstType.hasPropertyKey(baseSymbol)).isTrue();
+    assertThat(interfaceInstType.hasPropertyKey(subSymbol)).isFalse();
+    assertThat(interfaceInstType.hasOwnPropertyKey(baseSymbol)).isTrue();
+    assertThat(interfaceInstType.hasOwnPropertyKey(subSymbol)).isFalse();
+    assertThat(interfaceInstType.hasOwnPropertyKey(noneSymbol)).isFalse();
     assertThat(interfaceInstType.hasOwnProperty("none")).isFalse();
 
-    assertThat(subInterfaceInstType.hasProperty(baseSymbol)).isTrue();
-    assertThat(subInterfaceInstType.hasProperty(subSymbol)).isTrue();
-    assertThat(subInterfaceInstType.hasOwnProperty(baseSymbol)).isFalse();
-    assertThat(subInterfaceInstType.hasOwnProperty(subSymbol)).isTrue();
-    assertThat(subInterfaceInstType.hasOwnProperty(noneSymbol)).isFalse();
+    assertThat(subInterfaceInstType.hasPropertyKey(baseSymbol)).isTrue();
+    assertThat(subInterfaceInstType.hasPropertyKey(subSymbol)).isTrue();
+    assertThat(subInterfaceInstType.hasOwnPropertyKey(baseSymbol)).isFalse();
+    assertThat(subInterfaceInstType.hasOwnPropertyKey(subSymbol)).isTrue();
+    assertThat(subInterfaceInstType.hasOwnPropertyKey(noneSymbol)).isFalse();
     assertThat(subInterfaceInstType.hasOwnProperty("none")).isFalse();
   }
 
@@ -6147,8 +6147,8 @@ public class JSTypeTest extends BaseJSTypeTestCase {
     ObjectType sub = registry.createObjectType(null, sup);
     final ObjectType bottomType = getBottomType();
 
-    sup.defineProperty("base", bottomType, false, null);
-    sub.defineProperty("sub", bottomType, false, null);
+    sup.definePropertyString("base", bottomType, false, null);
+    sub.definePropertyString("sub", bottomType, false, null);
 
     assertThat(sub.getPropertyNames())
         .isEqualTo(
@@ -6247,10 +6247,10 @@ public class JSTypeTest extends BaseJSTypeTestCase {
     builder.recordVisibility(Visibility.PRIVATE);
     JSDocInfo privateInfo = builder.build();
 
-    sup.defineProperty("X", NUMBER_TYPE, true, null);
+    sup.definePropertyString("X", NUMBER_TYPE, true, null);
     sup.setPropertyJSDocInfo("X", privateInfo);
 
-    sub.defineProperty("X", NUMBER_TYPE, true, null);
+    sub.definePropertyString("X", NUMBER_TYPE, true, null);
     sub.setPropertyJSDocInfo("X", deprecated);
 
     assertThat(sup.getOwnPropertyJSDocInfo("X").isDeprecated()).isFalse();
@@ -6324,7 +6324,7 @@ public class JSTypeTest extends BaseJSTypeTestCase {
                     ImmutableList.of(
                         registry.createTemplateType("A"), registry.createTemplateType("B")),
                     /* isAbstract= */ false));
-    JSType templatizedInstance = registry.createTemplatizedType(
+    JSType templatizedInstance = registry.createTemplatizedTypeImmutableList(
         templatizedCtor.getInstanceType(),
         ImmutableList.of(NUMBER_TYPE, STRING_TYPE));
 
@@ -6363,7 +6363,7 @@ public class JSTypeTest extends BaseJSTypeTestCase {
                     ImmutableList.of(
                         registry.createTemplateType("A"), registry.createTemplateType("B")),
                     /* isAbstract= */ false));
-    JSType templatizedInstance = registry.createTemplatizedType(
+    JSType templatizedInstance = registry.createTemplatizedTypeImmutableList(
         templatizedCtor.getInstanceType(),
         ImmutableList.of(NUMBER_TYPE));
 
@@ -6401,10 +6401,10 @@ public class JSTypeTest extends BaseJSTypeTestCase {
                   FunctionType.builder(registry)
                       .withName("ParentType")
                       .forConstructor()
-                      .withTemplateKeys(ImmutableList.of(parentKeyA))
+                      .withTemplateKeysImmutableList(ImmutableList.of(parentKeyA))
                       .build();
               ObjectType baseType =
-                  registry.createTemplatizedType(
+                  registry.createTemplatizedTypeImmutableList(
                       parent.getInstanceType(), ImmutableList.of(NULL_TYPE));
               // create a subclass that `@extends {ParentType<null>}`
               // and has a template key with the same name 'A' as the parent.
@@ -6413,14 +6413,14 @@ public class JSTypeTest extends BaseJSTypeTestCase {
                       .withPrototypeBasedOn(baseType)
                       .withName("TestingType")
                       .forConstructor()
-                      .withTemplateKeys(ImmutableList.of(childKeyA, childKeyB))
+                      .withTemplateKeysImmutableList(ImmutableList.of(childKeyA, childKeyB))
                       .build();
               child.getInstanceType().mergeSupertypeTemplateTypes(baseType);
               return child;
             });
 
     JSType templatizedInstance =
-        registry.createTemplatizedType(
+        registry.createTemplatizedTypeImmutableList(
             templatizedCtor.getInstanceType(), ImmutableList.of(NUMBER_TYPE, STRING_TYPE));
 
     TemplateTypeMap templateTypeMap = templatizedInstance.getTemplateTypeMap();
@@ -6612,7 +6612,7 @@ public class JSTypeTest extends BaseJSTypeTestCase {
     FunctionType secondTypeConstructor =
         FunctionType.builder(registry).forInterface().withName("Foo").build();
 
-    secondTypeConstructor.getPrototype().defineProperty("x", NUMBER_TYPE, false, null);
+    secondTypeConstructor.getPrototype().definePropertyString("x", NUMBER_TYPE, false, null);
     secondTypeConstructor.setImplicitMatch(true);
     JSType secondType = secondTypeConstructor.getInstanceType();
 

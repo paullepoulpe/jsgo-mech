@@ -465,7 +465,7 @@ public final class ConformanceRules {
       if (types.isEmpty()) {
         return null;
       } else {
-        return registry.createUnionType(types);
+        return registry.createUnionTypeList(types);
       }
     }
 
@@ -646,7 +646,7 @@ public final class ConformanceRules {
       }
 
       for (int i = this.qualifiedNames.size() - 1; i >= 0; i--) {
-        if (n.matchesQualifiedName(this.qualifiedNames.get(i))) {
+        if (n.matchesQualifiedNameNode(this.qualifiedNames.get(i))) {
           return ConformanceResult.VIOLATION;
         }
       }
@@ -1188,14 +1188,14 @@ public final class ConformanceRules {
         for (int i = 0; i < restrictions.size(); i++) {
           Restriction r = restrictions.get(i);
 
-          if (n.matchesQualifiedName(r.name)) {
+          if (n.matchesQualifiedNameNode(r.name)) {
             if (!ConformanceUtil.validateCall(
                 compiler, n.getParent(), r.restrictedCallType, false)) {
               return ConformanceResult.VIOLATION;
             }
           } else if (n.isGetProp()
               && n.getString().equals("call")
-              && n.getFirstChild().matchesQualifiedName(r.name)) {
+              && n.getFirstChild().matchesQualifiedNameNode(r.name)) {
             if (!ConformanceUtil.validateCall(
                 compiler, n.getParent(), r.restrictedCallType, true)) {
               return ConformanceResult.VIOLATION;
@@ -1721,7 +1721,7 @@ public final class ConformanceRules {
 
     private static boolean isExplicitlyUnknown(Node n) {
       ObjectType owner = ObjectType.cast(n.getFirstChild().getJSType());
-      Property prop = owner != null ? owner.getSlot(n.getString()) : null;
+      Property prop = owner != null ? owner.getSlotString(n.getString()) : null;
       return prop != null && !prop.isTypeInferred();
     }
   }
@@ -2379,8 +2379,8 @@ public final class ConformanceRules {
       this(ALL_BANNED_ATTRS, globalNamespaceSupplier);
     }
 
-    public SecuritySensitiveAttributes(Collection<String> bannedAtrrs) {
-      this(bannedAtrrs, () -> null);
+    public static SecuritySensitiveAttributes createFromBannedAttrs(Collection<String> bannedAtrrs) {
+      return new SecuritySensitiveAttributes(bannedAtrrs, () -> null);
     }
 
     public SecuritySensitiveAttributes(

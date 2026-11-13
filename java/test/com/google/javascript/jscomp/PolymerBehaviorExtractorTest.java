@@ -749,7 +749,7 @@ public class PolymerBehaviorExtractorTest extends CompilerTypeTestCase {
   // TODO(jlklein): Test more use cases: names to avoid copying, global vs. non-global, etc.
 
   private void parseAndInitializeExtractor(String... code) {
-    Node root = compiler.parseTestCode(ImmutableList.copyOf(code));
+    Node root = compiler.parseTestCodeImmutableList(ImmutableList.copyOf(code));
 
     new GatherModuleMetadata(compiler, false, ResolutionMode.BROWSER).process(IR.root(), root);
     this.moduleMetadataMap = compiler.getModuleMetadataMap();

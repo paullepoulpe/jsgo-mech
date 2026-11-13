@@ -109,12 +109,12 @@ public abstract class ObjectType extends JSType {
     return property == null ? null : property.getValue();
   }
 
-  public final @Nullable Property getSlot(String name) {
+  public final @Nullable Property getSlotString(String name) {
     return getSlot(new Property.StringKey(name));
   }
 
-  public final Property getOwnSlot(String name) {
-    return getPropertyMap().getOwnProperty(name);
+  public final Property getOwnSlotString(String name) {
+    return getPropertyMap().getOwnPropertyString(name);
   }
 
   public final Property getOwnSlot(Property.Key name) {
@@ -306,7 +306,7 @@ public abstract class ObjectType extends JSType {
   }
 
   /** Returns the closest definition of the property including this type itself. */
-  public final OwnedProperty findClosestDefinition(String propertyName) {
+  public final OwnedProperty findClosestDefinitionString(String propertyName) {
     return findClosestDefinition(new Property.StringKey(propertyName));
   }
 
@@ -356,7 +356,7 @@ public abstract class ObjectType extends JSType {
    */
   public final boolean defineDeclaredProperty(String propertyName,
       JSType type, Node propertyNode) {
-    return defineDeclaredProperty(new Property.StringKey(propertyName), type, propertyNode);
+    return defineDeclaredPropertyKey(new Property.StringKey(propertyName), type, propertyNode);
   }
 
   /**
@@ -368,7 +368,7 @@ public abstract class ObjectType extends JSType {
    *     accessed using {@code getPropertyNode}.
    */
   @CanIgnoreReturnValue
-  public final boolean defineDeclaredProperty(
+  public final boolean defineDeclaredPropertyKey(
       Property.Key propertyName, JSType type, Node propertyNode) {
     boolean result = defineProperty(propertyName, type, /* inferred= */ false, propertyNode);
     if (propertyName.kind().equals(Property.KeyKind.STRING)) {
@@ -388,7 +388,7 @@ public abstract class ObjectType extends JSType {
    */
   public final boolean defineSynthesizedProperty(String propertyName,
       JSType type, Node propertyNode) {
-    return defineProperty(propertyName, type, false, propertyNode);
+    return definePropertyString(propertyName, type, false, propertyNode);
   }
 
   /**
@@ -400,7 +400,7 @@ public abstract class ObjectType extends JSType {
    *     later be accessed using {@code getPropertyNode}.
    */
   @CanIgnoreReturnValue
-  public final boolean defineInferredProperty(
+  public final boolean defineInferredPropertyKey(
       Property.Key propertyName, JSType type, Node propertyNode) {
     checkArgument(
         propertyName.string() != null,
@@ -429,7 +429,7 @@ public abstract class ObjectType extends JSType {
     // Defining unresolved properties on resolved types is dangerous because the property type
     // may never be resolved.
 
-    boolean result = defineProperty(propertyName, type, true, propertyNode);
+    boolean result = definePropertyString(propertyName, type, true, propertyNode);
 
     // All property definitions go through this method
     // or defineDeclaredProperty. Because the properties defined an an
@@ -455,7 +455,7 @@ public abstract class ObjectType extends JSType {
    * @return True if the property was registered successfully, false if this conflicts with a
    *     previous property type declaration.
    */
-  final boolean defineProperty(
+  final boolean definePropertyString(
       String propertyName, JSType type, boolean inferred, Node propertyNode) {
     return defineProperty(new Property.StringKey(propertyName), type, inferred, propertyNode);
   }
@@ -490,29 +490,29 @@ public abstract class ObjectType extends JSType {
    * @return the {@code Node} corresponding to the property or null.
    */
   public final @Nullable Node getPropertyNode(String propertyName) {
-    return getPropertyNode(new Property.StringKey(propertyName));
+    return getPropertyNodeKey(new Property.StringKey(propertyName));
   }
 
-  public final @Nullable Node getPropertyNode(Property.Key propertyName) {
+  public final @Nullable Node getPropertyNodeKey(Property.Key propertyName) {
     Property p = getSlot(propertyName);
     return p == null ? null : p.getNode();
   }
 
   public final Node getPropertyDefSite(String propertyName) {
-    return getPropertyDefSite(new Property.StringKey(propertyName));
+    return getPropertyDefSiteKey(new Property.StringKey(propertyName));
   }
 
-  public final Node getPropertyDefSite(Property.Key propertyName) {
-    return getPropertyNode(propertyName);
+  public final Node getPropertyDefSiteKey(Property.Key propertyName) {
+    return getPropertyNodeKey(propertyName);
   }
 
   @SuppressWarnings("IdentifierName") // for compatibility with former 3p code
   public final @Nullable JSDocInfo getPropertyJSDocInfo(String propertyName) {
-    return this.getPropertyJSDocInfo(new Property.StringKey(propertyName));
+    return this.getPropertyJSDocInfoKey(new Property.StringKey(propertyName));
   }
 
   @SuppressWarnings("IdentifierName") // for compatibility with former 3p code
-  public final @Nullable JSDocInfo getPropertyJSDocInfo(Property.Key propertyName) {
+  public final @Nullable JSDocInfo getPropertyJSDocInfoKey(Property.Key propertyName) {
     Property p = getSlot(propertyName);
     return p == null ? null : p.getJSDocInfo();
   }
@@ -524,7 +524,7 @@ public abstract class ObjectType extends JSType {
    */
   @SuppressWarnings("IdentifierName") // for compatibility with former 3p code
   public final @Nullable JSDocInfo getOwnPropertyJSDocInfo(String propertyName) {
-    return getOwnPropertyJSDocInfo(new Property.StringKey(propertyName));
+    return getOwnPropertyJSDocInfoKey(new Property.StringKey(propertyName));
   }
 
   /**
@@ -533,16 +533,16 @@ public abstract class ObjectType extends JSType {
    * JSDocInfo exists.
    */
   @SuppressWarnings("IdentifierName") // for compatibility with former 3p code
-  public final @Nullable JSDocInfo getOwnPropertyJSDocInfo(Property.Key propertyName) {
+  public final @Nullable JSDocInfo getOwnPropertyJSDocInfoKey(Property.Key propertyName) {
     Property p = getOwnSlot(propertyName);
     return p == null ? null : p.getJSDocInfo();
   }
 
   public final @Nullable Node getOwnPropertyDefSite(String propertyName) {
-    return getOwnPropertyDefSite(new Property.StringKey(propertyName));
+    return getOwnPropertyDefSiteKey(new Property.StringKey(propertyName));
   }
 
-  public final @Nullable Node getOwnPropertyDefSite(Property.Key propertyName) {
+  public final @Nullable Node getOwnPropertyDefSiteKey(Property.Key propertyName) {
     Property p = getOwnSlot(propertyName);
     return p == null ? null : p.getNode();
   }
@@ -554,7 +554,7 @@ public abstract class ObjectType extends JSType {
    */
   @SuppressWarnings("IdentifierName") // for compatibility with former 3p code
   public final void setPropertyJSDocInfo(String propertyName, JSDocInfo info) {
-    setPropertyJSDocInfo(new Property.StringKey(propertyName), info);
+    setPropertyJSDocInfoKey(new Property.StringKey(propertyName), info);
   }
 
   /**
@@ -563,12 +563,12 @@ public abstract class ObjectType extends JSType {
    * @param info {@code JSDocInfo} for the property definition. May be {@code null}.
    */
   @SuppressWarnings("IdentifierName") // for compatibility with former 3p code
-  public void setPropertyJSDocInfo(Property.Key propertyName, JSDocInfo info) {
+  public void setPropertyJSDocInfoKey(Property.Key propertyName, JSDocInfo info) {
     // by default, do nothing
   }
 
   /** Sets the node where the property was defined. */
-  public final void setPropertyNode(String propertyName, Node defSite) {
+  public final void setPropertyNodeString(String propertyName, Node defSite) {
     setPropertyNode(new Property.StringKey(propertyName), defSite);
   }
 
@@ -580,7 +580,7 @@ public abstract class ObjectType extends JSType {
   @Override
   protected @Nullable JSType findPropertyTypeWithoutConsideringTemplateTypes(
       Property.Key propertyName) {
-    return hasProperty(propertyName) ? getPropertyType(propertyName) : null;
+    return hasPropertyKey(propertyName) ? getPropertyTypeKey(propertyName) : null;
   }
 
   /**
@@ -593,7 +593,7 @@ public abstract class ObjectType extends JSType {
    * @return the property's type or {@link UnknownType}. This method never returns {@code null}.
    */
   public final JSType getPropertyType(String propertyName) {
-    return getPropertyType(new Property.StringKey(propertyName));
+    return getPropertyTypeKey(new Property.StringKey(propertyName));
   }
 
   /**
@@ -605,7 +605,7 @@ public abstract class ObjectType extends JSType {
    *
    * @return the property's type or {@link UnknownType}. This method never returns {@code null}.
    */
-  public JSType getPropertyType(Property.Key propertyName) {
+  public JSType getPropertyTypeKey(Property.Key propertyName) {
     @Nullable StaticTypedSlot slot = getSlot(propertyName);
     return getPropertyTypeFromSlot(slot);
   }
@@ -632,7 +632,7 @@ public abstract class ObjectType extends JSType {
    * Checks whether the property whose name is given is present directly on
    * the object.  Returns false even if it is declared on a supertype.
    */
-  public final HasPropertyKind getOwnPropertyKind(String propertyName) {
+  public final HasPropertyKind getOwnPropertyKindString(String propertyName) {
     return getOwnPropertyKind(new Property.StringKey(propertyName));
   }
 
@@ -651,14 +651,14 @@ public abstract class ObjectType extends JSType {
    * the object.  Returns false even if it is declared on a supertype.
    */
   public final boolean hasOwnProperty(String propertyName) {
-    return hasOwnProperty(new Property.StringKey(propertyName));
+    return hasOwnPropertyKey(new Property.StringKey(propertyName));
   }
 
   /**
    * Checks whether the property whose name is given is present directly on the object. Returns
    * false even if it is declared on a supertype.
    */
-  public final boolean hasOwnProperty(Property.Key propertyName) {
+  public final boolean hasOwnPropertyKey(Property.Key propertyName) {
     return !getOwnPropertyKind(propertyName).equals(HasPropertyKind.ABSENT);
   }
 
@@ -698,11 +698,11 @@ public abstract class ObjectType extends JSType {
    * Checks whether the property's type is inferred.
    */
   public final boolean isPropertyTypeInferred(String propertyName) {
-    return isPropertyTypeInferred(new Property.StringKey(propertyName));
+    return isPropertyTypeInferredKey(new Property.StringKey(propertyName));
   }
 
   /** Checks whether the property's type is inferred. */
-  public final boolean isPropertyTypeInferred(Property.Key propertyName) {
+  public final boolean isPropertyTypeInferredKey(Property.Key propertyName) {
     StaticTypedSlot slot = getSlot(propertyName);
     return slot == null ? false : slot.isTypeInferred();
   }
@@ -711,11 +711,11 @@ public abstract class ObjectType extends JSType {
    * Checks whether the property's type is declared.
    */
   public final boolean isPropertyTypeDeclared(String propertyName) {
-    return isPropertyTypeDeclared(new Property.StringKey(propertyName));
+    return isPropertyTypeDeclaredKey(new Property.StringKey(propertyName));
   }
 
   /** Checks whether the property's type is declared. */
-  public final boolean isPropertyTypeDeclared(Property.Key propertyName) {
+  public final boolean isPropertyTypeDeclaredKey(Property.Key propertyName) {
     StaticTypedSlot slot = getSlot(propertyName);
     return slot == null ? false : !slot.isTypeInferred();
   }
@@ -734,13 +734,13 @@ public abstract class ObjectType extends JSType {
   }
 
   /** Whether the given property is declared on this object. */
-  public final boolean hasOwnDeclaredProperty(Property.Key name) {
-    return hasOwnProperty(name) && isPropertyTypeDeclared(name);
+  public final boolean hasOwnDeclaredPropertyKey(Property.Key name) {
+    return hasOwnPropertyKey(name) && isPropertyTypeDeclaredKey(name);
   }
 
   /** Checks whether the property was defined in the externs. */
   public final boolean isPropertyInExterns(String propertyName) {
-    Property p = getSlot(propertyName);
+    Property p = getSlotString(propertyName);
     return p == null ? false : p.isFromExterns();
   }
 

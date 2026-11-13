@@ -154,7 +154,7 @@ public final class TypeInferenceTest {
   }
 
   /** Declares a name with a given type in the parent scope of the test case code. */
-  private void assuming(String name, JSTypeNative type) {
+  private void assumingJSTypeNative(String name, JSTypeNative type) {
     assuming(name, registry.getNativeType(type));
   }
 
@@ -199,7 +199,7 @@ public final class TypeInferenceTest {
   }
 
   private void withModules(ImmutableList<String> js) {
-    Node script = compiler.parseTestCode(js);
+    Node script = compiler.parseTestCodeImmutableList(js);
     JSChunk chunk = new JSChunk("entry");
     Collection<CompilerInput> inputs = compiler.getInputsById().values();
     for (CompilerInput input : inputs) {
@@ -358,15 +358,15 @@ public final class TypeInferenceTest {
     return node;
   }
 
-  private void verify(String name, JSType type) {
+  private void verifyJSType(String name, JSType type) {
     assertWithMessage("Mismatch for %s", name).about(types()).that(getType(name)).isEqualTo(type);
   }
 
   private void verify(String name, JSTypeNative type) {
-    verify(name, registry.getNativeType(type));
+    verifyJSType(name, registry.getNativeType(type));
   }
 
-  private void verifyUnequal(String name, JSType type) {
+  private void verifyUnequalJSType(String name, JSType type) {
     assertWithMessage("Mismatch for %s", name)
         .about(types())
         .that(getType(name))
@@ -374,10 +374,10 @@ public final class TypeInferenceTest {
   }
 
   private void verifyUnequal(String name, JSTypeNative type) {
-    verifyUnequal(name, registry.getNativeType(type));
+    verifyUnequalJSType(name, registry.getNativeType(type));
   }
 
-  private void verifySubtypeOf(String name, JSType type) {
+  private void verifySubtypeOfJSType(String name, JSType type) {
     JSType varType = getType(name);
     assertWithMessage("The variable %s is missing a type.", name).that(varType).isNotNull();
     assertWithMessage("The type %s of variable %s is not a subtype of %s.", varType, name, type)
@@ -386,14 +386,14 @@ public final class TypeInferenceTest {
   }
 
   private void verifySubtypeOf(String name, JSTypeNative type) {
-    verifySubtypeOf(name, registry.getNativeType(type));
+    verifySubtypeOfJSType(name, registry.getNativeType(type));
   }
 
   private EnumType createEnumType(String name, JSTypeNative elemType) {
-    return createEnumType(name, registry.getNativeType(elemType));
+    return createEnumTypeJSType(name, registry.getNativeType(elemType));
   }
 
-  private EnumType createEnumType(String name, JSType elemType) {
+  private EnumType createEnumTypeJSType(String name, JSType elemType) {
     return EnumType.builder(registry).setName(name).setElementType(elemType).build();
   }
 
@@ -403,10 +403,10 @@ public final class TypeInferenceTest {
   }
 
   private JSType createNullableType(JSTypeNative type) {
-    return createNullableType(registry.getNativeType(type));
+    return createNullableTypeJSType(registry.getNativeType(type));
   }
 
-  private JSType createNullableType(JSType type) {
+  private JSType createNullableTypeJSType(JSType type) {
     return registry.createNullableType(type);
   }
 
@@ -420,17 +420,17 @@ public final class TypeInferenceTest {
     return registry.createRecordType(property);
   }
 
-  private JSType createRecordType(String fieldName, JSTypeNative fieldType) {
+  private JSType createRecordTypeJSTypeNative(String fieldName, JSTypeNative fieldType) {
     return createRecordType(fieldName, registry.getNativeType(fieldType));
   }
 
   private JSType createMultiParamUnionType(JSTypeNative... variants) {
-    return registry.createUnionType(variants);
+    return registry.createUnionTypeJSTypeNativeVarargs(variants);
   }
 
   @Test
   public void testAssumption() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("");
     verify("x", NUMBER_TYPE);
   }
@@ -465,14 +465,14 @@ public final class TypeInferenceTest {
 
   @Test
   public void testAssignment() {
-    assuming("x", OBJECT_TYPE);
+    assumingJSTypeNative("x", OBJECT_TYPE);
     inFunction("x = 1;");
     verify("x", NUMBER_TYPE);
   }
 
   @Test
   public void testExprWithinCast() {
-    assuming("x", OBJECT_TYPE);
+    assumingJSTypeNative("x", OBJECT_TYPE);
     inFunction("/** @type {string} */ (x = 1);");
     verify("x", NUMBER_TYPE);
   }
@@ -510,14 +510,14 @@ public final class TypeInferenceTest {
 
   @Test
   public void testSimpleGetProp_missingPropAccessedOnRecordType() {
-    assuming("x", createRecordType("y", STRING_TYPE));
+    assuming("x", createRecordTypeJSTypeNative("y", STRING_TYPE));
     inFunction("a = x.z;");
     verify("a", UNKNOWN_TYPE);
   }
 
   @Test
   public void testSimpleGetProp_missingPropAccessedOnStringType() {
-    assuming("x", STRING_TYPE);
+    assumingJSTypeNative("x", STRING_TYPE);
     inFunction("a = x.z;");
     verify("a", UNKNOWN_TYPE);
   }
@@ -528,7 +528,7 @@ public final class TypeInferenceTest {
    */
   @Test
   public void testOptChainGetProp_nullObj() {
-    assuming("x", NULL_TYPE);
+    assumingJSTypeNative("x", NULL_TYPE);
     inFunction("let a = x?.y;");
     verify("a", VOID_TYPE);
   }
@@ -536,7 +536,7 @@ public final class TypeInferenceTest {
   // Tests inexistent prop accessed on UNKNOWN_TYPE gives UKNOWN_TYPE
   @Test
   public void testOptChain_accessingInexistentPropOnUnknownType() {
-    assuming("x", UNKNOWN_TYPE);
+    assumingJSTypeNative("x", UNKNOWN_TYPE);
     inFunction("a = x?.z");
     verify("a", UNKNOWN_TYPE);
   }
@@ -544,7 +544,7 @@ public final class TypeInferenceTest {
   // Tests existing String property access on non-null object gives STRING_TYPE
   @Test
   public void testOptChainGetProp_stringProp() {
-    assuming("x", createRecordType("y", STRING_TYPE));
+    assuming("x", createRecordTypeJSTypeNative("y", STRING_TYPE));
     inFunction("let a = x?.y;");
     verify("a", STRING_TYPE);
   }
@@ -554,7 +554,7 @@ public final class TypeInferenceTest {
   public void testOptChainGetProp_nullableStringProp() {
     assuming("x", createRecordType("y", createUnionType(NULL_TYPE, STRING_TYPE)));
     inFunction("let a = x?.y;");
-    verify("a", createUnionType(NULL_TYPE, STRING_TYPE));
+    verifyJSType("a", createUnionType(NULL_TYPE, STRING_TYPE));
   }
 
   // Tests existing FUNCTION_TYPE property access on non-null object gives FUNCTION_TYPE.
@@ -566,31 +566,31 @@ public final class TypeInferenceTest {
     JSType lhsType = createRecordType("y", funcType);
     assuming("x", lhsType);
     inFunction("let a = x?.y;");
-    verify("x", lhsType);
-    verify("a", funcType); // not the function `y`'s return type
+    verifyJSType("x", lhsType);
+    verifyJSType("a", funcType); // not the function `y`'s return type
   }
 
   // Tests existing FUNCTION_TYPE property access on nullable object returns
   // {VOID_TYPE|FUNCTION_TYPE}
   @Test
   public void testOptChainGetProp_functionProp_nullableObj() {
-    assuming("x", createNullableType(createRecordType("y", FUNCTION_TYPE)));
+    assuming("x", createNullableTypeJSType(createRecordTypeJSTypeNative("y", FUNCTION_TYPE)));
     inFunction("let a = x?.y;");
-    verify("a", createUnionType(VOID_TYPE, FUNCTION_TYPE));
+    verifyJSType("a", createUnionType(VOID_TYPE, FUNCTION_TYPE));
   }
 
   // Tests existing STRING_TYPE property access on nullable object returns {VOID_TYPE|STRING_TYPE}
   @Test
   public void testOptChainGetProp_stringProp_nullableObj() {
-    assuming("x", createNullableType(createRecordType("y", STRING_TYPE)));
+    assuming("x", createNullableTypeJSType(createRecordTypeJSTypeNative("y", STRING_TYPE)));
     inFunction("let a = x?.y;");
-    verify("a", createUnionType(STRING_TYPE, VOID_TYPE));
+    verifyJSType("a", createUnionType(STRING_TYPE, VOID_TYPE));
   }
 
   // Tests existing NUMBER_TYPE property access on non-null object returns NUMBER_TYPE
   @Test
   public void testOptChainGetProp_numberProp() {
-    assuming("x", createRecordType("y", NUMBER_TYPE));
+    assuming("x", createRecordTypeJSTypeNative("y", NUMBER_TYPE));
     inFunction("let a = x?.y;");
     verify("a", NUMBER_TYPE);
   }
@@ -598,15 +598,15 @@ public final class TypeInferenceTest {
   // Tests existing Number property access on nullable object returns {VOID_TYPE|NUMBER_TYPE}
   @Test
   public void testOptChainGetProp_numberProp_nullableObj() {
-    assuming("x", createNullableType(createRecordType("y", NUMBER_TYPE)));
+    assuming("x", createNullableTypeJSType(createRecordTypeJSTypeNative("y", NUMBER_TYPE)));
     inFunction("let a = x?.y;");
-    verify("a", createUnionType(VOID_TYPE, NUMBER_TYPE));
+    verifyJSType("a", createUnionType(VOID_TYPE, NUMBER_TYPE));
   }
 
   // Tests valid, existing NULL_TYPE property access on non-null object gives NULL_TYPE
   @Test
   public void testOptChainGetProp_nullProp() {
-    assuming("x", createRecordType("y", NULL_TYPE));
+    assuming("x", createRecordTypeJSTypeNative("y", NULL_TYPE));
     inFunction("let a = x?.y;");
     verify("a", NULL_TYPE);
   }
@@ -614,14 +614,14 @@ public final class TypeInferenceTest {
   // Tests that accessing inexistent property on existing object gives UNKNOWN_TYPE (bottom)
   @Test
   public void testOptChainGetProp_inexistentProp() {
-    assuming("x", createRecordType("y", STRING_TYPE));
+    assuming("x", createRecordTypeJSTypeNative("y", STRING_TYPE));
     inFunction("let a = x?.z;");
     verify("a", UNKNOWN_TYPE);
   }
 
   @Test
   public void testSimpleOptChain_withUnsetType_trailingGetProp() {
-    assuming("x", UNKNOWN_TYPE);
+    assumingJSTypeNative("x", UNKNOWN_TYPE);
     inFunction("let a = (x?.y?.z).q;");
     // NOTE: The parentheses breaks the optional chain,  so the `.q`  is not optional.
     // We should issue a warning about this  in TypeCheck, but that isn't TypeInference's job,
@@ -633,11 +633,11 @@ public final class TypeInferenceTest {
   // STRING_TYPE
   @Test
   public void testGetProp_withOptionalChainObject_voidable() {
-    JSType recordType = createRecordType("y", createRecordType("z", STRING_TYPE));
+    JSType recordType = createRecordType("y", createRecordTypeJSTypeNative("z", STRING_TYPE));
     JSType lhsType = registry.createUnionType(registry.getNativeType(VOID_TYPE), recordType);
     assuming("x", lhsType);
     inFunction("let a = (x?.y).z");
-    verify("x", recordType); // Dereferencing non-optionally (`.z`) tightens `x` here
+    verifyJSType("x", recordType); // Dereferencing non-optionally (`.z`) tightens `x` here
     verify("a", STRING_TYPE); // deliberate in TypeInf, must report in TypeChecking.
   }
 
@@ -653,12 +653,12 @@ public final class TypeInferenceTest {
   @Test
   public void testOptChainGetProp_conditionalAssignmentToObjInInnerNodes() {
     JSType nullableRecordType =
-        createNullableType(
+        createNullableTypeJSType(
             createRecordType(
                 "y", registry.createFunctionType(registry.getNativeType(NUMBER_TYPE))));
     assuming("x", nullableRecordType);
     inFunction("x?.y(x=5);");
-    verify(
+    verifyJSType(
         "x",
         registry.createUnionType(
             registry.getNativeType(NUMBER_TYPE), registry.getNativeType(NULL_TYPE)));
@@ -670,7 +670,7 @@ public final class TypeInferenceTest {
         createRecordType("y", registry.createFunctionType(registry.getNativeType(NUMBER_TYPE)));
     assuming("x", recordType);
     inFunction("x?.y(/** @type {number} */ (x)); ");
-    verify("x", recordType);
+    verifyJSType("x", recordType);
   }
 
   @Test
@@ -679,18 +679,18 @@ public final class TypeInferenceTest {
         createRecordType("y", registry.createFunctionType(registry.getNativeType(NUMBER_TYPE)));
     assuming("x", recordType);
     inFunction("x.y(/** @type {number} */ (x)); "); // regular GET_PROP
-    verify("x", recordType);
+    verifyJSType("x", recordType);
   }
 
   @Test
   public void testOptChainGetProp_typeAnnotationOnObjInInnerNodes_conditionalChain() {
     JSType nullableRecordType =
-        createNullableType(
+        createNullableTypeJSType(
             createRecordType(
                 "y", registry.createFunctionType(registry.getNativeType(NUMBER_TYPE))));
     assuming("x", nullableRecordType);
     inFunction("x?.y(/** @type {number} */ (x)); ");
-    verify("x", nullableRecordType);
+    verifyJSType("x", nullableRecordType);
   }
 
   // Since the type of objNode `a` is { ? | ...}, the statement `x=5` will conditionally execute and
@@ -698,7 +698,7 @@ public final class TypeInferenceTest {
   @Test
   public void testOptChainGetProp_conditionalChangeToOuterVariable() {
     JSType lhsNullableRecordType =
-        createNullableType(
+        createNullableTypeJSType(
             createRecordType(
                 "b", registry.createFunctionType(registry.getNativeType(NUMBER_TYPE))));
     assuming("a", lhsNullableRecordType);
@@ -709,15 +709,15 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsNullableRecordType);
-    verify("x", createUnionType(NUMBER_TYPE, STRING_TYPE));
+    verifyJSType("a", lhsNullableRecordType);
+    verifyJSType("x", createUnionType(NUMBER_TYPE, STRING_TYPE));
   }
 
   // Tests optional chaining applied to a function call returning a nullable object
   @Test
   public void testOptChainGetProp_unconditionalChangeToOuterVariable_inNullableReceiver() {
     JSType recordType = createRecordType("b", registry.getNativeType(NUMBER_TYPE));
-    JSType nullableRecordType = createNullableType(recordType);
+    JSType nullableRecordType = createNullableTypeJSType(recordType);
     JSType lhsType = registry.createFunctionType(nullableRecordType);
 
     assuming("a", lhsType);
@@ -728,9 +728,9 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", STRING_TYPE);
-    verify("res", createUnionType(VOID_TYPE, NUMBER_TYPE));
+    verifyJSType("res", createUnionType(VOID_TYPE, NUMBER_TYPE));
   }
 
   // The receiver statement `a(x = 1)` conditionally executes and must change the type of `x`.
@@ -738,7 +738,7 @@ public final class TypeInferenceTest {
   public void testRegularGetProp_unconditionalChangeToOuterVariable_inNullableReceiver() {
     JSType funcType = registry.createFunctionType(registry.getNativeType(NUMBER_TYPE));
     JSType recordType = createRecordType("b", funcType);
-    JSType nullableRecordType = createNullableType(recordType);
+    JSType nullableRecordType = createNullableTypeJSType(recordType);
     JSType lhsType = registry.createFunctionType(nullableRecordType);
 
     assuming("a", lhsType);
@@ -749,9 +749,9 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", NUMBER_TYPE);
-    verify("res", funcType);
+    verifyJSType("res", funcType);
   }
 
   // Tests optional chaining applied to a function call returning a non-nullable object
@@ -768,7 +768,7 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", STRING_TYPE);
     verify("res", NUMBER_TYPE);
   }
@@ -786,7 +786,7 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", STRING_TYPE);
     verify("res", NUMBER_TYPE);
   }
@@ -804,7 +804,7 @@ public final class TypeInferenceTest {
         a;
         x; res;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", STRING_TYPE);
     verify("res", NUMBER_TYPE);
   }
@@ -813,7 +813,7 @@ public final class TypeInferenceTest {
   public void testRegularGetProp_changeToOuterVariable_inNullableReceiver_andOptNodes() {
     JSType funcType = registry.createFunctionType(registry.getNativeType(NUMBER_TYPE));
     JSType recordType = createRecordType("b", funcType);
-    JSType nullableRecordType = createNullableType(recordType);
+    JSType nullableRecordType = createNullableTypeJSType(recordType);
     JSType lhsType = registry.createFunctionType(nullableRecordType);
     assuming("a", lhsType);
     inFunction(
@@ -823,8 +823,8 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
-    verify("x", registry.createUnionType(STRING_TYPE));
+    verifyJSType("a", lhsType);
+    verifyJSType("x", registry.createUnionTypeJSTypeNativeVarargs(STRING_TYPE));
     verify("res", NUMBER_TYPE);
   }
 
@@ -832,7 +832,7 @@ public final class TypeInferenceTest {
   public void testOptChainGetProp_changeToOuterVariable_inNullableReceiver_andOptNodes() {
     JSType funcType = registry.createFunctionType(registry.getNativeType(NUMBER_TYPE));
     JSType recordType = createRecordType("b", funcType);
-    JSType nullableRecordType = createNullableType(recordType);
+    JSType nullableRecordType = createNullableTypeJSType(recordType);
     JSType lhsType = registry.createFunctionType(nullableRecordType);
     assuming("a", lhsType);
     inFunction(
@@ -842,9 +842,9 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
-    verify("x", registry.createUnionType(NUMBER_TYPE, STRING_TYPE));
-    verify("res", createUnionType(VOID_TYPE, NUMBER_TYPE));
+    verifyJSType("a", lhsType);
+    verifyJSType("x", registry.createUnionTypeJSTypeNativeVarargs(NUMBER_TYPE, STRING_TYPE));
+    verifyJSType("res", createUnionType(VOID_TYPE, NUMBER_TYPE));
   }
 
   // Since the type of objNode `a` is well-defined (not nullable), the statement `x=5` will
@@ -861,7 +861,7 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", NUMBER_TYPE);
   }
 
@@ -877,7 +877,7 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", NUMBER_TYPE);
   }
 
@@ -896,7 +896,7 @@ public final class TypeInferenceTest {
         a;
         x;
         """);
-    verify("a", lhsType);
+    verifyJSType("a", lhsType);
     verify("x", NUMBER_TYPE);
   }
 
@@ -914,12 +914,12 @@ public final class TypeInferenceTest {
   @Test
   public void testOptChainGetProp_multipleChains_nullableReceiver() {
     JSType lhsType =
-        createNullableType(
+        createNullableTypeJSType(
             createRecordType(
                 "b", registry.createFunctionType(registry.getNativeType(NUMBER_TYPE))));
     assuming("a", lhsType);
     inFunction("let res = a?.b(x?.y.z);");
-    verify("res", registry.createUnionType(VOID_TYPE, NUMBER_TYPE));
+    verifyJSType("res", registry.createUnionTypeJSTypeNativeVarargs(VOID_TYPE, NUMBER_TYPE));
   }
 
   @Test
@@ -933,7 +933,7 @@ public final class TypeInferenceTest {
   public void testGetElemDereference_knownSymbol() {
     ObjectType array = getNativeObjectType(ARRAY_TYPE);
     KnownSymbolType sym = new KnownSymbolType(registry, "sym");
-    array.defineDeclaredProperty(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
+    array.defineDeclaredPropertyKey(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
     assuming("o", array);
     assuming("sym", sym);
 
@@ -945,8 +945,8 @@ public final class TypeInferenceTest {
   public void testGetElemDereference_knownSymbol_nullable() {
     ObjectType array = getNativeObjectType(ARRAY_TYPE);
     KnownSymbolType sym = new KnownSymbolType(registry, "sym");
-    array.defineDeclaredProperty(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
-    assuming("o", createNullableType(array));
+    array.defineDeclaredPropertyKey(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
+    assuming("o", createNullableTypeJSType(array));
     assuming("sym", sym);
 
     inFunction("const x = o[sym];");
@@ -958,13 +958,13 @@ public final class TypeInferenceTest {
     ObjectType array = getNativeObjectType(ARRAY_TYPE);
     ObjectType promise = getNativeObjectType(JSTypeNative.PROMISE_TYPE);
     KnownSymbolType sym = new KnownSymbolType(registry, "sym");
-    array.defineDeclaredProperty(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
-    promise.defineDeclaredProperty(new Property.SymbolKey(sym), getNativeType(NUMBER_TYPE), null);
+    array.defineDeclaredPropertyKey(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
+    promise.defineDeclaredPropertyKey(new Property.SymbolKey(sym), getNativeType(NUMBER_TYPE), null);
     assuming("o", registry.createUnionType(array, promise));
     assuming("sym", sym);
 
     inFunction("const x = o[sym];");
-    verify("x", registry.createUnionType(getNativeType(STRING_TYPE), getNativeType(NUMBER_TYPE)));
+    verifyJSType("x", registry.createUnionType(getNativeType(STRING_TYPE), getNativeType(NUMBER_TYPE)));
   }
 
   @Test
@@ -972,7 +972,7 @@ public final class TypeInferenceTest {
     ObjectType array = getNativeObjectType(ARRAY_TYPE);
     ObjectType promise = getNativeObjectType(JSTypeNative.PROMISE_TYPE);
     KnownSymbolType sym = new KnownSymbolType(registry, "sym");
-    array.defineDeclaredProperty(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
+    array.defineDeclaredPropertyKey(new Property.SymbolKey(sym), getNativeType(STRING_TYPE), null);
     // don't define sym on promise
     assuming("o", registry.createUnionType(array, promise));
     assuming("sym", sym);
@@ -984,7 +984,7 @@ public final class TypeInferenceTest {
   @Test
   public void testGetElemDereference_knownSymbol_onAllType() {
     KnownSymbolType sym = new KnownSymbolType(registry, "sym");
-    assuming("o", ALL_TYPE);
+    assumingJSTypeNative("o", ALL_TYPE);
     assuming("sym", sym);
 
     inFunction("const x = o[sym];");
@@ -994,7 +994,7 @@ public final class TypeInferenceTest {
   @Test
   public void testGetElemDereference_knownSymbol_onUnknownType() {
     KnownSymbolType sym = new KnownSymbolType(registry, "sym");
-    assuming("o", UNKNOWN_TYPE);
+    assumingJSTypeNative("o", UNKNOWN_TYPE);
     assuming("sym", sym);
 
     inFunction("const x = o[sym];");
@@ -1024,9 +1024,9 @@ public final class TypeInferenceTest {
 
   @Test
   public void testNullishCoalesceNullableUnion() {
-    assuming("x", createNullableType(createUnionType(OBJECT_TYPE, STRING_TYPE)));
+    assuming("x", createNullableTypeJSType(createUnionType(OBJECT_TYPE, STRING_TYPE)));
     inFunction("let z = x ?? {}");
-    verify("z", createUnionType(STRING_TYPE, OBJECT_TYPE));
+    verifyJSType("z", createUnionType(STRING_TYPE, OBJECT_TYPE));
   }
 
   @Test
@@ -1040,7 +1040,7 @@ public final class TypeInferenceTest {
   public void testIf3() {
     assuming("x", createNullableType(OBJECT_TYPE));
     inFunction("var y = 1; if (x) { y = x; }");
-    verify("y", createUnionType(OBJECT_TYPE, NUMBER_TYPE));
+    verifyJSType("y", createUnionType(OBJECT_TYPE, NUMBER_TYPE));
   }
 
   @Test
@@ -1049,7 +1049,7 @@ public final class TypeInferenceTest {
     thisType.defineDeclaredProperty("foo", createUndefinableType(STRING_TYPE), null);
     assumingThisType(thisType);
     inFunction("var y = 1; if (this.foo) { y = this.foo; }");
-    verify("y", createUnionType(NUMBER_TYPE, STRING_TYPE));
+    verifyJSType("y", createUnionType(NUMBER_TYPE, STRING_TYPE));
   }
 
   @Test
@@ -1067,7 +1067,7 @@ public final class TypeInferenceTest {
     thisType.defineDeclaredProperty("foo", createUndefinableType(STRING_TYPE), null);
     assumingThisType(thisType);
     inFunction("var y = 1; this.foo = x; y = this.foo;");
-    verify("y", createUndefinableType(STRING_TYPE));
+    verifyJSType("y", createUndefinableType(STRING_TYPE));
   }
 
   @Test
@@ -1075,7 +1075,7 @@ public final class TypeInferenceTest {
     JSType startType = createNullableType(OBJECT_TYPE);
     assuming("x", startType);
     inFunction("out1 = x; goog.asserts.assert(x); out2 = x;");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1084,7 +1084,7 @@ public final class TypeInferenceTest {
     JSType startType = createNullableType(OBJECT_TYPE);
     assuming("x", startType);
     inFunction("out1 = x; goog.asserts.assert(x !== null); out2 = x;");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1093,7 +1093,7 @@ public final class TypeInferenceTest {
     JSType startType = createNullableType(OBJECT_TYPE);
     assuming("x", startType);
     inFunction("goog.asserts.assert(1, x); out1 = x;");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
   }
 
   @Test
@@ -1102,7 +1102,7 @@ public final class TypeInferenceTest {
     assuming("x", startType);
     assuming("y", startType);
     inFunction("out1 = x; goog.asserts.assert(x && y); out2 = x; out3 = y;");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
     verify("out3", OBJECT_TYPE);
   }
@@ -1113,7 +1113,7 @@ public final class TypeInferenceTest {
     assuming("x", startType);
     assuming("y", startType);
     inFunction("out1 = x; goog.asserts.assert(x && !y); out2 = x; out3 = y;");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
     verify("out3", NULL_TYPE);
   }
@@ -1124,8 +1124,8 @@ public final class TypeInferenceTest {
     assuming("x", startType);
     assuming("y", startType);
     inFunction("goog.asserts.assert(x || y); out1 = x; out2 = y;");
-    verify("out1", startType);
-    verify("out2", startType);
+    verifyJSType("out1", startType);
+    verifyJSType("out2", startType);
   }
 
   @Test
@@ -1134,8 +1134,8 @@ public final class TypeInferenceTest {
     assuming("x", startType);
     assuming("y", startType);
     inFunction("goog.asserts.assert(x ?? y); out1 = x; out2 = y;");
-    verify("out1", startType);
-    verify("out2", startType);
+    verifyJSType("out1", startType);
+    verifyJSType("out2", startType);
   }
 
   @Test
@@ -1144,7 +1144,7 @@ public final class TypeInferenceTest {
     assuming("x", getNativeType(UNKNOWN_TYPE)); // Only global qname roots can be undeclared
     assuming("x.y", startType);
     inFunction("out1 = x.y; goog.asserts.assert(x.y); out2 = x.y;");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1153,7 +1153,7 @@ public final class TypeInferenceTest {
     JSType startType = createNullableType(OBJECT_TYPE);
     assuming("x", startType);
     inFunction("out1 = x; out2 = goog.asserts.assert(x);");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1162,7 +1162,7 @@ public final class TypeInferenceTest {
     JSType startType = createNullableType(OBJECT_TYPE);
     assuming("x", startType);
     inFunction("out1 = x; out2 = goog.asserts.assert(x != null);");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", BOOLEAN_TYPE);
   }
 
@@ -1171,7 +1171,7 @@ public final class TypeInferenceTest {
     JSType startType = createNullableType(NUMBER_TYPE);
     assuming("x", startType);
     inFunction("out1 = x; out2 = goog.asserts.assert(y = x);");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", NUMBER_TYPE);
   }
 
@@ -1181,8 +1181,8 @@ public final class TypeInferenceTest {
     assuming("x", startType);
     assuming("y", startType);
     inFunction("var z = goog.asserts.assert(x || y);");
-    verify("x", startType);
-    verify("y", startType);
+    verifyJSType("x", startType);
+    verifyJSType("y", startType);
   }
 
   @Test
@@ -1193,7 +1193,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; assertTruthy(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1205,7 +1205,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; assertTruthy(x !== null); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1217,7 +1217,7 @@ public final class TypeInferenceTest {
 
     inFunction("assertTruthy(1, x); out1 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
   }
 
   @Test
@@ -1228,7 +1228,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertNumber(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", NUMBER_TYPE);
   }
 
@@ -1241,7 +1241,7 @@ public final class TypeInferenceTest {
 
     inFunction("goog.asserts.assertNumber(x + x); out1 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
   }
 
   @Test
@@ -1253,7 +1253,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; out2 = goog.asserts.assertNumber(x + x);");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", NUMBER_TYPE);
   }
 
@@ -1265,7 +1265,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; assertNumber(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", NUMBER_TYPE);
   }
 
@@ -1278,7 +1278,7 @@ public final class TypeInferenceTest {
 
     inFunction("assertNumber(x + x); out1 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
   }
 
   @Test
@@ -1290,14 +1290,14 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; out2 = assertNumber(x + x);");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", NUMBER_TYPE);
   }
 
   @Test
   public void testBigIntTypeAssignment() {
-    assuming("x", UNKNOWN_TYPE);
-    assuming("y", UNKNOWN_TYPE);
+    assumingJSTypeNative("x", UNKNOWN_TYPE);
+    assumingJSTypeNative("y", UNKNOWN_TYPE);
 
     inFunction("x = 1n; y = BigInt(1);");
 
@@ -1313,7 +1313,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; assertBigInt(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", BIGINT_TYPE);
   }
 
@@ -1365,25 +1365,25 @@ public final class TypeInferenceTest {
 
     // Enum within enum
     testForAllBigInt(
-        createEnumType("Enum", createEnumType("Enum", BIGINT_TYPE).getElementsType())
+        createEnumTypeJSType("Enum", createEnumType("Enum", BIGINT_TYPE).getElementsType())
             .getElementsType());
     testForNoBigInt(
-        createEnumType("Enum", createEnumType("Enum", NUMBER_TYPE).getElementsType())
+        createEnumTypeJSType("Enum", createEnumType("Enum", NUMBER_TYPE).getElementsType())
             .getElementsType());
 
     // Union within enum
     testForAllBigInt(
-        createEnumType("Enum", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE)).getElementsType());
+        createEnumTypeJSType("Enum", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE)).getElementsType());
     testForBigIntOrNumber(createEnumType("Enum", BIGINT_NUMBER).getElementsType());
     testForBigIntOrOther(
-        createEnumType("Enum", createUnionType(BIGINT_TYPE, STRING_TYPE)).getElementsType());
+        createEnumTypeJSType("Enum", createUnionType(BIGINT_TYPE, STRING_TYPE)).getElementsType());
   }
 
   @Test
   public void testBigIntWithUnaryPlus() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
-    assuming("z", BIGINT_NUMBER);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("z", BIGINT_NUMBER);
 
     inFunction("valueType = +x; objectType = +y; unionType = +z;");
 
@@ -1414,9 +1414,9 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntWithLogicalNOT() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
-    assuming("z", BIGINT_NUMBER);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("z", BIGINT_NUMBER);
 
     inFunction("valueType = !x; objectType = !y; unionType = !z;");
 
@@ -1427,8 +1427,8 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntWithTypeOfOperation() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
     assuming("z", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE));
 
     inFunction("valueType = typeof x; objectType = typeof y; unionType = typeof z;");
@@ -1440,8 +1440,8 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntWithDeleteOperation() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
     assuming("z", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE));
 
     inFunction("valueType = delete x; objectType = delete y; unionType = delete z;");
@@ -1453,8 +1453,8 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntWithVoidOperation() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
     assuming("z", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE));
 
     inFunction("valueType = void x; objectType = void y; unionType = void z;");
@@ -1466,11 +1466,11 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntWithUnaryMinus() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
-    assuming("u", UNKNOWN_TYPE);
-    assuming("a", ALL_TYPE);
-    assuming("z1", BIGINT_NUMBER);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("u", UNKNOWN_TYPE);
+    assumingJSTypeNative("a", ALL_TYPE);
+    assumingJSTypeNative("z1", BIGINT_NUMBER);
     // testing for a union between bigint and anything but number
     assuming("z2", createUnionType(BIGINT_TYPE, STRING_TYPE));
 
@@ -1490,11 +1490,11 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntWithBitwiseNOT() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
-    assuming("u", UNKNOWN_TYPE);
-    assuming("a", ALL_TYPE);
-    assuming("z1", BIGINT_NUMBER);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("u", UNKNOWN_TYPE);
+    assumingJSTypeNative("a", ALL_TYPE);
+    assumingJSTypeNative("z1", BIGINT_NUMBER);
     // testing for a union between bigint and anything but number
     assuming("z2", createUnionType(BIGINT_TYPE, STRING_TYPE));
 
@@ -1514,9 +1514,9 @@ public final class TypeInferenceTest {
 
   @Test
   public void testIncrementOnBigInt() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
-    assuming("z", BIGINT_NUMBER);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("z", BIGINT_NUMBER);
     assuming("a", createUnionType(BIGINT_TYPE, STRING_TYPE));
 
     inFunction("valueType = x++; objectType = y++; bigintNumber = z++; bigintOther = a++;");
@@ -1529,9 +1529,9 @@ public final class TypeInferenceTest {
 
   @Test
   public void testDecrementOnBigInt() {
-    assuming("x", BIGINT_TYPE);
-    assuming("y", BIGINT_OBJECT_TYPE);
-    assuming("z", BIGINT_NUMBER);
+    assumingJSTypeNative("x", BIGINT_TYPE);
+    assumingJSTypeNative("y", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("z", BIGINT_NUMBER);
     assuming("a", createUnionType(BIGINT_TYPE, STRING_TYPE));
 
     inFunction("valueType = x--; objectType = y--; bigintNumber = z++; bigintOther = a++;");
@@ -1544,14 +1544,14 @@ public final class TypeInferenceTest {
 
   @Test
   public void testAdditionWithBigInt() {
-    assuming("b", BIGINT_TYPE);
-    assuming("B", BIGINT_OBJECT_TYPE);
-    assuming("n", NUMBER_TYPE);
-    assuming("bn", BIGINT_NUMBER);
+    assumingJSTypeNative("b", BIGINT_TYPE);
+    assumingJSTypeNative("B", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("n", NUMBER_TYPE);
+    assumingJSTypeNative("bn", BIGINT_NUMBER);
     assuming("bs", createUnionType(BIGINT_TYPE, STRING_TYPE));
-    assuming("s", STRING_TYPE);
-    assuming("u", UNKNOWN_TYPE);
-    assuming("ns", NUMBER_STRING);
+    assumingJSTypeNative("s", STRING_TYPE);
+    assumingJSTypeNative("u", UNKNOWN_TYPE);
+    assumingJSTypeNative("ns", NUMBER_STRING);
 
     inFunction(
         """
@@ -1586,13 +1586,13 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntCompatibleBinaryOperator() {
-    assuming("b", BIGINT_TYPE);
-    assuming("B", BIGINT_OBJECT_TYPE);
-    assuming("n", NUMBER_TYPE);
-    assuming("bn", BIGINT_NUMBER);
-    assuming("s", STRING_TYPE);
-    assuming("u", UNKNOWN_TYPE);
-    assuming("ns", NUMBER_STRING);
+    assumingJSTypeNative("b", BIGINT_TYPE);
+    assumingJSTypeNative("B", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("n", NUMBER_TYPE);
+    assumingJSTypeNative("bn", BIGINT_NUMBER);
+    assumingJSTypeNative("s", STRING_TYPE);
+    assumingJSTypeNative("u", UNKNOWN_TYPE);
+    assumingJSTypeNative("ns", NUMBER_STRING);
 
     inFunction(
         """
@@ -1618,20 +1618,20 @@ public final class TypeInferenceTest {
 
   @Test
   public void testAssignOpWithBigInt() {
-    assuming("b", BIGINT_TYPE);
-    assuming("n", NUMBER_TYPE);
-    assuming("s", STRING_TYPE);
-    assuming("u", UNKNOWN_TYPE);
-    assuming("bn", BIGINT_NUMBER);
-    assuming("bigintWithSelf", BIGINT_TYPE);
-    assuming("bigintWithNumber", BIGINT_TYPE);
-    assuming("bigintWithOther", BIGINT_TYPE);
-    assuming("bigintConcatString", BIGINT_TYPE);
-    assuming("stringConcatBigInt", STRING_TYPE);
-    assuming("bigintWithUnknown", BIGINT_TYPE);
-    assuming("bigintNumberWithSelf", BIGINT_NUMBER);
-    assuming("bigintNumberWithBigInt", BIGINT_NUMBER);
-    assuming("bigintNumberWithNumber", BIGINT_NUMBER);
+    assumingJSTypeNative("b", BIGINT_TYPE);
+    assumingJSTypeNative("n", NUMBER_TYPE);
+    assumingJSTypeNative("s", STRING_TYPE);
+    assumingJSTypeNative("u", UNKNOWN_TYPE);
+    assumingJSTypeNative("bn", BIGINT_NUMBER);
+    assumingJSTypeNative("bigintWithSelf", BIGINT_TYPE);
+    assumingJSTypeNative("bigintWithNumber", BIGINT_TYPE);
+    assumingJSTypeNative("bigintWithOther", BIGINT_TYPE);
+    assumingJSTypeNative("bigintConcatString", BIGINT_TYPE);
+    assumingJSTypeNative("stringConcatBigInt", STRING_TYPE);
+    assumingJSTypeNative("bigintWithUnknown", BIGINT_TYPE);
+    assumingJSTypeNative("bigintNumberWithSelf", BIGINT_NUMBER);
+    assumingJSTypeNative("bigintNumberWithBigInt", BIGINT_NUMBER);
+    assumingJSTypeNative("bigintNumberWithNumber", BIGINT_NUMBER);
 
     inFunction(
         """
@@ -1659,11 +1659,11 @@ public final class TypeInferenceTest {
 
   @Test
   public void testUnsignedRightShiftWithBigInt() {
-    assuming("b", BIGINT_TYPE);
-    assuming("n", NUMBER_TYPE);
-    assuming("assignBigIntOnLeft", BIGINT_TYPE);
-    assuming("assignBigIntOnRight", NUMBER_TYPE);
-    assuming("assignBigIntOnBothSides", BIGINT_TYPE);
+    assumingJSTypeNative("b", BIGINT_TYPE);
+    assumingJSTypeNative("n", NUMBER_TYPE);
+    assumingJSTypeNative("assignBigIntOnLeft", BIGINT_TYPE);
+    assumingJSTypeNative("assignBigIntOnRight", NUMBER_TYPE);
+    assumingJSTypeNative("assignBigIntOnBothSides", BIGINT_TYPE);
 
     inFunction(
         """
@@ -1685,8 +1685,8 @@ public final class TypeInferenceTest {
 
   @Test
   public void testBigIntComparison() {
-    assuming("b", BIGINT_TYPE);
-    assuming("n", NUMBER_TYPE);
+    assumingJSTypeNative("b", BIGINT_TYPE);
+    assumingJSTypeNative("n", NUMBER_TYPE);
 
     inFunction("bigintOnly = b > b; bigintAndOther = b > n");
 
@@ -1696,13 +1696,13 @@ public final class TypeInferenceTest {
 
   @Test
   public void testLogicalBinaryOperatorsWithBigInt() {
-    assuming("b", BIGINT_TYPE);
-    assuming("B", BIGINT_OBJECT_TYPE);
-    assuming("n", NUMBER_TYPE);
-    assuming("bn", BIGINT_NUMBER);
-    assuming("s", STRING_TYPE);
-    assuming("u", UNKNOWN_TYPE);
-    assuming("ns", NUMBER_STRING);
+    assumingJSTypeNative("b", BIGINT_TYPE);
+    assumingJSTypeNative("B", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("n", NUMBER_TYPE);
+    assumingJSTypeNative("bn", BIGINT_NUMBER);
+    assumingJSTypeNative("s", STRING_TYPE);
+    assumingJSTypeNative("u", UNKNOWN_TYPE);
+    assumingJSTypeNative("ns", NUMBER_STRING);
 
     inFunction(
         """
@@ -1718,24 +1718,24 @@ public final class TypeInferenceTest {
 
     verify("valueTypeWithSelf", BIGINT_TYPE);
     verify("objectTypeWithSelf", BIGINT_OBJECT_TYPE);
-    verify("valueWithObject", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE));
+    verifyJSType("valueWithObject", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE));
     verify("bigintWithNumber", BIGINT_NUMBER);
     verify("bigintNumberWithSelf", BIGINT_NUMBER);
-    verify("bigintWithOther", createUnionType(BIGINT_TYPE, STRING_TYPE));
-    verify("bigintWithUnknown", createUnionType(BIGINT_TYPE, UNKNOWN_TYPE));
+    verifyJSType("bigintWithOther", createUnionType(BIGINT_TYPE, STRING_TYPE));
+    verifyJSType("bigintWithUnknown", createUnionType(BIGINT_TYPE, UNKNOWN_TYPE));
     verify("bigintWithNumberString", BIGINT_NUMBER_STRING);
   }
 
   @Test
   public void testTernaryOperatorWithBigInt() {
-    assuming("b", BIGINT_TYPE);
-    assuming("B", BIGINT_OBJECT_TYPE);
-    assuming("n", NUMBER_TYPE);
-    assuming("bn", BIGINT_NUMBER);
-    assuming("s", STRING_TYPE);
-    assuming("u", UNKNOWN_TYPE);
-    assuming("v", VOID_TYPE);
-    assuming("ns", NUMBER_STRING);
+    assumingJSTypeNative("b", BIGINT_TYPE);
+    assumingJSTypeNative("B", BIGINT_OBJECT_TYPE);
+    assumingJSTypeNative("n", NUMBER_TYPE);
+    assumingJSTypeNative("bn", BIGINT_NUMBER);
+    assumingJSTypeNative("s", STRING_TYPE);
+    assumingJSTypeNative("u", UNKNOWN_TYPE);
+    assumingJSTypeNative("v", VOID_TYPE);
+    assumingJSTypeNative("ns", NUMBER_STRING);
 
     inFunction(
         """
@@ -1751,11 +1751,11 @@ public final class TypeInferenceTest {
 
     verify("valueTypeWithSelf", BIGINT_TYPE);
     verify("objectTypeWithSelf", BIGINT_OBJECT_TYPE);
-    verify("valueWithObject", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE));
+    verifyJSType("valueWithObject", createUnionType(BIGINT_TYPE, BIGINT_OBJECT_TYPE));
     verify("bigintWithNumber", BIGINT_NUMBER);
     verify("bigintNumberWithSelf", BIGINT_NUMBER);
-    verify("bigintWithOther", createUnionType(BIGINT_TYPE, STRING_TYPE));
-    verify("bigintWithUnknown", createUnionType(BIGINT_TYPE, UNKNOWN_TYPE));
+    verifyJSType("bigintWithOther", createUnionType(BIGINT_TYPE, STRING_TYPE));
+    verifyJSType("bigintWithUnknown", createUnionType(BIGINT_TYPE, UNKNOWN_TYPE));
     verify("bigintWithNumberString", BIGINT_NUMBER_STRING);
   }
 
@@ -1767,7 +1767,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertBoolean(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", BOOLEAN_TYPE);
   }
 
@@ -1779,7 +1779,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertString(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", STRING_TYPE);
   }
 
@@ -1791,7 +1791,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertFunction(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verifySubtypeOf("out2", FUNCTION_TYPE);
   }
 
@@ -1804,8 +1804,8 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertElement(x); out2 = x;");
 
-    verify("out1", elementType);
-    verify("out2", elementType);
+    verifyJSType("out1", elementType);
+    verifyJSType("out2", elementType);
   }
 
   @Test
@@ -1816,7 +1816,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertObject(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", ARRAY_TYPE);
   }
 
@@ -1828,7 +1828,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertObject(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1842,7 +1842,7 @@ public final class TypeInferenceTest {
     // test a property "x.y" instead of a simple name
     inFunction("out1 = x.y; goog.asserts.assertObject(x.y); out2 = x.y;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", OBJECT_TYPE);
   }
 
@@ -1858,7 +1858,7 @@ public final class TypeInferenceTest {
         out2 = /** @type {!Array} */ (goog.asserts.assertObject(x));
         """);
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", ARRAY_TYPE);
   }
 
@@ -1870,7 +1870,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertArray(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verifySubtypeOf("out2", ARRAY_TYPE);
   }
 
@@ -1882,7 +1882,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertArray(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verifySubtypeOf("out2", ARRAY_TYPE);
   }
 
@@ -1895,7 +1895,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertInstanceof(x); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", UNKNOWN_TYPE);
   }
 
@@ -1907,15 +1907,15 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertInstanceof(x, String); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", STRING_OBJECT_TYPE);
   }
 
   @Test
   public void testAssertInstanceof_unknownCtor_setsStringToUnknown() {
     includeAssertInstanceof();
-    assuming("x", STRING_TYPE);
-    assuming("Foo", UNKNOWN_TYPE);
+    assumingJSTypeNative("x", STRING_TYPE);
+    assumingJSTypeNative("Foo", UNKNOWN_TYPE);
 
     inFunction("out1 = x; goog.asserts.assertInstanceof(x, Foo); out2 = x;");
 
@@ -1931,7 +1931,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertInstanceof(x, String); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", STRING_OBJECT_TYPE);
   }
 
@@ -1943,7 +1943,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertInstanceof(x, Object); out2 = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", STRING_OBJECT_TYPE);
   }
 
@@ -1955,7 +1955,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; goog.asserts.assertInstanceof(x, String); var r = x;");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("x", STRING_OBJECT_TYPE);
   }
 
@@ -1967,7 +1967,7 @@ public final class TypeInferenceTest {
 
     inFunction("out1 = x; var y = goog.asserts.assertInstanceof(x, String);");
 
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("y", STRING_OBJECT_TYPE);
   }
 
@@ -2013,7 +2013,7 @@ public final class TypeInferenceTest {
   public void testWhile2() {
     assuming("x", createNullableType(NUMBER_TYPE));
     inFunction("while (!x) { x = {}; }");
-    verifySubtypeOf("x", createUnionType(OBJECT_TYPE, NUMBER_TYPE));
+    verifySubtypeOfJSType("x", createUnionType(OBJECT_TYPE, NUMBER_TYPE));
   }
 
   @Test
@@ -2025,15 +2025,15 @@ public final class TypeInferenceTest {
 
   @Test
   public void testFor1() {
-    assuming("y", NUMBER_TYPE);
+    assumingJSTypeNative("y", NUMBER_TYPE);
     inFunction("var x = null; var i = null; for (i=y; !i; i=1) { x = 1; }");
-    verify("x", createNullableType(NUMBER_TYPE));
+    verifyJSType("x", createNullableType(NUMBER_TYPE));
     verify("i", NUMBER_TYPE);
   }
 
   @Test
   public void testForInWithExistingVar() {
-    assuming("y", OBJECT_TYPE);
+    assumingJSTypeNative("y", OBJECT_TYPE);
     inFunction(
         """
         var x = null;
@@ -2060,7 +2060,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testForInWithRedeclaredVar() {
-    assuming("y", OBJECT_TYPE);
+    assumingJSTypeNative("y", OBJECT_TYPE);
     inFunction(
         """
         var i = null;
@@ -2078,7 +2078,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testForInWithLet() {
-    assuming("y", OBJECT_TYPE);
+    assumingJSTypeNative("y", OBJECT_TYPE);
     inFunction(
         """
         FOR_IN_LOOP: for (let i in y) { // preserve newlines
@@ -2094,7 +2094,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testForInWithConst() {
-    assuming("y", OBJECT_TYPE);
+    assumingJSTypeNative("y", OBJECT_TYPE);
     inFunction(
         """
         FOR_IN_LOOP: for (const i in y) { // preserve newlines
@@ -2125,7 +2125,7 @@ public final class TypeInferenceTest {
         "y",
         templatize(getNativeObjectType(ARRAY_TYPE), ImmutableList.of(getNativeType(NUMBER_TYPE))));
     inFunction("var x = null; for (var i = 0; i < y.length; i++) { x = y[i]; }");
-    verify("x", createNullableType(NUMBER_TYPE));
+    verifyJSType("x", createNullableType(NUMBER_TYPE));
     verify("i", NUMBER_TYPE);
   }
 
@@ -2139,13 +2139,13 @@ public final class TypeInferenceTest {
          if (y[i] == 'z') { x = y[i]; }
         }
         """);
-    verify("x", getNativeType(UNKNOWN_TYPE));
+    verifyJSType("x", getNativeType(UNKNOWN_TYPE));
     verify("i", NUMBER_TYPE);
   }
 
   @Test
   public void testSwitch1() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction(
         """
         var y = null; switch(x) {
@@ -2159,7 +2159,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testSwitch2() {
-    assuming("x", ALL_TYPE);
+    assumingJSTypeNative("x", ALL_TYPE);
     inFunction(
         """
         var y = null; switch (typeof x) {
@@ -2175,7 +2175,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testSwitch3() {
-    assuming("x", createNullableType(createUnionType(NUMBER_TYPE, STRING_TYPE)));
+    assuming("x", createNullableTypeJSType(createUnionType(NUMBER_TYPE, STRING_TYPE)));
     inFunction(
         """
         var y; var z; switch (typeof x) {
@@ -2195,7 +2195,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testSwitch4() {
-    assuming("x", ALL_TYPE);
+    assumingJSTypeNative("x", ALL_TYPE);
     inFunction(
         """
         var y = null; switch (typeof x) {
@@ -2207,20 +2207,20 @@ public final class TypeInferenceTest {
           y = 1;
         }
         """);
-    verify("y", createUnionType(NUMBER_TYPE, STRING_TYPE));
+    verifyJSType("y", createUnionType(NUMBER_TYPE, STRING_TYPE));
   }
 
   @Test
   public void testCall1() {
     assuming(
-        "x", createNullableType(registry.createFunctionType(registry.getNativeType(NUMBER_TYPE))));
+        "x", createNullableTypeJSType(registry.createFunctionType(registry.getNativeType(NUMBER_TYPE))));
     inFunction("var y = x();");
     verify("y", NUMBER_TYPE);
   }
 
   @Test
   public void testNew1() {
-    assuming("x", createNullableType(registry.getNativeType(JSTypeNative.FUNCTION_TYPE)));
+    assuming("x", createNullableTypeJSType(registry.getNativeType(JSTypeNative.FUNCTION_TYPE)));
     inFunction("var y = new x();");
     verify("y", UNKNOWN_TYPE);
   }
@@ -2476,14 +2476,14 @@ public final class TypeInferenceTest {
 
   @Test
   public void testTry1() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; try { y = null; } finally { y = x; }");
     verify("y", NUMBER_TYPE);
   }
 
   @Test
   public void testTry2() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction(
         """
         var y = null;
@@ -2494,7 +2494,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testTry3() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; try { y = x; } catch (e) { }");
     verify("y", NUMBER_TYPE);
   }
@@ -2519,7 +2519,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testUnknownType2() {
-    assuming("x", ARRAY_TYPE);
+    assumingJSTypeNative("x", ARRAY_TYPE);
     inFunction("var y = 5; y = x[0];");
     verify("y", UNKNOWN_TYPE);
   }
@@ -2539,27 +2539,27 @@ public final class TypeInferenceTest {
   @Test
   public void testJoin1() {
     JSType unknownOrNull = createUnionType(NULL_TYPE, UNKNOWN_TYPE);
-    assuming("x", BOOLEAN_TYPE);
+    assumingJSTypeNative("x", BOOLEAN_TYPE);
     assuming("unknownOrNull", unknownOrNull);
     inFunction("var y; if (x) y = unknownOrNull; else y = null;");
-    verify("y", unknownOrNull);
+    verifyJSType("y", unknownOrNull);
   }
 
   @Test
   public void testJoin2() {
     JSType unknownOrNull = createUnionType(NULL_TYPE, UNKNOWN_TYPE);
-    assuming("x", BOOLEAN_TYPE);
+    assumingJSTypeNative("x", BOOLEAN_TYPE);
     assuming("unknownOrNull", unknownOrNull);
     inFunction("var y; if (x) y = null; else y = unknownOrNull;");
-    verify("y", unknownOrNull);
+    verifyJSType("y", unknownOrNull);
   }
 
   @Test
   public void testArrayLit() {
     assuming("x", createNullableType(OBJECT_TYPE));
     inFunction("var y = 3; if (x) { x = [y = x]; }");
-    verify("x", createUnionType(NULL_TYPE, ARRAY_TYPE));
-    verify("y", createUnionType(NUMBER_TYPE, OBJECT_TYPE));
+    verifyJSType("x", createUnionType(NULL_TYPE, ARRAY_TYPE));
+    verifyJSType("y", createUnionType(NUMBER_TYPE, OBJECT_TYPE));
   }
 
   @Test
@@ -2567,7 +2567,7 @@ public final class TypeInferenceTest {
     assuming("x", createNullableType(OBJECT_TYPE));
     inFunction("var y = 3; if (x) { x = x[y = x]; }");
     verify("x", UNKNOWN_TYPE);
-    verify("y", createUnionType(NUMBER_TYPE, OBJECT_TYPE));
+    verifyJSType("y", createUnionType(NUMBER_TYPE, OBJECT_TYPE));
   }
 
   @Test
@@ -2575,7 +2575,7 @@ public final class TypeInferenceTest {
     JSType enumType = createEnumType("MyEnum", ARRAY_TYPE).getElementsType();
     assuming("x", enumType);
     inFunction("var y = null; if (x) y = x;");
-    verify("y", createNullableType(enumType));
+    verifyJSType("y", createNullableTypeJSType(enumType));
   }
 
   @Test
@@ -2583,7 +2583,7 @@ public final class TypeInferenceTest {
     JSType enumType = createEnumType("MyEnum", NUMBER_TYPE).getElementsType();
     assuming("x", enumType);
     inFunction("var y = null; if (typeof x == 'number') y = x;");
-    verify("y", createNullableType(enumType));
+    verifyJSType("y", createNullableTypeJSType(enumType));
   }
 
   @Test
@@ -2591,63 +2591,63 @@ public final class TypeInferenceTest {
     JSType enumType = createEnumType("MyEnum", NUMBER_TYPE).getElementsType();
     assuming("x", enumType);
     inFunction("var y = null; if (x && typeof x == 'number') y = x;");
-    verify("y", createNullableType(enumType));
+    verifyJSType("y", createNullableTypeJSType(enumType));
   }
 
   @Test
   public void testEnumRAI4() {
     JSType enumType =
-        createEnumType("MyEnum", createUnionType(STRING_TYPE, NUMBER_TYPE)).getElementsType();
+        createEnumTypeJSType("MyEnum", createUnionType(STRING_TYPE, NUMBER_TYPE)).getElementsType();
     assuming("x", enumType);
     inFunction("var y = null; if (typeof x == 'number') y = x;");
-    verify("y", createNullableType(NUMBER_TYPE));
+    verifyJSType("y", createNullableType(NUMBER_TYPE));
   }
 
   @Test
   public void testShortCircuitingAnd() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; if (x && (y = 3)) { }");
-    verify("y", createNullableType(NUMBER_TYPE));
+    verifyJSType("y", createNullableType(NUMBER_TYPE));
   }
 
   @Test
   public void testShortCircuitingAnd2() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; var z = 4; if (x && (y = 3)) { z = y; }");
     verify("z", NUMBER_TYPE);
   }
 
   @Test
   public void testShortCircuitingOr() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; if (x || (y = 3)) { }");
-    verify("y", createNullableType(NUMBER_TYPE));
+    verifyJSType("y", createNullableType(NUMBER_TYPE));
   }
 
   @Test
   public void testShortCircuitingNullishCoalesce() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; if (x ?? (y = 3)) { }");
     verify("y", NULL_TYPE);
   }
 
   @Test
   public void testShortCircuitingNullishCoalesceIf() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; var z = 5; if (x ?? (y = 3)) { z = y }");
     verify("y", NULL_TYPE);
   }
 
   @Test
   public void testShortCircuitingOr2() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = null; var z = 4; if (x || (y = 3)) { z = y; }");
-    verify("z", createNullableType(NUMBER_TYPE));
+    verifyJSType("z", createNullableType(NUMBER_TYPE));
   }
 
   @Test
   public void testShortCircuitingNullishCoalseceNumber() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var z = x ?? null");
     verify("z", NUMBER_TYPE);
   }
@@ -2656,7 +2656,7 @@ public final class TypeInferenceTest {
   public void testNullishCoalesce() {
     assuming("x", createNullableType(OBJECT_TYPE));
     inFunction("var y = 1; x ?? (y = x);");
-    verify("y", createNullableType(NUMBER_TYPE));
+    verifyJSType("y", createNullableType(NUMBER_TYPE));
   }
 
   @Test
@@ -2664,7 +2664,7 @@ public final class TypeInferenceTest {
     assuming("x", createNullableType(OBJECT_TYPE));
     inFunction("var z = (x) ?? (x ? 'hi' : false)");
     // Looks like x should be (object|boolean) but hook always traverses both branches
-    verify("z", createMultiParamUnionType(OBJECT_TYPE, BOOLEAN_TYPE, STRING_TYPE));
+    verifyJSType("z", createMultiParamUnionType(OBJECT_TYPE, BOOLEAN_TYPE, STRING_TYPE));
   }
 
   @Test
@@ -2679,7 +2679,7 @@ public final class TypeInferenceTest {
     // Making sure that ?? does not execute RHS (even if x is 0)
     assuming("x", createNullableType(NUMBER_TYPE));
     inFunction("var y = ''; if (x ?? (y = x)) { }");
-    verify("y", createNullableType(STRING_TYPE));
+    verifyJSType("y", createNullableType(STRING_TYPE));
   }
 
   @Test
@@ -2687,7 +2687,7 @@ public final class TypeInferenceTest {
     // Making sure that ?? does not execute RHS (even if x is false)
     assuming("x", createNullableType(BOOLEAN_TYPE));
     inFunction("var y = ''; x ?? (y = x)");
-    verify("y", createNullableType(STRING_TYPE));
+    verifyJSType("y", createNullableType(STRING_TYPE));
   }
 
   @Test
@@ -2699,37 +2699,37 @@ public final class TypeInferenceTest {
 
   @Test
   public void testInstanceOf1() {
-    assuming("x", OBJECT_TYPE);
+    assumingJSTypeNative("x", OBJECT_TYPE);
     inFunction("var y = null; if (x instanceof String) y = x;");
-    verify("y", createNullableType(STRING_OBJECT_TYPE));
+    verifyJSType("y", createNullableType(STRING_OBJECT_TYPE));
   }
 
   @Test
   public void testInstanceOf2() {
     assuming("x", createNullableType(OBJECT_TYPE));
     inFunction("var y = 1; if (x instanceof String) y = x;");
-    verify("y", createUnionType(STRING_OBJECT_TYPE, NUMBER_TYPE));
+    verifyJSType("y", createUnionType(STRING_OBJECT_TYPE, NUMBER_TYPE));
   }
 
   @Test
   public void testInstanceOf3() {
     assuming("x", createUnionType(STRING_OBJECT_TYPE, NUMBER_OBJECT_TYPE));
     inFunction("var y = null; if (x instanceof String) y = x;");
-    verify("y", createNullableType(STRING_OBJECT_TYPE));
+    verifyJSType("y", createNullableType(STRING_OBJECT_TYPE));
   }
 
   @Test
   public void testInstanceOf4() {
     assuming("x", createUnionType(STRING_OBJECT_TYPE, NUMBER_OBJECT_TYPE));
     inFunction("var y = null; if (x instanceof String); else y = x;");
-    verify("y", createNullableType(NUMBER_OBJECT_TYPE));
+    verifyJSType("y", createNullableType(NUMBER_OBJECT_TYPE));
   }
 
   @Test
   public void testInstanceOf5() {
-    assuming("x", OBJECT_TYPE);
+    assumingJSTypeNative("x", OBJECT_TYPE);
     inFunction("var y = null; if (x instanceof String); else y = x;");
-    verify("y", createNullableType(OBJECT_TYPE));
+    verifyJSType("y", createNullableType(OBJECT_TYPE));
   }
 
   @Test
@@ -2744,13 +2744,13 @@ public final class TypeInferenceTest {
     JSType startType = registry.getNativeType(UNKNOWN_TYPE);
     assuming("x", startType);
     inFunction("out1 = x; if (x instanceof String) out2 = x;");
-    verify("out1", startType);
+    verifyJSType("out1", startType);
     verify("out2", STRING_OBJECT_TYPE);
   }
 
   @Test
   public void testUnary() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = +x;");
     verify("y", NUMBER_TYPE);
     inFunction("var z = -x;");
@@ -2759,28 +2759,28 @@ public final class TypeInferenceTest {
 
   @Test
   public void testAdd1() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = x + 5;");
     verify("y", NUMBER_TYPE);
   }
 
   @Test
   public void testAdd2() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = x + '5';");
     verify("y", STRING_TYPE);
   }
 
   @Test
   public void testAdd3() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("var y = '5' + x;");
     verify("y", STRING_TYPE);
   }
 
   @Test
   public void testAssignAdd() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
     inFunction("x += '5';");
     verify("x", STRING_TYPE);
   }
@@ -2804,7 +2804,7 @@ public final class TypeInferenceTest {
     // or/and, since any boolean type is treated as {true, false},
     // but there can be improvement in precision here
     inFunction("var y = false; y ||= 20");
-    verify("y", createUnionType(NUMBER_TYPE, BOOLEAN_TYPE));
+    verifyJSType("y", createUnionType(NUMBER_TYPE, BOOLEAN_TYPE));
   }
 
   @Test
@@ -2837,7 +2837,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testThisTypeAfterMemberField() {
-    JSType thisType = createRecordType("x", STRING_TYPE);
+    JSType thisType = createRecordTypeJSTypeNative("x", STRING_TYPE);
     assumingThisType(thisType);
     inFunction(
         """
@@ -2905,7 +2905,7 @@ public final class TypeInferenceTest {
     // The resulting type of Node n is (boolean|string), when it can be
     // more precise by verifying `x` as a string
     inFunction("var x; var y; y = false; x = (y || 'foo');");
-    verify("x", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
+    verifyJSType("x", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
 
     // Short-circuiting should occur, as `a` is a truthy value,
     // `c` would be assigned true, and `b` would remain undefined.
@@ -2914,31 +2914,31 @@ public final class TypeInferenceTest {
     // The actual behavior considers `a` (a BOOLEAN_TYPE) to be {true, false},
     // and states that `c` can be (boolean|string).
     inFunction("var a; var b; var c; a = true; c = (a || (b = 'foo'));");
-    verify("c", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
+    verifyJSType("c", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
     verify("a", BOOLEAN_TYPE);
-    verify("b", createUnionType(VOID_TYPE, STRING_TYPE));
+    verifyJSType("b", createUnionType(VOID_TYPE, STRING_TYPE));
 
     // This test should not assign the string to `y` and
     // should verify `y` as BOOLEAN_TYPE (true).
     inFunction("var y; y = true; y ||= 'foo';");
-    verify("y", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
+    verifyJSType("y", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
   }
 
   @Test
   public void testAssignOrToBooleanEitherAbsoluteFalseOrTrue() {
-    assuming("x", NULL_TYPE);
+    assumingJSTypeNative("x", NULL_TYPE);
     inFunction("x ||= 'foo';");
     verify("x", STRING_TYPE);
 
-    assuming("y", OBJECT_TYPE);
+    assumingJSTypeNative("y", OBJECT_TYPE);
     inFunction("y ||= 'foo';");
     verify("y", OBJECT_TYPE);
   }
 
   @Test
   public void testAssignOrLHSFalsyRHSTruthy() {
-    assuming("x", NULL_TYPE);
-    assuming("obj", OBJECT_TYPE);
+    assumingJSTypeNative("x", NULL_TYPE);
+    assumingJSTypeNative("obj", OBJECT_TYPE);
     inFunction("x ||= obj;");
     verify("x", OBJECT_TYPE);
   }
@@ -2949,7 +2949,7 @@ public final class TypeInferenceTest {
     // or/and, since any boolean type is treated as {true, false},
     // but there can be improvement in precision here
     inFunction("var y = true; y &&= 20");
-    verify("y", createUnionType(NUMBER_TYPE, BOOLEAN_TYPE));
+    verifyJSType("y", createUnionType(NUMBER_TYPE, BOOLEAN_TYPE));
   }
 
   @Test
@@ -2958,43 +2958,43 @@ public final class TypeInferenceTest {
     // The resulting type of Node n is (boolean|string), when it can be
     // more precise by verifying `x` as a boolean type (true).
     inFunction("var x = true && 'foo';");
-    verify("x", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
+    verifyJSType("x", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
 
     // This test should not assign the string to `y` and
     // should verify `y` as BOOLEAN_TYPE (false).
     inFunction("var y = false; y &&= 'foo';");
-    verify("y", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
+    verifyJSType("y", createUnionType(BOOLEAN_TYPE, STRING_TYPE));
   }
 
   @Test
   public void testAssignAndToBooleanEitherAbsoluteFalseOrTrue() {
-    assuming("x", NULL_TYPE);
+    assumingJSTypeNative("x", NULL_TYPE);
     inFunction("x &&= 'foo';");
     verify("x", NULL_TYPE);
 
-    assuming("y", OBJECT_TYPE);
+    assumingJSTypeNative("y", OBJECT_TYPE);
     inFunction("y &&= 'foo';");
     verify("y", STRING_TYPE);
   }
 
   @Test
   public void testAssignAndLHSTruthyRHSFalsy() {
-    assuming("x", OBJECT_TYPE);
-    assuming("null", NULL_TYPE);
+    assumingJSTypeNative("x", OBJECT_TYPE);
+    assumingJSTypeNative("null", NULL_TYPE);
     inFunction("x &&= null;");
     verify("x", NULL_TYPE);
   }
 
   @Test
   public void testAssignCoalesceToNumeric() {
-    assuming("x", NULL_TYPE);
+    assumingJSTypeNative("x", NULL_TYPE);
     inFunction("x ??= 10;");
     verify("x", NUMBER_TYPE);
   }
 
   @Test
   public void testAssignCoalesceNoAssign() {
-    assuming("x", STRING_TYPE);
+    assumingJSTypeNative("x", STRING_TYPE);
     inFunction("x ??= 10;");
     verify("x", STRING_TYPE);
   }
@@ -3005,7 +3005,7 @@ public final class TypeInferenceTest {
     // precision can be improved in the future for `y` to expect a number and not undefined,
     // but this is currently in accordance with the AST and not an oversight.
     inFunction("var y; var x = null; x ??= (y = 6)");
-    verify("y", createUnionType(VOID_TYPE, NUMBER_TYPE));
+    verifyJSType("y", createUnionType(VOID_TYPE, NUMBER_TYPE));
     verify("x", NUMBER_TYPE);
 
     // ??= does not execute rhs
@@ -3018,7 +3018,7 @@ public final class TypeInferenceTest {
   public void testAssignCoalesceJoin() {
     assuming("x", createNullableType(NUMBER_TYPE));
     inFunction("var y = ''; x ??= (y = x, 1)");
-    verify("y", createNullableType(STRING_TYPE));
+    verifyJSType("y", createNullableType(STRING_TYPE));
     verify("x", NUMBER_TYPE);
   }
 
@@ -3102,8 +3102,8 @@ public final class TypeInferenceTest {
                 "y", getNativeType(NUMBER_TYPE)));
     assuming("obj", recordType);
 
-    assuming("before", BOOLEAN_TYPE);
-    assuming("after", NULL_TYPE);
+    assumingJSTypeNative("before", BOOLEAN_TYPE);
+    assumingJSTypeNative("after", NULL_TYPE);
 
     // When
     inFunction("let spread = {before, ...obj, after};");
@@ -3119,7 +3119,7 @@ public final class TypeInferenceTest {
   @Test
   public void testCast1() {
     inFunction("var x = /** @type {Object} */ (this);");
-    verify("x", createNullableType(OBJECT_TYPE));
+    verifyJSType("x", createNullableType(OBJECT_TYPE));
   }
 
   @Test
@@ -3130,7 +3130,7 @@ public final class TypeInferenceTest {
         Object.prototype.method = function() { return true; };
         var x = /** @type {Object} */ (this).method;
         """);
-    verify(
+    verifyJSType(
         "x",
         registry.createFunctionTypeWithInstanceType(
             registry.getNativeObjectType(OBJECT_TYPE),
@@ -3185,7 +3185,7 @@ public final class TypeInferenceTest {
     JSType thisType = createNullableType(OBJECT_TYPE);
     assumingThisType(thisType);
     inFunction("var out = 3; if (goog.isNull(this)) out = this;");
-    verify("out", createUnionType(OBJECT_TYPE, NUMBER_TYPE));
+    verifyJSType("out", createUnionType(OBJECT_TYPE, NUMBER_TYPE));
   }
 
   @Test
@@ -3290,7 +3290,7 @@ public final class TypeInferenceTest {
 
         var result = f(10, 'x');
         """);
-    verify("result", registry.createUnionType(NUMBER_TYPE, STRING_TYPE));
+    verifyJSType("result", registry.createUnionTypeJSTypeNativeVarargs(NUMBER_TYPE, STRING_TYPE));
   }
 
   @Test
@@ -3325,7 +3325,7 @@ public final class TypeInferenceTest {
         // Make sure `?` is dispreferred before *and* after a known type.
         var result = f('x', /** @type {?} */ ({}), 5);
         """);
-    verify("result", registry.createUnionType(NUMBER_TYPE, STRING_TYPE));
+    verifyJSType("result", registry.createUnionTypeJSTypeNativeVarargs(NUMBER_TYPE, STRING_TYPE));
   }
 
   @Test
@@ -3406,7 +3406,7 @@ public final class TypeInferenceTest {
 
         var result = f(/** @type {!Array<number>|!Generator<string>} */ ({}));
         """);
-    verify("result", registry.createUnionType(NUMBER_TYPE, STRING_TYPE));
+    verifyJSType("result", registry.createUnionTypeJSTypeNativeVarargs(NUMBER_TYPE, STRING_TYPE));
   }
 
   @Test
@@ -3470,7 +3470,7 @@ public final class TypeInferenceTest {
         function f(a, b) {}
         var result = f(1, 'a');
         """);
-    verify("result", createUnionType(STRING_TYPE, NUMBER_TYPE));
+    verifyJSType("result", createUnionType(STRING_TYPE, NUMBER_TYPE));
   }
 
   @Test
@@ -3489,7 +3489,7 @@ public final class TypeInferenceTest {
         /** @type {string|number} */ var x;
         var result = f(x);
         """);
-    verify("result", createUnionType(BOOLEAN_TYPE, NULL_TYPE));
+    verifyJSType("result", createUnionType(BOOLEAN_TYPE, NULL_TYPE));
   }
 
   @Test
@@ -3515,7 +3515,7 @@ public final class TypeInferenceTest {
         var o;
         var r = Object(o);
         """);
-    verify(
+    verifyJSType(
         "r",
         createMultiParamUnionType(
             STRING_OBJECT_TYPE, NUMBER_OBJECT_TYPE, JSTypeNative.BOOLEAN_OBJECT_TYPE));
@@ -3587,7 +3587,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("b"));
+    verifyJSType("r", getType("b"));
   }
 
   @Test
@@ -3603,7 +3603,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("Bar"));
+    verifyJSType("r", getType("Bar"));
   }
 
   @Test
@@ -3621,7 +3621,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("x"));
+    verifyJSType("r", getType("x"));
   }
 
   @Test
@@ -3638,7 +3638,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("x"));
+    verifyJSType("r", getType("x"));
   }
 
   @Test
@@ -3656,7 +3656,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", createUnionType(STRING_TYPE, NUMBER_TYPE));
+    verifyJSType("r", createUnionType(STRING_TYPE, NUMBER_TYPE));
   }
 
   @Test
@@ -3673,7 +3673,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("wiz.async.Response"));
+    verifyJSType("r", getType("wiz.async.Response"));
   }
 
   @Test
@@ -3689,7 +3689,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("x"));
+    verifyJSType("r", getType("x"));
   }
 
   @Test
@@ -3705,7 +3705,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("x"));
+    verifyJSType("r", getType("x"));
   }
 
   @Test
@@ -3721,7 +3721,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("x"));
+    verifyJSType("r", getType("x"));
   }
 
   @Test
@@ -3737,7 +3737,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("x"));
+    verifyJSType("r", getType("x"));
   }
 
   @Test
@@ -3753,7 +3753,7 @@ public final class TypeInferenceTest {
         function f(){}
         var r = f();
         """);
-    verify("r", getType("x"));
+    verifyJSType("r", getType("x"));
   }
 
   @Test
@@ -3774,7 +3774,7 @@ public final class TypeInferenceTest {
         var r = f({foo:bar});
         """);
     assertThat(getType("r").isRecordType()).isTrue();
-    verify("r", getType("e"));
+    verifyJSType("r", getType("e"));
   }
 
   @Test
@@ -3794,7 +3794,7 @@ public final class TypeInferenceTest {
         var r = f({foo:{}, bar:{}});
         """);
     assertThat(getType("r").isRecordType()).isTrue();
-    verify("r", getType("e"));
+    verifyJSType("r", getType("e"));
   }
 
   @Test
@@ -3815,7 +3815,7 @@ public final class TypeInferenceTest {
         var r = f({foo:something});
         """);
     assertThat(getType("r").isRecordType()).isTrue();
-    verify("r", getType("e"));
+    verifyJSType("r", getType("e"));
   }
 
   @Test
@@ -3865,7 +3865,7 @@ public final class TypeInferenceTest {
   @Test
   public void testYield1() {
     inGenerator("var x = yield 3;");
-    verify("x", registry.getNativeType(UNKNOWN_TYPE));
+    verifyJSType("x", registry.getNativeType(UNKNOWN_TYPE));
   }
 
   @Test
@@ -3879,8 +3879,8 @@ public final class TypeInferenceTest {
         var b = obj.b;
         """);
 
-    verify("a", registry.getNativeType(NUMBER_TYPE));
-    verify("b", registry.getNativeType(STRING_TYPE));
+    verifyJSType("a", registry.getNativeType(NUMBER_TYPE));
+    verifyJSType("b", registry.getNativeType(STRING_TYPE));
   }
 
   @Test
@@ -4284,7 +4284,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testTypeInferenceOccursInDestructuringCatch() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
 
     inFunction(
         """
@@ -4303,7 +4303,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void testTypeInferenceOccursInDestructuringForIn() {
-    assuming("x", NUMBER_TYPE);
+    assumingJSTypeNative("x", NUMBER_TYPE);
 
     inFunction(
         """
@@ -4353,7 +4353,7 @@ public final class TypeInferenceTest {
 
   @Test
   public void constDeclarationWithReturnJSDoc_ignoresUnknownRhsType() {
-    assuming("foo", UNKNOWN_TYPE);
+    assumingJSTypeNative("foo", UNKNOWN_TYPE);
 
     inFunction("/** @return {number} */ const fn = foo;");
 
@@ -4380,8 +4380,8 @@ public final class TypeInferenceTest {
 
   @Test
   public void testSideEffectsInEsExportDefaultInferred() {
-    assuming("foo", NUMBER_TYPE);
-    assuming("bar", UNKNOWN_TYPE);
+    assumingJSTypeNative("foo", NUMBER_TYPE);
+    assumingJSTypeNative("bar", UNKNOWN_TYPE);
 
     inScript("export default (bar = foo, foo = 'not a number');");
 
@@ -4391,8 +4391,8 @@ public final class TypeInferenceTest {
 
   @Test
   public void testShneTightensUnknownOperandOnLhs() {
-    assuming("foo", NUMBER_TYPE);
-    assuming("bar", UNKNOWN_TYPE);
+    assumingJSTypeNative("foo", NUMBER_TYPE);
+    assumingJSTypeNative("bar", UNKNOWN_TYPE);
 
     inFunction("if (bar === foo) { FOO: foo; BAR: bar; }");
 
@@ -4402,8 +4402,8 @@ public final class TypeInferenceTest {
 
   @Test
   public void testShneTightensUnknownOperandOnRhs() {
-    assuming("foo", NUMBER_TYPE);
-    assuming("bar", UNKNOWN_TYPE);
+    assumingJSTypeNative("foo", NUMBER_TYPE);
+    assumingJSTypeNative("bar", UNKNOWN_TYPE);
 
     inFunction("if (foo === bar) { FOO: foo; BAR: bar; }");
 
@@ -4502,7 +4502,7 @@ public final class TypeInferenceTest {
   }
 
   private JSType templatize(ObjectType objType, ImmutableList<JSType> t) {
-    return registry.createTemplatizedType(objType, t);
+    return registry.createTemplatizedTypeImmutableList(objType, t);
   }
 
   /** Adds a goog.asserts.assert[name] function to the scope that asserts the given returnType */

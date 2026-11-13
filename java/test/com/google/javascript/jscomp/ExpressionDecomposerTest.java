@@ -2421,7 +2421,7 @@ a = temp$jscomp$2;
 
     decomposer.maybeExposeExpression(expr);
     validateSourceInfo(compiler, tree);
-    assertNode(tree).usingSerializer(compiler::toSource).isEqualTo(expectedRoot);
+    assertNode(tree).usingSerializer(compiler::toSource).isEqualToNode(expectedRoot);
 
     if (shouldTestTypes) {
       Node decomposeThenTypeCheck = helperExposeExpressionThenTypeCheck(code, nodeFinder);
@@ -2459,7 +2459,7 @@ a = temp$jscomp$2;
 
     decomposer.moveExpression(expr);
     validateSourceInfo(compiler, tree);
-    assertNode(tree).usingSerializer(compiler::toSource).isEqualTo(expectedRoot);
+    assertNode(tree).usingSerializer(compiler::toSource).isEqualToNode(expectedRoot);
 
     if (shouldTestTypes) {
       // find a basis for comparison:

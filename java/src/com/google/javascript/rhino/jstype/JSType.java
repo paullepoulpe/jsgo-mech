@@ -155,7 +155,7 @@ public abstract class JSType {
    *
    * @param pname The property name.
    */
-  public HasPropertyKind getPropertyKind(Property.Key pname) {
+  public HasPropertyKind getPropertyKindKey(Property.Key pname) {
     return getPropertyKind(pname, true);
   }
 
@@ -175,7 +175,7 @@ public abstract class JSType {
    * @param pname The property name.
    * @param autobox Whether to check for the presents on an autoboxed type
    */
-  public final HasPropertyKind getPropertyKind(String pname, boolean autobox) {
+  public final HasPropertyKind getPropertyKindString(String pname, boolean autobox) {
     return getPropertyKind(new Property.StringKey(pname), autobox);
   }
 
@@ -185,7 +185,7 @@ public abstract class JSType {
    * @param pname The property name.
    */
   public final HasPropertyKind getPropertyKind(String pname) {
-    return getPropertyKind(new Property.StringKey(pname));
+    return getPropertyKindKey(new Property.StringKey(pname));
   }
 
   /**
@@ -194,10 +194,10 @@ public abstract class JSType {
    * @param pname The property name.
    */
   public final boolean hasProperty(String pname) {
-    return hasProperty(new Property.StringKey(pname));
+    return hasPropertyKey(new Property.StringKey(pname));
   }
 
-  public final boolean hasProperty(Property.Key pname) {
+  public final boolean hasPropertyKey(Property.Key pname) {
     return !getPropertyKind(pname, false).equals(HasPropertyKind.ABSENT);
   }
 
@@ -610,7 +610,7 @@ public abstract class JSType {
     if (other.isRawTypeOfTemplatizedType()) {
       // Before a type can be prepended it needs to be fully specialized. This can happen, for
       // example, when type arguments are not specified in an `@extends` annotation.
-      other = registry.createTemplatizedType(other, ImmutableList.of());
+      other = registry.createTemplatizedTypeImmutableList(other, ImmutableList.of());
     }
     templateTypeMap = other.getTemplateTypeMap().copyWithExtension(this.getTemplateTypeMap());
   }
@@ -837,7 +837,7 @@ public abstract class JSType {
    * @return The property's type. {@code null} if the current type cannot have properties, or if the
    *     type is not found.
    */
-  public final @Nullable JSType findPropertyType(Property.Key propertyName) {
+  public final @Nullable JSType findPropertyTypeKey(Property.Key propertyName) {
     @Nullable JSType propertyType = findPropertyTypeWithoutConsideringTemplateTypes(propertyName);
     if (propertyType == null) {
       return null;
@@ -863,7 +863,7 @@ public abstract class JSType {
    *     type is not found.
    */
   public final @Nullable JSType findPropertyType(String propertyName) {
-    return findPropertyType(new Property.StringKey(propertyName));
+    return findPropertyTypeKey(new Property.StringKey(propertyName));
   }
 
   /**
@@ -880,7 +880,7 @@ public abstract class JSType {
       Property.Key propertyName) {
     ObjectType autoboxObjType = ObjectType.cast(autoboxesTo());
     if (autoboxObjType != null) {
-      return autoboxObjType.findPropertyType(propertyName);
+      return autoboxObjType.findPropertyTypeKey(propertyName);
     }
     return null;
   }
@@ -1185,9 +1185,9 @@ public abstract class JSType {
       // thisType must be known
       return thisType;
     } else if (thisType.isUnionType()) {
-      return UnionType.getGreatestSubtype(thisType.toMaybeUnionType(), thatType);
+      return UnionType.getGreatestSubtypeUnionType(thisType.toMaybeUnionType(), thatType);
     } else if (thatType.isUnionType()) {
-      return UnionType.getGreatestSubtype(thatType.toMaybeUnionType(), thisType);
+      return UnionType.getGreatestSubtypeUnionType(thatType.toMaybeUnionType(), thisType);
     } else if (thisType.isTemplatizedType()) {
       return thisType.toMaybeTemplatizedType().getGreatestSubtypeHelper(
           thatType);
@@ -1205,12 +1205,12 @@ public abstract class JSType {
     }
 
     if (thisType.isEnumElementType()) {
-      JSType inf = EnumElementType.getGreatestSubtype(thisType.toMaybeEnumElementType(), thatType);
+      JSType inf = EnumElementType.getGreatestSubtypeEnumElementType(thisType.toMaybeEnumElementType(), thatType);
       if (inf != null) {
         return inf;
       }
     } else if (thatType.isEnumElementType()) {
-      JSType inf = EnumElementType.getGreatestSubtype(thatType.toMaybeEnumElementType(), thisType);
+      JSType inf = EnumElementType.getGreatestSubtypeEnumElementType(thatType.toMaybeEnumElementType(), thisType);
       if (inf != null) {
         return inf;
       }
@@ -1620,7 +1620,7 @@ public abstract class JSType {
    */
   @Override
   public String toString() {
-    return new TypeStringBuilder(false).append(this).build();
+    return new TypeStringBuilder(false).appendJSType(this).build();
   }
 
   // Don't call from this package; use appendAsNonNull instead.
@@ -1628,7 +1628,7 @@ public abstract class JSType {
     TypeStringBuilder builder = new TypeStringBuilder(true);
     return (nullability == Nullability.EXPLICIT
             ? builder.appendNonNull(this)
-            : builder.append(this))
+            : builder.appendJSType(this))
         .build();
   }
 
@@ -1692,7 +1692,7 @@ public abstract class JSType {
       return this.isSubtype;
     }
 
-    static MatchStatus valueOf(boolean match) {
+    static MatchStatus valueOfBoolean(boolean match) {
       return match ? MATCH : NOT_MATCH;
     }
   }

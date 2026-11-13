@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeJSType;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -822,7 +823,7 @@ class ExpressionDecomposer {
     call.addChildToFront(receiverNode);
     call.addChildToFront(
         astFactory
-            .createGetProp(functionNameNode, "call", type(fnCallType, StandardColors.TOP_OBJECT))
+            .createGetProp(functionNameNode, "call", typeJSType(fnCallType, StandardColors.TOP_OBJECT))
             .srcrefTreeIfMissing(call));
     call.putBooleanProp(Node.FREE_CALL, false);
   }

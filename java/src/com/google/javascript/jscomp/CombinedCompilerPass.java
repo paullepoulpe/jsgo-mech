@@ -48,8 +48,9 @@ final class CombinedCompilerPass implements CompilerPass, ScopedCallback {
    *
    * @param compiler the compiler
    */
-  CombinedCompilerPass(AbstractCompiler compiler, NodeTraversal.Callback... callbacks) {
-    this(compiler, ImmutableList.copyOf(callbacks));
+  static CombinedCompilerPass createFromCallbacks(
+      AbstractCompiler compiler, NodeTraversal.Callback... callbacks) {
+    return new CombinedCompilerPass(compiler, ImmutableList.copyOf(callbacks));
   }
 
   CombinedCompilerPass(AbstractCompiler compiler, List<NodeTraversal.Callback> callbacks) {

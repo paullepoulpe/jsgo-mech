@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
@@ -590,7 +591,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           astFactory
               .createSingleConstNameDeclaration(
                   record.getPrivateMapVarName(compiler, t),
-                  astFactory.createNewNode(astFactory.createQNameWithUnknownType(jscompPrivateMap)))
+                  astFactory.createNewNode(astFactory.createQNameWithUnknownTypeJsLibField(jscompPrivateMap)))
               .srcrefTreeIfMissing(record.classNode);
       mapVar.insertBefore(classInsertionPoint);
 
@@ -669,7 +670,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           astFactory
               .createSingleConstNameDeclaration(
                   record.getStaticPrivateMapVarName(compiler, t),
-                  astFactory.createNewNode(astFactory.createQNameWithUnknownType(jscompPrivateMap)))
+                  astFactory.createNewNode(astFactory.createQNameWithUnknownTypeJsLibField(jscompPrivateMap)))
               .srcrefTreeIfMissing(record.classNode);
       staticMapVar.insertBefore(classInsertionPoint);
     }
@@ -1018,7 +1019,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
             Node target =
                 astFactory
                     .createGetPropWithUnknownType(
-                        astFactory.createThis(type(StandardColors.UNKNOWN)), "$self")
+                        astFactory.createThis(typeColor(StandardColors.UNKNOWN)), "$self")
                     .srcref(n);
             n.replaceWith(target);
             compiler.reportChangeToEnclosingScope(target);
@@ -1103,7 +1104,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
                   Node callCallee =
                       astFactory.createGetPropWithUnknownType(parent.detach(), "call");
                   grandParent.addChildToFront(callCallee.srcrefTreeIfMissing(parent));
-                  Node thisArg = astFactory.createThis(type(StandardColors.UNKNOWN)).srcref(n);
+                  Node thisArg = astFactory.createThis(typeColor(StandardColors.UNKNOWN)).srcref(n);
                   thisArg.insertAfter(callCallee);
                 }
               } else if (grandParent != null
@@ -1115,8 +1116,8 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
                     parent.isGetProp()
                         ? astFactory.createCall(
                             astFactory.createName(
-                                NodeUtil.JSC_PROPERTY_NAME_FN, type(StandardColors.UNKNOWN)),
-                            type(StandardColors.STRING),
+                                NodeUtil.JSC_PROPERTY_NAME_FN, typeColor(StandardColors.UNKNOWN)),
+                            typeColor(StandardColors.STRING),
                             astFactory.createString(parent.getString()),
                             record.createNewSuperclassReferenceNode().srcrefTree(n))
                         : parent.getSecondChild().detach();
@@ -1124,12 +1125,12 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
                 Node reflectSet =
                     astFactory.createCall(
                         astFactory.createGetPropWithUnknownType(
-                            astFactory.createName("Reflect", type(StandardColors.UNKNOWN)), "set"),
-                        type(StandardColors.UNKNOWN),
+                            astFactory.createName("Reflect", typeColor(StandardColors.UNKNOWN)), "set"),
+                        typeColor(StandardColors.UNKNOWN),
                         target,
                         propKey,
                         rhs,
-                        astFactory.createThis(type(StandardColors.UNKNOWN)).srcref(n));
+                        astFactory.createThis(typeColor(StandardColors.UNKNOWN)).srcref(n));
                 grandParent.replaceWith(reflectSet.srcrefTreeIfMissing(grandParent));
               } else {
                 // Getter read: super.prop
@@ -1137,8 +1138,8 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
                     parent.isGetProp()
                         ? astFactory.createCall(
                             astFactory.createName(
-                                NodeUtil.JSC_PROPERTY_NAME_FN, type(StandardColors.UNKNOWN)),
-                            type(StandardColors.STRING),
+                                NodeUtil.JSC_PROPERTY_NAME_FN, typeColor(StandardColors.UNKNOWN)),
+                            typeColor(StandardColors.STRING),
                             astFactory.createString(parent.getString()),
                             record.createNewSuperclassReferenceNode().srcrefTree(n))
                         : parent.getSecondChild().detach();
@@ -1146,11 +1147,11 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
                 Node reflectGet =
                     astFactory.createCall(
                         astFactory.createGetPropWithUnknownType(
-                            astFactory.createName("Reflect", type(StandardColors.UNKNOWN)), "get"),
-                        type(StandardColors.UNKNOWN),
+                            astFactory.createName("Reflect", typeColor(StandardColors.UNKNOWN)), "get"),
+                        typeColor(StandardColors.UNKNOWN),
                         target,
                         propKey,
-                        astFactory.createThis(type(StandardColors.UNKNOWN)).srcref(n));
+                        astFactory.createThis(typeColor(StandardColors.UNKNOWN)).srcref(n));
                 parent.replaceWith(reflectGet.srcrefTreeIfMissing(parent));
               }
               compiler.reportChangeToEnclosingScope(fnBody);
@@ -1285,7 +1286,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
         // Add `PRIVATE$uid.$self = this;` to the original code.
         Node privSelf =
             astFactory.createGetPropWithUnknownType(
-                astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)), "$self");
+                astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), "$self");
         Node assignSelf =
             astFactory
                 .createAssignStatement(privSelf, astFactory.createThisForEs6Class(record.classNode))
@@ -1300,7 +1301,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           astFactory.createCallWithUnknownType(
               mapSetCallee,
               astFactory.createThisForEs6Class(record.classNode),
-              astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)));
+              astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)));
       Node mapSetStmt = astFactory.exprResult(mapSetCall).srcrefTreeIfMissing(record.classNode);
       mapSetStmt.insertBefore(insertionPoint);
     }
@@ -1317,7 +1318,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           // Add `PRIVATE$uid.field = fieldValue;` to the original code.
           Node lhs =
               astFactory.createGetPropWithUnknownType(
-                  astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)), propName);
+                  astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), propName);
           Node fieldValue =
               instanceMember.hasChildren()
                   ? instanceMember.removeFirstChild()
@@ -1522,7 +1523,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
   private Node createObjectDotDefineProperty() {
     compiler.getRuntimeJsLibManager().injectLibForField("$jscomp.global");
     var global = compiler.getRuntimeJsLibManager().getJsLibField("$jscomp.global");
-    Node jscompDotGlobal = astFactory.createQNameWithUnknownType(global);
+    Node jscompDotGlobal = astFactory.createQNameWithUnknownTypeJsLibField(global);
     Node objectNode = astFactory.createGetPropWithUnknownType(jscompDotGlobal, "Object");
     return astFactory.createGetPropWithUnknownType(objectNode, "defineProperty");
   }
@@ -1706,7 +1707,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
         // Add `PRIVATE$uid.$self = ClassName;` to the original code.
         Node privSelf =
             astFactory.createGetPropWithUnknownType(
-                astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)), "$self");
+                astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), "$self");
         Node assignSelf =
             astFactory
                 .createAssignStatement(
@@ -1723,7 +1724,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           astFactory.createCallWithUnknownType(
               mapSetCallee,
               record.createNewNameReferenceNode().srcrefTreeIfMissing(record.classNode),
-              astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)));
+              astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)));
       Node mapSetStmt = astFactory.exprResult(mapSetCall).srcrefTreeIfMissing(record.classNode);
       staticInitTempParent.addChildToBack(mapSetStmt);
 
@@ -1739,7 +1740,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           // Add `PRIVATE$uid.staticField = fieldValue;` to the original code.
           Node lhs =
               astFactory.createGetPropWithUnknownType(
-                  astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)), propName);
+                  astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), propName);
           Node fieldValue =
               staticMember.hasChildren()
                   ? staticMember.removeFirstChild()
@@ -1863,7 +1864,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           pm.methodNode.detach();
           Node lhs =
               astFactory.createGetPropWithUnknownType(
-                  astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)),
+                  astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)),
                   pm.propertyName());
           Node assign = astFactory.createAssignStatement(lhs, fnNode);
           assign.srcrefTreeIfMissing(pm.methodNode);
@@ -1892,7 +1893,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           Node call =
               astFactory.createCallWithUnknownType(
                   defineProp,
-                  astFactory.createConstantName(privName, type(StandardColors.UNKNOWN)),
+                  astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)),
                   astFactory.createString(pm.propertyName()),
                   descriptorLit);
           Node declNode = pm.getPrimaryDeclarationNode();
@@ -1916,11 +1917,11 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       if (
       // Skip if the inner class name is the same as the class name (either this is a class
       // declaration or the outer and inner class names are the same).
-      bindingIdentifier.matchesName(klass.normalizedNames.classNameNode)
+      bindingIdentifier.matchesNameNode(klass.normalizedNames.classNameNode)
           // Skip if this IS the inner class name node (removed later when we visit the class).
           || nameNode == bindingIdentifier
           // Skip if this nameNode is not equal to the inner class name.
-          || !nameNode.matchesQualifiedName(bindingIdentifier)) {
+          || !nameNode.matchesQualifiedNameNode(bindingIdentifier)) {
         continue;
       }
 

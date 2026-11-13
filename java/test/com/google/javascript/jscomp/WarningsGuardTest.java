@@ -51,7 +51,7 @@ public final class WarningsGuardTest {
 
   @Test
   public void testShowByPathGuard_Restrict() {
-    WarningsGuard includeGuard = new ShowByPathWarningsGuard("/foo/", ShowType.INCLUDE);
+    WarningsGuard includeGuard = ShowByPathWarningsGuard.createFromPath("/foo/", ShowType.INCLUDE);
 
     assertThat(includeGuard.level(makeError("asasasd/foo/hello.js", WARNING))).isNull();
     assertThat(includeGuard.level(makeError("asasasd/foo/hello.js", ERROR))).isNull();
@@ -131,13 +131,13 @@ public final class WarningsGuardTest {
           }
         };
 
-    WarningsGuard guard = new ComposeWarningsGuard(g1, g2);
+    WarningsGuard guard = ComposeWarningsGuard.createFromGuards(g1, g2);
 
     assertThat(guard.level(makeError("aaa"))).isNull();
     assertThat(guard.level(makeError("12345"))).isNull();
     assertThat(guard.level(makeError("123456"))).isEqualTo(ERROR);
-    assertThat(guard.level(makeError("12345", 12))).isEqualTo(WARNING);
-    assertThat(guard.level(makeError("12345", 13))).isNull();
+    assertThat(guard.level(makeErrorInt("12345", 12))).isEqualTo(WARNING);
+    assertThat(guard.level(makeErrorInt("12345", 13))).isNull();
 
     assertThat(guard.mustRunChecks(DiagnosticGroups.DEPRECATED)).isEqualTo(Tri.UNKNOWN);
   }
@@ -147,12 +147,12 @@ public final class WarningsGuardTest {
     WarningsGuard pathGuard = new ShowByPathWarningsGuard("/foo/");
     WarningsGuard strictGuard = new StrictWarningsGuard();
 
-    WarningsGuard guard = new ComposeWarningsGuard(strictGuard, pathGuard);
+    WarningsGuard guard = ComposeWarningsGuard.createFromGuards(strictGuard, pathGuard);
     assertThat(guard.level(makeError("asasasd/hello.js", WARNING))).isEqualTo(OFF);
     assertThat(guard.level(makeError("asasasd/foo/hello.js", WARNING))).isEqualTo(ERROR);
 
     // Try again with the guards reversed.
-    guard = new ComposeWarningsGuard(pathGuard, strictGuard);
+    guard = ComposeWarningsGuard.createFromGuards(pathGuard, strictGuard);
     assertThat(guard.level(makeError("asasasd/hello.js", WARNING))).isEqualTo(OFF);
     assertThat(guard.level(makeError("asasasd/foo/hello.js", WARNING))).isEqualTo(ERROR);
   }
@@ -166,12 +166,12 @@ public final class WarningsGuardTest {
         new DiagnosticGroupWarningsGuard(DiagnosticGroups.DEPRECATED, WARNING);
     WarningsGuard strictGuard = new StrictWarningsGuard();
 
-    WarningsGuard guard = new ComposeWarningsGuard(strictGuard, typeGuard);
+    WarningsGuard guard = ComposeWarningsGuard.createFromGuards(strictGuard, typeGuard);
     assertThat(guard.level(JSError.make("example.js", 1, 0, CheckAccessControls.DEPRECATED_NAME)))
         .isEqualTo(WARNING);
 
     // Ordering applied doesn't matter, do it again reversed.
-    guard = new ComposeWarningsGuard(typeGuard, strictGuard);
+    guard = ComposeWarningsGuard.createFromGuards(typeGuard, strictGuard);
     assertThat(guard.level(JSError.make("example.js", 1, 0, CheckAccessControls.DEPRECATED_NAME)))
         .isEqualTo(WARNING);
   }
@@ -189,7 +189,7 @@ public final class WarningsGuardTest {
         new DiagnosticGroupWarningsGuard(DiagnosticGroups.ACCESS_CONTROLS, CheckLevel.OFF);
 
     ComposeWarningsGuard guard =
-        new ComposeWarningsGuard(
+        ComposeWarningsGuard.createFromGuards(
             pathGuard1,
             diagnosticGuard1,
             strictGuard,
@@ -211,12 +211,12 @@ public final class WarningsGuardTest {
   public void testComposeGuardOrdering2() {
     // Ensure that guards added later always override, when two guards
     // have the same priority.
-    ComposeWarningsGuard guardA = new ComposeWarningsGuard();
+    ComposeWarningsGuard guardA = ComposeWarningsGuard.createFromGuards();
     guardA.addGuard(visibilityWarning);
     guardA.addGuard(visibilityOff);
     guardA.addGuard(visibilityWarning);
 
-    ComposeWarningsGuard guardB = new ComposeWarningsGuard();
+    ComposeWarningsGuard guardB = ComposeWarningsGuard.createFromGuards();
     guardB.addGuard(visibilityOff);
     guardB.addGuard(visibilityWarning);
     guardB.addGuard(visibilityOff);
@@ -227,7 +227,7 @@ public final class WarningsGuardTest {
 
   @Test
   public void testComposeGuardOrdering3() {
-    ComposeWarningsGuard guardA = new ComposeWarningsGuard();
+    ComposeWarningsGuard guardA = ComposeWarningsGuard.createFromGuards();
     guardA.addGuard(
         new DiagnosticGroupWarningsGuard(DiagnosticGroups.ACCESS_CONTROLS, CheckLevel.WARNING));
     guardA.addGuard(
@@ -243,7 +243,7 @@ public final class WarningsGuardTest {
 
   @Test
   public void testComposeGuardOrdering4() {
-    ComposeWarningsGuard guardA = new ComposeWarningsGuard();
+    ComposeWarningsGuard guardA = ComposeWarningsGuard.createFromGuards();
     guardA.addGuard(visibilityWarning);
     guardA.addGuard(visibilityWarning);
     guardA.addGuard(visibilityWarning);
@@ -259,7 +259,7 @@ public final class WarningsGuardTest {
   public void testDiagnosticGuard1() {
     WarningsGuard guard = new DiagnosticGroupWarningsGuard(DiagnosticGroups.CHECK_TYPES, ERROR);
 
-    assertThat(guard.level(makeError("foo", DETERMINISTIC_TEST))).isEqualTo(ERROR);
+    assertThat(guard.level(makeErrorDiagnosticType("foo", DETERMINISTIC_TEST))).isEqualTo(ERROR);
 
     assertThat(guard.mustRunChecks(DiagnosticGroups.CHECK_TYPES)).isEqualTo(Tri.TRUE);
     assertThat(guard.mustRunChecks(DiagnosticGroups.MESSAGE_DESCRIPTIONS)).isEqualTo(Tri.UNKNOWN);
@@ -464,7 +464,7 @@ public final class WarningsGuardTest {
 
   @Test
   public void testComposeGuardCycle() {
-    ComposeWarningsGuard guard = new ComposeWarningsGuard(visibilityOff, visibilityWarning);
+    ComposeWarningsGuard guard = ComposeWarningsGuard.createFromGuards(visibilityOff, visibilityWarning);
     guard.addGuard(guard);
     assertThat(guard.toString())
         .isEqualTo("DiagnosticGroup<visibility>(WARNING), DiagnosticGroup<visibility>(OFF)");
@@ -504,7 +504,7 @@ public final class WarningsGuardTest {
     return JSError.make(n, BAR_WARNING);
   }
 
-  private static JSError makeError(String sourcePath, DiagnosticType type) {
+  private static JSError makeErrorDiagnosticType(String sourcePath, DiagnosticType type) {
     Node n = new Node(Token.EMPTY);
     n.setSourceFileForTesting(sourcePath);
     return JSError.make(n, type);
@@ -516,7 +516,7 @@ public final class WarningsGuardTest {
     return JSError.make(n, DiagnosticType.make("FOO", level, "Foo description"));
   }
 
-  private static JSError makeError(String sourcePath, int lineno) {
+  private static JSError makeErrorInt(String sourcePath, int lineno) {
     return JSError.make(sourcePath, lineno, -1, BAR_WARNING);
   }
 }

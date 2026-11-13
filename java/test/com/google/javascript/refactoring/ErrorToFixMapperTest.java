@@ -55,7 +55,7 @@ public class ErrorToFixMapperTest {
   @Before
   public void setUp() {
     errorManager = new FixingErrorManager();
-    compiler = new Compiler(errorManager);
+    compiler = Compiler.createFromErrorManager(errorManager);
     preexistingCode = "";
     compiler.disableThreads();
     errorManager.setCompiler(compiler);
@@ -201,7 +201,7 @@ public class ErrorToFixMapperTest {
   @Test
   public void testImplicitNullability1() {
     options.setWarningLevel(DiagnosticGroups.LINT_CHECKS, OFF);
-    assertChanges(
+    assertChangesStringVarargs(
         "/** @type {Object} */ var o;",
         "/** @type {?Object} */ var o;",
         "/** @type {!Object} */ var o;");
@@ -210,7 +210,7 @@ public class ErrorToFixMapperTest {
   @Test
   public void testImplicitNullability2() {
     options.setWarningLevel(DiagnosticGroups.LINT_CHECKS, OFF);
-    assertChanges(
+    assertChangesStringVarargs(
         "/** @param {Object} o */ function f(o) {}",
         "/** @param {?Object} o */ function f(o) {}",
         "/** @param {!Object} o */ function f(o) {}");
@@ -243,13 +243,13 @@ public class ErrorToFixMapperTest {
          */
         function f(o) {}
         """;
-    assertChanges(originalCode, expected1, expected2);
+    assertChangesStringVarargs(originalCode, expected1, expected2);
   }
 
   @Test
   public void testMissingNullabilityModifier1() {
     options.setWarningLevel(DiagnosticGroups.ANALYZER_CHECKS, OFF);
-    assertChanges(
+    assertChangesStringVarargs(
         "/** @type {Object} */ var o;",
         "/** @type {!Object} */ var o;",
         "/** @type {?Object} */ var o;");
@@ -258,7 +258,7 @@ public class ErrorToFixMapperTest {
   @Test
   public void testMissingNullabilityModifier2() {
     options.setWarningLevel(DiagnosticGroups.ANALYZER_CHECKS, OFF);
-    assertChanges(
+    assertChangesStringVarargs(
         "/** @param {Object} o */ function f(o) {}",
         "/** @param {!Object} o */ function f(o) {}",
         "/** @param {?Object} o */ function f(o) {}");
@@ -305,7 +305,7 @@ public class ErrorToFixMapperTest {
          */
         function f(o) {}
         """;
-    assertChanges(originalCode, expected1, expected2);
+    assertChangesStringVarargs(originalCode, expected1, expected2);
   }
 
   @Test
@@ -323,7 +323,7 @@ public class ErrorToFixMapperTest {
   @Test
   public void testMissingNullabilityModifier_nonNullValue() {
     options.setWarningLevel(DiagnosticGroups.ANALYZER_CHECKS, OFF);
-    assertChanges(
+    assertChangesStringVarargs(
         "/** @type {Object} */ var o = {};",
         "/** @type {!Object} */ var o = {};",
         "/** @type {?Object} */ var o = {};");
@@ -2724,10 +2724,10 @@ const {anotherVeryLongSymbolThatMapsTo: veryLongLocalNameForItAlso, veryLongSymb
   }
 
   private void compileExpectingAtLeastOneWarningOrError(String originalCode) {
-    compileExpectingAtLeastOneWarningOrError(getInputMap(originalCode));
+    compileExpectingAtLeastOneWarningOrErrorImmutableMap(getInputMap(originalCode));
   }
 
-  private void compileExpectingAtLeastOneWarningOrError(ImmutableMap<String, String> inputMap) {
+  private void compileExpectingAtLeastOneWarningOrErrorImmutableMap(ImmutableMap<String, String> inputMap) {
     ImmutableList<SourceFile> inputs =
         inputMap.entrySet().stream()
             .map(e -> SourceFile.fromCode(e.getKey(), e.getValue()))
@@ -2761,7 +2761,7 @@ const {anotherVeryLongSymbolThatMapsTo: veryLongLocalNameForItAlso, veryLongSymb
    * @deprecated Use assertExpectedFixes() for new cases or when amending existing ones
    */
   @Deprecated
-  private void assertChanges(String originalCode, String... expectedFixes) {
+  private void assertChangesStringVarargs(String originalCode, String... expectedFixes) {
     compileExpectingAtLeastOneWarningOrError(originalCode);
     SuggestedFix[] fixes = errorManager.getAllFixes().toArray(new SuggestedFix[0]);
     assertWithMessage("fixes").that(fixes).hasLength(expectedFixes.length);

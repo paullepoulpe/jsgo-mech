@@ -485,7 +485,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
 
   @Test
   public void testEsModule() {
-    testSame(
+    testSameStringArray(
         new String[] {
           "export const x = 0; const y = 1; export {y};",
           "import {x, y as z} from './testcode0'; import * as input0 from './testcode0'"
@@ -687,7 +687,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     SourceFile b = SourceFile.fromCode("b.js", "const b = a;");
 
     Result result =
-        this.testAndReturnResult(srcs(ImmutableList.of(a, b)), expected(ImmutableList.of(a, b)));
+        this.testAndReturnResult(srcsList(ImmutableList.of(a, b)), expectedList(ImmutableList.of(a, b)));
     Node scriptA = result.sourceRoot.getFirstChild();
     Node scriptB = result.sourceRoot.getSecondChild();
 
@@ -706,7 +706,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     SourceFile a = SourceFile.fromFile(pathA.toString(), UTF_16);
 
     Result result =
-        this.testAndReturnResult(srcs(ImmutableList.of(a)), expected(ImmutableList.of(a)));
+        this.testAndReturnResult(srcsList(ImmutableList.of(a)), expectedList(ImmutableList.of(a)));
     Node scriptA = result.sourceRoot.getFirstChild();
 
     assertThat(scriptA.getStaticSourceFile()).isInstanceOf(SourceFile.class);
@@ -723,7 +723,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
         SourceFile.builder().withOriginalPath("original_a.js").withPath(pathA.toString()).build();
 
     Result result =
-        this.testAndReturnResult(srcs(ImmutableList.of(a)), expected(ImmutableList.of(a)));
+        this.testAndReturnResult(srcsList(ImmutableList.of(a)), expectedList(ImmutableList.of(a)));
     Node scriptA = result.sourceRoot.getFirstChild();
 
     assertThat(scriptA.getStaticSourceFile()).isInstanceOf(SourceFile.class);
@@ -743,7 +743,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     SourceFile a = SourceFile.fromFile(jsZipPath + "!/a.js", UTF_8);
 
     Result result =
-        this.testAndReturnResult(srcs(ImmutableList.of(a)), expected(ImmutableList.of(a)));
+        this.testAndReturnResult(srcsList(ImmutableList.of(a)), expectedList(ImmutableList.of(a)));
     Node scriptA = result.sourceRoot.getFirstChild();
 
     assertThat(scriptA.getStaticSourceFile()).isInstanceOf(SourceFile.class);
@@ -823,7 +823,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     Node shadowedContent = shadowHost.getClosureUnawareShadow();
 
     Node expectedShadowContent =
-        parseExpectedJs(
+        parseExpectedJsString(
             """
             $jscomp_sink_closure_unaware_impl(function() {
               window['foo'] = 5;
@@ -924,8 +924,8 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     this.test(code, code);
   }
 
-  public void testSame(String[] sources) {
-    this.testAndReturnResult(srcs(sources), expected(sources));
+  public void testSameStringArray(String[] sources) {
+    this.testAndReturnResult(srcsStringVarargs(sources), expectedStringVarargs(sources));
   }
 
   @Override
@@ -934,7 +934,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
   }
 
   private Result testAndReturnResult(Sources code, Expected expected) {
-    return this.testAndReturnResult(externs(ImmutableList.of()), code, expected);
+    return this.testAndReturnResult(externsList(ImmutableList.of()), code, expected);
   }
 
   private Result testAndReturnResult(Externs externs, Sources code, Expected expected) {
@@ -942,11 +942,11 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     var result = run(externs, code, serializedStream);
 
     Node newSourceRoot = result.sourceRoot;
-    Node expectedRoot = this.parseExpectedJs(expected);
+    Node expectedRoot = this.parseExpectedJsExpected(expected);
     if (checkJsDocEquality) {
       assertNode(newSourceRoot).isEqualIncludingJsDocTo(expectedRoot);
     } else {
-      assertNode(newSourceRoot).isEqualTo(expectedRoot);
+      assertNode(newSourceRoot).isEqualToNode(expectedRoot);
     }
     return result;
   }

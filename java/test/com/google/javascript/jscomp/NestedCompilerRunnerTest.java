@@ -68,7 +68,7 @@ public class NestedCompilerRunnerTest {
         .compile();
 
     verifyCompilationSucceeded();
-    assertNode(script).isEqualTo(parse(""));
+    assertNode(script).isEqualToNode(parse(""));
   }
 
   @Test
@@ -84,7 +84,7 @@ public class NestedCompilerRunnerTest {
         .compile();
 
     verifyCompilationSucceeded();
-    assertNode(script).isEqualTo(parse("console.log(3)"));
+    assertNode(script).isEqualToNode(parse("console.log(3)"));
   }
 
   @Test
@@ -140,7 +140,7 @@ public class NestedCompilerRunnerTest {
         .compile();
 
     verifyCompilationSucceeded();
-    assertNode(script).isEqualTo(parse("const used = 0; console.log(used);"));
+    assertNode(script).isEqualToNode(parse("const used = 0; console.log(used);"));
   }
 
   @Test
@@ -158,7 +158,7 @@ public class NestedCompilerRunnerTest {
         .compile();
 
     verifyCompilationSucceeded();
-    assertNode(script).isEqualTo(parse("const x = Math.pow(3, 4);"));
+    assertNode(script).isEqualToNode(parse("const x = Math.pow(3, 4);"));
   }
 
   @Test
@@ -176,7 +176,7 @@ public class NestedCompilerRunnerTest {
         .compile();
 
     verifyCompilationSucceeded();
-    assertNode(script).isEqualTo(parse("const x = Math.pow(3, 4);"));
+    assertNode(script).isEqualToNode(parse("const x = Math.pow(3, 4);"));
   }
 
   @Test
@@ -193,7 +193,7 @@ public class NestedCompilerRunnerTest {
         .compile();
 
     verifyCompilationSucceeded();
-    assertNode(script).isEqualTo(parse("alert({external: 1, a: 2})"));
+    assertNode(script).isEqualToNode(parse("alert({external: 1, a: 2})"));
   }
 
   @Test
@@ -243,7 +243,7 @@ public class NestedCompilerRunnerTest {
         .compile();
 
     verifyCompilationSucceeded();
-    assertNode(script).isEqualTo(parse("const x = 0;"));
+    assertNode(script).isEqualToNode(parse("const x = 0;"));
   }
 
   private Node createScript(String code) {

@@ -192,7 +192,7 @@ public final class ImplicitNullabilityCheckTest extends CompilerTestCase {
     // in goog.module with a goog.require
     test(
         externs(new TestExternsBuilder().addClosureExterns().build()),
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns');
             /** @const */ var a = {};
@@ -255,6 +255,6 @@ public final class ImplicitNullabilityCheckTest extends CompilerTestCase {
   }
 
   private void noWarning(String js) {
-    testSame(externs(DEFAULT_EXTERNS), srcs(js));
+    testSameTestPartVarargs(externs(DEFAULT_EXTERNS), srcs(js));
   }
 }

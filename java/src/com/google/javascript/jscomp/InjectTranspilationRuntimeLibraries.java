@@ -56,13 +56,13 @@ public final class InjectTranspilationRuntimeLibraries implements CompilerPass {
   public void process(Node externs, Node root) {
     FeatureSet used = FeatureSet.ES3;
     for (Node script = root.getFirstChild(); script != null; script = script.getNext()) {
-      used = used.with(getScriptFeatures(script));
+      used = used.withFeatureSet(getScriptFeatures(script));
     }
 
     FeatureSet outputFeatures = compiler.getOptions().getOutputFeatureSet();
 
     // Check for references to class `extends` clauses
-    if (!outputFeatures.contains(used)) {
+    if (!outputFeatures.containsFeatureSet(used)) {
       NodeUtil.visitPostOrder(
           root, this::checkForClassExtends, (unused) -> !this.injectedClassExtendsLibraries);
     }
@@ -103,7 +103,7 @@ public final class InjectTranspilationRuntimeLibraries implements CompilerPass {
 
     if ((mustBeCompiledAway.contains(Feature.OBJECT_LITERALS_WITH_SPREAD)
             || mustBeCompiledAway.contains(Feature.OBJECT_PATTERN_REST))
-        && !outputFeatures.contains(FeatureSet.ES2015)) {
+        && !outputFeatures.containsFeatureSet(FeatureSet.ES2015)) {
       runtimeLibs.injectLibForField("$jscomp.assign");
     }
 

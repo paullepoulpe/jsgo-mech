@@ -58,7 +58,7 @@ public final class ClosurePrimitivesIntegrationTest extends IntegrationTestCase 
 
   @Test
   public void testPrototypePropRename() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           EXTERNS,
@@ -91,7 +91,7 @@ public final class ClosurePrimitivesIntegrationTest extends IntegrationTestCase 
   @Test
   public void testPrototypePropRenameSimple() {
     useSimpleMode = true;
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           EXTERNS,

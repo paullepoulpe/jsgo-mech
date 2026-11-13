@@ -175,7 +175,7 @@ public final class AstValidator implements CompilerPass {
     if (scriptFeatures == null || allowableFeatures == null) {
       return;
     }
-    if (!allowableFeatures.contains(scriptFeatures)) {
+    if (!allowableFeatures.containsFeatureSet(scriptFeatures)) {
       if (!scriptNode.isFromExterns()) {
         // Skip this check for externs because we don't need to complete transpilation on externs,
         // and currently only transpile externs so that we can typecheck ES6+ features in externs.

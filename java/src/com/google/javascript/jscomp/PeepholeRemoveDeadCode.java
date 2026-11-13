@@ -1048,7 +1048,7 @@ class PeepholeRemoveDeadCode extends AbstractPeepholeOptimization {
     Node lhsAssign = getSimpleAssignmentName(n);
 
     Node condition = getConditionalStatementCondition(next);
-    if (!lhsAssign.matchesName(condition)) {
+    if (!lhsAssign.matchesNameNode(condition)) {
       return;
     }
     Node rhsAssign = getSimpleAssignmentValue(n);

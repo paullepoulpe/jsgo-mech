@@ -55,10 +55,10 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void moveMethodAssignedToPrototype() {
-    testSame(
+    testSameTestPartVarargs(
         // bar property is defined in externs, so it cannot be moved
         externs("IFoo.prototype.bar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -71,7 +71,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     canMoveExterns = true;
     test(
         externs("IFoo.prototype.bar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -80,7 +80,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).bar()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -96,7 +96,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveMethodDefinedInPrototypeLiteralWithStubs() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -105,7 +105,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -123,7 +123,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void moveMethodDefinedInPrototypeLiteralWithoutStubs() {
     noStubs = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -132,7 +132,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             """
             function Foo() {}
             Foo.prototype = {};
@@ -147,7 +147,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveMethodDefinedInPrototypeLiteralUsingShorthandSyntaxWithStub() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -156,7 +156,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -174,7 +174,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void moveMethodDefinedInPrototypeLiteralUsingShorthandSyntaxWithoutStub() {
     noStubs = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -183,7 +183,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             """
             function Foo() {}
             Foo.prototype = {};
@@ -197,8 +197,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveMethodDefinedInPrototypeLiteralContainingSuper() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -211,8 +211,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveMethodDefinedInPrototypeLiteralAsComputedProp() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -226,12 +226,12 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveClassMethod() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { method() {} }")
                 .addChunk("(new Foo).method()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -245,12 +245,12 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
     // Same as above, but reference to the method is via an optional chain
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { method() {} }")
                 .addChunk("(new Foo)?.method()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -266,7 +266,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void doNotMoveClassMethodContainingSuper() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -275,7 +275,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method2()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Bar {}
@@ -294,7 +294,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // TODO(bradfordcsmith): Stop normalizing the expected output or document why it is necessary.
     enableNormalizeExpectedOutput();
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -303,7 +303,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method2()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Bar {}
@@ -322,7 +322,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // Expected behavior: `CrossChunkMethodMotion` leaves this code unchanged. `getX` uses `#x`,
     // which is valid only inside the body of `Foo`, so `getX` can't be moved out of `Foo`.
     Sources srcs =
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -341,7 +341,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     //   So `testSame(srcs)` fails.
     // Why it's a bug: `this.#x` outside the body of `Foo` is a SyntaxError, so the second chunk
     //   fails to load.
-    var ex = assertThrows(AssertionError.class, () -> testSame(srcs));
+    var ex = assertThrows(AssertionError.class, () -> testSameTestPartVarargs(srcs));
     assertThat(ex)
         .hasMessageThat()
         .contains("Foo.prototype.getX = JSCompiler_unstubMethod(0, function() {");
@@ -353,7 +353,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // be defined only inside the body of its class, so `#m` of `Foo` can't be moved out of `Foo`,
     // although the name `#m` is used only in the second chunk.
     Sources srcs =
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -382,7 +382,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // In a full build: with property renaming, as in ADVANCED builds, the moved `#m` is renamed
     //   like a public property, so both chunks load, but `Foo` gets a public method instead of
     //   `#m`.
-    var ex = assertThrows(AssertionError.class, () -> testSame(srcs));
+    var ex = assertThrows(AssertionError.class, () -> testSameTestPartVarargs(srcs));
     assertThat(ex)
         .hasMessageThat()
         .contains("Foo.prototype.#m = JSCompiler_unstubMethod(0, function() {});");
@@ -394,7 +394,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // This `super` isn't really a reference within `method()`
     // It refers to Object.prototype.toString.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -412,7 +412,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {
@@ -433,8 +433,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveClassMethodContainingSuperDefaultParam() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -447,8 +447,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveClassConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -460,8 +460,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveClassComputedPropertyMethod() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("const methodName = 'method';")
                 .addChunk("class Foo { [methodName]() {} }")
@@ -472,12 +472,12 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveClassMethodForConstDefinition() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("const Foo = class FooInternal { method() {} }")
                 .addChunk("(new Foo).method()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 const Foo = class FooInternal {}
@@ -508,15 +508,15 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
             .addChunk("var c = b")
             .build();
 
-    testSame(srcs(chunks));
+    testSameTestPartVarargs(srcsJSChunkVarargs(chunks));
   }
 
   @Test
   public void doNotMoveClassMethodWithLocalClassNameReference() {
     // We could probably rewrite the internal reference, but it is unlikely that the added
     // complexity of doing so would be worthwhile.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("const Foo = class FooInternal { method() { FooInternal; } }")
                 .addChunk("(new Foo).method()")
@@ -525,8 +525,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveGetterDefinedInPrototypeLiteral() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -539,8 +539,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveClassGetter() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { get method() {} }")
                 .addChunk("(new Foo).method()")
@@ -549,9 +549,9 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void movePrototypeMethodWithoutStub() {
-    testSame(
+    testSameTestPartVarargs(
         externs("IFoo.prototype.bar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -565,7 +565,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     noStubs = true;
     test(
         externs("IFoo.prototype.bar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -574,7 +574,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).bar()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "function Foo() {}",
             // Chunk 2
             """
@@ -586,7 +586,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeMethodImplementingInterfaceWithoutStub() {
     disableCompareJsDoc(); // multistage compilation erases the @implements
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @interface */
@@ -594,7 +594,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
               ifooMethod() {}
             }
             """),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -618,7 +618,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
               ifooMethod() {}
             }
             """),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -631,7 +631,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).ifooMethod()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             """
             /**
              * @constructor
@@ -647,9 +647,9 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void moveClassMethodWithoutStub() {
-    testSame(
+    testSameTestPartVarargs(
         externs("IFoo.prototype.bar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { bar() {} }")
                 .addChunk("(new Foo).bar()")
@@ -659,12 +659,12 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     noStubs = true;
     test(
         externs("IFoo.prototype.bar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { bar() {} }")
                 .addChunk("(new Foo).bar()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "class Foo {}",
             // Chunk 2
             """
@@ -676,7 +676,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveClassMethodImplementingExternsInterfaceWithoutStub() {
     disableCompareJsDoc(); // multistage compilation deletes the @implements
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @interface */
@@ -684,7 +684,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
               ifooMethod() {}
             }
             """),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -704,7 +704,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
               ifooMethod() {}
             }
             """),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -713,7 +713,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).ifooMethod()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "class Foo {}",
             // Chunk 2
             """
@@ -726,8 +726,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void doNotMovePrototypeMethodIfAliasedAndNoStubs() {
     // don't move if noStubs enabled and there's a reference to the method to be moved
     noStubs = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -738,8 +738,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 .addChunk("(new Foo).m()")
                 .build()));
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -753,7 +753,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     noStubs = false;
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -763,7 +763,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).m()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -777,7 +777,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -787,7 +787,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).m(), (new Foo).m2()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -805,8 +805,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void doNotMoveClassMethodIfAliasedAndNoStubs() {
     // don't move if noStubs enabled and there's a reference to the method to be moved
     noStubs = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -816,8 +816,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 .addChunk("(new Foo).m()")
                 .build()));
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -830,7 +830,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     noStubs = false;
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -839,7 +839,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).m()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -853,7 +853,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -862,7 +862,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).m(), (new Foo).m2()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -879,8 +879,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void doNotMovePrototypeMethodRedeclaredInSiblingChunk() {
     // don't move if it can be overwritten when a sibling of the first referencing chunk is loaded.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -895,8 +895,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void doNotMoveClassMethodRedeclaredInSiblingChunk() {
     // don't move if it can be overwritten when a sibling of the first referencing chunk is loaded.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("class Foo { method() {} }")
                 .addChunk("Foo.prototype.method = function() {};")
@@ -907,8 +907,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void doNotMovePrototypeMethodRedeclaredInDependentChunk() {
     // don't move if it can be overwritten by a chunk depending on the first referencing chunk.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -923,8 +923,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void doNotMoveClassMethodRedeclaredInDependentChunk() {
     // don't move if it can be overwritten by a chunk depending on the first referencing chunk.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { method() {} }")
                 .addChunk("(new Foo).method()")
@@ -936,8 +936,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void doNotMovePrototypeMethodRedeclaredBeforeFirstReferencingChunk() {
     // Note: it is reasonable to move the method in this case,
     // but it is difficult enough to prove that we don't.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -953,8 +953,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void doNotMoveClassMethodRedeclaredBeforeFirstReferencingChunk() {
     // Note: it is reasonable to move the method in this case,
     // but it is difficult enough to prove that we don't.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { method() {} }")
                 .addChunk("Foo.prototype.method = function() {};")
@@ -965,7 +965,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeRecursiveMethod() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -974,7 +974,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).baz()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -990,12 +990,12 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveInstanceRecursiveMethod() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { baz() { this.baz(); } }")
                 .addChunk("(new Foo).baz()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1010,8 +1010,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveNonLiteralFunction() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1021,8 +1021,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 .addChunk("(new Foo).baz()")
                 .build()));
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1036,7 +1036,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeDeclarationsInTheRightOrder() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1046,7 +1046,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).baz()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1064,7 +1064,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveClassMethodAndReclarationInTheRightOrder() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1073,7 +1073,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).baz()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1118,8 +1118,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     m[4].addDependency(m[2]);
 
     test(
-        srcs(m),
-        expected(
+        srcsJSChunkVarargs(m),
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1166,8 +1166,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     m[4].addDependency(m[2]);
 
     test(
-        srcs(m),
-        expected(
+        srcsJSChunkVarargs(m),
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1191,8 +1191,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMovePrototypeMethodUsedInMultiplepDependentChunks() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -1206,8 +1206,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void doNotMoveClassMethodUsedInMultiplepDependentChunks() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("class Foo { baz() {} }")
                 .addChunk("(new Foo).baz()")
@@ -1237,8 +1237,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     chunks[2].addDependency(chunks[1]);
     chunks[3].addDependency(chunks[1]);
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1271,8 +1271,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     chunks[3].addDependency(chunks[1]);
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1289,7 +1289,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeMethodThatRefersToAnotherOnTheSameClass() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1301,7 +1301,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 // Chunk 3
                 .addChunk("(new Foo).callBaz()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1321,7 +1321,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeMethodThatRefersToAnClassMethodOnTheSameClass() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { baz() {} }")
                 // Chunk 2
@@ -1329,7 +1329,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 // Chunk 3
                 .addChunk("(new Foo).callBaz()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1351,7 +1351,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // the mistake.
     // call before definition
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1364,7 +1364,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 // Chunk 3
                 .addChunk("Foo.prototype.callBaz = function() { this.baz(); }")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1384,7 +1384,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // usage here doesn't really happen until x() is called, so
     // it's OK to move the definition of baz().
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1397,7 +1397,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 // Chunk 2
                 .addChunk("x();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1416,7 +1416,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // usage here doesn't really happen until x() is called, so
     // it's OK to move the definition of baz().
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1430,7 +1430,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 // Chunk 2
                 .addChunk("x();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1447,8 +1447,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   // Read of closure variable disables method motions.
   @Test
   public void doNotMovePrototypeMethodThatUsesLocalClosureVariable() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1466,8 +1466,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void doNotMoveClassMethodThatUsesLocalClosureVariable() {
     // TODO(bradfordcsmith): Stop normalizing the expected output or document why it is necessary.
     enableNormalizeExpectedOutput();
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1483,7 +1483,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeMethodThatDefinesOtherMethodsOnSameGlobalClass() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1504,7 +1504,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 // Chunk 4
                 .addChunk("y = new Foo(); z.b3();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1532,7 +1532,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void moveClassMethodThatDefinesOtherMethodsOnSameGlobalClass() {
     // b2 cannot be extracted, because it contains a reference to x
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1552,7 +1552,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 .addChunk("y = new Foo(); z.b2();")
                 .addChunk("y = new Foo(); z.b3();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1583,7 +1583,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // defined by b1.
     // definition of b3 cannot be extracted, because it refers to x
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1605,7 +1605,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 .addChunk("y = new Foo(); z.b2();")
                 .addChunk("y = new Foo(); z.b3();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1639,7 +1639,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // defined by b1.
     // definition of b3 cannot be extracted, because it refers to x
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1665,7 +1665,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                 // Chunk 4
                 .addChunk("y = new Foo(); z.b3();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1701,7 +1701,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeMethodThatReadsGlobalVar() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1711,7 +1711,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var y = new Foo(); y.baz();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1729,7 +1729,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveClassMethodThatReadsGlobalVar() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1740,7 +1740,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var y = new Foo(); y.baz();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1759,7 +1759,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeMethodThatReferencesOnlyLocalVariables() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1768,7 +1768,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var y = new Foo(); y.baz();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1786,12 +1786,12 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveClassMethodThatReferencesOnlyLocalVariables() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { baz() {var x = 1; x; } }")
                 .addChunk("var y = new Foo(); y.baz();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1809,7 +1809,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void movePrototypeMethodContainingClosureOverLocalVariable() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1821,7 +1821,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var y = new Foo(); y.baz();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 function Foo() {}
@@ -1838,7 +1838,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void moveClassMethodContainingClosureOverLocalVariable() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1851,7 +1851,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var y = new Foo(); y.baz();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Foo {}
@@ -1870,7 +1870,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
     // TODO(bradfordcsmith): Stop normalizing the expected output or document why it is necessary.
     enableNormalizeExpectedOutput();
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1888,7 +1888,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method2()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Bar {
@@ -1913,8 +1913,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void referenceToMethodInOwnStaticBlock() {
     // TODO(bradfordcsmith): Stop normalizing the expected output or document why it is necessary.
     enableNormalizeExpectedOutput();
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1939,8 +1939,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   public void staticBlockReferenceToMethodInDifferentClassNoMovement() {
     // TODO(bradfordcsmith): Stop normalizing the expected output or document why it is necessary.
     enableNormalizeExpectedOutput();
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1963,7 +1963,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void staticBlockReferenceToMethodInDifferentClassWithMovement() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1984,7 +1984,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("(new Foo).method2()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 class Bar {
@@ -2009,8 +2009,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void testIssue600() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2037,8 +2037,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void testIssue600b() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2065,7 +2065,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void testIssue600c() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2084,7 +2084,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     })();
                     """)
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 var jQuery2 = function() {};
@@ -2106,7 +2106,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void testIssue600d() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2127,7 +2127,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     })();
                     """)
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 var jQuery2 = function() {};
@@ -2149,8 +2149,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void testIssue600e() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2176,8 +2176,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void testPrototypeOfThisAssign() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2192,7 +2192,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void testDestructuring() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2202,7 +2202,7 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("const {foo} = new F();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             STUB_DECLARATIONS
                 + """
                 /** @constructor */
@@ -2217,8 +2217,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
 
   @Test
   public void testDestructuringWithQuotedProp() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2233,8 +2233,8 @@ public final class CrossChunkMethodMotionTest extends CompilerTestCase {
   @Test
   public void testDestructuringWithComputedProp() {
     // See https://github.com/google/closure-compiler/issues/3145
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """

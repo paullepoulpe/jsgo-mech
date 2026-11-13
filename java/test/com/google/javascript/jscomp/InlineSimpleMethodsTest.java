@@ -353,17 +353,17 @@ public final class InlineSimpleMethodsTest extends CompilerTestCase {
 
   @Test
   public void testNoInlineOfExternMethods1() {
-    testSame(externs("var external={};external.charAt;"), srcs("external.charAt()"));
+    testSameTestPartVarargs(externs("var external={};external.charAt;"), srcs("external.charAt()"));
   }
 
   @Test
   public void testNoInlineOfExternMethods2() {
-    testSame(externs("var external={};external.charAt=function(){};"), srcs("external.charAt()"));
+    testSameTestPartVarargs(externs("var external={};external.charAt=function(){};"), srcs("external.charAt()"));
   }
 
   @Test
   public void testNoInlineOfExternMethods3() {
-    testSame(
+    testSameTestPartVarargs(
         externs("var external={};external.bar=function(){};"),
         srcs("function Foo(){}Foo.prototype.bar=function(){};(new Foo).bar()"));
   }
@@ -439,25 +439,25 @@ public final class InlineSimpleMethodsTest extends CompilerTestCase {
   @Test
   public void testObjectLitExtern1() {
     String externs = "window.bridge={_sip:function(){}};";
-    testSame(externs(externs), srcs("window.bridge._sip()"));
+    testSameTestPartVarargs(externs(externs), srcs("window.bridge._sip()"));
   }
 
   @Test
   public void testObjectLitExtern2() {
     String externs = "window.bridge={_sip(){}};";
-    testSame(externs(externs), srcs("window.bridge._sip()"));
+    testSameTestPartVarargs(externs(externs), srcs("window.bridge._sip()"));
   }
 
   @Test
   public void testClassExtern() {
     String externs = "window.bridge= class { _sip() {} };";
-    testSame(externs(externs), srcs("window.bridge._sip()"));
+    testSameTestPartVarargs(externs(externs), srcs("window.bridge._sip()"));
   }
 
   @Test
   public void testExternFunction() {
     String externs = "function emptyFunction() {}";
-    testSame(
+    testSameTestPartVarargs(
         externs(externs),
         srcs(
             """
@@ -470,7 +470,7 @@ public final class InlineSimpleMethodsTest extends CompilerTestCase {
   public void testIssue2508576_1() {
     // Method defined by an extern should be left alone.
     String externs = "function alert(a) {}";
-    testSame(externs(externs), srcs("({a:alert,b:alert}).a('a')"));
+    testSameTestPartVarargs(externs(externs), srcs("({a:alert,b:alert}).a('a')"));
   }
 
   @Test

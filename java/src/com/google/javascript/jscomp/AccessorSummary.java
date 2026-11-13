@@ -70,18 +70,14 @@ final class AccessorSummary {
 
   static AccessorSummary create(Map<String, PropertyAccessKind> accessors) {
     // TODO(nickreid): Efficiently verify that no entry in `accessor` is `NORMAL`.
-    return new AccessorSummary(ImmutableMap.copyOf(accessors));
+    return new AccessorSummary(ImmutableMap.copyOf(accessors), false);
   }
 
   private final ImmutableMap<String, PropertyAccessKind> accessors;
 
-  private AccessorSummary(ImmutableMap<String, PropertyAccessKind> accessors) {
+  private AccessorSummary(
+      ImmutableMap<String, PropertyAccessKind> accessors, boolean assumeAlwaysGetterAndSetter) {
     this.accessors = accessors;
-    this.assumeAlwaysGetterAndSetter = false;
-  }
-
-  private AccessorSummary(boolean assumeAlwaysGetterAndSetter) {
-    this.accessors = ImmutableMap.of();
     this.assumeAlwaysGetterAndSetter = assumeAlwaysGetterAndSetter;
   }
 
@@ -98,7 +94,7 @@ final class AccessorSummary {
 
   /** Returns an accessor summary that assumes every access is a potential getter or setter. */
   public static AccessorSummary createAssumingAlwaysGetterAndSetter() {
-    return new AccessorSummary(true);
+    return new AccessorSummary(ImmutableMap.of(), true);
   }
 
   public AccessorSummaryProto toProto() {
@@ -134,12 +130,12 @@ final class AccessorSummary {
     }
     ImmutableMap.Builder<String, PropertyAccessKind> builder = ImmutableMap.builder();
     for (AccessorSummaryEntryProto entry : proto.getAccessorsList()) {
-      builder.put(entry.getName(), fromProto(entry.getKind()));
+      builder.put(entry.getName(), fromProtoPropertyAccessKindProto(entry.getKind()));
     }
     return create(builder.buildOrThrow());
   }
 
-  private static PropertyAccessKind fromProto(PropertyAccessKindProto kind) {
+  private static PropertyAccessKind fromProtoPropertyAccessKindProto(PropertyAccessKindProto kind) {
     return switch (kind) {
       case KIND_NORMAL -> PropertyAccessKind.NORMAL;
       case KIND_GETTER_ONLY -> PropertyAccessKind.GETTER_ONLY;

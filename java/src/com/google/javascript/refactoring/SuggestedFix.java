@@ -197,7 +197,7 @@ public final class SuggestedFix {
     @CanIgnoreReturnValue
     Builder insertBefore(
         Node nodeToInsertBefore, Node n, AbstractCompiler compiler, String sortKey) {
-      return insertBefore(nodeToInsertBefore, generateCode(compiler, n), sortKey);
+      return insertBeforeString(nodeToInsertBefore, generateCode(compiler, n), sortKey);
     }
 
     /**
@@ -206,11 +206,11 @@ public final class SuggestedFix {
      */
     @CanIgnoreReturnValue
     public Builder insertBefore(Node nodeToInsertBefore, String content) {
-      return insertBefore(nodeToInsertBefore, content, "");
+      return insertBeforeString(nodeToInsertBefore, content, "");
     }
 
     @CanIgnoreReturnValue
-    private Builder insertBefore(Node nodeToInsertBefore, String content, String sortKey) {
+    private Builder insertBeforeString(Node nodeToInsertBefore, String content, String sortKey) {
       int startPosition = getStartPositionForNodeConsideringComments(nodeToInsertBefore);
       Preconditions.checkNotNull(nodeToInsertBefore.getSourceFileName(),
           "No source file name for node: %s", nodeToInsertBefore);

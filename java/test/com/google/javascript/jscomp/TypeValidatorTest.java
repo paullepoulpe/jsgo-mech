@@ -360,8 +360,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef1() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -373,8 +373,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -386,8 +386,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef3() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -401,8 +401,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef4() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -418,8 +418,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef5() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -431,8 +431,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef6() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -444,8 +444,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef7() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -459,8 +459,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef8() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -477,8 +477,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef9() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -495,8 +495,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef10() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -512,8 +512,8 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef11() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -525,8 +525,8 @@ mismatch: [k]
   @Test
   public void testModuloNullUndef12() {
     // Only warn for the file not ending in .java.js
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -546,13 +546,13 @@ mismatch: [k]
 
   @Test
   public void testModuloNullUndef13() {
-    testSame(srcs(SourceFile.fromCode("foo.java.js", "var /** @type {{ a:number }} */ x = null;")));
+    testSameTestPartVarargs(srcsSourceFileVarargs(SourceFile.fromCode("foo.java.js", "var /** @type {{ a:number }} */ x = null;")));
   }
 
   @Test
   public void testInheritanceModuloNullUndef1() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -572,8 +572,8 @@ mismatch: [k]
 
   @Test
   public void testInheritanceModuloNullUndef2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """
@@ -593,8 +593,8 @@ mismatch: [k]
 
   @Test
   public void testInheritanceModuloNullUndef3() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.java.js",
                 """

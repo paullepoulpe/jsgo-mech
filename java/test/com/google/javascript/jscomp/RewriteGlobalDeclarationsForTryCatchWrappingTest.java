@@ -54,7 +54,7 @@ public final class RewriteGlobalDeclarationsForTryCatchWrappingTest extends Comp
   @Test
   public void testFunctionDeclarationsInModule() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("a; function f(){} function g(){}")
                 .build()),

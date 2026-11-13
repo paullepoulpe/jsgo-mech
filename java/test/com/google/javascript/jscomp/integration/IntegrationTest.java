@@ -507,7 +507,7 @@ public final class IntegrationTest extends IntegrationTestCase {
         };
         """;
 
-    test(options, code, DiagnosticGroups.ES5_STRICT);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.ES5_STRICT);
   }
 
   @Test
@@ -574,7 +574,7 @@ public final class IntegrationTest extends IntegrationTestCase {
         })();
         """;
 
-    test(options, new String[] {base, code}, new String[] {base, result});
+    testStringArray(options, new String[] {base, code}, new String[] {base, result});
   }
 
   @Test
@@ -620,7 +620,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     // JSC_TYPE_MISMATCH. actual parameter 1 of fn does not match formal parameter
     // found   : (typeof cycle.a.Widget.Item)
     // required: None
-    test(options, new String[] {base, code}, DiagnosticGroups.CHECK_TYPES);
+    testStringArrayDiagnosticGroup(options, new String[] {base, code}, DiagnosticGroups.CHECK_TYPES);
     assertThat(lastCompiler.getErrors().get(0).description())
         .contains("found   : (typeof cycle.a.Widget.Item)");
   }
@@ -676,7 +676,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     // found   : (typeof cycle.a.Widget.Item)
     // required: None
 
-    test(options, new String[] {base, code1, code2, code3}, DiagnosticGroups.CHECK_TYPES);
+    testStringArrayDiagnosticGroup(options, new String[] {base, code1, code2, code3}, DiagnosticGroups.CHECK_TYPES);
     assertThat(lastCompiler.getErrors().get(0).description())
         .contains("found   : (typeof cycle.a.Widget.Item)");
   }
@@ -731,7 +731,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     // JSC_TYPE_MISMATCH. actual parameter 1 of fn does not match formal parameter
     // found   : null
     // required: cycle.a.Widget.Item
-    test(options, new String[] {base, code1, code2, code3}, DiagnosticGroups.CHECK_TYPES);
+    testStringArrayDiagnosticGroup(options, new String[] {base, code1, code2, code3}, DiagnosticGroups.CHECK_TYPES);
     assertThat(lastCompiler.getErrors().get(0).description())
         .contains("required: cycle.a.Widget.Item");
   }
@@ -791,7 +791,7 @@ public final class IntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCheckRequiresAndCheckProvidesOff() {
-    testSame(
+    testSameStringArray(
         createCompilerOptions(),
         new String[] {"/** @constructor */ function Foo() {}", "new Foo();"});
   }
@@ -826,7 +826,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setGeneratePseudoNames(true);
 
     Compiler compiler =
-        compile(
+        compileStringArray(
             options,
             new String[] {
               """
@@ -959,7 +959,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     CompilerOptions options = createCompilerOptions();
     options.setCheckSymbols(true);
 
-    test(options, "x = 3; var x = 5;", DiagnosticGroups.CHECK_VARIABLES);
+    testStringDiagnosticGroup(options, "x = 3; var x = 5;", DiagnosticGroups.CHECK_VARIABLES);
   }
 
   @Test
@@ -989,7 +989,7 @@ public final class IntegrationTest extends IntegrationTestCase {
   public void testTypeCheckAndInference() {
     CompilerOptions options = createCompilerOptions();
     options.setCheckTypes(true);
-    test(options, "/** @type {number} */ var n = window.name;", DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(options, "/** @type {number} */ var n = window.name;", DiagnosticGroups.CHECK_TYPES);
     assertThat(lastCompiler.getErrorManager().getTypedPercent()).isGreaterThan(0.0);
   }
 
@@ -997,7 +997,7 @@ public final class IntegrationTest extends IntegrationTestCase {
   public void testTypeNameParser() {
     CompilerOptions options = createCompilerOptions();
     options.setCheckTypes(true);
-    test(options, "/** @type {n} */ var n = window.name;", DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(options, "/** @type {n} */ var n = window.name;", DiagnosticGroups.CHECK_TYPES);
   }
 
   // This tests that the TypedScopeCreator is memoized so that it only creates a
@@ -1298,7 +1298,7 @@ public final class IntegrationTest extends IntegrationTestCase {
   public void testCheckTypes() {
     CompilerOptions options = createCompilerOptions();
     options.setCheckTypes(true);
-    test(options, "var x = x || {}; x.f = function() {}; x.f(3);", DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(options, "var x = x || {}; x.f = function() {}; x.f(3);", DiagnosticGroups.CHECK_TYPES);
   }
 
   @Test
@@ -1331,7 +1331,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     CompilerOptions options = createCompilerOptions();
     options.setReplaceIdGenerators(true);
 
-    options.setIdGenerators(
+    options.setIdGeneratorsRenamingMaps(
         ImmutableMap.<String, RenamingMap>of(
             "xid",
             new RenamingMap() {
@@ -1378,7 +1378,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     testSame(options, code);
 
     options.setCheckTypes(true);
-    test(options, code, DiagnosticGroups.DEPRECATED);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.DEPRECATED);
   }
 
   @Test
@@ -1386,13 +1386,13 @@ public final class IntegrationTest extends IntegrationTestCase {
     String[] code = {"/** @private */ function f() { }", "function g() { f(); }"};
 
     CompilerOptions options = createCompilerOptions();
-    testSame(options, code);
+    testSameStringArray(options, code);
 
     options.setWarningLevel(DiagnosticGroups.VISIBILITY, CheckLevel.ERROR);
-    testSame(options, code);
+    testSameStringArray(options, code);
 
     options.setCheckTypes(true);
-    test(options, code, DiagnosticGroups.VISIBILITY);
+    testStringArrayDiagnosticGroup(options, code, DiagnosticGroups.VISIBILITY);
   }
 
   @Test
@@ -1404,10 +1404,10 @@ public final class IntegrationTest extends IntegrationTestCase {
     testSame(options, code);
 
     options.setWarningLevel(DiagnosticGroups.CHECK_USELESS_CODE, CheckLevel.ERROR);
-    test(options, code, DiagnosticGroups.CHECK_USELESS_CODE);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.CHECK_USELESS_CODE);
 
     // http://b/194615750
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         function foo() {
@@ -1430,7 +1430,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     testSame(options, code);
 
     options.setCheckTypes(true);
-    test(options, code, DiagnosticGroups.MISSING_RETURN);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.MISSING_RETURN);
   }
 
   @Test
@@ -1601,7 +1601,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setDisambiguateProperties(true);
     options.setPropertiesThatMustDisambiguate(ImmutableSet.of("a"));
     options.setRemoveAbstractMethods(true);
-    test(
+    testString(
         options,
         """
         function fn(x){return x.a;}
@@ -1669,7 +1669,7 @@ public final class IntegrationTest extends IntegrationTestCase {
   public void testCheckConsts() {
     CompilerOptions options = createCompilerOptions();
     options.setInlineConstantVars(true);
-    test(options, "/** @const */ var FOO = true; FOO = false", DiagnosticGroups.CONST);
+    testStringDiagnosticGroup(options, "/** @const */ var FOO = true; FOO = false", DiagnosticGroups.CONST);
   }
 
   @Test
@@ -1757,7 +1757,7 @@ public final class IntegrationTest extends IntegrationTestCase {
   public void testCheckGlobalNames() {
     CompilerOptions options = createCompilerOptions();
     options.setCheckTypes(true);
-    test(options, "var x = {}; var y = x.z;", DiagnosticGroups.MISSING_PROPERTIES);
+    testStringDiagnosticGroup(options, "var x = {}; var y = x.z;", DiagnosticGroups.MISSING_PROPERTIES);
   }
 
   @Test
@@ -2063,7 +2063,7 @@ public final class IntegrationTest extends IntegrationTestCase {
         var s = f.foo(); // Type error: f.foo() has type {?string}.
         """;
 
-    test(options, code, DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.CHECK_TYPES);
   }
 
   @Test
@@ -2087,7 +2087,7 @@ public final class IntegrationTest extends IntegrationTestCase {
         f.foo(s); // Type error: f.foo() takes a {string}, not a {?string}
         """;
 
-    test(options, code, DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.CHECK_TYPES);
   }
 
   @Test
@@ -2358,10 +2358,10 @@ public final class IntegrationTest extends IntegrationTestCase {
         new String[] {
           "var x = 1;", "x;",
         };
-    testSame(options, code);
+    testSameStringArray(options, code);
 
     options.setCrossChunkCodeMotion(true);
-    test(
+    testStringArray(
         options,
         code,
         new String[] {
@@ -2386,7 +2386,7 @@ public final class IntegrationTest extends IntegrationTestCase {
           "new LowerCasePipe();",
         };
 
-    test(
+    testStringArray(
         options,
         code,
         new String[] {
@@ -2403,7 +2403,7 @@ public final class IntegrationTest extends IntegrationTestCase {
 
     options.setCrossChunkCodeMotion(true);
 
-    test(
+    testStringArray(
         options,
         code,
         new String[] {
@@ -2431,10 +2431,10 @@ public final class IntegrationTest extends IntegrationTestCase {
           """,
           "x.bar();",
         };
-    testSame(options, code);
+    testSameStringArray(options, code);
 
     options.setCrossChunkMethodMotion(true);
-    test(
+    testStringArray(
         options,
         code,
         new String[] {
@@ -2455,7 +2455,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2015);
     options.setCrossChunkCodeMotion(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -2507,7 +2507,7 @@ public final class IntegrationTest extends IntegrationTestCase {
           """,
         };
 
-    test(
+    testStringArray(
         options,
         srcs,
         new String[] {
@@ -2523,7 +2523,7 @@ public final class IntegrationTest extends IntegrationTestCase {
         });
 
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-    test(
+    testStringArray(
         options,
         srcs,
         new String[] {
@@ -2547,7 +2547,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2015);
     options.setCrossChunkCodeMotion(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -2614,7 +2614,7 @@ public final class IntegrationTest extends IntegrationTestCase {
           """,
         };
 
-    test(
+    testStringArray(
         options,
         srcs,
         new String[] {
@@ -2634,7 +2634,7 @@ public final class IntegrationTest extends IntegrationTestCase {
         });
 
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-    test(
+    testStringArray(
         options,
         srcs,
         new String[] {
@@ -2659,7 +2659,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2015);
     options.setCrossChunkCodeMotion(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -2723,7 +2723,7 @@ public final class IntegrationTest extends IntegrationTestCase {
 
     WarningLevel.VERBOSE.setOptionsForWarningLevel(options);
     // No warning for this pattern. See b/188807234.
-    test(options, code, code);
+    testStringArray(options, code, code);
   }
 
   @Test
@@ -3035,7 +3035,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setCheckTypes(true);
     options.setWarningLevel(DiagnosticGroups.CHECK_USELESS_CODE, CheckLevel.OFF);
 
-    test(options, "function f() { try { } catch(e) { break; } }", DiagnosticGroups.PARSING);
+    testStringDiagnosticGroup(options, "function f() { try { } catch(e) { break; } }", DiagnosticGroups.PARSING);
   }
 
   // https://github.com/google/closure-compiler/issues/2388
@@ -3129,7 +3129,7 @@ public final class IntegrationTest extends IntegrationTestCase {
 
     options.setComputeFunctionSideEffects(true);
 
-    test(options, code, DiagnosticGroups.CHECK_REGEXP);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.CHECK_REGEXP);
 
     options.setWarningLevel(DiagnosticGroups.CHECK_REGEXP, CheckLevel.OFF);
 
@@ -3375,7 +3375,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     externs = externsList.build();
 
     testSame(options, "(new ExternalClass).externalMethod();");
-    test(options, "(new ExternalClass).nonexistentMethod();", DiagnosticGroups.MISSING_PROPERTIES);
+    testStringDiagnosticGroup(options, "(new ExternalClass).nonexistentMethod();", DiagnosticGroups.MISSING_PROPERTIES);
   }
 
   @Test
@@ -3391,7 +3391,7 @@ public final class IntegrationTest extends IntegrationTestCase {
             "extraExterns", "/** @return {!Iterable<number>} */ function* gen() {}"));
     externs = externsList.build();
 
-    test(
+    testStringDiagnosticGroup(
         options,
         "for (let x of gen()) { x.call(); }",
         // Property call never defined on Number.
@@ -3411,7 +3411,7 @@ public final class IntegrationTest extends IntegrationTestCase {
             "extraExterns", "/** @return {!Promise<number>} */ async function init() {}"));
     externs = externsList.build();
 
-    test(
+    testStringDiagnosticGroup(
         options,
         "init().then((n) => { n.call(); });",
         // Property call never defined on Number.
@@ -3939,7 +3939,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     CompilerOptions options = createCompilerOptions();
     options.setWarningLevel(DiagnosticGroups.CHECK_TYPES, CheckLevel.WARNING);
 
-    test(
+    testStringDiagnosticGroup(
         options,
         "function f() { var xyz = /** @type {string} */ (0); }",
         DiagnosticGroups.CHECK_TYPES);
@@ -4182,7 +4182,7 @@ public final class IntegrationTest extends IntegrationTestCase {
         /** @const */
         var x = 1; foo(); x = 2;
         """;
-    test(options, code, DiagnosticGroups.CONST);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.CONST);
   }
 
   // http://blickly.github.io/closure-compiler-issues/#937
@@ -4333,7 +4333,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setCheckTypes(true);
     options.setIncrementalChecks(CompilerOptions.IncrementalCheckMode.GENERATE_IJS);
 
-    testNoWarnings(
+    testNoWarningsStringArray(
         options,
         new String[] {
           "goog.module('m');",
@@ -4359,7 +4359,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     options.setIncrementalChecks(CompilerOptions.IncrementalCheckMode.GENERATE_IJS);
 
     Compiler compiler =
-        compile(
+        compileStringArray(
             options,
             new String[] {
               "/** @externs */ /** @constructor */ function MyExternType() {}",
@@ -4368,7 +4368,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     checkUnexpectedErrorsOrWarnings(compiler, 0);
 
     ImmutableList<JSChunk> chunks = ImmutableList.copyOf(compiler.getChunks());
-    assertThat(compiler.toSource(chunks.get(0)))
+    assertThat(compiler.toSourceJSChunk(chunks.get(0)))
         .isEqualTo(
             """
             /** @fileoverview @typeSummary */
@@ -4378,7 +4378,7 @@ public final class IntegrationTest extends IntegrationTestCase {
             }
             ;\
             """);
-    assertThat(compiler.toSource(chunks.get(1)))
+    assertThat(compiler.toSourceJSChunk(chunks.get(1)))
         .isEqualTo(
             """
             /** @fileoverview @typeSummary */
@@ -4416,7 +4416,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     // To enable type-checking
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
 
-    test(
+    testStringArrayDiagnosticGroup(
         options,
         new String[] {
           """
@@ -4945,7 +4945,7 @@ async function abc() {
     options.setCheckTypes(true);
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -4978,7 +4978,7 @@ async function abc() {
     options.setLanguageIn(LanguageMode.ECMASCRIPT_NEXT);
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2019);
     // trying to make sure the catch binding transpilation pass does not run when it should not be
-    testSame(
+    testSameStringArray(
         options,
         new String[] {
           """
@@ -4999,7 +4999,7 @@ async function abc() {
     options.setCheckTypes(true);
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2019);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -5168,11 +5168,11 @@ async function abc() {
 
     // But we won't emit ES 2018 regexp features.
     DiagnosticGroup untranspilable = DiagnosticGroups.UNTRANSPILABLE_FEATURES;
-    test(options, googDefine + "/foo/s", untranspilable);
-    test(options, googDefine + "/(?<foo>.)/", untranspilable);
-    test(options, googDefine + "/(?<=foo)/", untranspilable);
-    test(options, googDefine + "/(?<!foo)/", untranspilable);
-    test(options, googDefine + "/\\p{Number}/u", untranspilable);
+    testStringDiagnosticGroup(options, googDefine + "/foo/s", untranspilable);
+    testStringDiagnosticGroup(options, googDefine + "/(?<foo>.)/", untranspilable);
+    testStringDiagnosticGroup(options, googDefine + "/(?<=foo)/", untranspilable);
+    testStringDiagnosticGroup(options, googDefine + "/(?<!foo)/", untranspilable);
+    testStringDiagnosticGroup(options, googDefine + "/\\p{Number}/u", untranspilable);
   }
 
   @Test
@@ -5198,8 +5198,8 @@ async function abc() {
 
     // We won't emit regexp lookbehind.
     DiagnosticGroup untranspilable = DiagnosticGroups.UNTRANSPILABLE_FEATURES;
-    test(options, googDefine + "/(?<=oo)/", untranspilable);
-    test(options, googDefine + "/(?<!foo)/", untranspilable);
+    testStringDiagnosticGroup(options, googDefine + "/(?<=oo)/", untranspilable);
+    testStringDiagnosticGroup(options, googDefine + "/(?<!foo)/", untranspilable);
 
     // But we will emit other ES2018 regexp features
     test(options, googDefine + "/foo/s", googDefineOutput + "/foo/s");
@@ -5217,7 +5217,7 @@ async function abc() {
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2017);
     options.setBadRewriteModulesBeforeTypecheckingThatWeWantToGetRidOf(false);
 
-    test(
+    testStringArrayDiagnosticGroup(
         options,
         new String[] {
           """
@@ -5244,7 +5244,7 @@ async function abc() {
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2017);
     options.setBadRewriteModulesBeforeTypecheckingThatWeWantToGetRidOf(false);
 
-    test(
+    testStringArrayDiagnosticGroup(
         options,
         new String[] {
           """
@@ -5304,7 +5304,7 @@ async function abc() {
             """));
     externs = externsList.build();
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         const array = Array.of('1', '2', '3');
@@ -5428,7 +5428,7 @@ async function abc() {
     CompilerOptions options = createCompilerOptions();
     options.setCheckTypes(true);
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         (function () {
@@ -5619,7 +5619,7 @@ async function abc() {
     options.setGeneratePseudoNames(true);
 
     // Showcases the state of the code that led to b/453893252.
-    test(
+    testStringArray(
         options,
         new String[] {
           // i0.js
@@ -5874,7 +5874,7 @@ async function abc() {
     //
     // This test case contains a use of a computed property to ensure that the fix for the above
     // problem does not affect computed properties.
-    test(
+    testStringArray(
         options,
         new String[] {
           """

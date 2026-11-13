@@ -19,6 +19,9 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
+import static com.google.javascript.jscomp.AstFactory.typeJSType;
+import static com.google.javascript.jscomp.AstFactory.typeJSTypeNative;
 import static com.google.javascript.rhino.testing.NodeSubject.assertNode;
 import static com.google.javascript.rhino.testing.TypeSubject.assertType;
 import static org.junit.Assert.assertThrows;
@@ -297,7 +300,7 @@ public class AstFactoryTest {
     Node constNode = astFactory.createSingleVarNameDeclaration("myTrue", valueNode);
     assertNode(constNode).isVar().hasOneChildThat().isName("myTrue");
     Node nameNode = constNode.getOnlyChild();
-    assertNode(nameNode).hasOneChildThat().isEqualTo(valueNode);
+    assertNode(nameNode).hasOneChildThat().isEqualToNode(valueNode);
     assertNode(nameNode).hasJSTypeThat().isEqualTo(valueNode.getJSType());
   }
 
@@ -309,7 +312,7 @@ public class AstFactoryTest {
     Node constNode = astFactory.createSingleVarNameDeclaration("myTrue", valueNode);
     assertNode(constNode).isVar().hasOneChildThat().isName("myTrue");
     Node nameNode = constNode.getOnlyChild();
-    assertNode(nameNode).hasOneChildThat().isEqualTo(valueNode);
+    assertNode(nameNode).hasOneChildThat().isEqualToNode(valueNode);
     assertNode(nameNode).hasColorThat().isEqualTo(valueNode.getColor());
   }
 
@@ -321,7 +324,7 @@ public class AstFactoryTest {
     Node constNode = astFactory.createSingleConstNameDeclaration("myTrue", valueNode);
     assertNode(constNode).isConst().hasOneChildThat().isName("myTrue");
     Node nameNode = constNode.getOnlyChild();
-    assertNode(nameNode).hasOneChildThat().isEqualTo(valueNode);
+    assertNode(nameNode).hasOneChildThat().isEqualToNode(valueNode);
     assertNode(nameNode).hasJSTypeThat().isEqualTo(valueNode.getJSType());
   }
 
@@ -333,7 +336,7 @@ public class AstFactoryTest {
     Node constNode = astFactory.createSingleConstNameDeclaration("myTrue", valueNode);
     assertNode(constNode).isConst().hasOneChildThat().isName("myTrue");
     Node nameNode = constNode.getOnlyChild();
-    assertNode(nameNode).hasOneChildThat().isEqualTo(valueNode);
+    assertNode(nameNode).hasOneChildThat().isEqualToNode(valueNode);
     assertNode(nameNode).hasColorThat().isEqualTo(valueNode.getColor());
   }
 
@@ -341,7 +344,7 @@ public class AstFactoryTest {
   public void testCreateNameWithJSType() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node x = astFactory.createName("x", type(JSTypeNative.STRING_TYPE));
+    Node x = astFactory.createName("x", typeJSTypeNative(JSTypeNative.STRING_TYPE));
     assertNode(x).hasType(Token.NAME);
     assertThat(x.getString()).isEqualTo("x");
     assertType(x.getJSType()).isString();
@@ -351,7 +354,7 @@ public class AstFactoryTest {
   public void testCreateNameWithNativeType() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node x = astFactory.createName("x", type(JSTypeNative.STRING_TYPE));
+    Node x = astFactory.createName("x", typeJSTypeNative(JSTypeNative.STRING_TYPE));
     assertNode(x).hasType(Token.NAME);
     assertThat(x.getString()).isEqualTo("x");
     assertType(x.getJSType()).isString();
@@ -374,7 +377,7 @@ public class AstFactoryTest {
     Node root = parseAndAddTypes("/** @type {string} */ const X = 'hi';");
     Scope scope = getScope(root);
 
-    Node x = astFactory.createName(scope, "X");
+    Node x = astFactory.createNameStaticScope(scope, "X");
     assertNode(x).hasType(Token.NAME);
     assertThat(x.getString()).isEqualTo("X");
     assertType(x.getJSType()).isString();
@@ -387,7 +390,7 @@ public class AstFactoryTest {
     Node root = parseAndAddColors("/** @type {string} */ const X = 'hi';");
     Scope scope = getScope(root);
 
-    Node x = astFactory.createName(scope, "X");
+    Node x = astFactory.createNameStaticScope(scope, "X");
     assertNode(x).hasType(Token.NAME);
     assertThat(x.getString()).isEqualTo("X");
     assertNode(x).hasColorThat().isEqualTo(StandardColors.STRING);
@@ -400,7 +403,7 @@ public class AstFactoryTest {
     Node root = parseAndAddTypes("/** @type {string} */ const X = 'hi';");
     Scope scope = getScope(root);
 
-    assertThrows(Exception.class, () -> astFactory.createName(scope, "missing"));
+    assertThrows(Exception.class, () -> astFactory.createNameStaticScope(scope, "missing"));
   }
 
   @Test
@@ -437,7 +440,7 @@ public class AstFactoryTest {
   public void testCreateThisReference() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node x = astFactory.createThis(type(getNativeType(JSTypeNative.STRING_TYPE)));
+    Node x = astFactory.createThis(typeJSType(getNativeType(JSTypeNative.STRING_TYPE)));
     assertNode(x).hasType(Token.THIS);
     assertType(x.getJSType()).isString();
   }
@@ -446,7 +449,7 @@ public class AstFactoryTest {
   public void testCreateSuperReference() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node x = astFactory.createSuper(type(getNativeType(JSTypeNative.STRING_TYPE)));
+    Node x = astFactory.createSuper(typeJSType(getNativeType(JSTypeNative.STRING_TYPE)));
     assertNode(x).hasType(Token.SUPER);
     assertType(x.getJSType()).isString();
   }
@@ -455,7 +458,7 @@ public class AstFactoryTest {
   public void testCreateNewTargetReference() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node x = astFactory.createNewTarget(type(getNativeType(JSTypeNative.STRING_TYPE)));
+    Node x = astFactory.createNewTarget(typeJSType(getNativeType(JSTypeNative.STRING_TYPE)));
     assertNode(x).hasType(Token.NEW_TARGET);
     assertType(x.getJSType()).isString();
   }
@@ -620,7 +623,7 @@ public class AstFactoryTest {
 
     assertNode(getProp).hasToken(Token.GETPROP);
     assertNode(getProp).hasStringThat().isEqualTo("y");
-    assertNode(getProp).hasFirstChildThat().isEqualTo(receiver);
+    assertNode(getProp).hasFirstChildThat().isEqualToNode(receiver);
     assertNode(getProp).hasColorThat().isEqualTo(StandardColors.NUMBER);
   }
 
@@ -635,7 +638,7 @@ public class AstFactoryTest {
 
     assertNode(getProp).hasToken(Token.OPTCHAIN_GETPROP);
     assertNode(getProp).hasStringThat().isEqualTo("y");
-    assertNode(getProp).hasFirstChildThat().isEqualTo(receiver);
+    assertNode(getProp).hasFirstChildThat().isEqualToNode(receiver);
     assertNode(getProp).hasColorThat().isEqualTo(StandardColors.NUMBER);
     assertNode(getProp).isOptionalChainStart();
   }
@@ -651,7 +654,7 @@ public class AstFactoryTest {
 
     assertNode(getProp).hasToken(Token.OPTCHAIN_GETPROP);
     assertNode(getProp).hasStringThat().isEqualTo("y");
-    assertNode(getProp).hasFirstChildThat().isEqualTo(receiver);
+    assertNode(getProp).hasFirstChildThat().isEqualToNode(receiver);
     assertNode(getProp).hasColorThat().isEqualTo(StandardColors.NUMBER);
     assertNode(getProp).isNotOptionalChainStart();
   }
@@ -667,8 +670,8 @@ public class AstFactoryTest {
     Node getElem = astFactory.createStartOptChainGetelem(receiver, elem, type(typeTemplate));
 
     assertNode(getElem).hasToken(Token.OPTCHAIN_GETELEM);
-    assertNode(getElem).hasFirstChildThat().isEqualTo(receiver);
-    assertNode(getElem).hasSecondChildThat().isEqualTo(elem);
+    assertNode(getElem).hasFirstChildThat().isEqualToNode(receiver);
+    assertNode(getElem).hasSecondChildThat().isEqualToNode(elem);
     assertNode(getElem).hasColorThat().isEqualTo(StandardColors.NUMBER);
     assertNode(getElem).isOptionalChainStart();
   }
@@ -684,8 +687,8 @@ public class AstFactoryTest {
     Node getElem = astFactory.createContinueOptChainGetelem(receiver, elem, type(typeTemplate));
 
     assertNode(getElem).hasToken(Token.OPTCHAIN_GETELEM);
-    assertNode(getElem).hasFirstChildThat().isEqualTo(receiver);
-    assertNode(getElem).hasSecondChildThat().isEqualTo(elem);
+    assertNode(getElem).hasFirstChildThat().isEqualToNode(receiver);
+    assertNode(getElem).hasSecondChildThat().isEqualToNode(elem);
     assertNode(getElem).hasColorThat().isEqualTo(StandardColors.NUMBER);
     assertNode(getElem).isNotOptionalChainStart();
   }
@@ -702,9 +705,9 @@ public class AstFactoryTest {
     Node call = astFactory.createStartOptChainCall(receiver, type(typeTemplate), arg1, arg2);
 
     assertNode(call).hasToken(Token.OPTCHAIN_CALL);
-    assertNode(call).hasFirstChildThat().isEqualTo(receiver);
-    assertNode(call).hasSecondChildThat().isEqualTo(arg1);
-    assertNode(call).hasLastChildThat().isEqualTo(arg2);
+    assertNode(call).hasFirstChildThat().isEqualToNode(receiver);
+    assertNode(call).hasSecondChildThat().isEqualToNode(arg1);
+    assertNode(call).hasLastChildThat().isEqualToNode(arg2);
     assertNode(call).hasColorThat().isEqualTo(StandardColors.NUMBER);
     assertNode(call).isOptionalChainStart();
   }
@@ -721,9 +724,9 @@ public class AstFactoryTest {
     Node call = astFactory.createContinueOptChainCall(receiver, type(typeTemplate), arg1, arg2);
 
     assertNode(call).hasToken(Token.OPTCHAIN_CALL);
-    assertNode(call).hasFirstChildThat().isEqualTo(receiver);
-    assertNode(call).hasSecondChildThat().isEqualTo(arg1);
-    assertNode(call).hasLastChildThat().isEqualTo(arg2);
+    assertNode(call).hasFirstChildThat().isEqualToNode(receiver);
+    assertNode(call).hasSecondChildThat().isEqualToNode(arg1);
+    assertNode(call).hasLastChildThat().isEqualToNode(arg2);
     assertNode(call).hasColorThat().isEqualTo(StandardColors.NUMBER);
     assertNode(call).isNotOptionalChainStart();
   }
@@ -812,14 +815,14 @@ public class AstFactoryTest {
         .hasOneChildThat()
         .hasToken(Token.RETURN)
         .hasOneChildThat()
-        .isEqualTo(valueNode);
+        .isEqualToNode(valueNode);
   }
 
   @Test
   public void testCreateGetElem_jstypes() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node objectName = astFactory.createName("obj", type(JSTypeNative.OBJECT_TYPE));
+    Node objectName = astFactory.createName("obj", typeJSTypeNative(JSTypeNative.OBJECT_TYPE));
     Node stringLiteral = astFactory.createString("string literal key");
     Node getElemNode = astFactory.createGetElem(objectName, stringLiteral);
 
@@ -969,7 +972,7 @@ public class AstFactoryTest {
   public void testCreateAndWithAlwaysTruthyLhs() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node nonNullObject = astFactory.createName("nonNullObject", type(JSTypeNative.OBJECT_TYPE));
+    Node nonNullObject = astFactory.createName("nonNullObject", typeJSTypeNative(JSTypeNative.OBJECT_TYPE));
     Node stringLiteral = astFactory.createString("hello");
     Node andNode = astFactory.createAnd(nonNullObject, stringLiteral);
 
@@ -1012,7 +1015,7 @@ public class AstFactoryTest {
   public void testCreateOrWithAlwaysTruthyLhs() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node nonNullObject = astFactory.createName("nonNullObject", type(JSTypeNative.OBJECT_TYPE));
+    Node nonNullObject = astFactory.createName("nonNullObject", typeJSTypeNative(JSTypeNative.OBJECT_TYPE));
     Node stringLiteral = astFactory.createString("hello");
     Node andNode = astFactory.createOr(nonNullObject, stringLiteral);
 
@@ -1222,7 +1225,7 @@ public class AstFactoryTest {
     Scope scope = getScope(root);
 
     // foo("hi", 2112)
-    Node callee = astFactory.createName(scope, "foo");
+    Node callee = astFactory.createNameStaticScope(scope, "foo");
     Node arg1 = astFactory.createString("hi");
     Node arg2 = astFactory.createNumber(2112D);
     Node callNode = astFactory.createCall(callee, type(astFactory.createString("tmp")), arg1, arg2);
@@ -1250,7 +1253,7 @@ public class AstFactoryTest {
     Scope scope = getScope(root);
 
     // foo("hi", 2112)
-    Node callee = astFactory.createName(scope, "foo");
+    Node callee = astFactory.createNameStaticScope(scope, "foo");
     Node arg1 = astFactory.createString("hi");
     Node arg2 = astFactory.createNumber(2112D);
     Node callNode = astFactory.createCall(callee, type(astFactory.createString("tmp")), arg1, arg2);
@@ -1278,10 +1281,10 @@ public class AstFactoryTest {
     Scope scope = getScope(root);
 
     // foo("hi", 2112)
-    Node callee = astFactory.createName(scope, "foo");
+    Node callee = astFactory.createNameStaticScope(scope, "foo");
     Node arg1 = astFactory.createString("hi");
     Node arg2 = astFactory.createNumber(2112D);
-    Node callNode = astFactory.createCall(callee, type(JSTypeNative.STRING_TYPE), arg1, arg2);
+    Node callNode = astFactory.createCall(callee, typeJSTypeNative(JSTypeNative.STRING_TYPE), arg1, arg2);
 
     assertNode(callNode).hasType(Token.CALL);
     assertThat(callNode.getBooleanProp(Node.FREE_CALL)).isTrue();
@@ -1309,7 +1312,7 @@ public class AstFactoryTest {
 
     // createQName only accepts globally qualified qnames. foo.method is a prototype method access.
     // foo.method("hi", 2112)
-    assertThrows(Exception.class, () -> astFactory.createQName(scope, "foo.method"));
+    assertThrows(Exception.class, () -> astFactory.createQNameString(scope, "foo.method"));
   }
 
   @Test
@@ -1333,7 +1336,7 @@ public class AstFactoryTest {
     // createQName only accepts globally qualified qnames. While Foo.method is a global qualified
     // name, its '.call' property is not.
     // Foo.method.call(null, "hi", 2112)
-    assertThrows(Exception.class, () -> astFactory.createQName(scope, "Foo.method.call"));
+    assertThrows(Exception.class, () -> astFactory.createQNameString(scope, "Foo.method.call"));
   }
 
   @Test
@@ -1380,7 +1383,7 @@ public class AstFactoryTest {
         """);
     StaticScope scope = compiler.getTranspilationNamespace();
 
-    Node objDotInnerDotStr = astFactory.createQName(scope, "obj.inner.str");
+    Node objDotInnerDotStr = astFactory.createQNameString(scope, "obj.inner.str");
 
     assertNode(objDotInnerDotStr).matchesQualifiedName("obj.inner.str");
     Node objDotInner = objDotInnerDotStr.getFirstChild();
@@ -1430,7 +1433,7 @@ public class AstFactoryTest {
     assertNode(objName).isName("obj");
     objName.putBooleanProp(Node.IS_CONSTANT_NAME, true);
 
-    Node newObjName = astFactory.createName(compiler.getTranspilationNamespace(), "obj");
+    Node newObjName = astFactory.createNameStaticScope(compiler.getTranspilationNamespace(), "obj");
 
     // Assert that the newly created NAME node gets the IS_CONSTANT_NAME property it should in
     // order to be consistent with normalization.
@@ -1451,7 +1454,7 @@ public class AstFactoryTest {
         """);
 
     Node objDotInnerDotStr =
-        astFactory.createQName(compiler.getTranspilationNamespace(), "obj", "inner", "str");
+        astFactory.createQNameStringVarargs(compiler.getTranspilationNamespace(), "obj", "inner", "str");
 
     assertNode(objDotInnerDotStr).matchesQualifiedName("obj.inner.str");
     Node objDotInner = objDotInnerDotStr.getFirstChild();
@@ -1511,7 +1514,7 @@ public class AstFactoryTest {
 
     TypedScope globalScope = TypedScope.createGlobalScope(root);
     globalScope.declare("x", IR.name("x"), getNativeType(JSTypeNative.NUMBER_TYPE), null, true);
-    TypedScope localScope = new TypedScope(globalScope, block);
+    TypedScope localScope = TypedScope.createFromParent(globalScope, block);
 
     var unused = astFactory.createQNameUsingJSTypeInfo(globalScope, "x");
     assertThrows(
@@ -1560,7 +1563,7 @@ public class AstFactoryTest {
             .getFirstChild() // function
             .getJSType();
 
-    Node emptyFunction = astFactory.createEmptyFunction(type(functionType));
+    Node emptyFunction = astFactory.createEmptyFunction(typeJSType(functionType));
     assertNode(emptyFunction).hasToken(Token.FUNCTION);
     assertType(emptyFunction.getJSType()).isEqualTo(functionType);
   }
@@ -1579,7 +1582,7 @@ public class AstFactoryTest {
     Node paramList = IR.paramList();
     Node body = IR.block();
 
-    Node functionNode = astFactory.createFunction("bar", paramList, body, type(functionType));
+    Node functionNode = astFactory.createFunction("bar", paramList, body, typeJSType(functionType));
     assertNode(functionNode).hasToken(Token.FUNCTION);
     assertType(functionNode.getJSType()).isEqualTo(functionType);
     Node functionNameNode = functionNode.getFirstChild();
@@ -1602,7 +1605,7 @@ public class AstFactoryTest {
 
     Node paramList = IR.paramList();
     Node body = IR.block();
-    Node functionNode = astFactory.createFunction("", paramList, body, type(functionType));
+    Node functionNode = astFactory.createFunction("", paramList, body, typeJSType(functionType));
 
     Node memberFunctionDef = astFactory.createMemberFunctionDef("bar", functionNode);
     assertNode(memberFunctionDef).hasToken(Token.MEMBER_FUNCTION_DEF);
@@ -1704,7 +1707,7 @@ public class AstFactoryTest {
     Node expression = astFactory.createNumber(1);
     Node newArrowFunctionNode = astFactory.createZeroArgArrowFunctionForExpression(expression);
 
-    assertNode(newArrowFunctionNode).isEqualTo(existingArrowFunctionNode);
+    assertNode(newArrowFunctionNode).isEqualToNode(existingArrowFunctionNode);
     assertNode(newArrowFunctionNode)
         .hasJSTypeThat()
         .isEqualTo(existingArrowFunctionNode.getJSTypeRequired());
@@ -1714,13 +1717,13 @@ public class AstFactoryTest {
   public void testCreateAssignFromNodes_jstypes() {
     AstFactory astFactory = createTestAstFactory();
 
-    Node lhs = astFactory.createName("x", type(JSTypeNative.STRING_TYPE));
+    Node lhs = astFactory.createName("x", typeJSTypeNative(JSTypeNative.STRING_TYPE));
     Node rhs = astFactory.createNumber(0);
 
     Node assign = astFactory.createAssign(lhs, rhs);
     assertNode(assign).hasToken(Token.ASSIGN);
-    assertNode(assign).hasFirstChildThat().isEqualTo(lhs);
-    assertNode(assign).hasSecondChildThat().isEqualTo(rhs);
+    assertNode(assign).hasFirstChildThat().isEqualToNode(lhs);
+    assertNode(assign).hasSecondChildThat().isEqualToNode(rhs);
     assertNode(assign).hasJSTypeThat().isNumber(); // take the rhs type, not lhs type
   }
 
@@ -1728,13 +1731,13 @@ public class AstFactoryTest {
   public void testCreateAssignFromNodes_colors() {
     AstFactory astFactory = createTestAstFactoryWithColors();
 
-    Node lhs = astFactory.createName("x", type(StandardColors.STRING));
+    Node lhs = astFactory.createName("x", typeColor(StandardColors.STRING));
     Node rhs = astFactory.createNumber(0);
 
     Node assign = astFactory.createAssign(lhs, rhs);
     assertNode(assign).hasToken(Token.ASSIGN);
-    assertNode(assign).hasFirstChildThat().isEqualTo(lhs);
-    assertNode(assign).hasSecondChildThat().isEqualTo(rhs);
+    assertNode(assign).hasFirstChildThat().isEqualToNode(lhs);
+    assertNode(assign).hasSecondChildThat().isEqualToNode(rhs);
     assertNode(assign).hasColorThat().isEqualTo(StandardColors.NUMBER); // rhs type, not lhs type
   }
 
@@ -1807,7 +1810,7 @@ public class AstFactoryTest {
             "then",
             astFactory.createZeroArgArrowFunctionForExpression(astFactory.createString("hi")));
 
-    Node objectLit = astFactory.createObjectLit(type(thenableType), thenStringKey);
+    Node objectLit = astFactory.createObjectLit(typeJSType(thenableType), thenStringKey);
 
     assertThat(objectLit.getJSType()).isEqualTo(thenableType);
     assertNode(objectLit).hasToken(Token.OBJECTLIT);
@@ -2053,7 +2056,7 @@ public class AstFactoryTest {
     // When
     Node newExpr =
         astFactory.createNewNode(
-            astFactory.createName("Example", type(classNode.getColor())), first, second);
+            astFactory.createName("Example", typeColor(classNode.getColor())), first, second);
 
     // Then
     assertNode(newExpr).isEquivalentTo(expected);
@@ -2135,7 +2138,7 @@ public class AstFactoryTest {
     // Then
     assertNode(result).isCall();
     assertNode(result).hasFirstChildThat().matchesQualifiedName("$jscomp.makeIterator");
-    assertNode(result).hasLastChildThat().isEqualTo(iterable);
+    assertNode(result).hasLastChildThat().isEqualToNode(iterable);
   }
 
   @Test
@@ -2167,8 +2170,8 @@ public class AstFactoryTest {
     // Then
     assertNode(result).isCall();
     assertNode(result).hasFirstChildThat().matchesQualifiedName("$jscomp.iteratorClose");
-    assertNode(result).hasSecondChildThat().isEqualTo(iter);
-    assertNode(result).hasLastChildThat().isEqualTo(iterResult);
+    assertNode(result).hasSecondChildThat().isEqualToNode(iter);
+    assertNode(result).hasLastChildThat().isEqualToNode(iterResult);
   }
 
   private static ImmutableList<Node> childList(Node parent) {

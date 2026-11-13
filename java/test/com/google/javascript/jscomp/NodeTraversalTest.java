@@ -59,7 +59,7 @@ public final class NodeTraversalTest {
         };
 
     Compiler compiler =
-        new Compiler(
+        Compiler.createFromErrorManager(
             new BasicErrorManager() {
 
               @Override
@@ -110,7 +110,7 @@ public final class NodeTraversalTest {
         };
 
     Compiler compiler =
-        new Compiler(
+        Compiler.createFromErrorManager(
             new BasicErrorManager() {
 
               @Override
@@ -152,7 +152,7 @@ public final class NodeTraversalTest {
     try {
       String code = "function foo() {}";
       Node tree = parse(compiler, code);
-      NodeTraversal.builder().setCompiler(compiler).setCallback(cb).traverse(tree);
+      NodeTraversal.builder().setCompiler(compiler).setCallbackAbstractPostOrderCallbackInterface(cb).traverse(tree);
       assertWithMessage("Expected RuntimeException").fail();
     } catch (RuntimeException e) {
       assertThat(e)
@@ -182,7 +182,7 @@ public final class NodeTraversalTest {
             Node root1 = t.getScopeRoot();
             Scope scope2 = t.getScope();
             Node root2 = scope2.getRootNode();
-            assertNode(root2).isEqualTo(root1);
+            assertNode(root2).isEqualToNode(root1);
           }
 
           @Override
@@ -390,7 +390,7 @@ public final class NodeTraversalTest {
         """;
 
     Node tree = parse(compiler, code);
-    Scope topScope = (Scope) creator.createScope(tree, null);
+    Scope topScope = (Scope) creator.createScopeAbstractScope(tree, null);
 
     // Calling #traverseWithScope uses the given scope but starts traversal at
     // the given node.
@@ -405,7 +405,7 @@ public final class NodeTraversalTest {
 
     // Calling #traverseAtScope starts traversal from the scope's root.
     Node fn = tree.getSecondChild();
-    Scope fnScope = (Scope) creator.createScope(fn, topScope);
+    Scope fnScope = (Scope) creator.createScopeAbstractScope(fn, topScope);
     callback.expect(fn, fn);
     t.traverseAtScope(fnScope);
     callback.assertEntered();
@@ -894,14 +894,14 @@ public final class NodeTraversalTest {
     AbstractPostOrderCallbackInterface countingCallback =
         (NodeTraversal t, Node n, Node parent) -> counter.incrementAndGet();
 
-    NodeTraversal.builder().setCompiler(compiler).setCallback(countingCallback).traverse(tree);
+    NodeTraversal.builder().setCompiler(compiler).setCallbackAbstractPostOrderCallbackInterface(countingCallback).traverse(tree);
     assertThat(counter.get()).isEqualTo(3);
 
     counter.set(0);
     Thread.currentThread().interrupt();
 
     try {
-      NodeTraversal.builder().setCompiler(compiler).setCallback(countingCallback).traverse(tree);
+      NodeTraversal.builder().setCompiler(compiler).setCallbackAbstractPostOrderCallbackInterface(countingCallback).traverse(tree);
       assertWithMessage("Expected a RuntimeException;").fail();
     } catch (RuntimeException e) {
       assertThat(e).hasCauseThat().hasCauseThat().isInstanceOf(InterruptedException.class);
@@ -975,8 +975,8 @@ public final class NodeTraversalTest {
 
     @Override
     public void enterScope(NodeTraversal t) {
-      assertNode(t.getCurrentNode()).isEqualTo(node);
-      assertNode(t.getScopeRoot()).isEqualTo(scopeRoot);
+      assertNode(t.getCurrentNode()).isEqualToNode(node);
+      assertNode(t.getScopeRoot()).isEqualToNode(scopeRoot);
       if (node.isForIn() || node.isForOf()) {
         node = node.getLastChild();
         scopeRoot = scopeRoot.getLastChild();

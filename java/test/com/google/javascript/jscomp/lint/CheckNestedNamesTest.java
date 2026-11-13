@@ -158,7 +158,7 @@ public final class CheckNestedNamesTest extends CompilerTestCase {
 
   @Test
   public void testNestingOnExternNames() {
-    testWarning(
+    testWarningExterns(
         externs(new TestExternsBuilder().addClosureExterns().addArray().build()),
         srcs("goog.module('a');  Array.C = class {};"),
         warning(NESTED_NAME_IN_GOOG_MODULE));
@@ -166,7 +166,7 @@ public final class CheckNestedNamesTest extends CompilerTestCase {
 
   @Test
   public void testNestingOnGlobalNames() {
-    testWarning(
+    testWarningExterns(
         externs(
             "let GlobalFn = function() {};" + new TestExternsBuilder().addClosureExterns().build()),
         srcs("goog.module('a');  GlobalFn.C = class {};"),
@@ -175,7 +175,7 @@ public final class CheckNestedNamesTest extends CompilerTestCase {
 
   @Test
   public void testErrorMessageText() {
-    testWarning(
+    testWarningExterns(
         externs(new TestExternsBuilder().addClosureExterns().build()),
         srcs("goog.module('a'); class C {}; C.E = class {};"),
         warning(NESTED_NAME_IN_GOOG_MODULE)
@@ -208,6 +208,6 @@ public final class CheckNestedNamesTest extends CompilerTestCase {
   }
 
   private void nestedNameWarning(String js) {
-    testWarning(externs(CLOSURE_EXTERNS), srcs(js), warning(NESTED_NAME_IN_GOOG_MODULE));
+    testWarningExterns(externs(CLOSURE_EXTERNS), srcs(js), warning(NESTED_NAME_IN_GOOG_MODULE));
   }
 }

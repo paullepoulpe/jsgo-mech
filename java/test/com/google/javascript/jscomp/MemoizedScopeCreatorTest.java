@@ -35,9 +35,9 @@ public final class MemoizedScopeCreatorTest {
     Compiler compiler = new Compiler();
     compiler.initOptions(new CompilerOptions());
     ScopeCreator creator = new MemoizedScopeCreator(new SyntacticScopeCreator(compiler));
-    Scope scopeA = (Scope) creator.createScope(root1, null);
-    assertThat(creator.createScope(root1, null)).isSameInstanceAs(scopeA);
-    assertThat(creator.createScope(root2, null)).isNotSameInstanceAs(scopeA);
+    Scope scopeA = (Scope) creator.createScopeAbstractScope(root1, null);
+    assertThat(creator.createScopeAbstractScope(root1, null)).isSameInstanceAs(scopeA);
+    assertThat(creator.createScopeAbstractScope(root2, null)).isNotSameInstanceAs(scopeA);
   }
 
   @Test
@@ -46,11 +46,11 @@ public final class MemoizedScopeCreatorTest {
     compiler.initOptions(new CompilerOptions());
     Node root = new Node(Token.ROOT);
     ScopeCreator creator = new MemoizedScopeCreator(new SyntacticScopeCreator(compiler));
-    Scope scopeA = (Scope) creator.createScope(root, null);
+    Scope scopeA = (Scope) creator.createScopeAbstractScope(root, null);
 
     boolean handled = false;
     try {
-      creator.createScope(root, scopeA);
+      creator.createScopeAbstractScope(root, scopeA);
     } catch (IllegalStateException e) {
       handled = true;
     }

@@ -94,7 +94,7 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
     public CompileResult compile(Path path, String code) {
       Compiler compiler = compiler();
       Result result =
-          compiler.compile(EXTERNS, SourceFile.fromCode(path.toString(), code), options());
+          compiler.compileSourceFile(EXTERNS, SourceFile.fromCode(path.toString(), code), options());
       String source = compiler.toSource();
       StringBuilder sourceMap = new StringBuilder();
       if (result.sourceMap != null) {
@@ -117,7 +117,7 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
       Compiler compiler = compiler();
       CompilerOptions options = options();
       options.setForceLibraryInjection(ImmutableList.of(library));
-      compiler.compile(EXTERNS, EMPTY, options);
+      compiler.compileSourceFile(EXTERNS, EMPTY, options);
       return compiler.toSource();
     }
 

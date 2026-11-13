@@ -350,7 +350,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
     TypedScope s = memoized.get(n);
     return s != null
         ? s
-        : createScope(n, createScope(NodeUtil.getEnclosingScopeRoot(n.getParent())));
+        : createScopeAbstractScope(n, createScope(NodeUtil.getEnclosingScopeRoot(n.getParent())));
   }
 
   /**
@@ -358,7 +358,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
    * the type registry.
    */
   @Override
-  public TypedScope createScope(Node root, AbstractScope<?, ?> parent) {
+  public TypedScope createScopeAbstractScope(Node root, AbstractScope<?, ?> parent) {
     checkArgument(parent == null || parent instanceof TypedScope);
     TypedScope typedParent = (TypedScope) parent;
 
@@ -948,10 +948,10 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
       } else if (n.isModuleBody()) {
         // Visit modules pre-order. While this doesn't exactly match execution semantics, it
         // does match how the compiler rewrites modules into the global scope.
-        createScope(n, currentScope);
+        createScopeAbstractScope(n, currentScope);
       } else if (NodeUtil.isBundledGoogModuleScopeRoot(n)) {
-        TypedScope functionScope = createScope(parent, currentScope);
-        createScope(n, functionScope);
+        TypedScope functionScope = createScopeAbstractScope(parent, currentScope);
+        createScopeAbstractScope(n, functionScope);
       }
       return false;
     }
@@ -1121,7 +1121,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
 
         if (keyType != null && objLitType != null && declareOnOwner) {
           // Declare this property on its object literal.
-          objLitType.defineDeclaredProperty(memberName, keyType, keyNode);
+          objLitType.defineDeclaredPropertyKey(memberName, keyType, keyNode);
         }
       }
     }
@@ -1298,7 +1298,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
     void defineDestructuringPatternInVarDeclaration(
         Node pattern, TypedScope scope, Supplier<RValueInfo> patternTypeSupplier) {
       for (DestructuredTarget target :
-          DestructuredTarget.createAllNonEmptyTargetsInPattern(
+          DestructuredTarget.createAllNonEmptyTargetsInPatternSupplier(
               typeRegistry, () -> patternTypeSupplier.get().type, pattern)) {
 
         Supplier<RValueInfo> typeSupplier =
@@ -1616,7 +1616,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
         classPrototypeType.defineDeclaredProperty("constructor", qmarkCtor, constructor);
       }
       if (classType.hasInstanceType()) {
-        Property classPrototype = classType.getSlot("prototype");
+        Property classPrototype = classType.getSlotString("prototype");
         // SymbolTable users expect the class prototype and actual class to have the same
         // declaration node.
         classPrototype.setNode(lvalueNode != null ? lvalueNode : classPrototype.getNode());
@@ -1911,7 +1911,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
 
       // Do some additional validation for constructors and interfaces.
       if (fnType.hasInstanceType() && lvalueNode != null) {
-        Property prototypeSlot = fnType.getSlot("prototype");
+        Property prototypeSlot = fnType.getSlotString("prototype");
 
         // We want to make sure that the function and its prototype are declared at the same node.
         // This consistency is helpful to users of SymbolTable, because everything gets declared at
@@ -2283,7 +2283,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
         CompilerInput input) {
       // Declare var.prototype in the scope chain.
       FunctionType superClassCtor = fnType.getSuperClassConstructor();
-      Property prototypeSlot = fnType.getSlot("prototype");
+      Property prototypeSlot = fnType.getSlotString("prototype");
 
       String prototypeName = variableName + ".prototype";
 
@@ -3115,7 +3115,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
         @Nullable JSDocInfo jsdocInfo) {
       // Only declare this as an official property if it has not been
       // declared yet.
-      if (ownerType.hasOwnProperty(propName) && !ownerType.isPropertyTypeInferred(propName)) {
+      if (ownerType.hasOwnPropertyKey(propName) && !ownerType.isPropertyTypeInferredKey(propName)) {
         return;
       }
       // Define the property if any of the following are true:
@@ -3132,8 +3132,8 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
               && !ownerType.isNativeObjectType();
       if (isNonNativeExtern || !ownerType.isInstanceType() || ownerNode.isThis()) {
         // If the property is undeclared or inferred, declare it now.
-        ownerType.defineDeclaredProperty(propName, valueType, declarationNode);
-        ownerType.setPropertyJSDocInfo(propName, jsdocInfo);
+        ownerType.defineDeclaredPropertyKey(propName, valueType, declarationNode);
+        ownerType.setPropertyJSDocInfoKey(propName, jsdocInfo);
       }
     }
   } // end AbstractScopeBuilder
@@ -3159,7 +3159,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
       // to assign members. We'll do this on the way back up (post-order) instead, after the
       // class-type has been attached to the AST.
       if (parent != null && NodeUtil.createsBlockScope(n) && !n.isClass()) {
-        createScope(n, currentScope);
+        createScopeAbstractScope(n, currentScope);
       }
 
       // All other functions (and classes, etc) are handled when we see the actual function node.
@@ -3208,7 +3208,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
             // Analyse CLASS child-scopes now because later code in this scope may assign
             // properties to these class-types. We want to ensure declarations within the CLASS have
             // priority.
-            createScope(n, currentScope);
+            createScopeAbstractScope(n, currentScope);
         case EXPR_RESULT -> {
           Collection<ProvidedName> names = providedNamesFromCall.get(n);
           if (names != null) {
@@ -3610,7 +3610,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
       }
 
       ObjectType ownerType = determineOwnerTypeForClassMember(n);
-      ownerType.defineDeclaredProperty(
+      ownerType.defineDeclaredPropertyKey(
           new Property.SymbolKey(keyType.toMaybeKnownSymbolType()), declaredType, n);
       n.setJSType(declaredType);
     }

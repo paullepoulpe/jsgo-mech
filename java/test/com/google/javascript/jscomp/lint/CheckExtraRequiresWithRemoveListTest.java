@@ -54,9 +54,9 @@ public final class CheckExtraRequiresWithRemoveListTest extends CompilerTestCase
 
   @Test
   public void testAffected() {
-    testError(srcs("goog.require('xx');"), EXTRA_REQUIRE_WARNING);
-    testError(srcs("goog.require('yy');"), EXTRA_REQUIRE_WARNING);
-    testError(srcs("goog.require('zz');"), EXTRA_REQUIRE_WARNING);
+    testErrorSourcesDiagnosticType(srcs("goog.require('xx');"), EXTRA_REQUIRE_WARNING);
+    testErrorSourcesDiagnosticType(srcs("goog.require('yy');"), EXTRA_REQUIRE_WARNING);
+    testErrorSourcesDiagnosticType(srcs("goog.require('zz');"), EXTRA_REQUIRE_WARNING);
   }
 
   @Test

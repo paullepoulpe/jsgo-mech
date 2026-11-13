@@ -106,9 +106,9 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
   public void defineSymbolProperty() {
     Property.SymbolKey foo = new Property.SymbolKey(new KnownSymbolType(registry, "foo"));
 
-    ARRAY_TYPE.defineDeclaredProperty(foo, STRING_TYPE, null);
+    ARRAY_TYPE.defineDeclaredPropertyKey(foo, STRING_TYPE, null);
 
-    assertType(ARRAY_TYPE).withTypeOfProp(foo.symbol()).isString();
+    assertType(ARRAY_TYPE).withTypeOfPropKnownSymbolType(foo.symbol()).isString();
   }
 
   @Test
@@ -116,11 +116,11 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     ObjectType structural = registry.createAnonymousObjectType(null);
     Property.SymbolKey foo = new Property.SymbolKey(new KnownSymbolType(registry, "foo"));
 
-    structural.defineDeclaredProperty(foo, STRING_TYPE, null);
+    structural.defineDeclaredPropertyKey(foo, STRING_TYPE, null);
     structural.defineDeclaredProperty("bar", NUMBER_TYPE, null);
     structural.defineDeclaredProperty("raz", NUMBER_TYPE, null);
 
-    assertType(structural).withTypeOfProp(foo.symbol()).isString();
+    assertType(structural).withTypeOfPropKnownSymbolType(foo.symbol()).isString();
     assertType(structural)
         .toStringIsEqualTo(
             """
@@ -139,11 +139,11 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     Property.SymbolKey foo2 = new Property.SymbolKey(new KnownSymbolType(registry, "foo"));
     Property.SymbolKey foo3 = new Property.SymbolKey(new KnownSymbolType(registry, "foo"));
 
-    structural.defineDeclaredProperty(foo1, STRING_TYPE, null);
-    structural.defineDeclaredProperty(foo2, NUMBER_TYPE, null);
+    structural.defineDeclaredPropertyKey(foo1, STRING_TYPE, null);
+    structural.defineDeclaredPropertyKey(foo2, NUMBER_TYPE, null);
     // add a symbol key recursively referencing the type itself, to verify we don't get infinite
     // recursion.
-    structural.defineDeclaredProperty(foo3, structural, null);
+    structural.defineDeclaredPropertyKey(foo3, structural, null);
     structural.defineDeclaredProperty("foo", STRING_TYPE, null);
 
     assertType(structural)
@@ -169,14 +169,14 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     // Array.prototype[Symbol.foo];
     JSType fooPropType = registry.createUnionType(arrayKey, promiseOfArrayKey);
     JSType stringArray = registry.createTemplatizedType(ARRAY_TYPE, STRING_TYPE);
-    ARRAY_TYPE.defineDeclaredProperty(foo, fooPropType, null);
+    ARRAY_TYPE.defineDeclaredPropertyKey(foo, fooPropType, null);
 
-    assertType(ARRAY_TYPE).withTypeOfProp(foo.symbol()).isUnionOf(arrayKey, promiseOfArrayKey);
+    assertType(ARRAY_TYPE).withTypeOfPropKnownSymbolType(foo.symbol()).isUnionOf(arrayKey, promiseOfArrayKey);
     // for an Array<string>, Symbol.foo is a (string|Promise<string>)
     assertType(stringArray)
-        .withTypeOfProp(foo.symbol())
+        .withTypeOfPropKnownSymbolType(foo.symbol())
         .isUnionOf(STRING_TYPE, registry.createTemplatizedType(promiseType, STRING_TYPE));
-    assertType(stringArray.findPropertyType(foo))
+    assertType(stringArray.findPropertyTypeKey(foo))
         .isUnionOf(STRING_TYPE, registry.createTemplatizedType(promiseType, STRING_TYPE));
   }
 
@@ -185,10 +185,10 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     Property.SymbolKey foo1 = new Property.SymbolKey(new KnownSymbolType(registry, "Symbol.foo"));
     Property.SymbolKey foo2 = new Property.SymbolKey(new KnownSymbolType(registry, "Symbol.foo"));
 
-    ARRAY_TYPE.defineDeclaredProperty(foo1, registry.getNativeType(JSTypeNative.STRING_TYPE), null);
+    ARRAY_TYPE.defineDeclaredPropertyKey(foo1, registry.getNativeType(JSTypeNative.STRING_TYPE), null);
 
-    assertType(ARRAY_TYPE).withTypeOfProp(foo1.symbol()).isString();
-    assertThat(ARRAY_TYPE.hasProperty(foo2)).isFalse();
+    assertType(ARRAY_TYPE).withTypeOfPropKnownSymbolType(foo1.symbol()).isString();
+    assertThat(ARRAY_TYPE.hasPropertyKey(foo2)).isFalse();
   }
 
   @Test
@@ -198,19 +198,19 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     ObjectType iterableIterator = registry.getNativeObjectType(JSTypeNative.ITERATOR_ITERABLE_TYPE);
 
     Property.SymbolKey foo = new Property.SymbolKey(new KnownSymbolType(registry, "foo"));
-    iterable.defineDeclaredProperty(foo, STRING_TYPE, null);
+    iterable.defineDeclaredPropertyKey(foo, STRING_TYPE, null);
 
     assertType(iterableIterator).hasProperty(foo.symbol());
-    assertThat(iterableIterator.hasOwnProperty(foo)).isFalse();
+    assertThat(iterableIterator.hasOwnPropertyKey(foo)).isFalse();
 
     assertType(iterable).hasProperty(foo.symbol());
-    assertThat(iterable.hasOwnProperty(foo)).isTrue();
+    assertThat(iterable.hasOwnPropertyKey(foo)).isTrue();
   }
 
   @Test
   public void symbolPropertiesDoNotConflictWithStrings() {
     KnownSymbolType foo = new KnownSymbolType(registry, "Symbol.foo");
-    ARRAY_TYPE.defineDeclaredProperty(new Property.SymbolKey(foo), STRING_TYPE, null);
+    ARRAY_TYPE.defineDeclaredPropertyKey(new Property.SymbolKey(foo), STRING_TYPE, null);
 
     assertThat(ARRAY_TYPE.hasProperty("foo")).isFalse();
   }
@@ -226,7 +226,7 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
         FunctionType.builder(registry).forInterface().setName("String").buildAndResolve();
     stringPropCtor.setImplicitMatch(true);
     Property.Key foo = new Property.SymbolKey(new KnownSymbolType(registry, "Symbol.foo"));
-    stringPropCtor.getPrototype().defineDeclaredProperty(foo, STRING_TYPE, null);
+    stringPropCtor.getPrototype().defineDeclaredPropertyKey(foo, STRING_TYPE, null);
     ObjectType stringProp = stringPropCtor.getInstanceType();
     // /** @record */
     // class StringOrNumber {
@@ -238,7 +238,7 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     stringOrNumberPropCtor.setImplicitMatch(true);
     stringOrNumberPropCtor
         .getPrototype()
-        .defineDeclaredProperty(foo, createUnionType(NUMBER_TYPE, STRING_TYPE), null);
+        .defineDeclaredPropertyKey(foo, createUnionType(NUMBER_TYPE, STRING_TYPE), null);
     ObjectType stringOrNumberProp = stringOrNumberPropCtor.getInstanceType();
 
     // The subtyping chain is

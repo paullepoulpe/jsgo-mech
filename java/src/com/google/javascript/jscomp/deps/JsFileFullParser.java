@@ -91,7 +91,7 @@ public class JsFileFullParser {
   public static FileInfo parse(String code, String filename, Reporter reporter) {
     DelegatingReporter errorReporter = new DelegatingReporter(reporter);
     Compiler compiler =
-        new Compiler(
+        Compiler.createFromErrorManager(
             new BasicErrorManager() {
               @Override
               public void println(CheckLevel level, JSError error) {

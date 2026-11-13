@@ -52,7 +52,7 @@ public final class LinkedFlowScopeTest extends CompilerTypeTestCase {
     globalScope.declare("globalA", null, null, null, true);
     globalScope.declare("globalB", null, null, null, true);
 
-    localScope = new TypedScope(globalScope, functionNode);
+    localScope = TypedScope.createFromParent(globalScope, functionNode);
     localScope.declare("localA", null, null, null, true);
     localScope.declare("localB", null, null, null, true);
 

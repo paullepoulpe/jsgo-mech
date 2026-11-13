@@ -189,7 +189,7 @@ public class RecordTypeTest extends BaseJSTypeTestCase {
             .addProperty("a", NUMBER_TYPE, null)
             .addProperty(
                 "b",
-                registry.createTemplatizedType(
+                registry.createTemplatizedTypeImmutableList(
                     ARRAY_TYPE,
                     ImmutableList.of(
                         new RecordTypeBuilder(registry)

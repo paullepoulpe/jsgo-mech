@@ -344,7 +344,7 @@ public final class LateEs6ToEs3ConverterTest extends CompilerTestCase {
         """);
 
     test(
-        externs(RUNTIME_STUBS, "var a = {}; a.b;"),
+        externsStringVarargs(RUNTIME_STUBS, "var a = {}; a.b;"),
         srcs("a.b`${hello} world`"),
         expected(
             """
@@ -354,7 +354,7 @@ public final class LateEs6ToEs3ConverterTest extends CompilerTestCase {
             """));
 
     test(
-        externs(RUNTIME_STUBS, "var a = {}; var b; a[b];"),
+        externsStringVarargs(RUNTIME_STUBS, "var a = {}; var b; a[b];"),
         srcs("a[b]`${hello} world`"),
         expected(
             """
@@ -455,13 +455,13 @@ public final class LateEs6ToEs3ConverterTest extends CompilerTestCase {
   public void testTaggedTemplateLiteral_insertPosition_multipleScripts() {
     test(
         externs(""), // clear the default externs which contain the runtime stubs
-        srcs(
+        srcsStringVarargs(
             RUNTIME_STUBS + SCRIPT1,
             """
             var a = {};
             tag``; var b;
             """),
-        expected(
+        expectedStringVarargs(
             RUNTIME_STUBS + SCRIPT1,
             """
             /** @noinline */ var TAGGED_TEMPLATE_TMP_VAR$0 =
@@ -472,13 +472,13 @@ public final class LateEs6ToEs3ConverterTest extends CompilerTestCase {
 
     test(
         externs(""), // clear the default externs which contain the runtime stubs
-        srcs(
+        srcsStringVarargs(
             RUNTIME_STUBS + SCRIPT1,
             """
             var a = {};
             function foo() {tag``;}
             """),
-        expected(
+        expectedStringVarargs(
             RUNTIME_STUBS + SCRIPT1,
             """
             /** @noinline */ var TAGGED_TEMPLATE_TMP_VAR$0 =
@@ -489,13 +489,13 @@ public final class LateEs6ToEs3ConverterTest extends CompilerTestCase {
 
     test(
         externs(""), // clear the default externs which contain the runtime stubs
-        srcs(
+        srcsStringVarargs(
             SCRIPT1 + RUNTIME_STUBS,
             """
             var a = {};
             function foo() {function bar() {tag``;}}
             """),
-        expected(
+        expectedStringVarargs(
             SCRIPT1 + RUNTIME_STUBS,
             """
             /** @noinline */ var TAGGED_TEMPLATE_TMP_VAR$0 =

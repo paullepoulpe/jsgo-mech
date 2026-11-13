@@ -446,20 +446,20 @@ public final class VariableReferenceCheckTest extends CompilerTestCase {
     // Verify we don't complain about early references in externs
     String externs = "window; var window;";
     String code = "";
-    testSame(externs(externs), srcs(code));
+    testSameTestPartVarargs(externs(externs), srcs(code));
   }
 
   @Test
   public void testNoWarnDuplicateInExterns_withES6Modules() {
     String externs = "export var google; /** @suppress {duplicate} */ var google";
     String code = "";
-    testSame(externs(externs), srcs(code));
+    testSameTestPartVarargs(externs(externs), srcs(code));
   }
 
   @Test
   public void testImportStar() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("foo.js", ""),
             SourceFile.fromCode("bar.js", "import * as ns from './foo.js'")));
   }
@@ -790,7 +790,7 @@ public final class VariableReferenceCheckTest extends CompilerTestCase {
       "var x;", "function x() {}",
     };
     String message = "Variable x declared more than once. First occurrence: testcode0:1:4";
-    testError(srcs(js), error(VarCheck.VAR_MULTIPLY_DECLARED_ERROR).withMessage(message));
+    testErrorDiagnostic(srcsStringVarargs(js), error(VarCheck.VAR_MULTIPLY_DECLARED_ERROR).withMessage(message));
   }
 
   @Test
@@ -799,7 +799,7 @@ public final class VariableReferenceCheckTest extends CompilerTestCase {
       "function x() {}", "var x;",
     };
     String message = "Variable x declared more than once. First occurrence: testcode0:1:9";
-    testError(srcs(js), error(VarCheck.VAR_MULTIPLY_DECLARED_ERROR).withMessage(message));
+    testErrorDiagnostic(srcsStringVarargs(js), error(VarCheck.VAR_MULTIPLY_DECLARED_ERROR).withMessage(message));
   }
 
   @Test

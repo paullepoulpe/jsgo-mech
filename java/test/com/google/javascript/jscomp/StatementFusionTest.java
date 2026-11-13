@@ -26,7 +26,7 @@ public final class StatementFusionTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new PeepholeOptimizationsPass(compiler, getName(), new StatementFusion());
+    return PeepholeOptimizationsPass.createFromOptimizations(compiler, getName(), new StatementFusion());
   }
 
   @Test

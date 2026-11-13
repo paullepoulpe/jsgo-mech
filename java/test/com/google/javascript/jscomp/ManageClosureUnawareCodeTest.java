@@ -110,7 +110,7 @@ public final class ManageClosureUnawareCodeTest extends CompilerTestCase {
     test(js, expectedWrapped);
     Node expectedShadowNodeRoot =
         expectedShadowNodeContents.stream()
-            .map(s -> parseExpectedJs(s).detach())
+            .map(s -> parseExpectedJsString(s).detach())
             .collect(IR::root, Node::addChildToBack, Node::addChildToBack);
     assertNode(gatheredShadowNodeRoot)
         .usingSerializer(

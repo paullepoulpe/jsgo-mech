@@ -148,22 +148,22 @@ abstract class CompilerTypeTestCase {
     return registry.createOptionalType(type);
   }
 
-  protected TemplatizedType createTemplatizedType(
+  protected TemplatizedType createTemplatizedTypeImmutableList(
       ObjectType baseType, ImmutableList<JSType> templatizedTypes) {
-    return registry.createTemplatizedType(baseType, templatizedTypes);
+    return registry.createTemplatizedTypeImmutableList(baseType, templatizedTypes);
   }
 
   protected TemplatizedType createTemplatizedType(ObjectType baseType, JSType... templatizedType) {
-    return createTemplatizedType(baseType, ImmutableList.copyOf(templatizedType));
+    return createTemplatizedTypeImmutableList(baseType, ImmutableList.copyOf(templatizedType));
   }
 
   /** Asserts that a Node representing a type expression resolves to the correct {@code JSType}. */
-  protected void assertTypeEquals(JSType expected, Node actual) {
-    assertTypeEquals(expected, new JSTypeExpression(actual, "<BaseJSTypeTestCase.java>"));
+  protected void assertTypeEqualsNode(JSType expected, Node actual) {
+    assertTypeEqualsJSTypeExpression(expected, new JSTypeExpression(actual, "<BaseJSTypeTestCase.java>"));
   }
 
   /** Asserts that a a type expression resolves to the correct {@code JSType}. */
-  protected void assertTypeEquals(JSType expected, JSTypeExpression actual) {
+  protected void assertTypeEqualsJSTypeExpression(JSType expected, JSTypeExpression actual) {
     assertTypeEquals(expected, resolve(actual));
   }
 
@@ -286,7 +286,7 @@ abstract class CompilerTypeTestCase {
   }
 
   protected JSType getNativeObjectNumberStringBooleanType() {
-    return registry.createUnionType(OBJECT_TYPE, NUMBER_TYPE, STRING_TYPE, BOOLEAN_TYPE);
+    return registry.createUnionTypeJSTypeNativeVarargs(OBJECT_TYPE, NUMBER_TYPE, STRING_TYPE, BOOLEAN_TYPE);
   }
 
   protected JSType getNativeNumberStringBooleanType() {
@@ -294,7 +294,7 @@ abstract class CompilerTypeTestCase {
   }
 
   protected JSType getNativeObjectNumberStringBooleanSymbolType() {
-    return registry.createUnionType(
+    return registry.createUnionTypeJSTypeNativeVarargs(
         OBJECT_TYPE, NUMBER_TYPE, STRING_TYPE, BOOLEAN_TYPE, SYMBOL_TYPE);
   }
 

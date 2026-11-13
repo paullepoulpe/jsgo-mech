@@ -776,7 +776,7 @@ public final class InlineObjectLiteralsTest extends CompilerTestCase {
         g(object.f);
         """);
 
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             var protoObject = {

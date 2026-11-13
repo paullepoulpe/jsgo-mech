@@ -1011,7 +1011,7 @@ public final class PureFunctionIdentifierTest extends CompilerTestCase {
         """;
 
     enableTypeCheck();
-    testSame(externs(externs), srcs("o.prototype.propWithAnnotatedStubAfter"));
+    testSameTestPartVarargs(externs(externs), srcs("o.prototype.propWithAnnotatedStubAfter"));
     assertThat(noSideEffectCalls).isEmpty();
   }
 
@@ -1036,7 +1036,7 @@ public final class PureFunctionIdentifierTest extends CompilerTestCase {
         """;
 
     enableTypeCheck();
-    testSame(externs(externs), srcs("o.prototype.propWithAnnotatedStubAfter"));
+    testSameTestPartVarargs(externs(externs), srcs("o.prototype.propWithAnnotatedStubAfter"));
     assertThat(noSideEffectCalls).isEmpty();
   }
 
@@ -3954,7 +3954,7 @@ public final class PureFunctionIdentifierTest extends CompilerTestCase {
 
   @Test
   public void testDynamicImport() {
-    ignoreWarnings(DiagnosticGroups.MODULE_LOAD);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MODULE_LOAD);
     assertNoPureCalls("import('./module.js')");
     assertNoPureCalls("function doImport() { import('./module.js'); } doImport();");
   }
@@ -4000,7 +4000,7 @@ public final class PureFunctionIdentifierTest extends CompilerTestCase {
 
   void assertPureCallsMarked(
       String source, final List<String> expected, final @Nullable Postcondition post) {
-    testSame(
+    testSameTestPartVarargs(
         srcs(source),
         postcondition(
             compiler -> {

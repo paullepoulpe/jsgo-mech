@@ -182,7 +182,7 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
      *
      * <p>This makes debugging quite a bit easier as source maps are not great with renaming.
      */
-    private String getVarNameOfImport(Node importDecl) {
+    private String getVarNameOfImportNode(Node importDecl) {
       checkState(importDecl.isImport());
       if (importDecl.getSecondChild().isImportStar()) {
         return importDecl.getSecondChild().getString();
@@ -213,7 +213,7 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
         importDecl = importDecl.getParent();
       }
 
-      String moduleName = getVarNameOfImport(importDecl);
+      String moduleName = getVarNameOfImportNode(importDecl);
 
       if (nameNode.getParent().isImportSpec()) {
         return moduleName + "." + nameNode.getParent().getFirstChild().getString();
@@ -409,7 +409,7 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
           ModuleRequest.create(
               normalizePath(
                   path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()),
-              getVarNameOfImport(importDecl)));
+              getVarNameOfImportNode(importDecl)));
       imports.add(importDecl);
     }
 

@@ -391,7 +391,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testUnknownAnnotation() {
     args.add("--warning_level=VERBOSE");
-    test("/** @unknownTag */ function f() {}", RhinoErrorReporter.BAD_JSDOC_ANNOTATION);
+    testStringDiagnosticType("/** @unknownTag */ function f() {}", RhinoErrorReporter.BAD_JSDOC_ANNOTATION);
 
     args.add("--extra_annotation_name=unknownTag");
     testSame("/** @unknownTag */ function f() {}");
@@ -406,7 +406,7 @@ public final class CommandLineRunnerTest {
     externs =
         ImmutableList.of(
             new TestExternsBuilder().addArray().addArguments().buildExternsFile("externs"));
-    test(
+    testStringDiagnosticType(
         """
         class Cat {meow() {}}
         class Dog {}
@@ -432,7 +432,7 @@ public final class CommandLineRunnerTest {
   public void testWarningGuardOrdering2() {
     args.add("--jscomp_off=globalThis");
     args.add("--jscomp_error=globalThis");
-    test("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
+    testStringDiagnosticType("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
   }
 
   @Test
@@ -446,13 +446,13 @@ public final class CommandLineRunnerTest {
   public void testWarningGuardOrdering4() {
     args.add("--jscomp_off=globalThis");
     args.add("--jscomp_warning=globalThis");
-    test("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
+    testStringDiagnosticType("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
   }
 
   @Test
   public void testWarningGuardWildcard1() {
     args.add("--jscomp_warning=*");
-    test("/** @public */function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
+    testStringDiagnosticType("/** @public */function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
   }
 
   @Test
@@ -475,7 +475,7 @@ public final class CommandLineRunnerTest {
     args.add("--jscomp_warning=globalThis");
     args.add("--hide_warnings_for=bar/baz");
     setFilename(0, "foo/bar.baz");
-    test("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
+    testStringDiagnosticType("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
   }
 
   @Test
@@ -498,19 +498,19 @@ public final class CommandLineRunnerTest {
   @Test
   public void testCheckGlobalThisOnWithAdvancedMode() {
     args.add("--compilation_level=ADVANCED_OPTIMIZATIONS");
-    test("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
+    testStringDiagnosticType("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
   }
 
   @Test
   public void testCheckGlobalThisOnWithAdvanced() {
     args.add("-O=ADVANCED");
-    test("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
+    testStringDiagnosticType("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
   }
 
   @Test
   public void testCheckGlobalThisOnWithErrorFlag() {
     args.add("--jscomp_error=globalThis");
-    test("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
+    testStringDiagnosticType("function f() { this.a = 3; }", CheckGlobalThis.GLOBAL_THIS);
   }
 
   @Test
@@ -631,13 +631,13 @@ public final class CommandLineRunnerTest {
   @Test
   public void testTypeCheckingOnWithVerbose() {
     args.add("--warning_level=VERBOSE");
-    test("function f(x) { return x; } f();", TypeCheck.WRONG_ARGUMENT_COUNT);
+    testStringDiagnosticType("function f(x) { return x; } f();", TypeCheck.WRONG_ARGUMENT_COUNT);
   }
 
   @Test
   public void testTypeCheckingOnWithWVerbose() {
     args.add("-W=VERBOSE");
-    test("function f(x) { return x; } f();", TypeCheck.WRONG_ARGUMENT_COUNT);
+    testStringDiagnosticType("function f(x) { return x; } f();", TypeCheck.WRONG_ARGUMENT_COUNT);
   }
 
   @Test
@@ -648,8 +648,8 @@ public final class CommandLineRunnerTest {
   @Test
   public void testTypeParsingOnWithVerbose() {
     args.add("--warning_level=VERBOSE");
-    test("/** @return {number */ function f(a) { return a; }", RhinoErrorReporter.TYPE_PARSE_ERROR);
-    test(
+    testStringDiagnosticType("/** @return {number */ function f(a) { return a; }", RhinoErrorReporter.TYPE_PARSE_ERROR);
+    testStringDiagnosticType(
         "/** @return {n} */ function f(a) { return a; }",
         RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR);
   }
@@ -667,7 +667,7 @@ public final class CommandLineRunnerTest {
     testSame("var x = x || {}; x.f = function() {}; x.f(3);");
 
     args.add("--jscomp_warning=checkTypes");
-    test("var x = x || {}; x.f = function() {}; x.f(3);", TypeCheck.WRONG_ARGUMENT_COUNT);
+    testStringDiagnosticType("var x = x || {}; x.f = function() {}; x.f(3);", TypeCheck.WRONG_ARGUMENT_COUNT);
   }
 
   @Test
@@ -680,8 +680,8 @@ public final class CommandLineRunnerTest {
   public void testCheckSymbolsOnForVerbose() {
     args.add("--jscomp_error=checkVars");
     args.add("--warning_level=VERBOSE");
-    test("x = 3;", VarCheck.UNDEFINED_VAR_ERROR);
-    test("var y; var y;", VarCheck.VAR_MULTIPLY_DECLARED_ERROR);
+    testStringDiagnosticType("x = 3;", VarCheck.UNDEFINED_VAR_ERROR);
+    testStringDiagnosticType("var y; var y;", VarCheck.VAR_MULTIPLY_DECLARED_ERROR);
   }
 
   @Test
@@ -695,25 +695,25 @@ public final class CommandLineRunnerTest {
   public void testCheckSymbolsOverrideForQuiet() {
     args.add("--warning_level=QUIET");
     args.add("--jscomp_error=undefinedVars");
-    test("x = 3;", VarCheck.UNDEFINED_VAR_ERROR);
+    testStringDiagnosticType("x = 3;", VarCheck.UNDEFINED_VAR_ERROR);
   }
 
   @Test
   public void testCheckUndefinedProperties1() {
     args.add("--warning_level=VERBOSE");
     args.add("--jscomp_error=missingProperties");
-    test("var x = {}; var y = x.bar;", TypeCheck.INEXISTENT_PROPERTY);
+    testStringDiagnosticType("var x = {}; var y = x.bar;", TypeCheck.INEXISTENT_PROPERTY);
   }
 
   @Test
   public void testCheckUndefinedProperties3() {
     args.add("--warning_level=VERBOSE");
-    test("function f() {var x = {}; var y = x.bar;}", TypeCheck.INEXISTENT_PROPERTY);
+    testStringDiagnosticType("function f() {var x = {}; var y = x.bar;}", TypeCheck.INEXISTENT_PROPERTY);
   }
 
   @Test
   public void testDuplicateParams() {
-    test("function f(a, a) {}", RhinoErrorReporter.DUPLICATE_PARAM);
+    testStringDiagnosticType("function f(a, a) {}", RhinoErrorReporter.DUPLICATE_PARAM);
     assertThat(lastCompiler.hasHaltingErrors()).isTrue();
   }
 
@@ -875,19 +875,19 @@ public final class CommandLineRunnerTest {
   @Test
   public void testScriptStrictModeNoWarning() {
     test("'use strict';", "");
-    test("'no use strict';", CheckSideEffects.USELESS_CODE_ERROR);
+    testStringDiagnosticType("'no use strict';", CheckSideEffects.USELESS_CODE_ERROR);
   }
 
   @Test
   public void testFunctionStrictModeNoWarning() {
     test("function f() {'use strict';}", "function f() {}");
-    test("function f() {'no use strict';}", CheckSideEffects.USELESS_CODE_ERROR);
+    testStringDiagnosticType("function f() {'no use strict';}", CheckSideEffects.USELESS_CODE_ERROR);
   }
 
   @Test
   public void testQuietMode() {
     args.add("--warning_level=DEFAULT");
-    test("/** @const \n * @const */ var x;", RhinoErrorReporter.PARSE_ERROR);
+    testStringDiagnosticType("/** @const \n * @const */ var x;", RhinoErrorReporter.PARSE_ERROR);
     args.add("--warning_level=QUIET");
     testSame("/** @const \n * @const */ var x;");
   }
@@ -950,13 +950,13 @@ public final class CommandLineRunnerTest {
   @Test
   public void testIssue70a() {
     args.add("--language_in=ECMASCRIPT5");
-    test("function foo({}) {}", RhinoErrorReporter.LANGUAGE_FEATURE);
+    testStringDiagnosticType("function foo({}) {}", RhinoErrorReporter.LANGUAGE_FEATURE);
   }
 
   @Test
   public void testIssue70b() {
     args.add("--language_in=ECMASCRIPT5");
-    test("function foo([]) {}", RhinoErrorReporter.LANGUAGE_FEATURE);
+    testStringDiagnosticType("function foo([]) {}", RhinoErrorReporter.LANGUAGE_FEATURE);
   }
 
   @Test
@@ -1144,7 +1144,7 @@ public final class CommandLineRunnerTest {
   public void testHoistedFunction1() {
     args.add("--jscomp_off=es5Strict");
     args.add("-W=VERBOSE");
-    test("if (true) { f(); function f() {} }", VariableReferenceCheck.EARLY_REFERENCE);
+    testStringDiagnosticType("if (true) { f(); function f() {} }", VariableReferenceCheck.EARLY_REFERENCE);
   }
 
   @Test
@@ -1156,7 +1156,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testExternsLifting1() throws Exception {
     String code = "/** @externs */ function f() {}";
-    test(new String[] {code}, new String[] {});
+    testStringArray(new String[] {code}, new String[] {});
 
     // NOTE: externs are [{SyntheticVarsDeclar}, externs, input0].
     //  - The first is added by VarCheck
@@ -1180,7 +1180,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testExternsLifting2() {
     args.add("--warning_level=VERBOSE");
-    test(
+    testStringArray(
         new String[] {"/** @externs */ function f() {}", "f(3);"},
         new String[] {"f(3);"},
         TypeCheck.WRONG_ARGUMENT_COUNT);
@@ -1189,19 +1189,19 @@ public final class CommandLineRunnerTest {
   @Test
   public void testSourceSortingOff() {
     args.add("--compilation_level=WHITESPACE_ONLY");
-    testSame(new String[] {"goog.require('beer');", "goog.provide('beer');"});
+    testSameStringArray(new String[] {"goog.require('beer');", "goog.provide('beer');"});
   }
 
   @Test
   public void testSourceSortingOn() {
-    test(
+    testStringArray(
         new String[] {"goog.require('beer');", "goog.provide('beer');"},
         new String[] {"var beer = {};", ""});
   }
 
   @Test
   public void testSourceSortingOn2() {
-    test(
+    testStringArray(
         new String[] {
           "goog.provide('a');", "goog.require('a');",
         },
@@ -1212,7 +1212,7 @@ public final class CommandLineRunnerTest {
   public void testSourceSortingOn3() {
     args.add("--dependency_mode=PRUNE_LEGACY");
     args.add("--language_in=ECMASCRIPT5");
-    test(
+    testStringArray(
         new String[] {
           "goog.addDependency('sym', [], []);\nvar x = 3;",
           "/** This is base.js @provideGoog */ var COMPILED = false;",
@@ -1224,7 +1224,7 @@ public final class CommandLineRunnerTest {
   public void testSourceSortingCircularDeps1() {
     args.add("--dependency_mode=PRUNE_LEGACY");
     args.add("--language_in=ECMASCRIPT5");
-    test(
+    testStringArrayDiagnosticType(
         new String[] {
           "goog.provide('gin'); goog.require('tonic'); var gin = {};",
           "goog.provide('tonic'); goog.require('gin'); var tonic = {};",
@@ -1237,7 +1237,7 @@ public final class CommandLineRunnerTest {
   public void testSourceSortingCircularDeps2() {
     args.add("--dependency_mode=PRUNE_LEGACY");
     args.add("--language_in=ECMASCRIPT5");
-    test(
+    testStringArrayDiagnosticType(
         new String[] {
           "goog.provide('roses.lime.juice');",
           "goog.provide('gin'); goog.require('tonic'); var gin = {};",
@@ -1252,7 +1252,7 @@ public final class CommandLineRunnerTest {
   public void testSourcePruningOn1() {
     args.add("--dependency_mode=PRUNE_LEGACY");
     args.add("--language_in=ECMASCRIPT5");
-    test(
+    testStringArray(
         new String[] {
           "goog.require('beer');", "goog.provide('beer');", "goog.provide('scotch'); var x = 3;"
         },
@@ -1262,7 +1262,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testSourcePruningOn2() {
     args.add("--entry_point=goog:guinness");
-    test(
+    testStringArray(
         new String[] {
           "goog.provide('guinness');\ngoog.require('beer');",
           "goog.provide('beer');",
@@ -1274,7 +1274,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testSourcePruningOn3() {
     args.add("--entry_point=goog:scotch");
-    test(
+    testStringArray(
         new String[] {
           "goog.provide('guinness');\ngoog.require('beer');",
           "goog.provide('beer');",
@@ -1289,7 +1289,7 @@ public final class CommandLineRunnerTest {
   public void testSourcePruningOn4() {
     args.add("--entry_point=goog:scotch");
     args.add("--entry_point=goog:beer");
-    test(
+    testStringArray(
         new String[] {
           "goog.provide('guinness');\ngoog.require('beer');",
           "goog.provide('beer');",
@@ -1301,7 +1301,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testSourcePruningOn5() {
     args.add("--entry_point=goog:shiraz");
-    test(
+    testStringArrayDiagnosticType(
         new String[] {
           "goog.provide('guinness');\ngoog.require('beer');",
           "goog.provide('beer');",
@@ -1313,7 +1313,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testSourcePruningOn6() {
     args.add("--entry_point=goog:scotch");
-    test(
+    testStringArray(
         new String[] {
           "goog.require('beer');", "goog.provide('beer');", "goog.provide('scotch'); var x = 3;"
         },
@@ -1327,7 +1327,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testSourcePruningOn7() {
     args.add("--dependency_mode=PRUNE_LEGACY");
-    test(
+    testStringArray(
         new String[] {
           "/** This is base.js @provideGoog */ var COMPILED = false;",
         },
@@ -1341,7 +1341,7 @@ public final class CommandLineRunnerTest {
     args.add("--dependency_mode=PRUNE");
     args.add("--entry_point=goog:scotch");
     args.add("--warning_level=VERBOSE");
-    test(
+    testStringArray(
         new String[] {
           """
           /** @externs */
@@ -1363,7 +1363,7 @@ public final class CommandLineRunnerTest {
     useChunks = ChunkPattern.STAR;
     args.add("--dependency_mode=PRUNE");
     args.add("--entry_point=goog:m1:a");
-    test(
+    testStringArray(
         new String[] {"goog.provide('a');", "goog.provide('b');"},
         // Check that 'b' was stripped out, and 'a' was moved to the second
         // module (m1).
@@ -1373,7 +1373,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testNoCompile() {
     args.add("--warning_level=VERBOSE");
-    test(
+    testStringArray(
         new String[] {
           """
           /** @nocompile */
@@ -1389,7 +1389,7 @@ public final class CommandLineRunnerTest {
   public void testDependencySortingWhitespaceMode() {
     args.add("--dependency_mode=PRUNE_LEGACY");
     args.add("--compilation_level=WHITESPACE_ONLY");
-    test(
+    testStringArray(
         new String[] {
           "goog.require('beer');",
           "goog.provide('beer');\ngoog.require('hops');",
@@ -1420,7 +1420,7 @@ public final class CommandLineRunnerTest {
   public void testOnlyClosureDependenciesOneEntryPoint() {
     args.add("--dependency_mode=PRUNE");
     args.add("--entry_point=goog:beer");
-    test(
+    testStringArray(
         new String[] {
           "goog.require('beer'); var beerRequired = 1;",
           "goog.provide('beer');\ngoog.require('hops');\nvar beerProvided = 1;",
@@ -1440,7 +1440,7 @@ public final class CommandLineRunnerTest {
   public void testOnlyClosureDependenciesOneEntryPoint_pruneAllowNoEntryPoints() {
     args.add("--dependency_mode=PRUNE_ALLOW_NO_ENTRY_POINTS");
     args.add("--entry_point=goog:beer");
-    test(
+    testStringArray(
         new String[] {
           "goog.require('beer'); var beerRequired = 1;",
           "goog.provide('beer');\ngoog.require('hops');\nvar beerProvided = 1;",
@@ -1459,7 +1459,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testPruneAllowNoEntryPoints_noEntryPointsPrunesEverything() {
     args.add("--dependency_mode=PRUNE_ALLOW_NO_ENTRY_POINTS");
-    test(
+    testStringArray(
         new String[] {
           "goog.require('beer'); var beerRequired = 1;",
           "goog.provide('beer');\ngoog.require('hops');\nvar beerProvided = 1;",
@@ -1485,7 +1485,7 @@ public final class CommandLineRunnerTest {
     useChunks = ChunkPattern.CHAIN;
     args.add("--create_source_map=%outname%.map");
     args.add("--chunk_output_path_prefix=foo");
-    testSame(new String[] {"var x = 3;", "var y = 5;"});
+    testSameStringArray(new String[] {"var x = 3;", "var y = 5;"});
     assertThat(lastCommandLineRunner.expandSourceMapPath(lastCompiler.getOptions(), null))
         .isEqualTo("foo.map");
   }
@@ -1495,7 +1495,7 @@ public final class CommandLineRunnerTest {
     useChunks = ChunkPattern.CHAIN;
     args.add("--create_source_map=%outname%.map");
     args.add("--chunk_output_path_prefix=foo_");
-    testSame(new String[] {"var x = 3;", "var y = 5;"});
+    testSameStringArray(new String[] {"var x = 3;", "var y = 5;"});
     assertThat(
             lastCommandLineRunner.expandSourceMapPath(
                 lastCompiler.getOptions(), lastCompiler.getChunkGraph().getRootChunk()))
@@ -1507,7 +1507,7 @@ public final class CommandLineRunnerTest {
     useChunks = ChunkPattern.CHAIN;
     args.add("--create_source_map=out.map");
     args.add("--chunk_output_path_prefix=foo_");
-    test(
+    testStringArrayDiagnosticType(
         new String[] {"var x = 3;", "var y = 5;"},
         AbstractCommandLineRunner.INVALID_CHUNK_SOURCEMAP_PATTERN);
   }
@@ -1808,7 +1808,7 @@ public final class CommandLineRunnerTest {
   public void testChunkWrapperBaseNameExpansion() throws Exception {
     useChunks = ChunkPattern.CHAIN;
     args.add("--chunk_wrapper=m0:%s // %basename%");
-    testSame(new String[] {"var x = 3;", "var y = 4;"});
+    testSameStringArray(new String[] {"var x = 3;", "var y = 4;"});
 
     StringBuilder builder = new StringBuilder();
     ScriptNodeLicensesOnlyTracker licenseTracker = new ScriptNodeLicensesOnlyTracker(lastCompiler);
@@ -1822,7 +1822,7 @@ public final class CommandLineRunnerTest {
   public void testChunkWrapperExpansion() throws Exception {
     useChunks = ChunkPattern.CHAIN;
     args.add("--chunk_wrapper=m0:%output%%n%//# SourceMappingUrl=%basename%.map");
-    testSame(new String[] {"var x = 3;", "var y = 4;"});
+    testSameStringArray(new String[] {"var x = 3;", "var y = 4;"});
 
     StringBuilder builder = new StringBuilder();
     ScriptNodeLicensesOnlyTracker licenseTracker = new ScriptNodeLicensesOnlyTracker(lastCompiler);
@@ -1870,7 +1870,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testChainChunkManifest() throws Exception {
     useChunks = ChunkPattern.CHAIN;
-    testSame(new String[] {"var x = 3;", "var y = 5;", "var z = 7;", "var a = 9;"});
+    testSameStringArray(new String[] {"var x = 3;", "var y = 5;", "var z = 7;", "var a = 9;"});
 
     StringBuilder builder = new StringBuilder();
     lastCommandLineRunner.printChunkGraphManifestOrBundleTo(
@@ -1897,7 +1897,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testStarChunkManifest() throws Exception {
     useChunks = ChunkPattern.STAR;
-    testSame(new String[] {"var x = 3;", "var y = 5;", "var z = 7;", "var a = 9;"});
+    testSameStringArray(new String[] {"var x = 3;", "var y = 5;", "var z = 7;", "var a = 9;"});
 
     StringBuilder builder = new StringBuilder();
     lastCommandLineRunner.printChunkGraphManifestOrBundleTo(
@@ -1924,7 +1924,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testOutputChunkGraphJson() throws Exception {
     useChunks = ChunkPattern.STAR;
-    testSame(new String[] {"var x = 3;", "var y = 5;", "var z = 7;", "var a = 9;"});
+    testSameStringArray(new String[] {"var x = 3;", "var y = 5;", "var z = 7;", "var a = 9;"});
 
     StringBuilder builder = new StringBuilder();
     lastCommandLineRunner.printChunkGraphJsonTo(builder);
@@ -1980,7 +1980,7 @@ public final class CommandLineRunnerTest {
   public void testSyntheticExterns() {
     externs =
         ImmutableList.of(SourceFile.fromCode("externs", "function Symbol() {}; myVar.property;"));
-    test(
+    testStringDiagnosticType(
         "var theirVar = {}; var myVar = {}; var yourVar = {};",
         VarCheck.UNDEFINED_EXTERN_VAR_ERROR);
 
@@ -1993,7 +1993,7 @@ public final class CommandLineRunnerTest {
     args.add("--jscomp_off=externsValidation");
     args.add("--jscomp_error=checkVars");
     args.add("--warning_level=VERBOSE");
-    test(
+    testStringDiagnosticType(
         "var theirVar = {}; var myVar = {}; var myVar = {};", VarCheck.VAR_MULTIPLY_DECLARED_ERROR);
   }
 
@@ -2009,7 +2009,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testMissingReturnCheckOnWithVerbose() {
     args.add("--warning_level=VERBOSE");
-    test(
+    testStringDiagnosticType(
         "/** @return {number} */ function f() {f()} f();",
         CheckMissingReturn.MISSING_RETURN_STATEMENT);
   }
@@ -2024,14 +2024,14 @@ public final class CommandLineRunnerTest {
   public void testChecksOnlyWithParseError() {
     args.add("--compilation_level=WHITESPACE_ONLY");
     args.add("--checks_only");
-    test("val foo = 1;", RhinoErrorReporter.PARSE_ERROR);
+    testStringDiagnosticType("val foo = 1;", RhinoErrorReporter.PARSE_ERROR);
   }
 
   @Test
   public void testChecksOnlyWithWarning() {
     args.add("--checks_only");
     args.add("--warning_level=VERBOSE");
-    test("/** @deprecated */function foo() {}; foo();", CheckAccessControls.DEPRECATED_NAME);
+    testStringDiagnosticType("/** @deprecated */function foo() {}; foo();", CheckAccessControls.DEPRECATED_NAME);
   }
 
   @Test
@@ -2048,7 +2048,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testDepreciationWithVerbose() {
     args.add("--warning_level=VERBOSE");
-    test("/** @deprecated */ function f() {}; f()", CheckAccessControls.DEPRECATED_NAME);
+    testStringDiagnosticType("/** @deprecated */ function f() {}; f()", CheckAccessControls.DEPRECATED_NAME);
   }
 
   @Test
@@ -2075,8 +2075,8 @@ public final class CommandLineRunnerTest {
     args.add("--language_out=ECMASCRIPT3");
     useStringComparison = true;
     test("var x = f.function", "var x=f[\"function\"];", RhinoErrorReporter.INVALID_ES3_PROP_NAME);
-    test("var let", RhinoErrorReporter.PARSE_ERROR);
-    test("function f(x) { delete x; }", StrictModeCheck.DELETE_VARIABLE);
+    testStringDiagnosticType("var let", RhinoErrorReporter.PARSE_ERROR);
+    testStringDiagnosticType("function f(x) { delete x; }", StrictModeCheck.DELETE_VARIABLE);
   }
 
   @Test
@@ -2088,13 +2088,13 @@ public final class CommandLineRunnerTest {
 
   @Test
   public void testES5ChecksByDefault() {
-    test("var x = 3; delete x;", StrictModeCheck.DELETE_VARIABLE);
+    testStringDiagnosticType("var x = 3; delete x;", StrictModeCheck.DELETE_VARIABLE);
   }
 
   @Test
   public void testES5ChecksInVerbose() {
     args.add("--warning_level=VERBOSE");
-    test("function f(x) { delete x; }", StrictModeCheck.DELETE_VARIABLE);
+    testStringDiagnosticType("function f(x) { delete x; }", StrictModeCheck.DELETE_VARIABLE);
   }
 
   @Test
@@ -2112,8 +2112,8 @@ public final class CommandLineRunnerTest {
     args.add("--language_out=ECMASCRIPT5");
     args.add("--emit_use_strict=true");
     test("var x = f.function", "'use strict';var x = f.function");
-    test("var let", RhinoErrorReporter.PARSE_ERROR);
-    test("function f(x) { delete x; }", StrictModeCheck.DELETE_VARIABLE);
+    testStringDiagnosticType("var let", RhinoErrorReporter.PARSE_ERROR);
+    testStringDiagnosticType("function f(x) { delete x; }", StrictModeCheck.DELETE_VARIABLE);
   }
 
   @Test
@@ -2216,7 +2216,7 @@ public final class CommandLineRunnerTest {
     args.add("--compilation_level=ADVANCED");
     setFilename(0, "index.js");
     setFilename(1, "package.json");
-    test(
+    testStringArrayDiagnosticType(
         new String[] {
           "const /** string */ typeError = 0;",
           """
@@ -2242,7 +2242,7 @@ public final class CommandLineRunnerTest {
     setFilename(1, "array.js");
     setFilename(2, "Baz.js");
     setFilename(3, "app.js");
-    test(
+    testStringArray(
         new String[] {
           """
           /** @provideGoog */
@@ -2309,7 +2309,7 @@ public final class CommandLineRunnerTest {
     setFilename(2, "Baz.js");
     setFilename(3, "app.js");
 
-    test(
+    testStringArray(
         new String[] {
           """
           /** @provideGoog */
@@ -2371,7 +2371,7 @@ public final class CommandLineRunnerTest {
     args.add("--module_resolution=NODE");
     setFilename(0, "foo.js");
     setFilename(1, "app.js");
-    test(
+    testStringArray(
         new String[] {
           """
           export default class Foo {
@@ -2409,7 +2409,7 @@ public final class CommandLineRunnerTest {
     args.add("--module_resolution=NODE");
     setFilename(0, "foo.js");
     setFilename(1, "app.js");
-    test(
+    testStringArray(
         new String[] {
           """
           /** @constructor */ function Foo () {}
@@ -2443,7 +2443,7 @@ public final class CommandLineRunnerTest {
     args.add("--language_out=ECMASCRIPT5");
     setFilename(0, "foo.js");
     setFilename(1, "app.js");
-    test(
+    testStringArray(
         new String[] {
           """
           function foo() { alert('foo'); }
@@ -2469,7 +2469,7 @@ public final class CommandLineRunnerTest {
     setFilename(0, "message.js");
     setFilename(1, "foo.js");
     setFilename(2, "app.js");
-    test(
+    testStringArray(
         new String[] {
           "export default 'message';",
           "import message from './message.js';\nfunction foo() { alert(message); }\nfoo();",
@@ -2500,7 +2500,7 @@ public final class CommandLineRunnerTest {
     args.add("--module_resolution=NODE");
     setFilename(0, "foo.js");
     setFilename(1, "app.js");
-    test(
+    testStringArray(
         new String[] {
           """
           function foo() { alert('foo'); }
@@ -2534,7 +2534,7 @@ public final class CommandLineRunnerTest {
     setFilename(1, "node_modules/foo/package.json");
     setFilename(2, "node_modules/foo/browser.js");
 
-    test(
+    testStringArray(
         new String[] {
           "var Foo = require('foo');",
           "{\"browser\":\"browser.js\",\"name\":\"foo\"}",
@@ -2582,7 +2582,7 @@ public final class CommandLineRunnerTest {
   @Test
   public void testOutputSameAsInput() {
     args.add("--js_output_file=" + getFilename(0));
-    test("", AbstractCommandLineRunner.OUTPUT_SAME_AS_INPUT_ERROR);
+    testStringDiagnosticType("", AbstractCommandLineRunner.OUTPUT_SAME_AS_INPUT_ERROR);
   }
 
   @Test
@@ -3880,7 +3880,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
     args.add("--compilation_level=TRANSPILE_ONLY");
     args.add("--language_in=ECMASCRIPT6");
     args.add("--language_out=ECMASCRIPT5");
-    test("const x = {", RhinoErrorReporter.PARSE_ERROR);
+    testStringDiagnosticType("const x = {", RhinoErrorReporter.PARSE_ERROR);
   }
 
   @Test
@@ -3980,23 +3980,23 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
   /* Helper functions */
 
   private void testSame(String original) {
-    testSame(new String[] {original});
+    testSameStringArray(new String[] {original});
   }
 
-  private void testSame(String[] original) {
-    test(original, original);
+  private void testSameStringArray(String[] original) {
+    testStringArray(original, original);
   }
 
   private void test(String original, String compiled) {
-    test(new String[] {original}, new String[] {compiled});
+    testStringArray(new String[] {original}, new String[] {compiled});
   }
 
   /**
    * Asserts that when compiling with the given compiler options, {@code original} is transformed
    * into {@code compiled}.
    */
-  private void test(String[] original, String[] compiled) {
-    test(original, compiled, null);
+  private void testStringArray(String[] original, String[] compiled) {
+    testStringArray(original, compiled, null);
   }
 
   /**
@@ -4004,7 +4004,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
    * into {@code compiled}. If {@code warning} is non-null, we will also check if the given warning
    * type was emitted.
    */
-  private void test(String[] original, String[] compiled, @Nullable DiagnosticType warning) {
+  private void testStringArray(String[] original, String[] compiled, @Nullable DiagnosticType warning) {
     exitCodes.clear();
     Compiler compiler = compile(original);
 
@@ -4034,21 +4034,21 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
       assertThat(compiler.toSource()).isEqualTo(Joiner.on("").join(compiled));
     } else {
       Node expectedRoot = parse(compiled);
-      assertNode(root).usingSerializer(compiler::toSource).isEqualTo(expectedRoot);
+      assertNode(root).usingSerializer(compiler::toSource).isEqualToNode(expectedRoot);
     }
   }
 
   /** Asserts that when compiling, there is an error or warning. */
-  private void test(String original, DiagnosticType warning) {
-    test(new String[] {original}, warning);
+  private void testStringDiagnosticType(String original, DiagnosticType warning) {
+    testStringArrayDiagnosticType(new String[] {original}, warning);
   }
 
   private void test(String original, String expected, DiagnosticType warning) {
-    test(new String[] {original}, new String[] {expected}, warning);
+    testStringArray(new String[] {original}, new String[] {expected}, warning);
   }
 
   /** Asserts that when compiling, there is an error or warning. */
-  private void test(String[] original, DiagnosticType warning) {
+  private void testStringArrayDiagnosticType(String[] original, DiagnosticType warning) {
     Compiler compiler = compile(original);
     assertWithMessage(
             "Expected exactly one warning or error " + "\nErrors: \n%s\nWarnings: \n%s",

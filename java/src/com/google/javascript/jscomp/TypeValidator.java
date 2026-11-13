@@ -194,7 +194,7 @@ class TypeValidator implements Serializable {
     this.compiler = compiler;
     this.typeRegistry = compiler.getTypeRegistry();
     this.allBitwisableValueTypes =
-        typeRegistry.createUnionType(STRING_TYPE, NUMBER_TYPE, BOOLEAN_TYPE, NULL_TYPE, VOID_TYPE);
+        typeRegistry.createUnionTypeJSTypeNativeVarargs(STRING_TYPE, NUMBER_TYPE, BOOLEAN_TYPE, NULL_TYPE, VOID_TYPE);
     this.nullOrUndefined = typeRegistry.getNativeType(JSTypeNative.NULL_VOID);
     this.promiseOfUnknownType =
         typeRegistry.createTemplatizedType(
@@ -276,7 +276,7 @@ class TypeValidator implements Serializable {
   void expectAnyObject(Node n, JSType type, String msg) {
     JSType anyObjectType = getNativeType(NO_OBJECT_TYPE);
     if (!anyObjectType.isSubtypeOf(type) && !type.isEmptyType()) {
-      mismatch(n, msg, type, anyObjectType);
+      mismatchJSType(n, msg, type, anyObjectType);
     }
   }
   /**
@@ -318,7 +318,7 @@ class TypeValidator implements Serializable {
       return Optional.of(maybeBoxed.getTemplatedType());
     }
 
-    mismatch(n, msg, type, iterableOrAsyncIterable);
+    mismatchJSType(n, msg, type, iterableOrAsyncIterable);
 
     return Optional.empty();
   }
@@ -401,7 +401,7 @@ class TypeValidator implements Serializable {
    */
   void expectBitwiseable(Node n, JSType type, String msg) {
     if (!type.matchesNumberContext() && !type.isSubtypeOf(allBitwisableValueTypes)) {
-      mismatch(n, msg, type, allBitwisableValueTypes);
+      mismatchJSType(n, msg, type, allBitwisableValueTypes);
     } else {
       expectNumberStrict(n, type, msg);
     }
@@ -509,7 +509,7 @@ class TypeValidator implements Serializable {
         return true;
       }
 
-      mismatch(n, msg, type, expectedType);
+      mismatchJSType(n, msg, type, expectedType);
       return false;
     }
     return true;
@@ -530,7 +530,7 @@ class TypeValidator implements Serializable {
   void expectSwitchMatchesCase(Node n, JSType switchType, JSType caseType) {
     // ECMA-262, page 68, step 3 of evaluation of CaseBlock
     if (!switchType.canTestForShallowEqualityWith(caseType)) {
-      mismatch(n.getFirstChild(), "case expression doesn't match switch", caseType, switchType);
+      mismatchJSType(n.getFirstChild(), "case expression doesn't match switch", caseType, switchType);
     }
   }
 
@@ -570,11 +570,11 @@ class TypeValidator implements Serializable {
     } else if (objType.matchesObjectContext()) {
       expectStringOrSymbol(indexNode, indexType, "property access");
     } else {
-      mismatch(
+      mismatchJSType(
           n,
           "only arrays or objects can be accessed",
           objType,
-          typeRegistry.createUnionType(ARRAY_TYPE, OBJECT_TYPE));
+          typeRegistry.createUnionTypeJSTypeNativeVarargs(ARRAY_TYPE, OBJECT_TYPE));
     }
   }
 
@@ -651,7 +651,7 @@ class TypeValidator implements Serializable {
           return true;
         }
       }
-      mismatch(
+      mismatchJSType(
           n,
           "assignment to property " + propName + " of " + typeNameSupplier.get(),
           rightType,
@@ -694,7 +694,7 @@ class TypeValidator implements Serializable {
       }
     }
     if (!rightType.isSubtypeOf(leftType)) {
-      mismatch(n, msg, rightType, leftType);
+      mismatchJSType(n, msg, rightType, leftType);
       return false;
     }
     return true;
@@ -712,7 +712,7 @@ class TypeValidator implements Serializable {
   void expectArgumentMatchesParameter(
       Node n, JSType argType, JSType paramType, Node callNode, int ordinal) {
     if (!argType.isSubtypeOf(paramType)) {
-      mismatch(
+      mismatchJSType(
           n,
           "actual parameter "
               + ordinal
@@ -747,7 +747,7 @@ class TypeValidator implements Serializable {
             declaredSuper,
             JSError.make(n, MISSING_EXTENDS_TAG_WARNING, subObject.toString()));
       } else {
-        mismatch(n, "mismatch in declaration of superclass type", superObject, declaredSuper);
+        mismatchJSType(n, "mismatch in declaration of superclass type", superObject, declaredSuper);
       }
 
       // Correct the super type.
@@ -785,7 +785,7 @@ class TypeValidator implements Serializable {
       if (registeredSuperCtor != null) {
         ObjectType registeredSuperInstance = registeredSuperCtor.getInstanceType();
         if (!astSuperInstance.equals(registeredSuperInstance)) {
-          mismatch(
+          mismatchJSType(
               n,
               "mismatch in declaration of superclass type",
               astSuperInstance,
@@ -971,7 +971,7 @@ class TypeValidator implements Serializable {
         // Abstract classes and interfaces are not required to implement interface properties.
         return;
       }
-      if (implementedInterface.getPropertyType(propName).isVoidable()) {
+      if (implementedInterface.getPropertyTypeKey(propName).isVoidable()) {
         // Voidable properties don't require explicit initialization in type constructors.
         return;
       }
@@ -1006,7 +1006,7 @@ class TypeValidator implements Serializable {
    */
   void checkPropertyType(
       Node n, JSType instance, ObjectType parent, Property.Key propertyName, JSType found) {
-    JSType required = parent.getPropertyType(propertyName);
+    JSType required = parent.getPropertyTypeKey(propertyName);
     TemplateTypeMap typeMap = instance.getTemplateTypeMap();
     if (!typeMap.isEmpty() && required.hasAnyTemplateTypes()) {
       required = required.visit(TemplateTypeReplacer.forPartialReplacement(typeRegistry, typeMap));
@@ -1047,7 +1047,7 @@ class TypeValidator implements Serializable {
     while (currSuperCtor != null && currSuperCtor.isAbstract()) {
       ObjectType superType = currSuperCtor.getInstanceType();
       for (Property.Key prop : currSuperCtor.getPrototype().getOwnPropertyKeys()) {
-        FunctionType maybeAbstractMethod = superType.findPropertyType(prop).toMaybeFunctionType();
+        FunctionType maybeAbstractMethod = superType.findPropertyTypeKey(prop).toMaybeFunctionType();
         if (maybeAbstractMethod != null
             && maybeAbstractMethod.isAbstract()
             && !abstractMethodSuperTypeMap.containsKey(prop)) {
@@ -1061,7 +1061,7 @@ class TypeValidator implements Serializable {
     for (var entry : abstractMethodSuperTypeMap.entrySet()) {
       Property.Key method = entry.getKey();
       ObjectType superType = entry.getValue();
-      FunctionType abstractMethod = instance.findPropertyType(method).toMaybeFunctionType();
+      FunctionType abstractMethod = instance.findPropertyTypeKey(method).toMaybeFunctionType();
       if (abstractMethod == null || abstractMethod.isAbstract()) {
         registerMismatchAndReport(
             instance,
@@ -1077,10 +1077,10 @@ class TypeValidator implements Serializable {
   }
 
   private void mismatch(Node n, String msg, JSType found, JSTypeNative required) {
-    mismatch(n, msg, found, getNativeType(required));
+    mismatchJSType(n, msg, found, getNativeType(required));
   }
 
-  private void mismatch(Node n, String msg, JSType found, JSType required) {
+  private void mismatchJSType(Node n, String msg, JSType found, JSType required) {
     if (!found.isSubtypeOf(required, this.subtypingMode)) {
       Set<String> missing = null;
       Set<String> mismatch = null;

@@ -546,7 +546,7 @@ public class DepsGenerator {
     return files;
   }
 
-  static List<SourceFile> createSourceFilesFromPaths(String... paths) {
+  static List<SourceFile> createSourceFilesFromPathsStringVarargs(String... paths) {
     return createSourceFilesFromPaths(Arrays.asList(paths));
   }
 

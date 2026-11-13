@@ -109,7 +109,7 @@ public enum CompilationLevel {
 
     options.setClosurePass(true);
     options.setRenamingPolicy(VariableRenamingPolicy.OFF, PropertyRenamingPolicy.OFF);
-    options.setInlineVariables(Reach.NONE);
+    options.setInlineVariablesReach(Reach.NONE);
     options.setInlineFunctions(Reach.NONE);
     options.setFoldConstants(false);
     options.setCoalesceVariableNames(false);
@@ -143,7 +143,7 @@ public enum CompilationLevel {
     // skipAllCompilerPasses() cannot be easily undone.
     options.setClosurePass(true);
     options.setRenamingPolicy(VariableRenamingPolicy.LOCAL, PropertyRenamingPolicy.OFF);
-    options.setInlineVariables(Reach.LOCAL_ONLY);
+    options.setInlineVariablesReach(Reach.LOCAL_ONLY);
     options.setInlineFunctions(Reach.LOCAL_ONLY);
     options.setWarningLevel(DiagnosticGroups.GLOBAL_THIS, CheckLevel.OFF);
     options.setFoldConstants(true);
@@ -199,7 +199,7 @@ public enum CompilationLevel {
     options.setSmartNameRemoval(true);
     options.setInlineConstantVars(true);
     options.setInlineFunctions(Reach.ALL);
-    options.setInlineVariables(Reach.ALL);
+    options.setInlineVariablesReach(Reach.ALL);
     options.setComputeFunctionSideEffects(true);
     options.setAssumeStrictThis(true);
 
@@ -251,7 +251,7 @@ public enum CompilationLevel {
         options.setCollapseAnonymousFunctions(true);
         options.setInlineConstantVars(true);
         options.setInlineFunctions(Reach.ALL);
-        options.setInlineVariables(Reach.ALL);
+        options.setInlineVariablesReach(Reach.ALL);
         options.setRemoveUnusedVariables(Reach.ALL);
       }
       case ADVANCED_OPTIMIZATIONS, WHITESPACE_ONLY, BUNDLE, TRANSPILE_ONLY -> {}

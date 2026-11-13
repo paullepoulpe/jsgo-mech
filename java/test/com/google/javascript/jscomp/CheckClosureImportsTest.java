@@ -136,22 +136,22 @@ public class CheckClosureImportsTest extends CompilerTestCase {
 
   /** A test common to goog.require, goog.forwardDeclare, and goog.requireType. */
   private void testCommonCase(String source) {
-    test(srcs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.require"))));
+    test(srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.require"))));
     test(
-        srcs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.forwardDeclare"))));
-    test(srcs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.requireType"))));
+        srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.forwardDeclare"))));
+    test(srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.requireType"))));
   }
 
   /** A test common to goog.require, goog.forwardDeclare, and goog.requireType. */
   private void testCommonCase(String source, DiagnosticType error) {
     test(
-        srcs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.require"))),
+        srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.require"))),
         error(error));
     test(
-        srcs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.forwardDeclare"))),
+        srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.forwardDeclare"))),
         error(error));
     test(
-        srcs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.requireType"))),
+        srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile(source.replace("<import>", "goog.requireType"))),
         error(error));
   }
 
@@ -329,8 +329,8 @@ public class CheckClosureImportsTest extends CompilerTestCase {
   public void googRequireDeclarationInEsModuleMustBeConst() {
     moduleType = ModuleType.ES6_MODULE;
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -339,7 +339,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
                 """)));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -349,7 +349,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
         error(LET_CLOSURE_IMPORT));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -364,7 +364,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -379,7 +379,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -394,7 +394,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -408,7 +408,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -422,7 +422,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -437,7 +437,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -452,7 +452,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -467,7 +467,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -482,7 +482,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -497,7 +497,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -512,7 +512,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -527,7 +527,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -542,7 +542,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -557,7 +557,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -571,9 +571,9 @@ public class CheckClosureImportsTest extends CompilerTestCase {
   public void googRequireLateIsError() {
     moduleType = ModuleType.GOOG_MODULE;
 
-    test(srcs(PROVIDES_SYMBOL_SRC, makeTestFile("goog.require('symbol');")));
+    test(srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile("goog.require('symbol');")));
     test(
-        srcs(makeTestFile("goog.require('symbol');"), PROVIDES_SYMBOL_SRC),
+        srcsSourceFileVarargs(makeTestFile("goog.require('symbol');"), PROVIDES_SYMBOL_SRC),
         error(LATE_PROVIDE_ERROR));
   }
 
@@ -581,18 +581,18 @@ public class CheckClosureImportsTest extends CompilerTestCase {
   public void googRequireTypeLateIsOk() {
     moduleType = ModuleType.GOOG_MODULE;
 
-    test(srcs(PROVIDES_SYMBOL_SRC, makeTestFile("goog.requireType('symbol');")));
+    test(srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile("goog.requireType('symbol');")));
 
-    test(srcs(makeTestFile("goog.requireType('symbol');"), PROVIDES_SYMBOL_SRC));
+    test(srcsSourceFileVarargs(makeTestFile("goog.requireType('symbol');"), PROVIDES_SYMBOL_SRC));
   }
 
   @Test
   public void googForwardDeclareLateIsError() {
     moduleType = ModuleType.GOOG_MODULE;
 
-    test(srcs(PROVIDES_SYMBOL_SRC, makeTestFile("goog.forwardDeclare('symbol');")));
+    test(srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile("goog.forwardDeclare('symbol');")));
 
-    test(srcs(makeTestFile("goog.forwardDeclare('symbol');"), PROVIDES_SYMBOL_SRC));
+    test(srcsSourceFileVarargs(makeTestFile("goog.forwardDeclare('symbol');"), PROVIDES_SYMBOL_SRC));
   }
 
   @Test
@@ -600,7 +600,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -612,7 +612,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.ES6_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -627,7 +627,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.SCRIPT;
 
     // only global variable aliasing goog.module.get results are banned.
-    test(srcs(ES_MODULE_SRC, makeTestFile("goog.module.get('es.module');")));
+    test(srcsSourceFileVarargs(ES_MODULE_SRC, makeTestFile("goog.module.get('es.module');")));
   }
 
   @Test
@@ -635,7 +635,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -646,7 +646,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.ES6_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -656,7 +656,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
 
     moduleType = ModuleType.SCRIPT;
 
-    test(srcs(PROVIDES_SYMBOL_SRC, makeTestFile("() => goog.module.get('symbol');")));
+    test(srcsSourceFileVarargs(PROVIDES_SYMBOL_SRC, makeTestFile("() => goog.module.get('symbol');")));
   }
 
   @Test
@@ -664,7 +664,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -679,7 +679,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_PROVIDE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -694,7 +694,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_PROVIDE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -704,7 +704,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
         error(INVALID_GET_CALL_SCOPE));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -714,7 +714,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
         error(INVALID_GET_CALL_SCOPE));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -724,7 +724,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
         error(INVALID_GET_CALL_SCOPE));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -734,7 +734,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
         error(INVALID_GET_CALL_SCOPE));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -745,7 +745,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
         error(INVALID_GET_CALL_SCOPE));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -760,7 +760,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -776,7 +776,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -791,7 +791,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
   public void googForwardDeclareForGlobalInScriptIsOk() {
     moduleType = ModuleType.SCRIPT;
 
-    test(srcs(makeTestFile("goog.forwardDeclare('MyGlobal');")));
+    test(srcsSourceFileVarargs(makeTestFile("goog.forwardDeclare('MyGlobal');")));
   }
 
   @Test
@@ -799,7 +799,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_PROVIDE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             makeTestFile(
                 """
                 goog.provide('test');
@@ -812,7 +812,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             makeTestFile(
                 """
                 goog.module('test');
@@ -825,7 +825,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             makeTestFile(
                 """
                 goog.module('test');
@@ -839,7 +839,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.ES6_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             makeTestFile(
                 """
                 export {};
@@ -852,7 +852,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.ES6_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             makeTestFile(
                 """
                 export {};
@@ -865,8 +865,8 @@ public class CheckClosureImportsTest extends CompilerTestCase {
   public void googRequireCodeReferenceAliasIsOk() {
     moduleType = ModuleType.GOOG_MODULE;
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -880,8 +880,8 @@ public class CheckClosureImportsTest extends CompilerTestCase {
   public void googForwardDeclareCodeReferenceAliasIsOk() {
     moduleType = ModuleType.GOOG_MODULE;
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -896,7 +896,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.GOOG_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -911,7 +911,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     moduleType = ModuleType.ES6_MODULE;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             ES_MODULE_SRC,
             makeTestFile(
                 """
@@ -925,7 +925,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
   public void testIgnoreArguments() {
     moduleType = ModuleType.GOOG_MODULE;
     test(
-        srcs(
+        srcsSourceFileVarargs(
             PROVIDES_SYMBOL_SRC,
             makeTestFile(
                 """
@@ -942,7 +942,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     enableCreateModuleMap();
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("// base")
                 .addChunk("goog.module('test');")
@@ -957,7 +957,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     enableCreateModuleMap();
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("// base")
                 .addChunk(
@@ -978,7 +978,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     enableCreateModuleMap();
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("// base")
                 .addChunk("goog.provide('test');")
@@ -993,7 +993,7 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     enableCreateModuleMap();
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("// base")
                 .addChunk("goog.module('test');")
@@ -1006,8 +1006,8 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     this.useDefaultModuleMetadata = false;
     enableCreateModuleMap();
 
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("// base")
                 .addChunk("goog.module('test');")
@@ -1020,8 +1020,8 @@ public class CheckClosureImportsTest extends CompilerTestCase {
     this.useDefaultModuleMetadata = false;
     enableCreateModuleMap();
 
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("goog.module('test');")
                 .addChunk("goog.require('test');")

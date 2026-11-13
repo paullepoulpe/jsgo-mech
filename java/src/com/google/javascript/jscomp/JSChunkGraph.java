@@ -103,8 +103,8 @@ public final class JSChunkGraph implements Serializable {
       new LinkedIdentityHashMap<>();
 
   /** Creates a chunk graph from a list of chunks in dependency order. */
-  public JSChunkGraph(JSChunk[] chunksInDepOrder) {
-    this(Arrays.asList(chunksInDepOrder));
+  public static JSChunkGraph createFromArray(JSChunk[] chunksInDepOrder) {
+    return new JSChunkGraph(Arrays.asList(chunksInDepOrder));
   }
 
   /** Creates a chunk graph from a list of chunks in dependency order. */
@@ -499,7 +499,7 @@ public final class JSChunkGraph implements Serializable {
         if (existingChunk != null) {
           existingChunk.remove(i);
         }
-        weakChunk.add(i);
+        weakChunk.addCompilerInput(i);
       }
     }
   }
@@ -638,7 +638,7 @@ public final class JSChunkGraph implements Serializable {
         checkState(i.getChunk() == null);
         i.getSourceFile().setKind(SourceKind.WEAK);
         i.setChunk(weakChunk);
-        weakChunk.add(i);
+        weakChunk.addCompilerInput(i);
       }
     } else {
       // Only move sourced marked as weak if the compiler isn't doing its own detection.
@@ -650,7 +650,7 @@ public final class JSChunkGraph implements Serializable {
     for (CompilerInput input : orderedInputs) {
       JSChunk chunk = input.getChunk();
       if (chunk != null && chunk.getByName(input.getName()) == null) {
-        chunk.add(input);
+        chunk.addCompilerInput(input);
       }
     }
 

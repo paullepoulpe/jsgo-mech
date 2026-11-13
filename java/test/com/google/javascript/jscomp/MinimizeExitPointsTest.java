@@ -38,7 +38,7 @@ public final class MinimizeExitPointsTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new PeepholeOptimizationsPass(compiler, getName(), new MinimizeExitPoints());
+    return PeepholeOptimizationsPass.createFromOptimizations(compiler, getName(), new MinimizeExitPoints());
   }
 
   void foldSame(String js) {

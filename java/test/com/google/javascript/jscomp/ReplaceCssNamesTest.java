@@ -512,7 +512,7 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
             // name like this rather than creating an alias variable named `foo`.
             var x = foo_styles_css.classes.Bar
             """);
-    test(srcs(cssVarsDefinition, importer), expected(cssVarsExpected, importer));
+    test(srcsSourceFileVarargs(cssVarsDefinition, importer), expectedSourceFileVarargs(cssVarsExpected, importer));
     assertThat(cssNames).containsExactly("fooStylesBar");
   }
 
@@ -563,7 +563,7 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
             // name like this rather than creating an alias variable named `foo`.
             var x = foo_styles_css.classes.Bar
             """);
-    test(srcs(cssVarsDefinition, importer), expected(cssVarsExpected, importer));
+    test(srcsSourceFileVarargs(cssVarsDefinition, importer), expectedSourceFileVarargs(cssVarsExpected, importer));
     assertThat(cssNames).containsExactly("fooStylesBar");
   }
 
@@ -619,7 +619,7 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
             var x = foo_styles_css.classes.Bar;
             var y = 'a';
             """);
-    test(srcs(cssVarsDefinition, importer), expected(cssVarsExpected, importerExpected));
+    test(srcsSourceFileVarargs(cssVarsDefinition, importer), expectedSourceFileVarargs(cssVarsExpected, importerExpected));
     assertThat(cssNames).containsExactly("fooStylesBar", "active");
   }
 
@@ -655,7 +655,7 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
               'Baz': 'fsz',
             }
             """);
-    test(srcs(cssVarsDefinition), expected(cssVarsExpected));
+    test(srcsSourceFileVarargs(cssVarsDefinition), expectedSourceFileVarargs(cssVarsExpected));
     assertThat(cssNames).isEmpty();
   }
 
@@ -672,7 +672,7 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
              */
             var x = 'foo';
             """);
-    test(srcs(nonCssClosureFile), error(UNEXPECTED_SASS_GENERATED_CSS_TS_ERROR));
+    test(srcsSourceFileVarargs(nonCssClosureFile), error(UNEXPECTED_SASS_GENERATED_CSS_TS_ERROR));
   }
 
   @Test
@@ -701,7 +701,7 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
             const foo_styles_css = goog.require('foo.styles$2ecss')
             var x = foo_styles_css.classes;
             """);
-    test(srcs(cssVarsDefinition, importer), error(INVALID_USE_OF_CLASSES_OBJECT_ERROR));
+    test(srcsSourceFileVarargs(cssVarsDefinition, importer), error(INVALID_USE_OF_CLASSES_OBJECT_ERROR));
   }
 
   @Test
@@ -730,6 +730,6 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
             const foo_styles_css = goog.require('foo.styles$2ecss')
             var x = foo_styles_css.classes.Quux;
             """);
-    test(srcs(cssVarsDefinition, importer), error(UNKNOWN_SYMBOL_ERROR));
+    test(srcsSourceFileVarargs(cssVarsDefinition, importer), error(UNKNOWN_SYMBOL_ERROR));
   }
 }

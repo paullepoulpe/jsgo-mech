@@ -228,7 +228,7 @@ public final class RewriteCallerCodeLocationTest extends CompilerTestCase {
         """;
     SourceFile baseJs = SourceFile.fromCode("javascript/closure/base.js", baseJsSource);
     // this code is only allowed in base.js
-    test(srcs(baseJs), expected(baseJs));
+    test(srcsSourceFileVarargs(baseJs), expectedSourceFileVarargs(baseJs));
   }
 
   @Test
@@ -250,7 +250,7 @@ public final class RewriteCallerCodeLocationTest extends CompilerTestCase {
         const mySignal = signal('path/to/file.ts:25');
         """;
     SourceFile testJs = SourceFile.fromCode("codeLocationProvided.js", codeLocationProvided);
-    testSame(srcs(baseJs, testJs));
+    testSameTestPartVarargs(srcsSourceFileVarargs(baseJs, testJs));
 
     String codeLocationProvided2 =
         """
@@ -258,7 +258,7 @@ public final class RewriteCallerCodeLocationTest extends CompilerTestCase {
         const mySignal = signal(0, xid('path/to/file.ts:25'));
         """;
     SourceFile testJs2 = SourceFile.fromCode("codeLocationProvided2.js", codeLocationProvided2);
-    testSame(srcs(baseJs, testJs2));
+    testSameTestPartVarargs(srcsSourceFileVarargs(baseJs, testJs2));
 
     String codeLocationProvided3 =
         """
@@ -269,7 +269,7 @@ public final class RewriteCallerCodeLocationTest extends CompilerTestCase {
         );
         """;
     SourceFile testJs3 = SourceFile.fromCode("codeLocationProvided3.js", codeLocationProvided3);
-    testSame(srcs(baseJs, testJs3));
+    testSameTestPartVarargs(srcsSourceFileVarargs(baseJs, testJs3));
 
     // no rewriting if CodeLocation is provided as an argument, regardless of the type of the arg
     String codeLocationProvided4 =
@@ -278,7 +278,7 @@ public final class RewriteCallerCodeLocationTest extends CompilerTestCase {
         const mySignal = signal(foo());
         """;
     SourceFile testJs4 = SourceFile.fromCode("codeLocationProvided4.js", codeLocationProvided4);
-    testSame(srcs(baseJs, testJs4));
+    testSameTestPartVarargs(srcsSourceFileVarargs(baseJs, testJs4));
   }
 
   @Test

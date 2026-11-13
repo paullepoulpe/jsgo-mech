@@ -144,29 +144,29 @@ public final class CheckExtraRequiresTest extends CompilerTestCase {
 
   @Test
   public void testNoWarning_require_externsJsDoc() {
-    testSame(
-        externs(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
+    testSameTestPartVarargs(
+        externsList(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
         srcs("goog.require('ns.Foo'); /** @type {ns.Foo} */ var f;"));
   }
 
   @Test
   public void testNoWarning_requireType_externsJsDoc() {
-    testSame(
-        externs(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
+    testSameTestPartVarargs(
+        externsList(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
         srcs("goog.requireType('ns.Foo'); /** @type {ns.Foo} */ var f;"));
   }
 
   @Test
   public void testNoWarning_require_externsNew() {
-    testSame(
-        externs(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
+    testSameTestPartVarargs(
+        externsList(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
         srcs("goog.require('ns.Foo'); new ns.Foo();"));
   }
 
   @Test
   public void testNoWarning_requireType_externsNew() {
-    testSame(
-        externs(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
+    testSameTestPartVarargs(
+        externsList(ImmutableList.of(SourceFile.fromCode("externs", "/** @const */ var ns;"))),
         srcs("goog.requireType('ns.Foo'); new ns.Foo();"));
   }
 
@@ -240,8 +240,8 @@ public final class CheckExtraRequiresTest extends CompilerTestCase {
 
   @Test
   public void testNoWarningMultipleFiles() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.require('Foo'); var foo = new Foo();",
             "goog.require('Bar'); var bar = new Bar();"));
   }

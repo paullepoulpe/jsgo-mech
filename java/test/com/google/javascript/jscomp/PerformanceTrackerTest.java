@@ -112,7 +112,7 @@ public final class PerformanceTrackerTest {
     Node main =
         IR.root(
             IR.script(
-                IR.block(
+                IR.blockNodeVarargs(
                     IR.block(
                         IR.exprResult( //
                             IR.hook(IR.string("a"), IR.string("b"), IR.string("c")))),
@@ -237,10 +237,10 @@ public final class PerformanceTrackerTest {
     SourceFile typeSummary2SourceFile = SourceFile.fromCode("type2.js.i.js", "");
     SourceFile typeSummaryPrunedSourceFile =
         SourceFile.fromCode("type_depPruned.js.i.js", "a \n b \n c");
-    var typeSummary1Input = new CompilerInput(typeSummary1SourceFile, new InputId("type1.js.i.js"));
-    var typeSummary2Input = new CompilerInput(typeSummary2SourceFile, new InputId("type2.js.i.js"));
+    var typeSummary1Input = CompilerInput.createFromInputId(typeSummary1SourceFile, new InputId("type1.js.i.js"));
+    var typeSummary2Input = CompilerInput.createFromInputId(typeSummary2SourceFile, new InputId("type2.js.i.js"));
     var typeSummaryPrunedInput =
-        new CompilerInput(typeSummaryPrunedSourceFile, new InputId("pruned.js.i.js"));
+        CompilerInput.createFromInputId(typeSummaryPrunedSourceFile, new InputId("pruned.js.i.js"));
     emptyExternRoot.addChildToFront(createTypeSummary("type1.js.i.js"));
     emptyExternRoot.addChildToFront(createTypeSummary("type2.js.i.js"));
     PerformanceTracker tracker =

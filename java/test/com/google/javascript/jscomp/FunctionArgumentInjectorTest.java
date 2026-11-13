@@ -58,7 +58,7 @@ public final class FunctionArgumentInjectorTest {
             getFunctionBody(parseFunction("function f(x) { alert(x); }")),
             null,
             ImmutableMap.of("x", parse("null").getFirstFirstChild()));
-    assertNode(result).isEqualTo(getFunctionBody(parseFunction("function f(x) { alert(null); }")));
+    assertNode(result).isEqualToNode(getFunctionBody(parseFunction("function f(x) { alert(null); }")));
   }
 
   @Test
@@ -69,7 +69,7 @@ public final class FunctionArgumentInjectorTest {
             getFunctionBody(parseFunction("function f() { alert(this); }")),
             null,
             ImmutableMap.of("this", parse("null").getFirstFirstChild()));
-    assertNode(result).isEqualTo(getFunctionBody(parseFunction("function f() { alert(null); }")));
+    assertNode(result).isEqualToNode(getFunctionBody(parseFunction("function f() { alert(null); }")));
   }
 
   @Test
@@ -82,7 +82,7 @@ public final class FunctionArgumentInjectorTest {
             ImmutableMap.of("this", parse("null").getFirstFirstChild()));
 
     assertNode(result)
-        .isEqualTo(
+        .isEqualToNode(
             getFunctionBody(parseFunction("function f() { return class { field = this; }; }")));
   }
 
@@ -97,7 +97,7 @@ public final class FunctionArgumentInjectorTest {
             ImmutableMap.of("this", parse("null").getFirstFirstChild()));
 
     assertNode(result)
-        .isEqualTo(
+        .isEqualToNode(
             getFunctionBody(
                 parseFunction("function f() { return class { static field = this; }; }")));
   }
@@ -112,7 +112,7 @@ public final class FunctionArgumentInjectorTest {
             ImmutableMap.of("this", parse("x").getFirstFirstChild()));
 
     assertNode(result)
-        .isEqualTo(
+        .isEqualToNode(
             getFunctionBody(parseFunction("function f() { return class { [x.k] = this.v; }; }")));
   }
 
@@ -127,7 +127,7 @@ public final class FunctionArgumentInjectorTest {
             ImmutableMap.of("this", parse("x").getFirstFirstChild()));
 
     assertNode(result)
-        .isEqualTo(
+        .isEqualToNode(
             getFunctionBody(
                 parseFunction("function f() { return class { static [x.k] = this.v; }; }")));
   }
@@ -143,7 +143,7 @@ public final class FunctionArgumentInjectorTest {
             ImmutableMap.of("this", parse("null").getFirstFirstChild()));
 
     assertNode(result)
-        .isEqualTo(
+        .isEqualToNode(
             getFunctionBody(
                 parseFunction("function f() { return class { static { alert(this); } }; }")));
   }
@@ -161,7 +161,7 @@ public final class FunctionArgumentInjectorTest {
                 "this", parse("null").getFirstFirstChild()));
 
     assertNode(result)
-        .isEqualTo(
+        .isEqualToNode(
             getFunctionBody(
                 parseFunction("function f(val) { return class { field = 123; [123] = this; }; }")));
   }

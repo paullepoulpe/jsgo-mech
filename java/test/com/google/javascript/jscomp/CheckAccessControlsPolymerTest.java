@@ -82,7 +82,7 @@ public final class CheckAccessControlsPolymerTest extends CompilerTestCase {
   @Test
   public void testPrivateMethodInBehavior() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @polymerBehavior */
             var Behavior = {
@@ -101,8 +101,8 @@ public final class CheckAccessControlsPolymerTest extends CompilerTestCase {
 
   @Test
   public void testPrivateMethodFromBehaviorUsedInElement() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @polymerBehavior */
             var Behavior = {
@@ -123,7 +123,7 @@ public final class CheckAccessControlsPolymerTest extends CompilerTestCase {
   @Test
   public void testPrivatePropertyInBehavior() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @polymerBehavior */
             var Behavior = {
@@ -142,8 +142,8 @@ public final class CheckAccessControlsPolymerTest extends CompilerTestCase {
 
   @Test
   public void testPrivatePropertyFromBehaviorUsedInElement() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @polymerBehavior */
             var Behavior = {

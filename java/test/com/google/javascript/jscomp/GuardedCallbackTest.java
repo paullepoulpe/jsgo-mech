@@ -64,7 +64,7 @@ public final class GuardedCallbackTest extends CompilerTestCase {
   @Test
   public void unguardedTest() {
     final String externs = new TestExternsBuilder().addConsole().addPromise().build();
-    testSame(externs(externs), srcs("console.log(Promise.allSettled);"));
+    testSameTestPartVarargs(externs(externs), srcs("console.log(Promise.allSettled);"));
   }
 
   @Test
@@ -144,7 +144,7 @@ public final class GuardedCallbackTest extends CompilerTestCase {
   @Test
   public void optChainTest() {
     final String externs = new TestExternsBuilder().addConsole().addPromise().build();
-    testSame(
+    testSameTestPartVarargs(
         externs(externs),
         // Nothing guarded
         srcs("console.log(Promise.allSettled([Promise.resolve(), x.allSettled]))"));

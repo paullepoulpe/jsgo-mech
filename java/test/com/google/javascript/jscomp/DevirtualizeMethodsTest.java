@@ -685,7 +685,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
 
   @Test
   public void testNoRewrite_externMethod() {
-    testSame(
+    testSameTestPartVarargs(
         externs("A.prototype.externalMethod = function(){};"), //
         srcs("o.externalMethod()"));
   }
@@ -1089,7 +1089,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
   @Test
   public void testNoRewrite_definedUsingStringKey_inPrototypeLiteral_usingSuper() {
     // TODO(b/120452418): Add rewriting support for this.
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             function a(){}
@@ -1151,7 +1151,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
   @Test
   public void testNoRewrite_definedUsingClassMember_prototypeMethod_usingSuper() {
     // TODO(b/120452418): Add rewriting support for this.
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1193,7 +1193,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
 
   @Test
   public void testNoRewrite_definedUsingClassMember_constructor() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1309,7 +1309,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
   @Test
   public void testNoRewrite_definedUsingClassMember_staticMethod_usingSuper() {
     // TODO(b/120452418): Add rewriting support for this.
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1351,7 +1351,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
 
   @Test
   public void testNoRewrite_inClassWithLocalName_asClassName() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             const Qux = class Foo {
@@ -1367,7 +1367,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
 
   @Test
   public void testPropDefinition_notOnQualifiedName_doesNotCrash() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Qux { }
@@ -1795,8 +1795,8 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             semicolonJoin(ModuleTestInput.REWRITTEN_DEFINITION, ModuleTestInput.REWRITTEN_USE),
             // m2
@@ -1814,8 +1814,8 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1833,8 +1833,8 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             semicolonJoin(ModuleTestInput.REWRITTEN_USE, ModuleTestInput.REWRITTEN_DEFINITION),
             // m2
@@ -1852,8 +1852,8 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             ModuleTestInput.REWRITTEN_DEFINITION,
             // m2
@@ -1868,7 +1868,7 @@ public final class DevirtualizeMethodsTest extends CompilerTestCase {
             .addChunk(ModuleTestInput.DEFINITION)
             .build();
 
-    testSame(srcs(chunks));
+    testSameTestPartVarargs(srcsJSChunkVarargs(chunks));
   }
 
   @Override

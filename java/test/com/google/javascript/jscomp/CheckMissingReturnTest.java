@@ -34,7 +34,7 @@ public final class CheckMissingReturnTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new CombinedCompilerPass(compiler, new CheckMissingReturn(compiler));
+    return CombinedCompilerPass.createFromCallbacks(compiler, new CheckMissingReturn(compiler));
   }
 
   @Test

@@ -35,7 +35,7 @@ public final class AstManipulationsTest {
     Node two = IR.number(2);
 
     assertNode(AstManipulations.fuseExpressions(one, two))
-        .isEqualTo(IR.comma(one.cloneNode(), two.cloneNode()));
+        .isEqualToNode(IR.comma(one.cloneNode(), two.cloneNode()));
   }
 
   @Test
@@ -43,7 +43,7 @@ public final class AstManipulationsTest {
     Node one = IR.number(1);
     Node empty = IR.empty();
 
-    assertNode(AstManipulations.fuseExpressions(one, empty)).isEqualTo(one.cloneNode());
+    assertNode(AstManipulations.fuseExpressions(one, empty)).isEqualToNode(one.cloneNode());
   }
 
   @Test
@@ -53,7 +53,7 @@ public final class AstManipulationsTest {
 
     // Note: it should be fine to return one instead of this comma
     assertNode(AstManipulations.fuseExpressions(empty, one))
-        .isEqualTo(new Node(Token.COMMA, empty.cloneNode(), one.cloneNode()));
+        .isEqualToNode(new Node(Token.COMMA, empty.cloneNode(), one.cloneNode()));
   }
 
   @Test
@@ -64,7 +64,7 @@ public final class AstManipulationsTest {
     Node two = IR.number(2);
 
     assertNode(AstManipulations.fuseExpressions(zeroCommaOne, two))
-        .isEqualTo(IR.comma(zeroCommaOne.cloneTree(), two.cloneNode()));
+        .isEqualToNode(IR.comma(zeroCommaOne.cloneTree(), two.cloneNode()));
   }
 
   @Test
@@ -89,6 +89,6 @@ public final class AstManipulationsTest {
     // to make unit-testing passes that use this utility easier. Writing 'expected' JS code
     // for the latter tree requires more parentheses.
     assertNode(AstManipulations.fuseExpressions(zero, oneCommaTwo))
-        .isEqualTo(IR.comma(IR.comma(zero.cloneNode(), one.cloneNode()), two.cloneNode()));
+        .isEqualToNode(IR.comma(IR.comma(zero.cloneNode(), one.cloneNode()), two.cloneNode()));
   }
 }

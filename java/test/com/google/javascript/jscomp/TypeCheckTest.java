@@ -435,7 +435,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             const abAlias = a.b;
             var /** !abAlias.whatIsThis */ y = 'foo';
             """)
-        .addDiagnostic(RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR)
         .run();
   }
 
@@ -453,7 +453,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             const aAlias = a;
             var /** aAlias.b.c */ x;
             """)
-        .addDiagnostic(RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR)
         .run();
   }
 
@@ -3573,8 +3573,8 @@ public final class TypeCheckTest extends TypeCheckTestCase {
               var /** null */ n = x.b;
             }
             """)
-        .addDiagnostic(STRICT_INEXISTENT_UNION_PROPERTY)
-        .addDiagnostic(TypeValidator.TYPE_MISMATCH_WARNING)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_UNION_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeValidator.TYPE_MISMATCH_WARNING)
         .run();
   }
 
@@ -3588,8 +3588,8 @@ public final class TypeCheckTest extends TypeCheckTestCase {
               var /** null */ n = x.b;
             }
             """)
-        .addDiagnostic(STRICT_INEXISTENT_UNION_PROPERTY)
-        .addDiagnostic(TypeValidator.TYPE_MISMATCH_WARNING)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_UNION_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeValidator.TYPE_MISMATCH_WARNING)
         .run();
   }
 
@@ -3603,7 +3603,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @param {{a: number}} x */
             function g(x) { return x.b; }
             """)
-        .addDiagnostic(TypeCheck.INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeCheck.INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -3665,7 +3665,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @param {{c: number}|{c:number, d:string}} x */
             function g(x) { return x.b; }
             """)
-        .addDiagnostic(TypeCheck.INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeCheck.INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -4854,7 +4854,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @type {string} */ var foo;
             var z = function foo() {};
             """)
-        .addDiagnostic(TypeCheck.FUNCTION_MASKS_VARIABLE)
+        .addDiagnosticDiagnosticType(TypeCheck.FUNCTION_MASKS_VARIABLE)
         .run();
   }
 
@@ -5754,7 +5754,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             })(['']);
             """)
         .includeDefaultExterns()
-        .addDiagnostic(
+        .addDiagnosticDiagnosticType(
             DiagnosticType.error(
                 "JSC_TYPE_MISMATCH",
                 """
@@ -5774,7 +5774,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @const {!null} */ const b = a[0];
             """)
         .includeDefaultExterns()
-        .addDiagnostic(
+        .addDiagnosticDiagnosticType(
             DiagnosticType.error(
                 "JSC_TYPE_MISMATCH",
                 """
@@ -5794,7 +5794,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @const {!undefined} */ const b = a[0];
             """)
         .includeDefaultExterns()
-        .addDiagnostic(
+        .addDiagnosticDiagnosticType(
             DiagnosticType.error(
                 "JSC_TYPE_MISMATCH",
                 """
@@ -5814,7 +5814,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @const {!undefined} */ const b = a[0];
             """)
         .includeDefaultExterns()
-        .addDiagnostic(
+        .addDiagnosticDiagnosticType(
             DiagnosticType.error(
                 "JSC_TYPE_MISMATCH",
                 """
@@ -5834,7 +5834,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @const {!null} */ const b = a[0];
             """)
         .includeDefaultExterns()
-        .addDiagnostic(
+        .addDiagnosticDiagnosticType(
             DiagnosticType.error(
                 "JSC_TYPE_MISMATCH",
                 """
@@ -5854,7 +5854,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @const {!undefined} */ const b = a[0];
             """)
         .includeDefaultExterns()
-        .addDiagnostic(
+        .addDiagnosticDiagnosticType(
             DiagnosticType.error(
                 "JSC_TYPE_MISMATCH",
                 """
@@ -5874,7 +5874,7 @@ public final class TypeCheckTest extends TypeCheckTestCase {
             /** @const {!undefined} */ const b = a[0];
             """)
         .includeDefaultExterns()
-        .addDiagnostic(
+        .addDiagnosticDiagnosticType(
             DiagnosticType.error(
                 "JSC_TYPE_MISMATCH",
                 """
@@ -8002,7 +8002,7 @@ override: function(this:MyOtherType): string
             A.prototype.foo = 3;
             /** @return {string} */ function foo() { return (new Base).foo; }
             """)
-        .addDiagnostic(STRICT_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_PROPERTY)
         .run(); // exists on subtypes, so only reported for strict props
   }
 
@@ -9906,7 +9906,7 @@ override: function(): string
             function Foo() {}
             (true ? new Foo() : {}).x = 123;
             """)
-        .addDiagnostic(ILLEGAL_PROPERTY_CREATION_ON_UNION_TYPE)
+        .addDiagnosticDiagnosticType(ILLEGAL_PROPERTY_CREATION_ON_UNION_TYPE)
         .run();
   }
 
@@ -11305,7 +11305,7 @@ override: function(): string
             foo[0] = 3;
             """)
         .diagnosticsAreErrors()
-        .addDiagnostic(TypeCheck.PROPERTY_ASSIGNMENT_TO_READONLY_VALUE)
+        .addDiagnosticDiagnosticType(TypeCheck.PROPERTY_ASSIGNMENT_TO_READONLY_VALUE)
         .run();
   }
 
@@ -11319,7 +11319,7 @@ override: function(): string
             foo[0] = 3;
             """)
         .diagnosticsAreErrors()
-        .addDiagnostic(TypeCheck.PROPERTY_ASSIGNMENT_TO_READONLY_VALUE)
+        .addDiagnosticDiagnosticType(TypeCheck.PROPERTY_ASSIGNMENT_TO_READONLY_VALUE)
         .run();
   }
 
@@ -11333,7 +11333,7 @@ override: function(): string
             foo.length = 0;
             """)
         .diagnosticsAreErrors()
-        .addDiagnostic(TypeCheck.PROPERTY_ASSIGNMENT_TO_READONLY_VALUE)
+        .addDiagnosticDiagnosticType(TypeCheck.PROPERTY_ASSIGNMENT_TO_READONLY_VALUE)
         .run();
   }
 
@@ -15321,7 +15321,7 @@ override: (Object|null|string)
   public void testNew19() {
     newTest()
         .addSource("/** @constructor @abstract */ var Foo = function() {}; var foo = new Foo();")
-        .addDiagnostic(INSTANTIATE_ABSTRACT_CLASS)
+        .addDiagnosticDiagnosticType(INSTANTIATE_ABSTRACT_CLASS)
         .run();
   }
 
@@ -15975,7 +15975,7 @@ override: (Object|null|string)
             var m = new MyType;
             (function f() {this.foo();}).bind(m);
             """)
-        .addDiagnostic(TypeCheck.INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeCheck.INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -20091,7 +20091,7 @@ override: function(this:Foo): number
   public void testNoForwardTypeDeclarationAndNoBraces() {
     newTest()
         .addSource("/** @return The result. */ function f() {}")
-        .addDiagnostic(RhinoErrorReporter.JSDOC_MISSING_TYPE_WARNING)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.JSDOC_MISSING_TYPE_WARNING)
         .run();
   }
 
@@ -21600,7 +21600,7 @@ override: function(this:Foo): number
     typeCheck(firstScript);
     Node root = IR.root(externs, IR.root(firstScript.detach()));
     TypedScopeCreator scopeCreator = new TypedScopeCreator(compiler);
-    TypedScope topScope = scopeCreator.createScope(root, null);
+    TypedScope topScope = scopeCreator.createScopeAbstractScope(root, null);
 
     Node secondScript = compiler.parseTestCode("new Foo");
 
@@ -24226,7 +24226,7 @@ override: number
   public void testCheckObjectKeysBadKey1() {
     newTest()
         .addSource("/** @type {!Object<!Object, number>} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24234,7 +24234,7 @@ override: number
   public void testCheckObjectKeysBadKey2() {
     newTest()
         .addSource("/** @type {!Object<function(), number>} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24242,7 +24242,7 @@ override: number
   public void testCheckObjectKeysBadKey3() {
     newTest()
         .addSource("/** @type {!Object<!Array<!Object>, number>} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24250,7 +24250,7 @@ override: number
   public void testCheckObjectKeysBadKey4() {
     newTest()
         .addSource("/** @type {!Object<*, number>} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24258,7 +24258,7 @@ override: number
   public void testCheckObjectKeysBadKey5() {
     newTest()
         .addSource("/** @type {(string|Object<Object, number>)} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24266,7 +24266,7 @@ override: number
   public void testCheckObjectKeysBadKey6() {
     newTest()
         .addSource("/** @type {!Object<number, !Object<Object, number>>} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24280,7 +24280,7 @@ override: number
             /** @type {!Object<MyClass, number>} */
             var k;
             """)
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24294,7 +24294,7 @@ override: number
             /** @type {!Object<Enum, number>} */
             var k;
             """)
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24302,7 +24302,7 @@ override: number
   public void testCheckObjectKeysBadKey9() {
     newTest()
         .addSource("/** @type {function(!Object<!Object, number>)} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24310,7 +24310,7 @@ override: number
   public void testCheckObjectKeysBadKey10() {
     newTest()
         .addSource("/** @type {function(): !Object<!Object, number>} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24328,7 +24328,7 @@ override: number
             /** @type {Object<(!XE|!X2), string>} */
             var Y = {};
             """)
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24336,7 +24336,7 @@ override: number
   public void testCheckObjectKeysVariousTags1() {
     newTest()
         .addSource("/** @type {!Object<!Object, number>} */ var k;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24344,7 +24344,7 @@ override: number
   public void testCheckObjectKeysVariousTags2() {
     newTest()
         .addSource("/** @param {!Object<!Object, number>} a */ var f = function(a) {};")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24352,7 +24352,7 @@ override: number
   public void testCheckObjectKeysVariousTags3() {
     newTest()
         .addSource("/** @return {!Object<!Object, number>} */ var f = function() {return {}};")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24360,7 +24360,7 @@ override: number
   public void testCheckObjectKeysVariousTags4() {
     newTest()
         .addSource("/** @typedef {!Object<!Object, number>} */ var MyType;")
-        .addDiagnostic(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
+        .addDiagnosticDiagnosticType(TypeCheck.NON_STRINGIFIABLE_OBJECT_KEY)
         .run();
   }
 
@@ -24528,7 +24528,7 @@ override: number
             /** @type {number} */
             Bar.prototype.myprop = 1;
             """)
-        .addDiagnostic(TypeCheck.HIDDEN_SUPERCLASS_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeCheck.HIDDEN_SUPERCLASS_PROPERTY)
         .run();
   }
 
@@ -24547,7 +24547,7 @@ override: number
             /** @override @type {string} */
             Bar.prototype.myprop = 'qwer';
             """)
-        .addDiagnostic(TypeValidator.HIDDEN_SUPERCLASS_PROPERTY_MISMATCH)
+        .addDiagnosticDiagnosticType(TypeValidator.HIDDEN_SUPERCLASS_PROPERTY_MISMATCH)
         .run();
   }
 
@@ -28575,7 +28575,7 @@ required: string
             /** @const {!Component} */
             var OtherComponent = {};
             """)
-        .addDiagnostic(STRICT_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -28664,7 +28664,7 @@ required: string
             /** @const {!Component} */
             var OtherComponent = {foo: 2};
             """)
-        .addDiagnostic(STRICT_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -29277,7 +29277,7 @@ It's possible that a local variable called 'service' is shadowing the intended g
               set value(v) { }
             }
             """)
-        .addDiagnostic(CONFLICTING_GETTER_SETTER_TYPE)
+        .addDiagnosticDiagnosticType(CONFLICTING_GETTER_SETTER_TYPE)
         .run();
   }
 
@@ -29327,7 +29327,7 @@ It's possible that a local variable called 'service' is shadowing the intended g
     newTest()
         .includeDefaultExterns()
         .addSource("const /** number */ num = [][Symbol.iterator];")
-        .addDiagnostic(TypeValidator.TYPE_MISMATCH_WARNING)
+        .addDiagnosticDiagnosticType(TypeValidator.TYPE_MISMATCH_WARNING)
         .run();
   }
 
@@ -29394,7 +29394,7 @@ It's possible that a local variable called 'service' is shadowing the intended g
             class Foo {}
             Foo.prototype = {};
             """)
-        .addDiagnostic(TypeInference.REASSIGN_CLASS_PROTOTYPE)
+        .addDiagnosticDiagnosticType(TypeInference.REASSIGN_CLASS_PROTOTYPE)
         .diagnosticsAreErrors()
         .run();
   }
@@ -29408,7 +29408,7 @@ It's possible that a local variable called 'service' is shadowing the intended g
             const x = /** @type {!Object} */ ({});
             Foo.prototype = x;
             """)
-        .addDiagnostic(TypeInference.REASSIGN_CLASS_PROTOTYPE)
+        .addDiagnosticDiagnosticType(TypeInference.REASSIGN_CLASS_PROTOTYPE)
         .diagnosticsAreErrors()
         .run();
   }

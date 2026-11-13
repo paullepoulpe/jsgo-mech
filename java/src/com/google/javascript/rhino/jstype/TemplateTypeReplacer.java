@@ -297,7 +297,7 @@ public final class TemplateTypeReplacer implements Visitor<JSType> {
     }
 
     if (changed) {
-      type = registry.createTemplatizedType(afterBaseType, builder.build());
+      type = registry.createTemplatizedTypeImmutableList(afterBaseType, builder.build());
     }
     return type;
   }
@@ -357,7 +357,7 @@ public final class TemplateTypeReplacer implements Visitor<JSType> {
     }
 
     if (changed) {
-      return registry.createUnionType(results); // maybe not a union
+      return registry.createUnionTypeList(results); // maybe not a union
     }
 
     return type;

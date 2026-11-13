@@ -29,7 +29,7 @@ public final class CheckSuspiciousCodeTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
-    return new CombinedCompilerPass(compiler, new CheckSuspiciousCode());
+    return CombinedCompilerPass.createFromCallbacks(compiler, new CheckSuspiciousCode());
   }
 
   @Override

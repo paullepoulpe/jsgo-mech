@@ -36,12 +36,12 @@ public final class ModuleMap {
     this.resolvedClosureModules = resolvedClosureModules;
   }
 
-  public @Nullable Module getModule(String moduleName) {
+  public @Nullable Module getModuleString(String moduleName) {
     return resolvedModules.get(moduleName);
   }
 
   public @Nullable Module getModule(ModuleLoader.ModulePath path) {
-    return getModule(path.toModuleName());
+    return getModuleString(path.toModuleName());
   }
 
   public ImmutableMap<String, Module> getModulesByPath() {

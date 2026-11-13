@@ -217,7 +217,7 @@ class ReplaceCssNames implements CompilerPass {
         return;
       }
       Node callee = n.getFirstChild();
-      if (!callee.matchesQualifiedName(GOOG_SET_CSS_NAME_MAPPING)) {
+      if (!callee.matchesQualifiedNameNode(GOOG_SET_CSS_NAME_MAPPING)) {
         return;
       }
       CssRenamingMap cssRenamingMap =
@@ -324,7 +324,7 @@ class ReplaceCssNames implements CompilerPass {
   }
 
   private boolean isGetCssNameCall(Node node) {
-    return node.isCall() && node.getFirstChild().matchesQualifiedName(GET_CSS_NAME_FUNCTION);
+    return node.isCall() && node.getFirstChild().matchesQualifiedNameNode(GET_CSS_NAME_FUNCTION);
   }
 
   private GetCssNameInstance createGetCssNameInstance(

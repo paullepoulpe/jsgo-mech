@@ -176,7 +176,7 @@ public final class CombinedCompilerPassTest {
   @Test
   public void testIndividualPasses() {
     for (TestHelper test : createStringTests()) {
-      CombinedCompilerPass pass = new CombinedCompilerPass(compiler, test.getTraversal());
+      CombinedCompilerPass pass = CombinedCompilerPass.createFromCallbacks(compiler, test.getTraversal());
       pass.process(null, createPostOrderAlphabet());
       test.checkResults();
     }
@@ -191,7 +191,7 @@ public final class CombinedCompilerPassTest {
       callbacks[i] = test.getTraversal();
       i++;
     }
-    CombinedCompilerPass pass = new CombinedCompilerPass(compiler, callbacks);
+    CombinedCompilerPass pass = CombinedCompilerPass.createFromCallbacks(compiler, callbacks);
     pass.process(null, createPostOrderAlphabet());
     for (TestHelper test : tests) {
       test.checkResults();
@@ -242,7 +242,7 @@ public final class CombinedCompilerPassTest {
     c2.ignore("x");
     ScopeRecordingCallback c3 = new ScopeRecordingCallback();
 
-    CombinedCompilerPass pass = new CombinedCompilerPass(compiler, c1, c2, c3);
+    CombinedCompilerPass pass = CombinedCompilerPass.createFromCallbacks(compiler, c1, c2, c3);
     pass.process(null, root);
 
     assertThat(c1.getVisitedScopes()).hasSize(1);

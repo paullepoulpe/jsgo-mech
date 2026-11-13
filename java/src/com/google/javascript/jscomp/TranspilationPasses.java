@@ -137,7 +137,7 @@ public class TranspilationPasses {
     }
 
     if (options.needsTranspilationFrom(
-        FeatureSet.BARE_MINIMUM.with(Feature.ARRAY_DESTRUCTURING, Feature.OBJECT_DESTRUCTURING))) {
+        FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.ARRAY_DESTRUCTURING, Feature.OBJECT_DESTRUCTURING))) {
       passes.maybeAdd(
           getEs6RewriteDestructuring(ObjectDestructuringRewriteMode.REWRITE_ALL_OBJECT_PATTERNS));
     }
@@ -159,7 +159,7 @@ public class TranspilationPasses {
     }
 
     if (options.needsTranspilationFrom(
-        FeatureSet.BARE_MINIMUM.with(
+        FeatureSet.BARE_MINIMUM.withFeatureVarargs(
             Feature.COMPUTED_PROPERTIES, Feature.MEMBER_DECLARATIONS, Feature.TEMPLATE_LITERALS))) {
       passes.maybeAdd(lateConvertEs6ToEs3);
     }
@@ -173,7 +173,7 @@ public class TranspilationPasses {
     }
 
     if (options.needsTranspilationFrom(
-        FeatureSet.BARE_MINIMUM.with(Feature.LET_DECLARATIONS, Feature.CONST_DECLARATIONS))) {
+        FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.LET_DECLARATIONS, Feature.CONST_DECLARATIONS))) {
       passes.maybeAdd(rewriteBlockScopedDeclaration);
     }
 
@@ -420,7 +420,7 @@ public class TranspilationPasses {
       FeatureSet featuresToRunFor,
       NodeTraversal.Callback... callbacks) {
     FeatureSet languageOutFeatures = compiler.getOptions().getOutputFeatureSet();
-    if (languageOutFeatures.contains(featuresToRunFor)) {
+    if (languageOutFeatures.containsFeatureSet(featuresToRunFor)) {
       // all featuresToRunFor are supported by languageOut and don't need to get transpiled.
       return;
     }
@@ -486,7 +486,7 @@ public class TranspilationPasses {
       return;
     }
 
-    if (!outputFeatures.contains(currentFeatures)) {
+    if (!outputFeatures.containsFeatureSet(currentFeatures)) {
       // Confirm that the output featureSet is respected by JSCompiler.
       FeatureSet diff = currentFeatures.without(outputFeatures);
       throw new IllegalStateException(
@@ -563,7 +563,7 @@ public class TranspilationPasses {
     }
 
     if (options.needsTranspilationFrom(
-        FeatureSet.BARE_MINIMUM.with(
+        FeatureSet.BARE_MINIMUM.withFeatureVarargs(
             Feature.BINARY_LITERALS,
             Feature.OCTAL_LITERALS,
             Feature.REGEXP_FLAG_U,
@@ -571,7 +571,7 @@ public class TranspilationPasses {
       // Binary and octal literals are effectively transpiled by the parser.
       // There's no transpilation we can do for the new regexp flags.
       featuresToMarkRemoved =
-          featuresToMarkRemoved.with(
+          featuresToMarkRemoved.withFeatureVarargs(
               Feature.BINARY_LITERALS,
               Feature.OCTAL_LITERALS,
               Feature.REGEXP_FLAG_U,
@@ -581,7 +581,7 @@ public class TranspilationPasses {
     if (options.needsTranspilationFrom(FeatureSet.ES5)) {
       // this means we're transpiling to ES3 output
       featuresToMarkRemoved =
-          featuresToMarkRemoved.with(
+          featuresToMarkRemoved.withFeatureVarargs(
               // TODO(b/354075108): Stop tracking these 2 features. These don't get transpiled and
               // are not supported in ES3. But they get possibly inlined / renamed by the optimizer.
               Feature.ES3_KEYWORDS_AS_IDENTIFIERS, // does not get transpiled
@@ -594,7 +594,7 @@ public class TranspilationPasses {
 
     // these ES5 features are transpiled away unconditionally regardless of output level.
     featuresToMarkRemoved =
-        featuresToMarkRemoved.with(
+        featuresToMarkRemoved.withFeatureVarargs(
             Feature.STRING_CONTINUATION, // transpiled away during parsing
             Feature.TRAILING_COMMA // transpiled away during Normalization
             );
@@ -603,7 +603,7 @@ public class TranspilationPasses {
     // that FeatureSet.ES_NEXT and FeatureSet.ES_UNSTABLE have distinct version names as some
     // polyfills target "es_next" and "es_unstable" for their fromLang.
     featuresToMarkRemoved =
-        featuresToMarkRemoved.with(Feature.ES_NEXT_RUNTIME, Feature.ES_UNSTABLE_RUNTIME);
+        featuresToMarkRemoved.withFeatureVarargs(Feature.ES_NEXT_RUNTIME, Feature.ES_UNSTABLE_RUNTIME);
 
     return createFeatureRemovalPass(passName, featuresToMarkRemoved);
   }

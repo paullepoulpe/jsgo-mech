@@ -74,7 +74,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
                 .addConsole()
                 .addClosureExterns()
                 .buildExternsFile("externs.js"));
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -97,7 +97,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
           "goog.string.Const.from();"
         });
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -522,7 +522,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
                 .addConsole()
                 .addClosureExterns()
                 .buildExternsFile("externs.js"));
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -1009,7 +1009,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
   public void testBug139862607() {
     CompilerOptions options = createCompilerOptions();
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-    test(
+    testStringArrayDiagnosticGroup(
         options,
         new String[] {
           "var x = 1;",
@@ -1034,7 +1034,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
     externs =
         ImmutableList.of(
             new TestExternsBuilder().addExtra("function use(x) {}").buildExternsFile("externs"));
-    test(
+    testStringArray(
         options,
         new String[] {
           TestExternsBuilder.getClosureExternsAsSource(),
@@ -1073,7 +1073,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
     externs =
         ImmutableList.of(
             new TestExternsBuilder().addExtra("function use(x) {}").buildExternsFile("externs"));
-    test(
+    testStringArray(
         options,
         new String[] {
           TestExternsBuilder.getClosureExternsAsSource(),
@@ -1141,7 +1141,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2015);
     options.setRuntimeLibraryMode(RuntimeJsLibManager.RuntimeLibraryMode.RECORD_ONLY);
 
-    compile(options, new String[] {"for (const x of [1, 2, 3].values()) { alert(x); }"});
+    compileStringArray(options, new String[] {"for (const x of [1, 2, 3].values()) { alert(x); }"});
 
     assertThat(lastCompiler.getResult().errors).isEmpty();
     assertThat(lastCompiler.getResult().warnings).isEmpty();
@@ -1156,7 +1156,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
     options.setCheckTypes(true);
     options.setWarningLevel(DiagnosticGroups.MISSING_PROPERTIES, CheckLevel.OFF);
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         for (var x of []); // Force injection of es6_runtime.js
@@ -1916,7 +1916,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
 
     options.setPropertiesThatMustDisambiguate(ImmutableSet.of("abc"));
 
-    test(options, code, DiagnosticGroups.TYPE_INVALIDATION);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.TYPE_INVALIDATION);
   }
 
   // GitHub issue #250: https://github.com/google/closure-compiler/issues/250
@@ -2111,7 +2111,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
   public void testCheckVarsOnInAdvancedMode() {
     CompilerOptions options = new CompilerOptions();
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-    test(options, "var x = foobar;", DiagnosticGroups.UNDEFINED_VARIABLES);
+    testStringDiagnosticGroup(options, "var x = foobar;", DiagnosticGroups.UNDEFINED_VARIABLES);
   }
 
   @Test
@@ -2528,7 +2528,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2019);
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
 
-    testSame(
+    testSameStringArray(
         options,
         new String[] {
           """
@@ -2540,7 +2540,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
           """
         });
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -2554,7 +2554,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
         },
         new String[] {});
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -3559,7 +3559,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
         """;
 
     // NOTE: This test asserts the CURRENT INCORRECT BEHAVIOR to pass, documenting the bug.
-    test(
+    testStringArray(
         options,
         new String[] {def, index, app, trigger},
         new String[] {
@@ -3633,7 +3633,7 @@ public final class AdvancedOptimizationsIntegrationTest extends IntegrationTestC
         """;
 
     // NOTE: This test asserts the CURRENT INCORRECT BEHAVIOR to pass, documenting the bug.
-    test(
+    testStringArray(
         options,
         new String[] {def, index, app, trigger},
         new String[] {

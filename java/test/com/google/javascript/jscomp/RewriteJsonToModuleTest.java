@@ -53,7 +53,7 @@ public final class RewriteJsonToModuleTest extends CompilerTestCase {
   @Test
   public void testJsonFile() {
     test(
-        srcs(SourceFile.fromCode("/test.json", "{ 'foo': 'bar'}")),
+        srcsSourceFileVarargs(SourceFile.fromCode("/test.json", "{ 'foo': 'bar'}")),
         expected(
             """
             /** @fileoverview @suppress {undefinedVars} */
@@ -66,7 +66,7 @@ public final class RewriteJsonToModuleTest extends CompilerTestCase {
   @Test
   public void testPackageJsonFile() {
     test(
-        srcs(SourceFile.fromCode("/package.json", "{ 'main': 'foo/bar/baz.js'}")),
+        srcsSourceFileVarargs(SourceFile.fromCode("/package.json", "{ 'main': 'foo/bar/baz.js'}")),
         expected(
             """
             /** @fileoverview @suppress {undefinedVars} */
@@ -84,7 +84,7 @@ public final class RewriteJsonToModuleTest extends CompilerTestCase {
   @Test
   public void testPackageJsonWithoutMain() {
     test(
-        srcs(SourceFile.fromCode("/package.json", "{'other': { 'main': 'foo/bar/baz.js'}}")),
+        srcsSourceFileVarargs(SourceFile.fromCode("/package.json", "{'other': { 'main': 'foo/bar/baz.js'}}")),
         expected(
             """
             /** @fileoverview @suppress {undefinedVars} */
@@ -98,7 +98,7 @@ public final class RewriteJsonToModuleTest extends CompilerTestCase {
   @Test
   public void testPackageJsonFileBrowserField() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "/package.json", "{ 'main': 'foo/bar/baz.js', 'browser': 'browser/foo.js' }")),
         expected(
@@ -118,7 +118,7 @@ public final class RewriteJsonToModuleTest extends CompilerTestCase {
   @Test
   public void testPackageJsonFileBrowserFieldAdvancedUsage() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "/package.json",
                 """
@@ -158,7 +158,7 @@ public final class RewriteJsonToModuleTest extends CompilerTestCase {
   @Test
   public void testPackageJsonBrowserFieldAdvancedUsageGH2625() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "/package.json",
                 """

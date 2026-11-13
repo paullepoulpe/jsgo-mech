@@ -765,7 +765,7 @@ public final class ClosureCheckModuleTest extends CompilerTestCase {
 
   @Test
   public void testCorrectShortImportSuggestedInJsDoc() {
-    testError(
+    testErrorDiagnostic(
         srcs(
             """
             goog.module('x.y.z');
@@ -781,7 +781,7 @@ public final class ClosureCheckModuleTest extends CompilerTestCase {
 
   @Test
   public void testCorrectShortImportSuggestedInJsCode() {
-    testError(
+    testErrorDiagnostic(
         srcs(
             """
             goog.module('x.y.z');

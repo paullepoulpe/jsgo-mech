@@ -331,9 +331,10 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   /** Creates a Compiler that uses a custom error manager. */
-  public Compiler(ErrorManager errorManager) {
-    this();
-    setErrorManager(errorManager);
+  public static Compiler createFromErrorManager(ErrorManager errorManager) {
+    Compiler compiler = new Compiler();
+    compiler.setErrorManager(errorManager);
+    return compiler;
   }
 
   /**
@@ -363,7 +364,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       switch (options.getExperimentalOutputFeatureSet().get()) {
         case ES5_WITH_SOME_PERFORMANT_ES2015_AND_ASYNC_FUNCTIONS ->
             options.setOutputFeatureSet(
-                FeatureSet.ES5.with(
+                FeatureSet.ES5.withFeatureVarargs(
                     Feature.ASYNC_FUNCTIONS,
                     Feature.BLOCK_SCOPED_FUNCTION_DECLARATION,
                     Feature.CONST_DECLARATIONS,
@@ -817,7 +818,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       List<SourceFile> externs, List<SourceFile> sources, CompilerOptions options) {
     JSChunk chunk = new JSChunk(JSChunk.STRONG_CHUNK_NAME);
     for (SourceFile source : sources) {
-      chunk.add(new CompilerInput(source, /* isExtern= */ false));
+      chunk.addCompilerInput(new CompilerInput(source, /* isExtern= */ false));
     }
 
     List<JSChunk> chunks = new ArrayList<>(1);
@@ -872,7 +873,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     // Using gvpr(1) is recommended to extract the parts of the graph that are of interest.
     // `dot -Tpng graph_file.dot > graph_file.png` will render an image.
     try (LogFile chunkGraphLog = createOrReopenLog(this.getClass(), "chunk_graph.dot")) {
-      chunkGraphLog.log(DotFormatter.toDot(chunkGraph.toGraphvizGraph()));
+      chunkGraphLog.logString(DotFormatter.toDot(chunkGraph.toGraphvizGraph()));
     }
 
     this.runtimeJsLibManager =
@@ -942,7 +943,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         CompilerInput input =
             new CompilerInput(SourceFile.fromCode(createFillFileName(chunk.getName()), ""));
         input.setCompiler(this);
-        chunk.add(input);
+        chunk.addCompilerInput(input);
       }
     }
   }
@@ -987,7 +988,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   /** Compiles a single source file and a single externs file. */
-  public Result compile(SourceFile extern, SourceFile input, CompilerOptions options) {
+  public Result compileSourceFile(SourceFile extern, SourceFile input, CompilerOptions options) {
     return compile(ImmutableList.of(extern), ImmutableList.of(input), options);
   }
 
@@ -1377,7 +1378,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     for (Node child = jsRoot.getFirstChild(); child != null; child = child.getNext()) {
       checkState(child.isScript());
       FeatureSet featureSet = NodeUtil.getFeatureSetOfScript(child);
-      if (!this.options.getOutputFeatureSet().contains(featureSet)) {
+      if (!this.options.getOutputFeatureSet().containsFeatureSet(featureSet)) {
         this.setTranspiledFiles(true);
         return; // marked atleast 1 script that needs tranpile
       }
@@ -1537,7 +1538,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     // If the output is ES5, then it may end up running on IE11, so enable a workaround
     // for one of its bugs.
     final EnumSet<Workaround> enabledWorkarounds =
-        FeatureSet.ES5.contains(getOptions().getOutputFeatureSet())
+        FeatureSet.ES5.containsFeatureSet(getOptions().getOutputFeatureSet())
             ? EnumSet.of(Workaround.BROKEN_IE11_LOCATION_ASSIGN)
             : EnumSet.noneOf(Workaround.class);
     return new ExpressionDecomposer(
@@ -1614,7 +1615,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     if (this.isDebugLoggingEnabled()) {
       try (LogFile log =
           this.createOrReopenIndexedLog(this.getClass(), "source_after_pass", passName)) {
-        log.log(currentJsSource);
+        log.logString(currentJsSource);
       }
     } else {
       System.err.println();
@@ -2655,14 +2656,14 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @Override
   @VisibleForTesting
-  Node parseTestCode(ImmutableList<String> code) {
+  Node parseTestCodeImmutableList(ImmutableList<String> code) {
     initCompilerOptionsIfTesting();
     initBasedOnOptions();
     List<SourceFile> sources = new ArrayList<>();
     for (int index = 0; index < code.size(); index++) {
       sources.add(SourceFile.fromCode("testcode" + index, code.get(index)));
     }
-    return parseCodeHelper(sources);
+    return parseCodeHelperList(sources);
   }
 
   private Node parseCodeHelper(SourceFile src) {
@@ -2673,7 +2674,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     return checkNotNull(root);
   }
 
-  private Node parseCodeHelper(List<SourceFile> srcs) {
+  private Node parseCodeHelperList(List<SourceFile> srcs) {
     Node root = IR.root();
     for (SourceFile src : srcs) {
       root.addChildToBack(parseCodeHelper(src));
@@ -2732,7 +2733,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    * emit all license text attached to all direct inputs to the chunk, which can be very
    * inefficient.
    */
-  public String toSource(final JSChunk chunk) {
+  public String toSourceJSChunk(final JSChunk chunk) {
     return toSource(
         // Backwards-compatible implementation of license tracking.
         new ScriptNodeLicensesOnlyTracker(this), chunk);
@@ -4062,7 +4063,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
     JSChunk firstChunk = Iterables.getFirst(getChunks(), null);
     if (firstChunk.getName().equals(JSChunk.STRONG_CHUNK_NAME)) {
-      firstChunk.add(ast);
+      firstChunk.addCompilerInput(ast);
     }
     ast.setChunk(firstChunk);
     putCompilerInput(ast);
@@ -4244,7 +4245,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    * <p>Only contains state that does not make sense in 'multilevel' binary builds (where
    * library-level TypedASTs are the input). Such state belongs in the jscomp.TypedAst proto.
    */
-  private static FeatureProto toProto(Feature feature) {
+  private static FeatureProto toProtoFeature(Feature feature) {
     try {
       return FeatureProto.valueOf("FEATURE_" + feature.name());
     } catch (IllegalArgumentException e) {
@@ -4276,7 +4277,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     return entries;
   }
 
-  private static FeatureSet fromProto(List<FeatureProto> protos) {
+  private static FeatureSet fromProtoList(List<FeatureProto> protos) {
     Set<Feature> features = new LinkedHashSet<>();
     for (FeatureProto p : protos) {
       if (p != FeatureProto.FEATURE_UNKNOWN) {
@@ -4287,7 +4288,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         }
       }
     }
-    return FeatureSet.BARE_MINIMUM.with(features);
+    return FeatureSet.BARE_MINIMUM.withSet(features);
   }
 
   private static LifeCycleStage fromProto(LifeCycleStageProto stage) {
@@ -4314,7 +4315,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     JSCompilerStateProto.Builder builder = JSCompilerStateProto.newBuilder();
 
     for (Feature feature : allowableFeatures.getFeatures()) {
-      builder.addAllowableFeatures(toProto(feature));
+      builder.addAllowableFeatures(toProtoFeature(feature));
     }
     builder
         .setTypeCheckingHasRun(typeCheckingHasRun)
@@ -4392,7 +4393,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   /** Restore the portions of the compiler state that don't require access to the serialized AST. */
   protected void restoreFromState(JSCompilerStateProto compilerState) {
-    allowableFeatures = fromProto(compilerState.getAllowableFeaturesList());
+    allowableFeatures = fromProtoList(compilerState.getAllowableFeaturesList());
     typeCheckingHasRun = compilerState.getTypeCheckingHasRun();
     scriptNodeByFilename.clear();
     hasRegExpGlobalReferences = compilerState.getHasRegExpGlobalReferences();
@@ -4633,7 +4634,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         scriptNodeByFilename.put(src.getName(), script);
 
         putCompilerInput(input); // overwrite the old input
-        chunks.get(i).add(input);
+        chunks.get(i).addCompilerInput(input);
       }
     }
 

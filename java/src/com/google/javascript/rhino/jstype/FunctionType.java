@@ -634,13 +634,13 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
   }
 
   @Override
-  public final JSType getPropertyType(Property.Key name) {
-    if (!hasOwnProperty(name)) {
+  public final JSType getPropertyTypeKey(Property.Key name) {
+    if (!hasOwnPropertyKey(name)) {
       // Define the "call", "apply", and "bind" functions lazily.
       boolean isCall = name.matches("call");
       boolean isBind = name.matches("bind");
       if (isCall || isBind) {
-        defineDeclaredProperty(name, getCallOrBindSignature(isCall), source);
+        defineDeclaredPropertyKey(name, getCallOrBindSignature(isCall), source);
       } else if (name.matches("apply")) {
         // Define the "apply" function lazily.
         FunctionParamBuilder builder = new FunctionParamBuilder(registry);
@@ -653,18 +653,18 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
             registry.createNullableType(getTypeOfThis()),
             registry.createNullableType(registry.getNativeType(JSTypeNative.OBJECT_TYPE)));
 
-        defineDeclaredProperty(
+        defineDeclaredPropertyKey(
             name,
             builder(registry)
                 .withParameters(builder.build())
                 .withReturnType(getReturnType())
-                .withTemplateKeys(getTemplateTypeMap().getTemplateKeys())
+                .withTemplateKeysImmutableList(getTemplateTypeMap().getTemplateKeys())
                 .build(),
             source);
       }
     }
 
-    return super.getPropertyType(name);
+    return super.getPropertyTypeKey(name);
   }
 
   /**
@@ -676,7 +676,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
     Builder builder =
         builder(registry)
             .withReturnType(getReturnType())
-            .withTemplateKeys(getTemplateTypeMap().getTemplateKeys());
+            .withTemplateKeysImmutableList(getTemplateTypeMap().getTemplateKeys());
     if (argsToBind < 0) {
       return builder.build();
     }
@@ -702,7 +702,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
     Builder builder =
         builder(registry)
             .withReturnType(isCall ? getReturnType() : getBindReturnType(-1))
-            .withTemplateKeys(getTemplateTypeMap().getTemplateKeys());
+            .withTemplateKeysImmutableList(getTemplateTypeMap().getTemplateKeys());
 
     ImmutableList<Parameter> origParams = getInternalArrowType().getParameterList();
 
@@ -923,7 +923,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
       // Render function types known to be type definitions as "(typeof Foo)". This includes types
       // defined like "/** @constructor */ function Foo() { }" but not to those defined like "@param
       // {function(new:Foo)}". Only the former will have a source node.
-      sb.append("(typeof ").append(this.getInstanceType()).append(")");
+      sb.append("(typeof ").appendJSType(this.getInstanceType()).append(")");
       return;
     }
 
@@ -938,7 +938,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
       } else {
         sb.append("this:");
       }
-      sb.append(typeOfThis);
+      sb.appendJSType(typeOfThis);
     }
     if (paramNum > 0) {
       if (hasKnownTypeOfThis) {
@@ -1499,7 +1499,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
     }
 
     /** Set the template name. */
-    public Builder withTemplateKeys(ImmutableList<TemplateType> templateKeys) {
+    public Builder withTemplateKeysImmutableList(ImmutableList<TemplateType> templateKeys) {
       if (templateKeys == null) {
         templateKeys = ImmutableList.of();
       }
@@ -1514,7 +1514,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
 
     /** Set the template name. */
     public Builder withTemplateKeys(TemplateType... templateKeys) {
-      return withTemplateKeys(ImmutableList.copyOf(templateKeys));
+      return withTemplateKeysImmutableList(ImmutableList.copyOf(templateKeys));
     }
 
     /**

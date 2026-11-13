@@ -2513,7 +2513,7 @@ class RemoveUnusedCode implements CompilerPass {
   private static Node maybeUnwrapQnameOrDefaultValueNode(Node targetNode, Node valueNode) {
     if (valueNode.isOr() && targetNode.isQualifiedName()) {
       final Node lhsOfOr = checkNotNull(valueNode.getFirstChild());
-      if (lhsOfOr.matchesQualifiedName(targetNode)) {
+      if (lhsOfOr.matchesQualifiedNameNode(targetNode)) {
         // We use `matchesQualifiedName` rather than `isEquivalentTo` to properly handle the
         // variable declaration case where the assigned value is a child of the name we want to
         // match.
@@ -3002,7 +3002,7 @@ class RemoveUnusedCode implements CompilerPass {
     public void setIsExplicitlyNotRemovable(Supplier<String> reasonSupplier) {
       if (isEntirelyRemovable) {
         isEntirelyRemovable = false;
-        unremovableLog.log(String.format("%s: %s", varName, reasonSupplier.get()));
+        unremovableLog.logString(String.format("%s: %s", varName, reasonSupplier.get()));
         for (Removable r : removables) {
           considerForIndependentRemoval(r);
         }

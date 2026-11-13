@@ -131,7 +131,7 @@ public final class BaseTranspiler implements Transpiler {
     public CompileResult compile(URI path, String code) {
       Compiler compiler = compiler();
       Result result =
-          compiler.compile(
+          compiler.compileSourceFile(
               createTrivialExterns(), SourceFile.fromCode(path.toString(), code), options());
       String source = compiler.toSource();
       StringBuilder sourceMap = new StringBuilder();
@@ -153,7 +153,7 @@ public final class BaseTranspiler implements Transpiler {
       Compiler compiler = compiler();
       CompilerOptions options = options();
       options.setForceLibraryInjection(ImmutableList.of(library));
-      compiler.compile(createTrivialExterns(), createEmptySource(), options);
+      compiler.compileSourceFile(createTrivialExterns(), createEmptySource(), options);
       return compiler.toSource();
     }
 

@@ -369,14 +369,14 @@ public abstract class BaseJSTypeTestCase {
     return registry.createOptionalType(type);
   }
 
-  protected TemplatizedType createTemplatizedType(
+  protected TemplatizedType createTemplatizedTypeImmutableList(
       ObjectType baseType, ImmutableList<JSType> templatizedTypes) {
-    return registry.createTemplatizedType(baseType, templatizedTypes);
+    return registry.createTemplatizedTypeImmutableList(baseType, templatizedTypes);
   }
 
   protected TemplatizedType createTemplatizedType(
       ObjectType baseType, JSType... templatizedType) {
-    return createTemplatizedType(
+    return createTemplatizedTypeImmutableList(
         baseType, ImmutableList.copyOf(templatizedType));
   }
 
@@ -384,14 +384,14 @@ public abstract class BaseJSTypeTestCase {
    * Asserts that a Node representing a type expression resolves to the
    * correct {@code JSType}.
    */
-  protected void assertTypeEquals(JSType expected, Node actual) {
-    assertTypeEquals(expected, new JSTypeExpression(actual, "<BaseJSTypeTestCase.java>"));
+  protected void assertTypeEqualsNode(JSType expected, Node actual) {
+    assertTypeEqualsJSTypeExpression(expected, new JSTypeExpression(actual, "<BaseJSTypeTestCase.java>"));
   }
 
   /**
    * Asserts that a a type expression resolves to the correct {@code JSType}.
    */
-  protected void assertTypeEquals(JSType expected, JSTypeExpression actual) {
+  protected void assertTypeEqualsJSTypeExpression(JSType expected, JSTypeExpression actual) {
     assertTypeEquals(expected, resolve(actual));
   }
 
@@ -573,7 +573,7 @@ public abstract class BaseJSTypeTestCase {
     assertThat(t2.canTestForEqualityWith(t1)).isFalse();
   }
 
-  protected static String lines(String line) {
+  protected static String linesString(String line) {
     return line;
   }
 

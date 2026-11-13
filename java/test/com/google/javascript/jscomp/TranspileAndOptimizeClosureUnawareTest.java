@@ -19,6 +19,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.javascript.jscomp.CompilerTestCase.srcs;
+import static com.google.javascript.jscomp.CompilerTestCase.srcsStringVarargs;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertThrows;
 
@@ -86,11 +87,11 @@ public class TranspileAndOptimizeClosureUnawareTest extends CompilerTestCase {
   @Test
   public void testFoldConstants_multipleFiles() {
     test(
-        srcs(
+        srcsStringVarargs(
             closureUnaware("console.log(1 + 2);"),
             closureUnaware("console.log(11 + 22);"),
             closureUnaware("console.log(111 + 222);")),
-        expected(
+        expectedStringVarargs(
             expectedClosureUnaware("console.log(3);"),
             expectedClosureUnaware("console.log(33);"),
             expectedClosureUnaware("console.log(333);")));
@@ -99,13 +100,13 @@ public class TranspileAndOptimizeClosureUnawareTest extends CompilerTestCase {
   @Test
   public void testFoldConstants_multipleFiles_ignoresNonClosureUnaware() {
     test(
-        srcs(
+        srcsStringVarargs(
             closureUnaware("console.log(1 + 2);"),
             """
             goog.module('some.other.file');
             console.log(11 + 22);
             """),
-        expected(
+        expectedStringVarargs(
             expectedClosureUnaware("console.log(3);"),
             """
             goog.module('some.other.file');
@@ -377,7 +378,7 @@ public class TranspileAndOptimizeClosureUnawareTest extends CompilerTestCase {
     setLanguageOut(CompilerOptions.LanguageMode.ECMASCRIPT5);
 
     test(
-        srcs(
+        srcsStringVarargs(
             closureUnaware("return {...obj};"),
             closureUnaware("return [...arr];"),
             closureUnaware(
@@ -386,7 +387,7 @@ public class TranspileAndOptimizeClosureUnawareTest extends CompilerTestCase {
                 class Child extends Parent {}
                 return new Child();
                 """)),
-        expected(
+        expectedStringVarargs(
             """
             /** @fileoverview @closureUnaware */
             goog.module("test0");
@@ -515,7 +516,7 @@ public class TranspileAndOptimizeClosureUnawareTest extends CompilerTestCase {
     // a polyfill for `globalThis`.
     // But we do not support this automatic polyfill detection in @closureUnaware code, as it's
     // more difficult to statically analyze. (Particularly in the case of polyfilled methods).
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @fileoverview @closureUnaware */
@@ -680,7 +681,7 @@ public class TranspileAndOptimizeClosureUnawareTest extends CompilerTestCase {
 
   @Test
   public void testSupportsClosureUnawareTag_whitespaceOnly() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**

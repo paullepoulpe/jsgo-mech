@@ -59,7 +59,7 @@ import java.util.function.Predicate;
 final class JSTypeIterations {
 
   /** @return whether any element of {@code types} matches {@code predicate}. */
-  static boolean anyTypeMatches(
+  static boolean anyTypeMatchesImmutableList(
       Predicate<? super JSType> predicate, ImmutableList<? extends JSType> types) {
     for (int i = 0; i < types.size(); i++) {
       if (predicate.test(types.get(i))) {
@@ -71,11 +71,11 @@ final class JSTypeIterations {
 
   /** @return whether any element of {@code union} matches {@code predicate}. */
   static boolean anyTypeMatches(Predicate<? super JSType> predicate, UnionType union) {
-    return anyTypeMatches(predicate, union.getAlternates());
+    return anyTypeMatchesImmutableList(predicate, union.getAlternates());
   }
 
   /** @return whether all elements of {@code types} match {@code predicate}. */
-  static boolean allTypesMatch(
+  static boolean allTypesMatchImmutableList(
       Predicate<? super JSType> predicate, ImmutableList<? extends JSType> types) {
     for (int i = 0; i < types.size(); i++) {
       if (!predicate.test(types.get(i))) {
@@ -87,11 +87,11 @@ final class JSTypeIterations {
 
   /** @return whether all elements of {@code union} match {@code predicate}. */
   static boolean allTypesMatch(Predicate<? super JSType> predicate, UnionType union) {
-    return allTypesMatch(predicate, union.getAlternates());
+    return allTypesMatchImmutableList(predicate, union.getAlternates());
   }
 
   /** @return the result of applying {@code mapper} to all elements of {@code types}. */
-  static <T extends JSType> ImmutableList<T> mapTypes(
+  static <T extends JSType> ImmutableList<T> mapTypesImmutableList(
       Function<? super JSType, T> mapper, ImmutableList<? extends JSType> types) {
     ImmutableList.Builder<T> builder = ImmutableList.builder();
     for (int i = 0; i < types.size(); i++) {
@@ -103,7 +103,7 @@ final class JSTypeIterations {
   /** @return the union of applying {@code mapper} to all elements of {@code types}. */
   static JSType mapTypes(Function<? super JSType, ? extends JSType> mapper, UnionType union) {
     return UnionType.builder(union.registry)
-        .addAlternates(mapTypes(mapper, union.getAlternates()))
+        .addAlternates(mapTypesImmutableList(mapper, union.getAlternates()))
         .build();
   }
 

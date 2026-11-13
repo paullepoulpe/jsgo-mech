@@ -3239,7 +3239,7 @@ public class AggressiveInlineAliasesTest extends CompilerTestCase {
 
   @Test
   public void testDontInlinePropertiesOnEscapedNamespace() {
-    testSame(
+    testSameTestPartVarargs(
         externs("function use(obj) {}"),
         srcs(
             """
@@ -3299,7 +3299,7 @@ public class AggressiveInlineAliasesTest extends CompilerTestCase {
   @Test
   public void testDontInlinePropertiesOnNamespace_withNoCollapse() {
     disableCompareJsDoc(); // multistage compilation removes the @enum type
-    testSame(
+    testSameTestPartVarargs(
         externs("function use(obj) {}"),
         srcs(
             """

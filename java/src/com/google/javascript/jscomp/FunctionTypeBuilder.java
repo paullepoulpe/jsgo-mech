@@ -1039,7 +1039,7 @@ final class FunctionTypeBuilder {
     return FunctionType.builder(this.typeRegistry)
         .withName(this.fnName)
         .withSourceNode(this.contents.getSourceNode())
-        .withTemplateKeys(this.templateTypeNames)
+        .withTemplateKeysImmutableList(this.templateTypeNames)
         .setIsKnownAmbiguous(this.isKnownAmbiguous)
         .setGoogModuleId(TypedScopeCreator.containingGoogModuleIdOf(this.declarationScope));
   }

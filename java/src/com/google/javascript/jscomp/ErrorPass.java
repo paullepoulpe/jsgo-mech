@@ -26,8 +26,8 @@ class ErrorPass implements CompilerPass {
   private final AbstractCompiler compiler;
   private final JSError error;
 
-  ErrorPass(AbstractCompiler compiler, DiagnosticType error) {
-    this(compiler, JSError.make(error));
+  static ErrorPass createFromDiagnosticType(AbstractCompiler compiler, DiagnosticType error) {
+    return new ErrorPass(compiler, JSError.make(error));
   }
 
   ErrorPass(AbstractCompiler compiler, JSError error) {

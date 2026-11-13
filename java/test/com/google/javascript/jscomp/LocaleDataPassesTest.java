@@ -87,9 +87,8 @@ public final class LocaleDataPassesTest extends CompilerTestCase {
   }
 
   static class LocaleResult {
-    LocaleResult(String locale, String result) {
-      this.locale = locale;
-      this.result = expected(result);
+    static LocaleResult createFromString(String locale, String result) {
+      return new LocaleResult(locale, expected(result));
     }
 
     LocaleResult(String locale, Expected result) {
@@ -133,14 +132,14 @@ public final class LocaleDataPassesTest extends CompilerTestCase {
    * @param allExpected What the code should look like after full replacement with localized
    *     messages has been done.
    */
-  private void multiTest(String originalJs, String protectedJs, LocaleResult... allExpected) {
+  private void multiTestString(String originalJs, String protectedJs, LocaleResult... allExpected) {
     multiTest(srcs(originalJs), expected(protectedJs), allExpected);
   }
 
   @Test
   public void testBaseJsGoogLocaleRef() {
     // We're confirming that there won't be any error reported for the use of `goog.LOCALE`.
-    multiTest( //
+    multiTestString( //
         """
         /**
          * @fileoverview
@@ -159,7 +158,7 @@ public final class LocaleDataPassesTest extends CompilerTestCase {
         goog.LOCALE = __JSC_LOCALE__;
         console.log(__JSC_LOCALE__);
         """,
-        new LocaleResult(
+        LocaleResult.createFromString(
             "es_ES",
             """
             /**

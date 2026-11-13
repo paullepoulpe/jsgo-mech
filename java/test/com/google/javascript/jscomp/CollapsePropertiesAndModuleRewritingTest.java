@@ -141,7 +141,7 @@ public class CollapsePropertiesAndModuleRewritingTest extends CompilerTestCase {
             """));
     expectedChunks[1].addDependency(expectedChunks[0]);
 
-    test(srcs(inputChunks), expected(expectedChunks));
+    test(srcsJSChunkVarargs(inputChunks), expectedJSChunkArray(expectedChunks));
   }
 
   @Test
@@ -175,6 +175,6 @@ public class CollapsePropertiesAndModuleRewritingTest extends CompilerTestCase {
             "mod1.js",
             "/** @const */ var module$mod1={}; /** @const */ module$mod1.default = 123;"));
 
-    test(srcs(inputs), expected(expected));
+    test(srcsList(inputs), expectedList(expected));
   }
 }

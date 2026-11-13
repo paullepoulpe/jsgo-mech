@@ -126,7 +126,7 @@ public class NoObjectType extends FunctionType {
   }
 
   @Override
-  public final void setPropertyJSDocInfo(Property.Key propertyName, JSDocInfo info) {
+  public final void setPropertyJSDocInfoKey(Property.Key propertyName, JSDocInfo info) {
     // Do nothing, specific properties do not have JSDocInfo.
   }
 

@@ -87,7 +87,7 @@ public final class DotFormatter {
    * @param n the root of the AST described in the dot formatted string
    * @return the dot representation of the AST
    */
-  public static String toDot(Node n) throws IOException {
+  public static String toDotNode(Node n) throws IOException {
     return toDot(n, null);
   }
 

@@ -33,7 +33,7 @@ import org.junit.runners.JUnit4;
 public final class CommonJSIntegrationTest extends IntegrationTestCase {
   @Test
   public void testCrossModuleCtorCall() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = Hello;",
@@ -50,7 +50,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleCtorCall2() {
-    test(
+    testStringArrayDiagnosticGroup(
         createCompilerOptions(),
         new String[] {
           """
@@ -83,7 +83,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleTypeAnnotation2() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = Hello;",
@@ -100,7 +100,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleTypeAnnotation3() {
-    test(
+    testStringArrayDiagnosticGroup(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = Hello;",
@@ -111,7 +111,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleSubclass1() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           """
@@ -146,7 +146,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleSubclass2() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = Hello;",
@@ -174,7 +174,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleSubclass3() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {}  module.exports = Hello;",
@@ -205,7 +205,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleSubclass4() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {}  module.exports = {Hello: Hello};",
@@ -236,7 +236,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleSubclass5() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = Hello;",
@@ -267,7 +267,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testCrossModuleSubclass6() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = {Hello: Hello};",
@@ -299,7 +299,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
   @Test
   @Ignore // TODO(ChadKillingsworth)
   public void testCommonJSImportsESModule() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           """
@@ -339,7 +339,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testESModuleDefaultImportsCommonJS_inheritance() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = Hello;",
@@ -374,7 +374,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testESModuleStarImportsCommonJS() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "/** @constructor */ function Hello() {} module.exports = Hello;",
@@ -405,7 +405,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testESModuleDefaultImportsCommonJS_variableReference() {
-    test(
+    testStringArray(
         createCompilerOptions(),
         new String[] {
           "module.exports = {foo: 1, bar: function() { return 'bar'; }};",
@@ -432,7 +432,7 @@ public final class CommonJSIntegrationTest extends IntegrationTestCase {
 
   @Test
   public void testEsModuleImportNonDefaultFromCJS() {
-    test(
+    testStringArrayDiagnosticGroup(
         createCompilerOptions(),
         new String[] {
           "module.exports = {foo: 1, bar: function() { return 'bar'; }};",

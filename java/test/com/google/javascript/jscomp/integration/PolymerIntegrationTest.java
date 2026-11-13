@@ -404,7 +404,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
     options.setClosurePass(true);
     addPolymerExterns();
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -435,7 +435,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
     options.setClosurePass(true);
     addPolymerExterns();
-    testNoWarnings(
+    testNoWarningsStringArray(
         options,
         new String[] {
           """
@@ -488,7 +488,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
     options.setClosurePass(true);
     addPolymerExterns();
-    testNoWarnings(
+    testNoWarningsStringArray(
         options,
         new String[] {
           """
@@ -542,7 +542,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
     addPolymerExterns();
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -584,7 +584,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
     addPolymerExterns();
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -639,7 +639,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
     addPolymerExterns();
 
     Compiler compiler =
-        compile(
+        compileStringArray(
             options,
             new String[] {
               "export class PolymerElement {};",
@@ -668,7 +668,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
     addPolymerExterns();
 
     Compiler compiler =
-        compile(
+        compileStringArray(
             options,
             new String[] {
               "export function Polymer(def) {};",
@@ -893,7 +893,7 @@ public final class PolymerIntegrationTest extends IntegrationTestCase {
         class Other { longUnusedProperty() {} }
         console.log(new Other().longUnusedProperty());
         """;
-    test(
+    testStringArray(
         options,
         new String[] {fooElement, "function unused() { console.log(FooElement); }"},
         new String[] {

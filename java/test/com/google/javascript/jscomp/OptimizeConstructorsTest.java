@@ -282,8 +282,8 @@ public final class OptimizeConstructorsTest extends CompilerTestCase {
   public void testOptimize_externSuper() {
     // NOTE: to optimize this we need to assume the external definition is accurately describes
     // the behavior.
-    testSame(
-        externs(SourceFile.fromCode("externs", "/** @constructor */ function Error(x, y, z) {}")),
+    testSameTestPartVarargs(
+        externsSourceFileVarargs(SourceFile.fromCode("externs", "/** @constructor */ function Error(x, y, z) {}")),
         srcs(
             """
             class A extends Error {
@@ -444,8 +444,8 @@ public final class OptimizeConstructorsTest extends CompilerTestCase {
 
   @Test
   public void testNoOptimize_superNotMatching_extern() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsSourceFileVarargs(
             SourceFile.fromCode(
                 "externs", "/** @constructor */ function Error(opt_a, opt_b, opt_c) {}")),
         srcs("class A extends Error { constructor() { super(); } }"));

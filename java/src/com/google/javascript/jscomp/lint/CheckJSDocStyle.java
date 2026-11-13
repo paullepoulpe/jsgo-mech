@@ -109,7 +109,7 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
           LICENSE_CONTAINS_AT_EXTERNS,
           PREFER_BACKTICKS_TO_AT_SIGN_CODE);
 
-  public static final DiagnosticGroup ALL_DIAGNOSTICS = new DiagnosticGroup(LINT_DIAGNOSTICS);
+  public static final DiagnosticGroup ALL_DIAGNOSTICS = DiagnosticGroup.createFromGroups(LINT_DIAGNOSTICS);
 
   private final AbstractCompiler compiler;
 

@@ -17,7 +17,7 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeJSType;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
@@ -68,7 +68,7 @@ final class ModuleRenaming {
   }
 
   /** Returns the post-transpilation, globalized name of the export. */
-  static QualifiedName getGlobalName(Export export) {
+  static QualifiedName getGlobalNameExport(Export export) {
     if (export.moduleMetadata().isEs6Module()) {
       if (export.localName().equals(Export.DEFAULT_EXPORT_NAME)) {
         return getGlobalNameOfAnonymousDefaultExport(export.moduleMetadata());
@@ -84,7 +84,7 @@ final class ModuleRenaming {
     if (binding.isModuleNamespace()) {
       return getGlobalName(binding.metadata(), binding.closureNamespace());
     }
-    return getGlobalName(binding.originatingExport());
+    return getGlobalNameExport(binding.originatingExport());
   }
 
   private static @Nullable JSType getNameRootType(
@@ -92,7 +92,7 @@ final class ModuleRenaming {
     if (globalTypedScope == null) {
       return null;
     }
-    String root = NodeUtil.getRootOfQualifiedName(qname);
+    String root = NodeUtil.getRootOfQualifiedNameString(qname);
     return checkNotNull(globalTypedScope.getVar(root), "missing var for %s", root).getType();
   }
 
@@ -175,7 +175,7 @@ final class ModuleRenaming {
 
     /** Creates a GETPROP chain with type information representing this name */
     Node toQname(AstFactory astFactory) {
-      Node rootName = astFactory.createName(this.aliasName().getRoot(), type(this.rootNameType()));
+      Node rootName = astFactory.createName(this.aliasName().getRoot(), typeJSType(this.rootNameType()));
       if (this.aliasName().isSimple()) {
         return rootName;
       }

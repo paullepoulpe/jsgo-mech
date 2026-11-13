@@ -503,7 +503,7 @@ public final class RemoveUnusedCodeNameAnalyzerTest extends CompilerTestCase {
   @Test
   public void testNoSideEffectAnnotation_whenUsedOnDuplicateDefinitions_eliminatesSideEffects() {
     test(
-        externs(
+        externsStringVarargs(
             "var f = /** @nosideeffects */ function(){};",
             "var f = /** @nosideeffects */ function(){};"),
         srcs("var a = f();"),
@@ -549,7 +549,7 @@ public final class RemoveUnusedCodeNameAnalyzerTest extends CompilerTestCase {
   @Test
   public void testNoSideEffectAnnotation15() {
     test(
-        externs("/** @nosideeffects */ function c(){}", "c.prototype.f = function(){};"),
+        externsStringVarargs("/** @nosideeffects */ function c(){}", "c.prototype.f = function(){};"),
         srcs("var a = (new c).f()"),
         expected("(new c).f()"));
   }
@@ -557,7 +557,7 @@ public final class RemoveUnusedCodeNameAnalyzerTest extends CompilerTestCase {
   @Test
   public void testNoSideEffectAnnotation16() {
     test(
-        externs(
+        externsStringVarargs(
             "/** @nosideeffects */ function c(){}",
             "c.prototype.f = /** @nosideeffects */ function(){};"),
         srcs("var a = (new c).f()"),

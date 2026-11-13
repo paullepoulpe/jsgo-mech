@@ -46,7 +46,7 @@ public final class SemanticReverseAbstractInterpreterTest extends CompilerTypeTe
 
   private FlowScope[] newScope() {
     TypedScope globalScope = TypedScope.createGlobalScope(new Node(Token.ROOT));
-    functionScope = new TypedScope(globalScope, new Node(Token.FUNCTION));
+    functionScope = TypedScope.createFromParent(globalScope, new Node(Token.FUNCTION));
     return new FlowScope[] {LinkedFlowScope.createEntryLattice(compiler, functionScope)};
   }
 

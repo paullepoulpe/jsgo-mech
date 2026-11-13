@@ -237,8 +237,8 @@ public final class AliasStringsTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             """
             var $$S_ciaociaociaociaociao = 'ciaociaociaociaociao';
@@ -303,8 +303,8 @@ public final class AliasStringsTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             """
             var $$S_ciaociaociaociaociao = 'ciaociaociaociaociao';
@@ -338,8 +338,8 @@ public final class AliasStringsTest extends CompilerTestCase {
     // The "ciao" string is used in m1 and m2.
     // Since m2 depends on m1, we should create the alias there and not force it into m0.
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -363,8 +363,8 @@ public final class AliasStringsTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m0
             "var $$S_goodgoodgoodgoodgood='goodgoodgoodgoodgood'",
             // m1

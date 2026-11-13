@@ -221,7 +221,7 @@ class InlineAndCollapseProperties implements CompilerPass {
     // CollapseProperties needs this namespace.
     // TODO(bradfordcsmith): Have `InlineAliases` update the namespace it already created
     // and reuse that one instead.
-    namespace = new GlobalNamespace(decisionsLog, compiler, root);
+    namespace = GlobalNamespace.createFromDecisionsLog(decisionsLog, compiler, root);
     new CollapseProperties().process(externs, root);
   }
 
@@ -271,7 +271,7 @@ class InlineAndCollapseProperties implements CompilerPass {
 
       // Building the `GlobalNamespace` dominates the cost of this pass, so it is built once and
       // updated as changes are made so it can be reused for the next iteration.
-      namespace = new GlobalNamespace(decisionsLog, compiler, root);
+      namespace = GlobalNamespace.createFromDecisionsLog(decisionsLog, compiler, root);
       while (codeChanged) {
         codeChanged = false;
         inlineAliases(namespace);
@@ -538,7 +538,7 @@ class InlineAndCollapseProperties implements CompilerPass {
               firstRhs = rhs;
             } else {
               // comparing nodes is faster than comparing with the string name
-              if (!rhs.matchesQualifiedName(firstRhs)) {
+              if (!rhs.matchesQualifiedNameNode(firstRhs)) {
                 return false;
               }
             }
@@ -1552,14 +1552,14 @@ class InlineAndCollapseProperties implements CompilerPass {
     }
 
     private void logDecisionForName(Name name, Inlinability inlinability, String message) {
-      logDecisionForName(name, () -> String.format("inlinability %s: %s", inlinability, message));
+      logDecisionForNameSupplier(name, () -> String.format("inlinability %s: %s", inlinability, message));
     }
 
     private void logDecisionForName(Name name, String message) {
       decisionsLog.log(() -> String.format("%s: %s", name.getFullName(), message));
     }
 
-    private void logDecisionForName(Name name, Supplier<String> messageSupplier) {
+    private void logDecisionForNameSupplier(Name name, Supplier<String> messageSupplier) {
       decisionsLog.log(() -> String.format("%s: %s", name.getFullName(), messageSupplier.get()));
     }
 
@@ -1741,7 +1741,7 @@ class InlineAndCollapseProperties implements CompilerPass {
       final Inlinability childNameInlinability = n.canCollapseOrInlineChildNames();
       final boolean canCollapseChildNames;
       if (!childNameInlinability.canCollapse()) {
-        logDecisionForName(
+        logDecisionForNameSupplier(
             n,
             () ->
                 String.format(
@@ -1884,7 +1884,7 @@ class InlineAndCollapseProperties implements CompilerPass {
     }
 
     private void logDeclarationAction(Name name, Node declarationNode, String message) {
-      logDecisionForName(name, () -> String.format("%s: %s", declarationNode, message));
+      logDecisionForNameSupplier(name, () -> String.format("%s: %s", declarationNode, message));
     }
 
     private void moveDeclarationIntoHigherChunk(Ref decl, JSChunk commonAncestor) {
@@ -2333,7 +2333,7 @@ class InlineAndCollapseProperties implements CompilerPass {
           if (potentialCallback != null
               && ProcessCommonJSModules.isCommonJsDynamicImportCallback(
                   NodeUtil.getEnclosingFunction(potentialCallback), moduleResolutionMode)) {
-            dynamicallyImportedModules.add(NodeUtil.getRootOfQualifiedName(n.getQualifiedName()));
+            dynamicallyImportedModules.add(NodeUtil.getRootOfQualifiedNameString(n.getQualifiedName()));
           }
         } else if (ConvertChunksToESModules.isDynamicImportCallback(n)) {
           Node moduleNamespace =
@@ -2352,7 +2352,7 @@ class InlineAndCollapseProperties implements CompilerPass {
     Node val = valParent.getLastChild();
     if (val != null && val.isOr()) {
       Node maybeName = val.getFirstChild();
-      if (ref.getNode().matchesQualifiedName(maybeName)) {
+      if (ref.getNode().matchesQualifiedNameNode(maybeName)) {
         return true;
       }
     }
@@ -2467,7 +2467,7 @@ class InlineAndCollapseProperties implements CompilerPass {
               }
 
               Node newNode =
-                  astFactory.createQName(namespace, resolveAlias(n.getQualifiedName(), n));
+                  astFactory.createQNameString(namespace, resolveAlias(n.getQualifiedName(), n));
               if (isLeftmostNameLocal(t, newNode)) {
                 // The aliased name is shadowed by a local variable. Don't rewrite.
                 return;

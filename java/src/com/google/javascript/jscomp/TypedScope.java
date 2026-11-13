@@ -66,8 +66,8 @@ public class TypedScope extends AbstractScope<TypedScope, TypedVar> implements S
   // Scope.java contains an arguments field.
   // We haven't added it here because it's unused by the passes that need typed scopes.
 
-  TypedScope(TypedScope parent, Node rootNode) {
-    this(parent, rootNode, new LinkedHashSet<>(), null);
+  static TypedScope createFromParent(TypedScope parent, Node rootNode) {
+    return new TypedScope(parent, rootNode, new LinkedHashSet<>(), null);
   }
 
   /**

@@ -227,7 +227,7 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
             IR.call(
                 IR.getprop(IR.getelem(IR.name(objName), IR.string("fileNames")), "push"),
                 IR.string(fileName))));
-    return IR.block(nodes).srcrefTreeIfMissing(srcref);
+    return IR.blockList(nodes).srcrefTreeIfMissing(srcref);
   }
 
   private Node newArrayDeclarationNode(NodeTraversal traversal) {
@@ -252,6 +252,6 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
         assignments.add(assignment.srcrefTreeIfMissing(assignment));
       }
     }
-    return IR.block(assignments);
+    return IR.blockList(assignments);
   }
 }

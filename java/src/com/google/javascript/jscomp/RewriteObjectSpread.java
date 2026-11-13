@@ -47,7 +47,7 @@ public final class RewriteObjectSpread implements NodeTraversal.Callback, Compil
     this.astFactory = compiler.createAstFactory();
     this.namespace = this.compiler.getTranspilationNamespace();
     this.useJscompAssign =
-        !this.compiler.getOptions().getOutputFeatureSet().contains(FeatureSet.ES2015);
+        !this.compiler.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet.ES2015);
   }
 
   @Override

@@ -214,7 +214,7 @@ public final class DeclaredGlobalExternsOnWindowTest extends CompilerTestCase {
   /** Test to make sure the compiler knows the type of "window.x" is the same as that of "x". */
   @Test
   public void testWindowPropertyWithJsDoc() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             MINIMAL_EXTERNS
                 + """
@@ -232,7 +232,7 @@ public final class DeclaredGlobalExternsOnWindowTest extends CompilerTestCase {
 
   @Test
   public void testEnum() {
-    testSame(
+    testSameTestPartVarargs(
         externs(MINIMAL_EXTERNS + "/** @enum {string} */ var Enum = {FOO: 'foo', BAR: 'bar'};"),
         srcs(
             """
@@ -248,7 +248,7 @@ public final class DeclaredGlobalExternsOnWindowTest extends CompilerTestCase {
    */
   @Test
   public void testConstructorIsSameType() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             MINIMAL_EXTERNS
                 + """
@@ -262,7 +262,7 @@ public final class DeclaredGlobalExternsOnWindowTest extends CompilerTestCase {
             bar(new Foo());
             """));
 
-    testSame(
+    testSameTestPartVarargs(
         externs(MINIMAL_EXTERNS + "/** @constructor */ function Foo() {}"),
         srcs(
             """

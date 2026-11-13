@@ -51,11 +51,11 @@ public abstract class DiGraph<N, E> extends Graph<N, E> {
   /** Gets an immutable list of in edges of the given node. */
   public abstract List<? extends DiGraphEdge<N, E>> getInEdges(N nodeValue);
 
-  public abstract List<? extends DiGraphNode<N, E>> getDirectedPredNodes(DiGraphNode<N, E> n);
+  public abstract List<? extends DiGraphNode<N, E>> getDirectedPredNodesDiGraphNode(DiGraphNode<N, E> n);
 
   public abstract List<? extends DiGraphNode<N, E>> getDirectedPredNodes(N nodeValue);
 
-  public abstract List<? extends DiGraphNode<N, E>> getDirectedSuccNodes(DiGraphNode<N, E> n);
+  public abstract List<? extends DiGraphNode<N, E>> getDirectedSuccNodesDiGraphNode(DiGraphNode<N, E> n);
 
   public abstract List<? extends DiGraphNode<N, E>> getDirectedSuccNodes(N nodeValue);
 

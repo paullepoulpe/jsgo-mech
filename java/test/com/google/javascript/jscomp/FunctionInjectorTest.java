@@ -2306,7 +2306,7 @@ public final class FunctionInjectorTest {
 
             assertNode(tree.getFirstChild())
                 .usingSerializer(FunctionInjectorTest::toSource)
-                .isEqualTo(expectedRoot);
+                .isEqualToNode(expectedRoot);
 
             return true;
           }

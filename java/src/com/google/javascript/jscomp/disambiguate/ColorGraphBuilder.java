@@ -85,7 +85,7 @@ final class ColorGraphBuilder {
   }
 
   public void add(ColorGraphNode flat) {
-    this.addInternal(flat);
+    this.addInternalColorGraphNode(flat);
   }
 
   public void addAll(Collection<ColorGraphNode> flats) {
@@ -137,11 +137,11 @@ final class ColorGraphBuilder {
 
   /** Insert {@code color} and all necessary related colors into the datastructures of this pass. */
   private LinkedDiGraphNode<ColorGraphNode, Object> addInternal(Color color) {
-    return this.addInternal(this.nodeFactory.createNode(color));
+    return this.addInternalColorGraphNode(this.nodeFactory.createNode(color));
   }
 
   /** Insert {@code node} and all necessary related colors into the datastructures of this pass. */
-  private LinkedDiGraphNode<ColorGraphNode, Object> addInternal(ColorGraphNode node) {
+  private LinkedDiGraphNode<ColorGraphNode, Object> addInternalColorGraphNode(ColorGraphNode node) {
     LinkedDiGraphNode<ColorGraphNode, Object> flatNode = this.colorHoldsInstanceGraph.getNode(node);
     if (flatNode != null) {
       return flatNode;
@@ -187,10 +187,10 @@ final class ColorGraphBuilder {
       EdgeReason reason,
       LinkedDiGraphNode<ColorGraphNode, Object> dest) {
     if (source.equals(dest)
-        || this.colorHoldsInstanceGraph.isConnectedInDirection(source, (t) -> true, dest)) {
+        || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, (t) -> true, dest)) {
       return;
     }
 
-    this.colorHoldsInstanceGraph.connect(source, reason, dest);
+    this.colorHoldsInstanceGraph.connectDiGraphNode(source, reason, dest);
   }
 }

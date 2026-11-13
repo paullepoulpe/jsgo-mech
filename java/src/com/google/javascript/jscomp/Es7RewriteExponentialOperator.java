@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 
 import com.google.common.base.Suppliers;
 import com.google.javascript.jscomp.colors.StandardColors;
@@ -205,8 +206,8 @@ public final class Es7RewriteExponentialOperator implements NodeTraversal.Callba
 
   private Node createMathPowCall() {
     return astFactory.createCall(
-        astFactory.createQName(compiler.getTranspilationNamespace(), "Math.pow"),
-        type(StandardColors.NUMBER));
+        astFactory.createQNameString(compiler.getTranspilationNamespace(), "Math.pow"),
+        typeColor(StandardColors.NUMBER));
   }
 
   // Report an error if the `**` getting transpiled to `Math.pow()`is of BIGINT type

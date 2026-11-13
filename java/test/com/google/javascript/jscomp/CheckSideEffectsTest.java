@@ -365,7 +365,7 @@ public final class CheckSideEffectsTest extends CompilerTestCase {
         /** @return {boolean} */ var hasSideEffectsExtern2 = function(){}
         """;
 
-    testSame(externs(externs), srcs("alert(noSideEffectsExtern());"));
+    testSameTestPartVarargs(externs(externs), srcs("alert(noSideEffectsExtern());"));
 
     test(
         externs(externs),
@@ -389,12 +389,12 @@ public final class CheckSideEffectsTest extends CompilerTestCase {
                 'noSideEffectsExtern2' is not being used.\
                 """));
 
-    testSame(externs(externs), srcs("hasSideEffectsExtern()"));
+    testSameTestPartVarargs(externs(externs), srcs("hasSideEffectsExtern()"));
 
-    testSame(externs(externs), srcs("hasSideEffectsExtern2()"));
+    testSameTestPartVarargs(externs(externs), srcs("hasSideEffectsExtern2()"));
 
     // Methods redefined in inner scopes should not trigger a warning
-    testSame(
+    testSameTestPartVarargs(
         externs(externs),
         srcs("(function() { function noSideEffectsExtern() {}; noSideEffectsExtern(); })()"));
   }
@@ -409,7 +409,7 @@ public final class CheckSideEffectsTest extends CompilerTestCase {
         foo.noSideEffectsExtern = function(){}
         """;
 
-    testSame(externs(externs), srcs("alert(foo.noSideEffectsExtern());"));
+    testSameTestPartVarargs(externs(externs), srcs("alert(foo.noSideEffectsExtern());"));
 
     test(
         externs(externs),
@@ -422,7 +422,7 @@ public final class CheckSideEffectsTest extends CompilerTestCase {
                 'foo.noSideEffectsExtern' is not being used.\
                 """));
     // Methods redefined in inner scopes should not trigger a warning
-    testSame(
+    testSameTestPartVarargs(
         externs(externs),
         srcs(
             """
@@ -436,20 +436,20 @@ public final class CheckSideEffectsTest extends CompilerTestCase {
 
   @Test
   public void testIgnoresRuntimeLibRequireStatementsOnly() {
-    testSame(srcs(SourceFile.fromCode(AbstractCompiler.RUNTIME_LIB_DIR, "'require base'")));
+    testSameTestPartVarargs(srcsSourceFileVarargs(SourceFile.fromCode(AbstractCompiler.RUNTIME_LIB_DIR, "'require base'")));
 
-    testWarning(
-        srcs(SourceFile.fromCode(AbstractCompiler.RUNTIME_LIB_DIR, "'other string lit'")),
+    testWarningDiagnostic(
+        srcsSourceFileVarargs(SourceFile.fromCode(AbstractCompiler.RUNTIME_LIB_DIR, "'other string lit'")),
         warning(CheckSideEffects.USELESS_CODE_ERROR));
 
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 AbstractCompiler.RUNTIME_LIB_DIR, "function f() { 'require base' }")),
         warning(CheckSideEffects.USELESS_CODE_ERROR));
 
-    testWarning(
-        srcs(SourceFile.fromCode("other/file.js", "'require base'")),
+    testWarningDiagnostic(
+        srcsSourceFileVarargs(SourceFile.fromCode("other/file.js", "'require base'")),
         warning(CheckSideEffects.USELESS_CODE_ERROR));
   }
 

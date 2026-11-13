@@ -313,7 +313,7 @@ public class ProxyObjectType extends ObjectType {
 
   @Override
   protected JSType findPropertyTypeWithoutConsideringTemplateTypes(Property.Key propertyName) {
-    return referencedType.findPropertyType(propertyName);
+    return referencedType.findPropertyTypeKey(propertyName);
   }
 
   @Override
@@ -329,9 +329,9 @@ public class ProxyObjectType extends ObjectType {
   }
 
   @Override
-  public final void setPropertyJSDocInfo(Property.Key propertyName, JSDocInfo info) {
+  public final void setPropertyJSDocInfoKey(Property.Key propertyName, JSDocInfo info) {
     if (referencedObjType != null) {
-      referencedObjType.setPropertyJSDocInfo(propertyName, info);
+      referencedObjType.setPropertyJSDocInfoKey(propertyName, info);
     }
   }
 

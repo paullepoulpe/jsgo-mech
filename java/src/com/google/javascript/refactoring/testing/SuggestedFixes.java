@@ -47,10 +47,10 @@ public final class SuggestedFixes {
 
   public static void assertChanges(
       SuggestedFix fix, String externs, String originalCode, String expectedCode) {
-    assertChanges(ImmutableList.of(fix), externs, originalCode, expectedCode);
+    assertChangesList(ImmutableList.of(fix), externs, originalCode, expectedCode);
   }
 
-  public static void assertChanges(
+  public static void assertChangesList(
       List<SuggestedFix> fixes, String externs, String originalCode, String expectedCode) {
     assertThat(fixes).isNotEmpty();
     String newCode =

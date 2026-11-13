@@ -355,7 +355,7 @@ public final class ColorPool {
     for (int i = 0; i < ids.length; i++) {
       TypeProto proto = typePool.getType(i);
       switch (proto.getKindCase()) {
-        case OBJECT -> ids[i] = ColorId.fromBytes(proto.getObject().getUuid());
+        case OBJECT -> ids[i] = ColorId.fromBytesByteString(proto.getObject().getUuid());
         case UNION -> {
           // Defer generating union IDs until we have the IDs of all the element types.
         }

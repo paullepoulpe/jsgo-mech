@@ -371,21 +371,21 @@ public final class ClosureRewriteModule implements CompilerPass {
           if (!method.isGetProp()) {
             break;
           }
-          if (method.matchesQualifiedName(GOOG_MODULE)) {
+          if (method.matchesQualifiedNameNode(GOOG_MODULE)) {
             recordGoogModule(t, n);
-          } else if (method.matchesQualifiedName(GOOG_MODULE_DECLARELEGACYNAMESPACE)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_MODULE_DECLARELEGACYNAMESPACE)) {
             recordGoogDeclareLegacyNamespace();
-          } else if (method.matchesQualifiedName(GOOG_PROVIDE)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_PROVIDE)) {
             recordGoogProvide(t, n);
-          } else if (method.matchesQualifiedName(GOOG_REQUIRE)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_REQUIRE)) {
             recordGoogRequire(t, n);
-          } else if (method.matchesQualifiedName(GOOG_REQUIRETYPE)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_REQUIRETYPE)) {
             recordGoogRequireType(t, n);
-          } else if (method.matchesQualifiedName(GOOG_REQUIREDYNAMIC)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_REQUIREDYNAMIC)) {
             recordGoogRequireDynamic(t, n);
-          } else if (method.matchesQualifiedName(GOOG_FORWARDDECLARE) && !parent.isExprResult()) {
+          } else if (method.matchesQualifiedNameNode(GOOG_FORWARDDECLARE) && !parent.isExprResult()) {
             recordGoogForwardDeclare(t, n);
-          } else if (method.matchesQualifiedName(GOOG_MODULE_GET)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_MODULE_GET)) {
             recordGoogModuleGet(t, n);
           }
         }
@@ -460,14 +460,14 @@ public final class ClosureRewriteModule implements CompilerPass {
           if (!method.isGetProp()) {
             break;
           }
-          if (method.matchesQualifiedName(GOOG_MODULE)) {
+          if (method.matchesQualifiedNameNode(GOOG_MODULE)) {
             updateGoogModule(t, n);
-          } else if (method.matchesQualifiedName(GOOG_MODULE_DECLARELEGACYNAMESPACE)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_MODULE_DECLARELEGACYNAMESPACE)) {
             updateGoogDeclareLegacyNamespace(n);
-          } else if (method.matchesQualifiedName(GOOG_REQUIRE)
-              || method.matchesQualifiedName(GOOG_REQUIRETYPE)) {
+          } else if (method.matchesQualifiedNameNode(GOOG_REQUIRE)
+              || method.matchesQualifiedNameNode(GOOG_REQUIRETYPE)) {
             updateGoogRequire(t, n);
-          } else if (method.matchesQualifiedName(GOOG_FORWARDDECLARE) && !parent.isExprResult()) {
+          } else if (method.matchesQualifiedNameNode(GOOG_FORWARDDECLARE) && !parent.isExprResult()) {
             updateGoogForwardDeclare(t, n);
           } else if (GOOG_MODULE_PREVENTMODULEEXPORTSEALING.matches(method)) {
             updateGoogPreventModuleExportsSealing(n);
@@ -718,7 +718,7 @@ public final class ClosureRewriteModule implements CompilerPass {
         case ROOT, SCRIPT -> true;
         case EXPR_RESULT -> {
           Node call = n.getFirstChild();
-          if (NodeUtil.isCallTo(call, GOOG_LOADMODULE) && call.getLastChild().isFunction()) {
+          if (NodeUtil.isCallToNode(call, GOOG_LOADMODULE) && call.getLastChild().isFunction()) {
             parent.putBooleanProp(Node.GOOG_MODULE, true);
             Node functionNode = call.getLastChild();
             compiler.reportFunctionDeleted(functionNode);
@@ -995,7 +995,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     //   let x = goog.forwardDeclare('a.namespace');
     Node aliasVarNodeRhs = NodeUtil.getRValueOfLValue(aliasVar.getNode());
     if (aliasVarNodeRhs == null
-        || !NodeUtil.isCallTo(aliasVarNodeRhs, GOOG_FORWARDDECLARE)
+        || !NodeUtil.isCallToNode(aliasVarNodeRhs, GOOG_FORWARDDECLARE)
         || !namespaceId.equals(aliasVarNodeRhs.getLastChild().getString())) {
       // Reported in CheckClosureImports
       return;
@@ -1282,7 +1282,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
     // `module$exports$a$b$c`
     Node exportedNamespaceNameNode =
-        this.astFactory.createName(this.globalTypedScope, exportedNamespace).srcrefTree(call);
+        this.astFactory.createNameStaticScope(this.globalTypedScope, exportedNamespace).srcrefTree(call);
     exportedNamespaceNameNode.setOriginalName(namespaceId);
 
     // Get `{Foo}` from `goog.requireDynamic().then(   ({Foo}) => {  }   )`;
@@ -1517,8 +1517,8 @@ public final class ClosureRewriteModule implements CompilerPass {
         && nameNode.getParent().isStringKey()
         && nameNode.getGrandparent().isObjectPattern()) {
       Node destructuringLhsNode = nameNode.getGrandparent().getParent();
-      if (NodeUtil.isCallTo(destructuringLhsNode.getLastChild(), GOOG_REQUIRE)
-          || NodeUtil.isCallTo(destructuringLhsNode.getLastChild(), GOOG_REQUIRETYPE)) {
+      if (NodeUtil.isCallToNode(destructuringLhsNode.getLastChild(), GOOG_REQUIRE)
+          || NodeUtil.isCallToNode(destructuringLhsNode.getLastChild(), GOOG_REQUIRETYPE)) {
         return;
       }
     }

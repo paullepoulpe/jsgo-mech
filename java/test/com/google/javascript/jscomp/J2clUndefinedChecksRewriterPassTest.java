@@ -24,7 +24,7 @@ public class J2clUndefinedChecksRewriterPassTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
-    return new PeepholeOptimizationsPass(
+    return PeepholeOptimizationsPass.createFromOptimizations(
         compiler, getName(), new J2clUndefinedChecksRewriterPass());
   }
 

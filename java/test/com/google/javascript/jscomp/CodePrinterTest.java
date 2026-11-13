@@ -2679,7 +2679,7 @@ public final class CodePrinterTest extends CodePrinterTestBase {
     Compiler compiler = new Compiler();
     Node parseOnce = parse(code);
     Node parseTwice = parse(new CodePrinter.Builder(parseOnce).build());
-    assertNode(parseTwice).usingSerializer(compiler::toSource).isEqualTo(parseOnce);
+    assertNode(parseTwice).usingSerializer(compiler::toSource).isEqualToNode(parseOnce);
   }
 
   @Test
@@ -2726,12 +2726,12 @@ public final class CodePrinterTest extends CodePrinterTestBase {
 
   @Test
   public void testExponents() {
-    assertPrintNumber("1", 1);
-    assertPrintNumber("10", 10);
-    assertPrintNumber("100", 100);
-    assertPrintNumber("1E3", 1000);
-    assertPrintNumber("1E4", 10000);
-    assertPrintNumber("1E5", 100000);
+    assertPrintNumberInt("1", 1);
+    assertPrintNumberInt("10", 10);
+    assertPrintNumberInt("100", 100);
+    assertPrintNumberInt("1E3", 1000);
+    assertPrintNumberInt("1E4", 10000);
+    assertPrintNumberInt("1E5", 100000);
     assertPrintNumber("1E18", 1000000000000000000d);
     assertPrintNumber("1E5", 100000.0);
     assertPrintNumber("100000.1", 100000.1);
@@ -2797,7 +2797,7 @@ public final class CodePrinterTest extends CodePrinterTestBase {
     assertPrintNode(expected, Node.newNumber(number));
   }
 
-  private void assertPrintNumber(String expected, int number) {
+  private void assertPrintNumberInt(String expected, int number) {
     assertPrint(String.valueOf(number), expected);
     assertPrintNode(expected, Node.newNumber(number));
   }
@@ -4636,7 +4636,7 @@ public final class CodePrinterTest extends CodePrinterTestBase {
   public void testPrintsContentOfClosureUnawareShadow() {
     Node shadowHost = IR.name("SHADOW");
     AstFactory astFactory = new Compiler().createAstFactoryWithoutTypes();
-    Node closureUnawareFn = astFactory.createEmptyFunction(AstFactory.type(StandardColors.UNKNOWN));
+    Node closureUnawareFn = astFactory.createEmptyFunction(AstFactory.typeColor(StandardColors.UNKNOWN));
     shadowHost.setClosureUnawareShadow(
         IR.root(IR.script(IR.exprResult(IR.call(IR.name("PRESERVE"), closureUnawareFn)))));
 

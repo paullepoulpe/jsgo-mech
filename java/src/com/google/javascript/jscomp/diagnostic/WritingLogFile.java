@@ -74,12 +74,12 @@ final class WritingLogFile extends LogFile {
   }
 
   @Override
-  public LogFile log(Object value) {
+  public LogFile logObject(Object value) {
     return logInternal(value.toString());
   }
 
   @Override
-  public LogFile log(String value) {
+  public LogFile logString(String value) {
     return logInternal(value);
   }
 
@@ -95,12 +95,12 @@ final class WritingLogFile extends LogFile {
   }
 
   @Override
-  public LogFile logJson(Object value) {
+  public LogFile logJsonObject(Object value) {
     return logInternal(LogsGson.toJson(value));
   }
 
   @Override
-  public LogFile logJson(Supplier<Object> value) {
+  public LogFile logJsonSupplier(Supplier<Object> value) {
     return logInternal(LogsGson.toJson(value.get()));
   }
 

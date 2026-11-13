@@ -1714,7 +1714,7 @@ $jscomp.inherits(FooPromise, Promise);
     enableTypeCheck();
 
     test(
-        externs(externsFile),
+        externsSourceFileVarargs(externsFile),
         srcs(
             """
             /** @constructor */
@@ -1738,7 +1738,7 @@ $jscomp.inherits(FooPromise, Promise);
             """));
 
     test(
-        externs(externsFile),
+        externsSourceFileVarargs(externsFile),
         srcs(
             """
             /** @constructor @struct */
@@ -1761,7 +1761,7 @@ $jscomp.inherits(FooPromise, Promise);
             """));
 
     test(
-        externs(externsFile),
+        externsSourceFileVarargs(externsFile),
         srcs(
             """
             /** @constructor */
@@ -1980,7 +1980,7 @@ $jscomp.inherits(FooPromise, Promise);
     allowExternsChanges();
 
     test(
-        externs(externsFile),
+        externsSourceFileVarargs(externsFile),
         srcs("class C { /** @type {string} */ get value() { } }"),
         expected(
             """
@@ -1998,7 +1998,7 @@ $jscomp.inherits(FooPromise, Promise);
 
     // Using @type instead of @param on a setter.
     test(
-        externs(externsFile),
+        externsSourceFileVarargs(externsFile),
         srcs("class C { /** @type {string} */ set value(v) { } }"),
         expected(
             """
@@ -2096,21 +2096,21 @@ $jscomp.inherits(FooPromise, Promise);
             .buildExternsFile("externs.js");
 
     test(
-        externs(externsFileWithSymbol), //
+        externsSourceFileVarargs(externsFileWithSymbol), //
         srcs("let a = alert(Symbol.thimble);"),
         expected("var a = alert(Symbol.thimble)"));
     assertThat(getLastCompiler().getRuntimeJsLibManager().getInjectedLibraries())
         .containsExactly("es6/symbol");
 
     test(
-        externs(externsFileWithSymbol), //
+        externsSourceFileVarargs(externsFileWithSymbol), //
         srcs("let a = alert(Symbol.iterator);"),
         expected("var a = alert(Symbol.iterator)"));
     assertThat(getLastCompiler().getRuntimeJsLibManager().getInjectedLibraries())
         .containsExactly("es6/symbol");
 
     test(
-        externs(externsFileWithSymbol),
+        externsSourceFileVarargs(externsFileWithSymbol),
         srcs(
             """
             function f() {
@@ -2125,7 +2125,7 @@ $jscomp.inherits(FooPromise, Promise);
               var y = Symbol('nimble');
             }
             """));
-    Externs externs = externs(externsFileWithSymbol);
+    Externs externs = externsSourceFileVarargs(externsFileWithSymbol);
     Sources srcs =
         srcs(
             """
@@ -2150,7 +2150,7 @@ $jscomp.inherits(FooPromise, Promise);
             """);
     test(externs, srcs, expected);
 
-    externs = externs(externsFileWithSymbol);
+    externs = externsSourceFileVarargs(externsFileWithSymbol);
     srcs =
         srcs(
             """
@@ -2177,7 +2177,7 @@ $jscomp.inherits(FooPromise, Promise);
             """);
     test(externs, srcs, expected);
     // No $jscomp.initSymbol in externs
-    testSame(externs("alert(Symbol.thimble);"), srcs(""));
+    testSameTestPartVarargs(externs("alert(Symbol.thimble);"), srcs(""));
   }
 
   @Test

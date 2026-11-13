@@ -44,7 +44,7 @@ class InlineCostEstimator {
    */
   static int getCost(Node root, int costThreshold) {
     CompiledSizeEstimator estimator = new CompiledSizeEstimator(costThreshold);
-    estimator.add(root);
+    estimator.addNode(root);
     return estimator.getCost();
   }
 
@@ -62,9 +62,9 @@ class InlineCostEstimator {
       this.maxCost = costThreshold;
     }
 
-    void add(Node root) {
+    void addNode(Node root) {
       CodeGenerator cg = CodeGenerator.forCostEstimation(this);
-      cg.add(root);
+      cg.addNode(root);
     }
 
     int getCost() {

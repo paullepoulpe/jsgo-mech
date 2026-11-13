@@ -509,8 +509,8 @@ public final class IsolatePolyfillsTest extends CompilerTestCase {
     setLanguage(ES6, ES5);
 
     test(
-        srcs("$jscomp.polyfill('String.prototype.endsWith', 'es6', 'es5');", "x().endsWith(y);"),
-        expected(
+        srcsStringVarargs("$jscomp.polyfill('String.prototype.endsWith', 'es6', 'es5');", "x().endsWith(y);"),
+        expectedStringVarargs(
             """
             var $jscomp$polyfillTmp;
             $jscomp.polyfill('String.prototype.endsWith', 'es6', 'es5');

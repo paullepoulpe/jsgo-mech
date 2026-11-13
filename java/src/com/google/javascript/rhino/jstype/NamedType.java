@@ -220,7 +220,7 @@ public final class NamedType extends ProxyObjectType {
     if (!isResolved() || type.isNoResolvedType()) {
       sb.append(getReferenceName());
     } else {
-      sb.append(type);
+      sb.appendJSType(type);
     }
   }
 
@@ -247,7 +247,7 @@ public final class NamedType extends ProxyObjectType {
   @Override
   JSType resolveInternal(ErrorReporter reporter) {
     ImmutableList<JSType> resolvedTypeArgs =
-        JSTypeIterations.mapTypes((t) -> t.resolve(reporter), this.templateTypes);
+        JSTypeIterations.mapTypesImmutableList((t) -> t.resolve(reporter), this.templateTypes);
 
     if (resolutionKind.equals(ResolutionKind.NONE)) {
       // In some cases (e.g. typeof(ns) when the actual type is just a literal object), a NamedType
@@ -297,7 +297,7 @@ public final class NamedType extends ProxyObjectType {
         resolvedTypeArgs = resolvedTypeArgs.subList(0, numKeys);
       }
 
-      result = registry.createTemplatizedType(resultAsObject, resolvedTypeArgs);
+      result = registry.createTemplatizedTypeImmutableList(resultAsObject, resolvedTypeArgs);
       setReferencedType(result.resolve(reporter));
     }
 

@@ -129,8 +129,10 @@ final class MustBeReachingVariableDef
      *
      * @param other The constructed object is a replicated copy of this element.
      */
-    public MustDef(MustDef other) {
-      this.reachingDef.putAll(other.reachingDef);
+    public static MustDef createFromMustDef(MustDef other) {
+      MustDef copy = new MustDef();
+      copy.reachingDef.putAll(other.reachingDef);
+      return copy;
     }
 
     @Override
@@ -198,7 +200,7 @@ final class MustBeReachingVariableDef
   MustDef flowThrough(Node n, MustDef input) {
     // TODO(user): We are doing a straight copy from input to output. There
     // might be some opportunities to cut down overhead.
-    MustDef output = new MustDef(input);
+    MustDef output = MustDef.createFromMustDef(input);
     // TODO(user): This must know about ON_EX edges but it should handle
     // it better than what we did in liveness. Because we are in a forward mode,
     // we can used the branched forward analysis.

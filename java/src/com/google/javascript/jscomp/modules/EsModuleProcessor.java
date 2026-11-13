@@ -200,7 +200,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       exportedNames = new LinkedHashSet<>();
     }
 
-    void add(Import i) {
+    void addImport(Import i) {
       importsByLocalName.put(i.localName(), i);
     }
 
@@ -387,7 +387,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
         Set<UnresolvedModule> exportStarSet) {
       Import i = importsByLocalName.get(name);
 
-      UnresolvedModule requested = moduleRequestResolver.resolve(i);
+      UnresolvedModule requested = moduleRequestResolver.resolveImport(i);
       if (requested == null) {
         return ResolveExportResult.ERROR;
       } else {
@@ -849,7 +849,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
   private void visitImportDefault(NodeTraversal t, Node importNode, String moduleRequest) {
     // import Default from '';
-    currentModuleBuilder.add(
+    currentModuleBuilder.addImport(
         Import.builder()
             .moduleRequest(moduleRequest)
             .importName(Export.DEFAULT)
@@ -867,7 +867,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
         child = child.getNext()) {
       String importName = child.getFirstChild().getString();
       String localName = child.getLastChild().getString();
-      currentModuleBuilder.add(
+      currentModuleBuilder.addImport(
           Import.builder()
               .moduleRequest(moduleRequest)
               .importName(importName)
@@ -881,7 +881,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
   private void visitImportStar(NodeTraversal t, Node importNode, String moduleRequest) {
     // import * as ns from '';
-    currentModuleBuilder.add(
+    currentModuleBuilder.addImport(
         Import.builder()
             .moduleRequest(moduleRequest)
             .importName("*")

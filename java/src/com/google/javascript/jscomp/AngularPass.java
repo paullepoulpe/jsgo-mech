@@ -122,7 +122,7 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
       if (dependencies.isEmpty()) {
         continue;
       }
-      Node dependenciesArray = IR.arraylit(dependencies);
+      Node dependenciesArray = IR.arraylitIterable(dependencies);
       // creates `something.$inject = ['param1', 'param2']` node.
       Node statement =
           IR.exprResult(

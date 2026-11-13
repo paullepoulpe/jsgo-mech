@@ -177,17 +177,17 @@ public final class ClosureBundler {
 
   /** Append the contents of the string to the supplied appendable. */
   public void appendTo(Appendable out, DependencyInfo info, String content) throws IOException {
-    appendTo(out, info, CharSource.wrap(content));
+    appendToCharSource(out, info, CharSource.wrap(content));
   }
 
   /** Append the contents of the file to the supplied appendable. */
   public void appendTo(Appendable out, DependencyInfo info, File content, Charset contentCharset)
       throws IOException {
-    appendTo(out, info, Files.asCharSource(content, contentCharset));
+    appendToCharSource(out, info, Files.asCharSource(content, contentCharset));
   }
 
   /** Append the contents of the CharSource to the supplied appendable. */
-  public void appendTo(Appendable out, DependencyInfo info, CharSource content) throws IOException {
+  public void appendToCharSource(Appendable out, DependencyInfo info, CharSource content) throws IOException {
     String code = content.read();
     if (info.isGoogModule()) {
       mode.appendGoogModule(transpile(code), out, sourceUrl);

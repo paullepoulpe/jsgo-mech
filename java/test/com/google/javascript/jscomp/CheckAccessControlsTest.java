@@ -82,8 +82,8 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPrivateConstructor_propertyAccess() {
     // AccessControlUtils handles visibility modifiers.
-    testError(
-        srcs("class Foo { /** @private */ constructor() { this.x = 5; } }", "(new Foo()).x;"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("class Foo { /** @private */ constructor() { this.x = 5; } }", "(new Foo()).x;"),
         BAD_PRIVATE_PROPERTY_ACCESS);
   }
 
@@ -236,7 +236,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
 
   @Test
   public void testNoWarningForDeprecatedSuperClass() {
-    testNoWarning(
+    testNoWarningSources(
         srcs(
             """
             /** @deprecated Superclass to the rescue! */
@@ -250,7 +250,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
 
   @Test
   public void testNoWarningForDeprecatedSuperClassOnNamespace() {
-    testNoWarning(
+    testNoWarningSources(
         srcs(
             """
             /** @deprecated Its only weakness is Kryptoclass */
@@ -699,7 +699,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPrivateAccessForProperties2() {
     test(
-        srcs(
+        srcsStringVarargs(
             "class Foo {}",
             """
             Foo.prototype.bar_ = function() {};
@@ -714,7 +714,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
     // Even though baz is "part of the Foo class" the access is disallowed since it's
     // not in the same file.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -743,7 +743,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPrivateAccessForProperties5() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Parent {
               constructor() {
@@ -782,7 +782,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPrivateAccessForProperties6() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('x.y.z.Parent');
 
@@ -849,7 +849,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPrivateAccess_googModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('example.One');
 
@@ -874,7 +874,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties1() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {};
             (new Foo).bar_();
@@ -891,7 +891,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -907,7 +907,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -927,7 +927,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties4() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -947,7 +947,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties5() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -967,7 +967,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
     // Overriding a private property with a non-private property
     // in a different file causes problems.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -986,7 +986,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testNoPrivateAccessForProperties6a() {
     // Same as above, except with namespaced constructors
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @const */ var ns = {};
 
@@ -1008,7 +1008,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
     // It's OK to override a private property with a non-private property
     // in the same file, but you'll get yelled at when you try to use it.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1026,7 +1026,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties8() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               constructor() {
@@ -1049,7 +1049,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties9() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -1063,7 +1063,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties10() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -1077,7 +1077,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties11() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1091,7 +1091,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties12() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1129,16 +1129,16 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
         """;
 
     // TODO: b/416023147 - This should not be an error.
-    test(srcs(fooFileSrc, "const barCopy = new Foo().bar;"), error(BAD_PRIVATE_PROPERTY_ACCESS));
+    test(srcsStringVarargs(fooFileSrc, "const barCopy = new Foo().bar;"), error(BAD_PRIVATE_PROPERTY_ACCESS));
 
     // This is fine.
-    test(srcs(fooFileSrc, "new Foo().bar = 2;"), error(BAD_PRIVATE_PROPERTY_ACCESS));
+    test(srcsStringVarargs(fooFileSrc, "new Foo().bar = 2;"), error(BAD_PRIVATE_PROPERTY_ACCESS));
   }
 
   @Test
   public void testNoPrivatePropAccess_inDifferentFile_throughDestructuring() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1156,7 +1156,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessToConstructorThroughNew() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1170,7 +1170,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessToConstructorThroughExtendsClause() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1184,7 +1184,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessToClass() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @private */
             class Foo { }
@@ -1198,7 +1198,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
     // Overriding a private property with a non-private property
     // in a different file causes problems.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1216,7 +1216,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForFields2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1230,7 +1230,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForFields3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1259,7 +1259,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForStaticBlock() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -1279,7 +1279,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties1() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1294,7 +1294,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1315,7 +1315,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1334,7 +1334,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties4() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1351,7 +1351,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties5() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */ bar() {}
@@ -1372,7 +1372,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties6() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.Foo = class {
               /** @protected */
@@ -1392,7 +1392,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties7() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             var Foo = class {};
 
@@ -1414,7 +1414,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties8() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             var Foo = class {};
 
@@ -1431,7 +1431,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties9() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @unrestricted */
             var Foo = class {};
@@ -1450,7 +1450,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties10() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1473,7 +1473,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties11() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1502,7 +1502,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties12() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1536,7 +1536,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForProperties13() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1590,7 +1590,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties14() {
     // access in member function
     test(
-        srcs(
+        srcsStringVarargs(
             """
             var Foo = class {};
 
@@ -1614,7 +1614,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties15() {
     // access in computed member function
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @unrestricted */
             var Foo = class {};
@@ -1639,7 +1639,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties16() {
     // access in nested arrow function
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */ bar() {}
@@ -1657,7 +1657,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties17() {
     // Access in subclass field initializer where Subclass parent is SCRIPT.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class SuperClass {
               /** @protected @return {number} */
@@ -1675,7 +1675,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties18() {
     // Access in subclass field initializer where Subclass parent is BLOCK.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class SuperClass {
               /** @protected @return {number} */
@@ -1695,7 +1695,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties19() {
     // Access in subclass field initializer where class parent is ASSIGN.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class SuperClass {
               /** @protected @return {number} */
@@ -1713,7 +1713,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties20() {
     // Access in subclass field initializer where class parent is FUNCTION.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class SuperClass {
               /** @protected @return {number} */
@@ -1731,7 +1731,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties21() {
     // Access in subclass field initializer where class parent is RETURN.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class SuperClass {
               /** @protected @return {number} */
@@ -1752,7 +1752,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void testProtectedAccessForProperties22() {
     // Access in subclass field initializer where class parent is GETPROP.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class SuperClass {
               /** @protected @return {number} */
@@ -1773,7 +1773,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedPropAccess_inDifferentFile_inSubclass_throughDestructuring() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1792,7 +1792,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccess_forOverriddenProperty_elsewhereInSubclassFile() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1814,7 +1814,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessToConstructorThroughExtendsClause() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */ constructor() {}
@@ -1826,7 +1826,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessToConstructorThroughSubclassInstanceMethod() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */ constructor() {}
@@ -1842,7 +1842,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessToClassThroughSubclassInstanceMethod() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @protected */
             class Foo {}
@@ -1857,7 +1857,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessThroughNestedFunction() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */ bar() {}
@@ -1877,7 +1877,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessThroughNestedEs5Class() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */ bar() {}
@@ -1901,7 +1901,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessThroughNestedEs6Class() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */ bar() {}
@@ -1923,7 +1923,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties1() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1937,7 +1937,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -1957,7 +1957,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -1979,7 +1979,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties4() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               constructor() {
@@ -1999,7 +1999,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties5() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.Foo = class {
               /** @protected */
@@ -2019,7 +2019,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties6() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -2033,7 +2033,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties7() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -2047,7 +2047,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties8() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             var Foo = class {};
 
@@ -2069,7 +2069,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForProperties9() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             var Foo = class {};
 
@@ -2089,7 +2089,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedPropAccess_inDifferentFile_throughDestructuring() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -2107,7 +2107,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccess_forInheritedProperty_elsewhereInSubclassFile() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -2125,7 +2125,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessToConstructorFromUnrelatedClass() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -2143,7 +2143,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForPropertiesWithNoRhs() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -2161,7 +2161,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForFields1() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -2175,7 +2175,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForFields2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -2195,7 +2195,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForFields3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -2217,7 +2217,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForFields4() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               constructor() {
@@ -2237,7 +2237,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForFields5() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.Foo = class {
               /** @protected */
@@ -2306,7 +2306,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessForStatic_differentFile() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -2325,7 +2325,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccessForStaticBlocks_differentFile() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -2361,7 +2361,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackagePrivateAccessForProperties2() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("foo", "bar.js"), "class Foo {}"),
             SourceFile.fromCode(
                 Compiler.joinPathParts("baz", "quux.js"),
@@ -2378,7 +2378,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackagePrivateAccessForProperties3() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2397,7 +2397,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackagePrivateAccessForProperties4() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2414,7 +2414,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackagePrivateAccessForProperties5() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2440,7 +2440,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackagePropAccess_inSamePackage_throughDestructuring() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2461,7 +2461,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackagePropAccess_inDifferentPackage_throughDestructuring() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2483,7 +2483,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageAccessToConstructorThroughNew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2500,7 +2500,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageAccessToConstructorThroughExtendsClause() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2517,7 +2517,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageAccessToClass() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2532,7 +2532,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageAccessToConstructorThroughNew_fileOveriew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2550,7 +2550,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageAccessToConstructorThroughExtendsClause_fileOveriew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2568,7 +2568,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageAccessToClass_fileOveriew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2584,7 +2584,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackagePrivateAccessForProperties1() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2606,7 +2606,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackagePrivateAccessForProperties2() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2624,7 +2624,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackagePrivateAccessForProperties3() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2648,7 +2648,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackagePrivateAccessForProperties4() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2672,7 +2672,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackagePrivateAccessForProperties5() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2696,7 +2696,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
     // Overriding a private property with a non-package-private property
     // in a different file causes problems.
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2721,7 +2721,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
     // non-package-private property in the same file, but you'll get
     // yelled at when you try to use it.
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2743,7 +2743,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackgeAccessToConstructorThroughNew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2761,7 +2761,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackageAccessToConstructorThroughExtendsClause() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2779,7 +2779,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackageAccessToClass() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2795,7 +2795,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackgeAccessToConstructorThroughNew_fileOveriew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2815,7 +2815,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackageAccessToConstructorThroughExtendsClause_fileOveriew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2835,7 +2835,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPackageAccessToClass_fileOveriew() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2877,7 +2877,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void
       testOverrideWithoutVisibilityRedeclInFileWithFileOverviewVisibilityNotAllowed_TwoFiles() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             Foo = class {
               /** @protected */
@@ -2961,7 +2961,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testOverrideWithVisibilityRedeclInFileWithFileOverviewVisibilityOk_TwoFiles() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             Foo = class {
               /** @protected */
@@ -2984,7 +2984,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testConstructorVisibility_canBeNarrowed() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @public */
@@ -3002,7 +3002,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testConstructorVisibility_canBeExpanded() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -3020,7 +3020,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPublicFileOverviewVisibilityDoesNotApplyToNameWithExplicitPackageVisibility() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3041,7 +3041,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageFileOverviewVisibilityDoesNotApplyToNameWithExplicitPublicVisibility() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3060,7 +3060,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageFileOverviewVisibilityAppliesToNameWithoutExplicitVisibility() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3080,8 +3080,8 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageFileOverviewVisibilityAppliesToNameWithoutExplicitVisibility_googModule() {
     disableRewriteClosureCode();
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsList(
             ImmutableList.of(
                 SourceFile.fromCode(
                     Compiler.joinPathParts("foo", "bar.js"),
@@ -3102,8 +3102,8 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
 
   @Test
   public void testPackageFileOverviewVisibilityAppliesToNameWithoutExplicitVisibility_esModule() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsList(
             ImmutableList.of(
                 SourceFile.fromCode(
                     Compiler.joinPathParts("foo", "bar.js"),
@@ -3125,7 +3125,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void
       testPackageFileOverviewVisibilityDoesNotApplyToPropertyWithExplicitPublicVisibility() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3155,7 +3155,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   public void
       testPublicFileOverviewVisibilityDoesNotApplyToPropertyWithExplicitPackageVisibility() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3181,7 +3181,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPublicFileOverviewVisibilityAppliesToPropertyWithoutExplicitVisibility() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3205,7 +3205,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPackageFileOverviewVisibilityAppliesToPropertyWithoutExplicitVisibility() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3234,7 +3234,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testFileOverviewVisibilityComesFromDeclarationFileNotUseFile() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3268,7 +3268,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testImplicitSubclassConstructor_doesNotInheritVisibility_andIsPublic() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -3285,7 +3285,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testImplicitSubclassConstructor_doesNotInheritVisibility_andUsesFileOverview() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3310,7 +3310,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testUnannotatedSubclassConstructor_doesNotInheritVisibility_andIsPublic() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -3331,7 +3331,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testUnannotatedSubclassConstructor_doesNotInheritVisibility_andUsesFileOverview() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -3396,7 +3396,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testGoodOverrideOfProtectedProperty() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -3414,7 +3414,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testPublicOverrideOfProtectedProperty() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -3432,7 +3432,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testBadOverrideOfProtectedProperty() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @protected */
@@ -3451,7 +3451,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testProtectedOverrideOfPackageProperty() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @package */
@@ -3469,7 +3469,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testBadOverrideOfPrivateProperty() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               /** @private */
@@ -3488,7 +3488,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testAccessOfStaticMethodOnPrivateClass() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @private */
             class Foo {
@@ -3502,7 +3502,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testAccessOfStaticMethodOnPrivateQualifiedConstructor() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @private */
             goog.Foo = class {
@@ -3516,7 +3516,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testInstanceofOfPrivateConstructor() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.Foo = class {
               /** @private */
@@ -3576,7 +3576,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNullablePrivateProperty() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -3593,7 +3593,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivatePropertyByConvention1() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {}
 
@@ -3609,7 +3609,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testNoPrivatePropertyByConvention2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             class Foo {
               constructor() {
@@ -3685,8 +3685,8 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
   @Test
   public void testConstantPropertyReassigned_crossModuleWithCollidingNames() {
     disableRewriteClosureCode();
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsStringVarargs(
             """
             goog.module('mod1');
             class A {
@@ -4018,7 +4018,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
 
   @Test
   public void testConstantProperty_fromExternsOrIjs_duplicateExternOk() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             class Foo {}
@@ -4205,7 +4205,7 @@ public final class CheckAccessControlsTest extends CompilerTestCase {
 
   @Test
   public void testFinalMethodCanBeCalled() {
-    testNoWarning(
+    testNoWarningSources(
         srcs(
             """
             class Foo {

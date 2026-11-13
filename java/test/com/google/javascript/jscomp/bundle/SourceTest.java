@@ -37,8 +37,8 @@ public final class SourceTest {
     new EqualsTester()
         .addEqualityGroup(Source.builder().build(), Source.builder().build())
         .addEqualityGroup(
-            Source.builder().setCode(Suppliers.ofInstance("foo")).build(),
-            Source.builder().setCode(Suppliers.ofInstance("foo")).build(),
+            Source.builder().setCodeFromSupplier(Suppliers.ofInstance("foo")).build(),
+            Source.builder().setCodeFromSupplier(Suppliers.ofInstance("foo")).build(),
             Source.builder().setCode("foo").build(),
             Source.builder().setCode("foo").build())
         .addEqualityGroup(Source.builder().setCode("bar").build())
@@ -60,21 +60,21 @@ public final class SourceTest {
   @Test
   public void testCode() {
     assertThat(Source.builder().setCode("foo").build().code()).isEqualTo("foo");
-    assertThat(Source.builder().setCode(Suppliers.ofInstance("foo")).build().code())
+    assertThat(Source.builder().setCodeFromSupplier(Suppliers.ofInstance("foo")).build().code())
         .isEqualTo("foo");
   }
 
   @Test
   public void testOriginal() {
     assertThat(Source.builder().setCode("foo").build().originalCode()).isEqualTo("foo");
-    assertThat(Source.builder().setCode(Suppliers.ofInstance("foo")).build().originalCode())
+    assertThat(Source.builder().setCodeFromSupplier(Suppliers.ofInstance("foo")).build().originalCode())
         .isEqualTo("foo");
 
     assertThat(Source.builder().setCode("foo").setOriginalCode("bar").build().originalCode())
         .isEqualTo("bar");
     assertThat(
             Source.builder()
-                .setCode(Suppliers.ofInstance("foo"))
+                .setCodeFromSupplier(Suppliers.ofInstance("foo"))
                 .setOriginalCode("bar")
                 .build()
                 .originalCode())

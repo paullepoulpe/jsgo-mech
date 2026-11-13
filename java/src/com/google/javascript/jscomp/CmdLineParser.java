@@ -559,7 +559,7 @@ public final class CmdLineParser {
     }
   }
 
-  public void parseArgument(Collection<String> args) throws CmdLineException {
+  public void parseArgumentCollection(Collection<String> args) throws CmdLineException {
     parseArgument(args.toArray(new String[0]));
   }
 

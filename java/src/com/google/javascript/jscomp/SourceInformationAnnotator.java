@@ -70,7 +70,7 @@ public final class SourceInformationAnnotator extends NodeTraversal.AbstractPost
     if (n.isFunction()) {
         String functionName = NodeUtil.getNearestFunctionName(n);
         if (functionName != null) {
-          setOriginalName(n, functionName);
+          setOriginalNameString(n, functionName);
         }
     }
   }
@@ -88,7 +88,7 @@ public final class SourceInformationAnnotator extends NodeTraversal.AbstractPost
     };
   }
 
-  private static void setOriginalName(Node n, String name) {
+  private static void setOriginalNameString(Node n, String name) {
     if (!name.isEmpty() && n.getOriginalName() == null) {
       n.setOriginalName(name);
     }

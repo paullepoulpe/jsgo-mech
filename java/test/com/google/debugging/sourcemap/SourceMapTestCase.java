@@ -113,7 +113,7 @@ public abstract class SourceMapTestCase {
   }
 
   /** Finds the all the __XX__ tokens in the given JavaScript string. */
-  private static Map<String, Token> findTokens(Map<String, String> inputs) {
+  private static Map<String, Token> findTokensMap(Map<String, String> inputs) {
     Map<String, Token> tokens = new LinkedHashMap<>();
 
     for (Entry<String, String> entry : inputs.entrySet()) {
@@ -198,17 +198,17 @@ public abstract class SourceMapTestCase {
 
   protected void check(
       Map<String, String> originalInputs, String generatedSource, String sourceMapFileContent) {
-    check(originalInputs, generatedSource, sourceMapFileContent, null);
+    checkMap(originalInputs, generatedSource, sourceMapFileContent, null);
   }
 
-  protected void check(
+  protected void checkMap(
       Map<String, String> originalInputs,
       String generatedSource,
       String sourceMapFileContent,
       SourceMapSupplier supplier) {
     // Find all instances of the __XXX__ pattern in the original
     // source code.
-    Map<String, Token> originalTokens = findTokens(originalInputs);
+    Map<String, Token> originalTokens = findTokensMap(originalInputs);
 
     // Find all instances of the __XXX__ pattern in the generated
     // source code.
@@ -278,7 +278,7 @@ public abstract class SourceMapTestCase {
   }
 
   protected RunResult compile(String js1, String fileName1, String js2, String fileName2) {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
     CompilerOptions options = getCompilerOptions();
 
     options.setChecksOnly(true);

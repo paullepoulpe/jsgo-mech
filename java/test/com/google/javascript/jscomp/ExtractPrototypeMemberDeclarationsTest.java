@@ -351,7 +351,7 @@ public final class ExtractPrototypeMemberDeclarationsTest extends CompilerTestCa
               .addChunk(generatePrototypeDeclarations("x", i))
               .addChunk(generatePrototypeDeclarations("y", i))
               .build();
-      testSame(srcs(chunks));
+      testSameTestPartVarargs(srcsJSChunkVarargs(chunks));
     }
   }
 
@@ -381,7 +381,7 @@ public final class ExtractPrototypeMemberDeclarationsTest extends CompilerTestCa
             .addChunk(builderY.toString())
             .build();
 
-    test(srcs(chunks), expected(expectedChunks));
+    test(srcsJSChunkVarargs(chunks), expectedJSChunkArray(expectedChunks));
   }
 
   private String loadPrototype(String qName) {

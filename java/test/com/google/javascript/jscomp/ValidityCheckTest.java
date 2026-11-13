@@ -142,7 +142,7 @@ public final class ValidityCheckTest extends CompilerTestCase {
   public void testErrorPass() {
     Compiler compiler = new Compiler();
     DiagnosticType testError = DiagnosticType.error("TEST_ERROR", "Test error description");
-    ErrorPass pass = new ErrorPass(compiler, testError);
+    ErrorPass pass = ErrorPass.createFromDiagnosticType(compiler, testError);
     Node script = compiler.parseTestCode("var x = 1;");
     pass.process(null, script);
     assertThat(compiler.getErrors()).hasSize(1);

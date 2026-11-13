@@ -39,8 +39,8 @@ public final class LazyParsedDependencyInfoTest {
     CompilerInput ast = new CompilerInput(SourceFile.fromCode("file.js", "// nothing here"));
     SimpleDependencyInfo delegate =
         SimpleDependencyInfo.builder("path/to/1.js", "path/2.js")
-            .setProvides("foo", "bar")
-            .setRequires(baz, qux)
+            .setProvidesStringVarargs("foo", "bar")
+            .setRequiresRequireVarargs(baz, qux)
             .build();
     DependencyInfo info = new LazyParsedDependencyInfo(delegate, ast, compiler);
 

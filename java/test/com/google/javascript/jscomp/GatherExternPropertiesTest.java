@@ -247,7 +247,7 @@ public final class GatherExternPropertiesTest extends CompilerTestCase {
 
     // Record types defined in normal code and referenced in externs should
     // not bleed-through.
-    testSame(
+    testSameTestPartVarargs(
         externs(EXTERNS + "/** @type {NonExternType} */ var foo;"),
         srcs("/** @typedef {{bar: string, baz: string}} */ var NonExternType;"),
         // Check that no properties were found.
@@ -345,6 +345,6 @@ public final class GatherExternPropertiesTest extends CompilerTestCase {
   }
 
   private void assertExternProperties(String externs, String... properties) {
-    testSame(externs(EXTERNS + externs), srcs(""), expectExterns(properties));
+    testSameTestPartVarargs(externs(EXTERNS + externs), srcs(""), expectExterns(properties));
   }
 }

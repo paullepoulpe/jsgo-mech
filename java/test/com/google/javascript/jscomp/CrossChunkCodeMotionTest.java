@@ -75,8 +75,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "function f3(a) { alert(a); } function g() { alert('ciao'); }",
             // m2
@@ -102,8 +102,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "function g() {var f = 1; f++}",
             // m2
@@ -122,8 +122,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "function g(f) {f++}",
             // m2
@@ -142,8 +142,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -162,8 +162,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -182,8 +182,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -202,8 +202,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -227,8 +227,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -260,8 +260,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     chunks[4].addDependency(chunks[1]);
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -286,8 +286,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -301,8 +301,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     // 2) if it's in an if statement, we can't move it
     // 3) if it's in an while statement, we can't move it [with some extra
     // block elements]
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -318,8 +318,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testFunctionNonMovement2() {
     // A generic case where 2 chunks depend on the first one. But it's the
     // common ancestor, so we can't move.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){return 1}")
                 .addChunk("var a = f();")
@@ -330,42 +330,42 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testEs6ClassMovement1() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("class f { bar() {} }")
                 .addChunk("var a = new f();")
                 .build()),
-        expected("", "class f { bar() {} } var a = new f();"));
+        expectedStringVarargs("", "class f { bar() {} } var a = new f();"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("var f = class { bar() {} };")
                 .addChunk("var a = new f();")
                 .build()),
-        expected("", "var f = class { bar() {} }; var a = new f();"));
+        expectedStringVarargs("", "var f = class { bar() {} }; var a = new f();"));
   }
 
   @Test
   public void testClassMovement1() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){} f.prototype.bar=function (){};")
                 .addChunk("var a = new f();")
                 .build()),
-        expected("", "function f(){} f.prototype.bar=function (){}; var a = new f();"));
+        expectedStringVarargs("", "function f(){} f.prototype.bar=function (){}; var a = new f();"));
   }
 
   @Test
   public void testEs6ClassMovement_instanceof() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("class f { bar(){} } 1 instanceof f;")
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "'function' == typeof f && 1 instanceof f;", "class f { bar(){} } var a = new f();"));
   }
 
@@ -373,12 +373,12 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testClassMovement_instanceof() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){} f.prototype.bar=function (){}; 1 instanceof f;")
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "'function' == typeof f && 1 instanceof f;",
             "function f(){} f.prototype.bar=function (){}; var a = new f();"));
   }
@@ -386,8 +386,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testEs6ClassMovement_instanceofTurnedOff() {
     parentChunkCanSeeSymbolsDeclaredInChildren = false;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("class f { bar(){} } 1 instanceof f;")
                 .addChunk("var a = new f();")
@@ -397,8 +397,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_instanceofTurnedOff() {
     parentChunkCanSeeSymbolsDeclaredInChildren = false;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){} f.prototype.bar=function (){}; 1 instanceof f;")
                 .addChunk("var a = new f();")
@@ -409,12 +409,12 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testEs6ClassMovement_instanceof2() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("class f { bar(){} } (true && 1 instanceof f);")
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "(true && ('function' == typeof f && 1 instanceof f));",
             "class f { bar(){} } var a = new f();"));
   }
@@ -423,12 +423,12 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testClassMovement_instanceof2() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){} f.prototype.bar=function (){}; (true && 1 instanceof f);")
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "(true && ('function' == typeof f && 1 instanceof f));",
             "function f(){} f.prototype.bar=function (){}; var a = new f();"));
   }
@@ -437,7 +437,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testClassMovement_alreadyGuardedInstanceof() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -446,7 +446,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "(true && ('undefined' != typeof f && 1 instanceof f));",
             "function f(){} f.prototype.bar=function (){}; var a = new f();"));
   }
@@ -455,7 +455,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testClassMovement_alreadyGuardedInstanceof_functionGuard() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -464,7 +464,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "(true && ('function' == typeof f && 1 instanceof f));",
             "function f(){} f.prototype.bar=function (){}; var a = new f();"));
   }
@@ -472,8 +472,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_instanceof3() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){} f.prototype.bar=function (){}; f instanceof 1")
                 .addChunk("var a = new f();")
@@ -483,8 +483,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_instanceof_sideEffectsLhs() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     "class SafeHtml {} var out = raw; (out = escapeHtml(raw)) instanceof"
@@ -496,8 +496,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_instanceof_noRewriteRequired() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){} f.prototype.bar=function (){}; 1 instanceof f; new f;")
                 .addChunk("var a = new f();")
@@ -507,8 +507,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_instanceof_noRewriteRequired2() {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function f(){} f.prototype.bar=function (){}; new f;")
                 .addChunk("1 instanceof f;")
@@ -519,7 +519,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testEs6ClassMovement2() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("class f {} f.prototype.bar=3; f.prototype.baz=5;")
@@ -530,7 +530,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m4
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -551,7 +551,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement2() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("function f(){} f.prototype.bar=3; f.prototype.baz=5;")
@@ -562,7 +562,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m4
                 .addChunk("var a = new f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -583,7 +583,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement3() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("var f = function() {}; f.prototype.bar=3; f.prototype.baz=5;")
@@ -594,7 +594,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m4
                 .addChunk("f = 11;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -614,8 +614,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testClassMovement4() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f(){} f.prototype.bar=3; f.prototype.baz=5;")
                 .addChunk("f.prototype.baq = 7;")
@@ -643,8 +643,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
     // m4 +
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -658,14 +658,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement6() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("function Foo(){} function Bar(){} goog.inherits(Bar, Foo); new Foo();")
                 // m2
                 .addChunk("new Bar();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "function Foo(){} new Foo();",
             // m2
@@ -675,14 +675,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testEs6ClassMovement6() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("class Foo{} class Bar extends Foo {} new Foo();")
                 // m2
                 .addChunk("new Bar();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "class Foo {} new Foo();",
             // m2
@@ -691,8 +691,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testClassMovement7() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("function Foo(){} function Bar(){} goog.inherits(Bar, Foo); new Bar();")
@@ -703,8 +703,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testEs6ClassMovement7() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
 
                 // m1
@@ -718,7 +718,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement8() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk(
@@ -730,7 +730,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m2
                 .addChunk("new Foo();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "", // m1
             """
             function Foo(){}
@@ -743,12 +743,12 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testEs6ClassMovement8() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { get test() { return 0; }}")
                 .addChunk("new Foo();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "", // m1
             "class Foo { get test() { return 0; }} new Foo();" // m2
             ));
@@ -757,12 +757,12 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_classFields() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { a; static b = 2; ['c'] = 3; static 'd' = 'hi'; 1 = 2;}")
                 .addChunk("new Foo();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "", "class Foo { a; static b = 2; ['c'] = 3; static 'd' = 'hi'; 1 = 2; } new Foo();"));
   }
 
@@ -770,23 +770,23 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testClassMovement_classStaticBlock1() {
     // TODO(bradfordcsmith):Ideally the class would move
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class Foo { static { } }")
                 .addChunk("new Foo();")
                 .build()),
-        expected("class Foo { static { } }", "new Foo();"));
+        expectedStringVarargs("class Foo { static { } }", "new Foo();"));
   }
 
   @Test
   public void testClassMovement_classStaticBlock2() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var x = 1;")
                 .addChunk("class Foo { static { x; } } new Foo();")
                 .build()),
-        expected("", "var x = 1; class Foo { static { x; } } new Foo();"));
+        expectedStringVarargs("", "var x = 1; class Foo { static { x; } } new Foo();"));
   }
 
   @Test
@@ -803,8 +803,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "const x = 1;",
             // m2
@@ -834,8 +834,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -855,7 +855,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_mixins() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -865,7 +865,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("new Foo();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "", // m1
             """
             class ValueType {}
@@ -879,8 +879,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_reflectObjectProperty_classDeclaration() {
     // TODO(b/435019132): The expectation is currently wrong. Foo and value should move to m2.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk(
@@ -896,8 +896,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClassMovement_reflectObjectProperty_classExpression() {
     // TODO(b/435019132): The expectation is currently wrong. Foo and value should move to m2.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk(
@@ -916,7 +916,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     //
     //
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -926,7 +926,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("new ImmovableClass(); new MovableClass();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             """
             function wrapIt(val) { return [val] }
             class ImmovableClass { static x = wrapIt(123);}
@@ -944,7 +944,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     // CrossChunkMethodMotion is responsible for putting the unstub definitions
     // in the right places.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk("function Foo(){} Foo.prototype.bar = JSCompiler_stubMethod(x);")
@@ -953,7 +953,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m2
                 .addChunk("new Foo();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -967,8 +967,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testNoMoveSideEffectProperty() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("function Foo(){}  Foo.prototype.bar = createSomething();")
@@ -979,8 +979,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testNoMoveSideEffectDefineProperties() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk(
@@ -995,8 +995,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testNoMoveSideEffectDefinePropertiesComputed() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1010,22 +1010,22 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testAssignMovement() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("var f = 3; f = 5;")
                 // m2
                 .addChunk("var h = f;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
             "var f = 3; f = 5; var h = f;"));
 
     // don't move nested assigns
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var f = 3; var g = f = 5;")
                 .addChunk("var h = f;")
@@ -1035,22 +1035,22 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testNoClassMovement2() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("var f = {}; f.h = 5;")
                 // m2
                 .addChunk("var h = f;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
             "var f = {}; f.h = 5; var h = f;"));
 
     // don't move nested getprop assigns
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var f = {}; var g = f.h = 5;")
                 .addChunk("var h = f;")
@@ -1060,14 +1060,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testLiteralMovement1() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("var f = {'hi': 'mom', 'bye': function() {}};")
                 // m2
                 .addChunk("var h = f;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1076,8 +1076,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testLiteralMovement2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var f = {'hi': 'mom', 'bye': shared};")
                 .addChunk("var h = f;")
@@ -1087,14 +1087,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testLiteralMovement3() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("var f = ['hi', function() {}];")
                 // m2
                 .addChunk("var h = f;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1103,8 +1103,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testLiteralMovement4() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var f = ['hi', shared];")
                 .addChunk("var h = f;")
@@ -1114,14 +1114,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testStringTemplateLiteralMovement1() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("var s = 'world'; var f = `hi ${s}`;")
                 // m2
                 .addChunk("var h = f;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1130,8 +1130,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testStringTemplateLiteralMovement2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var f = `hi ${shared()}`;")
                 .addChunk("var h = f;")
@@ -1150,8 +1150,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1170,8 +1170,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1190,8 +1190,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "var a = 0; var c = 2;",
             // m2
@@ -1210,8 +1210,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "const a = 0; const c = 2;",
             // m2
@@ -1230,8 +1230,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1250,8 +1250,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1270,8 +1270,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1290,8 +1290,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1301,8 +1301,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testVarMovement5() {
     // Don't move a function outside of scope
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("var a = alert;")
                 .addChunk("var x = a;")
@@ -1312,8 +1312,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testLetConstMovement5() {
     // Don't move a function outside of scope
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("const a = alert;")
                 .addChunk("let x = a;")
@@ -1332,8 +1332,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1352,8 +1352,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1363,8 +1363,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testVarMovement7() {
     // Don't move a variable higher in the dependency tree
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function f() {g();} f();")
                 .addChunk("function g(){};")
@@ -1386,8 +1386,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1413,8 +1413,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1446,8 +1446,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "var c = 3;",
             // m2
@@ -1485,8 +1485,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .build();
 
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "const c = 3;",
             // m2
@@ -1513,8 +1513,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .addChunk("Foo$clinit();")
             .build();
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1531,8 +1531,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             .addChunk("Foo$clinit();")
             .build();
     test(
-        srcs(chunks),
-        expected(
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1542,14 +1542,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClone1() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("function f(){} f.prototype.clone = function() { return new f };")
                 // m2
                 .addChunk("var a = (new f).clone();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -1563,7 +1563,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testClone2() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1574,7 +1574,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("var a = (new f).cloneFun();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             """
@@ -1588,8 +1588,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testBug4118005() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1625,7 +1625,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     m3.add(SourceFile.fromCode("m3", "x()"));
     m3.addDependency(empty);
 
-    test(srcs(new JSChunk[] {m1, empty, m2, m3}), expected("", "function x() {}", "x()", "x()"));
+    test(srcsJSChunkVarargs(new JSChunk[] {m1, empty, m2, m3}), expectedStringVarargs("", "function x() {}", "x()", "x()"));
   }
 
   @Test
@@ -1633,7 +1633,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     // m2 -> m1
     // m3 -> m1
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 // m1
                 .addChunk(
@@ -1647,7 +1647,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m3 -> m1
                 .addChunk("var g = new G();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var abstractMethod = function () {};",
             "function F(){} F.prototype.bar=abstractMethod; var f = new F();",
             "function G(){} G.prototype.bar=abstractMethod; var g = new G();"));
@@ -1656,14 +1656,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testMovableUseBeforeDeclaration() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk("function f() { g(); } function g() {}")
                 // m1
                 .addChunk("f();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1673,8 +1673,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testImmovableUseBeforeDeclaration() {
     // must recognize this as a reference to the following declaration
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -1685,8 +1685,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 .build()));
 
     // f() cannot move, so neither can g()
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk(
@@ -1704,7 +1704,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testSplitDeclaration() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk(
@@ -1717,7 +1717,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m1
                 .addChunk("a();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1733,7 +1733,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testOutOfOrderAfterSplitDeclaration() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk(
@@ -1746,7 +1746,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m1
                 .addChunk("a();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "function b() {}",
             // m1
@@ -1761,14 +1761,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testOutOfOrderWithInterveningReferrer() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk("function a() { c(); } function b() { a(); } function c() {}")
                 // m1
                 .addChunk("b();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1778,7 +1778,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testOutOfOrderWithDifferentReferrers() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk("function a() { b(); } function b() {}")
@@ -1787,7 +1787,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m2
                 .addChunk("a();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1798,7 +1798,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testCircularWithDifferentReferrers() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk("function a() { b(); } function b() { a(); }")
@@ -1807,7 +1807,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m2
                 .addChunk("a();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1846,8 +1846,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     m[6].addDependency(m[3]);
 
     test(
-        srcs(m),
-        expected(
+        srcsJSChunkVarargs(m),
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1867,8 +1867,8 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testEarlyReferencesPinLateDeclarations() {
     // globalC.x == 2 - not safe to move declaration
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function C() {} C.prototype.x = 1; var globalC = new C();")
                 // globalC.x == 2 - not safe to move declaration
@@ -1882,7 +1882,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     parentChunkCanSeeSymbolsDeclaredInChildren = true;
     // no need to guard instanceof
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk(
@@ -1896,7 +1896,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m2
                 .addChunk("new X();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1909,7 +1909,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             new X();
             """));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk(
@@ -1923,7 +1923,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                 // m2
                 .addChunk("new C();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "",
             // m1
@@ -1944,14 +1944,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     // B is blocked from moving because A is used before it is defined.
     // See ReferenceCollection#isWellDefined and CrossChunkReferenceCollector#canMoveValue
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m0
                 .addChunk("function f() { return A; } var A = 1; var B = A;")
                 // m1
                 .addChunk("f(); function f2() { return B; }")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m0
             "var A = 1; var B = A;",
             // m1
@@ -1960,10 +1960,10 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testDestructuringDeclarationsNotMovable() {
-    testSame(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("const [a] = [];").addChunk("a;").build()));
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("const [a] = [];").addChunk("a;").build()));
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("const {a} = { a: 1 };")
                 .addChunk("a;")
@@ -1972,63 +1972,63 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testDestructuringAssignmentsAreReferences() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = 1; [a] = [5];")
                 .addChunk("a;")
                 .build()));
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = 1; ({x: a} = {x: 5});")
                 .addChunk("a;")
                 .build()));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = 1;")
                 .addChunk("[a] = [5];")
                 .addChunk("a;")
                 .build()),
-        expected("", "let a = 1; [a] = [5];", "a;"));
+        expectedStringVarargs("", "let a = 1; [a] = [5];", "a;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = 1;")
                 .addChunk("({x: a} = {x: 5});")
                 .addChunk("a;")
                 .build()),
-        expected("", "let a = 1; ({x: a} = {x: 5});", "a;"));
+        expectedStringVarargs("", "let a = 1; ({x: a} = {x: 5});", "a;"));
   }
 
   @Test
   public void testDefaultParamValuesAreReferences() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = 1; function f(x = a) {} f();")
                 .addChunk("a;")
                 .build()));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = 1; function f(x = a) {}")
                 .addChunk("f();")
                 .build()),
-        expected("", "let a = 1; function f(x = a) {} f();"));
+        expectedStringVarargs("", "let a = 1; function f(x = a) {} f();"));
   }
 
   @Test
   public void testSpreadCountsAsAReference() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = [];")
                 .addChunk("function f(...args) {} f(...a);")
                 .addChunk("a;")
                 .build()),
-        expected("", "let a = []; function f(...args) {} f(...a);", "a;"));
+        expectedStringVarargs("", "let a = []; function f(...args) {} f(...a);", "a;"));
   }
 
   @Test
@@ -2036,14 +2036,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     // Object literal methods, getters, and setters are movable and references within them are
     // handled correctly.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("const a = 1;")
                 .addChunk("const o = { foo() {return a;}, get x() {}, set x(v) {a = v;} };")
                 .addChunk("o;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "",
             "",
             "const a = 1; const o = { foo() {return a;}, get x() {}, set x(v) {a = v;} }; o;",
@@ -2054,63 +2054,63 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testComputedProperties() {
     // Computed properties are movable if the key expression is a literal.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = { ['something']: 1};")
                 .addChunk("a;")
                 .build()),
-        expected("", "let a = { ['something']: 1}; a;"));
+        expectedStringVarargs("", "let a = { ['something']: 1}; a;"));
 
     // Computed properties are movable if the key is a well defined variable
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("const x = 1; let a = { [x]: 1};")
                 .addChunk("a;")
                 .build()),
-        expected("", "const x = 1; let a = { [x]: 1}; a;"));
+        expectedStringVarargs("", "const x = 1; let a = { [x]: 1}; a;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("const x = 1; let a = class { [x]() {} };")
                 .addChunk("a;")
                 .build()),
-        expected("", "const x = 1; let a = class { [x]() {} }; a;"));
+        expectedStringVarargs("", "const x = 1; let a = class { [x]() {} }; a;"));
 
     // Computed properties are not movable if the key is an unknown variable
-    testSame(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("let a = { [x]: 1};").addChunk("a;").build()));
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("let a = { [x]: 1};").addChunk("a;").build()));
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = class { [x]() {} };")
                 .addChunk("a;")
                 .build()));
 
     // Computed properties are not movable if the key is a
-    testSame(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("let a = { [x]: 1};").addChunk("a;").build()));
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("let a = { [x]: 1};").addChunk("a;").build()));
 
     // references in computed properties are honored
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = 1;")
                 .addChunk("let b = { [a + 1]: 2 };")
                 .addChunk("a;")
                 .build()),
-        expected("", "let a = 1; let b = { [a + 1]: 2 };", "a;"));
+        expectedStringVarargs("", "let a = 1; let b = { [a + 1]: 2 };", "a;"));
 
     //  Well defined variables are moveable
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("var a = function() {}; a.prototype.blah = function() {};")
                 // m2
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -2127,32 +2127,32 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     // `Symbol` is a built-in JavaScript object that is guaranteed to be unique. Therefore, it
     // is movable. Any properties on `Symbol` are also movable (e.g `Symbol.iterator`).
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = { [Symbol.iterator]: 1};")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "", // everything has been moved out of this chunk
             "let a = { [Symbol.iterator]: 1}; a;"));
 
     // `Symbol` is declared in m1, and used in m2. It should be moved to m2 in expected output.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("let a = class { [Symbol.anyPropertyOnSymbolIsMovable]() {} };")
                 // m2
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
             "let a = class { [Symbol.anyPropertyOnSymbolIsMovable]() {} }; a;"));
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("let prop; let a = class { [prop]() {} };")
@@ -2164,14 +2164,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     enableTranspile();
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("let a = { [Symbol.iterator]: 1};")
                 // m2
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             // Ideally, we should be moving this code out of m1, but this would require us to move
             // an `ASSIGN` node which we don't want to do.
@@ -2183,14 +2183,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             "a;"));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("let a = class { [Symbol.anyPropertyOnSymbolIsMovable]() {} };")
                 // m2
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -2202,14 +2202,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
     // Non-Symbol computed properties are currently not movable.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("let prop; let a = class { [prop]() {} };")
                 // m2
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             """
             var prop;
@@ -2224,15 +2224,15 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   @Test
   public void testComputedPropertiesUsingSymbolUnmovable() {
     // Computed properties are not movable if the key is not explicitly called `Symbol.`
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let a = { [Symbol123.iterator]: 1};")
                 .addChunk("a;")
                 .build()));
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("let a = class { [Symbol123.anyPropertyOnSymbolIsMovable]() {} };")
@@ -2243,14 +2243,14 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
 
   @Test
   public void testClassComputedFieldUnmovable() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class C { ['x'] = 1; }")
                 .addChunk("a;")
                 .build()));
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("class C { static ['x'] = 1; }")
                 .addChunk("a;")
@@ -2261,7 +2261,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
   public void testPureOrBreakMyCode() {
     // should move a function if its top level invocation was annotated with @pureOrBreakMyCode
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2270,7 +2270,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("const unwrappedValue = value[0];")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "",
             """
             function wrapIt(val) { return [val]; }
@@ -2281,7 +2281,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
     // should move a class if its static initializer containing a function call was annotated with
     // @pureOrBreakMyCode
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     """
@@ -2293,7 +2293,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
                     """)
                 .addChunk("new ImmovableClass(); new MovableClass();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             """
             function wrapIt(val) { return [val] }
             class ImmovableClass {}
@@ -2306,7 +2306,7 @@ public final class CrossChunkCodeMotionTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
 """
@@ -2315,7 +2315,7 @@ class LowerCasePipe {}
 """)
                 .addChunk("new LowerCasePipe();")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "",
 """
 class LowerCasePipe {}

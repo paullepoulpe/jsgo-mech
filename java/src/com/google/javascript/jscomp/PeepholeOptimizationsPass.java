@@ -37,9 +37,9 @@ class PeepholeOptimizationsPass implements CompilerPass {
   private boolean retraverseOnChange;
 
   /** Creates a peephole optimization pass that runs the given optimizations. */
-  PeepholeOptimizationsPass(
+  static PeepholeOptimizationsPass createFromOptimizations(
       AbstractCompiler compiler, String passName, AbstractPeepholeOptimization... optimizations) {
-    this(compiler, passName, Arrays.asList(optimizations));
+    return new PeepholeOptimizationsPass(compiler, passName, Arrays.asList(optimizations));
   }
 
   PeepholeOptimizationsPass(
@@ -113,7 +113,7 @@ class PeepholeOptimizationsPass implements CompilerPass {
         var newFeatures = optim.getNewFeatures();
         if (!newFeatures.isEmpty()) {
           NodeUtil.addFeaturesToScript(
-              t.getCurrentScript(), FeatureSet.BARE_MINIMUM.with(newFeatures), compiler);
+              t.getCurrentScript(), FeatureSet.BARE_MINIMUM.withSet(newFeatures), compiler);
         }
         optim.clearNewFeatures();
       }

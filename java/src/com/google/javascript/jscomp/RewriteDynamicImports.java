@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeJSType;
 import static com.google.javascript.jscomp.ConvertChunksToESModules.DYNAMIC_IMPORT_CALLBACK_FN;
 import static com.google.javascript.jscomp.ConvertChunksToESModules.UNABLE_TO_COMPUTE_RELATIVE_PATH;
 
@@ -219,7 +220,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
       NodeTraversal t, Node dynamicImport, Var targetModuleNS) {
     final JSTypeRegistry registry = compiler.getTypeRegistry();
     final Node promiseDotResolve =
-        astFactory.createQName(compiler.getTranspilationNamespace(), "Promise.resolve");
+        astFactory.createQNameString(compiler.getTranspilationNamespace(), "Promise.resolve");
     final Node promiseResolveCall = astFactory.createCall(promiseDotResolve, type(dynamicImport));
     final boolean isExpressionUsed = NodeUtil.isExpressionResultUsed(dynamicImport);
     if (isExpressionUsed) {
@@ -331,7 +332,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
       Node wrappingFunction =
           astFactory.createName(
               DYNAMIC_IMPORT_CALLBACK_FN,
-              type(registry.createFunctionType(callbackFn.getJSType(), callbackFn.getJSType())));
+              typeJSType(registry.createFunctionType(callbackFn.getJSType(), callbackFn.getJSType())));
       thenArgument = astFactory.createCall(wrappingFunction, type(callbackFn), callbackFn);
       wrappedDynamicImportCallback = true;
     }
@@ -399,7 +400,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
             DYNAMIC_IMPORT_CALLBACK_FN,
             astFactory.createParamList("importCallback"),
             astFactory.createBlock(),
-            type(registry.createFunctionType(templateT, templateT)));
+            typeJSType(registry.createFunctionType(templateT, templateT)));
 
     Node externsRoot = compiler.getSynthesizedExternsInput().getAstRoot(compiler);
     wrappingFunctionDefinition.srcrefTree(externsRoot);
@@ -429,7 +430,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
       JSType unknownType = registry.getNativeType(JSTypeNative.UNKNOWN_TYPE);
       JSType promiseType = registry.getNativeType(JSTypeNative.PROMISE_TYPE);
       TemplatizedType promiseTemplatizedType =
-          registry.createTemplatizedType(promiseType.toObjectType(), ImmutableList.of(unknownType));
+          registry.createTemplatizedTypeImmutableList(promiseType.toObjectType(), ImmutableList.of(unknownType));
       JSType stringType = registry.getNativeType(JSTypeNative.STRING_TYPE);
 
       Node externsRoot = compiler.getSynthesizedExternsInput().getAstRoot(compiler);
@@ -441,11 +442,11 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
                 alias,
                 astFactory.createParamList("specifier"),
                 astFactory.createBlock(),
-                type(registry.createFunctionType(promiseTemplatizedType, stringType)));
+                typeJSType(registry.createFunctionType(promiseTemplatizedType, stringType)));
         aliasNode.srcrefTree(externsRoot);
         externsRoot.addChildToBack(aliasNode);
       } else {
-        String aliasRootName = NodeUtil.getRootOfQualifiedName(alias);
+        String aliasRootName = NodeUtil.getRootOfQualifiedNameString(alias);
         Var aliasVar = t.getScope().getVar(aliasRootName);
         // If the namespace root is defined, just assume the whole name is properly defined.
         // This may need revisited in the future, but checking if the full qualified name
@@ -472,7 +473,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
                     "",
                     astFactory.createParamList("specifier"),
                     astFactory.createBlock(),
-                    type(registry.createFunctionType(promiseTemplatizedType, stringType)));
+                    typeJSType(registry.createFunctionType(promiseTemplatizedType, stringType)));
           } else {
             assignedValue = astFactory.createObjectLit();
           }

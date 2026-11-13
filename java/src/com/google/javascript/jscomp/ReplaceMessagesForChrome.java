@@ -17,7 +17,8 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
+import static com.google.javascript.jscomp.AstFactory.typeColorId;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
@@ -51,7 +52,7 @@ class ReplaceMessagesForChrome extends JsMessageVisitor {
   private Node getChromeI18nGetMessageNode(String messageId) {
     Node getMessage = astFactory.createQNameWithUnknownType("chrome.i18n.getMessage");
     return astFactory.createCall(
-        getMessage, type(StandardColors.STRING), astFactory.createString(messageId));
+        getMessage, typeColor(StandardColors.STRING), astFactory.createString(messageId));
   }
 
   @Override
@@ -107,7 +108,7 @@ class ReplaceMessagesForChrome extends JsMessageVisitor {
                 astFactory.createOr(
                     astFactory.createCall(
                         astFactory.createGetPropWithUnknownType(regexp, "exec"),
-                        type(StandardColors.ARRAY_ID),
+                        typeColorId(StandardColors.ARRAY_ID),
                         userAgent),
                     astFactory.createArraylit()),
                 astFactory.createNumber(1));
@@ -116,7 +117,7 @@ class ReplaceMessagesForChrome extends JsMessageVisitor {
         args =
             astFactory.createCall(
                 astFactory.createGetPropWithUnknownType(args, "concat"),
-                type(StandardColors.ARRAY_ID),
+                typeColorId(StandardColors.ARRAY_ID),
                 astFactory.createHook(condition, options, astFactory.createArraylit()));
         newValueNode =
             astFactory.createCallWithUnknownType(

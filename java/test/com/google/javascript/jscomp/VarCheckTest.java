@@ -303,7 +303,7 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testVarReferenceInExterns() {
-    testSame(
+    testSameTestPartVarargs(
         externs("asdf;"),
         srcs("var /** @suppress {duplicate} */ asdf;"),
         warning(VarCheck.NAME_REFERENCE_IN_EXTERNS_ERROR));
@@ -311,7 +311,7 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testVarReferenceInExterns2() {
-    testSame(
+    testSameTestPartVarargs(
         externs("asdf;"),
         srcs(
             """
@@ -323,12 +323,12 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testNamespaceDeclarationInExterns() {
-    testSame(externs("/** @const */ var $jscomp = $jscomp || {};"), srcs(""));
+    testSameTestPartVarargs(externs("/** @const */ var $jscomp = $jscomp || {};"), srcs(""));
   }
 
   @Test
   public void testCallInExterns() {
-    testSame(
+    testSameTestPartVarargs(
         externs("yz();"),
         srcs("function /** @suppress {duplicate} */ yz() {}"),
         warning(VarCheck.NAME_REFERENCE_IN_EXTERNS_ERROR));
@@ -336,27 +336,27 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testDestructuringInExterns() {
-    testSame(externs("function externalFunction({x, y}) {}"), srcs(""));
-    testSame(externs("function externalFunction({x, y:{z}}) {}"), srcs(""));
-    testSame(externs("function externalFunction({x:localName}) {}"), srcs(""));
-    testSame(externs("function externalFunction([a, b, c]) {}"), srcs(""));
-    testSame(externs("function externalFunction([[...a], b, c = 5, ...d]) {}"), srcs(""));
+    testSameTestPartVarargs(externs("function externalFunction({x, y}) {}"), srcs(""));
+    testSameTestPartVarargs(externs("function externalFunction({x, y:{z}}) {}"), srcs(""));
+    testSameTestPartVarargs(externs("function externalFunction({x:localName}) {}"), srcs(""));
+    testSameTestPartVarargs(externs("function externalFunction([a, b, c]) {}"), srcs(""));
+    testSameTestPartVarargs(externs("function externalFunction([[...a], b, c = 5, ...d]) {}"), srcs(""));
   }
 
   @Test
   public void testVarReferenceInExterns_withEs6Modules() {
     // vars in ES6 modules are not in global scope, so foo is undefined.
-    testError(externs("foo;"), srcs("export var foo;"), error(VarCheck.UNDEFINED_VAR_ERROR));
+    testErrorExterns(externs("foo;"), srcs("export var foo;"), error(VarCheck.UNDEFINED_VAR_ERROR));
   }
 
   @Test
   public void testVarDeclarationInExterns() {
-    testSame(externs("var asdf;"), srcs("asdf;"));
+    testSameTestPartVarargs(externs("var asdf;"), srcs("asdf;"));
   }
 
   @Test
   public void testVarReferenceInTypeSummary() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @typeSummary */
@@ -370,22 +370,22 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testFunctionDeclarationInExterns() {
-    testSame(externs("function foo(x = 7) {}"), srcs("foo();"));
-    testSame(externs("function foo(...rest) {}"), srcs("foo(1,2,3);"));
+    testSameTestPartVarargs(externs("function foo(x = 7) {}"), srcs("foo();"));
+    testSameTestPartVarargs(externs("function foo(...rest) {}"), srcs("foo(1,2,3);"));
   }
 
   @Test
   public void testVarAssignmentInExterns() {
-    testSame(externs("/** @type{{foo:string}} */ var foo; var asdf = foo;"), srcs("asdf.foo;"));
+    testSameTestPartVarargs(externs("/** @type{{foo:string}} */ var foo; var asdf = foo;"), srcs("asdf.foo;"));
   }
 
   @Test
   public void testAliasesInExterns() {
     externValidationErrorLevel = CheckLevel.ERROR;
 
-    testSame(externs("var foo; /** @const */ var asdf = foo;"), srcs(""));
-    testSame(externs("var Foo; var ns = {}; /** @const */ ns.FooAlias = Foo;"), srcs(""));
-    testSame(
+    testSameTestPartVarargs(externs("var foo; /** @const */ var asdf = foo;"), srcs(""));
+    testSameTestPartVarargs(externs("var Foo; var ns = {}; /** @const */ ns.FooAlias = Foo;"), srcs(""));
+    testSameTestPartVarargs(
         externs(
             """
             var ns = {}; /** @constructor */ ns.Foo = function() {};
@@ -406,12 +406,12 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testLetDeclarationInExterns() {
-    testSame(externs("let asdf;"), srcs("asdf;"));
+    testSameTestPartVarargs(externs("let asdf;"), srcs("asdf;"));
   }
 
   @Test
   public void testConstDeclarationInExterns() {
-    testSame(externs("const asdf = 1;"), srcs("asdf;"));
+    testSameTestPartVarargs(externs("const asdf = 1;"), srcs("asdf;"));
   }
 
   @Test
@@ -422,7 +422,7 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testPropReferenceInExterns1() {
-    testSame(
+    testSameTestPartVarargs(
         externs("asdf.foo;"),
         srcs("var /** @suppress {duplicate} */ asdf;"),
         warning(VarCheck.UNDEFINED_EXTERN_VAR_ERROR));
@@ -435,7 +435,7 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testPropReferenceInExterns3() {
-    testSame(
+    testSameTestPartVarargs(
         externs("asdf.foo;"),
         srcs("var /** @suppress {duplicate} */ asdf;"),
         warning(VarCheck.UNDEFINED_EXTERN_VAR_ERROR));
@@ -444,17 +444,17 @@ public final class VarCheckTest extends CompilerTestCase {
     test(externs("asdf.foo;"), srcs("var asdf;"), error(VarCheck.UNDEFINED_EXTERN_VAR_ERROR));
 
     externValidationErrorLevel = CheckLevel.OFF;
-    testSame(externs("asdf.foo;"), srcs("var asdf;"));
+    testSameTestPartVarargs(externs("asdf.foo;"), srcs("var asdf;"));
   }
 
   @Test
   public void testPropReferenceInExterns4() {
-    testSame(externs("asdf.foo;"), srcs("let asdf;"), warning(VarCheck.UNDEFINED_EXTERN_VAR_ERROR));
+    testSameTestPartVarargs(externs("asdf.foo;"), srcs("let asdf;"), warning(VarCheck.UNDEFINED_EXTERN_VAR_ERROR));
   }
 
   @Test
   public void testPropReferenceInExterns5() {
-    testSame(
+    testSameTestPartVarargs(
         externs("asdf.foo;"), srcs("class asdf {}"), warning(VarCheck.UNDEFINED_EXTERN_VAR_ERROR));
   }
 
@@ -619,8 +619,8 @@ public final class VarCheckTest extends CompilerTestCase {
   @Test
   public void testStarStrictChunkDependencyCheck() {
     strictChunkDepErrorLevel = CheckLevel.WARNING;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("function a() {}")
                 .addChunk("function b() { a(); c(); }")
@@ -672,11 +672,11 @@ public final class VarCheckTest extends CompilerTestCase {
       m2.addDependency(m1);
     }
     if (error == null && warning == null) {
-      test(srcs(m1, m2), expected(code1, code2));
+      test(srcsJSChunkVarargs(m1, m2), expectedStringVarargs(code1, code2));
     } else if (error == null) {
-      test(srcs(m1, m2), expected(code1, code2), warning(warning));
+      test(srcsJSChunkVarargs(m1, m2), expectedStringVarargs(code1, code2), warning(warning));
     } else {
-      testError(srcs(m1, m2), error(error));
+      testErrorDiagnostic(srcsJSChunkVarargs(m1, m2), error(error));
     }
   }
 
@@ -983,16 +983,16 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testGoogModule_withDefaultExports() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             TestExternsBuilder.getClosureExternsAsSource(),
             "goog.module('a.b'); exports = function() {};"));
   }
 
   @Test
   public void testGoogModule_withExportsRefInFunction() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             // Referencing 'exports' inside a function is strange but allowed.
             TestExternsBuilder.getClosureExternsAsSource(),
             "goog.module('a.b'); exports.f = function() { exports.f(); };"));
@@ -1000,8 +1000,8 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testGoogModule_withNamedExports() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             TestExternsBuilder.getClosureExternsAsSource(),
             "goog.module('a.b'); exports.f = function() {}; exports.x = 0;"));
   }
@@ -1043,8 +1043,8 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testGoogLegacyModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             TestExternsBuilder.getClosureExternsAsSource(),
             "goog.module('foo.A'); goog.module.declareLegacyNamespace(); exports = class {};",
             "new foo.A();"));
@@ -1052,12 +1052,12 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testGoogNonLegacyModule() {
-    testError(
-        srcs(TestExternsBuilder.getClosureExternsAsSource(), "goog.module('foo.A');", "foo.A();"),
+    testErrorDiagnostic(
+        srcsStringVarargs(TestExternsBuilder.getClosureExternsAsSource(), "goog.module('foo.A');", "foo.A();"),
         error(UNDEFINED_VAR_ERROR));
 
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             TestExternsBuilder.getClosureExternsAsSource(),
             "goog.module('foo.A'); exports = class {};",
             "new foo.A();"),
@@ -1066,8 +1066,8 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testGoogLegacyModule_inLoadModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             TestExternsBuilder.getClosureExternsAsSource(),
             """
             goog.loadModule(function(exports) {
@@ -1082,8 +1082,8 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testGoogNonLegacyModule_inLoadModule() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             TestExternsBuilder.getClosureExternsAsSource(),
             """
             goog.loadModule(function(exports) {
@@ -1118,7 +1118,7 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testArbitraryPropertyNamedForwardDeclare_cannotBeReferencedInExterns() {
-    testWarning(
+    testWarningExterns(
         externs("notGoog.forwardDeclare('a.b.C');"),
         srcs("var notGoog;"),
         warning(UNDEFINED_EXTERN_VAR_ERROR));
@@ -1126,13 +1126,13 @@ public final class VarCheckTest extends CompilerTestCase {
 
   @Test
   public void testGoogProvide_cannotBeReferencedInExterns() {
-    testWarning(
+    testWarningExterns(
         externs("goog.provide('a.b');"), srcs("var goog;"), warning(UNDEFINED_EXTERN_VAR_ERROR));
   }
 
   @Test
   public void testGoogModule_cannotBeReferencedInExterns() {
-    testWarning(
+    testWarningExterns(
         externs("goog.module('a.b');"), srcs("var goog;"), warning(UNDEFINED_EXTERN_VAR_ERROR));
   }
 
@@ -1147,7 +1147,7 @@ public final class VarCheckTest extends CompilerTestCase {
     strongChunk.add(SourceFile.fromCode("strong.js", "weakVar();", SourceKind.STRONG));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             new JSChunk[] {
               strongChunk, weakChunk,
             }),
@@ -1167,7 +1167,7 @@ public final class VarCheckTest extends CompilerTestCase {
             """,
             SourceKind.WEAK));
 
-    testSame(srcs(weakChunk));
+    testSameTestPartVarargs(srcsJSChunkVarargs(weakChunk));
   }
 
   @Test
@@ -1185,7 +1185,7 @@ public final class VarCheckTest extends CompilerTestCase {
     strongChunk.add(SourceFile.fromCode("strong.js", "foo();", SourceKind.STRONG));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             new JSChunk[] {
               strongChunk, weakChunk,
             }),
@@ -1214,7 +1214,7 @@ public final class VarCheckTest extends CompilerTestCase {
             SourceKind.STRONG));
 
     testExternChanges(
-        externs(""), srcs(strongChunk, weakChunk), expected("var foo;" + VAR_CHECK_EXTERNS));
+        externs(""), srcsJSChunkVarargs(strongChunk, weakChunk), expected("var foo;" + VAR_CHECK_EXTERNS));
   }
 
   @Test
@@ -1232,7 +1232,7 @@ public final class VarCheckTest extends CompilerTestCase {
 
     strongChunk.add(SourceFile.fromCode("strong.js", "foo();", SourceKind.STRONG));
 
-    test(srcs(strongChunk, weakChunk), error(VarCheck.UNDEFINED_VAR_ERROR));
+    test(srcsJSChunkVarargs(strongChunk, weakChunk), error(VarCheck.UNDEFINED_VAR_ERROR));
   }
 
   @Test
@@ -1250,8 +1250,8 @@ public final class VarCheckTest extends CompilerTestCase {
             SourceKind.STRONG));
     strongChunk.add(SourceFile.fromCode("strong1.js", "foo();", SourceKind.STRONG));
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             new JSChunk[] {
               strongChunk, weakChunk,
             }));

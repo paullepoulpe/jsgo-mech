@@ -578,8 +578,8 @@ public final class CheckJsDocTest extends CompilerTestCase {
         "var bar;\n/** @desc Foo. */ ({bar} = goog.getMsg('x'));", MISPLACED_MSG_ANNOTATION);
 
     // allow in TS code
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js", "/** @desc Foo. */ var bar = goog.getMsg('hello');")));
   }
@@ -587,7 +587,7 @@ public final class CheckJsDocTest extends CompilerTestCase {
   @Test
   public void testJSDocDescInExterns() {
     testWarning("/** @desc Foo. */ x.y.z.MSG_bar;", MISPLACED_MSG_ANNOTATION);
-    testSame(externs("/** @desc Foo. */ x.y.z.MSG_bar;"), srcs(""));
+    testSameTestPartVarargs(externs("/** @desc Foo. */ x.y.z.MSG_bar;"), srcs(""));
   }
 
   @Test
@@ -787,11 +787,11 @@ public final class CheckJsDocTest extends CompilerTestCase {
 
   @Test
   public void testValidRestParameter() {
-    testNoWarning(srcs("function f(...args) {}"));
-    testNoWarning(srcs("/** @param {...string} args */ function f(...args) {}"));
-    testNoWarning(srcs("function f(...[x, y, ...args]) {}"));
-    testNoWarning(srcs("/** @param {...number} args */ function f(...[x, y, ...args]) {}"));
-    testNoWarning(srcs("function f(.../** ...string */ args) {}"));
+    testNoWarningSources(srcs("function f(...args) {}"));
+    testNoWarningSources(srcs("/** @param {...string} args */ function f(...args) {}"));
+    testNoWarningSources(srcs("function f(...[x, y, ...args]) {}"));
+    testNoWarningSources(srcs("/** @param {...number} args */ function f(...[x, y, ...args]) {}"));
+    testNoWarningSources(srcs("function f(.../** ...string */ args) {}"));
   }
 
   @Test
@@ -943,7 +943,7 @@ public final class CheckJsDocTest extends CompilerTestCase {
         "/** @constructor */ function C() {} /** @typedef {string} */ C.prototype.foo;",
         MISPLACED_ANNOTATION);
 
-    testWarning(
+    testWarningExterns(
         externs("/** @constructor */ function C() {} /** @typedef {string} */ C.prototype.foo;"),
         srcs(""),
         warning(MISPLACED_ANNOTATION));
@@ -1161,7 +1161,7 @@ public final class CheckJsDocTest extends CompilerTestCase {
 
   @Test
   public void testImplicitCastOnlyAllowedInExterns() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor */ function Element() {};
@@ -1293,10 +1293,10 @@ public final class CheckJsDocTest extends CompilerTestCase {
         "/** @type {!module$exports$foo$bar} */ let x;",
         "/** @type {!UnrecognizedType_module$exports$foo$bar} */ let x;");
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('foo.bar'); exports = class {};",
             "/** @type {!module$exports$foo$bar} */ let x;"),
-        expected(
+        expectedStringVarargs(
             "goog.module('foo.bar'); exports = class {};",
             "/** @type {!UnrecognizedType_module$exports$foo$bar} */ let x;"));
     test(
@@ -1344,8 +1344,8 @@ public final class CheckJsDocTest extends CompilerTestCase {
 
   @Test
   public void testMisplacedTsTypeAnnotation_notOnFunction() {
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "javascript/closure/base.js",
                 """

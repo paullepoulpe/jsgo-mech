@@ -99,7 +99,7 @@ class CrossChunkCodeMotion implements CompilerPass {
   public void process(Node externs, Node root) {
     try (LogFile logFile = compiler.createOrReopenIndexedLog(this.getClass(), "cccm.log")) {
       cccmLog = logFile;
-      cccmLog.log("doing cccm");
+      cccmLog.logString("doing cccm");
       // If there are <2 chunks, then we will never move anything, so we're done
       if (graph.getChunkCount() > 1) {
         CrossChunkReferenceCollector referenceCollector =
@@ -110,7 +110,7 @@ class CrossChunkCodeMotion implements CompilerPass {
         moveGlobalSymbols(globalSymbols);
         addInstanceofGuards(globalSymbols);
       } else {
-        cccmLog.log("only one chunk exists");
+        cccmLog.logString("only one chunk exists");
       }
     } finally {
       cccmLog = null;
@@ -571,7 +571,7 @@ class CrossChunkCodeMotion implements CompilerPass {
           // Write a separate log for each global symbol, because this is easier to work
           // with when analyzing the log.
           // Include a header, so we can tell which ones were treated as a cycle
-          cccmLog.log("start DSG Cycle move");
+          cccmLog.logString("start DSG Cycle move");
           for (String globalSymbolName : getGlobalSymbolNames()) {
             cccmLog.log(
                 () ->

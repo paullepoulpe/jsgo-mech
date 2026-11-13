@@ -54,7 +54,7 @@ public final class CreateSyntheticBlocksTest extends CompilerTestCase {
       public void process(Node externs, Node js) {
         new CreateSyntheticBlocks(compiler, START_MARKER, END_MARKER).process(externs, js);
         Normalize.createNormalizeForOptimizations(compiler).process(externs, js);
-        new PeepholeOptimizationsPass(
+        PeepholeOptimizationsPass.createFromOptimizations(
                 compiler,
                 getName(),
                 new MinimizeExitPoints(),

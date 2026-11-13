@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 public interface ModuleRequestResolver {
   /** Returns the module that this import references, if it exists in the compilation. */
   @Nullable
-  UnresolvedModule resolve(Import i);
+  UnresolvedModule resolveImport(Import i);
 
   /** Returns the module that this export references, if it exists in the compilation. */
   @Nullable

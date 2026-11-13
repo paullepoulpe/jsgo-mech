@@ -165,7 +165,7 @@ final class Promises {
       return unknownType;
     }
 
-    JSType asyncTemplateUnion = registry.createUnionType(asyncTemplateAlternates);
+    JSType asyncTemplateUnion = registry.createUnionTypeList(asyncTemplateAlternates);
     return registry.createUnionType(
         asyncTemplateUnion, registry.createTemplatizedType(iThenableType, asyncTemplateUnion));
   }

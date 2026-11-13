@@ -128,7 +128,7 @@ public class Util {
   /** @see #appendHexJavaScriptRepresentation(int, Appendable) */
   public static void appendHexJavaScriptRepresentation(StringBuilder sb, char c) {
     try {
-      appendHexJavaScriptRepresentation(c, sb);
+      appendHexJavaScriptRepresentationInt(c, sb);
     } catch (IOException ex) {
       // StringBuilder does not throw IOException.
       throw new RuntimeException(ex);
@@ -141,7 +141,7 @@ public class Util {
    * @param codePoint The code point to append.
    * @param out The buffer to which the hex representation should be appended.
    */
-  private static void appendHexJavaScriptRepresentation(
+  private static void appendHexJavaScriptRepresentationInt(
       int codePoint, Appendable out)
       throws IOException {
     if (Character.isSupplementaryCodePoint(codePoint)) {
@@ -150,8 +150,8 @@ public class Util {
       // so that they will round-trip properly when sent from Java to JavaScript
       // and back.
       char[] surrogates = Character.toChars(codePoint);
-      appendHexJavaScriptRepresentation(surrogates[0], out);
-      appendHexJavaScriptRepresentation(surrogates[1], out);
+      appendHexJavaScriptRepresentationInt(surrogates[0], out);
+      appendHexJavaScriptRepresentationInt(surrogates[1], out);
       return;
     }
     out.append("\\u")

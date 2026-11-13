@@ -17,6 +17,7 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 import static com.google.javascript.jscomp.TranspilationUtil.CANNOT_CONVERT;
 import static com.google.javascript.jscomp.TranspilationUtil.CANNOT_CONVERT_YET;
 
@@ -41,7 +42,7 @@ public final class Es6ConvertSuper extends NodeTraversal.AbstractPostOrderCallba
   // TODO(b/329447979): Run this pass only for scripts containing Feature.SUPER and not for scripts
   // containing just Feature.CLASSES?
   private static final FeatureSet FEATURES_TO_RUN_FOR =
-      FeatureSet.BARE_MINIMUM.with(Feature.SUPER, Feature.CLASSES);
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.SUPER, Feature.CLASSES);
 
   public Es6ConvertSuper(AbstractCompiler compiler) {
     this.compiler = compiler;
@@ -235,15 +236,15 @@ public final class Es6ConvertSuper extends NodeTraversal.AbstractPostOrderCallba
           astFactory
               .createCall(
                   astFactory.createGetPropWithUnknownType(
-                      astFactory.createConstantName("Reflect", type(StandardColors.UNKNOWN)),
+                      astFactory.createConstantName("Reflect", typeColor(StandardColors.UNKNOWN)),
                       "get"),
                   type(parent),
                   superPlaceholder,
                   parent.isGetProp()
                       ? astFactory.createCall(
                           astFactory.createName(
-                              NodeUtil.JSC_PROPERTY_NAME_FN, type(StandardColors.UNKNOWN)),
-                          type(StandardColors.STRING),
+                              NodeUtil.JSC_PROPERTY_NAME_FN, typeColor(StandardColors.UNKNOWN)),
+                          typeColor(StandardColors.STRING),
                           astFactory.createString(parent.getString()),
                           superName.cloneTree().srcrefTree(node))
                       :

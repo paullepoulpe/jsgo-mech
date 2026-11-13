@@ -49,7 +49,7 @@ public final class DiagnosticGroupWarningsGuard extends WarningsGuard {
 
   private boolean groupMatchesAny(ImmutableSet<DiagnosticType> types) {
     for (DiagnosticType type : types) {
-      if (this.group.matches(type)) {
+      if (this.group.matchesDiagnosticType(type)) {
         return true;
       }
     }
@@ -58,7 +58,7 @@ public final class DiagnosticGroupWarningsGuard extends WarningsGuard {
 
   private boolean groupMatchesAll(ImmutableSet<DiagnosticType> types) {
     for (DiagnosticType type : types) {
-      if (!this.group.matches(type)) {
+      if (!this.group.matchesDiagnosticType(type)) {
         return false;
       }
     }

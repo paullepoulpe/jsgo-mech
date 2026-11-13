@@ -260,7 +260,7 @@ final class CheckClosureImports implements CompilerPass {
         ClosureImport kindOfCall = kindOfCall(n);
         if (kindOfCall != null) {
           checkImport(t, n, parent, currentModule, kindOfCall);
-        } else if (n.getFirstChild().matchesQualifiedName(GOOG_MODULE_GET)) {
+        } else if (n.getFirstChild().matchesQualifiedNameNode(GOOG_MODULE_GET)) {
           checkGoogModuleGet(t, n, currentModule);
         }
       } else if (n.isName()) {
@@ -274,13 +274,13 @@ final class CheckClosureImports implements CompilerPass {
      */
     private @Nullable ClosureImport kindOfCall(Node callNode) {
       checkState(callNode.isCall());
-      if (callNode.getFirstChild().matchesQualifiedName(GOOG_REQUIRE)) {
+      if (callNode.getFirstChild().matchesQualifiedNameNode(GOOG_REQUIRE)) {
         return ClosureImport.REQUIRE;
-      } else if (callNode.getFirstChild().matchesQualifiedName(GOOG_FORWARD_DECLARE)) {
+      } else if (callNode.getFirstChild().matchesQualifiedNameNode(GOOG_FORWARD_DECLARE)) {
         return ClosureImport.FORWARD_DECLARE;
-      } else if (callNode.getFirstChild().matchesQualifiedName(GOOG_REQUIRE_TYPE)) {
+      } else if (callNode.getFirstChild().matchesQualifiedNameNode(GOOG_REQUIRE_TYPE)) {
         return ClosureImport.REQUIRE_TYPE;
-      } else if (callNode.getFirstChild().matchesQualifiedName(GOOG_REQUIRE_DYNAMIC)) {
+      } else if (callNode.getFirstChild().matchesQualifiedNameNode(GOOG_REQUIRE_DYNAMIC)) {
         return ClosureImport.REQUIRE_DYNAMIC;
       }
       return null;
@@ -386,7 +386,7 @@ final class CheckClosureImports implements CompilerPass {
         //   let x = goog.forwardDeclare('a.namespace');
         Node aliasVarNodeRhs = NodeUtil.getRValueOfLValue(aliasVar.getNode());
 
-        if (aliasVarNodeRhs == null || !NodeUtil.isCallTo(aliasVarNodeRhs, GOOG_FORWARD_DECLARE)) {
+        if (aliasVarNodeRhs == null || !NodeUtil.isCallToNode(aliasVarNodeRhs, GOOG_FORWARD_DECLARE)) {
           t.report(call, INVALID_GET_ALIAS);
           return;
         }

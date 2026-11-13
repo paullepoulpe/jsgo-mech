@@ -41,7 +41,7 @@ public class GatherGetterAndSetterPropertiesTest extends CompilerTestCase {
 
   @Test
   public void findGettersAndSettersInExterns() {
-    testSame(externs("({get x() {}, set y(v) {}})"), srcs(""));
+    testSameTestPartVarargs(externs("({get x() {}, set y(v) {}})"), srcs(""));
 
     assertThat(getLastCompiler().getAccessorSummary().getAccessors())
         .containsExactlyEntriesIn(
@@ -52,7 +52,7 @@ public class GatherGetterAndSetterPropertiesTest extends CompilerTestCase {
 
   @Test
   public void findGettersAndSettersInSources() {
-    testSame(srcs("({get x() {}, set y(v) {}})"));
+    testSameTestPartVarargs(srcs("({get x() {}, set y(v) {}})"));
 
     assertThat(getLastCompiler().getAccessorSummary().getAccessors())
         .containsExactlyEntriesIn(
@@ -63,49 +63,49 @@ public class GatherGetterAndSetterPropertiesTest extends CompilerTestCase {
 
   @Test
   public void mergeInExterns() {
-    testSame(externs("({get x() {}}); ({set x(v) {}});"), srcs(""));
+    testSameTestPartVarargs(externs("({get x() {}}); ({set x(v) {}});"), srcs(""));
     assertThat(getLastAccessorSummary().getKind("x"))
         .isEqualTo(PropertyAccessKind.GETTER_AND_SETTER);
   }
 
   @Test
   public void mergeInSrcs() {
-    testSame(srcs("({get x() {}}); ({set x(v) {}});"));
+    testSameTestPartVarargs(srcs("({get x() {}}); ({set x(v) {}});"));
     assertThat(getLastAccessorSummary().getKind("x"))
         .isEqualTo(PropertyAccessKind.GETTER_AND_SETTER);
   }
 
   @Test
   public void mergeExtersAndSrcs() {
-    testSame(externs("({get x() {}})"), srcs("({set x(v) {}})"));
+    testSameTestPartVarargs(externs("({get x() {}})"), srcs("({set x(v) {}})"));
     assertThat(getLastAccessorSummary().getKind("x"))
         .isEqualTo(PropertyAccessKind.GETTER_AND_SETTER);
   }
 
   @Test
   public void detectObjectLiteral() {
-    testSame(srcs("var a = { set x(v) {} };"));
+    testSameTestPartVarargs(srcs("var a = { set x(v) {} };"));
     assertThat(getLastAccessorSummary().getKind("x")).isEqualTo(PropertyAccessKind.SETTER_ONLY);
 
-    testSame(srcs("var a = { get x() {} };"));
+    testSameTestPartVarargs(srcs("var a = { get x() {} };"));
     assertThat(getLastAccessorSummary().getKind("x")).isEqualTo(PropertyAccessKind.GETTER_ONLY);
   }
 
   @Test
   public void detectClass() {
-    testSame(srcs("class Class { set x(v) {} };"));
+    testSameTestPartVarargs(srcs("class Class { set x(v) {} };"));
     assertThat(getLastAccessorSummary().getKind("x")).isEqualTo(PropertyAccessKind.SETTER_ONLY);
 
-    testSame(srcs("class Class { get x() {} };"));
+    testSameTestPartVarargs(srcs("class Class { get x() {} };"));
     assertThat(getLastAccessorSummary().getKind("x")).isEqualTo(PropertyAccessKind.GETTER_ONLY);
   }
 
   @Test
   public void detectClassStatic() {
-    testSame(srcs("class Class { static set x(v) {} };"));
+    testSameTestPartVarargs(srcs("class Class { static set x(v) {} };"));
     assertThat(getLastAccessorSummary().getKind("x")).isEqualTo(PropertyAccessKind.SETTER_ONLY);
 
-    testSame(srcs("class Class { static get x() {} };"));
+    testSameTestPartVarargs(srcs("class Class { static get x() {} };"));
     assertThat(getLastAccessorSummary().getKind("x")).isEqualTo(PropertyAccessKind.GETTER_ONLY);
   }
 

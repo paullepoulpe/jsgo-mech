@@ -80,7 +80,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromExternTypesIsPreserved() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /**
@@ -103,7 +103,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromInstanceNodesIsIgnored() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -126,7 +126,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsNotPropagatedToNativeFunctionType() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -146,7 +146,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromNamedFunctionPropagatesToDefinedType() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -168,7 +168,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromNamedEs6ClassPropagatesToDefinedType() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** I'm a user type. */
@@ -187,7 +187,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromGlobalAssignmentPropagatesToDefinedType() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -209,7 +209,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromNamespacedNameAssignmentPropagatesToDefinedType() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var namespace = {}
@@ -247,7 +247,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
 
   private void testJSDocFromVariableAssignmentPropagatesToDefinedType(DeclarationKeyword keyword) {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -271,7 +271,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromVariableNameAssignmentPropagatesToDefinedType() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var /**
@@ -293,7 +293,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToClasses_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -315,7 +315,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToClasses_Es6() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** I'm a user class. */
@@ -334,7 +334,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToCtors() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -356,7 +356,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToInterfaces() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -378,7 +378,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToRecords() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -400,7 +400,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToEnums() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -422,7 +422,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToEnumElements() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -444,7 +444,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToFunctionTypes() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -467,7 +467,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToScopedTypes() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             (() => {
@@ -491,7 +491,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToFunctionTypesFromMethodAssigments() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -516,7 +516,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsNotPropagatedToFunctionTypesFromConstAliases() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var foo = function() {};
@@ -538,7 +538,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsNotPropagatedToFunctionTypesFromPropertyAliases() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -583,7 +583,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocItPropagatedToFunctionTypesFromPropertyAliases_withUniqueTypeDeclarations() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -622,7 +622,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedDistinctlyToMatchingStructuralTypes_ObjectLiteralTypes() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -651,7 +651,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedDistinctlyToMatchingStructuralTypes_FunctionTypes() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -686,7 +686,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsNotOverriddenByStructuralTypeAssignments_ObjectLiteralTypes() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -714,7 +714,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsNotOverriddenByStructuralTypeAssignments_FunctionTypes() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -746,7 +746,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToFieldProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -771,7 +771,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToFieldProperties_Es6Class() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -797,7 +797,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToClassField() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -821,7 +821,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJsDocIsPropagatedToClassField_computed() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         externs(
             new TestExternsBuilder()
                 .addIterable()
@@ -846,14 +846,14 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
 
     // Then
     assertThat(
-            xType.getPropertyJSDocInfo(new Property.SymbolKey(foobarSymbol)).getBlockDescription())
+            xType.getPropertyJSDocInfoKey(new Property.SymbolKey(foobarSymbol)).getBlockDescription())
         .isEqualTo("I'm a field.");
   }
 
   @Test
   public void testJSDocIsNotPropagatedFromSuppressionsOnFieldProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -880,7 +880,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsNotPropagatedFromSuppressionsOnEarlyRefToFieldProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @param {!Foo} x */
@@ -908,7 +908,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToGetterProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -936,7 +936,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToGetterProperties_Es6Class() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -961,7 +961,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToSetterProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -989,7 +989,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToSetterProperties_Es6Class() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1014,7 +1014,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToMethodProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -1040,7 +1040,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToMethodProperties_Es6Class() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1065,7 +1065,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJsDocIsPropagatedToMethodProperties_computed() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         externs(
             new TestExternsBuilder()
                 .addIterable()
@@ -1090,14 +1090,14 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
 
     // Then
     assertThat(
-            xType.getPropertyJSDocInfo(new Property.SymbolKey(foobarSymbol)).getBlockDescription())
+            xType.getPropertyJSDocInfoKey(new Property.SymbolKey(foobarSymbol)).getBlockDescription())
         .isEqualTo("I'm a method.");
   }
 
   @Test
   public void testJSDocIsPropagatedToAbstractMethodProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -1124,7 +1124,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToAbstractMethodProperties_Es6Class() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1150,7 +1150,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToStaticProperties_Es5() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -1176,7 +1176,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocIsPropagatedToStaticProperties_Es6Class() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1204,7 +1204,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromConstructorsIsIgnored_Es6Class() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** I'm a class. */
@@ -1227,7 +1227,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocDoesNotPropagateFromStructuralTypesToClassProperties() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */
@@ -1283,7 +1283,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromDuplicateDefinitionDoesNotOverrideJSDocFromOriginal() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -1311,7 +1311,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromDuplicateDefinitionIsUsedIfThereWasNoOriginalJSDocFromOriginal() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var Foo = function() {};
@@ -1335,7 +1335,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromDuplicatePropertyDefinitionDoesNotOverrideJSDoc_es6Style() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {
@@ -1367,7 +1367,7 @@ public final class InferJSDocInfoTest extends CompilerTestCase {
   @Test
   public void testJSDocFromDuplicatePropertyDefinitionDoesNotOverrideJSDoc_es5Style() {
     // Given
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**

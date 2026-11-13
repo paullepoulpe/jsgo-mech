@@ -61,10 +61,10 @@ public final class ReportUntranspilableFeatures extends AbstractPeepholeTranspil
           "JSC_UNSUPPORTED", "The feature \"{0}\" is currently unsupported for transpilation.");
 
   private static final FeatureSet UNTRANSPILABLE_ES5_FEATURES =
-      FeatureSet.BARE_MINIMUM.with(Feature.GETTER, Feature.SETTER);
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.GETTER, Feature.SETTER);
 
   private static final FeatureSet UNTRANSPILABLE_2018_FEATURES =
-      FeatureSet.BARE_MINIMUM.with(
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(
           Feature.REGEXP_FLAG_S,
           Feature.REGEXP_LOOKBEHIND,
           Feature.REGEXP_NAMED_GROUPS,
@@ -82,7 +82,7 @@ public final class ReportUntranspilableFeatures extends AbstractPeepholeTranspil
       FeatureSet.BARE_MINIMUM.with(Feature.BIGINT);
 
   private static final FeatureSet UNTRANSPILABLE_2022_FEATURES =
-      FeatureSet.BARE_MINIMUM.with(Feature.REGEXP_FLAG_D, Feature.TOP_LEVEL_AWAIT);
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.REGEXP_FLAG_D, Feature.TOP_LEVEL_AWAIT);
 
   private static final FeatureSet ALL_UNTRANSPILABLE_FEATURES =
       FeatureSet.BARE_MINIMUM

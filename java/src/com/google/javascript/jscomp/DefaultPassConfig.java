@@ -577,7 +577,7 @@ public final class DefaultPassConfig extends PassConfig {
     passes.maybeAdd(createEmptyPass("afterChunkMotion"));
 
     if (options.getOptimizeESClassConstructors()
-        && options.getOutputFeatureSet().contains(ES2015)) {
+        && options.getOutputFeatureSet().containsFeatureSet(ES2015)) {
       passes.maybeAdd(optimizeConstructors);
     }
 
@@ -718,7 +718,7 @@ public final class DefaultPassConfig extends PassConfig {
     }
 
     // Raise to ES2015, if allowed
-    if (options.getOutputFeatureSet().contains(ES2015)) {
+    if (options.getOutputFeatureSet().containsFeatureSet(ES2015)) {
       passes.maybeAdd(optimizeToEs6);
     }
 
@@ -1425,7 +1425,7 @@ public final class DefaultPassConfig extends PassConfig {
                       convention.getExportSymbolFunction(),
                       convention.getExportPropertyFunction());
                 } else {
-                  return new ErrorPass(compiler, GENERATE_EXPORTS_ERROR);
+                  return ErrorPass.createFromDiagnosticType(compiler, GENERATE_EXPORTS_ERROR);
                 }
               })
           .build();
@@ -1790,7 +1790,7 @@ public final class DefaultPassConfig extends PassConfig {
                 final boolean late = true;
                 final boolean useTypesForOptimization =
                     options.shouldUseTypesForLocalOptimization();
-                return new PeepholeOptimizationsPass(
+                return PeepholeOptimizationsPass.createFromOptimizations(
                     compiler,
                     "latePeepholeOptimizations",
                     new StatementFusion(),
@@ -2195,7 +2195,7 @@ public final class DefaultPassConfig extends PassConfig {
           .setInternalFactory(
               (compiler) ->
                   new ClosureOptimizePrimitives(
-                      compiler, compiler.getOptions().getOutputFeatureSet().contains(ES2015)))
+                      compiler, compiler.getOptions().getOutputFeatureSet().containsFeatureSet(ES2015)))
           .build();
 
   /** Puts global symbols into a single object. */

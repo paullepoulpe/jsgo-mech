@@ -618,10 +618,10 @@ public final class LiveVariablesAnalysisTest {
       liveness = computeLiveness(src, Wrapper.FUNCTION);
     }
 
-    return getFlowStateAtX(liveness.getCfg().getEntry().getValue(), liveness.getCfg());
+    return getFlowStateAtXNode(liveness.getCfg().getEntry().getValue(), liveness.getCfg());
   }
 
-  private LinearFlowState<LiveVariablesAnalysis.LiveVariableLattice> getFlowStateAtX(
+  private LinearFlowState<LiveVariablesAnalysis.LiveVariableLattice> getFlowStateAtXNode(
       Node node, ControlFlowGraph<Node> cfg) {
     if (node.isLabel()) {
       if (node.getFirstChild().getString().equals("X")) {
@@ -629,7 +629,7 @@ public final class LiveVariablesAnalysisTest {
       }
     }
     for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {
-      LinearFlowState<LiveVariablesAnalysis.LiveVariableLattice> state = getFlowStateAtX(c, cfg);
+      LinearFlowState<LiveVariablesAnalysis.LiveVariableLattice> state = getFlowStateAtXNode(c, cfg);
       if (state != null) {
         return state;
       }

@@ -227,10 +227,10 @@ public class CompilerOptions {
   }
 
   public void setBrowserFeaturesetYear(int year) {
-    setBrowserFeaturesetYear(BrowserFeaturesetYear.from(year));
+    setBrowserFeaturesetYearEnum(BrowserFeaturesetYear.from(year));
   }
 
-  public void setBrowserFeaturesetYear(BrowserFeaturesetYear year) {
+  public void setBrowserFeaturesetYearEnum(BrowserFeaturesetYear year) {
     this.browserFeaturesetYear = year;
     browserFeaturesetYear.setDependentValuesFromYear(this);
   }
@@ -1099,7 +1099,7 @@ public class CompilerOptions {
 
   private ErrorFormat errorFormat;
 
-  private ComposeWarningsGuard warningsGuard = new ComposeWarningsGuard();
+  private ComposeWarningsGuard warningsGuard = ComposeWarningsGuard.createFromGuards();
 
   private int summaryDetailLevel = 1;
 
@@ -1672,7 +1672,7 @@ public class CompilerOptions {
 
   /** Reset the warnings guard. */
   public void resetWarningsGuard() {
-    this.warningsGuard = new ComposeWarningsGuard();
+    this.warningsGuard = ComposeWarningsGuard.createFromGuards();
   }
 
   /** Add a guard to the set of warnings guards. */
@@ -1711,7 +1711,7 @@ public class CompilerOptions {
   }
 
   /** Sets the id generators to replace. */
-  public void setIdGenerators(Map<String, RenamingMap> idGenerators) {
+  public void setIdGeneratorsRenamingMaps(Map<String, RenamingMap> idGenerators) {
     this.idGenerators = ImmutableMap.copyOf(idGenerators);
   }
 
@@ -1779,7 +1779,7 @@ public class CompilerOptions {
   }
 
   /** Set the variable inlining policy for the compiler. */
-  public void setInlineVariables(Reach reach) {
+  public void setInlineVariablesReach(Reach reach) {
     switch (reach) {
       case ALL -> {
         this.inlineVariables = true;
@@ -2138,8 +2138,8 @@ public class CompilerOptions {
   public boolean needsTranspilationFrom(FeatureSet languageLevel) {
     // TODO(johnplaisted): This isn't really accurate. This should instead be the *parsed* language,
     // not the *input* language.
-    return getLanguageIn().toFeatureSet().contains(languageLevel)
-        && !getOutputFeatureSet().contains(languageLevel);
+    return getLanguageIn().toFeatureSet().containsFeatureSet(languageLevel)
+        && !getOutputFeatureSet().containsFeatureSet(languageLevel);
   }
 
   public boolean needsTranspilationOf(FeatureSet.Feature feature) {
@@ -2471,7 +2471,7 @@ public class CompilerOptions {
 
   // USE_IIFE is currently unused. Consider removing support for it and
   // deleting this setter.
-  public void setExtractPrototypeMemberDeclarations(ExtractPrototypeMemberDeclarationsMode mode) {
+  public void setExtractPrototypeMemberDeclarationsMode(ExtractPrototypeMemberDeclarationsMode mode) {
     this.extractPrototypeMemberDeclarations = mode;
   }
 
@@ -3031,7 +3031,7 @@ public class CompilerOptions {
     if (incrementalCheckMode == IncrementalCheckMode.GENERATE_IJS) {
       return false;
     }
-    return this.quoteKeywordProperties || FeatureSet.ES3.contains(getOutputFeatureSet());
+    return this.quoteKeywordProperties || FeatureSet.ES3.containsFeatureSet(getOutputFeatureSet());
   }
 
   public void setErrorFormat(ErrorFormat errorFormat) {

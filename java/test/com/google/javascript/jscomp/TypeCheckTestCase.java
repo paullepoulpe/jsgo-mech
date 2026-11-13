@@ -166,7 +166,7 @@ public abstract class TypeCheckTestCase extends CompilerTypeTestCase {
     }
 
     @CanIgnoreReturnValue
-    public TypeTestBuilder addDiagnostic(DiagnosticType x) {
+    public TypeTestBuilder addDiagnosticDiagnosticType(DiagnosticType x) {
       this.diagnosticTypes.add(x);
       return this;
     }

@@ -239,7 +239,7 @@ final class JsIterables {
               : typeRegistry.getIterableValueTemplate();
       templatedTypes.add(autoboxedType.getTemplateTypeMap().getResolvedTemplateType(templateType));
     }
-    return new MaybeBoxedType(typeRegistry.createUnionType(templatedTypes), null);
+    return new MaybeBoxedType(typeRegistry.createUnionTypeList(templatedTypes), null);
   }
 
   private JsIterables() {}

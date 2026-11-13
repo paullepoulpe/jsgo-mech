@@ -50,7 +50,7 @@ class LiveVariablesAnalysis
   static final int MAX_VARIABLES_TO_ANALYZE = 100;
 
   private final class LiveVariableJoinOp implements FlowJoiner<LiveVariableLattice> {
-    final LiveVariableLattice result = new LiveVariableLattice(orderedVars.size());
+    final LiveVariableLattice result = new LiveVariableLattice(new BitSet(orderedVars.size()));
 
     @Override
     public void joinFlow(LiveVariableLattice x) {
@@ -72,15 +72,15 @@ class LiveVariablesAnalysis
     private final BitSet liveSet;
 
     /**
-     * @param numVars Number of all local variables.
+     * @param liveSet One bit for each local variable.
      */
-    private LiveVariableLattice(int numVars) {
-      this.liveSet = new BitSet(numVars);
+    private LiveVariableLattice(BitSet liveSet) {
+      this.liveSet = liveSet;
     }
 
-    private LiveVariableLattice(LiveVariableLattice other) {
+    private static LiveVariableLattice createFromLattice(LiveVariableLattice other) {
       checkNotNull(other);
-      this.liveSet = (BitSet) other.liveSet.clone();
+      return new LiveVariableLattice((BitSet) other.liveSet.clone());
     }
 
     @Override
@@ -204,12 +204,12 @@ class LiveVariablesAnalysis
 
   @Override
   LiveVariableLattice createEntryLattice() {
-    return new LiveVariableLattice(orderedVars.size());
+    return new LiveVariableLattice(new BitSet(orderedVars.size()));
   }
 
   @Override
   LiveVariableLattice createInitialEstimateLattice() {
-    return new LiveVariableLattice(orderedVars.size());
+    return new LiveVariableLattice(new BitSet(orderedVars.size()));
   }
 
   @Override
@@ -231,7 +231,7 @@ class LiveVariablesAnalysis
       }
     }
     computeGenKill(node, gen, kill, conditional);
-    LiveVariableLattice result = new LiveVariableLattice(input);
+    LiveVariableLattice result = LiveVariableLattice.createFromLattice(input);
     // L_in = L_out - Kill + Gen
     result.liveSet.andNot(kill);
     result.liveSet.or(gen);

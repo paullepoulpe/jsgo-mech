@@ -419,7 +419,7 @@ public final class Matchers {
     return metadata.getCompiler().getTypeRegistry().getGlobalType(type);
   }
 
-  private static JSType getJsType(NodeMetadata metadata, JSTypeNative nativeType) {
+  private static JSType getJsTypeJSTypeNative(NodeMetadata metadata, JSTypeNative nativeType) {
     return metadata.getCompiler().getTypeRegistry().getNativeType(nativeType);
   }
 
@@ -484,7 +484,7 @@ public final class Matchers {
         if (node.isGetProp()
             && firstChild.isGetProp()
             && "prototype".equals(firstChild.getString())) {
-          JSType fnJsType = getJsType(metadata, JSTypeNative.FUNCTION_FUNCTION_TYPE);
+          JSType fnJsType = getJsTypeJSTypeNative(metadata, JSTypeNative.FUNCTION_FUNCTION_TYPE);
           JSType jsType = node.getJSType();
           if (jsType == null) {
             return false;

@@ -132,7 +132,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
                     }
                   }
                 });
-    this.testSame(srcs(src));
+    this.testSameTestPartVarargs(srcs(src));
 
     this.processor = null;
 
@@ -359,7 +359,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
             new StubLcaFinder()
                 .addStub(
                     ImmutableSet.of(id("FOO"), id("BAR"), id("QUX")),
-                    ImmutableSet.of(id("FOO", "BAR", "QUX"), StandardColors.UNKNOWN.getId()));
+                    ImmutableSet.of(idStringVarargs("FOO", "BAR", "QUX"), StandardColors.UNKNOWN.getId()));
     ColorGraphBuilder builder =
         this.createBuilderIncludingCode(
             stubFinder,
@@ -379,9 +379,9 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
     this.result = builder.build();
 
     // Then
-    this.assertThatResultAsTable().containsCell(id("FOO", "BAR", "QUX"), id("BAR"), ALGEBRAIC);
-    this.assertThatResultAsTable().containsCell(id("FOO", "BAR", "QUX"), id("FOO"), ALGEBRAIC);
-    this.assertThatResultAsTable().containsCell(id("FOO", "BAR", "QUX"), id("QUX"), ALGEBRAIC);
+    this.assertThatResultAsTable().containsCell(idStringVarargs("FOO", "BAR", "QUX"), id("BAR"), ALGEBRAIC);
+    this.assertThatResultAsTable().containsCell(idStringVarargs("FOO", "BAR", "QUX"), id("FOO"), ALGEBRAIC);
+    this.assertThatResultAsTable().containsCell(idStringVarargs("FOO", "BAR", "QUX"), id("QUX"), ALGEBRAIC);
   }
 
   @Test
@@ -393,7 +393,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
             new StubLcaFinder()
                 .addStub(
                     ImmutableSet.of(id("FOO"), id("BAR"), id("QUX")),
-                    ImmutableSet.of(id("FOO", "BAR", "QUX"), kifId));
+                    ImmutableSet.of(idStringVarargs("FOO", "BAR", "QUX"), kifId));
     ColorGraphBuilder builder =
         this.createBuilderIncludingCode(
             stubFinder,
@@ -414,7 +414,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
     this.result = builder.build();
 
     // Then
-    this.assertThatResultAsTable().containsCell(kifId, id("FOO", "BAR", "QUX"), ALGEBRAIC);
+    this.assertThatResultAsTable().containsCell(kifId, idStringVarargs("FOO", "BAR", "QUX"), ALGEBRAIC);
   }
 
   @Test
@@ -427,7 +427,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
             new StubLcaFinder()
                 .addStub(
                     ImmutableSet.of(id("FOO"), id("BAR"), id("QUX")),
-                    ImmutableSet.of(id("FOO", "BAR", "QUX"), kixId, lopId));
+                    ImmutableSet.of(idStringVarargs("FOO", "BAR", "QUX"), kixId, lopId));
     ColorGraphBuilder builder =
         this.createBuilderIncludingCode(
             stubFinder,
@@ -449,8 +449,8 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
     this.result = builder.build();
 
     // Then
-    this.assertThatResultAsTable().containsCell(kixId, id("BAR", "FOO", "QUX"), ALGEBRAIC);
-    this.assertThatResultAsTable().containsCell(lopId, id("BAR", "FOO", "QUX"), ALGEBRAIC);
+    this.assertThatResultAsTable().containsCell(kixId, idStringVarargs("BAR", "FOO", "QUX"), ALGEBRAIC);
+    this.assertThatResultAsTable().containsCell(lopId, idStringVarargs("BAR", "FOO", "QUX"), ALGEBRAIC);
   }
 
   @Test
@@ -462,10 +462,10 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
             new StubLcaFinder()
                 .addStub(
                     ImmutableSet.of(id("FOO"), id("BAR"), id("QUX")),
-                    ImmutableSet.of(id("FOO", "BAR", "QUX"), kifId))
+                    ImmutableSet.of(idStringVarargs("FOO", "BAR", "QUX"), kifId))
                 .addStub(
                     ImmutableSet.of(id("FOO"), id("BAR")),
-                    ImmutableSet.of(id("FOO", "BAR"), id("FOO", "BAR", "QUX")));
+                    ImmutableSet.of(idStringVarargs("FOO", "BAR"), idStringVarargs("FOO", "BAR", "QUX")));
     ColorGraphBuilder builder =
         this.createBuilderIncludingCode(
             stubFinder,
@@ -487,9 +487,9 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
     this.result = builder.build();
 
     // Then
-    this.assertThatResultAsTable().containsCell(kifId, id("FOO", "BAR", "QUX"), ALGEBRAIC);
+    this.assertThatResultAsTable().containsCell(kifId, idStringVarargs("FOO", "BAR", "QUX"), ALGEBRAIC);
     this.assertThatResultAsTable()
-        .containsCell(id("FOO", "BAR", "QUX"), id("FOO", "BAR"), ALGEBRAIC);
+        .containsCell(idStringVarargs("FOO", "BAR", "QUX"), idStringVarargs("FOO", "BAR"), ALGEBRAIC);
   }
 
   @Test
@@ -500,7 +500,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
             new StubLcaFinder()
                 .addStub(
                     ImmutableSet.of(id("FOO_PROTOTYPE"), id("BAR_PROTOTYPE")),
-                    ImmutableSet.of(id("FOO_PROTOTYPE", "BAR_PROTOTYPE"), id("KIF")));
+                    ImmutableSet.of(idStringVarargs("FOO_PROTOTYPE", "BAR_PROTOTYPE"), id("KIF")));
     ColorGraphBuilder builder =
         this.createBuilderIncludingCode(
             stubFinder,
@@ -521,7 +521,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
 
     // Then
     this.assertThatResultAsTable()
-        .containsCell(id("KIF"), id("FOO_PROTOTYPE", "BAR_PROTOTYPE"), ALGEBRAIC);
+        .containsCell(id("KIF"), idStringVarargs("FOO_PROTOTYPE", "BAR_PROTOTYPE"), ALGEBRAIC);
 
     // Also check post-conditions.
   }
@@ -567,7 +567,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
     ImmutableTable.Builder<ColorId, ColorId, EdgeReason> table = ImmutableTable.builder();
     for (DiGraphEdge<ColorGraphNode, Object> edge : this.result.getEdges()) {
       table.put(
-          nameOf(edge.getSource()), nameOf(edge.getDestination()), (EdgeReason) edge.getValue());
+          nameOfDiGraphNode(edge.getSource()), nameOfDiGraphNode(edge.getDestination()), (EdgeReason) edge.getValue());
     }
     return assertThat(table.buildOrThrow());
   }
@@ -622,7 +622,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
     }
   }
 
-  private static ColorId nameOf(DiGraphNode<ColorGraphNode, Object> node) {
+  private static ColorId nameOfDiGraphNode(DiGraphNode<ColorGraphNode, Object> node) {
     return nameOf(node.getValue());
   }
 
@@ -635,14 +635,14 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
   }
 
   private static final Correspondence<DiGraphNode<ColorGraphNode, Object>, ColorId> NODE_HAS_ID =
-      Correspondence.transforming(ColorGraphBuilderTest::nameOf, "in a node with type");
+      Correspondence.transforming(ColorGraphBuilderTest::nameOfDiGraphNode, "in a node with type");
 
   private ColorId id(String labelName) {
     return Preconditions.checkNotNull(
         this.labelToId.get(labelName), "Could not find label %s", labelName);
   }
 
-  private ColorId id(String... idSources) {
+  private ColorId idStringVarargs(String... idSources) {
     ImmutableSet.Builder<ColorId> ids = ImmutableSet.builder();
     for (String idSource : idSources) {
       ids.add(id(idSource));

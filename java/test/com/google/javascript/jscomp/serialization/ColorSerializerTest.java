@@ -83,7 +83,7 @@ public class ColorSerializerTest {
     new Tester()
         .init()
         // add all the axiomatic colors, but only those
-        .addColors(axiomaticTestColors)
+        .addColorsList(axiomaticTestColors)
         .generateTypePool()
         .assertThatTypePool()
         .isEqualTo(
@@ -516,10 +516,10 @@ public class ColorSerializerTest {
 
     TestObjectColorBuilder setColorId(String colorIdString) {
       checkArgument(colorIdString.length() <= 8, "color ID string too long: %s", colorIdString);
-      return setColorId(ColorId.fromAscii(colorIdString));
+      return setColorIdColorId(ColorId.fromAscii(colorIdString));
     }
 
-    TestObjectColorBuilder setColorId(ColorId colorId) {
+    TestObjectColorBuilder setColorIdColorId(ColorId colorId) {
       this.colorId = colorId;
       return this;
     }
@@ -770,13 +770,13 @@ public class ColorSerializerTest {
       return this;
     }
 
-    Tester linkSubColorToSuperColor(Color subColor, Color superColor) {
+    Tester linkSubColorToSuperColorColor(Color subColor, Color superColor) {
       subColorToSuperColorsMap.put(subColor, superColor);
       return this;
     }
 
     Tester linkSubColorToSuperColor(TestColor subColor, TestColor superColor) {
-      return linkSubColorToSuperColor(subColor.color(), superColor.color());
+      return linkSubColorToSuperColorColor(subColor.color(), superColor.color());
     }
 
     Tester addMismatch(TestMismatch testMismatch) {
@@ -794,10 +794,10 @@ public class ColorSerializerTest {
     }
 
     Tester addColors(TestColor... testColors) {
-      return addColors(Arrays.asList(testColors));
+      return addColorsList(Arrays.asList(testColors));
     }
 
-    Tester addColors(List<TestColor> testColorList) {
+    Tester addColorsList(List<TestColor> testColorList) {
       checkNotNull(colorSerializer, "call init() first");
       final List<Color> colors =
           testColorList.stream().map(TestColor::color).collect(Collectors.toList());

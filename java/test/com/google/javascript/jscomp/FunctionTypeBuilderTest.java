@@ -47,7 +47,7 @@ public final class FunctionTypeBuilderTest extends CompilerTestCase {
 
   @Test
   public void testValidBuiltInTypeRedefinition() {
-    testSame(externs(ALL_NATIVE_EXTERN_TYPES), srcs(""));
+    testSameTestPartVarargs(externs(ALL_NATIVE_EXTERN_TYPES), srcs(""));
   }
 
   @Test

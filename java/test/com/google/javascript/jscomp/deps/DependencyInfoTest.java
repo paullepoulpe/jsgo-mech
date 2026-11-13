@@ -37,7 +37,7 @@ public final class DependencyInfoTest {
         sb,
         SimpleDependencyInfo.builder("../some/relative/path.js", "/unused/absolute/path.js")
             .setProvides(ImmutableList.of("provided.symbol", "other.provide"))
-            .setRequires(googRequireSymbol("required.symbol"), googRequireSymbol("other.require"))
+            .setRequiresRequireVarargs(googRequireSymbol("required.symbol"), googRequireSymbol("other.require"))
             .setLoadFlags(ImmutableMap.of("module", "goog", "lang", "es6"))
             .build());
     assertThat(sb.toString())

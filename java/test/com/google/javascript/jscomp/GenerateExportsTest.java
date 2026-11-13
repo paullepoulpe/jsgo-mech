@@ -820,7 +820,7 @@ public final class GenerateExportsTest extends CompilerTestCase {
   public void testDoesNotRequireExportSymbolConvention_ifNoExports() {
     this.exportSymbolFunction = null;
 
-    testSame(srcs("function Foo() {}"));
+    testSameTestPartVarargs(srcs("function Foo() {}"));
   }
 
   @Test

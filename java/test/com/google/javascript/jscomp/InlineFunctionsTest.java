@@ -3484,14 +3484,14 @@ public class InlineFunctionsTest extends CompilerTestCase {
   @Test
   public void testCrossChunkInlining1() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("function foo(){return f(1)+g(2)+h(3);}")
                 // m2
                 .addChunk("foo()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "",
             // m2
@@ -3502,22 +3502,22 @@ public class InlineFunctionsTest extends CompilerTestCase {
   // is cheaper than the call itself.
   @Test
   public void testCrossChunkInlining2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("foo()")
                 .addChunk("function foo(){return f(1)+g(2)+h(3);}")
                 .build()));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 // m1
                 .addChunk("foo()")
                 // m2
                 .addChunk("function foo(){return f();}")
                 .build()),
-        expected( // m1
+        expectedStringVarargs( // m1
             "f();",
             // m2
             ""));
@@ -3527,8 +3527,8 @@ public class InlineFunctionsTest extends CompilerTestCase {
   // is cheaper than the call itself.
   @Test
   public void testCrossChunkInlining3() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("foo()")
                 .addChunk("function foo(){return f(1)+g(2)+h(3);}")
@@ -3536,13 +3536,13 @@ public class InlineFunctionsTest extends CompilerTestCase {
                 .build()));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("foo()")
                 .addChunk("function foo(){return f();}")
                 .addChunk("foo()")
                 .build()),
-        expected(
+        expectedStringVarargs(
             // m1
             "f();",
             // m2

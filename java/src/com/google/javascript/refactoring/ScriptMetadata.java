@@ -45,7 +45,7 @@ public final class ScriptMetadata {
   private final LinkedHashMap<String, String> requireAliases = new LinkedHashMap<>();
   private final LinkedHashSet<String> namesInUse = new LinkedHashSet<>();
 
-  static ScriptMetadata create(Node script, NodeMetadata metadata) {
+  static ScriptMetadata createNodeMetadata(Node script, NodeMetadata metadata) {
     return create(script, metadata.getCompiler());
   }
 

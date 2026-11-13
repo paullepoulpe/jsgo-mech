@@ -124,8 +124,8 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
 
   void testModules(String input, String expected) {
     test(
-        srcs(other, SourceFile.fromCode("testcode", input)),
-        expected(otherExpected, SourceFile.fromCode("testcode", expected)));
+        srcsSourceFileVarargs(other, SourceFile.fromCode("testcode", input)),
+        expectedSourceFileVarargs(otherExpected, SourceFile.fromCode("testcode", expected)));
   }
 
   @Test
@@ -207,7 +207,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testTypeNodeRewriting() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "other.js",
                 """
@@ -221,7 +221,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import * as name from './other.js';
                 /** @type {name.a} */ var x;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "other.js",
                 """
@@ -319,8 +319,8 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
 
   @Test
   public void testModulesInExterns() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "externsMod.js",
                 """
@@ -334,7 +334,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   public void testModulesInTypeSummary() {
     allowExternsChanges();
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "mod1.js",
                 """
@@ -347,7 +347,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import {externalName as localName} from './mod1.js'
                 alert(localName);
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "mod2.js",
                 """
@@ -681,7 +681,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testExportFrom() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             other,
             SourceFile.fromCode(
                 "testcode",
@@ -690,7 +690,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 export {default} from './other.js';
                 export {class} from './other.js';
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -702,8 +702,8 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 """)));
 
     test(
-        srcs(other, SourceFile.fromCode("testcode", "export {a, b as c, x} from './other.js';")),
-        expected(
+        srcsSourceFileVarargs(other, SourceFile.fromCode("testcode", "export {a, b as c, x} from './other.js';")),
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -715,8 +715,8 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 """)));
 
     test(
-        srcs(other, SourceFile.fromCode("testcode", "export {a as b, b as a} from './other.js';")),
-        expected(
+        srcsSourceFileVarargs(other, SourceFile.fromCode("testcode", "export {a as b, b as a} from './other.js';")),
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -727,7 +727,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 """)));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             other,
             SourceFile.fromCode(
                 "testcode",
@@ -736,7 +736,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 export {a as a2, default as b} from './other.js';
                 export {class as switch} from './other.js';
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -1057,12 +1057,12 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   public void testAbsoluteImportsWithModuleRoots() {
     moduleRoots = ImmutableList.of("/base");
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("base", "mod", "name.js"), ""),
             SourceFile.fromCode(
                 Compiler.joinPathParts("base", "test", "sub.js"),
                 "import * as foo from '/mod/name.js';")),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("base", "mod", "name.js"), ""),
             SourceFile.fromCode(
                 Compiler.joinPathParts("base", "test", "sub.js"),
@@ -1118,7 +1118,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testImportAliasInTypeNode() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode(
                 "b.js",
@@ -1126,7 +1126,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import {A as B} from './a.js';
                 const /** !B */ b = new B();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1205,7 +1205,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testTransitiveImport() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode("b.js", "export {A} from './a.js';"),
             SourceFile.fromCode(
@@ -1214,7 +1214,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import {A} from './b.js';
                 let /** !A */ a = new A();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1235,7 +1235,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 /** @const */ var module$c = {};
                 """)));
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode("b.js", "export {A as B} from './a.js';"),
             SourceFile.fromCode(
@@ -1244,7 +1244,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import {B as C} from './b.js';
                 let /** !C */ a = new C();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1269,7 +1269,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testMutableTransitiveImport() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export let A = class {}; () => (A = class {});"),
             SourceFile.fromCode("b.js", "export {A} from './a.js';"),
             SourceFile.fromCode(
@@ -1278,7 +1278,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import {A} from './b.js';
                 let /** !A */ a = new A();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1302,7 +1302,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 /** @const */ var module$c = {};
                 """)));
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export let A = class {}; () => (A = class {});"),
             SourceFile.fromCode("b.js", "export {A as B} from './a.js';"),
             SourceFile.fromCode(
@@ -1311,7 +1311,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import {B as C} from './b.js';
                 let /** !C */ a = new C();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1339,7 +1339,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testRewriteGetPropsWhileModuleReference() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode(
                 "b.js",
@@ -1353,7 +1353,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import * as b from './b.js';
                 let /** !b.a.A */ a = new b.a.A();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1378,7 +1378,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testRewritePropsWhenNotModuleReference() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("other.js", "export const name = {}, a = { Type: class {} };"),
             SourceFile.fromCode(
                 "testcode",
@@ -1386,7 +1386,7 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
                 import * as name from './other.js';
                 let /** !name.a.Type */ t = new name.a.Type();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "other.js",
                 """
@@ -1445,14 +1445,14 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
         exports = {assert};
         """;
     test(
-        srcs(
+        srcsStringVarargs(
             closureBase,
             googAsserts,
             """
             import {assert} from 'goog:goog.asserts';
             assert(1 < 2);
             """),
-        expected(
+        expectedStringVarargs(
             closureBase,
             googAsserts,
             """
@@ -1466,10 +1466,10 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   public void testImportDot() {
     setModuleResolutionMode(ModuleLoader.ResolutionMode.NODE);
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("mod/index.js", "export const foo = 1;"),
             SourceFile.fromCode("mod/sub.js", "import {foo} from '.'; use(foo);")),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "mod/index.js",
                 """
@@ -1489,10 +1489,10 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   public void testImportDotDot() {
     setModuleResolutionMode(ModuleLoader.ResolutionMode.NODE);
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("mod/index.js", "export const foo = 1;"),
             SourceFile.fromCode("mod/sub/sub.js", "import {foo} from '..'; use(foo);")),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "mod/index.js",
                 """
@@ -1511,11 +1511,11 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testEs6RenameTypeReferences() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("mod/other.js", "export class Foo {}"),
             SourceFile.fromCode(
                 "mod/app.js", "import {Foo} from './other.js'; /** @type {Foo} */ var x;")),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "mod/other.js",
                 """
@@ -1535,10 +1535,10 @@ public final class Es6RewriteModulesTest extends CompilerTestCase {
   @Test
   public void testModuleRenaming() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("mod/other.js", "export class Foo {}"),
             SourceFile.fromCode("mod/app.js", "import {Foo} from './other.js'; use(Foo);")),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "mod/other.js",
                 """

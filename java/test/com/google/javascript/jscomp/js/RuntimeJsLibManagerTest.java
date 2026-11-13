@@ -131,7 +131,7 @@ public class RuntimeJsLibManagerTest {
     Node injected = manager.ensureLibraryInjected("lib", /* force= */ false);
 
     assertThat(manager.getInjectedLibraries()).containsExactly("lib");
-    assertNode(script).isEqualTo(js("function foo() {} 0;"));
+    assertNode(script).isEqualToNode(js("function foo() {} 0;"));
     assertNode(script).hasSecondChildThat().isSameInstanceAs(injected);
   }
 
@@ -166,7 +166,7 @@ public class RuntimeJsLibManagerTest {
 
     Node injected = manager.ensureLibraryInjected("lib", /* force= */ false);
 
-    assertNode(script).hasFirstChildThat().isEqualTo(injected);
+    assertNode(script).hasFirstChildThat().isEqualToNode(injected);
     assertNode(script).hasSecondChildThat().isSameInstanceAs(existing);
   }
 
@@ -185,7 +185,7 @@ public class RuntimeJsLibManagerTest {
 
     assertNode(script).hasFirstChildThat().isSameInstanceAs(injected0);
     assertNode(script).hasSecondChildThat().isSameInstanceAs(injected1);
-    assertNode(script).isEqualTo(js("0; 1;"));
+    assertNode(script).isEqualToNode(js("0; 1;"));
   }
 
   @Test
@@ -222,7 +222,7 @@ public class RuntimeJsLibManagerTest {
     assertNode(script).hasSecondChildThat().isSameInstanceAs(childA);
     assertNode(script).hasLastChildThat().isSameInstanceAs(childB);
     assertNode(script)
-        .isEqualTo(
+        .isEqualToNode(
             js(
                 """
                 print('in BASE');
@@ -249,7 +249,7 @@ public class RuntimeJsLibManagerTest {
 
     Node injected = manager.ensureLibraryInjected("lib", /* force= */ false);
 
-    assertNode(injected).isEqualTo(js("0;").getOnlyChild());
+    assertNode(injected).isEqualToNode(js("0;").getOnlyChild());
     assertNode(script).hasOneChild();
     assertThat(manager.getInjectedLibraries()).containsExactly("lib");
   }
@@ -446,7 +446,7 @@ public class RuntimeJsLibManagerTest {
     manager.ensureLibraryInjected("lib", /* force= */ true);
 
     assertThat(manager.getInjectedLibraries()).containsExactly("lib");
-    assertNode(script).isEqualTo(js("0;"));
+    assertNode(script).isEqualToNode(js("0;"));
   }
 
   @Test
@@ -467,7 +467,7 @@ public class RuntimeJsLibManagerTest {
     assertThat(externedFields).hasSize(1);
     assertThat(externedFields.get(0).uncompiledName()).isEqualTo("$jscomp.inherits");
     assertThat(externedFields.get(0).qualifiedName()).isEqualTo("$jscomp_inherits");
-    assertNode(externs).isEqualTo(js("var $jscomp_inherits;"));
+    assertNode(externs).isEqualToNode(js("var $jscomp_inherits;"));
     assertThat(externs.getOnlyChild().getOnlyChild().getBooleanProp(Node.IS_CONSTANT_NAME))
         .isTrue();
   }
@@ -486,7 +486,7 @@ public class RuntimeJsLibManagerTest {
     manager.injectLibForField("$jscomp.inherits");
     manager.injectLibForField("$jscomp.inherits");
 
-    assertNode(externs).isEqualTo(js("var $jscomp_inherits;"));
+    assertNode(externs).isEqualToNode(js("var $jscomp_inherits;"));
   }
 
   @Test

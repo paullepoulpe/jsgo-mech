@@ -391,7 +391,7 @@ public final class DisambiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void propertiesAreConflated_betweenUnionAncestors_andTypesMismatchedWithTheUnion() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo0 {
@@ -627,7 +627,7 @@ public final class DisambiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void propertiesAreInvalidated_onObjectLiteralTypes() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             const z = {ab: 0};
@@ -640,7 +640,7 @@ public final class DisambiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void propertiesAreDisambiguated_acrossStructuralTypeMatches_iffMatchUsed() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @record */
@@ -702,7 +702,7 @@ public final class DisambiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void propertiesAreDisambiguated_acrossTypeMismatches() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo0 {
@@ -1058,7 +1058,7 @@ public final class DisambiguatePropertiesTest extends CompilerTestCase {
 
   @Test
   public void classComputedField() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             class Foo {

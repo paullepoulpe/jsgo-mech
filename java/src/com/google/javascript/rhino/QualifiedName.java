@@ -304,7 +304,7 @@ public abstract class QualifiedName {
 
     @Override
     public boolean matches(Node n) {
-      return n.matchesQualifiedName(node);
+      return n.matchesQualifiedNameNode(node);
     }
 
     @Override

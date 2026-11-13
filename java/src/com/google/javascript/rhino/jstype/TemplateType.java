@@ -67,8 +67,9 @@ public final class TemplateType extends ProxyObjectType {
     this(registry, name, bound, null);
   }
 
-  TemplateType(JSTypeRegistry registry, String name, Node typeTransformation) {
-    this(registry, name, null, typeTransformation);
+  static TemplateType createFromTypeTransformation(
+      JSTypeRegistry registry, String name, Node typeTransformation) {
+    return new TemplateType(registry, name, null, typeTransformation);
   }
 
   private TemplateType(
@@ -101,7 +102,7 @@ public final class TemplateType extends ProxyObjectType {
       // This is an unbound template, don't print it's bound
       sb.append(this.name);
     } else {
-      sb.append(this.name).append(" extends ").append(bound);
+      sb.append(this.name).append(" extends ").appendJSType(bound);
     }
   }
 

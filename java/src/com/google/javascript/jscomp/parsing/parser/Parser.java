@@ -973,7 +973,7 @@ public class Parser {
     FormalParameterListTree parameterList = parseFormalParameterList();
 
     if (parameterList.parameters.size() != 1) {
-      reportError(
+      reportErrorParseTree(
           parameterList,
           "Setter must have exactly 1 parameter, found %d",
           parameterList.parameters.size());
@@ -982,7 +982,7 @@ public class Parser {
     if (parameterList.parameters.size() >= 1) {
       ParseTree parameter = parameterList.parameters.get(0);
       if (parameter.isRestParameter()) {
-        reportError(parameter, "Setter must not have a rest parameter");
+        reportErrorParseTree(parameter, "Setter must not have a rest parameter");
       }
     }
 
@@ -2078,7 +2078,7 @@ public class Parser {
       if (peek(1, TokenType.CLOSE_PAREN)) {
         // Create the formal parameter list here so we can record
         // the trailing comma
-        resetScanner(start);
+        resetScannerSourcePosition(start);
         // If we fail to parse as an ArrowFunction parameter list then
         // parseFormalParameterList will take care of reporting errors.
         return parseFormalParameterList();
@@ -2296,7 +2296,7 @@ public class Parser {
         arrowParameterList = parseFormalParameterList();
       }
       default -> {
-        reportError(leftOfArrow, "invalid arrow function parameters");
+        reportErrorParseTree(leftOfArrow, "invalid arrow function parameters");
         arrowParameterList = newEmptyFormalParameterList(leftOfArrow.location);
       }
     }
@@ -2395,7 +2395,7 @@ public class Parser {
     return parsePattern(PatternKind.ANY);
   }
 
-  private void resetScanner(SourcePosition start) {
+  private void resetScannerSourcePosition(SourcePosition start) {
     // TODO(bradfordcsmith): lastSourcePosition should really point to the end of the last token
     //     before the tree to correctly detect implicit semicolons, but it doesn't matter for the
     //     current use case.
@@ -3350,7 +3350,7 @@ public class Parser {
 
     if (typeToCheck == TokenType.IDENTIFIER) {
       String value = token.asIdentifier().getMaybePrivateValue();
-      Keywords k = Keywords.get(value);
+      Keywords k = Keywords.getString(value);
       if (k == null) {
         return true;
       }
@@ -3550,7 +3550,7 @@ public class Parser {
    * @param arguments The arguments to fill in the message format.
    */
   @FormatMethod
-  private void reportError(ParseTree parseTree, @FormatString String message, Object... arguments) {
+  private void reportErrorParseTree(ParseTree parseTree, @FormatString String message, Object... arguments) {
     if (parseTree == null) {
       reportError(message, arguments);
     } else {
@@ -3577,7 +3577,7 @@ public class Parser {
    * @param arguments The arguments to fill in the message format.
    */
   @FormatMethod
-  private void reportError(
+  private void reportErrorSourcePosition(
       SourcePosition position, @FormatString String message, Object... arguments) {
     errorReporter.reportError(position, message, arguments);
   }
@@ -3592,7 +3592,7 @@ public class Parser {
         return;
       }
       case ERROR -> {
-        reportError(templateToken.errorPosition, "%s", templateToken.errorMessage);
+        reportErrorSourcePosition(templateToken.errorPosition, "%s", templateToken.errorMessage);
         return;
       }
     }

@@ -22,12 +22,12 @@ import java.util.function.Supplier;
 final class NoOpLogFile extends LogFile {
 
   @Override
-  public LogFile log(Object value) {
+  public LogFile logObject(Object value) {
     return this;
   }
 
   @Override
-  public LogFile log(String value) {
+  public LogFile logString(String value) {
     return this;
   }
 
@@ -42,12 +42,12 @@ final class NoOpLogFile extends LogFile {
   }
 
   @Override
-  public LogFile logJson(Object value) {
+  public LogFile logJsonObject(Object value) {
     return this;
   }
 
   @Override
-  public LogFile logJson(Supplier<Object> value) {
+  public LogFile logJsonSupplier(Supplier<Object> value) {
     return this;
   }
 

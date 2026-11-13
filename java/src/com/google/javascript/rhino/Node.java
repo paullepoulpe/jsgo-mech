@@ -2358,7 +2358,7 @@ public final class Node {
    */
   @Deprecated
   final boolean isEquivalentTo(Node node, boolean compareType, boolean recurse, boolean jsDoc) {
-    return isEquivalentTo(node, compareType, recurse, jsDoc, false);
+    return isEquivalentToBoolean(node, compareType, recurse, jsDoc, false);
   }
 
   /**
@@ -2373,7 +2373,7 @@ public final class Node {
    *     SideEffectComparison)} instead.
    */
   @Deprecated
-  public final boolean isEquivalentTo(
+  public final boolean isEquivalentToBoolean(
       Node node, boolean compareType, boolean recurse, boolean jsDoc, boolean sideEffect) {
     return isEquivalentTo(
         node,
@@ -2669,7 +2669,7 @@ public final class Node {
    * string is not considered a valid Name (it is an AST placeholder), empty strings are never
    * considered to be matches.
    */
-  public final boolean matchesName(Node n) {
+  public final boolean matchesNameNode(Node n) {
     if (token != Token.NAME || n.token != Token.NAME) {
       return false;
     }
@@ -2722,20 +2722,20 @@ public final class Node {
    * Returns whether a node matches a simple or a qualified name, such as <code>x</code> or <code>
    * a.b.c</code> or <code>this.a</code>.
    */
-  public final boolean matchesQualifiedName(Node n) {
+  public final boolean matchesQualifiedNameNode(Node n) {
     if (n.token != token) {
       return false;
     }
 
     switch (token) {
       case NAME:
-        return this.matchesName(n);
+        return this.matchesNameNode(n);
       case THIS:
       case SUPER:
         return true;
       case GETPROP:
         return RhinoStringPool.uncheckedEquals(this.getString(), n.getString())
-            && getFirstChild().matchesQualifiedName(n.getFirstChild());
+            && getFirstChild().matchesQualifiedNameNode(n.getFirstChild());
 
       case MEMBER_FUNCTION_DEF:
       // These are explicitly *not* qualified name components.
@@ -3198,7 +3198,7 @@ public final class Node {
    * Marks this function or constructor call's side effect flags. This property is only meaningful
    * for {@link Token#CALL} and {@link Token#NEW} nodes.
    */
-  public final void setSideEffectFlags(int flags) {
+  public final void setSideEffectFlagsInt(int flags) {
     checkState(
         this.isCall() || this.isOptChainCall() || this.isNew() || this.isTaggedTemplateLit(),
         "Side-effect flags can only be set on invocation nodes; got %s",
@@ -3213,7 +3213,7 @@ public final class Node {
   }
 
   public final void setSideEffectFlags(SideEffectFlags flags) {
-    setSideEffectFlags(flags.valueOf());
+    setSideEffectFlagsInt(flags.valueOf());
   }
 
   /** Returns the side effects flags for this node. */

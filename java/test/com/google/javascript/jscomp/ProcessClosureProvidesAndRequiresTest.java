@@ -107,7 +107,7 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
 
   @Test
   public void testTypedefProvidesWithExplicitParentNamespace_errorInCollectProvidesMode() {
-    testError(
+    testErrorDiagnostic(
         srcs(
             """
             goog.provide('foo.bar');
@@ -435,7 +435,7 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
   @Test
   public void testProvideAfterDeclaration_noErrorInExterns() {
     test(
-        externs(DEFAULT_EXTERNS, "var x = {};"),
+        externsStringVarargs(DEFAULT_EXTERNS, "var x = {};"),
         srcs("goog.provide('x');"),
         expected("/** @const */ var x = {}"));
   }
@@ -547,7 +547,7 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
     allowExternsChanges();
 
     test(
-        externs(
+        externsStringVarargs(
             DEFAULT_EXTERNS,
             """
             /** @externs */ goog.provide('animals.Dog');
@@ -571,55 +571,55 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
   @Test
   public void testGoodCrossChunkRequire1() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("goog.provide('goog.ui');")
                 .addChunk("")
                 .addChunk("goog.require('goog.ui');")
                 .build()),
-        expected("/** @const */ goog.ui = {};", "", ""));
+        expectedStringVarargs("/** @const */ goog.ui = {};", "", ""));
   }
 
   @Test
   public void testGoodCrossChunkRequire2() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("")
                 .addChunk("")
                 .addChunk("")
                 .addChunk("goog.provide('goog.ui'); goog.require('goog.ui');")
                 .build()),
-        expected("", "", "", "/** @const */ goog.ui = {};"));
+        expectedStringVarargs("", "", "", "/** @const */ goog.ui = {};"));
   }
 
   @Test
   public void testCrossChunkRequireType() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("")
                 .addChunk("goog.requireType('goog.ui');")
                 .addChunk("")
                 .addChunk("goog.provide('goog.ui')")
                 .build()),
-        expected("", "", "", "/** @const */ goog.ui = {};"));
+        expectedStringVarargs("", "", "", "/** @const */ goog.ui = {};"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk("")
                 .addChunk("")
                 .addChunk("goog.provide('goog.ui');")
                 .addChunk("goog.requireType('goog.ui');")
                 .build()),
-        expected("", "", "/** @const */ goog.ui = {};", ""));
+        expectedStringVarargs("", "", "/** @const */ goog.ui = {};", ""));
   }
 
   @Test
   public void testNamespaceInExterns() {
     // Note: This style is not recommended but the compiler sort-of supports it.
     test(
-        externs(DEFAULT_EXTERNS, "var root = {}; /** @type {number} */ root.someProperty;"),
+        externsStringVarargs(DEFAULT_EXTERNS, "var root = {}; /** @type {number} */ root.someProperty;"),
         srcs(
             """
             goog.provide('root.branch.Leaf')
@@ -638,7 +638,7 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
   public void testNamespaceInExterns_withExplicitNamespaceReinitialization() {
     // Note: This style is not recommended but the compiler sort-of supports it.
     test(
-        externs(DEFAULT_EXTERNS, "var root = {}; /** @type {number} */ root.someProperty;"),
+        externsStringVarargs(DEFAULT_EXTERNS, "var root = {}; /** @type {number} */ root.someProperty;"),
         srcs(
             """
             goog.provide('root.branch.Leaf')
@@ -780,7 +780,7 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
   public void testImplicitProvideInIndependentChunks_onGoogNamespace() {
     test(
         externs(""), // exclude the default Closure externs
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -791,7 +791,7 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
                 .addChunk("goog.provide('goog.foo.A');")
                 .addChunk("goog.provide('goog.foo.B');")
                 .build()),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */
             var goog = {};
@@ -1061,6 +1061,6 @@ public class ProcessClosureProvidesAndRequiresTest extends CompilerTestCase {
   }
 
   private void testChunk(String[] chunkInputs, String[] expected) {
-    test(srcs(JSChunkGraphBuilder.forStar().addChunks(chunkInputs).build()), expected(expected));
+    test(srcsJSChunkVarargs(JSChunkGraphBuilder.forStar().addChunks(chunkInputs).build()), expectedStringVarargs(expected));
   }
 }

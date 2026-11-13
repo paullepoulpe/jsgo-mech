@@ -49,7 +49,7 @@ public class FeatureSetSubject extends Subject {
   }
 
   public void contains(FeatureSet other) {
-    if (!actual.contains(other)) {
+    if (!actual.containsFeatureSet(other)) {
       failWithoutActual(
           simpleFact(
               lenientFormat("Expected a FeatureSet containing: %s\nBut got: %s", other, actual)));

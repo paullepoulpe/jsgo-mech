@@ -19,6 +19,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
+import static com.google.javascript.jscomp.AstFactory.typeColorId;
 
 import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.jscomp.js.RuntimeJsLibManager.JsLibField;
@@ -57,7 +59,7 @@ import org.jspecify.annotations.Nullable;
 public final class RewriteAsyncIteration implements NodeTraversal.Callback, CompilerPass {
 
   private static final FeatureSet transpiledFeatures =
-      FeatureSet.BARE_MINIMUM.with(Feature.ASYNC_GENERATORS, Feature.FOR_AWAIT_OF);
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.ASYNC_GENERATORS, Feature.FOR_AWAIT_OF);
 
   static final DiagnosticType CANNOT_CONVERT_ASYNCGEN =
       DiagnosticType.error("JSC_CANNOT_CONVERT_ASYNCGEN", "Cannot convert async generator. {0}");
@@ -349,7 +351,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
             astFactory.createReturn(
                 astFactory.createNewNode(
                     asyncGeneratorWrapperRef,
-                    astFactory.createCall(innerFunction, type(StandardColors.GENERATOR_ID)))));
+                    astFactory.createCall(innerFunction, typeColorId(StandardColors.GENERATOR_ID)))));
     originalFunction.addChildToBack(outerBlock);
 
     originalFunction.setIsAsyncFunction(false);
@@ -542,7 +544,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
             .srcrefTreeIfMissing(rhs);
 
     // IIterableResult<VALUE> - it's a structural type so optimizations treat it as Object
-    AstFactory.Type iterableResultType = type(StandardColors.TOP_OBJECT);
+    AstFactory.Type iterableResultType = typeColor(StandardColors.TOP_OBJECT);
 
     // Create code `if (tmpRes.done) {break;}`
     Node breakIfDone =
@@ -550,7 +552,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
             astFactory.createGetProp(
                 astFactory.createName(resultTempName, iterableResultType),
                 "done",
-                type(StandardColors.BOOLEAN)),
+                typeColor(StandardColors.BOOLEAN)),
             astFactory.createBlock(astFactory.createBreak()));
 
     // Assignment statement to be moved from lhs into body of new for-loop
@@ -612,12 +614,12 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
     // Generate `tmpRes = void 0;`
     Node resetTempResult =
         astFactory.exprResult(
-            astFactory.createAssign(resultTempName, astFactory.createUndefinedValue()));
+            astFactory.createAssignString(resultTempName, astFactory.createUndefinedValue()));
 
     // Generate `tmpRes = await tmpIterator.next()`
     Node resultDeclaration =
         astFactory.exprResult(
-            astFactory.createAssign(
+            astFactory.createAssignString(
                 resultTempName,
                 constructAwaitNextResult(ctx, iteratorTempName, resultType, iterableResultType)));
 
@@ -677,7 +679,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
     // Generate `errorRes = { error: e };`
     Node catchBodyStmt =
         astFactory.exprResult(
-            astFactory.createAssign(
+            astFactory.createAssignString(
                 errorResultTempName,
                 astFactory.createObjectLit(
                     astFactory.createStringKey(
@@ -719,7 +721,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
         astFactory.createGetProp(
             astFactory.createName(resultTempName, iterableResultType),
             "done",
-            type(StandardColors.BOOLEAN));
+            typeColor(StandardColors.BOOLEAN));
 
     // Generate `tmpRes && !tmpRes.done`
     Node and = astFactory.createAnd(tmpResNameNode, astFactory.createNot(tmpResDoneGetProp));
@@ -731,7 +733,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
             astFactory.createGetProp(
                 astFactory.createName(iteratorTempName, resultType),
                 "return",
-                type(StandardColors.UNKNOWN)));
+                typeColor(StandardColors.UNKNOWN)));
 
     // Generate `(tmpRes && !tmpRes.done && (retFn = _tmpIterator.return))`
     Node ifCond = astFactory.createAnd(and, assign);
@@ -748,9 +750,9 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
                       astFactory.createCall(
                           astFactory.createGetPropWithUnknownType(
                               astFactory.createName(
-                                  returnFuncTempName, type(StandardColors.UNKNOWN)),
+                                  returnFuncTempName, typeColor(StandardColors.UNKNOWN)),
                               "call"),
-                          type(StandardColors.UNKNOWN),
+                          typeColor(StandardColors.UNKNOWN),
                           astFactory.createName(iteratorTempName, resultType)))));
     } else {
       //  Generate `await retFn.call(tmpIterator);`
@@ -760,9 +762,9 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
                   iterableResultType,
                   astFactory.createCall(
                       astFactory.createGetPropWithUnknownType(
-                          astFactory.createName(returnFuncTempName, type(StandardColors.UNKNOWN)),
+                          astFactory.createName(returnFuncTempName, typeColor(StandardColors.UNKNOWN)),
                           "call"),
-                      type(StandardColors.PROMISE_ID),
+                      typeColorId(StandardColors.PROMISE_ID),
                       astFactory.createName(iteratorTempName, resultType))));
     }
 
@@ -825,7 +827,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
               iterableResultType,
               astFactory.createCall(
                   astFactory.createGetPropWithUnknownType(iteratorTemp, "next"),
-                  type(StandardColors.PROMISE_ID)));
+                  typeColorId(StandardColors.PROMISE_ID)));
     }
 
     return result;
@@ -876,7 +878,7 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
     // super.x   =>   $super$get$x()
     Node getPropReplacement =
         astFactory.createCall(
-            astFactory.createName(propertyReplacementNameText, type(StandardColors.TOP_OBJECT)),
+            astFactory.createName(propertyReplacementNameText, typeColor(StandardColors.TOP_OBJECT)),
             type(parent));
     Node grandparent = parent.getParent();
     if (grandparent.isCall() && grandparent.getFirstChild() == parent) {

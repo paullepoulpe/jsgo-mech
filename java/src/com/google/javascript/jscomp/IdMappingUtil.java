@@ -149,7 +149,7 @@ public final class IdMappingUtil {
     return mapBuilder.buildKeepingLast();
   }
 
-  public static Map<String, BiMap<String, String>> parseSerializedIdMappings(BufferedReader br)
+  public static Map<String, BiMap<String, String>> parseSerializedIdMappingsBufferedReader(BufferedReader br)
       throws IOException {
     Map<String, BiMap<String, String>> resultMap = new LinkedHashMap<>();
     MappingReader mr = new MappingReader(br);
@@ -182,7 +182,7 @@ public final class IdMappingUtil {
       return ImmutableMap.of();
     }
     try (BufferedReader br = new BufferedReader(new StringReader(idMappings))) {
-      return parseSerializedIdMappings(br);
+      return parseSerializedIdMappingsBufferedReader(br);
     } catch (IOException e) {
       throw new IllegalArgumentException("Failed to parse id mappings", e);
     }

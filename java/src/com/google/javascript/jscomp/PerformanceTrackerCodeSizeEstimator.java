@@ -34,7 +34,7 @@ final class PerformanceTrackerCodeSizeEstimator extends CodeConsumer {
   static PerformanceTrackerCodeSizeEstimator estimate(Node jsRoot, boolean trackGzSize) {
     PerformanceTrackerCodeSizeEstimator estimator = new PerformanceTrackerCodeSizeEstimator(
         trackGzSize);
-    CodeGenerator.forCostEstimation(estimator).add(jsRoot);
+    CodeGenerator.forCostEstimation(estimator).addNode(jsRoot);
     return estimator;
   }
 

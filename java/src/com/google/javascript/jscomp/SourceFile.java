@@ -552,7 +552,7 @@ public final class SourceFile implements StaticSourceFile {
   }
 
   public static SourceFile fromPath(Path path, Charset charset) {
-    return builder().withPath(path).withCharset(charset).build();
+    return builder().withPathPath(path).withCharset(charset).build();
   }
 
   public static SourceFile fromCode(String fileName, String code, SourceKind kind) {
@@ -793,7 +793,7 @@ public final class SourceFile implements StaticSourceFile {
     }
 
     @CanIgnoreReturnValue
-    public Builder withPath(Path path) {
+    public Builder withPathPath(Path path) {
       return this.withPathInternal(path.toString(), path);
     }
 
@@ -804,7 +804,7 @@ public final class SourceFile implements StaticSourceFile {
     }
 
     @CanIgnoreReturnValue
-    public Builder withContent(InputStream x) {
+    public Builder withContentInputStream(InputStream x) {
       this.lazyContent =
           () -> {
             checkState(this.charset != null);

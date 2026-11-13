@@ -256,7 +256,7 @@ public abstract class AbstractCompiler implements SourceExcerptProvider, Compile
 
   /** Parses code for testing. */
   @VisibleForTesting
-  abstract Node parseTestCode(ImmutableList<String> code);
+  abstract Node parseTestCodeImmutableList(ImmutableList<String> code);
 
   /** Prints a node to source code. */
   public abstract String toSource();

@@ -155,7 +155,7 @@ final class EqualityChecker {
 
     if (cached == null) {
       boolean result = this.areEqualInternal(left, right);
-      this.eqCache.put(key, MatchStatus.valueOf(result));
+      this.eqCache.put(key, MatchStatus.valueOfBoolean(result));
       return result;
     }
 

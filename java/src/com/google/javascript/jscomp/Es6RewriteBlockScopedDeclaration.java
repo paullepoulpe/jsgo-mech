@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -49,7 +50,7 @@ public final class Es6RewriteBlockScopedDeclaration extends AbstractPostOrderCal
   private final AstFactory astFactory;
   private final Set<Node> letConsts = new LinkedHashSet<>();
   private static final FeatureSet transpiledFeatures =
-      FeatureSet.BARE_MINIMUM.with(Feature.LET_DECLARATIONS, Feature.CONST_DECLARATIONS);
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.LET_DECLARATIONS, Feature.CONST_DECLARATIONS);
   private final UniqueIdSupplier uniqueIdSupplier;
 
   private static final String LOOP_PARAM_NAME_PREFIX = "$jscomp$loop_param$";
@@ -594,7 +595,7 @@ public final class Es6RewriteBlockScopedDeclaration extends AbstractPostOrderCal
                 "",
                 IR.paramList(parameterNames),
                 IR.block(returnNode),
-                type(StandardColors.TOP_OBJECT));
+                typeColor(StandardColors.TOP_OBJECT));
         compiler.reportChangeToChangeScope(iife);
         Node call = astFactory.createCall(iife, type(functionOrObjectLit), objectNamesForCall);
         call.putBooleanProp(Node.FREE_CALL, true);
@@ -802,11 +803,11 @@ public final class Es6RewriteBlockScopedDeclaration extends AbstractPostOrderCal
           loopObject.name
               + LOOP_PARAM_NAME_PREFIX
               + uniqueIdSupplier.getUniqueId(compiler.getInput(NodeUtil.getInputId(node))),
-          type(StandardColors.TOP_OBJECT));
+          typeColor(StandardColors.TOP_OBJECT));
     }
 
     private Node createLoopObjectNameNode(LoopObject loopObject) {
-      return astFactory.createName(loopObject.name, type(StandardColors.TOP_OBJECT));
+      return astFactory.createName(loopObject.name, typeColor(StandardColors.TOP_OBJECT));
     }
 
     private static class LoopObject {

@@ -423,7 +423,7 @@ public abstract class CompilerTestCase {
   }
 
   /** Adds the given DiagnosticGroups to the set of warnings to ignore. */
-  protected final void ignoreWarnings(DiagnosticGroup... warnings) {
+  protected final void ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroup... warnings) {
     checkState(this.setUpRan, "Attempted to configure before running setUp().");
     for (DiagnosticGroup group : warnings) {
       ignoredWarnings.addAll(group.getTypes());
@@ -824,13 +824,13 @@ public abstract class CompilerTestCase {
   }
 
   /** Verifies that the compiler generates the given error and description for the given input. */
-  protected void testError(Sources srcs, Diagnostic error) {
+  protected void testErrorDiagnostic(Sources srcs, Diagnostic error) {
     assertThat(error.level).isEqualTo(CheckLevel.ERROR);
     test(srcs, error);
   }
 
   /** Verifies that the compiler generates the given error and description for the given input. */
-  protected void testError(Externs externs, Sources srcs, Diagnostic error) {
+  protected void testErrorExterns(Externs externs, Sources srcs, Diagnostic error) {
     assertThat(error.level).isEqualTo(CheckLevel.ERROR);
     test(externs, srcs, error);
   }
@@ -841,7 +841,7 @@ public abstract class CompilerTestCase {
    * @param js Input
    * @param error Expected error
    */
-  protected void testError(Sources js, DiagnosticType error) {
+  protected void testErrorSourcesDiagnosticType(Sources js, DiagnosticType error) {
     assertThat(error).isNotNull();
     test(js, error(error));
   }
@@ -863,7 +863,7 @@ public abstract class CompilerTestCase {
    * @param srcs Inputs
    * @param warning Expected warning
    */
-  protected void testWarning(Sources srcs, Diagnostic warning) {
+  protected void testWarningDiagnostic(Sources srcs, Diagnostic warning) {
     assertThat(warning.level).isEqualTo(CheckLevel.WARNING);
     test(srcs, warning);
   }
@@ -875,13 +875,13 @@ public abstract class CompilerTestCase {
    * @param srcs The input
    * @param warning Expected warning
    */
-  protected void testWarning(Externs externs, Sources srcs, Diagnostic warning) {
+  protected void testWarningExterns(Externs externs, Sources srcs, Diagnostic warning) {
     assertThat(warning.level).isEqualTo(CheckLevel.WARNING);
     test(externs, srcs, warning);
   }
 
   /** Verifies that the compiler generates the given warning for the given input. */
-  protected void testWarning(Sources srcs, DiagnosticType warning) {
+  protected void testWarningSourcesDiagnosticType(Sources srcs, DiagnosticType warning) {
     assertThat(warning).isNotNull();
     test(srcs, warning(warning));
   }
@@ -914,7 +914,7 @@ public abstract class CompilerTestCase {
   }
 
   /** Verifies that the compiler generates no warnings for the given input. */
-  protected void testNoWarning(Sources srcs) {
+  protected void testNoWarningSources(Sources srcs) {
     test(srcs);
   }
 
@@ -933,7 +933,7 @@ public abstract class CompilerTestCase {
    * @param diagnostic Expected warning or error
    */
   protected void test(String js, String expected, Diagnostic diagnostic) {
-    test(externs(defaultExternsInputs), srcs(js), expected(expected), diagnostic);
+    test(externsList(defaultExternsInputs), srcs(js), expected(expected), diagnostic);
   }
 
   protected void testInternal(
@@ -986,10 +986,10 @@ public abstract class CompilerTestCase {
     if (sources == null) {
       return null;
     }
-    return createSources(name, ImmutableList.copyOf(sources));
+    return createSourcesList(name, ImmutableList.copyOf(sources));
   }
 
-  private static @Nullable List<SourceFile> createSources(String name, List<String> sources) {
+  private static @Nullable List<SourceFile> createSourcesList(String name, List<String> sources) {
     if (sources == null) {
       return null;
     }
@@ -1043,7 +1043,7 @@ public abstract class CompilerTestCase {
         && expectedObj.expected != null
         && inputsObj instanceof FlatSources flatSources) {
       expectedObj =
-          expected(
+          expectedList(
               UnitTestUtils.updateGenericVarNamesInExpectedFiles(
                   flatSources, expectedObj, genericNameReplacements, genericNameMapping));
     }
@@ -1472,7 +1472,7 @@ public abstract class CompilerTestCase {
     if (externsChange && !allowExternsChanges) {
       assertNode(externsRoot)
           .usingSerializer(createPrettyPrinter(compiler))
-          .isEqualTo(externsRootClone);
+          .isEqualToNode(externsRootClone);
     }
     if (checkAstChangeMarking) {
       if (!codeChange && !externsChange) {
@@ -1500,7 +1500,7 @@ public abstract class CompilerTestCase {
       assertNode(mainRoot)
           .usingSerializer(createPrettyPrinter(compiler))
           .withGenericNameReplacements(ImmutableMap.copyOf(genericNameMapping))
-          .isEqualTo(expectedRoot);
+          .isEqualToNode(expectedRoot);
     }
   }
 
@@ -1528,7 +1528,7 @@ public abstract class CompilerTestCase {
 
     assertNode(normalizeCheckMainRootClone)
         .usingSerializer(createPrettyPrinter(compiler))
-        .isEqualTo(mainRoot);
+        .isEqualToNode(mainRoot);
 
     // TODO(johnlenz): enable this for most test cases.
     // Currently, this invalidates test for while-loops, for-loop
@@ -1543,7 +1543,7 @@ public abstract class CompilerTestCase {
 
       assertNode(normalizeCheckMainRootClone)
           .usingSerializer(createPrettyPrinter(compiler))
-          .isEqualTo(mainRoot);
+          .isEqualToNode(mainRoot);
     }
   }
 
@@ -1592,11 +1592,11 @@ public abstract class CompilerTestCase {
             GatherGetterAndSetterProperties.gather(compiler, mainRoot.getParent()));
   }
 
-  protected Node parseExpectedJs(String expected) {
+  protected Node parseExpectedJsString(String expected) {
     return parseExpectedJs(ImmutableList.of(SourceFile.fromCode(GENERATED_SRC_NAME, expected)));
   }
 
-  protected Node parseExpectedJs(Expected expected) {
+  protected Node parseExpectedJsExpected(Expected expected) {
     return parseExpectedJs(expected.expected);
   }
 
@@ -1680,7 +1680,7 @@ public abstract class CompilerTestCase {
 
     Node externs = externsAndJs.getFirstChild();
 
-    Node expectedRoot = parseExpectedJs(expectedExterns);
+    Node expectedRoot = parseExpectedJsExpected(expectedExterns);
     assertThat(compiler.getErrors()).isEmpty();
 
     // Call "beforePass" as some passes ask for the index of the current pass being run and expect
@@ -1709,7 +1709,7 @@ public abstract class CompilerTestCase {
             .usingSerializer(createPrettyPrinter(compiler))
             .isEqualIncludingJsDocTo(expectedRoot);
       } else {
-        assertNode(externs).usingSerializer(createPrettyPrinter(compiler)).isEqualTo(expectedRoot);
+        assertNode(externs).usingSerializer(createPrettyPrinter(compiler)).isEqualToNode(expectedRoot);
       }
     } else {
       String externsCode = compiler.toSource(externs);
@@ -1799,19 +1799,19 @@ public abstract class CompilerTestCase {
     return new FlatSources(maybeCreateSources(GENERATED_SRC_NAME, srcText));
   }
 
-  protected static Sources srcs(String... srcTexts) {
+  protected static Sources srcsStringVarargs(String... srcTexts) {
     return new FlatSources(createSources(GENERATED_SRC_NAME, srcTexts));
   }
 
-  protected static Sources srcs(List<SourceFile> files) {
+  protected static Sources srcsList(List<SourceFile> files) {
     return new FlatSources(files);
   }
 
-  protected Sources srcs(SourceFile... files) {
+  protected Sources srcsSourceFileVarargs(SourceFile... files) {
     return new FlatSources(Arrays.asList(files));
   }
 
-  protected static Sources srcs(JSChunk... chunks) {
+  protected static Sources srcsJSChunkVarargs(JSChunk... chunks) {
     return new ChunkSources(chunks);
   }
 
@@ -1819,19 +1819,19 @@ public abstract class CompilerTestCase {
     return new Expected(maybeCreateSources(GENERATED_SRC_NAME, srcText));
   }
 
-  protected static Expected expected(String... srcTexts) {
+  protected static Expected expectedStringVarargs(String... srcTexts) {
     return new Expected(createSources(GENERATED_SRC_NAME, srcTexts));
   }
 
-  protected static Expected expected(List<SourceFile> files) {
+  protected static Expected expectedList(List<SourceFile> files) {
     return new Expected(files);
   }
 
-  protected Expected expected(SourceFile... files) {
+  protected Expected expectedSourceFileVarargs(SourceFile... files) {
     return new Expected(Arrays.asList(files));
   }
 
-  protected static Expected expected(JSChunk[] chunks) {
+  protected static Expected expectedJSChunkArray(JSChunk[] chunks) {
     List<String> expectedSrcs = new ArrayList<>();
     for (JSChunk chunk : chunks) {
       for (CompilerInput input : chunk.getInputs()) {
@@ -1842,18 +1842,18 @@ public abstract class CompilerTestCase {
         }
       }
     }
-    return expected(expectedSrcs.toArray(new String[0]));
+    return expectedStringVarargs(expectedSrcs.toArray(new String[0]));
   }
 
   protected static Externs externs(String externSrc) {
     return new Externs(maybeCreateSources(GENERATED_EXTERNS_NAME, externSrc));
   }
 
-  protected static Externs externs(String... srcTexts) {
+  protected static Externs externsStringVarargs(String... srcTexts) {
     return new Externs(createSources(GENERATED_EXTERNS_NAME, srcTexts));
   }
 
-  protected static Externs externs(SourceFile... externs) {
+  protected static Externs externsSourceFileVarargs(SourceFile... externs) {
     // Copy SourceFile objects to prevent the externs bit from polluting tests.
     return new Externs(
         stream(externs)
@@ -1868,7 +1868,7 @@ public abstract class CompilerTestCase {
             .collect(toImmutableList()));
   }
 
-  protected static Externs externs(List<SourceFile> files) {
+  protected static Externs externsList(List<SourceFile> files) {
     return new Externs(files);
   }
 
@@ -1884,7 +1884,7 @@ public abstract class CompilerTestCase {
     return postcondition;
   }
 
-  protected void testSame(TestPart... parts) {
+  protected void testSameTestPartVarargs(TestPart... parts) {
     testInternal(Iterables.concat(Arrays.asList(parts), ImmutableList.of(EXPECTED_SAME)));
   }
 
@@ -1922,16 +1922,16 @@ public abstract class CompilerTestCase {
       expected = fromSources(srcs);
     }
     if (externs == null) {
-      externs = externs(defaultExternsInputs);
+      externs = externsList(defaultExternsInputs);
     }
     testInternal(externs, srcs, expected, diagnostics, postconditions);
   }
 
   private static Expected fromSources(Sources srcs) {
     if (srcs instanceof FlatSources flatSources) {
-      return expected(flatSources.sources);
+      return expectedList(flatSources.sources);
     } else if (srcs instanceof ChunkSources chunkSources) {
-      return expected(chunkSources.chunks.toArray(new JSChunk[0]));
+      return expectedJSChunkArray(chunkSources.chunks.toArray(new JSChunk[0]));
     } else {
       throw new IllegalStateException("unexpected");
     }

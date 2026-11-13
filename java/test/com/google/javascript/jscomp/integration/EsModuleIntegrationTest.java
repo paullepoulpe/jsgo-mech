@@ -43,7 +43,7 @@ public final class EsModuleIntegrationTest extends IntegrationTestCase {
     options.setChunkOutputType(CompilerOptions.ChunkOutputType.ES_MODULES);
     options.setWarningLevel(DiagnosticGroups.MODULE_LOAD, CheckLevel.OFF);
 
-    test(
+    testStringArray(
         options,
         new String[] {"console.log('one');", "console.log('two');"},
         new String[] {"console.log('one'); export {};", "import './m0.js'; console.log('two');"});
@@ -58,7 +58,7 @@ public final class EsModuleIntegrationTest extends IntegrationTestCase {
     options.setCheckTypes(true);
     options.setChunkOutputType(CompilerOptions.ChunkOutputType.ES_MODULES);
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         import.meta.url;
@@ -78,7 +78,7 @@ public final class EsModuleIntegrationTest extends IntegrationTestCase {
     options.setCheckTypes(true);
     options.setChunkOutputType(CompilerOptions.ChunkOutputType.ES_MODULES);
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         import.meta.url;

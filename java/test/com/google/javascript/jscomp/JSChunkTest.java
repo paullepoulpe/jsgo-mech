@@ -96,7 +96,7 @@ public final class JSChunkTest {
     JSChunk chunk = new JSChunk("chunk");
     for (CompilerInput input : shuffled) {
       input.setChunk(null);
-      chunk.add(input);
+      chunk.addCompilerInput(input);
     }
     Compiler compiler = new Compiler(System.err);
     compiler.initCompilerOptionsIfTesting();

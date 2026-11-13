@@ -17,6 +17,8 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
+import static com.google.javascript.jscomp.AstFactory.typeColorId;
 
 import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
@@ -73,7 +75,7 @@ public final class Es6ForOfConverter extends NodeTraversal.AbstractPostOrderCall
     Node iterName =
         astFactory.createName(
             ITER_BASE + compiler.getUniqueIdSupplier().getUniqueId(t.getInput()),
-            type(StandardColors.ITERATOR_ID));
+            typeColorId(StandardColors.ITERATOR_ID));
     iterName.makeNonIndexable();
     // `$jscomp$iter$0.next()`
     Node getNext =
@@ -110,7 +112,7 @@ public final class Es6ForOfConverter extends NodeTraversal.AbstractPostOrderCall
     // !$jscomp$key$extraName.done
     Node cond =
         astFactory.createNot(
-            astFactory.createGetProp(iterResult.cloneTree(), "done", type(StandardColors.BOOLEAN)));
+            astFactory.createGetProp(iterResult.cloneTree(), "done", typeColor(StandardColors.BOOLEAN)));
     // $jscomp$key$extraName = $jscomp$iter$0.next()
     Node incr = astFactory.createAssign(iterResult.cloneTree(), getNext.cloneTree());
 
@@ -143,7 +145,7 @@ public final class Es6ForOfConverter extends NodeTraversal.AbstractPostOrderCall
       }
       declarationOrAssign.setJSDocInfo(varJSDocInfo);
     }
-    Node newBody = IR.block(declarationOrAssign, body).srcref(body);
+    Node newBody = IR.blockNodeVarargs(declarationOrAssign, body).srcref(body);
     Node empty = astFactory.createEmpty();
     Node newFor = IR.forNode(empty, cond, incr, newBody).srcrefTreeIfMissing(node);
 

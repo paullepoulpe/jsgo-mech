@@ -506,7 +506,7 @@ public class InlineAliasesTest extends CompilerTestCase {
 
   @Test
   public void testObjectDestructuringDefaultVals() {
-    ignoreWarnings(DiagnosticGroups.MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MISSING_PROPERTIES);
     test(
         """
         var Foo = class {};
@@ -641,7 +641,7 @@ public class InlineAliasesTest extends CompilerTestCase {
 
   @Test
   public void testDontInlineEscapedQnameProperty() {
-    testSame(
+    testSameTestPartVarargs(
         externs("function use(obj) {}"),
         srcs(
             """

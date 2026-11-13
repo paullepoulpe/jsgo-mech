@@ -42,7 +42,7 @@ public final class ForbidDynamicImportUsageTest extends CompilerTestCase {
 
   @Test
   public void testDynamicImportError() {
-    ignoreWarnings(DiagnosticGroups.MODULE_LOAD);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MODULE_LOAD);
     testError("import('./foo.js')", DYNAMIC_IMPORT_USAGE);
   }
 }

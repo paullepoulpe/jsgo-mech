@@ -114,7 +114,7 @@ class CoverageInstrumentationCallback implements NodeTraversal.Callback {
     // __jscov['executedLines'].push(JSCompiler_lcov_data_xx);
     // __jscov['instrumentedLines'].push(hex-data);
     // __jscov['fileNames'].push(filename);
-    return IR.block(
+    return IR.blockNodeVarargs(
             newArrayDeclarationNode(traversal),
             IR.exprResult(
                 IR.call(

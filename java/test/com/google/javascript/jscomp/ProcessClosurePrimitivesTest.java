@@ -77,7 +77,7 @@ public final class ProcessClosurePrimitivesTest extends CompilerTestCase {
 
   @Test
   public void testProvideValidObjectType() {
-    testNoWarning(srcs("goog.provide('foo'); /** @type {Object<string>} */ var foo = {};"));
+    testNoWarningSources(srcs("goog.provide('foo'); /** @type {Object<string>} */ var foo = {};"));
   }
 
   @Test
@@ -162,8 +162,8 @@ public final class ProcessClosurePrimitivesTest extends CompilerTestCase {
     compiler = getLastCompiler();
     assertThat(compiler.getTypeRegistry().isForwardDeclaredType("A.B")).isTrue();
 
-    testSame(
-        srcs("goog.provide('A.B');", "goog.module('mod'); const B = goog.forwardDeclare('A.B');"));
+    testSameTestPartVarargs(
+        srcsStringVarargs("goog.provide('A.B');", "goog.module('mod'); const B = goog.forwardDeclare('A.B');"));
 
     compiler = getLastCompiler();
     // This is a valid forward declaration, but for historical reasons, does not actually forward
@@ -419,7 +419,7 @@ public final class ProcessClosurePrimitivesTest extends CompilerTestCase {
   @Test
   public void testValidBase_googProvide_googRequiredInOtherModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('my.Foo');
             /** @constructor */
@@ -439,7 +439,7 @@ public final class ProcessClosurePrimitivesTest extends CompilerTestCase {
   @Test
   public void testValidBase_googModule_googRequiredInOtherModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('FooModule');
             /** @constructor */ function Foo() {}

@@ -438,7 +438,7 @@ class TypedCodeGenerator extends CodeGenerator {
     JSType restricted = type.restrictByNotNullOrUndefined();
     if (type.isNullable()) {
       JSType nullType = registry.getNativeType(JSTypeNative.NULL_TYPE);
-      return registry.createUnionType(ImmutableList.of(restricted, nullType));
+      return registry.createUnionTypeList(ImmutableList.of(restricted, nullType));
     }
     // The bottom type cannot appear in a jsdoc
     return restricted.isEmptyType() ? type : restricted;

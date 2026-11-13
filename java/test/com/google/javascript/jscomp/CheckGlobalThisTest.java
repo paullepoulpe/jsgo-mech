@@ -34,7 +34,7 @@ public final class CheckGlobalThisTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
-    return new CombinedCompilerPass(compiler, new CheckGlobalThis(compiler));
+    return CombinedCompilerPass.createFromCallbacks(compiler, new CheckGlobalThis(compiler));
   }
 
   private void testFailure(String js) {

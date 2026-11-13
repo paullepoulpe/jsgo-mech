@@ -85,7 +85,7 @@ final class NestedCompilerRunner {
 
     SourceFile shadowFile = SourceFile.fromCode(uniqueShadowId, "", SourceKind.STRONG);
 
-    CompilerInput shadowInput = new CompilerInput(shadowFile, new InputId(uniqueShadowId));
+    CompilerInput shadowInput = CompilerInput.createFromInputId(shadowFile, new InputId(uniqueShadowId));
     shadowInput.initShadowAst(shadowScript);
 
     shadowScript.setInputId(shadowInput.getInputId());
@@ -118,11 +118,11 @@ final class NestedCompilerRunner {
   }
 
   private ImmutableList<JSChunk> createChunks() {
-    baseChunk.add(new CompilerInput(SourceFile.fromCode("synthetic_base", "", SourceKind.STRONG)));
+    baseChunk.addCompilerInput(new CompilerInput(SourceFile.fromCode("synthetic_base", "", SourceKind.STRONG)));
     var chunks = ImmutableList.<JSChunk>builder().add(baseChunk);
     for (CompilerInput input : inputs) {
       JSChunk chunk = new JSChunk("shadow_chunk_" + input.getSourceFile().getName());
-      chunk.add(input);
+      chunk.addCompilerInput(input);
       chunk.addDependency(baseChunk);
       chunks.add(chunk);
     }

@@ -71,12 +71,12 @@ public final class DefaultDependencyResolver implements DependencyResolver  {
   @Override
   public List<String> getDependencies(String code)
       throws ServiceException {
-    return getDependencies(parseRequires(code, true));
+    return getDependenciesCollection(parseRequires(code, true));
   }
 
   /** Gets a list of dependencies for the provided list of symbols. */
   @Override
-  public List<String> getDependencies(Collection<String> symbols)
+  public List<String> getDependenciesCollection(Collection<String> symbols)
       throws ServiceException {
     return getDependencies(symbols, new LinkedHashSet<String>());
   }

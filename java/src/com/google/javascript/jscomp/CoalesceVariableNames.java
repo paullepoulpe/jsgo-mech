@@ -153,7 +153,7 @@ class CoalesceVariableNames extends NodeTraversal.AbstractCfgCallback implements
         new LiveVariablesAnalysis(
             cfg, scope, null, compiler, this.scopeCreator, allVarsDeclaredInFunction);
 
-    if (FeatureSet.ES3.contains(compiler.getOptions().getOutputFeatureSet())) {
+    if (FeatureSet.ES3.containsFeatureSet(compiler.getOptions().getOutputFeatureSet())) {
       // If the function has exactly 2 params, mark them as escaped. This is a work-around for a
       // bug in IE 8 and below, where it throws an exception if you write to the parameters of the
       // callback in a sort(). See http://blickly.github.io/closure-compiler-issues/#58 and

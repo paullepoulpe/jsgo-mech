@@ -1608,7 +1608,7 @@ public final class GlobalNamespaceTest {
             .addChunk("parent.child = {};")
             .build();
 
-    GlobalNamespace namespace = parse(chunks);
+    GlobalNamespace namespace = parseJSChunkArray(chunks);
     Name parentName = namespace.getSlot("parent");
     Name childName = namespace.getSlot("parent.child");
 
@@ -1628,7 +1628,7 @@ public final class GlobalNamespaceTest {
                 "if (parent.crossChunk) { console.log(parent.crossChunk ); }") // depends on parent
             .build();
 
-    GlobalNamespace namespace = parse(chunks);
+    GlobalNamespace namespace = parseJSChunkArray(chunks);
     Name crossChunkName = namespace.getSlot("parent.crossChunk");
 
     JSChunkGraph chunkGraph = this.lastCompiler.getChunkGraph();
@@ -1659,7 +1659,7 @@ public final class GlobalNamespaceTest {
     return new GlobalNamespace(this.lastCompiler, this.lastCompiler.getRoot());
   }
 
-  private GlobalNamespace parse(JSChunk[] chunks) {
+  private GlobalNamespace parseJSChunkArray(JSChunk[] chunks) {
     CompilerOptions options = getDefaultOptions();
     Compiler compiler = new Compiler();
     var result = compiler.compileChunks(ImmutableList.of(), ImmutableList.copyOf(chunks), options);
@@ -1685,7 +1685,7 @@ public final class GlobalNamespaceTest {
   @CanIgnoreReturnValue
   private Compiler compile(String js, CompilerOptions options) {
     Compiler compiler = new Compiler();
-    compiler.compile(SourceFile.fromCode("ex.js", ""), SourceFile.fromCode("test.js", js), options);
+    compiler.compileSourceFile(SourceFile.fromCode("ex.js", ""), SourceFile.fromCode("test.js", js), options);
     assertThat(compiler.getErrors()).isEmpty();
     this.lastCompiler = compiler;
     return compiler;

@@ -47,7 +47,7 @@ public class J2clConstantHoisterPass implements CompilerPass {
     final Set<Node> hoistableFunctions = new LinkedHashSet<>();
     NodeTraversal.builder()
         .setCompiler(compiler)
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (NodeTraversal t, Node node, Node parent) -> {
               // TODO(stalcup): don't gather assignments ourselves, switch to a persistent
               // DefinitionUseSiteFinder instead.

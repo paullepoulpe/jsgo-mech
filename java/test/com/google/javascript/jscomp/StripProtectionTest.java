@@ -34,7 +34,7 @@ public final class StripProtectionTest extends CompilerTestCase {
   @Test
   public void testJ2clPreserveFunction() {
     test(
-        srcs(SourceFile.fromCode("Foo.java.js", "$J2CL_PRESERVE$(Foo.prototype.prop);")),
+        srcsSourceFileVarargs(SourceFile.fromCode("Foo.java.js", "$J2CL_PRESERVE$(Foo.prototype.prop);")),
         expected(""));
 
     // Not allowed in non-J2CL code.

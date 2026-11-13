@@ -484,8 +484,8 @@ public final class Es6RewriteModulesToCommonJsModulesTest extends CompilerTestCa
   public void testProtocolAndDomainAreRemovedInRegisteredPathWhenNotEscaping() {
     pathEscaper = PathEscaper.CANONICALIZE_ONLY;
     test(
-        srcs(SourceFile.fromCode("https://example.domain.google.com/test.js", "export var x;")),
-        expected(
+        srcsSourceFileVarargs(SourceFile.fromCode("https://example.domain.google.com/test.js", "export var x;")),
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "https://example.domain.google.com/test.js",
                 """
@@ -513,8 +513,8 @@ public final class Es6RewriteModulesToCommonJsModulesTest extends CompilerTestCa
     moduleRoots = ImmutableList.of("module/root/");
 
     test(
-        srcs(SourceFile.fromCode("module/root/test.js", "export {};")),
-        expected(
+        srcsSourceFileVarargs(SourceFile.fromCode("module/root/test.js", "export {};")),
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "module/root/test.js",
                 """
@@ -528,8 +528,8 @@ public final class Es6RewriteModulesToCommonJsModulesTest extends CompilerTestCa
     moduleRoots = ImmutableList.of("module/root/");
 
     test(
-        srcs(SourceFile.fromCode("not/root/test.js", "import * as foo from 'module/root/foo.js';")),
-        expected(
+        srcsSourceFileVarargs(SourceFile.fromCode("not/root/test.js", "import * as foo from 'module/root/foo.js';")),
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "not/root/test.js",
                 """
@@ -545,8 +545,8 @@ public final class Es6RewriteModulesToCommonJsModulesTest extends CompilerTestCa
     prefixReplacements = ImmutableMap.of("@root/", "");
 
     test(
-        srcs(SourceFile.fromCode("not/root/test.js", "import * as foo from '@root/foo.js';")),
-        expected(
+        srcsSourceFileVarargs(SourceFile.fromCode("not/root/test.js", "import * as foo from '@root/foo.js';")),
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "not/root/test.js",
                 """

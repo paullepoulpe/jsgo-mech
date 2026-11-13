@@ -100,7 +100,7 @@ public final class PolymerPassFindExternsTest extends CompilerTestCase {
 
   @Test
   public void testFindsPolymerElementRoot_inTypeSummary() {
-    testSame(externs("/** @typeSummary */\n" + EXTERNS), srcs(""));
+    testSameTestPartVarargs(externs("/** @typeSummary */\n" + EXTERNS), srcs(""));
     Node polymerElementNode = findExternsCallback.getPolymerElementExterns();
 
     assertThat(polymerElementNode).isNotNull();
@@ -112,8 +112,8 @@ public final class PolymerPassFindExternsTest extends CompilerTestCase {
 
   @Test
   public void testFindsPolymerElementRoot_inTypeSummary_ignoresModule() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             "goog.module = function(id) { };",
             """
             /** @typeSummary */

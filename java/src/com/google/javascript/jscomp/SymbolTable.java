@@ -299,12 +299,12 @@ public final class SymbolTable {
   }
 
   /** Gets the symbol for the given enum. */
-  public Symbol getSymbolDeclaredBy(EnumType enumType) {
+  public Symbol getSymbolDeclaredByEnumType(EnumType enumType) {
     return getSymbolForName(enumType.getSource(), enumType.getElementsType().getReferenceName());
   }
 
   /** Gets the symbol for the prototype if this is the symbol for a constructor or interface. */
-  public @Nullable Symbol getSymbolForInstancesOf(Symbol sym) {
+  public @Nullable Symbol getSymbolForInstancesOfSymbol(Symbol sym) {
     FunctionType fn = sym.getFunctionType();
     if (fn != null && fn.isNominalConstructorOrInterface()) {
       return getSymbolForInstancesOf(fn);
@@ -415,7 +415,7 @@ public final class SymbolTable {
     } else if (type.autoboxesTo() != null) {
       return getSymbolForTypeHelper(type.autoboxesTo(), linkToCtor);
     } else if (type.isEnumType()) {
-      return getSymbolDeclaredBy((EnumType) type);
+      return getSymbolDeclaredByEnumType((EnumType) type);
     } else if (type.isRecordType()) {
       return symbolThatDeclaresType.get(type);
     }
@@ -1159,7 +1159,7 @@ public final class SymbolTable {
 
     // Add all declared properties in propNames into the property scope
     for (String propName : propNames) {
-      StaticSlot newProp = instanceType.getSlot(propName);
+      StaticSlot newProp = instanceType.getSlotString(propName);
       if (newProp.getDeclaration() == null) {
         // Skip properties without declarations. We won't know how to index
         // them, because we index things by node.
@@ -1963,7 +1963,7 @@ public final class SymbolTable {
       } else if (owner.isNominalConstructorOrInterface()) {
         return maybeDefineReference(n, propName, getSymbolDeclaredBy(owner.toMaybeFunctionType()));
       } else if (owner.isEnumType()) {
-        return maybeDefineReference(n, propName, getSymbolDeclaredBy(owner.toMaybeEnumType()));
+        return maybeDefineReference(n, propName, getSymbolDeclaredByEnumType(owner.toMaybeEnumType()));
       } else {
         boolean defined = false;
         for (Symbol ctor : getAllSymbolsForType(owner)) {
@@ -1975,7 +1975,7 @@ public final class SymbolTable {
               defined = true;
             }
           }
-          if (maybeDefineReference(n, propName, getSymbolForInstancesOf(ctor))) {
+          if (maybeDefineReference(n, propName, getSymbolForInstancesOfSymbol(ctor))) {
             defined = true;
           }
         }

@@ -63,7 +63,7 @@ public class J2clPassTest extends CompilerTestCase {
         """;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Arrays.impl.java.js",
                 declarations
@@ -74,7 +74,7 @@ public class J2clPassTest extends CompilerTestCase {
                     alert(Arrays.$castTo());
                     alert(Arrays.$stampType());
                     """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Arrays.impl.java.js",
                 declarations
@@ -98,14 +98,14 @@ public class J2clPassTest extends CompilerTestCase {
         """;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 declarations
                     + """
                     alert(Casts.$to());
                     """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 declarations
@@ -127,7 +127,7 @@ public class J2clPassTest extends CompilerTestCase {
         """;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "name/doesnt/matter/Foo.impl.java.js",
                 declarations
@@ -136,7 +136,7 @@ public class J2clPassTest extends CompilerTestCase {
                     var Foo = function() {};
                     FooInterface.$markImplementor(Foo);
                     """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "name/doesnt/matter/Foo.impl.java.js",
                 declarations
@@ -186,7 +186,7 @@ public class J2clPassTest extends CompilerTestCase {
         """;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Arrays.impl.java.js",
                 declarations
@@ -196,7 +196,7 @@ public class J2clPassTest extends CompilerTestCase {
                     alert($jscomp.scope.Arrays.$instanceIsOfType());
                     alert($jscomp.scope.Arrays.$castTo());
                     """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Arrays.impl.java.js",
                 declarations
@@ -221,14 +221,14 @@ public class J2clPassTest extends CompilerTestCase {
         """;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 declarations
                     + """
                     alert($jscomp.scope.Casts.$to());
                     """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 declarations
@@ -252,7 +252,7 @@ public class J2clPassTest extends CompilerTestCase {
         """;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "name/doesnt/matter/Foo.impl.java.js",
                 declarations
@@ -260,7 +260,7 @@ public class J2clPassTest extends CompilerTestCase {
                     $jscomp.scope.Foo = function() {};
                     $jscomp.scope.FooInterface.$markImplementor($jscomp.scope.Foo);
                     """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "name/doesnt/matter/Foo.impl.java.js",
                 declarations
@@ -273,8 +273,8 @@ public class J2clPassTest extends CompilerTestCase {
   @Test
   public void testUnexpectedFunctionDoesntInline() {
     // Arrays functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Arrays.impl.java.js",
                 """
@@ -286,8 +286,8 @@ public class J2clPassTest extends CompilerTestCase {
                 """)));
 
     // Casts functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 """
@@ -305,8 +305,8 @@ public class J2clPassTest extends CompilerTestCase {
   @Test
   public void testUnqualifiedDoesntInline() {
     // Arrays functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Arrays.impl.java.js",
                 """
@@ -322,8 +322,8 @@ public class J2clPassTest extends CompilerTestCase {
                 """)));
 
     // Casts functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 """
@@ -333,8 +333,8 @@ public class J2clPassTest extends CompilerTestCase {
                 """)));
 
     // Interface $markImplementor() functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "name/doesnt/matter/Foo.impl.java.js",
                 """
@@ -350,8 +350,8 @@ public class J2clPassTest extends CompilerTestCase {
   @Test
   public void testWrongFileNameDoesntInline() {
     // Arrays functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "Arrays2.impl.java.js",
                 """
@@ -368,8 +368,8 @@ public class J2clPassTest extends CompilerTestCase {
                 """)));
 
     // Casts functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "Casts2.impl.java.js",
                 """
@@ -386,7 +386,7 @@ public class J2clPassTest extends CompilerTestCase {
   @Test
   public void testMarksChanges() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 """
@@ -395,7 +395,7 @@ public class J2clPassTest extends CompilerTestCase {
 
                 alert(Casts.$to(function(a) { return a; }));
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "j2cl/transpiler/vmbootstrap/Casts.impl.java.js",
                 """

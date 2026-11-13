@@ -37,7 +37,7 @@ public class IdentifierToken extends Token {
   }
 
   public boolean isKeyword() {
-    return Keywords.isKeyword(value);
+    return Keywords.isKeywordString(value);
   }
 
   public boolean valueEquals(String str) {

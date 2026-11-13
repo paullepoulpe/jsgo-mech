@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 import static com.google.javascript.jscomp.TranspilationUtil.cannotConvert;
 import static java.util.Objects.requireNonNull;
 
@@ -42,7 +43,7 @@ import org.jspecify.annotations.Nullable;
 /** Converts ES6 classes to valid ES5 or ES3 code. */
 public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPass {
   private static final FeatureSet features =
-      FeatureSet.BARE_MINIMUM.with(
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(
           Feature.CLASSES, Feature.CLASS_GETTER_SETTER, Feature.NEW_TARGET, Feature.SUPER);
 
   static final DiagnosticType CONSTRUCTOR_PRIMITIVE_RETURN =
@@ -87,7 +88,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
   public boolean shouldTraverse(NodeTraversal t, Node n, Node parent) {
     switch (n.getToken()) {
       case GETTER_DEF, SETTER_DEF -> {
-        if (FeatureSet.ES3.contains(compiler.getOptions().getOutputFeatureSet())) {
+        if (FeatureSet.ES3.containsFeatureSet(compiler.getOptions().getOutputFeatureSet())) {
           cannotConvert(compiler, n, "ES5 getters/setters (consider using --language_out=ES5)");
           return false;
         }
@@ -190,7 +191,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
             IR.exprResult(
                     astFactory.createCall(
                         astFactory.createQName(this.transpilationNamespace, jscompInherits),
-                        type(StandardColors.NULL_OR_VOID),
+                        typeColor(StandardColors.NULL_OR_VOID),
                         metadata.fullClassNameNode().cloneTree(),
                         metadata.superClassNameNode().cloneTree()))
                 .srcrefTreeIfMissing(metadata.superClassNameNode());
@@ -589,7 +590,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
                 // collapsing
                 throw new UnsupportedOperationException(this.toString());
             case NORMAL_PROPERTY ->
-                astFactory.createGetProp(toDeclareOn, propertyKey(), type(propertyType()));
+                astFactory.createGetProp(toDeclareOn, propertyKey(), typeColor(propertyType()));
           };
 
       decl.setJSDocInfo(jsDocInfo());

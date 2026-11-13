@@ -67,7 +67,7 @@ final class TypeStringBuilder {
   }
 
   @CanIgnoreReturnValue
-  TypeStringBuilder append(JSType x) {
+  TypeStringBuilder appendJSType(JSType x) {
     x.appendTo(this);
     return this;
   }
@@ -83,7 +83,7 @@ final class TypeStringBuilder {
       }
 
       if (e instanceof JSType jSType) {
-        this.append(jSType);
+        this.appendJSType(jSType);
       } else {
         this.append((String) e);
       }
@@ -104,7 +104,7 @@ final class TypeStringBuilder {
         && !type.isLiteralObject()) {
       this.append("!");
     }
-    return this.append(type);
+    return this.appendJSType(type);
   }
 
   @CanIgnoreReturnValue

@@ -87,7 +87,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
   public void testGoogProvideWithGoogDeclaredInOtherFile() {
     // Closure's base.js declare the global goog. It should be ignored when scanning the provide'd
     // file. Only local variables named goog should cause the pass to back off.
-    testSame(srcs("var goog;", "goog.provide('my.provide');"));
+    testSameTestPartVarargs(srcsStringVarargs("var goog;", "goog.provide('my.provide');"));
     assertThat(metadataMap().getModulesByGoogNamespace().keySet()).containsExactly("my.provide");
     ModuleMetadata m = metadataMap().getModulesByGoogNamespace().get("my.provide");
     assertThat(m.googNamespaces()).containsExactly("my.provide");
@@ -127,14 +127,14 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
     test(srcs("goog.provide('a..b');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
 
     test(srcs("goog.provide('ā');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
-    testSame(srcs("goog.provide('a');"));
+    testSameTestPartVarargs(srcs("goog.provide('a');"));
 
-    testSame(srcs("goog.provide('a.class');"));
+    testSameTestPartVarargs(srcs("goog.provide('a.class');"));
     test(srcs("goog.provide('class.a');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
 
     setAcceptedLanguage(LanguageMode.ECMASCRIPT3);
-    testError(srcs("goog.provide('a.class');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
-    testError(srcs("goog.provide('class.a');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
+    testErrorDiagnostic(srcs("goog.provide('a.class');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
+    testErrorDiagnostic(srcs("goog.provide('class.a');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
   }
 
   @Test
@@ -161,9 +161,9 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
     test(srcs("goog.module('0');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
     test(srcs("goog.module('ā');"), error(INVALID_NAMESPACE_OR_MODULE_ID));
 
-    testSame(srcs("goog.module('a');"));
-    testSame(srcs("goog.module('a0');"));
-    testSame(srcs("goog.module('$');"));
+    testSameTestPartVarargs(srcs("goog.module('a');"));
+    testSameTestPartVarargs(srcs("goog.module('a0');"));
+    testSameTestPartVarargs(srcs("goog.module('$');"));
   }
 
   @Test
@@ -425,8 +425,8 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
 
   @Test
   public void testEs6ModuleDeclareModuleIdImportedGoog() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("goog.js", ""),
             SourceFile.fromCode(
                 "testcode",
@@ -452,8 +452,8 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
 
   @Test
   public void testDuplicateProvides() {
-    testError(
-        srcs("goog.provide('duplciated');", "goog.provide('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("goog.provide('duplciated');", "goog.provide('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_NAMESPACE);
   }
 
@@ -466,50 +466,50 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
 
   @Test
   public void testDuplicateProvideAndGoogModule() {
-    testError(
-        srcs("goog.provide('duplciated');", "goog.module('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("goog.provide('duplciated');", "goog.module('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_NAMESPACE_AND_MODULE);
-    testError(
-        srcs("goog.module('duplciated');", "goog.provide('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("goog.module('duplciated');", "goog.provide('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_NAMESPACE_AND_MODULE);
   }
 
   @Test
   public void testDuplicateProvideAndEs6Module() {
-    testError(
-        srcs("goog.provide('duplciated');", "export {}; goog.declareModuleId('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("goog.provide('duplciated');", "export {}; goog.declareModuleId('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_NAMESPACE_AND_MODULE);
-    testError(
-        srcs("export {}; goog.declareModuleId('duplciated');", "goog.provide('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("export {}; goog.declareModuleId('duplciated');", "goog.provide('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_NAMESPACE_AND_MODULE);
   }
 
   @Test
   public void testDuplicateGoogModules() {
-    testError(
-        srcs("goog.module('duplciated');", "goog.module('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("goog.module('duplciated');", "goog.module('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_MODULE);
   }
 
   @Test
   public void testDuplicateGoogAndEs6Module() {
-    testError(
-        srcs("goog.module('duplciated');", "export {}; goog.declareModuleId('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("goog.module('duplciated');", "export {}; goog.declareModuleId('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_MODULE);
-    testError(
-        srcs("export {}; goog.declareModuleId('duplciated');", "goog.module('duplciated');"),
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("export {}; goog.declareModuleId('duplciated');", "goog.module('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_MODULE);
   }
 
   @Test
   public void testDuplicatEs6Modules() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             "export {}; goog.declareModuleId('duplciated');",
             "export {}; goog.declareModuleId('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_MODULE);
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             "export {}; goog.declareModuleId('duplciated');",
             "export {}; goog.declareModuleId('duplciated');"),
         ClosurePrimitiveErrors.DUPLICATE_MODULE);
@@ -523,12 +523,12 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
         error(ClosurePrimitiveErrors.DUPLICATE_NAMESPACE).withMessageContaining("testcode"));
     // duplicate of provide in earlier file
     test(
-        srcs("goog.provide('duplicated');", "goog.module('duplicated')"),
+        srcsStringVarargs("goog.provide('duplicated');", "goog.module('duplicated')"),
         error(ClosurePrimitiveErrors.DUPLICATE_NAMESPACE_AND_MODULE)
             .withMessageContaining("testcode0"));
     // duplicate of module in earlier file
     test(
-        srcs("goog.module('duplicated');", "goog.module('duplicated')"),
+        srcsStringVarargs("goog.module('duplicated');", "goog.module('duplicated')"),
         error(ClosurePrimitiveErrors.DUPLICATE_MODULE).withMessageContaining("testcode0"));
   }
 
@@ -562,7 +562,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
 
   @Test
   public void testGoogInOtherScriptGoogIsClosure() {
-    testSame(srcs("/** @provideGoog */ var goog = {};", "goog.isArray(foo);"));
+    testSameTestPartVarargs(srcsStringVarargs("/** @provideGoog */ var goog = {};", "goog.isArray(foo);"));
     ModuleMetadata m = metadataMap().getModulesByPath().get("testcode1");
     assertThat(m.usesClosure()).isTrue();
   }
@@ -685,7 +685,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
   @Test
   public void testImportedScript() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("imported.js", "console.log('lol');"),
             SourceFile.fromCode("notimported.js", "console.log('lol');"),
             SourceFile.fromCode("module.js", "import './imported.js';")));
@@ -702,7 +702,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
     rewriteScriptsToModules = true;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("imported.js", "console.log('lol');"),
             SourceFile.fromCode("notimported.js", "console.log('lol');"),
             SourceFile.fromCode("module.js", "import './imported.js';")));
@@ -719,7 +719,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
     entryPoints = ImmutableList.of(ModuleIdentifier.forFile("module.js"));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("imported.js", "console.log('lol');"),
             SourceFile.fromCode("notimported.js", "console.log('lol');"),
             SourceFile.fromCode("module.js", "import './imported.js';")));
@@ -736,7 +736,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
     sortOnly = true;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("imported.js", "console.log('lol');"),
             SourceFile.fromCode("notimported.js", "console.log('lol');"),
             SourceFile.fromCode("module.js", "import './imported.js';")));
@@ -750,7 +750,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
   @Test
   public void testDynamicImport() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("imported.js", "export default function() {};"),
             SourceFile.fromCode("script.js", "import('./imported.js')")));
 
@@ -762,7 +762,7 @@ public final class GatherModuleMetadataTest extends CompilerTestCase {
   @Test
   public void testReadToggle() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo$2etoggles.js",
                 """

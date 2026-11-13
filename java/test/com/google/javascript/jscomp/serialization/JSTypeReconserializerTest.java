@@ -588,7 +588,7 @@ public final class JSTypeReconserializerTest extends CompilerTestCase {
 
   @Test
   public void doesntSerializeMissingType() {
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
     assertThat(compileToTypes("var /** !missing.TypeProto */ x;"))
         .ignoringFieldDescriptors(BRITTLE_TYPE_FIELDS)
         .containsExactlyElementsIn(nativeObjects());

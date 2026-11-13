@@ -143,11 +143,11 @@ public final class JSChunk implements Serializable, DependencyInfo {
 
   /** Adds a source file input to this chunk. */
   public void add(SourceFile file) {
-    add(new CompilerInput(file));
+    addCompilerInput(new CompilerInput(file));
   }
 
   /** Adds a source code input to this chunk. */
-  public void add(CompilerInput input) {
+  public void addCompilerInput(CompilerInput input) {
     String inputName = input.getName();
     CompilerInput previous = inputs.put(inputName, input);
     checkState(previous == null, "%s already exist in chunk %s", inputName, this.getName());

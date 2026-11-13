@@ -2245,7 +2245,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
           new InvocationTemplateTypeMatcher(this.registry, ctorFnType, scope.getTypeOfThis(), n)
               .match();
       instantiatedType =
-          registry.createTemplatizedType(instantiatedType, inferredTypes).toMaybeObjectType();
+          registry.createTemplatizedTypeMap(instantiatedType, inferredTypes).toMaybeObjectType();
     }
 
     n.setJSType(instantiatedType != null ? instantiatedType : unknownType);
@@ -2316,7 +2316,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
       }
 
       // Extract the element type and add all options to our set of alternates.
-      JSType propertyType = option.toMaybeObjectType().findPropertyType(key);
+      JSType propertyType = option.toMaybeObjectType().findPropertyTypeKey(key);
       if (propertyType == null) {
         // this union member doesn't have the property. just make it unknown.
         argumentTypes = null;

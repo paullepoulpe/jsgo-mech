@@ -192,7 +192,7 @@ public final class CheckInterfacesTest extends CompilerTestCase {
 
   @Test
   public void testInterfaceEs6ClassDeclaration_havingStaticMethod() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @interface */
@@ -209,7 +209,7 @@ public final class CheckInterfacesTest extends CompilerTestCase {
 
   @Test
   public void testInterfaceEs6ClassAssignment_havingStaticMethod() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @interface */
@@ -226,7 +226,7 @@ public final class CheckInterfacesTest extends CompilerTestCase {
 
   @Test
   public void testInterfaceEs6ClassAssignment_havingStaticMethod2() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             let C;

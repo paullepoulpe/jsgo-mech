@@ -183,7 +183,7 @@ final class ArrowType extends JSType {
     typeStringBuilder.append("(");
     typeStringBuilder.appendAll(parameterList, ",");
     typeStringBuilder.append(") -> ");
-    typeStringBuilder.append(returnType);
+    typeStringBuilder.appendJSType(returnType);
     return typeStringBuilder.build();
   }
 }

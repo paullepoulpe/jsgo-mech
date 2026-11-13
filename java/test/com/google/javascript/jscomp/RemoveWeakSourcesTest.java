@@ -41,8 +41,8 @@ public final class RemoveWeakSourcesTest extends CompilerTestCase {
 
     // Expect the weak sources to be emptied and moved to the end.
     test(
-        srcs(strongSrc1, weakSrc1, strongSrc2, weakSrc2),
-        expected(strongSrc1, strongSrc2, emptyWeakSrc1, emptyWeakSrc2));
+        srcsSourceFileVarargs(strongSrc1, weakSrc1, strongSrc2, weakSrc2),
+        expectedSourceFileVarargs(strongSrc1, strongSrc2, emptyWeakSrc1, emptyWeakSrc2));
   }
 
   @Test
@@ -81,7 +81,7 @@ public final class RemoveWeakSourcesTest extends CompilerTestCase {
 
     // Expect the weak sources to be emptied and moved to a separate final chunk.
     test(
-        srcs(new JSChunk[] {chunkBefore1, chunkBefore2, chunkBefore3}),
-        expected(new JSChunk[] {chunkAfter1, chunkAfter2, chunkAfter3, weakChunk}));
+        srcsJSChunkVarargs(new JSChunk[] {chunkBefore1, chunkBefore2, chunkBefore3}),
+        expectedJSChunkArray(new JSChunk[] {chunkAfter1, chunkAfter2, chunkAfter3, weakChunk}));
   }
 }

@@ -39,15 +39,15 @@ public final class ShowByPathWarningsGuard extends WarningsGuard {
   private final ByPathWarningsGuard warningsGuard;
 
   public ShowByPathWarningsGuard(String checkWarningsOnlyForPath) {
-    this(checkWarningsOnlyForPath, ShowType.INCLUDE);
+    this(new String[] { checkWarningsOnlyForPath }, ShowType.INCLUDE);
   }
 
-  public ShowByPathWarningsGuard(String[] checkWarningsOnlyForPath) {
-    this(checkWarningsOnlyForPath, ShowType.INCLUDE);
+  public static ShowByPathWarningsGuard createFromPaths(String[] checkWarningsOnlyForPath) {
+    return new ShowByPathWarningsGuard(checkWarningsOnlyForPath, ShowType.INCLUDE);
   }
 
-  public ShowByPathWarningsGuard(String path, ShowType showType) {
-    this(new String[] { path }, showType);
+  public static ShowByPathWarningsGuard createFromPath(String path, ShowType showType) {
+    return new ShowByPathWarningsGuard(new String[] { path }, showType);
   }
 
   public ShowByPathWarningsGuard(String[] paths, ShowType showType) {

@@ -47,7 +47,7 @@ public final class LateEs6ToEs3Converter implements NodeTraversal.Callback, Comp
   private final AstFactory astFactory;
   private final Es6TemplateLiterals templateLiteralConverter;
   private static final FeatureSet transpiledFeatures =
-      FeatureSet.BARE_MINIMUM.with(
+      FeatureSet.BARE_MINIMUM.withFeatureVarargs(
           Feature.COMPUTED_PROPERTIES, Feature.MEMBER_DECLARATIONS, Feature.TEMPLATE_LITERALS);
 
   // We want to insert the call to `var tagFnFirstArg = $jscomp.createTemplateTagFirstArg...` just

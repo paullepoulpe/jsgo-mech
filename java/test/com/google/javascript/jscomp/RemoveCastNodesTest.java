@@ -35,6 +35,6 @@ public final class RemoveCastNodesTest extends CompilerTestCase {
 
   @Test
   public void keepsTypeAnnotations() {
-    testSame(srcs("/** @type {string} */ const x = 0;"));
+    testSameTestPartVarargs(srcs("/** @type {string} */ const x = 0;"));
   }
 }

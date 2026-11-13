@@ -202,10 +202,10 @@ final class InvocationTemplateTypeMatcher {
 
   private void matchTemplateTypesFromNodes(
       Iterable<Parameter> declParams, Iterable<Node> callParams) {
-    this.matchTemplateTypesFromNodes(declParams.iterator(), callParams.iterator());
+    this.matchTemplateTypesFromNodesIterator(declParams.iterator(), callParams.iterator());
   }
 
-  private void matchTemplateTypesFromNodes(
+  private void matchTemplateTypesFromNodesIterator(
       Iterator<Parameter> declParams, Iterator<Node> callParams) {
     while (declParams.hasNext() && callParams.hasNext()) {
       Parameter declParam = declParams.next();

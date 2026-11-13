@@ -65,7 +65,7 @@ public final class SyntacticScopeCreator implements ScopeCreator {
   }
 
   @Override
-  public Scope createScope(Node n, AbstractScope<?, ?> parent) {
+  public Scope createScopeAbstractScope(Node n, AbstractScope<?, ?> parent) {
     return this.createScope(n, (Scope) parent);
   }
 
@@ -354,7 +354,7 @@ public final class SyntacticScopeCreator implements ScopeCreator {
         return;
       }
       String namespace = namespaceNode.getString();
-      String root = NodeUtil.getRootOfQualifiedName(namespace);
+      String root = NodeUtil.getRootOfQualifiedNameString(namespace);
 
       if (root.isEmpty()) {
         return;

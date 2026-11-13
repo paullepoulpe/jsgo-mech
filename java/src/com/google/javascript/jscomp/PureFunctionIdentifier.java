@@ -569,7 +569,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
             AmbiguatedFunctionSummary rvalueSummary =
                 summariesByName.getOrDefault(rvalueName, unknownFunctionSummary);
 
-            reverseCallGraph.connect(
+            reverseCallGraph.connectDiGraphNode(
                 rvalueSummary.graphNode,
                 SideEffectPropagation.forAlias(),
                 summaryForName.graphNode);
@@ -1186,7 +1186,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
                 enclosingFunction,
                 argumentsMatchParameters(invocation),
                 propagatesThrows);
-        reverseCallGraph.connect(calleeInfo.graphNode, edge, callerInfo.graphNode);
+        reverseCallGraph.connectDiGraphNode(calleeInfo.graphNode, edge, callerInfo.graphNode);
       }
     }
 

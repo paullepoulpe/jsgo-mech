@@ -42,7 +42,7 @@ package com.google.javascript.rhino.jstype;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.javascript.rhino.jstype.JSTypeIterations.mapTypes;
+import static com.google.javascript.rhino.jstype.JSTypeIterations.mapTypesImmutableList;
 import static com.google.javascript.rhino.jstype.JSTypeNative.ALL_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.BIGINT_NUMBER;
 import static com.google.javascript.rhino.jstype.JSTypeNative.BIGINT_NUMBER_OBJECT;
@@ -830,7 +830,7 @@ public final class JSTypeRegistry {
     JSType promiseParameterType =
         createFunctionType(
             /* returnType= */ unknownType,
-            /* parameterTypes...= */ createFunctionType(
+            /* parameterTypes...= */ createFunctionTypeList(
                 unknownType,
                 createOptionalParameters(
                     createUnionType(
@@ -838,7 +838,7 @@ public final class JSTypeRegistry {
                         createTemplatizedType(ithenableType, promiseTemplateKey),
                         thenableType,
                         nullType))),
-            createFunctionType(unknownType, createOptionalParameters(allType)));
+            createFunctionTypeList(unknownType, createOptionalParameters(allType)));
 
     FunctionType promiseFunctionType =
         nativeConstructorBuilder("Promise")
@@ -1006,7 +1006,7 @@ public final class JSTypeRegistry {
 
     // (boolean,Boolean,number,Number,null,undefined)
     JSType numberAdditionSupertype =
-        createUnionType(
+        createUnionTypeJSTypeNativeVarargs(
             JSTypeNative.VOID_TYPE,
             JSTypeNative.NULL_TYPE,
             JSTypeNative.NUMBER_TYPE,
@@ -1819,15 +1819,15 @@ public final class JSTypeRegistry {
 
   /** Creates a union type whose variants are the arguments. */
   public JSType createUnionType(JSType... variants) {
-    return createUnionType(ImmutableList.copyOf(variants));
+    return createUnionTypeList(ImmutableList.copyOf(variants));
   }
 
-  public JSType createUnionType(List<? extends JSType> variants) {
+  public JSType createUnionTypeList(List<? extends JSType> variants) {
     return UnionType.builder(this).addAlternates(variants).build();
   }
 
   /** Creates a union type whose variants are the built-in types specified by the arguments. */
-  public JSType createUnionType(JSTypeNative... variants) {
+  public JSType createUnionTypeJSTypeNativeVarargs(JSTypeNative... variants) {
     UnionType.Builder builder = UnionType.builder(this);
     for (JSTypeNative type : variants) {
       builder.addAlternate(getNativeType(type));
@@ -1842,7 +1842,7 @@ public final class JSTypeRegistry {
    * @param parameterTypes the parameters' types
    */
   public FunctionType createFunctionType(JSType returnType, JSType... parameterTypes) {
-    return createFunctionType(returnType, createParameters(parameterTypes));
+    return createFunctionTypeList(returnType, createParameters(parameterTypes));
   }
 
   /**
@@ -1851,7 +1851,7 @@ public final class JSTypeRegistry {
    * @param returnType the function's return type or {@code null} to indicate that the return type
    *     is unknown.
    */
-  public FunctionType createFunctionType(
+  public FunctionType createFunctionTypeList(
       JSType returnType, List<FunctionType.Parameter> parameters) {
     return FunctionType.builder(this).withParameters(parameters).withReturnType(returnType).build();
   }
@@ -1864,7 +1864,7 @@ public final class JSTypeRegistry {
    * @param parameterTypes the parameters' types
    */
   public FunctionType createFunctionTypeWithVarArgs(JSType returnType, JSType... parameterTypes) {
-    return createFunctionType(returnType, createParametersWithVarArgs(parameterTypes));
+    return createFunctionTypeList(returnType, createParametersWithVarArgs(parameterTypes));
   }
 
   /**
@@ -2061,7 +2061,7 @@ public final class JSTypeRegistry {
         .withSourceNode(source)
         .withParameters(parameters)
         .withReturnType(returnType)
-        .withTemplateKeys(templateKeys)
+        .withTemplateKeysImmutableList(templateKeys)
         .withIsAbstract(isAbstract)
         .build();
   }
@@ -2075,7 +2075,7 @@ public final class JSTypeRegistry {
   }
 
   public TemplateType createTemplateTypeWithTransformation(String name, Node expr) {
-    return new TemplateType(this, name, expr);
+    return TemplateType.createFromTypeTransformation(this, name, expr);
   }
 
   public TemplateTypeMap getEmptyTemplateTypeMap() {
@@ -2090,7 +2090,7 @@ public final class JSTypeRegistry {
    * @param templatizedTypes a list of the template JSTypes. Will be matched by list order to the
    *     template keys on the base type.
    */
-  public TemplatizedType createTemplatizedType(
+  public TemplatizedType createTemplatizedTypeImmutableList(
       ObjectType baseType, ImmutableList<JSType> templatizedTypes) {
     checkNotNull(baseType);
     // Only ObjectTypes can currently be templatized; extend this logic when
@@ -2107,12 +2107,12 @@ public final class JSTypeRegistry {
    *     TemplateTypes on the baseType that are *not* contained in this map will have UNKNOWN_TYPE
    *     used as their value.
    */
-  public TemplatizedType createTemplatizedType(
+  public TemplatizedType createTemplatizedTypeMap(
       ObjectType baseType, Map<TemplateType, JSType> templatizedTypes) {
     JSType unknownType = getNativeType(UNKNOWN_TYPE);
-    return createTemplatizedType(
+    return createTemplatizedTypeImmutableList(
         baseType,
-        mapTypes(
+        mapTypesImmutableList(
             (key) -> templatizedTypes.getOrDefault(key, unknownType),
             baseType.getTypeParameters()));
   }
@@ -2126,7 +2126,7 @@ public final class JSTypeRegistry {
    *     template keys on the base type.
    */
   public TemplatizedType createTemplatizedType(ObjectType baseType, JSType... templatizedTypes) {
-    return createTemplatizedType(baseType, ImmutableList.copyOf(templatizedTypes));
+    return createTemplatizedTypeImmutableList(baseType, ImmutableList.copyOf(templatizedTypes));
   }
 
   /** Creates a named type. */
@@ -2207,7 +2207,7 @@ public final class JSTypeRegistry {
         for (Node child = n.getFirstChild(); child != null; child = child.getNext()) {
           builder.add(createTypeFromCommentNode(child, sourceName, scope));
         }
-        yield createUnionType(builder.build());
+        yield createUnionTypeList(builder.build());
       }
       case EMPTY ->
           // When the return value of a function is not specified
@@ -2267,7 +2267,7 @@ public final class JSTypeRegistry {
         }
 
         yield addNullabilityBasedOnParseContext(
-            n, createTemplatizedType(objectType, templateArgs), scope);
+            n, createTemplatizedTypeImmutableList(objectType, templateArgs), scope);
       }
       case FUNCTION -> {
         JSType thisType = null;

@@ -187,19 +187,19 @@ public final class ProcessDefinesTest extends CompilerTestCase {
 
   @Test
   public void testDefineInExterns() {
-    testSame(externs(DEFAULT_EXTERNS + "/** @define {boolean} */ var EXTERN_DEF;"), srcs(""));
+    testSameTestPartVarargs(externs(DEFAULT_EXTERNS + "/** @define {boolean} */ var EXTERN_DEF;"), srcs(""));
   }
 
   @Test
   public void testDefineInExternsPlusUsage() {
-    testSame(
+    testSameTestPartVarargs(
         externs(DEFAULT_EXTERNS + "/** @define {boolean} */ var EXTERN_DEF;"),
         srcs("/** @define {boolean} */ var DEF = EXTERN_DEF"));
   }
 
   @Test
   public void testNonDefineInExternsPlusUsage() {
-    testError(
+    testErrorExterns(
         externs(DEFAULT_EXTERNS + "/** @const {boolean} */ var EXTERN_NON_DEF;"),
         srcs("/** @define {boolean} */ var DEF = EXTERN_NON_DEF"),
         error(ProcessDefines.INVALID_DEFINE_VALUE));
@@ -207,7 +207,7 @@ public final class ProcessDefinesTest extends CompilerTestCase {
 
   @Test
   public void testDefineCompiledInExterns() {
-    testSame(externs(DEFAULT_EXTERNS + "/** @define {boolean} */ var COMPILED;"), srcs(""));
+    testSameTestPartVarargs(externs(DEFAULT_EXTERNS + "/** @define {boolean} */ var COMPILED;"), srcs(""));
   }
 
   @Test
@@ -675,8 +675,8 @@ public final class ProcessDefinesTest extends CompilerTestCase {
   public void testDefineWithoutGoogDefine_compiledInBaseJs() {
     mode = ProcessDefines.Mode.CHECK;
     enableDefineWithoutGoogDefineCheck = true;
-    testSame(
-        srcs(SourceFile.fromCode("base.js", "/** @define {boolean} */ var COMPILED = false;")));
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(SourceFile.fromCode("base.js", "/** @define {boolean} */ var COMPILED = false;")));
   }
 
   @Test
@@ -1102,8 +1102,8 @@ public final class ProcessDefinesTest extends CompilerTestCase {
   public void testEs2017OrGreaterFailsWhenCompilingZone() {
     outputFeatureSet = FeatureSet.ES2017;
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "third_party/javascript/angular2/rc/packages/zone.js/lib/zone.closure.js",
                 """
@@ -1118,7 +1118,7 @@ public final class ProcessDefinesTest extends CompilerTestCase {
     outputFeatureSet = FeatureSet.ES2017;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "defines.js", "var CLOSURE_DEFINES = {'javascript.angular2.ENABLE_ZONES': false};"),
             SourceFile.fromCode(
@@ -1133,8 +1133,8 @@ public final class ProcessDefinesTest extends CompilerTestCase {
   public void testEs2017OrGreaterFailsWhenCompilingZoneWithItExplicitlyEnabled() {
     outputFeatureSet = FeatureSet.ES2017;
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "defines.js", "var CLOSURE_DEFINES = {'javascript.angular2.ENABLE_ZONES': true};"),
             SourceFile.fromCode(
@@ -1151,7 +1151,7 @@ public final class ProcessDefinesTest extends CompilerTestCase {
     outputFeatureSet = FeatureSet.ES2016;
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "third_party/javascript/angular2/rc/packages/zone.js/lib/zone.closure.js", "")));
   }

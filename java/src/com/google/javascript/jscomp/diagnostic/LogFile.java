@@ -54,18 +54,18 @@ public abstract class LogFile implements AutoCloseable {
   // All subclasses are package classes.
   LogFile() {}
 
-  public abstract LogFile log(Object value);
+  public abstract LogFile logObject(Object value);
 
-  public abstract LogFile log(String value); // Provides a disambiguating overload.
+  public abstract LogFile logString(String value); // Provides a disambiguating overload.
 
   public abstract LogFile log(Supplier<String> value);
 
   @FormatMethod
   public abstract LogFile log(@FormatString String template, Object... values);
 
-  public abstract LogFile logJson(Object value);
+  public abstract LogFile logJsonObject(Object value);
 
-  public abstract LogFile logJson(Supplier<Object> value);
+  public abstract LogFile logJsonSupplier(Supplier<Object> value);
 
   public abstract LogFile logJson(StreamedJsonProducer producer);
 

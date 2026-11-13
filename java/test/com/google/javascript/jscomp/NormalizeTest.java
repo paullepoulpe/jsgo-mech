@@ -866,7 +866,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testForIn1() {
-    ignoreWarnings(DiagnosticGroups.MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MISSING_PROPERTIES);
 
     // Verify nothing happens with simple for-in
     testSame("for(a in b) foo();");
@@ -901,7 +901,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testForOf() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     // Verify nothing happens with simple for-of
     testSame("for (a of b) foo();");
@@ -925,7 +925,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testForAwaitOf() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     // Verify nothing happens with simple for-await-of
     testSame("async () => { for await (a of b) foo(); }");
@@ -1032,7 +1032,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testMakeLocalNamesUnique() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
     disableCompareJsDoc();
 
     // Verify global names are untouched.
@@ -1077,21 +1077,21 @@ public final class NormalizeTest extends CompilerTestCase {
 
     // Verify import * as <alias> is renamed.
     test(
-        srcs("let a = 5;", "import * as a from './a.js'; const TAU = 2 * a.PI;"),
-        expected(
+        srcsStringVarargs("let a = 5;", "import * as a from './a.js'; const TAU = 2 * a.PI;"),
+        expectedStringVarargs(
             "let a = 5;", "import * as a$jscomp$1 from './a.js'; const TAU = 2 * a$jscomp$1.PI"));
 
     // Verify exported and imported names are untouched.
     test(
-        srcs("var a;", "let a; export {a as a};"),
-        expected("var a;", "let a$jscomp$1; export {a$jscomp$1 as a};"));
+        srcsStringVarargs("var a;", "let a; export {a as a};"),
+        expectedStringVarargs("var a;", "let a$jscomp$1; export {a$jscomp$1 as a};"));
 
     // Verify same local names in 2 different files get different new names
     test(
-        srcs(
+        srcsStringVarargs(
             "function foo() {var a; a;}",
             "function bar() {let a; let a$jscomp$1; a + a$jscomp$1;}"),
-        expected(
+        expectedStringVarargs(
             "function foo() {var a; a;}",
             """
             function bar() {let a$jscomp$1; let a$jscomp$1$jscomp$1; a$jscomp$1 +
@@ -1099,8 +1099,8 @@ public final class NormalizeTest extends CompilerTestCase {
             """));
 
     test(
-        srcs("var a;", "import {a as a} from './foo.js'; let b = a;"),
-        expected("var a;", "import {a as a$jscomp$1} from './foo.js'; let b = a$jscomp$1;"));
+        srcsStringVarargs("var a;", "import {a as a} from './foo.js'; let b = a;"),
+        expectedStringVarargs("var a;", "import {a as a$jscomp$1} from './foo.js'; let b = a$jscomp$1;"));
 
     test(
         """
@@ -1127,7 +1127,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testMakeParamNamesUnique() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     test(
         "function f(x) { x; }\nfunction g(x) { x; }",
@@ -1175,7 +1175,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testNoRenameParamNames() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
     testSame("function f(x) { x; }");
 
     testSame("function f(...x) { x; }");
@@ -1568,7 +1568,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testIsConstantByDestructuringWithDefault() {
-    ignoreWarnings(DiagnosticGroups.MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MISSING_PROPERTIES);
 
     test("const {CONST = 3} = {}; var b = CONST;", "const {CONST: CONST = 3} = {}; var b = CONST;");
     Node n = getLastCompiler().getRoot();
@@ -1596,7 +1596,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testShadowFunctionName() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     test(
         """
@@ -1622,7 +1622,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
     NodeTraversal.builder()
         .setCompiler(getLastCompiler())
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (NodeTraversal t, Node node, Node parent) -> {
               if (prop.test(node)) {
                 set.add(node);
@@ -1676,7 +1676,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
     tester.test("var a = {FOO: 1};var b = 1; b = a.FOO;", "var a$FOO = 1; var b = 1; b = a$FOO;");
 
-    tester.testSame(
+    tester.testSameTestPartVarargs(
         externs("var EXTERN; var ext; ext.FOO;"), srcs("var b = EXTERN; var c = ext.FOO"));
 
     tester.test(
@@ -1777,35 +1777,35 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testES6ShorthandPropertySyntax05() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     test("var {a = 5} = obj;", "var a; ({a = 5} = obj);");
   }
 
   @Test
   public void testES6ShorthandPropertySyntax06() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     test("var {a = 5, b = 3} = obj;", "var a; var b; ({a = 5, b = 3} = obj);");
   }
 
   @Test
   public void testES6ShorthandPropertySyntax07() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     test("var {a: a = 5, b = 3} = obj;", "var a; var b; ({a: a = 5, b: b = 3} = obj);");
   }
 
   @Test
   public void testES6ShorthandPropertySyntax08() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     test("var {a, b} = obj;", "var a; var b; ({a, b} = obj);");
   }
 
   @Test
   public void testES6ShorthandPropertySyntax09() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     test("({a = 5} = obj);", "({a: a = 5} = obj);");
   }
@@ -1822,7 +1822,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testES6ShorthandPropertySyntax12() {
-    ignoreWarnings(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.GLOBALLY_MISSING_PROPERTIES);
 
     testSame("({a: a = 5} = obj)");
   }
@@ -1864,7 +1864,7 @@ public final class NormalizeTest extends CompilerTestCase {
 
   @Test
   public void testSplitExportDeclarationWithDestructuring() {
-    ignoreWarnings(DiagnosticGroups.MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MISSING_PROPERTIES);
 
     test("export var {} = {};", "({} = {}); export {};");
     test(

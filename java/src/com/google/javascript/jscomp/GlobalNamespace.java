@@ -124,8 +124,9 @@ class GlobalNamespace
    * @param compiler The AbstractCompiler, for reporting code changes
    * @param root The root of the rest of the code to build a namespace for.
    */
-  GlobalNamespace(LogFile decisionsLog, AbstractCompiler compiler, Node root) {
-    this(decisionsLog, compiler, null, root);
+  static GlobalNamespace createFromDecisionsLog(
+      LogFile decisionsLog, AbstractCompiler compiler, Node root) {
+    return new GlobalNamespace(decisionsLog, compiler, null, root);
   }
 
   /**
@@ -2078,15 +2079,15 @@ class GlobalNamespace
         logChildNamesDecision(Inlinability.DO_NOT_INLINE, "getter/setter");
         return Inlinability.DO_NOT_INLINE;
       } else if (globalSets != 1) {
-        logChildNamesDecision(
+        logChildNamesDecisionSupplier(
             Inlinability.DO_NOT_INLINE, () -> String.format("set %d times globally", globalSets));
         return Inlinability.DO_NOT_INLINE;
       } else if (localSets != 0) {
-        logChildNamesDecision(
+        logChildNamesDecisionSupplier(
             Inlinability.DO_NOT_INLINE, () -> String.format("set %d times locally", localSets));
         return Inlinability.DO_NOT_INLINE;
       } else if (deleteProps != 0) {
-        logChildNamesDecision(
+        logChildNamesDecisionSupplier(
             Inlinability.DO_NOT_INLINE,
             () -> String.format("properties are deleted %d times", deleteProps));
         return Inlinability.DO_NOT_INLINE;
@@ -2139,7 +2140,7 @@ class GlobalNamespace
       // condition (b)
       if (aliasingGets > 0) {
         final Inlinability unsafeInlinability = getUnsafeInlinabilityBasedOnDeclaredType();
-        logChildNamesDecision(
+        logChildNamesDecisionSupplier(
             unsafeInlinability, () -> String.format("%d aliasing gets exist", aliasingGets));
         return unsafeInlinability;
       }
@@ -2173,7 +2174,7 @@ class GlobalNamespace
       }
     }
 
-    private void logChildNamesDecision(Inlinability inlinability, Supplier<String> reasonSupplier) {
+    private void logChildNamesDecisionSupplier(Inlinability inlinability, Supplier<String> reasonSupplier) {
       if (decisionsLog != null && decisionsLog.isLogging()) {
         decisionsLog.log(
             () ->

@@ -74,7 +74,7 @@ public class DiagnosticGroups {
   private static final Map<String, DiagnosticGroup> groupsByName = new LinkedHashMap<>();
 
   static DiagnosticGroup registerDeprecatedGroup(String name) {
-    return registerGroup(name, new DiagnosticGroup(name, UNUSED));
+    return registerGroupDiagnosticGroup(name, new DiagnosticGroup(name, UNUSED));
   }
 
   /**
@@ -87,7 +87,7 @@ public class DiagnosticGroups {
   }
 
   @CanIgnoreReturnValue
-  static DiagnosticGroup registerGroup(String name, DiagnosticGroup group) {
+  static DiagnosticGroup registerGroupDiagnosticGroup(String name, DiagnosticGroup group) {
     groupsByName.put(name, group);
     return group;
   }
@@ -98,8 +98,8 @@ public class DiagnosticGroups {
     return group;
   }
 
-  static DiagnosticGroup registerGroup(String name, DiagnosticGroup... groups) {
-    DiagnosticGroup group = new DiagnosticGroup(name, groups);
+  static DiagnosticGroup registerGroupDiagnosticGroupVarargs(String name, DiagnosticGroup... groups) {
+    DiagnosticGroup group = DiagnosticGroup.createFromGroups(name, groups);
     groupsByName.put(name, group);
     return group;
   }
@@ -220,7 +220,7 @@ public class DiagnosticGroups {
 
   // TODO(tbreisacher): Deprecate this and keep just the "visibility" group.
   public static final DiagnosticGroup ACCESS_CONTROLS =
-      DiagnosticGroups.registerGroup("accessControls", VISIBILITY);
+      DiagnosticGroups.registerGroupDiagnosticGroup("accessControls", VISIBILITY);
 
   public static final DiagnosticGroup NON_STANDARD_JSDOC =
       DiagnosticGroups.registerGroup(
@@ -306,7 +306,7 @@ public class DiagnosticGroups {
   // but we would first need to cleanup projects that would break because
   // they set --jscomp_error=checkTypes.
   public static final DiagnosticGroup CHECK_TYPES =
-      DiagnosticGroups.registerGroup(
+      DiagnosticGroups.registerGroupDiagnosticGroupVarargs(
           "checkTypes",
           TypeValidator.ALL_DIAGNOSTICS,
           TypeCheck.ALL_DIAGNOSTICS,
@@ -319,7 +319,7 @@ public class DiagnosticGroups {
               CheckJSDoc.BAD_REST_PARAMETER_ANNOTATION));
 
   public static final DiagnosticGroup ES5_INHERITANCE_DIAGNOSTIC_GROUP =
-      DiagnosticGroups.registerGroup(
+      DiagnosticGroups.registerGroupDiagnosticGroup(
           "checkEs5InheritanceCorrectnessConditions", TypeCheck.ES5_INHERITANCE_DIAGNOSTIC_GROUP);
 
   public static final DiagnosticGroup CHECK_PROTOTYPAL_TYPES =
@@ -350,7 +350,7 @@ public class DiagnosticGroups {
           "strictPrimitiveOperators", TypeValidator.INVALID_OPERAND_TYPE);
 
   public static final DiagnosticGroup STRICT_CHECK_TYPES =
-      DiagnosticGroups.registerGroup(
+      DiagnosticGroups.registerGroupDiagnosticGroupVarargs(
           "strictCheckTypes", STRICT_MISSING_PROPERTIES, STRICT_PRIMITIVE_OPERATORS);
 
   public static final DiagnosticGroup REPORT_UNKNOWN_TYPES =
@@ -384,7 +384,7 @@ public class DiagnosticGroups {
           CheckAccessControls.CONST_PROPERTY_REASSIGNED_VALUE);
 
   static final DiagnosticGroup ACCESS_CONTROLS_CONST =
-      DiagnosticGroups.registerGroup("accessControlsConst", CONSTANT_PROPERTY);
+      DiagnosticGroups.registerGroupDiagnosticGroup("accessControlsConst", CONSTANT_PROPERTY);
 
   public static final DiagnosticGroup TYPE_INVALIDATION =
       DiagnosticGroups.registerGroup(
@@ -434,7 +434,7 @@ public class DiagnosticGroups {
 
   // identical to UNRECOGNIZED_TYPE_ERROR, but allowed in @suppress tags
   static final DiagnosticGroup DANGEROUS_UNRECOGNIZED_TYPE_ERROR =
-      DiagnosticGroups.registerGroup("dangerousUnrecognizedTypeError", UNRECOGNIZED_TYPE_ERROR);
+      DiagnosticGroups.registerGroupDiagnosticGroup("dangerousUnrecognizedTypeError", UNRECOGNIZED_TYPE_ERROR);
 
   public static final DiagnosticGroup MISSING_REQUIRE =
       DiagnosticGroups.registerGroup(
@@ -455,7 +455,7 @@ public class DiagnosticGroups {
    * (tool that extracts TypeScript definitions from JS code).
    */
   public static final DiagnosticGroup MISSING_SOURCES_WARNINGS =
-      DiagnosticGroups.registerGroup(
+      DiagnosticGroups.registerGroupDiagnosticGroupVarargs(
           "missingSourcesWarnings",
           REPORT_UNKNOWN_TYPES,
           UNDEFINED_VARIABLES,
@@ -568,7 +568,7 @@ public class DiagnosticGroups {
   // Warnings reported by the linter. If you enable these as errors in your build targets,
   // the JS Compiler team will break your build and not rollback.
   public static final DiagnosticGroup LINT_CHECKS =
-      DiagnosticGroups.registerGroup(
+      DiagnosticGroups.registerGroupDiagnosticGroupVarargs(
           "lintChecks", // undocumented
           CheckJSDocStyle.LINT_DIAGNOSTICS,
           USE_OF_GOOG_PROVIDE,

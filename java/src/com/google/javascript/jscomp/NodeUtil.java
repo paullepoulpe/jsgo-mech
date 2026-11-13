@@ -1149,7 +1149,7 @@ public final class NodeUtil {
       return true;
     }
     return initializer.isOr()
-        && qnameNode.matchesQualifiedName(initializer.getFirstChild())
+        && qnameNode.matchesQualifiedNameNode(initializer.getFirstChild())
         && initializer.getLastChild().isObjectLit();
   }
 
@@ -1476,7 +1476,7 @@ public final class NodeUtil {
           return ValueType.UNDETERMINED;
         }
 
-        if (!mayBeString(first) && !mayBeString(last)) {
+        if (!mayBeStringValueType(first) && !mayBeStringValueType(last)) {
           if (first == ValueType.BIGINT || last == ValueType.BIGINT) {
             // If one operand is a BigInt, then the result is a BigInt or there's a type error
             return ValueType.BIGINT;
@@ -1670,14 +1670,14 @@ public final class NodeUtil {
         }
       }
     }
-    return mayBeString(getKnownValueType(n));
+    return mayBeStringValueType(getKnownValueType(n));
   }
 
   /**
    * @return Whether the results is possibly a string, this includes Objects which may implicitly be
    *     converted to a string.
    */
-  static boolean mayBeString(ValueType type) {
+  static boolean mayBeStringValueType(ValueType type) {
     return switch (type) {
       case BOOLEAN, NULL, NUMBER, BIGINT, VOID -> false;
       case OBJECT, STRING, UNDETERMINED -> true;
@@ -1685,10 +1685,10 @@ public final class NodeUtil {
   }
 
   static boolean mayBeObject(Node n) {
-    return mayBeObject(getKnownValueType(n));
+    return mayBeObjectValueType(getKnownValueType(n));
   }
 
-  static boolean mayBeObject(ValueType type) {
+  static boolean mayBeObjectValueType(ValueType type) {
     return switch (type) {
       case BOOLEAN, NULL, NUMBER, BIGINT, STRING, VOID -> false;
       case OBJECT, UNDETERMINED -> true;
@@ -3599,10 +3599,10 @@ public final class NodeUtil {
    * @return A NAME or GETPROP node
    */
   public static Node newQName(AbstractCompiler compiler, String name) {
-    return newQName(compiler.getCodingConvention(), name);
+    return newQNameCodingConvention(compiler.getCodingConvention(), name);
   }
 
-  public static Node newQName(CodingConvention convention, String name) {
+  public static Node newQNameCodingConvention(CodingConvention convention, String name) {
     int endPos = name.indexOf('.');
     if (endPos == -1) {
       endPos = name.length();
@@ -3648,12 +3648,12 @@ public final class NodeUtil {
    */
   static Node newQName(
       AbstractCompiler compiler, String name, Node basisNode, String originalName) {
-    return newQName(compiler.getCodingConvention(), name, basisNode, originalName);
+    return newQNameCodingConvention(compiler.getCodingConvention(), name, basisNode, originalName);
   }
 
-  static Node newQName(
+  static Node newQNameCodingConvention(
       CodingConvention convention, String name, Node basisNode, String originalName) {
-    Node node = newQName(convention, name);
+    Node node = newQNameCodingConvention(convention, name);
     node.srcrefTreeIfMissing(basisNode);
     if (!originalName.equals(node.getOriginalName())) {
       // If basisNode already had the correct original name, then it will already be set correctly.
@@ -3686,7 +3686,7 @@ public final class NodeUtil {
   }
 
   /** Creates a property access on the {@code context} tree. */
-  public static Node newPropertyAccess(AbstractCompiler compiler, Node context, String name) {
+  public static Node newPropertyAccessAbstractCompiler(AbstractCompiler compiler, Node context, String name) {
     return newPropertyAccess(compiler.getCodingConvention(), context, name);
   }
 
@@ -3706,10 +3706,10 @@ public final class NodeUtil {
    */
   public static Node newQNameDeclaration(
       AbstractCompiler compiler, String name, Node value, JSDocInfo info) {
-    return newQNameDeclaration(compiler.getCodingConvention(), name, value, info);
+    return newQNameDeclarationCodingConvention(compiler.getCodingConvention(), name, value, info);
   }
 
-  public static Node newQNameDeclaration(
+  public static Node newQNameDeclarationCodingConvention(
       CodingConvention convention, String name, Node value, JSDocInfo info) {
     return newQNameDeclaration(convention, name, value, info, Token.VAR);
   }
@@ -3721,7 +3721,7 @@ public final class NodeUtil {
    * @param type Must be VAR, CONST, or LET. Ignored if {@code name} is dotted.
    * @return A VAR/CONST/LET node, or an EXPR_RESULT node containing an ASSIGN or NAME node.
    */
-  public static Node newQNameDeclaration(
+  public static Node newQNameDeclarationAbstractCompiler(
       AbstractCompiler compiler, String name, Node value, JSDocInfo info, Token type) {
     return newQNameDeclaration(compiler.getCodingConvention(), name, value, info, type);
   }
@@ -3729,7 +3729,7 @@ public final class NodeUtil {
   public static Node newQNameDeclaration(
       CodingConvention convention, String name, Node value, JSDocInfo info, Token type) {
     checkState(type == Token.VAR || type == Token.LET || type == Token.CONST, type);
-    Node nameNode = newQName(convention, name);
+    Node nameNode = newQNameCodingConvention(convention, name);
     return getDeclarationFromName(nameNode, value, type, info);
   }
 
@@ -3744,7 +3744,7 @@ public final class NodeUtil {
   }
 
   /** Gets the root node of a string representing a qualified name. */
-  static String getRootOfQualifiedName(String qName) {
+  static String getRootOfQualifiedNameString(String qName) {
     int dot = qName.indexOf('.');
     if (dot == -1) {
       return qName;
@@ -3770,10 +3770,10 @@ public final class NodeUtil {
    * @return The node created.
    */
   static Node newName(AbstractCompiler compiler, String name, Node srcref) {
-    return newName(compiler.getCodingConvention(), name, srcref);
+    return newNameCodingConvention(compiler.getCodingConvention(), name, srcref);
   }
 
-  static Node newName(CodingConvention convention, String name, Node srcref) {
+  static Node newNameCodingConvention(CodingConvention convention, String name, Node srcref) {
     return newName(convention, name).srcref(srcref);
   }
 
@@ -3788,12 +3788,12 @@ public final class NodeUtil {
    * @return The node created.
    */
   static Node newName(AbstractCompiler compiler, String name, Node basisNode, String originalName) {
-    return newName(compiler.getCodingConvention(), name, basisNode, originalName);
+    return newNameCodingConvention(compiler.getCodingConvention(), name, basisNode, originalName);
   }
 
-  static Node newName(
+  static Node newNameCodingConvention(
       CodingConvention convention, String name, Node basisNode, String originalName) {
-    Node nameNode = newName(convention, name, basisNode);
+    Node nameNode = newNameCodingConvention(convention, name, basisNode);
     nameNode.setOriginalName(originalName);
     return nameNode;
   }
@@ -3836,7 +3836,7 @@ public final class NodeUtil {
       replacement = "NodeUtil.isValidQualifiedName(mode.toFeatureSet(), name)",
       imports = "com.google.javascript.jscomp.NodeUtil")
   @Deprecated
-  public static boolean isValidQualifiedName(LanguageMode mode, String name) {
+  public static boolean isValidQualifiedNameLanguageMode(LanguageMode mode, String name) {
     return isValidQualifiedName(mode.toFeatureSet(), name);
   }
 
@@ -4144,14 +4144,14 @@ public final class NodeUtil {
     if (value != null) {
       lhs.srcref(value);
     }
-    return newVarNode(lhs, value);
+    return newVarNodeNode(lhs, value);
   }
 
   /**
    * Create a VAR node containing the given lhs (name or destructuring pattern) and initial value
    * expression.
    */
-  static Node newVarNode(Node lhs, Node value) {
+  static Node newVarNodeNode(Node lhs, Node value) {
     if (lhs.isDestructuringPattern()) {
       // TODO(b/314005766): Ensure that destructuring declarations are generated as normalized (i.e
       // individual names get their own stub declarations)
@@ -5333,7 +5333,7 @@ public final class NodeUtil {
             && n.getFirstChild().getDouble() == 0
             && n.getLastChild().isNumber()
             && n.getLastChild().getDouble() == 0)
-        || n.matchesQualifiedName(NUMBER_NAN);
+        || n.matchesQualifiedNameNode(NUMBER_NAN);
   }
 
   private static final Node NUMBER_NAN = IR.getprop(IR.name("Number"), "NaN");
@@ -5566,7 +5566,7 @@ public final class NodeUtil {
     return n.isCall() && n.getFirstChild().matchesQualifiedName(qualifiedName);
   }
 
-  public static boolean isCallTo(Node n, QualifiedName qualifiedName) {
+  public static boolean isCallToQualifiedName(Node n, QualifiedName qualifiedName) {
     return n.isCall() && qualifiedName.matches(n.getFirstChild());
   }
 
@@ -5576,12 +5576,12 @@ public final class NodeUtil {
    * @param n node to check if a call
    * @param targetMethod the prebuilt AST getprop node that represents the method to check
    */
-  public static boolean isCallTo(Node n, Node targetMethod) {
+  public static boolean isCallToNode(Node n, Node targetMethod) {
     if (!n.isCall()) {
       return false;
     }
 
-    return n.getFirstChild().matchesQualifiedName(targetMethod);
+    return n.getFirstChild().matchesQualifiedNameNode(targetMethod);
   }
 
   public static ImmutableSet<String> collectExternVariableNames(
@@ -5613,30 +5613,30 @@ public final class NodeUtil {
 
   /** Recurses through a tree, marking all function nodes as changed. */
   static void markNewScopesChanged(Node node, AbstractCompiler compiler) {
-    markNewScopesChanged(node, compiler.getChangeTracker());
+    markNewScopesChangedChangeTracker(node, compiler.getChangeTracker());
   }
 
-  static void markNewScopesChanged(Node node, ChangeTracker changeTracker) {
+  static void markNewScopesChangedChangeTracker(Node node, ChangeTracker changeTracker) {
     changeTracker.markNewScopesChanged(node);
   }
 
   /** Recurses through a tree, marking all function nodes deleted. */
   public static void markFunctionsDeleted(Node node, AbstractCompiler compiler) {
-    markFunctionsDeleted(node, compiler.getChangeTracker());
+    markFunctionsDeletedChangeTracker(node, compiler.getChangeTracker());
   }
 
-  public static void markFunctionsDeleted(Node node, ChangeTracker changeTracker) {
+  public static void markFunctionsDeletedChangeTracker(Node node, ChangeTracker changeTracker) {
     if (node.isFunction()) {
       changeTracker.reportFunctionDeleted(node);
     }
 
     for (Node child = node.getFirstChild(); child != null; child = child.getNext()) {
-      markFunctionsDeleted(child, changeTracker);
+      markFunctionsDeletedChangeTracker(child, changeTracker);
     }
 
     Node shadowed = node.getClosureUnawareShadow();
     if (shadowed != null) {
-      markFunctionsDeleted(shadowed, changeTracker);
+      markFunctionsDeletedChangeTracker(shadowed, changeTracker);
     }
   }
 
@@ -6032,10 +6032,10 @@ public final class NodeUtil {
       return null;
     }
 
-    return getGoogRequireInfo(var.getNameNode());
+    return getGoogRequireInfoNode(var.getNameNode());
   }
 
-  public static @Nullable GoogRequire getGoogRequireInfo(Node nameNode) {
+  public static @Nullable GoogRequire getGoogRequireInfoNode(Node nameNode) {
     // IMPORT_STAR is not part of a GoogRequire call.
     if (nameNode.isImportStar()) {
       return null;

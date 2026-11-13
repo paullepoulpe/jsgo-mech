@@ -171,9 +171,9 @@ public final class EnumElementType extends ObjectType {
   void appendTo(TypeStringBuilder sb) {
     if (sb.isForAnnotations()) {
       // TODO(dimvar): this should use getReferenceName() instead of this.primitiveType
-      sb.append(this.primitiveType);
+      sb.appendJSType(this.primitiveType);
     } else {
-      sb.append(getReferenceName()).append("<").append(this.primitiveType).append(">");
+      sb.append(getReferenceName()).append("<").appendJSType(this.primitiveType).append(">");
     }
   }
 
@@ -206,7 +206,7 @@ public final class EnumElementType extends ObjectType {
 
   @Override
   protected JSType findPropertyTypeWithoutConsideringTemplateTypes(Property.Key propertyName) {
-    return primitiveType.findPropertyType(propertyName);
+    return primitiveType.findPropertyTypeKey(propertyName);
   }
 
   @Override
@@ -240,7 +240,7 @@ public final class EnumElementType extends ObjectType {
    * which kind-of-sort-of makes sense, because an EnumElementType is a union of instances of a
    * type.
    */
-  static @Nullable JSType getGreatestSubtype(EnumElementType element, JSType that) {
+  static @Nullable JSType getGreatestSubtypeEnumElementType(EnumElementType element, JSType that) {
     // This method is implemented as a static because we don't want polymorphism. Ideally all the
     // `greatestSubtype` code would be in one place. Until then, using static calls minimizes
     // confusion.

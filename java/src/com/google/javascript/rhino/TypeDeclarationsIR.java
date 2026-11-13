@@ -98,7 +98,7 @@ public final class TypeDeclarationsIR {
    * @see #namedType(Iterable)
    */
   public static Node namedType(String typeName) {
-    return namedType(Splitter.on('.').split(typeName));
+    return namedTypeIterable(Splitter.on('.').split(typeName));
   }
 
   /**
@@ -114,7 +114,7 @@ public final class TypeDeclarationsIR {
    *       STRING Window
    * </pre>
    */
-  public static Node namedType(Iterable<String> segments) {
+  public static Node namedTypeIterable(Iterable<String> segments) {
     Iterator<String> segmentsIt = segments.iterator();
     Node node = IR.name(segmentsIt.next());
     while (segmentsIt.hasNext()) {
@@ -271,7 +271,7 @@ public final class TypeDeclarationsIR {
     return node;
   }
 
-  public static Node unionType(Node... options) {
+  public static Node unionTypeNodeVarargs(Node... options) {
     return unionType(Arrays.asList(options));
   }
 

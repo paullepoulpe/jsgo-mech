@@ -146,7 +146,7 @@ public final class OptionalChainingIntegrationTest extends IntegrationTestCase {
     externs = ImmutableList.of(new TestExternsBuilder().addConsole().buildExternsFile("externs"));
     options.setCheckTypes(true);
     // JSC_WRONG_ARGUMENT_COUNT error is reported
-    test(options, "var x = x || {}; x.f = function() {}; x?.f(3);", DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(options, "var x = x || {}; x.f = function() {}; x?.f(3);", DiagnosticGroups.CHECK_TYPES);
   }
 
   @Test

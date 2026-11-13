@@ -24,7 +24,7 @@ public final class J2clStringValueOfRewriterPassTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new PeepholeOptimizationsPass(compiler, getName(), new J2clStringValueOfRewriterPass());
+    return PeepholeOptimizationsPass.createFromOptimizations(compiler, getName(), new J2clStringValueOfRewriterPass());
   }
 
   @Override

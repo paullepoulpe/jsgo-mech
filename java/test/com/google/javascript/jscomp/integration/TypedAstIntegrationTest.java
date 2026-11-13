@@ -1113,6 +1113,6 @@ public final class TypedAstIntegrationTest extends IntegrationTestCase {
     Node expectedRoot = super.parseExpectedCode(expected, new CompilerOptions());
     assertNode(compiler.getRoot().getSecondChild())
         .usingSerializer(compiler::toSource)
-        .isEqualTo(expectedRoot);
+        .isEqualToNode(expectedRoot);
   }
 }

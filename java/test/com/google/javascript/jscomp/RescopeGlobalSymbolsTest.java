@@ -64,12 +64,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a; a = _.a = 1; a + 1;", "_.a;"));
+        expectedStringVarargs("var a; a = _.a = 1; a + 1;", "_.a;"));
   }
 
   @Test
@@ -77,12 +77,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a; a = 1; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("let a; a = _.a = 1; a + 1;", "_.a;"));
+        expectedStringVarargs("let a; a = _.a = 1; a + 1;", "_.a;"));
   }
 
   @Test
@@ -90,12 +90,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("for (var a, b; ; ) { b = 1; }")
                 .addChunk("a = 2;")
                 .build()),
-        expected("var b; for (_.a, b; ; ) { b = 1; }", "_.a = 2;"));
+        expectedStringVarargs("var b; for (_.a, b; ; ) { b = 1; }", "_.a = 2;"));
   }
 
   @Test
@@ -103,12 +103,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1; function getA() { return a; }")
                 .addChunk("a = 2;")
                 .build()),
-        expected("_.a = 1; var getA = function() { return _.a; };", "_.a = 2;"));
+        expectedStringVarargs("_.a = 1; var getA = function() { return _.a; };", "_.a = 2;"));
   }
 
   @Test
@@ -116,12 +116,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1; function getA() { return a; }")
                 .addChunk("var {a} = {a: 2};")
                 .build()),
-        expected("_.a = 1; var getA = function() { return _.a; };", "({a: _.a} = {a: 2});"));
+        expectedStringVarargs("_.a = 1; var getA = function() { return _.a; };", "({a: _.a} = {a: 2});"));
   }
 
   @Test
@@ -129,12 +129,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var {a} = {a: 1}; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a; ({a} = {a: 1}); _.a = a; a + 1;", "_.a;"));
+        expectedStringVarargs("var a; ({a} = {a: 1}); _.a = a; a + 1;", "_.a;"));
   }
 
   @Test
@@ -142,8 +142,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("var a = 1;").addChunk("a;").build()),
-        expected("_.a = 1;", "_.a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("var a = 1;").addChunk("a;").build()),
+        expectedStringVarargs("_.a = 1;", "_.a;"));
   }
 
   @Test
@@ -186,60 +186,60 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
   public void testVarDeclarations_acrossChunks() {
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("var a = 1;").addChunk("a").build()),
-        expected("_.a = 1", "_.a"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("var a = 1;").addChunk("a").build()),
+        expectedStringVarargs("_.a = 1", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1, b = 2, c = 3;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a = 1; b = 2; _.c = 3;", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a = 1; b = 2; _.c = 3;", "_.a;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1, b = 2, c = 3;")
                 .addChunk("b;c;")
                 .build()),
-        expected("var a;a = 1; _.b = 2; _.c = 3;", "_.b;_.c"));
+        expectedStringVarargs("var a;a = 1; _.b = 2; _.c = 3;", "_.b;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1, b = 2, c = 3;b;c;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a = 1; b = 2; _.c = 3;b;_.c", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a = 1; b = 2; _.c = 3;b;_.c", "_.a;_.c"));
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("var a, b = 1;").addChunk("b").build()),
-        expected("var a;_.b = 1;", "_.b"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("var a, b = 1;").addChunk("b").build()),
+        expectedStringVarargs("var a;_.b = 1;", "_.b"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a, b = 1, c = 2;")
                 .addChunk("b")
                 .build()),
-        expected("var a, c;_.b = 1;c = 2", "_.b"));
+        expectedStringVarargs("var a, c;_.b = 1;c = 2", "_.b"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a, b = 1, c = 2;")
                 .addChunk("a")
                 .build()),
-        expected("var b, c;b = 1;c = 2", "_.a"));
+        expectedStringVarargs("var b, c;b = 1;c = 2", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a=1; var b=2,c=3;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a=1;b=2;_.c=3", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a=1;b=2;_.c=3", "_.a;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("1;var a, b = 1, c = 2;")
                 .addChunk("b")
                 .build()),
-        expected("var a, c;1;_.b = 1;c = 2", "_.b"));
+        expectedStringVarargs("var a, c;1;_.b = 1;c = 2", "_.b"));
   }
 
   @Test
@@ -276,74 +276,74 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     // test references across chunks.
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("let a = 1;").addChunk("a").build()),
-        expected("_.a = 1", "_.a"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("let a = 1;").addChunk("a").build()),
+        expectedStringVarargs("_.a = 1", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a = 1, b = 2, c = 3;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a = 1; b = 2; _.c = 3;", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a = 1; b = 2; _.c = 3;", "_.a;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a = 1, b = 2, c = 3;")
                 .addChunk("b;c;")
                 .build()),
-        expected("var a;a = 1; _.b = 2; _.c = 3;", "_.b;_.c"));
+        expectedStringVarargs("var a;a = 1; _.b = 2; _.c = 3;", "_.b;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a = 1, b = 2, c = 3;b;c;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a = 1; b = 2; _.c = 3;b;_.c", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a = 1; b = 2; _.c = 3;b;_.c", "_.a;_.c"));
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("let a, b = 1;").addChunk("b").build()),
-        expected("var a;_.b = 1;", "_.b"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("let a, b = 1;").addChunk("b").build()),
+        expectedStringVarargs("var a;_.b = 1;", "_.b"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a, b = 1, c = 2;")
                 .addChunk("b")
                 .build()),
-        expected("var a, c;_.b = 1;c = 2", "_.b"));
+        expectedStringVarargs("var a, c;_.b = 1;c = 2", "_.b"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a, b = 1, c = 2;")
                 .addChunk("a")
                 .build()),
-        expected("var b, c;b = 1;c = 2", "_.a"));
+        expectedStringVarargs("var b, c;b = 1;c = 2", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a=1; let b=2,c=3;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a=1;b=2;_.c=3", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a=1;b=2;_.c=3", "_.a;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("1;let a, b = 1, c = 2;")
                 .addChunk("b")
                 .build()),
-        expected("var a, c;1;_.b = 1;c = 2", "_.b"));
+        expectedStringVarargs("var a, c;1;_.b = 1;c = 2", "_.b"));
     // test non-globals with same name as cross-chunk globals.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("1;let a, b = 1, c = 2;")
                 .addChunk("if (true) { let b = 3; b; }")
                 .build()));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("1;let a, b = 1, c = 2;")
                 .addChunk("b; if (true) { let b = 3; b; }")
                 .build()),
-        expected("var a, c; 1;_.b = 1;c = 2", "_.b; if (true) { let b = 3; b; }"));
+        expectedStringVarargs("var a, c; 1;_.b = 1;c = 2", "_.b; if (true) { let b = 3; b; }"));
   }
 
   @Test
@@ -351,12 +351,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("let a = 1; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a; a = _.a = 1; a + 1;", "_.a;"));
+        expectedStringVarargs("var a; a = _.a = 1; a + 1;", "_.a;"));
   }
 
   @Test
@@ -364,12 +364,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("const a = 1; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a; a = _.a = 1; a + 1;", "_.a;"));
+        expectedStringVarargs("var a; a = _.a = 1; a + 1;", "_.a;"));
   }
 
   @Test
@@ -377,12 +377,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1; a++; a += 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a; a = _.a = 1; a++; _.a = a; a += 1; _.a = a;", "_.a;"));
+        expectedStringVarargs("var a; a = _.a = 1; a++; _.a = a; a += 1; _.a = a;", "_.a;"));
   }
 
   @Test
@@ -390,12 +390,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1; var b = 1; a = b = 2; a + b;")
                 .addChunk("a; b;")
                 .build()),
-        expected("var a, b; a = _.a = 1; b = _.b = 1; a = _.a = b = _.b = 2; a + b;", "_.a; _.b;"));
+        expectedStringVarargs("var a, b; a = _.a = 1; b = _.b = 1; a = _.a = b = _.b = 2; a + b;", "_.a; _.b;"));
   }
 
   @Test
@@ -428,50 +428,50 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     // test references across chunks.
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("const a = 1;").addChunk("a").build()),
-        expected("_.a = 1", "_.a"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("const a = 1;").addChunk("a").build()),
+        expectedStringVarargs("_.a = 1", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("const a = 1, b = 2, c = 3;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a = 1; b = 2; _.c = 3;", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a = 1; b = 2; _.c = 3;", "_.a;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("const a = 1, b = 2, c = 3;")
                 .addChunk("b;c;")
                 .build()),
-        expected("var a;a = 1; _.b = 2; _.c = 3;", "_.b;_.c"));
+        expectedStringVarargs("var a;a = 1; _.b = 2; _.c = 3;", "_.b;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("const a = 1, b = 2, c = 3;b;c;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a = 1; b = 2; _.c = 3;b;_.c", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a = 1; b = 2; _.c = 3;b;_.c", "_.a;_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("const a=1; const b=2,c=3;")
                 .addChunk("a;c;")
                 .build()),
-        expected("var b;_.a=1;b=2;_.c=3", "_.a;_.c"));
+        expectedStringVarargs("var b;_.a=1;b=2;_.c=3", "_.a;_.c"));
     // test non-globals with same name as cross-chunk globals.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("1;const a = 1, b = 1, c = 2;")
                 .addChunk("if (true) { const b = 3; b; }")
                 .build()));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("1;const a = 1, b = 1, c = 2;")
                 .addChunk("b; if (true) { const b = 3; b; }")
                 .build()),
-        expected("var a, c; 1;a = 1; _.b = 1;c = 2", "_.b; if (true) { const b = 3; b; }"));
+        expectedStringVarargs("var a, c; 1;a = 1; _.b = 1;c = 2", "_.b; if (true) { const b = 3; b; }"));
   }
 
   @Test
@@ -517,57 +517,57 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
   public void testObjectDestructuringDeclarations_acrossChunks() {
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("var {a: a} = {};").addChunk("a").build()),
-        expected("({a: _.a} = {});", "_.a"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("var {a: a} = {};").addChunk("a").build()),
+        expectedStringVarargs("({a: _.a} = {});", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var {a: a, b: b, c: c} = {};")
                 .addChunk("a; c;")
                 .build()),
-        expected("var b;({a: _.a, b: b, c: _.c} = {});", "_.a; _.c"));
+        expectedStringVarargs("var b;({a: _.a, b: b, c: _.c} = {});", "_.a; _.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var {a: a, b: b, c: c} = {};")
                 .addChunk("b; c;")
                 .build()),
-        expected("var a;({a: a, b: _.b, c: _.c} = {});", "_.b; _.c"));
+        expectedStringVarargs("var a;({a: a, b: _.b, c: _.c} = {});", "_.b; _.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var {a: a, b: b, c: c} = {}; b; c;")
                 .addChunk("a; c;")
                 .build()),
-        expected("var b;({a: _.a, b: b, c: _.c} = {});b;_.c;", "_.a; _.c"));
+        expectedStringVarargs("var b;({a: _.a, b: b, c: _.c} = {});b;_.c;", "_.a; _.c"));
 
     // Test var declarations containing a mix of destructuring and regular names
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("var {a} = {}, b;").addChunk("a").build()),
-        expected("var b; ({a: _.a} = {});", "_.a"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("var {a} = {}, b;").addChunk("a").build()),
+        expectedStringVarargs("var b; ({a: _.a} = {});", "_.a"));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var {a} = {}, b = 3;")
                 .addChunk("b")
                 .build()),
-        expected("var a; ({a} = {}); _.b = 3;", "_.b"));
+        expectedStringVarargs("var a; ({a} = {}); _.b = 3;", "_.b"));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var {a: a, ...c} = {};")
                 .addChunk("a;")
                 .build()),
-        expected("var c; ({a: _.a, ...c} = {});", "_.a;"));
+        expectedStringVarargs("var c; ({a: _.a, ...c} = {});", "_.a;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var {a: a, ...c} = {};")
                 .addChunk("c;")
                 .build()),
-        expected("var a; ({a: a, ..._.c} = {});", "_.c"));
+        expectedStringVarargs("var a; ({a: a, ..._.c} = {});", "_.c"));
   }
 
   @Test
@@ -618,44 +618,44 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
   public void testArrayDestructuringDeclarations_acrossChunks() {
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forUnordered().addChunk("var [a] = [];").addChunk("a").build()),
-        expected("[_.a] = [];", "_.a"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forUnordered().addChunk("var [a] = [];").addChunk("a").build()),
+        expectedStringVarargs("[_.a] = [];", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var [a, b, c] = [];")
                 .addChunk("a; c;")
                 .build()),
-        expected("var b; [_.a, b, _.c] = [];", "_.a; _.c"));
+        expectedStringVarargs("var b; [_.a, b, _.c] = [];", "_.a; _.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var [a, b, c] = [];")
                 .addChunk("b; c;")
                 .build()),
-        expected("var a; [a, _.b, _.c] = [];", "_.b; _.c"));
+        expectedStringVarargs("var a; [a, _.b, _.c] = [];", "_.b; _.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var [a, b, c] = []; b; c;")
                 .addChunk("a; c;")
                 .build()),
-        expected("var b; [_.a, b, _.c] = []; b; _.c;", "_.a; _.c"));
+        expectedStringVarargs("var b; [_.a, b, _.c] = []; b; _.c;", "_.a; _.c"));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var [a, ...c] = [];")
                 .addChunk("a;")
                 .build()),
-        expected("var c; ([_.a, ...c] = []);", "_.a;"));
+        expectedStringVarargs("var c; ([_.a, ...c] = []);", "_.a;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var [a, ...c] = [];")
                 .addChunk("c;")
                 .build()),
-        expected("var a; ([a, ..._.c] = []);", "_.c"));
+        expectedStringVarargs("var a; ([a, ..._.c] = []);", "_.c"));
   }
 
   @Test
@@ -728,33 +728,33 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
   public void testForLoops() {
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("for (var i = 0, c = 2; i < 1000; i++);")
                 .addChunk("c")
                 .build()),
-        expected("var i;for (i = 0, _.c = 2; i < 1000; i++);", "_.c"));
+        expectedStringVarargs("var i;for (i = 0, _.c = 2; i < 1000; i++);", "_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("      for (var i = 0, c = 2;   i < 1000;   i++);")
                 .addChunk("i")
                 .build()),
-        expected("var c;for (  _.i = 0, c = 2; _.i < 1000; _.i++);", "_.i"));
+        expectedStringVarargs("var c;for (  _.i = 0, c = 2; _.i < 1000; _.i++);", "_.i"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for (var {i: i, c:   c} = {};  i < 1000; i++);")
                 .addChunk("c")
                 .build()),
-        expected("var i; for (   ({i: i, c: _.c} = {}); i < 1000; i++);", "_.c"));
+        expectedStringVarargs("var i; for (   ({i: i, c: _.c} = {}); i < 1000; i++);", "_.c"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for (var [i,   c] = [0, 2]; i < 1000; i++);")
                 .addChunk("c;")
                 .build()),
-        expected("var i; for (    [i, _.c] = [0, 2]; i < 1000; i++);", "_.c;"));
+        expectedStringVarargs("var i; for (    [i, _.c] = [0, 2]; i < 1000; i++);", "_.c;"));
   }
 
   @Test
@@ -789,26 +789,26 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
   public void testForInLoops_acrossChunks() {
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("for (var i in {});")
                 .addChunk("i")
                 .build()),
-        expected("for (_.i in {});", "_.i"));
+        expectedStringVarargs("for (_.i in {});", "_.i"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for (var [  a, b] in {});")
                 .addChunk("a;")
                 .build()),
-        expected("var b; for (    [_.a, b] in {});", "_.a"));
+        expectedStringVarargs("var b; for (    [_.a, b] in {});", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for (var {i: i, c:   c} in {});")
                 .addChunk("c")
                 .build()),
-        expected("var i; for (    {i: i, c: _.c} in {});", "_.c"));
+        expectedStringVarargs("var i; for (    {i: i, c: _.c} in {});", "_.c"));
   }
 
   @Test
@@ -823,26 +823,26 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
   public void testForOfLoops_acrossChunks() {
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("for (var i of []);")
                 .addChunk("i")
                 .build()),
-        expected("for (_.i of []);", "_.i"));
+        expectedStringVarargs("for (_.i of []);", "_.i"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for (var [  a, b] of []);")
                 .addChunk("a;")
                 .build()),
-        expected("var b; for (    [_.a, b] of []);", "_.a"));
+        expectedStringVarargs("var b; for (    [_.a, b] of []);", "_.a"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for (var {i: i, c:   c} of []);")
                 .addChunk("c")
                 .build()),
-        expected("var i; for (    {i: i, c: _.c} of []);", "_.c"));
+        expectedStringVarargs("var i; for (    {i: i, c: _.c} of []);", "_.c"));
   }
 
   @Test
@@ -857,22 +857,22 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
   public void testForAwaitOfLoops_acrossChunks() {
     // TODO(b/128938049): re-enable it once we support top-level await.
     assumeCrossChunkNames = false;
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("for await (var i of []);")
                 .addChunk("i")
                 .build()),
         RhinoErrorReporter.PARSE_ERROR);
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for await (var [  a, b] of []);")
                 .addChunk("a;")
                 .build()),
         RhinoErrorReporter.PARSE_ERROR);
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("       for await (var {i: i, c:   c} of []);")
                 .addChunk("c")
@@ -1116,7 +1116,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk(
                     """
@@ -1129,7 +1129,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
                     """)
                 .addChunk("f; g;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             """
             var ns;
             Foo = function() { this.b = ns; };
@@ -1172,8 +1172,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     testSame("var a = 3; a; export default a;");
 
     assumeCrossChunkNames = false;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 3; export {a};")
                 .addChunk("import {a} from './input0';")
@@ -1190,8 +1190,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
-        expected("var a; a = _.a = 1; a + 1;", "var {a} = _; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
+        expectedStringVarargs("var a; a = _.a = 1; a + 1;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1199,12 +1199,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a = 2; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a; a = _.a = 1; a = _.a = 2; a + 1;", "var {a} = _; a;"));
+        expectedStringVarargs("var a; a = _.a = 1; a = _.a = 2; a + 1;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1212,22 +1212,22 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; function f() { a = 2; } a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a; a = _.a = 1; var f = function() { a = _.a = 2; }; a + 1;", "_.a;"));
+        expectedStringVarargs("var a; a = _.a = 1; var f = function() { a = _.a = 2; }; a + 1;", "_.a;"));
 
     // Writes inside an `if` block occur in a block scope (!t.inGlobalScope()), so other chunks do
     // not alias `a` (`var {a} = _;`) and instead read `_.a` directly when `readA()` is called.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function readA() { return a; }")
                 .addChunk("var a = 1; if (a + 3) { a++; readA(); }")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.readA = function() { return _.a; };",
             "var {readA} = _; var a; a = _.a = 1; if (a + 3) { a++; _.a = a; readA(); }"));
   }
@@ -1237,12 +1237,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("a = 2; a;")
                 .build()),
-        expected("_.a = 1; _.a + 1;", "_.a = 2; _.a;"));
+        expectedStringVarargs("_.a = 1; _.a + 1;", "_.a = 2; _.a;"));
   }
 
   @Test
@@ -1250,13 +1250,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("a; a + 2;")
                 .addChunk("a; a + 3;")
                 .build()),
-        expected("var a; a = _.a = 1; a + 1;", "var {a} = _; a; a + 2;", "var {a} = _; a; a + 3;"));
+        expectedStringVarargs("var a; a = _.a = 1; a + 1;", "var {a} = _; a; a + 2;", "var {a} = _; a; a + 3;"));
   }
 
   @Test
@@ -1265,8 +1265,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
-        expected("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
+        expectedStringVarargs("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1275,8 +1275,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("let a = 1; a + 1;").addChunk("a;").build()),
-        expected("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("let a = 1; a + 1;").addChunk("a;").build()),
+        expectedStringVarargs("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1285,8 +1285,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("const a = 1; a + 1;").addChunk("a;").build()),
-        expected("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("const a = 1; a + 1;").addChunk("a;").build()),
+        expectedStringVarargs("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1295,12 +1295,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1, b = 2, c = 3, d = 4; a + c + d;")
                 .addChunk("a; b; d;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = 1; _.b = 2; var c = 3, d = _.d = 4; a + c + d;",
             "var {a, b, d} = _; a; b; d;"));
   }
@@ -1311,12 +1311,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a = 2; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a = _.a = 1; a = _.a = 2; a + 1;", "var {a} = _; a;"));
+        expectedStringVarargs("var a = _.a = 1; a = _.a = 2; a + 1;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1325,12 +1325,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; var b = 1; a = b = 2; a + b;")
                 .addChunk("a; b;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = 1; var b = _.b = 1; a = _.a = b = _.b = 2; a + b;",
             "var {a, b} = _; a; b;"));
   }
@@ -1342,8 +1342,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
-        expected("var a = _.a = 1; a + 1;", "var a = _.a; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
+        expectedStringVarargs("var a = _.a = 1; a + 1;", "var a = _.a; a;"));
   }
 
   @Test
@@ -1352,19 +1352,19 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var [a, b, c] = [1, 2, 3]; a + b;")
                 .addChunk("a; c;")
                 .build()),
-        expected("var a, b; [a, b, _.c] = [1, 2, 3]; _.a = a; a + b;", "var {a, c} = _; a; c;"));
+        expectedStringVarargs("var a, b; [a, b, _.c] = [1, 2, 3]; _.a = a; a + b;", "var {a, c} = _; a; c;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1, [b, c] = [2, 3], d = 4; a + b + d;")
                 .addChunk("a; c; d;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = 1, b; [b, _.c] = [2, 3]; var d = _.d = 4; a + b + d;",
             "var {a, c, d} = _; a; c; d;"));
   }
@@ -1375,12 +1375,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("for (var a = 0, b = 1, c = 2; a < 10; a++) { b++; }")
                 .addChunk("a; c;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var c = _.c = {}; var _a, b; for (_a = _.a._ = 0, b = 1, c._ = 2; _a < 10;"
                 + " ++_.a._, _a++) { b++; }",
             "var {a, c} = _; a._; c._;"));
@@ -1392,12 +1392,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1, b = 2; function f() { b = 3; } a + b;")
                 .addChunk("a; b;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.b = {}; var a = _.a = 1, _b = _.b._ = 2; var f = function() { _b = _.b._ = 3; }; a +"
                 + " _b;",
             "var {a, b} = _; a; b._;"));
@@ -1410,68 +1410,68 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     test(
         externs("var externVar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var externVar, a = 1; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
+        expectedStringVarargs("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
     test(
         externs("var externVar;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var externVar; var a = 1; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
+        expectedStringVarargs("var a = _.a = 1; a + 1;", "var {a} = _; a;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var crossChunkNoInit, a = 1; a + 1;")
                 .addChunk("crossChunkNoInit; a;")
                 .build()),
-        expected("var a = _.a = 1; a + 1;", "var {crossChunkNoInit, a} = _; crossChunkNoInit; a;"));
+        expectedStringVarargs("var a = _.a = 1; a + 1;", "var {crossChunkNoInit, a} = _; crossChunkNoInit; a;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var crossChunkNoInit, a = 1; a + 1;")
                 .addChunk("crossChunkNoInit = 2; a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var crossChunkNoInit = _.crossChunkNoInit = {}; var a = _.a = 1; a + 1;",
             "var {a, crossChunkNoInit} = _; crossChunkNoInit._ = 2; a;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain().addChunk("let a; a = 1; a + 1;").addChunk("a;").build()),
-        expected("let a; a = _.a = 1; a + 1;", "var {a} = _; a;"));
+        expectedStringVarargs("let a; a = _.a = 1; a + 1;", "var {a} = _; a;"));
     test(
         externs("var externVar;"),
         srcs("var externVar, localVar = 1;"),
         expected("var localVar = 1;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("let localVar = 1, a; a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected("var localVar = 1, a; a + 1;", "var {a} = _; a;"));
+        expectedStringVarargs("var localVar = 1, a; a + 1;", "var {a} = _; a;"));
 
     // Standalone statement writes: compound assignments, prefix/postfix increments/decrements,
     // and destructuring assignments.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a++; ++a; a--; --a; a += 2; [a] = [3]; var [b] = [4]; b;")
                 .addChunk("a; b;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = 1, b; ++_.a, a++; _.a = ++a; --_.a, a--; _.a = --a; _.a = a += 2;"
                 + " [a] = [3]; _.a = a; [b] = [4]; _.b = b; b;",
             "var {a, b} = _; a; b;"));
 
     // Top-level writes inside expression contexts (binary, ternary, and control-flow conditions).
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     "var a = 1;"
@@ -1483,7 +1483,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
                         + " x + y;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = 1;"
                 + " var x = (++_.a, a++) + (_.a = ++a) + (--_.a, a--) + (_.a = --a) + (_.a = a +="
                 + " 2);"
@@ -1499,7 +1499,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     // wrapped in a holder object (a._), while keeping a direct local variable (_a) in the defining
     // chunk.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     "var a = 1;"
@@ -1511,7 +1511,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
                         + " postInc() + preInc() + postDec() + preDec() + addAssign() + a;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var _a = _.a._ = 1;"
                 + " var postInc = function() { return ++_.a._, _a++; };"
                 + " var preInc = function() { return _.a._ = ++_a; };"
@@ -1525,29 +1525,29 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     // symbol is wrapped in a holder object (a._) and cross-chunk function calls inside the block
     // observe the updated value.
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; if (a + 3) { a++; }")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var _a = _.a._ = 1; if (_a + 3) { ++_.a._, _a++; }", "var {a} = _; a._;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function readA() { return a; }")
                 .addChunk("var a = 1; if (a + 3) { a++; readA(); }")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; _.readA = function() { return a._; };",
             "var {readA} = _; var _a = _.a._ = 1; if (_a + 3) { ++_.a._, _a++; readA(); }"));
     // Uninitialized var declarations followed by top-level compound assignment or increment.
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("var a; a += 2; a;").addChunk("a;").build()),
-        expected("var a; _.a = a += 2; a;", "var {a} = _; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("var a; a += 2; a;").addChunk("a;").build()),
+        expectedStringVarargs("var a; _.a = a += 2; a;", "var {a} = _; a;"));
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("var a; a++; a;").addChunk("a;").build()),
-        expected("var a; ++_.a, a++; a;", "var {a} = _; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("var a; a++; a;").addChunk("a;").build()),
+        expectedStringVarargs("var a; ++_.a, a++; a;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1555,12 +1555,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DEFINING_CHUNK_ONLY;
     assumeCrossChunkNames = false;
     Sources sources =
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("for (var a of [1, 2]) {} a;")
                 .addChunk("a;")
                 .build());
-    Expected expected = expected("", "");
+    Expected expected = expectedStringVarargs("", "");
     RuntimeException e = assertThrows(RuntimeException.class, () -> test(sources, expected));
     assertThat(e).hasCauseThat().isInstanceOf(IllegalStateException.class);
     assertThat(e)
@@ -1581,8 +1581,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
           "var a; if (([a] = [1])) {} a;"
         }) {
       Sources sources =
-          srcs(JSChunkGraphBuilder.forChain().addChunk(chunk0).addChunk("a;").build());
-      Expected expected = expected("", "");
+          srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk(chunk0).addChunk("a;").build());
+      Expected expected = expectedStringVarargs("", "");
       RuntimeException e = assertThrows(RuntimeException.class, () -> test(sources, expected));
       assertThat(e).hasCauseThat().isInstanceOf(IllegalStateException.class);
       assertThat(e)
@@ -1597,12 +1597,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 1;")
                 .addChunk("function f() { return a; }")
                 .build()),
-        expected("_.a = 1;", "var f = function() { return _.a; };"));
+        expectedStringVarargs("_.a = 1;", "var f = function() { return _.a; };"));
   }
 
   @Test
@@ -1610,12 +1610,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function f() { return a; }")
                 .addChunk("var a = 1;")
                 .build()),
-        expected("var f = function() { return _.a; };", "_.a = 1;"));
+        expectedStringVarargs("var f = function() { return _.a; };", "_.a = 1;"));
   }
 
   @Test
@@ -1624,12 +1624,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; function f() { a = 2; } a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; a._ = 1; var f = function() { a._ = 2; }; a._ + 1;",
             "var {a} = _; a._;"));
   }
@@ -1640,12 +1640,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("a = 2; a;")
                 .build()),
-        expected("var a = _.a = {}; a._ = 1; a._ + 1;", "var {a} = _; a._ = 2; a._;"));
+        expectedStringVarargs("var a = _.a = {}; a._ = 1; a._ + 1;", "var {a} = _; a._ = 2; a._;"));
   }
 
   @Test
@@ -1654,13 +1654,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("var b = 1; b + 1;")
                 .addChunk("a = 2; b = 2;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; a._ = 1; a._ + 1;",
             "var b = _.b = {}; b._ = 1; b._ + 1;",
             "var {a, b} = _; a._ = 2; b._ = 2;"));
@@ -1672,12 +1672,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function f() { return a; }")
                 .addChunk("var a = 1; function g() { a = 2; } a + 1;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; var f = function() { return a._; };",
             "var {a} = _; a._ = 1; var g = function() { a._ = 2; }; a._ + 1;"));
   }
@@ -1688,13 +1688,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("var x = 1;")
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("a = 2; a + 2;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var x = 1;",
             "var {a} = _; a._ = 1; a._ + 1;",
             "var {a} = _; a._ = 2; a._ + 2;"));
@@ -1706,8 +1706,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
-        expected("var a; a = _.a = 1; a + 1;", "var a = _.a; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("var a = 1; a + 1;").addChunk("a;").build()),
+        expectedStringVarargs("var a; a = _.a = 1; a + 1;", "var a = _.a; a;"));
   }
 
   @Test
@@ -1717,13 +1717,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("var b = 1; b + 1;")
                 .addChunk("a = 2; b = 2;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; a._ = 1; a._ + 1;",
             "var b = _.b = {}; b._ = 1; b._ + 1;",
             "var a = _.a; var b = _.b; a._ = 2; b._ = 2;"));
@@ -1735,13 +1735,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function f() { return a; }")
                 .addChunk("var a = 1;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; var f = function() { return a._; };",
             "var {a} = _; a._ = 1;",
             "var {a} = _; a._;"));
@@ -1753,13 +1753,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("var x = 1;")
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("function f() { return a; }")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var x = 1;",
             "var {a} = _; a._ = 1; a._ + 1;",
             "var {a} = _; var f = function() { return a._; };"));
@@ -1771,8 +1771,8 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(JSChunkGraphBuilder.forChain().addChunk("var a = 1;").addChunk("a;").build()),
-        expected("_.a = 1;", "var {a} = _; a;"));
+        srcsJSChunkVarargs(JSChunkGraphBuilder.forChain().addChunk("var a = 1;").addChunk("a;").build()),
+        expectedStringVarargs("_.a = 1;", "var {a} = _; a;"));
   }
 
   @Test
@@ -1782,13 +1782,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     test(
         externs("var window; var customExtern;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("window.onload = function() { return customExtern + a; };")
                 .addChunk("var a = customExtern; window.foo = a;")
                 .addChunk("customExtern = window.foo + a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; window.onload = function() { return customExtern + a._; };",
             "var {a} = _; a._ = customExtern; window.foo = a._;",
             "var {a} = _; customExtern = window.foo + a._;"));
@@ -1801,12 +1801,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     test(
         externs("var ext;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function f() { return ext; }")
                 .addChunk("var ext = 1; ext + 1;")
                 .build()),
-        expected("var f = function() { return ext; };", "ext = 1; ext + 1;"));
+        expectedStringVarargs("var f = function() { return ext; };", "ext = 1; ext + 1;"));
   }
 
   @Test
@@ -1816,12 +1816,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function f() { return g() + h() + new C(); }")
                 .addChunk("function g() { return 1; } function h() { return this; } class C {}")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var g=_.g={};var h=_.h={};var C=_.C={};"
                 + "var f=function(){return g._()+(0,h._)()+new C._};",
             "var {g,h,C}=_;g._=function(){return 1};h._=function(){return this};C._=class{}"));
@@ -1833,12 +1833,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1; function f() { return b; }")
                 .addChunk("var b, c; b = 2; c = 3; a + b + c;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var b = _.b = {}; var a; a = _.a = 1; a + 1; var f = function() { return b._; };",
             "var {a, b} = _; var c; b._ = 2; c = 3; a + b._ + c;"));
   }
@@ -1847,13 +1847,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DELETE_GLOBALS_ON_LAST_ACCESS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1; var b = 1; b + 1; var c = 1; c + 1;")
                 .addChunk("a; b; c;")
                 .addChunk("b;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_._ = function(a) { for (let b of a.split(',')) { delete _[b]; } };"
                 + " var a = _.a = 1; a + 1; var b = _.b = 1; b + 1; var c = _.c = 1; c + 1;",
             "var {b, a, c} = _; _._('a,c'); a; b; c;",
@@ -1866,13 +1866,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     setLanguage(CompilerOptions.LanguageMode.ECMASCRIPT5, CompilerOptions.LanguageMode.ECMASCRIPT5);
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1; var b = 1; b + 1;")
                 .addChunk("a; b;")
                 .addChunk("b;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = 1; a + 1; var b = _.b = 1; b + 1;",
             "var b = _.b; var a = _.a; delete _.a; a; b;",
             "var b = _.b; delete _.b; b;"));
@@ -1883,13 +1883,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DELETE_GLOBALS_ON_LAST_ACCESS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("var a = 1; a + 1; var b = 1; b + 1;")
                 .addChunk("a; b;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_._ = function(a) { for (let b of a.split(',')) { delete _[b]; } };"
                 + " var a = _.a = 1; a + 1; var b = _.b = 1; b + 1;",
             "var {a, b} = _; _._('b'); a; b;",
@@ -1901,14 +1901,14 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     optimizeLocalAccess = CompilerOptions.OptimizeLocalAccess.DELETE_GLOBALS_ON_LAST_ACCESS;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     "function f() { return a; } var b = 1; b + 1; var c = 1;"
                         + " function g() { c = 2; } c + 1;")
                 .addChunk("var a = 1; a + 1; b = 2; b; c;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_._ = function(a) { for (let b of a.split(',')) { delete _[b]; } };"
                 + " var b = _.b = {}; var a = _.a = {}; _.c = {}; var f = function() { return a._;"
                 + " }; b._ = 1; b._ + 1; var _c = _.c._ = 1; var g = function() { _c = _.c._ = 2;"
@@ -1922,12 +1922,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; function f() { a = 2; } a + 1;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var _a = _.a._ = 1; var f = function() { _a = _.a._ = 2; }; _a + 1;",
             "var {a} = _; a._;"));
   }
@@ -1938,12 +1938,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("function f() { return a; }")
                 .addChunk("var a = 1; function g() { a = 2; } a + 1;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; var f = function() { return a._; };",
             "var _a = _.a._ = 1; var g = function() { _a = _.a._ = 2; }; _a + 1;"));
   }
@@ -1954,13 +1954,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("var x = 1;")
                 .addChunk("var a = 1; a + 1;")
                 .addChunk("function f() { return a; }")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var x = 1;",
             "var _a = _.a._ = 1; _a + 1;",
             "var {a} = _; var f = function() { return a._; };"));
@@ -1973,13 +1973,13 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     test(
         externs("var window; var customExtern;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("window.onload = function() { return customExtern + a; };")
                 .addChunk("var a = customExtern; window.foo = a;")
                 .addChunk("customExtern = window.foo + a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; window.onload = function() { return customExtern + a._; };",
             "var _a = _.a._ = customExtern; window.foo = _a;",
             "var {a} = _; customExtern = window.foo + a._;"));
@@ -1991,12 +1991,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; a + 1; function f() { return b; }")
                 .addChunk("var b, c; b = 2; c = 3; a + b + c;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var b = _.b = {}; var a = _.a = 1; a + 1; var f = function() { return b._; };",
             "var {a} = _; var _b, c; _b = _.b._ = 2; c = 3; a + _b + c;"));
   }
@@ -2007,24 +2007,24 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var $ = 1; function f(_) { $ = 2; return _; } $;")
                 .addChunk("$;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.$ = {}; var __$ = _.$._ = 1;"
                 + " var f = function(_$) { __$ = _.$._ = 2; return _$; }; __$;",
             "var {$} = _; $._;"));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     "var $ = 1, $$ = 2; function f(_, _$) { $ = 3; $$ = 4; return _ + _$; } $ +"
                         + " $$;")
                 .addChunk("$; $$;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.$ = {}; _.$$ = {}; var __$ = _.$._ = 1, __$$ = _.$$._ = 2; var f = function(_$,"
                 + " _$$) { __$ = _.$._ = 3; __$$ = _.$$._ = 4; return _$ + _$$; }; __$ + __$$;",
             "var {$, $$} = _; $._; $$._;"));
@@ -2037,12 +2037,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
     assumeCrossChunkNames = false;
     test(
         externs("var ___a;"),
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; function f(_a) { a = 2; return _a; } a;")
                 .addChunk("function g(__a) { return a + __a; }")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var ____a = _.a._ = 1;"
                 + " var f = function(_a) { ____a = _.a._ = 2; return _a; }; ____a;",
             "var {a} = _; var g = function(__a) { return a._ + __a; };"));
@@ -2054,7 +2054,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     "var a = 1, b = 0, c = 0;"
@@ -2063,7 +2063,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
                         + " clinit(); a + b + c;")
                 .addChunk("clinit(); a; b; c;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.clinit = {}; _.a = {}; _.b = {}; _.c = {};"
                 + " var _a = _.a._ = 1, _b = _.b._ = 0, _c = _.c._ = 0;"
                 + " var _clinit = _.clinit._ = function() {"
@@ -2079,12 +2079,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a; var _a = 10; function init() { a = _a; } a;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var __a; var _a = _._a = 10; var init = function() { __a = _.a._ = _a; };"
                 + " __a;",
             "var {a} = _; a._;"));
@@ -2096,12 +2096,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var a = 1; function init() { a = 2; }")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; a._ = 1; var init = function() { a._ = 2; };", "var {a} = _; a._;"));
   }
 
@@ -2111,7 +2111,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk(
                     "var a = 0, b = 0, c = 0; function setA() { return [a] = [1]; }"
@@ -2119,7 +2119,7 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
                         + " function setC() { label: [c] = [1]; } a + b + c;")
                 .addChunk("a; b; c;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "var a = _.a = {}; var b = _.b = {}; var c = _.c = {}; a._ = 0; b._ = 0; c._ = 0;"
                 + " var setA = function() { return [a._] = [1]; };"
                 + " var loopB = function() { for (b._ of [1, 2]) {} };"
@@ -2133,12 +2133,12 @@ public final class RescopeGlobalSymbolsTest extends CompilerTestCase {
         CompilerOptions.OptimizeLocalAccess.ALL_CHUNKS_WITH_WRAPPED_REASSIGNABLE_SYMBOLS_IMPROVED;
     assumeCrossChunkNames = false;
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forChain()
                 .addChunk("var [a] = [1]; function setA() { [a] = [2]; } a;")
                 .addChunk("a;")
                 .build()),
-        expected(
+        expectedStringVarargs(
             "_.a = {}; var _a; [_a] = [1]; _.a._ = _a;"
                 + " var setA = function() { [_a] = [2]; _.a._ = _a; }; _a;",
             "var {a} = _; a._;"));

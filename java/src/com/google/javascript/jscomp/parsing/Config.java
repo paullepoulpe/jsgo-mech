@@ -83,7 +83,7 @@ public abstract class Config {
     /** Returns the lowest {@link LanguageMode} that supports the specified feature set. */
     public static LanguageMode minimumRequiredForSet(FeatureSet featureSet) {
       for (LanguageMode mode : LanguageMode.values()) {
-        if (mode.featureSet.contains(featureSet)) {
+        if (mode.featureSet.containsFeatureSet(featureSet)) {
           return mode;
         }
       }

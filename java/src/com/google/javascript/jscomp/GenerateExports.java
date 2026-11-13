@@ -159,16 +159,16 @@ public class GenerateExports implements CompilerPass {
    */
   private boolean includesExportMethods(Node root) {
     Scope globalScope = new SyntacticScopeCreator(compiler).createScope(root, /* parent= */ null);
-    String exportPropertyRoot = NodeUtil.getRootOfQualifiedName(exportPropertyFunction);
-    String exportSymbolRoot = NodeUtil.getRootOfQualifiedName(exportSymbolFunction);
+    String exportPropertyRoot = NodeUtil.getRootOfQualifiedNameString(exportPropertyFunction);
+    String exportSymbolRoot = NodeUtil.getRootOfQualifiedNameString(exportSymbolFunction);
     return globalScope.hasSlot(exportPropertyRoot) && globalScope.hasSlot(exportSymbolRoot);
   }
 
   /** Add a synthesized externs declaration to prevent crashes later on in VarCheck. */
   private void declareExportMethodsInExterns(Node srcref) {
 
-    String exportPropertyRoot = NodeUtil.getRootOfQualifiedName(exportPropertyFunction);
-    String exportSymbolRoot = NodeUtil.getRootOfQualifiedName(exportSymbolFunction);
+    String exportPropertyRoot = NodeUtil.getRootOfQualifiedNameString(exportPropertyFunction);
+    String exportSymbolRoot = NodeUtil.getRootOfQualifiedNameString(exportSymbolFunction);
 
     if (exportPropertyRoot.equals(exportSymbolRoot)) {
       declareSyntheticExternsVar(exportPropertyRoot, srcref);

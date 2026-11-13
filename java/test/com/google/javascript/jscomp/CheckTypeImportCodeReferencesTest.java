@@ -36,7 +36,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_namespace() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -48,7 +48,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_alias() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -86,7 +86,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_destructuring() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -106,7 +106,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_destructuring_shortname() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -114,7 +114,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
             alias;
             """));
 
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -146,7 +146,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_shadowing() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -154,7 +154,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
             function foo(alias) { alias; }
             """));
 
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -174,7 +174,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_getprop_left() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -194,7 +194,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_getprop_right() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');
@@ -205,7 +205,7 @@ public final class CheckTypeImportCodeReferencesTest extends CompilerTestCase {
 
   @Test
   public void testRequireTypeCodeReference_implicit_var() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('test');

@@ -32,12 +32,12 @@ public class CachedTransformer implements Source.Transformer {
     this.cache = builder.build(CacheLoader.from(delegate::transform));
   }
 
-  public CachedTransformer(Source.Transformer delegate, String spec) {
-    this(delegate, CacheBuilder.from(spec));
+  public static CachedTransformer createFromSpec(Source.Transformer delegate, String spec) {
+    return new CachedTransformer(delegate, CacheBuilder.from(spec));
   }
 
   public CachedTransformer(Source.Transformer delegate) {
-    this(delegate, DEFAULT_CACHE_SPEC);
+    this(delegate, CacheBuilder.from(DEFAULT_CACHE_SPEC));
   }
 
   @Override

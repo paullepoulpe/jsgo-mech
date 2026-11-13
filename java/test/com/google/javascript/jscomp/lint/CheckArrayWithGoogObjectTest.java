@@ -114,6 +114,6 @@ public final class CheckArrayWithGoogObjectTest extends CompilerTestCase {
   }
 
   private void testNoGoogObjectWarning(String js) {
-    testSame(externs(DEFAULT_EXTERNS), srcs(js));
+    testSameTestPartVarargs(externs(DEFAULT_EXTERNS), srcs(js));
   }
 }

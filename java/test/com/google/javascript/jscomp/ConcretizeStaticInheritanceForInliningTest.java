@@ -421,7 +421,7 @@ public class ConcretizeStaticInheritanceForInliningTest extends CompilerTestCase
   public void testInheritFromExterns() {
     // Since externs definitions can't be inlined into the code, there is no inlining benefit
     // from running this pass on externs.
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor */ function ExternsClass() {}

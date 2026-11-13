@@ -184,7 +184,7 @@ class IsolatePolyfills implements CompilerPass {
     if (compiler
         .getOptions()
         .getOutputFeatureSet()
-        .contains(FeatureSet.valueOf(polyfill.nativeVersion))) {
+        .containsFeatureSet(FeatureSet.valueOf(polyfill.nativeVersion))) {
       return;
     }
 

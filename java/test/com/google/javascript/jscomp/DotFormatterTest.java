@@ -165,6 +165,6 @@ public final class DotFormatterTest {
   }
 
   private void test(String expected, Node ast) throws Exception {
-    assertThat(DotFormatter.toDot(ast)).isEqualTo(expected);
+    assertThat(DotFormatter.toDotNode(ast)).isEqualTo(expected);
   }
 }

@@ -99,7 +99,7 @@ class TypeInferencePass {
       checkState(inferenceRoot.isRoot());
       checkState(inferenceRoot.getParent() == null);
       checkState(this.topScope == null);
-      this.topScope = scopeCreator.createScope(inferenceRoot, null);
+      this.topScope = scopeCreator.createScopeAbstractScope(inferenceRoot, null);
 
       NodeTraversal.builder()
           .setCompiler(compiler)
@@ -130,7 +130,7 @@ class TypeInferencePass {
     if (this.stepCountHistogram != null) {
       try (LogFile histogram =
           this.compiler.createOrReopenLog(this.getClass(), "step_histogram.log")) {
-        histogram.log("step_count token population");
+        histogram.logString("step_count token population");
 
         int[] totals = new int[] {0, 0};
         List<Integer> stepCounts = new ArrayList<>(this.stepCountHistogram.keySet());

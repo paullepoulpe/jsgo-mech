@@ -101,7 +101,7 @@ public final class Es7RewriteExponentialOperatorTest extends CompilerTestCase {
     setAcceptedLanguage(LanguageMode.ECMASCRIPT_2020);
     setLanguageOut(LanguageMode.ECMASCRIPT5);
     // Avoid transpiling to Math.pow() when BigInt is involved.
-    testError(srcs("let a = BigInt(2) ** BigInt(3);"), TRANSPILE_EXPONENT_USING_BIGINT);
+    testErrorSourcesDiagnosticType(srcs("let a = BigInt(2) ** BigInt(3);"), TRANSPILE_EXPONENT_USING_BIGINT);
   }
 
   /**
@@ -112,7 +112,7 @@ public final class Es7RewriteExponentialOperatorTest extends CompilerTestCase {
     setAcceptedLanguage(LanguageMode.ECMASCRIPT_2020);
     setLanguageOut(LanguageMode.ECMASCRIPT5);
     // Avoid transpiling to Math.pow() when BigInt is involved.
-    testError(srcs("let a = 3n; a **= BigInt(2);"), TRANSPILE_EXPONENT_USING_BIGINT);
+    testErrorSourcesDiagnosticType(srcs("let a = 3n; a **= BigInt(2);"), TRANSPILE_EXPONENT_USING_BIGINT);
   }
 
   /**
@@ -140,6 +140,6 @@ public final class Es7RewriteExponentialOperatorTest extends CompilerTestCase {
     setAcceptedLanguage(LanguageMode.ECMASCRIPT_2020);
     setLanguageOut(LanguageMode.ECMASCRIPT5);
     // Avoid transpiling to Math.pow() when BigInt is involved.
-    testError(srcs("let a = 2n ** 3n;"), TRANSPILE_EXPONENT_USING_BIGINT);
+    testErrorSourcesDiagnosticType(srcs("let a = 2n ** 3n;"), TRANSPILE_EXPONENT_USING_BIGINT);
   }
 }

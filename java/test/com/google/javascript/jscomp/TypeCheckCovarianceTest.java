@@ -560,7 +560,7 @@ public final class TypeCheckCovarianceTest {
             fun(new Bar1())
             fun(new Bar());
             """)
-        .addDiagnostic(STRICT_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -584,7 +584,7 @@ public final class TypeCheckCovarianceTest {
             var f = new Bar1();
             f.y();
             """)
-        .addDiagnostic(STRICT_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_PROPERTY)
         .run(); // Only if strict warnings are enabled.
   }
 
@@ -606,7 +606,7 @@ public final class TypeCheckCovarianceTest {
             var ri;
             ri.x.obj.y();
             """)
-        .addDiagnostic(STRICT_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_PROPERTY)
         .run(); // Only if strict warnings are enabled.
   }
 
@@ -728,7 +728,7 @@ public final class TypeCheckCovarianceTest {
             /** @type {Foo} */ var f;
             f.y();
             """)
-        .addDiagnostic(STRICT_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -968,7 +968,7 @@ public final class TypeCheckCovarianceTest {
               y.abort();
             }
             """)
-        .addDiagnostic(STRICT_INEXISTENT_UNION_PROPERTY)
+        .addDiagnosticDiagnosticType(STRICT_INEXISTENT_UNION_PROPERTY)
         .run();
   }
 

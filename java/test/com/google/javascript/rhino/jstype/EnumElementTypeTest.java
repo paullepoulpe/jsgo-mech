@@ -89,7 +89,7 @@ public class EnumElementTypeTest extends BaseJSTypeTestCase {
     EnumElementType typeA = this.createEnumType("typeA", NUMBER_TYPE).getElementsType();
     EnumElementType typeB = this.createEnumType("typeB", NUMBER_TYPE).getElementsType();
 
-    JSType greatestSubtype = EnumElementType.getGreatestSubtype(typeA, typeB);
+    JSType greatestSubtype = EnumElementType.getGreatestSubtypeEnumElementType(typeA, typeB);
 
     assertType(greatestSubtype).isSubtypeOf(typeA);
     assertType(greatestSubtype).isSubtypeOf(typeB);
@@ -105,7 +105,7 @@ public class EnumElementTypeTest extends BaseJSTypeTestCase {
     EnumElementType typeA = this.createEnumType("typeA", NUMBER_TYPE).getElementsType();
     EnumElementType typeB = this.createEnumType("typeB", NUMBER_TYPE).getElementsType();
 
-    JSType greatestSubtype = EnumElementType.getGreatestSubtype(typeA, typeB);
+    JSType greatestSubtype = EnumElementType.getGreatestSubtypeEnumElementType(typeA, typeB);
 
     assertType(greatestSubtype).isSubtypeOf(typeA);
     assertType(greatestSubtype).isSubtypeOf(typeB);

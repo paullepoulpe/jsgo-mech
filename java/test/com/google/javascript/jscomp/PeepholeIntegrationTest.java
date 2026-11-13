@@ -44,7 +44,7 @@ public class PeepholeIntegrationTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new PeepholeOptimizationsPass(
+    return PeepholeOptimizationsPass.createFromOptimizations(
         compiler,
         getName(),
         new PeepholeMinimizeConditions(late),

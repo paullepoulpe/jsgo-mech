@@ -52,7 +52,7 @@ public class J2clCheckPassTest extends CompilerTestCase {
   @Test
   public void testReferenceEquality_noWarning_other() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "java/lang/SomeClass.impl.java.js",
                 """
@@ -68,7 +68,7 @@ public class J2clCheckPassTest extends CompilerTestCase {
   public void testReferenceEquality_noWarning_null() {
     for (String value : REFERENCE_EQUALITY_TYPE_PATTERNS.values()) {
       test(
-          srcs(
+          srcsSourceFileVarargs(
               SourceFile.fromCode(
                   value,
                   """
@@ -84,7 +84,7 @@ public class J2clCheckPassTest extends CompilerTestCase {
   public void testReferenceEquality_noWarning_undefined() {
     for (String value : REFERENCE_EQUALITY_TYPE_PATTERNS.values()) {
       test(
-          srcs(
+          srcsSourceFileVarargs(
               SourceFile.fromCode(
                   value,
                   """
@@ -100,7 +100,7 @@ public class J2clCheckPassTest extends CompilerTestCase {
   public void testReferenceEquality_warning() {
     for (String value : REFERENCE_EQUALITY_TYPE_PATTERNS.values()) {
       test(
-          srcs(
+          srcsSourceFileVarargs(
               SourceFile.fromCode(
                   value,
                   """

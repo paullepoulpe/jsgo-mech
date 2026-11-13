@@ -3343,7 +3343,7 @@ public final class TypeCheckNoTranspileTest {
             class Foo {}
             var /** !Foo<number> */ x = new Foo();
             """)
-        .addDiagnostic(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
         .run();
   }
 
@@ -3357,7 +3357,7 @@ public final class TypeCheckNoTranspileTest {
             }
             var /** !Foo<number> */ x = new Foo();
             """)
-        .addDiagnostic(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
         .run();
   }
 
@@ -3372,7 +3372,7 @@ public final class TypeCheckNoTranspileTest {
             }
             var /** !Foo<number, number> */ x = new Foo();
             """)
-        .addDiagnostic(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
         .run();
   }
 
@@ -4343,7 +4343,7 @@ override: string
             }
             var /** !Foo<string, string> */ x = new Foo();
             """)
-        .addDiagnostic(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
         .run();
   }
 
@@ -9809,7 +9809,7 @@ override: function(this:Bar, number): undefined
             /** @type {!a.Foo<number>} */
             let x;
             """)
-        .addDiagnostic(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
         .run();
   }
 
@@ -9839,7 +9839,7 @@ override: function(this:Bar, number): undefined
             /** @type {!b.Bar<number>} */
             let x;
             """)
-        .addDiagnostic(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
+        .addDiagnosticDiagnosticType(RhinoErrorReporter.TOO_MANY_TEMPLATE_PARAMS)
         .run();
   }
 

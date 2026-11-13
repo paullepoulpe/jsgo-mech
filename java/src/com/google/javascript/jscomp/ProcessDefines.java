@@ -594,7 +594,7 @@ class ProcessDefines implements CompilerPass {
      */
     NodeTraversal.builder()
         .setCompiler(this.compiler)
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (t, n, parent) -> {
               JSDocInfo jsdoc = n.getJSDocInfo();
               if (jsdoc != null && jsdoc.isDefine() && this.knownDefineJsdocs.add(jsdoc)) {
@@ -854,7 +854,7 @@ class ProcessDefines implements CompilerPass {
     if (node == null || !node.isCall()) {
       return false;
     }
-    return node.getFirstChild().matchesQualifiedName(GOOG_DEFINE);
+    return node.getFirstChild().matchesQualifiedNameNode(GOOG_DEFINE);
   }
 
   /**

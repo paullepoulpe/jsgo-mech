@@ -160,11 +160,11 @@ abstract class IntegrationTestCase {
   }
 
   protected void testSame(CompilerOptions options, String original) {
-    testSame(options, new String[] {original});
+    testSameStringArray(options, new String[] {original});
   }
 
-  protected void testSame(CompilerOptions options, String[] original) {
-    test(options, original, original);
+  protected void testSameStringArray(CompilerOptions options, String[] original) {
+    testStringArray(options, original, original);
   }
 
   /**
@@ -172,15 +172,15 @@ abstract class IntegrationTestCase {
    * into {@code compiled}.
    */
   protected void test(CompilerOptions options, String original, String compiled) {
-    test(options, new String[] {original}, new String[] {compiled});
+    testStringArray(options, new String[] {original}, new String[] {compiled});
   }
 
   /**
    * Asserts that when compiling with the given compiler options, {@code original} is transformed
    * into {@code compiled}.
    */
-  protected void test(CompilerOptions options, String[] original, String[] compiled) {
-    Compiler compiler = compile(options, original);
+  protected void testStringArray(CompilerOptions options, String[] original, String[] compiled) {
+    Compiler compiler = compileStringArray(options, original);
 
     Node root = compiler.getRoot().getLastChild();
 
@@ -200,36 +200,36 @@ abstract class IntegrationTestCase {
 
     if (compiled != null) {
       Node expectedRoot = parseExpectedCode(compiled, options);
-      assertNode(root).usingSerializer(compiler::toSource).isEqualTo(expectedRoot);
+      assertNode(root).usingSerializer(compiler::toSource).isEqualToNode(expectedRoot);
     }
   }
 
   /** Asserts that when compiling with the given compiler options, there is an error or warning. */
-  protected void test(CompilerOptions options, String original, DiagnosticGroup warning) {
+  protected void testStringDiagnosticGroup(CompilerOptions options, String original, DiagnosticGroup warning) {
     test(options, new String[] {original}, null, warning);
   }
 
   /** Asserts that when compiling with the given compiler options, there is an error or warning. */
-  protected void test(
+  protected void testString(
       CompilerOptions options, String original, String compiled, DiagnosticGroup warning) {
     test(options, new String[] {original}, new String[] {compiled}, warning);
   }
 
   /** Asserts that when compiling with the given compiler options, there is an error or warning. */
-  protected void test(CompilerOptions options, String[] original, DiagnosticGroup warning) {
+  protected void testStringArrayDiagnosticGroup(CompilerOptions options, String[] original, DiagnosticGroup warning) {
     test(options, original, null, warning);
   }
 
   /** Asserts that when compiling with the given compiler options, there is an error or warning. */
-  protected void test(
+  protected void testDiagnosticGroupArray(
       CompilerOptions options, String[] original, String[] compiled, DiagnosticGroup[] warnings) {
-    Compiler compiler = compile(options, original);
+    Compiler compiler = compileStringArray(options, original);
     checkUnexpectedErrorsOrWarnings(compiler, warnings.length);
 
     if (compiled != null) {
       Node root = compiler.getRoot().getLastChild();
       Node expectedRoot = parseExpectedCode(compiled, options);
-      assertNode(root).usingSerializer(compiler::toSource).isEqualTo(expectedRoot);
+      assertNode(root).usingSerializer(compiler::toSource).isEqualToNode(expectedRoot);
     }
 
     assertThat(
@@ -247,13 +247,13 @@ abstract class IntegrationTestCase {
       String[] original,
       String @Nullable [] compiled,
       DiagnosticGroup warnings) {
-    Compiler compiler = compile(options, original);
+    Compiler compiler = compileStringArray(options, original);
     checkUnexpectedErrorsOrWarnings(compiler, 1);
 
     if (compiled != null) {
       Node root = compiler.getRoot().getLastChild();
       Node expectedRoot = parseExpectedCode(compiled, options);
-      assertNode(root).usingSerializer(compiler::toSource).isEqualTo(expectedRoot);
+      assertNode(root).usingSerializer(compiler::toSource).isEqualToNode(expectedRoot);
     }
 
     DiagnosticType diagnostic;
@@ -265,7 +265,7 @@ abstract class IntegrationTestCase {
     assertWithMessage(
             "Error not in expected diagnostic group. Error: %s\nExpected group: %s",
             diagnostic.key, warnings)
-        .that(warnings.matches(diagnostic))
+        .that(warnings.matchesDiagnosticType(diagnostic))
         .isTrue();
   }
 
@@ -290,7 +290,7 @@ abstract class IntegrationTestCase {
     if (compiled != null) {
       Node root = compiler.getRoot().getLastChild();
       Node expectedRoot = parseExpectedCode(new String[] {compiled}, options);
-      assertNode(root).usingSerializer(compiler::toSource).isEqualTo(expectedRoot);
+      assertNode(root).usingSerializer(compiler::toSource).isEqualToNode(expectedRoot);
     }
   }
 
@@ -311,21 +311,21 @@ abstract class IntegrationTestCase {
   }
 
   protected Compiler compile(CompilerOptions options, String original) {
-    return compile(options, new String[] {original});
+    return compileStringArray(options, new String[] {original});
   }
 
-  protected Compiler compile(CompilerOptions options, String[] original) {
-    return compile(
+  protected Compiler compileStringArray(CompilerOptions options, String[] original) {
+    return compileImmutableList(
         options,
         ImmutableList.copyOf(
             JSChunkGraphBuilder.forChain()
-                .addChunks(ImmutableList.copyOf(original))
+                .addChunksList(ImmutableList.copyOf(original))
                 .setFilenameFormat(inputFileNamePrefix + "%s" + inputFileNameSuffix)
                 .build()));
   }
 
   @CanIgnoreReturnValue
-  protected Compiler compile(CompilerOptions options, ImmutableList<JSChunk> chunks) {
+  protected Compiler compileImmutableList(CompilerOptions options, ImmutableList<JSChunk> chunks) {
     Compiler compiler = createCompiler(new BlackHoleErrorManager());
 
     lastCompiler = compiler;
@@ -334,7 +334,7 @@ abstract class IntegrationTestCase {
   }
 
   Compiler createCompiler(ErrorManager errorManager) {
-    return new Compiler(errorManager);
+    return Compiler.createFromErrorManager(errorManager);
   }
 
   Compiler createCompiler() {
@@ -342,11 +342,11 @@ abstract class IntegrationTestCase {
   }
 
   protected void testNoWarnings(CompilerOptions options, String code) {
-    testNoWarnings(options, new String[] {code});
+    testNoWarningsStringArray(options, new String[] {code});
   }
 
-  protected void testNoWarnings(CompilerOptions options, String[] sources) {
-    Compiler compiler = compile(options, sources);
+  protected void testNoWarningsStringArray(CompilerOptions options, String[] sources) {
+    Compiler compiler = compileStringArray(options, sources);
     assertThat(compiler.getErrors()).isEmpty();
     assertThat(compiler.getWarnings()).isEmpty();
   }

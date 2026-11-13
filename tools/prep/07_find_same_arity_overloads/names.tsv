@@ -1,0 +1,12 @@
+# Names that the default rule (name + distinguishing parameter type) does not give; see Scan.java.
+# A line whose new name equals the old one makes that overload the one that keeps its name.
+com.google.javascript.jscomp.CompilerOptions#setIdGenerators(java.util.Map)	setIdGeneratorsRenamingMaps
+com.google.javascript.jscomp.CompilerOptions#setBrowserFeaturesetYear(com.google.javascript.jscomp.CompilerOptions.BrowserFeaturesetYear)	setBrowserFeaturesetYearEnum
+com.google.javascript.jscomp.CompilerOptions#setExtractPrototypeMemberDeclarations(com.google.javascript.jscomp.CompilerOptions.ExtractPrototypeMemberDeclarationsMode)	setExtractPrototypeMemberDeclarationsMode
+com.google.javascript.jscomp.bundle.Source$Builder#setCode(com.google.common.base.Supplier)	setCodeFromSupplier
+com.google.javascript.jscomp.graph.DiGraph#isConnectedInDirection(java.lang.Object,java.lang.Object,java.lang.Object)	isConnectedInDirection
+com.google.javascript.jscomp.graph.LinkedDirectedGraph#isConnectedInDirection(java.lang.Object,com.google.common.base.Predicate,java.lang.Object)	isConnectedInDirectionPredicate
+com.google.javascript.jscomp.graph.Graph#isConnected(java.lang.Object,java.lang.Object,java.lang.Object)	isConnected
+com.google.javascript.jscomp.deps.SimpleDependencyInfo$Builder#setProvides(java.util.Collection)	setProvides
+com.google.javascript.jscomp.deps.SimpleDependencyInfo$Builder#setRequires(java.util.Collection)	setRequires
+com.google.javascript.jscomp.deps.SimpleDependencyInfo$Builder#setTypeRequires(java.util.Collection)	setTypeRequires

@@ -39,35 +39,35 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   public void testVarDeclarations_acrossChunks() {
     ignoreWarnings(LOAD_WARNING);
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("var a = 1;")
                 .addChunk("a")
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("var a = 1; export {a}")
                 .addChunk("import {a} from './m0.js'; a")
                 .build()));
 
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("var a = 1, b = 2, c = 3;")
                 .addChunk("a;c;")
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("var a = 1, b = 2, c = 3; export {a, c};")
                 .addChunk("import {a, c} from './m0.js'; a; c;")
                 .build()));
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("var a = 1, b = 2, c = 3;")
                 .addChunk("b;c;")
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar()
                 .addChunk("var a = 1, b = 2, c = 3; export {b,c};")
                 .addChunk("import {b, c} from './m0.js'; b;c;")
@@ -93,7 +93,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
 
     expected[0].add(SourceFile.fromCode("m0-1", ""));
 
-    test(srcs(original), expected(expected));
+    test(srcsJSChunkVarargs(original), expectedJSChunkArray(expected));
   }
 
   @Test
@@ -111,7 +111,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
             .addChunkWithName("import {a} from './m0.js'; a", "/js/m1")
             .build();
 
-    test(srcs(original), expected(expected));
+    test(srcsJSChunkVarargs(original), expectedJSChunkArray(expected));
   }
 
   @Test
@@ -123,8 +123,8 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
             .addChunkWithName("a", "/js/m1")
             .build();
 
-    testError(
-        srcs(original),
+    testErrorDiagnostic(
+        srcsJSChunkVarargs(original),
         error(UNABLE_TO_COMPUTE_RELATIVE_PATH)
             .withMessage(
                 "Unable to compute relative import path from \"/js/m1.js\" to \"other/m0.js\""));
@@ -139,8 +139,8 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
             .addChunkWithName("a", "js/m1")
             .build();
 
-    testError(
-        srcs(original),
+    testErrorDiagnostic(
+        srcsJSChunkVarargs(original),
         error(UNABLE_TO_COMPUTE_RELATIVE_PATH)
             .withMessage(
                 "Unable to compute relative import path from \"js/m1.js\" to \"/other/m0.js\""));
@@ -161,7 +161,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
             .addChunkWithName("import {a} from './m0.js'; a", "js/m1")
             .build();
 
-    test(srcs(original), expected(expected));
+    test(srcsJSChunkVarargs(original), expectedJSChunkArray(expected));
   }
 
   @Test
@@ -173,8 +173,8 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
             .addChunkWithName("a", "m1")
             .build();
 
-    testError(
-        srcs(original),
+    testErrorDiagnostic(
+        srcsJSChunkVarargs(original),
         error(UNABLE_TO_COMPUTE_RELATIVE_PATH)
             .withMessage("Unable to compute relative import path from \"m1.js\" to \"js/m0.js\""));
   }
@@ -194,7 +194,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
             .addChunkWithName("import {a} from '../m0.js'; a", "js/m1")
             .build();
 
-    test(srcs(original), expected(expected));
+    test(srcsJSChunkVarargs(original), expectedJSChunkArray(expected));
   }
 
   @Test
@@ -213,7 +213,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
                 "import {a} from '../../js/other/path/one/m0.js'; a", "external/path/m1")
             .build();
 
-    test(srcs(original), expected(expected));
+    test(srcsJSChunkVarargs(original), expectedJSChunkArray(expected));
   }
 
   @Test
@@ -224,8 +224,8 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
             .addChunkWithName("a", "../node_modules/m1")
             .build();
 
-    testError(
-        srcs(original),
+    testErrorDiagnostic(
+        srcsJSChunkVarargs(original),
         error(UNABLE_TO_COMPUTE_RELATIVE_PATH)
             .withMessage(
                 "Unable to compute relative import path from \"../node_modules/m1.js\" to"
@@ -236,12 +236,12 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   public void testForcedESModuleSemantics() {
     ignoreWarnings(LOAD_WARNING);
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("var a = 1;")
                 .addChunk("var b = 1;")
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar()
                 .addChunk("var a = 1; export {};")
                 .addChunk("import './m0.js'; var b = 1;")
@@ -250,8 +250,8 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
 
   @Test
   public void testAssignToImport() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("var a = 1;")
                 .addChunk("a = 2;")
@@ -266,12 +266,12 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   public void testChunkDependenciesCreateImportStatementsForSideEffects() {
     ignoreWarnings(LOAD_WARNING);
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk("window.a = true")
                 .addChunk("console.log(window.a) // should be true")
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar()
                 .addChunk("window.a = true; export {};")
                 .addChunk("import './m0.js'; console.log(window.a);")
@@ -282,7 +282,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   public void testDynamicImportRewriting1() {
     ignoreWarnings(LOAD_WARNING);
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk(
                     """
@@ -299,7 +299,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
                     /** @const */ module$i1.default = $jscompDefaultExport$$module$i1;
                     """)
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -324,7 +324,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   public void testDynamicImportRewriting2() {
     ignoreWarnings(LOAD_WARNING);
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk(
                     """
@@ -341,7 +341,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
                     """
                         .replace("DYNAMIC_IMPORT_CALLBACK_FN", DYNAMIC_IMPORT_CALLBACK_FN))
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -365,7 +365,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   public void testDynamicImportWithoutCallback() {
     ignoreWarnings(LOAD_WARNING);
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk(
                     """
@@ -380,7 +380,7 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
                         .then((ns) => console.log(ns.default));
                     """)
                 .build()),
-        expected(
+        expectedJSChunkArray(
             JSChunkGraphBuilder.forStar()
                 .addChunk(
                     """
@@ -402,8 +402,8 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   @Test
   public void testDynamicImportRewritingErrors1() {
     ignoreWarnings(LOAD_WARNING);
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk(
                     """
@@ -429,8 +429,8 @@ public final class ConvertChunksToESModulesTest extends CompilerTestCase {
   @Test
   public void testDynamicImportRewritingErrors2() {
     ignoreWarnings(LOAD_WARNING);
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forStar() //
                 .addChunk(
                     """

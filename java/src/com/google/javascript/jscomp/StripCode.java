@@ -166,7 +166,7 @@ class StripCode implements CompilerPass {
     try (LogFile decisionsLog =
         compiler.createOrReopenIndexedLog(this.getClass(), "decisions.log")) {
       decisionsLog.log(new StripCodeConfigRecord());
-      decisionsLog.log("\n=== decisions ===\n");
+      decisionsLog.logString("\n=== decisions ===\n");
       NodeTraversal.traverse(compiler, root, new Strip(decisionsLog));
     }
   }
@@ -576,7 +576,7 @@ class StripCode implements CompilerPass {
       // Replace class with null if it is a strip type
       if (nameNode != null && nameNode.isQualifiedName()) {
         className = nameNode.getQualifiedName();
-        if (qualifiedNameBeginsWithStripType(className)) {
+        if (qualifiedNameBeginsWithStripTypeString(className)) {
           decisionsLog.log(() -> className + ": removing class");
           if (NodeUtil.isStatementParent(parent)) {
             replaceWithEmpty(classNode, parent);
@@ -594,7 +594,7 @@ class StripCode implements CompilerPass {
       Node superclassNode = classNode.getSecondChild();
       if (superclassNode != null && superclassNode.isQualifiedName()) {
         String superclassName = superclassNode.getQualifiedName();
-        if (qualifiedNameBeginsWithStripType(superclassName)) {
+        if (qualifiedNameBeginsWithStripTypeString(superclassName)) {
           t.report(classNode, STRIP_TYPE_INHERIT_ERROR, className, superclassName);
         }
       }
@@ -631,7 +631,7 @@ class StripCode implements CompilerPass {
      */
     boolean qualifiedNameBeginsWithStripType(Node n) {
       String name = n.getQualifiedName();
-      return qualifiedNameBeginsWithStripType(name);
+      return qualifiedNameBeginsWithStripTypeString(name);
     }
 
     /**
@@ -643,7 +643,7 @@ class StripCode implements CompilerPass {
      * @param name A qualified class name
      * @return Whether the name begins with a strip name
      */
-    boolean qualifiedNameBeginsWithStripType(String name) {
+    boolean qualifiedNameBeginsWithStripTypeString(String name) {
       if (name != null) {
         for (String type : stripTypesList) {
           if (name.equals(type)) {
@@ -768,14 +768,14 @@ class StripCode implements CompilerPass {
       if (classes != null) {
         // It's okay to strip a type that inherits from a non-stripped type
         // e.g. goog.inherits(goog.debug.Logger, Object)
-        if (qualifiedNameBeginsWithStripType(classes.subclassName)) {
+        if (qualifiedNameBeginsWithStripTypeString(classes.subclassName)) {
           logStripName(classes.subclassName, "class defining call");
           return true;
         }
 
         // report an error if a non-strip type inherits from a
         // strip type.
-        if (qualifiedNameBeginsWithStripType(classes.superclassName)) {
+        if (qualifiedNameBeginsWithStripTypeString(classes.superclassName)) {
           t.report(
               callNode, STRIP_TYPE_INHERIT_ERROR, classes.subclassName, classes.superclassName);
         }
@@ -810,14 +810,14 @@ class StripCode implements CompilerPass {
       String lcName = name.toLowerCase(Locale.ROOT);
       for (String stripName : stripNamePrefixesLowerCaseList) {
         if (lcName.startsWith(stripName)) {
-          logStripName(name, () -> "matches lc prefix: " + stripName);
+          logStripNameSupplier(name, () -> "matches lc prefix: " + stripName);
           return true;
         }
       }
 
       for (String stripName : stripNameSuffixesLowerCaseList) {
         if (lcName.endsWith(stripName)) {
-          logStripName(name, () -> "matches lc suffix: " + stripName);
+          logStripNameSupplier(name, () -> "matches lc suffix: " + stripName);
           return true;
         }
       }
@@ -838,7 +838,7 @@ class StripCode implements CompilerPass {
       }
     }
 
-    private void logStripName(String name, Supplier<String> reasonSupplier) {
+    private void logStripNameSupplier(String name, Supplier<String> reasonSupplier) {
       if (decisionsLog.isLogging()) {
         decisionsLog.log(() -> name + "\tstrip name: " + reasonSupplier.get());
       }

@@ -47,16 +47,16 @@ public final class CheckGoogModuleTypeScriptNameTest extends CompilerTestCase {
 
   @Test
   public void testNoWarning() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "gws/js/test.js", "goog.module('google3.gws.js.test');\nalert(1);")));
   }
 
   @Test
   public void testNoWarning_notOnAllowList() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("javascript/apps/foo/test.js", "goog.module('test');\nalert(1);")));
   }
 
@@ -72,7 +72,7 @@ public final class CheckGoogModuleTypeScriptNameTest extends CompilerTestCase {
   @Test
   public void testWarning() {
     test(
-        srcs(
+        srcsList(
             ImmutableList.of(
                 SourceFile.fromCode("gws/js/test.js", "goog.module('test');\nalert(1);"))),
         warning(MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE)
@@ -83,7 +83,7 @@ public final class CheckGoogModuleTypeScriptNameTest extends CompilerTestCase {
   @Test
   public void testWarningWithFullSourceName() {
     test(
-        srcs(
+        srcsList(
             ImmutableList.of(
                 SourceFile.fromCode(
                     "/google/src/cloud/someuser/someworkspace/google3/gws/js/test.js",

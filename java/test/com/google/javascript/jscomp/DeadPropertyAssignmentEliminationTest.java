@@ -1701,7 +1701,7 @@ public class DeadPropertyAssignmentEliminationTest extends CompilerTestCase {
         /** @type {string} */ Image.prototype.src;
         """;
 
-    testSame(
+    testSameTestPartVarargs(
         externs(externs),
         srcs(
             """
@@ -1711,7 +1711,7 @@ public class DeadPropertyAssignmentEliminationTest extends CompilerTestCase {
             }
             """));
 
-    testSame(
+    testSameTestPartVarargs(
         externs(externs),
         srcs(
             """
@@ -1722,7 +1722,7 @@ public class DeadPropertyAssignmentEliminationTest extends CompilerTestCase {
             }
             """));
 
-    testSame(
+    testSameTestPartVarargs(
         externs(externs),
         srcs(
             """

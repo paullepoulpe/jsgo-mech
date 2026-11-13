@@ -404,7 +404,7 @@ public final class GatherModuleMetadata implements CompilerPass {
         currentModule.metadataBuilder.usesClosure(true);
       }
 
-      if (getprop.matchesQualifiedName(GOOG_PROVIDE)) {
+      if (getprop.matchesQualifiedNameNode(GOOG_PROVIDE)) {
         currentModule.moduleType(ModuleType.GOOG_PROVIDE, t, n);
         if (n.hasTwoChildren() && n.getLastChild().isStringLit()) {
           String namespace = n.getLastChild().getString();
@@ -413,7 +413,7 @@ public final class GatherModuleMetadata implements CompilerPass {
           t.report(n, ClosureRewriteModule.INVALID_PROVIDE_NAMESPACE);
           currentModule.metadataBuilder.usesClosure(false);
         }
-      } else if (getprop.matchesQualifiedName(GOOG_MODULE)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_MODULE)) {
         currentModule.moduleType(ModuleType.GOOG_MODULE, t, n);
         if (n.hasTwoChildren() && n.getLastChild().isStringLit()) {
           String namespace = n.getLastChild().getString();
@@ -422,7 +422,7 @@ public final class GatherModuleMetadata implements CompilerPass {
           t.report(n, ClosureRewriteModule.INVALID_MODULE_ID_ARG);
           currentModule.metadataBuilder.usesClosure(false);
         }
-      } else if (getprop.matchesQualifiedName(GOOG_MODULE_GET)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_MODULE_GET)) {
         // Look for a module named ???$2etoggles and a getprop of .TOGGLE_??? on the call's return
         if (!n.hasTwoChildren()
             || !n.getLastChild().isStringLit()
@@ -438,10 +438,10 @@ public final class GatherModuleMetadata implements CompilerPass {
           return;
         }
         addToggle(t, parent, parent.getString());
-      } else if (getprop.matchesQualifiedName(GOOG_MODULE_DECLARELEGACYNAMESPACE)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_MODULE_DECLARELEGACYNAMESPACE)) {
         currentModule.recordDeclareLegacyNamespace(n);
-      } else if (getprop.matchesQualifiedName(GOOG_DECLARE_MODULE_ID)
-          || getprop.matchesQualifiedName(GOOG_MODULE_DECLARNAMESPACE)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_DECLARE_MODULE_ID)
+          || getprop.matchesQualifiedNameNode(GOOG_MODULE_DECLARNAMESPACE)) {
         if (currentModule.declaredModuleId != null) {
           t.report(n, MULTIPLE_DECLARE_MODULE_NAMESPACE);
         }
@@ -452,7 +452,7 @@ public final class GatherModuleMetadata implements CompilerPass {
         } else {
           t.report(n, INVALID_DECLARE_MODULE_ID_CALL);
         }
-      } else if (getprop.matchesQualifiedName(GOOG_REQUIRE)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_REQUIRE)) {
         if (n.hasTwoChildren() && n.getLastChild().isStringLit()) {
           String namespace = n.getLastChild().getString();
           currentModule.metadataBuilder.stronglyRequiredGoogNamespacesBuilder().add(namespace);
@@ -486,7 +486,7 @@ public final class GatherModuleMetadata implements CompilerPass {
         } else {
           t.report(n, INVALID_REQUIRE_NAMESPACE);
         }
-      } else if (getprop.matchesQualifiedName(GOOG_REQUIRE_TYPE)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_REQUIRE_TYPE)) {
         if (n.hasTwoChildren() && n.getLastChild().isStringLit()) {
           currentModule
               .metadataBuilder
@@ -495,7 +495,7 @@ public final class GatherModuleMetadata implements CompilerPass {
         } else {
           t.report(n, INVALID_REQUIRE_TYPE);
         }
-      } else if (getprop.matchesQualifiedName(GOOG_MAYBE_REQUIRE)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_MAYBE_REQUIRE)) {
         if (n.hasTwoChildren() && n.getLastChild().isStringLit()) {
           currentModule
               .metadataBuilder
@@ -504,13 +504,13 @@ public final class GatherModuleMetadata implements CompilerPass {
         } else {
           t.report(n, INVALID_MAYBE_REQUIRE);
         }
-      } else if (getprop.matchesQualifiedName(GOOG_SET_TEST_ONLY)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_SET_TEST_ONLY)) {
         if (n.hasOneChild() || (n.hasTwoChildren() && n.getLastChild().isStringLit())) {
           currentModule.metadataBuilder.isTestOnly(true);
         } else {
           t.report(n, INVALID_SET_TEST_ONLY);
         }
-      } else if (getprop.matchesQualifiedName(GOOG_REQUIRE_DYNAMIC)) {
+      } else if (getprop.matchesQualifiedNameNode(GOOG_REQUIRE_DYNAMIC)) {
         if (n.hasTwoChildren() && n.getLastChild().isStringLit()) {
           currentModule
               .metadataBuilder

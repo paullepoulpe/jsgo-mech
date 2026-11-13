@@ -77,7 +77,7 @@ public final class JSChunkGraphTest {
   }
 
   private void makeGraph() {
-    graph = new JSChunkGraph(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF});
+    graph = JSChunkGraph.createFromArray(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF});
   }
 
   private JSChunk getWeakChunk() {
@@ -109,7 +109,7 @@ public final class JSChunkGraphTest {
     weakChunk.add(SourceFile.fromCode("weak", "", SourceKind.WEAK));
 
     JSChunkGraph graph =
-        new JSChunkGraph(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF, weakChunk});
+        JSChunkGraph.createFromArray(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF, weakChunk});
 
     assertThat(graph.getChunkCount()).isEqualTo(7);
     assertThat(graph.getChunkByName(JSChunk.WEAK_CHUNK_NAME)).isSameInstanceAs(weakChunk);
@@ -131,7 +131,7 @@ public final class JSChunkGraphTest {
         assertThrows(
             IllegalStateException.class,
             () ->
-                new JSChunkGraph(
+                JSChunkGraph.createFromArray(
                     new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF, weakChunk}));
     assertThat(e)
         .hasMessageThat()
@@ -156,7 +156,7 @@ public final class JSChunkGraphTest {
         assertThrows(
             IllegalStateException.class,
             () ->
-                new JSChunkGraph(
+                JSChunkGraph.createFromArray(
                     new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF, weakChunk}));
 
     assertThat(e)
@@ -182,7 +182,7 @@ public final class JSChunkGraphTest {
         assertThrows(
             IllegalStateException.class,
             () ->
-                new JSChunkGraph(
+                JSChunkGraph.createFromArray(
                     new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF, weakChunk}));
     assertThat(e).hasMessageThat().contains("Found these strong sources in the weak chunk:\n  a");
   }
@@ -219,7 +219,7 @@ public final class JSChunkGraphTest {
     f.addDependency(d);
     g.addDependency(d);
     h.addDependency(d);
-    JSChunkGraph graph = new JSChunkGraph(new JSChunk[] {a, b, c, d, e, f, g, h});
+    JSChunkGraph graph = JSChunkGraph.createFromArray(new JSChunk[] {a, b, c, d, e, f, g, h});
     // d is deeper, but it also has an extra dependent node, so b is the better choice.
     assertSmallestCoveringSubtree(b, graph, a, e, f, g);
     // However, if the parent tree we're looking at is c, then b isn't an option
@@ -392,11 +392,11 @@ public final class JSChunkGraphTest {
   @Test
   public void testManageDependenciesStrictForGoogRequireDynamic() throws Exception {
     JSChunk chunkA = new JSChunk("chunk");
-    graph = new JSChunkGraph(new JSChunk[] {chunkA});
+    graph = JSChunkGraph.createFromArray(new JSChunk[] {chunkA});
     List<CompilerInput> inputs = new ArrayList<>();
     CompilerInput compilerInputA1 = new CompilerInput(code("a1", provides("a1"), requires()));
     compilerInputA1.addRequireDynamicImports("a2");
-    chunkA.add(compilerInputA1);
+    chunkA.addCompilerInput(compilerInputA1);
     chunkA.add(code("a2", provides("a2"), requires()));
     inputs.addAll(chunkA.getInputs());
     for (CompilerInput input : inputs) {
@@ -414,7 +414,7 @@ public final class JSChunkGraphTest {
   @Test
   public void testManageDependenciesStrictWithEntryPointWithDuplicates() throws Exception {
     final JSChunk a = new JSChunk("a");
-    JSChunkGraph graph = new JSChunkGraph(new JSChunk[] {a});
+    JSChunkGraph graph = JSChunkGraph.createFromArray(new JSChunk[] {a});
 
     // Create all the input files.
     List<CompilerInput> inputs = new ArrayList<>();
@@ -947,10 +947,10 @@ public final class JSChunkGraphTest {
     for (JSChunk m : chunks) {
       chunksBitSet.set(m.getIndex());
     }
-    assertSmallestCoveringSubtree(expected, graph, parentTree, chunksBitSet);
+    assertSmallestCoveringSubtreeBitSet(expected, graph, parentTree, chunksBitSet);
   }
 
-  private void assertSmallestCoveringSubtree(
+  private void assertSmallestCoveringSubtreeBitSet(
       JSChunk expected, JSChunkGraph graph, JSChunk parentTree, BitSet chunks) {
     JSChunk actual = graph.getSmallestCoveringSubtree(parentTree, chunks);
     assertWithMessage(

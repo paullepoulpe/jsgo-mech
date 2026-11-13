@@ -141,7 +141,7 @@ final class ConvertChunksToESModules implements CompilerPass {
       for (CompilerInput input : chunk.getInputs()) {
         Node astRoot = input.getAstRoot(compiler);
         FeatureSet scriptFeatures = NodeUtil.getFeatureSetOfScript(astRoot);
-        checkState(!scriptFeatures.contains(FeatureSet.ES2015_MODULES));
+        checkState(!scriptFeatures.containsFeatureSet(FeatureSet.ES2015_MODULES));
         if (firstInput == null) {
           firstInput = input;
           scriptFeatures = scriptFeatures.union(FeatureSet.ES2015_MODULES);

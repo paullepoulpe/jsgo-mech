@@ -70,7 +70,7 @@ public final class CheckTypeImportCodeReferences extends AbstractPostOrderCallba
     }
 
     Node callNode = decl.getFirstChild().getLastChild();
-    if (!callNode.getFirstChild().matchesQualifiedName(GOOG_REQUIRE_TYPE)) {
+    if (!callNode.getFirstChild().matchesQualifiedNameNode(GOOG_REQUIRE_TYPE)) {
       return;
     }
 

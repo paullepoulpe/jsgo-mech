@@ -78,7 +78,7 @@ final class JSTypeColorIdHasher {
       }
     }
 
-    return ColorId.fromUnsigned(hasher.hash().asLong());
+    return ColorId.fromUnsignedLong(hasher.hash().asLong());
   }
 
   private void putReferenceNameType(Hasher hasher, ObjectType type) {

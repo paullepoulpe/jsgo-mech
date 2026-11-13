@@ -381,7 +381,7 @@ public final class FunctionToBlockMutatorTest {
           Node result =
               mutator.mutate(fnName, fnNode, n, resultName, needsDefaultResult, isCallInLoop);
           validateSourceInfo(compiler, result);
-          assertNode(result).usingSerializer(compiler::toSource).isEqualTo(expected);
+          assertNode(result).usingSerializer(compiler::toSource).isEqualToNode(expected);
 
           n.replaceWith(result);
           new ValidityCheck.VerifyConstants(compiler, false).process(externs, js);

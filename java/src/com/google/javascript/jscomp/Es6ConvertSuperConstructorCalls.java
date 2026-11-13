@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 
 import com.google.common.collect.Iterables;
 import com.google.javascript.jscomp.CompilerOptions.Es6SubclassTranspilation;
@@ -300,7 +301,7 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
     for (Node superCall : superCalls) {
       Node newSuperCall =
           createNewSuperCall(
-              superClassNameNode, superCall, thisType, type(StandardColors.NULL_OR_VOID));
+              superClassNameNode, superCall, thisType, typeColor(StandardColors.NULL_OR_VOID));
       Node superCallParent = superCall.getParent();
       if (superCallParent.hasOneChild() && NodeUtil.isStatement(superCallParent)) {
         // super() is a statement unto itself
@@ -356,7 +357,7 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
                   superClassNameNode,
                   superCalls.get(0),
                   type(superCalls.get(0)),
-                  type(StandardColors.UNKNOWN)),
+                  typeColor(StandardColors.UNKNOWN)),
               astFactory.createThis(thisType));
       firstStatement.replaceWith(IR.returnNode(newReturn).srcrefTreeIfMissing(firstStatement));
     } else {
@@ -387,7 +388,7 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
       for (Node superCall : superCalls) {
         Node newSuperCall =
             createNewSuperCall(
-                superClassNameNode, superCall, typeOfThis, type(StandardColors.UNKNOWN));
+                superClassNameNode, superCall, typeOfThis, typeColor(StandardColors.UNKNOWN));
         superCall.replaceWith(
             astFactory
                 .createAssign(
@@ -544,7 +545,7 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
       if (isSingleSpreadOfArguments(args)) {
         newSuperCall.addChildToBack(Iterables.getOnlyElement(args).getOnlyChild().detach());
       } else {
-        newSuperCall.addChildToBack(astFactory.createArraylit(args).srcref(superCall));
+        newSuperCall.addChildToBack(astFactory.createArraylitIterable(args).srcref(superCall));
       }
       return newSuperCall;
     } else {
@@ -558,7 +559,7 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
       Node superClassDotCall =
           astFactory
               .createGetProp(
-                  superClassQNameNode.cloneTree(), "call", type(StandardColors.TOP_OBJECT))
+                  superClassQNameNode.cloneTree(), "call", typeColor(StandardColors.TOP_OBJECT))
               .srcrefTree(callee);
       Node newSuperCall = astFactory.createCall(superClassDotCall, resultType).srcref(superCall);
       newSuperCall.addChildToBack(astFactory.createThis(thisType).srcref(callee));
@@ -607,7 +608,7 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
         isSingleSpreadOfArguments(superCallArgList)
             // pull out `arguments` from `...arguments`
             ? Iterables.getOnlyElement(superCallArgList).getOnlyChild().detach()
-            : astFactory.createArraylit(superCallArgList).srcref(superCall);
+            : astFactory.createArraylitIterable(superCallArgList).srcref(superCall);
 
     // `this.constructor`
     final Node thisDotConstructor =
@@ -661,11 +662,11 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
     Node copyMessage =
         astFactory.createAssign(
             astFactory.createGetProp(
-                astFactory.createThis(thisType), "message", type(StandardColors.STRING)),
+                astFactory.createThis(thisType), "message", typeColor(StandardColors.STRING)),
             astFactory.createGetProp(
                 astFactory.createName(tmpErrorName, thisType),
                 "message",
-                type(StandardColors.STRING)));
+                typeColor(StandardColors.STRING)));
 
     // Old versions of IE Don't set stack until the object is thrown, and won't set it then
     // if it already exists on the object.
@@ -676,11 +677,11 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
                 astFactory.createString("stack"), astFactory.createName(tmpErrorName, thisType)),
             astFactory.createAssign(
                 astFactory.createGetProp(
-                    astFactory.createThis(thisType), "stack", type(StandardColors.STRING)),
+                    astFactory.createThis(thisType), "stack", typeColor(StandardColors.STRING)),
                 astFactory.createGetProp(
                     astFactory.createName(tmpErrorName, thisType),
                     "stack",
-                    type(StandardColors.STRING))));
+                    typeColor(StandardColors.STRING))));
     Node superErrorExpr =
         astFactory
             .createCommas(getTmpError, copyMessage, setStack, astFactory.createThis(thisType))
@@ -805,8 +806,8 @@ public final class Es6ConvertSuperConstructorCalls implements NodeTraversal.Call
     checkArgument(constructor.isFunction(), constructor);
     final Color constructorType = constructor.getColor();
     return constructorType != null && !constructorType.getInstanceColors().isEmpty()
-        ? type(Color.createUnion(constructorType.getInstanceColors()))
-        : type(StandardColors.UNKNOWN);
+        ? typeColor(Color.createUnion(constructorType.getInstanceColors()))
+        : typeColor(StandardColors.UNKNOWN);
   }
 
   private Node getSuperClassQNameNode(Node constructor) {

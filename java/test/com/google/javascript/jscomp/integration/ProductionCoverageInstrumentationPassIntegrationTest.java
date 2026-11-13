@@ -447,7 +447,7 @@ public final class ProductionCoverageInstrumentationPassIntegrationTest
     String[] sourceArr = new String[] {source, useGlobalArray};
     String[] expectedArr = new String[] {expected, expectedUseGlobalArray};
 
-    test(options, sourceArr, expectedArr);
+    testStringArray(options, sourceArr, expectedArr);
   }
 
   @Test

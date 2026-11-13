@@ -84,10 +84,10 @@ final class JsdocUtil {
   }
 
   private static JSDocInfo getConstJSDoc(JSDocInfo oldJSDoc, String contents) {
-    return getConstJSDoc(oldJSDoc, Node.newString(contents));
+    return getConstJSDocNode(oldJSDoc, Node.newString(contents));
   }
 
-  private static JSDocInfo getConstJSDoc(JSDocInfo oldJSDoc, Node typeAst) {
+  private static JSDocInfo getConstJSDocNode(JSDocInfo oldJSDoc, Node typeAst) {
     JSDocInfo.Builder builder = makeBuilderWithType(oldJSDoc, typeAst);
     builder.recordConstancy();
     return builder.build();
@@ -188,7 +188,7 @@ final class JsdocUtil {
       }
       case OBJECT -> {
         if (rhs.isRegExp()) {
-          return getConstJSDoc(oldJSDoc, new Node(Token.BANG, IR.string("RegExp")));
+          return getConstJSDocNode(oldJSDoc, new Node(Token.BANG, IR.string("RegExp")));
         }
       }
       case UNDETERMINED -> {
@@ -198,7 +198,7 @@ final class JsdocUtil {
       }
     }
     if (rhs.isCast()) {
-      return getConstJSDoc(oldJSDoc, rhs.getJSDocInfo().getType().getRoot());
+      return getConstJSDocNode(oldJSDoc, rhs.getJSDocInfo().getType().getRoot());
     }
     return null;
   }
@@ -230,7 +230,7 @@ final class JsdocUtil {
       }
       default -> {}
     }
-    return getConstJSDoc(oldJSDoc, typeAst);
+    return getConstJSDocNode(oldJSDoc, typeAst);
   }
 
   private static boolean isUnknownType(JSTypeExpression type) {

@@ -425,7 +425,7 @@ class VarCheck implements ScopedCallback, CompilerPass {
               if (var != null) {
                 return;
               }
-              if (parent.matchesQualifiedName(googForwardDeclare)) {
+              if (parent.matchesQualifiedNameNode(googForwardDeclare)) {
                 // Allow using `goog.forwardDeclare` in the externs without an externs definition
                 // of goog.
                 return;

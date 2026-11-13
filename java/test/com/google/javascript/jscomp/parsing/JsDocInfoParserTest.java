@@ -101,25 +101,25 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTypeViaStatic1() {
     Node typeNode = parseType("null");
-    assertTypeEquals(NULL_TYPE, typeNode);
+    assertTypeEqualsNode(NULL_TYPE, typeNode);
   }
 
   @Test
   public void testParseTypeViaStatic2() {
     Node typeNode = parseType("string");
-    assertTypeEquals(STRING_TYPE, typeNode);
+    assertTypeEqualsNode(STRING_TYPE, typeNode);
   }
 
   @Test
   public void testParseTypeViaStatic3() {
     Node typeNode = parseType("!Date");
-    assertTypeEquals(DATE_TYPE, typeNode);
+    assertTypeEqualsNode(DATE_TYPE, typeNode);
   }
 
   @Test
   public void testParseTypeViaStatic4() {
     Node typeNode = parseType("boolean|string");
-    assertTypeEquals(createUnionType(BOOLEAN_TYPE, STRING_TYPE), typeNode);
+    assertTypeEqualsNode(createUnionType(BOOLEAN_TYPE, STRING_TYPE), typeNode);
   }
 
   @Test
@@ -145,32 +145,32 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
         parse(
             "@type null*/",
             "Bad type annotation. Type annotations should have curly braces." + BAD_TYPE_WIKI_LINK);
-    assertTypeEquals(NULL_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(NULL_TYPE, info.getType());
   }
 
   @Test
   public void testParseNamedType3() {
     JSDocInfo info = parse("@type {string}*/");
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
   public void testParseNamedType4() {
     // Multi-line @type.
     JSDocInfo info = parse("@type \n {string}*/");
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
   public void testParseNamedType5() {
     JSDocInfo info = parse("@type {!goog.\nBar}*/");
-    assertTypeEquals(createNamedType("goog.Bar"), info.getType());
+    assertTypeEqualsJSTypeExpression(createNamedType("goog.Bar"), info.getType());
   }
 
   @Test
   public void testParseNamedType6() {
     JSDocInfo info = parse("@type {!goog.\n * Bar.\n * Baz}*/");
-    assertTypeEquals(createNamedType("goog.Bar.Baz"), info.getType());
+    assertTypeEqualsJSTypeExpression(createNamedType("goog.Bar.Baz"), info.getType());
   }
 
   @Test
@@ -193,21 +193,21 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testTypedefType1() {
     JSDocInfo info = parse("@typedef {string} */");
     assertThat(info.hasTypedefType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getTypedefType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getTypedefType());
   }
 
   @Test
   public void testTypedefType2() {
     JSDocInfo info = parse("@typedef \n {string}*/");
     assertThat(info.hasTypedefType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getTypedefType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getTypedefType());
   }
 
   @Test
   public void testTypedefType3() {
     JSDocInfo info = parse("@typedef \n {(string|number)}*/");
     assertThat(info.hasTypedefType()).isTrue();
-    assertTypeEquals(createUnionType(NUMBER_TYPE, STRING_TYPE), info.getTypedefType());
+    assertTypeEqualsJSTypeExpression(createUnionType(NUMBER_TYPE, STRING_TYPE), info.getTypedefType());
   }
 
   // https://github.com/google/closure-compiler/issues/2543
@@ -229,47 +229,47 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
             .addProperty("boo", UNKNOWN_TYPE, null)
             .addProperty("goo", UNKNOWN_TYPE, null)
             .build();
-    assertTypeEquals(recordType, info.getTypedefType());
+    assertTypeEqualsJSTypeExpression(recordType, info.getTypedefType());
   }
 
   @Test
   public void testParseStringType1() {
-    assertTypeEquals(STRING_TYPE, parse("@type {string}*/").getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, parse("@type {string}*/").getType());
   }
 
   @Test
   public void testParseStringType2() {
-    assertTypeEquals(STRING_OBJECT_TYPE, parse("@type {!String}*/").getType());
+    assertTypeEqualsJSTypeExpression(STRING_OBJECT_TYPE, parse("@type {!String}*/").getType());
   }
 
   @Test
   public void testParseBooleanType1() {
-    assertTypeEquals(BOOLEAN_TYPE, parse("@type {boolean}*/").getType());
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, parse("@type {boolean}*/").getType());
   }
 
   @Test
   public void testParseBooleanType2() {
-    assertTypeEquals(BOOLEAN_OBJECT_TYPE, parse("@type {!Boolean}*/").getType());
+    assertTypeEqualsJSTypeExpression(BOOLEAN_OBJECT_TYPE, parse("@type {!Boolean}*/").getType());
   }
 
   @Test
   public void testParseNumberType1() {
-    assertTypeEquals(NUMBER_TYPE, parse("@type {number}*/").getType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, parse("@type {number}*/").getType());
   }
 
   @Test
   public void testParseNumberType2() {
-    assertTypeEquals(NUMBER_OBJECT_TYPE, parse("@type {!Number}*/").getType());
+    assertTypeEqualsJSTypeExpression(NUMBER_OBJECT_TYPE, parse("@type {!Number}*/").getType());
   }
 
   @Test
   public void testParseNullType1() {
-    assertTypeEquals(NULL_TYPE, parse("@type {null}*/").getType());
+    assertTypeEqualsJSTypeExpression(NULL_TYPE, parse("@type {null}*/").getType());
   }
 
   @Test
   public void testParseNullType2() {
-    assertTypeEquals(NULL_TYPE, parse("@type {Null}*/").getType());
+    assertTypeEqualsJSTypeExpression(NULL_TYPE, parse("@type {Null}*/").getType());
   }
 
   @Test
@@ -284,43 +284,43 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseObjectType() {
-    assertTypeEquals(OBJECT_TYPE, parse("@type {!Object}*/").getType());
+    assertTypeEqualsJSTypeExpression(OBJECT_TYPE, parse("@type {!Object}*/").getType());
   }
 
   @Test
   public void testParseDateType() {
-    assertTypeEquals(DATE_TYPE, parse("@type {!Date}*/").getType());
+    assertTypeEqualsJSTypeExpression(DATE_TYPE, parse("@type {!Date}*/").getType());
   }
 
   @Test
   public void testParseFunctionType() {
-    assertTypeEquals(createNullableType(FUNCTION_TYPE), parse("@type {Function}*/").getType());
+    assertTypeEqualsJSTypeExpression(createNullableType(FUNCTION_TYPE), parse("@type {Function}*/").getType());
   }
 
   @Test
   public void testParseRegExpType() {
-    assertTypeEquals(REGEXP_TYPE, parse("@type {!RegExp}*/").getType());
+    assertTypeEqualsJSTypeExpression(REGEXP_TYPE, parse("@type {!RegExp}*/").getType());
   }
 
   @Test
   public void testParseUndefinedType1() {
-    assertTypeEquals(VOID_TYPE, parse("@type {undefined}*/").getType());
+    assertTypeEqualsJSTypeExpression(VOID_TYPE, parse("@type {undefined}*/").getType());
   }
 
   @Test
   public void testParseUndefinedType2() {
-    assertTypeEquals(VOID_TYPE, parse("@type {Undefined}*/").getType());
+    assertTypeEqualsJSTypeExpression(VOID_TYPE, parse("@type {Undefined}*/").getType());
   }
 
   @Test
   public void testParseUndefinedType3() {
-    assertTypeEquals(VOID_TYPE, parse("@type {void}*/").getType());
+    assertTypeEqualsJSTypeExpression(VOID_TYPE, parse("@type {void}*/").getType());
   }
 
   @Test
   public void testParseTemplatizedTypeAlternateSyntax() {
     JSDocInfo info = parse("@type {!Array<number>} */");
-    assertTypeEquals(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
+    assertTypeEqualsJSTypeExpression(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
   }
 
   @Test
@@ -329,26 +329,26 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
         parse(
             "@type !Array<number> */",
             "Bad type annotation. Type annotations should have curly braces." + BAD_TYPE_WIKI_LINK);
-    assertTypeEquals(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
+    assertTypeEqualsJSTypeExpression(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
   }
 
   @Test
   public void testParseTemplatizedType2() {
     JSDocInfo info = parse("@type {!Array<number>}*/");
-    assertTypeEquals(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
+    assertTypeEqualsJSTypeExpression(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
   }
 
   @Test
   public void testParseTemplatizedType4() {
     JSDocInfo info = parse("@type {!Array<(number|null)>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(ARRAY_TYPE, createUnionType(NUMBER_TYPE, NULL_TYPE)), info.getType());
   }
 
   @Test
   public void testParseTemplatizedType5() {
     JSDocInfo info = parse("@type {!Array<Array<(number|null)>>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(
             ARRAY_TYPE,
             createUnionType(
@@ -360,7 +360,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTemplatizedType6() {
     JSDocInfo info = parse("@type {!Array<!Array<(number|null)>>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(
             ARRAY_TYPE, createTemplatizedType(ARRAY_TYPE, createUnionType(NUMBER_TYPE, NULL_TYPE))),
         info.getType());
@@ -369,7 +369,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTemplatizedType7() {
     JSDocInfo info = parse("@type {!Array<function():Date>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(
             ARRAY_TYPE, registry.createFunctionType(createUnionType(DATE_TYPE, NULL_TYPE))),
         info.getType());
@@ -378,14 +378,14 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTemplatizedType8() {
     JSDocInfo info = parse("@type {!Array<function():!Date>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(ARRAY_TYPE, registry.createFunctionType(DATE_TYPE)), info.getType());
   }
 
   @Test
   public void testParseTemplatizedType9() {
     JSDocInfo info = parse("@type {!Array<Date|number>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(ARRAY_TYPE, createUnionType(DATE_TYPE, NUMBER_TYPE, NULL_TYPE)),
         info.getType());
   }
@@ -393,7 +393,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTemplatizedType10() {
     JSDocInfo info = parse("@type {!Array<Date|number|boolean>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(
             ARRAY_TYPE, createUnionType(DATE_TYPE, NUMBER_TYPE, BOOLEAN_TYPE, NULL_TYPE)),
         info.getType());
@@ -402,8 +402,8 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTemplatizedType11() {
     JSDocInfo info = parse("@type {!Object<number>}*/");
-    assertTypeEquals(
-        createTemplatizedType(OBJECT_TYPE, ImmutableList.of(UNKNOWN_TYPE, NUMBER_TYPE)),
+    assertTypeEqualsJSTypeExpression(
+        createTemplatizedTypeImmutableList(OBJECT_TYPE, ImmutableList.of(UNKNOWN_TYPE, NUMBER_TYPE)),
         info.getType());
     assertTemplatizedTypeEquals(registry.getObjectElementKey(), NUMBER_TYPE, info.getType());
   }
@@ -411,8 +411,8 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTemplatizedType12() {
     JSDocInfo info = parse("@type {!Object<string,number>}*/");
-    assertTypeEquals(
-        createTemplatizedType(OBJECT_TYPE, ImmutableList.of(STRING_TYPE, NUMBER_TYPE)),
+    assertTypeEqualsJSTypeExpression(
+        createTemplatizedTypeImmutableList(OBJECT_TYPE, ImmutableList.of(STRING_TYPE, NUMBER_TYPE)),
         info.getType());
     assertTemplatizedTypeEquals(registry.getObjectElementKey(), NUMBER_TYPE, info.getType());
     assertTemplatizedTypeEquals(registry.getObjectIndexKey(), STRING_TYPE, info.getType());
@@ -421,19 +421,19 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseTemplatizedType13() {
     JSDocInfo info = parse("@type {!Array<?>} */");
-    assertTypeEquals(createTemplatizedType(ARRAY_TYPE, UNKNOWN_TYPE), info.getType());
+    assertTypeEqualsJSTypeExpression(createTemplatizedType(ARRAY_TYPE, UNKNOWN_TYPE), info.getType());
   }
 
   @Test
   public void testParseUnionType2() {
     JSDocInfo info = parse("@type {boolean|null}*/");
-    assertTypeEquals(createUnionType(BOOLEAN_TYPE, NULL_TYPE), info.getType());
+    assertTypeEqualsJSTypeExpression(createUnionType(BOOLEAN_TYPE, NULL_TYPE), info.getType());
   }
 
   @Test
   public void testParseUnionType6() {
     JSDocInfo info = parse("@type {Array<boolean>|null}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(createTemplatizedType(ARRAY_TYPE, BOOLEAN_TYPE), NULL_TYPE),
         info.getType());
   }
@@ -441,7 +441,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseUnionType7() {
     JSDocInfo info = parse("@type {null|Array<boolean>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(createTemplatizedType(ARRAY_TYPE, BOOLEAN_TYPE), NULL_TYPE),
         info.getType());
   }
@@ -490,7 +490,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseUnionType19() {
     JSDocInfo info = parse("@type {(?)} */");
-    assertTypeEquals(UNKNOWN_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(UNKNOWN_TYPE, info.getType());
   }
 
   @Test
@@ -949,74 +949,74 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseNullableModifiers1() {
     JSDocInfo info = parse("@type {string?}*/");
-    assertTypeEquals(createNullableType(STRING_TYPE), info.getType());
+    assertTypeEqualsJSTypeExpression(createNullableType(STRING_TYPE), info.getType());
   }
 
   @Test
   public void testParseNullableModifiers2() {
     JSDocInfo info = parse("@type {!Array<string?>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(ARRAY_TYPE, createUnionType(STRING_TYPE, NULL_TYPE)), info.getType());
   }
 
   @Test
   public void testParseNullableModifiers3() {
     JSDocInfo info = parse("@type {Array<boolean>?}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createNullableType(createTemplatizedType(ARRAY_TYPE, BOOLEAN_TYPE)), info.getType());
   }
 
   @Test
   public void testParseNullableModifiers7() {
     JSDocInfo info = parse("@type {string?|boolean}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(createNullableType(STRING_TYPE), BOOLEAN_TYPE), info.getType());
   }
 
   @Test
   public void testParseNullableModifiers8() {
     JSDocInfo info = parse("@type {string|boolean?}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(STRING_TYPE, createNullableType(BOOLEAN_TYPE)), info.getType());
   }
 
   @Test
   public void testParseNullableModifiers9() {
     JSDocInfo info = parse("@type {foo.Hello.World?}*/");
-    assertTypeEquals(createNullableType(createNamedType("foo.Hello.World")), info.getType());
+    assertTypeEqualsJSTypeExpression(createNullableType(createNamedType("foo.Hello.World")), info.getType());
   }
 
   @Test
   public void testParseOptionalModifier() {
     JSDocInfo info = parse("@type {function(number=)}*/");
-    assertTypeEquals(
-        registry.createFunctionType(UNKNOWN_TYPE, registry.createOptionalParameters(NUMBER_TYPE)),
+    assertTypeEqualsJSTypeExpression(
+        registry.createFunctionTypeList(UNKNOWN_TYPE, registry.createOptionalParameters(NUMBER_TYPE)),
         info.getType());
   }
 
   @Test
   public void testParseNewline1() {
     JSDocInfo info = parse("@type {string\n* }\n*/");
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
   public void testParseNewline2() {
     JSDocInfo info = parse("@type {!Array<\n* number\n* >} */");
-    assertTypeEquals(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
+    assertTypeEqualsJSTypeExpression(createTemplatizedType(ARRAY_TYPE, NUMBER_TYPE), info.getType());
   }
 
   @Test
   public void testParseNewline4() {
     JSDocInfo info = parse("@type {!Array<(number|\n* null)>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(ARRAY_TYPE, createUnionType(NUMBER_TYPE, NULL_TYPE)), info.getType());
   }
 
   @Test
   public void testParseNewline5() {
     JSDocInfo info = parse("@type {!Array<function(\n* )\n* :\n* Date>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createTemplatizedType(
             ARRAY_TYPE, registry.createFunctionType(createUnionType(DATE_TYPE, NULL_TYPE))),
         info.getType());
@@ -1025,7 +1025,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseReturnType1() {
     JSDocInfo info = parse("@return {null|string|Array<boolean>}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(createTemplatizedType(ARRAY_TYPE, BOOLEAN_TYPE), NULL_TYPE, STRING_TYPE),
         info.getReturnType());
   }
@@ -1033,7 +1033,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseReturnType2() {
     JSDocInfo info = parse("@returns {null|(string|Array<boolean>)}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(createTemplatizedType(ARRAY_TYPE, BOOLEAN_TYPE), NULL_TYPE, STRING_TYPE),
         info.getReturnType());
   }
@@ -1041,7 +1041,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseReturnType3() {
     JSDocInfo info = parse("@return {((null|Array<boolean>|string)|boolean)}*/");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(
             createTemplatizedType(ARRAY_TYPE, BOOLEAN_TYPE), NULL_TYPE, STRING_TYPE, BOOLEAN_TYPE),
         info.getReturnType());
@@ -1050,7 +1050,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseThisType1() {
     JSDocInfo info = parse("@this {goog.foo.Bar}*/");
-    assertTypeEquals(createNamedType("goog.foo.Bar"), info.getThisType());
+    assertTypeEqualsJSTypeExpression(createNamedType("goog.foo.Bar"), info.getThisType());
   }
 
   @Test
@@ -1059,7 +1059,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
         parse(
             "@this goog.foo.Bar*/",
             "Bad type annotation. Type annotations should have curly braces." + BAD_TYPE_WIKI_LINK);
-    assertTypeEquals(createNamedType("goog.foo.Bar"), info.getThisType());
+    assertTypeEqualsJSTypeExpression(createNamedType("goog.foo.Bar"), info.getThisType());
   }
 
   @Test
@@ -1089,7 +1089,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testParseParam1() {
     JSDocInfo info = parse("@param {number} index*/");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
   }
 
   @Test
@@ -1103,7 +1103,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testParseParam3() {
     JSDocInfo info = parse("@param {number} index useful comments*/");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
   }
 
   @Test
@@ -1118,7 +1118,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     // Test for multi-line @param.
     JSDocInfo info = parse("@param {number} \n index */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
   }
 
   @Test
@@ -1126,21 +1126,21 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     // Test for multi-line @param.
     JSDocInfo info = parse("@param {number} \n * index */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam7() {
     // Optional @param
     JSDocInfo info = parse("@param {number=} index */");
-    assertTypeEquals(registry.createOptionalType(NUMBER_TYPE), info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(registry.createOptionalType(NUMBER_TYPE), info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam8() {
     // Var args @param
     JSDocInfo info = parse("@param {...number} index */");
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
   }
 
   @Test
@@ -1167,14 +1167,14 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseParam12() {
     JSDocInfo info = parse("@param {...number|string} index */");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         registry.createUnionType(STRING_TYPE, NUMBER_TYPE), info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam13() {
     JSDocInfo info = parse("@param {...(number|string)} index */");
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         registry.createUnionType(STRING_TYPE, NUMBER_TYPE), info.getParameterType("index"));
   }
 
@@ -1182,7 +1182,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testParseParam14() {
     JSDocInfo info = parse("@param {string} [index] */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(registry.createOptionalType(STRING_TYPE), info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(registry.createOptionalType(STRING_TYPE), info.getParameterType("index"));
   }
 
   @Test
@@ -1192,35 +1192,35 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
             "@param {string} [index */",
             "Bad type annotation. missing closing ]" + BAD_TYPE_WIKI_LINK);
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(STRING_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam16() {
     JSDocInfo info = parse("@param {string} index] */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(STRING_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam17() {
     JSDocInfo info = parse("@param {string=} [index] */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(registry.createOptionalType(STRING_TYPE), info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(registry.createOptionalType(STRING_TYPE), info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam18() {
     JSDocInfo info = parse("@param {...string} [index] */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(STRING_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam19() {
     JSDocInfo info = parse("@param {...} [index] */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(registry.createOptionalType(UNKNOWN_TYPE), info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(registry.createOptionalType(UNKNOWN_TYPE), info.getParameterType("index"));
     assertThat(info.getParameterType("index").isVarArgs()).isTrue();
   }
 
@@ -1228,14 +1228,14 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testParseParam20() {
     JSDocInfo info = parse("@param {?=} index */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(UNKNOWN_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(UNKNOWN_TYPE, info.getParameterType("index"));
   }
 
   @Test
   public void testParseParam21() {
     JSDocInfo info = parse("@param {...?} index */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(UNKNOWN_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(UNKNOWN_TYPE, info.getParameterType("index"));
     assertThat(info.getParameterType("index").isVarArgs()).isTrue();
   }
 
@@ -1263,7 +1263,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
         parse(
             "@param {string} foo.bar\n * @param {string} baz */", "invalid param name \"foo.bar\"");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(STRING_TYPE, info.getParameterType("baz"));
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getParameterType("baz"));
   }
 
   @Test
@@ -1286,7 +1286,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testParseParam28() {
     JSDocInfo info = parse("@param {...} index */");
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(registry.createOptionalType(UNKNOWN_TYPE), info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(registry.createOptionalType(UNKNOWN_TYPE), info.getParameterType("index"));
     assertThat(info.getParameterType("index").isVarArgs()).isTrue();
   }
 
@@ -1472,19 +1472,19 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseExtends1() {
-    assertTypeEquals(STRING_OBJECT_TYPE, parse("@extends String*/").getBaseType());
+    assertTypeEqualsJSTypeExpression(STRING_OBJECT_TYPE, parse("@extends String*/").getBaseType());
   }
 
   @Test
   public void testParseExtends2() {
     JSDocInfo info = parse("@extends com.google.Foo.Bar.Hello.World*/");
-    assertTypeEquals(createNamedType("com.google.Foo.Bar.Hello.World"), info.getBaseType());
+    assertTypeEqualsJSTypeExpression(createNamedType("com.google.Foo.Bar.Hello.World"), info.getBaseType());
   }
 
   @Test
   public void testParseExtendsGenerics() {
     JSDocInfo info = parse("@extends com.google.Foo.Bar.Hello.World<Boolean,number>*/");
-    assertTypeEquals(createNamedType("com.google.Foo.Bar.Hello.World"), info.getBaseType());
+    assertTypeEqualsJSTypeExpression(createNamedType("com.google.Foo.Bar.Hello.World"), info.getBaseType());
   }
 
   @Test
@@ -1493,17 +1493,17 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     List<JSTypeExpression> interfaces =
         parse("@implements {SomeInterface<*>} */").getImplementedInterfaces();
     assertThat(interfaces).hasSize(1);
-    assertTypeEquals(createNamedType("SomeInterface"), interfaces.get(0));
+    assertTypeEqualsJSTypeExpression(createNamedType("SomeInterface"), interfaces.get(0));
   }
 
   @Test
   public void testParseExtends4() {
-    assertTypeEquals(STRING_OBJECT_TYPE, parse("@extends {String}*/").getBaseType());
+    assertTypeEqualsJSTypeExpression(STRING_OBJECT_TYPE, parse("@extends {String}*/").getBaseType());
   }
 
   @Test
   public void testParseExtends5() {
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         STRING_OBJECT_TYPE,
         parse("@extends {String*/", "Bad type annotation. expected closing }" + BAD_TYPE_WIKI_LINK)
             .getBaseType());
@@ -1512,7 +1512,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseExtends6() {
     // Multi-line extends
-    assertTypeEquals(STRING_OBJECT_TYPE, parse("@extends \n * {String}*/").getBaseType());
+    assertTypeEqualsJSTypeExpression(STRING_OBJECT_TYPE, parse("@extends \n * {String}*/").getBaseType());
   }
 
   @Test
@@ -1521,7 +1521,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     // we will not find a type with this name in the JS parsed tree.
     // If this is fixed in the future, change this test to check for a
     // warning/error message.
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createNamedType("some_++#%$%_UglyString"),
         parse("@extends {some_++#%$%_UglyString} */").getBaseType());
   }
@@ -1570,27 +1570,27 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseEnum1() {
-    assertTypeEquals(NUMBER_TYPE, parse("@enum*/").getEnumParameterType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, parse("@enum*/").getEnumParameterType());
   }
 
   @Test
   public void testParseEnum2() {
-    assertTypeEquals(STRING_TYPE, parse("@enum {string}*/").getEnumParameterType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, parse("@enum {string}*/").getEnumParameterType());
   }
 
   @Test
   public void testParseEnum3() {
-    assertTypeEquals(NUMBER_TYPE, parse("@enum {number}*/").getEnumParameterType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, parse("@enum {number}*/").getEnumParameterType());
   }
 
   @Test
   public void testParseEnum4() {
-    assertTypeEquals(BOOLEAN_TYPE, parse("@enum {boolean}*/").getEnumParameterType());
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, parse("@enum {boolean}*/").getEnumParameterType());
   }
 
   @Test
   public void testParseEnum5() {
-    assertTypeEquals(SYMBOL_TYPE, parse("@enum {symbol}*/").getEnumParameterType());
+    assertTypeEqualsJSTypeExpression(SYMBOL_TYPE, parse("@enum {symbol}*/").getEnumParameterType());
   }
 
   @Test
@@ -1602,7 +1602,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseEnum7() {
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         STRING_TYPE,
         parse(
                 "@enum string*/",
@@ -1613,7 +1613,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseBadEnumNoCrash() {
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         NUMBER_TYPE,
         parse(
                 "@enum {@enum {string}}*/",
@@ -1772,14 +1772,14 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseTsType_typesOnlyMode() {
-    assertThat(parse("@tsType ():this */", JsDocParsing.TYPES_ONLY).getTsTypes())
+    assertThat(parseJsDocParsing("@tsType ():this */", JsDocParsing.TYPES_ONLY).getTsTypes())
         .containsExactly("JsDocInfoParser_tsType_PlaceHolder");
   }
 
   @Test
   public void testParseTsType_includeDescriptions() {
     assertThat(
-            parse("@tsType ():this */", JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE)
+            parseJsDocParsing("@tsType ():this */", JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE)
                 .getTsTypes())
         .containsExactly("():this");
   }
@@ -1957,7 +1957,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = parse("@const @type {string}*/");
     assertThat(info.isConstant()).isTrue();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -1965,7 +1965,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = parse("@type {string} @const */");
     assertThat(info.isConstant()).isTrue();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2025,7 +2025,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = parse("@const @private {string} */", true);
     assertThat(info.isConstant()).isTrue();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2033,7 +2033,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = parse("@private @const {string} */", true);
     assertThat(info.getVisibility()).isEqualTo(Visibility.PRIVATE);
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
     assertThat(info.isConstant()).isTrue();
   }
 
@@ -2105,7 +2105,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseLicenseOnlyContentParsesLicenseWithInvalidJsDocTag() {
     String comment = "@date 11/12/2023\n@nosideeffects\n@deprecated\n@license Foo\n*/";
-    JSDocInfo r = parse(comment, JsDocParsing.LICENSE_COMMENTS_ONLY);
+    JSDocInfo r = parseJsDocParsing(comment, JsDocParsing.LICENSE_COMMENTS_ONLY);
     assertThat(r).isNotNull();
     assertThat(this.prevLicense).isEqualTo(" Foo\n");
     assertThat(r.isNoSideEffects()).isFalse();
@@ -2117,7 +2117,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testParseLicenseOnlyContentParsesPreservedCommentWithInvalidJsDocTag() {
     String comment = "@date 11/12/2023\n@nosideeffects\n@deprecated\n@preserve Foo\n*/";
-    JSDocInfo r = parse(comment, JsDocParsing.LICENSE_COMMENTS_ONLY);
+    JSDocInfo r = parseJsDocParsing(comment, JsDocParsing.LICENSE_COMMENTS_ONLY);
     assertThat(r).isNotNull();
     assertThat(this.prevLicense).isEqualTo(" Foo\n");
     assertThat(r.isNoSideEffects()).isFalse();
@@ -2138,12 +2138,12 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseDefine1() {
-    assertTypeEquals(STRING_TYPE, parse("@define {string}*/").getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, parse("@define {string}*/").getType());
   }
 
   @Test
   public void testParseDefine2() {
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         STRING_TYPE,
         parse("@define {string*/", "Bad type annotation. expected closing }" + BAD_TYPE_WIKI_LINK)
             .getType());
@@ -2154,17 +2154,17 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = parse("@define {boolean}*/");
     assertThat(info.isConstant()).isTrue();
     assertThat(info.isDefine()).isTrue();
-    assertTypeEquals(BOOLEAN_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, info.getType());
   }
 
   @Test
   public void testParseDefine4() {
-    assertTypeEquals(NUMBER_TYPE, parse("@define {number}*/").getType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, parse("@define {number}*/").getType());
   }
 
   @Test
   public void testParseDefine5() {
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createUnionType(NUMBER_TYPE, BOOLEAN_TYPE), parse("@define {number|boolean}*/").getType());
   }
 
@@ -2430,7 +2430,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @Test
   public void testParseNoDts2() {
-    parse("@nodts\n@nodts*/", JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE, "extra @nodts tag");
+    parseJsDocParsing("@nodts\n@nodts*/", JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE, "extra @nodts tag");
   }
 
   @Test
@@ -2468,8 +2468,8 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = parse(comment);
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
-    assertTypeEquals(BOOLEAN_TYPE, info.getReturnType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, info.getReturnType());
     assertThat(info.getVisibility()).isEqualTo(Visibility.PRIVATE);
   }
 
@@ -2491,9 +2491,9 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = parse(comment, MISSING_TYPE_DECL_WARNING_TEXT);
 
     assertThat(info.getParameterCount()).isEqualTo(2);
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
     assertThat(info.getParameterType("name")).isNull();
-    assertTypeEquals(BOOLEAN_TYPE, info.getReturnType());
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, info.getReturnType());
     assertThat(info.getVisibility()).isEqualTo(Visibility.PROTECTED);
   }
 
@@ -2543,7 +2543,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = parse(comment);
     assertThat(info.isConstant()).isTrue();
     assertThat(info.isDefine()).isFalse();
-    assertTypeEquals(STRING_TYPE, info.getEnumParameterType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getEnumParameterType());
     assertThat(info.getVisibility()).isEqualTo(Visibility.PUBLIC);
   }
 
@@ -2559,7 +2559,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = parse(comment);
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(BOOLEAN_TYPE, info.getParameterType("flag"));
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, info.getParameterType("flag"));
     assertThat(info.getDescription()).isEqualTo("description here");
   }
 
@@ -2577,7 +2577,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = parse(comment);
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(BOOLEAN_TYPE, info.getParameterType("flag"));
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, info.getParameterType("flag"));
     assertThat(info.getDescription()).isEqualTo("description here");
   }
 
@@ -2595,7 +2595,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     assertThat(jsdoc.getDescription()).isNull();
     assertThat(jsdoc.getEnumParameterType()).isNull();
     assertThat(jsdoc.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(STRING_TYPE, jsdoc.getParameterType("p0"));
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getParameterType("p0"));
     assertThat(jsdoc.getReturnType()).isNull();
     assertThat(jsdoc.getType()).isNull();
     assertThat(jsdoc.getVisibility()).isEqualTo(Visibility.INHERITED);
@@ -2617,9 +2617,9 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     assertThat(jsdoc.getDescription()).isNull();
     assertThat(jsdoc.getEnumParameterType()).isNull();
     assertThat(jsdoc.getParameterCount()).isEqualTo(2);
-    assertTypeEquals(STRING_OBJECT_TYPE, jsdoc.getParameterType("p0"));
-    assertTypeEquals(BOOLEAN_TYPE, jsdoc.getParameterType("p1"));
-    assertTypeEquals(DATE_TYPE, jsdoc.getReturnType());
+    assertTypeEqualsJSTypeExpression(STRING_OBJECT_TYPE, jsdoc.getParameterType("p0"));
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, jsdoc.getParameterType("p1"));
+    assertTypeEqualsJSTypeExpression(DATE_TYPE, jsdoc.getReturnType());
     assertThat(jsdoc.getType()).isNull();
     assertThat(jsdoc.getVisibility()).isEqualTo(Visibility.INHERITED);
   }
@@ -2652,7 +2652,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
             */
             """);
 
-    assertTypeEquals(createNamedType("FooBar"), jsdoc.getBaseType());
+    assertTypeEqualsJSTypeExpression(createNamedType("FooBar"), jsdoc.getBaseType());
     assertThat(jsdoc.isConstant()).isFalse();
     assertThat(jsdoc.getDescription()).isNull();
     assertThat(jsdoc.getEnumParameterType()).isNull();
@@ -2678,7 +2678,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     assertThat(jsdoc.getEnumParameterType()).isNull();
     assertThat(jsdoc.getParameterCount()).isEqualTo(0);
     assertThat(jsdoc.getReturnType()).isNull();
-    assertTypeEquals(REGEXP_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(REGEXP_TYPE, jsdoc.getType());
     assertThat(jsdoc.getVisibility()).isEqualTo(Visibility.PROTECTED);
   }
 
@@ -2735,7 +2735,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
     assertThat(jsdoc.getBaseType()).isNull();
     assertThat(jsdoc.isConstant()).isFalse();
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
     assertThat(jsdoc.getParameterCount()).isEqualTo(0);
     assertThat(jsdoc.getReturnType()).isNull();
     assertThat(jsdoc.getVisibility()).isEqualTo(Visibility.INHERITED);
@@ -2839,7 +2839,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     List<JSTypeExpression> interfaces =
         parse("@implements {SomeInterface}*/").getImplementedInterfaces();
     assertThat(interfaces).hasSize(1);
-    assertTypeEquals(createNamedType("SomeInterface"), interfaces.get(0));
+    assertTypeEqualsJSTypeExpression(createNamedType("SomeInterface"), interfaces.get(0));
   }
 
   @Test
@@ -2853,8 +2853,8 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
                 """)
             .getImplementedInterfaces();
     assertThat(interfaces).hasSize(2);
-    assertTypeEquals(createNamedType("SomeInterface1"), interfaces.get(0));
-    assertTypeEquals(createNamedType("SomeInterface2"), interfaces.get(1));
+    assertTypeEqualsJSTypeExpression(createNamedType("SomeInterface1"), interfaces.get(0));
+    assertTypeEqualsJSTypeExpression(createNamedType("SomeInterface2"), interfaces.get(1));
   }
 
   @Test
@@ -2911,7 +2911,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     assertThat(jsdoc.isInterface()).isTrue();
     assertThat(jsdoc.getExtendedInterfacesCount()).isEqualTo(1);
     List<JSTypeExpression> types = jsdoc.getExtendedInterfaces();
-    assertTypeEquals(createNamedType("Extended"), types.get(0));
+    assertTypeEqualsJSTypeExpression(createNamedType("Extended"), types.get(0));
   }
 
   @Test
@@ -2927,8 +2927,8 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     assertThat(jsdoc.getBaseType()).isNull();
     assertThat(jsdoc.getExtendedInterfacesCount()).isEqualTo(2);
     List<JSTypeExpression> types = jsdoc.getExtendedInterfaces();
-    assertTypeEquals(createNamedType("Extended1"), types.get(0));
-    assertTypeEquals(createNamedType("Extended2"), types.get(1));
+    assertTypeEqualsJSTypeExpression(createNamedType("Extended1"), types.get(0));
+    assertTypeEqualsJSTypeExpression(createNamedType("Extended2"), types.get(1));
   }
 
   @Test
@@ -2945,9 +2945,9 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     assertThat(jsdoc.getBaseType()).isNull();
     assertThat(jsdoc.getExtendedInterfacesCount()).isEqualTo(3);
     List<JSTypeExpression> types = jsdoc.getExtendedInterfaces();
-    assertTypeEquals(createNamedType("Extended1"), types.get(0));
-    assertTypeEquals(createNamedType("Extended2"), types.get(1));
-    assertTypeEquals(createNamedType("Extended3"), types.get(2));
+    assertTypeEqualsJSTypeExpression(createNamedType("Extended1"), types.get(0));
+    assertTypeEqualsJSTypeExpression(createNamedType("Extended2"), types.get(1));
+    assertTypeEqualsJSTypeExpression(createNamedType("Extended3"), types.get(2));
   }
 
   @Test
@@ -2969,7 +2969,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
             "@constructor\n * @extends {Object?} */",
             "Bad type annotation. expected closing }" + BAD_TYPE_WIKI_LINK);
     assertThat(jsdoc.isConstructor()).isTrue();
-    assertTypeEquals(OBJECT_TYPE, jsdoc.getBaseType());
+    assertTypeEqualsJSTypeExpression(OBJECT_TYPE, jsdoc.getBaseType());
   }
 
   @Test
@@ -2979,7 +2979,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
             "@implements {Disposable?}\n * @constructor */",
             "Bad type annotation. expected closing }" + BAD_TYPE_WIKI_LINK);
     assertThat(jsdoc.isConstructor()).isTrue();
-    assertTypeEquals(createNamedType("Disposable"), jsdoc.getImplementedInterfaces().get(0));
+    assertTypeEqualsJSTypeExpression(createNamedType("Disposable"), jsdoc.getImplementedInterfaces().get(0));
   }
 
   @Test
@@ -3131,7 +3131,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testSuppressFollowedByAnnotationOnSameLine_parseTypesOnly() {
     JSDocInfo sameLine =
-        parse("@suppress {visibility} @return {boolean} */", JsDocParsing.TYPES_ONLY);
+        parseJsDocParsing("@suppress {visibility} @return {boolean} */", JsDocParsing.TYPES_ONLY);
     assertThat(sameLine.getReturnType()).isNotNull();
     assertThat(sameLine.getSuppressions()).contains("visibility");
   }
@@ -3141,7 +3141,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
     // Regression test - the compiler used to include the @return {boolean} annotation in the
     // suppress description only if JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE was used.
     JSDocInfo sameLine =
-        parse(
+        parseJsDocParsing(
             "@suppress {visibility} @return {boolean} */",
             JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE);
     assertThat(sameLine.getReturnType()).isNotNull();
@@ -3151,7 +3151,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testSuppressWithDescriptionFollowedByAnnotation_parseTypeOnly() {
     JSDocInfo sameLine =
-        parse(
+        parseJsDocParsing(
             "@suppress {visibility} this is a description @return {boolean} */",
             JsDocParsing.TYPES_ONLY);
     // The @return {boolean} is considered part of the @suppress description.
@@ -3162,7 +3162,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testSuppressWithDescriptionFollowedByAnnotation_includeDescriptions() {
     JSDocInfo sameLine =
-        parse(
+        parseJsDocParsing(
             "@suppress {visibility} this is a description @return {boolean} */",
             JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE);
     // The @return {boolean} is considered part of the @suppress description.
@@ -3302,7 +3302,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testJsDocAfterSuppress() {
     JSDocInfo info = parse("@suppress {x,y} @const {string} */");
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -4142,43 +4142,43 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   @Test
   public void testPackageType() {
     JSDocInfo jsdoc = parse("@package {string} */");
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
   }
 
   @Test
   public void testPrivateType() {
     JSDocInfo jsdoc = parse("@private {string} */");
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
   }
 
   @Test
   public void testProtectedType() {
     JSDocInfo jsdoc = parse("@protected {string} */");
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
   }
 
   @Test
   public void testPublicType() {
     JSDocInfo jsdoc = parse("@public {string} */");
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
   }
 
   @Test
   public void testConstType() {
     JSDocInfo jsdoc = parse("@const {string} */");
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
   }
 
   @Test
   public void testFinalType() {
     JSDocInfo jsdoc = parse("@final {string} */");
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
   }
 
   @Test
   public void testExportType() {
     JSDocInfo jsdoc = parse("@export {string} descr\n next line */", true);
-    assertTypeEquals(STRING_TYPE, jsdoc.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, jsdoc.getType());
 
     assertThat(jsdoc.isExport()).isTrue();
 
@@ -5679,13 +5679,13 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testAllowlistedConflictingAnnotation() {
     extraAnnotations.add("param");
     JSDocInfo info = parse("@param {number} index */");
-    assertTypeEquals(NUMBER_TYPE, info.getParameterType("index"));
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getParameterType("index"));
   }
 
   @Test
   public void testJsDocAfterStatic() {
     JSDocInfo info = parse("@static @type {number} */");
-    assertTypeEquals(NUMBER_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getType());
   }
 
   @Test
@@ -5703,7 +5703,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   public void testUnsupportedJsDocSyntax1() {
     JSDocInfo info = parse("@param {string} [accessLevel=\"author\"] The user level */", true);
     assertThat(info.getParameterCount()).isEqualTo(1);
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         registry.createOptionalType(STRING_TYPE), info.getParameterType("accessLevel"));
     assertThat(info.getDescriptionForParameter("accessLevel")).isEqualTo("The user level");
   }
@@ -6092,7 +6092,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
             """
                 + ' ');
     assertThat(info.hasTypedefType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getTypedefType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getTypedefType());
   }
 
   @Test
@@ -6516,7 +6516,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
 
   @SuppressWarnings("unused")
   private JSDocInfo parseFileOverviewWithoutDoc(String comment, String... warnings) {
-    return parse(comment, JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE, warnings);
+    return parseJsDocParsing(comment, JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE, warnings);
   }
 
   private JSDocInfo parseFileOverview(String comment, String... warnings) {
@@ -6524,7 +6524,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   }
 
   private JSDocInfo preserveWhitespaceParse(String comment, String... warnings) {
-    return parse(comment, JsDocParsing.INCLUDE_DESCRIPTIONS_WITH_WHITESPACE, warnings);
+    return parseJsDocParsing(comment, JsDocParsing.INCLUDE_DESCRIPTIONS_WITH_WHITESPACE, warnings);
   }
 
   @Test
@@ -6568,11 +6568,11 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
   }
 
   private JSDocInfo parse(String comment, String... warnings) {
-    return parse(comment, JsDocParsing.TYPES_ONLY, warnings);
+    return parseJsDocParsing(comment, JsDocParsing.TYPES_ONLY, warnings);
   }
 
   private JSDocInfo parse(String comment, boolean parseDocumentation, String... warnings) {
-    return parse(
+    return parseJsDocParsing(
         comment,
         parseDocumentation
             ? JsDocParsing.INCLUDE_DESCRIPTIONS_NO_WHITESPACE
@@ -6580,7 +6580,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
         warnings);
   }
 
-  private JSDocInfo parse(String comment, JsDocParsing parseDocumentation, String... warnings) {
+  private JSDocInfo parseJsDocParsing(String comment, JsDocParsing parseDocumentation, String... warnings) {
     return parse(comment, parseDocumentation, false, warnings);
   }
 

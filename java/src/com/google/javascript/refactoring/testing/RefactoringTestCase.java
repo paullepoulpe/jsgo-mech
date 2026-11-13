@@ -38,7 +38,7 @@ public abstract class RefactoringTestCase {
     return line;
   }
 
-  public static String lines(String... lines) {
+  public static String linesStringVarargs(String... lines) {
     return LINE_JOINER.join(lines);
   }
 

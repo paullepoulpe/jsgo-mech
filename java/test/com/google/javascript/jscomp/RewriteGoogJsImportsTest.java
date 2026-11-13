@@ -72,7 +72,7 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
 
   @Test
   public void testBaseAndGoogUntouched() {
-    testSame(srcs(BASE, GOOG));
+    testSameTestPartVarargs(srcsSourceFileVarargs(BASE, GOOG));
   }
 
   @Test
@@ -87,11 +87,11 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
     ignoreWarnings(LOAD_WARNING);
 
     // No base.js = no detecting goog.js
-    test(srcs(GOOG, testcode), expected(GOOG, expected));
+    test(srcsSourceFileVarargs(GOOG, testcode), expectedSourceFileVarargs(GOOG, expected));
 
     // No goog.js
-    test(srcs(BASE, testcode), expected(BASE, expected));
-    test(srcs(testcode), expected(expected));
+    test(srcsSourceFileVarargs(BASE, testcode), expectedSourceFileVarargs(BASE, expected));
+    test(srcsSourceFileVarargs(testcode), expectedSourceFileVarargs(expected));
 
     // Linting still happens.
     testError("import * as notgoog from './goog.js';", GOOG_JS_IMPORT_MUST_BE_GOOG_STAR);
@@ -100,7 +100,7 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
   @Test
   public void testImportStar() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(
@@ -109,7 +109,7 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
                 import * as goog from './closure/goog.js';
                 use(goog.require, goog.foo, goog.MyClass, goog.constant);
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(
@@ -132,15 +132,15 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
     ignoreWarnings(LOAD_WARNING);
 
     test(
-        externs(BASE, GOOG),
-        srcs(
+        externsSourceFileVarargs(BASE, GOOG),
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "testcode",
                 """
                 import * as goog from './closure/goog.js';
                 use(goog.require, goog.foo, goog.MyClass, goog.constant);
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "testcode",
                 """
@@ -152,7 +152,7 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
   @Test
   public void testKnownBadPropertyAccess() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(
@@ -161,7 +161,7 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
                 import * as goog from './closure/goog.js';
                 use(goog.require, goog.bad);
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(
@@ -181,8 +181,8 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
 
   @Test
   public void testReexportGoog() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(
@@ -193,8 +193,8 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
                 """)),
         error(GOOG_JS_REEXPORTED));
 
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(
@@ -205,12 +205,12 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
                 """)),
         error(GOOG_JS_REEXPORTED));
 
-    testError(
-        srcs(BASE, GOOG, SourceFile.fromCode("testcode", "export * from './closure/goog.js';")),
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(BASE, GOOG, SourceFile.fromCode("testcode", "export * from './closure/goog.js';")),
         error(GOOG_JS_REEXPORTED));
 
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode("testcode", "export {require} from './closure/goog.js';")),
@@ -221,7 +221,7 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
   @Test
   public void testImportMeta() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(
@@ -230,7 +230,7 @@ public final class RewriteGoogJsImportsTest extends CompilerTestCase {
                 import * as goog from './closure/goog.js';
                 use(import.meta);
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             BASE,
             GOOG,
             SourceFile.fromCode(

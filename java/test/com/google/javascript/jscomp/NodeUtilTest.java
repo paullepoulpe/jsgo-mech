@@ -1154,7 +1154,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(outerBlockNode, innerBlockNode);
       String expected = "{{}}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1167,7 +1167,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(tryNode, finallyBlock);
       String expected = "try {foo()} catch(e) {}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1180,7 +1180,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(tryNode, tryBlock);
       String expected = "try {} catch(e) {} finally {}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1194,7 +1194,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(catchBlocks, catchBlock);
       String expected = "try {foo()} finally {}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1207,7 +1207,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(tryNode, catchBlocks);
       String expected = "try {foo()} finally {}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1220,7 +1220,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(importNode, functionFoo);
       String expected = "import './foo';";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1233,7 +1233,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(paramList, p1);
       String expected = "function f() {}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1246,7 +1246,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(paramList, p1);
       String expected = "function f(p2) {}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1259,7 +1259,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(varNode, nameNode);
       String expected = "var goo, hoo";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the second child.
       actual = parse("var foo, goo, hoo");
@@ -1269,7 +1269,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(varNode, nameNode);
       expected = "var foo, hoo";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the last child of several children.
       actual = parse("var foo, hoo");
@@ -1279,7 +1279,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(varNode, nameNode);
       expected = "var foo";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the last.
       actual = parse("var hoo");
@@ -1289,7 +1289,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(varNode, nameNode);
       expected = "";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1302,7 +1302,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(letNode, nameNode);
       String expected = "let goo, hoo";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the second child.
       actual = parse("let foo, goo, hoo");
@@ -1312,7 +1312,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(letNode, nameNode);
       expected = "let foo, hoo";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the last child of several children.
       actual = parse("let foo, hoo");
@@ -1322,7 +1322,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(letNode, nameNode);
       expected = "let foo";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the last.
       actual = parse("let hoo");
@@ -1332,7 +1332,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(letNode, nameNode);
       expected = "";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1345,7 +1345,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(labelNode, callExpressNode);
       String expected = "";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1358,7 +1358,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(labelNode, callExpressNode);
       String expected = "";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1374,13 +1374,13 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(pattern, a);
       String expected = "var {b, c} = {a:1, b:2, c:3};";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Remove all entries in object pattern
       NodeUtil.removeChild(pattern, b);
       NodeUtil.removeChild(pattern, c);
       expected = "var { } = {a:1, b:2, c:3};";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // remove variable declaration from array pattern
       actual = parse("var [a, b] = [1, 2]");
@@ -1391,7 +1391,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(pattern, a);
       expected = "var [ , b] = [1, 2];";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1404,7 +1404,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(forNode, child);
       String expected = "for(;a<0;a++)foo()";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the condition.
       actual = parse("for(var a=0;a<0;a++)foo()");
@@ -1414,7 +1414,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(forNode, child);
       expected = "for(var a=0;;a++)foo()";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the increment.
       actual = parse("for(var a=0;a<0;a++)foo()");
@@ -1424,7 +1424,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(forNode, child);
       expected = "for(var a=0;a<0;)foo()";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the body.
       actual = parse("for(var a=0;a<0;a++)foo()");
@@ -1434,7 +1434,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(forNode, child);
       expected = "for(var a=0;a<0;a++);";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
 
       // Test removing the body.
       actual = parse("for(a in ack)foo();");
@@ -1444,7 +1444,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeChild(forNode, child);
       expected = "for(a in ack);";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     private static void replaceDeclChild(String js, int declarationChild, String expected) {
@@ -1453,7 +1453,7 @@ public final class NodeUtilTest {
       Node nameNode = declarationNode.getChildAtIndex(declarationChild);
 
       NodeUtil.replaceDeclarationChild(nameNode, IR.block());
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1479,7 +1479,7 @@ public final class NodeUtilTest {
 
       assertThat(NodeUtil.tryMergeBlock(childBlock, false)).isTrue();
       String expected = "{a();b();}";
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1504,7 +1504,7 @@ public final class NodeUtilTest {
 
       assertThat(NodeUtil.tryMergeBlock(childBlock, false)).isFalse();
       String expected = code;
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -1515,7 +1515,7 @@ public final class NodeUtilTest {
       Node block = actual.getFirstChild();
 
       assertThat(NodeUtil.tryMergeBlock(block, true)).isTrue();
-      assertNode(parse(expected)).isEqualTo(actual);
+      assertNode(parse(expected)).isEqualToNode(actual);
     }
 
     @Test
@@ -4236,7 +4236,7 @@ public final class NodeUtilTest {
       compiler.init(ImmutableList.<SourceFile>of(), ImmutableList.<SourceFile>of(), options);
       Node actual = NodeUtil.newQName(compiler, "ns.prop");
       Node expected = IR.getprop(IR.name("ns"), "prop");
-      assertNode(actual).isEqualTo(expected);
+      assertNode(actual).isEqualToNode(expected);
     }
 
     @Test
@@ -4247,31 +4247,31 @@ public final class NodeUtilTest {
       compiler.init(ImmutableList.<SourceFile>of(), ImmutableList.<SourceFile>of(), options);
       Node actual = NodeUtil.newQName(compiler, "this.prop");
       Node expected = IR.getprop(IR.thisNode(), "prop");
-      assertNode(actual).isEqualTo(expected);
+      assertNode(actual).isEqualToNode(expected);
     }
 
     @Test
     public void testNewQNameDeclarationWithQualifiedName() {
       assertNode(createNewQNameDeclaration("ns.prop", IR.number(0), Token.VAR))
-          .isEqualTo(IR.exprResult(IR.assign(IR.getprop(IR.name("ns"), "prop"), IR.number(0))));
+          .isEqualToNode(IR.exprResult(IR.assign(IR.getprop(IR.name("ns"), "prop"), IR.number(0))));
     }
 
     @Test
     public void testNewQNameDeclarationWithVar() {
       assertNode(createNewQNameDeclaration("x", IR.number(0), Token.VAR))
-          .isEqualTo(IR.var(IR.name("x"), IR.number(0)));
+          .isEqualToNode(IR.var(IR.name("x"), IR.number(0)));
     }
 
     @Test
     public void testNewQNameDeclarationWithLet() {
       assertNode(createNewQNameDeclaration("x", IR.number(0), Token.LET))
-          .isEqualTo(IR.let(IR.name("x"), IR.number(0)));
+          .isEqualToNode(IR.let(IR.name("x"), IR.number(0)));
     }
 
     @Test
     public void testNewQNameDeclarationWithConst() {
       assertNode(createNewQNameDeclaration("x", IR.number(0), Token.CONST))
-          .isEqualTo(IR.constNode(IR.name("x"), IR.number(0)));
+          .isEqualToNode(IR.constNode(IR.name("x"), IR.number(0)));
     }
 
     private Node createNewQNameDeclaration(String name, Node value, Token type) {
@@ -4279,7 +4279,7 @@ public final class NodeUtilTest {
       CompilerOptions options = new CompilerOptions();
       options.setCodingConvention(new GoogleCodingConvention());
       compiler.init(ImmutableList.<SourceFile>of(), ImmutableList.<SourceFile>of(), options);
-      return NodeUtil.newQNameDeclaration(compiler, name, value, null, type);
+      return NodeUtil.newQNameDeclarationAbstractCompiler(compiler, name, value, null, type);
     }
 
     @Test
@@ -4825,18 +4825,18 @@ public final class NodeUtilTest {
 
     @Test
     public void testIsCallToNode() {
-      assertThat(NodeUtil.isCallTo(parseFirst(CALL, "foo()"), IR.name("foo"))).isTrue();
+      assertThat(NodeUtil.isCallToNode(parseFirst(CALL, "foo()"), IR.name("foo"))).isTrue();
       assertThat(
-              NodeUtil.isCallTo(parseFirst(CALL, "foo.bar()"), IR.getprop(IR.name("foo"), "bar")))
+              NodeUtil.isCallToNode(parseFirst(CALL, "foo.bar()"), IR.getprop(IR.name("foo"), "bar")))
           .isTrue();
 
-      assertThat(NodeUtil.isCallTo(IR.name("foo"), IR.name("foo"))).isFalse();
+      assertThat(NodeUtil.isCallToNode(IR.name("foo"), IR.name("foo"))).isFalse();
       assertThat(
-              NodeUtil.isCallTo(
+              NodeUtil.isCallToNode(
                   IR.getprop(IR.name("foo"), "bar"), IR.getprop(IR.name("foo"), "bar")))
           .isFalse();
-      assertThat(NodeUtil.isCallTo(parseFirst(CALL, "foo.bar()"), IR.name("foo"))).isFalse();
-      assertThat(NodeUtil.isCallTo(parseFirst(CALL, "foo[0]()"), IR.name("foo"))).isFalse();
+      assertThat(NodeUtil.isCallToNode(parseFirst(CALL, "foo.bar()"), IR.name("foo"))).isFalse();
+      assertThat(NodeUtil.isCallToNode(parseFirst(CALL, "foo[0]()"), IR.name("foo"))).isFalse();
     }
 
     @Test
@@ -5265,7 +5265,7 @@ public final class NodeUtilTest {
 
       NodeUtil.removeFeaturesFromAllScripts(
           rootNode,
-          FeatureSet.BARE_MINIMUM.with(Feature.LET_DECLARATIONS, Feature.CONST_DECLARATIONS),
+          FeatureSet.BARE_MINIMUM.withFeatureVarargs(Feature.LET_DECLARATIONS, Feature.CONST_DECLARATIONS),
           compiler);
       assertFS(compiler.getAllowableFeatures())
           .equals(FeatureSet.ES2020.without(Feature.LET_DECLARATIONS, Feature.CONST_DECLARATIONS));
@@ -5843,7 +5843,7 @@ public final class NodeUtilTest {
   public static class DelegatedHelpersTests {
     @Test
     public void testDelegatedHelpersWithNarrowDependencies() {
-      Node nameNode = NodeUtil.newQName(CodingConventions.getDefault(), "foo.bar");
+      Node nameNode = NodeUtil.newQNameCodingConvention(CodingConventions.getDefault(), "foo.bar");
       assertThat(nameNode.isGetProp()).isTrue();
       assertThat(nameNode.getString()).isEqualTo("bar");
     }

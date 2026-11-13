@@ -116,15 +116,15 @@ public class TemplatizedTypeTest extends BaseJSTypeTestCase {
     ObjectType rawType = createCustomTemplatizedType("Baz");
 
     JSType templatizedStringNumber =
-        registry.createTemplatizedType(rawType, ImmutableList.of(STRING_TYPE, NUMBER_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(STRING_TYPE, NUMBER_TYPE));
     JSType secondTemplatizedStringNumber =
-        registry.createTemplatizedType(rawType, ImmutableList.of(STRING_TYPE, NUMBER_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(STRING_TYPE, NUMBER_TYPE));
     JSType templatizedStringAll =
-        registry.createTemplatizedType(rawType, ImmutableList.of(STRING_TYPE, ALL_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(STRING_TYPE, ALL_TYPE));
     JSType templatizedStringUnknown =
-        registry.createTemplatizedType(rawType, ImmutableList.of(STRING_TYPE, UNKNOWN_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(STRING_TYPE, UNKNOWN_TYPE));
     JSType templatizedUnknownUnknown =
-        registry.createTemplatizedType(rawType, ImmutableList.of(UNKNOWN_TYPE, UNKNOWN_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(UNKNOWN_TYPE, UNKNOWN_TYPE));
 
     assertType(templatizedStringNumber).isSubtypeOf(rawType);
     assertType(templatizedStringAll).isSubtypeOf(rawType);
@@ -157,25 +157,25 @@ public class TemplatizedTypeTest extends BaseJSTypeTestCase {
     ObjectType rawType = createCustomTemplatizedType("Baz");
 
     JSType templatizedUnknownString =
-        registry.createTemplatizedType(rawType, ImmutableList.of(UNKNOWN_TYPE, STRING_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(UNKNOWN_TYPE, STRING_TYPE));
     assertType(rawType).isNotEqualTo(templatizedUnknownString);
 
     JSType templatizedStringUnknown =
-        registry.createTemplatizedType(rawType, ImmutableList.of(STRING_TYPE, UNKNOWN_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(STRING_TYPE, UNKNOWN_TYPE));
     assertType(rawType).isNotEqualTo(templatizedStringUnknown);
 
     JSType templatizedUnknownUnknown =
-        registry.createTemplatizedType(rawType, ImmutableList.of(UNKNOWN_TYPE, UNKNOWN_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(UNKNOWN_TYPE, UNKNOWN_TYPE));
     assertType(rawType).isEqualTo(templatizedUnknownUnknown);
 
     JSType templatizedCheckedUnknownUnknown =
-        registry.createTemplatizedType(
+        registry.createTemplatizedTypeImmutableList(
             rawType, ImmutableList.of(CHECKED_UNKNOWN_TYPE, UNKNOWN_TYPE));
     assertType(rawType).isNotEqualTo(templatizedCheckedUnknownUnknown);
 
     TemplateType ramdomTemplate = this.registry.createTemplateType("X");
     JSType templatizedTemplateUnknown =
-        registry.createTemplatizedType(rawType, ImmutableList.of(ramdomTemplate, UNKNOWN_TYPE));
+        registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of(ramdomTemplate, UNKNOWN_TYPE));
     assertType(ramdomTemplate).isUnknown();
     assertType(rawType).isNotEqualTo(templatizedTemplateUnknown);
 
@@ -185,7 +185,7 @@ public class TemplatizedTypeTest extends BaseJSTypeTestCase {
       resolvedNamedUnknown.setReferencedType(UNKNOWN_TYPE);
     }
     JSType templatizedResolvedNamedUnknownUnknown =
-        registry.createTemplatizedType(
+        registry.createTemplatizedTypeImmutableList(
             rawType, ImmutableList.of(resolvedNamedUnknown, UNKNOWN_TYPE));
     assertType(resolvedNamedUnknown).isUnknown();
     assertType(rawType).isEqualTo(templatizedResolvedNamedUnknownUnknown);
@@ -195,7 +195,7 @@ public class TemplatizedTypeTest extends BaseJSTypeTestCase {
       unresolvedNamedUnknown.setReferencedType(UNKNOWN_TYPE);
 
       JSType templatizedUnresolvedNamedUnknownUnknown =
-          registry.createTemplatizedType(
+          registry.createTemplatizedTypeImmutableList(
               rawType, ImmutableList.of(unresolvedNamedUnknown, UNKNOWN_TYPE));
       assertType(resolvedNamedUnknown).isUnknown();
       // Not equal because we don't know yet whether the type args are all unknown.

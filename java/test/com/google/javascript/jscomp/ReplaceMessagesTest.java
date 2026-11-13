@@ -213,7 +213,7 @@ public final class ReplaceMessagesTest extends CompilerTestCase {
     enableTypeCheck();
     replaceTypesWithColors();
     enableTypeInfoValidation();
-    ignoreWarnings(DiagnosticGroups.MISSING_PROPERTIES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MISSING_PROPERTIES);
   }
 
   @Test

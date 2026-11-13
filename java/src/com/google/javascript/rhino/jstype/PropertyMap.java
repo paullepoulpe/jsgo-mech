@@ -153,7 +153,7 @@ final class PropertyMap {
     return parentSource.getCtorExtendedInterfaces();
   }
 
-  @Nullable OwnedProperty findClosest(String name) {
+  @Nullable OwnedProperty findClosestString(String name) {
     return findClosest(new Property.StringKey(name));
   }
 
@@ -182,13 +182,13 @@ final class PropertyMap {
     return null;
   }
 
-  Property getOwnProperty(String propertyName) {
+  Property getOwnPropertyString(String propertyName) {
     return properties.get(propertyName);
   }
 
   @Nullable Property getOwnProperty(Property.Key propertyName) {
     return switch (propertyName.kind()) {
-      case STRING -> getOwnProperty(propertyName.string());
+      case STRING -> getOwnPropertyString(propertyName.string());
       case SYMBOL -> knownSymbols != null ? knownSymbols.get(propertyName.symbol()) : null;
     };
   }
@@ -270,7 +270,7 @@ final class PropertyMap {
     }
   }
 
-  void putProperty(String name, Property newProp) {
+  void putPropertyString(String name, Property newProp) {
     Property oldProp = properties.get(name);
 
     if (oldProp == null) {
@@ -284,7 +284,7 @@ final class PropertyMap {
     properties.put(name, newProp);
   }
 
-  void putProperty(KnownSymbolType symbol, Property newProp) {
+  void putPropertyKnownSymbolType(KnownSymbolType symbol, Property newProp) {
     Property oldProp = knownSymbols != null ? knownSymbols.get(symbol) : null;
 
     if (oldProp == null) {
@@ -300,8 +300,8 @@ final class PropertyMap {
 
   void putProperty(Property.Key name, Property newProp) {
     switch (name.kind()) {
-      case STRING -> putProperty(name.string(), newProp);
-      case SYMBOL -> putProperty(name.symbol(), newProp);
+      case STRING -> putPropertyString(name.string(), newProp);
+      case SYMBOL -> putPropertyKnownSymbolType(name.symbol(), newProp);
     }
   }
 

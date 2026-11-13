@@ -206,22 +206,22 @@ public class PrototypeObjectType extends ObjectType {
 
   @Override
   boolean defineProperty(Property.Key name, JSType type, boolean inferred, Node propertyNode) {
-    if (hasOwnDeclaredProperty(name)) {
+    if (hasOwnDeclaredPropertyKey(name)) {
       return false;
     }
-    Property newProp = new Property(name, type, inferred, propertyNode);
+    Property newProp = Property.createFromKey(name, type, inferred, propertyNode);
     properties.putProperty(name, newProp);
     return true;
   }
 
   @Override
-  public void setPropertyJSDocInfo(Property.Key propertyName, JSDocInfo info) {
+  public void setPropertyJSDocInfoKey(Property.Key propertyName, JSDocInfo info) {
     if (info != null) {
       if (properties.getOwnProperty(propertyName) == null) {
         // If docInfo was attached, but the type of the property
         // was not defined anywhere, then we consider this an explicit
         // declaration of the property.
-        defineInferredProperty(propertyName, getPropertyType(propertyName),
+        defineInferredPropertyKey(propertyName, getPropertyTypeKey(propertyName),
             null);
       }
 
@@ -355,11 +355,11 @@ public class PrototypeObjectType extends ObjectType {
 
       for (String stringKey : current.getOwnPropertyNames()) {
         var key = new Property.StringKey(stringKey);
-        properties.add(new PropertyForPrettyPrinting(key, current.getPropertyType(key)));
+        properties.add(new PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key)));
       }
       for (KnownSymbolType symbolKey : current.getOwnPropertyKnownSymbols()) {
         var key = new Property.SymbolKey(symbolKey);
-        properties.add(new PropertyForPrettyPrinting(key, current.getPropertyType(key)));
+        properties.add(new PropertyForPrettyPrinting(key, current.getPropertyTypeKey(key)));
       }
     }
 

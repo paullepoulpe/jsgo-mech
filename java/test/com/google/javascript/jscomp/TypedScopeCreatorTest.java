@@ -388,7 +388,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testConstDestructuringDeclarationWithUnknownTypeInExtendsClause() {
     disableTypeInfoValidation();
-    testWarning(
+    testWarningExterns(
         externs("var someUnknownExtern;"),
         srcs("const {Parent} = someUnknownExtern; class Child extends Parent {}"),
         warning(RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR));
@@ -405,7 +405,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testConstDestructuringDeclarationWithUnknownPropertyInExtendsClause() {
     disableTypeInfoValidation();
-    testWarning(
+    testWarningExterns(
         externs("var /** !Object */ someUnknownExtern;"),
         srcs("const {Parent} = someUnknownExtern; class Child extends Parent {}"),
         warning(RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR));
@@ -661,7 +661,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testRestObjectPatternParameters() {
-    testSame(
+    testSameTestPartVarargs(
         externs("/** @type {number} */ Array.prototype.length"),
         srcs(
             """
@@ -1938,7 +1938,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testCollectedCtorProperty12() {
-    testSame(
+    testSameTestPartVarargs(
         externs("/** @type {?} */ let unknown;"),
         srcs(
             """
@@ -1958,7 +1958,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testCollectedCtorProperty13() {
-    testSame(
+    testSameTestPartVarargs(
         externs("/** @type {?} */ let unknown;"),
         srcs(
             """
@@ -1978,7 +1978,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testCollectedCtorProperty14() {
-    testSame(
+    testSameTestPartVarargs(
         externs("/** @type {?} */ let unknown;"),
         srcs(
             """
@@ -2348,8 +2348,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testStructuralInterfaceMatchingOnInterface_symbolProps() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new TestExternsBuilder().addIterable().build(),
             """
             /** @const {symbol} */
@@ -2435,7 +2435,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testStubsInExterns() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor */ function Extern() {}
@@ -2460,7 +2460,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testStubsInExterns2() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor */ function Extern() {}
@@ -2483,7 +2483,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testStubsInExterns3() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @type {number} */ myExtern.foo;
@@ -2506,7 +2506,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testStubsInExterns4() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             Extern.prototype.foo;
@@ -2530,7 +2530,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testPropertyInExterns1() {
     // Declaring a property on a non-native extern type (e.g. 'Extern') declares it as a property
     // on the instance type, but only in externs.
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor */ function Extern() {}
@@ -2565,7 +2565,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     // specific qualified name (i.e. extern.one, in the example below) is still declared on the
     // global scope, so referring to the "one" property specifically on "extern" is still checked
     // as one would expect.
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @type {Object} */ var extern;
@@ -2588,7 +2588,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testPropertyInExterns3() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor
@@ -2605,7 +2605,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testTypedStubsInExterns() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor
@@ -2629,7 +2629,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testTypesInExterns() {
-    testSame(externs(CompilerTypeTestCase.DEFAULT_EXTERNS), srcs(""));
+    testSameTestPartVarargs(externs(CompilerTypeTestCase.DEFAULT_EXTERNS), srcs(""));
 
     TypedVar v = globalScope.getVar("Object");
     FunctionType obj = (FunctionType) v.getType();
@@ -2640,8 +2640,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testSymbolsDeclaredInExterns() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             CompilerTypeTestCase.DEFAULT_EXTERNS,
             """
             /** @const {symbol} */
@@ -2660,7 +2660,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testSymbolIterator_includedByDefault() {
-    testSame(externs(""), srcs(""));
+    testSameTestPartVarargs(externs(""), srcs(""));
 
     TypedVar iterator = globalScope.getVar("Symbol.iterator");
 
@@ -2670,7 +2670,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testNewSymbolsInSrcCode() {
-    testSame(srcs("/** @type {symbol} */ const s = Symbol();"));
+    testSameTestPartVarargs(srcs("/** @type {symbol} */ const s = Symbol();"));
 
     TypedVar iterator = globalScope.getVar("s");
     assertThat(iterator.getType().toString()).isEqualTo("symbol");
@@ -2743,7 +2743,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGlobalThis_includesProvidedNamesAsProperties() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.provide('my.alert');
@@ -3074,8 +3074,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testClassDeclarationWithExtends_googModuleGet() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a.Bar');
             class Bar {}
@@ -3098,8 +3098,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testClassDeclarationWithExtends_googModuleGetProperty() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a.b');
             class Bar {}
@@ -3122,8 +3122,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testClassDeclarationWithExtends_googModuleGetNestedProperty() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a.b');
             class Bar {}
@@ -3146,7 +3146,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testClassDeclarationWithExtends_missingGoogModuleGet() {
-    testSame(srcs("class Foo extends goog.module.get('not.a.real.module') {}"));
+    testSameTestPartVarargs(srcs("class Foo extends goog.module.get('not.a.real.module') {}"));
     FunctionType foo = (FunctionType) findNameType("Foo", globalScope);
     assertScope(globalScope).declares("Foo").withTypeThat().isEqualTo(foo);
 
@@ -3265,8 +3265,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEs5ClassWithWellKnownSymbolTypedMethod() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new TestExternsBuilder().addIterable().build(),
             """
             /** @const {symbol}  */
@@ -3294,17 +3294,17 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     assertType(foo.getInstanceType()).hasProperty(symbolDisposeType);
 
     assertType(foo.getInstanceType())
-        .withTypeOfProp(symbolIteratorType)
+        .withTypeOfPropKnownSymbolType(symbolIteratorType)
         .toStringIsEqualTo("function(this:Foo, string, number): undefined");
     assertType(foo.getInstanceType())
-        .withTypeOfProp(symbolDisposeType)
+        .withTypeOfPropKnownSymbolType(symbolDisposeType)
         .toStringIsEqualTo("function(this:Foo): symbol");
   }
 
   @Test
   public void testClassWithWellKnownSymbolTypedMethod() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new TestExternsBuilder().addIterable().build(),
             """
             /** @const {symbol}  */
@@ -3332,17 +3332,17 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     assertType(foo.getInstanceType()).hasProperty(symbolDisposeType);
 
     assertType(foo.getInstanceType())
-        .withTypeOfProp(symbolIteratorType)
+        .withTypeOfPropKnownSymbolType(symbolIteratorType)
         .toStringIsEqualTo("function(this:Foo, string, number): undefined");
     assertType(foo.getInstanceType())
-        .withTypeOfProp(symbolDisposeType)
+        .withTypeOfPropKnownSymbolType(symbolDisposeType)
         .toStringIsEqualTo("function(this:Foo): symbol");
   }
 
   @Test
   public void testClassWithWellKnownSymbolTypedMethod_abstract() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new TestExternsBuilder().addIterable().build(),
             """
             /** @const {symbol}  */
@@ -3365,7 +3365,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     KnownSymbolType symbolIteratorType =
         (KnownSymbolType) findNameType("Symbol.iterator", globalScope);
     assertType(foo.getInstanceType()).hasProperty(symbolIteratorType);
-    assertType(foo.getInstanceType().getPropertyType(new Property.SymbolKey(symbolIteratorType)))
+    assertType(foo.getInstanceType().getPropertyTypeKey(new Property.SymbolKey(symbolIteratorType)))
         .isFunctionTypeThat()
         .isAbstract();
   }
@@ -3941,7 +3941,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testClassExpression_nestedAssignmentToName() {
-    testSame(
+    testSameTestPartVarargs(
         externs("function somethingElse() {}"),
         // test a pattern that tsickle generates for decorated classes
         srcs(
@@ -3962,7 +3962,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testClassExpression_nestedAssignmentToConstQName() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             var Foo_1;
@@ -3978,7 +3978,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testClassExpression_nestedAssignmentToNonConstQName() {
-    testSame(
+    testSameTestPartVarargs(
         externs("function somethingElse() {}"),
         // test a pattern that tsickle generates for decorated classes
         srcs(
@@ -5097,7 +5097,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testClassTemplateType8() {
     // Verify that template types used in casts are recognized.
-    testSame(
+    testSameTestPartVarargs(
         externs("/** @type {?} */ let unknown;"),
         srcs(
             """
@@ -5580,7 +5580,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testDeclaredConstType5a() {
-    testSame(
+    testSameTestPartVarargs(
         externs(""),
         srcs(
             """
@@ -5932,8 +5932,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testScriptAndGoogModuleWithShadowedVar() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "var x = 0; GLOBAL_X: x;", //
             "goog.module('a'); var x = 'str'; LOCAL_X: x;"));
     TypedScope globalScope = getLabeledStatement("GLOBAL_X").enclosingScope;
@@ -5949,8 +5949,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testTwoGoogModulesWithSameNamedVar() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); var x = 'str'; MOD_A_X: x;", //
             "goog.module('b'); var x = 0; MOD_B_X: x"));
 
@@ -5966,8 +5966,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testTwoGoogModuleWithSameNamedFunctionDeclaration() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); function foo() {} MOD_A_FOO: foo;", //
             "goog.module('b'); function foo() {} MOD_B_FOO: foo;"));
 
@@ -6028,8 +6028,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModule_moduleObjectTypeMatchesImportExportAndModuleBody() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.a');
             exports = class {};
@@ -6066,8 +6066,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     // Do some indirection when assigning `exports = f()` so  that we don't find the type of
     // `exports` until flow-sensitive inference runs. This is to verify that required variables
     // types are tightened after flow-sensitive type inference.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @return {number} */ function f() {} exports = f();",
             "goog.module('b'); const x = goog.require('a'); X: x;"));
 
@@ -6081,8 +6081,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_defaultExportWithExplicitType() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a');
             /** @return {number} */ function f() {}
@@ -6102,8 +6102,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testGoogRequire_propertyOnObjectLiteralWithArrayInitializer() {
     // Reproduce a bug seen when goog.requiring symbols from
     // https://github.com/google/closure-library/blob/master/closure/goog/i18n/datetimesymbols.js
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @fileoverview @typeSummary */
             goog.provide('goog.i18n.DateTimeSymbols');
@@ -6130,8 +6130,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogForwardDeclare_defaultExportWithExplicitType() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('b'); const x = goog.forwardDeclare('a'); function inner() { X: x; }",
             """
             goog.module('a');
@@ -6150,8 +6150,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogRequireType_namedExportOfClass() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('b');
             const x = goog.requireType('a.x');
@@ -6169,8 +6169,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogForwardDeclare_providedClass() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('b');
             const X = goog.forwardDeclare('a.X');
@@ -6188,8 +6188,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogRequireType_providedClass() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('b');
             const X = goog.requireType('a.X');
@@ -6207,8 +6207,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogRequireType_classOnProvidedNamespace() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('b');
             const x = goog.requireType('a.x');
@@ -6226,8 +6226,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogRequireType_destructuring_classOnProvidedNamespace() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('b');
             const {Y} = goog.requireType('a.x');
@@ -6244,8 +6244,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_defaultExportOfConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a.Foo'); exports = class Foo {};",
             "goog.module('b'); const Foo = goog.require('a.Foo'); var /** !Foo */ foo; FOO: foo"));
 
@@ -6255,8 +6255,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequire_defaultExportAliasingLocalConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a.Foo'); class LocalFoo {} exports = LocalFoo;",
             "goog.module('b'); const Foo = goog.require('a.Foo'); var /** !Foo */ foo; FOO: foo"));
 
@@ -6270,8 +6270,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequire_defaultExportOfLocalTypedef() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a.Foo'); /** @typedef {number} */ var numType; exports = numType;",
             "goog.module('b'); const Foo = goog.require('a.Foo'); var /** !Foo */ x; X: x"));
 
@@ -6281,8 +6281,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequire_defaultExportOfEnum() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a.Foo'); exports = class Foo {};",
             "goog.module('b'); const Foo = goog.require('a.Foo'); var /** !Foo */ foo; FOO: foo"));
 
@@ -6292,8 +6292,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequireAndRequireType_defaultExportOfClasses() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a.Foo');
             const Bar = goog.requireType('b.Bar');
@@ -6318,8 +6318,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequireAndRequireType_namedExportOfClasses() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a');
             const {Bar} = goog.requireType('b');
@@ -6344,8 +6344,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequireAndRequireType_typedef() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a.Foo');
             const Bar = goog.requireType('b.Bar');
@@ -6368,8 +6368,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequireAndRequireType_invalidDestructuringImport() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             """
             goog.module('a.Foo');
             const {Bar} = goog.requireType('b.Bar');
@@ -6380,8 +6380,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testReferenceGoogModulesByType() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             class A {}
@@ -6394,8 +6394,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testCannotReferenceGoogDeclareModuleIdByType() {
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsStringVarargs(
             """
             goog.declareModuleId('mod');
             export class A {}
@@ -6406,8 +6406,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testReferenceGoogModuleNestedClassByType() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             class A {}
@@ -6423,8 +6423,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testReferenceGoogModuleNestedClassByType_exportDefaultTypedef() {
     // Verify that the unusal resolution of @typedefs via Node annotation works correctly.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             /** @typedef {string} */
@@ -6438,8 +6438,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testReferenceGoogModuleByType_shadowingLocalCausingResolutionFailure() {
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             class A {}
@@ -6458,8 +6458,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testReferenceGoogModuleByType_googProvideExtensionCausesResolutionFailure() {
     processClosurePrimitives = true;
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             class A {}
@@ -6476,13 +6476,13 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequireModuleWithoutExports() {
-    testSame(srcs("goog.module('a');", "goog.module('b'); const a = goog.require('a');"));
+    testSameTestPartVarargs(srcsStringVarargs("goog.module('a');", "goog.module('b'); const a = goog.require('a');"));
   }
 
   @Test
   public void testGoogRequire_exportObjectLiteralWithLiteralValue() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); exports = {x: 3};",
             "goog.module('b'); const x = goog.require('a'); X: x;" // can't destructure this
             ));
@@ -6493,8 +6493,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_exportObjectLiteralWithLiteralFunctions() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('my.mod');
             function memoize(fn) { return fn; }
@@ -6535,8 +6535,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testModuleTypedef_isNonnullableWhenRequired() {
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('root');
             /** @typedef {string} */ let strType;
@@ -6558,8 +6558,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportImportedAsNamespace() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @type {number} */ exports.x = 0;",
             "goog.module('b'); const a = goog.require('a'); X: a.x;"));
 
@@ -6573,8 +6573,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportImportedAsNamespace_andModded() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); class C { m() {} } exports = {C}; C: C;",
             "goog.module('b'); const a = goog.require('a'); a.C.prototype.n = function() {};"));
 
@@ -6592,8 +6592,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_destructuringInferredNamedExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @return {number} */ function f() {} exports.x = f();",
             "goog.module('b'); const {x} = goog.require('a'); X: x;"));
 
@@ -6603,8 +6603,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_destructuringTypedNamedExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @type {number} */ exports.x = 3;",
             "goog.module('b'); const {x} = goog.require('a'); X: x;"));
 
@@ -6618,8 +6618,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_destructuringNonShorthand() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @type {number} */ exports.x = 3;",
             "goog.module('b'); const {x: y} = goog.require('a'); Y: y;"));
 
@@ -6629,8 +6629,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_exportObjectLiteral() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); const y = 3; exports = {x: y};",
             "goog.module('b'); const {x} = goog.require('a'); X: x;"));
 
@@ -6640,8 +6640,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportDeclaredAsConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @constructor */ exports.X = function() {};",
             "goog.module('b'); const {X} = goog.require('a'); var /** !X */ x; X: x;"));
 
@@ -6651,8 +6651,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportDeclaredAsEnum() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @enum {number} */ exports.Enum = {A: 0};",
             "goog.module('b'); const {Enum} = goog.require('a'); var /** !Enum */ x; X: x;"));
 
@@ -6662,8 +6662,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportOfLocalEnum() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @enum {number} */ const Enum = {A: 0}; exports.Enum = Enum;",
             "goog.module('b'); const {Enum} = goog.require('a'); var /** !Enum */ x; X: x"));
 
@@ -6673,8 +6673,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportOfLocalEnum_inObjectLit() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @enum {number} */ const Enum = {A: 0}; exports = {Enum}",
             "goog.module('b'); const {Enum} = goog.require('a'); var /** !Enum */ x; X: x"));
 
@@ -6684,8 +6684,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportDeclaredAsTypedef() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @typedef {number} */ exports.numType;",
             "goog.module('b'); const {numType} = goog.require('a'); var /** numType */ x; X: x;"));
 
@@ -6695,8 +6695,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_namedExportOfLocalTypedef() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('a'); /** @typedef {number} */ let numType; exports.numType = numType;",
             "goog.module('b'); const {numType} = goog.require('a'); var /** numType */ x; X: x;"));
 
@@ -6706,8 +6706,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_destructuringMissingExportDoesntCrash() {
-    testError(
-        srcs("goog.module('a');", "goog.module('b'); const {x} = goog.require('a'); X: x;"),
+    testErrorDiagnostic(
+        srcsStringVarargs("goog.module('a');", "goog.module('b'); const {x} = goog.require('a'); X: x;"),
         error(DOES_NOT_HAVE_EXPORT_WITH_DETAILS));
 
     Node xNode = getLabeledStatement("X").statementNode.getOnlyChild();
@@ -6716,8 +6716,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testRequire_requireRegularModuleInLoadModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('A'); exports = class {};",
             """
             goog.loadModule(function(exports) {
@@ -6735,8 +6735,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_requireLoadModuleInRegularModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.loadModule(function(exports) {
               goog.module('A');
@@ -6753,8 +6753,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_requireLoadModuleInRegularModule_destructuring() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.loadModule(function(exports) {
               goog.module('mod');
@@ -6771,8 +6771,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testRequire_requireLoadModuleInRegularModule_inferredDefaultExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.loadModule(function(exports) {
               goog.module('a');
@@ -6791,8 +6791,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testRequire_requireLoadModuleInRegularModule_inferredNamedExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.loadModule(function(exports) {
               goog.module('a');
@@ -6811,8 +6811,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleGet_nameDeclarationCreatesTypeAlias() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             (function() {
               const B = goog.module.get('a.B');
@@ -6832,8 +6832,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleGet_destructruringCreatesTypeAlias() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             (function() {
               const {B} = goog.module.get('a');
@@ -6855,8 +6855,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     // This test covers a pattern that works when the compiler rewrites goog.module.get before
     // typechecking, but is not supported in native module typechecking. It's a rare pattern and
     // would be more work to support in TypedScopeCreator.
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsStringVarargs(
             """
             (function() {
               const B = goog.module.get('a').B;
@@ -6876,8 +6876,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testRequire_requireLoadModule_defaultExportOfLocalClass() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.loadModule(function(exports) {
               goog.module('a');
@@ -6896,7 +6896,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_singleNameWithConstJSDocIsDeclared() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.provide('foo'); /** @const */ foo = 3;"));
+    testSameTestPartVarargs(srcs("goog.provide('foo'); /** @const */ foo = 3;"));
 
     TypedVar fooVar = globalScope.getVar("foo");
     assertThat(fooVar).hasJSTypeThat().isNumber();
@@ -6906,7 +6906,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_singleNameWithAtTypeJSDocIsDeclared() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.provide('foo');
@@ -6922,7 +6922,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_singleNameAssignedInIfBlock() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.provide('foo'); if (!foo) { foo = {}; };"));
+    testSameTestPartVarargs(srcs("goog.provide('foo'); if (!foo) { foo = {}; };"));
 
     TypedVar fooVar = globalScope.getVar("foo");
     assertThat(fooVar).hasJSTypeThat().toStringIsEqualTo("{}");
@@ -6932,7 +6932,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_ignoresBlockScopedShadow() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.provide('foo'); if (true) { const foo = 3; }"));
+    testSameTestPartVarargs(srcs("goog.provide('foo'); if (true) { const foo = 3; }"));
 
     TypedVar fooVar = globalScope.getVar("foo");
     assertThat(fooVar).hasJSTypeThat().toStringIsEqualTo("{}");
@@ -6941,8 +6941,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_ofProvide_usedInEs6ExtendsClause() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.provide('a.b')
             a.b.Foo = class {};
@@ -6964,7 +6964,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testGoogProvide_singleStubNameWithAtTypeJSDoc_ignoresJSDoc() {
     processClosurePrimitives = true;
     // NOTE: this causes a CheckJSDoc warning.
-    testSame(srcs("goog.provide('foo'); class Bar {} /** @type {!Bar} */ foo;"));
+    testSameTestPartVarargs(srcs("goog.provide('foo'); class Bar {} /** @type {!Bar} */ foo;"));
 
     TypedVar fooVar = globalScope.getVar("foo");
     assertThat(fooVar).hasJSTypeThat().isLiteralObject();
@@ -6974,7 +6974,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_singleNameWithoutJSDocIsInferred() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.provide('foo'); foo = 3;"));
+    testSameTestPartVarargs(srcs("goog.provide('foo'); foo = 3;"));
 
     TypedVar fooVar = globalScope.getVar("foo");
     assertThat(fooVar).hasJSTypeThat().isNumber();
@@ -6984,7 +6984,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_singleNameWithoutDefinition() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.provide('foo'); foo.Bar = class {};"));
+    testSameTestPartVarargs(srcs("goog.provide('foo'); foo.Bar = class {};"));
 
     TypedVar fooVar = globalScope.getVar("foo");
     assertThat(fooVar).hasJSTypeThat().isObjectTypeWithProperty("Bar");
@@ -6994,7 +6994,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_getPropWithoutJSDoc() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.provide('foo.bar'); foo.bar = 3;"));
+    testSameTestPartVarargs(srcs("goog.provide('foo.bar'); foo.bar = 3;"));
 
     TypedVar fooVar = globalScope.getVar("foo");
     assertThat(fooVar).hasJSTypeThat().withTypeOfProp("bar").isNumber();
@@ -7004,7 +7004,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_getPropTypedef_createsBothTypedefAndObjectType() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.provide('foo.bar');
@@ -7028,7 +7028,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvideGetPropWithTypeDeclaration() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.provide('foo.bar');
@@ -7046,7 +7046,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_namespaceWithMultipleChildren() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.provide('foo.bar');
@@ -7067,7 +7067,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testProvide_longNamespace_declaresProperties() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.provide('a.b.c.d.e.f');
@@ -7082,7 +7082,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_parentNamespaceIsInferred() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.provide('a.b.c'); a.b = {};"));
+    testSameTestPartVarargs(srcs("goog.provide('a.b.c'); a.b = {};"));
 
     assertThat(globalScope.getVar("a")).hasJSTypeThat().withTypeOfProp("b").isLiteralObject();
     assertThat(globalScope.getVar("a.b")).isNull(); // Only declared qnames get TypedVars.
@@ -7092,8 +7092,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_extendsExternsNamespace() {
     processClosurePrimitives = true;
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new String[] {
               new TestExternsBuilder().addClosureExterns().build(),
               "/** @externs */ /** @const */ var google = {}; /** @type {string} */ google.boogle;"
@@ -7115,7 +7115,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_overwritingExternsFunction() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         externs(
             new TestExternsBuilder()
                 .addClosureExterns()
@@ -7132,8 +7132,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyGoogLoadModule_accessibleWithGoogRequire_exportingConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.loadModule(function (exports) {
               goog.module('mod.A');
@@ -7155,7 +7155,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_declaresParentNamespacesGlobally() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.module('a.b.c'); goog.module.declareLegacyNamespace(); MOD: 0;"));
+    testSameTestPartVarargs(srcs("goog.module('a.b.c'); goog.module.declareLegacyNamespace(); MOD: 0;"));
 
     assertScope(globalScope).declares("a").directly();
     assertScope(globalScope).declares("a.b").directly();
@@ -7166,7 +7166,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_isDeclaredPropertyOnParentNamespace() {
     processClosurePrimitives = true;
-    testSame(srcs("goog.module('a.b.c'); goog.module.declareLegacyNamespace();"));
+    testSameTestPartVarargs(srcs("goog.module('a.b.c'); goog.module.declareLegacyNamespace();"));
 
     assertThat(globalScope.getVar("a.b")).hasJSTypeThat().hasDeclaredProperty("c");
   }
@@ -7174,7 +7174,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_addsJSDocToPropertyOnParentNamespace() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('a.b.c');
@@ -7191,8 +7191,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_multipleRequiresInModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             /** @interface */
@@ -7223,8 +7223,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyGoogModule_accessibleWithGoogRequire_exportingConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             goog.module.declareLegacyNamespace();
@@ -7243,8 +7243,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyGoogModule_accessibleWithGoogRequire_exportingLocalTypedef() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             goog.module.declareLegacyNamespace();
@@ -7265,8 +7265,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyGoogModule_accessibleWithGoogRequire_exportingNamespace() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod');
             goog.module.declareLegacyNamespace();
@@ -7281,8 +7281,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyGoogModule_withNamedExport_extendedByGoogProvide() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod');
             goog.module.declareLegacyNamespace();
@@ -7302,8 +7302,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_canBeAliasedInGlobalScopeThenUsed() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.A');
             goog.module.declareLegacyNamespace();
@@ -7325,8 +7325,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogLoadModule_canBeAliasedInGlobalScopeThenUsed() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.loadModule(function(exports) {
               goog.module('mod.A');
@@ -7351,11 +7351,11 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testGoogModule_requiringGoogProvideShadowingGlobal() {
     processClosurePrimitives = true;
 
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "/** @interface */ function EventTarget() {}"),
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('goog.events.EventTarget');
             /** @constructor */
@@ -7376,11 +7376,11 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testGoogModule_requireShadowsGlobal_usedInExtendsClause() {
     processClosurePrimitives = true;
 
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             "/** @interface */ function EventTarget() {}"),
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('goog.events.EventTarget');
             /** @constructor */
@@ -7403,7 +7403,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_withDefaultClassExport_createsGlobalType() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('mod.MyClass');
@@ -7418,7 +7418,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_withDefaultEnumExport_createsGlobalType() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('mod.MyEnum');
@@ -7434,7 +7434,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_withDefaultTypedefExport_createsGlobalType() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('mod.MyTypedef');
@@ -7449,8 +7449,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyGoogModule_withDefaultExport_extendedByGoogProvide() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod');
             goog.module.declareLegacyNamespace();
@@ -7470,8 +7470,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyGoogModule_accessibleWithGoogRequire_exportingTypedef() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod');
             goog.module.declareLegacyNamespace();
@@ -7490,8 +7490,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequiringGoogProvide_class() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.provide('a.b.Foo')
             a.b.Foo = class {};
@@ -7509,8 +7509,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testTypedef_namedExportInObjectLit() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a');
             /** @typedef {number} */
@@ -7526,8 +7526,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleRequiringGoogProvide_classWithDestructuring() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.provide('a.b')
             a.b.Foo = class {};
@@ -7573,8 +7573,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testEsModule_importNameFromScript() {
     // Make sure this does not crash the typechecker. Importing a script for the side effects is
     // fine, but you can't import a name.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "const x = 'oops, you did not export me.';",
             """
             import {x} from './testcode0';
@@ -7596,8 +7596,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importSpecs_declaredExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             let /** number */ num;
             export {num as y};
@@ -7613,8 +7613,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importSpecs_inferredExport_nameDeclaration() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @return {number} */ const f = () => 0;
             export const y = f();
@@ -7630,8 +7630,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importSpecs_inferredExport_exportSpecs() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @return {number} */ const f = () => 0;
             const num = f();
@@ -7648,8 +7648,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importSpecs_typedef() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @typedef {number} */ let numType;
             export {numType};
@@ -7665,8 +7665,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importSpecs_fromGoogColonProvide() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.provide('foo.bar');
             /** @type {number} */
@@ -7682,8 +7682,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importSpecs_fromGoogColonModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('foo.bar');
             /** @type {number} */
@@ -7699,8 +7699,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_moduleObjectTypeMatchesImportExportAndModuleBody() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -7725,29 +7725,29 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_exportDefault() {
-    testSame(srcs("export default 0;", "import x from './testcode0'; X: x;"));
+    testSameTestPartVarargs(srcsStringVarargs("export default 0;", "import x from './testcode0'; X: x;"));
 
     assertNode(getLabeledStatement("X").statementNode.getOnlyChild()).hasJSTypeThat().isNumber();
   }
 
   @Test
   public void testEsModule_exportDefaultImportedWithSpecs() {
-    testSame(srcs("export default 0;", "import {default as x} from './testcode0'; X: x;"));
+    testSameTestPartVarargs(srcsStringVarargs("export default 0;", "import {default as x} from './testcode0'; X: x;"));
 
     assertNode(getLabeledStatement("X").statementNode.getOnlyChild()).hasJSTypeThat().isNumber();
   }
 
   @Test
   public void testEsModule_importDefault_exportedUsingDefaultNamedKey() {
-    testSame(srcs("const x = 0; export {x as default};", "import x from './testcode0'; X: x;"));
+    testSameTestPartVarargs(srcsStringVarargs("const x = 0; export {x as default};", "import x from './testcode0'; X: x;"));
 
     assertNode(getLabeledStatement("X").statementNode.getOnlyChild()).hasJSTypeThat().isNumber();
   }
 
   @Test
   public void testEsModule_exportAndImportDefaultClassDeclaration() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "export default class Button {}; const /** !Button */ b = new Button(); B1: b;",
             "import Button from './testcode0'; const /** !Button */ b = new Button(); B2: b;"));
 
@@ -7761,8 +7761,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importAndImportDefault_nameLocalToModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "class Button {} export default Button; const /** !Button */ b = new Button(); B1: b;",
             "import Button from './testcode0'; const /** !Button */ b = new Button(); B2: b;"));
 
@@ -7776,8 +7776,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importDefault_fromGoogColonModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('foo.bar');
             /** @type {number} */
@@ -7793,8 +7793,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_exportNameFrom() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "export const x = 0; export class Button {}",
             "export {x, Button} from './testcode0';",
             """
@@ -7808,8 +7808,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_exportStarFrom() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "export const x = 0; export class Button {}",
             "export * from './testcode0';",
             """
@@ -7823,8 +7823,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importStar_declaredExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "export let /** number */ x;",
             """
             import * as ns from './testcode0';
@@ -7839,8 +7839,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importStar_inferredExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @return {number} */ const f = () => 0;
             export const x = f();
@@ -7858,8 +7858,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importStar_typedefInExportSpec() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "/** @typedef {number} */ let numType; export {numType};",
             "import * as ns from './testcode0'; var /** !ns.numType */ x; X: x;"));
 
@@ -7868,8 +7868,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importStar_typedefExportDeclaration() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "/** @typedef {number} */ export let numType;",
             "import * as ns from './testcode0'; var /** !ns.numType */ x; X: x;"));
 
@@ -7878,8 +7878,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importStar_typedefReexported() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "/** @typedef {number} */ export let numType;",
             "import * as mod from './testcode0'; export {mod};",
             "import {mod} from './testcode1'; var /** !mod.numType */ x; X: x;"));
@@ -7889,8 +7889,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModule_importStar_typedefReexportedThenImportStarred() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "/** @typedef {number} */ export let numType;",
             "import * as mod0 from './testcode0'; export {mod0};",
             "import * as mod1 from './testcode1'; var /** !mod1.mod0.numType */ x; X: x;"));
@@ -7900,8 +7900,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_esModuleId_namespaceRequire() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.declareModuleId('a'); export const x = 0;",
             "goog.module('b'); const a = goog.require('a'); X: a.x;"));
 
@@ -7910,8 +7910,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_esModuleId_destructuringRequire() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.declareModuleId('a'); export const x = 0;",
             "goog.module('b'); const {x} = goog.require('a'); X: x;"));
 
@@ -7920,8 +7920,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_insideEsModule_namedExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.module('b'); exports.x = 0;",
             "const {x} = goog.require('b'); X: x; export {x};"));
 
@@ -7930,8 +7930,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogRequire_insideEsModule_class() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('b');
             exports.X = class {};
@@ -7952,8 +7952,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testEsModuleImportCycle_namedExports() {
     // Note: we cannot reference circular imports directly in the module body but we can reference
     // them by type and inside functions.
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             import {Bar} from './testcode1';
             var /** !Bar */ b;
@@ -7977,8 +7977,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModuleImportCycle_aliasingNamedExports() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             import {Bar as BarLocal} from './testcode1';
             var /** !BarLocal */ b;
@@ -8002,8 +8002,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModuleImportCycle_importStarPlusNamedExport() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             import * as mod from './testcode1';
             var /** !mod.Bar */ b;
@@ -8027,8 +8027,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModuleImportStar_reexportLateReference() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             import * as mod from './testcode1';
             function f() {
@@ -8059,8 +8059,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testEsModuleImportCycle_importStar() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             import * as mod from './testcode1';
             var /** !mod.Bar */ b;
@@ -8085,7 +8085,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testInferredLegacyNsExport() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('a.b.c')
@@ -8112,7 +8112,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testInferredLegacyNsExport_bundled() {
     processClosurePrimitives = true;
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.loadModule(function(exports) {
@@ -8143,8 +8143,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testGoogProvide_typedef_requiredInModule() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.provide('a.b.c');
             /** @typedef {string} */
@@ -8166,8 +8166,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleGetInBlockScopeDoesntCrash() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a');
             exports = 5;
@@ -8187,8 +8187,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModule_withExportedTypedefOnProperty() {
     processClosurePrimitives = true;
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('mod.a');
             goog.module.declareLegacyNamespace();
@@ -8529,7 +8529,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModule_exportsPropertyIsObjectLit_whosePropertiesNotInferredConst() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('a.b.c');
@@ -8561,14 +8561,14 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyModuleExternsConflict_defaultExport() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @const */
             var a = {};
             a.Foo = class {};
             """),
-        srcs(
+        srcsStringVarargs(
             new TestExternsBuilder().addClosureExterns().build(),
             """
             goog.module('a.Foo');
@@ -8599,8 +8599,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testLegacyModuleExternsConflict_namedExport() {
-    testWarning(
-        externs(
+    testWarningExterns(
+        externsStringVarargs(
             DEFAULT_EXTERNS,
             """
             /** @const */
@@ -8626,8 +8626,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testRequireType_inheritanceChainWithIdenticalClassAndInterfaceName() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a.Foo');
             const BFoo = goog.requireType('b.Foo');
@@ -8648,8 +8648,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testUnorderedGoogProvideAndModule_doesntCrash() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "goog.provide('ns.boo');",
             """
             goog.module('test');
@@ -8665,7 +8665,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   public void testLegacyGoogModule_redeclaredAsVar_reportsError() {
     // This is a bad pattern but should not crash the compiler.
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('GlobalName'); goog.module.declareLegacyNamespace();",
             "var GlobalName = class {};"),
         warning(TypeValidator.DUP_VAR_DECLARATION_TYPE_MISMATCH));
@@ -8673,7 +8673,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleIdAttachment_underGoogModule() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.module('my.module');
@@ -8708,7 +8708,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleIdAttachment_underGoogLoadModule() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.loadModule(function(exports) {
@@ -8751,7 +8751,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleIdAttachment_underGoogProvide() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             goog.provide('my.module');
@@ -8786,7 +8786,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleIdAttachment_underEsModule() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             export {};
@@ -8821,7 +8821,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleIdAttachment_underGoogDeclareModuleId() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             export {};
@@ -8872,8 +8872,8 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
   @Test
   public void testObjectLitWithDeclaredSymbolProperty() {
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsStringVarargs(
             new TestExternsBuilder().addIterable().build(),
             """
             /** @const {symbol}  */
@@ -8889,13 +8889,13 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
 
     ObjectType foo = findNameType("foo", globalScope).assertObjectType();
     KnownSymbolType symbolFooType = (KnownSymbolType) findNameType("Symbol.foo", globalScope);
-    assertType(foo).withTypeOfProp(symbolFooType).isNumber();
+    assertType(foo).withTypeOfPropKnownSymbolType(symbolFooType).isNumber();
   }
 
   @Test
   public void testForwardReferenceInUnion_extendedInterface_regressionTest() {
     // Regression test for b/497046252#comment11.
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @record */
@@ -8933,9 +8933,9 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     Compiler compiler = new Compiler();
     compiler.initOptions(new CompilerOptions());
     TypedScopeCreator creator = new TypedScopeCreator(compiler);
-    TypedScope scopeA = creator.createScope(root1, null);
-    assertThat(creator.createScope(root1, null)).isSameInstanceAs(scopeA);
-    assertThat(creator.createScope(root2, null)).isNotSameInstanceAs(scopeA);
+    TypedScope scopeA = creator.createScopeAbstractScope(root1, null);
+    assertThat(creator.createScopeAbstractScope(root1, null)).isSameInstanceAs(scopeA);
+    assertThat(creator.createScopeAbstractScope(root2, null)).isNotSameInstanceAs(scopeA);
   }
 
   @Test
@@ -8944,10 +8944,10 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     compiler.initOptions(new CompilerOptions());
     Node root = createEmptyRoot();
     TypedScopeCreator creator = new TypedScopeCreator(compiler);
-    TypedScope scopeA = creator.createScope(root, null);
+    TypedScope scopeA = creator.createScopeAbstractScope(root, null);
 
     try {
-      creator.createScope(root, scopeA);
+      creator.createScopeAbstractScope(root, scopeA);
       assertWithMessage("Expected an IllegalStateException").fail();
     } catch (IllegalStateException expected) {
     }

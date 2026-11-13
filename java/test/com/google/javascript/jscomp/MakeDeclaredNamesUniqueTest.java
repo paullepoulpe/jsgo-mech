@@ -94,19 +94,19 @@ public final class MakeDeclaredNamesUniqueTest extends CompilerTestCase {
     invert = false;
   }
 
-  private void testWithInversion(String[] original, String[] expected) {
+  private void testWithInversionStringArray(String[] original, String[] expected) {
     invert = false;
-    test(srcs(original), expected(expected));
+    test(srcsStringVarargs(original), expectedStringVarargs(expected));
     invert = true;
-    test(srcs(expected), expected(original));
+    test(srcsStringVarargs(expected), expectedStringVarargs(original));
     invert = false;
   }
 
   private void testSameWithInversion(String externs, String original) {
     invert = false;
-    testSame(externs(externs), srcs(original));
+    testSameTestPartVarargs(externs(externs), srcs(original));
     invert = true;
-    testSame(externs(externs), srcs(original));
+    testSameTestPartVarargs(externs(externs), srcs(original));
     invert = false;
   }
 
@@ -239,7 +239,7 @@ public final class MakeDeclaredNamesUniqueTest extends CompilerTestCase {
     testSameWithInversion(externs, "var extern1 = extern1 || {};");
 
     // Verify global names are untouched.
-    testSame(externs(externs), srcs("var extern1 = extern1 || {};"));
+    testSameTestPartVarargs(externs(externs), srcs("var extern1 = extern1 || {};"));
   }
 
   @Test
@@ -1173,12 +1173,12 @@ public final class MakeDeclaredNamesUniqueTest extends CompilerTestCase {
     // are renamed to a$jscomp$1. Rewrite this test after that behavior is implemented.
     this.useDefaultRenamer = true;
     test(
-        srcs("var a;", "let a; export {a as a};"),
-        expected("var a;", "let a$jscomp$1; export {a$jscomp$1 as a};"));
+        srcsStringVarargs("var a;", "let a; export {a as a};"),
+        expectedStringVarargs("var a;", "let a$jscomp$1; export {a$jscomp$1 as a};"));
 
     test(
-        srcs("var a;", "import {a as a} from './foo.js'; let b = a;"),
-        expected("var a;", "import {a as a$jscomp$1} from './foo.js'; let b = a$jscomp$1;"));
+        srcsStringVarargs("var a;", "import {a as a} from './foo.js'; let b = a;"),
+        expectedStringVarargs("var a;", "import {a as a$jscomp$1} from './foo.js'; let b = a$jscomp$1;"));
   }
 
   @Test
@@ -1291,10 +1291,10 @@ public final class MakeDeclaredNamesUniqueTest extends CompilerTestCase {
     this.useDefaultRenamer = true;
     // Verify same local names in 2 different files get different new names
     test(
-        srcs(
+        srcsStringVarargs(
             "function foo() {var a; a;}",
             "function bar() {let a; let a$jscomp$1; a + a$jscomp$1;}"),
-        expected(
+        expectedStringVarargs(
             "function foo() {var a; a;}",
             """
             function bar() {let a$jscomp$1; let a$jscomp$1$jscomp$1; a$jscomp$1 +
@@ -1305,7 +1305,7 @@ public final class MakeDeclaredNamesUniqueTest extends CompilerTestCase {
   @Test
   public void testImportStarWithInversion() {
     this.useDefaultRenamer = true;
-    testWithInversion(
+    testWithInversionStringArray(
         new String[] {
           "let a = 5;", //
           "import * as a          from './a.js'; const TAU = 2 * a.PI;"

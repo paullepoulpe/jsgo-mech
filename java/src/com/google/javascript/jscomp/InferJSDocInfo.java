@@ -220,8 +220,8 @@ class InferJSDocInfo extends AbstractPostOrderCallback implements CompilerPass {
     } else {
       propName = new Property.StringKey(n.getString());
     }
-    if (owningType.hasOwnProperty(propName) && owningType.getPropertyJSDocInfo(propName) == null) {
-      owningType.setPropertyJSDocInfo(propName, typeDoc);
+    if (owningType.hasOwnPropertyKey(propName) && owningType.getPropertyJSDocInfoKey(propName) == null) {
+      owningType.setPropertyJSDocInfoKey(propName, typeDoc);
     }
 
     // NOTE(lharker): it seems surprising that this doesn't also call

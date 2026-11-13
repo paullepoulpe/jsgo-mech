@@ -217,7 +217,7 @@ public class InstrumentAsyncContext implements CompilerPass, NodeTraversal.Callb
     checkState(body.isBlock()); // NOTE: IRFactory normalizes non-block `for` bodies
     body.replaceWith(placeholder);
     placeholder.replaceWith(
-        IR.block(
+        IR.blockNodeVarargs(
             IR.exprResult(functionContext.resume().srcrefTreeIfMissing(arg)),
             IR.tryFinally(
                 body, //
@@ -285,7 +285,7 @@ public class InstrumentAsyncContext implements CompilerPass, NodeTraversal.Callb
     generatorBody = addFinallySuspend(generatorBody, functionContext);
     generatorBody.addChildToFront(IR.exprResult(functionContext.resume()));
     Node newOuterBody =
-        IR.block(
+        IR.blockNodeVarargs(
             createFactorySuspendCall(functionContext.factoryName()),
             IR.returnNode(astFactory.createCallWithUnknownType(inner)));
     addSuspendResumeVarsAfter(newOuterBody.getFirstChild(), functionContext);
@@ -571,7 +571,7 @@ public class InstrumentAsyncContext implements CompilerPass, NodeTraversal.Callb
   /** Creates a statement {@code const ᵃᶜfactory = $jscomp$asyncContextStart();}. */
   private Node createFactoryCall(Node factoryName, Node... arg) {
     Node call =
-        astFactory.createCallWithUnknownType(astFactory.createQNameWithUnknownType(start), arg);
+        astFactory.createCallWithUnknownType(astFactory.createQNameWithUnknownTypeJsLibField(start), arg);
     return createVar(factoryName, call);
   }
 

@@ -129,7 +129,7 @@ public final class NodeSubject extends Subject {
    * </ul>
    */
   // TODO(nickreid): This isn't really equality based. Use a different name.
-  public void isEqualTo(Node expected) {
+  public void isEqualToNode(Node expected) {
     isEqualToInternal(expected, /* checkJsdoc= */ false);
   }
 
@@ -327,11 +327,11 @@ public final class NodeSubject extends Subject {
 
   @CanIgnoreReturnValue
   public NodeSubject isNumber(int value) {
-    return isNumber((double) value);
+    return isNumberDouble((double) value);
   }
 
   @CanIgnoreReturnValue
-  public NodeSubject isNumber(double value) {
+  public NodeSubject isNumberDouble(double value) {
     check("isNumber()").that(actual.isNumber()).isTrue();
     check("getNumber()").that(actual.getDouble()).isEqualTo(value);
     return this;
@@ -627,7 +627,7 @@ public final class NodeSubject extends Subject {
    */
   private static @Nullable NodeMismatch findFirstMismatch(
       Node actual, Node expected, boolean jsDoc) {
-    if (!actual.isEquivalentTo(
+    if (!actual.isEquivalentToBoolean(
         expected, /* compareType= */ false, /* recurse= */ false, jsDoc, /* sideEffect= */ false)) {
       return new NodeMismatch(actual, expected);
     }

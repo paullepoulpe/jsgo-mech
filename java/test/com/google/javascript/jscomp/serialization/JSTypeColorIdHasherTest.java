@@ -142,8 +142,8 @@ public final class JSTypeColorIdHasherTest extends CompilerTestCase {
 
   @Test
   public void haveDifferentIds_classWithSameName_inDifferentGoogModules() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a');
             class Foo { }
@@ -188,8 +188,8 @@ public final class JSTypeColorIdHasherTest extends CompilerTestCase {
 
   @Test
   public void haveDifferentIds_classWithSameName_insideAndOutsideGoogModule() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             class Foo { }
             FOO: Foo;

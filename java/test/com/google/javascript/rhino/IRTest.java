@@ -106,7 +106,7 @@ public class IRTest {
         "BLOCK\n");
 
     testIR(
-        IR.block(IR.empty(), IR.empty()),
+        IR.blockNodeVarargs(IR.empty(), IR.empty()),
         """
         BLOCK
             EMPTY
@@ -114,7 +114,7 @@ public class IRTest {
         """);
 
     testIR(
-        IR.block(ImmutableList.of(IR.empty(), IR.empty())),
+        IR.blockList(ImmutableList.of(IR.empty(), IR.empty())),
         """
         BLOCK
             EMPTY
@@ -136,7 +136,7 @@ public class IRTest {
         """);
 
     testIR(
-        IR.script(ImmutableList.of(IR.empty(), IR.empty())),
+        IR.scriptList(ImmutableList.of(IR.empty(), IR.empty())),
         """
         SCRIPT
             EMPTY

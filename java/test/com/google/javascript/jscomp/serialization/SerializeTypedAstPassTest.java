@@ -135,9 +135,9 @@ public final class SerializeTypedAstPassTest extends CompilerTestCase {
     SourceFile mandatorySource = SourceFile.fromCode("mandatory.js", "/* mandatory source */");
 
     SerializationResult typeSummaryResult =
-        compile(
+        compileTestPartVarargs(
             closureExterns,
-            srcs(
+            srcsSourceFileVarargs(
                 mandatorySource,
                 SourceFile.fromCode(
                     "foo.i.js",
@@ -151,9 +151,9 @@ public final class SerializeTypedAstPassTest extends CompilerTestCase {
                     });
                     """)));
     SerializationResult emptyResult =
-        compile(
+        compileTestPartVarargs(
             closureExterns, //
-            srcs(mandatorySource));
+            srcsSourceFileVarargs(mandatorySource));
 
     assertThat(typeSummaryResult.ast).isEqualTo(emptyResult.ast);
   }
@@ -485,7 +485,7 @@ public final class SerializeTypedAstPassTest extends CompilerTestCase {
     return compileWithExterns(DEFAULT_EXTERNS, source);
   }
 
-  private SerializationResult compile(TestPart... parts) {
+  private SerializationResult compileTestPartVarargs(TestPart... parts) {
     TypedAst[] resultAst = new TypedAst[1];
     astConsumer =
         (ast) -> {
@@ -545,7 +545,7 @@ public final class SerializeTypedAstPassTest extends CompilerTestCase {
   }
 
   private SerializationResult compileWithExterns(String externs, String source) {
-    return compile(externs(externs), srcs(source));
+    return compileTestPartVarargs(externs(externs), srcs(source));
   }
 
   private void generateDiagnosticFiles() {

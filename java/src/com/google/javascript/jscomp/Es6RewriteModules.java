@@ -711,7 +711,7 @@ public final class Es6RewriteModules implements CompilerPass, NodeTraversal.Call
   private void rewriteRequires(Node script) {
     NodeTraversal.builder()
         .setCompiler(compiler)
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (NodeTraversal t, Node n, Node parent) -> {
               if (n.isCall()) {
                 Node fn = n.getFirstChild();
@@ -729,7 +729,7 @@ public final class Es6RewriteModules implements CompilerPass, NodeTraversal.Call
         .traverse(script);
     NodeTraversal.builder()
         .setCompiler(compiler)
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (NodeTraversal t, Node n, Node parent) -> {
               JSDocInfo info = n.getJSDocInfo();
               if (info != null) {

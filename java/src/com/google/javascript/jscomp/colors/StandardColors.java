@@ -44,19 +44,19 @@ public final class StandardColors {
   public static final ColorId PROMISE_ID = ColorId.fromUnsigned(0x39581abf);
 
   // Deterministic ColorIds produced by JSTypeColorIdHasher for global externs collection types.
-  public static final ColorId ARRAY_PROTOTYPE_ID = ColorId.fromUnsigned(0x64c23e6d334e56f7L);
+  public static final ColorId ARRAY_PROTOTYPE_ID = ColorId.fromUnsignedLong(0x64c23e6d334e56f7L);
   public static final ColorId READONLY_ARRAY_PROTOTYPE_ID =
-      ColorId.fromUnsigned(0x3589d35cec22a47fL);
+      ColorId.fromUnsignedLong(0x3589d35cec22a47fL);
   public static final ColorId I_TEMPLATE_ARRAY_PROTOTYPE_ID =
-      ColorId.fromUnsigned(0x7a40cd76f33e9198L);
-  public static final ColorId MAP_ID = ColorId.fromUnsigned(0x33a2e1724e099aa4L);
-  public static final ColorId MAP_PROTOTYPE_ID = ColorId.fromUnsigned(0x6d01d1a4e84831d6L);
-  public static final ColorId READONLY_MAP_ID = ColorId.fromUnsigned(0x03a6d92ab09bc918L);
-  public static final ColorId READONLY_MAP_PROTOTYPE_ID = ColorId.fromUnsigned(0x158c76decaa1fa9eL);
-  public static final ColorId SET_ID = ColorId.fromUnsigned(0x4e48c8722ab53ebdL);
-  public static final ColorId SET_PROTOTYPE_ID = ColorId.fromUnsigned(0xfe841a0bed231439L);
-  public static final ColorId READONLY_SET_ID = ColorId.fromUnsigned(0x30860b55852d1f9dL);
-  public static final ColorId READONLY_SET_PROTOTYPE_ID = ColorId.fromUnsigned(0x8d0f691546b43933L);
+      ColorId.fromUnsignedLong(0x7a40cd76f33e9198L);
+  public static final ColorId MAP_ID = ColorId.fromUnsignedLong(0x33a2e1724e099aa4L);
+  public static final ColorId MAP_PROTOTYPE_ID = ColorId.fromUnsignedLong(0x6d01d1a4e84831d6L);
+  public static final ColorId READONLY_MAP_ID = ColorId.fromUnsignedLong(0x03a6d92ab09bc918L);
+  public static final ColorId READONLY_MAP_PROTOTYPE_ID = ColorId.fromUnsignedLong(0x158c76decaa1fa9eL);
+  public static final ColorId SET_ID = ColorId.fromUnsignedLong(0x4e48c8722ab53ebdL);
+  public static final ColorId SET_PROTOTYPE_ID = ColorId.fromUnsignedLong(0xfe841a0bed231439L);
+  public static final ColorId READONLY_SET_ID = ColorId.fromUnsignedLong(0x30860b55852d1f9dL);
+  public static final ColorId READONLY_SET_PROTOTYPE_ID = ColorId.fromUnsignedLong(0x8d0f691546b43933L);
 
   public static final ColorId BIGINT_OBJECT_ID = ColorId.fromUnsigned(0xa9d9ad6d);
   public static final ColorId BOOLEAN_OBJECT_ID = ColorId.fromUnsigned(0x9205dc06);

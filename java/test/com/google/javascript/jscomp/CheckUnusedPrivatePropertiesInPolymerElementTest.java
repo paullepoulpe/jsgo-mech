@@ -117,8 +117,8 @@ public final class CheckUnusedPrivatePropertiesInPolymerElementTest extends Comp
   @Test
   public void testBehaviorPropertyUsedAsObserver() {
     allowExternsChanges();
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsStringVarargs(
             """
             /** @polymerBehavior */
             var Behavior = {

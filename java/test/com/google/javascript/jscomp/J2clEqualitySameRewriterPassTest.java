@@ -48,7 +48,7 @@ public class J2clEqualitySameRewriterPassTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new PeepholeOptimizationsPass(
+    return PeepholeOptimizationsPass.createFromOptimizations(
         compiler, getName(), new J2clEqualitySameRewriterPass(useTypes));
   }
 

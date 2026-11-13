@@ -270,20 +270,20 @@ public final class JSDocInfoPrinter {
       if (info.isInlineType()) {
         parts.add(typeNode(info.getType().getRoot()));
       } else {
-        parts.add(buildAnnotationWithType("type", info.getType()));
+        parts.add(buildAnnotationWithTypeJSTypeExpression("type", info.getType()));
       }
     }
 
     if (info.isDefine()) {
-      parts.add(buildAnnotationWithType("define", info.getType()));
+      parts.add(buildAnnotationWithTypeJSTypeExpression("define", info.getType()));
     }
 
     if (info.hasTypedefType()) {
-      parts.add(buildAnnotationWithType("typedef", info.getTypedefType()));
+      parts.add(buildAnnotationWithTypeJSTypeExpression("typedef", info.getTypedefType()));
     }
 
     if (info.hasEnumParameterType()) {
-      parts.add(buildAnnotationWithType("enum", info.getEnumParameterType()));
+      parts.add(buildAnnotationWithTypeJSTypeExpression("enum", info.getEnumParameterType()));
     }
 
     if (info.isImplicitCast()) {
@@ -400,20 +400,20 @@ public final class JSDocInfoPrinter {
     return typeNode;
   }
 
-  private String buildAnnotationWithType(String annotation, JSTypeExpression type) {
+  private String buildAnnotationWithTypeJSTypeExpression(String annotation, JSTypeExpression type) {
     return buildAnnotationWithType(annotation, type, null);
   }
 
   private String buildAnnotationWithType(
       String annotation, JSTypeExpression type, @Nullable String description) {
-    return buildAnnotationWithType(annotation, type.getRoot(), description);
+    return buildAnnotationWithTypeNode(annotation, type.getRoot(), description);
   }
 
   private String buildAnnotationWithType(String annotation, Node type) {
-    return buildAnnotationWithType(annotation, type, null);
+    return buildAnnotationWithTypeNode(annotation, type, null);
   }
 
-  private String buildAnnotationWithType(
+  private String buildAnnotationWithTypeNode(
       String annotation, Node type, @Nullable String description) {
     StringBuilder sb = new StringBuilder();
     sb.append("@");

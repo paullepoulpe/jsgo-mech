@@ -441,7 +441,7 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
 
   /** Checks the given GETPROP node to ensure that access restrictions are obeyed. */
   private void checkPropertyDeprecation(NodeTraversal t, PropertyReference propRef) {
-    if (!shouldEmitDeprecationWarning(t, propRef)) {
+    if (!shouldEmitDeprecationWarningPropertyReference(t, propRef)) {
       return;
     }
 
@@ -709,12 +709,12 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
     return type == null ? null : type.dereference();
   }
 
-  private JSType typeOrUnknown(JSType type) {
+  private JSType typeOrUnknownJSType(JSType type) {
     return (type == null) ? typeRegistry.getNativeType(JSTypeNative.UNKNOWN_TYPE) : type;
   }
 
   private ObjectType typeOrUnknown(ObjectType type) {
-    return (ObjectType) typeOrUnknown((JSType) type);
+    return (ObjectType) typeOrUnknownJSType((JSType) type);
   }
 
   private ObjectType boxedOrUnknown(@Nullable JSType type) {
@@ -995,7 +995,7 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
   }
 
   /** Determines whether a deprecation warning should be emitted. */
-  private boolean shouldEmitDeprecationWarning(NodeTraversal t, PropertyReference propRef) {
+  private boolean shouldEmitDeprecationWarningPropertyReference(NodeTraversal t, PropertyReference propRef) {
     // In the global scope, there are only two kinds of accesses that should
     // be flagged for warnings:
     // 1) Calls of deprecated functions and methods.

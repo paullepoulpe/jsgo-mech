@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.colors.StandardColors;
@@ -80,12 +81,12 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
     this.astFactory = compiler.createAstFactory();
     this.namespace = compiler.getTranspilationNamespace();
     this.useJscompAssign =
-        !this.compiler.getOptions().getOutputFeatureSet().contains(FeatureSet.ES2015);
+        !this.compiler.getOptions().getOutputFeatureSet().containsFeatureSet(FeatureSet.ES2015);
 
     switch (this.rewriteMode) {
       case REWRITE_ALL_OBJECT_PATTERNS -> {
         this.featuresToTriggerRunningPass =
-            FeatureSet.BARE_MINIMUM.with(
+            FeatureSet.BARE_MINIMUM.withFeatureVarargs(
                 Feature.DEFAULT_PARAMETERS,
                 Feature.ARRAY_DESTRUCTURING,
                 Feature.ARRAY_PATTERN_REST,
@@ -567,12 +568,12 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
             useJscompAssign
                 ? astFactory.createJscompAssignCall(
                     this.namespace,
-                    type(StandardColors.TOP_OBJECT),
+                    typeColor(StandardColors.TOP_OBJECT),
                     astFactory.createObjectLit(),
                     createTempVarNameNode(tempVarName, tempVarType))
                 : astFactory.createObjectDotAssignCall(
                     this.namespace,
-                    type(StandardColors.TOP_OBJECT),
+                    typeColor(StandardColors.TOP_OBJECT),
                     astFactory.createObjectLit(),
                     createTempVarNameNode(tempVarName, tempVarType));
 
@@ -707,7 +708,7 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
             IR.exprResult(
                 astFactory.createCallWithUnknownType(
                     astFactory.createGetProp(
-                        tempVarModel.cloneNode(), "next", type(StandardColors.TOP_OBJECT))));
+                        tempVarModel.cloneNode(), "next", typeColor(StandardColors.TOP_OBJECT))));
         nextCall.srcrefTreeIfMissing(child);
         nextCall.insertBefore(nodeToDetach);
         continue;
@@ -825,7 +826,7 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
     Node returnNode = IR.returnNode(tempVarModel.cloneNode());
 
     // Create a function to hold these assignments:
-    Node block = IR.block(exprResult, returnNode);
+    Node block = IR.blockNodeVarargs(exprResult, returnNode);
     Node arrowFn =
         astFactory.createFunction(
             /* name= */ "",

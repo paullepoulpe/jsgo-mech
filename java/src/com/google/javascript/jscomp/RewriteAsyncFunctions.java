@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
 
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.StandardColors;
@@ -96,7 +97,7 @@ public final class RewriteAsyncFunctions implements NodeTraversal.Callback, Comp
     }
 
     private Node createWrapperFunctionNameNode() {
-      return astFactory.createName(wrapperFunctionName, type(StandardColors.TOP_OBJECT));
+      return astFactory.createName(wrapperFunctionName, typeColor(StandardColors.TOP_OBJECT));
     }
 
     private Node createWrapperFunctionCallNode() {

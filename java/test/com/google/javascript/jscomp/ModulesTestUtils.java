@@ -36,14 +36,14 @@ final class ModulesTestUtils {
             SourceFile.fromCode("other.js", "goog.provide('module$other');"),
             SourceFile.fromCode("yet_another.js", "goog.provide('module$yet_another');"),
             SourceFile.fromCode(fileName, expected));
-    test.test(CompilerTestCase.srcs(inputs), CompilerTestCase.expected(expecteds));
+    test.test(CompilerTestCase.srcsList(inputs), CompilerTestCase.expectedList(expecteds));
   }
 
   static void testModulesError(CompilerTestCase test, String input, DiagnosticType error) {
     ImmutableList<SourceFile> inputs =
         ImmutableList.of(
             SourceFile.fromCode("other.js", ""), SourceFile.fromCode("testcode.js", input));
-    test.testError(CompilerTestCase.srcs(inputs), CompilerTestCase.error(error));
+    test.testErrorDiagnostic(CompilerTestCase.srcsList(inputs), CompilerTestCase.error(error));
   }
 
   private ModulesTestUtils() {}

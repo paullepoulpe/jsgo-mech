@@ -50,7 +50,7 @@ public final class ColorId implements Serializable, LogsGson.Able {
   // Assume for now that we have at most 8 bytes.
   private final long rightAligned;
 
-  public static ColorId fromUnsigned(long x) {
+  public static ColorId fromUnsignedLong(long x) {
     return new ColorId(x);
   }
 
@@ -58,11 +58,11 @@ public final class ColorId implements Serializable, LogsGson.Able {
     return new ColorId((long) x & 0xFFFFFFFFL);
   }
 
-  public static ColorId fromUnsigned(byte x) {
+  public static ColorId fromUnsignedByte(byte x) {
     return new ColorId((long) x & 0xFFL);
   }
 
-  public static ColorId fromBytes(ByteString bytes) {
+  public static ColorId fromBytesByteString(ByteString bytes) {
     return fromBytesAt(bytes, bytes.size(), ByteString::byteAt);
   }
 

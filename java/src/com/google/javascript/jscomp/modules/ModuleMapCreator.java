@@ -120,7 +120,7 @@ public class ModuleMapCreator implements CompilerPass {
     }
 
     @Override
-    public @Nullable UnresolvedModule resolve(Import i) {
+    public @Nullable UnresolvedModule resolveImport(Import i) {
       if (i.modulePath() == null) {
         return resolveForClosure(i.moduleRequest());
       }

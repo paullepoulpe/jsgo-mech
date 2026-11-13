@@ -185,7 +185,7 @@ public final class CompilerTest {
     SourceFile externs = SourceFile.fromCode("externs.js", "");
     SourceFile input =
         SourceFile.fromCode("input.js", "(function (undefined) { alert(undefined); })();");
-    compiler.compile(externs, input, options);
+    compiler.compileSourceFile(externs, input, options);
   }
 
   private static String normalize(String path) {
@@ -378,7 +378,7 @@ public final class CompilerTest {
   @Test
   public void testNoWarningMissingAbsoluteSourceMap() throws Exception {
     TestErrorManager errorManager = new TestErrorManager();
-    Compiler compiler = new Compiler(errorManager);
+    Compiler compiler = Compiler.createFromErrorManager(errorManager);
     compiler.initCompilerOptionsIfTesting();
     File tempDir = Files.createTempDir();
     String code = SOURCE_MAP_TEST_CODE + "\n//# sourceMappingURL=/some/missing/path/foo.js.map";
@@ -406,7 +406,7 @@ public final class CompilerTest {
     options.setInputSourceMaps(inputSourceMaps);
     options.setApplyInputSourceMaps(true);
     Compiler compiler = new Compiler();
-    compiler.compile(
+    compiler.compileSourceFile(
         EMPTY_EXTERNS.get(0),
         SourceFile.fromCode("input.js", "// Unmapped line\nvar x = 1;\nalert(x);"),
         options);
@@ -439,7 +439,7 @@ public final class CompilerTest {
         SOURCE_MAP_TEST_CODE + "\n//# sourceMappingURL=" + BASE64_ENCODED_SOURCE_MAP_WITH_CONTENT;
     Compiler compiler = new Compiler();
     SourceFile sourceFile = SourceFile.fromCode("temp/path/input.js", code);
-    compiler.compile(EMPTY_EXTERNS.get(0), sourceFile, options);
+    compiler.compileSourceFile(EMPTY_EXTERNS.get(0), sourceFile, options);
     assertThat(compiler.toSource())
         .isEqualTo(
             "var X=function(){function X(input){this.y=input}return X}();console.log(new X(1));");
@@ -503,7 +503,7 @@ public final class CompilerTest {
         SOURCE_MAP_TEST_CODE + "\n//# sourceMappingURL=" + BASE64_ENCODED_SOURCE_MAP_WITH_CONTENT;
     Compiler compiler = new Compiler();
     SourceFile sourceFile = SourceFile.fromCode("input.js", code);
-    compiler.compile(EMPTY_EXTERNS.get(0), sourceFile, options);
+    compiler.compileSourceFile(EMPTY_EXTERNS.get(0), sourceFile, options);
     assertThat(compiler.getSourceMap()).isNull();
   }
 
@@ -541,7 +541,7 @@ public final class CompilerTest {
     CompilerOptions options = createNewFlagBasedOptions();
 
     // Default is warning.
-    compiler.compile(
+    compiler.compileSourceFile(
         SourceFile.fromCode("extern.js", ""), SourceFile.fromCode("test.js", badJsDoc), options);
     assertThat(compiler.getWarnings()).hasSize(1);
     assertThat(compiler.getErrors()).isEmpty();
@@ -558,7 +558,7 @@ public final class CompilerTest {
     CompilerOptions options = createNewFlagBasedOptions();
 
     options.setWarningLevel(DiagnosticGroups.NON_STANDARD_JSDOC, CheckLevel.OFF);
-    compiler.compile(
+    compiler.compileSourceFile(
         SourceFile.fromCode("extern.js", ""), SourceFile.fromCode("test.js", badJsDoc), options);
     assertThat(compiler.getWarnings()).isEmpty();
     assertThat(compiler.getErrors()).isEmpty();
@@ -576,7 +576,7 @@ public final class CompilerTest {
     CompilerOptions options = createNewFlagBasedOptions();
 
     options.setWarningLevel(DiagnosticGroups.NON_STANDARD_JSDOC, CheckLevel.ERROR);
-    compiler.compile(
+    compiler.compileSourceFile(
         SourceFile.fromCode("extern.js", ""), SourceFile.fromCode("test.js", badJsDoc), options);
     assertThat(compiler.getWarnings()).isEmpty();
     assertThat(compiler.getErrors()).hasSize(1);
@@ -1355,7 +1355,7 @@ public final class CompilerTest {
 
   private boolean hasOutput(@Nullable String showWarningsOnlyFor, String path, CheckLevel level) {
     TestErrorManager errorManager = new TestErrorManager();
-    Compiler compiler = new Compiler(errorManager);
+    Compiler compiler = Compiler.createFromErrorManager(errorManager);
     CompilerOptions options = createNewFlagBasedOptions();
     if (showWarningsOnlyFor != null) {
       options.addWarningsGuard(new ShowByPathWarningsGuard(showWarningsOnlyFor));
@@ -1441,7 +1441,7 @@ public final class CompilerTest {
 
   @Test
   public void testCheckSaveRestoreOptimize() throws Exception {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1476,7 +1476,7 @@ public final class CompilerTest {
 
     final byte[] stateAfterChecks = getSavedCompilerState(compiler);
 
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, code, options);
     restoreCompilerState(compiler, stateAfterChecks);
 
@@ -1487,7 +1487,7 @@ public final class CompilerTest {
 
   @Test
   public void testCheckSaveRestore3Stages() throws Exception {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1535,7 +1535,7 @@ public final class CompilerTest {
 
     final byte[] stateAfterChecks = getSavedCompilerState(compiler);
 
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
     restoreCompilerState(compiler, stateAfterChecks);
 
@@ -1552,7 +1552,7 @@ public final class CompilerTest {
 
     final byte[] stateAfterOptimizations = getSavedCompilerState(compiler);
 
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
     restoreCompilerState(compiler, stateAfterOptimizations);
 
@@ -1582,7 +1582,7 @@ public final class CompilerTest {
 
   @Test
   public void testCheckSaveRestore3StagesSourceMaps() throws Exception {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1628,7 +1628,7 @@ public final class CompilerTest {
     final byte[] stateAfterChecks = getSavedCompilerState(compiler);
 
     // Stage 2
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
     restoreCompilerState(compiler, stateAfterChecks);
     compiler.performTranspilationAndOptimizations(SegmentOfCompilationToRun.OPTIMIZATIONS);
@@ -1639,7 +1639,7 @@ public final class CompilerTest {
     final byte[] stateAfterOptimizations = getSavedCompilerState(compiler);
 
     // Stage 3
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     // In general the options passed to the compiler should be the same for all
     // 3 stages. The source map output path is an exception.
     // It only makes sense to specify it for the final stage when the output
@@ -1674,7 +1674,7 @@ public final class CompilerTest {
 
   @Test
   public void testSingleStageCompileSourceMaps() throws Exception {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1741,7 +1741,7 @@ public final class CompilerTest {
     // for one of these "fillFiles".
     // This led to a NullPointerException in the past.
     // This test case exists to test the fix for that.
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     // Late localization happens in stage 3, so this forces stage 3 to actually have some
@@ -1762,7 +1762,7 @@ public final class CompilerTest {
 
     final byte[] stateAfterChecks = getSavedCompilerState(compiler);
 
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
     restoreCompilerState(compiler, stateAfterChecks);
 
@@ -1794,7 +1794,7 @@ public final class CompilerTest {
 
   @Test
   public void testCustomStateCompressionWrapper() throws Exception {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
     CompilerOptions options = new CompilerOptions();
 
     AtomicBoolean compressionUsed = new AtomicBoolean(false);
@@ -1824,7 +1824,7 @@ public final class CompilerTest {
     assertThat(compressionUsed.get()).isTrue();
 
     // Restore state
-    Compiler compiler2 = new Compiler(new TestErrorManager());
+    Compiler compiler2 = Compiler.createFromErrorManager(new TestErrorManager());
     CompilerOptions options2 = new CompilerOptions();
     options2.setStateDecompressionWrapper(
         in -> {
@@ -1842,7 +1842,7 @@ public final class CompilerTest {
 
   @Test
   public void testStrictnessWithNonStrictOutputLanguage() {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1861,7 +1861,7 @@ public final class CompilerTest {
 
   @Test
   public void testStrictnessWithStrictOutputLanguage() {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1880,7 +1880,7 @@ public final class CompilerTest {
 
   @Test
   public void testStrictnessWithNonStrictInputLanguage() {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1898,7 +1898,7 @@ public final class CompilerTest {
 
   @Test
   public void testStrictnessWithStrictInputLanguage() {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1917,7 +1917,7 @@ public final class CompilerTest {
 
   @Test
   public void testStrictnessWithNonStrictInputLanguageAndNoTranspileOutput() {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -1939,7 +1939,7 @@ public final class CompilerTest {
 
   @Test
   public void testStrictnessWithStrictInputLanguageAndNoTranspileOutput() {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
 
     CompilerOptions options = new CompilerOptions();
     options.setAssumeForwardDeclaredForMissingTypes(true);
@@ -3150,7 +3150,7 @@ public final class CompilerTest {
     // should not change the AST as 'base' was already injected.
     compiler.getRuntimeJsLibManager().ensureLibraryInjected("base", /* force= */ true);
 
-    assertNode(compiler.getJsRoot()).isEqualTo(oldAst);
+    assertNode(compiler.getJsRoot()).isEqualToNode(oldAst);
   }
 
   @Test
@@ -3209,7 +3209,7 @@ public final class CompilerTest {
     Compiler compiler = new Compiler();
     WeakReference<JSTypeRegistry> registryWeakReference =
         new WeakReference<>(compiler.getTypeRegistry());
-    compiler.compile(EMPTY_EXTERNS.get(0), input, options);
+    compiler.compileSourceFile(EMPTY_EXTERNS.get(0), input, options);
 
     // Just making sure that typechecking ran and didn't crash.  It would be reasonable
     // for there also to be other type errors in this code before the final null assignment.
@@ -3589,7 +3589,7 @@ public final class CompilerTest {
 
   @Test
   public void testStage2SplittingResultsInSameOutput() throws Exception {
-    Compiler compiler = new Compiler(new TestErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new TestErrorManager());
     CompilerOptions options = new CompilerOptions();
 
     options.setEmitUseStrict(false);
@@ -3623,7 +3623,7 @@ public final class CompilerTest {
     compiler.check();
     final byte[] stateAfterChecks = getSavedCompilerState(compiler);
 
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
     restoreCompilerState(compiler, stateAfterChecks);
 
@@ -3634,7 +3634,7 @@ public final class CompilerTest {
 
     // Now reset the compiler and test splitting stage 2 into two halves. We want to test that the
     // output is the same as when we run all of stage 2 in one go.
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
 
     // Stage 1
@@ -3642,7 +3642,7 @@ public final class CompilerTest {
     compiler.check();
     final byte[] stateAfterChecks2 = getSavedCompilerState(compiler);
 
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
     restoreCompilerState(compiler, stateAfterChecks2);
 
@@ -3653,7 +3653,7 @@ public final class CompilerTest {
     assertThat(source).isEqualTo("console.log(function(){return\"hello\"}());");
 
     final byte[] stateAfterFirstHalfOptimizations = getSavedCompilerState(compiler);
-    compiler = new Compiler(new TestErrorManager());
+    compiler = Compiler.createFromErrorManager(new TestErrorManager());
     compiler.init(externs, srcs, options);
     restoreCompilerState(compiler, stateAfterFirstHalfOptimizations);
 
@@ -3695,7 +3695,7 @@ public final class CompilerTest {
     SourceFile externs = SourceFile.fromCode("externs.js", "");
     SourceFile input = SourceFile.fromCode("input.js", "");
 
-    compiler.compile(externs, input, options);
+    compiler.compileSourceFile(externs, input, options);
 
     assertThat(compiler.getErrors()).isEmpty();
   }
@@ -3711,7 +3711,7 @@ public final class CompilerTest {
 
     var ex =
         assertThrows(
-            IllegalArgumentException.class, () -> compiler.compile(externs, input, options));
+            IllegalArgumentException.class, () -> compiler.compileSourceFile(externs, input, options));
 
     assertThat(ex)
         .hasMessageThat()

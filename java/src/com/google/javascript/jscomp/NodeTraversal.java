@@ -431,7 +431,7 @@ public class NodeTraversal {
     }
 
     @CanIgnoreReturnValue
-    public Builder setCallback(AbstractPostOrderCallbackInterface x) {
+    public Builder setCallbackAbstractPostOrderCallbackInterface(AbstractPostOrderCallbackInterface x) {
       this.callback =
           new AbstractPostOrderCallback() {
             @Override
@@ -592,7 +592,7 @@ public class NodeTraversal {
     try {
       initTraversal(root);
       currentNode = root;
-      pushScope(s);
+      pushScopeAbstractScope(s);
       traverseBranch(root, null);
       popScope();
     } catch (Error | Exception unexpectedException) {
@@ -622,7 +622,7 @@ public class NodeTraversal {
     switch (n.getToken()) {
       case FUNCTION -> {
         if (callback.shouldTraverse(this, n, null)) {
-          pushScope(s);
+          pushScopeAbstractScope(s);
 
           Node fnName = n.getFirstChild();
           Node args = fnName.getNext();
@@ -640,7 +640,7 @@ public class NodeTraversal {
       }
       case CLASS -> {
         if (callback.shouldTraverse(this, n, null)) {
-          pushScope(s);
+          pushScopeAbstractScope(s);
 
           Node className = n.getFirstChild();
           Node body = n.getLastChild();
@@ -659,7 +659,7 @@ public class NodeTraversal {
       }
       case BLOCK, SWITCH_BODY -> {
         if (callback.shouldTraverse(this, n, null)) {
-          pushScope(s);
+          pushScopeAbstractScope(s);
 
           // traverseBranch is not called here to avoid re-creating the block scope.
           traverseChildren(n);
@@ -669,7 +669,7 @@ public class NodeTraversal {
         }
       }
       case MEMBER_FIELD_DEF -> {
-        pushScope(s);
+        pushScopeAbstractScope(s);
         if (callback.shouldTraverse(this, n, null)) {
 
           // traverseBranch is not called here to avoid re-creating the MemberFieldDef scope.
@@ -680,7 +680,7 @@ public class NodeTraversal {
         popScope();
       }
       case COMPUTED_FIELD_DEF -> {
-        pushScope(s);
+        pushScopeAbstractScope(s);
         if (callback.shouldTraverse(this, n, null)) {
 
           traverseBranch(n.getLastChild(), n);
@@ -691,7 +691,7 @@ public class NodeTraversal {
       }
       case FOR_IN, FOR_OF, FOR_AWAIT_OF, FOR -> {
         if (callback.shouldTraverse(this, n, null)) {
-          pushScope(s);
+          pushScopeAbstractScope(s);
 
           Node forAssignmentParam = n.getFirstChild();
           Node forIterableParam = forAssignmentParam.getNext();
@@ -1161,7 +1161,7 @@ public class NodeTraversal {
   }
 
   /** Creates a new scope (e.g. when entering a function). */
-  private void pushScope(AbstractScope<?, ?> s) {
+  private void pushScopeAbstractScope(AbstractScope<?, ?> s) {
     pushScope(s, false);
   }
 
@@ -1241,7 +1241,7 @@ public class NodeTraversal {
     if (o instanceof Node node) {
       // The root scope has a null parent.
       AbstractScope<?, ?> parentScope = (rootDepth > 0) ? getAbstractScope(rootDepth - 1) : null;
-      AbstractScope<?, ?> scope = scopeCreator.createScope(node, parentScope);
+      AbstractScope<?, ?> scope = scopeCreator.createScopeAbstractScope(node, parentScope);
       scopes.set(rootDepth, scope);
       return scope;
     } else {
@@ -1375,7 +1375,7 @@ public class NodeTraversal {
    * GETPROP nodes whose length is otherwise just the last component (`abc` in `foo.abc`).
    */
   public void report(Node start, Node end, DiagnosticType diagnosticType, String... arguments) {
-    JSError error = JSError.make(start, end, diagnosticType, arguments);
+    JSError error = JSError.makeNode(start, end, diagnosticType, arguments);
     compiler.report(error);
   }
 

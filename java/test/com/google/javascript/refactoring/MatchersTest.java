@@ -438,7 +438,7 @@ public class MatchersTest {
   }
 
   private static Compiler getCompiler(String externs, String jsInput) {
-    Compiler compiler = new Compiler(new BlackHoleErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new BlackHoleErrorManager());
     compiler.disableThreads();
     CompilerOptions options = RefactoringDriver.getCompilerOptions();
     compiler.compile(

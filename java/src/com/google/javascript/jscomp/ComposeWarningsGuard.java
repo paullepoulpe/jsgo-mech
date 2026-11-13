@@ -79,8 +79,8 @@ public final class ComposeWarningsGuard extends WarningsGuard {
     addGuards(guards);
   }
 
-  public ComposeWarningsGuard(WarningsGuard... guards) {
-    this(ImmutableList.copyOf(guards));
+  public static ComposeWarningsGuard createFromGuards(WarningsGuard... guards) {
+    return new ComposeWarningsGuard(ImmutableList.copyOf(guards));
   }
 
   void addGuard(WarningsGuard guard) {

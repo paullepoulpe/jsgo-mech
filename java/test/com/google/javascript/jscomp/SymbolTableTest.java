@@ -2144,7 +2144,7 @@ public final class SymbolTableTest {
     ImmutableList<SourceFile> externs =
         ImmutableList.of(SourceFile.fromCode("externs1", externsCode));
 
-    Compiler compiler = new Compiler(new BlackHoleErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new BlackHoleErrorManager());
     compiler.compile(externs, inputs, options);
     return assertSymbolTableValid(compiler.buildKnownSymbolTable());
   }
@@ -2156,7 +2156,7 @@ public final class SymbolTableTest {
     }
     ImmutableList<SourceFile> externs = ImmutableList.of();
 
-    Compiler compiler = new Compiler(new BlackHoleErrorManager());
+    Compiler compiler = Compiler.createFromErrorManager(new BlackHoleErrorManager());
     compiler.compile(externs, sources.build(), options);
     return assertSymbolTableValid(compiler.buildKnownSymbolTable());
   }

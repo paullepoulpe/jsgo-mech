@@ -143,7 +143,8 @@ public final class DefaultNameGenerator implements NameGenerator {
   private DefaultNameGenerator(
       Set<String> reservedNames,
       String prefix,
-      Set<Character> reservedCharacters,
+      Set<Character> reservedFirstCharacters,
+      Set<Character> reservedNonFirstCharacters,
       Map<Character, CharPriority> priorityLookupMap) {
     // Clone the priorityLookupMap to preserve information about how often
     // characters are used.
@@ -153,7 +154,7 @@ public final class DefaultNameGenerator implements NameGenerator {
       this.priorityLookupMap.put(entry.getKey(), entry.getValue().clone());
     }
 
-    reset(reservedNames, prefix, reservedCharacters, reservedCharacters);
+    reset(reservedNames, prefix, reservedFirstCharacters, reservedNonFirstCharacters);
   }
 
   private void buildPriorityLookupMap() {
@@ -204,8 +205,8 @@ public final class DefaultNameGenerator implements NameGenerator {
   @Override
   public NameGenerator clone(
       Set<String> reservedNames, String prefix, Set<Character> reservedCharacters) {
-    return new DefaultNameGenerator(reservedNames, prefix, reservedCharacters,
-        priorityLookupMap);
+    return new DefaultNameGenerator(
+        reservedNames, prefix, reservedCharacters, reservedCharacters, priorityLookupMap);
   }
 
   /**

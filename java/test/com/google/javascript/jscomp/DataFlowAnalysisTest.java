@@ -194,8 +194,8 @@ public final class DataFlowAnalysisTest {
      * @param o Operator.
      * @param op2 Second Operand.
      */
-    ArithmeticInstruction(Variable res, int op1, Operation o, int op2) {
-      this(res, new NumberValue(op1), o, new NumberValue(op2));
+    static ArithmeticInstruction createFromNumbers(Variable res, int op1, Operation o, int op2) {
+      return new ArithmeticInstruction(res, new NumberValue(op1), o, new NumberValue(op2));
     }
 
     /**
@@ -206,8 +206,9 @@ public final class DataFlowAnalysisTest {
      * @param o Operator.
      * @param op2 Second Operand.
      */
-    ArithmeticInstruction(Variable res, Value op1, Operation o, int op2) {
-      this(res, op1, o, new NumberValue(op2));
+    static ArithmeticInstruction createFromValueAndNumber(
+        Variable res, Value op1, Operation o, int op2) {
+      return new ArithmeticInstruction(res, op1, o, new NumberValue(op2));
     }
 
     /**
@@ -218,8 +219,9 @@ public final class DataFlowAnalysisTest {
      * @param o Operator.
      * @param op2 Second Operand.
      */
-    ArithmeticInstruction(Variable res, int op1, Operation o, Value op2) {
-      this(res, new NumberValue(op1), o, op2);
+    static ArithmeticInstruction createFromNumberAndValue(
+        Variable res, int op1, Operation o, Value op2) {
+      return new ArithmeticInstruction(res, new NumberValue(op1), o, op2);
     }
 
     /**
@@ -299,12 +301,12 @@ public final class DataFlowAnalysisTest {
   }
 
   public static ArithmeticInstruction newAssignNumberToVariableInstruction(Variable res, int num) {
-    return new ArithmeticInstruction(res, num, Operation.ADD, 0);
+    return ArithmeticInstruction.createFromNumbers(res, num, Operation.ADD, 0);
   }
 
   public static ArithmeticInstruction newAssignVariableToVariableInstruction(
       Variable lhs, Variable rhs) {
-    return new ArithmeticInstruction(lhs, rhs, Operation.ADD, 0);
+    return ArithmeticInstruction.createFromValueAndNumber(lhs, rhs, Operation.ADD, 0);
   }
 
   /** Branch instruction based on a {@link Value} as a condition. */
@@ -352,19 +354,22 @@ public final class DataFlowAnalysisTest {
      *
      * @param isTop To define if the lattice is top.
      */
-    ConstPropLatticeElement(boolean isTop) {
-      this.isTop = isTop;
-      this.constMap = new HashMap<>();
+    static ConstPropLatticeElement createFromIsTop(boolean isTop) {
+      return new ConstPropLatticeElement(isTop, new HashMap<>());
     }
 
     /** Create a lattice where every variable is defined to be not constant. */
     ConstPropLatticeElement() {
-      this(false);
+      this(false, new HashMap<>());
     }
 
     ConstPropLatticeElement(ConstPropLatticeElement other) {
-      this.isTop = other.isTop;
-      this.constMap = new HashMap<>(other.constMap);
+      this(other.isTop, new HashMap<>(other.constMap));
+    }
+
+    private ConstPropLatticeElement(boolean isTop, Map<Variable, Integer> constMap) {
+      this.isTop = isTop;
+      this.constMap = constMap;
     }
 
     @Override
@@ -478,7 +483,7 @@ public final class DataFlowAnalysisTest {
 
     @Override
     ConstPropLatticeElement createInitialEstimateLattice() {
-      return new ConstPropLatticeElement(true);
+      return ConstPropLatticeElement.createFromIsTop(true);
     }
   }
 
@@ -592,7 +597,7 @@ public final class DataFlowAnalysisTest {
     Variable b = new Variable("b");
     Variable c = new Variable("c");
     Instruction inst1 = newAssignNumberToVariableInstruction(a, 0);
-    Instruction inst2 = new ArithmeticInstruction(a, a, Operation.ADD, 1);
+    Instruction inst2 = ArithmeticInstruction.createFromValueAndNumber(a, a, Operation.ADD, 1);
     Instruction inst3 = new BranchInstruction(b);
     Instruction inst4 = newAssignVariableToVariableInstruction(c, a);
     ControlFlowGraph<Instruction> cfg = new ControlFlowGraph<>(inst1, true, true);
@@ -887,7 +892,7 @@ public final class DataFlowAnalysisTest {
 
     @Override
     ConstPropLatticeElement createInitialEstimateLattice() {
-      return new ConstPropLatticeElement(true);
+      return ConstPropLatticeElement.createFromIsTop(true);
     }
 
     @Override

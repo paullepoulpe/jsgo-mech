@@ -251,7 +251,7 @@ public class J2clClinitPrunerPassTest extends CompilerTestCase {
 
   @Test
   public void testRemoveDuplicates_avoidRemovalAcrossScriptRoots() {
-    testSame(
+    testSameTestPartVarargs(
         new FlatSources(
             ImmutableList.of(
                 SourceFile.fromCode(

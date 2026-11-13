@@ -180,8 +180,8 @@ public class TypedAstSerializerTest extends CompilerTestCase {
   @Test
   public void ignoresIjsFilesInExternAst() {
     enableTypeCheck();
-    testSame(
-        externs(
+    testSameTestPartVarargs(
+        externsSourceFileVarargs(
             SourceFile.fromCode("regular_externs.js", "/** @externs */ var x;"),
             SourceFile.fromCode(
                 "dep.externs.js.i.js",
@@ -204,9 +204,9 @@ public class TypedAstSerializerTest extends CompilerTestCase {
   @Test
   public void ignoresIjsFilesInCodeAst() {
     enableTypeCheck();
-    testSame(
-        externs(ImmutableList.of()),
-        srcs(
+    testSameTestPartVarargs(
+        externsList(ImmutableList.of()),
+        srcsSourceFileVarargs(
             SourceFile.fromCode("src.js", "var a = 1;"),
             SourceFile.fromCode("dep.i.js", "/** @typeSummary */ var b;")));
 
@@ -240,7 +240,7 @@ public class TypedAstSerializerTest extends CompilerTestCase {
     }
 
     void test(String code) {
-      testSame(CONSOLE_EXTERNS, srcs(code));
+      testSameTestPartVarargs(CONSOLE_EXTERNS, srcs(code));
 
       final HashMap<String, Integer> stringPoolOffsets = new HashMap<>();
       StringPool stringPool = StringPool.fromProto(testResult.getStringPool());

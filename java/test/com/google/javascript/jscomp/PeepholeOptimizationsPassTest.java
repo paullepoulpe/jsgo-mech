@@ -40,7 +40,7 @@ public final class PeepholeOptimizationsPassTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new PeepholeOptimizationsPass(
+    return PeepholeOptimizationsPass.createFromOptimizations(
         compiler, getName(), currentPeepholePasses.toArray(new AbstractPeepholeOptimization[0]));
   }
 
@@ -271,7 +271,7 @@ public final class PeepholeOptimizationsPassTest extends CompilerTestCase {
     Node script = checkNotNull(compiler.getScriptNode("testcode"));
     assertThat(script.getFeatureSet())
         .isEqualTo(
-            FeatureSet.BARE_MINIMUM.with(
+            FeatureSet.BARE_MINIMUM.withFeatureVarargs(
                 Feature.LET_DECLARATIONS, Feature.CLASSES, Feature.CONST_DECLARATIONS));
   }
 }

@@ -44,49 +44,49 @@ public final class FeatureSet implements Serializable {
   public static final FeatureSet BARE_MINIMUM = new FeatureSet(emptyEnumSet());
 
   /** Features from ES3. */
-  public static final FeatureSet ES3 = BARE_MINIMUM.with(LangVersion.ES3.features());
+  public static final FeatureSet ES3 = BARE_MINIMUM.withSet(LangVersion.ES3.features());
 
   /** Features from ES5 only. */
-  public static final FeatureSet ES5 = ES3.with(LangVersion.ES5.features());
+  public static final FeatureSet ES5 = ES3.withSet(LangVersion.ES5.features());
 
   /** All ES2015 features, including modules. */
-  public static final FeatureSet ES2015_MODULES = ES5.with(LangVersion.ES2015.features());
+  public static final FeatureSet ES2015_MODULES = ES5.withSet(LangVersion.ES2015.features());
 
   /** The full set of ES2015 features, not including modules. */
   public static final FeatureSet ES2015 = ES2015_MODULES.without(Feature.MODULES);
 
   public static final FeatureSet ES2016_MODULES =
-      ES2015_MODULES.with(LangVersion.ES2016.features());
+      ES2015_MODULES.withSet(LangVersion.ES2016.features());
 
   public static final FeatureSet ES2016 = ES2016_MODULES.without(Feature.MODULES);
 
   public static final FeatureSet ES2017_MODULES =
-      ES2016_MODULES.with(LangVersion.ES2017.features());
+      ES2016_MODULES.withSet(LangVersion.ES2017.features());
 
   public static final FeatureSet ES2017 = ES2017_MODULES.without(Feature.MODULES);
 
   public static final FeatureSet ES2018_MODULES =
-      ES2017_MODULES.with(LangVersion.ES2018.features());
+      ES2017_MODULES.withSet(LangVersion.ES2018.features());
 
   public static final FeatureSet ES2018 = ES2018_MODULES.without(Feature.MODULES);
 
   public static final FeatureSet ES2019_MODULES =
-      ES2018_MODULES.with(LangVersion.ES2019.features());
+      ES2018_MODULES.withSet(LangVersion.ES2019.features());
 
   public static final FeatureSet ES2019 = ES2019_MODULES.without(Feature.MODULES);
 
   public static final FeatureSet ES2020_MODULES =
-      ES2019_MODULES.with(LangVersion.ES2020.features());
+      ES2019_MODULES.withSet(LangVersion.ES2020.features());
 
   public static final FeatureSet ES2020 = ES2020_MODULES.without(Feature.MODULES);
 
   public static final FeatureSet ES2021_MODULES =
-      ES2020_MODULES.with(LangVersion.ES2021.features());
+      ES2020_MODULES.withSet(LangVersion.ES2021.features());
 
   public static final FeatureSet ES2021 = ES2021_MODULES.without(Feature.MODULES);
 
   public static final FeatureSet ES2022_MODULES =
-      ES2021_MODULES.with(LangVersion.ES2022.features());
+      ES2021_MODULES.withSet(LangVersion.ES2022.features());
 
   public static final FeatureSet ES2022 = ES2022_MODULES.without(Feature.MODULES);
 
@@ -94,14 +94,14 @@ public final class FeatureSet implements Serializable {
   // be updated to include it.
 
   // Set of all fully supported features, even those part of language versions not fully supported
-  public static final FeatureSet ES_NEXT = ES2022_MODULES.with(LangVersion.ES_NEXT.features());
+  public static final FeatureSet ES_NEXT = ES2022_MODULES.withSet(LangVersion.ES_NEXT.features());
 
   // Set of features fully supported in checks, even those not fully supported in optimizations
-  public static final FeatureSet ES_UNSTABLE = ES_NEXT.with(LangVersion.ES_UNSTABLE.features());
+  public static final FeatureSet ES_UNSTABLE = ES_NEXT.withSet(LangVersion.ES_UNSTABLE.features());
 
   // Set of all features that can be parsed, even those not yet fully supported in checks.
   public static final FeatureSet ES_UNSUPPORTED =
-      ES_UNSTABLE.with(LangVersion.ES_UNSUPPORTED.features());
+      ES_UNSTABLE.withSet(LangVersion.ES_UNSUPPORTED.features());
 
   // NOTE: The BROWSER_20XX FeatureSets are the set of features supported by major browsers as of
   // January 1st of the given year. So, typically, take the year of the BFSY, subtract 1 to get
@@ -178,7 +178,7 @@ public final class FeatureSet implements Serializable {
   // implemented the new flags.
   public static final FeatureSet BROWSER_2026 = ES2022_MODULES;
 
-  public static final FeatureSet ALL = ES_UNSUPPORTED.with(LangVersion.TYPESCRIPT.features());
+  public static final FeatureSet ALL = ES_UNSUPPORTED.withSet(LangVersion.TYPESCRIPT.features());
 
   private enum LangVersion {
     ES3,
@@ -365,46 +365,46 @@ public final class FeatureSet implements Serializable {
    * depgraph and deps.js files.
    */
   public String version() {
-    if (ES3.contains(this)) {
+    if (ES3.containsFeatureSet(this)) {
       return "es3";
     }
-    if (ES5.contains(this)) {
+    if (ES5.containsFeatureSet(this)) {
       return "es5";
     }
-    if (ES2015_MODULES.contains(this)) {
+    if (ES2015_MODULES.containsFeatureSet(this)) {
       return "es6";
     }
-    if (ES2016_MODULES.contains(this)) {
+    if (ES2016_MODULES.containsFeatureSet(this)) {
       return "es7";
     }
-    if (ES2017_MODULES.contains(this)) {
+    if (ES2017_MODULES.containsFeatureSet(this)) {
       return "es8";
     }
-    if (ES2018_MODULES.contains(this)) {
+    if (ES2018_MODULES.containsFeatureSet(this)) {
       return "es9";
     }
-    if (ES2019_MODULES.contains(this)) {
+    if (ES2019_MODULES.containsFeatureSet(this)) {
       return "es_2019";
     }
-    if (ES2020_MODULES.contains(this)) {
+    if (ES2020_MODULES.containsFeatureSet(this)) {
       return "es_2020";
     }
-    if (ES2021_MODULES.contains(this)) {
+    if (ES2021_MODULES.containsFeatureSet(this)) {
       return "es_2021";
     }
-    if (ES2022_MODULES.contains(this)) {
+    if (ES2022_MODULES.containsFeatureSet(this)) {
       return "es_2022";
     }
-    if (ES_NEXT.contains(this)) {
+    if (ES_NEXT.containsFeatureSet(this)) {
       return "es_next";
     }
-    if (ES_UNSTABLE.contains(this)) {
+    if (ES_UNSTABLE.containsFeatureSet(this)) {
       return "es_unstable";
     }
-    if (ES_UNSUPPORTED.contains(this)) {
+    if (ES_UNSUPPORTED.containsFeatureSet(this)) {
       return "es_unsupported";
     }
-    if (ALL.contains(this)) {
+    if (ALL.containsFeatureSet(this)) {
       return "all";
     }
     throw new IllegalStateException(this.toString());
@@ -451,7 +451,7 @@ public final class FeatureSet implements Serializable {
   }
 
   /** Does this {@link FeatureSet} contain all of the features of {@code other}? */
-  public boolean contains(FeatureSet other) {
+  public boolean containsFeatureSet(FeatureSet other) {
     return this.features.containsAll(other.features);
   }
 
@@ -496,19 +496,19 @@ public final class FeatureSet implements Serializable {
 
   /** Returns a feature set combining all the features from {@code this} and {@code newFeatures}. */
   @VisibleForTesting
-  public FeatureSet with(Feature... newFeatures) {
+  public FeatureSet withFeatureVarargs(Feature... newFeatures) {
     return new FeatureSet(union(features, ImmutableSet.copyOf(newFeatures)));
   }
 
   /** Returns a feature set combining all the features from {@code this} and {@code newFeatures}. */
   @VisibleForTesting
-  public FeatureSet with(Set<Feature> newFeatures) {
+  public FeatureSet withSet(Set<Feature> newFeatures) {
     return new FeatureSet(union(features, newFeatures));
   }
 
   /** Returns a feature set combining all the features from {@code this} and {@code newFeatures}. */
   @VisibleForTesting
-  public FeatureSet with(FeatureSet newFeatures) {
+  public FeatureSet withFeatureSet(FeatureSet newFeatures) {
     return new FeatureSet(union(features, newFeatures.features));
   }
 
@@ -567,24 +567,24 @@ public final class FeatureSet implements Serializable {
    */
   public static FeatureSet browserFeatureSetValueOf(String name) {
     FeatureSet featureSet = valueOf(name);
-    if (featureSet.contains(ES_NEXT)) {
+    if (featureSet.containsFeatureSet(ES_NEXT)) {
       // For ES_NEXT and ES_UNSTABLE, we need to return the raw featureSet to retain the RUNTIME
       // features which pin polyfills to future versions.
       return featureSet;
     }
-    if (featureSet.contains(ES2022)) {
+    if (featureSet.containsFeatureSet(ES2022)) {
       return BROWSER_2023;
     }
-    if (featureSet.contains(ES2021)) {
+    if (featureSet.containsFeatureSet(ES2021)) {
       return BROWSER_2022;
     }
-    if (featureSet.contains(ES2020)) {
+    if (featureSet.containsFeatureSet(ES2020)) {
       return BROWSER_2021;
     }
-    if (featureSet.contains(ES2019)) {
+    if (featureSet.containsFeatureSet(ES2019)) {
       return BROWSER_2020;
     }
-    if (featureSet.contains(ES2018)) {
+    if (featureSet.containsFeatureSet(ES2018)) {
       return BROWSER_2019;
     }
     return featureSet;

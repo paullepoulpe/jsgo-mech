@@ -73,7 +73,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
-    return new PeepholeOptimizationsPass(
+    return PeepholeOptimizationsPass.createFromOptimizations(
         compiler, getName(), new PeepholeFoldConstants(late, useTypes));
   }
 
@@ -2659,7 +2659,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
 
     test("(doSomething(),0n)*1n", "(doSomething(),0n)");
     test("1n*(doSomething(),0n)", "(doSomething(),0n)");
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
     testSame("(0n,doSomething())*1n");
     testSame("1n*(0n,doSomething())");
   }

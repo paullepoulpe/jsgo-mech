@@ -880,7 +880,7 @@ public final class CodePrinter {
       cg.tagAsStrict();
     }
 
-    cg.add(root);
+    cg.addNode(root);
     mcp.endFile();
 
     SourceAndMappings result = new SourceAndMappings();

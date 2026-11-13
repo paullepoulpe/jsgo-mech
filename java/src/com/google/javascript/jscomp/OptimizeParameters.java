@@ -795,7 +795,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
     }
 
     for (Node fn : ReferenceMap.getFunctionNodes(refs).values()) {
-      eliminateParamsAfter(fn, maxArgs);
+      eliminateParamsAfterInt(fn, maxArgs);
     }
   }
 
@@ -1255,7 +1255,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
     if (lhs.isDestructuringPattern()) {
       rewriteDestructuringPattern(lhs, value, stmts);
     } else {
-      stmts.add(NodeUtil.newVarNode(lhs, value));
+      stmts.add(NodeUtil.newVarNodeNode(lhs, value));
     }
     insertStatements(function, stmts);
   }
@@ -1298,7 +1298,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
   }
 
   /** Removes all formal parameters starting at argIndex. */
-  private void eliminateParamsAfter(Node fnNode, int argIndex) {
+  private void eliminateParamsAfterInt(Node fnNode, int argIndex) {
     Node formalArgPtr = NodeUtil.getFunctionParameters(fnNode).getFirstChild();
     while (argIndex != 0 && formalArgPtr != null) {
       formalArgPtr = formalArgPtr.getNext();

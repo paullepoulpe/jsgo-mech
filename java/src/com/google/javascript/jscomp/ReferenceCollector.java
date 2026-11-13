@@ -224,7 +224,7 @@ public final class ReferenceCollector
      * function NAME nodes
      */
     this.addReference(var, fnNode.getFirstChild(), t);
-    this.createTraversalBuilder().traverseAtScope(scopeCreator.createScope(fnNode, varScope));
+    this.createTraversalBuilder().traverseAtScope(scopeCreator.createScopeAbstractScope(fnNode, varScope));
 
     this.blockStack = oldBlockStack;
   }

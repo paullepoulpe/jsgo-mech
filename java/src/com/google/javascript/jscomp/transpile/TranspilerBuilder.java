@@ -48,7 +48,7 @@ public final class TranspilerBuilder {
    */
   @CheckReturnValue
   public TranspilerBuilder caching() {
-    return caching(DEFAULT_CACHE_SPEC);
+    return cachingString(DEFAULT_CACHE_SPEC);
   }
 
   /**
@@ -56,7 +56,7 @@ public final class TranspilerBuilder {
    * the builder itself is not changed.
    */
   @CheckReturnValue
-  public TranspilerBuilder caching(String spec) {
+  public TranspilerBuilder cachingString(String spec) {
     return caching(CacheBuilder.from(spec));
   }
 

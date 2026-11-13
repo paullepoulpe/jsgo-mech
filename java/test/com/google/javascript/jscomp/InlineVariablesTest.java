@@ -331,7 +331,7 @@ public final class InlineVariablesTest extends CompilerTestCase {
   public void testInlineAcrossChunks() {
     // TODO(kushal): Make decision about overlap with CrossChunkCodeMotion
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk("var a = 2;")
                 .addChunk("var b = a;")
@@ -339,13 +339,13 @@ public final class InlineVariablesTest extends CompilerTestCase {
         // Note that there's nothing ensuring "var a = 2;" will be loaded before "var b = a;", but
         // if it's not, this code would be broken uncompiled and we'd get an "a is not defined"
         // error, so the compiler inlines anyway.
-        expected("", "var b = 2;"));
+        expectedStringVarargs("", "var b = 2;"));
   }
 
   @Test
   public void testInliningAcrossSiblingChunk_assignmentChunkIsFirst() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("var a;") // root chunk
                 // Two child chunks that both depend on the root chunk. Neither is guaranteed
@@ -355,7 +355,7 @@ public final class InlineVariablesTest extends CompilerTestCase {
                 .build()),
         // The expected code has the correct behavior. The compiler doesn't know whether `a = true;`
         // will execute before the second child chunk or not.
-        expected(
+        expectedStringVarargs(
             "var a;",
             // root
             "a = true;", // child 1
@@ -365,7 +365,7 @@ public final class InlineVariablesTest extends CompilerTestCase {
   @Test
   public void testInliningAcrossSiblingChunk_useChunkIsFirst() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forTree()
                 .addChunk("var a;") // root chunk
                 // Two child chunks that both depend on the root chunk. Neither is guaranteed
@@ -375,7 +375,7 @@ public final class InlineVariablesTest extends CompilerTestCase {
                 .build()),
         // the expected code has the correct behavior. The compiler doesn't know whether `a = true;`
         // will execute before the first child chunk or not.
-        expected(
+        expectedStringVarargs(
             "var a;", // root
             "(function() { if (a) console.log('test'); })();", // child 1
             "a = true;")); // child 2
@@ -655,11 +655,11 @@ public final class InlineVariablesTest extends CompilerTestCase {
   public void testCrossFunctionsAsLeftLeaves() {
     // Ensures getNext() understands how to walk past a function leaf
     test(
-        srcs("var x = function() {};", "", "function cow() {} var z = x;"),
-        expected("", "", "function cow() {} var z = function() {};"));
+        srcsStringVarargs("var x = function() {};", "", "function cow() {} var z = x;"),
+        expectedStringVarargs("", "", "function cow() {} var z = function() {};"));
     test(
-        srcs("var x = function() {};", "", "var cow = function() {}; var z = x;"),
-        expected("", "", "var cow = function() {}; var z = function() {};"));
+        srcsStringVarargs("var x = function() {};", "", "var cow = function() {}; var z = x;"),
+        expectedStringVarargs("", "", "var cow = function() {}; var z = function() {};"));
     test(
         "var x = a; (function() { a++; })(); var z = x; use(z);",
         "var x = a; (function() { a++; })();            use(x);");
@@ -1455,7 +1455,7 @@ public final class InlineVariablesTest extends CompilerTestCase {
         srcs("var x = f(y.a, y); z =          x"),
         expected("               z = f(y.a, y);"));
     // z.b can be changed by the call to y, so x can not be inlined.
-    testSame(externs(EXTERNS), srcs("var x = f(y.a, y); z.b = x;"));
+    testSameTestPartVarargs(externs(EXTERNS), srcs("var x = f(y.a, y); z.b = x;"));
   }
 
   @Test
@@ -2116,7 +2116,7 @@ public final class InlineVariablesTest extends CompilerTestCase {
   public void testNoInlineRedeclaredExterns() {
     String externs = "var test = 1;";
     String code = "/** @suppress {duplicate} */ var test = 2;alert(test);";
-    testSame(externs(externs), srcs(code));
+    testSameTestPartVarargs(externs(externs), srcs(code));
   }
 
   @Test
@@ -2500,7 +2500,7 @@ public final class InlineVariablesTest extends CompilerTestCase {
       "use(function() {});"
     };
 
-    test(srcs(srcs), expected(expected));
+    test(srcsStringVarargs(srcs), expectedStringVarargs(expected));
   }
 
   @Test

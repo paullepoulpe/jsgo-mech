@@ -1251,12 +1251,12 @@ public final class CheckJSDocStyleTest extends CompilerTestCase {
   public void testExternsAnnotation() {
     test(externs("function Example() {}"), srcs(""), warning(EXTERNS_FILES_SHOULD_BE_ANNOTATED));
 
-    testSame(
+    testSameTestPartVarargs(
         externs(
             "/** @fileoverview Some super cool externs.\n * @externs\n */ function Example() {}"),
         srcs(""));
 
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @fileoverview Some super cool externs.
@@ -1268,7 +1268,7 @@ public final class CheckJSDocStyleTest extends CompilerTestCase {
         srcs(""));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "/** @fileoverview Some externs.\n * @externs\n */ /** @const */ var example;",
             "/** @fileoverview Some more.\n * @externs\n */ /** @const */ var example2;"),
         expected(""));
@@ -1284,7 +1284,7 @@ public final class CheckJSDocStyleTest extends CompilerTestCase {
 
   @Test
   public void testValidExternsAnnotation_withES6Modules() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             export /** @fileoverview Some super cool externs.
@@ -1297,7 +1297,7 @@ public final class CheckJSDocStyleTest extends CompilerTestCase {
 
   @Test
   public void testValidLicenseCommentWithoutExterns() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /**
@@ -1311,7 +1311,7 @@ public final class CheckJSDocStyleTest extends CompilerTestCase {
 
   @Test
   public void testValidLicenseCommentAndExterns_separateBlocks() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /**
@@ -1330,7 +1330,7 @@ public final class CheckJSDocStyleTest extends CompilerTestCase {
 
   @Test
   public void testValidLicenseCommentAndExterns_sameBlocks() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /**

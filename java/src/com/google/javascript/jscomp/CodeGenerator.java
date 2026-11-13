@@ -187,7 +187,7 @@ public class CodeGenerator {
     cc.add(str);
   }
 
-  protected void add(Node n) {
+  protected void addNode(Node n) {
     add(n, Context.OTHER);
   }
 
@@ -265,19 +265,19 @@ public class CodeGenerator {
         checkState(childCount >= 2 && childCount <= 3);
 
         add("try");
-        add(first);
+        addNode(first);
 
         // second child contains the catch block, or nothing if there
         // isn't a catch block
         Node catchblock = first.getNext().getFirstChild();
         if (catchblock != null) {
-          add(catchblock);
+          addNode(catchblock);
         }
 
         if (childCount == 3) {
           cc.maybeInsertSpace();
           add("finally");
-          add(last);
+          addNode(last);
         }
       }
       case CATCH -> {
@@ -289,17 +289,17 @@ public class CodeGenerator {
         if (!first.isEmpty()) {
           // optional catch binding
           add("(");
-          add(first);
+          addNode(first);
           add(")");
         }
 
-        add(last);
+        addNode(last);
       }
       case THROW -> {
         Preconditions.checkState(childCount == 1, node);
         add("throw");
         cc.maybeInsertSpace();
-        add(first);
+        addNode(first);
 
         // Must have a ';' after a throw statement, otherwise safari can't
         // parse this.
@@ -311,10 +311,10 @@ public class CodeGenerator {
           cc.maybeInsertSpace();
           if (preserveTypeAnnotations && first.getJSDocInfo() != null) {
             add("(");
-            add(first);
+            addNode(first);
             add(")");
           } else {
-            add(first);
+            addNode(first);
           }
         } else {
           checkState(childCount == 0, node);
@@ -347,7 +347,7 @@ public class CodeGenerator {
         addIdentifier(node.getString());
       }
       case DESTRUCTURING_LHS -> {
-        add(first);
+        addNode(first);
         if (first != last) {
           checkState(childCount == 2, node);
           cc.addOp("=", true);
@@ -386,7 +386,7 @@ public class CodeGenerator {
             && node.hasOneChild()
             && first.isName()
             && !gentsMode) {
-          add(first);
+          addNode(first);
         } else {
           add("(");
           addList(first);
@@ -394,7 +394,7 @@ public class CodeGenerator {
         }
       }
       case DEFAULT_VALUE -> {
-        add(first);
+        addNode(first);
         maybeAddTypeDecl(node);
         cc.addOp("=", true);
         addExpr(first.getNext(), 1, Context.OTHER);
@@ -456,7 +456,7 @@ public class CodeGenerator {
       }
       case ITER_REST, OBJECT_REST -> {
         add("...");
-        add(first);
+        addNode(first);
         maybeAddTypeDecl(node);
       }
       case ITER_SPREAD, OBJECT_SPREAD -> {
@@ -472,11 +472,11 @@ public class CodeGenerator {
           add("*");
           checkState(first != null && first.isEmpty(), node);
         } else {
-          add(first);
+          addNode(first);
         }
         if (childCount == 2) {
           add("from");
-          add(last);
+          addNode(last);
         }
         processEnd(first, context);
       }
@@ -485,18 +485,18 @@ public class CodeGenerator {
 
         Node second = first.getNext();
         if (!first.isEmpty()) {
-          add(first);
+          addNode(first);
           if (!second.isEmpty()) {
             cc.listSeparator();
           }
         }
         if (!second.isEmpty()) {
-          add(second);
+          addNode(second);
         }
         if (!first.isEmpty() || !second.isEmpty()) {
           add("from");
         }
-        add(last);
+        addNode(last);
         cc.endStatement(hasTrailingCommentOnSameLine(node));
       }
       case EXPORT_SPECS, IMPORT_SPECS -> {
@@ -505,17 +505,17 @@ public class CodeGenerator {
           if (c != first) {
             cc.listSeparator();
           }
-          add(c);
+          addNode(c);
         }
         add("}");
       }
       case EXPORT_SPEC, IMPORT_SPEC -> {
-        add(first);
+        addNode(first);
         if (node.isShorthandProperty() && first.getString().equals(last.getString())) {
           break;
         }
         add("as");
-        add(last);
+        addNode(last);
       }
       case IMPORT_STAR -> {
         add("*");
@@ -543,7 +543,7 @@ public class CodeGenerator {
 
           add("class");
           if (!name.isEmpty()) {
-            add(name);
+            addNode(name);
           }
 
           maybeAddGenericTypes(first);
@@ -559,7 +559,7 @@ public class CodeGenerator {
           if (interfaces != null) {
             add("implements");
             Node child = interfaces.getFirstChild();
-            add(child);
+            addNode(child);
             while (true) {
               child = child.getNext();
               if (child == null) {
@@ -567,10 +567,10 @@ public class CodeGenerator {
               }
               add(",");
               cc.maybeInsertSpace();
-              add(child);
+              addNode(child);
             }
           }
-          add(members);
+          addNode(members);
           cc.endClass(context == Context.STATEMENT);
 
           if (classNeedsParens) {
@@ -581,7 +581,7 @@ public class CodeGenerator {
       case CLASS_MEMBERS, INTERFACE_MEMBERS, NAMESPACE_ELEMENTS -> {
         cc.beginBlock();
         for (Node c = first; c != null; c = c.getNext()) {
-          add(c);
+          addNode(c);
           processEnd(c, context);
           cc.endLine();
         }
@@ -590,7 +590,7 @@ public class CodeGenerator {
       case ENUM_MEMBERS -> {
         cc.beginBlock();
         for (Node c = first; c != null; c = c.getNext()) {
-          add(c);
+          addNode(c);
           if (c.getNext() != null) {
             add(",");
           }
@@ -681,9 +681,9 @@ public class CodeGenerator {
             }
           }
           maybeAddOptional(fn);
-          add(parameters);
+          addNode(parameters);
           maybeAddTypeDecl(fn);
-          add(body);
+          addNode(body);
         }
       }
       case MEMBER_FIELD_DEF, COMPUTED_FIELD_DEF -> {
@@ -766,12 +766,12 @@ public class CodeGenerator {
         if (!first.getNext().isEmpty()) {
           cc.maybeInsertSpace();
         }
-        add(first.getNext());
+        addNode(first.getNext());
         add(";");
         if (!first.getNext().getNext().isEmpty()) {
           cc.maybeInsertSpace();
         }
-        add(first.getNext().getNext());
+        addNode(first.getNext().getNext());
         add(")");
         addNonEmptyStatement(last, getContextForNonEmptyExpression(context), false);
       }
@@ -780,9 +780,9 @@ public class CodeGenerator {
         add("for");
         cc.maybeInsertSpace();
         add("(");
-        add(first);
+        addNode(first);
         add("in");
-        add(first.getNext());
+        addNode(first.getNext());
         add(")");
         addNonEmptyStatement(last, getContextForNonEmptyExpression(context), false);
       }
@@ -791,7 +791,7 @@ public class CodeGenerator {
         add("for");
         cc.maybeInsertSpace();
         add("(");
-        add(first);
+        addNode(first);
         cc.maybeInsertSpace();
         add("of");
         cc.maybeInsertSpace();
@@ -805,7 +805,7 @@ public class CodeGenerator {
         add("for await");
         cc.maybeInsertSpace();
         add("(");
-        add(first);
+        addNode(first);
         cc.maybeInsertSpace();
         add("of");
         cc.maybeInsertSpace();
@@ -822,7 +822,7 @@ public class CodeGenerator {
         add("while");
         cc.maybeInsertSpace();
         add("(");
-        add(last);
+        addNode(last);
         add(")");
         cc.endStatement(hasTrailingCommentOnSameLine(node));
       }
@@ -831,7 +831,7 @@ public class CodeGenerator {
         add("while");
         cc.maybeInsertSpace();
         add("(");
-        add(first);
+        addNode(first);
         add(")");
         addNonEmptyStatement(last, getContextForNonEmptyExpression(context), false);
       }
@@ -891,7 +891,7 @@ public class CodeGenerator {
           add("?.");
         }
         add("[");
-        add(first.getNext());
+        addNode(first.getNext());
         add("]");
       }
       case GETELEM -> {
@@ -909,13 +909,13 @@ public class CodeGenerator {
           add(")");
         }
         add("[");
-        add(first.getNext());
+        addNode(first.getNext());
         add("]");
       }
       case WITH -> {
         Preconditions.checkState(childCount == 2, node);
         add("with(");
-        add(first);
+        addNode(first);
         add(")");
         addNonEmptyStatement(last, getContextForNonEmptyExpression(context), false);
       }
@@ -928,7 +928,7 @@ public class CodeGenerator {
           cc.addOp(o, false);
         } else {
           cc.addOp(o, false);
-          add(first);
+          addNode(first);
         }
       }
       case OPTCHAIN_CALL -> {
@@ -975,7 +975,7 @@ public class CodeGenerator {
         add("if");
         cc.maybeInsertSpace();
         add("(");
-        add(first);
+        addNode(first);
         add(")");
 
         if (hasElse) {
@@ -1038,7 +1038,7 @@ public class CodeGenerator {
             throw new Error("Unexpected token type. Should be LABEL_NAME.");
           }
           add(" ");
-          add(first);
+          addNode(first);
         }
         cc.endStatement(hasTrailingCommentOnSameLine(node));
       }
@@ -1055,7 +1055,7 @@ public class CodeGenerator {
             throw new Error("Unexpected token type. Should be LABEL_NAME.");
           }
           add(" ");
-          add(first);
+          addNode(first);
         }
         cc.endStatement(hasTrailingCommentOnSameLine(node));
       }
@@ -1107,7 +1107,7 @@ public class CodeGenerator {
       case DELPROP -> {
         Preconditions.checkState(childCount == 1, node);
         add("delete ");
-        add(first);
+        addNode(first);
       }
       case OBJECTLIT -> {
         boolean needsParens = context == Context.START_OF_EXPR || context.atArrowFunctionBody();
@@ -1121,7 +1121,7 @@ public class CodeGenerator {
           }
 
           checkState(NodeUtil.isObjLitProperty(c) || c.isSpread(), c);
-          add(c);
+          addNode(c);
         }
         if (first != null && node.hasTrailingComma()) {
           cc.optionalListSeparator();
@@ -1165,8 +1165,8 @@ public class CodeGenerator {
           Node params = function.getSecondChild();
           Node body = function.getLastChild();
 
-          add(params);
-          add(body);
+          addNode(params);
+          addNode(body);
         } else {
           // This is a field or object literal property.
           boolean isInClass = node.getParent().isClassMembers();
@@ -1192,7 +1192,7 @@ public class CodeGenerator {
       }
       case SWITCH -> {
         add("switch(");
-        add(first);
+        addNode(first);
         add(")");
         add(last, context);
       }
@@ -1204,7 +1204,7 @@ public class CodeGenerator {
       case CASE -> {
         Preconditions.checkState(childCount == 2, node);
         add("case ");
-        add(first);
+        addNode(first);
         addCaseBody(last);
       }
       case DEFAULT_CASE -> {
@@ -1217,7 +1217,7 @@ public class CodeGenerator {
         if (!first.isLabelName()) {
           throw new Error("Unexpected token type. Should be LABEL_NAME.");
         }
-        add(first);
+        addNode(first);
         add(":");
         if (!last.isBlock()) {
           cc.maybeInsertSpace();
@@ -1227,7 +1227,7 @@ public class CodeGenerator {
       case CAST -> {
         if (preserveTypeAnnotations) {
           add("(");
-          add(first); // drop context because of added parentheses
+          addNode(first); // drop context because of added parentheses
           add(")");
         } else {
           add(first, context); // preserve context
@@ -1235,7 +1235,7 @@ public class CodeGenerator {
       }
       case TAGGED_TEMPLATELIT -> {
         this.addInvocationTarget(node, context);
-        add(first.getNext());
+        addNode(first.getNext());
       }
       case TEMPLATELIT -> {
         cc.beginTemplateLit();
@@ -1258,7 +1258,7 @@ public class CodeGenerator {
       case VOID_TYPE -> add("void");
       case NAMED_TYPE ->
           // Children are a chain of getprop nodes.
-          add(first);
+          addNode(first);
       case ARRAY_TYPE -> {
         addExpr(first, NodeUtil.precedence(Token.ARRAY_TYPE), context);
         add("[]");
@@ -1269,7 +1269,7 @@ public class CodeGenerator {
         addList(first.getNext());
         add(")");
         cc.addOp("=>", true);
-        add(returnType);
+        addNode(returnType);
       }
       case UNION_TYPE -> addList(first, "|");
       case RECORD_TYPE -> {
@@ -1279,7 +1279,7 @@ public class CodeGenerator {
       }
       case PARAMETERIZED_TYPE -> {
         // First child is the type that's parameterized, later children are the arguments.
-        add(first);
+        addNode(first);
         add("<");
         addList(first.getNext());
         add(">");
@@ -1295,7 +1295,7 @@ public class CodeGenerator {
         if (node.hasChildren()) {
           add("extends");
           cc.maybeInsertSpace();
-          add(node.getFirstChild());
+          addNode(node.getFirstChild());
         }
       }
       case INTERFACE -> {
@@ -1306,12 +1306,12 @@ public class CodeGenerator {
           Node members = last;
 
           add("interface");
-          add(name);
+          addNode(name);
           maybeAddGenericTypes(name);
           if (!superTypes.isEmpty()) {
             add("extends");
             Node superType = superTypes.getFirstChild();
-            add(superType);
+            addNode(superType);
             while (true) {
               superType = superType.getNext();
               if (superType == null) {
@@ -1319,10 +1319,10 @@ public class CodeGenerator {
               }
               add(",");
               cc.maybeInsertSpace();
-              add(superType);
+              addNode(superType);
             }
           }
-          add(members);
+          addNode(members);
         }
       }
       case ENUM -> {
@@ -1330,32 +1330,32 @@ public class CodeGenerator {
         Node name = first;
         Node members = last;
         add("enum");
-        add(name);
-        add(members);
+        addNode(name);
+        addNode(members);
       }
       case NAMESPACE -> {
         checkState(childCount == 2, node);
         Node name = first;
         Node elements = last;
         add("namespace");
-        add(name);
-        add(elements);
+        addNode(name);
+        addNode(elements);
       }
       case TYPE_ALIAS -> {
         add("type");
         add(node.getString());
         cc.addOp("=", true);
-        add(last);
+        addNode(last);
         cc.endStatement(/* needSemiColon= */ true, hasTrailingCommentOnSameLine(node));
       }
       case DECLARE -> {
         add("declare");
-        add(first);
+        addNode(first);
         processEnd(node, context);
       }
       case INDEX_SIGNATURE -> {
         add("[");
-        add(first);
+        addNode(first);
         add("]");
         maybeAddTypeDecl(node);
         cc.endStatement(/* needSemiColon= */ true, hasTrailingCommentOnSameLine(node));
@@ -1365,7 +1365,7 @@ public class CodeGenerator {
           add("new ");
         }
         maybeAddGenericTypes(node);
-        add(first);
+        addNode(first);
         maybeAddTypeDecl(node);
         cc.endStatement(/* needSemiColon= */ true, hasTrailingCommentOnSameLine(node));
       }
@@ -1503,13 +1503,13 @@ public class CodeGenerator {
     if (n.isAsyncFunction()) {
       add("async");
     }
-    add(first.getNext()); // param list
+    addNode(first.getNext()); // param list
     maybeAddTypeDecl(n);
 
     cc.addOp("=>", true);
 
     if (last.isBlock()) {
-      add(last);
+      addNode(last);
     } else {
       // This is a hack. Arrow functions have no token type, but
       // blockless arrow function bodies have lower precedence than anything other than commas.
@@ -1536,13 +1536,13 @@ public class CodeGenerator {
       }
     }
 
-    add(first);
+    addNode(first);
     maybeAddGenericTypes(first);
 
-    add(first.getNext()); // param list
+    addNode(first.getNext()); // param list
     maybeAddTypeDecl(n);
 
-    add(last);
+    addNode(last);
     cc.endFunction(context == Context.STATEMENT);
 
     if (funcNeedsParens) {
@@ -1561,14 +1561,14 @@ public class CodeGenerator {
     if (n.getDeclaredTypeExpression() != null) {
       add(":");
       cc.maybeInsertSpace();
-      add(n.getDeclaredTypeExpression());
+      addNode(n.getDeclaredTypeExpression());
     }
   }
 
   private void maybeAddGenericTypes(Node n) {
     Node generics = n.getGenericType();
     if (generics != null) {
-      add(generics);
+      addNode(generics);
     }
   }
 
@@ -1835,7 +1835,7 @@ public class CodeGenerator {
         Node child = n.getFirstChild();
         if (child.matchesQualifiedName(key)
             || (child.isDefaultValue() && child.getFirstChild().matchesQualifiedName(key))) {
-          add(child);
+          addNode(child);
           return;
         }
       }
@@ -1865,7 +1865,7 @@ public class CodeGenerator {
         cc.listSeparator();
       }
 
-      add(child);
+      addNode(child);
     }
     add("}");
   }
@@ -1904,7 +1904,7 @@ public class CodeGenerator {
 
   void addAllSiblings(Node n) {
     for (Node c = n; c != null; c = c.getNext()) {
-      add(c);
+      addNode(c);
     }
   }
 

@@ -54,26 +54,24 @@ public final class DiagnosticGroup implements Serializable {
   /**
    * Create a diagnostic group with no name that only matches the given type.
    */
-  private DiagnosticGroup(DiagnosticType type) {
-    this.name = null;
-    this.types = ImmutableSet.of(type);
+  private static DiagnosticGroup createFromType(DiagnosticType type) {
+    return new DiagnosticGroup((String) null, type);
   }
 
   /** Create a composite group. */
-  public DiagnosticGroup(DiagnosticGroup... groups) {
-    this(null, groups);
+  public static DiagnosticGroup createFromGroups(DiagnosticGroup... groups) {
+    return createFromGroups(null, groups);
   }
 
   /** Create a composite group. */
-  public DiagnosticGroup(String name, DiagnosticGroup... groups) {
+  public static DiagnosticGroup createFromGroups(String name, DiagnosticGroup... groups) {
     ImmutableSet.Builder<DiagnosticType> set = ImmutableSet.builder();
 
     for (DiagnosticGroup group : groups) {
       set.addAll(group.types);
     }
 
-    this.name = name;
-    this.types = set.build();
+    return new DiagnosticGroup(name, set.build().toArray(new DiagnosticType[0]));
   }
 
   // DiagnosticGroups with only a single DiagnosticType.
@@ -81,7 +79,7 @@ public final class DiagnosticGroup implements Serializable {
 
   /** Create a diagnostic group that matches only the given type. */
   public static synchronized DiagnosticGroup forType(DiagnosticType type) {
-    singletons.computeIfAbsent(type, DiagnosticGroup::new);
+    singletons.computeIfAbsent(type, DiagnosticGroup::createFromType);
     return singletons.get(type);
   }
 
@@ -90,13 +88,13 @@ public final class DiagnosticGroup implements Serializable {
    * in this group.
    */
   public boolean matches(JSError error) {
-    return matches(error.type());
+    return matchesDiagnosticType(error.type());
   }
 
   /**
    * Returns whether the given type matches a type in this group.
    */
-  public boolean matches(DiagnosticType type) {
+  public boolean matchesDiagnosticType(DiagnosticType type) {
     return types.contains(type);
   }
 

@@ -45,7 +45,7 @@ public final class PeepholeMinimizeConditionsTest extends CompilerTestCase {
   @Override
   protected CompilerPass getProcessor(final Compiler compiler) {
     PeepholeOptimizationsPass peepholePass =
-        new PeepholeOptimizationsPass(compiler, getName(), new PeepholeMinimizeConditions(late));
+        PeepholeOptimizationsPass.createFromOptimizations(compiler, getName(), new PeepholeMinimizeConditions(late));
     peepholePass.setRetraverseOnChange(false);
     return peepholePass;
   }

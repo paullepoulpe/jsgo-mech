@@ -109,14 +109,14 @@ public class CheckConstantCaseNamesTest extends CompilerTestCase {
 
   @Test
   public void constantCaseNameDeclarations_appearingInMultipleFiles_getDistinctErrors() {
-    testWarning(
-        srcs(
+    testWarningDiagnostic(
+        srcsStringVarargs(
             "goog.module('m'); let ABC = 0;",
             "let ABC = 0; ABC = 1;" // not a reassignment of the module local.
             ),
         warning(MISSING_CONST_PROPERTY));
     test(
-        srcs(
+        srcsStringVarargs(
             // Recognize that only one out of the two 'ABC's is mutated.
             "goog.module('m1'); let ABC = 0;", "goog.module('m2'); let ABC = 0; ABC = 1;"),
         warning(MISSING_CONST_PROPERTY),

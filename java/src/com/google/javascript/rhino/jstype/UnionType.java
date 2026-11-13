@@ -129,7 +129,7 @@ public final class UnionType extends JSType {
 
   /** Creates a {@link Builder} for a new {@link UnionType}. */
   public static Builder builder(JSTypeRegistry registry) {
-    return new Builder(registry);
+    return new Builder(null, registry);
   }
 
   /**
@@ -157,7 +157,7 @@ public final class UnionType extends JSType {
       if (resolvedAlternates != this.resolvedAlternatesAtLastBuild) {
         this.resolvedAlternatesAtLastBuild = resolvedAlternates;
 
-        Builder b = new Builder(this).addAlternates(this.alternates);
+        Builder b = new Builder(this, this.registry).addAlternates(this.alternates);
         // Double checked rebuilds, in case the union is involved in a cycle.
         if (!this.isResolved() && !this.alternatesResolvedBeforeBuild) {
           b.build();
@@ -266,7 +266,7 @@ public final class UnionType extends JSType {
         continue;
       }
 
-      JSType altPropertyType = alternate.findPropertyType(propertyName);
+      JSType altPropertyType = alternate.findPropertyTypeKey(propertyName);
       if (altPropertyType == null) {
         continue;
       }
@@ -378,7 +378,7 @@ public final class UnionType extends JSType {
 
   }
 
-  static JSType getGreatestSubtype(UnionType union, JSType that) {
+  static JSType getGreatestSubtypeUnionType(UnionType union, JSType that) {
     // This method is implemented as a static because we don't want polymorphism. Ideally all the
     // `greatestSubtype` code would be in one place. Until then, using static calls minimizes
     // confusion.
@@ -508,7 +508,7 @@ public final class UnionType extends JSType {
     List<String> names = new ArrayList<>();
     for (JSType alt : this.alternates) {
       // Clone the config to preserve indentation.
-      names.add(sb.cloneWithConfig().append(alt).build());
+      names.add(sb.cloneWithConfig().appendJSType(alt).build());
     }
     // Sort types by stringification to get deterministic behaviour.
     Collections.sort(names);
@@ -611,7 +611,7 @@ public final class UnionType extends JSType {
     for (int i = 0; i < this.alternates.size(); i++) {
       this.alternates.get(i).resolve(reporter);
     }
-    return new Builder(this).addAlternates(this.alternates).build();
+    return new Builder(this, this.registry).addAlternates(this.alternates).build();
   }
 
   @Override
@@ -704,23 +704,20 @@ public final class UnionType extends JSType {
     private int functionTypePosition = -1;
 
 
-    /** Creates a builder for a new union. */
-    private Builder(JSTypeRegistry registry) {
-      this.rebuildTarget = null;
-      this.registry = registry;
-    }
-
-    /** Creates a re-builder for an existing union. */
-    private Builder(UnionType rebuildTarget) {
+    /**
+     * Creates a builder for a new union (rebuildTarget is null) or a re-builder for an existing
+     * union.
+     */
+    private Builder(@Nullable UnionType rebuildTarget, JSTypeRegistry registry) {
       this.rebuildTarget = rebuildTarget;
-      this.registry = rebuildTarget.registry;
+      this.registry = registry;
     }
 
     private static boolean isSubtype(JSType rightType, JSType leftType) {
       return rightType.isSubtypeWithoutStructuralTyping(leftType);
     }
 
-    public Builder addAlternates(Collection<? extends JSType> c) {
+    public Builder addAlternatesCollection(Collection<? extends JSType> c) {
       for (JSType type : c) {
         addAlternate(type);
       }
@@ -870,7 +867,7 @@ public final class UnionType extends JSType {
                 // case 7a: replace with a merged alternate specialized on `?`.
                 ObjectType rawType = templatizedCurrent.getReferencedObjTypeInternal();
                 // Providing no type-parameter values specializes `rawType` on `?` by default.
-                alternate = registry.createTemplatizedType(rawType, ImmutableList.of());
+                alternate = registry.createTemplatizedTypeImmutableList(rawType, ImmutableList.of());
                 removeCurrent = true;
               }
             }

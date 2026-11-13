@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 public final class CheckUnreachableCodeTest extends CompilerTestCase {
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
-    return new CombinedCompilerPass(compiler, new CheckUnreachableCode(compiler));
+    return CombinedCompilerPass.createFromCallbacks(compiler, new CheckUnreachableCode(compiler));
   }
 
   @Test
@@ -470,7 +470,7 @@ public final class CheckUnreachableCodeTest extends CompilerTestCase {
 
   @Test
   public void testCorrectEsModuleExports() {
-    ignoreWarnings(DiagnosticGroups.MODULE_LOAD);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MODULE_LOAD);
     testSame("export var x");
     testSame("export var x = 1");
     testSame("export function f() {}");
@@ -482,7 +482,7 @@ public final class CheckUnreachableCodeTest extends CompilerTestCase {
 
   @Test
   public void testCorrectEsModuleImports() {
-    ignoreWarnings(DiagnosticGroups.MODULE_LOAD);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MODULE_LOAD);
     testSame("import * as mod from './mod';");
     testSame("import def from './mod';");
     testSame("import {x, y} from './mod';");

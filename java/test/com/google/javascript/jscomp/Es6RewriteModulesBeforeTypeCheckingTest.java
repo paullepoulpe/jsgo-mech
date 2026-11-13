@@ -108,8 +108,8 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
 
   void testModules(String input, String expected) {
     test(
-        srcs(other, SourceFile.fromCode("testcode", input)),
-        expected(otherExpected, SourceFile.fromCode("testcode", expected)));
+        srcsSourceFileVarargs(other, SourceFile.fromCode("testcode", input)),
+        expectedSourceFileVarargs(otherExpected, SourceFile.fromCode("testcode", expected)));
   }
 
   @Test
@@ -192,7 +192,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   public void testTypeNodeRewriting() {
     //
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "other.js",
                 """
@@ -206,7 +206,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import * as name from './other.js';
                 /** @type {name.a} */ var x;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "other.js",
                 """
@@ -304,8 +304,8 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
 
   @Test
   public void testModulesInExterns() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "externsMod.js",
                 """
@@ -319,7 +319,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   public void testModulesInTypeSummary() {
     allowExternsChanges();
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "mod1.js",
                 """
@@ -332,7 +332,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import {externalName as localName} from './mod1.js'
                 alert(localName);
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "mod2.js",
                 """
@@ -661,7 +661,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   @Test
   public void testExportFrom() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             other,
             SourceFile.fromCode(
                 "testcode",
@@ -670,7 +670,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 export {default} from './other.js';
                 export {class} from './other.js';
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -682,8 +682,8 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 """)));
 
     test(
-        srcs(other, SourceFile.fromCode("testcode", "export {a, b as c, x} from './other.js';")),
-        expected(
+        srcsSourceFileVarargs(other, SourceFile.fromCode("testcode", "export {a, b as c, x} from './other.js';")),
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -695,8 +695,8 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 """)));
 
     test(
-        srcs(other, SourceFile.fromCode("testcode", "export {a as b, b as a} from './other.js';")),
-        expected(
+        srcsSourceFileVarargs(other, SourceFile.fromCode("testcode", "export {a as b, b as a} from './other.js';")),
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -707,7 +707,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 """)));
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             other,
             SourceFile.fromCode(
                 "testcode",
@@ -716,7 +716,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 export {a as a2, default as b} from './other.js';
                 export {class as switch} from './other.js';
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             otherExpected,
             SourceFile.fromCode(
                 "testcode",
@@ -1037,12 +1037,12 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   public void testAbsoluteImportsWithModuleRoots() {
     moduleRoots = ImmutableList.of("/base");
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("base", "mod", "name.js"), ""),
             SourceFile.fromCode(
                 Compiler.joinPathParts("base", "test", "sub.js"),
                 "import * as foo from '/mod/name.js';")),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("base", "mod", "name.js"), ""),
             SourceFile.fromCode(
                 Compiler.joinPathParts("base", "test", "sub.js"),
@@ -1092,7 +1092,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   @Test
   public void testImportAliasInTypeNode() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode(
                 "b.js",
@@ -1100,7 +1100,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import {A as B} from './a.js';
                 const /** !B */ b = new B();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1179,7 +1179,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   @Test
   public void testTransitiveImport() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode("b.js", "export {A} from './a.js';"),
             SourceFile.fromCode(
@@ -1188,7 +1188,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import {A} from './b.js';
                 let /** !A */ a = new A();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1209,7 +1209,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 /** @const */ var module$c = {};
                 """)));
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode("b.js", "export {A as B} from './a.js';"),
             SourceFile.fromCode(
@@ -1218,7 +1218,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import {B as C} from './b.js';
                 let /** !C */ a = new C();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1243,7 +1243,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   @Test
   public void testMutableTransitiveImport() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export let A = class {}; () => (A = class {});"),
             SourceFile.fromCode("b.js", "export {A} from './a.js';"),
             SourceFile.fromCode(
@@ -1252,7 +1252,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import {A} from './b.js';
                 let /** !A */ a = new A();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1276,7 +1276,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 /** @const */ var module$c = {};
                 """)));
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export let A = class {}; () => (A = class {});"),
             SourceFile.fromCode("b.js", "export {A as B} from './a.js';"),
             SourceFile.fromCode(
@@ -1285,7 +1285,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import {B as C} from './b.js';
                 let /** !C */ a = new C();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1313,7 +1313,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   @Test
   public void testRewriteGetPropsWhileModuleReference() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("a.js", "export class A {}"),
             SourceFile.fromCode(
                 "b.js",
@@ -1327,7 +1327,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import * as b from './b.js';
                 let /** !b.a.A */ a = new b.a.A();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1353,7 +1353,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
   public void testRewritePropsWhenNotModuleReference() {
     //
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("other.js", "export let name = {}, a = { Type: class {} };"),
             SourceFile.fromCode(
                 "testcode",
@@ -1361,7 +1361,7 @@ public final class Es6RewriteModulesBeforeTypeCheckingTest extends CompilerTestC
                 import * as name from './other.js';
                 let /** !name.a.Type */ t = new name.a.Type();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 "other.js",
                 """

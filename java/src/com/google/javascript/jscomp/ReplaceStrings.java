@@ -124,7 +124,7 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
     this.nameGenerator = createNameGenerator();
 
     // Initialize the map of functions to inspect for renaming candidates.
-    parseConfiguration(functionsToInspect);
+    parseConfigurationList(functionsToInspect);
   }
 
   static final Predicate<Result> USED_RESULTS = (Result result) -> result.didReplacement;
@@ -352,7 +352,7 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
   }
 
   /** Build the data structures need by this pass from the provided list of functions. */
-  private void parseConfiguration(List<String> functionsToInspect) {
+  private void parseConfigurationList(List<String> functionsToInspect) {
     for (String function : functionsToInspect) {
       Config config = parseConfiguration(function);
       if (config != null) {

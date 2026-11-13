@@ -465,9 +465,9 @@ class VariableReferenceCheck implements CompilerPass {
         Node lhs = statement.getFirstChild();
         Node rhs = lhs.getFirstChild();
         if (rhs != null
-            && (NodeUtil.isCallTo(rhs, GOOG_FORWARD_DECLARE)
-                || NodeUtil.isCallTo(rhs, GOOG_REQUIRE_TYPE)
-                || NodeUtil.isCallTo(rhs, GOOG_REQUIRE)
+            && (NodeUtil.isCallToQualifiedName(rhs, GOOG_FORWARD_DECLARE)
+                || NodeUtil.isCallToQualifiedName(rhs, GOOG_REQUIRE_TYPE)
+                || NodeUtil.isCallToQualifiedName(rhs, GOOG_REQUIRE)
                 || rhs.isQualifiedName())) {
           // No warning. module imports will be caught by the unused-require check, and if the
           // right side is a qualified name then this is likely an alias used in type annotations.

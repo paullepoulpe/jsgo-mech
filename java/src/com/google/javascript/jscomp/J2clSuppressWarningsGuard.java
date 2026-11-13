@@ -23,7 +23,7 @@ public final class J2clSuppressWarningsGuard extends WarningsGuard {
 
   // TODO(b/128554878): Cleanup and document all file level suppressions for J2CL generated code.
   private static final DiagnosticGroup DEFAULT_J2CL_SUPRRESIONS =
-      new DiagnosticGroup(
+      DiagnosticGroup.createFromGroups(
           "j2clIncomaptible",
           // Do not warn when static overrides do not match. This is safe, because J2CL generated
           // code directly points to declaration and this is also required with collapse properties
@@ -54,7 +54,7 @@ public final class J2clSuppressWarningsGuard extends WarningsGuard {
 
   @Override
   public @Nullable CheckLevel level(JSError error) {
-    if (!J2clSourceUtils.isJ2clSource(error.sourceName())) {
+    if (!J2clSourceUtils.isJ2clSourceString(error.sourceName())) {
       return null;
     }
 

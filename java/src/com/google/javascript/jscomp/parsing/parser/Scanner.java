@@ -95,7 +95,7 @@ public class Scanner {
   }
 
   /** Prefer this to {@link #getTokenRange(int)} when the token might span multiple lines. */
-  private SourceRange getTokenRange(SourcePosition position) {
+  private SourceRange getTokenRangeSourcePosition(SourcePosition position) {
     lineNumberScanner.rewindTo(position);
     return lineNumberScanner.getSourceRange(position.offset, index);
   }
@@ -838,7 +838,7 @@ public class Scanner {
       return createToken(TokenType.ERROR, beginToken);
     }
 
-    Keywords k = Keywords.get(value);
+    Keywords k = Keywords.getString(value);
     // Keywords containing unicode escape sequences are treated as IdentifierTokens rather than
     // keyword Tokens (ECMA-262 11.6.2).
     if (k != null && !containsUnicodeEscape) {
@@ -918,7 +918,7 @@ public class Scanner {
       if (!skipStringLiteralChar()) {
         return new StringLiteralToken(
             getTokenString(beginIndex),
-            getTokenRange(startingPosition),
+            getTokenRangeSourcePosition(startingPosition),
             hasUnescapedUnicodeLineOrParagraphSeparator);
       }
     }
@@ -929,7 +929,7 @@ public class Scanner {
     }
     return new StringLiteralToken(
         getTokenString(beginIndex),
-        getTokenRange(startingPosition),
+        getTokenRangeSourcePosition(startingPosition),
         hasUnescapedUnicodeLineOrParagraphSeparator);
   }
 
@@ -962,7 +962,7 @@ public class Scanner {
             skipTemplateCharactersResult.getErrorMessage(),
             skipTemplateCharactersResult.getErrorLevel(),
             skipTemplateCharactersResult.getPosition(),
-            getTokenRange(startingPosition));
+            getTokenRangeSourcePosition(startingPosition));
       }
       case '$' -> {
         nextChar(); // $
@@ -973,7 +973,7 @@ public class Scanner {
             skipTemplateCharactersResult.getErrorMessage(),
             skipTemplateCharactersResult.getErrorLevel(),
             skipTemplateCharactersResult.getPosition(),
-            getTokenRange(startingPosition));
+            getTokenRangeSourcePosition(startingPosition));
       }
       default ->
           // Should have reported error already
@@ -983,7 +983,7 @@ public class Scanner {
               skipTemplateCharactersResult.getErrorMessage(),
               skipTemplateCharactersResult.getErrorLevel(),
               skipTemplateCharactersResult.getPosition(),
-              getTokenRange(startingPosition));
+              getTokenRangeSourcePosition(startingPosition));
     };
   }
 

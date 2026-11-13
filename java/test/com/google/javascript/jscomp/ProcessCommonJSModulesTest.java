@@ -66,7 +66,7 @@ public final class ProcessCommonJSModulesTest extends CompilerTestCase {
         module$other.default.call(null);
         """);
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("mod", "name.js"), "module.exports = {};"),
             SourceFile.fromCode(
                 Compiler.joinPathParts("test", "sub.js"),
@@ -74,7 +74,7 @@ public final class ProcessCommonJSModulesTest extends CompilerTestCase {
                 var name = require('../mod/name');
                 (function() { let foo = name; foo(); })();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("mod", "name.js"),
                 "/** @const */ var module$mod$name = {/** @const */ default: {}};"),
@@ -267,7 +267,7 @@ public final class ProcessCommonJSModulesTest extends CompilerTestCase {
         """);
 
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("foo", "name.js"), ""),
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
@@ -275,7 +275,7 @@ public final class ProcessCommonJSModulesTest extends CompilerTestCase {
                 var name = require('./name');
                 module.exports = name;
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("foo", "name.js"), ""),
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
@@ -759,8 +759,8 @@ module$test.default = factory$$module$test(typeof angular === "undefined" ? modu
             """));
     JSChunk[] chunks = {chunk};
     test(
-        srcs(chunks),
-        expected((String[]) null),
+        srcsJSChunkVarargs(chunks),
+        expectedStringVarargs((String[]) null),
         new Diagnostic(
             ProcessCommonJSModules.SUSPICIOUS_EXPORTS_ASSIGNMENT.level,
             ProcessCommonJSModules.SUSPICIOUS_EXPORTS_ASSIGNMENT,
@@ -1075,7 +1075,7 @@ module$test.default = factory$$module$test(typeof angular === "undefined" ? modu
   public void testAbsoluteImportsWithModuleRoots() {
     moduleRoots = ImmutableList.of("/base");
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("base", "mod", "name.js"), "module.exports = {}"),
             SourceFile.fromCode(
@@ -1084,7 +1084,7 @@ module$test.default = factory$$module$test(typeof angular === "undefined" ? modu
                 var name = require('/mod/name');
                 (function() { let foo = name; foo(); })();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("base", "mod", "name.js"),
                 "/** @const */ var module$mod$name = {/** @const */ default: {}};"),
@@ -1644,7 +1644,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__$$module$test;
                 /** @const */ module$webpack$buildin$module.default =
                     function(module) { return module; };
                 """));
-    test(srcs(inputs), expected(expecteds));
+    test(srcsList(inputs), expectedList(expecteds));
   }
 
   // https://github.com/google/closure-compiler/issues/2932
@@ -1855,7 +1855,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__$$module$test;
   @Test
   public void testRequireDot() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("mod", "index.js"), "module.exports = {};"),
             SourceFile.fromCode(
                 Compiler.joinPathParts("mod", "sub.js"),
@@ -1863,7 +1863,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__$$module$test;
                 var name = require('.');
                 (function() { let foo = name; foo(); })();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("mod", "index.js"),
                 "/** @const */ var module$mod$index = {/** @const */ default: {}};"),
@@ -1878,7 +1878,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__$$module$test;
   @Test
   public void testRequireDotDot() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(Compiler.joinPathParts("mod", "index.js"), "module.exports = {};"),
             SourceFile.fromCode(
                 Compiler.joinPathParts("mod", "sub", "sub.js"),
@@ -1886,7 +1886,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__$$module$test;
                 var name = require('..');
                 (function() { let foo = name; foo(); })();
                 """)),
-        expected(
+        expectedSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("mod", "index.js"),
                 "/** @const */ var module$mod$index = {/** @const */ default: {}};"),

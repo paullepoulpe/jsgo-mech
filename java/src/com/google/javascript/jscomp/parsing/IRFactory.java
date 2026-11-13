@@ -532,7 +532,7 @@ class IRFactory {
       }
       if (parent.isScript() && parent.getBooleanProp(Node.ES6_MODULE)) {
         // This is a valid top-level await in an ES module.
-        maybeWarnForFeature(n, Feature.TOP_LEVEL_AWAIT);
+        maybeWarnForFeatureNode(n, Feature.TOP_LEVEL_AWAIT);
         return;
       }
     }
@@ -726,7 +726,7 @@ class IRFactory {
 
   private void validateBlockScopedFunctions(Node n) {
     if (n.isFunction() && n.getParent().isBlock() && !n.getGrandparent().isFunction()) {
-      maybeWarnForFeature(n, Feature.BLOCK_SCOPED_FUNCTION_DECLARATION);
+      maybeWarnForFeatureNode(n, Feature.BLOCK_SCOPED_FUNCTION_DECLARATION);
     }
   }
 
@@ -748,7 +748,7 @@ class IRFactory {
     }
 
     Node newBlock = irNode.isEmpty() ? newNode(Token.BLOCK) : newNode(Token.BLOCK, irNode);
-    setSourceInfo(newBlock, irNode);
+    setSourceInfoNode(newBlock, irNode);
     newBlock.setIsAddedBlock(true);
 
     return newBlock;
@@ -1164,23 +1164,23 @@ class IRFactory {
   }
 
   static int lineno(ParseTree node) {
-    return lineno(node.location.start);
+    return linenoSourcePosition(node.location.start);
   }
 
-  static int lineno(com.google.javascript.jscomp.parsing.parser.Token token) {
-    return lineno(token.location.start);
+  static int linenoToken(com.google.javascript.jscomp.parsing.parser.Token token) {
+    return linenoSourcePosition(token.location.start);
   }
 
-  static int lineno(SourcePosition location) {
+  static int linenoSourcePosition(SourcePosition location) {
     // location lines start at zero, our AST starts at 1.
     return location.line + 1;
   }
 
-  static int charno(ParseTree node) {
+  static int charnoParseTree(ParseTree node) {
     return charno(node.location.start);
   }
 
-  static int charno(com.google.javascript.jscomp.parsing.parser.Token token) {
+  static int charnoToken(com.google.javascript.jscomp.parsing.parser.Token token) {
     return charno(token.location.start);
   }
 
@@ -1212,11 +1212,11 @@ class IRFactory {
     }
     if (!isSupportedForInputLanguageMode(feature)) {
       errorReporter.warning(
-          languageFeatureWarningMessage(feature), sourceName, lineno(node), charno(node));
+          languageFeatureWarningMessage(feature), sourceName, lineno(node), charnoParseTree(node));
     }
   }
 
-  void maybeWarnForFeature(
+  void maybeWarnForFeatureToken(
       com.google.javascript.jscomp.parsing.parser.Token token, Feature feature) {
     features = features.with(feature);
     if (withinClosureUnawareCodeRange(token.location.start.line, token.location.start.column)) {
@@ -1228,11 +1228,11 @@ class IRFactory {
     }
     if (!isSupportedForInputLanguageMode(feature)) {
       errorReporter.warning(
-          languageFeatureWarningMessage(feature), sourceName, lineno(token), charno(token));
+          languageFeatureWarningMessage(feature), sourceName, linenoToken(token), charnoToken(token));
     }
   }
 
-  void maybeWarnForFeature(Node node, Feature feature) {
+  void maybeWarnForFeatureNode(Node node, Feature feature) {
     features = features.with(feature);
     if (withinClosureUnawareCodeRange(node.getLineno(), node.getCharno())) {
       return;
@@ -1247,7 +1247,7 @@ class IRFactory {
     }
   }
 
-  void setSourceInfo(Node node, Node ref) {
+  void setSourceInfoNode(Node node, Node ref) {
     node.setLinenoCharno(ref.getLineno(), ref.getCharno());
     setLengthFrom(node, ref);
   }
@@ -1258,7 +1258,7 @@ class IRFactory {
     }
   }
 
-  void setSourceInfo(Node irNode, com.google.javascript.jscomp.parsing.parser.Token token) {
+  void setSourceInfoToken(Node irNode, com.google.javascript.jscomp.parsing.parser.Token token) {
     setSourceInfo(irNode, token.location.start, token.location.end);
   }
 
@@ -1267,7 +1267,7 @@ class IRFactory {
       // If we didn't already set the line, then set it now. This avoids
       // cases like ParenthesizedExpression where we just return a previous
       // node, but don't want the new node to get its parent's line number.
-      node.setLinenoCharno(lineno(start), charno(start));
+      node.setLinenoCharno(linenoSourcePosition(start), charno(start));
       setLength(node, start, end);
     }
   }
@@ -1288,7 +1288,7 @@ class IRFactory {
    */
   private JsDocInfoParser createJsDocInfoParser(Comment node, boolean useLicensesOnlyConfig) {
     String comment = node.value;
-    int lineno = lineno(node.location.start);
+    int lineno = linenoSourcePosition(node.location.start);
     int charno = charno(node.location.start);
     int position = node.location.start.offset;
 
@@ -1322,7 +1322,7 @@ class IRFactory {
   /** Parses inline type info. */
   private JSDocInfo parseInlineTypeDoc(Comment node) {
     String comment = node.value;
-    int lineno = lineno(node.location.start);
+    int lineno = linenoSourcePosition(node.location.start);
     int charno = charno(node.location.start);
 
     // The JsDocInfoParser expects the comment without the initial '/**'.
@@ -1428,13 +1428,13 @@ class IRFactory {
       String value;
       if (identifierToken.isPrivateIdentifier()) {
         if (identifierType == IdentifierType.CAN_BE_PRIVATE) {
-          maybeWarnForFeature(identifierToken, Feature.PRIVATE_ELEMENTS);
+          maybeWarnForFeatureToken(identifierToken, Feature.PRIVATE_ELEMENTS);
         } else {
           errorReporter.error(
               "Private identifiers may not be used in this context",
               sourceName,
-              lineno(identifierToken),
-              charno(identifierToken));
+              linenoToken(identifierToken),
+              charnoToken(identifierToken));
         }
         value = identifierToken.getMaybePrivateValue();
       } else {
@@ -1490,7 +1490,7 @@ class IRFactory {
         node.setNonJSDocComment(comment);
       }
 
-      setSourceInfo(node, literal);
+      setSourceInfoToken(node, literal);
       node.putBooleanProp(Node.QUOTED_PROP, true);
       return node;
     }
@@ -1581,7 +1581,7 @@ class IRFactory {
       Node stringKeyNode =
           maybeAddNonJsDocComment(
               newStringNode(Token.STRING_KEY, nameNode.getString()), defaultParameter.getStart());
-      setSourceInfo(stringKeyNode, nameNode);
+      setSourceInfoNode(stringKeyNode, nameNode);
       stringKeyNode.setShorthandProperty(true);
       stringKeyNode.addChildToBack(defaultValueNode);
       return stringKeyNode;
@@ -1631,7 +1631,7 @@ class IRFactory {
         // let [/** inlineType */ name] = something
         // Allow inline JSDoc on the name, since we may well be declaring it here.
         valueNode =
-            processNameWithInlineComments(
+            processNameWithInlineCommentsIdentifierExpressionTree(
                 targetTree.asIdentifierExpression(), IdentifierType.STANDARD);
       } else {
         // ({prop: /** string */ ns.a.b} = someObject);
@@ -1761,7 +1761,7 @@ class IRFactory {
           maybeAddNonJsDocComment(
               newStringNodeFromIdentifier(Token.LABEL_NAME, IdentifierType.STANDARD, token),
               token.getStart());
-      setSourceInfo(label, token);
+      setSourceInfoToken(label, token);
       return label;
     }
 
@@ -1857,7 +1857,7 @@ class IRFactory {
       return transform(tree);
     }
 
-    Node transformOrEmpty(IdentifierToken token, ParseTree parent) {
+    Node transformOrEmptyIdentifierToken(IdentifierToken token, ParseTree parent) {
       if (token == null) {
         Node n = newNode(Token.EMPTY);
         setSourceInfo(n, parent);
@@ -2113,7 +2113,7 @@ class IRFactory {
       } else {
         if (isDeclaration || isMember) {
           errorReporter.error(
-              "unnamed function statement", sourceName, lineno(functionTree), charno(functionTree));
+              "unnamed function statement", sourceName, lineno(functionTree), charnoParseTree(functionTree));
 
           // Return the bare minimum to put the AST in a valid state.
           newName = createMissingNameNode();
@@ -2159,7 +2159,7 @@ class IRFactory {
         member.addChildToBack(node);
         member.setStaticMember(functionTree.isStatic);
         // The source info should only include the identifier, not the entire function expression
-        setSourceInfo(member, name);
+        setSourceInfoToken(member, name);
         result = member;
       } else {
         result = node;
@@ -2262,7 +2262,7 @@ class IRFactory {
         // let { /** inlineType */ x = defaultValue } = someObject;
         // TODO(bradfordcsmith): Do we need to allow inline JSDoc for qualified names, too?
         targetNode =
-            processNameWithInlineComments(
+            processNameWithInlineCommentsIdentifierExpressionTree(
                 targetTree.asIdentifierExpression(), IdentifierType.STANDARD);
       } else {
         // ({prop: /** string */ ns.a.b = 'foo'} = someObject);
@@ -2412,7 +2412,7 @@ class IRFactory {
             "Lexical declarations are only allowed at top level or inside a block.",
             sourceName,
             lineno(labelTree),
-            charno(labelTree));
+            charnoParseTree(labelTree));
         return statement; // drop the LABEL node so that the resulting AST is valid
       }
       return newNode(Token.LABEL, transformLabelName(labelTree.name), statement);
@@ -2439,7 +2439,7 @@ class IRFactory {
       if (comment != null) {
         node.setNonJSDocComment(comment);
       }
-      setSourceInfo(node, identifierToken);
+      setSourceInfoToken(node, identifierToken);
       return node;
     }
 
@@ -2452,7 +2452,7 @@ class IRFactory {
       if (comment != null) {
         node.setNonJSDocComment(comment);
       }
-      setSourceInfo(node, token);
+      setSourceInfoToken(node, token);
       return node;
     }
 
@@ -2468,11 +2468,11 @@ class IRFactory {
       } else {
         node = newTemplateLitStringNode(normalizeString(token, true), token.value);
       }
-      setSourceInfo(node, token);
+      setSourceInfoToken(node, token);
       return node;
     }
 
-    private Node processNameWithInlineComments(
+    private Node processNameWithInlineCommentsIdentifierExpressionTree(
         IdentifierExpressionTree identifierExpression, IdentifierType identifierType) {
       return processNameWithInlineComments(identifierExpression.identifierToken, identifierType);
     }
@@ -2491,7 +2491,7 @@ class IRFactory {
       if (comment != null) {
         node.setNonJSDocComment(comment);
       }
-      setSourceInfo(node, identifierToken);
+      setSourceInfoToken(node, identifierToken);
       return node;
     }
 
@@ -2527,7 +2527,7 @@ class IRFactory {
         errorReporter.error(
             "identifier is a reserved word",
             sourceName,
-            lineno(token.location.start),
+            linenoSourcePosition(token.location.start),
             charno(token.location.start));
       }
     }
@@ -2676,7 +2676,7 @@ class IRFactory {
       Node body = transform(tree.body);
 
       Node dummyName = newStringNode(Token.NAME, "");
-      setSourceInfo(dummyName, tree.propertyName);
+      setSourceInfoToken(dummyName, tree.propertyName);
 
       Node value = newNode(Token.FUNCTION, dummyName, paramList, body);
       setSourceInfo(value, tree.body);
@@ -2710,7 +2710,7 @@ class IRFactory {
               "A rest parameter must be in a parameter list.",
               sourceName,
               lineno(lastChild),
-              charno(lastChild));
+              charnoParseTree(lastChild));
         }
       }
     }
@@ -2737,7 +2737,7 @@ class IRFactory {
               newStringNodeFromIdentifier(Token.GETPROP, identifierType, propName),
               getNode.memberName.getStart());
       getProp.addChildToBack(leftChild);
-      setSourceInfo(getProp, propName);
+      setSourceInfoToken(getProp, propName);
       maybeWarnKeywordProperty(getProp);
       return getProp;
     }
@@ -2760,7 +2760,7 @@ class IRFactory {
               getNode.memberName.getStart());
       getProp.addChildToBack(leftChild);
       getProp.setIsOptionalChainStart(getNode.isStartOfOptionalChain);
-      setSourceInfo(getProp, propName);
+      setSourceInfoToken(getProp, propName);
       maybeWarnKeywordProperty(getProp);
       return getProp;
     }
@@ -2769,7 +2769,7 @@ class IRFactory {
       LiteralToken token = literalTree.literalToken.asLiteral();
       Node literalStringNode = newStringNode(normalizeRegex(token));
       // TODO(johnlenz): fix the source location.
-      setSourceInfo(literalStringNode, token);
+      setSourceInfoToken(literalStringNode, token);
       Node node = newNode(Token.REGEXP, literalStringNode);
 
       String rawRegex = token.value;
@@ -2783,7 +2783,7 @@ class IRFactory {
       if (!flags.isEmpty()) {
         Node flagsNode = newStringNode(flags);
         // TODO(johnlenz): fix the source location.
-        setSourceInfo(flagsNode, token);
+        setSourceInfoToken(flagsNode, token);
         node.addChildToBack(flagsNode);
       }
       return node;
@@ -2801,7 +2801,7 @@ class IRFactory {
           case 'd' -> maybeWarnForFeature(tree, Feature.REGEXP_FLAG_D);
           default ->
               errorReporter.error(
-                  "Invalid RegExp flag '" + flag + "'", sourceName, lineno(tree), charno(tree));
+                  "Invalid RegExp flag '" + flag + "'", sourceName, lineno(tree), charnoParseTree(tree));
         }
       }
     }
@@ -3108,7 +3108,7 @@ class IRFactory {
     Node processClassDeclaration(ClassDeclarationTree tree) {
       maybeWarnForFeature(tree, Feature.CLASSES);
 
-      Node name = transformOrEmpty(tree.name, tree);
+      Node name = transformOrEmptyIdentifierToken(tree.name, tree);
       Node superClass = transformOrEmpty(tree.superClass, tree);
 
       Node classMembers = newNode(Token.CLASS_MEMBERS);
@@ -3131,7 +3131,7 @@ class IRFactory {
                   "Class may have only one constructor.", //
                   sourceName,
                   lineno(child),
-                  charno(child));
+                  charnoParseTree(child));
             }
             hasConstructor = true;
           }
@@ -3369,7 +3369,7 @@ class IRFactory {
             "Class constructor may not be getter, setter, async, or generator.",
             sourceName,
             lineno(member),
-            charno(member));
+            charnoParseTree(member));
         return false;
       }
 
@@ -3445,7 +3445,7 @@ class IRFactory {
     Node processImportDecl(ImportDeclarationTree tree) {
       maybeWarnForFeature(tree, Feature.MODULES);
 
-      Node firstChild = transformOrEmpty(tree.defaultBindingIdentifier, tree);
+      Node firstChild = transformOrEmptyIdentifierToken(tree.defaultBindingIdentifier, tree);
       Node secondChild;
       if (tree.nameSpaceImportIdentifier == null) {
         secondChild = transformListOrEmpty(Token.IMPORT_SPECS, tree.importSpecifierList);
@@ -3456,7 +3456,7 @@ class IRFactory {
         secondChild =
             newStringNodeFromIdentifier(
                 Token.IMPORT_STAR, IdentifierType.STANDARD, tree.nameSpaceImportIdentifier);
-        setSourceInfo(secondChild, tree.nameSpaceImportIdentifier);
+        setSourceInfoToken(secondChild, tree.nameSpaceImportIdentifier);
       }
       Node thirdChild = processString(tree.moduleSpecifier);
 
@@ -3499,14 +3499,14 @@ class IRFactory {
                 "A rest parameter must be last in a parameter list.",
                 sourceName,
                 lineno(param),
-                charno(param));
+                charnoParseTree(param));
             good = false;
           } else if (tree.hasTrailingComma) {
             errorReporter.error(
                 "A trailing comma must not follow a rest parameter.",
                 sourceName,
                 lineno(param),
-                charno(param));
+                charnoParseTree(param));
             good = false;
           }
         }
@@ -3965,11 +3965,11 @@ class IRFactory {
         case '\u2028':
         case '\u2029':
           // line continuation, skip the line break
-          maybeWarnForFeature(token, Feature.STRING_CONTINUATION);
+          maybeWarnForFeatureToken(token, Feature.STRING_CONTINUATION);
           errorReporter.warning(
               STRING_CONTINUATION_WARNING,
               sourceName,
-              lineno(token.location.start),
+              linenoSourcePosition(token.location.start),
               charno(token.location.start));
           break;
         case '0':
@@ -4004,7 +4004,7 @@ class IRFactory {
               errorReporter.warning(
                   OCTAL_STRING_LITERAL_WARNING,
                   sourceName,
-                  lineno(token.location.start),
+                  linenoSourcePosition(token.location.start),
                   charno(token.location.start));
             }
           }
@@ -4039,7 +4039,7 @@ class IRFactory {
             errorReporter.error(
                 "Undefined Unicode code-point",
                 sourceName,
-                lineno(token.location.start),
+                linenoSourcePosition(token.location.start),
                 charno(token.location.start));
 
             // Compilation should stop, but we should finish the string and find more errors.
@@ -4093,7 +4093,7 @@ class IRFactory {
       return switch (value.charAt(1)) {
         case '.', 'e', 'E' -> Double.parseDouble(value);
         case 'b', 'B' -> {
-          maybeWarnForFeature(token, Feature.BINARY_LITERALS);
+          maybeWarnForFeatureToken(token, Feature.BINARY_LITERALS);
           double v = 0;
           int c = 1;
           while (true) {
@@ -4106,7 +4106,7 @@ class IRFactory {
           yield roundLargeRadixLiteral(v, value.substring(2), 2);
         }
         case 'o', 'O' -> {
-          maybeWarnForFeature(token, Feature.OCTAL_LITERALS);
+          maybeWarnForFeatureToken(token, Feature.OCTAL_LITERALS);
           double v = 0;
           int c = 1;
           while (true) {
@@ -4143,7 +4143,7 @@ class IRFactory {
               v = (v * 8) + octaldigit(digit);
             } else {
               errorReporter.error(
-                  INVALID_OCTAL_DIGIT, sourceName, lineno(location.start), charno(location.start));
+                  INVALID_OCTAL_DIGIT, sourceName, linenoSourcePosition(location.start), charno(location.start));
               yield 0;
             }
           }
@@ -4151,20 +4151,20 @@ class IRFactory {
             errorReporter.error(
                 INVALID_ES5_STRICT_OCTAL,
                 sourceName,
-                lineno(location.start),
+                linenoSourcePosition(location.start),
                 charno(location.start));
           } else {
             errorReporter.warning(
                 INVALID_ES5_STRICT_OCTAL,
                 sourceName,
-                lineno(location.start),
+                linenoSourcePosition(location.start),
                 charno(location.start));
           }
           yield roundLargeRadixLiteral(v, value.substring(1), 8);
         }
         case '8', '9' -> {
           errorReporter.error(
-              INVALID_OCTAL_DIGIT, sourceName, lineno(location.start), charno(location.start));
+              INVALID_OCTAL_DIGIT, sourceName, linenoSourcePosition(location.start), charno(location.start));
           yield 0;
         }
         default ->
@@ -4188,11 +4188,11 @@ class IRFactory {
     if (value.charAt(0) == '0' && length > 1) {
       return switch (value.charAt(1)) {
         case 'b', 'B' -> {
-          maybeWarnForFeature(token, Feature.BINARY_LITERALS);
+          maybeWarnForFeatureToken(token, Feature.BINARY_LITERALS);
           yield new BigInteger(value.substring(2), 2);
         }
         case 'o', 'O' -> {
-          maybeWarnForFeature(token, Feature.OCTAL_LITERALS);
+          maybeWarnForFeatureToken(token, Feature.OCTAL_LITERALS);
           yield new BigInteger(value.substring(2), 8);
         }
         case 'x', 'X' -> new BigInteger(value.substring(2), 16);
@@ -4208,7 +4208,7 @@ class IRFactory {
   }
 
   private String removeNumericSeparators(String value, LiteralToken token) {
-    maybeWarnForFeature(token, Feature.NUMERIC_SEPARATOR);
+    maybeWarnForFeatureToken(token, Feature.NUMERIC_SEPARATOR);
     return value.replace("_", "");
   }
 

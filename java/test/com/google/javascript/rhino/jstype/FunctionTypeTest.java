@@ -253,7 +253,7 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
 
       assertThat(barCtor.getPrototype().getImplicitPrototype())
           .isEqualTo(fooCtor.getInstanceType());
-      assertThat(fooCtor.getInstanceType().getSlot("bar").getType()).isEqualTo(STRING_TYPE);
+      assertThat(fooCtor.getInstanceType().getSlotString("bar").getType()).isEqualTo(STRING_TYPE);
     }
   }
 
@@ -274,7 +274,7 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
       fooCtor.defineDeclaredProperty("foo", NUMBER_TYPE, null);
 
       assertThat(barCtor.getImplicitPrototype()).isEqualTo(fooCtor);
-      assertThat(barCtor.getSlot("foo").getType()).isEqualTo(NUMBER_TYPE);
+      assertThat(barCtor.getSlotString("foo").getType()).isEqualTo(NUMBER_TYPE);
     }
   }
 
@@ -590,7 +590,7 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
             .forInterface()
             .withName(name)
             .withParameters()
-            .withTemplateKeys(templateKeys)
+            .withTemplateKeysImmutableList(templateKeys)
             .build();
     if (struct) {
       fn.setStruct();

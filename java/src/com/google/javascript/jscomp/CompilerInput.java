@@ -103,16 +103,17 @@ public class CompilerInput implements DependencyInfo {
   // with the AST node. Once (when?) we enforce that extern files always contain an @externs
   // annotation, we can store the extern bit in the AST node, and make SourceFile immutable.
 
-  public CompilerInput(SourceFile file, InputId inputId) {
-    this(file, inputId, false);
+  public static CompilerInput createFromInputId(SourceFile file, InputId inputId) {
+    return new CompilerInput(file, inputId, false);
   }
 
   /**
    * @deprecated the inputId is read from the SourceFile. Use CompilerInput(file, isExtern)
    */
   @Deprecated
-  public CompilerInput(SourceFile sourceFile, String inputId, boolean isExtern) {
-    this(sourceFile, new InputId(inputId), isExtern);
+  public static CompilerInput createFromIdName(
+      SourceFile sourceFile, String inputId, boolean isExtern) {
+    return new CompilerInput(sourceFile, new InputId(inputId), isExtern);
   }
 
   /**

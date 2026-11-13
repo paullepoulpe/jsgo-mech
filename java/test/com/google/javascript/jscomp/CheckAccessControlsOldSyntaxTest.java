@@ -521,14 +521,14 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testPrivateAccessForNames() {
     testSame("/** @private */ function foo_() {}; foo_();");
-    testError(srcs("/** @private */ function foo_() {};", "foo_();"), BAD_PRIVATE_GLOBAL_ACCESS);
+    testErrorSourcesDiagnosticType(srcsStringVarargs("/** @private */ function foo_() {};", "foo_();"), BAD_PRIVATE_GLOBAL_ACCESS);
   }
 
   @Test
   public void testPrivateAccessForNames2() {
     // Not private by convention
     testSame("function foo_() {}; foo_();");
-    testSame(srcs("function foo_() {};", "foo_();"));
+    testSameTestPartVarargs(srcsStringVarargs("function foo_() {};", "foo_();"));
   }
 
   @Test
@@ -543,8 +543,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPrivateAccessForProperties2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             "/** @constructor */ function Foo() {}",
             """
             /** @private */ Foo.prototype.bar_ = function() {};
@@ -556,8 +556,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testPrivateAccessForProperties3() {
     // Even though baz is "part of the Foo class" the access is disallowed since it's
     // not in the same file.
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @private */ Foo.prototype.bar_ = function() {}; (new Foo).bar_();
@@ -578,8 +578,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPrivateAccessForProperties5() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Parent () {
@@ -616,7 +616,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
             function alert(s) {}
             """),
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("apackage", "afile.js"),
                 """
@@ -659,8 +659,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPrivateAccessForProperties6() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             """
             goog.provide('x.y.z.Parent');
 
@@ -688,8 +688,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPrivateAccess_googModule() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsStringVarargs(
             """
             goog.module('example.One');
             /** @constructor */ function One() {}
@@ -707,8 +707,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties1() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             "/** @constructor */ function Foo() {} (new Foo).bar_();",
             """
             /** @private */ Foo.prototype.bar_ = function() {};
@@ -719,8 +719,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties2() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @private */ Foo.prototype.bar_ = function() {};
@@ -732,8 +732,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties3() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @private */ Foo.prototype.bar_ = function() {};
@@ -744,8 +744,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties4() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @private */ Foo.prototype.bar_ = function() {};
@@ -760,8 +760,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties5() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @private */ Foo.prototype.bar_ = function() {};
@@ -780,7 +780,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
     // Overriding a private property with a non-private property
     // in a different file causes problems.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() {}
@@ -803,8 +803,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testNoPrivateAccessForProperties6a() {
     // Same as above, except with namespaced constructors
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @const */ var ns = {};
             /** @constructor */ ns.Foo = function() {};
@@ -823,8 +823,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testNoPrivateAccessForProperties7() {
     // It's OK to override a private property with a non-private property
     // in the same file, but you'll get yelled at when you try to use it.
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @private */ Foo.prototype.bar_ = function() {};
@@ -839,8 +839,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties8() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             "/** @constructor */ function Foo() { /** @private */ this.bar_ = 3; }",
             """
             /** @constructor\s
@@ -852,8 +852,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties9() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             Foo.prototype = {
@@ -866,8 +866,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties10() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             Foo.prototype = {
@@ -880,8 +880,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties11() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             Foo.prototype = {
@@ -894,8 +894,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForProperties12() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             Foo.prototype = {
@@ -909,7 +909,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testNoPrivatePropAccess_inDifferentFile_throughDestructuring() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -927,8 +927,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivateAccessForNamespaces() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @const */ var foo = {};
             /** @private */ foo.bar_ = function() {};
@@ -939,8 +939,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties1() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.prototype.bar = function() {};
@@ -951,8 +951,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.prototype.bar = function() {};
@@ -967,8 +967,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties3() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.prototype.bar = function() {};
@@ -984,8 +984,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties4() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.bar = function() {};
@@ -999,8 +999,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties5() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.prototype.bar = function() {};
@@ -1015,8 +1015,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties6() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ goog.Foo = function() {};
             /** @protected */ goog.Foo.prototype.bar = function() {};
@@ -1030,8 +1030,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties7() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             Foo.prototype = { /** @protected */ bar: function() {} }
@@ -1046,8 +1046,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties8() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             Foo.prototype = { /** @protected */ bar: function() {} }
@@ -1062,8 +1062,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties9() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             Foo.prototype = { /** @protected */ bar: function() {} }
@@ -1078,8 +1078,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties10() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1099,8 +1099,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties11() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.js",
                 """
@@ -1119,8 +1119,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testProtectedAccessForProperties12() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1154,8 +1154,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   // the old JSCompiler type checker, to make migration easier.
   @Test
   public void testProtectedAccessForProperties13() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -1218,7 +1218,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testProtectedAccessForProperties14() {
     // access in member function
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             Foo.prototype = { /** @protected */ bar: function() {} }
@@ -1234,7 +1234,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testProtectedAccessForProperties15() {
     // access in computed member function
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             Foo.prototype = { /** @protected */ bar: function() {} }
@@ -1250,7 +1250,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testProtectedAccessForProperties16() {
     // access in nested arrow function
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             /** @protected */ Foo.prototype.bar = function() {};
@@ -1265,7 +1265,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testProtectedPropAccess_inDifferentFile_inSubclass_throughDestructuring() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -1286,7 +1286,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccess_forOverriddenProperty_elsewhereInSubclassFile() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -1313,7 +1313,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessThroughNestedFunction() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -1337,7 +1337,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessThroughNestedEs5Class() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -1365,7 +1365,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testProtectedAccessThroughNestedEs6Class() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -1391,8 +1391,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties1() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.prototype.bar = function() {};
@@ -1403,8 +1403,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties2() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.prototype.bar = function() {};
@@ -1415,8 +1415,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties3() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @constructor\s
@@ -1434,8 +1434,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties4() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             "/** @constructor */ function Foo() { (new SubFoo).bar(); } ",
             """
             /** @constructor\s
@@ -1448,8 +1448,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties5() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ goog.Foo = function() {};
             /** @protected */ goog.Foo.prototype.bar = function() {};
@@ -1463,8 +1463,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties6() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             Foo.prototype = {
@@ -1477,8 +1477,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties7() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             Foo.prototype = {
@@ -1491,8 +1491,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties8() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             Foo.prototype = { /** @protected */ bar: function() {} }
@@ -1507,8 +1507,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForProperties9() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ var Foo = function() {};
             Foo.prototype = { /** @protected */ bar: function() {} }
@@ -1524,7 +1524,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testNoProtectedPropAccess_inDifferentFile_throughDestructuring() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -1543,7 +1543,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testNoProtectedAccess_forInheritedProperty_elsewhereInSubclassFile() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             /** @constructor */
             function Foo() { }
@@ -1565,8 +1565,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoProtectedAccessForPropertiesWithNoRhs() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @protected */ Foo.prototype.x;
@@ -1579,8 +1579,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackagePrivateAccessForNames() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1597,8 +1597,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testPackagePrivateAccessForNames_googModule() {
     // TODO(b/133450410): This should be a visibility violation.
     disableRewriteClosureCode();
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1615,8 +1615,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testPackagePrivateAccessForNames_esModule() {
     // TODO(b/133450410): This should be a visibility violation.
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1641,8 +1641,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackagePrivateAccessForProperties2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"), "/** @constructor */ function Foo() {}"),
             SourceFile.fromCode(
@@ -1655,8 +1655,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackagePrivateAccessForProperties3() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1670,8 +1670,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackagePrivateAccessForProperties4() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1685,8 +1685,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackagePrivateAccessForProperties5() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1714,7 +1714,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testPackagePropAccess_inSamePackage_throughDestructuring() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1736,7 +1736,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testNoPackagePropAccess_inDifferentPackage_throughDestructuring() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1758,8 +1758,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPackagePrivateAccessForProperties1() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 "/** @constructor */ function Foo() {} (new Foo).bar();"),
@@ -1774,8 +1774,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPackagePrivateAccessForProperties2() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1789,8 +1789,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPackagePrivateAccessForProperties3() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1805,8 +1805,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPackagePrivateAccessForProperties4() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1825,8 +1825,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPackagePrivateAccessForNamespaces() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1839,8 +1839,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPackagePrivateAccessForProperties5() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1862,8 +1862,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testNoPackagePrivateAccessForProperties6() {
     // Overriding a private property with a non-package-private property
     // in a different file causes problems.
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1886,8 +1886,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
     // It's OK to override a package-private property with a
     // non-package-private property in the same file, but you'll get
     // yelled at when you try to use it.
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -1985,8 +1985,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void
       testOverrideWithoutVisibilityRedeclInFileWithFileOverviewVisibilityNotAllowed_TwoFiles() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @struct @constructor */
             Foo = function() {};
@@ -2060,8 +2060,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testOverrideWithVisibilityRedeclInFileWithFileOverviewVisibilityOk_TwoFiles() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @struct @constructor */
             Foo = function() {};
@@ -2082,8 +2082,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPublicFileOverviewVisibilityDoesNotApplyToNameWithExplicitPackageVisibility() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2099,8 +2099,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackageFileOverviewVisibilityDoesNotApplyToNameWithExplicitPublicVisibility() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2115,8 +2115,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackageFileOverviewVisibilityAppliesToNameWithoutExplicitVisibility() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2135,8 +2135,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   public void testPackageFileOverviewVisibilityAppliesToNameWithoutExplicitVisibility_googModule() {
     // TODO(b/133450410): Requiring 'Foo' should be a visibility violation.
     disableRewriteClosureCode();
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2157,8 +2157,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testPackageFileOverviewVisibilityAppliesToNameWithoutExplicitVisibility_esModule() {
     // TODO(b/133450410): Importing 'Foo' should be a visibility violation.
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2178,8 +2178,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void
       testPackageFileOverviewVisibilityDoesNotApplyToPropertyWithExplicitPublicVisibility() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2202,8 +2202,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testFileoverviewVisibilityDoesNotApplyToGoogProvidedNamespace1() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("foo.js", "goog.provide('foo');"),
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
@@ -2223,8 +2223,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testFileoverviewVisibilityDoesNotApplyToGoogProvidedNamespace2() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2245,8 +2245,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testFileoverviewVisibilityDoesNotApplyToGoogProvidedNamespace3() {
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2267,8 +2267,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testFileoverviewVisibilityDoesNotApplyToGoogProvidedNamespace4() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2291,8 +2291,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void
       testPublicFileOverviewVisibilityDoesNotApplyToPropertyWithExplicitPackageVisibility() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2316,8 +2316,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPublicFileOverviewVisibilityAppliesToPropertyWithoutExplicitVisibility() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2339,8 +2339,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testPackageFileOverviewVisibilityAppliesToPropertyWithoutExplicitVisibility() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2363,8 +2363,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testFileOverviewVisibilityComesFromDeclarationFileNotUseFile() {
-    testError(
-        srcs(
+    testErrorDiagnostic(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 Compiler.joinPathParts("foo", "bar.js"),
                 """
@@ -2391,7 +2391,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoExceptionsWithBadConstructors1() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             function Foo() { (new SubFoo).bar(); }
@@ -2402,7 +2402,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoExceptionsWithBadConstructors2() {
-    testSame(
+    testSameTestPartVarargs(
         srcs(
             """
             /** @constructor */ function Foo() {}
@@ -2416,8 +2416,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testGoodOverrideOfProtectedProperty() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() { }
             /** @protected */ Foo.prototype.bar = function() {};
@@ -2432,8 +2432,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testBadOverrideOfProtectedProperty() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() { }
             /** @protected */ Foo.prototype.bar = function() {};
@@ -2449,8 +2449,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testBadOverrideOfPrivateProperty() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() { }
             /** @private */ Foo.prototype.bar = function() {};
@@ -2466,8 +2466,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testAccessOfStaticMethodOnPrivateConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor\s
              * @private */ function Foo() { }
@@ -2478,8 +2478,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testAccessOfStaticMethodOnPrivateQualifiedConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor\s
              * @private */ goog.Foo = function() { };
@@ -2490,8 +2490,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testInstanceofOfPrivateConstructor() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor\s
              * @private */ goog.Foo = function() { };
@@ -2524,7 +2524,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testAutoboxedDeprecatedProperty() {
-    testError(
+    testErrorExterns(
         externs(DEFAULT_EXTERNS),
         srcs("/** @deprecated %s */ String.prototype.prop; function f() { return 'x'.prop; }"),
         error(DEPRECATED_PROP_REASON));
@@ -2532,7 +2532,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testAutoboxedPrivateProperty() {
-    testError(
+    testErrorExterns(
         externs(DEFAULT_EXTERNS + "/** @private */ String.prototype.prop;"),
         srcs("function f() { return 'x'.prop; }"),
         error(BAD_PRIVATE_PROPERTY_ACCESS));
@@ -2551,8 +2551,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNullablePrivateProperty() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @private */ Foo.prototype.length;
@@ -2563,8 +2563,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivatePropertyByConvention1() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             /** @type {number} */ Foo.prototype.length_;
@@ -2574,8 +2574,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testNoPrivatePropertyByConvention2() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {
               /** @type {number} */ this.length_ = 1;
@@ -2644,8 +2644,8 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
   @Test
   public void testConstantPropertyReassigned_crossModuleWithCollidingNames() {
     disableRewriteClosureCode();
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsStringVarargs(
             """
             goog.module('mod1');
             /** @constructor */
@@ -2971,7 +2971,7 @@ public final class CheckAccessControlsOldSyntaxTest extends CompilerTestCase {
 
   @Test
   public void testConstantProperty_fromExternsOrIjs_duplicateExternOk() {
-    testSame(
+    testSameTestPartVarargs(
         externs(
             """
             /** @constructor */ function Foo() {}

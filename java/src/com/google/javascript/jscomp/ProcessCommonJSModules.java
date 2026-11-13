@@ -142,10 +142,10 @@ public final class ProcessCommonJSModules extends NodeTraversal.AbstractPreOrder
       return null;
     }
 
-    return getModuleName(modulePath);
+    return getModuleNameModulePath(modulePath);
   }
 
-  public static String getModuleName(ModulePath input) {
+  public static String getModuleNameModulePath(ModulePath input) {
     return input.toModuleName();
   }
 
@@ -455,7 +455,7 @@ public final class ProcessCommonJSModules extends NodeTraversal.AbstractPreOrder
       return false;
     }
 
-    String iifeLabel = getModuleName(modulePath) + "_iifeWrapper";
+    String iifeLabel = getModuleNameModulePath(modulePath) + "_iifeWrapper";
 
     FunctionToBlockMutator mutator =
         new FunctionToBlockMutator(compiler, compiler.getUniqueNameIdSupplier());

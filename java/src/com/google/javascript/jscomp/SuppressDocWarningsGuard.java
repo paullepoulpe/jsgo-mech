@@ -56,7 +56,7 @@ class SuppressDocWarningsGuard extends WarningsGuard {
     // TODO(johnlenz): Delete this when it is enabled with missingProperties
     builder.put(
         "missingProperties",
-        new DiagnosticGroup(
+        DiagnosticGroup.createFromGroups(
             DiagnosticGroups.MISSING_PROPERTIES, DiagnosticGroups.STRICT_MISSING_PROPERTIES));
 
     // Hack: Allow "@suppress {checkTypes}" to include
@@ -64,7 +64,7 @@ class SuppressDocWarningsGuard extends WarningsGuard {
     // TODO(johnlenz): Delete this when it is enabled with missingProperties
     builder.put(
         "checkTypes",
-        new DiagnosticGroup(DiagnosticGroups.CHECK_TYPES, DiagnosticGroups.STRICT_CHECK_TYPES));
+        DiagnosticGroup.createFromGroups(DiagnosticGroups.CHECK_TYPES, DiagnosticGroups.STRICT_CHECK_TYPES));
 
     return ImmutableMap.copyOf(builder);
   }

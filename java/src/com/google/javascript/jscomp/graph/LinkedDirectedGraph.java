@@ -85,7 +85,7 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
    * DiGraphNode look ups can be expensive for a large graph operation, prefer this method if you
    * have the DiGraphNode available.
    */
-  public void connect(DiGraphNode<N, E> src, E edgeValue, DiGraphNode<N, E> dest) {
+  public void connectDiGraphNode(DiGraphNode<N, E> src, E edgeValue, DiGraphNode<N, E> dest) {
     LinkedDiGraphNode<N, E> lSrc = (LinkedDiGraphNode<N, E>) src;
     LinkedDiGraphNode<N, E> lDest = (LinkedDiGraphNode<N, E>) dest;
 
@@ -105,8 +105,8 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
   public void connectIfNotConnectedInDirection(N srcValue, E edgeValue, N destValue) {
     LinkedDiGraphNode<N, E> src = createNode(srcValue);
     LinkedDiGraphNode<N, E> dest = createNode(destValue);
-    if (!this.isConnectedInDirection(src, Predicates.equalTo(edgeValue), dest)) {
-      this.connect(src, edgeValue, dest);
+    if (!this.isConnectedInDirectionLinkedDiGraphNode(src, Predicates.equalTo(edgeValue), dest)) {
+      this.connectDiGraphNode(src, edgeValue, dest);
     }
   }
 
@@ -218,7 +218,7 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
    */
   @Override
   public boolean isConnectedInDirection(N source, N dest) {
-    return isConnectedInDirection(source, Predicates.<E>alwaysTrue(), dest);
+    return isConnectedInDirectionPredicate(source, Predicates.<E>alwaysTrue(), dest);
   }
 
   /**
@@ -230,7 +230,7 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
    */
   @Override
   public boolean isConnectedInDirection(N source, E edgeValue, N dest) {
-    return isConnectedInDirection(source, Predicates.equalTo(edgeValue), dest);
+    return isConnectedInDirectionPredicate(source, Predicates.equalTo(edgeValue), dest);
   }
 
   /**
@@ -241,7 +241,7 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
    * @param edgeFilter only edges matching this filter will be traversed
    * @param dest the destination node
    */
-  public boolean isConnectedInDirection(
+  public boolean isConnectedInDirectionLinkedDiGraphNode(
       LinkedDiGraphNode<N, E> source, Predicate<E> edgeFilter, LinkedDiGraphNode<N, E> dest) {
     List<LinkedDiGraphEdge<N, E>> outEdges = source.getOutEdges();
     int outEdgesLen = outEdges.size();
@@ -266,20 +266,20 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
     return false;
   }
 
-  private boolean isConnectedInDirection(N n1, Predicate<E> edgeMatcher, N n2) {
+  private boolean isConnectedInDirectionPredicate(N n1, Predicate<E> edgeMatcher, N n2) {
     // Verify the nodes.
     LinkedDiGraphNode<N, E> dNode1 = getNodeOrFail(n1);
     LinkedDiGraphNode<N, E> dNode2 = getNodeOrFail(n2);
-    return isConnectedInDirection(dNode1, edgeMatcher, dNode2);
+    return isConnectedInDirectionLinkedDiGraphNode(dNode1, edgeMatcher, dNode2);
   }
 
   @Override
   public List<LinkedDiGraphNode<N, E>> getDirectedPredNodes(N nodeValue) {
-    return getDirectedPredNodes(nodes.get(nodeValue));
+    return getDirectedPredNodesDiGraphNode(nodes.get(nodeValue));
   }
 
   @Override
-  public List<LinkedDiGraphNode<N, E>> getDirectedPredNodes(DiGraphNode<N, E> dNode) {
+  public List<LinkedDiGraphNode<N, E>> getDirectedPredNodesDiGraphNode(DiGraphNode<N, E> dNode) {
     checkNotNull(dNode);
     LinkedDiGraphNode<N, E> lNode = (LinkedDiGraphNode<N, E>) dNode;
 
@@ -292,11 +292,11 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
 
   @Override
   public List<LinkedDiGraphNode<N, E>> getDirectedSuccNodes(N nodeValue) {
-    return getDirectedSuccNodes(nodes.get(nodeValue));
+    return getDirectedSuccNodesDiGraphNode(nodes.get(nodeValue));
   }
 
   @Override
-  public List<LinkedDiGraphNode<N, E>> getDirectedSuccNodes(DiGraphNode<N, E> dNode) {
+  public List<LinkedDiGraphNode<N, E>> getDirectedSuccNodesDiGraphNode(DiGraphNode<N, E> dNode) {
     checkNotNull(dNode);
     LinkedDiGraphNode<N, E> lNode = (LinkedDiGraphNode<N, E>) dNode;
 

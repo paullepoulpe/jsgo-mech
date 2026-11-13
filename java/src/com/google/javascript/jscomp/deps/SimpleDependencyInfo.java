@@ -63,15 +63,21 @@ public abstract class SimpleDependencyInfo implements DependencyInfo {
     abstract Builder setPathRelativeToClosureBase(String srcPathRelativeToClosure);
 
     public abstract Builder setProvides(Collection<String> provides);
-    public abstract Builder setProvides(String... provides);
+    public final Builder setProvidesStringVarargs(String... provides) {
+      return setProvides(ImmutableList.copyOf(provides));
+    }
 
     public abstract Builder setRequires(Collection<Require> requires);
 
-    public abstract Builder setRequires(Require... requires);
+    public final Builder setRequiresRequireVarargs(Require... requires) {
+      return setRequires(ImmutableList.copyOf(requires));
+    }
 
     public abstract Builder setTypeRequires(Collection<String> typeRequires);
 
-    public abstract Builder setTypeRequires(String... typeRequires);
+    public final Builder setTypeRequiresStringVarargs(String... typeRequires) {
+      return setTypeRequires(ImmutableList.copyOf(typeRequires));
+    }
 
     public abstract Builder setLoadFlags(Map<String, String> loadFlags);
 

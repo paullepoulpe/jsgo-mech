@@ -313,7 +313,7 @@ final class SerializeTypesToPointers {
           return ColorId.union(memberIds.build());
         }
         case OBJECT -> {
-          return ColorId.fromBytes(typeProto.getObject().getUuid());
+          return ColorId.fromBytesByteString(typeProto.getObject().getUuid());
         }
         case KIND_NOT_SET -> {}
       }

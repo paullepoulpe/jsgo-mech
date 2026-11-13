@@ -45,7 +45,7 @@ public class J2clSourceFileCheckerTest extends CompilerTestCase {
 
   @Test
   public void testShouldRunJ2clPassesWithJ2clSources() {
-    testSame(srcs(J2CL_SOURCE_FILE));
+    testSameTestPartVarargs(srcsSourceFileVarargs(J2CL_SOURCE_FILE));
     assertThat(J2clSourceFileChecker.shouldRunJ2clPasses(compiler)).isTrue();
   }
 }

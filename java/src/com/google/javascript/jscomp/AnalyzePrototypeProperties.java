@@ -154,7 +154,7 @@ class AnalyzePrototypeProperties implements CompilerPass {
 
     FixedPointGraphTraversal<NameInfo, JSChunk> t =
         FixedPointGraphTraversal.newTraversal(new PropagateReferences());
-    t.computeFixedPoint(symbolGraph, ImmutableSet.of(externNode, globalNode));
+    t.computeFixedPointSet(symbolGraph, ImmutableSet.of(externNode, globalNode));
   }
 
   /** Returns information on all prototype properties. */

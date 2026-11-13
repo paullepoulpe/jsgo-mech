@@ -18,6 +18,8 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
+import static com.google.javascript.jscomp.AstFactory.typeColor;
+import static com.google.javascript.jscomp.AstFactory.typeColorId;
 
 import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
@@ -42,8 +44,8 @@ public final class Es6RewriteSpreadExpressions extends NodeTraversal.AbstractPos
   private final AstFactory astFactory;
   private final StaticScope namespace;
 
-  private static final AstFactory.Type arrayType = type(StandardColors.ARRAY_ID);
-  private static final AstFactory.Type concatFnType = type(StandardColors.TOP_OBJECT);
+  private static final AstFactory.Type arrayType = typeColorId(StandardColors.ARRAY_ID);
+  private static final AstFactory.Type concatFnType = typeColor(StandardColors.TOP_OBJECT);
 
   public Es6RewriteSpreadExpressions(AbstractCompiler compiler) {
     this.compiler = compiler;
@@ -342,7 +344,7 @@ public final class Es6RewriteSpreadExpressions extends NodeTraversal.AbstractPos
                 arrayType,
                 groups.toArray(new Node[0]));
 
-    if (FeatureSet.ES3.contains(compiler.getOptions().getOutputFeatureSet())) {
+    if (FeatureSet.ES3.containsFeatureSet(compiler.getOptions().getOutputFeatureSet())) {
       // TODO(tbreisacher): Support this in ES3 too by not relying on Function.bind.
       TranspilationUtil.cannotConvert(
           compiler,
@@ -357,7 +359,7 @@ public final class Es6RewriteSpreadExpressions extends NodeTraversal.AbstractPos
     Node bindApply =
         astFactory.createGetPropWithUnknownType(
             astFactory.createGetPropWithUnknownType(
-                astFactory.createPrototypeAccess(astFactory.createName(this.namespace, "Function")),
+                astFactory.createPrototypeAccess(astFactory.createNameStaticScope(this.namespace, "Function")),
                 "bind"),
             "apply");
     Node result =

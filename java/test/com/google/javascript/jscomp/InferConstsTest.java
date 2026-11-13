@@ -270,7 +270,7 @@ public final class InferConstsTest extends CompilerTestCase {
 
   @Test
   public void testEsModuleImports() {
-    ignoreWarnings(DiagnosticGroups.MODULE_LOAD);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.MODULE_LOAD);
     assertConsts("import x from './mod';", notInferred("x"));
     assertConsts("import {x as y, z} from './mod';", notInferred("y", "z"));
     assertConsts("import * as x from './mod';", notInferred("x"));

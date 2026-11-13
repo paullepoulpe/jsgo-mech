@@ -158,7 +158,7 @@ public final class DestructuredTarget {
     }
   }
 
-  static DestructuredTarget createTarget(
+  static DestructuredTarget createTargetJSType(
       JSTypeRegistry registry, JSType destructuringPatternType, Node destructuringChild) {
     return createTarget(registry, () -> destructuringPatternType, destructuringChild);
   }
@@ -229,7 +229,7 @@ public final class DestructuredTarget {
    */
   public static ImmutableList<DestructuredTarget> createAllNonEmptyTargetsInPattern(
       JSTypeRegistry registry, JSType patternType, Node pattern) {
-    return createAllNonEmptyTargetsInPattern(registry, () -> patternType, pattern);
+    return createAllNonEmptyTargetsInPatternSupplier(registry, () -> patternType, pattern);
   }
 
   /**
@@ -237,7 +237,7 @@ public final class DestructuredTarget {
    *
    * <p>EMPTY nodes occur in array patterns with elisions, e.g. `[, , a] = []`
    */
-  public static ImmutableList<DestructuredTarget> createAllNonEmptyTargetsInPattern(
+  public static ImmutableList<DestructuredTarget> createAllNonEmptyTargetsInPatternSupplier(
       JSTypeRegistry registry, Supplier<JSType> patternType, Node pattern) {
     checkArgument(pattern.isDestructuringPattern(), pattern);
     ImmutableList.Builder<DestructuredTarget> builder = ImmutableList.builder();

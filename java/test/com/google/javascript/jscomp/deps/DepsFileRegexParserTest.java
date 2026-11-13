@@ -75,10 +75,10 @@ public final class DepsFileRegexParserTest {
             SimpleDependencyInfo.builder("yes2", SRC_PATH).build(),
             SimpleDependencyInfo.builder("yes3", SRC_PATH)
                 .setProvides(ImmutableList.of("a", "b"))
-                .setRequires(Require.parsedFromDeps("c"))
+                .setRequiresRequireVarargs(Require.parsedFromDeps("c"))
                 .build(),
             SimpleDependencyInfo.builder("yes4", SRC_PATH)
-                .setRequires(
+                .setRequiresRequireVarargs(
                     Require.parsedFromDeps("a"),
                     Require.parsedFromDeps("b"),
                     Require.parsedFromDeps("c"))
@@ -154,7 +154,7 @@ public final class DepsFileRegexParserTest {
             SimpleDependencyInfo.builder("path/from/closure.js", SRC_PATH)
                 .setLoadFlags(ImmutableMap.of("module", "es6"))
                 .setProvides(ImmutableList.of("path/from/closure.js"))
-                .setRequires(Require.parsedFromDeps("nexttoclosure.js"))
+                .setRequiresRequireVarargs(Require.parsedFromDeps("nexttoclosure.js"))
                 .build(),
             SimpleDependencyInfo.builder("nexttoclosure.js", SRC_PATH)
                 .setLoadFlags(ImmutableMap.of("module", "es6"))

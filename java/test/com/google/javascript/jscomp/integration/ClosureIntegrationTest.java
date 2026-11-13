@@ -70,7 +70,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     CompilerOptions options = createCompilerOptions();
     options.setClosurePass(true);
     options.setCheckTypes(true);
-    compile(
+    compileStringArray(
         options,
         new String[] {
           """
@@ -97,7 +97,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setClosurePass(true);
     options.setCheckTypes(true);
     options.setBadRewriteModulesBeforeTypecheckingThatWeWantToGetRidOf(false);
-    compile(
+    compileStringArray(
         options,
         new String[] {
           """
@@ -124,7 +124,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setClosurePass(true);
     options.setCheckTypes(true);
 
-    compile(
+    compileStringArray(
         options,
         new String[] {
           """
@@ -159,7 +159,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setClosurePass(true);
     options.setCheckTypes(true);
 
-    compile(
+    compileStringArray(
         options,
         new String[] {
           """
@@ -246,7 +246,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setCheckTypes(true);
     options.setChecksOnly(true);
 
-    testNoWarnings(
+    testNoWarningsStringArray(
         options,
         new String[] {
           """
@@ -357,7 +357,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
           /** @define {foo.bar} */ foo.bar = {};
           """,
     };
-    test(options, input, output, warnings);
+    testDiagnosticGroupArray(options, input, output, warnings);
   }
 
   @Test
@@ -391,7 +391,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setCheckTypes(true);
     options.setChecksOnly(true);
 
-    testNoWarnings(
+    testNoWarningsStringArray(
         options,
         new String[] {
           "goog.module('foo.bar');",
@@ -421,7 +421,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setCodingConvention(new ClosureCodingConvention());
     options.setBadRewriteModulesBeforeTypecheckingThatWeWantToGetRidOf(false);
     options.setCheckTypes(true);
-    test(
+    testDiagnosticGroupArray(
         options,
         new String[] {
           """
@@ -530,7 +530,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setClosurePass(true);
     options.setPreserveClosurePrimitives(true);
 
-    compile(
+    compileStringArray(
         options,
         new String[] {
           "goog.module('fwd.declared.Type'); exports = class {}",
@@ -582,7 +582,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
   public void testClosurePassOn() {
     CompilerOptions options = createCompilerOptions();
     options.setClosurePass(true);
-    test(options, "goog.require('foo');", DiagnosticGroups.MISSING_SOURCES_WARNINGS);
+    testStringDiagnosticGroup(options, "goog.require('foo');", DiagnosticGroups.MISSING_SOURCES_WARNINGS);
     test(
         options,
         """
@@ -713,7 +713,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setDefineToBooleanLiteral("FLAG_XYZ", false);
     options.setCheckTypes(true);
 
-    test(options, code, DiagnosticGroups.CHECK_TYPES);
+    testStringDiagnosticGroup(options, code, DiagnosticGroups.CHECK_TYPES);
   }
 
   @Test
@@ -752,7 +752,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setClosurePass(true);
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2015);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -898,7 +898,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     CompilerOptions options = new CompilerOptions();
     options.setClosurePass(true);
     options.setCodingConvention(new ClosureCodingConvention());
-    test(
+    testStringArrayDiagnosticGroup(
         options,
         new String[] {"goog.require('goog.beer');", "goog.provide('goog.beer');"},
         DiagnosticGroups.LATE_PROVIDE);
@@ -912,7 +912,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setStrictModeInput(true);
     options.setWarningLevel(DiagnosticGroups.ES5_STRICT, CheckLevel.ERROR);
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         goog.module('example');
@@ -932,7 +932,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setClosurePass(true);
     options.setCodingConvention(new ClosureCodingConvention());
 
-    test(
+    testStringArray(
         options,
         new String[] {
           // googModuleOuter
@@ -987,7 +987,7 @@ public final class ClosureIntegrationTest extends IntegrationTestCase {
     options.setCodingConvention(new ClosureCodingConvention());
     options.setGenerateExports(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -1018,7 +1018,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setCodingConvention(new ClosureCodingConvention());
     options.setGenerateExports(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -1048,7 +1048,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setClosurePass(true);
 
     // Test in a regular script
-    test(
+    testStringArrayDiagnosticGroup(
         options,
         new String[] {
           // input 0
@@ -1059,7 +1059,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
         DiagnosticGroups.CLOSURE_DEP_METHOD_USAGE_CHECKS);
 
     // Test in a file with a goog.provide
-    test(
+    testStringArrayDiagnosticGroup(
         options,
         new String[] {
           // input 0
@@ -1082,7 +1082,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
   public void testDependencySorting() {
     CompilerOptions options = createCompilerOptions();
     options.setDependencyOptions(DependencyOptions.sortOnly());
-    test(
+    testStringArray(
         options,
         new String[] {
           "goog.require('x');", "goog.provide('x');",
@@ -1267,7 +1267,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setCheckTypes(true);
     options.setChecksOnly(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           "/** @typeSummary */ goog.provide('foo.bar'); /** @type {!Array<number>} */ foo.bar;",
@@ -1295,7 +1295,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setCheckTypes(true);
     options.setChecksOnly(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -1319,7 +1319,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setCheckTypes(true);
 
     // This is a very weird pattern, but we need to remove the usages before we remove support
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -1403,7 +1403,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setChecksOnly(true);
     options.setCheckTypes(true);
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         var ns = {};
@@ -1453,7 +1453,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
         ns.from.externs = mangled$name$from$externs;
         """;
 
-    test(
+    testStringArray(
         options,
         new String[] {
           externs,
@@ -1489,7 +1489,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
                 .setFilenameFormat(inputFileNamePrefix + "%s" + inputFileNameSuffix)
                 .build());
 
-    Compiler compiler = compile(options, code);
+    Compiler compiler = compileImmutableList(options, code);
 
     assertThat(compiler.getErrors()).isEmpty();
     assertThat(compiler.getWarnings()).hasSize(1);
@@ -1513,7 +1513,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
                 .setFilenameFormat(inputFileNamePrefix + "%s" + inputFileNameSuffix)
                 .build());
 
-    Compiler compiler = compile(options, code);
+    Compiler compiler = compileImmutableList(options, code);
 
     assertThat(compiler.getErrors()).isEmpty();
     assertThat(compiler.getWarnings()).hasSize(1);
@@ -1530,7 +1530,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     // options.setCheckTypes(true);
     // options.setChecksOnly(true);
 
-    test(options, new String[] {"goog.reflect.objectProperty();"}, (String[]) null);
+    testStringArray(options, new String[] {"goog.reflect.objectProperty();"}, (String[]) null);
   }
 
   @Test
@@ -1540,7 +1540,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setPropertyRenaming(PropertyRenamingPolicy.ALL_UNQUOTED);
     options.setGeneratePseudoNames(true);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -1564,7 +1564,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     // TODO(b/193048186): remove this once SourceInformationAnnotator always runs
     options.setReplaceStringsFunctionDescriptions(ImmutableList.of("\"Error(?)\""));
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -1626,7 +1626,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
         """;
 
     // Test destructuring import
-    test(
+    testStringArray(
         options,
         new String[] {
           originalModule,
@@ -1639,7 +1639,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
         new String[] {originalModuleCompiled, "module$exports$utils$fn.apply(null, []);"});
 
     // Test non-destructuring import
-    test(
+    testStringArray(
         options,
         new String[] {
           originalModule,
@@ -1665,7 +1665,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
                     "closure_externs.js", new TestExternsBuilder().addClosureExterns().build()))
             .build();
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         goog.module('m');
@@ -1674,7 +1674,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
         """,
         DiagnosticGroups.MALFORMED_GOOG_MODULE);
 
-    test(options, "var x; goog.module('m');", DiagnosticGroups.MALFORMED_GOOG_MODULE);
+    testStringDiagnosticGroup(options, "var x; goog.module('m');", DiagnosticGroups.MALFORMED_GOOG_MODULE);
   }
 
   @Test
@@ -1699,7 +1699,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
 
     for (String firstNs : namespaces) {
       for (String secondNs : namespaces) {
-        test(options, new String[] {firstNs, secondNs}, DiagnosticGroups.DUPLICATE_NAMESPACES);
+        testStringArrayDiagnosticGroup(options, new String[] {firstNs, secondNs}, DiagnosticGroups.DUPLICATE_NAMESPACES);
       }
     }
   }
@@ -1711,7 +1711,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     options.setContinueAfterErrors(true); // test that the AST is not left in an invalid state.
     externs = ImmutableList.of(); // remove Closure base externs
 
-    test(
+    testStringDiagnosticGroup(
         options,
         "/** @export */ function Foo() { alert('hi'); }",
         DiagnosticGroup.forType(GenerateExports.MISSING_GOOG_FOR_EXPORT));
@@ -1830,7 +1830,7 @@ window['prevent_dce'] = [Foo, Bar, FooBar, Qux, Baz, callMethods];
             .add(new TestExternsBuilder().addConsole().buildExternsFile("console.js"))
             .build();
 
-    compile(
+    compileImmutableList(
         options,
         ImmutableList.copyOf(
             JSChunkGraphBuilder.forChain()

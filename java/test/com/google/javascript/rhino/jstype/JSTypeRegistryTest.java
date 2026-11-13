@@ -218,10 +218,10 @@ public class JSTypeRegistryTest {
         .isEqualTo("function");
 
     assertThat(getReadableTypeNameHelper(registry, NULL_VOID)).isEqualTo("(null|undefined)");
-    assertThat(getReadableTypeNameHelper(registry, NULL_VOID, true)).isEqualTo("(null|undefined)");
+    assertThat(getReadableTypeNameHelperJSTypeNative(registry, NULL_VOID, true)).isEqualTo("(null|undefined)");
 
     assertThat(
-            getReadableTypeNameHelper(
+            getReadableTypeNameHelperJSType(
                 registry, union(registry, NUMBER_TYPE, STRING_TYPE, NULL_TYPE)))
         .isEqualTo("(number|string|null)");
 
@@ -402,19 +402,19 @@ public class JSTypeRegistryTest {
   }
 
   private JSType union(JSTypeRegistry registry, JSTypeNative... types) {
-    return registry.createUnionType(types);
+    return registry.createUnionTypeJSTypeNativeVarargs(types);
   }
 
   private String getReadableTypeNameHelper(JSTypeRegistry registry, JSTypeNative type) {
     return getReadableTypeNameHelper(registry, registry.getNativeType(type), false);
   }
 
-  private String getReadableTypeNameHelper(
+  private String getReadableTypeNameHelperJSTypeNative(
       JSTypeRegistry registry, JSTypeNative type, boolean deref) {
     return getReadableTypeNameHelper(registry, registry.getNativeType(type), deref);
   }
 
-  private String getReadableTypeNameHelper(JSTypeRegistry registry, JSType type) {
+  private String getReadableTypeNameHelperJSType(JSTypeRegistry registry, JSType type) {
     return getReadableTypeNameHelper(registry, type, false);
   }
 

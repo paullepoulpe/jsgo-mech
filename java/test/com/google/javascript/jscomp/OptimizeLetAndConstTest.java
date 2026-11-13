@@ -35,7 +35,7 @@ public final class OptimizeLetAndConstTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
-    return new PeepholeOptimizationsPass(
+    return PeepholeOptimizationsPass.createFromOptimizations(
         compiler,
         "testOptimizeLetAndConst",
         new OptimizeLetAndConstPeephole(assumeOutputIsWrapped));

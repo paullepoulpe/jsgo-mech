@@ -82,7 +82,7 @@ final class LocaleDataPasses {
   private static boolean isGoogDotLocaleReference(Node n) {
     // NOTE: Theoretically there could be a local variable named `goog`, but it's not worth checking
     // for that.
-    return n.matchesQualifiedName(QNAME_FOR_GOOG_LOCALE);
+    return n.matchesQualifiedNameNode(QNAME_FOR_GOOG_LOCALE);
   }
 
   /** This class replaces `__JSC_LOCALE__` with the actual locale string. */
@@ -110,7 +110,7 @@ final class LocaleDataPasses {
 
     @Override
     public void visit(NodeTraversal t, Node n, Node parent) {
-      if (n.matchesName(this.qnameForLocale)) {
+      if (n.matchesNameNode(this.qnameForLocale)) {
         Node replacement = astFactory.createString(checkNotNull(locale)).srcref(n);
         n.replaceWith(replacement);
         compiler.reportChangeToEnclosingScope(replacement);

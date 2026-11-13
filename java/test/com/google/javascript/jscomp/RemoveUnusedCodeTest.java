@@ -894,7 +894,7 @@ public final class RemoveUnusedCodeTest extends CompilerTestCase {
   @Test
   public void testModule() {
     test(
-        srcs(
+        srcsJSChunkVarargs(
             JSChunkGraphBuilder.forUnordered()
                 .addChunk(
                     """
@@ -903,7 +903,7 @@ public final class RemoveUnusedCodeTest extends CompilerTestCase {
                     """)
                 .addChunk("var a,b; function foo() { this.foo(a); } x()")
                 .build()),
-        expected("function x(){foo()}", "var a;function foo(){this.foo(a)}x()"));
+        expectedStringVarargs("function x(){foo()}", "var a;function foo(){this.foo(a)}x()"));
   }
 
   @Test
@@ -3372,7 +3372,7 @@ public final class RemoveUnusedCodeTest extends CompilerTestCase {
             """),
         expected("console.log();"));
 
-    testSame(
+    testSameTestPartVarargs(
         externs,
         srcs(
             """

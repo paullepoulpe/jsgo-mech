@@ -49,7 +49,7 @@ public final class PeepholeRemoveDeadCodeTest extends CompilerTestCase {
       @Override
       public void process(Node externs, Node root) {
         PeepholeOptimizationsPass peepholePass =
-            new PeepholeOptimizationsPass(compiler, getName(), new PeepholeRemoveDeadCode());
+            PeepholeOptimizationsPass.createFromOptimizations(compiler, getName(), new PeepholeRemoveDeadCode());
         peepholePass.process(externs, root);
       }
     };

@@ -73,7 +73,7 @@ public final class JsFileRegexParserTest {
     DependencyInfo expected =
         SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
             .setProvides(ImmutableList.of("yes1", "yes2"))
-            .setRequires(
+            .setRequiresRequireVarargs(
                 googRequireSymbol("yes3"),
                 googRequireSymbol("bar.data.SuperstarAddStarThreadActionRequestDelegate"))
             .build();
@@ -286,7 +286,7 @@ public final class JsFileRegexParserTest {
     DependencyInfo expected =
         SimpleDependencyInfo.builder("a.js", "b.js")
             .setProvides(ImmutableList.of("module$b"))
-            .setRequires(
+            .setRequiresRequireVarargs(
                 es6Import("module$yes2", "./yes2"),
                 es6Import("module$a$b$C", "./a/b/C"),
                 es6Import("module$a$b$d", "./a/b/d"),
@@ -453,7 +453,7 @@ public final class JsFileRegexParserTest {
     DependencyInfo expected =
         SimpleDependencyInfo.builder("../bar/baz.js", "/foo/js/bar/baz.js")
             .setProvides(ImmutableList.of("module$foo$js$bar$baz"))
-            .setRequires(Require.es6Import("module$path$to$project$my$file", "@root/my/file.js"))
+            .setRequiresRequireVarargs(Require.es6Import("module$path$to$project$my$file", "@root/my/file.js"))
             .setLoadFlags(ImmutableMap.of("module", "es6"))
             .build();
 
@@ -482,7 +482,7 @@ public final class JsFileRegexParserTest {
     DependencyInfo expected =
         SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
             .setProvides(ImmutableList.of("yes1"))
-            .setRequires(
+            .setRequiresRequireVarargs(
                 googRequireSymbol("yes2"), googRequireSymbol("a.b.C"), googRequireSymbol("a.b.d"))
             .setGoogModule(true)
             .build();
@@ -641,7 +641,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
 
     DependencyInfo expected =
         SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
-            .setProvides()
+            .setProvidesStringVarargs()
             .setGoogModule(false)
             .build();
     DependencyInfo result =

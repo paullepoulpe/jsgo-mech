@@ -437,7 +437,7 @@ public final class ClosureCodingConvention extends CodingConventions.Proxy {
 
   private boolean matchesCacheMethodName(Node target) {
     if (target.isGetProp()) {
-      return target.matchesQualifiedName(googCacheReflect);
+      return target.matchesQualifiedNameNode(googCacheReflect);
     } else if (target.isName()) {
       return target.getString().equals("goog$reflect$cache");
     }

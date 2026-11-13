@@ -181,23 +181,25 @@ public final class Property implements StaticTypedSlot, StaticTypedRef {
   /** The JSDocInfo for this property. */
   private @Nullable JSDocInfo docInfo = null;
 
-  Property(String name, JSType type, boolean inferred, Node propertyNode) {
+  /**
+   * @param name a String or a KnownSymbolType
+   */
+  Property(Object name, JSType type, boolean inferred, Node propertyNode) {
     this.name = checkNotNull(name);
     this.type = checkNotNull(type, "Null type specified for %s", name);
     this.inferred = inferred;
     this.propertyNode = propertyNode;
   }
 
-  Property(Key name, JSType type, boolean inferred, Node propertyNode) {
+  static Property createFromKey(Key name, JSType type, boolean inferred, Node propertyNode) {
     checkNotNull(name);
-    this.name =
+    Object nameObject =
         switch (name.kind()) {
           case STRING -> name.string();
           case SYMBOL -> name.symbol();
         };
-    this.type = checkNotNull(type, "Null type specified for %s", name);
-    this.inferred = inferred;
-    this.propertyNode = propertyNode;
+    checkNotNull(type, "Null type specified for %s", name);
+    return new Property(nameObject, type, inferred, propertyNode);
   }
 
   @Override

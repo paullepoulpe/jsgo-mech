@@ -23,7 +23,7 @@ public final class JSCompStrings {
     return String.join("\n", lines);
   }
 
-  public static String lines(Iterable<String> lines) {
+  public static String linesIterable(Iterable<String> lines) {
     return String.join("\n", lines);
   }
 

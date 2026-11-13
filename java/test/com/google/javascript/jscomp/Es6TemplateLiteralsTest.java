@@ -76,7 +76,7 @@ public final class Es6TemplateLiteralsTest extends CompilerTestCase {
   @Test
   public void testTaggedTemplateLiteral_getPropTag() {
     test(
-        externs(RUNTIME_STUBS, "var obj = {}; obj.tag;"),
+        externsStringVarargs(RUNTIME_STUBS, "var obj = {}; obj.tag;"),
         srcs("obj.tag`hello`"),
         expected(
             """
@@ -89,7 +89,7 @@ public final class Es6TemplateLiteralsTest extends CompilerTestCase {
   @Test
   public void testTaggedTemplateLiteral_getElemTag() {
     test(
-        externs(RUNTIME_STUBS, "var obj = {}; var tag; obj[tag];"),
+        externsStringVarargs(RUNTIME_STUBS, "var obj = {}; var tag; obj[tag];"),
         srcs("obj[tag]`hello`"),
         expected(
             """

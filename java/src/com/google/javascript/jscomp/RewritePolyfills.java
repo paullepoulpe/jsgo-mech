@@ -179,7 +179,7 @@ public class RewritePolyfills implements CompilerPass {
       Node next = node.getNext();
       FeatureSet polyfillSupportedFeatureSet = getPolyfillSupportedFeatureSet(node);
       if (polyfillSupportedFeatureSet != null
-          && outputFeatureSet.contains(polyfillSupportedFeatureSet)) {
+          && outputFeatureSet.containsFeatureSet(polyfillSupportedFeatureSet)) {
         NodeUtil.removeChild(parent, node);
         NodeUtil.markFunctionsDeleted(node, compiler);
       }
@@ -213,7 +213,7 @@ public class RewritePolyfills implements CompilerPass {
     final FeatureSet outputFeatureSet = compiler.getOptions().getOutputFeatureSet();
     final FeatureSet featuresRequiredByPolyfill = FeatureSet.valueOf(polyfill.polyfillVersion);
     if (polyfill.kind.equals(Polyfill.Kind.STATIC)
-        && !outputFeatureSet.contains(featuresRequiredByPolyfill)) {
+        && !outputFeatureSet.containsFeatureSet(featuresRequiredByPolyfill)) {
       compiler.report(
           JSError.make(
               polyfillUsage.node(),
@@ -227,7 +227,7 @@ public class RewritePolyfills implements CompilerPass {
     // We approximate it by asking instead:
     // "Does the target platform support all of the features that existed in the language
     // version that introduced this symbol?"
-    if (!outputFeatureSet.contains(FeatureSet.valueOf(polyfill.nativeVersion))
+    if (!outputFeatureSet.containsFeatureSet(FeatureSet.valueOf(polyfill.nativeVersion))
         && !polyfill.library.isEmpty()) {
       libraries.add(polyfill.library);
     }

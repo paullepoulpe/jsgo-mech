@@ -21,13 +21,13 @@ import com.google.javascript.rhino.Node;
 
 final class J2clSourceUtils {
 
-  public static boolean isJ2clSource(String sourceFileName) {
+  public static boolean isJ2clSourceString(String sourceFileName) {
     return sourceFileName != null && sourceFileName.endsWith(".java.js");
   }
 
   public static boolean isJ2clSource(Node scriptNode) {
     checkArgument(scriptNode.isScript());
-    return isJ2clSource(scriptNode.getSourceFileName());
+    return isJ2clSourceString(scriptNode.getSourceFileName());
   }
 
   public static boolean isInsideJ2clSource(Node node) {

@@ -37,7 +37,7 @@ public final class Es6RewriteClassExtendsExpressionsTest extends CompilerTestCas
     setAcceptedLanguage(LanguageMode.ECMASCRIPT_NEXT);
     setLanguageOut(LanguageMode.ECMASCRIPT3);
     enableTypeCheck();
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
     enableTypeInfoValidation();
     replaceTypesWithColors();
     enableMultistageCompilation();

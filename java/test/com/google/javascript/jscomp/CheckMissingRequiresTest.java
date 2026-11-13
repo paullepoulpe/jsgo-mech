@@ -873,7 +873,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testIndirectNamespaceRef_errorLocation() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('goog.dom');",
             "goog.provide('goog.dom.TagName'); goog.dom.TagName = {B: 'b'};",
             """
@@ -891,7 +891,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testIndirectNamespaceRef_jsdoc_errorLocation() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('goog.dom');",
             """
             goog.provide('goog.dom.TagName');
@@ -915,7 +915,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testIndirectNamespaceRef_jsdoc_errorLocation_withFunction() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('goog.dom');",
             "goog.provide('goog.dom.TagName'); /** @enum {string} */ goog.dom.TagName = {B: 'b'};",
             """
@@ -1508,7 +1508,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testReferenceNonLegacyGoogModule_inScript_required_warns() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('test.a'); exports.x = 1;",
             "goog.provide('test.b'); goog.require('test.a'); console.log(test.a.x);"),
         error(CheckMissingRequires.NON_LEGACY_GOOG_MODULE_REFERENCE));
@@ -1536,7 +1536,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testReferenceNonLegacyGoogModule_inScript_typePosition_and_code_required_warning() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('test.a');
             /** @interface */
@@ -1796,7 +1796,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testWarning_googScopeAlias_unprovidedParentOfModule() throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('foo.Bar');
             goog.module.declareLegacyNamespace();
@@ -1817,7 +1817,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testWarning_googScopeAlias_unprovidedParentOfModule_typeRef() throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('foo.Bar');
             goog.module.declareLegacyNamespace();
@@ -1838,7 +1838,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testWarning_googScopeAlias_providedParentOfModule() throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('foo');",
             """
             goog.module('foo.Bar');
@@ -1863,7 +1863,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testWarning_googScopeAlias_providedParentOfModule_typeRef() throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('foo');",
             """
             goog.module('foo.Bar');
@@ -1887,7 +1887,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testWarning_googScopeAlias_providedParentOfModule_requireParent() throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('foo');",
             """
             goog.module('foo.Bar');
@@ -1912,7 +1912,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   public void testWarning_googScopeAlias_providedParentOfModule_googModuleGetParent()
       throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('foo');",
             """
             goog.module('foo.Bar');
@@ -1937,7 +1937,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   public void testWarning_googScopeAlias_providedParentOfModule_googModuleGetParent_propRef()
       throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('foo');",
             """
             goog.module('foo.bar');
@@ -1965,7 +1965,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   public void testWarning_googScopeAlias_providedParentOfModule_typeRef_requireParent()
       throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('foo');
             """,
@@ -1993,7 +1993,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testWarning_googScopeAliasOfParentOfModule_childStillRequired() throws Exception {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('foo.Bar');
             goog.module.declareLegacyNamespace();
@@ -2015,67 +2015,67 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   }
 
   private void checkNoWarning(String... js) {
-    testSame(srcs(js));
+    testSameTestPartVarargs(srcsStringVarargs(js));
   }
 
   private void checkRequireWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.MISSING_REQUIRE).withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkRequireTypeWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.MISSING_REQUIRE_TYPE)
             .withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkRequireInProvidesFileWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.MISSING_REQUIRE_IN_PROVIDES_FILE)
             .withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkRequireTypeInProvidesFileWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.MISSING_REQUIRE_TYPE_IN_PROVIDES_FILE)
             .withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkIndirectNamespaceRefRequireWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.INDIRECT_NAMESPACE_REF_REQUIRE)
             .withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkIndirectNamespaceRefRequireTypeWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.INDIRECT_NAMESPACE_REF_REQUIRE_TYPE)
             .withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkIncorrectNamespaceAliasRequireWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.INCORRECT_NAMESPACE_ALIAS_REQUIRE)
             .withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkIncorrectNamespaceAliasRequireTypeWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.INCORRECT_NAMESPACE_ALIAS_REQUIRE_TYPE)
             .withMessageContaining("'" + namespace + "'"));
   }
 
   private void checkRequireForGoogModuleGetWarning(String namespace, String... js) {
-    testSame(
-        srcs(js),
+    testSameTestPartVarargs(
+        srcsStringVarargs(js),
         warning(CheckMissingRequires.MISSING_REQUIRE_FOR_GOOG_MODULE_GET)
             .withMessageContaining("'" + namespace + "'"));
   }
@@ -2083,7 +2083,7 @@ public final class CheckMissingRequiresTest extends CompilerTestCase {
   @Test
   public void testIndirectNamespaceRef_jsdoc_errorLocation_longNamespace() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('goog.dom');",
             "goog.provide('goog.dom.tags');",
             "goog.provide('goog.dom.tags.misc'); /** @const */ goog.dom.tags.misc = {FOO: 'foo'};",

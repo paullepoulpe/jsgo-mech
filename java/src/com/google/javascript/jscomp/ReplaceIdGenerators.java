@@ -122,7 +122,7 @@ class ReplaceIdGenerators implements CompilerPass {
                     name, createNameSupplier(RenameStrategy.STABLE, previousMap.get(name)));
           }
         } else {
-          nameGenerators.put(name, createNameSupplier(RenameStrategy.MAPPED, map));
+          nameGenerators.put(name, createNameSupplierRenamingMap(RenameStrategy.MAPPED, map));
         }
         idGeneratorMaps.put(name, new LinkedHashMap<String, String>());
       }
@@ -257,7 +257,7 @@ class ReplaceIdGenerators implements CompilerPass {
     }
   }
 
-  private static NameSupplier createNameSupplier(
+  private static NameSupplier createNameSupplierRenamingMap(
       RenameStrategy renameStrategy, RenamingMap mappings) {
     checkState(renameStrategy == RenameStrategy.MAPPED);
     return new MappedNameSupplier(mappings);

@@ -101,7 +101,7 @@ public abstract class Source {
     public abstract Builder setLoadFlags(ImmutableMap<String, String> flags);
     public abstract Builder setEstimatedSize(int estimatedSize);
 
-    public final Builder setCode(Supplier<String> code) {
+    public final Builder setCodeFromSupplier(Supplier<String> code) {
       return setCodeSupplier(Lazy.memoize(code));
     }
 

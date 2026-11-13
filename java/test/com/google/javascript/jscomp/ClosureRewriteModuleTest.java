@@ -115,7 +115,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRequireModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b');",
             "goog.module('ns.c');",
             """
@@ -123,7 +123,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var b = goog.require('ns.b');
             var c = goog.requireType('ns.c');
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$ns$b = {};",
             "/** @const */ var module$exports$ns$c = {};",
             "/** @const */ var module$exports$ns$a = {};"));
@@ -132,7 +132,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testProvidedNamespaceGetsRequiredAndUsed() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('goog.string.Const');
             /** @constructor */ goog.string.Const = function() {};
@@ -143,7 +143,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var const1 = goog.require('goog.string.Const');
             console.log(const1.from());
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('goog.string.Const');
             /** @constructor */ goog.string.Const = function() {};
@@ -159,7 +159,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testProvidedNamespaceGetsRequiredAndUsed_destructuringImport() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('goog.string.Const');
             /** @constructor */ goog.string.Const = function() {};
@@ -170,7 +170,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {from} = goog.require('goog.string.Const');
             console.log(from());
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('goog.string.Const');
             /** @constructor */ goog.string.Const = function() {};
@@ -185,7 +185,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testOutOfOrderRequireType() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.a');
             var b = goog.requireType('ns.b');
@@ -196,7 +196,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.module('ns.b');
             exports.Foo = class {}
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$a = {};
             /** @type {module$exports$ns$b.Foo} */ let module$contents$ns$a_a;
@@ -210,14 +210,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRequireModuleMultivar() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b');",
             "goog.module('ns.c');",
             """
             goog.module('ns.a');
             var b = goog.require('ns.b'), c = goog.requireType('ns.c');
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$ns$b = {};",
             "/** @const */ var module$exports$ns$c = {};",
             "/** @const */ var module$exports$ns$a = {};"));
@@ -227,7 +227,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   public void testIjsModule() {
     allowExternsChanges();
     test(
-        srcs(
+        srcsStringVarargs(
             // .i.js files
             """
             /** @typeSummary */
@@ -324,7 +324,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testNamedExportInliningJSDoc_atConstJSDoc() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             /** @const */ var Foo = {a: 0};
@@ -335,7 +335,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {Foo} = goog.require('ns.b');
             var f = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @const */ module$exports$ns$b.Foo = {a: 0};
@@ -349,7 +349,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testNamedExportInliningJSDoc_semanticConst() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             const Foo = {a: 0};
@@ -360,7 +360,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {Foo} = goog.require('ns.b');
             var f = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @const */ module$exports$ns$b.Foo = {a: 0};
@@ -374,7 +374,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testNamedExportInliningJSDoc_semanticConstWithExistingJSDoc() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             /** @interface */ const Foo = class {};
@@ -385,7 +385,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {Foo} = goog.require('ns.b');
             var f = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @const @interface */ module$exports$ns$b.Foo = class {};
@@ -399,7 +399,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testNamedExportInliningJSDoc_semanticConstWithInlineJSDoc() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             const /** number */ foo = 0;
@@ -410,7 +410,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {foo} = goog.require('ns.b');
             var f = foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @const {number} */ module$exports$ns$b.foo = 0;
@@ -424,7 +424,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testNamedExportInliningJSDoc_nonConstWithInlineJSDoc() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             let /** number */ foo = 0;
@@ -435,7 +435,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {foo} = goog.require('ns.b');
             var f = foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @type {number} */ module$exports$ns$b.foo = 0;
@@ -450,7 +450,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   public void testNamedExportInliningJSDoc_mutatedLocal() {
     // TODO(lharker): Stop inlining 'exports.Foo -> Foo' in this case.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             let Foo = {a: 0};
@@ -462,7 +462,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {Foo} = goog.require('ns.b');
             var f = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             module$exports$ns$b.Foo = {a: 0};
@@ -477,7 +477,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testDeepNamespace() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('ns.a.b.Foo'); /** @constructor */ ns.a.b.Foo = function() {};",
             """
             goog.module('ns.other');
@@ -487,7 +487,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             "goog.provide('ns.a.b.Foo'); /** @constructor */ ns.a.b.Foo = function() {};",
             """
             /** @const */ var module$exports$ns$other = {}
@@ -500,7 +500,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testDestructuringImports() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b'); /** @constructor */ exports.Foo = function() {};",
             """
             goog.module('ns.a');
@@ -510,7 +510,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @constructor @const */ module$exports$ns$b.Foo = function() {};
@@ -522,7 +522,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b'); /** @typedef {number} */ exports.Foo;",
             """
             goog.module('ns.a');
@@ -532,7 +532,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = 4;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @const @typedef {number} */ module$exports$ns$b.Foo;
@@ -544,7 +544,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('ns.b'); /** @constructor */ ns.b.Foo = function() {};",
             """
             goog.module('ns.a');
@@ -554,7 +554,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             "goog.provide('ns.b'); /** @constructor */ ns.b.Foo = function() {};",
             """
             /** @const */ var module$exports$ns$a = {}
@@ -563,7 +563,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             goog.module.declareLegacyNamespace();
@@ -578,7 +578,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('ns.b');
             /** @constructor @const */ ns.b.Foo = function() {};
@@ -590,7 +590,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b'); /** @constructor */ exports.Foo = function() {};",
             """
             goog.module('ns.a');
@@ -600,7 +600,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Bar} */
             var f = new Bar;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @constructor @const */ module$exports$ns$b.Foo = function() {};
@@ -612,7 +612,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); class Foo {} exports.Foo = Foo;",
             """
             goog.module('modB');
@@ -622,7 +622,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {importedFoo} */
             var f = new importedFoo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$modA = {};
             module$exports$modA.Foo = class {}
@@ -634,7 +634,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); class Foo {} exports.Foo = Foo;",
             """
             goog.module('modB');
@@ -644,7 +644,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$modA = {};
             module$exports$modA.Foo = class {}
@@ -656,7 +656,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); class Foo {} exports = {Foo};",
             """
             goog.module('modB');
@@ -666,7 +666,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$modA = {};
             module$exports$modA.Foo = class {};
@@ -678,7 +678,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); class Bar {} exports = class Foo {}; exports.Bar = Bar;",
             """
             goog.module('modB');
@@ -688,7 +688,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             class module$contents$modA_Bar {}
             /** @const */ var module$exports$modA = class Foo {};
@@ -701,7 +701,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('modA');
             goog.module.declareLegacyNamespace();
@@ -717,7 +717,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {Foo} */
             var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('modA');
             class module$contents$modA_Foo {}
@@ -733,14 +733,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testUninlinableExports() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b'); /** @constructor */ exports.Foo = function() {};",
             """
             goog.module('ns.a');
             var {Foo} = goog.require('ns.b');
             /** @type {Foo} */ var f = new Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @const @constructor */ module$exports$ns$b.Foo = function() {};
@@ -752,14 +752,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b'); /** @constructor */ exports.Foo = function() {};",
             """
             goog.module('ns.a');
             var {Foo} = goog.requireType('ns.b');
             /** @type {Foo} */ var f;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$ns$b = {};
             /** @const @constructor */ module$exports$ns$b.Foo = function() {};
@@ -773,8 +773,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testObjectLiteralDefaultExport() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('modA');
 
@@ -789,8 +789,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         DOES_NOT_HAVE_EXPORT_WITH_DETAILS);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('modA');
 
@@ -809,8 +809,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testDontUseTheMangledModuleNameInCode() {
     //
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             "/** @const */ var module$exports$modA = class {};", //
             "goog.module('modA');"),
         ILLEGAL_MODULE_RENAMING_CONFLICT);
@@ -819,7 +819,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testUninlinableNamedExports() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); \n exports = class {};",
             """
             goog.module('modB');
@@ -828,7 +828,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
             exports.Foo = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$modA = class {};",
             """
             /** @const */ var module$exports$modB = {};
@@ -836,7 +836,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); \n exports = class {};",
             """
             goog.module('modB');
@@ -845,7 +845,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
             exports = {Foo};
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$modA = class {};",
             """
             /** @const */ var module$exports$modB = {};
@@ -853,7 +853,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); \n exports = class {};",
             """
             goog.module('modB');
@@ -862,7 +862,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
             exports = {ExportedFoo: Foo};
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$modA = class {};",
             """
             /** @const */ var module$exports$modB = {};
@@ -870,7 +870,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('modA'); \n exports = class {};",
             """
             goog.module('modB');
@@ -880,7 +880,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
             exports = {Foo, Bar};
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$modA = class {};",
             """
             /** @const */ var module$exports$modB = {};
@@ -891,8 +891,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testIllegalDestructuringImports() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */ var A = function() {}
@@ -905,8 +905,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         DOES_NOT_HAVE_EXPORT_WITH_DETAILS);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */ var A = function() {}
@@ -919,8 +919,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         DOES_NOT_HAVE_EXPORT_WITH_DETAILS);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */ exports = class { static method() {} }
@@ -931,8 +931,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         DOES_NOT_HAVE_EXPORT_WITH_DETAILS);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */ exports = class { static method() {} }
@@ -943,8 +943,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         DOES_NOT_HAVE_EXPORT_WITH_DETAILS);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('p.A');
 
@@ -958,8 +958,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         DOES_NOT_HAVE_EXPORT_WITH_DETAILS);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('p.A');
 
@@ -976,7 +976,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
     // TODO(blickly): We should warn for the next two as well, but it's harder to detect.
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('p.A');
             /** @constructor */ p.A = function() {}
@@ -986,10 +986,10 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.module('p.C');
             var {method} = goog.require('p.A');
             """),
-        expected((String[]) null));
+        expectedStringVarargs((String[]) null));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('p.A');
             /** @constructor */ p.A = function() {}
@@ -999,7 +999,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.module('p.C');
             var {method} = goog.requireType('p.A');
             """),
-        expected((String[]) null));
+        expectedStringVarargs((String[]) null));
   }
 
   @Test
@@ -1017,7 +1017,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testSideEffectOnlyModuleImport() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             alert('hello world');
@@ -1031,7 +1031,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.require('ns.b');
             goog.requireType('ns.c');
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$ns$b = {}; alert('hello world');",
             "/** @const */ var module$exports$ns$c = {}; alert('hello world');",
             "/** @const */ var module$exports$ns$a = {};"));
@@ -1040,7 +1040,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testTypeOnlyModuleImport() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.B');
             /** @constructor */ exports = function() {};
@@ -1056,7 +1056,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {ns.B} */ var b;
             /** @type {ns.C} */ var c;
             """),
-        expected(
+        expectedStringVarargs(
             "/** @constructor @const */ var module$exports$ns$B = function() {};",
             "/** @constructor @const */ var module$exports$ns$C = function() {};",
             """
@@ -1069,7 +1069,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testSideEffectOnlyImportOfGoogProvide() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('ns.b');
             alert('hello world');
@@ -1083,7 +1083,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.require('ns.b');
             goog.requireType('ns.c');
             """),
-        expected(
+        expectedStringVarargs(
             "goog.provide('ns.b'); alert('hello world');",
             "goog.provide('ns.c'); alert('hello world');",
             """
@@ -1096,7 +1096,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testSideEffectOnlyImportOfLegacyGoogModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             goog.module.declareLegacyNamespace();
@@ -1112,7 +1112,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.require('ns.b');
             goog.requireType('ns.c');
             """),
-        expected(
+        expectedStringVarargs(
             "goog.provide('ns.b'); alert('hello world');",
             "goog.provide('ns.c'); alert('hello world');",
             """
@@ -1125,7 +1125,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testTypeOnlyModuleImportFromLegacyFile() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.B');
             /** @constructor */ exports = function() {};
@@ -1141,7 +1141,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {ns.B} */ var b;
             /** @type {ns.C} */ var c;
             """),
-        expected(
+        expectedStringVarargs(
             "/** @constructor @const */ var module$exports$ns$B = function() {};",
             "/** @constructor @const */ var module$exports$ns$C = function() {};",
             """
@@ -1154,7 +1154,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testTypeOnlyModuleImportFromLegacyFile_ofLegacyModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.C');
             goog.module.declareLegacyNamespace();
@@ -1165,7 +1165,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.requireType('ns.C');
             /** @type {ns.C} */ var c;
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('ns.C');
             /** @constructor @const */ ns.C = function() {};
@@ -1180,7 +1180,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testBundle1() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('ns.b');",
             """
             goog.loadModule(function(exports) {
@@ -1190,7 +1190,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               return exports;
             });
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$ns$b = {};",
             """
             /** @const */ var module$exports$ns$a = {};
@@ -1470,14 +1470,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogImport_await() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c');",
             """
             async function test() {
              var d = await goog.requireDynamic('a.b.c');
             }
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c = {}",
             """
             async function test() {
@@ -1490,7 +1490,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogImport_await_destructuring() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             exports.Foo=class{}
@@ -1500,7 +1500,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
              var {Foo} = await goog.requireDynamic('a.b.c');
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a$b$c = {};
             /** @const */ module$exports$a$b$c.Foo = class {}
@@ -1516,7 +1516,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogRequireDynamic_then_destructuringPattern() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             exports.Foo=class{}
@@ -1526,7 +1526,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               goog.requireDynamic('a.b.c').then(({Foo}) => {console.log(Foo);});
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a$b$c = {};
             /** @const */ module$exports$a$b$c.Foo = class {}
@@ -1544,7 +1544,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogRequireDynamic_then_destructuringPattern_withExpressionBody() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             exports.Foo=class{}
@@ -1554,7 +1554,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               goog.requireDynamic('a.b.c').then(({Foo}) => Foo);
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a$b$c = {};
             /** @const */ module$exports$a$b$c.Foo = class {}
@@ -1568,7 +1568,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             }
             """));
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             exports.Foo=class{}
@@ -1578,7 +1578,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               goog.requireDynamic('a.b.c').then(({Foo}) => console.log(Foo));
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a$b$c = {};
             /** @const */ module$exports$a$b$c.Foo = class {}
@@ -1596,7 +1596,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogRequireDynamic_then_name() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             exports.Foo=class{}
@@ -1606,7 +1606,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               goog.requireDynamic('a.b.c').then((foo) => {console.log(foo.Foo);});
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a$b$c = {};
             /** @const */ module$exports$a$b$c.Foo = class {}
@@ -1624,7 +1624,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogRequireDynamic_then_name_laterLoadedModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             async function test() {
               goog.requireDynamic('a.b.c').then((foo) => {console.log(foo.Foo);});
@@ -1634,7 +1634,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             goog.module('a.b.c');
             exports.Foo=class{}
             """),
-        expected(
+        expectedStringVarargs(
             """
             async function test() {
               goog.importHandler_('sG5M4c').then(() => {
@@ -1669,8 +1669,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testRequireDynamic_illegal_await_lhs() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             exports.Foo=class{}
@@ -1686,14 +1686,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogModuleGet1() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a');",
             """
             function f() {
               var x = goog.module.get('a');
             }
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a = {};",
             """
             function f() {
@@ -1705,14 +1705,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogModuleGet2() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c');",
             """
             function f() {
               var x = goog.module.get('a.b.c');
             }
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c = {};",
             """
             function f() {
@@ -1724,7 +1724,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogModuleGet3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             exports = class {};
@@ -1736,7 +1736,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               return new (goog.module.get('a.b.c'))();
             }
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c = class {};",
             """
             /** @const */ var module$exports$x$y$z = {};
@@ -1802,7 +1802,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogRequire_missing_createSyntheticExterns() {
     // typechecking reports errors due to us not including the Closure externs
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
 
     testExternChanges(
         srcs(
@@ -1828,7 +1828,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogModuleGet_missing_createSyntheticExterns() {
     // typechecking reports errors due to us not including the Closure externs
-    ignoreWarnings(DiagnosticGroups.CHECK_TYPES);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.CHECK_TYPES);
 
     testExternChanges(
         srcs(
@@ -1867,7 +1867,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testGoogModuleGet_missing_noSyntheticExternForExistingGlobals() {
-    testNoWarning(
+    testNoWarningSources(
         srcs(
             """
             var c;
@@ -1876,7 +1876,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             })
             """));
 
-    testNoWarning(
+    testNoWarningSources(
         srcs(
             """
             goog.provide('c');
@@ -1885,7 +1885,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             })
             """));
 
-    testNoWarning(
+    testNoWarningSources(
         srcs(
             """
             goog.provide('c.d');
@@ -1894,8 +1894,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             })
             """));
 
-    testNoWarning(
-        srcs(
+    testNoWarningSources(
+        srcsStringVarargs(
             """
             goog.module('c.d');
             goog.module.declareLegacyNamespace();
@@ -1939,7 +1939,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet1() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('b'); exports = class {};",
             """
             goog.module('a');
@@ -1949,7 +1949,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               new x;
             }
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$b = class {};",
             """
             /** @const */ var module$exports$a = {};
@@ -1962,7 +1962,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet2() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('x.y.z'); exports = class {};",
             """
             goog.module('a');
@@ -1972,7 +1972,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               new x;
             }
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$x$y$z = class {};",
             """
             /** @const */ var module$exports$a = {};
@@ -1985,7 +1985,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             /** @constructor */ function C() {}
@@ -1998,7 +1998,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               c = new C;
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */ function module$contents$a$b$c_C() {}
             /** @const */ var module$exports$a$b$c = module$contents$a$b$c_C;
@@ -2015,7 +2015,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet4() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('x.y.z');
             /** @constructor */ function Z() {}
@@ -2030,7 +2030,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               c = new z;
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */ function module$contents$x$y$z_Z() {}
             /** @const */ var module$exports$x$y$z = module$contents$x$y$z_Z;
@@ -2047,7 +2047,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet5() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('b'); b = class {};",
             """
             goog.module('a');
@@ -2057,7 +2057,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               new x;
             }
             """),
-        expected(
+        expectedStringVarargs(
             "goog.provide('b'); b = class {};",
             """
             /** @const */ var module$exports$a = {};
@@ -2071,7 +2071,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet6() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('x.y.z'); x.y.z = class {};",
             """
             goog.module('a');
@@ -2081,7 +2081,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               new z;
             }
             """),
-        expected(
+        expectedStringVarargs(
             "goog.provide('x.y.z'); x.y.z = class {};",
             """
             /** @const */ var module$exports$a = {};
@@ -2095,7 +2095,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet7() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c.D');",
             """
             goog.require('a.b.c.D');
@@ -2103,7 +2103,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var D = goog.module.get('a.b.c.D');
             });
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c$D = {};",
             """
             goog.scope(function() {
@@ -2115,7 +2115,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGet8() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c.D'); exports = class {};",
             """
             goog.require('a.b.c.D');
@@ -2124,7 +2124,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var d = new D;
             });
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c$D = class {};",
             """
             goog.scope(function() {
@@ -2137,14 +2137,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testAliasedGoogModuleGetInGoogProvide() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c.D');",
             """
             goog.provide('x.y.z');
             goog.require('a.b.c.D');
             x.y.z = goog.module.get('a.b.c.D');
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c$D = {};",
             """
             goog.provide('x.y.z');
@@ -2154,8 +2154,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testWeakGoogModuleGet_error() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("b.js", "goog.module('b'); exports = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
                 "a.js",
@@ -2171,7 +2171,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testWeakGoogModuleGet_suppressWeakModuleGet() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("b.js", "goog.module('b'); exports = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
                 "a.js",
@@ -2182,7 +2182,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
                   const b = goog.module.get('b');
                 }
                 """)),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a = {};
             function module$contents$a_f() {
@@ -2195,8 +2195,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testWeakGoogModuleGet_reverseFileOrder() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "a.js",
                 """
@@ -2211,8 +2211,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testWeakGoogProvideGet_error() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("b.js", "goog.provide('b'); b = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
                 "a.js",
@@ -2227,8 +2227,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testWeakAliasedGoogModuleGet_error() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("b.js", "goog.module('b'); exports = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
                 "a.js",
@@ -2246,7 +2246,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testWeakAliasedGoogModuleGet_suppress() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("b.js", "goog.module('b'); exports = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
                 "a.js",
@@ -2259,7 +2259,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
                   new x;
                 }
                 """)),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a = {};
             var module$contents$a_x = null;
@@ -2275,7 +2275,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testWeakGoogModuleGet_inExpression() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("b.js", "goog.module('b'); exports = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
                 "a.js",
@@ -2289,7 +2289,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
                   return null;
                 }
                 """)),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$a = {};
             /** @suppress {weakModuleGet} */
@@ -2306,7 +2306,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testWeakCallingFile_doesNotReportError() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("main.js", "goog.requireType('a');"),
             SourceFile.fromCode("b.js", "goog.module('b'); exports = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
@@ -2319,7 +2319,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
                 }
                 """,
                 SourceKind.WEAK)),
-        expected(
+        expectedStringVarargs(
             "goog.requireType('a');",
             "/** @const */ var module$exports$b = class {};",
             """
@@ -2333,7 +2333,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testWeakGoogModuleGet_withGoogRequire_doesNotReportError() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode("b.js", "goog.module('b'); exports = class {};", SourceKind.WEAK),
             SourceFile.fromCode(
                 "a.js",
@@ -2344,7 +2344,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
                   const b = goog.module.get('b');
                 }
                 """)),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('a');
             function f() {
@@ -2395,7 +2395,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testInvalidGoogModuleGet2() {
     // This is checked earlier, in CheckClosureImports, not in the rewriting pass.
-    testNoWarning(srcs("goog.module('a');", "goog.module.get('a');"));
+    testNoWarningSources(srcsStringVarargs("goog.module('a');", "goog.module.get('a');"));
   }
 
   @Test
@@ -2662,7 +2662,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
     // A goog.module() that imports, jsdocs, and uses both another goog.module() and a legacy
     // script.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */ function A() {}
@@ -2681,7 +2681,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               /** @type {B} */ var b = new B;
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */ function module$contents$p$A_A() {}
             /** @const */ var module$exports$p$A = module$contents$p$A_A;
@@ -2716,7 +2716,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteJsDocImportedType() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */
@@ -2740,7 +2740,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               var b;
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */ function module$contents$p$A_A() {}
             /** @const */ var module$exports$p$A = module$contents$p$A_A;
@@ -2788,7 +2788,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteJsDocFullyQualified() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */
@@ -2812,7 +2812,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               var b;
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */
             function module$contents$p$A_A() {}
@@ -2837,7 +2837,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteJsDocCircularReferenceWithRequireType() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             goog.requireType('p.B');
@@ -2854,7 +2854,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             B.prototype = new A;
             exports = B;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */
             function module$contents$p$A_A() {}
@@ -2872,7 +2872,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteJsDocCircularReferenceWithoutRequireType() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('p.A');
             /** @constructor */
@@ -2888,7 +2888,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             B.prototype = new A;
             exports = B;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */
             function module$contents$p$A_A() {}
@@ -2930,17 +2930,17 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   public void testDuplicateModuleDoesntCrash() {
     ignoreWarnings(DUPLICATE_MODULE, ILLEGAL_MODULE_RENAMING_CONFLICT);
     test(
-        srcs("goog.module('ns.a');", "goog.module('ns.a');"),
-        expected(
+        srcsStringVarargs("goog.module('ns.a');", "goog.module('ns.a');"),
+        expectedStringVarargs(
             "/** @const */ var module$exports$ns$a = {};",
             "/** @const */ var module$exports$ns$a = {};"));
   }
 
   @Test
   public void testDuplicateRequireDoesntCrash() {
-    ignoreWarnings(DiagnosticGroups.DUPLICATE_VARS);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.DUPLICATE_VARS);
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.b');
             exports = 1;
@@ -2951,7 +2951,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const b = goog.require('ns.b');
             console.log(b);
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */
             var module$exports$ns$b = 1;
@@ -2969,8 +2969,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
     String bundledModule =
         "goog.loadModule(function(exports) { goog.module('ns.a'); return exports; });";
     test(
-        srcs(bundledModule, bundledModule),
-        expected(
+        srcsStringVarargs(bundledModule, bundledModule),
+        expectedStringVarargs(
             "/** @const */ var module$exports$ns$a = {};",
             "/** @const */ var module$exports$ns$a = {};"));
   }
@@ -2978,8 +2978,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testDuplicateNamespaceDoesntCrash() {
     // The compiler emits a warning elsewhere for this code
-    testError(
-        srcs("goog.module('ns.a');", "goog.provide('ns.a');"), DUPLICATE_NAMESPACE_AND_MODULE);
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs("goog.module('ns.a');", "goog.provide('ns.a');"), DUPLICATE_NAMESPACE_AND_MODULE);
   }
 
   @Test
@@ -3024,8 +3024,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testImportInliningShadowsVar() {
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.provide('a.b.c');
             a.b.c = 5;
@@ -3040,8 +3040,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         IMPORT_INLINING_SHADOWS_VAR);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.provide('a.b.c');
             a.b.c = 5;
@@ -3059,8 +3059,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testImportInliningShadowsDestructuredImport() {
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.provide('a.b.c');
             a.b.c.d = 5;
@@ -3075,8 +3075,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             """),
         IMPORT_INLINING_SHADOWS_VAR);
 
-    testError(
-        srcs(
+    testErrorSourcesDiagnosticType(
+        srcsStringVarargs(
             """
             goog.provide('a.b.c');
             a.b.c.d = 5;
@@ -3141,7 +3141,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testEarlyRequireModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.a');
             goog.require('ns.b')
@@ -3152,7 +3152,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testEarlyRequireLegacyScript() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.a');
             goog.require('ns.b')
@@ -3163,7 +3163,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testEarlyRequireTypeModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.a');
             goog.requireType('ns.b')
@@ -3174,7 +3174,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testEarlyRequireTypeLegacyScript() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.a');
             goog.requireType('ns.b')
@@ -3186,7 +3186,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   public void testValidEarlyGoogModuleGet() {
     // Legacy Script to Module goog.module.get.
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('ns.a');
             function foo() {
@@ -3194,7 +3194,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             }
             """,
             "goog.module('ns.b');"),
-        expected(
+        expectedStringVarargs(
             "goog.provide('ns.a'); function foo() { var b = module$exports$ns$b; }",
             "/** @const */ var module$exports$ns$b = {};"));
   }
@@ -3206,7 +3206,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
     // Test when the prefix is chunk unit longer than the module name
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('A');
             /** @constructor */
@@ -3222,7 +3222,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               var l = new A.B();
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */ function module$contents$A_A() {}
             /** @const */ var module$exports$A = module$contents$A_A;
@@ -3240,7 +3240,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
     // Test when the prefix is much longer than the module name
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('A');
             /** @constructor */
@@ -3256,7 +3256,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               var l = new A.b.c.L();
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */ function module$contents$A_A() {}
             /** @const */ var module$exports$A = module$contents$A_A;
@@ -3304,8 +3304,8 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testReferenceToNonLegacyGoogModuleName() {
     test(
-        srcs("goog.module('a.b.c');", "use(a.b.c);"),
-        expected("/** @const */ var module$exports$a$b$c={}", "use(a.b.c);"),
+        srcsStringVarargs("goog.module('a.b.c');", "use(a.b.c);"),
+        expectedStringVarargs("/** @const */ var module$exports$a$b$c={}", "use(a.b.c);"),
         warning(TypeCheck.POSSIBLE_INEXISTENT_PROPERTY),
         warning(TypeCheck.POSSIBLE_INEXISTENT_PROPERTY));
   }
@@ -3313,14 +3313,14 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogModuleValidReferences1() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c');",
             """
             goog.module('x.y.z');
             var c = goog.require('a.b.c');
             use(c);
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c={};",
             """
             /** @const */ var module$exports$x$y$z={};
@@ -3331,7 +3331,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogModuleValidReferences2() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c');",
             """
             goog.require('a.b.c');
@@ -3340,7 +3340,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               use(c);
             });
             """),
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$a$b$c={};",
             "goog.scope(function() { var c = module$exports$a$b$c; use(c); });"));
   }
@@ -3348,21 +3348,21 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testLegacyGoogModuleValidReferences() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c'); goog.module.declareLegacyNamespace();",
             "goog.require('a.b.c'); use(a.b.c);"),
-        expected("goog.provide('a.b.c');", "goog.require('a.b.c'); use(a.b.c);"));
+        expectedStringVarargs("goog.provide('a.b.c');", "goog.require('a.b.c'); use(a.b.c);"));
 
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('a.b.c'); goog.module.declareLegacyNamespace();",
             "goog.module('x.y.z'); var c = goog.require('a.b.c'); use(c);"),
-        expected(
+        expectedStringVarargs(
             "goog.provide('a.b.c');",
             "/** @const */ var module$exports$x$y$z={}; goog.require('a.b.c'); use(a.b.c);"));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.Foo');
             goog.module.declareLegacyNamespace();
@@ -3370,12 +3370,12 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @constructor */ exports = function() {};
             """,
             "/** @param {a.b.Foo} x */ function f(x) {}"),
-        expected(
+        expectedStringVarargs(
             "goog.provide('a.b.Foo'); /** @constructor @const */ a.b.Foo = function() {};",
             "/** @param {a.b.Foo} x */ function f(x) {}"));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             goog.module.declareLegacyNamespace();
@@ -3383,12 +3383,12 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             exports = function() {};
             """,
             "function f() { return goog.module.get('a.b.c'); }"),
-        expected(
+        expectedStringVarargs(
             "goog.provide('a.b.c'); /** @const */ a.b.c = function() {};",
             "function f() { return a.b.c; }"));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.Foo');
             goog.module.declareLegacyNamespace();
@@ -3398,7 +3398,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             exports = Foo;
             """,
             "/** @param {a.b.Foo} x */ function f(x) {}"),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('a.b.Foo');
             /** @constructor */ function module$contents$a$b$Foo_Foo() {}
@@ -3407,7 +3407,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             "/** @param {a.b.Foo} x */ function f(x) {}"));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b');
             goog.module.declareLegacyNamespace();
@@ -3417,7 +3417,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             exports.Foo = Foo;
             """,
             "/** @param {a.b.Foo} x */ function f(x) {}"),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('a.b');
             /** @constructor */ function module$contents$a$b_Foo() {};
@@ -3435,7 +3435,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliases1() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('base');
 
@@ -3448,7 +3448,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var Base = goog.require('base');
             exports = /** @constructor @extends {Base} */ function Foo() {}
             """),
-        expected(
+        expectedStringVarargs(
             "/** @constructor */ var module$exports$base = function() {};",
             """
             /** @const */ var module$exports$leaf =
@@ -3459,7 +3459,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliases2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.base');
 
@@ -3472,7 +3472,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var Base = goog.require('ns.base');
             exports = /** @constructor @extends {Base} */ function Foo() {}
             """),
-        expected(
+        expectedStringVarargs(
             "/** @constructor */ var module$exports$ns$base = function() {};",
             """
             /** @const */ var module$exports$leaf =
@@ -3483,7 +3483,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliases3() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.base');
 
@@ -3497,7 +3497,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var Base = goog.require('ns.base');
             exports = /** @constructor @extends {Base.Foo} */ function Foo() {}
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @constructor */ var module$exports$ns$base = function() {};
             /** @constructor */ module$exports$ns$base.Foo = function() {};
@@ -3511,7 +3511,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliases4() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.base');
 
@@ -3524,7 +3524,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var Base = goog.require('ns.base');
             exports = new Base;
             """),
-        expected(
+        expectedStringVarargs(
             "/** @constructor */ var module$exports$ns$base = function() {};",
             "/** @const */ var module$exports$leaf = new module$exports$ns$base;"));
   }
@@ -3532,7 +3532,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliases5() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('ns.base');
 
@@ -3550,7 +3550,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var Base = goog.require('mid');
             new Base;
             """),
-        expected(
+        expectedStringVarargs(
             "/** @constructor */ var module$exports$ns$base = function() {};",
             "/** @const */ var module$exports$mid = module$exports$ns$base;",
             "/** @const */ var module$exports$leaf = {}; new module$exports$mid;"));
@@ -3559,7 +3559,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliases6() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('base');
 
@@ -3571,7 +3571,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const {Foo} = goog.require('base');
             exports = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$base = {};
             /** @constructor @const */ module$exports$base.Foo = function() {};
@@ -3582,7 +3582,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliases7() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('base');
 
@@ -3594,7 +3594,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const {Foo: FooFromBaseModule} = goog.require('base');
             exports = FooFromBaseModule;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */ var module$exports$base = {};
             /** @constructor @const */ module$exports$base.Foo = function() {};
@@ -3626,7 +3626,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleTypes_localShadowsProvide() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.provide('Foo.Child');",
             "goog.module('Bar'); exports.Child = class {};",
             """
@@ -3634,7 +3634,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const Foo = goog.require('Bar');
             let /** !Foo.Child */ myStr;
             """), // Foo.Child refers to the local, not the provide.
-        expected(
+        expectedStringVarargs(
             "goog.provide('Foo.Child');",
             """
             /** @const */ var module$exports$Bar = {};
@@ -3649,7 +3649,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleTypes_localShadowsModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('Foo.Child');",
             "goog.module('Bar'); exports.Child = class {};",
             """
@@ -3657,7 +3657,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const Foo = goog.require('Bar');
             let /** !Foo.Child */ myStr;
             """), // Foo.Child refers to the local, not the module.
-        expected(
+        expectedStringVarargs(
             "/** @const */ var module$exports$Foo$Child = {}",
             """
             /** @const */ var module$exports$Bar = {};
@@ -3676,7 +3676,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
     // expected output but it is not present in actual tree.
     disableCompareAsTree();
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('foo');
             /** @constructor */ exports = function() {};
@@ -3701,7 +3701,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             var {doBar} = goog.requireType('bar');
             var {doBaz: doooBaz} = goog.requireType('baz');
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.module("foo");
             /** @const @constructor */
@@ -3745,7 +3745,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testGoogModuleExportsProvidedName() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.provide('Foo');
 
@@ -3758,7 +3758,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
             exports = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('Foo');
 
@@ -3770,7 +3770,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliasesWithPrototypeGets1() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod_B');
 
@@ -3787,7 +3787,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {B} */
             var b;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /**@interface */ function module$contents$mod_B_B() {}
             module$contents$mod_B_B.prototype.f = function() {};
@@ -3802,7 +3802,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testRewriteGoogModuleAliasesWithPrototypeGets2() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod_B');
 
@@ -3819,7 +3819,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             /** @type {B} */
             var b;
             """),
-        expected(
+        expectedStringVarargs(
             """
             /**@interface */ function module$contents$mod_B_B() {}
             /** @const */ var module$exports$mod_B = module$contents$mod_B_B;
@@ -3959,7 +3959,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   public void addFreeCallToNamedExports() {
     disableCompareAsTree(); // necessary to compare 'free call' marking
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod');
             exports.fn = function() {};
@@ -3986,7 +3986,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   public void addFreeCallToNamedExportsLiteral() {
     disableCompareAsTree(); // necessary to compare 'free call' marking
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod');
             const fn = function() {};
@@ -4013,7 +4013,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void dontAddFreeCallToPropertiesOnDefaultExports() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod.Bar');
             /** @const */
@@ -4026,7 +4026,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const Bar = goog.require('mod.Bar');
             Bar.fn();
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */
             var module$exports$mod$Bar = class Bar {
@@ -4044,7 +4044,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void dontAddFreeCallIfModuleNotCallee() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod.Bar');
             exports.NAME = 'BAR';
@@ -4054,7 +4054,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const Bar = goog.require('mod.Bar');
             alert(Bar.NAME);
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */
             var module$exports$mod$Bar = {};
@@ -4072,7 +4072,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testTypeAndSourceInfoOfGoogRequireFromModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod.one');
             exports.Bar = class {};
@@ -4082,7 +4082,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const {Bar} = goog.require('mod.one');
             new Bar();
             """),
-        expected(
+        expectedStringVarargs(
             """
             /** @const */
             var module$exports$mod$one = {};
@@ -4116,7 +4116,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
   @Test
   public void testTypeOfGoogRequireFromLegacyModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('mod.one');
             goog.module.declareLegacyNamespace();
@@ -4127,7 +4127,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
             const {Bar} = goog.require('mod.one');
             new Bar();
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('mod.one');
             /** @const */
@@ -4180,7 +4180,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testDuplicateExportOfName() {
-    ignoreWarnings(DiagnosticGroups.DUPLICATE_VARS);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.DUPLICATE_VARS);
     // ClosureCheckModule reports an error on this code, but that error is suppressed in some cases
     // so ClosureRewriteModule can't crash.
     test(
@@ -4200,7 +4200,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
 
   @Test
   public void testDuplicateExportOfExpressionUsesLatter() {
-    ignoreWarnings(DiagnosticGroups.DUPLICATE_VARS);
+    ignoreWarningsDiagnosticGroupVarargs(DiagnosticGroups.DUPLICATE_VARS);
     // ClosureCheckModule reports an error on this code, but that error is suppressed in some cases
     // so ClosureRewriteModule can't crash.
     test(
@@ -4345,7 +4345,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
     runTypeCheck = false;
     disableTypeInfoValidation();
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             goog.module.declareLegacyNamespace();
@@ -4356,7 +4356,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               const {Foo} = await goog.requireDynamic('a.b.c');
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('a.b.c');
             /** @const */
@@ -4424,7 +4424,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
     runTypeCheck = false;
     disableTypeInfoValidation();
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             goog.module.declareLegacyNamespace();
@@ -4435,7 +4435,7 @@ public final class ClosureRewriteModuleTest extends CompilerTestCase {
               const {Foo} = await goog.requireDynamic('a.b.c');
             }
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.provide('a.b.c');
             /** @const */

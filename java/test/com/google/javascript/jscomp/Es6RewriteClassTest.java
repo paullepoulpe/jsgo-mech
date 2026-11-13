@@ -846,7 +846,7 @@ public final class Es6RewriteClassTest extends CompilerTestCase {
   @Test
   public void testExtendsExternsClass() {
     test(
-        externs(EXTERNS_BASE, "const ns = {}; /** @constructor */ ns.D = function() {};"),
+        externsStringVarargs(EXTERNS_BASE, "const ns = {}; /** @constructor */ ns.D = function() {};"),
         srcs("class C extends ns.D { }"),
         expected(
             """

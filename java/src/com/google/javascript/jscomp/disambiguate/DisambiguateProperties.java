@@ -91,7 +91,7 @@ public final class DisambiguateProperties implements CompilerPass {
     LinkedHashMap<String, PropertyClustering> propIndex = findRefs.getPropertyIndex();
 
     invalidateWellKnownProperties(propIndex);
-    this.logForDiagnostics(
+    this.logForDiagnosticsStreamedJsonProducer(
         "prop_refs",
         // use a StreamedJsonProducer instead of building up the entire json string at once to
         // prevent OOMs for very large projects.
@@ -331,11 +331,11 @@ public final class DisambiguateProperties implements CompilerPass {
 
   private void logForDiagnostics(String name, Supplier<Object> data) {
     try (LogFile log = this.compiler.createOrReopenLog(this.getClass(), name + ".log")) {
-      log.logJson(data);
+      log.logJsonSupplier(data);
     }
   }
 
-  private void logForDiagnostics(String name, LogFile.StreamedJsonProducer data) {
+  private void logForDiagnosticsStreamedJsonProducer(String name, LogFile.StreamedJsonProducer data) {
     try (LogFile log = this.compiler.createOrReopenLog(this.getClass(), name + ".log")) {
       log.logJson(data);
     }

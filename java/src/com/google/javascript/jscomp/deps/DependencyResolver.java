@@ -31,7 +31,7 @@ public interface DependencyResolver {
       throws ServiceException;
 
   /** Gets a list of dependencies for  *the provided list of symbols. */
-  public Collection<String> getDependencies(Collection<String> symbols)
+  public Collection<String> getDependenciesCollection(Collection<String> symbols)
       throws ServiceException;
 
   /**

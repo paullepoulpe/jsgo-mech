@@ -480,7 +480,7 @@ public final class MultiPassTest extends CompilerTestCase {
             .setInternalFactory(
                 (compiler) -> {
                   final boolean late = false;
-                  return new PeepholeOptimizationsPass(
+                  return PeepholeOptimizationsPass.createFromOptimizations(
                       compiler,
                       getName(),
                       new PeepholeMinimizeConditions(late),

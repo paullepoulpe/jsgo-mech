@@ -183,13 +183,13 @@ public final class NodeIteratorsTest {
    */
   private void testVarMotionWithCode(String code, Token... expectedTokens) {
     List<Token> expectedList = Arrays.asList(expectedTokens);
-    testVarMotionWithCode(code, expectedList);
+    testVarMotionWithCodeList(code, expectedList);
   }
 
   /**
    * @see #testVarMotionWithCode(String, Token ...)
    */
-  private void testVarMotionWithCode(String code, List<Token> expectedTokens) {
+  private void testVarMotionWithCodeList(String code, List<Token> expectedTokens) {
     List<Node> ancestors = new ArrayList<>();
 
     // Add an empty node to the beginning of the code and start there.

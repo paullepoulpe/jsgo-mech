@@ -198,13 +198,13 @@ public final class TypeSubject extends Subject {
    * object type with property propName, so it should be run after {@link
    * #isObjectTypeWithProperty}.
    */
-  public TypeSubject withTypeOfProp(KnownSymbolType propName) {
+  public TypeSubject withTypeOfPropKnownSymbolType(KnownSymbolType propName) {
     check("isObjectType()").that(actualNonNull().isObjectType()).isTrue();
 
     return check("toMaybeObjectType().getPropertyType(%s)", propName)
         .about(types())
         .that(
-            actualNonNull().toMaybeObjectType().getPropertyType(new Property.SymbolKey(propName)));
+            actualNonNull().toMaybeObjectType().getPropertyTypeKey(new Property.SymbolKey(propName)));
   }
 
   public void hasDeclaredProperty(String propName) {
@@ -219,7 +219,7 @@ public final class TypeSubject extends Subject {
     check("isObjectType()").that(actualNonNull().isObjectType()).isTrue();
 
     check("toMaybeObjectType().isPropertyTypeDeclared(%s)", propName)
-        .that(actualNonNull().toMaybeObjectType().hasProperty(new Property.SymbolKey(propName)))
+        .that(actualNonNull().toMaybeObjectType().hasPropertyKey(new Property.SymbolKey(propName)))
         .isTrue();
   }
 

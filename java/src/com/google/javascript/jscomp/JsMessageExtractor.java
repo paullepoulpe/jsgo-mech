@@ -95,7 +95,7 @@ public final class JsMessageExtractor {
 
   /** Extracts JS messages from JavaScript code. */
   public Collection<JsMessage> extractMessages(SourceFile... inputs) {
-    return extractMessages(ImmutableList.copyOf(inputs));
+    return extractMessagesIterable(ImmutableList.copyOf(inputs));
   }
 
   /**
@@ -106,7 +106,7 @@ public final class JsMessageExtractor {
    * @throws RuntimeException if there are problems parsing the JS code or the JS messages, or if
    *     two messages have the same key
    */
-  public Collection<JsMessage> extractMessages(Iterable<SourceFile> inputs) {
+  public Collection<JsMessage> extractMessagesIterable(Iterable<SourceFile> inputs) {
     final Compiler compiler = new Compiler();
     compiler.init(ImmutableList.<SourceFile>of(), ImmutableList.copyOf(inputs), options);
     compiler.runInCompilerThread(

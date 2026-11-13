@@ -586,7 +586,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node exprResult = result.getOnlyChild();
     assertNode(exprResult).hasType(Token.EXPR_RESULT);
     Node numberNode = exprResult.getOnlyChild();
-    assertNode(numberNode).isNumber(3.141);
+    assertNode(numberNode).isNumberDouble(3.141);
   }
 
   @Test
@@ -1063,7 +1063,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = b.getJSDocInfo();
     assertThat(info).isNotNull();
     assertThat(info.isDefine()).isTrue();
-    assertTypeEquals(NUMBER_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getType());
   }
 
   @Test
@@ -1081,14 +1081,14 @@ public final class ParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = a.getJSDocInfo();
     assertThat(info).isNotNull();
     assertThat(info.isDefine()).isFalse();
-    assertTypeEquals(NUMBER_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getType());
 
     // b
     Node b = a.getNext();
     info = b.getJSDocInfo();
     assertThat(info).isNotNull();
     assertThat(info.isDefine()).isTrue();
-    assertTypeEquals(NUMBER_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(NUMBER_TYPE, info.getType());
   }
 
   /**
@@ -1110,7 +1110,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertThat(info).isNotNull();
     assertThat(info.hasParameter("index")).isFalse();
     assertThat(info.hasReturnType()).isTrue();
-    assertTypeEquals(BOOLEAN_TYPE, info.getReturnType());
+    assertTypeEqualsJSTypeExpression(BOOLEAN_TYPE, info.getReturnType());
   }
 
   @Test
@@ -1329,7 +1329,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = letNode.getFirstChild().getJSDocInfo();
     assertThat(info).isNotNull();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -1944,7 +1944,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = fn.getSecondChild().getFirstChild().getJSDocInfo();
     assertThat(info).isNotNull();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2592,7 +2592,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = fn.getSecondChild().getFirstChild().getJSDocInfo();
     assertThat(info).isNotNull();
-    assertTypeEquals(UNKNOWN_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(UNKNOWN_TYPE, info.getType());
   }
 
   @Test
@@ -2616,7 +2616,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     JSDocInfo info = vardecl.getFirstChild().getJSDocInfo();
     assertThat(info).isNotNull();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2626,7 +2626,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = fn.getSecondChild().getFirstChild().getJSDocInfo();
     assertThat(info).isNotNull();
-    assertTypeEquals(
+    assertTypeEqualsJSTypeExpression(
         createRecordTypeBuilder().addProperty("attr", NUMBER_TYPE, null).build(), info.getType());
   }
 
@@ -2655,7 +2655,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = fn.getFirstChild().getJSDocInfo();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2665,7 +2665,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = fn.getFirstChild().getJSDocInfo();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2675,7 +2675,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = fn.getFirstChild().getJSDocInfo();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2685,7 +2685,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
 
     JSDocInfo info = fn.getFirstChild().getJSDocInfo();
     assertThat(info.hasType()).isTrue();
-    assertTypeEquals(STRING_TYPE, info.getType());
+    assertTypeEqualsJSTypeExpression(STRING_TYPE, info.getType());
   }
 
   @Test
@@ -2833,7 +2833,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
   }
 
   private static void assertNodeEquality(Node expected, Node found) {
-    assertNode(found).isEqualTo(expected);
+    assertNode(found).isEqualToNode(expected);
   }
 
   @Test
@@ -4707,10 +4707,10 @@ public final class ParserTest extends BaseJSTypeTestCase {
     // instead lands on the neighboring double 443538294610663424.
     double expected = 443538294610663488.0;
     mode = LanguageMode.ECMASCRIPT_2015;
-    assertNode(parseNumberLiteral("0x627c3ba9e8d1827;")).isNumber(expected);
-    assertNode(parseNumberLiteral("0o30476073523643214047;")).isNumber(expected);
+    assertNode(parseNumberLiteral("0x627c3ba9e8d1827;")).isNumberDouble(expected);
+    assertNode(parseNumberLiteral("0o30476073523643214047;")).isNumberDouble(expected);
     assertNode(parseNumberLiteral("0b11000100111110000111011101010011110100011010001100000100111;"))
-        .isNumber(expected);
+        .isNumberDouble(expected);
 
     strictMode = SLOPPY;
     Node legacyOctal =
@@ -4719,7 +4719,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
                 "Octal integer literals are not supported in strict mode.")
             .getOnlyChild() // EXPR_RESULT
             .getOnlyChild(); // NUMBER
-    assertNode(legacyOctal).isNumber(expected);
+    assertNode(legacyOctal).isNumberDouble(expected);
   }
 
   private Node parseNumberLiteral(String source) {
@@ -6092,7 +6092,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     // check for automatic semicolon insertion
     Node n = parse("class C{field = 2}").getFirstChild().getLastChild().getFirstChild();
     assertNode(n).hasType(Token.MEMBER_FIELD_DEF);
-    assertNode(n.getFirstChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.number(2.0));
   }
 
   @Test
@@ -6105,7 +6105,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
   public void testSingleFieldWithInitializerWithSemicolon() {
     Node n = parse("class C{field = dog;}").getFirstChild().getLastChild().getFirstChild();
     assertNode(n).hasType(Token.MEMBER_FIELD_DEF);
-    assertNode(n.getFirstChild()).isEqualTo(IR.name("dog"));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.name("dog"));
   }
 
   @Test
@@ -6122,7 +6122,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{['field'] = 2}").getFirstChild().getLastChild().getFirstChild();
     assertNode(n).hasType(Token.COMPUTED_FIELD_DEF);
     assertNode(n.getFirstChild()).hasStringThat().isEqualTo("field");
-    assertNode(n.getLastChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getLastChild()).isEqualToNode(IR.number(2.0));
   }
 
   @Test
@@ -6137,7 +6137,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{['field'] = dog;}").getFirstChild().getLastChild().getFirstChild();
     assertNode(n).hasType(Token.COMPUTED_FIELD_DEF);
     assertNode(n.getFirstChild()).hasStringThat().isEqualTo("field");
-    assertNode(n.getLastChild()).isEqualTo(IR.name("dog"));
+    assertNode(n.getLastChild()).isEqualToNode(IR.name("dog"));
   }
 
   @Test
@@ -6167,13 +6167,13 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{ a = 2 \n b = 4 \n c = 5}").getFirstChild().getLastChild();
     assertNode(n.getFirstChild()).hasType(Token.MEMBER_FIELD_DEF);
     assertNode(n.getFirstChild()).hasStringThat().isEqualTo("a");
-    assertNode(n.getFirstFirstChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getFirstFirstChild()).isEqualToNode(IR.number(2.0));
     assertNode(n.getSecondChild()).hasType(Token.MEMBER_FIELD_DEF);
     assertNode(n.getSecondChild()).hasStringThat().isEqualTo("b");
-    assertNode(n.getSecondChild().getFirstChild()).isEqualTo(IR.number(4.0));
+    assertNode(n.getSecondChild().getFirstChild()).isEqualToNode(IR.number(4.0));
     assertNode(n.getLastChild()).hasType(Token.MEMBER_FIELD_DEF);
     assertNode(n.getLastChild()).hasStringThat().isEqualTo("c");
-    assertNode(n.getLastChild().getFirstChild()).isEqualTo(IR.number(5.0));
+    assertNode(n.getLastChild().getFirstChild()).isEqualToNode(IR.number(5.0));
   }
 
   @Test
@@ -6181,9 +6181,9 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{field = 2; hi = 3;}").getFirstChild().getLastChild();
     assertNode(n.getFirstChild()).hasType(Token.MEMBER_FIELD_DEF);
     assertNode(n.getFirstChild()).hasStringThat().isEqualTo("field");
-    assertNode(n.getFirstFirstChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getFirstFirstChild()).isEqualToNode(IR.number(2.0));
     assertNode(n.getSecondChild()).hasStringThat().isEqualTo("hi");
-    assertNode(n.getSecondChild().getFirstChild()).isEqualTo(IR.number(3.0));
+    assertNode(n.getSecondChild().getFirstChild()).isEqualToNode(IR.number(3.0));
   }
 
   @Test
@@ -6191,9 +6191,9 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{field = 2; \n hi = 3;}").getFirstChild().getLastChild();
     assertNode(n.getFirstChild()).hasType(Token.MEMBER_FIELD_DEF);
     assertNode(n.getFirstChild()).hasStringThat().isEqualTo("field");
-    assertNode(n.getFirstFirstChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getFirstFirstChild()).isEqualToNode(IR.number(2.0));
     assertNode(n.getSecondChild()).hasStringThat().isEqualTo("hi");
-    assertNode(n.getSecondChild().getFirstChild()).isEqualTo(IR.number(3.0));
+    assertNode(n.getSecondChild().getFirstChild()).isEqualToNode(IR.number(3.0));
   }
 
   @Test
@@ -6215,10 +6215,10 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{['field'] = 2; ['hi'] = 3;}").getFirstChild().getLastChild();
     assertNode(n.getFirstChild()).hasType(Token.COMPUTED_FIELD_DEF);
     assertNode(n.getFirstFirstChild()).hasStringThat().isEqualTo("field");
-    assertNode(n.getFirstChild().getLastChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getFirstChild().getLastChild()).isEqualToNode(IR.number(2.0));
     assertNode(n.getSecondChild()).hasType(Token.COMPUTED_FIELD_DEF);
     assertNode(n.getSecondChild().getFirstChild()).hasStringThat().isEqualTo("hi");
-    assertNode(n.getSecondChild().getLastChild()).isEqualTo(IR.number(3.0));
+    assertNode(n.getSecondChild().getLastChild()).isEqualToNode(IR.number(3.0));
   }
 
   @Test
@@ -6226,10 +6226,10 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{['field'] = 2; \n ['hi'] = 3;}").getFirstChild().getLastChild();
     assertNode(n.getFirstChild()).hasType(Token.COMPUTED_FIELD_DEF);
     assertNode(n.getFirstFirstChild()).hasStringThat().isEqualTo("field");
-    assertNode(n.getFirstChild().getLastChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getFirstChild().getLastChild()).isEqualToNode(IR.number(2.0));
     assertNode(n.getSecondChild()).hasType(Token.COMPUTED_FIELD_DEF);
     assertNode(n.getSecondChild().getFirstChild()).hasStringThat().isEqualTo("hi");
-    assertNode(n.getSecondChild().getLastChild()).isEqualTo(IR.number(3.0));
+    assertNode(n.getSecondChild().getLastChild()).isEqualToNode(IR.number(3.0));
   }
 
   @Test
@@ -6262,7 +6262,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n.getFirstChild()).hasType(Token.STRINGLIT);
     assertNode(n.getFirstChild()).hasStringThat().isEqualTo("x");
     assertNode(n.getLastChild()).hasType(Token.NUMBER);
-    assertNode(n.getLastChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getLastChild()).isEqualToNode(IR.number(2.0));
   }
 
   @Test
@@ -6272,7 +6272,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n.getFirstChild()).hasType(Token.NAME);
     assertNode(n.getFirstChild()).hasStringThat().isEqualTo("a");
     assertNode(n.getLastChild()).hasType(Token.NUMBER);
-    assertNode(n.getLastChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getLastChild()).isEqualToNode(IR.number(2.0));
   }
 
   @Test
@@ -6280,9 +6280,9 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("class C{1 = 2;}").getFirstChild().getLastChild().getFirstChild();
     assertNode(n).hasType(Token.COMPUTED_FIELD_DEF);
     assertNode(n.getFirstChild()).hasType(Token.NUMBER);
-    assertNode(n.getFirstChild()).isEqualTo(IR.number(1.0));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.number(1.0));
     assertNode(n.getLastChild()).hasType(Token.NUMBER);
-    assertNode(n.getLastChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getLastChild()).isEqualToNode(IR.number(2.0));
   }
 
   @Test
@@ -7327,9 +7327,9 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n).hasType(Token.HOOK);
     assertNode(n).hasLineno(1);
     assertNode(n).hasCharno(0);
-    assertNode(n.getFirstChild()).isEqualTo(IR.name("a"));
-    assertNode(n.getSecondChild()).isEqualTo(IR.number(0.1));
-    assertNode(n.getLastChild()).isEqualTo(IR.number(2.0));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.name("a"));
+    assertNode(n.getSecondChild()).isEqualToNode(IR.number(0.1));
+    assertNode(n.getLastChild()).isEqualToNode(IR.number(2.0));
   }
 
   @Test
@@ -7341,7 +7341,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n).hasLineno(1);
     assertNode(n).hasCharno(3);
     assertNode(n).hasLength(1);
-    assertNode(n.getFirstChild()).isEqualTo(IR.name("a"));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.name("a"));
     assertNode(n).hasStringThat().isEqualTo("b");
   }
 
@@ -7354,7 +7354,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n).hasLineno(1);
     assertNode(n).hasCharno(3);
     assertNode(n).hasLength(7);
-    assertNode(n.getFirstChild()).isEqualTo(IR.name("a"));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.name("a"));
     assertNode(n).hasStringThat().isEqualTo("finally");
   }
 
@@ -7367,8 +7367,8 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n).hasLineno(1);
     assertNode(n).hasCharno(0);
     assertNode(n).hasLength(6);
-    assertNode(n.getFirstChild()).isEqualTo(IR.name("a"));
-    assertNode(n.getSecondChild()).isEqualTo(IR.number(1.0));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.name("a"));
+    assertNode(n.getSecondChild()).isEqualToNode(IR.number(1.0));
   }
 
   @Test
@@ -7380,7 +7380,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n).hasLineno(1);
     assertNode(n).hasCharno(0);
     assertNode(n).hasLength(5);
-    assertNode(n.getFirstChild()).isEqualTo(IR.name("a"));
+    assertNode(n.getFirstChild()).isEqualToNode(IR.name("a"));
   }
 
   // Check that optional chain node that is an arg of a call gets marked as the start of a new chain
@@ -7442,7 +7442,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(innerGet).hasCharno(0);
     assertNode(innerGet).hasLength(6);
 
-    assertNode(outerGet.getSecondChild()).isEqualTo(IR.name("c"));
+    assertNode(outerGet.getSecondChild()).isEqualToNode(IR.name("c"));
   }
 
   @Test
@@ -7464,7 +7464,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(innerCall).hasCharno(0);
     assertNode(innerCall).hasLength(5);
 
-    assertNode(outerCall.getSecondChild()).isEqualTo(IR.name("b"));
+    assertNode(outerCall.getSecondChild()).isEqualToNode(IR.name("b"));
   }
 
   @Test
@@ -8552,7 +8552,7 @@ console.log(new X(1));
     expectFeatures(Feature.MODULES, Feature.IMPORT_META);
 
     Node tree = parse("import.meta");
-    assertNode(tree.getFirstFirstChild()).isEqualTo(IR.exprResult(IR.importMeta()));
+    assertNode(tree.getFirstFirstChild()).isEqualToNode(IR.exprResult(IR.importMeta()));
   }
 
   @Test
@@ -8580,11 +8580,11 @@ console.log(new X(1));
 
     Node propTree = parse("import.meta.url");
     assertNode(propTree.getFirstFirstChild())
-        .isEqualTo(IR.exprResult(IR.getprop(IR.importMeta(), "url")));
+        .isEqualToNode(IR.exprResult(IR.getprop(IR.importMeta(), "url")));
 
     Node callTree = parse("f(import.meta.url)");
     assertNode(callTree.getFirstFirstChild())
-        .isEqualTo(
+        .isEqualToNode(
             IR.exprResult(freeCall(IR.call(IR.name("f"), IR.getprop(IR.importMeta(), "url")))));
   }
 
@@ -8597,7 +8597,7 @@ console.log(new X(1));
   public void testImportMeta_asDotProperty() {
     Node tree = parse("x.import.meta");
     assertNode(tree.getFirstChild())
-        .isEqualTo(IR.exprResult(IR.getprop(IR.name("x"), "import", "meta")));
+        .isEqualToNode(IR.exprResult(IR.getprop(IR.name("x"), "import", "meta")));
   }
 
   @Test
@@ -8606,7 +8606,7 @@ console.log(new X(1));
 
     Node tree = parse("x??y");
     assertNode(tree.getFirstChild())
-        .isEqualTo(IR.exprResult(IR.coalesce(IR.name("x"), IR.name("y"))));
+        .isEqualToNode(IR.exprResult(IR.coalesce(IR.name("x"), IR.name("y"))));
   }
 
   @Test
@@ -8633,7 +8633,7 @@ console.log(new X(1));
 
     Node tree = parse("(x&&y)??z");
     assertNode(tree.getFirstChild())
-        .isEqualTo(IR.exprResult(IR.coalesce(IR.and(IR.name("x"), IR.name("y")), IR.name("z"))));
+        .isEqualToNode(IR.exprResult(IR.coalesce(IR.and(IR.name("x"), IR.name("y")), IR.name("z"))));
   }
 
   @Test
@@ -8645,7 +8645,7 @@ console.log(new X(1));
     Node coalesce = expr.getFirstChild();
 
     assertNode(expr)
-        .isEqualTo(
+        .isEqualToNode(
             IR.exprResult(IR.coalesce(IR.coalesce(IR.name("x"), IR.name("y")), IR.name("z"))));
     assertNode(expr).hasLineno(1).hasCharno(0).hasLength(7);
     assertNode(coalesce).hasType(Token.COALESCE);
@@ -8659,7 +8659,7 @@ console.log(new X(1));
     expectFeatures(Feature.LOGICAL_ASSIGNMENT);
     Node tree = parse("x||=y");
     assertNode(tree.getFirstChild())
-        .isEqualTo(IR.exprResult(IR.assignOr(IR.name("x"), IR.name("y"))));
+        .isEqualToNode(IR.exprResult(IR.assignOr(IR.name("x"), IR.name("y"))));
   }
 
   @Test
@@ -8675,7 +8675,7 @@ console.log(new X(1));
     expectFeatures(Feature.LOGICAL_ASSIGNMENT);
     Node tree = parse("x&&=y");
     assertNode(tree.getFirstChild())
-        .isEqualTo(IR.exprResult(IR.assignAnd(IR.name("x"), IR.name("y"))));
+        .isEqualToNode(IR.exprResult(IR.assignAnd(IR.name("x"), IR.name("y"))));
   }
 
   @Test
@@ -8691,7 +8691,7 @@ console.log(new X(1));
     expectFeatures(Feature.LOGICAL_ASSIGNMENT);
     Node tree = parse("x??=y");
     assertNode(tree.getFirstChild())
-        .isEqualTo(IR.exprResult(IR.assignCoalesce(IR.name("x"), IR.name("y"))));
+        .isEqualToNode(IR.exprResult(IR.assignCoalesce(IR.name("x"), IR.name("y"))));
   }
 
   @Test
@@ -8807,7 +8807,7 @@ console.log(new X(1));
   private void assertNodeHasJSDocInfoWithJSType(Node node, JSType jsType) {
     JSDocInfo info = node.getJSDocInfo();
     assertWithMessage("Node has no JSDocInfo: %s", node).that(info).isNotNull();
-    assertTypeEquals(jsType, info.getType());
+    assertTypeEqualsJSTypeExpression(jsType, info.getType());
   }
 
   private void assertNodeHasJSDocInfoWithNoJSType(Node node) {
@@ -8880,11 +8880,11 @@ console.log(new X(1));
   @CanIgnoreReturnValue
   private ParseResult doParse(String string, String... warnings) {
     TestErrorReporter testErrorReporter = new TestErrorReporter().expectAllWarnings(warnings);
-    return doParse(string, testErrorReporter);
+    return doParseTestErrorReporter(string, testErrorReporter);
   }
 
   @CanIgnoreReturnValue
-  private ParseResult doParse(String string, TestErrorReporter testErrorReporter) {
+  private ParseResult doParseTestErrorReporter(String string, TestErrorReporter testErrorReporter) {
     StaticSourceFile file = new SimpleSourceFile("input", SourceKind.STRONG);
     ParseResult result = ParserRunner.parse(file, string, createConfig(), testErrorReporter);
 
@@ -8947,7 +8947,7 @@ console.log(new X(1));
 
   /** Sets expectedFeatures based on the list of features. */
   private void expectFeatures(Feature... features) {
-    expectedFeatures = FeatureSet.BARE_MINIMUM.with(features);
+    expectedFeatures = FeatureSet.BARE_MINIMUM.withFeatureVarargs(features);
   }
 
   private static class ParserResult {
@@ -9052,7 +9052,7 @@ console.log(new X(1));
             .expectAllWarnings(
                 "@closureUnaware annotation is not allowed in this compilation",
                 "@closureUnaware annotation is not allowed in this compilation");
-    doParse(
+    doParseTestErrorReporter(
         """
         /** @fileoverview @closureUnaware {SIMPLE} */
         /** @closureUnaware */ (
@@ -9069,7 +9069,7 @@ console.log(new X(1));
             .expectAllWarnings(
                 "@closureUnaware annotation is not allowed in this compilation",
                 "@closureUnaware annotation is not allowed in this compilation");
-    doParse(
+    doParseTestErrorReporter(
         """
         /** @fileoverview @closureUnaware */
         /** @closureUnaware {SIMPLE} */ (
@@ -9086,7 +9086,7 @@ console.log(new X(1));
             .expectAllWarnings(
                 "@closureUnaware annotation is not allowed in this compilation",
                 "@closureUnaware annotation is not allowed in this compilation");
-    doParse(
+    doParseTestErrorReporter(
         """
         /** @fileoverview @closureUnaware {SIMPLE} */
         /** @closureUnaware {SIMPLE} */ (
@@ -9102,7 +9102,7 @@ console.log(new X(1));
             .expectAllErrors(
                 "invalid @closureUnaware node: must be in a file annotated with @closureUnaware")
             .expectAllWarnings("@closureUnaware annotation is not allowed in this compilation");
-    doParse(
+    doParseTestErrorReporter(
         """
         /** @closureUnaware */ (
           function() {}).call(globalThis);
@@ -9120,7 +9120,7 @@ console.log(new X(1));
             .expectAllWarnings(
                 "@closureUnaware annotation is not allowed in this compilation",
                 "@closureUnaware annotation is not allowed in this compilation");
-    doParse(
+    doParseTestErrorReporter(
         """
         /** @fileoverview @closureUnaware */
         /** @closureUnaware */ const x = 0;

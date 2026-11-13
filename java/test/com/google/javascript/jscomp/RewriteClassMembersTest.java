@@ -85,10 +85,10 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
 
   @Override
   protected void test(String input, String expected) {
-    test(withOptions(), input, expected);
+    testOptions(withOptions(), input, expected);
   }
 
-  void test(Options options, String input, String expected) {
+  void testOptions(Options options, String input, String expected) {
     setAssumeStaticInheritanceIsNotUsed(options.assumeStaticInheritanceIsNotUsed());
     setLanguageOut(options.languageOut());
 
@@ -97,10 +97,10 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
 
   @Override
   protected void testError(String input, DiagnosticType error) {
-    testError(withOptions(), input, error);
+    testErrorOptions(withOptions(), input, error);
   }
 
-  void testError(Options options, String input, DiagnosticType error) {
+  void testErrorOptions(Options options, String input, DiagnosticType error) {
     setAssumeStaticInheritanceIsNotUsed(options.assumeStaticInheritanceIsNotUsed());
     setLanguageOut(options.languageOut());
 
@@ -109,11 +109,11 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
 
   @Override
   protected void testSame(String src) {
-    test(withOptions(), src, src);
+    testOptions(withOptions(), src, src);
   }
 
-  void testSame(Options options, String src) {
-    test(options, src, src);
+  void testSameOptions(Options options, String src) {
+    testOptions(options, src, src);
   }
 
   @Test
@@ -3194,7 +3194,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         }
         """);
 
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         src,
         """
@@ -3349,7 +3349,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           }
         }
         """);
-    testSame(withOptions().useEs2022LanguageOut(), src);
+    testSameOptions(withOptions().useEs2022LanguageOut(), src);
 
     test(
         """
@@ -3430,7 +3430,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           }
         }
         """);
-    testSame(withOptions().useEs2022LanguageOut(), src);
+    testSameOptions(withOptions().useEs2022LanguageOut(), src);
   }
 
   @Test
@@ -3451,7 +3451,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         C.y = C.x + 1;
         """);
 
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         src,
         """
@@ -3460,7 +3460,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         C.y = C.x + 1;
         """);
 
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -3494,7 +3494,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         };
         """);
 
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         src,
         """
@@ -3505,7 +3505,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         };
         """);
 
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -3689,7 +3689,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         };
         """);
 
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         src,
         """
@@ -3748,7 +3748,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         """);
 
     // strict
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         src,
         """
@@ -3815,7 +3815,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         """);
 
     // strict
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         src,
         """
@@ -3933,7 +3933,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
 
     // Test both conditions that trigger strict super rewrite.
 
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         source,
         """
@@ -3959,7 +3959,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         Child.STATIC_INIT$0();
         """);
 
-    test(
+    testOptions(
         withOptions().useEs5LanguageOut(),
         source,
         """
@@ -4042,7 +4042,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
 
     // Test both conditions that trigger strict super rewrite.
 
-    test(
+    testOptions(
         withOptions().useStaticInheritance(),
         source,
         """
@@ -4065,7 +4065,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         Child.sayHello();
         """);
 
-    test(
+    testOptions(
         withOptions().useEs5LanguageOut(),
         source,
         """
@@ -4201,7 +4201,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           }
         }
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -4340,7 +4340,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           }
         }
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -4382,7 +4382,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           }
         }
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -4420,7 +4420,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           value: {b: 2}
         });
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -4470,7 +4470,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           value: void 0
         });
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -4535,7 +4535,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         C["x"] = void 0;
         C["y"] = 2;
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -4981,7 +4981,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         class C {}
         C.x = void 0;
         """);
-    testSame(withOptions().useEs2022LanguageOut(), src);
+    testSameOptions(withOptions().useEs2022LanguageOut(), src);
 
     src =
         """
@@ -4999,7 +4999,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
         C.y = "hi";
         C.z = void 0;
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -5250,7 +5250,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
           }
         }
         """);
-    test(
+    testOptions(
         withOptions().useEs2022LanguageOut(),
         src,
         """
@@ -7685,7 +7685,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
     //   `C.a = alert('a');` after the class.
     // Why it's a bug: natively 'a' is alerted before 'b'. The compiled code alerts 'b' first,
     //   when `C` is defined, and 'a' after that.
-    test(
+    testOptions(
         options,
         """
         class C {
@@ -7727,7 +7727,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
     //   after the class. So `test(options, js, expected)` fails.
     // Why it's a bug: `o.#f` outside the body of `O` is a SyntaxError, so the whole script fails
     //   to load.
-    var ex = assertThrows(AssertionError.class, () -> test(options, js, expected));
+    var ex = assertThrows(AssertionError.class, () -> testOptions(options, js, expected));
     assertThat(ex).hasMessageThat().contains("+O.d = {read(o) {");
   }
 
@@ -7741,7 +7741,7 @@ public final class RewriteClassMembersTest extends CompilerTestCase {
     // Current behavior: `static #b = 2;` stays in the class body, but the static block moves into a
     //   static method of `C` that is called after the class.
     // Why it's a bug: natively defining `C` throws a TypeError; with this output, it alerts 2.
-    test(
+    testOptions(
         withOptions().useNativePrivateElementsLanguageOut(),
         """
         class C {

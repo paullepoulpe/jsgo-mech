@@ -95,7 +95,7 @@ public final class SourceMapResolver {
    */
   static @Nullable SourceFile getRelativePath(String baseFilePath, String relativePath) {
     return SourceFile.builder()
-        .withPath(
+        .withPathPath(
             FileSystems.getDefault().getPath(baseFilePath).resolveSibling(relativePath).normalize())
         .withKind(SourceKind.NON_CODE)
         .build();

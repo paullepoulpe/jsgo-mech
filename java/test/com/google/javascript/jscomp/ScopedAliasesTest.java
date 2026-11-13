@@ -1357,7 +1357,7 @@ public final class ScopedAliasesTest extends CompilerTestCase {
   @Test
   public void testGoogModuleGet_ofModule() {
     test(
-        srcs(
+        srcsStringVarargs(
             "goog.module('other.name.Foo');",
             """
             goog.provide('provided');
@@ -1367,7 +1367,7 @@ public final class ScopedAliasesTest extends CompilerTestCase {
               provided.f = new Foo;
             });
             """),
-        expected(
+        expectedStringVarargs(
             "goog.module('other.name.Foo');",
             """
             goog.provide('provided');
@@ -1562,7 +1562,7 @@ public final class ScopedAliasesTest extends CompilerTestCase {
                 .that(actualTypes.size())
                 .isEqualTo(expectedTypes.size());
             for (int i = 0; i < expectedTypes.size(); i++) {
-              assertNode(actualTypes.get(i)).isEqualTo(expectedTypes.get(i));
+              assertNode(actualTypes.get(i)).isEqualToNode(expectedTypes.get(i));
             }
           } else {
             actualTypes = new ArrayList<>();

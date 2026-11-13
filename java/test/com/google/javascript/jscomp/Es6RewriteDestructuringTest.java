@@ -1128,7 +1128,7 @@ function f(first, ...$jscomp$destructuring$var0) {
     enableTypeCheck();
     allowExternsChanges();
 
-    testSame(
+    testSameTestPartVarargs(
         externs(
             EXTERNS_BASE
                 + """

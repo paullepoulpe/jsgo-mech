@@ -555,7 +555,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
     StringBuilder mapContents = new StringBuilder();
     generator.appendIndexMapTo(mapContents, "out.js", sections);
 
-    check(
+    checkMap(
         inputs,
         output.toString(),
         mapContents.toString(),

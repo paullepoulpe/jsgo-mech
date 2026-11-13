@@ -222,7 +222,7 @@ public final class ExtraRequireRemoverTest extends CompilerTestCase {
   @Test
   public void testIsTsickleProtoCall_closureJs_looksForProtoPrefix() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "test.closure.js",
                 """
@@ -242,7 +242,7 @@ public final class ExtraRequireRemoverTest extends CompilerTestCase {
   @Test
   public void testIsTsickleProtoCall_notClosureJs() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "test.js",
                 """
@@ -259,7 +259,7 @@ public final class ExtraRequireRemoverTest extends CompilerTestCase {
   @Test
   public void testPruneWithSuppressMissingRequire() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "test.js",
                 """
@@ -277,8 +277,8 @@ public final class ExtraRequireRemoverTest extends CompilerTestCase {
 
   @Test
   public void testNoPruneWithSuppressExtraRequire() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "test.js",
                 """
@@ -292,7 +292,7 @@ public final class ExtraRequireRemoverTest extends CompilerTestCase {
   @Test
   public void testJ2clHeader_unaliasedGoogRequireIsPruned() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo/Bar.java.js",
                 """
@@ -315,8 +315,8 @@ public final class ExtraRequireRemoverTest extends CompilerTestCase {
 
   @Test
   public void testJ2clImpl_unaliasedGoogRequireIsNotPruned() {
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo/Bar.impl.java.js",
                 """

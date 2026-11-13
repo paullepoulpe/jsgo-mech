@@ -1305,7 +1305,7 @@ public final class TypeCheckBugsAndIssuesTest {
             /** @constructor @struct */ function C() {};
             new C().bar;
             """)
-        .addDiagnostic(TypeCheck.INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeCheck.INEXISTENT_PROPERTY)
         .run();
   }
 
@@ -1317,7 +1317,7 @@ public final class TypeCheckBugsAndIssuesTest {
             /** @type {?} */ var C;
             C.bar + 1;
             """)
-        .addDiagnostic(TypeCheck.POSSIBLE_INEXISTENT_PROPERTY)
+        .addDiagnosticDiagnosticType(TypeCheck.POSSIBLE_INEXISTENT_PROPERTY)
         .run();
   }
 

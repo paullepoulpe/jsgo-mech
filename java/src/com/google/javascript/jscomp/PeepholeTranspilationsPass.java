@@ -66,11 +66,11 @@ class PeepholeTranspilationsPass implements CompilerPass {
           "Transpilation pass %s has getAdditionalFeaturesToRunOn() that contains features that it"
               + " transpiles away.",
           transpilation.getClass().getSimpleName());
-      featureSetToRunOn = featureSetToRunOn.with(transpilation.getTranspiledAwayFeatures());
+      featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getTranspiledAwayFeatures());
       // some passes need to run on additional features beyond those they transpile away.
-      featureSetToRunOn = featureSetToRunOn.with(transpilation.getAdditionalFeaturesToRunOn());
+      featureSetToRunOn = featureSetToRunOn.withFeatureSet(transpilation.getAdditionalFeaturesToRunOn());
       featureSetToMarkAsTranspiledAway =
-          featureSetToMarkAsTranspiledAway.with(transpilation.getTranspiledAwayFeatures());
+          featureSetToMarkAsTranspiledAway.withFeatureSet(transpilation.getTranspiledAwayFeatures());
     }
     return new PeepholeTranspilationsPass(
         compiler, transpilations, featureSetToRunOn, featureSetToMarkAsTranspiledAway);

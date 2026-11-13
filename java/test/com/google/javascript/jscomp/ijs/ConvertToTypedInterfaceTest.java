@@ -1274,7 +1274,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testPrivateEs6ClassPropertyTypeOmitted_forNonTypeScript_doesNotOmit() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "bar.js",
                 """
@@ -1298,7 +1298,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testPrivateEs6ClassPropertyTypeOmitted_forTypeScriptFiles() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js",
                 """
@@ -1322,7 +1322,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testNonPrivateVisibility_kept() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js",
                 """
@@ -1354,7 +1354,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testPrivateEs6ClassPropertyWithQmarkType_doesNotBecomeUnusableType() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js",
                 """
@@ -1378,7 +1378,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testPrivateEs5ClassPropertyTypeOmitted() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js",
                 """
@@ -1397,7 +1397,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testPrivateEs6PrototypeMethodSignatureOmitted() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js",
                 """
@@ -1430,7 +1430,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testPrivateEs5PrototypeMethodSignatureOmitted() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js",
                 """
@@ -1460,7 +1460,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
   @Test
   public void testDontEmitTypeNameOnPrivate_nonProperty() {
     test(
-        srcs(
+        srcsSourceFileVarargs(
             SourceFile.fromCode(
                 "foo.closure.js",
                 """
@@ -1801,8 +1801,8 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
         exports = Foo;
         """);
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             /** @constructor */ function Foo() {}
@@ -1816,8 +1816,8 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
             exports = Foo;
             """));
 
-    testSame(
-        srcs(
+    testSameTestPartVarargs(
+        srcsStringVarargs(
             """
             /** @constructor */ function Foo() {}
             Foo.prototype.display = function() {};
@@ -1830,7 +1830,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
             """));
 
     test(
-        srcs(
+        srcsStringVarargs(
             """
             goog.module('a.b.c');
             /** @constructor */ function Foo() {
@@ -1845,7 +1845,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
             }
             exports = Foo;
             """),
-        expected(
+        expectedStringVarargs(
             """
             goog.module('a.b.c');
             /** @constructor */ function Foo() {}
@@ -2750,7 +2750,7 @@ public final class ConvertToTypedInterfaceTest extends CompilerTestCase {
 
   @Test
   public void testEmptyFile() {
-    test(srcs("const x = 42;", ""), expected("/** @const {number} */ var x;", ""));
+    test(srcsStringVarargs("const x = 42;", ""), expectedStringVarargs("/** @const {number} */ var x;", ""));
   }
 
   @Test

@@ -168,7 +168,7 @@ final class SubtypeChecker {
 
     if (cached == null) {
       boolean result = this.isSubtypeDispatching(subtype, supertype);
-      this.subtypeCache.put(key, MatchStatus.valueOf(result));
+      this.subtypeCache.put(key, MatchStatus.valueOfBoolean(result));
       return result;
     }
 
@@ -408,9 +408,9 @@ final class SubtypeChecker {
       ObjectType supertype,
       PropertyOptionality optionality) {
 
-    JSType supertypeProp = supertype.getPropertyType(propertyKey);
-    if (subtype.hasProperty(propertyKey)) {
-      JSType subtypeProp = subtype.getPropertyType(propertyKey);
+    JSType supertypeProp = supertype.getPropertyTypeKey(propertyKey);
+    if (subtype.hasPropertyKey(propertyKey)) {
+      JSType subtypeProp = subtype.getPropertyTypeKey(propertyKey);
       if (!this.isSubtypeCaching(subtypeProp, supertypeProp)) {
         return false;
       }

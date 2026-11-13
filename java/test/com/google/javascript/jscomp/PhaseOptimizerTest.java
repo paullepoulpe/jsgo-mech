@@ -220,10 +220,10 @@ public final class PhaseOptimizerTest {
   }
 
   private PassFactory createPassFactory(String name, int numChanges, boolean isOneTime) {
-    return createPassFactory(name, createPass(name, numChanges), isOneTime);
+    return createPassFactoryCompilerPass(name, createPass(name, numChanges), isOneTime);
   }
 
-  private PassFactory createPassFactory(String name, final CompilerPass pass, boolean isOneTime) {
+  private PassFactory createPassFactoryCompilerPass(String name, final CompilerPass pass, boolean isOneTime) {
     return PassFactory.builder()
         .setName(name)
         .setRunInFixedPointLoop(!isOneTime)

@@ -505,7 +505,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
             // with the user's files.
             SourceFile.builder()
                 .withPath("externs.zip//" + filename)
-                .withContent(entryStream)
+                .withContentInputStream(entryStream)
                 .build());
       }
       return DefaultExterns.prepareExterns(env, mapFromExternsZip);
@@ -586,7 +586,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @param jsChunkSpecs A list chunk specs.
    * @return An array of inputs
    */
-  private List<SourceFile> createInputs(
+  private List<SourceFile> createInputsList(
       List<FlagEntry<JsSourceType>> files,
       List<JsonFileSpec> jsonFiles,
       List<JsChunkSpec> jsChunkSpecs)
@@ -677,7 +677,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         inputs.add(
             SourceFile.builder()
                 .withPath("stdin")
-                .withContent(this.in)
+                .withContentInputStream(this.in)
                 .withCharset(inputCharset)
                 .build());
         usingStdin = true;
@@ -780,7 +780,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     try {
       if (jsonFiles != null) {
-        return createInputs(files, jsonFiles, jsChunkSpecs);
+        return createInputsList(files, jsonFiles, jsChunkSpecs);
       } else {
         return createInputs(files, true, jsChunkSpecs);
       }
@@ -893,7 +893,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
       List<CompilerInput> chunkFiles = inputs.subList(numJsFilesLeft - numJsFiles, numJsFilesLeft);
       for (CompilerInput input : chunkFiles) {
-        chunk.add(input);
+        chunk.addCompilerInput(input);
       }
       numJsFilesLeft -= numJsFiles;
       chunkIndex++;

@@ -308,7 +308,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
     // warnings during compilation.
 
     Compiler compiler =
-        compile(
+        compileStringArray(
             options,
             new String[] {
               """
@@ -414,7 +414,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setTypeBasedOptimizationOptions(options);
     options.setLanguageOut(LanguageMode.ECMASCRIPT_2018);
 
-    test(
+    testStringArray(
         options,
         new String[] {
           """
@@ -639,7 +639,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
                     """))
             .build();
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         /**
@@ -691,7 +691,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
                     """))
             .build();
 
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         goog.module('a.b');
@@ -824,7 +824,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
     // this test-case is trying to ensure that even when the special handling for JSDoc comments in
     // closureUnaware code we can still report jsdoc errors for code that is not within the
     // closure-unaware subsection of the AST.
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         /**
@@ -863,7 +863,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
     // closure-unaware subsection of the AST.
     // Specifically this test validates that any comments that come after a closure-unaware
     // subsection of the AST don't have their jsdoc parse errors suppressed.
-    test(
+    testStringDiagnosticGroup(
         options,
         """
         /**
@@ -922,7 +922,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
     assertThat(fn.getJSDocInfo()).isNull();
     NodeTraversal.builder()
         .setCompiler(lastCompiler)
-        .setCallback((NodeTraversal t, Node n, Node parent) -> assertThat(n.isCast()).isFalse())
+        .setCallbackAbstractPostOrderCallbackInterface((NodeTraversal t, Node n, Node parent) -> assertThat(n.isCast()).isFalse())
         .traverse(fn);
   }
 
@@ -984,7 +984,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
 
     NodeTraversal.builder()
         .setCompiler(lastCompiler)
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (NodeTraversal t, Node n, Node parent) -> {
               if (n.getNonJSDocComment() != null) {
                 nodesWithNonJsdocComments.add(n);
@@ -1052,7 +1052,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
     // any jsdocinfo or non-jsdoc-comment attached to it.
     NodeTraversal.builder()
         .setCompiler(lastCompiler)
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (NodeTraversal t, Node n, Node parent) -> {
               var nonJsDocComment = n.getNonJSDocComment();
               assertThat(nonJsDocComment).isNull();
@@ -1115,7 +1115,7 @@ public final class ClosureUnawareCodeIntegrationTest extends IntegrationTestCase
 
     NodeTraversal.builder()
         .setCompiler(lastCompiler)
-        .setCallback(
+        .setCallbackAbstractPostOrderCallbackInterface(
             (NodeTraversal t, Node n, Node parent) -> {
               if (n.getNonJSDocComment() != null) {
                 nodesWithNonJsdocComments.add(n);

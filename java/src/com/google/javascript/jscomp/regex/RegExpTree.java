@@ -1033,7 +1033,7 @@ public abstract class RegExpTree {
         return Empty.INSTANCE;
       }
       if (flags.indexOf('i') >= 0) {
-        String canonicalized = CaseCanonicalize.caseCanonicalize(text);
+        String canonicalized = CaseCanonicalize.caseCanonicalizeString(text);
         if (!text.equals(canonicalized)) {
           return new Text(canonicalized);
         }

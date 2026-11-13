@@ -173,7 +173,7 @@ final class PolyfillUsageFinder {
 
       for (String nativeVersionStr : byNativeVersion.keySet()) {
         FeatureSet polyfillNativeFeatureSet = getPolyfillSupportedFeatureSet(nativeVersionStr);
-        if (!featureSet.contains(polyfillNativeFeatureSet)) {
+        if (!featureSet.containsFeatureSet(polyfillNativeFeatureSet)) {
           result.addAll(byNativeVersion.get(nativeVersionStr));
         }
       }

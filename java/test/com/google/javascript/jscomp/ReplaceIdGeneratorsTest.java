@@ -400,7 +400,7 @@ public final class ReplaceIdGeneratorsTest extends CompilerTestCase {
 
   @Test
   public void testClass() {
-    testSame(
+    testSameTestPartVarargs(
         externs(""),
         srcs(
             """

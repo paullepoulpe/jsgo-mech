@@ -121,7 +121,7 @@ public class IR {
     return new Node(Token.BLOCK, stmt);
   }
 
-  public static Node block(Node... stmts) {
+  public static Node blockNodeVarargs(Node... stmts) {
     Node block = block();
     for (Node stmt : stmts) {
       checkState(mayBeStatement(stmt));
@@ -130,7 +130,7 @@ public class IR {
     return block;
   }
 
-  public static Node block(List<Node> stmts) {
+  public static Node blockList(List<Node> stmts) {
     Node paramList = block();
     for (Node stmt : stmts) {
       checkState(mayBeStatement(stmt));
@@ -157,7 +157,7 @@ public class IR {
     return block;
   }
 
-  public static Node script(List<Node> stmts) {
+  public static Node scriptList(List<Node> stmts) {
     Node paramList = script();
     for (Node stmt : stmts) {
       checkState(mayBeStatementNoReturn(stmt));
@@ -649,10 +649,10 @@ public class IR {
   }
 
   public static Node arraylit(Node... exprs) {
-    return arraylit(Arrays.asList(exprs));
+    return arraylitIterable(Arrays.asList(exprs));
   }
 
-  public static Node arraylit(Iterable<Node> exprs) {
+  public static Node arraylitIterable(Iterable<Node> exprs) {
     Node arraylit = new Node(Token.ARRAYLIT);
     for (Node expr : exprs) {
       checkState(mayBeExpressionOrEmpty(expr) || expr.isSpread(), expr);

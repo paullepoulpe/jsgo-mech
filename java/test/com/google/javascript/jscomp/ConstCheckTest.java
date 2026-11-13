@@ -262,7 +262,7 @@ public final class ConstCheckTest extends CompilerTestCase {
   public void testConstSuppressionOnVarFromExterns() {
     String externs = "/** @const */ var xyz;";
     String js = "/** @suppress {const} */ var xyz = 3;";
-    testSame(externs(externs), srcs(js));
+    testSameTestPartVarargs(externs(externs), srcs(js));
   }
 
   @Test
@@ -274,12 +274,12 @@ public final class ConstCheckTest extends CompilerTestCase {
   public void testConstNameInExterns() {
     String externs = "/** @const */ var FOO;";
     String js = "FOO = 1;";
-    testWarning(externs(externs), srcs(js), warning(ConstCheck.CONST_REASSIGNED_VALUE_ERROR));
+    testWarningExterns(externs(externs), srcs(js), warning(ConstCheck.CONST_REASSIGNED_VALUE_ERROR));
   }
 
   @Test
   public void testGoogModuleExportsShadowingGlobal() {
-    testSame(srcs("/** @const */ var exports = {};", "goog.module('m'); exports = class {};"));
+    testSameTestPartVarargs(srcsStringVarargs("/** @const */ var exports = {};", "goog.module('m'); exports = class {};"));
   }
 
   @Test
@@ -302,7 +302,7 @@ public final class ConstCheckTest extends CompilerTestCase {
     testSame("goog.provide('a'); a = {}; a = 1;");
     testSame("goog.provide('a'); a.B = class {};");
     testSame("goog.provide('a.b.c'); a = class {};");
-    testSame(srcs("goog.provide('a.b');", "goog.provide('a.c');"));
+    testSameTestPartVarargs(srcsStringVarargs("goog.provide('a.b');", "goog.provide('a.c');"));
     testSame("goog.provide('a'); a = 0; a++;");
   }
 

@@ -138,13 +138,13 @@ public final class JSChunkGraphBuilder {
   }
 
   @CanIgnoreReturnValue
-  public JSChunkGraphBuilder addChunks(List<String> inputs) {
+  public JSChunkGraphBuilder addChunksList(List<String> inputs) {
     this.chunks.addAll(inputs);
     return this;
   }
 
   public JSChunkGraphBuilder addChunks(String[] chunks) {
-    return this.addChunks(Arrays.asList(chunks));
+    return this.addChunksList(Arrays.asList(chunks));
   }
 
   /**

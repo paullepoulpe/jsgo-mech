@@ -291,7 +291,7 @@ class ScopedAliases implements CompilerPass {
     return switch (rhs.getToken()) {
       case GETPROP -> isValidAliasRhs(rhs.getFirstChild());
       case NAME -> true;
-      case CALL -> NodeUtil.isCallTo(rhs, GOOG_MODULE_GET);
+      case CALL -> NodeUtil.isCallToQualifiedName(rhs, GOOG_MODULE_GET);
       default -> false;
     };
   }
@@ -309,7 +309,7 @@ class ScopedAliases implements CompilerPass {
       case GETPROP -> getAliasedNamespace(rhs.getFirstChild()) + '.' + rhs.getString();
       case NAME -> rhs.getString();
       case CALL -> {
-        checkState(NodeUtil.isCallTo(rhs, GOOG_MODULE_GET), rhs);
+        checkState(NodeUtil.isCallToQualifiedName(rhs, GOOG_MODULE_GET), rhs);
         checkState(rhs.hasTwoChildren(), rhs);
         yield rhs.getLastChild().getString();
       }

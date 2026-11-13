@@ -1187,7 +1187,7 @@ public final class TypeTransformationTest extends CompilerTypeTestCase {
         Node extraTypeDefs = compiler.parseTestCode(EXTRA_TYPE_DEFS);
         TypedScope scope =
             new TypedScopeCreator(compiler)
-                .createScope(IR.root(IR.root(), IR.root(extraTypeDefs)), null);
+                .createScopeAbstractScope(IR.root(IR.root(), IR.root(extraTypeDefs)), null);
         // Evaluate the type transformation
         TypeTransformation typeTransformation = new TypeTransformation(compiler, scope);
         JSType resultType = typeTransformation.eval(ast, typeVars, nameVars);

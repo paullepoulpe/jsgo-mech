@@ -127,7 +127,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
 
   /** Creates a warnings guard from a file. */
   public static AllowlistWarningsGuard fromFile(File file) {
-    return new AllowlistWarningsGuard(loadAllowlistedJsWarnings(file));
+    return new AllowlistWarningsGuard(loadAllowlistedJsWarningsFile(file));
   }
 
   /**
@@ -135,7 +135,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    *
    * @return The lines of the file.
    */
-  public static Set<String> loadAllowlistedJsWarnings(File file) {
+  public static Set<String> loadAllowlistedJsWarningsFile(File file) {
     return loadAllowlistedJsWarnings(Files.asCharSource(file, UTF_8));
   }
 
@@ -146,7 +146,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    */
   protected static Set<String> loadAllowlistedJsWarnings(CharSource supplier) {
     try {
-      return loadAllowlistedJsWarnings(supplier.openStream());
+      return loadAllowlistedJsWarningsReader(supplier.openStream());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -158,7 +158,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    * @return The lines of the file.
    */
   // TODO(nicksantos): This is a weird API.
-  static Set<String> loadAllowlistedJsWarnings(Reader reader) throws IOException {
+  static Set<String> loadAllowlistedJsWarningsReader(Reader reader) throws IOException {
     checkNotNull(reader);
     Set<String> result = new LinkedHashSet<>();
 
@@ -292,7 +292,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
       }
 
       for (DiagnosticType type : warningsByType.keySet()) {
-        if (DiagnosticGroups.DEPRECATED.matches(type)) {
+        if (DiagnosticGroups.DEPRECATED.matchesDiagnosticType(type)) {
           // Deprecation warnings are not raisable to error, so we don't need them in allowlists.
           continue;
         }
