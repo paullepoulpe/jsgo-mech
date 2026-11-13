@@ -6,9 +6,9 @@ package closure
 // Class.getResource / Class.getResourceAsStream and by ResourceBundle.
 
 import (
-	"bytes"
 	"embed"
 	"strings"
+	"unicode/utf8"
 )
 
 //go:embed all:resources
@@ -43,24 +43,6 @@ func (this *Class) resourceName_(name string) string {
 	return name
 }
 
-func (this *Class) getResourceAsStream(name string) *InputStream {
-	b, ok := resourceBytes_(this.resourceName_(name))
-	if !ok {
-		return nil
-	}
-	return newInputStream_(bytes.NewReader(b), nil)
-}
-
-func (this *Class) getResource(name string) *URL {
-	abs := this.resourceName_(name)
-	if _, ok := resourceBytes_(abs); !ok {
-		return nil
-	}
-	return resourceURL_(abs)
-}
-
-// ---- com.google.common.io.Resources
-
 // ---- java.util.ResourceBundle, backed by the embedded .properties files
 
 type ResourceBundle struct {
@@ -89,9 +71,9 @@ func ResourceBundle_getBundle(baseName string) *ResourceBundle {
 	}
 	b := &ResourceBundle{baseName_: baseName, values_: map[string]string{}}
 	// A properties bundle is UTF-8, or ISO-8859-1 if it is not valid UTF-8.
-	text, malformed := decodeUTF8_(data)
-	if malformed {
-		text, _ = StandardCharsets_ISO_8859_1.decode_(data)
+	text := string(data)
+	if !utf8.Valid(data) {
+		text, _ = charsets_[csLatin1_].decode(data)
 	}
 	parseProperties_(text, func(k, v string) {
 		if _, dup := b.values_[k]; !dup {

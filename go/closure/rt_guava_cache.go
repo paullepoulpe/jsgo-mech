@@ -1,147 +1,11 @@
 package closure
 
-// Guava: com.google.common.io (CharStreams, ByteStreams, CharSource, CharSink,
-// Files) and com.google.common.cache.
+// Guava: com.google.common.cache.
 
 import (
-	"io"
-	"os"
 	"strconv"
 	"strings"
 )
-
-// ---- CharStreams, ByteStreams
-
-type CharStreams struct{}
-
-func CharStreams_toString(r Readable) string { return readAll_(readerOf_(r)) }
-
-func CharStreams_readLines(r Readable) List {
-	rd := readerOf_(r)
-	out := []any{}
-	for {
-		line := rd.readLine_()
-		if line == nullstr_ {
-			return listOf_(out)
-		}
-		out = append(out, line)
-	}
-}
-
-type ByteStreams struct{}
-
-// ByteStreams_limit is a stream of at most limit bytes of in. Closing it
-// closes in.
-func ByteStreams_limit(in *InputStream, limit int64) *InputStream {
-	if in == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	if limit < 0 {
-		panic(new_IllegalArgumentException_String("limit must be non-negative").self())
-	}
-	lr := &io.LimitedReader{R: inReader_{in}, N: limit}
-	out := newInputStream_(lr, in.close)
-	out.avail_ = func() int32 {
-		n := int64(in.available())
-		if n > lr.N {
-			n = lr.N
-		}
-		return int32(n)
-	}
-	return out
-}
-
-// ---- CharSource, CharSink
-
-type CharSource struct {
-	load_ func() string
-	desc_ string
-}
-
-// CharSource_wrap is a source of the characters of a CharSequence.
-func CharSource_wrap(cs any) *CharSource {
-	if cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	s := csString_(cs)
-	return &CharSource{load_: func() string { return s }, desc_: "CharSource.wrap(...)"}
-}
-
-func (this *CharSource) read() string { return this.load_() }
-
-func (this *CharSource) openStream() *Reader { return new_StringReader(this.load_()).up_Reader() }
-
-func (this *CharSource) isEmpty() bool { return this.load_() == "" }
-
-func (this *CharSource) length() int64 { return int64(String_length(this.load_())) }
-
-func (this *CharSource) toString() string { return this.desc_ }
-
-type CharSink struct {
-	file_   *File
-	cs_     *Charset
-	append_ bool
-}
-
-// ---- com.google.common.io.Files
-
-type Files struct{}
-
-type FileWriteMode struct {
-	Enum
-}
-
-var FileWriteMode_APPEND = func() *FileWriteMode {
-	e := &FileWriteMode{}
-	e.self_ = e
-	e.init_Enum("APPEND", 0)
-	return e
-}()
-
-func readFile_(f *File) []byte {
-	if f == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	b, err := os.ReadFile(f.path_)
-	if err != nil {
-		panic(fileNotFound_(f.path_, err))
-	}
-	return b
-}
-
-func Files_io_asCharSource(f *File, cs *Charset) *CharSource {
-	if f == nil || cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return &CharSource{
-		load_: func() string {
-			s, _ := cs.decode_(readFile_(f))
-			return s
-		},
-		desc_: "Files.asCharSource(" + f.path_ + ", " + cs.name_ + ")",
-	}
-}
-
-func Files_io_toByteArray(f *File) []int8 { return i8_(readFile_(f)) }
-
-func Files_io_write(b []int8, f *File) {
-	if f == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	out := new_FileOutputStream(f.path_)
-	defer out.close()
-	out.write_byteArr(b)
-}
-
-// ---- com.google.common.cache
-
-type RemovalNotification struct {
-	AbstractMap_SimpleImmutableEntry
-	evicted_ bool
-}
-
-func (this *RemovalNotification) getKey() any   { return this.key }
-func (this *RemovalNotification) getValue() any { return this.val }
 
 type CacheLoader struct {
 	self_ any
@@ -159,7 +23,6 @@ type functionCacheLoader_ struct {
 
 type CacheBuilder struct {
 	maximumSize_ int64
-	listener_    RemovalListener
 }
 
 func CacheBuilder_newBuilder() *CacheBuilder { return &CacheBuilder{maximumSize_: -1} }
@@ -175,40 +38,20 @@ func (this *CacheBuilder) maximumSize(n int64) *CacheBuilder {
 	return this
 }
 
-func (this *CacheBuilder) removalListener(l RemovalListener) *CacheBuilder {
-	if this.listener_ != nil {
-		panic(new_IllegalStateException_0().self())
-	}
-	if l == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	this.listener_ = l
-	return this
-}
-
 func (this *CacheBuilder) build(loader *CacheLoader) LoadingCache {
 	if loader == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return &localCache_{map_: new_LinkedHashMap(), max_: this.maximumSize_, listener_: this.listener_, loader_: loader}
+	return &localCache_{map_: new_LinkedHashMap(), max_: this.maximumSize_, loader_: loader}
 }
 
 // localCache_ is a Cache / LoadingCache. Its map is kept in order of use, the
 // least recently used entry first; that one is evicted when the size bound is
 // exceeded.
 type localCache_ struct {
-	map_      *LinkedHashMap
-	max_      int64
-	listener_ RemovalListener
-	loader_   *CacheLoader
-}
-
-func (this *localCache_) notify_(key any, value any, evicted bool) {
-	if this.listener_ != nil {
-		n := &RemovalNotification{evicted_: evicted}
-		n.key, n.val = key, value
-		this.listener_.onRemoval(n)
-	}
+	map_    *LinkedHashMap
+	max_    int64
+	loader_ *CacheLoader
 }
 
 func (this *localCache_) getIfPresent(key any) any {
@@ -228,15 +71,10 @@ func (this *localCache_) put(key any, value any) {
 	if key == nil || value == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	old := this.map_.remove(key)
+	this.map_.remove(key)
 	this.map_.put(key, value)
-	if old != nil {
-		this.notify_(key, old, false)
-	}
 	for this.max_ >= 0 && int64(this.map_.size()) > this.max_ {
-		eldest := this.map_.keySet().iterator().next()
-		v := this.map_.remove(eldest)
-		this.notify_(eldest, v, true)
+		this.map_.remove(this.map_.keySet().iterator().next())
 	}
 }
 
@@ -299,36 +137,6 @@ func (this *localCache_) cleanUp() {}
 
 func (this *localCache_) asMap() ConcurrentMap { return this.map_ }
 
-// write replaces (or, in append mode, extends) the file with the characters.
-func (this *CharSink) write(cs any) {
-	if cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	out := new_FileOutputStream_String_boolean(this.file_.path_, this.append_)
-	defer out.close()
-	out.write_byteArr(String_getBytes(csString_(cs), this.cs_))
-}
-
-func Files_io_asCharSink(f *File, cs *Charset, modes []*FileWriteMode) *CharSink {
-	if f == nil || cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	sink := &CharSink{file_: f, cs_: cs}
-	for _, m := range modes {
-		if m == FileWriteMode_APPEND {
-			sink.append_ = true
-		}
-	}
-	return sink
-}
-
-func Files_io_newReader(f *File, cs *Charset) *BufferedReader {
-	if f == nil || cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	return new_BufferedReader(new_InputStreamReader(new_FileInputStream(f.path_).up_InputStream(), cs).up_Reader())
-}
-
 func CacheLoader_from(f Function_base) *CacheLoader {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
@@ -383,8 +191,4 @@ func (this *functionCacheLoader_) load(key any) any {
 		panic(new_NullPointerException_0().self())
 	}
 	return this.f_.apply(key)
-}
-
-func (this *CharSink) toString() string {
-	return "Files.asCharSink(" + this.file_.path_ + ", " + this.cs_.name_ + ")"
 }

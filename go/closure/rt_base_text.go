@@ -1,10 +1,9 @@
 package closure
 
-// CharMatcher, Splitter, Joiner, Escaper, BaseEncoding (Guava); StringTokenizer,
+// CharMatcher, Splitter, Joiner, Escaper (Guava); StringTokenizer,
 // Random, Locale, AtomicIntegerArray (java.util); charset conversions of String.
 
 import (
-	"encoding/base64"
 	"strings"
 	"unicode/utf8"
 )
@@ -434,45 +433,6 @@ func (this *PercentEscaper) escape(s string) string {
 		}
 	}
 	return string(b)
-}
-
-// ---- BaseEncoding
-
-type BaseEncoding struct {
-	enc *base64.Encoding
-}
-
-var base64Encoding_ = &BaseEncoding{base64.StdEncoding}
-
-func BaseEncoding_base64() *BaseEncoding { return base64Encoding_ }
-
-func (this *BaseEncoding) encode(b []int8) string {
-	raw := make([]byte, len(b))
-	for i, x := range b {
-		raw[i] = byte(x)
-	}
-	return this.enc.EncodeToString(raw)
-}
-
-func (this *BaseEncoding) decode(seq any) []int8 {
-	s := strings.TrimRight(csString_(seq), "=")
-	if len(s)%4 == 1 {
-		argFail_("com.google.common.io.BaseEncoding$DecodingException: Invalid input length " + istr_(int64(len(s))))
-	}
-	raw, err := this.enc.WithPadding(base64.NoPadding).DecodeString(s)
-	if err != nil {
-		bad := "?"
-		if e, ok := err.(base64.CorruptInputError); ok && int(e) < len(s) {
-			r, _ := utf8.DecodeRuneInString(s[int(e):])
-			bad = string(r)
-		}
-		argFail_("com.google.common.io.BaseEncoding$DecodingException: Unrecognized character: " + bad)
-	}
-	out := make([]int8, len(raw))
-	for i, x := range raw {
-		out[i] = int8(x)
-	}
-	return out
 }
 
 // ---- Chars

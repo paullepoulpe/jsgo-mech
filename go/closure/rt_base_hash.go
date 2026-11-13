@@ -63,10 +63,8 @@ func (this *bufferHasher_) putLong(l int64) PrimitiveSink {
 	return this
 }
 
-func (this *bufferHasher_) putString(seq any, cs *Charset) PrimitiveSink {
-	for _, x := range String_getBytes(csString_(seq), cs) {
-		this.buf = append(this.buf, byte(x))
-	}
+func (this *bufferHasher_) putBytes(b []int8) PrimitiveSink {
+	this.buf = append(this.buf, u8_(b)...)
 	return this
 }
 

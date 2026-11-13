@@ -34,20 +34,16 @@ func new_SAXParseException_(msg string, line int32) *SAXParseException {
 
 // ---- InputSource
 
+// InputSource is the document to parse: bytes, or text that is decoded already.
 type InputSource struct {
-	bytes_    *InputStream
-	chars_    *Reader
-	systemId_ string
-	publicId_ string
-	encoding_ string
+	data_  []byte
+	chars_ bool
 }
 
-func new_InputSource(in *InputStream) *InputSource {
-	return &InputSource{bytes_: in, systemId_: nullstr_, publicId_: nullstr_, encoding_: nullstr_}
-}
+func new_InputSource(in *InputStream) *InputSource { return &InputSource{data_: in.bytes_} }
 
 func new_InputSource_Reader(r *Reader) *InputSource {
-	return &InputSource{chars_: r, systemId_: nullstr_, publicId_: nullstr_, encoding_: nullstr_}
+	return &InputSource{data_: []byte(r.self_.(*StringReader).rest_()), chars_: true}
 }
 
 // ---- SAXParserFactory, SAXParser
@@ -131,34 +127,22 @@ func (this *xmlReader_) parse(source *InputSource) {
 	if source == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	var data []byte
-	chars := false
-	switch {
-	case source.chars_ != nil:
-		data = []byte(readAll_(source.chars_))
-		chars = true
-	case source.bytes_ != nil:
-		data = readAllBytes_(source.bytes_)
-	case source.systemId_ != nullstr_:
-		data = readAllBytes_(new_URL(source.systemId_).openStream())
-	default:
-		panic(new_SAXException_String("InputSource has no stream").self())
-	}
+	data, chars := source.data_, source.chars_
 	// A UTF-16 document is recognised by its byte order mark.
 	if !chars && len(data) >= 2 && (data[0] == 0xFE && data[1] == 0xFF || data[0] == 0xFF && data[1] == 0xFE) {
-		s, _ := decodeUTF16_(data, csUTF16_)
+		s, _ := charsets_[csUTF16_].decode(data)
 		data = []byte(s)
 		chars = true
 	}
 	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
 	// A document in another declared encoding is decoded up front.
 	if m := xmlEncodingDecl_.FindSubmatch(data); !chars && m != nil {
-		cs := charsets_[strings.ToLower(string(m[1]))]
+		cs := charsetByName_[strings.ToLower(string(m[1]))]
 		if cs == nil {
 			panic(new_SAXParseException_("Invalid encoding name \""+string(m[1])+"\".", 1).self())
 		}
-		if cs != StandardCharsets_UTF_8 {
-			s, _ := cs.decode_(data)
+		if cs.kind != csUTF8_ {
+			s, _ := cs.decode(data)
 			data = []byte(s)
 		}
 	}
@@ -171,7 +155,7 @@ func (this *xmlReader_) parse(source *InputSource) {
 	// handler, and thrown.
 	fail := func(msg string) {
 		line, col := d.InputPos()
-		System_err.println("[Fatal Error] :" + istr_(int64(line)) + ":" + istr_(int64(col)) + ": " + msg)
+		Io_stderr().println("[Fatal Error] :" + istr_(int64(line)) + ":" + istr_(int64(col)) + ": " + msg)
 		panic(new_SAXParseException_(msg, int32(line)).self())
 	}
 	if hh, ok := h.(interface{ startDocument() }); ok {
@@ -309,7 +293,7 @@ func (this *xmlReader_) doctype_(decl string) {
 		if strings.HasPrefix(systemId, "/") {
 			systemId = "file://" + systemId
 		} else {
-			systemId = "file://" + userDir_() + "/" + systemId
+			systemId = "file://" + Io_pathToAbsolute(systemId)
 		}
 	}
 	if r, ok := this.resolver_.(interface {

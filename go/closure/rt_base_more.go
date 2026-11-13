@@ -104,23 +104,6 @@ func new_ImmutableSortedSet_Builder(cmp Comparator) *ImmutableSortedSet_Builder 
 
 func JsonParser_parseReader(r *JsonReader) *JsonElement { return JsonParser_parseReader_JsonReader(r) }
 
-func new_FileReader(f *File) *FileReader {
-	this := &FileReader{InputStreamReader: *new_InputStreamReader(new_FileInputStream_File(f).up_InputStream(), StandardCharsets_UTF_8)}
-	this.self_ = this
-	return this
-}
-
-func new_PrintWriter(out *Writer) *PrintWriter {
-	this := &PrintWriter{}
-	this.self_ = this
-	this.sink_ = out.write
-	this.flusher_ = out.flush
-	this.closer_ = out.close
-	return this
-}
-
-func (this *PrintWriter) println(s string) { this.write(sstr_(s) + "\n") }
-
 func Ints_tryParse(s string) any {
 	if v, ok := tryParseDecimal_(s, -1<<31, 1<<31-1); ok {
 		return int32(v)

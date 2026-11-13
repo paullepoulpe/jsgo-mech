@@ -137,8 +137,8 @@ func (this *Thread) start() {
 				h.uncaughtException(this, to_Throwable(ex))
 				return
 			}
-			System_err.print("Exception in thread \"" + this.name_ + "\" ")
-			to_Throwable(ex).printStackTrace(System_err)
+			Io_stderr().print("Exception in thread \"" + this.name_ + "\" ")
+			Io_stderr().printStackTrace(to_Throwable(ex))
 		}
 	}()
 	if s, ok := this.self_.(interface{ run() }); ok {
@@ -229,8 +229,6 @@ func stackTraceText_(t *Throwable) string {
 	}
 	return b.String()
 }
-
-func (this *Throwable) printStackTrace(p *PrintStream) { p.print(stackTraceText_(this)) }
 
 var suppressed_ = map[*Throwable][]*Throwable{}
 
@@ -419,8 +417,6 @@ type listeningExecutor_ struct {
 
 func (this *listeningExecutor_) submit(task Callable) Future { return this.delegate_.submit(task) }
 func (this *listeningExecutor_) shutdown()                   { this.delegate_.shutdown() }
-func (this *listeningExecutor_) close()                      { this.delegate_.close() }
-
 func (this *listeningExecutor_) execute(task Runnable) {
 	if e, ok := this.delegate_.(interface{ execute(Runnable) }); ok {
 		e.execute(task)
@@ -610,9 +606,8 @@ func Logger_getLogger(name string) *Logger {
 	return l
 }
 
-func (this *Logger) getName() string    { return this.name_ }
-func (this *Logger) getParent() *Logger { return this.parent_ }
-func (this *Logger) setLevel(l *Level)  { this.level_ = l }
+func (this *Logger) getName() string   { return this.name_ }
+func (this *Logger) setLevel(l *Level) { this.level_ = l }
 
 func (this *Logger) effectiveLevel_() int32 {
 	for l := this; l != nil; l = l.parent_ {
@@ -632,9 +627,9 @@ func (this *Logger) emit_(l *Level, msg string, thrown *Throwable) {
 	if !this.isLoggable(l) {
 		return
 	}
-	System_err.print(l.name_ + ": " + sstr_(msg) + "\n")
+	Io_stderr().print(l.name_ + ": " + sstr_(msg) + "\n")
 	if thrown != nil {
-		thrown.printStackTrace(System_err)
+		Io_stderr().printStackTrace(thrown)
 	}
 }
 
