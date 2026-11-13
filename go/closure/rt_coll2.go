@@ -103,7 +103,7 @@ func (this *TreeMap) values() Collection {
 
 func (this *TreeMap) entrySet() Set {
 	s := new_LinkedHashSet()
-	s.table.identity = true
+	s.identity = true
 	for _, e := range this.entries {
 		s.add(e)
 	}

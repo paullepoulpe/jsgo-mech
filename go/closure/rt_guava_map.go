@@ -75,7 +75,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
 		drop := make([]bool, len(keys))
 		dups := false
 		for i := len(keys) - 1; i >= 0; i-- {
-			if _, existed := t.put(keys[i], nil); existed {
+			if !t.add(keys[i]) {
 				drop[i] = true
 				dups = true
 			}
@@ -96,7 +96,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
 		if j := t.find(k); j >= 0 {
 			dupKey_(k, vals[j], vals[i])
 		}
-		t.put(k, nil)
+		t.add(k)
 	}
 	this.keys, this.vals, this.idx = keys, vals, t
 	if kind == imBiMap_ {
@@ -105,7 +105,7 @@ func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *Immuta
 			if j := vt.find(v); j >= 0 {
 				throwIAE_("Multiple entries with same value: " + objstr_(keys[j]) + "=" + objstr_(v) + " and " + objstr_(keys[i]) + "=" + objstr_(v))
 			}
-			vt.put(v, nil)
+			vt.add(v)
 		}
 		this.inv = &ImmutableMap{kind: imBiMap_, keys: vals, vals: keys, idx: vt, inv: this}
 	}
@@ -143,7 +143,7 @@ func (this *ImmutableMap) index_() *htable_ {
 	if this.idx == nil {
 		t := &htable_{}
 		for _, x := range this.keys {
-			t.put(x, nil)
+			t.add(x)
 		}
 		this.idx = t
 	}
@@ -454,7 +454,7 @@ func (this *ImmutableMultimap_Builder) put(p0 any, p1 any) *ImmutableMultimap_Bu
 	}
 	var vs *[]any
 	if i := this.idx.find(p0); i >= 0 {
-		vs = this.idx.entries[i].val.(*[]any)
+		vs = this.idx.vals[i].(*[]any)
 	} else {
 		vs = new([]any)
 		this.idx.put(p0, vs)
@@ -482,7 +482,7 @@ func (this *ImmutableMultimap_Builder) build() *ImmutableMultimap {
 	out := &ImmutableMultimap{set: this.set}
 	vals := make([]any, len(keys))
 	for i, k := range keys {
-		vs := append([]any(nil), *this.idx.entries[this.idx.find(k)].val.(*[]any)...)
+		vs := append([]any(nil), *this.idx.vals[this.idx.find(k)].(*[]any)...)
 		if this.valCmp != nil {
 			sortSlice_(vs, this.valCmp)
 		}

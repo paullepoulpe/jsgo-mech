@@ -141,14 +141,12 @@ func immSet_(items []any) *ImmutableSet {
 		return emptyImmSet_
 	}
 	checkNoNulls_(items)
-	t := &htable_{}
+	// The index's own key slice is the element slice (an immutable set never has removed entries).
+	t := &htable_{keys: make([]any, 0, len(items))}
 	for _, v := range items {
-		t.put(v, nil)
+		t.add(v)
 	}
-	if t.live != len(items) {
-		items = t.keys()
-	}
-	return &ImmutableCollection{kind: icSet_, items: items, idx: t}
+	return &ImmutableCollection{kind: icSet_, items: t.keys, idx: t}
 }
 
 // immSorted_ makes an ImmutableSortedSet; items is not modified.
@@ -173,7 +171,7 @@ func immMultiset_(items []any) *ImmutableMultiset {
 		if i := this.idx.find(v); i >= 0 {
 			this.counts[i]++
 		} else {
-			this.idx.put(v, nil)
+			this.idx.add(v)
 			this.items = append(this.items, v)
 			this.counts = append(this.counts, 1)
 		}
@@ -218,7 +216,7 @@ func (this *ImmutableCollection) find_(v any) int {
 	if this.idx == nil {
 		t := &htable_{}
 		for _, x := range this.items {
-			t.put(x, nil)
+			t.add(x)
 		}
 		this.idx = t
 	}
