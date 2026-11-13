@@ -149,13 +149,6 @@ type CacheLoader struct {
 
 func (this *CacheLoader) as_CacheLoader() *CacheLoader { return this }
 
-func (this *CacheLoader) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 func (this *CacheLoader) init_CacheLoader() {}
 
 // functionCacheLoader_ is CacheLoader.from(function).

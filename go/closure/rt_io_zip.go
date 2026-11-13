@@ -402,13 +402,6 @@ type GZIPOutputStream struct {
 
 func (this *GZIPOutputStream) as_GZIPOutputStream() *GZIPOutputStream { return this }
 
-func (this *GZIPOutputStream) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 // init_GZIPOutputStream_OutputStream_int writes the GZIP header at once, as
 // the JDK does: no file name, no time stamp, unknown operating system.
 func (this *GZIPOutputStream) init_GZIPOutputStream_OutputStream_int(out *OutputStream, size int32) {

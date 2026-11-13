@@ -225,15 +225,6 @@ func (this *ImmutableMap) hashCode() int32 {
 }
 func (this *ImmutableMap) toString() string { return mapToString_(this) }
 
-func (this *ImmutableBiMap) inverse() BiMap {
-	if this.inv == nil {
-		// A plain ImmutableMap asked for its inverse: build one, checking value uniqueness.
-		b := immMap_(imBiMap_, this.keys, this.vals, nil, false)
-		this.inv = b.inv
-	}
-	return this.inv
-}
-
 func (this *ImmutableSortedMap) comparator() Comparator { return cmpOrNatural_(this.cmp) }
 
 // mapEntries_ copies a Map's entries to parallel slices.
@@ -284,16 +275,6 @@ func ImmutableMap_copyOf(p0 Map) *ImmutableMap {
 	}
 	keys, vals := mapKV_(p0)
 	return immMap_(imMap_, keys, vals, nil, false)
-}
-
-func ImmutableBiMap_of() *ImmutableBiMap { return immMap_(imBiMap_, nil, nil, nil, false) }
-
-func ImmutableBiMap_copyOf(p0 Map) *ImmutableBiMap {
-	if im, ok := p0.(*ImmutableMap); ok && im.kind == imBiMap_ {
-		return im
-	}
-	keys, vals := mapKV_(p0)
-	return immMap_(imBiMap_, keys, vals, nil, false)
 }
 
 func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
@@ -385,85 +366,6 @@ type ImmutableMultimap struct {
 type ImmutableListMultimap = ImmutableMultimap
 type ImmutableSetMultimap = ImmutableMultimap
 
-func (this *ImmutableMultimap) size() int32   { return this.n }
-func (this *ImmutableMultimap) isEmpty() bool { return this.n == 0 }
-
-func (this *ImmutableMultimap) get(p0 any) Collection {
-	if c := this.m.get(p0); c != nil {
-		return c.(*ImmutableCollection)
-	}
-	if this.set {
-		return ImmutableSet_of()
-	}
-	return ImmutableList_of()
-}
-
-func (this *ImmutableMultimap) containsKey(p0 any) bool { return this.m.containsKey(p0) }
-
-func (this *ImmutableMultimap) containsEntry(p0 any, p1 any) bool {
-	c := this.m.get(p0)
-	return c != nil && c.(*ImmutableCollection).contains(p1)
-}
-
-func (this *ImmutableMultimap) containsValue(p0 any) bool { return this.values().contains(p0) }
-
-func (this *ImmutableMultimap) asMap() Map  { return this.m }
-func (this *ImmutableMultimap) keySet() Set { return this.m.keySet() }
-func (this *ImmutableMultimap) keys() Multiset {
-	b := ImmutableMultiset_builder()
-	for i, k := range this.m.keys {
-		b.addCopies(k, this.m.vals[i].(*ImmutableCollection).size())
-	}
-	return b.build()
-}
-
-func (this *ImmutableMultimap) values() Collection {
-	if this.vals == nil {
-		all := make([]any, 0, this.n)
-		for _, c := range this.m.vals {
-			all = append(all, c.(*ImmutableCollection).items...)
-		}
-		this.vals = &ImmutableCollection{kind: icList_, items: all}
-	}
-	return this.vals
-}
-
-func (this *ImmutableMultimap) inverse() *ImmutableMultimap {
-	if this.inv_ == nil {
-		b := &ImmutableMultimap_Builder{set: this.set}
-		for i, k := range this.m.keys {
-			for _, v := range this.m.vals[i].(*ImmutableCollection).items {
-				b.put(v, k)
-			}
-		}
-		this.inv_ = b.build()
-		this.inv_.inv_ = this
-	}
-	return this.inv_
-}
-
-func (this *ImmutableMultimap) put(p0 any, p1 any) bool          { throwUOE_(); return false }
-func (this *ImmutableMultimap) putAll(p0 any, p1 Iterable) bool  { throwUOE_(); return false }
-func (this *ImmutableMultimap) putAll_Multimap(p0 Multimap) bool { throwUOE_(); return false }
-func (this *ImmutableMultimap) remove(p0 any, p1 any) bool       { throwUOE_(); return false }
-func (this *ImmutableMultimap) removeAll(p0 any) Collection      { throwUOE_(); return nil }
-func (this *ImmutableMultimap) clear()                           { throwUOE_() }
-
-func (this *ImmutableMultimap) equals(o any) bool { return multimapEquals_(this, o) }
-func (this *ImmutableMultimap) hashCode() int32   { return this.m.hashCode() }
-func (this *ImmutableMultimap) toString() string  { return this.m.toString() }
-
-func multimapEquals_(m Multimap, o any) bool {
-	if o == any(m) {
-		return true
-	}
-	x, ok := o.(Multimap)
-	if !ok || x == nil {
-		return false
-	}
-	return objequals_(m.asMap(), x.asMap())
-}
-
 type ImmutableMultimap_Builder struct {
 	set    bool
 	keys   []any
@@ -474,107 +376,3 @@ type ImmutableMultimap_Builder struct {
 
 type ImmutableListMultimap_Builder = ImmutableMultimap_Builder
 type ImmutableSetMultimap_Builder = ImmutableMultimap_Builder
-
-func new_ImmutableMultimap_Builder() *ImmutableMultimap_Builder { return &ImmutableMultimap_Builder{} }
-func ImmutableMultimap_builder() *ImmutableMultimap_Builder     { return &ImmutableMultimap_Builder{} }
-func ImmutableListMultimap_builder() *ImmutableListMultimap_Builder {
-	return &ImmutableMultimap_Builder{}
-}
-func ImmutableSetMultimap_builder() *ImmutableSetMultimap_Builder {
-	return &ImmutableMultimap_Builder{set: true}
-}
-
-func (this *ImmutableMultimap_Builder) put(p0 any, p1 any) *ImmutableMultimap_Builder {
-	if p0 == nil {
-		throwNPE_("null key in entry: null=" + objstr_(p1))
-	}
-	if p1 == nil {
-		throwNPE_("null value in entry: " + objstr_(p0) + "=null")
-	}
-	var vs *[]any
-	if i := this.idx.find(p0); i >= 0 {
-		vs = this.idx.entries[i].val.(*[]any)
-	} else {
-		vs = new([]any)
-		this.idx.put(p0, vs)
-		this.keys = append(this.keys, p0)
-	}
-	*vs = append(*vs, p1)
-	return this
-}
-
-func (this *ImmutableMultimap_Builder) putAll(p0 any, p1 Iterable) *ImmutableMultimap_Builder {
-	if p0 == nil {
-		throwNPE_("null key in entry: null=" + collToString_(p1))
-	}
-	for _, v := range toSlice_(p1) {
-		this.put(p0, v)
-	}
-	return this
-}
-
-func (this *ImmutableMultimap_Builder) putAll_Multimap(p0 Multimap) *ImmutableMultimap_Builder {
-	for it := p0.asMap().entrySet().iterator(); it.hasNext(); {
-		e := it.next().(Map_Entry)
-		this.putAll(e.getKey(), e.getValue().(Iterable))
-	}
-	return this
-}
-
-func (this *ImmutableMultimap_Builder) orderKeysBy(p0 Comparator) *ImmutableMultimap_Builder {
-	this.keyCmp = p0
-	return this
-}
-
-func (this *ImmutableMultimap_Builder) build() *ImmutableMultimap {
-	keys := append([]any(nil), this.keys...)
-	if this.keyCmp != nil {
-		sortSlice_(keys, this.keyCmp)
-	}
-	out := &ImmutableMultimap{set: this.set}
-	vals := make([]any, len(keys))
-	for i, k := range keys {
-		vs := append([]any(nil), *this.idx.entries[this.idx.find(k)].val.(*[]any)...)
-		if this.valCmp != nil {
-			sortSlice_(vs, this.valCmp)
-		}
-		var c *ImmutableCollection
-		if this.set {
-			c = immSet_(vs)
-		} else {
-			c = immList_(vs)
-		}
-		vals[i] = c
-		out.n += c.size()
-	}
-	out.m = immMap_(imMap_, keys, vals, nil, false)
-	return out
-}
-
-func immMultimapCopy_(set bool, p0 Multimap) *ImmutableMultimap {
-	if im, ok := p0.(*ImmutableMultimap); ok && im.set == set {
-		return im
-	}
-	b := &ImmutableMultimap_Builder{set: set}
-	b.putAll_Multimap(p0)
-	return b.build()
-}
-
-func ImmutableSetMultimap_copyOf(p0 Multimap) *ImmutableSetMultimap {
-	return immMultimapCopy_(true, p0)
-}
-func Multimaps_asMap(p0 ListMultimap) Map { return p0.asMap() }
-
-func Multimaps_index(p0 Iterable, p1 Function_base) *ImmutableListMultimap {
-	b := ImmutableListMultimap_builder()
-	for it := p0.iterator(); it.hasNext(); {
-		v := it.next()
-		if v == nil {
-			throwNPE_("null")
-		}
-		b.put(p1.apply(v), v)
-	}
-	return b.build()
-}
-
-func Multimaps_asMap_SetMultimap(p0 SetMultimap) Map { return p0.asMap() }

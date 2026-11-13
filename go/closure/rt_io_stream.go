@@ -313,13 +313,6 @@ type FilterInputStream struct {
 
 func (this *FilterInputStream) as_FilterInputStream() *FilterInputStream { return this }
 
-func (this *FilterInputStream) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 func (this *FilterInputStream) up_InputStream() *InputStream {
 	if this == nil {
 		return nil
@@ -596,13 +589,6 @@ type FilterOutputStream struct {
 }
 
 func (this *FilterOutputStream) as_FilterOutputStream() *FilterOutputStream { return this }
-
-func (this *FilterOutputStream) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
 
 func (this *FilterOutputStream) up_OutputStream() *OutputStream {
 	if this == nil {

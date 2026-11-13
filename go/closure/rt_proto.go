@@ -1795,52 +1795,12 @@ type CodedOutputStream struct {
 	out_ *OutputStream
 }
 
-func (this *CodedOutputStream) flush() {
-	if this.out_ != nil && len(this.buf_) > 0 {
-		pbWriteStream_(this.out_, this.buf_)
-		this.buf_ = this.buf_[:0]
-	}
-}
-
 func pbEnumValueOf_(javaName string, name string) {
 	if name == nullstr_ {
 		panic(new_NullPointerException_String("Name is null").self())
 	}
 	panic(new_IllegalArgumentException_String("No enum constant " + javaName + "." + name).self())
 }
-
-func pbParseStream_(d *pbDesc_, in *InputStream) any {
-	return pbParse_(d, pbReadAll_(in), true)
-}
-
-func pbBuilderFrom_(d *pbDesc_, proto any) any {
-	if proto == nil {
-		pbNPE_()
-	}
-	return proto.(pbM_).pbm_().toBuilder()
-}
-
-func (d *pbDesc_) descriptor_() *Descriptors_Descriptor {
-	d.init_()
-	if d.gd == nil {
-		d.gd = &Descriptors_Descriptor{d_: d}
-		d.gd.name_ = pbSimpleName_(d.name)
-		d.gd.fullName_ = d.name
-	}
-	return d.gd
-}
-
-func ByteString_copyFromUtf8(p0 string) *ByteString {
-	if p0 == nullstr_ {
-		pbNPE_()
-	}
-	if p0 == "" {
-		return ByteString_EMPTY
-	}
-	return &ByteString{b_: []byte(p0)}
-}
-
-func (this *ByteString) toStringUtf8() string { return string(this.b_) }
 
 func (this *pbData_) gStrBytes_(i int) *ByteString {
 	return ByteString_copyFromUtf8(this.get_(i).(string))
@@ -1930,6 +1890,39 @@ func (this *AbstractMessageLite_Builder) bldList_(i int) List {
 	}
 	return listOf_(append([]any(nil), a...))
 }
+
+func pbParseStream_(d *pbDesc_, in *InputStream) any {
+	return pbParse_(d, pbReadAll_(in), true)
+}
+
+func pbBuilderFrom_(d *pbDesc_, proto any) any {
+	if proto == nil {
+		pbNPE_()
+	}
+	return proto.(pbM_).pbm_().toBuilder()
+}
+
+func (d *pbDesc_) descriptor_() *Descriptors_Descriptor {
+	d.init_()
+	if d.gd == nil {
+		d.gd = &Descriptors_Descriptor{d_: d}
+		d.gd.name_ = pbSimpleName_(d.name)
+		d.gd.fullName_ = d.name
+	}
+	return d.gd
+}
+
+func ByteString_copyFromUtf8(p0 string) *ByteString {
+	if p0 == nullstr_ {
+		pbNPE_()
+	}
+	if p0 == "" {
+		return ByteString_EMPTY
+	}
+	return &ByteString{b_: []byte(p0)}
+}
+
+func (this *ByteString) toStringUtf8() string { return string(this.b_) }
 
 func (this *pbData_) mergeMsgField_(f *pbField_, m any) {
 	switch x := this.v_[f.idx].(type) {

@@ -353,13 +353,6 @@ type Escaper struct {
 
 func (this *Escaper) as_Escaper() *Escaper { return this }
 
-func (this *Escaper) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 func (this *Escaper) init_Escaper() {}
 
 func (this *Escaper) escape(s string) string {

@@ -66,13 +66,6 @@ type Thread struct {
 
 func (this *Thread) as_Thread() *Thread { return this }
 
-func (this *Thread) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 var threadCount_ int32
 
 // mainThread_ is the thread of the process; threads_ are the threads whose

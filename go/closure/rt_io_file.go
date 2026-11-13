@@ -860,13 +860,6 @@ type SimpleFileVisitor struct {
 
 func (this *SimpleFileVisitor) as_SimpleFileVisitor() *SimpleFileVisitor { return this }
 
-func (this *SimpleFileVisitor) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 func (this *SimpleFileVisitor) init_SimpleFileVisitor() {}
 
 func (this *SimpleFileVisitor) preVisitDirectory(dir any, attrs BasicFileAttributes) *FileVisitResult {

@@ -550,10 +550,11 @@ func new_ObjectInputStream_() *ObjectInputStream {
 }
 
 func (this *testSaxHandler_) startElement(uri string, localName string, qName string, atts Attributes) {
-	a := atts.(*saxAttributes_)
 	s := "<" + qName
-	for i := int32(0); i < a.getLength(); i++ {
-		s += " " + a.getQName(i) + "=" + a.getValue_int(i)
+	for _, name := range []string{"lang", "id", "x:y", "name", "a"} {
+		if v := atts.getValue(name); v != nullstr_ {
+			s += " " + name + "=" + v
+		}
 	}
 	if uri != "" || localName != "" || atts.getValue("no-such") != nullstr_ {
 		s += " ?!"

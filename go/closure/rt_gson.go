@@ -143,13 +143,6 @@ type TypeToken struct {
 	type_ Type
 }
 
-func (this *TypeToken) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 func (this *TypeToken) init_TypeToken_0() {}
 
 func (this *TypeToken) getType() Type {
@@ -169,13 +162,6 @@ func (this *TypeToken) toString() string { return objstr_(this.getType()) }
 
 type TypeAdapter struct {
 	self_ any
-}
-
-func (this *TypeAdapter) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
 }
 
 func (this *TypeAdapter) init_TypeAdapter() {}

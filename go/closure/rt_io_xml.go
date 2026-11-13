@@ -415,19 +415,3 @@ func xmlReference_(name string) string {
 	}
 	return ""
 }
-
-func (this *saxAttributes_) getLength() int32 { return int32(len(this.names_)) }
-
-func (this *saxAttributes_) getValue_int(i int32) string {
-	if i < 0 || int(i) >= len(this.values_) {
-		return nullstr_
-	}
-	return this.values_[i]
-}
-
-func (this *saxAttributes_) getQName(i int32) string {
-	if i < 0 || int(i) >= len(this.names_) {
-		return nullstr_
-	}
-	return this.names_[i]
-}

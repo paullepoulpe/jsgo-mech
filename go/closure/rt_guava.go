@@ -287,51 +287,6 @@ func (this *ImmutableCollection) asList() *ImmutableList {
 	return this.list_
 }
 
-func (this *ImmutableCollection) equals(o any) bool {
-	if o == nil {
-		return false
-	}
-	if o == any(this) {
-		return true
-	}
-	oc, isImm := o.(*ImmutableCollection)
-	switch this.kind {
-	case icList_:
-		if isImm && oc.kind != icList_ {
-			return false
-		}
-		return listEquals_(this.items, o)
-	case icMultiset_:
-		m, ok := o.(Multiset)
-		if !ok || (isImm && oc.kind != icMultiset_) || m.size() != this.total {
-			return false
-		}
-		for i, v := range this.items {
-			if m.count(v) != this.counts[i] {
-				return false
-			}
-		}
-		return true
-	}
-	if isImm {
-		if oc.kind != icSet_ && oc.kind != icSorted_ {
-			return false
-		}
-	} else if isListLike_(o) || isMultiset_(o) {
-		return false
-	}
-	s, ok := o.(Set)
-	if !ok || int(s.size()) != len(this.items) {
-		return false
-	}
-	for it := s.iterator(); it.hasNext(); {
-		if this.find_(it.next()) < 0 {
-			return false
-		}
-	}
-	return true
-}
-
 // isListLike_ tells a java.util.List from the other collections (in Go every
 // Collection satisfies the Set interface).
 func isListLike_(o any) bool {
@@ -339,14 +294,6 @@ func isListLike_(o any) bool {
 		return c.kind == icList_
 	}
 	_, ok := o.(List)
-	return ok
-}
-
-func isMultiset_(o any) bool {
-	if c, ok := o.(*ImmutableCollection); ok {
-		return c.kind == icMultiset_
-	}
-	_, ok := o.(Multiset)
 	return ok
 }
 
@@ -618,82 +565,6 @@ type msEntry_ struct {
 	count int32
 }
 
-func (e *msEntry_) getElement() any { return e.elem }
-func (e *msEntry_) getCount() int32 { return e.count }
-func (e *msEntry_) equals(o any) bool {
-	x, ok := o.(Multiset_Entry)
-	return ok && x != nil && x.getCount() == e.count && objequals_(e.elem, x.getElement())
-}
-func (e *msEntry_) hashCode() int32 { return objhash_(e.elem) ^ e.count }
-func (e *msEntry_) toString() string {
-	if e.count == 1 {
-		return objstr_(e.elem)
-	}
-	return objstr_(e.elem) + " x " + istr_(int64(e.count))
-}
-
-func ImmutableMultiset_of() *ImmutableMultiset { return immMultiset_(nil) }
-
-func ImmutableMultiset_copyOf(p0 Iterable) *ImmutableMultiset {
-	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icMultiset_ {
-		return c
-	}
-	return immMultiset_(toSlice_(p0))
-}
-
-func (this *ImmutableMultiset) count(v any) int32 {
-	switch this.kind {
-	case icMultiset_:
-		if i := this.find_(v); i >= 0 {
-			return this.counts[i]
-		}
-		return 0
-	case icList_:
-		var n int32
-		for _, x := range this.items {
-			if objequals_(v, x) {
-				n++
-			}
-		}
-		return n
-	}
-	if this.find_(v) >= 0 {
-		return 1
-	}
-	return 0
-}
-
-func (this *ImmutableMultiset) elementSet() Set {
-	if this.kind == icSet_ || this.kind == icSorted_ {
-		return this
-	}
-	if this.kind == icList_ {
-		return immSet_(this.items)
-	}
-	return &ImmutableCollection{kind: icSet_, items: this.items, idx: this.idx}
-}
-
-func (this *ImmutableMultiset) entrySet() Set {
-	out := make([]any, len(this.items))
-	if this.kind == icList_ {
-		return immMultiset_(this.items).entrySet()
-	}
-	for i, v := range this.items {
-		var n int32 = 1
-		if this.kind == icMultiset_ {
-			n = this.counts[i]
-		}
-		out[i] = &msEntry_{elem: v, count: n}
-	}
-	return &ImmutableCollection{kind: icSet_, items: out}
-}
-
-func (this *ImmutableMultiset) add_Object_int(v any, n int32) int32 { throwUOE_(); return 0 }
-func (this *ImmutableMultiset) setCount(v any, old int32, n int32) bool {
-	throwUOE_()
-	return false
-}
-
 // ---- builders
 
 type ImmutableCollection_Builder struct {
@@ -727,10 +598,6 @@ func ImmutableSortedSet_naturalOrder() *ImmutableSortedSet_Builder {
 func ImmutableSortedSet_orderedBy(p0 Comparator) *ImmutableSortedSet_Builder {
 	return &ImmutableCollection_Builder{kind: icSorted_, cmp: p0}
 }
-func ImmutableMultiset_builder() *ImmutableMultiset_Builder {
-	return &ImmutableCollection_Builder{kind: icMultiset_}
-}
-
 func (this *ImmutableCollection_Builder) add(p0 any) *ImmutableCollection_Builder {
 	if p0 == nil {
 		throwNPE_("at index " + istr_(int64(len(this.items))))
@@ -790,9 +657,35 @@ func (this *ImmutableSortedSet) lowerBound_(v any, inclusive bool) int {
 	})
 }
 
-func (this *ImmutableCollection_Builder) addCopies(p0 any, n int32) *ImmutableCollection_Builder {
-	for i := int32(0); i < n; i++ {
-		this.add(p0)
+func (this *ImmutableCollection) equals(o any) bool {
+	if o == nil {
+		return false
 	}
-	return this
+	if o == any(this) {
+		return true
+	}
+	oc, isImm := o.(*ImmutableCollection)
+	if this.kind == icList_ {
+		if isImm && oc.kind != icList_ {
+			return false
+		}
+		return listEquals_(this.items, o)
+	}
+	if isImm {
+		if oc.kind != icSet_ && oc.kind != icSorted_ {
+			return false
+		}
+	} else if isListLike_(o) {
+		return false
+	}
+	s, ok := o.(Set)
+	if !ok || int(s.size()) != len(this.items) {
+		return false
+	}
+	for it := s.iterator(); it.hasNext(); {
+		if this.find_(it.next()) < 0 {
+			return false
+		}
+	}
+	return true
 }

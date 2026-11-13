@@ -580,13 +580,6 @@ type absColl_ interface {
 
 func (this *AbstractSet) as_AbstractSet() *AbstractSet { return this }
 
-func (this *AbstractSet) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
-
 func (this *AbstractSet) init_AbstractSet() {}
 func (this *AbstractSet) me() absColl_      { return this.self_.(absColl_) }
 func (this *AbstractSet) isEmpty() bool     { return this.me().size() == 0 }
@@ -636,6 +629,61 @@ func (this *AbstractSet) equals(o any) bool     { return setEquals_(this.self_.(
 func (this *AbstractSet) hashCode() int32       { return setHash_(this.self_.(Iterable)) }
 func (this *AbstractSet) toString() string      { return collToString_(this.self_.(Iterable)) }
 
+// AbstractCollection supplies the Collection operations from the subclass's iterator() and
+// size(), reached through self_.
+type AbstractCollection struct {
+	self_ any
+}
+
+func (this *AbstractCollection) as_AbstractCollection() *AbstractCollection { return this }
+
+func (this *AbstractCollection) init_AbstractCollection() {}
+func (this *AbstractCollection) me() absColl_             { return this.self_.(absColl_) }
+func (this *AbstractCollection) isEmpty() bool            { return this.me().size() == 0 }
+
+func (this *AbstractCollection) contains(v any) bool {
+	for it := this.me().iterator(); it.hasNext(); {
+		if objequals_(v, it.next()) {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *AbstractCollection) add(v any) bool { panic(new_UnsupportedOperationException_0().self()) }
+func (this *AbstractCollection) remove_Object(v any) bool {
+	panic(new_UnsupportedOperationException_0().self())
+}
+func (this *AbstractCollection) clear() { panic(new_UnsupportedOperationException_0().self()) }
+func (this *AbstractCollection) removeAll(c Collection) bool {
+	panic(new_UnsupportedOperationException_0().self())
+}
+
+func (this *AbstractCollection) addAll(c Collection) bool {
+	changed := false
+	for it := c.iterator(); it.hasNext(); {
+		if this.self_.(interface{ add(any) bool }).add(it.next()) {
+			changed = true
+		}
+	}
+	return changed
+}
+
+func (this *AbstractCollection) containsAll(c Collection) bool {
+	return containsAll_(this.self_.(Collection), c)
+}
+
+func (this *AbstractCollection) toArray_0() []any {
+	var out []any
+	for it := this.me().iterator(); it.hasNext(); {
+		out = append(out, it.next())
+	}
+	return out
+}
+
+func (this *AbstractCollection) toArray(a []any) []any { return fillArray_(this.toArray_0(), a) }
+func (this *AbstractCollection) toString() string      { return collToString_(this.self_.(Iterable)) }
+
 // AbstractIterator is Guava's: subclasses implement computeNext() and call
 // endOfData() when done.
 type AbstractIterator struct {
@@ -645,13 +693,6 @@ type AbstractIterator struct {
 }
 
 func (this *AbstractIterator) as_AbstractIterator() *AbstractIterator { return this }
-
-func (this *AbstractIterator) self() any {
-	if this == nil {
-		return nil
-	}
-	return this.self_
-}
 
 func (this *AbstractIterator) init_AbstractIterator() {}
 
