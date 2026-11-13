@@ -107,12 +107,51 @@ Speed, same harness, quiet machine (3 cold runs, medians):
 The prep steps made the result smaller and easier to review; they did not make
 it faster (1.81x before, 1.88x after).
 
+**NodeStore (handle classes).** `Node` is now a 32-bit handle into a store
+instead of a heap pointer, as a general translator feature: a class listed in
+`tools/j2go/handles.txt` becomes `type C uint32`, its fields live in two
+generated records per object (28 pointer-free bytes plus the handle's own
+value, and 56 bytes of pointer-carrying fields for `Node`; 112 bytes as a heap
+struct before) kept in chunks that are never moved or freed
+(`tools/j2go/README.md`, "Handle classes"; the handwritten part is the 82 lines
+of `go/closure/rt_handles.go`). Outputs are unchanged: self-test, four gate
+projects and nine benchmark tasks all match Java byte for byte.
+
+What it buys, measured on a busy 4-vCPU machine (3 runs, medians; the two
+columns were measured 40 minutes apart, so single tasks swing by 10%):
+
+| task | Java wall | Go before: wall / CPU / RSS | Go after: wall / CPU / RSS |
+|---|---:|---:|---:|
+| typed-app | 11.8s | 15.3s / 21.6s / 327M | 14.7s / 18.9s / 361M |
+| incremental-ijs-check | 9.9s | 10.3s / 14.4s / 721M | 11.6s / 15.8s / 671M |
+| downlevel-simple | 8.8s | 10.1s / 14.0s / 221M | 11.2s / 13.7s / 227M |
+| checks-only | 14.6s | 22.2s / 30.5s / 982M | 24.6s / 31.0s / 931M |
+| generate-ijs | 7.0s | 10.5s / 13.8s / 610M | 11.5s / 13.8s / 629M |
+| conformance-checks | 22.8s | 38.2s / 50.9s / 1403M | 36.3s / 45.3s / 1294M |
+| shaka-blockly | 34.5s | 50.2s / 69.4s / 655M | 48.5s / 63.2s / 730M |
+| bundle | 24.3s | 55.1s / 78.3s / 639M | 60.3s / 72.5s / 694M |
+| typed-full | 54.1s | 115.2s / 159.7s / 1532M | 111.4s / 142.0s / 1547M |
+| sum | 187.8s | 327.2s / 452.6s | 330.1s / 416.1s |
+
+CPU time falls by 8% (9-14% in interleaved runs of the four gate projects);
+wall time does not move beyond the noise (+1% here, -1% to -5% interleaved).
+The saving is collector work: on the ADVANCED gate project the mark workers go
+from 23.5s to 15.6s of 76s CPU, but they run on other cores, so the compile
+does not finish sooner. The code that walks the tree is no faster: a field
+read is two loads instead of one, and a node's pointer-carrying fields
+(string payload, type, properties) are now a second cache miss
+(`Node.getString` 2.6s -> 4.4s). Boxing a handle into `any` cost 2.9% of CPU
+until boxes were made allocation-free. Nodes are never freed: on that project
+1.70M nodes are created and 35% are detached at exit; peak RSS changes by -8%
+to +11% depending on the task. The large gains the plan expects from a
+NodeStore do not appear with this translator; allocation of other objects
+(16%), the remaining marking (25%), boxed strings and hash lookups dominate.
+
 **Not done.** The transpiler still lowers try/catch to closures (56 catch
 clauses remain in the Java), keeps the null-string sentinel and erases
 generics. `rt_io.go` is 330 lines since step 16 reduced `Io.java` to 25
 byte-level operations whose doc comments are the whole contract (it was 1.6k
-lines against the facade of step 14, which exposed JDK behaviour). The plan's
-`NodeStore` is not built. Tests are not translated. Git tags could not be
+lines against the facade of step 14, which exposed JDK behaviour). Tests are not translated. Git tags could not be
 pushed from the authoring session: run `tools/tag-preps.sh --push`.
 
 The sections below describe phase 1 in detail.
