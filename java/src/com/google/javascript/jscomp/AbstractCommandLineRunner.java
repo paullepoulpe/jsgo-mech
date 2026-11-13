@@ -35,11 +35,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.CodePrinter.LicenseTracker;
 import com.google.javascript.jscomp.Compiler.ChunkGraphAwareLicenseTracker;
@@ -73,7 +72,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -197,7 +195,6 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   private @Nullable ImmutableMap<String, String> parsedChunkConformanceFiles = null;
 
-  private final Gson gson;
 
   static final String OUTPUT_MARKER = "%output%";
   private static final String OUTPUT_MARKER_JS_STRING = "%output|jsstring%";
@@ -217,7 +214,6 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     this.in = checkNotNull(in);
     this.defaultJsOutput = checkNotNull(out);
     this.err = checkNotNull(err);
-    this.gson = new Gson();
   }
 
   /**
@@ -555,7 +551,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     try (JsonReader reader = new JsonReader(new InputStreamReader(this.in, inputCharset))) {
       reader.beginArray();
       while (reader.hasNext()) {
-        JsonFileSpec jsonFile = gson.fromJson(reader, JsonFileSpec.class);
+        JsonFileSpec jsonFile = JsonFileSpec.readJson(reader);
         jsonFiles.add(jsonFile);
       }
       reader.endArray();
@@ -1651,9 +1647,18 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   void outputJsonStream() throws IOException {
     try (JsonWriter jsonWriter =
         new JsonWriter(new BufferedWriter(new OutputStreamWriter(defaultJsOutput, UTF_8)))) {
-      Gson gsonOut = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-      Type filesCollectionType = new TypeToken<List<JsChunkSpec>>() {}.getType();
-      gsonOut.toJson(this.filesToStreamOut, filesCollectionType, jsonWriter);
+      jsonWriter.setLenient(true);
+      jsonWriter.setHtmlSafe(false);
+      jsonWriter.setSerializeNulls(false);
+      try {
+        jsonWriter.beginArray();
+        for (JsonFileSpec jsonFile : this.filesToStreamOut) {
+          jsonFile.writeJson(jsonWriter);
+        }
+        jsonWriter.endArray();
+      } catch (IOException e) {
+        throw new JsonIOException(e);
+      }
     }
   }
 
@@ -3019,20 +3024,65 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     private final @Nullable String src;
     private final @Nullable String path;
 
-    @SerializedName(
-        value = "source_map",
-        alternate = {"sourceMap"})
     private @Nullable String sourceMap;
-
-    @SerializedName(
-        value = "webpack_id",
-        alternate = {"webpackId"})
     private final @Nullable String webpackId;
 
-    // Graal requires a non-arg constructor for use with GSON
-    // See https://github.com/oracle/graal/issues/680
-    private JsonFileSpec() {
-      this(null, null, null, null);
+    /**
+     * Reads one file spec, in lenient mode. Unknown properties are skipped; "sourceMap" and
+     * "webpackId" are accepted as alternate names of "source_map" and "webpack_id".
+     */
+    private static @Nullable JsonFileSpec readJson(JsonReader reader) {
+      boolean oldLenient = reader.isLenient();
+      reader.setLenient(true);
+      try {
+        if (reader.peek() == JsonToken.NULL) {
+          reader.nextNull();
+          return null;
+        }
+        String src = null;
+        String path = null;
+        String sourceMap = null;
+        String webpackId = null;
+        reader.beginObject();
+        while (reader.hasNext()) {
+          switch (reader.nextName()) {
+            case "src" -> src = readJsonString(reader);
+            case "path" -> path = readJsonString(reader);
+            case "source_map", "sourceMap" -> sourceMap = readJsonString(reader);
+            case "webpack_id", "webpackId" -> webpackId = readJsonString(reader);
+            default -> reader.skipValue();
+          }
+        }
+        reader.endObject();
+        return new JsonFileSpec(src, path, sourceMap, webpackId);
+      } catch (IllegalStateException | IOException e) {
+        throw new JsonSyntaxException(e);
+      } finally {
+        reader.setLenient(oldLenient);
+      }
+    }
+
+    /** Reads a string or null; a boolean or a number is read as its text. */
+    private static @Nullable String readJsonString(JsonReader reader) throws IOException {
+      JsonToken peek = reader.peek();
+      if (peek == JsonToken.NULL) {
+        reader.nextNull();
+        return null;
+      }
+      if (peek == JsonToken.BOOLEAN) {
+        return Boolean.toString(reader.nextBoolean());
+      }
+      return reader.nextString();
+    }
+
+    /** Writes this file spec as an object; a property whose value is null is left out. */
+    private void writeJson(JsonWriter writer) throws IOException {
+      writer.beginObject();
+      writer.name("src").value(this.src);
+      writer.name("path").value(this.path);
+      writer.name("source_map").value(this.sourceMap);
+      writer.name("webpack_id").value(this.webpackId);
+      writer.endObject();
     }
 
     public JsonFileSpec(String src, String path) {

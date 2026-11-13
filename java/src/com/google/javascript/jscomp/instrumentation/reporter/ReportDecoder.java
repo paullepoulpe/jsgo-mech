@@ -23,18 +23,20 @@ import static java.util.Comparator.comparing;
 import com.google.common.base.Splitter;
 import com.google.common.io.CharStreams;
 import com.google.debugging.sourcemap.Base64VLQ;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Presence;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile;
+import java.io.EOFException;
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,6 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Class that helps to decode reports received from JS binaries that have been instrumented. Report
@@ -94,13 +97,10 @@ public final class ReportDecoder {
         functionNamesLine.substring(functionNamesLine.indexOf(":") + 1);
     String typesAsJsonArray = typesLine.substring(typesLine.indexOf(":") + 1);
 
-    Type stringListType = new TypeToken<List<String>>() {}.getType();
+    List<String> localFileNames = parseJsonStringList(fileNamesAsJsonArray);
+    List<String> functionNames = parseJsonStringList(functionNamesAsJsonArray);
 
-    Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-    List<String> localFileNames = gson.fromJson(fileNamesAsJsonArray, stringListType);
-    List<String> functionNames = gson.fromJson(functionNamesAsJsonArray, stringListType);
-
-    List<String> typesAsStringList = gson.fromJson(typesAsJsonArray, stringListType);
+    List<String> typesAsStringList = parseJsonStringList(typesAsJsonArray);
     List<InstrumentationPoint.Type> types =
         typesAsStringList.stream()
             .map(InstrumentationPoint.Type::valueOf)
@@ -125,6 +125,49 @@ public final class ReportDecoder {
     }
 
     return mapping;
+  }
+
+  /**
+   * Parses a whole JSON document that must be an array of strings or null. Returns null for an
+   * empty document. The array is read in lenient mode; a null element stays null, and a boolean or
+   * a number is read as its text.
+   */
+  private static @Nullable List<String> parseJsonStringList(String json) {
+    JsonReader reader = new JsonReader(new StringReader(json));
+    try {
+      reader.setLenient(true);
+      try {
+        reader.peek();
+      } catch (EOFException e) {
+        return null;
+      }
+      List<String> list = null;
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+      } else {
+        list = new ArrayList<>();
+        reader.beginArray();
+        while (reader.hasNext()) {
+          JsonToken peek = reader.peek();
+          if (peek == JsonToken.NULL) {
+            reader.nextNull();
+            list.add(null);
+          } else if (peek == JsonToken.BOOLEAN) {
+            list.add(Boolean.toString(reader.nextBoolean()));
+          } else {
+            list.add(reader.nextString());
+          }
+        }
+        reader.endArray();
+      }
+      reader.setLenient(false);
+      if (list != null && reader.peek() != JsonToken.END_DOCUMENT) {
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
+      }
+      return list;
+    } catch (IllegalStateException | IOException e) {
+      throw new JsonSyntaxException(e);
+    }
   }
 
   public static ReportProfile decodeReport(

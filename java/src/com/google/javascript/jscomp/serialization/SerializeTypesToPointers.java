@@ -27,7 +27,7 @@ import static java.util.Comparator.naturalOrder;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.InvalidatingTypes;
@@ -40,6 +40,7 @@ import com.google.javascript.jscomp.diagnostic.LogFile;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.JSType;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,7 +59,6 @@ final class SerializeTypesToPointers {
   private final LinkedHashSet<String> propertiesReferencedInAst;
   private final LinkedIdentityHashMap<JSType, Integer> typePointersByJstype =
       new LinkedIdentityHashMap<>();
-  private static final Gson GSON = new Gson();
   private @Nullable TypePool typePool = null;
 
   private SerializeTypesToPointers(
@@ -193,7 +193,9 @@ final class SerializeTypesToPointers {
     // Log type mismatches, which contribute to the definition of an "invalidating" type
     try (LogFile log = this.compiler.createOrReopenLog(this.getClass(), "mismatches.log")) {
       log.log(
-          () -> GSON.toJson(logTypeMismatches(compiler.getTypeMismatches(), serializer, typePool)));
+          () ->
+              typeMismatchesToJson(
+                  logTypeMismatches(compiler.getTypeMismatches(), serializer, typePool)));
     }
   }
 
@@ -208,6 +210,25 @@ final class SerializeTypesToPointers {
     return stream(typeMismatches)
         .map(mismatch -> TypeMismatchJson.create(mismatch, serializer, typePool))
         .collect(toImmutableSortedSet(naturalOrder()));
+  }
+
+  /** Returns the compact, HTML-safe JSON text of an array with one object per mismatch. */
+  private static String typeMismatchesToJson(ImmutableSortedSet<TypeMismatchJson> typeMismatches) {
+    StringWriter out = new StringWriter();
+    JsonWriter writer = new JsonWriter(out);
+    writer.setLenient(true);
+    writer.setHtmlSafe(true);
+    writer.setSerializeNulls(false);
+    try {
+      writer.beginArray();
+      for (TypeMismatchJson typeMismatch : typeMismatches) {
+        typeMismatch.writeJson(writer);
+      }
+      writer.endArray();
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
+    return out.toString();
   }
 
   /**
@@ -252,6 +273,14 @@ final class SerializeTypesToPointers {
       this.location = x.location().getLocation();
       this.foundColorId = found.toString();
       this.requiredColorId = required.toString();
+    }
+
+    private void writeJson(JsonWriter writer) throws IOException {
+      writer.beginObject();
+      writer.name("location").value(this.location);
+      writer.name("foundColorId").value(this.foundColorId);
+      writer.name("requiredColorId").value(this.requiredColorId);
+      writer.endObject();
     }
 
     static TypeMismatchJson create(

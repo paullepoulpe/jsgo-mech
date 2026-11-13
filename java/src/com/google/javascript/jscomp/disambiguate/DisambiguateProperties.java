@@ -31,8 +31,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.errorprone.annotations.Keep;
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.CompilerPass;
@@ -43,6 +41,7 @@ import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.ColorRegistry;
 import com.google.javascript.jscomp.diagnostic.LogFile;
+import com.google.javascript.jscomp.diagnostic.LogsGson;
 import com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation;
 import com.google.javascript.jscomp.disambiguate.UseSiteRenamer.RenameUsesResult;
 import com.google.javascript.jscomp.graph.DiGraph;
@@ -64,8 +63,6 @@ public final class DisambiguateProperties implements CompilerPass {
           "JSC_DISAMBIGUATE2_PROPERTY_INVALIDATION",
           "Property ''{0}'' was required to be disambiguated but was invalidated."
               + "{1}");
-
-  private static final Gson GSON = new Gson();
 
   private final AbstractCompiler compiler;
   private final ImmutableSet<String> propertiesThatMustDisambiguate;
@@ -363,7 +360,7 @@ public final class DisambiguateProperties implements CompilerPass {
       writer.name("name").value(this.name);
       writer.name("refs").beginArray();
       for (PropertyReferenceJson ref : this.refs) {
-        GSON.toJson(ref, PropertyReferenceJson.class, writer);
+        ref.writeJson(writer);
       }
       writer.endArray();
       writer.endObject();
@@ -379,6 +376,26 @@ public final class DisambiguateProperties implements CompilerPass {
       this.receiverIndex = receiver.getIndex();
     }
 
+    /** Writes this reference as an object, HTML-safe; a null location is left out. */
+    private void writeJson(JsonWriter writer) throws IOException {
+      boolean oldLenient = writer.isLenient();
+      boolean oldHtmlSafe = writer.isHtmlSafe();
+      boolean oldSerializeNulls = writer.getSerializeNulls();
+      writer.setLenient(true);
+      writer.setHtmlSafe(true);
+      writer.setSerializeNulls(false);
+      try {
+        writer.beginObject();
+        writer.name("location").value(this.location);
+        writer.name("receiverIndex").value(this.receiverIndex);
+        writer.endObject();
+      } finally {
+        writer.setLenient(oldLenient);
+        writer.setHtmlSafe(oldHtmlSafe);
+        writer.setSerializeNulls(oldSerializeNulls);
+      }
+    }
+
     @Override
     public int compareTo(PropertyReferenceJson x) {
       return ComparisonChain.start()
@@ -388,13 +405,12 @@ public final class DisambiguateProperties implements CompilerPass {
     }
   }
 
-  private static final class TypeNodeJson {
+  private static final class TypeNodeJson implements LogsGson.Able {
     final int index;
-    // These fields are used reflectively via GSON.
-    @Keep final boolean invalidating;
-    @Keep final String colorId;
-    @Keep final ImmutableSortedSet<TypeEdgeJson> edges;
-    @Keep final ImmutableSortedMap<String, PropAssociation> props;
+    final boolean invalidating;
+    final String colorId;
+    final ImmutableSortedSet<TypeEdgeJson> edges;
+    final ImmutableSortedMap<String, PropAssociation> props;
 
     TypeNodeJson(DiGraphNode<ColorGraphNode, Object> n) {
       ColorGraphNode t = n.getValue();
@@ -412,12 +428,22 @@ public final class DisambiguateProperties implements CompilerPass {
                   toImmutableSortedMap(
                       naturalOrder(), e -> e.getKey().getName(), Map.Entry::getValue));
     }
+
+    @Override
+    public Object toLogsGson() {
+      LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+      json.put("index", this.index);
+      json.put("invalidating", this.invalidating);
+      json.put("colorId", this.colorId);
+      json.put("edges", this.edges);
+      json.put("props", this.props);
+      return json;
+    }
   }
 
-  private static final class TypeEdgeJson implements Comparable<TypeEdgeJson> {
+  private static final class TypeEdgeJson implements Comparable<TypeEdgeJson>, LogsGson.Able {
     final int dest;
-    // This field is used reflectively via GSON.
-    @Keep final Object value;
+    final Object value;
 
     TypeEdgeJson(DiGraphEdge<ColorGraphNode, Object> e) {
       this.dest = e.getDestination().getValue().getIndex();
@@ -428,6 +454,14 @@ public final class DisambiguateProperties implements CompilerPass {
     public int compareTo(TypeEdgeJson x) {
       checkArgument(this.dest != x.dest);
       return this.dest - x.dest;
+    }
+
+    @Override
+    public Object toLogsGson() {
+      LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+      json.put("dest", this.dest);
+      json.put("value", this.value);
+      return json;
     }
   }
 }

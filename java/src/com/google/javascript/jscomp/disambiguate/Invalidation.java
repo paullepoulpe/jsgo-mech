@@ -16,6 +16,9 @@
 
 package com.google.javascript.jscomp.disambiguate;
 
+import com.google.javascript.jscomp.diagnostic.LogsGson;
+import java.util.LinkedHashMap;
+
 /**
  * Describes one way in which a property became invalidated.
  *
@@ -23,8 +26,7 @@ package com.google.javascript.jscomp.disambiguate;
  * Since diagnostic information isn't usually rendered, this class is designed to defer work as much
  * as possible.
  */
-@SuppressWarnings({"UnusedVariable", "FieldCanBeLocal"}) // GSON reflection.
-class Invalidation {
+class Invalidation implements LogsGson.Able {
 
   static Invalidation wellKnownProperty() {
     return WELL_KNOWN_PROPERTY;
@@ -53,13 +55,27 @@ class Invalidation {
     this.reason = reason;
   }
 
-  /** Anonymous classes are not serialized correctly by GSON. */
+  @Override
+  public Object toLogsGson() {
+    LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+    json.put("reason", this.reason);
+    return json;
+  }
+
   private static final class WithReceiverType extends Invalidation {
     final int receiverType;
 
     WithReceiverType(Reason reason, int receiverType) {
       super(reason);
       this.receiverType = receiverType;
+    }
+
+    @Override
+    public Object toLogsGson() {
+      LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+      json.put("receiverType", this.receiverType);
+      json.put("reason", super.reason);
+      return json;
     }
   }
 

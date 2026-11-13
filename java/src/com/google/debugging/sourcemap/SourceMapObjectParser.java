@@ -16,12 +16,18 @@
 package com.google.debugging.sourcemap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -31,17 +37,12 @@ import org.jspecify.annotations.Nullable;
 
 /** Java implementation of the source map parser. */
 public class SourceMapObjectParser {
-  // Gson objects are safe to share across threads and are somewhat expensive to construct. Use a
-  // single instance.  This is Safe per gson docs:
-  // https://google.github.io/gson/apidocs/com/google/gson/Gson.html
-  private static final Gson gson = new Gson();
-
   public static SourceMapObject parse(String contents) throws SourceMapParseException {
 
     SourceMapObject.Builder builder = SourceMapObject.builder();
 
     try {
-      JsonObject sourceMapRoot = gson.fromJson(contents, JsonObject.class);
+      JsonObject sourceMapRoot = parseJsonObject(contents);
       builder.setVersion(sourceMapRoot.get("version").getAsInt());
       builder.setFile(getStringOrNull(sourceMapRoot, "file"));
       builder.setLineCount(
@@ -96,7 +97,7 @@ public class SourceMapObjectParser {
           case "sourceRoot" -> builder.setSourceRoot(lexer.nextStringOrNull());
           case "sections" -> {
             String rawSections = lexer.nextRawValue();
-            JsonArray sectionsArray = gson.fromJson(rawSections, JsonArray.class);
+            JsonArray sectionsArray = parseJsonArray(rawSections);
             ImmutableList.Builder<SourceMapSection> listBuilder = ImmutableList.builder();
             for (JsonElement each : sectionsArray) {
               listBuilder.add(buildSection(each.getAsJsonObject()));
@@ -108,7 +109,7 @@ public class SourceMapObjectParser {
           case "names" -> builder.setNames(readStringArray(lexer));
           default -> {
             if (name.startsWith("x_")) {
-              extensions.put(name, gson.fromJson(lexer.nextRawValue(), JsonElement.class));
+              extensions.put(name, parseJsonElement(lexer.nextRawValue()));
             } else {
               lexer.skipValue();
             }
@@ -188,6 +189,78 @@ public class SourceMapObjectParser {
     }
     lexer.endArray();
     return list.toArray(new String[0]);
+  }
+
+  /**
+   * Parses a whole JSON document that must be an object. Returns null for an empty document.
+   *
+   * <p>The three {@code parseJson*} methods accept and reject exactly the documents that Gson's
+   * {@code fromJson(String, Class)} did for the corresponding {@link JsonElement} class.
+   */
+  private static @Nullable JsonObject parseJsonObject(String json) {
+    JsonReader reader = new JsonReader(new StringReader(json));
+    JsonElement element = readJsonElement(reader);
+    if (element != null && !(element instanceof JsonObject)) {
+      throw unexpectedJsonElement("com.google.gson.JsonObject", element, reader);
+    }
+    checkFullyConsumed(element, reader);
+    return (JsonObject) element;
+  }
+
+  /** Parses a whole JSON document that must be an array. Returns null for an empty document. */
+  private static @Nullable JsonArray parseJsonArray(String json) {
+    JsonReader reader = new JsonReader(new StringReader(json));
+    JsonElement element = readJsonElement(reader);
+    if (element != null && !(element instanceof JsonArray)) {
+      throw unexpectedJsonElement("com.google.gson.JsonArray", element, reader);
+    }
+    checkFullyConsumed(element, reader);
+    return (JsonArray) element;
+  }
+
+  /** Parses a whole JSON document of any kind. Returns null for an empty document. */
+  private static @Nullable JsonElement parseJsonElement(String json) {
+    JsonReader reader = new JsonReader(new StringReader(json));
+    JsonElement element = readJsonElement(reader);
+    checkFullyConsumed(element, reader);
+    return element;
+  }
+
+  /** Reads the next value in lenient mode. Returns null if there is no value at all. */
+  private static @Nullable JsonElement readJsonElement(JsonReader reader) {
+    reader.setLenient(true);
+    try {
+      reader.peek();
+    } catch (EOFException e) {
+      return null;
+    } catch (IOException e) {
+      throw new JsonSyntaxException(e);
+    }
+    JsonElement element = JsonParser.parseReader(reader);
+    reader.setLenient(false);
+    return element;
+  }
+
+  private static JsonSyntaxException unexpectedJsonElement(
+      String expectedClassName, JsonElement element, JsonReader reader) {
+    return new JsonSyntaxException(
+        "Expected a "
+            + expectedClassName
+            + " but was "
+            + element.getClass().getName()
+            + "; at path "
+            + reader.getPreviousPath());
+  }
+
+  /** Rejects anything but whitespace after the value that was read; this check is strict. */
+  private static void checkFullyConsumed(@Nullable JsonElement element, JsonReader reader) {
+    try {
+      if (element != null && reader.peek() != JsonToken.END_DOCUMENT) {
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
+      }
+    } catch (IOException e) {
+      throw new JsonSyntaxException(e);
+    }
   }
 
   private SourceMapObjectParser() {}

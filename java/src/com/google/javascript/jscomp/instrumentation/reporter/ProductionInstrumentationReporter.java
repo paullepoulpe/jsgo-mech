@@ -20,16 +20,20 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.Writer;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -87,13 +91,95 @@ final class ProductionInstrumentationReporter {
 
     for (final File fileEntry : folder.listFiles()) {
       String executionResult = readFile(fileEntry.getAbsolutePath());
-      Type type = new TypeToken<Map<String, Long>>() {}.getType();
-      Map<String, Long> executedInstrumentationData = new Gson().fromJson(executionResult, type);
+      Map<String, Long> executedInstrumentationData = parseJsonStringToLongMap(executionResult);
 
       result.add(executedInstrumentationData);
     }
 
     return result.build();
+  }
+
+  /**
+   * Parses a whole JSON document that must be null or an object whose values are integers or null
+   * (or the same as an array of [name, value] pairs). Returns null for an empty document. The
+   * object is read in lenient mode; a repeated name is an error.
+   */
+  private static @Nullable Map<String, Long> parseJsonStringToLongMap(String json) {
+    JsonReader reader = new JsonReader(new StringReader(json));
+    try {
+      reader.setLenient(true);
+      try {
+        reader.peek();
+      } catch (EOFException e) {
+        return null;
+      }
+      Map<String, Long> map = null;
+      if (reader.peek() == JsonToken.NULL) {
+        reader.nextNull();
+      } else {
+        map = new LinkedHashMap<>();
+        boolean pairs = reader.peek() == JsonToken.BEGIN_ARRAY;
+        if (pairs) {
+          reader.beginArray();
+        } else {
+          reader.beginObject();
+        }
+        while (reader.hasNext()) {
+          String key;
+          if (pairs) {
+            reader.beginArray();
+            key = readJsonString(reader);
+          } else {
+            key = reader.nextName();
+          }
+          Long value = null;
+          if (reader.peek() == JsonToken.NULL) {
+            reader.nextNull();
+          } else {
+            try {
+              value = reader.nextLong();
+            } catch (NumberFormatException e) {
+              throw new JsonSyntaxException(e);
+            }
+          }
+          if (pairs) {
+            reader.endArray();
+          }
+          if (key == null) {
+            throw new NullPointerException("key == null");
+          }
+          Long replaced = map.put(key, value);
+          if (replaced != null) {
+            throw new JsonSyntaxException("duplicate key: " + key);
+          }
+        }
+        if (pairs) {
+          reader.endArray();
+        } else {
+          reader.endObject();
+        }
+      }
+      reader.setLenient(false);
+      if (map != null && reader.peek() != JsonToken.END_DOCUMENT) {
+        throw new JsonSyntaxException("JSON document was not fully consumed.");
+      }
+      return map;
+    } catch (IllegalStateException | IOException e) {
+      throw new JsonSyntaxException(e);
+    }
+  }
+
+  /** Reads a string or null; a boolean or a number is read as its text. */
+  private static @Nullable String readJsonString(JsonReader reader) throws IOException {
+    JsonToken peek = reader.peek();
+    if (peek == JsonToken.NULL) {
+      reader.nextNull();
+      return null;
+    }
+    if (peek == JsonToken.BOOLEAN) {
+      return Boolean.toString(reader.nextBoolean());
+    }
+    return reader.nextString();
   }
 
   /**

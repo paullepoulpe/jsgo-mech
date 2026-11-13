@@ -41,7 +41,12 @@ import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.MustBeClosed;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.CodePrinter.LicenseTracker;
 import com.google.javascript.jscomp.CompilerInput.ModuleType;
 import com.google.javascript.jscomp.CompilerOptions.DevMode;
@@ -104,6 +109,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractSet;
@@ -513,7 +519,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       logToFile("externs.log", externs::toString);
       logToFile(
           "inputs.json",
-          new GsonBuilder().setPrettyPrinting().create().toJson(chunkGraph.toJson())::toString);
+          toPrettyJson(chunkGraph.toJson())::toString);
       logToFile("options.log", () -> options.toString());
       logToFile("warningsGuard.log", () -> warningsGuard.toString());
     } else {
@@ -522,7 +528,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       err.println("==== Externs ====");
       err.println(externs);
       err.println("==== Inputs ====");
-      err.println(new GsonBuilder().setPrettyPrinting().create().toJson(chunkGraph.toJson()));
+      err.println(toPrettyJson(chunkGraph.toJson()));
       err.println("==== CompilerOptions ====");
       err.println(options);
       err.println("==== WarningsGuard ====");
@@ -530,11 +536,54 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     }
   }
 
+  /** Returns the HTML-safe JSON text of a JSON tree, indented by two spaces per level. */
+  private static String toPrettyJson(JsonElement element) {
+    StringWriter out = new StringWriter();
+    JsonWriter writer = new JsonWriter(out);
+    writer.setIndent("  ");
+    writer.setLenient(true);
+    writer.setHtmlSafe(true);
+    writer.setSerializeNulls(false);
+    try {
+      writeJson(writer, element);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
+    return out.toString();
+  }
+
+  private static void writeJson(JsonWriter writer, JsonElement element) throws IOException {
+    if (element == null || element.isJsonNull()) {
+      writer.nullValue();
+    } else if (element instanceof JsonPrimitive primitive) {
+      if (primitive.isNumber()) {
+        writer.value(primitive.getAsNumber());
+      } else if (primitive.isBoolean()) {
+        writer.value(primitive.getAsBoolean());
+      } else {
+        writer.value(primitive.getAsString());
+      }
+    } else if (element instanceof JsonArray array) {
+      writer.beginArray();
+      for (JsonElement e : array) {
+        writeJson(writer, e);
+      }
+      writer.endArray();
+    } else {
+      writer.beginObject();
+      for (Map.Entry<String, JsonElement> e : ((JsonObject) element).entrySet()) {
+        writer.name(e.getKey());
+        writeJson(writer, e.getValue());
+      }
+      writer.endObject();
+    }
+  }
+
   private void maybeLogPrunedInputs() {
     if (this.isDebugLoggingEnabled()) {
       logToFile(
           "inputs_pruned.json",
-          new GsonBuilder().setPrettyPrinting().create().toJson(chunkGraph.toJson())::toString);
+          toPrettyJson(chunkGraph.toJson())::toString);
     }
   }
 

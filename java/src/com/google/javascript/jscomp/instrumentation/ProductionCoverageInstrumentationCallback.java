@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.debugging.sourcemap.Base64VLQ;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.AstManipulations;
 import com.google.javascript.jscomp.NodeTraversal;
@@ -30,11 +30,13 @@ import com.google.javascript.jscomp.VariableMap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Instrument production coverage for javascript. This type of coverage will instrument different
@@ -342,18 +344,35 @@ final class ProductionCoverageInstrumentationCallback implements NodeTraversal.C
     }
 
     private VariableMap getParamMappingAsVariableMap() {
-      Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-
       // Array names are given a " " (space) prefix since when writing to file, VariableMap.java
       // sorts the map by key values. This space will place the arrays at the top of the file.
       // The key and value entry are put in this order because the map will be inversed.
-      paramValueEncodings.put(gson.toJson(fileNameToIndex.keySet()), " FileNames");
-      paramValueEncodings.put(gson.toJson(functionNameToIndex.keySet()), " FunctionNames");
-      paramValueEncodings.put(gson.toJson(typeToIndex.keySet()), " Types");
+      paramValueEncodings.put(toJsonArray(fileNameToIndex.keySet()), " FileNames");
+      paramValueEncodings.put(toJsonArray(functionNameToIndex.keySet()), " FunctionNames");
+      paramValueEncodings.put(toJsonArray(typeToIndex.keySet()), " Types");
 
       VariableMap preInversedMap = new VariableMap(paramValueEncodings);
       ImmutableMap<String, String> inversedMap = preInversedMap.getNewNameToOriginalNameMap();
       return new VariableMap(inversedMap);
+    }
+
+    /** Returns the compact JSON text, without HTML escaping, of an array of strings. */
+    private static String toJsonArray(Set<String> strings) {
+      StringWriter out = new StringWriter();
+      JsonWriter writer = new JsonWriter(out);
+      writer.setLenient(true);
+      writer.setHtmlSafe(false);
+      writer.setSerializeNulls(false);
+      try {
+        writer.beginArray();
+        for (String string : strings) {
+          writer.value(string);
+        }
+        writer.endArray();
+      } catch (IOException e) {
+        throw new JsonIOException(e);
+      }
+      return out.toString();
     }
   }
 }
