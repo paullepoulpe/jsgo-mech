@@ -16,25 +16,20 @@
 
 package com.google.javascript.jscomp.diagnostic;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import com.google.errorprone.annotations.MustBeClosed;
 import com.google.gson.stream.JsonWriter;
-import java.io.BufferedWriter;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.io.StringWriter;
 import java.util.function.Supplier;
 
 /**
- * An implementation that adapts a {@link BufferedWriter} and writes to a real file.
+ * An implementation that adapts an {@link Io.Output} and writes to a real file.
  *
  * <p>This class is designed to be super-sourceable by J2CL, since JS environments often don't have
  * file APIs. Doing so enables logging statements to be checked-in.
@@ -42,34 +37,25 @@ import java.util.function.Supplier;
 final class WritingLogFile extends LogFile {
 
   @MustBeClosed
-  static LogFile create(Path file) {
-    try {
-      Path dir = file.getParent();
-      Files.createDirectories(dir);
-      CharsetEncoder encoder = UTF_8.newEncoder();
-      // Allow the logged string to contain invalid Unicode (replace invalid character sequences
-      // but don't throw). This is useful in cases where the source code contains invalid Unicode
-      // (e.g., inside strings).
-      encoder
-          .onMalformedInput(CodingErrorAction.REPLACE)
-          .onUnmappableCharacter(CodingErrorAction.REPLACE);
-      return new WritingLogFile(
-          new BufferedWriter(
-              new OutputStreamWriter(
-                  Files.newOutputStream(
-                      file,
-                      StandardOpenOption.CREATE,
-                      StandardOpenOption.APPEND,
-                      StandardOpenOption.WRITE),
-                  encoder)));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+  static LogFile create(String file) {
+    String dir = Io.pathParent(file);
+    Outcome<Boolean> dirCreated = Io.createDirectories(dir);
+    if (dirCreated.isErr()) {
+      throw new RuntimeException(dirCreated.error());
     }
+    // The log allows the logged string to contain invalid Unicode (it replaces invalid character
+    // sequences but doesn't throw). This is useful in cases where the source code contains invalid
+    // Unicode (e.g., inside strings).
+    Outcome<Io.Output> writer = Io.openLog(file);
+    if (writer.isErr()) {
+      throw new RuntimeException(writer.error());
+    }
+    return new WritingLogFile(writer.get());
   }
 
-  private final BufferedWriter writer;
+  private final Io.Output writer;
 
-  private WritingLogFile(BufferedWriter writer) {
+  private WritingLogFile(Io.Output writer) {
     this.writer = writer;
   }
 
@@ -107,32 +93,36 @@ final class WritingLogFile extends LogFile {
   @CanIgnoreReturnValue
   @Override
   public LogFile logJson(StreamedJsonProducer producer) {
-    try (JsonWriter writer = new JsonWriter(this.writer)) {
+    StringWriter json = new StringWriter();
+    try (JsonWriter writer = new JsonWriter(json)) {
       producer.writeJson(writer);
     } catch (IOException ex) {
       throw new AssertionError(ex);
+    } finally {
+      // The JSON writer always closed the log it wrote to, whatever it had written.
+      this.writer.print(json.toString());
+      this.writer.close();
     }
     return this;
   }
 
   @CanIgnoreReturnValue
   private LogFile logInternal(String value) {
-    try {
-      // It's fine to pass a fully rendered string because we know we're going to use it by the
-      // time this method is called.
-      writer.append(value).append('\n');
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    // It's fine to pass a fully rendered string because we know we're going to use it by the
+    // time this method is called.
+    writer.append(value).append('\n');
+    if (writer.firstError() != null) {
+      throw new RuntimeException(writer.firstError());
     }
     return this;
   }
 
   @Override
   public void close() {
-    try {
-      writer.close();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    boolean failedBefore = writer.firstError() != null;
+    Outcome<Boolean> closed = writer.close();
+    if (closed.isErr() && !failedBefore) {
+      throw new RuntimeException(closed.error());
     }
   }
 

@@ -19,7 +19,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -31,7 +30,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Iterables;
-import com.google.common.io.BaseEncoding;
 import com.google.debugging.sourcemap.SourceMapConsumerV3;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -51,9 +49,9 @@ import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.ExpressionDecomposer.Workaround;
 import com.google.javascript.jscomp.JSChunkGraph.ChunkDependenceException;
 import com.google.javascript.jscomp.JSChunkGraph.DependencyManagementResult;
-import com.google.javascript.jscomp.JSChunkGraph.MissingChunkException;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.base.Tri;
@@ -84,7 +82,6 @@ import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import com.google.javascript.jscomp.parsing.parser.trees.Comment;
 import com.google.javascript.jscomp.resources.ResourceLoader;
 import com.google.javascript.jscomp.serialization.ColorPool;
-import com.google.javascript.jscomp.serialization.FastGzipOutputStream;
 import com.google.javascript.jscomp.serialization.SerializationOptions;
 import com.google.javascript.jscomp.serialization.SerializeTypedAstPass;
 import com.google.javascript.jscomp.serialization.TypedAstDeserializer;
@@ -101,16 +98,11 @@ import com.google.javascript.rhino.StaticScope;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
+import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.CodedOutputStream;
 import com.google.re2j.Pattern;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,7 +123,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -287,7 +278,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    */
   public static final Logger logger = Logger.getLogger("com.google.javascript.jscomp");
 
-  private final PrintStream outStream;
+  private final Io.Output outStream;
 
   private String lastPassName;
 
@@ -319,11 +310,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   /** Creates a Compiler that reports errors and warnings to its logger. */
   public Compiler() {
-    this((PrintStream) null);
+    this((Io.Output) null);
   }
 
   /** Creates a Compiler that reports errors and warnings to an output stream. */
-  public Compiler(@Nullable PrintStream outStream) {
+  public Compiler(Io.@Nullable Output outStream) {
     changeTracker.addChangeHandler(changeTracker.getRecentChange());
     this.outStream = outStream;
     this.moduleTypesByName = new LinkedHashMap<>();
@@ -524,15 +515,15 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       logToFile("warningsGuard.log", () -> warningsGuard.toString());
     } else {
       // Debug logging is not enabled, so use stderr
-      final PrintStream err = System.err;
+      final Io.Output err = Io.stderr();
       err.println("==== Externs ====");
-      err.println(externs);
+      err.println(String.valueOf(externs));
       err.println("==== Inputs ====");
       err.println(toPrettyJson(chunkGraph.toJson()));
       err.println("==== CompilerOptions ====");
-      err.println(options);
+      err.println(String.valueOf(options));
       err.println("==== WarningsGuard ====");
-      err.println(warningsGuard);
+      err.println(String.valueOf(warningsGuard));
     }
   }
 
@@ -687,13 +678,13 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    * <p>This method initializes all the state needed to run `.stage2Passes()` or do any similar sort
    * of optimization work.
    *
-   * @param typedAstListStream a gzipped, binary-serialized TypedAst.List proto
+   * @param typedAstListStream a binary-serialized TypedAst.List proto
    */
   public final void initWithTypedAstFilesystem(
       List<SourceFile> externs,
       List<SourceFile> sources,
       CompilerOptions options,
-      InputStream typedAstListStream) {
+      byte[] typedAstListStream) {
 
     ImmutableSet<SourceFile> files =
         ImmutableSet.<SourceFile>builder().addAll(externs).addAll(sources).build();
@@ -711,13 +702,13 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    * <p>This method initializes all the state needed to run `.stage2Passes()` or do any similar sort
    * of optimization work.
    *
-   * @param typedAstListStream a gzipped, binary-serialized TypedAst.List proto
+   * @param typedAstListStream a binary-serialized TypedAst.List proto
    */
   public void initChunksWithTypedAstFilesystem(
       List<SourceFile> externs,
       List<JSChunk> chunks,
       CompilerOptions options,
-      InputStream typedAstListStream) {
+      byte[] typedAstListStream) {
 
     ImmutableSet.Builder<SourceFile> filesBuilder = ImmutableSet.builder();
     filesBuilder.addAll(externs);
@@ -737,7 +728,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   private void mergeAndDeserializeTypedAsts(
       ImmutableSet<SourceFile> requiredInputFiles,
-      InputStream typedAstListStream,
+      byte[] typedAstListStream,
       CompilerOptions options) {
     checkState(this.typedAstFilesystem == null);
     maybeSetTracker();
@@ -793,12 +784,18 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
             "",
             "/runtime_libs.typedast");
 
+    Outcome<byte[]> typedAsts = Io.readResource(Compiler.class, path);
+    if (typedAsts.isErr()) {
+      throw new IllegalArgumentException(
+          "Cannot read from TypedAST input stream", typedAsts.error());
+    }
+
     TypedAstDeserializer.DeserializedAst astData =
         TypedAstDeserializer.deserializeRuntimeLibraries(
             this,
             SYNTHETIC_EXTERNS_FILE,
             colorPoolBuilder,
-            Compiler.class.getResourceAsStream(path),
+            typedAsts.get(),
             this.getOptions().getResolveSourceMapAnnotations(),
             this.getOptions().getParseInlineSourceMaps());
 
@@ -1237,10 +1234,16 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       if (options.getTracerOutput() == null) {
         tracker.outputTracerReport(this.outStream);
       } else {
-        try (PrintStream out = new PrintStream(Files.newOutputStream(options.getTracerOutput()))) {
-          tracker.outputTracerReport(out);
+        Outcome<Io.Output> out = Io.openPrintFileNio(options.getTracerOutput());
+        if (out.isErr()) {
+          throw new RuntimeException(out.error());
+        }
+        try {
+          tracker.outputTracerReport(out.get());
         } catch (Exception e) {
           throw new RuntimeException(e);
+        } finally {
+          out.get().close();
         }
       }
     }
@@ -1566,9 +1569,9 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       return LogFile.createNoOp();
     }
 
-    Path dir = getOptions().getDebugLogDirectory();
-    Path relativeParts = Path.of(firstNamePart, restNameParts);
-    Path file = dir.resolve(owner.getSimpleName()).resolve(relativeParts);
+    String dir = getOptions().getDebugLogDirectory();
+    String relativeParts = Io.pathString(firstNamePart, restNameParts);
+    String file = Io.pathResolve(Io.pathResolve(dir, owner.getSimpleName()), relativeParts);
 
     // If a filter list for log file names was provided, only create a log file if any
     // of the filter strings matches.
@@ -1578,7 +1581,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     }
 
     for (String filter : filters) {
-      if (file.toString().contains(filter)) {
+      if (file.contains(filter)) {
         return LogFile.createOrReopen(file);
       }
     }
@@ -1618,14 +1621,14 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         log.logString(currentJsSource);
       }
     } else {
-      System.err.println();
+      Io.stderr().println();
       if (debugMessage != null) {
-        System.err.println("// DEBUG: " + debugMessage);
+        Io.stderr().println("// DEBUG: " + debugMessage);
       }
-      System.err.println("// " + passName + " yields:");
-      System.err.println("// ************************************");
-      System.err.println(currentJsSource);
-      System.err.println("// ************************************");
+      Io.stderr().println("// " + passName + " yields:");
+      Io.stderr().println("// ************************************");
+      Io.stderr().println(currentJsSource);
+      Io.stderr().println("// ************************************");
     }
 
     this.lastJsSource = currentJsSource;
@@ -3642,7 +3645,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     String sourceMappingURL = sourceMapInput != null ? sourceMapInput.getOriginalPath() : null;
     if (sourceMappingURL != null && sourceMappingURL.endsWith(".inline.map")) {
       String unencoded = sourceMapInput.getRawSourceMapContents(); // This is the sourcemap.
-      return BaseEncoding.base64().encode(unencoded.getBytes(UTF_8));
+      return Io.base64Encode(Io.utf8Bytes(unencoded));
     }
     return null;
   }
@@ -4471,43 +4474,47 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     changeTracker.resetChangeStamp();
   }
 
-  public void saveState(OutputStream outputStream) throws IOException {
-    // Do not close the outputstream, caller is responsible for closing it.
-    runInCompilerThread(
+  /** Returns the compiler's state as (compressed) bytes that {@link #restoreState} accepts. */
+  public byte[] saveState() {
+    return runInCompilerThread(
         () -> {
           Tracer tracer = newTracer("serializeCompilerState");
-          OutputStream nonClosingOut = new NonClosingOutputStream(outputStream);
-          OutputStream compressionStream;
-          Function<OutputStream, OutputStream> wrapper = options.getStateCompressionWrapper();
-          if (wrapper != null) {
-            compressionStream = wrapper.apply(nonClosingOut);
-          } else {
-            compressionStream = new FastGzipOutputStream(nonClosingOut);
-          }
-
-          OutputStream bufferedCompressionStream =
-              new BufferedOutputStream(compressionStream, 64 * 1024);
-
-          JSCompilerStateProto.Builder builder = getCompilerStateProtoBuilder();
-          builder.build().writeDelimitedTo(bufferedCompressionStream);
+          JSCompilerStateProto stateProto = getCompilerStateProtoBuilder().build();
           stopTracer(tracer, "serializeCompilerState");
           tracer = newTracer("serializeTypedAst");
-          SerializeTypedAstPass.createFromOutputStream(
+          List<byte[]> typedAstList = new ArrayList<>();
+          SerializeTypedAstPass.createFromConsumer(
                   this,
-                  bufferedCompressionStream,
+                  typedAstList::add,
                   SerializationOptions.builder()
                       .setRuntimeLibraries(ImmutableList.of())
                       .setIncludeDebugInfo(this.getOptions().shouldSerializeExtraDebugInfo())
                       .build())
               .process(externsRoot, jsRoot);
           stopTracer(tracer, "serializeTypedAst");
-          // Close the buffered stream to flush uncompressed bytes and close the compressor
-          bufferedCompressionStream.close();
-          return null;
+          // The uncompressed state: the state proto, length-delimited, then the TypedAst.List.
+          byte[] typedAsts = Iterables.getOnlyElement(typedAstList);
+          int stateSize = stateProto.getSerializedSize();
+          byte[] uncompressed =
+              new byte
+                  [CodedOutputStream.computeUInt32SizeNoTag(stateSize)
+                      + stateSize
+                      + typedAsts.length];
+          CodedOutputStream out = CodedOutputStream.newInstance(uncompressed);
+          out.writeUInt32NoTag(stateSize);
+          stateProto.writeTo(out);
+          out.writeRawBytes(typedAsts);
+          out.flush();
+          Function<byte[], byte[]> wrapper = options.getStateCompressionWrapper();
+          if (wrapper != null) {
+            return wrapper.apply(uncompressed);
+          }
+          return Io.gzipFast(uncompressed);
         });
   }
 
-  public void restoreState(InputStream inputStream) throws IOException, ClassNotFoundException {
+  /** Restores the state that {@link #saveState} returned; fails if the bytes are not that. */
+  public void restoreState(byte[] state) {
     initWarningsGuard(options.getWarningsGuard());
     maybeSetTracker();
 
@@ -4515,21 +4522,22 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         () -> {
           Tracer tracer = newTracer(PassNames.DESERIALIZE_COMPILER_STATE);
           logger.fine("Deserializing the CompilerState");
-          InputStream nonClosingIn = new NonClosingInputStream(inputStream);
-          InputStream decompressStream;
-          Function<InputStream, InputStream> wrapper = options.getStateDecompressionWrapper();
-          if (wrapper != null) {
-            decompressStream = wrapper.apply(nonClosingIn);
-          } else {
-            decompressStream = new GZIPInputStream(nonClosingIn, 64 * 1024);
-          }
-          InputStream bufferedDecompressStream =
-              new BufferedInputStream(decompressStream, 64 * 1024);
           try {
-            deserializeCompilerState(bufferedDecompressStream);
+            byte[] uncompressed;
+            Function<byte[], byte[]> wrapper = options.getStateDecompressionWrapper();
+            if (wrapper != null) {
+              uncompressed = wrapper.apply(state);
+            } else {
+              Outcome<byte[]> unzipped = Io.gunzip(state);
+              if (unzipped.isErr()) {
+                // Ends the compilation, as every failure in the compiler thread does.
+                throw (IOException) unzipped.error();
+              }
+              uncompressed = unzipped.get();
+            }
+            deserializeCompilerState(uncompressed);
             return null;
           } finally {
-            bufferedDecompressStream.close();
             logger.fine("Finished deserializing CompilerState");
             stopTracer(tracer, PassNames.DESERIALIZE_COMPILER_STATE);
           }
@@ -4541,9 +4549,16 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   // this method must be called from within a "compiler thread" with a larger stack
-  private void deserializeCompilerState(InputStream inputStream) throws IOException {
-    // Do not close the input stream, caller is responsible for closing it.
-    JSCompilerStateProto stateProto = JSCompilerStateProto.parseDelimitedFrom(inputStream);
+  private void deserializeCompilerState(byte[] state) throws IOException {
+    // The state proto, length-delimited, then the TypedAst.List (see saveState).
+    CodedInputStream in = CodedInputStream.newInstance(state);
+    JSCompilerStateProto stateProto = null;
+    if (!in.isAtEnd()) {
+      int stateLimit = in.pushLimit(in.readRawVarint32());
+      stateProto = JSCompilerStateProto.parseFrom(in);
+      in.popLimit(stateLimit);
+    }
+    byte[] typedAsts = Arrays.copyOfRange(state, in.getTotalBytesRead(), state.length);
 
     checkNotNull(
         this.chunkGraph, "Did you forget to call .init or .initChunks before restoreState?");
@@ -4564,7 +4579,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
             this,
             SYNTHETIC_EXTERNS_FILE,
             allInputFiles.build(),
-            inputStream,
+            typedAsts,
             stateProto.getTypeCheckingHasRun(),
             this.getOptions().getResolveSourceMapAnnotations(),
             this.getOptions().getParseInlineSourceMaps());
@@ -4786,27 +4801,5 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
             + pruningResult.entryPointDependencyCount()
             + "\n\nTop bottleneck dependencies:\n"
             + pruningResult.bottleneckBlame());
-  }
-
-  private static final class NonClosingOutputStream extends java.io.FilterOutputStream {
-    NonClosingOutputStream(OutputStream out) {
-      super(out);
-    }
-
-    @Override
-    public void close() throws IOException {
-      flush();
-    }
-  }
-
-  private static final class NonClosingInputStream extends java.io.FilterInputStream {
-    NonClosingInputStream(InputStream in) {
-      super(in);
-    }
-
-    @Override
-    public void close() {
-      // Do not close the underlying stream
-    }
   }
 }

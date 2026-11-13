@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.Io;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
@@ -39,7 +40,7 @@ public final class DepsGeneratorTest {
 
   @Before
   public void setUp() throws Exception {
-    errorManager = new PrintStreamErrorManager(System.err);
+    errorManager = new PrintStreamErrorManager(Io.stderr());
   }
 
   // TODO(johnplaisted): This should eventually be an error. For now people are relying on this
@@ -67,7 +68,7 @@ public final class DepsGeneratorTest {
                 .setFactory(BrowserModuleResolver.FACTORY)
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     assertWarnings(
         "File cannot be a combination of goog.provide, goog.module, and/or ES6 "
@@ -105,7 +106,7 @@ goog.addDependency('goog/es6.js', [], [], {'lang': 'es6', 'module': 'es6'});
                 .setFactory(BrowserModuleResolver.FACTORY)
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     assertNoWarnings();
 
@@ -149,7 +150,7 @@ goog.addDependency('goog/es6.js', [], [], {'lang': 'es6', 'module': 'es6'});
                 .setFactory(BrowserModuleResolver.FACTORY)
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     assertNoWarnings();
 
@@ -192,7 +193,7 @@ goog.addDependency('goog/googmodule.js', ['my.goog.module'], ['my.namespace'], {
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
 
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     // Make sure that there are no spurious errors.
     assertNoWarnings();
@@ -280,7 +281,7 @@ goog.addDependency('../prescanned2/file2.js', [], []);
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
 
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     assertNoWarnings();
     assertThat(output).isEqualTo(expected);
@@ -309,7 +310,7 @@ goog.addDependency('../prescanned2/file2.js', [], []);
         """
             + expected;
 
-    output = depsGenerator.computeDependencyCalls();
+    output = depsGenerator.computeDependencyCalls().get();
 
     assertNoWarnings();
     assertThat(output).isEqualTo(expectedWithDepsAsSources);
@@ -359,7 +360,7 @@ goog.addDependency('../this/is/defined/thrice.js', [], []);
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
 
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     assertWithMessage("There should be output").that(output).isNotEmpty();
     assertNoWarnings();
@@ -384,7 +385,7 @@ goog.addDependency('../this/is/defined/thrice.js', [], []);
                 .setFactory(BrowserModuleResolver.FACTORY)
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     assertNoWarnings();
 
@@ -458,7 +459,7 @@ goog.addDependency('../this/is/defined/thrice.js', [], []);
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
 
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     assertNoWarnings();
     assertWithMessage("There should be output files").that(output).isNotEmpty();
@@ -484,7 +485,7 @@ goog.addDependency('../this/is/defined/thrice.js', [], []);
                 .setFactory(BrowserModuleResolver.FACTORY)
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
-    String output = depsGenerator.computeDependencyCalls();
+    String output = depsGenerator.computeDependencyCalls().get();
 
     if (fatal) {
       assertWithMessage("No output should have been created.").that(output).isNull();
@@ -565,7 +566,7 @@ goog.addDependency('../this/is/defined/thrice.js', [], []);
                 .setPathResolver(ModuleLoader.PathResolver.ABSOLUTE)
                 .build());
 
-    String output = worker.computeDependencyCalls();
+    String output = worker.computeDependencyCalls().get();
 
     assertWithMessage("Output should have been created.").that(output).isNotEmpty();
     assertNoWarnings();

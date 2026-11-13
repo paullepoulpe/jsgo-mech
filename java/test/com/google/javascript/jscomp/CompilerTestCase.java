@@ -48,7 +48,6 @@ import com.google.javascript.jscomp.type.SemanticReverseAbstractInterpreter;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1508,11 +1507,7 @@ public abstract class CompilerTestCase {
       Node mainRoot, Compiler compiler, List<SourceFile> expected) {
     String[] expectedSources = new String[expected.size()];
     for (int i = 0; i < expected.size(); ++i) {
-      try {
-        expectedSources[i] = expected.get(i).getCode();
-      } catch (IOException e) {
-        throw new RuntimeException("failed to get source code", e);
-      }
+      expectedSources[i] = expected.get(i).readCode().get();
     }
     assertThat(compiler.toSource(mainRoot).replaceAll(" +\n", "\n"))
         .isEqualTo(Joiner.on("").join(expectedSources));
@@ -1835,11 +1830,7 @@ public abstract class CompilerTestCase {
     List<String> expectedSrcs = new ArrayList<>();
     for (JSChunk chunk : chunks) {
       for (CompilerInput input : chunk.getInputs()) {
-        try {
-          expectedSrcs.add(input.getSourceFile().getCode());
-        } catch (IOException e) {
-          throw new RuntimeException("ouch", e);
-        }
+        expectedSrcs.add(input.getSourceFile().readCode().get());
       }
     }
     return expectedStringVarargs(expectedSrcs.toArray(new String[0]));
@@ -1859,11 +1850,7 @@ public abstract class CompilerTestCase {
         stream(externs)
             .map(
                 f -> {
-                  try {
-                    return SourceFile.fromCode(f.getName(), f.getCode());
-                  } catch (IOException e) {
-                    throw new RuntimeException(e);
-                  }
+                  return SourceFile.fromCode(f.getName(), f.readCode().get());
                 })
             .collect(toImmutableList()));
   }

@@ -19,11 +19,9 @@ package com.google.javascript.jscomp.serialization;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.CompilerPass;
 import com.google.javascript.jscomp.RemoveCastNodes;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.rhino.Node;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.function.Consumer;
 
 /**
@@ -48,33 +46,30 @@ public final class SerializeTypedAstPass implements CompilerPass {
   }
 
   /**
-   * Serializes a TypedAst to the given output stream.
+   * Serializes a TypedAst to bytes (a TypedAst.List proto) and hands them to the consumer.
    *
-   * <p>Unlike {@link #createFromPath(AbstractCompiler, Path)}, this method does not automatically
-   * gzip the TypedAST. The "out" parameter may or may not already be a GZIPOutputStream.
+   * <p>Unlike {@link #createFromPath(AbstractCompiler, String, SerializationOptions)}, this method
+   * does not gzip the TypedAST.
    */
-  public static SerializeTypedAstPass createFromOutputStream(
-      AbstractCompiler c, OutputStream out, SerializationOptions serializationOptions) {
-    Consumer<TypedAst> toOutputStream =
-        ast -> {
-          try {
-            TypedAst.List.newBuilder().addTypedAsts(ast).build().writeTo(out);
-          } catch (IOException e) {
-            throw new IllegalArgumentException("Cannot write to stream", e);
-          }
-        };
-    return new SerializeTypedAstPass(c, toOutputStream, serializationOptions);
+  public static SerializeTypedAstPass createFromConsumer(
+      AbstractCompiler c, Consumer<byte[]> out, SerializationOptions serializationOptions) {
+    Consumer<TypedAst> toBytes =
+        ast -> out.accept(TypedAst.List.newBuilder().addTypedAsts(ast).build().toByteArray());
+    return new SerializeTypedAstPass(c, toBytes, serializationOptions);
   }
 
   /** Serializes a gzipped TypedAst to the specified outputPath */
   public static SerializeTypedAstPass createFromPath(
-      AbstractCompiler compiler, Path outputPath, SerializationOptions serializationOptions) {
+      AbstractCompiler compiler, String outputPath, SerializationOptions serializationOptions) {
     Consumer<TypedAst> toPath =
         ast -> {
-          try (OutputStream out = new FastGzipOutputStream(Files.newOutputStream(outputPath))) {
-            TypedAst.List.newBuilder().addTypedAsts(ast).build().writeTo(out);
-          } catch (IOException e) {
-            throw new IllegalArgumentException("Cannot create TypedAst output file", e);
+          Outcome<Boolean> written =
+              Io.writeBytesNio(
+                  outputPath,
+                  Io.gzipFast(TypedAst.List.newBuilder().addTypedAsts(ast).build().toByteArray()));
+          if (written.isErr()) {
+            throw new IllegalArgumentException(
+                "Cannot create TypedAst output file", written.error());
           }
         };
     return new SerializeTypedAstPass(compiler, toPath, serializationOptions);

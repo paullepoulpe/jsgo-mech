@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.parsing.Config;
 import com.google.javascript.rhino.Node;
-import java.nio.charset.Charset;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 
@@ -36,7 +35,7 @@ public abstract class CodePrinterTestBase {
   protected boolean preserveNonJSDocComments = false;
   protected LanguageMode languageMode = LanguageMode.ECMASCRIPT5;
   protected @Nullable Compiler lastCompiler = null;
-  protected @Nullable Charset outputCharset = null;
+  protected @Nullable String outputCharset = null;
   protected ImmutableList<DiagnosticGroup> diagnosticsToIgnore = ImmutableList.of();
 
   @Before

@@ -17,21 +17,15 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharSource;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.re2j.Pattern;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.Reader;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -125,7 +119,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
   }
 
   /** Creates a warnings guard from a file. */
-  public static AllowlistWarningsGuard fromFile(File file) {
+  public static AllowlistWarningsGuard fromFile(String file) {
     return new AllowlistWarningsGuard(loadAllowlistedJsWarningsFile(file));
   }
 
@@ -134,34 +128,25 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    *
    * @return The lines of the file.
    */
-  public static Set<String> loadAllowlistedJsWarningsFile(File file) {
-    return loadAllowlistedJsWarnings(Files.asCharSource(file, UTF_8));
-  }
-
-  /**
-   * Loads legacy warnings list from the file.
-   *
-   * @return The lines of the file.
-   */
-  protected static Set<String> loadAllowlistedJsWarnings(CharSource supplier) {
-    try {
-      return loadAllowlistedJsWarningsReader(supplier.openStream());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+  public static Set<String> loadAllowlistedJsWarningsFile(String file) {
+    Outcome<String> text = Io.readText(file, Io.UTF_8);
+    if (text.isErr()) {
+      throw new RuntimeException(text.error());
     }
+    return loadAllowlistedJsWarningsText(text.get());
   }
 
   /**
-   * Loads legacy warnings list from the file.
+   * Loads legacy warnings list from the text of the file.
    *
    * @return The lines of the file.
    */
   // TODO(nicksantos): This is a weird API.
-  static Set<String> loadAllowlistedJsWarningsReader(Reader reader) throws IOException {
-    checkNotNull(reader);
+  static Set<String> loadAllowlistedJsWarningsText(String text) {
+    checkNotNull(text);
     Set<String> result = new LinkedHashSet<>();
 
-    result.addAll(CharStreams.readLines(reader));
+    result.addAll(Io.splitLines(text));
 
     return result;
   }
@@ -256,17 +241,20 @@ public class AllowlistWarningsGuard extends WarningsGuard {
      * Writes the warnings collected in a format that the AllowlistWarningsGuard can read back
      * later.
      */
-    public void writeAllowlist(File out) throws IOException {
-      try (PrintStream stream = new PrintStream(out)) {
-        appendAllowlist(stream);
+    public Outcome<Boolean> writeAllowlist(String out) {
+      Outcome<Io.Output> stream = Io.openPrintFile(out);
+      if (stream.isErr()) {
+        return Outcome.err(stream.error());
       }
+      appendAllowlist(stream.get());
+      return stream.get().close();
     }
 
     /**
      * Writes the warnings collected in a format that the AllowlistWarningsGuard can read back
      * later.
      */
-    public void appendAllowlist(PrintStream out) {
+    public void appendAllowlist(Io.Output out) {
       out.append("# This is a list of legacy warnings that have yet to be fixed.\n");
 
       if (productName != null && !productName.isEmpty() && !warnings.isEmpty()) {

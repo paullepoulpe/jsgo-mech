@@ -18,7 +18,6 @@ package com.google.javascript.jscomp;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.gson.stream.JsonWriter;
@@ -26,19 +25,18 @@ import com.google.javascript.jscomp.LightweightMessageFormatter.LineNumberingFor
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorWithLevel;
 import com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.TokenUtil;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
+import java.io.StringWriter;
 
 /**
  * An error report generator that prints error and warning data to the print stream as an array of
  * JSON objects.
  */
 public class JsonErrorReportGenerator implements ErrorReportGenerator {
-  private final PrintStream stream;
+  private final Io.Output stream;
   private final SourceExcerptProvider sourceExcerptProvider;
   private static final LineNumberingFormatter excerptFormatter = new LineNumberingFormatter();
 
@@ -49,15 +47,15 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
    *     not close the stream
    * @param sourceExcerptProvider used to retrieve the source context which generated the error
    */
-  public JsonErrorReportGenerator(PrintStream stream, SourceExcerptProvider sourceExcerptProvider) {
+  public JsonErrorReportGenerator(Io.Output stream, SourceExcerptProvider sourceExcerptProvider) {
     this.stream = stream;
     this.sourceExcerptProvider = sourceExcerptProvider;
   }
 
   @Override
   public void generateReport(SortingErrorManager manager) {
-    ByteArrayOutputStream bufferedStream = new ByteArrayOutputStream();
-    try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(bufferedStream, UTF_8))) {
+    StringWriter bufferedStream = new StringWriter();
+    try (JsonWriter jsonWriter = new JsonWriter(bufferedStream)) {
       jsonWriter.beginArray();
       for (ErrorWithLevel message : manager.getSortedDiagnostics()) {
         String sourceName = message.error.sourceName();
@@ -155,6 +153,7 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    stream.append(bufferedStream.toString(UTF_8));
+    // The text as it comes back from the UTF-8 bytes it used to be written as.
+    stream.append(Io.utf8String(Io.utf8Bytes(bufferedStream.toString())));
   }
 }

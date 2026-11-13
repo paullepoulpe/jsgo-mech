@@ -5792,7 +5792,7 @@ public final class JsDocInfoParserTest extends BaseJSTypeTestCase {
                */
               function f(x) {}
             """);
-    Node script = parseFull(sourceFile.getCode());
+    Node script = parseFull(sourceFile.readCode().get());
     checkState(script.isScript());
     Node fn = script.getFirstChild();
     checkState(fn.isFunction());

@@ -26,10 +26,10 @@ import static java.util.Comparator.comparingLong;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.CompilerOptions.TracerMode;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
-import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -416,7 +416,7 @@ public final class PerformanceTracker {
    * Prints a summary, which contains aggregate stats for all runs of each pass and a log, which
    * contains stats for each individual run.
    */
-  public void outputTracerReport(PrintStream output) {
+  public void outputTracerReport(Io.Output output) {
     JvmMetrics.maybeWriteJvmMetrics(output, "verbose:pretty:all");
     calcTotalStats();
 
@@ -493,7 +493,7 @@ public final class PerformanceTracker {
             "Log:",
             "pass,runtime,allocMem,codeChanged,astReduction,reduction,gzReduction,astSize,size,gzSize"));
     for (Stats stats : this.log) {
-      output.printf(
+      output.print(String.format(
           "%s,%d,%d,%s,%d,%d,%d,%d,%d,%d\n",
           stats.pass,
           stats.runtime,
@@ -504,7 +504,7 @@ public final class PerformanceTracker {
           stats.gzDiff,
           stats.astSize,
           stats.size,
-          stats.gzSize);
+          stats.gzSize));
     }
 
     if (this.astManifest != null) {

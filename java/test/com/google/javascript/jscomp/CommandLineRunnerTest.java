@@ -42,6 +42,7 @@ import com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType;
 import com.google.javascript.jscomp.Compiler.ScriptNodeLicensesOnlyTracker;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.testing.JSChunkGraphBuilder;
 import com.google.javascript.jscomp.testing.TestExternsBuilder;
@@ -186,7 +187,7 @@ public final class CommandLineRunnerTest {
             });
     CommandLineRunner runner =
         new CommandLineRunner(
-            stringListToArray(stage1Flags), new PrintStream(outReader), new PrintStream(errReader));
+            stringListToArray(stage1Flags), Io.outputToStream(new PrintStream(outReader)), Io.outputToStream(new PrintStream(errReader)));
     // Expect an exit status of 1 because there is one error.
     assertThat(runner.doRun().get()).isEqualTo(1);
     assertThat(new String(outReader.toByteArray(), UTF_8)).isEmpty();
@@ -264,7 +265,7 @@ public final class CommandLineRunnerTest {
     verifyFlagsAreIncompatibleWithChecksOnly(stage1Flags);
     CommandLineRunner runner =
         new CommandLineRunner(
-            stringListToArray(stage1Flags), new PrintStream(outReader), new PrintStream(errReader));
+            stringListToArray(stage1Flags), Io.outputToStream(new PrintStream(outReader)), Io.outputToStream(new PrintStream(errReader)));
     assertThat(runner.doRun().get()).isEqualTo(0);
     assertThat(new String(outReader.toByteArray(), UTF_8)).isEmpty();
 
@@ -1174,14 +1175,14 @@ public final class CommandLineRunnerTest {
     CompilerInput extern = lastCompiler.getExternsForTesting().get(2);
     assertThat(extern.getChunk()).isNull();
     assertThat(extern.isExtern()).isTrue();
-    assertThat(extern.getCode()).isEqualTo(code);
+    assertThat(extern.readCode().get()).isEqualTo(code);
 
     assertThat(lastCompiler.getInputsForTesting()).hasSize(1);
 
     CompilerInput input = lastCompiler.getInputsForTesting().get(0);
     assertThat(input.getChunk()).isNotNull();
     assertThat(input.isExtern()).isFalse();
-    assertThat(input.getCode()).isEmpty();
+    assertThat(input.readCode().get()).isEmpty();
   }
 
   @Test
@@ -1870,10 +1871,10 @@ public final class CommandLineRunnerTest {
   @Test
   public void testCharSetExpansion() {
     testSame("");
-    assertThat(lastCompiler.getOptions().getOutputCharset()).isEqualTo(US_ASCII);
+    assertThat(lastCompiler.getOptions().getOutputCharset()).isEqualTo(US_ASCII.name());
     args.add("--charset=UTF-8");
     testSame("");
-    assertThat(lastCompiler.getOptions().getOutputCharset()).isEqualTo(UTF_8);
+    assertThat(lastCompiler.getOptions().getOutputCharset()).isEqualTo(UTF_8.name());
   }
 
   @Test
@@ -2610,9 +2611,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -2633,9 +2634,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -2666,9 +2667,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -2720,9 +2721,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -2780,9 +2781,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -2818,9 +2819,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -2855,9 +2856,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -2916,9 +2917,9 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     runner.doRun().get();
@@ -3222,9 +3223,9 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outReader),
-            new PrintStream(errReader));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outReader)),
+            Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -3295,7 +3296,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
 
     CommandLineRunner runner =
         new CommandLineRunner(
-            args.toArray(new String[] {}), new PrintStream(outReader), new PrintStream(errReader));
+            args.toArray(new String[] {}), Io.outputToStream(new PrintStream(outReader)), Io.outputToStream(new PrintStream(errReader)));
 
     lastCompiler = runner.getCompiler();
     try {
@@ -4101,7 +4102,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
 
     String[] argStrings = args.toArray(new String[] {});
     return new CommandLineRunner(
-        argStrings, new PrintStream(outReader), new PrintStream(errReader));
+        argStrings, Io.outputToStream(new PrintStream(outReader)), Io.outputToStream(new PrintStream(errReader)));
   }
 
   private static FlagEntry<JsSourceType> createZipFile(Map<String, String> entryContentsByName)
@@ -4170,7 +4171,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
     String[] argStrings = args.toArray(new String[] {});
 
     CommandLineRunner runner =
-        new CommandLineRunner(argStrings, new PrintStream(outReader), new PrintStream(errReader));
+        new CommandLineRunner(argStrings, Io.outputToStream(new PrintStream(outReader)), Io.outputToStream(new PrintStream(errReader)));
     lastCompiler = runner.getCompiler();
     try {
       runner.doRun().get();
@@ -4197,9 +4198,9 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
     CommandLineRunner runner =
         new CommandLineRunner(
             args.toArray(new String[] {}),
-            new ByteArrayInputStream(inputString.getBytes(UTF_8)),
-            new PrintStream(outputStream),
-            new PrintStream(errorStream));
+            Io.inputFromStream(new ByteArrayInputStream(inputString.getBytes(UTF_8))),
+            Io.outputToStream(new PrintStream(outputStream)),
+            Io.outputToStream(new PrintStream(errorStream)));
 
     runner.getCompiler();
     try {

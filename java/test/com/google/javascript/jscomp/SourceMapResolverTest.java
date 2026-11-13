@@ -35,7 +35,7 @@ public final class SourceMapResolverTest {
     SourceFile s =
         SourceMapResolver.extractSourceMap(
             SourceFile.fromCode("somePath/hello.js", code), url, true);
-    assertThat(s.getCode()).isEqualTo(sourceMap);
+    assertThat(s.readCode().get()).isEqualTo(sourceMap);
     assertThat(s.getName()).isEqualTo("somePath/hello.js.inline.map");
 
     // --parse_inline_source_maps=false
@@ -54,7 +54,7 @@ public final class SourceMapResolverTest {
     SourceFile s =
         SourceMapResolver.extractSourceMap(
             SourceFile.fromCode("somePath/hello.js", code), url, true);
-    assertThat(s.getCode()).isEqualTo(sourceMap);
+    assertThat(s.readCode().get()).isEqualTo(sourceMap);
     assertThat(s.getName()).isEqualTo("somePath/hello.js.inline.map");
 
     // Try non supported charset.

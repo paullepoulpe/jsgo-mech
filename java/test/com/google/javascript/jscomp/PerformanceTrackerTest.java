@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.CompilerOptions.TracerMode;
 import com.google.javascript.jscomp.PerformanceTracker.Stats;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.InputId;
 import com.google.javascript.rhino.JSDocInfo;
@@ -292,7 +293,7 @@ public final class PerformanceTrackerTest {
   private static final String extractReport(PerformanceTracker tracker) {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try (PrintStream outstream = new PrintStream(output)) {
-      tracker.outputTracerReport(outstream);
+      tracker.outputTracerReport(Io.outputToStream(outstream));
     }
     return output.toString(UTF_8);
   }

@@ -59,7 +59,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -1779,7 +1778,7 @@ public final class CompilerTest {
   private void restoreCompilerState(Compiler compiler, byte[] stateAfterChecks)
       throws IOException, ClassNotFoundException {
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(stateAfterChecks)) {
-      compiler.restoreState(byteArrayInputStream);
+      compiler.restoreState(byteArrayInputStream.readAllBytes());
     } catch (Exception e) {
       throw new AssertionError("restoring compiler state failed", e);
     }
@@ -1787,7 +1786,7 @@ public final class CompilerTest {
 
   private byte[] getSavedCompilerState(Compiler compiler) throws IOException {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    compiler.saveState(outputStream);
+    outputStream.write(compiler.saveState());
     outputStream.close();
     return outputStream.toByteArray();
   }
@@ -1818,7 +1817,7 @@ public final class CompilerTest {
 
     // Save state
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    compiler.saveState(baos);
+    baos.write(compiler.saveState());
     baos.close();
 
     assertThat(compressionUsed.get()).isTrue();
@@ -1834,7 +1833,7 @@ public final class CompilerTest {
     compiler2.init(ImmutableList.of(), inputs, options2);
 
     ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-    compiler2.restoreState(bais);
+    compiler2.restoreState(bais.readAllBytes());
     bais.close();
 
     assertThat(decompressionUsed.get()).isTrue();
@@ -2691,7 +2690,7 @@ public final class CompilerTest {
 
     if (saveAndRestore) {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      compiler.saveState(byteArrayOutputStream);
+      byteArrayOutputStream.write(compiler.saveState());
       byteArrayOutputStream.close();
 
       // NOTE: The AST is not expected to be used after serialization to the save file.
@@ -3112,7 +3111,7 @@ public final class CompilerTest {
     assertThat(compiler.hasTypeCheckingRun()).isFalse();
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    compiler.saveState(byteArrayOutputStream);
+    byteArrayOutputStream.write(compiler.saveState());
     byteArrayOutputStream.close();
 
     compiler = new Compiler();
@@ -3138,7 +3137,7 @@ public final class CompilerTest {
     compiler.getRuntimeJsLibManager().ensureLibraryInjected("base", /* force= */ true);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    compiler.saveState(byteArrayOutputStream);
+    byteArrayOutputStream.write(compiler.saveState());
     byteArrayOutputStream.close();
 
     compiler = new Compiler();
@@ -3168,7 +3167,7 @@ public final class CompilerTest {
     compiler.getRuntimeJsLibManager().ensureLibraryInjected("base", /* force= */ true);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    compiler.saveState(byteArrayOutputStream);
+    byteArrayOutputStream.write(compiler.saveState());
     byteArrayOutputStream.close();
 
     compiler = new Compiler();
@@ -3254,7 +3253,7 @@ public final class CompilerTest {
                                     .build()
                                     .toByteString())))
             .build();
-    InputStream typedAstListStream = new ByteArrayInputStream(typedAstList.toByteArray());
+    ByteArrayInputStream typedAstListStream = new ByteArrayInputStream(typedAstList.toByteArray());
 
     Compiler compiler = new Compiler();
     CompilerOptions compilerOptions = new CompilerOptions();
@@ -3262,7 +3261,7 @@ public final class CompilerTest {
 
     // When
     compiler.initWithTypedAstFilesystem(
-        ImmutableList.of(), ImmutableList.of(file1), compilerOptions, typedAstListStream);
+        ImmutableList.of(), ImmutableList.of(file1), compilerOptions, typedAstListStream.readAllBytes());
 
     assertThrows(Exception.class, () -> compiler.getTypedAstDeserializer(file2));
 
@@ -3274,7 +3273,7 @@ public final class CompilerTest {
   public void testTypedAstFilesystem_someInputFilesUnavailable_crashes() {
     // Given
     SourceFile file = SourceFile.fromCode("test.js", "");
-    InputStream typedAstListStream = new ByteArrayInputStream(new byte[0]);
+    ByteArrayInputStream typedAstListStream = new ByteArrayInputStream(new byte[0]);
     Compiler compiler = new Compiler();
     CompilerOptions compilerOptions = new CompilerOptions();
     compiler.initOptions(compilerOptions);
@@ -3287,7 +3286,7 @@ public final class CompilerTest {
                     ImmutableList.of(),
                     ImmutableList.of(file),
                     compilerOptions,
-                    typedAstListStream));
+                    typedAstListStream.readAllBytes()));
     assertThat(e).hasMessageThat().containsMatch("missing .* test.js");
   }
 
@@ -3320,7 +3319,7 @@ public final class CompilerTest {
                             .build()
                             .toByteString()))
             .build();
-    InputStream typedAstListStream =
+    ByteArrayInputStream typedAstListStream =
         new ByteArrayInputStream(
             TypedAst.List.newBuilder()
                 .addTypedAsts(typedAst0)
@@ -3334,7 +3333,7 @@ public final class CompilerTest {
 
     // When
     compiler.initWithTypedAstFilesystem(
-        ImmutableList.of(), ImmutableList.of(file), compilerOptions, typedAstListStream);
+        ImmutableList.of(), ImmutableList.of(file), compilerOptions, typedAstListStream.readAllBytes());
 
     // Then
     Node script = compiler.getRoot().getSecondChild().getFirstChild();
@@ -3396,7 +3395,7 @@ public final class CompilerTest {
                     .setScript(
                         AstNode.newBuilder().setKind(NodeKind.SOURCE_FILE).build().toByteString()))
             .build();
-    InputStream typedAstListStream =
+    ByteArrayInputStream typedAstListStream =
         new ByteArrayInputStream(
             TypedAst.List.newBuilder()
                 .addTypedAsts(typedAst0)
@@ -3409,7 +3408,7 @@ public final class CompilerTest {
         ImmutableList.of(),
         ImmutableList.of(fileOne, fileTwo),
         compilerOptions,
-        typedAstListStream);
+        typedAstListStream.readAllBytes());
 
     // Then
     Node insertedExterns = compiler.getExternsRoot().getOnlyChild();
@@ -3469,7 +3468,7 @@ public final class CompilerTest {
                             .toByteString()))
             .build();
 
-    InputStream typedAstListStream =
+    ByteArrayInputStream typedAstListStream =
         new ByteArrayInputStream(
             TypedAst.List.newBuilder().addTypedAsts(typedAst).build().toByteArray());
 
@@ -3478,7 +3477,7 @@ public final class CompilerTest {
         ImmutableList.of(),
         ImmutableList.of(weakFile, strongFile),
         compilerOptions,
-        typedAstListStream);
+        typedAstListStream.readAllBytes());
     Node weakScript =
         compiler
             .getChunkGraph()
@@ -3554,7 +3553,7 @@ public final class CompilerTest {
                             .toByteString()))
             .build();
 
-    InputStream typedAstListStream =
+    ByteArrayInputStream typedAstListStream =
         new ByteArrayInputStream(
             TypedAst.List.newBuilder().addTypedAsts(typedAst).build().toByteArray());
 
@@ -3563,7 +3562,7 @@ public final class CompilerTest {
         ImmutableList.of(),
         ImmutableList.of(strongChunk, weakChunk),
         compilerOptions,
-        typedAstListStream);
+        typedAstListStream.readAllBytes());
     compiler.parse();
     Node weakScript = weakChunk.getInputs().get(0).getAstRoot(compiler);
     Node strongScript = strongChunk.getInputs().get(0).getAstRoot(compiler);

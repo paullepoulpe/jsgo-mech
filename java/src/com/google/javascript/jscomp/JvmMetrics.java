@@ -16,7 +16,7 @@
 
 package com.google.javascript.jscomp;
 
-import java.io.PrintStream;
+import com.google.javascript.jscomp.base.Io;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -39,7 +39,7 @@ final class JvmMetrics {
   private static final long ONE_MEGA_BYTE = 1L << 20L;
   private static final long ONE_GIGA_BYTE = 1L << 30L;
 
-  public static void maybeWriteJvmMetrics(PrintStream out, String options) {
+  public static void maybeWriteJvmMetrics(Io.Output out, String options) {
     if (options == null) {
       return;
     }
@@ -78,7 +78,7 @@ final class JvmMetrics {
   }
 
   private static void writeMetrics(
-      PrintStream out, String type, boolean verbose, boolean pretty) {
+      Io.Output out, String type, boolean verbose, boolean pretty) {
 
     if (type.equals("gc") || type.equalsIgnoreCase("all")) {
       writeGarbageCollectionStats(out, verbose, pretty);
@@ -92,7 +92,7 @@ final class JvmMetrics {
   }
 
   private static void writeJitMetrics(
-      PrintStream out, boolean verbose, boolean pretty) {
+      Io.Output out, boolean verbose, boolean pretty) {
 
     CompilationMXBean cBean = ManagementFactory.getCompilationMXBean();
 
@@ -105,7 +105,7 @@ final class JvmMetrics {
 
     if (pretty) {
       out.println("\nJIT Stats");
-      out.printf("\t%s jit time: %d ms\n", name, cBean.getTotalCompilationTime());
+      out.print(String.format("\t%s jit time: %d ms\n", name, cBean.getTotalCompilationTime()));
     } else {
       out.println(normalizeTabularColonPos(String.format("%s-jit-time-ms : %d",
           normalizeName(name), cBean.getTotalCompilationTime())));
@@ -113,11 +113,11 @@ final class JvmMetrics {
   }
 
   private static void writeOverallMemoryUsage(
-      PrintStream out, MemoryUsage usage, String prefix, boolean pretty) {
+      Io.Output out, MemoryUsage usage, String prefix, boolean pretty) {
     if (pretty) {
-      out.format("\t%s\n", prefix);
-      out.format("\t\tavailable         : %s\n", formatBytes(usage.getMax()));
-      out.format("\t\tcurrent           : %s\n", formatBytes(usage.getUsed()));
+      out.print(String.format("\t%s\n", prefix));
+      out.print(String.format("\t\tavailable         : %s\n", formatBytes(usage.getMax())));
+      out.print(String.format("\t\tcurrent           : %s\n", formatBytes(usage.getUsed())));
     } else {
       prefix = normalizeName(prefix);
       out.println(normalizeTabularColonPos(
@@ -128,18 +128,18 @@ final class JvmMetrics {
   }
 
   private static void writePoolMemoryUsage(
-      PrintStream out,
+      Io.Output out,
       MemoryUsage usage,
       MemoryUsage peakUsage,
       @Nullable String prefix,
       boolean pretty) {
     if (pretty) {
-      out.format("\t\tavailable         : %s\n",
-          formatBytes(usage.getMax()));
-      out.format("\t\tpeak              : %s\n",
-          formatBytes(peakUsage.getUsed()));
-      out.format("\t\tcurrent           : %s\n",
-          formatBytes(usage.getUsed()));
+      out.print(String.format("\t\tavailable         : %s\n",
+          formatBytes(usage.getMax())));
+      out.print(String.format("\t\tpeak              : %s\n",
+          formatBytes(peakUsage.getUsed())));
+      out.print(String.format("\t\tcurrent           : %s\n",
+          formatBytes(usage.getUsed())));
     } else {
       out.println(normalizeTabularColonPos(
           String.format("%s-available-bytes : %d", prefix, usage.getMax())));
@@ -151,7 +151,7 @@ final class JvmMetrics {
   }
 
   private static void writeMemoryMetrics(
-      PrintStream out, boolean verbose, boolean pretty) {
+      Io.Output out, boolean verbose, boolean pretty) {
     if (pretty) {
       out.println("\nMemory usage");
     }
@@ -195,7 +195,7 @@ final class JvmMetrics {
           0, current, current, available);
       MemoryUsage summaryPeakUsage = new MemoryUsage(0, peak, peak, peak);
       if (pretty) {
-        out.format("\tAggregate of %d memory pools\n", mpBeans.size());
+        out.print(String.format("\tAggregate of %d memory pools\n", mpBeans.size()));
         writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, null, true);
       } else {
         writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, "mem", false);
@@ -204,7 +204,7 @@ final class JvmMetrics {
   }
 
   private static void writeGarbageCollectionStats(
-      PrintStream out, boolean verbose, boolean pretty) {
+      Io.Output out, boolean verbose, boolean pretty) {
     List<GarbageCollectorMXBean> gcBeans =
         ManagementFactory.getGarbageCollectorMXBeans();
 
@@ -213,10 +213,10 @@ final class JvmMetrics {
         out.println("\nGarbage collection stats");
         for (GarbageCollectorMXBean gcBean : gcBeans) {
           out.println("\tCollector " + gcBean.getName());
-          out.format(
-              "\t\tcollection count   : %d\n", gcBean.getCollectionCount());
-          out.format(
-              "\t\tcollection time    : %d ms\n", gcBean.getCollectionTime());
+          out.print(String.format(
+              "\t\tcollection count   : %d\n", gcBean.getCollectionCount()));
+          out.print(String.format(
+              "\t\tcollection time    : %d ms\n", gcBean.getCollectionTime()));
         }
       } else {
         for (GarbageCollectorMXBean gcBean : gcBeans) {
@@ -237,9 +237,9 @@ final class JvmMetrics {
       }
       if (pretty) {
         out.println("\nGarbage collection stats");
-        out.format("\tAggregate of %d collectors\n", collectorCount);
-        out.format("\t\tcollection count   : %d\n", collectionCount);
-        out.format("\t\tcollection time    : %d ms\n", collectionTime);
+        out.print(String.format("\tAggregate of %d collectors\n", collectorCount));
+        out.print(String.format("\t\tcollection count   : %d\n", collectionCount));
+        out.print(String.format("\t\tcollection time    : %d ms\n", collectionTime));
       } else {
         String name = normalizeName("aggregate");
         out.println(normalizeTabularColonPos(

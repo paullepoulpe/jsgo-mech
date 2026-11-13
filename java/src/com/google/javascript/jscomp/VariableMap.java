@@ -16,26 +16,18 @@
 
 package com.google.javascript.jscomp;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Map.Entry.comparingByKey;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.io.Files;
 import com.google.errorprone.annotations.Immutable;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleBiMap;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
-import java.io.Writer;
 import java.text.ParseException;
 import java.util.Map;
 
@@ -77,57 +69,47 @@ public final class VariableMap implements Serializable {
   }
 
   /** Saves the variable map to a file. */
-  public void save(String filename) throws IOException {
-    Files.write(toBytes(), new File(filename));
+  public Outcome<Boolean> save(String filename) {
+    return Io.writeBytes(filename, toBytes());
   }
 
   /** Reads the variable map from a file written via {@link #save(String)}. */
-  public static VariableMap load(String filename) throws IOException {
-    Outcome<VariableMap> mapRes = fromBytes(Files.toByteArray(new File(filename)));
+  public static Outcome<VariableMap> load(String filename) {
+    Outcome<byte[]> bytes = Io.readBytes(filename);
+    if (bytes.isErr()) {
+      return Outcome.err(bytes.error());
+    }
+    Outcome<VariableMap> mapRes = fromBytes(bytes.get());
     if (mapRes.isErr()) {
       // Wrap parse exception for backwards compatibility.
-      throw new IOException(mapRes.error());
+      return Outcome.err(new IOException(mapRes.error()));
     }
-    return mapRes.get();
+    return mapRes;
   }
 
   /** Serializes the variable map to a byte array. */
   public byte[] toBytes() {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    Writer writer = new OutputStreamWriter(baos, UTF_8);
-    try {
-      // The output order should be stable.
-      for (Map.Entry<String, String> entry :
-          ImmutableSortedSet.copyOf(comparingByKey(), map.asMap().entrySet())) {
-        writer.write(escape(entry.getKey()));
-        writer.write(SEPARATOR);
-        writer.write(escape(entry.getValue()));
-        writer.write('\n');
-      }
-      writer.close();
-    } catch (IOException e) {
-      // Note: A ByteArrayOutputStream never throws IOException. This try/catch
-      // is just here to appease the Java compiler.
-      throw new RuntimeException(e);
+    StringBuilder writer = new StringBuilder();
+    // The output order should be stable.
+    for (Map.Entry<String, String> entry :
+        ImmutableSortedSet.copyOf(comparingByKey(), map.asMap().entrySet())) {
+      writer.append(escape(entry.getKey()));
+      writer.append(SEPARATOR);
+      writer.append(escape(entry.getValue()));
+      writer.append('\n');
     }
-    return baos.toByteArray();
+    return Io.utf8Bytes(writer.toString());
   }
 
   /** Deserializes the variable map from a byte array returned by {@link #toBytes()}. */
   public static Outcome<VariableMap> fromBytes(byte[] bytes) {
-    return fromLines(new String(bytes, UTF_8));
+    return fromLines(Io.utf8String(bytes));
   }
 
-  /** Deserializes the variable map from an InputStream. */
-  public static Outcome<VariableMap> fromStream(InputStream stream) throws IOException {
+  /** Deserializes the variable map from the bytes of a stream of lines. */
+  public static Outcome<VariableMap> fromStreamBytes(byte[] bytes) {
     ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
-    BufferedReader br = new BufferedReader(new InputStreamReader(stream, UTF_8));
-    String line;
-    while (true) {
-      line = br.readLine();
-      if (line == null) {
-        break;
-      }
+    for (String line : Io.splitLines(Io.utf8String(bytes))) {
       if (line.isEmpty()) {
         continue;
       }

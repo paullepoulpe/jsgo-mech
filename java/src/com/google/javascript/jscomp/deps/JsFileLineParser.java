@@ -24,12 +24,10 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,13 +120,14 @@ public abstract class JsFileLineParser {
    *
    * @param filePath The path to the file being parsed. Used for reporting parse
    *     exceptions.
-   * @param fileContents A reader for the contents of the file.
+   * @param fileContents The contents of the file.
    */
-  void doParse(String filePath, Reader fileContents) {
+  void doParse(String filePath, String fileContents) {
     this.filePath = filePath;
     parseSucceeded = true;
 
-    BufferedReader lineBuffer = new BufferedReader(fileContents);
+    List<String> lines = Io.splitLines(fileContents);
+    int lineIndex = 0;
 
     // Parse all lines.
     String line = null;
@@ -136,109 +135,111 @@ public abstract class JsFileLineParser {
     boolean inMultilineComment = false;
     boolean inJsDocComment = false;
 
-    try {
-      while (true) {
-        line = lineBuffer.readLine();
-        if (line == null) {
-          break;
-        }
-        ++lineNum;
-        String revisedLine = line;
-        String revisedJsDocCommentLine = "";
-        if (inMultilineComment) {
-          int endOfComment = revisedLine.indexOf("*/");
-          if (endOfComment != -1) {
-            if (inJsDocComment) {
-              revisedJsDocCommentLine = revisedLine.substring(0, endOfComment + 2);
-              inJsDocComment = false;
-            }
-            revisedLine = revisedLine.substring(endOfComment + 2);
-            inMultilineComment = false;
-          } else {
-            if (inJsDocComment) {
-              revisedJsDocCommentLine = line;
-            }
-            revisedLine = "";
+    while (true) {
+      if (lineIndex == lines.size()) {
+        break;
+      }
+      line = lines.get(lineIndex);
+      lineIndex++;
+      ++lineNum;
+      String revisedLine = line;
+      String revisedJsDocCommentLine = "";
+      if (inMultilineComment) {
+        int endOfComment = revisedLine.indexOf("*/");
+        if (endOfComment != -1) {
+          if (inJsDocComment) {
+            revisedJsDocCommentLine = revisedLine.substring(0, endOfComment + 2);
+            inJsDocComment = false;
           }
-        }
-
-        if (!inMultilineComment) {
-          while (true) {
-            int startOfLineComment = revisedLine.indexOf("//");
-            int startOfMultilineComment = revisedLine.indexOf("/*");
-            if (startOfLineComment != -1 &&
-                (startOfMultilineComment == -1 ||
-                 startOfLineComment < startOfMultilineComment)) {
-              revisedLine = revisedLine.substring(0, startOfLineComment);
-              break;
-            } else if (startOfMultilineComment != -1) {
-              // If comment is in a string (single or double quoted), don't parse as a comment.
-              if (isCommentQuoted(revisedLine, startOfMultilineComment, '\'')) {
-                break;
-              }
-              if (isCommentQuoted(revisedLine, startOfMultilineComment, '"')) {
-                break;
-              }
-              if (startOfMultilineComment == revisedLine.indexOf("/**")) {
-                inJsDocComment = true;
-              }
-              int endOfMultilineComment = revisedLine.indexOf("*/", startOfMultilineComment + 2);
-              if (endOfMultilineComment == -1) {
-                if (inJsDocComment) {
-                  revisedJsDocCommentLine = revisedLine.substring(startOfMultilineComment);
-                }
-                revisedLine = revisedLine.substring(0, startOfMultilineComment);
-                inMultilineComment = true;
-                break;
-              } else {
-                if (inJsDocComment) {
-                  String jsDocComment =
-                      revisedLine.substring(startOfMultilineComment, endOfMultilineComment + 2);
-                  if (!parseJsDocCommentLine(jsDocComment) && shortcutMode) {
-                    break;
-                  }
-                  inJsDocComment = false;
-                }
-                revisedLine =
-                    revisedLine.substring(0, startOfMultilineComment) +
-                    revisedLine.substring(endOfMultilineComment + 2);
-              }
-            } else {
-              break;
-            }
+          revisedLine = revisedLine.substring(endOfComment + 2);
+          inMultilineComment = false;
+        } else {
+          if (inJsDocComment) {
+            revisedJsDocCommentLine = line;
           }
+          revisedLine = "";
         }
+      }
 
-        if (!revisedJsDocCommentLine.isEmpty()) {
-          if (!parseJsDocCommentLine(revisedJsDocCommentLine) && shortcutMode) {
+      if (!inMultilineComment) {
+        while (true) {
+          int startOfLineComment = revisedLine.indexOf("//");
+          int startOfMultilineComment = revisedLine.indexOf("/*");
+          if (startOfLineComment != -1 &&
+              (startOfMultilineComment == -1 ||
+               startOfLineComment < startOfMultilineComment)) {
+            revisedLine = revisedLine.substring(0, startOfLineComment);
             break;
-          }
-        }
-
-        if (!revisedLine.isEmpty()) {
-          // This check for shortcut mode should be redundant, but
-          // it's done for safety reasons.
-          Outcome<Boolean> keepGoing = parseLine(revisedLine);
-          if (keepGoing.isErr()) {
-            ParseException e = (ParseException) keepGoing.error();
-            // Inform the error handler of the exception.
-            errorManager.report(
-                e.isFatal() ? CheckLevel.ERROR : CheckLevel.WARNING,
-                JSError.make(filePath, lineNum, 0 /* char offset */,
-                    e.isFatal() ? PARSE_ERROR : PARSE_WARNING,
-                    e.getMessage(), line));
-            parseSucceeded = parseSucceeded && !e.isFatal();
-          } else if (!keepGoing.get() && shortcutMode) {
+          } else if (startOfMultilineComment != -1) {
+            // If comment is in a string (single or double quoted), don't parse as a comment.
+            if (isCommentQuoted(revisedLine, startOfMultilineComment, '\'')) {
+              break;
+            }
+            if (isCommentQuoted(revisedLine, startOfMultilineComment, '"')) {
+              break;
+            }
+            if (startOfMultilineComment == revisedLine.indexOf("/**")) {
+              inJsDocComment = true;
+            }
+            int endOfMultilineComment = revisedLine.indexOf("*/", startOfMultilineComment + 2);
+            if (endOfMultilineComment == -1) {
+              if (inJsDocComment) {
+                revisedJsDocCommentLine = revisedLine.substring(startOfMultilineComment);
+              }
+              revisedLine = revisedLine.substring(0, startOfMultilineComment);
+              inMultilineComment = true;
+              break;
+            } else {
+              if (inJsDocComment) {
+                String jsDocComment =
+                    revisedLine.substring(startOfMultilineComment, endOfMultilineComment + 2);
+                if (!parseJsDocCommentLine(jsDocComment) && shortcutMode) {
+                  break;
+                }
+                inJsDocComment = false;
+              }
+              revisedLine =
+                  revisedLine.substring(0, startOfMultilineComment) +
+                  revisedLine.substring(endOfMultilineComment + 2);
+            }
+          } else {
             break;
           }
         }
       }
-    } catch (IOException e) {
-      errorManager.report(CheckLevel.ERROR,
-          JSError.make(filePath, 0, 0 /* char offset */,
-              PARSE_ERROR, "Error reading file: " + filePath));
-      parseSucceeded = false;
+
+      if (!revisedJsDocCommentLine.isEmpty()) {
+        if (!parseJsDocCommentLine(revisedJsDocCommentLine) && shortcutMode) {
+          break;
+        }
+      }
+
+      if (!revisedLine.isEmpty()) {
+        // This check for shortcut mode should be redundant, but
+        // it's done for safety reasons.
+        Outcome<Boolean> keepGoing = parseLine(revisedLine);
+        if (keepGoing.isErr()) {
+          ParseException e = (ParseException) keepGoing.error();
+          // Inform the error handler of the exception.
+          errorManager.report(
+              e.isFatal() ? CheckLevel.ERROR : CheckLevel.WARNING,
+              JSError.make(filePath, lineNum, 0 /* char offset */,
+                  e.isFatal() ? PARSE_ERROR : PARSE_WARNING,
+                  e.getMessage(), line));
+          parseSucceeded = parseSucceeded && !e.isFatal();
+        } else if (!keepGoing.get() && shortcutMode) {
+          break;
+        }
+      }
     }
+  }
+
+  /** Reports that the file could not be read. */
+  void reportReadError(String filePath) {
+    errorManager.report(CheckLevel.ERROR,
+        JSError.make(filePath, 0, 0 /* char offset */,
+            PARSE_ERROR, "Error reading file: " + filePath));
+    parseSucceeded = false;
   }
 
   private boolean isCommentQuoted(String line, int startOfMultilineComment, char quoteChar) {

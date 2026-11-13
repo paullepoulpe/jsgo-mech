@@ -39,7 +39,6 @@ import com.google.javascript.rhino.InputId;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -545,8 +544,8 @@ public class CompilerInput implements DependencyInfo {
     }
   }
 
-  public String getCode() throws IOException {
-    return getSourceFile().getCode();
+  public Outcome<String> readCode() {
+    return getSourceFile().readCode();
   }
 
   /** Returns the chunk to which the input belongs. */

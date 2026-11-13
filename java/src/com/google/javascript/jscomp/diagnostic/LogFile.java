@@ -21,7 +21,6 @@ import com.google.errorprone.annotations.FormatString;
 import com.google.errorprone.annotations.MustBeClosed;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.function.Supplier;
 
 /**
@@ -43,7 +42,7 @@ public abstract class LogFile implements AutoCloseable {
   }
 
   @MustBeClosed
-  public static LogFile createOrReopen(Path file) {
+  public static LogFile createOrReopen(String file) {
     return WritingLogFile.create(file);
   }
 

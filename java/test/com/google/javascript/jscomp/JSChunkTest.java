@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.javascript.jscomp.base.Io;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,7 +99,7 @@ public final class JSChunkTest {
       input.setChunk(null);
       chunk.addCompilerInput(input);
     }
-    Compiler compiler = new Compiler(System.err);
+    Compiler compiler = new Compiler(Io.stderr());
     compiler.initCompilerOptionsIfTesting();
     chunk.sortInputsByDeps(compiler);
 

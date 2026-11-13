@@ -203,17 +203,17 @@ public final class SourceFileTest {
 
     Path jsPath = folder.newFile("test.js").toPath();
     MoreFiles.asCharSink(jsPath, UTF_8).write(expectedContent);
-    SourceFile sourceFile = SourceFile.fromPath(jsPath, UTF_8);
+    SourceFile sourceFile = SourceFile.fromFile(jsPath.toString(), "UTF-8");
 
     // Verify initial state.
-    assertThat(sourceFile.getCode()).isEqualTo(expectedContent);
+    assertThat(sourceFile.readCode().get()).isEqualTo(expectedContent);
 
     // Perform a change.
     MoreFiles.asCharSink(jsPath, UTF_8).write(newExpectedContent);
     sourceFile.clearCachedSource();
 
     // Verify final state.
-    assertThat(sourceFile.getCode()).isEqualTo(newExpectedContent);
+    assertThat(sourceFile.readCode().get()).isEqualTo(newExpectedContent);
   }
 
   @Test
@@ -229,16 +229,16 @@ public final class SourceFileTest {
             .build();
 
     // Verify initial state.
-    assertThat(zipSourceFile.getCode()).isEqualTo(expectedContent);
+    assertThat(zipSourceFile.readCode().get()).isEqualTo(expectedContent);
 
     // Perform a change.
     createZipWithContent(jsZipFile, newExpectedContent);
     // Verify cache is consistent unless cleared.
-    assertThat(zipSourceFile.getCode()).isEqualTo(expectedContent);
+    assertThat(zipSourceFile.readCode().get()).isEqualTo(expectedContent);
     zipSourceFile.clearCachedSource();
 
     // Verify final state.
-    assertThat(zipSourceFile.getCode()).isEqualTo(newExpectedContent);
+    assertThat(zipSourceFile.readCode().get()).isEqualTo(newExpectedContent);
   }
 
   @Test
@@ -254,7 +254,7 @@ public final class SourceFileTest {
             .withKind(SourceKind.WEAK)
             .withZipEntryPath(jsZipPath.toAbsolutePath().toString(), "foo.js")
             .build();
-    assertThat(sourceFileFromZipEntry.getCode()).isEqualTo(expectedContent);
+    assertThat(sourceFileFromZipEntry.readCode().get()).isEqualTo(expectedContent);
     assertThat(sourceFileFromZipEntry.getKind()).isEqualTo(SourceKind.WEAK);
 
     // Test SourceFile#fromZipEntry(String, String, String, Charset)
@@ -263,21 +263,21 @@ public final class SourceFileTest {
             .withZipEntryPath(jsZipPath.toAbsolutePath().toString(), "foo.js")
             .build();
 
-    assertThat(sourceFileFromZipEntryDefaultKind.getCode()).isEqualTo(expectedContent);
+    assertThat(sourceFileFromZipEntryDefaultKind.readCode().get()).isEqualTo(expectedContent);
     assertThat(sourceFileFromZipEntryDefaultKind.getKind()).isEqualTo(SourceKind.STRONG);
 
     // Test SourceFile#fromFile(String)
-    SourceFile sourceFileFromFileString = SourceFile.fromFile(jsZipPath + "!/foo.js", UTF_8);
-    assertThat(sourceFileFromFileString.getCode()).isEqualTo(expectedContent);
+    SourceFile sourceFileFromFileString = SourceFile.fromFile(jsZipPath + "!/foo.js", "UTF-8");
+    assertThat(sourceFileFromFileString.readCode().get()).isEqualTo(expectedContent);
 
     // Test SourceFile#fromFile(String, Charset)
-    SourceFile sourceFileFromFileStringCharset = SourceFile.fromFile(jsZipPath + "!/foo.js", UTF_8);
-    assertThat(sourceFileFromFileStringCharset.getCode()).isEqualTo(expectedContent);
+    SourceFile sourceFileFromFileStringCharset = SourceFile.fromFile(jsZipPath + "!/foo.js", "UTF-8");
+    assertThat(sourceFileFromFileStringCharset.readCode().get()).isEqualTo(expectedContent);
 
-    // Test SourceFile#fromPath(Path, Charset)
+    // Test SourceFile#fromFile(String, String) with a path that went through Path
     Path zipEntryPath = Path.of(jsZipPath + "!/foo.js");
-    SourceFile sourceFileFromPathCharset = SourceFile.fromPath(zipEntryPath, UTF_8);
-    assertThat(sourceFileFromPathCharset.getCode()).isEqualTo(expectedContent);
+    SourceFile sourceFileFromPathCharset = SourceFile.fromFile(zipEntryPath.toString(), "UTF-8");
+    assertThat(sourceFileFromPathCharset.readCode().get()).isEqualTo(expectedContent);
   }
 
   @Test
@@ -287,12 +287,12 @@ public final class SourceFileTest {
     Path jsZipPath = folder.newFile("test.js.zip").toPath();
     createZipWithContent(jsZipPath, "// <program goes here>");
 
-    List<SourceFile> sourceFiles = SourceFile.fromZipFile(jsZipPath.toString(), UTF_8);
+    List<SourceFile> sourceFiles = SourceFile.fromZipFile(jsZipPath.toString(), "UTF-8").get();
     assertThat(sourceFiles).hasSize(1);
 
     SourceFile sourceFile = Iterables.getOnlyElement(sourceFiles);
     assertThat(sourceFile.getName()).isEqualTo(jsZipPath + "!/foo.js");
-    assertThat(sourceFile.getCode()).isEqualTo(expectedContent);
+    assertThat(sourceFile.readCode().get()).isEqualTo(expectedContent);
   }
 
   @Test
@@ -304,12 +304,15 @@ public final class SourceFileTest {
 
     List<SourceFile> sourceFiles =
         SourceFile.fromZipInput(
-            jsZipPath.toString(), new FileInputStream(jsZipPath.toFile()), UTF_8);
+                jsZipPath.toString(),
+                new FileInputStream(jsZipPath.toFile()).readAllBytes(),
+                "UTF-8")
+            .get();
     assertThat(sourceFiles).hasSize(1);
 
     SourceFile sourceFile = Iterables.getOnlyElement(sourceFiles);
     assertThat(sourceFile.getName()).isEqualTo(jsZipPath + "!/foo.js");
-    assertThat(sourceFile.getCode()).isEqualTo(expectedContent);
+    assertThat(sourceFile.readCode().get()).isEqualTo(expectedContent);
   }
 
   @Test
@@ -318,7 +321,7 @@ public final class SourceFileTest {
     SourceFile stubSourceFile = SourceFile.stubSourceFile(fileName, SourceKind.WEAK);
     assertThat(stubSourceFile.getName()).isEqualTo(fileName);
     assertThat(stubSourceFile.getKind()).isEqualTo(SourceKind.WEAK);
-    assertThrows(UnsupportedOperationException.class, stubSourceFile::getCode);
+    assertThrows(UnsupportedOperationException.class, stubSourceFile::readCode);
   }
 
   private static void createZipWithContent(Path zipFile, String content) throws IOException {
@@ -452,7 +455,7 @@ public final class SourceFileTest {
                 .build());
 
     assertThat(sourceFile.getName()).isEqualTo("file.js");
-    assertThat(sourceFile.getCode()).isEqualTo("42");
+    assertThat(sourceFile.readCode().get()).isEqualTo("42");
     assertThat(sourceFile.getNumLines()).isEqualTo(1);
     assertThat(sourceFile.getNumBytes()).isEqualTo(2);
   }
@@ -476,7 +479,7 @@ public final class SourceFileTest {
     assertThat(sourceFile.getNumBytes()).isEqualTo(2);
 
     // Verify reading the file from disk does fail.
-    assertThrows(IOException.class, sourceFile::getCode);
+    assertThat(sourceFile.readCode().error()).isInstanceOf(IOException.class);
   }
 
   @Test
@@ -513,7 +516,7 @@ public final class SourceFileTest {
   @Test
   public void testGetProto_withGetCodeCalls() throws IOException {
     SourceFile sourceFile = SourceFile.fromCode("file.js", "42");
-    var unused = sourceFile.getCode();
+    var unused = sourceFile.readCode().get();
 
     SourceFileProto sourceFileProto = sourceFile.getProto();
 
@@ -549,7 +552,7 @@ public final class SourceFileTest {
   @Test
   public void testGetProto_withGetCodeCalls_andClearCachedSource() throws IOException {
     SourceFile sourceFile = SourceFile.fromCode("file.js", "42");
-    var unused = sourceFile.getCode();
+    var unused = sourceFile.readCode().get();
     sourceFile.clearCachedSource();
 
     SourceFileProto sourceFileProto = sourceFile.getProto();

@@ -5077,7 +5077,7 @@ async function abc() {
     options.setDependencyOptions(DependencyOptions.pruneLegacyForEntryPoints(entryPoints));
 
     List<SourceFile> externs =
-        AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment());
+        AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment()).get();
 
     Compiler compiler = new Compiler();
     compiler.compile(externs, inputs, options);
@@ -5102,7 +5102,7 @@ async function abc() {
     options.setDependencyOptions(DependencyOptions.pruneLegacyForEntryPoints(entryPoints));
 
     List<SourceFile> externs =
-        AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment());
+        AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment()).get();
 
     Compiler compiler = new Compiler();
     compiler.compile(externs, inputs, options);
@@ -5945,7 +5945,7 @@ async function abc() {
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
     options.setEnvironment(CompilerOptions.Environment.BROWSER);
 
-    externs = AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment());
+    externs = AbstractCommandLineRunner.getBuiltinExterns(options.getEnvironment()).get();
 
     test(
         options,

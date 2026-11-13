@@ -43,10 +43,6 @@ import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.re2j.Pattern;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -262,18 +258,18 @@ public class CompilerOptions {
     return instrumentForCoverageOnly;
   }
 
-  private @Nullable Path typedAstOutputFile = null;
+  private @Nullable String typedAstOutputFile = null;
 
   /**
    * Sets file to output in-progress TypedAST format to. DO NOT USE!
    *
    * <p>The "TypedAST format" is currently a gzipped TypedAst proto but this is not stable.
    */
-  public void setTypedAstOutputFile(@Nullable Path file) {
+  public void setTypedAstOutputFile(@Nullable String file) {
     this.typedAstOutputFile = file;
   }
 
-  @Nullable Path getTypedAstOutputFile() {
+  @Nullable String getTypedAstOutputFile() {
     return this.typedAstOutputFile;
   }
 
@@ -998,7 +994,7 @@ public class CompilerOptions {
    *
    * <p>{@code null} indicates that no such files should be written.
    */
-  private @Nullable Path debugLogDirectory;
+  private @Nullable String debugLogDirectory;
 
   /**
    * A comma separated list of strings used to filter which debug logs are written. If a filter is
@@ -1011,8 +1007,8 @@ public class CompilerOptions {
 
   private boolean serializeExtraDebugInfo;
 
-  private @Nullable Function<OutputStream, OutputStream> stateCompressionWrapper = null;
-  private @Nullable Function<InputStream, InputStream> stateDecompressionWrapper = null;
+  private @Nullable Function<byte[], byte[]> stateCompressionWrapper = null;
+  private @Nullable Function<byte[], byte[]> stateDecompressionWrapper = null;
 
   /** Whether to write keyword properties as foo['class'] instead of foo.class; needed for IE8. */
   private boolean quoteKeywordProperties;
@@ -1098,13 +1094,13 @@ public class CompilerOptions {
     this.tracer = mode;
   }
 
-  private Path tracerOutput;
+  private String tracerOutput;
 
-  Path getTracerOutput() {
+  String getTracerOutput() {
     return tracerOutput;
   }
 
-  public void setTracerOutput(Path out) {
+  public void setTracerOutput(String out) {
     tracerOutput = out;
   }
 
@@ -1187,7 +1183,7 @@ public class CompilerOptions {
   private boolean sourceMapIncludeSourcesContent = false;
 
   /** Charset to use when generating code. If null, then output ASCII. */
-  private transient Charset outputCharset;
+  private transient String outputCharset;
 
   /** When set, assume that apparently side-effect free code is meaningful. */
   private boolean protectHiddenSideEffects;
@@ -2009,12 +2005,12 @@ public class CompilerOptions {
   }
 
   /** Sets the output charset. */
-  public void setOutputCharset(Charset charset) {
+  public void setOutputCharset(String charset) {
     this.outputCharset = charset;
   }
 
   /** Gets the output charset. */
-  Charset getOutputCharset() {
+  String getOutputCharset() {
     return outputCharset;
   }
 
@@ -2993,11 +2989,11 @@ public class CompilerOptions {
     return this.inputDelimiter;
   }
 
-  public void setDebugLogDirectory(@Nullable Path dir) {
+  public void setDebugLogDirectory(@Nullable String dir) {
     this.debugLogDirectory = dir;
   }
 
-  public @Nullable Path getDebugLogDirectory() {
+  public @Nullable String getDebugLogDirectory() {
     return debugLogDirectory;
   }
 
@@ -3019,19 +3015,19 @@ public class CompilerOptions {
     this.serializeExtraDebugInfo = serializeExtraDebugInfo;
   }
 
-  public void setStateCompressionWrapper(@Nullable Function<OutputStream, OutputStream> wrapper) {
+  public void setStateCompressionWrapper(@Nullable Function<byte[], byte[]> wrapper) {
     this.stateCompressionWrapper = wrapper;
   }
 
-  public @Nullable Function<OutputStream, OutputStream> getStateCompressionWrapper() {
+  public @Nullable Function<byte[], byte[]> getStateCompressionWrapper() {
     return this.stateCompressionWrapper;
   }
 
-  public void setStateDecompressionWrapper(@Nullable Function<InputStream, InputStream> wrapper) {
+  public void setStateDecompressionWrapper(@Nullable Function<byte[], byte[]> wrapper) {
     this.stateDecompressionWrapper = wrapper;
   }
 
-  public @Nullable Function<InputStream, InputStream> getStateDecompressionWrapper() {
+  public @Nullable Function<byte[], byte[]> getStateDecompressionWrapper() {
     return this.stateDecompressionWrapper;
   }
 

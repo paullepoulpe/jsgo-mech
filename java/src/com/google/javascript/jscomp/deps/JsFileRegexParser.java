@@ -29,8 +29,6 @@ import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -193,11 +191,11 @@ public final class JsFileRegexParser extends JsFileLineParser {
    */
   public DependencyInfo parseFile(
       String filePath, String closureRelativePath, String fileContents) {
-    return parseReader(filePath, closureRelativePath, new StringReader(fileContents));
+    return parseReader(filePath, closureRelativePath, fileContents);
   }
 
   private DependencyInfo parseReader(
-      String filePath, String closureRelativePath, Reader fileContents) {
+      String filePath, String closureRelativePath, String fileContents) {
     provides = new ArrayList<>();
     requires = new ArrayList<>();
     typeRequires = new ArrayList<>();

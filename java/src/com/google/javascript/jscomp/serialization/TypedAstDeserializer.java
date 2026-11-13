@@ -38,7 +38,6 @@ import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.WireFormat;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -101,7 +100,7 @@ public final class TypedAstDeserializer {
       AbstractCompiler compiler,
       SourceFile syntheticExterns,
       ImmutableSet<SourceFile> requiredInputFiles,
-      InputStream typedAstsStream,
+      byte[] typedAstsStream,
       boolean includeTypeInformation,
       boolean resolveSourceMapAnnotations,
       boolean parseInlineSourceMaps) {
@@ -134,7 +133,7 @@ public final class TypedAstDeserializer {
       AbstractCompiler compiler,
       SourceFile syntheticExterns,
       Optional<ColorPool.Builder> colorPool,
-      InputStream typedAstsStream,
+      byte[] typedAstsStream,
       boolean resolveSourceMapAnnotations,
       boolean parseInlineSourceMaps) {
     return deserialize(
@@ -158,7 +157,7 @@ public final class TypedAstDeserializer {
       Optional<ImmutableSet<SourceFile>> requiredInputFiles,
       ImmutableMap<String, SourceFile> scriptSourceFiles,
       Optional<ColorPool.Builder> colorPool,
-      InputStream typedAstStream,
+      byte[] typedAstStream,
       Mode mode,
       boolean includeTypeInformation,
       boolean resolveSourceMapAnnotations,
@@ -409,7 +408,7 @@ public final class TypedAstDeserializer {
   }
 
   private static void deserializeTypedAsts(
-      InputStream typedAstsStream,
+      byte[] typedAstsStream,
       TypedAstDeserializer deserializer,
       AbstractCompiler compiler,
       boolean resolveSourceMapAnnotations,

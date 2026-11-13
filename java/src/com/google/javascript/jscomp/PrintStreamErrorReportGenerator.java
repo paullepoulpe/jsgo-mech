@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp;
 
-import java.io.PrintStream;
+import com.google.javascript.jscomp.base.Io;
+
 
 /**
  * An error report generator that prints errors and warnings to the print stream provided.
@@ -26,7 +27,7 @@ import java.io.PrintStream;
  */
 public class PrintStreamErrorReportGenerator implements SortingErrorManager.ErrorReportGenerator {
   private final MessageFormatter formatter;
-  private final PrintStream stream;
+  private final Io.Output stream;
   private final int summaryDetailLevel;
 
   /**
@@ -37,7 +38,7 @@ public class PrintStreamErrorReportGenerator implements SortingErrorManager.Erro
    *     not close the stream
    */
   public PrintStreamErrorReportGenerator(
-      MessageFormatter formatter, PrintStream stream, int summaryDetailLevel) {
+      MessageFormatter formatter, Io.Output stream, int summaryDetailLevel) {
     this.formatter = formatter;
     this.stream = stream;
     this.summaryDetailLevel = summaryDetailLevel;
@@ -60,12 +61,12 @@ public class PrintStreamErrorReportGenerator implements SortingErrorManager.Erro
         || (summaryDetailLevel >= 1 && manager.getErrorCount() + manager.getWarningCount() > 0)
         || (summaryDetailLevel >= 2 && manager.getTypedPercent() > 0.0)) {
       if (manager.getTypedPercent() > 0.0) {
-        stream.printf(
+        stream.print(String.format(
             "%d error(s), %d warning(s), %.1f%% typed\n",
-            manager.getErrorCount(), manager.getWarningCount(), manager.getTypedPercent());
+            manager.getErrorCount(), manager.getWarningCount(), manager.getTypedPercent()));
       } else {
-        stream.printf(
-            "%d error(s), %d warning(s)\n", manager.getErrorCount(), manager.getWarningCount());
+        stream.print(String.format(
+            "%d error(s), %d warning(s)\n", manager.getErrorCount(), manager.getWarningCount()));
       }
     }
   }

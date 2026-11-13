@@ -18,23 +18,18 @@ package com.google.javascript.jscomp.deps;
 
 import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
 import com.google.javascript.jscomp.ErrorManager;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -101,11 +96,14 @@ public final class DepsFileRegexParser extends JsFileLineParser {
    * contained.
    *
    * @param filePath Path to the file to parse.
-   * @return A list of DependencyInfo objects.
-   * @throws IOException Thrown if the file could not be read.
+   * @return A list of DependencyInfo objects, or the error if the file could not be read.
    */
-  public List<DependencyInfo> parseFile(String filePath) throws IOException {
-    return parseFileReader(filePath, Files.newReader(new File(filePath), UTF_8));
+  public Outcome<List<DependencyInfo>> parseFile(String filePath) {
+    Outcome<String> fileContents = Io.readText(filePath, Io.UTF_8);
+    if (fileContents.isErr()) {
+      return Outcome.err(fileContents.error());
+    }
+    return Outcome.ok(parseFile(filePath, fileContents.get()));
   }
 
   /**
@@ -118,24 +116,11 @@ public final class DepsFileRegexParser extends JsFileLineParser {
    * @return A list of DependencyInfo objects.
    */
   public List<DependencyInfo> parseFile(String filePath, String fileContents) {
-    return parseFileReader(filePath, new StringReader(fileContents));
-  }
-
-
-  /**
-   * Parses the file from the given reader and returns a list of
-   * dependency information that it contained.
-   *
-   * @param filePath Path to the file to parse.
-   * @param reader A reader for the file.
-   * @return A list of DependencyInfo objects.
-   */
-  public List<DependencyInfo> parseFileReader(String filePath, Reader reader) {
     depInfos = new ArrayList<>();
     if (logger.isLoggable(Level.FINE)) {
       logger.fine("Parsing Dep: " + filePath);
     }
-    doParse(filePath, reader);
+    doParse(filePath, fileContents);
     return depInfos;
   }
 

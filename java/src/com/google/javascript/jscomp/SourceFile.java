@@ -22,34 +22,21 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.io.CharStreams;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.serialization.SourceFileProto;
 import com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDisk;
 import com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDisk;
 import com.google.javascript.rhino.StaticSourceFile;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.Serializable;
-import java.io.StringReader;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -218,31 +205,23 @@ public final class SourceFile implements StaticSourceFile {
     this.lineOffsets = offsets;
   }
 
-  /** Gets all the code in this source file. */
-  public final String getCode() throws IOException {
+  /** Gets all the code in this source file; a failure to read it is an error result. */
+  public final Outcome<String> readCode() {
     if (this.code == null) {
       // Only synchronize if we need to
       synchronized (this) {
         // Make sure another thread hasn't loaded the code while we waited.
         if (this.code == null) {
-          this.setCodeAndDoBookkeeping(this.loader.loadUncachedCode());
+          Outcome<String> loaded = this.loader.loadUncachedCode();
+          if (loaded.isErr()) {
+            return Outcome.err(loaded.error());
+          }
+          this.setCodeAndDoBookkeeping(loaded.get());
         }
       }
     }
 
-    return this.code;
-  }
-
-  /**
-   * Gets all the code in this source file like {@link #getCode()}, but a failure to read it is an
-   * error result instead of a thrown IOException.
-   */
-  public final Outcome<String> readCode() {
-    try {
-      return Outcome.ok(this.getCode());
-    } catch (IOException e) {
-      return Outcome.err(e);
-    }
+    return Outcome.ok(this.code);
   }
 
   @Deprecated
@@ -250,22 +229,26 @@ public final class SourceFile implements StaticSourceFile {
     this.setCodeAndDoBookkeeping(code);
   }
 
-  /** Gets a reader for the code in this source file. */
-  public Reader getCodeReader() throws IOException {
+  /**
+   * Gets the code in this source file for a single pass over it: if the code is not in memory and
+   * comes from a file, the file's text is returned as it is (a byte order mark is not removed) and
+   * is not kept in this object.
+   */
+  public Outcome<String> readCodeWithoutCaching() {
     // Only synchronize if we need to
     if (this.code == null) {
       synchronized (this) {
         // Make sure another thread hasn't loaded the code while we waited.
         if (this.code == null) {
-          Reader uncachedReader = this.loader.openUncachedReader();
-          if (uncachedReader != null) {
-            return uncachedReader;
+          Outcome<String> uncachedText = this.loader.loadUncachedText();
+          if (uncachedText != null) {
+            return uncachedText;
           }
         }
       }
     }
 
-    return new StringReader(this.getCode());
+    return this.readCode();
   }
 
   private void setCodeAndDoBookkeeping(@Nullable String sourceCode) {
@@ -524,50 +507,51 @@ public final class SourceFile implements StaticSourceFile {
     return fileName;
   }
 
-  public static List<SourceFile> fromZipFile(String zipName, Charset inputCharset)
-      throws IOException {
-    try (InputStream input = new FileInputStream(zipName)) {
-      return fromZipInput(zipName, input, inputCharset);
-    }
+  public static Outcome<List<SourceFile>> fromZipFile(String zipName, String inputCharset) {
+    return fromZipEntryNames(zipName, Io.listZipEntryNames(zipName, inputCharset), inputCharset);
   }
 
-  public static List<SourceFile> fromZipInput(
-      String zipName, InputStream input, Charset inputCharset) throws IOException {
-    final String absoluteZipPath = new File(zipName).getAbsolutePath();
+  public static Outcome<List<SourceFile>> fromZipInput(
+      String zipName, byte[] zipBytes, String inputCharset) {
+    Outcome<List<Io.ZipEntryData>> entries = Io.readZipEntries(zipBytes, inputCharset);
+    if (entries.isErr()) {
+      return Outcome.err(entries.error());
+    }
+    List<String> entryNames = new ArrayList<>();
+    for (Io.ZipEntryData entry : entries.get()) {
+      entryNames.add(entry.name());
+    }
+    return fromZipEntryNames(zipName, Outcome.ok(entryNames), inputCharset);
+  }
+
+  private static Outcome<List<SourceFile>> fromZipEntryNames(
+      String zipName, Outcome<List<String>> entryNames, String inputCharset) {
+    if (entryNames.isErr()) {
+      return Outcome.err(entryNames.error());
+    }
+    final String absoluteZipPath = Io.fileAbsolutePath(zipName);
     List<SourceFile> sourceFiles = new ArrayList<>();
 
-    try (ZipInputStream in = new ZipInputStream(input, inputCharset)) {
-      ZipEntry zipEntry;
-      while (true) {
-        zipEntry = in.getNextEntry();
-        if (zipEntry == null) {
-          break;
-        }
-        String entryName = zipEntry.getName();
-        if (!entryName.endsWith(".js")) { // Only accept js files
-          continue;
-        }
-        sourceFiles.add(
-            builder()
-                .withCharset(inputCharset)
-                .withOriginalPath(zipName + BANG_SLASH + entryName)
-                .withZipEntryPath(absoluteZipPath, entryName)
-                .build());
+    for (String entryName : entryNames.get()) {
+      if (!entryName.endsWith(".js")) { // Only accept js files
+        continue;
       }
+      sourceFiles.add(
+          builder()
+              .withCharset(inputCharset)
+              .withOriginalPath(zipName + BANG_SLASH + entryName)
+              .withZipEntryPath(absoluteZipPath, entryName)
+              .build());
     }
-    return sourceFiles;
+    return Outcome.ok(sourceFiles);
   }
 
-  public static SourceFile fromFile(String fileName, Charset charset) {
+  public static SourceFile fromFile(String fileName, String charset) {
     return builder().withPath(fileName).withCharset(charset).build();
   }
 
   public static SourceFile fromFile(String fileName) {
     return builder().withPath(fileName).build();
-  }
-
-  public static SourceFile fromPath(Path path, Charset charset) {
-    return builder().withPathPath(path).withCharset(charset).build();
   }
 
   public static SourceFile fromCode(String fileName, String code, SourceKind kind) {
@@ -756,11 +740,11 @@ public final class SourceFile implements StaticSourceFile {
     };
   }
 
-  private static Charset toCharset(String protoCharset) {
+  private static String toCharset(String protoCharset) {
     if (protoCharset.isEmpty()) {
-      return UTF_8;
+      return Io.UTF_8;
     }
-    return Charset.forName(protoCharset);
+    return protoCharset;
   }
 
   /** Create a new builder for source files. */
@@ -776,12 +760,11 @@ public final class SourceFile implements StaticSourceFile {
    */
   public static final class Builder {
     private SourceKind kind = SourceKind.STRONG;
-    private Charset charset = UTF_8;
+    private String charset = Io.UTF_8;
     private @Nullable String originalPath = null;
     private boolean isStubSourceFileForAlreadyProvidedInput = false;
 
     private @Nullable String path = null;
-    private @Nullable Path pathWithFilesystem = null;
     private @Nullable String zipEntryPath = null;
 
     private @Nullable Supplier<String> lazyContent = null;
@@ -797,38 +780,19 @@ public final class SourceFile implements StaticSourceFile {
 
     /** Set the charset to use when reading from an input stream or file. */
     @CanIgnoreReturnValue
-    public Builder withCharset(Charset charset) {
+    public Builder withCharset(String charset) {
       this.charset = charset;
       return this;
     }
 
     @CanIgnoreReturnValue
     public Builder withPath(String path) {
-      return this.withPathInternal(path, null);
-    }
-
-    @CanIgnoreReturnValue
-    public Builder withPathPath(Path path) {
-      return this.withPathInternal(path.toString(), path);
+      return this.withPathInternal(path);
     }
 
     @CanIgnoreReturnValue
     public Builder withContent(String x) {
       this.lazyContent = x::toString;
-      return this;
-    }
-
-    @CanIgnoreReturnValue
-    public Builder withContentInputStream(InputStream x) {
-      this.lazyContent =
-          () -> {
-            checkState(this.charset != null);
-            try {
-              return CharStreams.toString(new InputStreamReader(x, this.charset));
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          };
       return this;
     }
 
@@ -892,15 +856,13 @@ public final class SourceFile implements StaticSourceFile {
       }
 
       return new SourceFile(
-          new CodeLoader.OnDisk(
-              (this.pathWithFilesystem != null) ? this.pathWithFilesystem : Path.of(this.path),
-              this.charset),
+          new CodeLoader.OnDisk(Io.pathString(this.path), this.charset),
           displayPath,
           this.kind);
     }
 
     @CanIgnoreReturnValue
-    private Builder withPathInternal(String path, @Nullable Path pathWithFilesystem) {
+    private Builder withPathInternal(String path) {
       // Check if this path should be inferred as a ZIP entry path.
       int bangSlashIndex = path.indexOf(BANG_SLASH);
       if (bangSlashIndex >= 0) {
@@ -913,9 +875,7 @@ public final class SourceFile implements StaticSourceFile {
         }
       }
 
-      // Path instances have an implicit reference to a FileSystem. Make sure to preserve it.
       this.path = path;
-      this.pathWithFilesystem = pathWithFilesystem;
 
       return this;
     }
@@ -931,17 +891,18 @@ public final class SourceFile implements StaticSourceFile {
      * <p>The implementation may be a slow operation such as reading from a file. SourceFile
      * guarantees that this method is only called under synchronization.
      */
-    String loadUncachedCode() throws IOException {
+    Outcome<String> loadUncachedCode() {
       throw new AssertionError();
     }
 
     /**
-     * Return a Reader for the source text of this file from its original storage.
+     * Return the text of this file from its original storage for a single pass over it, or null
+     * if this loader has nothing better to offer than {@link #loadUncachedCode}.
      *
      * <p>The implementation may be a slow operation such as reading from a file. SourceFile
      * guarantees that this method is only called under synchronization.
      */
-    Reader openUncachedReader() throws IOException {
+    @Nullable Outcome<String> loadUncachedText() {
       return null;
     }
 
@@ -961,8 +922,8 @@ public final class SourceFile implements StaticSourceFile {
       }
 
       @Override
-      String loadUncachedCode() {
-        return this.preloadedCode;
+      Outcome<String> loadUncachedCode() {
+        return Outcome.ok(this.preloadedCode);
       }
 
       @Override
@@ -980,7 +941,7 @@ public final class SourceFile implements StaticSourceFile {
       }
 
       @Override
-      String loadUncachedCode() {
+      Outcome<String> loadUncachedCode() {
         throw new UnsupportedOperationException("Attempting to load code from a stub SourceFile.");
       }
 
@@ -994,36 +955,34 @@ public final class SourceFile implements StaticSourceFile {
       private static final long serialVersionUID = 1L;
 
       private final String serializableCharset;
-      private final Path relativePath;
+      private final String relativePath;
 
-      OnDisk(Path relativePath, Charset c) {
+      OnDisk(String relativePath, String c) {
         super();
-        this.serializableCharset = c.name();
+        this.serializableCharset = Io.charsetName(c);
         this.relativePath = relativePath;
       }
 
       @Override
-      String loadUncachedCode() throws IOException {
-        try {
-          return Files.readString(this.relativePath, this.getCharset());
-        } catch (CharacterCodingException e) {
-          throw new IOException(
-              "Failed to read: " + this.relativePath + ", is this input UTF-8 encoded?", e);
+      Outcome<String> loadUncachedCode() {
+        Outcome<String> text = Io.readTextStrict(this.relativePath, this.serializableCharset);
+        if (Io.isDecodingError(text.error())) {
+          return Outcome.err(
+              new IOException(
+                  "Failed to read: " + this.relativePath + ", is this input UTF-8 encoded?",
+                  text.error()));
         }
+        return text;
       }
 
       @Override
-      Reader openUncachedReader() throws IOException {
-        return Files.newBufferedReader(this.relativePath, this.getCharset());
-      }
-
-      private Charset getCharset() {
-        return Charset.forName(this.serializableCharset);
+      Outcome<String> loadUncachedText() {
+        return Io.readTextStrict(this.relativePath, this.serializableCharset);
       }
 
       @Override
       SourceFileProto.Builder toProtoLocationBuilder(String fileName) {
-        String actualPath = this.relativePath.toString();
+        String actualPath = this.relativePath;
         return SourceFileProto.newBuilder()
             .setFileOnDisk(
                 FileOnDisk.newBuilder()
@@ -1031,7 +990,8 @@ public final class SourceFile implements StaticSourceFile {
                         // to save space, don't serialize the path if equal to the fileName.
                         fileName.equals(actualPath) ? "" : actualPath)
                     // save space by not serializing UTF_8 (the default charset)
-                    .setCharset(this.getCharset().equals(UTF_8) ? "" : this.serializableCharset));
+                    .setCharset(
+                        this.serializableCharset.equals(Io.UTF_8) ? "" : this.serializableCharset));
       }
     }
 
@@ -1041,26 +1001,21 @@ public final class SourceFile implements StaticSourceFile {
       private final String entryName;
       private final String serializableCharset;
 
-      AtZip(String zipName, String entryName, Charset c) {
+      AtZip(String zipName, String entryName, String c) {
         super();
         this.zipName = zipName;
         this.entryName = entryName;
-        this.serializableCharset = c.name();
+        this.serializableCharset = Io.charsetName(c);
       }
 
       @Override
-      String loadUncachedCode() throws IOException {
-        return CharStreams.toString(this.openUncachedReader());
+      Outcome<String> loadUncachedCode() {
+        return Io.readZipEntryText(this.zipName, this.entryName, this.serializableCharset);
       }
 
       @Override
-      Reader openUncachedReader() throws IOException {
-        return new InputStreamReader(
-            JSCompZipFileCache.getEntryStream(this.zipName, this.entryName), this.getCharset());
-      }
-
-      private Charset getCharset() {
-        return Charset.forName(this.serializableCharset);
+      Outcome<String> loadUncachedText() {
+        return this.loadUncachedCode();
       }
 
       @Override
@@ -1072,7 +1027,8 @@ public final class SourceFile implements StaticSourceFile {
                     .setEntryName(this.entryName)
                     .setZipPath(this.zipName)
                     // save space by not serializing UTF_8 (the default charset)
-                    .setCharset(this.getCharset().equals(UTF_8) ? "" : this.serializableCharset)
+                    .setCharset(
+                        this.serializableCharset.equals(Io.UTF_8) ? "" : this.serializableCharset)
                     .build());
       }
     }

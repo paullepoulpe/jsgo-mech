@@ -17,7 +17,6 @@
 package com.google.javascript.refactoring;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -25,10 +24,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
-import com.google.common.io.Files;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -47,8 +45,7 @@ public final class ApplySuggestedFixes {
    * The fixes can be provided in any order, but they may not have any overlapping modifications
    * for the same file.
    */
-  public static void applySuggestedFixesToFiles(Iterable<SuggestedFix> fixes)
-      throws IOException {
+  public static Outcome<Boolean> applySuggestedFixesToFiles(Iterable<SuggestedFix> fixes) {
     Set<String> filenames = new LinkedHashSet<>();
     for (SuggestedFix fix : fixes) {
       filenames.addAll(fix.getReplacements().keySet());
@@ -56,13 +53,21 @@ public final class ApplySuggestedFixes {
 
     Map<String, String> filenameToCodeMap = new LinkedHashMap<>();
     for (String filename : filenames) {
-      filenameToCodeMap.put(filename, Files.asCharSource(new File(filename), UTF_8).read());
+      Outcome<String> code = Io.readText(filename, Io.UTF_8);
+      if (code.isErr()) {
+        return Outcome.err(code.error());
+      }
+      filenameToCodeMap.put(filename, code.get());
     }
 
     ImmutableMap<String, String> newCode = applySuggestedFixesToCode(fixes, filenameToCodeMap);
     for (Map.Entry<String, String> entry : newCode.entrySet()) {
-      Files.asCharSink(new File(entry.getKey()), UTF_8).write(entry.getValue());
+      Outcome<Boolean> written = Io.writeText(entry.getKey(), Io.UTF_8, entry.getValue());
+      if (written.isErr()) {
+        return Outcome.err(written.error());
+      }
     }
+    return Outcome.ok(true);
   }
 
   /**

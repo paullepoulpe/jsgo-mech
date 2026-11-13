@@ -20,15 +20,10 @@ import com.google.common.base.Ascii;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.re2j.Pattern;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -477,8 +472,8 @@ public final class CmdLineParser {
    * Prints one entry for each flag that has a usage text and is selected by the filter, in the
    * order of their names.
    */
-  public void printUsage(Writer out, Predicate<Option> filter) {
-    PrintWriter w = new PrintWriter(out);
+  public void printUsage(StringBuilder out, Predicate<Option> filter) {
+    StringBuilder w = out;
     // determine the length of the option + metavar first
     int len = 0;
     for (Option option : sortedOptions()) {
@@ -490,11 +485,9 @@ public final class CmdLineParser {
     for (Option option : sortedOptions()) {
       printOption(w, option, len, filter);
     }
-
-    w.flush();
   }
 
-  private void printOption(PrintWriter out, Option option, int len, Predicate<Option> filter) {
+  private void printOption(StringBuilder out, Option option, int len, Predicate<Option> filter) {
     // Hiding options without usage information
     if (option.usageField.length() == 0 || !filter.test(option)) {
       return;
@@ -517,11 +510,12 @@ public final class CmdLineParser {
       String nameAndMeta = (i >= namesAndMetas.size()) ? "" : namesAndMetas.get(i);
       String usage = (i >= usages.size()) ? "" : usages.get(i);
       String separator = ((nameAndMeta.length() > 0) && (i == 0)) ? " : " : "   ";
-      out.println(
-          " "
-              + Strings.padEnd(nameAndMeta, widthMetadata, ' ')
-              + separator
-              + Strings.padEnd(usage, 1, ' '));
+      out.append(
+              " "
+                  + Strings.padEnd(nameAndMeta, widthMetadata, ' ')
+                  + separator
+                  + Strings.padEnd(usage, 1, ' '))
+          .append(System.lineSeparator());
     }
   }
 
@@ -682,37 +676,20 @@ public final class CmdLineParser {
     List<String> result = new ArrayList<>();
     for (String arg : args) {
       if (arg.startsWith("@")) {
-        File file = new File(arg.substring(1));
-        if (!file.exists()) {
-          return Outcome.err(new CmdLineException(this, "No such file: " + file.getPath()));
+        String file = Io.filePath(arg.substring(1));
+        if (!Io.exists(file)) {
+          return Outcome.err(new CmdLineException(this, "No such file: " + file));
         }
-        try {
-          result.addAll(readAllLines(file));
-        } catch (IOException ex) {
-          return Outcome.err(new CmdLineException(this, "Failed to parse " + file, ex));
+        Outcome<String> text = Io.readTextDefaultCharset(file);
+        if (text.isErr()) {
+          return Outcome.err(new CmdLineException(this, "Failed to parse " + file, text.error()));
         }
+        result.addAll(Io.splitLines(text.get()));
       } else {
         result.add(arg);
       }
     }
     return Outcome.ok(result.toArray(new String[0]));
-  }
-
-  private static List<String> readAllLines(File f) throws IOException {
-    BufferedReader r = new BufferedReader(new FileReader(f));
-    try {
-      List<String> result = new ArrayList<>();
-      while (true) {
-        String line = r.readLine();
-        if (line == null) {
-          break;
-        }
-        result.add(line);
-      }
-      return result;
-    } finally {
-      r.close();
-    }
   }
 
   private @Nullable Option findOptionOfKeyValuePair(String name) {

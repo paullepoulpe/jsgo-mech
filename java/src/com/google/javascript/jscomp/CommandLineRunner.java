@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Ascii;
 import com.google.common.base.Joiner;
@@ -27,7 +26,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.errorprone.annotations.Keep;
 import com.google.javascript.jscomp.AbstractCommandLineRunner.CommandLineConfig.ErrorFormatOption;
@@ -39,6 +37,7 @@ import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.DependencyOptions.DependencyMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.deps.ClosureBundler;
@@ -52,22 +51,7 @@ import com.google.javascript.rhino.TokenStream;
 import com.google.protobuf.TextFormat;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1171,8 +1155,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                     "version"))
             .immutableCopy();
 
-    private void printUsage(PrintStream ps) {
-      OutputStreamWriter outputStream = new OutputStreamWriter(ps, UTF_8);
+    private void printUsage(Io.Output ps) {
+      StringBuilder outputStream = new StringBuilder();
 
       boolean isFirst = true;
       for (Map.Entry<String, List<String>> entry : categories.asMap().entrySet()) {
@@ -1209,6 +1193,10 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         printCategoryUsage(entry.getKey(), entry.getValue(), outputStream, prefix, suffix);
       }
 
+      // The usage text goes to the stream as UTF-8.
+      Io.Output encoded = ps.encodedAs(Io.UTF_8);
+      encoded.print(outputStream.toString());
+      encoded.flush();
       ps.flush();
     }
 
@@ -1220,66 +1208,59 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     private void printCategoryUsage(
         String categoryName,
         final Collection<String> options,
-        OutputStreamWriter outputStream,
+        StringBuilder outputStream,
         String prefix,
         String suffix) {
 
-      try {
-        if (prefix != null) {
-          printStringLineWrapped(prefix, outputStream);
-        }
+      if (prefix != null) {
+        printStringLineWrapped(prefix, outputStream);
+      }
 
-        if (this.helpMarkdown) {
-          outputStream.write("# " + categoryName + "\n");
+      if (this.helpMarkdown) {
+        outputStream.append("# " + categoryName + "\n");
 
-          for (String optionName : options) {
-            StringWriter stringWriter = new StringWriter();
-            parser.printUsage(
-                stringWriter,
-                (option) ->
-                    !option.hidden() && optionName.equals(LEADING_DASHES_PATTERN.matcher(option.name()).replaceFirst("")));
-            stringWriter.flush();
-            String rawOptionUsage = stringWriter.toString();
-            int delimiterIndex = rawOptionUsage.indexOf(" : ");
-            if (delimiterIndex > 0) {
-              outputStream.write(
-                  "\n**" + rawOptionUsage.substring(0, delimiterIndex).trim() + "**  \n");
-
-              String optionDescription =
-                  MARKDOWN_CHARS_TO_ESCAPE
-                      .matcher(rawOptionUsage.substring(delimiterIndex + 3))
-                      .replaceAll("\\\\$0")
-                      .trim();
-              outputStream.write(optionDescription + "\n");
-            } else {
-              outputStream.write(
-                  MARKDOWN_CHARS_TO_ESCAPE.matcher(rawOptionUsage).replaceAll("\\\\$0"));
-            }
-            outputStream.flush();
-          }
-        } else {
-          outputStream.write(BOLD_PREFIX + categoryName + ":\n" + NORMAL_PREFIX);
+        for (String optionName : options) {
+          StringBuilder stringWriter = new StringBuilder();
           parser.printUsage(
-              outputStream,
+              stringWriter,
               (option) ->
-                  !option.hidden() && options.contains(LEADING_DASHES_PATTERN.matcher(option.name()).replaceFirst("")));
-        }
+                  !option.hidden() && optionName.equals(LEADING_DASHES_PATTERN.matcher(option.name()).replaceFirst("")));
+          String rawOptionUsage = stringWriter.toString();
+          int delimiterIndex = rawOptionUsage.indexOf(" : ");
+          if (delimiterIndex > 0) {
+            outputStream.append(
+                "\n**" + rawOptionUsage.substring(0, delimiterIndex).trim() + "**  \n");
 
-        if (suffix != null) {
-          printStringLineWrapped(suffix, outputStream);
+            String optionDescription =
+                MARKDOWN_CHARS_TO_ESCAPE
+                    .matcher(rawOptionUsage.substring(delimiterIndex + 3))
+                    .replaceAll("\\\\$0")
+                    .trim();
+            outputStream.append(optionDescription + "\n");
+          } else {
+            outputStream.append(
+                MARKDOWN_CHARS_TO_ESCAPE.matcher(rawOptionUsage).replaceAll("\\\\$0"));
+          }
         }
-      } catch (IOException e) {
-        // Ignore.
+      } else {
+        outputStream.append(BOLD_PREFIX + categoryName + ":\n" + NORMAL_PREFIX);
+        parser.printUsage(
+            outputStream,
+            (option) ->
+                !option.hidden() && options.contains(LEADING_DASHES_PATTERN.matcher(option.name()).replaceFirst("")));
+      }
+
+      if (suffix != null) {
+        printStringLineWrapped(suffix, outputStream);
       }
     }
 
     private int maxLineLength = 80;
     private static final Pattern WHITESPACE_PATTERN = Pattern.compile(SPACE);
 
-    private void printStringLineWrapped(String input, OutputStreamWriter outputStream)
-        throws IOException {
+    private void printStringLineWrapped(String input, StringBuilder outputStream) {
       if (input.length() < maxLineLength) {
-        outputStream.write(input);
+        outputStream.append(input);
         return;
       }
 
@@ -1291,12 +1272,12 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         endIndex = whitespaceMatcher.start();
         foundMatch = true;
       }
-      outputStream.write(input.substring(0, endIndex) + "\n");
+      outputStream.append(input.substring(0, endIndex) + "\n");
       printStringLineWrapped(
           "    " + input.substring(foundMatch ? endIndex + 1 : endIndex), outputStream);
     }
 
-    private static void printShortUsageAfterErrors(PrintStream ps) {
+    private static void printShortUsageAfterErrors(Io.Output ps) {
       ps.print("Sample usage: ");
       ps.println(
           "--compilation_level (-O) VAL --externs VAL --js VAL"
@@ -1324,27 +1305,40 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
      * option in this case because the order produced by {@code find} is unlikely to be sorted
      * correctly with respect to {@code goog.provide()} and {@code goog.requires()}.
      */
-    protected Outcome<List<FlagEntry<JsSourceType>>> getMixedJsSources() throws IOException {
+    protected Outcome<List<FlagEntry<JsSourceType>>> getMixedJsSources() {
       List<FlagEntry<JsSourceType>> mixedSources = new ArrayList<>();
       Set<String> excludes = new LinkedHashSet<>();
       for (FlagEntry<JsSourceType> source : mixedJsSources) {
         if (source.getValue().endsWith(".zip")) {
           mixedSources.add(source);
         } else if (source.getValue().startsWith("!")) {
-          for (String filename : findJsFiles(ImmutableList.of(source.getValue().substring(1)))) {
+          Outcome<List<String>> found =
+              findJsFiles(ImmutableList.of(source.getValue().substring(1)));
+          if (found.isErr()) {
+            return Outcome.err(found.error());
+          }
+          for (String filename : found.get()) {
             excludes.add(filename);
             mixedSources.remove(new FlagEntry<>(JsSourceType.JS, filename));
           }
         } else {
-          for (String filename : findJsFiles(Collections.singletonList(source.getValue()), true)) {
+          Outcome<List<String>> found =
+              findJsFiles(Collections.singletonList(source.getValue()), true);
+          if (found.isErr()) {
+            return Outcome.err(found.error());
+          }
+          for (String filename : found.get()) {
             if (!excludes.contains(filename)) {
               mixedSources.add(new FlagEntry<>(JsSourceType.JS, filename));
             }
           }
         }
       }
-      List<String> fromArguments = findJsFiles(arguments);
-      for (String filename : fromArguments) {
+      Outcome<List<String>> fromArguments = findJsFiles(arguments);
+      if (fromArguments.isErr()) {
+        return Outcome.err(fromArguments.error());
+      }
+      for (String filename : fromArguments.get()) {
         mixedSources.add(new FlagEntry<>(JsSourceType.JS, filename));
       }
       if (!mixedJsSources.isEmpty() && !arguments.isEmpty() && mixedSources.isEmpty()) {
@@ -1444,7 +1438,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   private boolean runCompiler = false;
 
   /** Cached error stream to avoid passing it as a parameter to helper functions. */
-  private @Nullable PrintStream errorStream;
+  private Io.@Nullable Output errorStream;
 
   /**
    * Create a new command-line runner. You should only need to call the constructor if you're
@@ -1452,15 +1446,15 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
    */
   protected CommandLineRunner(String[] args) {
     super();
-    initConfigFromFlags(args, System.out, System.err);
+    initConfigFromFlags(args, Io.stdout(), Io.stderr());
   }
 
-  protected CommandLineRunner(String[] args, PrintStream out, PrintStream err) {
+  protected CommandLineRunner(String[] args, Io.Output out, Io.Output err) {
     super(out, err);
     initConfigFromFlags(args, out, err);
   }
 
-  protected CommandLineRunner(String[] args, InputStream in, PrintStream out, PrintStream err) {
+  protected CommandLineRunner(String[] args, Io.Input in, Io.Output out, Io.Output err) {
     super(in, out, err);
     initConfigFromFlags(args, out, err);
   }
@@ -1501,22 +1495,24 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
   private Outcome<Void> processFlagFiles() {
     for (String flagFile : flags.flagFiles) {
-      try {
-        Outcome<Void> processed = processFlagFile(flagFile);
-        if (processed.isErr()) {
-          return Outcome.err(processed.error());
-        }
-      } catch (IOException ioErr) {
+      Outcome<Void> processed = processFlagFile(flagFile);
+      if (processed.isErr() && !(processed.error() instanceof IOException)) {
+        return Outcome.err(processed.error());
+      }
+      if (processed.isErr()) {
         reportError("ERROR - " + flagFile + " read error.");
       }
     }
     return Outcome.ok();
   }
 
-  private Outcome<Void> processFlagFile(String flagFileString) throws IOException {
-    Path flagFile = Path.of(flagFileString);
-
-    BufferedReader buffer = java.nio.file.Files.newBufferedReader(flagFile, UTF_8);
+  private Outcome<Void> processFlagFile(String flagFileString) {
+    Outcome<String> buffer = Io.readTextStrict(flagFileString, Io.UTF_8);
+    if (buffer.isErr()) {
+      return Outcome.err(buffer.error());
+    }
+    String flagFileText = buffer.get();
+    int flagFileIndex = 0;
     // Builds the tokens.
     StringBuilder builder = new StringBuilder();
     // Stores the built tokens.
@@ -1531,10 +1527,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     int c;
 
     while (true) {
-      c = buffer.read();
-      if (c == -1) {
+      if (flagFileIndex == flagFileText.length()) {
         break;
       }
+      c = flagFileText.charAt(flagFileIndex);
+      flagFileIndex++;
 
       // Ignoring the BOM.
       if (isFirstCharacter) {
@@ -1567,8 +1564,6 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
       escaped = c == 92;
     }
-
-    buffer.close();
 
     if (builder.length() != 0) {
       tokens.add(builder.toString());
@@ -1619,10 +1614,10 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
   /**
    * Parses the flags and the flag files and fills {@code flagInputs}; on an error outcome (a
-   * CmdLineException) or an IOException the fields not reached yet keep their initial values.
+   * CmdLineException or, from finding the input files, an IOException) the fields not reached yet
+   * keep their initial values.
    */
-  private Outcome<Void> readFlagInputs(List<String> processedArgs, FlagInputs flagInputs)
-      throws IOException {
+  private Outcome<Void> readFlagInputs(List<String> processedArgs, FlagInputs flagInputs) {
     Outcome<Void> parsed = flags.parse(processedArgs);
     if (parsed.isErr()) {
       return Outcome.err(parsed.error());
@@ -1653,7 +1648,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     return Outcome.ok();
   }
 
-  private void initConfigFromFlags(String[] args, PrintStream out, PrintStream err) {
+  private void initConfigFromFlags(String[] args, Io.Output out, Io.Output err) {
 
     errorStream = err;
     List<String> processedArgs = processArgs(args);
@@ -1662,14 +1657,12 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     flags.mixedJsSources.clear();
 
     FlagInputs flagInputs = new FlagInputs();
-    try {
-      Outcome<Void> flagInputsRead = readFlagInputs(processedArgs, flagInputs);
-      if (flagInputsRead.isErr()) {
-        CmdLineException e = (CmdLineException) flagInputsRead.error();
-        reportError(e.getMessage());
-      }
-    } catch (IOException ioErr) {
-      reportError("ERROR - ioException: " + ioErr);
+    Outcome<Void> flagInputsRead = readFlagInputs(processedArgs, flagInputs);
+    if (flagInputsRead.isErr() && flagInputsRead.error() instanceof IOException) {
+      reportError("ERROR - ioException: " + flagInputsRead.error());
+    } else if (flagInputsRead.isErr()) {
+      CmdLineException e = (CmdLineException) flagInputsRead.error();
+      reportError(e.getMessage());
     }
     List<FlagEntry<JsSourceType>> mixedSources = flagInputs.mixedSources;
     List<LocationMapping> mappings = flagInputs.mappings;
@@ -1691,10 +1684,12 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     if (flags.outputWrapperFile != null && !flags.outputWrapperFile.isEmpty()) {
-      try {
-        flags.outputWrapper = Files.asCharSource(new File(flags.outputWrapperFile), UTF_8).read();
-      } catch (Exception e) {
+      Outcome<String> outputWrapper =
+          Io.readText(Io.filePath(flags.outputWrapperFile), Io.UTF_8);
+      if (outputWrapper.isErr()) {
         reportError("ERROR - invalid output_wrapper_file specified.");
+      } else {
+        flags.outputWrapper = outputWrapper.get();
       }
     }
 
@@ -1835,7 +1830,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   @Override
-  protected void addAllowlistWarningsGuard(CompilerOptions options, File allowlistFile) {
+  protected void addAllowlistWarningsGuard(CompilerOptions options, String allowlistFile) {
     options.addWarningsGuard(AllowlistWarningsGuard.fromFile(allowlistFile));
   }
 
@@ -1919,7 +1914,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     if (flags.typedAstOutputFile != null) {
-      options.setTypedAstOutputFile(Path.of(flags.typedAstOutputFile));
+      options.setTypedAstOutputFile(Io.pathString(flags.typedAstOutputFile));
     }
     options.setGenerateExports(flags.generateExports);
     options.setExportLocalPropertyDefinitions(flags.exportLocalPropertyDefinitions);
@@ -1974,13 +1969,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     options.setIsolatePolyfills(flags.isolatePolyfills);
 
     if (!flags.translationsFile.isEmpty()) {
-      try {
-        options.setMessageBundle(
-            new XtbMessageBundle(
-                new FileInputStream(flags.translationsFile), flags.translationsProject));
-      } catch (IOException e) {
-        throw new RuntimeException("Reading XTB file", e);
+      Outcome<byte[]> xtb = Io.readBytes(flags.translationsFile);
+      if (xtb.isErr()) {
+        throw new RuntimeException("Reading XTB file", xtb.error());
       }
+      options.setMessageBundle(new XtbMessageBundle(xtb.get(), flags.translationsProject));
     } else if (CompilationLevel.ADVANCED_OPTIMIZATIONS == level) {
       // In SIMPLE or WHITESPACE mode, if the user hasn't specified a
       // translations file, they might reasonably try to write their own
@@ -2137,7 +2130,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     if (isInTestMode()) {
       return Outcome.ok(externs);
     } else {
-      List<SourceFile> builtinExterns = getBuiltinExterns(options.getEnvironment());
+      Outcome<List<SourceFile>> builtinExternsRes = getBuiltinExterns(options.getEnvironment());
+      if (builtinExternsRes.isErr()) {
+        throw (IOException) builtinExternsRes.error();
+      }
+      List<SourceFile> builtinExterns = builtinExternsRes.get();
       builtinExterns.addAll(externs);
       return Outcome.ok(builtinExterns);
     }
@@ -2147,18 +2144,22 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     ImmutableList.Builder<ConformanceConfig> configs = ImmutableList.builder();
 
     for (String configPath : configPaths) {
-      try {
-        configs.add(loadConformanceConfig(configPath));
-      } catch (IOException e) {
-        throw new RuntimeException("Error loading conformance config", e);
+      Outcome<ConformanceConfig> config = loadConformanceConfig(configPath);
+      if (config.isErr()) {
+        throw new RuntimeException("Error loading conformance config", config.error());
       }
+      configs.add(config.get());
     }
 
     return configs.build();
   }
 
-  private static ConformanceConfig loadConformanceConfig(String configFile) throws IOException {
-    String textProto = Files.asCharSource(new File(configFile), UTF_8).read();
+  private static Outcome<ConformanceConfig> loadConformanceConfig(String configFile) {
+    Outcome<String> text = Io.readText(Io.filePath(configFile), Io.UTF_8);
+    if (text.isErr()) {
+      return Outcome.err(text.error());
+    }
+    String textProto = text.get();
 
     ConformanceConfig.Builder builder = ConformanceConfig.newBuilder();
 
@@ -2173,7 +2174,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    return builder.build();
+    return Outcome.ok(builder.build());
   }
 
   @InlineMe(
@@ -2183,7 +2184,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         "com.google.javascript.jscomp.CompilerOptions"
       })
   @Deprecated
-  public static List<SourceFile> getDefaultExterns() throws IOException {
+  public static Outcome<List<SourceFile>> getDefaultExterns() {
     return getBuiltinExterns(CompilerOptions.Environment.BROWSER);
   }
 
@@ -2192,7 +2193,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
    * '*.js' for all JS files in a directory and '**.js' for all JS files within the directory and
    * sub-directories.
    */
-  public static List<String> findJsFiles(Collection<String> patterns) throws IOException {
+  public static Outcome<List<String>> findJsFiles(Collection<String> patterns) {
     return findJsFiles(patterns, false);
   }
 
@@ -2203,46 +2204,50 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
    * @param sortAlphabetically Whether the output filenames should be in alphabetical order.
    * @return The list of JS filenames found by expanding the patterns.
    */
-  private static List<String> findJsFiles(Collection<String> patterns, boolean sortAlphabetically)
-      throws IOException {
+  private static Outcome<List<String>> findJsFiles(
+      Collection<String> patterns, boolean sortAlphabetically) {
     // A map from normalized absolute paths to original paths. We need to return original paths to
     // support allowlist files that depend on them.
     Map<String, String> allJsInputs = sortAlphabetically ? new TreeMap<>() : new LinkedHashMap<>();
     Set<String> excludes = new LinkedHashSet<>();
     for (String pattern : patterns) {
       if (!pattern.contains("*") && !pattern.startsWith("!")) {
-        File matchedFile = new File(pattern);
-        if (matchedFile.isDirectory()) {
-          matchPaths(new File(matchedFile, "**.js").toString(), allJsInputs, excludes);
+        if (Io.isDirectory(pattern)) {
+          Outcome<Boolean> matched =
+              matchPaths(Io.fileChild(Io.filePath(pattern), "**.js"), allJsInputs, excludes);
+          if (matched.isErr()) {
+            return Outcome.err(matched.error());
+          }
         } else {
-          Path original = Path.of(pattern);
-          String pathStringAbsolute = original.normalize().toAbsolutePath().toString();
+          String original = Io.pathString(pattern);
+          String pathStringAbsolute = Io.pathToAbsolute(Io.pathNormalize(original));
           if (!excludes.contains(pathStringAbsolute)) {
-            allJsInputs.put(pathStringAbsolute, original.toString());
+            allJsInputs.put(pathStringAbsolute, original);
           }
         }
       } else {
-        matchPaths(pattern, allJsInputs, excludes);
+        Outcome<Boolean> matched = matchPaths(pattern, allJsInputs, excludes);
+        if (matched.isErr()) {
+          return Outcome.err(matched.error());
+        }
       }
     }
 
-    return new ArrayList<>(allJsInputs.values());
+    return Outcome.ok(new ArrayList<>(allJsInputs.values()));
   }
 
-  private static void matchPaths(
-      String pattern, final Map<String, String> allJsInputs, final Set<String> excludes)
-      throws IOException {
-    FileSystem fs = FileSystems.getDefault();
+  private static Outcome<Boolean> matchPaths(
+      String pattern, final Map<String, String> allJsInputs, final Set<String> excludes) {
     final boolean remove = pattern.indexOf('!') == 0;
     if (remove) {
       pattern = pattern.substring(1);
     }
 
-    String separator = File.separator.equals("\\") ? "\\\\" : File.separator;
+    String separator = Io.fileSeparator().equals("\\") ? "\\\\" : Io.fileSeparator();
 
     // Split the pattern into two pieces: the globbing part
     // and the non-globbing prefix.
-    List<String> patternParts = Splitter.on(File.separator).splitToList(pattern);
+    List<String> patternParts = Splitter.on(Io.fileSeparator()).splitToList(pattern);
     String prefix = ".";
     for (int i = 0; i < patternParts.size(); i++) {
       if (patternParts.get(i).contains("*")) {
@@ -2254,31 +2259,21 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       }
     }
 
-    final PathMatcher matcher = fs.getPathMatcher("glob:" + prefix + separator + pattern);
-    java.nio.file.Files.walkFileTree(
-        fs.getPath(prefix),
-        EnumSet.of(FileVisitOption.FOLLOW_LINKS),
-        Integer.MAX_VALUE,
-        new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
-            if (matcher.matches(p) || matcher.matches(p.normalize())) {
-              String pathStringAbsolute = p.normalize().toAbsolutePath().toString();
-              if (remove) {
-                excludes.add(pathStringAbsolute);
-                allJsInputs.remove(pathStringAbsolute);
-              } else if (!excludes.contains(pathStringAbsolute)) {
-                allJsInputs.put(pathStringAbsolute, p.toString());
-              }
-            }
-            return FileVisitResult.CONTINUE;
-          }
-
-          @Override
-          public FileVisitResult visitFileFailed(Path file, IOException e) {
-            return FileVisitResult.SKIP_SUBTREE;
-          }
-        });
+    Outcome<List<String>> matches =
+        Io.listFilesMatchingGlob(prefix, prefix + separator + pattern);
+    if (matches.isErr()) {
+      return Outcome.err(matches.error());
+    }
+    for (String p : matches.get()) {
+      String pathStringAbsolute = Io.pathToAbsolute(Io.pathNormalize(p));
+      if (remove) {
+        excludes.add(pathStringAbsolute);
+        allJsInputs.remove(pathStringAbsolute);
+      } else if (!excludes.contains(pathStringAbsolute)) {
+        allJsInputs.put(pathStringAbsolute, p);
+      }
+    }
+    return Outcome.ok(true);
   }
 
   /**

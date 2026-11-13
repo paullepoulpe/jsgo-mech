@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonWriter;
+import com.google.javascript.jscomp.base.Io;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.LinkedHashSet;
@@ -106,15 +107,15 @@ public final class DiagnosticToSuppressionMapper {
     } catch (IOException e) {
       throw new JsonIOException(e);
     }
-    System.out.println(out);
+    Io.stdout().println(out.toString());
   }
 
   private static void printAsMarkdown(ImmutableSortedMap<String, String> diagnosticToSuppression) {
-    System.out.println("| Error | Suppression tag |");
-    System.out.println("|---|---|");
+    Io.stdout().println("| Error | Suppression tag |");
+    Io.stdout().println("|---|---|");
 
     for (Map.Entry<String, String> e : diagnosticToSuppression.entrySet()) {
-      System.out.println(String.format("|%s|%s|", e.getKey(), e.getValue()));
+      Io.stdout().println(String.format("|%s|%s|", e.getKey(), e.getValue()));
     }
   }
 }

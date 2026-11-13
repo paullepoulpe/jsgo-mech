@@ -15,6 +15,7 @@
  */
 package com.google.javascript.jscomp;
 
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +54,11 @@ public final class LinterMain {
 
     for (String filename : files) {
       if (fix) {
-        linter.fixRepeatedly(filename);
+        Outcome<Boolean> fixed = linter.fixRepeatedly(filename);
+        if (fixed.isErr()) {
+          // The program ends with this error, as it always did.
+          throw (IOException) fixed.error();
+        }
       } else {
         linter.lint(filename);
       }

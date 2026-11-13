@@ -687,7 +687,7 @@ public final class TypedAstIntegrationTest extends IntegrationTestCase {
           ImmutableList.copyOf(this.stubExternFiles),
           ImmutableList.of(chunk1, chunk2),
           options,
-          inputStream);
+          inputStream.readAllBytes());
     }
     compiler.stage2Passes(SegmentOfCompilationToRun.OPTIMIZATIONS);
     compiler.stage3Passes();
@@ -1010,7 +1010,7 @@ public final class TypedAstIntegrationTest extends IntegrationTestCase {
           ImmutableList.copyOf(this.stubExternFiles),
           ImmutableList.copyOf(this.stubSourceFiles),
           options,
-          inputStream);
+          inputStream.readAllBytes());
     }
     compiler.stage2Passes(SegmentOfCompilationToRun.OPTIMIZATIONS);
     if (!compiler.hasErrors()) {
@@ -1069,7 +1069,7 @@ public final class TypedAstIntegrationTest extends IntegrationTestCase {
     options.setAngularPass(true);
     WarningLevel.VERBOSE.setOptionsForWarningLevel(options);
     options.setProtectHiddenSideEffects(true);
-    options.setTypedAstOutputFile(typedAstPath);
+    options.setTypedAstOutputFile(typedAstPath.toString());
     options.setClosurePass(true);
     options.setPolymerVersion(2);
 

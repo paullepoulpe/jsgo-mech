@@ -694,8 +694,8 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     assertThat(scriptA.getStaticSourceFile()).isInstanceOf(SourceFile.class);
     assertThat(scriptB.getStaticSourceFile()).isInstanceOf(SourceFile.class);
 
-    assertThat(((SourceFile) scriptA.getStaticSourceFile()).getCode()).isEqualTo("const a = 0;");
-    assertThat(((SourceFile) scriptB.getStaticSourceFile()).getCode()).isEqualTo("const b = a;");
+    assertThat(((SourceFile) scriptA.getStaticSourceFile()).readCode().get()).isEqualTo("const a = 0;");
+    assertThat(((SourceFile) scriptB.getStaticSourceFile()).readCode().get()).isEqualTo("const b = a;");
   }
 
   @Test
@@ -703,14 +703,14 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     Path pathA = Files.createTempFile("tmp", "a.js");
     Files.write(pathA, ImmutableList.of("const ಠ_ಠ = 0;"), UTF_16);
 
-    SourceFile a = SourceFile.fromFile(pathA.toString(), UTF_16);
+    SourceFile a = SourceFile.fromFile(pathA.toString(), "UTF-16");
 
     Result result =
         this.testAndReturnResult(srcsList(ImmutableList.of(a)), expectedList(ImmutableList.of(a)));
     Node scriptA = result.sourceRoot.getFirstChild();
 
     assertThat(scriptA.getStaticSourceFile()).isInstanceOf(SourceFile.class);
-    assertThat(((SourceFile) scriptA.getStaticSourceFile()).getCode())
+    assertThat(((SourceFile) scriptA.getStaticSourceFile()).readCode().get())
         .isEqualTo("const ಠ_ಠ = 0;\n");
   }
 
@@ -727,7 +727,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     Node scriptA = result.sourceRoot.getFirstChild();
 
     assertThat(scriptA.getStaticSourceFile()).isInstanceOf(SourceFile.class);
-    assertThat(((SourceFile) scriptA.getStaticSourceFile()).getCode()).isEqualTo("const a = 0;\n");
+    assertThat(((SourceFile) scriptA.getStaticSourceFile()).readCode().get()).isEqualTo("const a = 0;\n");
     assertThat(scriptA.getSourceFileName()).isEqualTo("original_a.js");
   }
 
@@ -740,14 +740,14 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     Path jsZipPath = folder.newFile("test.js.zip").toPath();
     createZipWithContent(jsZipPath, expectedContent);
 
-    SourceFile a = SourceFile.fromFile(jsZipPath + "!/a.js", UTF_8);
+    SourceFile a = SourceFile.fromFile(jsZipPath + "!/a.js", "UTF-8");
 
     Result result =
         this.testAndReturnResult(srcsList(ImmutableList.of(a)), expectedList(ImmutableList.of(a)));
     Node scriptA = result.sourceRoot.getFirstChild();
 
     assertThat(scriptA.getStaticSourceFile()).isInstanceOf(SourceFile.class);
-    assertThat(((SourceFile) scriptA.getStaticSourceFile()).getCode()).isEqualTo("const a = 0;");
+    assertThat(((SourceFile) scriptA.getStaticSourceFile()).readCode().get()).isEqualTo("const a = 0;");
     assertThat(scriptA.getStaticSourceFile().getName()).isEqualTo(a.getName());
   }
 
@@ -964,6 +964,14 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
   }
 
   @CanIgnoreReturnValue
+  private static byte[] readAll(InputStream in) {
+    try {
+      return in.readAllBytes();
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+  }
+
   private Result run(Externs externs, Sources code, InputStream serializedStream) {
     Compiler serializingCompiler = getLastCompiler();
 
@@ -983,7 +991,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
             deserializingCompiler,
             SourceFile.fromCode("syntheticExterns", "", StaticSourceFile.SourceKind.EXTERN),
             ImmutableSet.<SourceFile>builder().addAll(externFiles).addAll(codeFiles).build(),
-            serializedStream,
+            readAll(serializedStream),
             includeTypes,
             resolveSourceMapAnnotations,
             parseInlineSourceMaps);

@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.CompilerTestCase.Expected;
 import com.google.javascript.jscomp.CompilerTestCase.FlatSources;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,11 +78,7 @@ public final class UnitTestUtils {
       String fileHashString = (fileHashCode < 0) ? ("m" + -fileHashCode) : ("" + fileHashCode);
       String expectedCode = "";
       String expectedCodeFileName = outputScript.getName();
-      try {
-        expectedCode = outputScript.getCode();
-      } catch (IOException e) {
-        throw new RuntimeException("Read error: " + expectedCodeFileName, e);
-      }
+      expectedCode = outputScript.readCode().get();
       for (Entry<String, String> entry : replacementPrefixes.entrySet()) {
         String shortName = entry.getKey();
         String longName = entry.getValue() + fileHashString;

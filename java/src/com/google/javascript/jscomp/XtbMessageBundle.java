@@ -22,8 +22,8 @@ import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
 import com.google.common.collect.Iterables;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -58,7 +58,7 @@ public final class XtbMessageBundle implements MessageBundle {
    * @param xtb  the XTB file as a byte stream
    * @param projectId  the translation console project id (i.e. name)
    */
-  public XtbMessageBundle(InputStream xtb, @Nullable String projectId) {
+  public XtbMessageBundle(byte[] xtb, @Nullable String projectId) {
     this.messages = new LinkedHashMap<>();
     this.idGeneratorField = new GoogleJsMessageIdGenerator(projectId);
 
@@ -68,7 +68,7 @@ public final class XtbMessageBundle implements MessageBundle {
       XMLReader reader = parser.getXMLReader();
       Handler contentHandler = new Handler();
       reader.setContentHandler(contentHandler);
-      reader.parse(new InputSource(xtb));
+      reader.parse(new InputSource(new ByteArrayInputStream(xtb)));
     } catch (ParserConfigurationException | IOException | SAXException e) {
       throw new RuntimeException(e);
     }

@@ -32,13 +32,13 @@ public final class CompilerTestCaseUtils {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
       compiler.getChangeTracker().removeChangeHandler(changeHandler);
       compiler.disableThreads();
-      compiler.saveState(baos);
+      baos.write(compiler.saveState());
 
       try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
         compiler = testCase.createCompiler();
         compiler.disableThreads();
         compiler.init(externs, inputs, testCase.getOptions());
-        compiler.restoreState(bais);
+        compiler.restoreState(bais.readAllBytes());
         compiler.setErrorManager(errorManager);
         compiler.getChangeTracker().addChangeHandler(changeHandler);
       }

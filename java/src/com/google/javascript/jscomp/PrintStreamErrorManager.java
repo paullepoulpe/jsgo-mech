@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp;
 
-import java.io.PrintStream;
+import com.google.javascript.jscomp.base.Io;
+
 
 /**
  * An error manager that prints errors and warnings to the print stream provided in addition to the
@@ -31,7 +32,7 @@ import java.io.PrintStream;
 @Deprecated
 public class PrintStreamErrorManager extends BasicErrorManager {
   private final MessageFormatter formatter;
-  private final PrintStream stream;
+  private final Io.Output stream;
   private int summaryDetailLevel = 1;
 
   /**
@@ -41,7 +42,7 @@ public class PrintStreamErrorManager extends BasicErrorManager {
    *     printed. This class does not close the stream
    */
   public PrintStreamErrorManager(MessageFormatter formatter,
-                                 PrintStream stream) {
+                                 Io.Output stream) {
     this.formatter = formatter;
     this.stream = stream;
   }
@@ -49,7 +50,7 @@ public class PrintStreamErrorManager extends BasicErrorManager {
   /**
    * Creates an instance with a source-less error formatter.
    */
-  public PrintStreamErrorManager(PrintStream stream) {
+  public PrintStreamErrorManager(Io.Output stream) {
     this(ErrorFormat.SOURCELESS.toFormatter(null, false), stream);
   }
 
@@ -68,11 +69,12 @@ public class PrintStreamErrorManager extends BasicErrorManager {
         (summaryDetailLevel >= 1 && getErrorCount() + getWarningCount() > 0) ||
         (summaryDetailLevel >= 2 && getTypedPercent() > 0.0)) {
       if (getTypedPercent() > 0.0) {
-        stream.printf(
+        stream.print(String.format(
             "%d error(s), %d warning(s), %.1f%% typed\n",
-            getErrorCount(), getWarningCount(), getTypedPercent());
+            getErrorCount(), getWarningCount(), getTypedPercent()));
       } else {
-        stream.printf("%d error(s), %d warning(s)\n", getErrorCount(), getWarningCount());
+        stream.print(
+            String.format("%d error(s), %d warning(s)\n", getErrorCount(), getWarningCount()));
       }
     }
   }

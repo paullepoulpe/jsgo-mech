@@ -16,28 +16,26 @@
 
 package com.google.javascript.jscomp;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
 
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
+import com.google.javascript.jscomp.base.Io;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Output charset encoder for {@code CodeGenerator} that delegates to a CharsetEncoder.
+ * Output charset encoder for {@code CodeGenerator} that delegates to a charset encoder.
  */
 final class OutputCharsetEncoder {
 
-  private final @Nullable CharsetEncoder encoder;
+  private final Io.@Nullable CharEncoder encoder;
 
-  OutputCharsetEncoder(Charset outputCharset) {
-    if (outputCharset == null || outputCharset == US_ASCII) {
+  OutputCharsetEncoder(String outputCharset) {
+    if (outputCharset == null || Io.charsetName(outputCharset).equals(Io.US_ASCII)) {
       // If we want our default (pretending to be UTF-8, but escaping anything
       // outside of straight ASCII), then don't use the encoder, but
       // just special-case the code.  This keeps the normal path through
       // the code identical to how it's been for years.
       this.encoder = null;
     } else {
-      this.encoder = outputCharset.newEncoder();
+      this.encoder = Io.newEncoder(outputCharset);
     }
   }
 

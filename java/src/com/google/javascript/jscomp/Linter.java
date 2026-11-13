@@ -22,13 +22,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.parsing.Config.JsDocParsing;
 import com.google.javascript.refactoring.ApplySuggestedFixes;
 import com.google.javascript.refactoring.FixingErrorManager;
 import com.google.javascript.refactoring.SuggestedFix;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
 
 /**
@@ -112,11 +112,11 @@ public final class Linter {
   }
 
   void lint(String filename) {
-    lint(Path.of(filename), new Compiler(System.out));
+    lint(Io.pathString(filename), new Compiler(Io.stdout()));
   }
 
-  void lint(Path path, Compiler compiler) {
-    SourceFile file = SourceFile.fromFile(path.toString());
+  void lint(String path, Compiler compiler) {
+    SourceFile file = SourceFile.fromFile(path);
     compiler.setPassConfig(new LintPassConfig(options));
     compiler.disableThreads();
     SourceFile externs = SourceFile.fromCode("<Linter externs>", "");
@@ -127,38 +127,44 @@ public final class Linter {
    * Keep applying fixes to the given file until no more fixes can be found, or until fixes have
    * been applied {@code MAX_FIXES} times.
    */
-  void fixRepeatedly(String filename) throws IOException {
-    fixRepeatedly(filename, ImmutableSet.of());
+  Outcome<Boolean> fixRepeatedly(String filename) {
+    return fixRepeatedly(filename, ImmutableSet.of());
   }
 
   /**
    * Keep applying fixes to the given file until no more fixes can be found, or until fixes have
    * been applied {@code MAX_FIXES} times.
    */
-  void fixRepeatedly(String filename, ImmutableSet<DiagnosticType> unfixableErrors)
-      throws IOException {
+  Outcome<Boolean> fixRepeatedly(String filename, ImmutableSet<DiagnosticType> unfixableErrors) {
     for (int i = 0; i < MAX_FIXES; i++) {
-      if (!fix(filename, unfixableErrors)) {
+      Outcome<Boolean> fixed = fix(filename, unfixableErrors);
+      if (fixed.isErr()) {
+        return Outcome.err(fixed.error());
+      }
+      if (!fixed.get()) {
         break;
       }
     }
+    return Outcome.ok(true);
   }
 
   /** @return Whether any fixes were applied. */
-  private boolean fix(String filename, ImmutableSet<DiagnosticType> unfixableErrors)
-      throws IOException {
-    Compiler compiler = new Compiler(System.out);
+  private Outcome<Boolean> fix(String filename, ImmutableSet<DiagnosticType> unfixableErrors) {
+    Compiler compiler = new Compiler(Io.stdout());
     FixingErrorManager errorManager = new FixingErrorManager(unfixableErrors);
     compiler.setErrorManager(errorManager);
     errorManager.setCompiler(compiler);
 
-    lint(Path.of(filename), compiler);
+    lint(Io.pathString(filename), compiler);
 
     Collection<SuggestedFix> fixes = errorManager.getSureFixes();
     if (!fixes.isEmpty()) {
-      ApplySuggestedFixes.applySuggestedFixesToFiles(fixes);
-      return true;
+      Outcome<Boolean> applied = ApplySuggestedFixes.applySuggestedFixesToFiles(fixes);
+      if (applied.isErr()) {
+        return Outcome.err(applied.error());
+      }
+      return Outcome.ok(true);
     }
-    return false;
+    return Outcome.ok(false);
   }
 }

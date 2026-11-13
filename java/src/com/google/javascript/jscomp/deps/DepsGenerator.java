@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.deps;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.CheckLevel;
@@ -28,12 +27,12 @@ import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.LazyParsedDependencyInfo;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -119,22 +118,29 @@ public class DepsGenerator {
   /**
    * Performs the parsing inputs and writing of outputs.
    *
-   * @throws IOException Occurs upon an IO error.
    * @return Returns a String of goog.addDependency calls that will build the dependency graph.
-   *     Returns null if there was an error.
+   *     Returns null if there was an error, and an error outcome upon an IO error.
    */
-  public @Nullable String computeDependencyCalls() throws IOException {
+  public Outcome<@Nullable String> computeDependencyCalls() throws IOException {
     // Build a map of closure-relative path -> DepInfo.
-    Map<String, DependencyInfo> depsFiles = parseDepsFiles();
+    Outcome<Map<String, DependencyInfo>> depsFilesRes = parseDepsFiles();
+    if (depsFilesRes.isErr()) {
+      return Outcome.err(depsFilesRes.error());
+    }
+    Map<String, DependencyInfo> depsFiles = depsFilesRes.get();
     if (logger.isLoggable(Level.FINE)) {
       logger.fine("preparsedFiles: " + depsFiles);
     }
     // Find all goog.provides & goog.requires in src files
-    Map<String, DependencyInfo> jsFiles = parseSources(depsFiles.keySet());
+    Outcome<Map<String, DependencyInfo>> jsFilesRes = parseSources(depsFiles.keySet());
+    if (jsFilesRes.isErr()) {
+      return Outcome.err(jsFilesRes.error());
+    }
+    Map<String, DependencyInfo> jsFiles = jsFilesRes.get();
 
     // Check if there were any parse errors.
     if (errorManager.getErrorCount() > 0) {
-      return null;
+      return Outcome.ok(null);
     }
 
     cleanUpDuplicatedFiles(depsFiles, jsFiles);
@@ -145,12 +151,13 @@ public class DepsGenerator {
     validateDependencies(depsFiles.values(), jsFiles.values());
 
     if (errorManager.getErrorCount() > 0) {
-      return null;
+      return Outcome.ok(null);
     }
 
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    writeDepsContent(depsFiles, jsFiles, new PrintStream(output));
-    return new String(output.toByteArray(), UTF_8);
+    StringBuilder output = new StringBuilder();
+    writeDepsContent(depsFiles, jsFiles, output);
+    // The text as it comes back from the UTF-8 bytes it used to be written as.
+    return Outcome.ok(Io.utf8String(Io.utf8Bytes(output.toString())));
   }
 
   /**
@@ -393,14 +400,16 @@ public class DepsGenerator {
    * Parses all deps.js files in the deps list and creates a map of
    * closure-relative path -> DependencyInfo.
    */
-  private Map<String, DependencyInfo> parseDepsFiles() throws IOException {
+  private Outcome<Map<String, DependencyInfo>> parseDepsFiles() {
     DepsFileRegexParser depsParser = createDepsFileParser();
     Map<String, DependencyInfo> depsFiles = new LinkedHashMap<>();
     for (SourceFile file : deps) {
       if (!shouldSkipDepsFile(file)) {
-        List<DependencyInfo>
-            depInfos = depsParser.parseFileReader(
-                file.getName(), file.getCodeReader());
+        Outcome<List<DependencyInfo>> depInfosRes = parseDepsFile(depsParser, file);
+        if (depInfosRes.isErr()) {
+          return Outcome.err(depInfosRes.error());
+        }
+        List<DependencyInfo> depInfos = depInfosRes.get();
         if (depInfos.isEmpty()) {
           reportNoDepsInDepsFile(file.getName());
         } else {
@@ -416,15 +425,35 @@ public class DepsGenerator {
     // calls as well.
     for (SourceFile src : srcs) {
       if (!shouldSkipDepsFile(src)) {
-        List<DependencyInfo> srcInfos =
-            depsParser.parseFileReader(src.getName(), src.getCodeReader());
+        Outcome<List<DependencyInfo>> srcInfosRes = parseDepsFile(depsParser, src);
+        if (srcInfosRes.isErr()) {
+          return Outcome.err(srcInfosRes.error());
+        }
+        List<DependencyInfo> srcInfos = srcInfosRes.get();
         for (DependencyInfo info : srcInfos) {
           depsFiles.put(info.getPathRelativeToClosureBase(), removeRelativePathProvide(info));
         }
       }
     }
 
-    return depsFiles;
+    return Outcome.ok(depsFiles);
+  }
+
+  /**
+   * Parses one deps.js file. Text that cannot be decoded is reported as a parse error of the file
+   * (it has no dependency information then); any other failure to read it is an error outcome.
+   */
+  private static Outcome<List<DependencyInfo>> parseDepsFile(
+      DepsFileRegexParser depsParser, SourceFile file) {
+    Outcome<String> code = file.readCodeWithoutCaching();
+    if (Io.isDecodingError(code.error())) {
+      depsParser.reportReadError(file.getName());
+      return Outcome.ok(new ArrayList<>());
+    }
+    if (code.isErr()) {
+      return Outcome.err(code.error());
+    }
+    return Outcome.ok(depsParser.parseFile(file.getName(), code.get()));
   }
 
   private DependencyInfo removeRelativePathProvide(DependencyInfo info) {
@@ -452,10 +481,9 @@ public class DepsGenerator {
    *     Files in this set are not parsed if they are encountered in srcs.
    * @return Returns a map of closure-relative paths -> DependencyInfo for the
    *     newly parsed files.
-   * @throws IOException Occurs upon an IO error.
    */
-  private Map<String, DependencyInfo> parseSources(
-      Set<String> preparsedFiles) throws IOException {
+  private Outcome<Map<String, DependencyInfo>> parseSources(
+      Set<String> preparsedFiles) {
     Map<String, DependencyInfo> parsedFiles = new LinkedHashMap<>();
     JsFileRegexParser jsParser = new JsFileRegexParser(errorManager).setModuleLoader(loader);
     Compiler compiler = new Compiler();
@@ -470,10 +498,14 @@ public class DepsGenerator {
       }
       if (InclusionStrategy.WHEN_IN_SRCS == mergeStrategy ||
           !preparsedFiles.contains(closureRelativePath)) {
+        Outcome<String> code = file.readCode();
+        if (code.isErr()) {
+          return Outcome.err(code.error());
+        }
         DependencyInfo depInfo =
             jsParser.parseFile(
                 file.getName(), closureRelativePath,
-                file.getCode());
+                code.get());
         depInfo = new LazyParsedDependencyInfo(depInfo, new CompilerInput(file), compiler);
 
         // Skip externs files, which should never be loaded.
@@ -487,7 +519,7 @@ public class DepsGenerator {
       }
     }
 
-    return parsedFiles;
+    return Outcome.ok(parsedFiles);
   }
 
   /**
@@ -497,7 +529,7 @@ public class DepsGenerator {
    * @throws IOException Occurs upon an IO error.
    */
   private void writeDepsContent(Map<String, DependencyInfo> depsFiles,
-      Map<String, DependencyInfo> jsFiles, PrintStream out)
+      Map<String, DependencyInfo> jsFiles, StringBuilder out)
       throws IOException {
     // Print all dependencies extracted from srcs.
     writeDepInfos(out, jsFiles.values());
@@ -513,7 +545,7 @@ public class DepsGenerator {
 
       for (String depsPath : infosIndex.keySet()) {
         String path = formatPathToDepsFile(depsPath);
-        out.println("\n// Included from: " + path);
+        out.append("\n// Included from: " + path).append(System.lineSeparator());
         writeDepInfos(out, infosIndex.get(depsPath));
       }
     }
@@ -527,7 +559,7 @@ public class DepsGenerator {
   }
 
   /** Writes goog.addDependency() lines for each DependencyInfo in depInfos. */
-  private static void writeDepInfos(PrintStream out, Collection<DependencyInfo> depInfos)
+  private static void writeDepInfos(StringBuilder out, Collection<DependencyInfo> depInfos)
       throws IOException {
     // Print dependencies.
     // Lines look like this:
@@ -551,12 +583,16 @@ public class DepsGenerator {
     return createSourceFilesFromPaths(Arrays.asList(paths));
   }
 
-  static List<SourceFile> createSourceFilesFromZipPaths(
-      Collection<String> paths) throws IOException {
+  static Outcome<List<SourceFile>> createSourceFilesFromZipPaths(
+      Collection<String> paths) {
     List<SourceFile> zipSourceFiles = new ArrayList<>();
     for (String path : paths) {
-      zipSourceFiles.addAll(SourceFile.fromZipFile(path, UTF_8));
+      Outcome<List<SourceFile>> zipFiles = SourceFile.fromZipFile(path, Io.UTF_8);
+      if (zipFiles.isErr()) {
+        return Outcome.err(zipFiles.error());
+      }
+      zipSourceFiles.addAll(zipFiles.get());
     }
-    return zipSourceFiles;
+    return Outcome.ok(zipSourceFiles);
   }
 }
