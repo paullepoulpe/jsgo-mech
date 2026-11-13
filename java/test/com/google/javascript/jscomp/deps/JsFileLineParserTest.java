@@ -17,10 +17,10 @@
 package com.google.javascript.jscomp.deps;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertThrows;
 
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
+import com.google.javascript.jscomp.base.Outcome;
 import java.io.StringReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -197,15 +197,17 @@ public final class JsFileLineParserTest {
   @Test
   public void testParseJsString_escapedQuotes() throws Exception {
     TestParser parser = new TestParser();
-    assertThat(parser.parseJsString("'foo\\'bar'")).isEqualTo("foo\\'bar");
-    assertThat(parser.parseJsString("\"foo\\\"bar\"")).isEqualTo("foo\\\"bar");
+    assertThat(parser.parseJsString("'foo\\'bar'").get()).isEqualTo("foo\\'bar");
+    assertThat(parser.parseJsString("\"foo\\\"bar\"").get()).isEqualTo("foo\\\"bar");
   }
 
   @Test
   public void testParseJsString_unterminatedEscapedQuote_throwsParseException() {
     TestParser parser = new TestParser();
-    assertThrows(JsFileLineParser.ParseException.class, () -> parser.parseJsString("'foo\\'"));
-    assertThrows(JsFileLineParser.ParseException.class, () -> parser.parseJsString("\"foo\\\""));
+    assertThat(parser.parseJsString("'foo\\'").error())
+        .isInstanceOf(JsFileLineParser.ParseException.class);
+    assertThat(parser.parseJsString("\"foo\\\"").error())
+        .isInstanceOf(JsFileLineParser.ParseException.class);
   }
 
   private void assertStrip(String expected, String input) {
@@ -235,9 +237,9 @@ public final class JsFileLineParserTest {
     }
 
     @Override
-    boolean parseLine(String line) {
+    Outcome<Boolean> parseLine(String line) {
       sb.append(line);
-      return true;
+      return Outcome.ok(true);
     }
 
     @Override

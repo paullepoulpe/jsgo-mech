@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.javascript.jscomp.ErrorManager;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
@@ -143,11 +144,11 @@ public final class DepsFileRegexParser extends JsFileLineParser {
    *   goog.addDependency('pathRelativeToClosure', ['provides'], ['requires']);
    * Adds the dependencies to depInfos.
    *
-   * @throws ParseException Thrown if the given line has a malformed
+   * <p>Returns an error outcome with a ParseException if the given line has a malformed
    *     goog.addDependency().
    */
   @Override
-  protected boolean parseLine(String line) throws ParseException {
+  protected Outcome<Boolean> parseLine(String line) {
     boolean hasDependencies = false;
 
     // Quick check that will catch most cases. This is a performance win for teams with a lot of JS.
@@ -162,25 +163,43 @@ public final class DepsFileRegexParser extends JsFileLineParser {
         if (!depArgsMatch.matches()) {
           // Although we could recover, we mark this as fatal since there should
           // not be problems with generated deps.js files.
-          throw new ParseException("Invalid arguments to goog.addDependency(). Found: "
-              + addDependencyParams, true);
+          return Outcome.err(
+              new ParseException(
+                  "Invalid arguments to goog.addDependency(). Found: " + addDependencyParams,
+                  true));
         }
         // Parse the file path.
-        String relativePath = parseJsString(depArgsMatch.group(1));
+        Outcome<String> relativePathOutcome = parseJsString(depArgsMatch.group(1));
+        if (relativePathOutcome.isErr()) {
+          return Outcome.err(relativePathOutcome.error());
+        }
+        String relativePath = relativePathOutcome.get();
         String path = pathTranslator.apply(relativePath);
 
-        List<String> provides = parseJsStringArray(depArgsMatch.group(2));
-        Map<String, String> loadFlags = parseLoadFlags(depArgsMatch.group(4));
+        Outcome<List<String>> providesOutcome = parseJsStringArray(depArgsMatch.group(2));
+        if (providesOutcome.isErr()) {
+          return Outcome.err(providesOutcome.error());
+        }
+        List<String> provides = providesOutcome.get();
+        Outcome<Map<String, String>> loadFlagsOutcome = parseLoadFlags(depArgsMatch.group(4));
+        if (loadFlagsOutcome.isErr()) {
+          return Outcome.err(loadFlagsOutcome.error());
+        }
+        Map<String, String> loadFlags = loadFlagsOutcome.get();
 
         // ES6 modules are require'd by path but do not provide them in the addDependency call.
         if ("es6".equals(loadFlags.get("module"))) {
           provides.add(relativePath);
         }
 
+        Outcome<List<String>> requiresOutcome = parseJsStringArray(depArgsMatch.group(3));
+        if (requiresOutcome.isErr()) {
+          return Outcome.err(requiresOutcome.error());
+        }
         DependencyInfo depInfo =
             SimpleDependencyInfo.builder(path, filePath)
                 .setProvides(provides)
-                .setRequires(requiresParsedFromDeps(parseJsStringArray(depArgsMatch.group(3))))
+                .setRequires(requiresParsedFromDeps(requiresOutcome.get()))
                 .setLoadFlags(loadFlags)
                 .build();
 
@@ -191,8 +210,8 @@ public final class DepsFileRegexParser extends JsFileLineParser {
       }
     }
 
-    return !shortcutMode || hasDependencies ||
-        CharMatcher.whitespace().matchesAllOf(line);
+    return Outcome.ok(
+        !shortcutMode || hasDependencies || CharMatcher.whitespace().matchesAllOf(line));
   }
 
   private static ImmutableList<Require> requiresParsedFromDeps(List<String> symbols) {
@@ -203,11 +222,11 @@ public final class DepsFileRegexParser extends JsFileLineParser {
     return result.build();
   }
 
-  private Map<String, String> parseLoadFlags(String loadFlags) throws ParseException {
+  private Outcome<Map<String, String>> parseLoadFlags(String loadFlags) {
     if (loadFlags == null || loadFlags.equals("false")) {
-      return ImmutableMap.of();
+      return Outcome.ok(ImmutableMap.of());
     } else if (loadFlags.equals("true")) {
-      return ImmutableMap.of("module", "goog");
+      return Outcome.ok(ImmutableMap.of("module", "goog"));
     } else {
       return parseJsStringMap(loadFlags);
     }

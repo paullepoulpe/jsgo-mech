@@ -25,6 +25,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
@@ -299,7 +300,7 @@ public final class JsFileRegexParser extends JsFileLineParser {
     return true;
   }
 
-  private boolean applyGoogMatcher(String line) throws ParseException {
+  private Outcome<Boolean> applyGoogMatcher(String line) {
     boolean lineHasProvidesOrRequires = false;
     // Iterate over the provides/requires.
     googMatcher.reset(line);
@@ -330,7 +331,11 @@ public final class JsFileRegexParser extends JsFileLineParser {
 
       if (providesNamespace || isRequire) {
         // Parse the param.
-        String arg = parseJsString(googMatcher.group("args"));
+        Outcome<String> argOutcome = parseJsString(googMatcher.group("args"));
+        if (argOutcome.isErr()) {
+          return Outcome.err(argOutcome.error());
+        }
+        String arg = argOutcome.get();
         // Add the dependency.
         if (isRequire) {
           if ("requireType".equals(methodName) || "forwardDeclare".equals(methodName)) {
@@ -345,12 +350,12 @@ public final class JsFileRegexParser extends JsFileLineParser {
         }
       }
     }
-    return lineHasProvidesOrRequires;
+    return Outcome.ok(lineHasProvidesOrRequires);
   }
 
   /** Parses a line of JavaScript, extracting goog.provide and goog.require information. */
   @Override
-  protected boolean parseLine(String line) throws ParseException {
+  protected Outcome<Boolean> parseLine(String line) {
     boolean lineHasProvidesOrRequires = false;
 
     if (line.startsWith(BUNDLED_GOOG_MODULE_START)) {
@@ -368,11 +373,19 @@ public final class JsFileRegexParser extends JsFileLineParser {
 
     if (!googMatcherBuffer.isEmpty()) {
       // Retry with the previous line.
-      lineHasProvidesOrRequires = applyGoogMatcher(googMatcherBuffer + line);
+      Outcome<Boolean> applied = applyGoogMatcher(googMatcherBuffer + line);
+      if (applied.isErr()) {
+        return Outcome.err(applied.error());
+      }
+      lineHasProvidesOrRequires = applied.get();
     }
     if (!lineHasProvidesOrRequires && lineHasProvidesOrRequiresWords) {
       // Try without the previous line.
-      lineHasProvidesOrRequires = applyGoogMatcher(line);
+      Outcome<Boolean> applied = applyGoogMatcher(line);
+      if (applied.isErr()) {
+        return Outcome.err(applied.error());
+      }
+      lineHasProvidesOrRequires = applied.get();
     }
     if (!lineHasProvidesOrRequires && lineHasProvidesOrRequiresWords) {
       // We haven't found any matches in this line and will retry on the next line.
@@ -412,13 +425,14 @@ public final class JsFileRegexParser extends JsFileLineParser {
       }
     }
 
-    return !shortcutMode
-        || lineHasProvidesOrRequires
-        || !googMatcherBuffer.isEmpty()
-        || CharMatcher.whitespace().matchesAllOf(line)
-        || !line.contains(";")
-        || line.contains("goog.setTestOnly")
-        || line.contains("goog.module.declareLegacyNamespace");
+    return Outcome.ok(
+        !shortcutMode
+            || lineHasProvidesOrRequires
+            || !googMatcherBuffer.isEmpty()
+            || CharMatcher.whitespace().matchesAllOf(line)
+            || !line.contains(";")
+            || line.contains("goog.setTestOnly")
+            || line.contains("goog.module.declareLegacyNamespace"));
   }
 
   public static boolean isSupported() {

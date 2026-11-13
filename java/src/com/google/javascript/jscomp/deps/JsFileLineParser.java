@@ -24,6 +24,7 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import java.io.BufferedReader;
@@ -142,94 +143,94 @@ public abstract class JsFileLineParser {
           break;
         }
         ++lineNum;
-        try {
-          String revisedLine = line;
-          String revisedJsDocCommentLine = "";
-          if (inMultilineComment) {
-            int endOfComment = revisedLine.indexOf("*/");
-            if (endOfComment != -1) {
-              if (inJsDocComment) {
-                revisedJsDocCommentLine = revisedLine.substring(0, endOfComment + 2);
-                inJsDocComment = false;
-              }
-              revisedLine = revisedLine.substring(endOfComment + 2);
-              inMultilineComment = false;
-            } else {
-              if (inJsDocComment) {
-                revisedJsDocCommentLine = line;
-              }
-              revisedLine = "";
+        String revisedLine = line;
+        String revisedJsDocCommentLine = "";
+        if (inMultilineComment) {
+          int endOfComment = revisedLine.indexOf("*/");
+          if (endOfComment != -1) {
+            if (inJsDocComment) {
+              revisedJsDocCommentLine = revisedLine.substring(0, endOfComment + 2);
+              inJsDocComment = false;
             }
+            revisedLine = revisedLine.substring(endOfComment + 2);
+            inMultilineComment = false;
+          } else {
+            if (inJsDocComment) {
+              revisedJsDocCommentLine = line;
+            }
+            revisedLine = "";
           }
+        }
 
-          if (!inMultilineComment) {
-            while (true) {
-              int startOfLineComment = revisedLine.indexOf("//");
-              int startOfMultilineComment = revisedLine.indexOf("/*");
-              if (startOfLineComment != -1 &&
-                  (startOfMultilineComment == -1 ||
-                   startOfLineComment < startOfMultilineComment)) {
-                revisedLine = revisedLine.substring(0, startOfLineComment);
+        if (!inMultilineComment) {
+          while (true) {
+            int startOfLineComment = revisedLine.indexOf("//");
+            int startOfMultilineComment = revisedLine.indexOf("/*");
+            if (startOfLineComment != -1 &&
+                (startOfMultilineComment == -1 ||
+                 startOfLineComment < startOfMultilineComment)) {
+              revisedLine = revisedLine.substring(0, startOfLineComment);
+              break;
+            } else if (startOfMultilineComment != -1) {
+              // If comment is in a string (single or double quoted), don't parse as a comment.
+              if (isCommentQuoted(revisedLine, startOfMultilineComment, '\'')) {
                 break;
-              } else if (startOfMultilineComment != -1) {
-                // If comment is in a string (single or double quoted), don't parse as a comment.
-                if (isCommentQuoted(revisedLine, startOfMultilineComment, '\'')) {
-                  break;
+              }
+              if (isCommentQuoted(revisedLine, startOfMultilineComment, '"')) {
+                break;
+              }
+              if (startOfMultilineComment == revisedLine.indexOf("/**")) {
+                inJsDocComment = true;
+              }
+              int endOfMultilineComment = revisedLine.indexOf("*/", startOfMultilineComment + 2);
+              if (endOfMultilineComment == -1) {
+                if (inJsDocComment) {
+                  revisedJsDocCommentLine = revisedLine.substring(startOfMultilineComment);
                 }
-                if (isCommentQuoted(revisedLine, startOfMultilineComment, '"')) {
-                  break;
-                }
-                if (startOfMultilineComment == revisedLine.indexOf("/**")) {
-                  inJsDocComment = true;
-                }
-                int endOfMultilineComment = revisedLine.indexOf("*/", startOfMultilineComment + 2);
-                if (endOfMultilineComment == -1) {
-                  if (inJsDocComment) {
-                    revisedJsDocCommentLine = revisedLine.substring(startOfMultilineComment);
-                  }
-                  revisedLine = revisedLine.substring(0, startOfMultilineComment);
-                  inMultilineComment = true;
-                  break;
-                } else {
-                  if (inJsDocComment) {
-                    String jsDocComment =
-                        revisedLine.substring(startOfMultilineComment, endOfMultilineComment + 2);
-                    if (!parseJsDocCommentLine(jsDocComment) && shortcutMode) {
-                      break;
-                    }
-                    inJsDocComment = false;
-                  }
-                  revisedLine =
-                      revisedLine.substring(0, startOfMultilineComment) +
-                      revisedLine.substring(endOfMultilineComment + 2);
-                }
+                revisedLine = revisedLine.substring(0, startOfMultilineComment);
+                inMultilineComment = true;
+                break;
               } else {
-                break;
+                if (inJsDocComment) {
+                  String jsDocComment =
+                      revisedLine.substring(startOfMultilineComment, endOfMultilineComment + 2);
+                  if (!parseJsDocCommentLine(jsDocComment) && shortcutMode) {
+                    break;
+                  }
+                  inJsDocComment = false;
+                }
+                revisedLine =
+                    revisedLine.substring(0, startOfMultilineComment) +
+                    revisedLine.substring(endOfMultilineComment + 2);
               }
-            }
-          }
-
-          if (!revisedJsDocCommentLine.isEmpty()) {
-            if (!parseJsDocCommentLine(revisedJsDocCommentLine) && shortcutMode) {
+            } else {
               break;
             }
           }
+        }
 
-          if (!revisedLine.isEmpty()) {
-            // This check for shortcut mode should be redundant, but
-            // it's done for safety reasons.
-            if (!parseLine(revisedLine) && shortcutMode) {
-              break;
-            }
+        if (!revisedJsDocCommentLine.isEmpty()) {
+          if (!parseJsDocCommentLine(revisedJsDocCommentLine) && shortcutMode) {
+            break;
           }
-        } catch (ParseException e) {
-          // Inform the error handler of the exception.
-          errorManager.report(
-              e.isFatal() ? CheckLevel.ERROR : CheckLevel.WARNING,
-              JSError.make(filePath, lineNum, 0 /* char offset */,
-                  e.isFatal() ? PARSE_ERROR : PARSE_WARNING,
-                  e.getMessage(), line));
-          parseSucceeded = parseSucceeded && !e.isFatal();
+        }
+
+        if (!revisedLine.isEmpty()) {
+          // This check for shortcut mode should be redundant, but
+          // it's done for safety reasons.
+          Outcome<Boolean> keepGoing = parseLine(revisedLine);
+          if (keepGoing.isErr()) {
+            ParseException e = (ParseException) keepGoing.error();
+            // Inform the error handler of the exception.
+            errorManager.report(
+                e.isFatal() ? CheckLevel.ERROR : CheckLevel.WARNING,
+                JSError.make(filePath, lineNum, 0 /* char offset */,
+                    e.isFatal() ? PARSE_ERROR : PARSE_WARNING,
+                    e.getMessage(), line));
+            parseSucceeded = parseSucceeded && !e.isFatal();
+          } else if (!keepGoing.get() && shortcutMode) {
+            break;
+          }
         }
       }
     } catch (IOException e) {
@@ -280,9 +281,9 @@ public abstract class JsFileLineParser {
    *
    * @param line The line to parse.
    * @return true to keep going, false otherwise.
-   * @throws ParseException Should be thrown to signify a problem with the line.
+   *     An error outcome with a ParseException signifies a problem with the line.
    */
-  abstract boolean parseLine(String line) throws ParseException;
+  abstract Outcome<Boolean> parseLine(String line);
 
   /**
    * Called for each JSDoc line of the file being parsed.
@@ -298,29 +299,32 @@ public abstract class JsFileLineParser {
    * Parses a JS string literal.
    *
    * @param jsStringLiteral The literal. Must look like "asdf" or 'asdf'
-   * @throws ParseException Thrown if there is a string literal that cannot be parsed.
+   * @return An error outcome with a ParseException if there is a string literal that cannot be
+   *     parsed.
    */
-  String parseJsString(String jsStringLiteral) throws ParseException {
+  Outcome<String> parseJsString(String jsStringLiteral) {
     valueMatcher.reset(jsStringLiteral);
     if (!valueMatcher.matches()) {
-      throw new ParseException("Syntax error in JS String literal", /* fatal= */ true);
+      return Outcome.err(
+          new ParseException("Syntax error in JS String literal", /* fatal= */ true));
     }
-    return valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
+    return Outcome.ok(
+        valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2));
   }
 
   /**
    * Parses a JavaScript array of string literals. (eg: ['a', 'b', "c"]).
    * @param input A string containing a JavaScript array of string literals.
-   * @return A list of parsed string literals.
-   * @throws ParseException Thrown if there is a syntax error with the input.
+   * @return A list of parsed string literals, or an error outcome with a ParseException if there
+   *     is a syntax error with the input.
    */
-  List<String> parseJsStringArray(String input)
-      throws ParseException {
+  Outcome<List<String>> parseJsStringArray(String input) {
     List<String> results = new ArrayList<>();
     int indexStart = input.indexOf('[');
     int indexEnd = input.lastIndexOf(']');
     if ((indexStart == -1) || (indexEnd == -1)) {
-      throw new ParseException("Syntax error when parsing JS array", /* fatal= */ true);
+      return Outcome.err(
+          new ParseException("Syntax error when parsing JS array", /* fatal= */ true));
     }
     String innerValues = input.substring(indexStart + 1, indexEnd);
 
@@ -329,7 +333,8 @@ public abstract class JsFileLineParser {
       for (;;) {
         // Parse the current string literal.
         if (!valueMatcher.lookingAt()) {
-          throw new ParseException("Syntax error in JS String literal", /* fatal= */ true);
+          return Outcome.err(
+              new ParseException("Syntax error in JS String literal", /* fatal= */ true));
         }
         // Add it to the results.
         results.add(valueMatcher.group(1) != null ?
@@ -339,28 +344,33 @@ public abstract class JsFileLineParser {
         }
         // Ensure there is a comma after the value.
         if (innerValues.charAt(valueMatcher.end()) != ',') {
-          throw new ParseException("Missing comma in string array", /* fatal= */ true);
+          return Outcome.err(
+              new ParseException("Missing comma in string array", /* fatal= */ true));
         }
         // Move to the next value.
         innerValues = innerValues.substring(valueMatcher.end() + 1);
         valueMatcher.reset(innerValues);
       }
     }
-    return results;
+    return Outcome.ok(results);
   }
 
   // TODO(sdh): Consider simplifying this by reusing the parser or a separate JSON library.
   /**
    * Parses a JavaScript map of string literals. (eg: {'a': 'b', "c": "d"}).
    * @param input A string containing a JavaScript map of string literals.
-   * @return A map of parsed string literals.
-   * @throws ParseException Thrown if there is a syntax error with the input.
+   * @return A map of parsed string literals, or an error outcome with a ParseException if there
+   *     is a syntax error with the input.
    */
-  Map<String, String> parseJsStringMap(String input) throws ParseException {
+  Outcome<Map<String, String>> parseJsStringMap(String input) {
     input = CharMatcher.whitespace().trimFrom(input);
-    check(
+    Outcome<Void> checked;
+    checked = check(
         !input.isEmpty() && input.charAt(0) == '{' && input.charAt(input.length() - 1) == '}',
         "Syntax error when parsing JS object");
+    if (checked.isErr()) {
+      return Outcome.err(checked.error());
+    }
     input = input.substring(1, input.length() - 1).trim();
 
     Map<String, String> results = new LinkedHashMap<>();
@@ -368,31 +378,47 @@ public abstract class JsFileLineParser {
     valueMatcher.reset(input);
     while (!done) {
       // Parse the next key (TODO(sdh): need to support non-quoted keys?).
-      check(valueMatcher.lookingAt(), "Bad key in JS object literal");
+      checked = check(valueMatcher.lookingAt(), "Bad key in JS object literal");
+      if (checked.isErr()) {
+        return Outcome.err(checked.error());
+      }
       String key = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
-      check(valueMatcher.end() != input.length(), "Missing value in JS object literal");
-      check(input.charAt(valueMatcher.end()) == ':', "Missing colon in JS object literal");
+      checked = check(valueMatcher.end() != input.length(), "Missing value in JS object literal");
+      if (checked.isErr()) {
+        return Outcome.err(checked.error());
+      }
+      checked = check(input.charAt(valueMatcher.end()) == ':', "Missing colon in JS object literal");
+      if (checked.isErr()) {
+        return Outcome.err(checked.error());
+      }
       input = input.substring(valueMatcher.end() + 1);
       valueMatcher.reset(input);
 
       // Parse the corresponding value.
-      check(valueMatcher.lookingAt(), "Bad value in JS object literal");
+      checked = check(valueMatcher.lookingAt(), "Bad value in JS object literal");
+      if (checked.isErr()) {
+        return Outcome.err(checked.error());
+      }
       String val = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
       results.put(key, val);
       if (valueMatcher.end() != input.length()) {
-        check(input.charAt(valueMatcher.end()) == ',', "Missing comma in JS object literal");
+        checked = check(input.charAt(valueMatcher.end()) == ',', "Missing comma in JS object literal");
+        if (checked.isErr()) {
+          return Outcome.err(checked.error());
+        }
         input = input.substring(valueMatcher.end() + 1);
         valueMatcher.reset(input);
       } else {
         done = true;
       }
     }
-    return results;
+    return Outcome.ok(results);
   }
 
-  private static void check(boolean condition, String message) throws ParseException {
+  private static Outcome<Void> check(boolean condition, String message) {
     if (!condition) {
-      throw new ParseException(message, /* fatal= */ true);
+      return Outcome.err(new ParseException(message, /* fatal= */ true));
     }
+    return Outcome.ok();
   }
 }

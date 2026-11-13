@@ -38,6 +38,11 @@ public final class Outcome<T> {
     return new Outcome<>(value, null);
   }
 
+  /** A successful outcome of an operation that has no value (a {@code void} method). */
+  public static Outcome<Void> ok() {
+    return new Outcome<>(null, null);
+  }
+
   /** A failed outcome carrying the exception that describes the failure. */
   public static <T> Outcome<T> err(Throwable error) {
     if (error == null) {
