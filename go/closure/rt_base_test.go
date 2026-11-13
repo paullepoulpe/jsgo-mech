@@ -178,12 +178,12 @@ func baseRun_(c []string) string {
 	case "hasher":
 		h := Hashing_farmHashFingerprint64().newHasher()
 		h.putInt(7)
-		h.putString(a[0], nil)
+		h.putString(a[0], StandardCharsets_UTF_8)
 		h.putLong(-5)
 		m := Hashing_murmur3_128().newHasher()
 		m.putUnencodedChars(a[0])
 		m2 := Hashing_murmur3_128().newHasher()
-		m2.putInt(-3).putUnencodedChars(a[0]).putLong(1<<40).putString(a[0], nil)
+		m2.putInt(-3).putUnencodedChars(a[0]).putLong(1<<40).putString(a[0], StandardCharsets_UTF_8)
 		return baseInt_(h.hash().asLong()) + "/" + baseInt_(int64(m.hash().asInt())) + "/" + baseInt_(m2.hash().asLong())
 	case "big1":
 		x := new_BigInteger_String(a[0])
@@ -267,9 +267,9 @@ func baseRun_(c []string) string {
 		}
 		return baseArr_(l)
 	case "utf8":
-		return new_String_byteArr_Charset(baseBytes_(a[0]), nil)
+		return new_String_byteArr_Charset(baseBytes_(a[0]), StandardCharsets_UTF_8)
 	case "getbytes":
-		return baseHex_(String_getBytes(a[0], nil))
+		return baseHex_(String_getBytes(a[0], StandardCharsets_UTF_8))
 	}
 	panic("unknown case kind " + c[0])
 }

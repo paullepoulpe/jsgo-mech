@@ -971,6 +971,22 @@ abstract class ExprEmitter extends Base {
         return new CallResult("(" + recv.code + " == " + as.get(0).as(stringType()) + ")", prim(TypeKind.BOOLEAN));
       }
     }
+    if (recv == null && !as.isEmpty() && owner.getQualifiedName().contentEquals("java.util.Arrays")
+        && (e.getSimpleName().contentEquals("sort") || e.getSimpleName().contentEquals("setAll") || e.getSimpleName().contentEquals("fill"))) {
+      // These write into the array they are given. When the Go slice has another element type than
+      // the library function's parameter, it works on a converted copy that is then copied back.
+      TypeMirror at = cx.erase(as.get(0).type), pt = cx.erase(e.getParameters().get(0).asType());
+      if (at != null && at.getKind() == TypeKind.ARRAY && pt.getKind() == TypeKind.ARRAY && !cx.goType(at).equals(cx.goType(pt))) {
+        TypeMirror ca = ((ArrayType) at).getComponentType(), cp = ((ArrayType) pt).getComponentType();
+        String arr = fresh("arr"), tmp = fresh("tmp");
+        List<Arg> rest = new ArrayList<>(as);
+        rest.set(0, new Arg(tmp, pt));
+        CallResult inner = call(e, null, false, rest);
+        String code = "func() { " + arr + " := " + as.get(0).as(at) + "; " + tmp + " := " + cx.coerce(arr, at, pt) + "; " + inner.code
+            + "; for i_ := range " + tmp + " { " + arr + "[i_] = " + cx.coerce(tmp + "[i_]", cp, ca) + " } }()";
+        return new CallResult(code, cx.types.getNoType(TypeKind.VOID));
+      }
+    }
     return call(e, recv, false, as);
   }
 

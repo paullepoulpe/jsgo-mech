@@ -379,7 +379,11 @@ final class Ctx {
         }
       case ARR:
         switch (kf) {
-          case ARR: return "arrconv_[" + goType(((ArrayType) to).getComponentType()) + "](" + code + ")";
+          case ARR: {
+            // Another element type: a converted copy.
+            TypeMirror cf = ((ArrayType) from).getComponentType(), ct = ((ArrayType) to).getComponentType();
+            return "arrmap_(" + code + ", func(v_ " + goType(cf) + ") " + goType(ct) + " { return " + coerce("v_", cf, ct) + " })";
+          }
           default: return "cast_[" + gt + "](" + code + ")";
         }
       default:

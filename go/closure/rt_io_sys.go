@@ -1,0 +1,907 @@
+package closure
+
+// java.lang.Runtime / Thread / ThreadLocal / Throwable printing,
+// java.util.concurrent and Guava's concurrency helpers, java.lang.management
+// and java.util.logging.
+//
+// Everything runs on one goroutine: starting a thread runs it to completion,
+// and an executor runs a task when it is submitted.
+
+import (
+	"runtime"
+	"strconv"
+	"strings"
+	"time"
+)
+
+func init() {
+	registerEnum_("java.util.concurrent.TimeUnit", []any{TimeUnit_NANOSECONDS, TimeUnit_MICROSECONDS, TimeUnit_MILLISECONDS,
+		TimeUnit_SECONDS, TimeUnit_MINUTES, TimeUnit_HOURS, TimeUnit_DAYS})
+}
+
+// caught_ is the Java exception of a recovered panic value.
+func caught_(r any) any {
+	if _, ok := r.(interface{ as_Throwable() *Throwable }); ok {
+		return r
+	}
+	return catch_(r)
+}
+
+// ---- java.lang.Runtime
+
+type Runtime struct{}
+
+var runtime_ = &Runtime{}
+
+func Runtime_getRuntime() *Runtime { return runtime_ }
+
+func memStats_() *runtime.MemStats {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	return &m
+}
+
+// totalMemory is the memory obtained from the operating system for the heap,
+// freeMemory the part of it that holds no live objects.
+func (this *Runtime) totalMemory() int64 { return int64(memStats_().HeapSys) }
+
+func (this *Runtime) freeMemory() int64 {
+	m := memStats_()
+	return int64(m.HeapSys - m.HeapAlloc)
+}
+
+func (this *Runtime) maxMemory() int64 { return 0x7fffffffffffffff }
+
+func (this *Runtime) availableProcessors() int32 { return int32(runtime.NumCPU()) }
+
+func (this *Runtime) gc() { runtime.GC() }
+
+func (this *Runtime) exit(code int32) { System_exit(code) }
+
+func System_gc() { runtime.GC() }
+
+// ---- java.lang.Thread
+
+type ThreadGroup struct{}
+
+type Thread struct {
+	self_        any
+	target_      Runnable
+	name_        string
+	daemon_      bool
+	started_     bool
+	done_        bool
+	interrupted_ bool
+	handler_     Thread_UncaughtExceptionHandler
+}
+
+func (this *Thread) as_Thread() *Thread { return this }
+
+func to_Thread(v any) *Thread {
+	if v == nil {
+		return nil
+	}
+	return v.(interface{ as_Thread() *Thread }).as_Thread()
+}
+
+func is_Thread(v any) bool {
+	_, ok := v.(interface{ as_Thread() *Thread })
+	return ok
+}
+
+func (this *Thread) self() any {
+	if this == nil {
+		return nil
+	}
+	return this.self_
+}
+
+var threadCount_ int32
+
+// mainThread_ is the thread of the process; threads_ are the threads whose
+// run() is executing, innermost last.
+var mainThread_ = func() *Thread {
+	t := &Thread{name_: "main", started_: true}
+	t.self_ = t
+	return t
+}()
+var threads_ = []*Thread{mainThread_}
+
+func (this *Thread) init_Thread_ThreadGroup_Runnable_String_long(g *ThreadGroup, r Runnable, name string, stackSize int64) {
+	this.target_ = r
+	this.name_ = name
+}
+
+func new_Thread_ThreadGroup_Runnable_String_long(g *ThreadGroup, r Runnable, name string, stackSize int64) *Thread {
+	if name == nullstr_ {
+		panic(new_NullPointerException_String("name cannot be null").self())
+	}
+	this := &Thread{}
+	this.self_ = this
+	this.init_Thread_ThreadGroup_Runnable_String_long(g, r, name, stackSize)
+	return this
+}
+
+func nextThreadName_() string {
+	n := threadCount_
+	threadCount_++
+	return "Thread-" + istr_(int64(n))
+}
+
+func new_Thread_Runnable(r Runnable) *Thread {
+	return new_Thread_ThreadGroup_Runnable_String_long(nil, r, nextThreadName_(), 0)
+}
+
+func new_Thread_Runnable_String(r Runnable, name string) *Thread {
+	return new_Thread_ThreadGroup_Runnable_String_long(nil, r, name, 0)
+}
+
+func new_Thread_0() *Thread { return new_Thread_Runnable(nil) }
+
+func Thread_currentThread() *Thread { return threads_[len(threads_)-1] }
+
+// Thread_interrupted reports and clears the interrupt status of the current thread.
+func Thread_interrupted() bool {
+	t := Thread_currentThread()
+	was := t.interrupted_
+	t.interrupted_ = false
+	return was
+}
+
+func Thread_sleep(ms int64) {
+	if ms < 0 {
+		panic(new_IllegalArgumentException_String("timeout value is negative").self())
+	}
+	time.Sleep(time.Duration(ms) * time.Millisecond)
+}
+
+func Thread_yield() {}
+
+// run runs the thread's Runnable, if it has one.
+func (this *Thread) run() {
+	if this.target_ != nil {
+		this.target_.run()
+	}
+}
+
+// start runs the thread to completion. An exception that escapes run() ends
+// the thread, not the caller: it goes to the uncaught exception handler, or
+// is printed.
+func (this *Thread) start() {
+	if this.started_ {
+		panic(new_RuntimeException_String("java.lang.IllegalThreadStateException").self())
+	}
+	this.started_ = true
+	threads_ = append(threads_, this)
+	defer func() {
+		threads_ = threads_[:len(threads_)-1]
+		this.done_ = true
+		if r := recover(); r != nil {
+			ex := caught_(r)
+			if h, ok := this.handler_.(interface{ uncaughtException(*Thread, *Throwable) }); ok {
+				h.uncaughtException(this, to_Throwable(ex))
+				return
+			}
+			System_err.print("Exception in thread \"" + this.name_ + "\" ")
+			to_Throwable(ex).printStackTrace(System_err)
+		}
+	}()
+	if s, ok := this.self_.(interface{ run() }); ok {
+		s.run()
+	} else {
+		this.run()
+	}
+}
+
+func (this *Thread) join()               { this.interrupted_ = false }
+func (this *Thread) join_long(ms int64)  {}
+func (this *Thread) interrupt()          { this.interrupted_ = true }
+func (this *Thread) isInterrupted() bool { return this.interrupted_ }
+func (this *Thread) isAlive() bool       { return this.started_ && !this.done_ }
+func (this *Thread) isDaemon() bool      { return this.daemon_ }
+func (this *Thread) setDaemon(on bool)   { this.daemon_ = on }
+func (this *Thread) getName() string     { return this.name_ }
+func (this *Thread) setName(name string) { this.name_ = name }
+func (this *Thread) setPriority(p int32) {}
+func (this *Thread) getPriority() int32  { return 5 }
+func (this *Thread) getId() int64        { return int64(identityHash_(this)) }
+func (this *Thread) threadId() int64     { return this.getId() }
+func (this *Thread) toString() string    { return "Thread[" + this.name_ + ",5,main]" }
+func (this *Thread) getUncaughtExceptionHandler() Thread_UncaughtExceptionHandler {
+	return this.handler_
+}
+func (this *Thread) setUncaughtExceptionHandler(h Thread_UncaughtExceptionHandler) {
+	this.handler_ = h
+}
+
+// ---- java.lang.ThreadLocal
+
+type ThreadLocal struct {
+	value_   any
+	set_     bool
+	initial_ Supplier
+}
+
+func new_ThreadLocal() *ThreadLocal { return &ThreadLocal{} }
+
+func ThreadLocal_withInitial(s Supplier) *ThreadLocal { return &ThreadLocal{initial_: s} }
+
+func (this *ThreadLocal) get() any {
+	if !this.set_ {
+		this.set_ = true
+		this.value_ = nil
+		if this.initial_ != nil {
+			this.value_ = this.initial_.get()
+		}
+	}
+	return this.value_
+}
+
+func (this *ThreadLocal) set(v any) {
+	this.value_ = v
+	this.set_ = true
+}
+
+func (this *ThreadLocal) remove() {
+	this.value_ = nil
+	this.set_ = false
+}
+
+// ---- java.lang.Throwable (the struct is in rt_object.go)
+
+func new_Throwable_0() *Throwable {
+	this := &Throwable{}
+	this.self_ = this
+	this.init_Throwable_0()
+	return this
+}
+
+func new_Throwable_String(m string) *Throwable {
+	this := &Throwable{}
+	this.self_ = this
+	this.init_Throwable_String(m)
+	return this
+}
+
+func new_Throwable_String_Throwable(m string, c *Throwable) *Throwable {
+	this := &Throwable{}
+	this.self_ = this
+	this.init_Throwable_String_Throwable(m, c)
+	return this
+}
+
+func new_Throwable_Throwable(c *Throwable) *Throwable {
+	this := &Throwable{}
+	this.self_ = this
+	this.init_Throwable_Throwable(c)
+	return this
+}
+
+func throwableString_(t *Throwable) string {
+	if s, ok := t.self_.(interface{ toString() string }); ok {
+		return s.toString()
+	}
+	return t.toString()
+}
+
+// stackTraceText_ is what printStackTrace prints. No stack frames are
+// recorded, so it is the exception, its suppressed exceptions and its causes.
+func stackTraceText_(t *Throwable) string {
+	var b strings.Builder
+	b.WriteString(throwableString_(t))
+	b.WriteByte('\n')
+	for _, s := range suppressed_[t] {
+		b.WriteString("\tSuppressed: " + throwableString_(s) + "\n")
+	}
+	seen := map[*Throwable]bool{t: true}
+	for c := t.cause_; c != nil; c = c.cause_ {
+		if seen[c] {
+			b.WriteString("Caused by: [CIRCULAR REFERENCE: " + throwableString_(c) + "]\n")
+			break
+		}
+		seen[c] = true
+		b.WriteString("Caused by: " + throwableString_(c) + "\n")
+	}
+	return b.String()
+}
+
+func (this *Throwable) printStackTrace(p *PrintStream) { p.print(stackTraceText_(this)) }
+
+func (this *Throwable) printStackTrace_0() { System_err.print(stackTraceText_(this)) }
+
+func (this *Throwable) printStackTrace_PrintStream(p *PrintStream) { this.printStackTrace(p) }
+
+func (this *Throwable) fillInStackTrace() *Throwable { return this }
+
+func (this *Throwable) initCause(c *Throwable) *Throwable {
+	if c == this {
+		panic(new_IllegalArgumentException_String("Self-causation not permitted").self())
+	}
+	if this.cause_ != nil {
+		panic(new_IllegalStateException_String("Can't overwrite cause with " + throwableString_(c)).self())
+	}
+	this.cause_ = c
+	return this
+}
+
+var suppressed_ = map[*Throwable][]*Throwable{}
+
+func (this *Throwable) addSuppressed(t *Throwable) {
+	if t == this {
+		panic(new_IllegalArgumentException_String("Self-suppression not permitted").self())
+	}
+	if t == nil {
+		panic(new_NullPointerException_String("Cannot suppress a null exception.").self())
+	}
+	suppressed_[this] = append(suppressed_[this], t)
+}
+
+func (this *Throwable) getSuppressed() []*Throwable {
+	return append([]*Throwable{}, suppressed_[this]...)
+}
+
+// ---- java.util.concurrent.TimeUnit
+
+type TimeUnit struct {
+	Enum
+	nanos_ int64
+}
+
+func (this *TimeUnit) up_Enum() *Enum {
+	if this == nil {
+		return nil
+	}
+	return &this.Enum
+}
+
+func newTimeUnit_(name string, ordinal int32, nanos int64) *TimeUnit {
+	e := &TimeUnit{nanos_: nanos}
+	e.self_ = e
+	e.init_Enum(name, ordinal)
+	return e
+}
+
+var TimeUnit_NANOSECONDS = newTimeUnit_("NANOSECONDS", 0, 1)
+var TimeUnit_MICROSECONDS = newTimeUnit_("MICROSECONDS", 1, 1e3)
+var TimeUnit_MILLISECONDS = newTimeUnit_("MILLISECONDS", 2, 1e6)
+var TimeUnit_SECONDS = newTimeUnit_("SECONDS", 3, 1e9)
+var TimeUnit_MINUTES = newTimeUnit_("MINUTES", 4, 60e9)
+var TimeUnit_HOURS = newTimeUnit_("HOURS", 5, 3600e9)
+var TimeUnit_DAYS = newTimeUnit_("DAYS", 6, 86400e9)
+
+// convert_ converts d of this unit to the unit of to nanoseconds, saturating.
+func (this *TimeUnit) convert_(d int64, to int64) int64 {
+	if this.nanos_ >= to {
+		f := this.nanos_ / to
+		if d > 0x7fffffffffffffff/f {
+			return 0x7fffffffffffffff
+		}
+		if d < -0x8000000000000000/f {
+			return -0x8000000000000000
+		}
+		return d * f
+	}
+	return d / (to / this.nanos_)
+}
+
+func (this *TimeUnit) toNanos(d int64) int64   { return this.convert_(d, 1) }
+func (this *TimeUnit) toMicros(d int64) int64  { return this.convert_(d, 1e3) }
+func (this *TimeUnit) toMillis(d int64) int64  { return this.convert_(d, 1e6) }
+func (this *TimeUnit) toSeconds(d int64) int64 { return this.convert_(d, 1e9) }
+func (this *TimeUnit) toMinutes(d int64) int64 { return this.convert_(d, 60e9) }
+func (this *TimeUnit) toHours(d int64) int64   { return this.convert_(d, 3600e9) }
+func (this *TimeUnit) toDays(d int64) int64    { return this.convert_(d, 86400e9) }
+
+func (this *TimeUnit) convert(d int64, from *TimeUnit) int64 { return from.convert_(d, this.nanos_) }
+
+func (this *TimeUnit) sleep(d int64) {
+	if d > 0 {
+		time.Sleep(time.Duration(this.toNanos(d)))
+	}
+}
+
+// ---- futures
+
+// future_ is a completed Future (also a Guava ListenableFuture).
+type future_ struct {
+	value_  any
+	failed_ *Throwable // what the task threw
+}
+
+func (this *future_) get() any {
+	if this.failed_ != nil {
+		panic(new_ExecutionException_Throwable(this.failed_).self())
+	}
+	return this.value_
+}
+
+func (this *future_) get_long_TimeUnit(timeout int64, unit *TimeUnit) any { return this.get() }
+
+func (this *future_) isDone() bool { return true }
+
+func (this *future_) isCancelled() bool { return false }
+
+func (this *future_) cancel(mayInterrupt bool) bool { return false }
+
+func (this *future_) addListener(listener Runnable, executor Executor) {
+	if e, ok := executor.(interface{ execute(Runnable) }); ok {
+		e.execute(listener)
+	} else {
+		listener.run()
+	}
+}
+
+// runTask_ runs a task and returns its completed future.
+func runTask_(task func() any) *future_ {
+	f := &future_{}
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				f.failed_ = to_Throwable(caught_(r))
+			}
+		}()
+		f.value_ = task()
+	}()
+	return f
+}
+
+func Futures_immediateFuture(v any) ListenableFuture { return &future_{value_: v} }
+
+func Futures_immediateFailedFuture(t *Throwable) ListenableFuture { return &future_{failed_: t} }
+
+// Futures_allAsList is a future of the list of all results, which fails if
+// any of the futures failed.
+func Futures_allAsList(futures Iterable) ListenableFuture {
+	out := &future_{}
+	results := []any{}
+	for it := futures.iterator(); it.hasNext(); {
+		f := it.next().(Future)
+		one := runTask_(f.get)
+		if one.failed_ != nil {
+			cause := one.failed_
+			if is_ExecutionException(cause.self_) && cause.cause_ != nil {
+				cause = cause.cause_
+			}
+			if out.failed_ == nil {
+				out.failed_ = cause
+			}
+			continue
+		}
+		results = append(results, one.value_)
+	}
+	if out.failed_ == nil {
+		out.value_ = listOf_(results)
+	}
+	return out
+}
+
+// ---- executors
+
+// AbstractExecutorService runs every task at once, on a thread from its
+// factory if it has one.
+type AbstractExecutorService struct {
+	factory_  ThreadFactory
+	shutdown_ bool
+}
+
+func rejected_() any {
+	// java.util.concurrent.RejectedExecutionException
+	return new_RuntimeException_String("Task rejected from executor that has been shut down").self()
+}
+
+func (this *AbstractExecutorService) execute(task Runnable) {
+	if task == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if this.shutdown_ {
+		panic(rejected_())
+	}
+	if this.factory_ != nil {
+		if t := this.factory_.newThread(task); t != nil {
+			t.start()
+			return
+		}
+	}
+	new_Thread_Runnable(task).start()
+}
+
+func (this *AbstractExecutorService) submit(task Callable) Future {
+	if task == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var f *future_
+	this.execute(&Runnable_fn{func() { f = runTask_(task.call) }})
+	return f
+}
+
+func (this *AbstractExecutorService) submit_Runnable(task Runnable) Future {
+	if task == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	var f *future_
+	this.execute(&Runnable_fn{func() {
+		f = runTask_(func() any {
+			task.run()
+			return nil
+		})
+	}})
+	return f
+}
+
+func (this *AbstractExecutorService) shutdown() { this.shutdown_ = true }
+
+func (this *AbstractExecutorService) shutdownNow() List {
+	this.shutdown_ = true
+	return listOf_(nil)
+}
+
+func (this *AbstractExecutorService) isShutdown() bool { return this.shutdown_ }
+
+func (this *AbstractExecutorService) isTerminated() bool { return this.shutdown_ }
+
+func (this *AbstractExecutorService) awaitTermination(timeout int64, unit *TimeUnit) bool {
+	return this.shutdown_
+}
+
+func (this *AbstractExecutorService) close() { this.shutdown_ = true }
+
+type ThreadPoolExecutor struct {
+	AbstractExecutorService
+	self_ any
+}
+
+func (this *ThreadPoolExecutor) as_ThreadPoolExecutor() *ThreadPoolExecutor { return this }
+
+func to_ThreadPoolExecutor(v any) *ThreadPoolExecutor {
+	if v == nil {
+		return nil
+	}
+	return v.(interface {
+		as_ThreadPoolExecutor() *ThreadPoolExecutor
+	}).as_ThreadPoolExecutor()
+}
+
+func is_ThreadPoolExecutor(v any) bool {
+	_, ok := v.(interface {
+		as_ThreadPoolExecutor() *ThreadPoolExecutor
+	})
+	return ok
+}
+
+func (this *ThreadPoolExecutor) self() any {
+	if this == nil {
+		return nil
+	}
+	return this.self_
+}
+
+func (this *ThreadPoolExecutor) up_AbstractExecutorService() *AbstractExecutorService {
+	if this == nil {
+		return nil
+	}
+	return &this.AbstractExecutorService
+}
+
+func (this *ThreadPoolExecutor) init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit *TimeUnit, queue BlockingQueue, factory ThreadFactory) {
+	if core < 0 || max <= 0 || max < core || keepAlive < 0 {
+		panic(new_IllegalArgumentException_0().self())
+	}
+	if queue == nil || factory == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.factory_ = factory
+}
+
+func new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit *TimeUnit, queue BlockingQueue, factory ThreadFactory) *ThreadPoolExecutor {
+	this := &ThreadPoolExecutor{}
+	this.self_ = this
+	this.init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core, max, keepAlive, unit, queue, factory)
+	return this
+}
+
+func (this *ThreadPoolExecutor) allowCoreThreadTimeOut(on bool) {}
+
+type Executors struct{}
+
+func newExecutor_(factory ThreadFactory) *ThreadPoolExecutor {
+	this := &ThreadPoolExecutor{}
+	this.self_ = this
+	this.factory_ = factory
+	return this
+}
+
+func Executors_newSingleThreadExecutor(factory ThreadFactory) ExecutorService {
+	if factory == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return newExecutor_(factory)
+}
+
+func Executors_newSingleThreadExecutor_0() ExecutorService { return newExecutor_(nil) }
+
+func Executors_newFixedThreadPool(n int32) ExecutorService { return newExecutor_(nil) }
+
+func Executors_newCachedThreadPool() ExecutorService { return newExecutor_(nil) }
+
+func Executors_defaultThreadFactory() ThreadFactory {
+	return &ThreadFactory_fn{func(r Runnable) *Thread { return new_Thread_Runnable(r) }}
+}
+
+// ---- Guava: MoreExecutors
+
+type MoreExecutors struct{}
+
+type GwtFuturesCatchingSpecialization struct{}
+
+type Futures struct{}
+
+// listeningExecutor_ is MoreExecutors.listeningDecorator: the futures of the
+// executors here are ListenableFutures already.
+type listeningExecutor_ struct {
+	delegate_ ExecutorService
+}
+
+func (this *listeningExecutor_) submit(task Callable) Future { return this.delegate_.submit(task) }
+func (this *listeningExecutor_) shutdown()                   { this.delegate_.shutdown() }
+func (this *listeningExecutor_) close()                      { this.delegate_.close() }
+
+func (this *listeningExecutor_) execute(task Runnable) {
+	if e, ok := this.delegate_.(interface{ execute(Runnable) }); ok {
+		e.execute(task)
+	} else {
+		task.run()
+	}
+}
+
+func MoreExecutors_listeningDecorator(delegate ExecutorService) ListeningExecutorService {
+	if delegate == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if l, ok := delegate.(*listeningExecutor_); ok {
+		return l
+	}
+	return &listeningExecutor_{delegate}
+}
+
+// directExecutor_ runs each task in the calling thread.
+type directExecutor_ struct{}
+
+func (directExecutor_) execute(task Runnable) { task.run() }
+
+func MoreExecutors_directExecutor() Executor { return directExecutor_{} }
+
+// ---- java.lang.management
+
+type ManagementFactory struct{}
+
+type MemoryUsage struct {
+	init_, used_, committed_, max_ int64
+}
+
+func new_MemoryUsage(init int64, used int64, committed int64, max int64) *MemoryUsage {
+	if init < -1 || max < -1 || used < 0 || committed < 0 || used > committed || max >= 0 && committed > max {
+		panic(new_IllegalArgumentException_String("invalid memory usage").self())
+	}
+	return &MemoryUsage{init, used, committed, max}
+}
+
+func (this *MemoryUsage) getInit() int64      { return this.init_ }
+func (this *MemoryUsage) getUsed() int64      { return this.used_ }
+func (this *MemoryUsage) getCommitted() int64 { return this.committed_ }
+func (this *MemoryUsage) getMax() int64       { return this.max_ }
+
+func (this *MemoryUsage) toString() string {
+	k := func(n int64) string { return istr_(n) + "(" + istr_(n>>10) + "K)" }
+	return "init = " + k(this.init_) + " used = " + k(this.used_) + " committed = " + k(this.committed_) + " max = " + k(this.max_)
+}
+
+func usage_(used uint64, committed uint64) *MemoryUsage {
+	if committed < used {
+		committed = used
+	}
+	return &MemoryUsage{init_: 0, used_: int64(used), committed_: int64(committed), max_: -1}
+}
+
+type memoryBean_ struct{}
+
+func (memoryBean_) getHeapMemoryUsage() *MemoryUsage {
+	m := memStats_()
+	return usage_(m.HeapAlloc, m.HeapSys)
+}
+
+func (memoryBean_) getNonHeapMemoryUsage() *MemoryUsage {
+	m := memStats_()
+	n := m.StackSys + m.MSpanSys + m.MCacheSys + m.BuckHashSys + m.GCSys + m.OtherSys
+	return usage_(m.StackInuse+m.MSpanInuse+m.MCacheInuse+m.BuckHashSys+m.GCSys+m.OtherSys, n)
+}
+
+func (memoryBean_) gc() { runtime.GC() }
+
+func ManagementFactory_getMemoryMXBean() MemoryMXBean { return memoryBean_{} }
+
+// peakHeap_ is the largest heap seen by the memory pool bean.
+var peakHeap_ uint64
+
+type heapPoolBean_ struct{}
+
+func (heapPoolBean_) getName() string { return "Go heap" }
+
+func (heapPoolBean_) isValid() bool { return true }
+
+func (heapPoolBean_) getUsage() *MemoryUsage {
+	m := memStats_()
+	if m.HeapAlloc > peakHeap_ {
+		peakHeap_ = m.HeapAlloc
+	}
+	return usage_(m.HeapAlloc, m.HeapSys)
+}
+
+func (heapPoolBean_) getPeakUsage() *MemoryUsage {
+	m := memStats_()
+	if m.HeapAlloc > peakHeap_ {
+		peakHeap_ = m.HeapAlloc
+	}
+	return usage_(peakHeap_, m.HeapSys)
+}
+
+func (heapPoolBean_) resetPeakUsage() { peakHeap_ = 0 }
+
+func ManagementFactory_getMemoryPoolMXBeans() List { return listOf_([]any{heapPoolBean_{}}) }
+
+type gcBean_ struct{}
+
+func (gcBean_) getName() string { return "Go GC" }
+
+func (gcBean_) isValid() bool { return true }
+
+func (gcBean_) getCollectionCount() int64 { return int64(memStats_().NumGC) }
+
+func (gcBean_) getCollectionTime() int64 { return int64(memStats_().PauseTotalNs / 1e6) }
+
+func ManagementFactory_getGarbageCollectorMXBeans() List { return listOf_([]any{gcBean_{}}) }
+
+// compilationBean_ stands for the JIT compiler: there is none.
+type compilationBean_ struct{}
+
+func (compilationBean_) getName() string { return "Go ahead-of-time compiler" }
+
+func (compilationBean_) getTotalCompilationTime() int64 { return 0 }
+
+func (compilationBean_) isCompilationTimeMonitoringSupported() bool { return true }
+
+func ManagementFactory_getCompilationMXBean() CompilationMXBean { return compilationBean_{} }
+
+// ---- java.util.logging
+
+type Level struct {
+	name_  string
+	value_ int32
+}
+
+var Level_OFF = &Level{"OFF", 0x7fffffff}
+var Level_SEVERE = &Level{"SEVERE", 1000}
+var Level_WARNING = &Level{"WARNING", 900}
+var Level_INFO = &Level{"INFO", 800}
+var Level_CONFIG = &Level{"CONFIG", 700}
+var Level_FINE = &Level{"FINE", 500}
+var Level_FINER = &Level{"FINER", 400}
+var Level_FINEST = &Level{"FINEST", 300}
+var Level_ALL = &Level{"ALL", -0x80000000}
+
+var levels_ = []*Level{Level_OFF, Level_SEVERE, Level_WARNING, Level_INFO, Level_CONFIG, Level_FINE, Level_FINER, Level_FINEST, Level_ALL}
+
+// Level_parse accepts the name of a level or an integer value.
+func Level_parse(name string) *Level {
+	if name == nullstr_ {
+		panic(new_NullPointerException_0().self())
+	}
+	for _, l := range levels_ {
+		if l.name_ == name {
+			return l
+		}
+	}
+	if n, err := strconv.ParseInt(name, 10, 32); err == nil {
+		for _, l := range levels_ {
+			if int64(l.value_) == n {
+				return l
+			}
+		}
+		return &Level{name, int32(n)}
+	}
+	panic(new_IllegalArgumentException_String("Bad level \"" + name + "\"").self())
+}
+
+func (this *Level) getName() string          { return this.name_ }
+func (this *Level) getLocalizedName() string { return this.name_ }
+func (this *Level) toString() string         { return this.name_ }
+func (this *Level) intValue() int32          { return this.value_ }
+func (this *Level) hashCode() int32          { return this.value_ }
+
+func (this *Level) equals(o any) bool {
+	l, ok := o.(*Level)
+	return ok && l != nil && l.value_ == this.value_
+}
+
+// Logger writes the records at or above its level to System.err as
+// "LEVEL: message". A logger without a level of its own uses its parent's
+// (the logger named by the prefix before the last dot); the root logger's
+// level is WARNING.
+type Logger struct {
+	name_   string
+	level_  *Level
+	parent_ *Logger
+}
+
+var rootLogger_ = &Logger{name_: "", level_: Level_WARNING}
+var loggers_ = map[string]*Logger{"": rootLogger_}
+
+func Logger_getLogger(name string) *Logger {
+	if name == nullstr_ {
+		panic(new_NullPointerException_0().self())
+	}
+	if l := loggers_[name]; l != nil {
+		return l
+	}
+	l := &Logger{name_: name}
+	loggers_[name] = l
+	if i := strings.LastIndexByte(name, '.'); i >= 0 {
+		l.parent_ = Logger_getLogger(name[:i])
+	} else {
+		l.parent_ = rootLogger_
+	}
+	return l
+}
+
+func Logger_getGlobal() *Logger { return Logger_getLogger("global") }
+
+func (this *Logger) getName() string    { return this.name_ }
+func (this *Logger) getParent() *Logger { return this.parent_ }
+func (this *Logger) getLevel() *Level   { return this.level_ }
+func (this *Logger) setLevel(l *Level)  { this.level_ = l }
+
+func (this *Logger) effectiveLevel_() int32 {
+	for l := this; l != nil; l = l.parent_ {
+		if l.level_ != nil {
+			return l.level_.value_
+		}
+	}
+	return Level_WARNING.value_
+}
+
+func (this *Logger) isLoggable(l *Level) bool {
+	limit := this.effectiveLevel_()
+	return l.value_ >= limit && limit != Level_OFF.value_
+}
+
+func (this *Logger) emit_(l *Level, msg string, thrown *Throwable) {
+	if !this.isLoggable(l) {
+		return
+	}
+	System_err.print(l.name_ + ": " + sstr_(msg) + "\n")
+	if thrown != nil {
+		thrown.printStackTrace(System_err)
+	}
+}
+
+func (this *Logger) log(l *Level, msg string, thrown *Throwable) { this.emit_(l, msg, thrown) }
+
+func (this *Logger) log_Level_String(l *Level, msg string) { this.emit_(l, msg, nil) }
+
+// log_Level_String_Object formats the message with one parameter, {0}.
+func (this *Logger) log_Level_String_Object(l *Level, msg string, param any) {
+	if !this.isLoggable(l) {
+		return
+	}
+	if msg != nullstr_ && strings.Contains(msg, "{0") {
+		msg = strings.ReplaceAll(msg, "{0}", objstr_(param))
+	}
+	this.emit_(l, msg, nil)
+}
+
+func (this *Logger) severe(msg string)  { this.emit_(Level_SEVERE, msg, nil) }
+func (this *Logger) warning(msg string) { this.emit_(Level_WARNING, msg, nil) }
+func (this *Logger) info(msg string)    { this.emit_(Level_INFO, msg, nil) }
+func (this *Logger) config(msg string)  { this.emit_(Level_CONFIG, msg, nil) }
+func (this *Logger) fine(msg string)    { this.emit_(Level_FINE, msg, nil) }
+func (this *Logger) finer(msg string)   { this.emit_(Level_FINER, msg, nil) }
+func (this *Logger) finest(msg string)  { this.emit_(Level_FINEST, msg, nil) }

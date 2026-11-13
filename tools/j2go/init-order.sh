@@ -8,7 +8,7 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 tmp=.cache/j2go-initorder
 rm -rf "$tmp" && mkdir -p "$tmp/closure" "$tmp/cmd/mech"
-cp go/go.mod "$tmp/" && cp go/cmd/mech/main.go "$tmp/cmd/mech/" && cp go/closure/rt_*.go "$tmp/closure/"
+cp go/go.mod "$tmp/" && cp go/cmd/mech/main.go "$tmp/cmd/mech/" && cp go/closure/rt_*.go "$tmp/closure/" && rm -f "$tmp"/closure/*_test.go && cp -r go/closure/resources "$tmp/closure/"
 [[ -f go/go.sum ]] && cp go/go.sum "$tmp/"
 J2GO_INIT_GUARDS=1 bash tools/j2go/regen.sh "$tmp/closure" >/dev/null
 (cd "$tmp" && go build -o mech ./cmd/mech)

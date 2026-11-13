@@ -216,26 +216,15 @@ func unbox_[T any](v any) T {
 	return out.(T)
 }
 
-// arrconv_ copies an array to one with another element type (Java array covariance).
-func arrconv_[T any, S any](src []S) []T {
+// arrmap_ is the copy made when an array is used at another element type
+// (Java array covariance, or a generic T[] seen as Object[]).
+func arrmap_[S any, T any](src []S, f func(S) T) []T {
 	if src == nil {
 		return nil
 	}
 	out := make([]T, len(src))
 	for i, v := range src {
-		var a any = v
-		if s, ok := a.(string); ok {
-			a = strobj_(s)
-		}
-		if a == nil {
-			var z T
-			if _, isStr := any(z).(string); isStr {
-				a = nullstr_
-			} else {
-				continue
-			}
-		}
-		out[i] = a.(T)
+		out[i] = f(v)
 	}
 	return out
 }
