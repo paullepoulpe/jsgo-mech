@@ -175,12 +175,16 @@ final class Ctx {
   }
 
   void registerClass(TypeElement te) {
-    if (!source.add(te)) return;
-    TypeElement s = superclass(te);
-    if (s != null) subclasses.computeIfAbsent(s, k -> new ArrayList<>()).add(te);
+    source.add(te);
   }
 
-  void registerSourcesDone() {}
+  /** Builds the subclass map; only now is it known which superclasses are translated classes. */
+  void registerSourcesDone() {
+    for (TypeElement te : source) {
+      TypeElement s = superclass(te);
+      if (s != null) subclasses.computeIfAbsent(s, k -> new ArrayList<>()).add(te);
+    }
+  }
 
   /** Assigns Go names to all source classes; call after every class is registered. */
   void assignClassNames() {

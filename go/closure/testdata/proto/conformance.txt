@@ -1,0 +1,40 @@
+requirement {
+  error_message: "eval is \"bad\"\n\t\\ caf\303\251 \001\177 \'"
+  whitelist: "a/"
+  whitelist_regexp: ".*test.*"
+  only_apply_to: "src/"
+  only_apply_to_regexp: "re"
+  type: BANNED_NAME
+  value: "eval"
+  value: ""
+  java_class: "com.Foo"
+  rule_id: "closure:eval"
+  report_loose_type_violations: false
+  severity: ERROR
+  type_matching_strategy: EXACT
+  whitelist_entry {
+  }
+  allow_extending_value: true
+  config_file: "conf.textproto"
+  allowlist: "b/"
+  allowlist_regexp: "x+"
+  allowlist_entry {
+    reason: LEGACY
+    prefix: "p/"
+    regexp: "r"
+    explanation: "why"
+    comment: "c1"
+    comment: "c2"
+    automatically_prune: false
+  }
+}
+requirement {
+  type: CUSTOM
+  extends: "closure:eval"
+  report_loose_type_violations: true
+  severity: UNSPECIFIED
+  type_matching_strategy: LOOSE
+}
+requirement {
+}
+library_level_non_allowlisted_conformance_violations_behavior: RECORD_ONLY

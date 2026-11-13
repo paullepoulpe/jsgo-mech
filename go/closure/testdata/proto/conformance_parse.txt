@@ -1,0 +1,25 @@
+requirement {
+  error_message: "xAA\303\251\n"
+  type: BANNED_NAME
+  value: "eval"
+  value: "ab"
+  report_loose_type_violations: false
+  severity: ERROR
+  allowlist_entry {
+    reason: OUT_OF_SCOPE
+    prefix: "a"
+    prefix: "b"
+    automatically_prune: true
+  }
+}
+requirement {
+  rule_id: "r"
+  type_matching_strategy: SUBTYPES
+}
+requirement {
+  error_message: "second"
+  whitelist_entry {
+    prefix: "p"
+  }
+}
+library_level_non_allowlisted_conformance_violations_behavior: REPORT_AS_BUILD_ERROR

@@ -1,0 +1,4 @@
+original_file: "f.js"
+line_number: 0
+column_position: -1
+precision: UNKNOWN_PRECISION

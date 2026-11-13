@@ -1,0 +1,12 @@
+astnode	jscomp.AstNode	kind,child,string_value_pointer,
+astnode_empty	jscomp.AstNode	
+astnode_deep	jscomp.AstNode	kind,child,relative_line,relative_column,
+typedast	jscomp.TypedAst	type_pool,string_pool,extern_ast,code_ast,source_file_pool,externs_summary,runtime_library_to_inject,
+typedast_list	jscomp.TypedAst.List	typed_asts,
+conformance	jscomp.ConformanceConfig	requirement,library_level_non_allowlisted_conformance_violations_behavior,
+requirement_unknown	jscomp.Requirement	error_message,value,severity,
+conformance_parse	jscomp.ConformanceConfig	requirement,library_level_non_allowlisted_conformance_violations_behavior,
+state	jscomp.JSCompilerStateProto	allowable_features,type_checking_has_run,life_cycle_stage,chunks,unique_name_id,unique_id_supplier,exported_names,id_generator_map,id_generator_current_id,externs,injected_libraries,last_injected_library_index_in_first_script,accessor_summary,has_string_map,string_map,
+mapping	sourcemap.OriginalMapping	original_file,line_number,column_position,precision,
+mapping_empty	sourcemap.OriginalMapping	
+profile	third_party.java_src.jscomp.java.com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile	file_profile,

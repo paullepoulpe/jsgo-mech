@@ -1,0 +1,10 @@
+bytestring_hash	90395
+bytestring_hash_empty	1
+escape	\000\a\b\t\n\v\f\r\033\"\'\\\177\310a
+unrecognized_ordinal	141
+nodekind_count	142
+kindcase	4,2,OBJECT
+loadercase	[PRELOADED_CONTENTS, FILE_ON_DISK, ZIP_ENTRY, STUB_FILE, LOADER_NOT_SET]
+sizes	461,181
+req_type_default	CUSTOM,WARNING,LOOSE,true
+float_text	double_value: 1.0E21|double_value: 100.0|double_value: 1.0E-5

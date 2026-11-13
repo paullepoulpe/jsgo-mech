@@ -159,6 +159,8 @@ final class Stubs {
         String key = e.getKey();
         String name = key.substring(0, key.indexOf('('));
         if (methods.contains(n + "." + name) || generatedInits.contains(n + "." + name)) continue;
+        // A handwritten type decides its own methods (it may get them from an embedded struct).
+        if (types.contains(n)) continue;
         boolean mine = false, inherited = false;
         for (TypeElement o : e.getValue()) {
           TypeMirror ot = cx.erase(o.asType());

@@ -2,7 +2,9 @@ package closure
 
 import (
 	"fmt"
+	"os"
 	"runtime"
+	"runtime/debug"
 	"strings"
 )
 
@@ -97,6 +99,9 @@ func runClinit_(f func()) {
 			msg := fmt.Sprint(r)
 			if t, ok := r.(interface{ toString() string }); ok {
 				msg = t.toString()
+			}
+			if os.Getenv("JSGO_DEBUG_INIT") == "2" {
+				msg += "\n" + string(debug.Stack())
 			}
 			initFailures_ = append(initFailures_, msg)
 		}

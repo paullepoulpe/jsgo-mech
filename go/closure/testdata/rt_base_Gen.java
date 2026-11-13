@@ -1,0 +1,282 @@
+import java.util.*;
+import java.util.regex.*;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import com.google.common.base.*;
+import com.google.common.hash.*;
+import com.google.common.io.BaseEncoding;
+import com.google.common.net.PercentEscaper;
+
+public class Gen {
+  static StringBuilder out = new StringBuilder();
+  static String q(String s) {
+    if (s == null) return "\"\\x00NULL\"";
+    StringBuilder b = new StringBuilder("\"");
+    for (int i = 0; i < s.length(); ) {
+      int cp = s.codePointAt(i);
+      i += Character.charCount(cp);
+      if (cp == '"' || cp == '\\') b.append('\\').append((char) cp);
+      else if (cp >= 0x20 && cp < 0x7f) b.append((char) cp);
+      else if (cp < 0x10000) b.append(String.format("\\u%04x", cp));
+      else b.append(String.format("\\U%08x", cp));
+    }
+    return b.append('"').toString();
+  }
+  static void emit(String... parts) {
+    out.append("\t{");
+    for (int i = 0; i < parts.length; i++) { if (i > 0) out.append(", "); out.append(q(parts[i])); }
+    out.append("},\n");
+  }
+  static String arr(String[] a) {
+    StringBuilder b = new StringBuilder().append(a.length);
+    for (String s : a) b.append('\u0001').append(s);
+    return b.toString();
+  }
+  static String arr(List<String> a) { return arr(a.toArray(new String[0])); }
+  interface Thrower { String get() throws Exception; }
+  static String tryit(Thrower t) {
+    try { return t.get(); } catch (Exception e) { return "EX:" + e.getClass().getSimpleName(); }
+  }
+  static Object parseArg(String a) {
+    String v = a.substring(2);
+    switch (a.charAt(0)) {
+      case 'i': return Integer.valueOf(v);
+      case 'l': return Long.valueOf(v);
+      case 's': return v;
+      case 'd': return Double.valueOf(v);
+      case 'f': return Float.valueOf(v);
+      case 'c': return v.charAt(0);
+      case 'b': return Boolean.valueOf(v);
+      case 'n': return null;
+      case 'B': return new BigInteger(v);
+    }
+    throw new RuntimeException(a);
+  }
+  static void fmt(String f, String... args) {
+    Object[] o = new Object[args.length];
+    for (int i = 0; i < args.length; i++) o[i] = parseArg(args[i]);
+    String r = tryit(() -> String.format(f, o));
+    String[] p = new String[args.length + 3];
+    p[0] = "format"; p[1] = f; System.arraycopy(args, 0, p, 2, args.length); p[p.length - 1] = r;
+    emit(p);
+  }
+  static void msg(String f, String... args) {
+    Object[] o = new Object[args.length];
+    for (int i = 0; i < args.length; i++) o[i] = parseArg(args[i]);
+    String r = tryit(() -> java.text.MessageFormat.format(f, o));
+    String[] p = new String[args.length + 3];
+    p[0] = "msgfmt"; p[1] = f; System.arraycopy(args, 0, p, 2, args.length); p[p.length - 1] = r;
+    emit(p);
+  }
+  static void lenient(String f, String... args) {
+    String r = Strings.lenientFormat(f, (Object[]) args);
+    String[] p = new String[args.length + 3];
+    p[0] = "lenient"; p[1] = f; System.arraycopy(args, 0, p, 2, args.length); p[p.length - 1] = r;
+    emit(p);
+  }
+  static void find(String re, int flags, String in) {
+    String r = tryit(() -> {
+      Matcher m = Pattern.compile(re, flags).matcher(in);
+      StringBuilder b = new StringBuilder();
+      while (m.find()) {
+        b.append(m.start()).append('-').append(m.end()).append('[');
+        for (int g = 1; g <= m.groupCount(); g++) { if (g > 1) b.append('|'); b.append(m.group(g) == null ? "<null>" : m.group(g)); }
+        b.append("];");
+      }
+      m.reset();
+      b.append(" matches=").append(m.matches());
+      m.reset();
+      boolean la = m.lookingAt();
+      b.append(" lookingAt=").append(la);
+      if (la) b.append("@").append(m.end());
+      return b.toString();
+    });
+    emit("find", re, "" + flags, in, r);
+  }
+  static void split(String in, String re, int limit) {
+    emit("split", in, re, "" + limit, tryit(() -> arr(in.split(re, limit))));
+  }
+  static void repl(String in, String re, String rep) {
+    emit("replaceAll", in, re, rep, tryit(() -> in.replaceAll(re, rep)));
+    emit("replaceFirst", in, re, rep, tryit(() -> in.replaceFirst(re, rep)));
+  }
+  static void splitter(String sep, boolean trim, boolean omit, int limit, String in) {
+    Splitter s = Splitter.on(sep);
+    if (trim) s = s.trimResults();
+    if (omit) s = s.omitEmptyStrings();
+    if (limit > 0) s = s.limit(limit);
+    emit("splitter", sep, "" + trim, "" + omit, "" + limit, in, arr(s.splitToList(in)));
+  }
+  static byte[] unhex(String h) { byte[] b = new byte[h.length() / 2]; for (int i = 0; i < b.length; i++) b[i] = (byte) Integer.parseInt(h.substring(2 * i, 2 * i + 2), 16); return b; }
+  static String hex(byte[] b) { StringBuilder s = new StringBuilder(); for (byte x : b) s.append(String.format("%02x", x)); return s.toString(); }
+
+  public static void main(String[] a) throws Exception {
+    Random rnd = new Random(42);
+    out.append("// Code generated by testdata/rt_base_Gen.java (run as class Gen with closure-unshaded.jar on the classpath) from the real JDK 21 and Guava. DO NOT EDIT.\n\npackage closure\n\nvar baseCases_ = [][]string{\n");
+
+    lenient("a %s b %s", "x", "y"); lenient("a %s b %s", "x"); lenient("a %s", "x", "y", "z"); lenient("%s%s%s", "1", "2", "3");
+    lenient("no args"); lenient("%s", (String) null); lenient("pct %d %s", "x"); lenient("", "x");
+
+    // --- regex find
+    String[][] finds = {
+      {":-?\\d+", "a:12 b:-3 c: 4:"}, {"(/|(\n[ \t]*))\\*[ \t]*@[a-zA-Z]+[ \t\n{]", "/** @foo {x}\n * @bar \n */"},
+      {"^['\"](.*)['\"]$", "'abc'"}, {"^['\"](.*)['\"]$", "\"abc\"\n"}, {"[-.]+", "a-b..c--.d"}, {"\\s", "a b\tc\u000bd\u00a0e\nf"},
+      {"^((.*/)?google3/)?(/?(blaze|bazel)-out/[^/]+/(bin|genfiles)/)?", "foo/google3/blaze-out/k8/bin/x/y.js"},
+      {"^((.*/)?google3/)?(/?(blaze|bazel)-out/[^/]+/(bin|genfiles)/)?", "x/y.js"},
+      {"^[a-zA-Z0-9$_]+$", "abc$_1"}, {"^[a-zA-Z0-9$_]+$", "abc-1"}, {"^[a-zA-Z0-9$_]+$", "abc\n"}, {"^[a-zA-Z0-9$_]+$", "abc\n\n"},
+      {"\\s*goog.addDependency\\((.*)\\);?\\s*", "  goog.addDependency('a.js', ['a'], ['b'], true);  "},
+      {"\\s*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])(?:, (true|false|\\{[^{}]*\\}))?\\s*", "'a.js', ['a', 'b'], ['c'], {'module': 'goog'}"},
+      {"\\s*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])(?:, (true|false|\\{[^{}]*\\}))?\\s*", "'a.js', ['a', 'b'], []"},
+      {".*Did you mean (.*)\\?", "Unknown foo. Did you mean bar?"}, {"Variable referenced before declaration: (.*)", "Variable referenced before declaration: x"},
+      {"Reference to fully qualified import name '([^']+)'.*", "Reference to fully qualified import name 'a.b.C'. Please use the short name 'C' instead."},
+      {".*Please use the short name '(.*)' instead.", "Reference to fully qualified import name 'a.b.C'. Please use the short name 'C' instead."},
+      {"^(?:((\\w+\\.)+prototype\\.||window\\.)*(setUpPage|setUp|shouldRunTests|tearDown|tearDownPage|test[\\w\\$]+))$", "a.b.prototype.testFoo$1"},
+      {"^(?:((\\w+\\.)+prototype\\.||window\\.)*(setUpPage|setUp|shouldRunTests|tearDown|tearDownPage|test[\\w\\$]+))$", "window.setUpPage"},
+      {"^(?:((\\w+\\.)+prototype\\.||window\\.)*(setUpPage|setUp|shouldRunTests|tearDown|tearDownPage|test[\\w\\$]+))$", "setUpPages"},
+      {"^[a-zA-Z_$][a-zA-Z0-9_$.]*$", "goog.foo.Bar"}, {"[A-Z0-9][A-Z0-9_]*", "FOO_BAR baz Q1"},
+      {"^(.*)/(?:test|tests|testing)/(?:[^/]+)$", "a/b/tests/c.js"}, {"-out/.*/(bin|genfiles)/(.*)$", "blaze-out/k8-opt/bin/a/b.js"},
+      {"\\s*(?:'((?:\\\\.|[^'\\\\])*)'|\"((?:\\\\.|[^\"\\\\])*)\")\\s*", " 'a\\'b' , \"c\" "},
+      {"(?:^|;)(?:[\\p{L}\\p{Nl}\\p{Nd}$_,:{}\\s]+=)?\\s*goog\\.(?<func>provide|module|require|requireType|forwardDeclare|addDependency|declareModuleId)\\s*\\(\\s*(?<args>.*?)\\s*\\)", "const {a, b} = goog.require( 'x.y' );var \u00e9 = goog.requireType('z');goog.provide('p')"},
+      {"^(?:import|export)\\b\\s*(?:[a-zA-Z0-9$_*,{}\\s]+\\bfrom\\s*|)(?:['\"]([^'\"]+)['\"])?\\s*;", "import {a, b as c} from './x.js';"},
+      {"^(?:import|export)\\b\\s*(?:[a-zA-Z0-9$_*,{}\\s]+\\bfrom\\s*|)(?:['\"]([^'\"]+)['\"])?\\s*;", "import './x.js';"},
+      {"^(?:import|export)\\b\\s*(?:[a-zA-Z0-9$_*,{}\\s]+\\bfrom\\s*|)(?:['\"]([^'\"]+)['\"])?\\s*;", "exporting;"},
+      {"^export\\b", "export default 1"}, {"^export\\b", "exports.x"}, {"[a-z][a-zA-Z\\d]*[_\\d]*", "fooBar_12"}, {"[A-Z\\d_]*", "FOO_1x"},
+      {"\\$jscomp\\$scope\\$\\S+\\$MSG_", "$jscomp$scope$m123$MSG_FOO"}, {"MSG_UNNAMED.*", "MSG_UNNAMED_12"}, {"\\{([A-Z_0-9]+)\\}", "a {FOO_1} b {x} {BAR}"},
+      {"^[ \t\n-\r\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]+|[ \t\n-\r\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]+\\z", " \u00a0\ufeff a b \u2028\t"},
+      {"arr\\.push\\(['\"](.*?)['\"]\\)", "arr.push('a');arr.push(\"b\")"},
+      {"\\Q a.b (\\E.*\\Q) \\E", "x a.b (zzz) y"}, {"@(type) *\\{?[^@\\s}]+\\}?", "/** @type {string} */ @type  number"},
+      {"@(export|package|private|protected|public|const|return) *\\{[^}]+\\}", "@private {Foo} @const{x}"}, {"grammatical_gender_case:\\s*(\\w+)", "grammatical_gender_case: FEMININE"},
+      {"a*", "baaa"}, {"", "ab"}, {"x*", "\ud83d\ude00a"}, {"$", "foo\n"}, {"$", "foo\r\n"}, {"o$", "foo\n"}, {"(o)$", "foo\r\n"}, {".", "a\rb\nc\u2028d\u0085e"}, {".+", "ab\r\ncd"},
+      {"\\b\\w+\\b", "h\u00e9llo w\u00f6rld foo"}, {"\u00e9+", "\ud83d\ude00\u00e9\u00e9 x\u00e9"}, {"(a)|(b)", "ab"}, {"(?i)abc", "xABCabc"}, {"\\p{Alnum}+", "ab1_\u00e9c2"},
+      {"[^\\p{Alnum}]", "a-b_c\u00e9"}, {"\\p{Lu}\\p{Ll}+", "Hello World \u00c9cole"}, {"a{2,3}", "aaaaaaa"}, {"a+?", "aaa"}, {"[\\[\\]]", "a[b]"}, {"[a-c&]", "a&d"}, {"\\d+(?:\\.\\d+)?", "1 2.5 3."},
+      {"^", "a\nb"}, {"\\A\\w", "ab"}, {"\\w\\z", "ab\n"}, {"\\w\\Z", "ab\n"}, {"[\\w.]+", "a.b c"}, {"[\\s,]+", "a, b\u000b,c"}, {"\\S+", "a\u000bb c"}, {"\\.", "a.b"}, {"\\x41\\u0042\\0103", "ABC"},
+      {"a|ab", "ab"}, {"(a|ab)(c|bcd)", "abcd"}, {"\\\\", "a\\b"}, {"\\/", "a/b"}, {"\\_\\-\\'\\\"\\<\\>\\ \\#\\@", "_-'\"<> #@"}, {"[\\_\\-\\'\\\"\\<\\>\\ \\#\\@]+", "_-'\"<> #@"}, {"\\t\\n\\r\\f", "\t\n\r\f"},
+      {"[a-z&&[^b]]", "abc"}, {"(a)\\1", "aa"}, {"a(?=b)", "ab"}, {"a*+", "aaa"}, {"[abc", "a"}, {"(a", "a"}, {"a)", "a"}, {"*a", "a"}, {"\\p{Foo}", "a"}, {"a{2", "aa"}, {"\\y", "y"}, {"[[:alpha:]]", "a:"}, {"[a[bc]]", "abcd"},
+    };
+    for (String[] f : finds) find(f[0], 0, f[1]);
+    find("(--?[a-zA-Z_]+)=(.*)", 32, "--foo=a\nb"); find("'([^']+)' references a .*", 32, "'x' references a\nfoo"); find("a.c", 0, "a\nc"); find("ABC", 2, "xabc"); find("^b$", 8, "a\nb\nc"); find("a.b", 16, "a.b axb");
+
+    // --- replace
+    repl("/**\n * a\n *b\n */", "\n \\*([^ \n])", "\n * $1"); repl("a-b*c`d[e]f", "[-*\\`\\[\\]{}\\(\\)#+\\.!<>]", "\\\\$0");
+    repl("x\n   *   y\n * z", "\n\\s*\\*\\s*", "\n"); repl("a-b c\u00e9d1", "[^\\p{Alnum}]", "_"); repl("foo$$12", "\\$\\$\\d+$", ""); repl("foo$$12$$3", "\\$\\$\\d+$", "");
+    repl("msg {0} and {12}.", "\\{\\d+\\}", "\\\\E.*\\\\Q"); repl("a.prototype.b.prototype.c", ".*\\.prototype\\.", ""); repl("a\r\nb\rc\nd", "\r\n?", "\n");
+    repl("ES6 ES5", "^ES", "ECMASCRIPT"); repl("./a/./b", "^\\./", ""); repl("0.5 0.5", "^0\\.", "."); repl("ECMASCRIPT_2015", "ECMASCRIPT", "ES"); repl("--foo--", "^--", "");
+    repl("a/blaze-out/k8/bin/b/blaze-out/x/genfiles/c", "blaze-out/[^/]*/(bin|genfiles)/", ""); repl("abc", "(a)|(x)", "[$1$2]"); repl("abc", "b", "$"); repl("abc", "b", "\\"); repl("abc", "b", "$2");
+    repl("abc", "(?<n>b)", "<${n}>"); repl("abc", "", "-"); repl("\u00e9b\u00e9", "b*", "-"); repl("aaa", "a", "$0$0"); repl("abc", "(b)", "$10"); repl("abc", "x*", "\\$"); repl("foo\n", "$", "!"); repl("a b", "\\s", "\\n");
+
+    // --- split
+    String[][] splits = {{"a,b,c", ","}, {"a,b,,", ","}, {",a,,b", ","}, {"", ","}, {",", ","}, {",,", ","}, {"abc", ","}, {"a/b/c", "/"}, {"x/node_modules/y/node_modules/z", "/node_modules/"},
+      {"a-b", "-"}, {"A.prototype.b", ".prototype."}, {"AxprototypeXb", ".prototype."}, {"a.b.c", "\\."}, {"a.b.c", "."}, {"a\r\nb\nc\n\n", "\r?\n"}, {"a:b", ":"}, {"a`b``c", "`"}, {"a=b=c", "="},
+      {"abc", ""}, {"", ""}, {"a1b22c", "\\d"}, {"a1b22c", "\\d*"}, {"1a", "\\d"}, {"a|b", "|"}, {"a|b", "\\|"}, {"a$b", "$"}, {"a\u00e9b\u00e9", "\u00e9"}, {"a\ud83d\ude00b", "\ud83d\ude00"}, {"a b  c", " +"}, {" a b", " "}, {"a\tb", "\\t"}, {"a\\b", "\\\\"}, {"aXb", "(?i)x"}};
+    for (String[] s : splits) for (int lim : new int[] {0, -1, 1, 2, 3}) split(s[0], s[1], lim);
+
+    // --- format
+    fmt("  Ref %d: %s line: %d col: %d len: %d %s\n", "i:1", "s:foo", "i:2", "i:3", "i:4", "n:"); fmt("%02d.%03d", "l:5", "l:7"); fmt("%02d.%03d", "i:123", "i:4567"); fmt("%4d", "i:12"); fmt("%4d", "i:-12"); fmt("%4d", "i:123456");
+    fmt("%d B", "l:9223372036854775807"); fmt("%d", "l:-9223372036854775808"); fmt("%d", "i:-2147483648"); fmt("%d error(s), %d warning(s), %.1f%% typed", "i:1", "i:2", "d:99.95"); fmt("%.1f%%", "d:0.25"); fmt("%.1f%%", "d:100.0");
+    fmt("%s,%d,%d,%b,%d\n", "s:x", "i:1", "l:2", "b:true", "i:3"); fmt("%d error(s)%n", "i:0"); fmt("\t%s jit time: %d ms%n", "s:c1", "l:12");
+    fmt("%s %s", "s:a"); fmt("%s", "n:"); fmt("%s %S", "d:1.5", "s:abc"); fmt("%s", "d:1.0E10"); fmt("%s", "f:1.1"); fmt("%s", "c:x"); fmt("%s", "b:false"); fmt("%s", "l:12"); fmt("%10s|%-10s|", "s:ab", "s:cd"); fmt("%.2s", "s:abcdef"); fmt("%5.2s|", "s:abcdef");
+    fmt("%x %X %o", "i:255", "i:255", "i:8"); fmt("%x", "i:-1"); fmt("%x", "l:-1"); fmt("%08x", "i:48879"); fmt("%#x", "i:255"); fmt("%X", "l:1311768467463790320");
+    fmt("%c%c", "c:a", "i:66"); fmt("%b %b %B", "b:true", "n:", "s:x"); fmt("%%"); fmt("100%"); fmt("%,d", "i:1234567"); fmt("%,d", "i:-1234"); fmt("%,d", "i:123"); fmt("%+d % d", "i:5", "i:5"); fmt("%(d", "i:-5"); fmt("%-6d|", "i:42"); fmt("%06d", "i:-42"); fmt("%+,010d", "i:12345");
+    fmt("%d", "s:x"); fmt("%d", "d:1.5"); fmt("%f", "i:1"); fmt("%q", "i:1"); fmt("%1$s %1$s %2$s", "s:a", "s:b"); fmt("%s %<s %s", "s:a", "s:b"); fmt("%d", "B:123456789012345678901234567890"); fmt("%d", "n:");
+    fmt("%f", "d:3.14159265"); fmt("%.3f", "d:2.0005"); fmt("%.2f", "d:1.005"); fmt("%.0f", "d:0.5"); fmt("%.0f", "d:1.5"); fmt("%.0f", "d:2.5"); fmt("%.1f", "d:0.05"); fmt("%.1f", "d:0.15"); fmt("%.1f", "d:0.25"); fmt("%.1f", "d:0.35"); fmt("%.20f", "d:0.1"); fmt("%.1f", "d:-0.04"); fmt("%.1f", "d:-0.0");
+    fmt("%8.2f|", "d:3.14159"); fmt("%-8.2f|", "d:3.14159"); fmt("%08.2f|", "d:-3.14159"); fmt("%,.2f", "d:1234567.891"); fmt("%.1f", "d:1.0E20"); fmt("%.3f", "d:1.0E-5"); fmt("%.1f", "d:NaN"); fmt("%.1f", "d:Infinity"); fmt("%.1f", "d:-Infinity"); fmt("%.1f", "f:0.25"); fmt("%.2f", "f:1.1"); fmt("%.10f", "f:1.1");
+    fmt("%e", "d:12345.678"); fmt("%.2e", "d:0.000123456"); fmt("%.0e", "d:9.5"); fmt("%E", "d:0.0"); fmt("%.3e", "d:9.9996"); fmt("%h", "s:abc");
+    for (int i = 0; i < 400; i++) {
+      double d;
+      switch (i % 4) { case 0: d = rnd.nextDouble() * 100; break; case 1: d = Math.round(rnd.nextDouble() * 100000) / 1000.0; break; case 2: d = rnd.nextInt(2000) / 20.0 + 0.05 * rnd.nextInt(3); break; default: d = Double.longBitsToDouble(rnd.nextLong() & 0x7fffffffffffffffL | 0x3000000000000000L & 0x4fffffffffffffffL); if (Double.isNaN(d) || Double.isInfinite(d) || d > 1e30) d = rnd.nextDouble() / 1000; }
+      fmt("%." + (i % 5) + "f", "d:" + d);
+    }
+
+    // --- MessageFormat
+    msg("a {0} b {1} c {0}", "s:x", "s:y"); msg("it's {0}", "s:x"); msg("it''s {0}", "s:x"); msg("'{0}' {0}", "s:x"); msg("'{'0}", "s:x"); msg("''{0}''", "s:x"); msg("{1}", "s:x"); msg("{0} {1}", "s:x", "n:"); msg("a '' b ' c {0} ' d", "s:x");
+    msg("{0}", "i:1234567"); msg("{0}", "l:-1234567890123"); msg("{0}", "d:1234.56789"); msg("{0}", "d:0.5"); msg("{0}", "d:2.0005"); msg("{0}", "d:-0.0001"); msg("{0,number}", "i:1000"); msg("{0,number,integer}", "d:2.5"); msg("{0,number,#}", "i:12345"); msg("{0}", "b:true"); msg("{0}", "c:x");
+    msg("{0", "s:x"); msg("{x}", "s:x"); msg("{-1}", "s:x"); msg("}{0}", "s:x"); msg("{ 0 }", "s:x"); msg("{0 }", "s:x"); msg("Duplicate parameter name \"{0}\"", "s:x"); msg("a {0} can't be {1}''s", "s:x", "s:y"); msg("\u00e9{0}\ud83d\ude00", "s:\u00fc"); msg("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}", "s:a", "s:b", "s:c", "s:d", "s:e", "s:f", "s:g", "s:h", "s:i", "s:j", "s:k");
+    msg("{0,number,integer}", "d:3.5"); msg("{0}", "d:1.0E15"); msg("{0}", "d:0.0005"); msg("{0}", "d:0.0015"); msg("{0}", "d:NaN"); msg("{0}", "d:Infinity"); msg("{0}", "B:12345678901234567890");
+
+    // --- hashing
+    byte[] big = new byte[300];
+    rnd.nextBytes(big);
+    for (int n : new int[] {0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 191, 192, 193, 255, 256, 300}) {
+      byte[] b = Arrays.copyOf(big, n);
+      emit("farm", hex(b), "" + Hashing.farmHashFingerprint64().hashBytes(b).asLong() + "/" + Hashing.farmHashFingerprint64().hashBytes(b).asInt());
+      HashCode h = Hashing.murmur3_128().hashBytes(b);
+      emit("murmur", hex(b), h.asLong() + "/" + h.asInt() + "/" + h.toString());
+    }
+    for (String s : new String[] {"", "a", "foo.Bar", "h\u00e9llo \ud83d\ude00 w\u00f6rld", "the quick brown fox jumps over the lazy dog and keeps running for a while longer"}) {
+      Hasher h = Hashing.farmHashFingerprint64().newHasher(); h.putInt(7); h.putString(s, StandardCharsets_UTF_8()); h.putLong(-5L);
+      Hasher m = Hashing.murmur3_128().newHasher(); m.putUnencodedChars(s);
+      Hasher m2 = Hashing.murmur3_128().newHasher(); m2.putInt(-3).putUnencodedChars(s).putLong(1L << 40).putString(s, StandardCharsets_UTF_8());
+      emit("hasher", s, h.hash().asLong() + "/" + m.hash().asInt() + "/" + m2.hash().asLong());
+    }
+
+    // --- BigInteger
+    String[] nums = {"0", "1", "-1", "255", "-256", "128", "-128", "-129", "2147483647", "-2147483648", "4294967296", "9223372036854775807", "-9223372036854775808", "123456789012345678901234567890", "-98765432109876543210987654321", "340282366920938463463374607431768211456", "9007199254740993", "179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"};
+    for (String x : nums) {
+      BigInteger bx = new BigInteger(x);
+      emit("big1", x, bx.toString(16) + "/" + bx.toString(2) + "/" + bx.toString(36) + "/" + bx.intValue() + "/" + bx.longValue() + "/" + bx.doubleValue() + "/" + bx.hashCode() + "/" + bx.signum() + "/" + bx.bitLength() + "/" + hex(bx.toByteArray()) + "/" + bx.negate() + "/" + bx.not() + "/" + bx.shiftLeft(7) + "/" + bx.shiftLeft(-3) + "/" + bx.pow(3).toString(32) + "/" + new BigInteger(bx.toByteArray()) + "/" + tryit(() -> "" + bx.intValueExact()));
+      for (String y : nums) {
+        BigInteger by = new BigInteger(y);
+        emit("big2", x, y, bx.add(by) + "/" + bx.subtract(by) + "/" + bx.multiply(by) + "/" + tryit(() -> bx.divide(by).toString()) + "/" + tryit(() -> bx.remainder(by).toString()) + "/" + tryit(() -> Arrays.toString(bx.divideAndRemainder(by))) + "/" + bx.and(by) + "/" + bx.or(by) + "/" + bx.xor(by) + "/" + bx.compareTo(by) + "/" + bx.equals(by));
+      }
+    }
+    for (String[] p : new String[][] {{"ff", "16"}, {"-zz", "36"}, {"+101", "2"}, {"", "10"}, {"12a", "10"}, {"-", "10"}, {"1-2", "10"}, {" 1", "10"}, {"0x10", "16"}, {"1_0", "10"}})
+      emit("bigparse", p[0], p[1], tryit(() -> new BigInteger(p[0], Integer.parseInt(p[1])).toString()));
+
+    // --- CaseFormat
+    CaseFormat[] cfs = CaseFormat.values();
+    for (String s : new String[] {"", "foo", "fooBar", "FooBar", "foo_bar", "FOO_BAR", "foo-bar", "foo-bar-baz", "FOO_BAR_BAZ_1", "fooBARBaz", "foo__bar", "_foo_", "Foo", "F", "f", "HTTPServer", "MSG_FOO_2A", "a1_b2", "foo_Bar-baz"})
+      for (CaseFormat x : cfs) for (CaseFormat y : cfs) emit("caseformat", x.name(), y.name(), s, x.to(y, s));
+
+    // --- Splitter
+    for (String in : new String[] {"a,b,c", " a , b ,, c ", "", ",", ",,a,,", "abc", " ", "a,b,c,d,e", " \u2003a\u00a0,\tb ", "a, ,b, "})
+      for (int lim : new int[] {0, 1, 2, 3}) for (int f = 0; f < 4; f++) splitter(",", (f & 1) != 0, (f & 2) != 0, lim, in);
+    splitter("::", true, true, 0, "a::b:::c:: ::"); splitter(", ", false, false, 2, "a, b, c");
+
+    // --- CharMatcher
+    StringBuilder ws = new StringBuilder(), lod = new StringBuilder();
+    for (int c = 0; c < 0x10000; c++) { if (CharMatcher.whitespace().matches((char) c)) ws.append(Integer.toHexString(c)).append(','); }
+    emit("ws", ws.toString());
+    for (String s : new String[] {"  a  b c  ", "abc", "", "   ", "a\t\n b", "\u2003x\u00a0"}) {
+      emit("cm", s, CharMatcher.whitespace().collapseFrom(s, '_') + "/" + CharMatcher.whitespace().trimFrom(s) + "/" + CharMatcher.whitespace().lastIndexIn(s) + "/" + CharMatcher.whitespace().matchesAllOf(s) + "/" + CharMatcher.anyOf("ab").or(CharMatcher.inRange('0', '9')).or(CharMatcher.is(' ')).or(CharMatcher.isNot('c')).matchesAllOf(s) + "/" + CharMatcher.anyOf("abc ").matchesAllOf(s) + "/" + CharMatcher.javaLetterOrDigit().matchesAllOf(s));
+    }
+    emit("cmstr", CharMatcher.whitespace() + "/" + CharMatcher.anyOf("ba") + "/" + CharMatcher.is('a') + "/" + CharMatcher.isNot('a') + "/" + CharMatcher.inRange('a', 'z') + "/" + CharMatcher.javaLetterOrDigit() + "/" + CharMatcher.is('a').or(CharMatcher.is('b')));
+
+    // --- PercentEscaper, base64, padStart, Ascii
+    for (String s : new String[] {"", "abc-_.*", "a b+c/d?e=f&g", "h\u00e9llo \ud83d\ude00", "100%~!'()"}) {
+      emit("percent", "-_.*", "false", s, new PercentEscaper("-_.*", false).escape(s));
+      emit("percent", "-_.~", "true", s, new PercentEscaper("-_.~", true).escape(s));
+      byte[] b = s.getBytes(StandardCharsets_UTF_8());
+      emit("b64", hex(b), BaseEncoding.base64().encode(b));
+    }
+    for (String s : new String[] {"", "YQ", "YQ==", "YWI=", "YWJj", "YWJjZA", "Y", "YQ=a", "Y Q==", "YW-j", "aGVsbG8gd29ybGQ="})
+      emit("b64d", s, tryit(() -> hex(BaseEncoding.base64().decode(s))));
+    emit("misc", Strings.padStart("7", 3, '0') + "/" + Strings.padStart("1234", 3, '0') + "/" + Ascii.toLowerCase("H\u00c9LLo") + "/" + Ascii.toUpperCase("h\u00e9llo") + "/" + Ascii.equalsIgnoreCase("aBc", "AbC") + "/" + Ascii.equalsIgnoreCase("@", "`") + "/" + Ascii.equalsIgnoreCase("\u00e9", "\u00c9")
+        + "/" + com.google.common.base.Optional.of("x") + "/" + com.google.common.base.Optional.absent() + "/" + com.google.common.base.Optional.of("x").hashCode() + "/" + com.google.common.base.Optional.absent().hashCode() + "/" + java.util.Optional.of("x") + "/" + java.util.Optional.empty() + "/" + java.util.Optional.of("x").hashCode()
+        + "/" + Predicates.alwaysTrue() + "/" + Predicates.equalTo("x") + "/" + Functions.identity() + "/" + MoreObjects.toStringHelper("str").add("a", 1).add("b", (Object) null).add("c", true).add("d", "s").toString() + "/" + MoreObjects.toStringHelper(String.class).omitNullValues().add("b", (Object) null).add("x", new int[] {1, 2}).toString()
+        + "/" + Pattern.quote("a.b") + "/" + Pattern.quote("a\\Eb") + "/" + Matcher.quoteReplacement("a$b\\c"));
+
+    // --- Random
+    for (long seed : new long[] {0, 1, 42, -7, 123456789012345L}) {
+      Random r = new Random(seed);
+      StringBuilder b = new StringBuilder();
+      for (int bound : new int[] {1, 2, 7, 16, 100, 1000, 1 << 30, (1 << 30) + 1, Integer.MAX_VALUE, 52, 64}) b.append(r.nextInt(bound)).append(',');
+      b.append(r.nextInt()).append(',').append(r.nextLong()).append(',').append(r.nextBoolean()).append(',').append(r.nextDouble());
+      emit("random", "" + seed, b.toString());
+    }
+    // --- StringTokenizer
+    for (String[] p : new String[][] {{"a:b::c:", ":"}, {"", ":"}, {":::", ":"}, {"a, b;c", ",; "}, {"abc", ""}}) {
+      StringTokenizer st = new StringTokenizer(p[0], p[1]);
+      List<String> l = new ArrayList<>();
+      while (st.hasMoreTokens()) l.add(st.nextToken());
+      emit("tokenizer", p[0], p[1], arr(l));
+    }
+    // --- UTF-8 decoding
+    for (String h : new String[] {"68c3a9", "e282", "e282ac", "ff41", "c0af", "eda080", "f09f9880", "f09f98", "41c341", "e241", "f0808080", "80", "edbfbf41"})
+      emit("utf8", h, new String(unhex(h), StandardCharsets_UTF_8()));
+    emit("getbytes", "h\u00e9\ud83d\ude00", hex("h\u00e9\ud83d\ude00".getBytes(StandardCharsets_UTF_8())) + "/" + hex("h\u00e9\ud83d\ude00".getBytes(StandardCharsets.US_ASCII)));
+
+    out.append("}\n");
+    java.nio.file.Files.write(java.nio.file.Paths.get(a[0]), out.toString().getBytes(StandardCharsets_UTF_8()));
+  }
+  static java.nio.charset.Charset StandardCharsets_UTF_8() { return StandardCharsets.UTF_8; }
+}

@@ -1,0 +1,11 @@
+# comment
+requirement: {
+  type: BANNED_NAME  # trailing
+  value: 'eval' value: "a" "b"
+  error_message: 'x\x41\101\u00e9\n'
+  allowlist_entry < reason: 2 prefix: ['a', 'b'] automatically_prune: t >
+  severity: 2; report_loose_type_violations: False,
+}
+requirement { rule_id: 'r' allowlist: [] type_matching_strategy: SUBTYPES }
+library_level_non_allowlisted_conformance_violations_behavior: REPORT_AS_BUILD_ERROR
+requirement { error_message: 'first' error_message: 'second' whitelist_entry { prefix: 'p' } }

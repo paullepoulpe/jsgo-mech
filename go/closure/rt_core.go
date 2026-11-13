@@ -103,7 +103,7 @@ func istr_(i int64) string { return strconv.FormatInt(i, 10) }
 
 func dstr_(d float64) string { return Double_toString(d) }
 
-func fstr_(f float32) string { return Double_toString(float64(f)) }
+func fstr_(f float32) string { return Float_toString(f) }
 
 // objstr_ is String.valueOf(Object).
 func objstr_(v any) string {

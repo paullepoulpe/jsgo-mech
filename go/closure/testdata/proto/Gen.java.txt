@@ -1,0 +1,193 @@
+import com.google.protobuf.*;
+import com.google.javascript.jscomp.*;
+import com.google.javascript.jscomp.serialization.*;
+import com.google.javascript.jscomp.instrumentation.reporter.proto.*;
+import com.google.debugging.sourcemap.proto.Mapping;
+import com.google.javascript.jscomp.serialization.TypeProto;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.*;
+
+public class Gen {
+  static Path out;
+  static StringBuilder manifest = new StringBuilder();
+
+  static void emit(String name, Message m) throws Exception {
+    Files.write(out.resolve(name + ".bin"), m.toByteArray());
+    Files.write(out.resolve(name + ".txt"), TextFormat.printer().printToString(m).getBytes(StandardCharsets.UTF_8));
+    Files.write(out.resolve(name + ".short"), TextFormat.printer().shortDebugString(m).getBytes(StandardCharsets.UTF_8));
+    StringBuilder fields = new StringBuilder();
+    for (Descriptors.FieldDescriptor f : m.getAllFields().keySet()) fields.append(f.getName()).append(',');
+    manifest.append(name).append('\t').append(m.getDescriptorForType().getFullName()).append('\t').append(fields).append('\n');
+    if (!m.toString().equals(TextFormat.printer().printToString(m))) throw new RuntimeException("toString differs");
+  }
+
+  static AstNode deep(int n) {
+    AstNode.Builder b = AstNode.newBuilder().setKind(NodeKind.ADD).setRelativeLine(-n).setRelativeColumn(n);
+    if (n > 0) b.addChild(deep(n - 1)).addChild(AstNode.newBuilder().setKind(NodeKind.NUMBER_LITERAL).setDoubleValue(n * 1.5));
+    return b.build();
+  }
+
+  public static void main(String[] a) throws Exception {
+    out = Paths.get(a[0]);
+    // ---- AstNode
+    AstNode leaf = AstNode.newBuilder().setKind(NodeKind.IDENTIFIER).setStringValuePointer(7).setRelativeLine(-3)
+        .setRelativeColumn(200).setOriginalNamePointer(0xFFFFFFFF).setBooleanProperties(-5L).setType(0).setSourceFile(3).build();
+    AstNode tmpl = AstNode.newBuilder().setKind(NodeKind.TEMPLATELIT_STRING)
+        .setTemplateStringValue(TemplateStringValue.newBuilder().setRawStringPointer(4).setCookedStringPointer(-1)).build();
+    AstNode num = AstNode.newBuilder().setKind(NodeKind.NUMBER_LITERAL).setDoubleValue(0.0).build();
+    AstNode num2 = AstNode.newBuilder().setKind(NodeKind.NUMBER_LITERAL).setDoubleValue(-1.25e300).setRelativeLine(1 << 30).build();
+    AstNode nan = AstNode.newBuilder().setKind(NodeKind.NUMBER_LITERAL).setDoubleValue(Double.NaN).build();
+    AstNode inf = AstNode.newBuilder().setKind(NodeKind.NUMBER_LITERAL).setDoubleValue(Double.NEGATIVE_INFINITY).build();
+    AstNode jsdoc = AstNode.newBuilder().setKindValue(9999).setJsdoc(OptimizationJsdoc.newBuilder()
+        .setLicenseTextPointer(5).addKind(JsdocTag.JSDOC_CONST).addKind(JsdocTag.JSDOC_NO_INLINE).addKindValue(4242).setMeaningPointer(9)).build();
+    AstNode root = AstNode.newBuilder().setKind(NodeKind.SOURCE_FILE).addChild(leaf).addChild(tmpl).addChild(num).addChild(num2)
+        .addChild(nan).addChild(inf).addChild(jsdoc).addChild(AstNode.getDefaultInstance()).setStringValuePointer(0).build();
+    emit("astnode", root);
+    emit("astnode_empty", AstNode.getDefaultInstance());
+    emit("astnode_deep", deep(150));
+
+    // ---- TypedAst
+    TypePool.Builder tp = TypePool.newBuilder();
+    tp.addType(TypeProto.newBuilder().setObject(ObjectTypeProto.newBuilder().setIsInvalidating(true)
+        .setUuid(ByteString.copyFrom(new byte[] {0, 1, 2, (byte) 0xff, (byte) 0x80, '"', '\\', '\n'}))
+        .addAllInstanceType(Arrays.asList(1, 2, 300, -1)).addPrototype(70000).addOwnProperty(0).addOwnProperty(127).addOwnProperty(128)
+        .setClosureAssert(true).setDebugInfo(ObjectTypeProto.DebugInfo.newBuilder().addTypenamePointer(3))));
+    tp.addType(TypeProto.newBuilder().setUnion(UnionTypeProto.newBuilder().addUnionMember(1).addUnionMember(2)));
+    tp.addType(TypeProto.newBuilder().setUnion(UnionTypeProto.getDefaultInstance()));
+    tp.addType(TypeProto.getDefaultInstance());
+    tp.addDisambiguationEdges(SubtypingEdge.newBuilder().setSubtype(1).setSupertype(2));
+    tp.addDisambiguationEdgesBuilder().setSubtype(5);
+    tp.getDebugInfoBuilder().addMismatchBuilder().setSourceRef("a.js:1:2").addAllInvolvedColor(Arrays.asList(4, 5));
+    SourceFilePool sfp = SourceFilePool.newBuilder()
+        .addSourceFile(SourceFileProto.newBuilder().setFilename("a.js").setPreloadedContents("var x = 'h\u00e9llo \u4e16\u754c \ud83d\ude00';\n")
+            .setSourceKind(SourceFileProto.SourceKind.CODE).setNumLinesPlusOne(2).setNumBytesPlusOne(40))
+        .addSourceFile(SourceFileProto.newBuilder().setFilename("b.js").setFileOnDisk(SourceFileProto.FileOnDisk.newBuilder().setActualPath("/x/b.js").setCharset("UTF-8"))
+            .setSourceKind(SourceFileProto.SourceKind.EXTERN))
+        .addSourceFile(SourceFileProto.newBuilder().setFilename("c.js").setZipEntry(SourceFileProto.ZipEntryOnDisk.newBuilder().setZipPath("z.zip").setEntryName("c.js"))
+            .setSourceKindValue(77).setIsClosureUnawareCode(true))
+        .addSourceFile(SourceFileProto.newBuilder().setFilename("d.js").setStubFile(false))
+        .addSourceFile(SourceFileProto.newBuilder().setPreloadedContents(""))
+        .build();
+    TypedAst ta = TypedAst.newBuilder().setTypePool(tp)
+        .setStringPool(StringPoolProto.newBuilder().setMaxLength(12).addStrings(ByteString.EMPTY).addStrings(ByteString.copyFromUtf8("hello"))
+            .addStrings(ByteString.copyFrom(new byte[] {(byte) 0xed, (byte) 0xa0, (byte) 0x80})))
+        .setSourceFilePool(sfp)
+        .addCodeAst(LazyAst.newBuilder().setScript(root.toByteString()).setSourceFile(1).setSourceMappingUrl("a.js.map"))
+        .addCodeAst(LazyAst.newBuilder().setScript(leaf.toByteString()).setSourceFile(2))
+        .addExternAst(LazyAst.getDefaultInstance())
+        .setExternsSummary(ExternsSummary.newBuilder().addPropNamePtr(1).addPropNamePtr(1000000).addPropNamePtr(-7))
+        .addAllRuntimeLibraryToInject(Arrays.asList("es6/util", "base"))
+        .build();
+    emit("typedast", ta);
+    emit("typedast_list", TypedAst.List.newBuilder().addTypedAsts(ta).addTypedAsts(TypedAst.getDefaultInstance()).addTypedAsts(ta).build());
+
+    // ---- conformance (proto2)
+    Requirement r1 = Requirement.newBuilder().setErrorMessage("eval is \"bad\"\n\t\\ caf\u00e9 \u0001\u007f '")
+        .addWhitelist("a/").addWhitelistRegexp(".*test.*").addAllowlist("b/").addAllowlistRegexp("x+")
+        .addAllowlistEntry(RequirementScopeEntry.newBuilder().setReason(RequirementScopeEntry.Reason.LEGACY).addPrefix("p/").addRegexp("r")
+            .setExplanation("why").addComment("c1").addComment("c2").setAutomaticallyPrune(false))
+        .addWhitelistEntry(RequirementScopeEntry.getDefaultInstance())
+        .addOnlyApplyTo("src/").addOnlyApplyToRegexp("re")
+        .setType(Requirement.Type.BANNED_NAME).addValue("eval").addValue("")
+        .setAllowExtendingValue(true).setTypeMatchingStrategy(Requirement.TypeMatchingStrategy.EXACT)
+        .setJavaClass("com.Foo").setRuleId("closure:eval").setReportLooseTypeViolations(false)
+        .setSeverity(Requirement.Severity.ERROR).addConfigFile("conf.textproto").build();
+    Requirement r2 = Requirement.newBuilder().setExtends("closure:eval").setType(Requirement.Type.CUSTOM)
+        .setSeverity(Requirement.Severity.UNSPECIFIED).setTypeMatchingStrategy(Requirement.TypeMatchingStrategy.LOOSE).setReportLooseTypeViolations(true).build();
+    ConformanceConfig cc = ConformanceConfig.newBuilder().addRequirement(r1).addRequirement(r2).addRequirement(Requirement.getDefaultInstance())
+        .setLibraryLevelNonAllowlistedConformanceViolationsBehavior(ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior.RECORD_ONLY).build();
+    emit("conformance", cc);
+    // unknown fields: extension-range field, unknown enum value in a closed enum, assorted wire types
+    ByteArrayOutputStream bo = new ByteArrayOutputStream();
+    CodedOutputStream co = CodedOutputStream.newInstance(bo);
+    co.writeString(1, "msg");
+    co.writeInt32(6, 99);            // unknown Type value
+    co.writeInt32(1000000, 5);
+    co.writeFixed32(1000001, 0xdeadbeef);
+    co.writeFixed64(1000002, 0x1122334455667788L);
+    co.writeString(1000003, "plain text!");
+    co.writeMessage(1000004, RequirementScopeEntry.newBuilder().addPrefix("zz").build());
+    co.writeBytes(1000005, ByteString.EMPTY);
+    co.writeInt32(12, 2);
+    co.writeInt32(999, -1);
+    co.writeInt32(13, 77);           // unknown strategy
+    co.writeString(7, "v");
+    co.flush();
+    Files.write(out.resolve("requirement_unknown.input"), bo.toByteArray());
+    emit("requirement_unknown", Requirement.parseFrom(bo.toByteArray()));
+
+    // text parsing
+    String text = "# comment\nrequirement: {\n  type: BANNED_NAME  # trailing\n  value: 'eval' value: \"a\" \"b\"\n  error_message: 'x\\x41\\101\\u00e9\\n'\n"
+        + "  allowlist_entry < reason: 2 prefix: ['a', 'b'] automatically_prune: t >\n  severity: 2; report_loose_type_violations: False,\n}\n"
+        + "requirement { rule_id: 'r' allowlist: [] type_matching_strategy: SUBTYPES }\n"
+        + "library_level_non_allowlisted_conformance_violations_behavior: REPORT_AS_BUILD_ERROR\nrequirement { error_message: 'first' error_message: 'second' whitelist_entry { prefix: 'p' } }\n";
+    Files.write(out.resolve("conformance_parse.textproto"), text.getBytes(StandardCharsets.UTF_8));
+    ConformanceConfig.Builder cb = ConformanceConfig.newBuilder();
+    TextFormat.merge(text, cb);
+    emit("conformance_parse", cb.build());
+
+    // parse errors
+    String[] bad = {
+      "requirement { foo: 1 }", "requirement { type: NOPE }", "requirement { type: 99 }", "requirement { severity: }", "requirement {",
+      "requirement { error_message: 5 }", "requirement { allow_extending_value: maybe }", "bogus_field { a { b: 1 } } other: [1, 2]\nrequirement { rule_id: 'x' zzz: 'q' }",
+      "requirement { error_message: 'abc }", "requirement { error_message: 'a\\qb' }", "requirement: 5", "[foo.bar]: 3", "requirement { type BANNED_NAME }",
+      "library_level_non_allowlisted_conformance_violations_behavior: 7", "requirement { value: \"a\" 5 }", "}",
+    };
+    StringBuilder errs = new StringBuilder();
+    for (String b : bad) {
+      String msg;
+      try { TextFormat.merge(b, ConformanceConfig.newBuilder()); msg = "OK"; } catch (TextFormat.ParseException e) { msg = e.getMessage(); }
+      errs.append(b.replace("\\", "\\\\").replace("\n", "\\n")).append('\t').append(msg.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t")).append('\n');
+    }
+    Files.write(out.resolve("parse_errors.tsv"), errs.toString().getBytes(StandardCharsets.UTF_8));
+
+    // ---- compiler state (proto3 with optional)
+    JSCompilerStateProto st = JSCompilerStateProto.newBuilder()
+        .setTypeCheckingHasRun(true).setHasRegExpGlobalReferences(false).setLifeCycleStage(LifeCycleStageProto.forNumber(1))
+        .addExterns("externs.js").addExterns("more.js").setUniqueNameId(42).addExportedNames("x").setIdGeneratorMap("")
+        .addChunks(ChunkProto.newBuilder().setName("main").addInputIds("a").addInputIds("b").addDependencies(0).addDependencies(3))
+        .addAllowableFeatures(FeatureProto.forNumber(1)).addAllowableFeatures(FeatureProto.forNumber(0)).addAllowableFeaturesValue(555)
+        .addUniqueIdSupplier(UniqueIdProto.newBuilder().setHash(-123).setCounter(4))
+        .setAccessorSummary(AccessorSummaryProto.newBuilder().setAssumeAlwaysGetterAndSetter(true)
+            .addAccessors(AccessorSummaryEntryProto.newBuilder().setName("p").setKind(PropertyAccessKindProto.forNumber(2))))
+        .addStringMap(VariableMapEntryProto.newBuilder().setOriginalName("o").setNewName("n")).setHasStringMap(true)
+        .setIdGeneratorCurrentId(3).setLastInjectedLibraryIndexInFirstScript(-1).addInjectedLibraries("base")
+        .build();
+    emit("state", st);
+    bo = new ByteArrayOutputStream();
+    st.writeDelimitedTo(bo);
+    JSCompilerStateProto.getDefaultInstance().writeDelimitedTo(bo);
+    cc.writeDelimitedTo(bo);
+    bo.write(new byte[] {1, 2, 3});
+    Files.write(out.resolve("delimited.bin"), bo.toByteArray());
+
+    // ---- sourcemap + profile (proto2)
+    emit("mapping", Mapping.OriginalMapping.newBuilder().setOriginalFile("f.js").setLineNumber(0).setColumnPosition(-1)
+        .setPrecision(Mapping.OriginalMapping.Precision.UNKNOWN_PRECISION).build());
+    emit("mapping_empty", Mapping.OriginalMapping.getDefaultInstance());
+    emit("profile", ReportProfile.newBuilder().addFileProfile(FileProfile.newBuilder().setFileName("f.js")
+        .addInstrumentationPointsStats(InstrumentationPointStats.newBuilder().setTimesExecuted(1L << 40).setPointPresence(InstrumentationPointStats.Presence.PRESENT)
+            .setPoint(InstrumentationPoint.newBuilder().setType(InstrumentationPoint.Type.BRANCH_DEFAULT).setFileName("f.js").setFunctionName("fn").setLineNumber(1).setColumnNumber(0)))
+        .addInstrumentationPointsStats(InstrumentationPointStats.getDefaultInstance())).build());
+
+    // ---- misc facts
+    StringBuilder facts = new StringBuilder();
+    facts.append("bytestring_hash\t").append(ByteString.copyFrom(new byte[] {1, 2, (byte) 0xff}).hashCode()).append('\n');
+    facts.append("bytestring_hash_empty\t").append(ByteString.EMPTY.hashCode()).append('\n');
+    facts.append("escape\t").append(TextFormat.escapeBytes(ByteString.copyFrom(new byte[] {0, 7, 8, 9, 10, 11, 12, 13, 27, 34, 39, 92, 127, (byte) 200, 'a'}))).append('\n');
+    facts.append("unrecognized_ordinal\t").append(NodeKind.UNRECOGNIZED.ordinal()).append('\n');
+    facts.append("nodekind_count\t").append(NodeKind.values().length).append('\n');
+    facts.append("kindcase\t").append(TypeProto.KindCase.valueOf("UNION").getNumber()).append(',').append(TypeProto.KindCase.KIND_NOT_SET.ordinal()).append(',').append(TypeProto.KindCase.forNumber(2)).append('\n');
+    facts.append("loadercase\t").append(Arrays.toString(SourceFileProto.LoaderCase.values())).append('\n');
+    facts.append("sizes\t").append(ta.getSerializedSize()).append(',').append(cc.getSerializedSize()).append('\n');
+    facts.append("req_type_default\t").append(Requirement.getDefaultInstance().getType()).append(',').append(Requirement.getDefaultInstance().getSeverity())
+        .append(',').append(Requirement.getDefaultInstance().getTypeMatchingStrategy()).append(',').append(Requirement.getDefaultInstance().getReportLooseTypeViolations()).append('\n');
+    facts.append("float_text\t").append(TextFormat.printer().printToString(AstNode.newBuilder().setDoubleValue(1e21).build()).trim()).append('|')
+        .append(TextFormat.printer().printToString(AstNode.newBuilder().setDoubleValue(100).build()).trim()).append('|')
+        .append(TextFormat.printer().printToString(AstNode.newBuilder().setDoubleValue(1.0E-5).build()).trim()).append('\n');
+    Files.write(out.resolve("facts.tsv"), facts.toString().getBytes(StandardCharsets.UTF_8));
+    Files.write(out.resolve("manifest.tsv"), manifest.toString().getBytes(StandardCharsets.UTF_8));
+  }
+}

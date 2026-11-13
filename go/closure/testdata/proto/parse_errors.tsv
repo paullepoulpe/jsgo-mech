@@ -1,0 +1,16 @@
+requirement { foo: 1 }	1:15: Input contains unknown fields and/or extensions:\n1:15:\tjscomp.Requirement.foo
+requirement { type: NOPE }	1:21: Enum type "jscomp.Requirement.Type" has no value named "NOPE".
+requirement { type: 99 }	1:21: Enum type "jscomp.Requirement.Type" has no value with number 99.
+requirement { severity: }	1:25: Expected identifier. Found '}'
+requirement {	1:14: Expected "}".
+requirement { error_message: 5 }	1:30: Expected string.
+requirement { allow_extending_value: maybe }	1:38: Expected "true" or "false". Found "maybe".
+bogus_field { a { b: 1 } } other: [1, 2]\nrequirement { rule_id: 'x' zzz: 'q' }	1:1: Input contains unknown fields and/or extensions:\n1:1:\tjscomp.ConformanceConfig.bogus_field\n1:28:\tjscomp.ConformanceConfig.other\n2:28:\tjscomp.Requirement.zzz
+requirement { error_message: 'abc }	1:30: String missing ending quote.
+requirement { error_message: 'a\\qb' }	1:30: Invalid escape sequence: '\\q'
+requirement: 5	1:14: Expected "{".
+[foo.bar]: 3	1:6: Input contains unknown fields and/or extensions:\n1:6:\tjscomp.ConformanceConfig.[foo.bar]
+requirement { type BANNED_NAME }	1:20: Expected ":".
+library_level_non_allowlisted_conformance_violations_behavior: 7	1:64: Enum type "jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior" has no value with number 7.
+requirement { value: "a" 5 }	1:28: Expected "{".
+}	1:1: Expected identifier. Found '}'

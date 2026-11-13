@@ -1,0 +1,1 @@
+file_profile { file_name: "f.js" instrumentation_points_stats { point { type: BRANCH_DEFAULT file_name: "f.js" function_name: "fn" line_number: 1 column_number: 0 } times_executed: 1099511627776 point_presence: PRESENT } instrumentation_points_stats { } }
