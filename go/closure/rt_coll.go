@@ -520,6 +520,7 @@ func SequencedCollection_removeLast(c SequencedCollection) any {
 // A table is its keys in insertion order (keys) with the values beside them (vals; a table
 // used as a set has none), plus an index from key to position. Nothing is allocated per
 // entry: a removed entry leaves the marker dead_ in keys until the table is compacted.
+// A small table has no index at all and is searched linearly (see hsmall_).
 // Map.Entry objects exist only for the entries that an entrySet iteration has handed out;
 // the table remembers them (ents) so that a mapping keeps one entry object and that object
 // sees later writes, as in java.util.HashMap.
@@ -575,7 +576,16 @@ type htable_ struct {
 	x        *hindex_ // nil until needed
 	live     int32
 	identity bool
+	indexed  bool // x holds the index of all keys
 }
+
+// hsmall_ is the number of entries (removed ones included) up to which a table is searched
+// linearly instead of through an index. Such a table holds only strings and keys compared by
+// identity or Go equality: a key with its own equals/hashCode gets the table indexed at once,
+// so that it is found exactly when its hash code and equals say so, as in Java. Most tables
+// of the compiler stay this small, and for them a scan is faster than hashing as well as free
+// of allocations (measured on the bundle benchmark with thresholds 0, 4, 8 and 16).
+const hsmall_ = 8
 
 type hindex_ struct {
 	strs   map[string]int32  // string keys
@@ -602,10 +612,16 @@ func (t *htable_) find(k any) int {
 	if s, ok := k.(string); ok {
 		return t.findStr(s)
 	}
-	x := t.x
-	if x == nil {
+	if !t.indexed {
+		// No key here has its own equals, so one that does is not found either.
+		for i, x := range t.keys {
+			if x == k {
+				return i
+			}
+		}
 		return -1
 	}
+	x := t.x
 	if h, ok := t.customKey_(k); ok {
 		for _, i := range x.custom[h.hashCode()] {
 			if h.equals(t.keys[i]) {
@@ -622,10 +638,16 @@ func (t *htable_) find(k any) int {
 
 // findStr is find for a string key that is not boxed.
 func (t *htable_) findStr(s string) int {
-	if x := t.x; x != nil {
-		if i, ok := x.strs[s]; ok {
-			return int(i)
+	if !t.indexed {
+		for i, x := range t.keys {
+			if xs, ok := x.(string); ok && xs == s {
+				return i
+			}
 		}
+		return -1
+	}
+	if i, ok := t.x.strs[s]; ok {
+		return int(i)
 	}
 	return -1
 }
@@ -656,7 +678,7 @@ func (t *htable_) putStr(s string, v any) (old any, existed bool) {
 		return t.setAt(i, v), true
 	}
 	t.vals = append(t.vals, v)
-	t.insert(s)
+	t.insertPlain(s)
 	return nil, false
 }
 
@@ -672,21 +694,47 @@ func (t *htable_) addStr(s string) bool {
 	if t.findStr(s) >= 0 {
 		return false
 	}
-	t.insert(s)
+	t.insertPlain(s)
 	return true
 }
 
 // insert appends a key that find did not find.
 func (t *htable_) insert(k any) {
-	i := int32(len(t.keys))
+	if !t.indexed {
+		if _, isStr := k.(string); !isStr {
+			if _, custom := t.customKey_(k); custom {
+				t.buildIndex()
+			}
+		}
+	}
+	t.insertPlain(k)
+}
+
+// insertPlain is insert for a key without its own equals/hashCode.
+func (t *htable_) insertPlain(k any) {
+	i := len(t.keys)
 	t.keys = append(t.keys, k)
 	t.live++
+	if x := t.x; x != nil && x.ents != nil {
+		x.ents = append(x.ents, nil)
+	}
+	if t.indexed {
+		t.index(k, int32(i))
+	} else if i >= hsmall_ {
+		t.buildIndex()
+	}
+}
+
+func (t *htable_) buildIndex() {
 	if t.x == nil {
 		t.x = &hindex_{}
-	} else if t.x.ents != nil {
-		t.x.ents = append(t.x.ents, nil)
 	}
-	t.index(k, i)
+	t.indexed = true
+	for i, k := range t.keys {
+		if k != dead_ {
+			t.index(k, int32(i))
+		}
+	}
 }
 
 // index records that key k is at position i.
@@ -744,22 +792,27 @@ func (t *htable_) removeAt(i int) (moved bool) {
 	if k == dead_ {
 		return false
 	}
-	t.unindex(k, i)
+	if t.indexed {
+		t.unindex(k, i)
+	}
 	t.keys[i] = dead_
 	if t.vals != nil {
 		t.vals[i] = nil
 	}
-	if x := t.x; x.ents != nil && x.ents[i] != nil {
+	if x := t.x; x != nil && x.ents != nil && x.ents[i] != nil {
 		x.ents[i].t = nil
 		x.ents[i] = nil
 	}
 	t.live--
 	if t.live == 0 {
+		// Empty: start again at position 0 (an index stays, empty, for the next entries).
 		t.keys = t.keys[:0]
 		if t.vals != nil {
 			t.vals = t.vals[:0]
 		}
-		t.x.ents = nil
+		if t.x != nil {
+			t.x.ents = nil
+		}
 		return true
 	}
 	if len(t.keys) > 32 && int(t.live)*2 < len(t.keys) {
@@ -771,20 +824,24 @@ func (t *htable_) removeAt(i int) (moved bool) {
 
 // compact drops the removed entries; the order of the others is unchanged.
 func (t *htable_) compact() {
-	keys, vals, ents := t.keys, t.vals, t.x.ents
+	keys, vals := t.keys, t.vals
+	var ents []*hmapEntry_
+	if t.x != nil {
+		ents = t.x.ents
+	}
 	t.keys = make([]any, 0, t.live)
 	if vals != nil {
 		t.vals = make([]any, 0, t.live)
 	}
-	t.x = &hindex_{}
+	t.x, t.indexed = nil, false
 	if ents != nil {
-		t.x.ents = make([]*hmapEntry_, 0, t.live)
+		t.x = &hindex_{ents: make([]*hmapEntry_, 0, t.live)}
 	}
+	custom := false
 	for i, k := range keys {
 		if k == dead_ {
 			continue
 		}
-		t.index(k, int32(len(t.keys)))
 		t.keys = append(t.keys, k)
 		if vals != nil {
 			t.vals = append(t.vals, vals[i])
@@ -792,6 +849,12 @@ func (t *htable_) compact() {
 		if ents != nil {
 			t.x.ents = append(t.x.ents, ents[i])
 		}
+		if _, c := t.customKey_(k); c {
+			custom = true
+		}
+	}
+	if custom || len(t.keys) > hsmall_ {
+		t.buildIndex()
 	}
 }
 
@@ -822,11 +885,14 @@ func (t *htable_) clear() {
 			}
 		}
 	}
-	t.keys, t.vals, t.x, t.live = nil, nil, nil, 0
+	t.keys, t.vals, t.x, t.live, t.indexed = nil, nil, nil, 0, false
 }
 
 // entry returns the entry object of the mapping at position i.
 func (t *htable_) entry(i int) *hmapEntry_ {
+	if t.x == nil {
+		t.x = &hindex_{}
+	}
 	x := t.x
 	if x.ents == nil {
 		x.ents = make([]*hmapEntry_, len(t.keys), cap(t.keys))
@@ -1373,6 +1439,22 @@ func hashSetOf_(c any) *htable_ {
 	return nil
 }
 
+// asMap_ is the receiver of the boxed call; a null receiver is a NullPointerException, as it is
+// for the method call that the helper replaces.
+func asMap_(m any) Map {
+	if m == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return m.(Map)
+}
+
+func asColl_(c any) Collection {
+	if c == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return c.(Collection)
+}
+
 func Map_get_s(m any, k string) any {
 	if k != nullstr_ {
 		if h := hashMapOf_(m); h != nil {
@@ -1382,7 +1464,7 @@ func Map_get_s(m any, k string) any {
 			return im.get_s(k)
 		}
 	}
-	return m.(Map).get(strobj_(k))
+	return asMap_(m).get(strobj_(k))
 }
 
 func Map_containsKey_s(m any, k string) bool {
@@ -1394,7 +1476,7 @@ func Map_containsKey_s(m any, k string) bool {
 			return im.containsKey_s(k)
 		}
 	}
-	return m.(Map).containsKey(strobj_(k))
+	return asMap_(m).containsKey(strobj_(k))
 }
 
 func Map_put_s(m any, k string, v any) any {
@@ -1402,7 +1484,7 @@ func Map_put_s(m any, k string, v any) any {
 		old, _ := h.t.putStr(k, v)
 		return old
 	}
-	return m.(Map).put(strobj_(k), v)
+	return asMap_(m).put(strobj_(k), v)
 }
 
 func Map_remove_s(m any, k string) any {
@@ -1410,7 +1492,7 @@ func Map_remove_s(m any, k string) any {
 		old, _ := h.t.removeStr(k)
 		return old
 	}
-	return m.(Map).remove(strobj_(k))
+	return asMap_(m).remove(strobj_(k))
 }
 
 func Map_getOrDefault_s(m any, k string, def any) any {
@@ -1455,7 +1537,7 @@ func Collection_contains_s(c any, k string) bool {
 			}
 		}
 	}
-	return c.(Collection).contains(strobj_(k))
+	return asColl_(c).contains(strobj_(k))
 }
 
 // Collection_add_s is called for sets only (a list stores the box in any case).
@@ -1463,7 +1545,7 @@ func Collection_add_s(c any, k string) bool {
 	if x, ok := c.(*LinkedHashSet); ok && x != nil && k != nullstr_ {
 		return x.t().addStr(k)
 	}
-	return c.(Collection).add(strobj_(k))
+	return asColl_(c).add(strobj_(k))
 }
 
 func Collection_remove_s(c any, k string) bool {
@@ -1471,7 +1553,7 @@ func Collection_remove_s(c any, k string) bool {
 		_, existed := t.removeStr(k)
 		return existed
 	}
-	return c.(Collection).remove_Object(strobj_(k))
+	return asColl_(c).remove_Object(strobj_(k))
 }
 
 // ---- Map defaults
