@@ -20,6 +20,7 @@ import com.google.common.base.Ascii;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.re2j.Pattern;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -59,6 +60,8 @@ import org.jspecify.annotations.Nullable;
  * replaces.
  */
 public final class CmdLineParser {
+  private static final Pattern NEWLINE_PATTERN = Pattern.compile("\\n");
+
 
   /** The command-line tokens, as seen by the flag that is being parsed. */
   private interface Parameters {
@@ -292,7 +295,7 @@ public final class CmdLineParser {
 
     private <E extends Enum<E>> E parseEnum(E[] values, Parameters params)
         throws CmdLineException {
-      String s = params.getParameter(0).replaceAll("-", "_");
+      String s = params.getParameter(0).replace('-', '_');
       for (E value : values) {
         if (value.name().equalsIgnoreCase(s)) {
           return value;
@@ -494,7 +497,7 @@ public final class CmdLineParser {
   /** Wraps a line so that the resulting parts are no longer than a given maximum length. */
   private static List<String> wrapLines(String line, final int maxLength) {
     List<String> rv = new ArrayList<>();
-    for (String restOfLine : line.split("\\n")) {
+    for (String restOfLine : NEWLINE_PATTERN.split(line)) {
       while (restOfLine.length() > maxLength) {
         // try to wrap at space, but don't try too hard as some languages don't even have
         // whitespaces.
