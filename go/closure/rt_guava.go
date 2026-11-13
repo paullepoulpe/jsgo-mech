@@ -127,12 +127,18 @@ func (this *ImmutableCollection) up_ImmutableSet() *ImmutableSet               {
 
 // immList_ makes an ImmutableList that owns items.
 func immList_(items []any) *ImmutableList {
+	if len(items) == 0 {
+		return emptyImmList_
+	}
 	checkNoNulls_(items)
 	return &ImmutableCollection{kind: icList_, items: items}
 }
 
 // immSet_ makes an ImmutableSet of the distinct elements, in first-seen order.
 func immSet_(items []any) *ImmutableSet {
+	if len(items) == 0 {
+		return emptyImmSet_
+	}
 	checkNoNulls_(items)
 	t := &htable_{}
 	for _, v := range items {
@@ -451,7 +457,12 @@ func (this *ImmutableList) addAll_int_Collection(i int32, c Collection) bool {
 	return false
 }
 
-func ImmutableList_of() *ImmutableList { return &ImmutableCollection{kind: icList_} }
+// The empty immutable collections are singletons, as in Guava: translated code compares them by identity.
+var emptyImmList_ = &ImmutableCollection{kind: icList_}
+var emptyImmSet_ = &ImmutableCollection{kind: icSet_}
+var emptyImmSorted_ = &ImmutableCollection{kind: icSorted_}
+
+func ImmutableList_of() *ImmutableList { return emptyImmList_ }
 
 func ImmutableList_of_Object(p0 any) *ImmutableList { return immList_([]any{p0}) }
 
@@ -534,7 +545,7 @@ func ImmutableList_sortedCopyOf(p0 Comparator, p1 Iterable) *ImmutableList {
 
 // ---- ImmutableSet
 
-func ImmutableSet_of() *ImmutableSet { return &ImmutableCollection{kind: icSet_} }
+func ImmutableSet_of() *ImmutableSet { return emptyImmSet_ }
 
 func ImmutableSet_of_Object(p0 any) *ImmutableSet { return immSet_([]any{p0}) }
 
@@ -578,7 +589,7 @@ func ImmutableSet_copyOf_ObjectArr(p0 []any) *ImmutableSet {
 
 // ---- ImmutableSortedSet
 
-func ImmutableSortedSet_of() *ImmutableSortedSet { return &ImmutableCollection{kind: icSorted_} }
+func ImmutableSortedSet_of() *ImmutableSortedSet { return emptyImmSorted_ }
 
 func ImmutableSortedSet_copyOf(p0 Collection) *ImmutableSortedSet {
 	if c, ok := p0.(*ImmutableCollection); ok && c.kind == icSorted_ && c.cmp == nil {

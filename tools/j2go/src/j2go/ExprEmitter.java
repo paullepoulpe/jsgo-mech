@@ -873,6 +873,16 @@ abstract class ExprEmitter extends Base {
       return new CallResult(name + "(" + argList(e, params, args) + ")", ret);
     }
     if (recv == null) recv = implicitRecv(owner);
+    if (superCall && owner.getQualifiedName().contentEquals("java.lang.Object")) {
+      // super.hashCode() / equals / toString reaching Object: the identity-based defaults.
+      String self = cx.coerce(recv.code, recv.type, objectType());
+      switch (e.getSimpleName().toString()) {
+        case "hashCode": return new CallResult("identityHash_(" + self + ")", prim(TypeKind.INT));
+        case "equals": return new CallResult("(" + self + " == " + args.get(0).as(objectType()) + ")", prim(TypeKind.BOOLEAN));
+        case "toString": return new CallResult("defaultToString_(" + self + ")", stringType());
+        default: break;
+      }
+    }
     if (src && owner.getKind().isInterface() && e.getModifiers().contains(Modifier.PRIVATE)) {
       List<TypeMirror> params = ownParams(e);
       String al = argList(e, params, args);
@@ -943,7 +953,7 @@ abstract class ExprEmitter extends Base {
     List<Arg> as = args(t.getArguments());
     if (sel instanceof MemberSelectTree ms) {
       ExpressionTree q = ms.getExpression();
-      if (e.getModifiers().contains(Modifier.STATIC)) return call(e, null, false, as);
+      if (e.getModifiers().contains(Modifier.STATIC)) return special(e, null, as);
       if (q instanceof IdentifierTree id && id.getName().contentEquals("super")) return call(e, new Recv("this", cc().te.asType()), true, as);
       if (q instanceof MemberSelectTree qm && qm.getIdentifier().contentEquals("super")) {
         // I.super.m(): the default method of interface I.

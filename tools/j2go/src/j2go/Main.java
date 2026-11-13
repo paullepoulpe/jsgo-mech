@@ -136,7 +136,7 @@ public final class Main {
         "java.lang.NumberFormatException", "java.util.NoSuchElementException", "java.io.IOException", "java.lang.StackOverflowError",
         "java.lang.Error", "java.lang.Exception", "java.lang.Throwable", "java.lang.Enum", "java.lang.Class",
         "java.lang.StringBuilder", "java.io.FileNotFoundException", "java.io.UncheckedIOException",
-        "java.util.ConcurrentModificationException", "java.lang.NegativeArraySizeException")) {
+        "java.util.ConcurrentModificationException", "java.lang.NegativeArraySizeException", "java.lang.CloneNotSupportedException")) {
       preload.add(task.getElements().getTypeElement(qn));
     }
     cx.registerSourcesDone();

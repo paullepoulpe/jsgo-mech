@@ -48,6 +48,9 @@ func catch_(r any) any {
 	switch e := r.(type) {
 	case runtime.Error:
 		msg := e.Error()
+		if os.Getenv("JSGO_TRACE_THROW") != "" {
+			fmt.Fprintf(os.Stderr, "--- go runtime error: %s\n%s\n", msg, debug.Stack())
+		}
 		switch {
 		case strings.Contains(msg, "nil pointer dereference") || strings.Contains(msg, "nil map"):
 			return new_NullPointerException_0().self()

@@ -3,8 +3,11 @@ package closure
 import (
 	"fmt"
 	"math"
+	"os"
 	"reflect"
+	"runtime/debug"
 	"strings"
+	"unsafe"
 )
 
 // ---- java.lang.Object, for values in the `any` world
@@ -65,7 +68,12 @@ func Object_toString(v any) string {
 	case interface{ toString() string }:
 		return x.toString()
 	}
-	return Object_getClass(v).getName() + "@" + fmt.Sprintf("%x", Object_hashCode(v))
+	return defaultToString_(v)
+}
+
+// defaultToString_ is Object.toString itself: class name and identity hash.
+func defaultToString_(v any) string {
+	return Object_getClass(v).getName() + "@" + fmt.Sprintf("%x", identityHash_(v))
 }
 
 func Object_equals(a, b any) bool {
@@ -133,7 +141,20 @@ func Object_hashCode(v any) int32 {
 	return identityHash_(v)
 }
 
-func Object_clone(v any) any { panic("Object.clone") }
+// Object_clone is Object.clone(): a shallow copy of the object, whose self_
+// (the pointer to the most-derived object) is redirected to the copy.
+func Object_clone(v any) any {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Pointer || rv.Elem().Kind() != reflect.Struct {
+		panic(new_CloneNotSupportedException_String(goTypeName_(v)).self())
+	}
+	cp := reflect.New(rv.Type().Elem())
+	cp.Elem().Set(rv.Elem())
+	if f := cp.Elem().FieldByName("self_"); f.IsValid() {
+		reflect.NewAt(f.Type(), unsafe.Pointer(f.UnsafeAddr())).Elem().Set(reflect.ValueOf(cp.Interface()))
+	}
+	return cp.Interface()
+}
 
 // ---- java.lang.Class
 
@@ -184,9 +205,22 @@ type Throwable struct {
 	cause_   *Throwable
 }
 
-func (this *Throwable) init_Throwable_0() { this.message_ = nullstr_ }
+// traceThrow_ prints the Go stack where an exception object is created, when the
+// environment variable JSGO_TRACE_THROW names (part of) its class.
+var traceThrowPattern_ = os.Getenv("JSGO_TRACE_THROW")
 
-func (this *Throwable) init_Throwable_String(m string) { this.message_ = m }
+func (this *Throwable) traceThrow_() {
+	if traceThrowPattern_ == "" || this.self_ == nil {
+		return
+	}
+	if n := goTypeName_(this.self_); traceThrowPattern_ == "all" || strings.Contains(n, traceThrowPattern_) {
+		fmt.Fprintf(os.Stderr, "--- new %s: %s\n%s\n", n, this.message_, debug.Stack())
+	}
+}
+
+func (this *Throwable) init_Throwable_0() { this.message_ = nullstr_; this.traceThrow_() }
+
+func (this *Throwable) init_Throwable_String(m string) { this.message_ = m; this.traceThrow_() }
 
 func (this *Throwable) init_Throwable_String_Throwable(m string, c *Throwable) {
 	this.message_ = m

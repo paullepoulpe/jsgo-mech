@@ -36,6 +36,9 @@ func dupKey_(k, v1, v2 any) {
 // immMap_ builds a map of the given kind from parallel key/value slices, which
 // it owns. Duplicate keys throw, or with keepLast keep the last entry.
 func immMap_(kind int8, keys, vals []any, cmp Comparator, keepLast bool) *ImmutableMap {
+	if len(keys) == 0 && kind == emptyImmMap_.kind && cmp == nil {
+		return emptyImmMap_
+	}
 	for i := range keys {
 		if keys[i] == nil {
 			throwNPE_("null key in entry: null=" + objstr_(vals[i]))
@@ -270,7 +273,10 @@ func immMapOf_(kv ...any) *ImmutableMap {
 	return immMap_(imMap_, keys, vals, nil, false)
 }
 
-func ImmutableMap_of() *ImmutableMap { return &ImmutableMap{} }
+var emptyImmMap_ = &ImmutableMap{}
+var emptyImmSortedMap_ = &ImmutableMap{kind: imSorted_}
+
+func ImmutableMap_of() *ImmutableMap { return emptyImmMap_ }
 
 func ImmutableMap_of_Object_Object(p0 any, p1 any) *ImmutableMap { return immMapOf_(p0, p1) }
 
@@ -312,7 +318,7 @@ func ImmutableBiMap_copyOf(p0 Map) *ImmutableBiMap {
 	return immMap_(imBiMap_, keys, vals, nil, false)
 }
 
-func ImmutableSortedMap_of() *ImmutableSortedMap { return &ImmutableMap{kind: imSorted_} }
+func ImmutableSortedMap_of() *ImmutableSortedMap { return emptyImmSortedMap_ }
 
 func ImmutableSortedMap_copyOf(p0 Map) *ImmutableSortedMap {
 	if im, ok := p0.(*ImmutableMap); ok && im.kind == imSorted_ && im.cmp == nil {
