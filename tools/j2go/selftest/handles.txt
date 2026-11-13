@@ -1,0 +1,3 @@
+# Handle classes of the self-test (lang/Handles.java).
+lang.Handles.Item
+lang.Handles.Tag
