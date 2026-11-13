@@ -808,15 +808,11 @@ func (g *gen) message(m *Message) {
 	}{
 		{"[]int8", "byteArr", "pbParse_(" + G + "_desc_, pbU8_(p0), false)"},
 		{"*ByteString", "ByteString", "pbParse_(" + G + "_desc_, p0.b_, true)"},
-		{"*InputStream", "InputStream", "pbParseStream_(" + G + "_desc_, p0)"},
 		{"*CodedInputStream", "CodedInputStream", "pbParseCoded_(" + G + "_desc_, p0)"},
 	} {
 		st("parseFrom", []string{v.param}, []string{v.token}, "*"+G, "return "+v.expr+".(*"+G+")")
 		st("parseFrom", []string{v.param, reg}, []string{v.token, "ExtensionRegistryLite"}, "*"+G, "return "+v.expr+".(*"+G+")")
 	}
-	delim := "if v := pbParseDelimited_(" + G + "_desc_, p0); v != nil {\n\t\treturn v.(*" + G + ")\n\t}\n\treturn nil"
-	st("parseDelimitedFrom", []string{"*InputStream"}, []string{"InputStream"}, "*"+G, delim)
-	st("parseDelimitedFrom", []string{"*InputStream", reg}, []string{"InputStream", "ExtensionRegistryLite"}, "*"+G, delim)
 	g.emitGroups(statics, func(mt *method) *extEntry { return lookupFunc(G, mt.java, mt.sig()) }, G, func(mt *method) {
 		g.p("")
 		g.p("func %s_%s(%s) %s {\n\t%s\n}", G, mt.name, named(mt.params), mt.ret, mt.body)

@@ -49,11 +49,12 @@ echo "unreachable runtime functions: $(grep -c closure/rt_ "$bin/dead.txt")"
 rm -f closure/rt_zroots.go cmd/mech/roots_tmp.go
 "$gobin/goimports" -w closure/rt_*.go
 restore || exit 1
-# the self-test uses a few library members the compiler does not
+# the self-test uses a few library members the compiler does not (its main method prints to
+# System.out, a PrintStream; main is not run from Go, so that one stays a placeholder)
 cd "$root"
 for i in 1 2 3 4 5 6; do
   bash tools/j2go/selftest/run.sh >"$bin/st.out" 2>&1
-  names=$( { grep "j2go stub" .cache/j2go-selftest/go/closure/g_zstubs.go | sed 's/.*j2go stub: //; s/").*//' | grep -v "^Abstract"
+  names=$( { grep "j2go stub" .cache/j2go-selftest/go/closure/g_zstubs.go | sed 's/.*j2go stub: //; s/").*//' | grep -v "^Abstract\|^PrintStream\."
     grep -oE "undefined: [A-Za-z_0-9]+|type \*?[A-Za-z_0-9]+ has no field or method [A-Za-z_0-9]+" "$bin/st.out" |
       sed -E 's/undefined: //; s/type \*?([A-Za-z_0-9]+) has no field or method ([A-Za-z_0-9]+)/\1.\2/'; } | sort -u)
   [ -z "$names" ] && break

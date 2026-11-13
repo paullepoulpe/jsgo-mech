@@ -1227,10 +1227,6 @@ func Map_replace(m Map, k any, oldV any, newV any) bool {
 
 type AbstractMap_SimpleImmutableEntry struct{ hentry_ }
 
-func (e *AbstractMap_SimpleImmutableEntry) setValue(v any) any {
-	panic(new_UnsupportedOperationException_0().self())
-}
-
 // ---- Arrays
 
 func Arrays_asList(a []any) List { return listOf_(a) }
@@ -1253,6 +1249,19 @@ func Arrays_binarySearch(a []int32, k int32) int32 {
 func Arrays_copyOf(a []int32, n int32) []int32 {
 	out := make([]int32, n)
 	copy(out, a)
+	return out
+}
+
+// Arrays_copyOfRange copies a[from:to], padding with zeros past the end of a.
+func Arrays_copyOfRange(a []int8, from int32, to int32) []int8 {
+	if from > to {
+		panic(new_IllegalArgumentException_String(istr_(int64(from)) + " > " + istr_(int64(to))).self())
+	}
+	if from < 0 || int(from) > len(a) {
+		panic(new_ArrayIndexOutOfBoundsException_String("Array index out of range: " + istr_(int64(from))).self())
+	}
+	out := make([]int8, to-from)
+	copy(out, a[from:])
 	return out
 }
 

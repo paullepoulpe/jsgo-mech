@@ -12,7 +12,7 @@ cp go/go.mod "$t/go/" && cp go/closure/rt_*.go "$t/go/closure/" && rm -f "$t"/go
 [[ -d go/closure/resources ]] && cp -r go/closure/resources "$t/go/closure/"
 { cat .cache/j2go/files.txt; ls tools/j2go/selftest/lang/*.java; } >"$t/files.txt"
 # Instrumented output, so that static initialization happens on first use as in Java.
-J2GO_INIT_GUARDS=1 java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/go/closure" - @"$t/files.txt" 2>&1 | grep -v '^Picked up' || true
+J2GO_INIT_GUARDS=1 java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main ".cache/build/stock-libs.jar:.cache/build/main:$(ls .cache/deps/auto-value-annotations-*.jar)" "$t/go/closure" - @"$t/files.txt" 2>&1 | grep -v '^Picked up' || true
 cat >"$t/go/cmd/t/main.go" <<'EOF'
 package main
 

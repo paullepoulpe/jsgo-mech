@@ -158,34 +158,12 @@ func Mapping_OriginalMapping_parseFrom_ByteString_ExtensionRegistryLite(p0 *Byte
 	return pbParse_(Mapping_OriginalMapping_desc_, p0.b_, true).(*Mapping_OriginalMapping)
 }
 
-func Mapping_OriginalMapping_parseFrom_InputStream(p0 *InputStream) *Mapping_OriginalMapping {
-	return pbParseStream_(Mapping_OriginalMapping_desc_, p0).(*Mapping_OriginalMapping)
-}
-
-func Mapping_OriginalMapping_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *Mapping_OriginalMapping {
-	return pbParseStream_(Mapping_OriginalMapping_desc_, p0).(*Mapping_OriginalMapping)
-}
-
 func Mapping_OriginalMapping_parseFrom_CodedInputStream(p0 *CodedInputStream) *Mapping_OriginalMapping {
 	return pbParseCoded_(Mapping_OriginalMapping_desc_, p0).(*Mapping_OriginalMapping)
 }
 
 func Mapping_OriginalMapping_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *Mapping_OriginalMapping {
 	return pbParseCoded_(Mapping_OriginalMapping_desc_, p0).(*Mapping_OriginalMapping)
-}
-
-func Mapping_OriginalMapping_parseDelimitedFrom(p0 *InputStream) *Mapping_OriginalMapping {
-	if v := pbParseDelimited_(Mapping_OriginalMapping_desc_, p0); v != nil {
-		return v.(*Mapping_OriginalMapping)
-	}
-	return nil
-}
-
-func Mapping_OriginalMapping_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *Mapping_OriginalMapping {
-	if v := pbParseDelimited_(Mapping_OriginalMapping_desc_, p0); v != nil {
-		return v.(*Mapping_OriginalMapping)
-	}
-	return nil
 }
 
 func (this *Mapping_OriginalMapping) hasOriginalFile() bool {
@@ -419,34 +397,12 @@ func AdditionalConformanceReport_parseFrom_ByteString_ExtensionRegistryLite(p0 *
 	return pbParse_(AdditionalConformanceReport_desc_, p0.b_, true).(*AdditionalConformanceReport)
 }
 
-func AdditionalConformanceReport_parseFrom_InputStream(p0 *InputStream) *AdditionalConformanceReport {
-	return pbParseStream_(AdditionalConformanceReport_desc_, p0).(*AdditionalConformanceReport)
-}
-
-func AdditionalConformanceReport_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport {
-	return pbParseStream_(AdditionalConformanceReport_desc_, p0).(*AdditionalConformanceReport)
-}
-
 func AdditionalConformanceReport_parseFrom_CodedInputStream(p0 *CodedInputStream) *AdditionalConformanceReport {
 	return pbParseCoded_(AdditionalConformanceReport_desc_, p0).(*AdditionalConformanceReport)
 }
 
 func AdditionalConformanceReport_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport {
 	return pbParseCoded_(AdditionalConformanceReport_desc_, p0).(*AdditionalConformanceReport)
-}
-
-func AdditionalConformanceReport_parseDelimitedFrom(p0 *InputStream) *AdditionalConformanceReport {
-	if v := pbParseDelimited_(AdditionalConformanceReport_desc_, p0); v != nil {
-		return v.(*AdditionalConformanceReport)
-	}
-	return nil
-}
-
-func AdditionalConformanceReport_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport {
-	if v := pbParseDelimited_(AdditionalConformanceReport_desc_, p0); v != nil {
-		return v.(*AdditionalConformanceReport)
-	}
-	return nil
 }
 
 func (this *AdditionalConformanceReport) getNumViolations() int32 {
@@ -653,34 +609,12 @@ func AdditionalConformanceReport_ReportByRuleId_parseFrom_ByteString_ExtensionRe
 	return pbParse_(AdditionalConformanceReport_ReportByRuleId_desc_, p0.b_, true).(*AdditionalConformanceReport_ReportByRuleId)
 }
 
-func AdditionalConformanceReport_ReportByRuleId_parseFrom_InputStream(p0 *InputStream) *AdditionalConformanceReport_ReportByRuleId {
-	return pbParseStream_(AdditionalConformanceReport_ReportByRuleId_desc_, p0).(*AdditionalConformanceReport_ReportByRuleId)
-}
-
-func AdditionalConformanceReport_ReportByRuleId_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport_ReportByRuleId {
-	return pbParseStream_(AdditionalConformanceReport_ReportByRuleId_desc_, p0).(*AdditionalConformanceReport_ReportByRuleId)
-}
-
 func AdditionalConformanceReport_ReportByRuleId_parseFrom_CodedInputStream(p0 *CodedInputStream) *AdditionalConformanceReport_ReportByRuleId {
 	return pbParseCoded_(AdditionalConformanceReport_ReportByRuleId_desc_, p0).(*AdditionalConformanceReport_ReportByRuleId)
 }
 
 func AdditionalConformanceReport_ReportByRuleId_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport_ReportByRuleId {
 	return pbParseCoded_(AdditionalConformanceReport_ReportByRuleId_desc_, p0).(*AdditionalConformanceReport_ReportByRuleId)
-}
-
-func AdditionalConformanceReport_ReportByRuleId_parseDelimitedFrom(p0 *InputStream) *AdditionalConformanceReport_ReportByRuleId {
-	if v := pbParseDelimited_(AdditionalConformanceReport_ReportByRuleId_desc_, p0); v != nil {
-		return v.(*AdditionalConformanceReport_ReportByRuleId)
-	}
-	return nil
-}
-
-func AdditionalConformanceReport_ReportByRuleId_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport_ReportByRuleId {
-	if v := pbParseDelimited_(AdditionalConformanceReport_ReportByRuleId_desc_, p0); v != nil {
-		return v.(*AdditionalConformanceReport_ReportByRuleId)
-	}
-	return nil
 }
 
 func (this *AdditionalConformanceReport_ReportByRuleId) getRuleId() string {
@@ -922,34 +856,12 @@ func AdditionalConformanceReport_ViolationLocation_parseFrom_ByteString_Extensio
 	return pbParse_(AdditionalConformanceReport_ViolationLocation_desc_, p0.b_, true).(*AdditionalConformanceReport_ViolationLocation)
 }
 
-func AdditionalConformanceReport_ViolationLocation_parseFrom_InputStream(p0 *InputStream) *AdditionalConformanceReport_ViolationLocation {
-	return pbParseStream_(AdditionalConformanceReport_ViolationLocation_desc_, p0).(*AdditionalConformanceReport_ViolationLocation)
-}
-
-func AdditionalConformanceReport_ViolationLocation_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport_ViolationLocation {
-	return pbParseStream_(AdditionalConformanceReport_ViolationLocation_desc_, p0).(*AdditionalConformanceReport_ViolationLocation)
-}
-
 func AdditionalConformanceReport_ViolationLocation_parseFrom_CodedInputStream(p0 *CodedInputStream) *AdditionalConformanceReport_ViolationLocation {
 	return pbParseCoded_(AdditionalConformanceReport_ViolationLocation_desc_, p0).(*AdditionalConformanceReport_ViolationLocation)
 }
 
 func AdditionalConformanceReport_ViolationLocation_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport_ViolationLocation {
 	return pbParseCoded_(AdditionalConformanceReport_ViolationLocation_desc_, p0).(*AdditionalConformanceReport_ViolationLocation)
-}
-
-func AdditionalConformanceReport_ViolationLocation_parseDelimitedFrom(p0 *InputStream) *AdditionalConformanceReport_ViolationLocation {
-	if v := pbParseDelimited_(AdditionalConformanceReport_ViolationLocation_desc_, p0); v != nil {
-		return v.(*AdditionalConformanceReport_ViolationLocation)
-	}
-	return nil
-}
-
-func AdditionalConformanceReport_ViolationLocation_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AdditionalConformanceReport_ViolationLocation {
-	if v := pbParseDelimited_(AdditionalConformanceReport_ViolationLocation_desc_, p0); v != nil {
-		return v.(*AdditionalConformanceReport_ViolationLocation)
-	}
-	return nil
 }
 
 func (this *AdditionalConformanceReport_ViolationLocation) getPath() string {
@@ -1653,7 +1565,7 @@ func JSCompilerStateProto_newBuilder_JSCompilerStateProto(p0 *JSCompilerStatePro
 	return pbBuilderFrom_(JSCompilerStateProto_desc_, obj_(p0)).(*JSCompilerStateProto_Builder)
 }
 
-func JSCompilerStateProto_parseFrom(p0 []int8) *JSCompilerStateProto {
+func JSCompilerStateProto_parseFrom_byteArr(p0 []int8) *JSCompilerStateProto {
 	return pbParse_(JSCompilerStateProto_desc_, pbU8_(p0), false).(*JSCompilerStateProto)
 }
 
@@ -1669,34 +1581,12 @@ func JSCompilerStateProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteStr
 	return pbParse_(JSCompilerStateProto_desc_, p0.b_, true).(*JSCompilerStateProto)
 }
 
-func JSCompilerStateProto_parseFrom_InputStream(p0 *InputStream) *JSCompilerStateProto {
-	return pbParseStream_(JSCompilerStateProto_desc_, p0).(*JSCompilerStateProto)
-}
-
-func JSCompilerStateProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JSCompilerStateProto {
-	return pbParseStream_(JSCompilerStateProto_desc_, p0).(*JSCompilerStateProto)
-}
-
-func JSCompilerStateProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *JSCompilerStateProto {
+func JSCompilerStateProto_parseFrom(p0 *CodedInputStream) *JSCompilerStateProto {
 	return pbParseCoded_(JSCompilerStateProto_desc_, p0).(*JSCompilerStateProto)
 }
 
 func JSCompilerStateProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *JSCompilerStateProto {
 	return pbParseCoded_(JSCompilerStateProto_desc_, p0).(*JSCompilerStateProto)
-}
-
-func JSCompilerStateProto_parseDelimitedFrom(p0 *InputStream) *JSCompilerStateProto {
-	if v := pbParseDelimited_(JSCompilerStateProto_desc_, p0); v != nil {
-		return v.(*JSCompilerStateProto)
-	}
-	return nil
-}
-
-func JSCompilerStateProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JSCompilerStateProto {
-	if v := pbParseDelimited_(JSCompilerStateProto_desc_, p0); v != nil {
-		return v.(*JSCompilerStateProto)
-	}
-	return nil
 }
 
 func (this *JSCompilerStateProto) getAllowableFeaturesList() List {
@@ -2999,34 +2889,12 @@ func ChunkProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *E
 	return pbParse_(ChunkProto_desc_, p0.b_, true).(*ChunkProto)
 }
 
-func ChunkProto_parseFrom_InputStream(p0 *InputStream) *ChunkProto {
-	return pbParseStream_(ChunkProto_desc_, p0).(*ChunkProto)
-}
-
-func ChunkProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ChunkProto {
-	return pbParseStream_(ChunkProto_desc_, p0).(*ChunkProto)
-}
-
 func ChunkProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *ChunkProto {
 	return pbParseCoded_(ChunkProto_desc_, p0).(*ChunkProto)
 }
 
 func ChunkProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ChunkProto {
 	return pbParseCoded_(ChunkProto_desc_, p0).(*ChunkProto)
-}
-
-func ChunkProto_parseDelimitedFrom(p0 *InputStream) *ChunkProto {
-	if v := pbParseDelimited_(ChunkProto_desc_, p0); v != nil {
-		return v.(*ChunkProto)
-	}
-	return nil
-}
-
-func ChunkProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ChunkProto {
-	if v := pbParseDelimited_(ChunkProto_desc_, p0); v != nil {
-		return v.(*ChunkProto)
-	}
-	return nil
 }
 
 func (this *ChunkProto) getName() string {
@@ -3234,34 +3102,12 @@ func UniqueIdProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1
 	return pbParse_(UniqueIdProto_desc_, p0.b_, true).(*UniqueIdProto)
 }
 
-func UniqueIdProto_parseFrom_InputStream(p0 *InputStream) *UniqueIdProto {
-	return pbParseStream_(UniqueIdProto_desc_, p0).(*UniqueIdProto)
-}
-
-func UniqueIdProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *UniqueIdProto {
-	return pbParseStream_(UniqueIdProto_desc_, p0).(*UniqueIdProto)
-}
-
 func UniqueIdProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *UniqueIdProto {
 	return pbParseCoded_(UniqueIdProto_desc_, p0).(*UniqueIdProto)
 }
 
 func UniqueIdProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *UniqueIdProto {
 	return pbParseCoded_(UniqueIdProto_desc_, p0).(*UniqueIdProto)
-}
-
-func UniqueIdProto_parseDelimitedFrom(p0 *InputStream) *UniqueIdProto {
-	if v := pbParseDelimited_(UniqueIdProto_desc_, p0); v != nil {
-		return v.(*UniqueIdProto)
-	}
-	return nil
-}
-
-func UniqueIdProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *UniqueIdProto {
-	if v := pbParseDelimited_(UniqueIdProto_desc_, p0); v != nil {
-		return v.(*UniqueIdProto)
-	}
-	return nil
 }
 
 func (this *UniqueIdProto) getHash() int32 {
@@ -3373,34 +3219,12 @@ func AccessorSummaryEntryProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *By
 	return pbParse_(AccessorSummaryEntryProto_desc_, p0.b_, true).(*AccessorSummaryEntryProto)
 }
 
-func AccessorSummaryEntryProto_parseFrom_InputStream(p0 *InputStream) *AccessorSummaryEntryProto {
-	return pbParseStream_(AccessorSummaryEntryProto_desc_, p0).(*AccessorSummaryEntryProto)
-}
-
-func AccessorSummaryEntryProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AccessorSummaryEntryProto {
-	return pbParseStream_(AccessorSummaryEntryProto_desc_, p0).(*AccessorSummaryEntryProto)
-}
-
 func AccessorSummaryEntryProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *AccessorSummaryEntryProto {
 	return pbParseCoded_(AccessorSummaryEntryProto_desc_, p0).(*AccessorSummaryEntryProto)
 }
 
 func AccessorSummaryEntryProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *AccessorSummaryEntryProto {
 	return pbParseCoded_(AccessorSummaryEntryProto_desc_, p0).(*AccessorSummaryEntryProto)
-}
-
-func AccessorSummaryEntryProto_parseDelimitedFrom(p0 *InputStream) *AccessorSummaryEntryProto {
-	if v := pbParseDelimited_(AccessorSummaryEntryProto_desc_, p0); v != nil {
-		return v.(*AccessorSummaryEntryProto)
-	}
-	return nil
-}
-
-func AccessorSummaryEntryProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AccessorSummaryEntryProto {
-	if v := pbParseDelimited_(AccessorSummaryEntryProto_desc_, p0); v != nil {
-		return v.(*AccessorSummaryEntryProto)
-	}
-	return nil
 }
 
 func (this *AccessorSummaryEntryProto) getName() string {
@@ -3538,34 +3362,12 @@ func AccessorSummaryProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteStr
 	return pbParse_(AccessorSummaryProto_desc_, p0.b_, true).(*AccessorSummaryProto)
 }
 
-func AccessorSummaryProto_parseFrom_InputStream(p0 *InputStream) *AccessorSummaryProto {
-	return pbParseStream_(AccessorSummaryProto_desc_, p0).(*AccessorSummaryProto)
-}
-
-func AccessorSummaryProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AccessorSummaryProto {
-	return pbParseStream_(AccessorSummaryProto_desc_, p0).(*AccessorSummaryProto)
-}
-
 func AccessorSummaryProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *AccessorSummaryProto {
 	return pbParseCoded_(AccessorSummaryProto_desc_, p0).(*AccessorSummaryProto)
 }
 
 func AccessorSummaryProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *AccessorSummaryProto {
 	return pbParseCoded_(AccessorSummaryProto_desc_, p0).(*AccessorSummaryProto)
-}
-
-func AccessorSummaryProto_parseDelimitedFrom(p0 *InputStream) *AccessorSummaryProto {
-	if v := pbParseDelimited_(AccessorSummaryProto_desc_, p0); v != nil {
-		return v.(*AccessorSummaryProto)
-	}
-	return nil
-}
-
-func AccessorSummaryProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AccessorSummaryProto {
-	if v := pbParseDelimited_(AccessorSummaryProto_desc_, p0); v != nil {
-		return v.(*AccessorSummaryProto)
-	}
-	return nil
 }
 
 func (this *AccessorSummaryProto) getAssumeAlwaysGetterAndSetter() bool {
@@ -3760,34 +3562,12 @@ func VariableMapEntryProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteSt
 	return pbParse_(VariableMapEntryProto_desc_, p0.b_, true).(*VariableMapEntryProto)
 }
 
-func VariableMapEntryProto_parseFrom_InputStream(p0 *InputStream) *VariableMapEntryProto {
-	return pbParseStream_(VariableMapEntryProto_desc_, p0).(*VariableMapEntryProto)
-}
-
-func VariableMapEntryProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *VariableMapEntryProto {
-	return pbParseStream_(VariableMapEntryProto_desc_, p0).(*VariableMapEntryProto)
-}
-
 func VariableMapEntryProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *VariableMapEntryProto {
 	return pbParseCoded_(VariableMapEntryProto_desc_, p0).(*VariableMapEntryProto)
 }
 
 func VariableMapEntryProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *VariableMapEntryProto {
 	return pbParseCoded_(VariableMapEntryProto_desc_, p0).(*VariableMapEntryProto)
-}
-
-func VariableMapEntryProto_parseDelimitedFrom(p0 *InputStream) *VariableMapEntryProto {
-	if v := pbParseDelimited_(VariableMapEntryProto_desc_, p0); v != nil {
-		return v.(*VariableMapEntryProto)
-	}
-	return nil
-}
-
-func VariableMapEntryProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *VariableMapEntryProto {
-	if v := pbParseDelimited_(VariableMapEntryProto_desc_, p0); v != nil {
-		return v.(*VariableMapEntryProto)
-	}
-	return nil
 }
 
 func (this *VariableMapEntryProto) getOriginalName() string {
@@ -3925,34 +3705,12 @@ func ConformanceViolationsProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *B
 	return pbParse_(ConformanceViolationsProto_desc_, p0.b_, true).(*ConformanceViolationsProto)
 }
 
-func ConformanceViolationsProto_parseFrom_InputStream(p0 *InputStream) *ConformanceViolationsProto {
-	return pbParseStream_(ConformanceViolationsProto_desc_, p0).(*ConformanceViolationsProto)
-}
-
-func ConformanceViolationsProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ConformanceViolationsProto {
-	return pbParseStream_(ConformanceViolationsProto_desc_, p0).(*ConformanceViolationsProto)
-}
-
 func ConformanceViolationsProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *ConformanceViolationsProto {
 	return pbParseCoded_(ConformanceViolationsProto_desc_, p0).(*ConformanceViolationsProto)
 }
 
 func ConformanceViolationsProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ConformanceViolationsProto {
 	return pbParseCoded_(ConformanceViolationsProto_desc_, p0).(*ConformanceViolationsProto)
-}
-
-func ConformanceViolationsProto_parseDelimitedFrom(p0 *InputStream) *ConformanceViolationsProto {
-	if v := pbParseDelimited_(ConformanceViolationsProto_desc_, p0); v != nil {
-		return v.(*ConformanceViolationsProto)
-	}
-	return nil
-}
-
-func ConformanceViolationsProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ConformanceViolationsProto {
-	if v := pbParseDelimited_(ConformanceViolationsProto_desc_, p0); v != nil {
-		return v.(*ConformanceViolationsProto)
-	}
-	return nil
 }
 
 func (this *ConformanceViolationsProto) getInputName() string {
@@ -4179,34 +3937,12 @@ func ViolationProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p
 	return pbParse_(ViolationProto_desc_, p0.b_, true).(*ViolationProto)
 }
 
-func ViolationProto_parseFrom_InputStream(p0 *InputStream) *ViolationProto {
-	return pbParseStream_(ViolationProto_desc_, p0).(*ViolationProto)
-}
-
-func ViolationProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ViolationProto {
-	return pbParseStream_(ViolationProto_desc_, p0).(*ViolationProto)
-}
-
 func ViolationProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *ViolationProto {
 	return pbParseCoded_(ViolationProto_desc_, p0).(*ViolationProto)
 }
 
 func ViolationProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ViolationProto {
 	return pbParseCoded_(ViolationProto_desc_, p0).(*ViolationProto)
-}
-
-func ViolationProto_parseDelimitedFrom(p0 *InputStream) *ViolationProto {
-	if v := pbParseDelimited_(ViolationProto_desc_, p0); v != nil {
-		return v.(*ViolationProto)
-	}
-	return nil
-}
-
-func ViolationProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ViolationProto {
-	if v := pbParseDelimited_(ViolationProto_desc_, p0); v != nil {
-		return v.(*ViolationProto)
-	}
-	return nil
 }
 
 func (this *ViolationProto) hasRequirement() bool {
@@ -4956,34 +4692,12 @@ func ConformanceConfig_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString
 	return pbParse_(ConformanceConfig_desc_, p0.b_, true).(*ConformanceConfig)
 }
 
-func ConformanceConfig_parseFrom_InputStream(p0 *InputStream) *ConformanceConfig {
-	return pbParseStream_(ConformanceConfig_desc_, p0).(*ConformanceConfig)
-}
-
-func ConformanceConfig_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ConformanceConfig {
-	return pbParseStream_(ConformanceConfig_desc_, p0).(*ConformanceConfig)
-}
-
 func ConformanceConfig_parseFrom_CodedInputStream(p0 *CodedInputStream) *ConformanceConfig {
 	return pbParseCoded_(ConformanceConfig_desc_, p0).(*ConformanceConfig)
 }
 
 func ConformanceConfig_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ConformanceConfig {
 	return pbParseCoded_(ConformanceConfig_desc_, p0).(*ConformanceConfig)
-}
-
-func ConformanceConfig_parseDelimitedFrom(p0 *InputStream) *ConformanceConfig {
-	if v := pbParseDelimited_(ConformanceConfig_desc_, p0); v != nil {
-		return v.(*ConformanceConfig)
-	}
-	return nil
-}
-
-func ConformanceConfig_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ConformanceConfig {
-	if v := pbParseDelimited_(ConformanceConfig_desc_, p0); v != nil {
-		return v.(*ConformanceConfig)
-	}
-	return nil
 }
 
 func (this *ConformanceConfig) getRequirementList() List {
@@ -5220,34 +4934,12 @@ func Requirement_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *
 	return pbParse_(Requirement_desc_, p0.b_, true).(*Requirement)
 }
 
-func Requirement_parseFrom_InputStream(p0 *InputStream) *Requirement {
-	return pbParseStream_(Requirement_desc_, p0).(*Requirement)
-}
-
-func Requirement_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *Requirement {
-	return pbParseStream_(Requirement_desc_, p0).(*Requirement)
-}
-
 func Requirement_parseFrom_CodedInputStream(p0 *CodedInputStream) *Requirement {
 	return pbParseCoded_(Requirement_desc_, p0).(*Requirement)
 }
 
 func Requirement_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *Requirement {
 	return pbParseCoded_(Requirement_desc_, p0).(*Requirement)
-}
-
-func Requirement_parseDelimitedFrom(p0 *InputStream) *Requirement {
-	if v := pbParseDelimited_(Requirement_desc_, p0); v != nil {
-		return v.(*Requirement)
-	}
-	return nil
-}
-
-func Requirement_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *Requirement {
-	if v := pbParseDelimited_(Requirement_desc_, p0); v != nil {
-		return v.(*Requirement)
-	}
-	return nil
 }
 
 func (this *Requirement) hasErrorMessage() bool {
@@ -6277,34 +5969,12 @@ func RequirementScopeEntry_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteSt
 	return pbParse_(RequirementScopeEntry_desc_, p0.b_, true).(*RequirementScopeEntry)
 }
 
-func RequirementScopeEntry_parseFrom_InputStream(p0 *InputStream) *RequirementScopeEntry {
-	return pbParseStream_(RequirementScopeEntry_desc_, p0).(*RequirementScopeEntry)
-}
-
-func RequirementScopeEntry_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *RequirementScopeEntry {
-	return pbParseStream_(RequirementScopeEntry_desc_, p0).(*RequirementScopeEntry)
-}
-
 func RequirementScopeEntry_parseFrom_CodedInputStream(p0 *CodedInputStream) *RequirementScopeEntry {
 	return pbParseCoded_(RequirementScopeEntry_desc_, p0).(*RequirementScopeEntry)
 }
 
 func RequirementScopeEntry_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *RequirementScopeEntry {
 	return pbParseCoded_(RequirementScopeEntry_desc_, p0).(*RequirementScopeEntry)
-}
-
-func RequirementScopeEntry_parseDelimitedFrom(p0 *InputStream) *RequirementScopeEntry {
-	if v := pbParseDelimited_(RequirementScopeEntry_desc_, p0); v != nil {
-		return v.(*RequirementScopeEntry)
-	}
-	return nil
-}
-
-func RequirementScopeEntry_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *RequirementScopeEntry {
-	if v := pbParseDelimited_(RequirementScopeEntry_desc_, p0); v != nil {
-		return v.(*RequirementScopeEntry)
-	}
-	return nil
 }
 
 func (this *RequirementScopeEntry) hasReason() bool {
@@ -6670,34 +6340,12 @@ func RequirementScope_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString,
 	return pbParse_(RequirementScope_desc_, p0.b_, true).(*RequirementScope)
 }
 
-func RequirementScope_parseFrom_InputStream(p0 *InputStream) *RequirementScope {
-	return pbParseStream_(RequirementScope_desc_, p0).(*RequirementScope)
-}
-
-func RequirementScope_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *RequirementScope {
-	return pbParseStream_(RequirementScope_desc_, p0).(*RequirementScope)
-}
-
 func RequirementScope_parseFrom_CodedInputStream(p0 *CodedInputStream) *RequirementScope {
 	return pbParseCoded_(RequirementScope_desc_, p0).(*RequirementScope)
 }
 
 func RequirementScope_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *RequirementScope {
 	return pbParseCoded_(RequirementScope_desc_, p0).(*RequirementScope)
-}
-
-func RequirementScope_parseDelimitedFrom(p0 *InputStream) *RequirementScope {
-	if v := pbParseDelimited_(RequirementScope_desc_, p0); v != nil {
-		return v.(*RequirementScope)
-	}
-	return nil
-}
-
-func RequirementScope_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *RequirementScope {
-	if v := pbParseDelimited_(RequirementScope_desc_, p0); v != nil {
-		return v.(*RequirementScope)
-	}
-	return nil
 }
 
 func (this *RequirementScope) hasRuleId() bool {
@@ -7197,34 +6845,12 @@ func InstrumentationPoint_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteStr
 	return pbParse_(InstrumentationPoint_desc_, p0.b_, true).(*InstrumentationPoint)
 }
 
-func InstrumentationPoint_parseFrom_InputStream(p0 *InputStream) *InstrumentationPoint {
-	return pbParseStream_(InstrumentationPoint_desc_, p0).(*InstrumentationPoint)
-}
-
-func InstrumentationPoint_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *InstrumentationPoint {
-	return pbParseStream_(InstrumentationPoint_desc_, p0).(*InstrumentationPoint)
-}
-
 func InstrumentationPoint_parseFrom_CodedInputStream(p0 *CodedInputStream) *InstrumentationPoint {
 	return pbParseCoded_(InstrumentationPoint_desc_, p0).(*InstrumentationPoint)
 }
 
 func InstrumentationPoint_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *InstrumentationPoint {
 	return pbParseCoded_(InstrumentationPoint_desc_, p0).(*InstrumentationPoint)
-}
-
-func InstrumentationPoint_parseDelimitedFrom(p0 *InputStream) *InstrumentationPoint {
-	if v := pbParseDelimited_(InstrumentationPoint_desc_, p0); v != nil {
-		return v.(*InstrumentationPoint)
-	}
-	return nil
-}
-
-func InstrumentationPoint_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *InstrumentationPoint {
-	if v := pbParseDelimited_(InstrumentationPoint_desc_, p0); v != nil {
-		return v.(*InstrumentationPoint)
-	}
-	return nil
 }
 
 func (this *InstrumentationPoint) hasType() bool {
@@ -7458,34 +7084,12 @@ func InstrumentationPointStats_parseFrom_ByteString_ExtensionRegistryLite(p0 *By
 	return pbParse_(InstrumentationPointStats_desc_, p0.b_, true).(*InstrumentationPointStats)
 }
 
-func InstrumentationPointStats_parseFrom_InputStream(p0 *InputStream) *InstrumentationPointStats {
-	return pbParseStream_(InstrumentationPointStats_desc_, p0).(*InstrumentationPointStats)
-}
-
-func InstrumentationPointStats_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *InstrumentationPointStats {
-	return pbParseStream_(InstrumentationPointStats_desc_, p0).(*InstrumentationPointStats)
-}
-
 func InstrumentationPointStats_parseFrom_CodedInputStream(p0 *CodedInputStream) *InstrumentationPointStats {
 	return pbParseCoded_(InstrumentationPointStats_desc_, p0).(*InstrumentationPointStats)
 }
 
 func InstrumentationPointStats_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *InstrumentationPointStats {
 	return pbParseCoded_(InstrumentationPointStats_desc_, p0).(*InstrumentationPointStats)
-}
-
-func InstrumentationPointStats_parseDelimitedFrom(p0 *InputStream) *InstrumentationPointStats {
-	if v := pbParseDelimited_(InstrumentationPointStats_desc_, p0); v != nil {
-		return v.(*InstrumentationPointStats)
-	}
-	return nil
-}
-
-func InstrumentationPointStats_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *InstrumentationPointStats {
-	if v := pbParseDelimited_(InstrumentationPointStats_desc_, p0); v != nil {
-		return v.(*InstrumentationPointStats)
-	}
-	return nil
 }
 
 func (this *InstrumentationPointStats) hasPoint() bool {
@@ -7661,34 +7265,12 @@ func FileProfile_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *
 	return pbParse_(FileProfile_desc_, p0.b_, true).(*FileProfile)
 }
 
-func FileProfile_parseFrom_InputStream(p0 *InputStream) *FileProfile {
-	return pbParseStream_(FileProfile_desc_, p0).(*FileProfile)
-}
-
-func FileProfile_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *FileProfile {
-	return pbParseStream_(FileProfile_desc_, p0).(*FileProfile)
-}
-
 func FileProfile_parseFrom_CodedInputStream(p0 *CodedInputStream) *FileProfile {
 	return pbParseCoded_(FileProfile_desc_, p0).(*FileProfile)
 }
 
 func FileProfile_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *FileProfile {
 	return pbParseCoded_(FileProfile_desc_, p0).(*FileProfile)
-}
-
-func FileProfile_parseDelimitedFrom(p0 *InputStream) *FileProfile {
-	if v := pbParseDelimited_(FileProfile_desc_, p0); v != nil {
-		return v.(*FileProfile)
-	}
-	return nil
-}
-
-func FileProfile_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *FileProfile {
-	if v := pbParseDelimited_(FileProfile_desc_, p0); v != nil {
-		return v.(*FileProfile)
-	}
-	return nil
 }
 
 func (this *FileProfile) hasFileName() bool {
@@ -7902,34 +7484,12 @@ func ReportProfile_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1
 	return pbParse_(ReportProfile_desc_, p0.b_, true).(*ReportProfile)
 }
 
-func ReportProfile_parseFrom_InputStream(p0 *InputStream) *ReportProfile {
-	return pbParseStream_(ReportProfile_desc_, p0).(*ReportProfile)
-}
-
-func ReportProfile_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ReportProfile {
-	return pbParseStream_(ReportProfile_desc_, p0).(*ReportProfile)
-}
-
 func ReportProfile_parseFrom_CodedInputStream(p0 *CodedInputStream) *ReportProfile {
 	return pbParseCoded_(ReportProfile_desc_, p0).(*ReportProfile)
 }
 
 func ReportProfile_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ReportProfile {
 	return pbParseCoded_(ReportProfile_desc_, p0).(*ReportProfile)
-}
-
-func ReportProfile_parseDelimitedFrom(p0 *InputStream) *ReportProfile {
-	if v := pbParseDelimited_(ReportProfile_desc_, p0); v != nil {
-		return v.(*ReportProfile)
-	}
-	return nil
-}
-
-func ReportProfile_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ReportProfile {
-	if v := pbParseDelimited_(ReportProfile_desc_, p0); v != nil {
-		return v.(*ReportProfile)
-	}
-	return nil
 }
 
 func (this *ReportProfile) getFileProfileList() List {
@@ -8192,34 +7752,12 @@ func JsCompilerConformanceReportWrapper_parseFrom_ByteString_ExtensionRegistryLi
 	return pbParse_(JsCompilerConformanceReportWrapper_desc_, p0.b_, true).(*JsCompilerConformanceReportWrapper)
 }
 
-func JsCompilerConformanceReportWrapper_parseFrom_InputStream(p0 *InputStream) *JsCompilerConformanceReportWrapper {
-	return pbParseStream_(JsCompilerConformanceReportWrapper_desc_, p0).(*JsCompilerConformanceReportWrapper)
-}
-
-func JsCompilerConformanceReportWrapper_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReportWrapper {
-	return pbParseStream_(JsCompilerConformanceReportWrapper_desc_, p0).(*JsCompilerConformanceReportWrapper)
-}
-
 func JsCompilerConformanceReportWrapper_parseFrom_CodedInputStream(p0 *CodedInputStream) *JsCompilerConformanceReportWrapper {
 	return pbParseCoded_(JsCompilerConformanceReportWrapper_desc_, p0).(*JsCompilerConformanceReportWrapper)
 }
 
 func JsCompilerConformanceReportWrapper_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReportWrapper {
 	return pbParseCoded_(JsCompilerConformanceReportWrapper_desc_, p0).(*JsCompilerConformanceReportWrapper)
-}
-
-func JsCompilerConformanceReportWrapper_parseDelimitedFrom(p0 *InputStream) *JsCompilerConformanceReportWrapper {
-	if v := pbParseDelimited_(JsCompilerConformanceReportWrapper_desc_, p0); v != nil {
-		return v.(*JsCompilerConformanceReportWrapper)
-	}
-	return nil
-}
-
-func JsCompilerConformanceReportWrapper_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReportWrapper {
-	if v := pbParseDelimited_(JsCompilerConformanceReportWrapper_desc_, p0); v != nil {
-		return v.(*JsCompilerConformanceReportWrapper)
-	}
-	return nil
 }
 
 func (this *JsCompilerConformanceReportWrapper) hasMainReport() bool {
@@ -8558,34 +8096,12 @@ func JsCompilerConformanceReport_parseFrom_ByteString_ExtensionRegistryLite(p0 *
 	return pbParse_(JsCompilerConformanceReport_desc_, p0.b_, true).(*JsCompilerConformanceReport)
 }
 
-func JsCompilerConformanceReport_parseFrom_InputStream(p0 *InputStream) *JsCompilerConformanceReport {
-	return pbParseStream_(JsCompilerConformanceReport_desc_, p0).(*JsCompilerConformanceReport)
-}
-
-func JsCompilerConformanceReport_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReport {
-	return pbParseStream_(JsCompilerConformanceReport_desc_, p0).(*JsCompilerConformanceReport)
-}
-
 func JsCompilerConformanceReport_parseFrom_CodedInputStream(p0 *CodedInputStream) *JsCompilerConformanceReport {
 	return pbParseCoded_(JsCompilerConformanceReport_desc_, p0).(*JsCompilerConformanceReport)
 }
 
 func JsCompilerConformanceReport_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReport {
 	return pbParseCoded_(JsCompilerConformanceReport_desc_, p0).(*JsCompilerConformanceReport)
-}
-
-func JsCompilerConformanceReport_parseDelimitedFrom(p0 *InputStream) *JsCompilerConformanceReport {
-	if v := pbParseDelimited_(JsCompilerConformanceReport_desc_, p0); v != nil {
-		return v.(*JsCompilerConformanceReport)
-	}
-	return nil
-}
-
-func JsCompilerConformanceReport_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReport {
-	if v := pbParseDelimited_(JsCompilerConformanceReport_desc_, p0); v != nil {
-		return v.(*JsCompilerConformanceReport)
-	}
-	return nil
 }
 
 func (this *JsCompilerConformanceReport) hasFilename() bool {
@@ -8893,34 +8409,12 @@ func JsCompilerConformanceReport_ConformanceViolation_parseFrom_ByteString_Exten
 	return pbParse_(JsCompilerConformanceReport_ConformanceViolation_desc_, p0.b_, true).(*JsCompilerConformanceReport_ConformanceViolation)
 }
 
-func JsCompilerConformanceReport_ConformanceViolation_parseFrom_InputStream(p0 *InputStream) *JsCompilerConformanceReport_ConformanceViolation {
-	return pbParseStream_(JsCompilerConformanceReport_ConformanceViolation_desc_, p0).(*JsCompilerConformanceReport_ConformanceViolation)
-}
-
-func JsCompilerConformanceReport_ConformanceViolation_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReport_ConformanceViolation {
-	return pbParseStream_(JsCompilerConformanceReport_ConformanceViolation_desc_, p0).(*JsCompilerConformanceReport_ConformanceViolation)
-}
-
 func JsCompilerConformanceReport_ConformanceViolation_parseFrom_CodedInputStream(p0 *CodedInputStream) *JsCompilerConformanceReport_ConformanceViolation {
 	return pbParseCoded_(JsCompilerConformanceReport_ConformanceViolation_desc_, p0).(*JsCompilerConformanceReport_ConformanceViolation)
 }
 
 func JsCompilerConformanceReport_ConformanceViolation_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReport_ConformanceViolation {
 	return pbParseCoded_(JsCompilerConformanceReport_ConformanceViolation_desc_, p0).(*JsCompilerConformanceReport_ConformanceViolation)
-}
-
-func JsCompilerConformanceReport_ConformanceViolation_parseDelimitedFrom(p0 *InputStream) *JsCompilerConformanceReport_ConformanceViolation {
-	if v := pbParseDelimited_(JsCompilerConformanceReport_ConformanceViolation_desc_, p0); v != nil {
-		return v.(*JsCompilerConformanceReport_ConformanceViolation)
-	}
-	return nil
-}
-
-func JsCompilerConformanceReport_ConformanceViolation_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *JsCompilerConformanceReport_ConformanceViolation {
-	if v := pbParseDelimited_(JsCompilerConformanceReport_ConformanceViolation_desc_, p0); v != nil {
-		return v.(*JsCompilerConformanceReport_ConformanceViolation)
-	}
-	return nil
 }
 
 func (this *JsCompilerConformanceReport_ConformanceViolation) hasRequirement() bool {
@@ -9492,34 +8986,12 @@ func OptimizationJsdoc_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString
 	return pbParse_(OptimizationJsdoc_desc_, p0.b_, true).(*OptimizationJsdoc)
 }
 
-func OptimizationJsdoc_parseFrom_InputStream(p0 *InputStream) *OptimizationJsdoc {
-	return pbParseStream_(OptimizationJsdoc_desc_, p0).(*OptimizationJsdoc)
-}
-
-func OptimizationJsdoc_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *OptimizationJsdoc {
-	return pbParseStream_(OptimizationJsdoc_desc_, p0).(*OptimizationJsdoc)
-}
-
 func OptimizationJsdoc_parseFrom_CodedInputStream(p0 *CodedInputStream) *OptimizationJsdoc {
 	return pbParseCoded_(OptimizationJsdoc_desc_, p0).(*OptimizationJsdoc)
 }
 
 func OptimizationJsdoc_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *OptimizationJsdoc {
 	return pbParseCoded_(OptimizationJsdoc_desc_, p0).(*OptimizationJsdoc)
-}
-
-func OptimizationJsdoc_parseDelimitedFrom(p0 *InputStream) *OptimizationJsdoc {
-	if v := pbParseDelimited_(OptimizationJsdoc_desc_, p0); v != nil {
-		return v.(*OptimizationJsdoc)
-	}
-	return nil
-}
-
-func OptimizationJsdoc_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *OptimizationJsdoc {
-	if v := pbParseDelimited_(OptimizationJsdoc_desc_, p0); v != nil {
-		return v.(*OptimizationJsdoc)
-	}
-	return nil
 }
 
 func (this *OptimizationJsdoc) getKindList() List {
@@ -9842,34 +9314,12 @@ func SourceFilePool_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p
 	return pbParse_(SourceFilePool_desc_, p0.b_, true).(*SourceFilePool)
 }
 
-func SourceFilePool_parseFrom_InputStream(p0 *InputStream) *SourceFilePool {
-	return pbParseStream_(SourceFilePool_desc_, p0).(*SourceFilePool)
-}
-
-func SourceFilePool_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFilePool {
-	return pbParseStream_(SourceFilePool_desc_, p0).(*SourceFilePool)
-}
-
 func SourceFilePool_parseFrom_CodedInputStream(p0 *CodedInputStream) *SourceFilePool {
 	return pbParseCoded_(SourceFilePool_desc_, p0).(*SourceFilePool)
 }
 
 func SourceFilePool_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *SourceFilePool {
 	return pbParseCoded_(SourceFilePool_desc_, p0).(*SourceFilePool)
-}
-
-func SourceFilePool_parseDelimitedFrom(p0 *InputStream) *SourceFilePool {
-	if v := pbParseDelimited_(SourceFilePool_desc_, p0); v != nil {
-		return v.(*SourceFilePool)
-	}
-	return nil
-}
-
-func SourceFilePool_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFilePool {
-	if v := pbParseDelimited_(SourceFilePool_desc_, p0); v != nil {
-		return v.(*SourceFilePool)
-	}
-	return nil
 }
 
 func (this *SourceFilePool) getSourceFileList() List {
@@ -10133,34 +9583,12 @@ func SourceFileProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, 
 	return pbParse_(SourceFileProto_desc_, p0.b_, true).(*SourceFileProto)
 }
 
-func SourceFileProto_parseFrom_InputStream(p0 *InputStream) *SourceFileProto {
-	return pbParseStream_(SourceFileProto_desc_, p0).(*SourceFileProto)
-}
-
-func SourceFileProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFileProto {
-	return pbParseStream_(SourceFileProto_desc_, p0).(*SourceFileProto)
-}
-
 func SourceFileProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *SourceFileProto {
 	return pbParseCoded_(SourceFileProto_desc_, p0).(*SourceFileProto)
 }
 
 func SourceFileProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *SourceFileProto {
 	return pbParseCoded_(SourceFileProto_desc_, p0).(*SourceFileProto)
-}
-
-func SourceFileProto_parseDelimitedFrom(p0 *InputStream) *SourceFileProto {
-	if v := pbParseDelimited_(SourceFileProto_desc_, p0); v != nil {
-		return v.(*SourceFileProto)
-	}
-	return nil
-}
-
-func SourceFileProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFileProto {
-	if v := pbParseDelimited_(SourceFileProto_desc_, p0); v != nil {
-		return v.(*SourceFileProto)
-	}
-	return nil
 }
 
 func (this *SourceFileProto) getFilename() string {
@@ -10526,34 +9954,12 @@ func SourceFileProto_FileOnDisk_parseFrom_ByteString_ExtensionRegistryLite(p0 *B
 	return pbParse_(SourceFileProto_FileOnDisk_desc_, p0.b_, true).(*SourceFileProto_FileOnDisk)
 }
 
-func SourceFileProto_FileOnDisk_parseFrom_InputStream(p0 *InputStream) *SourceFileProto_FileOnDisk {
-	return pbParseStream_(SourceFileProto_FileOnDisk_desc_, p0).(*SourceFileProto_FileOnDisk)
-}
-
-func SourceFileProto_FileOnDisk_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFileProto_FileOnDisk {
-	return pbParseStream_(SourceFileProto_FileOnDisk_desc_, p0).(*SourceFileProto_FileOnDisk)
-}
-
 func SourceFileProto_FileOnDisk_parseFrom_CodedInputStream(p0 *CodedInputStream) *SourceFileProto_FileOnDisk {
 	return pbParseCoded_(SourceFileProto_FileOnDisk_desc_, p0).(*SourceFileProto_FileOnDisk)
 }
 
 func SourceFileProto_FileOnDisk_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *SourceFileProto_FileOnDisk {
 	return pbParseCoded_(SourceFileProto_FileOnDisk_desc_, p0).(*SourceFileProto_FileOnDisk)
-}
-
-func SourceFileProto_FileOnDisk_parseDelimitedFrom(p0 *InputStream) *SourceFileProto_FileOnDisk {
-	if v := pbParseDelimited_(SourceFileProto_FileOnDisk_desc_, p0); v != nil {
-		return v.(*SourceFileProto_FileOnDisk)
-	}
-	return nil
-}
-
-func SourceFileProto_FileOnDisk_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFileProto_FileOnDisk {
-	if v := pbParseDelimited_(SourceFileProto_FileOnDisk_desc_, p0); v != nil {
-		return v.(*SourceFileProto_FileOnDisk)
-	}
-	return nil
 }
 
 func (this *SourceFileProto_FileOnDisk) getActualPath() string {
@@ -10693,34 +10099,12 @@ func SourceFileProto_ZipEntryOnDisk_parseFrom_ByteString_ExtensionRegistryLite(p
 	return pbParse_(SourceFileProto_ZipEntryOnDisk_desc_, p0.b_, true).(*SourceFileProto_ZipEntryOnDisk)
 }
 
-func SourceFileProto_ZipEntryOnDisk_parseFrom_InputStream(p0 *InputStream) *SourceFileProto_ZipEntryOnDisk {
-	return pbParseStream_(SourceFileProto_ZipEntryOnDisk_desc_, p0).(*SourceFileProto_ZipEntryOnDisk)
-}
-
-func SourceFileProto_ZipEntryOnDisk_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFileProto_ZipEntryOnDisk {
-	return pbParseStream_(SourceFileProto_ZipEntryOnDisk_desc_, p0).(*SourceFileProto_ZipEntryOnDisk)
-}
-
 func SourceFileProto_ZipEntryOnDisk_parseFrom_CodedInputStream(p0 *CodedInputStream) *SourceFileProto_ZipEntryOnDisk {
 	return pbParseCoded_(SourceFileProto_ZipEntryOnDisk_desc_, p0).(*SourceFileProto_ZipEntryOnDisk)
 }
 
 func SourceFileProto_ZipEntryOnDisk_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *SourceFileProto_ZipEntryOnDisk {
 	return pbParseCoded_(SourceFileProto_ZipEntryOnDisk_desc_, p0).(*SourceFileProto_ZipEntryOnDisk)
-}
-
-func SourceFileProto_ZipEntryOnDisk_parseDelimitedFrom(p0 *InputStream) *SourceFileProto_ZipEntryOnDisk {
-	if v := pbParseDelimited_(SourceFileProto_ZipEntryOnDisk_desc_, p0); v != nil {
-		return v.(*SourceFileProto_ZipEntryOnDisk)
-	}
-	return nil
-}
-
-func SourceFileProto_ZipEntryOnDisk_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SourceFileProto_ZipEntryOnDisk {
-	if v := pbParseDelimited_(SourceFileProto_ZipEntryOnDisk_desc_, p0); v != nil {
-		return v.(*SourceFileProto_ZipEntryOnDisk)
-	}
-	return nil
 }
 
 func (this *SourceFileProto_ZipEntryOnDisk) getZipPath() string {
@@ -11775,34 +11159,12 @@ func TypedAst_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *Ext
 	return pbParse_(TypedAst_desc_, p0.b_, true).(*TypedAst)
 }
 
-func TypedAst_parseFrom_InputStream(p0 *InputStream) *TypedAst {
-	return pbParseStream_(TypedAst_desc_, p0).(*TypedAst)
-}
-
-func TypedAst_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypedAst {
-	return pbParseStream_(TypedAst_desc_, p0).(*TypedAst)
-}
-
 func TypedAst_parseFrom_CodedInputStream(p0 *CodedInputStream) *TypedAst {
 	return pbParseCoded_(TypedAst_desc_, p0).(*TypedAst)
 }
 
 func TypedAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TypedAst {
 	return pbParseCoded_(TypedAst_desc_, p0).(*TypedAst)
-}
-
-func TypedAst_parseDelimitedFrom(p0 *InputStream) *TypedAst {
-	if v := pbParseDelimited_(TypedAst_desc_, p0); v != nil {
-		return v.(*TypedAst)
-	}
-	return nil
-}
-
-func TypedAst_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypedAst {
-	if v := pbParseDelimited_(TypedAst_desc_, p0); v != nil {
-		return v.(*TypedAst)
-	}
-	return nil
 }
 
 func (this *TypedAst) hasTypePool() bool {
@@ -12327,34 +11689,12 @@ func TypedAst_List_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1
 	return pbParse_(TypedAst_List_desc_, p0.b_, true).(*TypedAst_List)
 }
 
-func TypedAst_List_parseFrom_InputStream(p0 *InputStream) *TypedAst_List {
-	return pbParseStream_(TypedAst_List_desc_, p0).(*TypedAst_List)
-}
-
-func TypedAst_List_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypedAst_List {
-	return pbParseStream_(TypedAst_List_desc_, p0).(*TypedAst_List)
-}
-
 func TypedAst_List_parseFrom_CodedInputStream(p0 *CodedInputStream) *TypedAst_List {
 	return pbParseCoded_(TypedAst_List_desc_, p0).(*TypedAst_List)
 }
 
 func TypedAst_List_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TypedAst_List {
 	return pbParseCoded_(TypedAst_List_desc_, p0).(*TypedAst_List)
-}
-
-func TypedAst_List_parseDelimitedFrom(p0 *InputStream) *TypedAst_List {
-	if v := pbParseDelimited_(TypedAst_List_desc_, p0); v != nil {
-		return v.(*TypedAst_List)
-	}
-	return nil
-}
-
-func TypedAst_List_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypedAst_List {
-	if v := pbParseDelimited_(TypedAst_List_desc_, p0); v != nil {
-		return v.(*TypedAst_List)
-	}
-	return nil
 }
 
 func (this *TypedAst_List) getTypedAstsList() List {
@@ -12533,34 +11873,12 @@ func LazyAst_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *Exte
 	return pbParse_(LazyAst_desc_, p0.b_, true).(*LazyAst)
 }
 
-func LazyAst_parseFrom_InputStream(p0 *InputStream) *LazyAst {
-	return pbParseStream_(LazyAst_desc_, p0).(*LazyAst)
-}
-
-func LazyAst_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *LazyAst {
-	return pbParseStream_(LazyAst_desc_, p0).(*LazyAst)
-}
-
 func LazyAst_parseFrom_CodedInputStream(p0 *CodedInputStream) *LazyAst {
 	return pbParseCoded_(LazyAst_desc_, p0).(*LazyAst)
 }
 
 func LazyAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *LazyAst {
 	return pbParseCoded_(LazyAst_desc_, p0).(*LazyAst)
-}
-
-func LazyAst_parseDelimitedFrom(p0 *InputStream) *LazyAst {
-	if v := pbParseDelimited_(LazyAst_desc_, p0); v != nil {
-		return v.(*LazyAst)
-	}
-	return nil
-}
-
-func LazyAst_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *LazyAst {
-	if v := pbParseDelimited_(LazyAst_desc_, p0); v != nil {
-		return v.(*LazyAst)
-	}
-	return nil
 }
 
 func (this *LazyAst) getScript() *ByteString {
@@ -12711,34 +12029,12 @@ func NonLazyTypedAst_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, 
 	return pbParse_(NonLazyTypedAst_desc_, p0.b_, true).(*NonLazyTypedAst)
 }
 
-func NonLazyTypedAst_parseFrom_InputStream(p0 *InputStream) *NonLazyTypedAst {
-	return pbParseStream_(NonLazyTypedAst_desc_, p0).(*NonLazyTypedAst)
-}
-
-func NonLazyTypedAst_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *NonLazyTypedAst {
-	return pbParseStream_(NonLazyTypedAst_desc_, p0).(*NonLazyTypedAst)
-}
-
 func NonLazyTypedAst_parseFrom_CodedInputStream(p0 *CodedInputStream) *NonLazyTypedAst {
 	return pbParseCoded_(NonLazyTypedAst_desc_, p0).(*NonLazyTypedAst)
 }
 
 func NonLazyTypedAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *NonLazyTypedAst {
 	return pbParseCoded_(NonLazyTypedAst_desc_, p0).(*NonLazyTypedAst)
-}
-
-func NonLazyTypedAst_parseDelimitedFrom(p0 *InputStream) *NonLazyTypedAst {
-	if v := pbParseDelimited_(NonLazyTypedAst_desc_, p0); v != nil {
-		return v.(*NonLazyTypedAst)
-	}
-	return nil
-}
-
-func NonLazyTypedAst_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *NonLazyTypedAst {
-	if v := pbParseDelimited_(NonLazyTypedAst_desc_, p0); v != nil {
-		return v.(*NonLazyTypedAst)
-	}
-	return nil
 }
 
 func (this *NonLazyTypedAst) hasTypePool() bool {
@@ -13232,34 +12528,12 @@ func NonLazyTypedAst_List_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteStr
 	return pbParse_(NonLazyTypedAst_List_desc_, p0.b_, true).(*NonLazyTypedAst_List)
 }
 
-func NonLazyTypedAst_List_parseFrom_InputStream(p0 *InputStream) *NonLazyTypedAst_List {
-	return pbParseStream_(NonLazyTypedAst_List_desc_, p0).(*NonLazyTypedAst_List)
-}
-
-func NonLazyTypedAst_List_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *NonLazyTypedAst_List {
-	return pbParseStream_(NonLazyTypedAst_List_desc_, p0).(*NonLazyTypedAst_List)
-}
-
 func NonLazyTypedAst_List_parseFrom_CodedInputStream(p0 *CodedInputStream) *NonLazyTypedAst_List {
 	return pbParseCoded_(NonLazyTypedAst_List_desc_, p0).(*NonLazyTypedAst_List)
 }
 
 func NonLazyTypedAst_List_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *NonLazyTypedAst_List {
 	return pbParseCoded_(NonLazyTypedAst_List_desc_, p0).(*NonLazyTypedAst_List)
-}
-
-func NonLazyTypedAst_List_parseDelimitedFrom(p0 *InputStream) *NonLazyTypedAst_List {
-	if v := pbParseDelimited_(NonLazyTypedAst_List_desc_, p0); v != nil {
-		return v.(*NonLazyTypedAst_List)
-	}
-	return nil
-}
-
-func NonLazyTypedAst_List_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *NonLazyTypedAst_List {
-	if v := pbParseDelimited_(NonLazyTypedAst_List_desc_, p0); v != nil {
-		return v.(*NonLazyTypedAst_List)
-	}
-	return nil
 }
 
 func (this *NonLazyTypedAst_List) getTypedAstsList() List {
@@ -13447,34 +12721,12 @@ func NonLazyAst_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *E
 	return pbParse_(NonLazyAst_desc_, p0.b_, true).(*NonLazyAst)
 }
 
-func NonLazyAst_parseFrom_InputStream(p0 *InputStream) *NonLazyAst {
-	return pbParseStream_(NonLazyAst_desc_, p0).(*NonLazyAst)
-}
-
-func NonLazyAst_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *NonLazyAst {
-	return pbParseStream_(NonLazyAst_desc_, p0).(*NonLazyAst)
-}
-
 func NonLazyAst_parseFrom_CodedInputStream(p0 *CodedInputStream) *NonLazyAst {
 	return pbParseCoded_(NonLazyAst_desc_, p0).(*NonLazyAst)
 }
 
 func NonLazyAst_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *NonLazyAst {
 	return pbParseCoded_(NonLazyAst_desc_, p0).(*NonLazyAst)
-}
-
-func NonLazyAst_parseDelimitedFrom(p0 *InputStream) *NonLazyAst {
-	if v := pbParseDelimited_(NonLazyAst_desc_, p0); v != nil {
-		return v.(*NonLazyAst)
-	}
-	return nil
-}
-
-func NonLazyAst_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *NonLazyAst {
-	if v := pbParseDelimited_(NonLazyAst_desc_, p0); v != nil {
-		return v.(*NonLazyAst)
-	}
-	return nil
 }
 
 func (this *NonLazyAst) hasScript() bool {
@@ -13657,34 +12909,12 @@ func StringPoolProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, 
 	return pbParse_(StringPoolProto_desc_, p0.b_, true).(*StringPoolProto)
 }
 
-func StringPoolProto_parseFrom_InputStream(p0 *InputStream) *StringPoolProto {
-	return pbParseStream_(StringPoolProto_desc_, p0).(*StringPoolProto)
-}
-
-func StringPoolProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *StringPoolProto {
-	return pbParseStream_(StringPoolProto_desc_, p0).(*StringPoolProto)
-}
-
 func StringPoolProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *StringPoolProto {
 	return pbParseCoded_(StringPoolProto_desc_, p0).(*StringPoolProto)
 }
 
 func StringPoolProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *StringPoolProto {
 	return pbParseCoded_(StringPoolProto_desc_, p0).(*StringPoolProto)
-}
-
-func StringPoolProto_parseDelimitedFrom(p0 *InputStream) *StringPoolProto {
-	if v := pbParseDelimited_(StringPoolProto_desc_, p0); v != nil {
-		return v.(*StringPoolProto)
-	}
-	return nil
-}
-
-func StringPoolProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *StringPoolProto {
-	if v := pbParseDelimited_(StringPoolProto_desc_, p0); v != nil {
-		return v.(*StringPoolProto)
-	}
-	return nil
 }
 
 func (this *StringPoolProto) getStringsList() List {
@@ -13820,34 +13050,12 @@ func ExternsSummary_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p
 	return pbParse_(ExternsSummary_desc_, p0.b_, true).(*ExternsSummary)
 }
 
-func ExternsSummary_parseFrom_InputStream(p0 *InputStream) *ExternsSummary {
-	return pbParseStream_(ExternsSummary_desc_, p0).(*ExternsSummary)
-}
-
-func ExternsSummary_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ExternsSummary {
-	return pbParseStream_(ExternsSummary_desc_, p0).(*ExternsSummary)
-}
-
 func ExternsSummary_parseFrom_CodedInputStream(p0 *CodedInputStream) *ExternsSummary {
 	return pbParseCoded_(ExternsSummary_desc_, p0).(*ExternsSummary)
 }
 
 func ExternsSummary_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ExternsSummary {
 	return pbParseCoded_(ExternsSummary_desc_, p0).(*ExternsSummary)
-}
-
-func ExternsSummary_parseDelimitedFrom(p0 *InputStream) *ExternsSummary {
-	if v := pbParseDelimited_(ExternsSummary_desc_, p0); v != nil {
-		return v.(*ExternsSummary)
-	}
-	return nil
-}
-
-func ExternsSummary_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ExternsSummary {
-	if v := pbParseDelimited_(ExternsSummary_desc_, p0); v != nil {
-		return v.(*ExternsSummary)
-	}
-	return nil
 }
 
 func (this *ExternsSummary) getPropNamePtrList() List {
@@ -14057,34 +13265,12 @@ func AstNode_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *Exte
 	return pbParse_(AstNode_desc_, p0.b_, true).(*AstNode)
 }
 
-func AstNode_parseFrom_InputStream(p0 *InputStream) *AstNode {
-	return pbParseStream_(AstNode_desc_, p0).(*AstNode)
-}
-
-func AstNode_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AstNode {
-	return pbParseStream_(AstNode_desc_, p0).(*AstNode)
-}
-
 func AstNode_parseFrom_CodedInputStream(p0 *CodedInputStream) *AstNode {
 	return pbParseCoded_(AstNode_desc_, p0).(*AstNode)
 }
 
 func AstNode_parseFrom(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *AstNode {
 	return pbParseCoded_(AstNode_desc_, p0).(*AstNode)
-}
-
-func AstNode_parseDelimitedFrom(p0 *InputStream) *AstNode {
-	if v := pbParseDelimited_(AstNode_desc_, p0); v != nil {
-		return v.(*AstNode)
-	}
-	return nil
-}
-
-func AstNode_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *AstNode {
-	if v := pbParseDelimited_(AstNode_desc_, p0); v != nil {
-		return v.(*AstNode)
-	}
-	return nil
 }
 
 func (this *AstNode) getKind() *NodeKind {
@@ -14569,34 +13755,12 @@ func TemplateStringValue_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteStri
 	return pbParse_(TemplateStringValue_desc_, p0.b_, true).(*TemplateStringValue)
 }
 
-func TemplateStringValue_parseFrom_InputStream(p0 *InputStream) *TemplateStringValue {
-	return pbParseStream_(TemplateStringValue_desc_, p0).(*TemplateStringValue)
-}
-
-func TemplateStringValue_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TemplateStringValue {
-	return pbParseStream_(TemplateStringValue_desc_, p0).(*TemplateStringValue)
-}
-
 func TemplateStringValue_parseFrom_CodedInputStream(p0 *CodedInputStream) *TemplateStringValue {
 	return pbParseCoded_(TemplateStringValue_desc_, p0).(*TemplateStringValue)
 }
 
 func TemplateStringValue_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TemplateStringValue {
 	return pbParseCoded_(TemplateStringValue_desc_, p0).(*TemplateStringValue)
-}
-
-func TemplateStringValue_parseDelimitedFrom(p0 *InputStream) *TemplateStringValue {
-	if v := pbParseDelimited_(TemplateStringValue_desc_, p0); v != nil {
-		return v.(*TemplateStringValue)
-	}
-	return nil
-}
-
-func TemplateStringValue_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TemplateStringValue {
-	if v := pbParseDelimited_(TemplateStringValue_desc_, p0); v != nil {
-		return v.(*TemplateStringValue)
-	}
-	return nil
 }
 
 func (this *TemplateStringValue) getRawStringPointer() int32 {
@@ -14820,34 +13984,12 @@ func TypePool_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *Ext
 	return pbParse_(TypePool_desc_, p0.b_, true).(*TypePool)
 }
 
-func TypePool_parseFrom_InputStream(p0 *InputStream) *TypePool {
-	return pbParseStream_(TypePool_desc_, p0).(*TypePool)
-}
-
-func TypePool_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePool {
-	return pbParseStream_(TypePool_desc_, p0).(*TypePool)
-}
-
 func TypePool_parseFrom_CodedInputStream(p0 *CodedInputStream) *TypePool {
 	return pbParseCoded_(TypePool_desc_, p0).(*TypePool)
 }
 
 func TypePool_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TypePool {
 	return pbParseCoded_(TypePool_desc_, p0).(*TypePool)
-}
-
-func TypePool_parseDelimitedFrom(p0 *InputStream) *TypePool {
-	if v := pbParseDelimited_(TypePool_desc_, p0); v != nil {
-		return v.(*TypePool)
-	}
-	return nil
-}
-
-func TypePool_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePool {
-	if v := pbParseDelimited_(TypePool_desc_, p0); v != nil {
-		return v.(*TypePool)
-	}
-	return nil
 }
 
 func (this *TypePool) getTypeList() List {
@@ -15171,34 +14313,12 @@ func TypePool_DebugInfo_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteStrin
 	return pbParse_(TypePool_DebugInfo_desc_, p0.b_, true).(*TypePool_DebugInfo)
 }
 
-func TypePool_DebugInfo_parseFrom_InputStream(p0 *InputStream) *TypePool_DebugInfo {
-	return pbParseStream_(TypePool_DebugInfo_desc_, p0).(*TypePool_DebugInfo)
-}
-
-func TypePool_DebugInfo_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePool_DebugInfo {
-	return pbParseStream_(TypePool_DebugInfo_desc_, p0).(*TypePool_DebugInfo)
-}
-
 func TypePool_DebugInfo_parseFrom_CodedInputStream(p0 *CodedInputStream) *TypePool_DebugInfo {
 	return pbParseCoded_(TypePool_DebugInfo_desc_, p0).(*TypePool_DebugInfo)
 }
 
 func TypePool_DebugInfo_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TypePool_DebugInfo {
 	return pbParseCoded_(TypePool_DebugInfo_desc_, p0).(*TypePool_DebugInfo)
-}
-
-func TypePool_DebugInfo_parseDelimitedFrom(p0 *InputStream) *TypePool_DebugInfo {
-	if v := pbParseDelimited_(TypePool_DebugInfo_desc_, p0); v != nil {
-		return v.(*TypePool_DebugInfo)
-	}
-	return nil
-}
-
-func TypePool_DebugInfo_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePool_DebugInfo {
-	if v := pbParseDelimited_(TypePool_DebugInfo_desc_, p0); v != nil {
-		return v.(*TypePool_DebugInfo)
-	}
-	return nil
 }
 
 func (this *TypePool_DebugInfo) getMismatchList() List {
@@ -15375,34 +14495,12 @@ func TypePool_DebugInfo_Mismatch_parseFrom_ByteString_ExtensionRegistryLite(p0 *
 	return pbParse_(TypePool_DebugInfo_Mismatch_desc_, p0.b_, true).(*TypePool_DebugInfo_Mismatch)
 }
 
-func TypePool_DebugInfo_Mismatch_parseFrom_InputStream(p0 *InputStream) *TypePool_DebugInfo_Mismatch {
-	return pbParseStream_(TypePool_DebugInfo_Mismatch_desc_, p0).(*TypePool_DebugInfo_Mismatch)
-}
-
-func TypePool_DebugInfo_Mismatch_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePool_DebugInfo_Mismatch {
-	return pbParseStream_(TypePool_DebugInfo_Mismatch_desc_, p0).(*TypePool_DebugInfo_Mismatch)
-}
-
 func TypePool_DebugInfo_Mismatch_parseFrom_CodedInputStream(p0 *CodedInputStream) *TypePool_DebugInfo_Mismatch {
 	return pbParseCoded_(TypePool_DebugInfo_Mismatch_desc_, p0).(*TypePool_DebugInfo_Mismatch)
 }
 
 func TypePool_DebugInfo_Mismatch_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TypePool_DebugInfo_Mismatch {
 	return pbParseCoded_(TypePool_DebugInfo_Mismatch_desc_, p0).(*TypePool_DebugInfo_Mismatch)
-}
-
-func TypePool_DebugInfo_Mismatch_parseDelimitedFrom(p0 *InputStream) *TypePool_DebugInfo_Mismatch {
-	if v := pbParseDelimited_(TypePool_DebugInfo_Mismatch_desc_, p0); v != nil {
-		return v.(*TypePool_DebugInfo_Mismatch)
-	}
-	return nil
-}
-
-func TypePool_DebugInfo_Mismatch_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePool_DebugInfo_Mismatch {
-	if v := pbParseDelimited_(TypePool_DebugInfo_Mismatch_desc_, p0); v != nil {
-		return v.(*TypePool_DebugInfo_Mismatch)
-	}
-	return nil
 }
 
 func (this *TypePool_DebugInfo_Mismatch) getSourceRef() string {
@@ -15553,34 +14651,12 @@ func SubtypingEdge_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1
 	return pbParse_(SubtypingEdge_desc_, p0.b_, true).(*SubtypingEdge)
 }
 
-func SubtypingEdge_parseFrom_InputStream(p0 *InputStream) *SubtypingEdge {
-	return pbParseStream_(SubtypingEdge_desc_, p0).(*SubtypingEdge)
-}
-
-func SubtypingEdge_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SubtypingEdge {
-	return pbParseStream_(SubtypingEdge_desc_, p0).(*SubtypingEdge)
-}
-
 func SubtypingEdge_parseFrom_CodedInputStream(p0 *CodedInputStream) *SubtypingEdge {
 	return pbParseCoded_(SubtypingEdge_desc_, p0).(*SubtypingEdge)
 }
 
 func SubtypingEdge_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *SubtypingEdge {
 	return pbParseCoded_(SubtypingEdge_desc_, p0).(*SubtypingEdge)
-}
-
-func SubtypingEdge_parseDelimitedFrom(p0 *InputStream) *SubtypingEdge {
-	if v := pbParseDelimited_(SubtypingEdge_desc_, p0); v != nil {
-		return v.(*SubtypingEdge)
-	}
-	return nil
-}
-
-func SubtypingEdge_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *SubtypingEdge {
-	if v := pbParseDelimited_(SubtypingEdge_desc_, p0); v != nil {
-		return v.(*SubtypingEdge)
-	}
-	return nil
 }
 
 func (this *SubtypingEdge) getSubtype() int32 {
@@ -15690,34 +14766,12 @@ func UnionTypeProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p
 	return pbParse_(UnionTypeProto_desc_, p0.b_, true).(*UnionTypeProto)
 }
 
-func UnionTypeProto_parseFrom_InputStream(p0 *InputStream) *UnionTypeProto {
-	return pbParseStream_(UnionTypeProto_desc_, p0).(*UnionTypeProto)
-}
-
-func UnionTypeProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *UnionTypeProto {
-	return pbParseStream_(UnionTypeProto_desc_, p0).(*UnionTypeProto)
-}
-
 func UnionTypeProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *UnionTypeProto {
 	return pbParseCoded_(UnionTypeProto_desc_, p0).(*UnionTypeProto)
 }
 
 func UnionTypeProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *UnionTypeProto {
 	return pbParseCoded_(UnionTypeProto_desc_, p0).(*UnionTypeProto)
-}
-
-func UnionTypeProto_parseDelimitedFrom(p0 *InputStream) *UnionTypeProto {
-	if v := pbParseDelimited_(UnionTypeProto_desc_, p0); v != nil {
-		return v.(*UnionTypeProto)
-	}
-	return nil
-}
-
-func UnionTypeProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *UnionTypeProto {
-	if v := pbParseDelimited_(UnionTypeProto_desc_, p0); v != nil {
-		return v.(*UnionTypeProto)
-	}
-	return nil
 }
 
 func (this *UnionTypeProto) getUnionMemberList() List {
@@ -15851,34 +14905,12 @@ func ObjectTypeProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, 
 	return pbParse_(ObjectTypeProto_desc_, p0.b_, true).(*ObjectTypeProto)
 }
 
-func ObjectTypeProto_parseFrom_InputStream(p0 *InputStream) *ObjectTypeProto {
-	return pbParseStream_(ObjectTypeProto_desc_, p0).(*ObjectTypeProto)
-}
-
-func ObjectTypeProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ObjectTypeProto {
-	return pbParseStream_(ObjectTypeProto_desc_, p0).(*ObjectTypeProto)
-}
-
 func ObjectTypeProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *ObjectTypeProto {
 	return pbParseCoded_(ObjectTypeProto_desc_, p0).(*ObjectTypeProto)
 }
 
 func ObjectTypeProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ObjectTypeProto {
 	return pbParseCoded_(ObjectTypeProto_desc_, p0).(*ObjectTypeProto)
-}
-
-func ObjectTypeProto_parseDelimitedFrom(p0 *InputStream) *ObjectTypeProto {
-	if v := pbParseDelimited_(ObjectTypeProto_desc_, p0); v != nil {
-		return v.(*ObjectTypeProto)
-	}
-	return nil
-}
-
-func ObjectTypeProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ObjectTypeProto {
-	if v := pbParseDelimited_(ObjectTypeProto_desc_, p0); v != nil {
-		return v.(*ObjectTypeProto)
-	}
-	return nil
 }
 
 func (this *ObjectTypeProto) getIsInvalidating() bool {
@@ -16222,34 +15254,12 @@ func ObjectTypeProto_DebugInfo_parseFrom_ByteString_ExtensionRegistryLite(p0 *By
 	return pbParse_(ObjectTypeProto_DebugInfo_desc_, p0.b_, true).(*ObjectTypeProto_DebugInfo)
 }
 
-func ObjectTypeProto_DebugInfo_parseFrom_InputStream(p0 *InputStream) *ObjectTypeProto_DebugInfo {
-	return pbParseStream_(ObjectTypeProto_DebugInfo_desc_, p0).(*ObjectTypeProto_DebugInfo)
-}
-
-func ObjectTypeProto_DebugInfo_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ObjectTypeProto_DebugInfo {
-	return pbParseStream_(ObjectTypeProto_DebugInfo_desc_, p0).(*ObjectTypeProto_DebugInfo)
-}
-
 func ObjectTypeProto_DebugInfo_parseFrom_CodedInputStream(p0 *CodedInputStream) *ObjectTypeProto_DebugInfo {
 	return pbParseCoded_(ObjectTypeProto_DebugInfo_desc_, p0).(*ObjectTypeProto_DebugInfo)
 }
 
 func ObjectTypeProto_DebugInfo_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *ObjectTypeProto_DebugInfo {
 	return pbParseCoded_(ObjectTypeProto_DebugInfo_desc_, p0).(*ObjectTypeProto_DebugInfo)
-}
-
-func ObjectTypeProto_DebugInfo_parseDelimitedFrom(p0 *InputStream) *ObjectTypeProto_DebugInfo {
-	if v := pbParseDelimited_(ObjectTypeProto_DebugInfo_desc_, p0); v != nil {
-		return v.(*ObjectTypeProto_DebugInfo)
-	}
-	return nil
-}
-
-func ObjectTypeProto_DebugInfo_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *ObjectTypeProto_DebugInfo {
-	if v := pbParseDelimited_(ObjectTypeProto_DebugInfo_desc_, p0); v != nil {
-		return v.(*ObjectTypeProto_DebugInfo)
-	}
-	return nil
 }
 
 func (this *ObjectTypeProto_DebugInfo) getTypenamePointerList() List {
@@ -16443,34 +15453,12 @@ func TypeProto_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 *Ex
 	return pbParse_(TypeProto_desc_, p0.b_, true).(*TypeProto)
 }
 
-func TypeProto_parseFrom_InputStream(p0 *InputStream) *TypeProto {
-	return pbParseStream_(TypeProto_desc_, p0).(*TypeProto)
-}
-
-func TypeProto_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypeProto {
-	return pbParseStream_(TypeProto_desc_, p0).(*TypeProto)
-}
-
 func TypeProto_parseFrom_CodedInputStream(p0 *CodedInputStream) *TypeProto {
 	return pbParseCoded_(TypeProto_desc_, p0).(*TypeProto)
 }
 
 func TypeProto_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TypeProto {
 	return pbParseCoded_(TypeProto_desc_, p0).(*TypeProto)
-}
-
-func TypeProto_parseDelimitedFrom(p0 *InputStream) *TypeProto {
-	if v := pbParseDelimited_(TypeProto_desc_, p0); v != nil {
-		return v.(*TypeProto)
-	}
-	return nil
-}
-
-func TypeProto_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypeProto {
-	if v := pbParseDelimited_(TypeProto_desc_, p0); v != nil {
-		return v.(*TypeProto)
-	}
-	return nil
 }
 
 func (this *TypeProto) hasObject() bool {
@@ -16653,34 +15641,12 @@ func TypePoolList_parseFrom_ByteString_ExtensionRegistryLite(p0 *ByteString, p1 
 	return pbParse_(TypePoolList_desc_, p0.b_, true).(*TypePoolList)
 }
 
-func TypePoolList_parseFrom_InputStream(p0 *InputStream) *TypePoolList {
-	return pbParseStream_(TypePoolList_desc_, p0).(*TypePoolList)
-}
-
-func TypePoolList_parseFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePoolList {
-	return pbParseStream_(TypePoolList_desc_, p0).(*TypePoolList)
-}
-
 func TypePoolList_parseFrom_CodedInputStream(p0 *CodedInputStream) *TypePoolList {
 	return pbParseCoded_(TypePoolList_desc_, p0).(*TypePoolList)
 }
 
 func TypePoolList_parseFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) *TypePoolList {
 	return pbParseCoded_(TypePoolList_desc_, p0).(*TypePoolList)
-}
-
-func TypePoolList_parseDelimitedFrom(p0 *InputStream) *TypePoolList {
-	if v := pbParseDelimited_(TypePoolList_desc_, p0); v != nil {
-		return v.(*TypePoolList)
-	}
-	return nil
-}
-
-func TypePoolList_parseDelimitedFrom_InputStream_ExtensionRegistryLite(p0 *InputStream, p1 *ExtensionRegistryLite) *TypePoolList {
-	if v := pbParseDelimited_(TypePoolList_desc_, p0); v != nil {
-		return v.(*TypePoolList)
-	}
-	return nil
 }
 
 func (this *TypePoolList) getTypePoolList() List {

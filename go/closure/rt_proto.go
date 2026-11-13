@@ -485,13 +485,11 @@ func (this *AbstractMessageLite) bytes_() []byte {
 
 func (this *AbstractMessageLite) toByteString() *ByteString { return &ByteString{b_: this.bytes_()} }
 
-func (this *AbstractMessageLite) writeTo(p0 *OutputStream) { pbWriteStream_(p0, this.bytes_()) }
+func (this *AbstractMessageLite) toByteArray() []int8 { return pbI8_(this.bytes_()) }
 
-func (this *AbstractMessageLite) writeDelimitedTo(p0 *OutputStream) {
-	n := pbSizeOf_(this)
-	buf := pbAppendVarint_(make([]byte, 0, n+5), uint64(n))
-	pbWriteStream_(p0, pbAppendMsg_(buf, this))
-}
+func (this *AbstractMessageLite) getSerializedSize() int32 { return int32(pbSizeOf_(this)) }
+
+func (this *AbstractMessageLite) writeTo(p0 *CodedOutputStream) { p0.put_(this.bytes_()) }
 
 func (this *AbstractMessageLite) equals(o any) bool {
 	m, ok := o.(pbM_)
@@ -620,26 +618,10 @@ func (this *AbstractMessageLite_Builder) addBld_(i int) any {
 
 // ---------------------------------------------------------------- static entry points used by generated code
 
-func pbParse_(d *pbDesc_, data []byte, alias bool) any {
-	m := d.newMsg_()
-	p := pbParser_{limit: 100, alias: alias}
-	p.merge_(&m.pbData_, data, 0)
-	return m.me_
-}
-
 func pbParseCoded_(d *pbDesc_, in *CodedInputStream) any {
 	m := d.newMsg_()
 	in.mergeInto_(&m.pbData_)
 	return m.me_
-}
-
-// pbParseDelimited_ returns nil at end of stream, as parseDelimitedFrom does.
-func pbParseDelimited_(d *pbDesc_, in *InputStream) any {
-	data, ok := pbReadDelimited_(in)
-	if !ok {
-		return nil
-	}
-	return pbParse_(d, data, true)
 }
 
 // ---------------------------------------------------------------- wire format: sizes and writing
@@ -1346,129 +1328,6 @@ func pbU8_(b []int8) []byte {
 	return unsafe.Slice((*byte)(unsafe.Pointer(&b[0])), len(b))
 }
 
-func pbStreamSelf_(s any, fallback any) any {
-	if s == nil {
-		return fallback
-	}
-	return s
-}
-
-// pbWriteStream_ writes bytes to a java.io.OutputStream, through whichever of
-// its write methods the stream's class has.
-func pbWriteStream_(out *OutputStream, b []byte) {
-	if out == nil {
-		pbNPE_()
-	}
-	if len(b) == 0 {
-		return
-	}
-	switch w := pbStreamSelf_(out.self(), out).(type) {
-	case interface{ write_byteArr_int_int([]int8, int32, int32) }:
-		w.write_byteArr_int_int(pbI8_(b), 0, int32(len(b)))
-	case interface{ write([]int8, int32, int32) }:
-		w.write(pbI8_(b), 0, int32(len(b)))
-	case interface{ write_byteArr([]int8) }:
-		w.write_byteArr(pbI8_(b))
-	case interface{ write(int32) }:
-		for _, c := range b {
-			w.write(int32(c))
-		}
-	default:
-		panic("protobuf: cannot write to " + goTypeName_(w))
-	}
-}
-
-// pbReadStream_ reads up to len(b) bytes from a java.io.InputStream; -1 at end.
-func pbReadStream_(in *InputStream, b []byte) int {
-	if in == nil {
-		pbNPE_()
-	}
-	if len(b) == 0 {
-		return 0
-	}
-	one := func(read func() int32) int {
-		c := read()
-		if c < 0 {
-			return -1
-		}
-		b[0] = byte(c)
-		return 1
-	}
-	switch r := pbStreamSelf_(in.self(), in).(type) {
-	case interface {
-		read_byteArr_int_int([]int8, int32, int32) int32
-	}:
-		return int(r.read_byteArr_int_int(pbI8_(b), 0, int32(len(b))))
-	case interface {
-		read([]int8, int32, int32) int32
-	}:
-		return int(r.read(pbI8_(b), 0, int32(len(b))))
-	case interface{ read_byteArr([]int8) int32 }:
-		return int(r.read_byteArr(pbI8_(b)))
-	case interface{ read([]int8) int32 }:
-		return int(r.read(pbI8_(b)))
-	case interface{ read_0() int32 }:
-		return one(r.read_0)
-	case interface{ read() int32 }:
-		return one(r.read)
-	default:
-		panic("protobuf: cannot read from " + goTypeName_(r))
-	}
-}
-
-func pbReadAll_(in *InputStream) []byte {
-	buf := make([]byte, 0, 4096)
-	for {
-		if len(buf) == cap(buf) {
-			buf = append(buf, 0)[:len(buf)]
-		}
-		n := pbReadStream_(in, buf[len(buf):cap(buf)])
-		if n < 0 {
-			return buf
-		}
-		buf = buf[:len(buf)+n]
-	}
-}
-
-func pbReadFull_(in *InputStream, b []byte) {
-	for len(b) > 0 {
-		n := pbReadStream_(in, b)
-		if n < 0 {
-			pbFail_(pbErrTruncated_)
-		}
-		b = b[n:]
-	}
-}
-
-// pbReadDelimited_ reads a varint length and that many bytes, and no more.
-func pbReadDelimited_(in *InputStream) ([]byte, bool) {
-	var one [1]byte
-	var size uint64
-	for shift := uint(0); ; shift += 7 {
-		n := pbReadStream_(in, one[:])
-		if n < 0 {
-			if shift == 0 {
-				return nil, false
-			}
-			pbFail_(pbErrTruncated_)
-		}
-		if shift >= 64 {
-			pbFail_(pbErrVarint_)
-		}
-		size |= uint64(one[0]&0x7f) << shift
-		if one[0] < 0x80 {
-			break
-		}
-	}
-	n := int(int32(size))
-	if n < 0 {
-		pbFail_(pbErrNegative_)
-	}
-	data := make([]byte, n)
-	pbReadFull_(in, data)
-	return data, true
-}
-
 // ---------------------------------------------------------------- ByteString
 
 type ByteString struct {
@@ -1518,8 +1377,6 @@ func (this *ByteString) iterator() Iterator {
 func (this *ByteString) newCodedInput() *CodedInputStream {
 	return &CodedInputStream{buf_: this.b_, limit_: math.MaxInt, recLimit_: 100, alias_: true}
 }
-
-func (this *ByteString) writeTo(p0 *OutputStream) { pbWriteStream_(p0, this.b_) }
 
 func (this *ByteString) equals(o any) bool {
 	b, ok := o.(*ByteString)
@@ -1574,14 +1431,6 @@ type ByteString_Output struct {
 
 func (this *ByteString_Output) write(p0 int32) { this.buf_ = append(this.buf_, byte(p0)) }
 
-func (this *ByteString_Output) write_byteArr(p0 []int8) {
-	this.buf_ = append(this.buf_, pbU8_(p0)...)
-}
-
-func (this *ByteString_Output) write_byteArr_int_int(p0 []int8, p1 int32, p2 int32) {
-	this.buf_ = append(this.buf_, pbU8_(p0[p1:p1+p2])...)
-}
-
 func (this *ByteString_Output) flush() {}
 func (this *ByteString_Output) close() {}
 
@@ -1595,8 +1444,6 @@ func (this *ByteString_Output) toByteString() *ByteString {
 	}
 	return &ByteString{b_: append([]byte(nil), this.buf_...)}
 }
-
-func (this *ByteString_Output) writeTo(p0 *OutputStream) { pbWriteStream_(p0, this.buf_) }
 
 // ---------------------------------------------------------------- WireFormat, ExtensionRegistry
 
@@ -1635,11 +1482,10 @@ func ExtensionRegistry_getEmptyRegistry() *ExtensionRegistry { return pbEmptyReg
 
 // ---------------------------------------------------------------- CodedInputStream
 
+// CodedInputStream reads from memory.
 type CodedInputStream struct {
 	buf_      []byte
 	pos_      int
-	in_       *InputStream // nil when reading from memory
-	eof_      bool
 	base_     int // bytes consumed before buf_[0], since the last resetSizeCounter
 	limit_    int // absolute position (base_+pos_) the reader may not pass
 	lastTag_  int32
@@ -1647,40 +1493,33 @@ type CodedInputStream struct {
 	alias_    bool
 }
 
-func CodedInputStream_newInstance(p0 *InputStream) *CodedInputStream {
-	if p0 == nil {
-		pbNPE_()
-	}
-	return &CodedInputStream{in_: p0, limit_: math.MaxInt, recLimit_: 100, alias_: true}
+func CodedInputStream_newInstance(p0 []int8) *CodedInputStream {
+	return &CodedInputStream{buf_: pbU8_(p0), limit_: math.MaxInt, recLimit_: 100, alias_: true}
 }
 
-// fill_ makes n bytes available at pos_ if the input has them.
-func (this *CodedInputStream) fill_(n int) bool {
-	if len(this.buf_)-this.pos_ >= n {
-		return true
+// fill_ says whether n bytes are available at pos_.
+func (this *CodedInputStream) fill_(n int) bool { return len(this.buf_)-this.pos_ >= n }
+
+func (this *CodedInputStream) getTotalBytesRead() int32 { return int32(this.total_()) }
+
+// pushLimit makes the reader stop p0 bytes from here and returns the limit it replaces.
+func (this *CodedInputStream) pushLimit(p0 int32) int32 {
+	if p0 < 0 {
+		pbFail_(pbErrNegative_)
 	}
-	if this.in_ == nil || this.eof_ {
-		return false
+	old := this.limit_
+	if this.total_()+int(p0) > old {
+		pbFail_(pbErrTruncated_)
 	}
-	rest := len(this.buf_) - this.pos_
-	size := 4096
-	if n > size {
-		size = n
+	this.limit_ = this.total_() + int(p0)
+	return int32(min(old, math.MaxInt32))
+}
+
+func (this *CodedInputStream) popLimit(p0 int32) {
+	this.limit_ = int(p0)
+	if p0 == math.MaxInt32 {
+		this.limit_ = math.MaxInt
 	}
-	nb := make([]byte, rest, rest+size)
-	copy(nb, this.buf_[this.pos_:])
-	this.base_ += this.pos_
-	this.pos_ = 0
-	this.buf_ = nb
-	for len(this.buf_) < n {
-		got := pbReadStream_(this.in_, this.buf_[len(this.buf_):cap(this.buf_)])
-		if got < 0 {
-			this.eof_ = true
-			return false
-		}
-		this.buf_ = this.buf_[:len(this.buf_)+got]
-	}
-	return true
 }
 
 func (this *CodedInputStream) total_() int { return this.base_ + this.pos_ }
@@ -1731,13 +1570,6 @@ func (this *CodedInputStream) raw_(n int) []byte {
 func (this *CodedInputStream) rest_() []byte {
 	if this.limit_ != math.MaxInt {
 		return this.raw_(this.limit_ - this.total_())
-	}
-	if this.in_ != nil && !this.eof_ {
-		rest := append(this.buf_[this.pos_:len(this.buf_):len(this.buf_)], pbReadAll_(this.in_)...)
-		this.base_ += this.pos_
-		this.pos_ = 0
-		this.buf_ = rest
-		this.eof_ = true
 	}
 	b := this.buf_[this.pos_:len(this.buf_):len(this.buf_)]
 	this.pos_ = len(this.buf_)
@@ -1790,10 +1622,35 @@ func (this *CodedInputStream) mergeInto_(d *pbData_) {
 
 // ---------------------------------------------------------------- CodedOutputStream
 
+// CodedOutputStream writes into a byte array of fixed size.
 type CodedOutputStream struct {
 	buf_ []byte
-	out_ *OutputStream
+	pos_ int
 }
+
+func CodedOutputStream_newInstance(p0 []int8) *CodedOutputStream {
+	return &CodedOutputStream{buf_: pbU8_(p0)}
+}
+
+func CodedOutputStream_computeUInt32SizeNoTag(p0 int32) int32 {
+	return int32(pbVarintSize_(uint64(uint32(p0))))
+}
+
+func (this *CodedOutputStream) put_(b []byte) {
+	if len(b) > len(this.buf_)-this.pos_ {
+		// com.google.protobuf.CodedOutputStream.OutOfSpaceException is an IOException.
+		panic(new_IOException_String("CodedOutputStream was writing to a flat byte array and ran out of space.").self())
+	}
+	this.pos_ += copy(this.buf_[this.pos_:], b)
+}
+
+func (this *CodedOutputStream) writeUInt32NoTag(p0 int32) {
+	this.put_(pbAppendVarint_(nil, uint64(uint32(p0))))
+}
+
+func (this *CodedOutputStream) writeRawBytes(p0 []int8) { this.put_(pbU8_(p0)) }
+
+func (this *CodedOutputStream) flush() {}
 
 func pbEnumValueOf_(javaName string, name string) {
 	if name == nullstr_ {
@@ -1803,6 +1660,13 @@ func pbEnumValueOf_(javaName string, name string) {
 }
 
 func (this *AbstractMessage_Builder) getAllFields() Map { return pbAllFields_(&this.pbData_) }
+
+func pbParse_(d *pbDesc_, data []byte, alias bool) any {
+	m := d.newMsg_()
+	p := pbParser_{limit: 100, alias: alias}
+	p.merge_(&m.pbData_, data, 0)
+	return m.me_
+}
 
 func (this *pbData_) gStrBytes_(i int) *ByteString {
 	return ByteString_copyFromUtf8(this.get_(i).(string))
@@ -1891,10 +1755,6 @@ func (this *AbstractMessageLite_Builder) bldList_(i int) List {
 		this.bldAt_(i, int32(j))
 	}
 	return listOf_(append([]any(nil), a...))
-}
-
-func pbParseStream_(d *pbDesc_, in *InputStream) any {
-	return pbParse_(d, pbReadAll_(in), true)
 }
 
 func pbBuilderFrom_(d *pbDesc_, proto any) any {

@@ -47,49 +47,6 @@ func pbThrown_(f func()) (class string, msg string) {
 	return "", "OK"
 }
 
-// pbTestIn_ is a java.io.InputStream over a byte slice that hands out at most
-// seven bytes per read.
-type pbTestIn_ struct {
-	InputStream
-	data []byte
-}
-
-func newPbTestIn_(data []byte) *pbTestIn_ {
-	in := &pbTestIn_{data: data}
-	in.self_ = in
-	return in
-}
-
-func (this *pbTestIn_) read_byteArr_int_int(b []int8, off int32, n int32) int32 {
-	if len(this.data) == 0 {
-		return -1
-	}
-	if n > 7 {
-		n = 7
-	}
-	if int(n) > len(this.data) {
-		n = int32(len(this.data))
-	}
-	copy(pbU8_(b[off:off+n]), this.data[:n])
-	this.data = this.data[n:]
-	return n
-}
-
-type pbTestOut_ struct {
-	OutputStream
-	data []byte
-}
-
-func newPbTestOut_() *pbTestOut_ {
-	out := &pbTestOut_{}
-	out.self_ = out
-	return out
-}
-
-func (this *pbTestOut_) write_byteArr_int_int(b []int8, off int32, n int32) {
-	this.data = append(this.data, pbU8_(b[off:off+n])...)
-}
-
 func pbParseDeep_(full string, data []byte) any {
 	in := (&ByteString{b_: data}).newCodedInput()
 	in.setRecursionLimit(math.MaxInt32)
@@ -229,4 +186,39 @@ func TestProtoBuild(t *testing.T) {
 			setLineNumber(1).setColumnNumber(0).build().(*InstrumentationPoint)).build()
 	check("profile", ReportProfile_newBuilder().addAllFileProfile(listOf_([]any{FileProfile_newBuilder().setFileName("f.js").
 		addAllInstrumentationPointsStats(listOf_([]any{stats, InstrumentationPointStats_getDefaultInstance()})).build()})).build().(*ReportProfile))
+}
+
+// TestProtoCodedBytes writes and reads a size-prefixed message followed by raw bytes, the way
+// Compiler.saveState and restoreState do.
+func TestProtoCodedBytes(t *testing.T) {
+	msg := pbTestLeaf_()
+	size := msg.getSerializedSize()
+	tail := []int8{1, -2, 3}
+	if n := len(msg.toByteArray()); int32(n) != size {
+		t.Fatalf("toByteArray has %d bytes, getSerializedSize says %d", n, size)
+	}
+	buf := make([]int8, CodedOutputStream_computeUInt32SizeNoTag(size)+size+int32(len(tail)))
+	out := CodedOutputStream_newInstance(buf)
+	out.writeUInt32NoTag(size)
+	msg.writeTo(out)
+	out.writeRawBytes(tail)
+	out.flush()
+	if class, _ := pbThrown_(func() { out.writeRawBytes(tail) }); class != "java.io.IOException" {
+		t.Errorf("writing past the end: %s", class)
+	}
+	in := CodedInputStream_newInstance(buf)
+	limit := in.pushLimit(in.readRawVarint32())
+	got := AstNode_parseFrom_CodedInputStream(in)
+	in.popLimit(limit)
+	if !msg.equals(got) {
+		t.Errorf("read back %v", got)
+	}
+	rest := Arrays_copyOfRange(buf, in.getTotalBytesRead(), int32(len(buf)))
+	if len(rest) != 3 || rest[0] != 1 || rest[1] != -2 || rest[2] != 3 || in.isAtEnd() {
+		t.Errorf("after the message: %v, at end %v", rest, in.isAtEnd())
+	}
+	in.pushLimit(2)
+	if class, _ := pbThrown_(func() { in.pushLimit(3) }); class != "com.google.protobuf.InvalidProtocolBufferException" {
+		t.Errorf("limit past the current limit: %s", class)
+	}
 }

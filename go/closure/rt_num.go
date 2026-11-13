@@ -316,6 +316,7 @@ func Objects_requireNonNull(v any, msg string) any {
 var startTime_ = time.Now()
 
 func System_currentTimeMillis() int64 { return time.Now().UnixMilli() }
+func System_lineSeparator() string    { return "\n" }
 func System_exit(code int32)          { flushStd_(); os.Exit(int(code)) }
 func System_identityHashCode(v any) int32 {
 	if v == nil {

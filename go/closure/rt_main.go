@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime/debug"
 	"runtime/pprof"
+	"strings"
 )
 
 // Main is the process entry point. While the port is being brought up it
@@ -14,11 +15,17 @@ import (
 func Main(args []string) (code int) {
 	defer func() {
 		if r := recover(); r != nil {
-			if t, ok := r.(interface{ toString() string }); ok {
-				fmt.Fprintln(os.Stderr, "uncaught exception:", t.toString())
-			} else {
-				fmt.Fprintln(os.Stderr, "panic:", r)
+			if t, ok := r.(interface{ as_Throwable() *Throwable }); ok {
+				// A Java exception that main does not catch: what the JVM prints, with the Go
+				// stack where Java has its stack frames, and the JVM's exit status.
+				trace := stackTraceText_(t.as_Throwable())
+				first, rest, _ := strings.Cut(trace, "\n")
+				frames := strings.ReplaceAll(strings.TrimSpace(string(debug.Stack())), "\n", "\n\tat ")
+				Io_stderr().print("Exception in thread \"main\" " + first + "\n\tat " + frames + "\n" + rest)
+				code = 1
+				return
 			}
+			fmt.Fprintln(os.Stderr, "panic:", r)
 			os.Stderr.Write(debug.Stack())
 			code = 70
 		}
