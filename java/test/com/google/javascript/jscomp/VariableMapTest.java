@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayInputStream;
@@ -46,7 +45,7 @@ public final class VariableMapTest {
   public void cycleTest(ImmutableMap<String, String> map) throws ParseException {
     VariableMap in = new VariableMap(map);
     String serialized = new String(in.toBytes(), UTF_8);
-    VariableMap out = VariableMap.fromBytes(serialized.getBytes(UTF_8));
+    VariableMap out = VariableMap.fromBytes(serialized.getBytes(UTF_8)).get();
     assertMapsEquals(in.toMap(), out.toMap());
   }
 
@@ -71,7 +70,7 @@ public final class VariableMapTest {
 
   @Test
   public void testFromBytes() throws ParseException {
-    VariableMap vm = VariableMap.fromBytes("AAA:a\nBBB:b\n".getBytes(UTF_8));
+    VariableMap vm = VariableMap.fromBytes("AAA:a\nBBB:b\n".getBytes(UTF_8)).get();
     assertThat(vm.getOriginalNameToNewNameMap()).hasSize(2);
     assertThat(vm.lookupNewName("AAA")).isEqualTo("a");
     assertThat(vm.lookupNewName("BBB")).isEqualTo("b");
@@ -81,14 +80,14 @@ public final class VariableMapTest {
 
   @Test
   public void testFromBytesWithEmptyValue() throws ParseException {
-    VariableMap vm = VariableMap.fromBytes("AAA:".getBytes(UTF_8));
+    VariableMap vm = VariableMap.fromBytes("AAA:".getBytes(UTF_8)).get();
     assertThat(vm.lookupNewName("AAA")).isEmpty();
   }
 
   @Test
   public void testFromStream() throws ParseException, IOException {
     VariableMap vm =
-        VariableMap.fromStream(new ByteArrayInputStream("AAA:a\nBBB:b\n".getBytes(UTF_8)));
+        VariableMap.fromStream(new ByteArrayInputStream("AAA:a\nBBB:b\n".getBytes(UTF_8))).get();
     assertThat(vm.getOriginalNameToNewNameMap()).hasSize(2);
     assertThat(vm.lookupNewName("AAA")).isEqualTo("a");
     assertThat(vm.lookupNewName("BBB")).isEqualTo("b");
@@ -129,7 +128,7 @@ public final class VariableMapTest {
 
   @Test
   public void testFromBytesComplex2() throws ParseException {
-    VariableMap vm = VariableMap.fromBytes("AAA['\\:f']:a\n".getBytes(UTF_8));
+    VariableMap vm = VariableMap.fromBytes("AAA['\\:f']:a\n".getBytes(UTF_8)).get();
 
     assertThat(vm.getOriginalNameToNewNameMap()).hasSize(1);
     assertThat(vm.lookupNewName("AAA[':f']")).isEqualTo("a");
@@ -164,15 +163,16 @@ public final class VariableMapTest {
 
   @Test
   public void testFromLines_leadingNewline() throws ParseException {
-    VariableMap vm = VariableMap.fromBytes("\na:b\n".getBytes(UTF_8));
+    VariableMap vm = VariableMap.fromBytes("\na:b\n".getBytes(UTF_8)).get();
     assertThat(vm.lookupNewName("a")).isEqualTo("b");
 
-    VariableMap vmCrlf = VariableMap.fromBytes("\r\na:b\r\n".getBytes(UTF_8));
+    VariableMap vmCrlf = VariableMap.fromBytes("\r\na:b\r\n".getBytes(UTF_8)).get();
     assertThat(vmCrlf.lookupNewName("a")).isEqualTo("b");
   }
 
   @Test
   public void testFromLines_colonAtStartThrowsParseException() {
-    assertThrows(ParseException.class, () -> VariableMap.fromBytes(":foo\n".getBytes(UTF_8)));
+    assertThat(VariableMap.fromBytes(":foo\n".getBytes(UTF_8)).error())
+        .isInstanceOf(ParseException.class);
   }
 }

@@ -21,6 +21,7 @@ import static java.util.Comparator.comparingInt;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.javascript.jscomp.deps.SortedDependencies;
 import com.google.javascript.jscomp.graph.DiGraph;
@@ -150,13 +151,15 @@ final class PruningAnalysis {
       depSymbols.addAll(input.getTypeRequires());
 
       for (String symbol : depSymbols) {
-        try {
-          CompilerInput dep = sorter.getInputProviding(symbol);
+        Outcome<CompilerInput> depRes =
+            sorter.getInputProviding(symbol);
+        if (depRes.isErr()) {
+          // Skip missing symbols.
+        } else {
+          CompilerInput dep = depRes.get();
           if (!dep.equals(input)) {
             graph.connectIfNotFound(name, null, dep.getName());
           }
-        } catch (SortedDependencies.MissingProvideException e) {
-          // Skip missing symbols.
         }
       }
     }

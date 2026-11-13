@@ -21,18 +21,19 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
 import static com.google.javascript.jscomp.JsMessageVisitor.MESSAGE_TREE_MALFORMED;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CompilerOptions.PropertyCollapseLevel;
 import com.google.javascript.jscomp.JsMessage.Part;
-import com.google.javascript.jscomp.JsMessage.PlaceholderFormatException;
 import com.google.javascript.jscomp.JsMessage.StringPart;
 import com.google.javascript.jscomp.JsMessageVisitor.ExtractedIcuTemplateParts;
 import com.google.javascript.jscomp.JsMessageVisitor.IcuMessageTemplateString;
 import com.google.javascript.jscomp.JsMessageVisitor.MalformedException;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Node.SideEffectFlags;
@@ -1093,36 +1094,36 @@ public final class ReplaceMessages {
         }
       }
 
-      try {
-        if (!icuPlaceholderNames.isEmpty()) {
-          checkState(
-              isIcuTemplate,
-              "Found icu_placeholder_names for a message that is not an ICU template.");
-          // This is an ICU template with placeholders ("{$placeholderName}"). We cannot treat this
-          // as a single string part, because it has multiple parts. Otherwise, we will generate the
-          // wrong message id and we will not be able to find the correct translated message in the
-          // XTB file (because when the XMB message was created during message extraction, we
-          // treated this ICU template as having multiple parts).
-          final IcuMessageTemplateString icuMessageTemplateString =
-              new IcuMessageTemplateString(messageText);
-          final ExtractedIcuTemplateParts extractedIcuTemplateParts =
-              icuMessageTemplateString.extractParts(icuPlaceholderNames);
+      if (!icuPlaceholderNames.isEmpty()) {
+        checkState(
+            isIcuTemplate, "Found icu_placeholder_names for a message that is not an ICU template.");
+        // This is an ICU template with placeholders ("{$placeholderName}"). We cannot treat this
+        // as a single string part, because it has multiple parts. Otherwise, we will generate the
+        // wrong message id and we will not be able to find the correct translated message in the
+        // XTB file (because when the XMB message was created during message extraction, we
+        // treated this ICU template as having multiple parts).
+        final IcuMessageTemplateString icuMessageTemplateString =
+            new IcuMessageTemplateString(messageText);
+        final ExtractedIcuTemplateParts extractedIcuTemplateParts =
+            icuMessageTemplateString.extractParts(icuPlaceholderNames);
 
-          // Append the parts of the ICU template to the jsMessageBuilder.
-          jsMessageBuilder.appendParts(extractedIcuTemplateParts.extractedParts);
-        } else {
-          // This message is a single string part. It may be an ICU template without placeholders,
-          // or it may be a normal `goog.getMsg()` message.
-          jsMessageBuilder.appendParts(JsMessageVisitor.parseJsMessageTextIntoParts(messageText));
+        // Append the parts of the ICU template to the jsMessageBuilder.
+        jsMessageBuilder.appendParts(extractedIcuTemplateParts.extractedParts);
+      } else {
+        // This message is a single string part. It may be an ICU template without placeholders,
+        // or it may be a normal `goog.getMsg()` message.
+        Outcome<ImmutableList<Part>> partsRes =
+            JsMessageVisitor.parseJsMessageTextIntoParts(messageText);
+        if (partsRes.isErr()) {
+          // Somehow we stored the protected message text incorrectly, which should never
+          // happen 🙏
+          throw new IllegalStateException(
+              messageTextNode.getLocation()
+                  + ": Placeholder incorrectly formatted: >"
+                  + messageText
+                  + "<");
         }
-      } catch (PlaceholderFormatException unused) {
-        // Somehow we stored the protected message text incorrectly, which should never
-        // happen 🙏
-        throw new IllegalStateException(
-            messageTextNode.getLocation()
-                + ": Placeholder incorrectly formatted: >"
-                + messageText
-                + "<");
+        jsMessageBuilder.appendParts(partsRes.get());
       }
 
       final String externalMessageId = JsMessageVisitor.getExternalMessageId(msgKey);

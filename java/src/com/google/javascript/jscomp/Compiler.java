@@ -57,6 +57,7 @@ import com.google.javascript.jscomp.JSChunkGraph.DependencyManagementResult;
 import com.google.javascript.jscomp.JSChunkGraph.MissingChunkException;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.jscomp.colors.ColorRegistry;
 import com.google.javascript.jscomp.deps.BrowserModuleResolver;
@@ -2343,15 +2344,18 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     // Check if the sources need to be re-ordered.
     boolean staleInputs = false;
     if (options.getDependencyOptions().needsManagement()) {
-      try {
-        DependencyManagementResult result =
-            chunkGraph.manageDependencies(this, options.getDependencyOptions());
+      Outcome<DependencyManagementResult> resultRes =
+          chunkGraph.manageDependencies(this, options.getDependencyOptions());
+      if (resultRes.isErr()) {
+        if (resultRes.error() instanceof MissingProvideException) {
+          report(JSError.make(MISSING_ENTRY_ERROR, resultRes.errorMessage()));
+        } else {
+          report(JSError.make(MISSING_CHUNK_ERROR, resultRes.errorMessage()));
+        }
+      } else {
+        DependencyManagementResult result = resultRes.get();
         staleInputs = true;
         maybeLogPruningAnalysis(result);
-      } catch (MissingProvideException e) {
-        report(JSError.make(MISSING_ENTRY_ERROR, e.getMessage()));
-      } catch (MissingChunkException e) {
-        report(JSError.make(MISSING_CHUNK_ERROR, e.getMessage()));
       }
     }
     hoistExterns(originalInputs);

@@ -338,7 +338,7 @@ public final class JSChunkGraphTest {
     setUpManageDependenciesTest();
     DependencyOptions depOptions = DependencyOptions.pruneLegacyForEntryPoints(ImmutableList.of());
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, depOptions).orderedInputs();
+        graph.manageDependencies(compiler, depOptions).get().orderedInputs();
 
     assertInputs(chunkA, "a1", "a3");
     assertInputs(chunkB, "a2", "b2");
@@ -358,7 +358,7 @@ public final class JSChunkGraphTest {
         DependencyOptions.pruneLegacyForEntryPoints(
             ImmutableList.of(ModuleIdentifier.forClosure("c2")));
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, depOptions).orderedInputs();
+        graph.manageDependencies(compiler, depOptions).get().orderedInputs();
 
     assertInputs(chunkA, "a1", "a3");
     assertInputs(chunkB, "a2", "b2");
@@ -377,7 +377,7 @@ public final class JSChunkGraphTest {
     DependencyOptions depOptions =
         DependencyOptions.pruneForEntryPoints(ImmutableList.of(ModuleIdentifier.forClosure("c2")));
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, depOptions).orderedInputs();
+        graph.manageDependencies(compiler, depOptions).get().orderedInputs();
 
     // Everything gets pushed up into chunk c, because that's
     // the only one that has entry points.
@@ -405,7 +405,7 @@ public final class JSChunkGraphTest {
     DependencyOptions depOptions =
         DependencyOptions.pruneForEntryPoints(ImmutableList.of(ModuleIdentifier.forClosure("a1")));
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, depOptions).orderedInputs();
+        graph.manageDependencies(compiler, depOptions).get().orderedInputs();
 
     assertInputs(chunkA, "a1", "a2");
     assertThat(sourceNames(results)).containsExactly("a1", "a2");
@@ -429,7 +429,7 @@ public final class JSChunkGraphTest {
     DependencyOptions depOptions =
         DependencyOptions.pruneForEntryPoints(ImmutableList.of(ModuleIdentifier.forClosure("a1")));
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, depOptions).orderedInputs();
+        graph.manageDependencies(compiler, depOptions).get().orderedInputs();
 
     // Everything gets pushed up into chunk c, because that's
     // the only one that has entry points.
@@ -444,7 +444,7 @@ public final class JSChunkGraphTest {
     makeGraph();
     setUpManageDependenciesTest();
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, DependencyOptions.sortOnly()).orderedInputs();
+        graph.manageDependencies(compiler, DependencyOptions.sortOnly()).get().orderedInputs();
 
     assertInputs(chunkA, "a1", "a2", "a3");
     assertInputs(chunkB, "b1", "b2");
@@ -477,7 +477,7 @@ public final class JSChunkGraphTest {
     }
 
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, DependencyOptions.sortOnly()).orderedInputs();
+        graph.manageDependencies(compiler, DependencyOptions.sortOnly()).get().orderedInputs();
 
     assertInputs(chunkA, "base.js", "a1", "a2");
 
@@ -489,7 +489,7 @@ public final class JSChunkGraphTest {
     makeDeps();
     makeGraph();
     ImmutableList<CompilerInput> results =
-        graph.manageDependencies(compiler, DependencyOptions.sortOnly()).orderedInputs();
+        graph.manageDependencies(compiler, DependencyOptions.sortOnly()).get().orderedInputs();
     assertThat(results).isEmpty();
   }
 
@@ -571,7 +571,7 @@ public final class JSChunkGraphTest {
       }
 
       ImmutableList<CompilerInput> results =
-          graph.manageDependencies(compiler, depOptions).orderedInputs();
+          graph.manageDependencies(compiler, depOptions).get().orderedInputs();
 
       assertInputs(chunkA, "base.js", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a1");
 
@@ -630,7 +630,7 @@ public final class JSChunkGraphTest {
       }
 
       ImmutableList<CompilerInput> results =
-          graph.manageDependencies(compiler, depOptions).orderedInputs();
+          graph.manageDependencies(compiler, depOptions).get().orderedInputs();
 
       assertInputs(
           chunkA,
@@ -694,7 +694,7 @@ public final class JSChunkGraphTest {
     }
 
     makeGraph();
-    graph.manageDependencies(compiler, DependencyOptions.sortOnly());
+    graph.manageDependencies(compiler, DependencyOptions.sortOnly()).get();
 
     assertThat(getWeakChunk().getInputs().stream().map(CompilerInput::getSourceFile))
         .containsExactly(weak1, weak2);
@@ -725,7 +725,7 @@ public final class JSChunkGraphTest {
         compiler,
         DependencyOptions.pruneForEntryPoints(
             ImmutableList.of(
-                ModuleIdentifier.forFile("strong1"), ModuleIdentifier.forFile("strong2"))));
+                ModuleIdentifier.forFile("strong1"), ModuleIdentifier.forFile("strong2")))).get();
 
     assertThat(
             getWeakChunk().getInputs().stream()
@@ -767,7 +767,7 @@ public final class JSChunkGraphTest {
         compiler,
         DependencyOptions.pruneForEntryPoints(
             ImmutableList.of(
-                ModuleIdentifier.forFile("strong1"), ModuleIdentifier.forFile("strong2"))));
+                ModuleIdentifier.forFile("strong1"), ModuleIdentifier.forFile("strong2")))).get();
 
     assertThat(
             getWeakChunk().getInputs().stream()
@@ -798,7 +798,7 @@ public final class JSChunkGraphTest {
     graph.manageDependencies(
         compiler,
         DependencyOptions.pruneLegacyForEntryPoints(
-            ImmutableList.of(ModuleIdentifier.forFile("strong"))));
+            ImmutableList.of(ModuleIdentifier.forFile("strong")))).get();
 
     assertThat(getWeakChunk().getInputs().stream().map(CompilerInput::getSourceFile))
         .containsExactly(weak);
@@ -825,7 +825,7 @@ public final class JSChunkGraphTest {
     }
 
     makeGraph();
-    graph.manageDependencies(compiler, DependencyOptions.sortOnly());
+    graph.manageDependencies(compiler, DependencyOptions.sortOnly()).get();
 
     assertThat(getWeakChunk().getInputs()).isEmpty();
     assertThat(chunkA.getInputs().stream().map(CompilerInput::getSourceFile))
@@ -855,7 +855,7 @@ public final class JSChunkGraphTest {
         compiler,
         DependencyOptions.pruneForEntryPoints(
             ImmutableList.of(
-                ModuleIdentifier.forFile("strong1"), ModuleIdentifier.forFile("strong2"))));
+                ModuleIdentifier.forFile("strong1"), ModuleIdentifier.forFile("strong2")))).get();
 
     assertThat(getWeakChunk().getInputs().stream().map(CompilerInput::getSourceFile))
         .containsExactly(weak1, weak2);
@@ -892,7 +892,7 @@ public final class JSChunkGraphTest {
     graph.manageDependencies(
         compiler,
         DependencyOptions.pruneForEntryPoints(
-            ImmutableList.of(ModuleIdentifier.forFile("strong1"))));
+            ImmutableList.of(ModuleIdentifier.forFile("strong1")))).get();
 
     assertThat(getWeakChunk().getInputs().stream().map(CompilerInput::getSourceFile))
         .containsExactly(weak1, weak2, weak3, strongFromWeak);

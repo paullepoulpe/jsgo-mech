@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.errorprone.annotations.Immutable;
 import com.google.errorprone.annotations.InlineMe;
+import com.google.javascript.jscomp.base.Outcome;
 import java.io.Serializable;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -188,7 +189,7 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
    * <p>TODO(tjgq): Simplify this once we deprecate and remove all legacy flags and standardize on
    * --dependency_mode and --entry_point.
    */
-  public static @Nullable DependencyOptions fromFlags(
+  public static Outcome<@Nullable DependencyOptions> fromFlags(
       @Nullable DependencyMode dependencyModeFlag,
       List<String> entryPointFlag,
       List<String> closureEntryPointFlag,
@@ -202,47 +203,49 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
             || !closureEntryPointFlag.isEmpty();
 
     if (!hasEntryPoint && onlyClosureDependenciesFlag) {
-      throw new FlagUsageException("--only_closure_dependencies requires --entry_point.");
+      return Outcome.err(
+          new FlagUsageException("--only_closure_dependencies requires --entry_point."));
     }
 
     if (!hasEntryPoint && dependencyModeFlag == DependencyMode.PRUNE) {
-      throw new FlagUsageException("--dependency_mode=PRUNE requires --entry_point.");
+      return Outcome.err(new FlagUsageException("--dependency_mode=PRUNE requires --entry_point."));
     }
 
     if (hasEntryPoint
         && (dependencyModeFlag == DependencyMode.NONE
             || dependencyModeFlag == DependencyMode.SORT_ONLY)) {
-      throw new FlagUsageException(
+      return Outcome.err(new FlagUsageException(
           "--dependency_mode="
               + dependencyModeFlag
               + " cannot be used with --entry_point, --closure_entry_point or "
-              + "--common_js_entry_module.");
+              + "--common_js_entry_module."));
     }
 
     if (!entryPointFlag.isEmpty() && !closureEntryPointFlag.isEmpty()) {
-      throw new FlagUsageException("--closure_entry_point cannot be used with --entry_point.");
+      return Outcome.err(
+          new FlagUsageException("--closure_entry_point cannot be used with --entry_point."));
     }
 
     if (commonJsEntryModuleFlag != null
         && (!entryPointFlag.isEmpty() || !closureEntryPointFlag.isEmpty())) {
-      throw new FlagUsageException(
+      return Outcome.err(new FlagUsageException(
           "--common_js_entry_module cannot be used with either --entry_point or "
-              + "--closure_entry_point.");
+              + "--closure_entry_point."));
     }
 
     if (manageClosureDependenciesFlag && onlyClosureDependenciesFlag) {
-      throw new FlagUsageException(
-          "--only_closure_dependencies cannot be used with --manage_closure_dependencies.");
+      return Outcome.err(new FlagUsageException(
+          "--only_closure_dependencies cannot be used with --manage_closure_dependencies."));
     }
 
     if (manageClosureDependenciesFlag && dependencyModeFlag != null) {
-      throw new FlagUsageException(
-          "--manage_closure_dependencies cannot be used with --dependency_mode.");
+      return Outcome.err(new FlagUsageException(
+          "--manage_closure_dependencies cannot be used with --dependency_mode."));
     }
 
     if (onlyClosureDependenciesFlag && dependencyModeFlag != null) {
-      throw new FlagUsageException(
-          "--only_closure_dependencies cannot be used with --dependency_mode.");
+      return Outcome.err(new FlagUsageException(
+          "--only_closure_dependencies cannot be used with --dependency_mode."));
     }
 
     DependencyMode dependencyMode;
@@ -257,7 +260,7 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
     } else if (dependencyModeFlag != null) {
       dependencyMode = dependencyModeFlag;
     } else {
-      return null;
+      return Outcome.ok(null);
     }
 
     ImmutableList.Builder<ModuleIdentifier> entryPointsBuilder = ImmutableList.builder();
@@ -271,7 +274,7 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
       entryPointsBuilder.add(ModuleIdentifier.forClosure(closureEntryPoint));
     }
 
-    return switch (dependencyMode) {
+    DependencyOptions result = switch (dependencyMode) {
       case NONE -> DependencyOptions.none();
       case SORT_ONLY -> DependencyOptions.sortOnly();
       case PRUNE_LEGACY -> DependencyOptions.pruneLegacyForEntryPoints(entryPointsBuilder.build());
@@ -279,5 +282,6 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
           DependencyOptions.pruneAllowNoEntryPoints(entryPointsBuilder.build());
       case PRUNE -> DependencyOptions.pruneForEntryPoints(entryPointsBuilder.build());
     };
+    return Outcome.ok(result);
   }
 }

@@ -48,6 +48,7 @@ import com.google.javascript.jscomp.CompilerOptions.JsonStreamMode;
 import com.google.javascript.jscomp.CompilerOptions.OutputJs;
 import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.CompilerOptions.TweakProcessing;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.SourceCodeEscapers;
 import com.google.javascript.jscomp.ijs.IjsErrors;
@@ -354,11 +355,12 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     List<String> define = new ArrayList<>(config.define);
     if (config.browserFeaturesetYear != 0) {
-      try {
-        options.setBrowserFeaturesetYear(config.browserFeaturesetYear);
-      } catch (IllegalStateException e) {
-        throw new FlagUsageException(e.getMessage());
+      Outcome<CompilerOptions.BrowserFeaturesetYear> yearRes =
+          CompilerOptions.BrowserFeaturesetYear.fromResult(config.browserFeaturesetYear);
+      if (yearRes.isErr()) {
+        throw new FlagUsageException(yearRes.errorMessage());
       }
+      options.setBrowserFeaturesetYearEnum(yearRes.get());
     }
 
     createDefineReplacements(define, options);
@@ -572,7 +574,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @param jsChunkSpecs A list chunk specs.
    * @return An array of inputs
    */
-  private List<SourceFile> createInputs(
+  private Outcome<List<SourceFile>> createInputs(
       List<FlagEntry<JsSourceType>> files, boolean allowStdIn, List<JsChunkSpec> jsChunkSpecs)
       throws IOException {
     return createInputs(files, /* jsonFiles= */ null, allowStdIn, jsChunkSpecs);
@@ -586,7 +588,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @param jsChunkSpecs A list chunk specs.
    * @return An array of inputs
    */
-  private List<SourceFile> createInputsList(
+  private Outcome<List<SourceFile>> createInputsList(
       List<FlagEntry<JsSourceType>> files,
       List<JsonFileSpec> jsonFiles,
       List<JsChunkSpec> jsChunkSpecs)
@@ -606,7 +608,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @param jsChunkSpecs A list chunk specs.
    * @return An array of inputs
    */
-  protected List<SourceFile> createInputs(
+  protected Outcome<List<SourceFile>> createInputs(
       List<FlagEntry<JsSourceType>> files,
       @Nullable List<JsonFileSpec> jsonFiles,
       boolean allowStdIn,
@@ -623,7 +625,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       String filename = file.value;
       if (file.flag == JsSourceType.JS_ZIP) {
         if (this.config.typedAstListInputFilename != null) {
-          throw new FlagUsageException("Can't use TypedASTs with --zip.");
+          return Outcome.err(new FlagUsageException("Can't use TypedASTs with --zip."));
         }
 
         if (!"-".equals(filename)) {
@@ -655,22 +657,22 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         inputs.add(newFile);
       } else {
         if (this.config.typedAstListInputFilename != null) {
-          throw new FlagUsageException("Can't use TypedASTs with stdin.");
+          return Outcome.err(new FlagUsageException("Can't use TypedASTs with stdin."));
         }
         if (!config.defaultToStdin) {
-          throw new FlagUsageException("Can't specify stdin.");
+          return Outcome.err(new FlagUsageException("Can't specify stdin."));
         }
         if (usingStdin) {
-          throw new FlagUsageException("Can't specify stdin twice.");
+          return Outcome.err(new FlagUsageException("Can't specify stdin twice."));
         }
 
         if (!config.outputManifests.isEmpty()) {
-          throw new FlagUsageException(
-              "Manifest files cannot be generated when the input is from stdin.");
+          return Outcome.err(new FlagUsageException(
+              "Manifest files cannot be generated when the input is from stdin."));
         }
         if (!config.outputBundles.isEmpty()) {
-          throw new FlagUsageException(
-              "Bundle files cannot be generated when the input is from stdin.");
+          return Outcome.err(new FlagUsageException(
+              "Bundle files cannot be generated when the input is from stdin."));
         }
 
         this.err.println(WAITING_FOR_INPUT_WARNING);
@@ -696,7 +698,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
     }
 
-    return inputs;
+    return Outcome.ok(inputs);
   }
 
   /**
@@ -778,15 +780,16 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       compiler.report(error);
     }
 
-    try {
-      if (jsonFiles != null) {
-        return createInputsList(files, jsonFiles, jsChunkSpecs);
-      } else {
-        return createInputs(files, true, jsChunkSpecs);
-      }
-    } catch (FlagUsageException e) {
-      throw new FlagUsageException("Bad --js flag. " + e.getMessage());
+    Outcome<List<SourceFile>> inputsRes;
+    if (jsonFiles != null) {
+      inputsRes = createInputsList(files, jsonFiles, jsChunkSpecs);
+    } else {
+      inputsRes = createInputs(files, true, jsChunkSpecs);
     }
+    if (inputsRes.isErr()) {
+      throw new FlagUsageException("Bad --js flag. " + inputsRes.errorMessage());
+    }
+    return inputsRes.get();
   }
 
   /** Creates JS extern inputs from a list of files. */
@@ -795,11 +798,12 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     for (String file : files) {
       externFiles.add(new FlagEntry<JsSourceType>(JsSourceType.EXTERN, file));
     }
-    try {
-      return createInputs(externFiles, false, new ArrayList<JsChunkSpec>());
-    } catch (FlagUsageException e) {
-      throw new FlagUsageException("Bad --externs flag. " + e.getMessage());
+    Outcome<List<SourceFile>> inputsRes =
+        createInputs(externFiles, false, new ArrayList<JsChunkSpec>());
+    if (inputsRes.isErr()) {
+      throw new FlagUsageException("Bad --externs flag. " + inputsRes.errorMessage());
     }
+    return inputsRes.get();
   }
 
   /**

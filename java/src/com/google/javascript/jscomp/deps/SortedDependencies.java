@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.javascript.jscomp.base.Outcome;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -93,15 +94,15 @@ public final class SortedDependencies<InputT extends DependencyInfo> {
   /**
    * Return the input that gives us the given symbol.
    *
-   * @throws MissingProvideException An exception if there is no input for this symbol.
+   * @return a {@link MissingProvideException} error if there is no input for this symbol.
    */
-  public InputT getInputProviding(String symbolName) throws MissingProvideException {
+  public Outcome<InputT> getInputProviding(String symbolName) {
     InputT input = maybeGetInputProviding(symbolName);
     if (input != null) {
-      return input;
+      return Outcome.ok(input);
     }
 
-    throw new MissingProvideException(symbolName);
+    return Outcome.err(new MissingProvideException(symbolName));
   }
 
   public ImmutableList<InputT> getInputsWithoutProvides() {

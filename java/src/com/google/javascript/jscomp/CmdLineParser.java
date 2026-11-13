@@ -71,6 +71,9 @@ public final class CmdLineParser {
      * @throws CmdLineException if there is no such token
      */
     String getParameter(int idx) throws CmdLineException;
+
+    /** Returns the token at the given offset, or null if there is no such token. */
+    @Nullable String getParameterOrNull(int idx);
   }
 
   /** Parses the value of one occurrence of a flag. */
@@ -207,12 +210,7 @@ public final class CmdLineParser {
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
-            String param = null;
-            try {
-              param = params.getParameter(0);
-            } catch (CmdLineException e) {
-              param = null; // to stop linter complaints
-            }
+            String param = params.getParameterOrNull(0);
 
             if (param == null) {
               set.accept(true);
@@ -544,6 +542,14 @@ public final class CmdLineParser {
       if (pos + idx >= args.length || pos + idx < 0) {
         throw new CmdLineException(
             CmdLineParser.this, "Option \"" + currentOption + "\" takes an operand");
+      }
+      return args[pos + idx];
+    }
+
+    @Override
+    public @Nullable String getParameterOrNull(int idx) {
+      if (pos + idx >= args.length || pos + idx < 0) {
+        return null;
       }
       return args[pos + idx];
     }

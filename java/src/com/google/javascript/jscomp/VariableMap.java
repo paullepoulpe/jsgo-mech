@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Files;
 import com.google.errorprone.annotations.Immutable;
+import com.google.javascript.jscomp.base.Outcome;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,12 +83,12 @@ public final class VariableMap implements Serializable {
 
   /** Reads the variable map from a file written via {@link #save(String)}. */
   public static VariableMap load(String filename) throws IOException {
-    try {
-      return fromBytes(Files.toByteArray(new File(filename)));
-    } catch (ParseException e) {
+    Outcome<VariableMap> mapRes = fromBytes(Files.toByteArray(new File(filename)));
+    if (mapRes.isErr()) {
       // Wrap parse exception for backwards compatibility.
-      throw new IOException(e);
+      throw new IOException(mapRes.error());
     }
+    return mapRes.get();
   }
 
   /** Serializes the variable map to a byte array. */
@@ -113,12 +114,12 @@ public final class VariableMap implements Serializable {
   }
 
   /** Deserializes the variable map from a byte array returned by {@link #toBytes()}. */
-  public static VariableMap fromBytes(byte[] bytes) throws ParseException {
+  public static Outcome<VariableMap> fromBytes(byte[] bytes) {
     return fromLines(new String(bytes, UTF_8));
   }
 
   /** Deserializes the variable map from an InputStream. */
-  public static VariableMap fromStream(InputStream stream) throws ParseException, IOException {
+  public static Outcome<VariableMap> fromStream(InputStream stream) throws IOException {
     ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
     BufferedReader br = new BufferedReader(new InputStreamReader(stream, UTF_8));
     String line;
@@ -132,17 +133,17 @@ public final class VariableMap implements Serializable {
       }
       int pos = findIndexOfUnescapedChar(line, SEPARATOR);
       if (pos <= 0) {
-        throw new ParseException("Bad line: " + line, 0);
+        return Outcome.err(new ParseException("Bad line: " + line, 0));
       }
       map.put(
           unescape(line.substring(0, pos)),
           pos == line.length() - 1 ? "" : unescape(line.substring(pos + 1)));
     }
-    return new VariableMap(map.buildOrThrow());
+    return Outcome.ok(new VariableMap(map.buildOrThrow()));
   }
 
   /** Deserializes the variable map from a string. */
-  public static VariableMap fromLines(String string) throws ParseException {
+  public static Outcome<VariableMap> fromLines(String string) {
     ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
     int startOfLine = 0;
     while (startOfLine < string.length()) {
@@ -161,13 +162,13 @@ public final class VariableMap implements Serializable {
       }
       int pos = findIndexOfUnescapedChar(line, SEPARATOR);
       if (pos <= 0) {
-        throw new ParseException("Bad line: " + line, 0);
+        return Outcome.err(new ParseException("Bad line: " + line, 0));
       }
       map.put(
           unescape(line.substring(0, pos)),
           pos == line.length() - 1 ? "" : unescape(line.substring(pos + 1)));
     }
-    return new VariableMap(map.buildOrThrow());
+    return Outcome.ok(new VariableMap(map.buildOrThrow()));
   }
 
   private static String escape(String value) {

@@ -33,6 +33,7 @@ import com.google.javascript.jscomp.JsMessage.PlaceholderFormatException;
 import com.google.javascript.jscomp.JsMessage.PlaceholderReference;
 import com.google.javascript.jscomp.JsMessage.StringPart;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
@@ -713,12 +714,12 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     // The message string can be a string literal or a concatenation of string literals.
     // We want the whole thing as a single string here.
     String msgTextString = extractStringFromStringExprNode(msgTextNode);
-    final GoogGetMsgParsedText googGetMsgParsedText;
-    try {
-      googGetMsgParsedText = extractGoogGetMsgParsedText(msgTextString);
-    } catch (PlaceholderFormatException e) {
-      throw new MalformedException(e.getMessage(), msgTextNode);
+    Outcome<GoogGetMsgParsedText> googGetMsgParsedTextRes =
+        extractGoogGetMsgParsedText(msgTextString);
+    if (googGetMsgParsedTextRes.isErr()) {
+      throw new MalformedException(googGetMsgParsedTextRes.errorMessage(), msgTextNode);
     }
+    final GoogGetMsgParsedText googGetMsgParsedText = googGetMsgParsedTextRes.get();
 
     // Extract the placeholder values object
     // NOTE: The extract method returns an effectively "empty" value for `null`
@@ -1437,14 +1438,18 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     return new ObjectLiteralMapImpl(stringToStringKeyMap);
   }
 
-  public static ImmutableList<Part> parseJsMessageTextIntoParts(String originalMsgText)
-      throws PlaceholderFormatException {
-    GoogGetMsgParsedText googGetMsgParsedText = extractGoogGetMsgParsedText(originalMsgText);
-    return googGetMsgParsedText.getParts();
+  public static Outcome<ImmutableList<Part>> parseJsMessageTextIntoParts(String originalMsgText) {
+    Outcome<GoogGetMsgParsedText> googGetMsgParsedTextRes =
+        extractGoogGetMsgParsedText(originalMsgText);
+    if (googGetMsgParsedTextRes.isErr()) {
+      return Outcome.err(googGetMsgParsedTextRes.error());
+    }
+    GoogGetMsgParsedText googGetMsgParsedText = googGetMsgParsedTextRes.get();
+    return Outcome.ok(googGetMsgParsedText.getParts());
   }
 
-  private static GoogGetMsgParsedText extractGoogGetMsgParsedText(final String originalMsgText)
-      throws PlaceholderFormatException {
+  private static Outcome<GoogGetMsgParsedText> extractGoogGetMsgParsedText(
+      final String originalMsgText) {
     String msgText = originalMsgText;
     ImmutableList.Builder<Part> partsBuilder = ImmutableList.builder();
     ImmutableSet.Builder<String> placeholderNamesBuilder = ImmutableSet.builder();
@@ -1463,12 +1468,13 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         // A placeholder. Find where it ends
         int phEnd = msgText.indexOf(JsMessage.PH_JS_SUFFIX, phBegin);
         if (phEnd < 0) {
-          throw new PlaceholderFormatException("Placeholder incorrectly formatted");
+          return Outcome.err(new PlaceholderFormatException("Placeholder incorrectly formatted"));
         }
 
         String phName = msgText.substring(phBegin + JsMessage.PH_JS_PREFIX.length(), phEnd);
         if (!JsMessage.isLowerCamelCaseWithNumericSuffixes(phName)) {
-          throw new PlaceholderFormatException("Placeholder name not in lowerCamelCase: " + phName);
+          return Outcome.err(
+              new PlaceholderFormatException("Placeholder name not in lowerCamelCase: " + phName));
         }
         placeholderNamesBuilder.add(phName);
         partsBuilder.add(PlaceholderReference.createForJsName(phName));
@@ -1486,7 +1492,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     final ImmutableList<Part> parts = partsBuilder.build();
     // NOTE: The methods defined below should do little to no computation, and definitely should
     // not throw exceptions.
-    return new GoogGetMsgParsedText() {
+    GoogGetMsgParsedText parsedText = new GoogGetMsgParsedText() {
       @Override
       public String getText() {
         return originalMsgText;
@@ -1502,6 +1508,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         return parts;
       }
     };
+    return Outcome.ok(parsedText);
   }
 
   private interface GoogGetMsgParsedText {

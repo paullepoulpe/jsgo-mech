@@ -40,6 +40,7 @@ import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.DependencyOptions.DependencyMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ClosureBundler;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
@@ -1380,7 +1381,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       return result.buildOrThrow();
     }
 
-    List<String> getPackageJsonEntryNames() throws CmdLineException {
+    List<String> getPackageJsonEntryNames() {
       return Splitter.on(',').splitToList(packageJsonEntryNames);
     }
 
@@ -1682,12 +1683,13 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     DependencyOptions dependencyOptions = null;
-    try {
-      dependencyOptions =
-          DependencyOptions.fromFlags(
-              flags.dependencyMode, flags.entryPoint, ImmutableList.of(), null, false, false);
-    } catch (FlagUsageException e) {
-      reportError(e.getMessage());
+    Outcome<DependencyOptions> dependencyOptionsRes =
+        DependencyOptions.fromFlags(
+            flags.dependencyMode, flags.entryPoint, ImmutableList.of(), null, false, false);
+    if (dependencyOptionsRes.isErr()) {
+      reportError(dependencyOptionsRes.errorMessage());
+    } else {
+      dependencyOptions = dependencyOptionsRes.get();
     }
 
     if (errors) {
@@ -1939,12 +1941,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         ImmutableMap.copyOf(flags.browserResolverPrefixReplacements));
 
     if (flags.packageJsonEntryNames != null) {
-      try {
-        List<String> packageJsonEntryNames = flags.getPackageJsonEntryNames();
-        options.setPackageJsonEntryNames(packageJsonEntryNames);
-      } catch (CmdLineException e) {
-        reportError("ERROR - invalid package_json_entry_names format specified.");
-      }
+      List<String> packageJsonEntryNames = flags.getPackageJsonEntryNames();
+      options.setPackageJsonEntryNames(packageJsonEntryNames);
     }
 
     if (!flags.renaming) {

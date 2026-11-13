@@ -34,6 +34,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.SortedDependencies;
 import com.google.javascript.jscomp.deps.SortedDependencies.MissingProvideException;
 import com.google.javascript.jscomp.graph.LinkedDirectedGraph;
@@ -510,19 +511,23 @@ public final class JSChunkGraph implements Serializable {
    *
    * <p>See {@link DependencyOptions} for more information on how this works.
    *
-   * @throws MissingProvideException if an entry point was not provided by any of the inputs.
+   * @return a {@link MissingProvideException} error if an entry point was not provided by any of
+   *     the inputs, a {@link MissingChunkException} error if an entry point names an unknown chunk.
    */
-  public DependencyManagementResult manageDependencies(
-      AbstractCompiler compiler, DependencyOptions dependencyOptions)
-      throws MissingProvideException, MissingChunkException {
+  public Outcome<DependencyManagementResult> manageDependencies(
+      AbstractCompiler compiler, DependencyOptions dependencyOptions) {
 
     // Make a copy since we're going to mutate the graph below.
     ImmutableList<CompilerInput> originalInputs = ImmutableList.copyOf(getAllInputs());
 
     SortedDependencies<CompilerInput> sorter = new SortedDependencies<>(originalInputs);
 
-    Set<CompilerInput> entryPointInputs =
+    Outcome<Set<CompilerInput>> entryPointInputsRes =
         createEntryPointInputs(compiler, dependencyOptions, getAllInputs(), sorter);
+    if (entryPointInputsRes.isErr()) {
+      return Outcome.err(entryPointInputsRes.error());
+    }
+    Set<CompilerInput> entryPointInputs = entryPointInputsRes.get();
 
     // Build a map of symbols to their source file(s). While having multiple source files is invalid
     // we leave that up to typechecking so that we avoid arbitrarily picking a file.
@@ -654,8 +659,9 @@ public final class JSChunkGraph implements Serializable {
       }
     }
 
-    return new DependencyManagementResult(
-        ImmutableList.copyOf(orderedInputs), sorter, ImmutableSet.copyOf(entryPointInputs));
+    return Outcome.ok(
+        new DependencyManagementResult(
+            ImmutableList.copyOf(orderedInputs), sorter, ImmutableSet.copyOf(entryPointInputs)));
   }
 
   /** Result of {@link JSChunkGraph#manageDependencies}. */
@@ -692,12 +698,11 @@ public final class JSChunkGraph implements Serializable {
     return orderedInputs;
   }
 
-  private Set<CompilerInput> createEntryPointInputs(
+  private Outcome<Set<CompilerInput>> createEntryPointInputs(
       AbstractCompiler compiler,
       DependencyOptions dependencyOptions,
       Iterable<CompilerInput> inputs,
-      SortedDependencies<CompilerInput> sorter)
-      throws MissingChunkException, MissingProvideException {
+      SortedDependencies<CompilerInput> sorter) {
     Set<CompilerInput> entryPointInputs = new LinkedHashSet<>();
     Map<String, JSChunk> chunksByName = getChunksByName();
     if (dependencyOptions.shouldPrune()) {
@@ -722,25 +727,34 @@ public final class JSChunkGraph implements Serializable {
 
       for (ModuleIdentifier entryPoint : dependencyOptions.entryPoints()) {
         CompilerInput entryPointInput = null;
-        try {
-          if (entryPoint.closureNamespace().equals(entryPoint.moduleName())) {
-            entryPointInput = sorter.maybeGetInputProviding(entryPoint.closureNamespace());
-            // Check to see if we can find the entry point as an ES6 and CommonJS module
-            // ES6 and CommonJS entry points may not provide any symbols
-            if (entryPointInput == null) {
-              entryPointInput = sorter.getInputProviding(entryPoint.name());
+        if (entryPoint.closureNamespace().equals(entryPoint.moduleName())) {
+          entryPointInput = sorter.maybeGetInputProviding(entryPoint.closureNamespace());
+          // Check to see if we can find the entry point as an ES6 and CommonJS module
+          // ES6 and CommonJS entry points may not provide any symbols
+          if (entryPointInput == null) {
+            Outcome<CompilerInput> inputRes = sorter.getInputProviding(entryPoint.name());
+            if (inputRes.isErr()) {
+              return Outcome.err(
+                  new MissingProvideException(
+                      entryPoint.name(), (MissingProvideException) inputRes.error()));
             }
-          } else {
-            JSChunk chunk = chunksByName.get(entryPoint.moduleName());
-            if (chunk == null) {
-              throw new MissingChunkException(entryPoint.moduleName());
-            } else {
-              entryPointInput = sorter.getInputProviding(entryPoint.closureNamespace());
-              entryPointInput.overrideChunk(chunk);
-            }
+            entryPointInput = inputRes.get();
           }
-        } catch (MissingProvideException e) {
-          throw new MissingProvideException(entryPoint.name(), e);
+        } else {
+          JSChunk chunk = chunksByName.get(entryPoint.moduleName());
+          if (chunk == null) {
+            return Outcome.err(new MissingChunkException(entryPoint.moduleName()));
+          } else {
+            Outcome<CompilerInput> inputRes =
+                sorter.getInputProviding(entryPoint.closureNamespace());
+            if (inputRes.isErr()) {
+              return Outcome.err(
+                  new MissingProvideException(
+                      entryPoint.name(), (MissingProvideException) inputRes.error()));
+            }
+            entryPointInput = inputRes.get();
+            entryPointInput.overrideChunk(chunk);
+          }
         }
 
         if (entryPointInput.getSourceFile().isWeak()) {
@@ -754,7 +768,7 @@ public final class JSChunkGraph implements Serializable {
     } else {
       Iterables.addAll(entryPointInputs, inputs);
     }
-    return entryPointInputs;
+    return Outcome.ok(entryPointInputs);
   }
 
   @SuppressWarnings("unused")

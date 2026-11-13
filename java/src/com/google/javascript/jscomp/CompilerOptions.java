@@ -34,6 +34,7 @@ import com.google.common.primitives.Chars;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.RestrictedApi;
 import com.google.javascript.jscomp.annotations.LegacySetFeatureSetCaller;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
@@ -177,11 +178,24 @@ public class CompilerOptions {
     }
 
     static BrowserFeaturesetYear from(int year) {
-      checkState(
-          YEAR_MAP.containsKey(year),
-          "Illegal browser_featureset_year=%s. We support values 2012, or 2018..2026 only",
-          year);
-      return YEAR_MAP.get(year);
+      Outcome<BrowserFeaturesetYear> yearRes = fromResult(year);
+      if (yearRes.isErr()) {
+        throw (IllegalStateException) yearRes.error();
+      }
+      return yearRes.get();
+    }
+
+    /** Like {@link #from}, but an unsupported year is an error result instead of an exception. */
+    static Outcome<BrowserFeaturesetYear> fromResult(int year) {
+      if (!YEAR_MAP.containsKey(year)) {
+        return Outcome.err(
+            new IllegalStateException(
+                Strings.lenientFormat(
+                    "Illegal browser_featureset_year=%s. We support values 2012, or 2018..2026"
+                        + " only",
+                    year)));
+      }
+      return Outcome.ok(YEAR_MAP.get(year));
     }
 
     void setDependentValuesFromYear(CompilerOptions options) {

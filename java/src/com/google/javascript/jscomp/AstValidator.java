@@ -720,12 +720,8 @@ public final class AstValidator implements CompilerPass {
     validateNodeType(Token.TEMPLATELIT_STRING, n);
     validateProperties(n);
     validateChildCount(n);
-    try {
-      // Validate that getRawString doesn't throw
-      n.getRawString();
-    } catch (UnsupportedOperationException e) {
-      violation("Invalid TEMPLATELIT_STRING node.", n);
-    }
+    // Validate that getRawString doesn't throw
+    n.getRawString();
   }
 
   private void validateTemplateLitSub(Node n) {
@@ -1748,36 +1744,24 @@ public final class AstValidator implements CompilerPass {
     validateNodeType(Token.STRINGLIT, n);
     validateProperties(n);
     validateChildCount(n);
-    try {
-      // Validate that getString doesn't throw
-      n.getString();
-    } catch (UnsupportedOperationException e) {
-      violation("Invalid STRING node.", n);
-    }
+    // Validate that getString doesn't throw
+    n.getString();
   }
 
   private void validateNumber(Node n) {
     validateNodeType(Token.NUMBER, n);
     validateProperties(n);
     validateChildCount(n);
-    try {
-      // Validate that getDouble doesn't throw
-      n.getDouble();
-    } catch (UnsupportedOperationException e) {
-      violation("Invalid NUMBER node.", n);
-    }
+    // Validate that getDouble doesn't throw
+    n.getDouble();
   }
 
   private void validateBigInt(Node n) {
     validateNodeType(Token.BIGINT, n);
     validateProperties(n);
     validateChildCount(n);
-    try {
-      // Validate that getBigInt doesn't throw
-      n.getBigInt();
-    } catch (UnsupportedOperationException e) {
-      violation("Invalid BIGINT node.", n);
-    }
+    // Validate that getBigInt doesn't throw
+    n.getBigInt();
   }
 
   private void validateArrayLit(Node n) {
@@ -1962,12 +1946,8 @@ public final class AstValidator implements CompilerPass {
 
   private void validateObjectLiteralKeyName(Node n) {
     if (n.isQuotedStringKey()) {
-      try {
-        // Validate that getString doesn't throw
-        n.getString();
-      } catch (UnsupportedOperationException e) {
-        violation("getString failed for" + n.getToken(), n);
-      }
+      // Validate that getString doesn't throw
+      n.getString();
     } else {
       validateNonEmptyString(n);
     }
