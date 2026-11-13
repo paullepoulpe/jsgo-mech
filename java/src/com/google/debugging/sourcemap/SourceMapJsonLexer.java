@@ -15,6 +15,7 @@
  */
 package com.google.debugging.sourcemap;
 
+import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.jspecify.annotations.Nullable;
 
@@ -155,11 +156,13 @@ final class SourceMapJsonLexer {
     if (start == pos) {
       throw new SourceMapParseException("Expected integer");
     }
-    try {
-      return Integer.parseInt(json, start, pos, 10);
-    } catch (NumberFormatException e) {
+    // The token is an optional '-' and ASCII digits, on which Ints.tryParse and Integer.parseInt
+    // agree.
+    Integer value = Ints.tryParse(json.substring(start, pos));
+    if (value == null) {
       throw new SourceMapParseException("Invalid integer: " + json.substring(start, pos));
     }
+    return value;
   }
 
   String nextRawValue() throws SourceMapParseException {
@@ -236,6 +239,20 @@ final class SourceMapJsonLexer {
     return false;
   }
 
+  /**
+   * Whether {@code Integer.parseInt(s, start, start + 4, 16)} succeeds: the four chars are hex
+   * digits (as {@link Character#digit} defines them), the first of which may be a sign instead.
+   */
+  private static boolean isParsableHex4(String s, int start) {
+    for (int i = start; i < start + 4; i++) {
+      char c = s.charAt(i);
+      if (Character.digit(c, 16) < 0 && !(i == start && (c == '+' || c == '-'))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private static String unescape(String s, int start, int end) throws SourceMapParseException {
     StringBuilder sb = new StringBuilder(end - start);
     for (int i = start; i < end; i++) {
@@ -256,13 +273,12 @@ final class SourceMapJsonLexer {
             if (i + 4 >= end) {
               throw new SourceMapParseException("Invalid unicode escape sequence");
             }
-            try {
-              sb.append((char) Integer.parseInt(s, i + 1, i + 5, 16));
-              i += 4;
-            } catch (NumberFormatException e) {
+            if (!isParsableHex4(s, i + 1)) {
               throw new SourceMapParseException(
                   "Invalid unicode escape: " + s.substring(i + 1, i + 5));
             }
+            sb.append((char) Integer.parseInt(s, i + 1, i + 5, 16));
+            i += 4;
           }
           default -> sb.append(next);
         }

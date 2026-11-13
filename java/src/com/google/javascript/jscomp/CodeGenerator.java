@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Ascii;
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Longs;
 import com.google.debugging.sourcemap.Util;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
@@ -1623,13 +1624,12 @@ public class CodeGenerator {
 
   static double getSimpleNumber(String s) {
     if (isSimpleNumber(s)) {
-      try {
-        long l = Long.parseLong(s);
-        if (l <= NodeUtil.MAX_POSITIVE_INTEGER_NUMBER) {
-          return l;
-        }
-      } catch (NumberFormatException e) {
+      // A simple number is ASCII digits only, on which Longs.tryParse and Long.parseLong agree.
+      Long l = Longs.tryParse(s);
+      if (l == null) {
         // The number was too long to parse. Fall through to NaN.
+      } else if (l <= NodeUtil.MAX_POSITIVE_INTEGER_NUMBER) {
+        return l;
       }
     }
     return Double.NaN;

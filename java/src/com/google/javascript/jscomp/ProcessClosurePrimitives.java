@@ -603,13 +603,18 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
       styleStr = arg.getNext().getString();
     }
 
-    final CssRenamingMap.Style style;
-    try {
-      style = CssRenamingMap.Style.valueOf(styleStr);
-    } catch (IllegalArgumentException e) {
+    CssRenamingMap.Style styleOrNull = null;
+    for (CssRenamingMap.Style candidate : CssRenamingMap.Style.values()) {
+      if (candidate.name().equals(styleStr)) {
+        styleOrNull = candidate;
+        break;
+      }
+    }
+    if (styleOrNull == null) {
       compiler.report(JSError.make(n, INVALID_STYLE_ERROR, styleStr));
       return null;
     }
+    final CssRenamingMap.Style style = styleOrNull;
 
     if (style == CssRenamingMap.Style.BY_PART) {
       // Make sure that no class keys contain -'s

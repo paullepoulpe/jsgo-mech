@@ -4250,11 +4250,13 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    * library-level TypedASTs are the input). Such state belongs in the jscomp.TypedAst proto.
    */
   private static FeatureProto toProtoFeature(Feature feature) {
-    try {
-      return FeatureProto.valueOf("FEATURE_" + feature.name());
-    } catch (IllegalArgumentException e) {
-      return FeatureProto.FEATURE_UNKNOWN;
+    String name = "FEATURE_" + feature.name();
+    for (FeatureProto proto : FeatureProto.values()) {
+      if (proto.name().equals(name)) {
+        return proto;
+      }
     }
+    return FeatureProto.FEATURE_UNKNOWN;
   }
 
   private static LifeCycleStageProto toProto(LifeCycleStage stage) {
@@ -4285,10 +4287,12 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     Set<Feature> features = new LinkedHashSet<>();
     for (FeatureProto p : protos) {
       if (p != FeatureProto.FEATURE_UNKNOWN) {
-        try {
-          features.add(Feature.valueOf(p.name().substring("FEATURE_".length())));
-        } catch (IllegalArgumentException e) {
-          // ignore
+        String name = p.name().substring("FEATURE_".length());
+        for (Feature feature : Feature.values()) {
+          if (feature.name().equals(name)) {
+            features.add(feature);
+            break;
+          }
         }
       }
     }

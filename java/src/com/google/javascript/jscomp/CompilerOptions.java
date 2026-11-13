@@ -3812,11 +3812,12 @@ public class CompilerOptions {
         return ECMASCRIPT_2015;
       }
 
-      try {
-        return LanguageMode.valueOf(canonicalizedName);
-      } catch (IllegalArgumentException e) {
-        return null; // unknown name.
+      for (LanguageMode mode : LanguageMode.values()) {
+        if (mode.name().equals(canonicalizedName)) {
+          return mode;
+        }
       }
+      return null; // unknown name.
     }
 
     public FeatureSet toFeatureSet() {

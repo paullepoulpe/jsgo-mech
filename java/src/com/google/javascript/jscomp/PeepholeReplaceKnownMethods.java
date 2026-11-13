@@ -27,6 +27,7 @@ import static java.lang.Math.min;
 
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Doubles;
 import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
@@ -640,19 +641,20 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
           return newNode;
         }
         String normalizedNewVal = "0";
-        try {
-          double newVal = Double.parseDouble(stringVal);
-          Node newNode = NodeUtil.numberNode(newVal, n);
-          normalizedNewVal = normalizeNumericString(String.valueOf(newVal));
-          if (!normalizeNumericString(stringVal).equals(normalizedNewVal)) {
-            return n;
-          }
-          n.replaceWith(newNode);
-          reportChangeToEnclosingScope(newNode);
-          return newNode;
-        } catch (NumberFormatException e) {
+        // Double.parseDouble trims its argument; other than that Doubles.tryParse accepts the same.
+        Double parsed = Doubles.tryParse(stringVal.trim());
+        if (parsed == null) {
           return n;
         }
+        double newVal = parsed;
+        Node newNode = NodeUtil.numberNode(newVal, n);
+        normalizedNewVal = normalizeNumericString(String.valueOf(newVal));
+        if (!normalizeNumericString(stringVal).equals(normalizedNewVal)) {
+          return n;
+        }
+        n.replaceWith(newNode);
+        reportChangeToEnclosingScope(newNode);
+        return newNode;
       }
     }
 
@@ -701,13 +703,9 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     }
 
     String digits = stringVal.substring(0, endDigitIndex);
-    double newVal;
-    try {
-      BigInteger bi = new BigInteger(digits, radix);
-      newVal = bi.doubleValue();
-    } catch (NumberFormatException e) {
-      return n;
-    }
+    // Cannot throw NumberFormatException: digits is one or more valid digits in a radix of 2..36.
+    BigInteger bi = new BigInteger(digits, radix);
+    double newVal = bi.doubleValue();
 
     if (isNegative) {
       newVal = -newVal;

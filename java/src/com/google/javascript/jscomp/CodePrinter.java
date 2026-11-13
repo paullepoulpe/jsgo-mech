@@ -21,6 +21,7 @@ import static com.google.javascript.jscomp.base.JSCompDoubles.isPositive;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.primitives.Doubles;
 import com.google.debugging.sourcemap.FilePosition;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CodePrinter.Builder.CodeGeneratorFactory;
@@ -330,13 +331,13 @@ public final class CodePrinter {
       // Conservatively, we only use it if we can verify that it is as a number
       // with the right value. This excludes some valid constants (hex, etc.)
       // for simplicity.
-      double d;
-      try {
-        d = Double.parseDouble(numberFromSource);
-      } catch (NumberFormatException e) {
+      // Double.parseDouble trims its argument; other than that Doubles.tryParse accepts the same.
+      Double parsed = Doubles.tryParse(numberFromSource.trim());
+      if (parsed == null) {
         super.addNumber(x, n);
         return;
       }
+      double d = parsed;
 
       if (x != d) {
         super.addNumber(x, n);

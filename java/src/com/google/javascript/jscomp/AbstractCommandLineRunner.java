@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
+import com.google.common.primitives.Doubles;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -48,6 +49,7 @@ import com.google.javascript.jscomp.CompilerOptions.JsonStreamMode;
 import com.google.javascript.jscomp.CompilerOptions.OutputJs;
 import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.CompilerOptions.TweakProcessing;
+import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.SourceCodeEscapers;
@@ -2091,13 +2093,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
             continue;
           }
         } else {
-          try {
-            double value = Double.parseDouble(defValue);
+          // Double.parseDouble trims its argument; other than that Doubles.tryParse accepts the
+          // same.
+          Double value = Doubles.tryParse(defValue.trim());
+          if (value != null) {
             options.setDefineToDoubleLiteral(defName, value);
             continue;
-          } catch (NumberFormatException e) {
-            // do nothing, it will be caught at the end
           }
+          // Otherwise do nothing, it will be caught at the end
 
           if (defValue.length() > 0) {
             options.setDefineToStringLiteral(defName, defValue);
@@ -3226,10 +3229,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
       // Parse chunk inputs.
       int numInputs = -1;
-      try {
-        numInputs = Integer.parseInt(parts[1]);
-      } catch (NumberFormatException ignored) {
-        numInputs = -1;
+      Integer parsedNumInputs = JSCompStrings.parseIntOrNull(parts[1]);
+      if (parsedNumInputs != null) {
+        numInputs = parsedNumInputs;
       }
 
       // We will allow chunks of zero input.

@@ -35,6 +35,7 @@ import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.primitives.Doubles;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.NodeTraversal.ScopedCallback;
@@ -418,14 +419,11 @@ public final class NodeUtil {
             return Double.NaN;
           }
         }
-        try {
-          if (digits.length() <= 14) {
-            return (double) Long.parseLong(digits, radix);
-          } else {
-            return new BigInteger(digits, radix).doubleValue();
-          }
-        } catch (NumberFormatException e) {
-          return Double.NaN;
+        // Cannot throw NumberFormatException: every char is a valid digit and 14 digits fit a long.
+        if (digits.length() <= 14) {
+          return (double) Long.parseLong(digits, radix);
+        } else {
+          return new BigInteger(digits, radix).doubleValue();
         }
       }
     }
@@ -460,11 +458,12 @@ public final class NodeUtil {
       return Double.NaN;
     }
 
-    try {
-      return Double.parseDouble(s);
-    } catch (NumberFormatException e) {
+    // s has no whitespace here, so Doubles.tryParse accepts exactly what Double.parseDouble does.
+    Double value = Doubles.tryParse(s);
+    if (value == null) {
       return Double.NaN;
     }
+    return value;
   }
 
   private static boolean isValidDigit(char c, int radix) {
@@ -553,19 +552,34 @@ public final class NodeUtil {
             default -> 0;
           };
       if (radix != 0) {
-        try {
-          return new BigInteger(s.substring(2), radix);
-        } catch (NumberFormatException e) {
+        if (!isParsableBigInteger(s.substring(2), radix)) {
           return null;
         }
+        return new BigInteger(s.substring(2), radix);
       }
     }
 
-    try {
-      return new BigInteger(s);
-    } catch (NumberFormatException e) {
+    if (!isParsableBigInteger(s, 10)) {
       return null;
     }
+    return new BigInteger(s);
+  }
+
+  /**
+   * Whether {@code new BigInteger(s, radix)} succeeds: an optional sign followed by one or more
+   * digits (as {@link Character#digit} defines them).
+   */
+  private static boolean isParsableBigInteger(String s, int radix) {
+    int start = !s.isEmpty() && (s.charAt(0) == '-' || s.charAt(0) == '+') ? 1 : 0;
+    if (start == s.length()) {
+      return false;
+    }
+    for (int i = start; i < s.length(); i++) {
+      if (Character.digit(s.charAt(i), radix) < 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   static String trimJsWhiteSpace(String s) {

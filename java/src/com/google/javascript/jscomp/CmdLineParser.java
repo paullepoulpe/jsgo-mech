@@ -20,6 +20,7 @@ import com.google.common.base.Ascii;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.re2j.Pattern;
 import java.io.BufferedReader;
 import java.io.File;
@@ -181,11 +182,11 @@ public final class CmdLineParser {
       this.handler =
           (Parameters params) -> {
             String token = params.getParameter(0);
-            try {
-              set.accept(Integer.parseInt(token));
-            } catch (NumberFormatException ex) {
+            Integer value = JSCompStrings.parseIntOrNull(token);
+            if (value == null) {
               throw new CmdLineException(owner, illegalOperand(params.getParameter(-1), token));
             }
+            set.accept(value);
             return 1;
           };
     }

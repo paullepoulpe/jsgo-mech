@@ -1879,14 +1879,19 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     options.setChromePass(flags.chromePass);
 
     if (!flags.j2clPassMode.isEmpty()) {
-      try {
-        CompilerOptions.J2clPassMode j2clPassMode =
-            CompilerOptions.J2clPassMode.valueOf(Ascii.toUpperCase(flags.j2clPassMode));
-        options.setJ2clPass(j2clPassMode);
-      } catch (IllegalArgumentException ex) {
+      CompilerOptions.J2clPassMode j2clPassMode = null;
+      String j2clPassModeName = Ascii.toUpperCase(flags.j2clPassMode);
+      for (CompilerOptions.J2clPassMode mode : CompilerOptions.J2clPassMode.values()) {
+        if (mode.name().equals(j2clPassModeName)) {
+          j2clPassMode = mode;
+          break;
+        }
+      }
+      if (j2clPassMode == null) {
         throw new FlagUsageException(
             "Unknown J2clPassMode `" + flags.j2clPassMode + "' specified.");
       }
+      options.setJ2clPass(j2clPassMode);
     }
 
     options.setRemoveJ2clAsserts(flags.removeJ2cLAsserts);

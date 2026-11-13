@@ -23,6 +23,7 @@ import static java.lang.Math.min;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.google.javascript.jscomp.base.JSCompStrings;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -708,17 +709,20 @@ public abstract class RegExpTree {
             String counts = pattern.substring(start, end);
             pos = end + 1;
             int comma = counts.indexOf(',');
-            try {
-              min = Integer.parseInt(comma >= 0 ? counts.substring(0, comma) : counts);
-              max =
-                  comma >= 0
-                      ? comma + 1 != counts.length()
-                          ? Integer.parseInt(counts.substring(comma + 1))
-                          : Integer.MAX_VALUE
-                      : min;
-            } catch (NumberFormatException ex) {
+            Integer parsedMin =
+                JSCompStrings.parseIntOrNull(comma >= 0 ? counts.substring(0, comma) : counts);
+            Integer parsedMax =
+                comma >= 0
+                    ? comma + 1 != counts.length()
+                        ? JSCompStrings.parseIntOrNull(counts.substring(comma + 1))
+                        : (Integer) Integer.MAX_VALUE
+                    : parsedMin;
+            if (parsedMin == null || parsedMax == null) {
               max = -1;
               min = -1;
+            } else {
+              min = parsedMin;
+              max = parsedMax;
             }
             if (min < 0 || min > max) {
               // Treat the open curly bracket literally.
