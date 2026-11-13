@@ -216,7 +216,15 @@ abstract class ExprEmitter extends Base {
       // Convert the call's declared result straight to the wanted type, without a detour through the
       // (possibly narrower) static type of the call expression.
       CallResult r = invocation(mi);
-      if (r.type.getKind() != TypeKind.VOID) return cx.coerce(r.code, r.type, target);
+      if (r.type.getKind() != TypeKind.VOID) {
+        // An array keeps its element representation ([]string is not []any), so a T[] result must
+        // become its static array type before it is put into an Object.
+        TypeMirror ef = cx.erase(from);
+        if (ef.getKind() == TypeKind.ARRAY && target.getKind() != TypeKind.ARRAY) {
+          return cx.coerce(cx.coerce(r.code, r.type, ef), ef, target);
+        }
+        return cx.coerce(r.code, r.type, target);
+      }
     }
     if (strip(t).getKind() == Tree.Kind.CONDITIONAL_EXPRESSION && cx.kind(from) != Ctx.K.PRIM) {
       // Push the target into the branches: avoids typed-nil and double conversions.
