@@ -260,13 +260,9 @@ abstract class ExprEmitter extends Base {
         ArrayAccessTree a = (ArrayAccessTree) t;
         return expr(a.getExpression()) + "[" + index(a.getIndex()) + "]";
       }
-      case ASSIGNMENT: {
-        AssignmentTree a = (AssignmentTree) t;
-        LValue lv = lvalue(a.getVariable());
-        String gt = cx.goType(typeOf(t));
-        return "func() " + gt + " { " + lv.code + " = " + exprAs(a.getExpression(), lv.type) + "; return "
-            + cx.coerce(lv.code, lv.type, typeOf(t)) + " }()";
-      }
+      case ASSIGNMENT:
+        // Prep step 09: an assignment is always a statement of its own.
+        throw unsupported(t, "assignment used as a value");
       case CONDITIONAL_EXPRESSION:
         return conditional((ConditionalExpressionTree) t, typeOf(t));
       case INSTANCE_OF:
@@ -304,11 +300,7 @@ abstract class ExprEmitter extends Base {
       }
       default:
         if (t instanceof BinaryTree b) return binary(b);
-        if (t instanceof CompoundAssignmentTree c) {
-          LValue lv = lvalue(c.getVariable());
-          String gt = cx.goType(typeOf(t));
-          return "func() " + gt + " { " + compoundStmt(c) + "; return " + cx.coerce(lv.code, lv.type, typeOf(t)) + " }()";
-        }
+        if (t instanceof CompoundAssignmentTree) throw unsupported(t, "compound assignment used as a value");
         throw unsupported(t, "expression " + t.getKind());
     }
   }
@@ -402,14 +394,14 @@ abstract class ExprEmitter extends Base {
     Element e = elemOf(t);
     if (name.equals("this")) return "this";
     if (e == null) throw unsupported(t, "unresolved identifier " + name);
-    if (isLocalKind(e)) return cx.coerce(frozenRead(e, localRef(e)), e.asType(), typeOf(t));
+    if (isLocalKind(e)) return cx.coerce(localRef(e), e.asType(), typeOf(t));
     switch (e.getKind()) {
       case FIELD, ENUM_CONSTANT: {
         VariableElement f = (VariableElement) e;
-        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(frozenRead(f, staticField(f)), f.asType(), typeOf(t));
+        if (f.getModifiers().contains(Modifier.STATIC)) return cx.coerce(staticField(f), f.asType(), typeOf(t));
         Recv r = implicitRecv(cx.ownerOf(f));
         noteField(f);
-        return cx.coerce(frozenRead(f, r.code + "." + cx.fieldName(f)), f.asType(), typeOf(t));
+        return cx.coerce(r.code + "." + cx.fieldName(f), f.asType(), typeOf(t));
       }
       default:
         throw unsupported(t, "identifier of kind " + e.getKind());
@@ -450,7 +442,7 @@ abstract class ExprEmitter extends Base {
         } else {
           recv = expr(q);
         }
-        return cx.coerce(frozenRead(f, recv + "." + fn), f.asType(), typeOf(t));
+        return cx.coerce(recv + "." + fn, f.asType(), typeOf(t));
       }
       default:
         throw unsupported(t, "member of kind " + e.getKind());
@@ -461,12 +453,6 @@ abstract class ExprEmitter extends Base {
     if (cx.isSource(cx.ownerOf(f)) || f.getModifiers().contains(Modifier.STATIC)) return;
     cx.className(cx.ownerOf(f));
     cx.extFields.computeIfAbsent(cx.ownerOf(f), k -> new TreeMap<>()).put(cx.fieldName(f), cx.goType(f.asType()));
-  }
-
-  /** A read of a variable that the same expression also assigns: made a call, so that Go orders it. */
-  String frozenRead(Element e, String code) {
-    if (mc == null || !mc.frozen.contains(e)) return code;
-    return "func() " + cx.goType(e.asType()) + " { return " + code + " }()";
   }
 
   static final class LValue {
@@ -746,12 +732,8 @@ abstract class ExprEmitter extends Base {
   }
 
   String incDecExpr(UnaryTree t) {
-    LValue lv = lvalue(t.getExpression());
-    String gt = cx.goType(typeOf(t));
-    boolean post = t.getKind() == Tree.Kind.POSTFIX_INCREMENT || t.getKind() == Tree.Kind.POSTFIX_DECREMENT;
-    String read = cx.coerce(lv.code, lv.type, typeOf(t));
-    if (post) return "func() " + gt + " { v_ := " + read + "; " + incDecStmt(t) + "; return v_ }()";
-    return "func() " + gt + " { " + incDecStmt(t) + "; return " + read + " }()";
+    // Prep step 09: ++ and -- are always statements of their own.
+    throw unsupported(t, "++/-- used as a value");
   }
 
   String incDecStmt(UnaryTree t) {

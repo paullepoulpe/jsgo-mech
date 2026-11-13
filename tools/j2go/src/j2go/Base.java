@@ -48,12 +48,6 @@ abstract class Base {
     boolean staticCtx;
     /** Classes whose static state this function touches (instrumented output only). */
     Set<TypeElement> touched = new LinkedHashSet<>();
-    /**
-     * Variables assigned inside the expression being emitted (x = …, x++ as part of a larger
-     * expression). Go does not order plain variable reads against calls, and the embedded assignment
-     * becomes a call, so every other read of these variables is made a call too.
-     */
-    Set<Element> frozen = Set.of();
     /** Go expression for the receiver object: "this", or null in a static context. */
   }
 

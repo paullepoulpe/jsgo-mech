@@ -144,7 +144,8 @@ public class Lang2 {
     static int next = 1;
 
     {
-      id = next++;
+      id = next;
+      next++;
     }
 
     Node add(Node n) {
@@ -298,7 +299,8 @@ public class Lang2 {
       int n = local;
 
       int inc() {
-        return n += field;
+        n += field;
+        return n;
       }
     }
     Counter c = new Counter();
@@ -381,8 +383,13 @@ public class Lang2 {
     float ff = 10 / 4f;
     int idx = 0;
     int[] order = new int[3];
-    order[idx++] = idx++;
-    order[idx] = idx = 0;
+    int idx0 = idx;
+    idx++;
+    order[idx0] = idx;
+    idx++;
+    int idx2 = idx;
+    idx = 0;
+    order[idx2] = idx;
     StringBuilder sb = new StringBuilder();
     sb.append('a' + 1).append((char) ('a' + 1)).append("" + 'a' + 1).append(1 + 2 + "s" + 1 + 2);
     return viaSwitch + grid[1][2] + grid.length + grid[0].length + jag[1][1] + objs[0] + big + " " + tern + i1.equals(i2) + cond + lbl + dd + " "

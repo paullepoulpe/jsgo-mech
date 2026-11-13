@@ -249,7 +249,11 @@ public class Lang {
     int[] arr = {1, 2, 3};
     arr[i == Integer.MIN_VALUE ? 0 : 1] += 5;
     int n = 0;
-    int v = arr[n++] + arr[n++] * 10 + n;
+    int v0 = arr[n];
+    n++;
+    int v1 = arr[n];
+    n++;
+    int v = v0 + v1 * 10 + n;
     Integer boxed = 5;
     boxed++;
     int cmp = boxed > 5 ? 1 : 0;
@@ -324,12 +328,17 @@ public class Lang {
 
   static int assignExpr() {
     int a, b;
-    a = b = 4;
-    int c = (a += 3) * 2;
+    b = 4;
+    a = b;
+    a += 3;
+    int c = a * 2;
     int[] xs = new int[3];
     int i = 0;
-    xs[i++] = i;
-    xs[i] = xs[i - 1] = 9;
+    int i0 = i;
+    i++;
+    xs[i0] = i;
+    xs[i - 1] = 9;
+    xs[i] = xs[i - 1];
     boolean t = true, f = false;
     boolean bits = t & f | t ^ f;
     t &= f;
