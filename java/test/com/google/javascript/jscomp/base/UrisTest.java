@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -51,9 +52,10 @@ public final class UrisTest {
       if (jdk != null) {
         assertWithMessage("hasScheme %s", text)
             .that(Uris.hasScheme(text))
-            .isEqualTo(jdk.getScheme() != null);
-        if (jdk.getRawPath() != null) {
-          assertWithMessage("path %s", text).that(Uris.path(text)).isEqualTo(jdk.getRawPath());
+            .isEqualTo(Optional.ofNullable(jdk.getScheme()).isPresent());
+        Optional<String> path = Optional.ofNullable(jdk.getRawPath());
+        if (path.isPresent()) {
+          assertWithMessage("path %s", text).that(Uris.path(text)).isEqualTo(path.get());
         }
       }
     }

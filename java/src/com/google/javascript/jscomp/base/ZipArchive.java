@@ -31,7 +31,7 @@ import java.util.Optional;
  */
 public final class ZipArchive {
   private final byte[] bytes;
-  private final List<String> names = new ArrayList<>();
+  private final List<String> entryNames = new ArrayList<>();
 
   /** For each name, where its (last) central directory record starts in {@code bytes}. */
   private final Map<String, Integer> records = new LinkedHashMap<>();
@@ -81,7 +81,7 @@ public final class ZipArchive {
         return Optional.empty();
       }
       String name = Io.utf8String(slice(bytes, position + RECORD_SIZE, nameLength));
-      archive.names.add(name);
+      archive.entryNames.add(name);
       archive.records.put(name, position);
       position = next;
     }
@@ -90,7 +90,7 @@ public final class ZipArchive {
 
   /** The names of the entries (directories, whose names end in "/", too), in directory order. */
   public List<String> names() {
-    return names;
+    return entryNames;
   }
 
   /** The data of the entry; empty if there is no entry of that name or it cannot be read. */

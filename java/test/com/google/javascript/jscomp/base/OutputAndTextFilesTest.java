@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -159,8 +160,10 @@ public final class OutputAndTextFilesTest {
     for (String text : texts) {
       List<String> expected = new ArrayList<>();
       BufferedReader reader = new BufferedReader(new StringReader(text));
-      for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-        expected.add(line);
+      Optional<String> line = Optional.ofNullable(reader.readLine());
+      while (line.isPresent()) {
+        expected.add(line.get());
+        line = Optional.ofNullable(reader.readLine());
       }
       assertThat(TextFiles.splitLines(text)).isEqualTo(expected);
     }

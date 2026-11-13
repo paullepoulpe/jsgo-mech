@@ -98,7 +98,7 @@ public final class Charsets {
     if (canonical.equals(UTF_8)) {
       return Io.utf8String(bytes);
     }
-    return decodeOther(bytes, canonical, false).get();
+    return decodeOther(bytes, canonical, false).orElseThrow(); // empty only when strict
   }
 
   /** The text of the bytes; empty if a byte or unit is not valid in the charset. */

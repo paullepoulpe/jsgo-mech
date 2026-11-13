@@ -86,6 +86,9 @@ public final class Output implements Appendable {
   }
 
   public void print(String s) {
+    if (s.isEmpty()) {
+      return;
+    }
     pending.append(s);
     if (!buffered || pending.length() >= BUFFER_SIZE) {
       write(false);
@@ -94,7 +97,7 @@ public final class Output implements Appendable {
 
   /** Prints the text and a line feed. */
   public void println(String s) {
-    print(s + "\n");
+    print(s.concat("\n"));
   }
 
   /** Prints the throwable and its stack trace, as an uncaught exception is reported. */
