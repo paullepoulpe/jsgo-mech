@@ -274,6 +274,29 @@ func String_substring(s string, a int32, b int32) string {
 	return sb.String()
 }
 
+// String_concat throws for a null argument, unlike the + operator.
+func String_concat(s string, o string) string {
+	if s == nullstr_ || o == nullstr_ {
+		panic(new_NullPointerException_0().self())
+	}
+	return s + o
+}
+
+// String_codePointCount counts a surrogate pair in units a..b as one, any other unit as one.
+func String_codePointCount(s string, a int32, b int32) int32 {
+	n := int32(0)
+	for sub, i := String_substring(s, a, b), 0; i < len(sub); n++ {
+		cp, size := decode_(sub, i)
+		i += size
+		if cp >= 0xD800 && cp < 0xDC00 && i < len(sub) { // a pair kept as two 3-byte sequences
+			if low, lowSize := decode_(sub, i); low >= 0xDC00 && low < 0xE000 {
+				i += lowSize
+			}
+		}
+	}
+	return n
+}
+
 func String_substring_int(s string, a int32) string {
 	if allASCII_(s) {
 		if a < 0 || a > int32(len(s)) {
@@ -801,15 +824,13 @@ func (this *StringBuilder) insert(i int32, c uint16) *StringBuilder {
 	return this.insert_int_String(i, String_valueOf_char(c))
 }
 
-func (this *StringBuilder) substring_int_int(a int32, b int32) string {
+func (this *StringBuilder) substring_int(a int32) string { return this.substring(a, this.length()) }
+
+func (this *StringBuilder) substring(a int32, b int32) string {
 	if this.wide {
 		return fromUnits_(this.w[a:b])
 	}
 	return string(this.b[a:b])
-}
-
-func (this *StringBuilder) substring(a int32) string {
-	return this.substring_int_int(a, this.length())
 }
 
 func (this *StringBuilder) indexOf(s string) int32 { return String_indexOf_String(this.toString(), s) }
@@ -851,6 +872,14 @@ func Character_toChars(cp int32) []uint16 {
 		return []uint16{uint16(0xD800 + cp>>10), uint16(0xDC00 + cp&0x3FF)}
 	}
 	return []uint16{uint16(cp)}
+}
+
+func Character_isHighSurrogate(c uint16) bool { return c >= 0xD800 && c < 0xDC00 }
+func Character_isLowSurrogate(c uint16) bool  { return c >= 0xDC00 && c < 0xE000 }
+func Character_isSurrogate(c uint16) bool     { return c >= 0xD800 && c < 0xE000 }
+func Character_isISOControl(c uint16) bool    { return c <= 0x1F || c >= 0x7F && c <= 0x9F }
+func Character_isSpaceChar(c uint16) bool {
+	return unicode.In(rune(c), unicode.Zs, unicode.Zl, unicode.Zp)
 }
 
 func Character_isDigit(c uint16) bool {

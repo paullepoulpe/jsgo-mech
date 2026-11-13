@@ -19,17 +19,19 @@ copying JDK source.
 
 A Java class listed in `tools/j2go/handwritten.txt` is not translated: the
 translator treats it as a library class, and the runtime implements it like any
-other. There are two. `com.google.javascript.jscomp.base.Io`, through which the
-compiler does all its file, console, zip, gzip, charset, resource, path and URI
-work, is `go/closure/rt_io.go`, on Go's standard library; nothing else in the
-runtime imitates `java.io`, `java.nio`, `java.util.zip` or Guava's `io` package
-(`rt_io_java.go` keeps the few in-memory objects that translated code still
-hands to the SAX parser). `com.google.javascript.jscomp.base.Json`, which parses
+other. There are two. `com.google.javascript.jscomp.base.Io` holds the 25 operations that need
+the operating system or a codec of the platform's library (files and directories as bytes, the
+standard streams, bundled resources, UTF-8, DEFLATE, gzip, base64); it is `go/closure/rt_io.go`,
+330 lines on Go's standard library, written to the doc comments of `Io.java`, which are the
+whole contract, error messages included. Charsets, paths, globs, zip archives, URIs and text
+sinks are translated Java on top of it. Nothing else in the runtime imitates `java.io`,
+`java.nio`, `java.util.zip` or Guava's `io` package (`rt_io_java.go` keeps the few in-memory
+objects that translated code still hands to the SAX parser). `com.google.javascript.jscomp.base.Json`, which parses
 a JSON document into the translated `SimpleJsonValue`, is `go/closure/rt_json.go`,
 on `encoding/json`; the runtime has no Gson. `rt_io_test.go` and
 `rt_json_test.go` check both against `go/closure/testdata/io/*.tsv`, which
 `tools/iotable/run.sh` writes by calling the Java classes on a few thousand
-inputs.
+inputs and on a directory tree it builds.
 
 ## The data model
 

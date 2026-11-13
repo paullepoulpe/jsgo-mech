@@ -1,9 +1,9 @@
 package closure
 
-// The resources of the Closure Compiler jar (externs.zip, the runtime JS
-// libraries, *.properties ...), embedded from the resources directory, which
-// tools/j2go/extract-resources.sh fills from the jar. They are served by
-// Class.getResource / Class.getResourceAsStream and by ResourceBundle.
+// The files bundled with the compiler (externs.zip, the runtime JS libraries,
+// *.properties ...), embedded from the resources directory, which
+// tools/j2go/extract-resources.sh fills from the Closure Compiler jar. Io_readResource
+// (rt_io.go) and ResourceBundle read them.
 
 import (
 	"embed"
@@ -25,22 +25,6 @@ func resourceBytes_(name string) ([]byte, bool) {
 		return nil, false
 	}
 	return b, true
-}
-
-// resourceName_ resolves a resource name the way Class.getResource does: a
-// name starting with "/" is absolute, any other is relative to the package of
-// the class.
-func (this *Class) resourceName_(name string) string {
-	if name == nullstr_ {
-		panic(new_NullPointerException_0().self())
-	}
-	if strings.HasPrefix(name, "/") {
-		return name[1:]
-	}
-	if i := strings.LastIndexByte(this.name_, '.'); i >= 0 {
-		return strings.ReplaceAll(this.name_[:i], ".", "/") + "/" + name
-	}
-	return name
 }
 
 // ---- java.util.ResourceBundle, backed by the embedded .properties files

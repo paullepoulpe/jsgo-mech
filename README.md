@@ -83,7 +83,7 @@ on a busy machine with per-task swings of -18% to +29%, so not yet conclusive.
 
 **The Go translation of the fully prepped tree** matches Java byte for byte on
 the four gate projects and on all nine benchmark tasks. The handwritten
-runtime is 15.5k lines (27.8k in phase 1): the args4j emulation, streams, the
+runtime is 14.2k lines (27.8k in phase 1): the args4j emulation, streams, the
 Java-regex translator, the Guava multimap family, the java.io / java.nio /
 zip class hierarchies and all of Gson are gone. `tools/prune/prune.sh` removes
 runtime functions that no translated code references; `tools/prune/verify.sh`
@@ -109,8 +109,9 @@ it faster (1.81x before, 1.88x after).
 
 **Not done.** The transpiler still lowers try/catch to closures (56 catch
 clauses remain in the Java), keeps the null-string sentinel and erases
-generics. `rt_io.go` is 1.6k lines because `Io.java` still exposes JDK
-behaviour; a step that simplifies the facade is in progress. The plan's
+generics. `rt_io.go` is 330 lines since step 16 reduced `Io.java` to 25
+byte-level operations whose doc comments are the whole contract (it was 1.6k
+lines against the facade of step 14, which exposed JDK behaviour). The plan's
 `NodeStore` is not built. Tests are not translated. Git tags could not be
 pushed from the authoring session: run `tools/tag-preps.sh --push`.
 
