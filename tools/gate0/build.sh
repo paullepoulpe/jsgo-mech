@@ -19,6 +19,9 @@ fi
 python3 -I - <<'PY'
 import os, zipfile
 src, out = ".cache/closure-unshaded.jar", ".cache/build/stock-libs.jar"
+# Top-level classes whose source a prep step deleted from java/src: dropped as well.
+deleted = {l.strip().replace(".", "/") for l in open("tools/gate0/deleted-classes.txt")
+           if l.strip() and not l.startswith("#")}
 kept = dropped = 0
 with zipfile.ZipFile(src) as zin, zipfile.ZipFile(out + ".tmp", "w", zipfile.ZIP_DEFLATED) as zout:
     for item in zin.infolist():
@@ -26,7 +29,7 @@ with zipfile.ZipFile(src) as zin, zipfile.ZipFile(out + ".tmp", "w", zipfile.ZIP
         if n.endswith(".class") and n.startswith(("com/google/javascript/", "com/google/debugging/")):
             top = n[:-6].split("$")[0]
             base = top.rsplit("/", 1)[-1]
-            if os.path.exists("java/src/" + top + ".java") or "/testing/" in n or base.startswith(("AutoValue_", "AutoBuilder_")):
+            if os.path.exists("java/src/" + top + ".java") or top in deleted or "/testing/" in n or base.startswith(("AutoValue_", "AutoBuilder_")):
                 dropped += 1
                 continue
         if n.startswith("org/apache/tools/") or n.startswith("META-INF/") and n.upper().endswith((".SF", ".RSA", ".DSA")):

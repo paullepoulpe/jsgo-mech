@@ -1,0 +1,5 @@
+# Top-level classes of the stock jar whose source file a prep step deleted from java/src.
+# tools/gate0/build.sh drops them (and their nested classes) from stock-libs.jar, so that nothing
+# can fall back to the stock build of a class that no longer exists. One qualified name per line.
+com.google.javascript.jscomp.JSCompZipFileCache
+com.google.javascript.jscomp.serialization.FastGzipOutputStream

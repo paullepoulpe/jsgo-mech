@@ -466,7 +466,6 @@ com.google.javascript.jscomp.InvalidatingTypes
 com.google.javascript.jscomp.IsolatePolyfills
 com.google.javascript.jscomp.J2clSuppressWarningsGuard
 com.google.javascript.jscomp.JSChunkGraph$InverseDepthComparator
-com.google.javascript.jscomp.JSCompZipFileCache
 com.google.javascript.jscomp.JsMessage
 com.google.javascript.jscomp.LateEs6ToEs3Converter
 com.google.javascript.rhino.HamtPMap
