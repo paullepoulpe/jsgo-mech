@@ -1685,7 +1685,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     if (flags.outputWrapperFile != null && !flags.outputWrapperFile.isEmpty()) {
       Outcome<String> outputWrapper =
-          Io.readText(Io.filePath(flags.outputWrapperFile), Io.UTF_8);
+          Io.readText(Io.pathString(flags.outputWrapperFile), Io.UTF_8);
       if (outputWrapper.isErr()) {
         reportError("ERROR - invalid output_wrapper_file specified.");
       } else {
@@ -2132,7 +2132,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     } else {
       Outcome<List<SourceFile>> builtinExternsRes = getBuiltinExterns(options.getEnvironment());
       if (builtinExternsRes.isErr()) {
-        throw (IOException) builtinExternsRes.error();
+        return Outcome.err(builtinExternsRes.error());
       }
       List<SourceFile> builtinExterns = builtinExternsRes.get();
       builtinExterns.addAll(externs);
@@ -2155,7 +2155,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   private static Outcome<ConformanceConfig> loadConformanceConfig(String configFile) {
-    Outcome<String> text = Io.readText(Io.filePath(configFile), Io.UTF_8);
+    Outcome<String> text = Io.readText(Io.pathString(configFile), Io.UTF_8);
     if (text.isErr()) {
       return Outcome.err(text.error());
     }
@@ -2213,8 +2213,14 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     for (String pattern : patterns) {
       if (!pattern.contains("*") && !pattern.startsWith("!")) {
         if (Io.isDirectory(pattern)) {
-          Outcome<Boolean> matched =
-              matchPaths(Io.fileChild(Io.filePath(pattern), "**.js"), allJsInputs, excludes);
+          String directory = Io.pathString(pattern);
+          Outcome<Void> matched =
+              matchPaths(
+                  directory.endsWith(Io.separator())
+                      ? directory + "**.js"
+                      : directory + Io.separator() + "**.js",
+                  allJsInputs,
+                  excludes);
           if (matched.isErr()) {
             return Outcome.err(matched.error());
           }
@@ -2226,7 +2232,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           }
         }
       } else {
-        Outcome<Boolean> matched = matchPaths(pattern, allJsInputs, excludes);
+        Outcome<Void> matched = matchPaths(pattern, allJsInputs, excludes);
         if (matched.isErr()) {
           return Outcome.err(matched.error());
         }
@@ -2236,18 +2242,18 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     return Outcome.ok(new ArrayList<>(allJsInputs.values()));
   }
 
-  private static Outcome<Boolean> matchPaths(
+  private static Outcome<Void> matchPaths(
       String pattern, final Map<String, String> allJsInputs, final Set<String> excludes) {
     final boolean remove = pattern.indexOf('!') == 0;
     if (remove) {
       pattern = pattern.substring(1);
     }
 
-    String separator = Io.fileSeparator().equals("\\") ? "\\\\" : Io.fileSeparator();
+    String separator = Io.separator().equals("\\") ? "\\\\" : Io.separator();
 
     // Split the pattern into two pieces: the globbing part
     // and the non-globbing prefix.
-    List<String> patternParts = Splitter.on(Io.fileSeparator()).splitToList(pattern);
+    List<String> patternParts = Splitter.on(Io.separator()).splitToList(pattern);
     String prefix = ".";
     for (int i = 0; i < patternParts.size(); i++) {
       if (patternParts.get(i).contains("*")) {
@@ -2273,7 +2279,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         allJsInputs.put(pathStringAbsolute, p);
       }
     }
-    return Outcome.ok(true);
+    return Outcome.ok();
   }
 
   /**

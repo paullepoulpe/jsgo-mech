@@ -38,15 +38,11 @@ final class WritingLogFile extends LogFile {
 
   @MustBeClosed
   static LogFile create(String file) {
-    String dir = Io.pathParent(file);
-    Outcome<Boolean> dirCreated = Io.createDirectories(dir);
-    if (dirCreated.isErr()) {
-      throw new RuntimeException(dirCreated.error());
-    }
+    Io.mkdirs(Io.pathParent(file));
     // The log allows the logged string to contain invalid Unicode (it replaces invalid character
     // sequences but doesn't throw). This is useful in cases where the source code contains invalid
     // Unicode (e.g., inside strings).
-    Outcome<Io.Output> writer = Io.openLog(file);
+    Outcome<Io.Output> writer = Io.openOutput(file, Io.UTF_8, true);
     if (writer.isErr()) {
       throw new RuntimeException(writer.error());
     }
@@ -94,6 +90,7 @@ final class WritingLogFile extends LogFile {
   @Override
   public LogFile logJson(StreamedJsonProducer producer) {
     StringWriter json = new StringWriter();
+    Outcome<Void> closed;
     try (JsonWriter writer = new JsonWriter(json)) {
       producer.writeJson(writer);
     } catch (IOException ex) {
@@ -101,7 +98,10 @@ final class WritingLogFile extends LogFile {
     } finally {
       // The JSON writer always closed the log it wrote to, whatever it had written.
       this.writer.print(json.toString());
-      this.writer.close();
+      closed = this.writer.close();
+    }
+    if (closed.isErr()) {
+      throw new AssertionError(closed.error());
     }
     return this;
   }
@@ -111,17 +111,13 @@ final class WritingLogFile extends LogFile {
     // It's fine to pass a fully rendered string because we know we're going to use it by the
     // time this method is called.
     writer.append(value).append('\n');
-    if (writer.firstError() != null) {
-      throw new RuntimeException(writer.firstError());
-    }
     return this;
   }
 
   @Override
   public void close() {
-    boolean failedBefore = writer.firstError() != null;
-    Outcome<Boolean> closed = writer.close();
-    if (closed.isErr() && !failedBefore) {
+    Outcome<Void> closed = writer.close();
+    if (closed.isErr()) {
       throw new RuntimeException(closed.error());
     }
   }

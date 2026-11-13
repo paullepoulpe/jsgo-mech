@@ -1234,16 +1234,20 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       if (options.getTracerOutput() == null) {
         tracker.outputTracerReport(this.outStream);
       } else {
-        Outcome<Io.Output> out = Io.openPrintFileNio(options.getTracerOutput());
+        Outcome<Io.Output> out = Io.openOutput(options.getTracerOutput(), Io.UTF_8, false);
         if (out.isErr()) {
           throw new RuntimeException(out.error());
         }
+        Outcome<Void> closed;
         try {
           tracker.outputTracerReport(out.get());
         } catch (Exception e) {
           throw new RuntimeException(e);
         } finally {
-          out.get().close();
+          closed = out.get().close();
+        }
+        if (closed.isErr()) {
+          throw new RuntimeException(closed.error());
         }
       }
     }
@@ -1621,7 +1625,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         log.logString(currentJsSource);
       }
     } else {
-      Io.stderr().println();
+      Io.stderr().println("");
       if (debugMessage != null) {
         Io.stderr().println("// DEBUG: " + debugMessage);
       }
@@ -4509,16 +4513,20 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
           if (wrapper != null) {
             return wrapper.apply(uncompressed);
           }
-          return Io.gzipFast(uncompressed);
+          return Io.gzip(uncompressed);
         });
   }
 
-  /** Restores the state that {@link #saveState} returned; fails if the bytes are not that. */
-  public void restoreState(byte[] state) {
+  /**
+   * Restores the state that {@link #saveState} returned. Bytes that cannot be decompressed are an
+   * error outcome (a RuntimeException around the IOException, which is what such a failure in the
+   * compiler thread has always surfaced as).
+   */
+  public Outcome<Void> restoreState(byte[] state) {
     initWarningsGuard(options.getWarningsGuard());
     maybeSetTracker();
 
-    runInCompilerThread(
+    Outcome<Void> restored = runInCompilerThread(
         () -> {
           Tracer tracer = newTracer(PassNames.DESERIALIZE_COMPILER_STATE);
           logger.fine("Deserializing the CompilerState");
@@ -4530,22 +4538,26 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
             } else {
               Outcome<byte[]> unzipped = Io.gunzip(state);
               if (unzipped.isErr()) {
-                // Ends the compilation, as every failure in the compiler thread does.
-                throw (IOException) unzipped.error();
+                return Outcome.<Void>err(new RuntimeException(unzipped.error()));
               }
               uncompressed = unzipped.get();
             }
             deserializeCompilerState(uncompressed);
-            return null;
+            return Outcome.<Void>ok();
           } finally {
             logger.fine("Finished deserializing CompilerState");
             stopTracer(tracer, PassNames.DESERIALIZE_COMPILER_STATE);
           }
         });
 
+    if (restored.isErr()) {
+      return Outcome.err(restored.error());
+    }
+
     if (tracker != null) {
       tracker.updateAfterDeserialize(jsRoot);
     }
+    return Outcome.ok();
   }
 
   // this method must be called from within a "compiler thread" with a larger stack

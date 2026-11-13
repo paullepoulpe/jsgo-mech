@@ -241,8 +241,8 @@ public class AllowlistWarningsGuard extends WarningsGuard {
      * Writes the warnings collected in a format that the AllowlistWarningsGuard can read back
      * later.
      */
-    public Outcome<Boolean> writeAllowlist(String out) {
-      Outcome<Io.Output> stream = Io.openPrintFile(out);
+    public Outcome<Void> writeAllowlist(String out) {
+      Outcome<Io.Output> stream = Io.openOutput(out, Io.UTF_8, false);
       if (stream.isErr()) {
         return Outcome.err(stream.error());
       }

@@ -15,9 +15,9 @@
  */
 package com.google.javascript.jscomp;
 
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,11 +33,17 @@ public final class LinterMain {
 
   private List<String> files = new ArrayList<>();
 
-  public static void main(String[] args) throws IOException {
-    new LinterMain().run(args);
+  public static void main(String[] args) {
+    Outcome<Void> done = new LinterMain().run(args);
+    if (done.isErr()) {
+      // An I/O failure ends the program the way an uncaught exception does.
+      Io.stderr().print("Exception in thread \"main\" ");
+      Io.stderr().printStackTrace(done.error());
+      System.exit(1);
+    }
   }
 
-  private void run(String[] args) throws IOException {
+  private Outcome<Void> run(String[] args) {
     CmdLineParser parser = new CmdLineParser();
     parser
         .option("--fix")
@@ -54,14 +60,14 @@ public final class LinterMain {
 
     for (String filename : files) {
       if (fix) {
-        Outcome<Boolean> fixed = linter.fixRepeatedly(filename);
+        Outcome<Void> fixed = linter.fixRepeatedly(filename);
         if (fixed.isErr()) {
-          // The program ends with this error, as it always did.
-          throw (IOException) fixed.error();
+          return Outcome.err(fixed.error());
         }
       } else {
         linter.lint(filename);
       }
     }
+    return Outcome.ok();
   }
 }

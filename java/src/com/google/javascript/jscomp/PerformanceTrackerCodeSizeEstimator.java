@@ -79,7 +79,7 @@ final class PerformanceTrackerCodeSizeEstimator extends CodeConsumer {
         System.arraycopy(chunk, 0, bytes, offset, chunk.length);
         offset += chunk.length;
       }
-      return Io.gzipSize(bytes);
+      return Io.gzip(bytes).length;
     } else {
       return 0;
     }

@@ -1778,7 +1778,7 @@ public final class CompilerTest {
   private void restoreCompilerState(Compiler compiler, byte[] stateAfterChecks)
       throws IOException, ClassNotFoundException {
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(stateAfterChecks)) {
-      compiler.restoreState(byteArrayInputStream.readAllBytes());
+      compiler.restoreState(byteArrayInputStream.readAllBytes()).get();
     } catch (Exception e) {
       throw new AssertionError("restoring compiler state failed", e);
     }
@@ -1833,7 +1833,7 @@ public final class CompilerTest {
     compiler2.init(ImmutableList.of(), inputs, options2);
 
     ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-    compiler2.restoreState(bais.readAllBytes());
+    compiler2.restoreState(bais.readAllBytes()).get();
     bais.close();
 
     assertThat(decompressionUsed.get()).isTrue();

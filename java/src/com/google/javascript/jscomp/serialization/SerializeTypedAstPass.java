@@ -63,10 +63,10 @@ public final class SerializeTypedAstPass implements CompilerPass {
       AbstractCompiler compiler, String outputPath, SerializationOptions serializationOptions) {
     Consumer<TypedAst> toPath =
         ast -> {
-          Outcome<Boolean> written =
-              Io.writeBytesNio(
+          Outcome<Void> written =
+              Io.writeBytes(
                   outputPath,
-                  Io.gzipFast(TypedAst.List.newBuilder().addTypedAsts(ast).build().toByteArray()));
+                  Io.gzip(TypedAst.List.newBuilder().addTypedAsts(ast).build().toByteArray()));
           if (written.isErr()) {
             throw new IllegalArgumentException(
                 "Cannot create TypedAst output file", written.error());

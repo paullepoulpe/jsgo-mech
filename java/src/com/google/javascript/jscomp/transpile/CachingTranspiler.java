@@ -84,12 +84,12 @@ public final class CachingTranspiler implements Transpiler {
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof Key key && Io.uriEquals(key.path, path) && key.code.equals(code);
+      return other instanceof Key key && key.path.equals(path) && key.code.equals(code);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(Io.uriHashCode(path), code);
+      return Objects.hash(path, code);
     }
   }
 }

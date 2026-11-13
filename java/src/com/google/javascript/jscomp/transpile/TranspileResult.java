@@ -103,7 +103,7 @@ public final class TranspileResult {
   @Override
   public boolean equals(Object other) {
     return other instanceof TranspileResult transpileResult
-        && Io.uriEquals(transpileResult.pathField, pathField)
+        && transpileResult.pathField.equals(pathField)
         && transpileResult.originalField.equals(originalField)
         && transpileResult.transpiledField.equals(transpiledField)
         && transpileResult.sourceMapField.equals(sourceMapField);
@@ -111,7 +111,7 @@ public final class TranspileResult {
 
   @Override
   public int hashCode() {
-    return Objects.hash(Io.uriHashCode(pathField), originalField, transpiledField, sourceMapField);
+    return Objects.hash(pathField, originalField, transpiledField, sourceMapField);
   }
 
   @Override

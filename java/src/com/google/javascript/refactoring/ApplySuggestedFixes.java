@@ -45,7 +45,7 @@ public final class ApplySuggestedFixes {
    * The fixes can be provided in any order, but they may not have any overlapping modifications
    * for the same file.
    */
-  public static Outcome<Boolean> applySuggestedFixesToFiles(Iterable<SuggestedFix> fixes) {
+  public static Outcome<Void> applySuggestedFixesToFiles(Iterable<SuggestedFix> fixes) {
     Set<String> filenames = new LinkedHashSet<>();
     for (SuggestedFix fix : fixes) {
       filenames.addAll(fix.getReplacements().keySet());
@@ -62,12 +62,12 @@ public final class ApplySuggestedFixes {
 
     ImmutableMap<String, String> newCode = applySuggestedFixesToCode(fixes, filenameToCodeMap);
     for (Map.Entry<String, String> entry : newCode.entrySet()) {
-      Outcome<Boolean> written = Io.writeText(entry.getKey(), Io.UTF_8, entry.getValue());
+      Outcome<Void> written = Io.writeText(entry.getKey(), Io.UTF_8, entry.getValue());
       if (written.isErr()) {
         return Outcome.err(written.error());
       }
     }
-    return Outcome.ok(true);
+    return Outcome.ok();
   }
 
   /**

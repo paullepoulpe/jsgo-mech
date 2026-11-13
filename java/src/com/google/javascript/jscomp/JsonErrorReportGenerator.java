@@ -155,5 +155,6 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
     }
     // The text as it comes back from the UTF-8 bytes it used to be written as.
     stream.append(Io.utf8String(Io.utf8Bytes(bufferedStream.toString())));
+    stream.flush();
   }
 }

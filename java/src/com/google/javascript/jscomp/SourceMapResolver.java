@@ -82,7 +82,7 @@ public final class SourceMapResolver {
     if (uri.isErr()) {
       throw new RuntimeException("Sourcemap url was invalid: " + url, uri.error());
     }
-    return Io.uriIsAbsolute(url) || url.startsWith("/");
+    return Io.uriScheme(url) != null || url.startsWith("/");
   }
 
   /**
@@ -92,9 +92,15 @@ public final class SourceMapResolver {
    */
   static @Nullable SourceFile getRelativePath(String baseFilePath, String relativePath) {
     return SourceFile.builder()
-        .withPath(Io.pathNormalize(Io.pathResolveSibling(baseFilePath, relativePath)))
+        .withPath(Io.pathNormalize(resolveSibling(baseFilePath, relativePath)))
         .withKind(SourceKind.NON_CODE)
         .build();
+  }
+
+  /** Resolves the path against the directory of the base file. */
+  private static String resolveSibling(String baseFilePath, String path) {
+    String directory = Io.pathParent(baseFilePath);
+    return directory == null ? Io.pathString(path) : Io.pathResolve(directory, path);
   }
 
   /**

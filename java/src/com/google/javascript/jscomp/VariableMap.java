@@ -69,7 +69,7 @@ public final class VariableMap implements Serializable {
   }
 
   /** Saves the variable map to a file. */
-  public Outcome<Boolean> save(String filename) {
+  public Outcome<Void> save(String filename) {
     return Io.writeBytes(filename, toBytes());
   }
 

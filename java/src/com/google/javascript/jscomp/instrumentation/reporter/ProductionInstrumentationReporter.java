@@ -48,7 +48,7 @@ final class ProductionInstrumentationReporter {
   private String finalResultOutput = "";
 
   public static void main(String[] args) {
-    Outcome<Boolean> done = new ProductionInstrumentationReporter().doMain(args);
+    Outcome<Void> done = new ProductionInstrumentationReporter().doMain(args);
     if (done.isErr()) {
       Io.stderr().println(done.errorMessage());
     }
@@ -68,7 +68,7 @@ final class ProductionInstrumentationReporter {
     ImmutableList.Builder<Map<String, Long>> result = ImmutableList.builder();
 
     for (final String fileEntry : Io.listDirectory(folder)) {
-      Outcome<String> executionResult = readFile(Io.fileAbsolutePath(fileEntry));
+      Outcome<String> executionResult = readFile(Io.pathToAbsolute(fileEntry));
       if (executionResult.isErr()) {
         return Outcome.err(executionResult.error());
       }
@@ -168,18 +168,11 @@ final class ProductionInstrumentationReporter {
    * Creates a file with the given fileName (including extension) with the contents of the file
    * being provided by fileContents.
    */
-  private Outcome<Boolean> createFile(String fileName, String fileContents) {
-
-    Io.delete(fileName);
-    Outcome<Boolean> created = Io.createNewFile(fileName);
-    if (created.isErr()) {
-      return Outcome.err(created.error());
-    }
-
-    return Io.writeTextStrict(fileName, Io.UTF_8, fileContents);
+  private Outcome<Void> createFile(String fileName, String fileContents) {
+    return Io.writeText(fileName, Io.UTF_8, fileContents);
   }
 
-  private Outcome<Boolean> doMain(String[] args) {
+  private Outcome<Void> doMain(String[] args) {
 
     parseCmdLineArguments(args);
 

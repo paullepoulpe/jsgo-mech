@@ -676,11 +676,11 @@ public final class CmdLineParser {
     List<String> result = new ArrayList<>();
     for (String arg : args) {
       if (arg.startsWith("@")) {
-        String file = Io.filePath(arg.substring(1));
+        String file = Io.pathString(arg.substring(1));
         if (!Io.exists(file)) {
           return Outcome.err(new CmdLineException(this, "No such file: " + file));
         }
-        Outcome<String> text = Io.readTextDefaultCharset(file);
+        Outcome<String> text = Io.readText(file, Io.UTF_8);
         if (text.isErr()) {
           return Outcome.err(new CmdLineException(this, "Failed to parse " + file, text.error()));
         }

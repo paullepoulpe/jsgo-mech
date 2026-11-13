@@ -523,7 +523,7 @@ public final class PerformanceTracker {
       }
     }
 
-    output.println();
+    output.println("");
     // this.output can be System.out, so don't close it to not lose subsequent
     // error messages. Flush to ensure that you will see the tracer report.
     output.flush();

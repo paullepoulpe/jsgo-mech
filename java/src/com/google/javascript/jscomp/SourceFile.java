@@ -529,7 +529,7 @@ public final class SourceFile implements StaticSourceFile {
     if (entryNames.isErr()) {
       return Outcome.err(entryNames.error());
     }
-    final String absoluteZipPath = Io.fileAbsolutePath(zipName);
+    final String absoluteZipPath = Io.pathToAbsolute(zipName);
     List<SourceFile> sourceFiles = new ArrayList<>();
 
     for (String entryName : entryNames.get()) {

@@ -74,7 +74,7 @@ public class Es6RelativizeImportPaths implements CompilerPass {
         if (Io.uriParse(specifier).isErr()) {
           return;
         }
-        if (Io.uriIsAbsolute(specifier)) {
+        if (Io.uriScheme(specifier) != null) {
           return;
         }
       }

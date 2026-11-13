@@ -127,7 +127,7 @@ public final class Linter {
    * Keep applying fixes to the given file until no more fixes can be found, or until fixes have
    * been applied {@code MAX_FIXES} times.
    */
-  Outcome<Boolean> fixRepeatedly(String filename) {
+  Outcome<Void> fixRepeatedly(String filename) {
     return fixRepeatedly(filename, ImmutableSet.of());
   }
 
@@ -135,7 +135,7 @@ public final class Linter {
    * Keep applying fixes to the given file until no more fixes can be found, or until fixes have
    * been applied {@code MAX_FIXES} times.
    */
-  Outcome<Boolean> fixRepeatedly(String filename, ImmutableSet<DiagnosticType> unfixableErrors) {
+  Outcome<Void> fixRepeatedly(String filename, ImmutableSet<DiagnosticType> unfixableErrors) {
     for (int i = 0; i < MAX_FIXES; i++) {
       Outcome<Boolean> fixed = fix(filename, unfixableErrors);
       if (fixed.isErr()) {
@@ -145,7 +145,7 @@ public final class Linter {
         break;
       }
     }
-    return Outcome.ok(true);
+    return Outcome.ok();
   }
 
   /** @return Whether any fixes were applied. */
@@ -159,7 +159,7 @@ public final class Linter {
 
     Collection<SuggestedFix> fixes = errorManager.getSureFixes();
     if (!fixes.isEmpty()) {
-      Outcome<Boolean> applied = ApplySuggestedFixes.applySuggestedFixesToFiles(fixes);
+      Outcome<Void> applied = ApplySuggestedFixes.applySuggestedFixesToFiles(fixes);
       if (applied.isErr()) {
         return Outcome.err(applied.error());
       }

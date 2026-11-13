@@ -22,7 +22,7 @@ import java.text.MessageFormat;
 final class Platform {
 
   static String getFileSeperator() {
-    return Io.fileSeparator();
+    return Io.separator();
   }
 
   static boolean isThreadInterrupted() {

@@ -38,7 +38,7 @@ public final class CompilerTestCaseUtils {
         compiler = testCase.createCompiler();
         compiler.disableThreads();
         compiler.init(externs, inputs, testCase.getOptions());
-        compiler.restoreState(bais.readAllBytes());
+        compiler.restoreState(bais.readAllBytes()).get();
         compiler.setErrorManager(errorManager);
         compiler.getChangeTracker().addChangeHandler(changeHandler);
       }
