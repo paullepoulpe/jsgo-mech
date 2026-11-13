@@ -89,7 +89,8 @@ public class JSDocInfo implements Serializable {
 
     private Property(String name) {
       this.name = name;
-      this.bit = bitCounter++;
+      this.bit = bitCounter;
+      bitCounter++;
       this.mask = 1L << this.bit;
       if (this.bit > 63) {
         throw new AssertionError("Too many Properties");
@@ -419,7 +420,8 @@ public class JSDocInfo implements Serializable {
     while (bits > 0) {
       int low = Long.numberOfTrailingZeros(bits);
       bits &= ~(1L << low);
-      map.put(Property.values[low], getPropertyValueByIndex(index++));
+      map.put(Property.values[low], getPropertyValueByIndex(index));
+      index++;
     }
     return map;
   }
@@ -717,7 +719,8 @@ public class JSDocInfo implements Serializable {
       bits &= ~(1L << low);
       Property<Object> prop = (Property<Object>) Property.values[low];
       Object a = jsDoc1.getPropertyValueByIndex(index);
-      Object b = jsDoc2.getPropertyValueByIndex(index++);
+      Object b = jsDoc2.getPropertyValueByIndex(index);
+      index++;
       if ((a == null) != (b == null) || (a != null && !prop.equalValues(a, b))) {
         return false;
       }
@@ -1330,7 +1333,8 @@ public class JSDocInfo implements Serializable {
     while (bits > 0) {
       int low = Long.numberOfTrailingZeros(bits);
       bits &= ~(1L << low);
-      helper = helper.add(Property.values[low].name, getPropertyValueByIndex(index++));
+      helper = helper.add(Property.values[low].name, getPropertyValueByIndex(index));
+      index++;
     }
 
     return helper.omitNullValues().toString();
@@ -1525,7 +1529,9 @@ public class JSDocInfo implements Serializable {
       int low = Long.numberOfTrailingZeros(bits);
       bits &= ~(1L << low);
       Property<Object> prop = (Property<Object>) Property.values[low];
-      for (JSTypeExpression type : prop.getTypeExpressions(getPropertyValueByIndex(index++))) {
+      Object propValue = getPropertyValueByIndex(index);
+      index++;
+      for (JSTypeExpression type : prop.getTypeExpressions(propValue)) {
         if (type != null) {
           builder.add(type);
         }
@@ -1817,7 +1823,8 @@ public class JSDocInfo implements Serializable {
       if (shouldParseDocumentation()) {
         ArrayList<Marker> markers = getProp(MARKERS);
         if (markers == null) {
-          setProp(MARKERS, markers = new ArrayList<>());
+          markers = new ArrayList<>();
+          setProp(MARKERS, markers);
         }
         Marker marker = new Marker();
         markers.add(marker);
@@ -2918,7 +2925,8 @@ public class JSDocInfo implements Serializable {
     private <T> T getPropWithDefault(Property<T> prop, Supplier<T> supplier) {
       T value = getProp(prop);
       if (value == null) {
-        setProp(prop, value = supplier.get());
+        value = supplier.get();
+        setProp(prop, value);
       }
       return value;
     }
@@ -2928,7 +2936,11 @@ public class JSDocInfo implements Serializable {
     }
 
     private <K, V> boolean populatePropEntry(Property<LinkedHashMap<K, V>> prop, K key, V value) {
-      return putPropEntry(prop, key, value) && (populated = true);
+      if (putPropEntry(prop, key, value)) {
+        populated = true;
+        return true;
+      }
+      return false;
     }
 
     private <T> boolean populateProp(Property<T> prop, T value) {
@@ -2951,7 +2963,8 @@ public class JSDocInfo implements Serializable {
     private boolean populateBit(Bit bit, boolean value) {
       if (checkBit(bit) != value) {
         setBit(bit, value);
-        return populated = true;
+        populated = true;
+        return true;
       }
       return false;
     }

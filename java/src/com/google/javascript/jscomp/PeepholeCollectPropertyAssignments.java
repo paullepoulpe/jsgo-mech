@@ -65,7 +65,11 @@ final class PeepholeCollectPropertyAssignments extends AbstractPeepholeOptimizat
       }
 
       Node propertyCandidate;
-      while ((propertyCandidate = child.getNext()) != null) {
+      while (true) {
+        propertyCandidate = child.getNext();
+        if (propertyCandidate == null) {
+          break;
+        }
         // This does not infinitely loop because collectProperty always
         // removes propertyCandidate from its parent when it returns true.
         if (!collectProperty(propertyCandidate, name.getString(), value)) {

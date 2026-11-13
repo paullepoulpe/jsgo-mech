@@ -255,7 +255,8 @@ public final class TemplateTypeMap {
       inNewSubmap = inNewSubmap || subMapStarts.get(i);
       if (!removals.contains(key)) {
         keys.add(key);
-        newsubMapStarts.set(templateValues.size() + newKeysSize++, inNewSubmap);
+        newsubMapStarts.set(templateValues.size() + newKeysSize, inNewSubmap);
+        newKeysSize++;
         inNewSubmap = false;
       }
     }

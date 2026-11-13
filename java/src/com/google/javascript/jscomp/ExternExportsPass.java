@@ -366,7 +366,8 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
           lit.addChildToBack(
               IR.propdef(
                   IR.stringKey(child.getString()),
-                  IR.number(index++)));
+                  IR.number(index)));
+          index++;
         }
       }
       return lit;

@@ -114,7 +114,8 @@ public final class ColorId implements Serializable, LogsGson.Able {
     int index = 0;
     long[] sorted = new long[ids.size()];
     for (ColorId id : ids) {
-      sorted[index++] = id.rightAligned;
+      sorted[index] = id.rightAligned;
+      index++;
     }
     Arrays.sort(sorted);
 

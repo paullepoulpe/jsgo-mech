@@ -507,7 +507,11 @@ class IRFactory {
     }
 
     Node parent = n;
-    while ((parent = parent.getParent()) != null) {
+    while (true) {
+      parent = parent.getParent();
+      if (parent == null) {
+        break;
+      }
       // The await is in a class static block or a field initializer.
       // e.g. `class C { static { await y; } }` or `class C { x = await y; }`
       if ((parent.isBlock() || parent.isMemberFieldDef()) && parent.getParent().isClassMembers()) {
@@ -539,7 +543,11 @@ class IRFactory {
     }
 
     Node parent = n;
-    while ((parent = parent.getParent()) != null) {
+    while (true) {
+      parent = parent.getParent();
+      if (parent == null) {
+        break;
+      }
       // The yield is in a class static block.
       // e.g. `class C { static { yield; } }`
       if (parent.isClassMembers()) {
@@ -558,7 +566,11 @@ class IRFactory {
     }
 
     Node parent = n;
-    while ((parent = parent.getParent()) != null) {
+    while (true) {
+      parent = parent.getParent();
+      if (parent == null) {
+        break;
+      }
       // The return is in a class static block.
       // e.g. `class C { static { return; } }`
       if (parent.isClassMembers()) {
@@ -4082,7 +4094,11 @@ class IRFactory {
           maybeWarnForFeature(token, Feature.BINARY_LITERALS);
           double v = 0;
           int c = 1;
-          while (++c < length) {
+          while (true) {
+            ++c;
+            if (c >= length) {
+              break;
+            }
             v = (v * 2) + binarydigit(value.charAt(c));
           }
           yield roundLargeRadixLiteral(v, value.substring(2), 2);
@@ -4091,7 +4107,11 @@ class IRFactory {
           maybeWarnForFeature(token, Feature.OCTAL_LITERALS);
           double v = 0;
           int c = 1;
-          while (++c < length) {
+          while (true) {
+            ++c;
+            if (c >= length) {
+              break;
+            }
             v = (v * 8) + octaldigit(value.charAt(c));
           }
           yield roundLargeRadixLiteral(v, value.substring(2), 8);
@@ -4099,7 +4119,11 @@ class IRFactory {
         case 'x', 'X' -> {
           double v = 0;
           int c = 1;
-          while (++c < length) {
+          while (true) {
+            ++c;
+            if (c >= length) {
+              break;
+            }
             v = (v * 0x10) + hexdigit(value.charAt(c));
           }
           yield roundLargeRadixLiteral(v, value.substring(2), 16);
@@ -4107,7 +4131,11 @@ class IRFactory {
         case '0', '1', '2', '3', '4', '5', '6', '7' -> {
           double v = 0;
           int c = 0;
-          while (++c < length) {
+          while (true) {
+            ++c;
+            if (c >= length) {
+              break;
+            }
             char digit = value.charAt(c);
             if (isOctalDigit(digit)) {
               v = (v * 8) + octaldigit(digit);

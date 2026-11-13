@@ -560,7 +560,11 @@ public class CodeGenerator {
             add("implements");
             Node child = interfaces.getFirstChild();
             add(child);
-            while ((child = child.getNext()) != null) {
+            while (true) {
+              child = child.getNext();
+              if (child == null) {
+                break;
+              }
               add(",");
               cc.maybeInsertSpace();
               add(child);
@@ -1308,7 +1312,11 @@ public class CodeGenerator {
             add("extends");
             Node superType = superTypes.getFirstChild();
             add(superType);
-            while ((superType = superType.getNext()) != null) {
+            while (true) {
+              superType = superType.getNext();
+              if (superType == null) {
+                break;
+              }
               add(",");
               cc.maybeInsertSpace();
               add(superType);

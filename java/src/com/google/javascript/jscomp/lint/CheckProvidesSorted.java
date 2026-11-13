@@ -103,7 +103,8 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
     if (NodeUtil.isGoogProvideCall(n) && areProvideArgumentsValid(n.getFirstChild())) {
       originalProvides.add(getNamespace(n));
       if (firstNode == null) {
-        firstNode = lastNode = n;
+        lastNode = n;
+        firstNode = n;
       } else {
         lastNode = n;
       }

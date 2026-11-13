@@ -1319,7 +1319,9 @@ public class Scanner {
     if (isAtEnd()) {
       return '\0';
     }
-    return contents.charAt(index++);
+    int charIndex = index;
+    index++;
+    return contents.charAt(charIndex);
   }
 
   private boolean peek(char ch) {

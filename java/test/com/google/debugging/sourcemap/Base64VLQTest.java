@@ -94,7 +94,9 @@ public final class Base64VLQTest {
 
     @Override
     public char next() {
-      return cs.charAt(current++);
+      int index = current;
+      current++;
+      return cs.charAt(index);
     }
   }
 

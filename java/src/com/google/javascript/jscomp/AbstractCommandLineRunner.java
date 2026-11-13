@@ -480,7 +480,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       ZipInputStream zip = new ZipInputStream(input);
       String envPrefix = Ascii.toLowerCase(env.toString()) + "/";
       Map<String, SourceFile> mapFromExternsZip = new LinkedHashMap<>();
-      for (ZipEntry entry = null; (entry = zip.getNextEntry()) != null; ) {
+      for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
         String filename = entry.getName();
 
         // Always load externs in the root folder.

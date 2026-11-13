@@ -98,11 +98,14 @@ final class CharRanges {
       int last = members[i - 1];
       if (current == last) { continue; }
       if (current != last + 1) {
-        ranges[++k] = last + 1;  // add 1 to make end exclusive
-        ranges[++k] = current;
+        ++k;
+        ranges[k] = last + 1;  // add 1 to make end exclusive
+        ++k;
+        ranges[k] = current;
       }
     }
-    ranges[++k] = members[nMembers - 1] + 1;  // add 1 to make end exclusive
+    ++k;
+    ranges[k] = members[nMembers - 1] + 1;  // add 1 to make end exclusive
     return ranges;
   }
 
@@ -184,12 +187,16 @@ final class CharRanges {
       int b0 = r[j];
       int b1 = r[j + 1];
       if (a1 < b0) {  // [a0, a1) ends before [b0, b1) starts
-        out[k++] = a0;
-        out[k++] = a1;
+        out[k] = a0;
+        k++;
+        out[k] = a1;
+        k++;
         i += 2;
       } else if (b1 < a0) {  // [b0, b1) ends before [a0, a1) starts
-        out[k++] = b0;
-        out[k++] = b1;
+        out[k] = b0;
+        k++;
+        out[k] = b1;
+        k++;
         j += 2;
       } else {  // ranges overlap
         // We need to compute a new range based on the set of ranges that
@@ -220,8 +227,10 @@ final class CharRanges {
             break;
           }
         }
-        out[k++] = start;
-        out[k++] = end;
+        out[k] = start;
+        k++;
+        out[k] = end;
+        k++;
       }
     }
     // There may be unprocessed ranges at the end of one of the inputs.
@@ -273,8 +282,10 @@ final class CharRanges {
               System.arraycopy(intersection, 0, newArr, 0, intersectionIdx);
               intersection = newArr;
             }
-            intersection[intersectionIdx++] = pos;
-            intersection[intersectionIdx++] = end;
+            intersection[intersectionIdx] = pos;
+            intersectionIdx++;
+            intersection[intersectionIdx] = end;
+            intersectionIdx++;
           }
           pos = end;
         }
@@ -326,8 +337,10 @@ final class CharRanges {
             System.arraycopy(difference, 0, newArr, 0, dIdx);
             difference = newArr;
           }
-          difference[dIdx++] = pos;
-          difference[dIdx++] = end;
+          difference[dIdx] = pos;
+          dIdx++;
+          difference[dIdx] = end;
+          dIdx++;
         }
         pos = end;
       }
@@ -396,7 +409,7 @@ final class CharRanges {
     }
     // Create a shifted range.
     int[] shiftedRanges = new int[n];
-    for (int i = n; --i >= 0;) {
+    for (int i = n - 1; i >= 0; --i) {
       shiftedRanges[i] = ranges[i] + delta;
     }
     return new CharRanges(shiftedRanges);

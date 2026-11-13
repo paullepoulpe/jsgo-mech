@@ -70,31 +70,33 @@ public final class RenameVarsTest extends CompilerTestCase {
     if (withClosurePass) {
       pass = new ClosurePassAndRenameVars(compiler);
     } else if (nameGenerator != null) {
-      pass =
-          renameVars =
-              new RenameVars(
-                  compiler,
-                  prefix,
-                  localRenamingOnly,
-                  generatePseudoNames,
-                  preferStableNames,
-                  previouslyUsedMap,
-                  ImmutableSet.of(),
-                  null,
-                  nameGenerator);
+      RenameVars newRenameVars =
+          new RenameVars(
+              compiler,
+              prefix,
+              localRenamingOnly,
+              generatePseudoNames,
+              preferStableNames,
+              previouslyUsedMap,
+              ImmutableSet.of(),
+              null,
+              nameGenerator);
+      renameVars = newRenameVars;
+      pass = newRenameVars;
     } else {
-      pass =
-          renameVars =
-              new RenameVars(
-                  compiler,
-                  prefix,
-                  localRenamingOnly,
-                  generatePseudoNames,
-                  preferStableNames,
-                  previouslyUsedMap,
-                  ImmutableSet.of(),
-                  null,
-                  new DefaultNameGenerator());
+      RenameVars newRenameVars =
+          new RenameVars(
+              compiler,
+              prefix,
+              localRenamingOnly,
+              generatePseudoNames,
+              preferStableNames,
+              previouslyUsedMap,
+              ImmutableSet.of(),
+              null,
+              new DefaultNameGenerator());
+      renameVars = newRenameVars;
+      pass = newRenameVars;
     }
 
     if (withNormalize) {

@@ -452,7 +452,11 @@ class CoalesceVariableNames extends NodeTraversal.AbstractCfgCallback implements
         Node nameDecl = NodeUtil.getEnclosingNode(v.getNode(), NodeUtil::isNameDeclaration);
 
         int[] count = {0}; // for lambda access
-        NodeUtil.visitLhsNodesInNode(nameDecl, (lhs) -> count[0]++);
+        NodeUtil.visitLhsNodesInNode(
+            nameDecl,
+            (lhs) -> {
+              count[0]++;
+            });
         yield count[0] > 1;
       }
       default -> false;

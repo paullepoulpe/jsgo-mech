@@ -193,7 +193,11 @@ public final class CaseCanonicalize {
       if (cu != ch) {
         StringBuilder sb = new StringBuilder(s);
         sb.setCharAt(i, cu);
-        while (++i < n) {
+        while (true) {
+          ++i;
+          if (i >= n) {
+            break;
+          }
           sb.setCharAt(i, caseCanonicalize(s.charAt(i)));
         }
         return sb.toString();

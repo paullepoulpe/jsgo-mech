@@ -241,7 +241,8 @@ class InlineFunctions implements CompilerPass {
 
           // If an interesting function was discovered, add it.
           if (fnNode != null) {
-            Function fn = new FunctionExpression(fnNode, callsSeen++);
+            Function fn = new FunctionExpression(fnNode, callsSeen);
+            callsSeen++;
             maybeAddFunction(fn, t.getChunk());
             anonFns.put(fnNode, fn.getName());
           }

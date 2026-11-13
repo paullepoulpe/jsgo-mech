@@ -405,7 +405,9 @@ public final class RewriteOptionalChainingOperatorTest {
 
             @Override
             public String createTmpVarName() {
-              return "tmp" + counter++;
+              String result = "tmp" + counter;
+              counter++;
+              return result;
             }
           };
       return new RewriteOptionalChainingOperator(compiler, testVarNameCreator);
@@ -438,7 +440,9 @@ public final class RewriteOptionalChainingOperatorTest {
 
             @Override
             public String createTmpVarName() {
-              return "tmp" + counter++;
+              String result = "tmp" + counter;
+              counter++;
+              return result;
             }
           };
       return new RewriteOptionalChainingOperator(compiler, testVarNameCreator);

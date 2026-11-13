@@ -382,7 +382,9 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
 
   /** Creates a new unique name to use for a pattern we need to rewrite. */
   private String getTempVariableName() {
-    return DESTRUCTURING_TEMP_VAR + destructuringVarCounter++;
+    String result = DESTRUCTURING_TEMP_VAR + destructuringVarCounter;
+    destructuringVarCounter++;
+    return result;
   }
 
   private void visitPattern(NodeTraversal t, Node pattern) {

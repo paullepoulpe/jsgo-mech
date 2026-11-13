@@ -188,7 +188,8 @@ public final class CombinedCompilerPassTest {
     NodeTraversal.Callback[] callbacks = new NodeTraversal.Callback[tests.size()];
     int i = 0;
     for (TestHelper test : tests) {
-      callbacks[i++] = test.getTraversal();
+      callbacks[i] = test.getTraversal();
+      i++;
     }
     CombinedCompilerPass pass = new CombinedCompilerPass(compiler, callbacks);
     pass.process(null, createPostOrderAlphabet());

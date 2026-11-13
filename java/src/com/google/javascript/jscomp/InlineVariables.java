@@ -974,7 +974,8 @@ class InlineVariables implements CompilerPass {
         if (curNode == targetName) {
           return true;
         }
-        if (++steps > MAX_MODERATE_MOTION_STEPS) {
+        ++steps;
+        if (steps > MAX_MODERATE_MOTION_STEPS) {
           return false;
         }
       }

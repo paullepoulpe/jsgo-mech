@@ -366,7 +366,8 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
       originalImports.add(stmt);
       importsByNamespace.put(stmt.namespace(), stmt);
       if (firstNode == null) {
-        firstNode = lastNode = n;
+        lastNode = n;
+        firstNode = n;
       } else {
         lastNode = n;
       }

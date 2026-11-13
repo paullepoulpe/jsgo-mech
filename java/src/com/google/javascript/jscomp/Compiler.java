@@ -1841,7 +1841,9 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   /** Creates a new id for making unique names. */
   @Deprecated
   private int nextUniqueNameId() {
-    return uniqueNameId++;
+    int result = uniqueNameId;
+    uniqueNameId++;
+    return result;
   }
 
   /**
@@ -2701,13 +2703,15 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
                 for (Node scriptNode = externsRoot.getFirstChild();
                     scriptNode != null;
                     scriptNode = scriptNode.getNext()) {
-                  toSource(cb, lt, i++, scriptNode);
+                  toSource(cb, lt, i, scriptNode);
+                  i++;
                 }
               }
               for (Node scriptNode = jsRoot.getFirstChild();
                   scriptNode != null;
                   scriptNode = scriptNode.getNext()) {
-                toSource(cb, lt, i++, scriptNode);
+                toSource(cb, lt, i, scriptNode);
+                i++;
               }
             }
             return cb.toString();
@@ -2754,7 +2758,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
             if (scriptNode == null) {
               throw new IllegalArgumentException("Bad chunk: " + chunk.getName());
             }
-            toSource(cb, licenseTracker, seq++, scriptNode);
+            toSource(cb, licenseTracker, seq, scriptNode);
+            seq++;
           }
           for (int i = 0; i < inputs.size(); i++) {
             if (!chunkExterns.isEmpty() && Compiler.isFillFileName(inputs.get(i).getName())) {
@@ -2764,7 +2769,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
             if (scriptNode == null) {
               throw new IllegalArgumentException("Bad chunk: " + chunk.getName());
             }
-            toSource(cb, licenseTracker, seq++, scriptNode);
+            toSource(cb, licenseTracker, seq, scriptNode);
+            seq++;
           }
           return cb.toString();
         });
@@ -3179,7 +3185,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       // Adjust the line and column information for the new text.
       int index = -1;
       int lastIndex = index;
-      while ((index = str.indexOf('\n', index + 1)) >= 0) {
+      while (true) {
+        index = str.indexOf('\n', index + 1);
+        if (index < 0) {
+          break;
+        }
         ++lineCount;
         lastIndex = index;
       }

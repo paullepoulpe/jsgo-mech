@@ -79,7 +79,10 @@ public class InlineFunctionsTest extends CompilerTestCase {
 
     @Override
     public String get() {
-      return "v" + nextId++; // prefix with "v" to distinguish from Compiler's unique id supplier.
+      String result =
+          "v" + nextId; // prefix with "v" to distinguish from Compiler's unique id supplier.
+      nextId++;
+      return result;
     }
   }
 

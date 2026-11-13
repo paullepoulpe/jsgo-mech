@@ -1375,8 +1375,11 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     } else {
       int startIndex = 0;
       int matchIndex;
-      while ((matchIndex = jsSplitMatch(stringValue, startIndex, separator)) >= 0
-          && splitStrings.size() < limit) {
+      while (true) {
+        matchIndex = jsSplitMatch(stringValue, startIndex, separator);
+        if (!(matchIndex >= 0 && splitStrings.size() < limit)) {
+          break;
+        }
         splitStrings.add(stringValue.substring(startIndex, matchIndex));
 
         startIndex = matchIndex + separator.length();

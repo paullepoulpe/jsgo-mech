@@ -160,7 +160,8 @@ public final class SerializeTypesToPointersTest {
     Node root = IR.root();
     int index = 0;
     for (String file : files) {
-      root.addChildToBack(compiler.parseSyntheticCode("test_" + index++, file));
+      root.addChildToBack(compiler.parseSyntheticCode("test_" + index, file));
+      index++;
     }
     assertThat(compiler.getErrors()).isEmpty();
     IR.root(/* externs */ IR.root(), /* js */ root); // make this a valid AST

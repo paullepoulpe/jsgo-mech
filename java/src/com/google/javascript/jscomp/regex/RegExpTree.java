@@ -448,7 +448,9 @@ public abstract class RegExpTree {
        * thing inside a charset than without.
        */
       private int parseEscapeChar() {
-        char ch = pattern.charAt(pos++);
+        int escapePos = pos;
+        pos++;
+        char ch = pattern.charAt(escapePos);
         return switch (ch) {
           case 'b' -> '\b';
           case 'f' -> '\f';
@@ -502,11 +504,18 @@ public abstract class RegExpTree {
           ++pos;
           if (pos < limit && pattern.charAt(pos) == '{') {
             StringBuilder lhs = new StringBuilder();
-            while (++pos < limit
-                && ((ch = pattern.charAt(pos)) == '_'
-                    || ('a' <= ch && ch <= 'z')
-                    || ('A' <= ch && ch <= 'Z')
-                    || ('0' <= ch && ch <= '9'))) {
+            while (true) {
+              ++pos;
+              if (pos >= limit) {
+                break;
+              }
+              ch = pattern.charAt(pos);
+              if (!(ch == '_'
+                  || ('a' <= ch && ch <= 'z')
+                  || ('A' <= ch && ch <= 'Z')
+                  || ('0' <= ch && ch <= '9'))) {
+                break;
+              }
               lhs.append(ch);
             }
             if (pos < limit && ch == '}') {
@@ -516,11 +525,18 @@ public abstract class RegExpTree {
             } else if (pos < limit && ch == '=') {
               // Case of having '=' like /\p{Script=Greek}/u
               StringBuilder rhs = new StringBuilder();
-              while (++pos < limit
-                  && ((ch = pattern.charAt(pos)) == '_'
-                      || ('a' <= ch && ch <= 'z')
-                      || ('A' <= ch && ch <= 'Z')
-                      || ('0' <= ch && ch <= '9'))) {
+              while (true) {
+                ++pos;
+                if (pos >= limit) {
+                  break;
+                }
+                ch = pattern.charAt(pos);
+                if (!(ch == '_'
+                    || ('a' <= ch && ch <= 'z')
+                    || ('A' <= ch && ch <= 'Z')
+                    || ('0' <= ch && ch <= '9'))) {
+                  break;
+                }
                 rhs.append(ch);
               }
               if (pos < limit && ch == '}') {
@@ -601,7 +617,11 @@ public abstract class RegExpTree {
         }
 
         int result = 0;
-        while (--n >= 0) {
+        while (true) {
+          --n;
+          if (n < 0) {
+            break;
+          }
           char ch = pattern.charAt(pos);
           int digit;
           if ('0' <= ch && ch <= '9') {
@@ -621,7 +641,8 @@ public abstract class RegExpTree {
 
       private int parseBracedUnicodeEscape() {
         int openBrace = pos;
-        checkState(pattern.charAt(pos++) == '{');
+        pos++;
+        checkState(pattern.charAt(openBrace) == '{');
 
         int closeBrace = pos;
         while (closeBrace < limit && pattern.charAt(closeBrace) != '}') {
@@ -696,7 +717,8 @@ public abstract class RegExpTree {
                           : Integer.MAX_VALUE
                       : min;
             } catch (NumberFormatException ex) {
-              min = max = -1;
+              max = -1;
+              min = -1;
             }
             if (min < 0 || min > max) {
               // Treat the open curly bracket literally.
@@ -1195,7 +1217,11 @@ public abstract class RegExpTree {
           // a{2} -> aa
           // a{2,} -> aa+
           // a{2,3} -> aaa?
-          while (--expanded >= 0) {
+          while (true) {
+            --expanded;
+            if (expanded < 0) {
+              break;
+            }
             sb.append(sb, bodyStart, bodyEnd);
           }
           min = expandedMin;
@@ -1305,7 +1331,8 @@ public abstract class RegExpTree {
             for (RegExpTree charAlternative : charAlternatives) {
               if (charAlternative instanceof Text text) {
                 char ch = text.text.charAt(0);
-                members[memberIdx++] = ch;
+                members[memberIdx] = ch;
+                memberIdx++;
                 if (IE_SPEC_ERRORS.contains(ch)) {
                   ieExplicits = ieExplicits.union(CharRanges.inclusive(ch, ch));
                 }

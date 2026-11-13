@@ -240,7 +240,8 @@ public final class DotFormatter {
   int key(Node n) throws IOException {
     Integer key = assignments.get(n);
     if (key == null) {
-      key = keyCount++;
+      key = keyCount;
+      keyCount++;
       assignments.put(n, key);
       builder.append(INDENT);
       builder.append(formatNodeName(key));

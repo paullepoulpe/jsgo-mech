@@ -106,7 +106,8 @@ final class RenameVars implements CompilerPass {
       this.count = 0;
 
       // Represents the order at which a symbol appears in the source.
-      this.orderOfOccurrence = assignmentCount++;
+      this.orderOfOccurrence = assignmentCount;
+      assignmentCount++;
     }
 
     /**

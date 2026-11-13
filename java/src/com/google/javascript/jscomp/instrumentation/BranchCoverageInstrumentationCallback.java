@@ -246,8 +246,9 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
         Node assignment =
             IR.exprResult(
                 IR.assign(
-                    IR.getelem(IR.name(name), IR.number(lineWithBranch++)),
+                    IR.getelem(IR.name(name), IR.number(lineWithBranch)),
                     IR.number(numBranches)));
+        lineWithBranch++;
         assignments.add(assignment.srcrefTreeIfMissing(assignment));
       }
     }

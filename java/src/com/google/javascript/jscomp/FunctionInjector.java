@@ -61,7 +61,9 @@ class FunctionInjector {
 
         @Override
         public String get() {
-          return String.valueOf(nextId++);
+          String result = String.valueOf(nextId);
+          nextId++;
+          return result;
         }
       };
   private final FunctionArgumentInjector functionArgumentInjector;

@@ -128,15 +128,21 @@ public final class PerformanceTracker {
     if (!tracksAstSize()) {
       return;
     }
-    this.initAstSize = this.astSize = NodeUtil.countAstSize(this.jsRoot);
+    int newAstSize = NodeUtil.countAstSize(this.jsRoot);
+    this.astSize = newAstSize;
+    this.initAstSize = newAstSize;
     if (!tracksSize()) {
       return;
     }
     PerformanceTrackerCodeSizeEstimator estimator =
         PerformanceTrackerCodeSizeEstimator.estimate(this.jsRoot, tracksGzSize());
-    this.initCodeSize = this.codeSize = estimator.getCodeSize();
+    int newCodeSize = estimator.getCodeSize();
+    this.codeSize = newCodeSize;
+    this.initCodeSize = newCodeSize;
     if (tracksGzSize()) {
-      this.initGzCodeSize = this.gzCodeSize = estimator.getZippedCodeSize();
+      int newGzCodeSize = estimator.getZippedCodeSize();
+      this.gzCodeSize = newGzCodeSize;
+      this.initGzCodeSize = newGzCodeSize;
     }
   }
 
@@ -175,22 +181,32 @@ public final class PerformanceTracker {
     if (!tracksAstSize()) {
       return;
     }
-    logStats.astSize = this.initAstSize = this.astSize = NodeUtil.countAstSize(jsRoot);
+    int newAstSize = NodeUtil.countAstSize(jsRoot);
+    this.astSize = newAstSize;
+    this.initAstSize = newAstSize;
+    logStats.astSize = newAstSize;
     if (!tracksSize()) {
       return;
     }
     PerformanceTrackerCodeSizeEstimator estimator =
         PerformanceTrackerCodeSizeEstimator.estimate(this.jsRoot, tracksGzSize());
-    logStats.size = this.initCodeSize = this.codeSize = estimator.getCodeSize();
+    int newCodeSize = estimator.getCodeSize();
+    this.codeSize = newCodeSize;
+    this.initCodeSize = newCodeSize;
+    logStats.size = newCodeSize;
     if (tracksGzSize()) {
-      logStats.gzSize = this.initGzCodeSize = this.gzCodeSize = estimator.getZippedCodeSize();
+      int newGzCodeSize = estimator.getZippedCodeSize();
+      this.gzCodeSize = newGzCodeSize;
+      this.initGzCodeSize = newGzCodeSize;
+      logStats.gzSize = newGzCodeSize;
     }
   }
 
   private void recordOtherPassStop(Stats logStats) {
     int newSize = NodeUtil.countAstSize(this.jsRoot);
     logStats.astDiff = this.astSize - newSize;
-    this.astSize = logStats.astSize = newSize;
+    logStats.astSize = newSize;
+    this.astSize = newSize;
     if (!tracksSize()) {
       return;
     }
@@ -198,11 +214,13 @@ public final class PerformanceTracker {
         PerformanceTrackerCodeSizeEstimator.estimate(this.jsRoot, tracksGzSize());
     newSize = estimator.getCodeSize();
     logStats.diff = this.codeSize - newSize;
-    this.codeSize = logStats.size = newSize;
+    logStats.size = newSize;
+    this.codeSize = newSize;
     if (tracksGzSize()) {
       newSize = estimator.getZippedCodeSize();
       logStats.gzDiff = this.gzCodeSize - newSize;
-      this.gzCodeSize = logStats.gzSize = newSize;
+      logStats.gzSize = newSize;
+      this.gzCodeSize = newSize;
     }
   }
 

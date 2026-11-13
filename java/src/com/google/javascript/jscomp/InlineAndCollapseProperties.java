@@ -2179,7 +2179,13 @@ class InlineAndCollapseProperties implements CompilerPass {
         // reason that we don't eliminate them entirely is the off chance that
         // their values are expressions that have side effects.
         boolean isJsIdentifier = !key.isNumber() && TokenStream.isJSIdentifier(key.getString());
-        String propName = isJsIdentifier ? key.getString() : String.valueOf(++arbitraryNameCounter);
+        String propName;
+        if (isJsIdentifier) {
+          propName = key.getString();
+        } else {
+          ++arbitraryNameCounter;
+          propName = String.valueOf(arbitraryNameCounter);
+        }
 
         // If the name cannot be collapsed, skip it.
         String qName = objlitName.getFullName() + '.' + propName;

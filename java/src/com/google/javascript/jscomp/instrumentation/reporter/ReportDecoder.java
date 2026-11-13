@@ -320,7 +320,9 @@ public final class ReportDecoder {
 
     @Override
     public char next() {
-      return content.charAt(current++);
+      int index = current;
+      current++;
+      return content.charAt(index);
     }
 
     @Override

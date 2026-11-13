@@ -682,7 +682,8 @@ public final class TemplateAstMatcherTest {
    * in order for the JsSourceMatcher to work properly.
    */
   private TestNodePair compile(String externs, String template, String code) {
-    Compiler compiler = lastCompiler = new Compiler();
+    Compiler compiler = new Compiler();
+    lastCompiler = compiler;
     compiler.disableThreads();
     CompilerOptions options = new CompilerOptions();
     options.setCheckTypes(true);

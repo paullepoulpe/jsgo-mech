@@ -245,7 +245,8 @@ public final class DefaultNameGenerator implements NameGenerator {
     CharPriority[] result = new CharPriority[charSet.size()];
     int index = 0;
     for (char c : charSet) {
-      result[index++] = priorityLookupMap.get(c);
+      result[index] = priorityLookupMap.get(c);
+      index++;
     }
     return result;
   }

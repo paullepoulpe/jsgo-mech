@@ -863,7 +863,9 @@ public final class FunctionArgumentInjectorTest {
 
       @Override
       public String get() {
-        return String.valueOf(i++);
+        String result = String.valueOf(i);
+        i++;
+        return result;
       }
     };
   }

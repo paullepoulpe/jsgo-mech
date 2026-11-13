@@ -122,7 +122,8 @@ public final class CrossChunkReferenceCollector implements CompilerPass {
 
   private TopLevelStatementDraft initializeDraftStatement(JSChunk chunk, Node statementNode) {
     TopLevelStatementDraft draft =
-        new TopLevelStatementDraft(statementCounter++, chunk, statementNode);
+        new TopLevelStatementDraft(statementCounter, chunk, statementNode);
+    statementCounter++;
     // Determine whether this statement declares a name or not.
     // If so, save its name node and value node, if any.
     if (NodeUtil.isNameDeclaration(statementNode)) {

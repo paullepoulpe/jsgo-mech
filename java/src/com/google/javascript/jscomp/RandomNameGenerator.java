@@ -253,7 +253,8 @@ public final class RandomNameGenerator implements NameGenerator {
   @Override
   public String generateNextName() {
     while (true) {
-      String name = prefix + generateSuffix(prefix.length(), nameCount++);
+      String name = prefix + generateSuffix(prefix.length(), nameCount);
+      nameCount++;
 
       // Make sure it's not a JS keyword or reserved name.
       if (TokenStream.isKeyword(name)

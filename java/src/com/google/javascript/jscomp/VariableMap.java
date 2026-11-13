@@ -122,7 +122,11 @@ public final class VariableMap implements Serializable {
     ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
     BufferedReader br = new BufferedReader(new InputStreamReader(stream, UTF_8));
     String line;
-    while ((line = br.readLine()) != null) {
+    while (true) {
+      line = br.readLine();
+      if (line == null) {
+        break;
+      }
       if (line.isEmpty()) {
         continue;
       }
@@ -196,8 +200,11 @@ public final class VariableMap implements Serializable {
     int len = value.length();
     for (int i = slashIndex; i < len; i++) {
       char c = value.charAt(i);
-      if (c == '\\' && ++i < len) {
-        c = value.charAt(i);
+      if (c == '\\') {
+        ++i;
+        if (i < len) {
+          c = value.charAt(i);
+        }
       }
       sb.append(c);
     }

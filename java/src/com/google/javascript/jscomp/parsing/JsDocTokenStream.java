@@ -46,7 +46,8 @@ public class JsDocTokenStream {
     this.lineno = lineno;
     this.sourceString = sourceString;
     this.sourceEnd = sourceString.length();
-    this.sourceCursor = this.cursor = 0;
+    this.cursor = 0;
+    this.sourceCursor = 0;
     this.initLineno = lineno;
     this.initCharno = initCharno;
   }
@@ -150,7 +151,8 @@ public class JsDocTokenStream {
               }
             }
             // we may backtrack across line boundary
-            ungetBuffer[ungetCursor++] = c;
+            ungetBuffer[ungetCursor] = c;
+            ungetCursor++;
             c = '.';
           }
           // fall through
@@ -250,7 +252,8 @@ public class JsDocTokenStream {
   void ungetChar(int c) {
     // can not unread past across line boundary
     assert(!(ungetCursor != 0 && ungetBuffer[ungetCursor - 1] == '\n'));
-    ungetBuffer[ungetCursor++] = c;
+    ungetBuffer[ungetCursor] = c;
+    ungetCursor++;
     cursor--;
   }
 
@@ -331,7 +334,8 @@ public class JsDocTokenStream {
         return EOF_CHAR;
       }
       cursor++;
-      c = sourceString.charAt(sourceCursor++);
+      c = sourceString.charAt(sourceCursor);
+      sourceCursor++;
 
 
       if (lineEndChar >= 0) {
@@ -386,7 +390,8 @@ public class JsDocTokenStream {
         return EOF_CHAR;
       }
       cursor++;
-      c = sourceString.charAt(sourceCursor++);
+      c = sourceString.charAt(sourceCursor);
+      sourceCursor++;
 
 
       if (c <= 127) {
@@ -422,7 +427,8 @@ public class JsDocTokenStream {
   }
 
   private void ungetCharIgnoreLineEnd(int c) {
-    ungetBuffer[ungetCursor++] = c;
+    ungetBuffer[ungetCursor] = c;
+    ungetCursor++;
     cursor--;
   }
 

@@ -204,7 +204,8 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
     NodeTraversal.traverse(compiler, root, this);
 
     // Insert an implicit return last.
-    astPosition.put(null, ++astPositionCounter);
+    ++astPositionCounter;
+    astPosition.put(null, astPositionCounter);
 
     // Now, generate the priority of nodes by doing a depth-first
     // search on the CFG.
@@ -232,12 +233,14 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
     // this shouldn't happen in real code.
     for (DiGraphNode<Node, Branch> candidate : cfg.getNodes()) {
       if (!candidate.hasPriority()) {
-        candidate.setPriority(++priorityCounter);
+        ++priorityCounter;
+        candidate.setPriority(priorityCounter);
       }
     }
 
     // Again, the implicit return node is always last.
-    cfg.getImplicitReturn().setPriority(++priorityCounter);
+    ++priorityCounter;
+    cfg.getImplicitReturn().setPriority(priorityCounter);
   }
 
   /** Given an entry node, find all the nodes reachable from that node and prioritize them. */
@@ -251,7 +254,8 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
         continue;
       }
 
-      current.setPriority(++priorityCounter);
+      ++priorityCounter;
+      current.setPriority(priorityCounter);
 
       List<? extends DiGraphNode<Node, Branch>> successors = cfg.getDirectedSuccNodes(current);
       worklist.addAll(successors);
@@ -264,7 +268,8 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
       // Any AST node that will later have a corresponding CFG node must be in astPosition.
       // To avoid having astPosition grow too large, we exclude AST nodes that are not traversed
       // further, as they usually are not put in the CFG.
-      astPosition.put(n, astPositionCounter++);
+      astPosition.put(n, astPositionCounter);
+      astPositionCounter++;
       return true;
     }
     return false;
@@ -315,7 +320,8 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
           if (!shouldTraverseForChild) {
             // The control-flow graph contains edges from a FOR node to all its children, even
             // though only the body is actually traversed. So put the other children in astPosition.
-            astPosition.put(n, astPositionCounter++);
+            astPosition.put(n, astPositionCounter);
+            astPositionCounter++;
           }
           return shouldTraverseForChild;
         }

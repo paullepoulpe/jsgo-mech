@@ -657,7 +657,9 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
 
     @Override
     public char next() {
-      return content.charAt(current++);
+      int index = current;
+      current++;
+      return content.charAt(index);
     }
 
     char peek() {

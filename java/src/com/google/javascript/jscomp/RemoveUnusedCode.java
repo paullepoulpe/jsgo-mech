@@ -1528,7 +1528,11 @@ class RemoveUnusedCode implements CompilerPass {
   private void maybeRemoveUnusedTrailingParameters(Node argList, Scope fparamScope) {
     checkArgument(argList.isParamList(), argList);
     Node lastArg;
-    while ((lastArg = argList.getLastChild()) != null) {
+    while (true) {
+      lastArg = argList.getLastChild();
+      if (lastArg == null) {
+        break;
+      }
       Node argNode = lastArg;
       if (lastArg.isDefaultValue()) {
         argNode = lastArg.getFirstChild();

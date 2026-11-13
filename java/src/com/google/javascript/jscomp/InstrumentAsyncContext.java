@@ -388,7 +388,9 @@ public class InstrumentAsyncContext implements CompilerPass, NodeTraversal.Callb
         outerParam != null;
         outerParam = outerParam.getNext()) {
       ArgParamPair argParamPair = simplifyParameter(outerParam.cloneTree(), t);
-      outerParam.replaceWith(outerParam = argParamPair.parameter);
+      Node newOuterParam = argParamPair.parameter;
+      outerParam.replaceWith(newOuterParam);
+      outerParam = newOuterParam;
       innerCall.addChildToBack(argParamPair.argument);
     }
 

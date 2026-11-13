@@ -104,10 +104,13 @@ final class RequireAliasGenerator implements Iterable<String> {
 
     private String computeNextWithoutFiltering() {
       if (this.index >= RequireAliasGenerator.this.parts.size()) {
-        return this.concat + this.suffix++;
+        String result = this.concat + this.suffix;
+        this.suffix++;
+        return result;
       }
 
-      String part = RequireAliasGenerator.this.parts.get(this.index++);
+      String part = RequireAliasGenerator.this.parts.get(this.index);
+      this.index++;
 
       if (RequireAliasGenerator.this.capitalize) {
         part = captializeFirstChar(part);

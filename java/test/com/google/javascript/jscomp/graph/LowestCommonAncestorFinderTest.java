@@ -239,7 +239,8 @@ public final class LowestCommonAncestorFinderTest {
     CaseBuilder builder = new CaseBuilder().expect(40);
     Integer[] roots = new Integer[Integer.SIZE];
     for (int i = 0; i < roots.length; i++) {
-      builder.edge(40, roots[i] = i);
+      roots[i] = i;
+      builder.edge(40, i);
     }
     builder.roots(roots);
 

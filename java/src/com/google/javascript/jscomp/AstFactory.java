@@ -1487,7 +1487,7 @@ final class AstFactory {
             yield type(makeIterableName.getJSType().assertFunctionType().getReturnType());
           }
           // colors don't include generics, so just set the return type to Array.
-          case COLOR -> resultType = type(colorRegistry.get(StandardColors.ARRAY_ID));
+          case COLOR -> type(colorRegistry.get(StandardColors.ARRAY_ID));
           case NONE -> noTypeInformation();
         };
     Node call = createCall(makeIterableName, resultType, iterable);

@@ -53,7 +53,8 @@ final class PropertiesParser {
           if (i + 1 == lines.length) {
             break;
           }
-          line = trimLeft(lines[++i]);
+          ++i;
+          line = trimLeft(lines[i]);
         } else {
           data += line;
           break;

@@ -1505,7 +1505,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     int c;
 
-    while ((c = buffer.read()) != -1) {
+    while (true) {
+      c = buffer.read();
+      if (c == -1) {
+        break;
+      }
 
       // Ignoring the BOM.
       if (isFirstCharacter) {
@@ -2011,7 +2015,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     CompilerOptions options = createOptions();
-    return bundler =
+    ClosureBundler newBundler =
         new ClosureBundler(
             Transpiler.NULL,
             new BaseTranspiler(
@@ -2021,6 +2025,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                     moduleRoots,
                     options.getBrowserResolverPrefixReplacements()),
                 /* runtimeLibraryName= */ ""));
+    bundler = newBundler;
+    return newBundler;
   }
 
   @Override

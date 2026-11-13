@@ -146,7 +146,8 @@ final class ModuleRenaming {
     QualifiedName globalName = getGlobalName(binding);
 
     while (prop < propertyChain.size()) {
-      globalName = globalName.getprop(propertyChain.get(prop++));
+      globalName = globalName.getprop(propertyChain.get(prop));
+      prop++;
     }
 
     return globalName.join();

@@ -487,7 +487,10 @@ public final class SerializeTypedAstPassTest extends CompilerTestCase {
 
   private SerializationResult compile(TestPart... parts) {
     TypedAst[] resultAst = new TypedAst[1];
-    astConsumer = (ast) -> resultAst[0] = ast;
+    astConsumer =
+        (ast) -> {
+          resultAst[0] = ast;
+        };
     test(parts);
     try {
       return new SerializationResult(resultAst[0]);

@@ -953,7 +953,10 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
 
   private Result runWithoutExpected(Externs externs, Sources code) {
     TypedAst[] result = new TypedAst[1];
-    consumer = ast -> result[0] = ast;
+    consumer =
+        ast -> {
+          result[0] = ast;
+        };
     super.testNoWarning(externs, code);
     TypedAst.List ast = TypedAst.List.newBuilder().addTypedAsts(result[0]).build();
     InputStream serializedStream = new ByteArrayInputStream(ast.toByteArray());
@@ -1076,7 +1079,10 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
 
   InputStream toInputStream(Externs externs, Sources code, Expected expected) {
     TypedAst[] result = new TypedAst[1];
-    consumer = ast -> result[0] = ast;
+    consumer =
+        ast -> {
+          result[0] = ast;
+        };
     // The process of serializing modifies the input code (e.g. removing casts and changing JSDoc)
     // to the expected result.
     super.test(externs, code, expected);

@@ -332,7 +332,8 @@ public final class JsDocTokenStreamTest {
 
       // string equality
       if (token == ANNOTATION || token == STRING) {
-        assertThat(stream.getString()).isEqualTo(strings.get(stringsIndex++));
+        assertThat(stream.getString()).isEqualTo(strings.get(stringsIndex));
+        stringsIndex++;
       }
     }
   }

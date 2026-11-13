@@ -696,11 +696,15 @@ public class TranspileAndOptimizeClosureUnawareTest extends CompilerTestCase {
   }
 
   private String closureUnaware(String... closureUnaware) {
-    return buildCode(inputCount++, closureUnaware);
+    int idx = inputCount;
+    inputCount++;
+    return buildCode(idx, closureUnaware);
   }
 
   private String expectedClosureUnaware(String... closureUnaware) {
-    return buildCode(outputCount++, closureUnaware);
+    int idx = outputCount;
+    outputCount++;
+    return buildCode(idx, closureUnaware);
   }
 
   private static String buildCode(int idx, String... closureUnaware) {

@@ -371,7 +371,8 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
           final String baseName = preferredName + ContextualRenamer.UNIQUE_ID_SEPARATOR;
           int i = 0;
           do {
-            newName = baseName + i++;
+            newName = baseName + i;
+            i++;
           } while (disallowedNames.contains(newName));
         }
 

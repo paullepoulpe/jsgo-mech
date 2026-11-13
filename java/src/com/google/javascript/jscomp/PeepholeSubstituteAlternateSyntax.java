@@ -564,7 +564,8 @@ class PeepholeSubstituteAlternateSyntax
     String[] strings = new String[numElements];
     int idx = 0;
     for (Node cur = n.getFirstChild(); cur != null; cur = cur.getNext()) {
-      strings[idx++] = cur.getString();
+      strings[idx] = cur.getString();
+      idx++;
     }
 
     // These delimiters are chars that appears a lot in the program therefore

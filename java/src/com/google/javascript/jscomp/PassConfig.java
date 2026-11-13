@@ -82,7 +82,8 @@ public abstract class PassConfig {
       String passName = pass.getName();
       int i = 1;
       while (graph.hasNode(passName)) {
-        passName = pass.getName() + (i++);
+        passName = pass.getName() + i;
+        i++;
       }
       graph.createNode(passName);
 

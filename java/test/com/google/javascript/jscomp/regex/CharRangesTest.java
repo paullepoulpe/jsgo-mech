@@ -36,17 +36,18 @@ public final class CharRangesTest {
   public void testAgainstRegularImplementation() {
     Random rnd = new Random(SEED);
 
-    for (int run = 10; --run >= 0; ) {
+    for (int run = 10 - 1; run >= 0; --run) {
       // Fill with bits in the range [0x1000, 0x3000).
       BitSet bs = new BitSet();
-      for (int i = 0x1000; --i >= 0; ) {
+      for (int i = 0x1000 - 1; i >= 0; --i) {
         bs.set(0x1000 + rnd.nextInt(0x3000));
       }
 
       // Create an equivalent sparse bit set
       int[] members = new int[bs.cardinality()];
       for (int i = -1, k = 0; k < members.length; ++k) {
-        members[k] = i = bs.nextSetBit(i + 1);
+        i = bs.nextSetBit(i + 1);
+        members[k] = i;
       }
       CharRanges sbs = CharRanges.withMembers(members);
 

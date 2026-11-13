@@ -1006,7 +1006,11 @@ public final class SymbolTable {
       }
 
       int dot = -1;
-      while (-1 != (dot = currentName.lastIndexOf('.'))) {
+      while (true) {
+        dot = currentName.lastIndexOf('.');
+        if (dot == -1) {
+          break;
+        }
         currentName = currentName.substring(0, dot);
 
         Symbol owner = s.scope.getQualifiedSlot(currentName);

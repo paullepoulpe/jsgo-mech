@@ -120,7 +120,8 @@ class TranspileAndOptimizeClosureUnaware implements CompilerPass {
     for (SourceFile sourceFile : perFileInputs.keySet()) {
       int indexInFile = 0;
       for (ShadowAst shadowAst : perFileInputs.get(sourceFile)) {
-        String uniqueName = sourceFile.getName() + ".shadow" + indexInFile++;
+        String uniqueName = sourceFile.getName() + ".shadow" + indexInFile;
+        indexInFile++;
         shadowCompiler.addScript(shadowAst.script().detach(), uniqueName);
       }
     }

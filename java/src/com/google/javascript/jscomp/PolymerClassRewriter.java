@@ -833,7 +833,8 @@ final class PolymerClassRewriter {
           for (Node param = NodeUtil.getFunctionParameters(fnValue).getFirstChild();
               param != null; ) {
             final Node next = param.getNext();
-            makeParamSafe(param, paramIndex++);
+            makeParamSafe(param, paramIndex);
+            paramIndex++;
             param = next;
           }
           if (behaviorFunction.info == null || behaviorFunction.info.getReturnType() == null) {

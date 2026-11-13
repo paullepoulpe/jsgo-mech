@@ -236,10 +236,13 @@ public class ChromePass extends AbstractPostOrderCallback implements CompilerPas
     Node returnNode;
     Node objectLit;
     Node functionBlock = function.getLastChild();
-    if ((returnNode = functionBlock.getLastChild()) == null
-        || !returnNode.isReturn()
-        || (objectLit = returnNode.getFirstChild()) == null
-        || !objectLit.isObjectLit()) {
+    returnNode = functionBlock.getLastChild();
+    if (returnNode == null || !returnNode.isReturn()) {
+      compiler.report(JSError.make(namespaceArg, CR_DEFINE_INVALID_RETURN_IN_FUNCTION));
+      return;
+    }
+    objectLit = returnNode.getFirstChild();
+    if (objectLit == null || !objectLit.isObjectLit()) {
       compiler.report(JSError.make(namespaceArg, CR_DEFINE_INVALID_RETURN_IN_FUNCTION));
       return;
     }

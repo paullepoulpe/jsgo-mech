@@ -84,26 +84,33 @@ final class Wtf8 {
         } else if ((b & 0xE0) == 0xC0) {
           // 110x xxxx: 2 bytes
           int firstByte = 0x1F & b;
-          int secondByte = encoded.byteAt(++i) & CONTINUATION_MASK;
+          ++i;
+          int secondByte = encoded.byteAt(i) & CONTINUATION_MASK;
           codepoint = (firstByte << 6) | secondByte;
         } else if ((b & 0xF0) == 0xE0) {
           // 1110 xxxx: 3 bytes
           int firstByte = 0xF & b;
-          int secondByte = encoded.byteAt(++i) & CONTINUATION_MASK;
-          int thirdByte = encoded.byteAt(++i) & CONTINUATION_MASK;
+          ++i;
+          int secondByte = encoded.byteAt(i) & CONTINUATION_MASK;
+          ++i;
+          int thirdByte = encoded.byteAt(i) & CONTINUATION_MASK;
           codepoint = (firstByte << 12) | (secondByte << 6) | thirdByte;
         } else if ((b & 0xF8) == 0xF0) {
           // 1111 0xxx: 4 bytes
           int firstByte = 0x7 & b;
-          int secondByte = encoded.byteAt(++i) & CONTINUATION_MASK;
-          int thirdByte = encoded.byteAt(++i) & CONTINUATION_MASK;
-          int fourthByte = encoded.byteAt(++i) & CONTINUATION_MASK;
+          ++i;
+          int secondByte = encoded.byteAt(i) & CONTINUATION_MASK;
+          ++i;
+          int thirdByte = encoded.byteAt(i) & CONTINUATION_MASK;
+          ++i;
+          int fourthByte = encoded.byteAt(i) & CONTINUATION_MASK;
           codepoint = (firstByte << 18) | (secondByte << 12) | (thirdByte << 6) | fourthByte;
         } else {
           throw new AssertionError();
         }
 
-        this.codepointBuffer[codepointCount++] = codepoint;
+        this.codepointBuffer[codepointCount] = codepoint;
+        codepointCount++;
       }
 
       return new String(this.codepointBuffer, 0, codepointCount);

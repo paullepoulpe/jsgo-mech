@@ -163,7 +163,8 @@ public final class JSChunkGraphBuilder {
     JSChunk[] chunks = new JSChunk[this.chunks.size()];
     for (int i = 0; i < this.chunks.size(); i++) {
       String chunkName = this.chunkNames.getOrDefault(i, "m" + i);
-      JSChunk chunk = chunks[i] = new JSChunk(chunkName);
+      JSChunk chunk = new JSChunk(chunkName);
+      chunks[i] = chunk;
 
       chunk.add(
           SourceFile.fromCode(Strings.lenientFormat(this.filenameFormat, i), this.chunks.get(i)));

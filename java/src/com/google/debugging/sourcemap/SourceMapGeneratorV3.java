@@ -589,7 +589,8 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
     int maxLine = 0;
     for (Mapping m : mappings) {
       if (m.used) {
-        m.id = id++;
+        m.id = id;
+        id++;
         int endPositionLine = m.endPosition.getLine();
         maxLine = Math.max(maxLine, endPositionLine);
       }

@@ -129,7 +129,11 @@ public abstract class JsFileLineParser {
     boolean inJsDocComment = false;
 
     try {
-      while (null != (line = lineBuffer.readLine())) {
+      while (true) {
+        line = lineBuffer.readLine();
+        if (line == null) {
+          break;
+        }
         ++lineNum;
         try {
           String revisedLine = line;

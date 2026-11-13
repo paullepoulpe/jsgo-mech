@@ -509,7 +509,8 @@ public final class RewriteAsyncIteration implements NodeTraversal.Callback, Comp
    * }</pre>
    */
   private void replaceForAwaitOf(LexicalContext ctx, Node forAwaitOf) {
-    int forAwaitId = nextForAwaitId++;
+    int forAwaitId = nextForAwaitId;
+    nextForAwaitId++;
     String iteratorTempName = FOR_AWAIT_ITERATOR_TEMP_NAME + forAwaitId;
     String resultTempName = FOR_AWAIT_RESULT_TEMP_NAME + forAwaitId;
     String errorResultTempName = FOR_AWAIT_ERROR_RESULT_TEMP_NAME + forAwaitId;

@@ -87,11 +87,13 @@ public class Xid {
     int len = 0;
 
     long l = i - (long) Integer.MIN_VALUE;
-    buf[len++] = START_CHARS.charAt((int) (l % START_RADIX));
+    buf[len] = START_CHARS.charAt((int) (l % START_RADIX));
+    len++;
     i = (int) (l / START_RADIX);
 
     while (i > 0) {
-      buf[len++] = CHARS.charAt(i % RADIX);
+      buf[len] = CHARS.charAt(i % RADIX);
+      len++;
       i /= RADIX;
     }
 

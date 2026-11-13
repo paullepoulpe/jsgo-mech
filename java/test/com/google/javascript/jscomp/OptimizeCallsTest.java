@@ -53,7 +53,10 @@ public final class OptimizeCallsTest extends CompilerTestCase {
     return OptimizeCalls.builder()
         .setCompiler(compiler)
         .setConsiderExterns(considerExterns)
-        .addPass((externs, root, references) -> this.references = references)
+        .addPass(
+            (externs, root, references) -> {
+              this.references = references;
+            })
         .build();
   }
 

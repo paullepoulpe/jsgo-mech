@@ -111,7 +111,8 @@ final class TypedAstSerializer {
 
   private LazyAst serializeScriptNode(Node script) {
     checkState(script.isScript());
-    previousLine = previousColumn = 0;
+    previousColumn = 0;
+    previousLine = 0;
 
     int sourceFile = getSourceFilePointer(script);
     AstNode scriptProto = visit(script);

@@ -32,8 +32,9 @@ public final class ScriptMetadataTest extends CompilerTestCase {
 
   @Override
   public CompilerPass getProcessor(Compiler compiler) {
-    return (externs, root) ->
-        this.lastMetadata = ScriptMetadata.create(root.getOnlyChild(), compiler);
+    return (externs, root) -> {
+      this.lastMetadata = ScriptMetadata.create(root.getOnlyChild(), compiler);
+    };
   }
 
   @Test

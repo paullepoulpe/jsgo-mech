@@ -181,7 +181,9 @@ class ReplaceIdGenerators implements CompilerPass {
     @Override
     public String getName(String id, String name) {
       if (renameStrategy == RenameStrategy.INCONSISTENT) {
-        return name + "$" + counter++;
+        String result = name + "$" + counter;
+        counter++;
+        return result;
       }
       return name + "$0";
     }

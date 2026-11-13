@@ -1138,7 +1138,7 @@ public final class RenamePropertiesTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
-    return renameProperties =
+    RenameProperties newRenameProperties =
         new RenameProperties(
             compiler,
             generatePseudoNames,
@@ -1147,6 +1147,8 @@ public final class RenamePropertiesTest extends CompilerTestCase {
             ImmutableSet.<Character>of(),
             new DefaultNameGenerator(),
             propertyNameFilter);
+    renameProperties = newRenameProperties;
+    return newRenameProperties;
   }
 
   @Test

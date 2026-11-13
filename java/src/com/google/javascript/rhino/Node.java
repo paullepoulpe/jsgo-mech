@@ -2021,7 +2021,8 @@ public final class Node {
   public final @Nullable Node getAncestor(int level) {
     checkArgument(level >= 0);
     Node node = this;
-    while (node != null && level-- > 0) {
+    while (node != null && level > 0) {
+      level--;
       node = node.getParent();
     }
     return node;

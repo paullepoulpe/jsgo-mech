@@ -181,9 +181,11 @@ public final class DToA {
     z = d0 & Frac_mask;
     d0 &= 0x7fffffff; /* clear sign bit, which we ignore */
 
-    if ((de = (d0 >>> Exp_shift)) != 0) z |= Exp_msk1;
+    de = (d0 >>> Exp_shift);
+    if (de != 0) z |= Exp_msk1;
 
-    if ((y = d1) != 0) {
+    y = d1;
+    if (y != 0) {
       dbl_bits = new byte[8];
       k = lo0bits(y);
       y >>>= k;
@@ -359,7 +361,8 @@ public final class DToA {
     }
 
     b = d2b(d, be, bbits);
-    if ((i = (word0(d) >>> Exp_shift1 & (Exp_mask >> Exp_shift1))) != 0) {
+    i = (word0(d) >>> Exp_shift1 & (Exp_mask >> Exp_shift1));
+    if (i != 0) {
       d2 = setWord0(d, (word0(d) & Frac_mask1) | Exp_11);
       /* log(x)   ~=~ log(1.5) + (x-1.5)/1.5
        * log10(x)  =  log(x) / log(10)
@@ -435,11 +438,13 @@ public final class DToA {
       try_quick = false;
     }
     leftright = true;
-    ilim = ilim1 = 0;
+    ilim1 = 0;
+    ilim = 0;
     switch (mode) {
       case 0:
       case 1:
-        ilim = ilim1 = -1;
+        ilim1 = -1;
+        ilim = -1;
         i = 18;
         ndigits = 0;
         break;
@@ -448,7 +453,9 @@ public final class DToA {
         // fall through
       case 4:
         if (ndigits <= 0) ndigits = 1;
-        ilim = ilim1 = i = ndigits;
+        i = ndigits;
+        ilim1 = ndigits;
+        ilim = ndigits;
         break;
       case 3:
         leftright = false;
@@ -489,13 +496,16 @@ public final class DToA {
             ds *= bigtens[i];
           }
         d /= ds;
-      } else if ((j1 = -k) != 0) {
-        d *= tens[j1 & 0xf];
-        for (j = j1 >> 4; (j != 0); j >>= 1, i++)
-          if ((j & 1) != 0) {
-            ieps++;
-            d *= bigtens[i];
-          }
+      } else {
+        j1 = -k;
+        if (j1 != 0) {
+          d *= tens[j1 & 0xf];
+          for (j = j1 >> 4; (j != 0); j >>= 1, i++)
+            if ((j & 1) != 0) {
+              ieps++;
+              d *= bigtens[i];
+            }
+        }
       }
       /* Check that k was computed correctly. */
       if (k_check && d < 1.0 && ilim > 0) {
@@ -513,7 +523,8 @@ public final class DToA {
       eps = ieps * d + 7.0;
       eps = setWord0(eps, word0(eps) - (P - 1) * Exp_msk1);
       if (ilim == 0) {
-        S = mhi = null;
+        mhi = null;
+        S = null;
         d -= 5.0;
         if (d > eps) {
           buf.append('1');
@@ -557,7 +568,8 @@ public final class DToA {
               buf.append((char) (lastCh + 1));
               return k + 1;
             }
-            if (++i >= ilim) break;
+            ++i;
+            if (i >= ilim) break;
             eps *= 10.0;
             d *= 10.0;
           }
@@ -609,7 +621,8 @@ public final class DToA {
       /* Yes. */
       ds = tens[k];
       if (ndigits < 0 && ilim <= 0) {
-        S = mhi = null;
+        mhi = null;
+        S = null;
         if (ilim < 0 || d < 5 * ds || (!biasUp && d == 5 * ds)) {
           buf.setLength(0);
           buf.append('0'); /* copy "0" to buffer */
@@ -657,7 +670,8 @@ public final class DToA {
 
     m2 = b2;
     m5 = b5;
-    mhi = mlo = null;
+    mlo = null;
+    mhi = null;
     if (leftright) {
       if (mode < 2) {
         i = (denorm) ? be[0] + (Bias + (P - 1) - 1 + 1) : 1 + P - bbits[0];
@@ -667,11 +681,13 @@ public final class DToA {
         j = ilim - 1;
         if (m5 >= j) m5 -= j;
         else {
-          s5 += j -= m5;
+          j -= m5;
+          s5 += j;
           b5 += j;
           m5 = 0;
         }
-        if ((i = ilim) < 0) {
+        i = ilim;
+        if (i < 0) {
           m2 -= i;
           i = 0;
         }
@@ -700,7 +716,8 @@ public final class DToA {
           b1 = mhi.multiply(b);
           b = b1;
         }
-        if ((j = b5 - m5) != 0) b = pow5mult(b, j);
+        j = b5 - m5;
+        if (j != 0) b = pow5mult(b, j);
       } else b = pow5mult(b, b5);
     }
     /* Now we have d/10^k = (b * 2^b2) / (2^s2 * 5^s5) and
@@ -738,7 +755,8 @@ public final class DToA {
       S_hiWord = (S_hiWord << 8);
       if (idx < S_bytes.length) S_hiWord |= (S_bytes[idx] & 0xFF);
     }
-    if ((i = (((s5 != 0) ? 32 - hi0bits(S_hiWord) : 1) + s2) & 0x1f) != 0) i = 32 - i;
+    i = (((s5 != 0) ? 32 - hi0bits(S_hiWord) : 1) + s2) & 0x1f;
+    if (i != 0) i = 32 - i;
     /* i is the number of leading zero bits in the most significant word of S*2^s2. */
     if (i > 4) {
       i -= 4;
@@ -769,9 +787,13 @@ public final class DToA {
     if (ilim <= 0 && mode > 2) {
       /* We're doing fixed-mode output and d is less than the minimum nonzero output in this mode.
       Output either zero or the minimum nonzero output depending on which is closer to d. */
-      if ((ilim < 0)
-          || ((i = b.compareTo(S = S.multiply(BigInteger.valueOf(5)))) < 0)
-          || ((i == 0 && !biasUp))) {
+      boolean noDigits = (ilim < 0);
+      if (!noDigits) {
+        S = S.multiply(BigInteger.valueOf(5));
+        i = b.compareTo(S);
+        noDigits = (i < 0) || ((i == 0 && !biasUp));
+      }
+      if (noDigits) {
         /* Always emit at least one digit.  If the number appears to be zero
         using the current mode, then emit one '0' digit and set decpt to 1. */
         /*no_digits:
@@ -834,7 +856,12 @@ public final class DToA {
             Use whichever would produce a decimal value closer to d. */
             b = b.shiftLeft(1);
             j1 = b.compareTo(S);
-            if (((j1 > 0) || (j1 == 0 && (((dig & 1) == 1) || biasUp))) && (dig++ == '9')) {
+            boolean roundNineUp = false;
+            if ((j1 > 0) || (j1 == 0 && (((dig & 1) == 1) || biasUp))) {
+              roundNineUp = (dig == '9');
+              dig++;
+            }
+            if (roundNineUp) {
               buf.append('9');
               if (roundOff(buf)) {
                 k++;
@@ -866,8 +893,10 @@ public final class DToA {
         buf.append(dig);
         if (i == ilim) break;
         b = b.multiply(BigInteger.valueOf(10));
-        if (mlo == mhi) mlo = mhi = mhi.multiply(BigInteger.valueOf(10));
-        else {
+        if (mlo == mhi) {
+          mhi = mhi.multiply(BigInteger.valueOf(10));
+          mlo = mhi;
+        } else {
           mlo = mlo.multiply(BigInteger.valueOf(10));
           mhi = mhi.multiply(BigInteger.valueOf(10));
         }
@@ -923,8 +952,12 @@ public final class DToA {
     //      while(*--s == '0') ;
     //      s++;
     int bl = buf.length();
-    while (bl-- > 0 && buf.charAt(bl) == '0') {
-      // empty
+    while (true) {
+      int prevBl = bl;
+      bl--;
+      if (!(prevBl > 0 && buf.charAt(bl) == '0')) {
+        break;
+      }
     }
     buf.setLength(bl + 1);
   }

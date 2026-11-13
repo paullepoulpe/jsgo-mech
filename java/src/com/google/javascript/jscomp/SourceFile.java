@@ -204,7 +204,8 @@ public final class SourceFile implements StaticSourceFile {
         if (ch == '\r' && i + 1 < localCode.length() && localCode.charAt(i + 1) == '\n') {
           i++;
         }
-        offsets[index++] = i + 1;
+        offsets[index] = i + 1;
+        index++;
       }
     }
     checkState(index == offsets.length);
@@ -522,7 +523,11 @@ public final class SourceFile implements StaticSourceFile {
 
     try (ZipInputStream in = new ZipInputStream(input, inputCharset)) {
       ZipEntry zipEntry;
-      while ((zipEntry = in.getNextEntry()) != null) {
+      while (true) {
+        zipEntry = in.getNextEntry();
+        if (zipEntry == null) {
+          break;
+        }
         String entryName = zipEntry.getName();
         if (!entryName.endsWith(".js")) { // Only accept js files
           continue;

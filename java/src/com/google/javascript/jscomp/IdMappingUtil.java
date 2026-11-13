@@ -76,7 +76,11 @@ public final class IdMappingUtil {
 
     public boolean next() throws IOException {
       String line;
-      while ((line = reader.readLine()) != null) {
+      while (true) {
+        line = reader.readLine();
+        if (line == null) {
+          break;
+        }
         lineIndex++;
         if (line.isEmpty()) {
           continue;

@@ -33,7 +33,9 @@ public class IdGenerator implements Serializable {
 
   /** Creates a new id for stubbing a method. */
   public int newId() {
-    return currentId++;
+    int result = currentId;
+    currentId++;
+    return result;
   }
 
   public int getCurrentId() {

@@ -515,7 +515,8 @@ class CrossChunkCodeMotion implements CompilerPass {
       // preorderNumber is used to track whether we've already processed a DSG and the order in
       // which they have been processed. It is initially -1.
       checkState(symbol.preorderNumber < 0, "already processed: %s", symbol);
-      symbol.preorderNumber = preorderCounter++;
+      symbol.preorderNumber = preorderCounter;
+      preorderCounter++;
       componentRoots.push(symbol); // could be the start of a new strongly connected component
       componentContents.push(symbol); // could be part of an existing strongly connected component
       for (GlobalSymbol referringSymbol : symbol.referencingGlobalSymbols) {

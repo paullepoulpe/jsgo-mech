@@ -531,7 +531,11 @@ final class Es6RewriteGenerators implements CompilerPass {
       while (n.hasChildren()) {
         Node var;
         // Just collect all unmarked vars and transpile them together.
-        while ((var = n.removeFirstChild()) != null && !var.isGeneratorMarker()) {
+        while (true) {
+          var = n.removeFirstChild();
+          if (!(var != null && !var.isGeneratorMarker())) {
+            break;
+          }
           newVars.addChildToBack(var);
         }
         if (newVars.hasChildren()) {
@@ -822,10 +826,11 @@ final class Es6RewriteGenerators implements CompilerPass {
 
       // "$for$in"
       Node child = context.callContextMethod(target, "forIn", propertyIteratorType, detachedExpr);
+      String forInName = context.getScopedName(GENERATOR_FORIN_PREFIX) + "$" + forInCounter;
+      forInCounter++;
       Node forIn =
           astFactory
-              .createName(
-                  context.getScopedName(GENERATOR_FORIN_PREFIX) + "$" + forInCounter++, type(child))
+              .createName(forInName, type(child))
               .srcref(target);
       // "$context.forIn(x)"
       forIn.addChildToFront(child);
@@ -1621,7 +1626,9 @@ final class Es6RewriteGenerators implements CompilerPass {
         }
         if (finallyCase != null) {
           if (!catchCases.isEmpty()) {
-            int finallyBlocks = --catchCases.getFirst().finallyBlocks;
+            CatchCase firstCatch = catchCases.getFirst();
+            --firstCatch.finallyBlocks;
+            int finallyBlocks = firstCatch.finallyBlocks;
             checkState(finallyBlocks >= 0);
           }
           Case lastFinally = finallyCases.removeFirst();
@@ -1760,7 +1767,8 @@ final class Es6RewriteGenerators implements CompilerPass {
       void leaveFinallyBlock(Case endCase, Node sourceNode) {
         ArrayList<Node> args = new ArrayList<>();
         args.add(endCase.getNumber(sourceNode));
-        if (--nestedFinallyBlockCount != 0) {
+        --nestedFinallyBlockCount;
+        if (nestedFinallyBlockCount != 0) {
           args.add(astFactory.createNumber(nestedFinallyBlockCount).srcref(sourceNode));
         }
 
@@ -1870,7 +1878,8 @@ final class Es6RewriteGenerators implements CompilerPass {
 
         /** Creates a new empty case section and assings a new id. */
         Case() {
-          this.id = caseIdCounter++;
+          this.id = caseIdCounter;
+          caseIdCounter++;
           this.caseBlock = astFactory.createBlock().srcref(originalGeneratorBody);
         }
 

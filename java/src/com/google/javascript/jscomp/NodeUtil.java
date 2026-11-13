@@ -3557,7 +3557,11 @@ public final class NodeUtil {
     Node addingRoot = null;
     Node ancestor = n;
     crawl_ancestors:
-    while (null != (ancestor = ancestor.getParent())) {
+    while (true) {
+      ancestor = ancestor.getParent();
+      if (ancestor == null) {
+        break;
+      }
       switch (ancestor.getToken()) {
         case SCRIPT, MODULE_BODY -> {
           addingRoot = ancestor;
@@ -5235,7 +5239,7 @@ public final class NodeUtil {
    */
   static boolean isExecutedExactlyOnce(Node n) {
     inspect:
-    do {
+    for (boolean hasNode = true; hasNode; n = n.getParent(), hasNode = n != null) {
       Node parent = n.getParent();
       switch (parent.getToken()) {
         case IF,
@@ -5284,7 +5288,7 @@ public final class NodeUtil {
         }
         default -> {}
       }
-    } while ((n = n.getParent()) != null);
+    }
     return true;
   }
 
@@ -5335,7 +5339,12 @@ public final class NodeUtil {
   static int countAstSizeUpToLimit(Node n, final int limit) {
     // Java doesn't allow accessing mutable local variables from another class.
     final int[] wrappedSize = {0};
-    visitPreOrder(n, n12 -> wrappedSize[0]++, n1 -> wrappedSize[0] < limit);
+    visitPreOrder(
+        n,
+        n12 -> {
+          wrappedSize[0]++;
+        },
+        n1 -> wrappedSize[0] < limit);
     return wrappedSize[0];
   }
 
