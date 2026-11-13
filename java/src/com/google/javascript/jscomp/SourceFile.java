@@ -81,14 +81,14 @@ public final class SourceFile implements StaticSourceFile {
   private boolean isStubSourceFileForAlreadyProvidedInput = false;
 
   // Source Line Information
-  private int @Nullable [] lineOffsets = null;
+  private volatile int @Nullable [] lineOffsets = null;
 
   private volatile @Nullable String code = null;
 
   // Code statistics used for metrics.
   // For both of these, a negative value means we haven't counted yet.
-  private int numLines = -1;
-  private int numBytes = -1;
+  private volatile int numLines = -1;
+  private volatile int numBytes = -1;
 
   private SourceFile(CodeLoader loader, String fileName, SourceKind kind) {
     if (isNullOrEmpty(fileName)) {
@@ -259,7 +259,6 @@ public final class SourceFile implements StaticSourceFile {
         sourceCode = sourceCode.substring(UTF8_BOM.length());
       }
 
-      this.code = sourceCode;
       // Update numLines and numBytes
       // NOTE: In some edit/refresh development workflows, we may end up re-reading the file
       //       and getting different numbers than we got last time we read it, so we should
@@ -278,6 +277,8 @@ public final class SourceFile implements StaticSourceFile {
         }
       }
       this.numLines = numLines;
+      // Published last: a reader that sees the code also sees its statistics.
+      this.code = sourceCode;
     }
   }
 

@@ -3639,25 +3639,27 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     final String relativePath;
 
     // Resolving the paths to a source file is expensive, so check the cache first.
-    if (sourceMapOriginalPath.equals(resolvedSourceMap.originalPath)
-        && resultOriginalPath.equals(resolvedSourceMap.sourceMapPath)) {
-      relativePath = resolvedSourceMap.relativePath;
-    } else {
-      relativePath = resolveSibling(sourceMapOriginalPath, resultOriginalPath);
-      SourceFile source = getSourceFileByName(relativePath);
-      if (source == null && !isNullOrEmpty(resultOriginalPath)) {
-        source =
-            SourceMapResolver.getRelativePath(
-                sourceMap.getOriginalPath(), result.getOriginalFile());
-        if (source != null) {
-          sourceMapOriginalSources.putIfAbsent(relativePath, source);
+    synchronized (resolvedSourceMap) {
+      if (sourceMapOriginalPath.equals(resolvedSourceMap.originalPath)
+          && resultOriginalPath.equals(resolvedSourceMap.sourceMapPath)) {
+        relativePath = resolvedSourceMap.relativePath;
+      } else {
+        relativePath = resolveSibling(sourceMapOriginalPath, resultOriginalPath);
+        SourceFile source = getSourceFileByName(relativePath);
+        if (source == null && !isNullOrEmpty(resultOriginalPath)) {
+          source =
+              SourceMapResolver.getRelativePath(
+                  sourceMap.getOriginalPath(), result.getOriginalFile());
+          if (source != null) {
+            sourceMapOriginalSources.putIfAbsent(relativePath, source);
+          }
         }
-      }
 
-      // Cache this resolved source for the next caller.
-      resolvedSourceMap.originalPath = sourceMapOriginalPath;
-      resolvedSourceMap.sourceMapPath = resultOriginalPath;
-      resolvedSourceMap.relativePath = relativePath;
+        // Cache this resolved source for the next caller.
+        resolvedSourceMap.originalPath = sourceMapOriginalPath;
+        resolvedSourceMap.sourceMapPath = resultOriginalPath;
+        resolvedSourceMap.relativePath = relativePath;
+      }
     }
 
     return result.toBuilder()

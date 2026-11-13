@@ -42,7 +42,7 @@ public class ThreadSafeDelegatingErrorManager implements ErrorManager {
   }
 
   @Override
-  public boolean hasHaltingErrors() {
+  public synchronized boolean hasHaltingErrors() {
     return delegated.hasHaltingErrors();
   }
 
