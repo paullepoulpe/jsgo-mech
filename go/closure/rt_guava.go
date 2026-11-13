@@ -113,6 +113,8 @@ type ImmutableCollection struct {
 	cmp    Comparator // sorted set (nil: natural ordering)
 	list_  *ImmutableCollection
 	all_   []any // multiset: the elements with repetition
+	hash_  int32 // plain set: the hash code, once computed (Guava computes it at construction)
+	hashed bool
 }
 
 type ImmutableList = ImmutableCollection
@@ -363,9 +365,15 @@ func (this *ImmutableCollection) hashCode() int32 {
 		}
 		return h
 	}
+	if this.kind == icSet_ && this.hashed {
+		return this.hash_
+	}
 	var h int32
 	for _, v := range this.items {
 		h += objhash_(v)
+	}
+	if this.kind == icSet_ {
+		this.hash_, this.hashed = h, true
 	}
 	return h
 }

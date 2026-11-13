@@ -17,6 +17,7 @@ type sliceIter_ struct {
 	items *[]any
 	i     int
 	del   func(i int)
+	list  *ArrayList // set instead of del for a plain list, to save the closure
 }
 
 func (it *sliceIter_) hasNext() bool { return it.i < len(*it.items) }
@@ -31,6 +32,11 @@ func (it *sliceIter_) next() any {
 }
 
 func (it *sliceIter_) remove() {
+	if it.list != nil {
+		it.i--
+		it.list.remove(int32(it.i))
+		return
+	}
 	if it.del == nil {
 		panic(new_UnsupportedOperationException_0().self())
 	}
@@ -346,11 +352,11 @@ func (this *ArrayList) retainAll(c Collection) bool {
 }
 
 func (this *ArrayList) iterator() Iterator {
-	return &sliceIter_{items: &this.items, del: func(i int) { this.remove(int32(i)) }}
+	return &sliceIter_{items: &this.items, list: this}
 }
 
 func (this *ArrayList) listIterator(i int32) ListIterator {
-	return &sliceIter_{items: &this.items, i: int(i), del: func(i int) { this.remove(int32(i)) }}
+	return &sliceIter_{items: &this.items, i: int(i), list: this}
 }
 
 func (this *ArrayList) subList(a int32, b int32) List {
@@ -520,6 +526,13 @@ func SequencedCollection_getFirst(c SequencedCollection) any {
 	return it.next()
 }
 func SequencedCollection_getLast(c SequencedCollection) any {
+	if l, ok := c.(List); ok {
+		n := l.size()
+		if n == 0 {
+			panic(new_NoSuchElementException_0().self())
+		}
+		return l.get(n - 1)
+	}
 	s := toSlice_(c)
 	if len(s) == 0 {
 		panic(new_NoSuchElementException_0().self())
@@ -574,26 +587,43 @@ type hashed_ interface {
 type htable_ struct {
 	entries  []*hentry_
 	live     int
-	prim     map[any]int32
-	custom   map[int32][]int32
+	strs     map[string]int32  // string keys
+	prim     map[any]int32     // keys compared by identity or by Go equality
+	custom   map[int32][]int32 // keys with their own hashCode/equals: hash -> entry indexes
 	identity bool
 }
 
+// customKey_ returns k as a key with its own hashCode/equals, if the table should use them.
+func (t *htable_) customKey_(k any) (hashed_, bool) {
+	if t.identity {
+		return nil, false
+	}
+	switch k.(type) {
+	case int32, int64, uint16, bool, nil:
+		return nil, false
+	}
+	h, ok := k.(hashed_)
+	return h, ok
+}
+
 func (t *htable_) find(k any) int {
-	if !t.identity {
-		switch k.(type) {
-		case string, int32, int64, uint16, bool, nil:
-		default:
-			if h, ok := k.(hashed_); ok {
-				for _, i := range t.custom[h.hashCode()] {
-					e := t.entries[i]
-					if !e.dead && h.equals(e.key) {
-						return int(i)
-					}
-				}
-				return -1
+	if s, ok := k.(string); ok {
+		if i, ok := t.strs[s]; ok {
+			return int(i)
+		}
+		return -1
+	}
+	if h, ok := t.customKey_(k); ok {
+		if t.custom == nil {
+			return -1
+		}
+		for _, i := range t.custom[h.hashCode()] {
+			e := t.entries[i]
+			if !e.dead && h.equals(e.key) {
+				return int(i)
 			}
 		}
+		return -1
 	}
 	if i, ok := t.prim[k]; ok {
 		return int(i)
@@ -611,24 +641,7 @@ func (t *htable_) put(k, v any) (old any, existed bool) {
 	i := int32(len(t.entries))
 	t.entries = append(t.entries, &hentry_{key: k, val: v})
 	t.live++
-	if !t.identity {
-		switch k.(type) {
-		case string, int32, int64, uint16, bool, nil:
-		default:
-			if h, ok := k.(hashed_); ok {
-				if t.custom == nil {
-					t.custom = map[int32][]int32{}
-				}
-				hc := h.hashCode()
-				t.custom[hc] = append(t.custom[hc], i)
-				return nil, false
-			}
-		}
-	}
-	if t.prim == nil {
-		t.prim = map[any]int32{}
-	}
-	t.prim[k] = i
+	t.index(k, i)
 	return nil, false
 }
 
@@ -638,30 +651,23 @@ func (t *htable_) removeAt(i int) {
 		return
 	}
 	k := e.key
-	isCustom := false
-	if !t.identity {
-		switch k.(type) {
-		case string, int32, int64, uint16, bool, nil:
-		default:
-			if h, ok := k.(hashed_); ok {
-				isCustom = true
-				hc := h.hashCode()
-				b := t.custom[hc]
-				for j, x := range b {
-					if int(x) == i {
-						b = append(b[:j], b[j+1:]...)
-						break
-					}
-				}
-				if len(b) == 0 {
-					delete(t.custom, hc)
-				} else {
-					t.custom[hc] = b
-				}
+	if s, ok := k.(string); ok {
+		delete(t.strs, s)
+	} else if h, ok := t.customKey_(k); ok {
+		hc := h.hashCode()
+		b := t.custom[hc]
+		for j, x := range b {
+			if int(x) == i {
+				b = append(b[:j], b[j+1:]...)
+				break
 			}
 		}
-	}
-	if !isCustom {
+		if len(b) == 0 {
+			delete(t.custom, hc)
+		} else {
+			t.custom[hc] = b
+		}
+	} else {
 		delete(t.prim, k)
 	}
 	e.dead = true
@@ -676,7 +682,7 @@ func (t *htable_) removeAt(i int) {
 func (t *htable_) compact() {
 	old := t.entries
 	t.entries = make([]*hentry_, 0, t.live)
-	t.prim, t.custom, t.live = nil, nil, 0
+	t.strs, t.prim, t.custom, t.live = nil, nil, nil, 0
 	for _, e := range old {
 		if !e.dead {
 			i := int32(len(t.entries))
@@ -688,19 +694,20 @@ func (t *htable_) compact() {
 }
 
 func (t *htable_) index(k any, i int32) {
-	if !t.identity {
-		switch k.(type) {
-		case string, int32, int64, uint16, bool, nil:
-		default:
-			if h, ok := k.(hashed_); ok {
-				if t.custom == nil {
-					t.custom = map[int32][]int32{}
-				}
-				hc := h.hashCode()
-				t.custom[hc] = append(t.custom[hc], i)
-				return
-			}
+	if s, ok := k.(string); ok {
+		if t.strs == nil {
+			t.strs = map[string]int32{}
 		}
+		t.strs[s] = i
+		return
+	}
+	if h, ok := t.customKey_(k); ok {
+		if t.custom == nil {
+			t.custom = map[int32][]int32{}
+		}
+		hc := h.hashCode()
+		t.custom[hc] = append(t.custom[hc], i)
+		return
 	}
 	if t.prim == nil {
 		t.prim = map[any]int32{}
@@ -719,48 +726,62 @@ func (t *htable_) remove(k any) (old any, existed bool) {
 }
 
 func (t *htable_) clear() {
-	t.entries, t.prim, t.custom, t.live = nil, nil, nil, 0
+	t.entries, t.strs, t.prim, t.custom, t.live = nil, nil, nil, nil, 0
 }
 
 // iter walks live entries; pick chooses what to yield. Removal during the walk
 // is safe unless it triggers a compaction, so the iterator re-finds its place.
-func (t *htable_) iter(pick func(*hentry_) any) Iterator {
-	i := 0
-	var last *hentry_
-	skip := func() {
-		for i < len(t.entries) && t.entries[i].dead {
-			i++
+func (t *htable_) iter(mode int8) Iterator { return &hiter_{t: t, mode: mode} }
+
+// hiter_ yields keys (mode 0), values (1) or entries (2).
+type hiter_ struct {
+	t    *htable_
+	i    int
+	last *hentry_
+	mode int8
+}
+
+func (it *hiter_) hasNext() bool {
+	es := it.t.entries
+	for it.i < len(es) && es[it.i].dead {
+		it.i++
+	}
+	return it.i < len(es)
+}
+
+func (it *hiter_) next() any {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	e := it.t.entries[it.i]
+	it.last = e
+	it.i++
+	switch it.mode {
+	case 0:
+		return e.key
+	case 1:
+		return e.val
+	}
+	return e
+}
+
+func (it *hiter_) remove() {
+	t, last := it.t, it.last
+	if last == nil || last.dead {
+		return
+	}
+	n := len(t.entries)
+	idx := t.find(last.key)
+	// Entries before the cursor that are still live, to restore the position after a compaction.
+	before := 0
+	for j := 0; j < it.i && j < len(t.entries); j++ {
+		if !t.entries[j].dead && t.entries[j] != last {
+			before++
 		}
 	}
-	return &funcIter_{
-		has: func() bool { skip(); return i < len(t.entries) },
-		nxt: func() any {
-			skip()
-			if i >= len(t.entries) {
-				panic(new_NoSuchElementException_0().self())
-			}
-			last = t.entries[i]
-			i++
-			return pick(last)
-		},
-		del: func() {
-			if last == nil || last.dead {
-				return
-			}
-			n := len(t.entries)
-			idx := t.find(last.key)
-			// Entries before the cursor that are still live, to restore the position after a compaction.
-			before := 0
-			for j := 0; j < i && j < len(t.entries); j++ {
-				if !t.entries[j].dead && t.entries[j] != last {
-					before++
-				}
-			}
-			t.removeAt(idx)
-			if len(t.entries) != n {
-				i = before
-			}
-		},
+	t.removeAt(idx)
+	if len(t.entries) != n {
+		it.i = before
 	}
 }
 
@@ -897,7 +918,7 @@ type viewBase_ struct{}
 
 type mapKeys_ struct{ t *htable_ }
 
-func (v *mapKeys_) iterator() Iterator       { return v.t.iter(func(e *hentry_) any { return e.key }) }
+func (v *mapKeys_) iterator() Iterator       { return v.t.iter(0) }
 func (v *mapKeys_) size() int32              { return int32(v.t.live) }
 func (v *mapKeys_) isEmpty() bool            { return v.t.live == 0 }
 func (v *mapKeys_) contains(k any) bool      { return v.t.find(k) >= 0 }
@@ -919,7 +940,7 @@ func (v *mapKeys_) toString() string              { return collToString_(v) }
 
 type mapValues_ struct{ t *htable_ }
 
-func (v *mapValues_) iterator() Iterator { return v.t.iter(func(e *hentry_) any { return e.val }) }
+func (v *mapValues_) iterator() Iterator { return v.t.iter(1) }
 func (v *mapValues_) size() int32        { return int32(v.t.live) }
 func (v *mapValues_) isEmpty() bool      { return v.t.live == 0 }
 func (v *mapValues_) contains(x any) bool {
@@ -959,7 +980,7 @@ func (v *mapValues_) toString() string      { return collToString_(v) }
 
 type mapEntries_ struct{ t *htable_ }
 
-func (v *mapEntries_) iterator() Iterator { return v.t.iter(func(e *hentry_) any { return e }) }
+func (v *mapEntries_) iterator() Iterator { return v.t.iter(2) }
 func (v *mapEntries_) size() int32        { return int32(v.t.live) }
 func (v *mapEntries_) isEmpty() bool      { return v.t.live == 0 }
 func (v *mapEntries_) contains(x any) bool {

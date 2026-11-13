@@ -98,7 +98,13 @@ func Object_equals(a, b any) bool {
 var identityHashes_ = map[any]int32{}
 var nextIdentityHash_ int32 = 0x1000
 
+// identityHash_ is System.identityHashCode. Go's collector never moves objects, so for a
+// pointer the address is a stable identity; other values get a number from a table.
 func identityHash_(v any) int32 {
+	if rv := reflect.ValueOf(v); rv.Kind() == reflect.Pointer {
+		a := uint64(rv.Pointer()) >> 3
+		return int32((a*0x9E3779B97F4A7C15)>>33) & 0x7fffffff
+	}
 	if !reflect.TypeOf(v).Comparable() {
 		return 1
 	}
