@@ -77,7 +77,7 @@ public final class JSChunkGraphTest {
   }
 
   private void makeGraph() {
-    graph = JSChunkGraph.createFromArray(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF});
+    graph = JSChunkGraph.createFromArray(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF}).get();
   }
 
   private JSChunk getWeakChunk() {
@@ -109,7 +109,7 @@ public final class JSChunkGraphTest {
     weakChunk.add(SourceFile.fromCode("weak", "", SourceKind.WEAK));
 
     JSChunkGraph graph =
-        JSChunkGraph.createFromArray(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF, weakChunk});
+        JSChunkGraph.createFromArray(new JSChunk[] {chunkA, chunkB, chunkC, chunkD, chunkE, chunkF, weakChunk}).get();
 
     assertThat(graph.getChunkCount()).isEqualTo(7);
     assertThat(graph.getChunkByName(JSChunk.WEAK_CHUNK_NAME)).isSameInstanceAs(weakChunk);
@@ -219,7 +219,7 @@ public final class JSChunkGraphTest {
     f.addDependency(d);
     g.addDependency(d);
     h.addDependency(d);
-    JSChunkGraph graph = JSChunkGraph.createFromArray(new JSChunk[] {a, b, c, d, e, f, g, h});
+    JSChunkGraph graph = JSChunkGraph.createFromArray(new JSChunk[] {a, b, c, d, e, f, g, h}).get();
     // d is deeper, but it also has an extra dependent node, so b is the better choice.
     assertSmallestCoveringSubtree(b, graph, a, e, f, g);
     // However, if the parent tree we're looking at is c, then b isn't an option
@@ -392,7 +392,7 @@ public final class JSChunkGraphTest {
   @Test
   public void testManageDependenciesStrictForGoogRequireDynamic() throws Exception {
     JSChunk chunkA = new JSChunk("chunk");
-    graph = JSChunkGraph.createFromArray(new JSChunk[] {chunkA});
+    graph = JSChunkGraph.createFromArray(new JSChunk[] {chunkA}).get();
     List<CompilerInput> inputs = new ArrayList<>();
     CompilerInput compilerInputA1 = new CompilerInput(code("a1", provides("a1"), requires()));
     compilerInputA1.addRequireDynamicImports("a2");
@@ -414,7 +414,7 @@ public final class JSChunkGraphTest {
   @Test
   public void testManageDependenciesStrictWithEntryPointWithDuplicates() throws Exception {
     final JSChunk a = new JSChunk("a");
-    JSChunkGraph graph = JSChunkGraph.createFromArray(new JSChunk[] {a});
+    JSChunkGraph graph = JSChunkGraph.createFromArray(new JSChunk[] {a}).get();
 
     // Create all the input files.
     List<CompilerInput> inputs = new ArrayList<>();

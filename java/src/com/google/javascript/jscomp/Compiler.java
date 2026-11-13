@@ -838,9 +838,9 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     }
 
     // Generate the chunk graph, and report any errors in the chunk specification as errors.
-    try {
-      this.chunkGraph = new JSChunkGraph(chunks);
-    } catch (ChunkDependenceException e) {
+    Outcome<JSChunkGraph> chunkGraphOutcome = JSChunkGraph.create(chunks);
+    if (chunkGraphOutcome.isErr()) {
+      ChunkDependenceException e = (ChunkDependenceException) chunkGraphOutcome.error();
       // problems with the chunk format.  Report as an error.  The
       // message gives all details.
       report(
@@ -848,6 +848,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
               CHUNK_DEPENDENCY_ERROR, e.getChunk().getName(), e.getDependentChunk().getName()));
       return;
     }
+    this.chunkGraph = chunkGraphOutcome.get();
 
     // Creating the chunk graph can move weak source around, and end up with empty chunks.
     fillEmptyChunks(getChunks());
@@ -4583,7 +4584,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         chunk.addDependency(chunks.get(depIdx));
       }
     }
-    chunkGraph = new JSChunkGraph(chunks);
+    chunkGraph = JSChunkGraph.create(chunks).get();
 
     // Restore TypedAST and related fields
     externProperties = deserializedAst.getExternProperties();

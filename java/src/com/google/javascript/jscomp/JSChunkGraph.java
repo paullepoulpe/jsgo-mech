@@ -103,15 +103,15 @@ public final class JSChunkGraph implements Serializable {
       new LinkedIdentityHashMap<>();
 
   /** Creates a chunk graph from a list of chunks in dependency order. */
-  public static JSChunkGraph createFromArray(JSChunk[] chunksInDepOrder) {
-    return new JSChunkGraph(Arrays.asList(chunksInDepOrder));
+  public static Outcome<JSChunkGraph> createFromArray(JSChunk[] chunksInDepOrder) {
+    return create(Arrays.asList(chunksInDepOrder));
   }
 
   /** Creates a chunk graph from a list of chunks in dependency order. */
-  public JSChunkGraph(List<JSChunk> chunksInDepOrder) {
+  public static Outcome<JSChunkGraph> create(List<JSChunk> chunksInDepOrder) {
     Preconditions.checkState(!chunksInDepOrder.isEmpty());
     chunksInDepOrder = makeWeakChunk(chunksInDepOrder);
-    chunks = new JSChunk[chunksInDepOrder.size()];
+    JSChunk[] chunks = new JSChunk[chunksInDepOrder.size()];
 
     // n = number of chunks
     // Populate chunks O(n)
@@ -125,7 +125,16 @@ public final class JSChunkGraph implements Serializable {
     // Determine depth for all chunks.
     // m = number of edges in the graph
     // O(n*m)
-    chunksByDepth = initChunksByDepth();
+    Outcome<List<List<JSChunk>>> chunksByDepth = initChunksByDepth(chunks);
+    if (chunksByDepth.isErr()) {
+      return Outcome.err(chunksByDepth.error());
+    }
+    return Outcome.ok(new JSChunkGraph(chunks, chunksByDepth.get()));
+  }
+
+  private JSChunkGraph(JSChunk[] chunks, List<List<JSChunk>> chunksByDepth) {
+    this.chunks = chunks;
+    this.chunksByDepth = chunksByDepth;
 
     // Determine transitive deps for all chunks.
     // O(n*m * log(n)) (probably a bit better than that)
@@ -138,7 +147,7 @@ public final class JSChunkGraph implements Serializable {
     moveMarkedWeakSources(getChunkByName(JSChunk.WEAK_CHUNK_NAME), getAllInputs());
   }
 
-  private List<List<JSChunk>> initChunksByDepth() {
+  private static Outcome<List<List<JSChunk>>> initChunksByDepth(JSChunk[] chunks) {
     final List<List<JSChunk>> tmpChunksByDepth = new ArrayList<>();
     for (int chunkIndex = 0; chunkIndex < chunks.length; ++chunkIndex) {
       final JSChunk chunk = chunks[chunkIndex];
@@ -147,11 +156,13 @@ public final class JSChunkGraph implements Serializable {
       for (JSChunk dep : chunk.getDependencies()) {
         int depDepth = dep.getDepth();
         if (depDepth < 0) {
-          throw new ChunkDependenceException(
-              String.format(
-                  "Chunks not in dependency order: %s preceded %s", chunk.getName(), dep.getName()),
-              chunk,
-              dep);
+          return Outcome.err(
+              new ChunkDependenceException(
+                  String.format(
+                      "Chunks not in dependency order: %s preceded %s",
+                      chunk.getName(), dep.getName()),
+                  chunk,
+                  dep));
         }
         depth = max(depth, depDepth + 1);
       }
@@ -162,7 +173,7 @@ public final class JSChunkGraph implements Serializable {
       }
       tmpChunksByDepth.get(depth).add(chunk);
     }
-    return tmpChunksByDepth;
+    return Outcome.ok(tmpChunksByDepth);
   }
 
   /**
@@ -175,7 +186,7 @@ public final class JSChunkGraph implements Serializable {
    * @throws IllegalStateException if a weak chunk already exists but doesn't fulfill the above
    *     conditions
    */
-  private List<JSChunk> makeWeakChunk(List<JSChunk> chunksInDepOrder) {
+  private static List<JSChunk> makeWeakChunk(List<JSChunk> chunksInDepOrder) {
     boolean hasWeakChunk = false;
     for (JSChunk chunk : chunksInDepOrder) {
       if (chunk.getName().equals(JSChunk.WEAK_CHUNK_NAME)) {
