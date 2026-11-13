@@ -61,11 +61,11 @@ public class PrintStreamErrorReportGenerator implements SortingErrorManager.Erro
         || (summaryDetailLevel >= 2 && manager.getTypedPercent() > 0.0)) {
       if (manager.getTypedPercent() > 0.0) {
         stream.printf(
-            "%d error(s), %d warning(s), %.1f%% typed%n",
+            "%d error(s), %d warning(s), %.1f%% typed\n",
             manager.getErrorCount(), manager.getWarningCount(), manager.getTypedPercent());
       } else {
         stream.printf(
-            "%d error(s), %d warning(s)%n", manager.getErrorCount(), manager.getWarningCount());
+            "%d error(s), %d warning(s)\n", manager.getErrorCount(), manager.getWarningCount());
       }
     }
   }

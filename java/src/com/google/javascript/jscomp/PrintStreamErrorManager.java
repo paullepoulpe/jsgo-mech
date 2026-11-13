@@ -69,10 +69,10 @@ public class PrintStreamErrorManager extends BasicErrorManager {
         (summaryDetailLevel >= 2 && getTypedPercent() > 0.0)) {
       if (getTypedPercent() > 0.0) {
         stream.printf(
-            "%d error(s), %d warning(s), %.1f%% typed%n",
+            "%d error(s), %d warning(s), %.1f%% typed\n",
             getErrorCount(), getWarningCount(), getTypedPercent());
       } else {
-        stream.printf("%d error(s), %d warning(s)%n", getErrorCount(), getWarningCount());
+        stream.printf("%d error(s), %d warning(s)\n", getErrorCount(), getWarningCount());
       }
     }
   }

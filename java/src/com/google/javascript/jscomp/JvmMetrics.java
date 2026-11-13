@@ -105,7 +105,7 @@ final class JvmMetrics {
 
     if (pretty) {
       out.println("\nJIT Stats");
-      out.printf("\t%s jit time: %d ms%n", name, cBean.getTotalCompilationTime());
+      out.printf("\t%s jit time: %d ms\n", name, cBean.getTotalCompilationTime());
     } else {
       out.println(normalizeTabularColonPos(String.format("%s-jit-time-ms : %d",
           normalizeName(name), cBean.getTotalCompilationTime())));

@@ -495,11 +495,11 @@ public final class PerformanceTracker {
             "pass,runtime,allocMem,codeChanged,astReduction,reduction,gzReduction,astSize,size,gzSize"));
     for (Stats stats : this.log) {
       output.printf(
-          "%s,%d,%d,%b,%d,%d,%d,%d,%d,%d\n",
+          "%s,%d,%d,%s,%d,%d,%d,%d,%d,%d\n",
           stats.pass,
           stats.runtime,
           stats.allocMem,
-          stats.changes == 1,
+          String.valueOf(stats.changes == 1),
           stats.astDiff,
           stats.diff,
           stats.gzDiff,
