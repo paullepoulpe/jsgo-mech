@@ -67,8 +67,9 @@ final class ProductionInstrumentationReporter {
   private Outcome<ImmutableList<Map<String, Long>>> getAllExecutionResults(String folder) {
     ImmutableList.Builder<Map<String, Long>> result = ImmutableList.builder();
 
-    for (final String fileEntry : Io.listDirectory(folder)) {
-      Outcome<String> executionResult = readFile(FilePaths.toAbsolute(fileEntry));
+    for (final String fileEntry : Io.listFiles(folder)) {
+      Outcome<String> executionResult =
+          readFile(FilePaths.toAbsolute(FilePaths.resolve(folder, fileEntry)));
       if (executionResult.isErr()) {
         return Outcome.err(executionResult.error());
       }

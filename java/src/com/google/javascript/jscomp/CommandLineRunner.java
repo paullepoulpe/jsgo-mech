@@ -39,6 +39,7 @@ import com.google.javascript.jscomp.DependencyOptions.DependencyMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
 import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.FilePaths;
+import com.google.javascript.jscomp.base.Glob;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
@@ -2268,12 +2269,13 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       }
     }
 
-    Outcome<List<String>> matches =
-        Io.listFilesMatchingGlob(prefix, prefix + separator + pattern);
-    if (matches.isErr()) {
-      return Outcome.err(matches.error());
-    }
-    for (String p : matches.get()) {
+    String directory = FilePaths.clean(prefix);
+    String glob = prefix + separator + pattern;
+    for (String file : Io.listFiles(directory)) {
+      String p = FilePaths.resolve(directory, file);
+      if (!Glob.matches(glob, p) && !Glob.matches(glob, FilePaths.normalize(p))) {
+        continue;
+      }
       String pathStringAbsolute = FilePaths.toAbsolute(FilePaths.normalize(p));
       if (remove) {
         excludes.add(pathStringAbsolute);

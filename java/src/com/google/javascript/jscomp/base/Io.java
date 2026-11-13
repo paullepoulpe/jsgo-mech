@@ -38,17 +38,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -209,50 +202,42 @@ public final class Io {
     }
   }
 
-  /** The paths of the directory's entries, in the file system's order; null if not a directory. */
-  public static @Nullable List<String> listDirectory(String path) {
-    File[] files = new File(path).listFiles();
-    if (files == null) {
-      return null;
-    }
+  /**
+   * The files under the directory that are not directories, each as its path relative to the
+   * directory (names joined by "/"). Depth first: the entries of a directory in the order of their
+   * names (as strings compare), the files under a subdirectory at the place of its name. Symbolic
+   * links are followed; a directory that is a link back to itself or to a directory around it is
+   * not entered, and neither is one that cannot be listed. Empty if the path is not a directory.
+   */
+  public static List<String> listFiles(String directory) {
     List<String> result = new ArrayList<>();
-    for (File f : files) {
-      result.add(f.getPath());
-    }
+    listFilesInto(new File(directory.isEmpty() ? "." : directory), "", new ArrayList<>(), result);
     return result;
   }
 
-  /**
-   * Walks the tree under {@code dir} (Files.walkFileTree order, following links, skipping what
-   * cannot be visited) and returns every file whose path, or normalized path, matches the glob
-   * (FileSystem.getPathMatcher("glob:...") syntax). The paths are as walked: they start with dir.
-   */
-  public static Outcome<List<String>> listFilesMatchingGlob(String dir, String glob) {
-    PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + glob);
-    List<String> result = new ArrayList<>();
+  private static void listFilesInto(
+      File directory, String prefix, List<String> around, List<String> result) {
+    String[] names = directory.list();
+    String canonical;
     try {
-      Files.walkFileTree(
-          Path.of(dir),
-          EnumSet.of(FileVisitOption.FOLLOW_LINKS),
-          Integer.MAX_VALUE,
-          new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
-              if (matcher.matches(p) || matcher.matches(p.normalize())) {
-                result.add(p.toString());
-              }
-              return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException e) {
-              return FileVisitResult.SKIP_SUBTREE;
-            }
-          });
+      canonical = directory.getCanonicalPath();
     } catch (IOException e) {
-      return Outcome.err(e);
+      return;
     }
-    return Outcome.ok(result);
+    if (names == null || around.contains(canonical)) {
+      return;
+    }
+    java.util.Arrays.sort(names);
+    around.add(canonical);
+    for (String name : names) {
+      File entry = new File(directory, name);
+      if (entry.isDirectory()) {
+        listFilesInto(entry, prefix + name + "/", around, result);
+      } else {
+        result.add(prefix + name);
+      }
+    }
+    around.remove(around.size() - 1);
   }
 
   // ---- Text sinks and the text source
