@@ -25,6 +25,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.javascript.jscomp.CmdLineException;
 import com.google.javascript.jscomp.CmdLineParser;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
 import java.io.EOFException;
 import java.io.File;
@@ -220,9 +221,9 @@ final class ProductionInstrumentationReporter {
         .string(() -> finalResultOutput, v -> { finalResultOutput = v; });
     parser.setUsageWidth(80);
 
-    try {
-      parser.parseArgument(args);
-    } catch (CmdLineException e) {
+    Outcome<Void> parsed = parser.parseArgument(args);
+    if (parsed.isErr()) {
+      CmdLineException e = (CmdLineException) parsed.error();
       System.err.println(e.getMessage());
       return;
     }

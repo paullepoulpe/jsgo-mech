@@ -1054,22 +1054,29 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     /** Parse the given args list. */
-    private void parse(List<String> args) throws CmdLineException {
-      parser.parseArgumentCollection(args);
+    private Outcome<Void> parse(List<String> args) {
+      Outcome<Void> parsed = parser.parseArgumentCollection(args);
+      if (parsed.isErr()) {
+        return Outcome.err(parsed.error());
+      }
 
       compilationLevelParsed = CompilationLevel.fromString(Ascii.toUpperCase(compilationLevel));
       if (compilationLevelParsed == null) {
-        throw new CmdLineException(
-            parser, "Bad value for --compilation_level: " + compilationLevel);
+        return Outcome.err(
+            new CmdLineException(
+                parser, "Bad value for --compilation_level: " + compilationLevel));
       }
 
       instrumentCodeParsed =
           InstrumentOption.fromString(Ascii.toUpperCase(instrumentForCoverageOption));
       if (instrumentCodeParsed == null) {
-        throw new CmdLineException(
-            parser,
-            "Bad value for --instrument_for_coverage_option: " + instrumentForCoverageOption);
+        return Outcome.err(
+            new CmdLineException(
+                parser,
+                "Bad value for --instrument_for_coverage_option: "
+                    + instrumentForCoverageOption));
       }
+      return Outcome.ok();
     }
 
     private static final SimpleListMultimap<String, String> categories =
@@ -1317,8 +1324,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
      * option in this case because the order produced by {@code find} is unlikely to be sorted
      * correctly with respect to {@code goog.provide()} and {@code goog.requires()}.
      */
-    protected List<FlagEntry<JsSourceType>> getMixedJsSources()
-        throws CmdLineException, IOException {
+    protected Outcome<List<FlagEntry<JsSourceType>>> getMixedJsSources() throws IOException {
       List<FlagEntry<JsSourceType>> mixedSources = new ArrayList<>();
       Set<String> excludes = new LinkedHashSet<>();
       for (FlagEntry<JsSourceType> source : mixedJsSources) {
@@ -1342,43 +1348,48 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         mixedSources.add(new FlagEntry<>(JsSourceType.JS, filename));
       }
       if (!mixedJsSources.isEmpty() && !arguments.isEmpty() && mixedSources.isEmpty()) {
-        throw new CmdLineException(parser, "No inputs matched");
+        return Outcome.err(new CmdLineException(parser, "No inputs matched"));
       }
-      return mixedSources;
+      return Outcome.ok(mixedSources);
     }
 
-    List<LocationMapping> getSourceMapLocationMappings() throws CmdLineException {
+    Outcome<List<LocationMapping>> getSourceMapLocationMappings() {
       ImmutableList.Builder<LocationMapping> locationMappings = ImmutableList.builder();
 
-      ImmutableMap<String, String> split =
+      Outcome<ImmutableMap<String, String>> splitOutcome =
           splitPipeParts(sourceMapLocationMapping, "--source_map_location_mapping");
+      if (splitOutcome.isErr()) {
+        return Outcome.err(splitOutcome.error());
+      }
+      ImmutableMap<String, String> split = splitOutcome.get();
       for (Map.Entry<String, String> mapping : split.entrySet()) {
         locationMappings.add(
             new SourceMap.PrefixLocationMapping(mapping.getKey(), mapping.getValue()));
       }
 
-      return locationMappings.build();
+      return Outcome.ok(locationMappings.build());
     }
 
-    ImmutableMap<String, String> getSourceMapInputs() throws CmdLineException {
+    Outcome<ImmutableMap<String, String>> getSourceMapInputs() {
       return splitPipeParts(sourceMapInputs, "--source_map_input");
     }
 
-    private ImmutableMap<String, String> splitPipeParts(Iterable<String> input, String flagName)
-        throws CmdLineException {
+    private Outcome<ImmutableMap<String, String>> splitPipeParts(
+        Iterable<String> input, String flagName) {
       ImmutableMap.Builder<String, String> result = new ImmutableMap.Builder<>();
 
       Splitter splitter = Splitter.on('|').limit(2);
       for (String inputSourceMap : input) {
         List<String> parts = splitter.splitToList(inputSourceMap);
         if (parts.size() != 2) {
-          throw new CmdLineException(
-              parser, "Bad value for " + flagName + " (duplicate key): " + input);
+          return Outcome.err(
+              new CmdLineException(
+                  parser, "Bad value for " + flagName + " (duplicate key): " + input));
         }
         result.put(parts.get(0), parts.get(1));
       }
 
-      return result.buildOrThrow();
+      return Outcome.ok(result.buildOrThrow());
     }
 
     List<String> getPackageJsonEntryNames() {
@@ -1488,17 +1499,21 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     errorStream.flush();
   }
 
-  private void processFlagFiles() throws CmdLineException {
+  private Outcome<Void> processFlagFiles() {
     for (String flagFile : flags.flagFiles) {
       try {
-        processFlagFile(flagFile);
+        Outcome<Void> processed = processFlagFile(flagFile);
+        if (processed.isErr()) {
+          return Outcome.err(processed.error());
+        }
       } catch (IOException ioErr) {
         reportError("ERROR - " + flagFile + " read error.");
       }
     }
+    return Outcome.ok();
   }
 
-  private void processFlagFile(String flagFileString) throws CmdLineException, IOException {
+  private Outcome<Void> processFlagFile(String flagFileString) throws IOException {
     Path flagFile = Path.of(flagFileString);
 
     BufferedReader buffer = java.nio.file.Files.newBufferedReader(flagFile, UTF_8);
@@ -1569,7 +1584,10 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     List<FlagEntry<JsSourceType>> previousMixedJsSources = new ArrayList<>(flags.mixedJsSources);
     flags.guardLevels.clear();
     flags.mixedJsSources.clear();
-    flags.parse(tokens);
+    Outcome<Void> parsed = flags.parse(tokens);
+    if (parsed.isErr()) {
+      return Outcome.err(parsed.error());
+    }
     flags.guardLevels.addAll(previousGuardLevels);
     flags.mixedJsSources.addAll(previousMixedJsSources);
 
@@ -1577,6 +1595,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     if (!flags.flagFiles.isEmpty()) {
       reportError("ERROR - Arguments in the file cannot contain " + "--flagfile option.");
     }
+    return Outcome.ok();
   }
 
   @Override
@@ -1589,6 +1608,51 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         "Version: " + CommandLineRunnerVersion.COMPILER_VERSION);
   }
 
+  /** What initConfigFromFlags reads from the flags; filled in this order by readFlagInputs. */
+  private static final class FlagInputs {
+    List<FlagEntry<JsSourceType>> mixedSources = null;
+    List<LocationMapping> mappings = null;
+    ImmutableMap<String, String> sourceMapInputs = null;
+    boolean parseInlineSourceMaps = false;
+    boolean applyInputSourceMaps = false;
+  }
+
+  /**
+   * Parses the flags and the flag files and fills {@code flagInputs}; on an error outcome (a
+   * CmdLineException) or an IOException the fields not reached yet keep their initial values.
+   */
+  private Outcome<Void> readFlagInputs(List<String> processedArgs, FlagInputs flagInputs)
+      throws IOException {
+    Outcome<Void> parsed = flags.parse(processedArgs);
+    if (parsed.isErr()) {
+      return Outcome.err(parsed.error());
+    }
+
+    Outcome<Void> flagFilesProcessed = processFlagFiles();
+    if (flagFilesProcessed.isErr()) {
+      return Outcome.err(flagFilesProcessed.error());
+    }
+
+    Outcome<List<FlagEntry<JsSourceType>>> mixedSources = flags.getMixedJsSources();
+    if (mixedSources.isErr()) {
+      return Outcome.err(mixedSources.error());
+    }
+    flagInputs.mixedSources = mixedSources.get();
+    Outcome<List<LocationMapping>> mappings = flags.getSourceMapLocationMappings();
+    if (mappings.isErr()) {
+      return Outcome.err(mappings.error());
+    }
+    flagInputs.mappings = mappings.get();
+    Outcome<ImmutableMap<String, String>> sourceMapInputs = flags.getSourceMapInputs();
+    if (sourceMapInputs.isErr()) {
+      return Outcome.err(sourceMapInputs.error());
+    }
+    flagInputs.sourceMapInputs = sourceMapInputs.get();
+    flagInputs.parseInlineSourceMaps = flags.parseInlineSourceMaps;
+    flagInputs.applyInputSourceMaps = flags.applyInputSourceMaps;
+    return Outcome.ok();
+  }
+
   private void initConfigFromFlags(String[] args, PrintStream out, PrintStream err) {
 
     errorStream = err;
@@ -1597,26 +1661,21 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     flags.guardLevels.clear();
     flags.mixedJsSources.clear();
 
-    List<FlagEntry<JsSourceType>> mixedSources = null;
-    List<LocationMapping> mappings = null;
-    ImmutableMap<String, String> sourceMapInputs = null;
-    boolean parseInlineSourceMaps = false;
-    boolean applyInputSourceMaps = false;
+    FlagInputs flagInputs = new FlagInputs();
     try {
-      flags.parse(processedArgs);
-
-      processFlagFiles();
-
-      mixedSources = flags.getMixedJsSources();
-      mappings = flags.getSourceMapLocationMappings();
-      sourceMapInputs = flags.getSourceMapInputs();
-      parseInlineSourceMaps = flags.parseInlineSourceMaps;
-      applyInputSourceMaps = flags.applyInputSourceMaps;
-    } catch (CmdLineException e) {
-      reportError(e.getMessage());
+      Outcome<Void> flagInputsRead = readFlagInputs(processedArgs, flagInputs);
+      if (flagInputsRead.isErr()) {
+        CmdLineException e = (CmdLineException) flagInputsRead.error();
+        reportError(e.getMessage());
+      }
     } catch (IOException ioErr) {
       reportError("ERROR - ioException: " + ioErr);
     }
+    List<FlagEntry<JsSourceType>> mixedSources = flagInputs.mixedSources;
+    List<LocationMapping> mappings = flagInputs.mappings;
+    ImmutableMap<String, String> sourceMapInputs = flagInputs.sourceMapInputs;
+    boolean parseInlineSourceMaps = flagInputs.parseInlineSourceMaps;
+    boolean applyInputSourceMaps = flagInputs.applyInputSourceMaps;
 
     if (flags.processCommonJsModules) {
       flags.processClosurePrimitives = true;

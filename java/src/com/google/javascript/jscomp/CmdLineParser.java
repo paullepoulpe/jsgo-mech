@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.base.JSCompStrings;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.re2j.Pattern;
 import java.io.BufferedReader;
 import java.io.File;
@@ -69,9 +70,9 @@ public final class CmdLineParser {
     /**
      * Returns the token at the given offset: 0 is the first token after the name of the flag.
      *
-     * @throws CmdLineException if there is no such token
+     * <p>Returns an error outcome with a CmdLineException if there is no such token.
      */
-    String getParameter(int idx) throws CmdLineException;
+    Outcome<String> getParameter(int idx);
 
     /** Returns the token at the given offset, or null if there is no such token. */
     @Nullable String getParameterOrNull(int idx);
@@ -80,7 +81,7 @@ public final class CmdLineParser {
   /** Parses the value of one occurrence of a flag. */
   private interface Handler {
     /** Stores the value and returns the number of tokens that made it up. */
-    int parseArguments(Parameters params) throws CmdLineException;
+    Outcome<Integer> parseArguments(Parameters params);
   }
 
   /** One flag, or the positional arguments. */
@@ -145,8 +146,12 @@ public final class CmdLineParser {
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
-            set.accept(params.getParameter(0));
-            return 1;
+            Outcome<String> value = params.getParameter(0);
+            if (value.isErr()) {
+              return Outcome.err(value.error());
+            }
+            set.accept(value.get());
+            return Outcome.ok(1);
           };
     }
 
@@ -156,8 +161,12 @@ public final class CmdLineParser {
       this.defaultValues = () -> get.get();
       this.handler =
           (Parameters params) -> {
-            addValue(get, set, params.getParameter(0));
-            return 1;
+            Outcome<String> value = params.getParameter(0);
+            if (value.isErr()) {
+              return Outcome.err(value.error());
+            }
+            addValue(get, set, value.get());
+            return Outcome.ok(1);
           };
     }
 
@@ -170,8 +179,12 @@ public final class CmdLineParser {
       this.defaultValues = null;
       this.handler =
           (Parameters params) -> {
-            add.accept(params.getParameter(0));
-            return 1;
+            Outcome<String> value = params.getParameter(0);
+            if (value.isErr()) {
+              return Outcome.err(value.error());
+            }
+            add.accept(value.get());
+            return Outcome.ok(1);
           };
     }
 
@@ -181,13 +194,22 @@ public final class CmdLineParser {
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
-            String token = params.getParameter(0);
+            Outcome<String> tokenOutcome = params.getParameter(0);
+            if (tokenOutcome.isErr()) {
+              return Outcome.err(tokenOutcome.error());
+            }
+            String token = tokenOutcome.get();
             Integer value = JSCompStrings.parseIntOrNull(token);
             if (value == null) {
-              throw new CmdLineException(owner, illegalOperand(params.getParameter(-1), token));
+              Outcome<String> flagName = params.getParameter(-1);
+              if (flagName.isErr()) {
+                return Outcome.err(flagName.error());
+              }
+              return Outcome.err(
+                  new CmdLineException(owner, illegalOperand(flagName.get(), token)));
             }
             set.accept(value);
-            return 1;
+            return Outcome.ok(1);
           };
     }
 
@@ -198,7 +220,7 @@ public final class CmdLineParser {
       this.handler =
           (Parameters params) -> {
             set.accept(true);
-            return 0;
+            return Outcome.ok(0);
           };
     }
 
@@ -215,7 +237,7 @@ public final class CmdLineParser {
 
             if (param == null) {
               set.accept(true);
-              return 0;
+              return Outcome.ok(0);
             } else {
               String lowerParam = Ascii.toLowerCase(param);
               if (TRUES.contains(lowerParam)) {
@@ -224,9 +246,9 @@ public final class CmdLineParser {
                 set.accept(false);
               } else {
                 set.accept(true);
-                return 0;
+                return Outcome.ok(0);
               }
-              return 1;
+              return Outcome.ok(1);
             }
           };
     }
@@ -241,8 +263,12 @@ public final class CmdLineParser {
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
-            set.accept(parseEnum(values, params));
-            return 1;
+            Outcome<E> value = parseEnum(values, params);
+            if (value.isErr()) {
+              return Outcome.err(value.error());
+            }
+            set.accept(value.get());
+            return Outcome.ok(1);
           };
     }
 
@@ -253,8 +279,12 @@ public final class CmdLineParser {
       this.defaultValues = () -> get.get();
       this.handler =
           (Parameters params) -> {
-            addValue(get, set, parseEnum(values, params));
-            return 1;
+            Outcome<E> value = parseEnum(values, params);
+            if (value.isErr()) {
+              return Outcome.err(value.error());
+            }
+            addValue(get, set, value.get());
+            return Outcome.ok(1);
           };
     }
 
@@ -273,11 +303,16 @@ public final class CmdLineParser {
               map = new LinkedHashMap<>();
               set.accept(map);
             }
-            String argument = params.getParameter(0);
+            Outcome<String> argumentOutcome = params.getParameter(0);
+            if (argumentOutcome.isErr()) {
+              return Outcome.err(argumentOutcome.error());
+            }
+            String argument = argumentOutcome.get();
             int idx = argument.indexOf('=');
             if (idx == -1) {
-              throw new CmdLineException(
-                  owner, "An argument for setting a Map must contain a \"=\"");
+              return Outcome.err(
+                  new CmdLineException(
+                      owner, "An argument for setting a Map must contain a \"=\""));
             }
             String mapKey = argument.substring(0, idx);
             String mapValue = argument.substring(idx + 1);
@@ -285,22 +320,29 @@ public final class CmdLineParser {
               mapValue = null;
             }
             if (mapKey.length() == 0) {
-              throw new CmdLineException(owner, "A key must be set.");
+              return Outcome.err(new CmdLineException(owner, "A key must be set."));
             }
             map.put(mapKey, mapValue);
-            return 1;
+            return Outcome.ok(1);
           };
     }
 
-    private <E extends Enum<E>> E parseEnum(E[] values, Parameters params)
-        throws CmdLineException {
-      String s = params.getParameter(0).replace('-', '_');
+    private <E extends Enum<E>> Outcome<E> parseEnum(E[] values, Parameters params) {
+      Outcome<String> token = params.getParameter(0);
+      if (token.isErr()) {
+        return Outcome.err(token.error());
+      }
+      String s = token.get().replace('-', '_');
       for (E value : values) {
         if (value.name().equalsIgnoreCase(s)) {
-          return value;
+          return Outcome.ok(value);
         }
       }
-      throw new CmdLineException(owner, illegalOperand(params.getParameter(-1), s));
+      Outcome<String> flagName = params.getParameter(-1);
+      if (flagName.isErr()) {
+        return Outcome.err(flagName.error());
+      }
+      return Outcome.err(new CmdLineException(owner, illegalOperand(flagName.get(), s)));
     }
 
     /** Returns all the values separated by pipes: {@code [ONE | TWO | THREE]}. */
@@ -539,12 +581,13 @@ public final class CmdLineParser {
     }
 
     @Override
-    public String getParameter(int idx) throws CmdLineException {
+    public Outcome<String> getParameter(int idx) {
       if (pos + idx >= args.length || pos + idx < 0) {
-        throw new CmdLineException(
-            CmdLineParser.this, "Option \"" + currentOption + "\" takes an operand");
+        return Outcome.err(
+            new CmdLineException(
+                CmdLineParser.this, "Option \"" + currentOption + "\" takes an operand"));
       }
-      return args[pos + idx];
+      return Outcome.ok(args[pos + idx]);
     }
 
     @Override
@@ -566,8 +609,8 @@ public final class CmdLineParser {
     }
   }
 
-  public void parseArgumentCollection(Collection<String> args) throws CmdLineException {
-    parseArgument(args.toArray(new String[0]));
+  public Outcome<Void> parseArgumentCollection(Collection<String> args) {
+    return parseArgument(args.toArray(new String[0]));
   }
 
   /**
@@ -576,12 +619,15 @@ public final class CmdLineParser {
    * <p>A token that starts with '-' is the name of a flag, optionally followed by '=' and the
    * value. A token that starts with '@' stands for the lines of the file it names.
    *
-   * @throws CmdLineException if the tokens are not a valid command line; the values of the flags
-   *     seen before the error have been stored.
+   * <p>Returns an error outcome with a CmdLineException if the tokens are not a valid command
+   * line; the values of the flags seen before the error have been stored.
    */
-  public void parseArgument(final String... args) throws CmdLineException {
-    String[] expandedArgs = expandAtFiles(args);
-    CmdLineImpl cmdLine = new CmdLineImpl(expandedArgs);
+  public Outcome<Void> parseArgument(final String... args) {
+    Outcome<String[]> expandedArgs = expandAtFiles(args);
+    if (expandedArgs.isErr()) {
+      return Outcome.err(expandedArgs.error());
+    }
+    CmdLineImpl cmdLine = new CmdLineImpl(expandedArgs.get());
 
     Set<Option> present = new LinkedHashSet<>();
 
@@ -595,7 +641,8 @@ public final class CmdLineParser {
         currentOption = isKeyValuePair ? findOptionOfKeyValuePair(arg) : findOptionByName(arg);
 
         if (currentOption == null) {
-          throw new CmdLineException(this, "\"" + arg + "\" is not a valid option");
+          return Outcome.err(
+              new CmdLineException(this, "\"" + arg + "\" is not a valid option"));
         }
 
         // known option; skip its name
@@ -606,44 +653,49 @@ public final class CmdLineParser {
         }
       } else {
         if (argumentField == null) {
-          throw new CmdLineException(this, "No argument is allowed: " + arg);
+          return Outcome.err(new CmdLineException(this, "No argument is allowed: " + arg));
         }
 
         // known argument
         currentOption = argumentField;
       }
-      int diff = currentOption.handler.parseArguments(cmdLine);
-      cmdLine.proceed(diff);
+      Outcome<Integer> diff = currentOption.handler.parseArguments(cmdLine);
+      if (diff.isErr()) {
+        return Outcome.err(diff.error());
+      }
+      cmdLine.proceed(diff.get());
       present.add(currentOption);
     }
 
     // make sure that all mandatory options are present
     for (Option option : sortedOptions()) {
       if (option.requiredField && !present.contains(option)) {
-        throw new CmdLineException(this, "Option \"" + option + "\" is required");
+        return Outcome.err(
+            new CmdLineException(this, "Option \"" + option + "\" is required"));
       }
     }
+    return Outcome.ok();
   }
 
   /** Expands every token of the form {@code @file} to the lines of that file. */
-  private String[] expandAtFiles(String[] args) throws CmdLineException {
+  private Outcome<String[]> expandAtFiles(String[] args) {
     List<String> result = new ArrayList<>();
     for (String arg : args) {
       if (arg.startsWith("@")) {
         File file = new File(arg.substring(1));
         if (!file.exists()) {
-          throw new CmdLineException(this, "No such file: " + file.getPath());
+          return Outcome.err(new CmdLineException(this, "No such file: " + file.getPath()));
         }
         try {
           result.addAll(readAllLines(file));
         } catch (IOException ex) {
-          throw new CmdLineException(this, "Failed to parse " + file, ex);
+          return Outcome.err(new CmdLineException(this, "Failed to parse " + file, ex));
         }
       } else {
         result.add(arg);
       }
     }
-    return result.toArray(new String[0]);
+    return Outcome.ok(result.toArray(new String[0]));
   }
 
   private static List<String> readAllLines(File f) throws IOException {

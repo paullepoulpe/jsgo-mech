@@ -16,6 +16,7 @@
 package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.parsing.ParserRunner;
 
 /**
@@ -62,9 +63,9 @@ public final class MapDiagnosticToSuppression {
         .option("--help")
         .usage("Usage")
         .flag(() -> help, v -> { help = v; });
-    try {
-      parser.parseArgument(args);
-    } catch (CmdLineException ex) {
+    Outcome<Void> parsed = parser.parseArgument(args);
+    if (parsed.isErr()) {
+      CmdLineException ex = (CmdLineException) parsed.error();
       System.err.println("Could not parse arguments: " + ex);
       printHelp();
       return;

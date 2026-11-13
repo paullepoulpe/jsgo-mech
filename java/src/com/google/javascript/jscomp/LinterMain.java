@@ -32,11 +32,11 @@ public final class LinterMain {
 
   private List<String> files = new ArrayList<>();
 
-  public static void main(String[] args) throws IOException, CmdLineException {
+  public static void main(String[] args) throws IOException {
     new LinterMain().run(args);
   }
 
-  private void run(String[] args) throws IOException, CmdLineException {
+  private void run(String[] args) throws IOException {
     CmdLineParser parser = new CmdLineParser();
     parser
         .option("--fix")
@@ -47,7 +47,7 @@ public final class LinterMain {
         .usage("Expected path resolution mode for resolving module specifiers.")
         .enumValue(ResolutionMode.values(), () -> resolutionMode, v -> { resolutionMode = v; });
     parser.argument(() -> files, v -> { files = v; });
-    parser.parseArgument(args);
+    parser.parseArgument(args).get();
 
     Linter linter = Linter.builder().withModuleResolutionMode(resolutionMode).build();
 
