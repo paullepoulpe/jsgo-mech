@@ -640,8 +640,11 @@ public final class CmdLineParser {
     BufferedReader r = new BufferedReader(new FileReader(f));
     try {
       List<String> result = new ArrayList<>();
-      String line;
-      while ((line = r.readLine()) != null) {
+      while (true) {
+        String line = r.readLine();
+        if (line == null) {
+          break;
+        }
         result.add(line);
       }
       return result;

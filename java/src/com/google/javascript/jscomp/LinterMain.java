@@ -41,12 +41,12 @@ public final class LinterMain {
     parser
         .option("--fix")
         .usage("Fix lint warnings automatically")
-        .flag(() -> fix, v -> fix = v);
+        .flag(() -> fix, v -> { fix = v; });
     parser
         .option("--resolution_mode")
         .usage("Expected path resolution mode for resolving module specifiers.")
-        .enumValue(ResolutionMode.values(), () -> resolutionMode, v -> resolutionMode = v);
-    parser.argument(() -> files, v -> files = v);
+        .enumValue(ResolutionMode.values(), () -> resolutionMode, v -> { resolutionMode = v; });
+    parser.argument(() -> files, v -> { files = v; });
     parser.parseArgument(args);
 
     Linter linter = Linter.builder().withModuleResolutionMode(resolutionMode).build();

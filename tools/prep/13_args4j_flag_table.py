@@ -14,9 +14,9 @@ For each of the four classes under java/src that used args4j, this script
              .hidden(true)              only if the annotation had hidden = true
              .required(true)            only if the annotation had required = true
              .usage(<usage>)            only if the annotation had a usage; expression kept verbatim
-             .<kind>(() -> <field>, v -> <field> = v);
+             .<kind>(() -> <field>, v -> { <field> = v; });
 
-     and, for a field that had `@Argument`, a final `parser.argument(() -> f, v -> f = v);`
+     and, for a field that had `@Argument`, a final `parser.argument(() -> f, v -> { f = v; });`
 
      <kind> is derived from the annotation's handler, or else from the type of the field:
 
@@ -156,10 +156,10 @@ def call(indent, name, args):
 
 
 def kind_call(indent, handler, type_, field):
-    get, set_ = "() -> " + field, "v -> " + field + " = v"
+    get, set_ = "() -> " + field, "v -> { " + field + " = v; }"
     if handler in MULTI_FLAG_HANDLERS:
         assert type_ == "List<String>", (field, type_)
-        add = "v -> %s = addMultiFlagValue(%s, v, %s)" % (field, field, MULTI_FLAG_HANDLERS[handler])
+        add = "v -> { %s = addMultiFlagValue(%s, v, %s); }" % (field, field, MULTI_FLAG_HANDLERS[handler])
         return call(indent, "stringEach", [add])
     if handler == "BooleanOptionHandler":
         assert type_ in ("boolean", "Boolean"), (field, type_)
@@ -242,7 +242,7 @@ def convert(path):
     if m:
         s = s[: m.start()] + m.group(1) + s[m.start() + len(m.group(1)) + len("@Argument ") :]
         entries.append(
-            " " * indent + "parser.argument(() -> %s, v -> %s = v);" % (m.group(2), m.group(2))
+            " " * indent + "parser.argument(() -> %s, v -> { %s = v; });" % (m.group(2), m.group(2))
         )
 
     m = re.search(r"^( *)(.*)new CmdLineParser\(this\);\n", s, re.M)

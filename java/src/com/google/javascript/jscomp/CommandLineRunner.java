@@ -364,39 +364,39 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
               "shortcut for defining "
                   + "goog.FEATURESET_YEAR=YYYY."
                   + " The minimum valid value of the browser year is 2012")
-          .integer(() -> browserFeaturesetYear, v -> browserFeaturesetYear = v);
+          .integer(() -> browserFeaturesetYear, v -> { browserFeaturesetYear = v; });
       parser
           .option("--help")
           .usage("Displays this message on stdout and exit")
-          .bool(() -> displayHelp, v -> displayHelp = v);
+          .bool(() -> displayHelp, v -> { displayHelp = v; });
       parser
           .option("--print_tree")
           .hidden(true)
           .usage("Prints out the parse tree and exits")
-          .bool(() -> printTree, v -> printTree = v);
+          .bool(() -> printTree, v -> { printTree = v; });
       parser
           .option("--print_tree_json")
           .hidden(true)
           .usage("Prints out the parse tree as json and exits")
-          .bool(() -> printTreeJson, v -> printTreeJson = v);
+          .bool(() -> printTreeJson, v -> { printTreeJson = v; });
       parser
           .option("--print_ast")
           .hidden(true)
           .usage("Prints a dot file describing the internal abstract syntax" + " tree and exits")
-          .bool(() -> printAst, v -> printAst = v);
+          .bool(() -> printAst, v -> { printAst = v; });
       parser
           .option("--emit_use_strict")
           .usage("Start output with \"'use strict';\".")
-          .bool(() -> emitUseStrict, v -> emitUseStrict = v);
+          .bool(() -> emitUseStrict, v -> { emitUseStrict = v; });
       parser
           .option("--strict_mode_input")
           .usage("Assume input sources are to run in strict mode.")
-          .bool(() -> strictModeInput, v -> strictModeInput = v);
+          .bool(() -> strictModeInput, v -> { strictModeInput = v; });
       parser
           .option("--jscomp_dev_mode")
           .aliases("--dev_mode")
           .hidden(true)
-          .enumValue(CompilerOptions.DevMode.values(), () -> jscompDevMode, v -> jscompDevMode = v);
+          .enumValue(CompilerOptions.DevMode.values(), () -> jscompDevMode, v -> { jscompDevMode = v; });
       parser
           .option("--logging_level")
           .hidden(true)
@@ -404,11 +404,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
               "The logging level (standard java.util.logging.Level"
                   + " values) for Compiler progress. Does not control errors or"
                   + " warnings for the JavaScript code under compilation")
-          .string(() -> loggingLevel, v -> loggingLevel = v);
+          .string(() -> loggingLevel, v -> { loggingLevel = v; });
       parser
           .option("--externs")
           .usage("The file containing JavaScript externs. You may specify" + " multiple")
-          .stringList(() -> externs, v -> externs = v);
+          .stringList(() -> externs, v -> { externs = v; });
       parser
           .option("--js")
           .usage(
@@ -417,19 +417,22 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "You may also use minimatch-style glob patterns. For example, use "
                   + "--js='**.js' --js='!**_test.js' to recursively include all "
                   + "js files that do not end in _test.js")
-          .stringEach(v -> js = addMultiFlagValue(js, v, JsSourceType.JS, mixedJsSources));
+          .stringEach(
+              v -> {
+                js = addMultiFlagValue(js, v, JsSourceType.JS, mixedJsSources);
+              });
       parser
           .option("--jszip")
           .hidden(true)
           .usage("The JavaScript zip filename. You may specify multiple.")
           .stringEach(
-              v ->
-                  unusedJsZip =
-                      addMultiFlagValue(unusedJsZip, v, JsSourceType.JS_ZIP, mixedJsSources));
+              v -> {
+                unusedJsZip = addMultiFlagValue(unusedJsZip, v, JsSourceType.JS_ZIP, mixedJsSources);
+              });
       parser
           .option("--js_output_file")
           .usage("Primary output filename. If not specified, output is " + "written to stdout")
-          .string(() -> jsOutputFile, v -> jsOutputFile = v);
+          .string(() -> jsOutputFile, v -> { jsOutputFile = v; });
       parser
           .option("--chunk")
           .usage(
@@ -443,17 +446,17 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "has no dependencies. "
                   + "Provide the value 'auto' to trigger chunk creation from CommonJS "
                   + "modules.")
-          .stringList(() -> chunk, v -> chunk = v);
+          .stringList(() -> chunk, v -> { chunk = v; });
       parser
           .option("--filename_to_save_to")
           .hidden(true)
           .usage("Filename to save state so that the compilation can be resumed later.")
-          .string(() -> filenameToSaveTo, v -> filenameToSaveTo = v);
+          .string(() -> filenameToSaveTo, v -> { filenameToSaveTo = v; });
       parser
           .option("--filename_to_restore_from")
           .hidden(true)
           .usage("Filename where a compilation state was previously saved.")
-          .string(() -> filenameToRestoreFrom, v -> filenameToRestoreFrom = v);
+          .string(() -> filenameToRestoreFrom, v -> { filenameToRestoreFrom = v; });
       parser
           .option("--segment_of_compilation_to_run")
           .hidden(true)
@@ -461,13 +464,13 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           .enumValue(
               SegmentOfCompilationToRun.values(),
               () -> segmentOfCompilationToRun,
-              v -> segmentOfCompilationToRun = v);
+              v -> { segmentOfCompilationToRun = v; });
       parser
           .option("--variable_renaming_report")
           .usage(
               "File where the serialized version of the variable "
                   + "renaming map produced should be saved")
-          .string(() -> variableMapOutputFile, v -> variableMapOutputFile = v);
+          .string(() -> variableMapOutputFile, v -> { variableMapOutputFile = v; });
       parser
           .option("--instrument_mapping_report")
           .usage(
@@ -477,7 +480,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + " --instrument_for_coverage_option=PRODUCTION")
           .string(
               () -> instrumentationMappingOutputFile,
-              v -> instrumentationMappingOutputFile = v);
+              v -> { instrumentationMappingOutputFile = v; });
       parser
           .option("--create_renaming_reports")
           .hidden(true)
@@ -487,24 +490,24 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "and {binary name}_props_renaming_report.out. Note that this flag "
                   + "cannot be used in conjunction with either variable_renaming_report "
                   + "or property_renaming_report")
-          .bool(() -> createNameMapFiles, v -> createNameMapFiles = v);
+          .bool(() -> createNameMapFiles, v -> { createNameMapFiles = v; });
       parser
           .option("--source_map_include_content")
           .usage(
               "Includes sources content into source map. Greatly increases "
                   + "the size of source maps but offers greater portability")
-          .bool(() -> sourceMapIncludeSourcesContent, v -> sourceMapIncludeSourcesContent = v);
+          .bool(() -> sourceMapIncludeSourcesContent, v -> { sourceMapIncludeSourcesContent = v; });
       parser
           .option("--property_renaming_report")
           .usage(
               "File where the serialized version of the property "
                   + "renaming map produced should be saved")
-          .string(() -> propertyMapOutputFile, v -> propertyMapOutputFile = v);
+          .string(() -> propertyMapOutputFile, v -> { propertyMapOutputFile = v; });
       parser
           .option("--third_party")
           .usage(
               "Check source validity but do not enforce Closure style " + "rules and conventions")
-          .bool(() -> thirdParty, v -> thirdParty = v);
+          .bool(() -> thirdParty, v -> { thirdParty = v; });
       parser
           .option("--summary_detail_level")
           .hidden(true)
@@ -514,7 +517,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "errors or warnings), 2 (print summary if the 'checkTypes' "
                   + "diagnostic  group is enabled, see --jscomp_warning), "
                   + "3 (always print summary). The default level is 1")
-          .integer(() -> summaryDetailLevel, v -> summaryDetailLevel = v);
+          .integer(() -> summaryDetailLevel, v -> { summaryDetailLevel = v; });
       parser
           .option("--isolation_mode")
           .usage(
@@ -523,7 +526,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                 (function(){%output%}).call(this);
               Options: NONE, IIFE\
               """)
-          .enumValue(IsolationMode.values(), () -> isolationMode, v -> isolationMode = v);
+          .enumValue(IsolationMode.values(), () -> isolationMode, v -> { isolationMode = v; });
       parser
           .option("--output_wrapper")
           .usage(
@@ -531,14 +534,14 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + " by the marker token %output%. Use marker token %output|jsstring%"
                   + " to do js string escaping on the output."
                   + " Consider using the --isolation_mode flag instead.")
-          .string(() -> outputWrapper, v -> outputWrapper = v);
+          .string(() -> outputWrapper, v -> { outputWrapper = v; });
       parser
           .option("--output_wrapper_file")
           .usage(
               "Loads the specified file and passes the file contents to the --output_wrapper flag,"
                   + " replacing the value if it exists. This is useful if you want special"
                   + " characters like newline in the wrapper.")
-          .string(() -> outputWrapperFile, v -> outputWrapperFile = v);
+          .string(() -> outputWrapperFile, v -> { outputWrapperFile = v; });
       parser
           .option("--chunk_wrapper")
           .usage(
@@ -550,14 +553,14 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "%n% can be used to represent a newline. "
                   + "The %basename% placeholder can "
                   + "also be used to substitute the base name of the chunk output file.")
-          .stringList(() -> chunkWrapper, v -> chunkWrapper = v);
+          .stringList(() -> chunkWrapper, v -> { chunkWrapper = v; });
       parser
           .option("--chunk_output_path_prefix")
           .usage(
               "Prefix for filenames of compiled JS chunks. "
                   + "<chunk-name>.js will be appended to this prefix. Directories "
                   + "will be created as needed. Use with --chunk")
-          .string(() -> chunkOutputPathPrefix, v -> chunkOutputPathPrefix = v);
+          .string(() -> chunkOutputPathPrefix, v -> { chunkOutputPathPrefix = v; });
       parser
           .option("--create_source_map")
           .usage(
@@ -566,30 +569,30 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "output to the specified path. The %outname% placeholder will "
                   + "expand to the name of the output file that the source map "
                   + "corresponds to.")
-          .string(() -> createSourceMap, v -> createSourceMap = v);
+          .string(() -> createSourceMap, v -> { createSourceMap = v; });
       parser
           .option("--source_map_format")
           .hidden(true)
           .usage(
               "The source map format to produce. "
                   + "Options are V3 and DEFAULT, which are equivalent.")
-          .enumValue(SourceMap.Format.values(), () -> sourceMapFormat, v -> sourceMapFormat = v);
+          .enumValue(SourceMap.Format.values(), () -> sourceMapFormat, v -> { sourceMapFormat = v; });
       parser
           .option("--source_map_location_mapping")
           .usage(
               "Source map location mapping separated by a '|' "
                   + "(i.e. filesystem-path|webserver-path)")
-          .stringList(() -> sourceMapLocationMapping, v -> sourceMapLocationMapping = v);
+          .stringList(() -> sourceMapLocationMapping, v -> { sourceMapLocationMapping = v; });
       parser
           .option("--source_map_input")
           .usage(
               "Source map locations for input files, separated by a '|', "
                   + "(i.e. input-file-path|input-source-map)")
-          .stringList(() -> sourceMapInputs, v -> sourceMapInputs = v);
+          .stringList(() -> sourceMapInputs, v -> { sourceMapInputs = v; });
       parser
           .option("--parse_inline_source_maps")
           .usage("Parse inline source maps (//# sourceMappingURL=data:...)")
-          .bool(() -> parseInlineSourceMaps, v -> parseInlineSourceMaps = v);
+          .bool(() -> parseInlineSourceMaps, v -> { parseInlineSourceMaps = v; });
       parser
           .option("--apply_input_source_maps")
           .usage(
@@ -600,30 +603,34 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "sourceMappingURL=<url> can read both paths and inline Base64 encoded"
                   + " sourcemaps. For inline Base64 encoded sourcemaps, see"
                   + " --parse_inline_source_maps.")
-          .bool(() -> applyInputSourceMaps, v -> applyInputSourceMaps = v);
+          .bool(() -> applyInputSourceMaps, v -> { applyInputSourceMaps = v; });
       parser
           .option("--jscomp_error")
           .usage(
               "Make the named class of warnings an error. Must be one "
                   + "of the error group items. '*' adds all supported.")
           .stringEach(
-              v -> jscompError = addMultiFlagValue(jscompError, v, CheckLevel.ERROR, guardLevels));
+              v -> {
+                jscompError = addMultiFlagValue(jscompError, v, CheckLevel.ERROR, guardLevels);
+              });
       parser
           .option("--jscomp_warning")
           .usage(
               "Make the named class of warnings a normal warning. Must be one "
                   + "of the error group items. '*' adds all supported.")
           .stringEach(
-              v ->
-                  jscompWarning =
-                      addMultiFlagValue(jscompWarning, v, CheckLevel.WARNING, guardLevels));
+              v -> {
+                jscompWarning = addMultiFlagValue(jscompWarning, v, CheckLevel.WARNING, guardLevels);
+              });
       parser
           .option("--jscomp_off")
           .usage(
               "Turn off the named class of warnings. Must be one "
                   + "of the error group items. '*' adds all supported.")
           .stringEach(
-              v -> jscompOff = addMultiFlagValue(jscompOff, v, CheckLevel.OFF, guardLevels));
+              v -> {
+                jscompOff = addMultiFlagValue(jscompOff, v, CheckLevel.OFF, guardLevels);
+              });
       parser
           .option("--define")
           .aliases("--D", "-D")
@@ -633,13 +640,13 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "variable and <val> is a boolean, number, or a single-quoted string "
                   + "that contains no single quotes. If [=<val>] is omitted, "
                   + "the variable is marked true")
-          .stringList(() -> define, v -> define = v);
+          .stringList(() -> define, v -> { define = v; });
       parser
           .option("--charset")
           .usage(
               "Input and output charset for all files. By default, we "
                   + "accept UTF-8 as input and output US_ASCII")
-          .string(() -> charset, v -> charset = v);
+          .string(() -> charset, v -> { charset = v; });
       parser
           .option("--compilation_level")
           .aliases("-O")
@@ -650,35 +657,35 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "SIMPLE (default), "
                   + "TRANSPILE_ONLY,"
                   + "ADVANCED")
-          .string(() -> compilationLevel, v -> compilationLevel = v);
+          .string(() -> compilationLevel, v -> { compilationLevel = v; });
       parser
           .option("--num_parallel_threads")
           .hidden(true)
           .usage("Use multiple threads to parallelize parts of the compilation.")
-          .integer(() -> numParallelThreads, v -> numParallelThreads = v);
+          .integer(() -> numParallelThreads, v -> { numParallelThreads = v; });
       parser
           .option("--checks_only")
           .aliases("--checks-only")
           .usage("Don't generate output. Run checks, but no optimization passes.")
-          .bool(() -> checksOnly, v -> checksOnly = v);
+          .bool(() -> checksOnly, v -> { checksOnly = v; });
       parser
           .option("--incremental_check_mode")
           .usage("Generate or check externs-like .i.js files representing individual libraries.")
           .enumValue(
               CompilerOptions.IncrementalCheckMode.values(),
               () -> incrementalCheckMode,
-              v -> incrementalCheckMode = v);
+              v -> { incrementalCheckMode = v; });
       parser
           .option("--continue_after_errors")
           .usage("Continue trying to compile after an error is encountered.")
-          .bool(() -> continueAfterErrors, v -> continueAfterErrors = v);
+          .bool(() -> continueAfterErrors, v -> { continueAfterErrors = v; });
       parser
           .option("--use_types_for_optimization")
           .usage(
               "Enable or disable the optimizations "
                   + "based on available type information. Inaccurate type annotations "
                   + "may result in incorrect results.")
-          .bool(() -> useTypesForOptimization, v -> useTypesForOptimization = v);
+          .bool(() -> useTypesForOptimization, v -> { useTypesForOptimization = v; });
       parser
           .option("--assume_function_wrapper")
           .usage(
@@ -686,79 +693,79 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + " wrapped with a function wrapper.  This flag is used to indicate that"
                   + " \"global\" declarations will not actually be global but instead isolated to"
                   + " the compilation unit. This enables additional optimizations.")
-          .bool(() -> assumeFunctionWrapper, v -> assumeFunctionWrapper = v);
+          .bool(() -> assumeFunctionWrapper, v -> { assumeFunctionWrapper = v; });
       parser
           .option("--warning_level")
           .aliases("-W")
           .usage("Specifies the warning level to use. Options: " + "QUIET, DEFAULT, VERBOSE")
-          .enumValue(WarningLevel.values(), () -> warningLevel, v -> warningLevel = v);
+          .enumValue(WarningLevel.values(), () -> warningLevel, v -> { warningLevel = v; });
       parser
           .option("--debug")
           .usage(
               "Enable debugging options. Property renaming uses long mangled names which can be "
                   + "mapped back to the original name.")
-          .bool(() -> debug, v -> debug = v);
+          .bool(() -> debug, v -> { debug = v; });
       parser
           .option("--typed_ast_output_file")
           .hidden(true)
           .usage("Sets file to output in-progress typedAST format. DO NOT USE!")
-          .string(() -> typedAstOutputFile, v -> typedAstOutputFile = v);
+          .string(() -> typedAstOutputFile, v -> { typedAstOutputFile = v; });
       parser
           .option("--generate_exports")
           .usage("Generates export code for those marked with @export")
-          .bool(() -> generateExports, v -> generateExports = v);
+          .bool(() -> generateExports, v -> { generateExports = v; });
       parser
           .option("--export_local_property_definitions")
           .usage("Generates export code for local properties marked with @export")
-          .bool(() -> exportLocalPropertyDefinitions, v -> exportLocalPropertyDefinitions = v);
+          .bool(() -> exportLocalPropertyDefinitions, v -> { exportLocalPropertyDefinitions = v; });
       parser
           .option("--formatting")
           .usage(
               "Specifies which formatting options, if any, should be "
                   + "applied to the output JS. Options: "
                   + "PRETTY_PRINT, PRINT_INPUT_DELIMITER, SINGLE_QUOTES")
-          .enumList(FormattingOption.values(), () -> formatting, v -> formatting = v);
+          .enumList(FormattingOption.values(), () -> formatting, v -> { formatting = v; });
       parser
           .option("--process_common_js_modules")
           .usage("Process CommonJS modules to a concatenable form.")
-          .bool(() -> processCommonJsModules, v -> processCommonJsModules = v);
+          .bool(() -> processCommonJsModules, v -> { processCommonJsModules = v; });
       parser
           .option("--js_module_root")
           .usage("Path prefixes to be removed from ES6 & CommonJS modules.")
-          .stringList(() -> moduleRoot, v -> moduleRoot = v);
+          .stringList(() -> moduleRoot, v -> { moduleRoot = v; });
       parser
           .option("--process_closure_primitives")
           .usage(
               "Processes built-ins from the Closure library, such as "
                   + "goog.require(), goog.provide(), and goog.exportSymbol(). "
                   + "True by default.")
-          .bool(() -> processClosurePrimitives, v -> processClosurePrimitives = v);
+          .bool(() -> processClosurePrimitives, v -> { processClosurePrimitives = v; });
       parser
           .option("--angular_pass")
           .usage(
               "Generate $inject properties for AngularJS for functions " + "annotated with @ngInject")
-          .bool(() -> angularPass, v -> angularPass = v);
+          .bool(() -> angularPass, v -> { angularPass = v; });
       parser
           .option("--polymer_version")
           .usage("Which version of Polymer is being used (1 or 2).")
-          .integer(() -> polymerVersion, v -> polymerVersion = v);
+          .integer(() -> polymerVersion, v -> { polymerVersion = v; });
       parser
           .option("--chrome_pass")
           .hidden(true)
           .usage("Enable Chrome-specific options for handling cr.* functions.")
-          .bool(() -> chromePass, v -> chromePass = v);
+          .bool(() -> chromePass, v -> { chromePass = v; });
       parser
           .option("--j2cl_pass")
           .hidden(true)
           .usage(
               "Rewrite J2CL output to be compiler-friendly if enabled (ON or AUTO). "
                   + "Options:OFF, ON, AUTO(default)")
-          .string(() -> j2clPassMode, v -> j2clPassMode = v);
+          .string(() -> j2clPassMode, v -> { j2clPassMode = v; });
       parser
           .option("--remove_j2cl_asserts")
           .hidden(true)
           .usage("Remove calls to J2CL assertions.")
-          .flag(() -> removeJ2cLAsserts, v -> removeJ2cLAsserts = v);
+          .flag(() -> removeJ2cLAsserts, v -> { removeJ2cLAsserts = v; });
       parser
           .option("--output_manifest")
           .usage(
@@ -768,11 +775,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "The %outname% placeholder expands to the JS output file. "
                   + "If you're using modularization, using %outname% will create "
                   + "a manifest for each module.")
-          .string(() -> outputManifest, v -> outputManifest = v);
+          .string(() -> outputManifest, v -> { outputManifest = v; });
       parser
           .option("--output_chunk_dependencies")
           .usage("Prints out a JSON file of dependencies between chunks.")
-          .string(() -> outputChunkDependencies, v -> outputChunkDependencies = v);
+          .string(() -> outputChunkDependencies, v -> { outputChunkDependencies = v; });
       parser
           .option("--language_in")
           .usage(
@@ -782,7 +789,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020,"
                   + "ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported),"
                   + "UNSTABLE (for testing only)")
-          .string(() -> languageIn, v -> languageIn = v);
+          .string(() -> languageIn, v -> { languageIn = v; });
       parser
           .option("--language_out")
           .usage(
@@ -791,16 +798,16 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "ECMASCRIPT_2015, ECMASCRIPT_2016, ECMASCRIPT_2017, "
                   + "ECMASCRIPT_2018, ECMASCRIPT_2019, ECMASCRIPT_2020, "
                   + "ECMASCRIPT_2021, STABLE, ECMASCRIPT_NEXT (latest features supported)")
-          .string(() -> languageOut, v -> languageOut = v);
+          .string(() -> languageOut, v -> { languageOut = v; });
       parser
           .option("--version")
           .usage("Prints the compiler version to stdout and exit.")
-          .bool(() -> version, v -> version = v);
+          .bool(() -> version, v -> { version = v; });
       parser
           .option("--translations_file")
           .hidden(true)
           .usage("Source of translated messages. Currently only supports XTB.")
-          .string(() -> translationsFile, v -> translationsFile = v);
+          .string(() -> translationsFile, v -> { translationsFile = v; });
       parser
           .option("--translations_project")
           .hidden(true)
@@ -808,12 +815,12 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
               "Scopes all translations to the specified project."
                   + "When specified, we will use different message ids so that messages "
                   + "in different projects can have different translations.")
-          .string(() -> translationsProject, v -> translationsProject = v);
+          .string(() -> translationsProject, v -> { translationsProject = v; });
       parser
           .option("--flagfile")
           .hidden(true)
           .usage("A file (or files) containing additional command-line options.")
-          .stringList(() -> flagFiles, v -> flagFiles = v);
+          .stringList(() -> flagFiles, v -> { flagFiles = v; });
       parser
           .option("--warnings_allowlist_file")
           .aliases("--warnings_whitelist_file")
@@ -821,17 +828,17 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
               "A file containing warnings to suppress. Each line should be "
                   + "of the form\n"
                   + "<file-name>:<line-number>?  <warning-description>")
-          .string(() -> warningsAllowlistFile, v -> warningsAllowlistFile = v);
+          .string(() -> warningsAllowlistFile, v -> { warningsAllowlistFile = v; });
       parser
           .option("--hide_warnings_for")
           .usage(
               "If specified, files whose path contains this string will "
                   + "have their warnings hidden. You may specify multiple.")
-          .stringList(() -> hideWarningsFor, v -> hideWarningsFor = v);
+          .stringList(() -> hideWarningsFor, v -> { hideWarningsFor = v; });
       parser
           .option("--extra_annotation_name")
           .usage("A allowlist of tag names in JSDoc. You may specify multiple")
-          .stringList(() -> extraAnnotationName, v -> extraAnnotationName = v);
+          .stringList(() -> extraAnnotationName, v -> { extraAnnotationName = v; });
       parser
           .option("--tracer_mode")
           .hidden(true)
@@ -839,27 +846,27 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
               "Shows the duration of each compiler pass and the impact to "
                   + "the compiled output size. "
                   + "Options: ALL, AST_SIZE, RAW_SIZE, TIMING_ONLY, OFF")
-          .enumValue(CompilerOptions.TracerMode.values(), () -> tracerMode, v -> tracerMode = v);
+          .enumValue(CompilerOptions.TracerMode.values(), () -> tracerMode, v -> { tracerMode = v; });
       parser
           .option("--rename_variable_prefix")
           .usage("Specifies a prefix that will be prepended to all variables.")
-          .string(() -> renamePrefix, v -> renamePrefix = v);
+          .string(() -> renamePrefix, v -> { renamePrefix = v; });
       parser
           .option("--rename_prefix_namespace")
           .usage(
               "Specifies the name of an object that will be used to store all "
                   + "non-extern globals")
-          .string(() -> renamePrefixNamespace, v -> renamePrefixNamespace = v);
+          .string(() -> renamePrefixNamespace, v -> { renamePrefixNamespace = v; });
       parser
           .option("--conformance_configs")
           .usage("A list of JS Conformance configurations in text protocol buffer format.")
-          .stringList(() -> conformanceConfigs, v -> conformanceConfigs = v);
+          .stringList(() -> conformanceConfigs, v -> { conformanceConfigs = v; });
       parser
           .option("--env")
           .usage(
               "Determines the set of builtin externs to load. "
                   + "Options: BROWSER, CUSTOM. Defaults to BROWSER.")
-          .enumValue(CompilerOptions.Environment.values(), () -> environment, v -> environment = v);
+          .enumValue(CompilerOptions.Environment.values(), () -> environment, v -> { environment = v; });
       parser
           .option("--json_streams")
           .usage(
@@ -871,23 +878,23 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           .enumValue(
               CompilerOptions.JsonStreamMode.values(),
               () -> jsonStreamMode,
-              v -> jsonStreamMode = v);
+              v -> { jsonStreamMode = v; });
       parser
           .option("--preserve_type_annotations")
           .hidden(true)
           .usage("Preserves type annotations.")
-          .bool(() -> preserveTypeAnnotations, v -> preserveTypeAnnotations = v);
+          .bool(() -> preserveTypeAnnotations, v -> { preserveTypeAnnotations = v; });
       parser
           .option("--inject_libraries")
           .usage("Allow injecting runtime libraries.")
-          .bool(() -> injectLibraries, v -> injectLibraries = v);
+          .bool(() -> injectLibraries, v -> { injectLibraries = v; });
       parser
           .option("--force_inject_library")
           .usage(
               "Force injection of named runtime libraries. "
                   + "The format is <name> where <name> is the name of a runtime library. "
                   + "Possible libraries include: base, es6_runtime")
-          .stringList(() -> forceInjectLibraries, v -> forceInjectLibraries = v);
+          .stringList(() -> forceInjectLibraries, v -> { forceInjectLibraries = v; });
       parser
           .option("--dependency_mode")
           .usage(
@@ -899,7 +906,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "PRUNE_LEGACY same as PRUNE but files that do not goog.provide a namespace and "
                   + "are not modules will be automatically added as --entry_point entries. Defaults "
                   + "to PRUNE_LEGACY if entry points are defined, otherwise to NONE.")
-          .enumValue(DependencyMode.values(), () -> dependencyMode, v -> dependencyMode = v);
+          .enumValue(DependencyMode.values(), () -> dependencyMode, v -> { dependencyMode = v; });
       parser
           .option("--entry_point")
           .usage(
@@ -908,24 +915,24 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "modules are specified as file paths (without the extension). "
                   + "Closure-library namespaces are specified with a \"goog:\" prefix. "
                   + "Example: --entry_point=goog:goog.Promise")
-          .stringList(() -> entryPoint, v -> entryPoint = v);
+          .stringList(() -> entryPoint, v -> { entryPoint = v; });
       parser
           .option("--rewrite_polyfills")
           .usage(
               "Injects polyfills for ES2015+ library classes and methods used in source. See also"
                   + " the \"Polyfills\" GitHub Wiki page.")
-          .bool(() -> rewritePolyfills, v -> rewritePolyfills = v);
+          .bool(() -> rewritePolyfills, v -> { rewritePolyfills = v; });
       parser
           .option("--isolate_polyfills")
           .usage(
               "Hides injected polyfills from the global scope and any external code. See the"
                   + " the \"Polyfills\" GitHub Wiki page for details.")
-          .bool(() -> isolatePolyfills, v -> isolatePolyfills = v);
+          .bool(() -> isolatePolyfills, v -> { isolatePolyfills = v; });
       parser
           .option("--print_source_after_each_pass")
           .hidden(true)
           .usage("Whether to iteratively print resulting JS source per pass.")
-          .bool(() -> printSourceAfterEachPass, v -> printSourceAfterEachPass = v);
+          .bool(() -> printSourceAfterEachPass, v -> { printSourceAfterEachPass = v; });
       parser
           .option("--module_resolution")
           .usage(
@@ -935,13 +942,13 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           .enumValue(
               ModuleLoader.ResolutionMode.values(),
               () -> moduleResolutionMode,
-              v -> moduleResolutionMode = v);
+              v -> { moduleResolutionMode = v; });
       parser
           .option("--browser_resolver_prefix_replacements")
           .usage(
               "Prefixes to replace in ES6 import paths before resolving. "
                   + "module_resolution must be BROWSER_WITH_TRANSFORMED_PREFIXES to take effect.")
-          .map(() -> browserResolverPrefixReplacements, v -> browserResolverPrefixReplacements = v);
+          .map(() -> browserResolverPrefixReplacements, v -> { browserResolverPrefixReplacements = v; });
       parser
           .option("--package_json_entry_names")
           .usage(
@@ -949,20 +956,20 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + " with the NODE module resolution strategy (i.e. esnext:main,browser,main)."
                   + " Defaults to a list with the following entries: \"browser\", \"module\","
                   + " \"main\".")
-          .string(() -> packageJsonEntryNames, v -> packageJsonEntryNames = v);
+          .string(() -> packageJsonEntryNames, v -> { packageJsonEntryNames = v; });
       parser
           .option("--error_format")
           .usage("Specifies format for error messages.")
-          .enumValue(ErrorFormatOption.values(), () -> errorFormat, v -> errorFormat = v);
+          .enumValue(ErrorFormatOption.values(), () -> errorFormat, v -> { errorFormat = v; });
       parser
           .option("--renaming")
           .usage("Disables variable renaming. Cannot be used with ADVANCED optimizations.")
-          .bool(() -> renaming, v -> renaming = v);
+          .bool(() -> renaming, v -> { renaming = v; });
       parser
           .option("--help_markdown")
           .hidden(true)
           .usage("Prints markdown formatted flag usage")
-          .bool(() -> helpMarkdown, v -> helpMarkdown = v);
+          .bool(() -> helpMarkdown, v -> { helpMarkdown = v; });
       parser
           .option("--instrument_for_coverage_option")
           .usage(
@@ -973,7 +980,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                3. BRANCH - Instrument code by branch.
                4. PRODUCTION - Function Instrumentation on compiled JS code.
               """)
-          .string(() -> instrumentForCoverageOption, v -> instrumentForCoverageOption = v);
+          .string(() -> instrumentForCoverageOption, v -> { instrumentForCoverageOption = v; });
       parser
           .option("--production_instrumentation_array_name")
           .usage(
@@ -983,20 +990,20 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + " tandem with --instrument_code=PRODUCTION")
           .string(
               () -> productionInstrumentationArrayName,
-              v -> productionInstrumentationArrayName = v);
+              v -> { productionInstrumentationArrayName = v; });
       parser
           .option("--chunk_output_type")
           .usage(
               "Indicates what format the compiler should use for output chunks. GLOBAL_NAMESPACE is "
                   + "typically used in conjunction with --rename_prefix_namespace. ES_MODULES "
                   + "outputs chunks as proper modules with 'import' and 'export' statements.")
-          .enumValue(ChunkOutputType.values(), () -> chunkOutputType, v -> chunkOutputType = v);
+          .enumValue(ChunkOutputType.values(), () -> chunkOutputType, v -> { chunkOutputType = v; });
       parser
           .option("--allow_dynamic_import")
           .usage(
               "Indicates that the compiler should allow dynamic import expressions. Dynamic import "
                   + "expressions are not yet fully supported and may lead to broken output code.")
-          .bool(() -> allowDynamicImport, v -> allowDynamicImport = v);
+          .bool(() -> allowDynamicImport, v -> { allowDynamicImport = v; });
       parser
           .option("--dynamic_import_alias")
           .usage(
@@ -1004,14 +1011,14 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "using the specified name. Allows dynamic import expressions to be externally "
                   + "polyfilled when the output language level does not natively support them. "
                   + "An alias of 'import' is allowed.")
-          .string(() -> dynamicImportAlias, v -> dynamicImportAlias = v);
+          .string(() -> dynamicImportAlias, v -> { dynamicImportAlias = v; });
       parser
           .option("--assume_static_inheritance_is_not_used")
           .usage(
               "Assume that static (class-side) inheritance is not being used and that static"
                   + " methods will not be referenced via `this` or through subclasses. This enables"
                   + " optimizations that could break code that did those things.")
-          .bool(() -> assumeStaticInheritanceIsNotUsed, v -> assumeStaticInheritanceIsNotUsed = v);
+          .bool(() -> assumeStaticInheritanceIsNotUsed, v -> { assumeStaticInheritanceIsNotUsed = v; });
       parser
           .option("--assume_no_prototype_method_enumeration")
           .usage(
@@ -1020,26 +1027,26 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   + "stub functions in a parent chunk.")
           .bool(
               () -> assumeNoPrototypeMethodEnumeration,
-              v -> assumeNoPrototypeMethodEnumeration = v);
+              v -> { assumeNoPrototypeMethodEnumeration = v; });
       parser
           .option("--variable_map_input_file")
           .usage(
               "File containing the serialized version of the variable "
                   + "renaming map produced by a previous compilation")
-          .string(() -> variableMapInputFile, v -> variableMapInputFile = v);
+          .string(() -> variableMapInputFile, v -> { variableMapInputFile = v; });
       parser
           .option("--property_map_input_file")
           .usage(
               "File containing the serialized version of the property "
                   + "renaming map produced by a previous compilation")
-          .string(() -> propertyMapInputFile, v -> propertyMapInputFile = v);
+          .string(() -> propertyMapInputFile, v -> { propertyMapInputFile = v; });
       parser
           .option("--expected_diagnostics")
           .usage(
               "Expected diagnostics in the format [(line,col)]CODE:regex. "
                   + "CODE is the JSCompiler DiagnosticType key. regex matches the description.")
-          .stringList(() -> expectedDiagnostics, v -> expectedDiagnostics = v);
-      parser.argument(() -> arguments, v -> arguments = v);
+          .stringList(() -> expectedDiagnostics, v -> { expectedDiagnostics = v; });
+      parser.argument(() -> arguments, v -> { arguments = v; });
     }
 
     /** Parse the given args list. */

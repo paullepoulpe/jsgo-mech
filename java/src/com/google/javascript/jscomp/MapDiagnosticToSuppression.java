@@ -57,11 +57,11 @@ public final class MapDiagnosticToSuppression {
     parser
         .option("--output")
         .usage("Sets the desired output format.\n" + "Options: md, json" + "Default: json")
-        .enumValue(OutputFormat.values(), () -> output, v -> output = v);
+        .enumValue(OutputFormat.values(), () -> output, v -> { output = v; });
     parser
         .option("--help")
         .usage("Usage")
-        .flag(() -> help, v -> help = v);
+        .flag(() -> help, v -> { help = v; });
     try {
       parser.parseArgument(args);
     } catch (CmdLineException ex) {
