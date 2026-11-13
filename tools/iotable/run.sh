@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Regenerates go/closure/testdata/io/*.tsv: what the Java Io facade (java/src/.../base/Io.java)
-# returns for the inputs listed in IoTable.java. go/closure/rt_io_test.go checks the Go
-# implementation (go/closure/rt_io.go) against these tables.
+# Regenerates go/closure/testdata/io/*.tsv: what the Java Io and Json facades
+# (java/src/.../base/Io.java, Json.java) return for the inputs listed in IoTable.java.
+# go/closure/rt_io_test.go and rt_json_test.go check the Go implementations (rt_io.go, rt_json.go)
+# against these tables.
 # Needs: tools/gate0/build.sh has compiled the Java tree into .cache/build.
 set -euo pipefail
 root=$(cd "$(dirname "$0")/../.." && pwd)

@@ -395,8 +395,6 @@ func (this *ImmutableMultimap) containsKey(p0 any) bool { return this.m.contains
 
 func (this *ImmutableMultimap) containsValue(p0 any) bool { return this.values().contains(p0) }
 
-func (this *ImmutableMultimap) asMap() Map { return this.m }
-
 func (this *ImmutableMultimap) keySet() Set { return this.m.keySet() }
 
 func (this *ImmutableMultimap) values() Collection {

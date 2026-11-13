@@ -1,3 +1,4 @@
 # Java classes that are not translated: the Go runtime implements them by hand.
 # One path suffix per line.
 com/google/javascript/jscomp/base/Io.java   # all file, stream and console I/O (go/closure/rt_io.go)
+com/google/javascript/jscomp/base/Json.java # parsing one JSON document (go/closure/rt_json.go)

@@ -16,8 +16,6 @@ func numberFormat_(s string) any {
 	return new_NumberFormatException_String("For input string: \"" + s + "\"").self()
 }
 
-func Integer_parseInt_String(s string) int32 { return Integer_parseInt(s, 10) }
-
 func Integer_parseInt(s string, radix int32) int32 {
 	if s == nullstr_ || s == "" || s == "+" || s == "-" || strings.ContainsAny(s, "_ ") {
 		panic(numberFormat_(s))
@@ -84,6 +82,18 @@ func Boolean_valueOf(b bool) any      { return b }
 func Boolean_booleanValue(v any) bool { return v.(bool) }
 
 func Number_doubleValue(v any) float64 { return unbox_[float64](v) }
+
+func Number_longValue(v any) int64 {
+	switch x := v.(type) {
+	case int32:
+		return int64(x)
+	case int64:
+		return x
+	case float64:
+		return Double_longValue(x)
+	}
+	panic(new_ClassCastException_String(goTypeName_(v) + " is not a Number").self())
+}
 
 // ---- Double
 

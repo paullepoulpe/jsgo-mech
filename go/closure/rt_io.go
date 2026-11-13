@@ -1317,15 +1317,16 @@ func Io_pathFileName(path string) string {
 	return path[strings.LastIndexByte(path, '/')+1:]
 }
 
-func Io_pathParent(path string) string {
+// Io_pathParent is empty if the path has no parent.
+func Io_pathParent(path string) *Optional {
 	path = nioPath_(path)
 	switch i := strings.LastIndexByte(path, '/'); {
 	case i < 0, path == "/":
-		return nullstr_
+		return Optional_empty()
 	case i == 0:
-		return "/"
+		return Optional_of("/")
 	default:
-		return path[:i]
+		return Optional_of(path[:i])
 	}
 }
 
@@ -1407,8 +1408,12 @@ func Io_pathRelativize(path string, other string) string {
 
 // ---- URI arithmetic on strings: java.net.URI
 
-// uri_ is a parsed URI: the parts the compiler asks for, still escaped; an absent part is nullstr_.
-type uri_ struct{ scheme, path string }
+// uri_ is a parsed URI: the parts the compiler asks for, still escaped.
+type uri_ struct {
+	scheme string
+	path   string
+	opaque bool // no path
+}
 
 func isAlnum_(c byte) bool {
 	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9'
@@ -1448,7 +1453,6 @@ func parseURI_(s string) (u uri_, failure *Throwable) {
 		}
 	}
 	const marks, anywhere = "_-!.~'()*,;:$&+=", "_-!.~'()*,;:$&+=?/[]@"
-	u = uri_{nullstr_, nullstr_}
 	p, n := 0, len(s)
 	if end := strings.IndexAny(s, "/?#:"); end >= 0 && s[end] == ':' {
 		if end == 0 {
@@ -1464,7 +1468,7 @@ func parseURI_(s string) (u uri_, failure *Throwable) {
 	if i := strings.IndexByte(s[p:], '#'); i >= 0 {
 		n = p + i
 	}
-	if u.scheme != nullstr_ && (p >= n || s[p] != '/') { // opaque: no path
+	if u.opaque = p > 0 && (p >= n || s[p] != '/'); u.opaque {
 		if p >= n {
 			fail("Expected scheme-specific part", p)
 		}
@@ -1519,29 +1523,35 @@ func Io_uriParse(uri string) *Outcome_base {
 	return outcome_(uri, failure)
 }
 
-func Io_uriScheme(uri string) string { return createURI_(uri).scheme }
+// Io_uriScheme is empty if the URI has no scheme.
+func Io_uriScheme(uri string) *Optional {
+	if u := createURI_(uri); u.scheme != "" {
+		return Optional_of(u.scheme)
+	}
+	return Optional_empty()
+}
 
-// Io_uriPath decodes the escapes of the path: each run of them is UTF-8.
-func Io_uriPath(uri string) string {
-	path := createURI_(uri).path
-	if path == nullstr_ || strings.IndexByte(path, '%') < 0 {
-		return path
+// Io_uriPath decodes the escapes of the path, each run of them as UTF-8; empty for an opaque URI.
+func Io_uriPath(uri string) *Optional {
+	u := createURI_(uri)
+	if u.opaque {
+		return Optional_empty()
 	}
 	var out, run []byte
-	for i := 0; i <= len(path); i++ {
-		if i < len(path) && path[i] == '%' {
-			b, _ := strconv.ParseUint(path[i+1:i+3], 16, 8)
+	for i := 0; i <= len(u.path); i++ {
+		if i < len(u.path) && u.path[i] == '%' {
+			b, _ := strconv.ParseUint(u.path[i+1:i+3], 16, 8)
 			run = append(run, byte(b))
 			i += 2
 			continue
 		}
 		out = append(out, decodeUTF8_(run, func(int, int) {})...)
 		run = run[:0]
-		if i < len(path) {
-			out = append(out, path[i])
+		if i < len(u.path) {
+			out = append(out, u.path[i])
 		}
 	}
-	return string(out)
+	return Optional_of(string(out))
 }
 
 // ---- In-memory helpers

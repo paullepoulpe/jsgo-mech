@@ -4,7 +4,6 @@ package closure
 
 import "strings"
 
-func Boolean_toString(b bool) string       { return boolstr_(b) }
 func String_valueOf_boolean(b bool) string { return boolstr_(b) }
 
 func Objects_requireNonNull_Object(v any) any {
@@ -101,8 +100,6 @@ func new_ParseException(msg string, errorOffset int32) *ParseException {
 func new_ImmutableSortedSet_Builder(cmp Comparator) *ImmutableSortedSet_Builder {
 	return ImmutableSortedSet_orderedBy(cmp)
 }
-
-func JsonParser_parseReader(r *JsonReader) *JsonElement { return JsonParser_parseReader_JsonReader(r) }
 
 func Ints_tryParse(s string) any {
 	if v, ok := tryParseDecimal_(s, -1<<31, 1<<31-1); ok {

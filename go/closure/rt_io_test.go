@@ -86,6 +86,10 @@ func ioShow_(v any) string {
 		return ioEsc_(x)
 	case bool:
 		return strconv.FormatBool(x)
+	case *Optional:
+		return ioShow_(x.orElse(nil))
+	case *SimpleJsonValue:
+		return ioEsc_(x.toString())
 	case *ArrayList:
 		s := "[" + strconv.Itoa(int(x.size())) + "]"
 		for it := x.iterator(); it.hasNext(); {
@@ -126,13 +130,10 @@ func ioTable_(t *testing.T, file string, ops map[string]func(a []string) any) {
 		if op == nil {
 			continue
 		}
-		// The arguments end where the result starts: a list's "[n]", or the last field.
+		// The result is the last field, or for these the list that follows their arguments.
 		n := len(fields) - 1
-		for i, f := range fields[1:] {
-			if strings.HasPrefix(f, "[") && strings.HasSuffix(f, "]") && fields[0] != "glob" || fields[0] == "glob" && i == 2 {
-				n = i + 1
-				break
-			}
+		if count, ok := map[string]int{"splitLines": 1, "glob": 2, "readZipEntries#": 2}[fields[0]]; ok && !strings.HasPrefix(fields[n], "!") {
+			n = count + 1
 		}
 		args := make([]string, n-1)
 		for i, f := range fields[1:n] {

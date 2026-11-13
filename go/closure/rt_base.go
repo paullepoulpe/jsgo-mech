@@ -86,21 +86,7 @@ func Strings_lenientFormat(template string, args []any) string {
 	return sb.String()
 }
 
-func Strings_emptyToNull(s string) string {
-	if s == "" {
-		return nullstr_
-	}
-	return s
-}
-
 func Strings_isNullOrEmpty(s string) bool { return s == nullstr_ || s == "" }
-
-func Strings_nullToEmpty(s string) string {
-	if s == nullstr_ {
-		return ""
-	}
-	return s
-}
 
 func Strings_padStart(s string, minLength int32, padChar uint16) string {
 	if s == nullstr_ {
@@ -563,6 +549,32 @@ func (this *Optional) get() any {
 		panic(new_NoSuchElementException_String("No value present").self())
 	}
 	return this.value
+}
+
+func Optional_ofNullable(v any) *Optional {
+	if v == nil {
+		return optionalUtilEmpty_
+	}
+	return &Optional{v}
+}
+
+func (this *Optional) orElse(other any) any {
+	if this.value == nil {
+		return other
+	}
+	return this.value
+}
+
+func (this *Optional) orElseThrow() any { return this.get() }
+
+func (this *Optional) filter(p Predicate) *Optional {
+	if p == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if this.value == nil || p.test(this.value) {
+		return this
+	}
+	return optionalUtilEmpty_
 }
 
 func (this *Optional) ifPresent(c Consumer) {

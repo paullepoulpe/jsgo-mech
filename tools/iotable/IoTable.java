@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Writes what the Java Io facade returns for a few thousand inputs, as tab-separated tables that
+ * Writes what the Java Io and Json facades return for a few thousand inputs, as tab-separated tables that
  * go/closure/rt_io_test.go checks the Go implementation against. See run.sh.
  *
  * <p>A line is: operation, arguments, result. Strings are escaped (see esc); byte arrays are hex;
@@ -60,6 +60,10 @@ public final class IoTable {
       return b.toString();
     } else if (v instanceof String s) {
       return esc(s);
+    } else if (v instanceof java.util.Optional<?> o) {
+      return o.isPresent() ? show(o.get()) : "null";
+    } else if (v instanceof com.google.javascript.jscomp.base.SimpleJsonValue j) {
+      return esc(j.toString());
     }
     return String.valueOf(v);
   }
@@ -177,6 +181,46 @@ public final class IoTable {
     "T/[a-c-e].js", "T/[--a].js", "T/[a\\-c].js", "T/{}", "T/{,a}.js", "T/a{,.js}", "T/[!",
     "T/[^", "T/[", "T/[]", "T/[a]]", "T/,a", "T/{a,b", "T/a.js\\",
   };
+
+  /** Documents around every rule of Json.parse: standard JSON, its limits, and what it refuses. */
+  static List<String> jsonDocuments() {
+    List<String> docs = new ArrayList<>(List.of(
+        "null", "true", "false", "0", "-0", "1.5e+10", "1E5", "-1.0e-2", "\"\"", "\"a\"", "[]", "{}",
+        " \t\r\n[1, 2 ,3]\n", "{\"a\":1,\"b\":[true,false,null],\"c\":{\"d\":\"e\"}}",
+        "{\"a\":1,\"b\":2,\"a\":3}", "{\"\":0}", "{\"a\":{\"x\":1,\"x\":[2]},\"a\":4,\"b\":5}",
+        "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t \\u00e9 \\u4E2d\"", "\"\u00e9\u4e2d\ud83d\ude00\"",
+        "\"\\ud83d\\ude00\"", "\"\\ud83d\"", "\"\\ude00\\ud83d\"", "\"a\\ud83dx\"", "\"\ud83d\"",
+        "\"\ude00\"", "\"" + (char) 0xd83d + "\\ude00\"", "{\"\\ud800\":1,\"\ufffd\":2}", "\"\\u0000\"", "\"\u007f\u0080\"",
+        "\ufeff1", "\ufeff\ufeff1", "\ufeff", "1\ufeff", " \ufeff1", "\ufeff [\"\ufeff\"]",
+        "", " ", "nul", "NULL", "True", "tru", "truee", "nulll", "[nul]", "NaN", "Infinity", "-Infinity",
+        "01", "-01", "1.", ".5", "+1", "1e", "1e+", "0x10", "-", "--1", "1.2.3", "1e5e5", "1 2", "1,",
+        "'a'", "\"a", "a", "\"\\x\"", "\"\\'\"", "\"\\u12\"", "\"\\u12G4\"", "\"\\\"", "\"a\nb\"", "\"a\tb\"",
+        "\"\u001f\"", "[", "]", "[1", "[1,", "[1,]", "[,1]", "[1 2]", "[1,,2]", "[1]]", "{", "}", "{\"a\"",
+        "{\"a\":", "{\"a\":1", "{\"a\":1,}", "{,}", "{a:1}", "{'a':1}", "{\"a\" 1}", "{\"a\":1 \"b\":2}",
+        "{1:2}", "{\"a\":1}}", "[1] x", "[1] //c", "/*c*/[1]", "#c\n1", "[1;2]", "{\"a\"=1}", "{\"a\"=>1}",
+        "[1] \n\t ", "[1]\u0000", "\u00a01", "[\u00a0]", "[1]\u000c", ")]}'\n[1]", "[1e400]", "[-1E-400]",
+        "123456789012345678901234567890", "[0.1234567890123456789012345678901234567890]", "tRue", "[E]",
+        "{\"a\":tru}", "\"\\u00E9\\u00e9\"", "[[[[[[[[[[1]]]]]]]]]]", "{\"a\":{\"a\":{\"a\":{}}}}"));
+    for (int n : new int[] {999, 1000, 1001}) {
+      docs.add("[".repeat(n) + "]".repeat(n));
+      docs.add("{\"a\":".repeat(n) + "1" + "}".repeat(n));
+      docs.add("[".repeat(n) + "1" + "]".repeat(n));
+    }
+    for (int n : new int[] {19, 20, 21, 22}) {
+      docs.add("1".repeat(n));
+      docs.add("-" + "1".repeat(n));
+      docs.add("[" + "9".repeat(n) + ".5e3]");
+      docs.add("0." + "1".repeat(n));
+      docs.add("1e" + "1".repeat(n));
+      docs.add("\"" + "1".repeat(n) + "\"");
+    }
+    for (int n : new int[] {1022, 1023, 1024, 1025}) {
+      docs.add("0." + "1".repeat(n - 2));
+      docs.add("-1." + "0".repeat(n - 3));
+      docs.add("[1e" + "0".repeat(n - 3) + "1]");
+    }
+    return docs;
+  }
 
   static byte[] zip(String charset, boolean stored, String... namesAndTexts) throws Exception {
     java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
@@ -324,6 +368,12 @@ public final class IoTable {
       }
     }
     Files.delete(tmp);
+    try (PrintStream p = new PrintStream(new File(dir, "json.tsv"), "UTF-8")) {
+      out = p;
+      for (String j : jsonDocuments()) {
+        row("jsonParse", () -> com.google.javascript.jscomp.base.Json.parse(j), j);
+      }
+    }
     try (PrintStream p = new PrintStream(new File(dir, "zip.tsv"), "UTF-8")) {
       out = p;
       zipRows();

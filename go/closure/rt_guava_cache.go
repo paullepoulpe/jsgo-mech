@@ -135,8 +135,6 @@ func (this *localCache_) size() int64 { return int64(this.map_.size()) }
 
 func (this *localCache_) cleanUp() {}
 
-func (this *localCache_) asMap() ConcurrentMap { return this.map_ }
-
 func CacheLoader_from(f Function_base) *CacheLoader {
 	if f == nil {
 		panic(new_NullPointerException_0().self())
