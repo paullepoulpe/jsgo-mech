@@ -1165,6 +1165,15 @@ func dirNames_(dir string) ([]string, bool) {
 	return names, true
 }
 
+func Files_newBufferedWriter(p Path, cs *Charset, opts []OpenOption) *BufferedWriter {
+	if cs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	enc := newEncoder_(cs)
+	enc.mode_ = encReport_ // this writer's encoder reports unmappable characters
+	return new_BufferedWriter(newOutputStreamWriter_(Files_newOutputStream(p, opts), enc).up_Writer())
+}
+
 func realpath_(p string) (string, error) {
 	// A small realpath: resolve links component by component.
 	if _, err := os.Lstat(p); err != nil {
@@ -1219,57 +1228,3 @@ func floorDiv_(a, b int64) int64 {
 	}
 	return q
 }
-
-func Files_newBufferedWriter(p Path, cs *Charset, opts []OpenOption) *BufferedWriter {
-	if cs == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	enc := newEncoder_(cs)
-	enc.mode_ = encReport_ // this writer's encoder reports unmappable characters
-	return new_BufferedWriter(newOutputStreamWriter_(Files_newOutputStream(p, opts), enc).up_Writer())
-}
-
-func (this *FileSystemException) getFile() string { return this.file_ }
-
-func (this *FileVisitResult) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *LinkOption) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *StandardOpenOption) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *fileAttributes_) isDirectory() bool { return this.st_.IsDir() }
-
-func (this *fileAttributes_) isRegularFile() bool { return this.st_.Mode().IsRegular() }
-
-func (this *fileAttributes_) isSymbolicLink() bool { return this.st_.Mode()&os.ModeSymlink != 0 }
-
-func (this *fileAttributes_) size() int64 { return this.st_.Size() }
-
-func (this *fileAttributes_) isOther() bool {
-	return !this.isDirectory() && !this.isRegularFile() && !this.isSymbolicLink()
-}
-
-func (this *fileAttributes_) lastModifiedTime() *FileTime {
-	return &FileTime{this.st_.ModTime().UnixNano()}
-}
-
-func (this *fileAttributes_) lastAccessTime() *FileTime { return this.lastModifiedTime() }
-
-func (this *fileAttributes_) creationTime() *FileTime { return this.lastModifiedTime() }
-
-func (this *fileAttributes_) fileKey() any { return nil }

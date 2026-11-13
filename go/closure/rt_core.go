@@ -250,16 +250,3 @@ var posinf_ = math.Inf(1)
 var neginf_ = math.Inf(-1)
 
 var negzero_ = math.Copysign(0, -1)
-
-func newarr2_[T any](n, m int32) [][]T {
-	a := make([][]T, n)
-	for i := range a {
-		a[i] = make([]T, m)
-		if s, ok := any(a[i]).([]string); ok {
-			for j := range s {
-				s[j] = nullstr_
-			}
-		}
-	}
-	return a
-}

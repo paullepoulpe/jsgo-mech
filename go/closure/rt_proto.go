@@ -2339,6 +2339,13 @@ func (this *CodedOutputStream) writeMessage(p0 int32, p1 MessageLite) {
 	this.writeMessageNoTag(p1)
 }
 
+func pbEnumValueOf_(javaName string, name string) {
+	if name == nullstr_ {
+		panic(new_NullPointerException_String("Name is null").self())
+	}
+	panic(new_IllegalArgumentException_String("No enum constant " + javaName + "." + name).self())
+}
+
 func pbParseStream_(d *pbDesc_, in *InputStream) any {
 	return pbParse_(d, pbReadAll_(in), true)
 }
@@ -2360,13 +2367,6 @@ func pbHasField_(d *pbData_, fd *Descriptors_FieldDescriptor) bool {
 	return d.v_[fd.f_.idx] != nil
 }
 
-func pbEnumValueOf_(javaName string, name string) {
-	if name == nullstr_ {
-		panic(new_NullPointerException_String("Name is null").self())
-	}
-	panic(new_IllegalArgumentException_String("No enum constant " + javaName + "." + name).self())
-}
-
 func ByteString_copyFromUtf8(p0 string) *ByteString {
 	if p0 == nullstr_ {
 		pbNPE_()
@@ -2375,97 +2375,4 @@ func ByteString_copyFromUtf8(p0 string) *ByteString {
 		return ByteString_EMPTY
 	}
 	return &ByteString{b_: []byte(p0)}
-}
-
-func (this *GeneratedMessage) up_AbstractMessage() *AbstractMessage {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMessage
-}
-
-func (this *GeneratedMessage_ExtendableMessage) up_GeneratedMessage() *GeneratedMessage {
-	if this == nil {
-		return nil
-	}
-	return &this.GeneratedMessage
-}
-
-func (this *AbstractMessage_Builder) up_AbstractMessageLite_Builder() *AbstractMessageLite_Builder {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMessageLite_Builder
-}
-
-func (this *GeneratedMessage_Builder) up_AbstractMessage_Builder() *AbstractMessage_Builder {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMessage_Builder
-}
-
-func (this *GeneratedMessage_ExtendableBuilder) up_GeneratedMessage_Builder() *GeneratedMessage_Builder {
-	if this == nil {
-		return nil
-	}
-	return &this.GeneratedMessage_Builder
-}
-
-func (this *AbstractMessage_Builder) getAllFields() Map { return pbAllFields_(&this.pbData_) }
-
-func (this *AbstractMessage_Builder) getDescriptorForType() *Descriptors_Descriptor {
-	return this.d_.descriptor_()
-}
-
-func (this *AbstractMessage_Builder) hasField(p0 *Descriptors_FieldDescriptor) bool {
-	return pbHasField_(&this.pbData_, p0)
-}
-
-func (this *AbstractMessage_Builder) getField(p0 *Descriptors_FieldDescriptor) any {
-	return pbGetField_(&this.pbData_, p0)
-}
-
-func (this *AbstractMessage_Builder) getRepeatedFieldCount(p0 *Descriptors_FieldDescriptor) int32 {
-	return this.cnt_(p0.f_.idx)
-}
-
-// mergeFrom is Message.Builder.mergeFrom(Message).
-func (this *AbstractMessage_Builder) mergeFrom(p0 Message) Message_Builder {
-	this.mergeData_(pbDataOf_(p0))
-	return this.me_.(Message_Builder)
-}
-
-func (this *AbstractMessage_Builder) clearField(p0 *Descriptors_FieldDescriptor) Message_Builder {
-	this.v_[p0.f_.idx] = nil
-	return this.me_.(Message_Builder)
-}
-
-func (this *Descriptors_Descriptor) up_Descriptors_GenericDescriptor() *Descriptors_GenericDescriptor {
-	if this == nil {
-		return nil
-	}
-	return &this.Descriptors_GenericDescriptor
-}
-
-func (this *Descriptors_Descriptor) getFields() List {
-	out := make([]any, len(this.d_.fields))
-	for i, f := range this.d_.fields {
-		out[i] = f.descriptor_()
-	}
-	return listOf_(out)
-}
-
-func (this *Descriptors_Descriptor) findFieldByName(p0 string) *Descriptors_FieldDescriptor {
-	if f := this.d_.byName[p0]; f != nil {
-		return f.descriptor_()
-	}
-	return nil
-}
-
-func (this *Descriptors_Descriptor) findFieldByNumber(p0 int32) *Descriptors_FieldDescriptor {
-	if f := this.d_.field_(p0); f != nil {
-		return f.descriptor_()
-	}
-	return nil
 }

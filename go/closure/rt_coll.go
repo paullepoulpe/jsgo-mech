@@ -1350,17 +1350,6 @@ func Arrays_toString(a []uint16) string {
 	return "[" + strings.Join(parts, ", ") + "]"
 }
 
-func retainAll_(s Collection, c Collection) bool {
-	changed := false
-	for it := s.iterator(); it.hasNext(); {
-		if !c.contains(it.next()) {
-			Iterator_remove(it)
-			changed = true
-		}
-	}
-	return changed
-}
-
 func Comparator_thenComparingLong(c Comparator, f ToLongFunction) Comparator {
 	return Comparator_thenComparing_Comparator(c, Comparator_comparingLong(f))
 }
@@ -1380,4 +1369,13 @@ func Map_compute(m Map, k any, f BiFunction) any {
 	return v
 }
 
-func Comparable_compareTo(a any, b any) int32 { return compareNatural_(a, b) }
+func retainAll_(s Collection, c Collection) bool {
+	changed := false
+	for it := s.iterator(); it.hasNext(); {
+		if !c.contains(it.next()) {
+			Iterator_remove(it)
+			changed = true
+		}
+	}
+	return changed
+}

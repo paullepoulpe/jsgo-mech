@@ -444,13 +444,6 @@ func CacheBuilder_from(spec string) *CacheBuilder {
 	return b
 }
 
-func (this *FileWriteMode) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
 func (this *functionCacheLoader_) load(key any) any {
 	if key == nil {
 		panic(new_NullPointerException_0().self())

@@ -1,9 +1,10 @@
 // prune deletes unreachable functions from the handwritten runtime (go/closure/rt_*.go).
 //
 // Input: the output of `deadcode ./cmd/mech` (golang.org/x/tools/cmd/deadcode) on stdin.
-// A plain function listed there is deleted. A method is deleted only when every method of
-// its receiver type is listed, because a method that is never called can still be what makes
-// a type satisfy an interface in a type assertion.
+// A plain function listed there is deleted. A method that is never called can still be what
+// makes a type satisfy an interface in a type assertion, so a listed method is deleted only when
+// no interface in the package declares a method of that name, or when every method of its
+// receiver type is listed.
 //
 //	cd go && deadcode ./cmd/mech | go run ../tools/prune closure
 package main
@@ -96,6 +97,29 @@ func main() {
 			}
 		}
 	}
+	// Method names declared by any interface type in the package (named or written inline in a
+	// type assertion): only such a method can decide whether a value satisfies an interface.
+	ifaceMethods := map[string]bool{}
+	all, _ := filepath.Glob(filepath.Join(dir, "*.go"))
+	for _, f := range all {
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+		af, err := parser.ParseFile(fset, f, nil, 0)
+		if err != nil {
+			panic(err)
+		}
+		ast.Inspect(af, func(n ast.Node) bool {
+			if it, ok := n.(*ast.InterfaceType); ok && it.Methods != nil {
+				for _, m := range it.Methods.List {
+					for _, id := range m.Names {
+						ifaceMethods[id.Name] = true
+					}
+				}
+			}
+			return true
+		})
+	}
 	del := map[string][]*decl{}
 	n := 0
 	for _, x := range decls {
@@ -107,7 +131,7 @@ func main() {
 			for _, m := range methods[r] {
 				all = all && m.dead
 			}
-			if !all {
+			if !all && ifaceMethods[x.fd.Name.Name] {
 				continue
 			}
 		}

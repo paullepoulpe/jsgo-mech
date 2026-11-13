@@ -901,17 +901,3 @@ func (this *ObjectInputStream) defaultReadObject() {
 }
 
 func new_PrintStream_File(f *File) *PrintStream { return new_PrintStream_String(f.path_) }
-
-func (this *BufferedInputStream) up_FilterInputStream() *FilterInputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.FilterInputStream
-}
-
-func (this *BufferedOutputStream) up_FilterOutputStream() *FilterOutputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.FilterOutputStream
-}

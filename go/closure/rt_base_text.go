@@ -657,5 +657,3 @@ func (this *Random) next_(bits uint) int32 {
 	this.seed = (this.seed*0x5DEECE66D + 0xB) & (1<<48 - 1)
 	return int32(this.seed >> (48 - bits))
 }
-
-func (this *Locale) toString() string { return this.tag }

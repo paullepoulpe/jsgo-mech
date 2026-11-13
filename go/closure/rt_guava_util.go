@@ -1063,11 +1063,3 @@ func Lists_transform(p0 List, p1 Function_base) List {
 		rmAt: func(i int32) any { return p1.apply(p0.remove(i)) },
 	}
 }
-
-func (this *MultimapBuilder_ListMultimapBuilder) up_MultimapBuilder() *MultimapBuilder {
-	return &this.MultimapBuilder
-}
-
-func (this *MultimapBuilder_SetMultimapBuilder) up_MultimapBuilder() *MultimapBuilder {
-	return &this.MultimapBuilder
-}

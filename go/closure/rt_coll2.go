@@ -726,5 +726,3 @@ func (this *AbstractIterator) peek() any {
 	}
 	return this.next_
 }
-
-func new_TreeMap_Comparator(c Comparator) *TreeMap { return &TreeMap{cmp: c} }
