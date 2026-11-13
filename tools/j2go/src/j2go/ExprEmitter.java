@@ -212,6 +212,12 @@ abstract class ExprEmitter extends Base {
       if (from == null) from = target;
     }
     if (from == null) return expr(t);
+    if (strip(t) instanceof MethodInvocationTree mi && cx.kind(target) != Ctx.K.PRIM && cx.kind(from) != Ctx.K.PRIM) {
+      // Convert the call's declared result straight to the wanted type, without a detour through the
+      // (possibly narrower) static type of the call expression.
+      CallResult r = invocation(mi);
+      if (r.type.getKind() != TypeKind.VOID) return cx.coerce(r.code, r.type, target);
+    }
     if (strip(t).getKind() == Tree.Kind.CONDITIONAL_EXPRESSION && cx.kind(from) != Ctx.K.PRIM) {
       // Push the target into the branches: avoids typed-nil and double conversions.
       ConditionalExpressionTree c = (ConditionalExpressionTree) strip(t);
