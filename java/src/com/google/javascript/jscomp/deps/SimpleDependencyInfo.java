@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp.deps;
 
-import com.google.auto.value.AutoValue;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Immutable;
@@ -25,12 +26,41 @@ import java.util.Map;
 
 /** A class to hold JS dependency information for a single .js file. */
 @Immutable
-@AutoValue
-@AutoValue.CopyAnnotations
-public abstract class SimpleDependencyInfo implements DependencyInfo {
+public record SimpleDependencyInfo(
+    String getName,
+    String getPathRelativeToClosureBase,
+    ImmutableList<String> getProvides,
+    ImmutableList<Require> getRequires,
+    ImmutableList<String> getTypeRequires,
+    ImmutableMap<String, String> getLoadFlags,
+    boolean getHasExternsAnnotation,
+    boolean getHasNoCompileAnnotation)
+    implements DependencyInfo {
+  public SimpleDependencyInfo {
+    requireNonNull(getName, "getName");
+    requireNonNull(getPathRelativeToClosureBase, "getPathRelativeToClosureBase");
+    requireNonNull(getProvides, "getProvides");
+    requireNonNull(getRequires, "getRequires");
+    requireNonNull(getTypeRequires, "getTypeRequires");
+    requireNonNull(getLoadFlags, "getLoadFlags");
+  }
+
+  @Override
+  public String toString() {
+    return "SimpleDependencyInfo{"
+        + "name=" + getName + ", "
+        + "pathRelativeToClosureBase=" + getPathRelativeToClosureBase + ", "
+        + "provides=" + getProvides + ", "
+        + "requires=" + getRequires + ", "
+        + "typeRequires=" + getTypeRequires + ", "
+        + "loadFlags=" + getLoadFlags + ", "
+        + "hasExternsAnnotation=" + getHasExternsAnnotation + ", "
+        + "hasNoCompileAnnotation=" + getHasNoCompileAnnotation
+        + "}";
+  }
 
   public static Builder builder(String srcPathRelativeToClosure, String pathOfDefiningFile) {
-    return new AutoValue_SimpleDependencyInfo.Builder()
+    return new Builder()
         .setName(pathOfDefiningFile)
         .setPathRelativeToClosureBase(srcPathRelativeToClosure)
         .setProvides(ImmutableList.of())
@@ -45,10 +75,22 @@ public abstract class SimpleDependencyInfo implements DependencyInfo {
    * Builder for constructing instances of SimpleDependencyInfo.
    * Use the {@link SimpleDependencyInfo#builder(String, String)} method to create an instance.
    */
-  @AutoValue.Builder
-  public abstract static class Builder {
+  public static final class Builder {
+    private String name;
+    private String pathRelativeToClosureBase;
+    private ImmutableList<String> provides;
+    private ImmutableList<DependencyInfo.Require> requires;
+    private ImmutableList<String> typeRequires;
+    private ImmutableMap<String, String> loadFlags;
+    private boolean hasExternsAnnotation;
+    private boolean hasNoCompileAnnotation;
+    private byte set0;
+
+    Builder() {
+    }
+
     public static Builder from(DependencyInfo copy) {
-      return new AutoValue_SimpleDependencyInfo.Builder()
+      return new Builder()
           .setName(copy.getName())
           .setPathRelativeToClosureBase(copy.getPathRelativeToClosureBase())
           .setProvides(copy.getProvides())
@@ -59,31 +101,63 @@ public abstract class SimpleDependencyInfo implements DependencyInfo {
           .setHasNoCompileAnnotation(copy.getHasNoCompileAnnotation());
     }
 
-    abstract Builder setName(String name);
-    abstract Builder setPathRelativeToClosureBase(String srcPathRelativeToClosure);
+    Builder setName(String name) {
+      if (name == null) {
+        throw new NullPointerException("Null name");
+      }
+      this.name = name;
+      return this;
+    }
+    Builder setPathRelativeToClosureBase(String srcPathRelativeToClosure) {
+      if (srcPathRelativeToClosure == null) {
+        throw new NullPointerException("Null pathRelativeToClosureBase");
+      }
+      this.pathRelativeToClosureBase = srcPathRelativeToClosure;
+      return this;
+    }
 
-    public abstract Builder setProvides(Collection<String> provides);
+    public Builder setProvides(Collection<String> provides) {
+      this.provides = ImmutableList.copyOf(provides);
+      return this;
+    }
     public final Builder setProvidesStringVarargs(String... provides) {
       return setProvides(ImmutableList.copyOf(provides));
     }
 
-    public abstract Builder setRequires(Collection<Require> requires);
+    public Builder setRequires(Collection<Require> requires) {
+      this.requires = ImmutableList.copyOf(requires);
+      return this;
+    }
 
     public final Builder setRequiresRequireVarargs(Require... requires) {
       return setRequires(ImmutableList.copyOf(requires));
     }
 
-    public abstract Builder setTypeRequires(Collection<String> typeRequires);
+    public Builder setTypeRequires(Collection<String> typeRequires) {
+      this.typeRequires = ImmutableList.copyOf(typeRequires);
+      return this;
+    }
 
     public final Builder setTypeRequiresStringVarargs(String... typeRequires) {
       return setTypeRequires(ImmutableList.copyOf(typeRequires));
     }
 
-    public abstract Builder setLoadFlags(Map<String, String> loadFlags);
+    public Builder setLoadFlags(Map<String, String> loadFlags) {
+      this.loadFlags = ImmutableMap.copyOf(loadFlags);
+      return this;
+    }
 
-    public abstract Builder setHasExternsAnnotation(boolean hasExternsAnnotation);
+    public Builder setHasExternsAnnotation(boolean hasExternsAnnotation) {
+      this.hasExternsAnnotation = hasExternsAnnotation;
+      set0 |= (byte) 1;
+      return this;
+    }
 
-    public abstract Builder setHasNoCompileAnnotation(boolean hasNoCompileAnnotation);
+    public Builder setHasNoCompileAnnotation(boolean hasNoCompileAnnotation) {
+      this.hasNoCompileAnnotation = hasNoCompileAnnotation;
+      set0 |= (byte) 2;
+      return this;
+    }
 
     private static final ImmutableMap<String, String> GOOG_MODULE_FLAGS =
         ImmutableMap.of("module", "goog");
@@ -92,7 +166,51 @@ public abstract class SimpleDependencyInfo implements DependencyInfo {
       return setLoadFlags(isModule ? GOOG_MODULE_FLAGS : ImmutableMap.of());
     }
 
-    public abstract SimpleDependencyInfo build();
+    public SimpleDependencyInfo build() {
+      if (set0 != 3
+          || this.name == null
+          || this.pathRelativeToClosureBase == null
+          || this.provides == null
+          || this.requires == null
+          || this.typeRequires == null
+          || this.loadFlags == null) {
+        StringBuilder missing = new StringBuilder();
+        if (this.name == null) {
+          missing.append(" name");
+        }
+        if (this.pathRelativeToClosureBase == null) {
+          missing.append(" pathRelativeToClosureBase");
+        }
+        if (this.provides == null) {
+          missing.append(" provides");
+        }
+        if (this.requires == null) {
+          missing.append(" requires");
+        }
+        if (this.typeRequires == null) {
+          missing.append(" typeRequires");
+        }
+        if (this.loadFlags == null) {
+          missing.append(" loadFlags");
+        }
+        if ((set0 & 1) == 0) {
+          missing.append(" hasExternsAnnotation");
+        }
+        if ((set0 & 2) == 0) {
+          missing.append(" hasNoCompileAnnotation");
+        }
+        throw new IllegalStateException("Missing required properties:" + missing);
+      }
+      return new SimpleDependencyInfo(
+          this.name,
+          this.pathRelativeToClosureBase,
+          this.provides,
+          this.requires,
+          this.typeRequires,
+          this.loadFlags,
+          this.hasExternsAnnotation,
+          this.hasNoCompileAnnotation);
+    }
   }
 
   public static final SimpleDependencyInfo EMPTY = builder("", "").build();

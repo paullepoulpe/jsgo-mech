@@ -44,8 +44,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JSCompObjects.identical;
 import static com.google.javascript.rhino.jstype.JSTypeNative.OBJECT_TYPE;
+import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -1625,16 +1625,22 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
    *
    * <p>This parameter has a type; optionality; and may be var_args (variadic).
    */
-  @AutoValue
-  public abstract static class Parameter {
-    public static Parameter create(JSType type, boolean isOptional, boolean isVariadic) {
-      return new AutoValue_FunctionType_Parameter(type, isOptional, isVariadic);
+  public record Parameter(JSType getJSType, boolean isOptional, boolean isVariadic) {
+    public Parameter {
+      requireNonNull(getJSType, "getJSType");
     }
 
-    public abstract JSType getJSType();
+    @Override
+    public String toString() {
+      return "Parameter{"
+          + "JSType=" + getJSType + ", "
+          + "optional=" + isOptional + ", "
+          + "variadic=" + isVariadic
+          + "}";
+    }
 
-    public abstract boolean isOptional();
-
-    public abstract boolean isVariadic();
+    public static Parameter create(JSType type, boolean isOptional, boolean isVariadic) {
+      return new Parameter(type, isOptional, isVariadic);
+    }
   }
 }

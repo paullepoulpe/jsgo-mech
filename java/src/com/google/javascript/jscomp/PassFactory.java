@@ -17,8 +17,8 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoValue;
 import com.google.errorprone.annotations.ForOverride;
 import java.util.function.Function;
 
@@ -27,58 +27,140 @@ import java.util.function.Function;
  *
  * <p>Contains all meta-data about compiler passes (like whether it can be run multiple times, a
  * human-readable name for logging, etc.).
+ *
+ * @param getName The name of the pass as it will appear in logs.
+ * @param getPreconditionCheck Runs before this pass runs to validate preconditions. Throws an
+ *     exception if any are violated (unlike {@link #getCondition()}.)
+ * @param isRunInFixedPointLoop Whether this factory must or must not appear in a {@link
+ *     PhaseOptimizer} loop.
+ * @param getInternalFactory A simple factory function for creating actual pass instances.
+ *     <p>Users should call {@link #create(AbstractCompiler)} rather than use this object directly.
  */
-@AutoValue
-public abstract class PassFactory {
+public record PassFactory(
+    String getName,
+    Function<CompilerOptions, Boolean> getCondition,
+    Function<CompilerOptions, PreconditionResult> getPreconditionCheck,
+    boolean isRunInFixedPointLoop,
+    Function<AbstractCompiler, ? extends CompilerPass> getInternalFactory) {
+  public PassFactory {
+    requireNonNull(getName, "getName");
+    requireNonNull(getCondition, "getCondition");
+    requireNonNull(getPreconditionCheck, "getPreconditionCheck");
+    requireNonNull(getInternalFactory, "getInternalFactory");
+  }
 
-  /** The name of the pass as it will appear in logs. */
-  public abstract String getName();
-
-  public abstract Function<CompilerOptions, Boolean> getCondition();
+  @Override
+  public String toString() {
+    return "PassFactory{"
+        + "name=" + getName + ", "
+        + "condition=" + getCondition + ", "
+        + "preconditionCheck=" + getPreconditionCheck + ", "
+        + "runInFixedPointLoop=" + isRunInFixedPointLoop + ", "
+        + "internalFactory=" + getInternalFactory
+        + "}";
+  }
 
   record PreconditionResult(boolean success, String message) {
     static final PreconditionResult SUCCESS = new PreconditionResult(true, null);
   }
 
-  /**
-   * Runs before this pass runs to validate preconditions. Throws an exception if any are violated
-   * (unlike {@link #getCondition()}.)
-   */
-  abstract Function<CompilerOptions, PreconditionResult> getPreconditionCheck();
-
-  /** Whether this factory must or must not appear in a {@link PhaseOptimizer} loop. */
-  public abstract boolean isRunInFixedPointLoop();
-
-  /**
-   * A simple factory function for creating actual pass instances.
-   *
-   * <p>Users should call {@link #create(AbstractCompiler)} rather than use this object directly.
-   */
-  abstract Function<AbstractCompiler, ? extends CompilerPass> getInternalFactory();
-
-  public abstract Builder toBuilder();
-
-  PassFactory() {
-    // Subclasses in this package only.
+  public Builder toBuilder() {
+    return new Builder(this);
   }
 
   /** A builder for a {@link PassFactory}. */
-  @AutoValue.Builder
-  public abstract static class Builder {
-    public abstract Builder setName(String x);
+  public static final class Builder {
+    private String name;
+    private Function<CompilerOptions, Boolean> condition;
+    private Function<CompilerOptions, PassFactory.PreconditionResult> preconditionCheck;
+    private boolean runInFixedPointLoop;
+    private Function<AbstractCompiler, ? extends CompilerPass> internalFactory;
+    private byte set0;
 
-    public abstract Builder setRunInFixedPointLoop(boolean b);
+    Builder() {
+    }
 
-    public abstract Builder setCondition(Function<CompilerOptions, Boolean> cond);
+    Builder(PassFactory source) {
+      this.name = source.getName();
+      this.condition = source.getCondition();
+      this.preconditionCheck = source.getPreconditionCheck();
+      this.runInFixedPointLoop = source.isRunInFixedPointLoop();
+      this.internalFactory = source.getInternalFactory();
+      set0 = (byte) 1;
+    }
 
-    public abstract Builder setPreconditionCheck(
-        Function<CompilerOptions, PreconditionResult> assertion);
+    public Builder setName(String x) {
+      if (x == null) {
+        throw new NullPointerException("Null name");
+      }
+      this.name = x;
+      return this;
+    }
 
-    public abstract Builder setInternalFactory(
-        Function<AbstractCompiler, ? extends CompilerPass> x);
+    public Builder setRunInFixedPointLoop(boolean b) {
+      this.runInFixedPointLoop = b;
+      set0 |= (byte) 1;
+      return this;
+    }
+
+    public Builder setCondition(Function<CompilerOptions, Boolean> cond) {
+      if (cond == null) {
+        throw new NullPointerException("Null condition");
+      }
+      this.condition = cond;
+      return this;
+    }
+
+    public Builder setPreconditionCheck(
+        Function<CompilerOptions, PreconditionResult> assertion) {
+      if (assertion == null) {
+        throw new NullPointerException("Null preconditionCheck");
+      }
+      this.preconditionCheck = assertion;
+      return this;
+    }
+
+    public Builder setInternalFactory(
+        Function<AbstractCompiler, ? extends CompilerPass> x) {
+      if (x == null) {
+        throw new NullPointerException("Null internalFactory");
+      }
+      this.internalFactory = x;
+      return this;
+    }
 
     @ForOverride
-    abstract PassFactory autoBuild();
+    PassFactory autoBuild() {
+      if (set0 != 1
+          || this.name == null
+          || this.condition == null
+          || this.preconditionCheck == null
+          || this.internalFactory == null) {
+        StringBuilder missing = new StringBuilder();
+        if (this.name == null) {
+          missing.append(" name");
+        }
+        if (this.condition == null) {
+          missing.append(" condition");
+        }
+        if (this.preconditionCheck == null) {
+          missing.append(" preconditionCheck");
+        }
+        if ((set0 & 1) == 0) {
+          missing.append(" runInFixedPointLoop");
+        }
+        if (this.internalFactory == null) {
+          missing.append(" internalFactory");
+        }
+        throw new IllegalStateException("Missing required properties:" + missing);
+      }
+      return new PassFactory(
+          this.name,
+          this.condition,
+          this.preconditionCheck,
+          this.runInFixedPointLoop,
+          this.internalFactory);
+    }
 
     public final PassFactory build() {
       PassFactory result = autoBuild();
@@ -88,7 +170,7 @@ public abstract class PassFactory {
   }
 
   public static Builder builder() {
-    return new AutoValue_PassFactory.Builder()
+    return new Builder()
         .setRunInFixedPointLoop(false)
         .setCondition((o) -> true)
         .setPreconditionCheck((o) -> PreconditionResult.SUCCESS);

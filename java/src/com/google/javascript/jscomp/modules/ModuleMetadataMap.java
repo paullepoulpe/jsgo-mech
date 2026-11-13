@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp.modules;
 
-import com.google.auto.value.AutoValue;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultiset;
@@ -87,10 +88,88 @@ public final class ModuleMetadataMap {
   /**
    * Struct containing basic information about a module/script including its type and goog
    * namespaces.
+   *
+   * @param rootNode AST node that represents the root of this module.
+   *     <p>May be null if this is a synthetic piece of metadata - e.g. in a test, or something used
+   *     as a fallback.
+   * @param usesClosure Whether this file uses Closure Library at all. Note that a file could use
+   *     Closure Library even without calling goog.provide/module/require - there are some
+   *     primitives in base.js that can be used without being required like goog.isArray.
+   *     <p>If this is true this indicates the base.js is needed and is not part of this script - it
+   *     is an EXTERNAL dependencym otherwise false. If this is also false if Closure Library is
+   *     part of this script - e.g. a bundle with base.js. So something could be a "goog.provide'd
+   *     file", but not use Closure if the bundle already contains Closure.
+   * @param isTestOnly Whether goog.setTestOnly was called.
+   * @param googNamespaces Closure namespaces that this file is associated with. Created by
+   *     goog.provide, goog.module, and goog.declareModuleId.
+   *     <p>This is a multiset as it does not warn on duplicate namespaces, but will still
+   *     encapsulate that information with this multiset.
+   * @param stronglyRequiredGoogNamespaces Closure namespaces this file strongly requires, i.e.,
+   *     arguments to goog.require calls.
+   *     <p>This is a multiset as it does not warn on duplicate namespaces, but will still
+   *     encapsulate that information with this multiset.
+   * @param dynamicallyRequiredGoogNamespaces Closure namespaces this file dynamically require,
+   *     i.e., arguments to goog.requireDynamic() calls.
+   *     <p>This is a multiset as it does not warn on duplicate namespaces, but will still
+   *     encapsulate that information with this multiset.
+   * @param maybeRequiredGoogNamespaces Closure namespaces this file "maybe" require, i.e.,
+   *     arguments to goog.maybeRequireFrameworkInternalOnlyDoNotCallOrElse() calls.
+   *     <p>This is a multiset as it does not warn on duplicate namespaces, but will still
+   *     encapsulate that information with this multiset.
+   * @param weaklyRequiredGoogNamespaces Closure namespaces this file weakly requires, i.e.,
+   *     arguments to goog.requireType calls.
+   *     <p>This is a multiset as it does not warn on duplicate namespaces, but will still
+   *     encapsulate that information with this multiset.
+   * @param es6ImportSpecifiers Raw text of all ES6 import specifiers (includes "export from" as
+   *     well).
+   * @param readToggles Arguments to goog.readToggleInternalDoNotCallDirectly() calls.
+   *     <p>This is a multiset as it does not warn on duplicate toggles, but will still encapsulate
+   *     that information with this multiset.
    */
-  @AutoValue
-  public abstract static class ModuleMetadata {
-    public abstract ModuleType moduleType();
+  public record ModuleMetadata(
+      ModuleType moduleType,
+      @Nullable Node rootNode,
+      boolean usesClosure,
+      boolean isTestOnly,
+      ImmutableMultiset<String> googNamespaces,
+      ImmutableMultiset<String> stronglyRequiredGoogNamespaces,
+      ImmutableMultiset<String> dynamicallyRequiredGoogNamespaces,
+      ImmutableMultiset<String> maybeRequiredGoogNamespaces,
+      ImmutableMultiset<String> weaklyRequiredGoogNamespaces,
+      ImmutableMultiset<String> es6ImportSpecifiers,
+      ImmutableList<ModuleMetadata> nestedModules,
+      ImmutableMultiset<String> readToggles,
+      @Nullable ModulePath path) {
+    public ModuleMetadata {
+      requireNonNull(moduleType, "moduleType");
+      requireNonNull(googNamespaces, "googNamespaces");
+      requireNonNull(stronglyRequiredGoogNamespaces, "stronglyRequiredGoogNamespaces");
+      requireNonNull(dynamicallyRequiredGoogNamespaces, "dynamicallyRequiredGoogNamespaces");
+      requireNonNull(maybeRequiredGoogNamespaces, "maybeRequiredGoogNamespaces");
+      requireNonNull(weaklyRequiredGoogNamespaces, "weaklyRequiredGoogNamespaces");
+      requireNonNull(es6ImportSpecifiers, "es6ImportSpecifiers");
+      requireNonNull(nestedModules, "nestedModules");
+      requireNonNull(readToggles, "readToggles");
+    }
+
+    @Override
+    public String toString() {
+      return "ModuleMetadata{"
+          + "moduleType=" + moduleType + ", "
+          + "rootNode=" + rootNode + ", "
+          + "usesClosure=" + usesClosure + ", "
+          + "isTestOnly=" + isTestOnly + ", "
+          + "googNamespaces=" + googNamespaces + ", "
+          + "stronglyRequiredGoogNamespaces=" + stronglyRequiredGoogNamespaces + ", "
+          + "dynamicallyRequiredGoogNamespaces=" + dynamicallyRequiredGoogNamespaces + ", "
+          + "maybeRequiredGoogNamespaces=" + maybeRequiredGoogNamespaces + ", "
+          + "weaklyRequiredGoogNamespaces=" + weaklyRequiredGoogNamespaces + ", "
+          + "es6ImportSpecifiers=" + es6ImportSpecifiers + ", "
+          + "nestedModules=" + nestedModules + ", "
+          + "readToggles=" + readToggles + ", "
+          + "path=" + path
+          + "}";
+    }
 
     public boolean isEs6Module() {
       return moduleType() == ModuleType.ES6_MODULE;
@@ -132,89 +211,8 @@ public final class ModuleMetadataMap {
       };
     }
 
-    /**
-     * AST node that represents the root of this module.
-     *
-     * <p>May be null if this is a synthetic piece of metadata - e.g. in a test, or something used
-     * as a fallback.
-     */
-    public abstract @Nullable Node rootNode();
-
-    /**
-     * Whether this file uses Closure Library at all. Note that a file could use Closure Library
-     * even without calling goog.provide/module/require - there are some primitives in base.js that
-     * can be used without being required like goog.isArray.
-     *
-     * <p>If this is true this indicates the base.js is needed and is not part of this script - it
-     * is an EXTERNAL dependencym otherwise false. If this is also false if Closure Library is part
-     * of this script - e.g. a bundle with base.js. So something could be a "goog.provide'd file",
-     * but not use Closure if the bundle already contains Closure.
-     */
-    public abstract boolean usesClosure();
-
-    /** Whether goog.setTestOnly was called. */
-    public abstract boolean isTestOnly();
-
-    /**
-     * Closure namespaces that this file is associated with. Created by goog.provide, goog.module,
-     * and goog.declareModuleId.
-     *
-     * <p>This is a multiset as it does not warn on duplicate namespaces, but will still encapsulate
-     * that information with this multiset.
-     */
-    public abstract ImmutableMultiset<String> googNamespaces();
-
-    /**
-     * Closure namespaces this file strongly requires, i.e., arguments to goog.require calls.
-     *
-     * <p>This is a multiset as it does not warn on duplicate namespaces, but will still encapsulate
-     * that information with this multiset.
-     */
-    public abstract ImmutableMultiset<String> stronglyRequiredGoogNamespaces();
-
-    /**
-     * Closure namespaces this file dynamically require, i.e., arguments to goog.requireDynamic()
-     * calls.
-     *
-     * <p>This is a multiset as it does not warn on duplicate namespaces, but will still encapsulate
-     * that information with this multiset.
-     */
-    public abstract ImmutableMultiset<String> dynamicallyRequiredGoogNamespaces();
-
-    /**
-     * Closure namespaces this file "maybe" require, i.e., arguments to
-     * goog.maybeRequireFrameworkInternalOnlyDoNotCallOrElse() calls.
-     *
-     * <p>This is a multiset as it does not warn on duplicate namespaces, but will still encapsulate
-     * that information with this multiset.
-     */
-    public abstract ImmutableMultiset<String> maybeRequiredGoogNamespaces();
-
-    /**
-     * Closure namespaces this file weakly requires, i.e., arguments to goog.requireType calls.
-     *
-     * <p>This is a multiset as it does not warn on duplicate namespaces, but will still encapsulate
-     * that information with this multiset.
-     */
-    public abstract ImmutableMultiset<String> weaklyRequiredGoogNamespaces();
-
-    /** Raw text of all ES6 import specifiers (includes "export from" as well). */
-    public abstract ImmutableMultiset<String> es6ImportSpecifiers();
-
-    public abstract ImmutableList<ModuleMetadata> nestedModules();
-
-    /**
-     * Arguments to goog.readToggleInternalDoNotCallDirectly() calls.
-     *
-     * <p>This is a multiset as it does not warn on duplicate toggles, but will still encapsulate
-     * that information with this multiset.
-     */
-    public abstract ImmutableMultiset<String> readToggles();
-
-    public abstract @Nullable ModulePath path();
-
     public static Builder builder() {
-      return new AutoValue_ModuleMetadataMap_ModuleMetadata.Builder();
+      return new Builder();
     }
 
     // Use reference equality to prevent bad LinkedHashSet<ModuleMetadata> performance on GWT.
@@ -223,20 +221,119 @@ public final class ModuleMetadataMap {
     // NOTE(user): consider removing this override now that GWT & J2CL builds are gone.
     @Override
     public final boolean equals(Object other) {
-      return super.equals(other);
+      return this == other;
     }
 
     @Override
     public final int hashCode() {
-      return super.hashCode();
+      return System.identityHashCode(this);
     }
 
     /** Builder for {@link ModuleMetadata}. */
-    @AutoValue.Builder
-    public abstract static class Builder {
-      public abstract ModuleMetadata build();
+    public static final class Builder {
+      private ModuleMetadataMap.@Nullable ModuleType moduleType;
+      private @Nullable Node rootNode;
+      private boolean usesClosure;
+      private boolean isTestOnly;
+      private ImmutableMultiset.@Nullable Builder<String> googNamespacesBuilder;
+      private @Nullable ImmutableMultiset<String> googNamespaces;
+      private ImmutableMultiset.@Nullable Builder<String> stronglyRequiredGoogNamespacesBuilder;
+      private @Nullable ImmutableMultiset<String> stronglyRequiredGoogNamespaces;
+      private ImmutableMultiset.@Nullable Builder<String> dynamicallyRequiredGoogNamespacesBuilder;
+      private @Nullable ImmutableMultiset<String> dynamicallyRequiredGoogNamespaces;
+      private ImmutableMultiset.@Nullable Builder<String> maybeRequiredGoogNamespacesBuilder;
+      private @Nullable ImmutableMultiset<String> maybeRequiredGoogNamespaces;
+      private ImmutableMultiset.@Nullable Builder<String> weaklyRequiredGoogNamespacesBuilder;
+      private @Nullable ImmutableMultiset<String> weaklyRequiredGoogNamespaces;
+      private ImmutableMultiset.@Nullable Builder<String> es6ImportSpecifiersBuilder;
+      private @Nullable ImmutableMultiset<String> es6ImportSpecifiers;
+      private ImmutableList.@Nullable Builder<ModuleMetadataMap.ModuleMetadata> nestedModulesBuilder;
+      private @Nullable ImmutableList<ModuleMetadataMap.ModuleMetadata> nestedModules;
+      private ImmutableMultiset.@Nullable Builder<String> readTogglesBuilder;
+      private @Nullable ImmutableMultiset<String> readToggles;
+      private @Nullable ModulePath path;
+      private byte set0;
 
-      public abstract ImmutableMultiset.Builder<String> googNamespacesBuilder();
+      Builder() {
+      }
+
+      public ModuleMetadata build() {
+        if (googNamespacesBuilder != null) {
+          this.googNamespaces = googNamespacesBuilder.build();
+        } else if (this.googNamespaces == null) {
+          this.googNamespaces = ImmutableMultiset.of();
+        }
+        if (stronglyRequiredGoogNamespacesBuilder != null) {
+          this.stronglyRequiredGoogNamespaces = stronglyRequiredGoogNamespacesBuilder.build();
+        } else if (this.stronglyRequiredGoogNamespaces == null) {
+          this.stronglyRequiredGoogNamespaces = ImmutableMultiset.of();
+        }
+        if (dynamicallyRequiredGoogNamespacesBuilder != null) {
+          this.dynamicallyRequiredGoogNamespaces = dynamicallyRequiredGoogNamespacesBuilder.build();
+        } else if (this.dynamicallyRequiredGoogNamespaces == null) {
+          this.dynamicallyRequiredGoogNamespaces = ImmutableMultiset.of();
+        }
+        if (maybeRequiredGoogNamespacesBuilder != null) {
+          this.maybeRequiredGoogNamespaces = maybeRequiredGoogNamespacesBuilder.build();
+        } else if (this.maybeRequiredGoogNamespaces == null) {
+          this.maybeRequiredGoogNamespaces = ImmutableMultiset.of();
+        }
+        if (weaklyRequiredGoogNamespacesBuilder != null) {
+          this.weaklyRequiredGoogNamespaces = weaklyRequiredGoogNamespacesBuilder.build();
+        } else if (this.weaklyRequiredGoogNamespaces == null) {
+          this.weaklyRequiredGoogNamespaces = ImmutableMultiset.of();
+        }
+        if (es6ImportSpecifiersBuilder != null) {
+          this.es6ImportSpecifiers = es6ImportSpecifiersBuilder.build();
+        } else if (this.es6ImportSpecifiers == null) {
+          this.es6ImportSpecifiers = ImmutableMultiset.of();
+        }
+        if (nestedModulesBuilder != null) {
+          this.nestedModules = nestedModulesBuilder.build();
+        } else if (this.nestedModules == null) {
+          this.nestedModules = ImmutableList.of();
+        }
+        if (readTogglesBuilder != null) {
+          this.readToggles = readTogglesBuilder.build();
+        } else if (this.readToggles == null) {
+          this.readToggles = ImmutableMultiset.of();
+        }
+        if (set0 != 3
+            || this.moduleType == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.moduleType == null) {
+            missing.append(" moduleType");
+          }
+          if ((set0 & 1) == 0) {
+            missing.append(" usesClosure");
+          }
+          if ((set0 & 2) == 0) {
+            missing.append(" isTestOnly");
+          }
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new ModuleMetadata(
+            this.moduleType,
+            this.rootNode,
+            this.usesClosure,
+            this.isTestOnly,
+            this.googNamespaces,
+            this.stronglyRequiredGoogNamespaces,
+            this.dynamicallyRequiredGoogNamespaces,
+            this.maybeRequiredGoogNamespaces,
+            this.weaklyRequiredGoogNamespaces,
+            this.es6ImportSpecifiers,
+            this.nestedModules,
+            this.readToggles,
+            this.path);
+      }
+
+      public ImmutableMultiset.Builder<String> googNamespacesBuilder() {
+        if (googNamespacesBuilder == null) {
+          googNamespacesBuilder = ImmutableMultiset.builder();
+        }
+        return googNamespacesBuilder;
+      }
 
       @CanIgnoreReturnValue
       public Builder addGoogNamespace(String namespace) {
@@ -244,31 +341,91 @@ public final class ModuleMetadataMap {
         return this;
       }
 
-      public abstract ImmutableMultiset.Builder<String> stronglyRequiredGoogNamespacesBuilder();
+      public ImmutableMultiset.Builder<String> stronglyRequiredGoogNamespacesBuilder() {
+        if (stronglyRequiredGoogNamespacesBuilder == null) {
+          stronglyRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        }
+        return stronglyRequiredGoogNamespacesBuilder;
+      }
 
-      public abstract ImmutableMultiset.Builder<String> dynamicallyRequiredGoogNamespacesBuilder();
+      public ImmutableMultiset.Builder<String> dynamicallyRequiredGoogNamespacesBuilder() {
+        if (dynamicallyRequiredGoogNamespacesBuilder == null) {
+          dynamicallyRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        }
+        return dynamicallyRequiredGoogNamespacesBuilder;
+      }
 
-      public abstract ImmutableMultiset.Builder<String> maybeRequiredGoogNamespacesBuilder();
+      public ImmutableMultiset.Builder<String> maybeRequiredGoogNamespacesBuilder() {
+        if (maybeRequiredGoogNamespacesBuilder == null) {
+          maybeRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        }
+        return maybeRequiredGoogNamespacesBuilder;
+      }
 
-      public abstract ImmutableMultiset.Builder<String> weaklyRequiredGoogNamespacesBuilder();
+      public ImmutableMultiset.Builder<String> weaklyRequiredGoogNamespacesBuilder() {
+        if (weaklyRequiredGoogNamespacesBuilder == null) {
+          weaklyRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        }
+        return weaklyRequiredGoogNamespacesBuilder;
+      }
 
-      public abstract ImmutableMultiset.Builder<String> es6ImportSpecifiersBuilder();
+      public ImmutableMultiset.Builder<String> es6ImportSpecifiersBuilder() {
+        if (es6ImportSpecifiersBuilder == null) {
+          es6ImportSpecifiersBuilder = ImmutableMultiset.builder();
+        }
+        return es6ImportSpecifiersBuilder;
+      }
 
-      public abstract ImmutableList.Builder<ModuleMetadata> nestedModulesBuilder();
+      public ImmutableList.Builder<ModuleMetadata> nestedModulesBuilder() {
+        if (nestedModulesBuilder == null) {
+          nestedModulesBuilder = ImmutableList.builder();
+        }
+        return nestedModulesBuilder;
+      }
 
-      public abstract ImmutableMultiset.Builder<String> readTogglesBuilder();
+      public ImmutableMultiset.Builder<String> readTogglesBuilder() {
+        if (readTogglesBuilder == null) {
+          readTogglesBuilder = ImmutableMultiset.builder();
+        }
+        return readTogglesBuilder;
+      }
 
-      public abstract Builder path(@Nullable ModulePath value);
+      public Builder path(@Nullable ModulePath value) {
+        this.path = value;
+        return this;
+      }
 
-      public abstract Builder usesClosure(boolean value);
+      public Builder usesClosure(boolean value) {
+        this.usesClosure = value;
+        set0 |= (byte) 1;
+        return this;
+      }
 
-      public abstract Builder isTestOnly(boolean value);
+      public Builder isTestOnly(boolean value) {
+        this.isTestOnly = value;
+        set0 |= (byte) 2;
+        return this;
+      }
 
-      public abstract ModuleType moduleType();
+      public ModuleType moduleType() {
+        if (this.moduleType == null) {
+          throw new IllegalStateException("Property \"moduleType\" has not been set");
+        }
+        return moduleType;
+      }
 
-      public abstract Builder moduleType(ModuleType value);
+      public Builder moduleType(ModuleType value) {
+        if (value == null) {
+          throw new NullPointerException("Null moduleType");
+        }
+        this.moduleType = value;
+        return this;
+      }
 
-      public abstract Builder rootNode(@Nullable Node root);
+      public Builder rootNode(@Nullable Node root) {
+        this.rootNode = root;
+        return this;
+      }
     }
   }
 

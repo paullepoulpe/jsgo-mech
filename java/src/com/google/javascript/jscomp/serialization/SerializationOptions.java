@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.serialization;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoBuilder;
 import com.google.common.collect.ImmutableList;
 
 /** Configuration options for serialization time. */
@@ -29,22 +28,62 @@ public record SerializationOptions(
   }
 
   public static Builder builder() {
-    return new AutoBuilder_SerializationOptions_Builder()
+    return new Builder()
         .setRunValidation(false)
         .setIncludeDebugInfo(false)
         .setRuntimeLibraries(ImmutableList.of());
   }
 
   /** Builder for {@link SerializationOptions}. */
-  @AutoBuilder
-  public abstract static class Builder {
-    public abstract Builder setIncludeDebugInfo(boolean includeDebugInfo);
+  public static final class Builder {
+    private boolean includeDebugInfo;
+    private boolean runValidation;
+    private ImmutableList<String> runtimeLibraries;
+    private byte set0;
 
-    public abstract Builder setRunValidation(boolean runValidation);
+    Builder() {
+    }
 
-    public abstract Builder setRuntimeLibraries(ImmutableList<String> runtimeLibraries);
+    public Builder setIncludeDebugInfo(boolean includeDebugInfo) {
+      this.includeDebugInfo = includeDebugInfo;
+      set0 |= (byte) 1;
+      return this;
+    }
 
-    public abstract SerializationOptions build();
+    public Builder setRunValidation(boolean runValidation) {
+      this.runValidation = runValidation;
+      set0 |= (byte) 2;
+      return this;
+    }
+
+    public Builder setRuntimeLibraries(ImmutableList<String> runtimeLibraries) {
+      if (runtimeLibraries == null) {
+        throw new NullPointerException("Null runtimeLibraries");
+      }
+      this.runtimeLibraries = runtimeLibraries;
+      return this;
+    }
+
+    public SerializationOptions build() {
+      if (set0 != 3
+          || this.runtimeLibraries == null) {
+        StringBuilder missing = new StringBuilder();
+        if ((set0 & 1) == 0) {
+          missing.append(" includeDebugInfo");
+        }
+        if ((set0 & 2) == 0) {
+          missing.append(" runValidation");
+        }
+        if (this.runtimeLibraries == null) {
+          missing.append(" runtimeLibraries");
+        }
+        throw new IllegalStateException("Missing required properties:" + missing);
+      }
+      return new SerializationOptions(
+          this.includeDebugInfo,
+          this.runValidation,
+          this.runtimeLibraries);
+    }
   }
 
 }

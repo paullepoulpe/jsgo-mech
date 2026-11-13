@@ -16,32 +16,48 @@
 
 package com.google.javascript.refactoring;
 
-import com.google.auto.value.AutoValue;
-import com.google.auto.value.AutoValue.CopyAnnotations;
+import static java.util.Objects.requireNonNull;
+
 import com.google.errorprone.annotations.Immutable;
 import java.util.Comparator;
 
-/** Class that represents a set of changes to make to the code. */
-@AutoValue
-@CopyAnnotations
+/**
+ * Class that represents a set of changes to make to the code.
+ *
+ * @param getStartPosition Returns the start position within the file that the modification should
+ *     be applied starting at.
+ * @param getLength Returns how many characters the new content should replace in the original
+ *     content.
+ * @param getNewContent Returns the new content that should be inserted into the file.
+ * @param getSortKey Returns an additional String key that can be used to sort replacements using
+ *     lexical ordering.
+ */
 @Immutable
-public abstract class CodeReplacement implements Comparable<CodeReplacement> {
+public record CodeReplacement(
+    int getStartPosition, int getLength, String getNewContent, String getSortKey)
+    implements Comparable<CodeReplacement> {
+  public CodeReplacement {
+    requireNonNull(getNewContent, "getNewContent");
+    requireNonNull(getSortKey, "getSortKey");
+  }
+
+  @Override
+  public String toString() {
+    return "CodeReplacement{"
+        + "startPosition=" + getStartPosition + ", "
+        + "length=" + getLength + ", "
+        + "newContent=" + getNewContent + ", "
+        + "sortKey=" + getSortKey
+        + "}";
+  }
 
   static CodeReplacement create(int startPosition, int length, String newContent) {
     return create(startPosition, length, newContent, "");
   }
 
   static CodeReplacement create(int startPosition, int length, String newContent, String sortKey) {
-    return new AutoValue_CodeReplacement(startPosition, length, newContent, sortKey);
+    return new CodeReplacement(startPosition, length, newContent, sortKey);
   }
-
-  /**
-   * Returns the start position within the file that the modification should be applied starting at.
-   */
-  public abstract int getStartPosition();
-
-  /** Returns how many characters the new content should replace in the original content. */
-  public abstract int getLength();
 
   /**
    * Returns the end position within the file that the modification
@@ -50,14 +66,6 @@ public abstract class CodeReplacement implements Comparable<CodeReplacement> {
   public int getEndPosition() {
     return getStartPosition() + getLength();
   }
-
-  /** Returns the new content that should be inserted into the file. */
-  public abstract String getNewContent();
-
-  /**
-   * Returns an additional String key that can be used to sort replacements using lexical ordering.
-   */
-  abstract String getSortKey();
 
   @Override
   public final int compareTo(CodeReplacement x) {

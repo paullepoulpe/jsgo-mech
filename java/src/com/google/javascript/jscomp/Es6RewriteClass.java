@@ -22,7 +22,6 @@ import static com.google.javascript.jscomp.AstFactory.typeColor;
 import static com.google.javascript.jscomp.TranspilationUtil.cannotConvert;
 import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoBuilder;
 import com.google.common.base.Preconditions;
 import com.google.javascript.jscomp.CompilerOptions.Es6SubclassTranspilation;
 import com.google.javascript.jscomp.colors.Color;
@@ -599,20 +598,69 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
     }
 
     static Builder builder() {
-      return new AutoBuilder_Es6RewriteClass_ClassProperty_Builder();
+      return new Builder();
     }
 
-    @AutoBuilder
-    abstract static class Builder {
-      abstract Builder propertyKey(String value);
+    static final class Builder {
+      private @Nullable String propertyKey;
+      private Es6RewriteClass.ClassProperty.@Nullable PropertyKind kind;
+      private @Nullable JSDocInfo jsDocInfo;
+      private Color propertyType;
 
-      abstract Builder kind(PropertyKind value);
+      Builder() {
+      }
 
-      abstract Builder jsDocInfo(JSDocInfo value);
+      Builder propertyKey(String value) {
+        if (value == null) {
+          throw new NullPointerException("Null propertyKey");
+        }
+        this.propertyKey = value;
+        return this;
+      }
 
-      abstract Builder propertyType(@Nullable Color type);
+      Builder kind(PropertyKind value) {
+        if (value == null) {
+          throw new NullPointerException("Null kind");
+        }
+        this.kind = value;
+        return this;
+      }
 
-      abstract ClassProperty build();
+      Builder jsDocInfo(JSDocInfo value) {
+        if (value == null) {
+          throw new NullPointerException("Null jsDocInfo");
+        }
+        this.jsDocInfo = value;
+        return this;
+      }
+
+      Builder propertyType(@Nullable Color type) {
+        this.propertyType = type;
+        return this;
+      }
+
+      ClassProperty build() {
+        if (this.propertyKey == null
+            || this.kind == null
+            || this.jsDocInfo == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.propertyKey == null) {
+            missing.append(" propertyKey");
+          }
+          if (this.kind == null) {
+            missing.append(" kind");
+          }
+          if (this.jsDocInfo == null) {
+            missing.append(" jsDocInfo");
+          }
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new Es6RewriteClass.ClassProperty(
+            this.propertyKey,
+            this.kind,
+            this.jsDocInfo,
+            this.propertyType);
+      }
     }
   }
 
@@ -716,33 +764,153 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
       return superClassNameNode;
     }
 
-    @AutoBuilder
-    abstract static class Builder {
-      abstract Builder setInsertionPoint(InsertionPoint insertionPoint);
+    static final class Builder {
+      private Es6RewriteClass.InsertionPoint insertionPoint;
+      private Node definePropertiesObjForPrototype;
+      private Node definePropertiesObjForClass;
+      private Map<String, Es6RewriteClass.ClassProperty> classMembersToDeclare;
+      private Node fullClassNameNode;
+      private Node classPrototypeNode;
+      private boolean anonymous;
+      private Node classNameNode;
+      private Node superClassNameNode;
+      private byte set0;
 
-      abstract Builder setFullClassNameNode(Node fullClassNameNode);
+      Builder() {
+      }
 
-      abstract Node fullClassNameNode();
+      Builder setInsertionPoint(InsertionPoint insertionPoint) {
+        if (insertionPoint == null) {
+          throw new NullPointerException("Null insertionPoint");
+        }
+        this.insertionPoint = insertionPoint;
+        return this;
+      }
 
-      abstract Builder setClassMembersToDeclare(Map<String, ClassProperty> classMembersToDeclare);
+      Builder setFullClassNameNode(Node fullClassNameNode) {
+        if (fullClassNameNode == null) {
+          throw new NullPointerException("Null fullClassNameNode");
+        }
+        this.fullClassNameNode = fullClassNameNode;
+        return this;
+      }
 
-      abstract Builder setAnonymous(boolean anonymous);
+      Node fullClassNameNode() {
+        if (this.fullClassNameNode == null) {
+          throw new IllegalStateException("Property \"fullClassNameNode\" has not been set");
+        }
+        return fullClassNameNode;
+      }
 
-      abstract Builder setClassNameNode(Node classNameNode);
+      Builder setClassMembersToDeclare(Map<String, ClassProperty> classMembersToDeclare) {
+        if (classMembersToDeclare == null) {
+          throw new NullPointerException("Null classMembersToDeclare");
+        }
+        this.classMembersToDeclare = classMembersToDeclare;
+        return this;
+      }
 
-      abstract Builder setSuperClassNameNode(Node superClassNameNode);
+      Builder setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+        set0 |= (byte) 1;
+        return this;
+      }
 
-      abstract Builder setClassPrototypeNode(Node node);
+      Builder setClassNameNode(Node classNameNode) {
+        if (classNameNode == null) {
+          throw new NullPointerException("Null classNameNode");
+        }
+        this.classNameNode = classNameNode;
+        return this;
+      }
 
-      abstract Builder setDefinePropertiesObjForClass(Node node);
+      Builder setSuperClassNameNode(Node superClassNameNode) {
+        if (superClassNameNode == null) {
+          throw new NullPointerException("Null superClassNameNode");
+        }
+        this.superClassNameNode = superClassNameNode;
+        return this;
+      }
 
-      abstract Builder setDefinePropertiesObjForPrototype(Node node);
+      Builder setClassPrototypeNode(Node node) {
+        if (node == null) {
+          throw new NullPointerException("Null classPrototypeNode");
+        }
+        this.classPrototypeNode = node;
+        return this;
+      }
 
-      abstract ClassDeclarationMetadata build();
+      Builder setDefinePropertiesObjForClass(Node node) {
+        if (node == null) {
+          throw new NullPointerException("Null definePropertiesObjForClass");
+        }
+        this.definePropertiesObjForClass = node;
+        return this;
+      }
+
+      Builder setDefinePropertiesObjForPrototype(Node node) {
+        if (node == null) {
+          throw new NullPointerException("Null definePropertiesObjForPrototype");
+        }
+        this.definePropertiesObjForPrototype = node;
+        return this;
+      }
+
+      ClassDeclarationMetadata build() {
+        if (set0 != 1
+            || this.insertionPoint == null
+            || this.definePropertiesObjForPrototype == null
+            || this.definePropertiesObjForClass == null
+            || this.classMembersToDeclare == null
+            || this.fullClassNameNode == null
+            || this.classPrototypeNode == null
+            || this.classNameNode == null
+            || this.superClassNameNode == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.insertionPoint == null) {
+            missing.append(" insertionPoint");
+          }
+          if (this.definePropertiesObjForPrototype == null) {
+            missing.append(" definePropertiesObjForPrototype");
+          }
+          if (this.definePropertiesObjForClass == null) {
+            missing.append(" definePropertiesObjForClass");
+          }
+          if (this.classMembersToDeclare == null) {
+            missing.append(" classMembersToDeclare");
+          }
+          if (this.fullClassNameNode == null) {
+            missing.append(" fullClassNameNode");
+          }
+          if (this.classPrototypeNode == null) {
+            missing.append(" classPrototypeNode");
+          }
+          if ((set0 & 1) == 0) {
+            missing.append(" anonymous");
+          }
+          if (this.classNameNode == null) {
+            missing.append(" classNameNode");
+          }
+          if (this.superClassNameNode == null) {
+            missing.append(" superClassNameNode");
+          }
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new Es6RewriteClass.ClassDeclarationMetadata(
+            this.insertionPoint,
+            this.definePropertiesObjForPrototype,
+            this.definePropertiesObjForClass,
+            this.classMembersToDeclare,
+            this.fullClassNameNode,
+            this.classPrototypeNode,
+            this.anonymous,
+            this.classNameNode,
+            this.superClassNameNode);
+      }
     }
 
     public static Builder builder() {
-      return new AutoBuilder_Es6RewriteClass_ClassDeclarationMetadata_Builder()
+      return new Builder()
           .setClassMembersToDeclare(new LinkedHashMap<>());
     }
 

@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.auto.value.AutoBuilder;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind;
 import com.google.javascript.jscomp.colors.Color;
@@ -97,21 +96,67 @@ public class AstAnalyzer {
       boolean assumeGettersArePure,
       boolean hasRegexpGlobalReferences,
       boolean assumeKnownBuiltinsArePure) {
-    @AutoBuilder
-    static interface Builder {
-      Builder setUseTypesForLocalOptimization(boolean value);
+    static final class Builder {
+      private boolean useTypesForLocalOptimization;
+      private boolean assumeGettersArePure;
+      private boolean hasRegexpGlobalReferences;
+      private boolean assumeKnownBuiltinsArePure;
+      private byte set0;
 
-      Builder setAssumeGettersArePure(boolean value);
+      Builder() {
+      }
 
-      Builder setHasRegexpGlobalReferences(boolean value);
+      public Builder setUseTypesForLocalOptimization(boolean value) {
+        this.useTypesForLocalOptimization = value;
+        set0 |= (byte) 1;
+        return this;
+      }
 
-      Builder setAssumeKnownBuiltinsArePure(boolean value);
+      public Builder setAssumeGettersArePure(boolean value) {
+        this.assumeGettersArePure = value;
+        set0 |= (byte) 2;
+        return this;
+      }
 
-      Options build();
+      public Builder setHasRegexpGlobalReferences(boolean value) {
+        this.hasRegexpGlobalReferences = value;
+        set0 |= (byte) 4;
+        return this;
+      }
+
+      public Builder setAssumeKnownBuiltinsArePure(boolean value) {
+        this.assumeKnownBuiltinsArePure = value;
+        set0 |= (byte) 8;
+        return this;
+      }
+
+      public Options build() {
+        if (set0 != 0xf) {
+          StringBuilder missing = new StringBuilder();
+          if ((set0 & 1) == 0) {
+            missing.append(" useTypesForLocalOptimization");
+          }
+          if ((set0 & 2) == 0) {
+            missing.append(" assumeGettersArePure");
+          }
+          if ((set0 & 4) == 0) {
+            missing.append(" hasRegexpGlobalReferences");
+          }
+          if ((set0 & 8) == 0) {
+            missing.append(" assumeKnownBuiltinsArePure");
+          }
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new AstAnalyzer.Options(
+            this.useTypesForLocalOptimization,
+            this.assumeGettersArePure,
+            this.hasRegexpGlobalReferences,
+            this.assumeKnownBuiltinsArePure);
+      }
     }
 
     static Builder builder() {
-      return new AutoBuilder_AstAnalyzer_Options_Builder();
+      return new Builder();
     }
   }
 

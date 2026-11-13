@@ -22,8 +22,8 @@ import static com.google.javascript.jscomp.CheckLevel.ERROR;
 import static com.google.javascript.jscomp.CheckLevel.OFF;
 import static com.google.javascript.jscomp.CheckLevel.WARNING;
 import static com.google.javascript.jscomp.parsing.Config.JsDocParsing.INCLUDE_ALL_COMMENTS;
+import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.Compiler;
@@ -71,25 +71,58 @@ public class ErrorToFixMapperTest {
     options.setCodingConvention(new GoogleCodingConvention());
   }
 
-  @AutoValue
-  abstract static class ExpectedFix {
-    /** Optional string describing the fix. */
-    abstract @Nullable String description();
-
-    /** What the code should look like after applying the fix. */
-    abstract String fixedCode();
-
-    static Builder builder() {
-      return new AutoValue_ErrorToFixMapperTest_ExpectedFix.Builder();
+  /**
+   * @param description Optional string describing the fix.
+   * @param fixedCode What the code should look like after applying the fix.
+   */
+  record ExpectedFix(
+      @Nullable String description,
+      String fixedCode) {
+    public ExpectedFix {
+      requireNonNull(fixedCode, "fixedCode");
     }
 
-    @AutoValue.Builder
-    abstract static class Builder {
-      abstract Builder description(@Nullable String description);
+    @Override
+    public String toString() {
+      return "ExpectedFix{"
+          + "description=" + description + ", "
+          + "fixedCode=" + fixedCode
+          + "}";
+    }
 
-      abstract Builder fixedCode(String fixedCode);
+    static Builder builder() {
+      return new Builder();
+    }
 
-      abstract ExpectedFix build();
+    static final class Builder {
+      private @Nullable String description;
+      private @Nullable String fixedCode;
+
+      Builder() {
+      }
+
+      Builder description(@Nullable String description) {
+        this.description = description;
+        return this;
+      }
+
+      Builder fixedCode(String fixedCode) {
+        if (fixedCode == null) {
+          throw new NullPointerException("Null fixedCode");
+        }
+        this.fixedCode = fixedCode;
+        return this;
+      }
+
+      ExpectedFix build() {
+        if (this.fixedCode == null) {
+          String missing = " fixedCode";
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new ExpectedFix(
+            this.description,
+            this.fixedCode);
+      }
     }
   }
 

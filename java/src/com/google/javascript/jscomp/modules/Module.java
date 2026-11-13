@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.modules;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
@@ -88,29 +87,104 @@ public record Module(
 
   /** Creates a new builder. */
   public static Builder builder() {
-    return new AutoBuilder_Module_Builder();
+    return new Builder();
   }
 
   /** Returns this module in builder form. */
   public Builder toBuilder() {
-    return new AutoBuilder_Module_Builder(this);
+    return new Builder(this);
   }
 
   /** Builder for {@link Module}. */
-  @AutoBuilder
-  public abstract static class Builder {
-    public abstract Builder metadata(ModuleMetadata value);
+  public static final class Builder {
+    private ModuleMetadataMap.@Nullable ModuleMetadata metadata;
+    private ModulePath path;
+    private @Nullable ImmutableMap<String, Binding> namespace;
+    private @Nullable ImmutableMap<String, Binding> boundNames;
+    private @Nullable ImmutableMap<String, Export> localNameToLocalExport;
+    private String closureNamespace;
 
-    public abstract Builder path(@Nullable ModulePath value);
+    Builder() {
+    }
 
-    public abstract Builder namespace(ImmutableMap<String, Binding> value);
+    Builder(Module source) {
+      this.metadata = source.metadata();
+      this.path = source.path();
+      this.namespace = source.namespace();
+      this.boundNames = source.boundNames();
+      this.localNameToLocalExport = source.localNameToLocalExport();
+      this.closureNamespace = source.closureNamespace();
+    }
 
-    public abstract Builder boundNames(ImmutableMap<String, Binding> value);
+    public Builder metadata(ModuleMetadata value) {
+      if (value == null) {
+        throw new NullPointerException("Null metadata");
+      }
+      this.metadata = value;
+      return this;
+    }
 
-    public abstract Builder localNameToLocalExport(ImmutableMap<String, Export> value);
+    public Builder path(@Nullable ModulePath value) {
+      this.path = value;
+      return this;
+    }
 
-    public abstract Builder closureNamespace(@Nullable String value);
+    public Builder namespace(ImmutableMap<String, Binding> value) {
+      if (value == null) {
+        throw new NullPointerException("Null namespace");
+      }
+      this.namespace = value;
+      return this;
+    }
 
-    public abstract Module build();
+    public Builder boundNames(ImmutableMap<String, Binding> value) {
+      if (value == null) {
+        throw new NullPointerException("Null boundNames");
+      }
+      this.boundNames = value;
+      return this;
+    }
+
+    public Builder localNameToLocalExport(ImmutableMap<String, Export> value) {
+      if (value == null) {
+        throw new NullPointerException("Null localNameToLocalExport");
+      }
+      this.localNameToLocalExport = value;
+      return this;
+    }
+
+    public Builder closureNamespace(@Nullable String value) {
+      this.closureNamespace = value;
+      return this;
+    }
+
+    public Module build() {
+      if (this.metadata == null
+          || this.namespace == null
+          || this.boundNames == null
+          || this.localNameToLocalExport == null) {
+        StringBuilder missing = new StringBuilder();
+        if (this.metadata == null) {
+          missing.append(" metadata");
+        }
+        if (this.namespace == null) {
+          missing.append(" namespace");
+        }
+        if (this.boundNames == null) {
+          missing.append(" boundNames");
+        }
+        if (this.localNameToLocalExport == null) {
+          missing.append(" localNameToLocalExport");
+        }
+        throw new IllegalStateException("Missing required properties:" + missing);
+      }
+      return new Module(
+          this.metadata,
+          this.path,
+          this.namespace,
+          this.boundNames,
+          this.localNameToLocalExport,
+          this.closureNamespace);
+    }
   }
 }

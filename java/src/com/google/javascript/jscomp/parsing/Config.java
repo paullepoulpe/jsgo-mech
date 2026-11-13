@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp.parsing;
 
-import com.google.auto.value.AutoValue;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.Immutable;
@@ -25,9 +26,50 @@ import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 /**
  * Configuration for the AST factory. Should be shared across AST creation for all files of a
  * compilation process.
+ *
+ * @param languageMode Language level to accept.
+ * @param strictMode Whether to assume input is strict mode compliant.
+ * @param jsDocParsingMode How to parse the descriptions of JsDoc comments.
+ * @param runMode Whether to keep going after encountering a parse error.
+ * @param annotations Recognized JSDoc annotations, mapped from their name to their internal
+ *     representation.
+ * @param suppressionNames Set of recognized names in a {@code @suppress} tag.
+ * @param closurePrimitiveNames Set of recognized names in a {@code @closurePrimitive} tag.
+ * @param parseInlineSourceMaps Whether to parse inline source maps (//# sourceMappingURL=data:...).
  */
-@Immutable @AutoValue @AutoValue.CopyAnnotations
-public abstract class Config {
+@Immutable
+public record Config(
+    LanguageMode languageMode,
+    StrictMode strictMode,
+    JsDocParsing jsDocParsingMode,
+    RunMode runMode,
+    ImmutableMap<String, Annotation> annotations,
+    ImmutableSet<String> suppressionNames,
+    ImmutableSet<String> closurePrimitiveNames,
+    boolean parseInlineSourceMaps) {
+  public Config {
+    requireNonNull(languageMode, "languageMode");
+    requireNonNull(strictMode, "strictMode");
+    requireNonNull(jsDocParsingMode, "jsDocParsingMode");
+    requireNonNull(runMode, "runMode");
+    requireNonNull(annotations, "annotations");
+    requireNonNull(suppressionNames, "suppressionNames");
+    requireNonNull(closurePrimitiveNames, "closurePrimitiveNames");
+  }
+
+  @Override
+  public String toString() {
+    return "Config{"
+        + "languageMode=" + languageMode + ", "
+        + "strictMode=" + strictMode + ", "
+        + "jsDocParsingMode=" + jsDocParsingMode + ", "
+        + "runMode=" + runMode + ", "
+        + "annotations=" + annotations + ", "
+        + "suppressionNames=" + suppressionNames + ", "
+        + "closurePrimitiveNames=" + closurePrimitiveNames + ", "
+        + "parseInlineSourceMaps=" + parseInlineSourceMaps
+        + "}";
+  }
 
   /**
    * Level of language strictness required for the input source code.
@@ -124,38 +166,16 @@ public abstract class Config {
     KEEP_GOING,
   }
 
-  /** Language level to accept. */
-  public abstract LanguageMode languageMode();
-
-  /** Whether to assume input is strict mode compliant. */
-  public abstract StrictMode strictMode();
-
-  /** How to parse the descriptions of JsDoc comments. */
-  public abstract JsDocParsing jsDocParsingMode();
-
-  /** Whether to keep going after encountering a parse error. */
-  public abstract RunMode runMode();
-
-  /** Recognized JSDoc annotations, mapped from their name to their internal representation. */
-  public abstract ImmutableMap<String, Annotation> annotations();
-
-  /** Set of recognized names in a {@code @suppress} tag. */
-  public abstract ImmutableSet<String> suppressionNames();
-
-  /** Set of recognized names in a {@code @closurePrimitive} tag. */
-  abstract ImmutableSet<String> closurePrimitiveNames();
-
-  /** Whether to parse inline source maps (//# sourceMappingURL=data:...). */
-  public abstract boolean parseInlineSourceMaps();
-
   final ImmutableSet<String> annotationNames() {
     return annotations().keySet();
   }
 
-  public abstract Builder toBuilder();
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
 
   public static Builder builder() {
-    return new AutoValue_Config.Builder()
+    return new Builder()
         .setLanguageMode(LanguageMode.UNSUPPORTED)
         .setStrictMode(StrictMode.STRICT)
         .setJsDocParsingMode(JsDocParsing.TYPES_ONLY)
@@ -167,30 +187,139 @@ public abstract class Config {
   }
 
   /** Builder for a Config. */
-  @AutoValue.Builder
-  public abstract static class Builder {
-    public abstract Builder setLanguageMode(LanguageMode mode);
+  public static final class Builder {
+    private Config.LanguageMode languageMode;
+    private Config.StrictMode strictMode;
+    private Config.JsDocParsing jsDocParsingMode;
+    private Config.RunMode runMode;
+    private ImmutableMap<String, Annotation> annotations;
+    private ImmutableSet<String> suppressionNames;
+    private ImmutableSet<String> closurePrimitiveNames;
+    private boolean parseInlineSourceMaps;
+    private byte set0;
 
-    public abstract Builder setStrictMode(StrictMode mode);
+    Builder() {
+    }
 
-    public abstract Builder setJsDocParsingMode(JsDocParsing mode);
+    Builder(Config source) {
+      this.languageMode = source.languageMode();
+      this.strictMode = source.strictMode();
+      this.jsDocParsingMode = source.jsDocParsingMode();
+      this.runMode = source.runMode();
+      this.annotations = source.annotations();
+      this.suppressionNames = source.suppressionNames();
+      this.closurePrimitiveNames = source.closurePrimitiveNames();
+      this.parseInlineSourceMaps = source.parseInlineSourceMaps();
+      set0 = (byte) 1;
+    }
 
-    public abstract Builder setRunMode(RunMode mode);
+    public Builder setLanguageMode(LanguageMode mode) {
+      if (mode == null) {
+        throw new NullPointerException("Null languageMode");
+      }
+      this.languageMode = mode;
+      return this;
+    }
 
-    public abstract Builder setParseInlineSourceMaps(boolean parseInlineSourceMaps);
+    public Builder setStrictMode(StrictMode mode) {
+      if (mode == null) {
+        throw new NullPointerException("Null strictMode");
+      }
+      this.strictMode = mode;
+      return this;
+    }
 
-    public abstract Builder setSuppressionNames(Iterable<String> names);
+    public Builder setJsDocParsingMode(JsDocParsing mode) {
+      if (mode == null) {
+        throw new NullPointerException("Null jsDocParsingMode");
+      }
+      this.jsDocParsingMode = mode;
+      return this;
+    }
 
-    abstract Builder setClosurePrimitiveNames(Iterable<String> names);
+    public Builder setRunMode(RunMode mode) {
+      if (mode == null) {
+        throw new NullPointerException("Null runMode");
+      }
+      this.runMode = mode;
+      return this;
+    }
+
+    public Builder setParseInlineSourceMaps(boolean parseInlineSourceMaps) {
+      this.parseInlineSourceMaps = parseInlineSourceMaps;
+      set0 |= (byte) 1;
+      return this;
+    }
+
+    public Builder setSuppressionNames(Iterable<String> names) {
+      this.suppressionNames = ImmutableSet.copyOf(names);
+      return this;
+    }
+
+    Builder setClosurePrimitiveNames(Iterable<String> names) {
+      this.closurePrimitiveNames = ImmutableSet.copyOf(names);
+      return this;
+    }
 
     final Builder setExtraAnnotationNames(Iterable<String> names) {
       return setAnnotations(buildAnnotations(names));
     }
 
-    public abstract Config build();
+    public Config build() {
+      if (set0 != 1
+          || this.languageMode == null
+          || this.strictMode == null
+          || this.jsDocParsingMode == null
+          || this.runMode == null
+          || this.annotations == null
+          || this.suppressionNames == null
+          || this.closurePrimitiveNames == null) {
+        StringBuilder missing = new StringBuilder();
+        if (this.languageMode == null) {
+          missing.append(" languageMode");
+        }
+        if (this.strictMode == null) {
+          missing.append(" strictMode");
+        }
+        if (this.jsDocParsingMode == null) {
+          missing.append(" jsDocParsingMode");
+        }
+        if (this.runMode == null) {
+          missing.append(" runMode");
+        }
+        if (this.annotations == null) {
+          missing.append(" annotations");
+        }
+        if (this.suppressionNames == null) {
+          missing.append(" suppressionNames");
+        }
+        if (this.closurePrimitiveNames == null) {
+          missing.append(" closurePrimitiveNames");
+        }
+        if ((set0 & 1) == 0) {
+          missing.append(" parseInlineSourceMaps");
+        }
+        throw new IllegalStateException("Missing required properties:" + missing);
+      }
+      return new Config(
+          this.languageMode,
+          this.strictMode,
+          this.jsDocParsingMode,
+          this.runMode,
+          this.annotations,
+          this.suppressionNames,
+          this.closurePrimitiveNames,
+          this.parseInlineSourceMaps);
+    }
 
     // The following is intended to be used internally only (but isn't private due to AutoValue).
-    public abstract Builder setAnnotations(ImmutableMap<String, Annotation> names);
+    public Builder setAnnotations(ImmutableMap<String, Annotation> names) {
+      if (names == null) {
+        throw new NullPointerException("Null annotations");
+      }
+      this.annotations = names;
+      return this;
+    }
   }
 
   /** Create the annotation names from the user-specified annotation allowlist. */

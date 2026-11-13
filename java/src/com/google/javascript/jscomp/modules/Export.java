@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoBuilder;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
 import com.google.javascript.rhino.Node;
@@ -82,29 +81,114 @@ public record Export(
    */
   public static final String NAMESPACE = "*exports*";
 
-  @AutoBuilder
-  abstract static class Builder {
-    abstract Builder exportName(@Nullable String value);
+  static final class Builder {
+    private String exportName;
+    private String moduleRequest;
+    private String importName;
+    private String localName;
+    private ModulePath modulePath;
+    private Node exportNode;
+    private Node nameNode;
+    private ModuleMetadataMap.@Nullable ModuleMetadata moduleMetadata;
+    private String closureNamespace;
+    private boolean mutated;
+    private byte set0;
 
-    abstract Builder moduleRequest(@Nullable String value);
+    Builder() {
+    }
 
-    abstract Builder importName(@Nullable String value);
+    Builder(Export source) {
+      this.exportName = source.exportName();
+      this.moduleRequest = source.moduleRequest();
+      this.importName = source.importName();
+      this.localName = source.localName();
+      this.modulePath = source.modulePath();
+      this.exportNode = source.exportNode();
+      this.nameNode = source.nameNode();
+      this.moduleMetadata = source.moduleMetadata();
+      this.closureNamespace = source.closureNamespace();
+      this.mutated = source.mutated();
+      set0 = (byte) 1;
+    }
 
-    abstract Builder localName(@Nullable String value);
+    Builder exportName(@Nullable String value) {
+      this.exportName = value;
+      return this;
+    }
 
-    abstract Builder modulePath(@Nullable ModulePath value);
+    Builder moduleRequest(@Nullable String value) {
+      this.moduleRequest = value;
+      return this;
+    }
 
-    abstract Builder exportNode(@Nullable Node value);
+    Builder importName(@Nullable String value) {
+      this.importName = value;
+      return this;
+    }
 
-    abstract Builder nameNode(@Nullable Node value);
+    Builder localName(@Nullable String value) {
+      this.localName = value;
+      return this;
+    }
 
-    abstract Builder moduleMetadata(ModuleMetadata value);
+    Builder modulePath(@Nullable ModulePath value) {
+      this.modulePath = value;
+      return this;
+    }
 
-    abstract Builder closureNamespace(@Nullable String value);
+    Builder exportNode(@Nullable Node value) {
+      this.exportNode = value;
+      return this;
+    }
 
-    abstract Builder mutated(boolean value);
+    Builder nameNode(@Nullable Node value) {
+      this.nameNode = value;
+      return this;
+    }
 
-    abstract Export autoBuild();
+    Builder moduleMetadata(ModuleMetadata value) {
+      if (value == null) {
+        throw new NullPointerException("Null moduleMetadata");
+      }
+      this.moduleMetadata = value;
+      return this;
+    }
+
+    Builder closureNamespace(@Nullable String value) {
+      this.closureNamespace = value;
+      return this;
+    }
+
+    Builder mutated(boolean value) {
+      this.mutated = value;
+      set0 |= (byte) 1;
+      return this;
+    }
+
+    Export autoBuild() {
+      if (set0 != 1
+          || this.moduleMetadata == null) {
+        StringBuilder missing = new StringBuilder();
+        if (this.moduleMetadata == null) {
+          missing.append(" moduleMetadata");
+        }
+        if ((set0 & 1) == 0) {
+          missing.append(" mutated");
+        }
+        throw new IllegalStateException("Missing required properties:" + missing);
+      }
+      return new Export(
+          this.exportName,
+          this.moduleRequest,
+          this.importName,
+          this.localName,
+          this.modulePath,
+          this.exportNode,
+          this.nameNode,
+          this.moduleMetadata,
+          this.closureNamespace,
+          this.mutated);
+    }
 
     final Export build() {
       Export e = autoBuild();
@@ -165,11 +249,11 @@ public record Export(
   }
 
   static Builder builder() {
-    return new AutoBuilder_Export_Builder().mutated(false);
+    return new Builder().mutated(false);
   }
 
   Builder toBuilder() {
-    return new AutoBuilder_Export_Builder(this);
+    return new Builder(this);
   }
 
   /** Returns a copy of this export that has the {@link #mutated()} bit set. */

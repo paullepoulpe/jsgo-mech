@@ -16,8 +16,8 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Immutable;
@@ -387,16 +387,25 @@ public interface CodingConvention extends Serializable {
    * </ul>
    */
   @Immutable
-  @AutoValue
-  abstract class AssertionFunctionSpec {
-    // TODO(b/126254920): remove this field and always use ClosurePrimitive
-    abstract @Nullable String getFunctionName();
+  record AssertionFunctionSpec(
+      // TODO(b/126254920): remove this field and always use ClosurePrimitive
+      @Nullable String getFunctionName,
+      @Nullable ClosurePrimitive getClosurePrimitive,
+      AssertionKind getAssertionKind,
+      int getParamIndex) { // the index of the formal parameter that is actually asserted
+    public AssertionFunctionSpec {
+      requireNonNull(getAssertionKind, "getAssertionKind");
+    }
 
-    abstract @Nullable ClosurePrimitive getClosurePrimitive();
-
-    abstract AssertionKind getAssertionKind();
-
-    abstract int getParamIndex(); // the index of the formal parameter that is actually asserted
+    @Override
+    public String toString() {
+      return "AssertionFunctionSpec{"
+          + "functionName=" + getFunctionName + ", "
+          + "closurePrimitive=" + getClosurePrimitive + ", "
+          + "assertionKind=" + getAssertionKind + ", "
+          + "paramIndex=" + getParamIndex
+          + "}";
+    }
 
     public enum AssertionKind {
       TRUTHY, // an assertion that the parameter is 'truthy' and returns the parameter
@@ -404,7 +413,7 @@ public interface CodingConvention extends Serializable {
     }
 
     static Builder builder() {
-      return new AutoValue_CodingConvention_AssertionFunctionSpec.Builder().setParamIndex(0);
+      return new Builder().setParamIndex(0);
     }
 
     public static Builder forTruthy() {
@@ -415,17 +424,58 @@ public interface CodingConvention extends Serializable {
       return builder().setAssertionKind(AssertionKind.MATCHES_RETURN_TYPE);
     }
 
-    @AutoValue.Builder
-    public abstract static class Builder {
-      public abstract Builder setFunctionName(String name);
+    public static final class Builder {
+      private @Nullable String functionName;
+      private @Nullable ClosurePrimitive closurePrimitive;
+      private CodingConvention.AssertionFunctionSpec.@Nullable AssertionKind assertionKind;
+      private int paramIndex;
+      private byte set0;
 
-      abstract Builder setClosurePrimitive(ClosurePrimitive primitive);
+      Builder() {
+      }
 
-      public abstract Builder setParamIndex(int paramIndex);
+      public Builder setFunctionName(String name) {
+        this.functionName = name;
+        return this;
+      }
 
-      abstract Builder setAssertionKind(AssertionKind kind);
+      Builder setClosurePrimitive(ClosurePrimitive primitive) {
+        this.closurePrimitive = primitive;
+        return this;
+      }
 
-      abstract AssertionFunctionSpec autoBuild();
+      public Builder setParamIndex(int paramIndex) {
+        this.paramIndex = paramIndex;
+        set0 |= (byte) 1;
+        return this;
+      }
+
+      Builder setAssertionKind(AssertionKind kind) {
+        if (kind == null) {
+          throw new NullPointerException("Null assertionKind");
+        }
+        this.assertionKind = kind;
+        return this;
+      }
+
+      AssertionFunctionSpec autoBuild() {
+        if (set0 != 1
+            || this.assertionKind == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.assertionKind == null) {
+            missing.append(" assertionKind");
+          }
+          if ((set0 & 1) == 0) {
+            missing.append(" paramIndex");
+          }
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new AssertionFunctionSpec(
+            this.functionName,
+            this.closurePrimitive,
+            this.assertionKind,
+            this.paramIndex);
+      }
 
       public AssertionFunctionSpec build() {
         AssertionFunctionSpec spec = autoBuild();

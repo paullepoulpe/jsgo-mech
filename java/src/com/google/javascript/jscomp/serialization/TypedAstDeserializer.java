@@ -18,8 +18,8 @@ package com.google.javascript.jscomp.serialization;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.javascript.jscomp.base.JSCompObjects.identical;
+import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -450,42 +450,47 @@ public final class TypedAstDeserializer {
     }
   }
 
-  /** The result of deserializing a TypedAst.List */
-  @AutoValue
-  public abstract static class DeserializedAst {
+  /**
+   * The result of deserializing a TypedAst.List
+   *
+   * @param getFilesystem Maps from SourceFile to a lazy deserializer of the SCRIPT node for that
+   *     file
+   *     <p>The supplier creates a new Node whenever called (but the results should be .equals)
+   * @param getColorRegistry The built ColorRegistry.
+   *     <p>Note that this is absent if either a) {@link
+   *     TypedAstDeserializer#deserializeRuntimeLibraries(AbstractCompiler, SourceFile,
+   *     ColorPool.Builder, InputStream)} was called, as this sort of deserialization does not build
+   *     a complete AST + colors, just a shard of it, or b) type information was not requested.
+   * @param getExternProperties Returns a list of all known extern properties, including properties
+   *     that were present in type annotations in source code but not serialized on the AST
+   */
+  public record DeserializedAst(
+      ConcurrentMap<SourceFile, Supplier<Node>> getFilesystem,
+      Optional<ColorRegistry> getColorRegistry,
+      @Nullable ImmutableSet<String> getExternProperties,
+      ImmutableSet<String> getRuntimeLibraries) {
+    public DeserializedAst {
+      requireNonNull(getFilesystem, "getFilesystem");
+      requireNonNull(getColorRegistry, "getColorRegistry");
+      requireNonNull(getRuntimeLibraries, "getRuntimeLibraries");
+    }
 
-    /**
-     * Maps from SourceFile to a lazy deserializer of the SCRIPT node for that file
-     *
-     * <p>The supplier creates a new Node whenever called (but the results should be .equals)
-     */
-    public abstract ConcurrentMap<SourceFile, Supplier<Node>> getFilesystem();
-
-    /**
-     * The built ColorRegistry.
-     *
-     * <p>Note that this is absent if either a) {@link
-     * TypedAstDeserializer#deserializeRuntimeLibraries(AbstractCompiler, SourceFile,
-     * ColorPool.Builder, InputStream)} was called, as this sort of deserialization does not build a
-     * complete AST + colors, just a shard of it, or b) type information was not requested.
-     */
-    public abstract Optional<ColorRegistry> getColorRegistry();
-
-    /**
-     * Returns a list of all known extern properties, including properties that were present in type
-     * annotations in source code but not serialized on the AST
-     */
-    public abstract @Nullable ImmutableSet<String> getExternProperties();
-
-    public abstract ImmutableSet<String> getRuntimeLibraries();
+    @Override
+    public String toString() {
+      return "DeserializedAst{"
+          + "filesystem=" + getFilesystem + ", "
+          + "colorRegistry=" + getColorRegistry + ", "
+          + "externProperties=" + getExternProperties + ", "
+          + "runtimeLibraries=" + getRuntimeLibraries
+          + "}";
+    }
 
     private static DeserializedAst create(
         ConcurrentMap<SourceFile, Supplier<Node>> filesystem,
         Optional<ColorRegistry> colorRegistry,
         ImmutableSet<String> externProperties,
         ImmutableSet<String> runtimeLibraries) {
-      return new AutoValue_TypedAstDeserializer_DeserializedAst(
-          filesystem, colorRegistry, externProperties, runtimeLibraries);
+      return new DeserializedAst(filesystem, colorRegistry, externProperties, runtimeLibraries);
     }
   }
 }

@@ -20,8 +20,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JSCompStrings.lines;
 import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoBuilder;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
@@ -1218,7 +1216,7 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
    * <em>properties</em>. It is not useful for names (variables) or anonymous JS constructs.
    *
    * <p>This class should only be used within {@link CheckAccessControls}. Having package-private
-   * visibility is a quirk of {@link AutoValue}.
+   * visibility is a quirk of AutoValue.
    *
    * @param sourceNode The {@link Node} that spawned this reference.
    * @param receiverType The type from which the property is referenced, not necessarily the one
@@ -1243,26 +1241,111 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
     }
 
     public static Builder builder() {
-      return new AutoBuilder_CheckAccessControls_PropertyReference_Builder();
+      return new Builder();
     }
 
-    @AutoBuilder
-    abstract interface Builder {
-      Builder setSourceNode(Node node);
+    static final class Builder {
+      private Node sourceNode;
+      private String name;
+      private ObjectType receiverType;
+      private boolean mutation;
+      private boolean declaration;
+      private boolean override;
+      private Supplier<String> readableTypeName;
+      private byte set0;
 
-      Builder setName(String name);
+      Builder() {
+      }
 
-      Builder setReceiverType(ObjectType receiverType);
+      public Builder setSourceNode(Node node) {
+        if (node == null) {
+          throw new NullPointerException("Null sourceNode");
+        }
+        this.sourceNode = node;
+        return this;
+      }
 
-      Builder setMutation(boolean isMutation);
+      public Builder setName(String name) {
+        if (name == null) {
+          throw new NullPointerException("Null name");
+        }
+        this.name = name;
+        return this;
+      }
 
-      Builder setDeclaration(boolean isDeclaration);
+      public Builder setReceiverType(ObjectType receiverType) {
+        if (receiverType == null) {
+          throw new NullPointerException("Null receiverType");
+        }
+        this.receiverType = receiverType;
+        return this;
+      }
 
-      Builder setOverride(boolean isOverride);
+      public Builder setMutation(boolean isMutation) {
+        this.mutation = isMutation;
+        set0 |= (byte) 1;
+        return this;
+      }
 
-      Builder setReadableTypeName(Supplier<String> typeName);
+      public Builder setDeclaration(boolean isDeclaration) {
+        this.declaration = isDeclaration;
+        set0 |= (byte) 2;
+        return this;
+      }
 
-      PropertyReference build();
+      public Builder setOverride(boolean isOverride) {
+        this.override = isOverride;
+        set0 |= (byte) 4;
+        return this;
+      }
+
+      public Builder setReadableTypeName(Supplier<String> typeName) {
+        if (typeName == null) {
+          throw new NullPointerException("Null readableTypeName");
+        }
+        this.readableTypeName = typeName;
+        return this;
+      }
+
+      public PropertyReference build() {
+        if (set0 != 7
+            || this.sourceNode == null
+            || this.name == null
+            || this.receiverType == null
+            || this.readableTypeName == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.sourceNode == null) {
+            missing.append(" sourceNode");
+          }
+          if (this.name == null) {
+            missing.append(" name");
+          }
+          if (this.receiverType == null) {
+            missing.append(" receiverType");
+          }
+          if ((set0 & 1) == 0) {
+            missing.append(" mutation");
+          }
+          if ((set0 & 2) == 0) {
+            missing.append(" declaration");
+          }
+          if ((set0 & 4) == 0) {
+            missing.append(" override");
+          }
+          if (this.readableTypeName == null) {
+            missing.append(" readableTypeName");
+          }
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new CheckAccessControls.PropertyReference(
+            this.sourceNode,
+            this.name,
+            this.receiverType,
+            this.mutation,
+            this.declaration,
+            this.override,
+            this.readableTypeName);
+      }
     }
 
     // Derived properties.

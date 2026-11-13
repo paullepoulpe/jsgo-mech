@@ -18,8 +18,8 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.javascript.jscomp.TypeCheckTestCase.TypeTestBuilder.newTest;
+import static java.util.Objects.requireNonNull;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.rhino.Node;
 import java.util.Optional;
@@ -41,36 +41,86 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Enclosed.class)
 public class OptionalChainTypeCheckTest {
 
-  @AutoValue
-  public abstract static class OptChainTestCase {
-    abstract Optional<String> forObjType();
-
-    abstract String withExpr();
-
-    abstract Optional<String> assignedTo();
-
-    abstract Optional<String> mustReport();
-
-    abstract Optional<String> withPropReturnType(); // only used in testing CALL
-
-    static Builder builder() {
-      return new AutoValue_OptionalChainTypeCheckTest_OptChainTestCase.Builder();
+  record OptChainTestCase(
+      Optional<String> forObjType,
+      String withExpr,
+      Optional<String> assignedTo,
+      Optional<String> mustReport,
+      Optional<String> withPropReturnType) { // only used in testing CALL
+    public OptChainTestCase {
+      requireNonNull(forObjType, "forObjType");
+      requireNonNull(withExpr, "withExpr");
+      requireNonNull(assignedTo, "assignedTo");
+      requireNonNull(mustReport, "mustReport");
+      requireNonNull(withPropReturnType, "withPropReturnType");
     }
 
-    @AutoValue.Builder
-    public abstract static class Builder {
-      abstract Builder forObjType(String objType);
+    @Override
+    public String toString() {
+      return "OptChainTestCase{"
+          + "forObjType=" + forObjType + ", "
+          + "withExpr=" + withExpr + ", "
+          + "assignedTo=" + assignedTo + ", "
+          + "mustReport=" + mustReport + ", "
+          + "withPropReturnType=" + withPropReturnType
+          + "}";
+    }
 
-      abstract Builder withExpr(String expr);
+    static Builder builder() {
+      return new Builder();
+    }
 
-      abstract Builder assignedTo(String type);
+    public static final class Builder {
+      private Optional<String> forObjType = Optional.empty();
+      private String withExpr;
+      private Optional<String> assignedTo = Optional.empty();
+      private Optional<String> mustReport = Optional.empty();
+      private Optional<String> withPropReturnType = Optional.empty();
 
-      abstract Builder mustReport(String error);
+      Builder() {
+      }
+
+      Builder forObjType(String objType) {
+        this.forObjType = Optional.of(objType);
+        return this;
+      }
+
+      Builder withExpr(String expr) {
+        if (expr == null) {
+          throw new NullPointerException("Null withExpr");
+        }
+        this.withExpr = expr;
+        return this;
+      }
+
+      Builder assignedTo(String type) {
+        this.assignedTo = Optional.of(type);
+        return this;
+      }
+
+      Builder mustReport(String error) {
+        this.mustReport = Optional.of(error);
+        return this;
+      }
 
       // Sets the return type of the function property, if any on this object type.
-      abstract Builder withPropReturnType(String type);
+      Builder withPropReturnType(String type) {
+        this.withPropReturnType = Optional.of(type);
+        return this;
+      }
 
-      abstract OptChainTestCase build();
+      OptChainTestCase build() {
+        if (this.withExpr == null) {
+          String missing = " withExpr";
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new OptChainTestCase(
+            this.forObjType,
+            this.withExpr,
+            this.assignedTo,
+            this.mustReport,
+            this.withPropReturnType);
+      }
     }
   }
 

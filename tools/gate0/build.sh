@@ -43,8 +43,8 @@ rm -rf .cache/build/main .cache/build/test
 # upstream builds them with the tests, and so do we.
 find java/src -name '*.java' -not -path '*/testing/*' | LC_ALL=C sort >.cache/build/main-files.txt
 javac -nowarn -Xlint:none -encoding UTF-8 -parameters -d .cache/build/main -cp "$libs:$deps" \
-  -processorpath "$deps" @.cache/build/main-files.txt 2>&1 | grep -v '^Note:' || true
+  -proc:none @.cache/build/main-files.txt 2>&1 | grep -v '^Note:' || true
 { find java/test -name '*.java'; find java/src -name '*.java' -path '*/testing/*'; } | LC_ALL=C sort >.cache/build/test-files.txt
 javac -nowarn -Xlint:none -encoding UTF-8 -parameters -d .cache/build/test \
-  -cp ".cache/build/main:$libs:$deps" -processorpath "$deps" @.cache/build/test-files.txt 2>&1 | grep -v '^Note:' || true
+  -cp ".cache/build/main:$libs:$deps" -proc:none @.cache/build/test-files.txt 2>&1 | grep -v '^Note:' || true
 echo "main classes: $(find .cache/build/main -name '*.class' | wc -l), test classes: $(find .cache/build/test -name '*.class' | wc -l)"

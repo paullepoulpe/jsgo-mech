@@ -51,7 +51,6 @@ import static com.google.javascript.rhino.jstype.JSTypeNative.BIGINT_NUMBER_STRI
 import static com.google.javascript.rhino.jstype.JSTypeNative.UNKNOWN_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.VOID_TYPE;
 
-import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Table;
@@ -2577,22 +2576,25 @@ public final class JSTypeRegistry {
     closureNamespaces.put(moduleName, ClosureNamespace.create(/* isLegacy= */ true, null, null));
   }
 
-  /** Stores information about a Closure namespace. */
-  @AutoValue
-  abstract static class ClosureNamespace {
-    /**
-     * Returns true if this is a goog.provide'd namespace or a goog.module namespace followed by
-     * `goog.module.declareLegacyNamespace()
-     */
-    abstract boolean isLegacy();
-
-    abstract @Nullable Node definitionNode();
-
-    abstract @Nullable JSType type();
+  /**
+   * Stores information about a Closure namespace.
+   *
+   * @param isLegacy Returns true if this is a goog.provide'd namespace or a goog.module namespace
+   *     followed by `goog.module.declareLegacyNamespace()
+   */
+  record ClosureNamespace(boolean isLegacy, @Nullable Node definitionNode, @Nullable JSType type) {
+    @Override
+    public String toString() {
+      return "ClosureNamespace{"
+          + "isLegacy=" + isLegacy + ", "
+          + "definitionNode=" + definitionNode + ", "
+          + "type=" + type
+          + "}";
+    }
 
     static ClosureNamespace create(
         boolean isLegacy, @Nullable Node definitionNode, @Nullable JSType type) {
-      return new AutoValue_JSTypeRegistry_ClosureNamespace(isLegacy, definitionNode, type);
+      return new ClosureNamespace(isLegacy, definitionNode, type);
     }
   }
 }

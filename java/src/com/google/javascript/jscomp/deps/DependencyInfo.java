@@ -16,7 +16,8 @@
 
 package com.google.javascript.jscomp.deps;
 
-import com.google.auto.value.AutoValue;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -32,10 +33,31 @@ import java.util.Objects;
 /** A data structure for JS dependency information for a single .js file. */
 public interface DependencyInfo {
 
-  /** A dependency link between two files, e.g. goog.require('namespace'), import 'file'; */
-  @AutoValue
+  /**
+   * A dependency link between two files, e.g. goog.require('namespace'), import 'file';
+   *
+   * @param getSymbol the symbol provided by another {@link DependencyInfo}'s {@link
+   *     DependencyInfo#getProvides()}
+   * @param getRawText the raw text of the import string as it appears in the file. Used mostly for
+   *     error reporting.
+   */
   @Immutable
-  abstract class Require {
+  record Require(String getSymbol, String getRawText, Type getType) {
+    public Require {
+      requireNonNull(getSymbol, "getSymbol");
+      requireNonNull(getRawText, "getRawText");
+      requireNonNull(getType, "getType");
+    }
+
+    @Override
+    public String toString() {
+      return "Require{"
+          + "symbol=" + getSymbol + ", "
+          + "rawText=" + getRawText + ", "
+          + "type=" + getType
+          + "}";
+    }
+
     public static final Require BASE = googRequireSymbol("goog");
 
     public enum Type {
@@ -84,38 +106,76 @@ public interface DependencyInfo {
     }
 
     private static Builder builder() {
-      return new AutoValue_DependencyInfo_Require.Builder();
+      return new Builder();
     }
 
-    protected abstract Builder toBuilder();
+    protected Builder toBuilder() {
+      return new Builder(this);
+    }
 
     public Require withSymbol(String symbol) {
       return toBuilder().setSymbol(symbol).build();
     }
 
-    /**
-     * @return symbol the symbol provided by another {@link DependencyInfo}'s {@link
-     *     DependencyInfo#getProvides()}
-     */
-    public abstract String getSymbol();
+    static final class Builder {
+      private String symbol;
+      private String rawText;
+      private DependencyInfo.Require.Type type;
 
-    /**
-     * @return the raw text of the import string as it appears in the file. Used mostly for error
-     *     reporting.
-     */
-    public abstract String getRawText();
+      Builder() {
+      }
 
-    public abstract Type getType();
+      Builder(DependencyInfo.Require source) {
+        this.symbol = source.getSymbol();
+        this.rawText = source.getRawText();
+        this.type = source.getType();
+      }
 
-    @AutoValue.Builder
-    abstract static class Builder {
-      public abstract Builder setType(Type value);
+      public Builder setType(Type value) {
+        if (value == null) {
+          throw new NullPointerException("Null type");
+        }
+        this.type = value;
+        return this;
+      }
 
-      public abstract Builder setRawText(String rawText);
+      public Builder setRawText(String rawText) {
+        if (rawText == null) {
+          throw new NullPointerException("Null rawText");
+        }
+        this.rawText = rawText;
+        return this;
+      }
 
-      public abstract Builder setSymbol(String value);
+      public Builder setSymbol(String value) {
+        if (value == null) {
+          throw new NullPointerException("Null symbol");
+        }
+        this.symbol = value;
+        return this;
+      }
 
-      public abstract Require build();
+      public Require build() {
+        if (this.symbol == null
+            || this.rawText == null
+            || this.type == null) {
+          StringBuilder missing = new StringBuilder();
+          if (this.symbol == null) {
+            missing.append(" symbol");
+          }
+          if (this.rawText == null) {
+            missing.append(" rawText");
+          }
+          if (this.type == null) {
+            missing.append(" type");
+          }
+          throw new IllegalStateException("Missing required properties:" + missing);
+        }
+        return new Require(
+            this.symbol,
+            this.rawText,
+            this.type);
+      }
     }
   }
 
