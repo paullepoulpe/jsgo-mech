@@ -786,3 +786,49 @@ func (this *Logger) config(msg string)  { this.emit_(Level_CONFIG, msg, nil) }
 func (this *Logger) fine(msg string)    { this.emit_(Level_FINE, msg, nil) }
 func (this *Logger) finer(msg string)   { this.emit_(Level_FINER, msg, nil) }
 func (this *Logger) finest(msg string)  { this.emit_(Level_FINEST, msg, nil) }
+
+func (this *TimeUnit) up_Enum() *Enum {
+	if this == nil {
+		return nil
+	}
+	return &this.Enum
+}
+
+// convert_ converts d of this unit to the unit of to nanoseconds, saturating.
+func (this *TimeUnit) convert_(d int64, to int64) int64 {
+	if this.nanos_ >= to {
+		f := this.nanos_ / to
+		if d > 0x7fffffffffffffff/f {
+			return 0x7fffffffffffffff
+		}
+		if d < -0x8000000000000000/f {
+			return -0x8000000000000000
+		}
+		return d * f
+	}
+	return d / (to / this.nanos_)
+}
+
+func (this *TimeUnit) toNanos(d int64) int64 { return this.convert_(d, 1) }
+
+func (this *TimeUnit) toMicros(d int64) int64 { return this.convert_(d, 1e3) }
+
+func (this *TimeUnit) toMillis(d int64) int64 { return this.convert_(d, 1e6) }
+
+func (this *TimeUnit) toSeconds(d int64) int64 { return this.convert_(d, 1e9) }
+
+func (this *TimeUnit) toMinutes(d int64) int64 { return this.convert_(d, 60e9) }
+
+func (this *TimeUnit) toHours(d int64) int64 { return this.convert_(d, 3600e9) }
+
+func (this *TimeUnit) toDays(d int64) int64 { return this.convert_(d, 86400e9) }
+
+func (this *TimeUnit) convert(d int64, from *TimeUnit) int64 { return from.convert_(d, this.nanos_) }
+
+func (this *TimeUnit) sleep(d int64) {
+	if d > 0 {
+		time.Sleep(time.Duration(this.toNanos(d)))
+	}
+}
+
+func (directExecutor_) execute(task Runnable) { task.run() }

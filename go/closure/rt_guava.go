@@ -273,13 +273,13 @@ func (this *ImmutableCollection) toArray_0() []any {
 
 func (this *ImmutableCollection) toArray(a []any) []any { return fillArray_(this.elems_(), a) }
 
-func (this *ImmutableCollection) add(v any) bool              { throwUOE_(); return false }
-func (this *ImmutableCollection) addAll(c Collection) bool    { throwUOE_(); return false }
-func (this *ImmutableCollection) clear()                      { throwUOE_() }
-func (this *ImmutableCollection) removeAll(c Collection) bool { throwUOE_(); return false }
-func (this *ImmutableCollection) retainAll(c Collection) bool { throwUOE_(); return false }
-func (this *ImmutableCollection) remove_Object(v any) bool    { throwUOE_(); return false }
-func (this *ImmutableCollection) removeIf(p Predicate_base) bool   { throwUOE_(); return false }
+func (this *ImmutableCollection) add(v any) bool                 { throwUOE_(); return false }
+func (this *ImmutableCollection) addAll(c Collection) bool       { throwUOE_(); return false }
+func (this *ImmutableCollection) clear()                         { throwUOE_() }
+func (this *ImmutableCollection) removeAll(c Collection) bool    { throwUOE_(); return false }
+func (this *ImmutableCollection) retainAll(c Collection) bool    { throwUOE_(); return false }
+func (this *ImmutableCollection) remove_Object(v any) bool       { throwUOE_(); return false }
+func (this *ImmutableCollection) removeIf(p Predicate_base) bool { throwUOE_(); return false }
 
 func (this *ImmutableCollection) asList() *ImmutableList {
 	if this.kind == icList_ {
@@ -834,3 +834,6 @@ func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
 // java.util.stream.Collector has no methods the translated code calls, so the
 // Go interface is empty; these collectors expose the Java accessor methods.
 
+func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableList {
+	return immList_([]any{p0, p1, p2, p3, p4, p5})
+}

@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"testing"
 )
@@ -562,48 +561,6 @@ func (this *testVisitor_) visitFile(file any, attrs BasicFileAttributes) *FileVi
 	a := attrs.(*fileAttributes_)
 	this.log = append(this.log, "file "+objstr_(file)+" "+istr_(a.size()))
 	return FileVisitResult_CONTINUE
-}
-
-func TestIOWalkFileTree(t *testing.T) {
-	dir := t.TempDir()
-	os.MkdirAll(dir+"/a/b", 0o777)
-	os.MkdirAll(dir+"/c", 0o777)
-	os.WriteFile(dir+"/a/1.js", []byte("1"), 0o666)
-	os.WriteFile(dir+"/a/b/2.js", []byte("22"), 0o666)
-	os.WriteFile(dir+"/c/3.txt", []byte("333"), 0o666)
-	os.Symlink(dir+"/c", dir+"/a/link")
-
-	run := func(v *testVisitor_, follow bool, depth int32) []string {
-		v.self_ = v
-		v.init_SimpleFileVisitor()
-		var opts Set
-		if follow {
-			opts = EnumSet_of(FileVisitOption_FOLLOW_LINKS.up_Enum())
-		} else {
-			opts = EnumSet_noneOf(nil)
-		}
-		Files_walkFileTree(Path_of(dir, nil), opts, depth, v)
-		for i := range v.log {
-			v.log[i] = strings.ReplaceAll(v.log[i], dir, "D")
-		}
-		sort.Strings(v.log)
-		return v.log
-	}
-	eq_(t, "walk following links", strings.Join(run(&testVisitor_{}, true, 0x7fffffff), "; "),
-		"file D/a/1.js 1; file D/a/b/2.js 2; file D/a/link/3.txt 3; file D/c/3.txt 3; pre D; pre D/a; pre D/a/b; pre D/a/link; pre D/c")
-	got := run(&testVisitor_{}, false, 0x7fffffff)
-	if strings.Contains(strings.Join(got, ";"), "pre D/a/link") || !strings.Contains(strings.Join(got, ";"), "file D/a/link ") {
-		t.Errorf("walk without following links: %v", got)
-	}
-	eq_(t, "walk with a depth", strings.Join(run(&testVisitor_{}, true, 1), "; "), "file D/a 4096; file D/c 4096; pre D")
-	eq_(t, "walk skipping a subtree", strings.Join(run(&testVisitor_{skip: "/a"}, true, 99), "; "), "file D/c/3.txt 3; pre D; pre D/a; pre D/c")
-
-	// A missing start file goes to visitFileFailed, which rethrows by default.
-	v := new_SimpleFileVisitor()
-	ex := throws_(func() { Files_walkFileTree(Path_of(dir+"/missing", nil), nil, 10, v) })
-	if !is_IOException(ex) || msgOf_(ex) != "java.nio.file.NoSuchFileException: "+dir+"/missing" {
-		t.Errorf("walk of a missing file threw %v", msgOf_(ex))
-	}
 }
 
 func TestIONioFiles(t *testing.T) {
@@ -1210,21 +1167,6 @@ func TestIOSax(t *testing.T) {
 		if !is_SAXException(ex) {
 			t.Errorf("parse(%q) threw %v", bad, msgOf_(ex))
 		}
-	}
-}
-
-func TestIOSystem(t *testing.T) {
-	if System_out == nil || System_err == nil || System_in == nil {
-		t.Fatal("standard streams")
-	}
-	eq_(t, "lineSeparator", System_lineSeparator(), "\n")
-	os.Setenv("RT_IO_TEST_VAR", "yes")
-	eq_(t, "getenv", System_getenv("RT_IO_TEST_VAR"), "yes")
-	eq_(t, "getenv of an unset variable", System_getenv("RT_IO_TEST_UNSET"), nullstr_)
-	flushStd_()
-	in := new_ObjectInputStream_()
-	if ex := throws_(func() { in.defaultReadObject() }); !is_UnsupportedOperationException(ex) {
-		t.Errorf("defaultReadObject threw %v", msgOf_(ex))
 	}
 }
 

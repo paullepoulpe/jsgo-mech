@@ -84,6 +84,7 @@ func Boolean_valueOf(b bool) any      { return b }
 func Boolean_booleanValue(v any) bool { return v.(bool) }
 
 func Number_doubleValue(v any) float64 { return unbox_[float64](v) }
+
 // ---- Double
 
 // javaFloat_ formats in the style of Double.toString from the shortest digits
@@ -362,3 +363,10 @@ func System_arraycopy(src any, sp int32, dst any, dp int32, n int32) {
 	}
 }
 
+func Integer_parseInt_CharSequence_int_int_int(cs any, a int32, b int32, radix int32) int32 {
+	return Integer_parseInt(String_substring(csString_(cs), a, b), radix)
+}
+
+func Long_parseLong_String(s string) int64 { return Long_parseLong(s, 10) }
+
+func Integer_sum(a, b int32) int32 { return a + b }

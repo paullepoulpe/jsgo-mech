@@ -1187,9 +1187,9 @@ func Collections_fill(l List, v any) {
 	}
 }
 
-func Collections_emptyList() List              { return listOf_(nil) }
-func Collections_emptyIterator() Iterator      { var e []any; return &sliceIter_{items: &e} }
-func Collections_singletonList(v any) List     { return listOf_([]any{v}) }
+func Collections_emptyList() List          { return listOf_(nil) }
+func Collections_emptyIterator() Iterator  { var e []any; return &sliceIter_{items: &e} }
+func Collections_singletonList(v any) List { return listOf_([]any{v}) }
 func Collections_nCopies(n int32, v any) List {
 	items := make([]any, n)
 	for i := range items {
@@ -1204,6 +1204,7 @@ func Collections_unmodifiableCollection(c Collection) Collection { return c }
 func Collections_unmodifiableList(l List) List                   { return l }
 func Collections_unmodifiableMap(m Map) Map                      { return m }
 func Collections_unmodifiableSet(s Set) Set                      { return s }
+
 // ---- Map defaults
 
 func Map_getOrDefault(m Map, k any, def any) any {
@@ -1348,3 +1349,35 @@ func Arrays_toString(a []uint16) string {
 	}
 	return "[" + strings.Join(parts, ", ") + "]"
 }
+
+func retainAll_(s Collection, c Collection) bool {
+	changed := false
+	for it := s.iterator(); it.hasNext(); {
+		if !c.contains(it.next()) {
+			Iterator_remove(it)
+			changed = true
+		}
+	}
+	return changed
+}
+
+func Comparator_thenComparingLong(c Comparator, f ToLongFunction) Comparator {
+	return Comparator_thenComparing_Comparator(c, Comparator_comparingLong(f))
+}
+
+func Collections_unmodifiableSortedSet(s SortedSet) SortedSet { return s }
+
+func Map_compute(m Map, k any, f BiFunction) any {
+	old := m.get(k)
+	v := f.apply(k, old)
+	if v == nil {
+		if old != nil || m.containsKey(k) {
+			m.remove(k)
+		}
+		return nil
+	}
+	m.put(k, v)
+	return v
+}
+
+func Comparable_compareTo(a any, b any) int32 { return compareNatural_(a, b) }

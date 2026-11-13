@@ -602,3 +602,60 @@ func (this *URL) openStream() *InputStream {
 	}
 	panic(new_IOException_String("unsupported URL: " + this.spec_).self())
 }
+
+func URI_create(str string) *URI {
+	var u *URI
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				if is_URISyntaxException(r) {
+					e := to_URISyntaxException(r)
+					panic(new_IllegalArgumentException_String_Throwable(e.getMessage(), &e.Throwable).self())
+				}
+				panic(r)
+			}
+		}()
+		u = new_URI(str)
+	}()
+	return u
+}
+
+// newURIParts_ builds a hierarchical URI from unescaped components, quoting
+// the characters that are not legal in them.
+func newURIParts_(scheme string, authority string, path string, query string, fragment string) *URI {
+	var b strings.Builder
+	if scheme != nullstr_ {
+		b.WriteString(scheme + ":")
+	}
+	if authority != nullstr_ {
+		b.WriteString("//" + uriQuote_(authority, uriUnreserved_+uriPunct_+"@[]"))
+	}
+	if path != nullstr_ {
+		b.WriteString(uriQuote_(path, uriUnreserved_+uriPunct_+"/@"))
+	}
+	if query != nullstr_ {
+		b.WriteString("?" + uriQuote_(query, uriUnreserved_+uriPunct_+"?/[]@"))
+	}
+	if fragment != nullstr_ {
+		b.WriteString("#" + uriQuote_(fragment, uriUnreserved_+uriPunct_+"?/[]@"))
+	}
+	return new_URI(b.String())
+}
+
+func uriQuote_(s string, legal string) string {
+	const hex = "0123456789ABCDEF"
+	var b []byte
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if isAlpha_(c) || isDigit_(c) || strings.IndexByte(legal, c) >= 0 || c >= 0x80 && c != 0xC2 {
+			b = append(b, c)
+			continue
+		}
+		if c == 0xC2 && i+1 < len(s) && s[i+1] > 0xA0 {
+			b = append(b, c)
+			continue
+		}
+		b = append(b, '%', hex[c>>4], hex[c&15])
+	}
+	return string(b)
+}

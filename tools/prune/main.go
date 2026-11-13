@@ -40,6 +40,10 @@ func recvName(fd *ast.FuncDecl) string {
 }
 
 func main() {
+	if os.Args[1] == "restore" {
+		restore(os.Args[2], os.Args[3], os.Args[4:])
+		return
+	}
 	dir := os.Args[1]
 	dead := map[string]bool{} // "file:line"
 	re := regexp.MustCompile(`^(\S+/rt_[^:]+\.go):(\d+):\d+: unreachable func`)

@@ -965,3 +965,13 @@ func Character_getType(cp int32) int32 {
 func Character_getType_char(c uint16) int32 { return Character_getType(int32(c)) }
 
 var _ = utf8.RuneError
+
+func String_repeat(s string, n int32) string { return strings.Repeat(s, int(n)) }
+
+func Character_toUpperCase(c uint16) uint16 {
+	r := unicode.ToUpper(rune(c))
+	if r > 0xFFFF {
+		return c
+	}
+	return uint16(r)
+}

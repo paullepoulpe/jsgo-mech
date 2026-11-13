@@ -643,7 +643,8 @@ func (this *interner_) intern(v any) any {
 }
 
 // The interner holds its samples strongly (nothing observes the difference).
-func Interners_newWeakInterner() Interner   { return &interner_{m: new_LinkedHashMap()} }
+func Interners_newWeakInterner() Interner { return &interner_{m: new_LinkedHashMap()} }
+
 // ---- MultimapBuilder
 
 type MultimapBuilder struct {
@@ -1024,3 +1025,49 @@ func (this *HashBiMap) entrySet() Set {
 func (this *HashBiMap) equals(o any) bool { return o == any(this) || mapEquals_(this, o) }
 func (this *HashBiMap) hashCode() int32   { return mapHash_(this) }
 func (this *HashBiMap) toString() string  { return mapToString_(this) }
+
+func Iterators_filter(p0 Iterator, p1 Predicate_base) *UnmodifiableIterator {
+	return &UnmodifiableIterator{it: filterIter_(p0, p1.apply)}
+}
+
+func Iterables_unmodifiableIterable(p0 Iterable) Iterable {
+	if v, ok := p0.(*ImmutableCollection); ok {
+		return v
+	}
+	return &iterView_{func() Iterator { return &UnmodifiableIterator{it: p0.iterator()} }}
+}
+
+func Iterables_indexOf(p0 Iterable, p1 Predicate_base) int32 {
+	var i int32
+	for it := p0.iterator(); it.hasNext(); i++ {
+		if p1.apply(it.next()) {
+			return i
+		}
+	}
+	return -1
+}
+
+func Lists_newArrayList(p0 Iterator) *ArrayList {
+	l := new_ArrayList_0()
+	for p0.hasNext() {
+		l.add(p0.next())
+	}
+	return l
+}
+
+// Lists.transform: a lazy view; the function runs on every access.
+func Lists_transform(p0 List, p1 Function_base) List {
+	return &viewList_{
+		sz:   p0.size,
+		at:   func(i int32) any { return p1.apply(p0.get(i)) },
+		rmAt: func(i int32) any { return p1.apply(p0.remove(i)) },
+	}
+}
+
+func (this *MultimapBuilder_ListMultimapBuilder) up_MultimapBuilder() *MultimapBuilder {
+	return &this.MultimapBuilder
+}
+
+func (this *MultimapBuilder_SetMultimapBuilder) up_MultimapBuilder() *MultimapBuilder {
+	return &this.MultimapBuilder
+}

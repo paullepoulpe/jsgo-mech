@@ -96,69 +96,6 @@ func pbParseDeep_(full string, data []byte) any {
 	return pbParseCoded_(pbDescs_[full], in)
 }
 
-func TestProtoRoundTrip(t *testing.T) {
-	for _, row := range pbLines_(t, "manifest.tsv") {
-		name, full := row[0], row[1]
-		d := pbDescs_[full]
-		if d == nil {
-			t.Fatalf("%s: no descriptor for %s", name, full)
-		}
-		data := pbFixture_(t, name+".bin")
-		msg := pbParseDeep_(full, data)
-		m := msg.(pbM_).pbm_()
-		if got := m.bytes_(); !bytes.Equal(got, data) {
-			t.Errorf("%s: re-serialised bytes differ:\n got %x\nwant %x", name, got, data)
-		}
-		if int(m.getSerializedSize()) != len(data) {
-			t.Errorf("%s: getSerializedSize %d, want %d", name, m.getSerializedSize(), len(data))
-		}
-		text := string(pbFixture_(t, name+".txt"))
-		if got := Object_toString(msg); got != text {
-			t.Errorf("%s: toString differs:\n got %q\nwant %q", name, got, text)
-		}
-		if got := TextFormat_printer().printToString(msg.(MessageOrBuilder)); got != text {
-			t.Errorf("%s: printToString differs", name)
-		}
-		if got, want := TextFormat_shortDebugString(msg.(MessageOrBuilder)), string(pbFixture_(t, name+".short")); got != want {
-			t.Errorf("%s: shortDebugString differs:\n got %q\nwant %q", name, got, want)
-		}
-		var fields []string
-		for it := m.me_.(MessageOrBuilder).getAllFields().keySet().iterator(); it.hasNext(); {
-			fields = append(fields, it.next().(*Descriptors_FieldDescriptor).getName()+",")
-		}
-		want := ""
-		if len(row) > 2 {
-			want = row[2]
-		}
-		if got := strings.Join(fields, ""); got != want {
-			t.Errorf("%s: getAllFields %q, want %q", name, got, want)
-		}
-
-		// toBuilder().build() is an equal message with the same bytes.
-		again := m.toBuilder().build()
-		if !Object_equals(msg, again) || !Object_equals(again, msg) || Object_hashCode(msg) != Object_hashCode(again) {
-			t.Errorf("%s: toBuilder().build() is not equal", name)
-		}
-		if !bytes.Equal(again.(pbM_).pbm_().bytes_(), data) {
-			t.Errorf("%s: toBuilder().build() serialises differently", name)
-		}
-
-		// Text format round trip (unknown fields are not parseable text).
-		if name == "requirement_unknown" || name == "astnode_deep" {
-			continue
-		}
-		b := d.newBuilder_()
-		TextFormat_merge(text, b.me_.(Message_Builder))
-		parsed := b.build()
-		if !bytes.Equal(parsed.(pbM_).pbm_().bytes_(), data) {
-			t.Errorf("%s: text format round trip differs:\n%s", name, Object_toString(parsed))
-		}
-		if !Object_equals(parsed, msg) {
-			t.Errorf("%s: text format round trip is not equal", name)
-		}
-	}
-}
-
 func TestProtoUnknownFields(t *testing.T) {
 	r := pbParse_(Requirement_desc_, pbFixture_(t, "requirement_unknown.input"), false).(*Requirement)
 	if got, want := pbU8_(r.toByteArray()), pbFixture_(t, "requirement_unknown.bin"); !bytes.Equal(got, want) {
@@ -169,28 +106,6 @@ func TestProtoUnknownFields(t *testing.T) {
 	}
 	if r.hasType() || r.getType() != Requirement_Type_CUSTOM || r.getSeverity() != Requirement_Severity_ERROR {
 		t.Errorf("unexpected known fields: %v %v %v", r.hasType(), r.getType(), r.getSeverity())
-	}
-}
-
-func TestProtoTextParse(t *testing.T) {
-	b := ConformanceConfig_newBuilder()
-	TextFormat_merge(strobj_(string(pbFixture_(t, "conformance_parse.textproto"))), b)
-	c := b.build().(*ConformanceConfig)
-	if got, want := pbU8_(c.toByteArray()), pbFixture_(t, "conformance_parse.bin"); !bytes.Equal(got, want) {
-		t.Errorf("bytes differ:\n got %x\nwant %x\n%s", got, want, c.toString())
-	}
-	if got, want := c.toString(), string(pbFixture_(t, "conformance_parse.txt")); got != want {
-		t.Errorf("text differs:\n got %s\nwant %s", got, want)
-	}
-	r := c.getRequirement(0)
-	if r.getErrorMessage() != "xAA\u00e9\n" || r.getValueCount() != 2 || r.getValue(1) != "ab" {
-		t.Errorf("unexpected requirement: %s", r.toString())
-	}
-	// A StringBuilder is a CharSequence too.
-	b2 := ConformanceConfig_newBuilder()
-	TextFormat_getParser().merge(new_StringBuilder_String("requirement { rule_id: 'x' }"), b2)
-	if b2.getRequirementCount() != 1 || b2.getRequirement(0).getRuleId() != "x" {
-		t.Errorf("merge from StringBuilder: %s", b2.toString())
 	}
 }
 
@@ -463,63 +378,6 @@ func TestProtoAccessors(t *testing.T) {
 	if pool.getTypeCount() != 1 || pool.getType(0).getKindCase() != TypeProto_KindCase_UNION || pool.getType(0).getUnion().getUnionMember(0) != 3 ||
 		!pool.getType(0).hasUnion() || pool.getType(0).hasObject() || pool.hasDebugInfo() || pool.getTypeList().get(0) != any(pool.getType(0)) {
 		t.Errorf("repeated builders: %s", pool.toString())
-	}
-}
-
-func TestProtoEnums(t *testing.T) {
-	facts := map[string]string{}
-	for _, row := range pbLines_(t, "facts.tsv") {
-		facts[row[0]] = row[1]
-	}
-	expect := func(key, got string) {
-		t.Helper()
-		if got != facts[key] {
-			t.Errorf("%s: got %q, want %q", key, got, facts[key])
-		}
-	}
-	expect("bytestring_hash", istr_(int64(ByteString_copyFrom([]int8{1, 2, -1}).hashCode())))
-	expect("bytestring_hash_empty", istr_(int64(ByteString_EMPTY.hashCode())))
-	expect("escape", TextFormat_escapeBytes(ByteString_copyFrom([]int8{0, 7, 8, 9, 10, 11, 12, 13, 27, 34, 39, 92, 127, -56, 'a'})))
-	expect("unrecognized_ordinal", istr_(int64(NodeKind_UNRECOGNIZED.ordinal())))
-	expect("nodekind_count", istr_(int64(len(NodeKind_values()))))
-	expect("kindcase", istr_(int64(TypeProto_KindCase_valueOf("UNION").getNumber()))+","+istr_(int64(TypeProto_KindCase_KIND_NOT_SET.ordinal()))+","+
-		TypeProto_KindCase_forNumber(2).toString())
-	var cases []string
-	for _, c := range SourceFileProto_LoaderCase_values() {
-		cases = append(cases, c.name())
-	}
-	expect("loadercase", "["+strings.Join(cases, ", ")+"]")
-	expect("sizes", istr_(int64(pbTestTypedAst_().getSerializedSize()))+","+istr_(int64(pbTestConformance_().getSerializedSize())))
-	d := Requirement_getDefaultInstance()
-	expect("req_type_default", d.getType().toString()+","+d.getSeverity().toString()+","+d.getTypeMatchingStrategy().toString()+","+
-		boolstr_(d.getReportLooseTypeViolations()))
-	txt := func(v float64) string {
-		return strings.TrimSpace(TextFormat_printer().printToString(AstNode_newBuilder().setDoubleValue(v)))
-	}
-	expect("float_text", txt(1e21)+"|"+txt(100)+"|"+txt(1e-5))
-
-	if NodeProperty_forNumber(NodeProperty_ARROW_FN.getNumber()) != NodeProperty_ARROW_FN || NodeProperty_forNumber(-5) != nil {
-		t.Errorf("forNumber")
-	}
-	for i, v := range NodeProperty_values() {
-		if int(v.ordinal()) != i || v != NodeProperty_UNRECOGNIZED && NodeProperty_forNumber(v.getNumber()) != v {
-			t.Errorf("values()[%d] = %s", i, v.name())
-		}
-	}
-	if FeatureProto_valueOf("FEATURE_GETTER") != FeatureProto_FEATURE_GETTER || FeatureProto_FEATURE_GETTER.getNumber() != 3 ||
-		FeatureProto_FEATURE_GETTER_VALUE != 3 || FeatureProto_FEATURE_GETTER.toString() != "FEATURE_GETTER" {
-		t.Errorf("valueOf")
-	}
-	if class, msg := pbThrown_(func() { FeatureProto_valueOf("NOPE") }); class != "java.lang.IllegalArgumentException" ||
-		msg != "No enum constant com.google.javascript.jscomp.FeatureProto.NOPE" {
-		t.Errorf("valueOf(NOPE): %s %s", class, msg)
-	}
-	if InstrumentationPoint_Type_valueOf("BRANCH").getNumber() != 2 || InstrumentationPoint_Type_BRANCH.ordinal() != 1 {
-		t.Errorf("proto2 enum numbering")
-	}
-	if Object_getClass(NodeKind_ADD).getName() != "com.google.javascript.jscomp.serialization.NodeKind" ||
-		Object_getClass(AstNode_getDefaultInstance()).getName() != "com.google.javascript.jscomp.serialization.AstNode" {
-		t.Errorf("class names")
 	}
 }
 

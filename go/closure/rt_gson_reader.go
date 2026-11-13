@@ -1082,3 +1082,10 @@ func (this *JsonReader) promoteNameToValue_() {
 		panic(new_IllegalStateException_String("Expected a name but was " + this.peek().name() + this.locationString_()).self())
 	}
 }
+
+func (this *JsonToken) up_Enum() *Enum {
+	if this == nil {
+		return nil
+	}
+	return &this.Enum
+}

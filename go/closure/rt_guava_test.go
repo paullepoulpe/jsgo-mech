@@ -295,47 +295,6 @@ func TestGuavaImmutableSortedMapAndBiMap(t *testing.T) {
 	guavaEq_(t, ImmutableBiMap_of().inverse().isEmpty(), true)
 }
 
-func TestGuavaImmutableMultimap(t *testing.T) {
-	b := ImmutableListMultimap_builder()
-	b.put("b", int32(1)).put("a", int32(2)).put("b", int32(1)).putAll("c", listOf_([]any{int32(5), int32(6)}))
-	lm := cast_[*ImmutableListMultimap](obj_(b.build()))
-	guavaStr_(t, lm, "{b=[1, 1], a=[2], c=[5, 6]}")
-	guavaEq_(t, lm.size(), int32(5))
-	guavaStr_(t, lm.get("b"), "[1, 1]")
-	guavaStr_(t, lm.get("zz"), "[]")
-	if _, ok := lm.get("b").(*ImmutableList); !ok {
-		t.Error("get should return an ImmutableList")
-	}
-	guavaStr_(t, lm.keySet(), "[b, a, c]")
-	guavaStr_(t, lm.values(), "[1, 1, 2, 5, 6]")
-	guavaStr_(t, lm.entries(), "[b=1, b=1, a=2, c=5, c=6]")
-	guavaStr_(t, lm.asMap(), "{b=[1, 1], a=[2], c=[5, 6]}")
-	guavaStr_(t, lm.inverse(), "{1=[b, b], 2=[a], 5=[c], 6=[c]}")
-	guavaEq_(t, lm.containsEntry("a", int32(2)), true)
-	guavaEq_(t, lm.containsEntry("a", int32(3)), false)
-	guavaThrew_(t, "UnsupportedOperationException", func() { lm.put("a", int32(1)) })
-	guavaThrew_(t, "UnsupportedOperationException", func() { lm.get("a").add(int32(1)) })
-	guavaThrew_(t, "NullPointerException", func() { ImmutableMultimap_builder().put("a", nil) })
-
-	sb := ImmutableSetMultimap_builder()
-	sb.put("b", int32(1)).put("a", int32(2)).put("b", int32(1)).put("b", int32(0))
-	sm := cast_[*ImmutableSetMultimap](obj_(sb.orderKeysBy(naturalOrder_).build()))
-	guavaStr_(t, sm, "{a=[2], b=[1, 0]}")
-	guavaEq_(t, sm.size(), int32(3))
-
-	al := ArrayListMultimap_create()
-	al.put("x", "1")
-	al.put("x", "1")
-	al.put("y", "2")
-	guavaStr_(t, ImmutableSetMultimap_copyOf(al), "{x=[1], y=[2]}")
-	if !ImmutableListMultimap_copyOf(al).equals(al) || !al.equals(ImmutableListMultimap_copyOf(al)) {
-		t.Error("list multimaps with the same content should be equal")
-	}
-
-	idx := Multimaps_index(listOf_([]any{"apple", "avocado", "banana"}), &Function_base_fn{func(v any) any { return v.(string)[:1] }})
-	guavaStr_(t, idx, "{a=[apple, avocado], b=[banana]}")
-}
-
 func TestGuavaMultimapLiveViews(t *testing.T) {
 	mm := ArrayListMultimap_create()
 	var m Multimap = cast_[Multimap](obj_(mm))

@@ -456,3 +456,27 @@ func xmlReference_(name string) string {
 	}
 	return ""
 }
+
+func (this *SAXParseException) getLineNumber() int32 { return this.line_ }
+
+func (this *SAXParseException) getColumnNumber() int32 { return -1 }
+
+func (this *InputSource) getByteStream() *InputStream { return this.bytes_ }
+
+func (this *InputSource) setByteStream(in *InputStream) { this.bytes_ = in }
+
+func (this *InputSource) getCharacterStream() *Reader { return this.chars_ }
+
+func (this *InputSource) setCharacterStream(r *Reader) { this.chars_ = r }
+
+func (this *InputSource) getSystemId() string { return this.systemId_ }
+
+func (this *InputSource) setSystemId(id string) { this.systemId_ = id }
+
+func (this *InputSource) getPublicId() string { return this.publicId_ }
+
+func (this *InputSource) setPublicId(id string) { this.publicId_ = id }
+
+func (this *InputSource) getEncoding() string { return this.encoding_ }
+
+func (this *InputSource) setEncoding(enc string) { this.encoding_ = enc }

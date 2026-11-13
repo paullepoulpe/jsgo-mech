@@ -1147,3 +1147,129 @@ func Files_walkFileTree(start Path, options Set, maxDepth int32, visitor FileVis
 	return start
 }
 
+// dirNames_ lists a directory in the order the operating system returns it,
+// which is the order Java iterates it in.
+func dirNames_(dir string) ([]string, bool) {
+	if dir == "" {
+		dir = "."
+	}
+	f, err := os.Open(dir)
+	if err != nil {
+		return nil, false
+	}
+	defer f.Close()
+	names, err := f.Readdirnames(-1)
+	if err != nil {
+		return nil, false
+	}
+	return names, true
+}
+
+func realpath_(p string) (string, error) {
+	// A small realpath: resolve links component by component.
+	if _, err := os.Lstat(p); err != nil {
+		return "", err
+	}
+	parts := strings.Split(p, "/")
+	cur := ""
+	for depth, i := 0, 0; i < len(parts); i++ {
+		name := parts[i]
+		if name == "" || name == "." {
+			continue
+		}
+		if name == ".." {
+			if j := strings.LastIndexByte(cur, '/'); j >= 0 {
+				cur = cur[:j]
+			}
+			continue
+		}
+		next := cur + "/" + name
+		st, err := os.Lstat(next)
+		if err != nil {
+			return "", err
+		}
+		if st.Mode()&os.ModeSymlink != 0 {
+			depth++
+			if depth > 40 {
+				return "", syscall.ELOOP
+			}
+			target, err := os.Readlink(next)
+			if err != nil {
+				return "", err
+			}
+			rest := append(strings.Split(target, "/"), parts[i+1:]...)
+			if strings.HasPrefix(target, "/") {
+				cur = ""
+			}
+			parts, i = rest, -1
+			continue
+		}
+		cur = next
+	}
+	if cur == "" {
+		cur = "/"
+	}
+	return cur, nil
+}
+
+func floorDiv_(a, b int64) int64 {
+	q := a / b
+	if a%b != 0 && (a < 0) != (b < 0) {
+		q--
+	}
+	return q
+}
+
+func Files_newBufferedWriter(p Path, cs *Charset, opts []OpenOption) *BufferedWriter {
+	if cs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	enc := newEncoder_(cs)
+	enc.mode_ = encReport_ // this writer's encoder reports unmappable characters
+	return new_BufferedWriter(newOutputStreamWriter_(Files_newOutputStream(p, opts), enc).up_Writer())
+}
+
+func (this *FileSystemException) getFile() string { return this.file_ }
+
+func (this *FileVisitResult) up_Enum() *Enum {
+	if this == nil {
+		return nil
+	}
+	return &this.Enum
+}
+
+func (this *LinkOption) up_Enum() *Enum {
+	if this == nil {
+		return nil
+	}
+	return &this.Enum
+}
+
+func (this *StandardOpenOption) up_Enum() *Enum {
+	if this == nil {
+		return nil
+	}
+	return &this.Enum
+}
+
+func (this *fileAttributes_) isDirectory() bool { return this.st_.IsDir() }
+
+func (this *fileAttributes_) isRegularFile() bool { return this.st_.Mode().IsRegular() }
+
+func (this *fileAttributes_) isSymbolicLink() bool { return this.st_.Mode()&os.ModeSymlink != 0 }
+
+func (this *fileAttributes_) size() int64 { return this.st_.Size() }
+
+func (this *fileAttributes_) isOther() bool {
+	return !this.isDirectory() && !this.isRegularFile() && !this.isSymbolicLink()
+}
+
+func (this *fileAttributes_) lastModifiedTime() *FileTime {
+	return &FileTime{this.st_.ModTime().UnixNano()}
+}
+
+func (this *fileAttributes_) lastAccessTime() *FileTime { return this.lastModifiedTime() }
+
+func (this *fileAttributes_) creationTime() *FileTime { return this.lastModifiedTime() }
+
+func (this *fileAttributes_) fileKey() any { return nil }

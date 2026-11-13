@@ -335,3 +335,5 @@ func murmur3x64_128_(data []byte, seed uint32) (uint64, uint64) {
 	h2 += h1
 	return h1, h2
 }
+
+func Hashing_murmur3_128() HashFunction { return murmur3_128_ }

@@ -391,7 +391,6 @@ func (this *ImmutableMap_Builder) buildKeepingLast() *ImmutableMap {
 	return this.make_(true)
 }
 
-
 // ---- ImmutableMultimap (list- or set-valued)
 
 type ImmutableMultimap struct {
@@ -616,4 +615,18 @@ func immMultimapCopy_(set bool, p0 Multimap) *ImmutableMultimap {
 func ImmutableSetMultimap_copyOf(p0 Multimap) *ImmutableSetMultimap {
 	return immMultimapCopy_(true, p0)
 }
-func Multimaps_asMap(p0 ListMultimap) Map            { return p0.asMap() }
+func Multimaps_asMap(p0 ListMultimap) Map { return p0.asMap() }
+
+func Multimaps_index(p0 Iterable, p1 Function_base) *ImmutableListMultimap {
+	b := ImmutableListMultimap_builder()
+	for it := p0.iterator(); it.hasNext(); {
+		v := it.next()
+		if v == nil {
+			throwNPE_("null")
+		}
+		b.put(p1.apply(v), v)
+	}
+	return b.build()
+}
+
+func Multimaps_asMap_SetMultimap(p0 SetMultimap) Map { return p0.asMap() }

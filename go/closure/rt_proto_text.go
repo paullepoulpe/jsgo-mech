@@ -879,3 +879,14 @@ func (t *pbTok_) skipValue_() {
 	}
 	t.skipOne_()
 }
+
+func (this *TextFormat_ParseException) up_IOException() *IOException {
+	if this == nil {
+		return nil
+	}
+	return &this.IOException
+}
+
+func (this *TextFormat_ParseException) getLine() int32 { return this.line_ }
+
+func (this *TextFormat_ParseException) getColumn() int32 { return this.column_ }

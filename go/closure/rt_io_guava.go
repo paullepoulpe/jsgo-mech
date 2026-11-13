@@ -364,3 +364,96 @@ func (this *localCache_) size() int64 { return int64(this.map_.size()) }
 func (this *localCache_) cleanUp() {}
 
 func (this *localCache_) asMap() ConcurrentMap { return this.map_ }
+
+// write replaces (or, in append mode, extends) the file with the characters.
+func (this *CharSink) write(cs any) {
+	if cs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	out := new_FileOutputStream_String_boolean(this.file_.path_, this.append_)
+	defer out.close()
+	out.write_byteArr(String_getBytes(csString_(cs), this.cs_))
+}
+
+func Files_io_asCharSink(f *File, cs *Charset, modes []*FileWriteMode) *CharSink {
+	if f == nil || cs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	sink := &CharSink{file_: f, cs_: cs}
+	for _, m := range modes {
+		if m == FileWriteMode_APPEND {
+			sink.append_ = true
+		}
+	}
+	return sink
+}
+
+func Files_io_newReader(f *File, cs *Charset) *BufferedReader {
+	if f == nil || cs == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return new_BufferedReader(new_InputStreamReader(new_FileInputStream(f.path_).up_InputStream(), cs).up_Reader())
+}
+
+func CacheLoader_from(f Function_base) *CacheLoader {
+	if f == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	l := &functionCacheLoader_{f_: f}
+	l.self_ = l
+	return &l.CacheLoader
+}
+
+// CacheBuilder_from reads a cache specification ("maximumSize=100,..."). Only
+// the size bound has an effect here; time-based expiry, weak references,
+// statistics and the concurrency level are accepted and ignored.
+func CacheBuilder_from(spec string) *CacheBuilder {
+	b := CacheBuilder_newBuilder()
+	for _, kv := range strings.Split(spec, ",") {
+		kv = strings.TrimSpace(kv)
+		if kv == "" {
+			continue
+		}
+		key, value, hasValue := strings.Cut(kv, "=")
+		key, value = strings.TrimSpace(key), strings.TrimSpace(value)
+		switch key {
+		case "maximumSize", "maximumWeight":
+			n, err := strconv.ParseInt(value, 10, 64)
+			if !hasValue || err != nil {
+				panic(new_IllegalArgumentException_String("key " + key + " value set to " + value + ", must be integer").self())
+			}
+			if key == "maximumSize" {
+				b.maximumSize(n)
+			}
+		case "initialCapacity", "concurrencyLevel":
+			if _, err := strconv.ParseInt(value, 10, 32); !hasValue || err != nil {
+				panic(new_IllegalArgumentException_String("key " + key + " value set to " + value + ", must be integer").self())
+			}
+		case "weakKeys", "softValues", "weakValues", "recordStats":
+			if hasValue {
+				panic(new_IllegalArgumentException_String("key " + key + " does not take values").self())
+			}
+		case "expireAfterAccess", "expireAfterWrite", "refreshAfterWrite":
+			if !hasValue || value == "" {
+				panic(new_IllegalArgumentException_String("value of key " + key + " omitted").self())
+			}
+		default:
+			panic(new_IllegalArgumentException_String("unknown key " + key).self())
+		}
+	}
+	return b
+}
+
+func (this *FileWriteMode) up_Enum() *Enum {
+	if this == nil {
+		return nil
+	}
+	return &this.Enum
+}
+
+func (this *functionCacheLoader_) load(key any) any {
+	if key == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return this.f_.apply(key)
+}

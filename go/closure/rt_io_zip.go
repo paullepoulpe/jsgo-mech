@@ -490,3 +490,17 @@ func new_GZIPOutputStream_OutputStream_int(out *OutputStream, size int32) *GZIPO
 func new_GZIPOutputStream_OutputStream(out *OutputStream) *GZIPOutputStream {
 	return new_GZIPOutputStream_OutputStream_int(out, 512)
 }
+
+func (this *InflaterInputStream) up_FilterInputStream() *FilterInputStream {
+	if this == nil {
+		return nil
+	}
+	return &this.FilterInputStream
+}
+
+func (this *GZIPInputStream) up_InflaterInputStream() *InflaterInputStream {
+	if this == nil {
+		return nil
+	}
+	return &this.InflaterInputStream
+}

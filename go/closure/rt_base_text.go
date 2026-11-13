@@ -624,3 +624,38 @@ type Random struct {
 
 // ---- String <-> bytes
 
+func Chars_toArray(c Collection) []uint16 {
+	items := c.toArray_0()
+	out := make([]uint16, len(items))
+	for i, v := range items {
+		if v == nil {
+			panic(new_NullPointerException_0().self())
+		}
+		out[i] = v.(uint16)
+	}
+	return out
+}
+
+func (this *Random) nextInt_int(bound int32) int32 {
+	if bound <= 0 {
+		argFail_("bound must be positive")
+	}
+	r := this.next_(31)
+	m := bound - 1
+	if bound&m == 0 {
+		return int32((int64(bound) * int64(r)) >> 31)
+	}
+	for u := r; ; u = this.next_(31) {
+		r = u % bound
+		if u-r+m >= 0 {
+			return r
+		}
+	}
+}
+
+func (this *Random) next_(bits uint) int32 {
+	this.seed = (this.seed*0x5DEECE66D + 0xB) & (1<<48 - 1)
+	return int32(this.seed >> (48 - bits))
+}
+
+func (this *Locale) toString() string { return this.tag }

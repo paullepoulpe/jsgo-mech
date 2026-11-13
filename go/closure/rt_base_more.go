@@ -120,3 +120,19 @@ func new_PrintWriter(out *Writer) *PrintWriter {
 }
 
 func (this *PrintWriter) println(s string) { this.write(sstr_(s) + "\n") }
+
+func Ints_tryParse(s string) any {
+	if v, ok := tryParseDecimal_(s, -1<<31, 1<<31-1); ok {
+		return int32(v)
+	}
+	return nil
+}
+
+func Collections_shuffle(l List, rnd *Random) {
+	for i := l.size(); i > 1; i-- {
+		j := rnd.nextInt_int(i)
+		a, b := l.get(i-1), l.get(j)
+		l.set(i-1, b)
+		l.set(j, a)
+	}
+}

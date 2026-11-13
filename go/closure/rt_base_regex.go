@@ -409,4 +409,3 @@ func (this *Matcher_re2j) toString() string {
 	}
 	return "com.google.re2j.Matcher[pattern=" + this.p.src + " lastmatch=" + last + "]"
 }
-

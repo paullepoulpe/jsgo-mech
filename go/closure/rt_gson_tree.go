@@ -679,3 +679,9 @@ func (this *JsonElement) getAsNumber() any {
 	}
 	panic(new_UnsupportedOperationException_String("Primitive is neither a number nor a string").self())
 }
+
+func (this *JsonParser) parse(json string) *JsonElement { return JsonParser_parseString(json) }
+
+func JsonParser_parseString(json string) *JsonElement {
+	return gsonParseReader_(newJsonReaderFromString_(json), true)
+}

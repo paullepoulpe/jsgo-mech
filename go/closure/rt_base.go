@@ -847,3 +847,9 @@ var StandardSystemProperty_USER_DIR = func() *StandardSystemProperty {
 	this.Enum.init_Enum("USER_DIR", 27)
 	return this
 }()
+
+func Functions_identity() Function_base { return identityFunction_{} }
+
+func (identityFunction_) apply(v any) any { return v }
+
+func (identityFunction_) toString() string { return "Functions.identity()" }

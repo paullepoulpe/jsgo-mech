@@ -15,7 +15,7 @@ type TreeMap struct {
 	entries []*hentry_
 }
 
-func new_TreeMap() *TreeMap                        { return &TreeMap{} }
+func new_TreeMap() *TreeMap { return &TreeMap{} }
 func (this *TreeMap) compare(a, b any) int32 {
 	if this.cmp != nil {
 		return this.cmp.compare(a, b)
@@ -726,3 +726,5 @@ func (this *AbstractIterator) peek() any {
 	}
 	return this.next_
 }
+
+func new_TreeMap_Comparator(c Comparator) *TreeMap { return &TreeMap{cmp: c} }
