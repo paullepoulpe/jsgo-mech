@@ -22,9 +22,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.joining;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.DoNotCall;
@@ -111,7 +112,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
    * this way.
    */
   private final Multimap<Node, AmbiguatedFunctionSummary> summariesForAllNamesOfFunctionByNode =
-      ArrayListMultimap.create();
+      MultimapBuilder.linkedHashKeys().arrayListValues().build();
 
   /**
    * Set of FUNCTION nodes which are artificially marked as pure, via a `@nosideeffects` JSDoc tag
@@ -476,7 +477,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
    */
   private void populateDatastructuresForAnalysisTraversal(ReferenceMap referenceMap) {
     // Merge the prop and name references into a single multimap since only the name matters.
-    ArrayListMultimap<String, Node> referencesByName = ArrayListMultimap.create();
+    ListMultimap<String, Node> referencesByName = MultimapBuilder.linkedHashKeys().arrayListValues().build();
     for (Map.Entry<String, ? extends List<Node>> entry : referenceMap.getNameReferences()) {
       referencesByName.putAll(entry.getKey(), entry.getValue());
     }

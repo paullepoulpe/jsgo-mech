@@ -18,9 +18,9 @@ package com.google.javascript.jscomp.graph;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public final class DominatorTree<N> {
 
     // 3. Build the result maps.
     Map<N, N> idomsMap = new LinkedHashMap<>();
-    ListMultimap<N, N> children = ArrayListMultimap.create();
+    ListMultimap<N, N> children = MultimapBuilder.linkedHashKeys().arrayListValues().build();
     for (int i = 0; i < numNodes; i++) {
       N node = postOrder.get(i);
       int idomIdx = idomIndexes[i];

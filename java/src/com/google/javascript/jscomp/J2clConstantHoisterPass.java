@@ -17,9 +17,9 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.javascript.rhino.Node;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -43,7 +43,7 @@ public class J2clConstantHoisterPass implements CompilerPass {
       return;
     }
 
-    final Multimap<String, Node> fieldAssignments = ArrayListMultimap.create();
+    final Multimap<String, Node> fieldAssignments = MultimapBuilder.linkedHashKeys().arrayListValues().build();
     final Set<Node> hoistableFunctions = new LinkedHashSet<>();
     NodeTraversal.builder()
         .setCompiler(compiler)

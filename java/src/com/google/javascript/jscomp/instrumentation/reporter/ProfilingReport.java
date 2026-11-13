@@ -19,6 +19,7 @@ package com.google.javascript.jscomp.instrumentation.reporter;
 import static java.util.stream.Collectors.joining;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats;
@@ -62,7 +63,7 @@ final class ProfilingReport {
     Map<InstrumentationPoint, InstrumentationPointMetrics> metrics =
         instrumentationMapping.values().stream()
             .collect(
-                Collectors.toMap(
+                ImmutableMap.toImmutableMap(
                     Function.identity(), (point) -> new InstrumentationPointMetrics()));
 
     for (ReportProfile profile : profiles) {

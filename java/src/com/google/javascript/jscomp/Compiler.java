@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -851,7 +852,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       if (options.getApplyInputSourceMaps()) {
         sourceMap.setSourceFileMapping(this);
         if (options.getSourceMapIncludeSourcesContent()) {
-          for (SourceMapInput inputSourceMap : inputSourceMaps.values()) {
+          for (SourceMapInput inputSourceMap : ImmutableSortedMap.copyOf(inputSourceMaps).values()) {
             addSourceMapSourceFiles(inputSourceMap);
           }
         }
@@ -4665,7 +4666,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     if (options.getSourceMapIncludeSourcesContent()) {
       if (options.getApplyInputSourceMaps()) {
         // Add any input source map content files to the source map as potential sources
-        for (SourceMapInput inputSourceMap : inputSourceMaps.values()) {
+        for (SourceMapInput inputSourceMap : ImmutableSortedMap.copyOf(inputSourceMaps).values()) {
           addSourceMapSourceFiles(inputSourceMap);
         }
       }

@@ -21,10 +21,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.Comparator.comparingInt;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.NodeTraversal.ScopedCallback;
 import com.google.javascript.rhino.Node;
@@ -90,7 +90,7 @@ final class RenameVars implements CompilerPass {
   // scope on IE but not on other browsers.
   private final Set<Var> localBleedingFunctions = new LinkedHashSet<>();
   private final ListMultimap<Scope, Var> localBleedingFunctionsPerScope =
-      ArrayListMultimap.create();
+      MultimapBuilder.linkedHashKeys().arrayListValues().build();
 
   class Assignment {
     final boolean isLocal;

@@ -16,9 +16,9 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
@@ -58,7 +58,7 @@ import java.util.Map.Entry;
  */
 class RewriteGlobalDeclarationsForTryCatchWrapping implements NodeTraversal.Callback, CompilerPass {
   private final AbstractCompiler compiler;
-  private final ListMultimap<JSChunk, Node> functions = ArrayListMultimap.create();
+  private final ListMultimap<JSChunk, Node> functions = MultimapBuilder.linkedHashKeys().arrayListValues().build();
   private final ArrayList<Node> classes = new ArrayList<>();
 
   RewriteGlobalDeclarationsForTryCatchWrapping(AbstractCompiler compiler) {

@@ -26,6 +26,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.errorprone.annotations.Immutable;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.NodeTraversal;
@@ -301,7 +302,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
 
   // Maps each namespace into the existing import statements for that namespace.
   // Use an ArrayListMultimap so that values for a key are iterated in a deterministic order.
-  private final Multimap<String, ImportStatement> importsByNamespace = ArrayListMultimap.create();
+  private final Multimap<String, ImportStatement> importsByNamespace = MultimapBuilder.linkedHashKeys().arrayListValues().build();
 
   // The import statements in the order they appear.
   private final List<ImportStatement> originalImports = new ArrayList<>();

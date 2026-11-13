@@ -22,11 +22,12 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.MultimapBuilder;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage;
 import com.google.javascript.jscomp.OptimizeCalls.ReferenceMap;
@@ -739,7 +740,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
       return false; // Fast path; there can't possibly be back-refs.
     }
 
-    ArrayListMultimap<String, Node> namesByNames = ArrayListMultimap.create();
+    ListMultimap<String, Node> namesByNames = MultimapBuilder.linkedHashKeys().arrayListValues().build();
     NodeUtil.visitPostOrder(
         paramList,
         (n) -> {

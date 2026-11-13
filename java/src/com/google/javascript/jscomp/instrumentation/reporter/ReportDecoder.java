@@ -242,7 +242,9 @@ public final class ReportDecoder {
                             pointStats.getPoint().getLineNumber()))
             .collect(
                 Collectors.groupingBy(
-                    (InstrumentationPointStats pointStats) -> pointStats.getPoint().getFileName()))
+                    (InstrumentationPointStats pointStats) -> pointStats.getPoint().getFileName(),
+                    LinkedHashMap::new,
+                    Collectors.toList()))
             .entrySet()
             .stream()
             .map(

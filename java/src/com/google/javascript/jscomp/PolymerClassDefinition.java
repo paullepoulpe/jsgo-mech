@@ -481,7 +481,7 @@ final class PolymerClassDefinition {
       return;
     }
     Set<String> elementPropNames =
-        polymerElementProps.stream().map(x -> x.name.getString()).collect(Collectors.toSet());
+        polymerElementProps.stream().map(x -> x.name.getString()).collect(Collectors.toCollection(LinkedHashSet::new));
     Iterator<Map.Entry<MemberDefinition, BehaviorDefinition>> behaviorsItr =
         behaviorProps.entrySet().iterator();
     while (behaviorsItr.hasNext()) {

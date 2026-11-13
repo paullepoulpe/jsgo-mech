@@ -19,10 +19,10 @@ package com.google.javascript.refactoring;
 import static com.google.javascript.jscomp.ClosureCheckModule.REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME;
 import static com.google.javascript.jscomp.lint.CheckExtraRequires.EXTRA_REQUIRE_WARNING;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.BasicErrorManager;
 import com.google.javascript.jscomp.CheckLevel;
@@ -39,7 +39,7 @@ import java.util.List;
 public class FixingErrorManager extends BasicErrorManager {
   private ErrorToFixMapper fixer;
   private final LinkedHashMap<JSError, SuggestedFix> sureFixes = new LinkedHashMap<>();
-  private final ListMultimap<JSError, SuggestedFix> multiFixes = ArrayListMultimap.create();
+  private final ListMultimap<JSError, SuggestedFix> multiFixes = MultimapBuilder.linkedHashKeys().arrayListValues().build();
   private final ImmutableSet<DiagnosticType> unfixableErrors;
 
   private enum FixTypes {

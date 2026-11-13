@@ -19,11 +19,11 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.modules.ModuleMapCreator.DOES_NOT_HAVE_EXPORT;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.JSError;
@@ -134,7 +134,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       // let x;
       // export {x as y, x as z};
       this.exports = exports;
-      exportsByLocalName = ArrayListMultimap.create();
+      exportsByLocalName = MultimapBuilder.linkedHashKeys().arrayListValues().build();
       for (Export e : exports) {
         exportsByLocalName.put(e.localName(), e);
       }
