@@ -2,9 +2,10 @@
 //
 // Input: the output of `deadcode ./cmd/mech` (golang.org/x/tools/cmd/deadcode) on stdin.
 // A plain function listed there is deleted. A method that is never called can still be what
-// makes a type satisfy an interface in a type assertion, so a listed method is deleted only when
-// no interface in the package declares a method of that name, or when every method of its
-// receiver type is listed.
+// makes a type (or a type that embeds it) satisfy an interface in a type assertion, so a listed
+// method is deleted only when no interface in the package declares a method of that name, or
+// when its receiver type is dead altogether: all its methods are listed and nothing outside
+// listed functions mentions the type.
 //
 //	cd go && deadcode ./cmd/mech | go run ../tools/prune closure
 package main
@@ -120,6 +121,59 @@ func main() {
 			return true
 		})
 	}
+	// A type is dead when all its methods are listed and its name occurs nowhere outside its own
+	// declaration and listed functions (so it is not embedded, constructed or converted to).
+	allDead := map[string]bool{}
+	for r, ms := range methods {
+		allDead[r] = true
+		for _, m := range ms {
+			allDead[r] = allDead[r] && m.dead
+		}
+	}
+	deadRange := map[string][][2]int{}
+	for _, x := range decls {
+		if x.dead {
+			deadRange[x.file] = append(deadRange[x.file], [2]int{x.start, x.end})
+		}
+	}
+	uses := map[string]int{}
+	for _, f := range all {
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+		af, err := parser.ParseFile(fset, f, nil, 0)
+		if err != nil {
+			panic(err)
+		}
+		ast.Inspect(af, func(n ast.Node) bool {
+			if ts, ok := n.(*ast.TypeSpec); ok && allDead[ts.Name.Name] {
+				// the declaration itself: count uses inside it of OTHER types only
+				ast.Inspect(ts.Type, func(m ast.Node) bool {
+					if id, ok := m.(*ast.Ident); ok && allDead[id.Name] && id.Name != ts.Name.Name {
+						uses[id.Name]++
+					}
+					return true
+				})
+				return false
+			}
+			if id, ok := n.(*ast.Ident); ok && allDead[id.Name] {
+				off := fset.Position(id.Pos()).Offset
+				for _, r := range deadRange[f] {
+					if off >= r[0] && off < r[1] {
+						return true
+					}
+				}
+				uses[id.Name]++
+			}
+			return true
+		})
+	}
+	deadType := map[string]bool{}
+	for r := range allDead {
+		if allDead[r] && uses[r] == 0 {
+			deadType[r] = true
+		}
+	}
 	del := map[string][]*decl{}
 	n := 0
 	for _, x := range decls {
@@ -131,7 +185,7 @@ func main() {
 			for _, m := range methods[r] {
 				all = all && m.dead
 			}
-			if !all && ifaceMethods[x.fd.Name.Name] {
+			if ifaceMethods[x.fd.Name.Name] && !(all && deadType[r]) {
 				continue
 			}
 		}
