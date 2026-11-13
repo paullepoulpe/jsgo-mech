@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.javascript.jscomp.ControlFlowGraph.Branch;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.Annotation;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphEdge;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
@@ -214,7 +215,7 @@ abstract class DataFlowAnalysis<N, L extends LatticeElement> {
     initialize();
     while (!this.workQueue.isEmpty()) {
       DiGraphNode<N, Branch> curNode = this.workQueue.removeFirst();
-      LinearFlowState<L> curState = curNode.getAnnotation();
+      LinearFlowState<L> curState = Annotatable.getAnnotation(curNode);
       if (curState.stepCount++ > MAX_STEPS_PER_NODE) {
         throw new IllegalStateException("Dataflow analysis appears to diverge around: " + curNode);
       }
@@ -278,7 +279,7 @@ abstract class DataFlowAnalysis<N, L extends LatticeElement> {
    * @return {@code true} if the flow state differs from the previous state.
    */
   private boolean flow(DiGraphNode<N, Branch> node) {
-    LinearFlowState<L> state = node.getAnnotation();
+    LinearFlowState<L> state = Annotatable.getAnnotation(node);
     if (isForward()) {
       L outBefore = state.getOut();
       state.setOut(flowThrough(node.getValue(), state.getIn()));
@@ -287,10 +288,10 @@ abstract class DataFlowAnalysis<N, L extends LatticeElement> {
       if (this.isBranched()) {
         FlowBrancher<L> brancher = this.createFlowBrancher(node.getValue(), state.getOut());
         for (DiGraphEdge<N, Branch> outEdge : node.getOutEdges()) {
-          L outBranchBefore = outEdge.getAnnotation();
+          L outBranchBefore = Annotatable.getAnnotation(outEdge);
           outEdge.setAnnotation(brancher.branchFlow(outEdge.getValue()));
           if (!changed) {
-            changed = !outBranchBefore.equals(outEdge.getAnnotation());
+            changed = !outBranchBefore.equals(Annotatable.getAnnotation(outEdge));
           }
         }
       }
@@ -310,7 +311,7 @@ abstract class DataFlowAnalysis<N, L extends LatticeElement> {
    * @param node Node to compute new join.
    */
   private void joinInputs(DiGraphNode<N, Branch> node) {
-    LinearFlowState<L> state = node.getAnnotation();
+    LinearFlowState<L> state = Annotatable.getAnnotation(node);
     if (this.isForward() && cfg.getEntry() == node) {
       state.setIn(createEntryLattice());
       return;
@@ -343,16 +344,16 @@ abstract class DataFlowAnalysis<N, L extends LatticeElement> {
 
   private L getInputFromEdge(DiGraphEdge<N, Branch> edge) {
     if (this.isBranched()) {
-      return edge.getAnnotation();
+      return Annotatable.getAnnotation(edge);
     } else if (this.isForward()) {
-      LinearFlowState<L> state = edge.getSource().getAnnotation();
+      LinearFlowState<L> state = Annotatable.getAnnotation(edge.getSource());
       return state.getOut();
     } else {
       DiGraphNode<N, Branch> node = edge.getDestination();
       if (node == this.cfg.getImplicitReturn()) {
         return this.createEntryLattice();
       }
-      LinearFlowState<L> state = node.getAnnotation();
+      LinearFlowState<L> state = Annotatable.getAnnotation(node);
       return state.getIn();
     }
   }

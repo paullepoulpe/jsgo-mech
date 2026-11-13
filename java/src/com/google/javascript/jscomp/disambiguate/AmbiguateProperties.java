@@ -36,6 +36,7 @@ import com.google.javascript.jscomp.colors.ColorRegistry;
 import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.jscomp.diagnostic.LogFile;
 import com.google.javascript.jscomp.graph.AdjacencyGraph;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.Annotation;
 import com.google.javascript.jscomp.graph.FixedPointGraphTraversal;
 import com.google.javascript.jscomp.graph.GraphColoring;
@@ -236,7 +237,7 @@ public class AmbiguateProperties implements CompilerPass {
 
     // Translate the color of each Property instance to a name.
     for (PropertyGraphNode node : propertyGraph.getNodes()) {
-      node.getValue().newName = colorMap[node.getAnnotation().hashCode()];
+      node.getValue().newName = colorMap[Annotatable.getAnnotation(node).hashCode()];
       if (renamingMap != null) {
         renamingMap.put(node.getValue().oldName, node.getValue().newName);
       }
@@ -357,8 +358,8 @@ public class AmbiguateProperties implements CompilerPass {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <A extends Annotation> A getAnnotation() {
-      return (A) annotation;
+    public Annotation getAnnotationUntyped() {
+      return annotation;
     }
 
     @Override

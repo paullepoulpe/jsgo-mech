@@ -33,5 +33,11 @@ public interface Annotatable {
    *
    * @return The annotation or <code>null</code> if the object has not been annotated.
    */
-  <A extends Annotation> A getAnnotation();
+  @SuppressWarnings("unchecked")
+  static <A extends Annotation> A getAnnotation(Annotatable annotatable) {
+    return (A) annotatable.getAnnotationUntyped();
+  }
+
+  /** The virtual, non-generic form of {@link #getAnnotation(Annotatable)}. */
+  Annotation getAnnotationUntyped();
 }

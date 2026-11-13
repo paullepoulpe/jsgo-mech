@@ -109,7 +109,7 @@ public final class StringType extends ValueType {
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseStringType();
   }
 }

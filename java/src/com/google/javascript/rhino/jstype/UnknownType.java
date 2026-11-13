@@ -111,11 +111,11 @@ public final class UnknownType extends ObjectType {
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseUnknownType();
   }
 
-  @Override <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+  @Override Object visitUntyped(RelationshipVisitor<?> visitor, JSType that) {
     return visitor.caseUnknownType(this, that);
   }
 

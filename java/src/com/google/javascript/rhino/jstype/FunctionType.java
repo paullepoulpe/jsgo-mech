@@ -987,12 +987,12 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseFunctionType(this);
   }
 
   @Override
-  <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+  Object visitUntyped(RelationshipVisitor<?> visitor, JSType that) {
     return visitor.caseFunctionType(this, that);
   }
 

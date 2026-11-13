@@ -395,7 +395,7 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
     }
 
     @Override
-    public <A extends Annotation> A getAnnotation() {
+    public Annotation getAnnotationUntyped() {
       throw new UnsupportedOperationException(
           "Graph initialized with node annotations turned off");
     }
@@ -466,8 +466,8 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A extends Annotation> A getAnnotation() {
-      return (A) annotation;
+    public Annotation getAnnotationUntyped() {
+      return annotation;
     }
 
     @Override
@@ -522,7 +522,7 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
     }
 
     @Override
-    public <A extends Annotation> A getAnnotation() {
+    public Annotation getAnnotationUntyped() {
       throw new UnsupportedOperationException(
           "Graph initialized with edge annotations turned off");
     }
@@ -586,8 +586,8 @@ public class LinkedDirectedGraph<N, E> extends DiGraph<N, E> implements Graphviz
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A extends Annotation> A getAnnotation() {
-      return (A) annotation;
+    public Annotation getAnnotationUntyped() {
+      return annotation;
     }
 
     @Override

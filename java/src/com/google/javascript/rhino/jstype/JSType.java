@@ -1488,14 +1488,26 @@ public abstract class JSType {
    * @see com.google.javascript.rhino.jstype.Visitor
    * @return the value returned by the visitor
    */
-  public abstract <T> T visit(Visitor<T> visitor);
+  @SuppressWarnings("unchecked")
+  public final <T> T visit(Visitor<T> visitor) {
+    return (T) visitUntyped(visitor);
+  }
+
+  /** The virtual, non-generic form of {@link #visit(Visitor)}. */
+  public abstract Object visitUntyped(Visitor<?> visitor);
 
   /**
    * Visit the types with the given visitor.
    * @see com.google.javascript.rhino.jstype.RelationshipVisitor
    * @return the value returned by the visitor
    */
-  abstract <T> T visit(RelationshipVisitor<T> visitor, JSType that);
+  @SuppressWarnings("unchecked")
+  final <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+    return (T) visitUntyped(visitor, that);
+  }
+
+  /** The virtual, non-generic form of {@link #visit(RelationshipVisitor, JSType)}. */
+  abstract Object visitUntyped(RelationshipVisitor<?> visitor, JSType that);
 
   /**
    * Resolve this type in the given scope.

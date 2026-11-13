@@ -24,6 +24,7 @@ import com.google.javascript.jscomp.ControlFlowGraph.Branch;
 import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
 import com.google.javascript.jscomp.LiveVariablesAnalysis.LiveVariableLattice;
 import com.google.javascript.jscomp.NodeUtil.AllVarsDeclaredInFunction;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
@@ -154,7 +155,7 @@ class DeadAssignmentsElimination extends NodeTraversal.AbstractCfgCallback imple
     Iterable<? extends DiGraphNode<Node, Branch>> nodes = cfg.getNodes();
 
     for (DiGraphNode<Node, Branch> cfgNode : nodes) {
-      LinearFlowState<LiveVariableLattice> state = cfgNode.getAnnotation();
+      LinearFlowState<LiveVariableLattice> state = Annotatable.getAnnotation(cfgNode);
       Node n = cfgNode.getValue();
       if (n == null) {
         continue;

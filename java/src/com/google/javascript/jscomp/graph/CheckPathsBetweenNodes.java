@@ -145,9 +145,9 @@ public final class CheckPathsBetweenNodes<N, E> {
         continue;
       }
       DiGraphNode<N, E> v = e.getDestination();
-      if (v.getAnnotation() == WHITE) {
+      if (Annotatable.getAnnotation(v) == WHITE) {
         discoverBackEdges(v);
-      } else if (v.getAnnotation() == GRAY) {
+      } else if (Annotatable.getAnnotation(v) == GRAY) {
         e.setAnnotation(BACK_EDGE);
       }
     }
@@ -174,13 +174,13 @@ public final class CheckPathsBetweenNodes<N, E> {
     for (DiGraphEdge<N, E> e : a.getOutEdges()) {
       // Once we visited that edge once, we no longer need to
       // re-visit it again.
-      if (e.getAnnotation() == VISITED_EDGE) {
+      if (Annotatable.getAnnotation(e) == VISITED_EDGE) {
         continue;
       }
       if (ignoreEdge(e)) {
         continue;
       }
-      if (e.getAnnotation() == BACK_EDGE) {
+      if (Annotatable.getAnnotation(e) == BACK_EDGE) {
         continue;
       }
       e.setAnnotation(VISITED_EDGE);
@@ -209,13 +209,13 @@ public final class CheckPathsBetweenNodes<N, E> {
     for (DiGraphEdge<N, E> e : a.getOutEdges()) {
       // Once we visited that edge once, we no longer need to
       // re-visit it again.
-      if (e.getAnnotation() == VISITED_EDGE) {
+      if (Annotatable.getAnnotation(e) == VISITED_EDGE) {
         continue;
       }
       if (ignoreEdge(e)) {
         continue;
       }
-      if (e.getAnnotation() == BACK_EDGE) {
+      if (Annotatable.getAnnotation(e) == BACK_EDGE) {
         continue;
       }
       e.setAnnotation(VISITED_EDGE);

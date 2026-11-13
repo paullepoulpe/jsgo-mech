@@ -341,7 +341,13 @@ public abstract class AbstractCompiler implements SourceExcerptProvider, Compile
    * Returns, from a provider, the desired index of type T, otherwise null if no provider is
    * registered for the given type.
    */
-  abstract <T> T getIndex(Class<T> type);
+  @SuppressWarnings("unchecked")
+  final <T> T getIndex(Class<T> type) {
+    return (T) getIndexUntyped(type);
+  }
+
+  /** The virtual, non-generic form of {@link #getIndex(Class)}. */
+  abstract Object getIndexUntyped(Class<?> type);
 
   /** Returns the root of the source tree, ignoring externs */
   abstract Node getJsRoot();

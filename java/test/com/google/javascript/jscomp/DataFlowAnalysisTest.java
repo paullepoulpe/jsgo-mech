@@ -24,6 +24,7 @@ import com.google.javascript.jscomp.ControlFlowGraph.Branch;
 import com.google.javascript.jscomp.DataFlowAnalysis.FlowJoiner;
 import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
 import com.google.javascript.jscomp.NodeUtil.AllVarsDeclaredInFunction;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.GraphNode;
 import com.google.javascript.jscomp.graph.LatticeElement;
 import com.google.javascript.rhino.InputId;
@@ -1019,13 +1020,13 @@ public final class DataFlowAnalysisTest {
 
   static void verifyInHas(
       GraphNode<Instruction, Branch> node, Variable var, @Nullable Integer constant) {
-    LinearFlowState<ConstPropLatticeElement> fState = node.getAnnotation();
+    LinearFlowState<ConstPropLatticeElement> fState = Annotatable.getAnnotation(node);
     veritfyLatticeElementHas(fState.getIn(), var, constant);
   }
 
   static void verifyOutHas(
       GraphNode<Instruction, Branch> node, Variable var, @Nullable Integer constant) {
-    LinearFlowState<ConstPropLatticeElement> fState = node.getAnnotation();
+    LinearFlowState<ConstPropLatticeElement> fState = Annotatable.getAnnotation(node);
     veritfyLatticeElementHas(fState.getOut(), var, constant);
   }
 

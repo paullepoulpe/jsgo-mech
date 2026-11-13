@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.ControlFlowGraph.Branch;
 import com.google.javascript.jscomp.base.Tri;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.GraphNode;
 import com.google.javascript.jscomp.graph.GraphReachability;
 import com.google.javascript.jscomp.graph.GraphReachability.EdgeTuple;
@@ -48,7 +49,7 @@ class CheckUnreachableCode extends NodeTraversal.AbstractCfgCallback {
   public boolean shouldTraverse(NodeTraversal t, Node n, Node parent) {
     ControlFlowGraph<Node> cfg = getControlFlowGraph(compiler);
     GraphNode<Node, Branch> gNode = cfg.getNode(n);
-    if (gNode != null && gNode.getAnnotation() != GraphReachability.REACHABLE) {
+    if (gNode != null && Annotatable.getAnnotation(gNode) != GraphReachability.REACHABLE) {
 
       // Only report error when there are some line number informations.
       // There are synthetic nodes with no line number informations, nodes

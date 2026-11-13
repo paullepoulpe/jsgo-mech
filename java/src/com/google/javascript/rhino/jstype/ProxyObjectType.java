@@ -355,11 +355,11 @@ public class ProxyObjectType extends ObjectType {
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseProxyObjectType(this);
   }
 
-  @Override <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+  @Override Object visitUntyped(RelationshipVisitor<?> visitor, JSType that) {
     return referencedType.visit(visitor, that);
   }
 

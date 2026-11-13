@@ -476,7 +476,7 @@ public final class NamedType extends ProxyObjectType {
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseNamedType(this);
   }
 

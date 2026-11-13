@@ -26,6 +26,7 @@ import com.google.javascript.jscomp.ControlFlowGraph.Branch;
 import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
 import com.google.javascript.jscomp.LiveVariablesAnalysis.LiveVariableLattice;
 import com.google.javascript.jscomp.NodeUtil.AllVarsDeclaredInFunction;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import com.google.javascript.jscomp.graph.GraphColoring;
 import com.google.javascript.jscomp.graph.GraphColoring.GreedyGraphColoring;
@@ -387,7 +388,7 @@ class CoalesceVariableNames extends NodeTraversal.AbstractCfgCallback implements
         continue;
       }
 
-      LinearFlowState<LiveVariableLattice> state = cfgNode.getAnnotation();
+      LinearFlowState<LiveVariableLattice> state = Annotatable.getAnnotation(cfgNode);
 
       // Check the live states and add edge when possible. An edge between two variables
       // means that they are alive at overlapping times, which means that their
@@ -593,7 +594,7 @@ class CoalesceVariableNames extends NodeTraversal.AbstractCfgCallback implements
     Node letNode = nameNode.getParent();
     ControlFlowGraph<Node> cfg = liveness.getCfg();
     DiGraphNode<Node, Branch> cfgNode = checkNotNull(cfg.getNode(letNode));
-    LinearFlowState<LiveVariableLattice> state = checkNotNull(cfgNode.getAnnotation());
+    LinearFlowState<LiveVariableLattice> state = checkNotNull(Annotatable.getAnnotation(cfgNode));
     int varIndex = liveness.getVarIndex(originalVar.getName());
     return varIndex >= 0 && state.getOut().isLive(varIndex);
   }

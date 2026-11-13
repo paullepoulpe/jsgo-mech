@@ -95,11 +95,11 @@ public class NoType extends NoObjectType {
   }
 
   @Override
-  public final <T> T visit(Visitor<T> visitor) {
+  public final Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseNoType(this);
   }
 
-  @Override final <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+  @Override final Object visitUntyped(RelationshipVisitor<?> visitor, JSType that) {
     return visitor.caseNoType(that);
   }
 

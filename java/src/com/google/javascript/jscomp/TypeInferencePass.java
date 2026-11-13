@@ -26,6 +26,7 @@ import com.google.javascript.jscomp.CodingConvention.AssertionFunctionLookup;
 import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
 import com.google.javascript.jscomp.NodeTraversal.AbstractScopedCallback;
 import com.google.javascript.jscomp.diagnostic.LogFile;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import com.google.javascript.jscomp.type.ReverseAbstractInterpreter;
 import com.google.javascript.rhino.Node;
@@ -162,7 +163,7 @@ class TypeInferencePass {
           continue;
         }
 
-        LinearFlowState<?> state = node.getAnnotation();
+        LinearFlowState<?> state = Annotatable.getAnnotation(node);
         this.stepCountHistogram
             .computeIfAbsent(state.getStepCount(), (k) -> LinkedHashMultiset.create())
             .add(node.getValue().getToken());

@@ -194,12 +194,12 @@ public final class EnumType extends PrototypeObjectType implements JSType.WithSo
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseObjectType(this);
   }
 
   @Override
-  <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+  Object visitUntyped(RelationshipVisitor<?> visitor, JSType that) {
     return visitor.caseObjectType(this, that);
   }
 

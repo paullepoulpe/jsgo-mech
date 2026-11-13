@@ -271,7 +271,7 @@ public final class LinkedUndirectedGraph<N, E>
     }
 
     @Override
-    public <A extends Annotation> A getAnnotation() {
+    public Annotation getAnnotationUntyped() {
       throw new UnsupportedOperationException(
           "Graph initialized with node annotations turned off");
     }
@@ -329,8 +329,8 @@ public final class LinkedUndirectedGraph<N, E>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A extends Annotation> A getAnnotation() {
-      return (A) annotation;
+    public Annotation getAnnotationUntyped() {
+      return annotation;
     }
 
     @Override
@@ -372,7 +372,7 @@ public final class LinkedUndirectedGraph<N, E>
     }
 
     @Override
-    public <A extends Annotation> A getAnnotation() {
+    public Annotation getAnnotationUntyped() {
       throw new UnsupportedOperationException(
           "Graph initialized with edge annotations turned off");
     }
@@ -425,8 +425,8 @@ public final class LinkedUndirectedGraph<N, E>
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A extends Annotation> A getAnnotation() {
-      return (A) annotation;
+    public Annotation getAnnotationUntyped() {
+      return annotation;
     }
 
     @Override

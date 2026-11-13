@@ -68,7 +68,7 @@ public abstract class GraphColoring<N, E> {
    */
   public N getPartitionSuperNode(N node) {
     checkNotNull(colorToNodeMap, "No coloring founded. color() should be called first.");
-    Color color = graph.getNode(node).getAnnotation();
+    Color color = Annotatable.getAnnotation(graph.getNode(node));
     N headNode = colorToNodeMap[color.value];
     if (headNode == null) {
       colorToNodeMap[color.value] = node;
@@ -81,8 +81,8 @@ public abstract class GraphColoring<N, E> {
   /** Using the coloring as partitions, checks whether two given nodes have the same color */
   public boolean haveSameColor(N first, N second) {
     checkNotNull(colorToNodeMap, "No coloring founded. color() should be called first.");
-    Color colorFirst = graph.getNode(first).getAnnotation();
-    Color colorSecond = graph.getNode(second).getAnnotation();
+    Color colorFirst = Annotatable.getAnnotation(graph.getNode(first));
+    Color colorSecond = Annotatable.getAnnotation(graph.getNode(second));
     checkNotNull(colorFirst);
     checkNotNull(colorSecond);
     return colorFirst.equals(colorSecond);

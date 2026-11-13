@@ -330,7 +330,7 @@ public abstract class Graph<N, E> implements AdjacencyGraph<N, E> {
       Collection<? extends Annotatable> haveAnnotations) {
     stack.push(new GraphAnnotationState(haveAnnotations.size()));
     for (Annotatable h : haveAnnotations) {
-      stack.peek().add(new AnnotationState(h, h.getAnnotation()));
+      stack.peek().add(new AnnotationState(h, Annotatable.getAnnotation(h)));
       h.setAnnotation(null);
     }
   }

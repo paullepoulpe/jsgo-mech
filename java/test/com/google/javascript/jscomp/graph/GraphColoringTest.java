@@ -182,11 +182,11 @@ public final class GraphColoringTest {
   /** Validate that each node has been colored and connected nodes have different coloring. */
   private static <N, E> void validateColoring(Graph<N, E> graph) {
     for (GraphNode<N, E> node : graph.getNodes()) {
-      assertThat(node.<Annotation>getAnnotation()).isNotNull();
+      assertThat(Annotatable.<Annotation>getAnnotation(node)).isNotNull();
     }
     for (GraphEdge<N, E> edge : graph.getEdges()) {
-      Color c1 = edge.getNodeA().getAnnotation();
-      Color c2 = edge.getNodeB().getAnnotation();
+      Color c1 = Annotatable.getAnnotation(edge.getNodeA());
+      Color c2 = Annotatable.getAnnotation(edge.getNodeB());
       assertThat(c1).isNotNull();
       assertThat(c2).isNotNull();
       assertThat(c1.equals(c2)).isFalse();

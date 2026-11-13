@@ -116,7 +116,7 @@ public final class NullType extends ValueType {
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseNullType();
   }
 }

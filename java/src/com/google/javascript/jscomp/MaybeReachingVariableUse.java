@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.ControlFlowGraph.Branch;
 import com.google.javascript.jscomp.MaybeReachingVariableUse.ReachingUses;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphEdge;
 import com.google.javascript.jscomp.graph.GraphNode;
 import com.google.javascript.jscomp.graph.LatticeElement;
@@ -417,7 +418,7 @@ class MaybeReachingVariableUse extends DataFlowAnalysis<Node, ReachingUses> {
   Iterable<Node> getUses(String name, Node defNode) {
     GraphNode<Node, Branch> n = getCfg().getNode(defNode);
     checkNotNull(n);
-    LinearFlowState<ReachingUses> state = n.getAnnotation();
+    LinearFlowState<ReachingUses> state = Annotatable.getAnnotation(n);
     return state.getOut().get(allVarsInFn.get(name));
   }
 }

@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.javascript.jscomp.ControlFlowGraph.AbstractCfgNodeTraversalCallback;
 import com.google.javascript.jscomp.ControlFlowGraph.Branch;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.GraphNode;
 import com.google.javascript.jscomp.graph.LatticeElement;
 import com.google.javascript.rhino.Node;
@@ -439,7 +440,7 @@ final class MustBeReachingVariableDef
   Definition getDef(String name, Node useNode) {
     checkArgument(getCfg().hasNode(useNode));
     GraphNode<Node, Branch> n = getCfg().getNode(useNode);
-    LinearFlowState<MustDef> state = n.getAnnotation();
+    LinearFlowState<MustDef> state = Annotatable.getAnnotation(n);
     return state.getIn().reachingDef.get(allVarsInFn.get(name));
   }
 

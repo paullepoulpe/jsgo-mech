@@ -19,6 +19,7 @@ package com.google.javascript.jscomp;
 import static java.util.Comparator.comparing;
 
 import com.google.javascript.jscomp.ControlFlowGraph.Branch;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphEdge;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import com.google.javascript.jscomp.graph.GraphvizGraph;
@@ -254,7 +255,7 @@ public final class DotFormatter {
         builder.append(type.toString());
       }
       if (printAnnotations && cfg != null && cfg.hasNode(n)) {
-        Object annotation = cfg.getNode(n).getAnnotation();
+        Object annotation = Annotatable.getAnnotation(cfg.getNode(n));
         if (annotation != null) {
           builder.append("\\n");
           builder.append(annotation.toString());

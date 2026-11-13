@@ -131,11 +131,11 @@ public class NoObjectType extends FunctionType {
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     return visitor.caseNoObjectType();
   }
 
-  @Override <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+  @Override Object visitUntyped(RelationshipVisitor<?> visitor, JSType that) {
     return visitor.caseNoObjectType(that);
   }
 

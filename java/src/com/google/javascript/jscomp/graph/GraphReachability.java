@@ -30,7 +30,7 @@ import org.jspecify.annotations.Nullable;
  * @param <N> The type of data that the graph node holds.
  * @param <E> The type of data that the graph edge holds.
  *
- * @see GraphNode#getAnnotation()
+ * @see GraphNode#getAnnotationUntyped()
  */
 public final class GraphReachability<N, E> implements EdgeCallback<N, E> {
 
@@ -64,7 +64,7 @@ public final class GraphReachability<N, E> implements EdgeCallback<N, E> {
 
   public void recompute(N reachableNode) {
     GraphNode<N, E> newReachable = graph.getNode(reachableNode);
-    checkState(newReachable.getAnnotation() != REACHABLE);
+    checkState(Annotatable.getAnnotation(newReachable) != REACHABLE);
     newReachable.setAnnotation(REACHABLE);
     FixedPointGraphTraversal.newTraversal(this)
         .computeFixedPoint(graph, reachableNode);
@@ -72,11 +72,11 @@ public final class GraphReachability<N, E> implements EdgeCallback<N, E> {
 
   @Override
   public boolean traverseEdge(N source, E e, N destination) {
-    if (graph.getNode(source).getAnnotation() == REACHABLE &&
+    if (Annotatable.getAnnotation(graph.getNode(source)) == REACHABLE &&
         (edgePredicate == null ||
             edgePredicate.apply(new EdgeTuple<>(source, e, destination)))) {
       GraphNode<N, E> destNode = graph.getNode(destination);
-      if (destNode.getAnnotation() != REACHABLE) {
+      if (Annotatable.getAnnotation(destNode) != REACHABLE) {
         destNode.setAnnotation(REACHABLE);
         return true;
       }

@@ -24,6 +24,7 @@ import com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
 import com.google.javascript.jscomp.NodeUtil.AllVarsDeclaredInFunction;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.rhino.InputId;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
@@ -624,7 +625,7 @@ public final class LiveVariablesAnalysisTest {
       Node node, ControlFlowGraph<Node> cfg) {
     if (node.isLabel()) {
       if (node.getFirstChild().getString().equals("X")) {
-        return cfg.getNode(node.getLastChild()).getAnnotation();
+        return Annotatable.getAnnotation(cfg.getNode(node.getLastChild()));
       }
     }
     for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {
@@ -651,7 +652,7 @@ public final class LiveVariablesAnalysisTest {
       Node node, ControlFlowGraph<Node> cfg, String name) {
     if (NodeUtil.isNameDeclaration(node)) {
       if (node.getFirstChild().getString().equals(name)) {
-        return cfg.getNode(node).getAnnotation();
+        return Annotatable.getAnnotation(cfg.getNode(node));
       }
     }
     for (Node c = node.getFirstChild(); c != null; c = c.getNext()) {

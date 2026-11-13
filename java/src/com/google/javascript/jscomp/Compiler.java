@@ -3331,8 +3331,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @SuppressWarnings("unchecked")
   @Override
-  <T> T getIndex(Class<T> key) {
-    IndexProvider<T> indexProvider = (IndexProvider<T>) indexProvidersByType.get(key);
+  Object getIndexUntyped(Class<?> key) {
+    IndexProvider<?> indexProvider = indexProvidersByType.get(key);
     if (indexProvider == null) {
       return null;
     }

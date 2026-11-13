@@ -119,11 +119,11 @@ final class ArrowType extends JSType {
   }
 
   @Override
-  public <T> T visit(Visitor<T> visitor) {
+  public Object visitUntyped(Visitor<?> visitor) {
     throw new UnsupportedOperationException();
   }
 
-  @Override <T> T visit(RelationshipVisitor<T> visitor, JSType that) {
+  @Override Object visitUntyped(RelationshipVisitor<?> visitor, JSType that) {
     throw new UnsupportedOperationException();
   }
 

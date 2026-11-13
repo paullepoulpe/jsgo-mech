@@ -54,6 +54,7 @@ import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
 import com.google.javascript.jscomp.NodeTraversal.AbstractScopedCallback;
 import com.google.javascript.jscomp.TypeInference.BigIntPresence;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
+import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.modules.ModuleMapCreator;
 import com.google.javascript.jscomp.testing.ScopeSubject;
 import com.google.javascript.jscomp.type.FlowScope;
@@ -289,7 +290,7 @@ public final class TypeInferenceTest {
         new TypeInference(compiler, cfg, rai, assumedScope, scopeCreator, ASSERTION_FUNCTION_MAP);
     dfa.analyze();
     // Get the scope of the implicit return.
-    LinearFlowState<FlowScope> rtnState = cfg.getImplicitReturn().getAnnotation();
+    LinearFlowState<FlowScope> rtnState = Annotatable.getAnnotation(cfg.getImplicitReturn());
     if (cfgRoot.isFunction()) {
       // Reset the flow scope's syntactic scope to the function block, rather than the function
       // node
