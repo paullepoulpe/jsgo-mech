@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.DependencyInfo;
 import com.google.javascript.jscomp.deps.JsFileRegexParser;
 import com.google.javascript.jscomp.deps.ModuleLoader;
@@ -349,21 +350,21 @@ public class CompilerInput implements DependencyInfo {
       // getPathRelativeToClosureBase() here because we're not using
       // this to generate deps files. (We're only using it for
       // symbol dependencies.)
-      try {
-        DependencyInfo info =
-            new JsFileRegexParser(compiler.getErrorManager())
-                .setModuleLoader(compiler.getModuleLoader())
-                .setIncludeGoogBase(true)
-                .parseFile(getName(), getName(), getCode());
-        return new LazyParsedDependencyInfo(info, this, compiler);
-      } catch (IOException e) {
+      Outcome<String> codeRes = getSourceFile().readCode();
+      if (codeRes.isErr()) {
         compiler
             .getErrorManager()
             .report(
                 CheckLevel.ERROR,
-                JSError.make(AbstractCompiler.READ_ERROR, getName(), e.getMessage()));
+                JSError.make(AbstractCompiler.READ_ERROR, getName(), codeRes.errorMessage()));
         return SimpleDependencyInfo.EMPTY;
       }
+      DependencyInfo info =
+          new JsFileRegexParser(compiler.getErrorManager())
+              .setModuleLoader(compiler.getModuleLoader())
+              .setIncludeGoogBase(true)
+              .parseFile(getName(), getName(), codeRes.get());
+      return new LazyParsedDependencyInfo(info, this, compiler);
     } else {
       // Otherwise, just look at the AST.
 
@@ -675,11 +676,16 @@ public class CompilerInput implements DependencyInfo {
     }
 
     private void parse(AbstractCompiler compiler) {
-      try {
+      Outcome<String> codeRes = sourceFile.readCode();
+      if (codeRes.isErr()) {
+        compiler.report(
+            JSError.make(
+                AbstractCompiler.READ_ERROR, sourceFile.getName(), codeRes.errorMessage()));
+      } else {
         ParserRunner.ParseResult result =
             ParserRunner.parse(
                 sourceFile,
-                sourceFile.getCode(),
+                codeRes.get(),
                 compiler.getParserConfig(
                     sourceFile.isExtern()
                         ? AbstractCompiler.ConfigContext.EXTERNS
@@ -700,9 +706,6 @@ public class CompilerInput implements DependencyInfo {
                 sourceFile.getName(), new SourceMapInput(sourceMapSourceFile));
           }
         }
-      } catch (IOException e) {
-        compiler.report(
-            JSError.make(AbstractCompiler.READ_ERROR, sourceFile.getName(), e.getMessage()));
       }
 
       if (root == null) {

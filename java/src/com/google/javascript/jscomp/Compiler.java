@@ -2587,12 +2587,12 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       }
 
       input.setCompiler(this);
-      try {
-        // JSON objects need wrapped in parens to parse properly
-        input.getSourceFile().setCodeDeprecated("(" + input.getSourceFile().getCode() + ")");
-      } catch (IOException e) {
+      Outcome<String> codeRes = input.getSourceFile().readCode();
+      if (codeRes.isErr()) {
         continue;
       }
+      // JSON objects need wrapped in parens to parse properly
+      input.getSourceFile().setCodeDeprecated("(" + codeRes.get() + ")");
 
       Node root = checkNotNull(input.getAstRoot(this));
       input.setJsModuleType(ModuleType.JSON);
@@ -3614,11 +3614,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       return null;
     }
     checkNotNull(file);
-    try {
-      return file.getCode();
-    } catch (IOException e) {
+    Outcome<String> codeRes = file.readCode();
+    if (codeRes.isErr()) {
       return null;
     }
+    return codeRes.get();
   }
 
   @Override
@@ -4210,11 +4210,12 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     // synchronized annotation guards concurrent access to sourceMap during parsing.
     if (getOptions().getSourceMapIncludeSourcesContent() && getSourceMap() != null) {
       for (SourceFile file : files) {
-        try {
-          getSourceMap().addSourceFile(file.getName(), file.getCode());
-        } catch (IOException e) {
-          throw new RuntimeException("Cannot read code of a source map's source file.", e);
+        Outcome<String> codeRes = file.readCode();
+        if (codeRes.isErr()) {
+          throw new RuntimeException(
+              "Cannot read code of a source map's source file.", codeRes.error());
         }
+        getSourceMap().addSourceFile(file.getName(), codeRes.get());
       }
     }
   }

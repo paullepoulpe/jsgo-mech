@@ -25,12 +25,12 @@ import com.google.common.primitives.Doubles;
 import com.google.debugging.sourcemap.FilePosition;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CodePrinter.Builder.CodeGeneratorFactory;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -541,16 +541,15 @@ public final class CodePrinter {
         return null;
       }
 
-      String srcCode;
-      try {
-        if (src.isStubSourceFileForAlreadyProvidedInput()) {
-          // source file is a stub file, so we can not get number from source.
-          return null;
-        }
-        srcCode = src.getCode();
-      } catch (IOException e) {
+      if (src.isStubSourceFileForAlreadyProvidedInput()) {
+        // source file is a stub file, so we can not get number from source.
         return null;
       }
+      Outcome<String> codeRes = src.readCode();
+      if (codeRes.isErr()) {
+        return null;
+      }
+      String srcCode = codeRes.get();
 
       int offset;
       try {

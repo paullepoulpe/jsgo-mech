@@ -27,6 +27,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.io.CharStreams;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.serialization.SourceFileProto;
 import com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDisk;
 import com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDisk;
@@ -134,9 +135,7 @@ public final class SourceFile implements StaticSourceFile {
     if (numLines < 0) {
       // A negative value means we need to read in the code and calculate this information.
       // Otherwise, assume the file hasn't changed since we read it.
-      try {
-        var unused = getCode();
-      } catch (IOException e) {
+      if (readCode().isErr()) {
         // this is consistent with old behavior of this method.
         return 0;
       }
@@ -158,9 +157,7 @@ public final class SourceFile implements StaticSourceFile {
     if (numBytes < 0) {
       // A negative value means we need to read in the code and calculate this information.
       // Otherwise, assume the file hasn't changed since we read it.
-      try {
-        var unused = getCode();
-      } catch (IOException e) {
+      if (readCode().isErr()) {
         // this is consistent with old behavior of this method.
         return 0;
       }
@@ -186,13 +183,13 @@ public final class SourceFile implements StaticSourceFile {
 
     String localCode = this.code;
     if (localCode == null) {
-      try {
-        localCode = this.getCode();
-      } catch (IOException e) {
+      Outcome<String> codeRes = this.readCode();
+      if (codeRes.isErr()) {
         localCode = "";
         this.lineOffsets = new int[1];
         return;
       }
+      localCode = codeRes.get();
     }
 
     // getCode() updates numLines, so this is always in sync with the code.
@@ -225,6 +222,18 @@ public final class SourceFile implements StaticSourceFile {
     }
 
     return this.code;
+  }
+
+  /**
+   * Gets all the code in this source file like {@link #getCode()}, but a failure to read it is an
+   * error result instead of a thrown IOException.
+   */
+  public final Outcome<String> readCode() {
+    try {
+      return Outcome.ok(this.getCode());
+    } catch (IOException e) {
+      return Outcome.err(e);
+    }
   }
 
   @Deprecated
@@ -365,12 +374,11 @@ public final class SourceFile implements StaticSourceFile {
    *     null} if it does not exist, or if there was an IO exception.
    */
   public @Nullable String getLine(int lineNumber) {
-    String js;
-    try {
-      js = getCode();
-    } catch (IOException e) {
+    Outcome<String> codeRes = readCode();
+    if (codeRes.isErr()) {
       return null;
     }
+    String js = codeRes.get();
     findLineOffsets();
     if (lineNumber > lineOffsets.length) {
       return null;
@@ -412,12 +420,11 @@ public final class SourceFile implements StaticSourceFile {
    *     exception.
    */
   public @Nullable Region getLines(int lineNumber, int length) {
-    String js;
-    try {
-      js = getCode();
-    } catch (IOException e) {
+    Outcome<String> codeRes = readCode();
+    if (codeRes.isErr()) {
       return null;
     }
+    String js = codeRes.get();
     findLineOffsets();
     if (lineNumber > lineOffsets.length) {
       return null;
@@ -465,12 +472,11 @@ public final class SourceFile implements StaticSourceFile {
    *     exception.
    */
   public @Nullable Region getRegion(int lineNumber) {
-    String js = "";
-    try {
-      js = getCode();
-    } catch (IOException e) {
+    Outcome<String> codeRes = readCode();
+    if (codeRes.isErr()) {
       return null;
     }
+    String js = codeRes.get();
     int pos = 0;
     int startLine = max(1, lineNumber - (SOURCE_EXCERPT_REGION_LENGTH + 1) / 2 + 1);
     for (int n = 1; n < startLine; n++) {

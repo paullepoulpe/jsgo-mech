@@ -22,9 +22,9 @@ import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile;
-import java.io.IOException;
 
 /**
  * Check for statements that should end with a semicolon according to the Google style guide.
@@ -71,13 +71,12 @@ public final class CheckMissingSemicolon extends AbstractPostOrderCallback imple
     StaticSourceFile staticSourceFile = n.getStaticSourceFile();
     if (staticSourceFile instanceof SourceFile sourceFile) {
 
-      String code;
-      try {
-        code = sourceFile.getCode();
-      } catch (IOException e) {
+      Outcome<String> codeRes = sourceFile.readCode();
+      if (codeRes.isErr()) {
         // We can't read the original source file. Just skip this check.
         return;
       }
+      String code = codeRes.get();
 
       int length = n.getLength();
       if (length == 0) {

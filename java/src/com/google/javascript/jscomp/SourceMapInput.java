@@ -18,7 +18,7 @@ package com.google.javascript.jscomp;
 
 import com.google.debugging.sourcemap.SourceMapConsumerV3;
 import com.google.debugging.sourcemap.SourceMapParseException;
-import java.io.IOException;
+import com.google.javascript.jscomp.base.Outcome;
 import org.jspecify.annotations.Nullable;
 
 /** A lazy-loaded SourceMapConsumerV3 instance. */
@@ -47,8 +47,16 @@ public final class SourceMapInput {
       // Avoid re-reading or reparsing files.
       cached = true;
       String sourceMapPath = sourceFile.getName();
+      Outcome<String> codeRes = sourceFile.readCode();
+      if (codeRes.isErr()) {
+        JSError error =
+            JSError.make(
+                SourceMapInput.SOURCEMAP_RESOLVE_FAILED, sourceMapPath, codeRes.errorMessage());
+        errorManager.report(error.defaultLevel(), error);
+        return parsedSourceMap;
+      }
       try {
-        String sourceMapContents = sourceFile.getCode();
+        String sourceMapContents = codeRes.get();
         SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
         consumer.parse(sourceMapContents);
 
@@ -67,10 +75,6 @@ public final class SourceMapInput {
         }
 
         parsedSourceMap = consumer;
-      } catch (IOException e) {
-        JSError error =
-            JSError.make(SourceMapInput.SOURCEMAP_RESOLVE_FAILED, sourceMapPath, e.getMessage());
-        errorManager.report(error.defaultLevel(), error);
       } catch (SourceMapParseException e) {
         JSError error =
             JSError.make(SourceMapInput.SOURCEMAP_PARSE_FAILED, sourceMapPath, e.getMessage());
@@ -86,10 +90,10 @@ public final class SourceMapInput {
   }
 
   public @Nullable String getRawSourceMapContents() {
-    try {
-      return this.sourceFile.getCode();
-    } catch (IOException e) {
+    Outcome<String> codeRes = this.sourceFile.readCode();
+    if (codeRes.isErr()) {
       return null;
     }
+    return codeRes.get();
   }
 }
