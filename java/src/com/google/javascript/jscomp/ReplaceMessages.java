@@ -328,34 +328,36 @@ public final class ReplaceMessages {
     }
 
     void visitMsgDefinition(ProtectedJsMessage protectedJsMessage) {
-      try {
-        final JsMessage originalMsg = protectedJsMessage.jsMessage;
-        final Node nodeToReplace = protectedJsMessage.definitionNode;
-        final JsMessage translatedMsg =
-            lookupMessage(protectedJsMessage.definitionNode, bundle, originalMsg);
-        final JsMessage msgToUse;
-        if (translatedMsg != null) {
-          msgToUse = translatedMsg;
-          // Remember that this one got translated in case it is used in a fallback.
-          translatedMsgKeys.add(originalMsg.getKey());
-        } else {
-          if (strictReplacement) {
-            compiler.report(
-                JSError.make(nodeToReplace, BUNDLE_DOES_NOT_HAVE_THE_MESSAGE, originalMsg.getId()));
-          }
-          msgToUse = originalMsg;
+      final JsMessage originalMsg = protectedJsMessage.jsMessage;
+      final Node nodeToReplace = protectedJsMessage.definitionNode;
+      final JsMessage translatedMsg =
+          lookupMessage(protectedJsMessage.definitionNode, bundle, originalMsg);
+      final JsMessage msgToUse;
+      if (translatedMsg != null) {
+        msgToUse = translatedMsg;
+        // Remember that this one got translated in case it is used in a fallback.
+        translatedMsgKeys.add(originalMsg.getKey());
+      } else {
+        if (strictReplacement) {
+          compiler.report(
+              JSError.make(nodeToReplace, BUNDLE_DOES_NOT_HAVE_THE_MESSAGE, originalMsg.getId()));
         }
-        final MsgOptions msgOptions = protectedJsMessage.getMsgOptions();
-        final Map<String, Node> placeholderMap =
-            extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode);
-        final Node finalMsgConstructionExpression =
-            constructStringExprNode(msgToUse, placeholderMap, msgOptions, nodeToReplace);
-        finalMsgConstructionExpression.srcrefTreeIfMissing(nodeToReplace);
-        nodeToReplace.replaceWith(finalMsgConstructionExpression);
-        compiler.reportChangeToEnclosingScope(finalMsgConstructionExpression);
-      } catch (MalformedException e) {
-        compiler.report(JSError.make(e.getNode(), MESSAGE_TREE_MALFORMED, e.getMessage()));
+        msgToUse = originalMsg;
       }
+      final MsgOptions msgOptions = protectedJsMessage.getMsgOptions();
+      final Map<String, Node> placeholderMap =
+          extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode);
+      Outcome<Node> finalMsgConstructionExpressionOutcome =
+          constructStringExprNode(msgToUse, placeholderMap, msgOptions, nodeToReplace);
+      if (finalMsgConstructionExpressionOutcome.isErr()) {
+        MalformedException e = (MalformedException) finalMsgConstructionExpressionOutcome.error();
+        compiler.report(JSError.make(e.getNode(), MESSAGE_TREE_MALFORMED, e.getMessage()));
+        return;
+      }
+      final Node finalMsgConstructionExpression = finalMsgConstructionExpressionOutcome.get();
+      finalMsgConstructionExpression.srcrefTreeIfMissing(nodeToReplace);
+      nodeToReplace.replaceWith(finalMsgConstructionExpression);
+      compiler.reportChangeToEnclosingScope(finalMsgConstructionExpression);
     }
 
     private void visitMsgFallback(ProtectedMsgFallback protectedMsgFallback) {
@@ -377,11 +379,12 @@ public final class ReplaceMessages {
   }
 
   static ImmutableMap<String, Node> extractPlaceholderValuesMapOrThrow(Node valuesObjLit) {
-    try {
-      return JsMessageVisitor.extractObjectLiteralMap(valuesObjLit).extractAsValueMap();
-    } catch (MalformedException e) {
-      throw new IllegalStateException(e);
+    Outcome<JsMessageVisitor.ObjectLiteralMap> objectLiteralMap =
+        JsMessageVisitor.extractObjectLiteralMap(valuesObjLit);
+    if (objectLiteralMap.isErr()) {
+      throw new IllegalStateException(objectLiteralMap.error());
     }
+    return objectLiteralMap.get().extractAsValueMap();
   }
 
   private static class ProtectedMsgFallback {
@@ -556,12 +559,15 @@ public final class ReplaceMessages {
 
       // Replace the message.
       Node newValue;
-      try {
-        // Build the replacement tree.
-        newValue = constructStringExprNode(replacement, placeholderValueMap, options, msgNode);
-      } catch (MalformedException e) {
+      // Build the replacement tree.
+      Outcome<Node> newValueOutcome =
+          constructStringExprNode(replacement, placeholderValueMap, options, msgNode);
+      if (newValueOutcome.isErr()) {
+        MalformedException e = (MalformedException) newValueOutcome.error();
         compiler.report(JSError.make(e.getNode(), MESSAGE_TREE_MALFORMED, e.getMessage()));
         newValue = msgNode;
+      } else {
+        newValue = newValueOutcome.get();
       }
 
       if (newValue != msgNode) {
@@ -587,9 +593,8 @@ public final class ReplaceMessages {
    * }(user.getName());
    * }</pre>
    */
-  private Node createNodeForGenderedMsgString(
-      JsMessage message, Map<String, Node> placeholderMap, MsgOptions options, Node nodeToReplace)
-      throws MalformedException {
+  private Outcome<Node> createNodeForGenderedMsgString(
+      JsMessage message, Map<String, Node> placeholderMap, MsgOptions options, Node nodeToReplace) {
 
     // Dynamically build parameter list with unique ids for each placeholder
     Node paramList = astFactory.createParamList();
@@ -605,9 +610,13 @@ public final class ReplaceMessages {
       placeholderMapIds.put(placeholderName, placeholderId);
     }
 
-    Node hookExpression =
+    Outcome<Node> hookExpressionOutcome =
         createHookExpressionForGenderedMsg(
             type, message, options, nodeToReplace, placeholderMapIds);
+    if (hookExpressionOutcome.isErr()) {
+      return Outcome.err(hookExpressionOutcome.error());
+    }
+    Node hookExpression = hookExpressionOutcome.get();
 
     if (placeholderMap.isEmpty()) {
       // The translated message read from the bundle is one of the following:
@@ -617,7 +626,7 @@ public final class ReplaceMessages {
 
       // Create the hook expression for the gendered message. This will be used to create the call
       // node if there are placeholders, or returned directly if there are no placeholders.
-      return hookExpression;
+      return Outcome.ok(hookExpression);
     }
 
     Node function =
@@ -631,7 +640,7 @@ public final class ReplaceMessages {
     for (Node node : placeholderMap.values()) {
       callNode.addChildToBack(node.cloneTree());
     }
-    return callNode;
+    return Outcome.ok(callNode);
   }
 
   /**
@@ -685,13 +694,12 @@ public final class ReplaceMessages {
    * "Les damos la bienvenida + name";
    * }</pre>
    */
-  private Node createHookExpressionForGenderedMsg(
+  private Outcome<Node> createHookExpressionForGenderedMsg(
       AstFactory.Type type,
       JsMessage msg,
       MsgOptions options,
       Node nodeToReplace,
-      Map<String, String> placeholderMapIds)
-      throws MalformedException {
+      Map<String, String> placeholderMapIds) {
 
     Node hookHead = IR.hook(IR.name(""), IR.string(""), IR.string(""));
     hookHead.setColor(nodeToReplace.getColor());
@@ -716,16 +724,18 @@ public final class ReplaceMessages {
       Node condition = createConditionForGrammaticalGender(type, grammaticalGender, nodeToReplace);
 
       // The last child of the hook expression will be replaced with the next currentHook
+      Outcome<Node> genderedMessageNode =
+          buildMessageNode(
+              msg.getGenderedMessageParts(grammaticalGender),
+              options,
+              nodeToReplace,
+              placeholderNodeProvider,
+              /* isGenderedMsg= */ true);
+      if (genderedMessageNode.isErr()) {
+        return Outcome.err(genderedMessageNode.error());
+      }
       Node currentHook =
-          IR.hook(
-              condition,
-              buildMessageNode(
-                  msg.getGenderedMessageParts(grammaticalGender),
-                  options,
-                  nodeToReplace,
-                  placeholderNodeProvider,
-                  /* isGenderedMsg= */ true),
-              astFactory.createString(""));
+          IR.hook(condition, genderedMessageNode.get(), astFactory.createString(""));
       currentHook.setColor(nodeToReplace.getColor());
 
       if (placeholderHook.getParent() != null) {
@@ -739,17 +749,18 @@ public final class ReplaceMessages {
       }
     }
     // The OTHER is always the last case in the hook expression
-    placeholderHook
-        .getParent()
-        .getLastChild()
-        .replaceWith(
-            buildMessageNode(
-                msg.getGenderedMessageParts(JsMessage.GrammaticalGenderCase.OTHER),
-                options,
-                nodeToReplace,
-                placeholderNodeProvider,
-                /* isGenderedMsg= */ true));
-    return hookHead;
+    Outcome<Node> otherMessageNode =
+        buildMessageNode(
+            msg.getGenderedMessageParts(JsMessage.GrammaticalGenderCase.OTHER),
+            options,
+            nodeToReplace,
+            placeholderNodeProvider,
+            /* isGenderedMsg= */ true);
+    if (otherMessageNode.isErr()) {
+      return Outcome.err(otherMessageNode.error());
+    }
+    placeholderHook.getParent().getLastChild().replaceWith(otherMessageNode.get());
+    return Outcome.ok(hookHead);
   }
 
   interface PlaceholderNodeProvider {
@@ -769,20 +780,19 @@ public final class ReplaceMessages {
    * @param isGenderedMsg whether this message is part of a gendered message structure
    * @return the root of the constructed parse tree
    */
-  private Node buildMessageNode(
+  private Outcome<Node> buildMessageNode(
       List<Part> msgParts,
       MsgOptions options,
       Node nodeToReplace,
       PlaceholderNodeProvider placeholderNodeProvider,
-      boolean isGenderedMsg)
-      throws MalformedException {
+      boolean isGenderedMsg) {
 
     // A message might have normal string parts that are consecutive.
     // Join them together before processing them further. This allows split HTML entities
     // to be escaped.
     List<Part> parts = mergeStringParts(msgParts);
     if (parts.isEmpty()) {
-      return astFactory.createString("");
+      return Outcome.ok(astFactory.createString(""));
     }
     Node message = null;
     for (Part msgPart : parts) {
@@ -795,8 +805,10 @@ public final class ReplaceMessages {
             // Add the ICU placeholder directly to the message ex: 'Hello {NAME}'
             partNode = astFactory.createString("{" + msgPart.getCanonicalPlaceholderName() + "}");
           } else {
-            throw new MalformedException(
-                "Unrecognized message placeholder referenced: " + jsPlaceholderName, nodeToReplace);
+            return Outcome.err(
+                new MalformedException(
+                    "Unrecognized message placeholder referenced: " + jsPlaceholderName,
+                    nodeToReplace));
           }
         } else {
           partNode = valueNode.cloneTree();
@@ -814,7 +826,7 @@ public final class ReplaceMessages {
         message = astFactory.createAdd(message, partNode);
       }
     }
-    return message;
+    return Outcome.ok(message);
   }
 
   /**
@@ -825,9 +837,8 @@ public final class ReplaceMessages {
    * @param placeholderMap map from placeholder names to value Nodes
    * @return the root of the constructed parse tree
    */
-  private Node constructStringExprNode(
-      JsMessage message, Map<String, Node> placeholderMap, MsgOptions options, Node nodeToReplace)
-      throws MalformedException {
+  private Outcome<Node> constructStringExprNode(
+      JsMessage message, Map<String, Node> placeholderMap, MsgOptions options, Node nodeToReplace) {
 
     // If the message has gendered variants, create a hook expression containing the gendered
     // variants.
@@ -838,9 +849,8 @@ public final class ReplaceMessages {
     }
   }
 
-  private Node constructNonGenderedMsgNode(
-      JsMessage message, Map<String, Node> placeholderMap, MsgOptions options, Node nodeToReplace)
-      throws MalformedException {
+  private Outcome<Node> constructNonGenderedMsgNode(
+      JsMessage message, Map<String, Node> placeholderMap, MsgOptions options, Node nodeToReplace) {
     if (placeholderMap.isEmpty()) {
       // The compiler does not expect to do any placeholder substitution, because the message
       // definition in the JS code doesn't have any placeholders.
@@ -849,12 +859,12 @@ public final class ReplaceMessages {
         // replaced during compilation, but rather at runtime by a special localization method.
         // We just need to put the string back together again, if it was broken up to include
         // placeholders.
-        return createNodeForMsgString(options, message.asIcuMessageString());
+        return Outcome.ok(createNodeForMsgString(options, message.asIcuMessageString()));
       } else if (message.jsPlaceholderNames().isEmpty()) {
         // The translated message read from the bundle also has no placeholders.
         // It doesn't really matter which asXMessageString() call we make, since they return
         // the same thing when there are no placeholders.
-        return createNodeForMsgString(options, message.asJsMessageString());
+        return Outcome.ok(createNodeForMsgString(options, message.asJsMessageString()));
       } else {
         // The JS code definition has no placeholders, but the message we got from the translation
         // bundle does have placeholders.
@@ -872,12 +882,13 @@ public final class ReplaceMessages {
         // pipeline.
         final String icuMsgString = message.asIcuMessageString();
         if (isStartOfIcuMessage(icuMsgString)) {
-          return createNodeForMsgString(options, icuMsgString);
+          return Outcome.ok(createNodeForMsgString(options, icuMsgString));
         } else {
-          throw new MalformedException(
-              "The translated message has placeholders, but the definition in the JS code does"
-                  + " not.",
-              nodeToReplace);
+          return Outcome.err(
+              new MalformedException(
+                  "The translated message has placeholders, but the definition in the JS code does"
+                      + " not.",
+                  nodeToReplace));
         }
       }
     }

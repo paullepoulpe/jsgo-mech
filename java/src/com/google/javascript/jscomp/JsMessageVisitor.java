@@ -313,42 +313,50 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
     checkState(msgNode.isCall());
     final Node fnNameNode = msgNode.getFirstChild();
-    try {
-      if (isDeclareIcuTemplateCallee(fnNameNode)) {
-        final IcuTemplateDefinition icuTemplateDefinition =
-            extractIcuTemplateDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName);
-        final JsMessage extractedMessage = icuTemplateDefinition.getMessage();
-        trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage);
-        reportErrorIfEmptyMessage(node, extractedMessage);
-        processIcuTemplateDefinition(icuTemplateDefinition);
-      } else if (fnNameNode.matchesQualifiedName(MSG_FUNCTION_QNAME)) {
-        final JsMessageDefinition jsMessageDefinition =
-            extractJsMessageDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName);
-        final JsMessage extractedMessage = jsMessageDefinition.getMessage();
-        trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage);
-        reportErrorIfEmptyMessage(node, extractedMessage);
-
-        // goog.getMsg() calls are required to have `@desc` unless they are external.
-        final String desc = extractedMessage.getDesc();
-        if ((desc == null || desc.trim().isEmpty()) && !extractedMessage.isExternal()) {
-          compiler.report(
-              JSError.make(node, MESSAGE_HAS_NO_DESCRIPTION, extractedMessage.getKey()));
-        }
-
-        processJsMessageDefinition(jsMessageDefinition);
-      } else {
-        compiler.report(
-            JSError.make(
-                msgNode,
-                MESSAGE_TREE_MALFORMED,
-                "Message must be initialized using a call to "
-                    + MSG_FUNCTION_QNAME
-                    + " or "
-                    + ICU_MSG_FUNCTION_NAME
-                    + " (from goog.i18n.messages)."));
+    if (isDeclareIcuTemplateCallee(fnNameNode)) {
+      Outcome<IcuTemplateDefinition> icuTemplateDefinitionOutcome =
+          extractIcuTemplateDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName);
+      if (icuTemplateDefinitionOutcome.isErr()) {
+        MalformedException ex = (MalformedException) icuTemplateDefinitionOutcome.error();
+        compiler.report(JSError.make(ex.getNode(), MESSAGE_TREE_MALFORMED, ex.getMessage()));
+        return;
       }
-    } catch (MalformedException ex) {
-      compiler.report(JSError.make(ex.getNode(), MESSAGE_TREE_MALFORMED, ex.getMessage()));
+      final IcuTemplateDefinition icuTemplateDefinition = icuTemplateDefinitionOutcome.get();
+      final JsMessage extractedMessage = icuTemplateDefinition.getMessage();
+      trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage);
+      reportErrorIfEmptyMessage(node, extractedMessage);
+      processIcuTemplateDefinition(icuTemplateDefinition);
+    } else if (fnNameNode.matchesQualifiedName(MSG_FUNCTION_QNAME)) {
+      Outcome<JsMessageDefinition> jsMessageDefinitionOutcome =
+          extractJsMessageDefinition(msgNode, jsDocInfo, messageKeyFromLhs, sourceName);
+      if (jsMessageDefinitionOutcome.isErr()) {
+        MalformedException ex = (MalformedException) jsMessageDefinitionOutcome.error();
+        compiler.report(JSError.make(ex.getNode(), MESSAGE_TREE_MALFORMED, ex.getMessage()));
+        return;
+      }
+      final JsMessageDefinition jsMessageDefinition = jsMessageDefinitionOutcome.get();
+      final JsMessage extractedMessage = jsMessageDefinition.getMessage();
+      trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage);
+      reportErrorIfEmptyMessage(node, extractedMessage);
+
+      // goog.getMsg() calls are required to have `@desc` unless they are external.
+      final String desc = extractedMessage.getDesc();
+      if ((desc == null || desc.trim().isEmpty()) && !extractedMessage.isExternal()) {
+        compiler.report(
+            JSError.make(node, MESSAGE_HAS_NO_DESCRIPTION, extractedMessage.getKey()));
+      }
+
+      processJsMessageDefinition(jsMessageDefinition);
+    } else {
+      compiler.report(
+          JSError.make(
+              msgNode,
+              MESSAGE_TREE_MALFORMED,
+              "Message must be initialized using a call to "
+                  + MSG_FUNCTION_QNAME
+                  + " or "
+                  + ICU_MSG_FUNCTION_NAME
+                  + " (from goog.i18n.messages)."));
     }
   }
 
@@ -623,32 +631,40 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    * added together (e.g. {@code 'str'} or {@code 's' + 't' + 'r'}).
    *
    * @param node the node from where we extract the string
-   * @return String representation of the node
-   * @throws MalformedException if the node is not a string literal or concatenation of them
+   * @return String representation of the node, or an error outcome with a MalformedException if
+   *     the node is not a string literal or concatenation of them
    */
-  private static String extractStringFromStringExprNode(Node node) throws MalformedException {
+  private static Outcome<String> extractStringFromStringExprNode(Node node) {
     switch (node.getToken()) {
       case STRINGLIT -> {
-        return node.getString();
+        return Outcome.ok(node.getString());
       }
       case TEMPLATELIT -> {
         if (node.hasOneChild()) {
           // Cooked string can be null only for tagged template literals.
           // A tagged template literal would hit the default case below.
-          return checkNotNull(node.getFirstChild().getCookedString());
+          return Outcome.ok(checkNotNull(node.getFirstChild().getCookedString()));
         } else {
-          throw new MalformedException(
-              "Template literals with substitutions are not allowed.", node);
+          return Outcome.err(
+              new MalformedException(
+                  "Template literals with substitutions are not allowed.", node));
         }
       }
       case ADD -> {
         StringBuilder sb = new StringBuilder();
         for (Node child = node.getFirstChild(); child != null; child = child.getNext()) {
-          sb.append(extractStringFromStringExprNode(child));
+          Outcome<String> childString = extractStringFromStringExprNode(child);
+          if (childString.isErr()) {
+            return Outcome.err(childString.error());
+          }
+          sb.append(childString.get());
         }
-        return sb.toString();
+        return Outcome.ok(sb.toString());
       }
-      default -> throw new MalformedException("literal string or concatenation expected", node);
+      default -> {
+        return Outcome.err(
+            new MalformedException("literal string or concatenation expected", node));
+      }
     }
   }
 
@@ -670,11 +686,11 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    *           });
    * </code></pre>
    *
-   * @throws MalformedException if the code does not match the expected format.
+   * @return an error outcome with a MalformedException if the code does not match the expected
+   *     format.
    */
-  private JsMessageDefinition extractJsMessageDefinition(
-      Node msgNode, JSDocInfo jsDocInfo, String messageKeyFromLhs, String sourceName)
-      throws MalformedException {
+  private Outcome<JsMessageDefinition> extractJsMessageDefinition(
+      Node msgNode, JSDocInfo jsDocInfo, String messageKeyFromLhs, String sourceName) {
     // Extract data from a call to `goog.getMsg(...)`
     // TODO(bradfordcsmith): Add these three fields to the options bag argument for goog.getMsg().
     // Specifying them there instead of in annotations will make them available to the uncompiled
@@ -697,7 +713,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     // second is the message string value
     final Node msgTextNode = msgNode.getSecondChild();
     if (msgTextNode == null) {
-      throw new MalformedException("Message string literal expected", msgNode);
+      return Outcome.err(new MalformedException("Message string literal expected", msgNode));
     }
     // third is the optional object literal mapping placeholder names to value expressions
     final Node valuesObjLit = msgTextNode.getNext();
@@ -707,38 +723,57 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     final Node unexpectedArgument =
         optionsBagArgument == null ? null : optionsBagArgument.getNext();
     if (unexpectedArgument != null) {
-      throw new MalformedException("too many arguments", unexpectedArgument);
+      return Outcome.err(new MalformedException("too many arguments", unexpectedArgument));
     }
 
     // Extract and parse the message text
     // The message string can be a string literal or a concatenation of string literals.
     // We want the whole thing as a single string here.
-    String msgTextString = extractStringFromStringExprNode(msgTextNode);
+    Outcome<String> msgTextStringOutcome = extractStringFromStringExprNode(msgTextNode);
+    if (msgTextStringOutcome.isErr()) {
+      return Outcome.err(msgTextStringOutcome.error());
+    }
+    String msgTextString = msgTextStringOutcome.get();
     Outcome<GoogGetMsgParsedText> googGetMsgParsedTextRes =
         extractGoogGetMsgParsedText(msgTextString);
     if (googGetMsgParsedTextRes.isErr()) {
-      throw new MalformedException(googGetMsgParsedTextRes.errorMessage(), msgTextNode);
+      return Outcome.err(
+          new MalformedException(googGetMsgParsedTextRes.errorMessage(), msgTextNode));
     }
     final GoogGetMsgParsedText googGetMsgParsedText = googGetMsgParsedTextRes.get();
 
     // Extract the placeholder values object
     // NOTE: The extract method returns an effectively "empty" value for `null`
-    final ObjectLiteralMap placeholderObjectLiteralMap = extractObjectLiteralMap(valuesObjLit);
+    Outcome<ObjectLiteralMap> placeholderObjectLiteralMapOutcome =
+        extractObjectLiteralMap(valuesObjLit);
+    if (placeholderObjectLiteralMapOutcome.isErr()) {
+      return Outcome.err(placeholderObjectLiteralMapOutcome.error());
+    }
+    final ObjectLiteralMap placeholderObjectLiteralMap = placeholderObjectLiteralMapOutcome.get();
 
     // Confirm that we can find a value map entry for every placeholder name referenced in the text.
     final ImmutableSet<String> placeholderNamesFromText =
         googGetMsgParsedText.getPlaceholderNames();
-    placeholderObjectLiteralMap.checkForRequiredKeys(
-        placeholderNamesFromText,
-        placeholderName ->
-            new MalformedException(
-                "Unrecognized message placeholder referenced: " + placeholderName, msgTextNode));
+    Outcome<Void> requiredKeysChecked =
+        placeholderObjectLiteralMap.checkForRequiredKeys(
+            placeholderNamesFromText,
+            placeholderName ->
+                new MalformedException(
+                    "Unrecognized message placeholder referenced: " + placeholderName,
+                    msgTextNode));
+    if (requiredKeysChecked.isErr()) {
+      return Outcome.err(requiredKeysChecked.error());
+    }
 
     // Confirm that every placeholder name for which we have a value is actually referenced in the
     // text.
-    placeholderObjectLiteralMap.checkForUnexpectedKeys(
-        placeholderNamesFromText,
-        placeholderName -> "Unused message placeholder: " + placeholderName);
+    Outcome<Void> unexpectedKeysChecked =
+        placeholderObjectLiteralMap.checkForUnexpectedKeys(
+            placeholderNamesFromText,
+            placeholderName -> "Unused message placeholder: " + placeholderName);
+    if (unexpectedKeysChecked.isErr()) {
+      return Outcome.err(unexpectedKeysChecked.error());
+    }
 
     // Get a map from placeholder name to Node value
     final ImmutableMap<String, Node> placeholderValuesMap =
@@ -746,11 +781,19 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
     // Extract the Options bag data
     // NOTE: the extract method returns an "empty" value for `null`
-    final JsMessageOptions jsMessageOptions = extractJsMessageOptions(optionsBagArgument);
+    Outcome<JsMessageOptions> jsMessageOptionsOutcome = extractJsMessageOptions(optionsBagArgument);
+    if (jsMessageOptionsOutcome.isErr()) {
+      return Outcome.err(jsMessageOptionsOutcome.error());
+    }
+    final JsMessageOptions jsMessageOptions = jsMessageOptionsOutcome.get();
 
     // Confirm that any example or orignal_code placeholder information we have refers only to
     // placeholder names that appear in the message text.
-    jsMessageOptions.checkForUnknownPlaceholders(placeholderNamesFromText);
+    Outcome<Void> unknownPlaceholdersChecked =
+        jsMessageOptions.checkForUnknownPlaceholders(placeholderNamesFromText);
+    if (unknownPlaceholdersChecked.isErr()) {
+      return Outcome.err(unknownPlaceholdersChecked.error());
+    }
 
     final JsMessage jsExtractedMessage =
         buildJsMessage(
@@ -801,7 +844,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
               }
             });
 
-    return new JsMessageDefinition() {
+    final JsMessageDefinition result = new JsMessageDefinition() {
       @Override
       public JsMessage getMessage() {
         return jsExtractedMessage;
@@ -837,6 +880,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         return jsMessageOptions.isUnescapeHtmlEntities();
       }
     };
+    return Outcome.ok(result);
   }
 
   /**
@@ -870,55 +914,71 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    *       });
    * </code></pre>
    */
-  private IcuTemplateDefinition extractIcuTemplateDefinition(
-      Node msgNode, JSDocInfo jsDocInfo, String messageKeyFromLhs, String sourceName)
-      throws MalformedException {
+  private Outcome<IcuTemplateDefinition> extractIcuTemplateDefinition(
+      Node msgNode, JSDocInfo jsDocInfo, String messageKeyFromLhs, String sourceName) {
     if (jsDocInfo != null) {
       // For declareIcuTemplateData() it is not valid to use the @desc, @meaning, and
       // @alternateMessageId annotations.
       // Instead, that information should go into the options bag parameter.
       if (jsDocInfo.getAlternateMessageId() != null) {
-        throw new MalformedException(
-            "Use the 'alternate_message_id' option, not the '@alternateMessageId' annotation",
-            msgNode);
+        return Outcome.err(
+            new MalformedException(
+                "Use the 'alternate_message_id' option, not the '@alternateMessageId' annotation",
+                msgNode));
       }
       if (jsDocInfo.getDescription() != null) {
-        throw new MalformedException(
-            "Use the 'description' option, not the '@desc' annotation", msgNode);
+        return Outcome.err(
+            new MalformedException(
+                "Use the 'description' option, not the '@desc' annotation", msgNode));
       }
       if (jsDocInfo.getMeaning() != null) {
-        throw new MalformedException(
-            "Use the 'meaning' option, not the '@meaning' annotation", msgNode);
+        return Outcome.err(
+            new MalformedException(
+                "Use the 'meaning' option, not the '@meaning' annotation", msgNode));
       }
     }
 
     // The first argument is the message string
     final Node stringLiteralExpression = msgNode.getSecondChild();
     if (stringLiteralExpression == null) {
-      throw new MalformedException("message string argument expected", msgNode);
+      return Outcome.err(new MalformedException("message string argument expected", msgNode));
+    }
+    Outcome<IcuMessageTemplateString> icuMessageTemplateStringOutcome =
+        extractIcuMessageTemplateString(stringLiteralExpression);
+    if (icuMessageTemplateStringOutcome.isErr()) {
+      return Outcome.err(icuMessageTemplateStringOutcome.error());
     }
     final IcuMessageTemplateString icuMessageTemplateString =
-        extractIcuMessageTemplateString(stringLiteralExpression);
+        icuMessageTemplateStringOutcome.get();
 
     // The second argument is the options bag
     final Node optionsBagNode = stringLiteralExpression.getNext();
     if (optionsBagNode == null) {
-      throw new MalformedException("options argument expected", msgNode);
+      return Outcome.err(new MalformedException("options argument expected", msgNode));
     }
-    final IcuTemplateOptions icuTemplateOptions = extractIcuTemplateOptions(optionsBagNode);
+    Outcome<IcuTemplateOptions> icuTemplateOptionsOutcome =
+        extractIcuTemplateOptions(optionsBagNode);
+    if (icuTemplateOptionsOutcome.isErr()) {
+      return Outcome.err(icuTemplateOptionsOutcome.error());
+    }
+    final IcuTemplateOptions icuTemplateOptions = icuTemplateOptionsOutcome.get();
 
     // Parsing of the template string into parts depends on which placeholders are mentioned
     // in the options. Placeholders that do not have example or original_code text  will not be
     // extracted from the template as separate parts.
     final ExtractedIcuTemplateParts extractedIcuTemplateParts =
         icuMessageTemplateString.extractParts(icuTemplateOptions.getPlaceholderNames());
-    icuTemplateOptions.checkForUnknownPlaceholders(
-        extractedIcuTemplateParts.extractedPlaceholderNames);
+    Outcome<Void> unknownPlaceholdersChecked =
+        icuTemplateOptions.checkForUnknownPlaceholders(
+            extractedIcuTemplateParts.extractedPlaceholderNames);
+    if (unknownPlaceholdersChecked.isErr()) {
+      return Outcome.err(unknownPlaceholdersChecked.error());
+    }
 
     // There shouldn't be another argument
     final Node unexpectedArgument = optionsBagNode.getNext();
     if (unexpectedArgument != null) {
-      throw new MalformedException("too many arguments", unexpectedArgument);
+      return Outcome.err(new MalformedException("too many arguments", unexpectedArgument));
     }
 
     final JsMessage extractedMessage =
@@ -970,7 +1030,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
               }
             });
 
-    return new IcuTemplateDefinition() {
+    final IcuTemplateDefinition result = new IcuTemplateDefinition() {
       @Override
       public JsMessage getMessage() {
         return extractedMessage;
@@ -986,6 +1046,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         return stringLiteralExpression;
       }
     };
+    return Outcome.ok(result);
   }
 
   private static final Pattern ICU_PLACEHOLDER_RE = Pattern.compile("\\{([A-Z_0-9]+)\\}");
@@ -1041,10 +1102,14 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     }
   }
 
-  private IcuMessageTemplateString extractIcuMessageTemplateString(Node stringExpression)
-      throws MalformedException {
-    final String templateString = extractStringFromStringExprNode(stringExpression);
-    return new IcuMessageTemplateString(templateString);
+  private Outcome<IcuMessageTemplateString> extractIcuMessageTemplateString(
+      Node stringExpression) {
+    Outcome<String> templateStringOutcome = extractStringFromStringExprNode(stringExpression);
+    if (templateStringOutcome.isErr()) {
+      return Outcome.err(templateStringOutcome.error());
+    }
+    final String templateString = templateStringOutcome.get();
+    return Outcome.ok(new IcuMessageTemplateString(templateString));
   }
 
   private interface JsMessageOptions {
@@ -1064,36 +1129,71 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
     ImmutableMap<String, String> getPlaceholderOriginalCodeMap();
 
-    void checkForUnknownPlaceholders(Set<String> knownPlaceholders) throws MalformedException;
+    Outcome<Void> checkForUnknownPlaceholders(Set<String> knownPlaceholders);
   }
 
   private static final ImmutableSet<String> MESSAGE_OPTION_NAMES =
       ImmutableSet.of("html", "unescapeHtmlEntities", "example", "original_code");
 
-  private JsMessageOptions extractJsMessageOptions(@Nullable Node optionsBag)
-      throws MalformedException {
-    ObjectLiteralMap objectLiteralMap = extractObjectLiteralMap(optionsBag);
-    objectLiteralMap.checkForUnexpectedKeys(
-        MESSAGE_OPTION_NAMES, optionName -> "Unknown option: " + optionName);
+  private Outcome<JsMessageOptions> extractJsMessageOptions(@Nullable Node optionsBag) {
+    Outcome<ObjectLiteralMap> objectLiteralMapOutcome = extractObjectLiteralMap(optionsBag);
+    if (objectLiteralMapOutcome.isErr()) {
+      return Outcome.err(objectLiteralMapOutcome.error());
+    }
+    ObjectLiteralMap objectLiteralMap = objectLiteralMapOutcome.get();
+    Outcome<Void> unexpectedKeysChecked =
+        objectLiteralMap.checkForUnexpectedKeys(
+            MESSAGE_OPTION_NAMES, optionName -> "Unknown option: " + optionName);
+    if (unexpectedKeysChecked.isErr()) {
+      return Outcome.err(unexpectedKeysChecked.error());
+    }
 
-    final boolean isEscapeLessThan = objectLiteralMap.getBooleanValueOrFalse("html");
-    final boolean isUnescapeHtmlEntities =
+    Outcome<Boolean> isEscapeLessThanOutcome = objectLiteralMap.getBooleanValueOrFalse("html");
+    if (isEscapeLessThanOutcome.isErr()) {
+      return Outcome.err(isEscapeLessThanOutcome.error());
+    }
+    final boolean isEscapeLessThan = isEscapeLessThanOutcome.get();
+    Outcome<Boolean> isUnescapeHtmlEntitiesOutcome =
         objectLiteralMap.getBooleanValueOrFalse("unescapeHtmlEntities");
+    if (isUnescapeHtmlEntitiesOutcome.isErr()) {
+      return Outcome.err(isUnescapeHtmlEntitiesOutcome.error());
+    }
+    final boolean isUnescapeHtmlEntities = isUnescapeHtmlEntitiesOutcome.get();
 
     final Node exampleValueNode = objectLiteralMap.getValueNode("example");
-    final ObjectLiteralMap exampleObjectLiteralMap = extractObjectLiteralMap(exampleValueNode);
-    final ImmutableMap<String, String> placeholderExamplesMap =
+    Outcome<ObjectLiteralMap> exampleObjectLiteralMapOutcome =
+        extractObjectLiteralMap(exampleValueNode);
+    if (exampleObjectLiteralMapOutcome.isErr()) {
+      return Outcome.err(exampleObjectLiteralMapOutcome.error());
+    }
+    final ObjectLiteralMap exampleObjectLiteralMap = exampleObjectLiteralMapOutcome.get();
+    Outcome<ImmutableMap<String, String>> placeholderExamplesMapOutcome =
         exampleObjectLiteralMap.extractAsStringToStringMap();
+    if (placeholderExamplesMapOutcome.isErr()) {
+      return Outcome.err(placeholderExamplesMapOutcome.error());
+    }
+    final ImmutableMap<String, String> placeholderExamplesMap =
+        placeholderExamplesMapOutcome.get();
 
     final Node originalCodeValueNode = objectLiteralMap.getValueNode("original_code");
-    final ObjectLiteralMap originalCodeObjectLiteralMap =
+    Outcome<ObjectLiteralMap> originalCodeObjectLiteralMapOutcome =
         extractObjectLiteralMap(originalCodeValueNode);
-    final ImmutableMap<String, String> placeholderOriginalCodeMap =
+    if (originalCodeObjectLiteralMapOutcome.isErr()) {
+      return Outcome.err(originalCodeObjectLiteralMapOutcome.error());
+    }
+    final ObjectLiteralMap originalCodeObjectLiteralMap =
+        originalCodeObjectLiteralMapOutcome.get();
+    Outcome<ImmutableMap<String, String>> placeholderOriginalCodeMapOutcome =
         originalCodeObjectLiteralMap.extractAsStringToStringMap();
+    if (placeholderOriginalCodeMapOutcome.isErr()) {
+      return Outcome.err(placeholderOriginalCodeMapOutcome.error());
+    }
+    final ImmutableMap<String, String> placeholderOriginalCodeMap =
+        placeholderOriginalCodeMapOutcome.get();
 
     // NOTE: The getX() methods below should all do little to no computation.
     // In particular, all checking for MalformedExceptions must be done before creating this object.
-    return new JsMessageOptions() {
+    final JsMessageOptions result = new JsMessageOptions() {
       @Override
       public boolean isEscapeLessThan() {
         return isEscapeLessThan;
@@ -1115,14 +1215,18 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
       }
 
       @Override
-      public void checkForUnknownPlaceholders(Set<String> knownPlaceholders)
-          throws MalformedException {
-        exampleObjectLiteralMap.checkForUnexpectedKeys(
-            knownPlaceholders, unknownName -> "Unknown placeholder: " + unknownName);
-        originalCodeObjectLiteralMap.checkForUnexpectedKeys(
+      public Outcome<Void> checkForUnknownPlaceholders(Set<String> knownPlaceholders) {
+        Outcome<Void> exampleChecked =
+            exampleObjectLiteralMap.checkForUnexpectedKeys(
+                knownPlaceholders, unknownName -> "Unknown placeholder: " + unknownName);
+        if (exampleChecked.isErr()) {
+          return Outcome.err(exampleChecked.error());
+        }
+        return originalCodeObjectLiteralMap.checkForUnexpectedKeys(
             knownPlaceholders, unknownName -> "Unknown placeholder: " + unknownName);
       }
     };
+    return Outcome.ok(result);
   }
 
   private interface IcuTemplateOptions {
@@ -1136,7 +1240,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
     ImmutableMap<String, String> getPlaceholderOriginalCodeMap();
 
-    void checkForUnknownPlaceholders(Set<String> knownPlaceholders) throws MalformedException;
+    Outcome<Void> checkForUnknownPlaceholders(Set<String> knownPlaceholders);
 
     /** All the placeholder names mentioned in the options. */
     ImmutableSet<String> getPlaceholderNames();
@@ -1171,43 +1275,91 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    *   }
    * </code></pre>
    */
-  private IcuTemplateOptions extractIcuTemplateOptions(Node optionsBag) throws MalformedException {
-    ObjectLiteralMap objectLiteralMap = extractObjectLiteralMap(optionsBag);
-    objectLiteralMap.checkForUnexpectedKeys(
-        ICU_TEMPLATE_OPTION_NAMES, optionName -> "Unknown option: " + optionName);
+  private Outcome<IcuTemplateOptions> extractIcuTemplateOptions(Node optionsBag) {
+    Outcome<ObjectLiteralMap> objectLiteralMapOutcome = extractObjectLiteralMap(optionsBag);
+    if (objectLiteralMapOutcome.isErr()) {
+      return Outcome.err(objectLiteralMapOutcome.error());
+    }
+    ObjectLiteralMap objectLiteralMap = objectLiteralMapOutcome.get();
+    Outcome<Void> unexpectedKeysChecked =
+        objectLiteralMap.checkForUnexpectedKeys(
+            ICU_TEMPLATE_OPTION_NAMES, optionName -> "Unknown option: " + optionName);
+    if (unexpectedKeysChecked.isErr()) {
+      return Outcome.err(unexpectedKeysChecked.error());
+    }
 
     // required description string
     final @Nullable Node descriptionNode = objectLiteralMap.getValueNode("description");
     if (descriptionNode == null) {
-      throw new MalformedException("'description' option field is missing", optionsBag);
+      return Outcome.err(
+          new MalformedException("'description' option field is missing", optionsBag));
     }
-    final String description = extractStringFromStringExprNode(descriptionNode);
+    Outcome<String> descriptionOutcome = extractStringFromStringExprNode(descriptionNode);
+    if (descriptionOutcome.isErr()) {
+      return Outcome.err(descriptionOutcome.error());
+    }
+    final String description = descriptionOutcome.get();
 
     // optional meaning string
     final @Nullable Node meaningNode = objectLiteralMap.getValueNode("meaning");
-    final @Nullable String meaning =
-        meaningNode == null ? null : extractStringFromStringExprNode(meaningNode);
+    final @Nullable String meaning;
+    if (meaningNode == null) {
+      meaning = null;
+    } else {
+      Outcome<String> meaningOutcome = extractStringFromStringExprNode(meaningNode);
+      if (meaningOutcome.isErr()) {
+        return Outcome.err(meaningOutcome.error());
+      }
+      meaning = meaningOutcome.get();
+    }
 
     // optional alternate message ID
     final @Nullable Node alternateMessageIdNode =
         objectLiteralMap.getValueNode("alternate_message_id");
-    final @Nullable String alternateMessageId =
-        alternateMessageIdNode == null
-            ? null
-            : extractStringFromStringExprNode(alternateMessageIdNode);
+    final @Nullable String alternateMessageId;
+    if (alternateMessageIdNode == null) {
+      alternateMessageId = null;
+    } else {
+      Outcome<String> alternateMessageIdOutcome =
+          extractStringFromStringExprNode(alternateMessageIdNode);
+      if (alternateMessageIdOutcome.isErr()) {
+        return Outcome.err(alternateMessageIdOutcome.error());
+      }
+      alternateMessageId = alternateMessageIdOutcome.get();
+    }
 
     // optional map of placeholder names to example string values
     final Node exampleValueNode = objectLiteralMap.getValueNode("example");
-    final ObjectLiteralMap exampleObjectLiteralMap = extractObjectLiteralMap(exampleValueNode);
-    final ImmutableMap<String, String> placeholderExamplesMap =
+    Outcome<ObjectLiteralMap> exampleObjectLiteralMapOutcome =
+        extractObjectLiteralMap(exampleValueNode);
+    if (exampleObjectLiteralMapOutcome.isErr()) {
+      return Outcome.err(exampleObjectLiteralMapOutcome.error());
+    }
+    final ObjectLiteralMap exampleObjectLiteralMap = exampleObjectLiteralMapOutcome.get();
+    Outcome<ImmutableMap<String, String>> placeholderExamplesMapOutcome =
         exampleObjectLiteralMap.extractAsStringToStringMap();
+    if (placeholderExamplesMapOutcome.isErr()) {
+      return Outcome.err(placeholderExamplesMapOutcome.error());
+    }
+    final ImmutableMap<String, String> placeholderExamplesMap =
+        placeholderExamplesMapOutcome.get();
 
     // optional map of placeholder names to original_code string values
     final Node originalCodeValueNode = objectLiteralMap.getValueNode("original_code");
-    final ObjectLiteralMap originalCodeObjectLiteralMap =
+    Outcome<ObjectLiteralMap> originalCodeObjectLiteralMapOutcome =
         extractObjectLiteralMap(originalCodeValueNode);
-    final ImmutableMap<String, String> placeholderOriginalCodeMap =
+    if (originalCodeObjectLiteralMapOutcome.isErr()) {
+      return Outcome.err(originalCodeObjectLiteralMapOutcome.error());
+    }
+    final ObjectLiteralMap originalCodeObjectLiteralMap =
+        originalCodeObjectLiteralMapOutcome.get();
+    Outcome<ImmutableMap<String, String>> placeholderOriginalCodeMapOutcome =
         originalCodeObjectLiteralMap.extractAsStringToStringMap();
+    if (placeholderOriginalCodeMapOutcome.isErr()) {
+      return Outcome.err(placeholderOriginalCodeMapOutcome.error());
+    }
+    final ImmutableMap<String, String> placeholderOriginalCodeMap =
+        placeholderOriginalCodeMapOutcome.get();
 
     // All the placeholder names mentioned in the 2 optional maps.
     final ImmutableSet<String> placeholderNames =
@@ -1218,14 +1370,16 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
     for (String placeholderName : placeholderNames) {
       if (!JsMessage.isCanonicalPlaceholderNameFormat(placeholderName)) {
-        throw new MalformedException(
-            String.format("Placeholder not in UPPER_SNAKE_CASE: %s", placeholderName), optionsBag);
+        return Outcome.err(
+            new MalformedException(
+                String.format("Placeholder not in UPPER_SNAKE_CASE: %s", placeholderName),
+                optionsBag));
       }
     }
 
     // NOTE: The getX() methods below should all do little to no computation.
     // In particular, all checking for MalformedExceptions must be done before creating this object.
-    return new IcuTemplateOptions() {
+    final IcuTemplateOptions result = new IcuTemplateOptions() {
       @Override
       public String getDescription() {
         return description;
@@ -1257,29 +1411,33 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
       }
 
       @Override
-      public void checkForUnknownPlaceholders(Set<String> knownPlaceholders)
-          throws MalformedException {
-        exampleObjectLiteralMap.checkForUnexpectedKeys(
-            knownPlaceholders, unknownName -> "Unknown placeholder: " + unknownName);
-        originalCodeObjectLiteralMap.checkForUnexpectedKeys(
+      public Outcome<Void> checkForUnknownPlaceholders(Set<String> knownPlaceholders) {
+        Outcome<Void> exampleChecked =
+            exampleObjectLiteralMap.checkForUnexpectedKeys(
+                knownPlaceholders, unknownName -> "Unknown placeholder: " + unknownName);
+        if (exampleChecked.isErr()) {
+          return Outcome.err(exampleChecked.error());
+        }
+        return originalCodeObjectLiteralMap.checkForUnexpectedKeys(
             knownPlaceholders, unknownName -> "Unknown placeholder: " + unknownName);
       }
     };
+    return Outcome.ok(result);
   }
 
-  private static boolean extractBooleanStringKeyValue(@Nullable Node stringKeyNode)
-      throws MalformedException {
+  private static Outcome<Boolean> extractBooleanStringKeyValue(@Nullable Node stringKeyNode) {
     if (stringKeyNode == null) {
-      return false;
+      return Outcome.ok(false);
     } else {
       final Node valueNode = stringKeyNode.getOnlyChild();
       if (valueNode.isTrue()) {
-        return true;
+        return Outcome.ok(true);
       } else if (valueNode.isFalse()) {
-        return false;
+        return Outcome.ok(false);
       } else {
-        throw new MalformedException(
-            stringKeyNode.getString() + ": Literal true or false expected", valueNode);
+        return Outcome.err(
+            new MalformedException(
+                stringKeyNode.getString() + ": Literal true or false expected", valueNode));
       }
     }
   }
@@ -1292,7 +1450,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    * <p>Use {@link #extractObjectLiteralMap(Node)} to get an instance.
    */
   public interface ObjectLiteralMap {
-    boolean getBooleanValueOrFalse(String key) throws MalformedException;
+    Outcome<Boolean> getBooleanValueOrFalse(String key);
 
     /**
      * Returns a map from object property names the Node values they have in the AST, building the
@@ -1303,10 +1461,10 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     /**
      * Returns a map from object property names to string values, building it first, if necessary.
      *
-     * @throws MalformedException if any of the values are not actually simple string literals or
-     *     concatenations of string literals.
+     * <p>Returns an error outcome with a MalformedException if any of the values are not actually
+     * simple string literals or concatenations of string literals.
      */
-    ImmutableMap<String, String> extractAsStringToStringMap() throws MalformedException;
+    Outcome<ImmutableMap<String, String>> extractAsStringToStringMap();
 
     /**
      * Get the value node for a key.
@@ -1316,19 +1474,18 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     @Nullable Node getValueNode(String key);
 
     /**
-     * Throws a {@link MalformedException} if the object literal has keys not in the expected set.
+     * Returns an error outcome with a {@link MalformedException} if the object literal has keys not
+     * in the expected set.
      */
-    void checkForUnexpectedKeys(
-        Set<String> expectedKeys, Function<String, String> createErrorMessage)
-        throws MalformedException;
+    Outcome<Void> checkForUnexpectedKeys(
+        Set<String> expectedKeys, Function<String, String> createErrorMessage);
 
     /**
-     * Throws a {@link MalformedException} if the object literal does not have one all the keys in
-     * the required set.
+     * Returns an error outcome with a {@link MalformedException} if the object literal does not
+     * have one all the keys in the required set.
      */
-    void checkForRequiredKeys(
-        Set<String> requiredKeys, Function<String, MalformedException> createException)
-        throws MalformedException;
+    Outcome<Void> checkForRequiredKeys(
+        Set<String> requiredKeys, Function<String, MalformedException> createException);
   }
 
   private static class ObjectLiteralMapImpl implements ObjectLiteralMap {
@@ -1349,7 +1506,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     }
 
     @Override
-    public boolean getBooleanValueOrFalse(String key) throws MalformedException {
+    public Outcome<Boolean> getBooleanValueOrFalse(String key) {
       final Node stringKeyNode = stringToStringKeyMap.get(key);
       return extractBooleanStringKeyValue(stringKeyNode);
     }
@@ -1367,39 +1524,44 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     }
 
     @Override
-    public ImmutableMap<String, String> extractAsStringToStringMap() throws MalformedException {
+    public Outcome<ImmutableMap<String, String>> extractAsStringToStringMap() {
       if (stringMap == null) {
         ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
         for (Entry<String, Node> entry : stringToStringKeyMap.entrySet()) {
-          builder.put(
-              entry.getKey(), extractStringFromStringExprNode(entry.getValue().getOnlyChild()));
+          Outcome<String> value =
+              extractStringFromStringExprNode(entry.getValue().getOnlyChild());
+          if (value.isErr()) {
+            return Outcome.err(value.error());
+          }
+          builder.put(entry.getKey(), value.get());
         }
         stringMap = builder.buildOrThrow();
       }
-      return stringMap;
+      return Outcome.ok(stringMap);
     }
 
     @Override
-    public void checkForUnexpectedKeys(
-        Set<String> expectedKeys, Function<String, String> createErrorMessage)
-        throws MalformedException {
+    public Outcome<Void> checkForUnexpectedKeys(
+        Set<String> expectedKeys, Function<String, String> createErrorMessage) {
       for (String key : stringToStringKeyMap.keySet()) {
         if (!expectedKeys.contains(key)) {
-          throw new MalformedException(
-              createErrorMessage.apply(key), stringToStringKeyMap.get(key));
+          return Outcome.err(
+              new MalformedException(
+                  createErrorMessage.apply(key), stringToStringKeyMap.get(key)));
         }
       }
+      return Outcome.ok();
     }
 
     @Override
-    public void checkForRequiredKeys(
-        Set<String> requiredKeys, Function<String, MalformedException> createException)
-        throws MalformedException {
+    public Outcome<Void> checkForRequiredKeys(
+        Set<String> requiredKeys, Function<String, MalformedException> createException) {
       for (String requiredKey : requiredKeys) {
         if (!stringToStringKeyMap.containsKey(requiredKey)) {
-          throw createException.apply(requiredKey);
+          return Outcome.err(createException.apply(requiredKey));
         }
       }
+      return Outcome.ok();
     }
   }
 
@@ -1412,30 +1574,30 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    *
    * <p>A `null` argument is treated as if it were an empty object literal.
    *
-   * @throws MalformedException If the Node does not meet the above requirements.
+   * @return An error outcome with a MalformedException if the Node does not meet the above
+   *     requirements.
    */
-  public static ObjectLiteralMap extractObjectLiteralMap(@Nullable Node objLit)
-      throws MalformedException {
+  public static Outcome<ObjectLiteralMap> extractObjectLiteralMap(@Nullable Node objLit) {
     if (objLit == null) {
-      return new ObjectLiteralMapImpl(ImmutableMap.of());
+      return Outcome.ok(new ObjectLiteralMapImpl(ImmutableMap.of()));
     }
     if (!objLit.isObjectLit()) {
-      throw new MalformedException("object literal expected", objLit);
+      return Outcome.err(new MalformedException("object literal expected", objLit));
     }
     final LinkedHashMap<String, Node> stringToStringKeyMap = new LinkedHashMap<>();
     for (Node stringKey = objLit.getFirstChild();
         stringKey != null;
         stringKey = stringKey.getNext()) {
       if (!stringKey.isStringKey()) {
-        throw new MalformedException("string key expected", stringKey);
+        return Outcome.err(new MalformedException("string key expected", stringKey));
       }
       final String key = stringKey.getString();
       if (stringToStringKeyMap.containsKey(key)) {
-        throw new MalformedException("duplicate string key: " + key, stringKey);
+        return Outcome.err(new MalformedException("duplicate string key: " + key, stringKey));
       }
       stringToStringKeyMap.put(stringKey.getString(), stringKey);
     }
-    return new ObjectLiteralMapImpl(stringToStringKeyMap);
+    return Outcome.ok(new ObjectLiteralMapImpl(stringToStringKeyMap));
   }
 
   public static Outcome<ImmutableList<Part>> parseJsMessageTextIntoParts(String originalMsgText) {
@@ -1614,16 +1776,19 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
   /**
    * Checks a node's type.
    *
-   * @throws MalformedException if the node is null or the wrong type
+   * @return an error outcome with a MalformedException if the node is null or the wrong type
    */
-  protected void checkNode(@Nullable Node node, Token type) throws MalformedException {
+  protected Outcome<Void> checkNode(@Nullable Node node, Token type) {
     if (node == null) {
-      throw new MalformedException("Expected node type " + type + "; found: null", node);
+      return Outcome.err(
+          new MalformedException("Expected node type " + type + "; found: null", node));
     }
     if (node.getToken() != type) {
-      throw new MalformedException(
-          "Expected node type " + type + "; found: " + node.getToken(), node);
+      return Outcome.err(
+          new MalformedException(
+              "Expected node type " + type + "; found: " + node.getToken(), node));
     }
+    return Outcome.ok();
   }
 
   static class MalformedException extends Exception {
