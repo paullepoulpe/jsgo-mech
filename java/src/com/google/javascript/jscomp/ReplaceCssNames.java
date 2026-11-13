@@ -183,7 +183,7 @@ class ReplaceCssNames implements CompilerPass {
         cssNamesBySymbol.put(getCssNameInstance.getCssClosureClassesMemberName().orElse(null), cssClassName.orElse(null));
         classesObjectsQualifiedNames.add(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow());
       } else {
-        cssNameCollector.add(cssClassName.get());
+        cssNameCollector.add(cssClassName.orElse(null));
       }
       getCssNameInstance.replaceWithExpression();
     }

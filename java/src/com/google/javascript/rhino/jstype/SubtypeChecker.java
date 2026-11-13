@@ -659,7 +659,7 @@ final class SubtypeChecker {
     ObjectType unwrapped = getObjectTypeIfNative(type);
     return unwrapped != null
         && unwrapped.hasReferenceName()
-        && BIVARIANT_TYPES.contains(unwrapped.getReferenceName().get());
+        && BIVARIANT_TYPES.contains(unwrapped.getReferenceName().orElseThrow());
   }
 
   /**
