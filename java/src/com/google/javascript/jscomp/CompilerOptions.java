@@ -28,13 +28,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
 import com.google.common.primitives.Chars;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.RestrictedApi;
 import com.google.javascript.jscomp.annotations.LegacySetFeatureSetCaller;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
@@ -832,7 +831,7 @@ public class CompilerOptions {
   private ImmutableSet<String> stripNamePrefixes;
 
   /** Custom passes */
-  private transient @Nullable SetMultimap<CustomPassExecutionTime, CompilerPass> customPasses;
+  private transient @Nullable SimpleSetMultimap<CustomPassExecutionTime, CompilerPass> customPasses;
 
   /** Replacements for @defines. Will be Boolean, Numbers, or Strings */
   private final LinkedHashMap<String, Object> defineReplacements;
@@ -2884,7 +2883,7 @@ public class CompilerOptions {
 
   public void addCustomPass(CustomPassExecutionTime time, CompilerPass customPass) {
     if (customPasses == null) {
-      customPasses = LinkedHashMultimap.create();
+      customPasses = SimpleSetMultimap.createInsertionOrdered();
     }
     customPasses.put(time, customPass);
   }

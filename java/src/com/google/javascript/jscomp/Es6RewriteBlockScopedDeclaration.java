@@ -20,10 +20,9 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
 import static com.google.javascript.jscomp.AstFactory.typeColor;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
@@ -362,11 +361,11 @@ public final class Es6RewriteBlockScopedDeclaration extends AbstractPostOrderCal
     private static final String LOOP_OBJECT_NAME = "$jscomp$loop";
     private final Map<Node, LoopObject> loopObjectMap = new LinkedHashMap<>();
 
-    private final SetMultimap<Node, LoopObject> nodesRequiringLoopObjectsClosureMap =
-        LinkedHashMultimap.create();
-    private final SetMultimap<Node, String> nodesHandledForLoopObjectClosure =
-        LinkedHashMultimap.create();
-    private final SetMultimap<Var, Node> referenceMap = LinkedHashMultimap.create();
+    private final SimpleSetMultimap<Node, LoopObject> nodesRequiringLoopObjectsClosureMap =
+        SimpleSetMultimap.createInsertionOrdered();
+    private final SimpleSetMultimap<Node, String> nodesHandledForLoopObjectClosure =
+        SimpleSetMultimap.createInsertionOrdered();
+    private final SimpleSetMultimap<Var, Node> referenceMap = SimpleSetMultimap.createInsertionOrdered();
 
     @Override
     public boolean shouldTraverse(NodeTraversal t, Node n, Node parent) {

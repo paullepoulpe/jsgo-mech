@@ -24,12 +24,9 @@ import com.google.common.base.Ascii;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
 import com.google.javascript.jscomp.CheckConformance.InvalidRequirementSpec;
 import com.google.javascript.jscomp.CheckConformance.Precondition;
@@ -38,6 +35,8 @@ import com.google.javascript.jscomp.CodingConvention.AssertionFunctionLookup;
 import com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior;
 import com.google.javascript.jscomp.Requirement.Severity;
 import com.google.javascript.jscomp.base.LinkedIdentityHashSet;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.parsing.JsDocInfoParser;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.JSTypeExpression;
@@ -710,7 +709,7 @@ public final class ConformanceRules {
     }
 
     private final JSTypeRegistry registry;
-    private final ImmutableSetMultimap<String, JSType> props;
+    private final SimpleSetMultimap<String, JSType> props;
     private final RequirementPrecondition requirementPrecondition;
 
     BannedProperty(AbstractCompiler compiler, Requirement requirement)
@@ -734,7 +733,7 @@ public final class ConformanceRules {
 
       this.registry = compiler.getTypeRegistry();
 
-      ImmutableSetMultimap.Builder<String, JSType> builder = ImmutableSetMultimap.builder();
+      SimpleSetMultimap<String, JSType> builder = SimpleSetMultimap.create();
       for (String value : requirement.getValueList()) {
         String typename = ConformanceUtil.getClassFromDeclarationName(value);
         String property = ConformanceUtil.getPropertyFromDeclarationName(value);
@@ -755,7 +754,7 @@ public final class ConformanceRules {
 
         builder.put(property, type);
       }
-      this.props = builder.build();
+      this.props = builder.immutableCopy();
     }
 
     @Override
@@ -765,7 +764,7 @@ public final class ConformanceRules {
 
     @Override
     protected ConformanceResult checkConformance(NodeTraversal t, Node n) {
-      ImmutableSet<JSType> checkTypes = this.props.get(this.extractName(n));
+      Set<JSType> checkTypes = this.props.get(this.extractName(n));
       if (checkTypes.isEmpty()) {
         return ConformanceResult.CONFORMANCE;
       }
@@ -2147,7 +2146,7 @@ public final class ConformanceRules {
         return ConformanceResult.CONFORMANCE;
       }
 
-      ImmutableCollection<String> tagNames = getTagNames(n.getSecondChild());
+      Collection<String> tagNames = getTagNames(n.getSecondChild());
       Node attrs = n.getChildAtIndex(2);
       JSType attrsType = attrs.getJSType();
 
@@ -2216,7 +2215,7 @@ public final class ConformanceRules {
       return ConformanceResult.CONFORMANCE;
     }
 
-    private @Nullable ImmutableCollection<String> getTagNames(Node tag) {
+    private @Nullable Collection<String> getTagNames(Node tag) {
       if (tag.isStringLit()) {
         return ImmutableSet.of(tag.getString().toLowerCase(Locale.ROOT));
       } else if (tag.isGetProp() && GOOG_DOM_TAGNAME.matches(tag.getFirstChild())) {
@@ -2235,8 +2234,8 @@ public final class ConformanceRules {
       return null;
     }
 
-    private static final ImmutableMultimap<String, String> ELEMENT_TAG_NAMES =
-        ImmutableMultimap.<String, String>builder()
+    private static final SimpleListMultimap<String, String> ELEMENT_TAG_NAMES =
+        SimpleListMultimap.<String, String>create()
             .put("HTMLAnchorElement", "a")
             .put("HTMLAppletElement", "applet")
             .put("HTMLAreaElement", "area")
@@ -2314,7 +2313,7 @@ public final class ConformanceRules {
             .put("HTMLTrackElement", "track")
             .put("HTMLUListElement", "ul")
             .put("HTMLVideoElement", "video")
-            .build();
+            .immutableCopy();
 
     private boolean isCreateDomCall(Node n) {
       if (!n.isCall()) {

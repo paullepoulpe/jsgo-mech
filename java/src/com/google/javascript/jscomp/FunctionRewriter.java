@@ -16,9 +16,8 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import java.util.Collection;
@@ -63,7 +62,7 @@ class FunctionRewriter implements CompilerPass {
             new EmptyFunctionReducer(),
             new IdentityReducer());
 
-    Multimap<Reducer, Reduction> reductionMap = LinkedHashMultimap.create();
+    SimpleSetMultimap<Reducer, Reduction> reductionMap = SimpleSetMultimap.createInsertionOrdered();
 
     // Accumulate possible reductions in the reduction multi-map.  They
     // will be applied in the loop below.
@@ -154,13 +153,13 @@ class FunctionRewriter implements CompilerPass {
    */
   private class ReductionGatherer implements NodeTraversal.Callback {
     private final Reducer[] reducers;
-    private final Multimap<Reducer, Reduction> reductions;
+    private final SimpleSetMultimap<Reducer, Reduction> reductions;
 
     /**
      * @param reducers List of reducers to apply during traversal.
      * @param reductions Reducer -> Reduction multimap, populated during traversal.
      */
-    ReductionGatherer(List<Reducer> reducers, Multimap<Reducer, Reduction> reductions) {
+    ReductionGatherer(List<Reducer> reducers, SimpleSetMultimap<Reducer, Reduction> reductions) {
       // Use a native array to avoid creating an iterator for every node in the AST.
       // which accord to pprof accounts for ~20% of the runtime of this pass.
       this.reducers = reducers.toArray(new Reducer[0]);

@@ -217,7 +217,9 @@ public final class UseSiteRenamerTest {
     UseSiteRenamer renamer = new UseSiteRenamer(this.reportedMutations::add);
     renamer.renameUses(this.prop);
 
-    this.renamingIndex = renamer.getRenamingIndex();
+    ImmutableSetMultimap.Builder<String, String> index = ImmutableSetMultimap.builder();
+    renamer.getRenamingIndex().asMap().forEach(index::putAll);
+    this.renamingIndex = index.build();
   }
 
   private static ImmutableSet<String> namesOf(Collection<Node> useSites) {

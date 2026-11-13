@@ -24,14 +24,13 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.CodePrinter;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.NodeUtil;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.parsing.JsDocInfoParser;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.JSDocInfo;
@@ -42,8 +41,8 @@ import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -59,7 +58,7 @@ public final class SuggestedFix {
 
   private final MatchedNodeInfo matchedNodeInfo;
   // Multimap of filename to a modification to that file.
-  private final SetMultimap<String, CodeReplacement> replacements;
+  private final SimpleSetMultimap<String, CodeReplacement> replacements;
 
   // An optional description of the fix, to distinguish between the various possible fixes
   // for errors that have multiple fixes.
@@ -72,7 +71,7 @@ public final class SuggestedFix {
 
   private SuggestedFix(
       MatchedNodeInfo matchedNodeInfo,
-      SetMultimap<String, CodeReplacement> replacements,
+      SimpleSetMultimap<String, CodeReplacement> replacements,
       @Nullable String description,
       ImmutableList<SuggestedFix> alternatives) {
     this.matchedNodeInfo = matchedNodeInfo;
@@ -94,7 +93,7 @@ public final class SuggestedFix {
    * Returns a multimap from filename to all the replacements that should be
    * applied for this given fix.
    */
-  public SetMultimap<String, CodeReplacement> getReplacements() {
+  public SimpleSetMultimap<String, CodeReplacement> getReplacements() {
     return replacements;
   }
 
@@ -122,7 +121,7 @@ public final class SuggestedFix {
       return "<no-op SuggestedFix>";
     }
     StringBuilder sb = new StringBuilder();
-    for (Map.Entry<String, Collection<CodeReplacement>> entry : replacements.asMap().entrySet()) {
+    for (Map.Entry<String, Set<CodeReplacement>> entry : replacements.asMap().entrySet()) {
       sb.append("Replacements for file: ").append(entry.getKey()).append("\n");
       Joiner.on("\n\n").appendTo(sb, entry.getValue());
     }
@@ -134,8 +133,8 @@ public final class SuggestedFix {
    */
   public static final class Builder {
     private @Nullable MatchedNodeInfo matchedNodeInfo = null;
-    private final ImmutableSetMultimap.Builder<String, CodeReplacement> replacements =
-        ImmutableSetMultimap.builder();
+    private final SimpleSetMultimap<String, CodeReplacement> replacements =
+        SimpleSetMultimap.create();
     private final ImmutableList.Builder<SuggestedFix> alternatives = ImmutableList.builder();
     private @Nullable String description = null;
 
@@ -866,7 +865,7 @@ public final class SuggestedFix {
 
     public SuggestedFix build() {
       return new SuggestedFix(
-          matchedNodeInfo, replacements.build(), description, alternatives.build());
+          matchedNodeInfo, replacements.immutableCopy(), description, alternatives.build());
     }
 
   }

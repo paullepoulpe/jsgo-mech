@@ -27,7 +27,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.io.Files;
 import com.google.errorprone.annotations.InlineMe;
 import com.google.errorprone.annotations.Keep;
@@ -41,6 +40,7 @@ import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.DependencyOptions.DependencyMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.deps.ClosureBundler;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
@@ -1072,8 +1072,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       }
     }
 
-    private static final ImmutableMultimap<String, String> categories =
-        new ImmutableMultimap.Builder<String, String>()
+    private static final SimpleListMultimap<String, String> categories =
+        SimpleListMultimap.<String, String>create()
             .putAll(
                 "Basic Usage",
                 ImmutableList.of(
@@ -1162,13 +1162,13 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                     "third_party",
                     "use_types_for_optimization",
                     "version"))
-            .build();
+            .immutableCopy();
 
     private void printUsage(PrintStream ps) {
       OutputStreamWriter outputStream = new OutputStreamWriter(ps, UTF_8);
 
       boolean isFirst = true;
-      for (Map.Entry<String, Collection<String>> entry : categories.asMap().entrySet()) {
+      for (Map.Entry<String, List<String>> entry : categories.asMap().entrySet()) {
         String prefix = "\n\n";
         String suffix = "";
         if (isFirst) {

@@ -27,6 +27,7 @@ import com.google.javascript.jscomp.graph.LinkedDirectedGraph;
 import com.google.javascript.jscomp.graph.LinkedDirectedGraph.LinkedDiGraphNode;
 import com.google.javascript.jscomp.graph.LowestCommonAncestorFinder;
 import java.util.Collection;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /** Builds a graph of the {@link Color}s on the AST from a specified set of seed colors. */
@@ -156,7 +157,7 @@ final class ColorGraphBuilder {
     }
 
     Color color = node.getColor();
-    ImmutableSet<Color> supertypes = this.registry.getDisambiguationSupertypes(color);
+    Set<Color> supertypes = this.registry.getDisambiguationSupertypes(color);
     if (supertypes.isEmpty()) {
       this.connectSourceToDest(topNode, EdgeReason.ALGEBRAIC, flatNode);
     } else {

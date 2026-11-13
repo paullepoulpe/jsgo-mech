@@ -25,10 +25,10 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.SetMultimap;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.refactoring.SuggestedFix.MatchedNodeInfo;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
@@ -997,8 +997,8 @@ public class SuggestedFixTest {
 
     SuggestedFix fix =
         new SuggestedFix.Builder().addGoogRequire(match, "abc.def", scriptMetadata).build();
-    SetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
-    assertThat(replacementMap).isEmpty();
+    SimpleSetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
+    assertThat(replacementMap.isEmpty()).isTrue();
   }
 
   @Test
@@ -1018,8 +1018,8 @@ public class SuggestedFixTest {
 
     SuggestedFix fix =
         new SuggestedFix.Builder().addGoogRequire(match, "abc.def", scriptMetadata).build();
-    SetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
-    assertThat(replacementMap).isEmpty();
+    SimpleSetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
+    assertThat(replacementMap.isEmpty()).isTrue();
   }
 
   @Test
@@ -1183,7 +1183,7 @@ public class SuggestedFixTest {
 
     SuggestedFix fix =
         new SuggestedFix.Builder().addGoogRequire(match, "goog.safe", scriptMetadata).build();
-    assertThat(fix.getReplacements()).isEmpty();
+    assertThat(fix.getReplacements().isEmpty()).isTrue();
   }
 
   @Test
@@ -1203,7 +1203,7 @@ public class SuggestedFixTest {
 
     SuggestedFix.Builder fixBuilder =
         new SuggestedFix.Builder().addGoogRequire(match, "goog.safe", scriptMetadata);
-    assertThat(fixBuilder.build().getReplacements()).isEmpty();
+    assertThat(fixBuilder.build().getReplacements().isEmpty()).isTrue();
   }
 
   private static void assertAddGoogRequire(String before, String after, String namespace) {
@@ -1285,8 +1285,8 @@ public class SuggestedFixTest {
     Node root = compileToScriptRoot(compiler);
     Match match = new Match(root.getFirstChild(), new NodeMetadata(compiler));
     SuggestedFix fix = new SuggestedFix.Builder().removeGoogRequire(match, "fakefake").build();
-    SetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
-    assertThat(replacementMap).isEmpty();
+    SimpleSetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
+    assertThat(replacementMap.isEmpty()).isTrue();
   }
 
   @Test

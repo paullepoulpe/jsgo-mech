@@ -21,7 +21,6 @@ import static com.google.javascript.jscomp.serialization.TypePointers.isAxiomati
 import static com.google.javascript.jscomp.serialization.TypePointers.trimOffset;
 
 import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.JsonIOException;
@@ -39,9 +38,9 @@ import com.google.javascript.rhino.jstype.JSType;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
@@ -179,7 +178,7 @@ final class SerializeTypesToPointers {
     // in optimizations.
     try (LogFile log = this.compiler.createOrReopenLog(this.getClass(), "object_uuids.log")) {
       if (log.isLogging()) {
-        ImmutableMap<String, Collection<JSType>> allSerializedTypes =
+        Map<String, List<JSType>> allSerializedTypes =
             serializer.getColorIdToJSTypeMapForDebugging().asMap();
         // Stream json writing here rather than building up the entire json representation at once
         // because the latter used to cause OOMs.
@@ -236,16 +235,16 @@ final class SerializeTypesToPointers {
    * <p>Example: `{0: ['*', '?', 'None'], 10f34lksdf: ['SomeProtoCtor']}`
    */
   private static class StreamObjectUuidsJson implements LogFile.StreamedJsonProducer {
-    private final ImmutableMap<String, Collection<JSType>> allSerializedTypes;
+    private final Map<String, List<JSType>> allSerializedTypes;
 
-    StreamObjectUuidsJson(ImmutableMap<String, Collection<JSType>> allSerializedTypes) {
+    StreamObjectUuidsJson(Map<String, List<JSType>> allSerializedTypes) {
       this.allSerializedTypes = allSerializedTypes;
     }
 
     @Override
     public void writeJson(JsonWriter jsonWriter) throws IOException {
       jsonWriter.beginObject();
-      for (Map.Entry<String, Collection<JSType>> entry : allSerializedTypes.entrySet()) {
+      for (Map.Entry<String, List<JSType>> entry : allSerializedTypes.entrySet()) {
         jsonWriter.name(entry.getKey()); // color id
         jsonWriter.beginArray();
         // sort JSTypes by string representation

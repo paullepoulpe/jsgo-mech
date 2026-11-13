@@ -18,8 +18,7 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSymbolTable;
 import com.google.javascript.rhino.jstype.JSType;
@@ -43,8 +42,8 @@ final class PreprocessorSymbolTable
    */
   private final Map<String, SimpleSlot> symbols = new LinkedHashMap<>();
 
-  private final Multimap<String, Reference> refs =
-      MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<String, Reference> refs =
+      SimpleListMultimap.create();
 
   private final Node root;
 

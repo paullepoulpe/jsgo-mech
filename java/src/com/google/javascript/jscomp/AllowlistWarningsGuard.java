@@ -22,12 +22,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.TreeMultimap;
 import com.google.common.io.CharSource;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.re2j.Pattern;
 import java.io.File;
 import java.io.IOException;
@@ -286,7 +285,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
         out.append("#" + Joiner.on("\n# ").join(Splitter.on('\n').split(headerNote)) + "\n");
       }
 
-      Multimap<DiagnosticType, String> warningsByType = TreeMultimap.create();
+      SimpleSetMultimap<DiagnosticType, String> warningsByType = SimpleSetMultimap.createSorted();
       for (JSError warning : warnings) {
         warningsByType.put(warning.type(), formatWarning(warning, true /* withLineNumber */));
       }

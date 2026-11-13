@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.SetMultimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.refactoring.ApplySuggestedFixes;
 import com.google.javascript.refactoring.CodeReplacement;
 import com.google.javascript.refactoring.SuggestedFix;
@@ -38,8 +38,8 @@ public final class SuggestedFixes {
 
   private static void assertReplacements(
       SuggestedFix fix, Set<CodeReplacement> expectedReplacements) {
-    SetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
-    assertThat(replacementMap).hasSize(1);
+    SimpleSetMultimap<String, CodeReplacement> replacementMap = fix.getReplacements();
+    assertThat(replacementMap.size()).isEqualTo(1);
     Set<CodeReplacement> replacements = replacementMap.get("test");
     assertThat(replacements).hasSize(expectedReplacements.size());
     assertEquals(expectedReplacements, replacements);

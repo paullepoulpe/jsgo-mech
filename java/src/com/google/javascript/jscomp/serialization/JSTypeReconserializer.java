@@ -19,17 +19,15 @@ package com.google.javascript.jscomp.serialization;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.serialization.TypePointers.isAxiomatic;
-import static java.util.Comparator.naturalOrder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
 import com.google.javascript.jscomp.InvalidatingTypes;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.ColorId;
 import com.google.javascript.jscomp.colors.StandardColors;
@@ -73,7 +71,7 @@ final class JSTypeReconserializer {
   private final LinkedIdentityHashMap<JSType, SeenTypeRecord> typeToRecordCache =
       new LinkedIdentityHashMap<>();
   private final LinkedHashMap<ColorId, SeenTypeRecord> seenTypeRecords = new LinkedHashMap<>();
-  private final SetMultimap<Integer, Integer> disambiguateEdges = LinkedHashMultimap.create();
+  private final SimpleSetMultimap<Integer, Integer> disambiguateEdges = SimpleSetMultimap.createInsertionOrdered();
 
   private State state = State.COLLECTING_TYPES;
 
@@ -514,15 +512,18 @@ final class JSTypeReconserializer {
    *
    * <p>Only intended to be used for debug logging.
    */
-  ImmutableMultimap<String, JSType> getColorIdToJSTypeMapForDebugging() {
+  SimpleListMultimap<String, JSType> getColorIdToJSTypeMapForDebugging() {
     // note: returns JSType values instead of String values, even though all that's needed for
     // debugging are the strings, to avoid the memory overhead of calculating all string
     // representations at once
-    ImmutableMultimap.Builder<String, JSType> colorIdToTypes =
-        ImmutableMultimap.<String, JSType>builder().orderKeysBy(naturalOrder());
+    SimpleListMultimap<String, JSType> unordered = SimpleListMultimap.create();
     this.typeToRecordCache.forEach(
-        (jstype, record) -> colorIdToTypes.put(record.colorId.toString(), jstype));
-    return colorIdToTypes.build();
+        (jstype, record) -> unordered.put(record.colorId.toString(), jstype));
+    SimpleListMultimap<String, JSType> colorIdToTypes = SimpleListMultimap.create();
+    for (String colorId : ImmutableList.sortedCopyOf(unordered.keySet())) {
+      colorIdToTypes.putAll(colorId, unordered.get(colorId));
+    }
+    return colorIdToTypes.immutableCopy();
   }
 
   private static final class SeenTypeRecord {

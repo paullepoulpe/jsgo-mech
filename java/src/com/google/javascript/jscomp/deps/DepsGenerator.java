@@ -19,8 +19,6 @@ package com.google.javascript.jscomp.deps;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Multimaps;
 import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerInput;
@@ -30,6 +28,7 @@ import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.LazyParsedDependencyInfo;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import java.io.ByteArrayOutputStream;
@@ -507,8 +506,10 @@ public class DepsGenerator {
     if (mergeStrategy == InclusionStrategy.ALWAYS) {
       // This multimap is just for splitting DepsInfo objects by
       // it's definition deps.js file
-      ImmutableListMultimap<String, DependencyInfo> infosIndex =
-          Multimaps.index(depsFiles.values(), DependencyInfo::getName);
+      SimpleListMultimap<String, DependencyInfo> infosIndex = SimpleListMultimap.create();
+      for (DependencyInfo info : depsFiles.values()) {
+        infosIndex.put(info.getName(), info);
+      }
 
       for (String depsPath : infosIndex.keySet()) {
         String path = formatPathToDepsFile(depsPath);

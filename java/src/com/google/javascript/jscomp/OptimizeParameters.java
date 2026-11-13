@@ -22,15 +22,12 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.MultimapBuilder;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage;
 import com.google.javascript.jscomp.OptimizeCalls.ReferenceMap;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.diagnostic.LogFile;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.JSDocInfo;
@@ -170,7 +167,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
     void tryEliminateUnusedArgs(ArrayList<Node> refs) {
       // An argument is unused if its position is greater than the number of declared parameters
       // or if it marked as unused.
-      ImmutableListMultimap<Node, Node> fns = ReferenceMap.getFunctionNodes(refs);
+      SimpleListMultimap<Node, Node> fns = ReferenceMap.getFunctionNodes(refs);
       Preconditions.checkState(!fns.isEmpty());
 
       // Examine all function definitions that are ever assigned to the symbol to determine:
@@ -505,7 +502,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
       return analysisBuilder.setIsSafeToOptimize(false).build();
     }
     if (!analysisBuilder.taggedTemplateLiterals.isEmpty()) {
-      final ImmutableCollection<Node> functionNodes =
+      final Collection<Node> functionNodes =
           ReferenceMap.getFunctionNodes(definitions).values();
 
       for (Node functionNode : functionNodes) {
@@ -740,7 +737,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
       return false; // Fast path; there can't possibly be back-refs.
     }
 
-    ListMultimap<String, Node> namesByNames = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+    SimpleListMultimap<String, Node> namesByNames = SimpleListMultimap.create();
     NodeUtil.visitPostOrder(
         paramList,
         (n) -> {
@@ -814,7 +811,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
       return;
     }
 
-    ImmutableListMultimap<Node, Node> fns = ReferenceMap.getFunctionNodes(refs);
+    SimpleListMultimap<Node, Node> fns = ReferenceMap.getFunctionNodes(refs);
     if (fns.size() > 1) {
       // TODO(johnlenz): support moving simple constants.
       // This requires cloning the tree and avoiding adding additional calls/definitions that will

@@ -17,8 +17,7 @@ package com.google.javascript.jscomp.ijs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -27,8 +26,8 @@ import java.util.Set;
 final class FileInfo {
   private final Set<String> providedNamespaces = new LinkedHashSet<>();
   private final Set<String> requiredLocalNames = new LinkedHashSet<>();
-  private final ListMultimap<String, PotentialDeclaration> declarations =
-      MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<String, PotentialDeclaration> declarations =
+      SimpleListMultimap.create();
   private final boolean isFromTypeScriptField;
 
   FileInfo(String sourceFileName) {
@@ -63,7 +62,7 @@ final class FileInfo {
     recordDeclaration(PotentialDeclaration.fromAlias(nameNode));
   }
 
-  ListMultimap<String, PotentialDeclaration> getDeclarations() {
+  SimpleListMultimap<String, PotentialDeclaration> getDeclarations() {
     return declarations;
   }
 

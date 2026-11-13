@@ -22,20 +22,20 @@ import static com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllo
 import static com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior.UNSPECIFIED;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.CompilerOptions.ConformanceReportingMode;
 import com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.Node;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.TextFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -208,7 +208,7 @@ public final class CheckConformance implements NodeTraversal.Callback, CompilerP
       AbstractCompiler compiler,
       ImmutableList<ConformanceConfig> configs,
       ConformanceReportingMode reportingMode) {
-    LinkedHashMultimap<Precondition, Rule> builder = LinkedHashMultimap.create();
+    SimpleSetMultimap<Precondition, Rule> builder = SimpleSetMultimap.createInsertionOrdered();
 
     boolean isLibraryLevelReportingMode =
         reportingMode != null
@@ -237,7 +237,7 @@ public final class CheckConformance implements NodeTraversal.Callback, CompilerP
       }
     }
     ImmutableList.Builder<Category> result = ImmutableList.builder();
-    for (Map.Entry<Precondition, Collection<Rule>> e : builder.asMap().entrySet()) {
+    for (Map.Entry<Precondition, Set<Rule>> e : builder.asMap().entrySet()) {
       result.add(new Category(e.getKey(), ImmutableList.copyOf(e.getValue())));
     }
     return result.build();

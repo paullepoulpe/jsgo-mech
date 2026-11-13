@@ -22,8 +22,8 @@ import static org.junit.Assert.assertTrue;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import com.google.javascript.jscomp.CompilerOptions;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.refactoring.ApplySuggestedFixes;
 import com.google.javascript.refactoring.RefactoringDriver;
 import com.google.javascript.refactoring.Scanner;
@@ -82,6 +82,6 @@ public abstract class RefactoringTestCase {
                     .getAlternatives()
                     .stream()
                     .map(SuggestedFix::getReplacements)
-                    .allMatch(Multimap::isEmpty)));
+                    .allMatch(SimpleSetMultimap::isEmpty)));
   }
 }

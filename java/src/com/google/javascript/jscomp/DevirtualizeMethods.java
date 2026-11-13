@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.alwaysTrue;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.javascript.jscomp.OptimizeCalls.ReferenceMap;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
@@ -104,7 +104,7 @@ class DevirtualizeMethods implements OptimizeCalls.CallGraphCompilerPass {
   }
 
   private void processReferenceList(String name, List<Node> sites) {
-    ImmutableListMultimap<Node, Node> functionsBySite = ReferenceMap.getFunctionNodes(sites);
+    SimpleListMultimap<Node, Node> functionsBySite = ReferenceMap.getFunctionNodes(sites);
     if (functionsBySite.isEmpty()) {
       return; // We can't devirtualize without a definition.
     }

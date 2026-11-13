@@ -16,9 +16,12 @@
 
 package com.google.javascript.jscomp.diagnostic;
 
-import com.google.common.collect.Multimap;
 import com.google.gson.JsonIOException;
 import com.google.gson.stream.JsonWriter;
+import com.google.javascript.jscomp.base.SimpleBiMap;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleMultiset;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -44,9 +47,11 @@ public final class LogsGson {
 
   /**
    * Returns the compact, HTML-safe JSON text for a value made of: null, {@link Able}, {@link
-   * Multimap} (written as its {@code asMap()}), {@link Map} (an object whose names are the keys'
-   * {@code String.valueOf}; entries with null values are left out), {@link Collection} (an array),
-   * {@link String}, {@link Boolean}, {@link Integer}, {@link Long} and {@link Enum} (its name).
+   * SimpleListMultimap}, {@link SimpleSetMultimap} and {@link SimpleBiMap} (written as their
+   * {@code asMap()}), {@link Map} (an object whose names are the keys' {@code String.valueOf};
+   * entries with null values are left out), {@link Collection} and {@link SimpleMultiset} (an
+   * array), {@link String}, {@link Boolean}, {@link Integer}, {@link Long} and {@link Enum} (its
+   * name).
    */
   static String toJson(@Nullable Object o) {
     StringWriter out = new StringWriter();
@@ -67,8 +72,14 @@ public final class LogsGson {
       out.nullValue();
     } else if (value instanceof Able able) {
       out.jsonValue(toJson(able.toLogsGson()));
-    } else if (value instanceof Multimap<?, ?> multimap) {
+    } else if (value instanceof SimpleListMultimap<?, ?> multimap) {
       out.jsonValue(toJson(multimap.asMap()));
+    } else if (value instanceof SimpleSetMultimap<?, ?> multimap) {
+      out.jsonValue(toJson(multimap.asMap()));
+    } else if (value instanceof SimpleBiMap<?, ?> bimap) {
+      out.jsonValue(toJson(bimap.asMap()));
+    } else if (value instanceof SimpleMultiset<?> multiset) {
+      out.jsonValue(toJson(multiset.asList()));
     } else if (value instanceof Map<?, ?> map) {
       out.beginObject();
       for (Map.Entry<?, ?> entry : map.entrySet()) {

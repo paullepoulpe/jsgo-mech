@@ -22,12 +22,12 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.ColorId;
 import com.google.javascript.jscomp.colors.ColorRegistry;
@@ -868,7 +868,7 @@ final class TypedAstSerializer {
 
     @Override
     public TypePool generateTypePool() {
-      final ImmutableSetMultimap<ColorId, String> mismatchLocationsForDebugging =
+      final SimpleSetMultimap<ColorId, String> mismatchLocationsForDebugging =
           colorRegistry.getMismatchLocationsForDebugging();
       return colorSerializer.generateTypePool(
           colorRegistry::getDisambiguationSupertypes,

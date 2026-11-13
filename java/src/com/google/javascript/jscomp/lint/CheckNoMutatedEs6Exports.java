@@ -18,8 +18,6 @@ package com.google.javascript.jscomp.lint;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.CompilerPass;
@@ -29,6 +27,7 @@ import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.jscomp.Scope;
 import com.google.javascript.jscomp.Var;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -45,8 +44,8 @@ public final class CheckNoMutatedEs6Exports implements NodeTraversal.Callback, C
               + "mutable properties instead.");
 
   private final AbstractCompiler compiler;
-  private final Multimap<String, Node> mutatedNames =
-      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
+  private final SimpleSetMultimap<String, Node> mutatedNames =
+      SimpleSetMultimap.create();
   private final Set<String> exportedLocalNames = new LinkedHashSet<>();
 
   public CheckNoMutatedEs6Exports(AbstractCompiler compiler) {

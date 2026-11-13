@@ -21,9 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.TreeMultimap;
 import com.google.common.collect.TreeMultiset;
 import com.google.javascript.jscomp.BasicErrorManager;
 import com.google.javascript.jscomp.CheckLevel;
@@ -32,6 +30,7 @@ import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.GatherModuleMetadata;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
 import com.google.javascript.jscomp.parsing.Config;
@@ -75,7 +74,7 @@ public class JsFileFullParser {
     public final Multiset<String> typeRequires = TreeMultiset.create();
     public final Multiset<String> maybeRequires = TreeMultiset.create();
 
-    public final Multimap<String, String> loadFlags = TreeMultimap.create();
+    public final SimpleSetMultimap<String, String> loadFlags = SimpleSetMultimap.createSorted();
     public ParserRunner.ParseResult parsed = null;
   }
 

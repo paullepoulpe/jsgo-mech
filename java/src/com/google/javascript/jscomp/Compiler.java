@@ -31,9 +31,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.SetMultimap;
 import com.google.common.io.BaseEncoding;
 import com.google.debugging.sourcemap.SourceMapConsumerV3;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
@@ -58,6 +55,7 @@ import com.google.javascript.jscomp.JSChunkGraph.MissingChunkException;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.jscomp.colors.ColorRegistry;
 import com.google.javascript.jscomp.deps.BrowserModuleResolver;
@@ -206,8 +204,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   private final Map<String, Node> scriptNodeByFilename = new ConcurrentHashMap<>();
 
-  private final SetMultimap<JSChunk, CompilerInput> hoistedExternsByChunk =
-      LinkedHashMultimap.create();
+  private final SimpleSetMultimap<JSChunk, CompilerInput> hoistedExternsByChunk =
+      SimpleSetMultimap.createInsertionOrdered();
 
   private ImmutableMap<String, String> inputPathByWebpackId;
 
@@ -1692,7 +1690,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       // Keep track of how a qualified name we're interested in gets renamed.
       // Note that a qname can actually be renamed multiple times during compilation,
       // so we need a multimap here.
-      final Multimap<String, String> originalToNewQNameMap = LinkedHashMultimap.create();
+      final SimpleSetMultimap<String, String> originalToNewQNameMap = SimpleSetMultimap.createInsertionOrdered();
       // Get the top level statement nodes. Below they are filtered to those that contain at least
       // one reference to one of the qnames we are interested in, taking note of relevant renamings
       // while we're at it.

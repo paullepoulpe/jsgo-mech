@@ -24,7 +24,6 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.stream.JsonWriter;
@@ -34,6 +33,7 @@ import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.GatherGetterAndSetterProperties;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.NodeTraversal;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.ColorRegistry;
 import com.google.javascript.jscomp.diagnostic.LogFile;
@@ -201,7 +201,7 @@ public final class DisambiguateProperties implements CompilerPass {
 
   private static ImmutableMap<String, Object> buildRenamingIndex(
       LinkedHashMap<String, PropertyClustering> props, UseSiteRenamer renamer) {
-    ImmutableSetMultimap<String, String> newNames = renamer.getRenamingIndex();
+    SimpleSetMultimap<String, String> newNames = renamer.getRenamingIndex();
     ImmutableSortedMap.Builder<String, Object> result = ImmutableSortedMap.naturalOrder();
     for (PropertyClustering prop : props.values()) {
       result.put(

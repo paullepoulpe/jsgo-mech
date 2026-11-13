@@ -20,11 +20,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.ControlFlowGraph.Branch;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
@@ -123,7 +122,7 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
    *   foo() -> bar()
    *   bar() -> END
    */
-  private final SetMultimap<Node, Node> finallyMap = LinkedHashMultimap.create();
+  private final SimpleSetMultimap<Node, Node> finallyMap = SimpleSetMultimap.createInsertionOrdered();
 
   /**
    * Constructor. Should only be called from within the {@link Builder}

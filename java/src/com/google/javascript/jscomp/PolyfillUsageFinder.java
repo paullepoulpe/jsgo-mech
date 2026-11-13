@@ -22,13 +22,12 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.AbstractCompiler.LifeCycleStage;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.ColorId;
 import com.google.javascript.jscomp.colors.ColorRegistry;
@@ -101,19 +100,19 @@ final class PolyfillUsageFinder {
   /** Maps from polyfill names to the actual Polyfill object. */
   static final class Polyfills {
     // Map of method polyfills, keyed by native method name.
-    private final ImmutableMultimap<String, Polyfill> methods;
+    private final SimpleListMultimap<String, Polyfill> methods;
     // Map of static polyfills, keyed by fully-qualified native name.
     private final ImmutableMap<String, Polyfill> statics;
     // Set of suffixes of qualified names.
     private final ImmutableSet<String> suffixes;
     // Map of all polyfills, keyed by their native version (the first ECMAScript spec version in
     // which they are defined)
-    private final ImmutableMultimap<String, Polyfill> byNativeVersion;
+    private final SimpleListMultimap<String, Polyfill> byNativeVersion;
 
     private Polyfills(
-        ImmutableMultimap<String, Polyfill> methods,
+        SimpleListMultimap<String, Polyfill> methods,
         ImmutableMap<String, Polyfill> statics,
-        ImmutableMultimap<String, Polyfill> byNativeVersion) {
+        SimpleListMultimap<String, Polyfill> byNativeVersion) {
       this.methods = methods;
       this.statics = statics;
       this.byNativeVersion = byNativeVersion;
@@ -136,9 +135,9 @@ final class PolyfillUsageFinder {
      * library token is empty.
      */
     static Polyfills fromTable(String table) {
-      ImmutableMultimap.Builder<String, Polyfill> methods = ImmutableMultimap.builder();
+      SimpleListMultimap<String, Polyfill> methods = SimpleListMultimap.create();
       ImmutableMap.Builder<String, Polyfill> statics = ImmutableMap.builder();
-      ImmutableMultimap.Builder<String, Polyfill> byNativeVersion = ImmutableMultimap.builder();
+      SimpleListMultimap<String, Polyfill> byNativeVersion = SimpleListMultimap.create();
       for (String line : Splitter.on('\n').omitEmptyStrings().split(table)) {
         List<String> tokens = Splitter.on(' ').omitEmptyStrings().splitToList(line.trim());
         if (tokens.size() == 1 && tokens.get(0).isEmpty()) {
@@ -164,7 +163,8 @@ final class PolyfillUsageFinder {
         }
         byNativeVersion.put(nativeVersionStr, polyfill);
       }
-      return new Polyfills(methods.build(), statics.buildOrThrow(), byNativeVersion.build());
+      return new Polyfills(
+          methods.immutableCopy(), statics.buildOrThrow(), byNativeVersion.immutableCopy());
     }
 
     ImmutableList<Polyfill> getPolyfillsNewerThan(LanguageMode languageMode) {
@@ -324,7 +324,7 @@ final class PolyfillUsageFinder {
         // e.g. `obj.includes(x)` could be a usage of `Array.prototype.includes` or
         // `String.prototype.includes`.
         final String propertyName = getPropNode.getString();
-        ImmutableCollection<Polyfill> methodPolyfills = polyfills.methods.get(propertyName);
+        List<Polyfill> methodPolyfills = polyfills.methods.get(propertyName);
         // Note that we use ".foo" as the guard check for methods to keep them distinct in case
         // there is also a static "foo" polyfill.
         if (!methodPolyfills.isEmpty()

@@ -18,9 +18,8 @@ package com.google.javascript.jscomp.deps;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,8 +50,8 @@ public final class SortedDependencies<InputT extends DependencyInfo> {
   private final Map<String, InputT> nonExportingInputs = new LinkedHashMap<>();
   private final Map<String, InputT> exportingInputBySymbolName = new LinkedHashMap<>();
   // Maps an input A to the inputs it depends on, ie, inputs that provide stuff that A requires.
-  private final SetMultimap<InputT, InputT> importedInputByImportingInput =
-      LinkedHashMultimap.create();
+  private final SimpleSetMultimap<InputT, InputT> importedInputByImportingInput =
+      SimpleSetMultimap.createInsertionOrdered();
 
   public SortedDependencies(List<InputT> userOrderedInputs) {
     this.userOrderedInputs.addAll(userOrderedInputs);

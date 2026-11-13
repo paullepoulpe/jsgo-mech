@@ -16,8 +16,8 @@
 package com.google.javascript.jscomp;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.FunctionType;
@@ -34,9 +34,9 @@ import com.google.javascript.rhino.jstype.ObjectType;
  * com.google.javascript.jscomp.disambiguate.DisambiguateProperties}.
  */
 public final class InvalidatingTypes {
-  private final ImmutableSetMultimap<JSType, Node> typeToLocation;
+  private final SimpleSetMultimap<JSType, Node> typeToLocation;
 
-  private InvalidatingTypes(ImmutableSetMultimap<JSType, Node> typeToLocation) {
+  private InvalidatingTypes(SimpleSetMultimap<JSType, Node> typeToLocation) {
     this.typeToLocation = typeToLocation;
   }
 
@@ -75,7 +75,7 @@ public final class InvalidatingTypes {
         || isAmbiguousOrStructuralType(objType);
   }
 
-  public ImmutableSetMultimap<JSType, Node> getMismatchLocations() {
+  public SimpleSetMultimap<JSType, Node> getMismatchLocations() {
     return this.typeToLocation;
   }
 
@@ -113,8 +113,8 @@ public final class InvalidatingTypes {
   public static final class Builder {
     private final JSTypeRegistry registry;
 
-    private final ImmutableSetMultimap.Builder<JSType, Node> typeToLocation =
-        ImmutableSetMultimap.builder();
+    private final SimpleSetMultimap<JSType, Node> typeToLocation =
+        SimpleSetMultimap.create();
 
     public Builder(JSTypeRegistry registry) {
       this.registry = registry;
@@ -125,7 +125,7 @@ public final class InvalidatingTypes {
         this.typeToLocation.put(registry.getNativeType(t), ALWAYS_INVALIDATING_LOCATION);
       }
 
-      return new InvalidatingTypes(this.typeToLocation.build());
+      return new InvalidatingTypes(this.typeToLocation.immutableCopy());
     }
 
     @CanIgnoreReturnValue

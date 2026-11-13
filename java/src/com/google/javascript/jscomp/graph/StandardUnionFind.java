@@ -17,14 +17,12 @@ package com.google.javascript.jscomp.graph;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterators.filter;
-import static com.google.common.collect.Multimaps.asMap;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collections;
@@ -122,13 +120,12 @@ public class StandardUnionFind<E> implements Serializable, UnionFind<E> {
 
   @Override
   public ImmutableList<ImmutableSet<E>> allEquivalenceClasses() {
-    SetMultimap<Node<E>, E> groupsTmp =
-        MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
+    SimpleSetMultimap<Node<E>, E> groupsTmp = SimpleSetMultimap.create();
     for (Node<E> elem : elmap.values()) {
       groupsTmp.put(findRoot(elem), elem.element);
     }
     ImmutableList.Builder<ImmutableSet<E>> result = ImmutableList.builder();
-    for (Set<E> group : asMap(groupsTmp).values()) {
+    for (Set<E> group : groupsTmp.asMap().values()) {
       result.add(ImmutableSet.copyOf(group));
     }
     return result.build();

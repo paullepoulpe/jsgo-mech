@@ -22,10 +22,10 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CodingConvention.SubclassRelationship;
 import com.google.javascript.jscomp.ReferenceCollector.Behavior;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import java.util.Iterator;
@@ -222,8 +222,8 @@ class InlineVariables implements CompilerPass {
      *
      * <p>The value is an object that knows what to do when the original variable is handled.
      */
-    final LinkedHashMultimap<Var, AliasInlineRetryHandler> varToAliasRetryHandlersMap =
-        LinkedHashMultimap.create();
+    final SimpleSetMultimap<Var, AliasInlineRetryHandler> varToAliasRetryHandlersMap =
+        SimpleSetMultimap.createInsertionOrdered();
 
     @Override
     public void afterExitScope(NodeTraversal t, ReferenceMap referenceMap) {

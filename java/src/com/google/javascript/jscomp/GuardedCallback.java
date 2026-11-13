@@ -18,11 +18,10 @@ package com.google.javascript.jscomp;
 
 import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.ArrayDeque;
@@ -108,8 +107,8 @@ abstract class GuardedCallback<T> implements NodeTraversal.Callback {
   // traversal of the first child is complete.  Before traversing the second
   // child any node, its values in this map are moved into `guarded` and
   // `installedGuards` (the latter allowing removal at the correct time).
-  private final SetMultimap<Node, T> registeredGuards =
-      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
+  private final SimpleSetMultimap<Node, T> registeredGuards =
+      SimpleSetMultimap.create();
   // Set of currently-guarded resources.  Elements are added to this set
   // just before traversing the second or later (i.e. "then" or "else")
   // child of a short-circuiting conditional node, and then removed after
@@ -119,8 +118,8 @@ abstract class GuardedCallback<T> implements NodeTraversal.Callback {
   private final Multiset<T> guarded = LinkedHashMultiset.create();
   // Resources that are currently installed as guarded but will need to
   // be removed from `guarded` after visiting all the key nodes' children.
-  private final ListMultimap<Node, T> installedGuards =
-      MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<Node, T> installedGuards =
+      SimpleListMultimap.create();
   // A stack of `Context` objects describing the current node's context:
   // specifically, whether it is inherently safe, and a link to one or
   // more conditional nodes in the current statement directly above it

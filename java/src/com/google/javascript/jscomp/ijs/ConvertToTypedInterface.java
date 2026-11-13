@@ -35,6 +35,7 @@ import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.jstype.JSType.Nullability;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -451,13 +452,15 @@ public class ConvertToTypedInterface implements CompilerPass {
         if (name.startsWith("this.")) {
           continue;
         }
-        List<PotentialDeclaration> declList = currentFile.getDeclarations().get(name);
+        List<PotentialDeclaration> declList =
+            new ArrayList<>(currentFile.getDeclarations().get(name));
         declList.sort(DECLARATIONS_FIRST);
         while (declList.size() > 1) {
           // Don't remove the first declaration (at index 0)
           PotentialDeclaration decl = declList.remove(1);
           decl.remove(compiler);
         }
+        currentFile.getDeclarations().replaceValues(name, declList);
       }
     }
 

@@ -27,14 +27,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.deps.SortedDependencies;
 import com.google.javascript.jscomp.deps.SortedDependencies.MissingProvideException;
 import com.google.javascript.jscomp.graph.LinkedDirectedGraph;
@@ -567,7 +566,7 @@ public final class JSChunkGraph implements Serializable {
         sorter.getStrongDependenciesOf(originalInputs, dependencyOptions.shouldSort());
 
     // Figure out which sources *must* be in each chunk.
-    ListMultimap<JSChunk, CompilerInput> entryPointInputsPerChunk = LinkedListMultimap.create();
+    SimpleListMultimap<JSChunk, CompilerInput> entryPointInputsPerChunk = SimpleListMultimap.create();
     for (CompilerInput input : entryPointInputs) {
       JSChunk chunk = input.getChunk();
       checkNotNull(chunk);

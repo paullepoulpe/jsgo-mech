@@ -22,11 +22,10 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 /**
  * Stores "out of band" information about the set of Colors in use by a compilation.
@@ -35,14 +34,14 @@ import java.util.LinkedHashMap;
  */
 public final class ColorRegistry {
   private final ImmutableMap<ColorId, Color> nativeColors;
-  private final ImmutableSetMultimap<Color, Color> colorToDisambiguationSupertypeGraph;
-  private final ImmutableSetMultimap<ColorId, String> mismatchLocations;
+  private final SimpleSetMultimap<Color, Color> colorToDisambiguationSupertypeGraph;
+  private final SimpleSetMultimap<ColorId, String> mismatchLocations;
 
   private ColorRegistry(Builder builder) {
     this.nativeColors = ImmutableMap.copyOf(builder.nativeColors);
     this.colorToDisambiguationSupertypeGraph =
-        ImmutableSetMultimap.copyOf(builder.colorToDisambiguationSupertypeGraph);
-    this.mismatchLocations = ImmutableSetMultimap.copyOf(builder.mismatchLocations);
+        builder.colorToDisambiguationSupertypeGraph.immutableCopy();
+    this.mismatchLocations = builder.mismatchLocations.immutableCopy();
 
     checkState(this.nativeColors.keySet().equals(REQUIRED_IDS));
   }
@@ -56,7 +55,7 @@ public final class ColorRegistry {
    * The colors directly above `x` in the subtyping graph for the purposes of property
    * (dis)ambiguation.
    */
-  public final ImmutableSet<Color> getDisambiguationSupertypes(Color x) {
+  public final Set<Color> getDisambiguationSupertypes(Color x) {
     return this.colorToDisambiguationSupertypeGraph.get(x);
   }
 
@@ -66,7 +65,7 @@ public final class ColorRegistry {
    * <p>This index is only intended for debugging. It may be empty or incomplete during production
    * compilations.
    */
-  public final ImmutableSetMultimap<ColorId, String> getMismatchLocationsForDebugging() {
+  public final SimpleSetMultimap<ColorId, String> getMismatchLocationsForDebugging() {
     return this.mismatchLocations;
   }
 
@@ -78,10 +77,10 @@ public final class ColorRegistry {
   public static final class Builder {
 
     private final LinkedHashMap<ColorId, Color> nativeColors = new LinkedHashMap<>();
-    private final SetMultimap<Color, Color> colorToDisambiguationSupertypeGraph =
-        MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
-    private final SetMultimap<ColorId, String> mismatchLocations =
-        MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
+    private final SimpleSetMultimap<Color, Color> colorToDisambiguationSupertypeGraph =
+        SimpleSetMultimap.create();
+    private final SimpleSetMultimap<ColorId, String> mismatchLocations =
+        SimpleSetMultimap.create();
 
     private Builder() {}
 

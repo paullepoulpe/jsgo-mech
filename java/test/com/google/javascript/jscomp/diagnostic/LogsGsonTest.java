@@ -18,8 +18,8 @@ package com.google.javascript.jscomp.diagnostic;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.truth.StringSubject;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -42,12 +42,12 @@ public final class LogsGsonTest {
   @Test
   public void adapter_write_multimap() {
     // Given
-    ImmutableMultimap<Object, Object> value =
-        ImmutableMultimap.builder() //
+    SimpleListMultimap<Object, Object> value =
+        SimpleListMultimap.create() //
             .put("foo", 0)
             .put("foo", 1)
             .put("bar", 2)
-            .build();
+            .immutableCopy();
 
     // Then
     assertLogsGson(value).isEqualTo("{\"foo\":[0,1],\"bar\":[2]}");

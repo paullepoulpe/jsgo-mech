@@ -17,9 +17,8 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
@@ -66,7 +65,7 @@ class InlineSimpleMethods implements CompilerPass {
   // Use a linked map here to keep the output deterministic.  Otherwise,
   // the choice of method bodies is random when multiple identical definitions
   // are found which causes problems in the source maps.
-  private final SetMultimap<String, Node> methodDefinitions = LinkedHashMultimap.create();
+  private final SimpleSetMultimap<String, Node> methodDefinitions = SimpleSetMultimap.createInsertionOrdered();
 
   private final AbstractCompiler compiler;
   private final AstAnalyzer astAnalyzer;

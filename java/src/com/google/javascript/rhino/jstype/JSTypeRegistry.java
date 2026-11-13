@@ -60,9 +60,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.SetMultimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.HamtPMap;
 import com.google.javascript.rhino.JSDocInfo;
@@ -237,8 +235,8 @@ public final class JSTypeRegistry {
   // Also, note that this solution is buggy and the type resolution still gets default nullability
   // wrong in some cases. See b/116853368. Probably NamedType should be responsible for
   // applying nullability to forward references instead of the type expression evaluation.
-  private final Multimap<Node, String> nonNullableTypeNames =
-      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
+  private final SimpleSetMultimap<Node, String> nonNullableTypeNames =
+      SimpleSetMultimap.create();
 
   // Types that have been "forward-declared."
   // If these types are not declared anywhere in the binary, we shouldn't
@@ -248,8 +246,8 @@ public final class JSTypeRegistry {
   // A map of properties to the types on which those properties have been declared.
   // "Reference" types are excluded because those already exist in eachRefTypeIndexedByProperty to
   // avoid blowing up the size of this map.
-  private final transient SetMultimap<String, JSType> nonRefTypesIndexedByProperty =
-      MultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
+  private final transient SimpleSetMultimap<String, JSType> nonRefTypesIndexedByProperty =
+      SimpleSetMultimap.create();
 
   private JSType sentinelObjectLiteral;
 
@@ -268,8 +266,8 @@ public final class JSTypeRegistry {
   private final Set<String> droppedPropertiesOfUnions = new LinkedHashSet<>();
 
   // A map of properties to each reference type on which those properties have been declared.
-  private final SetMultimap<String, ObjectType> eachRefTypeIndexedByProperty =
-      MultimapBuilder.SetMultimapBuilder.linkedHashKeys().linkedHashSetValues().build();
+  private final SimpleSetMultimap<String, ObjectType> eachRefTypeIndexedByProperty =
+      SimpleSetMultimap.create();
 
   // A single empty TemplateTypeMap, which can be safely reused in cases where
   // there are no template types.

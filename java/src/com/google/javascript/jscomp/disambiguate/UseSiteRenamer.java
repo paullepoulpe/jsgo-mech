@@ -17,8 +17,8 @@
 package com.google.javascript.jscomp.disambiguate;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.Node;
 import java.util.Map;
 import java.util.Objects;
@@ -31,8 +31,8 @@ final class UseSiteRenamer {
 
   private final Consumer<Node> mutationCb;
 
-  private final ImmutableSetMultimap.Builder<String, String> renamingIndex =
-      ImmutableSetMultimap.builder();
+  private final SimpleSetMultimap<String, String> renamingIndex =
+      SimpleSetMultimap.create();
 
   UseSiteRenamer(Consumer<Node> mutationCb) {
     this.mutationCb = mutationCb;
@@ -80,8 +80,8 @@ final class UseSiteRenamer {
     DISAMBIGUATED;
   }
 
-  ImmutableSetMultimap<String, String> getRenamingIndex() {
-    return this.renamingIndex.build();
+  SimpleSetMultimap<String, String> getRenamingIndex() {
+    return this.renamingIndex.immutableCopy();
   }
 
   /**

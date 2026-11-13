@@ -16,10 +16,8 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.Multimaps;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
@@ -58,7 +56,7 @@ import java.util.Map.Entry;
  */
 class RewriteGlobalDeclarationsForTryCatchWrapping implements NodeTraversal.Callback, CompilerPass {
   private final AbstractCompiler compiler;
-  private final ListMultimap<JSChunk, Node> functions = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<JSChunk, Node> functions = SimpleListMultimap.create();
   private final ArrayList<Node> classes = new ArrayList<>();
 
   RewriteGlobalDeclarationsForTryCatchWrapping(AbstractCompiler compiler) {
@@ -68,7 +66,7 @@ class RewriteGlobalDeclarationsForTryCatchWrapping implements NodeTraversal.Call
   @Override
   public void process(Node externs, Node root) {
     NodeTraversal.traverse(compiler, root, this);
-    for (Entry<JSChunk, List<Node>> entry : Multimaps.asMap(functions).entrySet()) {
+    for (Entry<JSChunk, List<Node>> entry : functions.asMap().entrySet()) {
       Node addingRoot = compiler.getNodeForCodeInsertion(entry.getKey());
       List<Node> fnNodes = Lists.reverse(entry.getValue());
       if (!fnNodes.isEmpty()) {

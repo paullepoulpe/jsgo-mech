@@ -19,7 +19,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.LinkedHashMultimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.parsing.FeatureCollector;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
@@ -65,8 +65,8 @@ class TranspileAndOptimizeClosureUnaware implements CompilerPass {
 
   /** Traverses all closure unaware SCRIPTs to collect shadow ASTs. */
   private static final class CollectShadowAsts implements NodeTraversal.Callback {
-    private final LinkedHashMultimap<SourceFile, ShadowAst> shadowAsts =
-        LinkedHashMultimap.create();
+    private final SimpleSetMultimap<SourceFile, ShadowAst> shadowAsts =
+        SimpleSetMultimap.createInsertionOrdered();
 
     @Override
     public boolean shouldTraverse(NodeTraversal t, Node n, Node parent) {
@@ -116,7 +116,7 @@ class TranspileAndOptimizeClosureUnaware implements CompilerPass {
 
   private void initShadowInputs(
       NestedCompilerRunner shadowCompiler,
-      LinkedHashMultimap<SourceFile, ShadowAst> perFileInputs) {
+      SimpleSetMultimap<SourceFile, ShadowAst> perFileInputs) {
     for (SourceFile sourceFile : perFileInputs.keySet()) {
       int indexInFile = 0;
       for (ShadowAst shadowAst : perFileInputs.get(sourceFile)) {
@@ -131,7 +131,7 @@ class TranspileAndOptimizeClosureUnaware implements CompilerPass {
    * Re-attaches the shadow AST scripts, that were previously detached for compilation, to their
    * associated ROOT nodes from the main AST.
    */
-  private void reattachShadowNodes(LinkedHashMultimap<SourceFile, ShadowAst> inputs) {
+  private void reattachShadowNodes(SimpleSetMultimap<SourceFile, ShadowAst> inputs) {
     for (ShadowAst shadowAst : inputs.values()) {
       Node script = shadowAst.script();
       checkState(script.hasOneChild(), script.toStringTree());

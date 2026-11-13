@@ -54,13 +54,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.SetMultimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CodingConvention.ObjectLiteralCast;
 import com.google.javascript.jscomp.CodingConvention.SubclassRelationship;
@@ -68,6 +63,8 @@ import com.google.javascript.jscomp.FunctionTypeBuilder.AstFunctionContents;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.NodeTraversal.AbstractScopedCallback;
 import com.google.javascript.jscomp.ProcessClosureProvidesAndRequires.ProvidedName;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.modules.Export;
 import com.google.javascript.jscomp.modules.Module;
 import com.google.javascript.jscomp.modules.ModuleMap;
@@ -175,7 +172,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
 
   // Maps from scope root to declared variable names. Populated by FirstOrderFunctionAnalyzer to
   // reserve names before the TypedScope is populated.
-  private ListMultimap<Node, String> reservedNamesForScope;
+  private SimpleListMultimap<Node, String> reservedNamesForScope;
 
   // Set of functions with non-empty returns, for passing to FunctionTypeBuilder.
   private Set<Node> functionsWithNonEmptyReturns;
@@ -199,7 +196,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
   private Set<Node> undeclaredNamesForClosure;
 
   // Maps EXPR_RESULT nodes from goog.provides to all implicitly provided names from the call
-  private Multimap<Node, ProvidedName> providedNamesFromCall;
+  private SimpleSetMultimap<Node, ProvidedName> providedNamesFromCall;
 
   private enum Stage {
     BUILDING,
@@ -690,14 +687,14 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
   }
 
   private void clearCommonState() {
-    this.reservedNamesForScope = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+    this.reservedNamesForScope = SimpleListMultimap.create();
     this.functionsWithNonEmptyReturns = new LinkedHashSet<>();
     this.escapedVarNames = new LinkedHashSet<>();
     this.assignedVarNames = LinkedHashMultiset.create();
     this.weakImports = new ArrayList<>();
     this.unresolvedNodes = new ArrayList<>();
     this.undeclaredNamesForClosure = new LinkedHashSet<>();
-    this.providedNamesFromCall = LinkedHashMultimap.create();
+    this.providedNamesFromCall = SimpleSetMultimap.createInsertionOrdered();
   }
 
   /** Adds all enums and typedefs to the registry's list of non-nullable types. */
@@ -774,7 +771,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
      * or resolving type-less stubs. These actions are added to this map, keyed by the node that
      * should be waited for before running.
      */
-    final SetMultimap<Node, Runnable> deferredActions = LinkedHashMultimap.create();
+    final SimpleSetMultimap<Node, Runnable> deferredActions = SimpleSetMultimap.createInsertionOrdered();
 
     AbstractScopeBuilder(TypedScope scope) {
       this.currentScope = scope;

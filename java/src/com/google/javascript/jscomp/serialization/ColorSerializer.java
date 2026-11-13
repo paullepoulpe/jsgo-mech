@@ -19,13 +19,13 @@ package com.google.javascript.jscomp.serialization;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.ColorId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
@@ -125,8 +125,8 @@ class ColorSerializer {
    * @return a new `TypePool` proto
    */
   TypePool generateTypePool(
-      Function<Color, ImmutableSet<Color>> getDisambiguationSupertypesFn,
-      @Nullable Function<Color, ImmutableSet<String>> getMismatchSourceRefsFn) {
+      Function<Color, Set<Color>> getDisambiguationSupertypesFn,
+      @Nullable Function<Color, Set<String>> getMismatchSourceRefsFn) {
     final TypePool.Builder typePoolBuilder = TypePool.newBuilder();
     // We use an indexed loop here for 2 reasons.
     // 1. We must skip serialization of the axiomatic colors that start our list of serialized

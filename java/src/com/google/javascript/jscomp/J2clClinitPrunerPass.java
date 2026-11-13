@@ -20,10 +20,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
       return;
     }
 
-    Multimap<String, Node> clinitReferences = collectClinitReferences(root);
+    SimpleSetMultimap<String, Node> clinitReferences = collectClinitReferences(root);
     do {
       List<Node> newChangedScopes = cleanEmptyClinitReferences(clinitReferences);
       pruneEmptyClinits(root, newChangedScopes);
@@ -117,8 +116,8 @@ public class J2clClinitPrunerPass implements CompilerPass {
         : node;
   }
 
-  private Multimap<String, Node> collectClinitReferences(Node root) {
-    final Multimap<String, Node> clinitReferences = LinkedHashMultimap.create();
+  private SimpleSetMultimap<String, Node> collectClinitReferences(Node root) {
+    final SimpleSetMultimap<String, Node> clinitReferences = SimpleSetMultimap.createInsertionOrdered();
     NodeTraversal.traverse(
         compiler,
         root,
@@ -134,7 +133,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
     return clinitReferences;
   }
 
-  private List<Node> cleanEmptyClinitReferences(Multimap<String, Node> clinitReferences) {
+  private List<Node> cleanEmptyClinitReferences(SimpleSetMultimap<String, Node> clinitReferences) {
     final List<Node> newChangedScopes = new ArrayList<>();
     // resolveReplacement step above should not require any particular iteration order of the
     // emptiedClinitMethods but we are using LinkedHashMap to be extra safe.

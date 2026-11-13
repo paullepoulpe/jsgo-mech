@@ -22,7 +22,6 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
@@ -30,6 +29,7 @@ import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.modules.Module;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleType;
 import com.google.javascript.rhino.JSDocInfo;
@@ -430,14 +430,14 @@ public final class SymbolTable {
   public String toDebugStringTree() {
     // We are recursively going through scopes from global to nested and need to build parent =>
     // children map as it doesn't exist at the moment.
-    ImmutableListMultimap.Builder<SymbolScope, SymbolScope> childrenScopesBuilder =
-        ImmutableListMultimap.builder();
+    SimpleListMultimap<SymbolScope, SymbolScope> childrenScopesBuilder =
+        SimpleListMultimap.create();
     for (SymbolScope scope : getAllScopes()) {
       if (scope.getParentScope() != null) {
         childrenScopesBuilder.put(scope.getParentScope(), scope);
       }
     }
-    ImmutableListMultimap<SymbolScope, SymbolScope> childrenScopes = childrenScopesBuilder.build();
+    SimpleListMultimap<SymbolScope, SymbolScope> childrenScopes = childrenScopesBuilder.immutableCopy();
     StringBuilder builder = new StringBuilder();
     // Go through all scopes that don't have parent. It's likely only Global scope.
     for (SymbolScope scope : getAllScopes()) {
@@ -463,7 +463,7 @@ public final class SymbolTable {
       StringBuilder builder,
       String prefix,
       SymbolScope scope,
-      ImmutableListMultimap<SymbolScope, SymbolScope> childrenScopes) {
+      SimpleListMultimap<SymbolScope, SymbolScope> childrenScopes) {
     builder.append(prefix).append(scope);
     String childrenPrefix = prefix + "    ";
     boolean printedSomething = false;

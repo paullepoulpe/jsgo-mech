@@ -20,14 +20,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind;
 import com.google.javascript.jscomp.CodingConvention.SubclassRelationship;
 import com.google.javascript.jscomp.PolyfillUsageFinder.PolyfillUsage;
 import com.google.javascript.jscomp.PolyfillUsageFinder.Polyfills;
+import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.diagnostic.LogFile;
 import com.google.javascript.jscomp.resources.ResourceLoader;
 import com.google.javascript.rhino.IR;
@@ -112,7 +111,7 @@ class RemoveUnusedCode implements CompilerPass {
   private final Set<String> pinnedPropertyNames = new LinkedHashSet<>(IMPLICITLY_USED_PROPERTIES);
 
   /** Stores Removable objects for each property name that is currently considered removable. */
-  private final Multimap<String, Removable> removablesForPropertyNames = LinkedHashMultimap.create();
+  private final SimpleSetMultimap<String, Removable> removablesForPropertyNames = SimpleSetMultimap.createInsertionOrdered();
 
   /** Single value to use for all vars for which we cannot remove anything at all. */
   private final VarInfo canonicalUnremovableVarInfo;
@@ -126,7 +125,7 @@ class RemoveUnusedCode implements CompilerPass {
    * "Promise" and "Map", static methods on global names such as "Array.from" and "Math.fround", and
    * instance properties such as "String.prototype.repeat" and "Promise.prototype.finally".
    */
-  private final Multimap<String, PolyfillInfo> polyfills = LinkedHashMultimap.create();
+  private final SimpleSetMultimap<String, PolyfillInfo> polyfills = SimpleSetMultimap.createInsertionOrdered();
 
   private final Set<Node> guardedUsages = new LinkedHashSet<>();
 

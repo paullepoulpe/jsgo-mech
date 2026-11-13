@@ -23,10 +23,9 @@ import static java.util.Comparator.comparingInt;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.NodeTraversal.ScopedCallback;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -89,8 +88,8 @@ final class RenameVars implements CompilerPass {
   // Logic for bleeding functions, where the name leaks into the outer
   // scope on IE but not on other browsers.
   private final Set<Var> localBleedingFunctions = new LinkedHashSet<>();
-  private final ListMultimap<Scope, Var> localBleedingFunctionsPerScope =
-      MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<Scope, Var> localBleedingFunctionsPerScope =
+      SimpleListMultimap.create();
 
   class Assignment {
     final boolean isLocal;

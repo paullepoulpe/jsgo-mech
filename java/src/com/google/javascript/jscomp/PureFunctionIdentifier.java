@@ -22,16 +22,13 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.Multimaps;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.DoNotCall;
 import com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind;
 import com.google.javascript.jscomp.CodingConvention.Cache;
 import com.google.javascript.jscomp.NodeTraversal.ScopedCallback;
 import com.google.javascript.jscomp.OptimizeCalls.ReferenceMap;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.graph.DiGraph;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import com.google.javascript.jscomp.graph.FixedPointGraphTraversal;
@@ -110,8 +107,8 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
    * names to infos. However, since names are 1:1 with infos, it's more effecient to "pre-join" in
    * this way.
    */
-  private final Multimap<Node, AmbiguatedFunctionSummary> summariesForAllNamesOfFunctionByNode =
-      MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<Node, AmbiguatedFunctionSummary> summariesForAllNamesOfFunctionByNode =
+      SimpleListMultimap.create();
 
   /**
    * Set of FUNCTION nodes which are artificially marked as pure, via a `@nosideeffects` JSDoc tag
@@ -478,7 +475,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
    */
   private void populateDatastructuresForAnalysisTraversal(ReferenceMap referenceMap) {
     // Merge the prop and name references into a single multimap since only the name matters.
-    ListMultimap<String, Node> referencesByName = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+    SimpleListMultimap<String, Node> referencesByName = SimpleListMultimap.create();
     for (Map.Entry<String, ? extends List<Node>> entry : referenceMap.getNameReferences()) {
       referencesByName.putAll(entry.getKey(), entry.getValue());
     }
@@ -496,7 +493,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
       summariesByName.put(name, AmbiguatedFunctionSummary.createInGraph(reverseCallGraph, name));
     }
 
-    Multimaps.asMap(referencesByName).forEach(this::populateFunctionDefinitions);
+    referencesByName.asMap().forEach(this::populateFunctionDefinitions);
     this.summariesForAllNamesOfFunctionByNode.put(
         IMPLICIT_PURE_FN,
         AmbiguatedFunctionSummary.createInGraph(reverseCallGraph, "<implicit pure class ctor"));

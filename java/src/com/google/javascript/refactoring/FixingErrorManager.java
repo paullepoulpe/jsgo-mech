@@ -21,13 +21,12 @@ import static com.google.javascript.jscomp.lint.CheckExtraRequires.EXTRA_REQUIRE
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.BasicErrorManager;
 import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -39,7 +38,7 @@ import java.util.List;
 public class FixingErrorManager extends BasicErrorManager {
   private ErrorToFixMapper fixer;
   private final LinkedHashMap<JSError, SuggestedFix> sureFixes = new LinkedHashMap<>();
-  private final ListMultimap<JSError, SuggestedFix> multiFixes = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<JSError, SuggestedFix> multiFixes = SimpleListMultimap.create();
   private final ImmutableSet<DiagnosticType> unfixableErrors;
 
   private enum FixTypes {

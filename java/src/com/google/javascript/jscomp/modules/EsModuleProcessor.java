@@ -22,8 +22,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.JSError;
@@ -33,6 +31,7 @@ import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.jscomp.Scope;
 import com.google.javascript.jscomp.TranspilationUtil;
 import com.google.javascript.jscomp.Var;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.modules.ModuleMapCreator.ModuleProcessor;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
@@ -125,7 +124,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
    */
   private static final class FindMutableExports extends AbstractPostOrderCallback {
     final List<Export> exports;
-    final ListMultimap<String, Export> exportsByLocalName;
+    final SimpleListMultimap<String, Export> exportsByLocalName;
 
     FindMutableExports(List<Export> exports) {
       // There may be multiple exports with the same local name because you can export a local
@@ -134,7 +133,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       // let x;
       // export {x as y, x as z};
       this.exports = exports;
-      exportsByLocalName = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+      exportsByLocalName = SimpleListMultimap.create();
       for (Export e : exports) {
         exportsByLocalName.put(e.localName(), e);
       }

@@ -20,16 +20,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.errorprone.annotations.Immutable;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
@@ -302,7 +300,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
 
   // Maps each namespace into the existing import statements for that namespace.
   // Use an ArrayListMultimap so that values for a key are iterated in a deterministic order.
-  private final Multimap<String, ImportStatement> importsByNamespace = MultimapBuilder.linkedHashKeys().arrayListValues().build();
+  private final SimpleListMultimap<String, ImportStatement> importsByNamespace = SimpleListMultimap.create();
 
   // The import statements in the order they appear.
   private final List<ImportStatement> originalImports = new ArrayList<>();
@@ -443,7 +441,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
    * namespace, and sorting the result.
    */
   private static List<ImportStatement> canonicalizeImports(
-      Multimap<String, ImportStatement> importsByNamespace) {
+      SimpleListMultimap<String, ImportStatement> importsByNamespace) {
     List<ImportStatement> canonicalImports = new ArrayList<>();
 
     for (String namespace : importsByNamespace.keySet()) {

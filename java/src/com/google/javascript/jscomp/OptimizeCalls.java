@@ -21,10 +21,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.NodeTraversal.ScopedCallback;
+import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -205,12 +205,12 @@ class OptimizeCalls implements CompilerPass {
      * @return A mapping from the input {@code definitionSites} to each of their associated
      *     functions.
      */
-    static ImmutableListMultimap<Node, Node> getFunctionNodes(List<Node> definitionSites) {
-      ImmutableListMultimap.Builder<Node, Node> result = ImmutableListMultimap.builder();
+    static SimpleListMultimap<Node, Node> getFunctionNodes(List<Node> definitionSites) {
+      SimpleListMultimap<Node, Node> result = SimpleListMultimap.create();
       for (Node def : definitionSites) {
         result.putAll(def, definitionFunctionNodesFor(def));
       }
-      return result.build();
+      return result.immutableCopy();
     }
 
     /**

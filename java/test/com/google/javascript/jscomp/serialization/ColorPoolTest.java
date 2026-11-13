@@ -835,7 +835,7 @@ public class ColorPoolTest {
             .build();
 
     // Then
-    assertThat(colorPool.getRegistry().getMismatchLocationsForDebugging())
+    assertThat(colorPool.getRegistry().getMismatchLocationsForDebugging().asMap())
         .isEqualTo(
             ImmutableSetMultimap.builder()
                 .put(StandardColors.BOOLEAN.getId(), "location_0")
@@ -843,7 +843,8 @@ public class ColorPoolTest {
                 .put(StandardColors.SYMBOL.getId(), "location_0")
                 .put(StandardColors.NUMBER.getId(), "location_1")
                 .put(StandardColors.BIGINT.getId(), "location_2")
-                .build());
+                .build()
+                .asMap());
   }
 
   @Test
