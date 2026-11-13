@@ -21,8 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.TreeMultiset;
 import com.google.javascript.jscomp.BasicErrorManager;
 import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.Compiler;
@@ -30,6 +28,7 @@ import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.GatherModuleMetadata;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
@@ -69,10 +68,10 @@ public class JsFileFullParser {
 
     // Note: multiple copies doesn't make much sense, but we report
     // each copy so that calling code can choose how to handle it
-    public final Multiset<String> provides = TreeMultiset.create();
-    public final Multiset<String> requires = TreeMultiset.create();
-    public final Multiset<String> typeRequires = TreeMultiset.create();
-    public final Multiset<String> maybeRequires = TreeMultiset.create();
+    public final SimpleMultiset<String> provides = SimpleMultiset.createSorted();
+    public final SimpleMultiset<String> requires = SimpleMultiset.createSorted();
+    public final SimpleMultiset<String> typeRequires = SimpleMultiset.createSorted();
+    public final SimpleMultiset<String> maybeRequires = SimpleMultiset.createSorted();
 
     public final SimpleSetMultimap<String, String> loadFlags = SimpleSetMultimap.createSorted();
     public ParserRunner.ParseResult parsed = null;

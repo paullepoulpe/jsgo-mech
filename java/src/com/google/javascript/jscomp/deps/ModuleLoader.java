@@ -23,7 +23,6 @@ import static java.util.Comparator.naturalOrder;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -31,6 +30,7 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -291,14 +291,14 @@ public final class ModuleLoader {
     }
     // Sort so that this errors are easier to read.
     sortedModulePaths.sort(BEST_MATCH_PATH_ORDERING);
-    ImmutableMultiset<String> dupeModulePaths = ImmutableMultiset.copyOf(sortedModulePaths);
+    SimpleMultiset<String> dupeModulePaths = SimpleMultiset.copyOf(sortedModulePaths);
 
     checkState(
         dupeModulePaths.size() == dupeModulePaths.elementSet().size(),
         "Duplicate module paths after resolving: %s",
         dupeModulePaths);
 
-    return dupeModulePaths.elementSet();
+    return ImmutableSet.copyOf(dupeModulePaths.elementSet());
   }
 
   /** Normalizes the name and resolves it against the module roots. */

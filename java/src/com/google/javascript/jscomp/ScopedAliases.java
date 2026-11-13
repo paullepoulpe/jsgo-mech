@@ -20,12 +20,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multiset;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
 import com.google.javascript.rhino.IR;
@@ -138,7 +137,7 @@ class ScopedAliases implements CompilerPass {
 
   private static final QualifiedName GOOG_MODULE_GET = QualifiedName.of("goog.module.get");
 
-  private final Multiset<String> scopedAliasNames = LinkedHashMultiset.create();
+  private final SimpleMultiset<String> scopedAliasNames = SimpleMultiset.create();
   private final Set<String> closureNamespaces;
   private final InvalidModuleGetHandling invalidModuleGetHandling;
 

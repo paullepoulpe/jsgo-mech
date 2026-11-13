@@ -16,10 +16,10 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.LinkedHashMultiset;
-import com.google.common.collect.Multiset;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Generates unique String Ids when requested via a compiler instance.
@@ -28,10 +28,10 @@ import java.util.List;
  * the compiler. The generated ID format is: uniqueId = "fileHashCode$counterForThisFile"
  */
 public final class UniqueIdSupplier {
-  private final Multiset<Integer> counter;
+  private final SimpleMultiset<Integer> counter;
 
   UniqueIdSupplier() {
-    counter = LinkedHashMultiset.create();
+    counter = SimpleMultiset.create();
   }
 
   /**
@@ -50,11 +50,11 @@ public final class UniqueIdSupplier {
 
   public List<UniqueIdProto> toProto() {
     List<UniqueIdProto> result = new ArrayList<>();
-    for (Multiset.Entry<Integer> entry : counter.entrySet()) {
+    for (Map.Entry<Integer, Integer> entry : counter.entrySet()) {
       result.add(
           UniqueIdProto.newBuilder()
-              .setHash(entry.getElement())
-              .setCounter(entry.getCount())
+              .setHash(entry.getKey())
+              .setCounter(entry.getValue())
               .build());
     }
     return result;

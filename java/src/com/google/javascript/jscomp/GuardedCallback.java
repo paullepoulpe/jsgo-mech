@@ -16,11 +16,10 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
@@ -115,7 +114,7 @@ abstract class GuardedCallback<T> implements NodeTraversal.Callback {
   // traversing the last child.  It is a multiset so that multiple adds
   // of the same resource require the same number of removals before the
   // resource becomes unguarded.
-  private final Multiset<T> guarded = LinkedHashMultiset.create();
+  private final SimpleMultiset<T> guarded = SimpleMultiset.create();
   // Resources that are currently installed as guarded but will need to
   // be removed from `guarded` after visiting all the key nodes' children.
   private final SimpleListMultimap<Node, T> installedGuards =

@@ -20,9 +20,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.rhino.Node;
 import java.util.Map;
@@ -131,14 +131,14 @@ public final class ModuleMetadataMap {
       @Nullable Node rootNode,
       boolean usesClosure,
       boolean isTestOnly,
-      ImmutableMultiset<String> googNamespaces,
-      ImmutableMultiset<String> stronglyRequiredGoogNamespaces,
-      ImmutableMultiset<String> dynamicallyRequiredGoogNamespaces,
-      ImmutableMultiset<String> maybeRequiredGoogNamespaces,
-      ImmutableMultiset<String> weaklyRequiredGoogNamespaces,
-      ImmutableMultiset<String> es6ImportSpecifiers,
+      SimpleMultiset<String> googNamespaces,
+      SimpleMultiset<String> stronglyRequiredGoogNamespaces,
+      SimpleMultiset<String> dynamicallyRequiredGoogNamespaces,
+      SimpleMultiset<String> maybeRequiredGoogNamespaces,
+      SimpleMultiset<String> weaklyRequiredGoogNamespaces,
+      SimpleMultiset<String> es6ImportSpecifiers,
       ImmutableList<ModuleMetadata> nestedModules,
-      ImmutableMultiset<String> readToggles,
+      SimpleMultiset<String> readToggles,
       @Nullable ModulePath path) {
     public ModuleMetadata {
       requireNonNull(moduleType, "moduleType");
@@ -235,22 +235,22 @@ public final class ModuleMetadataMap {
       private @Nullable Node rootNodeField;
       private boolean usesClosureField;
       private boolean isTestOnlyField;
-      private ImmutableMultiset.@Nullable Builder<String> googNamespacesBuilderField;
-      private @Nullable ImmutableMultiset<String> googNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> stronglyRequiredGoogNamespacesBuilderField;
-      private @Nullable ImmutableMultiset<String> stronglyRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> dynamicallyRequiredGoogNamespacesBuilderField;
-      private @Nullable ImmutableMultiset<String> dynamicallyRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> maybeRequiredGoogNamespacesBuilderField;
-      private @Nullable ImmutableMultiset<String> maybeRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> weaklyRequiredGoogNamespacesBuilderField;
-      private @Nullable ImmutableMultiset<String> weaklyRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> es6ImportSpecifiersBuilderField;
-      private @Nullable ImmutableMultiset<String> es6ImportSpecifiers;
+      private @Nullable SimpleMultiset<String> googNamespacesBuilderField;
+      private @Nullable SimpleMultiset<String> googNamespaces;
+      private @Nullable SimpleMultiset<String> stronglyRequiredGoogNamespacesBuilderField;
+      private @Nullable SimpleMultiset<String> stronglyRequiredGoogNamespaces;
+      private @Nullable SimpleMultiset<String> dynamicallyRequiredGoogNamespacesBuilderField;
+      private @Nullable SimpleMultiset<String> dynamicallyRequiredGoogNamespaces;
+      private @Nullable SimpleMultiset<String> maybeRequiredGoogNamespacesBuilderField;
+      private @Nullable SimpleMultiset<String> maybeRequiredGoogNamespaces;
+      private @Nullable SimpleMultiset<String> weaklyRequiredGoogNamespacesBuilderField;
+      private @Nullable SimpleMultiset<String> weaklyRequiredGoogNamespaces;
+      private @Nullable SimpleMultiset<String> es6ImportSpecifiersBuilderField;
+      private @Nullable SimpleMultiset<String> es6ImportSpecifiers;
       private ImmutableList.@Nullable Builder<ModuleMetadataMap.ModuleMetadata> nestedModulesBuilderField;
       private @Nullable ImmutableList<ModuleMetadataMap.ModuleMetadata> nestedModules;
-      private ImmutableMultiset.@Nullable Builder<String> readTogglesBuilderField;
-      private @Nullable ImmutableMultiset<String> readToggles;
+      private @Nullable SimpleMultiset<String> readTogglesBuilderField;
+      private @Nullable SimpleMultiset<String> readToggles;
       private @Nullable ModulePath pathField;
       private byte set0;
 
@@ -259,34 +259,34 @@ public final class ModuleMetadataMap {
 
       public ModuleMetadata build() {
         if (googNamespacesBuilderField != null) {
-          this.googNamespaces = googNamespacesBuilderField.build();
+          this.googNamespaces = googNamespacesBuilderField.immutableCopy();
         } else if (this.googNamespaces == null) {
-          this.googNamespaces = ImmutableMultiset.of();
+          this.googNamespaces = SimpleMultiset.of();
         }
         if (stronglyRequiredGoogNamespacesBuilderField != null) {
-          this.stronglyRequiredGoogNamespaces = stronglyRequiredGoogNamespacesBuilderField.build();
+          this.stronglyRequiredGoogNamespaces = stronglyRequiredGoogNamespacesBuilderField.immutableCopy();
         } else if (this.stronglyRequiredGoogNamespaces == null) {
-          this.stronglyRequiredGoogNamespaces = ImmutableMultiset.of();
+          this.stronglyRequiredGoogNamespaces = SimpleMultiset.of();
         }
         if (dynamicallyRequiredGoogNamespacesBuilderField != null) {
-          this.dynamicallyRequiredGoogNamespaces = dynamicallyRequiredGoogNamespacesBuilderField.build();
+          this.dynamicallyRequiredGoogNamespaces = dynamicallyRequiredGoogNamespacesBuilderField.immutableCopy();
         } else if (this.dynamicallyRequiredGoogNamespaces == null) {
-          this.dynamicallyRequiredGoogNamespaces = ImmutableMultiset.of();
+          this.dynamicallyRequiredGoogNamespaces = SimpleMultiset.of();
         }
         if (maybeRequiredGoogNamespacesBuilderField != null) {
-          this.maybeRequiredGoogNamespaces = maybeRequiredGoogNamespacesBuilderField.build();
+          this.maybeRequiredGoogNamespaces = maybeRequiredGoogNamespacesBuilderField.immutableCopy();
         } else if (this.maybeRequiredGoogNamespaces == null) {
-          this.maybeRequiredGoogNamespaces = ImmutableMultiset.of();
+          this.maybeRequiredGoogNamespaces = SimpleMultiset.of();
         }
         if (weaklyRequiredGoogNamespacesBuilderField != null) {
-          this.weaklyRequiredGoogNamespaces = weaklyRequiredGoogNamespacesBuilderField.build();
+          this.weaklyRequiredGoogNamespaces = weaklyRequiredGoogNamespacesBuilderField.immutableCopy();
         } else if (this.weaklyRequiredGoogNamespaces == null) {
-          this.weaklyRequiredGoogNamespaces = ImmutableMultiset.of();
+          this.weaklyRequiredGoogNamespaces = SimpleMultiset.of();
         }
         if (es6ImportSpecifiersBuilderField != null) {
-          this.es6ImportSpecifiers = es6ImportSpecifiersBuilderField.build();
+          this.es6ImportSpecifiers = es6ImportSpecifiersBuilderField.immutableCopy();
         } else if (this.es6ImportSpecifiers == null) {
-          this.es6ImportSpecifiers = ImmutableMultiset.of();
+          this.es6ImportSpecifiers = SimpleMultiset.of();
         }
         if (nestedModulesBuilderField != null) {
           this.nestedModules = nestedModulesBuilderField.build();
@@ -294,9 +294,9 @@ public final class ModuleMetadataMap {
           this.nestedModules = ImmutableList.of();
         }
         if (readTogglesBuilderField != null) {
-          this.readToggles = readTogglesBuilderField.build();
+          this.readToggles = readTogglesBuilderField.immutableCopy();
         } else if (this.readToggles == null) {
-          this.readToggles = ImmutableMultiset.of();
+          this.readToggles = SimpleMultiset.of();
         }
         if (set0 != 3
             || this.moduleTypeField == null) {
@@ -328,9 +328,9 @@ public final class ModuleMetadataMap {
             this.pathField);
       }
 
-      public ImmutableMultiset.Builder<String> googNamespacesBuilder() {
+      public SimpleMultiset<String> googNamespacesBuilder() {
         if (googNamespacesBuilderField == null) {
-          googNamespacesBuilderField = ImmutableMultiset.builder();
+          googNamespacesBuilderField = SimpleMultiset.create();
         }
         return googNamespacesBuilderField;
       }
@@ -341,37 +341,37 @@ public final class ModuleMetadataMap {
         return this;
       }
 
-      public ImmutableMultiset.Builder<String> stronglyRequiredGoogNamespacesBuilder() {
+      public SimpleMultiset<String> stronglyRequiredGoogNamespacesBuilder() {
         if (stronglyRequiredGoogNamespacesBuilderField == null) {
-          stronglyRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
+          stronglyRequiredGoogNamespacesBuilderField = SimpleMultiset.create();
         }
         return stronglyRequiredGoogNamespacesBuilderField;
       }
 
-      public ImmutableMultiset.Builder<String> dynamicallyRequiredGoogNamespacesBuilder() {
+      public SimpleMultiset<String> dynamicallyRequiredGoogNamespacesBuilder() {
         if (dynamicallyRequiredGoogNamespacesBuilderField == null) {
-          dynamicallyRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
+          dynamicallyRequiredGoogNamespacesBuilderField = SimpleMultiset.create();
         }
         return dynamicallyRequiredGoogNamespacesBuilderField;
       }
 
-      public ImmutableMultiset.Builder<String> maybeRequiredGoogNamespacesBuilder() {
+      public SimpleMultiset<String> maybeRequiredGoogNamespacesBuilder() {
         if (maybeRequiredGoogNamespacesBuilderField == null) {
-          maybeRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
+          maybeRequiredGoogNamespacesBuilderField = SimpleMultiset.create();
         }
         return maybeRequiredGoogNamespacesBuilderField;
       }
 
-      public ImmutableMultiset.Builder<String> weaklyRequiredGoogNamespacesBuilder() {
+      public SimpleMultiset<String> weaklyRequiredGoogNamespacesBuilder() {
         if (weaklyRequiredGoogNamespacesBuilderField == null) {
-          weaklyRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
+          weaklyRequiredGoogNamespacesBuilderField = SimpleMultiset.create();
         }
         return weaklyRequiredGoogNamespacesBuilderField;
       }
 
-      public ImmutableMultiset.Builder<String> es6ImportSpecifiersBuilder() {
+      public SimpleMultiset<String> es6ImportSpecifiersBuilder() {
         if (es6ImportSpecifiersBuilderField == null) {
-          es6ImportSpecifiersBuilderField = ImmutableMultiset.builder();
+          es6ImportSpecifiersBuilderField = SimpleMultiset.create();
         }
         return es6ImportSpecifiersBuilderField;
       }
@@ -383,9 +383,9 @@ public final class ModuleMetadataMap {
         return nestedModulesBuilderField;
       }
 
-      public ImmutableMultiset.Builder<String> readTogglesBuilder() {
+      public SimpleMultiset<String> readTogglesBuilder() {
         if (readTogglesBuilderField == null) {
-          readTogglesBuilderField = ImmutableMultiset.builder();
+          readTogglesBuilderField = SimpleMultiset.create();
         }
         return readTogglesBuilderField;
       }

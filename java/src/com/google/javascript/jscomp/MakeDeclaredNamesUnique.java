@@ -20,11 +20,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multiset;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.NodeTraversal.ScopedCallback;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayDeque;
@@ -686,7 +685,7 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
 
     // This multiset is shared between this ContextualRenamer and its parent (and its parent's
     // parent, etc.) because it tracks counts of variables across the entire JS program.
-    private final Multiset<String> nameUsage;
+    private final SimpleMultiset<String> nameUsage;
 
     // By contrast, this is a different map for each ContextualRenamer because it's just keeping
     // track of the names used by this renamer.
@@ -710,14 +709,14 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
     ContextualRenamer() {
       scopeRoot = null;
       global = true;
-      nameUsage = LinkedHashMultiset.create();
+      nameUsage = SimpleMultiset.create();
 
       hoistRenamer = this;
     }
 
     /** Constructor for child scopes. */
     private ContextualRenamer(
-        Node scopeRoot, Multiset<String> nameUsage, boolean hoistingTargetScope, Renamer parent) {
+        Node scopeRoot, SimpleMultiset<String> nameUsage, boolean hoistingTargetScope, Renamer parent) {
       checkState(NodeUtil.createsScope(scopeRoot), scopeRoot);
 
       if (scopeRoot.isFunction()) {

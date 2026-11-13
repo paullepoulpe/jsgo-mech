@@ -21,7 +21,7 @@ import static com.google.javascript.jscomp.ClosureCheckModule.DECLARE_LEGACY_NAM
 import static com.google.javascript.jscomp.ClosurePrimitiveErrors.INVALID_REQUIRE_NAMESPACE;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.LinkedHashMultiset;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap;
@@ -155,7 +155,7 @@ public final class GatherModuleMetadata implements CompilerPass {
     private Node declaredModuleId;
     private Node declaresLegacyNamespace;
     final ModuleMetadata.Builder metadataBuilder;
-    final LinkedHashMultiset<String> googNamespaces = LinkedHashMultiset.create();
+    final SimpleMultiset<String> googNamespaces = SimpleMultiset.create();
 
     ModuleMetadataBuilder(Node rootNode, @Nullable ModulePath path) {
       this.metadataBuilder =

@@ -25,9 +25,8 @@ import static java.util.Comparator.comparingLong;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultiset;
-import com.google.common.collect.Multiset;
 import com.google.javascript.jscomp.CompilerOptions.TracerMode;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.io.PrintStream;
@@ -97,7 +96,7 @@ public final class PerformanceTracker {
   /** Cumulative stats for each compiler pass. */
   private ImmutableMap<String, Stats> passSummary;
 
-  private ImmutableMultiset<Token> astManifest;
+  private SimpleMultiset<Token> astManifest;
 
   /** Stats a single run of a compiler pass. */
   private final List<Stats> log = new ArrayList<>();
@@ -371,9 +370,9 @@ public final class PerformanceTracker {
       return;
     }
 
-    ImmutableMultiset.Builder<Token> builder = ImmutableMultiset.builder();
+    SimpleMultiset<Token> builder = SimpleMultiset.create();
     NodeUtil.visitPreOrder(this.jsRoot, (n) -> builder.add(n.getToken()));
-    this.astManifest = builder.build();
+    this.astManifest = builder.immutableCopy();
   }
 
   private String pruningAnalysisSummary = "not executed";
@@ -515,8 +514,8 @@ public final class PerformanceTracker {
               "Input AST Manifest:",
               "token,count"));
       List<String> manifestLines = new ArrayList<>();
-      for (Multiset.Entry<Token> e : this.astManifest.entrySet()) {
-        manifestLines.add(String.format("%s,%d", e.getElement(), e.getCount()));
+      for (Map.Entry<Token, Integer> e : this.astManifest.entrySet()) {
+        manifestLines.add(String.format("%s,%d", e.getKey(), e.getValue()));
       }
       Collections.sort(manifestLines);
       for (String line : manifestLines) {

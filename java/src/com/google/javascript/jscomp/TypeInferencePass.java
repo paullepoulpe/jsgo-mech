@@ -20,11 +20,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.rhino.jstype.JSTypeNative.UNKNOWN_TYPE;
 import static java.util.Comparator.comparingInt;
 
-import com.google.common.collect.LinkedHashMultiset;
-import com.google.common.collect.Multiset;
 import com.google.javascript.jscomp.CodingConvention.AssertionFunctionLookup;
 import com.google.javascript.jscomp.DataFlowAnalysis.LinearFlowState;
 import com.google.javascript.jscomp.NodeTraversal.AbstractScopedCallback;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.diagnostic.LogFile;
 import com.google.javascript.jscomp.graph.Annotatable;
 import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 /** A compiler pass to run the type inference analysis. */
@@ -51,7 +51,7 @@ class TypeInferencePass {
   private final AssertionFunctionLookup assertionFunctionLookup;
 
   // (stepCount, Token) -> populationCount
-  private final @Nullable LinkedHashMap<Integer, LinkedHashMultiset<Token>> stepCountHistogram;
+  private final @Nullable LinkedHashMap<Integer, SimpleMultiset<Token>> stepCountHistogram;
 
   TypeInferencePass(
       AbstractCompiler compiler,
@@ -136,13 +136,13 @@ class TypeInferencePass {
         List<Integer> stepCounts = new ArrayList<>(this.stepCountHistogram.keySet());
         stepCounts.sort(Comparator.<Integer>naturalOrder().reversed());
         for (Integer stepCount : stepCounts) {
-          List<Multiset.Entry<Token>> entries =
+          List<Map.Entry<Token, Integer>> entries =
               new ArrayList<>(this.stepCountHistogram.get(stepCount).entrySet());
-          entries.sort(comparingInt(Multiset.Entry::getCount));
-          for (Multiset.Entry<Token> e : entries) {
-            totals[0] += stepCount * e.getCount();
-            totals[1] += e.getCount();
-            histogram.log("%s %s %s", stepCount, e.getElement(), e.getCount());
+          entries.sort(comparingInt(Map.Entry::getValue));
+          for (Map.Entry<Token, Integer> e : entries) {
+            totals[0] += stepCount * e.getValue();
+            totals[1] += e.getValue();
+            histogram.log("%s %s %s", stepCount, e.getKey(), e.getValue());
           }
         }
         histogram.log("%s TOTAL %s", totals[0], totals[1]);
@@ -167,7 +167,7 @@ class TypeInferencePass {
 
         LinearFlowState<?> state = Annotatable.getAnnotation(node);
         this.stepCountHistogram
-            .computeIfAbsent(state.getStepCount(), (k) -> LinkedHashMultiset.create())
+            .computeIfAbsent(state.getStepCount(), (k) -> SimpleMultiset.create())
             .add(node.getValue().getToken());
       }
     }

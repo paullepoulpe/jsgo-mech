@@ -49,13 +49,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multiset;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.CodingConvention.ObjectLiteralCast;
 import com.google.javascript.jscomp.CodingConvention.SubclassRelationship;
@@ -64,6 +62,7 @@ import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.NodeTraversal.AbstractScopedCallback;
 import com.google.javascript.jscomp.ProcessClosureProvidesAndRequires.ProvidedName;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.modules.Export;
 import com.google.javascript.jscomp.modules.Module;
@@ -179,7 +178,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
   // Includes both simple and qualified names.
   private Set<ScopedName> escapedVarNames;
   // Count of how many times each variable is assigned, for marking effectively final.
-  private Multiset<ScopedName> assignedVarNames;
+  private SimpleMultiset<ScopedName> assignedVarNames;
 
   // For convenience
   private final ObjectType unknownType;
@@ -690,7 +689,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
     this.reservedNamesForScope = SimpleListMultimap.create();
     this.functionsWithNonEmptyReturns = new LinkedHashSet<>();
     this.escapedVarNames = new LinkedHashSet<>();
-    this.assignedVarNames = LinkedHashMultiset.create();
+    this.assignedVarNames = SimpleMultiset.create();
     this.weakImports = new ArrayList<>();
     this.unresolvedNodes = new ArrayList<>();
     this.undeclaredNamesForClosure = new LinkedHashSet<>();
