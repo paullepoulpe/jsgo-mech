@@ -8,5 +8,5 @@ cd "$(dirname "$0")/../.."
 order=tools/j2go/init-order.txt
 [[ -f $order ]] || order=-
 java -Xss64m -Xmx8g --add-modules jdk.compiler -cp "${J2GO_CLASSES:-.cache/j2go}" j2go.Main \
-  .cache/build/stock-libs.jar "$out" "$order" @.cache/j2go/files.txt 2>&1 | grep -v '^Picked up'
+  .cache/build/stock-libs.jar:.cache/build/main "$out" "$order" @.cache/j2go/files.txt 2>&1 | grep -v '^Picked up'
 gofmt -w "$out"/g_*.go
