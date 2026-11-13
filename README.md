@@ -29,19 +29,18 @@ Nothing here is copied from the existing jsgo port.
 
 ## Status
 
-Two phases so far.
-
 **Phase 1 (commit `6d0fa52`): translate the unprepped tree.** `tools/j2go`
 translated the release as it is (only prep 01 applied), with every difficulty
 absorbed by the transpiler or by a handwritten Go runtime of 27.8k lines. The
-result matched Java byte for byte and was 1.2-2.1x slower than cold Java
-(1.81x over the nine benchmark tasks).
+result matched Java byte for byte and was 1.81x slower than cold Java over the
+nine benchmark tasks.
 
-**Phase 2: the plan's prep steps, then translate again.** Twelve of the plan's
-thirteen prep steps are on `main`; each passed `tools/gate0/gate.sh` (all
+**Phase 2: prep steps, then translate again.** All of the plan's thirteen prep
+steps and three more are on `main`. Each passed `tools/gate0/gate.sh` (all
 JUnit suites, four real projects compared byte for byte with the stock
 release) before landing. `git log --grep '^prep('` lists them; the tools that
-found or rewrote the sites are in `tools/prep/`.
+found or rewrote the sites, and the checkers that keep each rule true, are in
+`tools/prep/`.
 
 | step | what | measured (plan's figure) |
 |---|---|---|
@@ -49,53 +48,71 @@ found or rewrote the sites are in `tools/prep/`.
 | 02, 02b | data races | 4 sites |
 | 03 | no Mockito / DiffUtils in tests | 15 files; needed a 110-line diff routine |
 | 04 | `Node` has no subclasses | 1 file |
-| 05a-d | expected failures as `Outcome<T>` | catch clauses 157 -> 106 (plan: ~4 left) |
+| 05a-d | expected failures as `Outcome<T>` (short chains) | catch clauses 157 -> 106 (plan: ~4 left) |
+| 05e-l | the same through long call chains, 8 exception families | 106 -> 91; 42 files |
 | 06a | `@AutoValue` -> records | 22 types (32) |
 | 06b | fields named like methods | 208 fields, 982 sites (~160) |
 | 07 | same-arity overloads | 267 groups, 5,171 call sites (~40 groups) |
 | 08 | no generic virtual methods | 4 families, 106 sites |
 | 09, 09b | no side effects inside expressions | 192 sites + flag table |
+| 10a-f | `String` never null (`Optional<String>`) | 412 files; findings 1,591 -> 158 |
 | 11a | streams -> loops | 54 files |
 | 11b, 11c | re2j regexes; plain format strings | 45 files; 6 calls (12) |
 | 12a-d | own multimap/multiset/table/bimap | 5 classes, 519 code lines (~800 lines) |
 | 13a, 13b | no Gson binding, no args4j | 19 sites; a 680-line flag parser |
-| 10 | `String` never null | NOT landed: see below |
+| 14a-e | all I/O behind `jscomp.base.Io` (not in the plan) | 86 files; facade 600 lines |
+| 15a-b | JSON behind `jscomp.base.Json` (not in the plan) | 26 files; catches 91 -> 56 |
 
-Step 10 exists on branch `wip/p10` (390 files; nullable-string findings 1,537
--> 40) but changes behaviour on paths the tests do not cover, so it waits for a
-decision.
+Notes on individual steps:
 
-Java speed after 11 of the steps (before 05, 06, 12): 220.0s stock, 215.5s
-prepped over the nine tasks, outputs identical.
+- Step 10 is behaviour-preserving but incomplete: 158 places remain where a
+  String can be null (most are `x.orElse(null)` at sites where presence could
+  not be proven), so the Go side still needs its null-string sentinel.
+  `tools/prep/10_find_null_strings` lists them.
+- Steps 14 and 15 introduce *hand-implemented classes*: `Io.java` and
+  `Json.java` are not translated (`tools/j2go/handwritten.txt`); the Go runtime
+  implements them on Go's standard library (`rt_io.go`, `rt_json.go`). The
+  Java versions wrap the JDK and Gson.
+- Step 11b changes regex syntax for user-supplied patterns (RE2); step 15
+  accepts only standard JSON; steps 05/14/15 turn several stack traces into
+  one-line errors.
 
-**The Go translation of the prepped tree** (twelve steps) matches Java byte
-for byte on the four gate projects and on all nine benchmark tasks. The
-handwritten runtime shrank from 27.8k to 20.3k lines: the args4j emulation,
-streams, the Java-regex translator, reflective Gson and the Guava
-multimap family are gone (`tools/prune` removes runtime functions that no
-translated code references). Speed, same harness and machine as phase 1:
+Java speed of the fully prepped tree against the stock release (nine tasks,
+3 cold runs): 225.2s stock, 233.1s prepped (+3.5%), outputs identical; measured
+on a busy machine with per-task swings of -18% to +29%, so not yet conclusive.
 
-| task | Java | Go | Go/Java (phase 1) |
+**The Go translation of the fully prepped tree** matches Java byte for byte on
+the four gate projects and on all nine benchmark tasks. The handwritten
+runtime is 15.5k lines (27.8k in phase 1): the args4j emulation, streams, the
+Java-regex translator, the Guava multimap family, the java.io / java.nio /
+zip class hierarchies and all of Gson are gone. `tools/prune/prune.sh` removes
+runtime functions that no translated code references; `tools/prune/verify.sh`
+runs the checks.
+
+Speed, same harness, quiet machine (3 cold runs, medians):
+
+| task | Java | Go | Go/Java |
 |---|---:|---:|---:|
-| typed-app | 19.0s | 15.0s | 0.79x (1.19x) |
-| downlevel-simple | 10.8s | 9.8s | 0.91x (1.20x) |
-| incremental-ijs-check | 6.9s | 8.4s | 1.21x (1.26x) |
-| checks-only | 11.0s | 17.7s | 1.60x (1.62x) |
-| shaka-blockly | 29.5s | 47.3s | 1.60x (1.77x) |
-| generate-ijs | 5.4s | 8.8s | 1.64x (1.51x) |
-| conformance-checks | 16.6s | 30.0s | 1.81x (1.87x) |
-| bundle | 28.0s | 52.2s | 1.86x (2.11x) |
-| typed-full | 53.0s | 110.0s | 2.07x (2.08x) |
+| typed-app | 11.5s | 13.8s | 1.20x |
+| incremental-ijs-check | 7.3s | 8.9s | 1.22x |
+| downlevel-simple | 8.8s | 10.8s | 1.23x |
+| checks-only | 13.5s | 21.7s | 1.61x |
+| generate-ijs | 5.8s | 9.9s | 1.72x |
+| conformance-checks | 17.4s | 32.2s | 1.85x |
+| shaka-blockly | 25.0s | 47.2s | 1.89x |
+| bundle | 27.9s | 59.3s | 2.12x |
+| typed-full | 47.0s | 104.1s | 2.21x |
+| sum | 164.2s | 307.8s | 1.88x |
 
-The machine was shared with other work during both runs, so differences of
-10-20% between the phases are noise; the picture is unchanged: about parity on
-small inputs, 1.6-2x slower on large ones.
+The prep steps made the result smaller and easier to review; they did not make
+it faster (1.81x before, 1.88x after).
 
-**Not done.** The transpiler has not been simplified to rely on the prep
-steps (it still lowers try/catch to closures, keeps a null-string sentinel and
-the evaluation-order machinery). The plan's `NodeStore` is not built. Tests are
-not translated. Git tags could not be pushed from the authoring session: run
-`tools/tag-preps.sh --push`.
+**Not done.** The transpiler still lowers try/catch to closures (56 catch
+clauses remain in the Java), keeps the null-string sentinel and erases
+generics. `rt_io.go` is 1.6k lines because `Io.java` still exposes JDK
+behaviour; a step that simplifies the facade is in progress. The plan's
+`NodeStore` is not built. Tests are not translated. Git tags could not be
+pushed from the authoring session: run `tools/tag-preps.sh --push`.
 
 The sections below describe phase 1 in detail.
 
