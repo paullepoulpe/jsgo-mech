@@ -726,12 +726,6 @@ func (this *StringBuilder) append_double(d float64) *StringBuilder {
 	return this.append(Double_toString(d))
 }
 
-func (this *StringBuilder) append_boolean(b bool) *StringBuilder { return this.append(boolstr_(b)) }
-
-func (this *StringBuilder) appendCodePoint(cp int32) *StringBuilder {
-	return this.append(cpString_(cp))
-}
-
 func (this *StringBuilder) length() int32 {
 	if this.wide {
 		return int32(len(this.w))
@@ -830,14 +824,6 @@ func (this *StringBuilder) repeat(v any, n int32) *StringBuilder {
 
 func (this *StringBuilder) repeat_int_int(cp int32, n int32) *StringBuilder {
 	return this.append(strings.Repeat(cpString_(cp), int(n)))
-}
-
-func (this *StringBuilder) reverse() *StringBuilder {
-	this.widen()
-	for i, j := 0, len(this.w)-1; i < j; i, j = i+1, j-1 {
-		this.w[i], this.w[j] = this.w[j], this.w[i]
-	}
-	return this
 }
 
 func (this *StringBuilder) isEmpty() bool { return this.length() == 0 }
@@ -975,3 +961,5 @@ func Character_toUpperCase(c uint16) uint16 {
 	}
 	return uint16(r)
 }
+
+func (this *StringBuilder) append_boolean(b bool) *StringBuilder { return this.append(boolstr_(b)) }

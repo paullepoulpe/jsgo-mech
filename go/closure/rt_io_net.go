@@ -40,13 +40,6 @@ func (this *URISyntaxException) self() any {
 	return this.self_
 }
 
-func (this *URISyntaxException) up_Exception() *Exception {
-	if this == nil {
-		return nil
-	}
-	return &this.Exception
-}
-
 func new_URISyntaxException_String_String_int(input string, reason string, index int32) *URISyntaxException {
 	if input == nullstr_ || reason == nullstr_ {
 		panic(new_NullPointerException_0().self())
@@ -60,10 +53,7 @@ func new_URISyntaxException_String_String_int(input string, reason string, index
 	return this
 }
 
-func (this *URISyntaxException) getInput() string  { return this.input_ }
-func (this *URISyntaxException) getReason() string { return this.reason_ }
-func (this *URISyntaxException) getIndex() int32   { return this.index_ }
-
+func (this *URISyntaxException) getInput() string { return this.input_ }
 func (this *URISyntaxException) getMessage() string {
 	m := this.reason_
 	if this.index_ > -1 {
@@ -289,29 +279,11 @@ func uriDecode_(s string) string {
 	return string(out)
 }
 
-func (this *URI) toString() string { return this.string_ }
-func (this *URI) toASCIIString() string {
-	return uriQuote_(this.string_, uriUnreserved_+uriPunct_+"?/[]@#%:")
-}
-
-func (this *URI) getScheme() string       { return this.scheme_ }
-func (this *URI) isAbsolute() bool        { return this.scheme_ != nullstr_ }
-func (this *URI) isOpaque() bool          { return this.path_ == nullstr_ }
-func (this *URI) getHost() string         { return this.host_ }
-func (this *URI) getPort() int32          { return this.port_ }
-func (this *URI) getRawPath() string      { return this.path_ }
-func (this *URI) getPath() string         { return uriDecode_(this.path_) }
-func (this *URI) getRawQuery() string     { return this.query_ }
-func (this *URI) getQuery() string        { return uriDecode_(this.query_) }
-func (this *URI) getRawFragment() string  { return this.fragment_ }
-func (this *URI) getFragment() string     { return uriDecode_(this.fragment_) }
-func (this *URI) getRawAuthority() string { return this.authority_ }
-func (this *URI) getAuthority() string    { return uriDecode_(this.authority_) }
-func (this *URI) getRawUserInfo() string  { return this.userInfo_ }
-func (this *URI) getUserInfo() string     { return uriDecode_(this.userInfo_) }
-
-func (this *URI) getRawSchemeSpecificPart() string { return this.ssp_ }
-func (this *URI) getSchemeSpecificPart() string    { return uriDecode_(this.ssp_) }
+func (this *URI) toString() string  { return this.string_ }
+func (this *URI) getScheme() string { return this.scheme_ }
+func (this *URI) isAbsolute() bool  { return this.scheme_ != nullstr_ }
+func (this *URI) isOpaque() bool    { return this.path_ == nullstr_ }
+func (this *URI) getPath() string   { return uriDecode_(this.path_) }
 
 // normalize removes "." segments and "name/.." pairs from the path.
 func (this *URI) normalize() *URI {
@@ -362,83 +334,7 @@ func (this *URI) normalize() *URI {
 	return this.withPath_(np)
 }
 
-func (this *URI) withPath_(path string) *URI {
-	var b strings.Builder
-	if this.scheme_ != nullstr_ {
-		b.WriteString(this.scheme_ + ":")
-	}
-	if this.authority_ != nullstr_ {
-		b.WriteString("//" + this.authority_)
-	}
-	b.WriteString(path)
-	if this.query_ != nullstr_ {
-		b.WriteString("?" + this.query_)
-	}
-	if this.fragment_ != nullstr_ {
-		b.WriteString("#" + this.fragment_)
-	}
-	return new_URI(b.String())
-}
-
-// resolve_URI resolves the given URI against this one (RFC 2396, 5.2).
-func (this *URI) resolve_URI(child *URI) *URI {
-	if child.isOpaque() || this.isOpaque() {
-		return child
-	}
-	// A reference to the current document.
-	if child.scheme_ == nullstr_ && child.authority_ == nullstr_ && child.path_ == "" && child.fragment_ != nullstr_ && child.query_ == nullstr_ {
-		if this.fragment_ != nullstr_ && this.fragment_ == child.fragment_ {
-			return this
-		}
-		s := this.string_
-		if i := strings.IndexByte(s, '#'); i >= 0 {
-			s = s[:i]
-		}
-		return new_URI(s + "#" + child.fragment_)
-	}
-	if child.scheme_ != nullstr_ {
-		return child
-	}
-	var b strings.Builder
-	if this.scheme_ != nullstr_ {
-		b.WriteString(this.scheme_ + ":")
-	}
-	if child.authority_ != nullstr_ {
-		b.WriteString("//" + child.authority_ + child.path_)
-	} else {
-		if this.authority_ != nullstr_ {
-			b.WriteString("//" + this.authority_)
-		}
-		if strings.HasPrefix(child.path_, "/") {
-			b.WriteString(child.path_)
-		} else {
-			base := this.path_
-			if i := strings.LastIndexByte(base, '/'); i >= 0 {
-				base = base[:i+1]
-			} else {
-				base = ""
-			}
-			merged := (&URI{scheme_: nullstr_, authority_: nullstr_, query_: nullstr_, fragment_: nullstr_, path_: base + child.path_, string_: base + child.path_}).normalize()
-			b.WriteString(merged.path_)
-		}
-	}
-	if child.query_ != nullstr_ {
-		b.WriteString("?" + child.query_)
-	}
-	if child.fragment_ != nullstr_ {
-		b.WriteString("#" + child.fragment_)
-	}
-	return new_URI(b.String())
-}
-
 func (this *URI) resolve(str string) *URI { return this.resolve_URI(URI_create(str)) }
-
-func (this *URI) toURL() *URL {
-	if !this.isAbsolute() {
-		panic(new_IllegalArgumentException_String("URI is not absolute").self())
-	}
-	return &URL{spec_: this.string_}
-}
 
 func cmpNullable_(a, b string, fold bool) int32 {
 	switch {
@@ -555,21 +451,11 @@ func new_URL(spec string) *URL {
 	return &URL{spec_: spec}
 }
 
-func (this *URL) toString() string       { return this.spec_ }
-func (this *URL) toExternalForm() string { return this.spec_ }
-func (this *URL) hashCode() int32        { return String_hashCode(this.spec_) }
-func (this *URL) toURI() *URI            { return new_URI(this.spec_) }
-
+func (this *URL) toString() string { return this.spec_ }
+func (this *URL) hashCode() int32  { return String_hashCode(this.spec_) }
 func (this *URL) equals(o any) bool {
 	u, ok := o.(*URL)
 	return ok && u != nil && u.spec_ == this.spec_
-}
-
-func (this *URL) getProtocol() string {
-	if i := strings.IndexByte(this.spec_, ':'); i >= 0 {
-		return this.spec_[:i]
-	}
-	return ""
 }
 
 func (this *URL) getPath() string {
@@ -579,8 +465,6 @@ func (this *URL) getPath() string {
 	}
 	return s
 }
-
-func (this *URL) getFile() string { return this.getPath() }
 
 func (this *URL) openStream() *InputStream {
 	if this.resource_ != "" {
@@ -620,42 +504,71 @@ func URI_create(str string) *URI {
 	return u
 }
 
-// newURIParts_ builds a hierarchical URI from unescaped components, quoting
-// the characters that are not legal in them.
-func newURIParts_(scheme string, authority string, path string, query string, fragment string) *URI {
+func (this *URI) withPath_(path string) *URI {
 	var b strings.Builder
-	if scheme != nullstr_ {
-		b.WriteString(scheme + ":")
+	if this.scheme_ != nullstr_ {
+		b.WriteString(this.scheme_ + ":")
 	}
-	if authority != nullstr_ {
-		b.WriteString("//" + uriQuote_(authority, uriUnreserved_+uriPunct_+"@[]"))
+	if this.authority_ != nullstr_ {
+		b.WriteString("//" + this.authority_)
 	}
-	if path != nullstr_ {
-		b.WriteString(uriQuote_(path, uriUnreserved_+uriPunct_+"/@"))
+	b.WriteString(path)
+	if this.query_ != nullstr_ {
+		b.WriteString("?" + this.query_)
 	}
-	if query != nullstr_ {
-		b.WriteString("?" + uriQuote_(query, uriUnreserved_+uriPunct_+"?/[]@"))
-	}
-	if fragment != nullstr_ {
-		b.WriteString("#" + uriQuote_(fragment, uriUnreserved_+uriPunct_+"?/[]@"))
+	if this.fragment_ != nullstr_ {
+		b.WriteString("#" + this.fragment_)
 	}
 	return new_URI(b.String())
 }
 
-func uriQuote_(s string, legal string) string {
-	const hex = "0123456789ABCDEF"
-	var b []byte
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if isAlpha_(c) || isDigit_(c) || strings.IndexByte(legal, c) >= 0 || c >= 0x80 && c != 0xC2 {
-			b = append(b, c)
-			continue
-		}
-		if c == 0xC2 && i+1 < len(s) && s[i+1] > 0xA0 {
-			b = append(b, c)
-			continue
-		}
-		b = append(b, '%', hex[c>>4], hex[c&15])
+// resolve_URI resolves the given URI against this one (RFC 2396, 5.2).
+func (this *URI) resolve_URI(child *URI) *URI {
+	if child.isOpaque() || this.isOpaque() {
+		return child
 	}
-	return string(b)
+	// A reference to the current document.
+	if child.scheme_ == nullstr_ && child.authority_ == nullstr_ && child.path_ == "" && child.fragment_ != nullstr_ && child.query_ == nullstr_ {
+		if this.fragment_ != nullstr_ && this.fragment_ == child.fragment_ {
+			return this
+		}
+		s := this.string_
+		if i := strings.IndexByte(s, '#'); i >= 0 {
+			s = s[:i]
+		}
+		return new_URI(s + "#" + child.fragment_)
+	}
+	if child.scheme_ != nullstr_ {
+		return child
+	}
+	var b strings.Builder
+	if this.scheme_ != nullstr_ {
+		b.WriteString(this.scheme_ + ":")
+	}
+	if child.authority_ != nullstr_ {
+		b.WriteString("//" + child.authority_ + child.path_)
+	} else {
+		if this.authority_ != nullstr_ {
+			b.WriteString("//" + this.authority_)
+		}
+		if strings.HasPrefix(child.path_, "/") {
+			b.WriteString(child.path_)
+		} else {
+			base := this.path_
+			if i := strings.LastIndexByte(base, '/'); i >= 0 {
+				base = base[:i+1]
+			} else {
+				base = ""
+			}
+			merged := (&URI{scheme_: nullstr_, authority_: nullstr_, query_: nullstr_, fragment_: nullstr_, path_: base + child.path_, string_: base + child.path_}).normalize()
+			b.WriteString(merged.path_)
+		}
+	}
+	if child.query_ != nullstr_ {
+		b.WriteString("?" + child.query_)
+	}
+	if child.fragment_ != nullstr_ {
+		b.WriteString("#" + child.fragment_)
+	}
+	return new_URI(b.String())
 }

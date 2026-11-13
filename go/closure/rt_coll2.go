@@ -110,20 +110,6 @@ func (this *TreeMap) entrySet() Set {
 	return s
 }
 
-func (this *TreeMap) firstKey() any {
-	if len(this.entries) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.entries[0].key
-}
-
-func (this *TreeMap) lastKey() any {
-	if len(this.entries) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.entries[len(this.entries)-1].key
-}
-
 func (this *TreeMap) equals(o any) bool { return mapEquals_(this, o) }
 func (this *TreeMap) hashCode() int32   { return mapHash_(this) }
 func (this *TreeMap) toString() string  { return mapToString_(this) }
@@ -190,26 +176,11 @@ func (this *TreeSet) iterator() Iterator {
 
 func (this *TreeSet) containsAll(c Collection) bool { return containsAll_(this, c) }
 func (this *TreeSet) removeAll(c Collection) bool   { return removeAll_(this, c) }
-func (this *TreeSet) retainAll(c Collection) bool   { return retainAll_(this, c) }
 func (this *TreeSet) toArray_0() []any              { return append([]any(nil), this.items...) }
 func (this *TreeSet) toArray(a []any) []any         { return fillArray_(this.items, a) }
 func (this *TreeSet) equals(o any) bool             { return setEquals_(this, o) }
 func (this *TreeSet) hashCode() int32               { return setHash_(this) }
 func (this *TreeSet) toString() string              { return collToString_(this) }
-
-func (this *TreeSet) first() any {
-	if len(this.items) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.items[0]
-}
-
-func (this *TreeSet) last() any {
-	if len(this.items) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.items[len(this.items)-1]
-}
 
 func (this *TreeSet) descendingSet() NavigableSet {
 	out := &TreeSet{cmp: Comparator_reversed(&cmpFunc_{this.compare})}
@@ -294,8 +265,6 @@ func (this *PriorityQueue) add(v any) bool {
 	this.siftUp(len(this.items)-1, v)
 	return true
 }
-
-func (this *PriorityQueue) offer(v any) bool { return this.add(v) }
 
 func (this *PriorityQueue) addAll(c Collection) bool {
 	for it := c.iterator(); it.hasNext(); {
@@ -545,14 +514,6 @@ func (this *BitSet) nextSetBit(from int32) int32 {
 	return -1
 }
 
-func (this *BitSet) nextClearBit(from int32) int32 {
-	for i := from; ; i++ {
-		if !this.get(i) {
-			return i
-		}
-	}
-}
-
 func (this *BitSet) previousSetBit(from int32) int32 {
 	for i := from; i >= 0; i-- {
 		if this.get(i) {
@@ -726,3 +687,5 @@ func (this *AbstractIterator) peek() any {
 	}
 	return this.next_
 }
+
+func new_TreeMap_Comparator(c Comparator) *TreeMap { return &TreeMap{cmp: c} }

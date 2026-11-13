@@ -367,4 +367,4 @@ func Integer_parseInt_CharSequence_int_int_int(cs any, a int32, b int32, radix i
 	return Integer_parseInt(String_substring(csString_(cs), a, b), radix)
 }
 
-func Long_parseLong_String(s string) int64 { return Long_parseLong(s, 10) }
+func Integer_sum(a, b int32) int32 { return a + b }

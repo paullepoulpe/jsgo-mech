@@ -308,10 +308,9 @@ func newSetView_(it func() Iterator, has func(any) bool) *Sets_SetView {
 	return this
 }
 
-func (this *Sets_SetView) up_AbstractSet() *AbstractSet { return &this.AbstractSet }
-func (this *Sets_SetView) iterator() Iterator           { return this.it() }
-func (this *Sets_SetView) contains(v any) bool          { return this.has(v) }
-func (this *Sets_SetView) isEmpty() bool                { return !this.it().hasNext() }
+func (this *Sets_SetView) iterator() Iterator  { return this.it() }
+func (this *Sets_SetView) contains(v any) bool { return this.has(v) }
+func (this *Sets_SetView) isEmpty() bool       { return !this.it().hasNext() }
 
 func (this *Sets_SetView) size() int32 {
 	var n int32
@@ -323,13 +322,7 @@ func (this *Sets_SetView) size() int32 {
 
 func (this *Sets_SetView) immutableCopy() *ImmutableSet { return immSet_(this.toArray_0()) }
 
-func (this *Sets_SetView) copyInto(s Set) Set {
-	s.addAll(this)
-	return s
-}
-
-func (this *Sets_SetView) retainAll(c Collection) bool { throwUOE_(); return false }
-func (this *Sets_SetView) equals(o any) bool           { return o == any(this) || setLikeEquals_(this, o) }
+func (this *Sets_SetView) equals(o any) bool { return o == any(this) || setLikeEquals_(this, o) }
 
 func Sets_union(p0 Set, p1 Set) *Sets_SetView {
 	return newSetView_(
@@ -435,33 +428,11 @@ func (this *Ordering) nullsFirst() *Ordering {
 	}})
 }
 
-func (this *Ordering) nullsLast() *Ordering {
-	return Ordering_from(&cmpFunc_{func(a, b any) int32 {
-		switch {
-		case a == nil && b == nil:
-			return 0
-		case a == nil:
-			return 1
-		case b == nil:
-			return -1
-		}
-		return this.compare(a, b)
-	}})
-}
-
-func (this *Ordering) onResultOf(f Function_base) *Ordering {
-	return Ordering_from(&cmpFunc_{func(a, b any) int32 { return this.compare(f.apply(a), f.apply(b)) }})
-}
-
 // sortedCopy is a stable sort into a new mutable list.
 func (this *Ordering) sortedCopy(p0 Iterable) List {
 	s := copySlice_(p0)
 	sortSlice_(s, &cmpFunc_{this.compare})
 	return listOf_(s)
-}
-
-func (this *Ordering) immutableSortedCopy(p0 Iterable) *ImmutableList {
-	return ImmutableList_sortedCopyOf(&cmpFunc_{this.compare}, p0)
 }
 
 // ---- ComparisonChain
@@ -488,13 +459,6 @@ func (this *ComparisonChain) compare(p0 any, p1 any) *ComparisonChain {
 		return this
 	}
 	return this.classify_(compareNatural_(p0, p1))
-}
-
-func (this *ComparisonChain) compare_Object_Object_Comparator(p0 any, p1 any, c Comparator) *ComparisonChain {
-	if this.r != 0 {
-		return this
-	}
-	return this.classify_(c.compare(p0, p1))
 }
 
 func (this *ComparisonChain) compare_int_int(p0 int32, p1 int32) *ComparisonChain {
@@ -532,17 +496,8 @@ func (this *Range) contains(p0 any) bool {
 	return compareNatural_(this.lo, p0) <= 0 && compareNatural_(p0, this.hi) <= 0
 }
 
-func (this *Range) apply(p0 any) bool   { return this.contains(p0) }
-func (this *Range) test(p0 any) bool    { return this.contains(p0) }
-func (this *Range) lowerEndpoint() any  { return this.lo }
-func (this *Range) upperEndpoint() any  { return this.hi }
-func (this *Range) hasLowerBound() bool { return true }
-func (this *Range) hasUpperBound() bool { return true }
-
-func (this *Range) isConnected(o *Range) bool {
-	return compareNatural_(this.lo, o.hi) <= 0 && compareNatural_(o.lo, this.hi) <= 0
-}
-
+func (this *Range) apply(p0 any) bool { return this.contains(p0) }
+func (this *Range) test(p0 any) bool  { return this.contains(p0) }
 func (this *Range) equals(o any) bool {
 	x, ok := o.(*Range)
 	return ok && x != nil && objequals_(this.lo, x.lo) && objequals_(this.hi, x.hi)
@@ -921,15 +876,13 @@ func HashBiMap_create() *HashBiMap {
 	return this
 }
 
-func (this *HashBiMap) inverse() BiMap              { return this.inv_ }
-func (this *HashBiMap) size() int32                 { return this.fwd.size() }
-func (this *HashBiMap) isEmpty() bool               { return this.fwd.isEmpty() }
-func (this *HashBiMap) get(p0 any) any              { return this.fwd.get(p0) }
-func (this *HashBiMap) containsKey(p0 any) bool     { return this.fwd.containsKey(p0) }
-func (this *HashBiMap) containsValue(p0 any) bool   { return this.bwd.containsKey(p0) }
-func (this *HashBiMap) put(p0 any, p1 any) any      { return this.put_(p0, p1, false) }
-func (this *HashBiMap) forcePut(p0 any, p1 any) any { return this.put_(p0, p1, true) }
-
+func (this *HashBiMap) inverse() BiMap            { return this.inv_ }
+func (this *HashBiMap) size() int32               { return this.fwd.size() }
+func (this *HashBiMap) isEmpty() bool             { return this.fwd.isEmpty() }
+func (this *HashBiMap) get(p0 any) any            { return this.fwd.get(p0) }
+func (this *HashBiMap) containsKey(p0 any) bool   { return this.fwd.containsKey(p0) }
+func (this *HashBiMap) containsValue(p0 any) bool { return this.bwd.containsKey(p0) }
+func (this *HashBiMap) put(p0 any, p1 any) any    { return this.put_(p0, p1, false) }
 func (this *HashBiMap) put_(k any, v any, force bool) any {
 	had := this.fwd.containsKey(k)
 	old := this.fwd.get(k)

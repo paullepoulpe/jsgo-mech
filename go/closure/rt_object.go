@@ -205,8 +205,6 @@ func (this *Enum) compareTo(o any) int32 {
 	return this.ordinal_ - o.(interface{ ordinal() int32 }).ordinal()
 }
 
-func (this *Enum) getDeclaringClass() *Class { return Object_getClass(this.self_) }
-
 // ---- java.lang.Throwable
 
 type Throwable struct {
@@ -245,9 +243,8 @@ func (this *Throwable) init_Throwable_Throwable(c *Throwable) {
 	}
 }
 
-func (this *Throwable) getMessage() string          { return this.message_ }
-func (this *Throwable) getLocalizedMessage() string { return this.message_ }
-func (this *Throwable) getCause() *Throwable        { return this.cause_ }
+func (this *Throwable) getMessage() string   { return this.message_ }
+func (this *Throwable) getCause() *Throwable { return this.cause_ }
 
 func (this *Throwable) toString() string {
 	n := Object_getClass(this.self_).getName()

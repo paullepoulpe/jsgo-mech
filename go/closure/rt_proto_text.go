@@ -164,24 +164,8 @@ var pbDefaultPrinter_ = &TextFormat_Printer{escapeNonAscii_: true}
 
 func TextFormat_printer() *TextFormat_Printer { return pbDefaultPrinter_ }
 
-func (this *TextFormat_Printer) escapingNonAscii(p0 bool) *TextFormat_Printer {
-	return &TextFormat_Printer{singleLine_: this.singleLine_, escapeNonAscii_: p0}
-}
-
-func (this *TextFormat_Printer) emittingSingleLine(p0 bool) *TextFormat_Printer {
-	return &TextFormat_Printer{singleLine_: p0, escapeNonAscii_: this.escapeNonAscii_}
-}
-
 func (this *TextFormat_Printer) printToString(p0 MessageOrBuilder) string {
 	return pbText_(pbDataOf_(p0), this.singleLine_, this.escapeNonAscii_)
-}
-
-func (this *TextFormat_Printer) shortDebugString(p0 MessageOrBuilder) string {
-	return pbText_(pbDataOf_(p0), true, this.escapeNonAscii_)
-}
-
-func (this *TextFormat_Printer) print(p0 MessageOrBuilder, p1 Appendable) {
-	p1.(interface{ append(string) *StringBuilder }).append(this.printToString(p0))
 }
 
 type pbTextOut_ struct {

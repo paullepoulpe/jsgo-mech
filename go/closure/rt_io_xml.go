@@ -67,15 +67,8 @@ func (this *SAXParserFactory) setFeature(name string, value bool) {
 	this.features_[name] = value
 }
 
-func (this *SAXParserFactory) getFeature(name string) bool { return this.features_[name] }
-func (this *SAXParserFactory) setValidating(on bool)       {}
-func (this *SAXParserFactory) setXIncludeAware(on bool)    {}
-func (this *SAXParserFactory) setNamespaceAware(on bool) {
-	if on {
-		panic(new_UnsupportedOperationException_String("namespace aware SAX parsing is not supported").self())
-	}
-}
-
+func (this *SAXParserFactory) setValidating(on bool)    {}
+func (this *SAXParserFactory) setXIncludeAware(on bool) {}
 func (this *SAXParserFactory) newSAXParser() *SAXParser {
 	return &SAXParser{reader_: &xmlReader_{}}
 }
@@ -87,17 +80,12 @@ type SAXParser struct {
 // getXMLReader returns the parser's one reader.
 func (this *SAXParser) getXMLReader() XMLReader { return this.reader_ }
 
-func (this *SAXParser) isNamespaceAware() bool { return false }
-func (this *SAXParser) isValidating() bool     { return false }
-
 // ---- Attributes
 
 type saxAttributes_ struct {
 	names_  []string
 	values_ []string
 }
-
-func (this *saxAttributes_) getLength() int32 { return int32(len(this.names_)) }
 
 func (this *saxAttributes_) getIndex(qName string) int32 {
 	for i, n := range this.names_ {
@@ -116,29 +104,6 @@ func (this *saxAttributes_) getValue(qName string) string {
 	return nullstr_
 }
 
-func (this *saxAttributes_) getValue_int(i int32) string {
-	if i < 0 || int(i) >= len(this.values_) {
-		return nullstr_
-	}
-	return this.values_[i]
-}
-
-func (this *saxAttributes_) getQName(i int32) string {
-	if i < 0 || int(i) >= len(this.names_) {
-		return nullstr_
-	}
-	return this.names_[i]
-}
-
-func (this *saxAttributes_) getLocalName(i int32) string {
-	if i < 0 || int(i) >= len(this.names_) {
-		return nullstr_
-	}
-	return ""
-}
-
-func (this *saxAttributes_) getURI(i int32) string { return this.getLocalName(i) }
-
 func (this *saxAttributes_) getType(i int32) string {
 	if i < 0 || int(i) >= len(this.names_) {
 		return nullstr_
@@ -154,13 +119,7 @@ type xmlReader_ struct {
 }
 
 func (this *xmlReader_) setContentHandler(h ContentHandler) { this.handler_ = h }
-func (this *xmlReader_) getContentHandler() ContentHandler  { return this.handler_ }
 func (this *xmlReader_) setEntityResolver(r EntityResolver) { this.resolver_ = r }
-func (this *xmlReader_) getEntityResolver() EntityResolver  { return this.resolver_ }
-func (this *xmlReader_) setFeature(name string, value bool) {}
-func (this *xmlReader_) setProperty(name string, value any) {}
-func (this *xmlReader_) getFeature(name string) bool        { return false }
-
 func qname_(n xml.Name) string {
 	if n.Space != "" {
 		return n.Space + ":" + n.Local
@@ -455,4 +414,20 @@ func xmlReference_(name string) string {
 		}
 	}
 	return ""
+}
+
+func (this *saxAttributes_) getLength() int32 { return int32(len(this.names_)) }
+
+func (this *saxAttributes_) getValue_int(i int32) string {
+	if i < 0 || int(i) >= len(this.values_) {
+		return nullstr_
+	}
+	return this.values_[i]
+}
+
+func (this *saxAttributes_) getQName(i int32) string {
+	if i < 0 || int(i) >= len(this.names_) {
+		return nullstr_
+	}
+	return this.names_[i]
 }

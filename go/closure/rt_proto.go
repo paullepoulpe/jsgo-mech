@@ -321,16 +321,11 @@ func (this *pbData_) gI64_(i int) int64 {
 	return this.d_.fields[i].zero.(int64)
 }
 
-func (this *pbData_) gF32_(i int) float32 { return this.get_(i).(float32) }
 func (this *pbData_) gF64_(i int) float64 { return this.get_(i).(float64) }
 func (this *pbData_) gBool_(i int) bool   { return this.get_(i).(bool) }
 func (this *pbData_) gStr_(i int) string  { return this.get_(i).(string) }
 
 func (this *pbData_) gBytes_(i int) *ByteString { return this.get_(i).(*ByteString) }
-
-func (this *pbData_) gStrBytes_(i int) *ByteString {
-	return ByteString_copyFromUtf8(this.get_(i).(string))
-}
 
 // gMsg_ is the value of a singular message field: never nil.
 func (this *pbData_) gMsg_(i int) any {
@@ -384,15 +379,6 @@ func (this *pbData_) enumList_(i int, conv func(int32) any) List {
 	c := make([]any, len(a))
 	for j, v := range a {
 		c[j] = conv(v.(int32))
-	}
-	return listOf_(c)
-}
-
-func (this *pbData_) bytesList_(i int) List {
-	a := this.rep_(i)
-	c := make([]any, len(a))
-	for j, v := range a {
-		c[j] = ByteString_copyFromUtf8(v.(string))
 	}
 	return listOf_(c)
 }
@@ -465,46 +451,6 @@ func (this *pbData_) copyInto_(to *pbData_, build bool) {
 	to.unk_ = this.unk_[:len(this.unk_):len(this.unk_)]
 }
 
-// mergeData_ is Message.Builder.mergeFrom(Message) on storage.
-func (this *pbData_) mergeData_(o *pbData_) {
-	if this.d_ != o.d_ {
-		panic(new_IllegalArgumentException_String("mergeFrom(Message) can only merge messages of the same type.").self())
-	}
-	for i, v := range o.v_ {
-		if v == nil {
-			continue
-		}
-		f := this.d_.fields[i]
-		switch {
-		case f.rep:
-			for _, e := range v.(*pbRep_).a {
-				this.append_(f, pbBuilt_(e))
-			}
-		case f.kind == pbMessage_:
-			this.mergeMsgField_(f, pbBuilt_(v))
-		default:
-			this.put_(f, v)
-		}
-	}
-	if len(o.unk_) > 0 {
-		this.unk_ = pbSortUnknown_(append(this.unk_[:len(this.unk_):len(this.unk_)], o.unk_...))
-	}
-}
-
-func (this *pbData_) mergeMsgField_(f *pbField_, m any) {
-	switch x := this.v_[f.idx].(type) {
-	case nil:
-		this.put_(f, m)
-	case pbB_:
-		x.pbb_().mergeData_(pbDataOf_(m))
-	default:
-		n := f.md.newMsg_()
-		pbDataOf_(x).copyInto_(&n.pbData_, true)
-		n.mergeData_(pbDataOf_(m))
-		this.put_(f, n.me_)
-	}
-}
-
 // ---------------------------------------------------------------- messages
 
 type AbstractMessageLite struct {
@@ -527,44 +473,19 @@ type GeneratedMessage_ExtendableMessage struct {
 
 func (this *AbstractMessageLite) pbm_() *AbstractMessageLite { return this }
 
-func (this *AbstractMessage) up_AbstractMessageLite() *AbstractMessageLite {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMessageLite
-}
-
 func (this *AbstractMessageLite) toBuilder() MessageLite_Builder {
 	b := this.d_.newBuilder_()
 	this.copyInto_(&b.pbData_, false)
 	return b.me_.(MessageLite_Builder)
 }
 
-func (this *AbstractMessageLite) newBuilderForType() MessageLite_Builder {
-	return this.d_.newBuilder_().me_.(MessageLite_Builder)
-}
-
-func (this *AbstractMessageLite) getDefaultInstanceForType() MessageLite {
-	return this.d_.default_().(MessageLite)
-}
-
-func (this *AbstractMessageLite) isInitialized() bool { return true }
-
-func (this *AbstractMessageLite) getSerializedSize() int32 { return int32(pbSizeOf_(this)) }
-
 func (this *AbstractMessageLite) bytes_() []byte {
 	return pbAppendMsg_(make([]byte, 0, pbSizeOf_(this)), this)
 }
 
-func (this *AbstractMessageLite) toByteArray() []int8 { return pbI8_(this.bytes_()) }
-
 func (this *AbstractMessageLite) toByteString() *ByteString { return &ByteString{b_: this.bytes_()} }
 
 func (this *AbstractMessageLite) writeTo(p0 *OutputStream) { pbWriteStream_(p0, this.bytes_()) }
-
-func (this *AbstractMessageLite) writeTo_CodedOutputStream(p0 *CodedOutputStream) {
-	p0.buf_ = pbAppendMsg_(p0.buf_, this)
-}
 
 func (this *AbstractMessageLite) writeDelimitedTo(p0 *OutputStream) {
 	n := pbSizeOf_(this)
@@ -595,22 +516,6 @@ func (this *AbstractMessageLite) toString() string { return pbText_(&this.pbData
 
 func (this *AbstractMessage) getAllFields() Map { return pbAllFields_(&this.pbData_) }
 
-func (this *AbstractMessage) getDescriptorForType() *Descriptors_Descriptor {
-	return this.d_.descriptor_()
-}
-
-func (this *AbstractMessage) hasField(p0 *Descriptors_FieldDescriptor) bool {
-	return pbHasField_(&this.pbData_, p0)
-}
-
-func (this *AbstractMessage) getField(p0 *Descriptors_FieldDescriptor) any {
-	return pbGetField_(&this.pbData_, p0)
-}
-
-func (this *AbstractMessage) getRepeatedFieldCount(p0 *Descriptors_FieldDescriptor) int32 {
-	return this.cnt_(p0.f_.idx)
-}
-
 // ---------------------------------------------------------------- builders
 
 type AbstractMessageLite_Builder struct {
@@ -639,10 +544,6 @@ func (this *AbstractMessageLite_Builder) pbBuild_() any {
 
 func (this *AbstractMessageLite_Builder) build() MessageLite { return this.pbBuild_().(MessageLite) }
 
-func (this *AbstractMessageLite_Builder) buildPartial() MessageLite {
-	return this.pbBuild_().(MessageLite)
-}
-
 func (this *AbstractMessageLite_Builder) clear() MessageLite_Builder {
 	for i := range this.v_ {
 		this.v_[i] = nil
@@ -651,58 +552,8 @@ func (this *AbstractMessageLite_Builder) clear() MessageLite_Builder {
 	return this.me_.(MessageLite_Builder)
 }
 
-func (this *AbstractMessageLite_Builder) isInitialized() bool { return true }
-
-func (this *AbstractMessageLite_Builder) getDefaultInstanceForType() MessageLite {
-	return this.d_.default_().(MessageLite)
-}
-
 func (this *AbstractMessageLite_Builder) toString() string {
 	return pbText_(&this.pbData_, false, true)
-}
-
-func (this *AbstractMessageLite_Builder) mergeBytes_(data []byte, alias bool) {
-	p := pbParser_{limit: 100, alias: alias}
-	p.merge_(&this.pbData_, data, 0)
-}
-
-func (this *AbstractMessageLite_Builder) mergeFrom_byteArr(p0 []int8) MessageLite_Builder {
-	this.mergeBytes_(pbU8_(p0), false)
-	return this.me_.(MessageLite_Builder)
-}
-
-func (this *AbstractMessageLite_Builder) mergeFrom_ByteString(p0 *ByteString) MessageLite_Builder {
-	this.mergeBytes_(p0.b_, true)
-	return this.me_.(MessageLite_Builder)
-}
-
-func (this *AbstractMessageLite_Builder) mergeFrom_InputStream(p0 *InputStream) MessageLite_Builder {
-	this.mergeBytes_(pbReadAll_(p0), true)
-	return this.me_.(MessageLite_Builder)
-}
-
-func (this *AbstractMessageLite_Builder) mergeFrom_CodedInputStream(p0 *CodedInputStream) MessageLite_Builder {
-	p0.mergeInto_(&this.pbData_)
-	return this.me_.(MessageLite_Builder)
-}
-
-func (this *AbstractMessageLite_Builder) mergeFrom_CodedInputStream_ExtensionRegistryLite(p0 *CodedInputStream, p1 *ExtensionRegistryLite) MessageLite_Builder {
-	p0.mergeInto_(&this.pbData_)
-	return this.me_.(MessageLite_Builder)
-}
-
-func (this *AbstractMessageLite_Builder) mergeFrom_MessageLite(p0 MessageLite) MessageLite_Builder {
-	this.mergeData_(pbDataOf_(p0))
-	return this.me_.(MessageLite_Builder)
-}
-
-func (this *AbstractMessageLite_Builder) mergeDelimitedFrom(p0 *InputStream) bool {
-	data, ok := pbReadDelimited_(p0)
-	if !ok {
-		return false
-	}
-	this.mergeBytes_(data, true)
-	return true
 }
 
 // ---- helpers the generated builder accessors call
@@ -723,8 +574,6 @@ func (this *AbstractMessageLite_Builder) set_(i int, v any) {
 
 func (this *AbstractMessageLite_Builder) clr_(i int) { this.v_[i] = nil }
 
-func (this *AbstractMessageLite_Builder) clrOneof_(oneof int32) { this.clearOneof_(oneof, -1) }
-
 func (this *AbstractMessageLite_Builder) add_(i int, v any) {
 	this.checkValue_(v)
 	this.append_(this.d_.fields[i], v)
@@ -744,46 +593,6 @@ func (this *AbstractMessageLite_Builder) addAll_(i int, it Iterable, conv func(a
 	}
 }
 
-func (this *AbstractMessageLite_Builder) checkIndex_(i int, idx int32, extra int) []any {
-	a := this.rep_(i)
-	if idx < 0 || int(idx) >= len(a)+extra {
-		panic(new_IndexOutOfBoundsException_String("Index: " + istr_(int64(idx)) + ", Size: " + istr_(int64(len(a)))).self())
-	}
-	return a
-}
-
-func (this *AbstractMessageLite_Builder) setAt_(i int, idx int32, v any) {
-	this.checkValue_(v)
-	this.checkIndex_(i, idx, 0)[idx] = v
-}
-
-func (this *AbstractMessageLite_Builder) addAt_(i int, idx int32, v any) {
-	this.checkValue_(v)
-	this.checkIndex_(i, idx, 1)
-	this.append_(this.d_.fields[i], nil)
-	a := this.rep_(i)
-	copy(a[idx+1:], a[idx:])
-	a[idx] = v
-}
-
-func (this *AbstractMessageLite_Builder) rm_(i int, idx int32) {
-	a := this.checkIndex_(i, idx, 0)
-	r := this.v_[i].(*pbRep_)
-	r.a = append(a[:idx], a[idx+1:]...)
-}
-
-// mergeMsg_ is mergeFoo(Foo) for a singular message field.
-func (this *AbstractMessageLite_Builder) mergeMsg_(i int, m any) {
-	if m == nil {
-		pbNPE_()
-	}
-	f := this.d_.fields[i]
-	if this.v_[i] == nil && f.oneof != 0 {
-		this.clearOneof_(f.oneof, i)
-	}
-	this.mergeMsgField_(f, m)
-}
-
 // bld_ is getFooBuilder() for a singular message field.
 func (this *AbstractMessageLite_Builder) bld_(i int) any {
 	f := this.d_.fields[i]
@@ -801,42 +610,12 @@ func (this *AbstractMessageLite_Builder) bld_(i int) any {
 	}
 }
 
-// bldAt_ is getFooBuilder(int) for a repeated message field.
-func (this *AbstractMessageLite_Builder) bldAt_(i int, idx int32) any {
-	a := this.checkIndex_(i, idx, 0)
-	if _, ok := a[idx].(pbB_); !ok {
-		a[idx] = a[idx].(pbM_).pbm_().toBuilder()
-	}
-	return a[idx]
-}
-
 // addBld_ is addFooBuilder().
 func (this *AbstractMessageLite_Builder) addBld_(i int) any {
 	f := this.d_.fields[i]
 	b := f.md.newBuilder_().me_
 	this.append_(f, b)
 	return b
-}
-
-// addBldAt_ is addFooBuilder(int).
-func (this *AbstractMessageLite_Builder) addBldAt_(i int, idx int32) any {
-	b := this.d_.fields[i].md.newBuilder_().me_
-	this.addAt_(i, idx, b)
-	return b
-}
-
-// bldList_ is getFooBuilderList().
-func (this *AbstractMessageLite_Builder) bldList_(i int) List {
-	a := this.rep_(i)
-	for j := range a {
-		this.bldAt_(i, int32(j))
-	}
-	return listOf_(append([]any(nil), a...))
-}
-
-// orBuilderList_ is getFooOrBuilderList().
-func (this *pbData_) orBuilderList_(i int) List {
-	return listOf_(append([]any(nil), this.rep_(i)...))
 }
 
 // ---------------------------------------------------------------- static entry points used by generated code
@@ -1430,41 +1209,15 @@ type Descriptors_GenericDescriptor struct {
 	fullName_ string
 }
 
-func (this *Descriptors_GenericDescriptor) getName() string     { return this.name_ }
-func (this *Descriptors_GenericDescriptor) getFullName() string { return this.fullName_ }
-func (this *Descriptors_GenericDescriptor) toString() string    { return this.fullName_ }
+func (this *Descriptors_GenericDescriptor) getName() string  { return this.name_ }
+func (this *Descriptors_GenericDescriptor) toString() string { return this.fullName_ }
 
 type Descriptors_FieldDescriptor struct {
 	Descriptors_GenericDescriptor
 	f_ *pbField_
 }
 
-func (this *Descriptors_FieldDescriptor) up_Descriptors_GenericDescriptor() *Descriptors_GenericDescriptor {
-	if this == nil {
-		return nil
-	}
-	return &this.Descriptors_GenericDescriptor
-}
-
 func (this *Descriptors_FieldDescriptor) getNumber() int32 { return this.f_.num }
-func (this *Descriptors_FieldDescriptor) getIndex() int32  { return int32(this.f_.idx) }
-func (this *Descriptors_FieldDescriptor) isRepeated() bool { return this.f_.rep }
-func (this *Descriptors_FieldDescriptor) isPacked() bool   { return this.f_.packed }
-func (this *Descriptors_FieldDescriptor) hasPresence() bool {
-	return !this.f_.rep && (this.f_.pres || this.f_.oneof != 0)
-}
-
-func (this *Descriptors_FieldDescriptor) getContainingType() *Descriptors_Descriptor {
-	return this.f_.owner.descriptor_()
-}
-
-func (this *Descriptors_FieldDescriptor) getMessageType() *Descriptors_Descriptor {
-	if this.f_.md == nil {
-		panic(new_UnsupportedOperationException_String("This field is not of message type. (" + this.fullName_ + ")").self())
-	}
-	return this.f_.md.descriptor_()
-}
-
 func (this *Descriptors_FieldDescriptor) compareTo(p0 any) int32 {
 	o := p0.(*Descriptors_FieldDescriptor)
 	if o.f_.owner != this.f_.owner {
@@ -1484,15 +1237,7 @@ type Descriptors_EnumValueDescriptor struct {
 	index_ int32
 }
 
-func (this *Descriptors_EnumValueDescriptor) up_Descriptors_GenericDescriptor() *Descriptors_GenericDescriptor {
-	if this == nil {
-		return nil
-	}
-	return &this.Descriptors_GenericDescriptor
-}
-
 func (this *Descriptors_EnumValueDescriptor) getNumber() int32 { return this.num_ }
-func (this *Descriptors_EnumValueDescriptor) getIndex() int32  { return this.index_ }
 func (this *Descriptors_EnumValueDescriptor) toString() string { return this.name_ }
 
 func pbSimpleName_(full string) string {
@@ -1502,16 +1247,6 @@ func pbSimpleName_(full string) string {
 		}
 	}
 	return full
-}
-
-func (d *pbDesc_) descriptor_() *Descriptors_Descriptor {
-	d.init_()
-	if d.gd == nil {
-		d.gd = &Descriptors_Descriptor{d_: d}
-		d.gd.name_ = pbSimpleName_(d.name)
-		d.gd.fullName_ = d.name
-	}
-	return d.gd
 }
 
 func (f *pbField_) descriptor_() *Descriptors_FieldDescriptor {
@@ -1780,44 +1515,9 @@ func (this *ByteString) iterator() Iterator {
 	return listOf_(a).iterator()
 }
 
-func (this *ByteString) toByteArray() []int8 {
-	return pbI8_(append([]byte(nil), this.b_...))
-}
-
-func (this *ByteString) toStringUtf8() string { return string(this.b_) }
-
-func (this *ByteString) isValidUtf8() bool { return utf8.Valid(this.b_) }
-
 func (this *ByteString) newCodedInput() *CodedInputStream {
 	return &CodedInputStream{buf_: this.b_, limit_: math.MaxInt, recLimit_: 100, alias_: true}
 }
-
-func (this *ByteString) concat(p0 *ByteString) *ByteString {
-	if len(p0.b_) == 0 {
-		return this
-	}
-	if len(this.b_) == 0 {
-		return p0
-	}
-	return &ByteString{b_: append(append(make([]byte, 0, len(this.b_)+len(p0.b_)), this.b_...), p0.b_...)}
-}
-
-func (this *ByteString) substring(p0 int32) *ByteString {
-	return this.substring_int_int(p0, int32(len(this.b_)))
-}
-
-func (this *ByteString) substring_int_int(p0 int32, p1 int32) *ByteString {
-	if p0 < 0 || p1 > int32(len(this.b_)) || p0 > p1 {
-		panic(new_IndexOutOfBoundsException_String("Beginning index: " + istr_(int64(p0)) + ", ending index: " + istr_(int64(p1))).self())
-	}
-	if p0 == p1 {
-		return ByteString_EMPTY
-	}
-	return &ByteString{b_: this.b_[p0:p1:p1]}
-}
-
-func (this *ByteString) startsWith(p0 *ByteString) bool { return bytes.HasPrefix(this.b_, p0.b_) }
-func (this *ByteString) endsWith(p0 *ByteString) bool   { return bytes.HasSuffix(this.b_, p0.b_) }
 
 func (this *ByteString) writeTo(p0 *OutputStream) { pbWriteStream_(p0, this.b_) }
 
@@ -1870,13 +1570,6 @@ func Integer_toHexString_(v int32) string {
 type ByteString_Output struct {
 	OutputStream
 	buf_ []byte
-}
-
-func (this *ByteString_Output) up_OutputStream() *OutputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.OutputStream
 }
 
 func (this *ByteString_Output) write(p0 int32) { this.buf_ = append(this.buf_, byte(p0)) }
@@ -1996,8 +1689,6 @@ func (this *CodedInputStream) isAtEnd() bool {
 	return this.total_() >= this.limit_ || !this.fill_(1)
 }
 
-func (this *CodedInputStream) getTotalBytesRead() int32 { return int32(this.total_()) }
-
 func (this *CodedInputStream) resetSizeCounter() {
 	if this.limit_ != math.MaxInt {
 		this.limit_ -= this.total_()
@@ -2012,39 +1703,6 @@ func (this *CodedInputStream) setRecursionLimit(p0 int32) int32 {
 	old := this.recLimit_
 	this.recLimit_ = p0
 	return old
-}
-
-func (this *CodedInputStream) setSizeLimit(p0 int32) int32 { return math.MaxInt32 }
-
-func (this *CodedInputStream) pushLimit(p0 int32) int32 {
-	if p0 < 0 {
-		pbFail_(pbErrNegative_)
-	}
-	old := this.limit_
-	nl := this.total_() + int(p0)
-	if nl > old {
-		pbFail_(pbErrTruncated_)
-	}
-	this.limit_ = nl
-	if old == math.MaxInt {
-		return math.MaxInt32
-	}
-	return int32(old)
-}
-
-func (this *CodedInputStream) popLimit(p0 int32) {
-	if p0 == math.MaxInt32 {
-		this.limit_ = math.MaxInt
-	} else {
-		this.limit_ = int(p0)
-	}
-}
-
-func (this *CodedInputStream) getBytesUntilLimit() int32 {
-	if this.limit_ == math.MaxInt {
-		return -1
-	}
-	return int32(this.limit_ - this.total_())
 }
 
 func (this *CodedInputStream) readByte_() byte {
@@ -2113,117 +1771,6 @@ func (this *CodedInputStream) readTag() int32 {
 	return this.lastTag_
 }
 
-func (this *CodedInputStream) getLastTag() int32 { return this.lastTag_ }
-
-func (this *CodedInputStream) checkLastTagWas(p0 int32) {
-	if this.lastTag_ != p0 {
-		pbFail_(pbErrEndGroup_)
-	}
-}
-
-func (this *CodedInputStream) readInt32() int32  { return this.readRawVarint32() }
-func (this *CodedInputStream) readUInt32() int32 { return this.readRawVarint32() }
-func (this *CodedInputStream) readEnum() int32   { return this.readRawVarint32() }
-func (this *CodedInputStream) readInt64() int64  { return this.readRawVarint64() }
-func (this *CodedInputStream) readUInt64() int64 { return this.readRawVarint64() }
-func (this *CodedInputStream) readBool() bool    { return this.readRawVarint64() != 0 }
-
-func (this *CodedInputStream) readSInt32() int32 {
-	u := uint32(this.readRawVarint32())
-	return int32(u>>1) ^ -int32(u&1)
-}
-
-func (this *CodedInputStream) readSInt64() int64 {
-	u := uint64(this.readRawVarint64())
-	return int64(u>>1) ^ -int64(u&1)
-}
-
-func (this *CodedInputStream) readRawLittleEndian32() int32 {
-	b := this.raw_(4)
-	return int32(uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16 | uint32(b[3])<<24)
-}
-
-func (this *CodedInputStream) readRawLittleEndian64() int64 {
-	b := this.raw_(8)
-	return int64(uint64(b[0]) | uint64(b[1])<<8 | uint64(b[2])<<16 | uint64(b[3])<<24 |
-		uint64(b[4])<<32 | uint64(b[5])<<40 | uint64(b[6])<<48 | uint64(b[7])<<56)
-}
-
-func (this *CodedInputStream) readFixed32() int32  { return this.readRawLittleEndian32() }
-func (this *CodedInputStream) readSFixed32() int32 { return this.readRawLittleEndian32() }
-func (this *CodedInputStream) readFixed64() int64  { return this.readRawLittleEndian64() }
-func (this *CodedInputStream) readSFixed64() int64 { return this.readRawLittleEndian64() }
-
-func (this *CodedInputStream) readFloat() float32 {
-	return math.Float32frombits(uint32(this.readRawLittleEndian32()))
-}
-
-func (this *CodedInputStream) readDouble() float64 {
-	return math.Float64frombits(uint64(this.readRawLittleEndian64()))
-}
-
-func (this *CodedInputStream) readBytes() *ByteString {
-	b := this.raw_(int(this.readRawVarint32()))
-	if len(b) == 0 {
-		return ByteString_EMPTY
-	}
-	if !this.alias_ {
-		b = append([]byte(nil), b...)
-	}
-	return &ByteString{b_: b}
-}
-
-func (this *CodedInputStream) readByteArray() []int8 {
-	return pbI8_(append([]byte(nil), this.raw_(int(this.readRawVarint32()))...))
-}
-
-func (this *CodedInputStream) readString() string {
-	return string(this.raw_(int(this.readRawVarint32())))
-}
-
-func (this *CodedInputStream) readStringRequireUtf8() string {
-	s := this.readString()
-	if !utf8.ValidString(s) {
-		pbFail_(pbErrUtf8_)
-	}
-	return s
-}
-
-func (this *CodedInputStream) skipField(p0 int32) bool {
-	switch p0 & 7 {
-	case 0:
-		this.readRawVarint64()
-	case 1:
-		this.raw_(8)
-	case 2:
-		this.raw_(int(this.readRawVarint32()))
-	case 3:
-		for {
-			tag := this.readTag()
-			if tag == 0 || !this.skipField(tag) {
-				break
-			}
-		}
-		this.checkLastTagWas(int32(uint32(p0)>>3<<3 | 4))
-	case 4:
-		return false
-	case 5:
-		this.raw_(4)
-	default:
-		pbFail_(pbErrWireType_)
-	}
-	return true
-}
-
-func (this *CodedInputStream) skipMessage() {
-	for {
-		tag := this.readTag()
-		if tag == 0 || !this.skipField(tag) {
-			return
-		}
-	}
-}
-
 // readMessage reads a length-prefixed message and merges it into the builder.
 func (this *CodedInputStream) readMessage(p0 MessageLite_Builder, p1 *ExtensionRegistryLite) {
 	data := this.raw_(int(this.readRawVarint32()))
@@ -2255,90 +1802,6 @@ func (this *CodedOutputStream) flush() {
 	}
 }
 
-func (this *CodedOutputStream) writeTag(p0 int32, p1 int32) {
-	this.buf_ = pbAppendVarint_(this.buf_, uint64(uint32(p0)<<3|uint32(p1)))
-}
-
-func (this *CodedOutputStream) writeUInt32NoTag(p0 int32) {
-	this.buf_ = pbAppendVarint_(this.buf_, uint64(uint32(p0)))
-}
-
-func (this *CodedOutputStream) writeInt32NoTag(p0 int32) {
-	this.buf_ = pbAppendVarint_(this.buf_, uint64(int64(p0)))
-}
-
-func (this *CodedOutputStream) writeUInt64NoTag(p0 int64) {
-	this.buf_ = pbAppendVarint_(this.buf_, uint64(p0))
-}
-
-func (this *CodedOutputStream) writeInt64NoTag(p0 int64) {
-	this.buf_ = pbAppendVarint_(this.buf_, uint64(p0))
-}
-
-func (this *CodedOutputStream) writeBoolNoTag(p0 bool) {
-	if p0 {
-		this.buf_ = append(this.buf_, 1)
-	} else {
-		this.buf_ = append(this.buf_, 0)
-	}
-}
-
-func (this *CodedOutputStream) writeFixed32NoTag(p0 int32) {
-	this.buf_ = pbAppendFixed32_(this.buf_, uint32(p0))
-}
-
-func (this *CodedOutputStream) writeFixed64NoTag(p0 int64) {
-	this.buf_ = pbAppendFixed64_(this.buf_, uint64(p0))
-}
-
-func (this *CodedOutputStream) writeStringNoTag(p0 string) {
-	this.buf_ = append(pbAppendVarint_(this.buf_, uint64(len(p0))), p0...)
-}
-
-func (this *CodedOutputStream) writeBytesNoTag(p0 *ByteString) {
-	this.buf_ = append(pbAppendVarint_(this.buf_, uint64(len(p0.b_))), p0.b_...)
-}
-
-func (this *CodedOutputStream) writeMessageNoTag(p0 MessageLite) {
-	m := p0.(pbM_).pbm_()
-	this.buf_ = pbAppendMsg_(pbAppendVarint_(this.buf_, uint64(pbSizeOf_(m))), m)
-}
-
-func (this *CodedOutputStream) writeInt32(p0 int32, p1 int32) {
-	this.writeTag(p0, 0)
-	this.writeInt32NoTag(p1)
-}
-
-func (this *CodedOutputStream) writeUInt32(p0 int32, p1 int32) {
-	this.writeTag(p0, 0)
-	this.writeUInt32NoTag(p1)
-}
-
-func (this *CodedOutputStream) writeInt64(p0 int32, p1 int64) {
-	this.writeTag(p0, 0)
-	this.writeInt64NoTag(p1)
-}
-
-func (this *CodedOutputStream) writeBool(p0 int32, p1 bool) {
-	this.writeTag(p0, 0)
-	this.writeBoolNoTag(p1)
-}
-
-func (this *CodedOutputStream) writeString(p0 int32, p1 string) {
-	this.writeTag(p0, 2)
-	this.writeStringNoTag(p1)
-}
-
-func (this *CodedOutputStream) writeBytes(p0 int32, p1 *ByteString) {
-	this.writeTag(p0, 2)
-	this.writeBytesNoTag(p1)
-}
-
-func (this *CodedOutputStream) writeMessage(p0 int32, p1 MessageLite) {
-	this.writeTag(p0, 2)
-	this.writeMessageNoTag(p1)
-}
-
 func pbEnumValueOf_(javaName string, name string) {
 	if name == nullstr_ {
 		panic(new_NullPointerException_String("Name is null").self())
@@ -2357,14 +1820,14 @@ func pbBuilderFrom_(d *pbDesc_, proto any) any {
 	return proto.(pbM_).pbm_().toBuilder()
 }
 
-func pbHasField_(d *pbData_, fd *Descriptors_FieldDescriptor) bool {
-	if fd.f_.owner != d.d_ {
-		panic(new_IllegalArgumentException_String("FieldDescriptor does not match message type.").self())
+func (d *pbDesc_) descriptor_() *Descriptors_Descriptor {
+	d.init_()
+	if d.gd == nil {
+		d.gd = &Descriptors_Descriptor{d_: d}
+		d.gd.name_ = pbSimpleName_(d.name)
+		d.gd.fullName_ = d.name
 	}
-	if fd.f_.rep {
-		panic(new_UnsupportedOperationException_String("hasField() called on a repeated field.").self())
-	}
-	return d.v_[fd.f_.idx] != nil
+	return d.gd
 }
 
 func ByteString_copyFromUtf8(p0 string) *ByteString {
@@ -2375,4 +1838,117 @@ func ByteString_copyFromUtf8(p0 string) *ByteString {
 		return ByteString_EMPTY
 	}
 	return &ByteString{b_: []byte(p0)}
+}
+
+func (this *ByteString) toStringUtf8() string { return string(this.b_) }
+
+func (this *pbData_) gStrBytes_(i int) *ByteString {
+	return ByteString_copyFromUtf8(this.get_(i).(string))
+}
+
+// mergeData_ is Message.Builder.mergeFrom(Message) on storage.
+func (this *pbData_) mergeData_(o *pbData_) {
+	if this.d_ != o.d_ {
+		panic(new_IllegalArgumentException_String("mergeFrom(Message) can only merge messages of the same type.").self())
+	}
+	for i, v := range o.v_ {
+		if v == nil {
+			continue
+		}
+		f := this.d_.fields[i]
+		switch {
+		case f.rep:
+			for _, e := range v.(*pbRep_).a {
+				this.append_(f, pbBuilt_(e))
+			}
+		case f.kind == pbMessage_:
+			this.mergeMsgField_(f, pbBuilt_(v))
+		default:
+			this.put_(f, v)
+		}
+	}
+	if len(o.unk_) > 0 {
+		this.unk_ = pbSortUnknown_(append(this.unk_[:len(this.unk_):len(this.unk_)], o.unk_...))
+	}
+}
+
+func (this *AbstractMessageLite_Builder) clrOneof_(oneof int32) { this.clearOneof_(oneof, -1) }
+
+func (this *AbstractMessageLite_Builder) setAt_(i int, idx int32, v any) {
+	this.checkValue_(v)
+	this.checkIndex_(i, idx, 0)[idx] = v
+}
+
+func (this *AbstractMessageLite_Builder) addAt_(i int, idx int32, v any) {
+	this.checkValue_(v)
+	this.checkIndex_(i, idx, 1)
+	this.append_(this.d_.fields[i], nil)
+	a := this.rep_(i)
+	copy(a[idx+1:], a[idx:])
+	a[idx] = v
+}
+
+func (this *AbstractMessageLite_Builder) rm_(i int, idx int32) {
+	a := this.checkIndex_(i, idx, 0)
+	r := this.v_[i].(*pbRep_)
+	r.a = append(a[:idx], a[idx+1:]...)
+}
+
+// mergeMsg_ is mergeFoo(Foo) for a singular message field.
+func (this *AbstractMessageLite_Builder) mergeMsg_(i int, m any) {
+	if m == nil {
+		pbNPE_()
+	}
+	f := this.d_.fields[i]
+	if this.v_[i] == nil && f.oneof != 0 {
+		this.clearOneof_(f.oneof, i)
+	}
+	this.mergeMsgField_(f, m)
+}
+
+// bldAt_ is getFooBuilder(int) for a repeated message field.
+func (this *AbstractMessageLite_Builder) bldAt_(i int, idx int32) any {
+	a := this.checkIndex_(i, idx, 0)
+	if _, ok := a[idx].(pbB_); !ok {
+		a[idx] = a[idx].(pbM_).pbm_().toBuilder()
+	}
+	return a[idx]
+}
+
+// addBldAt_ is addFooBuilder(int).
+func (this *AbstractMessageLite_Builder) addBldAt_(i int, idx int32) any {
+	b := this.d_.fields[i].md.newBuilder_().me_
+	this.addAt_(i, idx, b)
+	return b
+}
+
+// bldList_ is getFooBuilderList().
+func (this *AbstractMessageLite_Builder) bldList_(i int) List {
+	a := this.rep_(i)
+	for j := range a {
+		this.bldAt_(i, int32(j))
+	}
+	return listOf_(append([]any(nil), a...))
+}
+
+func (this *pbData_) mergeMsgField_(f *pbField_, m any) {
+	switch x := this.v_[f.idx].(type) {
+	case nil:
+		this.put_(f, m)
+	case pbB_:
+		x.pbb_().mergeData_(pbDataOf_(m))
+	default:
+		n := f.md.newMsg_()
+		pbDataOf_(x).copyInto_(&n.pbData_, true)
+		n.mergeData_(pbDataOf_(m))
+		this.put_(f, n.me_)
+	}
+}
+
+func (this *AbstractMessageLite_Builder) checkIndex_(i int, idx int32, extra int) []any {
+	a := this.rep_(i)
+	if idx < 0 || int(idx) >= len(a)+extra {
+		panic(new_IndexOutOfBoundsException_String("Index: " + istr_(int64(idx)) + ", Size: " + istr_(int64(len(a)))).self())
+	}
+	return a
 }

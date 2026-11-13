@@ -44,11 +44,6 @@ func (it *sliceIter_) remove() {
 	it.del(it.i)
 }
 
-// listIterator view of the same thing.
-func (it *sliceIter_) hasPrevious() bool { return it.i > 0 }
-func (it *sliceIter_) previous() any     { it.i--; return (*it.items)[it.i] }
-func (it *sliceIter_) nextIndex() int32  { return int32(it.i) }
-
 type funcIter_ struct {
 	has func() bool
 	nxt func() any
@@ -257,12 +252,6 @@ func (this *ArrayList) addAll(c Collection) bool {
 	return len(src) > 0
 }
 
-func (this *ArrayList) addAll_int_Collection(i int32, c Collection) bool {
-	src := append([]any(nil), toSlice_(c)...)
-	this.items = append(this.items[:i], append(src, this.items[i:]...)...)
-	return len(src) > 0
-}
-
 func (this *ArrayList) clear() { this.items = this.items[:0] }
 
 func (this *ArrayList) indexOf(v any) int32 {
@@ -336,10 +325,6 @@ func (this *ArrayList) removeAll(c Collection) bool {
 	return this.filter(func(x any) bool { return !c.contains(x) })
 }
 
-func (this *ArrayList) retainAll(c Collection) bool {
-	return this.filter(func(x any) bool { return c.contains(x) })
-}
-
 func (this *ArrayList) iterator() Iterator {
 	return &sliceIter_{items: &this.items, list: this}
 }
@@ -355,17 +340,12 @@ func (this *ArrayList) subList(a int32, b int32) List {
 	return listOf_(this.items[a:b:b])
 }
 
-func (this *ArrayList) toArray_0() []any       { return append([]any(nil), this.items...) }
-func (this *ArrayList) toArray(a []any) []any  { return fillArray_(this.items, a) }
-func (this *ArrayList) equals(o any) bool      { return listEquals_(this.items, o) }
-func (this *ArrayList) hashCode() int32        { return listHash_(this.items) }
-func (this *ArrayList) toString() string       { return collToString_(this) }
-func (this *ArrayList) ensureCapacity(n int32) {}
-func (this *ArrayList) trimToSize()            {}
-
-// SequencedCollection and Deque-like helpers used by the static-style defaults.
-func (this *ArrayList) getFirst_() any { return this.get(0) }
-func (this *ArrayList) getLast_() any  { return this.get(this.size() - 1) }
+func (this *ArrayList) toArray_0() []any      { return append([]any(nil), this.items...) }
+func (this *ArrayList) toArray(a []any) []any { return fillArray_(this.items, a) }
+func (this *ArrayList) equals(o any) bool     { return listEquals_(this.items, o) }
+func (this *ArrayList) hashCode() int32       { return listHash_(this.items) }
+func (this *ArrayList) toString() string      { return collToString_(this) }
+func (this *ArrayList) trimToSize()           {}
 
 // LinkedList and CopyOnWriteArrayList behave as lists backed by a slice.
 type LinkedList struct{ ArrayList }
@@ -396,21 +376,14 @@ func (this *LinkedList) poll() any {
 	return this.remove(0)
 }
 func (this *LinkedList) pollFirst() any { return this.poll() }
-func (this *LinkedList) pollLast() any {
-	if len(this.items) == 0 {
-		return nil
-	}
-	return this.remove(this.size() - 1)
-}
 func (this *LinkedList) pop() any {
 	if len(this.items) == 0 {
 		panic(new_NoSuchElementException_0().self())
 	}
 	return this.remove(0)
 }
-func (this *LinkedList) remove_0() any    { return this.pop() }
-func (this *LinkedList) push(v any)       { this.add_int_Object(0, v) }
-func (this *LinkedList) offer(v any) bool { return this.add(v) }
+func (this *LinkedList) remove_0() any { return this.pop() }
+func (this *LinkedList) push(v any)    { this.add_int_Object(0, v) }
 func (this *LinkedList) descendingIterator() Iterator {
 	rev := make([]any, len(this.items))
 	for i, v := range this.items {
@@ -473,28 +446,14 @@ func (this *ArrayDeque) poll() any {
 	return v
 }
 func (this *ArrayDeque) pollFirst() any { return this.poll() }
-func (this *ArrayDeque) pollLast() any {
-	if len(this.items) == 0 {
-		return nil
-	}
-	return this.remove(this.size() - 1)
-}
 func (this *ArrayDeque) pop() any {
 	if len(this.items) == 0 {
 		panic(new_NoSuchElementException_0().self())
 	}
 	return this.poll()
 }
-func (this *ArrayDeque) remove_0() any     { return this.pop() }
-func (this *ArrayDeque) removeFirst_() any { return this.pop() }
-func (this *ArrayDeque) removeLast_() any {
-	if len(this.items) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.remove(this.size() - 1)
-}
-func (this *ArrayDeque) push(v any)       { this.add_int_Object(0, v) }
-func (this *ArrayDeque) offer(v any) bool { return this.add(v) }
+func (this *ArrayDeque) remove_0() any { return this.pop() }
+func (this *ArrayDeque) push(v any)    { this.add_int_Object(0, v) }
 func (this *ArrayDeque) descendingIterator() Iterator {
 	rev := make([]any, len(this.items))
 	for i, v := range this.items {
@@ -916,7 +875,6 @@ func (v *mapKeys_) remove_Object(k any) bool {
 }
 func (v *mapKeys_) containsAll(c Collection) bool { return containsAll_(v, c) }
 func (v *mapKeys_) removeAll(c Collection) bool   { return removeAll_(v, c) }
-func (v *mapKeys_) retainAll(c Collection) bool   { return retainAll_(v, c) }
 func (v *mapKeys_) toArray_0() []any              { return v.t.keys() }
 func (v *mapKeys_) toArray(a []any) []any         { return fillArray_(v.t.keys(), a) }
 func (v *mapKeys_) equals(o any) bool             { return setEquals_(v, o) }
@@ -950,7 +908,6 @@ func (v *mapValues_) remove_Object(x any) bool {
 }
 func (v *mapValues_) containsAll(c Collection) bool { return containsAll_(v, c) }
 func (v *mapValues_) removeAll(c Collection) bool   { return removeAll_(v, c) }
-func (v *mapValues_) retainAll(c Collection) bool   { return retainAll_(v, c) }
 func (v *mapValues_) toArray_0() []any {
 	out := make([]any, 0, v.t.live)
 	for _, e := range v.t.entries {
@@ -988,7 +945,6 @@ func (v *mapEntries_) remove_Object(x any) bool {
 }
 func (v *mapEntries_) containsAll(c Collection) bool { return containsAll_(v, c) }
 func (v *mapEntries_) removeAll(c Collection) bool   { return removeAll_(v, c) }
-func (v *mapEntries_) retainAll(c Collection) bool   { return retainAll_(v, c) }
 func (v *mapEntries_) toArray_0() []any {
 	out := make([]any, 0, v.t.live)
 	for _, e := range v.t.entries {
@@ -1369,13 +1325,4 @@ func Map_compute(m Map, k any, f BiFunction) any {
 	return v
 }
 
-func retainAll_(s Collection, c Collection) bool {
-	changed := false
-	for it := s.iterator(); it.hasNext(); {
-		if !c.contains(it.next()) {
-			Iterator_remove(it)
-			changed = true
-		}
-	}
-	return changed
-}
+func Comparable_compareTo(a any, b any) int32 { return compareNatural_(a, b) }

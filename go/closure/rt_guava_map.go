@@ -236,20 +236,6 @@ func (this *ImmutableBiMap) inverse() BiMap {
 
 func (this *ImmutableSortedMap) comparator() Comparator { return cmpOrNatural_(this.cmp) }
 
-func (this *ImmutableSortedMap) firstKey() any {
-	if len(this.keys) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.keys[0]
-}
-
-func (this *ImmutableSortedMap) lastKey() any {
-	if len(this.keys) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.keys[len(this.keys)-1]
-}
-
 // mapEntries_ copies a Map's entries to parallel slices.
 func mapKV_(m Map) (keys, vals []any) {
 	if im, ok := m.(*ImmutableMap); ok {
@@ -346,8 +332,6 @@ type ImmutableMap_Builder struct {
 type ImmutableSortedMap_Builder = ImmutableMap_Builder
 type ImmutableBiMap_Builder = ImmutableMap_Builder
 
-func (this *ImmutableMap_Builder) up_ImmutableMap_Builder() *ImmutableMap_Builder { return this }
-
 func new_ImmutableMap_Builder() *ImmutableMap_Builder { return &ImmutableMap_Builder{} }
 func ImmutableMap_builder() *ImmutableMap_Builder     { return &ImmutableMap_Builder{} }
 func ImmutableSortedMap_naturalOrder() *ImmutableSortedMap_Builder {
@@ -363,10 +347,6 @@ func (this *ImmutableMap_Builder) put(p0 any, p1 any) *ImmutableMap_Builder {
 	this.keys = append(this.keys, p0)
 	this.vals = append(this.vals, p1)
 	return this
-}
-
-func (this *ImmutableMap_Builder) put_Entry(p0 Map_Entry) *ImmutableMap_Builder {
-	return this.put(p0.getKey(), p0.getValue())
 }
 
 func (this *ImmutableMap_Builder) putAll(p0 Map) *ImmutableMap_Builder {
@@ -404,8 +384,6 @@ type ImmutableMultimap struct {
 
 type ImmutableListMultimap = ImmutableMultimap
 type ImmutableSetMultimap = ImmutableMultimap
-
-func (this *ImmutableMultimap) up_ImmutableMultimap() *ImmutableMultimap { return this }
 
 func (this *ImmutableMultimap) size() int32   { return this.n }
 func (this *ImmutableMultimap) isEmpty() bool { return this.n == 0 }
@@ -450,23 +428,6 @@ func (this *ImmutableMultimap) values() Collection {
 	return this.vals
 }
 
-func (this *ImmutableMultimap) entries() Collection {
-	if this.ents == nil {
-		all := make([]any, 0, this.n)
-		for i, k := range this.m.keys {
-			for _, v := range this.m.vals[i].(*ImmutableCollection).items {
-				all = append(all, &immEntry_{key: k, val: v})
-			}
-		}
-		kind := icList_
-		if this.set {
-			kind = icSet_
-		}
-		this.ents = &ImmutableCollection{kind: kind, items: all}
-	}
-	return this.ents
-}
-
 func (this *ImmutableMultimap) inverse() *ImmutableMultimap {
 	if this.inv_ == nil {
 		b := &ImmutableMultimap_Builder{set: this.set}
@@ -486,11 +447,7 @@ func (this *ImmutableMultimap) putAll(p0 any, p1 Iterable) bool  { throwUOE_(); 
 func (this *ImmutableMultimap) putAll_Multimap(p0 Multimap) bool { throwUOE_(); return false }
 func (this *ImmutableMultimap) remove(p0 any, p1 any) bool       { throwUOE_(); return false }
 func (this *ImmutableMultimap) removeAll(p0 any) Collection      { throwUOE_(); return nil }
-func (this *ImmutableMultimap) replaceValues(p0 any, p1 Iterable) Collection {
-	throwUOE_()
-	return nil
-}
-func (this *ImmutableMultimap) clear() { throwUOE_() }
+func (this *ImmutableMultimap) clear()                           { throwUOE_() }
 
 func (this *ImmutableMultimap) equals(o any) bool { return multimapEquals_(this, o) }
 func (this *ImmutableMultimap) hashCode() int32   { return this.m.hashCode() }
@@ -517,10 +474,6 @@ type ImmutableMultimap_Builder struct {
 
 type ImmutableListMultimap_Builder = ImmutableMultimap_Builder
 type ImmutableSetMultimap_Builder = ImmutableMultimap_Builder
-
-func (this *ImmutableMultimap_Builder) up_ImmutableMultimap_Builder() *ImmutableMultimap_Builder {
-	return this
-}
 
 func new_ImmutableMultimap_Builder() *ImmutableMultimap_Builder { return &ImmutableMultimap_Builder{} }
 func ImmutableMultimap_builder() *ImmutableMultimap_Builder     { return &ImmutableMultimap_Builder{} }
@@ -570,11 +523,6 @@ func (this *ImmutableMultimap_Builder) putAll_Multimap(p0 Multimap) *ImmutableMu
 
 func (this *ImmutableMultimap_Builder) orderKeysBy(p0 Comparator) *ImmutableMultimap_Builder {
 	this.keyCmp = p0
-	return this
-}
-
-func (this *ImmutableMultimap_Builder) orderValuesBy(p0 Comparator) *ImmutableMultimap_Builder {
-	this.valCmp = p0
 	return this
 }
 

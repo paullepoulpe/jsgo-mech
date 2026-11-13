@@ -632,40 +632,6 @@ func (this *JsonReader) nextNull() {
 	}
 }
 
-func (this *JsonReader) nextDouble() float64 {
-	p := this.peeked_
-	if p == gsonPeekedNone_ {
-		p = this.doPeek_()
-	}
-	if p == gsonPeekedLong_ {
-		this.peeked_ = gsonPeekedNone_
-		this.pathIndices_[len(this.stack_)-1]++
-		return float64(this.peekedLong_)
-	}
-	if p == gsonPeekedNumber_ {
-		this.peekedString_ = this.takeNumberText_()
-	} else if p == gsonPeekedSingleQuoted_ || p == gsonPeekedDoubleQuoted_ {
-		q := int32('"')
-		if p == gsonPeekedSingleQuoted_ {
-			q = '\''
-		}
-		this.peekedString_ = this.nextQuotedValue_(q)
-	} else if p == gsonPeekedUnquoted_ {
-		this.peekedString_ = this.nextUnquotedValue_()
-	} else if p != gsonPeekedBuffered_ {
-		panic(new_IllegalStateException_String("Expected a double but was " + this.peek().name() + this.locationString_()).self())
-	}
-	this.peeked_ = gsonPeekedBuffered_
-	result := Double_parseDouble(this.peekedString_)
-	if !this.lenient_ && (math.IsNaN(result) || math.IsInf(result, 0)) {
-		panic(new_MalformedJsonException_String("JSON forbids NaN and infinities: " + Double_toString(result) + this.locationString_()).self())
-	}
-	this.peekedString_ = ""
-	this.peeked_ = gsonPeekedNone_
-	this.pathIndices_[len(this.stack_)-1]++
-	return result
-}
-
 // gsonTryParseLong_ is Long.parseLong without the exception.
 func gsonTryParseLong_(s string) (int64, bool) {
 	if s == "" || len(s) > 20 {
@@ -737,50 +703,6 @@ func (this *JsonReader) nextLong() int64 {
 	result := f2i_[int64](asDouble)
 	if float64(result) != asDouble {
 		panic(new_NumberFormatException_String("Expected a long but was " + this.peekedString_ + this.locationString_()).self())
-	}
-	this.peekedString_ = ""
-	this.peeked_ = gsonPeekedNone_
-	this.pathIndices_[len(this.stack_)-1]++
-	return result
-}
-
-func (this *JsonReader) nextInt() int32 {
-	p := this.peeked_
-	if p == gsonPeekedNone_ {
-		p = this.doPeek_()
-	}
-	if p == gsonPeekedLong_ {
-		result := int32(this.peekedLong_)
-		if this.peekedLong_ != int64(result) {
-			panic(new_NumberFormatException_String("Expected an int but was " + Long_toString(this.peekedLong_) + this.locationString_()).self())
-		}
-		this.peeked_ = gsonPeekedNone_
-		this.pathIndices_[len(this.stack_)-1]++
-		return result
-	}
-	if p == gsonPeekedNumber_ {
-		this.peekedString_ = this.takeNumberText_()
-	} else if p == gsonPeekedSingleQuoted_ || p == gsonPeekedDoubleQuoted_ || p == gsonPeekedUnquoted_ {
-		if p == gsonPeekedUnquoted_ {
-			this.peekedString_ = this.nextUnquotedValue_()
-		} else if p == gsonPeekedSingleQuoted_ {
-			this.peekedString_ = this.nextQuotedValue_('\'')
-		} else {
-			this.peekedString_ = this.nextQuotedValue_('"')
-		}
-		if v, ok := gsonTryParseLong_(this.peekedString_); ok && v >= math.MinInt32 && v <= math.MaxInt32 {
-			this.peeked_ = gsonPeekedNone_
-			this.pathIndices_[len(this.stack_)-1]++
-			return int32(v)
-		}
-	} else {
-		panic(new_IllegalStateException_String("Expected an int but was " + this.peek().name() + this.locationString_()).self())
-	}
-	this.peeked_ = gsonPeekedBuffered_
-	asDouble := Double_parseDouble(this.peekedString_)
-	result := f2i_[int32](asDouble)
-	if float64(result) != asDouble {
-		panic(new_NumberFormatException_String("Expected an int but was " + this.peekedString_ + this.locationString_()).self())
 	}
 	this.peekedString_ = ""
 	this.peeked_ = gsonPeekedNone_
@@ -1062,23 +984,4 @@ func (this *JsonReader) consumeNonExecutePrefix_() {
 
 func (this *JsonReader) syntaxError_(message string) any {
 	return new_MalformedJsonException_String(message + this.locationString_()).self()
-}
-
-// promoteNameToValue_ lets a pending property name be read as a string value
-// (JsonReaderInternalAccess.promoteNameToValue).
-func (this *JsonReader) promoteNameToValue_() {
-	p := this.peeked_
-	if p == gsonPeekedNone_ {
-		p = this.doPeek_()
-	}
-	switch p {
-	case gsonPeekedDoubleQuotedName_:
-		this.peeked_ = gsonPeekedDoubleQuoted_
-	case gsonPeekedSingleQuotedName_:
-		this.peeked_ = gsonPeekedSingleQuoted_
-	case gsonPeekedUnquotedName_:
-		this.peeked_ = gsonPeekedUnquoted_
-	default:
-		panic(new_IllegalStateException_String("Expected a name but was " + this.peek().name() + this.locationString_()).self())
-	}
 }

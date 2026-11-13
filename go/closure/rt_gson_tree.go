@@ -169,16 +169,6 @@ func (this *JsonElement) self() any {
 	return this.self_
 }
 
-func (this *JsonElement) isJsonArray() bool {
-	_, ok := this.self_.(*JsonArray)
-	return ok
-}
-
-func (this *JsonElement) isJsonObject() bool {
-	_, ok := this.self_.(*JsonObject)
-	return ok
-}
-
 func (this *JsonElement) isJsonPrimitive() bool {
 	_, ok := this.self_.(*JsonPrimitive)
 	return ok
@@ -208,13 +198,6 @@ func (this *JsonElement) getAsJsonPrimitive() *JsonPrimitive {
 		return o
 	}
 	panic(new_IllegalStateException_String("Not a JSON Primitive: " + this.toString()).self())
-}
-
-func (this *JsonElement) getAsJsonNull() *JsonNull {
-	if o, ok := this.self_.(*JsonNull); ok {
-		return o
-	}
-	panic(new_IllegalStateException_String("Not a JSON Null: " + this.toString()).self())
 }
 
 // single_ is the element a getAsXxx call on this element delegates to.
@@ -277,42 +260,6 @@ func (this *JsonElement) getAsInt() int32 {
 		return v.intValue_()
 	}
 	panic(new_NumberFormatException_String(objstr_(p.value_)).self())
-}
-
-func (this *JsonElement) getAsLong() int64 {
-	p := this.single_()
-	switch v := p.value_.(type) {
-	case string:
-		return Long_parseLong_String(v)
-	case bool:
-		return Long_parseLong_String(boolstr_(v))
-	case int32:
-		return int64(v)
-	case int64:
-		return v
-	case int16:
-		return int64(v)
-	case int8:
-		return int64(v)
-	case float64:
-		return f2i_[int64](v)
-	case float32:
-		return f2i_[int64](float64(v))
-	case gsonLazyNumber_:
-		return v.longValue_()
-	}
-	panic(new_NumberFormatException_String(objstr_(p.value_)).self())
-}
-
-func (this *JsonElement) getAsDouble() float64 {
-	p := this.single_()
-	switch v := p.value_.(type) {
-	case string:
-		return Double_parseDouble(v)
-	case bool:
-		return Double_parseDouble(boolstr_(v))
-	}
-	return gsonNumDouble_(p.value_)
 }
 
 func gsonNumDouble_(n any) float64 {
@@ -469,14 +416,6 @@ func (this *JsonObject) add(p0 string, p1 *JsonElement) {
 	this.members_.put(strobj_(p0), gsonOrNull_(p1))
 }
 
-func (this *JsonObject) addProperty(p0 string, p1 string) {
-	if p1 == nullstr_ {
-		this.add(p0, nil)
-	} else {
-		this.add(p0, new_JsonPrimitive(p1).up_JsonElement())
-	}
-}
-
 func (this *JsonObject) remove(p0 string) *JsonElement {
 	return cast_[*JsonElement](this.members_.remove(strobj_(p0)))
 }
@@ -493,42 +432,10 @@ func (this *JsonObject) get(p0 string) *JsonElement {
 	return cast_[*JsonElement](this.members_.get(strobj_(p0)))
 }
 
-func (this *JsonObject) getAsJsonPrimitive_String(p0 string) *JsonPrimitive {
-	e := this.get(p0)
-	if e == nil {
-		return nil
-	}
-	return e.self_.(*JsonPrimitive)
-}
-
-func (this *JsonObject) getAsJsonArray_String(p0 string) *JsonArray {
-	e := this.get(p0)
-	if e == nil {
-		return nil
-	}
-	return e.self_.(*JsonArray)
-}
-
-func (this *JsonObject) getAsJsonObject_String(p0 string) *JsonObject {
-	e := this.get(p0)
-	if e == nil {
-		return nil
-	}
-	return e.self_.(*JsonObject)
-}
-
 // ---- JsonArray
 
 func (this *JsonArray) add(p0 *JsonElement) {
 	this.elements_.add(gsonOrNull_(p0))
-}
-
-func (this *JsonArray) add_String(p0 string) {
-	if p0 == nullstr_ {
-		this.add(nil)
-	} else {
-		this.add(new_JsonPrimitive(p0).up_JsonElement())
-	}
 }
 
 func (this *JsonArray) get(p0 int32) *JsonElement {

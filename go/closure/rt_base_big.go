@@ -103,8 +103,6 @@ func (this *BigInteger) not() *BigInteger { return &BigInteger{new(big.Int).Not(
 
 func (this *BigInteger) negate() *BigInteger { return &BigInteger{new(big.Int).Neg(this.v)} }
 
-func (this *BigInteger) abs() *BigInteger { return &BigInteger{new(big.Int).Abs(this.v)} }
-
 func (this *BigInteger) divide(o *BigInteger) *BigInteger {
 	if o.v.Sign() == 0 {
 		panic(new_ArithmeticException_String("BigInteger divide by zero").self())
@@ -117,13 +115,6 @@ func (this *BigInteger) remainder(o *BigInteger) *BigInteger {
 		panic(new_ArithmeticException_String("BigInteger divide by zero").self())
 	}
 	return &BigInteger{new(big.Int).Rem(this.v, o.v)}
-}
-
-func (this *BigInteger) mod(o *BigInteger) *BigInteger {
-	if o.v.Sign() <= 0 {
-		panic(new_ArithmeticException_String("BigInteger: modulus not positive").self())
-	}
-	return &BigInteger{new(big.Int).Mod(this.v, o.v)}
 }
 
 func (this *BigInteger) divideAndRemainder(o *BigInteger) []*BigInteger {
@@ -146,13 +137,6 @@ func (this *BigInteger) shiftLeft(n int32) *BigInteger {
 		return &BigInteger{new(big.Int).Rsh(this.v, uint(-int64(n)))}
 	}
 	return &BigInteger{new(big.Int).Lsh(this.v, uint(n))}
-}
-
-func (this *BigInteger) shiftRight(n int32) *BigInteger {
-	if n < 0 {
-		return &BigInteger{new(big.Int).Lsh(this.v, uint(-int64(n)))}
-	}
-	return &BigInteger{new(big.Int).Rsh(this.v, uint(n))}
 }
 
 func (this *BigInteger) signum() int32 { return int32(this.v.Sign()) }
@@ -208,13 +192,6 @@ func (this *BigInteger) intValueExact() int32 {
 		panic(new_ArithmeticException_String("BigInteger out of int range").self())
 	}
 	return int32(this.v.Int64())
-}
-
-func (this *BigInteger) longValueExact() int64 {
-	if !this.v.IsInt64() {
-		panic(new_ArithmeticException_String("BigInteger out of long range").self())
-	}
-	return this.v.Int64()
 }
 
 func (this *BigInteger) doubleValue() float64 {

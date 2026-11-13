@@ -158,37 +158,6 @@ func (this *InputStream) read_byteArr(b []int8) int32 {
 	return this.read_byteArr_int_int(b, 0, int32(len(b)))
 }
 
-func (this *InputStream) readNBytes_byteArr_int_int(b []int8, off int32, n int32) int32 {
-	var got int32
-	for got < n {
-		k := this.read_byteArr_int_int(b, off+got, n-got)
-		if k < 0 {
-			break
-		}
-		got += k
-	}
-	return got
-}
-
-func (this *InputStream) readAllBytes() []int8 { return i8_(readAllBytes_(this)) }
-
-func (this *InputStream) skip(n int64) int64 {
-	var done int64
-	buf := make([]int8, 4096)
-	for done < n {
-		want := n - done
-		if want > int64(len(buf)) {
-			want = int64(len(buf))
-		}
-		k := this.read_byteArr_int_int(buf, 0, int32(want))
-		if k < 0 {
-			break
-		}
-		done += int64(k)
-	}
-	return done
-}
-
 func (this *InputStream) available() int32 {
 	if this.busy_&busyAvailable_ == 0 {
 		if s, ok := this.self_.(interface{ available() int32 }); ok {
@@ -203,25 +172,8 @@ func (this *InputStream) available() int32 {
 	return 0
 }
 
-func (this *InputStream) markSupported() bool { return false }
-
-func (this *InputStream) mark(limit int32) {}
-
 func (this *InputStream) reset() {
 	panic(new_IOException_String("mark/reset not supported").self())
-}
-
-func (this *InputStream) transferTo(out *OutputStream) int64 {
-	var total int64
-	buf := make([]int8, 16384)
-	for {
-		n := this.read_byteArr_int_int(buf, 0, int32(len(buf)))
-		if n < 0 {
-			return total
-		}
-		out.write_byteArr_int_int(buf, 0, n)
-		total += int64(n)
-	}
 }
 
 func (this *InputStream) close() {
@@ -711,13 +663,6 @@ type PrintStream struct {
 	trouble_   bool
 }
 
-func (this *PrintStream) up_FilterOutputStream() *FilterOutputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.FilterOutputStream
-}
-
 func newPrintStream_(out *OutputStream, autoFlush bool, cs *Charset) *PrintStream {
 	if out == nil {
 		panic(new_NullPointerException_String("Null output stream").self())
@@ -803,30 +748,10 @@ func (this *PrintStream) close() {
 	this.closed_ = true
 }
 
-func (this *PrintStream) checkError() bool {
-	if !this.closed_ {
-		this.flush()
-	}
-	return this.trouble_
-}
-
-func (this *PrintStream) print(s string)         { this.emit_(sstr_(s)) }
-func (this *PrintStream) print_Object(v any)     { this.emit_(objstr_(v)) }
-func (this *PrintStream) print_char(c uint16)    { this.emit_(String_valueOf_char(c)) }
-func (this *PrintStream) print_int(i int32)      { this.emit_(istr_(int64(i))) }
-func (this *PrintStream) print_long(i int64)     { this.emit_(istr_(i)) }
-func (this *PrintStream) print_boolean(b bool)   { this.emit_(boolstr_(b)) }
-func (this *PrintStream) print_double(d float64) { this.emit_(dstr_(d)) }
-
-func (this *PrintStream) println(s string)         { this.emit_(sstr_(s) + "\n") }
-func (this *PrintStream) println_0()               { this.emit_("\n") }
-func (this *PrintStream) println_Object(v any)     { this.emit_(objstr_(v) + "\n") }
-func (this *PrintStream) println_char(c uint16)    { this.emit_(String_valueOf_char(c) + "\n") }
-func (this *PrintStream) println_int(i int32)      { this.emit_(istr_(int64(i)) + "\n") }
-func (this *PrintStream) println_long(i int64)     { this.emit_(istr_(i) + "\n") }
-func (this *PrintStream) println_boolean(b bool)   { this.emit_(boolstr_(b) + "\n") }
-func (this *PrintStream) println_double(d float64) { this.emit_(dstr_(d) + "\n") }
-
+func (this *PrintStream) print(s string)       { this.emit_(sstr_(s)) }
+func (this *PrintStream) println(s string)     { this.emit_(sstr_(s) + "\n") }
+func (this *PrintStream) println_0()           { this.emit_("\n") }
+func (this *PrintStream) println_Object(v any) { this.emit_(objstr_(v) + "\n") }
 func (this *PrintStream) format(f string, args []any) *PrintStream {
 	this.emit_(String_format(f, args))
 	return this

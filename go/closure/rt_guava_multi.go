@@ -78,8 +78,6 @@ func (v *viewColl_) remove_Object(x any) bool {
 
 func (v *viewColl_) containsAll(c Collection) bool { return containsAll_(v, c) }
 func (v *viewColl_) removeAll(c Collection) bool   { return removeAll_(v, c) }
-func (v *viewColl_) retainAll(c Collection) bool   { return retainAll_(v, c) }
-
 func (v *viewColl_) toArray_0() []any {
 	out := []any{}
 	for it := v.it(); it.hasNext(); {
@@ -153,17 +151,6 @@ func (it *idxIter_) remove() {
 		it.i--
 	}
 	it.last = -1
-}
-
-func (it *idxIter_) hasPrevious() bool { return it.i > 0 }
-func (it *idxIter_) nextIndex() int32  { return it.i }
-func (it *idxIter_) previous() any {
-	if it.i <= 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	it.i--
-	it.last = it.i
-	return it.l.get(it.i)
 }
 
 // ---- viewList_: a List defined by size and element functions
@@ -260,8 +247,6 @@ func (v *viewList_) iterator() Iterator                { return &idxIter_{l: v, 
 func (v *viewList_) listIterator(i int32) ListIterator { return &idxIter_{l: v, i: i, last: -1} }
 func (v *viewList_) containsAll(c Collection) bool     { return containsAll_(v, c) }
 func (v *viewList_) removeAll(c Collection) bool       { return removeAll_(v, c) }
-func (v *viewList_) retainAll(c Collection) bool       { return retainAll_(v, c) }
-
 func (v *viewList_) subList(a int32, b int32) List {
 	if n := v.sz(); a < 0 || b > n || a > b {
 		panic(new_IndexOutOfBoundsException_String("fromIndex: " + istr_(int64(a)) + ", toIndex: " + istr_(int64(b)) + ", size: " + istr_(int64(n))).self())
@@ -519,12 +504,6 @@ func (mm *mmap_) removeAll(k any) Collection {
 	return mm.newColl_()
 }
 
-func (mm *mmap_) replaceValues(k any, vs Iterable) Collection {
-	old := mm.removeAll(k)
-	mm.putAll(k, vs)
-	return old
-}
-
 func (mm *mmap_) keySet() Set {
 	return &viewColl_{
 		set: true,
@@ -577,30 +556,6 @@ func (mm *mmap_) values() Collection {
 			return flatIter_(mm.keys_(), func(k any) Iterator { return mm.get(k).iterator() })
 		},
 		sz:  mm.size,
-		clr: mm.clear,
-	}
-}
-
-func (mm *mmap_) entries() Collection {
-	return &viewColl_{
-		set: mm.kind != mmArrayList_,
-		it: func() Iterator {
-			if mm.linked {
-				return mm.seqIter_(func(e *immEntry_) any { return &immEntry_{key: e.key, val: e.val} })
-			}
-			return flatIter_(mm.keys_(), func(k any) Iterator {
-				return mapIter_(mm.get(k).iterator(), func(v any) any { return &immEntry_{key: k, val: v} })
-			})
-		},
-		sz: mm.size,
-		has: func(x any) bool {
-			e, ok := x.(Map_Entry)
-			return ok && e != nil && mm.containsEntry(e.getKey(), e.getValue())
-		},
-		rm: func(x any) bool {
-			e, ok := x.(Map_Entry)
-			return ok && e != nil && mm.removeVal_(e.getKey(), e.getValue())
-		},
 		clr: mm.clear,
 	}
 }
@@ -681,8 +636,6 @@ func (v *mmSet_) iterator() Iterator {
 
 func (v *mmSet_) containsAll(c Collection) bool { return containsAll_(v, c) }
 func (v *mmSet_) removeAll(c Collection) bool   { return removeAll_(v, c) }
-func (v *mmSet_) retainAll(c Collection) bool   { return retainAll_(v, c) }
-
 func (v *mmSet_) toArray_0() []any {
 	if c := v.mm.coll_(v.key); c != nil {
 		return c.toArray_0()
@@ -1011,17 +964,6 @@ func (ms *mset_) removeAll(c Collection) bool {
 	changed := false
 	for _, v := range ms.elems_() {
 		if c.contains(v) {
-			ms.setCount_Object_int(v, 0)
-			changed = true
-		}
-	}
-	return changed
-}
-
-func (ms *mset_) retainAll(c Collection) bool {
-	changed := false
-	for _, v := range ms.elems_() {
-		if !c.contains(v) {
 			ms.setCount_Object_int(v, 0)
 			changed = true
 		}

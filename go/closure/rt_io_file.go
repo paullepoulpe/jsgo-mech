@@ -167,27 +167,6 @@ func (this *File) getAbsolutePath() string {
 	return cleanSlashes_(userDir_() + "/" + this.path_)
 }
 
-func (this *File) getAbsoluteFile() *File { return &File{path_: this.getAbsolutePath()} }
-
-func (this *File) getCanonicalPath() string {
-	abs := pathOf_(this.getAbsolutePath()).normalize().(*unixPath_).s_
-	// Resolve symbolic links of the longest prefix that exists.
-	rest := ""
-	for p := abs; ; {
-		if r, err := realpath_(p); err == nil {
-			return cleanSlashes_(r + rest)
-		}
-		i := strings.LastIndexByte(p, '/')
-		if i <= 0 {
-			return abs
-		}
-		rest = p[i:] + rest
-		p = p[:i]
-	}
-}
-
-func (this *File) getCanonicalFile() *File { return &File{path_: this.getCanonicalPath()} }
-
 func (this *File) stat_() os.FileInfo {
 	st, err := os.Stat(this.path_)
 	if err != nil {
@@ -203,36 +182,11 @@ func (this *File) isDirectory() bool {
 	return st != nil && st.IsDir()
 }
 
-func (this *File) isFile() bool {
-	st := this.stat_()
-	return st != nil && st.Mode().IsRegular()
-}
-
-func (this *File) canRead() bool { return syscall.Access(this.path_, 4) == nil }
-
-func (this *File) canWrite() bool { return syscall.Access(this.path_, 2) == nil }
-
 func (this *File) length() int64 {
 	if st := this.stat_(); st != nil {
 		return st.Size()
 	}
 	return 0
-}
-
-func (this *File) lastModified() int64 {
-	if st := this.stat_(); st != nil {
-		return st.ModTime().UnixMilli()
-	}
-	return 0
-}
-
-// list returns the names in the directory, or nil if this is not a directory.
-func (this *File) list() []string {
-	names, ok := dirNames_(this.path_)
-	if !ok {
-		return nil
-	}
-	return names
 }
 
 func (this *File) listFiles() []*File {
@@ -247,8 +201,6 @@ func (this *File) listFiles() []*File {
 	return out
 }
 
-func (this *File) mkdir() bool { return os.Mkdir(this.path_, 0o777) == nil }
-
 func (this *File) mkdirs() bool {
 	if this.exists() {
 		return false
@@ -257,8 +209,6 @@ func (this *File) mkdirs() bool {
 }
 
 func (this *File) delete() bool { return os.Remove(this.path_) == nil }
-
-func (this *File) renameTo(dest *File) bool { return os.Rename(this.path_, dest.path_) == nil }
 
 // createNewFile creates the file if it does not exist yet, and says whether it did.
 func (this *File) createNewFile() bool {
@@ -271,16 +221,6 @@ func (this *File) createNewFile() bool {
 	}
 	f.Close()
 	return true
-}
-
-func (this *File) toPath() Path { return pathOf_(this.path_) }
-
-func (this *File) toURI() *URI {
-	p := this.getAbsolutePath()
-	if this.isDirectory() && !strings.HasSuffix(p, "/") {
-		p += "/"
-	}
-	return newURIParts_("file", nullstr_, p, nullstr_, nullstr_)
 }
 
 func (this *File) equals(o any) bool {
@@ -358,13 +298,6 @@ func (this *unixPath_) names_() []string {
 	return strings.Split(s, "/")
 }
 
-func (this *unixPath_) getRoot() Path {
-	if this.isAbsolute() {
-		return &unixPath_{"/"}
-	}
-	return nil
-}
-
 func (this *unixPath_) getFileName() Path {
 	if this.s_ == "/" {
 		return nil
@@ -383,65 +316,12 @@ func (this *unixPath_) getParent() Path {
 	return &unixPath_{this.s_[:i]}
 }
 
-func (this *unixPath_) getNameCount() int32 { return int32(len(this.names_())) }
-
 func (this *unixPath_) getName(i int32) Path {
 	names := this.names_()
 	if i < 0 || int(i) >= len(names) {
 		panic(new_IllegalArgumentException_0().self())
 	}
 	return &unixPath_{names[i]}
-}
-
-func (this *unixPath_) subpath(a int32, b int32) Path {
-	names := this.names_()
-	if a < 0 || int(b) > len(names) || a >= b {
-		panic(new_IllegalArgumentException_0().self())
-	}
-	return &unixPath_{strings.Join(names[a:b], "/")}
-}
-
-func (this *unixPath_) startsWith(other Path) bool {
-	o, ok := other.(*unixPath_)
-	if !ok || o == nil || this.isAbsolute() != o.isAbsolute() {
-		return false
-	}
-	a, b := this.names_(), o.names_()
-	if o.s_ == "" {
-		return this.s_ == ""
-	}
-	if len(b) > len(a) {
-		return false
-	}
-	for i := range b {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func (this *unixPath_) endsWith(other Path) bool {
-	o, ok := other.(*unixPath_)
-	if !ok || o == nil {
-		return false
-	}
-	if o.isAbsolute() {
-		return this.s_ == o.s_
-	}
-	if o.s_ == "" {
-		return this.s_ == ""
-	}
-	a, b := this.names_(), o.names_()
-	if len(b) > len(a) {
-		return false
-	}
-	for i := range b {
-		if a[len(a)-len(b)+i] != b[i] {
-			return false
-		}
-	}
-	return true
 }
 
 func (this *unixPath_) normalize() Path {
@@ -553,21 +433,6 @@ func (this *unixPath_) toAbsolutePath() Path {
 	return pathOf_(userDir_()).resolve_Path(this)
 }
 
-func (this *unixPath_) toRealPath(opts []*LinkOption) Path {
-	abs := this.toAbsolutePath().(*unixPath_).s_
-	r, err := realpath_(abs)
-	if err != nil {
-		panic(nioError_(this.s_, err))
-	}
-	return &unixPath_{r}
-}
-
-func (this *unixPath_) toFile() *File { return new_File(this.s_) }
-
-func (this *unixPath_) toUri() *URI { return this.toFile().toURI() }
-
-func (this *unixPath_) getFileSystem() *FileSystem { return defaultFileSystem_ }
-
 func (this *unixPath_) iterator() Iterator {
 	names := this.names_()
 	items := make([]any, len(names))
@@ -612,10 +477,6 @@ var defaultFileSystem_ = &FileSystem{}
 func FileSystems_getDefault() *FileSystem { return defaultFileSystem_ }
 
 func (this *FileSystem) getPath(first string, more []string) Path { return Path_of(first, more) }
-
-func (this *FileSystem) getSeparator() string { return "/" }
-
-func (this *FileSystem) isOpen() bool { return true }
 
 // close of the default file system is not supported.
 func (this *FileSystem) close() {
@@ -853,8 +714,6 @@ var StandardOpenOption_DSYNC = newStandardOpenOption_("DSYNC", 9)
 type FileTime struct {
 	ns_ int64 // nanoseconds since the epoch
 }
-
-func (this *FileTime) toMillis() int64 { return floorDiv_(this.ns_, 1e6) }
 
 func (this *FileTime) equals(o any) bool {
 	t, ok := o.(*FileTime)
@@ -1172,59 +1031,4 @@ func Files_newBufferedWriter(p Path, cs *Charset, opts []OpenOption) *BufferedWr
 	enc := newEncoder_(cs)
 	enc.mode_ = encReport_ // this writer's encoder reports unmappable characters
 	return new_BufferedWriter(newOutputStreamWriter_(Files_newOutputStream(p, opts), enc).up_Writer())
-}
-
-func realpath_(p string) (string, error) {
-	// A small realpath: resolve links component by component.
-	if _, err := os.Lstat(p); err != nil {
-		return "", err
-	}
-	parts := strings.Split(p, "/")
-	cur := ""
-	for depth, i := 0, 0; i < len(parts); i++ {
-		name := parts[i]
-		if name == "" || name == "." {
-			continue
-		}
-		if name == ".." {
-			if j := strings.LastIndexByte(cur, '/'); j >= 0 {
-				cur = cur[:j]
-			}
-			continue
-		}
-		next := cur + "/" + name
-		st, err := os.Lstat(next)
-		if err != nil {
-			return "", err
-		}
-		if st.Mode()&os.ModeSymlink != 0 {
-			depth++
-			if depth > 40 {
-				return "", syscall.ELOOP
-			}
-			target, err := os.Readlink(next)
-			if err != nil {
-				return "", err
-			}
-			rest := append(strings.Split(target, "/"), parts[i+1:]...)
-			if strings.HasPrefix(target, "/") {
-				cur = ""
-			}
-			parts, i = rest, -1
-			continue
-		}
-		cur = next
-	}
-	if cur == "" {
-		cur = "/"
-	}
-	return cur, nil
-}
-
-func floorDiv_(a, b int64) int64 {
-	q := a / b
-	if a%b != 0 && (a < 0) != (b < 0) {
-		q--
-	}
-	return q
 }

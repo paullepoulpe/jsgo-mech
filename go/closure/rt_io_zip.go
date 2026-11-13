@@ -85,41 +85,12 @@ func zipEntryOf_(f *zip.File, cs *Charset) *ZipEntry {
 	return &ZipEntry{name_: name, f_: f, size_: int64(f.UncompressedSize64)}
 }
 
-func (this *ZipEntry) getName() string   { return this.name_ }
-func (this *ZipEntry) toString() string  { return this.name_ }
-func (this *ZipEntry) hashCode() int32   { return String_hashCode(this.name_) }
-func (this *ZipEntry) isDirectory() bool { return strings.HasSuffix(this.name_, "/") }
+func (this *ZipEntry) getName() string  { return this.name_ }
+func (this *ZipEntry) toString() string { return this.name_ }
+func (this *ZipEntry) hashCode() int32  { return String_hashCode(this.name_) }
 
 // getSize is the uncompressed size, or -1 if it is not known.
 func (this *ZipEntry) getSize() int64 { return this.size_ }
-
-func (this *ZipEntry) getCompressedSize() int64 {
-	if this.f_ == nil {
-		return -1
-	}
-	return int64(this.f_.CompressedSize64)
-}
-
-func (this *ZipEntry) getCrc() int64 {
-	if this.f_ == nil {
-		return -1
-	}
-	return int64(this.f_.CRC32)
-}
-
-func (this *ZipEntry) getTime() int64 {
-	if this.f_ == nil {
-		return -1
-	}
-	return this.f_.Modified.UnixMilli()
-}
-
-func (this *ZipEntry) getMethod() int32 {
-	if this.f_ == nil {
-		return -1
-	}
-	return int32(this.f_.Method)
-}
 
 // ---- ZipFile
 
@@ -241,13 +212,6 @@ type ZipInputStream struct {
 	entryEOF bool
 }
 
-func (this *ZipInputStream) up_InflaterInputStream() *InflaterInputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.InflaterInputStream
-}
-
 type zipEntryReader_ struct{ z *ZipInputStream }
 
 func (r zipEntryReader_) Read(p []byte) (int, error) {
@@ -289,17 +253,6 @@ func new_ZipInputStream_InputStream_Charset(in *InputStream, cs *Charset) *ZipIn
 
 func new_ZipInputStream(in *InputStream) *ZipInputStream {
 	return new_ZipInputStream_InputStream_Charset(in, StandardCharsets_UTF_8)
-}
-
-func (this *ZipInputStream) closeEntry() {
-	if this.closed_ {
-		panic(new_IOException_String("Stream closed").self())
-	}
-	if this.cur_ != nil {
-		this.cur_.Close()
-		this.cur_ = nil
-	}
-	this.entryEOF = true
 }
 
 // getNextEntry moves to the next entry, or returns null after the last one
@@ -388,13 +341,6 @@ type DeflaterOutputStream struct {
 	finished_ bool
 }
 
-func (this *DeflaterOutputStream) up_FilterOutputStream() *FilterOutputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.FilterOutputStream
-}
-
 // deflateWriter_ compresses what is written to the stream. The compressor is
 // created at the first write, with the level the Deflater has by then.
 type deflateWriter_ struct{ s *DeflaterOutputStream }
@@ -461,13 +407,6 @@ func (this *GZIPOutputStream) self() any {
 		return nil
 	}
 	return this.self_
-}
-
-func (this *GZIPOutputStream) up_DeflaterOutputStream() *DeflaterOutputStream {
-	if this == nil {
-		return nil
-	}
-	return &this.DeflaterOutputStream
 }
 
 // init_GZIPOutputStream_OutputStream_int writes the GZIP header at once, as

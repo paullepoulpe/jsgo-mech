@@ -106,11 +106,9 @@ func Charset_isSupported(name string) bool {
 	return charsets_[strings.ToLower(name)] != nil
 }
 
-func (this *Charset) name() string        { return this.name_ }
-func (this *Charset) displayName() string { return this.name_ }
-func (this *Charset) toString() string    { return this.name_ }
-func (this *Charset) canEncode() bool     { return true }
-func (this *Charset) hashCode() int32     { return String_hashCode(this.name_) }
+func (this *Charset) name() string     { return this.name_ }
+func (this *Charset) toString() string { return this.name_ }
+func (this *Charset) hashCode() int32  { return String_hashCode(this.name_) }
 
 func (this *Charset) equals(o any) bool {
 	c, ok := o.(*Charset)
@@ -143,8 +141,6 @@ type CharsetEncoder struct {
 	malformed_  *CodingErrorAction
 	unmappable_ *CodingErrorAction
 }
-
-func (this *CharsetEncoder) charset() *Charset { return this.cs_ }
 
 func (this *CharsetEncoder) onMalformedInput(a *CodingErrorAction) *CharsetEncoder {
 	if a == nil {
@@ -559,13 +555,6 @@ func (this *CharacterCodingException) self() any {
 	return this.self_
 }
 
-func (this *CharacterCodingException) up_IOException() *IOException {
-	if this == nil {
-		return nil
-	}
-	return &this.IOException
-}
-
 func (this *CharacterCodingException) init_CharacterCodingException() {
 	this.IOException.init_IOException_0()
 }
@@ -583,8 +572,6 @@ func new_MalformedInputException_(n int32) *MalformedInputException {
 	return this
 }
 
-func (this *MalformedInputException) getInputLength() int32 { return this.inputLength_ }
-
 func (this *MalformedInputException) getMessage() string {
 	return "Input length = " + istr_(int64(this.inputLength_))
 }
@@ -601,8 +588,6 @@ func new_UnmappableCharacterException_(n int32) *UnmappableCharacterException {
 	this.init_CharacterCodingException()
 	return this
 }
-
-func (this *UnmappableCharacterException) getInputLength() int32 { return this.inputLength_ }
 
 func (this *UnmappableCharacterException) getMessage() string {
 	return "Input length = " + istr_(int64(this.inputLength_))
@@ -706,66 +691,10 @@ func (this *Reader) read() int32 {
 	return cp
 }
 
-func (this *Reader) read_charArr_int_int(buf []uint16, off int32, n int32) int32 {
-	if off < 0 || n < 0 || int(off)+int(n) > len(buf) {
-		panic(new_IndexOutOfBoundsException_0().self())
-	}
-	this.ensure_()
-	if n == 0 {
-		return 0
-	}
-	var i int32
-	for i < n {
-		c := this.read()
-		if c < 0 {
-			break
-		}
-		buf[off+i] = uint16(c)
-		i++
-	}
-	if i == 0 {
-		return -1
-	}
-	return i
-}
-
-func (this *Reader) read_charArr(buf []uint16) int32 {
-	return this.read_charArr_int_int(buf, 0, int32(len(buf)))
-}
-
-func (this *Reader) skip(n int64) int64 {
-	if n < 0 {
-		panic(new_IllegalArgumentException_String("skip value is negative").self())
-	}
-	var i int64
-	for i < n && this.read() >= 0 {
-		i++
-	}
-	return i
-}
-
-func (this *Reader) ready() bool {
-	this.ensure_()
-	return true
-}
-
-func (this *Reader) markSupported() bool { return true }
-
-func (this *Reader) mark(readAheadLimit int32) {
-	this.ensure_()
-	this.mark_ = this.pos_
-}
-
 func (this *Reader) reset() {
 	this.ensure_()
 	this.pos_ = this.mark_
 	this.low_ = 0
-}
-
-func (this *Reader) transferTo(w *Writer) int64 {
-	s := this.rest_()
-	w.write(s)
-	return int64(String_length(s))
 }
 
 func (this *Reader) close() {
@@ -862,16 +791,6 @@ func newStrictReader_(in *InputStream, cs *Charset) *InputStreamReader {
 	return this
 }
 
-func (this *InputStreamReader) getEncoding() string {
-	if this.closed_ {
-		return nullstr_
-	}
-	if this.cs_ == StandardCharsets_UTF_8 {
-		return "UTF8"
-	}
-	return this.cs_.name_
-}
-
 type BufferedReader struct {
 	Reader
 }
@@ -946,19 +865,6 @@ func (this *Writer) write(s string) {
 
 // write_int writes one char (a UTF-16 code unit).
 func (this *Writer) write_int(c int32) { this.write(String_valueOf_char(uint16(c))) }
-
-func (this *Writer) write_charArr(buf []uint16) { this.write(fromUnits_(buf)) }
-
-func (this *Writer) write_charArr_int_int(buf []uint16, off int32, n int32) {
-	if off < 0 || n < 0 || int(off)+int(n) > len(buf) {
-		panic(new_IndexOutOfBoundsException_0().self())
-	}
-	this.write(fromUnits_(buf[off : off+n]))
-}
-
-func (this *Writer) write_String_int_int(s string, off int32, n int32) {
-	this.write(String_substring(s, off, off+n))
-}
 
 func (this *Writer) append_CharSequence(v any) Appendable {
 	if v == nil {
@@ -1085,16 +991,6 @@ func new_OutputStreamWriter_OutputStream_CharsetEncoder(out *OutputStream, enc *
 	return newOutputStreamWriter_(out, encoderOf_(enc))
 }
 
-func (this *OutputStreamWriter) getEncoding() string {
-	if this.closed_ {
-		return nullstr_
-	}
-	if this.enc_.cs_ == StandardCharsets_UTF_8 {
-		return "UTF8"
-	}
-	return this.enc_.cs_.name_
-}
-
 type BufferedWriter struct {
 	Writer
 	buf_ []byte
@@ -1144,5 +1040,3 @@ func (this *BufferedWriter) flushBuffer_() {
 		this.w_.write(s)
 	}
 }
-
-func (this *BufferedWriter) newLine() { this.write("\n") }

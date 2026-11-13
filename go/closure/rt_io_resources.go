@@ -103,8 +103,6 @@ func ResourceBundle_getBundle(baseName string) *ResourceBundle {
 	return b
 }
 
-func (this *ResourceBundle) getBaseBundleName() string { return this.baseName_ }
-
 func (this *ResourceBundle) containsKey(key string) bool {
 	if key == nullstr_ {
 		panic(new_NullPointerException_0().self())

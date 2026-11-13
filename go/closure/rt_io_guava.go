@@ -71,23 +71,9 @@ func (this *CharSource) read() string { return this.load_() }
 
 func (this *CharSource) openStream() *Reader { return new_StringReader(this.load_()).up_Reader() }
 
-func (this *CharSource) openBufferedStream() *BufferedReader {
-	return new_BufferedReader(this.openStream())
-}
-
 func (this *CharSource) isEmpty() bool { return this.load_() == "" }
 
 func (this *CharSource) length() int64 { return int64(String_length(this.load_())) }
-
-func (this *CharSource) readFirstLine() string {
-	return new_StringReader(this.load_()).readLine_()
-}
-
-func (this *CharSource) copyTo(to Appendable) int64 {
-	s := this.load_()
-	to.append_CharSequence(s)
-	return int64(String_length(s))
-}
 
 func (this *CharSource) toString() string { return this.desc_ }
 
@@ -154,16 +140,8 @@ type RemovalNotification struct {
 	evicted_ bool
 }
 
-func (this *RemovalNotification) up_AbstractMap_SimpleImmutableEntry() *AbstractMap_SimpleImmutableEntry {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractMap_SimpleImmutableEntry
-}
-
-func (this *RemovalNotification) getKey() any      { return this.key }
-func (this *RemovalNotification) getValue() any    { return this.val }
-func (this *RemovalNotification) wasEvicted() bool { return this.evicted_ }
+func (this *RemovalNotification) getKey() any   { return this.key }
+func (this *RemovalNotification) getValue() any { return this.val }
 
 type CacheLoader struct {
 	self_ any
@@ -215,22 +193,11 @@ func (this *CacheBuilder) removalListener(l RemovalListener) *CacheBuilder {
 	return this
 }
 
-func (this *CacheBuilder) concurrencyLevel(n int32) *CacheBuilder { return this }
-func (this *CacheBuilder) initialCapacity(n int32) *CacheBuilder  { return this }
-func (this *CacheBuilder) recordStats() *CacheBuilder             { return this }
-func (this *CacheBuilder) weakKeys() *CacheBuilder                { return this }
-func (this *CacheBuilder) weakValues() *CacheBuilder              { return this }
-func (this *CacheBuilder) softValues() *CacheBuilder              { return this }
-
 func (this *CacheBuilder) build(loader *CacheLoader) LoadingCache {
 	if loader == nil {
 		panic(new_NullPointerException_0().self())
 	}
 	return &localCache_{map_: new_LinkedHashMap(), max_: this.maximumSize_, listener_: this.listener_, loader_: loader}
-}
-
-func (this *CacheBuilder) build_0() Cache {
-	return &localCache_{map_: new_LinkedHashMap(), max_: this.maximumSize_, listener_: this.listener_}
 }
 
 // localCache_ is a Cache / LoadingCache. Its map is kept in order of use, the
@@ -332,32 +299,6 @@ func (this *localCache_) getUnchecked(key any) any {
 }
 
 func (this *localCache_) apply(key any) any { return this.getUnchecked(key) }
-
-func (this *localCache_) get_Object_Callable(key any, loader Callable) any {
-	if v := this.getIfPresent(key); v != nil {
-		return v
-	}
-	return this.load_(key, loader.call, false)
-}
-
-func (this *localCache_) refresh(key any) {
-	this.load_(key, this.loaderFunc_(key), true)
-}
-
-func (this *localCache_) invalidate(key any) {
-	if key == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	if v := this.map_.remove(key); v != nil {
-		this.notify_(key, v, false)
-	}
-}
-
-func (this *localCache_) invalidateAll() {
-	for _, k := range toSlice_(this.map_.keySet()) {
-		this.invalidate(k)
-	}
-}
 
 func (this *localCache_) size() int64 { return int64(this.map_.size()) }
 

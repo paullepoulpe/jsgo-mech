@@ -125,7 +125,6 @@ type ImmutableMultiset = ImmutableCollection
 type ImmutableMultisetGwtSerializationDependencies = ImmutableCollection
 
 func (this *ImmutableCollection) up_ImmutableCollection() *ImmutableCollection { return this }
-func (this *ImmutableCollection) up_ImmutableSet() *ImmutableSet               { return this }
 
 // immList_ makes an ImmutableList that owns items.
 func immList_(items []any) *ImmutableList {
@@ -273,14 +272,11 @@ func (this *ImmutableCollection) toArray_0() []any {
 
 func (this *ImmutableCollection) toArray(a []any) []any { return fillArray_(this.elems_(), a) }
 
-func (this *ImmutableCollection) add(v any) bool                 { throwUOE_(); return false }
-func (this *ImmutableCollection) addAll(c Collection) bool       { throwUOE_(); return false }
-func (this *ImmutableCollection) clear()                         { throwUOE_() }
-func (this *ImmutableCollection) removeAll(c Collection) bool    { throwUOE_(); return false }
-func (this *ImmutableCollection) retainAll(c Collection) bool    { throwUOE_(); return false }
-func (this *ImmutableCollection) remove_Object(v any) bool       { throwUOE_(); return false }
-func (this *ImmutableCollection) removeIf(p Predicate_base) bool { throwUOE_(); return false }
-
+func (this *ImmutableCollection) add(v any) bool              { throwUOE_(); return false }
+func (this *ImmutableCollection) addAll(c Collection) bool    { throwUOE_(); return false }
+func (this *ImmutableCollection) clear()                      { throwUOE_() }
+func (this *ImmutableCollection) removeAll(c Collection) bool { throwUOE_(); return false }
+func (this *ImmutableCollection) remove_Object(v any) bool    { throwUOE_(); return false }
 func (this *ImmutableCollection) asList() *ImmutableList {
 	if this.kind == icList_ {
 		return this
@@ -460,10 +456,6 @@ func (this *ImmutableList) subList(a int32, b int32) List {
 func (this *ImmutableList) add_int_Object(i int32, v any) { throwUOE_() }
 func (this *ImmutableList) remove(i int32) any            { throwUOE_(); return nil }
 func (this *ImmutableList) set(i int32, v any) any        { throwUOE_(); return nil }
-func (this *ImmutableList) addAll_int_Collection(i int32, c Collection) bool {
-	throwUOE_()
-	return false
-}
 
 // The empty immutable collections are singletons, as in Guava: translated code compares them by identity.
 var emptyImmList_ = &ImmutableCollection{kind: icList_}
@@ -606,20 +598,6 @@ func ImmutableSortedSet_copyOfSorted(p0 SortedSet) *ImmutableSortedSet {
 
 func (this *ImmutableSortedSet) comparator() Comparator { return cmpOrNatural_(this.cmp) }
 
-func (this *ImmutableSortedSet) first() any {
-	if len(this.items) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.items[0]
-}
-
-func (this *ImmutableSortedSet) last() any {
-	if len(this.items) == 0 {
-		panic(new_NoSuchElementException_0().self())
-	}
-	return this.items[len(this.items)-1]
-}
-
 func (this *ImmutableSortedSet) descendingSet() NavigableSet {
 	out := make([]any, len(this.items))
 	for i, v := range this.items {
@@ -628,29 +606,9 @@ func (this *ImmutableSortedSet) descendingSet() NavigableSet {
 	return &ImmutableCollection{kind: icSorted_, items: out, cmp: Comparator_reversed(cmpOrNatural_(this.cmp))}
 }
 
-// lowerBound_ is the first position whose element is >= v (> v if !inclusive).
-func (this *ImmutableSortedSet) lowerBound_(v any, inclusive bool) int {
-	if v == nil {
-		throwNPE_("null")
-	}
-	c := cmpOrNatural_(this.cmp)
-	return sort.Search(len(this.items), func(i int) bool {
-		r := c.compare(this.items[i], v)
-		if inclusive {
-			return r >= 0
-		}
-		return r > 0
-	})
-}
-
 func (this *ImmutableSortedSet) tailSet(from any, inclusive bool) NavigableSet {
 	i := this.lowerBound_(from, inclusive)
 	return &ImmutableCollection{kind: icSorted_, items: this.items[i:], cmp: this.cmp}
-}
-
-func (this *ImmutableSortedSet) headSet(to any, inclusive bool) NavigableSet {
-	i := this.lowerBound_(to, !inclusive)
-	return &ImmutableCollection{kind: icSorted_, items: this.items[:i:i], cmp: this.cmp}
 }
 
 // ---- ImmutableMultiset
@@ -749,13 +707,6 @@ type ImmutableSet_Builder = ImmutableCollection_Builder
 type ImmutableSortedSet_Builder = ImmutableCollection_Builder
 type ImmutableMultiset_Builder = ImmutableCollection_Builder
 
-func (this *ImmutableCollection_Builder) up_ImmutableCollection_Builder() *ImmutableCollection_Builder {
-	return this
-}
-func (this *ImmutableCollection_Builder) up_ImmutableSet_Builder() *ImmutableSet_Builder {
-	return this
-}
-
 func new_ImmutableList_Builder() *ImmutableList_Builder {
 	return &ImmutableCollection_Builder{kind: icList_}
 }
@@ -802,20 +753,6 @@ func (this *ImmutableCollection_Builder) addAll(p0 Iterable) *ImmutableCollectio
 	return this
 }
 
-func (this *ImmutableCollection_Builder) addAll_Iterator(p0 Iterator) *ImmutableCollection_Builder {
-	for p0.hasNext() {
-		this.add(p0.next())
-	}
-	return this
-}
-
-func (this *ImmutableCollection_Builder) addCopies(p0 any, n int32) *ImmutableCollection_Builder {
-	for i := int32(0); i < n; i++ {
-		this.add(p0)
-	}
-	return this
-}
-
 func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
 	items := append([]any(nil), this.items...)
 	switch this.kind {
@@ -836,4 +773,26 @@ func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
 
 func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, p2 any, p3 any, p4 any, p5 any) *ImmutableList {
 	return immList_([]any{p0, p1, p2, p3, p4, p5})
+}
+
+// lowerBound_ is the first position whose element is >= v (> v if !inclusive).
+func (this *ImmutableSortedSet) lowerBound_(v any, inclusive bool) int {
+	if v == nil {
+		throwNPE_("null")
+	}
+	c := cmpOrNatural_(this.cmp)
+	return sort.Search(len(this.items), func(i int) bool {
+		r := c.compare(this.items[i], v)
+		if inclusive {
+			return r >= 0
+		}
+		return r > 0
+	})
+}
+
+func (this *ImmutableCollection_Builder) addCopies(p0 any, n int32) *ImmutableCollection_Builder {
+	for i := int32(0); i < n; i++ {
+		this.add(p0)
+	}
+	return this
 }

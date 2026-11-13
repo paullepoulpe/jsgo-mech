@@ -49,14 +49,6 @@ func (this *Runtime) freeMemory() int64 {
 	return int64(m.HeapSys - m.HeapAlloc)
 }
 
-func (this *Runtime) maxMemory() int64 { return 0x7fffffffffffffff }
-
-func (this *Runtime) availableProcessors() int32 { return int32(runtime.NumCPU()) }
-
-func (this *Runtime) gc() { runtime.GC() }
-
-func (this *Runtime) exit(code int32) { System_exit(code) }
-
 // ---- java.lang.Thread
 
 type ThreadGroup struct{}
@@ -163,26 +155,12 @@ func (this *Thread) start() {
 	}
 }
 
-func (this *Thread) join()               { this.interrupted_ = false }
-func (this *Thread) join_long(ms int64)  {}
-func (this *Thread) interrupt()          { this.interrupted_ = true }
-func (this *Thread) isInterrupted() bool { return this.interrupted_ }
-func (this *Thread) isAlive() bool       { return this.started_ && !this.done_ }
-func (this *Thread) isDaemon() bool      { return this.daemon_ }
 func (this *Thread) setDaemon(on bool)   { this.daemon_ = on }
 func (this *Thread) getName() string     { return this.name_ }
-func (this *Thread) setName(name string) { this.name_ = name }
 func (this *Thread) setPriority(p int32) {}
 func (this *Thread) getPriority() int32  { return 5 }
 func (this *Thread) getId() int64        { return int64(identityHash_(this)) }
-func (this *Thread) threadId() int64     { return this.getId() }
 func (this *Thread) toString() string    { return "Thread[" + this.name_ + ",5,main]" }
-func (this *Thread) getUncaughtExceptionHandler() Thread_UncaughtExceptionHandler {
-	return this.handler_
-}
-func (this *Thread) setUncaughtExceptionHandler(h Thread_UncaughtExceptionHandler) {
-	this.handler_ = h
-}
 
 // ---- java.lang.ThreadLocal
 
@@ -261,38 +239,7 @@ func stackTraceText_(t *Throwable) string {
 
 func (this *Throwable) printStackTrace(p *PrintStream) { p.print(stackTraceText_(this)) }
 
-func (this *Throwable) printStackTrace_0() { System_err.print(stackTraceText_(this)) }
-
-func (this *Throwable) printStackTrace_PrintStream(p *PrintStream) { this.printStackTrace(p) }
-
-func (this *Throwable) fillInStackTrace() *Throwable { return this }
-
-func (this *Throwable) initCause(c *Throwable) *Throwable {
-	if c == this {
-		panic(new_IllegalArgumentException_String("Self-causation not permitted").self())
-	}
-	if this.cause_ != nil {
-		panic(new_IllegalStateException_String("Can't overwrite cause with " + throwableString_(c)).self())
-	}
-	this.cause_ = c
-	return this
-}
-
 var suppressed_ = map[*Throwable][]*Throwable{}
-
-func (this *Throwable) addSuppressed(t *Throwable) {
-	if t == this {
-		panic(new_IllegalArgumentException_String("Self-suppression not permitted").self())
-	}
-	if t == nil {
-		panic(new_NullPointerException_String("Cannot suppress a null exception.").self())
-	}
-	suppressed_[this] = append(suppressed_[this], t)
-}
-
-func (this *Throwable) getSuppressed() []*Throwable {
-	return append([]*Throwable{}, suppressed_[this]...)
-}
 
 // ---- java.util.concurrent.TimeUnit
 
@@ -332,20 +279,6 @@ func (this *future_) get() any {
 }
 
 func (this *future_) get_long_TimeUnit(timeout int64, unit *TimeUnit) any { return this.get() }
-
-func (this *future_) isDone() bool { return true }
-
-func (this *future_) isCancelled() bool { return false }
-
-func (this *future_) cancel(mayInterrupt bool) bool { return false }
-
-func (this *future_) addListener(listener Runnable, executor Executor) {
-	if e, ok := executor.(interface{ execute(Runnable) }); ok {
-		e.execute(listener)
-	} else {
-		listener.run()
-	}
-}
 
 // runTask_ runs a task and returns its completed future.
 func runTask_(task func() any) *future_ {
@@ -426,34 +359,7 @@ func (this *AbstractExecutorService) submit(task Callable) Future {
 	return f
 }
 
-func (this *AbstractExecutorService) submit_Runnable(task Runnable) Future {
-	if task == nil {
-		panic(new_NullPointerException_0().self())
-	}
-	var f *future_
-	this.execute(&Runnable_fn{func() {
-		f = runTask_(func() any {
-			task.run()
-			return nil
-		})
-	}})
-	return f
-}
-
 func (this *AbstractExecutorService) shutdown() { this.shutdown_ = true }
-
-func (this *AbstractExecutorService) shutdownNow() List {
-	this.shutdown_ = true
-	return listOf_(nil)
-}
-
-func (this *AbstractExecutorService) isShutdown() bool { return this.shutdown_ }
-
-func (this *AbstractExecutorService) isTerminated() bool { return this.shutdown_ }
-
-func (this *AbstractExecutorService) awaitTermination(timeout int64, unit *TimeUnit) bool {
-	return this.shutdown_
-}
 
 func (this *AbstractExecutorService) close() { this.shutdown_ = true }
 
@@ -469,13 +375,6 @@ func (this *ThreadPoolExecutor) self() any {
 		return nil
 	}
 	return this.self_
-}
-
-func (this *ThreadPoolExecutor) up_AbstractExecutorService() *AbstractExecutorService {
-	if this == nil {
-		return nil
-	}
-	return &this.AbstractExecutorService
 }
 
 func (this *ThreadPoolExecutor) init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core int32, max int32, keepAlive int64, unit *TimeUnit, queue BlockingQueue, factory ThreadFactory) {
@@ -494,8 +393,6 @@ func new_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(co
 	this.init_ThreadPoolExecutor_int_int_long_TimeUnit_BlockingQueue_ThreadFactory(core, max, keepAlive, unit, queue, factory)
 	return this
 }
-
-func (this *ThreadPoolExecutor) allowCoreThreadTimeOut(on bool) {}
 
 type Executors struct{}
 
@@ -567,10 +464,8 @@ func new_MemoryUsage(init int64, used int64, committed int64, max int64) *Memory
 	return &MemoryUsage{init, used, committed, max}
 }
 
-func (this *MemoryUsage) getInit() int64      { return this.init_ }
-func (this *MemoryUsage) getUsed() int64      { return this.used_ }
-func (this *MemoryUsage) getCommitted() int64 { return this.committed_ }
-func (this *MemoryUsage) getMax() int64       { return this.max_ }
+func (this *MemoryUsage) getUsed() int64 { return this.used_ }
+func (this *MemoryUsage) getMax() int64  { return this.max_ }
 
 func (this *MemoryUsage) toString() string {
 	k := func(n int64) string { return istr_(n) + "(" + istr_(n>>10) + "K)" }
@@ -597,8 +492,6 @@ func (memoryBean_) getNonHeapMemoryUsage() *MemoryUsage {
 	return usage_(m.StackInuse+m.MSpanInuse+m.MCacheInuse+m.BuckHashSys+m.GCSys+m.OtherSys, n)
 }
 
-func (memoryBean_) gc() { runtime.GC() }
-
 func ManagementFactory_getMemoryMXBean() MemoryMXBean { return memoryBean_{} }
 
 // peakHeap_ is the largest heap seen by the memory pool bean.
@@ -607,8 +500,6 @@ var peakHeap_ uint64
 type heapPoolBean_ struct{}
 
 func (heapPoolBean_) getName() string { return "Go heap" }
-
-func (heapPoolBean_) isValid() bool { return true }
 
 func (heapPoolBean_) getUsage() *MemoryUsage {
 	m := memStats_()
@@ -626,15 +517,11 @@ func (heapPoolBean_) getPeakUsage() *MemoryUsage {
 	return usage_(peakHeap_, m.HeapSys)
 }
 
-func (heapPoolBean_) resetPeakUsage() { peakHeap_ = 0 }
-
 func ManagementFactory_getMemoryPoolMXBeans() List { return listOf_([]any{heapPoolBean_{}}) }
 
 type gcBean_ struct{}
 
 func (gcBean_) getName() string { return "Go GC" }
-
-func (gcBean_) isValid() bool { return true }
 
 func (gcBean_) getCollectionCount() int64 { return int64(memStats_().NumGC) }
 
@@ -648,8 +535,6 @@ type compilationBean_ struct{}
 func (compilationBean_) getName() string { return "Go ahead-of-time compiler" }
 
 func (compilationBean_) getTotalCompilationTime() int64 { return 0 }
-
-func (compilationBean_) isCompilationTimeMonitoringSupported() bool { return true }
 
 func ManagementFactory_getCompilationMXBean() CompilationMXBean { return compilationBean_{} }
 
@@ -693,11 +578,9 @@ func Level_parse(name string) *Level {
 	panic(new_IllegalArgumentException_String("Bad level \"" + name + "\"").self())
 }
 
-func (this *Level) getName() string          { return this.name_ }
-func (this *Level) getLocalizedName() string { return this.name_ }
-func (this *Level) toString() string         { return this.name_ }
-func (this *Level) intValue() int32          { return this.value_ }
-func (this *Level) hashCode() int32          { return this.value_ }
+func (this *Level) getName() string  { return this.name_ }
+func (this *Level) toString() string { return this.name_ }
+func (this *Level) hashCode() int32  { return this.value_ }
 
 func (this *Level) equals(o any) bool {
 	l, ok := o.(*Level)
@@ -736,7 +619,6 @@ func Logger_getLogger(name string) *Logger {
 
 func (this *Logger) getName() string    { return this.name_ }
 func (this *Logger) getParent() *Logger { return this.parent_ }
-func (this *Logger) getLevel() *Level   { return this.level_ }
 func (this *Logger) setLevel(l *Level)  { this.level_ = l }
 
 func (this *Logger) effectiveLevel_() int32 {
@@ -781,7 +663,5 @@ func (this *Logger) log_Level_String_Object(l *Level, msg string, param any) {
 func (this *Logger) severe(msg string)  { this.emit_(Level_SEVERE, msg, nil) }
 func (this *Logger) warning(msg string) { this.emit_(Level_WARNING, msg, nil) }
 func (this *Logger) info(msg string)    { this.emit_(Level_INFO, msg, nil) }
-func (this *Logger) config(msg string)  { this.emit_(Level_CONFIG, msg, nil) }
 func (this *Logger) fine(msg string)    { this.emit_(Level_FINE, msg, nil) }
-func (this *Logger) finer(msg string)   { this.emit_(Level_FINER, msg, nil) }
 func (this *Logger) finest(msg string)  { this.emit_(Level_FINEST, msg, nil) }

@@ -29,13 +29,6 @@ func (this *IOException) self() any {
 	return this.self_
 }
 
-func (this *IOException) up_Exception() *Exception {
-	if this == nil {
-		return nil
-	}
-	return &this.Exception
-}
-
 func (this *IOException) init_IOException_0() {
 	this.Exception.init_Exception_0()
 }
@@ -86,17 +79,6 @@ func (this *FileNotFoundException) self() any {
 	return this.self_
 }
 
-func (this *FileNotFoundException) up_IOException() *IOException {
-	if this == nil {
-		return nil
-	}
-	return &this.IOException
-}
-
-func (this *FileNotFoundException) init_FileNotFoundException_0() {
-	this.IOException.init_IOException_0()
-}
-
 func (this *FileNotFoundException) init_FileNotFoundException_String(p0 string) {
 	this.IOException.init_IOException_String(p0)
 }
@@ -128,25 +110,6 @@ func (this *ExecutionException) self() any {
 		return nil
 	}
 	return this.self_
-}
-
-func (this *ExecutionException) up_Exception() *Exception {
-	if this == nil {
-		return nil
-	}
-	return &this.Exception
-}
-
-func (this *ExecutionException) init_ExecutionException_0() {
-	this.Exception.init_Exception_0()
-}
-
-func (this *ExecutionException) init_ExecutionException_String(p0 string) {
-	this.Exception.init_Exception_String(p0)
-}
-
-func (this *ExecutionException) init_ExecutionException_String_Throwable(p0 string, p1 *Throwable) {
-	this.Exception.init_Exception_String_Throwable(p0, p1)
 }
 
 func (this *ExecutionException) init_ExecutionException_Throwable(p0 *Throwable) {
@@ -184,25 +147,6 @@ func (this *UncheckedExecutionException) self() any {
 	return this.self_
 }
 
-func (this *UncheckedExecutionException) up_RuntimeException() *RuntimeException {
-	if this == nil {
-		return nil
-	}
-	return &this.RuntimeException
-}
-
-func (this *UncheckedExecutionException) init_UncheckedExecutionException_0() {
-	this.RuntimeException.init_RuntimeException_0()
-}
-
-func (this *UncheckedExecutionException) init_UncheckedExecutionException_String(p0 string) {
-	this.RuntimeException.init_RuntimeException_String(p0)
-}
-
-func (this *UncheckedExecutionException) init_UncheckedExecutionException_String_Throwable(p0 string, p1 *Throwable) {
-	this.RuntimeException.init_RuntimeException_String_Throwable(p0, p1)
-}
-
 func (this *UncheckedExecutionException) init_UncheckedExecutionException_Throwable(p0 *Throwable) {
 	this.RuntimeException.init_RuntimeException_Throwable(p0)
 }
@@ -230,17 +174,6 @@ func (this *SAXException) self() any {
 		return nil
 	}
 	return this.self_
-}
-
-func (this *SAXException) up_Exception() *Exception {
-	if this == nil {
-		return nil
-	}
-	return &this.Exception
-}
-
-func (this *SAXException) init_SAXException_0() {
-	this.Exception.init_Exception_0()
 }
 
 func (this *SAXException) init_SAXException_String(p0 string) {

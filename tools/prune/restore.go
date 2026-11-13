@@ -17,6 +17,12 @@ func restore(olddir, dir string, names []string) {
 	for _, n := range names {
 		want[n] = true
 	}
+	byMethod := map[string]bool{}
+	for _, n := range names {
+		if i := strings.IndexByte(n, '.'); i >= 0 {
+			byMethod[n[i+1:]] = true
+		}
+	}
 	have := map[string]bool{}
 	key := func(fd *ast.FuncDecl) string {
 		if r := recvName(fd); r != "" {
@@ -48,7 +54,11 @@ func restore(olddir, dir string, names []string) {
 		var add []string
 		for _, d := range af.Decls {
 			fd, ok := d.(*ast.FuncDecl)
-			if !ok || !want[key(fd)] || have[key(fd)] {
+			if !ok || have[key(fd)] {
+				continue
+			}
+			// "T.m" may name a method that T gets from an embedded type: match by method name too.
+			if !want[key(fd)] && !(fd.Recv != nil && byMethod[fd.Name.Name]) {
 				continue
 			}
 			start := fd.Pos()

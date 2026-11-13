@@ -45,19 +45,8 @@ func (this *JsonParseException) self() any {
 	return this.self_
 }
 
-func (this *JsonParseException) up_RuntimeException() *RuntimeException {
-	if this == nil {
-		return nil
-	}
-	return &this.RuntimeException
-}
-
 func (this *JsonParseException) init_JsonParseException_String(p0 string) {
 	this.RuntimeException.init_RuntimeException_String(p0)
-}
-
-func (this *JsonParseException) init_JsonParseException_String_Throwable(p0 string, p1 *Throwable) {
-	this.RuntimeException.init_RuntimeException_String_Throwable(p0, p1)
 }
 
 func (this *JsonParseException) init_JsonParseException_Throwable(p0 *Throwable) {
@@ -109,14 +98,6 @@ type gsonParamType_ struct {
 	args []Type
 }
 
-func (this *gsonParamType_) getRawType() Type { return classOf_(this.raw) }
-
-func (this *gsonParamType_) getActualTypeArguments() []Type {
-	return append([]Type(nil), this.args...)
-}
-
-func (this *gsonParamType_) getTypeName() string { return this.toString() }
-
 func (this *gsonParamType_) toString() string {
 	var sb strings.Builder
 	sb.WriteString(this.raw)
@@ -162,8 +143,6 @@ type TypeToken struct {
 	type_ Type
 }
 
-func (this *TypeToken) as_TypeToken() *TypeToken { return this }
-
 func (this *TypeToken) self() any {
 	if this == nil {
 		return nil
@@ -192,8 +171,6 @@ type TypeAdapter struct {
 	self_ any
 }
 
-func (this *TypeAdapter) as_TypeAdapter() *TypeAdapter { return this }
-
 func (this *TypeAdapter) self() any {
 	if this == nil {
 		return nil
@@ -202,19 +179,6 @@ func (this *TypeAdapter) self() any {
 }
 
 func (this *TypeAdapter) init_TypeAdapter() {}
-
-// toJson is TypeAdapter.toJson(T): the JSON text the subclass's write produces.
-func (this *TypeAdapter) toJson(value any) string {
-	var sb strings.Builder
-	w := newJsonWriterSB_(&sb)
-	this.self_.(interface{ write(*JsonWriter, any) }).write(w, value)
-	return sb.String()
-}
-
-// fromJson is TypeAdapter.fromJson(String).
-func (this *TypeAdapter) fromJson(json string) any {
-	return this.self_.(interface{ read(*JsonReader) any }).read(newJsonReaderFromString_(json))
-}
 
 // ---- tables for reflective conversion
 

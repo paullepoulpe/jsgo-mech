@@ -21,22 +21,6 @@ func (this *HashCode) asLong() int64 {
 	return int64(binary.LittleEndian.Uint64(this.bytes))
 }
 
-func (this *HashCode) padToLong() int64 {
-	var b [8]byte
-	copy(b[:], this.bytes)
-	return int64(binary.LittleEndian.Uint64(b[:]))
-}
-
-func (this *HashCode) bits() int32 { return int32(len(this.bytes) * 8) }
-
-func (this *HashCode) asBytes() []int8 {
-	out := make([]int8, len(this.bytes))
-	for i, b := range this.bytes {
-		out[i] = int8(b)
-	}
-	return out
-}
-
 func (this *HashCode) equals(o any) bool {
 	x, ok := o.(*HashCode)
 	return ok && x != nil && string(x.bytes) == string(this.bytes)
@@ -69,18 +53,6 @@ type bufferHasher_ struct {
 	finish func([]byte) *HashCode
 }
 
-func (this *bufferHasher_) putByte(b int8) PrimitiveSink {
-	this.buf = append(this.buf, byte(b))
-	return this
-}
-
-func (this *bufferHasher_) putBytes(b []int8) PrimitiveSink {
-	for _, x := range b {
-		this.buf = append(this.buf, byte(x))
-	}
-	return this
-}
-
 func (this *bufferHasher_) putInt(i int32) PrimitiveSink {
 	this.buf = binary.LittleEndian.AppendUint32(this.buf, uint32(i))
 	return this
@@ -88,20 +60,6 @@ func (this *bufferHasher_) putInt(i int32) PrimitiveSink {
 
 func (this *bufferHasher_) putLong(l int64) PrimitiveSink {
 	this.buf = binary.LittleEndian.AppendUint64(this.buf, uint64(l))
-	return this
-}
-
-func (this *bufferHasher_) putChar(c uint16) PrimitiveSink {
-	this.buf = append(this.buf, byte(c), byte(c>>8))
-	return this
-}
-
-func (this *bufferHasher_) putBoolean(b bool) PrimitiveSink {
-	if b {
-		this.buf = append(this.buf, 1)
-	} else {
-		this.buf = append(this.buf, 0)
-	}
 	return this
 }
 

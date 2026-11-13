@@ -88,8 +88,6 @@ func Pattern_matches(regex string, input any) bool {
 
 func (this *Pattern) pattern() string  { return this.src }
 func (this *Pattern) toString() string { return this.src }
-func (this *Pattern) flags() int32     { return this.flags_ }
-
 func (this *Pattern) matcher(input any) *Matcher_re2j {
 	m := &Matcher_re2j{p: this}
 	m.reset(input)
@@ -286,22 +284,6 @@ func (this *Matcher_re2j) end() int32 {
 	return this.units_(this.cur[1])
 }
 
-func (this *Matcher_re2j) start_int(group int32) int32 {
-	a, _ := this.span_(group)
-	if a < 0 {
-		return -1
-	}
-	return this.units_(a)
-}
-
-func (this *Matcher_re2j) end_int(group int32) int32 {
-	_, b := this.span_(group)
-	if b < 0 {
-		return -1
-	}
-	return this.units_(b)
-}
-
 func (this *Matcher_re2j) group(group int32) string {
 	a, b := this.span_(group)
 	if a < 0 {
@@ -309,8 +291,6 @@ func (this *Matcher_re2j) group(group int32) string {
 	}
 	return this.s[a:b]
 }
-
-func (this *Matcher_re2j) group_0() string { return this.group(0) }
 
 func (this *Matcher_re2j) group_String(name string) string {
 	this.need_()

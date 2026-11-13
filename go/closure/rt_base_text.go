@@ -50,16 +50,6 @@ func (this *CharMatcher) collapseFrom(seq any, repl uint16) string {
 	return fromUnits_(out)
 }
 
-func (this *CharMatcher) indexIn(seq any) int32 {
-	u := String_toCharArray(csString_(seq))
-	for i, c := range u {
-		if this.f(c) {
-			return int32(i)
-		}
-	}
-	return -1
-}
-
 func (this *CharMatcher) lastIndexIn(seq any) int32 {
 	u := String_toCharArray(csString_(seq))
 	for i := len(u) - 1; i >= 0; i-- {
@@ -79,18 +69,9 @@ func (this *CharMatcher) matchesAllOf(seq any) bool {
 	return true
 }
 
-func (this *CharMatcher) matchesAnyOf(seq any) bool { return this.indexIn(seq) >= 0 }
-
-func (this *CharMatcher) matchesNoneOf(seq any) bool { return this.indexIn(seq) < 0 }
-
 func (this *CharMatcher) or(o *CharMatcher) *CharMatcher {
 	f, g := this.f, o.f
 	return &CharMatcher{func(c uint16) bool { return f(c) || g(c) }, "CharMatcher.or(" + this.desc + ", " + o.desc + ")"}
-}
-
-func (this *CharMatcher) negate() *CharMatcher {
-	f := this.f
-	return &CharMatcher{func(c uint16) bool { return !f(c) }, this.desc + ".negate()"}
 }
 
 func (this *CharMatcher) trimFrom(seq any) string {
@@ -408,13 +389,6 @@ type PercentEscaper struct {
 	plusForSpace_ bool
 }
 
-func (this *PercentEscaper) up_UnicodeEscaper() *UnicodeEscaper {
-	if this == nil {
-		return nil
-	}
-	return &this.UnicodeEscaper
-}
-
 func new_PercentEscaper(safeChars string, plusForSpace bool) *PercentEscaper {
 	if safeChars == nullstr_ {
 		panic(new_NullPointerException_0().self())
@@ -564,18 +538,6 @@ func (this *StringTokenizer) nextToken() string {
 		this.pos += n
 	}
 	return this.s[start:this.pos]
-}
-
-func (this *StringTokenizer) nextElement() any { return this.nextToken() }
-
-func (this *StringTokenizer) countTokens() int32 {
-	c := *this
-	var n int32
-	for c.hasMoreTokens() {
-		c.nextToken()
-		n++
-	}
-	return n
 }
 
 // ---- Locale

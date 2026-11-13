@@ -1,7 +1,6 @@
 package closure
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -159,32 +158,6 @@ func TestGuavaImmutableSet(t *testing.T) {
 	guavaEq_(t, k.contains(listOf_([]any{"x"})), true)
 }
 
-func TestGuavaImmutableSortedSet(t *testing.T) {
-	s := cast_[*ImmutableSortedSet](obj_(ImmutableSortedSet_naturalOrder().add("c").add("a").add("b").add("a").build()))
-	guavaStr_(t, s, "[a, b, c]")
-	guavaEq_(t, s.contains("b"), true)
-	guavaEq_(t, s.contains("bb"), false)
-	guavaEq_(t, s.contains(int32(1)), false) // ClassCastException inside contains is "false"
-	guavaEq_(t, s.first(), "a")
-	guavaEq_(t, s.last(), "c")
-	guavaStr_(t, s.descendingSet(), "[c, b, a]")
-	guavaStr_(t, s.tailSet("b", true), "[b, c]")
-	guavaStr_(t, s.tailSet("b", false), "[c]")
-	guavaStr_(t, s.headSet("b", true), "[a, b]")
-	guavaStr_(t, ImmutableSortedSet_copyOf(listOf_([]any{int32(3), int32(1), int32(2), int32(1)})), "[1, 2, 3]")
-	guavaStr_(t, ImmutableSortedSet_copyOf_Comparator_Collection(Comparator_reversed(naturalOrder_), listOf_([]any{int32(3), int32(1), int32(2)})), "[3, 2, 1]")
-	ts := new_TreeSet_Comparator(Comparator_reversed(naturalOrder_))
-	ts.add("a")
-	ts.add("b")
-	cs := ImmutableSortedSet_copyOfSorted(ts)
-	guavaStr_(t, cs, "[b, a]")
-	guavaEq_(t, cs.contains("a"), true)
-	guavaEq_(t, ImmutableSortedSet_of().isEmpty(), true)
-	if !s.equals(ImmutableSet_of_Object_Object_Object("c", "b", "a")) {
-		t.Error("sorted set should equal a set with the same elements")
-	}
-}
-
 func TestGuavaImmutableMultiset(t *testing.T) {
 	b := ImmutableMultiset_builder()
 	b.add("a")
@@ -268,142 +241,6 @@ func TestGuavaImmutableMap(t *testing.T) {
 	guavaStr_(t, b.buildKeepingLast(), "{b=2, a=3, c=4}")
 	guavaEq_(t, ImmutableMap_of().isEmpty(), true)
 	guavaEq_(t, ImmutableMap_of().get("a"), nil)
-}
-
-func TestGuavaImmutableSortedMapAndBiMap(t *testing.T) {
-	sm := cast_[*ImmutableSortedMap](obj_(ImmutableSortedMap_naturalOrder().put("b", int32(1)).put("a", int32(2)).buildOrThrow()))
-	guavaStr_(t, sm, "{a=2, b=1}")
-	guavaEq_(t, sm.get("b"), int32(1))
-	guavaEq_(t, sm.get("zz"), nil)
-	guavaEq_(t, sm.firstKey(), "a")
-	guavaStr_(t, sm.keySet(), "[a, b]")
-	guavaThrew_(t, "IllegalArgumentException", func() { ImmutableSortedMap_naturalOrder().put("a", "1").put("a", "2").buildOrThrow() })
-	lm := new_LinkedHashMap()
-	lm.put(int32(3), "c")
-	lm.put(int32(1), "a")
-	guavaStr_(t, ImmutableSortedMap_copyOf(lm), "{1=a, 3=c}")
-
-	bm := ImmutableBiMap_copyOf(lm)
-	guavaStr_(t, bm, "{3=c, 1=a}")
-	guavaStr_(t, bm.inverse(), "{c=3, a=1}")
-	guavaEq_(t, bm.inverse().get("a"), int32(1))
-	if bm.inverse().inverse() != BiMap(bm) {
-		t.Error("inverse of inverse should be the original")
-	}
-	lm.put(int32(4), "a")
-	guavaThrew_(t, "IllegalArgumentException", func() { ImmutableBiMap_copyOf(lm) })
-	guavaEq_(t, ImmutableBiMap_of().inverse().isEmpty(), true)
-}
-
-func TestGuavaMultimapLiveViews(t *testing.T) {
-	mm := ArrayListMultimap_create()
-	var m Multimap = cast_[Multimap](obj_(mm))
-	v := m.get("k")
-	guavaEq_(t, v.isEmpty(), true)
-	guavaEq_(t, m.containsKey("k"), false)
-	v.add(int32(1)) // adding to the view creates the key
-	v.add(int32(1))
-	guavaEq_(t, m.containsKey("k"), true)
-	guavaEq_(t, m.size(), int32(2))
-	m.put("k", int32(2))
-	guavaStr_(t, v, "[1, 1, 2]")
-	l := cast_[List](v)
-	guavaEq_(t, l.get(2), int32(2))
-	guavaEq_(t, l.remove(0), int32(1))
-	guavaEq_(t, m.size(), int32(2))
-	m.put("j", int32(7))
-	guavaStr_(t, m, "{k=[1, 2], j=[7]}")
-	guavaStr_(t, m.keySet(), "[k, j]")
-	guavaStr_(t, m.values(), "[1, 2, 7]")
-	guavaStr_(t, mm.entries(), "[k=1, k=2, j=7]")
-	guavaStr_(t, mm.keys(), "[k x 2, j]")
-	guavaStr_(t, m.asMap(), "{k=[1, 2], j=[7]}")
-	guavaEq_(t, m.asMap().get("nope"), nil)
-	guavaEq_(t, m.containsEntry("k", int32(2)), true)
-	guavaEq_(t, m.remove("k", int32(9)), false)
-
-	// Removing the last value through an iterator removes the key.
-	it := m.get("j").iterator()
-	it.next()
-	Iterator_remove(it)
-	guavaEq_(t, m.containsKey("j"), false)
-	guavaEq_(t, m.size(), int32(2))
-
-	// asMap views are live as well.
-	m.asMap().get("k").(Collection).add(int32(3))
-	guavaStr_(t, m.get("k"), "[1, 2, 3]")
-	guavaStr_(t, m.removeAll("k"), "[1, 2, 3]")
-	guavaEq_(t, m.isEmpty(), true)
-	guavaStr_(t, m.removeAll("k"), "[]")
-	guavaStr_(t, v, "[]")
-
-	guavaEq_(t, m.putAll("a", listOf_([]any{"x", "y"})), true)
-	other := LinkedHashMultimap_create()
-	other.put("a", "x")
-	other.put("b", "z")
-	guavaEq_(t, m.putAll_Multimap(other), true)
-	guavaStr_(t, m, "{a=[x, y, x], b=[z]}")
-	m.keySet().remove_Object("a")
-	guavaStr_(t, m, "{b=[z]}")
-	m.clear()
-	guavaEq_(t, m.size(), int32(0))
-}
-
-func TestGuavaSetAndSortedMultimaps(t *testing.T) {
-	lh := LinkedHashMultimap_create()
-	guavaEq_(t, lh.put("b", "y"), true)
-	guavaEq_(t, lh.put("b", "x"), true)
-	guavaEq_(t, lh.put("b", "y"), false)
-	lh.put("a", "z")
-	guavaStr_(t, lh, "{b=[y, x], a=[z]}")
-	guavaEq_(t, lh.size(), int32(3))
-	guavaEq_(t, lh.get("b").add("x"), false)
-	guavaEq_(t, lh.get("c").add("w"), true)
-	guavaStr_(t, lh.keySet(), "[b, a, c]")
-	guavaEq_(t, lh.remove("b", "y"), true)
-	guavaStr_(t, lh.values(), "[x, z, w]")
-	hs := new_LinkedHashSet()
-	hs.add("x")
-	guavaEq_(t, objequals_(lh.get("b"), hs), true)
-	guavaEq_(t, objequals_(lh.get("b"), listOf_([]any{"x"})), false)
-
-	tm := TreeMultimap_create()
-	tm.put("b", int32(2))
-	tm.put("a", int32(9))
-	tm.put("b", int32(1))
-	tm.put("b", int32(2))
-	guavaStr_(t, tm, "{a=[9], b=[1, 2]}")
-	guavaStr_(t, tm.values(), "[9, 1, 2]")
-
-	// LinkedListMultimap: values() and entries() follow global insertion order.
-	ll := LinkedListMultimap_create()
-	ll.put("a", int32(1))
-	ll.put("b", int32(2))
-	ll.put("a", int32(3))
-	guavaStr_(t, ll.values(), "[1, 2, 3]")
-	guavaStr_(t, ll.entries(), "[a=1, b=2, a=3]")
-	guavaStr_(t, ll, "{a=[1, 3], b=[2]}")
-	guavaStr_(t, ll.get("a"), "[1, 3]")
-	ll.remove("a", int32(1))
-	guavaStr_(t, ll.values(), "[2, 3]")
-	ll.get("b").clear()
-	guavaStr_(t, ll.values(), "[3]")
-	guavaStr_(t, ll.keySet(), "[a]")
-	ab := ArrayListMultimap_create()
-	ab.put("a", int32(1))
-	ab.put("b", int32(2))
-	ab.put("a", int32(3))
-	guavaStr_(t, ab.values(), "[1, 3, 2]")
-
-	lb := MultimapBuilder_linkedHashKeys().arrayListValues().build()
-	lb.put("k", "v")
-	lb.put("k", "v")
-	guavaStr_(t, lb, "{k=[v, v]}")
-	sb := MultimapBuilder_linkedHashKeys().linkedHashSetValues().build()
-	sb.put("k", "v")
-	sb.put("k", "v")
-	guavaStr_(t, sb, "{k=[v]}")
-	guavaStr_(t, Multimaps_asMap(cast_[ListMultimap](lb)), "{k=[v, v]}")
 }
 
 func TestGuavaMultiset(t *testing.T) {
@@ -620,54 +457,4 @@ func TestGuavaIterables(t *testing.T) {
 	x := ImmutableList_of_Object("q")
 	guavaEq_(t, in.intern(x) == any(x), true)
 	guavaEq_(t, in.intern(ImmutableList_of_Object("q")) == any(x), true)
-}
-
-func TestGuavaListsAndSets(t *testing.T) {
-	a := listOf_([]any{"a", "b", "c"})
-	rv := Lists_reverse(a)
-	guavaStr_(t, rv, "[c, b, a]")
-	a.add("d") // live view
-	guavaStr_(t, rv, "[d, c, b, a]")
-	guavaEq_(t, rv.get(0), "d")
-	guavaEq_(t, objequals_(rv, listOf_([]any{"d", "c", "b", "a"})), true)
-	guavaStr_(t, Lists_reverse(ImmutableList_of_Object_Object("x", "y")), "[y, x]")
-	tr := Lists_transform(a, &Function_base_fn{func(v any) any { return strings.ToUpper(v.(string)) }})
-	guavaStr_(t, tr, "[A, B, C, D]")
-	guavaEq_(t, tr.size(), int32(4))
-	guavaEq_(t, tr.get(1), "B")
-	guavaEq_(t, tr.indexOf("C"), int32(2))
-	guavaStr_(t, tr.subList(1, 3), "[B, C]")
-
-	s1 := new_LinkedHashSet()
-	s2 := new_LinkedHashSet()
-	for _, v := range []any{"a", "b", "c"} {
-		s1.add(v)
-	}
-	for _, v := range []any{"c", "d", "b"} {
-		s2.add(v)
-	}
-	u := Sets_union(s1, s2)
-	guavaStr_(t, u, "[a, b, c, d]")
-	guavaEq_(t, u.size(), int32(4))
-	guavaEq_(t, u.contains("d"), true)
-	guavaStr_(t, Sets_intersection(s1, s2), "[b, c]")
-	d := Sets_difference(s1, s2)
-	guavaStr_(t, d, "[a]")
-	s2.remove_Object("b") // views are live
-	guavaStr_(t, d, "[a, b]")
-	guavaEq_(t, d.isEmpty(), false)
-	guavaStr_(t, d.immutableCopy(), "[a, b]")
-	guavaEq_(t, d.equals(ImmutableSet_of_Object_Object("b", "a")), true)
-	guavaThrew_(t, "UnsupportedOperationException", func() { d.add("x") })
-	var asSet Set = cast_[Set](obj_(u))
-	guavaEq_(t, asSet.contains("a"), true)
-	guavaEq_(t, u.up_AbstractSet().toString(), "[a, b, c, d]")
-
-	ids := Sets_newIdentityHashSet()
-	x, y := ImmutableList_of_Object("q"), ImmutableList_of_Object("q")
-	ids.add(x)
-	ids.add(y)
-	guavaEq_(t, ids.size(), int32(2))
-	guavaEq_(t, Sets_newLinkedHashSetWithExpectedSize(4).isEmpty(), true)
-	guavaEq_(t, Maps_newLinkedHashMapWithExpectedSize(4).isEmpty(), true)
 }

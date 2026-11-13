@@ -3,7 +3,6 @@ package closure
 // com.google.gson.stream.JsonWriter (Gson 2.9.1 behaviour).
 
 import (
-	"math"
 	"strings"
 )
 
@@ -230,16 +229,6 @@ func (this *JsonWriter) value_long(p0 int64) *JsonWriter {
 	this.writeDeferredName_()
 	this.beforeValue_()
 	this.out_(Long_toString(p0))
-	return this
-}
-
-func (this *JsonWriter) value_double(p0 float64) *JsonWriter {
-	this.writeDeferredName_()
-	if !this.lenient_ && (math.IsNaN(p0) || math.IsInf(p0, 0)) {
-		panic(new_IllegalArgumentException_String("Numeric values must be finite, but was " + Double_toString(p0)).self())
-	}
-	this.beforeValue_()
-	this.out_(Double_toString(p0))
 	return this
 }
 

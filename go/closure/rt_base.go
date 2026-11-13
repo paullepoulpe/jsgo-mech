@@ -574,24 +574,6 @@ func (this *Optional) ifPresent(c Consumer) {
 func (this *Optional) isEmpty() bool   { return this.value == nil }
 func (this *Optional) isPresent() bool { return this.value != nil }
 
-func (this *Optional) orElse(def any) any {
-	if this.value != nil {
-		return this.value
-	}
-	return def
-}
-
-func (this *Optional) orElseThrow(s Supplier) any {
-	if this.value != nil {
-		return this.value
-	}
-	ex := s.get()
-	if e, ok := ex.(interface{ self() any }); ok {
-		ex = e.self()
-	}
-	panic(ex)
-}
-
 func (this *Optional) equals(o any) bool {
 	x, ok := o.(*Optional)
 	return ok && x != nil && objequals_(this.value, x.value)
@@ -698,13 +680,6 @@ func Throwables_throwIfUnchecked(t *Throwable) {
 type CaseFormat struct {
 	Enum
 	sep_ string
-}
-
-func (this *CaseFormat) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
 }
 
 func newCaseFormat_(name string, ordinal int32, sep string) *CaseFormat {
@@ -823,15 +798,6 @@ type StandardSystemProperty struct {
 	Enum
 	key_ string
 }
-
-func (this *StandardSystemProperty) up_Enum() *Enum {
-	if this == nil {
-		return nil
-	}
-	return &this.Enum
-}
-
-func (this *StandardSystemProperty) key() string { return this.key_ }
 
 func (this *StandardSystemProperty) value() string {
 	return System_getProperty(this.key_, nullstr_)
