@@ -56,8 +56,8 @@ import java.util.List;
 public final class TextDiffFactsBuilder {
 
   private final String title;
-  private String expectedText;
-  private String actualText;
+  private String expectedTextField;
+  private String actualTextField;
 
   public TextDiffFactsBuilder(String title) {
     this.title = title;
@@ -65,13 +65,13 @@ public final class TextDiffFactsBuilder {
 
   @CanIgnoreReturnValue
   public TextDiffFactsBuilder expectedText(String expectedText) {
-    this.expectedText = expectedText;
+    this.expectedTextField = expectedText;
     return this;
   }
 
   @CanIgnoreReturnValue
   public TextDiffFactsBuilder actualText(String actualText) {
-    this.actualText = actualText;
+    this.actualTextField = actualText;
     return this;
   }
 
@@ -82,8 +82,8 @@ public final class TextDiffFactsBuilder {
   public ImmutableList<Fact> build() {
     // Split the text into lines and diff them with a plain longest-common-subsequence table.
     final Splitter lineSplitter = Splitter.on('\n');
-    final List<String> expectedLines = lineSplitter.splitToList(checkNotNull(expectedText));
-    final List<String> actualLines = lineSplitter.splitToList(checkNotNull(actualText));
+    final List<String> expectedLines = lineSplitter.splitToList(checkNotNull(expectedTextField));
+    final List<String> actualLines = lineSplitter.splitToList(checkNotNull(actualTextField));
     final List<String> unifiedDiff =
         generateUnifiedDiff(expectedLines, actualLines, /* contextSize= */ 10);
     return ImmutableList.of(fact(title, String.join("\n", unifiedDiff)));

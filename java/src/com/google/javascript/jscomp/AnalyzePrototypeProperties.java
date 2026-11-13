@@ -268,7 +268,7 @@ class AnalyzePrototypeProperties implements CompilerPass {
           // should be marked as referencing super, but not the class definition or anything
           // containing it.
           for (NameContext context : symbolStack) {
-            context.name.referencesSuper = true;
+            context.name.referencesSuperField = true;
             if (NodeUtil.isMethodDeclaration(context.scope.getRootNode())) {
               break;
             }
@@ -857,7 +857,7 @@ class AnalyzePrototypeProperties implements CompilerPass {
 
     // does the definition refer to `super`?
     // We cannot move references to `super` outside of the class body.
-    private boolean referencesSuper = false;
+    private boolean referencesSuperField = false;
 
     /**
      * Constructs a new NameInfo.
@@ -886,7 +886,7 @@ class AnalyzePrototypeProperties implements CompilerPass {
 
     /** Does the definition refer to `super`? */
     boolean referencesSuper() {
-      return referencesSuper;
+      return referencesSuperField;
     }
 
     /**

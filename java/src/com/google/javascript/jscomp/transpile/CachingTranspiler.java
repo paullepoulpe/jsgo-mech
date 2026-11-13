@@ -36,7 +36,7 @@ import java.util.Objects;
 public final class CachingTranspiler implements Transpiler {
 
   private final LoadingCache<Key, TranspileResult> cache;
-  private final Supplier<String> runtime;
+  private final Supplier<String> runtimeField;
 
   public CachingTranspiler(
       final Transpiler delegate, CacheBuilder<Object, ? super TranspileResult> builder) {
@@ -49,7 +49,7 @@ public final class CachingTranspiler implements Transpiler {
                 return delegate.transpile(key.path, key.code);
               }
             });
-    this.runtime = Suppliers.memoize(delegate::runtime);
+    this.runtimeField = Suppliers.memoize(delegate::runtime);
   }
 
   @Override
@@ -70,7 +70,7 @@ public final class CachingTranspiler implements Transpiler {
 
   @Override
   public String runtime() {
-    return runtime.get();
+    return runtimeField.get();
   }
 
   private static final class Key {

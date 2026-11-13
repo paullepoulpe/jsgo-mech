@@ -50,7 +50,7 @@ public final class XtbMessageBundle implements MessageBundle {
       = new SecureEntityResolver();
 
   private final Map<String, JsMessage> messages;
-  private final JsMessage.IdGenerator idGenerator;
+  private final JsMessage.IdGenerator idGeneratorField;
 
   /**
    * Creates an instance and initializes it with the messages in an XTB file.
@@ -60,7 +60,7 @@ public final class XtbMessageBundle implements MessageBundle {
    */
   public XtbMessageBundle(InputStream xtb, @Nullable String projectId) {
     this.messages = new LinkedHashMap<>();
-    this.idGenerator = new GoogleJsMessageIdGenerator(projectId);
+    this.idGeneratorField = new GoogleJsMessageIdGenerator(projectId);
 
     try {
       // Use a SAX parser for speed and less memory usage.
@@ -102,7 +102,7 @@ public final class XtbMessageBundle implements MessageBundle {
 
   @Override
   public JsMessage.IdGenerator idGenerator() {
-    return idGenerator;
+    return idGeneratorField;
   }
 
   @Override

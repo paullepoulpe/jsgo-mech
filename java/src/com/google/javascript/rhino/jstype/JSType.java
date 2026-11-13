@@ -76,7 +76,7 @@ public abstract class JSType {
 
   private @Nullable JSType resolveResult = null;
   protected TemplateTypeMap templateTypeMap;
-  private boolean loosenTypecheckingDueToForwardReferencedSupertype;
+  private boolean loosenTypecheckingDueToForwardReferencedSupertypeField;
 
   private boolean hashCodeInProgress = false;
 
@@ -688,7 +688,7 @@ public abstract class JSType {
    * false positive.
    */
   public boolean loosenTypecheckingDueToForwardReferencedSupertype() {
-    return this.loosenTypecheckingDueToForwardReferencedSupertype;
+    return this.loosenTypecheckingDueToForwardReferencedSupertypeField;
   }
 
   final void maybeLoosenTypecheckingDueToForwardReferencedSupertype(JSType supertype) {
@@ -696,7 +696,7 @@ public abstract class JSType {
     // cases it could be, and typechecking should not be loosened.
     if ((supertype.isNamedType() && !supertype.isResolved())
         || supertype.loosenTypecheckingDueToForwardReferencedSupertype()) {
-      this.loosenTypecheckingDueToForwardReferencedSupertype = true;
+      this.loosenTypecheckingDueToForwardReferencedSupertypeField = true;
     }
   }
 

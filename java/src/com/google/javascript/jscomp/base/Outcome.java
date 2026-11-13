@@ -26,11 +26,11 @@ import org.jspecify.annotations.Nullable;
  */
 public final class Outcome<T> {
   private final @Nullable T value;
-  private final @Nullable Throwable error;
+  private final @Nullable Throwable errorField;
 
   private Outcome(@Nullable T value, @Nullable Throwable error) {
     this.value = value;
-    this.error = error;
+    this.errorField = error;
   }
 
   /** A successful outcome; the value may be null when the operation's value may be. */
@@ -47,28 +47,28 @@ public final class Outcome<T> {
   }
 
   public boolean isOk() {
-    return error == null;
+    return errorField == null;
   }
 
   public boolean isErr() {
-    return error != null;
+    return errorField != null;
   }
 
   /** The value of a successful outcome; calling this on a failed outcome is a bug. */
   public T get() {
-    if (error != null) {
-      throw new IllegalStateException("Outcome.get() called on an error outcome", error);
+    if (errorField != null) {
+      throw new IllegalStateException("Outcome.get() called on an error outcome", errorField);
     }
     return value;
   }
 
   /** The error of a failed outcome, or null for a successful one. */
   public @Nullable Throwable error() {
-    return error;
+    return errorField;
   }
 
   /** The message of the error of a failed outcome, like {@link Throwable#getMessage()}. */
   public @Nullable String errorMessage() {
-    return error == null ? null : error.getMessage();
+    return errorField == null ? null : errorField.getMessage();
   }
 }

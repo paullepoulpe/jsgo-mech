@@ -29,8 +29,8 @@ import org.jspecify.annotations.Nullable;
  */
 public class TranspilationException extends RuntimeException {
 
-  private final ImmutableList<JSError> errors;
-  private final ImmutableList<JSError> warnings;
+  private final ImmutableList<JSError> errorsField;
+  private final ImmutableList<JSError> warningsField;
 
   public TranspilationException(Exception cause) {
     this(tryCastToTranspilationException(cause.getCause()), cause);
@@ -44,7 +44,7 @@ public class TranspilationException extends RuntimeException {
   }
 
   private TranspilationException(TranspilationException root, Exception cause) {
-    this(root.errors, root.warnings, root.getMessage(), cause);
+    this(root.errorsField, root.warningsField, root.getMessage(), cause);
   }
 
   private TranspilationException(
@@ -53,16 +53,16 @@ public class TranspilationException extends RuntimeException {
       String formatted,
       @Nullable Exception cause) {
     super(formatted, cause);
-    this.errors = errors;
-    this.warnings = warnings;
+    this.errorsField = errors;
+    this.warningsField = warnings;
   }
 
   public ImmutableList<JSError> errors() {
-    return errors;
+    return errorsField;
   }
 
   public ImmutableList<JSError> warnings() {
-    return warnings;
+    return warningsField;
   }
 
   private static String format(

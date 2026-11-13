@@ -440,11 +440,11 @@ final class EqualityChecker {
   private static final class CacheKey {
     private final JSType left;
     private final JSType right;
-    private final int hashCode; // Cache this calculation because it is made often.
+    private final int hashCodeField; // Cache this calculation because it is made often.
 
     @Override
     public int hashCode() {
-      return hashCode;
+      return hashCodeField;
     }
 
     @Override
@@ -475,7 +475,7 @@ final class EqualityChecker {
       //   - It's assumed the inputs are already uniformly distributed and unrelated.
       //     - `left` and `right` should never be identical.
       // Recall right `Key` implements identity equality on `left` and `right`.
-      this.hashCode = System.identityHashCode(left) ^ System.identityHashCode(right);
+      this.hashCodeField = System.identityHashCode(left) ^ System.identityHashCode(right);
     }
   }
 

@@ -85,7 +85,7 @@ public final class TemplateAstMatcher {
    * Record whether the last successful was a loosely matched type, only valid
    * for the last match if it was successful.
    */
-  private boolean isLooseMatch = false;
+  private boolean isLooseMatchField = false;
 
   /**
    * The strategy to use when matching the {@code JSType} of nodes.
@@ -135,7 +135,7 @@ public final class TemplateAstMatcher {
    * @return Whether the last match succeeded due to loose type information.
    */
   public boolean isLooseMatch() {
-    return isLooseMatch;
+    return isLooseMatchField;
   }
 
   /**
@@ -276,7 +276,7 @@ public final class TemplateAstMatcher {
   }
 
   private void reset() {
-    isLooseMatch = false;
+    isLooseMatchField = false;
     Collections.fill(localVarMatches, null);
     for (int i = 0; i < paramNodeMatches.size(); i++) {
       this.paramNodeMatches.set(i, null);
@@ -415,7 +415,7 @@ public final class TemplateAstMatcher {
       }
 
       MatchResult matchResult = typeMatchingStrategy.match(templateType, ast.getJSType());
-      isLooseMatch = matchResult.isLooseMatch();
+      isLooseMatchField = matchResult.isLooseMatch();
       boolean isMatch = matchResult.isMatch();
       if (isMatch && previousMatch == null) {
         paramNodeMatches.set(paramIndex, ast);

@@ -48,14 +48,14 @@ public class NonJSDocComment implements Serializable {
   private final SourcePosition endPosition;
   private final String contents;
   private boolean endsAsLineComment;
-  private boolean isInline;
+  private boolean isInlineField;
 
   public NonJSDocComment(SourcePosition start, SourcePosition end, String s) {
     startPosition = start;
     endPosition = end;
     contents = s;
     this.endsAsLineComment = false;
-    this.isInline = false;
+    this.isInlineField = false;
   }
 
   public String getCommentString() {
@@ -78,7 +78,7 @@ public class NonJSDocComment implements Serializable {
   }
 
   public void setIsInline(boolean isInline) {
-    this.isInline = isInline;
+    this.isInlineField = isInline;
   }
 
   public boolean isEndingAsLineComment() {
@@ -86,7 +86,7 @@ public class NonJSDocComment implements Serializable {
   }
 
   public boolean isInline() {
-    return isInline;
+    return isInlineField;
   }
 
   @Override

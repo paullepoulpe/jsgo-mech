@@ -44,7 +44,7 @@ public final class ByPathWarningsGuard extends WarningsGuard {
   private final List<String> paths;
   private final boolean include;
   private final int priority;
-  private final CheckLevel level;
+  private final CheckLevel levelField;
 
   /**
    * Constructs a new instance. The priority is determined by the
@@ -60,7 +60,7 @@ public final class ByPathWarningsGuard extends WarningsGuard {
     checkArgument(level == CheckLevel.OFF || level == CheckLevel.ERROR);
     this.paths = paths;
     this.include = include;
-    this.level = level;
+    this.levelField = level;
     this.priority = level == CheckLevel.ERROR ?
         WarningsGuard.Priority.STRICT.value :
         WarningsGuard.Priority.FILTER_BY_PATH.value;
@@ -98,7 +98,7 @@ public final class ByPathWarningsGuard extends WarningsGuard {
         inPath |= errorPath.contains(path);
       }
       if (inPath == include) {
-        return level;
+        return levelField;
       }
     }
     return null;

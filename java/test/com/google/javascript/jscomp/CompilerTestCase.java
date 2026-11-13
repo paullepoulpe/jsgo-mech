@@ -99,7 +99,7 @@ public abstract class CompilerTestCase {
   private boolean compareJsDoc;
 
   /** Whether we check warnings without source information. */
-  private boolean allowSourcelessWarnings;
+  private boolean allowSourcelessWarningsField;
 
   /** True iff closure pass runs before pass being tested. */
   private boolean closurePassEnabled;
@@ -128,7 +128,7 @@ public abstract class CompilerTestCase {
    * If true, run the ConvertTypesToColors pass, which removes references to JSTypes and converts
    * JSDoc to its simplified optimization form.
    */
-  private boolean replaceTypesWithColors;
+  private boolean replaceTypesWithColorsField;
 
   /** If true performs the test using multistage compilation. */
   private boolean multistageCompilation;
@@ -204,7 +204,7 @@ public abstract class CompilerTestCase {
   private boolean assumeStaticInheritanceIsNotUsed;
 
   /** Whether externs changes should be allowed for this pass. */
-  private boolean allowExternsChanges;
+  private boolean allowExternsChangesField;
 
   /** Whether the AST should be validated. */
   private boolean astValidationEnabled;
@@ -286,8 +286,8 @@ public abstract class CompilerTestCase {
     this.acceptedLanguage = LanguageMode.UNSUPPORTED;
     this.moduleResolutionMode = ResolutionMode.BROWSER;
     this.parseJsDocDocumentation = JsDocParsing.TYPES_ONLY;
-    this.allowExternsChanges = false;
-    this.allowSourcelessWarnings = false;
+    this.allowExternsChangesField = false;
+    this.allowSourcelessWarningsField = false;
     this.astValidationEnabled = true;
     this.typeInfoValidationEnabled = false;
     this.checkAccessControls = false;
@@ -433,7 +433,7 @@ public abstract class CompilerTestCase {
   /** Expect warnings without source information. */
   protected final void allowSourcelessWarnings() {
     checkState(this.setUpRan, "Attempted to configure before running setUp().");
-    allowSourcelessWarnings = true;
+    allowSourcelessWarningsField = true;
   }
 
   /** The most recently used JSComp instance. */
@@ -494,7 +494,7 @@ public abstract class CompilerTestCase {
   /** Allow externs to change. */
   protected final void allowExternsChanges() {
     checkState(this.setUpRan, "Attempted to configure before running setUp().");
-    this.allowExternsChanges = true;
+    this.allowExternsChangesField = true;
   }
 
   protected final void enablePolymerPass() {
@@ -530,7 +530,7 @@ public abstract class CompilerTestCase {
    */
   protected final void replaceTypesWithColors() {
     checkState(this.setUpRan, "Attempted to configure before running setUp().");
-    replaceTypesWithColors = true;
+    replaceTypesWithColorsField = true;
   }
 
   protected final void enableCreateModuleMap() {
@@ -1161,7 +1161,7 @@ public abstract class CompilerTestCase {
         }
 
         final boolean injectLibrariesFromTypedAsts =
-            multistageCompilation || replaceTypesWithColors;
+            multistageCompilation || replaceTypesWithColorsField;
         if (!librariesToInject.isEmpty() && i == 0 && !injectLibrariesFromTypedAsts) {
           recentChange.reset();
           for (String resourceName : librariesToInject) {
@@ -1207,7 +1207,7 @@ public abstract class CompilerTestCase {
               lastCompiler = compiler;
               hasCodeChanged = hasCodeChanged || recentChange.hasCodeChanged();
             }
-          } else if (replaceTypesWithColors) {
+          } else if (replaceTypesWithColorsField) {
             recentChange.reset();
             new RemoveCastNodes(compiler).process(externsRoot, mainRoot);
             new ConvertTypesToColors(
@@ -1326,7 +1326,7 @@ public abstract class CompilerTestCase {
         compiler.setTypeCheckingHasRun(hasTypecheckingRun);
       }
 
-      if (checkAstChangeMarking || !allowExternsChanges) {
+      if (checkAstChangeMarking || !allowExternsChangesField) {
         validateCodeChangeReporting(
             mainRoot, externsRoot, mainRootClone, externsRootClone, compiler, hasCodeChanged);
       }
@@ -1469,7 +1469,7 @@ public abstract class CompilerTestCase {
             Node.SideEffectComparison.COMPARE);
 
     // Generally, externs should not be changed by the compiler passes.
-    if (externsChange && !allowExternsChanges) {
+    if (externsChange && !allowExternsChangesField) {
       assertNode(externsRoot)
           .usingSerializer(createPrettyPrinter(compiler))
           .isEqualToNode(externsRootClone);
@@ -1549,7 +1549,7 @@ public abstract class CompilerTestCase {
 
   private void validateSourceLocation(JSError jserror) {
     // Make sure that source information is always provided.
-    if (!allowSourcelessWarnings) {
+    if (!allowSourcelessWarningsField) {
       final String sourceName = jserror.sourceName();
       assertWithMessage("Missing source file name in warning: %s", jserror)
           .that(sourceName != null && !sourceName.isEmpty())
@@ -1613,7 +1613,7 @@ public abstract class CompilerTestCase {
     Node mainRoot = externsRoot.getNext();
 
     // Normalize CAST nodes from the expected AST if asked.
-    if (replaceTypesWithColors || multistageCompilation) {
+    if (replaceTypesWithColorsField || multistageCompilation) {
       new RemoveCastNodes(compiler).process(externsRoot, mainRoot);
     }
 

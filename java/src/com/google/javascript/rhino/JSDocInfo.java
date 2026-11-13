@@ -360,14 +360,14 @@ public class JSDocInfo implements Serializable {
     // exports for TypeScript.
     LEGACY_NAMED_TS_EXPORT;
 
-    final String name;
+    final String nameField;
     final long mask;
 
     private Bit() {
       if (ordinal() > 63) {
         throw new AssertionError("Too many Bits");
       }
-      this.name = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
+      this.nameField = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, name());
       this.mask = 1L << ordinal();
     }
   }
@@ -1324,7 +1324,7 @@ public class JSDocInfo implements Serializable {
 
     for (Bit b : Bit.values()) {
       if (checkBit(b)) {
-        helper.add("bit:" + b.name, true);
+        helper.add("bit:" + b.nameField, true);
       }
     }
 

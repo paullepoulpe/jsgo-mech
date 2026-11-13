@@ -759,11 +759,11 @@ final class SubtypeChecker {
   private static final class CacheKey {
     final JSType left;
     final JSType right;
-    final int hashCode; // Cache this calculation because it is made often.
+    final int hashCodeField; // Cache this calculation because it is made often.
 
     @Override
     public int hashCode() {
-      return hashCode;
+      return hashCodeField;
     }
 
     @Override
@@ -791,7 +791,7 @@ final class SubtypeChecker {
       this.left = left;
       this.right = right;
       // NOTE: order matters here, since we're expressing an asymmetric relationship.
-      this.hashCode = 31 * left.hashCode() + right.hashCode();
+      this.hashCodeField = 31 * left.hashCode() + right.hashCode();
     }
   }
 }

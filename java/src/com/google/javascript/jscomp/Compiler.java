@@ -250,9 +250,9 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   private int uniqueNameId = 0;
 
   /** Whether to assume there are references to the RegExp Global object properties. */
-  private boolean hasRegExpGlobalReferences = true;
+  private boolean hasRegExpGlobalReferencesField = true;
 
-  private boolean runJ2clPasses = false;
+  private boolean runJ2clPassesField = false;
 
   /** Detects Google-specific coding conventions. */
   CodingConvention defaultCodingConvention = new ClosureCodingConvention();
@@ -473,7 +473,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
     // If pruning many unused inputs, it's possible that it's faster to regex-parse everything and
     // AST-parse only the non-pruned inputs, rather than just AST-parse everything once.
-    this.preferRegexParser = this.preferRegexParser || options.getDependencyOptions().shouldPrune();
+    this.preferRegexParserField = this.preferRegexParserField || options.getDependencyOptions().shouldPrune();
 
     if (options.getMergedPrecompiledLibraries()
         && options.getDependencyOptions().needsManagement()) {
@@ -2300,7 +2300,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    */
   @Override
   boolean preferRegexParser() {
-    return preferRegexParser;
+    return preferRegexParserField;
   }
 
   /**
@@ -2310,10 +2310,10 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    * when the regex vs. AST parser is used.
    */
   void setPreferRegexParser(boolean preferRegexParser) {
-    this.preferRegexParser = preferRegexParser;
+    this.preferRegexParserField = preferRegexParser;
   }
 
-  private boolean preferRegexParser = false;
+  private boolean preferRegexParserField = false;
 
   void orderInputsWithLargeStack() {
     runInCompilerThread(
@@ -3986,24 +3986,24 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @Override
   boolean hasRegExpGlobalReferences() {
-    return hasRegExpGlobalReferences;
+    return hasRegExpGlobalReferencesField;
   }
 
   @Override
   void setHasRegExpGlobalReferences(boolean references) {
-    hasRegExpGlobalReferences = references;
+    hasRegExpGlobalReferencesField = references;
   }
 
   /** Set whether J2CL passes should run */
   @Override
   void setRunJ2clPasses(boolean runJ2clPasses) {
-    this.runJ2clPasses = runJ2clPasses;
+    this.runJ2clPassesField = runJ2clPasses;
   }
 
   /** Whether J2CL passes should run */
   @Override
   boolean runJ2clPasses() {
-    return runJ2clPasses;
+    return runJ2clPassesField;
   }
 
   @Override
@@ -4328,7 +4328,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     }
     builder
         .setTypeCheckingHasRun(typeCheckingHasRun)
-        .setHasRegExpGlobalReferences(hasRegExpGlobalReferences)
+        .setHasRegExpGlobalReferences(hasRegExpGlobalReferencesField)
         .setLifeCycleStage(toProto(getLifeCycleStage()))
         .setMergedPrecompiledLibraries(options.getMergedPrecompiledLibraries());
 
@@ -4370,7 +4370,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     builder
         .setTranspiledFiles(transpiledFiles)
         .setIdGeneratorCurrentId(crossChunkIdGenerator.getCurrentId())
-        .setRunJ2ClPasses(runJ2clPasses);
+        .setRunJ2ClPasses(runJ2clPassesField);
 
     for (CompilerInput extern : externs) {
       builder.addExterns(extern.getInputId().getIdName());
@@ -4405,7 +4405,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     allowableFeatures = fromProtoList(compilerState.getAllowableFeaturesList());
     typeCheckingHasRun = compilerState.getTypeCheckingHasRun();
     scriptNodeByFilename.clear();
-    hasRegExpGlobalReferences = compilerState.getHasRegExpGlobalReferences();
+    hasRegExpGlobalReferencesField = compilerState.getHasRegExpGlobalReferences();
 
     for (String library : compilerState.getInjectedLibrariesList()) {
       getRuntimeJsLibManager().recordLibraryInjected(library);
@@ -4443,7 +4443,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     crossChunkIdGenerator = new IdGenerator();
     crossChunkIdGenerator.setCurrentId(compilerState.getIdGeneratorCurrentId());
 
-    runJ2clPasses = compilerState.getRunJ2ClPasses();
+    runJ2clPassesField = compilerState.getRunJ2ClPasses();
 
     if (compilerState.hasAccessorSummary()) {
       accessorSummary = AccessorSummary.fromProto(compilerState.getAccessorSummary());

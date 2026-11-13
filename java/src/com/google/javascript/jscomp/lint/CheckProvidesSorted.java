@@ -58,7 +58,7 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
   private boolean finished = false;
 
   private @Nullable String replacement = null;
-  private boolean needsFix = false;
+  private boolean needsFixField = false;
 
   public CheckProvidesSorted(Mode mode) {
     this.mode = mode;
@@ -83,7 +83,7 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
    * Returns whether the provides need to be fixed, i.e., whether they are *not* already canonical.
    */
   public boolean needsFix() {
-    return needsFix;
+    return needsFixField;
   }
 
   @Override
@@ -138,7 +138,7 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
     @Nullable ImmutableList<String> canonicalProvides =
         ImmutableList.copyOf(new LinkedHashSet<>(sortedProvides));
     if (!originalProvides.equals(canonicalProvides)) {
-      needsFix = true;
+      needsFixField = true;
       replacement =
           String.join(
               "\n", Iterables.transform(canonicalProvides, CheckProvidesSorted::formatProvide));

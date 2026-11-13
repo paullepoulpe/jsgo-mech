@@ -123,11 +123,11 @@ public record Source(
     private @Nullable String sourceMap;
     private @Nullable String sourceUrl;
     private @Nullable String sourceMappingUrl;
-    private @Nullable ImmutableSet<String> runtimes;
+    private @Nullable ImmutableSet<String> runtimesField;
     private @Nullable ImmutableMap<String, String> loadFlags;
     private int estimatedSize;
-    private Source.@Nullable Lazy<String> codeSupplier;
-    private Source.@Nullable Lazy<String> originalCodeSupplier;
+    private Source.@Nullable Lazy<String> codeSupplierField;
+    private Source.@Nullable Lazy<String> originalCodeSupplierField;
     private byte set0;
 
     Builder() {
@@ -138,11 +138,11 @@ public record Source(
       this.sourceMap = source.sourceMap();
       this.sourceUrl = source.sourceUrl();
       this.sourceMappingUrl = source.sourceMappingUrl();
-      this.runtimes = source.runtimes();
+      this.runtimesField = source.runtimes();
       this.loadFlags = source.loadFlags();
       this.estimatedSize = source.estimatedSize();
-      this.codeSupplier = source.codeSupplier();
-      this.originalCodeSupplier = source.originalCodeSupplier();
+      this.codeSupplierField = source.codeSupplier();
+      this.originalCodeSupplierField = source.originalCodeSupplier();
       set0 = (byte) 1;
     }
 
@@ -178,7 +178,7 @@ public record Source(
       if (runtimes == null) {
         throw new NullPointerException("Null runtimes");
       }
-      this.runtimes = runtimes;
+      this.runtimesField = runtimes;
       return this;
     }
     public Builder setLoadFlags(ImmutableMap<String, String> flags) {
@@ -227,24 +227,24 @@ public record Source(
       if (code == null) {
         throw new NullPointerException("Null codeSupplier");
       }
-      this.codeSupplier = code;
+      this.codeSupplierField = code;
       return this;
     }
     Builder setOriginalCodeSupplier(@Nullable Lazy<String> code) {
-      this.originalCodeSupplier = code;
+      this.originalCodeSupplierField = code;
       return this;
     }
     ImmutableSet<String> runtimes() {
-      if (this.runtimes == null) {
+      if (this.runtimesField == null) {
         throw new IllegalStateException("Property \"runtimes\" has not been set");
       }
-      return runtimes;
+      return runtimesField;
     }
     Lazy<String> codeSupplier() {
-      if (this.codeSupplier == null) {
+      if (this.codeSupplierField == null) {
         throw new IllegalStateException("Property \"codeSupplier\" has not been set");
       }
-      return codeSupplier;
+      return codeSupplierField;
     }
     Source autoBuild() {
       if (set0 != 1
@@ -252,9 +252,9 @@ public record Source(
           || this.sourceMap == null
           || this.sourceUrl == null
           || this.sourceMappingUrl == null
-          || this.runtimes == null
+          || this.runtimesField == null
           || this.loadFlags == null
-          || this.codeSupplier == null) {
+          || this.codeSupplierField == null) {
         StringBuilder missing = new StringBuilder();
         if (this.path == null) {
           missing.append(" path");
@@ -268,7 +268,7 @@ public record Source(
         if (this.sourceMappingUrl == null) {
           missing.append(" sourceMappingUrl");
         }
-        if (this.runtimes == null) {
+        if (this.runtimesField == null) {
           missing.append(" runtimes");
         }
         if (this.loadFlags == null) {
@@ -277,7 +277,7 @@ public record Source(
         if ((set0 & 1) == 0) {
           missing.append(" estimatedSize");
         }
-        if (this.codeSupplier == null) {
+        if (this.codeSupplierField == null) {
           missing.append(" codeSupplier");
         }
         throw new IllegalStateException("Missing required properties:" + missing);
@@ -287,15 +287,15 @@ public record Source(
           this.sourceMap,
           this.sourceUrl,
           this.sourceMappingUrl,
-          this.runtimes,
+          this.runtimesField,
           this.loadFlags,
           this.estimatedSize,
-          this.codeSupplier,
-          this.originalCodeSupplier);
+          this.codeSupplierField,
+          this.originalCodeSupplierField);
     }
 
     @Nullable Lazy<String> originalCodeSupplier() {
-      return originalCodeSupplier;
+      return originalCodeSupplierField;
     }
   }
 

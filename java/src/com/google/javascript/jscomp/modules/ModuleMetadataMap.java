@@ -231,77 +231,77 @@ public final class ModuleMetadataMap {
 
     /** Builder for {@link ModuleMetadata}. */
     public static final class Builder {
-      private ModuleMetadataMap.@Nullable ModuleType moduleType;
-      private @Nullable Node rootNode;
-      private boolean usesClosure;
-      private boolean isTestOnly;
-      private ImmutableMultiset.@Nullable Builder<String> googNamespacesBuilder;
+      private ModuleMetadataMap.@Nullable ModuleType moduleTypeField;
+      private @Nullable Node rootNodeField;
+      private boolean usesClosureField;
+      private boolean isTestOnlyField;
+      private ImmutableMultiset.@Nullable Builder<String> googNamespacesBuilderField;
       private @Nullable ImmutableMultiset<String> googNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> stronglyRequiredGoogNamespacesBuilder;
+      private ImmutableMultiset.@Nullable Builder<String> stronglyRequiredGoogNamespacesBuilderField;
       private @Nullable ImmutableMultiset<String> stronglyRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> dynamicallyRequiredGoogNamespacesBuilder;
+      private ImmutableMultiset.@Nullable Builder<String> dynamicallyRequiredGoogNamespacesBuilderField;
       private @Nullable ImmutableMultiset<String> dynamicallyRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> maybeRequiredGoogNamespacesBuilder;
+      private ImmutableMultiset.@Nullable Builder<String> maybeRequiredGoogNamespacesBuilderField;
       private @Nullable ImmutableMultiset<String> maybeRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> weaklyRequiredGoogNamespacesBuilder;
+      private ImmutableMultiset.@Nullable Builder<String> weaklyRequiredGoogNamespacesBuilderField;
       private @Nullable ImmutableMultiset<String> weaklyRequiredGoogNamespaces;
-      private ImmutableMultiset.@Nullable Builder<String> es6ImportSpecifiersBuilder;
+      private ImmutableMultiset.@Nullable Builder<String> es6ImportSpecifiersBuilderField;
       private @Nullable ImmutableMultiset<String> es6ImportSpecifiers;
-      private ImmutableList.@Nullable Builder<ModuleMetadataMap.ModuleMetadata> nestedModulesBuilder;
+      private ImmutableList.@Nullable Builder<ModuleMetadataMap.ModuleMetadata> nestedModulesBuilderField;
       private @Nullable ImmutableList<ModuleMetadataMap.ModuleMetadata> nestedModules;
-      private ImmutableMultiset.@Nullable Builder<String> readTogglesBuilder;
+      private ImmutableMultiset.@Nullable Builder<String> readTogglesBuilderField;
       private @Nullable ImmutableMultiset<String> readToggles;
-      private @Nullable ModulePath path;
+      private @Nullable ModulePath pathField;
       private byte set0;
 
       Builder() {
       }
 
       public ModuleMetadata build() {
-        if (googNamespacesBuilder != null) {
-          this.googNamespaces = googNamespacesBuilder.build();
+        if (googNamespacesBuilderField != null) {
+          this.googNamespaces = googNamespacesBuilderField.build();
         } else if (this.googNamespaces == null) {
           this.googNamespaces = ImmutableMultiset.of();
         }
-        if (stronglyRequiredGoogNamespacesBuilder != null) {
-          this.stronglyRequiredGoogNamespaces = stronglyRequiredGoogNamespacesBuilder.build();
+        if (stronglyRequiredGoogNamespacesBuilderField != null) {
+          this.stronglyRequiredGoogNamespaces = stronglyRequiredGoogNamespacesBuilderField.build();
         } else if (this.stronglyRequiredGoogNamespaces == null) {
           this.stronglyRequiredGoogNamespaces = ImmutableMultiset.of();
         }
-        if (dynamicallyRequiredGoogNamespacesBuilder != null) {
-          this.dynamicallyRequiredGoogNamespaces = dynamicallyRequiredGoogNamespacesBuilder.build();
+        if (dynamicallyRequiredGoogNamespacesBuilderField != null) {
+          this.dynamicallyRequiredGoogNamespaces = dynamicallyRequiredGoogNamespacesBuilderField.build();
         } else if (this.dynamicallyRequiredGoogNamespaces == null) {
           this.dynamicallyRequiredGoogNamespaces = ImmutableMultiset.of();
         }
-        if (maybeRequiredGoogNamespacesBuilder != null) {
-          this.maybeRequiredGoogNamespaces = maybeRequiredGoogNamespacesBuilder.build();
+        if (maybeRequiredGoogNamespacesBuilderField != null) {
+          this.maybeRequiredGoogNamespaces = maybeRequiredGoogNamespacesBuilderField.build();
         } else if (this.maybeRequiredGoogNamespaces == null) {
           this.maybeRequiredGoogNamespaces = ImmutableMultiset.of();
         }
-        if (weaklyRequiredGoogNamespacesBuilder != null) {
-          this.weaklyRequiredGoogNamespaces = weaklyRequiredGoogNamespacesBuilder.build();
+        if (weaklyRequiredGoogNamespacesBuilderField != null) {
+          this.weaklyRequiredGoogNamespaces = weaklyRequiredGoogNamespacesBuilderField.build();
         } else if (this.weaklyRequiredGoogNamespaces == null) {
           this.weaklyRequiredGoogNamespaces = ImmutableMultiset.of();
         }
-        if (es6ImportSpecifiersBuilder != null) {
-          this.es6ImportSpecifiers = es6ImportSpecifiersBuilder.build();
+        if (es6ImportSpecifiersBuilderField != null) {
+          this.es6ImportSpecifiers = es6ImportSpecifiersBuilderField.build();
         } else if (this.es6ImportSpecifiers == null) {
           this.es6ImportSpecifiers = ImmutableMultiset.of();
         }
-        if (nestedModulesBuilder != null) {
-          this.nestedModules = nestedModulesBuilder.build();
+        if (nestedModulesBuilderField != null) {
+          this.nestedModules = nestedModulesBuilderField.build();
         } else if (this.nestedModules == null) {
           this.nestedModules = ImmutableList.of();
         }
-        if (readTogglesBuilder != null) {
-          this.readToggles = readTogglesBuilder.build();
+        if (readTogglesBuilderField != null) {
+          this.readToggles = readTogglesBuilderField.build();
         } else if (this.readToggles == null) {
           this.readToggles = ImmutableMultiset.of();
         }
         if (set0 != 3
-            || this.moduleType == null) {
+            || this.moduleTypeField == null) {
           StringBuilder missing = new StringBuilder();
-          if (this.moduleType == null) {
+          if (this.moduleTypeField == null) {
             missing.append(" moduleType");
           }
           if ((set0 & 1) == 0) {
@@ -313,10 +313,10 @@ public final class ModuleMetadataMap {
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new ModuleMetadata(
-            this.moduleType,
-            this.rootNode,
-            this.usesClosure,
-            this.isTestOnly,
+            this.moduleTypeField,
+            this.rootNodeField,
+            this.usesClosureField,
+            this.isTestOnlyField,
             this.googNamespaces,
             this.stronglyRequiredGoogNamespaces,
             this.dynamicallyRequiredGoogNamespaces,
@@ -325,14 +325,14 @@ public final class ModuleMetadataMap {
             this.es6ImportSpecifiers,
             this.nestedModules,
             this.readToggles,
-            this.path);
+            this.pathField);
       }
 
       public ImmutableMultiset.Builder<String> googNamespacesBuilder() {
-        if (googNamespacesBuilder == null) {
-          googNamespacesBuilder = ImmutableMultiset.builder();
+        if (googNamespacesBuilderField == null) {
+          googNamespacesBuilderField = ImmutableMultiset.builder();
         }
-        return googNamespacesBuilder;
+        return googNamespacesBuilderField;
       }
 
       @CanIgnoreReturnValue
@@ -342,88 +342,88 @@ public final class ModuleMetadataMap {
       }
 
       public ImmutableMultiset.Builder<String> stronglyRequiredGoogNamespacesBuilder() {
-        if (stronglyRequiredGoogNamespacesBuilder == null) {
-          stronglyRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        if (stronglyRequiredGoogNamespacesBuilderField == null) {
+          stronglyRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
         }
-        return stronglyRequiredGoogNamespacesBuilder;
+        return stronglyRequiredGoogNamespacesBuilderField;
       }
 
       public ImmutableMultiset.Builder<String> dynamicallyRequiredGoogNamespacesBuilder() {
-        if (dynamicallyRequiredGoogNamespacesBuilder == null) {
-          dynamicallyRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        if (dynamicallyRequiredGoogNamespacesBuilderField == null) {
+          dynamicallyRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
         }
-        return dynamicallyRequiredGoogNamespacesBuilder;
+        return dynamicallyRequiredGoogNamespacesBuilderField;
       }
 
       public ImmutableMultiset.Builder<String> maybeRequiredGoogNamespacesBuilder() {
-        if (maybeRequiredGoogNamespacesBuilder == null) {
-          maybeRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        if (maybeRequiredGoogNamespacesBuilderField == null) {
+          maybeRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
         }
-        return maybeRequiredGoogNamespacesBuilder;
+        return maybeRequiredGoogNamespacesBuilderField;
       }
 
       public ImmutableMultiset.Builder<String> weaklyRequiredGoogNamespacesBuilder() {
-        if (weaklyRequiredGoogNamespacesBuilder == null) {
-          weaklyRequiredGoogNamespacesBuilder = ImmutableMultiset.builder();
+        if (weaklyRequiredGoogNamespacesBuilderField == null) {
+          weaklyRequiredGoogNamespacesBuilderField = ImmutableMultiset.builder();
         }
-        return weaklyRequiredGoogNamespacesBuilder;
+        return weaklyRequiredGoogNamespacesBuilderField;
       }
 
       public ImmutableMultiset.Builder<String> es6ImportSpecifiersBuilder() {
-        if (es6ImportSpecifiersBuilder == null) {
-          es6ImportSpecifiersBuilder = ImmutableMultiset.builder();
+        if (es6ImportSpecifiersBuilderField == null) {
+          es6ImportSpecifiersBuilderField = ImmutableMultiset.builder();
         }
-        return es6ImportSpecifiersBuilder;
+        return es6ImportSpecifiersBuilderField;
       }
 
       public ImmutableList.Builder<ModuleMetadata> nestedModulesBuilder() {
-        if (nestedModulesBuilder == null) {
-          nestedModulesBuilder = ImmutableList.builder();
+        if (nestedModulesBuilderField == null) {
+          nestedModulesBuilderField = ImmutableList.builder();
         }
-        return nestedModulesBuilder;
+        return nestedModulesBuilderField;
       }
 
       public ImmutableMultiset.Builder<String> readTogglesBuilder() {
-        if (readTogglesBuilder == null) {
-          readTogglesBuilder = ImmutableMultiset.builder();
+        if (readTogglesBuilderField == null) {
+          readTogglesBuilderField = ImmutableMultiset.builder();
         }
-        return readTogglesBuilder;
+        return readTogglesBuilderField;
       }
 
       public Builder path(@Nullable ModulePath value) {
-        this.path = value;
+        this.pathField = value;
         return this;
       }
 
       public Builder usesClosure(boolean value) {
-        this.usesClosure = value;
+        this.usesClosureField = value;
         set0 |= (byte) 1;
         return this;
       }
 
       public Builder isTestOnly(boolean value) {
-        this.isTestOnly = value;
+        this.isTestOnlyField = value;
         set0 |= (byte) 2;
         return this;
       }
 
       public ModuleType moduleType() {
-        if (this.moduleType == null) {
+        if (this.moduleTypeField == null) {
           throw new IllegalStateException("Property \"moduleType\" has not been set");
         }
-        return moduleType;
+        return moduleTypeField;
       }
 
       public Builder moduleType(ModuleType value) {
         if (value == null) {
           throw new NullPointerException("Null moduleType");
         }
-        this.moduleType = value;
+        this.moduleTypeField = value;
         return this;
       }
 
       public Builder rootNode(@Nullable Node root) {
-        this.rootNode = root;
+        this.rootNodeField = root;
         return this;
       }
     }

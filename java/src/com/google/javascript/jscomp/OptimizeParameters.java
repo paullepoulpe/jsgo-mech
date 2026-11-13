@@ -534,15 +534,15 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
   /** Results of analyzing a candidate function's definition and references. */
   class CandidateAnalysis {
     private final ArrayList<Node> taggedTemplateLiterals;
-    private final boolean isSafeToOptimize;
+    private final boolean isSafeToOptimizeField;
 
     CandidateAnalysis(CandidateAnalysisBuilder builder) {
       this.taggedTemplateLiterals = builder.taggedTemplateLiterals;
-      this.isSafeToOptimize = builder.isSafeToOptimize;
+      this.isSafeToOptimizeField = builder.isSafeToOptimize;
     }
 
     boolean shouldConvertTaggedTemplateLiterals() {
-      return !taggedTemplateLiterals.isEmpty() && isSafeToOptimize;
+      return !taggedTemplateLiterals.isEmpty() && isSafeToOptimizeField;
     }
 
     void convertTaggedTemplateLiterals() {
@@ -553,7 +553,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
     }
 
     boolean isSafeToOptimize() {
-      return isSafeToOptimize && taggedTemplateLiterals.isEmpty();
+      return isSafeToOptimizeField && taggedTemplateLiterals.isEmpty();
     }
   }
 
@@ -943,7 +943,7 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
       // TODO(johnlenz): handle used default
       if (i <= lastNonRestFormal) {
         if (formal.isDefaultValue() && current.mayBeUndefined) {
-          current.shouldRemove = false;
+          current.shouldRemoveField = false;
         }
         formal = formal.getPrevious();
       }
@@ -954,44 +954,44 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
       // * the current parameter can be effected and a following
       // parameter that will not be moved has side-effects
 
-      if (current.shouldRemove
+      if (current.shouldRemoveField
           && ((seenUnmovableSideEffects && current.canBeSideEffected())
               || (seenUnmoveableSideEffected && current.hasSideEffects()))) {
-        current.shouldRemove = false;
+        current.shouldRemoveField = false;
       }
 
       // If any values that are part of the rest cannot be moved to the function body,
       // then all the rest values must remain at the callsite.
       if (i >= restIndex) {
         if (allRestValueRemovable) {
-          if (!current.shouldRemove) {
+          if (!current.shouldRemoveField) {
             anyMovable = false;
             allRestValueRemovable = false;
             // revisit the trailing params and remark them now that we know they are unremovable.
             for (int j = i + 1; j < parameters.size(); j++) {
               Parameter p = parameters.get(j);
-              p.shouldRemove = false;
-              if (p.canBeSideEffected) {
+              p.shouldRemoveField = false;
+              if (p.canBeSideEffectedField) {
                 seenUnmoveableSideEffected = true;
               }
-              if (p.hasSideEffects) {
+              if (p.hasSideEffectsField) {
                 seenUnmovableSideEffects = true;
               }
             }
           }
         } else {
-          current.shouldRemove = false;
+          current.shouldRemoveField = false;
         }
       }
 
-      if (current.shouldRemove) {
+      if (current.shouldRemoveField) {
         anyMovable = true;
       } else {
-        if (current.canBeSideEffected) {
+        if (current.canBeSideEffectedField) {
           seenUnmoveableSideEffected = true;
         }
 
-        if (current.hasSideEffects) {
+        if (current.hasSideEffectsField) {
           seenUnmovableSideEffects = true;
         }
       }
@@ -1191,13 +1191,13 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
   /** Simple container class that keeps tracks of a parameter and whether it should be removed. */
   private static class Parameter {
     private final Node arg;
-    private boolean shouldRemove;
-    private boolean hasSideEffects;
-    private boolean canBeSideEffected;
+    private boolean shouldRemoveField;
+    private boolean hasSideEffectsField;
+    private boolean canBeSideEffectedField;
     private boolean mayBeUndefined;
 
     Parameter(Node arg, boolean shouldRemove) {
-      this.shouldRemove = shouldRemove;
+      this.shouldRemoveField = shouldRemove;
       this.arg = arg;
     }
 
@@ -1206,27 +1206,27 @@ class OptimizeParameters implements CompilerPass, OptimizeCalls.CallGraphCompile
     }
 
     boolean shouldRemove() {
-      return shouldRemove;
+      return shouldRemoveField;
     }
 
     void setShouldRemove(boolean value) {
-      shouldRemove = value;
+      shouldRemoveField = value;
     }
 
     void setHasSideEffects(boolean hasSideEffects) {
-      this.hasSideEffects = hasSideEffects;
+      this.hasSideEffectsField = hasSideEffects;
     }
 
     boolean hasSideEffects() {
-      return hasSideEffects;
+      return hasSideEffectsField;
     }
 
     void setCanBeSideEffected(boolean canBeSideEffected) {
-      this.canBeSideEffected = canBeSideEffected;
+      this.canBeSideEffectedField = canBeSideEffected;
     }
 
     boolean canBeSideEffected() {
-      return canBeSideEffected;
+      return canBeSideEffectedField;
     }
 
     void setMayBeUndefined(boolean mayBeUndefined) {

@@ -71,17 +71,17 @@ public class OptionalChainTypeCheckTest {
     }
 
     public static final class Builder {
-      private Optional<String> forObjType = Optional.empty();
-      private String withExpr;
-      private Optional<String> assignedTo = Optional.empty();
-      private Optional<String> mustReport = Optional.empty();
-      private Optional<String> withPropReturnType = Optional.empty();
+      private Optional<String> forObjTypeField = Optional.empty();
+      private String withExprField;
+      private Optional<String> assignedToField = Optional.empty();
+      private Optional<String> mustReportField = Optional.empty();
+      private Optional<String> withPropReturnTypeField = Optional.empty();
 
       Builder() {
       }
 
       Builder forObjType(String objType) {
-        this.forObjType = Optional.of(objType);
+        this.forObjTypeField = Optional.of(objType);
         return this;
       }
 
@@ -89,37 +89,37 @@ public class OptionalChainTypeCheckTest {
         if (expr == null) {
           throw new NullPointerException("Null withExpr");
         }
-        this.withExpr = expr;
+        this.withExprField = expr;
         return this;
       }
 
       Builder assignedTo(String type) {
-        this.assignedTo = Optional.of(type);
+        this.assignedToField = Optional.of(type);
         return this;
       }
 
       Builder mustReport(String error) {
-        this.mustReport = Optional.of(error);
+        this.mustReportField = Optional.of(error);
         return this;
       }
 
       // Sets the return type of the function property, if any on this object type.
       Builder withPropReturnType(String type) {
-        this.withPropReturnType = Optional.of(type);
+        this.withPropReturnTypeField = Optional.of(type);
         return this;
       }
 
       OptChainTestCase build() {
-        if (this.withExpr == null) {
+        if (this.withExprField == null) {
           String missing = " withExpr";
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new OptChainTestCase(
-            this.forObjType,
-            this.withExpr,
-            this.assignedTo,
-            this.mustReport,
-            this.withPropReturnType);
+            this.forObjTypeField,
+            this.withExprField,
+            this.assignedToField,
+            this.mustReportField,
+            this.withPropReturnTypeField);
       }
     }
   }

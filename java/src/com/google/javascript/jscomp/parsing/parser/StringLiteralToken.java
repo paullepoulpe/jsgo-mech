@@ -20,15 +20,15 @@ import com.google.javascript.jscomp.parsing.parser.util.SourceRange;
 
 /** A single or double quoted JavaScript string literal. */
 public class StringLiteralToken extends LiteralToken {
-  private final boolean hasUnescapedUnicodeLineOrParagraphSeparator;
+  private final boolean hasUnescapedUnicodeLineOrParagraphSeparatorField;
 
   public StringLiteralToken(
       String value, SourceRange location, boolean hasUnescapedUnicodeLineOrParagraphSeparator) {
     super(TokenType.STRING, value, location);
-    this.hasUnescapedUnicodeLineOrParagraphSeparator = hasUnescapedUnicodeLineOrParagraphSeparator;
+    this.hasUnescapedUnicodeLineOrParagraphSeparatorField = hasUnescapedUnicodeLineOrParagraphSeparator;
   }
 
   public boolean hasUnescapedUnicodeLineOrParagraphSeparator() {
-    return hasUnescapedUnicodeLineOrParagraphSeparator;
+    return hasUnescapedUnicodeLineOrParagraphSeparatorField;
   }
 }

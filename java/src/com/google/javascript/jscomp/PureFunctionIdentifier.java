@@ -78,7 +78,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
 
   private final AbstractCompiler compiler;
   private final AstAnalyzer astAnalyzer;
-  private final boolean validateArtificialPurity;
+  private final boolean validateArtificialPurityField;
 
   /**
    * Map of function names to the summary of the functions with that name.
@@ -178,7 +178,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
     this.compiler = checkNotNull(compiler);
     this.assumeGettersArePure = assumeGettersArePure;
     this.astAnalyzer = compiler.getAstAnalyzer();
-    this.validateArtificialPurity = validateArtificialPurity;
+    this.validateArtificialPurityField = validateArtificialPurity;
   }
 
   @Override
@@ -208,7 +208,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
    * marked as artificially pure but another is side-effect-full.
    */
   private void validateArtificialPurity() {
-    if (!validateArtificialPurity) {
+    if (!validateArtificialPurityField) {
       // Avoid unnecessary computation.
       return;
     }
@@ -536,7 +536,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
             invalid = true;
             break;
           }
-          if (this.validateArtificialPurity && !reference.isFromExterns()) {
+          if (this.validateArtificialPurityField && !reference.isFromExterns()) {
             for (Node callable : callables) {
               JSDocInfo jsdoc = NodeUtil.getBestJSDocInfo(callable);
               boolean isArtificiallyPure = jsdoc != null && jsdoc.isNoSideEffects();

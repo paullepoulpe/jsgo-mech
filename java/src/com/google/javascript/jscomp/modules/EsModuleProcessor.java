@@ -267,7 +267,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
    */
   private final class UnresolvedEsModule extends UnresolvedModule {
 
-    private final ModuleMetadata metadata;
+    private final ModuleMetadata metadataField;
     private final ModulePath path;
     private final ImmutableMap<String, Import> importsByLocalName;
     private final ImmutableList<Export> localExports;
@@ -285,7 +285,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
         ImmutableList<Export> localExports,
         ImmutableList<Export> indirectExports,
         ImmutableList<Export> starExports) {
-      this.metadata = metadata;
+      this.metadataField = metadata;
       this.path = path;
       this.importsByLocalName = importsByLocalName;
       this.localExports = localExports;
@@ -333,7 +333,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
             Module.builder()
                 .boundNames(ImmutableMap.copyOf(boundNames))
                 .namespace(ImmutableMap.copyOf(getAllResolvedExports(moduleRequestResolver)))
-                .metadata(metadata)
+                .metadata(metadataField)
                 .path(path)
                 .localNameToLocalExport(ImmutableMap.copyOf(localNameToLocalExport))
                 .build();
@@ -344,7 +344,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
     @Override
     ModuleMetadata metadata() {
-      return metadata;
+      return metadataField;
     }
 
     /** A map from import bound name to binding. */

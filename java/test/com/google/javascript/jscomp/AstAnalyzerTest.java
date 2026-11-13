@@ -110,52 +110,52 @@ import org.junit.runners.Parameterized.Parameters;
 public final class AstAnalyzerTest {
 
   private static final class AnalysisCase {
-    boolean expect;
-    String js;
-    Token token;
-    boolean globalRegExp;
-    boolean assumeGettersArePure;
-    boolean assumeBuiltinsPure = true;
+    boolean expectField;
+    String jsField;
+    Token tokenField;
+    boolean globalRegExpField;
+    boolean assumeGettersArePureField;
+    boolean assumeBuiltinsPureField = true;
 
     @CanIgnoreReturnValue
     AnalysisCase expect(boolean b) {
-      this.expect = b;
+      this.expectField = b;
       return this;
     }
 
     @CanIgnoreReturnValue
     AnalysisCase js(String s) {
-      this.js = s;
+      this.jsField = s;
       return this;
     }
 
     @CanIgnoreReturnValue
     AnalysisCase token(Token t) {
-      this.token = t;
+      this.tokenField = t;
       return this;
     }
 
     @CanIgnoreReturnValue
     AnalysisCase globalRegExp(boolean b) {
-      this.globalRegExp = b;
+      this.globalRegExpField = b;
       return this;
     }
 
     @CanIgnoreReturnValue
     AnalysisCase assumeGettersArePure(boolean b) {
-      this.assumeGettersArePure = b;
+      this.assumeGettersArePureField = b;
       return this;
     }
 
     @CanIgnoreReturnValue
     AnalysisCase assumeBuiltinsPure(boolean b) {
-      this.assumeBuiltinsPure = b;
+      this.assumeBuiltinsPureField = b;
       return this;
     }
 
     @Override
     public String toString() {
-      return String.format("%s node in `%s` -> %s", token, js, expect);
+      return String.format("%s node in `%s` -> %s", tokenField, jsField, expectField);
     }
   }
 
@@ -208,14 +208,14 @@ public final class AstAnalyzerTest {
     }
 
     Node parseCase(AnalysisCase kase) {
-      this.hasGlobalRegexpReferences = kase.globalRegExp;
-      this.assumeGettersArePure = kase.assumeGettersArePure;
-      this.assumeBuiltinsPure = kase.assumeBuiltinsPure;
-      Node root = parseInternal(kase.js);
-      if (kase.token == null) {
+      this.hasGlobalRegexpReferences = kase.globalRegExpField;
+      this.assumeGettersArePure = kase.assumeGettersArePureField;
+      this.assumeBuiltinsPure = kase.assumeBuiltinsPureField;
+      Node root = parseInternal(kase.jsField);
+      if (kase.tokenField == null) {
         return root.getFirstChild();
       } else {
-        return findFirst(kase.token, root).get();
+        return findFirst(kase.tokenField, root).get();
       }
     }
 
@@ -366,7 +366,7 @@ public final class AstAnalyzerTest {
       ParseHelper helper = new ParseHelper();
       Node node = helper.parseCase(kase);
       AstAnalyzer analyzer = helper.getAstAnalyzer();
-      assertThat(analyzer.mayEffectMutableState(node)).isEqualTo(kase.expect);
+      assertThat(analyzer.mayEffectMutableState(node)).isEqualTo(kase.expectField);
     }
   }
 
@@ -379,7 +379,7 @@ public final class AstAnalyzerTest {
     public void test() {
       ParseHelper helper = new ParseHelper();
       Node node = helper.parseCase(kase);
-      assertThat(helper.getAstAnalyzer().mayHaveSideEffects(node)).isEqualTo(kase.expect);
+      assertThat(helper.getAstAnalyzer().mayHaveSideEffects(node)).isEqualTo(kase.expectField);
     }
 
     // Always include the index. If two cases have the same name, only one will be executed.
@@ -853,7 +853,7 @@ public final class AstAnalyzerTest {
     public void test() {
       ParseHelper helper = new ParseHelper();
       Node node = helper.parseCase(kase);
-      assertThat(helper.getAstAnalyzer().nodeTypeMayHaveSideEffects(node)).isEqualTo(kase.expect);
+      assertThat(helper.getAstAnalyzer().nodeTypeMayHaveSideEffects(node)).isEqualTo(kase.expectField);
     }
   }
 

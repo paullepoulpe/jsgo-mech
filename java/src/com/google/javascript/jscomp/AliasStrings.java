@@ -53,7 +53,7 @@ class AliasStrings implements CompilerPass, NodeTraversal.Callback {
 
   private final JSChunkGraph chunkGraph;
 
-  private final boolean outputStringUsage;
+  private final boolean outputStringUsageField;
 
   private final SortedMap<String, StringInfo> stringInfoMap = new TreeMap<>();
 
@@ -92,7 +92,7 @@ class AliasStrings implements CompilerPass, NodeTraversal.Callback {
       AliasStringsMode aliasStringsMode) {
     this.compiler = compiler;
     this.chunkGraph = chunkGraph;
-    this.outputStringUsage = outputStringUsage;
+    this.outputStringUsageField = outputStringUsage;
     checkState(aliasStringsMode != AliasStringsMode.NONE);
     this.aliasStringsMode = aliasStringsMode;
   }
@@ -110,7 +110,7 @@ class AliasStrings implements CompilerPass, NodeTraversal.Callback {
     // 2nd edit pass: add variable declarations for aliased strings.
     addAliasDeclarationNodes();
 
-    if (outputStringUsage) {
+    if (outputStringUsageField) {
       outputStringUsage();
     }
   }

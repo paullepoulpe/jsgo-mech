@@ -54,7 +54,7 @@ import org.jspecify.annotations.Nullable;
  *
  */
 public final class TemplatizedType extends ProxyObjectType {
-  private static final JSTypeClass TYPE_CLASS = JSTypeClass.TEMPLATIZED;
+  private static final JSTypeClass TYPE_CLASS_FIELD = JSTypeClass.TEMPLATIZED;
 
   /** A cache of the type parameter values for this specialization. */
   private final ImmutableList<JSType> templateTypes;
@@ -85,12 +85,12 @@ public final class TemplatizedType extends ProxyObjectType {
 
     this.replacer = TemplateTypeReplacer.forPartialReplacement(registry, getTemplateTypeMap());
 
-    registry.getResolver().resolveIfClosed(this, TYPE_CLASS);
+    registry.getResolver().resolveIfClosed(this, TYPE_CLASS_FIELD);
   }
 
   @Override
   JSTypeClass getTypeClass() {
-    return TYPE_CLASS;
+    return TYPE_CLASS_FIELD;
   }
 
   // NOTE(dimvar): If getCtorImplementedInterfaces is implemented here, this is the

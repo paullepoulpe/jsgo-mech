@@ -396,7 +396,7 @@ class ScopedAliases implements CompilerPass {
 
     private boolean hasNamespaceShadows = false;
 
-    private boolean hasErrors = false;
+    private boolean hasErrorsField = false;
 
     // The body of the function that is passed to goog.scope.
     // Set when the traversal enters the body, and set back to null when it exits.
@@ -415,7 +415,7 @@ class ScopedAliases implements CompilerPass {
     }
 
     boolean hasErrors() {
-      return hasErrors;
+      return hasErrorsField;
     }
 
     /** Returns true if this NodeTraversal is currently within a goog.scope function body */
@@ -494,7 +494,7 @@ class ScopedAliases implements CompilerPass {
 
     private void report(Node n, DiagnosticType error, String... arguments) {
       compiler.report(JSError.make(n, error, arguments));
-      hasErrors = true;
+      hasErrorsField = true;
     }
 
     private void findAliases(Scope scope) {

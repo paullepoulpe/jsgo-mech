@@ -121,7 +121,7 @@ import org.jspecify.annotations.Nullable;
 public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, CompilerOptions> {
   private static final Pattern LEADING_DASHES_PATTERN = Pattern.compile("^--");
 
-  public static final String OUTPUT_MARKER = AbstractCommandLineRunner.OUTPUT_MARKER;
+  public static final String OUTPUT_MARKER_FIELD = AbstractCommandLineRunner.OUTPUT_MARKER;
 
   // UTF-8 BOM is 0xEF, 0xBB, 0xBF, of which character code is 65279.
   public static final int UTF8_BOM_CODE = 65279;
@@ -1640,10 +1640,10 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     if (!flags.outputWrapper.isEmpty()
-        && !flags.outputWrapper.contains(CommandLineRunner.OUTPUT_MARKER)) {
+        && !flags.outputWrapper.contains(CommandLineRunner.OUTPUT_MARKER_FIELD)) {
       reportError(
           "ERROR - invalid output_wrapper specified. Missing '"
-              + CommandLineRunner.OUTPUT_MARKER
+              + CommandLineRunner.OUTPUT_MARKER_FIELD
               + "'.");
     }
 

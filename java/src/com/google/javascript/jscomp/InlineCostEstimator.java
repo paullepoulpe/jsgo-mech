@@ -56,7 +56,7 @@ class InlineCostEstimator {
     private final int maxCost;
     private int cost = 0;
     private char last = '\0';
-    private boolean continueProcessing = true;
+    private boolean continueProcessingField = true;
 
     CompiledSizeEstimator(int costThreshold) {
       this.maxCost = costThreshold;
@@ -73,7 +73,7 @@ class InlineCostEstimator {
 
     @Override
     boolean continueProcessing() {
-      return continueProcessing;
+      return continueProcessingField;
     }
 
     @Override
@@ -86,7 +86,7 @@ class InlineCostEstimator {
       last = str.charAt(str.length() - 1);
       cost += str.length();
       if (maxCost <= cost) {
-        continueProcessing = false;
+        continueProcessingField = false;
       }
     }
 

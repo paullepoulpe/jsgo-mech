@@ -44,10 +44,10 @@ import java.util.Optional;
 @Immutable
 public abstract class CompilerBasedTransformer implements Source.Transformer {
 
-  private final CompilerSupplier compilerSupplier;
+  private final CompilerSupplier compilerSupplierField;
 
   public CompilerBasedTransformer(CompilerSupplier compilerSupplier) {
-    this.compilerSupplier = checkNotNull(compilerSupplier);
+    this.compilerSupplierField = checkNotNull(compilerSupplier);
   }
 
   public abstract Optional<String> getRuntime();
@@ -55,7 +55,7 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
 
   @Override
   public Source transform(Source input) {
-    CompileResult result = compilerSupplier.compile(input.path(), input.code());
+    CompileResult result = compilerSupplierField.compile(input.path(), input.code());
     if (!result.errors.isEmpty()) {
       // TODO(sdh): how to handle this?  Currently we throw an ISE with the message,
       // but this may not be the most appropriate option.  It might make sense to
@@ -76,7 +76,7 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
         .setCode(result.source)
         .setSourceMap(result.sourceMap);
     if (getRuntime().isPresent()) {
-        builder.addRuntime(compilerSupplier.runtime(getRuntime().get()));
+        builder.addRuntime(compilerSupplierField.runtime(getRuntime().get()));
     }
     return builder.build();
   }

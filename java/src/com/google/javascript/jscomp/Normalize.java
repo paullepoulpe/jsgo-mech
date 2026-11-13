@@ -63,7 +63,7 @@ final class Normalize implements CompilerPass {
 
   private Normalize(Builder builder) {
     compiler = builder.compiler;
-    assertOnChange = builder.assertOnChange;
+    assertOnChange = builder.assertOnChangeField;
     astFactory = builder.compiler.createAstFactory();
   }
 
@@ -79,7 +79,7 @@ final class Normalize implements CompilerPass {
   /** Configures and builds a {@link Normalize} object. */
   static class Builder {
     private final AbstractCompiler compiler;
-    private boolean assertOnChange = false;
+    private boolean assertOnChangeField = false;
 
     private Builder(AbstractCompiler compiler) {
       this.compiler = compiler;
@@ -94,7 +94,7 @@ final class Normalize implements CompilerPass {
      */
     @CanIgnoreReturnValue
     Builder assertOnChange(boolean assertOnChange) {
-      this.assertOnChange = assertOnChange;
+      this.assertOnChangeField = assertOnChange;
       return this;
     }
 

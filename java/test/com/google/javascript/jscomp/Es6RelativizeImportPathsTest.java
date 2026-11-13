@@ -32,7 +32,7 @@ import org.junit.runners.JUnit4;
 public class Es6RelativizeImportPathsTest extends CompilerTestCase {
 
   private ImmutableMap<String, String> prefixReplacements;
-  private ResolutionMode moduleResolutionMode;
+  private ResolutionMode moduleResolutionModeField;
   private ImmutableList<String> moduleRoots;
 
   @Override
@@ -40,7 +40,7 @@ public class Es6RelativizeImportPathsTest extends CompilerTestCase {
   public void setUp() throws Exception {
     super.setUp();
     prefixReplacements = ImmutableMap.of();
-    moduleResolutionMode = ResolutionMode.BROWSER;
+    moduleResolutionModeField = ResolutionMode.BROWSER;
     moduleRoots = ImmutableList.of();
   }
 
@@ -48,7 +48,7 @@ public class Es6RelativizeImportPathsTest extends CompilerTestCase {
   protected CompilerOptions getOptions() {
     CompilerOptions options = super.getOptions();
     options.setBrowserResolverPrefixReplacements(prefixReplacements);
-    options.setModuleResolutionMode(moduleResolutionMode);
+    options.setModuleResolutionMode(moduleResolutionModeField);
     options.setModuleRoots(moduleRoots);
     options.setPathEscaper(PathEscaper.CANONICALIZE_ONLY);
     return options;
@@ -123,7 +123,7 @@ public class Es6RelativizeImportPathsTest extends CompilerTestCase {
 
   @Test
   public void testNonStandardResolutionBecomesRelative() {
-    moduleResolutionMode = ResolutionMode.BROWSER_WITH_TRANSFORMED_PREFIXES;
+    moduleResolutionModeField = ResolutionMode.BROWSER_WITH_TRANSFORMED_PREFIXES;
     prefixReplacements = ImmutableMap.of("raw0/", "/mapped0/", "raw1/", "/mapped1/");
 
     test(

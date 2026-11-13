@@ -22,16 +22,16 @@ package com.google.javascript.jscomp;
  */
 public class ConformancePassConfig extends PassConfig.PassConfigDelegate {
 
-  private final PassConfig delegate;
+  private final PassConfig delegateField;
 
   public ConformancePassConfig(PassConfig delegate) {
     super(delegate);
-    this.delegate = delegate;
+    this.delegateField = delegate;
   }
 
   @Override
   protected PassListBuilder getChecks() {
-    PassListBuilder fromDelegate = delegate.getChecks();
+    PassListBuilder fromDelegate = delegateField.getChecks();
 
     // Return every check up to and including the "checkConformance" check. Return empty list if
     // "checkConformance" not found. This list may include some unnecessary checks that run before

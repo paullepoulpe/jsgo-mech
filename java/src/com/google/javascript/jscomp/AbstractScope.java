@@ -493,10 +493,10 @@ public abstract class AbstractScope<S extends AbstractScope<S, V>, V extends Abs
     // return null.
     THIS("this");
 
-    final String name;
+    final String nameField;
 
     ImplicitVar(String name) {
-      this.name = name;
+      this.nameField = name;
     }
 
     /** Whether this kind of implicit variable is created/owned by the given scope. */

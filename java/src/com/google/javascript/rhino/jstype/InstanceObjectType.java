@@ -48,7 +48,7 @@ import com.google.javascript.rhino.Node;
 
 /** An object type that is an instance of some function constructor. */
 final class InstanceObjectType extends PrototypeObjectType {
-  private static final JSTypeClass TYPE_CLASS = JSTypeClass.INSTANCE_OBJECT;
+  private static final JSTypeClass TYPE_CLASS_FIELD = JSTypeClass.INSTANCE_OBJECT;
 
   private final FunctionType constructor;
 
@@ -56,7 +56,7 @@ final class InstanceObjectType extends PrototypeObjectType {
     super(builder);
     this.constructor = checkNotNull(builder.constructor);
 
-    registry.getResolver().resolveIfClosed(this, TYPE_CLASS);
+    registry.getResolver().resolveIfClosed(this, TYPE_CLASS_FIELD);
   }
 
   static final class Builder extends PrototypeObjectType.Builder<Builder> {
@@ -94,7 +94,7 @@ final class InstanceObjectType extends PrototypeObjectType {
 
   @Override
   JSTypeClass getTypeClass() {
-    return TYPE_CLASS;
+    return TYPE_CLASS_FIELD;
   }
 
   @Override

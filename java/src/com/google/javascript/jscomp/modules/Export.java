@@ -82,67 +82,67 @@ public record Export(
   public static final String NAMESPACE = "*exports*";
 
   static final class Builder {
-    private String exportName;
-    private String moduleRequest;
-    private String importName;
-    private String localName;
-    private ModulePath modulePath;
-    private Node exportNode;
-    private Node nameNode;
-    private ModuleMetadataMap.@Nullable ModuleMetadata moduleMetadata;
-    private String closureNamespace;
-    private boolean mutated;
+    private String exportNameField;
+    private String moduleRequestField;
+    private String importNameField;
+    private String localNameField;
+    private ModulePath modulePathField;
+    private Node exportNodeField;
+    private Node nameNodeField;
+    private ModuleMetadataMap.@Nullable ModuleMetadata moduleMetadataField;
+    private String closureNamespaceField;
+    private boolean mutatedField;
     private byte set0;
 
     Builder() {
     }
 
     Builder(Export source) {
-      this.exportName = source.exportName();
-      this.moduleRequest = source.moduleRequest();
-      this.importName = source.importName();
-      this.localName = source.localName();
-      this.modulePath = source.modulePath();
-      this.exportNode = source.exportNode();
-      this.nameNode = source.nameNode();
-      this.moduleMetadata = source.moduleMetadata();
-      this.closureNamespace = source.closureNamespace();
-      this.mutated = source.mutated();
+      this.exportNameField = source.exportName();
+      this.moduleRequestField = source.moduleRequest();
+      this.importNameField = source.importName();
+      this.localNameField = source.localName();
+      this.modulePathField = source.modulePath();
+      this.exportNodeField = source.exportNode();
+      this.nameNodeField = source.nameNode();
+      this.moduleMetadataField = source.moduleMetadata();
+      this.closureNamespaceField = source.closureNamespace();
+      this.mutatedField = source.mutated();
       set0 = (byte) 1;
     }
 
     Builder exportName(@Nullable String value) {
-      this.exportName = value;
+      this.exportNameField = value;
       return this;
     }
 
     Builder moduleRequest(@Nullable String value) {
-      this.moduleRequest = value;
+      this.moduleRequestField = value;
       return this;
     }
 
     Builder importName(@Nullable String value) {
-      this.importName = value;
+      this.importNameField = value;
       return this;
     }
 
     Builder localName(@Nullable String value) {
-      this.localName = value;
+      this.localNameField = value;
       return this;
     }
 
     Builder modulePath(@Nullable ModulePath value) {
-      this.modulePath = value;
+      this.modulePathField = value;
       return this;
     }
 
     Builder exportNode(@Nullable Node value) {
-      this.exportNode = value;
+      this.exportNodeField = value;
       return this;
     }
 
     Builder nameNode(@Nullable Node value) {
-      this.nameNode = value;
+      this.nameNodeField = value;
       return this;
     }
 
@@ -150,26 +150,26 @@ public record Export(
       if (value == null) {
         throw new NullPointerException("Null moduleMetadata");
       }
-      this.moduleMetadata = value;
+      this.moduleMetadataField = value;
       return this;
     }
 
     Builder closureNamespace(@Nullable String value) {
-      this.closureNamespace = value;
+      this.closureNamespaceField = value;
       return this;
     }
 
     Builder mutated(boolean value) {
-      this.mutated = value;
+      this.mutatedField = value;
       set0 |= (byte) 1;
       return this;
     }
 
     Export autoBuild() {
       if (set0 != 1
-          || this.moduleMetadata == null) {
+          || this.moduleMetadataField == null) {
         StringBuilder missing = new StringBuilder();
-        if (this.moduleMetadata == null) {
+        if (this.moduleMetadataField == null) {
           missing.append(" moduleMetadata");
         }
         if ((set0 & 1) == 0) {
@@ -178,16 +178,16 @@ public record Export(
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new Export(
-          this.exportName,
-          this.moduleRequest,
-          this.importName,
-          this.localName,
-          this.modulePath,
-          this.exportNode,
-          this.nameNode,
-          this.moduleMetadata,
-          this.closureNamespace,
-          this.mutated);
+          this.exportNameField,
+          this.moduleRequestField,
+          this.importNameField,
+          this.localNameField,
+          this.modulePathField,
+          this.exportNodeField,
+          this.nameNodeField,
+          this.moduleMetadataField,
+          this.closureNamespaceField,
+          this.mutatedField);
     }
 
     final Export build() {

@@ -86,12 +86,12 @@ public final class CmdLineParser {
   /** One flag, or the positional arguments. */
   public static final class Option {
     private final CmdLineParser owner;
-    private final String name;
+    private final String nameField;
     private final boolean isArgument;
-    private ImmutableList<String> aliases = ImmutableList.of();
-    private String usage = "";
-    private boolean hidden = false;
-    private boolean required = false;
+    private ImmutableList<String> aliasesField = ImmutableList.of();
+    private String usageField = "";
+    private boolean hiddenField = false;
+    private boolean requiredField = false;
     // What follows the name of the flag in the usage text, if anything.
     private @Nullable String metaVariable = null;
     // The current value(s), for the "(default: ...)" part of the usage text, if it is shown.
@@ -100,16 +100,16 @@ public final class CmdLineParser {
 
     private Option(CmdLineParser owner, String name, boolean isArgument) {
       this.owner = owner;
-      this.name = name;
+      this.nameField = name;
       this.isArgument = isArgument;
     }
 
     public String name() {
-      return name;
+      return nameField;
     }
 
     public boolean hidden() {
-      return hidden;
+      return hiddenField;
     }
 
     /** Other names of this flag. */
@@ -117,25 +117,25 @@ public final class CmdLineParser {
       for (String alias : aliases) {
         owner.checkOptionNotDefined(alias);
       }
-      this.aliases = ImmutableList.copyOf(aliases);
+      this.aliasesField = ImmutableList.copyOf(aliases);
       owner.optionsSorted = false;
       return this;
     }
 
     /** The description shown by {@code printUsage}; a flag without one is never shown. */
     public Option usage(String usage) {
-      this.usage = usage;
+      this.usageField = usage;
       return this;
     }
 
     public Option hidden(boolean hidden) {
-      this.hidden = hidden;
+      this.hiddenField = hidden;
       return this;
     }
 
     /** Makes it an error to leave this flag out. */
     public Option required(boolean required) {
-      this.required = required;
+      this.requiredField = required;
       return this;
     }
 
@@ -342,10 +342,10 @@ public final class CmdLineParser {
       if (isArgument) {
         return "";
       }
-      if (!aliases.isEmpty()) {
-        return name + " (" + String.join(", ", aliases) + ")";
+      if (!aliasesField.isEmpty()) {
+        return nameField + " (" + String.join(", ", aliasesField) + ")";
       }
-      return name;
+      return nameField;
     }
 
     private String getNameAndMeta() {
@@ -384,7 +384,7 @@ public final class CmdLineParser {
   // Sorted by name before they are used; see sortedOptions().
   private final List<Option> options = new ArrayList<>();
   private boolean optionsSorted = true;
-  private @Nullable Option argument = null;
+  private @Nullable Option argumentField = null;
   private int usageWidth = 80;
   private @Nullable Option currentOption = null;
 
@@ -401,11 +401,11 @@ public final class CmdLineParser {
 
   /** Declares that tokens which do not belong to a flag are allowed, and where they are stored. */
   public void argument(Supplier<@Nullable List<String>> get, Consumer<List<String>> set) {
-    if (argument != null) {
+    if (argumentField != null) {
       throw new IllegalStateException("Argument with index 0 is used more than once");
     }
-    argument = new Option(this, "", /* isArgument= */ true);
-    argument.stringList(get, set);
+    argumentField = new Option(this, "", /* isArgument= */ true);
+    argumentField.stringList(get, set);
   }
 
   private void checkOptionNotDefined(String name) {
@@ -440,7 +440,7 @@ public final class CmdLineParser {
     // determine the length of the option + metavar first
     int len = 0;
     for (Option option : sortedOptions()) {
-      int curLen = option.usage.length() == 0 ? 0 : option.getNameAndMeta().length();
+      int curLen = option.usageField.length() == 0 ? 0 : option.getNameAndMeta().length();
       len = Math.max(len, curLen);
     }
 
@@ -454,7 +454,7 @@ public final class CmdLineParser {
 
   private void printOption(PrintWriter out, Option option, int len, Predicate<Option> filter) {
     // Hiding options without usage information
-    if (option.usage.length() == 0 || !filter.test(option)) {
+    if (option.usageField.length() == 0 || !filter.test(option)) {
       return;
     }
 
@@ -468,7 +468,7 @@ public final class CmdLineParser {
     // the 'left' side
     List<String> namesAndMetas = wrapLines(option.getNameAndMeta(), widthMetadata);
     // the 'right' side
-    List<String> usages = wrapLines(option.usage + defaultValuePart, widthUsage);
+    List<String> usages = wrapLines(option.usageField + defaultValuePart, widthUsage);
 
     // Output
     for (int i = 0; i < Math.max(namesAndMetas.size(), usages.size()); i++) {
@@ -484,7 +484,7 @@ public final class CmdLineParser {
   }
 
   private static String createDefaultValuePart(Option option) {
-    if (!option.required && option.defaultValues != null) {
+    if (!option.requiredField && option.defaultValues != null) {
       String v = option.printDefaultValue();
       if (v != null) {
         return " (default: " + v + ")";
@@ -605,12 +605,12 @@ public final class CmdLineParser {
           cmdLine.proceed(1);
         }
       } else {
-        if (argument == null) {
+        if (argumentField == null) {
           throw new CmdLineException(this, "No argument is allowed: " + arg);
         }
 
         // known argument
-        currentOption = argument;
+        currentOption = argumentField;
       }
       int diff = currentOption.handler.parseArguments(cmdLine);
       cmdLine.proceed(diff);
@@ -619,7 +619,7 @@ public final class CmdLineParser {
 
     // make sure that all mandatory options are present
     for (Option option : sortedOptions()) {
-      if (option.required && !present.contains(option)) {
+      if (option.requiredField && !present.contains(option)) {
         throw new CmdLineException(this, "Option \"" + option + "\" is required");
       }
     }
@@ -677,10 +677,10 @@ public final class CmdLineParser {
 
   private @Nullable Option findOptionByName(String name) {
     for (Option option : options) {
-      if (name.equals(option.name)) {
+      if (name.equals(option.nameField)) {
         return option;
       }
-      for (String alias : option.aliases) {
+      for (String alias : option.aliasesField) {
         if (name.equals(alias)) {
           return option;
         }

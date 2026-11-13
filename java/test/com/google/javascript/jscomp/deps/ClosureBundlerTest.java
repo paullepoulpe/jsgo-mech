@@ -45,7 +45,7 @@ public final class ClosureBundlerTest {
   /** Fake that returns the canned result for the given arguments, like the mock it replaces. */
   private static final class FakeTranspiler implements Transpiler {
     final Map<List<Object>, TranspileResult> transpileResults = new HashMap<>();
-    String runtime = "";
+    String runtimeField = "";
 
     @Override
     public TranspileResult transpile(URI path, String code) {
@@ -54,7 +54,7 @@ public final class ClosureBundlerTest {
 
     @Override
     public String runtime() {
-      return runtime;
+      return runtimeField;
     }
   }
 
@@ -139,7 +139,7 @@ public final class ClosureBundlerTest {
     URI uri = new URI("foo.js");
 
     FakeTranspiler transpiler = new FakeTranspiler();
-    transpiler.runtime = "RUNTIME;";
+    transpiler.runtimeField = "RUNTIME;";
     transpiler.transpileResults.put(
         ImmutableList.of(uri, input), new TranspileResult(uri, input, "TRANSPILED;", ""));
 

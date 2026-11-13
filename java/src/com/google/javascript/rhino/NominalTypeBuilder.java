@@ -57,13 +57,13 @@ import org.jspecify.annotations.Nullable;
  */
 public class NominalTypeBuilder {
 
-  private final FunctionType constructor;
-  private final ObjectType instance;
+  private final FunctionType constructorField;
+  private final ObjectType instanceField;
   private final ObjectType prototype;
 
   public NominalTypeBuilder(FunctionType constructor, ObjectType instance) {
-    this.constructor = constructor;
-    this.instance = instance;
+    this.constructorField = constructor;
+    this.instanceField = instance;
     this.prototype = constructor.getPrototypeProperty();
   }
 
@@ -74,17 +74,17 @@ public class NominalTypeBuilder {
 
   /** Declares an instance property on the nominal type. */
   public void declareInstanceProperty(String name, JSType type, Node defSite) {
-    instance.defineDeclaredProperty(name, type, defSite);
+    instanceField.defineDeclaredProperty(name, type, defSite);
   }
 
   /** Declares a static property on the nominal type's constructor. */
   public void declareConstructorProperty(String name, JSType type, Node defSite) {
-    constructor.defineDeclaredProperty(name, type, defSite);
+    constructorField.defineDeclaredProperty(name, type, defSite);
   }
 
   /** Returns a NominalTypeBuilder for this type's superclass. */
   public @Nullable NominalTypeBuilder superClass() {
-    FunctionType ctor = instance.getSuperClassConstructor();
+    FunctionType ctor = instanceField.getSuperClassConstructor();
     if (ctor == null) {
       return null;
     }
@@ -93,12 +93,12 @@ public class NominalTypeBuilder {
 
   /** Returns the constructor as a JSType. */
   public FunctionType constructor() {
-    return constructor;
+    return constructorField;
   }
 
   /** Returns the instance type as a JSType. */
   public ObjectType instance() {
-    return instance;
+    return instanceField;
   }
 
   // TODO(sdh): See if we can just delete this entirely and use instance() instead?

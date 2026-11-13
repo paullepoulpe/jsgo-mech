@@ -231,11 +231,11 @@ final class CheckClosureImports implements CompilerPass {
   }
 
   private class Checker extends AbstractModuleCallback {
-    private final ModuleMetadataMap moduleMetadataMap;
+    private final ModuleMetadataMap moduleMetadataMapField;
 
     Checker(AbstractCompiler compiler, ModuleMetadataMap moduleMetadataMap) {
       super(compiler, moduleMetadataMap);
-      this.moduleMetadataMap = moduleMetadataMap;
+      this.moduleMetadataMapField = moduleMetadataMap;
     }
 
     @Override
@@ -362,7 +362,7 @@ final class CheckClosureImports implements CompilerPass {
       }
 
       String namespace = call.getSecondChild().getString();
-      ModuleMetadata requiredModule = moduleMetadataMap.getModulesByGoogNamespace().get(namespace);
+      ModuleMetadata requiredModule = moduleMetadataMapField.getModulesByGoogNamespace().get(namespace);
 
       if (requiredModule == null) {
         t.report(call, MISSING_MODULE_OR_PROVIDE, namespace);
@@ -487,7 +487,7 @@ final class CheckClosureImports implements CompilerPass {
       }
 
       String namespace = call.getSecondChild().getString();
-      ModuleMetadata requiredModule = moduleMetadataMap.getModulesByGoogNamespace().get(namespace);
+      ModuleMetadata requiredModule = moduleMetadataMapField.getModulesByGoogNamespace().get(namespace);
 
       if (requiredModule == null) {
         if (importType == ClosureImport.FORWARD_DECLARE) {

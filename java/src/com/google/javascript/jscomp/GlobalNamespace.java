@@ -1197,26 +1197,26 @@ class GlobalNamespace
         /* shouldRemoveDeclaration= */ false,
         /* canCollapse= */ false);
 
-    private final boolean shouldInlineUsages;
-    private final boolean shouldRemoveDeclaration;
-    private final boolean canCollapse;
+    private final boolean shouldInlineUsagesField;
+    private final boolean shouldRemoveDeclarationField;
+    private final boolean canCollapseField;
 
     Inlinability(boolean shouldInlineUsages, boolean shouldRemoveDeclaration, boolean canCollapse) {
-      this.shouldInlineUsages = shouldInlineUsages;
-      this.shouldRemoveDeclaration = shouldRemoveDeclaration;
-      this.canCollapse = canCollapse;
+      this.shouldInlineUsagesField = shouldInlineUsages;
+      this.shouldRemoveDeclarationField = shouldRemoveDeclaration;
+      this.canCollapseField = canCollapse;
     }
 
     boolean shouldInlineUsages() {
-      return this.shouldInlineUsages;
+      return this.shouldInlineUsagesField;
     }
 
     boolean shouldRemoveDeclaration() {
-      return this.shouldRemoveDeclaration;
+      return this.shouldRemoveDeclarationField;
     }
 
     boolean canCollapse() {
-      return this.canCollapse;
+      return this.canCollapseField;
     }
   }
 

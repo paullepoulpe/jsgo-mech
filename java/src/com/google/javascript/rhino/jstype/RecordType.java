@@ -55,7 +55,7 @@ import java.util.Map;
  *
  */
 public final class RecordType extends PrototypeObjectType {
-  private static final JSTypeClass TYPE_CLASS = JSTypeClass.RECORD;
+  private static final JSTypeClass TYPE_CLASS_FIELD = JSTypeClass.RECORD;
 
   private final boolean declared;
   private boolean isFrozen = false;
@@ -95,12 +95,12 @@ public final class RecordType extends PrototypeObjectType {
     // Freeze the record type.
     isFrozen = true;
 
-    registry.getResolver().resolveIfClosed(this, TYPE_CLASS);
+    registry.getResolver().resolveIfClosed(this, TYPE_CLASS_FIELD);
   }
 
   @Override
   JSTypeClass getTypeClass() {
-    return TYPE_CLASS;
+    return TYPE_CLASS_FIELD;
   }
 
   /** @return Is this synthesized for internal bookkeeping? */

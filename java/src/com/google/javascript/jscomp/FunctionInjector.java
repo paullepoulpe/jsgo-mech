@@ -76,19 +76,19 @@ class FunctionInjector {
 
   private FunctionInjector(Builder builder) {
     this.compiler = checkNotNull(builder.compiler);
-    this.safeNameIdSupplier = checkNotNull(builder.safeNameIdSupplier);
-    this.assumeStrictThis = builder.assumeStrictThis;
-    this.allowDecomposition = builder.allowDecomposition;
-    this.functionArgumentInjector = checkNotNull(builder.functionArgumentInjector);
+    this.safeNameIdSupplier = checkNotNull(builder.safeNameIdSupplierField);
+    this.assumeStrictThis = builder.assumeStrictThisField;
+    this.allowDecomposition = builder.allowDecompositionField;
+    this.functionArgumentInjector = checkNotNull(builder.functionArgumentInjectorField);
   }
 
   static class Builder {
 
     private final AbstractCompiler compiler;
-    private @Nullable Supplier<String> safeNameIdSupplier = null;
-    private boolean assumeStrictThis = true;
-    private boolean allowDecomposition = true;
-    private @Nullable FunctionArgumentInjector functionArgumentInjector = null;
+    private @Nullable Supplier<String> safeNameIdSupplierField = null;
+    private boolean assumeStrictThisField = true;
+    private boolean allowDecompositionField = true;
+    private @Nullable FunctionArgumentInjector functionArgumentInjectorField = null;
 
     Builder(AbstractCompiler compiler) {
       this.compiler = checkNotNull(compiler);
@@ -101,7 +101,7 @@ class FunctionInjector {
      */
     @CanIgnoreReturnValue
     Builder safeNameIdSupplier(Supplier<String> safeNameIdSupplier) {
-      this.safeNameIdSupplier = checkNotNull(safeNameIdSupplier);
+      this.safeNameIdSupplierField = checkNotNull(safeNameIdSupplier);
       return this;
     }
 
@@ -112,13 +112,13 @@ class FunctionInjector {
      */
     @CanIgnoreReturnValue
     Builder allowDecomposition(boolean allowDecomposition) {
-      this.allowDecomposition = allowDecomposition;
+      this.allowDecompositionField = allowDecomposition;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder assumeStrictThis(boolean assumeStrictThis) {
-      this.assumeStrictThis = assumeStrictThis;
+      this.assumeStrictThisField = assumeStrictThis;
       return this;
     }
 
@@ -129,16 +129,16 @@ class FunctionInjector {
      */
     @CanIgnoreReturnValue
     public Builder functionArgumentInjector(FunctionArgumentInjector functionArgumentInjector) {
-      this.functionArgumentInjector = checkNotNull(functionArgumentInjector);
+      this.functionArgumentInjectorField = checkNotNull(functionArgumentInjector);
       return this;
     }
 
     public FunctionInjector build() {
-      if (safeNameIdSupplier == null) {
-        safeNameIdSupplier = compiler.getUniqueNameIdSupplier();
+      if (safeNameIdSupplierField == null) {
+        safeNameIdSupplierField = compiler.getUniqueNameIdSupplier();
       }
-      if (functionArgumentInjector == null) {
-        functionArgumentInjector =
+      if (functionArgumentInjectorField == null) {
+        functionArgumentInjectorField =
             new FunctionArgumentInjector(checkNotNull(compiler.getAstAnalyzer()));
       }
       return new FunctionInjector(this);

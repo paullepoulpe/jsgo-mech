@@ -31,10 +31,10 @@ final class BasicBlock implements Serializable {
   private final Node root;
 
   /** Whether this block denotes a function scope. */
-  private final boolean isFunction;
+  private final boolean isFunctionField;
 
   /** Whether this block denotes a loop. */
-  private final boolean isLoop;
+  private final boolean isLoopField;
 
   /**
    * Creates a new block.
@@ -46,11 +46,11 @@ final class BasicBlock implements Serializable {
     this.parent = parent;
     this.root = root;
 
-    this.isFunction = root.isFunction();
+    this.isFunctionField = root.isFunction();
 
     if (root.hasParent()) {
       Token pType = root.getParent().getToken();
-      this.isLoop =
+      this.isLoopField =
           pType == Token.DO
               || pType == Token.WHILE
               || pType == Token.FOR
@@ -58,7 +58,7 @@ final class BasicBlock implements Serializable {
               || pType == Token.FOR_AWAIT_OF
               || pType == Token.FOR_IN;
     } else {
-      this.isLoop = false;
+      this.isLoopField = false;
     }
   }
 
@@ -93,11 +93,11 @@ final class BasicBlock implements Serializable {
   }
 
   boolean isFunction() {
-    return isFunction;
+    return isFunctionField;
   }
 
   boolean isLoop() {
-    return isLoop;
+    return isLoopField;
   }
 
   Node getRoot() {

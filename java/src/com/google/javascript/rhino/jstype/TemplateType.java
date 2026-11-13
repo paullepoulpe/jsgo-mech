@@ -53,7 +53,7 @@ import org.jspecify.annotations.Nullable;
 
 /** A placeholder type, used as keys in {@link TemplateTypeMap}s. */
 public final class TemplateType extends ProxyObjectType {
-  private static final JSTypeClass TYPE_CLASS = JSTypeClass.TEMPLATE;
+  private static final JSTypeClass TYPE_CLASS_FIELD = JSTypeClass.TEMPLATE;
 
   private final String name;
   private JSType bound;
@@ -83,12 +83,12 @@ public final class TemplateType extends ProxyObjectType {
     this.bound = bound == null ? registry.getNativeObjectType(JSTypeNative.UNKNOWN_TYPE) : bound;
     this.typeTransformation = typeTransformation;
 
-    registry.getResolver().resolveIfClosed(this, TYPE_CLASS);
+    registry.getResolver().resolveIfClosed(this, TYPE_CLASS_FIELD);
   }
 
   @Override
   JSTypeClass getTypeClass() {
-    return TYPE_CLASS;
+    return TYPE_CLASS_FIELD;
   }
 
   @Override

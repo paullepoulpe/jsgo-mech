@@ -47,7 +47,7 @@ public final class ClosureExportTypeClassifierTest extends CompilerTestCase {
   public String description;
 
   @Parameter(1)
-  public TsExportType expected;
+  public TsExportType expectedField;
 
   @Parameter(2)
   public String code;
@@ -372,6 +372,6 @@ public final class ClosureExportTypeClassifierTest extends CompilerTestCase {
     assertWithMessage("no module for m").that(m).isNotNull();
     assertWithMessage("export type of m in:\n%s", code)
         .that(ClosureExportTypeClassifier.classify(m.rootNode(), "m"))
-        .isEqualTo(expected);
+        .isEqualTo(expectedField);
   }
 }

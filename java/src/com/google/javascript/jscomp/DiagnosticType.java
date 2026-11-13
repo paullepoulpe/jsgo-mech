@@ -31,7 +31,7 @@ public final class DiagnosticType
   public final String key;
 
   /** The default way to format errors. The style of format is java.text.MessageFormat. */
-  public final String format;
+  public final String formatField;
 
   /** The default reporting level for this diagnostic */
   public final CheckLevel level;
@@ -87,11 +87,11 @@ public final class DiagnosticType
   private DiagnosticType(String key, CheckLevel level, String format) {
     this.key = key;
     this.level = level;
-    this.format = format;
+    this.formatField = format;
   }
 
   String format(String... arguments) {
-    return Platform.formatMessage(format, arguments);
+    return Platform.formatMessage(formatField, arguments);
   }
 
   @Override
@@ -111,6 +111,6 @@ public final class DiagnosticType
 
   @Override
   public String toString() {
-    return key + ": " + format;
+    return key + ": " + formatField;
   }
 }

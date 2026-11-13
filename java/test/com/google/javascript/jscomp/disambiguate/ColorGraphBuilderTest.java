@@ -580,7 +580,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
    */
   private static final class StubLcaFinder
       extends LowestCommonAncestorFinder<ColorGraphNode, Object> {
-    private DiGraph<ColorGraphNode, Object> graph;
+    private DiGraph<ColorGraphNode, Object> graphField;
     private final LinkedHashMap<ImmutableSet<ColorId>, ImmutableSet<ColorId>> stubs =
         new LinkedHashMap<>();
     private final LinkedHashMap<Runnable, Integer> preconditions = new LinkedHashMap<>();
@@ -590,7 +590,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
     }
 
     StubLcaFinder setGraph(DiGraph<ColorGraphNode, Object> graph) {
-      this.graph = graph;
+      this.graphField = graph;
       return this;
     }
 
@@ -612,7 +612,7 @@ public final class ColorGraphBuilderTest extends CompilerTestCase {
       ImmutableSet<ColorId> resultNames = this.stubs.get(rootIds);
 
       ImmutableSet<ColorGraphNode> results =
-          this.graph.getNodes().stream()
+          this.graphField.getNodes().stream()
               .map(DiGraphNode::getValue)
               .filter((t) -> resultNames.contains(nameOf(t)))
               .collect(toImmutableSet());

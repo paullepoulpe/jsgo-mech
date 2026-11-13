@@ -602,10 +602,10 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
     }
 
     static final class Builder {
-      private @Nullable String propertyKey;
-      private Es6RewriteClass.ClassProperty.@Nullable PropertyKind kind;
-      private @Nullable JSDocInfo jsDocInfo;
-      private Color propertyType;
+      private @Nullable String propertyKeyField;
+      private Es6RewriteClass.ClassProperty.@Nullable PropertyKind kindField;
+      private @Nullable JSDocInfo jsDocInfoField;
+      private Color propertyTypeField;
 
       Builder() {
       }
@@ -614,7 +614,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
         if (value == null) {
           throw new NullPointerException("Null propertyKey");
         }
-        this.propertyKey = value;
+        this.propertyKeyField = value;
         return this;
       }
 
@@ -622,7 +622,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
         if (value == null) {
           throw new NullPointerException("Null kind");
         }
-        this.kind = value;
+        this.kindField = value;
         return this;
       }
 
@@ -630,36 +630,36 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
         if (value == null) {
           throw new NullPointerException("Null jsDocInfo");
         }
-        this.jsDocInfo = value;
+        this.jsDocInfoField = value;
         return this;
       }
 
       Builder propertyType(@Nullable Color type) {
-        this.propertyType = type;
+        this.propertyTypeField = type;
         return this;
       }
 
       ClassProperty build() {
-        if (this.propertyKey == null
-            || this.kind == null
-            || this.jsDocInfo == null) {
+        if (this.propertyKeyField == null
+            || this.kindField == null
+            || this.jsDocInfoField == null) {
           StringBuilder missing = new StringBuilder();
-          if (this.propertyKey == null) {
+          if (this.propertyKeyField == null) {
             missing.append(" propertyKey");
           }
-          if (this.kind == null) {
+          if (this.kindField == null) {
             missing.append(" kind");
           }
-          if (this.jsDocInfo == null) {
+          if (this.jsDocInfoField == null) {
             missing.append(" jsDocInfo");
           }
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new Es6RewriteClass.ClassProperty(
-            this.propertyKey,
-            this.kind,
-            this.jsDocInfo,
-            this.propertyType);
+            this.propertyKeyField,
+            this.kindField,
+            this.jsDocInfoField,
+            this.propertyTypeField);
       }
     }
   }
@@ -686,15 +686,15 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
    * @param anonymous Whether the constructor function in the output should be anonymous.
    */
   static final class ClassDeclarationMetadata {
-    private final InsertionPoint insertionPoint;
-    private Node definePropertiesObjForPrototype;
-    private Node definePropertiesObjForClass;
-    private final Map<String, ClassProperty> classMembersToDeclare;
-    private final Node fullClassNameNode;
-    private final Node classPrototypeNode;
-    private final boolean anonymous;
-    private final Node classNameNode;
-    private final Node superClassNameNode;
+    private final InsertionPoint insertionPointField;
+    private Node definePropertiesObjForPrototypeField;
+    private Node definePropertiesObjForClassField;
+    private final Map<String, ClassProperty> classMembersToDeclareField;
+    private final Node fullClassNameNodeField;
+    private final Node classPrototypeNodeField;
+    private final boolean anonymousField;
+    private final Node classNameNodeField;
+    private final Node superClassNameNodeField;
 
     ClassDeclarationMetadata(
         InsertionPoint insertionPoint,
@@ -706,62 +706,62 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
         boolean anonymous,
         Node classNameNode,
         Node superClassNameNode) {
-      this.insertionPoint = requireNonNull(insertionPoint, "insertionPoint");
-      this.definePropertiesObjForPrototype =
+      this.insertionPointField = requireNonNull(insertionPoint, "insertionPoint");
+      this.definePropertiesObjForPrototypeField =
           requireNonNull(definePropertiesObjForPrototype, "definePropertiesObjForPrototype");
-      this.definePropertiesObjForClass =
+      this.definePropertiesObjForClassField =
           requireNonNull(definePropertiesObjForClass, "definePropertiesObjForClass");
-      this.classMembersToDeclare = requireNonNull(classMembersToDeclare, "classMembersToDeclare");
-      this.fullClassNameNode = requireNonNull(fullClassNameNode, "fullClassNameNode");
-      this.classPrototypeNode = requireNonNull(classPrototypeNode, "classPrototypeNode");
-      this.classNameNode = requireNonNull(classNameNode, "classNameNode");
-      this.superClassNameNode = requireNonNull(superClassNameNode, "superClassNameNode");
-      this.anonymous = anonymous;
+      this.classMembersToDeclareField = requireNonNull(classMembersToDeclare, "classMembersToDeclare");
+      this.fullClassNameNodeField = requireNonNull(fullClassNameNode, "fullClassNameNode");
+      this.classPrototypeNodeField = requireNonNull(classPrototypeNode, "classPrototypeNode");
+      this.classNameNodeField = requireNonNull(classNameNode, "classNameNode");
+      this.superClassNameNodeField = requireNonNull(superClassNameNode, "superClassNameNode");
+      this.anonymousField = anonymous;
     }
 
     InsertionPoint insertionPoint() {
-      return insertionPoint;
+      return insertionPointField;
     }
 
     Node definePropertiesObjForPrototype() {
-      return definePropertiesObjForPrototype;
+      return definePropertiesObjForPrototypeField;
     }
 
     void resetDefinePropertiesObjForPrototype(AstFactory astFactory) {
-      this.definePropertiesObjForPrototype =
-          astFactory.createObjectLit(type(this.fullClassNameNode));
+      this.definePropertiesObjForPrototypeField =
+          astFactory.createObjectLit(type(this.fullClassNameNodeField));
     }
 
     Node definePropertiesObjForClass() {
-      return definePropertiesObjForClass;
+      return definePropertiesObjForClassField;
     }
 
     void resetDefinePropertiesObjForClass(AstFactory astFactory) {
-      this.definePropertiesObjForClass = astFactory.createObjectLit(type(this.fullClassNameNode));
+      this.definePropertiesObjForClassField = astFactory.createObjectLit(type(this.fullClassNameNodeField));
     }
 
     Map<String, ClassProperty> classMembersToDeclare() {
-      return classMembersToDeclare;
+      return classMembersToDeclareField;
     }
 
     Node fullClassNameNode() {
-      return fullClassNameNode;
+      return fullClassNameNodeField;
     }
 
     Node classPrototypeNode() {
-      return classPrototypeNode;
+      return classPrototypeNodeField;
     }
 
     boolean anonymous() {
-      return anonymous;
+      return anonymousField;
     }
 
     Node classNameNode() {
-      return classNameNode;
+      return classNameNodeField;
     }
 
     Node superClassNameNode() {
-      return superClassNameNode;
+      return superClassNameNodeField;
     }
 
     static final class Builder {
@@ -769,7 +769,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
       private Node definePropertiesObjForPrototype;
       private Node definePropertiesObjForClass;
       private Map<String, Es6RewriteClass.ClassProperty> classMembersToDeclare;
-      private Node fullClassNameNode;
+      private Node fullClassNameNodeField;
       private Node classPrototypeNode;
       private boolean anonymous;
       private Node classNameNode;
@@ -791,15 +791,15 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
         if (fullClassNameNode == null) {
           throw new NullPointerException("Null fullClassNameNode");
         }
-        this.fullClassNameNode = fullClassNameNode;
+        this.fullClassNameNodeField = fullClassNameNode;
         return this;
       }
 
       Node fullClassNameNode() {
-        if (this.fullClassNameNode == null) {
+        if (this.fullClassNameNodeField == null) {
           throw new IllegalStateException("Property \"fullClassNameNode\" has not been set");
         }
-        return fullClassNameNode;
+        return fullClassNameNodeField;
       }
 
       Builder setClassMembersToDeclare(Map<String, ClassProperty> classMembersToDeclare) {
@@ -862,7 +862,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
             || this.definePropertiesObjForPrototype == null
             || this.definePropertiesObjForClass == null
             || this.classMembersToDeclare == null
-            || this.fullClassNameNode == null
+            || this.fullClassNameNodeField == null
             || this.classPrototypeNode == null
             || this.classNameNode == null
             || this.superClassNameNode == null) {
@@ -879,7 +879,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
           if (this.classMembersToDeclare == null) {
             missing.append(" classMembersToDeclare");
           }
-          if (this.fullClassNameNode == null) {
+          if (this.fullClassNameNodeField == null) {
             missing.append(" fullClassNameNode");
           }
           if (this.classPrototypeNode == null) {
@@ -901,7 +901,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
             this.definePropertiesObjForPrototype,
             this.definePropertiesObjForClass,
             this.classMembersToDeclare,
-            this.fullClassNameNode,
+            this.fullClassNameNodeField,
             this.classPrototypeNode,
             this.anonymous,
             this.classNameNode,

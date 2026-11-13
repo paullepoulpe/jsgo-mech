@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class Es6RewriteArrowFunctionTest extends CompilerTestCase {
 
-  private LanguageMode languageOut;
+  private LanguageMode languageOutField;
 
   public Es6RewriteArrowFunctionTest() {
     super(MINIMAL_EXTERNS);
@@ -38,7 +38,7 @@ public class Es6RewriteArrowFunctionTest extends CompilerTestCase {
     super.setUp();
 
     setAcceptedLanguage(LanguageMode.ECMASCRIPT_2015);
-    languageOut = LanguageMode.ECMASCRIPT3;
+    languageOutField = LanguageMode.ECMASCRIPT3;
 
     enableNormalize();
     enableTypeInfoValidation();
@@ -53,7 +53,7 @@ public class Es6RewriteArrowFunctionTest extends CompilerTestCase {
   @Override
   protected CompilerOptions getOptions() {
     CompilerOptions options = super.getOptions();
-    options.setLanguageOut(languageOut);
+    options.setLanguageOut(languageOutField);
     return options;
   }
 

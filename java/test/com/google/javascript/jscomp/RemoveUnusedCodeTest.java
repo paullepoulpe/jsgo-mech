@@ -2503,7 +2503,7 @@ public final class RemoveUnusedCodeTest extends CompilerTestCase {
 
     // Input source code, which will be prefixed with the polyfills.
     // A value of `null` just means this hasn't been set yet.
-    private @Nullable String inputSource = null;
+    private @Nullable String inputSourceField = null;
 
     // Expected output source code, which will be prefixed with the output version of each polyfill.
     // A value of `null` means this value hasn't been set yet or needs to be reset because
@@ -2532,7 +2532,7 @@ public final class RemoveUnusedCodeTest extends CompilerTestCase {
 
     @CanIgnoreReturnValue
     PolyfillRemovalTester inputSource(String inputSource) {
-      this.inputSource = inputSource;
+      this.inputSourceField = inputSource;
       // Force updates for the expected output source and polyfills
       expectedSource = null;
       polyfillsExpectedToBeRemoved = null;
@@ -2541,8 +2541,8 @@ public final class RemoveUnusedCodeTest extends CompilerTestCase {
 
     @CanIgnoreReturnValue
     PolyfillRemovalTester expectSourceUnchanged() {
-      checkNotNull(inputSource);
-      expectedSource = inputSource;
+      checkNotNull(inputSourceField);
+      expectedSource = inputSourceField;
       return this;
     }
 
@@ -2588,7 +2588,7 @@ public final class RemoveUnusedCodeTest extends CompilerTestCase {
       final String externsText = externs.stream().collect(newlineJoiner);
 
       final String inputSourceText =
-          Stream.concat(polyfills.stream(), Stream.of(inputSource)).collect(newlineJoiner);
+          Stream.concat(polyfills.stream(), Stream.of(inputSourceField)).collect(newlineJoiner);
 
       checkNotNull(polyfillsExpectedToBeRemoved, "unset/undefined polyfill removal behavior");
       final Stream<String> expectedPolyfillsStream =

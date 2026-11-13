@@ -92,7 +92,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
   private final @Nullable K key;
 
   /** Hash of the key, right-shifted by BITS*depth. */
-  private final int hash;
+  private final int hashField;
 
   /** Non-null value (exceptions: (1) empty map, (2) result of pivot, if not found). */
   private final @Nullable V value;
@@ -109,7 +109,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
 
   private HamtPMap(K key, int hash, V value, int mask, HamtPMap<K, V>[] children) {
     this.key = key;
-    this.hash = hash;
+    this.hashField = hash;
     this.value = value;
     this.mask = mask;
     this.children = children;
@@ -197,7 +197,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
 
   /** Internal recursive implementation of get(K). */
   private V get(K key, int hash) {
-    if (hash == this.hash && key.equals(this.key)) {
+    if (hash == this.hashField && key.equals(this.key)) {
       return this.value;
     }
     int bucket = bucket(hash);
@@ -221,12 +221,12 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
 
   /** Internal recursive implementation of plus(K, V). */
   private HamtPMap<K, V> plus(K key, int hash, V value) {
-    if (hash == this.hash && key.equals(this.key)) {
+    if (hash == this.hashField && key.equals(this.key)) {
       return value.equals(this.value)
           ? this
           : new HamtPMap<>(key, hash, value, mask, children);
     }
-    if (compareUnsigned(hash, this.hash) < 0) {
+    if (compareUnsigned(hash, this.hashField) < 0) {
       return replaceRoot(key, hash, value);
     }
     int bucket = bucket(hash);
@@ -246,8 +246,8 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
   }
 
   private HamtPMap<K, V> replaceRoot(K key, int hash, V value) {
-    int bucket = bucket(this.hash);
-    int leafHash = shift(this.hash);
+    int bucket = bucket(this.hashField);
+    int leafHash = shift(this.hashField);
     int bucketMask = 1 << bucket;
     int index = index(bucketMask);
     HamtPMap<K, V>[] newChildren;
@@ -276,7 +276,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
    * the 'value' array, if it is non-null.
    */
   private HamtPMap<K, V> minus(K key, int hash, V @Nullable [] value) {
-    if (hash == this.hash && key.equals(this.key)) {
+    if (hash == this.hashField && key.equals(this.key)) {
       HamtPMap<K, V> result = deleteRoot(mask, children);
       if (value != null) {
         value[0] = this.value;
@@ -325,7 +325,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
         newChildren[i] = reconcile(null, newChildren[i], joiner);
       }
       return newValue != null
-          ? new HamtPMap<>(t2.key, t2.hash, newValue, t2.mask, newChildren)
+          ? new HamtPMap<>(t2.key, t2.hashField, newValue, t2.mask, newChildren)
           : deleteRoot(t2.mask, newChildren);
     } else if (t2 == null) {
       V newValue = joiner.merge(t1.key, t1.value, null);
@@ -334,7 +334,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
         newChildren[i] = reconcile(newChildren[i], null, joiner);
       }
       return newValue != null
-          ? new HamtPMap<>(t1.key, t1.hash, newValue, t1.mask, newChildren)
+          ? new HamtPMap<>(t1.key, t1.hashField, newValue, t1.mask, newChildren)
           : deleteRoot(t1.mask, newChildren);
     }
 
@@ -343,9 +343,9 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
     boolean sameChildrenAs2 = true;
 
     // If the hashes are different, we need to keep the lower one at the top.
-    int hashCmp = compareUnsigned(t1.hash, t2.hash);
+    int hashCmp = compareUnsigned(t1.hashField, t2.hashField);
     K key = t1.key;
-    int hash = t1.hash;
+    int hash = t1.hashField;
     if (hashCmp < 0) {
       // t1.key is missing from t2
       t2 = t2.vacateRoot();
@@ -355,10 +355,10 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
       t1 = t1.vacateRoot();
       sameChildrenAs1 = false;
       key = t2.key;
-      hash = t2.hash;
+      hash = t2.hashField;
     } else if (!t1.key.equals(t2.key)) {
       // Hash collision: try to rearrange t2 to have the same root as t1
-      t2 = t2.pivot(t1.key, t1.hash);
+      t2 = t2.pivot(t1.key, t1.hashField);
       sameChildrenAs2 = false;
     }
     // Note: one or the other (but not both) tree may have a null key at root.
@@ -423,13 +423,13 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
       return false;
     }
 
-    if (t1.hash != t2.hash) {
+    if (t1.hashField != t2.hashField) {
       // Due to the invariant that keys that are .equals must have the same hash code, we can
       // safely conclude that there's a discrepancy in the keys without any extra work.
       return false;
     } else if (!t1.key.equals(t2.key)) {
       // Hash collision: try to rearrange t2 to have the same root as t1
-      t2 = t2.pivot(t1.key, t1.hash);
+      t2 = t2.pivot(t1.key, t1.hashField);
       if (t2.value == null) {
         // pivot() returns a null 't2.value' when t1.key was not found in t2
         return false;
@@ -523,13 +523,13 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
   private HamtPMap<K, V> pivot(K key, int hash, @Nullable HamtPMap<K, V> parent, V[] result) {
     int newMask = mask;
     HamtPMap<K, V>[] newChildren = this.children;
-    if (hash == this.hash && key.equals(this.key)) {
+    if (hash == this.hashField && key.equals(this.key)) {
       // Found the key: swap out this key/value with the parent and return the result in the holder.
       result[0] = this.value;
     } else {
       // Otherwise, see if the value might be present in a child.
       int searchBucket = bucket(hash);
-      int replacementBucket = bucket(this.hash);
+      int replacementBucket = bucket(this.hashField);
 
       if (searchBucket == replacementBucket) {
         int bucketMask = 1 << searchBucket;
@@ -557,34 +557,34 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
         int index = Integer.bitCount(newMask & (replacementMask - 1));
         if ((mask & replacementMask) != 0) {
           HamtPMap<K, V> child = newChildren[index];
-          HamtPMap<K, V> newChild = child.plus(this.key, shift(this.hash), this.value);
+          HamtPMap<K, V> newChild = child.plus(this.key, shift(this.hashField), this.value);
           newChildren = replaceChild(newChildren, index, newChild);
         } else {
           newChildren =
               insertChild(
                   newChildren,
                   index,
-                  new HamtPMap<>(this.key, shift(this.hash), this.value, 0, emptyChildren()));
+                  new HamtPMap<>(this.key, shift(this.hashField), this.value, 0, emptyChildren()));
           newMask |= replacementMask;
         }
       }
     }
     return parent != null
-        ? new HamtPMap<>(parent.key, shift(parent.hash), parent.value, newMask, newChildren)
+        ? new HamtPMap<>(parent.key, shift(parent.hashField), parent.value, newMask, newChildren)
         : new HamtPMap<>(key, hash, result[0], newMask, newChildren);
   }
 
   /** Moves the root into the appropriate child. */
   private HamtPMap<K, V> vacateRoot() {
-    int bucket = bucket(this.hash);
+    int bucket = bucket(this.hashField);
     int bucketMask = 1 << bucket;
     int index = index(bucketMask);
     if ((mask & bucketMask) != 0) {
-      HamtPMap<K, V> newChild = children[index].plus(this.key, shift(this.hash), this.value);
+      HamtPMap<K, V> newChild = children[index].plus(this.key, shift(this.hashField), this.value);
       return new HamtPMap<>(null, 0, null, mask, replaceChild(children, index, newChild));
     }
     HamtPMap<K, V> newChild =
-        new HamtPMap<>(this.key, shift(this.hash), this.value, 0, emptyChildren());
+        new HamtPMap<>(this.key, shift(this.hashField), this.value, 0, emptyChildren());
     return new HamtPMap<>(null, 0, null, mask | bucketMask, insertChild(children, index, newChild));
   }
 
@@ -592,7 +592,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
   private HamtPMap<K, V> withChildren(int mask, HamtPMap<K, V>[] children) {
     return mask == this.mask && children == this.children
         ? this
-        : new HamtPMap<>(key, hash, value, mask, children);
+        : new HamtPMap<>(key, hashField, value, mask, children);
   }
 
   /**
@@ -605,7 +605,7 @@ public final class HamtPMap<K, V> implements PMap<K, V>, Serializable {
     }
     HamtPMap<K, V> child = children[0];
     int hashBits = Integer.numberOfTrailingZeros(mask);
-    int newHash = unshift(child.hash, hashBits);
+    int newHash = unshift(child.hashField, hashBits);
     HamtPMap<K, V> newChild = deleteRoot(child.mask, child.children);
     if (newChild == null) {
       int newMask = mask & ~Integer.lowestOneBit(mask);

@@ -326,7 +326,7 @@ public class CompilerOptions {
    * example in non-strict "null" or "undefined" will be coerced to the global "this" and primitives
    * to objects).
    */
-  private boolean assumeStrictThis;
+  private boolean assumeStrictThisField;
 
   private boolean preserveDetailedSourceInfo = false;
   private boolean preserveNonJSDocComments = false;
@@ -759,7 +759,7 @@ public class CompilerOptions {
           "When replacing messages with chrome.i18n.getMessage, a message bundle should not be"
               + " specified.");
       checkState(
-          !doLateLocalization, "Late localization is not supported for chrome.i18n.getMessage");
+          !doLateLocalizationField, "Late localization is not supported for chrome.i18n.getMessage");
       return true;
     } else {
       return false;
@@ -783,7 +783,7 @@ public class CompilerOptions {
    *
    * <p>TODO(johnlenz): Use this option to control late substitution of other locale-specific code.
    */
-  private boolean doLateLocalization;
+  private boolean doLateLocalizationField;
 
   /** Sets the special "COMPILED" value to true */
   private boolean markAsCompiled;
@@ -947,7 +947,7 @@ public class CompilerOptions {
   /** Runtime libraries to never inject. */
   private RuntimeLibraryMode runtimeLibraryMode = RuntimeLibraryMode.INJECT;
 
-  private boolean assumeForwardDeclaredForMissingTypes = false;
+  private boolean assumeForwardDeclaredForMissingTypesField = false;
 
   /**
    * A Set of goog.requires to be removed. If null, ALL of the unused goog.requires will be counted
@@ -961,11 +961,11 @@ public class CompilerOptions {
    */
   public void setAssumeForwardDeclaredForMissingTypes(
       boolean assumeForwardDeclaredForMissingTypes) {
-    this.assumeForwardDeclaredForMissingTypes = assumeForwardDeclaredForMissingTypes;
+    this.assumeForwardDeclaredForMissingTypesField = assumeForwardDeclaredForMissingTypes;
   }
 
   boolean assumeForwardDeclaredForMissingTypes() {
-    return assumeForwardDeclaredForMissingTypes;
+    return assumeForwardDeclaredForMissingTypesField;
   }
 
   // --------------------------------
@@ -1497,7 +1497,7 @@ public class CompilerOptions {
     inlineConstantVars = false;
     inlineFunctionsLevel = Reach.NONE;
     maxFunctionSizeAfterInlining = UNLIMITED_FUN_SIZE_AFTER_INLINING;
-    assumeStrictThis = false;
+    assumeStrictThisField = false;
     inlineProperties = false;
     crossChunkCodeMotion = false;
     parentChunkCanSeeSymbolsDeclaredInChildren = false;
@@ -1540,7 +1540,7 @@ public class CompilerOptions {
     syntheticBlockStartMarker = null;
     syntheticBlockEndMarker = null;
     locale = null;
-    doLateLocalization = false;
+    doLateLocalizationField = false;
     markAsCompiled = false;
     closurePass = false;
     preserveClosurePrimitives = false;
@@ -2218,12 +2218,12 @@ public class CompilerOptions {
    * @return Whether assumeStrictThis is set.
    */
   public boolean assumeStrictThis() {
-    return assumeStrictThis;
+    return assumeStrictThisField;
   }
 
   /** If true, enables enables additional optimizations. */
   public void setAssumeStrictThis(boolean enable) {
-    this.assumeStrictThis = enable;
+    this.assumeStrictThisField = enable;
   }
 
   /** Sets the list of properties that we report property invalidation errors for. */
@@ -2768,11 +2768,11 @@ public class CompilerOptions {
   }
 
   public void setDoLateLocalization(boolean doLateLocalization) {
-    this.doLateLocalization = doLateLocalization;
+    this.doLateLocalizationField = doLateLocalization;
   }
 
   public boolean doLateLocalization() {
-    return doLateLocalization;
+    return doLateLocalizationField;
   }
 
   /** Should we run any form of the `ReplaceMessages` pass? */

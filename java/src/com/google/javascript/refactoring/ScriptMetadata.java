@@ -41,7 +41,7 @@ import org.jspecify.annotations.Nullable;
 public final class ScriptMetadata {
 
   private final Node script;
-  private boolean supportsRequireAliases;
+  private boolean supportsRequireAliasesField;
   private final LinkedHashMap<String, String> requireAliases = new LinkedHashMap<>();
   private final LinkedHashSet<String> namesInUse = new LinkedHashSet<>();
 
@@ -58,7 +58,7 @@ public final class ScriptMetadata {
     // Even if the file was not found to be a module, the existence of other aliases means aliases
     // are supported.
     if (!toFill.requireAliases.isEmpty()) {
-      toFill.supportsRequireAliases = true;
+      toFill.supportsRequireAliasesField = true;
     }
     return toFill;
   }
@@ -73,7 +73,7 @@ public final class ScriptMetadata {
 
   /** When requires are added to this script, should they be given local aliases? */
   boolean supportsRequireAliases() {
-    return this.supportsRequireAliases;
+    return this.supportsRequireAliasesField;
   }
 
   /**
@@ -102,7 +102,7 @@ public final class ScriptMetadata {
    * <p>As a corallary, any alias is also a name in use within this script.
    */
   void addAlias(String namespace, String alias) {
-    checkState(this.supportsRequireAliases);
+    checkState(this.supportsRequireAliasesField);
     this.namesInUse.add(alias);
     this.requireAliases.put(namespace, alias);
   }
@@ -142,7 +142,7 @@ public final class ScriptMetadata {
         }
       }
 
-      this.toFill.supportsRequireAliases = true;
+      this.toFill.supportsRequireAliasesField = true;
     }
 
     private void maybeCollectRequirelikeAlias(Node n) {

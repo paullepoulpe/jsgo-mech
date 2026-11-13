@@ -36,12 +36,12 @@ final class NonEsModuleProcessor implements ModuleProcessor {
 
   private static class NonEsModule extends UnresolvedModule {
 
-    private final ModuleMetadata metadata;
+    private final ModuleMetadata metadataField;
     private final ModulePath path;
     private final Node scriptNode;
 
     NonEsModule(ModuleMetadata metadata, ModulePath path, Node scriptNode) {
-      this.metadata = metadata;
+      this.metadataField = metadata;
       this.path = path;
       this.scriptNode = scriptNode;
     }
@@ -62,10 +62,10 @@ final class NonEsModuleProcessor implements ModuleProcessor {
       String namespace = null;
       if (moduleSpecifier != null && GoogEsImports.isGoogImportSpecifier(moduleSpecifier)) {
         namespace = GoogEsImports.getClosureIdFromGoogImportSpecifier(moduleSpecifier);
-      } else if (metadata.isGoogProvide()) {
+      } else if (metadataField.isGoogProvide()) {
         namespace = moduleSpecifier;
       }
-      if (metadata.isCommonJs()) {
+      if (metadataField.isCommonJs()) {
         // Currently we don't scan require()s, so this only gets hit if an ES module imports a CJS
         // module. If so then this module should only have a default export.
         if (!exportName.equals("default")) {
@@ -76,7 +76,7 @@ final class NonEsModuleProcessor implements ModuleProcessor {
           Binding.from(
               Export.builder()
                   .exportName(exportName)
-                  .moduleMetadata(metadata)
+                  .moduleMetadata(metadataField)
                   .modulePath(path)
                   .closureNamespace(namespace)
                   .build(),
@@ -95,7 +95,7 @@ final class NonEsModuleProcessor implements ModuleProcessor {
       }
       return Module.builder()
           .path(path)
-          .metadata(metadata)
+          .metadata(metadataField)
           .namespace(ImmutableMap.of())
           .boundNames(ImmutableMap.of())
           .localNameToLocalExport(ImmutableMap.of())
@@ -105,7 +105,7 @@ final class NonEsModuleProcessor implements ModuleProcessor {
 
     @Override
     ModuleMetadata metadata() {
-      return metadata;
+      return metadataField;
     }
 
     @Override

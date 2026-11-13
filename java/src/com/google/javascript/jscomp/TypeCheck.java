@@ -405,12 +405,12 @@ public final class TypeCheck implements NodeTraversal.Callback, CompilerPass {
 
   private TypedScopeCreator scopeCreator;
 
-  private boolean reportUnknownTypes = false;
+  private boolean reportUnknownTypesField = false;
   private SubtypingMode subtypingMode = SubtypingMode.NORMAL;
 
   // This may be expensive, so don't emit these warnings if they're
   // explicitly turned off.
-  private boolean reportMissingProperties = true;
+  private boolean reportMissingPropertiesField = true;
 
   private @Nullable InferJSDocInfo inferJSDocInfo = null;
 
@@ -458,14 +458,14 @@ public final class TypeCheck implements NodeTraversal.Callback, CompilerPass {
   /** Turn on the missing property check. Returns this for easy chaining. */
   @CanIgnoreReturnValue
   TypeCheck reportMissingProperties(boolean report) {
-    reportMissingProperties = report;
+    reportMissingPropertiesField = report;
     return this;
   }
 
   /** Turn on the unknown types check. Returns this for easy chaining. */
   @CanIgnoreReturnValue
   TypeCheck reportUnknownTypes(boolean report) {
-    reportUnknownTypes = report;
+    reportUnknownTypesField = report;
     return this;
   }
 
@@ -1057,7 +1057,7 @@ public final class TypeCheck implements NodeTraversal.Callback, CompilerPass {
     if (type == null) {
       nullCount++;
     } else if (type.isUnknownType()) {
-      if (reportUnknownTypes && !n.getParent().isExprResult()) {
+      if (reportUnknownTypesField && !n.getParent().isExprResult()) {
         compiler.report(JSError.make(n, UNKNOWN_EXPR_TYPE));
       }
       unknownCount++;
@@ -2116,7 +2116,7 @@ public final class TypeCheck implements NodeTraversal.Callback, CompilerPass {
     final boolean isGetprop = NodeUtil.isNormalOrOptChainGetProp(propNode);
     final String propName = propNode.getString();
 
-    if (!reportMissingProperties
+    if (!reportMissingPropertiesField
         || objectType.isEmptyType()
         || (isGetprop && allowStrictPropertyAccessOnNode(propNode))) {
       return;

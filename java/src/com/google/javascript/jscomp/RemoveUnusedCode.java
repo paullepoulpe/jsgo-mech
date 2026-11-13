@@ -152,21 +152,21 @@ class RemoveUnusedCode implements CompilerPass {
     this.codingConvention = builder.compiler.getCodingConvention();
     this.scopeCreator = new SyntacticScopeCreator(builder.compiler);
 
-    this.removeLocalVars = builder.removeLocalVars;
-    this.removeGlobals = builder.removeGlobals;
-    this.preserveFunctionExpressionNames = builder.preserveFunctionExpressionNames;
-    this.removeUnusedPrototypeProperties = builder.removeUnusedPrototypeProperties;
-    this.removeUnusedThisProperties = builder.removeUnusedThisProperties;
+    this.removeLocalVars = builder.removeLocalVarsField;
+    this.removeGlobals = builder.removeGlobalsField;
+    this.preserveFunctionExpressionNames = builder.preserveFunctionExpressionNamesField;
+    this.removeUnusedPrototypeProperties = builder.removeUnusedPrototypePropertiesField;
+    this.removeUnusedThisProperties = builder.removeUnusedThisPropertiesField;
     this.removeUnusedObjectDefinePropertiesDefinitions =
-        builder.removeUnusedObjectDefinePropertiesDefinitions;
-    this.removeUnusedPolyfills = builder.removeUnusedPolyfills;
-    this.disambiguateProperties = builder.disambiguateProperties;
+        builder.removeUnusedObjectDefinePropertiesDefinitionsField;
+    this.removeUnusedPolyfills = builder.removeUnusedPolyfillsField;
+    this.disambiguateProperties = builder.disambiguatePropertiesField;
     this.polyfillsFromTable =
         Polyfills.fromTable(
             ResourceLoader.loadTextResource(RemoveUnusedCode.class, "js/polyfills.txt"));
     this.polyfillUsageFinder =
         new PolyfillUsageFinder(compiler, this.polyfillsFromTable, this.disambiguateProperties);
-    this.assumeGettersArePure = builder.assumeGettersArePure;
+    this.assumeGettersArePure = builder.assumeGettersArePureField;
 
     // All Vars that are completely unremovable will share this VarInfo instance.
     canonicalUnremovableVarInfo = new CanonicalUnremovableVarInfo();
@@ -175,15 +175,15 @@ class RemoveUnusedCode implements CompilerPass {
   public static class Builder {
     private final AbstractCompiler compiler;
 
-    private boolean removeLocalVars = false;
-    private boolean removeGlobals = false;
-    private boolean preserveFunctionExpressionNames = false;
-    private boolean removeUnusedPrototypeProperties = false;
-    private boolean removeUnusedThisProperties = false;
-    private boolean removeUnusedObjectDefinePropertiesDefinitions = false;
-    private boolean removeUnusedPolyfills = false;
-    private boolean assumeGettersArePure = false;
-    private boolean disambiguateProperties = false;
+    private boolean removeLocalVarsField = false;
+    private boolean removeGlobalsField = false;
+    private boolean preserveFunctionExpressionNamesField = false;
+    private boolean removeUnusedPrototypePropertiesField = false;
+    private boolean removeUnusedThisPropertiesField = false;
+    private boolean removeUnusedObjectDefinePropertiesDefinitionsField = false;
+    private boolean removeUnusedPolyfillsField = false;
+    private boolean assumeGettersArePureField = false;
+    private boolean disambiguatePropertiesField = false;
 
     Builder(AbstractCompiler compiler) {
       this.compiler = compiler;
@@ -191,55 +191,55 @@ class RemoveUnusedCode implements CompilerPass {
 
     @CanIgnoreReturnValue
     Builder removeLocalVars(boolean value) {
-      this.removeLocalVars = value;
+      this.removeLocalVarsField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder removeGlobals(boolean value) {
-      this.removeGlobals = value;
+      this.removeGlobalsField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder preserveFunctionExpressionNames(boolean value) {
-      this.preserveFunctionExpressionNames = value;
+      this.preserveFunctionExpressionNamesField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder removeUnusedPrototypeProperties(boolean value) {
-      this.removeUnusedPrototypeProperties = value;
+      this.removeUnusedPrototypePropertiesField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder removeUnusedThisProperties(boolean value) {
-      this.removeUnusedThisProperties = value;
+      this.removeUnusedThisPropertiesField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder removeUnusedObjectDefinePropertiesDefinitions(boolean value) {
-      this.removeUnusedObjectDefinePropertiesDefinitions = value;
+      this.removeUnusedObjectDefinePropertiesDefinitionsField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder removeUnusedPolyfills(boolean value) {
-      this.removeUnusedPolyfills = value;
+      this.removeUnusedPolyfillsField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder assumeGettersArePure(boolean value) {
-      this.assumeGettersArePure = value;
+      this.assumeGettersArePureField = value;
       return this;
     }
 
     @CanIgnoreReturnValue
     Builder disambiguateProperties(boolean value) {
-      this.disambiguateProperties = value;
+      this.disambiguatePropertiesField = value;
       return this;
     }
 
@@ -1752,8 +1752,8 @@ class RemoveUnusedCode implements CompilerPass {
      */
     final @Nullable Node targetNode;
 
-    private final boolean isPrototypeDotPropertyReference;
-    private final boolean isThisDotPropertyReference;
+    private final boolean isPrototypeDotPropertyReferenceField;
+    private final boolean isThisDotPropertyReferenceField;
 
     private boolean continuationsAreApplied = false;
     private boolean isRemoved = false;
@@ -1761,8 +1761,8 @@ class RemoveUnusedCode implements CompilerPass {
     Removable(Node targetNode, RemovableBuilder builder) {
       continuations = builder.continuations;
       propertyName = builder.propertyName;
-      isPrototypeDotPropertyReference = builder.isPrototypeDotPropertyReference;
-      isThisDotPropertyReference = builder.isThisDotPropertyReference;
+      isPrototypeDotPropertyReferenceField = builder.isPrototypeDotPropertyReference;
+      isThisDotPropertyReferenceField = builder.isThisDotPropertyReference;
       this.targetNode = targetNode;
     }
 
@@ -1832,7 +1832,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     /** Is this an assignment to a property on a prototype object? */
     boolean isPrototypeDotPropertyReference() {
-      return isPrototypeDotPropertyReference;
+      return isPrototypeDotPropertyReferenceField;
     }
 
     boolean isClassOrPrototypeNamedProperty() {
@@ -1844,7 +1844,7 @@ class RemoveUnusedCode implements CompilerPass {
     }
 
     boolean isThisDotPropertyReference() {
-      return isThisDotPropertyReference;
+      return isThisDotPropertyReferenceField;
     }
 
     boolean isObjectDefinePropertiesDefinition() {
@@ -2947,7 +2947,7 @@ class RemoveUnusedCode implements CompilerPass {
     //     externs.
     //
     // At least one assignment to the variable is a function or class literal.
-    boolean hasFunctionOrClassLiteralValue = false;
+    boolean hasFunctionOrClassLiteralValueField = false;
     boolean requiresLocalLiteralValueForRemoval = false;
 
     RealVarInfo(String varName) {
@@ -2968,7 +2968,7 @@ class RemoveUnusedCode implements CompilerPass {
           // without initial values.
           // `var a;` isAssignedValueLocal() == true but getLocalAssignedValue() == null
           if (localValue != null && (localValue.isFunction() || localValue.isClass())) {
-            hasFunctionOrClassLiteralValue = true;
+            hasFunctionOrClassLiteralValueField = true;
           }
         } else {
           hasNonLocalOrNonLiteralValue = true;
@@ -3017,7 +3017,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     @Override
     public boolean hasFunctionOrClassLiteralValue() {
-      return hasFunctionOrClassLiteralValue;
+      return hasFunctionOrClassLiteralValueField;
     }
 
     @Override

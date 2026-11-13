@@ -97,35 +97,35 @@ public record Module(
 
   /** Builder for {@link Module}. */
   public static final class Builder {
-    private ModuleMetadataMap.@Nullable ModuleMetadata metadata;
-    private ModulePath path;
-    private @Nullable ImmutableMap<String, Binding> namespace;
-    private @Nullable ImmutableMap<String, Binding> boundNames;
-    private @Nullable ImmutableMap<String, Export> localNameToLocalExport;
-    private String closureNamespace;
+    private ModuleMetadataMap.@Nullable ModuleMetadata metadataField;
+    private ModulePath pathField;
+    private @Nullable ImmutableMap<String, Binding> namespaceField;
+    private @Nullable ImmutableMap<String, Binding> boundNamesField;
+    private @Nullable ImmutableMap<String, Export> localNameToLocalExportField;
+    private String closureNamespaceField;
 
     Builder() {
     }
 
     Builder(Module source) {
-      this.metadata = source.metadata();
-      this.path = source.path();
-      this.namespace = source.namespace();
-      this.boundNames = source.boundNames();
-      this.localNameToLocalExport = source.localNameToLocalExport();
-      this.closureNamespace = source.closureNamespace();
+      this.metadataField = source.metadata();
+      this.pathField = source.path();
+      this.namespaceField = source.namespace();
+      this.boundNamesField = source.boundNames();
+      this.localNameToLocalExportField = source.localNameToLocalExport();
+      this.closureNamespaceField = source.closureNamespace();
     }
 
     public Builder metadata(ModuleMetadata value) {
       if (value == null) {
         throw new NullPointerException("Null metadata");
       }
-      this.metadata = value;
+      this.metadataField = value;
       return this;
     }
 
     public Builder path(@Nullable ModulePath value) {
-      this.path = value;
+      this.pathField = value;
       return this;
     }
 
@@ -133,7 +133,7 @@ public record Module(
       if (value == null) {
         throw new NullPointerException("Null namespace");
       }
-      this.namespace = value;
+      this.namespaceField = value;
       return this;
     }
 
@@ -141,7 +141,7 @@ public record Module(
       if (value == null) {
         throw new NullPointerException("Null boundNames");
       }
-      this.boundNames = value;
+      this.boundNamesField = value;
       return this;
     }
 
@@ -149,42 +149,42 @@ public record Module(
       if (value == null) {
         throw new NullPointerException("Null localNameToLocalExport");
       }
-      this.localNameToLocalExport = value;
+      this.localNameToLocalExportField = value;
       return this;
     }
 
     public Builder closureNamespace(@Nullable String value) {
-      this.closureNamespace = value;
+      this.closureNamespaceField = value;
       return this;
     }
 
     public Module build() {
-      if (this.metadata == null
-          || this.namespace == null
-          || this.boundNames == null
-          || this.localNameToLocalExport == null) {
+      if (this.metadataField == null
+          || this.namespaceField == null
+          || this.boundNamesField == null
+          || this.localNameToLocalExportField == null) {
         StringBuilder missing = new StringBuilder();
-        if (this.metadata == null) {
+        if (this.metadataField == null) {
           missing.append(" metadata");
         }
-        if (this.namespace == null) {
+        if (this.namespaceField == null) {
           missing.append(" namespace");
         }
-        if (this.boundNames == null) {
+        if (this.boundNamesField == null) {
           missing.append(" boundNames");
         }
-        if (this.localNameToLocalExport == null) {
+        if (this.localNameToLocalExportField == null) {
           missing.append(" localNameToLocalExport");
         }
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new Module(
-          this.metadata,
-          this.path,
-          this.namespace,
-          this.boundNames,
-          this.localNameToLocalExport,
-          this.closureNamespace);
+          this.metadataField,
+          this.pathField,
+          this.namespaceField,
+          this.boundNamesField,
+          this.localNameToLocalExportField,
+          this.closureNamespaceField);
     }
   }
 }

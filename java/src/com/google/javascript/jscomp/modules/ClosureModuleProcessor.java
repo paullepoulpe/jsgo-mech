@@ -51,7 +51,7 @@ final class ClosureModuleProcessor implements ModuleProcessor {
 
   private static class UnresolvedGoogModule extends UnresolvedModule {
 
-    private final ModuleMetadata metadata;
+    private final ModuleMetadata metadataField;
     private final String srcFileName;
     private final @Nullable ModulePath path;
     private final ImmutableMap<String, Binding> namespace;
@@ -66,7 +66,7 @@ final class ClosureModuleProcessor implements ModuleProcessor {
         ImmutableMap<String, Binding> namespace,
         ImmutableMap<String, Require> requires,
         AbstractCompiler compiler) {
-      this.metadata = metadata;
+      this.metadataField = metadata;
       this.srcFileName = srcFileName;
       this.path = path;
       this.namespace = namespace;
@@ -104,11 +104,11 @@ final class ClosureModuleProcessor implements ModuleProcessor {
         resolved =
             Module.builder()
                 .path(path)
-                .metadata(metadata)
+                .metadata(metadataField)
                 .namespace(namespace)
                 .boundNames(ImmutableMap.copyOf(boundNames))
                 .localNameToLocalExport(ImmutableMap.of())
-                .closureNamespace(Iterables.getOnlyElement(metadata.googNamespaces()))
+                .closureNamespace(Iterables.getOnlyElement(metadataField.googNamespaces()))
                 .build();
       }
       return resolved;
@@ -165,7 +165,7 @@ final class ClosureModuleProcessor implements ModuleProcessor {
 
     @Override
     ModuleMetadata metadata() {
-      return metadata;
+      return metadataField;
     }
 
     @Override

@@ -250,7 +250,7 @@ public final class LowestCommonAncestorFinderTest {
 
   private static final class CaseBuilder {
     private final LinkedDirectedGraph<Integer, Void> graph = LinkedDirectedGraph.create();
-    private ImmutableSet<Integer> roots;
+    private ImmutableSet<Integer> rootsField;
     private ImmutableSet<Integer> expected;
     private ImmutableSet<Integer> actual;
 
@@ -270,8 +270,8 @@ public final class LowestCommonAncestorFinderTest {
     }
 
     CaseBuilder roots(Integer... roots) {
-      checkState(this.roots == null);
-      this.roots = ImmutableSet.copyOf(roots);
+      checkState(this.rootsField == null);
+      this.rootsField = ImmutableSet.copyOf(roots);
       return this;
     }
 
@@ -285,7 +285,7 @@ public final class LowestCommonAncestorFinderTest {
       checkState(this.actual == null);
       LowestCommonAncestorFinder<Integer, Void> finder =
           new LowestCommonAncestorFinder<>(this.graph);
-      this.actual = finder.findAll(this.roots);
+      this.actual = finder.findAll(this.rootsField);
 
       String message =
           this.renderGraph() ? "Look for an SVG of the test graph in the test artifacts" : "";
@@ -299,7 +299,7 @@ public final class LowestCommonAncestorFinderTest {
 
       for (DiGraphNode<Integer, Void> node : this.graph.getNodes()) {
         NodePurpose purpose = NodePurpose.NONE;
-        if (this.roots.contains(node.getValue())) {
+        if (this.rootsField.contains(node.getValue())) {
           purpose = purpose.mix(NodePurpose.ROOT);
         }
         if (this.expected.contains(node.getValue())) {

@@ -40,7 +40,7 @@ public final class ClosureBundler {
   private final EvalMode mode;
   private final String sourceUrl;
   private final String path;
-  private final boolean embedSourcemap;
+  private final boolean embedSourcemapField;
 
   // TODO(sdh): This cache should be moved out into a higher level, but is
   // currently required due to the API that source maps must be accessible
@@ -84,7 +84,7 @@ public final class ClosureBundler {
     this.sourceMapCache = sourceMapCache;
     this.es6ModuleTranspiler = es6ModuleTranspiler;
     this.minifier = minifier;
-    this.embedSourcemap = embedSourcemap;
+    this.embedSourcemapField = embedSourcemap;
   }
 
   public ClosureBundler withTranspilers(
@@ -97,7 +97,7 @@ public final class ClosureBundler {
         path,
         minifier,
         sourceMapCache,
-        embedSourcemap);
+        embedSourcemapField);
   }
 
   public ClosureBundler withTranspiler(Transpiler newTranspiler) {
@@ -117,7 +117,7 @@ public final class ClosureBundler {
         path,
         /* minifier= */ null,
         sourceMapCache,
-        embedSourcemap);
+        embedSourcemapField);
   }
 
   public final ClosureBundler useEval(boolean useEval) {
@@ -130,7 +130,7 @@ public final class ClosureBundler {
         path,
         minifier,
         sourceMapCache,
-        embedSourcemap);
+        embedSourcemapField);
   }
 
   public final ClosureBundler withSourceUrl(String newSourceUrl) {
@@ -142,7 +142,7 @@ public final class ClosureBundler {
         path,
         minifier,
         sourceMapCache,
-        embedSourcemap);
+        embedSourcemapField);
   }
 
   public final ClosureBundler withPath(String newPath) {
@@ -154,7 +154,7 @@ public final class ClosureBundler {
         newPath,
         minifier,
         sourceMapCache,
-        embedSourcemap);
+        embedSourcemapField);
   }
 
   public final ClosureBundler embedSourcemap() {
@@ -245,7 +245,7 @@ public final class ClosureBundler {
       throw new RuntimeException(e);
     }
     sourceMapCache.put(path, result.sourceMap());
-    return embedSourcemap ? result.embedSourcemapBase64().transpiled() : result.transpiled();
+    return embedSourcemapField ? result.embedSourcemapBase64().transpiled() : result.transpiled();
   }
 
   private String transpile(String s) {

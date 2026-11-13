@@ -65,16 +65,16 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
     REQUIRE_TYPE("goog.requireType"),
     FORWARD_DECLARE("goog.forwardDeclare");
 
-    private final String name;
+    private final String nameField;
 
     private ImportPrimitive(String name) {
-      this.name = name;
+      this.nameField = name;
     }
 
     /** Returns the primitive with the given name. */
     static ImportPrimitive fromName(String name) {
       for (ImportPrimitive primitive : values()) {
-        if (primitive.name.equals(name)) {
+        if (primitive.nameField.equals(name)) {
           return primitive;
         }
       }
@@ -95,7 +95,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
 
     @Override
     public String toString() {
-      return name;
+      return nameField;
     }
   }
 
@@ -312,7 +312,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
   private @Nullable Node lastNode = null;
   private boolean finished = false;
 
-  private boolean needsFix = false;
+  private boolean needsFixField = false;
   private @Nullable String replacement = null;
 
   public CheckRequiresSorted(Mode mode) {
@@ -338,7 +338,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
    * Returns whether the imports need to be fixed, i.e., whether they are *not* already canonical.
    */
   public boolean needsFix() {
-    return needsFix;
+    return needsFixField;
   }
 
   @Override
@@ -429,7 +429,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
   private void checkCanonical(NodeTraversal t) {
     @Nullable List<ImportStatement> canonicalImports = canonicalizeImports(importsByNamespace);
     if (!originalImports.equals(canonicalImports)) {
-      needsFix = true;
+      needsFixField = true;
       replacement =
           String.join("\n", Iterables.transform(canonicalImports, ImportStatement::format));
       if (mode == Mode.COLLECT_AND_REPORT) {

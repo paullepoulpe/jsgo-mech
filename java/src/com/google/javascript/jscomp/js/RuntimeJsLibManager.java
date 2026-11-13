@@ -206,23 +206,23 @@ public final class RuntimeJsLibManager {
    */
   private final class InternalField implements ExternedField {
     /** The file containing this field, e.g. "es6/generator". */
-    private final String resourceName;
+    private final String resourceNameField;
 
     /**
      * The name by which compiler passes should refer to this field, e.g. `$jscomp.inherits` or
      * `$jscomp_inherits`.
      */
-    private final String qualifiedName;
+    private final String qualifiedNameField;
 
     /** The original fully qualified name of this field, e.g. `$jscomp.inherits`. */
-    private final String uncompiledName;
+    private final String uncompiledNameField;
 
     private boolean injected = false;
 
     private InternalField(String resourceName, String qualifiedName, String uncompiledName) {
-      this.resourceName = resourceName;
-      this.qualifiedName = qualifiedName;
-      this.uncompiledName = uncompiledName;
+      this.resourceNameField = resourceName;
+      this.qualifiedNameField = qualifiedName;
+      this.uncompiledNameField = uncompiledName;
     }
 
     private boolean isInjected() {
@@ -239,14 +239,14 @@ public final class RuntimeJsLibManager {
       switch (mode) {
         case NO_OP, RECORD_ONLY -> {}
         case RECORD_AND_VALIDATE_FIELDS, INJECT, EXTERN_FIELD_NAMES ->
-            checkState(this.injected, "Field %s is not injected", this.uncompiledName);
+            checkState(this.injected, "Field %s is not injected", this.uncompiledNameField);
       }
       return this;
     }
 
     @Override
     public boolean matches(Node node) {
-      return node.matchesQualifiedName(this.qualifiedName);
+      return node.matchesQualifiedName(this.qualifiedNameField);
     }
 
     // Don't override .equals/.hashCode and just use reference equality: we already intern Fields
@@ -254,22 +254,22 @@ public final class RuntimeJsLibManager {
 
     @Override
     public String toString() {
-      return Strings.lenientFormat("Field<%s, %s>", uncompiledName, resourceName);
+      return Strings.lenientFormat("Field<%s, %s>", uncompiledNameField, resourceNameField);
     }
 
     @Override
     public String qualifiedName() {
-      return this.qualifiedName;
+      return this.qualifiedNameField;
     }
 
     @Override
     public String uncompiledName() {
-      return this.uncompiledName;
+      return this.uncompiledNameField;
     }
 
     @Override
     public String resourceName() {
-      return this.resourceName;
+      return this.resourceNameField;
     }
   }
 
@@ -342,7 +342,7 @@ public final class RuntimeJsLibManager {
       declaration.getFirstChild().putBooleanProp(Node.IS_CONSTANT_NAME, true);
       externRoot.addChildToBack(declaration);
     }
-    ensureLibraryInjected(field.resourceName, /* force= */ false);
+    ensureLibraryInjected(field.resourceNameField, /* force= */ false);
   }
 
   /**

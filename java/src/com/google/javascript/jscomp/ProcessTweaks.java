@@ -94,7 +94,7 @@ class ProcessTweaks implements CompilerPass {
     GET_NUMBER("goog.tweak.getNumber", REGISTER_NUMBER),
     GET_STRING("goog.tweak.getString", REGISTER_STRING);
 
-    final String name;
+    final String nameField;
     final String expectedTypeName;
     final Token validNodeTypeA;
     final Token validNodeTypeB;
@@ -119,7 +119,7 @@ class ProcessTweaks implements CompilerPass {
         Token validNodeTypeA,
         Token validNodeTypeB,
         @Nullable TweakFunction registerFunction) {
-      this.name = name;
+      this.nameField = name;
       this.expectedTypeName = expectedTypeName;
       this.validNodeTypeA = validNodeTypeA;
       this.validNodeTypeB = validNodeTypeB;
@@ -140,7 +140,7 @@ class ProcessTweaks implements CompilerPass {
     }
 
     String getName() {
-      return name;
+      return nameField;
     }
 
     String getExpectedTypeName() {

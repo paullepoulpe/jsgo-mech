@@ -25,22 +25,22 @@ public final class DiagnosticGroupWarningsGuard extends WarningsGuard {
   private static final long serialVersionUID = 1L;
 
   private final DiagnosticGroup group;
-  private final CheckLevel level;
+  private final CheckLevel levelField;
 
   public DiagnosticGroupWarningsGuard(
       DiagnosticGroup group, CheckLevel level) {
     this.group = group;
-    this.level = level;
+    this.levelField = level;
   }
 
   @Override
   public @Nullable CheckLevel level(JSError error) {
-    return this.group.matches(error) ? this.level : null;
+    return this.group.matches(error) ? this.levelField : null;
   }
 
   @Override
   public Tri mustRunChecks(DiagnosticGroup otherGroup) {
-    if (this.level.isOn()) {
+    if (this.levelField.isOn()) {
       return groupMatchesAny(otherGroup.getTypes()) ? Tri.TRUE : Tri.UNKNOWN;
     } else {
       return groupMatchesAll(otherGroup.getTypes()) ? Tri.FALSE : Tri.UNKNOWN;
@@ -67,6 +67,6 @@ public final class DiagnosticGroupWarningsGuard extends WarningsGuard {
 
   @Override
   public String toString() {
-    return group + "(" + level + ")";
+    return group + "(" + levelField + ")";
   }
 }

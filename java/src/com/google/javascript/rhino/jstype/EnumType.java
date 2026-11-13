@@ -57,7 +57,7 @@ import org.jspecify.annotations.Nullable;
  *
  */
 public final class EnumType extends PrototypeObjectType implements JSType.WithSourceRef {
-  private static final JSTypeClass TYPE_CLASS = JSTypeClass.ENUM;
+  private static final JSTypeClass TYPE_CLASS_FIELD = JSTypeClass.ENUM;
 
   // the type of the individual elements
   private EnumElementType elementType;
@@ -124,12 +124,12 @@ public final class EnumType extends PrototypeObjectType implements JSType.WithSo
     this.source = builder.source;
     this.googModuleId = builder.googModuleId;
 
-    registry.getResolver().resolveIfClosed(this, TYPE_CLASS);
+    registry.getResolver().resolveIfClosed(this, TYPE_CLASS_FIELD);
   }
 
   @Override
   JSTypeClass getTypeClass() {
-    return TYPE_CLASS;
+    return TYPE_CLASS_FIELD;
   }
 
   @Override

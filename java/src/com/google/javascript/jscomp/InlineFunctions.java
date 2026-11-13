@@ -898,9 +898,9 @@ class InlineFunctions implements CompilerPass {
     private @Nullable Node safeFnNode = null;
     private boolean inline = true;
     private boolean remove = true;
-    private boolean inlineDirectly = false;
+    private boolean inlineDirectlyField = false;
     private boolean referencesThis = false;
-    private boolean hasInnerClosures = false;
+    private boolean hasInnerClosuresField = false;
     private @Nullable Map<Node, Reference> references = null;
     private @Nullable JSChunk chunk = null;
     private @Nullable Set<String> namesToAlias = null;
@@ -925,11 +925,11 @@ class InlineFunctions implements CompilerPass {
 
     /** Whether the function contains inner functions or non-static class field initializers. */
     void setHasInnerClosures(boolean hasInnerClosures) {
-      this.hasInnerClosures = hasInnerClosures;
+      this.hasInnerClosuresField = hasInnerClosures;
     }
 
     boolean hasInnerClosures() {
-      return hasInnerClosures;
+      return hasInnerClosuresField;
     }
 
     void removeBlockInliningReferences() {
@@ -1050,11 +1050,11 @@ class InlineFunctions implements CompilerPass {
     }
 
     boolean canInlineDirectly() {
-      return inlineDirectly;
+      return inlineDirectlyField;
     }
 
     void inlineDirectly(boolean directReplacement) {
-      this.inlineDirectly = directReplacement;
+      this.inlineDirectlyField = directReplacement;
     }
 
     boolean hasReferences() {

@@ -81,14 +81,14 @@ public final class TypeTransformationParser {
     UNION("union", 2, VAR_ARGS, OperationKind.TYPE_CONSTRUCTOR),
     UNKNOWN("unknown", 0, 0, OperationKind.TYPE_CONSTRUCTOR);
 
-    public final String name;
+    public final String nameField;
     public final int minParamCount;
     public final int maxParamCount;
     public final OperationKind kind;
 
     Keywords(String name, int minParamCount, int maxParamCount,
         OperationKind kind) {
-      this.name = name;
+      this.nameField = name;
       this.minParamCount = minParamCount;
       this.maxParamCount = maxParamCount;
       this.kind = kind;
@@ -126,7 +126,7 @@ public final class TypeTransformationParser {
 
   private boolean isValidKeyword(String name) {
     for (Keywords k : Keywords.values()) {
-      if (k.name.equals(name)) {
+      if (k.nameField.equals(name)) {
         return true;
       }
     }
@@ -234,11 +234,11 @@ public final class TypeTransformationParser {
   private boolean checkParameterCount(Node expr, Keywords keyword) {
     int paramCount = getCallParamCount(expr);
     if (paramCount < keyword.minParamCount) {
-      warnMissingParam(keyword.name);
+      warnMissingParam(keyword.nameField);
       return false;
     }
     if (paramCount > keyword.maxParamCount) {
-      warnExtraParam(keyword.name);
+      warnExtraParam(keyword.nameField);
       return false;
     }
     return true;
@@ -390,7 +390,7 @@ public final class TypeTransformationParser {
     }
     // The parameter must be a valid type expression
     if (!validTypeTransformationExpression(getCallArgument(expr, 0))) {
-      warnInvalidInside(Keywords.RAWTYPEOF.name);
+      warnInvalidInside(Keywords.RAWTYPEOF.nameField);
       return false;
     }
     return true;
@@ -408,18 +408,18 @@ public final class TypeTransformationParser {
     }
     // The parameter must be a valid type expression
     if (!validTypeTransformationExpression(getCallArgument(expr, 0))) {
-      warnInvalidInside(Keywords.TEMPLATETYPEOF.name);
+      warnInvalidInside(Keywords.TEMPLATETYPEOF.nameField);
       return false;
     }
     if (!getCallArgument(expr, 1).isNumber()) {
       warnInvalid("index");
-      warnInvalidInside(Keywords.TEMPLATETYPEOF.name);
+      warnInvalidInside(Keywords.TEMPLATETYPEOF.nameField);
       return false;
     }
     double index = getCallArgument(expr, 1).getDouble();
     if (isNaN(index) || !isExactInt32(index)) {
       warnInvalid("index");
-      warnInvalidInside(Keywords.TEMPLATETYPEOF.name);
+      warnInvalidInside(Keywords.TEMPLATETYPEOF.nameField);
       return false;
     }
     return true;
@@ -461,7 +461,7 @@ public final class TypeTransformationParser {
     // Each child must be a valid record
     for (int i = 0; i < getCallParamCount(expr); i++) {
       if (!validRecordParam(getCallArgument(expr, i))) {
-        warnInvalidInside(Keywords.RECORD.name);
+        warnInvalidInside(Keywords.RECORD.nameField);
         return false;
       }
     }
@@ -478,7 +478,7 @@ public final class TypeTransformationParser {
     Node typeString = getCallArgument(expr, 0);
     if (!typeString.isStringLit()) {
       warnInvalidExpression("native type");
-      warnInvalidInside(Keywords.TYPEEXPR.name);
+      warnInvalidInside(Keywords.TYPEEXPR.nameField);
       return false;
     }
     Node typeExpr = JsDocInfoParser.parseTypeString(typeString.getString());
@@ -648,13 +648,13 @@ public final class TypeTransformationParser {
     }
     // The second child must be a valid union type expression
     if (!validTypeTransformationExpression(getCallArgument(expr, 0))) {
-      warnInvalidInside(Keywords.MAPUNION.name);
+      warnInvalidInside(Keywords.MAPUNION.nameField);
       return false;
     }
     // The third child must be a function
     if (!getCallArgument(expr, 1).isFunction()) {
       warnInvalid("map function");
-      warnInvalidInside(Keywords.MAPUNION.name);
+      warnInvalidInside(Keywords.MAPUNION.nameField);
       return false;
     }
     Node mapFn = getCallArgument(expr, 1);
@@ -662,12 +662,12 @@ public final class TypeTransformationParser {
     int mapFnParamCount = getFunctionParamCount(mapFn);
     if (mapFnParamCount < 1) {
       warnMissingParam("map function");
-      warnInvalidInside(Keywords.MAPUNION.name);
+      warnInvalidInside(Keywords.MAPUNION.nameField);
       return false;
     }
     if (mapFnParamCount > 1) {
       warnExtraParam("map function");
-      warnInvalidInside(Keywords.MAPUNION.name);
+      warnInvalidInside(Keywords.MAPUNION.nameField);
       return false;
     }
     // The body must be a valid type transformation expression
@@ -693,13 +693,13 @@ public final class TypeTransformationParser {
     }
     // The second child must be a valid expression
     if (!validTypeTransformationExpression(getCallArgument(expr, 0))) {
-      warnInvalidInside(Keywords.MAPRECORD.name);
+      warnInvalidInside(Keywords.MAPRECORD.nameField);
       return false;
     }
     // The third child must be a function
     if (!getCallArgument(expr, 1).isFunction()) {
       warnInvalid("map function");
-      warnInvalidInside(Keywords.MAPRECORD.name);
+      warnInvalidInside(Keywords.MAPRECORD.nameField);
       return false;
     }
     Node mapFn = getCallArgument(expr, 1);
@@ -707,12 +707,12 @@ public final class TypeTransformationParser {
     int mapFnParamCount = getFunctionParamCount(mapFn);
     if (mapFnParamCount < 2) {
       warnMissingParam("map function");
-      warnInvalidInside(Keywords.MAPRECORD.name);
+      warnInvalidInside(Keywords.MAPRECORD.nameField);
       return false;
     }
     if (mapFnParamCount > 2) {
       warnExtraParam("map function");
-      warnInvalidInside(Keywords.MAPRECORD.name);
+      warnInvalidInside(Keywords.MAPRECORD.nameField);
       return false;
     }
     // The body must be a valid type transformation expression
@@ -736,7 +736,7 @@ public final class TypeTransformationParser {
     }
     if (!getCallArgument(expr, 0).isStringLit()) {
       warnInvalid("name");
-      warnInvalidInside(Keywords.TYPEOFVAR.name);
+      warnInvalidInside(Keywords.TYPEOFVAR.nameField);
       return false;
     }
     return true;
@@ -753,7 +753,7 @@ public final class TypeTransformationParser {
       return false;
     }
     if (!validTypeTransformationExpression(getCallArgument(expr, 0))) {
-      warnInvalidInside(Keywords.INSTANCEOF.name);
+      warnInvalidInside(Keywords.INSTANCEOF.nameField);
       return false;
     }
     return true;
@@ -767,11 +767,11 @@ public final class TypeTransformationParser {
     }
     if (!getCallArgument(expr, 0).isStringLit()) {
       warnInvalid("message");
-      warnInvalidInside(Keywords.PRINTTYPE.name);
+      warnInvalidInside(Keywords.PRINTTYPE.nameField);
       return false;
     }
     if (!validTypeTransformationExpression(getCallArgument(expr, 1))) {
-      warnInvalidInside(Keywords.PRINTTYPE.name);
+      warnInvalidInside(Keywords.PRINTTYPE.nameField);
       return false;
     }
     return true;
@@ -785,11 +785,11 @@ public final class TypeTransformationParser {
     }
     if (!getCallArgument(expr, 0).isStringLit()) {
       warnInvalid("property name");
-      warnInvalidInside(Keywords.PROPTYPE.name);
+      warnInvalidInside(Keywords.PROPTYPE.nameField);
       return false;
     }
     if (!validTypeTransformationExpression(getCallArgument(expr, 1))) {
-      warnInvalidInside(Keywords.PROPTYPE.name);
+      warnInvalidInside(Keywords.PROPTYPE.nameField);
       return false;
     }
     return true;

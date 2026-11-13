@@ -98,12 +98,12 @@ public abstract class TypeCheckTestCase extends CompilerTypeTestCase {
   public static final class TypeTestBuilder {
     private final List<SourceFile> sources = new ArrayList<>();
     private final List<String> externs = new ArrayList<>();
-    private boolean includeDefaultExterns = false;
+    private boolean includeDefaultExternsField = false;
     private final ArrayList<DiagnosticType> diagnosticTypes = new ArrayList<>();
     private final ArrayList<String> diagnosticDescriptions = new ArrayList<>();
-    private boolean diagnosticsAreErrors = false;
+    private boolean diagnosticsAreErrorsField = false;
     private boolean reportUnknownTypes = false;
-    private final ArrayList<DiagnosticGroup> suppress = new ArrayList<>();
+    private final ArrayList<DiagnosticGroup> suppressField = new ArrayList<>();
     private boolean hasRun = false;
     private final Compiler compiler;
 
@@ -143,13 +143,13 @@ public abstract class TypeCheckTestCase extends CompilerTypeTestCase {
 
     @CanIgnoreReturnValue
     public TypeTestBuilder includeDefaultExterns() {
-      this.includeDefaultExterns = true;
+      this.includeDefaultExternsField = true;
       return this;
     }
 
     @CanIgnoreReturnValue
     public TypeTestBuilder diagnosticsAreErrors() {
-      this.diagnosticsAreErrors = true;
+      this.diagnosticsAreErrorsField = true;
       return this;
     }
 
@@ -161,7 +161,7 @@ public abstract class TypeCheckTestCase extends CompilerTypeTestCase {
 
     @CanIgnoreReturnValue
     public TypeTestBuilder suppress(DiagnosticGroup group) {
-      this.suppress.add(group);
+      this.suppressField.add(group);
       return this;
     }
 
@@ -181,7 +181,7 @@ public abstract class TypeCheckTestCase extends CompilerTypeTestCase {
       checkState(!this.sources.isEmpty(), "Must provide a source");
       checkState(!this.hasRun, "Cannot run the same test twice");
       this.hasRun = true;
-      if (this.includeDefaultExterns) {
+      if (this.includeDefaultExternsField) {
         this.externs.add(0, DEFAULT_EXTERNS);
       }
 
@@ -196,7 +196,7 @@ public abstract class TypeCheckTestCase extends CompilerTypeTestCase {
         diagnostics = castAny(this.diagnosticDescriptions);
         correspondence = castAny(DESCRIPTION_EQUALITY);
       }
-      for (DiagnosticGroup suppress : this.suppress) {
+      for (DiagnosticGroup suppress : this.suppressField) {
         compiler.getOptions().setWarningLevel(suppress, CheckLevel.OFF);
       }
 
@@ -204,7 +204,7 @@ public abstract class TypeCheckTestCase extends CompilerTypeTestCase {
 
       final ImmutableList<JSError> assertedErrors;
       final ImmutableList<JSError> emptyErrors;
-      if (this.diagnosticsAreErrors) {
+      if (this.diagnosticsAreErrorsField) {
         assertedErrors = compiler.getErrors();
         emptyErrors = compiler.getWarnings();
       } else {

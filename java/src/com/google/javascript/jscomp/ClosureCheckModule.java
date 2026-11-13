@@ -163,7 +163,7 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
           "JSC_LEGACY_NAMESPACE_ARGUMENT",
           "goog.module.declareLegacyNamespace() takes no arguments");
 
-  private static final QualifiedName GOOG_MODULE = QualifiedName.of("goog.module");
+  private static final QualifiedName GOOG_MODULE_FIELD = QualifiedName.of("goog.module");
   private static final QualifiedName GOOG_PROVIDE = QualifiedName.of("goog.provide");
   private static final QualifiedName GOOG_REQUIRE = QualifiedName.of("goog.require");
   private static final QualifiedName GOOG_REQUIRE_TYPE = QualifiedName.of("goog.requireType");
@@ -224,7 +224,7 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
       @Nullable Node moduleScopeRoot) {
     Node parent = n.getParent();
     if (currentModuleInfo == null) {
-      if (NodeUtil.isCallToQualifiedName(n, GOOG_MODULE)) {
+      if (NodeUtil.isCallToQualifiedName(n, GOOG_MODULE_FIELD)) {
         t.report(n, GOOG_MODULE_IN_NON_MODULE);
       } else if (NodeUtil.isGoogModuleDeclareLegacyNamespaceCall(n)) {
         t.report(n, DECLARE_LEGACY_NAMESPACE_IN_NON_MODULE);
@@ -243,7 +243,7 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
     switch (n.getToken()) {
       case CALL:
         Node callee = n.getFirstChild();
-        if (GOOG_MODULE.matches(callee)) {
+        if (GOOG_MODULE_FIELD.matches(callee)) {
           if (!currentModuleInfo.name.equals(extractFirstArgumentName(n))) {
             t.report(n, MULTIPLE_MODULES_IN_FILE);
           } else if (!isFirstExpressionInGoogModule(parent)) {

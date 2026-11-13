@@ -337,12 +337,12 @@ public abstract class ObjectType extends JSType {
     return () ->
         new AbstractIterator<ObjectType>() {
 
-          private ObjectType next = self; // We increment past this type before first access.
+          private ObjectType nextField = self; // We increment past this type before first access.
 
           @Override
           public ObjectType computeNext() {
-            next = next.getImplicitPrototype();
-            return (next != null) ? next : endOfData();
+            nextField = nextField.getImplicitPrototype();
+            return (nextField != null) ? nextField : endOfData();
           }
         };
   }

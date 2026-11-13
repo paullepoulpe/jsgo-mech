@@ -309,7 +309,7 @@ class PhaseOptimizer implements CompilerPass {
     private final List<NamedPass> myPasses = new ArrayList<>();
     private final Set<String> myNames = new LinkedHashSet<>();
     private ScopedChangeHandler scopeHandler;
-    private boolean isCodeRemovalLoop = false;
+    private boolean isCodeRemovalLoopField = false;
     private int howmanyIterationsUnderThreshold = 0;
 
     void addLoopedPass(PassFactory factory) {
@@ -324,7 +324,7 @@ class PhaseOptimizer implements CompilerPass {
     public void process(Node externs, Node root) {
       checkState(!inLoop, "Nested loops are forbidden");
       inLoop = true;
-      this.isCodeRemovalLoop = isCodeRemovalLoop();
+      this.isCodeRemovalLoopField = isCodeRemovalLoop();
 
       // Set up function-change tracking
       scopeHandler = new ScopedChangeHandler();
@@ -362,7 +362,7 @@ class PhaseOptimizer implements CompilerPass {
 
       try {
         while (true) {
-          if (count > optimizationLoopMaxIterations && this.isCodeRemovalLoop) {
+          if (count > optimizationLoopMaxIterations && this.isCodeRemovalLoopField) {
             return;
           }
           if (count > MAX_LOOPS) {
@@ -434,7 +434,7 @@ class PhaseOptimizer implements CompilerPass {
      * the loop, we should be OK.
      */
     private boolean isAstSufficientlyChanging(int oldAstSize, int newAstSize) {
-      if (useSizeHeuristicToStopOptimizationLoop && this.isCodeRemovalLoop) {
+      if (useSizeHeuristicToStopOptimizationLoop && this.isCodeRemovalLoopField) {
         float percentChange = 100 * (Math.abs(newAstSize - oldAstSize) / (float) oldAstSize);
         if (percentChange < 0.05) {
           this.howmanyIterationsUnderThreshold++;

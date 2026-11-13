@@ -70,7 +70,7 @@ public final class TemplateTypeReplacer implements Visitor<JSType> {
   private final boolean useUnknownForMissingKeys;
   private final boolean useUnknownForMissingValues;
 
-  private boolean hasMadeReplacement = false;
+  private boolean hasMadeReplacementField = false;
   private TemplateType keyType;
   // The index in the corresponding bindings pointing to where the submap for the specified key
   // type ends, exclusive; or if keyType is null, defaults to -1.
@@ -131,7 +131,7 @@ public final class TemplateTypeReplacer implements Visitor<JSType> {
   }
 
   public boolean hasMadeReplacement() {
-    return this.hasMadeReplacement;
+    return this.hasMadeReplacementField;
   }
 
   // determinism is unnecessary for seenTypes, because we only call contains/add/remove.
@@ -365,7 +365,7 @@ public final class TemplateTypeReplacer implements Visitor<JSType> {
 
   @Override
   public JSType caseTemplateType(TemplateType type) {
-    this.hasMadeReplacement = true;
+    this.hasMadeReplacementField = true;
 
     if (!identical(type, this.keyType) && !bindings.hasTemplateKey(type, ownSubMapBoundary)) {
       return useUnknownForMissingKeys ? getNativeType(JSTypeNative.UNKNOWN_TYPE) : type;

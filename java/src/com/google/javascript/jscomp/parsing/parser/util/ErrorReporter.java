@@ -26,7 +26,7 @@ public abstract class ErrorReporter {
   @FormatMethod
   public final void reportError(
       SourcePosition location, @FormatString String format, Object... arguments) {
-    hadError = true;
+    hadErrorField = true;
     String message = String.format(format, arguments);
     reportError(location, message);
   }
@@ -42,8 +42,8 @@ public abstract class ErrorReporter {
   protected abstract void reportWarning(SourcePosition location, String message);
 
   public final boolean hadError() {
-    return hadError;
+    return hadErrorField;
   }
 
-  private boolean hadError;
+  private boolean hadErrorField;
 }

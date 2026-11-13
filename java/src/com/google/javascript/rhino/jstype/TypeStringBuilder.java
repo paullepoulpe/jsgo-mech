@@ -49,15 +49,15 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 final class TypeStringBuilder {
 
   private final StringBuilder builder = new StringBuilder();
-  private final boolean isForAnnotations;
+  private final boolean isForAnnotationsField;
   private String indentation = "";
 
   TypeStringBuilder(boolean isForAnnotations) {
-    this.isForAnnotations = isForAnnotations;
+    this.isForAnnotationsField = isForAnnotations;
   }
 
   boolean isForAnnotations() {
-    return this.isForAnnotations;
+    return this.isForAnnotationsField;
   }
 
   @CanIgnoreReturnValue
@@ -94,7 +94,7 @@ final class TypeStringBuilder {
 
   @CanIgnoreReturnValue
   TypeStringBuilder appendNonNull(JSType type) {
-    if (this.isForAnnotations
+    if (this.isForAnnotationsField
         && type.isObject()
         && !type.isUnknownType()
         && !type.isTemplateType()
@@ -127,7 +127,7 @@ final class TypeStringBuilder {
   }
 
   TypeStringBuilder cloneWithConfig() {
-    TypeStringBuilder clone = new TypeStringBuilder(this.isForAnnotations);
+    TypeStringBuilder clone = new TypeStringBuilder(this.isForAnnotationsField);
     clone.indentation = this.indentation;
     return clone;
   }

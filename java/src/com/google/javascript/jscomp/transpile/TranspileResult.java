@@ -31,20 +31,20 @@ import java.util.Objects;
  */
 public final class TranspileResult {
 
-  private final URI path;
-  private final String original;
-  private final String transpiled;
-  private final String sourceMap;
+  private final URI pathField;
+  private final String originalField;
+  private final String transpiledField;
+  private final String sourceMapField;
 
   public TranspileResult(URI path, String original, String transpiled, String sourceMap) {
-    this.path = checkNotNull(path);
-    this.original = checkNotNull(original);
-    this.transpiled = checkNotNull(transpiled);
-    this.sourceMap = checkNotNull(sourceMap);
+    this.pathField = checkNotNull(path);
+    this.originalField = checkNotNull(original);
+    this.transpiledField = checkNotNull(transpiled);
+    this.sourceMapField = checkNotNull(sourceMap);
   }
 
   public URI path() {
-    return path;
+    return pathField;
   }
 
   // TODO(sdh): how to specify naming scheme for sourcemap and original?
@@ -53,73 +53,73 @@ public final class TranspileResult {
   //    what's more important and harder to find - we can add some suffix
   //    on for the transpiled version as necessary.
   public String original() {
-    return original;
+    return originalField;
   }
 
   public String sourceMap() {
-    return sourceMap;
+    return sourceMapField;
   }
 
   // TODO(sdh): might be a bit nicer for this to be a suffix rather than a whole path?
   public TranspileResult embedSourcemapUrl(String url) {
     // If there's no sourcemap, don't reference it.
-    if (sourceMap.isEmpty()) {
+    if (sourceMapField.isEmpty()) {
       return this;
     }
-    String embedded = transpiled + "\n//# sourceMappingURL=" + url + "\n";
-    return new TranspileResult(path, original, embedded, sourceMap);
+    String embedded = transpiledField + "\n//# sourceMappingURL=" + url + "\n";
+    return new TranspileResult(pathField, originalField, embedded, sourceMapField);
   }
 
   // sourcemaps must escape :, and cannot escape space as +, so we need a custom escaper.
   private static final Escaper ESCAPER = new PercentEscaper("-_.*", /* plusForSpace= */ false);
 
   public TranspileResult embedSourcemap() {
-    if (sourceMap.isEmpty()) {
+    if (sourceMapField.isEmpty()) {
       return this;
     }
     String embedded =
-        transpiled + "\n//# sourceMappingURL=data:," + ESCAPER.escape(sourceMap) + "\n";
-    return new TranspileResult(path, original, embedded, "");
+        transpiledField + "\n//# sourceMappingURL=data:," + ESCAPER.escape(sourceMapField) + "\n";
+    return new TranspileResult(pathField, originalField, embedded, "");
   }
 
   public TranspileResult embedSourcemapBase64() {
-    if (sourceMap.isEmpty()) {
+    if (sourceMapField.isEmpty()) {
       return this;
     }
     String embedded =
-        transpiled
+        transpiledField
             + "\n//# sourceMappingURL=data:application/json;base64,"
-            + BaseEncoding.base64().encode(sourceMap.getBytes(UTF_8))
+            + BaseEncoding.base64().encode(sourceMapField.getBytes(UTF_8))
             + "\n";
-    return new TranspileResult(path, original, embedded, "");
+    return new TranspileResult(pathField, originalField, embedded, "");
   }
 
   public String transpiled() {
-    return transpiled;
+    return transpiledField;
   }
 
   public boolean wasTranspiled() {
-    return !transpiled.equals(original);
+    return !transpiledField.equals(originalField);
   }
 
   @Override
   public boolean equals(Object other) {
     return other instanceof TranspileResult transpileResult
-        && transpileResult.path.equals(path)
-        && transpileResult.original.equals(original)
-        && transpileResult.transpiled.equals(transpiled)
-        && transpileResult.sourceMap.equals(sourceMap);
+        && transpileResult.pathField.equals(pathField)
+        && transpileResult.originalField.equals(originalField)
+        && transpileResult.transpiledField.equals(transpiledField)
+        && transpileResult.sourceMapField.equals(sourceMapField);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(path, original, transpiled, sourceMap);
+    return Objects.hash(pathField, originalField, transpiledField, sourceMapField);
   }
 
   @Override
   public String toString() {
     return String.format(
         "TranspileResut{path=%s, original=%s, transpiled=%s, sourceMapURL=%s}",
-        path, original, transpiled, sourceMap);
+        pathField, originalField, transpiledField, sourceMapField);
   }
 }

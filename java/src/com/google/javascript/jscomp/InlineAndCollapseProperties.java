@@ -126,7 +126,7 @@ class InlineAndCollapseProperties implements CompilerPass {
     this.chunkOutputType = builder.chunkOutputType;
     this.haveModulesBeenRewritten = builder.haveModulesBeenRewritten;
     this.moduleResolutionMode = builder.moduleResolutionMode;
-    this.testAggressiveInliningOnly = builder.testAggressiveInliningOnly;
+    this.testAggressiveInliningOnly = builder.testAggressiveInliningOnlyField;
     this.optionalGlobalNamespaceTester = builder.optionalGlobalNamespaceTester;
   }
 
@@ -136,7 +136,7 @@ class InlineAndCollapseProperties implements CompilerPass {
     private ChunkOutputType chunkOutputType;
     private boolean haveModulesBeenRewritten;
     private ResolutionMode moduleResolutionMode;
-    private boolean testAggressiveInliningOnly = false;
+    private boolean testAggressiveInliningOnlyField = false;
     private Optional<Consumer<GlobalNamespace>> optionalGlobalNamespaceTester = Optional.empty();
 
     Builder(AbstractCompiler compiler) {
@@ -170,7 +170,7 @@ class InlineAndCollapseProperties implements CompilerPass {
     @CanIgnoreReturnValue
     @VisibleForTesting
     public Builder testAggressiveInliningOnly(Consumer<GlobalNamespace> globalNamespaceTester) {
-      this.testAggressiveInliningOnly = true;
+      this.testAggressiveInliningOnlyField = true;
       this.optionalGlobalNamespaceTester = Optional.of(globalNamespaceTester);
       return this;
     }

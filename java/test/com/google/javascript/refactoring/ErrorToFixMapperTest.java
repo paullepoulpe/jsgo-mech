@@ -95,14 +95,14 @@ public class ErrorToFixMapperTest {
     }
 
     static final class Builder {
-      private @Nullable String description;
-      private @Nullable String fixedCode;
+      private @Nullable String descriptionField;
+      private @Nullable String fixedCodeField;
 
       Builder() {
       }
 
       Builder description(@Nullable String description) {
-        this.description = description;
+        this.descriptionField = description;
         return this;
       }
 
@@ -110,18 +110,18 @@ public class ErrorToFixMapperTest {
         if (fixedCode == null) {
           throw new NullPointerException("Null fixedCode");
         }
-        this.fixedCode = fixedCode;
+        this.fixedCodeField = fixedCode;
         return this;
       }
 
       ExpectedFix build() {
-        if (this.fixedCode == null) {
+        if (this.fixedCodeField == null) {
           String missing = " fixedCode";
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new ExpectedFix(
-            this.description,
-            this.fixedCode);
+            this.descriptionField,
+            this.fixedCodeField);
       }
     }
   }

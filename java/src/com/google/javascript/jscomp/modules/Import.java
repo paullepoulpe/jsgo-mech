@@ -52,12 +52,12 @@ public record Import(
   }
 
   static final class Builder {
-    private String moduleRequest;
-    private String importName;
-    private String localName;
-    private ModulePath modulePath;
-    private Node importNode;
-    private Node nameNode;
+    private String moduleRequestField;
+    private String importNameField;
+    private String localNameField;
+    private ModulePath modulePathField;
+    private Node importNodeField;
+    private Node nameNodeField;
 
     Builder() {
     }
@@ -66,7 +66,7 @@ public record Import(
       if (value == null) {
         throw new NullPointerException("Null moduleRequest");
       }
-      this.moduleRequest = value;
+      this.moduleRequestField = value;
       return this;
     }
 
@@ -74,7 +74,7 @@ public record Import(
       if (value == null) {
         throw new NullPointerException("Null importName");
       }
-      this.importName = value;
+      this.importNameField = value;
       return this;
     }
 
@@ -82,12 +82,12 @@ public record Import(
       if (value == null) {
         throw new NullPointerException("Null localName");
       }
-      this.localName = value;
+      this.localNameField = value;
       return this;
     }
 
     Builder modulePath(ModulePath value) {
-      this.modulePath = value;
+      this.modulePathField = value;
       return this;
     }
 
@@ -95,7 +95,7 @@ public record Import(
       if (value == null) {
         throw new NullPointerException("Null importNode");
       }
-      this.importNode = value;
+      this.importNodeField = value;
       return this;
     }
 
@@ -103,41 +103,41 @@ public record Import(
       if (value == null) {
         throw new NullPointerException("Null nameNode");
       }
-      this.nameNode = value;
+      this.nameNodeField = value;
       return this;
     }
 
     Import build() {
-      if (this.moduleRequest == null
-          || this.importName == null
-          || this.localName == null
-          || this.importNode == null
-          || this.nameNode == null) {
+      if (this.moduleRequestField == null
+          || this.importNameField == null
+          || this.localNameField == null
+          || this.importNodeField == null
+          || this.nameNodeField == null) {
         StringBuilder missing = new StringBuilder();
-        if (this.moduleRequest == null) {
+        if (this.moduleRequestField == null) {
           missing.append(" moduleRequest");
         }
-        if (this.importName == null) {
+        if (this.importNameField == null) {
           missing.append(" importName");
         }
-        if (this.localName == null) {
+        if (this.localNameField == null) {
           missing.append(" localName");
         }
-        if (this.importNode == null) {
+        if (this.importNodeField == null) {
           missing.append(" importNode");
         }
-        if (this.nameNode == null) {
+        if (this.nameNodeField == null) {
           missing.append(" nameNode");
         }
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new Import(
-          this.moduleRequest,
-          this.importName,
-          this.localName,
-          this.modulePath,
-          this.importNode,
-          this.nameNode);
+          this.moduleRequestField,
+          this.importNameField,
+          this.localNameField,
+          this.modulePathField,
+          this.importNodeField,
+          this.nameNodeField);
     }
   }
 

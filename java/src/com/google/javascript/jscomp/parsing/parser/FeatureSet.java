@@ -341,17 +341,17 @@ public final class FeatureSet implements Serializable {
     TYPE_ANNOTATION("type annotation", LangVersion.TYPESCRIPT),
     ; // End of list.
 
-    private final String name;
+    private final String nameField;
     private final LangVersion version;
 
     private Feature(String name, LangVersion version) {
-      this.name = name;
+      this.nameField = name;
       this.version = version;
     }
 
     @Override
     public String toString() {
-      return name;
+      return nameField;
     }
   }
 

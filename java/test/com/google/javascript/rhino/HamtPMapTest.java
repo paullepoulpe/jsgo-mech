@@ -445,16 +445,16 @@ public class HamtPMapTest {
   // Helper class to test HamtPMap behavior given keys with hash code collisions.
   private static final class IntegerWithCustomHashCode {
     private final Integer i;
-    private final int hashCode;
+    private final int hashCodeField;
 
     IntegerWithCustomHashCode(Integer i, int hashCode) {
       this.i = i;
-      this.hashCode = hashCode;
+      this.hashCodeField = hashCode;
     }
 
     @Override
     public int hashCode() {
-      return hashCode;
+      return hashCodeField;
     }
 
     @Override

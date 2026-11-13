@@ -701,7 +701,7 @@ final class Tracer {
      * Set to true if {@link Tracer#initCurrentThreadTrace()} was called by
      * the current thread.
      */
-    boolean isInitialized = false;
+    boolean isInitializedField = false;
 
     /**
      * Whether pretty printing is enabled for the trace.
@@ -710,12 +710,12 @@ final class Tracer {
 
     /** Initialize the trace.  */
     void init() {
-      isInitialized = true;
+      isInitializedField = true;
     }
 
     /** Is initialized? */
     boolean isInitialized() {
-      return isInitialized;
+      return isInitializedField;
     }
 
     /**

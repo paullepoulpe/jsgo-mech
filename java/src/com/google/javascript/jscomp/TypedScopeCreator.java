@@ -2069,8 +2069,8 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
       TypedScope scope;
       // default is no type and a type may be inferred later
       @Nullable JSType type = null;
-      boolean allowLaterTypeInference = true;
-      boolean forGoogProvidedName = false;
+      boolean allowLaterTypeInferenceField = true;
+      boolean forGoogProvidedNameField = false;
 
       // TODO(bradfordcsmith): Once all the logic needed for ES_2017 features has been added,
       //     make the API to this class more restrictive to avoid accidental misuse.
@@ -2136,13 +2136,13 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
 
       @CanIgnoreReturnValue
       SlotDefiner allowLaterTypeInference(boolean allowLaterTypeInference) {
-        this.allowLaterTypeInference = allowLaterTypeInference;
+        this.allowLaterTypeInferenceField = allowLaterTypeInference;
         return this;
       }
 
       @CanIgnoreReturnValue
       SlotDefiner forGoogProvidedName() {
-        this.forGoogProvidedName = true;
+        this.forGoogProvidedNameField = true;
         return this;
       }
 
@@ -2159,11 +2159,11 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
                 || NodeUtil.mayBeObjectLitKey(declarationNode)
                 || declarationNode.isModuleBody()
                 || declarationNode.isExport()
-                || (this.forGoogProvidedName && NodeUtil.isExprCall(declarationNode)),
+                || (this.forGoogProvidedNameField && NodeUtil.isExprCall(declarationNode)),
             "declaration node must be an lvalue or goog.provide call, found %s",
             declarationNode);
         checkNotNull(variableName, "variableName not set");
-        checkState(allowLaterTypeInference || type != null, "null type but inference not allowed");
+        checkState(allowLaterTypeInferenceField || type != null, "null type but inference not allowed");
         checkState(!variableName.isEmpty());
         checkNotNull(scope);
 
@@ -2174,7 +2174,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
         boolean isGlobalVar = declarationNode.isName() && scopeToDeclareIn.isGlobal();
         boolean shouldDeclareOnGlobalThis =
             (isGlobalVar && (parent.isVar() || parent.isFunction()))
-                || (this.forGoogProvidedName && !variableName.contains("."));
+                || (this.forGoogProvidedNameField && !variableName.contains("."));
 
         // TODO(sdh): Remove this special case.  It is required to reproduce the original
         // non-block-scoped behavior, which is depended on in several places including
@@ -2184,7 +2184,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
         if (scopeToDeclareIn != currentHoistScope
             && scopeToDeclareIn.isGlobal()
             && scopeToDeclareIn.hasOwnSlot(variableName)
-            && !this.forGoogProvidedName) {
+            && !this.forGoogProvidedNameField) {
           scopeToDeclareIn = currentHoistScope;
         }
 
@@ -2208,7 +2208,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
               declarationNode,
               type,
               input,
-              allowLaterTypeInference);
+              allowLaterTypeInferenceField);
         }
 
         // We need to do some additional work for constructors and interfaces.
@@ -2230,7 +2230,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
 
         if (shouldDeclareOnGlobalThis) {
           ObjectType globalThis = typeRegistry.getNativeObjectType(GLOBAL_THIS);
-          if (allowLaterTypeInference) {
+          if (allowLaterTypeInferenceField) {
             globalThis.defineInferredProperty(
                 variableName,
                 type == null ? getNativeType(JSTypeNative.NO_TYPE) : type,

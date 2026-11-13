@@ -344,64 +344,64 @@ class InlineVariables implements CompilerPass {
         this.mayBeAParameterModifiedViaArguments = initData.mayBeAParameterModifiedViaArguments;
       }
 
-      private final InitiallyUnknown<Boolean> isNeverAssigned = new InitiallyUnknown<>();
+      private final InitiallyUnknown<Boolean> isNeverAssignedField = new InitiallyUnknown<>();
 
       private boolean isNeverAssigned() {
-        if (isNeverAssigned.isKnown()) {
-          return isNeverAssigned.getKnownValue();
+        if (isNeverAssignedField.isKnown()) {
+          return isNeverAssignedField.getKnownValue();
         } else if (initializationReference.isKnownNotNull()
-            || isAssignedOnceInLifetime.isKnownToBe(true)) {
-          return isNeverAssigned.setKnownValueOnce(false);
+            || isAssignedOnceInLifetimeField.isKnownToBe(true)) {
+          return isNeverAssignedField.setKnownValueOnce(false);
         } else {
-          return isNeverAssigned.setKnownValueOnce(referenceInfo.isNeverAssigned());
+          return isNeverAssignedField.setKnownValueOnce(referenceInfo.isNeverAssigned());
         }
       }
 
-      private final InitiallyUnknown<Boolean> isWellDefined = new InitiallyUnknown<>();
+      private final InitiallyUnknown<Boolean> isWellDefinedField = new InitiallyUnknown<>();
 
       private boolean isWellDefined() {
-        if (isWellDefined.isKnown()) {
-          return isWellDefined.getKnownValue();
+        if (isWellDefinedField.isKnown()) {
+          return isWellDefinedField.getKnownValue();
         } else {
-          return isWellDefined.setKnownValueOnce(referenceInfo.isWellDefined());
+          return isWellDefinedField.setKnownValueOnce(referenceInfo.isWellDefined());
         }
       }
 
-      private final InitiallyUnknown<Boolean> isAssignedOnceInLifetime = new InitiallyUnknown<>();
+      private final InitiallyUnknown<Boolean> isAssignedOnceInLifetimeField = new InitiallyUnknown<>();
 
       private boolean isAssignedOnceInLifetime() {
-        if (isAssignedOnceInLifetime.isKnown()) {
-          return isAssignedOnceInLifetime.getKnownValue();
+        if (isAssignedOnceInLifetimeField.isKnown()) {
+          return isAssignedOnceInLifetimeField.getKnownValue();
         } else {
-          return isAssignedOnceInLifetime.setKnownValueOnce(
+          return isAssignedOnceInLifetimeField.setKnownValueOnce(
               referenceInfo.isAssignedOnceInLifetime());
         }
       }
 
-      private final InitiallyUnknown<Boolean> isReferencedWeakly = new InitiallyUnknown<>();
+      private final InitiallyUnknown<Boolean> isReferencedWeaklyField = new InitiallyUnknown<>();
 
       private boolean isReferencedWeakly() {
-        if (isReferencedWeakly.isKnown()) {
-          return isReferencedWeakly.getKnownValue();
+        if (isReferencedWeaklyField.isKnown()) {
+          return isReferencedWeaklyField.getKnownValue();
         } else {
-          return isReferencedWeakly.setKnownValueOnce(referenceInfo.isReferencedWeakly());
+          return isReferencedWeaklyField.setKnownValueOnce(referenceInfo.isReferencedWeakly());
         }
       }
 
-      private final InitiallyUnknown<Boolean> isWellDefinedAssignedOnce = new InitiallyUnknown<>();
+      private final InitiallyUnknown<Boolean> isWellDefinedAssignedOnceField = new InitiallyUnknown<>();
 
       /**
        * A more efficient way to ask if the variable is both well defined and assigned exactly once
        * in its lifetime.
        */
       private boolean isWellDefinedAssignedOnce() {
-        if (isWellDefinedAssignedOnce.isKnown()) {
-          return isWellDefinedAssignedOnce.getKnownValue();
+        if (isWellDefinedAssignedOnceField.isKnown()) {
+          return isWellDefinedAssignedOnceField.getKnownValue();
         } else {
           // Check first to see if either is already known to be false before calculating anything.
-          return isWellDefinedAssignedOnce.setKnownValueOnce(
-              !isWellDefined.isKnownToBe(false)
-                  && !isAssignedOnceInLifetime.isKnownToBe(false)
+          return isWellDefinedAssignedOnceField.setKnownValueOnce(
+              !isWellDefinedField.isKnownToBe(false)
+                  && !isAssignedOnceInLifetimeField.isKnownToBe(false)
                   // isWellDefined is generally less expensive to calculate
                   && isWellDefined()
                   && isAssignedOnceInLifetime());
@@ -430,11 +430,11 @@ class InlineVariables implements CompilerPass {
         return isValidInitialization(getInitialization());
       }
 
-      private final InitiallyUnknown<Boolean> allReferencesAreValid = new InitiallyUnknown<>();
+      private final InitiallyUnknown<Boolean> allReferencesAreValidField = new InitiallyUnknown<>();
 
       private boolean allReferencesAreValid() {
-        if (allReferencesAreValid.isKnown()) {
-          return allReferencesAreValid.getKnownValue();
+        if (allReferencesAreValidField.isKnown()) {
+          return allReferencesAreValidField.getKnownValue();
         } else {
           final boolean hasValidDeclaration = hasValidDeclaration();
           final boolean hasValidInitialization = hasValidInitialization();
@@ -443,12 +443,12 @@ class InlineVariables implements CompilerPass {
             Reference initialization = getInitialization();
             for (Reference ref : referenceInfo.references) {
               if (ref != declaration && ref != initialization && !isValidReference(ref)) {
-                return allReferencesAreValid.setKnownValueOnce(false);
+                return allReferencesAreValidField.setKnownValueOnce(false);
               }
             }
-            return allReferencesAreValid.setKnownValueOnce(true);
+            return allReferencesAreValidField.setKnownValueOnce(true);
           }
-          return allReferencesAreValid.setKnownValueOnce(false);
+          return allReferencesAreValidField.setKnownValueOnce(false);
         }
       }
 
@@ -539,10 +539,10 @@ class InlineVariables implements CompilerPass {
         // use canonical analysis values to save on memory space.
         if (mayBeAParameterModifiedViaArguments
             || mode == Mode.CONSTANTS_ONLY
-            || isWellDefinedAssignedOnce.isKnownToBe(false)) {
+            || isWellDefinedAssignedOnceField.isKnownToBe(false)) {
           return NO_INLINE_SELF_OR_ALIASES_ANALYSIS;
         }
-        if (isWellDefinedAssignedOnce.isKnownToBe(true)) {
+        if (isWellDefinedAssignedOnceField.isKnownToBe(true)) {
           return NO_INLINE_SELF_ALIASES_OK_ANALYSIS;
         }
 
@@ -594,13 +594,13 @@ class InlineVariables implements CompilerPass {
           this.value = value;
         }
 
-        private final InitiallyUnknown<Boolean> isImmutableValue = new InitiallyUnknown<>();
+        private final InitiallyUnknown<Boolean> isImmutableValueField = new InitiallyUnknown<>();
 
         boolean isImmutableValue() {
-          if (isImmutableValue.isKnown()) {
-            return isImmutableValue.getKnownValue();
+          if (isImmutableValueField.isKnown()) {
+            return isImmutableValueField.getKnownValue();
           } else {
-            return isImmutableValue.setKnownValueOnce(
+            return isImmutableValueField.setKnownValueOnce(
                 value != null && NodeUtil.isImmutableValue(value));
           }
         }
@@ -1027,11 +1027,11 @@ class InlineVariables implements CompilerPass {
   }
 
   private static class InitiallyUnknown<T> {
-    boolean isKnown = false;
+    boolean isKnownField = false;
     @Nullable T value = null;
 
     boolean isKnown() {
-      return isKnown;
+      return isKnownField;
     }
 
     boolean isKnownNotNull() {
@@ -1039,23 +1039,23 @@ class InlineVariables implements CompilerPass {
     }
 
     boolean isKnownToBe(T other) {
-      return isKnown && value == other;
+      return isKnownField && value == other;
     }
 
     boolean isKnownNotToBe(T other) {
-      return isKnown && value != other;
+      return isKnownField && value != other;
     }
 
     @CanIgnoreReturnValue
     T setKnownValueOnce(T value) {
-      checkState(!isKnown, "already known");
+      checkState(!isKnownField, "already known");
       this.value = value;
-      isKnown = true;
+      isKnownField = true;
       return value;
     }
 
     T getKnownValue() {
-      checkState(isKnown, "not yet known");
+      checkState(isKnownField, "not yet known");
       return value;
     }
   }

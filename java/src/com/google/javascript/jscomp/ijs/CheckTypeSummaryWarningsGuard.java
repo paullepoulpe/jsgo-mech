@@ -29,10 +29,10 @@ import org.jspecify.annotations.Nullable;
  */
 public class CheckTypeSummaryWarningsGuard extends WarningsGuard {
 
-  private final CheckLevel level;
+  private final CheckLevel levelField;
 
   public CheckTypeSummaryWarningsGuard(CheckLevel level) {
-    this.level = level;
+    this.levelField = level;
   }
 
   @Override
@@ -42,7 +42,7 @@ public class CheckTypeSummaryWarningsGuard extends WarningsGuard {
       return null;
     }
     if (inTypeSummary(error)) {
-      return this.level;
+      return this.levelField;
     }
     return null;
   }

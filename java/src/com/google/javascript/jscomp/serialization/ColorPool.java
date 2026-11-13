@@ -139,7 +139,7 @@ public final class ColorPool {
     private final LinkedHashMap<ColorId, Color> idToColor = new LinkedHashMap<>();
     private final ColorRegistry.Builder registry = ColorRegistry.builder();
     private final Table<ColorId, ShardView, TypeProto> idToProto = Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
-    private boolean forTesting = false;
+    private boolean forTestingField = false;
 
     private final ArrayDeque<ColorId> reconcilationDebugStack = new ArrayDeque<>();
 
@@ -155,7 +155,7 @@ public final class ColorPool {
 
     @CanIgnoreReturnValue
     private Builder forTesting() {
-      this.forTesting = true;
+      this.forTestingField = true;
       return this;
     }
 
@@ -219,7 +219,7 @@ public final class ColorPool {
           });
 
       ImmutableList.Builder<ShardView> shardViewsForTesting = ImmutableList.builder();
-      if (this.forTesting) {
+      if (this.forTestingField) {
         this.forEachShard(shardViewsForTesting::add);
       }
 

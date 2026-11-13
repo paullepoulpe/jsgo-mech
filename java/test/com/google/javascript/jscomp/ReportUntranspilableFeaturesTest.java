@@ -31,15 +31,15 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
-  private LanguageMode languageOut;
-  private @Nullable BrowserFeaturesetYear browserFeaturesetYear;
+  private LanguageMode languageOutField;
+  private @Nullable BrowserFeaturesetYear browserFeaturesetYearField;
 
   @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    languageOut = LanguageMode.ECMASCRIPT3;
-    browserFeaturesetYear = null;
+    languageOutField = LanguageMode.ECMASCRIPT3;
+    browserFeaturesetYearField = null;
     disableTypeCheck();
     enableRunTypeCheckAfterProcessing();
   }
@@ -51,21 +51,21 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
         ImmutableList.of(
             new ReportUntranspilableFeatures(
                 compiler,
-                browserFeaturesetYear,
-                (browserFeaturesetYear != null
-                    ? browserFeaturesetYear.getFeatureSet()
-                    : languageOut.toFeatureSet()))));
+                browserFeaturesetYearField,
+                (browserFeaturesetYearField != null
+                    ? browserFeaturesetYearField.getFeatureSet()
+                    : languageOutField.toFeatureSet()))));
   }
 
   @Test
   public void testEs2018RegexFlagS() {
-    languageOut = LanguageMode.ECMASCRIPT_2018;
+    languageOutField = LanguageMode.ECMASCRIPT_2018;
     testSame("const a = /asdf/;");
     testSame("const a = /asdf/g;");
     testSame("const a = /asdf/s;");
     testSame("const a = /asdf/gs;");
 
-    languageOut = LanguageMode.ECMASCRIPT_2017;
+    languageOutField = LanguageMode.ECMASCRIPT_2017;
     testSame("const a = /asdf/;");
     testSame("const a = /asdf/g;");
     testError(
@@ -91,11 +91,11 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
   @Test
   public void testEs2018RegexLookbehind() {
-    languageOut = LanguageMode.ECMASCRIPT_2018;
+    languageOutField = LanguageMode.ECMASCRIPT_2018;
     testSame("const a = /(?<=asdf)/;");
     testSame("const a = /(?<!asdf)/;");
 
-    languageOut = LanguageMode.ECMASCRIPT_2017;
+    languageOutField = LanguageMode.ECMASCRIPT_2017;
     testSame("const a = /(?=asdf)/;"); // Lookaheads are fine
     testSame("const a = /(?!asdf)/g;"); // Lookaheads are fine
     testError(
@@ -116,13 +116,13 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
   @Test
   public void testEs2018RegexUnicodePropertyEscape() {
-    languageOut = LanguageMode.ECMASCRIPT_2018;
+    languageOutField = LanguageMode.ECMASCRIPT_2018;
     testSame("const a = /\\p{Script=Greek}/u;");
     testSame("const a = /\\P{Script=Greek}/u;");
     testSame("const a = /\\p{Script=Greek}/;"); // Without u flag, /\p/ is same as /p/
     testSame("const a = /\\P{Script=Greek}/;"); // Without u flag, /\p/ is same as /p/
 
-    languageOut = LanguageMode.ECMASCRIPT_2017;
+    languageOutField = LanguageMode.ECMASCRIPT_2017;
     testSame("const a = /\\p{Script=Greek}/;"); // Without u flag, /\p/ is same as /p/
     testSame("const a = /\\P{Script=Greek}/;"); // Without u flag, /\p/ is same as /p/
     testError(
@@ -145,17 +145,17 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
   @Test
   public void testRegExpConstructorCalls() {
-    languageOut = LanguageMode.ECMASCRIPT_2017;
+    languageOutField = LanguageMode.ECMASCRIPT_2017;
     // TODO(bradfordcsmith): report errors from RegExp in this form
     testSame("const a = new RegExp('asdf', 'gs');");
   }
 
   @Test
   public void testEs2018RegexNamedCaptureGroups() {
-    languageOut = LanguageMode.ECMASCRIPT_2018;
+    languageOutField = LanguageMode.ECMASCRIPT_2018;
     testSame("const a = /(?<name>)/u;");
 
-    languageOut = LanguageMode.ECMASCRIPT_2017;
+    languageOutField = LanguageMode.ECMASCRIPT_2017;
     testError(
         "const a = /(?<name>)/;",
         UNTRANSPILABLE_FEATURE_PRESENT,
@@ -177,10 +177,10 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
   @Test
   public void testEs2018RegexNamedCaptureGroupsBackReferencing() {
-    languageOut = LanguageMode.ECMASCRIPT_2018;
+    languageOutField = LanguageMode.ECMASCRIPT_2018;
     testSame("const a = /^(?<half>.*).\\k<half>$/u;");
 
-    languageOut = LanguageMode.ECMASCRIPT_2017;
+    languageOutField = LanguageMode.ECMASCRIPT_2017;
     testError(
         "const a = /^(?<half>.*).\\k<half>$/u;",
         UNTRANSPILABLE_FEATURE_PRESENT,
@@ -192,10 +192,10 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
   @Test
   public void testEs2018RegexNamedCaptureGroupsBackReferencing_usingBrowserFeaturesetYear() {
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2021;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2021;
     testSame("const a = /^(?<half>.*).\\k<half>$/u;");
 
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2020;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2020;
     testError(
         "const a = /^(?<half>.*).\\k<half>$/u;",
         UNTRANSPILABLE_FEATURE_PRESENT,
@@ -209,19 +209,19 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
   @Test
   public void reportErrorWithBigIntLiteralTranspilation() {
-    languageOut = LanguageMode.ECMASCRIPT_2021;
+    languageOutField = LanguageMode.ECMASCRIPT_2021;
     testSame("1234n");
 
-    languageOut = LanguageMode.ECMASCRIPT3;
+    languageOutField = LanguageMode.ECMASCRIPT3;
     testError("1234n", ReportUntranspilableFeatures.UNTRANSPILABLE_FEATURE_PRESENT);
   }
 
   @Test
   public void reportErrorWithBigIntLiteralTranspilation_browserFeaturesetYear() {
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2021;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2021;
     testSame("1234n");
 
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2020;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2020;
     testError(
         "1234n",
         ReportUntranspilableFeatures.UNTRANSPILABLE_FEATURE_PRESENT,
@@ -235,16 +235,16 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
   @Test
   public void noErrorWithBigIntConstructorTranspilation() {
     // Do not report an error for use of the `BigInt()` method, just the literal form.
-    languageOut = LanguageMode.ECMASCRIPT3;
+    languageOutField = LanguageMode.ECMASCRIPT3;
     testSame("BigInt(1234)");
   }
 
   @Test
   public void testEs2022RegexFlagD() {
-    languageOut = LanguageMode.ECMASCRIPT_NEXT;
+    languageOutField = LanguageMode.ECMASCRIPT_NEXT;
     testSame("const a = /^(?<half>.*).\\k<half>$/d;");
 
-    languageOut = LanguageMode.ECMASCRIPT_2021;
+    languageOutField = LanguageMode.ECMASCRIPT_2021;
     testError(
         "const a = /^(?<half>.*).\\k<half>$/d;",
         UNTRANSPILABLE_FEATURE_PRESENT,
@@ -256,7 +256,7 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
 
   @Test
   public void testEs2022RegexFlagD_usingBrowserFeaturesetYear() {
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2022;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2022;
     testError(
         "const a = /^(?<half>.*).\\k<half>$/d;",
         UNTRANSPILABLE_FEATURE_PRESENT,
@@ -278,21 +278,21 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
                 The feature "Top-level await" is currently unsupported for transpilation.
                 """);
 
-    languageOut = LanguageMode.ECMASCRIPT_NEXT;
+    languageOutField = LanguageMode.ECMASCRIPT_NEXT;
     testTopLevelAwaitUnsupported.run();
 
-    languageOut = LanguageMode.ECMASCRIPT_2022;
+    languageOutField = LanguageMode.ECMASCRIPT_2022;
     testTopLevelAwaitUnsupported.run();
 
-    languageOut = LanguageMode.ECMASCRIPT_2021;
+    languageOutField = LanguageMode.ECMASCRIPT_2021;
     testTopLevelAwaitUnsupported.run();
 
-    languageOut = LanguageMode.ECMASCRIPT3; // Reset
+    languageOutField = LanguageMode.ECMASCRIPT3; // Reset
 
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2023;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2023;
     testTopLevelAwaitUnsupported.run();
 
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2022;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2022;
     testTopLevelAwaitUnsupported.run();
   }
 
@@ -307,39 +307,39 @@ public class ReportUntranspilableFeaturesTest extends CompilerTestCase {
                 The feature "Top-level await" is currently unsupported for transpilation.
                 """);
 
-    languageOut = LanguageMode.ECMASCRIPT_NEXT;
+    languageOutField = LanguageMode.ECMASCRIPT_NEXT;
     testTopLevelAwaitUnsupported.run();
 
-    languageOut = LanguageMode.ECMASCRIPT_2022;
+    languageOutField = LanguageMode.ECMASCRIPT_2022;
     testTopLevelAwaitUnsupported.run();
 
-    languageOut = LanguageMode.ECMASCRIPT_2021;
+    languageOutField = LanguageMode.ECMASCRIPT_2021;
     testTopLevelAwaitUnsupported.run();
 
-    languageOut = LanguageMode.ECMASCRIPT3; // Reset
+    languageOutField = LanguageMode.ECMASCRIPT3; // Reset
 
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2023;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2023;
     testTopLevelAwaitUnsupported.run();
 
-    browserFeaturesetYear = BrowserFeaturesetYear.YEAR_2022;
+    browserFeaturesetYearField = BrowserFeaturesetYear.YEAR_2022;
     testTopLevelAwaitUnsupported.run();
   }
 
   @Test
   public void testCannotConvertEs5GetterToEs3() {
-    this.languageOut = LanguageMode.ECMASCRIPT3;
+    this.languageOutField = LanguageMode.ECMASCRIPT3;
     testError("var o = {get x() {}};", UNTRANSPILABLE_FEATURE_PRESENT);
   }
 
   @Test
   public void testCannotConvertEs5SetterToEs3() {
-    this.languageOut = LanguageMode.ECMASCRIPT3;
+    this.languageOutField = LanguageMode.ECMASCRIPT3;
     testError("var o = {set x(val) {}};", UNTRANSPILABLE_FEATURE_PRESENT);
   }
 
   @Test
   public void testAllowsEs5GetterSetterWithEs5Out() {
-    this.languageOut = LanguageMode.ECMASCRIPT5;
+    this.languageOutField = LanguageMode.ECMASCRIPT5;
     testNoWarning(
         """
         var o = {

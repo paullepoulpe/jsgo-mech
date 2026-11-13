@@ -514,7 +514,7 @@ class ProcessClosureProvidesAndRequires implements CompilerPass {
     // When set the namespace will not have an initialization added, even if the namespace
     // initialization is not otherwise visibile to this pass.  This allows for trivial aliasing of
     // a tree of namespaces.
-    private final boolean hasImplicitInitialization;
+    private final boolean hasImplicitInitializationField;
 
     // The node where the call was explicitly goog.provided. Null if the namespace is implicit.
     // If this is previously provided, this will instead be the expression or declaration marked
@@ -562,7 +562,7 @@ class ProcessClosureProvidesAndRequires implements CompilerPass {
       this.firstNode = builder.node;
       this.firstChunk = builder.chunk;
       this.fromLegacyModule = builder.fromLegacyModule;
-      this.hasImplicitInitialization = builder.hasImplicitInitialization;
+      this.hasImplicitInitializationField = builder.hasImplicitInitialization;
 
       addProvide(node, builder.chunk, builder.explicit, chunkGraph);
     }
@@ -592,7 +592,7 @@ class ProcessClosureProvidesAndRequires implements CompilerPass {
     }
 
     boolean hasImplicitInitialization() {
-      return hasImplicitInitialization;
+      return hasImplicitInitializationField;
     }
 
     boolean isFromLegacyModule() {
@@ -706,7 +706,7 @@ class ProcessClosureProvidesAndRequires implements CompilerPass {
         }
       } else {
         // Handle the case where there's not an existing definition.
-        if (!hasImplicitInitialization) {
+        if (!hasImplicitInitializationField) {
           createNamespaceInitialization(
               createDeclarationNode(astFactory.createObjectLit()), providedNames);
         }

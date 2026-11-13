@@ -46,7 +46,7 @@ public final class CachingTranspilerTest {
    */
   private static final class FakeTranspiler implements Transpiler {
     final Map<List<Object>, TranspileResult> transpileResults = new HashMap<>();
-    String runtime = "";
+    String runtimeField = "";
     final List<List<Object>> transpileCalls = new ArrayList<>();
     int runtimeCalls = 0;
 
@@ -59,7 +59,7 @@ public final class CachingTranspilerTest {
     @Override
     public String runtime() {
       runtimeCalls++;
-      return runtime;
+      return runtimeField;
     }
   }
 
@@ -117,13 +117,13 @@ public final class CachingTranspilerTest {
 
   @Test
   public void testRuntimeDelegates() {
-    delegate.runtime = "xyzzy";
+    delegate.runtimeField = "xyzzy";
     assertThat(transpiler.runtime()).isSameInstanceAs("xyzzy");
   }
 
   @Test
   public void testRuntimeCaches() {
-    delegate.runtime = "xyzzy";
+    delegate.runtimeField = "xyzzy";
     assertThat(transpiler.runtime()).isSameInstanceAs("xyzzy");
     assertThat(transpiler.runtime()).isSameInstanceAs("xyzzy");
     assertThat(delegate.runtimeCalls).isEqualTo(1);

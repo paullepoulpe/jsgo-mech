@@ -87,7 +87,7 @@ import org.jspecify.annotations.Nullable;
  *
  */
 public final class NamedType extends ProxyObjectType {
-  private static final JSTypeClass TYPE_CLASS = JSTypeClass.NAMED;
+  private static final JSTypeClass TYPE_CLASS_FIELD = JSTypeClass.NAMED;
 
   static int nominalHashCode(ObjectType type) {
     checkState(type.hasReferenceName());
@@ -145,12 +145,12 @@ public final class NamedType extends ProxyObjectType {
     this.templateTypes = builder.templateTypes;
     this.resolutionKind = builder.resolutionKind;
 
-    registry.getResolver().resolveIfClosed(this, TYPE_CLASS);
+    registry.getResolver().resolveIfClosed(this, TYPE_CLASS_FIELD);
   }
 
   @Override
   JSTypeClass getTypeClass() {
-    return TYPE_CLASS;
+    return TYPE_CLASS_FIELD;
   }
 
   /** Returns a new non-null version of this type. */

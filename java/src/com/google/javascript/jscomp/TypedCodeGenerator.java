@@ -41,14 +41,14 @@ import org.jspecify.annotations.Nullable;
  */
 class TypedCodeGenerator extends CodeGenerator {
   private final JSTypeRegistry registry;
-  private final JSDocInfoPrinter jsDocInfoPrinter;
+  private final JSDocInfoPrinter jsDocInfoPrinterField;
 
   TypedCodeGenerator(
       CodeConsumer consumer, CompilerOptions options, JSTypeRegistry registry) {
     super(consumer, options);
     checkNotNull(registry);
     this.registry = registry;
-    this.jsDocInfoPrinter = new JSDocInfoPrinter(options.getUseOriginalNamesInOutput());
+    this.jsDocInfoPrinterField = new JSDocInfoPrinter(options.getUseOriginalNamesInOutput());
   }
 
   @Override
@@ -71,7 +71,7 @@ class TypedCodeGenerator extends CodeGenerator {
           && n.getFirstChild().isAssign()) {
         Node assign = n.getFirstChild();
         if (NodeUtil.isNamespaceDecl(assign.getFirstChild())) {
-          add(jsDocInfoPrinter.print(assign.getJSDocInfo()));
+          add(jsDocInfoPrinterField.print(assign.getJSDocInfo()));
         } else {
           Node rhs = assign.getLastChild();
           add(getTypeAnnotation(rhs));
@@ -79,7 +79,7 @@ class TypedCodeGenerator extends CodeGenerator {
       } else if (NodeUtil.isNameDeclaration(n) && n.getFirstFirstChild() != null) {
         // All namespace declarations except `const x = {};` are signified by @const JSDoc.
         if (NodeUtil.isNamespaceDecl(n.getFirstChild()) && n.getJSDocInfo() != null) {
-          add(jsDocInfoPrinter.print(n.getJSDocInfo()));
+          add(jsDocInfoPrinterField.print(n.getJSDocInfo()));
         } else {
           add(getTypeAnnotation(n.getFirstFirstChild()));
         }

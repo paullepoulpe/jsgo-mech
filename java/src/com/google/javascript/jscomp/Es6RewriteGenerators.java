@@ -1160,7 +1160,7 @@ final class Es6RewriteGenerators implements CompilerPass {
         //     $context.jumpTo(200);
         //     break;
         for (Case currentCase : allCases) {
-          if (currentCase.jumpTo != null) {
+          if (currentCase.jumpToField != null) {
             // Flatten jumps chains:
             // 1 -> 2
             // 2 -> 8
@@ -1169,20 +1169,20 @@ final class Es6RewriteGenerators implements CompilerPass {
             // 1 -> 300
             // 2 -> 300
             // 8 -> 300
-            while (currentCase.jumpTo.jumpTo != null) {
-              currentCase.jumpTo = currentCase.jumpTo.jumpTo;
+            while (currentCase.jumpToField.jumpToField != null) {
+              currentCase.jumpToField = currentCase.jumpToField.jumpToField;
             }
 
             if (currentCase.embedInto != null && currentCase.references.size() == 1) {
-              currentCase.jumpTo.embedInto = currentCase.embedInto;
+              currentCase.jumpToField.embedInto = currentCase.embedInto;
             }
             currentCase.embedInto = null;
 
             // Update references to jump to the final case in the chain
             for (Node reference : currentCase.references) {
-              reference.setDouble(currentCase.jumpTo.id);
+              reference.setDouble(currentCase.jumpToField.id);
             }
-            currentCase.jumpTo.references.addAll(currentCase.references);
+            currentCase.jumpToField.references.addAll(currentCase.references);
             currentCase.references.clear();
           }
         }
@@ -1216,7 +1216,7 @@ final class Es6RewriteGenerators implements CompilerPass {
             continue;
           }
           if (currentCase.embedInto != null) {
-            checkState(currentCase.jumpTo == null);
+            checkState(currentCase.jumpToField == null);
             // Cases can be embedded only if they are referenced once and don't fall through.
             if (currentCase.references.size() == 1 && !currentCase.mayFallThrough) {
               currentCase.embedInto.replaceWith(currentCase.caseBlock);
@@ -1224,7 +1224,7 @@ final class Es6RewriteGenerators implements CompilerPass {
               continue;
             }
           }
-          if (prevCase.jumpTo == currentCase) {
+          if (prevCase.jumpToField == currentCase) {
             // Merging "case 1:" with the following case. The standard merging cannot be used
             // as "case 1:" is an entry point and it cannot be renamed.
             //   case 1:
@@ -1243,14 +1243,14 @@ final class Es6RewriteGenerators implements CompilerPass {
             //     break;
             checkState(prevCase.mayFallThrough);
             checkState(!prevCase.caseBlock.hasChildren());
-            checkState(currentCase.jumpTo == null);
+            checkState(currentCase.jumpToField == null);
 
             prevCase.caseBlock.addChildrenToBack(currentCase.caseBlock.removeChildren());
             prevCase.mayFallThrough = currentCase.mayFallThrough;
             for (Node reference : currentCase.references) {
               reference.setDouble(prevCase.id);
             }
-            prevCase.jumpTo = currentCase.jumpTo;
+            prevCase.jumpToField = currentCase.jumpToField;
             prevCase.references.addAll(currentCase.references);
             it.remove();
             continue;
@@ -1844,7 +1844,7 @@ final class Es6RewriteGenerators implements CompilerPass {
          * Indicates that this case is a simple jump or a fall-though case. Points to the target
          * case.
          */
-        @Nullable Case jumpTo;
+        @Nullable Case jumpToField;
 
         /**
          * Indicates that the body of this case could potentially be embedded into another block
@@ -1891,8 +1891,8 @@ final class Es6RewriteGenerators implements CompilerPass {
 
         /** Returns the number node of the case section and increments a reference counter. */
         Node getNumber(Node sourceNode) {
-          if (jumpTo != null) {
-            return jumpTo.getNumber(sourceNode);
+          if (jumpToField != null) {
+            return jumpToField.getNumber(sourceNode);
           }
           Node node = astFactory.createNumber(id).srcref(sourceNode);
           references.add(node);
@@ -1906,7 +1906,7 @@ final class Es6RewriteGenerators implements CompilerPass {
          */
         void jumpTo(Case other, Node jumpBlock) {
           checkState(jumpBlock.isBlock());
-          checkState(jumpTo == null);
+          checkState(jumpToField == null);
           willFollowBy(other);
           caseBlock.addChildrenToBack(jumpBlock.removeChildren());
           mayFallThrough = false;
@@ -1931,15 +1931,15 @@ final class Es6RewriteGenerators implements CompilerPass {
          * </pre>
          */
         void willFollowBy(Case other) {
-          if (jumpTo == null && !caseBlock.hasChildren()) {
-            checkState(other.jumpTo == null);
-            jumpTo = other;
+          if (jumpToField == null && !caseBlock.hasChildren()) {
+            checkState(other.jumpToField == null);
+            jumpToField = other;
           }
         }
 
         /** Adds a new node to the end of the case block. */
         void addNode(Node n) {
-          checkState(jumpTo == null);
+          checkState(jumpToField == null);
           checkState(IR.mayBeStatement(n));
           caseBlock.addChildToBack(n);
         }

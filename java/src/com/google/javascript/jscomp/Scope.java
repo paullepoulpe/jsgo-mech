@@ -118,7 +118,7 @@ public final class Scope extends AbstractScope<Scope, Var> {
   @Override
   Var makeImplicitVar(ImplicitVar var) {
     return new Var(
-        var.name,
+        var.nameField,
         /* nameNode= */ null,
         this,
         /* index= */ -1,

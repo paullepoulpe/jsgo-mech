@@ -79,7 +79,7 @@ public final class SourceFile implements StaticSourceFile {
 
   private final CodeLoader loader;
 
-  private boolean isStubSourceFileForAlreadyProvidedInput = false;
+  private boolean isStubSourceFileForAlreadyProvidedInputField = false;
 
   // Source Line Information
   private volatile int @Nullable [] lineOffsets = null;
@@ -106,12 +106,12 @@ public final class SourceFile implements StaticSourceFile {
   }
 
   public boolean isStubSourceFileForAlreadyProvidedInput() {
-    return isStubSourceFileForAlreadyProvidedInput;
+    return isStubSourceFileForAlreadyProvidedInputField;
   }
 
   private void setIsStubSourceFileForAlreadyProvidedInput(
       boolean isStubSourceFileForAlreadyProvidedInput) {
-    this.isStubSourceFileForAlreadyProvidedInput = isStubSourceFileForAlreadyProvidedInput;
+    this.isStubSourceFileForAlreadyProvidedInputField = isStubSourceFileForAlreadyProvidedInput;
   }
 
   @Override
@@ -336,15 +336,15 @@ public final class SourceFile implements StaticSourceFile {
     this.kind = kind;
   }
 
-  private boolean isClosureUnawareCode = false;
+  private boolean isClosureUnawareCodeField = false;
 
   @Override
   public boolean isClosureUnawareCode() {
-    return isClosureUnawareCode;
+    return isClosureUnawareCodeField;
   }
 
   public void markAsClosureUnawareCode() {
-    this.isClosureUnawareCode = true;
+    this.isClosureUnawareCodeField = true;
   }
 
   @Override
@@ -680,7 +680,7 @@ public final class SourceFile implements StaticSourceFile {
     // file when compilation began and parsing ran.
     this.numLines = protoNumLines != -1 ? protoNumLines : this.numLines;
     this.numBytes = protoNumBytes != -1 ? protoNumBytes : this.numBytes;
-    this.isClosureUnawareCode = protoSourceFile.getIsClosureUnawareCode();
+    this.isClosureUnawareCodeField = protoSourceFile.getIsClosureUnawareCode();
   }
 
   public static SourceFile fromProto(SourceFileProto protoSourceFile) {
@@ -1074,7 +1074,7 @@ public final class SourceFile implements StaticSourceFile {
         .toProtoLocationBuilder(this.getName())
         .setFilename(this.getName())
         .setSourceKind(sourceKindToProto(this.getKind()))
-        .setIsClosureUnawareCode(this.isClosureUnawareCode)
+        .setIsClosureUnawareCode(this.isClosureUnawareCodeField)
         .setNumLinesPlusOne(this.numLines + 1)
         .setNumBytesPlusOne(this.numBytes + 1)
         .build();

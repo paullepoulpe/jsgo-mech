@@ -74,7 +74,7 @@ import org.jspecify.annotations.Nullable;
  */
 public class FunctionType extends PrototypeObjectType implements JSType.WithSourceRef {
 
-  private static final JSTypeClass TYPE_CLASS = JSTypeClass.FUNCTION;
+  private static final JSTypeClass TYPE_CLASS_FIELD = JSTypeClass.FUNCTION;
 
   enum Kind {
     ORDINARY,
@@ -132,13 +132,13 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
   private final @Nullable String googModuleId;
 
   /** if this is an interface, indicate whether or not it supports structural interface matching */
-  private boolean isStructuralInterface;
+  private boolean isStructuralInterfaceField;
 
   /**
    * If true, the function type represents an abstract method or the constructor of an abstract
    * class
    */
-  private final boolean isAbstract;
+  private final boolean isAbstractField;
 
   /**
    * The interfaces directly implemented by this function (for constructors) It is only relevant for
@@ -211,8 +211,8 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
             builder.returnTypeIsInferred);
 
     this.closurePrimitive = builder.primitiveId;
-    this.isStructuralInterface = false;
-    this.isAbstract = builder.isAbstract;
+    this.isStructuralInterfaceField = false;
+    this.isAbstractField = builder.isAbstract;
     FunctionType canonicalRepresentation = builder.canonicalRepresentation;
     checkArgument(
         canonicalRepresentation == null || kind == Kind.CONSTRUCTOR,
@@ -223,12 +223,12 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
       this.setPrototypeBasedOn(builder.setPrototypeBasedOn);
     }
 
-    this.registry.getResolver().resolveIfClosed(this, TYPE_CLASS);
+    this.registry.getResolver().resolveIfClosed(this, TYPE_CLASS_FIELD);
   }
 
   @Override
   JSTypeClass getTypeClass() {
-    return TYPE_CLASS;
+    return TYPE_CLASS_FIELD;
   }
 
   @Override
@@ -1157,16 +1157,16 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
    */
   public final void setImplicitMatch(boolean flag) {
     checkState(isInterface());
-    isStructuralInterface = flag;
+    isStructuralInterfaceField = flag;
   }
 
   @Override
   public final boolean isStructuralInterface() {
-    return isInterface() && isStructuralInterface;
+    return isInterface() && isStructuralInterfaceField;
   }
 
   public final boolean isAbstract() {
-    return isAbstract;
+    return isAbstractField;
   }
 
   /**

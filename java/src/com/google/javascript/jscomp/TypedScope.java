@@ -57,7 +57,7 @@ public class TypedScope extends AbstractScope<TypedScope, TypedVar> implements S
   private final @Nullable Module module;
 
   /** Whether this is a bottom scope for the purposes of type inference. */
-  private final boolean isBottom;
+  private final boolean isBottomField;
 
   // Will shrink over time. Set to "ImmutableSet.of()" once empty (so don't try removing
   // elements from an empty set)
@@ -82,7 +82,7 @@ public class TypedScope extends AbstractScope<TypedScope, TypedVar> implements S
     checkChildScope(parent);
     this.parent = parent;
     this.depth = parent.depth + 1;
-    this.isBottom = false;
+    this.isBottomField = false;
     this.reservedNames =
         reservedNames.isEmpty() ? ImmutableSet.of() : new LinkedHashSet<>(reservedNames);
     this.module = module;
@@ -99,7 +99,7 @@ public class TypedScope extends AbstractScope<TypedScope, TypedVar> implements S
     checkRootScope();
     this.parent = null;
     this.depth = 0;
-    this.isBottom = isBottom;
+    this.isBottomField = isBottom;
     this.reservedNames = ImmutableSet.of();
     this.module = null;
   }
@@ -132,7 +132,7 @@ public class TypedScope extends AbstractScope<TypedScope, TypedVar> implements S
 
   /** Whether this is the bottom of the lattice. */
   boolean isBottom() {
-    return isBottom;
+    return isBottomField;
   }
 
   @Nullable
@@ -202,7 +202,7 @@ public class TypedScope extends AbstractScope<TypedScope, TypedVar> implements S
       // declared.
       return null;
     }
-    return new TypedVar(false, var.name, null, getImplicitVarType(var), this, -1, null);
+    return new TypedVar(false, var.nameField, null, getImplicitVarType(var), this, -1, null);
   }
 
   @Override
