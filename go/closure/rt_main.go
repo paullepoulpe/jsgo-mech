@@ -18,10 +18,10 @@ func Main(args []string) (code int) {
 			if t, ok := r.(interface{ as_Throwable() *Throwable }); ok {
 				// A Java exception that main does not catch: what the JVM prints, with the Go
 				// stack where Java has its stack frames, and the JVM's exit status.
-				trace := stackTraceText_(t.as_Throwable())
+				trace := Io_stackTraceText(t.as_Throwable())
 				first, rest, _ := strings.Cut(trace, "\n")
 				frames := strings.ReplaceAll(strings.TrimSpace(string(debug.Stack())), "\n", "\n\tat ")
-				Io_stderr().print("Exception in thread \"main\" " + first + "\n\tat " + frames + "\n" + rest)
+				printErr_("Exception in thread \"main\" " + first + "\n\tat " + frames + "\n" + rest)
 				code = 1
 				return
 			}

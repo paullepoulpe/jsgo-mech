@@ -73,7 +73,7 @@ func ResourceBundle_getBundle(baseName string) *ResourceBundle {
 	// A properties bundle is UTF-8, or ISO-8859-1 if it is not valid UTF-8.
 	text := string(data)
 	if !utf8.Valid(data) {
-		text, _ = charsets_[csLatin1_].decode(data)
+		text = Charsets_decode(i8_(data), Charsets_ISO_8859_1)
 	}
 	parseProperties_(text, func(k, v string) {
 		if _, dup := b.values_[k]; !dup {

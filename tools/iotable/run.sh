@@ -10,7 +10,7 @@ cp="$root/.cache/build/main:$root/.cache/build/stock-libs.jar"
 mkdir -p "$root/.cache/iotable" "$root/go/closure/testdata/io"
 javac -nowarn -cp "$cp" -d "$root/.cache/iotable" "$root/tools/iotable/IoTable.java"
 # In a UTF-8 locale (in the POSIX locale the JDK refuses file names that are not ASCII) and in an
-# empty directory, where the generator builds the tree its glob table walks.
+# empty directory, where the generator builds the tree its files table walks.
 work=$(mktemp -d)
 (cd "$work" && env -u JAVA_TOOL_OPTIONS LC_ALL=C.UTF-8 java -cp "$root/.cache/iotable:$cp" IoTable "$root/go/closure/testdata/io")
 rm -rf "$work"

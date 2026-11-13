@@ -130,21 +130,16 @@ func (this *xmlReader_) parse(source *InputSource) {
 	data, chars := source.data_, source.chars_
 	// A UTF-16 document is recognised by its byte order mark.
 	if !chars && len(data) >= 2 && (data[0] == 0xFE && data[1] == 0xFF || data[0] == 0xFF && data[1] == 0xFE) {
-		s, _ := charsets_[csUTF16_].decode(data)
-		data = []byte(s)
+		data = []byte(Charsets_decode(i8_(data), Charsets_UTF_16))
 		chars = true
 	}
 	data = bytes.TrimPrefix(data, []byte{0xEF, 0xBB, 0xBF})
 	// A document in another declared encoding is decoded up front.
 	if m := xmlEncodingDecl_.FindSubmatch(data); !chars && m != nil {
-		cs := charsetByName_[strings.ToLower(string(m[1]))]
-		if cs == nil {
+		if !Charsets_isSupported(string(m[1])) {
 			panic(new_SAXParseException_("Invalid encoding name \""+string(m[1])+"\".", 1).self())
 		}
-		if cs.kind != csUTF8_ {
-			s, _ := cs.decode(data)
-			data = []byte(s)
-		}
+		data = []byte(Charsets_decode(i8_(data), string(m[1])))
 	}
 
 	h := this.handler_
@@ -155,7 +150,7 @@ func (this *xmlReader_) parse(source *InputSource) {
 	// handler, and thrown.
 	fail := func(msg string) {
 		line, col := d.InputPos()
-		Io_stderr().println("[Fatal Error] :" + istr_(int64(line)) + ":" + istr_(int64(col)) + ": " + msg)
+		printErr_("[Fatal Error] :" + istr_(int64(line)) + ":" + istr_(int64(col)) + ": " + msg + "\n")
 		panic(new_SAXParseException_(msg, int32(line)).self())
 	}
 	if hh, ok := h.(interface{ startDocument() }); ok {
@@ -293,7 +288,7 @@ func (this *xmlReader_) doctype_(decl string) {
 		if strings.HasPrefix(systemId, "/") {
 			systemId = "file://" + systemId
 		} else {
-			systemId = "file://" + Io_pathToAbsolute(systemId)
+			systemId = "file://" + Io_workingDirectory() + "/" + systemId
 		}
 	}
 	if r, ok := this.resolver_.(interface {

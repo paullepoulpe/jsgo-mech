@@ -137,8 +137,7 @@ func (this *Thread) start() {
 				h.uncaughtException(this, to_Throwable(ex))
 				return
 			}
-			Io_stderr().print("Exception in thread \"" + this.name_ + "\" ")
-			Io_stderr().printStackTrace(to_Throwable(ex))
+			printErr_("Exception in thread \"" + this.name_ + "\" " + Io_stackTraceText(to_Throwable(ex)))
 		}
 	}()
 	if s, ok := this.self_.(interface{ run() }); ok {
@@ -208,29 +207,6 @@ func throwableString_(t *Throwable) string {
 	}
 	return t.toString()
 }
-
-// stackTraceText_ is what printStackTrace prints. No stack frames are
-// recorded, so it is the exception, its suppressed exceptions and its causes.
-func stackTraceText_(t *Throwable) string {
-	var b strings.Builder
-	b.WriteString(throwableString_(t))
-	b.WriteByte('\n')
-	for _, s := range suppressed_[t] {
-		b.WriteString("\tSuppressed: " + throwableString_(s) + "\n")
-	}
-	seen := map[*Throwable]bool{t: true}
-	for c := t.cause_; c != nil; c = c.cause_ {
-		if seen[c] {
-			b.WriteString("Caused by: [CIRCULAR REFERENCE: " + throwableString_(c) + "]\n")
-			break
-		}
-		seen[c] = true
-		b.WriteString("Caused by: " + throwableString_(c) + "\n")
-	}
-	return b.String()
-}
-
-var suppressed_ = map[*Throwable][]*Throwable{}
 
 // ---- java.util.concurrent.TimeUnit
 
@@ -627,9 +603,9 @@ func (this *Logger) emit_(l *Level, msg string, thrown *Throwable) {
 	if !this.isLoggable(l) {
 		return
 	}
-	Io_stderr().print(l.name_ + ": " + sstr_(msg) + "\n")
+	printErr_(l.name_ + ": " + sstr_(msg) + "\n")
 	if thrown != nil {
-		Io_stderr().printStackTrace(thrown)
+		printErr_(Io_stackTraceText(thrown))
 	}
 }
 

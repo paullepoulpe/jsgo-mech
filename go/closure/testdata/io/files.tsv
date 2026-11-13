@@ -1,0 +1,227 @@
+dir	T/empty	null
+dir	T/sub/deep/deeper	null
+dir	T/other	null
+dir	T/x	null
+dir	T/y	null
+dir	T/sp ace	null
+file	T/a.js	null
+file	T/B.js	null
+file	T/b.JS	null
+file	T/_.js	null
+file	T/.hidden	null
+file	T/sub/c.js	null
+file	T/sub/deep/e.js	null
+file	T/sub/deep/deeper/f.js	null
+file	T/sub.js	null
+file	T/sub-1	null
+file	T/sub0	null
+file	T/other/g.js	null
+file	T/other/[odd].js	null
+file	T/sp ace/h.js	null
+file	T/\u00fcml.js	null
+file	T/\uff5e.js	null
+file	T/\ud83d\ude00.js	null
+file	T/x/in-x	null
+file	T/y/in-y	null
+file	T/Z	null
+file	T/sub/deep/a.js	null
+file	plain	null
+link	T/lnk -> sub/deep	null
+link	T/dangling -> nowhere	null
+link	T/sub/up -> ..	null
+link	T/sub/self -> .	null
+link	T/sub/deep/top -> ../..	null
+link	T/filelnk -> a.js	null
+link	T/x/toY -> ../y	null
+link	T/y/toX -> ../x	null
+link	T/other/abs -> /nonexistent-jsgo	null
+link	outside -> T/sub	null
+link	T/loop -> loop	null
+link	plainlnk -> plain	null
+mtime	plain	null
+exists	T	true
+isDirectory	T	true
+readBytes	T	!java.io.IOException: T: Cannot read file
+listFiles	T	[30]	.hidden	B.js	Z	_.js	a.js	b.JS	dangling	filelnk	lnk/a.js	lnk/deeper/f.js	lnk/e.js	loop	other/[odd].js	other/abs	other/g.js	sp ace/h.js	sub/c.js	sub/deep/a.js	sub/deep/deeper/f.js	sub/deep/e.js	sub-1	sub.js	sub0	x/in-x	x/toY/in-y	y/in-y	y/toX/in-x	\u00fcml.js	\ud83d\ude00.js	\uff5e.js
+exists	T/	true
+isDirectory	T/	true
+readBytes	T/	!java.io.IOException: T/: Cannot read file
+listFiles	T/	[30]	.hidden	B.js	Z	_.js	a.js	b.JS	dangling	filelnk	lnk/a.js	lnk/deeper/f.js	lnk/e.js	loop	other/[odd].js	other/abs	other/g.js	sp ace/h.js	sub/c.js	sub/deep/a.js	sub/deep/deeper/f.js	sub/deep/e.js	sub-1	sub.js	sub0	x/in-x	x/toY/in-y	y/in-y	y/toX/in-x	\u00fcml.js	\ud83d\ude00.js	\uff5e.js
+exists	T/a.js	true
+isDirectory	T/a.js	false
+readBytes	T/a.js	x542f612e6a73
+listFiles	T/a.js	[0]
+exists	T/empty	true
+isDirectory	T/empty	true
+readBytes	T/empty	!java.io.IOException: T/empty: Cannot read file
+listFiles	T/empty	[0]
+exists	T/sub	true
+isDirectory	T/sub	true
+readBytes	T/sub	!java.io.IOException: T/sub: Cannot read file
+listFiles	T/sub	[53]	c.js	deep/a.js	deep/deeper/f.js	deep/e.js	deep/top/.hidden	deep/top/B.js	deep/top/Z	deep/top/_.js	deep/top/a.js	deep/top/b.JS	deep/top/dangling	deep/top/filelnk	deep/top/loop	deep/top/other/[odd].js	deep/top/other/abs	deep/top/other/g.js	deep/top/sp ace/h.js	deep/top/sub-1	deep/top/sub.js	deep/top/sub0	deep/top/x/in-x	deep/top/x/toY/in-y	deep/top/y/in-y	deep/top/y/toX/in-x	deep/top/\u00fcml.js	deep/top/\ud83d\ude00.js	deep/top/\uff5e.js	up/.hidden	up/B.js	up/Z	up/_.js	up/a.js	up/b.JS	up/dangling	up/filelnk	up/lnk/a.js	up/lnk/deeper/f.js	up/lnk/e.js	up/loop	up/other/[odd].js	up/other/abs	up/other/g.js	up/sp ace/h.js	up/sub-1	up/sub.js	up/sub0	up/x/in-x	up/x/toY/in-y	up/y/in-y	up/y/toX/in-x	up/\u00fcml.js	up/\ud83d\ude00.js	up/\uff5e.js
+exists	T/sub/	true
+isDirectory	T/sub/	true
+readBytes	T/sub/	!java.io.IOException: T/sub/: Cannot read file
+listFiles	T/sub/	[53]	c.js	deep/a.js	deep/deeper/f.js	deep/e.js	deep/top/.hidden	deep/top/B.js	deep/top/Z	deep/top/_.js	deep/top/a.js	deep/top/b.JS	deep/top/dangling	deep/top/filelnk	deep/top/loop	deep/top/other/[odd].js	deep/top/other/abs	deep/top/other/g.js	deep/top/sp ace/h.js	deep/top/sub-1	deep/top/sub.js	deep/top/sub0	deep/top/x/in-x	deep/top/x/toY/in-y	deep/top/y/in-y	deep/top/y/toX/in-x	deep/top/\u00fcml.js	deep/top/\ud83d\ude00.js	deep/top/\uff5e.js	up/.hidden	up/B.js	up/Z	up/_.js	up/a.js	up/b.JS	up/dangling	up/filelnk	up/lnk/a.js	up/lnk/deeper/f.js	up/lnk/e.js	up/loop	up/other/[odd].js	up/other/abs	up/other/g.js	up/sp ace/h.js	up/sub-1	up/sub.js	up/sub0	up/x/in-x	up/x/toY/in-y	up/y/in-y	up/y/toX/in-x	up/\u00fcml.js	up/\ud83d\ude00.js	up/\uff5e.js
+exists	T/sub/deep/deeper	true
+isDirectory	T/sub/deep/deeper	true
+readBytes	T/sub/deep/deeper	!java.io.IOException: T/sub/deep/deeper: Cannot read file
+listFiles	T/sub/deep/deeper	[1]	f.js
+exists	T/lnk	true
+isDirectory	T/lnk	true
+readBytes	T/lnk	!java.io.IOException: T/lnk: Cannot read file
+listFiles	T/lnk	[27]	a.js	deeper/f.js	e.js	top/.hidden	top/B.js	top/Z	top/_.js	top/a.js	top/b.JS	top/dangling	top/filelnk	top/loop	top/other/[odd].js	top/other/abs	top/other/g.js	top/sp ace/h.js	top/sub/c.js	top/sub-1	top/sub.js	top/sub0	top/x/in-x	top/x/toY/in-y	top/y/in-y	top/y/toX/in-x	top/\u00fcml.js	top/\ud83d\ude00.js	top/\uff5e.js
+exists	T/lnk/e.js	true
+isDirectory	T/lnk/e.js	false
+readBytes	T/lnk/e.js	x542f7375622f646565702f652e6a73
+listFiles	T/lnk/e.js	[0]
+exists	T/dangling	false
+isDirectory	T/dangling	false
+readBytes	T/dangling	!java.io.IOException: T/dangling: No such file
+listFiles	T/dangling	[0]
+exists	T/filelnk	true
+isDirectory	T/filelnk	false
+readBytes	T/filelnk	x542f612e6a73
+listFiles	T/filelnk	[0]
+exists	T/loop	false
+isDirectory	T/loop	false
+readBytes	T/loop	!java.io.IOException: T/loop: No such file
+listFiles	T/loop	[0]
+exists	T/sub/up	true
+isDirectory	T/sub/up	true
+readBytes	T/sub/up	!java.io.IOException: T/sub/up: Cannot read file
+listFiles	T/sub/up	[30]	.hidden	B.js	Z	_.js	a.js	b.JS	dangling	filelnk	lnk/a.js	lnk/deeper/f.js	lnk/e.js	loop	other/[odd].js	other/abs	other/g.js	sp ace/h.js	sub/c.js	sub/deep/a.js	sub/deep/deeper/f.js	sub/deep/e.js	sub-1	sub.js	sub0	x/in-x	x/toY/in-y	y/in-y	y/toX/in-x	\u00fcml.js	\ud83d\ude00.js	\uff5e.js
+exists	T/sub/up/sub/c.js	true
+isDirectory	T/sub/up/sub/c.js	false
+readBytes	T/sub/up/sub/c.js	x542f7375622f632e6a73
+listFiles	T/sub/up/sub/c.js	[0]
+exists	T/x	true
+isDirectory	T/x	true
+readBytes	T/x	!java.io.IOException: T/x: Cannot read file
+listFiles	T/x	[2]	in-x	toY/in-y
+exists	T/x/toY	true
+isDirectory	T/x/toY	true
+readBytes	T/x/toY	!java.io.IOException: T/x/toY: Cannot read file
+listFiles	T/x/toY	[2]	in-y	toX/in-x
+exists	outside	true
+isDirectory	outside	true
+readBytes	outside	!java.io.IOException: outside: Cannot read file
+listFiles	outside	[53]	c.js	deep/a.js	deep/deeper/f.js	deep/e.js	deep/top/.hidden	deep/top/B.js	deep/top/Z	deep/top/_.js	deep/top/a.js	deep/top/b.JS	deep/top/dangling	deep/top/filelnk	deep/top/loop	deep/top/other/[odd].js	deep/top/other/abs	deep/top/other/g.js	deep/top/sp ace/h.js	deep/top/sub-1	deep/top/sub.js	deep/top/sub0	deep/top/x/in-x	deep/top/x/toY/in-y	deep/top/y/in-y	deep/top/y/toX/in-x	deep/top/\u00fcml.js	deep/top/\ud83d\ude00.js	deep/top/\uff5e.js	up/.hidden	up/B.js	up/Z	up/_.js	up/a.js	up/b.JS	up/dangling	up/filelnk	up/lnk/a.js	up/lnk/deeper/f.js	up/lnk/e.js	up/loop	up/other/[odd].js	up/other/abs	up/other/g.js	up/sp ace/h.js	up/sub-1	up/sub.js	up/sub0	up/x/in-x	up/x/toY/in-y	up/y/in-y	up/y/toX/in-x	up/\u00fcml.js	up/\ud83d\ude00.js	up/\uff5e.js
+exists	plain	true
+isDirectory	plain	false
+readBytes	plain	x706c61696e
+listFiles	plain	[0]
+exists	plain/x	false
+isDirectory	plain/x	false
+readBytes	plain/x	!java.io.IOException: plain/x: No such file
+listFiles	plain/x	[0]
+exists	nope	false
+isDirectory	nope	false
+readBytes	nope	!java.io.IOException: nope: No such file
+listFiles	nope	[0]
+exists	nope/x	false
+isDirectory	nope/x	false
+readBytes	nope/x	!java.io.IOException: nope/x: No such file
+listFiles	nope/x	[0]
+exists		false
+isDirectory		false
+readBytes		!java.io.IOException: : No such file
+listFiles		[85]	T/.hidden	T/B.js	T/Z	T/_.js	T/a.js	T/b.JS	T/dangling	T/filelnk	T/lnk/a.js	T/lnk/deeper/f.js	T/lnk/e.js	T/loop	T/other/[odd].js	T/other/abs	T/other/g.js	T/sp ace/h.js	T/sub/c.js	T/sub/deep/a.js	T/sub/deep/deeper/f.js	T/sub/deep/e.js	T/sub-1	T/sub.js	T/sub0	T/x/in-x	T/x/toY/in-y	T/y/in-y	T/y/toX/in-x	T/\u00fcml.js	T/\ud83d\ude00.js	T/\uff5e.js	outside/c.js	outside/deep/a.js	outside/deep/deeper/f.js	outside/deep/e.js	outside/deep/top/.hidden	outside/deep/top/B.js	outside/deep/top/Z	outside/deep/top/_.js	outside/deep/top/a.js	outside/deep/top/b.JS	outside/deep/top/dangling	outside/deep/top/filelnk	outside/deep/top/loop	outside/deep/top/other/[odd].js	outside/deep/top/other/abs	outside/deep/top/other/g.js	outside/deep/top/sp ace/h.js	outside/deep/top/sub-1	outside/deep/top/sub.js	outside/deep/top/sub0	outside/deep/top/x/in-x	outside/deep/top/x/toY/in-y	outside/deep/top/y/in-y	outside/deep/top/y/toX/in-x	outside/deep/top/\u00fcml.js	outside/deep/top/\ud83d\ude00.js	outside/deep/top/\uff5e.js	outside/up/.hidden	outside/up/B.js	outside/up/Z	outside/up/_.js	outside/up/a.js	outside/up/b.JS	outside/up/dangling	outside/up/filelnk	outside/up/lnk/a.js	outside/up/lnk/deeper/f.js	outside/up/lnk/e.js	outside/up/loop	outside/up/other/[odd].js	outside/up/other/abs	outside/up/other/g.js	outside/up/sp ace/h.js	outside/up/sub-1	outside/up/sub.js	outside/up/sub0	outside/up/x/in-x	outside/up/x/toY/in-y	outside/up/y/in-y	outside/up/y/toX/in-x	outside/up/\u00fcml.js	outside/up/\ud83d\ude00.js	outside/up/\uff5e.js	plain	plainlnk
+exists	.	true
+isDirectory	.	true
+readBytes	.	!java.io.IOException: .: Cannot read file
+listFiles	.	[85]	T/.hidden	T/B.js	T/Z	T/_.js	T/a.js	T/b.JS	T/dangling	T/filelnk	T/lnk/a.js	T/lnk/deeper/f.js	T/lnk/e.js	T/loop	T/other/[odd].js	T/other/abs	T/other/g.js	T/sp ace/h.js	T/sub/c.js	T/sub/deep/a.js	T/sub/deep/deeper/f.js	T/sub/deep/e.js	T/sub-1	T/sub.js	T/sub0	T/x/in-x	T/x/toY/in-y	T/y/in-y	T/y/toX/in-x	T/\u00fcml.js	T/\ud83d\ude00.js	T/\uff5e.js	outside/c.js	outside/deep/a.js	outside/deep/deeper/f.js	outside/deep/e.js	outside/deep/top/.hidden	outside/deep/top/B.js	outside/deep/top/Z	outside/deep/top/_.js	outside/deep/top/a.js	outside/deep/top/b.JS	outside/deep/top/dangling	outside/deep/top/filelnk	outside/deep/top/loop	outside/deep/top/other/[odd].js	outside/deep/top/other/abs	outside/deep/top/other/g.js	outside/deep/top/sp ace/h.js	outside/deep/top/sub-1	outside/deep/top/sub.js	outside/deep/top/sub0	outside/deep/top/x/in-x	outside/deep/top/x/toY/in-y	outside/deep/top/y/in-y	outside/deep/top/y/toX/in-x	outside/deep/top/\u00fcml.js	outside/deep/top/\ud83d\ude00.js	outside/deep/top/\uff5e.js	outside/up/.hidden	outside/up/B.js	outside/up/Z	outside/up/_.js	outside/up/a.js	outside/up/b.JS	outside/up/dangling	outside/up/filelnk	outside/up/lnk/a.js	outside/up/lnk/deeper/f.js	outside/up/lnk/e.js	outside/up/loop	outside/up/other/[odd].js	outside/up/other/abs	outside/up/other/g.js	outside/up/sp ace/h.js	outside/up/sub-1	outside/up/sub.js	outside/up/sub0	outside/up/x/in-x	outside/up/x/toY/in-y	outside/up/y/in-y	outside/up/y/toX/in-x	outside/up/\u00fcml.js	outside/up/\ud83d\ude00.js	outside/up/\uff5e.js	plain	plainlnk
+exists	..	true
+isDirectory	..	true
+readBytes	..	!java.io.IOException: ..: Cannot read file
+exists	./T/../T/a.js	true
+isDirectory	./T/../T/a.js	false
+readBytes	./T/../T/a.js	x542f612e6a73
+listFiles	./T/../T/a.js	[0]
+exists	T//a.js	true
+isDirectory	T//a.js	false
+readBytes	T//a.js	x542f612e6a73
+listFiles	T//a.js	[0]
+exists	T/\u00fcml.js	true
+isDirectory	T/\u00fcml.js	false
+readBytes	T/\u00fcml.js	x542fc3bc6d6c2e6a73
+listFiles	T/\u00fcml.js	[0]
+exists	T/\ud83d\ude00.js	true
+isDirectory	T/\ud83d\ude00.js	false
+readBytes	T/\ud83d\ude00.js	x542ff09f98802e6a73
+listFiles	T/\ud83d\ude00.js	[0]
+exists	/	true
+isDirectory	/	true
+readBytes	/	!java.io.IOException: /: Cannot read file
+exists	/nonexistent-jsgo/x	false
+isDirectory	/nonexistent-jsgo/x	false
+readBytes	/nonexistent-jsgo/x	!java.io.IOException: /nonexistent-jsgo/x: No such file
+listFiles	/nonexistent-jsgo/x	[0]
+exists	T/sp ace/h.js	true
+isDirectory	T/sp ace/h.js	false
+readBytes	T/sp ace/h.js	x542f7370206163652f682e6a73
+listFiles	T/sp ace/h.js	[0]
+exists	x\u0000y	false
+isDirectory	x\u0000y	false
+readBytes	x\u0000y	!java.io.IOException: x\u0000y: No such file
+listFiles	x\u0000y	[0]
+lastModified	plain	1000000000123456789
+lastModified	plainlnk	1000000000123456789
+lastModified	nope	0
+lastModified	T/dangling	0
+lastModified	plain/x	0
+writeBytes	w1	null x7772697474656e
+truncate	w1	null null x6f6e652074776f
+append	w1	null null x6f6e652074776f6f6e652074776f
+append	w1	null null x6f6e652074776f6f6e652074776f6f6e652074776f
+writeBytes	T/a.js	null x7772697474656e
+truncate	T/a.js	null null x6f6e652074776f
+append	T/a.js	null null x6f6e652074776f6f6e652074776f
+append	T/a.js	null null x6f6e652074776f6f6e652074776f6f6e652074776f
+writeBytes	T/empty	!java.io.IOException: T/empty: Cannot write file !java.io.IOException: T/empty: Cannot read file
+truncate	T/empty	!java.io.IOException: T/empty: Cannot write file
+append	T/empty	!java.io.IOException: T/empty: Cannot write file
+append	T/empty	!java.io.IOException: T/empty: Cannot write file
+writeBytes	nope/w	!java.io.IOException: nope/w: Cannot write file !java.io.IOException: nope/w: No such file
+truncate	nope/w	!java.io.IOException: nope/w: Cannot write file
+append	nope/w	!java.io.IOException: nope/w: Cannot write file
+append	nope/w	!java.io.IOException: nope/w: Cannot write file
+writeBytes	plain/w	!java.io.IOException: plain/w: Cannot write file !java.io.IOException: plain/w: No such file
+truncate	plain/w	!java.io.IOException: plain/w: Cannot write file
+append	plain/w	!java.io.IOException: plain/w: Cannot write file
+append	plain/w	!java.io.IOException: plain/w: Cannot write file
+writeBytes	T/filelnk	null x7772697474656e
+truncate	T/filelnk	null null x6f6e652074776f
+append	T/filelnk	null null x6f6e652074776f6f6e652074776f
+append	T/filelnk	null null x6f6e652074776f6f6e652074776f6f6e652074776f
+writeBytes	T/dangling	null x7772697474656e
+truncate	T/dangling	null null x6f6e652074776f
+append	T/dangling	null null x6f6e652074776f6f6e652074776f
+append	T/dangling	null null x6f6e652074776f6f6e652074776f6f6e652074776f
+writeBytes	T/lnk/w	null x7772697474656e
+truncate	T/lnk/w	null null x6f6e652074776f
+append	T/lnk/w	null null x6f6e652074776f6f6e652074776f
+append	T/lnk/w	null null x6f6e652074776f6f6e652074776f6f6e652074776f
+writeBytes		!java.io.IOException: : Cannot write file !java.io.IOException: : No such file
+truncate		!java.io.IOException: : Cannot write file
+append		!java.io.IOException: : Cannot write file
+append		!java.io.IOException: : Cannot write file
+writeBytes	T/loop	!java.io.IOException: T/loop: Cannot write file !java.io.IOException: T/loop: No such file
+truncate	T/loop	!java.io.IOException: T/loop: Cannot write file
+append	T/loop	!java.io.IOException: T/loop: Cannot write file
+append	T/loop	!java.io.IOException: T/loop: Cannot write file
+writeBytes	w\u00e9\ud83d\ude00	null x7772697474656e
+truncate	w\u00e9\ud83d\ude00	null null x6f6e652074776f
+append	w\u00e9\ud83d\ude00	null null x6f6e652074776f6f6e652074776f
+append	w\u00e9\ud83d\ude00	null null x6f6e652074776f6f6e652074776f6f6e652074776f
+mkdirs	m1	true
+mkdirs	m2/a/b/c	true
+mkdirs	m2/a	true
+mkdirs	T/sub	true
+mkdirs	plain/m	false
+mkdirs	T/lnk/made	true
+mkdirs	m3/	true
+mkdirs	m4//x/./y	true
+mkdirs		false
+readBytes	T/a.js	x6f6e652074776f6f6e652074776f6f6e652074776f
+listFiles	.	[94]	T/.hidden	T/B.js	T/Z	T/_.js	T/a.js	T/b.JS	T/dangling	T/filelnk	T/lnk/a.js	T/lnk/deeper/f.js	T/lnk/e.js	T/lnk/w	T/loop	T/nowhere	T/other/[odd].js	T/other/abs	T/other/g.js	T/sp ace/h.js	T/sub/c.js	T/sub/deep/a.js	T/sub/deep/deeper/f.js	T/sub/deep/e.js	T/sub/deep/w	T/sub-1	T/sub.js	T/sub0	T/x/in-x	T/x/toY/in-y	T/y/in-y	T/y/toX/in-x	T/\u00fcml.js	T/\ud83d\ude00.js	T/\uff5e.js	outside/c.js	outside/deep/a.js	outside/deep/deeper/f.js	outside/deep/e.js	outside/deep/top/.hidden	outside/deep/top/B.js	outside/deep/top/Z	outside/deep/top/_.js	outside/deep/top/a.js	outside/deep/top/b.JS	outside/deep/top/dangling	outside/deep/top/filelnk	outside/deep/top/loop	outside/deep/top/nowhere	outside/deep/top/other/[odd].js	outside/deep/top/other/abs	outside/deep/top/other/g.js	outside/deep/top/sp ace/h.js	outside/deep/top/sub-1	outside/deep/top/sub.js	outside/deep/top/sub0	outside/deep/top/x/in-x	outside/deep/top/x/toY/in-y	outside/deep/top/y/in-y	outside/deep/top/y/toX/in-x	outside/deep/top/\u00fcml.js	outside/deep/top/\ud83d\ude00.js	outside/deep/top/\uff5e.js	outside/deep/w	outside/up/.hidden	outside/up/B.js	outside/up/Z	outside/up/_.js	outside/up/a.js	outside/up/b.JS	outside/up/dangling	outside/up/filelnk	outside/up/lnk/a.js	outside/up/lnk/deeper/f.js	outside/up/lnk/e.js	outside/up/lnk/w	outside/up/loop	outside/up/nowhere	outside/up/other/[odd].js	outside/up/other/abs	outside/up/other/g.js	outside/up/sp ace/h.js	outside/up/sub-1	outside/up/sub.js	outside/up/sub0	outside/up/x/in-x	outside/up/x/toY/in-y	outside/up/y/in-y	outside/up/y/toX/in-x	outside/up/\u00fcml.js	outside/up/\ud83d\ude00.js	outside/up/\uff5e.js	plain	plainlnk	w1	w\u00e9\ud83d\ude00

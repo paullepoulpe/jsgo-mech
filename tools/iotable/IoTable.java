@@ -4,18 +4,23 @@ import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.zip.CRC32;
+import java.util.zip.Deflater;
 
 /**
  * Writes what the Java Io and Json facades return for a few thousand inputs, as tab-separated tables that
  * go/closure/rt_io_test.go checks the Go implementation against. See run.sh.
  *
- * <p>A line is: operation, arguments, result. Strings are escaped (see esc); byte arrays are hex;
- * a thrown exception or an error Outcome is "!" + class name + ": " + message.
+ * <p>A line is: operation, one argument, result. Strings are escaped (see esc); byte arrays are
+ * hex; a thrown exception or an error Outcome is "!" + class name + ": " + message.
  */
 public final class IoTable {
   static PrintStream out;
@@ -47,8 +52,13 @@ public final class IoTable {
     return "!" + t.getClass().getName() + (t.getMessage() == null ? "" : ": " + esc(t.getMessage()));
   }
 
+  /** A result that is in the table's notation already. */
+  record Raw(String text) {}
+
   static String show(Object v) {
-    if (v instanceof Outcome<?> o) {
+    if (v instanceof Raw r) {
+      return r.text();
+    } else if (v instanceof Outcome<?> o) {
       return o.isErr() ? exc(o.error()) : show(o.get());
     } else if (v instanceof byte[] b) {
       return hex(b);
@@ -82,105 +92,322 @@ public final class IoTable {
     out.println(b + "\t" + r);
   }
 
-  static final String[] PATHS = {
-    "", "/", "a", "a/b", "/a/b", "a/", "a//b", "//a", "/a/", ".", "..", "./a", "../a", "a/..",
-    "a/../b", "a/./b", "/..", "/../a", "a/b/../../..", "../..", "a/b/c", "/a/b/c", "a b",
-    "\u00e9/\u00fc", ".a", "a.", "...", "a/.../b", "./", "../", "/.", "a/b/..", "/a/../..",
-    "a\\b", "a/b/c/d.js", "../../x/y", "./.", "a/../../b", "///", "/a//b///c/", "x/\u0000y",
-    "b/a", "a/b/../c", "/x", "./../a",
-  };
-
-  static final String[] URIS = {
-    "", " ", "a", "a/b.js", "./a/../b", "/abs/x", "//host/p", "//", "http://a/b", "http://a/b c",
-    "http:", "http:/", "http:/a", "http:a", "http://", "http://a", "file:///x/y", "file:/x%20y",
-    "mailto:a@b", "urn:isbn:1", "data:text/plain;base64,AAA=", "a b", "%zz", "a%20b", "a%2",
-    "a%", "/a%", "a%e4%b8%ad", "%C3%A9", "%c3", "%ff%41", "a%25b", ":a", "1a:b", "a:", "a:b:c",
-    "+a:b", "a+b:c", "a.b-c+d:e", "a_b:c", "a?b#c", "a#b#c", "a#", "a?", "?q", "#f", "a[b",
-    "a]b", "http://[::1]/x", "http://[::1/x", "http://[zz]/x", "a\\b", "c:\\x", "C:/x", "\u00e9",
-    "a\u00a0b", "a\u0080b", "a\u3000b", "a\u2028b", "http://a:b@c:80/d", "http://a_b/c",
-    "x://y z", "a^b", "a|b", "{a}", "a\"b", "<a>", "a`b", "a\tb", "a\u0000b", "a\u007fb",
-    "\ud83d\ude00", "\ud83d", "http://\u4f8b\u3048.jp/\u30d1\u30b9", "http://host:port/",
-    "http://h:99999999999/", "http://h:80x/", "a/b?c d", "a#b c", "a//b", "http://@/x",
-    "http://a@/x", "http://:80/x", "http://a:/x", "http://a.b.c/x", "http://1.2.3.4/x",
-    "http://1.2.3/x", "http://a..b/x", "http://-a/x", "http://a-/x", "http://a/%7Efoo?x=%zz",
-    "a;b=c", "a,b", "a$b&c=d+e", "a!b~c*d'e(f)", "a@b", "a:b@c", "./a:b", "a/b:c", "http://a?b",
-    "http://a#b", "http://?b", "http://#b", "x:?", "x:#", "x:/?", "x:a?b#c", "x:%41", "x:%4",
-    "x: ", "../../a.js", "goog:foo.bar", "node_modules/@scope/pkg/index.js", "@scope/pkg",
-    "./f\u00f6\u00f6.js", "http://a/b#c%", "http://a/b?c%1", "x:y#%zz", "//a/b%2fc", "a%2Fb",
-    "a%00b", "%e9", "%ED%A0%80", "%F0%9F%98%80", "%f0%9f", "a%41%zz",
-  };
-
-  static final String[] LINES = {
-    "", "a", "a\n", "a\nb", "a\r\nb", "a\rb", "a\n\nb", "\n", "\r", "\r\n", "\n\r", "a\r\n",
-    "a\r\r\nb", "\n\n", "a\u2028b", "a\u0085b", "a\u000bb\fc", "x\ny\rz\r\n", " \n ", "\r\n\r\n",
-  };
+  // ---- UTF-8
 
   static final String[] BYTES = {
     "", "41", "c3a9", "efbbbf41", "c3", "c341", "80", "bf41", "c0af", "c080", "c1bf", "e0", "e080",
     "e08080", "e09f80", "e0a080", "e0a0", "e0a041", "e141", "e18041", "e180", "eda080", "edbfbf",
     "ed9fbf", "eda0", "ee8080", "efbfbd", "f0", "f08080", "f0808080", "f0908080", "f09080",
-    "f0908041", "f09f9880", "f0", "f1", "f18080", "f180", "f48fbfbf", "f4908080", "f490", "f5808080",
-    "f8888080", "fc80808080", "fe", "ff", "feff", "fffe", "feff0041", "fffe4100", "0041", "4100",
-    "00", "0041d8", "d83dde00", "3dd800de", "d800", "00d8", "dc000041", "d8000041", "41d83d",
-    "8182839091a0e9ff", "7f8090", "fffe", "41c2", "41e282", "41f09f98", "61f0808080ff62",
-    "eda080edb080", "fffe0000", "fefffeff", "c3a9c3", "e282ac", "c2a0",
+    "f0908041", "f09f9880", "f1", "f18080", "f180", "f48fbfbf", "f4908080", "f490", "f5808080",
+    "f8888080", "fc80808080", "fe", "ff", "feff", "fffe", "8182839091a0e9ff", "7f8090", "41c2",
+    "41e282", "41f09f98", "61f0808080ff62", "eda080edb080", "c3a9c3", "e282ac", "c2a0",
+    "f09f98f09f9880", "e282e282ac", "f0e282ac", "c2c2a0", "efbfbdff", "f48fbfbff4908080",
+  };
+
+  // The bytes at which the rules of well-formed UTF-8 change.
+  static final int[] EDGES = {
+    0x00, 0x41, 0x7f, 0x80, 0x8f, 0x90, 0x9f, 0xa0, 0xbf, 0xc0, 0xc1, 0xc2, 0xdf, 0xe0, 0xe1, 0xec,
+    0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf3, 0xf4, 0xf5, 0xf7, 0xf8, 0xff,
   };
 
   static final String[] TEXTS = {
-    "", "a", "\u00e9", "\u20ac", "\u0152\u017d\u2122", "\ud83d\ude00", "\ud83d", "\ude00",
-    "a\ud800b", "\ude00\ud83d", "\ud83d\ud83d\ude00", "\ufeffa", "\ufffd", "\u0080\u009f\u00a0",
-    "\u0081\u008d\u008f\u0090\u009d", "\uffff", "ab\u00e9\u4e2d\ud83d\ude00",
+    "", "a", "é", "€", "ŒŽ™", "😀", "\ud83d", "\ude00",
+    "a\ud800b", "\ude00\ud83d", "\ud83d😀", "﻿a", "�", "\u0080\u009f ",
+    "￿", "abé中😀", "퟿", "􏿿", "\udfff\udbff", "\u0000",
+    "😀\ude00", "\ud800𐀀\udc00",
   };
 
-  static final String[] CHARSETS = {
-    "UTF-8", "US-ASCII", "ISO-8859-1", "UTF-16", "UTF-16BE", "UTF-16LE", "windows-1252",
-  };
+  static void utf8Row(byte[] b) {
+    // Lenient and strict in one line: the text with U+FFFD, then the text or null.
+    row("utf8#", () -> new Raw(show(Io.utf8String(b)) + "\t" + show(Io.utf8StringStrict(b))), hex(b));
+  }
 
-  static final String[] CHARSET_NAMES = {
-    "UTF-8", "utf-8", "utf8", "UTF8", "unicode-1-1-utf-8", "US-ASCII", "ascii", "ASCII", "us",
-    "iso-ir-6", "ISO646-US", "646", "ISO-8859-1", "latin1", "l1", "ISO_8859-1", "iso8859_1",
-    "ISO8859-1", "8859_1", "cp819", "IBM819", "UTF-16", "utf16", "UTF_16", "unicode",
-    "UnicodeBig", "UTF-16BE", "UTF_16BE", "X-UTF-16BE", "UnicodeBigUnmarked", "UTF-16LE",
-    "x-utf-16le", "UnicodeLittleUnmarked", "windows-1252", "cp1252", "CP1252", "ibm-1252",
-    "NOPE-8", "nope", "latin-1", "", " ", "bad name", "a!", "-utf8", "utf-8 ", "x", "UTF-9",
-    "a:b", "a+b", "_a", ".a", "\u00e9",
-  };
+  static void utf8Rows() {
+    Random random = new Random(20261113);
+    for (String b : BYTES) {
+      utf8Row(unhex(b));
+    }
+    for (int x : EDGES) {
+      utf8Row(new byte[] {(byte) x});
+      for (int y : EDGES) {
+        utf8Row(new byte[] {(byte) x, (byte) y});
+      }
+    }
+    for (int i = 0; i < 1500; i++) { // edge bytes, strung together
+      byte[] b = new byte[1 + random.nextInt(10)];
+      for (int k = 0; k < b.length; k++) {
+        b[k] = (byte) EDGES[random.nextInt(EDGES.length)];
+      }
+      utf8Row(b);
+    }
+    for (int i = 0; i < 500; i++) { // any bytes
+      byte[] b = new byte[1 + random.nextInt(12)];
+      random.nextBytes(b);
+      utf8Row(b);
+    }
+    for (int i = 0; i < 1000; i++) { // well-formed text with one or two bytes changed, cut or added
+      StringBuilder text = new StringBuilder();
+      for (int k = 1 + random.nextInt(6); k > 0; k--) {
+        int[] limits = {0x80, 0x800, 0xd800, 0x10000, 0x110000};
+        int cp = random.nextInt(limits[random.nextInt(limits.length)]);
+        text.appendCodePoint(cp >= 0xd800 && cp < 0xe000 ? cp + 0x800 : cp);
+      }
+      byte[] b = Io.utf8Bytes(text.toString());
+      for (int k = random.nextInt(3); k > 0 && b.length > 0; k--) {
+        int at = random.nextInt(b.length);
+        switch (random.nextInt(3)) {
+          case 0 -> b[at] = (byte) EDGES[random.nextInt(EDGES.length)];
+          case 1 -> b = java.util.Arrays.copyOf(b, at);
+          default -> b[at] ^= (byte) (1 << random.nextInt(8));
+        }
+      }
+      utf8Row(b);
+    }
+    for (String t : TEXTS) {
+      row("utf8Bytes", () -> Io.utf8Bytes(t), t);
+    }
+    for (int i = 0; i < 500; i++) { // chars with many surrogates among them
+      char[] c = new char[1 + random.nextInt(6)];
+      for (int k = 0; k < c.length; k++) {
+        c[k] =
+            switch (random.nextInt(4)) {
+              case 0 -> (char) (0xd800 + random.nextInt(0x400));
+              case 1 -> (char) (0xdc00 + random.nextInt(0x400));
+              case 2 -> (char) random.nextInt(0x80);
+              default -> (char) random.nextInt(0x10000);
+            };
+      }
+      String t = new String(c);
+      row("utf8Bytes", () -> Io.utf8Bytes(t), t);
+    }
+  }
+
+  // ---- Codecs
 
   static final String[] BASE64 = {
     "", "AA==", "AA", "AAA=", "AAA", "AAAA", "A", "AAAAA", "aGVsbG8=", "aGVsbG8", "aGVs bG8=",
-    "aGVs\nbG8=", "a-b_", "a+b/", "====", "AA=", "AA===", "A=", "=", "AA==AA==", "\u00e9AAA",
-    "AAA*", "AB==", "AAB=", "/+/+",
+    "aGVs\nbG8=", "aGVs\rbG8=", "a-b_", "a+b/", "====", "AA=", "AA===", "A=", "=", "AA==AA==",
+    "éAAA", "AAA*", "AB==", "AAB=", "/+/+", "AA\n", "\nAA", "AA==\n", "A===", "AAAAA===",
+    "AAAA====", " AAAA", "AAAA ", "AA\u0000A", "AB", "AAB", "//8=", "//9=", "/x==", "/w==",
   };
 
-  // The tree for the glob table: files, then links (name -> target).
-  static final String[] TREE = {
-    "a.js", "b.JS", "c.txt", ".hidden.js", "sub/c.js", "sub/d_test.js", "sub/deep/e.js",
-    "sub/deep/deeper/f.js", "sub/x.y.js", "other/g.js", "other/[odd].js", "other/{b}.js",
-    "other/a,b.js", "other/q?.js", "other/star*.js", "other/back\\slash.js", "sp ace/h.js",
-    "\u00fcml/i.js", "empty/.keep", "sub/deep/a.js",
+  /** The length and CRC-32 of data, or the failure: what the inflate and gunzip lines hold. */
+  static Object summary(Outcome<byte[]> data) {
+    if (data.isErr()) {
+      return data;
+    }
+    CRC32 crc = new CRC32();
+    crc.update(data.get());
+    return data.get().length + " " + Long.toHexString(crc.getValue());
+  }
+
+  static byte[] deflate(byte[] data, int level, int strategy) {
+    Deflater deflater = new Deflater(level, true);
+    deflater.setStrategy(strategy);
+    deflater.setInput(data);
+    deflater.finish();
+    java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+    byte[] buffer = new byte[4096];
+    while (!deflater.finished()) {
+      out.write(buffer, 0, deflater.deflate(buffer));
+    }
+    deflater.end();
+    return out.toByteArray();
+  }
+
+  static byte[] concat(byte[] a, byte[] b) {
+    byte[] r = java.util.Arrays.copyOf(a, a.length + b.length);
+    System.arraycopy(b, 0, r, a.length, b.length);
+    return r;
+  }
+
+  static List<byte[]> payloads() {
+    Random random = new Random(42);
+    List<byte[]> payloads = new ArrayList<>();
+    payloads.add(new byte[0]);
+    payloads.add(new byte[] {0});
+    payloads.add(Io.utf8Bytes("hello, hello, hello, hello world\n"));
+    payloads.add(new byte[70000]);
+    byte[] noise = new byte[3000];
+    random.nextBytes(noise);
+    payloads.add(noise);
+    StringBuilder text = new StringBuilder();
+    while (text.length() < 40000) {
+      text.append("var x").append(random.nextInt(500)).append(" = function() { return ");
+      text.append(random.nextInt(100000)).append("; };\n");
+    }
+    payloads.add(Io.utf8Bytes(text.toString()));
+    return payloads;
+  }
+
+  static void codecRows() {
+    Random random = new Random(7);
+    for (String b : BASE64) {
+      // The contract names the class of the failure only.
+      row("base64Decode", () -> {
+        try {
+          return Io.base64Decode(b);
+        } catch (IllegalArgumentException e) {
+          return new Raw("!" + e.getClass().getName());
+        }
+      }, b);
+    }
+    for (int n = 0; n < 40; n++) {
+      byte[] b = new byte[n < 20 ? n : random.nextInt(200)];
+      random.nextBytes(b);
+      row("base64Encode#", () -> Io.base64Encode(b), hex(b));
+      row("base64Decode", () -> Io.base64Decode(Io.base64Encode(b)), Io.base64Encode(b));
+    }
+    List<byte[]> streams = new ArrayList<>();
+    for (byte[] data : payloads()) {
+      for (int level : new int[] {0, 1, 6, 9}) {
+        if (level > 0 || data.length < 5000) { // a stored stream is as long as its data
+          streams.add(deflate(data, level, Deflater.DEFAULT_STRATEGY));
+        }
+      }
+      streams.add(deflate(data, 6, Deflater.HUFFMAN_ONLY));
+      streams.add(deflate(data, 6, Deflater.FILTERED));
+    }
+    for (byte[] s : streams) {
+      row("inflate#", () -> summary(Io.inflate(s)), hex(s));
+    }
+    byte[] small = deflate(Io.utf8Bytes("hello, hello, hello, hello world\n"), 6, 0);
+    byte[] stored = deflate(Io.utf8Bytes("stored"), 0, 0);
+    byte[] dynamic = java.util.Arrays.copyOf(streams.get(streams.size() - 5), 400);
+    row("inflate#", () -> summary(Io.inflate(concat(small, new byte[] {1, 2, 3}))), hex(concat(small, new byte[] {1, 2, 3})));
+    row("inflate#", () -> summary(Io.inflate(concat(small, small))), hex(concat(small, small)));
+    for (byte[] s : new byte[][] {small, stored, dynamic}) { // cut short
+      for (int n = 0; n < s.length; n += s.length > 100 ? 7 : 1) {
+        byte[] cut = java.util.Arrays.copyOf(s, n);
+        row("inflate#", () -> summary(Io.inflate(cut)), hex(cut));
+      }
+    }
+    for (String bad : new String[] {"07", "06", "05", "ff", "00", "0000", "010100feff41", "010100ffff41", "0300", "0b", "fdff"}) {
+      row("inflate#", () -> summary(Io.inflate(unhex(bad))), bad); // block types, stored lengths
+    }
+    for (int i = 0; i < 200; i++) { // random bytes are almost never a stream
+      byte[] b = new byte[1 + random.nextInt(30)];
+      random.nextBytes(b);
+      row("inflate#", () -> summary(Io.inflate(b)), hex(b));
+    }
+
+    List<byte[]> files = new ArrayList<>();
+    for (byte[] data : payloads()) {
+      files.add(Io.gzip(data));
+    }
+    for (byte[] f : files) {
+      row("gunzip#", () -> summary(Io.gunzip(f)), hex(f));
+    }
+    byte[] gz = files.get(2);
+    for (int n = 0; n < gz.length; n++) { // cut short
+      byte[] cut = java.util.Arrays.copyOf(gz, n);
+      row("gunzip#", () -> summary(Io.gunzip(cut)), hex(cut));
+    }
+    for (int at : new int[] {0, 1, 2, gz.length - 8, gz.length - 5, gz.length - 4, gz.length - 1}) {
+      byte[] changed = gz.clone(); // magic, method, checksum, length
+      changed[at] ^= 0x10;
+      row("gunzip#", () -> summary(Io.gunzip(changed)), hex(changed));
+    }
+    // The optional header fields: extra (4), name (8), comment (16), all three.
+    String tail = hex(java.util.Arrays.copyOfRange(gz, 10, gz.length)).substring(1);
+    for (String header : new String[] {
+      "1f8b0804000000000000" + "03004142" + "43", "1f8b0808000000000003" + "612e747874" + "00",
+      "1f8b0810000000000003" + "6869" + "00", "1f8b081c000000000003" + "0100ff" + "6100" + "6200",
+    }) {
+      row("gunzip#", () -> summary(Io.gunzip(unhex(header + tail))), header + tail);
+    }
+    row("gunzip#", () -> summary(Io.gunzip(small)), hex(small));
+    row("gunzip#", () -> summary(Io.gunzip(Io.utf8Bytes("not gzip at all"))), hex(Io.utf8Bytes("not gzip at all")));
+  }
+
+  // ---- Files
+
+  // The tree: directories, files (each holds its own path), then links "name -> target".
+  static final String[] DIRS = {"T/empty", "T/sub/deep/deeper", "T/other", "T/x", "T/y", "T/sp ace"};
+  static final String[] FILES = {
+    "T/a.js", "T/B.js", "T/b.JS", "T/_.js", "T/.hidden", "T/sub/c.js", "T/sub/deep/e.js",
+    "T/sub/deep/deeper/f.js", "T/sub.js", "T/sub-1", "T/sub0", "T/other/g.js", "T/other/[odd].js",
+    "T/sp ace/h.js", "T/üml.js", "T/～.js", "T/😀.js", "T/x/in-x", "T/y/in-y",
+    "T/Z", "T/sub/deep/a.js", "plain",
   };
-  static final String[][] LINKS = {
-    {"lnk", "sub/deep"}, {"dangling.js", "nowhere"}, {"sub/loop", ".."}, {"filelnk.js", "a.js"},
+  static final String[] LINKS = {
+    "T/lnk -> sub/deep", "T/dangling -> nowhere", "T/sub/up -> ..", "T/sub/self -> .",
+    "T/sub/deep/top -> ../..", "T/filelnk -> a.js", "T/x/toY -> ../y", "T/y/toX -> ../x",
+    "T/other/abs -> /nonexistent-jsgo", "outside -> T/sub", "T/loop -> loop",
+    "plainlnk -> plain",
   };
 
-  static final String[] GLOBS = {
-    "**", "*", "*.js", "**.js", "**/*.js", "T/*.js", "T/**.js", "T/**/*.js", "T/sub/*.js",
-    "T/sub/**", "T/sub/**/*.js", "T/**/deep/*", "T/*/c.js", "T/?.js", "T/?.??", "T/[ab].js",
-    "T/[!a].js", "T/[a-c].*", "T/[^a].js", "T/{a,b}.js", "T/{a,c}.{js,txt}", "T/*.{js,JS}",
-    "T/**_test.js", "T/**/[a-f].js", "T/sub/../a.js", "T/./a.js", "./T/a.js", "T/a.js",
-    "T//a.js", "T/a.js/", "T/sub/deep/**", "T/lnk/*", "T/**/loop/**", "T/*.JS", "T/.*",
-    "T/**/.*", "T/other/\\[odd\\].js", "T/other/[[]odd].js", "T/other/\\{b\\}.js",
-    "T/other/a\\,b.js", "T/other/a,b.js", "T/other/q\\?.js", "T/other/q?.js", "T/other/star\\*.js",
-    "T/other/back\\\\slash.js", "T/sp ace/*", "T/\u00fcml/*", "T/**/", "T/**/*", "T/*/*",
-    "T/*/*/*", "T/sub/**/f.js", "T/**f.js", "T/**/**/e.js", "T/sub/d?test.js", "T/[.]hidden.js",
-    "T/*hidden*", "T/dangling.js", "T/filelnk.js", "T/{sub,other}/*.js", "T/{sub/c,a}.js",
-    "T/{**/e,a}.js", "T/[a-", "T/[a", "T/{a", "T/{a,{b,c}}", "T/a}", "T/\\", "T/[b-a].js",
-    "T/[a/b].js", "T/[]a].js", "T/[!]a].js", "T/[-a].js", "T/[a-].js", "T/[a\\]].js",
-    "T/[!-a].js", "T/a.j[s&&x]", "T/+(a).js", "T/a.js|b.js", "T/(a|b).js", "T/a$.js", "T/^a.js",
-    "T/[[:alpha:]].js", "T/**/x.y.js", "T/**/x?y.js", "T/sub/[c-d]*.js", "T/empty/*", "T/empty/**",
-    "T/[a-c-e].js", "T/[--a].js", "T/[a\\-c].js", "T/{}", "T/{,a}.js", "T/a{,.js}", "T/[!",
-    "T/[^", "T/[", "T/[]", "T/[a]]", "T/,a", "T/{a,b", "T/a.js\\",
+  // Not here: a file's path with "/" after it, which the contract does not speak of (java.io.File
+  // drops the "/" and finds the file, the operating system says it is not a directory).
+  static final String[] PATHS = {
+    "T", "T/", "T/a.js", "T/empty", "T/sub", "T/sub/", "T/sub/deep/deeper", "T/lnk", "T/lnk/e.js",
+    "T/dangling", "T/filelnk", "T/loop", "T/sub/up", "T/sub/up/sub/c.js", "T/x", "T/x/toY",
+    "outside", "plain", "plain/x", "nope", "nope/x", "", ".", "..", "./T/../T/a.js",
+    "T//a.js", "T/üml.js", "T/😀.js", "/", "/nonexistent-jsgo/x", "T/sp ace/h.js",
+    "x\u0000y",
   };
+
+  static String sinkScript(String path, boolean append) {
+    Outcome<Io.Sink> opened = Io.openFile(path, append);
+    if (opened.isErr()) {
+      return show(opened);
+    }
+    Io.Sink sink = opened.get();
+    sink.write(Io.utf8Bytes("one "));
+    sink.write(new byte[0]);
+    sink.write(Io.utf8Bytes("two"));
+    String first = show(sink.close());
+    sink.write(Io.utf8Bytes(" never"));
+    return first + " " + show(sink.close()) + " " + show(Io.readBytes(path));
+  }
+
+  static void fileRows() throws Exception {
+    for (String d : DIRS) {
+      Files.createDirectories(Path.of(d));
+      out.println("dir\t" + esc(d) + "\tnull");
+    }
+    for (String f : FILES) {
+      Files.write(Path.of(f), Io.utf8Bytes(f));
+      out.println("file\t" + esc(f) + "\tnull");
+    }
+    for (String l : LINKS) {
+      String[] parts = l.split(" -> ");
+      Files.createSymbolicLink(Path.of(parts[0]), Path.of(parts[1]));
+      out.println("link\t" + esc(l) + "\tnull");
+    }
+    // A time with nine digits after the second, to see that none are lost.
+    Files.setLastModifiedTime(Path.of("plain"), FileTime.from(1000000000123456789L, TimeUnit.NANOSECONDS));
+    out.println("mtime\tplain\tnull");
+    for (String p : PATHS) {
+      row("exists", () -> Io.exists(p), p);
+      row("isDirectory", () -> Io.isDirectory(p), p);
+      row("readBytes", () -> Io.readBytes(p), p);
+      if (!p.equals("/") && !p.equals("..")) {
+        row("listFiles", () -> Io.listFiles(p), p);
+      }
+    }
+    for (String p : new String[] {"plain", "plainlnk", "nope", "T/dangling", "plain/x"}) {
+      row("lastModified", () -> Io.lastModified(p), p);
+    }
+    // Writing: each line leaves what the next ones see.
+    for (String p : new String[] {
+      "w1", "T/a.js", "T/empty", "nope/w", "plain/w", "T/filelnk", "T/dangling", "T/lnk/w", "",
+      "T/loop", "wé😀",
+    }) {
+      row("writeBytes", () -> new Raw(show(Io.writeBytes(p, Io.utf8Bytes("written"))) + " " + show(Io.readBytes(p))), p);
+      row("truncate", () -> new Raw(sinkScript(p, false)), p);
+      row("append", () -> new Raw(sinkScript(p, true)), p);
+      row("append", () -> new Raw(sinkScript(p, true)), p);
+    }
+    for (String p : new String[] {"m1", "m2/a/b/c", "m2/a", "T/sub", "plain/m", "T/lnk/made", "m3/", "m4//x/./y", ""}) {
+      row("mkdirs", () -> {
+        Io.mkdirs(p);
+        return Io.isDirectory(p);
+      }, p);
+    }
+    row("readBytes", () -> Io.readBytes("T/a.js"), "T/a.js");
+    row("listFiles", () -> Io.listFiles("."), ".");
+  }
 
   /** Documents around every rule of Json.parse: standard JSON, its limits, and what it refuses. */
   static List<String> jsonDocuments() {
@@ -222,194 +449,69 @@ public final class IoTable {
     return docs;
   }
 
-  static byte[] zip(String charset, boolean stored, String... namesAndTexts) throws Exception {
-    java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
-    try (java.util.zip.ZipOutputStream z =
-        new java.util.zip.ZipOutputStream(bytes, java.nio.charset.Charset.forName(charset))) {
-      for (int i = 0; i < namesAndTexts.length; i += 2) {
-        byte[] data = namesAndTexts[i + 1].getBytes("UTF-8");
-        java.util.zip.ZipEntry e = new java.util.zip.ZipEntry(namesAndTexts[i]);
-        e.setTime(0);
-        if (stored) {
-          java.util.zip.CRC32 crc = new java.util.zip.CRC32();
-          crc.update(data);
-          e.setMethod(java.util.zip.ZipEntry.STORED);
-          e.setSize(data.length);
-          e.setCrc(crc.getValue());
+  // ---- The report of a failure, without the lines that say where ("at ...", "... 3 more")
+
+  static Throwable failure(String kind) {
+    return switch (kind) {
+      case "plain" -> new RuntimeException("something\nin two lines");
+      case "bare" -> new IllegalStateException();
+      case "io" -> new java.io.IOException("x: No such file");
+      case "caused" -> new RuntimeException("outer", new IllegalArgumentException("inner"));
+      case "wrapped" -> new RuntimeException(new java.io.IOException("inner"));
+      case "chain" ->
+          new IllegalStateException("a", new RuntimeException("b", new NullPointerException()));
+      default -> throw new AssertionError(kind);
+    };
+  }
+
+  static void traceRows() {
+    for (String kind : new String[] {"plain", "bare", "io", "caused", "wrapped", "chain"}) {
+      row("stackTraceText", () -> {
+        StringBuilder kept = new StringBuilder();
+        for (String line : Io.stackTraceText(failure(kind)).split("\n", -1)) {
+          if (!line.matches("\\s*(at |\\.\\.\\. \\d+ more).*")) {
+            kept.append(line).append('\n');
+          }
         }
-        z.putNextEntry(e);
-        z.write(data);
-      }
+        return kept.toString();
+      }, kind);
     }
-    return bytes.toByteArray();
-  }
-
-  static void zipRow(String charset, byte[] archive) {
-    row(
-        "readZipEntries#",
-        () -> {
-          Outcome<List<Io.ZipEntryData>> r = Io.readZipEntries(archive, charset);
-          if (r.isErr()) {
-            return r;
-          }
-          List<String> entries = new ArrayList<>();
-          for (Io.ZipEntryData e : r.get()) {
-            entries.add(e.name() + "=" + hex(e.data()));
-          }
-          return entries;
-        },
-        charset,
-        hex(archive));
-  }
-
-  /** Whole archives, every truncation of two of them, and damage to single header fields. */
-  static void zipRows() throws Exception {
-    String text = "var a = 1; var a = 1; var a = 1;\n";
-    byte[] deflated = zip("UTF-8", false, "a.js", text, "dir/", "", "dir/b.js", "x", "\u00e9.js", "");
-    byte[] stored = zip("UTF-8", true, "a.js", text, "dir/", "", "dir/b.js", "x");
-    zipRow("UTF-8", deflated);
-    zipRow("UTF-8", stored);
-    zipRow("ISO-8859-1", deflated);
-    zipRow("UTF-8", zip("ISO-8859-1", false, "\u00e9.js", "y"));
-    zipRow("ISO-8859-1", zip("ISO-8859-1", false, "\u00e9.js", "y"));
-    zipRow("windows-1252", zip("windows-1252", true, "\u20ac.js", "y"));
-    zipRow("UTF-8", zip("UTF-8", false));
-    zipRow("UTF-8", new byte[0]);
-    zipRow("UTF-8", "PK not a zip at all, but long enough for a header".getBytes("UTF-8"));
-    for (byte[] archive : new byte[][] {deflated, stored}) {
-      for (int n = 0; n < archive.length; n++) {
-        zipRow("UTF-8", java.util.Arrays.copyOf(archive, n));
-      }
-      // Version, flags, method, checksum, sizes, name length, extra length of the first entry;
-      // the first byte of its name and of its data, and the bytes that follow the data.
-      for (int at : new int[] {0, 4, 6, 7, 8, 9, 14, 18, 22, 26, 28, 30, 34, 40, 50, 60, 64, 68, 72, 76}) {
-        for (int flip : new int[] {1, 8, 0x80}) {
-          byte[] damaged = archive.clone();
-          damaged[at] ^= (byte) flip;
-          zipRow("UTF-8", damaged);
-        }
-      }
+    for (String name : new String[] {
+      "externs.zip", "com/google/javascript/jscomp/js/polyfills.txt", "com/google/javascript/jscomp/js/base.js",
+      "com/google/javascript/jscomp/parsing/ParserConfig.properties", "nope.txt", "/externs.zip",
+      "com/google/javascript/jscomp/js/nope.js",
+    }) {
+      row("readResource", () -> {
+        Optional<byte[]> data = Io.readResource(name);
+        return data.isPresent() ? summary(Outcome.ok(data.get())) : "null";
+      }, name);
     }
   }
 
   public static void main(String[] args) throws Exception {
     File dir = new File(args[0]);
-    try (PrintStream p = new PrintStream(new File(dir, "paths.tsv"), "UTF-8")) {
+    try (PrintStream p = new PrintStream(new File(dir, "utf8.tsv"), "UTF-8")) {
       out = p;
-      for (String a : PATHS) {
-        row("pathString", () -> Io.pathString(a), a);
-        row("pathFileName", () -> Io.pathFileName(a), a);
-        row("pathParent", () -> Io.pathParent(a), a);
-        row("pathNormalize", () -> Io.pathNormalize(a), a);
-        for (String b : PATHS) {
-          row("pathString", () -> Io.pathString(a, b), a, b);
-          row("pathResolve", () -> Io.pathResolve(a, b), a, b);
-          row("pathRelativize", () -> Io.pathRelativize(a, b), a, b);
-        }
-      }
-      row("pathString", () -> Io.pathString("a", "b", "", "c/", "/d"), "a", "b", "", "c/", "/d");
-      row("pathString", () -> Io.pathString("", "", "x"), "", "", "x");
+      utf8Rows();
     }
-    try (PrintStream p = new PrintStream(new File(dir, "uris.tsv"), "UTF-8")) {
+    try (PrintStream p = new PrintStream(new File(dir, "codecs.tsv"), "UTF-8")) {
       out = p;
-      for (String u : URIS) {
-        row("uriParse", () -> Io.uriParse(u), u);
-        row("uriScheme", () -> Io.uriScheme(u), u);
-        row("uriPath", () -> Io.uriPath(u), u);
-      }
+      codecRows();
     }
-    Path tmp = Files.createTempFile("iotable", ".bin");
-    try (PrintStream p = new PrintStream(new File(dir, "text.tsv"), "UTF-8")) {
+    // The tree is made in the current directory (run.sh starts the JVM in an empty one), so that
+    // the paths, and the error messages that quote them, are relative.
+    try (PrintStream p = new PrintStream(new File(dir, "files.tsv"), "UTF-8")) {
       out = p;
-      for (String s : LINES) {
-        row("splitLines", () -> Io.splitLines(s), s);
-      }
-      for (String s : BASE64) {
-        row("base64Decode", () -> Io.base64Decode(s), s);
-      }
-      for (String h : BYTES) {
-        byte[] b = unhex(h);
-        row("base64Encode#", () -> Io.base64Encode(b), "x" + h);
-        row("utf8String#", () -> Io.utf8String(b), "x" + h);
-        Io.writeBytes(tmp.toString(), b);
-        for (String cs : CHARSETS) {
-          row("readText#", () -> Io.readText(tmp.toString(), cs), cs, "x" + h);
-          row("readTextStrict#", () -> Io.readTextStrict(tmp.toString(), cs), cs, "x" + h);
-        }
-      }
-      for (String s : TEXTS) {
-        row("utf8Bytes", () -> Io.utf8Bytes(s), s);
-        for (String cs : CHARSETS) {
-          row(
-              "writeText",
-              () -> {
-                Io.writeText(tmp.toString(), cs, s);
-                return Io.readBytes(tmp.toString());
-              },
-              cs,
-              s);
-        }
-      }
-      for (String cs : CHARSETS) {
-        Io.CharEncoder e = Io.newEncoder(cs);
-        StringBuilder yes = new StringBuilder();
-        for (int c = 0; c < 0x10000; c++) {
-          boolean can = e.canEncode((char) c);
-          if (can != e.canEncode((char) (c - 1)) || c == 0) {
-            yes.append(String.format("%s%04x", can ? "+" : "-", c));
-          }
-        }
-        // The chars at which the answer changes, each with the answer from there on.
-        out.println("canEncode\t" + cs + "\t" + yes);
-      }
-      for (String n : CHARSET_NAMES) {
-        row("isCharsetSupported", () -> Io.isCharsetSupported(n), n);
-        row("charsetName", () -> Io.charsetName(n), n);
-      }
+      fileRows();
     }
-    Files.delete(tmp);
+    try (PrintStream p = new PrintStream(new File(dir, "misc.tsv"), "UTF-8")) {
+      out = p;
+      traceRows();
+    }
     try (PrintStream p = new PrintStream(new File(dir, "json.tsv"), "UTF-8")) {
       out = p;
       for (String j : jsonDocuments()) {
         row("jsonParse", () -> com.google.javascript.jscomp.base.Json.parse(j), j);
-      }
-    }
-    try (PrintStream p = new PrintStream(new File(dir, "zip.tsv"), "UTF-8")) {
-      out = p;
-      zipRows();
-    }
-    // The glob table: the tree T is made in the current directory (run.sh starts the JVM in an
-    // empty one), so that the paths, and the error messages that quote them, are relative.
-    try (PrintStream p = new PrintStream(new File(dir, "glob.tsv"), "UTF-8")) {
-      out = p;
-      Path t = Path.of("T");
-      for (String f : TREE) {
-        Files.createDirectories(t.resolve(f).getParent());
-        Files.write(t.resolve(f), new byte[0]);
-        out.println("file\t" + esc(f));
-      }
-      for (String[] l : LINKS) {
-        Files.createSymbolicLink(t.resolve(l[0]), Path.of(l[1]));
-        out.println("link\t" + esc(l[0]) + "\t" + esc(l[1]));
-      }
-      for (String g : GLOBS) {
-        for (String d : new String[] {"T", "T/sub", "T/a.js", "T/nope", "./T/sub/../other", ""}) {
-          row(
-              "glob",
-              () -> {
-                Outcome<List<String>> r = Io.listFilesMatchingGlob(d, g);
-                if (r.isErr()) {
-                  return r;
-                }
-                // The order is the directory's own, which differs from one copy of the tree to
-                // the next.
-                List<String> names = new ArrayList<>(r.get());
-                Collections.sort(names);
-                return names;
-              },
-              d,
-              g);
-        }
       }
     }
   }

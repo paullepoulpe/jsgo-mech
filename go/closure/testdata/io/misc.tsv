@@ -1,0 +1,13 @@
+stackTraceText	plain	java.lang.RuntimeException: something\u000ain two lines\u000a\u000a
+stackTraceText	bare	java.lang.IllegalStateException\u000a\u000a
+stackTraceText	io	java.io.IOException: x: No such file\u000a\u000a
+stackTraceText	caused	java.lang.RuntimeException: outer\u000aCaused by: java.lang.IllegalArgumentException: inner\u000a\u000a
+stackTraceText	wrapped	java.lang.RuntimeException: java.io.IOException: inner\u000aCaused by: java.io.IOException: inner\u000a\u000a
+stackTraceText	chain	java.lang.IllegalStateException: a\u000aCaused by: java.lang.RuntimeException: b\u000aCaused by: java.lang.NullPointerException\u000a\u000a
+readResource	externs.zip	321736 1798a10c
+readResource	com/google/javascript/jscomp/js/polyfills.txt	11999 b4f798c
+readResource	com/google/javascript/jscomp/js/base.js	814 6f0ea739
+readResource	com/google/javascript/jscomp/parsing/ParserConfig.properties	5600 ae1d1574
+readResource	nope.txt	null
+readResource	/externs.zip	null
+readResource	com/google/javascript/jscomp/js/nope.js	null
