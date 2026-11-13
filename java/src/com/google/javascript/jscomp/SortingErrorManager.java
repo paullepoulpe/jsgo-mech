@@ -203,7 +203,7 @@ public class SortingErrorManager implements ErrorManager {
     @Override
     public int hashCode() {
       return Objects.hash(
-          level, error.description(), error.sourceName().orElse(null), error.getLineNumber(), error.charno());
+          level, error.description(), error.sourceName(), error.getLineNumber(), error.charno());
     }
 
     @Override

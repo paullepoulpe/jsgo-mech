@@ -182,7 +182,10 @@ final class PolymerPass extends ExternsSkippingCallback implements CompilerPass 
     String polymerElementType = PolymerPassStaticUtils.getPolymerElementType(def);
     baseExterns.getFirstChild().setString(polymerElementType);
 
-    Optional<String> elementType = Optional.ofNullable(tagNameMap.get(def.nativeBaseElement.orElse(null)));
+    Optional<String> elementType =
+        def.nativeBaseElement.isPresent()
+            ? Optional.ofNullable(tagNameMap.get(def.nativeBaseElement.get()))
+            : Optional.empty();
     if (elementType.isEmpty()) {
       compiler.report(JSError.make(def.descriptor, POLYMER_INVALID_EXTENDS, def.nativeBaseElement.orElse("null")));
       return;

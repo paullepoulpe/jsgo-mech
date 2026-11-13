@@ -1538,11 +1538,8 @@ public final class Node {
     }
 
     if (printType && jstypeOrColor != null) {
-      Optional<String> typeString = Optional.of(jstypeOrColor.toString());
-      if (typeString.isPresent()) {
-        sb.append(" : ");
-        sb.append(typeString.get());
-      }
+      sb.append(" : ");
+      sb.append(jstypeOrColor.toString());
     }
   }
 
@@ -1612,11 +1609,8 @@ public final class Node {
     }
 
     if (jstypeOrColor != null) {
-      Optional<String> typeString = Optional.of(jstypeOrColor.toString());
-      if (typeString.isPresent()) {
-        sb.append(',');
-        sb.append(createJsonPair("typeString", typeString.get().replace("\"", "\\\"")));
-      }
+      sb.append(',');
+      sb.append(createJsonPair("typeString", jstypeOrColor.toString().replace("\"", "\\\"")));
     }
 
     if (this.first != null) {
@@ -2610,23 +2604,23 @@ public final class Node {
   @Deprecated
   public final String getOriginalQualifiedName() {
     if (token == Token.NAME) {
-      Optional<String> name = Optional.of(getOriginalName()).filter(s -> !s.isEmpty());
+      String name = getOriginalName();
       if (name.isEmpty()) {
-        name = Optional.of(getString());
+        name = getString();
       }
-      return name.get().isEmpty() ? "" : name.orElse("");
+      return name;
     } else if (token == Token.GETPROP) {
       String left = getFirstChild().getOriginalQualifiedName();
       if (left.isEmpty()) {
         return "";
       }
 
-      Optional<String> right = Optional.of(this.getOriginalName()).filter(s -> !s.isEmpty());
+      String right = this.getOriginalName();
       if (right.isEmpty()) {
-        right = Optional.of(this.getString());
+        right = this.getString();
       }
 
-      return left + "." + right.orElse("null");
+      return left + "." + right;
     } else if (token == Token.THIS) {
       return "this";
     } else if (token == Token.SUPER) {

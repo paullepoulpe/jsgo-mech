@@ -261,7 +261,10 @@ public final class SourceMap {
       return sourceFile;
     }
 
-    Optional<String> fixed = Optional.ofNullable(sourceLocationFixupCache.get(sourceFile.orElse(null)));
+    Optional<String> fixed =
+        sourceFile.isPresent()
+            ? Optional.ofNullable(sourceLocationFixupCache.get(sourceFile.get()))
+            : Optional.empty();
     if (fixed.isPresent()) {
       return fixed;
     }
