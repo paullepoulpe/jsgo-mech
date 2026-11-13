@@ -28,6 +28,7 @@ import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.ZipArchive;
 import com.google.javascript.jscomp.serialization.SourceFileProto;
 import com.google.javascript.jscomp.serialization.SourceFileProto.FileOnDisk;
 import com.google.javascript.jscomp.serialization.SourceFileProto.ZipEntryOnDisk;
@@ -510,31 +511,28 @@ public final class SourceFile implements StaticSourceFile {
   }
 
   public static Outcome<List<SourceFile>> fromZipFile(String zipName, String inputCharset) {
-    return fromZipEntryNames(zipName, Io.listZipEntryNames(zipName, inputCharset), inputCharset);
+    Outcome<ZipArchive> archive = ZipArchive.open(zipName);
+    if (archive.isErr()) {
+      return Outcome.err(archive.error());
+    }
+    return fromZipEntryNames(zipName, archive.get().names(), inputCharset);
   }
 
   public static Outcome<List<SourceFile>> fromZipInput(
       String zipName, byte[] zipBytes, String inputCharset) {
-    Outcome<List<Io.ZipEntryData>> entries = Io.readZipEntries(zipBytes, inputCharset);
-    if (entries.isErr()) {
-      return Outcome.err(entries.error());
+    Optional<ZipArchive> archive = ZipArchive.parse(zipBytes);
+    if (archive.isEmpty()) {
+      return Outcome.err(new IOException("Cannot read zip file " + zipName));
     }
-    List<String> entryNames = new ArrayList<>();
-    for (Io.ZipEntryData entry : entries.get()) {
-      entryNames.add(entry.name());
-    }
-    return fromZipEntryNames(zipName, Outcome.ok(entryNames), inputCharset);
+    return fromZipEntryNames(zipName, archive.get().names(), inputCharset);
   }
 
   private static Outcome<List<SourceFile>> fromZipEntryNames(
-      String zipName, Outcome<List<String>> entryNames, String inputCharset) {
-    if (entryNames.isErr()) {
-      return Outcome.err(entryNames.error());
-    }
+      String zipName, List<String> entryNames, String inputCharset) {
     final String absoluteZipPath = FilePaths.toAbsolute(zipName);
     List<SourceFile> sourceFiles = new ArrayList<>();
 
-    for (String entryName : entryNames.get()) {
+    for (String entryName : entryNames) {
       if (!entryName.endsWith(".js")) { // Only accept js files
         continue;
       }
@@ -1012,7 +1010,11 @@ public final class SourceFile implements StaticSourceFile {
 
       @Override
       Outcome<String> loadUncachedCode() {
-        return Io.readZipEntryText(this.zipName, this.entryName, this.serializableCharset);
+        Outcome<byte[]> data = ZipArchive.readEntry(this.zipName, this.entryName);
+        if (data.isErr()) {
+          return Outcome.err(data.error());
+        }
+        return Outcome.ok(Charsets.decode(data.get(), this.serializableCharset));
       }
 
       @Override

@@ -38,18 +38,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+import java.util.zip.Inflater;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -175,6 +172,18 @@ public final class Io {
       return Outcome.ok();
     } catch (IOException e) {
       return Outcome.err(e);
+    }
+  }
+
+  /**
+   * When the file was last modified, in nanoseconds since 1970 as far as the file system records
+   * them; 0 if there is no such file.
+   */
+  public static long lastModified(String path) {
+    try {
+      return Files.getLastModifiedTime(Path.of(path)).to(TimeUnit.NANOSECONDS);
+    } catch (IOException e) {
+      return 0;
     }
   }
 
@@ -404,71 +413,31 @@ public final class Io {
 
   // ---- Zip and gzip
 
-  /** One entry of a zip archive, read whole. */
-  public record ZipEntryData(String name, byte[] data) {}
-
-  /** The names of the zip file's entries, in file order, decoded with the charset. */
-  public static Outcome<List<String>> listZipEntryNames(String zipPath, String charset) {
-    List<String> names = new ArrayList<>();
-    try (ZipInputStream in =
-        new ZipInputStream(new FileInputStream(zipPath), Charset.forName(Charsets.name(charset)))) {
-      for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
-        names.add(entry.getName());
-      }
-    } catch (IOException e) {
-      return Outcome.err(e);
-    }
-    return Outcome.ok(names);
-  }
-
-  /** Every entry of the zip bytes (directories too, with no data), in file order. */
-  public static Outcome<List<ZipEntryData>> readZipEntries(byte[] zipBytes, String charset) {
-    List<ZipEntryData> entries = new ArrayList<>();
-    try (ZipInputStream in =
-        new ZipInputStream(new ByteArrayInputStream(zipBytes), Charset.forName(Charsets.name(charset)))) {
-      for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
-        entries.add(new ZipEntryData(entry.getName(), in.readAllBytes()));
-      }
-    } catch (IOException e) {
-      return Outcome.err(e);
-    }
-    return Outcome.ok(entries);
-  }
-
   /**
-   * The text of one entry of a zip file on disk; malformed input becomes U+FFFD. The open archive
-   * is kept for the next call and reopened when the file's modification time changes. A missing
-   * entry is a NullPointerException (the caller got the entry name from the same zip).
+   * The data of a raw DEFLATE stream (RFC 1951), which is what a zip entry of method 8 holds.
+   * Bytes after the end of the stream are ignored. The error message of a malformed or truncated
+   * stream is "Malformed compressed data".
    */
-  public static Outcome<String> readZipEntryText(String zipPath, String entryName, String charset) {
-    synchronized (openZips) {
-      try {
-        Path path = Path.of(zipPath);
-        FileTime lastModified = Files.getLastModifiedTime(path);
-        OpenZip zip = openZips.get(zipPath);
-        if (zip == null || !zip.lastModified.equals(lastModified)) {
-          if (zip != null) {
-            zip.file.close();
-          }
-          zip = new OpenZip(new ZipFile(path.toFile()), lastModified);
-          openZips.put(zipPath, zip);
+  public static Outcome<byte[]> inflate(byte[] deflated) {
+    Inflater inflater = new Inflater(true);
+    inflater.setInput(deflated);
+    ByteArrayOutputStream data = new ByteArrayOutputStream();
+    byte[] buffer = new byte[8192];
+    try {
+      while (!inflater.finished()) {
+        int n = inflater.inflate(buffer);
+        if (n == 0 && !inflater.finished() && (inflater.needsInput() || inflater.needsDictionary())) {
+          return Outcome.err(new IOException("Malformed compressed data"));
         }
-        ZipEntry entry = zip.file.getEntry(entryName);
-        if (entry == null) {
-          throw new NullPointerException(path + "!/" + entryName);
-        }
-        try (InputStream in = zip.file.getInputStream(entry)) {
-          return Outcome.ok(Charsets.decode(in.readAllBytes(), charset));
-        }
-      } catch (IOException e) {
-        return Outcome.err(e);
+        data.write(buffer, 0, n);
       }
+    } catch (DataFormatException e) {
+      return Outcome.err(new IOException("Malformed compressed data"));
+    } finally {
+      inflater.end();
     }
+    return Outcome.ok(data.toByteArray());
   }
-
-  private record OpenZip(ZipFile file, FileTime lastModified) {}
-
-  private static final Map<String, OpenZip> openZips = new LinkedHashMap<>();
 
   /** Gzips at the fastest compression level. */
   public static byte[] gzip(byte[] data) {

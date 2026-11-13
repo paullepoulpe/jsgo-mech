@@ -47,6 +47,7 @@ import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.ZipArchive;
 import com.google.javascript.jscomp.base.SimpleJsonException;
 import com.google.javascript.jscomp.base.SimpleJsonValue;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
@@ -497,14 +498,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (input.isErr()) {
       return Outcome.err(input.error());
     }
-    Outcome<List<Io.ZipEntryData>> zip = Io.readZipEntries(input.get(), Charsets.UTF_8);
-    if (zip.isErr()) {
-      return Outcome.err(zip.error());
+    Optional<ZipArchive> zip = ZipArchive.parse(input.get());
+    if (zip.isEmpty()) {
+      return Outcome.err(new IOException("Cannot read zip file externs.zip"));
     }
     String envPrefix = Ascii.toLowerCase(env.toString()) + "/";
     Map<String, SourceFile> mapFromExternsZip = new LinkedHashMap<>();
-    for (Io.ZipEntryData entry : zip.get()) {
-      String filename = entry.name();
+    for (String entryName : zip.get().names()) {
+      String filename = entryName;
 
       // Always load externs in the root folder.
       // If the non-core-JS externs are organized in subfolders, only load
@@ -516,13 +517,17 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         filename = filename.substring(envPrefix.length()); // remove envPrefix, including '/'
       }
 
+      Optional<byte[]> data = zip.get().read(entryName);
+      if (data.isEmpty()) {
+        return Outcome.err(new IOException("Cannot read zip file externs.zip"));
+      }
       mapFromExternsZip.put(
           filename,
           // Give the files an odd prefix, so that they do not conflict
           // with the user's files.
           SourceFile.builder()
               .withPath("externs.zip//" + filename)
-              .withContent(Io.utf8String(entry.data()))
+              .withContent(Io.utf8String(data.get()))
               .build());
     }
     return Outcome.ok(DefaultExterns.prepareExterns(env, mapFromExternsZip));
