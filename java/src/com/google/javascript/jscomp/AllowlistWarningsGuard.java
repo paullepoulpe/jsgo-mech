@@ -22,6 +22,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
@@ -130,7 +131,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    * @return The lines of the file.
    */
   public static Set<String> loadAllowlistedJsWarningsFile(String file) {
-    Outcome<String> text = Io.readText(file, Io.UTF_8);
+    Outcome<String> text = Io.readText(file, Charsets.UTF_8);
     if (text.isErr()) {
       throw new RuntimeException(text.error());
     }
@@ -242,7 +243,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
      * later.
      */
     public Outcome<Void> writeAllowlist(String out) {
-      Outcome<Io.Output> stream = Io.openOutput(out, Io.UTF_8, false);
+      Outcome<Io.Output> stream = Io.openOutput(out, Charsets.UTF_8, false);
       if (stream.isErr()) {
         return Outcome.err(stream.error());
       }

@@ -21,6 +21,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import com.google.errorprone.annotations.MustBeClosed;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleJsonWriter;
@@ -40,7 +41,7 @@ final class WritingLogFile extends LogFile {
     // The log allows the logged string to contain invalid Unicode (it replaces invalid character
     // sequences but doesn't throw). This is useful in cases where the source code contains invalid
     // Unicode (e.g., inside strings).
-    Outcome<Io.Output> writer = Io.openOutput(file, Io.UTF_8, true);
+    Outcome<Io.Output> writer = Io.openOutput(file, Charsets.UTF_8, true);
     if (writer.isErr()) {
       throw new RuntimeException(writer.error());
     }

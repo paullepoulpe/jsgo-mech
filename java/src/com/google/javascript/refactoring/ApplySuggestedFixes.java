@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
@@ -53,7 +54,7 @@ public final class ApplySuggestedFixes {
 
     Map<String, String> filenameToCodeMap = new LinkedHashMap<>();
     for (String filename : filenames) {
-      Outcome<String> code = Io.readText(filename, Io.UTF_8);
+      Outcome<String> code = Io.readText(filename, Charsets.UTF_8);
       if (code.isErr()) {
         return Outcome.err(code.error());
       }
@@ -62,7 +63,7 @@ public final class ApplySuggestedFixes {
 
     ImmutableMap<String, String> newCode = applySuggestedFixesToCode(fixes, filenameToCodeMap);
     for (Map.Entry<String, String> entry : newCode.entrySet()) {
-      Outcome<Void> written = Io.writeText(entry.getKey(), Io.UTF_8, entry.getValue());
+      Outcome<Void> written = Io.writeText(entry.getKey(), Charsets.UTF_8, entry.getValue());
       if (written.isErr()) {
         return Outcome.err(written.error());
       }

@@ -37,6 +37,7 @@ import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.DependencyOptions.DependencyMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
@@ -1195,7 +1196,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       }
 
       // The usage text goes to the stream as UTF-8.
-      Io.Output encoded = ps.encodedAs(Io.UTF_8);
+      Io.Output encoded = ps.encodedAs(Charsets.UTF_8);
       encoded.print(outputStream.toString());
       encoded.flush();
       ps.flush();
@@ -1508,7 +1509,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   private Outcome<Void> processFlagFile(String flagFileString) {
-    Outcome<String> buffer = Io.readTextStrict(flagFileString, Io.UTF_8);
+    Outcome<String> buffer = Io.readTextStrict(flagFileString, Charsets.UTF_8);
     if (buffer.isErr()) {
       return Outcome.err(buffer.error());
     }
@@ -1686,7 +1687,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     if (flags.outputWrapperFile.isPresent() && !flags.outputWrapperFile.get().isEmpty()) {
       Outcome<String> outputWrapper =
-          Io.readText(Io.pathString(flags.outputWrapperFile.get()), Io.UTF_8);
+          Io.readText(Io.pathString(flags.outputWrapperFile.get()), Charsets.UTF_8);
       if (outputWrapper.isErr()) {
         reportError("ERROR - invalid output_wrapper_file specified.");
       } else {
@@ -2156,7 +2157,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   private static Outcome<ConformanceConfig> loadConformanceConfig(String configFile) {
-    Outcome<String> text = Io.readText(Io.pathString(configFile), Io.UTF_8);
+    Outcome<String> text = Io.readText(Io.pathString(configFile), Charsets.UTF_8);
     if (text.isErr()) {
       return Outcome.err(text.error());
     }

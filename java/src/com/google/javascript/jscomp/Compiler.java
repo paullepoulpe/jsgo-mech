@@ -45,6 +45,7 @@ import com.google.javascript.jscomp.JSChunkGraph.ChunkDependenceException;
 import com.google.javascript.jscomp.JSChunkGraph.DependencyManagementResult;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleJsonValue;
@@ -1196,7 +1197,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       if (options.getTracerOutput().isEmpty()) {
         tracker.outputTracerReport(this.outStream);
       } else {
-        Outcome<Io.Output> out = Io.openOutput(options.getTracerOutput().get(), Io.UTF_8, false);
+        Outcome<Io.Output> out = Io.openOutput(options.getTracerOutput().get(), Charsets.UTF_8, false);
         if (out.isErr()) {
           throw new RuntimeException(out.error());
         }

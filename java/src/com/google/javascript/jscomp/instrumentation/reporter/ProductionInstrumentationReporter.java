@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
 import com.google.javascript.jscomp.CmdLineException;
 import com.google.javascript.jscomp.CmdLineParser;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
@@ -54,7 +55,7 @@ final class ProductionInstrumentationReporter {
 
   /** This function reads a file at the given filePath and converts the contents into a string. */
   public static Outcome<String> readFile(String filePath) {
-    return Io.readTextStrict(filePath, Io.UTF_8);
+    return Io.readTextStrict(filePath, Charsets.UTF_8);
   }
 
   /**
@@ -144,7 +145,7 @@ final class ProductionInstrumentationReporter {
    * being provided by fileContents.
    */
   private Outcome<Void> createFile(String fileName, String fileContents) {
-    return Io.writeText(fileName, Io.UTF_8, fileContents);
+    return Io.writeText(fileName, Charsets.UTF_8, fileContents);
   }
 
   private Outcome<Void> doMain(String[] args) {

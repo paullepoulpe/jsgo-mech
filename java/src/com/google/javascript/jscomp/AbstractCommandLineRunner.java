@@ -41,6 +41,7 @@ import com.google.javascript.jscomp.CompilerOptions.JsonStreamMode;
 import com.google.javascript.jscomp.CompilerOptions.OutputJs;
 import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.CompilerOptions.TweakProcessing;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
 import com.google.javascript.jscomp.base.Json;
@@ -460,7 +461,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     options.setAngularPass(config.angularPass);
 
     if (!config.jsonWarningsFile.isEmpty()) {
-      Outcome<Io.Output> jsonWarnings = Io.openOutput(config.jsonWarningsFile, Io.UTF_8, false);
+      Outcome<Io.Output> jsonWarnings = Io.openOutput(config.jsonWarningsFile, Charsets.UTF_8, false);
       if (jsonWarnings.isErr()) {
         return Outcome.err(jsonWarnings.error());
       }
@@ -495,7 +496,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (input.isErr()) {
       return Outcome.err(input.error());
     }
-    Outcome<List<Io.ZipEntryData>> zip = Io.readZipEntries(input.get(), Io.UTF_8);
+    Outcome<List<Io.ZipEntryData>> zip = Io.readZipEntries(input.get(), Charsets.UTF_8);
     if (zip.isErr()) {
       return Outcome.err(zip.error());
     }
@@ -1899,7 +1900,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
     jsonWriter.endArray();
     // The JSON goes to the output stream as UTF-8, and the stream is closed.
-    Io.Output out = defaultJsOutput.encodedAs(Io.UTF_8);
+    Io.Output out = defaultJsOutput.encodedAs(Charsets.UTF_8);
     out.print(jsonWriter.toString());
     Outcome<Void> outClosed1 = closeOutput(out);
     if (outClosed1.isErr()) {
@@ -2052,13 +2053,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    */
   private Outcome<String> getInputCharset() {
     if (!config.charset.isEmpty()) {
-      if (!Io.isCharsetSupported(config.charset)) {
+      if (!Charsets.isSupported(config.charset)) {
         return Outcome.err(
             new FlagUsageException(config.charset + " is not a valid charset name."));
       }
-      return Outcome.ok(Io.charsetName(config.charset));
+      return Outcome.ok(Charsets.name(config.charset));
     }
-    return Outcome.ok(Io.UTF_8);
+    return Outcome.ok(Charsets.UTF_8);
   }
 
   /**
@@ -2073,13 +2074,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    */
   private Outcome<String> getLegacyOutputCharset() {
     if (!config.charset.isEmpty()) {
-      if (!Io.isCharsetSupported(config.charset)) {
+      if (!Charsets.isSupported(config.charset)) {
         return Outcome.err(
             new FlagUsageException(config.charset + " is not a valid charset name."));
       }
-      return Outcome.ok(Io.charsetName(config.charset));
+      return Outcome.ok(Charsets.name(config.charset));
     }
-    return Outcome.ok(Io.US_ASCII);
+    return Outcome.ok(Charsets.US_ASCII);
   }
 
   /**
@@ -2089,13 +2090,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    */
   private Outcome<String> getOutputCharset2() {
     if (!config.charset.isEmpty()) {
-      if (!Io.isCharsetSupported(config.charset)) {
+      if (!Charsets.isSupported(config.charset)) {
         return Outcome.err(
             new FlagUsageException(config.charset + " is not a valid charset name."));
       }
-      return Outcome.ok(Io.charsetName(config.charset));
+      return Outcome.ok(Charsets.name(config.charset));
     }
-    return Outcome.ok(Io.UTF_8);
+    return Outcome.ok(Charsets.UTF_8);
   }
 
   protected Outcome<List<SourceFile>> createExterns(CompilerOptions options) throws IOException {
@@ -2187,7 +2188,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       return Outcome.ok(Io.nullOutput());
     }
 
-    return openOutputFile(fileName.get(), legacyOutputCharset.orElse(Io.UTF_8));
+    return openOutputFile(fileName.get(), legacyOutputCharset.orElse(Charsets.UTF_8));
   }
 
   /**
@@ -2202,7 +2203,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       return Outcome.ok(Io.nullOutput());
     }
 
-    return openOutputFile(fileName.get(), outputCharset2.orElse(Io.UTF_8));
+    return openOutputFile(fileName.get(), outputCharset2.orElse(Charsets.UTF_8));
   }
 
   /** Creates (or empties) the file and returns a buffered output that encodes with the charset. */
@@ -2213,7 +2214,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   /** Create a writer with the legacy output charset. */
   private Io.Output streamToLegacyOutputWriter(Io.Output stream) {
     if (legacyOutputCharset.isEmpty()) {
-      return stream.encodedAs(Io.UTF_8);
+      return stream.encodedAs(Charsets.UTF_8);
     } else {
       return stream.encodedAs(legacyOutputCharset.get());
     }

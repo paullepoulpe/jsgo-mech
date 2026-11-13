@@ -27,6 +27,7 @@ import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.LazyParsedDependencyInfo;
 import com.google.javascript.jscomp.SourceFile;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
@@ -588,7 +589,7 @@ public class DepsGenerator {
       Collection<String> paths) {
     List<SourceFile> zipSourceFiles = new ArrayList<>();
     for (String path : paths) {
-      Outcome<List<SourceFile>> zipFiles = SourceFile.fromZipFile(path, Io.UTF_8);
+      Outcome<List<SourceFile>> zipFiles = SourceFile.fromZipFile(path, Charsets.UTF_8);
       if (zipFiles.isErr()) {
         return Outcome.err(zipFiles.error());
       }

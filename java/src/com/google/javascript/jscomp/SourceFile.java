@@ -24,6 +24,7 @@ import static java.lang.Math.min;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.serialization.SourceFileProto;
@@ -742,7 +743,7 @@ public final class SourceFile implements StaticSourceFile {
 
   private static String toCharset(String protoCharset) {
     if (protoCharset.isEmpty()) {
-      return Io.UTF_8;
+      return Charsets.UTF_8;
     }
     return protoCharset;
   }
@@ -760,7 +761,7 @@ public final class SourceFile implements StaticSourceFile {
    */
   public static final class Builder {
     private SourceKind kind = SourceKind.STRONG;
-    private String charset = Io.UTF_8;
+    private String charset = Charsets.UTF_8;
     private Optional<String> originalPath = Optional.empty();
     private boolean isStubSourceFileForAlreadyProvidedInput = false;
 
@@ -959,7 +960,7 @@ public final class SourceFile implements StaticSourceFile {
 
       OnDisk(String relativePath, String c) {
         super();
-        this.serializableCharset = Io.charsetName(c);
+        this.serializableCharset = Charsets.name(c);
         this.relativePath = relativePath;
       }
 
@@ -991,7 +992,7 @@ public final class SourceFile implements StaticSourceFile {
                         fileName.equals(actualPath) ? "" : actualPath)
                     // save space by not serializing UTF_8 (the default charset)
                     .setCharset(
-                        this.serializableCharset.equals(Io.UTF_8) ? "" : this.serializableCharset));
+                        this.serializableCharset.equals(Charsets.UTF_8) ? "" : this.serializableCharset));
       }
     }
 
@@ -1005,7 +1006,7 @@ public final class SourceFile implements StaticSourceFile {
         super();
         this.zipName = zipName;
         this.entryName = entryName;
-        this.serializableCharset = Io.charsetName(c);
+        this.serializableCharset = Charsets.name(c);
       }
 
       @Override
@@ -1028,7 +1029,7 @@ public final class SourceFile implements StaticSourceFile {
                     .setZipPath(this.zipName)
                     // save space by not serializing UTF_8 (the default charset)
                     .setCharset(
-                        this.serializableCharset.equals(Io.UTF_8) ? "" : this.serializableCharset)
+                        this.serializableCharset.equals(Charsets.UTF_8) ? "" : this.serializableCharset)
                     .build());
       }
     }

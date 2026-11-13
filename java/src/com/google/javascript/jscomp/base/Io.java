@@ -34,9 +34,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
@@ -77,46 +77,63 @@ import org.jspecify.annotations.Nullable;
 public final class Io {
   private Io() {}
 
-  // ---- Charsets, by name
+  // ---- UTF-8 (the other charsets are spelled out in Charsets)
 
-  public static final String UTF_8 = "UTF-8";
-  public static final String US_ASCII = "US-ASCII";
-
-  /** False for an unknown name; an illegal name is an IllegalArgumentException. */
-  public static boolean isCharsetSupported(String charset) {
-    return Charset.isSupported(charset);
-  }
-
-  /** The canonical name of the charset (an alias or differently-cased name is accepted). */
-  public static String charsetName(String charset) {
-    return Charset.forName(charset).name();
-  }
-
-  /** Unpaired surrogates become '?'. */
+  /** The UTF-8 bytes of the text; half a surrogate pair on its own becomes '?'. */
   public static byte[] utf8Bytes(String s) {
     return s.getBytes(StandardCharsets.UTF_8);
   }
 
-  /** Malformed input becomes U+FFFD. */
+  /**
+   * The text of the UTF-8 bytes. Every byte that is not part of a well-formed sequence (the
+   * shortest encoding of a code point up to U+10FFFF that is not a surrogate) becomes one U+FFFD.
+   */
   public static String utf8String(byte[] bytes) {
-    return new String(bytes, StandardCharsets.UTF_8);
+    String text = new String(bytes, StandardCharsets.UTF_8);
+    if (text.indexOf('\uFFFD') < 0 || utf8StringStrict(bytes).isPresent()) {
+      return text; // the bytes are well formed
+    }
+    StringBuilder repaired = new StringBuilder(bytes.length);
+    int i = 0;
+    while (i < bytes.length) {
+      int length = utf8SequenceLength(bytes, i);
+      if (length == 0) {
+        repaired.append('\uFFFD');
+        i++;
+      } else {
+        repaired.append(new String(bytes, i, length, StandardCharsets.UTF_8));
+        i += length;
+      }
+    }
+    return repaired.toString();
   }
 
-  /** Answers "can this charset represent this char". Not thread-safe. */
-  public static final class CharEncoder {
-    private final CharsetEncoder encoder;
-
-    private CharEncoder(CharsetEncoder encoder) {
-      this.encoder = encoder;
+  /** The length of the well-formed sequence that starts at bytes[i]; 0 if there is none. */
+  private static int utf8SequenceLength(byte[] bytes, int i) {
+    int lead = bytes[i] & 0xFF;
+    int length = lead < 0x80 ? 1 : lead < 0xC2 ? 0 : lead < 0xE0 ? 2 : lead < 0xF0 ? 3 : lead < 0xF5 ? 4 : 0;
+    if (length == 0 || i + length > bytes.length) {
+      return 0;
     }
-
-    public boolean canEncode(char c) {
-      return encoder.canEncode(c);
+    for (int k = 1; k < length; k++) {
+      int b = bytes[i + k] & 0xFF;
+      int low = k > 1 ? 0x80 : lead == 0xE0 ? 0xA0 : lead == 0xF0 ? 0x90 : 0x80;
+      int high = k > 1 ? 0xBF : lead == 0xED ? 0x9F : lead == 0xF4 ? 0x8F : 0xBF;
+      if (b < low || b > high) {
+        return 0;
+      }
     }
+    return length;
   }
 
-  public static CharEncoder newEncoder(String charset) {
-    return new CharEncoder(Charset.forName(charset).newEncoder());
+  /** The text of the UTF-8 bytes; empty if a byte is not part of a well-formed sequence. */
+  public static Optional<String> utf8StringStrict(byte[] bytes) {
+    try {
+      return Optional.of(
+          StandardCharsets.UTF_8.newDecoder().decode(ByteBuffer.wrap(bytes)).toString());
+    } catch (CharacterCodingException e) {
+      return Optional.empty();
+    }
   }
 
   // ---- Whole files and file facts
@@ -127,13 +144,17 @@ public final class Io {
     if (bytes.isErr()) {
       return Outcome.err(bytes.error());
     }
-    return Outcome.ok(new String(bytes.get(), Charset.forName(charset)));
+    return Outcome.ok(Charsets.decode(bytes.get(), charset));
   }
 
   /** The file's text; malformed input is an error for which {@link #isDecodingError} is true. */
   public static Outcome<String> readTextStrict(String path, String charset) {
     try {
-      return Outcome.ok(Files.readString(Path.of(path), Charset.forName(charset)));
+      Optional<String> text = Charsets.decodeStrict(Files.readAllBytes(Path.of(path)), charset);
+      if (text.isEmpty()) {
+        return Outcome.err(new CharacterCodingException());
+      }
+      return Outcome.ok(text.get());
     } catch (IOException e) {
       return Outcome.err(e);
     }
@@ -153,7 +174,7 @@ public final class Io {
 
   /** Creates or truncates the file; unmappable characters become the charset's replacement. */
   public static Outcome<Void> writeText(String path, String charset, String text) {
-    return writeBytes(path, text.getBytes(Charset.forName(charset)));
+    return writeBytes(path, Charsets.encode(text, charset));
   }
 
   /** Creates or truncates the file. */
@@ -329,7 +350,7 @@ public final class Io {
      */
     public Output encodedAs(String charset) {
       return new Output(
-          null, new BufferedWriter(new OutputStreamWriter(stream, Charset.forName(charset))));
+          null, new BufferedWriter(new OutputStreamWriter(stream, Charset.forName(Charsets.name(charset)))));
     }
   }
 
@@ -364,7 +385,7 @@ public final class Io {
               null,
               new BufferedWriter(
                   new OutputStreamWriter(
-                      new FileOutputStream(path, append), Charset.forName(charset)))));
+                      new FileOutputStream(path, append), Charset.forName(Charsets.name(charset))))));
     } catch (IOException e) {
       return Outcome.err(e);
     }
@@ -381,7 +402,7 @@ public final class Io {
     /** Everything up to end of input, decoded (malformed input becomes U+FFFD); not closed. */
     public Outcome<String> readText(String charset) {
       try {
-        return Outcome.ok(new String(stream.readAllBytes(), Charset.forName(charset)));
+        return Outcome.ok(Charsets.decode(stream.readAllBytes(), charset));
       } catch (IOException e) {
         return Outcome.err(e);
       }
@@ -407,7 +428,7 @@ public final class Io {
   public static Outcome<List<String>> listZipEntryNames(String zipPath, String charset) {
     List<String> names = new ArrayList<>();
     try (ZipInputStream in =
-        new ZipInputStream(new FileInputStream(zipPath), Charset.forName(charset))) {
+        new ZipInputStream(new FileInputStream(zipPath), Charset.forName(Charsets.name(charset)))) {
       for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
         names.add(entry.getName());
       }
@@ -421,7 +442,7 @@ public final class Io {
   public static Outcome<List<ZipEntryData>> readZipEntries(byte[] zipBytes, String charset) {
     List<ZipEntryData> entries = new ArrayList<>();
     try (ZipInputStream in =
-        new ZipInputStream(new ByteArrayInputStream(zipBytes), Charset.forName(charset))) {
+        new ZipInputStream(new ByteArrayInputStream(zipBytes), Charset.forName(Charsets.name(charset)))) {
       for (ZipEntry entry = in.getNextEntry(); entry != null; entry = in.getNextEntry()) {
         entries.add(new ZipEntryData(entry.getName(), in.readAllBytes()));
       }
@@ -454,7 +475,7 @@ public final class Io {
           throw new NullPointerException(path + "!/" + entryName);
         }
         try (InputStream in = zip.file.getInputStream(entry)) {
-          return Outcome.ok(new String(in.readAllBytes(), Charset.forName(charset)));
+          return Outcome.ok(Charsets.decode(in.readAllBytes(), charset));
         }
       } catch (IOException e) {
         return Outcome.err(e);

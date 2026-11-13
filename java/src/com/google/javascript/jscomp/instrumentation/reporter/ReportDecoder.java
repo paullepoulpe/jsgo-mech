@@ -22,6 +22,7 @@ import static java.util.Comparator.comparing;
 
 import com.google.common.base.Splitter;
 import com.google.debugging.sourcemap.Base64VLQ;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
@@ -60,7 +61,7 @@ public final class ReportDecoder {
   public static Outcome<Map<String, InstrumentationPoint>> parseMappingFromFile(
       String mappingFilePath) {
 
-    Outcome<String> fileContent = Io.readTextStrict(mappingFilePath, Io.UTF_8);
+    Outcome<String> fileContent = Io.readTextStrict(mappingFilePath, Charsets.UTF_8);
     if (fileContent.isErr()) {
       return Outcome.err(fileContent.error());
     }

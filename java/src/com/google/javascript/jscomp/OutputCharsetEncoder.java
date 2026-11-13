@@ -17,30 +17,30 @@
 package com.google.javascript.jscomp;
 
 
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Charsets;
 import java.util.Optional;
-import org.jspecify.annotations.Nullable;
 
 /**
- * Output charset encoder for {@code CodeGenerator} that delegates to a charset encoder.
+ * Output charset encoder for {@code CodeGenerator}: which chars the output charset can represent.
  */
 final class OutputCharsetEncoder {
 
-  private final Io.@Nullable CharEncoder encoder;
+  // The canonical name of the charset to ask; empty for the default.
+  private final Optional<String> charset;
 
   OutputCharsetEncoder(Optional<String> outputCharset) {
-    if (outputCharset.isEmpty() || Io.charsetName(outputCharset.get()).equals(Io.US_ASCII)) {
+    if (outputCharset.isEmpty() || Charsets.name(outputCharset.get()).equals(Charsets.US_ASCII)) {
       // If we want our default (pretending to be UTF-8, but escaping anything
       // outside of straight ASCII), then don't use the encoder, but
       // just special-case the code.  This keeps the normal path through
       // the code identical to how it's been for years.
-      this.encoder = null;
+      this.charset = Optional.empty();
     } else {
-      this.encoder = Io.newEncoder(outputCharset.get());
+      this.charset = Optional.of(Charsets.name(outputCharset.get()));
     }
   }
 
   boolean canEncode(char c) {
-    return encoder != null && encoder.canEncode(c);
+    return charset.isPresent() && Charsets.canEncode(c, charset.get());
   }
 }

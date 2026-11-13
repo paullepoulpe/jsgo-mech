@@ -25,6 +25,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.ErrorManager;
+import com.google.javascript.jscomp.base.Charsets;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
@@ -100,7 +101,7 @@ public final class DepsFileRegexParser extends JsFileLineParser {
    * @return A list of DependencyInfo objects, or the error if the file could not be read.
    */
   public Outcome<List<DependencyInfo>> parseFile(String filePath) {
-    Outcome<String> fileContents = Io.readText(filePath, Io.UTF_8);
+    Outcome<String> fileContents = Io.readText(filePath, Charsets.UTF_8);
     if (fileContents.isErr()) {
       return Outcome.err(fileContents.error());
     }
