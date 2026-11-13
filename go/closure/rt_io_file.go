@@ -1025,3 +1025,5 @@ func Files_newBufferedWriter(p Path, cs *Charset, opts []OpenOption) *BufferedWr
 	enc.mode_ = encReport_ // this writer's encoder reports unmappable characters
 	return new_BufferedWriter(newOutputStreamWriter_(Files_newOutputStream(p, opts), enc).up_Writer())
 }
+
+func (this *fileAttributes_) size() int64 { return this.st_.Size() }

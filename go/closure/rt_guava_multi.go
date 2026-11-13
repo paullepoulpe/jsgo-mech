@@ -252,3 +252,24 @@ type mset_ struct {
 	m Map // element -> int32 count (> 0)
 	n int32
 }
+
+func (mm *mmap_) size() int32 { return mm.n }
+
+func (mm *mmap_) isEmpty() bool { return mm.n == 0 }
+
+func (mm *mmap_) containsKey(k any) bool { return mm.m.containsKey(k) }
+
+func (mm *mmap_) clear() {
+	mm.m.clear()
+	mm.n = 0
+	mm.seq = nil
+}
+
+func (ms *mset_) size() int32 { return ms.n }
+
+func (ms *mset_) isEmpty() bool { return ms.n == 0 }
+
+func (ms *mset_) clear() {
+	ms.m.clear()
+	ms.n = 0
+}

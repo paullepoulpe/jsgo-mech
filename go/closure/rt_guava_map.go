@@ -376,3 +376,104 @@ type ImmutableMultimap_Builder struct {
 
 type ImmutableListMultimap_Builder = ImmutableMultimap_Builder
 type ImmutableSetMultimap_Builder = ImmutableMultimap_Builder
+
+func (this *ImmutableMultimap) size() int32 { return this.n }
+
+func (this *ImmutableMultimap) isEmpty() bool { return this.n == 0 }
+
+func (this *ImmutableMultimap) get(p0 any) Collection {
+	if c := this.m.get(p0); c != nil {
+		return c.(*ImmutableCollection)
+	}
+	if this.set {
+		return ImmutableSet_of()
+	}
+	return ImmutableList_of()
+}
+
+func (this *ImmutableMultimap) containsKey(p0 any) bool { return this.m.containsKey(p0) }
+
+func (this *ImmutableMultimap) containsValue(p0 any) bool { return this.values().contains(p0) }
+
+func (this *ImmutableMultimap) asMap() Map { return this.m }
+
+func (this *ImmutableMultimap) keySet() Set { return this.m.keySet() }
+
+func (this *ImmutableMultimap) values() Collection {
+	if this.vals == nil {
+		all := make([]any, 0, this.n)
+		for _, c := range this.m.vals {
+			all = append(all, c.(*ImmutableCollection).items...)
+		}
+		this.vals = &ImmutableCollection{kind: icList_, items: all}
+	}
+	return this.vals
+}
+
+func (this *ImmutableMultimap) put(p0 any, p1 any) bool { throwUOE_(); return false }
+
+func (this *ImmutableMultimap) putAll(p0 any, p1 Iterable) bool { throwUOE_(); return false }
+
+func (this *ImmutableMultimap) remove(p0 any, p1 any) bool { throwUOE_(); return false }
+
+func (this *ImmutableMultimap) removeAll(p0 any) Collection { throwUOE_(); return nil }
+
+func (this *ImmutableMultimap) clear() { throwUOE_() }
+
+func (this *ImmutableMultimap) hashCode() int32 { return this.m.hashCode() }
+
+func (this *ImmutableMultimap) toString() string { return this.m.toString() }
+
+func (this *ImmutableMultimap_Builder) put(p0 any, p1 any) *ImmutableMultimap_Builder {
+	if p0 == nil {
+		throwNPE_("null key in entry: null=" + objstr_(p1))
+	}
+	if p1 == nil {
+		throwNPE_("null value in entry: " + objstr_(p0) + "=null")
+	}
+	var vs *[]any
+	if i := this.idx.find(p0); i >= 0 {
+		vs = this.idx.entries[i].val.(*[]any)
+	} else {
+		vs = new([]any)
+		this.idx.put(p0, vs)
+		this.keys = append(this.keys, p0)
+	}
+	*vs = append(*vs, p1)
+	return this
+}
+
+func (this *ImmutableMultimap_Builder) putAll(p0 any, p1 Iterable) *ImmutableMultimap_Builder {
+	if p0 == nil {
+		throwNPE_("null key in entry: null=" + collToString_(p1))
+	}
+	for _, v := range toSlice_(p1) {
+		this.put(p0, v)
+	}
+	return this
+}
+
+func (this *ImmutableMultimap_Builder) build() *ImmutableMultimap {
+	keys := append([]any(nil), this.keys...)
+	if this.keyCmp != nil {
+		sortSlice_(keys, this.keyCmp)
+	}
+	out := &ImmutableMultimap{set: this.set}
+	vals := make([]any, len(keys))
+	for i, k := range keys {
+		vs := append([]any(nil), *this.idx.entries[this.idx.find(k)].val.(*[]any)...)
+		if this.valCmp != nil {
+			sortSlice_(vs, this.valCmp)
+		}
+		var c *ImmutableCollection
+		if this.set {
+			c = immSet_(vs)
+		} else {
+			c = immList_(vs)
+		}
+		vals[i] = c
+		out.n += c.size()
+	}
+	out.m = immMap_(imMap_, keys, vals, nil, false)
+	return out
+}

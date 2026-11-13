@@ -1802,6 +1802,8 @@ func pbEnumValueOf_(javaName string, name string) {
 	panic(new_IllegalArgumentException_String("No enum constant " + javaName + "." + name).self())
 }
 
+func (this *AbstractMessage_Builder) getAllFields() Map { return pbAllFields_(&this.pbData_) }
+
 func (this *pbData_) gStrBytes_(i int) *ByteString {
 	return ByteString_copyFromUtf8(this.get_(i).(string))
 }

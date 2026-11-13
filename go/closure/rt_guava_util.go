@@ -679,3 +679,5 @@ func setLikeEquals_(s Collection, o any) bool {
 	}
 	return setEquals_(s, o)
 }
+
+func (t *customTable_) clear() { t.m.clear() }

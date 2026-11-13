@@ -384,3 +384,7 @@ func (this *functionCacheLoader_) load(key any) any {
 	}
 	return this.f_.apply(key)
 }
+
+func (this *CharSink) toString() string {
+	return "Files.asCharSink(" + this.file_.path_ + ", " + this.cs_.name_ + ")"
+}

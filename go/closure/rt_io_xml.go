@@ -415,3 +415,5 @@ func xmlReference_(name string) string {
 	}
 	return ""
 }
+
+func (this *SAXParseException) getLineNumber() int32 { return this.line_ }

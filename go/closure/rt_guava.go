@@ -642,21 +642,6 @@ func ImmutableList_of_Object_Object_Object_Object_Object_Object(p0 any, p1 any, 
 	return immList_([]any{p0, p1, p2, p3, p4, p5})
 }
 
-// lowerBound_ is the first position whose element is >= v (> v if !inclusive).
-func (this *ImmutableSortedSet) lowerBound_(v any, inclusive bool) int {
-	if v == nil {
-		throwNPE_("null")
-	}
-	c := cmpOrNatural_(this.cmp)
-	return sort.Search(len(this.items), func(i int) bool {
-		r := c.compare(this.items[i], v)
-		if inclusive {
-			return r >= 0
-		}
-		return r > 0
-	})
-}
-
 func (this *ImmutableCollection) equals(o any) bool {
 	if o == nil {
 		return false
@@ -688,4 +673,34 @@ func (this *ImmutableCollection) equals(o any) bool {
 		}
 	}
 	return true
+}
+
+func (this *ImmutableMultiset) entrySet() Set {
+	out := make([]any, len(this.items))
+	if this.kind == icList_ {
+		return immMultiset_(this.items).entrySet()
+	}
+	for i, v := range this.items {
+		var n int32 = 1
+		if this.kind == icMultiset_ {
+			n = this.counts[i]
+		}
+		out[i] = &msEntry_{elem: v, count: n}
+	}
+	return &ImmutableCollection{kind: icSet_, items: out}
+}
+
+// lowerBound_ is the first position whose element is >= v (> v if !inclusive).
+func (this *ImmutableSortedSet) lowerBound_(v any, inclusive bool) int {
+	if v == nil {
+		throwNPE_("null")
+	}
+	c := cmpOrNatural_(this.cmp)
+	return sort.Search(len(this.items), func(i int) bool {
+		r := c.compare(this.items[i], v)
+		if inclusive {
+			return r >= 0
+		}
+		return r > 0
+	})
 }
