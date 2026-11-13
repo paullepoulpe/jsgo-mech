@@ -40,6 +40,7 @@
 package com.google.javascript.rhino;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -84,15 +85,15 @@ public enum ClosurePrimitive {
    * @throws IllegalArgumentException if the id is non-null but does not match an enum member
    * @return null if the argument is null, otherwise the corresponding enum member
    */
-  public static @Nullable ClosurePrimitive fromStringId(@Nullable String id) {
-    if (id == null) {
+  public static @Nullable ClosurePrimitive fromStringId(Optional<String> id) {
+    if (id.isEmpty()) {
       return null;
     }
 
-    ClosurePrimitive primitive = ID_TO_ENUM.get(id);
+    ClosurePrimitive primitive = ID_TO_ENUM.get(id.get());
     if (primitive == null) {
       throw new IllegalArgumentException(
-          "String id " + id + " does not match any ClosurePrimitive");
+          "String id " + id.get() + " does not match any ClosurePrimitive");
     }
 
     return primitive;

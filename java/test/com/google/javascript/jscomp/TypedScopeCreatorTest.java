@@ -62,6 +62,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -1621,12 +1622,12 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     ObjectType x = (ObjectType) findNameType("x", globalScope);
     assertThat(x.isEnumType()).isTrue();
     assertThat(x.hasProperty("TOGGLE")).isTrue();
-    assertThat(x.getReferenceName()).isEqualTo("enum{goog.ui.Zippy.EventType}");
+    assertThat(x.getReferenceName().orElse(null)).isEqualTo("enum{goog.ui.Zippy.EventType}");
 
     ObjectType y = (ObjectType) findNameType("y", globalScope);
     assertThat(y.isSubtypeOf(getNativeType(STRING_TYPE))).isTrue();
     assertThat(y.isEnumElementType()).isTrue();
-    assertThat(y.getReferenceName()).isEqualTo("goog.ui.Zippy.EventType");
+    assertThat(y.getReferenceName().orElse(null)).isEqualTo("goog.ui.Zippy.EventType");
   }
 
   @Test
@@ -8405,7 +8406,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
         """);
     NamedType namedMiddleType;
     try (JSTypeResolver.Closer closer = registry.getResolver().openForDefinition()) {
-      namedMiddleType = registry.createNamedType(globalScope, "Middle", null, -1, -1);
+      namedMiddleType = registry.createNamedType(globalScope, "Middle", Optional.empty(), -1, -1);
 
       assertThat(namedMiddleType.isResolved()).isFalse();
       assertThat(namedMiddleType.loosenTypecheckingDueToForwardReferencedSupertype()).isFalse();
@@ -8867,7 +8868,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
       throw new AssertionError(type);
     }
 
-    assertThat(actualId).isEqualTo(expectedId);
+    assertThat(actualId).isEqualTo(expectedId == null ? "" : expectedId);
   }
 
   @Test
@@ -8970,7 +8971,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     ObjectType nativeFnInstancePrototype =
         getNativeObjectType(JSTypeNative.FUNCTION_INSTANCE_PROTOTYPE);
 
-    assertThat(ctorPrototypeType.toObjectType().getReferenceName()).isEqualTo("?.prototype");
+    assertThat(ctorPrototypeType.toObjectType().getReferenceName().orElse(null)).isEqualTo("?.prototype");
     assertThat(ctorPrototypeType).isSameInstanceAs(nativeFnInstancePrototype);
   }
 
@@ -9001,7 +9002,7 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
     ObjectType nativeFnInstancePrototype =
         getNativeObjectType(JSTypeNative.FUNCTION_INSTANCE_PROTOTYPE);
 
-    assertThat(ctorPrototypeType.toObjectType().getReferenceName()).isEqualTo("?.prototype");
+    assertThat(ctorPrototypeType.toObjectType().getReferenceName().orElse(null)).isEqualTo("?.prototype");
     assertThat(ctorPrototypeType).isSameInstanceAs(nativeFnInstancePrototype);
   }
 

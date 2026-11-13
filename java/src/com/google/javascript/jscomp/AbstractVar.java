@@ -17,7 +17,6 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableSet;
@@ -73,7 +72,7 @@ public class AbstractVar<S extends AbstractScope<S, V>, V extends AbstractVar<S,
       @Nullable CompilerInput input,
       @Nullable Node implicitGoogNamespaceDefinition) {
     checkArgument(index >= -1, index);
-    this.name = checkNotNull(name);
+    this.name = name;
     if (implicitGoogNamespaceDefinition != null) {
       this.nameNode = null;
       this.implicitGoogNamespaceStrength = strengthOf(implicitGoogNamespaceDefinition);

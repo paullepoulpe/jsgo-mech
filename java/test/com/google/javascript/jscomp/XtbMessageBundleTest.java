@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.JsMessage.Part;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -55,7 +56,7 @@ public final class XtbMessageBundleTest {
         </translationbundle>\
         """;
     ByteArrayInputStream stream = new ByteArrayInputStream(xtb.getBytes(UTF_8));
-    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), PROJECT_ID);
+    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), Optional.ofNullable(PROJECT_ID));
 
     JsMessage message = bundle.getMessage("7639678437384034548");
     assertThat(message.asJsMessageString()).isEqualTo("descargar");
@@ -97,7 +98,7 @@ public final class XtbMessageBundleTest {
         </translationbundle>
         """;
     ByteArrayInputStream stream = new ByteArrayInputStream(xtb.getBytes(UTF_8));
-    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), PROJECT_ID);
+    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), Optional.ofNullable(PROJECT_ID));
 
     JsMessage message = bundle.getMessage("7639678437384034548");
     // Testing invalid calls to asJsMessageString() as it should call
@@ -161,7 +162,7 @@ public final class XtbMessageBundleTest {
         </translationbundle>
         """;
     ByteArrayInputStream stream = new ByteArrayInputStream(xtb.getBytes(UTF_8));
-    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), PROJECT_ID);
+    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), Optional.ofNullable(PROJECT_ID));
 
     JsMessage message = bundle.getMessage("7639678437384034548");
     // Testing invalid calls to asJsMessageString() as it should call
@@ -227,7 +228,7 @@ public final class XtbMessageBundleTest {
         </translationbundle>
         """;
     ByteArrayInputStream stream = new ByteArrayInputStream(xtb.getBytes(UTF_8));
-    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), PROJECT_ID);
+    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), Optional.ofNullable(PROJECT_ID));
 
     JsMessage message = bundle.getMessage("7639678437384034548");
 
@@ -290,7 +291,7 @@ public final class XtbMessageBundleTest {
     ByteArrayInputStream stream = new ByteArrayInputStream(xtb.getBytes(UTF_8));
 
     Exception e =
-        assertThrows(IllegalStateException.class, () -> new XtbMessageBundle(stream.readAllBytes(), PROJECT_ID));
+        assertThrows(IllegalStateException.class, () -> new XtbMessageBundle(stream.readAllBytes(), Optional.ofNullable(PROJECT_ID)));
     assertThat(e)
         .hasMessageThat()
         .contains(
@@ -324,7 +325,7 @@ public final class XtbMessageBundleTest {
         </translationbundle>\
         """;
     ByteArrayInputStream stream = new ByteArrayInputStream(xtbWithMixedPlaceholders.getBytes(UTF_8));
-    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), PROJECT_ID);
+    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), Optional.ofNullable(PROJECT_ID));
 
     assertThat(bundle.getAllMessages()).hasSize(2);
     final JsMessage icuMsg = bundle.getMessage("123456");
@@ -400,7 +401,7 @@ public final class XtbMessageBundleTest {
             </translationbundle>\
             """;
     ByteArrayInputStream stream = new ByteArrayInputStream(xtb.getBytes(UTF_8));
-    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), PROJECT_ID);
+    XtbMessageBundle bundle = new XtbMessageBundle(stream.readAllBytes(), Optional.ofNullable(PROJECT_ID));
 
     assertThat(bundle.getAllMessages()).hasSize(2);
     assertThat(bundle.getMessage("123456").asIcuMessageString())

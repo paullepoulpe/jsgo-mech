@@ -78,8 +78,8 @@ public final class CachingTranspiler implements Transpiler {
     private final String code;
 
     Key(String path, String code) {
-      this.path = checkNotNull(path);
-      this.code = checkNotNull(code);
+      this.path = path;
+      this.code = code;
     }
 
     @Override

@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.parsing;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.javascript.rhino.TokenUtil;
 
@@ -42,7 +41,6 @@ public class JsDocTokenStream {
   }
 
   JsDocTokenStream(String sourceString, int lineno, int initCharno) {
-    checkNotNull(sourceString);
     this.lineno = lineno;
     this.sourceString = sourceString;
     this.sourceEnd = sourceString.length();

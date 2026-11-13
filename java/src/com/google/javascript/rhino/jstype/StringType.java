@@ -40,6 +40,7 @@
 package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.jscomp.base.Tri;
+import java.util.Optional;
 
 /**
  * String type.
@@ -94,8 +95,8 @@ public final class StringType extends ValueType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "string";
+  public Optional<String> getDisplayName() {
+    return Optional.of("string");
   }
 
   @Override

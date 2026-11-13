@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -56,7 +57,7 @@ public final class SourceMapConsumerV3Test {
                 .build())).get();
 
     assertThat(consumer.getOriginalSources()).containsExactly("testcode");
-    assertThat(consumer.getSourceRoot()).isNull();
+    assertThat(consumer.getSourceRoot()).isEmpty();
   }
 
   @Test
@@ -133,7 +134,7 @@ public final class SourceMapConsumerV3Test {
 
     //By default sourceRoot is not prepended
     assertThat(consumer.getOriginalSources()).containsExactly("testcode");
-    assertThat(consumer.getSourceRoot()).isEqualTo("http://server/path/");
+    assertThat(consumer.getSourceRoot()).hasValue("http://server/path/");
   }
 
   @Test
@@ -350,7 +351,7 @@ public final class SourceMapConsumerV3Test {
     List<String> symbols = new ArrayList<>();
     consumer.visitMappings(
         (sourceName, symbolName, sourcePos, startPos, endPos) -> {
-          if (symbolName != null) {
+          if (!symbolName.isEmpty()) {
             symbols.add(symbolName);
           }
         });

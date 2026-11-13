@@ -41,6 +41,7 @@ import com.google.re2j.Pattern;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -74,7 +75,7 @@ class ProcessDefines implements CompilerPass {
   private final Mode mode;
   private final Supplier<GlobalNamespace> namespaceSupplier;
   private final boolean recognizeClosureDefines;
-  private final @Nullable String enableZonesDefineName;
+  private final Optional<String> enableZonesDefineName;
   private final @Nullable Pattern zoneInputPattern;
   private final ImmutableSet<String> unknownDefinesToIgnore;
 
@@ -182,7 +183,7 @@ class ProcessDefines implements CompilerPass {
     private Mode mode;
     private Supplier<GlobalNamespace> namespaceSupplier;
     private boolean recognizeClosureDefines = true;
-    private @Nullable String enableZonesDefineName = null;
+    private Optional<String> enableZonesDefineName = Optional.empty();
     private @Nullable Pattern zoneInputPattern = null;
     private ImmutableList<String> unknownDefinesToIgnore = ImmutableList.of();
 
@@ -226,7 +227,7 @@ class ProcessDefines implements CompilerPass {
     }
 
     @CanIgnoreReturnValue
-    Builder setEnableZonesDefineName(@Nullable String enableZonesDefineName) {
+    Builder setEnableZonesDefineName(Optional<String> enableZonesDefineName) {
       this.enableZonesDefineName = enableZonesDefineName;
       return this;
     }
@@ -352,7 +353,7 @@ class ProcessDefines implements CompilerPass {
    *       the default value.
    */
   private @Nullable Node getReplacementForDefine(Define define) {
-    Node replacement = getReplacementForDefineName(define.defineName);
+    Node replacement = getReplacementForDefineName(Optional.of(define.defineName));
     if (replacement != null) {
       return replacement;
     }
@@ -373,13 +374,13 @@ class ProcessDefines implements CompilerPass {
    *   <li>If still not found, returns `null`.
    * </ol>
    */
-  private @Nullable Node getReplacementForDefineName(String defineName) {
-    Node replacementFromFlags = this.replacementValuesFromFlags.get(defineName);
+  private @Nullable Node getReplacementForDefineName(Optional<String> defineName) {
+    Node replacementFromFlags = defineName.isPresent() ? this.replacementValuesFromFlags.get(defineName.get()) : null;
     if (replacementFromFlags != null) {
       return replacementFromFlags;
     }
 
-    Node replacementFromClosureDefines = this.replacementValuesFromClosureDefines.get(defineName);
+    Node replacementFromClosureDefines = defineName.isPresent() ? this.replacementValuesFromClosureDefines.get(defineName.get()) : null;
     if (replacementFromClosureDefines != null) {
       return replacementFromClosureDefines;
     }
@@ -631,7 +632,7 @@ class ProcessDefines implements CompilerPass {
     public void visit(NodeTraversal t, Node n, Node parent) {
       if (n.isScript() && zoneInputPattern != null) {
         String source = n.getSourceFileName();
-        if (source != null && zoneInputPattern.matcher(source).matches()) {
+        if (!source.isEmpty() && zoneInputPattern.matcher(source).matches()) {
           hasZoneInput = true;
         }
       }

@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Group a set of related diagnostic types together, so that they can be toggled on and off as one
@@ -34,12 +34,12 @@ public final class DiagnosticGroup implements Serializable {
   private final ImmutableSet<DiagnosticType> types;
 
   // A human-readable name for the group.
-  private final @Nullable String name;
+  private final Optional<String> name;
 
   /**
    * Create a group that matches all errors of the given types.
    */
-  DiagnosticGroup(String name, DiagnosticType ...types) {
+  DiagnosticGroup(Optional<String> name, DiagnosticType ...types) {
     this.name = name;
     this.types = ImmutableSet.copyOf(Arrays.asList(types));
   }
@@ -48,23 +48,23 @@ public final class DiagnosticGroup implements Serializable {
    * Create a group that matches all errors of the given types.
    */
   public DiagnosticGroup(DiagnosticType ...types) {
-    this(null, types);
+    this(Optional.empty(), types);
   }
 
   /**
    * Create a diagnostic group with no name that only matches the given type.
    */
   private static DiagnosticGroup createFromType(DiagnosticType type) {
-    return new DiagnosticGroup((String) null, type);
+    return new DiagnosticGroup(Optional.empty(), type);
   }
 
   /** Create a composite group. */
   public static DiagnosticGroup createFromGroups(DiagnosticGroup... groups) {
-    return createFromGroups(null, groups);
+    return createFromGroups(Optional.empty(), groups);
   }
 
   /** Create a composite group. */
-  public static DiagnosticGroup createFromGroups(String name, DiagnosticGroup... groups) {
+  public static DiagnosticGroup createFromGroups(Optional<String> name, DiagnosticGroup... groups) {
     ImmutableSet.Builder<DiagnosticType> set = ImmutableSet.builder();
 
     for (DiagnosticGroup group : groups) {
@@ -103,12 +103,12 @@ public final class DiagnosticGroup implements Serializable {
     return types;
   }
 
-  String getName() {
+  Optional<String> getName() {
     return this.name;
   }
 
   @Override
   public String toString() {
-    return name == null ? super.toString() : "DiagnosticGroup<" + name + ">";
+    return name.isEmpty() ? super.toString() : "DiagnosticGroup<" + name.get() + ">";
   }
 }

@@ -133,7 +133,7 @@ public abstract class ChainableReverseAbstractInterpreter
       }
       case GETPROP -> {
         String qualifiedName = node.getQualifiedName();
-        if (qualifiedName == null) {
+        if (qualifiedName.isEmpty()) {
           return null;
         }
         StaticTypedSlot propVar = scope.getSlot(qualifiedName);

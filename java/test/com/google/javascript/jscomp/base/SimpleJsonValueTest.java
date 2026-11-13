@@ -89,7 +89,7 @@ public final class SimpleJsonValueTest {
     assertThat(SimpleJsonValue.ofNumber("1.0").asString().get()).isEqualTo("1.0");
     assertThat(SimpleJsonValue.ofBoolean(true).asString().get()).isEqualTo("true");
     assertThat(SimpleJsonValue.ofBoolean(false).asString().get()).isEqualTo("false");
-    assertThat(SimpleJsonValue.ofNull().asString().errorMessage())
+    assertThat(SimpleJsonValue.ofNull().asString().errorMessage().orElse(null))
         .isEqualTo("Expected a JSON string but found NULL");
     assertThat(SimpleJsonValue.newArray().asString().error())
         .isInstanceOf(SimpleJsonException.class);
@@ -105,7 +105,7 @@ public final class SimpleJsonValueTest {
     assertThat(SimpleJsonValue.ofString("+12").asInt().get()).isEqualTo(12);
     assertThat(SimpleJsonValue.ofString("1.0").asInt().isErr()).isTrue();
     assertThat(SimpleJsonValue.ofString("").asInt().isErr()).isTrue();
-    assertThat(SimpleJsonValue.ofBoolean(true).asInt().errorMessage())
+    assertThat(SimpleJsonValue.ofBoolean(true).asInt().errorMessage().orElse(null))
         .isEqualTo("Expected a JSON integer but found BOOLEAN");
     assertThat(SimpleJsonValue.ofNull().asInt().isErr()).isTrue();
     assertThat(SimpleJsonValue.newArray().asInt().isErr()).isTrue();

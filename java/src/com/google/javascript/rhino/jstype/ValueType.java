@@ -40,6 +40,7 @@
 package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.rhino.ErrorReporter;
+import java.util.Optional;
 
 /**
  * Value types (null, void, number, boolean, string).
@@ -57,12 +58,12 @@ abstract class ValueType extends JSType {
 
   @Override
   final void appendTo(TypeStringBuilder sb) {
-    sb.append(this.getDisplayName());
+    sb.append(this.getDisplayName().orElse(null));
   }
 
   // Subclasses must override and return non-null.
   @Override
-  public abstract String getDisplayName();
+  public abstract Optional<String> getDisplayName();
 
   @Override
   public boolean hasDisplayName() {

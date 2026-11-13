@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Prints a JSDocInfo, used for preserving type annotations in ES6 transpilation.
@@ -103,10 +103,10 @@ public final class JSDocInfoPrinter {
       parts.add("@final");
     }
 
-    String description = info.getDescription();
-    if (description != null) {
+    Optional<String> description = info.getDescription();
+    if (description.isPresent()) {
       multiline = true;
-      parts.add("@desc " + description);
+      parts.add("@desc " + description.get());
     }
 
     if (info.getReferences() != null) {
@@ -247,7 +247,7 @@ public final class JSDocInfoPrinter {
               // explicit `?` bounds, typedefs will remain explicit.
               parts.add("@template " + name);
             } else {
-              parts.add(buildAnnotationWithType("template", boundExpr, name));
+              parts.add(buildAnnotationWithType("template", boundExpr, Optional.of(name)));
             }
           });
     }
@@ -315,8 +315,8 @@ public final class JSDocInfoPrinter {
     }
 
     if (info.isDeprecated()) {
-      String deprecationReason = info.getDeprecationReason();
-      parts.add("@deprecated" + (deprecationReason != null ? " " + deprecationReason : ""));
+      Optional<String> deprecationReason = info.getDeprecationReason();
+      parts.add("@deprecated" + (deprecationReason.isPresent() ? " " + deprecationReason.get() : ""));
       multiline = true;
     }
 
@@ -341,8 +341,8 @@ public final class JSDocInfoPrinter {
       parts.add("@customElement");
     }
 
-    if (info.getClosurePrimitiveId() != null) {
-      parts.add("@closurePrimitive {" + info.getClosurePrimitiveId() + "}");
+    if (info.getClosurePrimitiveId().isPresent()) {
+      parts.add("@closurePrimitive {" + info.getClosurePrimitiveId().get() + "}");
     }
 
     if (info.isNgInject()) {
@@ -357,9 +357,9 @@ public final class JSDocInfoPrinter {
       parts.add("@tsType " + tsType);
     }
 
-    if (printDesc && info.getBlockDescription() != null) {
+    if (printDesc && info.getBlockDescription().isPresent()) {
       String cleaned =
-          DESCRIPTION_LINE_START_PATTERN.matcher(info.getBlockDescription()).replaceAll("\n");
+          DESCRIPTION_LINE_START_PATTERN.matcher(info.getBlockDescription().get()).replaceAll("\n");
       if (!cleaned.isEmpty()) {
         multiline = true;
         cleaned = cleaned.trim();
@@ -401,44 +401,44 @@ public final class JSDocInfoPrinter {
   }
 
   private String buildAnnotationWithTypeJSTypeExpression(String annotation, JSTypeExpression type) {
-    return buildAnnotationWithType(annotation, type, null);
+    return buildAnnotationWithType(annotation, type, Optional.empty());
   }
 
   private String buildAnnotationWithType(
-      String annotation, JSTypeExpression type, @Nullable String description) {
+      String annotation, JSTypeExpression type, Optional<String> description) {
     return buildAnnotationWithTypeNode(annotation, type.getRoot(), description);
   }
 
   private String buildAnnotationWithType(String annotation, Node type) {
-    return buildAnnotationWithTypeNode(annotation, type, null);
+    return buildAnnotationWithTypeNode(annotation, type, Optional.empty());
   }
 
   private String buildAnnotationWithTypeNode(
-      String annotation, Node type, @Nullable String description) {
+      String annotation, Node type, Optional<String> description) {
     StringBuilder sb = new StringBuilder();
     sb.append("@");
     sb.append(annotation);
     sb.append(" {");
     appendTypeNode(sb, type);
     sb.append("}");
-    if (description != null) {
+    if (description.isPresent()) {
       sb.append(" ");
-      sb.append(description);
+      sb.append(description.get());
     }
     return sb.toString();
   }
 
   private String buildParamType(JSDocInfo info, String name) {
-    JSTypeExpression type = info.getParameterType(name);
+    JSTypeExpression type = info.getParameterType(Optional.of(name));
     if (type != null) {
       String p =
           "{"
               + typeNode(type.getRoot())
               + "} "
               + name
-              + (printDesc && info.getDescriptionForParameter(name) != null
+              + (printDesc && info.getDescriptionForParameter(name).isPresent()
                   // Don't add a leading space; the parser retained it.
-                  ? info.getDescriptionForParameter(name)
+                  ? info.getDescriptionForParameter(name).get()
                   : "");
       return p.trim();
     } else {
@@ -453,7 +453,7 @@ public final class JSDocInfoPrinter {
   }
 
   private void appendTypeNode(StringBuilder sb, Node typeNode) {
-    if (useOriginalName && typeNode.getOriginalName() != null) {
+    if (useOriginalName && !typeNode.getOriginalName().isEmpty()) {
       sb.append(typeNode.getOriginalName());
       return;
     }

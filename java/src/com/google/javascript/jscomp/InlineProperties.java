@@ -149,7 +149,6 @@ final class InlineProperties implements CompilerPass {
       }
 
       if (invalidatingPropRef) {
-        checkNotNull(propName);
         invalidateProperty(propName);
       }
     }

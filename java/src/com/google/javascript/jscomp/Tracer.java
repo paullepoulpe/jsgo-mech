@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -181,7 +182,7 @@ final class Tracer {
   private long[] extraTracingValues;
 
   /** The type for grouping traces, may be null */
-  private final @Nullable String type;
+  private final Optional<String> type;
 
   /** A comment string for the report */
   private final String comment;
@@ -233,9 +234,9 @@ final class Tracer {
    * @param type The type for totaling
    * @param comment Comment about this tracer
    */
-  Tracer(@Nullable String type, @Nullable String comment) {
+  Tracer(Optional<String> type, Optional<String> comment) {
     this.type = type;
-    this.comment = nullToEmpty(comment);
+    this.comment = comment.orElse("");
     startTimeMs = clock.currentTimeMillis();
     startThread = Thread.currentThread();
     if (!extraTracingStatistics.isEmpty()) {
@@ -284,7 +285,7 @@ final class Tracer {
    * @param comment  Comment about this tracer
    */
   Tracer(String comment) {
-    this(null, comment);
+    this(Optional.empty(), Optional.of(comment));
   }
 
   /**
@@ -422,10 +423,10 @@ final class Tracer {
   }
 
   @Override public String toString() {
-    if (type == null) {
+    if (type.isEmpty()) {
       return comment;
     } else {
-      return "[" + type + "] " + comment;
+      return "[" + type.get() + "] " + comment;
     }
   }
 
@@ -775,24 +776,24 @@ final class Tracer {
         events.add(new Event(false, t));
       }
 
-      if (t.type != null) {
-        Stat stat = stats.get(t.type);
+      if (t.type.isPresent()) {
+        Stat stat = stats.get(t.type.get());
         if (stat == null) {
           stat = new Stat();
           if (!extraTracingStatistics.isEmpty()) {
             stat.extraInfo = new int[extraTracingStatistics.size()];
           }
-          stats.put(t.type, stat);
+          stats.put(t.type.get(), stat);
         }
 
         stat.count++;
         if (typeToCountMap != null) {
-          typeToCountMap.incrementBy(t.type, 1);
+          typeToCountMap.incrementBy(t.type.get(), 1);
         }
 
         stat.clockTime += elapsed;
         if (typeToTimeMap != null) {
-          typeToTimeMap.incrementBy(t.type, elapsed);
+          typeToTimeMap.incrementBy(t.type.get(), elapsed);
         }
 
         if (stat.extraInfo != null && t.extraTracingValues != null) {
@@ -802,7 +803,7 @@ final class Tracer {
             AtomicTracerStatMap map =
                 extraTracingStatistics.get(i).getTracingStat();
             if (map != null) {
-              map.incrementBy(t.type, t.extraTracingValues[i]);
+              map.incrementBy(t.type.get(), t.extraTracingValues[i]);
             }
           }
         }
@@ -810,7 +811,7 @@ final class Tracer {
         if (elapsed < silenceThreshold) {
           stat.silent++;
           if (typeToSilentMap != null) {
-            typeToSilentMap.incrementBy(t.type, 1);
+            typeToSilentMap.incrementBy(t.type.get(), 1);
           }
         }
       }

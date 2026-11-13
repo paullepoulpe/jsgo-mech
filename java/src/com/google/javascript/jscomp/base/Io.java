@@ -52,6 +52,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -523,9 +524,9 @@ public final class Io {
   }
 
   /** The path without its last name; null if that leaves nothing. */
-  public static @Nullable String pathParent(String path) {
+  public static Optional<String> pathParent(String path) {
     Path parent = Path.of(path).getParent();
-    return parent == null ? null : parent.toString();
+    return parent == null ? Optional.empty() : Optional.ofNullable(parent.toString());
   }
 
   /** The path with "." and "name/.." elements removed. */
@@ -560,13 +561,13 @@ public final class Io {
   }
 
   /** The scheme of a valid URI; null if it has none (it is not absolute). */
-  public static @Nullable String uriScheme(String uri) {
-    return URI.create(uri).getScheme();
+  public static Optional<String> uriScheme(String uri) {
+    return Optional.ofNullable(URI.create(uri).getScheme());
   }
 
   /** The decoded path of a valid URI; null if it is opaque. */
-  public static @Nullable String uriPath(String uri) {
-    return URI.create(uri).getPath();
+  public static Optional<String> uriPath(String uri) {
+    return Optional.ofNullable(URI.create(uri).getPath());
   }
 
   // ---- In-memory helpers
@@ -579,8 +580,8 @@ public final class Io {
     List<String> lines = new ArrayList<>();
     BufferedReader reader = new BufferedReader(new StringReader(text));
     try {
-      for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-        lines.add(line);
+      for (Optional<String> line = Optional.ofNullable(reader.readLine()); line.isPresent(); line = Optional.ofNullable(reader.readLine())) {
+        lines.add(line.orElse(null));
       }
     } catch (IOException e) {
       throw new AssertionError(e); // reading from memory

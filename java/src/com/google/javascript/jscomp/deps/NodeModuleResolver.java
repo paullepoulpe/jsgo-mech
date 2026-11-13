@@ -27,6 +27,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader.ModuleResolverFactory;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
 import com.google.re2j.Pattern;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
@@ -191,11 +192,11 @@ public class NodeModuleResolver extends ModuleResolver {
   }
 
   @Override
-  public @Nullable String resolveJsModule(
-      String scriptAddress, String moduleAddress, String sourcename, int lineno, int colno) {
-    String loadAddress = internalResolveJsModule(scriptAddress, moduleAddress);
+  public Optional<String> resolveJsModule(
+      String scriptAddress, String moduleAddress, Optional<String> sourcename, int lineno, int colno) {
+    Optional<String> loadAddress = internalResolveJsModule(scriptAddress, moduleAddress);
 
-    if (loadAddress == null) {
+    if (loadAddress.isEmpty()) {
       errorHandler.report(
           CheckLevel.WARNING,
           JSError.make(sourcename, lineno, colno, ModuleLoader.LOAD_WARNING, moduleAddress));
@@ -203,8 +204,8 @@ public class NodeModuleResolver extends ModuleResolver {
     return loadAddress;
   }
 
-  private @Nullable String internalResolveJsModule(String scriptAddress, String moduleAddress) {
-    String loadAddress;
+  private Optional<String> internalResolveJsModule(String scriptAddress, String moduleAddress) {
+    Optional<String> loadAddress;
     if (ModuleLoader.isAbsoluteIdentifier(moduleAddress)
         || ModuleLoader.isRelativeIdentifier(moduleAddress)) {
       loadAddress = resolveJsModuleNodeFileOrDirectory(scriptAddress, moduleAddress);
@@ -216,11 +217,11 @@ public class NodeModuleResolver extends ModuleResolver {
   }
 
   @Override
-  public @Nullable String resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
+  public Optional<String> resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
     return internalResolveJsModule(scriptAddress, moduleAddress);
   }
 
-  public @Nullable String resolveJsModuleFile(String scriptAddress, String moduleAddress) {
+  public Optional<String> resolveJsModuleFile(String scriptAddress, String moduleAddress) {
     for (String extension : FILE_EXTENSIONS_TO_SEARCH) {
       String moduleAddressCandidate = moduleAddress + extension;
       String canonicalizedCandidatePath = canonicalizePath(scriptAddress, moduleAddressCandidate);
@@ -232,30 +233,30 @@ public class NodeModuleResolver extends ModuleResolver {
         moduleAddressCandidate = packageJsonMainEntries.get(canonicalizedCandidatePath);
 
         if (ModuleLoader.JSC_BROWSER_SKIPLISTED_MARKER.equals(moduleAddressCandidate)) {
-          return null;
+          return Optional.empty();
         }
       }
 
-      String loadAddress = locate(scriptAddress, moduleAddressCandidate);
-      if (loadAddress != null) {
+      Optional<String> loadAddress = locate(scriptAddress, moduleAddressCandidate);
+      if (loadAddress.isPresent()) {
         return loadAddress;
       }
     }
 
-    return null;
+    return Optional.empty();
   }
 
-  private @Nullable String resolveJsModuleNodeFileOrDirectory(
+  private Optional<String> resolveJsModuleNodeFileOrDirectory(
       String scriptAddress, String moduleAddress) {
-    String loadAddress;
+    Optional<String> loadAddress;
     loadAddress = resolveJsModuleFile(scriptAddress, moduleAddress);
-    if (loadAddress == null) {
+    if (loadAddress.isEmpty()) {
       loadAddress = resolveJsModuleNodeDirectory(scriptAddress, moduleAddress);
     }
     return loadAddress;
   }
 
-  private @Nullable String resolveJsModuleNodeDirectory(
+  private Optional<String> resolveJsModuleNodeDirectory(
       String scriptAddress, String moduleAddress) {
     if (moduleAddress.endsWith(ModuleLoader.MODULE_SLASH)) {
       moduleAddress = moduleAddress.substring(0, moduleAddress.length() - 1);
@@ -263,11 +264,11 @@ public class NodeModuleResolver extends ModuleResolver {
 
     // Load as a file
     for (int i = 0; i < FILES_TO_SEARCH.length; i++) {
-      String loadAddress = locate(scriptAddress, moduleAddress + FILES_TO_SEARCH[i]);
-      if (loadAddress != null) {
+      Optional<String> loadAddress = locate(scriptAddress, moduleAddress + FILES_TO_SEARCH[i]);
+      if (loadAddress.isPresent()) {
         if (FILES_TO_SEARCH[i].equals(ModuleLoader.MODULE_SLASH + "package.json")) {
-          if (packageJsonMainEntries.containsKey(loadAddress)) {
-            return resolveJsModuleFile(scriptAddress, packageJsonMainEntries.get(loadAddress));
+          if (packageJsonMainEntries.containsKey(loadAddress.get())) {
+            return resolveJsModuleFile(scriptAddress, packageJsonMainEntries.get(loadAddress.get()));
           }
         } else {
           return loadAddress;
@@ -275,10 +276,10 @@ public class NodeModuleResolver extends ModuleResolver {
       }
     }
 
-    return null;
+    return Optional.empty();
   }
 
-  private @Nullable String resolveJsModuleFromRegistry(String scriptAddress, String moduleAddress) {
+  private Optional<String> resolveJsModuleFromRegistry(String scriptAddress, String moduleAddress) {
     String normalizedScriptAddress =
         (ModuleLoader.isAmbiguousIdentifier(scriptAddress) ? ModuleLoader.MODULE_SLASH : "")
             + scriptAddress;
@@ -290,17 +291,17 @@ public class NodeModuleResolver extends ModuleResolver {
 
       // Load as a file
       String fullModulePath = nodeModulesFolder + "node_modules/" + moduleAddress;
-      String loadAddress = resolveJsModuleFile(scriptAddress, fullModulePath);
-      if (loadAddress == null) {
+      Optional<String> loadAddress = resolveJsModuleFile(scriptAddress, fullModulePath);
+      if (loadAddress.isEmpty()) {
         // Load as a directory
         loadAddress = resolveJsModuleNodeDirectory(scriptAddress, fullModulePath);
       }
 
-      if (loadAddress != null) {
+      if (loadAddress.isPresent()) {
         return loadAddress;
       }
     }
 
-    return null;
+    return Optional.empty();
   }
 }

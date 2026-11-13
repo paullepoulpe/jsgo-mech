@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jspecify.annotations.Nullable;
 import org.junit.Test;
@@ -210,7 +211,7 @@ public final class CompilerTest {
     Compiler compiler = new Compiler();
     compiler.init(new ArrayList<SourceFile>(), originalSources, options);
 
-    assertThat(compiler.getSourceMapping(normalize("generated_js/example.js"), 3, 3))
+    assertThat(compiler.getSourceMapping(Optional.ofNullable(normalize("generated_js/example.js")), 3, 3))
         .isEqualTo(
             OriginalMapping.newBuilder()
                 .setOriginalFile(origSourceName)
@@ -219,7 +220,7 @@ public final class CompilerTest {
                 .setIdentifier("testSymbolName")
                 .setPrecision(Precision.APPROXIMATE_LINE)
                 .build());
-    assertThat(compiler.getSourceLine(origSourceName, 1)).isEqualTo("<div ng-show='foo()'>");
+    assertThat(compiler.getSourceLine(Optional.ofNullable(origSourceName), 1).orElse(null)).isEqualTo("<div ng-show='foo()'>");
   }
 
   private SourceMapInput sourcemap(
@@ -233,7 +234,7 @@ public final class CompilerTest {
         new FilePosition(1, 1),
         new FilePosition(100, 1));
     StringBuilder output = new StringBuilder();
-    sourceMap.appendTo(output, "unused.js");
+    sourceMap.appendTo(output, Optional.of("unused.js"));
 
     return new SourceMapInput(SourceFile.fromCode(sourceMapPath, output.toString()));
   }
@@ -401,7 +402,7 @@ public final class CompilerTest {
 
     CompilerOptions options = new CompilerOptions();
     options.setLanguageIn(LanguageMode.ECMASCRIPT3);
-    options.setSourceMapOutputPath("fake/source_map_path.js.map");
+    options.setSourceMapOutputPath(Optional.of("fake/source_map_path.js.map"));
     options.setInputSourceMaps(inputSourceMaps);
     options.setApplyInputSourceMaps(true);
     Compiler compiler = new Compiler();
@@ -412,7 +413,7 @@ public final class CompilerTest {
     assertThat(compiler.toSource()).isEqualTo("var x=1;alert(x);");
     SourceMap sourceMap = compiler.getSourceMap();
     StringWriter out = new StringWriter();
-    sourceMap.appendTo(out, "source.js.map");
+    sourceMap.appendTo(out, Optional.of("source.js.map"));
     SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
     consumer.parse(out.toString()).get();
     // Column 5 contains the first actually mapped code ('x').
@@ -431,7 +432,7 @@ public final class CompilerTest {
   public void testKeepInputSourceMapsSourcesContent() throws Exception {
     CompilerOptions options = new CompilerOptions();
     options.setLanguageIn(LanguageMode.ECMASCRIPT3);
-    options.setSourceMapOutputPath("fake/source_map_path.js.map");
+    options.setSourceMapOutputPath(Optional.of("fake/source_map_path.js.map"));
     options.setApplyInputSourceMaps(true);
     options.setSourceMapIncludeSourcesContent(true);
     String code =
@@ -444,7 +445,7 @@ public final class CompilerTest {
             "var X=function(){function X(input){this.y=input}return X}();console.log(new X(1));");
     SourceMap sourceMap = compiler.getSourceMap();
     StringWriter out = new StringWriter();
-    sourceMap.appendTo(out, "source.js.map");
+    sourceMap.appendTo(out, Optional.of("source.js.map"));
     SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
     consumer.parse(out.toString()).get();
     assertThat(consumer.getOriginalSources()).containsExactly("temp/test/foo.ts");
@@ -460,7 +461,7 @@ public final class CompilerTest {
     // attach the original name "f" to the minified identifier, not to the `function` keyword.
     CompilerOptions options = new CompilerOptions();
     options.setEmitUseStrict(false);
-    options.setSourceMapOutputPath("dummy");
+    options.setSourceMapOutputPath(Optional.of("dummy"));
     options.setCollapseAnonymousFunctions(true);
     options.setVariableRenaming(VariableRenamingPolicy.ALL);
 
@@ -478,7 +479,7 @@ public final class CompilerTest {
 
     SourceMap sourceMap = result.sourceMap;
     StringWriter out = new StringWriter();
-    sourceMap.appendTo(out, "testcode-compiled.js");
+    sourceMap.appendTo(out, Optional.of("testcode-compiled.js"));
     SourceMapConsumerV3 consumer = new SourceMapConsumerV3();
     consumer.parse(out.toString()).get();
 
@@ -670,9 +671,9 @@ public final class CompilerTest {
         ImmutableList.of(SourceFile.fromCode("externs", "function f() {}\n")),
         ImmutableList.of(SourceFile.fromCode("foo", "function g() {}\n")),
         new CompilerOptions());
-    assertThat(compiler.getSourceLine("externs", 1)).isEqualTo("function f() {}");
-    assertThat(compiler.getSourceLine("foo", 1)).isEqualTo("function g() {}");
-    assertThat(compiler.getSourceLine("bar", 1)).isNull();
+    assertThat(compiler.getSourceLine(Optional.of("externs"), 1).orElse(null)).isEqualTo("function f() {}");
+    assertThat(compiler.getSourceLine(Optional.of("foo"), 1).orElse(null)).isEqualTo("function g() {}");
+    assertThat(compiler.getSourceLine(Optional.of("bar"), 1).orElse(null)).isNull();
   }
 
   @Test
@@ -1362,7 +1363,7 @@ public final class CompilerTest {
     compiler.init(ImmutableList.<SourceFile>of(), ImmutableList.<SourceFile>of(), options);
 
     compiler.report(
-        JSError.builder(TEST_ERROR).setSourceLocation(path, 1, 1).setLevel(level).build());
+        JSError.builder(TEST_ERROR).setSourceLocation(Optional.ofNullable(path), 1, 1).setLevel(level).build());
 
     return errorManager.output;
   }
@@ -1596,7 +1597,7 @@ public final class CompilerTest {
     // For stages 1 and 2 we generally expect no source map output path to be set,
     // since it won't actually be generated until compilation is completed in
     // stage 3.
-    options.setSourceMapOutputPath(null);
+    options.setSourceMapOutputPath(Optional.empty());
     // The code that is running the compiler is expected to set this option
     // when executing a partial compilation and it expects to request source
     // maps when running the final stage later.
@@ -1647,7 +1648,7 @@ public final class CompilerTest {
     // tracking of source map information when it is non-null.
     // In real usage AbstractCommandLineRunner is responsible for actually writing the file whose
     // path is stored in this field.
-    options.setSourceMapOutputPath("dummy");
+    options.setSourceMapOutputPath(Optional.of("dummy"));
     // The code that is running the compiler is expected to set this option
     // to false when executing the final stage, so no time and space will
     // be wasted on generating source maps if the source map output path is null.
@@ -1666,7 +1667,7 @@ public final class CompilerTest {
     // Check sourcemap output
     final StringBuilder sourceMapStringBuilder = new StringBuilder();
     final String outputJSFile = "output.js";
-    sourceMap.appendTo(sourceMapStringBuilder, outputJSFile);
+    sourceMap.appendTo(sourceMapStringBuilder, Optional.ofNullable(outputJSFile));
     final String sourceMapString = sourceMapStringBuilder.toString();
     assertThat(sourceMapString).isEqualTo(RESULT_SOURCE_MAP_WITH_CONTENT);
   }
@@ -1687,7 +1688,7 @@ public final class CompilerTest {
     // tracking of source map information when it is non-null.
     // In real usage AbstractCommandLineRunner is responsible for actually writing the file whose
     // path is stored in this field.
-    options.setSourceMapOutputPath("dummy");
+    options.setSourceMapOutputPath(Optional.of("dummy"));
     options.setApplyInputSourceMaps(true);
     options.setSourceMapIncludeSourcesContent(true);
     CompilationLevel.ADVANCED_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
@@ -1724,7 +1725,7 @@ public final class CompilerTest {
     // Check sourcemap output
     final StringBuilder sourceMapStringBuilder = new StringBuilder();
     final String outputJSFile = "output.js";
-    sourceMap.appendTo(sourceMapStringBuilder, outputJSFile);
+    sourceMap.appendTo(sourceMapStringBuilder, Optional.ofNullable(outputJSFile));
     final String sourceMapString = sourceMapStringBuilder.toString();
     assertThat(sourceMapString).isEqualTo(RESULT_SOURCE_MAP_WITH_CONTENT);
   }

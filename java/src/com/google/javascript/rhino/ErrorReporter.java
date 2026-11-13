@@ -40,6 +40,8 @@
 
 package com.google.javascript.rhino;
 
+import java.util.Optional;
+
 /**
  * This is interface defines a protocol for the reporting of
  * errors during JavaScript translation or execution.
@@ -60,7 +62,7 @@ public interface ErrorReporter {
      * @param line the line number associated with the warning
      * @param lineOffset the offset into lineSource where problem was detected
      */
-    void warning(String message, String sourceName, int line, int lineOffset);
+    void warning(String message, Optional<String> sourceName, int line, int lineOffset);
 
     /**
      * Report an error.
@@ -79,26 +81,26 @@ public interface ErrorReporter {
      * @param line the line number associated with the error
      * @param lineOffset the offset into lineSource where problem was detected
      */
-    void error(String message, String sourceName, int line, int lineOffset);
+    void error(String message, Optional<String> sourceName, int line, int lineOffset);
 
   static final ErrorReporter NULL_INSTANCE =
       new ErrorReporter() {
         @Override
-        public void warning(String message, String sourceName, int line, int lineOffset) {}
+        public void warning(String message, Optional<String> sourceName, int line, int lineOffset) {}
 
         @Override
-        public void error(String message, String sourceName, int line, int lineOffset) {}
+        public void error(String message, Optional<String> sourceName, int line, int lineOffset) {}
       };
 
   static final ErrorReporter ALWAYS_THROWS_INSTANCE =
       new ErrorReporter() {
         @Override
-        public void warning(String message, String sourceName, int line, int lineOffset) {
+        public void warning(String message, Optional<String> sourceName, int line, int lineOffset) {
           throw new IllegalStateException(message);
         }
 
         @Override
-        public void error(String message, String sourceName, int line, int lineOffset) {
+        public void error(String message, Optional<String> sourceName, int line, int lineOffset) {
           throw new IllegalStateException(message);
         }
       };

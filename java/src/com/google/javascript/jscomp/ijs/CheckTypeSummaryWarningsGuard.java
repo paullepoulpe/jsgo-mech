@@ -55,7 +55,7 @@ public class CheckTypeSummaryWarningsGuard extends WarningsGuard {
 
   /** Return whether the given error was produced inside a type summary file */
   private boolean inTypeSummary(JSError error) {
-    return error.sourceName() != null && error.sourceName().endsWith(".i.js");
+    return error.sourceName().isPresent() && error.sourceName().get().endsWith(".i.js");
   }
 
   /** Return whether the given error should be demoted even if in a type summary file */

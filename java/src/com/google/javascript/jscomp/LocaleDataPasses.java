@@ -16,12 +16,12 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.javascript.jscomp.AstFactory.type;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 
 /**
  * Contains compiler passes to protect `goog.LOCALE` from optimization during the main optimizations
@@ -95,11 +95,11 @@ final class LocaleDataPasses {
     private final AstFactory astFactory;
     private final String locale;
 
-    LocaleSubstitutions(AbstractCompiler compiler, String locale) {
+    LocaleSubstitutions(AbstractCompiler compiler, Optional<String> locale) {
       this.compiler = compiler;
       this.astFactory = compiler.createAstFactory();
       // Use the "default" locale if not otherwise set.
-      this.locale = locale == null ? DEFAULT_LOCALE : locale;
+      this.locale = locale.orElse(DEFAULT_LOCALE);
     }
 
     @Override
@@ -111,7 +111,7 @@ final class LocaleDataPasses {
     @Override
     public void visit(NodeTraversal t, Node n, Node parent) {
       if (n.matchesNameNode(this.qnameForLocale)) {
-        Node replacement = astFactory.createString(checkNotNull(locale)).srcref(n);
+        Node replacement = astFactory.createString(locale).srcref(n);
         n.replaceWith(replacement);
         compiler.reportChangeToEnclosingScope(replacement);
       }

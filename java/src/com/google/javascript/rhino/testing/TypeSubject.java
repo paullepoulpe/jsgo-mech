@@ -262,7 +262,7 @@ public final class TypeSubject extends Subject {
 
   public void getReferenceNameIsEqualTo(String referenceName) {
     check("getReferenceName()")
-        .that(actualNonNull().toMaybeObjectType().getReferenceName())
+        .that(actualNonNull().toMaybeObjectType().getReferenceName().orElse(null))
         .isEqualTo(referenceName);
     check("hasReferenceName()")
         .that(actualNonNull().toMaybeObjectType().hasReferenceName())
@@ -271,7 +271,7 @@ public final class TypeSubject extends Subject {
 
   public void getReferenceNameIsNull() {
     check("getReferenceName()")
-        .that(actualNonNull().toMaybeObjectType().getReferenceName())
+        .that(actualNonNull().toMaybeObjectType().getReferenceName().orElse(null))
         .isNull();
     check("hasReferenceName()")
         .that(actualNonNull().toMaybeObjectType().hasReferenceName())
@@ -347,7 +347,7 @@ public final class TypeSubject extends Subject {
     public void isConstructorFor(String name) {
       check("isConstructor()").that(actual.isConstructor()).isTrue();
       check("getInstanceType().getDisplayName()")
-          .that(actualFunctionType().getInstanceType().getDisplayName())
+          .that(actualFunctionType().getInstanceType().getDisplayName().orElse(null))
           .isEqualTo(name);
     }
 

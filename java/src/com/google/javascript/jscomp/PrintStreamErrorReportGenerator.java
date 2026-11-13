@@ -53,7 +53,7 @@ public class PrintStreamErrorReportGenerator implements SortingErrorManager.Erro
   }
 
   private void println(CheckLevel level, JSError error) {
-    stream.println(error.format(level, formatter));
+    stream.println(error.format(level, formatter).get());
   }
 
   private void printSummary(ErrorManager manager) {

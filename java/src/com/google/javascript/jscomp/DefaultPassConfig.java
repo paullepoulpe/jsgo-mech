@@ -456,7 +456,7 @@ public final class DefaultPassConfig extends PassConfig {
     checks.maybeAdd(mergeSyntheticScript);
 
     // Create extern exports after the normalize because externExports depends on unique names.
-    if (options.getExternExportsPath() != null) {
+    if (options.getExternExportsPath().isPresent()) {
       checks.maybeAdd(externExports);
     }
 
@@ -470,7 +470,7 @@ public final class DefaultPassConfig extends PassConfig {
 
     checks.maybeAdd(createEmptyPass(PassNames.BEFORE_SERIALIZATION));
 
-    if (options.getTypedAstOutputFile() != null) {
+    if (options.getTypedAstOutputFile().isPresent()) {
       checks.maybeAdd(serializeTypedAst);
     }
 
@@ -521,20 +521,20 @@ public final class DefaultPassConfig extends PassConfig {
 
     if (options.isPropertyRenamingOnlyCompilationMode()) {
       if (options.shouldRewriteGlobalDeclarationsForTryCatchWrapping()
-          || options.getRenamePrefixNamespace() != null) {
+          || options.getRenamePrefixNamespace().isPresent()) {
         passes.maybeAdd(rewriteGlobalDeclarationsForTryCatchWrapping);
       }
 
       passes.maybeAdd(renameProperties);
 
-      if (options.getRenamePrefixNamespace() != null
+      if (options.getRenamePrefixNamespace().isPresent()
           && options.getChunkOutputType() == ChunkOutputType.GLOBAL_NAMESPACE) {
         if (!GLOBAL_SYMBOL_NAMESPACE_PATTERN
-            .matcher(options.getRenamePrefixNamespace())
+            .matcher(options.getRenamePrefixNamespace().get())
             .matches()) {
           throw new IllegalArgumentException(
               "Illegal character in renamePrefixNamespace name: "
-                  + options.getRenamePrefixNamespace());
+                  + options.getRenamePrefixNamespace().get());
         }
         passes.maybeAdd(rescopeGlobalSymbols);
       }
@@ -600,7 +600,7 @@ public final class DefaultPassConfig extends PassConfig {
     if (options.shouldRewriteGlobalDeclarationsForTryCatchWrapping()
         // renamePrefixNamescape relies on rewriteGlobalDeclarationsForTryCatchWrapping
         // to preserve semantics.
-        || options.getRenamePrefixNamespace() != null) {
+        || options.getRenamePrefixNamespace().isPresent()) {
       passes.maybeAdd(rewriteGlobalDeclarationsForTryCatchWrapping);
     }
 
@@ -707,12 +707,12 @@ public final class DefaultPassConfig extends PassConfig {
       passes.maybeAdd(stripSideEffectProtection);
     }
 
-    if (options.getRenamePrefixNamespace() != null
+    if (options.getRenamePrefixNamespace().isPresent()
         && options.getChunkOutputType() == ChunkOutputType.GLOBAL_NAMESPACE) {
-      if (!GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(options.getRenamePrefixNamespace()).matches()) {
+      if (!GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(options.getRenamePrefixNamespace().get()).matches()) {
         throw new IllegalArgumentException(
             "Illegal character in renamePrefixNamespace name: "
-                + options.getRenamePrefixNamespace());
+                + options.getRenamePrefixNamespace().get());
       }
       passes.maybeAdd(rescopeGlobalSymbols);
     }
@@ -860,7 +860,7 @@ public final class DefaultPassConfig extends PassConfig {
     // This is expected to do nothing when in a monolithic build
     passes.maybeAdd(removeUnnecessarySyntheticExterns);
 
-    if (options.getSyntheticBlockStartMarker() != null) {
+    if (options.getSyntheticBlockStartMarker().isPresent()) {
       // This pass must run before the first fold constants pass.
       passes.maybeAdd(createSyntheticBlocks);
     }
@@ -1384,8 +1384,8 @@ public final class DefaultPassConfig extends PassConfig {
                     new GenerateExports(
                         compiler,
                         options.shouldExportLocalPropertyDefinitions(),
-                        convention.getExportSymbolFunction(),
-                        convention.getExportPropertyFunction());
+                        Optional.of(convention.getExportSymbolFunction()).filter(s -> !s.isEmpty()),
+                        Optional.of(convention.getExportPropertyFunction()).filter(s -> !s.isEmpty()));
                 return new CompilerPass() {
                   @Override
                   public void process(Node externs, Node root) {
@@ -1419,7 +1419,7 @@ public final class DefaultPassConfig extends PassConfig {
           .setInternalFactory(
               (compiler) -> {
                 CodingConvention convention = compiler.getCodingConvention();
-                if (convention.getExportSymbolFunction() != null) {
+                if (!convention.getExportSymbolFunction().isEmpty()) {
                   return new ExportTestFunctions(
                       compiler,
                       convention.getExportSymbolFunction(),
@@ -1540,7 +1540,7 @@ public final class DefaultPassConfig extends PassConfig {
           .setInternalFactory(
               (compiler) ->
                   new ReplaceMessagesForChrome(
-                      compiler, new GoogleJsMessageIdGenerator(options.getTcProjectId())
+                      compiler, new GoogleJsMessageIdGenerator(Optional.of(options.getTcProjectId()))
                       /* allow messages with goog.getMsg */
                       ))
           .build();
@@ -1680,8 +1680,8 @@ public final class DefaultPassConfig extends PassConfig {
               (compiler) ->
                   new CreateSyntheticBlocks(
                       compiler,
-                      options.getSyntheticBlockStartMarker(),
-                      options.getSyntheticBlockEndMarker()))
+                      options.getSyntheticBlockStartMarker().orElse(null),
+                      options.getSyntheticBlockEndMarker().orElse(null)))
           .build();
 
   private final PassFactory earlyPeepholeOptimizations =
@@ -2206,7 +2206,7 @@ public final class DefaultPassConfig extends PassConfig {
               (compiler) ->
                   new RescopeGlobalSymbols(
                       compiler,
-                      options.getRenamePrefixNamespace(),
+                      options.getRenamePrefixNamespace().orElse(null),
                       options.assumeCrossChunkNamesForRenamePrefixNamespace(),
                       options.getOptimizeLocalAccessForGlobalSymbolNamespace()))
           .build();
@@ -2238,7 +2238,7 @@ public final class DefaultPassConfig extends PassConfig {
                   new PreconditionResult(
                       options.getPropertyCollapseLevel() == PropertyCollapseLevel.NONE
                           || options.getAssumePropertiesAreStaticallyAnalyzable(),
-                      "requires assumePropertiesAreStaticallyAnalyzable to be enabled"))
+                      Optional.of("requires assumePropertiesAreStaticallyAnalyzable to be enabled")))
           .build();
 
   /** Rewrite properties as variables. */
@@ -2671,9 +2671,9 @@ public final class DefaultPassConfig extends PassConfig {
       AbstractCompiler compiler, VariableMap prevVariableMap, Node externs, Node root) {
     Set<Character> reservedChars = ImmutableSet.of();
     Set<String> reservedNames = new LinkedHashSet<>();
-    if (options.getRenamePrefixNamespace() != null) {
+    if (options.getRenamePrefixNamespace().isPresent()) {
       // don't use the prefix name as a global symbol.
-      reservedNames.add(options.getRenamePrefixNamespace());
+      reservedNames.add(options.getRenamePrefixNamespace().get());
     }
     reservedNames.addAll(compiler.getExportedNames());
     reservedNames.addAll(ParserRunner.getReservedVars());
@@ -2775,8 +2775,8 @@ public final class DefaultPassConfig extends PassConfig {
       additionalReplacements.put(COMPILED_CONSTANT_NAME, IR.trueNode());
     }
 
-    if (options.getClosurePass() && options.getLocale() != null && !options.doLateLocalization()) {
-      additionalReplacements.put(CLOSURE_LOCALE_CONSTANT_NAME, IR.string(options.getLocale()));
+    if (options.getClosurePass() && options.getLocale().isPresent() && !options.doLateLocalization()) {
+      additionalReplacements.put(CLOSURE_LOCALE_CONSTANT_NAME, IR.string(options.getLocale().get()));
     }
 
     return additionalReplacements;
@@ -2890,7 +2890,7 @@ public final class DefaultPassConfig extends PassConfig {
               (compiler) ->
                   SerializeTypedAstPass.createFromPath(
                       compiler,
-                      options.getTypedAstOutputFile(),
+                      options.getTypedAstOutputFile().orElse(null),
                       SerializationOptions.builder()
                           .setIncludeDebugInfo(
                               compiler.getOptions().shouldSerializeExtraDebugInfo())
@@ -3046,6 +3046,6 @@ public final class DefaultPassConfig extends PassConfig {
       CompilerOptions options) {
     return new PreconditionResult(
         options.getAssumePropertiesAreStaticallyAnalyzable(),
-        "requires assumePropertiesAreStaticallyAnalyzable to be enabled");
+        Optional.of("requires assumePropertiesAreStaticallyAnalyzable to be enabled"));
   }
 }

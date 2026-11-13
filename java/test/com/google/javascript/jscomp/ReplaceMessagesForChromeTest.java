@@ -16,6 +16,7 @@
 
 package com.google.javascript.jscomp;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,7 @@ public final class ReplaceMessagesForChromeTest extends CompilerTestCase {
 
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
-    return new ReplaceMessagesForChrome(compiler, new GoogleJsMessageIdGenerator(null));
+    return new ReplaceMessagesForChrome(compiler, new GoogleJsMessageIdGenerator(Optional.empty()));
   }
 
   @Override

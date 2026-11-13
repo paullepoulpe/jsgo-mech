@@ -22,7 +22,7 @@ import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Transform the structure of the AST so that the number of explicit exits
@@ -33,26 +33,26 @@ class MinimizeExitPoints extends AbstractPeepholeOptimization {
   Node optimizeSubtree(Node n) {
     checkState(this.isASTNormalized(), "MinimizeExitPoints requires the AST to be normalized");
     switch (n.getToken()) {
-      case LABEL -> tryMinimizeExits(n.getLastChild(), Token.BREAK, n.getFirstChild().getString());
+      case LABEL -> tryMinimizeExits(n.getLastChild(), Token.BREAK, Optional.of(n.getFirstChild().getString()));
       case FOR, FOR_IN, FOR_OF, FOR_AWAIT_OF, WHILE ->
-          tryMinimizeExits(NodeUtil.getLoopCodeBlock(n), Token.CONTINUE, null);
+          tryMinimizeExits(NodeUtil.getLoopCodeBlock(n), Token.CONTINUE, Optional.empty());
       case DO -> {
-        tryMinimizeExits(NodeUtil.getLoopCodeBlock(n), Token.CONTINUE, null);
+        tryMinimizeExits(NodeUtil.getLoopCodeBlock(n), Token.CONTINUE, Optional.empty());
 
         Node cond = NodeUtil.getConditionExpression(n);
         if (getSideEffectFreeBooleanValue(cond) == Tri.FALSE) {
           // Normally, we wouldn't be able to optimize BREAKs inside a loop
           // but as we know the condition will always be false, we can treat them
           // as we would a CONTINUE.
-          tryMinimizeExits(n.getFirstChild(), Token.BREAK, null);
+          tryMinimizeExits(n.getFirstChild(), Token.BREAK, Optional.empty());
         }
       }
       case BLOCK -> {
         if (n.hasParent() && n.getParent().isFunction()) {
-          tryMinimizeExits(n, Token.RETURN, null);
+          tryMinimizeExits(n, Token.RETURN, Optional.empty());
         }
       }
-      case SWITCH -> tryMinimizeSwitchExits(n, Token.BREAK, null);
+      case SWITCH -> tryMinimizeSwitchExits(n, Token.BREAK, Optional.empty());
       // TODO(johnlenz): Minimize any block that ends in a optimizable statements:
       //   break, continue, return
       default -> {}
@@ -87,7 +87,7 @@ class MinimizeExitPoints extends AbstractPeepholeOptimization {
    * @param labelName If parent is a label the name of the label to look for,
    *   null otherwise. Non-null only for breaks within labels.
    */
-  void tryMinimizeExits(Node n, Token exitType, @Nullable String labelName) {
+  void tryMinimizeExits(Node n, Token exitType, Optional<String> labelName) {
 
     // Just an 'exit'.
     if (matchingExitNode(n, exitType, labelName)) {
@@ -131,7 +131,7 @@ class MinimizeExitPoints extends AbstractPeepholeOptimization {
     }
 
     // We can only minimize switch cases if we are not trying to remove unlabeled breaks.
-    if (n.isSwitch()  && (exitType != Token.BREAK || labelName != null)) {
+    if (n.isSwitch()  && (exitType != Token.BREAK || labelName.isPresent())) {
       tryMinimizeSwitchExits(n, exitType, labelName);
       return;
     }
@@ -182,7 +182,7 @@ class MinimizeExitPoints extends AbstractPeepholeOptimization {
     }
   }
 
-  void tryMinimizeSwitchExits(Node n, Token exitType, @Nullable String labelName) {
+  void tryMinimizeSwitchExits(Node n, Token exitType, Optional<String> labelName) {
     checkState(n.isSwitch());
     // Skipping the switch condition, visit all the children.
     Node switchBody = n.getSecondChild();
@@ -200,7 +200,7 @@ class MinimizeExitPoints extends AbstractPeepholeOptimization {
    * Attempt to remove explicit exits from switch cases that also occur implicitly
    * after the switch.
    */
-  void tryMinimizeSwitchCaseExits(Node n, Token exitType, @Nullable String labelName) {
+  void tryMinimizeSwitchCaseExits(Node n, Token exitType, Optional<String> labelName) {
     checkState(NodeUtil.isSwitchCase(n));
 
     checkState(n != n.getParent().getLastChild());
@@ -238,7 +238,7 @@ class MinimizeExitPoints extends AbstractPeepholeOptimization {
    *     named-break associated with a label.
    */
   private void tryMinimizeIfBlockExits(Node srcBlock, Node destBlock,
-      Node ifNode, Token exitType, @Nullable String labelName) {
+      Node ifNode, Token exitType, Optional<String> labelName) {
     Node exitNodeParent = null;
     Node exitNode = null;
 
@@ -302,17 +302,17 @@ class MinimizeExitPoints extends AbstractPeepholeOptimization {
    *     non-null only for breaks associated with labels.
    * @return Whether the node matches the specified block-exit type.
    */
-  private static boolean matchingExitNode(Node n, Token type, @Nullable String labelName) {
+  private static boolean matchingExitNode(Node n, Token type, Optional<String> labelName) {
     if (n.getToken() == type) {
       if (type == Token.RETURN) {
         // only returns without expressions.
         return !n.hasChildren();
       } else {
-        if (labelName == null) {
+        if (labelName.isEmpty()) {
           return !n.hasChildren();
         } else {
           return n.hasChildren()
-            && labelName.equals(n.getFirstChild().getString());
+            && labelName.get().equals(n.getFirstChild().getString());
         }
       }
     }

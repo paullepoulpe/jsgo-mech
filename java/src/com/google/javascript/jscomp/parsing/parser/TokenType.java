@@ -16,15 +16,15 @@
 
 package com.google.javascript.jscomp.parsing.parser;
 
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 // 7.5 Tokens
 public enum TokenType {
-  END_OF_FILE("End of File"),
-  ERROR("error"),
+  END_OF_FILE(Optional.of("End of File")),
+  ERROR(Optional.of("error")),
 
   // 7.6 Identifier Names and Identifiers
-  IDENTIFIER("identifier"),
+  IDENTIFIER(Optional.of("identifier")),
 
   // 7.6.1.1 keywords
   BREAK,
@@ -75,85 +75,85 @@ public enum TokenType {
   YIELD,
 
   // 7.7 Punctuators
-  OPEN_CURLY("{"),
-  CLOSE_CURLY("}"),
-  OPEN_PAREN("("),
-  CLOSE_PAREN(")"),
-  OPEN_SQUARE("["),
-  CLOSE_SQUARE("]"),
-  PERIOD("."),
-  SEMI_COLON(";"),
-  COMMA(","),
-  OPEN_ANGLE("<"),
-  CLOSE_ANGLE(">"),
-  LESS_EQUAL("<="),
-  GREATER_EQUAL(">="),
-  ARROW("=>"),
-  EQUAL_EQUAL("=="),
-  NOT_EQUAL("!="),
-  EQUAL_EQUAL_EQUAL("==="),
-  NOT_EQUAL_EQUAL("!=="),
-  PLUS("+"),
-  MINUS("-"),
-  STAR("*"),
-  STAR_STAR("**"),
-  PERCENT("%"),
-  PLUS_PLUS("++"),
-  MINUS_MINUS("--"),
-  LEFT_SHIFT("<<"),
-  RIGHT_SHIFT(">>"),
-  UNSIGNED_RIGHT_SHIFT(">>>"),
-  AMPERSAND("&"),
-  BAR("|"),
-  CARET("^"),
-  BANG("!"),
-  TILDE("~"),
-  AND("&&"),
-  OR("||"),
-  QUESTION("?"),
-  QUESTION_QUESTION("??"),
-  QUESTION_DOT("?."),
-  COLON(":"),
-  EQUAL("="),
-  PLUS_EQUAL("+="),
-  MINUS_EQUAL("-="),
-  STAR_EQUAL("*="),
-  STAR_STAR_EQUAL("**="),
-  PERCENT_EQUAL("%="),
-  LEFT_SHIFT_EQUAL("<<="),
-  RIGHT_SHIFT_EQUAL(">>="),
-  UNSIGNED_RIGHT_SHIFT_EQUAL(">>>="),
-  AMPERSAND_EQUAL("&="),
-  BAR_EQUAL("|="),
-  CARET_EQUAL("^="),
-  SLASH("/"),
-  SLASH_EQUAL("/="),
+  OPEN_CURLY(Optional.of("{")),
+  CLOSE_CURLY(Optional.of("}")),
+  OPEN_PAREN(Optional.of("(")),
+  CLOSE_PAREN(Optional.of(")")),
+  OPEN_SQUARE(Optional.of("[")),
+  CLOSE_SQUARE(Optional.of("]")),
+  PERIOD(Optional.of(".")),
+  SEMI_COLON(Optional.of(";")),
+  COMMA(Optional.of(",")),
+  OPEN_ANGLE(Optional.of("<")),
+  CLOSE_ANGLE(Optional.of(">")),
+  LESS_EQUAL(Optional.of("<=")),
+  GREATER_EQUAL(Optional.of(">=")),
+  ARROW(Optional.of("=>")),
+  EQUAL_EQUAL(Optional.of("==")),
+  NOT_EQUAL(Optional.of("!=")),
+  EQUAL_EQUAL_EQUAL(Optional.of("===")),
+  NOT_EQUAL_EQUAL(Optional.of("!==")),
+  PLUS(Optional.of("+")),
+  MINUS(Optional.of("-")),
+  STAR(Optional.of("*")),
+  STAR_STAR(Optional.of("**")),
+  PERCENT(Optional.of("%")),
+  PLUS_PLUS(Optional.of("++")),
+  MINUS_MINUS(Optional.of("--")),
+  LEFT_SHIFT(Optional.of("<<")),
+  RIGHT_SHIFT(Optional.of(">>")),
+  UNSIGNED_RIGHT_SHIFT(Optional.of(">>>")),
+  AMPERSAND(Optional.of("&")),
+  BAR(Optional.of("|")),
+  CARET(Optional.of("^")),
+  BANG(Optional.of("!")),
+  TILDE(Optional.of("~")),
+  AND(Optional.of("&&")),
+  OR(Optional.of("||")),
+  QUESTION(Optional.of("?")),
+  QUESTION_QUESTION(Optional.of("??")),
+  QUESTION_DOT(Optional.of("?.")),
+  COLON(Optional.of(":")),
+  EQUAL(Optional.of("=")),
+  PLUS_EQUAL(Optional.of("+=")),
+  MINUS_EQUAL(Optional.of("-=")),
+  STAR_EQUAL(Optional.of("*=")),
+  STAR_STAR_EQUAL(Optional.of("**=")),
+  PERCENT_EQUAL(Optional.of("%=")),
+  LEFT_SHIFT_EQUAL(Optional.of("<<=")),
+  RIGHT_SHIFT_EQUAL(Optional.of(">>=")),
+  UNSIGNED_RIGHT_SHIFT_EQUAL(Optional.of(">>>=")),
+  AMPERSAND_EQUAL(Optional.of("&=")),
+  BAR_EQUAL(Optional.of("|=")),
+  CARET_EQUAL(Optional.of("^=")),
+  SLASH(Optional.of("/")),
+  SLASH_EQUAL(Optional.of("/=")),
 
   // Logical Assignment Punctuators
-  AND_EQUAL("&&="),
-  OR_EQUAL("||="),
-  QUESTION_QUESTION_EQUAL("??="),
+  AND_EQUAL(Optional.of("&&=")),
+  OR_EQUAL(Optional.of("||=")),
+  QUESTION_QUESTION_EQUAL(Optional.of("??=")),
 
   // 7.8 Literals
   NULL,
   TRUE,
   FALSE,
-  NUMBER("number literal"),
-  STRING("string literal"),
-  BIGINT("bigint literal"),
-  REGULAR_EXPRESSION("regular expression literal"),
+  NUMBER(Optional.of("number literal")),
+  STRING(Optional.of("string literal")),
+  BIGINT(Optional.of("bigint literal")),
+  REGULAR_EXPRESSION(Optional.of("regular expression literal")),
 
   // Harmony extensions
-  ELLIPSIS("..."),
+  ELLIPSIS(Optional.of("...")),
   // 12.2.9 Template Literals
   // Template literal tokens corresponding to different parts of the literal
   // Eg: `hello` is scanned as a single NO_SUBSTITUTION_TEMPLATE: hello
   // `hello${world}!` is scanned as TEMPLATE_HEAD: hello, TEMPLATE_MIDDLE: world,
   // and TEMPLATE_TAIL: !
-  TEMPLATE_HEAD("template head"),
-  TEMPLATE_MIDDLE("template middle"),
-  TEMPLATE_TAIL("template tail"),
-  NO_SUBSTITUTION_TEMPLATE("no substitution template"),
+  TEMPLATE_HEAD(Optional.of("template head")),
+  TEMPLATE_MIDDLE(Optional.of("template middle")),
+  TEMPLATE_TAIL(Optional.of("template tail")),
+  NO_SUBSTITUTION_TEMPLATE(Optional.of("no substitution template")),
 
   // TypeScript
   TYPE,
@@ -161,19 +161,19 @@ public enum TokenType {
   MODULE,
   NAMESPACE;
 
-  public final String value;
+  public final Optional<String> value;
 
   TokenType() {
-    this(null);
+    this(Optional.empty());
   }
 
-  TokenType(@Nullable String value) {
+  TokenType(Optional<String> value) {
     this.value = value;
   }
 
   @Override
   public String toString() {
     // TODO: straighten this out
-    return value == null ? Keywords.get(this).toString() : value;
+    return value.isEmpty() ? Keywords.get(this).toString() : value.get();
   }
 }

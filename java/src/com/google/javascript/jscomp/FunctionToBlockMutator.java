@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -66,7 +67,7 @@ class FunctionToBlockMutator {
       String fnName,
       Node fnNode,
       Node callNode,
-      String resultName,
+      Optional<String> resultName,
       boolean needsDefaultResult,
       boolean isCallInLoop) {
     return mutateInternal(
@@ -97,7 +98,7 @@ class FunctionToBlockMutator {
       String fnName,
       Node fnNode,
       Node callNode,
-      String resultName,
+      Optional<String> resultName,
       boolean needsDefaultResult,
       boolean isCallInLoop) {
     return mutateInternal(
@@ -127,7 +128,7 @@ class FunctionToBlockMutator {
       String fnName,
       Node fnNode,
       Node callNode,
-      String resultName,
+      Optional<String> resultName,
       boolean needsDefaultResult,
       boolean isCallInLoop,
       boolean renameLocals) {
@@ -474,9 +475,8 @@ class FunctionToBlockMutator {
    *     node 'block'.
    */
   private static Node replaceReturns(
-      Node block, String resultName, String labelName, boolean resultMustBeSet) {
+      Node block, Optional<String> resultName, String labelName, boolean resultMustBeSet) {
     checkNotNull(block);
-    checkNotNull(labelName);
 
     Node root = block;
 
@@ -513,8 +513,8 @@ class FunctionToBlockMutator {
 
     // If there wasn't an return at the end of the function block, and we need
     // a result, add one to the block.
-    if (resultMustBeSet && !hasReturnAtExit && resultName != null) {
-      addDummyAssignment(block, resultName);
+    if (resultMustBeSet && !hasReturnAtExit && resultName.isPresent()) {
+      addDummyAssignment(block, resultName.get());
     }
 
     return root;
@@ -541,7 +541,7 @@ class FunctionToBlockMutator {
    * Replace the 'return' statement with its child expression. "return foo()" becomes "foo()" or
    * "resultName = foo()" "return" is removed or becomes "resultName = void 0".
    */
-  private static void convertLastReturnToStatement(Node block, String resultName) {
+  private static void convertLastReturnToStatement(Node block, Optional<String> resultName) {
     Node ret = block.getLastChild();
     checkArgument(ret.isReturn());
     Node resultNode = getReplacementReturnStatement(ret, resultName);
@@ -568,7 +568,7 @@ class FunctionToBlockMutator {
    * != null): "return foo()" becomes "resultName = foo()" "return" becomes "resultName = void 0".
    * Otherwise: "return foo()" becomes "foo()" "return", null is returned.
    */
-  private static Node getReplacementReturnStatement(Node node, String resultName) {
+  private static Node getReplacementReturnStatement(Node node, Optional<String> resultName) {
     Node resultNode = null;
 
     Node retVal = null;
@@ -578,7 +578,7 @@ class FunctionToBlockMutator {
       retVal = node.getFirstChild().cloneTree();
     }
 
-    if (resultName == null) {
+    if (resultName.isEmpty()) {
       if (retVal != null) {
         resultNode = NodeUtil.newExpr(retVal); // maybe null.
       }
@@ -589,7 +589,7 @@ class FunctionToBlockMutator {
         retVal = NodeUtil.newUndefinedNode(srcLocation);
       }
       // Create a "resultName = retVal;" statement.
-      resultNode = createAssignStatementNode(resultName, retVal);
+      resultNode = createAssignStatementNode(resultName.get(), retVal);
     }
 
     return resultNode;
@@ -610,7 +610,7 @@ class FunctionToBlockMutator {
    * 0;break;}".
    */
   private static Node replaceReturnWithBreak(
-      Node current, @Nullable Node parent, String resultName, String labelName) {
+      Node current, @Nullable Node parent, Optional<String> resultName, String labelName) {
 
     if (current.isFunction() || current.isExprResult()) {
       // Don't recurse into functions definitions, and expressions can't

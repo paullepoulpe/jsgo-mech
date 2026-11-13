@@ -19,6 +19,7 @@ package com.google.javascript.jscomp;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.base.SimpleTable;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 
 /** Renames references in code. */
 final class Es6RenameReferences extends AbstractPostOrderCallback {
@@ -61,9 +62,9 @@ final class Es6RenameReferences extends AbstractPostOrderCallback {
     // I don't know if the other users of this class are also modifying the scopes in advance.
     // - bradfordcsmith@google.com
     while (current != null) {
-      String newName = renameTable.get(current.getRootNode(), oldName);
-      if (newName != null) {
-        n.setString(newName);
+      Optional<String> newName = Optional.ofNullable(renameTable.get(current.getRootNode(), oldName));
+      if (newName.isPresent()) {
+        n.setString(newName.get());
         t.reportCodeChange();
         return;
       } else if (current.hasOwnSlot(oldName)) {

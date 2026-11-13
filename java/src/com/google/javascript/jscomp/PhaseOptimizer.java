@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -233,7 +234,7 @@ class PhaseOptimizer implements CompilerPass {
       if (tracker != null) {
         tracker.recordPassStart(name, !factory.isRunInFixedPointLoop());
       }
-      tracer = new Tracer("Compiler", name);
+      tracer = new Tracer(Optional.of("Compiler"), Optional.of(name));
 
       compiler.beforePass(name);
 

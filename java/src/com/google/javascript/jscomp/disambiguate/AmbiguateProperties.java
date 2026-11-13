@@ -53,6 +53,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -237,9 +238,9 @@ public class AmbiguateProperties implements CompilerPass {
 
     // Translate the color of each Property instance to a name.
     for (PropertyGraphNode node : propertyGraph.getNodes()) {
-      node.getValue().newName = colorMap[Annotatable.getAnnotation(node).hashCode()];
+      node.getValue().newName = Optional.of(colorMap[Annotatable.getAnnotation(node).hashCode()]);
       if (renamingMap != null) {
-        renamingMap.put(node.getValue().oldName, node.getValue().newName);
+        renamingMap.put(node.getValue().oldName, node.getValue().newName.orElse(null));
       }
     }
 
@@ -247,10 +248,10 @@ public class AmbiguateProperties implements CompilerPass {
     for (Node n : stringNodesToRename) {
       String oldName = n.getString();
       Property p = propertyMap.get(oldName);
-      if (p != null && p.newName != null) {
+      if (p != null && p.newName.isPresent()) {
         checkState(oldName.equals(p.oldName));
-        if (!p.newName.equals(oldName)) {
-          n.setString(p.newName);
+        if (!p.newName.get().equals(oldName)) {
+          n.setString(p.newName.get());
           compiler.reportChangeToEnclosingScope(n);
         }
       }
@@ -601,7 +602,7 @@ public class AmbiguateProperties implements CompilerPass {
   /** Encapsulates the information needed for renaming a property. */
   private class Property {
     final String oldName;
-    String newName;
+    Optional<String> newName = Optional.empty();
     int numOccurrences;
     boolean skipAmbiguating;
     // All colors upon which this property was directly accessed. For "a.b" this includes "a"'s type

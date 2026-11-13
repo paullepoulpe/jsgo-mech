@@ -45,6 +45,8 @@
 
 package com.google.javascript.rhino;
 
+import java.util.Optional;
+
 /**
  * This class implements the JavaScript scanner.
  *
@@ -69,7 +71,7 @@ public final class TokenStream {
         boolean id = false;
         String s = name;
         complete: {
-            String X = null;
+            Optional<String> X = Optional.empty();
             int c;
             partial: switch (s.length()) {
             case 2: c=s.charAt(1);
@@ -104,7 +106,7 @@ public final class TokenStream {
                   } break partial;
                 } break partial;
             case 4: switch (s.charAt(0)) {
-                case 'b': X="byte";id=true; break partial;
+                case 'b': X=Optional.of("byte");id=true; break partial;
                 case 'c': c=s.charAt(3);
                     if (c=='e') { if (s.charAt(2)=='s' && s.charAt(1)=='a') {
                             id=true; break complete;} }
@@ -121,9 +123,9 @@ public final class TokenStream {
                       if (s.charAt(2)=='u' && s.charAt(1)=='n') {
                             id=true; break complete;} }
                     break partial;
-                case 'g': X="goto";id=true; break partial;
-                case 'l': X="long";id=true; break partial;
-                case 'n': X="null";id=true; break partial;
+                case 'g': X=Optional.of("goto");id=true; break partial;
+                case 'l': X=Optional.of("long");id=true; break partial;
+                case 'n': X=Optional.of("null");id=true; break partial;
                 case 't': c=s.charAt(3);
                     if (c=='e') { if (s.charAt(2)=='u' && s.charAt(1)=='r') {
                             id=true; break complete;} }
@@ -131,69 +133,69 @@ public final class TokenStream {
                       if (s.charAt(2)=='i' && s.charAt(1)=='h') {
                             id=true; break complete;} }
                     break partial;
-                case 'v': X="void";id=true; break partial;
-                case 'w': X="with";id=true; break partial;
+                case 'v': X=Optional.of("void");id=true; break partial;
+                case 'w': X=Optional.of("with");id=true; break partial;
                 } break partial;
             case 5: switch (s.charAt(2)) {
-                case 'a': X="class";id=true; break partial;
-                case 'e': X="break";id=true; break partial;
-                case 'i': X="while";id=true; break partial;
-                case 'l': X="false";id=true; break partial;
+                case 'a': X=Optional.of("class");id=true; break partial;
+                case 'e': X=Optional.of("break");id=true; break partial;
+                case 'i': X=Optional.of("while");id=true; break partial;
+                case 'l': X=Optional.of("false");id=true; break partial;
                 case 'n': c=s.charAt(0);
-                    if (c=='c') { X="const";id=true; }
-                    else if (c=='f') { X="final";id=true; }
+                    if (c=='c') { X=Optional.of("const");id=true; }
+                    else if (c=='f') { X=Optional.of("final");id=true; }
                     break partial;
                 case 'o': c=s.charAt(0);
-                    if (c=='f') { X="float";id=true; }
-                    else if (c=='s') { X="short";id=true; }
+                    if (c=='f') { X=Optional.of("float");id=true; }
+                    else if (c=='s') { X=Optional.of("short");id=true; }
                     break partial;
-                case 'p': X="super";id=true; break partial;
-                case 'r': X="throw";id=true; break partial;
-                case 't': X="catch";id=true; break partial;
+                case 'p': X=Optional.of("super");id=true; break partial;
+                case 'r': X=Optional.of("throw");id=true; break partial;
+                case 't': X=Optional.of("catch");id=true; break partial;
                 } break partial;
             case 6: switch (s.charAt(1)) {
-                case 'a': X="native";id=true; break partial;
+                case 'a': X=Optional.of("native");id=true; break partial;
                 case 'e': c=s.charAt(0);
-                    if (c=='d') { X="delete";id=true; }
-                    else if (c=='r') { X="return";id=true; }
+                    if (c=='d') { X=Optional.of("delete");id=true; }
+                    else if (c=='r') { X=Optional.of("return");id=true; }
                     break partial;
-                case 'h': X="throws";id=true; break partial;
-                case 'm': X="import";id=true; break partial;
-                case 'o': X="double";id=true; break partial;
-                case 't': X="static";id=true; break partial;
-                case 'u': X="public";id=true; break partial;
-                case 'w': X="switch";id=true; break partial;
-                case 'x': X="export";id=true; break partial;
-                case 'y': X="typeof";id=true; break partial;
+                case 'h': X=Optional.of("throws");id=true; break partial;
+                case 'm': X=Optional.of("import");id=true; break partial;
+                case 'o': X=Optional.of("double");id=true; break partial;
+                case 't': X=Optional.of("static");id=true; break partial;
+                case 'u': X=Optional.of("public");id=true; break partial;
+                case 'w': X=Optional.of("switch");id=true; break partial;
+                case 'x': X=Optional.of("export");id=true; break partial;
+                case 'y': X=Optional.of("typeof");id=true; break partial;
                 } break partial;
             case 7: switch (s.charAt(1)) {
-                case 'a': X="package";id=true; break partial;
-                case 'e': X="default";id=true; break partial;
-                case 'i': X="finally";id=true; break partial;
-                case 'o': X="boolean";id=true; break partial;
-                case 'r': X="private";id=true; break partial;
-                case 'x': X="extends";id=true; break partial;
+                case 'a': X=Optional.of("package");id=true; break partial;
+                case 'e': X=Optional.of("default");id=true; break partial;
+                case 'i': X=Optional.of("finally");id=true; break partial;
+                case 'o': X=Optional.of("boolean");id=true; break partial;
+                case 'r': X=Optional.of("private");id=true; break partial;
+                case 'x': X=Optional.of("extends");id=true; break partial;
                 } break partial;
             case 8: switch (s.charAt(0)) {
-                case 'a': X="abstract";id=true; break partial;
-                case 'c': X="continue";id=true; break partial;
-                case 'd': X="debugger";id=true; break partial;
-                case 'f': X="function";id=true; break partial;
-                case 'v': X="volatile";id=true; break partial;
+                case 'a': X=Optional.of("abstract");id=true; break partial;
+                case 'c': X=Optional.of("continue");id=true; break partial;
+                case 'd': X=Optional.of("debugger");id=true; break partial;
+                case 'f': X=Optional.of("function");id=true; break partial;
+                case 'v': X=Optional.of("volatile");id=true; break partial;
                 } break partial;
             case 9: c=s.charAt(0);
-                if (c=='i') { X="interface";id=true; }
-                else if (c=='p') { X="protected";id=true; }
-                else if (c=='t') { X="transient";id=true; }
+                if (c=='i') { X=Optional.of("interface");id=true; }
+                else if (c=='p') { X=Optional.of("protected");id=true; }
+                else if (c=='t') { X=Optional.of("transient");id=true; }
                 break partial;
             case 10: c=s.charAt(1);
-                if (c=='m') { X="implements";id=true; }
-                else if (c=='n') { X="instanceof";id=true; }
+                if (c=='m') { X=Optional.of("implements");id=true; }
+                else if (c=='n') { X=Optional.of("instanceof");id=true; }
                 break partial;
-            case 12: X="synchronized";id=true; break partial;
+            case 12: X=Optional.of("synchronized");id=true; break partial;
             }
       // partial match validate the entire string the one possibility
-      if (X != null && X != s && !X.equals(s)) {
+      if (X.isPresent() && X.get() != s && !X.get().equals(s)) {
         return false;
       }
         }

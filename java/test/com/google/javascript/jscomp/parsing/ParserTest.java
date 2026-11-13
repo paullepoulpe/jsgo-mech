@@ -52,6 +52,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -4024,7 +4025,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(n.getFirstChild()).hasType(Token.FUNCTION);
     assertThat(n.getJSDocInfo()).isNotNull();
     assertThat(n.getFirstChild().getJSDocInfo()).isNull();
-    assertThat(n.getJSDocInfo().getLicense()).isEqualTo(" Hi mom! ");
+    assertThat(n.getJSDocInfo().getLicense().orElse(null)).isEqualTo(" Hi mom! ");
   }
 
   @Test
@@ -4399,7 +4400,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(node).hasType(Token.TEMPLATELIT);
     assertThat(node.getChildCount()).isEqualTo(1);
     assertNode(node.getFirstChild()).hasType(Token.TEMPLATELIT_STRING);
-    assertThat(node.getFirstChild().getCookedString()).isEqualTo(expectedContents);
+    assertThat(node.getFirstChild().getCookedString().orElse(null)).isEqualTo(expectedContents);
   }
 
   @Test
@@ -4455,11 +4456,11 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node templateLiteral = n.getFirstFirstChild();
     Node stringNode = templateLiteral.getFirstChild();
     assertNode(stringNode).hasType(Token.TEMPLATELIT_STRING);
-    assertThat(stringNode.getCookedString()).isEqualTo("string continuation");
+    assertThat(stringNode.getCookedString().orElse(null)).isEqualTo("string continuation");
 
     n = parseWarning("`string \\\u2028continuation`", STRING_CONTINUATIONS_WARNING);
     stringNode = n.getFirstFirstChild().getFirstChild();
-    assertThat(stringNode.getCookedString()).isEqualTo("string continuation");
+    assertThat(stringNode.getCookedString().orElse(null)).isEqualTo("string continuation");
     assertThat(stringNode.getRawString()).isEqualTo("string \\\u2028continuation");
   }
 
@@ -5094,7 +5095,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     Node n = parse("/** This is a variable. */ var x;");
     Node var = n.getFirstChild();
     assertThat(var.getJSDocInfo()).isNotNull();
-    assertThat(var.getJSDocInfo().getBlockDescription()).isEqualTo("This is a variable.");
+    assertThat(var.getJSDocInfo().getBlockDescription().orElse(null)).isEqualTo("This is a variable.");
   }
 
   @Test
@@ -5389,7 +5390,7 @@ public final class ParserTest extends BaseJSTypeTestCase {
     assertNode(templateLit).hasType(Token.TEMPLATELIT);
     Node templateLitString = templateLit.getFirstChild();
     assertNode(templateLitString).hasType(Token.TEMPLATELIT_STRING);
-    assertThat(templateLitString.getCookedString()).isNull();
+    assertThat(templateLitString.getCookedString().orElse(null)).isNull();
     assertThat(templateLitString.getRawString()).isEqualTo("\\a\\uc1");
 
     parse("tag`\\a\\xg`");
@@ -6893,10 +6894,10 @@ public final class ParserTest extends BaseJSTypeTestCase {
     ErrorReporter reporter =
         new ErrorReporter() {
           @Override
-          public void warning(String message, String sourceName, int line, int lineOffset) {}
+          public void warning(String message, Optional<String> sourceName, int line, int lineOffset) {}
 
           @Override
-          public void error(String message, String sourceName, int line, int lineOffset) {
+          public void error(String message, Optional<String> sourceName, int line, int lineOffset) {
             errors.add(message);
             lines.add(line);
             cols.add(lineOffset);
@@ -8419,7 +8420,7 @@ console.log(new X(1));
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZm9vLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiZm9vLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0lBR0UsV0FBWSxLQUFhO1FBQ3ZCLElBQUksQ0FBQyxDQUFDLEdBQUcsS0FBSyxDQUFDO0lBQ2pCLENBQUM7SUFDSCxRQUFDO0FBQUQsQ0FBQyxBQU5ELElBTUM7QUFFRCxPQUFPLENBQUMsR0FBRyxDQUFDLElBQUksQ0FBQyxDQUFDLENBQUMsQ0FBQyxDQUFDLENBQUMifQ==
 """;
     ParseResult result = doParse(code);
-    assertThat(result.sourceMapURL)
+    assertThat(result.sourceMapURL.orElse(null))
         .isEqualTo(
             """
             data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZm9vLmpz\
@@ -8444,7 +8445,7 @@ console.log(new X(1));
         //# sourceMappingURL=somefile.js.map
         """;
     ParseResult result = doParse(code);
-    assertThat(result.sourceMapURL).isEqualTo("somefile.js.map");
+    assertThat(result.sourceMapURL.orElse(null)).isEqualTo("somefile.js.map");
   }
 
   /**
@@ -8459,7 +8460,7 @@ console.log(new X(1));
         //# sourceMappingURL=/some/absolute/path/to/somefile.js.map
         """;
     ParseResult result = doParse(code);
-    assertThat(result.sourceMapURL).isEqualTo("/some/absolute/path/to/somefile.js.map");
+    assertThat(result.sourceMapURL.orElse(null)).isEqualTo("/some/absolute/path/to/somefile.js.map");
   }
 
   /**
@@ -8474,7 +8475,7 @@ console.log(new X(1));
         //# sourceMappingURL=http://google.com/some/absolute/path/to/somefile.js.map
         """;
     ParseResult result = doParse(code);
-    assertThat(result.sourceMapURL)
+    assertThat(result.sourceMapURL.orElse(null))
         .isEqualTo("http://google.com/some/absolute/path/to/somefile.js.map");
   }
 

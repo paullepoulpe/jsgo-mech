@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.Token;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -188,7 +189,7 @@ public class FindModuleDependencies implements NodeTraversal.ScopedCallback {
         ModuleLoader.ModulePath modulePath =
             t.getInput()
                 .getPath()
-                .resolveJsModule(path, n.getSourceFileName(), n.getLineno(), n.getCharno());
+                .resolveJsModule(path, Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty()), n.getLineno(), n.getCharno());
 
         if (modulePath != null) {
           if (dynamicImportScope != null
@@ -249,7 +250,7 @@ public class FindModuleDependencies implements NodeTraversal.ScopedCallback {
       ModuleLoader.ModulePath modulePath =
           t.getInput()
               .getPath()
-              .resolveJsModule(importName, n.getSourceFileName(), n.getLineno(), n.getCharno());
+              .resolveJsModule(importName, Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty()), n.getLineno(), n.getCharno());
       if (modulePath == null) {
         // The module loader issues an error
         // Fall back to assuming the module is a file path

@@ -31,6 +31,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 import org.jspecify.annotations.Nullable;
 import org.junit.Test;
@@ -117,7 +118,7 @@ public final class WarningsGuardTest {
 
           @Override
           public CheckLevel level(JSError error) {
-            return error.sourceName().equals("123456") ? ERROR : null;
+            return error.sourceName().get().equals("123456") ? ERROR : null;
           }
         };
 
@@ -167,12 +168,12 @@ public final class WarningsGuardTest {
     WarningsGuard strictGuard = new StrictWarningsGuard();
 
     WarningsGuard guard = ComposeWarningsGuard.createFromGuards(strictGuard, typeGuard);
-    assertThat(guard.level(JSError.make("example.js", 1, 0, CheckAccessControls.DEPRECATED_NAME)))
+    assertThat(guard.level(JSError.make(Optional.of("example.js"), 1, 0, CheckAccessControls.DEPRECATED_NAME)))
         .isEqualTo(WARNING);
 
     // Ordering applied doesn't matter, do it again reversed.
     guard = ComposeWarningsGuard.createFromGuards(typeGuard, strictGuard);
-    assertThat(guard.level(JSError.make("example.js", 1, 0, CheckAccessControls.DEPRECATED_NAME)))
+    assertThat(guard.level(JSError.make(Optional.of("example.js"), 1, 0, CheckAccessControls.DEPRECATED_NAME)))
         .isEqualTo(WARNING);
   }
 
@@ -500,7 +501,9 @@ public final class WarningsGuardTest {
 
   private static JSError makeError(@Nullable String sourcePath) {
     Node n = new Node(Token.EMPTY);
-    n.setSourceFileForTesting(sourcePath);
+    if (sourcePath != null) {
+      n.setSourceFileForTesting(sourcePath);
+    }
     return JSError.make(n, BAR_WARNING);
   }
 
@@ -512,11 +515,13 @@ public final class WarningsGuardTest {
 
   private static JSError makeError(@Nullable String sourcePath, CheckLevel level) {
     Node n = new Node(Token.EMPTY);
-    n.setSourceFileForTesting(sourcePath);
+    if (sourcePath != null) {
+      n.setSourceFileForTesting(sourcePath);
+    }
     return JSError.make(n, DiagnosticType.make("FOO", level, "Foo description"));
   }
 
   private static JSError makeErrorInt(String sourcePath, int lineno) {
-    return JSError.make(sourcePath, lineno, -1, BAR_WARNING);
+    return JSError.make(Optional.ofNullable(sourcePath), lineno, -1, BAR_WARNING);
   }
 }

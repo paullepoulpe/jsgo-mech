@@ -41,28 +41,29 @@ package com.google.javascript.rhino;
 
 import com.google.javascript.jscomp.parsing.parser.util.SourcePosition;
 import java.io.Serializable;
+import java.util.Optional;
 
 /** Minimal class holding information about a nonJSDoc comment's source location and contents */
 public class NonJSDocComment implements Serializable {
   private final SourcePosition startPosition;
   private final SourcePosition endPosition;
-  private final String contents;
+  private final Optional<String> contents;
   private boolean endsAsLineComment;
   private boolean isInlineField;
 
   public NonJSDocComment(SourcePosition start, SourcePosition end, String s) {
     startPosition = start;
     endPosition = end;
-    contents = s;
+    contents = Optional.of(s);
     this.endsAsLineComment = false;
     this.isInlineField = false;
   }
 
   public String getCommentString() {
-    if (contents == null) {
+    if (contents.isEmpty()) {
       return "";
     }
-    return contents;
+    return contents.get();
   }
 
   public SourcePosition getStartPosition() {

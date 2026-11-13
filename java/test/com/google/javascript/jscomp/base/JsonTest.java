@@ -58,7 +58,7 @@ public final class JsonTest {
       Outcome<SimpleJsonValue> parsed = Json.parse(document);
       assertWithMessage(document).that(parsed.isErr()).isTrue();
       assertThat(parsed.error()).isInstanceOf(SimpleJsonException.class);
-      assertThat(parsed.errorMessage()).isEqualTo("Malformed JSON");
+      assertThat(parsed.errorMessage().orElse(null)).isEqualTo("Malformed JSON");
     }
   }
 

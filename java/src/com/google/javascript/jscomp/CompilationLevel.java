@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.CompilerOptions.PropertyCollapseLevel;
 import com.google.javascript.jscomp.CompilerOptions.Reach;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -58,11 +59,11 @@ public enum CompilationLevel {
   TRANSPILE_ONLY,
   ;
 
-  public static @Nullable CompilationLevel fromString(String value) {
-    if (value == null) {
+  public static @Nullable CompilationLevel fromString(Optional<String> value) {
+    if (value.isEmpty()) {
       return null;
     }
-    return switch (value) {
+    return switch (value.get()) {
       case "BUNDLE" -> CompilationLevel.BUNDLE;
       case "WHITESPACE_ONLY", "WHITESPACE" -> CompilationLevel.WHITESPACE_ONLY;
       case "TRANSPILE_ONLY" -> CompilationLevel.TRANSPILE_ONLY;

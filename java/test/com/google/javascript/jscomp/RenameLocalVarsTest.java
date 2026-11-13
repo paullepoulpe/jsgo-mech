@@ -17,6 +17,7 @@
 package com.google.javascript.jscomp;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public final class RenameLocalVarsTest extends CompilerTestCase {
     if (nameGenerator != null) {
       return new RenameVars(
           compiler,
-          prefix,
+          Optional.ofNullable(prefix),
           true,
           false,
           false,
@@ -53,7 +54,7 @@ public final class RenameLocalVarsTest extends CompilerTestCase {
     } else {
       return new RenameVars(
           compiler,
-          prefix,
+          Optional.ofNullable(prefix),
           true,
           false,
           false,

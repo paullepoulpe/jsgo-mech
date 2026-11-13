@@ -57,6 +57,7 @@ import com.google.javascript.jscomp.lint.CheckVar;
 import com.google.javascript.jscomp.modules.ModuleMapCreator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /** Named groups of DiagnosticTypes exposed by Compiler. */
 public class DiagnosticGroups {
@@ -74,7 +75,7 @@ public class DiagnosticGroups {
   private static final Map<String, DiagnosticGroup> groupsByName = new LinkedHashMap<>();
 
   static DiagnosticGroup registerDeprecatedGroup(String name) {
-    return registerGroupDiagnosticGroup(name, new DiagnosticGroup(name, UNUSED));
+    return registerGroupDiagnosticGroup(name, new DiagnosticGroup(Optional.of(name), UNUSED));
   }
 
   /**
@@ -93,13 +94,13 @@ public class DiagnosticGroups {
   }
 
   public static DiagnosticGroup registerGroup(String name, DiagnosticType... types) {
-    DiagnosticGroup group = new DiagnosticGroup(name, types);
+    DiagnosticGroup group = new DiagnosticGroup(Optional.of(name), types);
     groupsByName.put(name, group);
     return group;
   }
 
   static DiagnosticGroup registerGroupDiagnosticGroupVarargs(String name, DiagnosticGroup... groups) {
-    DiagnosticGroup group = DiagnosticGroup.createFromGroups(name, groups);
+    DiagnosticGroup group = DiagnosticGroup.createFromGroups(Optional.of(name), groups);
     groupsByName.put(name, group);
     return group;
   }

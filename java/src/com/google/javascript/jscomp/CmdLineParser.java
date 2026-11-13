@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -70,7 +71,7 @@ public final class CmdLineParser {
     Outcome<String> getParameter(int idx);
 
     /** Returns the token at the given offset, or null if there is no such token. */
-    @Nullable String getParameterOrNull(int idx);
+    Optional<String> getParameterOrNull(int idx);
   }
 
   /** Parses the value of one occurrence of a flag. */
@@ -89,7 +90,7 @@ public final class CmdLineParser {
     private boolean hiddenField = false;
     private boolean requiredField = false;
     // What follows the name of the flag in the usage text, if anything.
-    private @Nullable String metaVariable = null;
+    private Optional<String> metaVariable = Optional.empty();
     // The current value(s), for the "(default: ...)" part of the usage text, if it is shown.
     private @Nullable Supplier<@Nullable List<?>> defaultValues = null;
     private @Nullable Handler handler = null;
@@ -137,7 +138,7 @@ public final class CmdLineParser {
 
     /** A flag that takes one argument. */
     public void string(Supplier<@Nullable String> get, Consumer<String> set) {
-      this.metaVariable = "VAL";
+      this.metaVariable = Optional.of("VAL");
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
@@ -152,7 +153,7 @@ public final class CmdLineParser {
 
     /** A flag that takes one argument and may be given several times. */
     public void stringList(Supplier<@Nullable List<String>> get, Consumer<List<String>> set) {
-      this.metaVariable = "VAL";
+      this.metaVariable = Optional.of("VAL");
       this.defaultValues = () -> get.get();
       this.handler =
           (Parameters params) -> {
@@ -170,7 +171,7 @@ public final class CmdLineParser {
      * the usage text.
      */
     public void stringEach(Consumer<String> add) {
-      this.metaVariable = "VAL";
+      this.metaVariable = Optional.of("VAL");
       this.defaultValues = null;
       this.handler =
           (Parameters params) -> {
@@ -185,7 +186,7 @@ public final class CmdLineParser {
 
     /** A flag that takes one integer argument. */
     public void integer(Supplier<@Nullable Integer> get, Consumer<Integer> set) {
-      this.metaVariable = "N";
+      this.metaVariable = Optional.of("N");
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
@@ -194,7 +195,7 @@ public final class CmdLineParser {
               return Outcome.err(tokenOutcome.error());
             }
             String token = tokenOutcome.get();
-            Integer value = JSCompStrings.parseIntOrNull(token);
+            Integer value = JSCompStrings.parseIntOrNull(Optional.of(token));
             if (value == null) {
               Outcome<String> flagName = params.getParameter(-1);
               if (flagName.isErr()) {
@@ -210,7 +211,7 @@ public final class CmdLineParser {
 
     /** A flag that takes no argument and sets the value to true. */
     public void flag(Supplier<@Nullable Boolean> get, Consumer<Boolean> set) {
-      this.metaVariable = null;
+      this.metaVariable = Optional.empty();
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
@@ -224,17 +225,17 @@ public final class CmdLineParser {
      * true, on, yes, 1, false, off, no and 0 in any letter case.
      */
     public void bool(Supplier<@Nullable Boolean> get, Consumer<Boolean> set) {
-      this.metaVariable = null;
+      this.metaVariable = Optional.empty();
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
-            String param = params.getParameterOrNull(0);
+            Optional<String> param = params.getParameterOrNull(0);
 
-            if (param == null) {
+            if (param.isEmpty()) {
               set.accept(true);
               return Outcome.ok(0);
             } else {
-              String lowerParam = Ascii.toLowerCase(param);
+              String lowerParam = Ascii.toLowerCase(param.get());
               if (TRUES.contains(lowerParam)) {
                 set.accept(true);
               } else if (FALSES.contains(lowerParam)) {
@@ -254,7 +255,7 @@ public final class CmdLineParser {
      */
     public <E extends Enum<E>> void enumValue(
         E[] values, Supplier<@Nullable E> get, Consumer<E> set) {
-      this.metaVariable = enumMetaVariable(values);
+      this.metaVariable = Optional.of(enumMetaVariable(values));
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
@@ -270,7 +271,7 @@ public final class CmdLineParser {
     /** Like {@link #enumValue}, for a flag that may be given several times. */
     public <E extends Enum<E>> void enumList(
         E[] values, Supplier<@Nullable List<E>> get, Consumer<List<E>> set) {
-      this.metaVariable = enumMetaVariable(values);
+      this.metaVariable = Optional.of(enumMetaVariable(values));
       this.defaultValues = () -> get.get();
       this.handler =
           (Parameters params) -> {
@@ -289,7 +290,7 @@ public final class CmdLineParser {
      */
     public void map(
         Supplier<@Nullable Map<String, String>> get, Consumer<Map<String, String>> set) {
-      this.metaVariable = null;
+      this.metaVariable = Optional.empty();
       this.defaultValues = () -> asList(get.get());
       this.handler =
           (Parameters params) -> {
@@ -310,14 +311,14 @@ public final class CmdLineParser {
                       owner, "An argument for setting a Map must contain a \"=\""));
             }
             String mapKey = argument.substring(0, idx);
-            String mapValue = argument.substring(idx + 1);
-            if (mapValue.length() == 0) {
-              mapValue = null;
+            Optional<String> mapValue = Optional.of(argument.substring(idx + 1));
+            if (mapValue.get().length() == 0) {
+              mapValue = Optional.empty();
             }
             if (mapKey.length() == 0) {
               return Outcome.err(new CmdLineException(owner, "A key must be set."));
             }
-            map.put(mapKey, mapValue);
+            map.put(mapKey, mapValue.orElse(null));
             return Outcome.ok(1);
           };
     }
@@ -387,16 +388,16 @@ public final class CmdLineParser {
 
     private String getNameAndMeta() {
       String str = toString();
-      if (metaVariable != null) {
+      if (metaVariable.isPresent()) {
         if (str.length() > 0) {
           str += " ";
         }
-        str += metaVariable;
+        str += metaVariable.get();
       }
       return str;
     }
 
-    private @Nullable String printDefaultValue() {
+    private Optional<String> printDefaultValue() {
       List<?> values = defaultValues.get();
       if (values != null && !values.isEmpty()) {
         StringBuilder buf = new StringBuilder();
@@ -409,9 +410,9 @@ public final class CmdLineParser {
         } else {
           buf.append(String.valueOf(values.get(0)));
         }
-        return buf.toString();
+        return Optional.of(buf.toString());
       }
-      return null;
+      return Optional.empty();
     }
   }
 
@@ -521,9 +522,9 @@ public final class CmdLineParser {
 
   private static String createDefaultValuePart(Option option) {
     if (!option.requiredField && option.defaultValues != null) {
-      String v = option.printDefaultValue();
-      if (v != null) {
-        return " (default: " + v + ")";
+      Optional<String> v = option.printDefaultValue();
+      if (v.isPresent()) {
+        return " (default: " + v.get() + ")";
       }
     }
     return "";
@@ -585,11 +586,11 @@ public final class CmdLineParser {
     }
 
     @Override
-    public @Nullable String getParameterOrNull(int idx) {
+    public Optional<String> getParameterOrNull(int idx) {
       if (pos + idx >= args.length || pos + idx < 0) {
-        return null;
+        return Optional.empty();
       }
-      return args[pos + idx];
+      return Optional.of(args[pos + idx]);
     }
 
     /** Replaces the current token {@code name=value} by {@code value}. */

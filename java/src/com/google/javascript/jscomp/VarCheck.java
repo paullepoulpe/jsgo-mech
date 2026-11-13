@@ -27,6 +27,7 @@ import com.google.javascript.rhino.StaticSourceFile;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -118,7 +119,7 @@ class VarCheck implements ScopedCallback, CompilerPass {
   VarCheck(AbstractCompiler compiler, boolean validityCheck) {
     this.compiler = compiler;
     this.strictExternCheck = compiler.getErrorLevel(
-        JSError.make("", 0, 0, UNDEFINED_EXTERN_VAR_ERROR)) == CheckLevel.ERROR;
+        JSError.make(Optional.of(""), 0, 0, UNDEFINED_EXTERN_VAR_ERROR)) == CheckLevel.ERROR;
     this.validityCheck = validityCheck;
   }
 

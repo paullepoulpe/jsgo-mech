@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,20 +37,20 @@ public class SortedDependenciesTest {
   @Test
   public void testSort() throws Exception {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a")
+        SimpleDependencyInfo.builder("a", Optional.of("a"))
             .setRequiresRequireVarargs(Require.googRequireSymbol("b"), Require.googRequireSymbol("c"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("b", "b")
+        SimpleDependencyInfo.builder("b", Optional.of("b"))
             .setProvidesStringVarargs("b")
             .setRequiresRequireVarargs(Require.googRequireSymbol("d"))
             .build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("c", "c")
+        SimpleDependencyInfo.builder("c", Optional.of("c"))
             .setProvidesStringVarargs("c")
             .setRequiresRequireVarargs(Require.googRequireSymbol("d"))
             .build();
-    SimpleDependencyInfo d = SimpleDependencyInfo.builder("d", "d").setProvidesStringVarargs("d").build();
+    SimpleDependencyInfo d = SimpleDependencyInfo.builder("d", Optional.of("d")).setProvidesStringVarargs("d").build();
 
     assertSortedInputs(ImmutableList.of(d, b, c, a), ImmutableList.of(a, b, c, d));
     assertSortedInputs(ImmutableList.of(d, b, c, a), ImmutableList.of(d, b, c, a));
@@ -65,28 +66,28 @@ public class SortedDependenciesTest {
   @Test
   public void testSort2() throws Exception {
     SimpleDependencyInfo ab =
-        SimpleDependencyInfo.builder("ab", "ab")
+        SimpleDependencyInfo.builder("ab", Optional.of("ab"))
             .setProvidesStringVarargs("a", "b")
             .setRequiresRequireVarargs(Require.googRequireSymbol("d"), Require.googRequireSymbol("f"))
             .build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("c", "c")
+        SimpleDependencyInfo.builder("c", Optional.of("c"))
             .setProvidesStringVarargs("c")
             .setRequiresRequireVarargs(Require.googRequireSymbol("h"))
             .build();
     SimpleDependencyInfo d =
-        SimpleDependencyInfo.builder("d", "d")
+        SimpleDependencyInfo.builder("d", Optional.of("d"))
             .setProvidesStringVarargs("d")
             .setRequiresRequireVarargs(Require.googRequireSymbol("e"), Require.googRequireSymbol("f"))
             .build();
     SimpleDependencyInfo ef =
-        SimpleDependencyInfo.builder("ef", "ef")
+        SimpleDependencyInfo.builder("ef", Optional.of("ef"))
             .setProvidesStringVarargs("e", "f")
             .setRequiresRequireVarargs(Require.googRequireSymbol("g"), Require.googRequireSymbol("c"))
             .build();
-    SimpleDependencyInfo g = SimpleDependencyInfo.builder("g", "g").setProvidesStringVarargs("g").build();
+    SimpleDependencyInfo g = SimpleDependencyInfo.builder("g", Optional.of("g")).setProvidesStringVarargs("g").build();
     SimpleDependencyInfo hi =
-        SimpleDependencyInfo.builder("hi", "hi").setProvidesStringVarargs("h", "i").build();
+        SimpleDependencyInfo.builder("hi", Optional.of("hi")).setProvidesStringVarargs("h", "i").build();
 
     assertSortedInputs(
         ImmutableList.of(g, hi, c, ef, d, ab), ImmutableList.of(ab, c, d, ef, g, hi));
@@ -102,17 +103,17 @@ public class SortedDependenciesTest {
   @Test
   public void testSort3() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a")
+        SimpleDependencyInfo.builder("a", Optional.of("a"))
             .setProvidesStringVarargs("a")
             .setRequiresRequireVarargs(Require.googRequireSymbol("c"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("b", "b")
+        SimpleDependencyInfo.builder("b", Optional.of("b"))
             .setProvidesStringVarargs("b")
             .setRequiresRequireVarargs(Require.googRequireSymbol("a"))
             .build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("c", "c")
+        SimpleDependencyInfo.builder("c", Optional.of("c"))
             .setProvidesStringVarargs("c")
             .setRequiresRequireVarargs(Require.googRequireSymbol("b"))
             .build();
@@ -124,7 +125,7 @@ public class SortedDependenciesTest {
   public void testSort4() throws Exception {
     // Check the degenerate case.
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a")
+        SimpleDependencyInfo.builder("a", Optional.of("a"))
             .setProvidesStringVarargs("a")
             .setRequiresRequireVarargs(Require.googRequireSymbol("a"))
             .build();
@@ -133,9 +134,9 @@ public class SortedDependenciesTest {
 
   @Test
   public void testSort5() {
-    SimpleDependencyInfo a = SimpleDependencyInfo.builder("a", "a").setProvidesStringVarargs("a").build();
-    SimpleDependencyInfo b = SimpleDependencyInfo.builder("b", "b").setProvidesStringVarargs("b").build();
-    SimpleDependencyInfo c = SimpleDependencyInfo.builder("c", "c").setProvidesStringVarargs("c").build();
+    SimpleDependencyInfo a = SimpleDependencyInfo.builder("a", Optional.of("a")).setProvidesStringVarargs("a").build();
+    SimpleDependencyInfo b = SimpleDependencyInfo.builder("b", Optional.of("b")).setProvidesStringVarargs("b").build();
+    SimpleDependencyInfo c = SimpleDependencyInfo.builder("c", Optional.of("c")).setProvidesStringVarargs("c").build();
 
     assertSortedInputs(ImmutableList.of(a, b, c), ImmutableList.of(a, b, c));
     assertSortedInputs(ImmutableList.of(c, b, a), ImmutableList.of(c, b, a));
@@ -144,22 +145,22 @@ public class SortedDependenciesTest {
   @Test
   public void testSort6() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("gin", "gin")
+        SimpleDependencyInfo.builder("gin", Optional.of("gin"))
             .setProvidesStringVarargs("gin")
             .setRequiresRequireVarargs(Require.googRequireSymbol("tonic"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("tonic", "tonic")
+        SimpleDependencyInfo.builder("tonic", Optional.of("tonic"))
             .setProvidesStringVarargs("tonic")
             .setRequiresRequireVarargs(Require.googRequireSymbol("gin2"))
             .build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("gin2", "gin2")
+        SimpleDependencyInfo.builder("gin2", Optional.of("gin2"))
             .setProvidesStringVarargs("gin2")
             .setRequiresRequireVarargs(Require.googRequireSymbol("gin"))
             .build();
     SimpleDependencyInfo d =
-        SimpleDependencyInfo.builder("gin3", "gin3")
+        SimpleDependencyInfo.builder("gin3", Optional.of("gin3"))
             .setProvidesStringVarargs("gin3")
             .setRequiresRequireVarargs(Require.googRequireSymbol("gin"))
             .build();
@@ -170,22 +171,22 @@ public class SortedDependenciesTest {
   @Test
   public void testSort7() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("gin", "gin")
+        SimpleDependencyInfo.builder("gin", Optional.of("gin"))
             .setProvidesStringVarargs("gin")
             .setRequiresRequireVarargs(Require.googRequireSymbol("tonic"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("tonic", "tonic")
+        SimpleDependencyInfo.builder("tonic", Optional.of("tonic"))
             .setProvidesStringVarargs("tonic")
             .setRequiresRequireVarargs(Require.googRequireSymbol("gin"))
             .build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("gin2", "gin2")
+        SimpleDependencyInfo.builder("gin2", Optional.of("gin2"))
             .setProvidesStringVarargs("gin2")
             .setRequiresRequireVarargs(Require.googRequireSymbol("gin"))
             .build();
     SimpleDependencyInfo d =
-        SimpleDependencyInfo.builder("gin3", "gin3")
+        SimpleDependencyInfo.builder("gin3", Optional.of("gin3"))
             .setProvidesStringVarargs("gin3")
             .setRequiresRequireVarargs(Require.googRequireSymbol("gin"))
             .build();
@@ -196,22 +197,22 @@ public class SortedDependenciesTest {
   @Test
   public void testSort8() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("A", "A")
+        SimpleDependencyInfo.builder("A", Optional.of("A"))
             .setProvidesStringVarargs("A")
             .setRequiresRequireVarargs(Require.googRequireSymbol("B"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("B", "B")
+        SimpleDependencyInfo.builder("B", Optional.of("B"))
             .setProvidesStringVarargs("B")
             .setRequiresRequireVarargs(Require.googRequireSymbol("C"))
             .build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("C", "C")
+        SimpleDependencyInfo.builder("C", Optional.of("C"))
             .setProvidesStringVarargs("C")
             .setRequiresRequireVarargs(Require.googRequireSymbol("D"))
             .build();
     SimpleDependencyInfo d =
-        SimpleDependencyInfo.builder("D", "D")
+        SimpleDependencyInfo.builder("D", Optional.of("D"))
             .setProvidesStringVarargs("D")
             .setRequiresRequireVarargs(Require.googRequireSymbol("A"))
             .build();
@@ -222,42 +223,42 @@ public class SortedDependenciesTest {
   @Test
   public void testSort9() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("A", "A")
+        SimpleDependencyInfo.builder("A", Optional.of("A"))
             .setProvidesStringVarargs("A")
             .setRequiresRequireVarargs(Require.googRequireSymbol("B"))
             .build();
     SimpleDependencyInfo a2 =
-        SimpleDependencyInfo.builder("A", "A")
+        SimpleDependencyInfo.builder("A", Optional.of("A"))
             .setProvidesStringVarargs("A")
             .setRequiresRequireVarargs(Require.googRequireSymbol("B1"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("B", "B")
+        SimpleDependencyInfo.builder("B", Optional.of("B"))
             .setProvidesStringVarargs("B")
             .setRequiresRequireVarargs(Require.googRequireSymbol("C"))
             .build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("C", "C")
+        SimpleDependencyInfo.builder("C", Optional.of("C"))
             .setProvidesStringVarargs("C")
             .setRequiresRequireVarargs(Require.googRequireSymbol("E"))
             .build();
     SimpleDependencyInfo d =
-        SimpleDependencyInfo.builder("D", "D")
+        SimpleDependencyInfo.builder("D", Optional.of("D"))
             .setProvidesStringVarargs("D")
             .setRequiresRequireVarargs(Require.googRequireSymbol("A"))
             .build();
     SimpleDependencyInfo e =
-        SimpleDependencyInfo.builder("B1", "B1")
+        SimpleDependencyInfo.builder("B1", Optional.of("B1"))
             .setProvidesStringVarargs("B1")
             .setRequiresRequireVarargs(Require.googRequireSymbol("C1"))
             .build();
     SimpleDependencyInfo f =
-        SimpleDependencyInfo.builder("C1", "C1")
+        SimpleDependencyInfo.builder("C1", Optional.of("C1"))
             .setProvidesStringVarargs("C1")
             .setRequiresRequireVarargs(Require.googRequireSymbol("D1"))
             .build();
     SimpleDependencyInfo g =
-        SimpleDependencyInfo.builder("D1", "D1")
+        SimpleDependencyInfo.builder("D1", Optional.of("D1"))
             .setProvidesStringVarargs("D1")
             .setRequiresRequireVarargs(Require.googRequireSymbol("A"))
             .build();
@@ -269,12 +270,12 @@ public class SortedDependenciesTest {
   @Test
   public void testSort10() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("A", "A")
+        SimpleDependencyInfo.builder("A", Optional.of("A"))
             .setProvidesStringVarargs("A")
             .setRequiresRequireVarargs(Require.googRequireSymbol("C"))
             .build();
-    SimpleDependencyInfo b = SimpleDependencyInfo.builder("B", "B").setProvidesStringVarargs("B").build();
-    SimpleDependencyInfo c = SimpleDependencyInfo.builder("C", "C").setProvidesStringVarargs("C").build();
+    SimpleDependencyInfo b = SimpleDependencyInfo.builder("B", Optional.of("B")).setProvidesStringVarargs("B").build();
+    SimpleDependencyInfo c = SimpleDependencyInfo.builder("C", Optional.of("C")).setProvidesStringVarargs("C").build();
 
     SortedDependencies<SimpleDependencyInfo> sorted =
         createSortedDependencies(ImmutableList.of(a, b, c));
@@ -285,12 +286,12 @@ public class SortedDependenciesTest {
   @Test
   public void testWeakSort() throws Exception {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a").setProvidesStringVarargs("a").setTypeRequiresStringVarargs("b").build();
+        SimpleDependencyInfo.builder("a", Optional.of("a")).setProvidesStringVarargs("a").setTypeRequiresStringVarargs("b").build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("b", "b").setProvidesStringVarargs("b").setTypeRequiresStringVarargs("c").build();
+        SimpleDependencyInfo.builder("b", Optional.of("b")).setProvidesStringVarargs("b").setTypeRequiresStringVarargs("c").build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("c", "c").setProvidesStringVarargs("c").setTypeRequiresStringVarargs("d").build();
-    SimpleDependencyInfo d = SimpleDependencyInfo.builder("d", "d").setProvidesStringVarargs("d").build();
+        SimpleDependencyInfo.builder("c", Optional.of("c")).setProvidesStringVarargs("c").setTypeRequiresStringVarargs("d").build();
+    SimpleDependencyInfo d = SimpleDependencyInfo.builder("d", Optional.of("d")).setProvidesStringVarargs("d").build();
 
     // The order of weak edges is based on user input.
     assertSortedWeakDeps(
@@ -309,13 +310,13 @@ public class SortedDependenciesTest {
   @Test
   public void testWeakSortIncludesStrongEdgesFromWeakSources() throws Exception {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a").setProvidesStringVarargs("a").setTypeRequiresStringVarargs("b").build();
+        SimpleDependencyInfo.builder("a", Optional.of("a")).setProvidesStringVarargs("a").setTypeRequiresStringVarargs("b").build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("b", "b")
+        SimpleDependencyInfo.builder("b", Optional.of("b"))
             .setProvidesStringVarargs("b")
             .setRequiresRequireVarargs(Require.googRequireSymbol("c"))
             .build();
-    SimpleDependencyInfo c = SimpleDependencyInfo.builder("c", "c").setProvidesStringVarargs("c").build();
+    SimpleDependencyInfo c = SimpleDependencyInfo.builder("c", Optional.of("c")).setProvidesStringVarargs("c").build();
 
     // Order is input order invariant due to the strong edge.
     assertSortedWeakDeps(ImmutableList.of(c, b), ImmutableList.of(a, b, c), ImmutableList.of(a));
@@ -326,13 +327,13 @@ public class SortedDependenciesTest {
   @Test
   public void testWeakAndStrongIsStrong() throws Exception {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a")
+        SimpleDependencyInfo.builder("a", Optional.of("a"))
             .setProvidesStringVarargs("a")
             .setRequiresRequireVarargs(Require.googRequireSymbol("c"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("b", "b").setProvidesStringVarargs("b").setTypeRequiresStringVarargs("c").build();
-    SimpleDependencyInfo c = SimpleDependencyInfo.builder("c", "c").setProvidesStringVarargs("c").build();
+        SimpleDependencyInfo.builder("b", Optional.of("b")).setProvidesStringVarargs("b").setTypeRequiresStringVarargs("c").build();
+    SimpleDependencyInfo c = SimpleDependencyInfo.builder("c", Optional.of("c")).setProvidesStringVarargs("c").build();
 
     assertSortedWeakDeps(ImmutableList.of(), ImmutableList.of(a, b, c), ImmutableList.of(a, b));
 
@@ -346,12 +347,12 @@ public class SortedDependenciesTest {
   @Test
   public void testSortCircularWeakStrongReference() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a")
+        SimpleDependencyInfo.builder("a", Optional.of("a"))
             .setProvidesStringVarargs("a")
             .setRequiresRequireVarargs(Require.googRequireSymbol("b"))
             .build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("b", "b").setProvidesStringVarargs("b").setTypeRequiresStringVarargs("a").build();
+        SimpleDependencyInfo.builder("b", Optional.of("b")).setProvidesStringVarargs("b").setTypeRequiresStringVarargs("a").build();
 
     assertSortedInputs(ImmutableList.of(b, a), ImmutableList.of(a, b));
     assertSortedInputs(ImmutableList.of(b, a), ImmutableList.of(b, a));
@@ -360,11 +361,11 @@ public class SortedDependenciesTest {
   @Test
   public void testSortCircularWeakReference() {
     SimpleDependencyInfo a =
-        SimpleDependencyInfo.builder("a", "a").setProvidesStringVarargs("a").setTypeRequiresStringVarargs("b").build();
+        SimpleDependencyInfo.builder("a", Optional.of("a")).setProvidesStringVarargs("a").setTypeRequiresStringVarargs("b").build();
     SimpleDependencyInfo b =
-        SimpleDependencyInfo.builder("b", "b").setProvidesStringVarargs("b").setTypeRequiresStringVarargs("c").build();
+        SimpleDependencyInfo.builder("b", Optional.of("b")).setProvidesStringVarargs("b").setTypeRequiresStringVarargs("c").build();
     SimpleDependencyInfo c =
-        SimpleDependencyInfo.builder("c", "c").setProvidesStringVarargs("c").setTypeRequiresStringVarargs("b").build();
+        SimpleDependencyInfo.builder("c", Optional.of("c")).setProvidesStringVarargs("c").setTypeRequiresStringVarargs("b").build();
 
     assertSortedWeakDeps(ImmutableList.of(b, c), ImmutableList.of(b, c, a), ImmutableList.of(a));
     assertSortedWeakDeps(ImmutableList.of(c, b), ImmutableList.of(c, b, a), ImmutableList.of(a));

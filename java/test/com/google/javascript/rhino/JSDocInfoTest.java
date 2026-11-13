@@ -60,6 +60,7 @@ import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.testing.TestErrorReporter;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
@@ -96,7 +97,7 @@ public class JSDocInfoTest {
     JSDocInfo info = builder.build();
 
     assertThat(info.getBaseType()).isNull();
-    assertThat(info.getDescription()).isNull();
+    assertThat(info.getDescription().orElse(null)).isNull();
     assertThat(info.getEnumParameterType()).isNull();
     assertThat(info.getParameterCount()).isEqualTo(0);
     assertThat(info.getReturnType()).isNull();
@@ -115,7 +116,7 @@ public class JSDocInfoTest {
     JSDocInfo info = builder.build();
 
     assertThat(info.getBaseType()).isNull();
-    assertThat(info.getDescription()).isNull();
+    assertThat(info.getDescription().orElse(null)).isNull();
     assertThat(info.getEnumParameterType()).isNull();
     assertThat(info.getParameterCount()).isEqualTo(0);
     assertThat(info.getReturnType()).isNull();
@@ -133,7 +134,7 @@ public class JSDocInfoTest {
     JSDocInfo info = builder.build();
 
     assertThat(info.getBaseType()).isNull();
-    assertThat(info.getDescription()).isNull();
+    assertThat(info.getDescription().orElse(null)).isNull();
     assertThat(info.getEnumParameterType()).isNull();
     assertThat(info.getParameterCount()).isEqualTo(0);
     assertType(resolve(info.getReturnType())).isEqualTo(getNativeType(STRING_TYPE));
@@ -169,7 +170,7 @@ public class JSDocInfoTest {
     JSDocInfo info = builder.build();
 
     assertType(resolve(info.getBaseType())).isEqualTo(getNativeType(NUMBER_OBJECT_TYPE));
-    assertThat(info.getDescription()).isNull();
+    assertThat(info.getDescription().orElse(null)).isNull();
     assertThat(info.getEnumParameterType()).isNull();
     assertThat(info.getParameterCount()).isEqualTo(0);
     assertType(resolve(info.getReturnType())).isEqualTo(getNativeType(STRING_TYPE));
@@ -187,7 +188,7 @@ public class JSDocInfoTest {
     JSDocInfo info = builder.build();
 
     assertThat(info.getBaseType()).isNull();
-    assertThat(info.getDescription()).isNull();
+    assertThat(info.getDescription().orElse(null)).isNull();
     assertType(resolve(info.getEnumParameterType())).isEqualTo(getNativeType(STRING_TYPE));
     assertThat(info.getParameterCount()).isEqualTo(0);
     assertThat(info.getReturnType()).isNull();
@@ -448,7 +449,7 @@ public class JSDocInfoTest {
     JSDocInfo cloned = info.clone();
 
     assertType(resolve(cloned.getBaseType())).isEqualTo(getNativeType(NUMBER_OBJECT_TYPE));
-    assertThat(cloned.getDescription()).isEqualTo("The source info");
+    assertThat(cloned.getDescription().orElse(null)).isEqualTo("The source info");
     assertType(resolve(cloned.getReturnType())).isEqualTo(getNativeType(STRING_TYPE));
     assertThat(cloned.isConstant()).isTrue();
     assertThat(cloned.isConstructor()).isTrue();
@@ -489,13 +490,13 @@ public class JSDocInfoTest {
 
     assertThat(cloned.getBaseType().getRoot()).isNotSameInstanceAs(info.getBaseType().getRoot());
     assertType(resolve(cloned.getBaseType())).isEqualTo(getNativeType(NUMBER_OBJECT_TYPE));
-    assertThat(cloned.getDescription()).isEqualTo("The source info");
+    assertThat(cloned.getDescription().orElse(null)).isEqualTo("The source info");
     assertThat(cloned.getReturnType().getRoot())
         .isNotSameInstanceAs(info.getReturnType().getRoot());
     assertType(resolve(cloned.getReturnType())).isEqualTo(getNativeType(STRING_TYPE));
-    assertThat(cloned.getParameterType("a").getRoot())
-        .isNotSameInstanceAs(info.getParameterType("a").getRoot());
-    assertType(resolve(cloned.getParameterType("a"))).isEqualTo(getNativeType(STRING_TYPE));
+    assertThat(cloned.getParameterType(Optional.of("a")).getRoot())
+        .isNotSameInstanceAs(info.getParameterType(Optional.of("a")).getRoot());
+    assertType(resolve(cloned.getParameterType(Optional.of("a")))).isEqualTo(getNativeType(STRING_TYPE));
   }
 
   @Test
@@ -506,7 +507,7 @@ public class JSDocInfoTest {
 
     JSDocInfo cloned = info.clone(true);
 
-    assertThat(cloned.getParameterType("a")).isNull();
+    assertThat(cloned.getParameterType(Optional.of("a"))).isNull();
   }
 
   /** Test names in {@code @param} get replaced */
@@ -524,11 +525,11 @@ public class JSDocInfoTest {
     JSDocInfo cloned = info.cloneAndReplaceTypeNames(mockedModuleLocals);
 
     assertThat(cloned.getParameterCount()).isEqualTo(1);
-    assertThat(cloned.getParameterNameAt(0)).isEqualTo("a");
-    assertThat(cloned.getParameterType("a"))
+    assertThat(cloned.getParameterNameAt(0).orElse(null)).isEqualTo("a");
+    assertThat(cloned.getParameterType(Optional.of("a")))
         .isNotEqualTo(jsTypeExpression); // not same reference after cloning
-    assertThat(cloned.getParameterType("a").getAllTypeNames()).doesNotContain("Item");
-    assertThat(cloned.getParameterType("a").getAllTypeNames()).doesNotContain("AnotherItem");
+    assertThat(cloned.getParameterType(Optional.of("a")).getAllTypeNames()).doesNotContain("Item");
+    assertThat(cloned.getParameterType(Optional.of("a")).getAllTypeNames()).doesNotContain("AnotherItem");
   }
 
   /** Test names in {@code @type} get replaced */

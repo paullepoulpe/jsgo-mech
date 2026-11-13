@@ -23,6 +23,7 @@ import com.google.javascript.rhino.Token;
 import com.google.re2j.Pattern;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +77,7 @@ public final class ProcessDefinesTest extends CompilerTestCase {
     CompilerOptions options = super.getOptions();
 
     options.setOutputFeatureSet(outputFeatureSet);
-    options.setEnableZonesDefineName("javascript.angular2.ENABLE_ZONES");
+    options.setEnableZonesDefineName(Optional.of("javascript.angular2.ENABLE_ZONES"));
     options.setZoneInputPattern(ZONE_INPUT_PATTERN);
     if (enableDefineWithoutGoogDefineCheck) {
       options.setWarningLevel(DiagnosticGroups.DEFINE_WITHOUT_GOOG_DEFINE, CheckLevel.ERROR);

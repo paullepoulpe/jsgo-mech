@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Java implementation of the source map parser. */
@@ -35,7 +36,7 @@ public class SourceMapObjectParser {
     Outcome<SimpleJsonValue> parsed = Json.parse(contents);
     if (parsed.isErr()) {
       return Outcome.err(
-          new SourceMapParseException("JSON parse exception: " + parsed.errorMessage()));
+          new SourceMapParseException("JSON parse exception: " + parsed.errorMessage().orElse("null")));
     }
     SimpleJsonValue sourceMapRoot = parsed.get();
     if (sourceMapRoot.kind() != SimpleJsonValue.Kind.OBJECT) {
@@ -50,7 +51,7 @@ public class SourceMapObjectParser {
     if (file.isErr()) {
       return Outcome.err(file.error());
     }
-    builder.setFile(file.get());
+    builder.setFile(Optional.ofNullable(file.get()));
     int lineCount = -1;
     if (sourceMapRoot.get("lineCount") != null) {
       Outcome<Integer> lineCountOutcome = getInt(sourceMapRoot, "lineCount");
@@ -64,12 +65,12 @@ public class SourceMapObjectParser {
     if (mappings.isErr()) {
       return Outcome.err(mappings.error());
     }
-    builder.setMappings(mappings.get());
+    builder.setMappings(Optional.ofNullable(mappings.get()));
     Outcome<@Nullable String> sourceRoot = getStringOrNull(sourceMapRoot, "sourceRoot");
     if (sourceRoot.isErr()) {
       return Outcome.err(sourceRoot.error());
     }
-    builder.setSourceRoot(sourceRoot.get());
+    builder.setSourceRoot(Optional.ofNullable(sourceRoot.get()));
 
     if (sourceMapRoot.get("sections") != null) {
       Outcome<ImmutableList<SourceMapSection>> sections =
@@ -150,7 +151,7 @@ public class SourceMapObjectParser {
           if (file.isErr()) {
             return Outcome.err(file.error());
           }
-          builder.setFile(file.get());
+          builder.setFile(Optional.ofNullable(file.get()));
         }
         case "lineCount" -> {
           Outcome<Integer> lineCount = lexer.nextInt();
@@ -164,14 +165,14 @@ public class SourceMapObjectParser {
           if (mappings.isErr()) {
             return Outcome.err(mappings.error());
           }
-          builder.setMappings(mappings.get());
+          builder.setMappings(Optional.ofNullable(mappings.get()));
         }
         case "sourceRoot" -> {
           Outcome<@Nullable String> sourceRoot = lexer.nextStringOrNull();
           if (sourceRoot.isErr()) {
             return Outcome.err(sourceRoot.error());
           }
-          builder.setSourceRoot(sourceRoot.get());
+          builder.setSourceRoot(Optional.ofNullable(sourceRoot.get()));
         }
         case "sections" -> {
           Outcome<String> rawSections = lexer.nextRawValue();
@@ -180,7 +181,7 @@ public class SourceMapObjectParser {
           }
           Outcome<SimpleJsonValue> sectionsArray = Json.parse(rawSections.get());
           if (sectionsArray.isErr()) {
-            return Outcome.err(new SourceMapParseException(sectionsArray.errorMessage()));
+            return Outcome.err(new SourceMapParseException(sectionsArray.errorMessage().orElse(null)));
           }
           Outcome<ImmutableList<SourceMapSection>> sections = buildSections(sectionsArray.get());
           if (sections.isErr()) {
@@ -217,7 +218,7 @@ public class SourceMapObjectParser {
             }
             Outcome<SimpleJsonValue> value = Json.parse(rawValue.get());
             if (value.isErr()) {
-              return Outcome.err(new SourceMapParseException(value.errorMessage()));
+              return Outcome.err(new SourceMapParseException(value.errorMessage().orElse(null)));
             }
             extensions.put(name, value.get());
           } else {

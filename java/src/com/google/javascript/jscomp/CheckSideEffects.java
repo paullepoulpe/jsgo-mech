@@ -26,6 +26,7 @@ import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -158,7 +159,7 @@ final class CheckSideEffects extends AbstractPostOrderCallback implements Compil
 
         // The name should not be defined in src scopes - only externs
         boolean isDefinedInSrc = false;
-        if (qname != null) {
+        if (!qname.isEmpty()) {
           if (n.getFirstChild().isGetProp()) {
             Node rootNameNode = NodeUtil.getRootOfQualifiedName(n.getFirstChild());
             isDefinedInSrc =
@@ -170,7 +171,7 @@ final class CheckSideEffects extends AbstractPostOrderCallback implements Compil
           }
         }
 
-        if (qname != null && noSideEffectExterns.contains(qname) && !isDefinedInSrc) {
+        if (!qname.isEmpty() && noSideEffectExterns.contains(qname) && !isDefinedInSrc) {
           problemNodes.add(n);
           if (report) {
             String msg =
@@ -233,7 +234,7 @@ final class CheckSideEffects extends AbstractPostOrderCallback implements Compil
         if (target.getString().equals(J2CL_PROTECTOR_FN)) {
           // Do not let non-J2CL code abuse it.
           checkState(
-              J2clSourceUtils.isJ2clSourceString(n.getSourceFileName()), "Only allowed for J2CL code");
+              J2clSourceUtils.isJ2clSourceString(Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty())), "Only allowed for J2CL code");
           NodeUtil.deleteFunctionCall(n, compiler);
           return;
         }

@@ -31,6 +31,7 @@ import com.google.javascript.rhino.testing.NodeSubject;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +74,7 @@ public final class RenameVarsTest extends CompilerTestCase {
       RenameVars newRenameVars =
           new RenameVars(
               compiler,
-              prefix,
+              Optional.ofNullable(prefix),
               localRenamingOnly,
               generatePseudoNames,
               preferStableNames,
@@ -87,7 +88,7 @@ public final class RenameVarsTest extends CompilerTestCase {
       RenameVars newRenameVars =
           new RenameVars(
               compiler,
-              prefix,
+              Optional.ofNullable(prefix),
               localRenamingOnly,
               generatePseudoNames,
               preferStableNames,
@@ -1178,21 +1179,21 @@ public final class RenameVarsTest extends CompilerTestCase {
     // appear in the name maps with the same name as in the code (eg,
     // 'a0' in this case).
     test(createManyVarFunction(1000), null);
-    assertThat(renameVars.getVariableMap().lookupNewName("a0")).isNull();
-    assertThat(renameVars.getVariableMap().lookupNewName("L 0")).isEqualTo("b");
+    assertThat(renameVars.getVariableMap().lookupNewName("a0").orElse(null)).isNull();
+    assertThat(renameVars.getVariableMap().lookupNewName("L 0").orElse(null)).isEqualTo("b");
     test(createManyVarFunction(1001), null);
-    assertThat(renameVars.getVariableMap().lookupNewName("a0")).isEqualTo("b");
-    assertThat(renameVars.getVariableMap().lookupNewName("L 0")).isNull();
+    assertThat(renameVars.getVariableMap().lookupNewName("a0").orElse(null)).isEqualTo("b");
+    assertThat(renameVars.getVariableMap().lookupNewName("L 0").orElse(null)).isNull();
 
     // With {@code preferStableNames} off locals should
     // unconditionally receive temporary names.
     preferStableNames = false;
     test(createManyVarFunction(1000), null);
-    assertThat(renameVars.getVariableMap().lookupNewName("a0")).isNull();
-    assertThat(renameVars.getVariableMap().lookupNewName("L 0")).isEqualTo("b");
+    assertThat(renameVars.getVariableMap().lookupNewName("a0").orElse(null)).isNull();
+    assertThat(renameVars.getVariableMap().lookupNewName("L 0").orElse(null)).isEqualTo("b");
     test(createManyVarFunction(1001), null);
-    assertThat(renameVars.getVariableMap().lookupNewName("a0")).isNull();
-    assertThat(renameVars.getVariableMap().lookupNewName("L 0")).isEqualTo("b");
+    assertThat(renameVars.getVariableMap().lookupNewName("a0").orElse(null)).isNull();
+    assertThat(renameVars.getVariableMap().lookupNewName("L 0").orElse(null)).isEqualTo("b");
   }
 
   private static String createManyVarFunction(int numVars) {
@@ -1238,7 +1239,7 @@ public final class RenameVarsTest extends CompilerTestCase {
       renameVars =
           new RenameVars(
               compiler,
-              prefix,
+              Optional.ofNullable(prefix),
               false,
               false,
               false,

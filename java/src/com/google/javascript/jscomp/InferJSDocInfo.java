@@ -24,6 +24,7 @@ import com.google.javascript.rhino.jstype.FunctionType;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.ObjectType;
 import com.google.javascript.rhino.jstype.Property;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -179,7 +180,7 @@ class InferJSDocInfo extends AbstractPostOrderCallback implements CompilerPass {
 
     ObjectType objType = dereferenced(inferredType);
     if (shouldAttachJSDocToNominalTypeOrShape(objType, aliasedType)) {
-      attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, n.getString());
+      attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, Optional.of(n.getString()));
     }
   }
 
@@ -265,7 +266,7 @@ class InferJSDocInfo extends AbstractPostOrderCallback implements CompilerPass {
 
     ObjectType propType = dereferenced(lhsType.getPropertyType(propName));
     if (shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType)) {
-      attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, n.getQualifiedName());
+      attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional.of(n.getQualifiedName()).filter(s -> !s.isEmpty()));
     }
   }
 
@@ -296,7 +297,7 @@ class InferJSDocInfo extends AbstractPostOrderCallback implements CompilerPass {
 
   /** Handle cases #1 and #3 in the class doc. */
   private static void attachJSDocInfoToNominalTypeOrShape(
-      ObjectType objType, JSDocInfo docInfo, @Nullable String qName) {
+      ObjectType objType, JSDocInfo docInfo, Optional<String> qName) {
 
     if (objType.isConstructor() || objType.isInterface()) {
       if (!isReferenceNameOf(objType, qName)) {
@@ -323,7 +324,7 @@ class InferJSDocInfo extends AbstractPostOrderCallback implements CompilerPass {
     }
   }
 
-  private static boolean isReferenceNameOf(ObjectType type, String name) {
+  private static boolean isReferenceNameOf(ObjectType type, Optional<String> name) {
     return type.hasReferenceName() && type.getReferenceName().equals(name);
   }
 }

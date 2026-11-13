@@ -39,12 +39,12 @@
 
 package com.google.javascript.rhino.jstype;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -69,7 +69,7 @@ import org.jspecify.annotations.Nullable;
  */
 public final class NoResolvedType extends ObjectType {
   /** The name originally used to reference this type. */
-  private final String referenceName;
+  private final Optional<String> referenceName;
 
   /**
    * Any template arguments to this type, or {@code null} if none. This field is not used for
@@ -80,7 +80,7 @@ public final class NoResolvedType extends ObjectType {
   NoResolvedType(
       JSTypeRegistry registry, String referenceName, ImmutableList<JSType> templateTypes) {
     super(registry);
-    this.referenceName = checkNotNull(referenceName);
+    this.referenceName = Optional.ofNullable(referenceName);
     this.templateTypes = templateTypes;
     this.eagerlyResolveToSelf();
   }
@@ -91,7 +91,7 @@ public final class NoResolvedType extends ObjectType {
   }
 
   @Override
-  public @Nullable String getReferenceName() {
+  public Optional<String> getReferenceName() {
     return referenceName;
   }
 
@@ -145,6 +145,6 @@ public final class NoResolvedType extends ObjectType {
 
   @Override
   void appendTo(TypeStringBuilder sb) {
-    sb.append(sb.isForAnnotations() ? "?" : "NoResolvedType<" + referenceName + ">");
+    sb.append(sb.isForAnnotations() ? "?" : "NoResolvedType<" + referenceName.orElse("null") + ">");
   }
 }

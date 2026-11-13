@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -208,10 +209,10 @@ class ExtractPrototypeMemberDeclarations implements CompilerPass {
    */
   private void extractInstance(ExtractionInstance instance, String alias) {
     PrototypeMemberDeclaration first = instance.declarations.get(0);
-    String className = first.qualifiedClassName;
+    Optional<String> className = first.qualifiedClassName;
     if (pattern == Pattern.USE_GLOBAL_TEMP || pattern == Pattern.USE_CHUNK_TEMP) {
       // Use the temp variable to hold the prototype.
-      Node classNameNode = NodeUtil.newQName(compiler, className);
+      Node classNameNode = NodeUtil.newQName(compiler, className.get());
       classNameNode.putBooleanProp(Node.IS_CONSTANT_NAME, first.constant);
       Node stmt =
           IR.exprResult(IR.assign(IR.name(alias), IR.getprop(classNameNode, "prototype")))
@@ -227,7 +228,7 @@ class ExtractPrototypeMemberDeclarations implements CompilerPass {
           IR.call(
               func,
               NodeUtil.newQName(
-                  compiler, className + ".prototype", instance.parent, className + ".prototype"));
+                  compiler, className.orElse("null") + ".prototype", instance.parent, className.orElse("null") + ".prototype"));
       call.putIntProp(Node.FREE_CALL, 1);
 
       Node stmt = IR.exprResult(call);
@@ -259,7 +260,7 @@ class ExtractPrototypeMemberDeclarations implements CompilerPass {
     // declar.lhs = x.prototype.y so first child of the first child is 'x'.
     Node accessNode = declar.lhs.getFirstFirstChild();
     String originalName = accessNode.getOriginalName();
-    String className = originalName != null ? originalName : "?";
+    String className = !originalName.isEmpty() ? originalName : "?";
     name.getFirstChild().srcrefTree(lhs);
     name.putBooleanProp(Node.IS_CONSTANT_NAME, lhs.getBooleanProp(Node.IS_CONSTANT_NAME));
     name.getFirstChild().setOriginalName(className + ".prototype");
@@ -379,7 +380,7 @@ class ExtractPrototypeMemberDeclarations implements CompilerPass {
   private static class PrototypeMemberDeclaration {
     final String memberName;
     final Node node;
-    final String qualifiedClassName;
+    final Optional<String> qualifiedClassName;
     final Node lhs;
     final boolean constant;
 
@@ -389,7 +390,7 @@ class ExtractPrototypeMemberDeclarations implements CompilerPass {
       this.memberName = NodeUtil.getPrototypePropertyName(lhs);
       this.node = node;
       Node classNode = getPrototypeClassName(lhs);
-      this.qualifiedClassName = classNode.getQualifiedName();
+      this.qualifiedClassName = Optional.of(classNode.getQualifiedName()).filter(s -> !s.isEmpty());
       this.constant = classNode.getBooleanProp(Node.IS_CONSTANT_NAME);
     }
 

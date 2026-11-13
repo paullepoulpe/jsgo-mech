@@ -46,6 +46,7 @@ import com.google.javascript.rhino.ErrorReporter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 
 /**
  * An error reporter for testing that verifies that messages reported to the reporter are expected.
@@ -60,13 +61,13 @@ public final class TestErrorReporter implements ErrorReporter {
   private final LinkedHashMap<String, String> seenWarnings = new LinkedHashMap<>();
 
   @Override
-  public void error(String message, String sourceName, int line, int lineOffset) {
-    seenErrors.put(fmtDiagnosticKey(message, sourceName, line, lineOffset), message);
+  public void error(String message, Optional<String> sourceName, int line, int lineOffset) {
+    seenErrors.put(fmtDiagnosticKey(message, sourceName.orElse(null), line, lineOffset), message);
   }
 
   @Override
-  public void warning(String message, String sourceName, int line, int lineOffset) {
-    seenWarnings.put(fmtDiagnosticKey(message, sourceName, line, lineOffset), message);
+  public void warning(String message, Optional<String> sourceName, int line, int lineOffset) {
+    seenWarnings.put(fmtDiagnosticKey(message, sourceName.orElse(null), line, lineOffset), message);
   }
 
   @CanIgnoreReturnValue

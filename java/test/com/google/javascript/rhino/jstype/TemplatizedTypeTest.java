@@ -43,6 +43,7 @@ import static com.google.javascript.rhino.testing.TypeSubject.assertType;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -181,7 +182,7 @@ public class TemplatizedTypeTest extends BaseJSTypeTestCase {
 
     final NamedType resolvedNamedUnknown;
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
-      resolvedNamedUnknown = this.registry.createNamedType(null, "Y", "", -1, -1);
+      resolvedNamedUnknown = this.registry.createNamedType(null, "Y", Optional.of(""), -1, -1);
       resolvedNamedUnknown.setReferencedType(UNKNOWN_TYPE);
     }
     JSType templatizedResolvedNamedUnknownUnknown =
@@ -191,7 +192,7 @@ public class TemplatizedTypeTest extends BaseJSTypeTestCase {
     assertType(rawType).isEqualTo(templatizedResolvedNamedUnknownUnknown);
 
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
-      NamedType unresolvedNamedUnknown = this.registry.createNamedType(null, "Y", "", -1, -1);
+      NamedType unresolvedNamedUnknown = this.registry.createNamedType(null, "Y", Optional.of(""), -1, -1);
       unresolvedNamedUnknown.setReferencedType(UNKNOWN_TYPE);
 
       JSType templatizedUnresolvedNamedUnknownUnknown =

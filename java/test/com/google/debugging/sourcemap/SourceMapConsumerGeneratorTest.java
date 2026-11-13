@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
@@ -118,7 +119,7 @@ public final class SourceMapConsumerGeneratorTest {
       sourceFileLineNumber++;
     }
     StringBuilder sourcemap = new StringBuilder();
-    generator.appendTo(sourcemap, "test");
+    generator.appendTo(sourcemap, Optional.of("test"));
     return sourcemap.toString();
   }
 

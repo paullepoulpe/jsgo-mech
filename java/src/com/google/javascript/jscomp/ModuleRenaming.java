@@ -31,6 +31,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.jstype.JSType;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Centralized location for determining how to rename modules. */
@@ -46,14 +47,14 @@ final class ModuleRenaming {
 
   /** Returns the global name of a variable declared in an ES module. */
   static QualifiedName getGlobalNameOfEsModuleLocalVariable(
-      ModuleMetadata moduleMetadata, String variableName) {
+      ModuleMetadata moduleMetadata, Optional<String> variableName) {
     return QualifiedName.of(
-        variableName + "$$" + getGlobalName(moduleMetadata, /* googNamespace= */ null).join());
+        variableName.orElse("null") + "$$" + getGlobalName(moduleMetadata, /* googNamespace= */ Optional.empty()).join().orElse("null"));
   }
 
   /** Returns the global name of the anonymous default export for the given module. */
   static QualifiedName getGlobalNameOfAnonymousDefaultExport(ModuleMetadata moduleMetadata) {
-    return getGlobalNameOfEsModuleLocalVariable(moduleMetadata, DEFAULT_EXPORT_VAR_PREFIX);
+    return getGlobalNameOfEsModuleLocalVariable(moduleMetadata, Optional.of(DEFAULT_EXPORT_VAR_PREFIX));
   }
 
   /**
@@ -63,20 +64,20 @@ final class ModuleRenaming {
    * @return the global, qualified name to rewrite any references to this module to
    */
   static QualifiedName getGlobalName(
-      ModuleMetadata moduleMetadata, @Nullable String googNamespace) {
+      ModuleMetadata moduleMetadata, Optional<String> googNamespace) {
     return GlobalizedModuleName.create(moduleMetadata, googNamespace, null).aliasName();
   }
 
   /** Returns the post-transpilation, globalized name of the export. */
   static QualifiedName getGlobalNameExport(Export export) {
     if (export.moduleMetadata().isEs6Module()) {
-      if (export.localName().equals(Export.DEFAULT_EXPORT_NAME)) {
+      if (export.localName().get().equals(Export.DEFAULT_EXPORT_NAME)) {
         return getGlobalNameOfAnonymousDefaultExport(export.moduleMetadata());
       }
       return getGlobalNameOfEsModuleLocalVariable(export.moduleMetadata(), export.localName());
     }
     return getGlobalName(export.moduleMetadata(), export.closureNamespace())
-        .getprop(export.exportName());
+        .getprop(export.exportName().get());
   }
 
   /** Returns the post-transpilation, globalized name of the binding. */
@@ -123,7 +124,7 @@ final class ModuleRenaming {
    * return something like "baz$$module$bar", whereas if this method were called for just "foo.bar"
    * it would return "module$bar", as it refers to a module object itself.
    */
-  static String getGlobalNameForJsDoc(
+  static Optional<String> getGlobalNameForJsDoc(
       ModuleMap moduleMap, Binding binding, List<String> propertyChain) {
     int prop = 0;
 
@@ -207,20 +208,20 @@ final class ModuleRenaming {
      */
     static GlobalizedModuleName create(
         ModuleMetadata moduleMetadata,
-        @Nullable String googNamespace,
+        Optional<String> googNamespace,
         @Nullable TypedScope globalTypedScope) {
-      checkState(googNamespace == null || moduleMetadata.googNamespaces().contains(googNamespace));
+      checkState(googNamespace.isEmpty() || moduleMetadata.googNamespaces().contains(googNamespace.get()));
       switch (moduleMetadata.moduleType()) {
         case GOOG_MODULE -> {
           // The exported type is stored on the MODULE_BODY node.
           Node moduleBody = moduleMetadata.rootNode().getFirstChild();
           return new GlobalizedModuleName(
-              QualifiedName.of(ClosureRewriteModule.getBinaryModuleNamespace(googNamespace)),
+              QualifiedName.of(ClosureRewriteModule.getBinaryModuleNamespace(googNamespace.get())),
               moduleBody.getJSType());
         }
         case GOOG_PROVIDE, LEGACY_GOOG_MODULE -> {
           return new GlobalizedModuleName(
-              QualifiedName.of(googNamespace), getNameRootType(googNamespace, globalTypedScope));
+              QualifiedName.of(googNamespace.get()), getNameRootType(googNamespace.get(), globalTypedScope));
         }
         case ES6_MODULE, COMMON_JS -> {
           return new GlobalizedModuleName(

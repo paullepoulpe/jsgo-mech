@@ -23,6 +23,7 @@ import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /** Used to print a map from diagnostic id to suppression. */
@@ -95,7 +96,7 @@ public final class DiagnosticToSuppressionMapper {
     writer.setSerializeNulls(false);
     writer.beginObject();
     for (Map.Entry<String, String> entry : diagnosticToSuppression.entrySet()) {
-      writer.name(entry.getKey()).stringValue(entry.getValue());
+      writer.name(entry.getKey()).stringValue(Optional.ofNullable(entry.getValue()));
     }
     writer.endObject();
     Io.stdout().println(writer.toString());

@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -254,7 +255,7 @@ public abstract class RegExpTree {
         int start = pos;
         ++pos;
         ParentheticalType type;
-        String captureName = null;
+        Optional<String> captureName = Optional.empty();
         if (pos < limit && pattern.charAt(pos) == '?') {
           if (pos + 1 < limit) {
             char ch = pattern.charAt(pos + 1);
@@ -283,8 +284,8 @@ public abstract class RegExpTree {
                   type = ParentheticalType.NEGATIVE_LOOKBEHIND;
                 } else {
                   pos += 2;
-                  captureName = scanNamedGroupName();
-                  capturingGroupNames.add(captureName);
+                  captureName = Optional.of(scanNamedGroupName());
+                  capturingGroupNames.add(captureName.orElse(null));
                   type = ParentheticalType.NAMED_GROUPS;
                 }
               }
@@ -327,9 +328,9 @@ public abstract class RegExpTree {
             return new LookbehindAssertion(body, false);
           }
           case NAMED_GROUPS -> {
-            if (captureName != null) {
+            if (captureName.isPresent()) {
               ++numCapturingGroups;
-              return new NamedCaptureGroup(body, captureName);
+              return new NamedCaptureGroup(body, captureName.get());
             } else {
               throw new IllegalArgumentException(
                   "Malformed named capture group: " + pattern.substring(start));
@@ -522,7 +523,7 @@ public abstract class RegExpTree {
             if (pos < limit && ch == '}') {
               // Case of shorthand like /\p{ASCII_Hex_Digit}/u
               ++pos;
-              return new UnicodePropertyEscape(null, lhs.toString(), negated);
+              return new UnicodePropertyEscape(Optional.empty(), lhs.toString(), negated);
             } else if (pos < limit && ch == '=') {
               // Case of having '=' like /\p{Script=Greek}/u
               StringBuilder rhs = new StringBuilder();
@@ -542,7 +543,7 @@ public abstract class RegExpTree {
               }
               if (pos < limit && ch == '}') {
                 ++pos;
-                return new UnicodePropertyEscape(lhs.toString(), rhs.toString(), negated);
+                return new UnicodePropertyEscape(Optional.of(lhs.toString()), rhs.toString(), negated);
               } else {
                 throw new IllegalArgumentException(
                     "Malformed Unicode Property Escape: expected '}' after "
@@ -710,11 +711,11 @@ public abstract class RegExpTree {
             pos = end + 1;
             int comma = counts.indexOf(',');
             Integer parsedMin =
-                JSCompStrings.parseIntOrNull(comma >= 0 ? counts.substring(0, comma) : counts);
+                JSCompStrings.parseIntOrNull(comma >= 0 ? Optional.of(counts.substring(0, comma)) : Optional.of(counts));
             Integer parsedMax =
                 comma >= 0
                     ? comma + 1 != counts.length()
-                        ? JSCompStrings.parseIntOrNull(counts.substring(comma + 1))
+                        ? JSCompStrings.parseIntOrNull(Optional.of(counts.substring(comma + 1)))
                         : (Integer) Integer.MAX_VALUE
                     : parsedMin;
             if (parsedMin == null || parsedMax == null) {
@@ -1690,14 +1691,14 @@ public abstract class RegExpTree {
   /** Represents a Unicode Property Escape such as in /\p{Script=Greek}/u */
   public static final class UnicodePropertyEscape extends RegExpTreeAtom {
 
-    private final String propertyName;
+    private final Optional<String> propertyName;
     private final String propertyValue;
     private final boolean negated;
 
-    UnicodePropertyEscape(@Nullable String propertyName, String propertyValue, boolean negated) {
+    UnicodePropertyEscape(Optional<String> propertyName, String propertyValue, boolean negated) {
       checkState(propertyValue != null);
       checkArgument(
-          propertyName == null || !propertyName.isEmpty(),
+          propertyName.isEmpty() || !propertyName.get().isEmpty(),
           "if '=' is present in a unicode property escape, the name cannot be empty");
       checkArgument(!propertyValue.isEmpty(), "unicode property escape value cannot be empty");
       this.propertyName = propertyName;
@@ -1713,8 +1714,8 @@ public abstract class RegExpTree {
     @Override
     protected void appendSourceCode(StringBuilder sb) {
       sb.append(negated ? "\\P{" : "\\p{");
-      if (propertyName != null) {
-        sb.append(propertyName);
+      if (propertyName.isPresent()) {
+        sb.append(propertyName.get());
         sb.append('=');
       }
       sb.append(propertyValue);
@@ -1730,13 +1731,13 @@ public abstract class RegExpTree {
     public boolean equals(Object o) {
       return (o instanceof UnicodePropertyEscape unicodePropertyEscape)
           && negated == unicodePropertyEscape.negated
-          && Objects.equals(propertyName, unicodePropertyEscape.propertyName)
+          && propertyName.equals(unicodePropertyEscape.propertyName)
           && Objects.equals(propertyValue, unicodePropertyEscape.propertyValue);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(negated, propertyName, propertyValue);
+      return Objects.hash(negated, propertyName.orElse(null), propertyValue);
     }
   }
 

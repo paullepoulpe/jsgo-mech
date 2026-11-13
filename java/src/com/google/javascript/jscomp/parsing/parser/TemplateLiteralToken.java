@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.parsing.parser;
 
 import com.google.javascript.jscomp.parsing.parser.util.SourcePosition;
 import com.google.javascript.jscomp.parsing.parser.util.SourceRange;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A token representing a javascript template literal substring.
@@ -29,7 +28,7 @@ import org.jspecify.annotations.Nullable;
  * tagged template literals. The scanner does not know if it's in a tagged or untagged template lit.
  */
 public class TemplateLiteralToken extends LiteralToken {
-  public final @Nullable String errorMessage;
+  public final String errorMessage;
   public final SourcePosition errorPosition;
   public final ErrorLevel errorLevel;
 

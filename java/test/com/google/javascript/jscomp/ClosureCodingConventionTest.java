@@ -26,6 +26,7 @@ import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.FunctionType;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.JSTypeResolver;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -89,13 +90,13 @@ public final class ClosureCodingConventionTest {
 
   @Test
   public void testEnumKey() {
-    assertThat(conv.isValidEnumKey("A")).isTrue();
-    assertThat(conv.isValidEnumKey("123")).isTrue();
-    assertThat(conv.isValidEnumKey("FOO_BAR")).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("A"))).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("123"))).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("FOO_BAR"))).isTrue();
 
-    assertThat(conv.isValidEnumKey("a")).isTrue();
-    assertThat(conv.isValidEnumKey("someKeyInCamelCase")).isTrue();
-    assertThat(conv.isValidEnumKey("_FOO_BAR")).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("a"))).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("someKeyInCamelCase"))).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("_FOO_BAR"))).isTrue();
   }
 
   @Test
@@ -279,12 +280,12 @@ public final class ClosureCodingConventionTest {
 
   private void assertRequire(String code) {
     Node n = parseTestCode(code);
-    assertThat(conv.extractClassNameIfRequire(n.getFirstChild(), n)).isNotNull();
+    assertThat(conv.extractClassNameIfRequire(n.getFirstChild(), n).orElse(null)).isNotNull();
   }
 
   private void assertNotRequire(String code) {
     Node n = parseTestCode(code);
-    assertThat(conv.extractClassNameIfRequire(n.getFirstChild(), n)).isNull();
+    assertThat(conv.extractClassNameIfRequire(n.getFirstChild(), n).orElse(null)).isNull();
   }
 
   private void assertNotObjectLiteralCast(String code) {
@@ -306,8 +307,8 @@ public final class ClosureCodingConventionTest {
     Node n = parseTestCode(code);
     SubclassRelationship classes = conv.getClassesDefinedByCall(n.getFirstChild());
     assertThat(classes).isNotNull();
-    assertThat(classes.subclassName).isEqualTo(subclassName);
-    assertThat(classes.superclassName).isEqualTo(superclassName);
+    assertThat(classes.subclassName.orElse(null)).isEqualTo(subclassName);
+    assertThat(classes.superclassName.orElse(null)).isEqualTo(superclassName);
   }
 
   private void assertCachingCall(String code) {

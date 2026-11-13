@@ -53,6 +53,7 @@ import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Outcome;
 import com.google.javascript.rhino.jstype.EqualityChecker.EqMethod;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -127,16 +128,16 @@ public abstract class JSType {
    *
    * @return the display name of the type, or null if one is not available
    */
-  public String getDisplayName() {
-    return null;
+  public Optional<String> getDisplayName() {
+    return Optional.empty();
   }
 
   /**
    * @return true if the JSType has a user meaningful label.
    */
   public boolean hasDisplayName() {
-    String displayName = getDisplayName();
-    return displayName != null && !displayName.isEmpty();
+    Optional<String> displayName = getDisplayName();
+    return displayName.isPresent() && !displayName.get().isEmpty();
   }
 
   /** A tristate value returned from canPropertyBeDefined. */
@@ -1610,7 +1611,6 @@ public abstract class JSType {
     Node getSource();
 
     /** The ID of the goog.module in which this type was declared. */
-    @Nullable
     String getGoogModuleId();
   }
 

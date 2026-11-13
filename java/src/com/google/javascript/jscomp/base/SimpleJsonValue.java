@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -112,7 +113,7 @@ public final class SimpleJsonValue {
    */
   public Outcome<Integer> asInt() {
     Integer parsed =
-        tag == Kind.STRING || tag == Kind.NUMBER ? JSCompStrings.parseIntOrNull(text) : null;
+        tag == Kind.STRING || tag == Kind.NUMBER ? JSCompStrings.parseIntOrNull(Optional.of(text)) : null;
     if (parsed == null && tag == Kind.NUMBER) {
       parsed = wrapToInt(text);
     }
@@ -167,9 +168,9 @@ public final class SimpleJsonValue {
         }
         writer.endArray();
       }
-      case STRING -> writer.stringValue(text);
+      case STRING -> writer.stringValue(Optional.of(text));
       case NULL -> writer.nullValue();
-      case NUMBER, BOOLEAN -> writer.rawValue(text);
+      case NUMBER, BOOLEAN -> writer.rawValue(Optional.of(text));
     }
   }
 

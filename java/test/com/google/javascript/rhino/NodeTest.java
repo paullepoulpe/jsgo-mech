@@ -51,6 +51,7 @@ import com.google.javascript.rhino.jstype.JSTypeNative;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.testing.TestErrorReporter;
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -693,8 +694,8 @@ public class NodeTest {
     Node string = Node.newString(new String("a"));
     assertThat(string.cloneNode().getString()).isSameInstanceAs(string.getString());
 
-    Node template = Node.newTemplateLitString(new String("a"), new String("b"));
-    assertThat(template.cloneNode().getCookedString()).isSameInstanceAs(template.getCookedString());
+    Node template = Node.newTemplateLitString(Optional.ofNullable(new String("a")), new String("b"));
+    assertThat(template.cloneNode().getCookedString().orElse(null)).isSameInstanceAs(template.getCookedString().orElse(null));
     assertThat(template.cloneNode().getRawString()).isSameInstanceAs(template.getRawString());
 
     Node bigint = Node.newBigInt(new BigInteger("100"));
@@ -924,14 +925,14 @@ public class NodeTest {
 
   @Test
   public void testQualifiedName() {
-    assertThat(IR.name("").getQualifiedName()).isNull();
+    assertThat(IR.name("").getQualifiedName()).isEmpty();
     assertThat(IR.name("a").getQualifiedName()).isEqualTo("a");
     assertThat(IR.thisNode().getQualifiedName()).isEqualTo("this");
     assertThat(IR.superNode().getQualifiedName()).isEqualTo("super");
     assertThat(IR.getprop(IR.name("a"), "b").getQualifiedName()).isEqualTo("a.b");
     assertThat(IR.getprop(IR.thisNode(), "b").getQualifiedName()).isEqualTo("this.b");
     assertThat(IR.getprop(IR.superNode(), "b").getQualifiedName()).isEqualTo("super.b");
-    assertThat(IR.getprop(IR.call(IR.name("a")), "b").getQualifiedName()).isNull();
+    assertThat(IR.getprop(IR.call(IR.name("a")), "b").getQualifiedName()).isEmpty();
   }
 
   @Test
@@ -1104,7 +1105,7 @@ public class NodeTest {
     assertThat(replacement3.getSourceFileName()).isEqualTo("replacement.js");
     assertThat(child.getLineno()).isEqualTo(-1);
     assertThat(child.getCharno()).isEqualTo(-1);
-    assertThat(child.getSourceFileName()).isNull();
+    assertThat(child.getSourceFileName()).isEmpty();
   }
 
   @Test

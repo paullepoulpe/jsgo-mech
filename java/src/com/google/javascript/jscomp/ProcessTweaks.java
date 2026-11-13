@@ -29,6 +29,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -95,27 +96,27 @@ class ProcessTweaks implements CompilerPass {
     GET_STRING("goog.tweak.getString", REGISTER_STRING);
 
     final String nameField;
-    final String expectedTypeName;
+    final Optional<String> expectedTypeName;
     final Token validNodeTypeA;
     final Token validNodeTypeB;
     final TweakFunction registerFunction;
 
     TweakFunction(String name, String expectedTypeName, Token validNodeTypeA) {
-      this(name, expectedTypeName, validNodeTypeA, Token.EMPTY, null);
+      this(name, Optional.of(expectedTypeName), validNodeTypeA, Token.EMPTY, null);
     }
 
     TweakFunction(
         String name, String expectedTypeName, Token validNodeTypeA, Token validNodeTypeB) {
-      this(name, expectedTypeName, validNodeTypeA, validNodeTypeB, null);
+      this(name, Optional.of(expectedTypeName), validNodeTypeA, validNodeTypeB, null);
     }
 
     TweakFunction(String name, TweakFunction registerFunction) {
-      this(name, null, Token.EMPTY, Token.EMPTY, registerFunction);
+      this(name, Optional.empty(), Token.EMPTY, Token.EMPTY, registerFunction);
     }
 
     TweakFunction(
         String name,
-        @Nullable String expectedTypeName,
+        Optional<String> expectedTypeName,
         Token validNodeTypeA,
         Token validNodeTypeB,
         @Nullable TweakFunction registerFunction) {
@@ -143,7 +144,7 @@ class ProcessTweaks implements CompilerPass {
       return nameField;
     }
 
-    String getExpectedTypeName() {
+    Optional<String> getExpectedTypeName() {
       return expectedTypeName;
     }
 
@@ -351,7 +352,7 @@ class ProcessTweaks implements CompilerPass {
                     INVALID_TWEAK_DEFAULT_VALUE_WARNING,
                     tweakId,
                     registerFunc.getName(),
-                    registerFunc.getExpectedTypeName()));
+                    registerFunc.getExpectedTypeName().orElse("null")));
           }
         } else if (tweakFunc.isGetterFunction()) {
           // For getter calls, ensure the correct getter was used.

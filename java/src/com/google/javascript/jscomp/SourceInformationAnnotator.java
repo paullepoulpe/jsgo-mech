@@ -19,7 +19,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.javascript.rhino.Node;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Annotates nodes with information from their original input file before the compiler performs work
@@ -35,15 +35,15 @@ import org.jspecify.annotations.Nullable;
  * </ul>
  */
 public final class SourceInformationAnnotator extends NodeTraversal.AbstractPostOrderCallback {
-  private final @Nullable String sourceFileToCheck;
+  private final Optional<String> sourceFileToCheck;
 
-  private SourceInformationAnnotator(@Nullable String sourceFileToCheck) {
+  private SourceInformationAnnotator(Optional<String> sourceFileToCheck) {
     this.sourceFileToCheck = sourceFileToCheck;
   }
 
   /** Returns an annotator that sets the original name of nodes */
   static SourceInformationAnnotator create() {
-    return new SourceInformationAnnotator(null);
+    return new SourceInformationAnnotator(Optional.empty());
   }
 
   /**
@@ -51,14 +51,14 @@ public final class SourceInformationAnnotator extends NodeTraversal.AbstractPost
    * is accurate
    */
   static SourceInformationAnnotator createWithAnnotationChecks(String sourceFile) {
-    return new SourceInformationAnnotator(sourceFile);
+    return new SourceInformationAnnotator(Optional.of(sourceFile));
   }
 
   @Override
   public void visit(NodeTraversal t, Node n, Node parent) {
     // Verify the source file is annotated.
-    if (sourceFileToCheck != null) {
-      checkState(sourceFileToCheck.equals(n.getSourceFileName()));
+    if (sourceFileToCheck.isPresent()) {
+      checkState(sourceFileToCheck.get().equals(n.getSourceFileName()));
     }
 
     // Annotate the original name.
@@ -68,9 +68,9 @@ public final class SourceInformationAnnotator extends NodeTraversal.AbstractPost
     }
 
     if (n.isFunction()) {
-        String functionName = NodeUtil.getNearestFunctionName(n);
-        if (functionName != null) {
-          setOriginalNameString(n, functionName);
+        Optional<String> functionName = NodeUtil.getNearestFunctionName(n);
+        if (functionName.isPresent()) {
+          setOriginalNameString(n, functionName.get());
         }
     }
   }
@@ -89,7 +89,7 @@ public final class SourceInformationAnnotator extends NodeTraversal.AbstractPost
   }
 
   private static void setOriginalNameString(Node n, String name) {
-    if (!name.isEmpty() && n.getOriginalName() == null) {
+    if (!name.isEmpty() && n.getOriginalName().isEmpty()) {
       n.setOriginalName(name);
     }
   }
@@ -97,7 +97,7 @@ public final class SourceInformationAnnotator extends NodeTraversal.AbstractPost
   // Set the original name from the "getString" of the supplied node.
   // This avoids having to check for if the string is interned.
   private static void setOriginalName(Node n, Node name) {
-    if (!name.getString().isEmpty() && n.getOriginalName() == null) {
+    if (!name.getString().isEmpty() && n.getOriginalName().isEmpty()) {
       n.setOriginalNameFromName(name);
     }
   }

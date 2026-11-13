@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -157,7 +156,6 @@ public class RewritePolyfills implements CompilerPass {
   private void injectAll(Iterable<String> librariesToInject, boolean forceInjection) {
     Node lastNode = null;
     for (String library : librariesToInject) {
-      checkNotNull(library);
       checkState(!library.isEmpty(), "unexpected empty library");
       lastNode = runtimeJsLibManager.ensureLibraryInjected(library, forceInjection);
     }

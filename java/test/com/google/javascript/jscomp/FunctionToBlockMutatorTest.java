@@ -21,6 +21,7 @@ import static com.google.javascript.rhino.testing.NodeSubject.assertNode;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -379,7 +380,7 @@ public final class FunctionToBlockMutatorTest {
     Method tester =
         (NodeTraversal t, Node n, Node parent) -> {
           Node result =
-              mutator.mutate(fnName, fnNode, n, resultName, needsDefaultResult, isCallInLoop);
+              mutator.mutate(fnName, fnNode, n, Optional.ofNullable(resultName), needsDefaultResult, isCallInLoop);
           validateSourceInfo(compiler, result);
           assertNode(result).usingSerializer(compiler::toSource).isEqualToNode(expected);
 

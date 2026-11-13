@@ -16,6 +16,7 @@
 
 package com.google.javascript.jscomp.base;
 
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -73,7 +74,7 @@ public final class Outcome<T> {
   }
 
   /** The message of the error of a failed outcome, like {@link Throwable#getMessage()}. */
-  public @Nullable String errorMessage() {
-    return errorField == null ? null : errorField.getMessage();
+  public Optional<String> errorMessage() {
+    return errorField == null ? Optional.empty() : Optional.of(errorField.getMessage());
   }
 }

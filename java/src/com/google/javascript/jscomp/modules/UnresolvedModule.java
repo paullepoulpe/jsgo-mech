@@ -18,8 +18,8 @@ package com.google.javascript.jscomp.modules;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A module which has had some of its imports and exports statements scanned but has yet to resolve
@@ -32,7 +32,7 @@ abstract class UnresolvedModule {
   abstract void reset();
 
   final Module resolve(ModuleRequestResolver moduleRequestResolver) {
-    return resolve(moduleRequestResolver, /* moduleSpecifier= */ null);
+    return resolve(moduleRequestResolver, /* moduleSpecifier= */ Optional.empty());
   }
 
   /**
@@ -42,7 +42,7 @@ abstract class UnresolvedModule {
    *     an import
    */
   abstract Module resolve(
-      ModuleRequestResolver moduleRequestResolver, @Nullable String moduleSpecifier);
+      ModuleRequestResolver moduleRequestResolver, Optional<String> moduleSpecifier);
 
   /** Returns the metadata corresponding to this module */
   abstract ModuleMetadata metadata();
@@ -76,10 +76,10 @@ abstract class UnresolvedModule {
    *     </ul>
    */
   ResolveExportResult resolveExport(
-      ModuleRequestResolver moduleRequestResolver, String exportName) {
+      ModuleRequestResolver moduleRequestResolver, Optional<String> exportName) {
     return resolveExport(
         moduleRequestResolver,
-        /* moduleSpecifier= */ null,
+        /* moduleSpecifier= */ Optional.empty(),
         exportName,
         new LinkedHashSet<>(),
         new LinkedHashSet<>());
@@ -103,8 +103,8 @@ abstract class UnresolvedModule {
    */
   abstract ResolveExportResult resolveExport(
       ModuleRequestResolver moduleRequestResolver,
-      @Nullable String moduleSpecifier,
-      String exportName,
+      Optional<String> moduleSpecifier,
+      Optional<String> exportName,
       Set<ExportTrace> resolveSet,
       Set<UnresolvedModule> exportStarSet);
 

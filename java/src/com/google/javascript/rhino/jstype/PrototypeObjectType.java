@@ -50,6 +50,7 @@ import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
@@ -73,7 +74,7 @@ import org.jspecify.annotations.Nullable;
 public class PrototypeObjectType extends ObjectType {
   private static final JSTypeClass TYPE_CLASS = JSTypeClass.PROTOTYPE_OBJECT;
 
-  private final String className;
+  private final Optional<String> className;
   private final int templateParamCount;
   private final PropertyMap properties = new PropertyMap();
   private final boolean nativeType;
@@ -116,7 +117,7 @@ public class PrototypeObjectType extends ObjectType {
     }
 
     if (this.anonymousType) {
-      checkState(this.className == null);
+      checkState(this.className.isEmpty());
     }
     checkNotNull(this.templateTypeMap);
     // Also guarantees `templateParamCount >= 0`.
@@ -133,7 +134,7 @@ public class PrototypeObjectType extends ObjectType {
   static class Builder<T extends Builder<T>> {
     final JSTypeRegistry registry;
 
-    private String className;
+    private Optional<String> className = Optional.empty();
     private ObjectType implicitPrototype;
 
     private boolean nativeType;
@@ -149,7 +150,7 @@ public class PrototypeObjectType extends ObjectType {
     }
 
     @CanIgnoreReturnValue
-    T setName(String x) {
+    T setName(Optional<String> x) {
       this.className = x;
       return castThis();
     }
@@ -334,7 +335,7 @@ public class PrototypeObjectType extends ObjectType {
   @Override
   void appendTo(TypeStringBuilder sb) {
     if (hasReferenceName()) {
-      sb.append(sb.isForAnnotations() ? getNormalizedReferenceName() : getReferenceName());
+      sb.append(sb.isForAnnotations() ? getNormalizedReferenceName().orElseThrow() : getReferenceName().orElseThrow());
       return;
     }
 
@@ -436,13 +437,13 @@ public class PrototypeObjectType extends ObjectType {
   }
 
   @Override
-  public @Nullable String getReferenceName() {
-    if (className != null) {
+  public Optional<String> getReferenceName() {
+    if (className.isPresent()) {
       return className;
     } else if (ownerFunction != null) {
-      return ownerFunction.getReferenceName() + ".prototype";
+      return Optional.of(ownerFunction.getReferenceName().orElse("null") + ".prototype");
     } else {
-      return null;
+      return Optional.empty();
     }
   }
 
@@ -537,7 +538,7 @@ public class PrototypeObjectType extends ObjectType {
   @Override
   int recursionUnsafeHashCode() {
     if (isStructuralType()) {
-      return Objects.hash(className, properties);
+      return Objects.hash(className.orElse(null), properties);
     } else {
       return System.identityHashCode(this);
     }

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -31,7 +32,7 @@ public final class SimpleJsonWriterTest {
   private static String string(String value, boolean htmlSafe) {
     SimpleJsonWriter writer = new SimpleJsonWriter();
     writer.setHtmlSafe(htmlSafe);
-    writer.stringValue(value);
+    writer.stringValue(Optional.ofNullable(value));
     return writer.toString();
   }
 
@@ -43,7 +44,7 @@ public final class SimpleJsonWriterTest {
     writer.name("b").beginObject().endObject();
     writer.name("c").beginArray().endArray();
     writer.name("d").booleanValue(true).name("e").booleanValue(false);
-    writer.name("f").nullValue().name("g").stringValue("s").name("h").rawValue("{\"x\": 1}");
+    writer.name("f").nullValue().name("g").stringValue(Optional.of("s")).name("h").rawValue(Optional.of("{\"x\": 1}"));
     writer.endObject();
 
     assertThat(writer.toString())
@@ -58,7 +59,7 @@ public final class SimpleJsonWriterTest {
     writer.setIndent("  ");
     writer.beginArray();
     writer.beginObject().name("a").longValue(1).name("b").beginArray().endArray().endObject();
-    writer.beginArray().stringValue("x").nullValue().endArray();
+    writer.beginArray().stringValue(Optional.of("x")).nullValue().endArray();
     writer.beginObject().endObject();
     writer.endArray();
 
@@ -107,7 +108,7 @@ public final class SimpleJsonWriterTest {
     assertThat(writer.isHtmlSafe()).isFalse();
     writer.setHtmlSafe(true);
     assertThat(writer.isHtmlSafe()).isTrue();
-    writer.beginObject().name("<").stringValue(">").endObject();
+    writer.beginObject().name("<").stringValue(Optional.of(">")).endObject();
     assertThat(writer.toString()).isEqualTo("{\"\\u003c\":\"\\u003e\"}");
   }
 
@@ -116,11 +117,11 @@ public final class SimpleJsonWriterTest {
     SimpleJsonWriter writer = new SimpleJsonWriter();
     assertThat(writer.getSerializeNulls()).isTrue();
     writer.beginObject();
-    writer.name("a").nullValue().name("b").stringValue(null).name("c").rawValue(null);
+    writer.name("a").nullValue().name("b").stringValue(Optional.empty()).name("c").rawValue(Optional.empty());
     writer.setSerializeNulls(false);
     assertThat(writer.getSerializeNulls()).isFalse();
-    writer.name("d").nullValue().name("e").stringValue(null).name("f").rawValue(null);
-    writer.name("g").beginArray().nullValue().stringValue(null).endArray();
+    writer.name("d").nullValue().name("e").stringValue(Optional.empty()).name("f").rawValue(Optional.empty());
+    writer.name("g").beginArray().nullValue().stringValue(Optional.empty()).endArray();
     writer.endObject();
 
     assertThat(writer.toString()).isEqualTo("{\"a\":null,\"b\":null,\"c\":null,\"g\":[null,null]}");
@@ -129,11 +130,11 @@ public final class SimpleJsonWriterTest {
   @Test
   public void settingsMayChangeWhileWriting() {
     SimpleJsonWriter writer = new SimpleJsonWriter();
-    writer.beginArray().stringValue("<");
+    writer.beginArray().stringValue(Optional.of("<"));
     writer.setHtmlSafe(true);
-    writer.stringValue("<");
+    writer.stringValue(Optional.of("<"));
     writer.setHtmlSafe(false);
-    writer.stringValue("<").endArray();
+    writer.stringValue(Optional.of("<")).endArray();
 
     assertThat(writer.toString()).isEqualTo("[\"<\",\"\\u003c\",\"<\"]");
   }
@@ -141,7 +142,7 @@ public final class SimpleJsonWriterTest {
   @Test
   public void severalTopLevelValuesAreWrittenOneAfterTheOther() {
     SimpleJsonWriter writer = new SimpleJsonWriter();
-    writer.longValue(1).stringValue("a").beginArray().endArray();
+    writer.longValue(1).stringValue(Optional.of("a")).beginArray().endArray();
     assertThat(writer.toString()).isEqualTo("1\"a\"[]");
   }
 
@@ -167,7 +168,7 @@ public final class SimpleJsonWriterTest {
         writer.setIndent(indent);
         writer.beginObject();
         for (int i = 0; i < 30000; i++) {
-          writer.name("key<" + i).beginArray().stringValue("value " + i).nullValue().endArray();
+          writer.name("key<" + i).beginArray().stringValue(Optional.ofNullable("value " + i)).nullValue().endArray();
         }
         writer.endObject();
       }

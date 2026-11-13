@@ -23,6 +23,7 @@ import static com.google.javascript.jscomp.ReplaceIdGenerators.INVALID_TEMPLATE_
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.js.RuntimeJsLibManager;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,9 +48,9 @@ public final class ReplaceIdGeneratorsTest extends CompilerTestCase {
                   "bar", ":bar:");
 
           @Override
-          public String get(String value) {
+          public Optional<String> get(String value) {
             String replacement = map.get(value);
-            return replacement != null ? replacement : "unknown:" + value;
+            return replacement != null ? Optional.ofNullable(replacement) : Optional.ofNullable("unknown:" + value);
           }
         };
     lastPass =

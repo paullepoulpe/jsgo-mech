@@ -16,6 +16,7 @@
 
 package com.google.javascript.jscomp;
 
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** A warnings guard that suppresses some warnings incompatible with J2CL. */
@@ -24,7 +25,7 @@ public final class J2clSuppressWarningsGuard extends WarningsGuard {
   // TODO(b/128554878): Cleanup and document all file level suppressions for J2CL generated code.
   private static final DiagnosticGroup DEFAULT_J2CL_SUPRRESIONS =
       DiagnosticGroup.createFromGroups(
-          "j2clIncomaptible",
+          Optional.of("j2clIncomaptible"),
           // Do not warn when static overrides do not match. This is safe, because J2CL generated
           // code directly points to declaration and this is also required with collapse properties
           // pass, which does not support dynamic dispatch for static methods.

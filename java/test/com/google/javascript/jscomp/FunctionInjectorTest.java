@@ -29,6 +29,7 @@ import com.google.javascript.jscomp.FunctionInjector.CanInlineResult;
 import com.google.javascript.jscomp.FunctionInjector.InliningMode;
 import com.google.javascript.jscomp.FunctionInjector.Reference;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -2301,7 +2302,7 @@ public final class FunctionInjectorTest {
                   .isNotEqualTo(CanInlineResult.YES);
             }
 
-            Node result = injector.inline(ref, fnName, fnNode);
+            Node result = injector.inline(ref, Optional.ofNullable(fnName), fnNode);
             validateSourceInfo(compiler, result);
 
             assertNode(tree.getFirstChild())

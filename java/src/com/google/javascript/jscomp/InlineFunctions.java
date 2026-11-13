@@ -39,6 +39,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -440,24 +441,24 @@ class InlineFunctions implements CompilerPass {
         case OPTCHAIN_CALL, CALL -> {
           // Function calls
           Node child = n.getFirstChild();
-          String name = null;
+          Optional<String> name = Optional.empty();
           // NOTE: The normalization pass ensures that local names do not collide with global names.
           if (child.isName()) {
-            name = child.getString();
+            name = Optional.of(child.getString());
           } else if (child.isFunction()) {
-            name = anonFunctionMap.get(child);
+            name = Optional.ofNullable(anonFunctionMap.get(child));
           } else if (NodeUtil.isFunctionObjectCall(n)) {
             checkState(NodeUtil.isNormalOrOptChainGet(child));
             Node fnIdentifyingNode = child.getFirstChild();
             if (fnIdentifyingNode.isName()) {
-              name = fnIdentifyingNode.getString();
+              name = Optional.of(fnIdentifyingNode.getString());
             } else if (fnIdentifyingNode.isFunction()) {
-              name = anonFunctionMap.get(fnIdentifyingNode);
+              name = Optional.ofNullable(anonFunctionMap.get(fnIdentifyingNode));
             }
           }
 
-          if (name != null) {
-            FunctionState functionState = functionMap.get(name);
+          if (name.isPresent()) {
+            FunctionState functionState = functionMap.get(name.get());
 
             // Only visit call-sites for functions that can be inlined.
             if (functionState != null) {
@@ -675,7 +676,7 @@ class InlineFunctions implements CompilerPass {
       String fnName = fn.getName();
       Node fnNode = functionState.getSafeFnNode();
 
-      Node newExpr = injector.inline(ref, fnName, fnNode);
+      Node newExpr = injector.inline(ref, Optional.of(fnName), fnNode);
       if (!newExpr.equals(ref.callNode)) {
         t.getCompiler().reportChangeToEnclosingScope(newExpr);
       }

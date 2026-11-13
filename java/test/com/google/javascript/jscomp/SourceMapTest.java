@@ -25,6 +25,7 @@ import com.google.debugging.sourcemap.SourceMapConsumerV3;
 import com.google.debugging.sourcemap.SourceMapTestCase;
 import com.google.javascript.jscomp.SourceMap.Format;
 import java.io.IOException;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,7 +134,7 @@ public final class SourceMapTest extends SourceMapTestCase {
 
   @Test
   public void testLambdaReplacement() throws IOException {
-    mappings = ImmutableList.of((location) -> "mapped/" + location);
+    mappings = ImmutableList.of((location) -> Optional.ofNullable("mapped/" + location.orElse(null)));
     checkSourceMap2(
         "alert(1);",
         "file1",

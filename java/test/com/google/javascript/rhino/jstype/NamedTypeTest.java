@@ -49,6 +49,7 @@ import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.jstype.NamedType.ResolutionKind;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
 import com.google.javascript.rhino.testing.MapBasedScope;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,7 +64,7 @@ public class NamedTypeTest extends BaseJSTypeTestCase {
   @Before
   public void setUp() throws Exception {
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
-      this.fooCtorType = FunctionType.builder(registry).forConstructor().withName("Foo").build();
+      this.fooCtorType = FunctionType.builder(registry).forConstructor().withName(Optional.of("Foo")).build();
       this.fooType = fooCtorType.getInstanceType();
     }
   }
@@ -362,7 +363,7 @@ public class NamedTypeTest extends BaseJSTypeTestCase {
   private ObjectType createNominalType(String name) {
     try (JSTypeResolver.Closer closer = registry.getResolver().openForDefinition()) {
       FunctionType ctorType =
-          FunctionType.builder(registry).forConstructor().withName(name).build();
+          FunctionType.builder(registry).forConstructor().withName(Optional.ofNullable(name)).build();
       return ctorType.getInstanceType();
     }
   }

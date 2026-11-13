@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -245,7 +246,7 @@ final class SerializeTypesToPointers {
         }
         Collections.sort(jstypes);
         for (String typeName : jstypes) { // all corresponding JSTypes
-          jsonWriter.stringValue(typeName);
+          jsonWriter.stringValue(Optional.of(typeName));
         }
         jsonWriter.endArray();
       }
@@ -266,9 +267,9 @@ final class SerializeTypesToPointers {
 
     private void writeJson(SimpleJsonWriter writer) {
       writer.beginObject();
-      writer.name("location").stringValue(this.location);
-      writer.name("foundColorId").stringValue(this.foundColorId);
-      writer.name("requiredColorId").stringValue(this.requiredColorId);
+      writer.name("location").stringValue(Optional.of(this.location));
+      writer.name("foundColorId").stringValue(Optional.of(this.foundColorId));
+      writer.name("requiredColorId").stringValue(Optional.of(this.requiredColorId));
       writer.endObject();
     }
 

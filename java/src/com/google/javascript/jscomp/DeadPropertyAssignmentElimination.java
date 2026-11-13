@@ -31,7 +31,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
@@ -194,16 +194,16 @@ public class DeadPropertyAssignmentElimination implements CompilerPass {
   private static class PropertyWrite {
     private final Node assignedAt;
     private boolean isRead = false;
-    private final String qualifiedName;
+    private final Optional<String> qualifiedName;
 
     PropertyWrite(Node assignedAt) {
       checkArgument(assignedAt.isQualifiedName());
       this.assignedAt = assignedAt;
-      this.qualifiedName = assignedAt.getQualifiedName();
+      this.qualifiedName = Optional.of(assignedAt.getQualifiedName()).filter(s -> !s.isEmpty());
     }
 
     boolean isSafeToRemove(@Nullable PropertyWrite nextWrite) {
-      return !isRead && nextWrite != null && Objects.equals(qualifiedName, nextWrite.qualifiedName);
+      return !isRead && nextWrite != null && qualifiedName.equals(nextWrite.qualifiedName);
     }
 
     void markRead() {
@@ -243,9 +243,9 @@ public class DeadPropertyAssignmentElimination implements CompilerPass {
         return null;
       }
 
-      String propName = propNode.isGetProp() ? propNode.getString() : propNode.getQualifiedName();
+      Optional<String> propName = propNode.isGetProp() ? Optional.of(propNode.getString()) : Optional.of(propNode.getQualifiedName()).filter(s -> !s.isEmpty());
 
-      Property property = propertyMap.computeIfAbsent(propName, Property::new);
+      Property property = propertyMap.computeIfAbsent(propName.orElse(null), Property::new);
 
       /* Using the GETPROP chain, build out the tree of children properties.
 

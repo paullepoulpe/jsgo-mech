@@ -28,6 +28,7 @@ import com.google.javascript.rhino.NominalTypeBuilder;
 import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.jstype.FunctionType;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -133,21 +134,21 @@ public final class ClosureCodingConvention extends CodingConventions.Proxy {
    */
   private static @Nullable SubclassType typeofClassDefiningName(Node callName) {
     // Check if the method name matches one of the class-defining methods.
-    String methodName = null;
+    Optional<String> methodName = Optional.empty();
     if (callName.isGetProp()) {
-      methodName = callName.getString();
+      methodName = Optional.of(callName.getString());
     } else if (callName.isName()) {
       String name = callName.getString();
       int dollarIndex = name.lastIndexOf('$');
       if (dollarIndex != -1) {
-        methodName = name.substring(dollarIndex + 1);
+        methodName = Optional.of(name.substring(dollarIndex + 1));
       }
     }
 
-    if (methodName != null) {
-      if (methodName.equals("inherits")) {
+    if (methodName.isPresent()) {
+      if (methodName.get().equals("inherits")) {
         return SubclassType.INHERITS;
-      } else if (methodName.equals("mixin")) {
+      } else if (methodName.get().equals("mixin")) {
         return SubclassType.MIXIN;
       }
     }
@@ -176,8 +177,8 @@ public final class ClosureCodingConvention extends CodingConventions.Proxy {
    */
   @Override
   public boolean extractIsModuleFile(Node node, Node parent) {
-    String namespace = extractClassNameIfGoog(node, parent, "goog.module");
-    return namespace != null;
+    Optional<String> namespace = extractClassNameIfGoog(node, parent, "goog.module");
+    return namespace.isPresent();
   }
 
   /**
@@ -186,9 +187,9 @@ public final class ClosureCodingConvention extends CodingConventions.Proxy {
    * @return The extracted class name, or null.
    */
   @Override
-  public String extractClassNameIfProvide(Node node, Node parent) {
-    String namespace = extractClassNameIfGoog(node, parent, "goog.provide");
-    if (namespace == null) {
+  public Optional<String> extractClassNameIfProvide(Node node, Node parent) {
+    Optional<String> namespace = extractClassNameIfGoog(node, parent, "goog.provide");
+    if (namespace.isEmpty()) {
       namespace = extractClassNameIfGoog(node, parent, "goog.module");
     }
     return namespace;
@@ -200,19 +201,19 @@ public final class ClosureCodingConvention extends CodingConventions.Proxy {
    * @return The extracted class name, or null.
    */
   @Override
-  public String extractClassNameIfRequire(Node node, Node parent) {
+  public Optional<String> extractClassNameIfRequire(Node node, Node parent) {
     return extractClassNameIfGoog(node, parent, "goog.require");
   }
 
-  private static String extractClassNameIfGoog(Node node, Node parent,
+  private static Optional<String> extractClassNameIfGoog(Node node, Node parent,
       String functionName){
-    String className = null;
+    Optional<String> className = Optional.empty();
     if (NodeUtil.isExprCall(parent)) {
       Node callee = node.getFirstChild();
       if (callee != null && callee.isGetProp() && callee.matchesQualifiedName(functionName)) {
         Node target = callee.getNext();
         if (target != null && target.isStringLit()) {
-          className = target.getString();
+          className = Optional.of(target.getString());
         }
       }
     }
@@ -346,10 +347,10 @@ public final class ClosureCodingConvention extends CodingConventions.Proxy {
 
     Node objectNode = typeNode.getNext();
     if (!objectNode.isObjectLit()) {
-      return new ObjectLiteralCast(null, null, OBJECTLIT_EXPECTED);
+      return new ObjectLiteralCast(Optional.empty(), null, OBJECTLIT_EXPECTED);
     }
 
-    return new ObjectLiteralCast(typeNode.getQualifiedName(), typeNode.getNext(), null);
+    return new ObjectLiteralCast(Optional.of(typeNode.getQualifiedName()).filter(s -> !s.isEmpty()), typeNode.getNext(), null);
   }
 
   @Override

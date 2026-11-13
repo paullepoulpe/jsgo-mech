@@ -30,6 +30,7 @@ import com.google.javascript.rhino.Node.SideEffectFlags;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,9 +46,9 @@ public final class ReplaceMessagesTest extends CompilerTestCase {
   public static final JsMessage.IdGenerator TEST_ID_GENERATOR =
       new JsMessage.IdGenerator() {
         @Override
-        public String generateId(String meaning, List<Part> messageParts) {
+        public String generateId(Optional<String> meaning, List<Part> messageParts) {
           StringBuilder idBuilder = new StringBuilder();
-          idBuilder.append(meaning).append('_');
+          idBuilder.append(meaning.orElse(null)).append('_');
           for (Part messagePart : messageParts) {
             if (messagePart.isPlaceholder()) {
               idBuilder.append('p').append(messagePart.getCanonicalPlaceholderName().length());
@@ -335,16 +336,16 @@ public final class ReplaceMessagesTest extends CompilerTestCase {
     Part originalPlaceholerPart = PlaceholderReference.createForCanonicalName("EMAIL");
     String expectedMessageId =
         TEST_ID_GENERATOR.generateId(
-            meaning, ImmutableList.of(originalStringPart, originalPlaceholerPart));
+            Optional.ofNullable(meaning), ImmutableList.of(originalStringPart, originalPlaceholerPart));
 
     // Create and register the translation we expect to find in the message bundle
     final JsMessage showEmailTranslatedMsg =
         new JsMessage.Builder()
             .setKey(meaning)
-            .setMeaning(meaning)
+            .setMeaning(Optional.ofNullable(meaning))
             .appendStringPart("Retpoŝtadreso: ") // translated string
             .appendPart(originalPlaceholerPart) // placeholder is the same as original
-            .setId(expectedMessageId) // message ID was calculated from the original
+            .setId(Optional.ofNullable(expectedMessageId)) // message ID was calculated from the original
             .build();
     registerMessage(showEmailTranslatedMsg);
 
@@ -628,8 +629,8 @@ const MSG_EXTERNAL_123456 =
   public void testAlternateMessageWithMismatchedParts() {
     registerMessage(
         getTestMessageBuilder("1984")
-            .setDesc("B desc")
-            .setMeaning("B meaning")
+            .setDesc(Optional.of("B desc"))
+            .setMeaning(Optional.of("B meaning"))
             .appendStringPart("Hello!")
             .appendStringPart(" Welcome!")
             .build());
@@ -725,15 +726,15 @@ const MSG_ICU_SELECT =
    * Returns a message builder that will use the same string as both the key and ID of the message.
    */
   private JsMessage.Builder getTestMessageBuilder(String keyAndId) {
-    return new JsMessage.Builder().setKey(keyAndId).setId(keyAndId);
+    return new JsMessage.Builder().setKey(keyAndId).setId(Optional.ofNullable(keyAndId));
   }
 
   @Test
   public void testAlternateMessageWithMismatchedPlaceholders() {
     registerMessage(
         getTestMessageBuilder("1984")
-            .setDesc("B desc")
-            .setMeaning("B meaning")
+            .setDesc(Optional.of("B desc"))
+            .setMeaning(Optional.of("B meaning"))
             .appendStringPart("Hello, ")
             .appendJsPlaceholderReference("firstName")
             .appendStringPart("!")
@@ -806,8 +807,8 @@ const MSG_ICU_SELECT =
     registerMessage(getTestMessageBuilder("1984").appendStringPart("Howdy\npardner").build());
     registerMessage(
         getTestMessageBuilder("MSG_A")
-            .setDesc("Greeting.")
-            .setAlternateId("1984")
+            .setDesc(Optional.of("Greeting."))
+            .setAlternateId(Optional.of("1984"))
             .appendStringPart("Hi\nthere")
             .build());
 
@@ -2758,7 +2759,7 @@ var MSG_E = function(namem1146332801$0, devicem1146332801$0) {
   @Test
   public void testLeakingPlaceholderRegression() {
     // Message A: Gendered, has placeholder "name".
-    JsMessage.Builder builderA = new JsMessage.Builder().setKey("MSG_A").setId("MSG_A");
+    JsMessage.Builder builderA = new JsMessage.Builder().setKey("MSG_A").setId(Optional.of("MSG_A"));
     builderA.addGenderedMessageKey(JsMessage.GrammaticalGenderCase.MASCULINE);
     builderA.appendStringPart(JsMessage.GrammaticalGenderCase.MASCULINE, "A male ");
     builderA.appendJsPlaceholderReference(JsMessage.GrammaticalGenderCase.MASCULINE, "name");
@@ -2769,7 +2770,7 @@ var MSG_E = function(namem1146332801$0, devicem1146332801$0) {
 
     // Message B: Gendered, has placeholder "name" in the translation parts (simulating ICU mixed),
     // but will NOT have it in the goog.getMsg placeholders map.
-    JsMessage.Builder builderB = new JsMessage.Builder().setKey("MSG_B").setId("MSG_B");
+    JsMessage.Builder builderB = new JsMessage.Builder().setKey("MSG_B").setId(Optional.of("MSG_B"));
     builderB.addGenderedMessageKey(JsMessage.GrammaticalGenderCase.MASCULINE);
     builderB.appendStringPart(JsMessage.GrammaticalGenderCase.MASCULINE, "B male {name}");
     // This part is a placeholder, but since it's not in the goog.getMsg args, it should be treated

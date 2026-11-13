@@ -26,8 +26,8 @@ import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSTypeNative;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.jspecify.annotations.Nullable;
 
 /** Generates goog.exportSymbol/goog.exportProperty for the @export annotation. */
 public class GenerateExports implements CompilerPass {
@@ -36,9 +36,9 @@ public class GenerateExports implements CompilerPass {
 
   private final AbstractCompiler compiler;
 
-  private final @Nullable String exportSymbolFunction;
+  private final Optional<String> exportSymbolFunction;
 
-  private final @Nullable String exportPropertyFunction;
+  private final Optional<String> exportPropertyFunction;
 
   private final boolean allowNonGlobalExports;
 
@@ -71,8 +71,8 @@ public class GenerateExports implements CompilerPass {
   GenerateExports(
       AbstractCompiler compiler,
       boolean allowNonGlobalExports,
-      @Nullable String exportSymbolFunction,
-      @Nullable String exportPropertyFunction) {
+      Optional<String> exportSymbolFunction,
+      Optional<String> exportPropertyFunction) {
     checkNotNull(compiler);
 
     this.compiler = compiler;
@@ -132,7 +132,7 @@ public class GenerateExports implements CompilerPass {
       errorLocation = es6Exports.keySet().iterator().next();
     }
 
-    if (this.exportSymbolFunction == null || this.exportPropertyFunction == null) {
+    if (this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty()) {
       compiler.report(JSError.make(errorLocation, MISSING_EXPORT_CONVENTION));
       // don't try to rewrite @export since there's nothing we can rewrite them to.
       return false;
@@ -143,8 +143,8 @@ public class GenerateExports implements CompilerPass {
           JSError.make(
               errorLocation,
               MISSING_GOOG_FOR_EXPORT,
-              this.exportSymbolFunction,
-              this.exportPropertyFunction));
+              this.exportSymbolFunction.get(),
+              this.exportPropertyFunction.get()));
       declareExportMethodsInExterns(errorLocation);
       return true;
     }
@@ -159,16 +159,16 @@ public class GenerateExports implements CompilerPass {
    */
   private boolean includesExportMethods(Node root) {
     Scope globalScope = new SyntacticScopeCreator(compiler).createScope(root, /* parent= */ null);
-    String exportPropertyRoot = NodeUtil.getRootOfQualifiedNameString(exportPropertyFunction);
-    String exportSymbolRoot = NodeUtil.getRootOfQualifiedNameString(exportSymbolFunction);
+    String exportPropertyRoot = NodeUtil.getRootOfQualifiedNameString(exportPropertyFunction.get());
+    String exportSymbolRoot = NodeUtil.getRootOfQualifiedNameString(exportSymbolFunction.get());
     return globalScope.hasSlot(exportPropertyRoot) && globalScope.hasSlot(exportSymbolRoot);
   }
 
   /** Add a synthesized externs declaration to prevent crashes later on in VarCheck. */
   private void declareExportMethodsInExterns(Node srcref) {
 
-    String exportPropertyRoot = NodeUtil.getRootOfQualifiedNameString(exportPropertyFunction);
-    String exportSymbolRoot = NodeUtil.getRootOfQualifiedNameString(exportSymbolFunction);
+    String exportPropertyRoot = NodeUtil.getRootOfQualifiedNameString(exportPropertyFunction.get());
+    String exportSymbolRoot = NodeUtil.getRootOfQualifiedNameString(exportSymbolFunction.get());
 
     if (exportPropertyRoot.equals(exportSymbolRoot)) {
       declareSyntheticExternsVar(exportPropertyRoot, srcref);
@@ -230,9 +230,9 @@ public class GenerateExports implements CompilerPass {
     // a) ES6 class members, which the above `addExportForEs6Method` handles
     // b) this is a property on a name which is also being exported
     // c) this is a prototype property
-    String methodOwnerName = null; // the object this method is on, null for exported names.
+    String methodOwnerName = ""; // the object this method is on, null for exported names.
     boolean isEs5StylePrototypeAssignment = false; // If this is a prototype property
-    String propertyName = null;
+    Optional<String> propertyName = Optional.empty();
 
     Node child = context.getFirstChild();
     if (child != null && child.isGetProp()) { // e.g. `/** @export */ a.prototype.b = obj;`
@@ -244,39 +244,38 @@ public class GenerateExports implements CompilerPass {
         // false if this export were `/** @export */ a.b = obj;` instead
         isEs5StylePrototypeAssignment = true;
       }
-      propertyName = node.getString();
+      propertyName = Optional.of(node.getString());
     }
 
     boolean useExportSymbol = true;
     if (isEs5StylePrototypeAssignment) {
       useExportSymbol = false;
-    } else if (methodOwnerName != null && exports.containsKey(methodOwnerName)) {
+    } else if (!methodOwnerName.isEmpty() && exports.containsKey(methodOwnerName)) {
       useExportSymbol = false;
     }
 
     if (useExportSymbol) {
       addExportSymbolCall(export, context);
     } else {
-      addExportPropertyCall(methodOwnerName, context, export, propertyName);
+      addExportPropertyCall(methodOwnerName, context, export, propertyName.get());
     }
   }
 
   private void addExportPropertyCall(
       String methodOwnerName, Node context, String export, String propertyName) {
     // JS output: exportProperty(object, publicName, symbol);
-    checkNotNull(methodOwnerName);
     Node call =
         IR.call(
             NodeUtil.newQName(
-                compiler, exportPropertyFunction,
-                context, exportPropertyFunction),
+                compiler, exportPropertyFunction.get(),
+                context, exportPropertyFunction.get()),
             NodeUtil.newQName(
                 compiler, methodOwnerName,
-                context, exportPropertyFunction),
+                context, exportPropertyFunction.get()),
             IR.string(propertyName),
             NodeUtil.newQName(
                 compiler, export,
-                context, exportPropertyFunction));
+                context, exportPropertyFunction.get()));
 
     Node expression = IR.exprResult(call).srcrefTreeIfMissing(context);
 
@@ -290,7 +289,7 @@ public class GenerateExports implements CompilerPass {
     Node call =
         IR.call(
             NodeUtil.newQName(
-                compiler, exportSymbolFunction,
+                compiler, exportSymbolFunction.get(),
                 context, export),
             IR.string(export),
             NodeUtil.newQName(

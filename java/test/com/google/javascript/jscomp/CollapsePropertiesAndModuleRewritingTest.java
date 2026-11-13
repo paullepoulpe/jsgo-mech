@@ -23,6 +23,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.modules.ModuleMapCreator;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +67,7 @@ public class CollapsePropertiesAndModuleRewritingTest extends CompilerTestCase {
             PassFactory.builder()
                 .setName("REWRITE_DYNAMIC_IMPORT")
                 .setInternalFactory(
-                    (x) -> new RewriteDynamicImports(compiler, null, ChunkOutputType.ES_MODULES))
+                    (x) -> new RewriteDynamicImports(compiler, Optional.empty(), ChunkOutputType.ES_MODULES))
                 .build());
         factories.maybeAdd(
             PassFactory.builder()

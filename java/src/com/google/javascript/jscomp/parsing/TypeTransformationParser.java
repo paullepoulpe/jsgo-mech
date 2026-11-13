@@ -26,6 +26,7 @@ import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Msg;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile;
+import java.util.Optional;
 
 /**
  * A parser for the type transformation expressions (TTL-Exp) as in
@@ -115,7 +116,7 @@ public final class TypeTransformationParser {
     // TODO(lpino): Use only constants as parameters of this method
     errorReporter.warning(
         "Bad type annotation. " + messageId.format(messageArg),
-        sourceFile.getName(),
+        Optional.of(sourceFile.getName()),
         templateLineno,
         templateCharno);
   }

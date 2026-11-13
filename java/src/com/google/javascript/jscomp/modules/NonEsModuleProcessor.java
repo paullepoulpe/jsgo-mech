@@ -21,6 +21,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.modules.ModuleMapCreator.ModuleProcessor;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -48,27 +49,27 @@ final class NonEsModuleProcessor implements ModuleProcessor {
 
     @Override
     public @Nullable ResolveExportResult resolveExport(
-        ModuleRequestResolver moduleRequestResolver, String exportName) {
+        ModuleRequestResolver moduleRequestResolver, Optional<String> exportName) {
       throw new UnsupportedOperationException();
     }
 
     @Override
     public @Nullable ResolveExportResult resolveExport(
         ModuleRequestResolver moduleRequestResolver,
-        @Nullable String moduleSpecifier,
-        String exportName,
+        Optional<String> moduleSpecifier,
+        Optional<String> exportName,
         Set<ExportTrace> resolveSet,
         Set<UnresolvedModule> exportStarSet) {
-      String namespace = null;
-      if (moduleSpecifier != null && GoogEsImports.isGoogImportSpecifier(moduleSpecifier)) {
-        namespace = GoogEsImports.getClosureIdFromGoogImportSpecifier(moduleSpecifier);
+      Optional<String> namespace = Optional.empty();
+      if (moduleSpecifier.isPresent() && GoogEsImports.isGoogImportSpecifier(moduleSpecifier.get())) {
+        namespace = Optional.of(GoogEsImports.getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()));
       } else if (metadataField.isGoogProvide()) {
         namespace = moduleSpecifier;
       }
       if (metadataField.isCommonJs()) {
         // Currently we don't scan require()s, so this only gets hit if an ES module imports a CJS
         // module. If so then this module should only have a default export.
-        if (!exportName.equals("default")) {
+        if (!exportName.get().equals("default")) {
           return ResolveExportResult.NOT_FOUND;
         }
       }
@@ -88,10 +89,10 @@ final class NonEsModuleProcessor implements ModuleProcessor {
 
     @Override
     public Module resolve(
-        ModuleRequestResolver moduleRequestResolver, @Nullable String moduleSpecifier) {
-      String namespace = null;
-      if (moduleSpecifier != null && GoogEsImports.isGoogImportSpecifier(moduleSpecifier)) {
-        namespace = GoogEsImports.getClosureIdFromGoogImportSpecifier(moduleSpecifier);
+        ModuleRequestResolver moduleRequestResolver, Optional<String> moduleSpecifier) {
+      Optional<String> namespace = Optional.empty();
+      if (moduleSpecifier.isPresent() && GoogEsImports.isGoogImportSpecifier(moduleSpecifier.get())) {
+        namespace = Optional.of(GoogEsImports.getClosureIdFromGoogImportSpecifier(moduleSpecifier.get()));
       }
       return Module.builder()
           .path(path)

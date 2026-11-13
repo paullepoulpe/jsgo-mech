@@ -48,7 +48,7 @@ final class ProductionInstrumentationReporter {
   public static void main(String[] args) {
     Outcome<Void> done = new ProductionInstrumentationReporter().doMain(args);
     if (done.isErr()) {
-      Io.stderr().println(done.errorMessage());
+      Io.stderr().println(done.errorMessage().get());
     }
   }
 

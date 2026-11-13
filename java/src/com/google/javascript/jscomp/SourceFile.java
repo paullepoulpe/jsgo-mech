@@ -17,7 +17,6 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.Math.max;
@@ -36,6 +35,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
@@ -71,7 +71,7 @@ public final class SourceFile implements StaticSourceFile {
   // Source Line Information
   private volatile int @Nullable [] lineOffsets = null;
 
-  private volatile @Nullable String code = null;
+  private volatile Optional<String> code = Optional.empty();
 
   // Code statistics used for metrics.
   // For both of these, a negative value means we haven't counted yet.
@@ -177,24 +177,24 @@ public final class SourceFile implements StaticSourceFile {
       return;
     }
 
-    String localCode = this.code;
-    if (localCode == null) {
+    Optional<String> localCode = this.code;
+    if (localCode.isEmpty()) {
       Outcome<String> codeRes = this.readCode();
       if (codeRes.isErr()) {
-        localCode = "";
+        localCode = Optional.of("");
         this.lineOffsets = new int[1];
         return;
       }
-      localCode = codeRes.get();
+      localCode = Optional.ofNullable(codeRes.get());
     }
 
     // getCode() updates numLines, so this is always in sync with the code.
     int[] offsets = new int[this.numLines];
     int index = 1; // start at 1 since the offset for line 0 is always at byte 0
-    for (int i = 0; i < localCode.length(); i++) {
-      char ch = localCode.charAt(i);
+    for (int i = 0; i < localCode.get().length(); i++) {
+      char ch = localCode.get().charAt(i);
       if (isLineTerminator(ch)) {
-        if (ch == '\r' && i + 1 < localCode.length() && localCode.charAt(i + 1) == '\n') {
+        if (ch == '\r' && i + 1 < localCode.get().length() && localCode.get().charAt(i + 1) == '\n') {
           i++;
         }
         offsets[index] = i + 1;
@@ -207,26 +207,26 @@ public final class SourceFile implements StaticSourceFile {
 
   /** Gets all the code in this source file; a failure to read it is an error result. */
   public final Outcome<String> readCode() {
-    if (this.code == null) {
+    if (this.code.isEmpty()) {
       // Only synchronize if we need to
       synchronized (this) {
         // Make sure another thread hasn't loaded the code while we waited.
-        if (this.code == null) {
+        if (this.code.isEmpty()) {
           Outcome<String> loaded = this.loader.loadUncachedCode();
           if (loaded.isErr()) {
             return Outcome.err(loaded.error());
           }
-          this.setCodeAndDoBookkeeping(loaded.get());
+          this.setCodeAndDoBookkeeping(Optional.ofNullable(loaded.get()));
         }
       }
     }
 
-    return Outcome.ok(this.code);
+    return Outcome.ok(this.code.orElse(null));
   }
 
   @Deprecated
   final void setCodeDeprecated(String code) {
-    this.setCodeAndDoBookkeeping(code);
+    this.setCodeAndDoBookkeeping(Optional.of(code));
   }
 
   /**
@@ -236,10 +236,10 @@ public final class SourceFile implements StaticSourceFile {
    */
   public Outcome<String> readCodeWithoutCaching() {
     // Only synchronize if we need to
-    if (this.code == null) {
+    if (this.code.isEmpty()) {
       synchronized (this) {
         // Make sure another thread hasn't loaded the code while we waited.
-        if (this.code == null) {
+        if (this.code.isEmpty()) {
           Outcome<String> uncachedText = this.loader.loadUncachedText();
           if (uncachedText != null) {
             return uncachedText;
@@ -251,14 +251,14 @@ public final class SourceFile implements StaticSourceFile {
     return this.readCode();
   }
 
-  private void setCodeAndDoBookkeeping(@Nullable String sourceCode) {
-    this.code = null;
+  private void setCodeAndDoBookkeeping(Optional<String> sourceCode) {
+    this.code = Optional.empty();
     // Force recalculation of all of these values when they are requested.
     this.lineOffsets = null;
 
-    if (sourceCode != null) {
-      if (sourceCode.startsWith(UTF8_BOM)) {
-        sourceCode = sourceCode.substring(UTF8_BOM.length());
+    if (sourceCode.isPresent()) {
+      if (sourceCode.get().startsWith(UTF8_BOM)) {
+        sourceCode = Optional.of(sourceCode.get().substring(UTF8_BOM.length()));
       }
 
       // Update numLines and numBytes
@@ -267,12 +267,12 @@ public final class SourceFile implements StaticSourceFile {
       //       not have checkState() calls here to assert they have not changed.
       // Misleading variable name.  This really stores the 'number of utf16' code points which is
       // not the same as number of bytes.
-      this.numBytes = sourceCode.length();
+      this.numBytes = sourceCode.get().length();
       int numLines = 1; // there is always at least one line
-      for (int i = 0; i < sourceCode.length(); i++) {
-        char ch = sourceCode.charAt(i);
+      for (int i = 0; i < sourceCode.get().length(); i++) {
+        char ch = sourceCode.get().charAt(i);
         if (isLineTerminator(ch)) {
-          if (ch == '\r' && i + 1 < sourceCode.length() && sourceCode.charAt(i + 1) == '\n') {
+          if (ch == '\r' && i + 1 < sourceCode.get().length() && sourceCode.get().charAt(i + 1) == '\n') {
             i++;
           }
           numLines++;
@@ -300,11 +300,11 @@ public final class SourceFile implements StaticSourceFile {
    * so dumping the file contents after the compile is a fine thing to do.
    */
   public void clearCachedSource() {
-    this.setCodeAndDoBookkeeping(null);
+    this.setCodeAndDoBookkeeping(Optional.empty());
   }
 
   boolean hasSourceInMemory() {
-    return code != null;
+    return code.isPresent();
   }
 
   /**
@@ -365,15 +365,15 @@ public final class SourceFile implements StaticSourceFile {
    * @return The line indicated. Does not include the newline at the end of the file. Returns {@code
    *     null} if it does not exist, or if there was an IO exception.
    */
-  public @Nullable String getLine(int lineNumber) {
+  public Optional<String> getLine(int lineNumber) {
     Outcome<String> codeRes = readCode();
     if (codeRes.isErr()) {
-      return null;
+      return Optional.empty();
     }
     String js = codeRes.get();
     findLineOffsets();
     if (lineNumber > lineOffsets.length) {
-      return null;
+      return Optional.empty();
     }
 
     if (lineNumber < 1) {
@@ -388,15 +388,15 @@ public final class SourceFile implements StaticSourceFile {
       if (js.charAt(endPos) == '\n' && endPos > pos && js.charAt(endPos - 1) == '\r') {
         endPos--;
       }
-      return js.substring(pos, endPos);
+      return Optional.of(js.substring(pos, endPos));
     } else {
       // If next new line cannot be found, there are two cases
       // 1. pos already reaches the end of file, then null should be returned
       // 2. otherwise, return the contents between pos and the end of file.
       if (pos >= js.length()) {
-        return null;
+        return Optional.empty();
       } else {
-        return js.substring(pos);
+        return Optional.of(js.substring(pos));
       }
     }
   }
@@ -761,11 +761,11 @@ public final class SourceFile implements StaticSourceFile {
   public static final class Builder {
     private SourceKind kind = SourceKind.STRONG;
     private String charset = Io.UTF_8;
-    private @Nullable String originalPath = null;
+    private Optional<String> originalPath = Optional.empty();
     private boolean isStubSourceFileForAlreadyProvidedInput = false;
 
-    private @Nullable String path = null;
-    private @Nullable String zipEntryPath = null;
+    private Optional<String> path = Optional.empty();
+    private Optional<String> zipEntryPath = Optional.empty();
 
     private @Nullable Supplier<String> lazyContent = null;
 
@@ -798,8 +798,8 @@ public final class SourceFile implements StaticSourceFile {
 
     @CanIgnoreReturnValue
     public Builder withZipEntryPath(String zipPath, String entryPath) {
-      this.path = zipPath;
-      this.zipEntryPath = entryPath;
+      this.path = Optional.of(zipPath);
+      this.zipEntryPath = Optional.of(entryPath);
 
       return this;
     }
@@ -814,7 +814,7 @@ public final class SourceFile implements StaticSourceFile {
      */
     @CanIgnoreReturnValue
     public Builder withOriginalPath(String originalPath) {
-      this.originalPath = originalPath;
+      this.originalPath = Optional.of(originalPath);
       return this;
     }
 
@@ -829,35 +829,35 @@ public final class SourceFile implements StaticSourceFile {
     }
 
     public SourceFile build() {
-      String displayPath =
-          (this.originalPath != null)
+      Optional<String> displayPath =
+          (this.originalPath.isPresent())
               ? this.originalPath
-              : ((this.zipEntryPath == null)
+              : ((this.zipEntryPath.isEmpty())
                   ? this.path
-                  : this.path + BANG_SLASH + this.zipEntryPath);
+                  : Optional.of(this.path.orElse("null") + BANG_SLASH + this.zipEntryPath.get()));
 
       if (this.isStubSourceFileForAlreadyProvidedInput) {
         SourceFile file =
-            new SourceFile(new CodeLoader.StubSourceFileCodeLoader(), displayPath, this.kind);
+            new SourceFile(new CodeLoader.StubSourceFileCodeLoader(), displayPath.get(), this.kind);
         file.setIsStubSourceFileForAlreadyProvidedInput(true);
         return file;
       }
 
       if (this.lazyContent != null) {
         return new SourceFile(
-            new CodeLoader.Preloaded(this.lazyContent.get()), displayPath, this.kind);
+            new CodeLoader.Preloaded(this.lazyContent.get()), displayPath.get(), this.kind);
       }
 
-      if (this.zipEntryPath != null) {
+      if (this.zipEntryPath.isPresent()) {
         return new SourceFile(
-            new CodeLoader.AtZip(this.path, this.zipEntryPath, this.charset),
-            displayPath,
+            new CodeLoader.AtZip(this.path.orElse(null), this.zipEntryPath.get(), this.charset),
+            displayPath.get(),
             this.kind);
       }
 
       return new SourceFile(
-          new CodeLoader.OnDisk(Io.pathString(this.path), this.charset),
-          displayPath,
+          new CodeLoader.OnDisk(Io.pathString(this.path.get()), this.charset),
+          displayPath.get(),
           this.kind);
     }
 
@@ -875,7 +875,7 @@ public final class SourceFile implements StaticSourceFile {
         }
       }
 
-      this.path = path;
+      this.path = Optional.of(path);
 
       return this;
     }
@@ -918,7 +918,7 @@ public final class SourceFile implements StaticSourceFile {
 
       Preloaded(String preloadedCode) {
         super();
-        this.preloadedCode = checkNotNull(preloadedCode);
+        this.preloadedCode = preloadedCode;
       }
 
       @Override

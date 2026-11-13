@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -160,7 +161,7 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
 
         // Look for calls to static functions.
         String name = calledFn.getOriginalQualifiedName();
-        if (name != null) {
+        if (!name.isEmpty()) {
           Config config = findMatching(name, n.getSourceFileName());
           if (config != null) {
             doSubstitutions(t, config, n);
@@ -232,25 +233,25 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
    */
   private Node replaceExpression(NodeTraversal t, Node expr) {
     Node replacement;
-    String key = null;
+    Optional<String> key = Optional.empty();
     String replacementString;
     switch (expr.getToken()) {
       case STRINGLIT -> {
-        key = expr.getString();
-        replacementString = getReplacement(key);
+        key = Optional.of(expr.getString());
+        replacementString = getReplacement(key.orElse(null));
         replacement = IR.string(replacementString);
       }
       case TEMPLATELIT, ADD, NAME -> {
         StringBuilder keyBuilder = new StringBuilder();
         Node keyNode = IR.string("");
         replacement = buildReplacement(t, expr, keyNode, keyBuilder);
-        key = keyBuilder.toString();
-        if (key.equals(placeholderToken)) {
+        key = Optional.of(keyBuilder.toString());
+        if (key.get().equals(placeholderToken)) {
           // There is no static text in expr - only a placeholder - so just return expr directly.
           // In this case, replacement is just the string join ('`' + expr), which is not useful.
           return expr;
         }
-        replacementString = getReplacement(key);
+        replacementString = getReplacement(key.orElse(null));
         keyNode.setString(replacementString);
       }
       default -> {
@@ -260,9 +261,8 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
       }
     }
 
-    checkNotNull(key);
-    checkNotNull(replacementString);
-    recordReplacement(key);
+    checkNotNull(key.orElseThrow());
+    recordReplacement(key.get());
 
     replacement.srcrefTreeIfMissing(expr);
     expr.replaceWith(replacement);
@@ -314,7 +314,7 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
         for (Node child = expr.getFirstChild(); child != null; child = child.getNext()) {
           switch (child.getToken()) {
             case TEMPLATELIT_STRING:
-              keyBuilder.append(child.getCookedString());
+              keyBuilder.append(child.getCookedString().orElse("null"));
               break;
             case TEMPLATELIT_SUB:
               prefix = buildReplacement(t, child.getFirstChild(), prefix, keyBuilder);

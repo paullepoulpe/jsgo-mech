@@ -44,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
 
@@ -458,8 +459,8 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
 
         results.addAll(summariesForFunction);
       } else {
-        String calleeName = nameForReference(callee);
-        results.add(summariesByName.getOrDefault(calleeName, unknownFunctionSummary));
+        Optional<String> calleeName = nameForReference(callee);
+        results.add(summariesByName.getOrDefault(calleeName.orElse(null), unknownFunctionSummary));
       }
     }
     return results.build();
@@ -562,9 +563,9 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
             summariesForAllNamesOfFunctionByNode.put(rvalue, summaryForName);
           } else if (NodeUtil.isUndefined(rvalue)) {
           } else {
-            String rvalueName = nameForReference(rvalue);
+            Optional<String> rvalueName = nameForReference(rvalue);
             AmbiguatedFunctionSummary rvalueSummary =
-                summariesByName.getOrDefault(rvalueName, unknownFunctionSummary);
+                summariesByName.getOrDefault(rvalueName.orElse(null), unknownFunctionSummary);
 
             reverseCallGraph.connectDiGraphNode(
                 rvalueSummary.graphNode,
@@ -1244,10 +1245,10 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
    *
    * <p>For NAMEs this is the name. For GETPROPs this is the last segment including a leading dot.
    */
-  private static @Nullable String nameForReference(Node nameRef) {
+  private static Optional<String> nameForReference(Node nameRef) {
     return switch (nameRef.getToken()) {
-      case NAME -> nameRef.getString();
-      case GETPROP, OPTCHAIN_GETPROP -> PROP_NAME_PREFIX + nameRef.getString();
+      case NAME -> Optional.of(nameRef.getString());
+      case GETPROP, OPTCHAIN_GETPROP -> Optional.of(PROP_NAME_PREFIX + nameRef.getString());
       default -> throw new IllegalStateException("Unexpected name reference: " + nameRef);
     };
   }
@@ -1497,7 +1498,7 @@ class PureFunctionIdentifier implements OptimizeCalls.CallGraphCompilerPass {
 
     private AmbiguatedFunctionSummary(
         DiGraph<AmbiguatedFunctionSummary, SideEffectPropagation> graph, String name) {
-      this.name = checkNotNull(name);
+      this.name = name;
       this.graphNode = graph.createNode(this);
     }
 

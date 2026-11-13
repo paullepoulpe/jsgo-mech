@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.CodingConvention.Bind;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
+import java.util.Optional;
 
 /**
  * A peephole optimization that minimizes code by simplifying conditional
@@ -570,10 +571,10 @@ class PeepholeSubstituteAlternateSyntax
 
     // These delimiters are chars that appears a lot in the program therefore
     // probably have a small Huffman encoding.
-    String delimiter = pickDelimiter(strings);
-    if (delimiter != null) {
-      String template = Joiner.on(delimiter).join(strings);
-      Node call = IR.call(IR.getprop(IR.string(template), "split"), IR.string("" + delimiter));
+    Optional<String> delimiter = pickDelimiter(strings);
+    if (delimiter.isPresent()) {
+      String template = Joiner.on(delimiter.get()).join(strings);
+      Node call = IR.call(IR.getprop(IR.string(template), "split"), IR.string("" + delimiter.get()));
       call.srcrefTreeIfMissing(n);
       n.replaceWith(call);
       reportChangeToEnclosingScope(call);
@@ -587,11 +588,11 @@ class PeepholeSubstituteAlternateSyntax
     if (n.getParent().isTaggedTemplateLit()) {
       return n;
     }
-    String string = getSideEffectFreeStringValue(n);
-    if (string == null) {
+    Optional<String> string = getSideEffectFreeStringValue(n);
+    if (string.isEmpty()) {
       return n;
     }
-    Node stringNode = IR.string(string).srcref(n);
+    Node stringNode = IR.string(string.get()).srcref(n);
     n.replaceWith(stringNode);
     reportChangeToEnclosingScope(stringNode);
     return stringNode;
@@ -602,7 +603,7 @@ class PeepholeSubstituteAlternateSyntax
    * @param strings The strings that must be separated.
    * @return a delimiter string or null
    */
-  private static String pickDelimiter(String[] strings) {
+  private static Optional<String> pickDelimiter(String[] strings) {
     boolean allLength1 = true;
     for (String s : strings) {
       if (s.length() != 1) {
@@ -612,7 +613,7 @@ class PeepholeSubstituteAlternateSyntax
     }
 
     if (allLength1) {
-      return "";
+      return Optional.of("");
     }
 
     String[] delimiters = new String[]{" ", ";", ",", "{", "}", null};
@@ -625,6 +626,6 @@ class PeepholeSubstituteAlternateSyntax
       }
       break;
     }
-    return delimiters[i];
+    return Optional.of(delimiters[i]);
   }
 }

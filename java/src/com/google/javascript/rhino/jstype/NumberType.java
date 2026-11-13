@@ -40,6 +40,7 @@
 package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.jscomp.base.Tri;
+import java.util.Optional;
 
 /**
  * Number type.
@@ -94,8 +95,8 @@ public final class NumberType extends ValueType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "number";
+  public Optional<String> getDisplayName() {
+    return Optional.of("number");
   }
 
   @Override

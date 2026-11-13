@@ -589,13 +589,13 @@ class TypeValidator implements Serializable {
    * @return True if the types matched, false otherwise.
    */
   boolean expectCanAssignToPropertyOf(
-      Node n, JSType rightType, JSType leftType, Node owner, String propName) {
+      Node n, JSType rightType, JSType leftType, Node owner, Optional<String> propName) {
     Supplier<String> typeNameSupplier;
     if (n.isMemberFieldDef()) {
       FunctionType classType = n.getGrandparent().getJSType().assertFunctionType();
       typeNameSupplier = () -> classType.getInstanceType().toString();
     } else {
-      typeNameSupplier = () -> typeRegistry.getReadableTypeName(owner);
+      typeNameSupplier = () -> typeRegistry.getReadableTypeName(owner).orElse(null);
     }
     return expectCanAssignToPropertyOf(
         n, rightType, leftType, getJSType(owner), typeNameSupplier, propName);
@@ -617,7 +617,7 @@ class TypeValidator implements Serializable {
       JSType leftType,
       JSType ownerType,
       Supplier<String> typeNameSupplier,
-      String propName) {
+      Optional<String> propName) {
     if (leftType.isTemplateType()) {
       TemplateType left = leftType.toMaybeTemplateType();
       if (rightType.containsReferenceAncestor(left)
@@ -632,7 +632,7 @@ class TypeValidator implements Serializable {
         registerMismatchAndReport(
             n,
             TYPE_MISMATCH_WARNING,
-            "assignment to property " + propName + " of " + typeNameSupplier.get(),
+            "assignment to property " + propName.orElse("null") + " of " + typeNameSupplier.get(),
             rightType,
             leftType,
             new LinkedHashSet<>(),
@@ -653,7 +653,7 @@ class TypeValidator implements Serializable {
       }
       mismatchJSType(
           n,
-          "assignment to property " + propName + " of " + typeNameSupplier.get(),
+          "assignment to property " + propName.orElse("null") + " of " + typeNameSupplier.get(),
           rightType,
           leftType);
       return false;
@@ -717,7 +717,7 @@ class TypeValidator implements Serializable {
           "actual parameter "
               + ordinal
               + " of "
-              + typeRegistry.getReadableTypeNameNoDeref(callNode.getFirstChild())
+              + typeRegistry.getReadableTypeNameNoDeref(callNode.getFirstChild()).orElse("null")
               + " does not match formal parameter",
           argType,
           paramType);
@@ -854,7 +854,7 @@ class TypeValidator implements Serializable {
    *     some rare cases we will need to declare a new var with new source info.
    */
   TypedVar expectUndeclaredVariable(
-      String sourceName,
+      Optional<String> sourceName,
       CompilerInput input,
       Node n,
       Node parent,
@@ -983,7 +983,7 @@ class TypeValidator implements Serializable {
               n,
               INTERFACE_METHOD_NOT_IMPLEMENTED,
               propName.humanReadableName(),
-              implementedInterface.getReferenceName(),
+              implementedInterface.getReferenceName().orElse("null"),
               instance.toString()));
     } else {
       boolean local = propSlot.getOwnerInstanceType().equals(instance);
@@ -1024,7 +1024,7 @@ class TypeValidator implements Serializable {
                 ? HIDDEN_INTERFACE_PROPERTY_MISMATCH
                 : HIDDEN_SUPERCLASS_PROPERTY_MISMATCH,
             propertyName.humanReadableName(),
-            parent.getReferenceName(),
+            parent.getReferenceName().orElse("null"),
             required.toString(),
             found.toString(),
             instance.toString());
@@ -1286,7 +1286,7 @@ class TypeValidator implements Serializable {
                     node,
                     RhinoErrorReporter.BOUNDED_GENERIC_TYPE_ERROR,
                     assignedType.toString(),
-                    templateType.getReferenceName(),
+                    templateType.getReferenceName().orElse("null"),
                     templateType.getBound().toString()));
             return false;
           }

@@ -23,7 +23,7 @@ import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModuleResolverFactory;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Resolution algorithm for Browsers.
@@ -43,8 +43,8 @@ public class BrowserModuleResolver extends ModuleResolver {
   }
 
   @Override
-  public @Nullable String resolveJsModule(
-      String scriptAddress, String moduleAddress, String sourcename, int lineno, int colno) {
+  public Optional<String> resolveJsModule(
+      String scriptAddress, String moduleAddress, Optional<String> sourcename, int lineno, int colno) {
 
     if (ModuleLoader.isAmbiguousIdentifier(moduleAddress)) {
       errorHandler.report(
@@ -56,11 +56,11 @@ public class BrowserModuleResolver extends ModuleResolver {
               ModuleLoader.INVALID_MODULE_PATH,
               moduleAddress,
               ModuleLoader.ResolutionMode.BROWSER.toString()));
-      return null;
+      return Optional.empty();
     }
 
-    String loadAddress = locate(scriptAddress, moduleAddress);
-    if (loadAddress == null) {
+    Optional<String> loadAddress = locate(scriptAddress, moduleAddress);
+    if (loadAddress.isEmpty()) {
       errorHandler.report(
           CheckLevel.WARNING,
           JSError.make(sourcename, lineno, colno, ModuleLoader.LOAD_WARNING, moduleAddress));
@@ -69,9 +69,9 @@ public class BrowserModuleResolver extends ModuleResolver {
   }
 
   @Override
-  public @Nullable String resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
+  public Optional<String> resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
     return ModuleLoader.isAmbiguousIdentifier(moduleAddress)
-        ? null
+        ? Optional.empty()
         : locate(scriptAddress, moduleAddress);
   }
 }

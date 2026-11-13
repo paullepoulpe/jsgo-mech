@@ -16,7 +16,6 @@
 
 package com.google.javascript.refactoring;
 
-import static java.util.Objects.requireNonNull;
 
 import com.google.errorprone.annotations.Immutable;
 import java.util.Comparator;
@@ -37,8 +36,6 @@ public record CodeReplacement(
     int getStartPosition, int getLength, String getNewContent, String getSortKey)
     implements Comparable<CodeReplacement> {
   public CodeReplacement {
-    requireNonNull(getNewContent, "getNewContent");
-    requireNonNull(getSortKey, "getSortKey");
   }
 
   @Override

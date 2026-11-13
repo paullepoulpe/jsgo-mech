@@ -33,6 +33,7 @@ import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -250,8 +251,8 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
   /** Whether this is a test method (test* or setup/teardown) that does not require JSDoc */
   private boolean isTestMethod(Node function) {
     Node bestLValue = NodeUtil.getBestLValue(function);
-    String name = bestLValue != null ? NodeUtil.getBestLValueName(bestLValue) : null;
-    return name != null && ExportTestFunctions.isTestFunction(name);
+    Optional<String> name = bestLValue != null ? NodeUtil.getBestLValueName(bestLValue) : Optional.empty();
+    return name.isPresent() && ExportTestFunctions.isTestFunction(name);
   }
 
   private boolean isConstructorWithoutParameters(Node function) {
@@ -294,8 +295,8 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
           t.report(param, MIXED_PARAM_JSDOC_STYLES);
         }
         String name = s;
-        JSTypeExpression paramType = jsDoc.getParameterType(name);
-        if (checkParam(t, param, name, paramType)) {
+        JSTypeExpression paramType = jsDoc.getParameterType(Optional.of(name));
+        if (checkParam(t, param, Optional.of(name), paramType)) {
           return;
         }
         param = param.getNext();
@@ -323,7 +324,7 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
       } else {
         JSTypeExpression paramType = jsDoc.getType();
         checkNotNull(paramType, "Inline JSDoc info should always have a type");
-        checkParam(t, param, null, paramType);
+        checkParam(t, param, Optional.empty(), paramType);
       }
     }
   }
@@ -336,7 +337,7 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
    * @return Whether a warning was reported
    */
   private boolean checkParam(
-      NodeTraversal t, Node param, @Nullable String name, @Nullable JSTypeExpression paramType) {
+      NodeTraversal t, Node param, Optional<String> name, @Nullable JSTypeExpression paramType) {
     boolean nameOptional;
     Node nodeToCheck = param;
     if (param.isDefaultValue()) {
@@ -349,10 +350,10 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
       nameOptional = false;
     }
 
-    if (name == null || !nodeToCheck.isName()) {
+    if (name.isEmpty() || !nodeToCheck.isName()) {
       // Skip the name check, but use "<unknown name>" for other errors that might be reported.
-      name = "<unknown name>";
-    } else if (!nodeToCheck.matchesQualifiedName(name)) {
+      name = Optional.of("<unknown name>");
+    } else if (!nodeToCheck.matchesQualifiedName(name.get())) {
       t.report(nodeToCheck, INCORRECT_PARAM_NAME);
       return true;
     }
@@ -367,7 +368,7 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
     }
 
     Node errorSource = paramType != null ? paramType.getRoot() : nodeToCheck;
-    t.report(errorSource, OPTIONAL_PARAM_NOT_MARKED_OPTIONAL, name);
+    t.report(errorSource, OPTIONAL_PARAM_NOT_MARKED_OPTIONAL, name.orElse("null"));
     return true;
   }
 
@@ -462,10 +463,10 @@ public final class CheckJSDocStyle extends AbstractPostOrderCallback implements 
   }
 
   private void checkLicenseComment(NodeTraversal t, Node n) {
-    if (n.getJSDocInfo() == null || n.getJSDocInfo().getLicense() == null) {
+    if (n.getJSDocInfo() == null || n.getJSDocInfo().getLicense().isEmpty()) {
       return;
     }
-    String license = n.getJSDocInfo().getLicense();
+    String license = n.getJSDocInfo().getLicense().get();
     if (license.contains("@externs")) {
       t.report(n, LICENSE_CONTAINS_AT_EXTERNS);
     }

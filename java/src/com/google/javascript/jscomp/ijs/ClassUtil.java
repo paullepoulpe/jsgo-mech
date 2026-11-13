@@ -22,7 +22,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Static utility methods for dealing with classes. The primary benefit is for papering over the
@@ -36,7 +35,7 @@ final class ClassUtil {
    * class.
    */
   static boolean isThisPropInsideClassWithName(Node maybeGetProp) {
-    return getClassNameOfThisProp(maybeGetProp) != null;
+    return !getClassNameOfThisProp(maybeGetProp).isEmpty();
   }
 
   /**
@@ -49,22 +48,22 @@ final class ClassUtil {
     return className + ".prototype." + getProp.getString();
   }
 
-  private static @Nullable String getClassNameOfThisProp(Node getprop) {
+  private static String getClassNameOfThisProp(Node getprop) {
     if (!getprop.isGetProp() || !getprop.getFirstChild().isThis()) {
-      return null;
+      return "";
     }
     if (getprop.isPrivateIdentifier()) {
       // `C.prototype.#x` would be a SyntaxError, because a private name is valid only inside the
       // class body.
-      return null;
+      return "";
     }
     Node function = NodeUtil.getEnclosingFunction(getprop);
     if (function == null) {
-      return null;
+      return "";
     }
     String className = getMemberFunctionClassName(function);
-    if (isNullOrEmpty(className)) {
-      return null;
+    if (className.isEmpty()) {
+      return "";
     }
     return className;
   }
@@ -73,7 +72,7 @@ final class ClassUtil {
    * Return whether the given node represents a MEMBER_FIELD_DEF that is inside a class with a name.
    */
   static boolean isMemberFieldDefInsideClassWithName(Node fieldNode) {
-    return getMemberFieldDefClassName(fieldNode) != null;
+    return !getMemberFieldDefClassName(fieldNode).isEmpty();
   }
 
   /**
@@ -97,7 +96,7 @@ final class ClassUtil {
         : className + ".prototype." + fieldNode.getString();
   }
 
-  private static @Nullable String getMemberFieldDefClassName(Node fieldNode) {
+  private static String getMemberFieldDefClassName(Node fieldNode) {
     checkArgument(fieldNode.isMemberFieldDef());
     Node classNode = fieldNode.getGrandparent();
     checkState(classNode.isClass());
@@ -107,7 +106,7 @@ final class ClassUtil {
   static String getFullyQualifiedNameOfMethod(Node function) {
     checkArgument(isClassMethod(function));
     String className = getMemberFunctionClassName(function);
-    checkState(className != null && !className.isEmpty());
+    checkState(!className.isEmpty() && !className.isEmpty());
     Node memberFunctionDef = function.getParent();
     String methodName = memberFunctionDef.getString();
     return memberFunctionDef.isStaticMember()
@@ -127,7 +126,7 @@ final class ClassUtil {
    */
   static boolean hasNamedClass(Node functionNode) {
     checkArgument(functionNode.isFunction());
-    return getMemberFunctionClassName(functionNode) != null;
+    return !getMemberFunctionClassName(functionNode).isEmpty();
   }
 
   private static String getMemberFunctionClassName(Node functionNode) {

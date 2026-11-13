@@ -219,7 +219,7 @@ class DevirtualizeMethods implements OptimizeCalls.CallGraphCompilerPass {
 
   private boolean isDefinitelyCtorOrInterface(Node receiver) {
     String qname = receiver.getQualifiedName();
-    if (qname == null) {
+    if (qname.isEmpty()) {
       return false;
     }
 

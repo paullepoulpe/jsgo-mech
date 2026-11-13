@@ -195,7 +195,7 @@ public final class RewriteCallerCodeLocation implements CompilerPass {
           // E.g: function signal(val, here: goog.CodeLocation = goog.callerLocation()) {}
           // Add ("signal" -> 2) to `callerLocationFunctionNames`
           String functionName = n.getParent().getFirstChild().getQualifiedName();
-          if (functionName == null) {
+          if (functionName.isEmpty()) {
             // Anonymous functions are not allowed to use goog.callerLocation.
             compiler.report(
                 JSError.make(
@@ -233,7 +233,7 @@ public final class RewriteCallerCodeLocation implements CompilerPass {
       Node firstChild = n.getFirstChild();
       if (firstChild == null
           || (!firstChild.isName() && !firstChild.isGetProp())
-          || firstChild.getQualifiedName() == null) {
+          || firstChild.getQualifiedName().isEmpty()) {
         return;
       }
 

@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.bundle;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.errorprone.annotations.Immutable;
 import java.util.Optional;
@@ -33,7 +32,7 @@ public class Transpiler extends CompilerBasedTransformer {
   public Transpiler(CompilerBasedTransformer.CompilerSupplier compilerSupplier,
       String runtimeLibraryName) {
     super(compilerSupplier);
-    this.runtimeLibraryName = checkNotNull(runtimeLibraryName);
+    this.runtimeLibraryName = runtimeLibraryName;
   }
 
   public static CompilerBasedTransformer.CompilerSupplier compilerSupplier() {

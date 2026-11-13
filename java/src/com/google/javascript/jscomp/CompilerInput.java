@@ -42,6 +42,7 @@ import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -317,7 +318,7 @@ public class CompilerInput implements DependencyInfo {
     }
     if (!extraRequires.isEmpty() || !extraProvides.isEmpty()) {
       dependencyInfo =
-          SimpleDependencyInfo.builder(getName(), getName())
+          SimpleDependencyInfo.builder(getName(), Optional.of(getName()))
               .setProvides(concat(dependencyInfo.getProvides(), extraProvides))
               .setRequires(concat(dependencyInfo.getRequires(), extraRequires))
               .setTypeRequires(dependencyInfo.getTypeRequires())
@@ -355,7 +356,7 @@ public class CompilerInput implements DependencyInfo {
             .getErrorManager()
             .report(
                 CheckLevel.ERROR,
-                JSError.make(AbstractCompiler.READ_ERROR, getName(), codeRes.errorMessage()));
+                JSError.make(AbstractCompiler.READ_ERROR, getName(), codeRes.errorMessage().orElse("null")));
         return SimpleDependencyInfo.EMPTY;
       }
       DependencyInfo info =
@@ -386,7 +387,7 @@ public class CompilerInput implements DependencyInfo {
       // compilation scheme. The API needs to be fixed so callers aren't
       // doing weird things like this, and then we should get rid of the
       // multiple-scan strategy.
-      return SimpleDependencyInfo.builder("", "")
+      return SimpleDependencyInfo.builder("", Optional.of(""))
           .setProvides(finder.provides)
           .setRequires(finder.requires)
           .setTypeRequires(finder.typeRequires)
@@ -534,7 +535,7 @@ public class CompilerInput implements DependencyInfo {
       }
       ModulePath importedModule =
           modulePath.resolveJsModule(
-              moduleName, modulePath.toString(), n.getLineno(), n.getCharno());
+              moduleName, Optional.of(modulePath.toString()), n.getLineno(), n.getCharno());
 
       if (importedModule == null) {
         importedModule = modulePath.resolveModuleAsPath(moduleName);
@@ -679,7 +680,7 @@ public class CompilerInput implements DependencyInfo {
       if (codeRes.isErr()) {
         compiler.report(
             JSError.make(
-                AbstractCompiler.READ_ERROR, sourceFile.getName(), codeRes.errorMessage()));
+                AbstractCompiler.READ_ERROR, sourceFile.getName(), codeRes.errorMessage().orElse("null")));
       } else {
         ParserRunner.ParseResult result =
             ParserRunner.parse(
@@ -696,10 +697,10 @@ public class CompilerInput implements DependencyInfo {
         if (compiler.getOptions().preservesDetailedSourceInfo()) {
           compiler.addComments(sourceFile.getName(), result.comments);
         }
-        if (result.sourceMapURL != null && compiler.getOptions().getResolveSourceMapAnnotations()) {
+        if (result.sourceMapURL.isPresent() && compiler.getOptions().getResolveSourceMapAnnotations()) {
           boolean parseInline = compiler.getOptions().getParseInlineSourceMaps();
           SourceFile sourceMapSourceFile =
-              SourceMapResolver.extractSourceMap(sourceFile, result.sourceMapURL, parseInline);
+              SourceMapResolver.extractSourceMap(sourceFile, result.sourceMapURL.get(), parseInline);
           if (sourceMapSourceFile != null) {
             compiler.addInputSourceMap(
                 sourceFile.getName(), new SourceMapInput(sourceMapSourceFile));

@@ -81,7 +81,6 @@ public final class Property implements StaticTypedSlot, StaticTypedRef {
   /** A property string key, such as a in {a: 0}; */
   public record StringKey(String string) implements Key {
     public StringKey {
-      checkNotNull(string);
     }
 
     @Override
@@ -118,7 +117,7 @@ public final class Property implements StaticTypedSlot, StaticTypedRef {
 
     @Override
     public String humanReadableName() {
-      return symbol().getDisplayName();
+      return symbol().getDisplayName().orElseThrow();
     }
   }
 
@@ -206,7 +205,7 @@ public final class Property implements StaticTypedSlot, StaticTypedRef {
   public String getName() {
     return switch (name) {
       case String s -> s;
-      case KnownSymbolType s -> s.getDisplayName();
+      case KnownSymbolType s -> s.getDisplayName().orElseThrow();
       default -> throw new AssertionError();
     };
   }

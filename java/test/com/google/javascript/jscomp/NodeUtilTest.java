@@ -74,6 +74,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -567,74 +568,74 @@ public final class NodeUtilTest {
 
     @Test
     public void testGetStringValue() {
-      assertThat(NodeUtil.getStringValue(parseExpr("true"))).isEqualTo("true");
-      assertThat(NodeUtil.getStringValue(parseExpr("10"))).isEqualTo("10");
-      assertThat(NodeUtil.getStringValue(parseExpr("1.0"))).isEqualTo("1");
-      assertThat(NodeUtil.getStringValue(parseExpr("-1.0"))).isEqualTo("-1");
+      assertThat(NodeUtil.getStringValue(parseExpr("true")).orElse(null)).isEqualTo("true");
+      assertThat(NodeUtil.getStringValue(parseExpr("10")).orElse(null)).isEqualTo("10");
+      assertThat(NodeUtil.getStringValue(parseExpr("1.0")).orElse(null)).isEqualTo("1");
+      assertThat(NodeUtil.getStringValue(parseExpr("-1.0")).orElse(null)).isEqualTo("-1");
 
       /* See https://github.com/google/closure-compiler/issues/1262 */
-      assertThat(NodeUtil.getStringValue(parseExpr("1.2323919403474454e+21")))
+      assertThat(NodeUtil.getStringValue(parseExpr("1.2323919403474454e+21")).orElse(null))
           .isEqualTo("1.2323919403474454e+21");
 
-      assertThat(NodeUtil.getStringValue(parseExpr("'0'"))).isEqualTo("0");
-      assertThat(NodeUtil.getStringValue(parseExpr("/a/"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{}"))).isEqualTo("[object Object]");
-      assertThat(NodeUtil.getStringValue(parseExpr("{a: 1}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{'a': 1, 2: 3}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{foo() {}}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{get foo() { return 1; }}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{set foo(x) {}}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{toString: 1}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{'toString': 1}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{toString() { return 'foo'; }}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{get toString() { return 'foo'; }}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{set toString(x) {}}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{valueOf: 1}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{'valueOf': 1}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{valueOf() { return 1; }}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{get valueOf() { return 1; }}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{set valueOf(x) {}}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{__proto__: null}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{'__proto__': null}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{__proto__: p}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{[key]: 'val'}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("{...spread}"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("[]"))).isEmpty();
-      assertThat(NodeUtil.getStringValue(parseExpr("false"))).isEqualTo("false");
-      assertThat(NodeUtil.getStringValue(parseExpr("null"))).isEqualTo("null");
-      assertThat(NodeUtil.getStringValue(parseExpr("0"))).isEqualTo("0");
-      assertThat(NodeUtil.getStringValue(parseExpr("1n"))).isEqualTo("1");
-      assertThat(NodeUtil.getStringValue(parseExpr("''"))).isEmpty();
-      assertThat(NodeUtil.getStringValue(parseExpr("undefined"))).isEqualTo("undefined");
-      assertThat(NodeUtil.getStringValue(parseExpr("void 0"))).isEqualTo("undefined");
-      assertThat(NodeUtil.getStringValue(parseExpr("void foo()"))).isEqualTo("undefined");
+      assertThat(NodeUtil.getStringValue(parseExpr("'0'")).orElse(null)).isEqualTo("0");
+      assertThat(NodeUtil.getStringValue(parseExpr("/a/")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{}")).orElse(null)).isEqualTo("[object Object]");
+      assertThat(NodeUtil.getStringValue(parseExpr("{a: 1}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{'a': 1, 2: 3}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{foo() {}}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{get foo() { return 1; }}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{set foo(x) {}}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{toString: 1}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{'toString': 1}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{toString() { return 'foo'; }}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{get toString() { return 'foo'; }}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{set toString(x) {}}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{valueOf: 1}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{'valueOf': 1}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{valueOf() { return 1; }}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{get valueOf() { return 1; }}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{set valueOf(x) {}}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{__proto__: null}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{'__proto__': null}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{__proto__: p}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{[key]: 'val'}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("{...spread}")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("[]")).orElse(null)).isEmpty();
+      assertThat(NodeUtil.getStringValue(parseExpr("false")).orElse(null)).isEqualTo("false");
+      assertThat(NodeUtil.getStringValue(parseExpr("null")).orElse(null)).isEqualTo("null");
+      assertThat(NodeUtil.getStringValue(parseExpr("0")).orElse(null)).isEqualTo("0");
+      assertThat(NodeUtil.getStringValue(parseExpr("1n")).orElse(null)).isEqualTo("1");
+      assertThat(NodeUtil.getStringValue(parseExpr("''")).orElse(null)).isEmpty();
+      assertThat(NodeUtil.getStringValue(parseExpr("undefined")).orElse(null)).isEqualTo("undefined");
+      assertThat(NodeUtil.getStringValue(parseExpr("void 0")).orElse(null)).isEqualTo("undefined");
+      assertThat(NodeUtil.getStringValue(parseExpr("void foo()")).orElse(null)).isEqualTo("undefined");
 
-      assertThat(NodeUtil.getStringValue(parseExpr("NaN"))).isEqualTo("NaN");
-      assertThat(NodeUtil.getStringValue(parseExpr("Infinity"))).isEqualTo("Infinity");
-      assertThat(NodeUtil.getStringValue(parseExpr("x"))).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("NaN")).orElse(null)).isEqualTo("NaN");
+      assertThat(NodeUtil.getStringValue(parseExpr("Infinity")).orElse(null)).isEqualTo("Infinity");
+      assertThat(NodeUtil.getStringValue(parseExpr("x")).orElse(null)).isNull();
 
-      assertThat(NodeUtil.getStringValue(parseExpr("`Hello`"))).isEqualTo("Hello");
-      assertThat(NodeUtil.getStringValue(parseExpr("`Hello ${'foo'}`"))).isEqualTo("Hello foo");
-      assertThat(NodeUtil.getStringValue(parseExpr("`Hello ${name}`"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("`${4} bananas`"))).isEqualTo("4 bananas");
-      assertThat(NodeUtil.getStringValue(parseExpr("`This is ${true}.`")))
+      assertThat(NodeUtil.getStringValue(parseExpr("`Hello`")).orElse(null)).isEqualTo("Hello");
+      assertThat(NodeUtil.getStringValue(parseExpr("`Hello ${'foo'}`")).orElse(null)).isEqualTo("Hello foo");
+      assertThat(NodeUtil.getStringValue(parseExpr("`Hello ${name}`")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("`${4} bananas`")).orElse(null)).isEqualTo("4 bananas");
+      assertThat(NodeUtil.getStringValue(parseExpr("`This is ${true}.`")).orElse(null))
           .isEqualTo("This is true.");
-      assertThat(NodeUtil.getStringValue(parseExpr("`${'hello'} ${name}`"))).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("`${'hello'} ${name}`")).orElse(null)).isNull();
     }
 
     @Test
     public void testGetArrayStringValue() {
-      assertThat(NodeUtil.getStringValue(parseExpr("[]"))).isEmpty();
-      assertThat(NodeUtil.getStringValue(parseExpr("['']"))).isEmpty();
-      assertThat(NodeUtil.getStringValue(parseExpr("[null]"))).isEmpty();
-      assertThat(NodeUtil.getStringValue(parseExpr("[undefined]"))).isEmpty();
-      assertThat(NodeUtil.getStringValue(parseExpr("[void 0]"))).isEmpty();
-      assertThat(NodeUtil.getStringValue(parseExpr("[NaN]"))).isEqualTo("NaN");
-      assertThat(NodeUtil.getStringValue(parseExpr("[,'']"))).isEqualTo(",");
-      assertThat(NodeUtil.getStringValue(parseExpr("[[''],[''],['']]"))).isEqualTo(",,");
-      assertThat(NodeUtil.getStringValue(parseExpr("[[1.0],[2.0]]"))).isEqualTo("1,2");
-      assertThat(NodeUtil.getStringValue(parseExpr("[a]"))).isNull();
-      assertThat(NodeUtil.getStringValue(parseExpr("[1,a]"))).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("[]")).orElse(null)).isEmpty();
+      assertThat(NodeUtil.getStringValue(parseExpr("['']")).orElse(null)).isEmpty();
+      assertThat(NodeUtil.getStringValue(parseExpr("[null]")).orElse(null)).isEmpty();
+      assertThat(NodeUtil.getStringValue(parseExpr("[undefined]")).orElse(null)).isEmpty();
+      assertThat(NodeUtil.getStringValue(parseExpr("[void 0]")).orElse(null)).isEmpty();
+      assertThat(NodeUtil.getStringValue(parseExpr("[NaN]")).orElse(null)).isEqualTo("NaN");
+      assertThat(NodeUtil.getStringValue(parseExpr("[,'']")).orElse(null)).isEqualTo(",");
+      assertThat(NodeUtil.getStringValue(parseExpr("[[''],[''],['']]")).orElse(null)).isEqualTo(",,");
+      assertThat(NodeUtil.getStringValue(parseExpr("[[1.0],[2.0]]")).orElse(null)).isEqualTo("1,2");
+      assertThat(NodeUtil.getStringValue(parseExpr("[a]")).orElse(null)).isNull();
+      assertThat(NodeUtil.getStringValue(parseExpr("[1,a]")).orElse(null)).isNull();
     }
 
     @Test
@@ -712,14 +713,14 @@ public final class NodeUtilTest {
     public void testGetBestFunctionName1() {
       Node parent = parse("function func(){}");
 
-      assertThat(NodeUtil.getNearestFunctionName(parent.getFirstChild())).isEqualTo("func");
+      assertThat(NodeUtil.getNearestFunctionName(parent.getFirstChild()).orElse(null)).isEqualTo("func");
     }
 
     @Test
     public void testGetBestFunctionName2() {
       Node parent = parse("var obj = {memFunc(){}}").getFirstFirstChild().getFirstFirstChild();
 
-      assertThat(NodeUtil.getNearestFunctionName(parent.getLastChild())).isEqualTo("memFunc");
+      assertThat(NodeUtil.getNearestFunctionName(parent.getLastChild()).orElse(null)).isEqualTo("memFunc");
     }
 
     @Test
@@ -2893,7 +2894,7 @@ public final class NodeUtilTest {
     @Test
     public void testGetBestLValueName() {
       Function<String, String> getBestName =
-          (js) -> NodeUtil.getBestLValueName(NodeUtil.getBestLValue(parseFirst(FUNCTION, js)));
+          (js) -> NodeUtil.getBestLValueName(NodeUtil.getBestLValue(parseFirst(FUNCTION, js))).orElse(null);
       assertThat(getBestName.apply("var x = function() {};")).isEqualTo("x");
       assertThat(getBestName.apply("x = function() {};")).isEqualTo("x");
       assertThat(getBestName.apply("function x() {};")).isEqualTo("x");
@@ -5753,7 +5754,7 @@ public final class NodeUtilTest {
   }
 
   private static void testFunctionName(String js, @Nullable String expected) {
-    assertThat(NodeUtil.getNearestFunctionName(parseFirst(FUNCTION, js))).isEqualTo(expected);
+    assertThat(NodeUtil.getNearestFunctionName(parseFirst(FUNCTION, js)).orElse(null)).isEqualTo(expected);
   }
 
   /**

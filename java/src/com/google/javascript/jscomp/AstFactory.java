@@ -46,6 +46,7 @@ import com.google.javascript.rhino.jstype.TemplateTypeMap;
 import com.google.javascript.rhino.jstype.TemplateTypeReplacer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
@@ -717,7 +718,7 @@ final class AstFactory {
    * this does not work for instance methods or properties, for example.
    */
   Node createQNameIterable(StaticScope scope, Iterable<String> names) {
-    String baseName = checkNotNull(Iterables.getFirst(names, null));
+    String baseName = Optional.ofNullable(Iterables.getFirst(names, null)).orElseThrow();
     Iterable<String> propertyNames = Iterables.skip(names, 1);
     return createQName(scope, baseName, propertyNames);
   }
@@ -729,7 +730,6 @@ final class AstFactory {
    * this does not work for instance methods or properties, for example.
    */
   Node createQNameStringVarargs(StaticScope scope, String baseName, String... propertyNames) {
-    checkNotNull(baseName);
     return createQName(scope, baseName, Arrays.asList(propertyNames));
   }
 
@@ -777,7 +777,7 @@ final class AstFactory {
   Node createQName(StaticScope scope, JsLibField field) {
     String qname = field.assertInjected().qualifiedName();
     List<String> parts = DOT_SPLITTER.splitToList(qname);
-    String baseName = checkNotNull(Iterables.getFirst(parts, null));
+    String baseName = Optional.ofNullable(Iterables.getFirst(parts, null)).orElseThrow();
     checkState(baseName.startsWith("$jscomp"), "Unexpected Field name %s", baseName);
 
     Node baseNameNode =
@@ -797,7 +797,7 @@ final class AstFactory {
 
   Node createQNameWithUnknownTypeJsLibField(JsLibField field) {
     List<String> parts = DOT_SPLITTER.splitToList(field.assertInjected().qualifiedName());
-    String baseName = checkNotNull(Iterables.getFirst(parts, null));
+    String baseName = Optional.ofNullable(Iterables.getFirst(parts, null)).orElseThrow();
     checkState(baseName.startsWith("$jscomp"), "Unexpected Field name %s", baseName);
     Node baseNameNode =
         baseName.equals("$jscomp")
@@ -811,7 +811,7 @@ final class AstFactory {
   }
 
   private Node createQNameWithUnknownTypeIterable(Iterable<String> names) {
-    String baseName = checkNotNull(Iterables.getFirst(names, null));
+    String baseName = Optional.ofNullable(Iterables.getFirst(names, null)).orElseThrow();
     Iterable<String> propertyNames = Iterables.skip(names, 1);
     return createQNameWithUnknownType(baseName, propertyNames);
   }

@@ -19,6 +19,7 @@ package com.google.javascript.jscomp;
 import com.google.common.collect.Iterables;
 import com.google.javascript.jscomp.graph.GraphvizGraph;
 import com.google.javascript.jscomp.graph.LinkedDirectedGraph;
+import java.util.Optional;
 
 /** Pass factories and meta-data for native Compiler passes. */
 public abstract class PassConfig {
@@ -76,8 +77,8 @@ public abstract class PassConfig {
     LinkedDirectedGraph<String, String> graph = LinkedDirectedGraph.createWithoutAnnotations();
     Iterable<PassFactory> allPasses =
         Iterables.concat(getChecks().build(), getOptimizations().build());
-    String lastPass = null;
-    String loopStart = null;
+    Optional<String> lastPass = Optional.empty();
+    Optional<String> loopStart = Optional.empty();
     for (PassFactory pass : allPasses) {
       String passName = pass.getName();
       int i = 1;
@@ -87,17 +88,17 @@ public abstract class PassConfig {
       }
       graph.createNode(passName);
 
-      if (loopStart == null && pass.isRunInFixedPointLoop()) {
-        loopStart = passName;
-      } else if (loopStart != null && !pass.isRunInFixedPointLoop()) {
-        graph.connect(lastPass, "loop", loopStart);
-        loopStart = null;
+      if (loopStart.isEmpty() && pass.isRunInFixedPointLoop()) {
+        loopStart = Optional.of(passName);
+      } else if (loopStart.isPresent() && !pass.isRunInFixedPointLoop()) {
+        graph.connect(lastPass.orElse(null), "loop", loopStart.get());
+        loopStart = Optional.empty();
       }
 
-      if (lastPass != null) {
-        graph.connect(lastPass, "", passName);
+      if (lastPass.isPresent()) {
+        graph.connect(lastPass.get(), "", passName);
       }
-      lastPass = passName;
+      lastPass = Optional.of(passName);
     }
     return graph;
   }

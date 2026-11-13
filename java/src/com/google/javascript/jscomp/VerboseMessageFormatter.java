@@ -15,7 +15,7 @@
  */
 package com.google.javascript.jscomp;
 
-import com.google.common.base.Strings;
+import java.util.Optional;
 
 /**
  * Verbose message formatter. This formatter generates very loud and long
@@ -38,18 +38,18 @@ class VerboseMessageFormatter extends AbstractMessageFormatter {
 
   private String format(JSError message) {
     String description = message.description();
-    String sourceName = message.sourceName();
+    Optional<String> sourceName = message.sourceName();
     int lineNumber = message.getLineNumber();
     Region sourceRegion = getSource().getSourceRegion(sourceName, lineNumber);
-    String lineSource = null;
+    Optional<String> lineSource = Optional.empty();
     if (sourceRegion != null) {
-      lineSource = sourceRegion.getSourceExcerpt();
+      lineSource = Optional.of(sourceRegion.getSourceExcerpt());
     }
     return String.format(
         "%s at %s line %s %s",
         description,
-        (Strings.isNullOrEmpty(sourceName) ? "(unknown source)" : sourceName),
+        (sourceName.orElse("").isEmpty() ? "(unknown source)" : sourceName.get()),
         ((lineNumber < 0) ? "(unknown line)" : String.valueOf(lineNumber)),
-        ((lineSource != null) ? ":\n\n" + lineSource : "."));
+        ((lineSource.isPresent()) ? ":\n\n" + lineSource.get() : "."));
   }
 }

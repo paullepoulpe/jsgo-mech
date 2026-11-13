@@ -36,7 +36,7 @@ final class WritingLogFile extends LogFile {
 
   @MustBeClosed
   static LogFile create(String file) {
-    Io.mkdirs(Io.pathParent(file));
+    Io.mkdirs(Io.pathParent(file).orElse(null));
     // The log allows the logged string to contain invalid Unicode (it replaces invalid character
     // sequences but doesn't throw). This is useful in cases where the source code contains invalid
     // Unicode (e.g., inside strings).

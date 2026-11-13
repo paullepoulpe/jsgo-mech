@@ -57,7 +57,7 @@ final class JsFlumeCallback implements NodeTraversal.Callback {
       String filename = n.getSourceFileName();
       if (includeFilePattern != null
           && !Strings.isNullOrEmpty(includeFilePattern.pattern())
-          && !Strings.isNullOrEmpty(filename)) {
+          && !filename.isEmpty()) {
         return includeFilePattern.matcher(filename).find();
       }
     }

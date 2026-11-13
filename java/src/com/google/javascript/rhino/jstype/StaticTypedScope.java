@@ -82,7 +82,7 @@ public interface StaticTypedScope extends StaticScope {
    * inferred name.
    */
   default @Nullable JSType lookupQualifiedName(QualifiedName qname) {
-    StaticTypedSlot slot = getSlot(qname.join());
+    StaticTypedSlot slot = getSlot(qname.join().get());
     if (slot != null && !slot.isTypeInferred()) {
       return slot.getType();
     } else if (!qname.isSimple()) {

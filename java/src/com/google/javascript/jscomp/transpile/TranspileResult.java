@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.transpile;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.escape.Escaper;
 import com.google.common.net.PercentEscaper;
@@ -35,10 +34,10 @@ public final class TranspileResult {
   private final String sourceMapField;
 
   public TranspileResult(String path, String original, String transpiled, String sourceMap) {
-    this.pathField = checkNotNull(path);
-    this.originalField = checkNotNull(original);
-    this.transpiledField = checkNotNull(transpiled);
-    this.sourceMapField = checkNotNull(sourceMap);
+    this.pathField = path;
+    this.originalField = original;
+    this.transpiledField = transpiled;
+    this.sourceMapField = sourceMap;
   }
 
   public String path() {

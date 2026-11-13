@@ -33,6 +33,7 @@ import com.google.javascript.rhino.jstype.JSTypeNative;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.ObjectType;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
@@ -300,7 +301,7 @@ final class ModuleImportResolver {
   private ScopedName getScopedNameFromEsBinding(Binding binding) {
     // NB: If the original export was an `export default` then the local name is *default*.
     // We've already declared a dummy variable named `*default*` in the scope.
-    String name = binding.isModuleNamespace() ? Export.NAMESPACE : binding.boundName();
+    Optional<String> name = binding.isModuleNamespace() ? Optional.of(Export.NAMESPACE) : binding.boundName();
     ModuleMetadata originalMetadata =
         binding.isModuleNamespace()
             ? binding.metadata()
@@ -311,27 +312,28 @@ final class ModuleImportResolver {
         // Imports of nonexistent modules have a null 'root node'. Imports of names from scripts are
         // meaningless.
         checkState(scriptNode == null || scriptNode.isScript(), scriptNode);
-        yield ScopedName.of(name, scriptNode != null ? scriptNode.getOnlyChild() : null);
+        yield ScopedName.of(name.orElse(null), scriptNode != null ? scriptNode.getOnlyChild() : null);
       }
       case GOOG_MODULE, GOOG_PROVIDE, LEGACY_GOOG_MODULE -> {
         ScopedName closureModuleObject =
-            getScopedNameForClosureNamespace(binding.closureNamespace());
+            getScopedNameForClosureNamespace(binding.closureNamespace().orElse(null));
         if (closureModuleObject == null) {
           // This is an error, but one that should be reported elsewhere. assume the module is
           // a goog.provide for legacy compatibility.
-          yield ScopedName.of(binding.closureNamespace(), null);
+          yield ScopedName.of(binding.closureNamespace().orElse(null), null);
         }
         if (binding.isModuleNamespace()) {
           yield closureModuleObject;
         }
         yield ScopedName.of(
-            closureModuleObject.getName() + "." + binding.originatingExport().exportName(),
+            closureModuleObject.getName() + "." + binding.originatingExport().exportName().orElse("null"),
             closureModuleObject.getScopeRoot());
       }
       case SCRIPT ->
           // Importing SCRIPTs should not allow you to look up names in scope.
           // we also don't really support CommonJs.
-          ScopedName.of(name, null);
+          // No name: "" is not the name of any variable either.
+          ScopedName.of(name.orElse(""), null);
       case COMMON_JS ->
           throw new IllegalStateException("Typechecking CommonJS modules is not supported");
     };

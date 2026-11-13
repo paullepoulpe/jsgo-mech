@@ -56,7 +56,7 @@ public class PrintStreamErrorManager extends BasicErrorManager {
 
   @Override
   public void println(CheckLevel level, JSError error) {
-    stream.println(error.format(level, formatter));
+    stream.println(error.format(level, formatter).get());
   }
 
   public void setSummaryDetailLevel(int summaryDetailLevel) {

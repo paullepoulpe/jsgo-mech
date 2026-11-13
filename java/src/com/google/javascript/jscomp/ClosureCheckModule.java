@@ -34,6 +34,7 @@ import com.google.javascript.rhino.Token;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -244,7 +245,7 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
       case CALL:
         Node callee = n.getFirstChild();
         if (GOOG_MODULE_FIELD.matches(callee)) {
-          if (!currentModuleInfo.name.equals(extractFirstArgumentName(n))) {
+          if (!Optional.of(currentModuleInfo.name).equals(extractFirstArgumentName(n))) {
             t.report(n, MULTIPLE_MODULES_IN_FILE);
           } else if (!isFirstExpressionInGoogModule(parent)) {
             t.report(n, GOOG_MODULE_MISPLACED);
@@ -309,8 +310,8 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
             while (checkImproperReferenceToImport(
                 t,
                 node,
-                node.getQualifiedName(),
-                node.getParent().isGetProp() ? node.getParent().getString() : null)) {
+                Optional.of(node.getQualifiedName()).filter(s -> !s.isEmpty()),
+                node.getParent().isGetProp() ? Optional.of(node.getParent().getString()) : Optional.empty())) {
               if (node.isName() || !node.hasChildren()) {
                 // Don't get the value of a declaration (i.e. `var name = 2`)
                 return;
@@ -345,14 +346,14 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
             }
 
             String qname = node.getString();
-            String nextQnamePart = null;
+            Optional<String> nextQnamePart = Optional.empty();
 
-            while (checkImproperReferenceToImport(t, node, qname, nextQnamePart)) {
+            while (checkImproperReferenceToImport(t, node, Optional.of(qname), nextQnamePart)) {
               int lastDot = qname.lastIndexOf('.');
               if (lastDot < 0) {
                 return;
               }
-              nextQnamePart = qname.substring(lastDot + 1);
+              nextQnamePart = Optional.of(qname.substring(lastDot + 1));
               qname = qname.substring(0, lastDot);
             }
           }
@@ -370,17 +371,17 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
    * @return true if the reference might be valid, false means an error was reported
    */
   private boolean checkImproperReferenceToImport(
-      NodeTraversal t, Node n, String qname, @Nullable String nextQnamePart) {
-    if (qname == null) {
+      NodeTraversal t, Node n, Optional<String> qname, Optional<String> nextQnamePart) {
+    if (qname.isEmpty()) {
       return true;
     }
 
-    Node importLhs = currentModuleInfo.importsByLongRequiredName.get(qname);
+    Node importLhs = currentModuleInfo.importsByLongRequiredName.get(qname.get());
     if (importLhs == null) {
       return true;
     }
 
-    if (!qname.contains(".") && isLocalVar(t.getScope().getVar(qname))) {
+    if (!qname.get().contains(".") && isLocalVar(t.getScope().getVar(qname.get()))) {
       return true;
     }
 
@@ -389,10 +390,10 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
           JSError.make(
               n,
               REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME,
-              qname,
+              qname.get(),
               importLhs.getString()));
       return false;
-    } else if (importLhs.isDestructuringLhs() && nextQnamePart != null) {
+    } else if (importLhs.isDestructuringLhs() && nextQnamePart.isPresent()) {
       Node objPattern = importLhs.getFirstChild();
       if (objPattern.isObjectPattern()) {
         for (Node strKey = objPattern.getFirstChild(); strKey != null; strKey = strKey.getNext()) {
@@ -401,13 +402,13 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
           if (strKey.isStringKey()
               && strKey.hasOneChild()
               && strKey.getFirstChild().isName()
-              && strKey.getString().equals(nextQnamePart)) {
+              && strKey.getString().equals(nextQnamePart.get())) {
             Node parent = n.getParent();
             this.compiler.report(
                 JSError.make(
                     (parent != null && parent.isGetProp()) ? parent : n,
                     REFERENCE_TO_SHORT_IMPORT_BY_LONG_NAME_INCLUDING_SHORT_NAME,
-                    qname + "." + nextQnamePart,
+                    qname.get() + "." + nextQnamePart.get(),
                     strKey.getFirstChild().getString()));
             return false;
           }
@@ -423,7 +424,7 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
       return true;
     }
 
-    this.compiler.report(JSError.make(n, REFERENCE_TO_FULLY_QUALIFIED_IMPORT_NAME, qname));
+    this.compiler.report(JSError.make(n, REFERENCE_TO_FULLY_QUALIFIED_IMPORT_NAME, qname.get()));
     return false;
   }
 
@@ -468,12 +469,12 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
     }
   }
 
-  private static @Nullable String extractFirstArgumentName(Node callNode) {
+  private static Optional<String> extractFirstArgumentName(Node callNode) {
     Node firstArg = callNode.getSecondChild();
     if (firstArg != null && firstArg.isStringLit()) {
-      return firstArg.getString();
+      return Optional.of(firstArg.getString());
     }
-    return null;
+    return Optional.empty();
   }
 
   private void checkRequireCall(NodeTraversal t, Node callNode, Node parent) {
@@ -481,8 +482,8 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
     checkState(callNode.getLastChild().isStringLit());
     switch (parent.getToken()) {
       case EXPR_RESULT -> {
-        String key = extractFirstArgumentName(callNode);
-        currentModuleInfo.importsByLongRequiredName.putIfAbsent(key, parent);
+        Optional<String> key = extractFirstArgumentName(callNode);
+        currentModuleInfo.importsByLongRequiredName.putIfAbsent(key.orElse(null), parent);
       }
       case NAME, DESTRUCTURING_LHS -> checkShortGoogRequireCall(t, callNode, parent.getParent());
       case AWAIT -> {
@@ -515,7 +516,7 @@ public final class ClosureCheckModule extends AbstractModuleCallback implements 
     } else if (lhs.isName()) {
       checkShortName(t, lhs, callNode.getLastChild().getString());
     }
-    currentModuleInfo.importsByLongRequiredName.put(extractFirstArgumentName(callNode), lhs);
+    currentModuleInfo.importsByLongRequiredName.put(extractFirstArgumentName(callNode).orElse(null), lhs);
     NodeUtil.visitLhsNodesInNode(
         declaration,
         (nameNode) -> {

@@ -43,6 +43,7 @@ import static com.google.javascript.rhino.jstype.JSTypeNative.SYMBOL_OBJECT_TYPE
 import static com.google.javascript.rhino.jstype.JSTypeNative.SYMBOL_TYPE;
 
 import com.google.javascript.jscomp.base.Tri;
+import java.util.Optional;
 
 /**
  * Symbol type.
@@ -99,8 +100,8 @@ public class SymbolType extends ValueType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "symbol";
+  public Optional<String> getDisplayName() {
+    return Optional.of("symbol");
   }
 
   @Override

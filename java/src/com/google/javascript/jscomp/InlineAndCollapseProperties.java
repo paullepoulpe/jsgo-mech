@@ -1566,7 +1566,7 @@ class InlineAndCollapseProperties implements CompilerPass {
     /** Flattens a stub declaration. This is mostly a hack to support legacy users. */
     private void flattenSimpleStubDeclaration(Name name, String alias) {
       Ref ref = Iterables.getOnlyElement(name.getRefs());
-      Node nameNode = NodeUtil.newName(compiler, alias, ref.getNode(), name.getFullName());
+      Node nameNode = NodeUtil.newName(compiler, alias, ref.getNode(), Optional.of(name.getFullName()));
       Node varNode = IR.var(nameNode).srcrefIfMissing(nameNode);
 
       checkState(ref.getNode().getParent().isExprResult());
@@ -1715,7 +1715,7 @@ class InlineAndCollapseProperties implements CompilerPass {
       //     string c
       // AFTER:
       //   name a$b$c
-      Node ref = NodeUtil.newName(compiler, alias, n, originalName).copyTypeFrom(n);
+      Node ref = NodeUtil.newName(compiler, alias, n, Optional.of(originalName)).copyTypeFrom(n);
       NodeUtil.copyNameAnnotations(n, ref);
       if (isConstantName) {
         ref.putBooleanProp(Node.IS_CONSTANT_NAME, isConstantName);
@@ -1797,7 +1797,7 @@ class InlineAndCollapseProperties implements CompilerPass {
 
       // Create the new alias node.
       Node nameNode =
-          NodeUtil.newName(compiler, alias, grandparent.getFirstChild(), refName.getFullName());
+          NodeUtil.newName(compiler, alias, grandparent.getFirstChild(), Optional.of(refName.getFullName()));
       NodeUtil.copyNameAnnotations(ref.getNode(), nameNode);
 
       // BEFORE:
@@ -1958,7 +1958,7 @@ class InlineAndCollapseProperties implements CompilerPass {
         rvalue.detach();
 
         Node nameNode =
-            NodeUtil.newName(compiler, alias, ref.getNode().getAncestor(2), n.getFullName());
+            NodeUtil.newName(compiler, alias, ref.getNode().getAncestor(2), Optional.of(n.getFullName()));
 
         nameNode.putBooleanProp(Node.IS_CONSTANT_NAME, shouldAddConstantName(ref.getNode(), alias));
 

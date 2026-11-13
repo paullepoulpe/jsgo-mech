@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -70,13 +71,13 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
     }
 
     /** Returns the primitive with the given name. */
-    static ImportPrimitive fromName(String name) {
+    static ImportPrimitive fromName(Optional<String> name) {
       for (ImportPrimitive primitive : values()) {
-        if (primitive.nameField.equals(name)) {
+        if (Optional.of(primitive.nameField).equals(name)) {
           return primitive;
         }
       }
-      throw new IllegalArgumentException("Invalid primitive name " + name);
+      throw new IllegalArgumentException("Invalid primitive name " + name.orElse("null"));
     }
 
     static final ImportPrimitive WEAKEST = FORWARD_DECLARE;
@@ -108,8 +109,6 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
       String exportedName, String localName, boolean isShorthandProperty)
       implements Comparable<DestructuringBinding> {
     DestructuringBinding {
-      requireNonNull(exportedName, "exportedName");
-      requireNonNull(localName, "localName");
       checkArgument(!isShorthandProperty || exportedName.equals(localName));
     }
 
@@ -178,15 +177,14 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
       ImmutableList<Node> nodes,
       ImportPrimitive primitive,
       String namespace,
-      @Nullable String alias,
+      Optional<String> alias,
       @Nullable ImmutableList<DestructuringBinding> destructures)
       implements Comparable<ImportStatement> {
     ImportStatement {
       requireNonNull(nodes, "nodes");
       requireNonNull(primitive, "primitive");
-      requireNonNull(namespace, "namespace");
       Preconditions.checkArgument(
-          alias == null || destructures == null,
+          alias.isEmpty() || destructures == null,
           "Import statement cannot be simultaneously aliasing and destructuring");
     }
 
@@ -195,7 +193,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
         ImmutableList<Node> nodes,
         ImportPrimitive primitive,
         String namespace,
-        @Nullable String alias,
+        Optional<String> alias,
         @Nullable ImmutableList<DestructuringBinding> destructures) {
       return new ImportStatement(nodes, primitive, namespace, alias, destructures);
     }
@@ -207,7 +205,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
 
     /** Returns whether the import is aliasing. */
     boolean isAliasing() {
-      return alias() != null;
+      return alias().isPresent();
     }
 
     /** Returns whether the import is destructuring. */
@@ -232,8 +230,8 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
       if (!isStandalone()) {
         sb.append("const ");
       }
-      if (alias() != null) {
-        sb.append(alias());
+      if (alias().isPresent()) {
+        sb.append(alias().get());
       }
       if (destructures() != null) {
         sb.append("{");
@@ -276,7 +274,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
         }
         JSDocInfo jsDoc = NodeUtil.getBestJSDocInfo(node);
         if (jsDoc != null) {
-          sb.append(jsDoc.getOriginalCommentString()).append("\n");
+          sb.append(jsDoc.getOriginalCommentString().orElse("null")).append("\n");
         }
       }
 
@@ -311,7 +309,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
   private boolean finished = false;
 
   private boolean needsFixField = false;
-  private @Nullable String replacement = null;
+  private Optional<String> replacement = Optional.empty();
 
   public CheckRequiresSorted(Mode mode) {
     this.mode = mode;
@@ -328,7 +326,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
   }
 
   /** Returns a textual replacement yielding a canonical version of the imports. */
-  public String getReplacement() {
+  public Optional<String> getReplacement() {
     return replacement;
   }
 
@@ -385,7 +383,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
 
   private static ImportStatement parseImport(Node callNode) {
     ImportPrimitive primitive =
-        ImportPrimitive.fromName(callNode.getFirstChild().getQualifiedName());
+        ImportPrimitive.fromName(Optional.of(callNode.getFirstChild().getQualifiedName()).filter(s -> !s.isEmpty()));
     String namespace = callNode.getSecondChild().getString();
 
     Node parent = callNode.getParent();
@@ -395,7 +393,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
           ImmutableList.of(parent),
           primitive,
           namespace,
-          /* alias= */ null,
+          /* alias= */ Optional.empty(),
           /* destructures= */ null);
     }
 
@@ -404,7 +402,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
       // const a = goog.require('a');
       String alias = parent.getString();
       return ImportStatement.of(
-          ImmutableList.of(grandparent), primitive, namespace, alias, /* destructures= */ null);
+          ImmutableList.of(grandparent), primitive, namespace, Optional.of(alias), /* destructures= */ null);
     }
     // const {a: b, c} = goog.require('a');
     ImmutableList.Builder<DestructuringBinding> destructures = ImmutableList.builder();
@@ -420,7 +418,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
         ImmutableList.of(grandparent),
         primitive,
         namespace,
-        /* alias= */ null,
+        /* alias= */ Optional.empty(),
         destructures.build());
   }
 
@@ -429,9 +427,9 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
     if (!originalImports.equals(canonicalImports)) {
       needsFixField = true;
       replacement =
-          String.join("\n", Iterables.transform(canonicalImports, ImportStatement::format));
+          Optional.of(String.join("\n", Iterables.transform(canonicalImports, ImportStatement::format)));
       if (mode == Mode.COLLECT_AND_REPORT) {
-        t.report(firstNode, REQUIRES_NOT_SORTED, replacement);
+        t.report(firstNode, REQUIRES_NOT_SORTED, replacement.orElse("null"));
       }
     }
   }
@@ -493,7 +491,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
                 destructuringNodes,
                 strongestPrimitive,
                 namespace,
-                /* alias= */ null,
+                /* alias= */ Optional.empty(),
                 destructures));
         hasDestructuring = true;
       }
@@ -514,7 +512,7 @@ public final class CheckRequiresSorted implements NodeTraversal.Callback {
                 standaloneNodes,
                 strongestPrimitive,
                 namespace,
-                /* alias= */ null,
+                /* alias= */ Optional.empty(),
                 /* destructures= */ null));
       }
     }

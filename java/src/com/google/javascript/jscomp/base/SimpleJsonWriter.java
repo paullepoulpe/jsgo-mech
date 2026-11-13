@@ -18,6 +18,7 @@ package com.google.javascript.jscomp.base;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
@@ -47,7 +48,7 @@ public final class SimpleJsonWriter {
   private String indent = "";
   private boolean htmlSafe = false;
   private boolean serializeNulls = true;
-  private @Nullable String deferredName = null;
+  private Optional<String> deferredName = Optional.empty();
   private @Nullable Consumer<String> sink = null;
 
   public SimpleJsonWriter() {
@@ -100,42 +101,39 @@ public final class SimpleJsonWriter {
   /** Sets the name of the next value, which must be a member of an object. */
   @CanIgnoreReturnValue
   public SimpleJsonWriter name(String name) {
-    if (name == null) {
-      throw new NullPointerException("name == null");
-    }
-    if (deferredName != null) {
+    if (deferredName.isPresent()) {
       throw new IllegalStateException();
     }
-    deferredName = name;
+    deferredName = Optional.of(name);
     return this;
   }
 
   /** Writes a string, or null for a null reference. */
   @CanIgnoreReturnValue
-  public SimpleJsonWriter stringValue(@Nullable String value) {
-    if (value == null) {
+  public SimpleJsonWriter stringValue(Optional<String> value) {
+    if (value.isEmpty()) {
       return nullValue();
     }
     beforeValue();
-    string(value);
+    string(value.get());
     return this;
   }
 
   /** Writes {@code json}, which must be a JSON value, as it is; or null for a null reference. */
   @CanIgnoreReturnValue
-  public SimpleJsonWriter rawValue(@Nullable String json) {
-    if (json == null) {
+  public SimpleJsonWriter rawValue(Optional<String> json) {
+    if (json.isEmpty()) {
       return nullValue();
     }
     beforeValue();
-    out.append(json);
+    out.append(json.get());
     return this;
   }
 
   @CanIgnoreReturnValue
   public SimpleJsonWriter nullValue() {
-    if (deferredName != null && !serializeNulls) {
-      deferredName = null; // skip the name and the value
+    if (deferredName.isPresent() && !serializeNulls) {
+      deferredName = Optional.empty(); // skip the name and the value
       return this;
     }
     beforeValue();
@@ -191,8 +189,8 @@ public final class SimpleJsonWriter {
     if (context != nonempty && context != empty) {
       throw new IllegalStateException("Nesting problem.");
     }
-    if (deferredName != null) {
-      throw new IllegalStateException("Dangling name: " + deferredName);
+    if (deferredName.isPresent()) {
+      throw new IllegalStateException("Dangling name: " + deferredName.get());
     }
     stack.remove(stack.size() - 1);
     if (context == nonempty) {
@@ -209,15 +207,15 @@ public final class SimpleJsonWriter {
     }
     int top = stack.size() - 1;
     int context = stack.get(top);
-    if (deferredName != null) {
+    if (deferredName.isPresent()) {
       if (context == NONEMPTY_OBJECT) {
         out.append(',');
       } else if (context != EMPTY_OBJECT) {
         throw new IllegalStateException("Nesting problem.");
       }
       newline();
-      string(deferredName);
-      deferredName = null;
+      string(deferredName.get());
+      deferredName = Optional.empty();
       out.append(indent.isEmpty() ? ":" : ": ");
       stack.set(top, NONEMPTY_OBJECT);
     } else if (context == EMPTY_ARRAY) {

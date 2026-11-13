@@ -17,6 +17,7 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
@@ -39,7 +40,7 @@ public final class ExternExportsPassTest extends CompilerTestCase {
   @Override
   public CompilerOptions getOptions() {
     CompilerOptions options = super.getOptions();
-    options.setExternExportsPath("exports.js");
+    options.setExternExportsPath(Optional.of("exports.js"));
     // Check types so we can make sure our exported externs have type information.
     options.setCheckSymbols(true);
     return options;
@@ -1799,7 +1800,7 @@ public final class ExternExportsPassTest extends CompilerTestCase {
         (Postcondition)
             compiler -> {
               if (consumer != null) {
-                consumer.accept(compiler.getResult().externExport);
+                consumer.accept(compiler.getResult().externExport.orElse(null));
               }
             });
   }

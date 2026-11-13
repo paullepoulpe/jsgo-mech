@@ -51,6 +51,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /** Assembles the various parts of the diambiguator to execute them as a compiler pass. */
 public final class DisambiguateProperties implements CompilerPass {
@@ -190,7 +191,7 @@ public final class DisambiguateProperties implements CompilerPass {
     String additionalContext = "";
 
     return JSError.make(
-        null,
+        Optional.empty(),
         -1,
         -1,
         DisambiguateProperties.PROPERTY_INVALIDATION,
@@ -370,7 +371,7 @@ public final class DisambiguateProperties implements CompilerPass {
       writer.name(this.name);
 
       writer.beginObject();
-      writer.name("name").stringValue(this.name);
+      writer.name("name").stringValue(Optional.of(this.name));
       writer.name("refs").beginArray();
       for (PropertyReferenceJson ref : this.refs) {
         ref.writeJson(writer);
@@ -396,7 +397,7 @@ public final class DisambiguateProperties implements CompilerPass {
       writer.setHtmlSafe(true);
       writer.setSerializeNulls(false);
       writer.beginObject();
-      writer.name("location").stringValue(this.location);
+      writer.name("location").stringValue(Optional.of(this.location));
       writer.name("receiverIndex").longValue(this.receiverIndex);
       writer.endObject();
       writer.setHtmlSafe(oldHtmlSafe);

@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -226,7 +227,7 @@ public final class JsFileRegexParser extends JsFileLineParser {
     }
 
     DependencyInfo dependencyInfo =
-        SimpleDependencyInfo.builder(closureRelativePath, filePath)
+        SimpleDependencyInfo.builder(closureRelativePath, Optional.of(filePath))
             .setProvides(provides)
             .setRequires(requires)
             .setTypeRequires(typeRequires)
@@ -266,7 +267,7 @@ public final class JsFileRegexParser extends JsFileLineParser {
       errorManager.report(
           CheckLevel.WARNING,
           JSError.make(
-              file.toString(),
+              Optional.of(file.toString()),
               /* lineno= */ -1,
               /* charno= */ -1,
               ModuleLoader.MODULE_CONFLICT,
@@ -401,18 +402,18 @@ public final class JsFileRegexParser extends JsFileLineParser {
         setModuleType(ModuleType.ES6_MODULE);
         lineHasProvidesOrRequires = true;
 
-        String arg = es6Matcher.group(1);
-        if (arg != null) {
-          if (arg.startsWith("goog:")) {
+        Optional<String> arg = Optional.ofNullable(es6Matcher.group(1));
+        if (arg.isPresent()) {
+          if (arg.get().startsWith("goog:")) {
             // cut off the "goog:" prefix
-            requires.add(Require.googRequireSymbol(arg.substring(5)));
+            requires.add(Require.googRequireSymbol(arg.get().substring(5)));
           } else {
             ModuleLoader.ModulePath path =
-                file.resolveJsModule(arg, filePath, lineNum, es6Matcher.start());
+                file.resolveJsModule(arg.get(), filePath, lineNum, es6Matcher.start());
             if (path == null) {
-              path = file.resolveModuleAsPath(arg);
+              path = file.resolveModuleAsPath(arg.get());
             }
-            requires.add(Require.es6Import(path.toModuleName(), arg));
+            requires.add(Require.es6Import(path.toModuleName(), arg.get()));
           }
         }
       }

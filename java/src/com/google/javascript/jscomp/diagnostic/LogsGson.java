@@ -23,6 +23,7 @@ import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** A JSON stringifier tailored to generating logs output. */
@@ -62,15 +63,15 @@ public final class LogsGson {
     if (value == null) {
       out.nullValue();
     } else if (value instanceof Able able) {
-      out.rawValue(toJson(able.toLogsGson()));
+      out.rawValue(Optional.of(toJson(able.toLogsGson())));
     } else if (value instanceof SimpleListMultimap<?, ?> multimap) {
-      out.rawValue(toJson(multimap.asMap()));
+      out.rawValue(Optional.of(toJson(multimap.asMap())));
     } else if (value instanceof SimpleSetMultimap<?, ?> multimap) {
-      out.rawValue(toJson(multimap.asMap()));
+      out.rawValue(Optional.of(toJson(multimap.asMap())));
     } else if (value instanceof SimpleBiMap<?, ?> bimap) {
-      out.rawValue(toJson(bimap.asMap()));
+      out.rawValue(Optional.of(toJson(bimap.asMap())));
     } else if (value instanceof SimpleMultiset<?> multiset) {
-      out.rawValue(toJson(multiset.asList()));
+      out.rawValue(Optional.of(toJson(multiset.asList())));
     } else if (value instanceof Map<?, ?> map) {
       out.beginObject();
       for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -85,13 +86,13 @@ public final class LogsGson {
       }
       out.endArray();
     } else if (value instanceof String string) {
-      out.stringValue(string);
+      out.stringValue(Optional.of(string));
     } else if (value instanceof Boolean bool) {
       out.booleanValue(bool);
     } else if (value instanceof Integer || value instanceof Long) {
       out.longValue(((Number) value).longValue());
     } else if (value instanceof Enum<?> enumValue) {
-      out.stringValue(enumValue.name());
+      out.stringValue(Optional.of(enumValue.name()));
     } else {
       throw new IllegalArgumentException(
           "Cannot log a " + value.getClass().getName() + "; it must implement LogsGson.Able");

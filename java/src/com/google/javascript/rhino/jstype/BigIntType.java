@@ -40,6 +40,7 @@
 package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.jscomp.base.Tri;
+import java.util.Optional;
 
 /** BigInt type. */
 public final class BigIntType extends ValueType {
@@ -91,8 +92,8 @@ public final class BigIntType extends ValueType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "bigint";
+  public Optional<String> getDisplayName() {
+    return Optional.of("bigint");
   }
 
   @Override

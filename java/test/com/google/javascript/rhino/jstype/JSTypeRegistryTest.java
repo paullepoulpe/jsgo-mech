@@ -69,6 +69,7 @@ import com.google.javascript.rhino.testing.MapBasedScope;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
@@ -164,7 +165,7 @@ public class JSTypeRegistryTest {
   public void testGetBuiltInType_gbigint_unification() {
     // This simulates what happens when the compiler parses: /** @interface */ function gbigint() {}
     FunctionType interfaceType =
-        FunctionType.builder(registry).forInterface().withName("gbigint").build();
+        FunctionType.builder(registry).forInterface().withName(Optional.of("gbigint")).build();
     registry.declareType(null, "gbigint", interfaceType.getInstanceType());
 
     assertType(registry.getGlobalType("gbigint"))
@@ -238,7 +239,7 @@ public class JSTypeRegistryTest {
 
     JSType type =
         registry.createTypeFromCommentNode(
-            new Node(Token.BANG, IR.string("a.b.c")), "srcfile.js", globalScope);
+            new Node(Token.BANG, IR.string("a.b.c")), Optional.of("srcfile.js"), globalScope);
 
     // The type registry assumes that 'a.b.c' will be defined later.
     assertThat(type).isInstanceOf(NamedType.class);
@@ -251,10 +252,10 @@ public class JSTypeRegistryTest {
 
     JSType typeOne =
         registry.createTypeFromCommentNode(
-            new Node(Token.BANG, IR.string("Foo")), "srcfile.js", globalScope);
+            new Node(Token.BANG, IR.string("Foo")), Optional.of("srcfile.js"), globalScope);
     JSType typeTwo =
         registry.createTypeFromCommentNode(
-            new Node(Token.BANG, IR.string("Foo")), "srcfile.js", globalScope);
+            new Node(Token.BANG, IR.string("Foo")), Optional.of("srcfile.js"), globalScope);
 
     // Different lookups of Foo create equivalent instances of NamedType.
     assertThat(typeOne).isInstanceOf(NamedType.class);
@@ -276,7 +277,7 @@ public class JSTypeRegistryTest {
     // Looking up 'Foo' in the child scope resolves to the global type `Foo`, not a NamedType.
     JSType type =
         registry.createTypeFromCommentNode(
-            new Node(Token.BANG, IR.string("Foo")), "srcfile.js", emptyLocalScope);
+            new Node(Token.BANG, IR.string("Foo")), Optional.of("srcfile.js"), emptyLocalScope);
     assertThat(type).isNotInstanceOf(NamedType.class);
   }
 
@@ -305,7 +306,7 @@ public class JSTypeRegistryTest {
     // JSTypeRegistry in the local scope, the registry assumes it will be defined later.
     JSType type =
         registry.createTypeFromCommentNode(
-            new Node(Token.BANG, IR.string("Foo")), "srcfile.js", localScopeWithFoo);
+            new Node(Token.BANG, IR.string("Foo")), Optional.of("srcfile.js"), localScopeWithFoo);
     assertThat(type).isInstanceOf(NamedType.class);
   }
 
@@ -339,7 +340,7 @@ public class JSTypeRegistryTest {
     // Looking up 'Foo' in the child scope resolves to a NamedType.
     JSType type =
         registry.createTypeFromCommentNode(
-            new Node(Token.BANG, IR.string("Foo")), "srcfile.js", emptyLocalScope);
+            new Node(Token.BANG, IR.string("Foo")), Optional.of("srcfile.js"), emptyLocalScope);
     assertThat(type).isInstanceOf(NamedType.class);
   }
 
@@ -421,6 +422,6 @@ public class JSTypeRegistryTest {
   private String getReadableTypeNameHelper(JSTypeRegistry registry, JSType type, boolean deref) {
     Node n = new Node(Token.ADD);
     n.setJSType(type);
-    return registry.getReadableJSTypeName(n, deref);
+    return registry.getReadableJSTypeName(n, deref).orElse(null);
   }
 }

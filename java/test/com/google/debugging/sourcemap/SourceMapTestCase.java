@@ -41,6 +41,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import org.junit.Before;
 
 /**
@@ -109,7 +110,7 @@ public abstract class SourceMapTestCase {
 
   protected String getSourceMap(RunResult result) throws IOException {
     StringBuilder sb = new StringBuilder();
-    result.sourceMap.appendTo(sb, "testcode");
+    result.sourceMap.appendTo(sb, Optional.of("testcode"));
     return sb.toString();
   }
 
@@ -307,7 +308,7 @@ public abstract class SourceMapTestCase {
     StringBuilder sb = new StringBuilder();
     try {
       result.sourceMap.validate(true);
-      result.sourceMap.appendTo(sb, "testcode");
+      result.sourceMap.appendTo(sb, Optional.of("testcode"));
     } catch (IOException e) {
       throw new RuntimeException("unexpected exception", e);
     }
@@ -321,7 +322,7 @@ public abstract class SourceMapTestCase {
 
   protected CompilerOptions getCompilerOptions() {
     CompilerOptions options = new CompilerOptions();
-    options.setSourceMapOutputPath("testcode_source_map.out");
+    options.setSourceMapOutputPath(Optional.of("testcode_source_map.out"));
     options.setSourceMapFormat(getSourceMapFormat());
     options.setSourceMapDetailLevel(detailLevel);
     options.setSourceMapIncludeSourcesContent(sourceMapIncludeSourcesContent);

@@ -27,6 +27,7 @@ import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -131,7 +132,7 @@ public final class CheckEnums extends AbstractPostOrderCallback implements Compi
       t.report(prop, SHORTHAND_ASSIGNMENT_IN_ENUM);
     }
 
-    if (!compiler.getCodingConvention().isValidEnumKey(prop.getString())) {
+    if (!compiler.getCodingConvention().isValidEnumKey(Optional.of(prop.getString()))) {
       t.report(prop, ENUM_PROP_NOT_CONSTANT);
     }
   }

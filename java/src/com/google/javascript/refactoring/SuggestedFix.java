@@ -19,7 +19,6 @@ package com.google.javascript.refactoring;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.Math.min;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -42,6 +41,7 @@ import com.google.javascript.rhino.jstype.JSType;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -62,7 +62,7 @@ public final class SuggestedFix {
 
   // An optional description of the fix, to distinguish between the various possible fixes
   // for errors that have multiple fixes.
-  private final @Nullable String description;
+  private final Optional<String> description;
 
   // Alternative fixes for the same problem. The fix itself is always the first entry in this list.
   // If you cannot ask the developer which fix is appropriate, apply the first fix instead of
@@ -72,7 +72,7 @@ public final class SuggestedFix {
   private SuggestedFix(
       MatchedNodeInfo matchedNodeInfo,
       SimpleSetMultimap<String, CodeReplacement> replacements,
-      @Nullable String description,
+      Optional<String> description,
       ImmutableList<SuggestedFix> alternatives) {
     this.matchedNodeInfo = matchedNodeInfo;
     this.replacements = replacements;
@@ -97,7 +97,7 @@ public final class SuggestedFix {
     return replacements;
   }
 
-  public @Nullable String getDescription() {
+  public Optional<String> getDescription() {
     return description;
   }
 
@@ -136,7 +136,7 @@ public final class SuggestedFix {
     private final SimpleSetMultimap<String, CodeReplacement> replacements =
         SimpleSetMultimap.create();
     private final ImmutableList.Builder<SuggestedFix> alternatives = ImmutableList.builder();
-    private @Nullable String description = null;
+    private Optional<String> description = Optional.empty();
 
     /**
      * Sets the node on this SuggestedFix that caused this SuggestedFix to be built in the first
@@ -465,7 +465,7 @@ public final class SuggestedFix {
       JSDocInfo jsDoc = NodeUtil.getBestJSDocInfo(n);
       if (jsDoc != null) {
         offset = jsDoc.getOriginalCommentPosition();
-        length = jsDoc.getOriginalCommentString().length();
+        length = jsDoc.getOriginalCommentString().get().length();
       }
 
       replacements.put(n.getSourceFileName(), CodeReplacement.create(offset, length, newJsDoc));
@@ -503,10 +503,10 @@ public final class SuggestedFix {
     private void replaceTypePattern(Node n, String type, Pattern pattern) {
       JSDocInfo info = NodeUtil.getBestJSDocInfo(n);
       Preconditions.checkNotNull(info, "Node %s does not have JS Doc associated with it.", n);
-      String originalComment = info.getOriginalCommentString();
+      Optional<String> originalComment = info.getOriginalCommentString();
       int originalPosition = info.getOriginalCommentPosition();
-      if (originalComment != null) {
-        Matcher m = pattern.matcher(originalComment);
+      if (originalComment.isPresent()) {
+        Matcher m = pattern.matcher(originalComment.get());
         while (m.find()) {
           replacements.put(
               n.getSourceFileName(),
@@ -609,7 +609,7 @@ public final class SuggestedFix {
     }
 
     private static Node createImportNode(
-        ImportType importType, @Nullable String alias, String namespace) {
+        ImportType importType, Optional<String> alias, String namespace) {
       final String requireFlavor =
           switch (importType) {
             case REQUIRE -> "require";
@@ -618,8 +618,8 @@ public final class SuggestedFix {
 
       Node callNode = IR.call(IR.getprop(IR.name("goog"), requireFlavor), IR.string(namespace));
 
-      if (alias != null) {
-        return IR.constNode(IR.name(alias), callNode);
+      if (alias.isPresent()) {
+        return IR.constNode(IR.name(alias.get()), callNode);
       } else {
         return IR.exprResult(callNode);
       }
@@ -648,10 +648,10 @@ public final class SuggestedFix {
     @CanIgnoreReturnValue
     public Builder addImport(
         Match m, String namespace, ImportType importType, ScriptMetadata scriptMetadata) {
-      final String alias;
+      final Optional<String> alias;
       if (scriptMetadata.supportsRequireAliases()) {
-        String existingAlias = scriptMetadata.getAlias(namespace);
-        if (existingAlias != null) {
+        Optional<String> existingAlias = scriptMetadata.getAlias(namespace);
+        if (existingAlias.isPresent()) {
           /*
            * Each fix muct be independently valid, so go through the steps of adding a require even
            * if one may already exist or have been added by another fix.
@@ -662,13 +662,13 @@ public final class SuggestedFix {
            * For unqualified names, the exisiting references will still be valid so long as we keep
            * the same name for the alias.
            */
-          alias = namespace;
+          alias = Optional.of(namespace);
         } else {
-          alias = firstUnusedAlias(namespace, scriptMetadata);
+          alias = Optional.of(firstUnusedAlias(namespace, scriptMetadata));
         }
-        scriptMetadata.addAlias(namespace, alias);
+        scriptMetadata.addAlias(namespace, alias.orElse(null));
       } else {
-        alias = null;
+        alias = Optional.empty();
       }
 
       NodeMetadata metadata = m.getMetadata();
@@ -678,16 +678,16 @@ public final class SuggestedFix {
         // TODO(b/139953612): Destructured goog.requires are not supported.
 
         // Add an alias to a naked require if allowed in this file.
-        if (existingNode.isExprResult() && alias != null) {
+        if (existingNode.isExprResult() && alias.isPresent()) {
           Node newNode;
           // Replace goog.forwardDeclare with the appropriate alternative
           if (NodeUtil.isCallTo(existingNode.getFirstChild(), "goog.forwardDeclare")) {
             newNode = createImportNode(importType, alias, namespace);
           } else {
-            newNode = IR.constNode(IR.name(alias), existingNode.getFirstChild().cloneTree());
+            newNode = IR.constNode(IR.name(alias.get()), existingNode.getFirstChild().cloneTree());
           }
           replace(existingNode, newNode, m.getMetadata().getCompiler());
-          scriptMetadata.addAlias(namespace, alias);
+          scriptMetadata.addAlias(namespace, alias.get());
         }
 
         return this;
@@ -727,10 +727,10 @@ public final class SuggestedFix {
           lastGoogRequireNode = child.getFirstFirstChild();
           String requireName = child.getFirstChild().getString();
           String originalName = child.getFirstChild().getOriginalName();
-          if (originalName != null) {
+          if (!originalName.isEmpty()) {
             requireName = originalName;
           }
-          if (alias.compareTo(requireName) < 0) {
+          if (alias.get().compareTo(requireName) < 0) {
             nodeToInsertBefore = child;
             break;
           }
@@ -859,7 +859,7 @@ public final class SuggestedFix {
 
     @CanIgnoreReturnValue
     public Builder setDescription(String description) {
-      this.description = description;
+      this.description = Optional.of(description);
       return this;
     }
 
@@ -881,7 +881,6 @@ public final class SuggestedFix {
   public record MatchedNodeInfo(
       String sourceFilename, int lineno, int charno, boolean inClosurizedFile) {
     public MatchedNodeInfo {
-      requireNonNull(sourceFilename, "sourceFilename");
     }
 
     @InlineMe(replacement = "this.sourceFilename()")

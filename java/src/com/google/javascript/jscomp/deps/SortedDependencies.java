@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -198,13 +199,13 @@ public final class SortedDependencies<InputT extends DependencyInfo> {
     // Index.
     for (InputT userOrderedInput : userOrderedInputs) {
       ImmutableList<String> provides = userOrderedInput.getProvides();
-      String firstProvide = Iterables.getFirst(provides, null);
-      if (firstProvide == null
+      Optional<String> firstProvide = Optional.ofNullable(Iterables.getFirst(provides, null));
+      if (firstProvide.isEmpty()
           // "module$" indicates the provide is generated from the path. If this is the only thing
           // the module provides and it is not an ES6 module then it is just a script and doesn't
           // export anything.
           || (provides.size() == 1
-              && firstProvide.startsWith("module$")
+              && firstProvide.get().startsWith("module$")
               // ES6 modules should always be considered as exporting something.
               && !userOrderedInput.isEs6Module())) {
         nonExportingInputs.put(

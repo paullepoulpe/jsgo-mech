@@ -27,6 +27,7 @@ import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -254,7 +255,7 @@ class PeepholeMinimizeConditions
     // Find the enclosing control structure, if any, that a "break" would exit
     // from.
     Node breakTarget = n;
-    for (; !ControlFlowAnalysis.isBreakTarget(breakTarget, null /* no label */);
+    for (; !ControlFlowAnalysis.isBreakTarget(breakTarget, Optional.empty() /* no label */);
         breakTarget = breakTarget.getParent()) {
       if (breakTarget.isFunction() || breakTarget.isScript()) {
         // No break target.

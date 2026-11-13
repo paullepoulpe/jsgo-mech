@@ -61,6 +61,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.jspecify.annotations.Nullable;
@@ -1871,10 +1872,10 @@ public final class CommandLineRunnerTest {
   @Test
   public void testCharSetExpansion() {
     testSame("");
-    assertThat(lastCompiler.getOptions().getOutputCharset()).isEqualTo(US_ASCII.name());
+    assertThat(lastCompiler.getOptions().getOutputCharset().orElse(null)).isEqualTo(US_ASCII.name());
     args.add("--charset=UTF-8");
     testSame("");
-    assertThat(lastCompiler.getOptions().getOutputCharset()).isEqualTo(UTF_8.name());
+    assertThat(lastCompiler.getOptions().getOutputCharset().orElse(null)).isEqualTo(UTF_8.name());
   }
 
   @Test

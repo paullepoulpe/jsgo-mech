@@ -33,6 +33,7 @@ import com.google.javascript.rhino.jstype.FunctionType;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSType.Nullability;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** This class walks the AST and validates that the structure is correct. */
@@ -939,7 +940,7 @@ public final class AstValidator implements CompilerPass {
 
   private void validateHasSourceName(Node n) {
     String sourceName = n.getSourceFileName();
-    if (isNullOrEmpty(sourceName)) {
+    if (sourceName.isEmpty()) {
       violation("Missing 'source name' annotation.", n);
     }
   }

@@ -33,6 +33,7 @@ import com.google.javascript.jscomp.GoogleCodingConvention;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.SourceFile;
 import java.util.Collection;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -2815,7 +2816,7 @@ const {anotherVeryLongSymbolThatMapsTo: veryLongLocalNameForItAlso, veryLongSymb
       ExpectedFix expectedFix = expectedFixes[i];
       SuggestedFix actualFix = fixes[i];
       assertWithMessage("Actual fix[%s]: %s", i, actualFix)
-          .that(actualFix.getDescription())
+          .that(actualFix.getDescription().orElse(null))
           .isEqualTo(expectedFix.description());
       assertThat(
               ApplySuggestedFixes.applySuggestedFixesToCode(

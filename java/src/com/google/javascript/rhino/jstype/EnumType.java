@@ -48,6 +48,7 @@ import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Node;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -74,9 +75,9 @@ public final class EnumType extends PrototypeObjectType implements JSType.WithSo
   /** Builder */
   public static final class Builder extends PrototypeObjectType.Builder<Builder> {
 
-    private String elementName;
+    private Optional<String> elementName = Optional.empty();
     private Node source;
-    private String googModuleId;
+    private String googModuleId = "";
     private JSType elementType;
 
     private Builder(JSTypeRegistry registry) {
@@ -84,8 +85,8 @@ public final class EnumType extends PrototypeObjectType implements JSType.WithSo
     }
 
     @Override
-    public Builder setName(String x) {
-      super.setName("enum{" + x + "}");
+    public Builder setName(Optional<String> x) {
+      super.setName(Optional.of("enum{" + x.orElse("null") + "}"));
       this.elementName = x;
       return this;
     }
@@ -185,11 +186,11 @@ public final class EnumType extends PrototypeObjectType implements JSType.WithSo
 
   @Override
   void appendTo(TypeStringBuilder sb) {
-    sb.append(sb.isForAnnotations() ? "!Object" : getReferenceName());
+    sb.append(sb.isForAnnotations() ? "!Object" : getReferenceName().orElse(null));
   }
 
   @Override
-  public String getDisplayName() {
+  public Optional<String> getDisplayName() {
     return elementType.getDisplayName();
   }
 
@@ -229,7 +230,7 @@ public final class EnumType extends PrototypeObjectType implements JSType.WithSo
   }
 
   @Override
-  public @Nullable String getGoogModuleId() {
+  public String getGoogModuleId() {
     return this.googModuleId;
   }
 

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A matcher that can take an arbitrary AST and use it as a template to find
@@ -217,7 +218,7 @@ public final class TemplateAstMatcher {
         paramNode != null;
         paramNode = paramNode.getNext()) {
       String name = paramNode.getString();
-      JSTypeExpression expression = info.getParameterType(name);
+      JSTypeExpression expression = info.getParameterType(Optional.of(name));
       Preconditions.checkNotNull(expression,
           "Missing JSDoc for parameter %s of template function %s",
           name, fnName);
@@ -446,7 +447,7 @@ public final class TemplateAstMatcher {
         return ast.getString().equals(this.localVarMatches.get(paramIndex));
       } else {
         String originalName = ast.getOriginalName();
-        String name = (originalName != null) ? originalName : ast.getString();
+        String name = (!originalName.isEmpty()) ? originalName : ast.getString();
         this.localVarMatches.set(paramIndex, name);
       }
     } else if (isTemplateParameterStringLiteralNode(template)) {

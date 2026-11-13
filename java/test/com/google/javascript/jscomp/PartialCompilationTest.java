@@ -189,15 +189,15 @@ public class PartialCompilationTest {
     TypedVar x = compiler.getTopScope().getSlot("x");
     assertWithMessage("type %s", x.getType()).that(x.getType().isNoResolvedType()).isTrue();
     ObjectType templatizedType = x.getType().assertObjectType();
-    assertThat(templatizedType.getReferenceName()).isEqualTo("some.thing.Missing");
+    assertThat(templatizedType.getReferenceName().orElse(null)).isEqualTo("some.thing.Missing");
     ImmutableList<JSType> templateTypes = templatizedType.getTemplateTypes();
     assertThat(templateTypes.get(0).isString()).isTrue();
     assertThat(templateTypes.get(1).isObject()).isTrue();
     ObjectType alsoMissing = (ObjectType) templateTypes.get(1);
-    assertThat(alsoMissing.getReferenceName()).isEqualTo("AlsoMissing");
+    assertThat(alsoMissing.getReferenceName().orElse(null)).isEqualTo("AlsoMissing");
     assertThat(alsoMissing.getTemplateTypes()).hasSize(1);
     ObjectType more = (ObjectType) alsoMissing.getTemplateTypes().get(0);
-    assertThat(more.getReferenceName()).isEqualTo("More");
+    assertThat(more.getReferenceName().orElse(null)).isEqualTo("More");
   }
 
   @Test
@@ -220,7 +220,7 @@ public class PartialCompilationTest {
       assertThat(alternative.isNamedType() || alternative.isNullType()).isTrue();
       if (alternative.isNamedType()) {
         assertThat(alternative.isNoResolvedType()).isTrue();
-        namedTypes.add(((NamedType) alternative).getReferenceName());
+        namedTypes.add(((NamedType) alternative).getReferenceName().orElse(null));
       }
       if (alternative.isNullType()) {
         nullTypeCount++;
@@ -313,7 +313,7 @@ public class PartialCompilationTest {
     assertWithMessage("defaultSuper %s", defaultSuper)
         .that(defaultSuper.isNoResolvedType())
         .isTrue();
-    assertThat(((NoResolvedType) defaultSuper).getReferenceName()).isEqualTo("MissingDefaultBase");
+    assertThat(((NoResolvedType) defaultSuper).getReferenceName().orElse(null)).isEqualTo("MissingDefaultBase");
 
     TypedVar derivedDestructured = moduleScope.getSlot("DerivedDestructured");
     assertThat(derivedDestructured).isNotNull();
@@ -325,7 +325,7 @@ public class PartialCompilationTest {
     assertWithMessage("destructuredSuper %s", destructuredSuper)
         .that(destructuredSuper.isNoResolvedType())
         .isTrue();
-    assertThat(((NoResolvedType) destructuredSuper).getReferenceName())
+    assertThat(((NoResolvedType) destructuredSuper).getReferenceName().orElse(null))
         .isEqualTo("MissingDestructuredBase");
 
     TypedVar derivedRenamed = moduleScope.getSlot("DerivedRenamed");
@@ -336,6 +336,6 @@ public class PartialCompilationTest {
     assertWithMessage("renamedSuper %s", renamedSuper)
         .that(renamedSuper.isNoResolvedType())
         .isTrue();
-    assertThat(((NoResolvedType) renamedSuper).getReferenceName()).isEqualTo("NewName");
+    assertThat(((NoResolvedType) renamedSuper).getReferenceName().orElse(null)).isEqualTo("NewName");
   }
 }

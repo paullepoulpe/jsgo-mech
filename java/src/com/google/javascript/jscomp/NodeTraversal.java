@@ -30,6 +30,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -69,7 +70,7 @@ public class NodeTraversal {
   private final ArrayList<Object> scopes = new ArrayList<>();
 
   /** The current source file name */
-  private @Nullable String sourceName;
+  private Optional<String> sourceName = Optional.empty();
 
   /** The current input */
   private @Nullable InputId inputId;
@@ -495,7 +496,7 @@ public class NodeTraversal {
     // TODO(johnlenz): refactor into compiler options helper.
     CompilerOptions options = compiler.getOptions();
     this.mayContainSyntheticBlocks =
-        options == null || options.getSyntheticBlockStartMarker() != null;
+        options == null || options.getSyntheticBlockStartMarker().isPresent();
   }
 
   private void throwUnexpectedException(Throwable unexpectedException) {
@@ -569,18 +570,18 @@ public class NodeTraversal {
   private static final String MISSING_SOURCE = "[source unknown]";
 
   private String formatNodePosition(Node n) {
-    String sourceFileName = getBestSourceFileName(n);
-    if (sourceFileName == null) {
+    Optional<String> sourceFileName = getBestSourceFileName(n);
+    if (sourceFileName.isEmpty()) {
       return MISSING_SOURCE + "\n";
     }
 
     int lineNumber = n.getLineno();
     int columnNumber = n.getCharno();
-    String src = compiler.getSourceLine(sourceFileName, lineNumber);
-    if (src == null) {
-      src = MISSING_SOURCE;
+    Optional<String> src = compiler.getSourceLine(sourceFileName, lineNumber);
+    if (src.isEmpty()) {
+      src = Optional.of(MISSING_SOURCE);
     }
-    return sourceFileName + ":" + lineNumber + ":" + columnNumber + "\n" + src + "\n";
+    return sourceFileName.get() + ":" + lineNumber + ":" + columnNumber + "\n" + src.orElse("null") + "\n";
   }
 
   /**
@@ -795,9 +796,9 @@ public class NodeTraversal {
    *
    * @return A string that may be empty, but not null
    */
-  public String getSourceName() {
-    if (sourceName == null) {
-      sourceName = currentScript != null ? currentScript.getSourceFileName() : "";
+  public Optional<String> getSourceName() {
+    if (sourceName.isEmpty()) {
+      sourceName = currentScript != null ? Optional.of(currentScript.getSourceFileName()).filter(s -> !s.isEmpty()) : Optional.of("");
     }
     return sourceName;
   }
@@ -1478,7 +1479,7 @@ public class NodeTraversal {
    */
   private void clearScriptState() {
     inputId = null;
-    sourceName = null;
+    sourceName = Optional.empty();
     compilerInput = null;
   }
 
@@ -1489,7 +1490,7 @@ public class NodeTraversal {
     return inputId;
   }
 
-  private String getBestSourceFileName(Node n) {
-    return n == null ? getSourceName() : n.getSourceFileName();
+  private Optional<String> getBestSourceFileName(Node n) {
+    return n == null ? getSourceName() : Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty());
   }
 }

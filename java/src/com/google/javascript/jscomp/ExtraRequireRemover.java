@@ -27,8 +27,8 @@ import com.google.javascript.rhino.QualifiedName;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Walks the AST looking for usages of qualified names, and 'goog.require's of those names. Then,
@@ -74,20 +74,20 @@ public final class ExtraRequireRemover implements CompilerPass, NodeTraversal.Ca
    *
    * <p>Ex: `goog.require('foo.bar');` will return `foo.bar`
    */
-  private @Nullable String extractNamespace(Node call, QualifiedName... primitiveNames) {
+  private Optional<String> extractNamespace(Node call, QualifiedName... primitiveNames) {
     Node callee = call.getFirstChild();
     if (!callee.isGetProp()) {
-      return null;
+      return Optional.empty();
     }
     for (QualifiedName primitiveName : primitiveNames) {
       if (primitiveName.matches(callee)) {
         Node target = callee.getNext();
         if (target != null && target.isStringLit()) {
-          return target.getString();
+          return Optional.of(target.getString());
         }
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   private static final QualifiedName GOOG_REQUIRE = QualifiedName.of("goog.require");
@@ -95,7 +95,7 @@ public final class ExtraRequireRemover implements CompilerPass, NodeTraversal.Ca
   private static final QualifiedName GOOG_FORWARD_DECLARE = QualifiedName.of("goog.forwardDeclare");
 
   /** Extract namespace from goog.require and goog.requireType nodes */
-  private String extractNamespaceIfRequire(Node call) {
+  private Optional<String> extractNamespaceIfRequire(Node call) {
     return extractNamespace(call, GOOG_REQUIRE, GOOG_REQUIRE_TYPE, GOOG_FORWARD_DECLARE);
   }
 
@@ -187,7 +187,7 @@ public final class ExtraRequireRemover implements CompilerPass, NodeTraversal.Ca
       // all unaliased imports in goog.module are not pruned regardless of if they are used or
       // not, except in J2CL header files where they only exist for load ordering.
       if (!call.getGrandparent().isModuleBody()
-          || J2clSourceUtils.isJ2clHeaderSource(call.getSourceFileName())) {
+          || J2clSourceUtils.isJ2clHeaderSource(Optional.of(call.getSourceFileName()).filter(s -> !s.isEmpty()))) {
         compiler.reportChangeToEnclosingScope(call.getParent());
         call.getParent().detach();
       }
@@ -289,9 +289,9 @@ public final class ExtraRequireRemover implements CompilerPass, NodeTraversal.Ca
    * <p>Ex: Qualified name is 'goog.module.get('foo')' and callee is 'goog.require('foo')'
    */
   private void visitCallNode(Node call, Node parent) {
-    String required = extractNamespaceIfRequire(call);
-    if (required != null) {
-      visitGoogRequire(required, call, parent);
+    Optional<String> required = extractNamespaceIfRequire(call);
+    if (required.isPresent()) {
+      visitGoogRequire(required.get(), call, parent);
       return;
     }
 
@@ -309,11 +309,11 @@ public final class ExtraRequireRemover implements CompilerPass, NodeTraversal.Ca
    * because any of those might be a require that we need to include.
    */
   private void addUsagesOfAllPrefixes(QualifiedName qualifiedName) {
-    usages.add(qualifiedName.join());
+    usages.add(qualifiedName.join().orElse(null));
 
     while (!qualifiedName.isSimple()) {
       qualifiedName = qualifiedName.getOwner();
-      usages.add(qualifiedName.join());
+      usages.add(qualifiedName.join().orElse(null));
     }
   }
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -57,7 +58,7 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
   private @Nullable Node lastNode = null;
   private boolean finished = false;
 
-  private @Nullable String replacement = null;
+  private Optional<String> replacement = Optional.empty();
   private boolean needsFixField = false;
 
   public CheckProvidesSorted(Mode mode) {
@@ -75,7 +76,7 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
   }
 
   /** Returns a textual replacement yielding a canonical version of the provides. */
-  public String getReplacement() {
+  public Optional<String> getReplacement() {
     return replacement;
   }
 
@@ -140,10 +141,10 @@ public final class CheckProvidesSorted implements NodeTraversal.Callback {
     if (!originalProvides.equals(canonicalProvides)) {
       needsFixField = true;
       replacement =
-          String.join(
-              "\n", Iterables.transform(canonicalProvides, CheckProvidesSorted::formatProvide));
+          Optional.of(String.join(
+              "\n", Iterables.transform(canonicalProvides, CheckProvidesSorted::formatProvide)));
       if (mode == Mode.COLLECT_AND_REPORT) {
-        t.report(firstNode, PROVIDES_NOT_SORTED, replacement);
+        t.report(firstNode, PROVIDES_NOT_SORTED, replacement.orElse("null"));
       }
     }
   }

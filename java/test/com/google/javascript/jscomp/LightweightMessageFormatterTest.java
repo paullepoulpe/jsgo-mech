@@ -23,6 +23,7 @@ import com.google.javascript.jscomp.LightweightMessageFormatter.LineNumberingFor
 import com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -139,7 +140,7 @@ public final class LightweightMessageFormatterTest {
 
   @Test
   public void testFormatErrorSpaceEndOfLine1() {
-    JSError error = JSError.make("javascript/complex.js", 1, 10, FOO_TYPE);
+    JSError error = JSError.make(Optional.of("javascript/complex.js"), 1, 10, FOO_TYPE);
     LightweightMessageFormatter formatter = formatter("assert (1;");
     assertThat(formatter.formatError(error))
         .isEqualTo(
@@ -152,7 +153,7 @@ public final class LightweightMessageFormatterTest {
 
   @Test
   public void testFormatErrorSpaceEndOfLine2() {
-    JSError error = JSError.make("javascript/complex.js", 6, 7, FOO_TYPE);
+    JSError error = JSError.make(Optional.of("javascript/complex.js"), 6, 7, FOO_TYPE);
     LightweightMessageFormatter formatter = formatter("if (foo");
     assertThat(formatter.formatError(error))
         .isEqualTo(
@@ -309,7 +310,7 @@ public final class LightweightMessageFormatterTest {
 
   @Test
   public void testMultiline_errorWithoutAssociatedNode() {
-    JSError error = JSError.make("javascript/complex.js", 5, 4, FOO_TYPE);
+    JSError error = JSError.make(Optional.of("javascript/complex.js"), 5, 4, FOO_TYPE);
     LightweightMessageFormatter formatter = formatter("if (foobar", SourceExcerpt.FULL, 5);
     assertThat(formatter.formatError(error))
         .isEqualTo(
@@ -322,7 +323,7 @@ public final class LightweightMessageFormatterTest {
 
   @Test
   public void testMultiline_errorWithoutAssociatedNodeAndNegativeChar() {
-    JSError error = JSError.make("javascript/complex.js", 5, -1, FOO_TYPE);
+    JSError error = JSError.make(Optional.of("javascript/complex.js"), 5, -1, FOO_TYPE);
     LightweightMessageFormatter formatter = formatter("if (foobar", SourceExcerpt.FULL, 5);
     assertThat(formatter.formatError(error))
         .isEqualTo(
@@ -352,29 +353,29 @@ public final class LightweightMessageFormatterTest {
       final String source, final @Nullable String originalSource, final int endLineNumber) {
     return new SourceExcerptProvider() {
       @Override
-      public String getSourceLine(String sourceName, int lineNumber) {
-        if (sourceName.equals(ORIGINAL_SOURCE_FILE)) {
-          return originalSource;
+      public Optional<String> getSourceLine(Optional<String> sourceName, int lineNumber) {
+        if (sourceName.get().equals(ORIGINAL_SOURCE_FILE)) {
+          return Optional.ofNullable(originalSource);
         }
-        return source;
+        return Optional.ofNullable(source);
       }
 
       @Override
-      public Region getSourceLines(String sourceName, int lineNumber, int length) {
+      public Region getSourceLines(Optional<String> sourceName, int lineNumber, int length) {
         checkState(endLineNumber != -1, "Must provide the end of the source lines");
-        if (sourceName.equals(ORIGINAL_SOURCE_FILE)) {
+        if (sourceName.get().equals(ORIGINAL_SOURCE_FILE)) {
           return new SimpleRegion(lineNumber, endLineNumber, originalSource);
         }
         return new SimpleRegion(lineNumber, endLineNumber, source);
       }
 
       @Override
-      public Region getSourceRegion(String sourceName, int lineNumber) {
+      public Region getSourceRegion(Optional<String> sourceName, int lineNumber) {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public OriginalMapping getSourceMapping(String sourceName, int lineNumber, int columnNumber) {
+      public OriginalMapping getSourceMapping(Optional<String> sourceName, int lineNumber, int columnNumber) {
         if (originalSource != null) {
           return ORIGINAL_SOURCE;
         }
@@ -384,7 +385,7 @@ public final class LightweightMessageFormatterTest {
   }
 
   private String format(@Nullable Region region) {
-    return new LineNumberingFormatter().formatRegion(region);
+    return new LineNumberingFormatter().formatRegion(region).orElse(null);
   }
 
   private Region region(final int startLine, final int endLine, final String source) {

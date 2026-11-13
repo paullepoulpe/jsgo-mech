@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
 import java.util.Map;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /** Base class for algorithms that resolve JavaScript module references to input files. */
 public abstract class ModuleResolver {
@@ -50,10 +50,10 @@ public abstract class ModuleResolver {
     return ImmutableMap.of();
   }
 
-  public abstract @Nullable String resolveJsModule(
-      String scriptAddress, String moduleAddress, String sourcename, int lineno, int colno);
+  public abstract Optional<String> resolveJsModule(
+      String scriptAddress, String moduleAddress, Optional<String> sourcename, int lineno, int colno);
 
-  public abstract @Nullable String resolveJsModuleSilently(
+  public abstract Optional<String> resolveJsModuleSilently(
       String scriptAddress, String moduleAddress);
 
   public String resolveModuleAsPath(String scriptAddress, String moduleAddress) {
@@ -75,7 +75,7 @@ public abstract class ModuleResolver {
    * Locates the module with the given name, but returns null if there is no JS file in the expected
    * location.
    */
-  protected @Nullable String locate(String scriptAddress, String name) {
+  protected Optional<String> locate(String scriptAddress, String name) {
     String canonicalizedPath = canonicalizePath(scriptAddress, name);
 
     String normalizedPath = canonicalizedPath;
@@ -85,7 +85,7 @@ public abstract class ModuleResolver {
 
     // First check to see if the module is known with it's provided path
     if (modulePaths.contains(normalizedPath)) {
-      return canonicalizedPath;
+      return Optional.of(canonicalizedPath);
     }
 
     // Check for the module beneath each of the module roots
@@ -96,11 +96,11 @@ public abstract class ModuleResolver {
       // honor the state it was provided in. In an ideal world this would always be normalized
       // to contain a leading slash.
       if (modulePaths.contains(modulePath)) {
-        return canonicalizedPath;
+        return Optional.of(canonicalizedPath);
       }
     }
 
-    return null;
+    return Optional.empty();
   }
 
   /**

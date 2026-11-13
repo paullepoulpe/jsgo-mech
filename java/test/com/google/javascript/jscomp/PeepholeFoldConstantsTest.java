@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.testing.TestExternsBuilder;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -2883,7 +2884,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
     @SuppressWarnings({"RhinoNodeGetFirstChild", "Simplification"})
     Node child0 = templateLit.getChildAtIndex(0);
     assertThat(child0.isTemplateLitString()).isTrue();
-    assertThat(child0.getCookedString()).isEmpty();
+    assertThat(child0.getCookedString().orElse(null)).isEmpty();
     assertThat(child0.getRawString()).isEmpty();
 
     // Index 1: SUB a
@@ -2896,7 +2897,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
     // Index 2: TEMPLATELIT_STRING "\n\t"
     Node child2 = templateLit.getChildAtIndex(2);
     assertThat(child2.isTemplateLitString()).isTrue();
-    assertThat(child2.getCookedString()).isEqualTo("\n\t");
+    assertThat(child2.getCookedString().orElse(null)).isEqualTo("\n\t");
     assertThat(child2.getRawString()).isEqualTo("\\n\\t");
 
     // Index 3: SUB b
@@ -2908,7 +2909,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
     // Index 4: TEMPLATELIT_STRING ""
     Node child4 = templateLit.getChildAtIndex(4);
     assertThat(child4.isTemplateLitString()).isTrue();
-    assertThat(child4.getCookedString()).isEmpty();
+    assertThat(child4.getCookedString().orElse(null)).isEmpty();
     assertThat(child4.getRawString()).isEmpty();
   }
 
@@ -2938,7 +2939,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
     @SuppressWarnings({"RhinoNodeGetFirstChild", "Simplification"})
     Node child0 = templateLit.getChildAtIndex(0);
     assertThat(child0.isTemplateLitString()).isTrue();
-    assertThat(child0.getCookedString()).isEmpty();
+    assertThat(child0.getCookedString().orElse(null)).isEmpty();
     assertThat(child0.getRawString()).isEmpty();
 
     // Index 1: SUB foo()
@@ -2951,7 +2952,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
     // Index 2: TEMPLATELIT_STRING "\n\t"
     Node child2 = templateLit.getChildAtIndex(2);
     assertThat(child2.isTemplateLitString()).isTrue();
-    assertThat(child2.getCookedString()).isEqualTo("\\n\t");
+    assertThat(child2.getCookedString().orElse(null)).isEqualTo("\\n\t");
     assertThat(child2.getRawString()).isEqualTo("\\\\n\\t");
 
     // Index 3: SUB ()=> {return b;}
@@ -2963,7 +2964,7 @@ public final class PeepholeFoldConstantsTest extends CompilerTestCase {
     // Index 4: TEMPLATELIT_STRING ""
     Node child4 = templateLit.getChildAtIndex(4);
     assertThat(child4.isTemplateLitString()).isTrue();
-    assertThat(child4.getCookedString()).isEmpty();
+    assertThat(child4.getCookedString().orElse(null)).isEmpty();
     assertThat(child4.getRawString()).isEmpty();
   }
 

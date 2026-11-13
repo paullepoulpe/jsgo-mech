@@ -1545,7 +1545,7 @@ public abstract class CompilerTestCase {
   private void validateSourceLocation(JSError jserror) {
     // Make sure that source information is always provided.
     if (!allowSourcelessWarningsField) {
-      final String sourceName = jserror.sourceName();
+      final String sourceName = jserror.sourceName().orElse(null);
       assertWithMessage("Missing source file name in warning: %s", jserror)
           .that(sourceName != null && !sourceName.isEmpty())
           .isTrue();

@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 
 import com.google.javascript.jscomp.deps.JsFileFullParser.FileInfo;
 import com.google.javascript.jscomp.deps.JsFileFullParser.Reporter;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -113,7 +114,7 @@ public final class JsFileFullParserTest {
 
       @Override
       public void report(
-          boolean fatal, String message, String sourceName, int line, int lineOffset) {
+          boolean fatal, String message, Optional<String> sourceName, int line, int lineOffset) {
         this.lastErrorMessage = message;
       }
     }
@@ -220,7 +221,7 @@ public final class JsFileFullParserTest {
     return JsFileFullParser.parse(
         content,
         "file.js",
-        (boolean fatal, String message, String sourceName, int line, int lineOffset) ->
-            fail(String.format("%s:%d:%d: %s", sourceName, line, lineOffset, message)));
+        (boolean fatal, String message, Optional<String> sourceName, int line, int lineOffset) ->
+            fail(String.format("%s:%d:%d: %s", sourceName.orElse(null), line, lineOffset, message)));
   }
 }

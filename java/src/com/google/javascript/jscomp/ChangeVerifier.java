@@ -25,6 +25,7 @@ import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -195,11 +196,11 @@ public class ChangeVerifier {
     return switch (n.getToken()) {
       case SCRIPT -> "SCRIPT: " + sourceName;
       case FUNCTION -> {
-        String fnName = NodeUtil.getNearestFunctionName(n);
-        if (fnName == null) {
-          fnName = "anonymous@" + n.getLineno() + ":" + n.getCharno();
+        Optional<String> fnName = NodeUtil.getNearestFunctionName(n);
+        if (fnName.isEmpty()) {
+          fnName = Optional.of("anonymous@" + n.getLineno() + ":" + n.getCharno());
         }
-        yield "FUNCTION: " + fnName + " in " + sourceName;
+        yield "FUNCTION: " + fnName.orElse("null") + " in " + sourceName;
       }
       default -> throw new IllegalStateException("unexpected Node type");
     };

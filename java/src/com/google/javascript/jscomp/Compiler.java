@@ -180,7 +180,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   private Node externAndJsRoot;
 
   // Used for debugging; to see the compiled code between passes
-  private @Nullable String lastJsSource = null;
+  private java.util.Optional<String> lastJsSource = java.util.Optional.empty();
 
   // Used to track the invariant about what language features may be in the AST at the given point
   // in compilation.
@@ -223,10 +223,10 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   private SourceMap sourceMap;
 
   /** Extra context appended to the "print source after each pass" output. */
-  private String debugMessage;
+  private java.util.Optional<String> debugMessage = java.util.Optional.empty();
 
   /** The externs created from the exports. */
-  private @Nullable String externExports = null;
+  private java.util.Optional<String> externExports = java.util.Optional.empty();
 
   private UniqueIdSupplier uniqueIdSupplier = new UniqueIdSupplier();
 
@@ -1193,10 +1193,10 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     ManageClosureUnawareCode.unwrap(this).process(externsRoot, jsRoot);
 
     if (tracker != null) {
-      if (options.getTracerOutput() == null) {
+      if (options.getTracerOutput().isEmpty()) {
         tracker.outputTracerReport(this.outStream);
       } else {
-        Outcome<Io.Output> out = Io.openOutput(options.getTracerOutput(), Io.UTF_8, false);
+        Outcome<Io.Output> out = Io.openOutput(options.getTracerOutput().get(), Io.UTF_8, false);
         if (out.isErr()) {
           throw new RuntimeException(out.error());
         }
@@ -1398,7 +1398,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @Override
   void setExternExports(String externExports) {
-    this.externExports = externExports;
+    this.externExports = java.util.Optional.of(externExports);
   }
 
   @Override
@@ -1516,15 +1516,15 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @Override
   public boolean isDebugLoggingEnabled() {
-    return this.getOptions().getDebugLogDirectory() != null;
+    return this.getOptions().getDebugLogDirectory().isPresent();
   }
 
   @Override
   public final List<String> getDebugLogFilterList() {
-    if (this.getOptions().getDebugLogFilter() == null) {
+    if (this.getOptions().getDebugLogFilter().isEmpty()) {
       return new ArrayList<>();
     }
-    return Splitter.on(',').omitEmptyStrings().splitToList(this.getOptions().getDebugLogFilter());
+    return Splitter.on(',').omitEmptyStrings().splitToList(this.getOptions().getDebugLogFilter().get());
   }
 
   @MustBeClosed
@@ -1535,9 +1535,9 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       return LogFile.createNoOp();
     }
 
-    String dir = getOptions().getDebugLogDirectory();
+    java.util.Optional<String> dir = getOptions().getDebugLogDirectory();
     String relativeParts = Io.pathString(firstNamePart, restNameParts);
-    String file = Io.pathResolve(Io.pathResolve(dir, owner.getSimpleName()), relativeParts);
+    String file = Io.pathResolve(Io.pathResolve(dir.get(), owner.getSimpleName()), relativeParts);
 
     // If a filter list for log file names was provided, only create a log file if any
     // of the filter strings matches.
@@ -1577,7 +1577,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     }
 
     String currentJsSource = getCurrentJsSource();
-    if (currentJsSource.equals(this.lastJsSource)) {
+    if (java.util.Optional.of(currentJsSource).equals(this.lastJsSource)) {
       return;
     }
 
@@ -1588,8 +1588,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       }
     } else {
       Io.stderr().println("");
-      if (debugMessage != null) {
-        Io.stderr().println("// DEBUG: " + debugMessage);
+      if (debugMessage.isPresent()) {
+        Io.stderr().println("// DEBUG: " + debugMessage.get());
       }
       Io.stderr().println("// " + passName + " yields:");
       Io.stderr().println("// ************************************");
@@ -1597,7 +1597,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       Io.stderr().println("// ************************************");
     }
 
-    this.lastJsSource = currentJsSource;
+    this.lastJsSource = java.util.Optional.of(currentJsSource);
   }
 
   final String getCurrentJsSource() {
@@ -1693,7 +1693,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
                 return true;
               }
               String originalQname = n.getOriginalQualifiedName();
-              if (originalQname != null && qnameSet.contains(originalQname)) {
+              if (!originalQname.isEmpty() && qnameSet.contains(originalQname)) {
                 originalToNewQNameMap.put(originalQname, qname);
                 return true;
               } else {
@@ -1733,7 +1733,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @Override
   public final @Nullable Node getScriptNode(String filename) {
-    return scriptNodeByFilename.get(checkNotNull(filename));
+    return scriptNodeByFilename.get(filename);
   }
 
   /** Returns a new tracer for the given pass name. */
@@ -1744,7 +1744,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     if (options.getTracerMode().isOn() && tracker != null) {
       tracker.recordPassStart(passName, true);
     }
-    return new Tracer("Compiler", comment);
+    return new Tracer(java.util.Optional.of("Compiler"), java.util.Optional.of(comment));
   }
 
   void stopTracer(Tracer t, String passName) {
@@ -2218,7 +2218,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         }
 
         if (options.shouldGatherSourceMapInfo()
-            || options.getExternExportsPath() != null
+            || options.getExternExportsPath().isPresent()
             || !options.getReplaceStringsFunctionDescriptions().isEmpty()) {
 
           // Annotate the nodes in the tree with information from the
@@ -2316,9 +2316,9 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
           chunkGraph.manageDependencies(this, options.getDependencyOptions());
       if (resultRes.isErr()) {
         if (resultRes.error() instanceof MissingProvideException) {
-          report(JSError.make(MISSING_ENTRY_ERROR, resultRes.errorMessage()));
+          report(JSError.make(MISSING_ENTRY_ERROR, resultRes.errorMessage().orElse("null")));
         } else {
-          report(JSError.make(MISSING_CHUNK_ERROR, resultRes.errorMessage()));
+          report(JSError.make(MISSING_CHUNK_ERROR, resultRes.errorMessage().orElse("null")));
         }
       } else {
         DependencyManagementResult result = resultRes.get();
@@ -2780,7 +2780,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
             String inputName = root.getInputId().getIdName();
             String sourceName = root.getSourceFileName();
-            checkState(sourceName != null);
+            checkState(!sourceName.isEmpty());
             checkState(!sourceName.isEmpty());
 
             delimiter =
@@ -2885,7 +2885,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         return;
       }
       String file = node.getSourceFileName();
-      if (file == null) {
+      if (file.isEmpty()) {
         return;
       }
       if (file.equals(lastSeenFile)) {
@@ -2894,14 +2894,14 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       } else {
         lastSeenFile = file;
       }
-      String license = getLicenseForFile(compiler, file);
-      if (license == null) {
+      java.util.Optional<String> license = getLicenseForFile(compiler, java.util.Optional.of(file));
+      if (license.isEmpty()) {
         return;
       }
-      if (globallyUniqueLicenses.contains(license)) {
+      if (globallyUniqueLicenses.contains(license.get())) {
         return;
       }
-      currentlySeenLicenses.add(license);
+      currentlySeenLicenses.add(license.get());
     }
 
     @Override
@@ -3014,7 +3014,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         return;
       }
       String sourceFile = node.getSourceFileName();
-      if (sourceFile == null) {
+      if (sourceFile.isEmpty()) {
         return;
       }
       if (lastSeenFile.equals(sourceFile)) {
@@ -3037,20 +3037,20 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         }
         haveInitializedCurrentChunkLicenses = true;
       }
-      String license = getLicenseForFile(compiler, node.getSourceFileName());
-      if (license == null) {
+      java.util.Optional<String> license = getLicenseForFile(compiler, java.util.Optional.of(node.getSourceFileName()).filter(s -> !s.isEmpty()));
+      if (license.isEmpty()) {
         return;
       }
-      if (this.currentChunkLicencesInTDeps.contains(license)) {
+      if (this.currentChunkLicencesInTDeps.contains(license.get())) {
         // This node's license is covered by one of its transitive dependencies - no need to
         // duplicate it.
         return;
       }
-      if (this.licensesNewInCurrentChunk.contains(license)) {
+      if (this.licensesNewInCurrentChunk.contains(license.get())) {
         // This license is new as of this chunk, but another file has already seen it.
         return;
       }
-      boolean newlyAddedLicense = this.licensesNewInCurrentFile.add(license);
+      boolean newlyAddedLicense = this.licensesNewInCurrentFile.add(license.get());
       if (!newlyAddedLicense) {
         log.log(
             """
@@ -3060,11 +3060,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
             ==================
 
             """,
-            currentChunk, license);
+            currentChunk, license.get());
       } else {
         log.log(
             "Chunk %s has new license:\n==================\n%s\n==================\n\n",
-            currentChunk, license);
+            currentChunk, license.get());
       }
     }
 
@@ -3088,20 +3088,20 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     return builder.buildWithSourceMappings();
   }
 
-  public static @Nullable String getLicenseForFile(
-      AbstractCompiler compiler, @Nullable String fileName) {
-    if (fileName == null) {
-      return null;
+  public static java.util.Optional<String> getLicenseForFile(
+      AbstractCompiler compiler, java.util.Optional<String> fileName) {
+    if (fileName.isEmpty()) {
+      return java.util.Optional.empty();
     }
-    Node licenseRoot = compiler.getScriptNode(fileName);
+    Node licenseRoot = compiler.getScriptNode(fileName.get());
     if (licenseRoot == null) {
-      return null;
+      return java.util.Optional.empty();
     }
     JSDocInfo docInfo = licenseRoot.getJSDocInfo();
     if (docInfo == null) {
-      return null;
+      return java.util.Optional.empty();
     }
-    String license = docInfo.getLicense();
+    java.util.Optional<String> license = docInfo.getLicense();
     return license;
   }
 
@@ -3560,24 +3560,24 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   @Override
-  @Nullable SourceFile getSourceFileByName(String sourceName) {
+  @Nullable SourceFile getSourceFileByName(java.util.Optional<String> sourceName) {
     // Here we assume that the source name is the input name, this
     // is true of JavaScript parsed from source.
-    if (sourceName != null) {
-      CompilerInput input = inputsById.get(new InputId(sourceName));
+    if (sourceName.isPresent()) {
+      CompilerInput input = inputsById.get(new InputId(sourceName.get()));
       if (input != null) {
         return input.getSourceFile();
       }
       // Alternatively, the sourceName might have been reverse-mapped by
       // an input source-map, so let's look in our sourcemap original sources.
-      return sourceMapOriginalSources.get(sourceName);
+      return sourceMapOriginalSources.get(sourceName.get());
     }
 
     return null;
   }
 
   public @Nullable CharSequence getSourceFileContentByName(String sourceName) {
-    SourceFile file = getSourceFileByName(sourceName);
+    SourceFile file = getSourceFileByName(java.util.Optional.of(sourceName));
     if (file.isStubSourceFileForAlreadyProvidedInput()) {
       return null;
     }
@@ -3604,16 +3604,16 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    * a base64-encoded "data url" stored in `//# sourceMappingURL=` comment.
    */
   @Override
-  public @Nullable String getBase64SourceMapContents(String sourceFileName) {
-    SourceMapInput sourceMapInput = inputSourceMaps.getOrDefault(sourceFileName, null);
+  public java.util.Optional<String> getBase64SourceMapContents(java.util.Optional<String> sourceFileName) {
+    SourceMapInput sourceMapInput = inputSourceMaps.getOrDefault(sourceFileName.orElse(null), null);
     // This sourceMappingURL ends with a ".inline.map", and we want to get its base4-encoded
     // contents (i.e. "data:application/json;base64,<encoded_source_map>").
-    String sourceMappingURL = sourceMapInput != null ? sourceMapInput.getOriginalPath() : null;
-    if (sourceMappingURL != null && sourceMappingURL.endsWith(".inline.map")) {
-      String unencoded = sourceMapInput.getRawSourceMapContents(); // This is the sourcemap.
-      return Io.base64Encode(Io.utf8Bytes(unencoded));
+    java.util.Optional<String> sourceMappingURL = sourceMapInput != null ? java.util.Optional.of(sourceMapInput.getOriginalPath()) : java.util.Optional.empty();
+    if (sourceMappingURL.isPresent() && sourceMappingURL.get().endsWith(".inline.map")) {
+      java.util.Optional<String> unencoded = sourceMapInput.getRawSourceMapContents(); // This is the sourcemap.
+      return java.util.Optional.of(Io.base64Encode(Io.utf8Bytes(unencoded.get())));
     }
-    return null;
+    return java.util.Optional.empty();
   }
 
   /**
@@ -3649,11 +3649,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @Override
   public @Nullable OriginalMapping getSourceMapping(
-      String sourceName, int lineNumber, int columnNumber) {
-    if (sourceName == null) {
+      java.util.Optional<String> sourceName, int lineNumber, int columnNumber) {
+    if (sourceName.isEmpty()) {
       return null;
     }
-    SourceMapInput sourceMap = inputSourceMaps.get(sourceName);
+    SourceMapInput sourceMap = inputSourceMaps.get(sourceName.get());
     if (sourceMap == null) {
       return null;
     }
@@ -3681,7 +3681,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         relativePath = resolvedSourceMap.relativePath;
       } else {
         relativePath = resolveSibling(sourceMapOriginalPath, resultOriginalPath);
-        SourceFile source = getSourceFileByName(relativePath);
+        SourceFile source = getSourceFileByName(java.util.Optional.of(relativePath));
         if (source == null && !isNullOrEmpty(resultOriginalPath)) {
           source =
               SourceMapResolver.getRelativePath(
@@ -3705,19 +3705,19 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   @Override
-  public @Nullable String getSourceLine(String sourceName, int lineNumber) {
+  public java.util.Optional<String> getSourceLine(java.util.Optional<String> sourceName, int lineNumber) {
     if (lineNumber < 1) {
-      return null;
+      return java.util.Optional.empty();
     }
     SourceFile input = getSourceFileByName(sourceName);
     if (input != null && !input.isStubSourceFileForAlreadyProvidedInput()) {
       return input.getLine(lineNumber);
     }
-    return null;
+    return java.util.Optional.empty();
   }
 
   @Override
-  public @Nullable Region getSourceLines(String sourceName, int lineNumber, int length) {
+  public @Nullable Region getSourceLines(java.util.Optional<String> sourceName, int lineNumber, int length) {
     if (lineNumber < 1) {
       return null;
     }
@@ -3729,7 +3729,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   @Override
-  public @Nullable Region getSourceRegion(String sourceName, int lineNumber) {
+  public @Nullable Region getSourceRegion(java.util.Optional<String> sourceName, int lineNumber) {
     if (lineNumber < 1) {
       return null;
     }
@@ -3789,7 +3789,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   private @Nullable VariableMap instrumentationMapping = null;
 
   /** Id generator map */
-  private @Nullable String idGeneratorMap = null;
+  private java.util.Optional<String> idGeneratorMap = java.util.Optional.empty();
 
   /** Did any source file need any feature transpiled */
   private boolean transpiledFiles = false;
@@ -3830,7 +3830,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   @Override
   public void setIdGeneratorMap(String serializedIdMappings) {
-    this.idGeneratorMap = serializedIdMappings;
+    this.idGeneratorMap = java.util.Optional.of(serializedIdMappings);
   }
 
   @Override
@@ -4147,7 +4147,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     // For stage 2 optimizing builds, insert runtime libraries as actual code in the AST.
     // For library builds that outputs a TypedAST, the runtime libraries are injected to a synthetic
     // @typeSummary (.i.js) node so that the types are available.
-    if (options.getTypedAstOutputFile() == null) {
+    if (options.getTypedAstOutputFile().isEmpty()) {
       return getNodeForCodeInsertion(null);
     }
     return getSynthesizedTypeSummaryInput().getAstRoot(this);
@@ -4162,11 +4162,11 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   @Override
-  public List<Comment> getComments(String filename) {
+  public List<Comment> getComments(java.util.Optional<String> filename) {
     if (!getOptions().preservesDetailedSourceInfo()) {
       throw new UnsupportedOperationException("getComments may only be called in IDE mode.");
     }
-    return commentsPerFile.get(filename);
+    return filename.isPresent() ? commentsPerFile.get(filename.get()) : null;
   }
 
   @Override
@@ -4201,7 +4201,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
    */
   void setDebugMessage(String debugMessage) {
     this.compilerExecutor.setDebugMessage(debugMessage);
-    this.debugMessage = debugMessage;
+    this.debugMessage = java.util.Optional.of(debugMessage);
   }
 
   protected CompilerExecutor createCompilerExecutor() {
@@ -4331,8 +4331,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       builder.addAllCssNames(cssNames);
     }
 
-    if (idGeneratorMap != null) {
-      builder.setIdGeneratorMap(idGeneratorMap);
+    if (idGeneratorMap.isPresent()) {
+      builder.setIdGeneratorMap(idGeneratorMap.get());
     }
 
     builder
@@ -4402,9 +4402,9 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
     propertyMap = null;
 
     if (compilerState.hasIdGeneratorMap()) {
-      idGeneratorMap = compilerState.getIdGeneratorMap();
+      idGeneratorMap = java.util.Optional.ofNullable(compilerState.getIdGeneratorMap());
     } else {
-      idGeneratorMap = null;
+      idGeneratorMap = java.util.Optional.empty();
     }
     transpiledFiles = compilerState.getTranspiledFiles();
 
@@ -4652,8 +4652,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
 
   /** Returns the module type for the provided namespace. */
   @Override
-  @Nullable ModuleType getModuleTypeByName(String moduleName) {
-    return moduleTypesByName.get(moduleName);
+  @Nullable ModuleType getModuleTypeByName(java.util.Optional<String> moduleName) {
+    return moduleName.isPresent() ? moduleTypesByName.get(moduleName.get()) : null;
   }
 
   private ModuleMetadataMap moduleMetadataMap;

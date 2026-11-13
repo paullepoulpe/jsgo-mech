@@ -65,6 +65,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import org.jspecify.annotations.Nullable;
@@ -156,9 +157,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   //
   // New outputs should use outputCharset2, which is how I would have
   // designed this if I had a time machine.
-  private String outputCharset2;
+  private Optional<String> outputCharset2 = Optional.empty();
 
-  private String legacyOutputCharset;
+  private Optional<String> legacyOutputCharset = Optional.empty();
 
   private boolean testMode = false;
 
@@ -314,7 +315,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         return Outcome.err(new FlagUsageException(
             "checks_only mode is incompatible with multi-stage compilation"));
       }
-      if (options.getExternExportsPath() != null) {
+      if (options.getExternExportsPath().isPresent()) {
         return Outcome.err(new FlagUsageException(
             "generating externs from exports is incompatible with multi-stage compilation"));
       }
@@ -342,7 +343,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       Outcome<CompilerOptions.BrowserFeaturesetYear> yearRes =
           CompilerOptions.BrowserFeaturesetYear.fromResult(config.browserFeaturesetYear);
       if (yearRes.isErr()) {
-        return Outcome.err(new FlagUsageException(yearRes.errorMessage()));
+        return Outcome.err(new FlagUsageException(yearRes.errorMessage().orElseThrow()));
       }
       options.setBrowserFeaturesetYearEnum(yearRes.get());
     }
@@ -365,13 +366,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (legacyOutputCharsetOutcome.isErr()) {
       return Outcome.err(legacyOutputCharsetOutcome.error());
     }
-    legacyOutputCharset = legacyOutputCharsetOutcome.get();
+    legacyOutputCharset = Optional.ofNullable(legacyOutputCharsetOutcome.get());
     options.setOutputCharset(legacyOutputCharset);
     Outcome<String> outputCharset2Outcome = getOutputCharset2();
     if (outputCharset2Outcome.isErr()) {
       return Outcome.err(outputCharset2Outcome.error());
     }
-    outputCharset2 = outputCharset2Outcome.get();
+    outputCharset2 = Optional.ofNullable(outputCharset2Outcome.get());
     Outcome<String> inputCharsetOutcome = getInputCharset();
     if (inputCharsetOutcome.isErr()) {
       return Outcome.err(inputCharsetOutcome.error());
@@ -401,9 +402,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
 
     if (config.createSourceMap.length() > 0) {
-      options.setSourceMapOutputPath(config.createSourceMap);
+      options.setSourceMapOutputPath(Optional.of(config.createSourceMap));
     } else if (isOutputInJson()) {
-      options.setSourceMapOutputPath("%outname%");
+      options.setSourceMapOutputPath(Optional.of("%outname%"));
     }
     options.setSourceMapDetailLevel(config.sourceMapDetailLevel);
     options.setSourceMapFormat(config.sourceMapFormat);
@@ -657,7 +658,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       FlagEntry<JsSourceType> file = files.get(i);
       String filename = file.value;
       if (file.flag == JsSourceType.JS_ZIP) {
-        if (this.config.typedAstListInputFilename != null) {
+        if (this.config.typedAstListInputFilename.isPresent()) {
           return Outcome.err(new FlagUsageException("Can't use TypedASTs with --zip."));
         }
 
@@ -693,7 +694,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
                 .build();
         inputs.add(newFile);
       } else {
-        if (this.config.typedAstListInputFilename != null) {
+        if (this.config.typedAstListInputFilename.isPresent()) {
           return Outcome.err(new FlagUsageException("Can't use TypedASTs with stdin."));
         }
         if (!config.defaultToStdin) {
@@ -735,7 +736,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
     if (jsonFiles != null) {
       for (JsonFileSpec jsonFile : jsonFiles) {
-        inputs.add(SourceFile.fromCode(jsonFile.getPath(), jsonFile.getSrc()));
+        inputs.add(SourceFile.fromCode(jsonFile.getPath().get(), jsonFile.getSrc().orElseThrow()));
       }
     }
 
@@ -838,7 +839,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       return Outcome.err(inputsRes.error());
     }
     if (inputsRes.isErr()) {
-      return Outcome.err(new FlagUsageException("Bad --js flag. " + inputsRes.errorMessage()));
+      return Outcome.err(new FlagUsageException("Bad --js flag. " + inputsRes.errorMessage().orElse("null")));
     }
     return Outcome.ok(inputsRes.get());
   }
@@ -855,7 +856,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       return Outcome.err(inputsRes.error());
     }
     if (inputsRes.isErr()) {
-      return Outcome.err(new FlagUsageException("Bad --externs flag. " + inputsRes.errorMessage()));
+      return Outcome.err(new FlagUsageException("Bad --externs flag. " + inputsRes.errorMessage().orElse("null")));
     }
     return Outcome.ok(inputsRes.get());
   }
@@ -1065,9 +1066,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
       parsedChunkOutputFiles = parsedChunkOutputFilesOutcome.get();
     }
-    String outputFile = parsedChunkOutputFiles.get(m.getName());
-    if (outputFile != null) {
-      return Outcome.ok(config.chunkOutputPathPrefix + outputFile);
+    Optional<String> outputFile = Optional.ofNullable(parsedChunkOutputFiles.get(m.getName()));
+    if (outputFile.isPresent()) {
+      return Outcome.ok(config.chunkOutputPathPrefix + outputFile.get());
     }
     return Outcome.ok(config.chunkOutputPathPrefix + m.getName() + ".js");
   }
@@ -1190,9 +1191,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   /** Creates any directories necessary to write a file that will have a given path prefix. */
   private static void maybeCreateDirsForPath(String pathPrefix) {
     if (!Strings.isNullOrEmpty(pathPrefix)) {
-      String parent = Io.pathParent(pathPrefix);
-      if (parent != null) {
-        Io.mkdirs(parent);
+      Optional<String> parent = Io.pathParent(pathPrefix);
+      if (parent.isPresent()) {
+        Io.mkdirs(parent.get());
       }
     }
   }
@@ -1200,7 +1201,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   private Outcome<Appendable> createDefaultOutput() {
     boolean writeOutputToFile = !config.jsOutputFile.isEmpty();
     if (writeOutputToFile) {
-      Outcome<Io.Output> output = fileNameToLegacyOutputWriter(config.jsOutputFile);
+      Outcome<Io.Output> output = fileNameToLegacyOutputWriter(Optional.of(config.jsOutputFile));
       if (output.isErr()) {
         return Outcome.err(output.error());
       }
@@ -1261,7 +1262,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       return Outcome.err(setRunOptionsOutcome.error());
     }
 
-    @Nullable String typedAstListInputFilename = config.typedAstListInputFilename;
+    Optional<String> typedAstListInputFilename = config.typedAstListInputFilename;
 
     Outcome<List<SourceFile>> externsOutcome = createExterns(options);
     if (externsOutcome.isErr()) {
@@ -1308,14 +1309,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
       boolean foundJsonInputSourceMap = false;
       for (JsonFileSpec jsonFile : jsonFiles) {
-        if (jsonFile.getSourceMap() != null && jsonFile.getSourceMap().length() > 0) {
-          String sourceMapPath = jsonFile.getPath() + ".map";
-          SourceFile sourceMap = SourceFile.fromCode(sourceMapPath, jsonFile.getSourceMap());
-          inputSourceMaps.put(jsonFile.getPath(), new SourceMapInput(sourceMap));
+        if (jsonFile.getSourceMap().isPresent() && jsonFile.getSourceMap().get().length() > 0) {
+          String sourceMapPath = jsonFile.getPath().orElse("null") + ".map";
+          SourceFile sourceMap = SourceFile.fromCode(sourceMapPath, jsonFile.getSourceMap().get());
+          inputSourceMaps.put(jsonFile.getPath().get(), new SourceMapInput(sourceMap));
           foundJsonInputSourceMap = true;
         }
-        if (jsonFile.getWebpackId() != null) {
-          inputPathByWebpackId.put(jsonFile.getWebpackId(), jsonFile.getPath());
+        if (jsonFile.getWebpackId().isPresent()) {
+          inputPathByWebpackId.put(jsonFile.getWebpackId().get(), jsonFile.getPath().get());
         }
       }
 
@@ -1374,14 +1375,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         outputFileNames.add(chunkOutputFileName.get());
       }
 
-      if (typedAstListInputFilename != null) {
-        this.initChunksWithTypedAstFilesystem(externs, chunks, options, typedAstListInputFilename);
+      if (typedAstListInputFilename.isPresent()) {
+        this.initChunksWithTypedAstFilesystem(externs, chunks, options, typedAstListInputFilename.get());
       } else {
         compiler.initChunks(externs, chunks, options);
       }
     } else {
-      if (typedAstListInputFilename != null) {
-        this.initWithTypedAstFilesystem(externs, sources, options, typedAstListInputFilename);
+      if (typedAstListInputFilename.isPresent()) {
+        this.initWithTypedAstFilesystem(externs, sources, options, typedAstListInputFilename.get());
       } else {
         compiler.init(externs, sources, options);
       }
@@ -1444,14 +1445,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
 
     for (String outputFileName : outputFileNames) {
-      if (compiler.getSourceFileByName(outputFileName) != null) {
+      if (compiler.getSourceFileByName(Optional.of(outputFileName)) != null) {
         compiler.report(JSError.make(OUTPUT_SAME_AS_INPUT_ERROR, outputFileName));
         return Outcome.ok(1);
       }
     }
 
     // We won't want to process results for cases where compilation is only partially done.
-    boolean shouldProcessResults = config.getSaveCompilationStateToFilename() == null;
+    boolean shouldProcessResults = config.getSaveCompilationStateToFilename().isEmpty();
     int exitStatus;
     if (shouldProcessResults) {
       Outcome<Integer> exitStatusOutcome = processResults(result, chunks, options);
@@ -1603,11 +1604,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    */
   private Outcome<Void> initializeStateBeforeCompilation() {
     if (config.restoredCompilationStage != -1) {
-      Outcome<Void> restored = restoreState(config.getContinueSavedCompilationFileName());
+      Outcome<Void> restored = restoreState(config.getContinueSavedCompilationFileName().orElse(null));
       if (restored.isErr()) {
         return Outcome.err(restored.error());
       }
-    } else if (config.typedAstListInputFilename != null) {
+    } else if (config.typedAstListInputFilename.isPresent()) {
       // we did this elsewhere
     } else {
       // parsing!
@@ -1627,11 +1628,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   /** Call at the end of compilation to save the compiler state if applicable. */
   private void saveState() {
-    if (config.getSaveCompilationStateToFilename() == null) {
+    if (config.getSaveCompilationStateToFilename().isEmpty()) {
       // nothing to save to.
       return;
     }
-    String filename = config.getSaveCompilationStateToFilename();
+    String filename = config.getSaveCompilationStateToFilename().get();
     // Create (or empty) the file first: if that fails there is no point in serializing.
     Outcome<Void> created = Io.writeBytes(filename, new byte[0]);
     if (created.isErr()) {
@@ -1755,7 +1756,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
 
       // Output the externs if required.
-      if (options.getExternExportsPath() != null) {
+      if (options.getExternExportsPath().isPresent()) {
         Outcome<Io.Output> eeOutOutcome = openExternExportsStream(options, config.jsOutputFile);
         if (eeOutOutcome.isErr()) {
           return Outcome.err(eeOutOutcome.error());
@@ -1763,7 +1764,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         Io.Output eeOut = eeOutOutcome.get();
         Outcome<Void> eeOutClosed;
         try {
-          eeOut.append(result.externExport);
+          eeOut.append(result.externExport.orElse(null));
         } finally {
           eeOutClosed = closeOutput(eeOut);
         }
@@ -1955,7 +1956,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
           if (sourceMapPath.isErr()) {
             return Outcome.err(sourceMapPath.error());
           }
-          Outcome<Io.Output> mapFileOutOutcome = fileNameToOutputWriter2(sourceMapPath.get());
+          Outcome<Io.Output> mapFileOutOutcome = fileNameToOutputWriter2(Optional.ofNullable(sourceMapPath.get()));
           if (mapFileOutOutcome.isErr()) {
             return Outcome.err(mapFileOutOutcome.error());
           }
@@ -1968,7 +1969,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         }
         String chunkFilename = chunkFilenameOutcome.get();
         maybeCreateDirsForPath(chunkFilename);
-        Outcome<Io.Output> writerOutcome = fileNameToLegacyOutputWriter(chunkFilename);
+        Outcome<Io.Output> writerOutcome = fileNameToLegacyOutputWriter(Optional.of(chunkFilename));
         if (writerOutcome.isErr()) {
           return Outcome.err(writerOutcome.error());
         }
@@ -1985,7 +1986,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
             return Outcome.err(writeChunkOutputOutcome.error());
           }
           if (options.shouldGatherSourceMapInfo()) {
-            compiler.getSourceMap().appendTo(mapFileOut, chunkFilename);
+            compiler.getSourceMap().appendTo(mapFileOut, Optional.of(chunkFilename));
           }
         } finally {
           writerClosed = closeOutput(writer);
@@ -2037,7 +2038,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (chunkOutputFileName.isErr()) {
       return Outcome.err(chunkOutputFileName.error());
     }
-    compiler.getSourceMap().appendTo(chunkSourceMap, chunkOutputFileName.get());
+    compiler.getSourceMap().appendTo(chunkSourceMap, Optional.ofNullable(chunkOutputFileName.get()));
 
     jsonFile.setSourceMap(chunkSourceMap.toString());
 
@@ -2112,7 +2113,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    */
   protected boolean shouldGenerateMapPerChunk(B options) {
     return options.shouldGatherSourceMapInfo()
-        && options.getSourceMapOutputPath().contains("%outname%");
+        && options.getSourceMapOutputPath().get().contains("%outname%");
   }
 
   /**
@@ -2123,18 +2124,18 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @return The stream or null if no extern-ed exports are being generated.
    */
   private Outcome<Io.@Nullable Output> openExternExportsStream(B options, String path) {
-    final String externExportsPath = options.getExternExportsPath();
-    if (externExportsPath == null) {
+    final Optional<String> externExportsPath = options.getExternExportsPath();
+    if (externExportsPath.isEmpty()) {
       return Outcome.ok(null);
     }
 
-    String exPath = externExportsPath;
+    String exPath = externExportsPath.get();
 
     if (!exPath.contains(Io.separator())) {
-      exPath = Io.pathParent(path) + Io.separator() + exPath;
+      exPath = Io.pathParent(path).orElse("null") + Io.separator() + exPath;
     }
 
-    return fileNameToOutputWriter2(exPath);
+    return fileNameToOutputWriter2(Optional.of(exPath));
   }
 
   /**
@@ -2172,37 +2173,37 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (!options.shouldGatherSourceMapInfo()) {
       return Outcome.ok(null);
     }
-    return expandCommandLinePath(options.getSourceMapOutputPath(), forChunk);
+    return expandCommandLinePath(options.getSourceMapOutputPath().get(), forChunk);
   }
 
   /**
    * Converts a file name into an output taking in account the output charset. Returns null if the
    * file name is null.
    */
-  private Outcome<Io.@Nullable Output> fileNameToLegacyOutputWriter(String fileName) {
-    if (fileName == null) {
+  private Outcome<Io.@Nullable Output> fileNameToLegacyOutputWriter(Optional<String> fileName) {
+    if (fileName.isEmpty()) {
       return Outcome.ok(null);
     }
     if (isInTestMode()) {
       return Outcome.ok(Io.nullOutput());
     }
 
-    return openOutputFile(fileName, legacyOutputCharset == null ? Io.UTF_8 : legacyOutputCharset);
+    return openOutputFile(fileName.get(), legacyOutputCharset.orElse(Io.UTF_8));
   }
 
   /**
    * Converts a file name into an output taking in account the output charset. Returns null if the
    * file name is null.
    */
-  private Outcome<Io.@Nullable Output> fileNameToOutputWriter2(String fileName) {
-    if (fileName == null) {
+  private Outcome<Io.@Nullable Output> fileNameToOutputWriter2(Optional<String> fileName) {
+    if (fileName.isEmpty()) {
       return Outcome.ok(null);
     }
     if (isInTestMode()) {
       return Outcome.ok(Io.nullOutput());
     }
 
-    return openOutputFile(fileName, outputCharset2 == null ? Io.UTF_8 : outputCharset2);
+    return openOutputFile(fileName.get(), outputCharset2.orElse(Io.UTF_8));
   }
 
   /** Creates (or empties) the file and returns a buffered output that encodes with the charset. */
@@ -2212,10 +2213,10 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   /** Create a writer with the legacy output charset. */
   private Io.Output streamToLegacyOutputWriter(Io.Output stream) {
-    if (legacyOutputCharset == null) {
+    if (legacyOutputCharset.isEmpty()) {
       return stream.encodedAs(Io.UTF_8);
     } else {
-      return stream.encodedAs(legacyOutputCharset);
+      return stream.encodedAs(legacyOutputCharset.get());
     }
   }
 
@@ -2226,7 +2227,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    */
   private Outcome<Void> outputSourceMap(B options, String associatedName) throws IOException {
     if (!options.shouldGatherSourceMapInfo()
-        || options.getSourceMapOutputPath().equals("/dev/null")) {
+        || options.getSourceMapOutputPath().get().equals("/dev/null")) {
       return Outcome.ok();
     }
 
@@ -2236,14 +2237,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
     String outName = outNameOutcome.get();
     maybeCreateDirsForPath(outName);
-    Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(outName);
+    Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(Optional.of(outName));
     if (outOutcome.isErr()) {
       return Outcome.err(outOutcome.error());
     }
     Io.Output out = outOutcome.get();
     Outcome<Void> outClosed;
     try {
-      compiler.getSourceMap().appendTo(out, associatedName);
+      compiler.getSourceMap().appendTo(out, Optional.of(associatedName));
     } finally {
       outClosed = closeOutput(out);
     }
@@ -2279,11 +2280,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         outputFileName = outputFileName.substring(0, outputFileName.length() - 3);
       }
 
-      String fileParent = Io.pathParent(outputFile);
-      if (fileParent == null) {
+      Optional<String> fileParent = Io.pathParent(outputFile);
+      if (fileParent.isEmpty()) {
         basePath = outputFileName;
       } else {
-        basePath = fileParent + Io.separator() + outputFileName;
+        basePath = fileParent.get() + Io.separator() + outputFileName;
       }
     }
 
@@ -2296,48 +2297,48 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    */
   private Outcome<Void> outputNameMaps() throws IOException {
 
-    String propertyMapOutputPath = null;
-    String variableMapOutputPath = null;
+    Optional<String> propertyMapOutputPath = Optional.empty();
+    Optional<String> variableMapOutputPath = Optional.empty();
 
     // Check the create_name_map_files FLAG.
     if (config.createNameMapFiles) {
       String basePath = getMapPath(config.jsOutputFile);
 
-      propertyMapOutputPath = basePath + "_props_map.out";
-      variableMapOutputPath = basePath + "_vars_map.out";
+      propertyMapOutputPath = Optional.of(basePath + "_props_map.out");
+      variableMapOutputPath = Optional.of(basePath + "_vars_map.out");
     }
 
     // Check the individual FLAGS.
     if (!config.variableMapOutputFile.isEmpty()) {
-      if (variableMapOutputPath != null) {
+      if (variableMapOutputPath.isPresent()) {
         return Outcome.err(new FlagUsageException(
             "The flags variable_map_output_file and "
                 + "create_name_map_files cannot both be used simultaneously."));
       }
 
-      variableMapOutputPath = config.variableMapOutputFile;
+      variableMapOutputPath = Optional.of(config.variableMapOutputFile);
     }
 
     if (!config.propertyMapOutputFile.isEmpty()) {
-      if (propertyMapOutputPath != null) {
+      if (propertyMapOutputPath.isPresent()) {
         return Outcome.err(new FlagUsageException(
             "The flags property_map_output_file and "
                 + "create_name_map_files cannot both be used simultaneously."));
       }
 
-      propertyMapOutputPath = config.propertyMapOutputFile;
+      propertyMapOutputPath = Optional.of(config.propertyMapOutputFile);
     }
 
     // Output the maps.
-    if (variableMapOutputPath != null && compiler.getVariableMap() != null) {
-      Outcome<Void> savedVariableMap = compiler.getVariableMap().save(variableMapOutputPath);
+    if (variableMapOutputPath.isPresent() && compiler.getVariableMap() != null) {
+      Outcome<Void> savedVariableMap = compiler.getVariableMap().save(variableMapOutputPath.get());
       if (savedVariableMap.isErr()) {
         return Outcome.err(savedVariableMap.error());
       }
     }
 
-    if (propertyMapOutputPath != null && compiler.getPropertyMap() != null) {
-      Outcome<Void> savedPropertyMap = compiler.getPropertyMap().save(propertyMapOutputPath);
+    if (propertyMapOutputPath.isPresent() && compiler.getPropertyMap() != null) {
+      Outcome<Void> savedPropertyMap = compiler.getPropertyMap().save(propertyMapOutputPath.get());
       if (savedPropertyMap.isErr()) {
         return Outcome.err(savedPropertyMap.error());
       }
@@ -2429,8 +2430,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * Returns true if and only if a manifest or bundle should be generated for each chunk, as opposed
    * to one unified manifest.
    */
-  private boolean shouldGenerateOutputPerChunk(String output) {
-    return !config.chunk.isEmpty() && output != null && output.contains("%outname%");
+  private boolean shouldGenerateOutputPerChunk(Optional<String> output) {
+    return !config.chunk.isEmpty() && output.isPresent() && output.get().contains("%outname%");
   }
 
   private Outcome<Void> outputManifest() throws IOException {
@@ -2482,7 +2483,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         continue;
       }
 
-      if (shouldGenerateOutputPerChunk(output)) {
+      if (shouldGenerateOutputPerChunk(Optional.of(output))) {
         // Generate per-chunk manifests or bundles.
         Iterable<JSChunk> chunks = compiler.getChunkGraph().getAllChunks();
         for (JSChunk chunk : chunks) {
@@ -2490,7 +2491,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
           if (chunkOutputPath.isErr()) {
             return Outcome.err(chunkOutputPath.error());
           }
-          Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(chunkOutputPath.get());
+          Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(Optional.ofNullable(chunkOutputPath.get()));
           if (outOutcome.isErr()) {
             return Outcome.err(outOutcome.error());
           }
@@ -2518,7 +2519,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         if (outputPath.isErr()) {
           return Outcome.err(outputPath.error());
         }
-        Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(outputPath.get());
+        Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(Optional.ofNullable(outputPath.get()));
         if (outOutcome.isErr()) {
           return Outcome.err(outOutcome.error());
         }
@@ -2558,7 +2559,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   /** Creates a file containing the current chunk graph in JSON serialization. */
   private Outcome<Void> outputChunkGraphJson() throws IOException {
-    if (config.outputChunkDependencies != null && config.outputChunkDependencies.length() != 0) {
+    if (config.outputChunkDependencies.isPresent() && config.outputChunkDependencies.get().length() != 0) {
       Outcome<Io.Output> outOutcome = fileNameToOutputWriter2(config.outputChunkDependencies);
       if (outOutcome.isErr()) {
         return Outcome.err(outOutcome.error());
@@ -2633,8 +2634,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         continue;
       }
 
-      String rootRelativePath = rootRelativePathsMap.get(name);
-      String displayName = rootRelativePath != null ? rootRelativePath : name;
+      Optional<String> rootRelativePath = Optional.ofNullable(rootRelativePathsMap.get(name));
+      String displayName = rootRelativePath.orElse(name);
       out.append(displayName);
       out.append("\n");
     }
@@ -2683,8 +2684,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         continue;
       }
 
-      String rootRelativePath = rootRelativePathsMap.get(name);
-      String displayName = rootRelativePath != null ? rootRelativePath : input.getName();
+      Optional<String> rootRelativePath = Optional.ofNullable(rootRelativePathsMap.get(name));
+      String displayName = rootRelativePath.isPresent() ? rootRelativePath.get() : input.getName();
       out.append("//");
       out.append(displayName);
       out.append("\n");
@@ -2827,7 +2828,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
      * When non-null specifies a file containing saved compiler state to restore and continue
      * compiling.
      */
-    private @Nullable String continueSavedCompilationFileName = null;
+    private Optional<String> continueSavedCompilationFileName = Optional.empty();
 
     /**
      * When > 0 indicates the stage at which compilation stopped for the compilation state that is
@@ -2844,8 +2845,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     /** Set the compiler to resume a saved compilation state from a file. */
     @CanIgnoreReturnValue
     public CommandLineConfig setContinueSavedCompilationFileName(
-        String fileName, int restoredCompilationStage) {
-      if (fileName != null) {
+        Optional<String> fileName, int restoredCompilationStage) {
+      if (fileName.isPresent()) {
         checkArgument(
             restoredCompilationStage > 0 && restoredCompilationStage < 3,
             "invalid compilation stage: %s",
@@ -2857,13 +2858,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
 
     boolean shouldSaveAfterStage1() {
-      if (saveCompilationStateToFilename != null && saveAfterCompilationStage == 1) {
+      if (saveCompilationStateToFilename.isPresent() && saveAfterCompilationStage == 1) {
         checkState(
             restoredCompilationStage < 0,
             "cannot perform stage 1 after restoring from stage %s",
             restoredCompilationStage);
         checkState(
-            continueSavedCompilationFileName == null,
+            continueSavedCompilationFileName.isEmpty(),
             "cannot restore a saved compilation and also save after stage 1");
         return true;
       } else {
@@ -2871,7 +2872,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
     }
 
-    String getContinueSavedCompilationFileName() {
+    Optional<String> getContinueSavedCompilationFileName() {
       return continueSavedCompilationFileName;
     }
 
@@ -2885,7 +2886,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
 
     private boolean shouldContinueCompilation() {
-      if (continueSavedCompilationFileName != null) {
+      if (continueSavedCompilationFileName.isPresent()) {
         checkState(
             restoredCompilationStage > 0 && restoredCompilationStage < 3,
             "invalid restored compilation stage: %s",
@@ -2898,14 +2899,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     boolean shouldRestoreTypedAstsPerformStage2AndSave() {
       // We have a typed ast input list to parse
-      return typedAstListInputFilename != null
+      return typedAstListInputFilename.isPresent()
           // we want to stop and save after optimizations
           && saveAfterCompilationStage == 2;
     }
 
     boolean shouldRestoreTypedAstsPerformStages2And3() {
       // We have a typed ast input list to parse
-      return typedAstListInputFilename != null
+      return typedAstListInputFilename.isPresent()
           // we do not want to stop and save after optimizations
           && saveAfterCompilationStage == -1;
     }
@@ -2952,26 +2953,26 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
           || shouldRestoreTypedAstsPerformStage2AndSave();
     }
 
-    private @Nullable String typedAstListInputFilename;
+    private Optional<String> typedAstListInputFilename = Optional.empty();
 
     @CanIgnoreReturnValue
-    public CommandLineConfig setTypedAstListInputFilename(@Nullable String fileName) {
+    public CommandLineConfig setTypedAstListInputFilename(Optional<String> fileName) {
       this.typedAstListInputFilename = fileName;
       return this;
     }
 
-    private @Nullable String saveCompilationStateToFilename = null;
+    private Optional<String> saveCompilationStateToFilename = Optional.empty();
 
     /** Set the compiler to perform the first phase and save the intermediate result to a file. */
     @CanIgnoreReturnValue
     public CommandLineConfig setSaveCompilationStateToFilename(
-        String fileName, int saveAfterCompilationStage) {
+        Optional<String> fileName, int saveAfterCompilationStage) {
       saveCompilationStateToFilename = fileName;
       this.saveAfterCompilationStage = saveAfterCompilationStage;
       return this;
     }
 
-    public String getSaveCompilationStateToFilename() {
+    public Optional<String> getSaveCompilationStateToFilename() {
       return saveCompilationStateToFilename;
     }
 
@@ -3310,12 +3311,12 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       return this;
     }
 
-    private @Nullable String outputChunkDependencies = null;
+    private Optional<String> outputChunkDependencies = Optional.empty();
 
     /** Sets whether a JSON file representing the dependencies between modules should be created. */
     @CanIgnoreReturnValue
     public CommandLineConfig setOutputChunkDependencies(String outputChunkDependencies) {
-      this.outputChunkDependencies = outputChunkDependencies;
+      this.outputChunkDependencies = Optional.of(outputChunkDependencies);
       return this;
     }
 
@@ -3432,11 +3433,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   /** Representation of a source file from an encoded json stream input */
   public static class JsonFileSpec {
-    private final @Nullable String src;
-    private final @Nullable String path;
+    private final Optional<String> src;
+    private final Optional<String> path;
 
-    private @Nullable String sourceMap;
-    private final @Nullable String webpackId;
+    private Optional<String> sourceMap = Optional.empty();
+    private final Optional<String> webpackId;
 
     /**
      * Reads one file spec from a JSON object. Unknown properties are skipped; "sourceMap" and
@@ -3446,10 +3447,10 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       if (object.kind() != SimpleJsonValue.Kind.OBJECT) {
         return Outcome.err(new SimpleJsonException("Malformed JSON stream: expected an object"));
       }
-      String src = null;
-      String path = null;
-      String sourceMap = null;
-      String webpackId = null;
+      Optional<String> src = Optional.empty();
+      Optional<String> path = Optional.empty();
+      Optional<String> sourceMap = Optional.empty();
+      Optional<String> webpackId = Optional.empty();
       for (Map.Entry<String, SimpleJsonValue> member : object.members().entrySet()) {
         String name = member.getKey();
         boolean known =
@@ -3465,13 +3466,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
           return Outcome.err(value.error());
         }
         switch (name) {
-          case "src" -> src = value.get();
-          case "path" -> path = value.get();
-          case "source_map", "sourceMap" -> sourceMap = value.get();
-          default -> webpackId = value.get();
+          case "src" -> src = Optional.ofNullable(value.get());
+          case "path" -> path = Optional.ofNullable(value.get());
+          case "source_map", "sourceMap" -> sourceMap = Optional.ofNullable(value.get());
+          default -> webpackId = Optional.ofNullable(value.get());
         }
       }
-      if (src == null || path == null) {
+      if (src.isEmpty() || path.isEmpty()) {
         return Outcome.err(
             new SimpleJsonException("Malformed JSON stream: a file needs \"src\" and \"path\""));
       }
@@ -3497,42 +3498,42 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
 
     public JsonFileSpec(String src, String path) {
-      this(src, path, null, null);
+      this(Optional.of(src), Optional.of(path), Optional.empty(), Optional.empty());
     }
 
     public JsonFileSpec(String src, String path, String sourceMap) {
-      this(src, path, sourceMap, null);
+      this(Optional.of(src), Optional.of(path), Optional.of(sourceMap), Optional.empty());
     }
 
     public JsonFileSpec(
-        @Nullable String src,
-        @Nullable String path,
-        @Nullable String sourceMap,
-        @Nullable String webpackId) {
+        Optional<String> src,
+        Optional<String> path,
+        Optional<String> sourceMap,
+        Optional<String> webpackId) {
       this.src = src;
       this.path = path;
       this.sourceMap = sourceMap;
       this.webpackId = webpackId;
     }
 
-    public String getSrc() {
+    public Optional<String> getSrc() {
       return this.src;
     }
 
-    public String getPath() {
+    public Optional<String> getPath() {
       return this.path;
     }
 
-    public String getSourceMap() {
+    public Optional<String> getSourceMap() {
       return this.sourceMap;
     }
 
-    public String getWebpackId() {
+    public Optional<String> getWebpackId() {
       return this.webpackId;
     }
 
     public void setSourceMap(String map) {
-      this.sourceMap = map;
+      this.sourceMap = Optional.of(map);
     }
   }
 
@@ -3629,7 +3630,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
       // Parse chunk inputs.
       int numInputs = -1;
-      Integer parsedNumInputs = JSCompStrings.parseIntOrNull(parts[1]);
+      Integer parsedNumInputs = JSCompStrings.parseIntOrNull(Optional.of(parts[1]));
       if (parsedNumInputs != null) {
         numInputs = parsedNumInputs;
       }

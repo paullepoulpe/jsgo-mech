@@ -28,6 +28,7 @@ import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleType;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -59,7 +60,7 @@ public class ModuleMapCreator implements CompilerPass {
 
         @Override
         Module resolve(
-            ModuleRequestResolver moduleRequestResolver, @Nullable String moduleSpecifier) {
+            ModuleRequestResolver moduleRequestResolver, Optional<String> moduleSpecifier) {
           return Module.builder()
               .boundNames(ImmutableMap.of())
               .namespace(ImmutableMap.of())
@@ -88,8 +89,8 @@ public class ModuleMapCreator implements CompilerPass {
         @Override
         ResolveExportResult resolveExport(
             ModuleRequestResolver moduleRequestResolver,
-            @Nullable String moduleSpecifier,
-            String exportName,
+            Optional<String> moduleSpecifier,
+            Optional<String> exportName,
             Set<ExportTrace> resolveSet,
             Set<UnresolvedModule> exportStarSet) {
           return ResolveExportResult.of(
@@ -98,7 +99,7 @@ public class ModuleMapCreator implements CompilerPass {
                       .localName(exportName)
                       .moduleMetadata(metadata)
                       .modulePath(path)
-                      .closureNamespace(null)
+                      .closureNamespace(Optional.empty())
                       .build(),
                   /* sourceNode= */ null));
         }
@@ -129,7 +130,7 @@ public class ModuleMapCreator implements CompilerPass {
 
     @Override
     public @Nullable UnresolvedModule resolve(Export e) {
-      return resolve(e.moduleRequest(), e.modulePath(), e.exportNode());
+      return resolve(e.moduleRequest().get(), e.modulePath(), e.exportNode());
     }
 
     private @Nullable UnresolvedModule resolveForClosure(String namespace) {
@@ -148,7 +149,7 @@ public class ModuleMapCreator implements CompilerPass {
       ModulePath requestedPath =
           modulePath.resolveJsModule(
               moduleRequest,
-              forLineInfo.getSourceFileName(),
+              Optional.of(forLineInfo.getSourceFileName()).filter(s -> !s.isEmpty()),
               forLineInfo.getLineno(),
               forLineInfo.getCharno());
 

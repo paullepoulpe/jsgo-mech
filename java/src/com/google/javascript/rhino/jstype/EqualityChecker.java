@@ -49,6 +49,7 @@ import com.google.javascript.rhino.jstype.FunctionType.Parameter;
 import com.google.javascript.rhino.jstype.JSType.MatchStatus;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -175,9 +176,7 @@ final class EqualityChecker {
     }
 
     if (left.isNoResolvedType() && right.isNoResolvedType()) {
-      return Objects.equals(
-          left.toObjectType().getReferenceName(), //
-          right.toObjectType().getReferenceName());
+      return left.toObjectType().getReferenceName().equals(right.toObjectType().getReferenceName());
     }
 
     boolean leftUnknown = left.isUnknownType();
@@ -235,8 +234,8 @@ final class EqualityChecker {
         return identical(leftUnwrapped, rightUnwrapped);
       } else {
         // TODO(b/140763807): this is not valid across scopes pre-resolution.
-        String nameOfleft = checkNotNull(leftUnwrapped.getReferenceName());
-        String nameOfright = checkNotNull(rightUnwrapped.getReferenceName());
+        String nameOfleft = checkNotNull(leftUnwrapped.getReferenceName().orElseThrow());
+        String nameOfright = checkNotNull(rightUnwrapped.getReferenceName().orElseThrow());
         String googModuleIdOfLeft = getGoogModuleId(leftUnwrapped);
         String googModuleIdOfRight = getGoogModuleId(rightUnwrapped);
         return Objects.equals(nameOfleft, nameOfright)
@@ -291,14 +290,14 @@ final class EqualityChecker {
     return true;
   }
 
-  private static @Nullable String getGoogModuleId(ObjectType type) {
+  private static String getGoogModuleId(ObjectType type) {
     if (type instanceof FunctionType functionType) {
       return functionType.getGoogModuleId();
     }
     if (type.getConstructor() != null) {
       return type.getConstructor().getGoogModuleId();
     }
-    return null;
+    return "";
   }
 
   /**

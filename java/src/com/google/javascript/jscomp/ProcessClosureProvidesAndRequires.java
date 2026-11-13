@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -318,7 +319,7 @@ class ProcessClosureProvidesAndRequires implements CompilerPass {
     // `my.parent = [...]`, so report an error.
 
     String name = exprResult.getFirstChild().getQualifiedName();
-    if (name == null || !name.contains(".")) {
+    if (name.isEmpty() || !name.contains(".")) {
       // @typedefs on simple names are okay.
       return;
     }
@@ -350,23 +351,23 @@ class ProcessClosureProvidesAndRequires implements CompilerPass {
     if (!t.inGlobalHoistScope()) {
       return;
     }
-    String name =
+    Optional<String> name =
         switch (n.getParent().getToken()) {
-          case LET, CONST -> t.inGlobalScope() ? n.getString() : null;
-          case VAR -> n.getString();
-          case EXPR_RESULT -> n.isAssign() ? n.getFirstChild().getQualifiedName() : null;
+          case LET, CONST -> t.inGlobalScope() ? Optional.of(n.getString()) : Optional.empty();
+          case VAR -> Optional.of(n.getString());
+          case EXPR_RESULT -> n.isAssign() ? Optional.of(n.getFirstChild().getQualifiedName()).filter(s -> !s.isEmpty()) : Optional.empty();
           case CLASS, FUNCTION ->
               // Class and function provides are forbidden; see ProcessClosurePrimitives's
               // CLASS_NAMESPACE_ERROR and FUNCTION_NAMESPACE_ERROR.
-              null;
-          default -> null;
+              Optional.empty();
+          default -> Optional.empty();
         };
 
-    if (name == null) {
+    if (name.isEmpty()) {
       return;
     }
 
-    ProvidedName pn = providedNames.get(name);
+    ProvidedName pn = providedNames.get(name.get());
     if (pn != null) {
       pn.addDefinition(parent, t.getChunk(), chunkGraph);
     }

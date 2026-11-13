@@ -98,7 +98,7 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
       StringBuilder sourceMap = new StringBuilder();
       if (result.sourceMap != null) {
         try {
-          result.sourceMap.appendTo(sourceMap, path);
+          result.sourceMap.appendTo(sourceMap, Optional.of(path));
         } catch (IOException e) {
           // impossible, and not a big deal even if it did happen.
         }
@@ -147,7 +147,7 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
         options.setPropertyRenaming(PropertyRenamingPolicy.OFF);
         options.setWrapGoogModulesForWhitespaceOnly(false);
         options.setPrettyPrint(true);
-        options.setSourceMapOutputPath("/dev/null");
+        options.setSourceMapOutputPath(Optional.of("/dev/null"));
         options.setSourceMapIncludeSourcesContent(true);
         options.setWarningLevel(ES5_WARNINGS, CheckLevel.OFF);
     }
@@ -168,10 +168,10 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
 
     public CompileResult(
         String source, ImmutableList<JSError> errors, boolean transformed, String sourceMap) {
-      this.source = checkNotNull(source);
+      this.source = source;
       this.errors = checkNotNull(errors);
       this.transformed = transformed;
-      this.sourceMap = checkNotNull(sourceMap);
+      this.sourceMap = sourceMap;
     }
   }
 }

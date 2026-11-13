@@ -28,6 +28,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.Token;
 import java.util.ArrayList;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -50,7 +51,7 @@ abstract class PotentialDeclaration {
   private final @Nullable Node rhs;
 
   private PotentialDeclaration(String fullyQualifiedName, Node lhs, @Nullable Node rhs) {
-    this.fullyQualifiedName = checkNotNull(fullyQualifiedName);
+    this.fullyQualifiedName = fullyQualifiedName;
     this.lhs = checkNotNull(lhs);
     this.rhs = rhs;
   }
@@ -70,7 +71,7 @@ abstract class PotentialDeclaration {
     Node rhs = NodeUtil.getRValueOfLValue(fieldNode);
     String name = ClassUtil.getFullyQualifiedNameOfMemberFieldDef(fieldNode);
     // lhs is MEMBER_FIELD_DEF  rhs is the value assigned to the field if any.
-    return new MemberFieldDeclaration(name, fieldNode, rhs);
+    return new MemberFieldDeclaration(Optional.of(name), fieldNode, rhs);
   }
 
   static PotentialDeclaration fromMethod(Node functionNode) {
@@ -419,8 +420,8 @@ abstract class PotentialDeclaration {
   }
 
   private static class MemberFieldDeclaration extends PotentialDeclaration {
-    MemberFieldDeclaration(@Nullable String name, Node lhs, Node rhs) {
-      super(name, lhs, rhs);
+    MemberFieldDeclaration(Optional<String> name, Node lhs, Node rhs) {
+      super(name.orElseThrow(), lhs, rhs);
     }
 
     @Override

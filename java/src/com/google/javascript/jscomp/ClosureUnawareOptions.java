@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.js.RuntimeJsLibManager;
+import java.util.Optional;
 
 /**
  * Creates a partial copy of a {@link CompilerOptions} object for use in {@link
@@ -148,10 +149,10 @@ class ClosureUnawareOptions {
     shadowOptions.setUseOriginalNamesInOutput(original.getUseOriginalNamesInOutput());
 
     shadowOptions.setDebugLogFilter(original.getDebugLogFilter());
-    String debugLogDirectory = original.getDebugLogDirectory();
-    if (debugLogDirectory != null) {
+    Optional<String> debugLogDirectory = original.getDebugLogDirectory();
+    if (debugLogDirectory.isPresent()) {
       shadowOptions.setDebugLogDirectory(
-          Io.pathResolve(debugLogDirectory, "./TranspileAndOptimizeClosureUnaware"));
+          Optional.of(Io.pathResolve(debugLogDirectory.get(), "./TranspileAndOptimizeClosureUnaware")));
     }
   }
 }

@@ -36,6 +36,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -203,20 +204,20 @@ final class PolymerBehaviorExtractor {
    *     resolved.
    */
   private ResolveBehaviorNameResult resolveBehaviorName(
-      @Nullable String name, @Nullable ModuleMetadata moduleMetadata) {
-    if (name == null) {
+      Optional<String> name, @Nullable ModuleMetadata moduleMetadata) {
+    if (name.isEmpty()) {
       return FAILED_RESOLVE_RESULT;
     }
     ResolveBehaviorNameResult memoized =
         moduleMetadata != null
-            ? resolveMemoized.get(name, moduleMetadata)
-            : globalResolveMemoized.get(name);
+            ? resolveMemoized.get(name.get(), moduleMetadata)
+            : globalResolveMemoized.get(name.get());
     if (memoized == null) {
-      memoized = checkNotNull(resolveBehaviorNameInternal(name, moduleMetadata));
+      memoized = checkNotNull(resolveBehaviorNameInternal(name.get(), moduleMetadata));
       if (moduleMetadata != null) {
-        resolveMemoized.put(name, moduleMetadata, memoized);
+        resolveMemoized.put(name.get(), moduleMetadata, memoized);
       } else {
-        globalResolveMemoized.put(name, memoized);
+        globalResolveMemoized.put(name.get(), memoized);
       }
     }
     return memoized;
@@ -313,7 +314,7 @@ final class PolymerBehaviorExtractor {
       }
 
       String rest = dot == name.length() ? "" : name.substring(dot);
-      ResolveBehaviorNameResult result = resolveBehaviorName(GOOG_MODULE_EXPORTS + rest, metadata);
+      ResolveBehaviorNameResult result = resolveBehaviorName(Optional.of(GOOG_MODULE_EXPORTS + rest), metadata);
       // TODO(lharker): Remove this check and just fail to resolve once we have moved module
       // rewriting unconditionally after the PolymerPass.
       return result.equals(FAILED_RESOLVE_RESULT) ? null : result;
@@ -339,10 +340,10 @@ final class PolymerBehaviorExtractor {
       // Invalid goog.module.get() call.
       return FAILED_RESOLVE_RESULT;
     } else if (closureModule.isGoogProvide()) {
-      return resolveBehaviorName(moduleNamespace, null);
+      return resolveBehaviorName(Optional.of(moduleNamespace), null);
     }
     checkState(closureModule.isGoogModule(), closureModule);
-    return resolveBehaviorName(GOOG_MODULE_EXPORTS, closureModule);
+    return resolveBehaviorName(Optional.of(GOOG_MODULE_EXPORTS), closureModule);
   }
 
   /**
@@ -380,24 +381,24 @@ final class PolymerBehaviorExtractor {
     String originatingName; // The name in the module being imported
     if (importMetadata.isEs6Module()) {
       // import {exportName} from './mod';
-      originatingName = b.originatingExport().localName() + rest;
+      originatingName = b.originatingExport().localName().orElse("null") + rest;
     } else if (importMetadata.isGoogModule()) {
       // `const {exportName: localName} = goog.require('some.module');`
-      originatingName = GOOG_MODULE_EXPORTS + "." + b.originatingExport().exportName() + rest;
+      originatingName = GOOG_MODULE_EXPORTS + "." + b.originatingExport().exportName().orElse("null") + rest;
     } else {
       // `const {exportName: localName} = goog.require('some.provide');`
       checkState(importMetadata.isGoogProvide(), importMetadata);
-      originatingName = b.closureNamespace() + "." + b.originatingExport().exportName() + rest;
+      originatingName = b.closureNamespace().orElse("null") + "." + b.originatingExport().exportName().orElse("null") + rest;
     }
-    return resolveBehaviorName(originatingName, importMetadata);
+    return resolveBehaviorName(Optional.of(originatingName), importMetadata);
   }
 
   /** Resolves a name that imports the 'namespace' of a module or provide. */
   private ResolveBehaviorNameResult resolveModuleNamespaceBinding(Binding b, String rest) {
     if (b.metadata().isGoogModule()) {
-      return resolveBehaviorName(GOOG_MODULE_EXPORTS + rest, b.metadata());
+      return resolveBehaviorName(Optional.of(GOOG_MODULE_EXPORTS + rest), b.metadata());
     } else if (b.metadata().isGoogProvide()) {
-      return resolveBehaviorName(b.closureNamespace() + rest, b.metadata());
+      return resolveBehaviorName(Optional.of(b.closureNamespace().orElse("null") + rest), b.metadata());
     }
 
     // ES module import *.
@@ -422,7 +423,7 @@ final class PolymerBehaviorExtractor {
       return FAILED_RESOLVE_RESULT;
     }
     return resolveBehaviorName(
-        exportBinding.originatingExport().localName() + (dot == -1 ? "" : rest.substring(dot)),
+        Optional.of(exportBinding.originatingExport().localName().orElse("null") + (dot == -1 ? "" : rest.substring(dot))),
         b.metadata());
   }
 
@@ -458,21 +459,21 @@ final class PolymerBehaviorExtractor {
    * GETPROP representing "(/** @type {?} *\/ (x)).y.z" returns "x.y.z". Returns null if node is not
    * a NAME, GETPROP, or CAST. See b/64389806 for Polymer-specific context.
    */
-  private static @Nullable String getQualifiedNameThroughCast(Node node) {
+  private static Optional<String> getQualifiedNameThroughCast(Node node) {
     if (node.isName()) {
       String name = node.getString();
-      return name.isEmpty() ? null : name;
+      return name.isEmpty() ? Optional.empty() : Optional.of(name);
     } else if (node.isGetProp()) {
-      String left = getQualifiedNameThroughCast(node.getFirstChild());
-      if (left == null) {
-        return null;
+      Optional<String> left = getQualifiedNameThroughCast(node.getFirstChild());
+      if (left.isEmpty()) {
+        return Optional.empty();
       }
       String right = node.getString();
-      return left + "." + right;
+      return Optional.of(left.get() + "." + right);
     } else if (node.isCast()) {
       return getQualifiedNameThroughCast(node.getFirstChild());
     }
-    return null;
+    return Optional.empty();
   }
 
   /**

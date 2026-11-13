@@ -47,6 +47,7 @@ import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.StaticTypedScope;
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
@@ -188,7 +189,7 @@ public final class JSTypeExpression implements Serializable {
 
   /** Evaluates the type expression into a {@code JSType} object. */
   public JSType evaluate(@Nullable StaticTypedScope scope, JSTypeRegistry registry) {
-    JSType type = registry.createTypeFromCommentNode(root, sourceName, scope);
+    JSType type = registry.createTypeFromCommentNode(root, Optional.of(sourceName).filter(s -> !s.isEmpty()), scope);
     root.setJSType(type);
     return type;
   }

@@ -82,7 +82,7 @@ final class JSTypeColorIdHasher {
   }
 
   private void putReferenceNameType(Hasher hasher, ObjectType type) {
-    putUtf8(hasher, type.getReferenceName());
+    putUtf8(hasher, type.getReferenceName().get());
 
     JSType.WithSourceRef sourceRef = sourceRefFor(type);
     if (sourceRef == null) {
@@ -92,7 +92,7 @@ final class JSTypeColorIdHasher {
     }
 
     String moduleId = sourceRef.getGoogModuleId();
-    if (moduleId == null) {
+    if (moduleId.isEmpty()) {
       hasher.putInt(Marker.NO_GOOG_MODULE_ID);
     } else {
       putUtf8(hasher, moduleId);

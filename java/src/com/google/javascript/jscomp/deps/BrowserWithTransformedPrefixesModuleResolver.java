@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.deps;
 
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -32,7 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Limited superset of the {@link BrowserModuleResolver} that allows for replacing some path
@@ -71,8 +70,6 @@ public class BrowserWithTransformedPrefixesModuleResolver extends ModuleResolver
    */
   record PrefixReplacement(String prefix, String replacement) {
     PrefixReplacement {
-      requireNonNull(prefix, "prefix");
-      requireNonNull(replacement, "replacement");
     }
 
     public static PrefixReplacement of(String prefix, String replacement) {
@@ -109,36 +106,36 @@ public class BrowserWithTransformedPrefixesModuleResolver extends ModuleResolver
     this.expectedPrefixes = String.join(", ", sortedPrefixes);
   }
 
-  private @Nullable String replacePathPrefixes(String moduleAddress) {
-    if (moduleAddress == null) {
-      return null;
+  private Optional<String> replacePathPrefixes(Optional<String> moduleAddress) {
+    if (moduleAddress.isEmpty()) {
+      return Optional.empty();
     }
 
-    String transformedAddress = moduleAddress;
+    String transformedAddress = moduleAddress.get();
 
     for (PrefixReplacement prefixReplacement : prefixReplacements) {
-      if (moduleAddress.startsWith(prefixReplacement.prefix())) {
+      if (moduleAddress.get().startsWith(prefixReplacement.prefix())) {
         transformedAddress =
             prefixReplacement.replacement()
-                + moduleAddress.substring(prefixReplacement.prefix().length());
+                + moduleAddress.get().substring(prefixReplacement.prefix().length());
         break;
       }
     }
 
-    return transformedAddress;
+    return Optional.of(transformedAddress);
   }
 
   @Override
-  public @Nullable String resolveJsModule(
-      String scriptAddress, String moduleAddress, String sourcename, int lineno, int colno) {
-    String transformedAddress = replacePathPrefixes(moduleAddress);
+  public Optional<String> resolveJsModule(
+      String scriptAddress, String moduleAddress, Optional<String> sourcename, int lineno, int colno) {
+    Optional<String> transformedAddress = replacePathPrefixes(Optional.of(moduleAddress));
 
-    boolean replaced = transformedAddress != null && !transformedAddress.equals(moduleAddress);
+    boolean replaced = transformedAddress.isPresent() && !transformedAddress.get().equals(moduleAddress);
 
     // If ambiguous after the loop it was not transformed and the original moduleAddress is
     // ambiguous with an unrecognized prefix. Allow transformed paths to be ambiguous after
     // transformation to maybe match how files are passed to the compiler.
-    if (!replaced && ModuleLoader.isAmbiguousIdentifier(transformedAddress)) {
+    if (!replaced && ModuleLoader.isAmbiguousIdentifier(transformedAddress.get())) {
       errorHandler.report(
           CheckLevel.WARNING,
           JSError.make(
@@ -146,30 +143,30 @@ public class BrowserWithTransformedPrefixesModuleResolver extends ModuleResolver
               lineno,
               colno,
               INVALID_AMBIGUOUS_PATH,
-              transformedAddress,
+              transformedAddress.orElse("null"),
               expectedPrefixes));
-      return null;
+      return Optional.empty();
     }
 
     // A null load address is not an error for this resolver, because it is expected that the
     // module may be supplied at runtime.
-    return locate(scriptAddress, transformedAddress);
+    return locate(scriptAddress, transformedAddress.get());
   }
 
   @Override
-  public @Nullable String resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
-    String transformedAddress = replacePathPrefixes(moduleAddress);
+  public Optional<String> resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
+    Optional<String> transformedAddress = replacePathPrefixes(Optional.of(moduleAddress));
 
-    boolean replaced = transformedAddress != null && !transformedAddress.equals(moduleAddress);
+    boolean replaced = transformedAddress.isPresent() && !transformedAddress.get().equals(moduleAddress);
 
     // If ambiguous after the loop it was not transformed and the original moduleAddress is
     // ambiguous with an unrecognized prefix. Allow transformed paths to be ambiguous after
     // transformation to maybe match how files are passed to the compiler.
-    if (!replaced && ModuleLoader.isAmbiguousIdentifier(transformedAddress)) {
-      return null;
+    if (!replaced && ModuleLoader.isAmbiguousIdentifier(transformedAddress.get())) {
+      return Optional.empty();
     }
 
-    return locate(scriptAddress, transformedAddress);
+    return locate(scriptAddress, transformedAddress.get());
   }
 
   @Override

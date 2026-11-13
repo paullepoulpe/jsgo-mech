@@ -19,6 +19,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -90,12 +91,12 @@ public final class ByPathWarningsGuard extends WarningsGuard {
 
   @Override
   public @Nullable CheckLevel level(JSError error) {
-    final String errorPath = error.sourceName();
+    final Optional<String> errorPath = error.sourceName();
     CheckLevel defaultLevel = error.defaultLevel();
-    if (defaultLevel != CheckLevel.ERROR && errorPath != null) {
+    if (defaultLevel != CheckLevel.ERROR && errorPath.isPresent()) {
       boolean inPath = false;
       for (String path : paths) {
-        inPath |= errorPath.contains(path);
+        inPath |= errorPath.get().contains(path);
       }
       if (inPath == include) {
         return levelField;

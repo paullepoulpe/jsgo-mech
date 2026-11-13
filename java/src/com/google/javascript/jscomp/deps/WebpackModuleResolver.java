@@ -25,7 +25,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Resolution algorithm for Webpack. Modules are located by a map of numeric ids to module paths.
@@ -83,10 +83,10 @@ public class WebpackModuleResolver extends NodeModuleResolver {
   }
 
   @Override
-  public @Nullable String resolveJsModule(
-      String scriptAddress, String moduleAddress, String sourcename, int lineno, int colno) {
-    String loadAddress = modulesById.get(moduleAddress);
-    if (loadAddress == null) {
+  public Optional<String> resolveJsModule(
+      String scriptAddress, String moduleAddress, Optional<String> sourcename, int lineno, int colno) {
+    Optional<String> loadAddress = Optional.ofNullable(modulesById.get(moduleAddress));
+    if (loadAddress.isEmpty()) {
       // Module paths may still be used in type nodes so we need to fall back
       // to node module resolution for those.
       return super.resolveJsModule(scriptAddress, moduleAddress, sourcename, lineno, colno);
@@ -95,9 +95,9 @@ public class WebpackModuleResolver extends NodeModuleResolver {
   }
 
   @Override
-  public @Nullable String resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
-    String loadAddress = modulesById.get(moduleAddress);
-    if (loadAddress == null) {
+  public Optional<String> resolveJsModuleSilently(String scriptAddress, String moduleAddress) {
+    Optional<String> loadAddress = Optional.ofNullable(modulesById.get(moduleAddress));
+    if (loadAddress.isEmpty()) {
       // Module paths may still be used in type nodes so we need to fall back
       // to node module resolution for those.
       return super.resolveJsModuleSilently(scriptAddress, moduleAddress);

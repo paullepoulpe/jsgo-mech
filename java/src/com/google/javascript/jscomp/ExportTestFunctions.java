@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.re2j.Pattern;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -65,20 +66,20 @@ public class ExportTestFunctions implements CompilerPass {
         if (NodeUtil.isFunctionDeclaration(n)) {
           // Check for a test function statement.
           String functionName = NodeUtil.getName(n);
-          if (isTestFunction(functionName)) {
+          if (isTestFunction(Optional.of(functionName).filter(s -> !s.isEmpty()))) {
             exportTestFunctionAsSymbol(functionName, n);
           }
         } else if (isNameDeclaredFunction(n)) {
           // Check for a test function expression.
           Node functionNode = n.getFirstFirstChild();
           String functionName = NodeUtil.getName(functionNode);
-          if (isTestFunction(functionName)) {
+          if (isTestFunction(Optional.of(functionName).filter(s -> !s.isEmpty()))) {
             exportTestFunctionAsSymbol(functionName, n);
           }
         } else if (isNameDeclaredClass(n)) {
           Node classNode = n.getFirstFirstChild();
           String className = NodeUtil.getName(classNode);
-          exportClass(classNode, className, n);
+          exportClass(classNode, Optional.of(className).filter(s -> !s.isEmpty()), n);
         } else if (n.isClass()) {
           exportClass(n);
         }
@@ -94,7 +95,7 @@ public class ExportTestFunctions implements CompilerPass {
           String nodeName = firstChild.getQualifiedName();
 
           if (lastChild.isFunction()) {
-            if (isTestFunction(nodeName)) {
+            if (isTestFunction(Optional.of(nodeName).filter(s -> !s.isEmpty()))) {
               if (n.getFirstChild().isName()) {
                 exportTestFunctionAsSymbol(nodeName, parent);
               } else {
@@ -102,7 +103,7 @@ public class ExportTestFunctions implements CompilerPass {
               }
             }
           } else if (lastChild.isClass()) {
-            exportClass(lastChild, nodeName, parent);
+            exportClass(lastChild, Optional.of(nodeName).filter(s -> !s.isEmpty()), parent);
           }
         }
       } else if (isTestSuiteArgument(n, t)) {
@@ -121,19 +122,19 @@ public class ExportTestFunctions implements CompilerPass {
 
     private void exportClass(Node classNode) {
       String className = NodeUtil.getName(classNode);
-      exportClass(classNode, className, classNode);
+      exportClass(classNode, Optional.of(className).filter(s -> !s.isEmpty()), classNode);
     }
 
-    private void exportClass(Node classNode, String className, Node addAfter) {
+    private void exportClass(Node classNode, Optional<String> className, Node addAfter) {
       Node classMembers = classNode.getLastChild();
       for (Node maybeMemberFunctionDef = classMembers.getFirstChild();
           maybeMemberFunctionDef != null;
           maybeMemberFunctionDef = maybeMemberFunctionDef.getNext()) {
         if (maybeMemberFunctionDef.isMemberFunctionDef()) {
           String methodName = maybeMemberFunctionDef.getString();
-          if (isTestFunction(methodName)) {
-            String functionRef = className + ".prototype." + methodName;
-            String classRef = className + ".prototype";
+          if (isTestFunction(Optional.of(methodName))) {
+            String functionRef = className.orElse("null") + ".prototype." + methodName;
+            String classRef = className.orElse("null") + ".prototype";
 
             Node exportCallTarget =
                 NodeUtil.newQName(
@@ -309,8 +310,8 @@ public class ExportTestFunctions implements CompilerPass {
    * @param functionName The name of the function
    * @return {@code true} if the function is recognized as a test function.
    */
-  public static boolean isTestFunction(String functionName) {
-    return functionName != null
-        && TEST_FUNCTIONS_NAME_PATTERN.matcher(functionName).matches();
+  public static boolean isTestFunction(Optional<String> functionName) {
+    return functionName.isPresent()
+        && TEST_FUNCTIONS_NAME_PATTERN.matcher(functionName.get()).matches();
   }
 }

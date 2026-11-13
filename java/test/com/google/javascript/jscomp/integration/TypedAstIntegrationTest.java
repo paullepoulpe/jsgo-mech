@@ -52,6 +52,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import org.junit.Before;
 import org.junit.Test;
@@ -1069,7 +1070,7 @@ public final class TypedAstIntegrationTest extends IntegrationTestCase {
     options.setAngularPass(true);
     WarningLevel.VERBOSE.setOptionsForWarningLevel(options);
     options.setProtectHiddenSideEffects(true);
-    options.setTypedAstOutputFile(typedAstPath.toString());
+    options.setTypedAstOutputFile(Optional.ofNullable(typedAstPath.toString()));
     options.setClosurePass(true);
     options.setPolymerVersion(2);
 

@@ -23,6 +23,7 @@ import com.google.javascript.jscomp.SortingErrorManager.ErrorWithLevel;
 import com.google.javascript.jscomp.SortingErrorManager.LeveledJSErrorComparator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,47 +49,47 @@ public final class SortingErrorManagerTest {
 
   @Test
   public void testOrderingSourceName1() {
-    JSError e1 = JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE);
-    JSError e2 = JSError.make("a", -1, -1, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.of("a"), -1, -1, FOO_TYPE);
 
     assertSmaller(error(e1), error(e2));
   }
 
   @Test
   public void testOrderingSourceName2() {
-    JSError e1 = JSError.make("a", -1, -1, FOO_TYPE);
-    JSError e2 = JSError.make("b", -1, -1, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.of("a"), -1, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.of("b"), -1, -1, FOO_TYPE);
 
     assertSmaller(error(e1), error(e2));
   }
 
   @Test
   public void testOrderingLineno1() {
-    JSError e1 = JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE);
-    JSError e2 = JSError.make(NULL_SOURCE, 2, -1, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.ofNullable(NULL_SOURCE), 2, -1, FOO_TYPE);
 
     assertSmaller(error(e1), error(e2));
   }
 
   @Test
   public void testOrderingLineno2() {
-    JSError e1 = JSError.make(NULL_SOURCE, 8, -1, FOO_TYPE);
-    JSError e2 = JSError.make(NULL_SOURCE, 56, -1, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), 8, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.ofNullable(NULL_SOURCE), 56, -1, FOO_TYPE);
     assertSmaller(error(e1), error(e2));
   }
 
   @Test
   public void testOrderingCheckLevel() {
-    JSError e1 = JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE);
-    JSError e2 = JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE);
 
     assertSmaller(warning(e1), error(e2));
   }
 
   @Test
   public void testOrderingCharno1() {
-    JSError e1 = JSError.make(NULL_SOURCE, 5, -1, FOO_TYPE);
-    JSError e2 = JSError.make(NULL_SOURCE, 5, 2, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), 5, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.ofNullable(NULL_SOURCE), 5, 2, FOO_TYPE);
 
     assertSmaller(error(e1), error(e2));
     // CheckLevel preempts charno comparison
@@ -97,8 +98,8 @@ public final class SortingErrorManagerTest {
 
   @Test
   public void testOrderingCharno2() {
-    JSError e1 = JSError.make(NULL_SOURCE, 8, 7, FOO_TYPE);
-    JSError e2 = JSError.make(NULL_SOURCE, 8, 5, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), 8, 7, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.ofNullable(NULL_SOURCE), 8, 5, FOO_TYPE);
 
     assertSmaller(error(e2), error(e1));
     // CheckLevel preempts charno comparison
@@ -107,8 +108,8 @@ public final class SortingErrorManagerTest {
 
   @Test
   public void testOrderingDescription() {
-    JSError e1 = JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE);
-    JSError e2 = JSError.make(NULL_SOURCE, -1, -1, JOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, JOO_TYPE);
 
     assertSmaller(error(e1), error(e2));
   }
@@ -126,8 +127,8 @@ public final class SortingErrorManagerTest {
           @Override
           protected void printSummary() {}
         };
-    JSError e1 = JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE);
-    JSError e2 = JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE);
+    JSError e1 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE);
+    JSError e2 = JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE);
     manager.report(CheckLevel.ERROR, e1);
     manager.report(CheckLevel.ERROR, e2);
     manager.generateReport();
@@ -146,7 +147,7 @@ public final class SortingErrorManagerTest {
             if (error.type().equals(FOO_TYPE)) {
               // TODO(b/114762232) This behavior should not be supported, and will become malformed
               // when migrating to a SortingErrorManager with an ErrorReportGenerator.
-              this.report(CheckLevel.ERROR, JSError.make(NULL_SOURCE, -1, -1, JOO_TYPE));
+              this.report(CheckLevel.ERROR, JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, JOO_TYPE));
             }
             printed++;
           }
@@ -156,7 +157,7 @@ public final class SortingErrorManagerTest {
             assertThat(printed).isEqualTo(1);
           }
         };
-    manager.report(CheckLevel.ERROR, JSError.make(NULL_SOURCE, -1, -1, FOO_TYPE));
+    manager.report(CheckLevel.ERROR, JSError.make(Optional.ofNullable(NULL_SOURCE), -1, -1, FOO_TYPE));
     manager.generateReport();
   }
 

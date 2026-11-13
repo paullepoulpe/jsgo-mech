@@ -53,6 +53,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -511,7 +512,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     String code = sourceMapTestCode + "\n" + sourceMappingURLComment;
 
     Result result = testAndReturnResult(srcs(code), expected(code));
-    assertThat(result.compiler.getBase64SourceMapContents("testcode"))
+    assertThat(result.compiler.getBase64SourceMapContents(Optional.of("testcode")).orElse(null))
         .isEqualTo(ENCODED_SOURCE_MAP);
   }
 
@@ -533,7 +534,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     String code = sourceMapTestCode + "\n" + sourceMappingURLComment;
 
     Result result = testAndReturnResult(srcs(code), expected(code));
-    assertThat(result.compiler.getBase64SourceMapContents("testcode")).isNull();
+    assertThat(result.compiler.getBase64SourceMapContents(Optional.of("testcode")).orElse(null)).isNull();
   }
 
   @Test
@@ -553,7 +554,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
 
     Result result = testAndReturnResult(srcs(code), expected(code));
     // Source map not registered because `resolveSourceMapAnnotations = false`
-    assertThat(result.compiler.getBase64SourceMapContents("testcode")).isNull();
+    assertThat(result.compiler.getBase64SourceMapContents(Optional.of("testcode")).orElse(null)).isNull();
   }
 
   @Test
@@ -574,7 +575,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     Result result = testAndReturnResult(srcs(code), expected(code));
     // Source map is registered when `parseInlineSourceMaps = false`, but we won't try to
     // parse it as a Base64 encoded source map.
-    assertThat(result.compiler.getBase64SourceMapContents("testcode")).isNull();
+    assertThat(result.compiler.getBase64SourceMapContents(Optional.of("testcode")).orElse(null)).isNull();
   }
 
   @Test
@@ -597,7 +598,7 @@ public final class SerializeAndDeserializeAstTest extends CompilerTestCase {
     String code = sourceMapTestCode + "\n" + sourceMappingURLComment;
 
     Result result = testAndReturnResult(srcs(code), expected(code));
-    assertThat(result.compiler.getBase64SourceMapContents("testcode")).isNull();
+    assertThat(result.compiler.getBase64SourceMapContents(Optional.of("testcode")).orElse(null)).isNull();
   }
 
   @Test

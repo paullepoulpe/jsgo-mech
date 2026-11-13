@@ -29,6 +29,7 @@ import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -141,11 +142,11 @@ public class CheckUnusedPrivateProperties implements CompilerPass, NodeTraversal
   }
 
   private void recordConstructorOrInterface(Node n) {
-    String className = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
-    if (className != null) {
+    Optional<String> className = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
+    if (className.isPresent()) {
       // If className is null, then this pass won't report any diagnostics on static members of this
       // class.
-      constructorsAndInterfaces.add(className);
+      constructorsAndInterfaces.add(className.get());
     }
   }
 

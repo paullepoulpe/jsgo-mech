@@ -75,7 +75,7 @@ public abstract class AbstractCompiler implements SourceExcerptProvider, Compile
   public abstract CompilerInput getInput(InputId inputId);
 
   /** Looks up a source file by name. May return null. */
-  abstract @Nullable SourceFile getSourceFileByName(String sourceName);
+  abstract @Nullable SourceFile getSourceFileByName(java.util.Optional<String> sourceName);
 
   public abstract @Nullable Node getScriptNode(String filename);
 
@@ -513,7 +513,7 @@ public abstract class AbstractCompiler implements SourceExcerptProvider, Compile
    */
   public abstract void addInputSourceMap(String name, SourceMapInput sourceMap);
 
-  public abstract String getBase64SourceMapContents(String sourceFileName);
+  public abstract java.util.Optional<String> getBase64SourceMapContents(java.util.Optional<String> sourceFileName);
 
   abstract void addComments(String filename, List<Comment> comments);
 
@@ -529,13 +529,13 @@ public abstract class AbstractCompiler implements SourceExcerptProvider, Compile
   public abstract void setAccessorSummary(AccessorSummary summary);
 
   /** Returns all the comments from the given file. */
-  abstract List<Comment> getComments(String filename);
+  abstract List<Comment> getComments(java.util.Optional<String> filename);
 
   /** Gets the module loader. */
   abstract ModuleLoader getModuleLoader();
 
   /** Lookup the type of a module from its name. */
-  abstract CompilerInput.ModuleType getModuleTypeByName(String moduleName);
+  abstract CompilerInput.ModuleType getModuleTypeByName(java.util.Optional<String> moduleName);
 
   /** Set whether J2CL passes should run */
   abstract void setRunJ2clPasses(boolean runJ2clPasses);

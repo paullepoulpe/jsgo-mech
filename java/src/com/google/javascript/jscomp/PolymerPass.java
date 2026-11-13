@@ -32,6 +32,7 @@ import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -132,7 +133,7 @@ final class PolymerPass extends ExternsSkippingCallback implements CompilerPass 
         PolymerClassDefinition.extractFromCallNode(
             node, compiler, getModuleMetadata(traversal), behaviorExtractor);
     if (def != null) {
-      if (def.nativeBaseElement != null) {
+      if (def.nativeBaseElement.isPresent()) {
         appendPolymerElementExterns(def);
       }
       PolymerClassRewriter rewriter = new PolymerClassRewriter(compiler);
@@ -171,7 +172,7 @@ final class PolymerPass extends ExternsSkippingCallback implements CompilerPass 
    * If the element does not extend a native HTML element, this method is a no-op.
    */
   private void appendPolymerElementExterns(final PolymerClassDefinition def) {
-    if (!nativeExternsAdded.add(def.nativeBaseElement)) {
+    if (!nativeExternsAdded.add(def.nativeBaseElement.orElse(null))) {
       return;
     }
 
@@ -181,14 +182,14 @@ final class PolymerPass extends ExternsSkippingCallback implements CompilerPass 
     String polymerElementType = PolymerPassStaticUtils.getPolymerElementType(def);
     baseExterns.getFirstChild().setString(polymerElementType);
 
-    String elementType = tagNameMap.get(def.nativeBaseElement);
-    if (elementType == null) {
-      compiler.report(JSError.make(def.descriptor, POLYMER_INVALID_EXTENDS, def.nativeBaseElement));
+    Optional<String> elementType = Optional.ofNullable(tagNameMap.get(def.nativeBaseElement.orElse(null)));
+    if (elementType.isEmpty()) {
+      compiler.report(JSError.make(def.descriptor, POLYMER_INVALID_EXTENDS, def.nativeBaseElement.orElse("null")));
       return;
     }
     JSTypeExpression elementBaseType =
         new JSTypeExpression(
-            new Node(Token.BANG, IR.string(elementType).srcrefTree(polymerElementExterns)),
+            new Node(Token.BANG, IR.string(elementType.get()).srcrefTree(polymerElementExterns)),
             VIRTUAL_FILE);
     JSDocInfo.Builder baseDocs = JSDocInfo.Builder.copyFrom(baseExterns.getJSDocInfo());
     baseDocs.changeBaseType(elementBaseType);

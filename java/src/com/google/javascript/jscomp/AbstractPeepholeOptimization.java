@@ -26,6 +26,7 @@ import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import com.google.javascript.rhino.Node;
 import java.math.BigInteger;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 
 /**
  * An abstract class whose implementations run peephole optimizations:
@@ -173,14 +174,14 @@ abstract class AbstractPeepholeOptimization {
    * <p>This method effectively emulates the <code>String()</code> JavaScript cast function when
    * possible and the node has no side effects. Otherwise, it returns {@code null}.
    */
-  protected String getSideEffectFreeStringValue(Node n) {
-    String value = NodeUtil.getStringValue(n);
+  protected Optional<String> getSideEffectFreeStringValue(Node n) {
+    Optional<String> value = NodeUtil.getStringValue(n);
     // Calculating the string value, if any, is likely to be faster than calculating side effects,
     // and there are only a very few cases where we can compute a string value, but there could
     // also be side effects. e.g. `void doSomething()` has value 'undefined', regardless of the
     // behavior of `doSomething()`
-    if (value != null && astAnalyzer.mayHaveSideEffects(n)) {
-      value = null;
+    if (value.isPresent() && astAnalyzer.mayHaveSideEffects(n)) {
+      value = Optional.empty();
     }
     return value;
   }

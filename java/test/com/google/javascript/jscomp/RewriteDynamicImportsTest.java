@@ -32,6 +32,7 @@ import com.google.javascript.jscomp.testing.TestExternsBuilder;
 import com.google.javascript.jscomp.type.ReverseAbstractInterpreter;
 import com.google.javascript.jscomp.type.SemanticReverseAbstractInterpreter;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +94,7 @@ public class RewriteDynamicImportsTest extends CompilerTestCase {
               globalTypedScope)
           .process(externs, root);
 
-      new RewriteDynamicImports(compiler, dynamicImportAlias, chunkOutputType)
+      new RewriteDynamicImports(compiler, Optional.ofNullable(dynamicImportAlias), chunkOutputType)
           .process(externs, root);
     };
   }

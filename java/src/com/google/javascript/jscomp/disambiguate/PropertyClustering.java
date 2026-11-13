@@ -45,7 +45,7 @@ final class PropertyClustering {
   private @Nullable Invalidation lastInvalidation;
 
   PropertyClustering(String name) {
-    this.name = checkNotNull(name);
+    this.name = name;
   }
 
   String getName() {

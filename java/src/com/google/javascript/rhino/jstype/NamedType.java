@@ -52,6 +52,7 @@ import com.google.javascript.rhino.StaticScope;
 import com.google.javascript.rhino.StaticSlot;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -91,7 +92,7 @@ public final class NamedType extends ProxyObjectType {
 
   static int nominalHashCode(ObjectType type) {
     checkState(type.hasReferenceName());
-    String name = checkNotNull(type.getReferenceName());
+    String name = checkNotNull(type.getReferenceName().orElseThrow());
     return name.hashCode();
   }
 
@@ -128,7 +129,6 @@ public final class NamedType extends ProxyObjectType {
 
   private NamedType(Builder builder) {
     super(builder.registry, builder.referencedType);
-    checkNotNull(builder.referenceName);
     checkNotNull(builder.resolutionKind);
     checkNotNull(builder.templateTypes);
     if (builder.resolutionKind.equals(ResolutionKind.TYPEOF)) {
@@ -210,15 +210,15 @@ public final class NamedType extends ProxyObjectType {
   }
 
   @Override
-  public String getReferenceName() {
-    return reference;
+  public Optional<String> getReferenceName() {
+    return Optional.of(reference);
   }
 
   @Override
   void appendTo(TypeStringBuilder sb) {
     JSType type = this.getReferencedType();
     if (!isResolved() || type.isNoResolvedType()) {
-      sb.append(getReferenceName());
+      sb.append(getReferenceName().orElseThrow());
     } else {
       sb.appendJSType(type);
     }
@@ -331,7 +331,7 @@ public final class NamedType extends ProxyObjectType {
         // Preserve the "typeof" as a `NoResolvedType`.
         // This is depended on by Clutz so it can generate `typeof ImportedType` instead of `any`
         // when `ImportedType` is not defined in the files it can see.
-        setReferencedType(new NoResolvedType(registry, getReferenceName(), getTemplateTypes()));
+        setReferencedType(new NoResolvedType(registry, getReferenceName().orElseThrow(), getTemplateTypes()));
         if (validator != null) {
           var unused = validator.apply(getReferencedType());
         }
@@ -345,7 +345,7 @@ public final class NamedType extends ProxyObjectType {
         // This is depended on by Clutz to prevent infinite loops in self-referential typeof types.
         JSType objlit = type;
         type =
-            NamedType.builder(registry, getReferenceName())
+            NamedType.builder(registry, getReferenceName().orElseThrow())
                 .setResolutionKind(ResolutionKind.NONE)
                 .setReferencedType(objlit)
                 .build();
@@ -406,7 +406,7 @@ public final class NamedType extends ProxyObjectType {
       }
       warning(reporter, msg);
     } else {
-      setReferencedType(new NoResolvedType(registry, getReferenceName(), getTemplateTypes()));
+      setReferencedType(new NoResolvedType(registry, getReferenceName().orElseThrow(), getTemplateTypes()));
       if (validator != null) {
         var unused = validator.apply(getReferencedType());
       }
@@ -444,7 +444,7 @@ public final class NamedType extends ProxyObjectType {
   }
 
   void warning(ErrorReporter reporter, String message) {
-    reporter.warning(message, sourceName, lineno, charno);
+    reporter.warning(message, Optional.of(sourceName).filter(s -> !s.isEmpty()), lineno, charno);
   }
 
   /** Store enough information to define a property at a later time. */
@@ -506,7 +506,7 @@ public final class NamedType extends ProxyObjectType {
     private ResolutionKind resolutionKind;
     private final String referenceName;
     private StaticTypedScope scope;
-    private String sourceName;
+    private String sourceName = "";
     private int lineno;
     private int charno;
     private JSType referencedType;

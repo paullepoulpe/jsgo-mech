@@ -31,6 +31,7 @@ import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 import java.util.PriorityQueue;
 import org.jspecify.annotations.Nullable;
 
@@ -611,10 +612,10 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
   }
 
   private void handleBreak(Node node) {
-    String label = null;
+    Optional<String> label = Optional.empty();
     // See if it is a break with label.
     if (node.hasChildren()) {
-      label = node.getFirstChild().getString();
+      label = Optional.of(node.getFirstChild().getString());
     }
     Node cur;
     Node previous = null;
@@ -659,9 +660,9 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
   }
 
   private void handleContinue(Node node) {
-    String label = null;
+    Optional<String> label = Optional.empty();
     if (node.hasChildren()) {
-      label = node.getFirstChild().getString();
+      label = Optional.of(node.getFirstChild().getString());
     }
     Node cur;
     Node previous = null;
@@ -932,15 +933,15 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
    * Checks if target is actually the break target of labeled continue. The label can be null if it
    * is an unlabeled break.
    */
-  public static boolean isBreakTarget(Node target, String label) {
-    return isBreakStructure(target, label != null) && matchLabel(target.getParent(), label);
+  public static boolean isBreakTarget(Node target, Optional<String> label) {
+    return isBreakStructure(target, label.isPresent()) && matchLabel(target.getParent(), label);
   }
 
   /**
    * Checks if target is actually the continue target of labeled continue. The label can be null if
    * it is an unlabeled continue.
    */
-  static boolean isContinueTarget(Node target, String label) {
+  static boolean isContinueTarget(Node target, Optional<String> label) {
     return NodeUtil.isLoopStructure(target) && matchLabel(target.getParent(), label);
   }
 
@@ -948,12 +949,12 @@ public final class ControlFlowAnalysis implements NodeTraversal.Callback {
    * Check if label is actually referencing the target control structure. If label is null, it
    * always returns true.
    */
-  private static boolean matchLabel(Node target, String label) {
-    if (label == null) {
+  private static boolean matchLabel(Node target, Optional<String> label) {
+    if (label.isEmpty()) {
       return true;
     }
     while (target.isLabel()) {
-      if (target.getFirstChild().getString().equals(label)) {
+      if (target.getFirstChild().getString().equals(label.get())) {
         return true;
       }
       target = target.getParent();

@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.modules;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.modules.ModuleMapCreator.DOES_NOT_HAVE_EXPORT;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -41,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
@@ -135,7 +135,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       this.exports = exports;
       exportsByLocalName = SimpleListMultimap.create();
       for (Export e : exports) {
-        exportsByLocalName.put(e.localName(), e);
+        exportsByLocalName.put(e.localName().orElse(null), e);
       }
     }
 
@@ -167,8 +167,8 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
         int i = this.exports.indexOf(e);
         Export mutated = e.mutatedCopy();
         this.exports.set(i, mutated);
-        exportsByLocalName.remove(e.localName(), e);
-        exportsByLocalName.put(e.localName(), mutated);
+        exportsByLocalName.remove(e.localName().orElse(null), e);
+        exportsByLocalName.put(e.localName().orElse(null), mutated);
       }
     }
   }
@@ -205,16 +205,16 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
     /** True if the export was successfully added or false if the exported name already exists. */
     boolean add(Export e) {
-      if (e.exportName() == null) {
+      if (e.exportName().isEmpty()) {
         exports.add(e);
         return true;
       } else {
-        if (exportedNames.contains(e.exportName())) {
+        if (exportedNames.contains(e.exportName().get())) {
           return false;
         }
 
         exports.add(e);
-        exportedNames.add(e.exportName());
+        exportedNames.add(e.exportName().get());
         return true;
       }
     }
@@ -225,8 +225,8 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       ImmutableList.Builder<Export> starExportsBuilder = new ImmutableList.Builder<>();
 
       for (Export ee : exports) {
-        if (ee.moduleRequest() == null) {
-          if (importsByLocalName.containsKey(ee.localName())) {
+        if (ee.moduleRequest().isEmpty()) {
+          if (importsByLocalName.containsKey(ee.localName().orElse(null))) {
             // import A from '';
             // export { A };
 
@@ -239,7 +239,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
             // export var x;
             localExports.add(ee);
           }
-        } else if ("*".equals(ee.importName())) {
+        } else if ("*".equals(ee.importName().orElse(""))) {
           // export * from '';
           starExportsBuilder.add(ee);
         } else {
@@ -306,7 +306,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
     @Override
     public Module resolve(
-        ModuleRequestResolver moduleRequestResolver, @Nullable String moduleSpecifier) {
+        ModuleRequestResolver moduleRequestResolver, Optional<String> moduleSpecifier) {
       if (resolved == null) {
         // Every import creates a locally bound name.
         Map<String, Binding> boundNames =
@@ -316,13 +316,13 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
         // Only local exports that are not an anonymous default export create local bindings.
         for (Export e : localExports) {
-          localNameToLocalExport.put(e.localName(), e);
+          localNameToLocalExport.put(e.localName().orElse(null), e);
 
-          if (!Export.DEFAULT_EXPORT_NAME.equals(e.localName())) {
+          if (!Optional.of(Export.DEFAULT_EXPORT_NAME).equals(e.localName())) {
             ResolveExportResult b = resolveExport(moduleRequestResolver, e.exportName());
             checkState(b.resolved(), "Cannot have invalid missing own export!");
             if (!b.isAmbiguous()) {
-              boundNames.put(e.localName(), b.getBinding());
+              boundNames.put(e.localName().orElse(null), b.getBinding());
             }
           }
         }
@@ -398,7 +398,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
               && (requested.metadata().isGoogModule() || requested.metadata().isGoogProvide())) {
             compiler.report(
                 JSError.make(
-                    path.toString(),
+                    Optional.of(path.toString()),
                     i.importNode().getLineno(),
                     i.importNode().getCharno(),
                     CANNOT_PATH_IMPORT_CLOSURE_FILE,
@@ -409,7 +409,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
           if (importStar && GoogEsImports.isGoogImportSpecifier(i.moduleRequest())) {
             compiler.report(
                 JSError.make(
-                    path.toString(),
+                    Optional.of(path.toString()),
                     i.importNode().getLineno(),
                     i.importNode().getCharno(),
                     NAMESPACE_IMPORT_CANNOT_USE_STAR,
@@ -417,24 +417,24 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
                     i.moduleRequest()));
             return ResolveExportResult.ERROR;
           }
-          String closureNamespace =
+          Optional<String> closureNamespace =
               GoogEsImports.isGoogImportSpecifier(i.moduleRequest())
-                  ? GoogEsImports.getClosureIdFromGoogImportSpecifier(i.moduleRequest())
-                  : null;
+                  ? Optional.of(GoogEsImports.getClosureIdFromGoogImportSpecifier(i.moduleRequest()))
+                  : Optional.empty();
           return ResolveExportResult.of(
               Binding.from(requested.metadata(), closureNamespace, i.nameNode()));
         } else {
           ResolveExportResult result =
               requested.resolveExport(
                   moduleRequestResolver,
-                  i.moduleRequest(),
-                  i.importName(),
+                  Optional.of(i.moduleRequest()),
+                  Optional.of(i.importName()),
                   resolveSet,
                   exportStarSet);
           if (!result.found() && !result.hadError()) {
             compiler.report(
                 JSError.make(
-                    path.toString(),
+                    Optional.of(path.toString()),
                     i.importNode().getLineno(),
                     i.importNode().getCharno(),
                     DOES_NOT_HAVE_EXPORT,
@@ -443,7 +443,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
           } else if (result.isAmbiguous()) {
             compiler.report(
                 JSError.make(
-                    path.toString(),
+                    Optional.of(path.toString()),
                     i.importNode().getLineno(),
                     i.importNode().getCharno(),
                     IMPORTED_AMBIGUOUS_EXPORT,
@@ -477,11 +477,11 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       Set<String> exportedNames = new TreeSet<>();
 
       for (Export e : localExports) {
-        exportedNames.add(e.exportName());
+        exportedNames.add(e.exportName().orElse(null));
       }
 
       for (Export e : indirectExports) {
-        exportedNames.add(e.exportName());
+        exportedNames.add(e.exportName().orElse(null));
       }
 
       for (Export e : starExports) {
@@ -513,12 +513,12 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       Map<String, Binding> exports = new LinkedHashMap<>();
 
       for (String name : getExportedNames(moduleRequestResolver)) {
-        ResolveExportResult b = resolveExport(moduleRequestResolver, name);
+        ResolveExportResult b = resolveExport(moduleRequestResolver, Optional.of(name));
         checkState(b.found(), "Cannot have invalid own export.");
         if (b.resolved()) {
           exports.put(name, b.getBinding());
         } else if (b.isAmbiguous()) {
-          compiler.report(JSError.make(path.toString(), -1, -1, AMBIGUOUS_EXPORT_DEFINITION, name));
+          compiler.report(JSError.make(Optional.of(path.toString()), -1, -1, AMBIGUOUS_EXPORT_DEFINITION, name));
         }
       }
 
@@ -527,16 +527,16 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
     private ResolveExportResult resolveExport(
         ModuleRequestResolver moduleRequestResolver,
-        String exportName,
+        Optional<String> exportName,
         Set<ExportTrace> resolveSet,
         Set<UnresolvedModule> exportStarSet) {
-      if (!getExportedNames(moduleRequestResolver).contains(exportName)) {
+      if (!(exportName.isPresent() && getExportedNames(moduleRequestResolver).contains(exportName.get()))) {
         return ResolveExportResult.NOT_FOUND;
       }
 
-      if (!resolveSet.add(ExportTrace.create(this, exportName))) {
+      if (!resolveSet.add(ExportTrace.create(this, exportName.orElseThrow()))) {
         // Cycle!
-        compiler.report(JSError.make(path.toString(), 0, 0, CYCLIC_EXPORT_DEFINITION, exportName));
+        compiler.report(JSError.make(Optional.of(path.toString()), 0, 0, CYCLIC_EXPORT_DEFINITION, exportName.orElse("null")));
         return ResolveExportResult.ERROR;
       }
 
@@ -549,10 +549,10 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
       for (Export e : indirectExports) {
         if (exportName.equals(e.exportName())) {
-          if (importsByLocalName.containsKey(e.localName())) {
+          if (importsByLocalName.containsKey(e.localName().orElse(null))) {
             // import whatever from 'mod';
             // export { whatever };
-            return resolveImport(moduleRequestResolver, e.localName(), resolveSet, exportStarSet)
+            return resolveImport(moduleRequestResolver, e.localName().orElse(null), resolveSet, exportStarSet)
                 .copy(e.nameNode(), Binding.CreatedBy.EXPORT);
           } else {
             UnresolvedModule requested = moduleRequestResolver.resolve(e);
@@ -571,20 +571,20 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
               if (!result.found() && !result.hadError()) {
                 compiler.report(
                     JSError.make(
-                        path.toString(),
+                        Optional.of(path.toString()),
                         e.exportNode().getLineno(),
                         e.exportNode().getCharno(),
                         DOES_NOT_HAVE_EXPORT,
-                        e.importName()));
+                        e.importName().orElse("null")));
                 return ResolveExportResult.ERROR;
               } else if (result.isAmbiguous()) {
                 compiler.report(
                     JSError.make(
-                        path.toString(),
+                        Optional.of(path.toString()),
                         e.exportNode().getLineno(),
                         e.exportNode().getCharno(),
                         IMPORTED_AMBIGUOUS_EXPORT,
-                        e.importName()));
+                        e.importName().orElse("null")));
               }
               return result.copy(e.nameNode(), Binding.CreatedBy.EXPORT);
             }
@@ -592,12 +592,12 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
         }
       }
 
-      checkState(!Export.DEFAULT.equals(exportName), "Default export cannot come from export *.");
+      checkState(!Optional.of(Export.DEFAULT).equals(exportName), "Default export cannot come from export *.");
 
       if (exportStarSet.contains(this)) {
         // Cycle!
         compiler.report(
-            JSError.make(path.toString(), -1, -1, CYCLIC_EXPORT_DEFINITION, exportName));
+            JSError.make(Optional.of(path.toString()), -1, -1, CYCLIC_EXPORT_DEFINITION, exportName.orElse("null")));
         return ResolveExportResult.ERROR;
       }
 
@@ -610,7 +610,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
         if (requested == null) {
           return ResolveExportResult.ERROR;
-        } else if (requested.getExportedNames(moduleRequestResolver).contains(exportName)) {
+        } else if (exportName.isPresent() && requested.getExportedNames(moduleRequestResolver).contains(exportName.get())) {
           ResolveExportResult resolution =
               requested.resolveExport(
                   moduleRequestResolver, e.moduleRequest(), exportName, resolveSet, exportStarSet);
@@ -645,18 +645,18 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
     @Override
     public ResolveExportResult resolveExport(
         ModuleRequestResolver moduleRequestResolver,
-        @Nullable String moduleSpecifier,
-        String exportName,
+        Optional<String> moduleSpecifier,
+        Optional<String> exportName,
         Set<ExportTrace> resolveSet,
         Set<UnresolvedModule> exportStarSet) {
       // Explicit containsKey check here since values can be null!
-      if (resolvedExports.containsKey(exportName)) {
-        return resolvedExports.get(exportName);
+      if (exportName.isPresent() && resolvedExports.containsKey(exportName.get())) {
+        return exportName.isPresent() ? resolvedExports.get(exportName.get()) : null;
       }
 
       ResolveExportResult b =
           resolveExport(moduleRequestResolver, exportName, resolveSet, exportStarSet);
-      resolvedExports.put(exportName, b);
+      resolvedExports.put(exportName.orElse(null), b);
       return b;
     }
   }
@@ -703,10 +703,10 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
     // export * from '';
     currentModuleBuilder.add(
         Export.builder()
-            .exportName(null)
-            .moduleRequest(export.getSecondChild().getString())
-            .importName("*")
-            .localName(null)
+            .exportName(Optional.empty())
+            .moduleRequest(Optional.of(export.getSecondChild().getString()))
+            .importName(Optional.of("*"))
+            .localName(Optional.empty())
             .modulePath(t.getInput().getPath())
             .exportNode(export)
             .moduleMetadata(metadata)
@@ -721,17 +721,17 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
     if (child.isFunction() || child.isClass()) {
       String maybeName = NodeUtil.getName(child);
 
-      if (!Strings.isNullOrEmpty(maybeName)) {
+      if (!maybeName.isEmpty()) {
         name = maybeName;
       }
     }
 
     if (!currentModuleBuilder.add(
         Export.builder()
-            .exportName(Export.DEFAULT)
-            .moduleRequest(null)
-            .importName(null)
-            .localName(name)
+            .exportName(Optional.of(Export.DEFAULT))
+            .moduleRequest(Optional.empty())
+            .importName(Optional.empty())
+            .localName(Optional.of(name))
             .modulePath(t.getInput().getPath())
             .exportNode(export)
             .moduleMetadata(metadata)
@@ -747,10 +747,10 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       String exportedName = child.getLastChild().getString();
       if (!currentModuleBuilder.add(
           Export.builder()
-              .exportName(exportedName)
-              .moduleRequest(export.getSecondChild().getString())
-              .importName(importName)
-              .localName(null)
+              .exportName(Optional.of(exportedName))
+              .moduleRequest(Optional.of(export.getSecondChild().getString()))
+              .importName(Optional.of(importName))
+              .localName(Optional.empty())
               .modulePath(t.getInput().getPath())
               .exportNode(export)
               .nameNode(child.getFirstChild())
@@ -768,10 +768,10 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
       String exportedName = child.getLastChild().getString();
       if (!currentModuleBuilder.add(
           Export.builder()
-              .exportName(exportedName)
-              .moduleRequest(null)
-              .importName(null)
-              .localName(localName)
+              .exportName(Optional.of(exportedName))
+              .moduleRequest(Optional.empty())
+              .importName(Optional.empty())
+              .localName(Optional.of(localName))
               .modulePath(t.getInput().getPath())
               .exportNode(export)
               .nameNode(child.getFirstChild())
@@ -793,10 +793,10 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
     String name = lhs.getString();
     if (!currentModuleBuilder.add(
         Export.builder()
-            .exportName(name)
-            .moduleRequest(null)
-            .importName(null)
-            .localName(name)
+            .exportName(Optional.of(name))
+            .moduleRequest(Optional.empty())
+            .importName(Optional.empty())
+            .localName(Optional.of(name))
             .modulePath(t.getInput().getPath())
             .exportNode(export)
             .nameNode(lhs)
@@ -814,10 +814,10 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
     String name = nameNode.getString();
     if (!currentModuleBuilder.add(
         Export.builder()
-            .exportName(name)
-            .moduleRequest(null)
-            .importName(null)
-            .localName(name)
+            .exportName(Optional.of(name))
+            .moduleRequest(Optional.empty())
+            .importName(Optional.empty())
+            .localName(Optional.of(name))
             .modulePath(t.getInput().getPath())
             .exportNode(export)
             .nameNode(nameNode)

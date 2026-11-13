@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,9 +40,9 @@ public final class JsMessageExtractorTest {
   public static final JsMessage.IdGenerator TEST_ID_GENERATOR =
       new JsMessage.IdGenerator() {
         @Override
-        public String generateId(String meaning, List<Part> messageParts) {
+        public String generateId(Optional<String> meaning, List<Part> messageParts) {
           StringBuilder idBuilder = new StringBuilder();
-          idBuilder.append(meaning).append('_');
+          idBuilder.append(meaning.orElse(null)).append('_');
           for (Part messagePart : messageParts) {
             if (messagePart.isPlaceholder()) {
               idBuilder.append('p').append(messagePart.getCanonicalPlaceholderName().length());
@@ -100,7 +101,7 @@ public final class JsMessageExtractorTest {
     assertEquals(
         new JsMessage.Builder()
             .setKey("MSG_SILLY")
-            .setId("MSG_SILLY")
+            .setId(Optional.of("MSG_SILLY"))
             .appendStringPart("silly test message")
             .build(),
         extractMessage("var MSG_SILLY = goog.getMsg('silly test message');"));
@@ -112,7 +113,7 @@ public final class JsMessageExtractorTest {
     assertEquals(
         new JsMessage.Builder()
             .setKey("MSG_WELCOME")
-            .setId("MSG_WELCOME")
+            .setId(Optional.of("MSG_WELCOME"))
             .appendStringPart("Hi ")
             .appendJsPlaceholderReference("interpolation_0")
             .appendStringPart("! Welcome to ")
@@ -126,7 +127,7 @@ public final class JsMessageExtractorTest {
                 ImmutableMap.of(
                     "interpolation_0", "Ginny Weasley",
                     "interpolation_1", "Google Muggle Finder"))
-            .setDesc("The welcome message.")
+            .setDesc(Optional.of("The welcome message."))
             .build(),
         extractMessage(
             """
@@ -170,8 +171,8 @@ public final class JsMessageExtractorTest {
                 ImmutableMap.of(
                     "INTERPOLATION_0", "Ginny Weasley",
                     "INTERPOLATION_1", "Google Muggle Finder"))
-            .setDesc("The welcome message.")
-            .setId("MSG_WELCOME_s3p15s13p15s1")
+            .setDesc(Optional.of("The welcome message."))
+            .setId(Optional.of("MSG_WELCOME_s3p15s13p15s1"))
             .build(),
         extractMessage(
             TEST_ID_GENERATOR,
@@ -195,13 +196,13 @@ public final class JsMessageExtractorTest {
     assertEquals(
         new JsMessage.Builder()
             .setKey("MSG_WELCOME")
-            .setId("MSG_WELCOME")
+            .setId(Optional.of("MSG_WELCOME"))
             .appendStringPart("Hi ")
             .appendJsPlaceholderReference("userName")
             .appendStringPart("! Welcome to ")
             .appendJsPlaceholderReference("product")
             .appendStringPart(".")
-            .setDesc("The welcome message.")
+            .setDesc(Optional.of("The welcome message."))
             .build(),
         extractMessage(
             """
@@ -265,7 +266,7 @@ public final class JsMessageExtractorTest {
     assertThat(actual.getKey()).isEqualTo(expected.getKey());
     assertThat(actual.getParts()).isEqualTo(expected.getParts());
     assertThat(actual.jsPlaceholderNames()).isEqualTo(expected.jsPlaceholderNames());
-    assertThat(actual.getDesc()).isEqualTo(expected.getDesc());
-    assertThat(actual.getMeaning()).isEqualTo(expected.getMeaning());
+    assertThat(actual.getDesc().orElse(null)).isEqualTo(expected.getDesc().orElse(null));
+    assertThat(actual.getMeaning().orElse(null)).isEqualTo(expected.getMeaning().orElse(null));
   }
 }

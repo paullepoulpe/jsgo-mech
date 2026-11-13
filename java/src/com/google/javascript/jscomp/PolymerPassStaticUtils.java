@@ -33,6 +33,7 @@ import com.google.javascript.rhino.Token;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -177,8 +178,8 @@ final class PolymerPassStaticUtils {
         continue;
       }
 
-      String keyName = NodeUtil.getObjectOrClassLitKeyName(keyNode);
-      if (!methodsToProtect.contains(keyName)) {
+      Optional<String> keyName = NodeUtil.getObjectOrClassLitKeyName(keyNode);
+      if (!(keyName.isPresent() && methodsToProtect.contains(keyName.get()))) {
         continue;
       }
 
@@ -196,9 +197,9 @@ final class PolymerPassStaticUtils {
           continue;
         }
 
-        String name = extractMethodName(child.getString());
-        if (name != null) {
-          methodsToProtect.add(name);
+        Optional<String> name = extractMethodName(child.getString());
+        if (name.isPresent()) {
+          methodsToProtect.add(name.get());
         }
       }
     }
@@ -222,9 +223,9 @@ final class PolymerPassStaticUtils {
 
         Node computed = NodeUtil.getFirstPropMatchingKey(prop.getLastChild(), "computed");
         if (computed != null && computed.isStringLit()) {
-          String name = extractMethodName(computed.getString());
-          if (name != null) {
-            methodsToProtect.add(name);
+          Optional<String> name = extractMethodName(computed.getString());
+          if (name.isPresent()) {
+            methodsToProtect.add(name.get());
           }
         }
       }
@@ -232,9 +233,9 @@ final class PolymerPassStaticUtils {
     return methodsToProtect;
   }
 
-  private static @Nullable String extractMethodName(String signature) {
+  private static Optional<String> extractMethodName(String signature) {
     int openParenIndex = signature.indexOf('(');
-    return openParenIndex > 0 ? signature.substring(0, openParenIndex).trim() : null;
+    return openParenIndex > 0 ? Optional.of(signature.substring(0, openParenIndex).trim()) : Optional.empty();
   }
 
   /**
@@ -374,9 +375,9 @@ final class PolymerPassStaticUtils {
    */
   public static String getPolymerElementType(final PolymerClassDefinition cls) {
     String nativeElementName =
-        cls.nativeBaseElement == null
+        cls.nativeBaseElement.isEmpty()
             ? ""
-            : CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, cls.nativeBaseElement);
+            : CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, cls.nativeBaseElement.get());
     return String.format("Polymer%sElement", nativeElementName);
   }
 

@@ -35,6 +35,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.JSType;
 import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Transforms a compiler AST into a serialized TypedAst object. */
@@ -121,17 +122,17 @@ final class TypedAstSerializer {
     AstNode scriptProto = visit(script);
     this.subtreeSourceFiles.clear();
 
-    String encodedSourceMap = compiler.getBase64SourceMapContents(script.getSourceFileName());
+    Optional<String> encodedSourceMap = compiler.getBase64SourceMapContents(Optional.of(script.getSourceFileName()).filter(s -> !s.isEmpty()));
 
     LazyAst.Builder lazyAstBuilder =
         LazyAst.newBuilder().setScript(scriptProto.toByteString()).setSourceFile(sourceFile);
 
-    if (encodedSourceMap != null) {
+    if (encodedSourceMap.isPresent()) {
       // This is the encoded source map taken from the inline sourcemap comment. It does not include
       // the base64 prefix.
       // E.g. We serialize "eyJ2ZXJzaW9uI..." from the "//# sourceMappingURL=
       // data:application/json;base64,eyJ2ZXJzaW9uI..." comment.
-      lazyAstBuilder.setSourceMappingUrl(encodedSourceMap);
+      lazyAstBuilder.setSourceMappingUrl(encodedSourceMap.get());
     }
 
     return lazyAstBuilder.build();
@@ -237,7 +238,7 @@ final class TypedAstSerializer {
             TemplateStringValue.newBuilder()
                 .setRawStringPointer(this.stringPool.put(n.getRawString()))
                 .setCookedStringPointer(
-                    n.getCookedString() == null ? -1 : this.stringPool.put(n.getCookedString()))
+                    n.getCookedString().isEmpty() ? -1 : this.stringPool.put(n.getCookedString().get()))
                 .build());
         return;
       }
@@ -258,7 +259,7 @@ final class TypedAstSerializer {
 
   private void setOriginalName(AstNode.Builder builder, Node n) {
     String originalName = n.getOriginalName();
-    if (originalName == null) {
+    if (originalName.isEmpty()) {
       builder.setOriginalNamePointer(0); // equivalent to 'not set'
       return;
     }

@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.javascript.rhino.IR;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,7 +37,7 @@ public final class PolymerPassStaticUtilsTest {
             IR.objectlit(),
             null,
             null,
-            null,
+            Optional.empty(),
             null,
             null,
             null,
@@ -57,7 +58,7 @@ public final class PolymerPassStaticUtilsTest {
             IR.objectlit(),
             null,
             null,
-            "input",
+            Optional.of("input"),
             null,
             null,
             null,

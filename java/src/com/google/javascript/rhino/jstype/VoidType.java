@@ -40,6 +40,7 @@
 package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.jscomp.base.Tri;
+import java.util.Optional;
 
 /**
  * Void type whose only element is the {@code undefined} value.
@@ -107,8 +108,8 @@ public final class VoidType extends ValueType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "undefined";
+  public Optional<String> getDisplayName() {
+    return Optional.of("undefined");
   }
 
   @Override

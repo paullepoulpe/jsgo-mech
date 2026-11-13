@@ -24,6 +24,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
+import java.util.Optional;
 
 /**
  * This describes the Google-specific JavaScript coding conventions. Within Google, variable names
@@ -128,8 +129,8 @@ public class GoogleCodingConvention extends CodingConventions.Proxy {
    * </ul>
    */
   @Override
-  public boolean isValidEnumKey(String key) {
-    return ENUM_KEY_PATTERN.matcher(key).matches();
+  public boolean isValidEnumKey(Optional<String> key) {
+    return ENUM_KEY_PATTERN.matcher(key.get()).matches();
   }
 
   /**
@@ -177,7 +178,7 @@ public class GoogleCodingConvention extends CodingConventions.Proxy {
    * of the generating file.
    */
   @Override
-  public String getPackageName(StaticSourceFile source) {
+  public Optional<String> getPackageName(StaticSourceFile source) {
     String name = source.getName();
     Matcher genfilesMatcher = GENFILES_DIR.matcher(name);
     if (genfilesMatcher.find()) {
@@ -186,10 +187,10 @@ public class GoogleCodingConvention extends CodingConventions.Proxy {
 
     Matcher m = PACKAGE_WITH_TEST_DIR.matcher(name);
     if (m.find()) {
-      return m.group(1);
+      return Optional.ofNullable(m.group(1));
     } else {
       int lastSlash = name.lastIndexOf('/');
-      return lastSlash == -1 ? "" : name.substring(0, lastSlash);
+      return lastSlash == -1 ? Optional.of("") : Optional.of(name.substring(0, lastSlash));
     }
   }
 }

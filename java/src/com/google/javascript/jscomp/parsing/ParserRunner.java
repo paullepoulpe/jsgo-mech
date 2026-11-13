@@ -39,6 +39,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -200,13 +201,13 @@ public final class ParserRunner {
       // sometimes it is useful to keep going.
       if (reportAllErrors || !errorSeen) {
         errorSeen = true;
-        this.reporter.error(message, location.source.name, location.line + 1, location.column);
+        this.reporter.error(message, Optional.of(location.source.name), location.line + 1, location.column);
       }
     }
 
     @Override
     protected void reportWarning(SourcePosition location, String message) {
-      this.reporter.warning(message, location.source.name, location.line + 1, location.column);
+      this.reporter.warning(message, Optional.of(location.source.name), location.line + 1, location.column);
     }
   }
 
@@ -225,10 +226,10 @@ public final class ParserRunner {
     public final ImmutableList<SourceRange> topLevelStatementRanges;
 
     public final FeatureSet features;
-    public final @Nullable String sourceMapURL;
+    public final Optional<String> sourceMapURL;
 
     public ParseResult(Node ast, List<Comment> comments, FeatureSet features, String sourceMapURL) {
-      this(ast, comments, ImmutableList.of(), features, sourceMapURL);
+      this(ast, comments, ImmutableList.of(), features, Optional.of(sourceMapURL));
     }
 
     public ParseResult(
@@ -236,7 +237,7 @@ public final class ParserRunner {
         List<Comment> comments,
         ImmutableList<SourceRange> topLevelStatementRanges,
         FeatureSet features,
-        String sourceMapURL) {
+        Optional<String> sourceMapURL) {
       this.ast = ast;
       this.comments = comments;
       this.topLevelStatementRanges = topLevelStatementRanges;

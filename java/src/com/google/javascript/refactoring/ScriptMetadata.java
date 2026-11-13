@@ -30,7 +30,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * A summary of a script for use during fixes.
@@ -91,9 +91,8 @@ public final class ScriptMetadata {
    * <p>If `namespace` is not required or has no alias, returns `null`. In particular, destructured
    * aliases will not be available.
    */
-  @Nullable
-  String getAlias(String namespace) {
-    return this.requireAliases.get(namespace);
+  Optional<String> getAlias(String namespace) {
+    return Optional.ofNullable(this.requireAliases.get(namespace));
   }
 
   /**
@@ -162,13 +161,13 @@ public final class ScriptMetadata {
         return;
       }
 
-      String alias = aliasNode.getOriginalName();
-      if (alias == null) {
-        alias = aliasNode.getString();
+      Optional<String> alias = Optional.of(aliasNode.getOriginalName()).filter(s -> !s.isEmpty());
+      if (alias.isEmpty()) {
+        alias = Optional.of(aliasNode.getString());
       }
 
       String namespace = requirelikeCall.getSecondChild().getString();
-      this.toFill.requireAliases.put(namespace, alias);
+      this.toFill.requireAliases.put(namespace, alias.orElse(null));
     }
 
     private boolean isRequirelikeCall(Node call) {

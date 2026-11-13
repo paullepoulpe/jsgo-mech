@@ -15,6 +15,8 @@
  */
 package com.google.javascript.jscomp;
 
+import java.util.Optional;
+
 /**
  * A marker object for the command line api to pass special values to the ReplaceIdGenerators pass.
  */
@@ -23,7 +25,7 @@ enum RenamingToken implements RenamingMap {
   STABLE,
   DISABLE;
 
-  @Override public String get(String value) {
-    return null;
+  @Override public Optional<String> get(String value) {
+    return Optional.empty();
   }
 }

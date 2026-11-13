@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import com.google.errorprone.annotations.ForOverride;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -43,7 +44,6 @@ public record PassFactory(
     boolean isRunInFixedPointLoop,
     Function<AbstractCompiler, ? extends CompilerPass> getInternalFactory) {
   public PassFactory {
-    requireNonNull(getName, "getName");
     requireNonNull(getCondition, "getCondition");
     requireNonNull(getPreconditionCheck, "getPreconditionCheck");
     requireNonNull(getInternalFactory, "getInternalFactory");
@@ -60,8 +60,8 @@ public record PassFactory(
         + "}";
   }
 
-  record PreconditionResult(boolean success, String message) {
-    static final PreconditionResult SUCCESS = new PreconditionResult(true, null);
+  record PreconditionResult(boolean success, Optional<String> message) {
+    static final PreconditionResult SUCCESS = new PreconditionResult(true, Optional.empty());
   }
 
   public Builder toBuilder() {
@@ -70,7 +70,7 @@ public record PassFactory(
 
   /** A builder for a {@link PassFactory}. */
   public static final class Builder {
-    private String name;
+    private Optional<String> name = Optional.empty();
     private Function<CompilerOptions, Boolean> condition;
     private Function<CompilerOptions, PassFactory.PreconditionResult> preconditionCheck;
     private boolean runInFixedPointLoop;
@@ -81,7 +81,7 @@ public record PassFactory(
     }
 
     Builder(PassFactory source) {
-      this.name = source.getName();
+      this.name = Optional.of(source.getName());
       this.condition = source.getCondition();
       this.preconditionCheck = source.getPreconditionCheck();
       this.runInFixedPointLoop = source.isRunInFixedPointLoop();
@@ -90,10 +90,7 @@ public record PassFactory(
     }
 
     public Builder setName(String x) {
-      if (x == null) {
-        throw new NullPointerException("Null name");
-      }
-      this.name = x;
+      this.name = Optional.of(x);
       return this;
     }
 
@@ -132,12 +129,12 @@ public record PassFactory(
     @ForOverride
     PassFactory autoBuild() {
       if (set0 != 1
-          || this.name == null
+          || this.name.isEmpty()
           || this.condition == null
           || this.preconditionCheck == null
           || this.internalFactory == null) {
         StringBuilder missing = new StringBuilder();
-        if (this.name == null) {
+        if (this.name.isEmpty()) {
           missing.append(" name");
         }
         if (this.condition == null) {
@@ -155,7 +152,7 @@ public record PassFactory(
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new PassFactory(
-          this.name,
+          this.name.get(),
           this.condition,
           this.preconditionCheck,
           this.runInFixedPointLoop,
@@ -180,7 +177,7 @@ public record PassFactory(
     PreconditionResult canRun = getPreconditionCheck().apply(options);
     if (!canRun.success) {
       throw new IllegalArgumentException(
-          String.format("Precondition for pass %s failed: %s", this.getName(), canRun.message()));
+          String.format("Precondition for pass %s failed: %s", this.getName(), canRun.message().orElse("null")));
     }
   }
 

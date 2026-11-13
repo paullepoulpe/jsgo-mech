@@ -39,6 +39,8 @@
 
 package com.google.javascript.rhino.jstype;
 
+import java.util.Optional;
+
 /**
  * A concrete instance of a JavaScript symbol.
  *
@@ -64,8 +66,8 @@ public final class KnownSymbolType extends SymbolType {
   }
 
   @Override
-  public String getDisplayName() {
-    return name;
+  public Optional<String> getDisplayName() {
+    return Optional.of(name);
   }
 
   @Override

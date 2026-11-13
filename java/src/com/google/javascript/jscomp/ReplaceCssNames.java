@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -177,12 +178,12 @@ class ReplaceCssNames implements CompilerPass {
     NodeTraversal.traverse(compiler, root, new FindSetCssNameTraversal());
     List<GetCssNameInstance> getCssNameInstances = gatherGetCssNameInstances(root);
     for (GetCssNameInstance getCssNameInstance : getCssNameInstances) {
-      String cssClassName = getCssNameInstance.getCssClassName();
+      Optional<String> cssClassName = getCssNameInstance.getCssClassName();
       if (getCssNameInstance.isCssClosureFileClassesMember()) {
-        cssNamesBySymbol.put(getCssNameInstance.getCssClosureClassesMemberName(), cssClassName);
-        classesObjectsQualifiedNames.add(getCssNameInstance.getCssClosureClassesQualifiedName());
+        cssNamesBySymbol.put(getCssNameInstance.getCssClosureClassesMemberName().orElse(null), cssClassName.orElse(null));
+        classesObjectsQualifiedNames.add(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow());
       } else {
-        cssNameCollector.add(cssClassName);
+        cssNameCollector.add(cssClassName.get());
       }
       getCssNameInstance.replaceWithExpression();
     }
@@ -244,11 +245,11 @@ class ReplaceCssNames implements CompilerPass {
       if (n.isScript()) {
         traversalState.inSassGeneratedCssTsScript =
             sassGeneratedCssTsExpert.hasSassGeneratedCssTsJsDoc;
-        traversalState.cssClosureClassesQualifiedName = null;
+        traversalState.cssClosureClassesQualifiedName = Optional.empty();
       } else if (traversalState.inSassGeneratedCssTsScript
           && sassGeneratedCssTsExpert.isCssClosureClassesAssignment) {
         traversalState.cssClosureClassesQualifiedName =
-            sassGeneratedCssTsExpert.cssClosureClassesQualifiedName;
+            Optional.of(sassGeneratedCssTsExpert.cssClosureClassesQualifiedName);
       }
       return true;
     }
@@ -282,7 +283,7 @@ class ReplaceCssNames implements CompilerPass {
               && assignmentTarget.isGetProp()
               && assignmentTarget.getString().equals("classes");
 
-      String cssClosureClassesQualifiedName = null;
+      String cssClosureClassesQualifiedName = "";
       if (isCssClosureClassesAssignment) {
         cssClosureClassesQualifiedName = assignmentTarget.getQualifiedName();
       }
@@ -314,13 +315,13 @@ class ReplaceCssNames implements CompilerPass {
 
     private static class TraversalState {
       boolean inSassGeneratedCssTsScript;
-      String cssClosureClassesQualifiedName;
+      Optional<String> cssClosureClassesQualifiedName = Optional.empty();
     }
   }
 
   private boolean isNotInCssClosureFile(Node node) {
     String sourceFileName = node.getSourceFileName();
-    return sourceFileName == null || !sourceFileName.endsWith(".css.closure.js");
+    return sourceFileName.isEmpty() || !sourceFileName.endsWith(".css.closure.js");
   }
 
   private boolean isGetCssNameCall(Node node) {
@@ -328,7 +329,7 @@ class ReplaceCssNames implements CompilerPass {
   }
 
   private GetCssNameInstance createGetCssNameInstance(
-      Node n, String cssClosureClassesQualifiedName) {
+      Node n, Optional<String> cssClosureClassesQualifiedName) {
     JSError validationError = validateGetCssNameCall(n);
     return new GetCssNameInstance(n, validationError, cssClosureClassesQualifiedName);
   }
@@ -351,10 +352,10 @@ class ReplaceCssNames implements CompilerPass {
      * The qualified name for the classes object if we're in a Sass-generated .css.ts file, or null
      * otherwise. For example "module$exports$foo.classes".
      */
-    final String cssClosureClassesQualifiedName;
+    final Optional<String> cssClosureClassesQualifiedName;
 
     GetCssNameInstance(
-        Node callNode, JSError validationError, String cssClosureClassesQualifiedName) {
+        Node callNode, JSError validationError, Optional<String> cssClosureClassesQualifiedName) {
       this.callNode = callNode;
       this.validationError = validationError;
       this.cssClosureClassesQualifiedName = cssClosureClassesQualifiedName;
@@ -407,18 +408,18 @@ class ReplaceCssNames implements CompilerPass {
     }
 
     boolean isCssClosureFileClassesMember() {
-      return cssClosureClassesQualifiedName != null;
+      return cssClosureClassesQualifiedName.isPresent();
     }
 
-    @Nullable String getCssClosureClassesQualifiedName() {
+    Optional<String> getCssClosureClassesQualifiedName() {
       checkNotNull(
-          cssClosureClassesQualifiedName, "Not a css closure file classes object: %s", callNode);
+          cssClosureClassesQualifiedName.orElseThrow(), "Not a css closure file classes object: %s", callNode);
       return cssClosureClassesQualifiedName;
     }
 
-    @Nullable String getCssClosureClassesMemberName() {
+    Optional<String> getCssClosureClassesMemberName() {
       checkNotNull(
-          cssClosureClassesQualifiedName, "Not a css closure file classes object: %s", callNode);
+          cssClosureClassesQualifiedName.orElseThrow(), "Not a css closure file classes object: %s", callNode);
       // We support 2 structures getCssName() calls in Sass-generated files:
       // 1. { Foo: goog.getCssName('foo') }
       // 2. { Foo: expression ? … : goog.getCssName('foo') }
@@ -426,14 +427,14 @@ class ReplaceCssNames implements CompilerPass {
       AncestorIterable ancestors = callNode.getAncestors();
       for (Node ancestor : ancestors) {
         if (ancestor.isStringKey()) {
-          return cssClosureClassesQualifiedName + "." + ancestor.getString();
+          return Optional.of(cssClosureClassesQualifiedName.get() + "." + ancestor.getString());
         }
       }
       throw new IllegalStateException(
           String.format("No css closure classes member name found: %s", callNode));
     }
 
-    @Nullable String getCssClassName() {
+    Optional<String> getCssClassName() {
       checkState(isValid(), "not a valid goog.getCssName() call: %s", callNode);
       checkNotNull(callNode.getParent(), "already replaced: %s", callNode);
       final int childCount = callNode.getChildCount();
@@ -441,12 +442,12 @@ class ReplaceCssNames implements CompilerPass {
       return switch (childCount) {
         case 2 -> {
           checkState(firstArg.isStringLit(), "not a string literal: %s", firstArg);
-          yield firstArg.getString();
+          yield Optional.of(firstArg.getString());
         }
         case 3 -> {
           final Node secondArg = checkNotNull(firstArg.getNext(), firstArg);
           checkState(secondArg.isStringLit(), "not a string literal: %s", secondArg);
-          yield secondArg.getString();
+          yield Optional.of(secondArg.getString());
         }
         default ->
             throw new IllegalStateException(
@@ -518,12 +519,12 @@ class ReplaceCssNames implements CompilerPass {
     }
     String[] parts = DASH_PATTERN.split(name);
     if (symbolMap != null) {
-      String replacement = null;
+      Optional<String> replacement = Optional.empty();
 
       if (name.startsWith("--")) {
         // Force BY_WHOLE style for CSS variables.
         replacement = symbolMap.get(name);
-        if (replacement == null) {
+        if (replacement.isEmpty()) {
           compiler.report(JSError.make(n, UNKNOWN_SYMBOL_WARNING, name, name));
           return;
         }
@@ -531,7 +532,7 @@ class ReplaceCssNames implements CompilerPass {
         switch (symbolMap.getStyle()) {
           case BY_WHOLE -> {
             replacement = symbolMap.get(name);
-            if (replacement == null) {
+            if (replacement.isEmpty()) {
               compiler.report(JSError.make(n, UNKNOWN_SYMBOL_WARNING, name, name));
               return;
             }
@@ -539,19 +540,19 @@ class ReplaceCssNames implements CompilerPass {
           case BY_PART -> {
             String[] replaced = new String[parts.length];
             for (int i = 0; i < parts.length; i++) {
-              String part = symbolMap.get(parts[i]);
-              if (part == null) {
+              Optional<String> part = symbolMap.get(parts[i]);
+              if (part.isEmpty()) {
                 // If we can't encode all parts, don't encode any of it.
                 compiler.report(JSError.make(n, UNKNOWN_SYMBOL_WARNING, parts[i], name));
                 return;
               }
-              replaced[i] = part;
+              replaced[i] = part.get();
             }
-            replacement = Joiner.on("-").join(replaced);
+            replacement = Optional.of(Joiner.on("-").join(replaced));
           }
         }
       }
-      n.setString(replacement);
+      n.setString(replacement.get());
     }
   }
 
@@ -569,7 +570,7 @@ class ReplaceCssNames implements CompilerPass {
     @Override
     public void visit(NodeTraversal t, Node n, Node parent) {
       String classesObjectQualifiedName = n.getQualifiedName();
-      if (classesObjectQualifiedName == null
+      if (classesObjectQualifiedName.isEmpty()
           || !classesObjectsQualifiedNames.contains(classesObjectQualifiedName)) {
         return;
       }
@@ -579,7 +580,7 @@ class ReplaceCssNames implements CompilerPass {
         return;
       }
       String classQualifiedName = classNameNode.getQualifiedName();
-      if (classQualifiedName == null || !cssNamesBySymbol.containsKey(classQualifiedName)) {
+      if (classQualifiedName.isEmpty() || !cssNamesBySymbol.containsKey(classQualifiedName)) {
         compiler.report(JSError.make(n, UNKNOWN_SYMBOL_ERROR, classNameNode.getString()));
         return;
       }

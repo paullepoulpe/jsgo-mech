@@ -46,7 +46,6 @@ final class Timeline<T> {
     final String name;
 
     Time(String name) {
-      checkNotNull(name);
       this.name = name;
     }
 

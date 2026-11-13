@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Stores the mapping from original variable name to new variable names.
@@ -49,13 +50,13 @@ public final class VariableMap implements Serializable {
   }
 
   /** Given an original variable name, look up new name, may return null if it's not found. */
-  public String lookupNewName(String sourceName) {
-    return map.get(sourceName);
+  public Optional<String> lookupNewName(String sourceName) {
+    return Optional.ofNullable(map.get(sourceName));
   }
 
   /** Given a new variable name, lookup the source name, may return null if it's not found. */
-  public String lookupSourceName(String newName) {
-    return map.inverse().get(newName);
+  public String lookupSourceName(Optional<String> newName) {
+    return map.inverse().get(newName.orElse(null));
   }
 
   /** Returns an immutable mapping from original names to new names. */
