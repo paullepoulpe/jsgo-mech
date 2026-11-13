@@ -1840,46 +1840,47 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   }
 
   @Override
-  protected void checkChunkName(String name) {
+  protected Outcome<Void> checkChunkName(String name) {
     if (!TokenStream.isJSIdentifier(extraChunkNameChars.matcher(name).replaceAll("_"))) {
-      throw new FlagUsageException("Invalid chunk name: '" + name + "'");
+      return Outcome.err(new FlagUsageException("Invalid chunk name: '" + name + "'"));
     }
+    return Outcome.ok();
   }
 
   @Override
-  protected CompilerOptions createOptions() {
+  protected Outcome<CompilerOptions> createOptions() {
     CompilerOptions options = new CompilerOptions();
 
     if (!flags.languageIn.isEmpty()) {
       LanguageMode languageMode = LanguageMode.fromString(flags.languageIn);
       if (languageMode == LanguageMode.UNSUPPORTED) {
-        throw new FlagUsageException(
-            "Cannot specify the unsupported set of features for language_in.");
+        return Outcome.err(new FlagUsageException(
+            "Cannot specify the unsupported set of features for language_in."));
       }
       if (languageMode != null) {
         options.setLanguageIn(languageMode);
       } else {
-        throw new FlagUsageException(
+        return Outcome.err(new FlagUsageException(
             "Unknown language `"
                 + flags.languageIn
                 + "' specified. Expected one of: "
-                + LanguageMode.validCommandLineNames());
+                + LanguageMode.validCommandLineNames()));
       }
     }
 
     LanguageMode languageMode = LanguageMode.fromString(flags.languageOut);
     if (languageMode == LanguageMode.UNSUPPORTED) {
-      throw new FlagUsageException(
-          "Cannot specify the unsupported set of features for language_out.");
+      return Outcome.err(new FlagUsageException(
+          "Cannot specify the unsupported set of features for language_out."));
     }
     if (languageMode != null) {
       options.setLanguageOut(languageMode);
     } else {
-      throw new FlagUsageException(
+      return Outcome.err(new FlagUsageException(
           "Unknown language `"
               + flags.languageOut
               + "' specified. Expected one of: "
-              + LanguageMode.validCommandLineNames());
+              + LanguageMode.validCommandLineNames()));
     }
 
     options.setCodingConvention(new ClosureCodingConvention());
@@ -1947,8 +1948,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         }
       }
       if (j2clPassMode == null) {
-        throw new FlagUsageException(
-            "Unknown J2clPassMode `" + flags.j2clPassMode + "' specified.");
+        return Outcome.err(new FlagUsageException(
+            "Unknown J2clPassMode `" + flags.j2clPassMode + "' specified."));
       }
       options.setJ2clPass(j2clPassMode);
     }
@@ -2016,23 +2017,23 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     if (flags.instrumentCodeParsed == InstrumentOption.PRODUCTION
         && Strings.isNullOrEmpty(flags.instrumentationMappingOutputFile)) {
-      throw new FlagUsageException(
+      return Outcome.err(new FlagUsageException(
           "Expected --instrument_mapping_report to be set when "
-              + "--instrument_for_coverage_option is set to Production");
+              + "--instrument_for_coverage_option is set to Production"));
     }
 
     if (!Strings.isNullOrEmpty(flags.instrumentationMappingOutputFile)
         && flags.instrumentCodeParsed != InstrumentOption.PRODUCTION) {
-      throw new FlagUsageException(
+      return Outcome.err(new FlagUsageException(
           "Expected --instrument_for_coverage_option to be passed with PRODUCTION "
-              + "when --instrument_mapping_report is set");
+              + "when --instrument_mapping_report is set"));
     }
 
     if (Strings.isNullOrEmpty(flags.productionInstrumentationArrayName)
         && flags.instrumentCodeParsed == InstrumentOption.PRODUCTION) {
-      throw new FlagUsageException(
+      return Outcome.err(new FlagUsageException(
           "Expected --production_instrumentation_array_name to be set when "
-              + "--instrument_for_coverage_option is set to Production");
+              + "--instrument_for_coverage_option is set to Production"));
     }
     options.setInstrumentForCoverageOption(flags.instrumentCodeParsed);
     options.setProductionInstrumentationArrayName(flags.productionInstrumentationArrayName);
@@ -2043,15 +2044,15 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     if (flags.chunkOutputType == ChunkOutputType.ES_MODULES) {
       if (flags.renamePrefixNamespace != null) {
-        throw new FlagUsageException(
+        return Outcome.err(new FlagUsageException(
             "Expected --rename_prefix_namespace not to be specified when "
-                + "--chunk_output_type is set to ES_MODULES.");
+                + "--chunk_output_type is set to ES_MODULES."));
       }
 
       if (flags.emitUseStrict) {
-        throw new FlagUsageException(
+        return Outcome.err(new FlagUsageException(
             "Expected --emit_use_strict should not be specified when "
-                + "--chunk_output_type is set to ES_MODULES.");
+                + "--chunk_output_type is set to ES_MODULES."));
       }
 
       options.setChunkOutputType(flags.chunkOutputType);
@@ -2063,7 +2064,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       }
     }
 
-    return options;
+    return Outcome.ok(options);
   }
 
   @Override
@@ -2073,9 +2074,9 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
   private ClosureBundler bundler;
 
-  private ClosureBundler getBundler() {
+  private Outcome<ClosureBundler> getBundler() {
     if (bundler != null) {
-      return bundler;
+      return Outcome.ok(bundler);
     }
 
     ImmutableList<String> moduleRoots;
@@ -2085,7 +2086,11 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       moduleRoots = ImmutableList.of(ModuleLoader.DEFAULT_FILENAME_PREFIX);
     }
 
-    CompilerOptions options = createOptions();
+    Outcome<CompilerOptions> optionsOutcome = createOptions();
+    if (optionsOutcome.isErr()) {
+      return Outcome.err(optionsOutcome.error());
+    }
+    CompilerOptions options = optionsOutcome.get();
     ClosureBundler newBundler =
         new ClosureBundler(
             Transpiler.NULL,
@@ -2097,29 +2102,44 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                     options.getBrowserResolverPrefixReplacements()),
                 /* runtimeLibraryName= */ ""));
     bundler = newBundler;
-    return newBundler;
+    return Outcome.ok(newBundler);
   }
 
   @Override
-  protected void prepForBundleAndAppendTo(Appendable out, CompilerInput input, String content)
+  protected Outcome<Void> prepForBundleAndAppendTo(
+      Appendable out, CompilerInput input, String content)
       throws IOException {
-    getBundler().withPath(input.getName()).appendTo(out, input, content);
+    Outcome<ClosureBundler> bundlerOutcome = getBundler();
+    if (bundlerOutcome.isErr()) {
+      return Outcome.err(bundlerOutcome.error());
+    }
+    bundlerOutcome.get().withPath(input.getName()).appendTo(out, input, content);
+    return Outcome.ok();
   }
 
   @Override
-  protected void appendRuntimeTo(Appendable out) throws IOException {
-    getBundler().appendRuntimeTo(out);
+  protected Outcome<Void> appendRuntimeTo(Appendable out) throws IOException {
+    Outcome<ClosureBundler> bundlerOutcome = getBundler();
+    if (bundlerOutcome.isErr()) {
+      return Outcome.err(bundlerOutcome.error());
+    }
+    bundlerOutcome.get().appendRuntimeTo(out);
+    return Outcome.ok();
   }
 
   @Override
-  protected List<SourceFile> createExterns(CompilerOptions options) throws IOException {
-    List<SourceFile> externs = super.createExterns(options);
+  protected Outcome<List<SourceFile>> createExterns(CompilerOptions options) throws IOException {
+    Outcome<List<SourceFile>> externsOutcome = super.createExterns(options);
+    if (externsOutcome.isErr()) {
+      return Outcome.err(externsOutcome.error());
+    }
+    List<SourceFile> externs = externsOutcome.get();
     if (isInTestMode()) {
-      return externs;
+      return Outcome.ok(externs);
     } else {
       List<SourceFile> builtinExterns = getBuiltinExterns(options.getEnvironment());
       builtinExterns.addAll(externs);
-      return builtinExterns;
+      return Outcome.ok(builtinExterns);
     }
   }
 

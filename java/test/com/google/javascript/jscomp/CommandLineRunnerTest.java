@@ -42,6 +42,7 @@ import com.google.javascript.jscomp.AbstractCommandLineRunner.JsSourceType;
 import com.google.javascript.jscomp.Compiler.ScriptNodeLicensesOnlyTracker;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.SourceMap.LocationMapping;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.testing.JSChunkGraphBuilder;
 import com.google.javascript.jscomp.testing.TestExternsBuilder;
 import com.google.javascript.rhino.Node;
@@ -187,7 +188,7 @@ public final class CommandLineRunnerTest {
         new CommandLineRunner(
             stringListToArray(stage1Flags), new PrintStream(outReader), new PrintStream(errReader));
     // Expect an exit status of 1 because there is one error.
-    assertThat(runner.doRun()).isEqualTo(1);
+    assertThat(runner.doRun().get()).isEqualTo(1);
     assertThat(new String(outReader.toByteArray(), UTF_8)).isEmpty();
   }
 
@@ -264,7 +265,7 @@ public final class CommandLineRunnerTest {
     CommandLineRunner runner =
         new CommandLineRunner(
             stringListToArray(stage1Flags), new PrintStream(outReader), new PrintStream(errReader));
-    assertThat(runner.doRun()).isEqualTo(0);
+    assertThat(runner.doRun().get()).isEqualTo(0);
     assertThat(new String(outReader.toByteArray(), UTF_8)).isEmpty();
 
     assertThat(runner.getCompiler().toSource())
@@ -286,7 +287,7 @@ public final class CommandLineRunnerTest {
             });
     verifyFlagsAreIncompatibleWithChecksOnly(stage2Flags);
     runner = new CommandLineRunner(stringListToArray(stage2Flags));
-    assertThat(runner.doRun()).isEqualTo(0);
+    assertThat(runner.doRun().get()).isEqualTo(0);
 
     // During stage 2 the message is wrapped in a function call to protect it from mangling by
     // optimizations.
@@ -318,7 +319,7 @@ public final class CommandLineRunnerTest {
             });
     verifyFlagsAreIncompatibleWithChecksOnly(stage3Flags);
     runner = new CommandLineRunner(stringListToArray(stage3Flags));
-    assertThat(runner.doRun()).isEqualTo(0);
+    assertThat(runner.doRun().get()).isEqualTo(0);
 
     // During stage 3 the message is actually replaced and the output written to the compiled
     // output file.
@@ -360,7 +361,13 @@ public final class CommandLineRunnerTest {
     final ImmutableList<String> combinedFlags =
         ImmutableList.<String>builder().addAll(flags).add(additionalFlag).build();
     CommandLineRunner checksOnlyRunner = new CommandLineRunner(stringListToArray(combinedFlags));
-    assertThrows(FlagUsageException.class, checksOnlyRunner::doRun);
+    Outcome<Integer> result;
+    try {
+      result = checksOnlyRunner.doRun();
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+    assertThat(result.error()).isInstanceOf(FlagUsageException.class);
   }
 
   private String[] stringListToArray(ImmutableList<String> stringList) {
@@ -1476,7 +1483,7 @@ public final class CommandLineRunnerTest {
     args.add("/path/to/out.js");
     args.add("--create_source_map=%outname%.map");
     testSame("var x = 3;");
-    assertThat(lastCommandLineRunner.expandSourceMapPath(lastCompiler.getOptions(), null))
+    assertThat(lastCommandLineRunner.expandSourceMapPath(lastCompiler.getOptions(), null).get())
         .isEqualTo("/path/to/out.js.map");
   }
 
@@ -1486,7 +1493,7 @@ public final class CommandLineRunnerTest {
     args.add("--create_source_map=%outname%.map");
     args.add("--chunk_output_path_prefix=foo");
     testSameStringArray(new String[] {"var x = 3;", "var y = 5;"});
-    assertThat(lastCommandLineRunner.expandSourceMapPath(lastCompiler.getOptions(), null))
+    assertThat(lastCommandLineRunner.expandSourceMapPath(lastCompiler.getOptions(), null).get())
         .isEqualTo("foo.map");
   }
 
@@ -1497,8 +1504,10 @@ public final class CommandLineRunnerTest {
     args.add("--chunk_output_path_prefix=foo_");
     testSameStringArray(new String[] {"var x = 3;", "var y = 5;"});
     assertThat(
-            lastCommandLineRunner.expandSourceMapPath(
-                lastCompiler.getOptions(), lastCompiler.getChunkGraph().getRootChunk()))
+            lastCommandLineRunner
+                .expandSourceMapPath(
+                    lastCompiler.getOptions(), lastCompiler.getChunkGraph().getRootChunk())
+                .get())
         .isEqualTo("foo_m0.js.map");
   }
 
@@ -1813,8 +1822,8 @@ public final class CommandLineRunnerTest {
     StringBuilder builder = new StringBuilder();
     ScriptNodeLicensesOnlyTracker licenseTracker = new ScriptNodeLicensesOnlyTracker(lastCompiler);
     JSChunk chunk = lastCompiler.getChunkGraph().getRootChunk();
-    String filename = lastCommandLineRunner.getChunkOutputFileName(chunk);
-    lastCommandLineRunner.writeChunkOutput(filename, builder, licenseTracker, chunk);
+    String filename = lastCommandLineRunner.getChunkOutputFileName(chunk).get();
+    lastCommandLineRunner.writeChunkOutput(filename, builder, licenseTracker, chunk).get();
     assertThat(builder.toString()).isEqualTo("var x=3; // m0.js\n");
   }
 
@@ -1827,8 +1836,8 @@ public final class CommandLineRunnerTest {
     StringBuilder builder = new StringBuilder();
     ScriptNodeLicensesOnlyTracker licenseTracker = new ScriptNodeLicensesOnlyTracker(lastCompiler);
     JSChunk chunk = lastCompiler.getChunkGraph().getRootChunk();
-    String filename = lastCommandLineRunner.getChunkOutputFileName(chunk);
-    lastCommandLineRunner.writeChunkOutput(filename, builder, licenseTracker, chunk);
+    String filename = lastCommandLineRunner.getChunkOutputFileName(chunk).get();
+    lastCommandLineRunner.writeChunkOutput(filename, builder, licenseTracker, chunk).get();
     assertThat(builder.toString()).isEqualTo("var x=3;\n//# SourceMappingUrl=m0.js.map\n");
   }
 
@@ -1874,7 +1883,7 @@ public final class CommandLineRunnerTest {
 
     StringBuilder builder = new StringBuilder();
     lastCommandLineRunner.printChunkGraphManifestOrBundleTo(
-        lastCompiler.getChunkGraph(), builder, true);
+        lastCompiler.getChunkGraph(), builder, true).get();
     assertThat(builder.toString())
         .isEqualTo(
             """
@@ -1901,7 +1910,7 @@ public final class CommandLineRunnerTest {
 
     StringBuilder builder = new StringBuilder();
     lastCommandLineRunner.printChunkGraphManifestOrBundleTo(
-        lastCompiler.getChunkGraph(), builder, true);
+        lastCompiler.getChunkGraph(), builder, true).get();
     assertThat(builder.toString())
         .isEqualTo(
             """
@@ -1938,7 +1947,7 @@ public final class CommandLineRunnerTest {
     assertThat(runner.shouldRunCompiler()).isTrue();
     assertThat(runner.hasErrors()).isFalse();
 
-    runner.doRun();
+    runner.doRun().get();
 
     assertThat(new String(outReader.toByteArray(), UTF_8))
         .isEqualTo(runner.getVersionText() + "\n");
@@ -1951,7 +1960,7 @@ public final class CommandLineRunnerTest {
     assertThat(runner.shouldRunCompiler()).isTrue();
     assertThat(runner.hasErrors()).isFalse();
 
-    runner.doRun();
+    runner.doRun().get();
 
     assertThat(new String(outReader.toByteArray(), UTF_8))
         .isEqualTo(runner.getVersionText() + "\n");
@@ -2177,15 +2186,12 @@ public final class CommandLineRunnerTest {
     args.add("--env=CUSTOM");
     args.add("--output_manifest=test.MF");
     CommandLineRunner runner = createCommandLineRunner(new String[0]);
-    try {
-      runner.doRun();
-      assertWithMessage("Expected flag usage exception").fail();
-    } catch (FlagUsageException e) {
-      assertThat(e)
-          .hasMessageThat()
-          .isEqualTo(
-              "Bad --js flag. Manifest files cannot be generated when the input is from stdin.");
-    }
+    Throwable e = runner.doRun().error();
+    assertThat(e).isInstanceOf(FlagUsageException.class);
+    assertThat(e)
+        .hasMessageThat()
+        .isEqualTo(
+            "Bad --js flag. Manifest files cannot be generated when the input is from stdin.");
   }
 
   @Test
@@ -2610,7 +2616,7 @@ public final class CommandLineRunnerTest {
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -2633,7 +2639,7 @@ public final class CommandLineRunnerTest {
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -2666,7 +2672,7 @@ public final class CommandLineRunnerTest {
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -2720,7 +2726,7 @@ public final class CommandLineRunnerTest {
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -2780,7 +2786,7 @@ public final class CommandLineRunnerTest {
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -2818,7 +2824,7 @@ public final class CommandLineRunnerTest {
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -2855,7 +2861,7 @@ public final class CommandLineRunnerTest {
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -2915,7 +2921,7 @@ public final class CommandLineRunnerTest {
             new PrintStream(errReader));
 
     lastCompiler = runner.getCompiler();
-    runner.doRun();
+    runner.doRun().get();
     String output = new String(outReader.toByteArray(), UTF_8);
     assertThat(output)
         .isEqualTo(
@@ -3222,7 +3228,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -3293,7 +3299,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
 
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -4167,7 +4173,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
         new CommandLineRunner(argStrings, new PrintStream(outReader), new PrintStream(errReader));
     lastCompiler = runner.getCompiler();
     try {
-      runner.doRun();
+      runner.doRun().get();
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -4197,7 +4203,11 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
 
     runner.getCompiler();
     try {
-      runner.doRun();
+      // The callers that expect a flag usage error use assertThrows(FlagUsageException.class, ..).
+      Outcome<Integer> result = runner.doRun();
+      if (result.isErr()) {
+        throw (FlagUsageException) result.error();
+      }
     } catch (IOException e) {
       e.printStackTrace();
       assertWithMessage("Unexpected exception %s", e).fail();
@@ -4269,7 +4279,7 @@ Expected --production_instrumentation_array_name to be set when --instrument_for
     for (int i = 0; i < original.length; i++) {
       inputs.add(SourceFile.fromCode(getFilename(i), original[i]));
     }
-    CompilerOptions options = runner.createOptions();
+    CompilerOptions options = runner.createOptions().get();
     compiler.init(externs, inputs, options);
     Node all = compiler.parseInputs();
     assertThat(compiler.getErrors()).isEmpty();

@@ -278,18 +278,18 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * Performs any transformation needed on the given compiler input and appends it to the given
    * output bundle.
    */
-  protected abstract void prepForBundleAndAppendTo(
+  protected abstract Outcome<Void> prepForBundleAndAppendTo(
       Appendable out, CompilerInput input, String content) throws IOException;
 
   /** Writes whatever runtime libraries are needed to bundle. */
-  protected abstract void appendRuntimeTo(Appendable out) throws IOException;
+  protected abstract Outcome<Void> appendRuntimeTo(Appendable out) throws IOException;
 
   /**
    * Returns the instance of the Options to use when {@link #run()} is called. createCompiler() is
    * called before createOptions(), so getCompiler() will not return null when createOptions() is
    * called.
    */
-  protected abstract B createOptions();
+  protected abstract Outcome<B> createOptions();
 
   /** The warning classes that are available from the command-line. */
   protected DiagnosticGroups getDiagnosticGroups() {
@@ -301,7 +301,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   protected abstract void addAllowlistWarningsGuard(CompilerOptions options, File allowlistFile);
 
-  protected static void setWarningGuardOptions(
+  protected static Outcome<Void> setWarningGuardOptions(
       CompilerOptions options,
       ArrayList<FlagEntry<CheckLevel>> warningGuards,
       DiagnosticGroups diagnosticGroups) {
@@ -317,10 +317,12 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         } else if (groupNames.contains(entry.value)) {
           diagnosticGroups.setWarningLevel(options, entry.value, entry.flag);
         } else {
-          throw new FlagUsageException("Unknown diagnostic group: '" + entry.value + "'");
+          return Outcome.err(
+              new FlagUsageException("Unknown diagnostic group: '" + entry.value + "'"));
         }
       }
     }
+    return Outcome.ok();
   }
 
   /**
@@ -328,21 +330,25 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * If you want to ignore the flags API, or interpret flags your own way, then you should override
    * this method.
    */
-  protected void setRunOptions(CompilerOptions options) throws IOException {
+  protected Outcome<Void> setRunOptions(CompilerOptions options) throws IOException {
     DiagnosticGroups diagnosticGroups = getDiagnosticGroups();
 
     if (config.shouldSaveAfterStage1() || config.shouldContinueCompilation()) {
       if (options.isChecksOnly()) {
-        throw new FlagUsageException(
-            "checks_only mode is incompatible with multi-stage compilation");
+        return Outcome.err(new FlagUsageException(
+            "checks_only mode is incompatible with multi-stage compilation"));
       }
       if (options.getExternExportsPath() != null) {
-        throw new FlagUsageException(
-            "generating externs from exports is incompatible with multi-stage compilation");
+        return Outcome.err(new FlagUsageException(
+            "generating externs from exports is incompatible with multi-stage compilation"));
       }
     }
 
-    setWarningGuardOptions(options, config.warningGuards, diagnosticGroups);
+    Outcome<Void> setWarningGuardOptionsOutcome =
+        setWarningGuardOptions(options, config.warningGuards, diagnosticGroups);
+    if (setWarningGuardOptionsOutcome.isErr()) {
+      return Outcome.err(setWarningGuardOptionsOutcome.error());
+    }
 
     if (!config.warningsAllowFile.isEmpty()) {
       addAllowlistWarningsGuard(options, new File(config.warningsAllowFile));
@@ -360,7 +366,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       Outcome<CompilerOptions.BrowserFeaturesetYear> yearRes =
           CompilerOptions.BrowserFeaturesetYear.fromResult(config.browserFeaturesetYear);
       if (yearRes.isErr()) {
-        throw new FlagUsageException(yearRes.errorMessage());
+        return Outcome.err(new FlagUsageException(yearRes.errorMessage()));
       }
       options.setBrowserFeaturesetYearEnum(yearRes.get());
     }
@@ -379,29 +385,43 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     options.setSummaryDetailLevel(config.summaryDetailLevel);
     options.setTrustedStrings(true);
 
-    legacyOutputCharset = getLegacyOutputCharset();
+    Outcome<Charset> legacyOutputCharsetOutcome = getLegacyOutputCharset();
+    if (legacyOutputCharsetOutcome.isErr()) {
+      return Outcome.err(legacyOutputCharsetOutcome.error());
+    }
+    legacyOutputCharset = legacyOutputCharsetOutcome.get();
     options.setOutputCharset(legacyOutputCharset);
-    outputCharset2 = getOutputCharset2();
-    inputCharset = getInputCharset();
+    Outcome<Charset> outputCharset2Outcome = getOutputCharset2();
+    if (outputCharset2Outcome.isErr()) {
+      return Outcome.err(outputCharset2Outcome.error());
+    }
+    outputCharset2 = outputCharset2Outcome.get();
+    Outcome<Charset> inputCharsetOutcome = getInputCharset();
+    if (inputCharsetOutcome.isErr()) {
+      return Outcome.err(inputCharsetOutcome.error());
+    }
+    inputCharset = inputCharsetOutcome.get();
 
     if (config.jsOutputFile.length() > 0) {
       if (config.skipNormalOutputs) {
-        throw new FlagUsageException(
-            "skip_normal_outputs and js_output_file cannot be used together.");
+        return Outcome.err(new FlagUsageException(
+            "skip_normal_outputs and js_output_file cannot be used together."));
       }
     }
 
     if (config.skipNormalOutputs && config.printAst) {
-      throw new FlagUsageException("skip_normal_outputs and print_ast cannot be used together.");
+      return Outcome.err(
+          new FlagUsageException("skip_normal_outputs and print_ast cannot be used together."));
     }
 
     if (config.skipNormalOutputs && config.printTree) {
-      throw new FlagUsageException("skip_normal_outputs and print_tree cannot be used together.");
+      return Outcome.err(
+          new FlagUsageException("skip_normal_outputs and print_tree cannot be used together."));
     }
 
     if (config.skipNormalOutputs && config.printTreeJson) {
-      throw new FlagUsageException(
-          "skip_normal_outputs and print_tree_json_path cannot be used together.");
+      return Outcome.err(new FlagUsageException(
+          "skip_normal_outputs and print_tree_json_path cannot be used together."));
     }
 
     if (config.createSourceMap.length() > 0) {
@@ -435,8 +455,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       Set<String> uniqueNames = new LinkedHashSet<>();
       for (String filename : config.outputManifests) {
         if (!uniqueNames.add(filename)) {
-          throw new FlagUsageException(
-              "output_manifest flags specify duplicate file names: " + filename);
+          return Outcome.err(new FlagUsageException(
+              "output_manifest flags specify duplicate file names: " + filename));
         }
       }
     }
@@ -445,8 +465,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       Set<String> uniqueNames = new LinkedHashSet<>();
       for (String filename : config.outputBundles) {
         if (!uniqueNames.add(filename)) {
-          throw new FlagUsageException(
-              "output_bundle flags specify duplicate file names: " + filename);
+          return Outcome.err(new FlagUsageException(
+              "output_bundle flags specify duplicate file names: " + filename));
         }
       }
     }
@@ -473,6 +493,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       // The regex parser may still run if ordering/pruning inputs.
       compiler.setPreferRegexParser(true);
     }
+    return Outcome.ok();
   }
 
   protected final A getCompiler() {
@@ -537,10 +558,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   public final void run() {
     int result;
     try {
-      result = doRun();
-    } catch (FlagUsageException e) {
-      err.println(e.getMessage());
-      result = -1;
+      Outcome<Integer> resultOutcome = doRun();
+      if (resultOutcome.isErr()) {
+        FlagUsageException e = (FlagUsageException) resultOutcome.error();
+        err.println(e.getMessage());
+        result = -1;
+      } else {
+        result = resultOutcome.get();
+      }
     } catch (Throwable t) {
       t.printStackTrace(err);
       result = -2;
@@ -706,9 +731,10 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   /**
    * Removes input --ijs files whose basename matches an input --js or --weakdep file.
    *
-   * @throws FlagUsageException If there are both input --ijs files and chunk specs.
+   * <p>Returns an error outcome with a FlagUsageException if there are both input --ijs files and
+   * chunk specs.
    */
-  private ImmutableList<JSError> deduplicateIjsFiles(
+  private Outcome<ImmutableList<JSError>> deduplicateIjsFiles(
       List<FlagEntry<JsSourceType>> files, List<String> moduleRoots, boolean hasChunkSpecs) {
     ImmutableList.Builder<JSError> errors = ImmutableList.builder();
 
@@ -730,7 +756,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       FlagEntry<JsSourceType> file = iterator.next();
       if (file.flag == JsSourceType.IJS) {
         if (hasChunkSpecs) {
-          throw new FlagUsageException("--ijs is incompatible with --chunk or --module.");
+          return Outcome.err(
+              new FlagUsageException("--ijs is incompatible with --chunk or --module."));
         }
         String absoluteName = file.value;
         if (!absoluteName.endsWith(".i.js")) {
@@ -751,7 +778,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
     }
 
-    return errors.build();
+    return Outcome.ok(errors.build());
   }
 
   private String getModuleRootRelativeName(String filename, List<String> moduleRoots) {
@@ -764,21 +791,26 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   }
 
   /** Creates JS source code inputs from a list of files. */
-  private @Nullable List<SourceFile> createSourceInputs(
+  private Outcome<@Nullable List<SourceFile>> createSourceInputs(
       List<JsChunkSpec> jsChunkSpecs,
       List<FlagEntry<JsSourceType>> files,
       List<JsonFileSpec> jsonFiles,
       List<String> moduleRoots)
       throws IOException {
     if (isInTestMode()) {
-      return inputsSupplierForTesting != null ? inputsSupplierForTesting.get() : null;
+      return Outcome.ok(inputsSupplierForTesting != null ? inputsSupplierForTesting.get() : null);
     }
     if (files.isEmpty() && jsonFiles == null && config.defaultToStdin) {
       // Request to read from stdin.
       files = ImmutableList.of(new FlagEntry<JsSourceType>(JsSourceType.JS, "-"));
     }
 
-    for (JSError error : deduplicateIjsFiles(files, moduleRoots, !jsChunkSpecs.isEmpty())) {
+    Outcome<ImmutableList<JSError>> ijsErrors =
+        deduplicateIjsFiles(files, moduleRoots, !jsChunkSpecs.isEmpty());
+    if (ijsErrors.isErr()) {
+      return Outcome.err(ijsErrors.error());
+    }
+    for (JSError error : ijsErrors.get()) {
       compiler.report(error);
     }
 
@@ -789,13 +821,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       inputsRes = createInputs(files, true, jsChunkSpecs);
     }
     if (inputsRes.isErr()) {
-      throw new FlagUsageException("Bad --js flag. " + inputsRes.errorMessage());
+      return Outcome.err(new FlagUsageException("Bad --js flag. " + inputsRes.errorMessage()));
     }
-    return inputsRes.get();
+    return Outcome.ok(inputsRes.get());
   }
 
   /** Creates JS extern inputs from a list of files. */
-  private List<SourceFile> createExternInputs(List<String> files) throws IOException {
+  private Outcome<List<SourceFile>> createExternInputs(List<String> files) throws IOException {
     List<FlagEntry<JsSourceType>> externFiles = new ArrayList<>();
     for (String file : files) {
       externFiles.add(new FlagEntry<JsSourceType>(JsSourceType.EXTERN, file));
@@ -803,9 +835,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     Outcome<List<SourceFile>> inputsRes =
         createInputs(externFiles, false, new ArrayList<JsChunkSpec>());
     if (inputsRes.isErr()) {
-      throw new FlagUsageException("Bad --externs flag. " + inputsRes.errorMessage());
+      return Outcome.err(new FlagUsageException("Bad --externs flag. " + inputsRes.errorMessage()));
     }
-    return inputsRes.get();
+    return Outcome.ok(inputsRes.get());
   }
 
   /**
@@ -815,7 +847,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @param inputs A list of JS file paths, not null
    * @return An array of chunk objects
    */
-  public static List<JSChunk> createJsChunks(List<JsChunkSpec> specs, List<CompilerInput> inputs) {
+  public static Outcome<List<JSChunk>> createJsChunks(
+      List<JsChunkSpec> specs, List<CompilerInput> inputs) {
     checkState(specs != null);
     checkState(!specs.isEmpty());
     checkState(inputs != null);
@@ -827,19 +860,19 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     int minJsFilesRequired = 0;
     for (JsChunkSpec spec : specs) {
       if (chunksByName.containsKey(spec.name)) {
-        throw new FlagUsageException("Duplicate chunk name: " + spec.name);
+        return Outcome.err(new FlagUsageException("Duplicate chunk name: " + spec.name));
       }
       JSChunk chunk = new JSChunk(spec.name);
 
       for (String dep : spec.deps) {
         JSChunk other = chunksByName.get(dep);
         if (other == null) {
-          throw new FlagUsageException(
+          return Outcome.err(new FlagUsageException(
               "Chunk '"
                   + spec.name
                   + "' depends on unknown chunk '"
                   + dep
-                  + "'. Be sure to list chunks in dependency order.");
+                  + "'. Be sure to list chunks in dependency order."));
         }
         chunk.addDependency(other);
       }
@@ -871,17 +904,17 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
 
       if (numJsFilesExpected > totalNumJsFiles) {
-        throw new FlagUsageException(
+        return Outcome.err(new FlagUsageException(
             "Not enough JS files specified. Expected "
                 + numJsFilesExpected
                 + " but found "
-                + totalNumJsFiles);
+                + totalNumJsFiles));
       } else if (numJsFilesExpected < totalNumJsFiles) {
-        throw new FlagUsageException(
+        return Outcome.err(new FlagUsageException(
             "Too many JS files specified. Expected "
                 + numJsFilesExpected
                 + " but found "
-                + totalNumJsFiles);
+                + totalNumJsFiles));
       }
     }
 
@@ -905,7 +938,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       chunkIndex++;
     }
 
-    return new ArrayList<>(chunksByName.values());
+    return Outcome.ok(new ArrayList<>(chunksByName.values()));
   }
 
   /**
@@ -913,10 +946,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    *
    * @param name The chunk name
    */
-  protected void checkChunkName(String name) {
+  protected Outcome<Void> checkChunkName(String name) {
     if (!TokenStream.isJSIdentifier(name)) {
-      throw new FlagUsageException("Invalid chunk name: '" + name + "'");
+      return Outcome.err(new FlagUsageException("Invalid chunk name: '" + name + "'"));
     }
+    return Outcome.ok();
   }
 
   /**
@@ -928,7 +962,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @return A map from chunk name to chunk wrapper. Chunks with no wrapper will have the empty
    *     string as their value in this map.
    */
-  public static Map<String, String> parseChunkWrappers(
+  public static Outcome<Map<String, String>> parseChunkWrappers(
       List<String> specs, Iterable<JSChunk> chunks) {
     checkState(specs != null);
 
@@ -943,25 +977,26 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       // Format is "<name>:<wrapper>".
       int pos = spec.indexOf(':');
       if (pos == -1) {
-        throw new FlagUsageException(
-            "Expected chunk wrapper to have " + "<name>:<wrapper> format: " + spec);
+        return Outcome.err(new FlagUsageException(
+            "Expected chunk wrapper to have " + "<name>:<wrapper> format: " + spec));
       }
 
       // Parse chunk name.
       String name = spec.substring(0, pos);
       if (!wrappers.containsKey(name)) {
-        throw new FlagUsageException("Unknown chunk: '" + name + "'");
+        return Outcome.err(new FlagUsageException("Unknown chunk: '" + name + "'"));
       }
       String wrapper = spec.substring(pos + 1);
       // Support for %n% and %output%
       wrapper = wrapper.replace("%output%", "%s").replace("%n%", "\n");
       if (!wrapper.contains("%s")) {
-        throw new FlagUsageException("No %s placeholder in chunk wrapper: '" + wrapper + "'");
+        return Outcome.err(
+            new FlagUsageException("No %s placeholder in chunk wrapper: '" + wrapper + "'"));
       }
 
       wrappers.put(name, wrapper);
     }
-    return wrappers;
+    return Outcome.ok(wrappers);
   }
 
   /**
@@ -972,7 +1007,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * @return A map from chunk name to chunk output file name, if declared. Chunks with no
    *     predeclared output file name will have no entry in this map.
    */
-  private static ImmutableMap<String, String> parseChunkOutputFiles(List<String> specs) {
+  private static Outcome<ImmutableMap<String, String>> parseChunkOutputFiles(List<String> specs) {
     checkArgument(specs != null);
 
     ImmutableMap.Builder<String, String> outputFilesBuilder = ImmutableMap.builder();
@@ -981,15 +1016,15 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       // Format is "<name>:<output_file>".
       int pos = spec.indexOf(':');
       if (pos == -1) {
-        throw new FlagUsageException(
-            "Expected chunk_output_file to have " + "<name>:<output_file> format: " + spec);
+        return Outcome.err(new FlagUsageException(
+            "Expected chunk_output_file to have " + "<name>:<output_file> format: " + spec));
       }
 
       String name = spec.substring(0, pos);
       String filename = spec.substring(pos + 1);
       outputFilesBuilder.put(name, filename);
     }
-    return outputFilesBuilder.buildOrThrow();
+    return Outcome.ok(outputFilesBuilder.buildOrThrow());
   }
 
   /**
@@ -1001,33 +1036,46 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * <p>Otherwise, the output file name is {@code <outputPathPrefix>/<chunkName>.js}
    */
   @VisibleForTesting
-  String getChunkOutputFileName(JSChunk m) {
+  Outcome<String> getChunkOutputFileName(JSChunk m) {
     if (parsedChunkOutputFiles == null) {
-      parsedChunkOutputFiles = parseChunkOutputFiles(config.chunkOutputFiles);
+      Outcome<ImmutableMap<String, String>> parsedChunkOutputFilesOutcome =
+          parseChunkOutputFiles(config.chunkOutputFiles);
+      if (parsedChunkOutputFilesOutcome.isErr()) {
+        return Outcome.err(parsedChunkOutputFilesOutcome.error());
+      }
+      parsedChunkOutputFiles = parsedChunkOutputFilesOutcome.get();
     }
     String outputFile = parsedChunkOutputFiles.get(m.getName());
     if (outputFile != null) {
-      return config.chunkOutputPathPrefix + outputFile;
+      return Outcome.ok(config.chunkOutputPathPrefix + outputFile);
     }
-    return config.chunkOutputPathPrefix + m.getName() + ".js";
+    return Outcome.ok(config.chunkOutputPathPrefix + m.getName() + ".js");
   }
 
   /** Returns the conformance file name for a chunk. */
   @VisibleForTesting
-  String getChunkConformanceFileName(JSChunk m) {
+  Outcome<String> getChunkConformanceFileName(JSChunk m) {
     if (parsedChunkConformanceFiles == null) {
-      parsedChunkConformanceFiles = parseChunkOutputFiles(config.chunkConformanceFiles);
+      Outcome<ImmutableMap<String, String>> parsedChunkConformanceFilesOutcome =
+          parseChunkOutputFiles(config.chunkConformanceFiles);
+      if (parsedChunkConformanceFilesOutcome.isErr()) {
+        return Outcome.err(parsedChunkConformanceFilesOutcome.error());
+      }
+      parsedChunkConformanceFiles = parsedChunkConformanceFilesOutcome.get();
     }
-    return parsedChunkConformanceFiles.get(m.getName());
+    return Outcome.ok(parsedChunkConformanceFiles.get(m.getName()));
   }
 
   @VisibleForTesting
-  void writeChunkOutput(String fileName, Appendable out, LicenseTracker lt, JSChunk m)
+  Outcome<Void> writeChunkOutput(String fileName, Appendable out, LicenseTracker lt, JSChunk m)
       throws IOException {
     if (parsedChunkWrappers == null) {
-      parsedChunkWrappers =
-          parseChunkWrappers(
+      Outcome<Map<String, String>> parsedChunkWrappersOutcome = parseChunkWrappers(
               config.chunkWrapper, ImmutableList.copyOf(compiler.getChunkGraph().getAllChunks()));
+      if (parsedChunkWrappersOutcome.isErr()) {
+        return Outcome.err(parsedChunkWrappersOutcome.error());
+      }
+      parsedChunkWrappers = parsedChunkWrappersOutcome.get();
     }
 
     if (!isOutputInJson()) {
@@ -1043,6 +1091,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         "%s",
         null,
         fileName);
+    return Outcome.ok();
   }
 
   /**
@@ -1151,13 +1200,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    *
    * @return system exit status
    */
-  protected int doRun() throws IOException {
+  protected Outcome<Integer> doRun() throws IOException {
     CompileMetricsRecorderInterface metricsRecorder = getCompileMetricsRecorder();
     metricsRecorder.recordActionStart();
     if (this.config.printVersion) {
       this.defaultJsOutput.println(this.getVersionText());
       this.defaultJsOutput.flush();
-      return 0;
+      return Outcome.ok(0);
     }
 
     Compiler.setLoggingLevel(Level.parse(config.loggingLevel));
@@ -1167,12 +1216,23 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       compiler.setErrorManager(
           new VerifyingErrorManager(compiler.getErrorManager(), config.expectedDiagnostics));
     }
-    B options = createOptions();
-    setRunOptions(options);
+    Outcome<B> optionsOutcome = createOptions();
+    if (optionsOutcome.isErr()) {
+      return Outcome.err(optionsOutcome.error());
+    }
+    B options = optionsOutcome.get();
+    Outcome<Void> setRunOptionsOutcome = setRunOptions(options);
+    if (setRunOptionsOutcome.isErr()) {
+      return Outcome.err(setRunOptionsOutcome.error());
+    }
 
     @Nullable String typedAstListInputFilename = config.typedAstListInputFilename;
 
-    List<SourceFile> externs = createExterns(options);
+    Outcome<List<SourceFile>> externsOutcome = createExterns(options);
+    if (externsOutcome.isErr()) {
+      return Outcome.err(externsOutcome.error());
+    }
+    List<SourceFile> externs = externsOutcome.get();
     List<JSChunk> chunks = null;
 
     rootRelativePathsMap = constructRootRelativePathsMap();
@@ -1192,7 +1252,11 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     List<JsChunkSpec> jsChunkSpecs = new ArrayList<>();
     for (int i = 0; i < config.chunk.size(); i++) {
-      jsChunkSpecs.add(JsChunkSpec.create(config.chunk.get(i), i == 0));
+      Outcome<JsChunkSpec> jsChunkSpec = JsChunkSpec.create(config.chunk.get(i), i == 0);
+      if (jsChunkSpec.isErr()) {
+        return Outcome.err(jsChunkSpec.error());
+      }
+      jsChunkSpecs.add(jsChunkSpec.get());
     }
     List<JsonFileSpec> jsonFiles = null;
 
@@ -1232,8 +1296,13 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     compiler.initOptions(options);
 
-    List<SourceFile> sources =
+    Outcome<List<SourceFile>> sourcesOutcome =
         createSourceInputs(jsChunkSpecs, config.mixedJsSources, jsonFiles, config.moduleRoots);
+    if (sourcesOutcome.isErr()) {
+      return Outcome.err(sourcesOutcome.error());
+    }
+    List<SourceFile> sources =
+        sourcesOutcome.get();
 
     if (!jsChunkSpecs.isEmpty()) {
       if (isInTestMode()) {
@@ -1242,17 +1311,28 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         if (JsonStreamMode.IN.equals(config.jsonStreamMode)
             || JsonStreamMode.NONE.equals(config.jsonStreamMode)) {
           for (JsChunkSpec m : jsChunkSpecs) {
-            checkChunkName(m.getName());
+            Outcome<Void> checkChunkNameOutcome = checkChunkName(m.getName());
+            if (checkChunkNameOutcome.isErr()) {
+              return Outcome.err(checkChunkNameOutcome.error());
+            }
           }
         }
         ImmutableList.Builder<CompilerInput> inputs = ImmutableList.builder();
         for (SourceFile source : sources) {
           inputs.add(new CompilerInput(source, /* isExtern= */ false));
         }
-        chunks = createJsChunks(jsChunkSpecs, inputs.build());
+        Outcome<List<JSChunk>> chunksOutcome = createJsChunks(jsChunkSpecs, inputs.build());
+        if (chunksOutcome.isErr()) {
+          return Outcome.err(chunksOutcome.error());
+        }
+        chunks = chunksOutcome.get();
       }
       for (JSChunk m : chunks) {
-        outputFileNames.add(getChunkOutputFileName(m));
+        Outcome<String> chunkOutputFileName = getChunkOutputFileName(m);
+        if (chunkOutputFileName.isErr()) {
+          return Outcome.err(chunkOutputFileName.error());
+        }
+        outputFileNames.add(chunkOutputFileName.get());
       }
 
       if (typedAstListInputFilename != null) {
@@ -1313,25 +1393,35 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       // For CommonJS modules, construct chunks from actual inputs.
       chunks = ImmutableList.copyOf(compiler.getChunks());
       for (JSChunk c : chunks) {
-        outputFileNames.add(getChunkOutputFileName(c));
+        Outcome<String> chunkOutputFileName = getChunkOutputFileName(c);
+        if (chunkOutputFileName.isErr()) {
+          return Outcome.err(chunkOutputFileName.error());
+        }
+        outputFileNames.add(chunkOutputFileName.get());
       }
     }
 
     for (String outputFileName : outputFileNames) {
       if (compiler.getSourceFileByName(outputFileName) != null) {
         compiler.report(JSError.make(OUTPUT_SAME_AS_INPUT_ERROR, outputFileName));
-        return 1;
+        return Outcome.ok(1);
       }
     }
 
     // We won't want to process results for cases where compilation is only partially done.
     boolean shouldProcessResults = config.getSaveCompilationStateToFilename() == null;
-    int exitStatus =
-        shouldProcessResults
-            ? processResults(result, chunks, options)
-            : getExitStatusForResult(result);
+    int exitStatus;
+    if (shouldProcessResults) {
+      Outcome<Integer> exitStatusOutcome = processResults(result, chunks, options);
+      if (exitStatusOutcome.isErr()) {
+        return Outcome.err(exitStatusOutcome.error());
+      }
+      exitStatus = exitStatusOutcome.get();
+    } else {
+      exitStatus = getExitStatusForResult(result);
+    }
     metricsRecorder.recordResultMetrics(compiler, result);
-    return exitStatus;
+    return Outcome.ok(exitStatus);
   }
 
   private void performCompilation(CompileMetricsRecorderInterface metricsRecorder) {
@@ -1492,51 +1582,58 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   }
 
   /** Processes the results of the compile job, and returns an error code. */
-  int processResults(Result result, List<JSChunk> chunks, B options) throws IOException {
+  Outcome<Integer> processResults(Result result, List<JSChunk> chunks, B options)
+      throws IOException {
     if (config.printAst) {
       if (compiler.getRoot() == null) {
-        return 1;
+        return Outcome.ok(1);
       } else {
         Appendable jsOutput = createDefaultOutput();
         ControlFlowGraph<Node> cfg = compiler.computeCFG();
         DotFormatter.appendDot(compiler.getRoot().getLastChild(), cfg, jsOutput);
         jsOutput.append('\n');
         closeAppendable(jsOutput);
-        return 0;
+        return Outcome.ok(0);
       }
     }
 
     if (config.printTree) {
       if (compiler.getRoot() == null) {
         compiler.report(JSError.make(NO_TREE_GENERATED_ERROR));
-        return 1;
+        return Outcome.ok(1);
       } else {
         Appendable jsOutput = createDefaultOutput();
         compiler.getJsRoot().appendStringTree(jsOutput);
         jsOutput.append("\n");
         closeAppendable(jsOutput);
-        return 0;
+        return Outcome.ok(0);
       }
     }
 
     if (config.printTreeJson) {
       if (compiler.getRoot() == null) {
         compiler.report(JSError.make(NO_TREE_GENERATED_ERROR));
-        return 1;
+        return Outcome.ok(1);
       } else {
         Appendable jsOutput = createDefaultOutput();
         compiler.getJsRoot().appendJsonTree(jsOutput);
         closeAppendable(jsOutput);
-        return 0;
+        return Outcome.ok(0);
       }
     }
 
     if (config.skipNormalOutputs) {
       // Output the manifest and bundle files if requested.
-      outputManifest();
-      outputBundle();
+      Outcome<Void> outputManifestOutcome = outputManifest();
+      if (outputManifestOutcome.isErr()) {
+        return Outcome.err(outputManifestOutcome.error());
+      }
+      Outcome<Void> outputBundleOutcome = outputBundle();
+      if (outputBundleOutcome.isErr()) {
+        return Outcome.err(outputBundleOutcome.error());
+      }
       outputChunkGraphJson();
-      return 0;
+      return Outcome.ok(0);
     } else if (options.getOutputJs() != OutputJs.NONE && result.success) {
       outputChunkGraphJson();
       if (chunks == null) {
@@ -1546,13 +1643,21 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         // If output files are being written to stdout as a JSON string,
         // outputSingleBinary will have added the sourcemap to the output file
         if (!isOutputInJson()) {
-          outputSourceMap(options, config.jsOutputFile);
+          Outcome<Void> outputSourceMapOutcome = outputSourceMap(options, config.jsOutputFile);
+          if (outputSourceMapOutcome.isErr()) {
+            return Outcome.err(outputSourceMapOutcome.error());
+          }
         }
       } else {
-        DiagnosticType error = outputChunkBinaryAndSourceMaps(compiler.getChunkGraph(), options);
+        Outcome<DiagnosticType> errorOutcome =
+            outputChunkBinaryAndSourceMaps(compiler.getChunkGraph(), options);
+        if (errorOutcome.isErr()) {
+          return Outcome.err(errorOutcome.error());
+        }
+        DiagnosticType error = errorOutcome.get();
         if (error != null) {
           compiler.report(JSError.make(error));
-          return 1;
+          return Outcome.ok(1);
         }
       }
 
@@ -1564,24 +1669,36 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       }
 
       // Output the variable and property name maps if requested.
-      outputNameMaps();
+      Outcome<Void> outputNameMapsOutcome = outputNameMaps();
+      if (outputNameMapsOutcome.isErr()) {
+        return Outcome.err(outputNameMapsOutcome.error());
+      }
 
       // Output the ReplaceStrings map if requested
       outputStringMap();
 
       // Output the manifest and bundle files if requested.
-      outputManifest();
-      outputBundle();
+      Outcome<Void> outputManifestOutcome2 = outputManifest();
+      if (outputManifestOutcome2.isErr()) {
+        return Outcome.err(outputManifestOutcome2.error());
+      }
+      Outcome<Void> outputBundleOutcome2 = outputBundle();
+      if (outputBundleOutcome2.isErr()) {
+        return Outcome.err(outputBundleOutcome2.error());
+      }
 
       // Output the production instrumentation param mapping if requested.
-      outputInstrumentationMapping();
+      Outcome<Void> outputInstrumentationMappingOutcome = outputInstrumentationMapping();
+      if (outputInstrumentationMappingOutcome.isErr()) {
+        return Outcome.err(outputInstrumentationMappingOutcome.error());
+      }
 
       if (isOutputInJson()) {
         outputJsonStream();
       }
     }
 
-    return getExitStatusForResult(result);
+    return Outcome.ok(getExitStatusForResult(result));
   }
 
   private static int getExitStatusForResult(Result result) {
@@ -1672,10 +1789,15 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     }
   }
 
-  private @Nullable DiagnosticType outputChunkBinaryAndSourceMaps(
+  private Outcome<@Nullable DiagnosticType> outputChunkBinaryAndSourceMaps(
       JSChunkGraph chunkGraph, B options) throws IOException {
     Iterable<JSChunk> chunks = chunkGraph.getAllChunks();
-    parsedChunkWrappers = parseChunkWrappers(config.chunkWrapper, chunks);
+    Outcome<Map<String, String>> parsedChunkWrappersOutcome =
+        parseChunkWrappers(config.chunkWrapper, chunks);
+    if (parsedChunkWrappersOutcome.isErr()) {
+      return Outcome.err(parsedChunkWrappersOutcome.error());
+    }
+    parsedChunkWrappers = parsedChunkWrappersOutcome.get();
     if (!isOutputInJson()) {
       // make sure the method generates all dirs up to the latest /
       maybeCreateDirsForPath(config.chunkOutputPathPrefix + "dummy");
@@ -1693,7 +1815,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         || config.jsonStreamMode == JsonStreamMode.OUT
         || config.jsonStreamMode == JsonStreamMode.BOTH)) {
       // warn that this is not supported
-      return INVALID_CHUNK_SOURCEMAP_PATTERN;
+      return Outcome.ok(INVALID_CHUNK_SOURCEMAP_PATTERN);
     }
 
     ChunkGraphAwareLicenseTracker mlicenseTracker = new ChunkGraphAwareLicenseTracker(compiler);
@@ -1703,20 +1825,36 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         continue;
       }
       if (isOutputInJson()) {
-        this.filesToStreamOut.add(createJsonFileFromChunk(m));
+        Outcome<JsonFileSpec> jsonFile = createJsonFileFromChunk(m);
+        if (jsonFile.isErr()) {
+          return Outcome.err(jsonFile.error());
+        }
+        this.filesToStreamOut.add(jsonFile.get());
       } else {
         if (shouldGenerateMapPerChunk(options)) {
-          mapFileOut = fileNameToOutputWriter2(expandSourceMapPath(options, m));
+          Outcome<String> sourceMapPath = expandSourceMapPath(options, m);
+          if (sourceMapPath.isErr()) {
+            return Outcome.err(sourceMapPath.error());
+          }
+          mapFileOut = fileNameToOutputWriter2(sourceMapPath.get());
         }
 
-        String chunkFilename = getChunkOutputFileName(m);
+        Outcome<String> chunkFilenameOutcome = getChunkOutputFileName(m);
+        if (chunkFilenameOutcome.isErr()) {
+          return Outcome.err(chunkFilenameOutcome.error());
+        }
+        String chunkFilename = chunkFilenameOutcome.get();
         maybeCreateDirsForPath(chunkFilename);
         try (Writer writer = fileNameToLegacyOutputWriter(chunkFilename)) {
           if (options.shouldGatherSourceMapInfo()) {
             compiler.resetAndIntitializeSourceMap();
           }
           mlicenseTracker.setCurrentChunkContext(m);
-          writeChunkOutput(chunkFilename, writer, mlicenseTracker, m);
+          Outcome<Void> writeChunkOutputOutcome =
+              writeChunkOutput(chunkFilename, writer, mlicenseTracker, m);
+          if (writeChunkOutputOutcome.isErr()) {
+            return Outcome.err(writeChunkOutputOutcome.error());
+          }
           if (options.shouldGatherSourceMapInfo()) {
             compiler.getSourceMap().appendTo(mapFileOut, chunkFilename);
           }
@@ -1732,42 +1870,55 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (mapFileOut != null) {
       mapFileOut.close();
     }
-    return null;
+    return Outcome.ok(null);
   }
 
   /** Given an output chunk, convert it to a JSONFileSpec with associated sourcemap */
-  private JsonFileSpec createJsonFileFromChunk(JSChunk chunk) throws IOException {
+  private Outcome<JsonFileSpec> createJsonFileFromChunk(JSChunk chunk) throws IOException {
     compiler.resetAndIntitializeSourceMap();
 
-    String filename = getChunkOutputFileName(chunk);
+    Outcome<String> filenameOutcome = getChunkOutputFileName(chunk);
+    if (filenameOutcome.isErr()) {
+      return Outcome.err(filenameOutcome.error());
+    }
+    String filename = filenameOutcome.get();
     StringBuilder output = new StringBuilder();
-    writeChunkOutput(filename, output, new ScriptNodeLicensesOnlyTracker(compiler), chunk);
+    Outcome<Void> writeChunkOutputOutcome =
+        writeChunkOutput(filename, output, new ScriptNodeLicensesOnlyTracker(compiler), chunk);
+    if (writeChunkOutputOutcome.isErr()) {
+      return Outcome.err(writeChunkOutputOutcome.error());
+    }
 
     JsonFileSpec jsonFile = new JsonFileSpec(output.toString(), filename);
 
     StringBuilder chunkSourceMap = new StringBuilder();
 
-    compiler.getSourceMap().appendTo(chunkSourceMap, getChunkOutputFileName(chunk));
+    Outcome<String> chunkOutputFileName = getChunkOutputFileName(chunk);
+    if (chunkOutputFileName.isErr()) {
+      return Outcome.err(chunkOutputFileName.error());
+    }
+    compiler.getSourceMap().appendTo(chunkSourceMap, chunkOutputFileName.get());
 
     jsonFile.setSourceMap(chunkSourceMap.toString());
 
-    return jsonFile;
+    return Outcome.ok(jsonFile);
   }
 
   /**
    * Query the flag for the input charset, and return a Charset object representing the selection.
    *
    * @return Charset to use when reading inputs
-   * @throws FlagUsageException if flag is not a valid Charset name.
+   * <p>Returns an error outcome with a FlagUsageException if flag is not a valid Charset name.
    */
-  private Charset getInputCharset() {
+  private Outcome<Charset> getInputCharset() {
     if (!config.charset.isEmpty()) {
       if (!Charset.isSupported(config.charset)) {
-        throw new FlagUsageException(config.charset + " is not a valid charset name.");
+        return Outcome.err(
+            new FlagUsageException(config.charset + " is not a valid charset name."));
       }
-      return Charset.forName(config.charset);
+      return Outcome.ok(Charset.forName(config.charset));
     }
-    return UTF_8;
+    return Outcome.ok(UTF_8);
   }
 
   /**
@@ -1778,35 +1929,40 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * browsers, proxies and firewalls.
    *
    * @return Name of the charset to use when writing outputs. Guaranteed to be a supported charset.
-   * @throws FlagUsageException if flag is not a valid Charset name.
+   * <p>Returns an error outcome with a FlagUsageException if flag is not a valid Charset name.
    */
-  private Charset getLegacyOutputCharset() {
+  private Outcome<Charset> getLegacyOutputCharset() {
     if (!config.charset.isEmpty()) {
       if (!Charset.isSupported(config.charset)) {
-        throw new FlagUsageException(config.charset + " is not a valid charset name.");
+        return Outcome.err(
+            new FlagUsageException(config.charset + " is not a valid charset name."));
       }
-      return Charset.forName(config.charset);
+      return Outcome.ok(Charset.forName(config.charset));
     }
-    return US_ASCII;
+    return Outcome.ok(US_ASCII);
   }
 
   /**
    * Query the flag for the output charset. Defaults to UTF-8.
    *
-   * @throws FlagUsageException if flag is not a valid Charset name.
+   * <p>Returns an error outcome with a FlagUsageException if flag is not a valid Charset name.
    */
-  private Charset getOutputCharset2() {
+  private Outcome<Charset> getOutputCharset2() {
     if (!config.charset.isEmpty()) {
       if (!Charset.isSupported(config.charset)) {
-        throw new FlagUsageException(config.charset + " is not a valid charset name.");
+        return Outcome.err(
+            new FlagUsageException(config.charset + " is not a valid charset name."));
       }
-      return Charset.forName(config.charset);
+      return Outcome.ok(Charset.forName(config.charset));
     }
-    return UTF_8;
+    return Outcome.ok(UTF_8);
   }
 
-  protected List<SourceFile> createExterns(CompilerOptions options) throws IOException {
-    return isInTestMode() ? externsSupplierForTesting.get() : createExternInputs(config.externs);
+  protected Outcome<List<SourceFile>> createExterns(CompilerOptions options) throws IOException {
+    if (isInTestMode()) {
+      return Outcome.ok(externsSupplierForTesting.get());
+    }
+    return createExternInputs(config.externs);
   }
 
   /**
@@ -1855,23 +2011,27 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * <p>Passing a JSChunk to this function automatically triggers case #3. Otherwise, we'll use
    * strategy #1 or #2 based on the current output mode.
    */
-  private String expandCommandLinePath(String path, @Nullable JSChunk forChunk) {
+  private Outcome<String> expandCommandLinePath(String path, @Nullable JSChunk forChunk) {
     String sub;
     if (forChunk != null) {
-      sub = getChunkOutputFileName(forChunk);
+      Outcome<String> subOutcome = getChunkOutputFileName(forChunk);
+      if (subOutcome.isErr()) {
+        return Outcome.err(subOutcome.error());
+      }
+      sub = subOutcome.get();
     } else if (!config.chunk.isEmpty()) {
       sub = config.chunkOutputPathPrefix;
     } else {
       sub = config.jsOutputFile;
     }
-    return path.replace("%outname%", sub);
+    return Outcome.ok(path.replace("%outname%", sub));
   }
 
   /** Expansion function for source map. */
   @VisibleForTesting
-  @Nullable String expandSourceMapPath(B options, @Nullable JSChunk forChunk) {
+  Outcome<@Nullable String> expandSourceMapPath(B options, @Nullable JSChunk forChunk) {
     if (!options.shouldGatherSourceMapInfo()) {
-      return null;
+      return Outcome.ok(null);
     }
     return expandCommandLinePath(options.getSourceMapOutputPath(), forChunk);
   }
@@ -1942,17 +2102,22 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    *
    * @param options The options to the Compiler.
    */
-  private void outputSourceMap(B options, String associatedName) throws IOException {
+  private Outcome<Void> outputSourceMap(B options, String associatedName) throws IOException {
     if (!options.shouldGatherSourceMapInfo()
         || options.getSourceMapOutputPath().equals("/dev/null")) {
-      return;
+      return Outcome.ok();
     }
 
-    String outName = expandSourceMapPath(options, null);
+    Outcome<String> outNameOutcome = expandSourceMapPath(options, null);
+    if (outNameOutcome.isErr()) {
+      return Outcome.err(outNameOutcome.error());
+    }
+    String outName = outNameOutcome.get();
     maybeCreateDirsForPath(outName);
     try (Writer out = fileNameToOutputWriter2(outName)) {
       compiler.getSourceMap().appendTo(out, associatedName);
     }
+    return Outcome.ok();
   }
 
   /**
@@ -1998,7 +2163,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * Outputs the variable and property name maps for the specified compiler if the proper FLAGS are
    * set.
    */
-  private void outputNameMaps() throws IOException {
+  private Outcome<Void> outputNameMaps() throws IOException {
 
     String propertyMapOutputPath = null;
     String variableMapOutputPath = null;
@@ -2014,9 +2179,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     // Check the individual FLAGS.
     if (!config.variableMapOutputFile.isEmpty()) {
       if (variableMapOutputPath != null) {
-        throw new FlagUsageException(
+        return Outcome.err(new FlagUsageException(
             "The flags variable_map_output_file and "
-                + "create_name_map_files cannot both be used simultaneously.");
+                + "create_name_map_files cannot both be used simultaneously."));
       }
 
       variableMapOutputPath = config.variableMapOutputFile;
@@ -2024,9 +2189,9 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     if (!config.propertyMapOutputFile.isEmpty()) {
       if (propertyMapOutputPath != null) {
-        throw new FlagUsageException(
+        return Outcome.err(new FlagUsageException(
             "The flags property_map_output_file and "
-                + "create_name_map_files cannot both be used simultaneously.");
+                + "create_name_map_files cannot both be used simultaneously."));
       }
 
       propertyMapOutputPath = config.propertyMapOutputFile;
@@ -2040,6 +2205,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (propertyMapOutputPath != null && compiler.getPropertyMap() != null) {
       compiler.getPropertyMap().save(propertyMapOutputPath);
     }
+    return Outcome.ok();
   }
 
   /**
@@ -2121,29 +2287,45 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     return !config.chunk.isEmpty() && output != null && output.contains("%outname%");
   }
 
-  private void outputManifest() throws IOException {
-    outputManifestOrBundle(config.outputManifests, true);
+  private Outcome<Void> outputManifest() throws IOException {
+    Outcome<Void> outputManifestOrBundleOutcome =
+        outputManifestOrBundle(config.outputManifests, true);
+    if (outputManifestOrBundleOutcome.isErr()) {
+      return Outcome.err(outputManifestOrBundleOutcome.error());
+    }
+    return Outcome.ok();
   }
 
-  private void outputBundle() throws IOException {
-    outputManifestOrBundle(config.outputBundles, false);
+  private Outcome<Void> outputBundle() throws IOException {
+    Outcome<Void> outputManifestOrBundleOutcome =
+        outputManifestOrBundle(config.outputBundles, false);
+    if (outputManifestOrBundleOutcome.isErr()) {
+      return Outcome.err(outputManifestOrBundleOutcome.error());
+    }
+    return Outcome.ok();
   }
 
-  private void outputInstrumentationMapping() throws IOException {
+  private Outcome<Void> outputInstrumentationMapping() throws IOException {
     if (!Strings.isNullOrEmpty(config.instrumentationMappingFile)) {
-      String path = expandCommandLinePath(config.instrumentationMappingFile, /* forChunk= */ null);
+      Outcome<String> pathOutcome =
+          expandCommandLinePath(config.instrumentationMappingFile, /* forChunk= */ null);
+      if (pathOutcome.isErr()) {
+        return Outcome.err(pathOutcome.error());
+      }
+      String path = pathOutcome.get();
       compiler.getInstrumentationMapping().save(path);
     }
+    return Outcome.ok();
   }
 
   /**
    * Writes the manifest or bundle of all compiler input files that were included as controlled by
    * --dependency_mode, if requested.
    */
-  private void outputManifestOrBundle(List<String> outputFiles, boolean isManifest)
+  private Outcome<Void> outputManifestOrBundle(List<String> outputFiles, boolean isManifest)
       throws IOException {
     if (outputFiles.isEmpty()) {
-      return;
+      return Outcome.ok();
     }
 
     for (String output : outputFiles) {
@@ -2155,17 +2337,28 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         // Generate per-chunk manifests or bundles.
         Iterable<JSChunk> chunks = compiler.getChunkGraph().getAllChunks();
         for (JSChunk chunk : chunks) {
-          try (Writer out = fileNameToOutputWriter2(expandCommandLinePath(output, chunk))) {
+          Outcome<String> chunkOutputPath = expandCommandLinePath(output, chunk);
+          if (chunkOutputPath.isErr()) {
+            return Outcome.err(chunkOutputPath.error());
+          }
+          try (Writer out = fileNameToOutputWriter2(chunkOutputPath.get())) {
             if (isManifest) {
               printManifestTo(chunk, out);
             } else {
-              printBundleTo(chunk, out);
+              Outcome<Void> printBundleToOutcome = printBundleTo(chunk, out);
+              if (printBundleToOutcome.isErr()) {
+                return Outcome.err(printBundleToOutcome.error());
+              }
             }
           }
         }
       } else {
         // Generate a single file manifest or bundle.
-        try (Writer out = fileNameToOutputWriter2(expandCommandLinePath(output, null))) {
+        Outcome<String> outputPath = expandCommandLinePath(output, null);
+        if (outputPath.isErr()) {
+          return Outcome.err(outputPath.error());
+        }
+        try (Writer out = fileNameToOutputWriter2(outputPath.get())) {
           if (config.chunk.isEmpty()) {
             // For a single-chunk compilation, generate a single headerless manifest or bundle
             // containing only the strong files.
@@ -2173,15 +2366,23 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
             if (isManifest) {
               printManifestTo(chunk, out);
             } else {
-              printBundleTo(chunk, out);
+              Outcome<Void> printBundleToOutcome2 = printBundleTo(chunk, out);
+              if (printBundleToOutcome2.isErr()) {
+                return Outcome.err(printBundleToOutcome2.error());
+              }
             }
           } else {
             // For a multi-chunk compilation, generate a single manifest file with chunk headers.
-            printChunkGraphManifestOrBundleTo(compiler.getChunkGraph(), out, isManifest);
+            Outcome<Void> printChunkGraphManifestOrBundleToOutcome =
+                printChunkGraphManifestOrBundleTo(compiler.getChunkGraph(), out, isManifest);
+            if (printChunkGraphManifestOrBundleToOutcome.isErr()) {
+              return Outcome.err(printChunkGraphManifestOrBundleToOutcome.error());
+            }
           }
         }
       }
     }
+    return Outcome.ok();
   }
 
   /** Creates a file containing the current chunk graph in JSON serialization. */
@@ -2201,7 +2402,8 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
   /** Prints a set of chunks to the manifest or bundle file. */
   @VisibleForTesting
-  void printChunkGraphManifestOrBundleTo(JSChunkGraph graph, Appendable out, boolean isManifest)
+  Outcome<Void> printChunkGraphManifestOrBundleTo(
+      JSChunkGraph graph, Appendable out, boolean isManifest)
       throws IOException {
     Joiner commas = Joiner.on(",");
     boolean requiresNewline = false;
@@ -2224,10 +2426,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
                 "{%s%s}\n", chunk.getName(), dependencies.isEmpty() ? "" : ":" + dependencies));
         printManifestTo(chunk, out);
       } else {
-        printBundleTo(chunk, out);
+        Outcome<Void> printBundleToOutcome = printBundleTo(chunk, out);
+        if (printBundleToOutcome.isErr()) {
+          return Outcome.err(printBundleToOutcome.error());
+        }
       }
       requiresNewline = true;
     }
+    return Outcome.ok();
   }
 
   /**
@@ -2256,7 +2462,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
    * (using root-relative paths) before each file.
    */
   @VisibleForTesting
-  void printBundleTo(JSChunk chunk, Appendable out) throws IOException {
+  Outcome<Void> printBundleTo(JSChunk chunk, Appendable out) throws IOException {
     ImmutableList<CompilerInput> inputs = chunk.getInputs();
     CompilerOptions options = compiler.getOptions();
     // Prebuild ASTs before they're needed in getLoadFlags, for performance and because
@@ -2269,7 +2475,10 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       // ES6 modules to cut down on size.
       for (CompilerInput input : inputs) {
         if (input.isEs6Module()) {
-          appendRuntimeTo(out);
+          Outcome<Void> appendRuntimeToOutcome = appendRuntimeTo(out);
+          if (appendRuntimeToOutcome.isErr()) {
+            return Outcome.err(appendRuntimeToOutcome.error());
+          }
           break;
         }
       }
@@ -2293,10 +2502,14 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
       out.append(displayName);
       out.append("\n");
 
-      prepForBundleAndAppendTo(out, input, code);
+      Outcome<Void> prepForBundleAndAppendToOutcome = prepForBundleAndAppendTo(out, input, code);
+      if (prepForBundleAndAppendToOutcome.isErr()) {
+        return Outcome.err(prepForBundleAndAppendToOutcome.error());
+      }
 
       out.append("\n");
     }
+    return Outcome.ok();
   }
 
   /**
@@ -3212,12 +3425,12 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
      *     names must not contain the ':' character.
      * @param isFirstChunk Whether the spec is for the first chunk.
      */
-    public static JsChunkSpec create(String specString, boolean isFirstChunk) {
+    public static Outcome<JsChunkSpec> create(String specString, boolean isFirstChunk) {
       // Format is "<name>:<num-js-files>[:[<dep>,...][:]]".
       String[] parts = COLON_PATTERN.split(specString);
       if (parts.length < 2 || parts.length > 4) {
-        throw new FlagUsageException(
-            "Expected 2-4 colon-delimited parts in " + "chunk spec: " + specString);
+        return Outcome.err(new FlagUsageException(
+            "Expected 2-4 colon-delimited parts in " + "chunk spec: " + specString));
       }
 
       // Parse chunk name.
@@ -3240,21 +3453,21 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
         // and it must also be the first chunk
         if (parts.length == 2 && "auto".equals(parts[1])) {
           if (!isFirstChunk) {
-            throw new FlagUsageException(
+            return Outcome.err(new FlagUsageException(
                 "Invalid JS file count '"
                     + parts[1]
                     + "' for chunk: "
                     + name
                     + ". Only the first chunk may specify "
-                    + "a size of 'auto' and it must have no dependencies.");
+                    + "a size of 'auto' and it must have no dependencies."));
           }
         } else {
-          throw new FlagUsageException(
-              "Invalid JS file count '" + parts[1] + "' for chunk: " + name);
+          return Outcome.err(new FlagUsageException(
+              "Invalid JS file count '" + parts[1] + "' for chunk: " + name));
         }
       }
 
-      return new JsChunkSpec(name, numInputs, ImmutableList.copyOf(deps));
+      return Outcome.ok(new JsChunkSpec(name, numInputs, ImmutableList.copyOf(deps)));
     }
 
     public String getName() {
