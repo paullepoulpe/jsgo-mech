@@ -773,7 +773,7 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
                 // based UniqueIdSupplier, but that requires updating several unit tests that run
                 // normalize.
                 newName = Optional.of(getUniqueName(name, id));
-                while (nameUsage.contains(newName.orElse(null))) {
+                while (newName.isPresent() && nameUsage.contains(newName.get())) {
                   // if the newName also exists at another location, create another
                   id = incrementNameCount(newName);
                   newName = Optional.of(getUniqueName(name, id));

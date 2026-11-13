@@ -2630,7 +2630,7 @@ public final class ConformanceRules {
       ObjectType typeAsObj = type.toMaybeObjectType();
       if (typeAsObj.getRawType().getDisplayName().get().equals("goog.dom.TagName")) {
         JSType tagType = Iterables.getOnlyElement(typeAsObj.getTemplateTypes());
-        return ELEMENT_TAG_NAMES.get(tagType.getDisplayName().orElse(null));
+        return ELEMENT_TAG_NAMES.get(tagType.getDisplayName().get());
       }
       return null;
     }
