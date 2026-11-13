@@ -551,12 +551,13 @@ public final class CodePrinter {
       }
       String srcCode = codeRes.get();
 
-      int offset;
-      try {
-        offset = n.getSourceOffset();
-      } catch (IllegalArgumentException e) {
+      // getSourceOffset() throws IllegalArgumentException exactly when it calls
+      // src.getLineOffset(lineno) with a line number that src does not have.
+      int lineno = n.getLineno();
+      if (lineno != -1 && !src.isValidLineNumber(lineno)) {
         return null;
       }
+      int offset = n.getSourceOffset();
       int endOffset = offset + n.getLength();
       if (offset < 0 || endOffset > srcCode.length()) {
         return null;

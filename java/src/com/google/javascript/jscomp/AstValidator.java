@@ -979,12 +979,9 @@ public final class AstValidator implements CompilerPass {
   }
 
   private boolean validateNonNullString(Node n) {
-    try {
-      if (n.getString() == null) {
-        violation("Expected non-null string.", n);
-        return false;
-      }
-    } catch (RuntimeException e) {
+    // getString() throws for a node that is not a string node (and for null); it never returns
+    // null.
+    if (n == null || !n.hasStringPayload()) {
       violation("Expected non-null string.", n);
       return false;
     }

@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.rhino.IR;
@@ -222,17 +223,18 @@ final class ConvertChunksToESModules implements CompilerPass {
         Node importStatement = new Node(Token.IMPORT);
         JSChunk exportingChunk = importsByChunk.getKey();
         String importPath = getChunkName(exportingChunk);
-        try {
-          importPath =
-              ModuleLoader.relativePathFrom(
-                  getChunkName(importingChunk), getChunkName(exportingChunk));
-        } catch (IllegalArgumentException e) {
+        Outcome<String> relativeImportPath =
+            ModuleLoader.relativePathFrom(
+                getChunkName(importingChunk), getChunkName(exportingChunk));
+        if (relativeImportPath.isErr()) {
           compiler.report(
               JSError.make(
                   moduleBody,
                   UNABLE_TO_COMPUTE_RELATIVE_PATH,
                   getChunkName(importingChunk),
                   getChunkName(exportingChunk)));
+        } else {
+          importPath = relativeImportPath.get();
         }
         importStatement.addChildToFront(IR.string(importPath));
         if (importSpecs.hasChildren()) {

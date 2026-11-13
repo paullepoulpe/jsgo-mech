@@ -125,6 +125,15 @@ public final class SourceFile implements StaticSourceFile {
   }
 
   /**
+   * Whether {@link #getLineOffset} accepts the line number; it throws IllegalArgumentException
+   * for any other.
+   */
+  boolean isValidLineNumber(int lineno) {
+    findLineOffsets();
+    return lineno >= 1 && lineno <= lineOffsets.length;
+  }
+
+  /**
    * Returns the number of lines in the source file.
    *
    * <p>NOTE: this may be stale if the SourceFile has been {@link #clearCachedSource cleared} and

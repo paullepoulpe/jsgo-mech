@@ -1416,6 +1416,11 @@ public final class Node {
     this.payload = number;
   }
 
+  /** Whether this is a string node, i.e. whether {@link #getString} can be called on it. */
+  public final boolean hasStringPayload() {
+    return this.payload instanceof String;
+  }
+
   public final String getString() {
     if (!(this.payload instanceof String str)) {
       throw this.payloadKindMismatch("string");

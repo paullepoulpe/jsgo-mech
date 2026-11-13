@@ -30,6 +30,7 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleMultiset;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -323,29 +324,36 @@ public final class ModuleLoader {
     return path;
   }
 
-  public static String relativePathFrom(String fromUriPath, String toUriPath) {
-    Path fromPath = Path.of(fromUriPath);
-    Path toPath = Path.of(toUriPath);
-    Path fromFolder = fromPath.getParent();
+  public static Outcome<String> relativePathFrom(String fromUriPath, String toUriPath) {
+    try {
+      Path fromPath = Path.of(fromUriPath);
+      Path toPath = Path.of(toUriPath);
+      Path fromFolder = fromPath.getParent();
 
-    // if the from URIs are simple names without paths, they are in the same folder
-    // example: m0.js
-    if (fromFolder == null && toPath.getParent() == null) {
-      return "./" + toUriPath;
-    } else if (fromFolder == null
-        && (toUriPath.startsWith(".")
-            || toPath.toString().startsWith("/")
-            || toPath.toString().startsWith("\\"))) {
-      return toUriPath;
-    } else if (fromFolder == null) {
-      throw new IllegalArgumentException("Relative path between URIs cannot be calculated");
-    }
+      // if the from URIs are simple names without paths, they are in the same folder
+      // example: m0.js
+      if (fromFolder == null && toPath.getParent() == null) {
+        return Outcome.ok("./" + toUriPath);
+      } else if (fromFolder == null
+          && (toUriPath.startsWith(".")
+              || toPath.toString().startsWith("/")
+              || toPath.toString().startsWith("\\"))) {
+        return Outcome.ok(toUriPath);
+      } else if (fromFolder == null) {
+        return Outcome.err(
+            new IllegalArgumentException("Relative path between URIs cannot be calculated"));
+      }
 
-    String calculatedPath = fromFolder.relativize(toPath).toString();
-    if (calculatedPath.startsWith(".") || calculatedPath.startsWith("/")) {
-      return calculatedPath;
+      String calculatedPath = fromFolder.relativize(toPath).toString();
+      if (calculatedPath.startsWith(".") || calculatedPath.startsWith("/")) {
+        return Outcome.ok(calculatedPath);
+      }
+      return Outcome.ok("./" + calculatedPath);
+    } catch (IllegalArgumentException e) {
+      // The InvalidPathException of Path.of and the IllegalArgumentException of Path.relativize
+      // (JDK calls without a non-throwing equivalent).
+      return Outcome.err(e);
     }
-    return "./" + calculatedPath;
   }
 
   public void setErrorHandler(ErrorHandler errorHandler) {

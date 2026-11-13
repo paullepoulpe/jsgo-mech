@@ -27,6 +27,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.CompilerOptions.ChunkOutputType;
 import com.google.javascript.jscomp.ModuleRenaming.GlobalizedModuleName;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.modules.Module;
@@ -280,10 +281,9 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
     String retargetedSpecifier;
     String importingChunkFilename = getChunkFileName(t.getInput().getChunk());
     String targetChunkFilename = getChunkFileName(targetChunk);
-    try {
-      retargetedSpecifier =
-          ModuleLoader.relativePathFrom(importingChunkFilename, targetChunkFilename);
-    } catch (IllegalArgumentException e) {
+    Outcome<String> retargetedSpecifierOutcome =
+        ModuleLoader.relativePathFrom(importingChunkFilename, targetChunkFilename);
+    if (retargetedSpecifierOutcome.isErr()) {
       compiler.report(
           JSError.make(
               dynamicImport,
@@ -292,6 +292,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
               targetChunkFilename));
       return;
     }
+    retargetedSpecifier = retargetedSpecifierOutcome.get();
     final Node originalSpecifierNode = dynamicImport.getFirstChild();
     Node newSpecifier = astFactory.createString(retargetedSpecifier).srcref(originalSpecifierNode);
     originalSpecifierNode.replaceWith(newSpecifier);
