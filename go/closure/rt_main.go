@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"runtime/pprof"
 )
 
 // Main is the process entry point. While the port is being brought up it
@@ -22,6 +23,14 @@ func Main(args []string) (code int) {
 			code = 70
 		}
 	}()
+	if f := os.Getenv("JSGO_CPU_PROFILE"); f != "" {
+		out, err := os.Create(f)
+		if err == nil {
+			pprof.StartCPUProfile(out)
+			stop := flushStd_
+			flushStd_ = func() { pprof.StopCPUProfile(); out.Close(); stop() }
+		}
+	}
 	if len(args) == 1 && args[0] == "-init-order" {
 		// An instrumented build prints the order to use for static initialization.
 		for _, c := range initOrder_ {

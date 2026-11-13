@@ -116,6 +116,10 @@ func locate_(s string, i int32) (off int, low bool) {
 			k = len(c.every) - 1
 		}
 		if k >= 0 {
+			if k+1 < len(c.every) && c.every[k+1]-c.every[k] == indexStride_ {
+				// 64 units in 64 bytes: this stretch is plain ASCII.
+				return int(c.every[k]) + int(i-int32(k)*indexStride_), false
+			}
 			start, unit = int(c.every[k]), int32(k)*indexStride_-int32(c.adj[k])
 		}
 	}

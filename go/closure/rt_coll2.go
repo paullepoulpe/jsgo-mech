@@ -240,7 +240,8 @@ func (this *TreeSet) tailSet(from any, inclusive bool) NavigableSet {
 	return &TreeSet{cmp: this.cmp, items: append([]any(nil), this.items[i:]...)}
 }
 
-// ---- PriorityQueue: kept sorted, stable for equal priorities
+// ---- PriorityQueue: the JDK's binary heap, step for step, so that elements of equal priority
+// come out in the same order as in Java.
 
 type PriorityQueue struct {
 	ArrayList
@@ -257,13 +258,53 @@ func new_PriorityQueue_int_Comparator(n int32, c Comparator) *PriorityQueue {
 	return new_PriorityQueue(c)
 }
 
-func (this *PriorityQueue) add(v any) bool {
-	c := this.cmp
-	if c == nil {
-		c = naturalOrder_
+func (this *PriorityQueue) order() Comparator {
+	if this.cmp == nil {
+		return naturalOrder_
 	}
-	i := sort.Search(len(this.items), func(i int) bool { return c.compare(this.items[i], v) > 0 })
-	this.ArrayList.add_int_Object(int32(i), v)
+	return this.cmp
+}
+
+func (this *PriorityQueue) siftUp(k int, x any) {
+	c, es := this.order(), this.items
+	for k > 0 {
+		parent := (k - 1) >> 1
+		e := es[parent]
+		if c.compare(x, e) >= 0 {
+			break
+		}
+		es[k] = e
+		k = parent
+	}
+	es[k] = x
+}
+
+func (this *PriorityQueue) siftDown(k int, x any) {
+	c, es := this.order(), this.items
+	n := len(es)
+	half := n >> 1
+	for k < half {
+		child := 2*k + 1
+		v := es[child]
+		if right := child + 1; right < n && c.compare(v, es[right]) > 0 {
+			child = right
+			v = es[child]
+		}
+		if c.compare(x, v) <= 0 {
+			break
+		}
+		es[k] = v
+		k = child
+	}
+	es[k] = x
+}
+
+func (this *PriorityQueue) add(v any) bool {
+	if v == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	this.items = append(this.items, nil)
+	this.siftUp(len(this.items)-1, v)
 	return true
 }
 
@@ -284,17 +325,54 @@ func (this *PriorityQueue) peek() any {
 }
 
 func (this *PriorityQueue) poll() any {
-	if len(this.items) == 0 {
+	n := len(this.items)
+	if n == 0 {
 		return nil
 	}
-	return this.ArrayList.remove(0)
+	result := this.items[0]
+	x := this.items[n-1]
+	this.items[n-1] = nil
+	this.items = this.items[:n-1]
+	if n > 1 {
+		this.siftDown(0, x)
+	}
+	return result
 }
 
 func (this *PriorityQueue) remove_0() any {
 	if len(this.items) == 0 {
 		panic(new_NoSuchElementException_0().self())
 	}
-	return this.ArrayList.remove(0)
+	return this.poll()
+}
+
+func (this *PriorityQueue) remove(i int32) any {
+	old := this.items[i]
+	this.removeAt(int(i))
+	return old
+}
+
+func (this *PriorityQueue) removeAt(i int) {
+	s := len(this.items) - 1
+	moved := this.items[s]
+	this.items[s] = nil
+	this.items = this.items[:s]
+	if s == i {
+		return
+	}
+	this.siftDown(i, moved)
+	if this.items[i] == moved {
+		this.siftUp(i, moved)
+	}
+}
+
+func (this *PriorityQueue) remove_Object(v any) bool {
+	i := this.indexOf(v)
+	if i < 0 {
+		return false
+	}
+	this.removeAt(int(i))
+	return true
 }
 
 type LinkedBlockingQueue struct{ ArrayDeque }

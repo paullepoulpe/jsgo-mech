@@ -301,6 +301,12 @@ func (this *ArrayList) containsAll(c Collection) bool {
 
 func (this *ArrayList) remove(i int32) any {
 	old := this.get(i)
+	if i == 0 {
+		// Front removal is what queues do all the time: step over the slot instead of shifting.
+		this.items[0] = nil
+		this.items = this.items[1:]
+		return old
+	}
 	copy(this.items[i:], this.items[i+1:])
 	this.items[len(this.items)-1] = nil
 	this.items = this.items[:len(this.items)-1]
