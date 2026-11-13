@@ -160,6 +160,29 @@ func (this *ImmutableMap) get(k any) any {
 	return nil
 }
 
+func (this *ImmutableMap) get_s(k string) any {
+	if len(this.keys) == 0 {
+		return nil
+	}
+	if this.kind == imSorted_ {
+		return this.get(k)
+	}
+	if i := this.index_().findStr(k); i >= 0 {
+		return this.vals[i]
+	}
+	return nil
+}
+
+func (this *ImmutableMap) containsKey_s(k string) bool {
+	if len(this.keys) == 0 {
+		return false
+	}
+	if this.kind == imSorted_ {
+		return this.find_(k) >= 0
+	}
+	return this.index_().findStr(k) >= 0
+}
+
 func (this *ImmutableMap) containsKey(k any) bool { return this.find_(k) >= 0 }
 
 func (this *ImmutableMap) containsValue(v any) bool {

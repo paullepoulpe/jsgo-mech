@@ -889,6 +889,19 @@ abstract class ExprEmitter extends Base {
     Ctx.K ok = cx.kind(owner.asType());
     ExecutableElement re = cx.root(e);
     TypeElement ro = cx.ownerOf(re);
+    if (!src && !superCall) {
+      String sk = stringKeyHelper(re, recv, args);
+      if (sk != null) {
+        // Performance rule: a String key or element reaches the collection unboxed (rt_coll.go,
+        // "String keys without a box").
+        Ctx.K rk = cx.kind(recv.type);
+        StringBuilder sb = new StringBuilder(sk).append("(")
+            .append(rk == Ctx.K.CLS || rk == Ctx.K.IFACE ? recv.code : cx.coerce(recv.code, recv.type, ro.asType()))
+            .append(", ").append(args.get(0).as(stringType()));
+        for (int i = 1; i < args.size(); i++) sb.append(", ").append(args.get(i).as(cx.erase(re.getParameters().get(i).asType())));
+        return new CallResult(sb.append(")").toString(), cx.erase(re.getReturnType()));
+      }
+    }
     if (!src && ok != Ctx.K.STR && re != e && !superCall
         && (cx.kind(ro.asType()) == Ctx.K.ANY && ro.getQualifiedName().contentEquals("java.lang.Object")
             || !cx.isSource(ro) && ro.getKind().isInterface() && re.isDefault())) {
@@ -941,6 +954,36 @@ abstract class ExprEmitter extends Base {
       target = rc + "." + name;
     }
     return new CallResult(target + "(" + argList(e, params, args) + ")", ret);
+  }
+
+  /**
+   * The runtime function to call instead of root method {@code re} of java.util.Map or
+   * java.util.Collection when its key/element argument is statically a String, or null.
+   */
+  String stringKeyHelper(ExecutableElement re, Recv recv, List<Arg> args) {
+    if (args.isEmpty() || args.size() != re.getParameters().size() || cx.kind(args.get(0).type) != Ctx.K.STR) return null;
+    TypeMirror p0 = cx.erase(re.getParameters().get(0).asType());
+    if (cx.kind(p0) != Ctx.K.ANY || p0.getKind() != TypeKind.DECLARED) return null;
+    String owner = cx.ownerOf(re).getQualifiedName().toString(), name = re.getSimpleName().toString();
+    if (owner.equals("java.util.Map")) {
+      switch (name) {
+        case "get", "containsKey", "remove": return args.size() == 1 ? "Map_" + name + "_s" : null;
+        case "put", "getOrDefault", "putIfAbsent", "computeIfAbsent": return "Map_" + name + "_s";
+        default: return null;
+      }
+    }
+    if (owner.equals("java.util.Collection")) {
+      switch (name) {
+        case "contains", "remove": return "Collection_" + name + "_s";  // remove(int) is not a root of Collection's
+        case "add": {
+          // A list stores the box in any case; only a set can find that it has the element already.
+          TypeMirror set = cx.elems.getTypeElement("java.util.Set").asType();
+          return cx.types.isSubtype(cx.erase(recv.type), cx.erase(set)) ? "Collection_add_s" : null;
+        }
+        default: return null;
+      }
+    }
+    return null;
   }
 
   CallResult invocation(MethodInvocationTree t) {

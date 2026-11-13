@@ -274,6 +274,15 @@ func (this *ArrayList) lastIndexOf(v any) int32 {
 
 func (this *ArrayList) contains(v any) bool { return this.indexOf(v) >= 0 }
 
+func (this *ArrayList) contains_s(v string) bool {
+	for _, x := range this.items {
+		if s, ok := x.(string); ok && s == v {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *ArrayList) containsAll(c Collection) bool {
 	for it := c.iterator(); it.hasNext(); {
 		if !this.contains(it.next()) {
@@ -579,6 +588,14 @@ func (t *htable_) find(k any) int {
 	return -1
 }
 
+// findStr is find for a string key that is not yet boxed.
+func (t *htable_) findStr(s string) int {
+	if i, ok := t.strs[s]; ok {
+		return int(i)
+	}
+	return -1
+}
+
 func (t *htable_) put(k, v any) (old any, existed bool) {
 	if i := t.find(k); i >= 0 {
 		e := t.entries[i]
@@ -586,11 +603,28 @@ func (t *htable_) put(k, v any) (old any, existed bool) {
 		e.val = v
 		return old, true
 	}
+	t.insert(k, v)
+	return nil, false
+}
+
+// putStr is put for a string key; the key is boxed only when it is new.
+func (t *htable_) putStr(s string, v any) (old any, existed bool) {
+	if i := t.findStr(s); i >= 0 {
+		e := t.entries[i]
+		old = e.val
+		e.val = v
+		return old, true
+	}
+	t.insert(s, v)
+	return nil, false
+}
+
+// insert appends an entry for a key that find did not find.
+func (t *htable_) insert(k, v any) {
 	i := int32(len(t.entries))
 	t.entries = append(t.entries, &hentry_{key: k, val: v})
 	t.live++
 	t.index(k, i)
-	return nil, false
 }
 
 func (t *htable_) removeAt(i int) {
@@ -665,6 +699,16 @@ func (t *htable_) index(k any, i int32) {
 
 func (t *htable_) remove(k any) (old any, existed bool) {
 	i := t.find(k)
+	if i < 0 {
+		return nil, false
+	}
+	old = t.entries[i].val
+	t.removeAt(i)
+	return old, true
+}
+
+func (t *htable_) removeStr(s string) (old any, existed bool) {
+	i := t.findStr(s)
 	if i < 0 {
 		return nil, false
 	}
@@ -794,6 +838,13 @@ func (this *LinkedHashMap) putAll(m Map) {
 func (this *LinkedHashMap) remove(k any) any {
 	old, _ := this.t.remove(k)
 	return old
+}
+
+func (this *LinkedHashMap) get_s(k string) any {
+	if i := this.t.findStr(k); i >= 0 {
+		return this.t.entries[i].val
+	}
+	return nil
 }
 
 func (this *LinkedHashMap) keySet() Set        { return &mapKeys_{t: &this.t} }
@@ -1160,6 +1211,146 @@ func Collections_unmodifiableCollection(c Collection) Collection { return c }
 func Collections_unmodifiableList(l List) List                   { return l }
 func Collections_unmodifiableMap(m Map) Map                      { return m }
 func Collections_unmodifiableSet(s Set) Set                      { return s }
+
+// ---- String keys without a box
+//
+// The translator calls these instead of the method when the key or element argument is a Java
+// String (m.get(s) becomes Map_get_s(m, s)), so that a lookup does not first allocate an `any`
+// for the string. The fast path is taken only when the receiver is exactly one of the runtime's
+// own collections; for anything else (a translated class that implements Map or extends
+// ArrayList, say, whose own methods must run) the key is boxed as before. The receiver arrives
+// as `any` because converting to it is free for every static type the translator has in hand.
+// A null String is the key nil, as with strobj_.
+
+// hashMapOf_ is m as the runtime's hash map, or nil.
+func hashMapOf_(m any) *LinkedHashMap {
+	switch x := m.(type) {
+	case *LinkedHashMap:
+		return x
+	case *ConcurrentHashMap:
+		return &x.LinkedHashMap
+	case *IdentityHashMap:
+		return &x.LinkedHashMap
+	}
+	return nil
+}
+
+// hashSetOf_ is the table of c if c is the runtime's hash set or a key view of its hash map, or nil.
+func hashSetOf_(c any) *htable_ {
+	switch x := c.(type) {
+	case *LinkedHashSet:
+		if x != nil {
+			return &x.table
+		}
+	case *mapKeys_:
+		if x != nil {
+			return x.t
+		}
+	}
+	return nil
+}
+
+func Map_get_s(m any, k string) any {
+	if k != nullstr_ {
+		if h := hashMapOf_(m); h != nil {
+			return h.get_s(k)
+		}
+		if im, ok := m.(*ImmutableMap); ok && im != nil {
+			return im.get_s(k)
+		}
+	}
+	return m.(Map).get(strobj_(k))
+}
+
+func Map_containsKey_s(m any, k string) bool {
+	if k != nullstr_ {
+		if h := hashMapOf_(m); h != nil {
+			return h.t.findStr(k) >= 0
+		}
+		if im, ok := m.(*ImmutableMap); ok && im != nil {
+			return im.containsKey_s(k)
+		}
+	}
+	return m.(Map).containsKey(strobj_(k))
+}
+
+func Map_put_s(m any, k string, v any) any {
+	if h := hashMapOf_(m); h != nil && k != nullstr_ {
+		old, _ := h.t.putStr(k, v)
+		return old
+	}
+	return m.(Map).put(strobj_(k), v)
+}
+
+func Map_remove_s(m any, k string) any {
+	if h := hashMapOf_(m); h != nil && k != nullstr_ {
+		old, _ := h.t.removeStr(k)
+		return old
+	}
+	return m.(Map).remove(strobj_(k))
+}
+
+func Map_getOrDefault_s(m any, k string, def any) any {
+	if v := Map_get_s(m, k); v != nil || Map_containsKey_s(m, k) {
+		return v
+	}
+	return def
+}
+
+func Map_putIfAbsent_s(m any, k string, v any) any {
+	if old := Map_get_s(m, k); old != nil {
+		return old
+	}
+	Map_put_s(m, k, v)
+	return nil
+}
+
+func Map_computeIfAbsent_s(m any, k string, f Function) any {
+	if old := Map_get_s(m, k); old != nil {
+		return old
+	}
+	v := f.apply(strobj_(k))
+	if v != nil {
+		Map_put_s(m, k, v)
+	}
+	return v
+}
+
+func Collection_contains_s(c any, k string) bool {
+	if k != nullstr_ {
+		if t := hashSetOf_(c); t != nil {
+			return t.findStr(k) >= 0
+		}
+		switch x := c.(type) {
+		case *ImmutableCollection:
+			if x != nil {
+				return x.contains_s(k)
+			}
+		case *ArrayList:
+			if x != nil {
+				return x.contains_s(k)
+			}
+		}
+	}
+	return c.(Collection).contains(strobj_(k))
+}
+
+// Collection_add_s is called for sets only (a list stores the box in any case).
+func Collection_add_s(c any, k string) bool {
+	if x, ok := c.(*LinkedHashSet); ok && x != nil && k != nullstr_ {
+		_, existed := x.table.putStr(k, nil)
+		return !existed
+	}
+	return c.(Collection).add(strobj_(k))
+}
+
+func Collection_remove_s(c any, k string) bool {
+	if t := hashSetOf_(c); t != nil && k != nullstr_ {
+		_, existed := t.removeStr(k)
+		return existed
+	}
+	return c.(Collection).remove_Object(strobj_(k))
+}
 
 // ---- Map defaults
 

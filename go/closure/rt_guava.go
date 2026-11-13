@@ -252,6 +252,24 @@ func (this *ImmutableCollection) size() int32 {
 func (this *ImmutableCollection) isEmpty() bool       { return len(this.items) == 0 }
 func (this *ImmutableCollection) contains(v any) bool { return this.find_(v) >= 0 }
 
+func (this *ImmutableCollection) contains_s(v string) bool {
+	if this.kind == icList_ {
+		for _, x := range this.items {
+			if s, ok := x.(string); ok && s == v {
+				return true
+			}
+		}
+		return false
+	}
+	if this.kind == icSorted_ || len(this.items) == 0 {
+		return this.find_(v) >= 0
+	}
+	if this.idx == nil {
+		this.find_(v) // builds the index
+	}
+	return this.idx.findStr(v) >= 0
+}
+
 func (this *ImmutableCollection) containsAll(c Collection) bool {
 	for it := c.iterator(); it.hasNext(); {
 		if this.find_(it.next()) < 0 {
