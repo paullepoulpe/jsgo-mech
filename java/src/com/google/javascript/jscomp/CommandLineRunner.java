@@ -128,13 +128,10 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
   // I don't really care about unchecked warnings in this class.
   @SuppressWarnings("unchecked")
   private static class Flags {
-    // Some clients run a few copies of the compiler through CommandLineRunner
-    // on parallel threads (thankfully, with the same flags),
-    // so the access to these lists should be synchronized.
-    private static final List<FlagEntry<CheckLevel>> guardLevels =
-        Collections.synchronizedList(new ArrayList<FlagEntry<CheckLevel>>());
-    private static final List<FlagEntry<JsSourceType>> mixedJsSources =
-        Collections.synchronizedList(new ArrayList<FlagEntry<JsSourceType>>());
+    // These lists belong to one runner: some clients run a few copies of the compiler through
+    // CommandLineRunner on parallel threads.
+    private final List<FlagEntry<CheckLevel>> guardLevels = new ArrayList<>();
+    private final List<FlagEntry<JsSourceType>> mixedJsSources = new ArrayList<>();
 
     private Integer browserFeaturesetYear = 0;
 
@@ -1311,7 +1308,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
         throws CmdLineException, IOException {
       List<FlagEntry<JsSourceType>> mixedSources = new ArrayList<>();
       Set<String> excludes = new LinkedHashSet<>();
-      for (FlagEntry<JsSourceType> source : Flags.mixedJsSources) {
+      for (FlagEntry<JsSourceType> source : mixedJsSources) {
         if (source.getValue().endsWith(".zip")) {
           mixedSources.add(source);
         } else if (source.getValue().startsWith("!")) {
@@ -1331,7 +1328,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
       for (String filename : fromArguments) {
         mixedSources.add(new FlagEntry<>(JsSourceType.JS, filename));
       }
-      if (!Flags.mixedJsSources.isEmpty() && !arguments.isEmpty() && mixedSources.isEmpty()) {
+      if (!mixedJsSources.isEmpty() && !arguments.isEmpty() && mixedSources.isEmpty()) {
         throw new CmdLineException(parser, "No inputs matched");
       }
       return mixedSources;
@@ -1555,13 +1552,13 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     // Command-line warning levels should override flag file settings,
     // which means they should go last.
-    List<FlagEntry<CheckLevel>> previousGuardLevels = new ArrayList<>(Flags.guardLevels);
-    List<FlagEntry<JsSourceType>> previousMixedJsSources = new ArrayList<>(Flags.mixedJsSources);
-    Flags.guardLevels.clear();
-    Flags.mixedJsSources.clear();
+    List<FlagEntry<CheckLevel>> previousGuardLevels = new ArrayList<>(flags.guardLevels);
+    List<FlagEntry<JsSourceType>> previousMixedJsSources = new ArrayList<>(flags.mixedJsSources);
+    flags.guardLevels.clear();
+    flags.mixedJsSources.clear();
     flags.parse(tokens);
-    Flags.guardLevels.addAll(previousGuardLevels);
-    Flags.mixedJsSources.addAll(previousMixedJsSources);
+    flags.guardLevels.addAll(previousGuardLevels);
+    flags.mixedJsSources.addAll(previousMixedJsSources);
 
     // Currently we are not supporting this (prevent direct/indirect loops)
     if (!flags.flagFiles.isEmpty()) {
@@ -1584,8 +1581,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     errorStream = err;
     List<String> processedArgs = processArgs(args);
 
-    Flags.guardLevels.clear();
-    Flags.mixedJsSources.clear();
+    flags.guardLevels.clear();
+    flags.mixedJsSources.clear();
 
     List<FlagEntry<JsSourceType>> mixedSources = null;
     List<LocationMapping> mappings = null;
@@ -1719,7 +1716,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           .setSourceMapInputFiles(sourceMapInputs)
           .setParseInlineSourceMaps(parseInlineSourceMaps)
           .setApplyInputSourceMaps(applyInputSourceMaps)
-          .setWarningGuards(Flags.guardLevels)
+          .setWarningGuards(flags.guardLevels)
           .setDefine(flags.define)
           .setBrowserFeaturesetYear(flags.browserFeaturesetYear)
           .setCharset(flags.charset)
