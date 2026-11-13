@@ -144,6 +144,10 @@ func Object_hashCode(v any) int32 {
 // Object_clone is Object.clone(): a shallow copy of the object, whose self_
 // (the pointer to the most-derived object) is redirected to the copy.
 func Object_clone(v any) any {
+	if c, ok := v.(interface{ clone() any }); ok {
+		// A runtime class with its own notion of a copy (BitSet, collections).
+		return c.clone()
+	}
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Pointer || rv.Elem().Kind() != reflect.Struct {
 		panic(new_CloneNotSupportedException_String(goTypeName_(v)).self())
