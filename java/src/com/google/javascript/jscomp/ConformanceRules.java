@@ -35,6 +35,7 @@ import com.google.javascript.jscomp.CodingConvention.AssertionFunctionLookup;
 import com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior;
 import com.google.javascript.jscomp.Requirement.Severity;
 import com.google.javascript.jscomp.base.LinkedIdentityHashSet;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.parsing.JsDocInfoParser;
@@ -74,8 +75,9 @@ public final class ConformanceRules {
 
   private static AllowList createTsAllowlist() {
     try {
-      return new AllowList(
-          ImmutableList.of(), ImmutableList.of(".*\\.closure\\.js", ".*\\.tsx\\.cl\\.js"));
+      return AllowList.create(
+              ImmutableList.of(), ImmutableList.of(".*\\.closure\\.js", ".*\\.tsx\\.cl\\.js"))
+          .get();
     } catch (Throwable t) {
       throw new AssertionError(t);
     }
@@ -129,10 +131,9 @@ public final class ConformanceRules {
     VIOLATION,
   }
 
-  private static @Nullable Pattern buildPattern(List<String> reqPatterns)
-      throws InvalidRequirementSpec {
+  private static Outcome<@Nullable Pattern> buildPattern(List<String> reqPatterns) {
     if (reqPatterns == null || reqPatterns.isEmpty()) {
-      return null;
+      return Outcome.ok(null);
     }
 
     // validate the patterns
@@ -140,7 +141,7 @@ public final class ConformanceRules {
       try {
         Pattern.compile(reqPattern);
       } catch (PatternSyntaxException e) {
-        throw new InvalidRequirementSpec("invalid regex pattern", e);
+        return Outcome.err(new InvalidRequirementSpec("invalid regex pattern", e));
       }
     }
 
@@ -151,7 +152,7 @@ public final class ConformanceRules {
     } catch (PatternSyntaxException e) {
       throw new RuntimeException("bad joined regexp", e);
     }
-    return pattern;
+    return Outcome.ok(pattern);
   }
 
   private static class AllowList {
@@ -159,15 +160,30 @@ public final class ConformanceRules {
     final @Nullable Pattern regexp;
     final @Nullable RequirementScopeEntry allowlistEntry;
 
-    AllowList(List<String> prefixes, List<String> regexps) throws InvalidRequirementSpec {
-      this.prefixes = ImmutableList.<String>copyOf(prefixes);
-      this.regexp = buildPattern(regexps);
-      this.allowlistEntry = null;
+    static Outcome<AllowList> create(List<String> prefixes, List<String> regexps) {
+      ImmutableList<String> prefixesCopy = ImmutableList.<String>copyOf(prefixes);
+      Outcome<@Nullable Pattern> regexp = buildPattern(regexps);
+      if (regexp.isErr()) {
+        return Outcome.err(regexp.error());
+      }
+      return Outcome.ok(new AllowList(prefixesCopy, regexp.get(), null));
     }
 
-    AllowList(RequirementScopeEntry allowlistEntry) throws InvalidRequirementSpec {
-      this.prefixes = ImmutableList.copyOf(allowlistEntry.getPrefixList());
-      this.regexp = buildPattern(allowlistEntry.getRegexpList());
+    static Outcome<AllowList> createFromEntry(RequirementScopeEntry allowlistEntry) {
+      ImmutableList<String> prefixesCopy = ImmutableList.copyOf(allowlistEntry.getPrefixList());
+      Outcome<@Nullable Pattern> regexp = buildPattern(allowlistEntry.getRegexpList());
+      if (regexp.isErr()) {
+        return Outcome.err(regexp.error());
+      }
+      return Outcome.ok(new AllowList(prefixesCopy, regexp.get(), allowlistEntry));
+    }
+
+    private AllowList(
+        @Nullable ImmutableList<String> prefixes,
+        @Nullable Pattern regexp,
+        @Nullable RequirementScopeEntry allowlistEntry) {
+      this.prefixes = prefixes;
+      this.regexp = regexp;
       this.allowlistEntry = allowlistEntry;
     }
 
@@ -203,19 +219,18 @@ public final class ConformanceRules {
    * and reporting.
    */
   public abstract static class AbstractRule implements Rule {
-    final AbstractCompiler compiler;
-    final String message;
-    final Severity severity;
-    final ImmutableList<AllowList> allowlists;
-    final @Nullable AllowList onlyApplyTo;
-    final boolean reportLooseTypeViolations;
-    final TypeMatchingStrategy typeMatchingStrategy;
-    final Requirement requirement;
+    AbstractCompiler compiler;
+    String message;
+    Severity severity;
+    ImmutableList<AllowList> allowlists;
+    @Nullable AllowList onlyApplyTo;
+    boolean reportLooseTypeViolations;
+    TypeMatchingStrategy typeMatchingStrategy;
+    Requirement requirement;
 
-    public AbstractRule(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
+    public Outcome<Void> initAbstractRule(AbstractCompiler compiler, Requirement requirement) {
       if (!requirement.hasErrorMessage()) {
-        throw new InvalidRequirementSpec("missing message");
+        return Outcome.err(new InvalidRequirementSpec("missing message"));
       }
       this.compiler = compiler;
       String message = requirement.getErrorMessage();
@@ -233,10 +248,18 @@ public final class ConformanceRules {
       // build allowlists
       ImmutableList.Builder<AllowList> allowlistsBuilder = new ImmutableList.Builder<>();
       for (RequirementScopeEntry entry : requirement.getWhitelistEntryList()) {
-        allowlistsBuilder.add(new AllowList(entry));
+        Outcome<AllowList> allowlist = AllowList.createFromEntry(entry);
+        if (allowlist.isErr()) {
+          return Outcome.err(allowlist.error());
+        }
+        allowlistsBuilder.add(allowlist.get());
       }
       for (RequirementScopeEntry entry : requirement.getAllowlistEntryList()) {
-        allowlistsBuilder.add(new AllowList(entry));
+        Outcome<AllowList> allowlist = AllowList.createFromEntry(entry);
+        if (allowlist.isErr()) {
+          return Outcome.err(allowlist.error());
+        }
+        allowlistsBuilder.add(allowlist.get());
       }
 
       if (this.tsIsAllowlisted()) {
@@ -244,26 +267,38 @@ public final class ConformanceRules {
       }
 
       if (requirement.getWhitelistCount() > 0 || requirement.getWhitelistRegexpCount() > 0) {
-        AllowList allowlist =
-            new AllowList(requirement.getWhitelistList(), requirement.getWhitelistRegexpList());
-        allowlistsBuilder.add(allowlist);
+        Outcome<AllowList> allowlist =
+            AllowList.create(requirement.getWhitelistList(), requirement.getWhitelistRegexpList());
+        if (allowlist.isErr()) {
+          return Outcome.err(allowlist.error());
+        }
+        allowlistsBuilder.add(allowlist.get());
       }
       if (requirement.getAllowlistCount() > 0 || requirement.getAllowlistRegexpCount() > 0) {
-        AllowList allowlist =
-            new AllowList(requirement.getAllowlistList(), requirement.getAllowlistRegexpList());
-        allowlistsBuilder.add(allowlist);
+        Outcome<AllowList> allowlist =
+            AllowList.create(requirement.getAllowlistList(), requirement.getAllowlistRegexpList());
+        if (allowlist.isErr()) {
+          return Outcome.err(allowlist.error());
+        }
+        allowlistsBuilder.add(allowlist.get());
       }
       allowlists = allowlistsBuilder.build();
 
       if (requirement.getOnlyApplyToCount() > 0 || requirement.getOnlyApplyToRegexpCount() > 0) {
-        onlyApplyTo =
-            new AllowList(requirement.getOnlyApplyToList(), requirement.getOnlyApplyToRegexpList());
+        Outcome<AllowList> onlyApplyToOutcome =
+            AllowList.create(
+                requirement.getOnlyApplyToList(), requirement.getOnlyApplyToRegexpList());
+        if (onlyApplyToOutcome.isErr()) {
+          return Outcome.err(onlyApplyToOutcome.error());
+        }
+        onlyApplyTo = onlyApplyToOutcome.get();
       } else {
         onlyApplyTo = null;
       }
       reportLooseTypeViolations = requirement.getReportLooseTypeViolations();
       typeMatchingStrategy = getTypeMatchingStrategy(requirement);
       this.requirement = requirement;
+      return Outcome.ok();
     }
 
     protected boolean tsIsAllowlisted() {
@@ -371,8 +406,21 @@ public final class ConformanceRules {
    * effectively removed without breaking downstream builds.
    */
   static final class NoOp extends AbstractRule {
-    NoOp(AbstractCompiler compiler, Requirement requirement) throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      NoOp rule = new NoOp();
+      Outcome<Void> inited = rule.initNoOp(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initNoOp(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -382,19 +430,23 @@ public final class ConformanceRules {
   }
 
   abstract static class AbstractTypeRestrictionRule extends AbstractRule {
-    private final JSType nativeObjectType;
-    private final JSType allowlistedTypes;
-    private final AssertionFunctionLookup assertionFunctions;
+    private JSType nativeObjectType;
+    private JSType allowlistedTypes;
+    private AssertionFunctionLookup assertionFunctions;
 
-    public AbstractTypeRestrictionRule(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    public Outcome<Void> initAbstractTypeRestrictionRule(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       nativeObjectType = compiler.getTypeRegistry().getNativeType(JSTypeNative.OBJECT_TYPE);
       List<String> allowlistedTypeNames = requirement.getValueList();
       allowlistedTypes = union(allowlistedTypeNames);
 
       assertionFunctions =
           AssertionFunctionLookup.of(compiler.getCodingConvention().getAssertionFunctions());
+      return Outcome.ok();
     }
 
     protected boolean isAllowlistedType(Node n) {
@@ -504,9 +556,22 @@ public final class ConformanceRules {
    * explicitly.
    */
   static class InferredConstCheck extends AbstractRule {
-    public InferredConstCheck(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      InferredConstCheck rule = new InferredConstCheck();
+      Outcome<Void> inited = rule.initInferredConstCheck(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initInferredConstCheck(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -527,15 +592,27 @@ public final class ConformanceRules {
 
   /** Banned dependency rule */
   static class BannedDependency extends AbstractRule {
-    private final List<String> paths;
+    private List<String> paths;
 
-    BannedDependency(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedDependency rule = new BannedDependency();
+      Outcome<Void> inited = rule.initBannedDependency(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initBannedDependency(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       paths = requirement.getValueList();
       if (paths.isEmpty()) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
+      return Outcome.ok();
     }
 
     @Override
@@ -555,16 +632,33 @@ public final class ConformanceRules {
 
   /** Banned dependency via regex rule */
   static class BannedDependencyRegex extends AbstractRule {
-    private final @Nullable Pattern pathRegexp;
+    private @Nullable Pattern pathRegexp;
 
-    BannedDependencyRegex(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedDependencyRegex rule = new BannedDependencyRegex();
+      Outcome<Void> inited = rule.initBannedDependencyRegex(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initBannedDependencyRegex(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       List<String> pathRegexpList = requirement.getValueList();
       if (pathRegexpList.isEmpty()) {
-        throw new InvalidRequirementSpec("missing value (no banned dependency regexps)");
+        return Outcome.err(
+            new InvalidRequirementSpec("missing value (no banned dependency regexps)"));
       }
-      pathRegexp = buildPattern(pathRegexpList);
+      Outcome<@Nullable Pattern> pathRegexpOutcome = buildPattern(pathRegexpList);
+      if (pathRegexpOutcome.isErr()) {
+        return Outcome.err(pathRegexpOutcome.error());
+      }
+      pathRegexp = pathRegexpOutcome.get();
+      return Outcome.ok();
     }
 
     @Override
@@ -582,14 +676,26 @@ public final class ConformanceRules {
   /** Banned name rule */
   static final class BannedName extends AbstractRule {
     // LINT.ThenChange(//depot/google3/javascript/typescript/compiler/conformance/rules/ban_third_party_script.ts)
-    private final Requirement.Type requirementType;
-    private final ImmutableList<Node> qualifiedNames;
-    private final ImmutableSet<String> shortNames;
+    private Requirement.Type requirementType;
+    private ImmutableList<Node> qualifiedNames;
+    private ImmutableSet<String> shortNames;
 
-    BannedName(AbstractCompiler compiler, Requirement requirement) throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedName rule = new BannedName();
+      Outcome<Void> inited = rule.initBannedName(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initBannedName(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
       this.requirementType = requirement.getType();
 
@@ -602,6 +708,7 @@ public final class ConformanceRules {
       }
       this.qualifiedNames = qualifiedBuilder.build();
       this.shortNames = shortBuilder.build();
+      return Outcome.ok();
     }
 
     private static final Precondition IS_CANDIDATE_NODE =
@@ -708,16 +815,27 @@ public final class ConformanceRules {
       },
     }
 
-    private final JSTypeRegistry registry;
-    private final SimpleSetMultimap<String, JSType> props;
-    private final RequirementPrecondition requirementPrecondition;
+    private JSTypeRegistry registry;
+    private SimpleSetMultimap<String, JSType> props;
+    private RequirementPrecondition requirementPrecondition;
 
-    BannedProperty(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedProperty rule = new BannedProperty();
+      Outcome<Void> inited = rule.initBannedProperty(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initBannedProperty(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
 
       this.requirementPrecondition =
@@ -738,7 +856,7 @@ public final class ConformanceRules {
         String typename = ConformanceUtil.getClassFromDeclarationName(value);
         String property = ConformanceUtil.getPropertyFromDeclarationName(value);
         if (typename == null || property == null) {
-          throw new InvalidRequirementSpec("bad prop value");
+          return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
 
         JSType type = registry.getGlobalType(typename);
@@ -755,6 +873,7 @@ public final class ConformanceRules {
         builder.put(property, type);
       }
       this.props = builder.immutableCopy();
+      return Outcome.ok();
     }
 
     @Override
@@ -869,30 +988,47 @@ public final class ConformanceRules {
 
   /** Banned string rule */
   static final class BannedStringRegex extends AbstractRule {
-    private final Pattern stringPattern;
+    private Pattern stringPattern;
 
-    public BannedStringRegex(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedStringRegex rule = new BannedStringRegex();
+      Outcome<Void> inited = rule.initBannedStringRegex(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBannedStringRegex(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
 
       ImmutableList.Builder<String> builder = ImmutableList.builder();
       for (String value : requirement.getValueList()) {
         if (value.trim().isEmpty()) {
-          throw new InvalidRequirementSpec("empty strings or whitespace are not allowed");
+          return Outcome.err(
+              new InvalidRequirementSpec("empty strings or whitespace are not allowed"));
         }
         builder.add(value);
       }
 
       ImmutableList<String> values = builder.build();
       if (values.isEmpty()) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
-      Pattern stringRegex = buildPattern(values);
+      Outcome<@Nullable Pattern> stringRegexOutcome = buildPattern(values);
+      if (stringRegexOutcome.isErr()) {
+        return Outcome.err(stringRegexOutcome.error());
+      }
+      Pattern stringRegex = stringRegexOutcome.get();
       this.stringPattern = stringRegex;
+      return Outcome.ok();
     }
 
     @Override
@@ -942,14 +1078,14 @@ public final class ConformanceRules {
       return type.isUnknownType() || type.isNoResolvedType() || type.isAllType();
     }
 
-    static JSType evaluateTypeString(AbstractCompiler compiler, String expression)
-        throws InvalidRequirementSpec {
+    static Outcome<JSType> evaluateTypeString(AbstractCompiler compiler, String expression) {
       Node typeNodes = JsDocInfoParser.parseTypeString(expression);
       if (typeNodes == null) {
-        throw new InvalidRequirementSpec("bad type expression");
+        return Outcome.err(new InvalidRequirementSpec("bad type expression"));
       }
       JSTypeExpression typeExpr = new JSTypeExpression(typeNodes, "conformance");
-      return compiler.getTypeRegistry().evaluateTypeExpressionInGlobalScope(typeExpr);
+      return Outcome.ok(
+          compiler.getTypeRegistry().evaluateTypeExpressionInGlobalScope(typeExpr));
     }
 
     /**
@@ -1029,12 +1165,12 @@ public final class ConformanceRules {
       return null;
     }
 
-    private static String removeTypeDecl(String specName) throws InvalidRequirementSpec {
+    private static Outcome<String> removeTypeDecl(String specName) {
       int index = specName.indexOf(':');
       if (index < 1) {
-        throw new InvalidRequirementSpec("value should be in the form NAME:TYPE");
+        return Outcome.err(new InvalidRequirementSpec("value should be in the form NAME:TYPE"));
       }
-      return specName.substring(0, index);
+      return Outcome.ok(specName.substring(0, index));
     }
 
     private static @Nullable String getTypeFromValue(String specName) {
@@ -1153,13 +1289,24 @@ public final class ConformanceRules {
       }
     }
 
-    private final ImmutableList<Restriction> restrictions;
+    private ImmutableList<Restriction> restrictions;
 
-    RestrictedNameCall(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      RestrictedNameCall rule = new RestrictedNameCall();
+      Outcome<Void> inited = rule.initRestrictedNameCall(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initRestrictedNameCall(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
 
       ImmutableList.Builder<Restriction> builder = ImmutableList.builder();
@@ -1167,17 +1314,22 @@ public final class ConformanceRules {
         Node name = NodeUtil.newQName(compiler, getNameFromValue(value));
         String restrictedDecl = ConformanceUtil.getTypeFromValue(value);
         if (name == null || restrictedDecl == null) {
-          throw new InvalidRequirementSpec("bad prop value");
+          return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
 
-        FunctionType restrictedCallType =
-            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl).toMaybeFunctionType();
+        Outcome<JSType> restrictedCallTypeOutcome =
+            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl);
+        if (restrictedCallTypeOutcome.isErr()) {
+          return Outcome.err(restrictedCallTypeOutcome.error());
+        }
+        FunctionType restrictedCallType = restrictedCallTypeOutcome.get().toMaybeFunctionType();
         if (restrictedCallType == null) {
-          throw new InvalidRequirementSpec("invalid conformance type");
+          return Outcome.err(new InvalidRequirementSpec("invalid conformance type"));
         }
         builder.add(new Restriction(name, restrictedCallType));
       }
       restrictions = builder.build();
+      return Outcome.ok();
     }
 
     @Override
@@ -1228,37 +1380,59 @@ public final class ConformanceRules {
       }
     }
 
-    private final ImmutableList<Restriction> restrictions;
+    private ImmutableList<Restriction> restrictions;
 
-    RestrictedMethodCall(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      RestrictedMethodCall rule = new RestrictedMethodCall();
+      Outcome<Void> inited = rule.initRestrictedMethodCall(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initRestrictedMethodCall(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
 
       JSTypeRegistry registry = compiler.getTypeRegistry();
       ImmutableList.Builder<Restriction> builder = ImmutableList.builder();
       for (String value : requirement.getValueList()) {
-        String type =
-            ConformanceUtil.getClassFromDeclarationName(ConformanceUtil.removeTypeDecl(value));
-        String property =
-            ConformanceUtil.getPropertyFromDeclarationName(ConformanceUtil.removeTypeDecl(value));
+        Outcome<String> typeDecl = ConformanceUtil.removeTypeDecl(value);
+        if (typeDecl.isErr()) {
+          return Outcome.err(typeDecl.error());
+        }
+        String type = ConformanceUtil.getClassFromDeclarationName(typeDecl.get());
+        Outcome<String> propertyDecl = ConformanceUtil.removeTypeDecl(value);
+        if (propertyDecl.isErr()) {
+          return Outcome.err(propertyDecl.error());
+        }
+        String property = ConformanceUtil.getPropertyFromDeclarationName(propertyDecl.get());
         String restrictedDecl = ConformanceUtil.getTypeFromValue(value);
         if (type == null || property == null || restrictedDecl == null) {
-          throw new InvalidRequirementSpec("bad prop value");
+          return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
 
-        FunctionType restrictedCallType =
-            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl).toMaybeFunctionType();
+        Outcome<JSType> restrictedCallTypeOutcome =
+            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl);
+        if (restrictedCallTypeOutcome.isErr()) {
+          return Outcome.err(restrictedCallTypeOutcome.error());
+        }
+        FunctionType restrictedCallType = restrictedCallTypeOutcome.get().toMaybeFunctionType();
         if (restrictedCallType == null) {
-          throw new InvalidRequirementSpec("invalid conformance type");
+          return Outcome.err(new InvalidRequirementSpec("invalid conformance type"));
         }
         builder.add(new Restriction(registry.getGlobalType(type), property, restrictedCallType));
       }
 
       restrictions = builder.build();
+      return Outcome.ok();
     }
 
     @Override
@@ -1329,32 +1503,55 @@ public final class ConformanceRules {
       }
     }
 
-    private final ImmutableList<Restriction> restrictions;
+    private ImmutableList<Restriction> restrictions;
 
-    RestrictedPropertyWrite(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      RestrictedPropertyWrite rule = new RestrictedPropertyWrite();
+      Outcome<Void> inited = rule.initRestrictedPropertyWrite(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initRestrictedPropertyWrite(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
 
       JSTypeRegistry registry = compiler.getTypeRegistry();
       ImmutableList.Builder<Restriction> builder = ImmutableList.builder();
       for (String value : requirement.getValueList()) {
-        String type =
-            ConformanceUtil.getClassFromDeclarationName(ConformanceUtil.removeTypeDecl(value));
-        String property =
-            ConformanceUtil.getPropertyFromDeclarationName(ConformanceUtil.removeTypeDecl(value));
+        Outcome<String> typeDecl = ConformanceUtil.removeTypeDecl(value);
+        if (typeDecl.isErr()) {
+          return Outcome.err(typeDecl.error());
+        }
+        String type = ConformanceUtil.getClassFromDeclarationName(typeDecl.get());
+        Outcome<String> propertyDecl = ConformanceUtil.removeTypeDecl(value);
+        if (propertyDecl.isErr()) {
+          return Outcome.err(propertyDecl.error());
+        }
+        String property = ConformanceUtil.getPropertyFromDeclarationName(propertyDecl.get());
         String restrictedDecl = ConformanceUtil.getTypeFromValue(value);
         if (type == null || property == null || restrictedDecl == null) {
-          throw new InvalidRequirementSpec("bad prop value");
+          return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
-        JSType restrictedType = ConformanceUtil.evaluateTypeString(compiler, restrictedDecl);
+        Outcome<JSType> restrictedTypeOutcome =
+            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl);
+        if (restrictedTypeOutcome.isErr()) {
+          return Outcome.err(restrictedTypeOutcome.error());
+        }
+        JSType restrictedType = restrictedTypeOutcome.get();
         builder.add(new Restriction(registry.getGlobalType(type), property, restrictedType));
       }
 
       restrictions = builder.build();
+      return Outcome.ok();
     }
 
     @Override
@@ -1390,14 +1587,25 @@ public final class ConformanceRules {
 
   /** Banned Code Pattern rule */
   static class BannedCodePattern extends AbstractRule {
-    private final ImmutableList<TemplateAstMatcher> restrictions;
+    private ImmutableList<TemplateAstMatcher> restrictions;
 
-    BannedCodePattern(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedCodePattern rule = new BannedCodePattern();
+      Outcome<Void> inited = rule.initBannedCodePattern(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initBannedCodePattern(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
 
       ImmutableList.Builder<TemplateAstMatcher> builder = ImmutableList.builder();
@@ -1405,7 +1613,7 @@ public final class ConformanceRules {
         Node parseRoot =
             new CompilerInput(SourceFile.fromCode("<template>", value)).getAstRoot(compiler);
         if (!parseRoot.hasOneChild() || !parseRoot.getFirstChild().isFunction()) {
-          throw new InvalidRequirementSpec("invalid conformance template: " + value);
+          return Outcome.err(new InvalidRequirementSpec("invalid conformance template: " + value));
         }
         Node templateRoot = parseRoot.getFirstChild();
         TemplateAstMatcher astMatcher =
@@ -1414,6 +1622,7 @@ public final class ConformanceRules {
       }
 
       restrictions = builder.build();
+      return Outcome.ok();
     }
 
     @Override
@@ -1437,14 +1646,27 @@ public final class ConformanceRules {
 
   /** A custom rule proxy, for rules that we load dynamically. */
   static class CustomRuleProxy implements Rule {
-    final Rule customRule;
+    Rule customRule;
 
-    CustomRuleProxy(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      if (!requirement.hasJavaClass()) {
-        throw new InvalidRequirementSpec("missing java_class");
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      CustomRuleProxy rule = new CustomRuleProxy();
+      Outcome<Void> inited = rule.initCustomRuleProxy(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
       }
-      customRule = createRule(compiler, requirement);
+      return Outcome.ok(rule);
+    }
+
+    Outcome<Void> initCustomRuleProxy(AbstractCompiler compiler, Requirement requirement) {
+      if (!requirement.hasJavaClass()) {
+        return Outcome.err(new InvalidRequirementSpec("missing java_class"));
+      }
+      Outcome<Rule> customRuleOutcome = createRule(compiler, requirement);
+      if (customRuleOutcome.isErr()) {
+        return Outcome.err(customRuleOutcome.error());
+      }
+      customRule = customRuleOutcome.get();
+      return Outcome.ok();
     }
 
     @Override
@@ -1458,18 +1680,19 @@ public final class ConformanceRules {
       customRule.check(t, n, behavior);
     }
 
-    private Rule createRule(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
+    private Outcome<Rule> createRule(AbstractCompiler compiler, Requirement requirement) {
       CustomRuleFactory factory = CUSTOM_RULE_REGISTRY.get(requirement.getJavaClass());
       if (factory == null) {
-        throw new InvalidRequirementSpec("Unknown conformance rule: " + requirement.getJavaClass());
+        return Outcome.err(
+            new InvalidRequirementSpec(
+                "Unknown conformance rule: " + requirement.getJavaClass()));
       }
       return factory.create(compiler, requirement);
     }
 
     @FunctionalInterface
     private interface CustomRuleFactory {
-      Rule create(AbstractCompiler compiler, Requirement requirement) throws InvalidRequirementSpec;
+      Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement);
     }
 
     private static final ImmutableMap<String, CustomRuleFactory> CUSTOM_RULE_REGISTRY =
@@ -1478,90 +1701,102 @@ public final class ConformanceRules {
     private static ImmutableMap<String, CustomRuleFactory> createCustomRuleRegistry() {
       ImmutableMap.Builder<String, CustomRuleFactory> builder =
           ImmutableMap.<String, CustomRuleFactory>builder()
-              .put("com.google.javascript.jscomp.ConformanceRules$NoOp", NoOp::new)
+              .put("com.google.javascript.jscomp.ConformanceRules$NoOp", NoOp::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$InferredConstCheck",
-                  InferredConstCheck::new)
+                  InferredConstCheck::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BannedDependency",
-                  BannedDependency::new)
+                  BannedDependency::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BannedDependencyRegex",
-                  BannedDependencyRegex::new)
-              .put("com.google.javascript.jscomp.ConformanceRules$BannedName", BannedName::new)
+                  BannedDependencyRegex::create)
+              .put("com.google.javascript.jscomp.ConformanceRules$BannedName", BannedName::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BannedProperty",
-                  BannedProperty::new)
+                  BannedProperty::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BannedStringRegex",
-                  BannedStringRegex::new)
+                  BannedStringRegex::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$RestrictedNameCall",
-                  RestrictedNameCall::new)
+                  RestrictedNameCall::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$RestrictedMethodCall",
-                  RestrictedMethodCall::new)
+                  RestrictedMethodCall::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$RestrictedPropertyWrite",
-                  RestrictedPropertyWrite::new)
+                  RestrictedPropertyWrite::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BannedCodePattern",
-                  BannedCodePattern::new)
-              .put("com.google.javascript.jscomp.ConformanceRules$BanForOf", BanForOf::new)
+                  BannedCodePattern::create)
+              .put("com.google.javascript.jscomp.ConformanceRules$BanForOf", BanForOf::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$RequireUseStrict",
-                  RequireUseStrict::new)
+                  RequireUseStrict::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanThrowOfNonErrorTypes",
-                  BanThrowOfNonErrorTypes::new)
-              .put("com.google.javascript.jscomp.ConformanceRules$BanNullDeref", BanNullDeref::new)
+                  BanThrowOfNonErrorTypes::create)
+              .put("com.google.javascript.jscomp.ConformanceRules$BanNullDeref", BanNullDeref::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanUnknownThis",
-                  BanUnknownThis::new)
+                  BanUnknownThis::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanUnknownDirectThisPropsReferences",
-                  BanUnknownDirectThisPropsReferences::new)
+                  BanUnknownDirectThisPropsReferences::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanUnknownTypedClassPropsReferences",
-                  BanUnknownTypedClassPropsReferences::new)
+                  BanUnknownTypedClassPropsReferences::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanUnresolvedType",
-                  BanUnresolvedType::new)
+                  BanUnresolvedType::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$StrictBanUnresolvedType",
-                  StrictBanUnresolvedType::new)
+                  StrictBanUnresolvedType::create)
               .put(
-                  "com.google.javascript.jscomp.ConformanceRules$BanGlobalVars", BanGlobalVars::new)
+                  "com.google.javascript.jscomp.ConformanceRules$BanGlobalVars", BanGlobalVars::create)
               .put(
-                  "com.google.javascript.jscomp.ConformanceRules$BannedEnhance", BannedEnhance::new)
+                  "com.google.javascript.jscomp.ConformanceRules$BannedEnhance", BannedEnhance::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BannedModsRegex",
-                  BannedModsRegex::new)
+                  BannedModsRegex::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanCreateElement",
-                  BanCreateElement::new)
-              .put("com.google.javascript.jscomp.ConformanceRules$BanCreateDom", BanCreateDom::new)
+                  BanCreateElement::create)
+              .put("com.google.javascript.jscomp.ConformanceRules$BanCreateDom", BanCreateDom::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanElementSetAttribute",
-                  BanElementSetAttribute::new)
+                  BanElementSetAttribute::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanSettingAttributes",
-                  BanSettingAttributes::new)
+                  BanSettingAttributes::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanExecCommand",
-                  BanExecCommand::new)
+                  BanExecCommand::create)
               .put(
                   "com.google.javascript.jscomp.ConformanceRules$BanStaticThis",
-                  BanStaticThis::new);
+                  BanStaticThis::create);
       return builder.buildOrThrow();
     }
   }
 
   /** Banned for/of loops */
   public static final class BanForOf extends AbstractRule {
-    public BanForOf(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanForOf rule = new BanForOf();
+      Outcome<Void> inited = rule.initBanForOf(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanForOf(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1576,12 +1811,24 @@ public final class ConformanceRules {
   /** Require "use strict" rule */
   public static class RequireUseStrict extends AbstractRule {
 
-    public RequireUseStrict(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
-      if (!requirement.getValueList().isEmpty()) {
-        throw new InvalidRequirementSpec("invalid value");
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      RequireUseStrict rule = new RequireUseStrict();
+      Outcome<Void> inited = rule.initRequireUseStrict(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
       }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initRequireUseStrict(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      if (!requirement.getValueList().isEmpty()) {
+        return Outcome.err(new InvalidRequirementSpec("invalid value"));
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1594,12 +1841,25 @@ public final class ConformanceRules {
 
   /** Banned throw of non-error object types. */
   public static final class BanThrowOfNonErrorTypes extends AbstractRule {
-    final JSType errorObjType;
+    JSType errorObjType;
 
-    public BanThrowOfNonErrorTypes(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanThrowOfNonErrorTypes rule = new BanThrowOfNonErrorTypes();
+      Outcome<Void> inited = rule.initBanThrowOfNonErrorTypes(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanThrowOfNonErrorTypes(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       errorObjType = compiler.getTypeRegistry().getGlobalType("Error");
+      return Outcome.ok();
     }
 
     @Override
@@ -1622,9 +1882,21 @@ public final class ConformanceRules {
 
   /** Banned dereferencing null or undefined types. */
   public static final class BanNullDeref extends AbstractTypeRestrictionRule {
-    public BanNullDeref(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanNullDeref rule = new BanNullDeref();
+      Outcome<Void> inited = rule.initBanNullDeref(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanNullDeref(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractTypeRestrictionRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1656,9 +1928,21 @@ public final class ConformanceRules {
   public static final class BanUnknownThis extends AbstractTypeRestrictionRule {
     private final LinkedIdentityHashSet<Node> reports = new LinkedIdentityHashSet<>();
 
-    public BanUnknownThis(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanUnknownThis rule = new BanUnknownThis();
+      Outcome<Void> inited = rule.initBanUnknownThis(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanUnknownThis(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractTypeRestrictionRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1695,9 +1979,22 @@ public final class ConformanceRules {
    */
   public static final class BanUnknownDirectThisPropsReferences
       extends AbstractTypeRestrictionRule {
-    public BanUnknownDirectThisPropsReferences(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanUnknownDirectThisPropsReferences rule = new BanUnknownDirectThisPropsReferences();
+      Outcome<Void> inited = rule.initBanUnknownDirectThisPropsReferences(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanUnknownDirectThisPropsReferences(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractTypeRestrictionRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1736,9 +2033,22 @@ public final class ConformanceRules {
   public static final class BanUnknownTypedClassPropsReferences
       extends AbstractTypeRestrictionRule {
 
-    public BanUnknownTypedClassPropsReferences(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanUnknownTypedClassPropsReferences rule = new BanUnknownTypedClassPropsReferences();
+      Outcome<Void> inited = rule.initBanUnknownTypedClassPropsReferences(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanUnknownTypedClassPropsReferences(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractTypeRestrictionRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1826,9 +2136,21 @@ public final class ConformanceRules {
    * legacy reasons this is allowed but causes unexpected weaknesses in the type inference.
    */
   public static final class BanUnresolvedType extends AbstractTypeRestrictionRule {
-    public BanUnresolvedType(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanUnresolvedType rule = new BanUnresolvedType();
+      Outcome<Void> inited = rule.initBanUnresolvedType(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanUnresolvedType(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractTypeRestrictionRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1875,9 +2197,22 @@ public final class ConformanceRules {
 
   /** Ban any use of unresolved forward-declared types */
   public static final class StrictBanUnresolvedType extends AbstractTypeRestrictionRule {
-    public StrictBanUnresolvedType(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      StrictBanUnresolvedType rule = new StrictBanUnresolvedType();
+      Outcome<Void> inited = rule.initStrictBanUnresolvedType(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initStrictBanUnresolvedType(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractTypeRestrictionRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override
@@ -1894,13 +2229,25 @@ public final class ConformanceRules {
 
   /** Banned global var declarations. */
   public static final class BanGlobalVars extends AbstractRule {
-    private final ImmutableSet<String> allowlistedNames;
+    private ImmutableSet<String> allowlistedNames;
 
-    public BanGlobalVars(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanGlobalVars rule = new BanGlobalVars();
+      Outcome<Void> inited = rule.initBanGlobalVars(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanGlobalVars(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       this.allowlistedNames = ImmutableSet.copyOf(requirement.getValueList());
+      return Outcome.ok();
     }
 
     @Override
@@ -1960,15 +2307,27 @@ public final class ConformanceRules {
 
   /** Checks that file does not include an @enhance annotation for a banned namespace. */
   public static final class BannedEnhance extends AbstractRule {
-    private final ImmutableSet<String> bannedEnhancedNamespaces;
+    private ImmutableSet<String> bannedEnhancedNamespaces;
 
-    public BannedEnhance(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedEnhance rule = new BannedEnhance();
+      Outcome<Void> inited = rule.initBannedEnhance(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBannedEnhance(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
       this.bannedEnhancedNamespaces = ImmutableSet.copyOf(requirement.getValueList());
+      return Outcome.ok();
     }
 
     @Override
@@ -1996,17 +2355,33 @@ public final class ConformanceRules {
 
   /** Checks that file does not include an @mods annotation for a banned namespace regex. */
   public static final class BannedModsRegex extends AbstractRule {
-    private final Pattern bannedModsRegex;
+    private Pattern bannedModsRegex;
 
-    public BannedModsRegex(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BannedModsRegex rule = new BannedModsRegex();
+      Outcome<Void> inited = rule.initBannedModsRegex(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBannedModsRegex(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       List<String> bannedModsRegexList = requirement.getValueList();
       if (requirement.getValueCount() == 0) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
-      bannedModsRegex = buildPattern(bannedModsRegexList);
+      Outcome<@Nullable Pattern> bannedModsRegexOutcome = buildPattern(bannedModsRegexList);
+      if (bannedModsRegexOutcome.isErr()) {
+        return Outcome.err(bannedModsRegexOutcome.error());
+      }
+      bannedModsRegex = bannedModsRegexOutcome.get();
+      return Outcome.ok();
     }
 
     @Override
@@ -2039,22 +2414,34 @@ public final class ConformanceRules {
    * goog.dom.createElement(goog.dom.TagName.SCRIPT)} which returns HTMLScriptElement.
    */
   public static final class BanCreateElement extends AbstractRule {
-    private final Set<String> bannedTags;
-    private final JSType domHelperType;
-    private final JSType documentType;
+    private Set<String> bannedTags;
+    private JSType domHelperType;
+    private JSType documentType;
 
-    public BanCreateElement(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanCreateElement rule = new BanCreateElement();
+      Outcome<Void> inited = rule.initBanCreateElement(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanCreateElement(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       bannedTags = new LinkedHashSet<>();
       for (String value : requirement.getValueList()) {
         bannedTags.add(Ascii.toLowerCase(value));
       }
       if (bannedTags.isEmpty()) {
-        throw new InvalidRequirementSpec("Specify one or more values.");
+        return Outcome.err(new InvalidRequirementSpec("Specify one or more values."));
       }
       domHelperType = compiler.getTypeRegistry().getGlobalType("goog.dom.DomHelper");
       documentType = compiler.getTypeRegistry().getGlobalType("Document");
+      return Outcome.ok();
     }
 
     @Override
@@ -2105,25 +2492,37 @@ public final class ConformanceRules {
    * values assigned to banned attributes are allowed as they couldn't be attacker controlled.
    */
   public static final class BanCreateDom extends AbstractRule {
-    private final ImmutableList<String[]> bannedTagAttrs;
-    private final JSType domHelperType;
-    private final JSType classNameTypes;
+    private ImmutableList<String[]> bannedTagAttrs;
+    private JSType domHelperType;
+    private JSType classNameTypes;
 
-    public BanCreateDom(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanCreateDom rule = new BanCreateDom();
+      Outcome<Void> inited = rule.initBanCreateDom(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanCreateDom(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       ImmutableList.Builder<String[]> bannedTagAttrs = ImmutableList.builder();
       for (String value : requirement.getValueList()) {
         List<String> tagAttr = ON_DOT.splitToList(value);
         if (tagAttr.size() != 2 || tagAttr.get(0).isEmpty() || tagAttr.get(1).isEmpty()) {
-          throw new InvalidRequirementSpec("Values must be in the format tagname.attribute.");
+          return Outcome.err(
+              new InvalidRequirementSpec("Values must be in the format tagname.attribute."));
         }
         String lowercasedTag = tagAttr.get(0).toLowerCase(Locale.ROOT);
         bannedTagAttrs.add(new String[] {lowercasedTag, tagAttr.get(1)});
       }
       this.bannedTagAttrs = bannedTagAttrs.build();
       if (this.bannedTagAttrs.isEmpty()) {
-        throw new InvalidRequirementSpec("Specify one or more values.");
+        return Outcome.err(new InvalidRequirementSpec("Specify one or more values."));
       }
       domHelperType = compiler.getTypeRegistry().getGlobalType("goog.dom.DomHelper");
       classNameTypes =
@@ -2134,6 +2533,7 @@ public final class ConformanceRules {
                   compiler.getTypeRegistry().getNativeType(JSTypeNative.ARRAY_TYPE),
                   compiler.getTypeRegistry().getNativeType(JSTypeNative.NULL_TYPE),
                   compiler.getTypeRegistry().getNativeType(JSTypeNative.VOID_TYPE));
+      return Outcome.ok();
     }
 
     @Override
@@ -2473,19 +2873,31 @@ public final class ConformanceRules {
      */
     private static final int GLOBAL_NAMESPACE_ANALYSIS_LIMIT = 10000;
 
-    private final JSType elementType;
-    private final SecuritySensitiveAttributes securitySensitiveAttributes;
-    private final ConformanceResult defaultDecisionForUncertainCases;
+    private JSType elementType;
+    private SecuritySensitiveAttributes securitySensitiveAttributes;
+    private ConformanceResult defaultDecisionForUncertainCases;
 
     /**
      * Create a custom checker to ban {@code Element#setAttribute} based on conformance a
      * requirement spec.
      *
-     * @throws InvalidRequirementSpec If the requirement is malformed.
+     * <p>Returns an error outcome with an InvalidRequirementSpec if the requirement is malformed.
      */
-    public BanElementSetAttribute(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanElementSetAttribute rule = new BanElementSetAttribute();
+      Outcome<Void> inited = rule.initBanElementSetAttribute(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanElementSetAttribute(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       securitySensitiveAttributes =
           new SecuritySensitiveAttributes(requirement.getValueList(), this::getGlobalNamespace);
       defaultDecisionForUncertainCases =
@@ -2493,6 +2905,7 @@ public final class ConformanceRules {
               ? ConformanceResult.VIOLATION
               : ConformanceResult.CONFORMANCE;
       elementType = compiler.getTypeRegistry().getGlobalType(ELEMENT_TYPE_NAME);
+      return Outcome.ok();
     }
 
     /**
@@ -2676,7 +3089,7 @@ public final class ConformanceRules {
 
     private static final SecuritySensitiveAttributes BANNED_ATTRS =
         new SecuritySensitiveAttributes();
-    private final ImmutableList<AttributeSettingRestriction> restrictions;
+    private ImmutableList<AttributeSettingRestriction> restrictions;
 
     /**
      * Create a custom checker to ban a function like {@code Element#setAttribute} based on a
@@ -2685,12 +3098,24 @@ public final class ConformanceRules {
      * <p>Names in {@code value} fields indicate the functions that should be blocked. Throws {@link
      * InvalidRequirementSpec} if the requirement is malformed.
      */
-    public BanSettingAttributes(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanSettingAttributes rule = new BanSettingAttributes();
+      Outcome<Void> inited = rule.initBanSettingAttributes(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanSettingAttributes(
+        AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
 
       if (requirement.getValueList().isEmpty()) {
-        throw new InvalidRequirementSpec("missing value");
+        return Outcome.err(new InvalidRequirementSpec("missing value"));
       }
 
       JSTypeRegistry registry = compiler.getTypeRegistry();
@@ -2699,12 +3124,13 @@ public final class ConformanceRules {
         String type = ConformanceUtil.getClassFromDeclarationName(value);
         String property = ConformanceUtil.getPropertyFromDeclarationName(value);
         if (type == null || property == null) {
-          throw new InvalidRequirementSpec("bad prop value");
+          return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
         builder.add(new AttributeSettingRestriction(registry.getGlobalType(type), property));
       }
 
       restrictions = builder.build();
+      return Outcome.ok();
     }
 
     @Override
@@ -2756,23 +3182,35 @@ public final class ConformanceRules {
    * string.
    */
   public static final class BanExecCommand extends AbstractRule {
-    private final ImmutableList<String> bannedAttrs;
+    private ImmutableList<String> bannedAttrs;
 
     /**
      * Creates a custom checker to ban {@code Document#execCommand} based on a conformance
      * requirement spec. Names in {@code value} fields indicate the attribute names that should be
      * blocked.
      *
-     * @throws InvalidRequirementSpec if the requirement is malformed
+     * <p>Returns an error outcome with an InvalidRequirementSpec if the requirement is malformed
      */
-    public BanExecCommand(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanExecCommand rule = new BanExecCommand();
+      Outcome<Void> inited = rule.initBanExecCommand(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanExecCommand(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
       ImmutableList.Builder<String> bannedAttrsBuilder = ImmutableList.builder();
       for (String v : requirement.getValueList()) {
         bannedAttrsBuilder.add(v.toLowerCase(Locale.ROOT));
       }
       bannedAttrs = bannedAttrsBuilder.build();
+      return Outcome.ok();
     }
 
     @Override
@@ -2825,9 +3263,21 @@ public final class ConformanceRules {
 
   /** Checks that {@code this} is not being referenced directly within a static member function. */
   public static final class BanStaticThis extends AbstractTypeRestrictionRule {
-    public BanStaticThis(AbstractCompiler compiler, Requirement requirement)
-        throws InvalidRequirementSpec {
-      super(compiler, requirement);
+    static Outcome<Rule> create(AbstractCompiler compiler, Requirement requirement) {
+      BanStaticThis rule = new BanStaticThis();
+      Outcome<Void> inited = rule.initBanStaticThis(compiler, requirement);
+      if (inited.isErr()) {
+        return Outcome.err(inited.error());
+      }
+      return Outcome.ok(rule);
+    }
+
+    public Outcome<Void> initBanStaticThis(AbstractCompiler compiler, Requirement requirement) {
+      Outcome<Void> superInited = initAbstractTypeRestrictionRule(compiler, requirement);
+      if (superInited.isErr()) {
+        return Outcome.err(superInited.error());
+      }
+      return Outcome.ok();
     }
 
     @Override

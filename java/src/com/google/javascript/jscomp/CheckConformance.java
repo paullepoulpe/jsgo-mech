@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.CompilerOptions.ConformanceReportingMode;
 import com.google.javascript.jscomp.ConformanceConfig.LibraryLevelNonAllowlistedConformanceViolationsBehavior;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.rhino.Node;
 import com.google.protobuf.Descriptors;
@@ -627,36 +628,41 @@ public final class CheckConformance implements NodeTraversal.Callback, CompilerP
    * @return the initialized rule, or null if the requirement is invalid.
    */
   private static @Nullable Rule initRule(AbstractCompiler compiler, Requirement requirement) {
-    try {
-      return switch (requirement.getType()) {
-        case CUSTOM -> new ConformanceRules.CustomRuleProxy(compiler, requirement);
-        case NO_OP -> new ConformanceRules.NoOp(compiler, requirement);
-        case BANNED_CODE_PATTERN -> new ConformanceRules.BannedCodePattern(compiler, requirement);
-        case BANNED_DEPENDENCY -> new ConformanceRules.BannedDependency(compiler, requirement);
-        case BANNED_DEPENDENCY_REGEX ->
-            new ConformanceRules.BannedDependencyRegex(compiler, requirement);
-        case BANNED_ENHANCE -> new ConformanceRules.BannedEnhance(compiler, requirement);
-        case BANNED_MODS_REGEX -> new ConformanceRules.BannedModsRegex(compiler, requirement);
-        case BANNED_NAME,
-            BANNED_NAME_CALL ->
-            new ConformanceRules.BannedName(compiler, requirement);
-        case BANNED_PROPERTY,
-            BANNED_PROPERTY_READ,
-            BANNED_PROPERTY_WRITE,
-            BANNED_PROPERTY_NON_CONSTANT_WRITE,
-            BANNED_PROPERTY_CALL ->
-            new ConformanceRules.BannedProperty(compiler, requirement);
-        case RESTRICTED_NAME_CALL -> new ConformanceRules.RestrictedNameCall(compiler, requirement);
-        case RESTRICTED_METHOD_CALL ->
-            new ConformanceRules.RestrictedMethodCall(compiler, requirement);
-        case RESTRICTED_PROPERTY_WRITE ->
-            new ConformanceRules.RestrictedPropertyWrite(compiler, requirement);
-        case BANNED_STRING_REGEX -> new ConformanceRules.BannedStringRegex(compiler, requirement);
-      };
-    } catch (InvalidRequirementSpec e) {
+    Outcome<Rule> rule =
+        switch (requirement.getType()) {
+          case CUSTOM -> ConformanceRules.CustomRuleProxy.create(compiler, requirement);
+          case NO_OP -> ConformanceRules.NoOp.create(compiler, requirement);
+          case BANNED_CODE_PATTERN ->
+              ConformanceRules.BannedCodePattern.create(compiler, requirement);
+          case BANNED_DEPENDENCY -> ConformanceRules.BannedDependency.create(compiler, requirement);
+          case BANNED_DEPENDENCY_REGEX ->
+              ConformanceRules.BannedDependencyRegex.create(compiler, requirement);
+          case BANNED_ENHANCE -> ConformanceRules.BannedEnhance.create(compiler, requirement);
+          case BANNED_MODS_REGEX -> ConformanceRules.BannedModsRegex.create(compiler, requirement);
+          case BANNED_NAME,
+              BANNED_NAME_CALL ->
+              ConformanceRules.BannedName.create(compiler, requirement);
+          case BANNED_PROPERTY,
+              BANNED_PROPERTY_READ,
+              BANNED_PROPERTY_WRITE,
+              BANNED_PROPERTY_NON_CONSTANT_WRITE,
+              BANNED_PROPERTY_CALL ->
+              ConformanceRules.BannedProperty.create(compiler, requirement);
+          case RESTRICTED_NAME_CALL ->
+              ConformanceRules.RestrictedNameCall.create(compiler, requirement);
+          case RESTRICTED_METHOD_CALL ->
+              ConformanceRules.RestrictedMethodCall.create(compiler, requirement);
+          case RESTRICTED_PROPERTY_WRITE ->
+              ConformanceRules.RestrictedPropertyWrite.create(compiler, requirement);
+          case BANNED_STRING_REGEX ->
+              ConformanceRules.BannedStringRegex.create(compiler, requirement);
+        };
+    if (rule.isErr()) {
+      InvalidRequirementSpec e = (InvalidRequirementSpec) rule.error();
       reportInvalidRequirement(compiler, requirement, e.getMessage());
       return null;
     }
+    return rule.get();
   }
 
   public static class InvalidRequirementSpec extends Exception {
