@@ -1,0 +1,22 @@
+# Declarations that Convert.java keeps as String with "" for "absent" (hot paths: no Optional
+# per call or per object). Format as keep.txt; text after " ## " is the justification.
+com.google.javascript.rhino.Node#getQualifiedName() ## never "": a NAME with an empty string is not a qualified name
+com.google.javascript.rhino.Node#getOriginalQualifiedName() ## same
+com.google.javascript.rhino.Node#getOriginalName()
+com.google.javascript.rhino.Node#originalName
+com.google.javascript.rhino.Node#setOriginalName(0)
+com.google.javascript.rhino.Node#getSourceFileName()
+com.google.javascript.rhino.jstype.FunctionType#googModuleId
+com.google.javascript.rhino.jstype.FunctionType.Builder#googModuleId
+com.google.javascript.rhino.jstype.JSType.WithSourceRef#getGoogModuleId()
+com.google.javascript.rhino.jstype.NamedType#sourceName
+com.google.javascript.rhino.jstype.NamedType.Builder#sourceName
+com.google.debugging.sourcemap.SourceMapGeneratorV3.Mapping#originalName
+com.google.debugging.sourcemap.SourceMapGenerator#addMapping(0)
+com.google.debugging.sourcemap.SourceMapGenerator#addMapping(1)
+com.google.javascript.jscomp.parsing.parser.TemplateLiteralToken#errorMessage
+com.google.javascript.rhino.jstype.EnumType#googModuleId
+com.google.javascript.rhino.jstype.EnumType.Builder#googModuleId
+com.google.javascript.rhino.jstype.EnumType.Builder#setGoogModuleId(0)
+com.google.javascript.rhino.JSTypeExpression#sourceName
+com.google.javascript.rhino.JSTypeExpression#getSourceName()

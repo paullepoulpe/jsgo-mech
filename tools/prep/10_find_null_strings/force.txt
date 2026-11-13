@@ -1,0 +1,19 @@
+# Parameters that Convert.java treats as nullable although nothing in production code says so:
+# a nullable value reaches them outside a presence check and the tests show that it can be absent
+# there. Format as keep.txt.
+com.google.javascript.jscomp.ProcessDefines#getReplacementForDefineName(0)
+com.google.javascript.jscomp.Result#<init>(8)
+com.google.javascript.jscomp.StripCode.Strip#logNotAStripName(0)
+com.google.javascript.jscomp.ReplaceCssNames#createGetCssNameInstance(1)
+com.google.javascript.jscomp.FunctionInjector#internalInline(1)
+com.google.javascript.rhino.JSDocInfo#hasParameterType(0)
+com.google.javascript.rhino.ErrorReporter#warning(1)
+com.google.javascript.rhino.ErrorReporter#error(1)
+com.google.debugging.sourcemap.SourceMapObject.Builder#setSourceRoot(0)
+com.google.debugging.sourcemap.SourceMapObject.Builder#setFile(0)
+com.google.debugging.sourcemap.SourceMapObject.Builder#setMappings(0)
+com.google.javascript.rhino.JSDocInfo#getReturnDescription()
+com.google.javascript.rhino.JSDocInfo#getParameterType(0)
+com.google.javascript.jscomp.LightweightMessageFormatter#getExcerptWithPosition(1)
+com.google.javascript.jscomp.CompilerOptions#outputCharset
+com.google.javascript.jscomp.CompilerOptions#getOutputCharset()

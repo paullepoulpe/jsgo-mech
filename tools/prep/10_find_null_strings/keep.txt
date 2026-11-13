@@ -1,0 +1,14 @@
+# Declarations that Convert.java never converts although something compares them with null.
+# Format: pkg.Class#field, pkg.Class#method() (return), pkg.Class#method(paramIndex);
+# text after " ## " is the justification.
+com.google.javascript.rhino.Node#getString() ## never null; the comparison in AstValidator was removed by hand
+com.google.javascript.rhino.jstype.Property.Key#string() ## never null: a SymbolKey throws instead
+com.google.javascript.rhino.StaticSlot#getName() ## hot (every Var); only Property.getName() of a symbol-keyed property could be absent, and a known symbol always has a display name
+com.google.javascript.rhino.jstype.Property.Key#humanReadableName() ## same
+com.google.javascript.jscomp.NameGenerator#generateNextName() ## never null; its result is only compared with null through variables that have other sources
+com.google.javascript.jscomp.SourceFile#fromCode(1) ## public entry point with hundreds of callers; a source file whose code is null fails on first read, so callers must pass code
+com.google.javascript.jscomp.SourceFile.Builder#withContent(0) ## same
+com.google.javascript.rhino.RhinoStringPool#uncheckedEquals(0) ## hot identity comparison of pooled strings; the one caller that compared maybe-absent cooked strings compares the Optionals instead (hand edit in Node.isEquivalentTo)
+com.google.javascript.rhino.RhinoStringPool#uncheckedEquals(1) ## same
+com.google.javascript.jscomp.parsing.parser.Keywords#getString(0) ## hot (every identifier token); the scanner reports an error and returns before it gets here without a value
+com.google.javascript.jscomp.base.SimpleJsonWriter#name(0) ## a null name is rejected with a NullPointerException (a test passes null to assert exactly that)
