@@ -311,7 +311,9 @@ public abstract class JsFileLineParser {
           new ParseException("Syntax error in JS String literal", /* fatal= */ true));
     }
     return Outcome.ok(
-        valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2));
+        Optional.ofNullable(valueMatcher.group(1)).isPresent()
+            ? valueMatcher.group(1)
+            : valueMatcher.group(2));
   }
 
   /**
@@ -339,8 +341,10 @@ public abstract class JsFileLineParser {
               new ParseException("Syntax error in JS String literal", /* fatal= */ true));
         }
         // Add it to the results.
-        results.add(valueMatcher.group(1) != null ?
-            valueMatcher.group(1) : valueMatcher.group(2));
+        results.add(
+            Optional.ofNullable(valueMatcher.group(1)).isPresent()
+                ? valueMatcher.group(1)
+                : valueMatcher.group(2));
         if (valueMatcher.end() == innerValues.length()) {
           break;
         }
@@ -384,7 +388,9 @@ public abstract class JsFileLineParser {
       if (checked.isErr()) {
         return Outcome.err(checked.error());
       }
-      String key = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
+      String key = Optional.ofNullable(valueMatcher.group(1)).isPresent()
+            ? valueMatcher.group(1)
+            : valueMatcher.group(2);
       checked = check(valueMatcher.end() != input.length(), "Missing value in JS object literal");
       if (checked.isErr()) {
         return Outcome.err(checked.error());
@@ -401,7 +407,9 @@ public abstract class JsFileLineParser {
       if (checked.isErr()) {
         return Outcome.err(checked.error());
       }
-      String val = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
+      String val = Optional.ofNullable(valueMatcher.group(1)).isPresent()
+            ? valueMatcher.group(1)
+            : valueMatcher.group(2);
       results.put(key, val);
       if (valueMatcher.end() != input.length()) {
         checked = check(input.charAt(valueMatcher.end()) == ',', "Missing comma in JS object literal");

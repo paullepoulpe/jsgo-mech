@@ -2581,12 +2581,12 @@ class GlobalNamespace
       // Technically the definition may not have a getter or setter, but we'll just
       // always pretend it does, because we cannot inline and collapse properties defined this
       // way.
-      return new ObjLitStringKeyAnalysis(Optional.ofNullable(nameString), NameProp.GET_SET);
+      return new ObjLitStringKeyAnalysis(Optional.of(nameString), NameProp.GET_SET);
     }
 
     /** The object literal key represents `parent.qname = { strKeyName: value }` */
     static ObjLitStringKeyAnalysis forObjLitAssignment(String nameString, NameProp nameType) {
-      return new ObjLitStringKeyAnalysis(Optional.ofNullable(nameString), nameType);
+      return new ObjLitStringKeyAnalysis(Optional.of(nameString), nameType);
     }
 
     /** The object literal key does not represent a qualified name assignment. */

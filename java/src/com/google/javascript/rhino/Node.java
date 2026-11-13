@@ -1268,10 +1268,9 @@ public final class Node {
 
     // Make sure the deserialized properties are valid.
     validateProperties(
-        // NOTE: errorMessage will never be null, but just passing `false` to `checkState()`
-        // triggers warning messages from some code analysis tools.
-        errorMessage ->
-            checkState(errorMessage == null, "deserialize error: %s: %s", errorMessage, this));
+        errorMessage -> {
+          throw new IllegalStateException("deserialize error: " + errorMessage + ": " + this);
+        });
   }
 
   /** Sets the syntactical type specified on this node. */

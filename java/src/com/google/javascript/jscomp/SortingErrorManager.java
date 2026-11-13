@@ -212,7 +212,7 @@ public class SortingErrorManager implements ErrorManager {
         return false;
       }
       return Objects.equals(level, e.level)
-          && Objects.equals(error.description(), e.error.description())
+          && error.description().equals(e.error.description())
           && error.sourceName().equals(e.error.sourceName())
           && error.getLineNumber() == e.error.getLineNumber()
           && error.charno() == e.error.charno();

@@ -28,7 +28,6 @@ import static com.google.javascript.jscomp.ClosurePrimitiveErrors.INVALID_REQUIR
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -1015,7 +1014,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
   private void recordTopLevelClassOrFunctionName(Node classOrFunctionNode) {
     Node nameNode = classOrFunctionNode.getFirstChild();
-    if (nameNode.isName() && !Strings.isNullOrEmpty(nameNode.getString())) {
+    if (nameNode.isName() && !nameNode.getString().isEmpty()) {
       String name = nameNode.getString();
       currentScript.topLevelNames.add(name);
     }

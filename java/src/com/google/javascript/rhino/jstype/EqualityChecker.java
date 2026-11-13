@@ -39,7 +39,6 @@
 
 package com.google.javascript.rhino.jstype;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JSCompObjects.identical;
 
@@ -234,12 +233,11 @@ final class EqualityChecker {
         return identical(leftUnwrapped, rightUnwrapped);
       } else {
         // TODO(b/140763807): this is not valid across scopes pre-resolution.
-        String nameOfleft = checkNotNull(leftUnwrapped.getReferenceName().orElseThrow());
-        String nameOfright = checkNotNull(rightUnwrapped.getReferenceName().orElseThrow());
+        String nameOfleft = leftUnwrapped.getReferenceName().orElseThrow();
+        String nameOfright = rightUnwrapped.getReferenceName().orElseThrow();
         String googModuleIdOfLeft = getGoogModuleId(leftUnwrapped);
         String googModuleIdOfRight = getGoogModuleId(rightUnwrapped);
-        return Objects.equals(nameOfleft, nameOfright)
-            && Objects.equals(googModuleIdOfLeft, googModuleIdOfRight);
+        return nameOfleft.equals(nameOfright) && googModuleIdOfLeft.equals(googModuleIdOfRight);
       }
     }
 

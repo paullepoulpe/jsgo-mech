@@ -80,7 +80,7 @@ public final class NoResolvedType extends ObjectType {
   NoResolvedType(
       JSTypeRegistry registry, String referenceName, ImmutableList<JSType> templateTypes) {
     super(registry);
-    this.referenceName = Optional.ofNullable(referenceName);
+    this.referenceName = Optional.of(referenceName);
     this.templateTypes = templateTypes;
     this.eagerlyResolveToSelf();
   }

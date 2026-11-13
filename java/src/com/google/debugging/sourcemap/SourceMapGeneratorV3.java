@@ -17,7 +17,6 @@
 package com.google.debugging.sourcemap;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.nullToEmpty;
 
 import com.google.common.base.Preconditions;
 import com.google.debugging.sourcemap.SourceMapConsumerV3.EntryVisitor;
@@ -31,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
@@ -855,7 +853,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
   }
 
   private int getSourceId(String sourceName) {
-    if (!Objects.equals(sourceName, lastSourceFile.orElse(null))) {
+    if (!(lastSourceFile.isPresent() && lastSourceFile.get().equals(sourceName))) {
       lastSourceFile = Optional.of(sourceName);
       Integer index = sourceFileMap.get(sourceName);
       if (index != null) {

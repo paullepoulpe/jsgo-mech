@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.modules;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
@@ -238,7 +237,7 @@ public record Export(
 
     /** Some faux export from a non-ES module. */
     private static void validateOtherModule(Export e) {
-      checkNotNull(e.exportName().orElseThrow());
+      checkState(e.exportName().isPresent());
 
       // Fields ignored for these fake exports. Should not set these.
       checkState(e.exportNode() == null);

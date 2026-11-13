@@ -15,7 +15,6 @@
  */
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
@@ -466,7 +465,7 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
         Var var = t.getScope().getVar(localName.get());
         if (var != null && NodeUtil.isImportedName(var.getNameNode())) {
           localName = maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild());
-          checkNotNull(localName.orElseThrow());
+          checkState(localName.isPresent());
         }
         exportedNameToLocalQName.put(
             exportSpec.getLastChild().getString(), new LocalQName(localName.orElse(null), exportSpec));

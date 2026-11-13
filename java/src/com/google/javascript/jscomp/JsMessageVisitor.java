@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 import static com.google.javascript.jscomp.base.JavaRegex.NON_SPACE;
@@ -644,7 +643,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         if (node.hasOneChild()) {
           // Cooked string can be null only for tagged template literals.
           // A tagged template literal would hit the default case below.
-          return Outcome.ok(checkNotNull(node.getFirstChild().getCookedString().orElseThrow()));
+          return Outcome.ok(node.getFirstChild().getCookedString().orElseThrow());
         } else {
           return Outcome.err(
               new MalformedException(

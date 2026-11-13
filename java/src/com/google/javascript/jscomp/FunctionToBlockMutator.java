@@ -18,7 +18,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.javascript.jscomp.FunctionArgumentInjector.THIS_MARKER;
 
 import com.google.common.collect.ImmutableList;
@@ -368,7 +367,7 @@ class FunctionToBlockMutator {
 
   /** Create a unique label name. */
   private String getLabelNameForFunction(String fnName) {
-    String name = (isNullOrEmpty(fnName)) ? "anon" : fnName;
+    String name = fnName.isEmpty() ? "anon" : fnName;
     return "JSCompiler_inline_label_" + name + "_" + safeNameIdSupplier.get();
   }
 

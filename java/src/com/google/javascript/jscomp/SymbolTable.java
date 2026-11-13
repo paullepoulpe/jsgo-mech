@@ -1641,7 +1641,7 @@ public final class SymbolTable {
       }
 
       return isTypeInferred() == other.isTypeInferred()
-          && Objects.equals(getName(), other.getName())
+          && getName().equals(other.getName())
           && Objects.equals(getType(), other.getType())
           && Objects.equals(scope, other.scope);
     }

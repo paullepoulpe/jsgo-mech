@@ -404,7 +404,7 @@ public abstract class ObjectType extends JSType {
   public final boolean defineInferredPropertyKey(
       Property.Key propertyName, JSType type, Node propertyNode) {
     checkArgument(
-        propertyName.string() != null,
+        propertyName.kind().equals(Property.KeyKind.STRING),
         "Symbol-based property keys are not supported for inferred properties.");
     return defineInferredProperty(propertyName.string(), type, propertyNode);
   }

@@ -41,7 +41,6 @@ package com.google.javascript.rhino;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.nullToEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CaseFormat;
@@ -1238,7 +1237,7 @@ public class JSDocInfo implements Serializable {
 
   /** Whether this JSDoc is annotated with {@code @closurePrimitive} */
   public boolean hasClosurePrimitiveId() {
-    return CLOSURE_PRIMITIVE_ID.get(this) != null;
+    return Optional.ofNullable(CLOSURE_PRIMITIVE_ID.get(this)).isPresent();
   }
 
   /** Returns whether JSDoc is annotated with {@code @ngInject} annotation. */
@@ -1464,7 +1463,7 @@ public class JSDocInfo implements Serializable {
 
   /** Returns whether this has a modded namespace. */
   public boolean hasMods() {
-    return MODS.get(this) != null;
+    return Optional.ofNullable(MODS.get(this)).isPresent();
   }
 
   /** Returns the modded namespace or null if none is specified. */
@@ -2082,7 +2081,7 @@ public class JSDocInfo implements Serializable {
 
     /** Returns whether a deprecation reason has been recorded. */
     public boolean isDeprecationReasonRecorded() {
-      return getProp(DEPRECATION_REASON) != null;
+      return Optional.ofNullable(getProp(DEPRECATION_REASON)).isPresent();
     }
 
     public void recordSuppressions(ImmutableSet<String> suppressions, String description) {

@@ -33,7 +33,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -86,7 +85,7 @@ final class ProductionCoverageInstrumentationCallback implements NodeTraversal.C
     // polyfill code is injected into the sourceFile AST and this check avoids instrumenting it. We
     // avoid instrumentation as this callback does not distinguish between sourceFile code and
     // injected code and can result in an error.
-    if (!n.isRoot() && !Objects.equals(t.getSourceName().orElse(null), n.getSourceFileName())) {
+    if (!n.isRoot() && !t.getSourceName().orElse("").equals(n.getSourceFileName())) {
       return false;
     }
 

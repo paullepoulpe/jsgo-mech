@@ -27,7 +27,6 @@ import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /** Instrument branch coverage for javascript. */
@@ -57,7 +56,7 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
     // polyfill code is injected into the sourceFile AST and this check avoids instrumenting it. We
     // avoid instrumentation as this callback does not distinguish between sourceFile code and
     // injected code and can result in an error.
-    if (!Objects.equals(fileName.orElse(null), node.getSourceFileName())) {
+    if (!fileName.orElse("").equals(node.getSourceFileName())) {
       return;
     }
 

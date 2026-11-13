@@ -17,7 +17,6 @@
 package com.google.javascript.jscomp.js;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Splitter;
@@ -33,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -188,8 +188,11 @@ public final class RuntimeJsLibManager {
         parts.get(0).equals("$jscomp"), "Field name must start with $jscomp, found %s", fieldName);
     String propName = parts.get(1);
 
-    String resourceName =
-        checkNotNull(FieldsTable.INSTANCE.get(propName), "Cannot find definition of %s", fieldName);
+    Optional<String> resource = Optional.ofNullable(FieldsTable.INSTANCE.get(propName));
+    if (resource.isEmpty()) {
+      throw new NullPointerException("Cannot find definition of " + fieldName);
+    }
+    String resourceName = resource.get();
 
     String compiledName =
         switch (mode) {

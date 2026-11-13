@@ -657,7 +657,9 @@ final class SubtypeChecker {
    */
   private static boolean isBivariantType(JSType type) {
     ObjectType unwrapped = getObjectTypeIfNative(type);
-    return unwrapped != null && BIVARIANT_TYPES.contains(unwrapped.getReferenceName().orElse(null));
+    return unwrapped != null
+        && unwrapped.hasReferenceName()
+        && BIVARIANT_TYPES.contains(unwrapped.getReferenceName().get());
   }
 
   /**

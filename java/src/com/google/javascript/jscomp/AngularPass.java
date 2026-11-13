@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.rhino.IR;
@@ -289,7 +290,7 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
     // checks that name is present, which must always be the case unless the
     // compiler allowed a syntax error or a dangling anonymous function
     // expression.
-    checkNotNull(name.orElseThrow());
+    checkState(name.isPresent());
     // registers the node.
     injectables.add(new NodeContext(name.get(), n, fn, injectAfter));
   }

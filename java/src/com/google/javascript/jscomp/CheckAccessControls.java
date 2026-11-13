@@ -33,7 +33,6 @@ import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.ObjectType;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -524,7 +523,7 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
     StaticSourceFile varSrc = var.getSourceFile();
     StaticSourceFile refSrc = name.getStaticSourceFile();
 
-    return varSrc == null || refSrc == null || Objects.equals(varSrc.getName(), refSrc.getName());
+    return varSrc == null || refSrc == null || varSrc.getName().equals(refSrc.getName());
   }
 
   private boolean isPackageAccessAllowed(Var var, Node name) {

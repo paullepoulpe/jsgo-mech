@@ -1544,7 +1544,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     }
 
     String propName = noncomputedField.getString();
-    if (Objects.equals(propName, "__proto__")) {
+    if ("__proto__".equals(propName)) {
       return createFieldDefineProperty(
           noncomputedField, fieldValue, receiver, astFactory.createString(propName));
     }
@@ -1576,7 +1576,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       compFieldNameExpr = computedField.getFirstChild().cloneTree();
     }
 
-    if (Objects.equals(NodeUtil.getStringValue(compFieldNameExpr).orElse(null), "__proto__")) {
+    if ("__proto__".equals(NodeUtil.getStringValue(compFieldNameExpr).orElse(""))) {
       return createFieldDefineProperty(computedField, fieldValue, receiver, compFieldNameExpr);
     }
 
@@ -2000,7 +2000,8 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     }
 
     if (newNameNode != null) {
-      String originalName = checkNotNull(n.getQualifiedName());
+      String originalName = n.getQualifiedName();
+      checkState(!originalName.isEmpty());
       newNameNode.srcrefTree(n).setOriginalName(originalName);
       n.replaceWith(newNameNode);
       t.reportCodeChange(newNameNode);

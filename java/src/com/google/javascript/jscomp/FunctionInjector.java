@@ -211,7 +211,6 @@ class FunctionInjector {
     //    large performance implications.
 
     final String fnRecursionName = fnNode.getFirstChild().getString();
-    checkState(fnRecursionName != null);
 
     // If the function references "arguments" directly in the function or in an arrow function
     boolean referencesArguments =

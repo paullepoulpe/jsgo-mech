@@ -122,7 +122,6 @@ public class ModuleNames {
           // Consume the previous segment.
           --position;
           --available;
-          buffer[position] = null;
         } else if (!absolutePath) {
           // If this is a relative path, retain "..", as it can't be consumed on the left.
           buffer[position] = part;

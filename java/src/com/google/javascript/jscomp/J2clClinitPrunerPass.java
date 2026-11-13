@@ -31,7 +31,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
@@ -414,7 +413,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
 
       Node rhs = node.getFirstChild().getLastChild();
       return NodeUtil.isEmptyFunctionExpression(rhs)
-          && Objects.equals(NodeUtil.getBestLValueName(lhs).orElse(null), enclosingFnName);
+          && NodeUtil.getBestLValueName(lhs).equals(Optional.of(enclosingFnName));
     }
   }
 

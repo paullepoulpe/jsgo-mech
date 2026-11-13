@@ -485,7 +485,8 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
       // Find longest prefix match that is actually a provide/legacy namespace, if any.
       ModuleMetadata originalImport = null;
       for (QualifiedName subName = aliasedName; subName != null; subName = subName.getOwner()) {
-        ModuleMetadata imported = moduleByNamespace.get(subName.join().orElse(null));
+        Optional<String> joined = subName.join();
+        ModuleMetadata imported = joined.isPresent() ? moduleByNamespace.get(joined.get()) : null;
         if (imported != null) {
           originalImport = imported;
           break;
@@ -795,7 +796,8 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
     acceptableRequires = Sets.intersection(acceptableRequires, dep.googNamespaces().elementSet());
 
     for (QualifiedName parent = namespace; parent != null; parent = parent.getOwner()) {
-      if (acceptableRequires.contains(parent.join().orElse(null))) {
+      Optional<String> joined = parent.join();
+      if (joined.isPresent() && acceptableRequires.contains(joined.get())) {
         return true;
       }
     }

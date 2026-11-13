@@ -48,7 +48,7 @@ public class VirtualFile implements SourceFile {
   
   @Override public boolean equals(Object o) {
     if (o instanceof VirtualFile vf) {
-      return Objects.equals(name, vf.name) && Objects.equals(code, vf.code);
+      return name.equals(vf.name) && code.equals(vf.code);
     }
     return false;
   }

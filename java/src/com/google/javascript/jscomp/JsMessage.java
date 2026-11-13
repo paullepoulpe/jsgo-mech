@@ -686,8 +686,8 @@ public record JsMessage(
     }
 
     public JsMessage build() {
-      checkNotNull(key.orElseThrow(), "key has not been set");
-      checkNotNull(id.orElseThrow(), "id has not been set");
+      checkState(key.isPresent(), "key has not been set");
+      checkState(id.isPresent(), "id has not been set");
       checkState(!isExternal || !isAnonymous, "a message cannot be both anonymous and external");
 
       // An alternate ID that points to itself is a no-op, so just omit it.

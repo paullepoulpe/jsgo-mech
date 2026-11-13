@@ -337,10 +337,7 @@ class RemoveUnusedCode implements CompilerPass {
     private static Supplier<String> getLoggableFunctionNameSupplier(Node argList) {
       return () -> {
         Optional<String> functionName = NodeUtil.getNearestFunctionName(checkNotNull(argList).getParent());
-        if (functionName.isEmpty()) {
-          functionName = Optional.of("<anonymous>");
-        }
-        return functionName.orElse(null);
+        return functionName.orElse("<anonymous>");
       };
     }
   }
@@ -1767,7 +1764,7 @@ class RemoveUnusedCode implements CompilerPass {
     }
 
     String getPropertyName() {
-      return checkNotNull(propertyName.orElseThrow());
+      return propertyName.orElseThrow();
     }
 
     /** Remove the associated nodes from the AST. */
@@ -2690,7 +2687,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     AnonymousPrototypeNamedPropertyAssign(RemovableBuilder builder, Node assignNode) {
       super(assignNode.getFirstChild(), builder);
-      checkNotNull(builder.propertyName.orElseThrow());
+      checkState(builder.propertyName.isPresent());
       checkArgument(assignNode.isAssign(), assignNode);
       this.assignNode = assignNode;
     }

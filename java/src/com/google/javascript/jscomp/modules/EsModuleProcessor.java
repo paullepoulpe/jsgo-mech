@@ -226,7 +226,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
       for (Export ee : exports) {
         if (ee.moduleRequest().isEmpty()) {
-          if (importsByLocalName.containsKey(ee.localName().orElse(null))) {
+          if (ee.localName().isPresent() && importsByLocalName.containsKey(ee.localName().get())) {
             // import A from '';
             // export { A };
 
@@ -549,7 +549,7 @@ public final class EsModuleProcessor implements NodeTraversal.Callback, ModulePr
 
       for (Export e : indirectExports) {
         if (exportName.equals(e.exportName())) {
-          if (importsByLocalName.containsKey(e.localName().orElse(null))) {
+          if (e.localName().isPresent() && importsByLocalName.containsKey(e.localName().get())) {
             // import whatever from 'mod';
             // export { whatever };
             return resolveImport(moduleRequestResolver, e.localName().orElse(null), resolveSet, exportStarSet)

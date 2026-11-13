@@ -92,7 +92,7 @@ public final class NamedType extends ProxyObjectType {
 
   static int nominalHashCode(ObjectType type) {
     checkState(type.hasReferenceName());
-    String name = checkNotNull(type.getReferenceName().orElseThrow());
+    String name = type.getReferenceName().orElseThrow();
     return name.hashCode();
   }
 

@@ -186,7 +186,7 @@ public final class EnumType extends PrototypeObjectType implements JSType.WithSo
 
   @Override
   void appendTo(TypeStringBuilder sb) {
-    sb.append(sb.isForAnnotations() ? "!Object" : getReferenceName().orElse(null));
+    sb.append(sb.isForAnnotations() ? "!Object" : getReferenceName().get());
   }
 
   @Override

@@ -15,7 +15,6 @@
  */
 package com.google.javascript.jscomp.deps;
 
-import com.google.common.base.Strings;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.transpile.BaseTranspiler;
@@ -219,7 +218,7 @@ public final class ClosureBundler {
    * method.
    */
   public String getSourceMap(String path) {
-    return Strings.nullToEmpty(sourceMapCache.get(path));
+    return Optional.ofNullable(sourceMapCache.get(path)).orElse("");
   }
 
   private String transpile(String s, Transpiler t) {

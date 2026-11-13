@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.javascript.jscomp.TypeCheck.BAD_IMPLEMENTED_TYPE;
 import static com.google.javascript.jscomp.base.JSCompObjects.identical;
 import static com.google.javascript.rhino.jstype.JSTypeNative.ASYNC_GENERATOR_TYPE;
@@ -676,7 +675,9 @@ final class FunctionTypeBuilder {
           paramName = info.getParameterNameAt(paramIndex);
         }
       }
-      allJsDocParams.remove(paramName.orElse(null));
+      if (paramName.isPresent()) {
+        allJsDocParams.remove(paramName.get());
+      }
 
       // type from JSDocInfo
       JSType parameterType = null;

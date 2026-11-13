@@ -67,7 +67,7 @@ public final class Property implements StaticTypedSlot, StaticTypedRef {
   public sealed interface Key {
     KeyKind kind();
 
-    @Nullable String string();
+    String string();
 
     @Nullable KnownSymbolType symbol();
 

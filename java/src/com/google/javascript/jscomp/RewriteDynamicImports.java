@@ -16,7 +16,6 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
 import static com.google.javascript.jscomp.AstFactory.typeJSType;
@@ -368,7 +367,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
    * </pre>
    */
   private void aliasDynamicImport(NodeTraversal t, Node dynamicImport) {
-    checkNotNull(this.alias.orElseThrow());
+    checkState(this.alias.isPresent());
     final Node aliasNode = astFactory.createQNameWithUnknownType(this.alias.get());
     aliasNode.setOriginalName("import");
     final Node moduleSpecifier = dynamicImport.removeFirstChild();

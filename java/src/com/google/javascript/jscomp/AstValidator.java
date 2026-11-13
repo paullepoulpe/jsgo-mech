@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -1003,7 +1002,7 @@ public final class AstValidator implements CompilerPass {
     validateNonNullString(n);
     validateProperties(n);
     validateChildCount(n);
-    boolean isEmpty = n.getString() != null && n.getString().isEmpty();
+    boolean isEmpty = n.getString().isEmpty();
     if (!isEmpty) {
       validateTypeInformation(n);
     }

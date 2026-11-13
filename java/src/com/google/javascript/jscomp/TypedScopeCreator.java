@@ -1355,7 +1355,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
       // declaration. Otherwise, the declaration will happen in other
       // code paths.
       if (NodeUtil.isClassDeclaration(n)) {
-        checkNotNull(className.orElseThrow());
+        checkState(className.isPresent());
         new SlotDefiner()
             .forDeclarationNode(n.getFirstChild())
             .forVariableName(className)
@@ -2158,7 +2158,7 @@ final class TypedScopeCreator implements ScopeCreator, StaticSymbolTable<TypedVa
                 || (this.forGoogProvidedNameField && NodeUtil.isExprCall(declarationNode)),
             "declaration node must be an lvalue or goog.provide call, found %s",
             declarationNode);
-        checkNotNull(variableName.orElseThrow(), "variableName not set");
+        checkState(variableName.isPresent(), "variableName not set");
         checkState(allowLaterTypeInferenceField || type != null, "null type but inference not allowed");
         checkState(!variableName.get().isEmpty());
         checkNotNull(scope);

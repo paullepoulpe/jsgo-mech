@@ -1000,7 +1000,7 @@ public abstract class RegExpTree {
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(groupName);
+      return groupName.hashCode();
     }
   }
 
@@ -1684,7 +1684,7 @@ public abstract class RegExpTree {
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(name) ^ body.hashCode();
+      return name.hashCode() ^ body.hashCode();
     }
   }
 
@@ -1696,7 +1696,6 @@ public abstract class RegExpTree {
     private final boolean negated;
 
     UnicodePropertyEscape(Optional<String> propertyName, String propertyValue, boolean negated) {
-      checkState(propertyValue != null);
       checkArgument(
           propertyName.isEmpty() || !propertyName.get().isEmpty(),
           "if '=' is present in a unicode property escape, the name cannot be empty");
@@ -1732,12 +1731,12 @@ public abstract class RegExpTree {
       return (o instanceof UnicodePropertyEscape unicodePropertyEscape)
           && negated == unicodePropertyEscape.negated
           && propertyName.equals(unicodePropertyEscape.propertyName)
-          && Objects.equals(propertyValue, unicodePropertyEscape.propertyValue);
+          && propertyValue.equals(unicodePropertyEscape.propertyValue);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(negated, propertyName.orElse(null), propertyValue);
+      return Objects.hash(negated, propertyName, propertyValue);
     }
   }
 

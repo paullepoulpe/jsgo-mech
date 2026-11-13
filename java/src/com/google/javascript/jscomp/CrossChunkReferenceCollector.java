@@ -167,7 +167,7 @@ public final class CrossChunkReferenceCollector implements CompilerPass {
             compiler.getCodingConvention().getClassesDefinedByCall(expr);
         if (relationship != null) {
           // Check for $jscomp.inherits(SubC, SuperC), goog.inherits(Sub, SuperC), etc.
-          String declaredName = checkNotNull(relationship.subclassName.orElseThrow());
+          String declaredName = relationship.subclassName.orElseThrow();
           for (Node callArg = expr.getSecondChild(); callArg != null; callArg = callArg.getNext()) {
             // We're assuming that the child class must be an argument to the function that
             // establishes its inheritance, which is true for `goog.inherits()` and

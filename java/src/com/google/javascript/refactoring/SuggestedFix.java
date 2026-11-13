@@ -211,7 +211,7 @@ public final class SuggestedFix {
     @CanIgnoreReturnValue
     private Builder insertBeforeString(Node nodeToInsertBefore, String content, String sortKey) {
       int startPosition = getStartPositionForNodeConsideringComments(nodeToInsertBefore);
-      Preconditions.checkNotNull(nodeToInsertBefore.getSourceFileName(),
+      Preconditions.checkState(!nodeToInsertBefore.getSourceFileName().isEmpty(),
           "No source file name for node: %s", nodeToInsertBefore);
       replacements.put(
           nodeToInsertBefore.getSourceFileName(),

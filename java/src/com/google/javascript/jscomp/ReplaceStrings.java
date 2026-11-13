@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
@@ -261,7 +260,7 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
       }
     }
 
-    checkNotNull(key.orElseThrow());
+    checkState(key.isPresent());
     recordReplacement(key.get());
 
     replacement.srcrefTreeIfMissing(expr);

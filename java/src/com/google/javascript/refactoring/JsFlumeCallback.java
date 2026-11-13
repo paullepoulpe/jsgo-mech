@@ -16,7 +16,6 @@
 
 package com.google.javascript.refactoring;
 
-import com.google.common.base.Strings;
 import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.rhino.Node;
 import com.google.re2j.Pattern;
@@ -56,7 +55,7 @@ final class JsFlumeCallback implements NodeTraversal.Callback {
     if (n.isScript()) {
       String filename = n.getSourceFileName();
       if (includeFilePattern != null
-          && !Strings.isNullOrEmpty(includeFilePattern.pattern())
+          && !includeFilePattern.pattern().isEmpty()
           && !filename.isEmpty()) {
         return includeFilePattern.matcher(filename).find();
       }

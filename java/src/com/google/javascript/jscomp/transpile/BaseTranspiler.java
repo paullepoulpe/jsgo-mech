@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.transpile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.CheckLevel;
@@ -66,7 +65,7 @@ public final class BaseTranspiler implements Transpiler {
   @Override
   public String runtime() {
     StringBuilder sb = new StringBuilder();
-    if (!Strings.isNullOrEmpty(runtimeLibraryName)) {
+    if (!runtimeLibraryName.isEmpty()) {
       sb.append(compilerSupplier.runtime(runtimeLibraryName));
     }
     sb.append(compilerSupplier.runtime("modules"));

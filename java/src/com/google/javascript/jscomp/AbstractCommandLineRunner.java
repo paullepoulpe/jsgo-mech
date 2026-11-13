@@ -64,7 +64,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -1281,7 +1280,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
     boolean createCommonJsModules = false;
     if (options.getProcessCommonJSModules()
-        && (config.chunk.size() == 1 && Objects.equals(config.chunk.get(0), "auto"))) {
+        && (config.chunk.size() == 1 && "auto".equals(config.chunk.get(0)))) {
       createCommonJsModules = true;
       config.chunk.remove(0);
     }

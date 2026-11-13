@@ -412,14 +412,12 @@ class ReplaceCssNames implements CompilerPass {
     }
 
     Optional<String> getCssClosureClassesQualifiedName() {
-      checkNotNull(
-          cssClosureClassesQualifiedName.orElseThrow(), "Not a css closure file classes object: %s", callNode);
+      checkState(cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", callNode);
       return cssClosureClassesQualifiedName;
     }
 
     Optional<String> getCssClosureClassesMemberName() {
-      checkNotNull(
-          cssClosureClassesQualifiedName.orElseThrow(), "Not a css closure file classes object: %s", callNode);
+      checkState(cssClosureClassesQualifiedName.isPresent(), "Not a css closure file classes object: %s", callNode);
       // We support 2 structures getCssName() calls in Sass-generated files:
       // 1. { Foo: goog.getCssName('foo') }
       // 2. { Foo: expression ? … : goog.getCssName('foo') }

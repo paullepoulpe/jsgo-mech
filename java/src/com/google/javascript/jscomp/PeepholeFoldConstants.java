@@ -33,7 +33,6 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.math.BigInteger;
-import java.util.Objects;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
@@ -369,7 +368,7 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
         if (!mayHaveSideEffects(left)) {
           replacementNode = IR.falseNode();
         }
-      } else if (right.isName() && Objects.equals(right.getString(), "Object")) {
+      } else if (right.isName() && "Object".equals(right.getString())) {
         replacementNode = IR.trueNode();
       }
 

@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /** A data structure for JS dependency information for a single .js file. */
@@ -196,12 +195,12 @@ public interface DependencyInfo {
 
   /** Whether the symbol is provided by an ES6 module */
   default boolean isEs6Module() {
-    return Objects.equals(getLoadFlags().get("module"), "es6");
+    return "es6".equals(getLoadFlags().get("module"));
   }
 
   /** Whether the symbol is provided by a goog module */
   default boolean isGoogModule() {
-    return Objects.equals(getLoadFlags().get("module"), "goog");
+    return "goog".equals(getLoadFlags().get("module"));
   }
 
   /** Whether the file '@externs' annotation. */

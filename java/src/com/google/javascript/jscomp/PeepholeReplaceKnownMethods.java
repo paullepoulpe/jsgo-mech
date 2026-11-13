@@ -1351,7 +1351,6 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
   /** Implement the JS String.split method using a string separator. */
   private String[] jsSplit(String stringValue, Optional<String> separator, int limit) {
     checkArgument(limit >= 0);
-    checkArgument(stringValue != null);
 
     // For limits of 0, return an empty array
     if (limit == 0) {
