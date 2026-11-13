@@ -33,11 +33,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Doubles;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.CodePrinter.LicenseTracker;
 import com.google.javascript.jscomp.Compiler.ChunkGraphAwareLicenseTracker;
 import com.google.javascript.jscomp.Compiler.ScriptNodeLicensesOnlyTracker;
@@ -48,7 +43,11 @@ import com.google.javascript.jscomp.CompilerOptions.SegmentOfCompilationToRun;
 import com.google.javascript.jscomp.CompilerOptions.TweakProcessing;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.JSCompStrings;
+import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleJsonException;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.SourceCodeEscapers;
 import com.google.javascript.jscomp.ijs.IjsErrors;
@@ -59,8 +58,6 @@ import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.TokenStream;
 import com.google.re2j.Pattern;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -584,13 +581,19 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     if (json.isErr()) {
       return Outcome.err(json.error());
     }
-    try (JsonReader reader = new JsonReader(new StringReader(json.get()))) {
-      reader.beginArray();
-      while (reader.hasNext()) {
-        JsonFileSpec jsonFile = JsonFileSpec.readJson(reader);
-        jsonFiles.add(jsonFile);
+    Outcome<SimpleJsonValue> parsed = Json.parse(json.get());
+    if (parsed.isErr()) {
+      return Outcome.err(new SimpleJsonException("Malformed JSON in the JSON stream input"));
+    }
+    if (parsed.get().kind() != SimpleJsonValue.Kind.ARRAY) {
+      return Outcome.err(new SimpleJsonException("Malformed JSON stream: expected an array"));
+    }
+    for (SimpleJsonValue element : parsed.get().elements()) {
+      Outcome<JsonFileSpec> jsonFile = JsonFileSpec.readJson(element);
+      if (jsonFile.isErr()) {
+        return Outcome.err(jsonFile.error());
       }
-      reader.endArray();
+      jsonFiles.add(jsonFile.get());
     }
     return Outcome.ok(jsonFiles);
   }
@@ -1887,24 +1890,17 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   }
 
   Outcome<Void> outputJsonStream() throws IOException {
-    StringWriter json = new StringWriter();
-    try (JsonWriter jsonWriter = new JsonWriter(json)) {
-      jsonWriter.setLenient(true);
-      jsonWriter.setHtmlSafe(false);
-      jsonWriter.setSerializeNulls(false);
-      try {
-        jsonWriter.beginArray();
-        for (JsonFileSpec jsonFile : this.filesToStreamOut) {
-          jsonFile.writeJson(jsonWriter);
-        }
-        jsonWriter.endArray();
-      } catch (IOException e) {
-        throw new JsonIOException(e);
-      }
+    SimpleJsonWriter jsonWriter = new SimpleJsonWriter();
+    jsonWriter.setHtmlSafe(false);
+    jsonWriter.setSerializeNulls(false);
+    jsonWriter.beginArray();
+    for (JsonFileSpec jsonFile : this.filesToStreamOut) {
+      jsonFile.writeJson(jsonWriter);
     }
+    jsonWriter.endArray();
     // The JSON goes to the output stream as UTF-8, and the stream is closed.
     Io.Output out = defaultJsOutput.encodedAs(Io.UTF_8);
-    out.print(json.toString());
+    out.print(jsonWriter.toString());
     Outcome<Void> outClosed1 = closeOutput(out);
     if (outClosed1.isErr()) {
       return Outcome.err(outClosed1.error());
@@ -3443,60 +3439,60 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
     private final @Nullable String webpackId;
 
     /**
-     * Reads one file spec, in lenient mode. Unknown properties are skipped; "sourceMap" and
+     * Reads one file spec from a JSON object. Unknown properties are skipped; "sourceMap" and
      * "webpackId" are accepted as alternate names of "source_map" and "webpack_id".
      */
-    private static @Nullable JsonFileSpec readJson(JsonReader reader) {
-      boolean oldLenient = reader.isLenient();
-      reader.setLenient(true);
-      try {
-        if (reader.peek() == JsonToken.NULL) {
-          reader.nextNull();
-          return null;
-        }
-        String src = null;
-        String path = null;
-        String sourceMap = null;
-        String webpackId = null;
-        reader.beginObject();
-        while (reader.hasNext()) {
-          switch (reader.nextName()) {
-            case "src" -> src = readJsonString(reader);
-            case "path" -> path = readJsonString(reader);
-            case "source_map", "sourceMap" -> sourceMap = readJsonString(reader);
-            case "webpack_id", "webpackId" -> webpackId = readJsonString(reader);
-            default -> reader.skipValue();
-          }
-        }
-        reader.endObject();
-        return new JsonFileSpec(src, path, sourceMap, webpackId);
-      } catch (IllegalStateException | IOException e) {
-        throw new JsonSyntaxException(e);
-      } finally {
-        reader.setLenient(oldLenient);
+    private static Outcome<JsonFileSpec> readJson(SimpleJsonValue object) {
+      if (object.kind() != SimpleJsonValue.Kind.OBJECT) {
+        return Outcome.err(new SimpleJsonException("Malformed JSON stream: expected an object"));
       }
+      String src = null;
+      String path = null;
+      String sourceMap = null;
+      String webpackId = null;
+      for (Map.Entry<String, SimpleJsonValue> member : object.members().entrySet()) {
+        String name = member.getKey();
+        boolean known =
+            switch (name) {
+              case "src", "path", "source_map", "sourceMap", "webpack_id", "webpackId" -> true;
+              default -> false;
+            };
+        if (!known) {
+          continue;
+        }
+        Outcome<@Nullable String> value = readJsonString(member.getValue());
+        if (value.isErr()) {
+          return Outcome.err(value.error());
+        }
+        switch (name) {
+          case "src" -> src = value.get();
+          case "path" -> path = value.get();
+          case "source_map", "sourceMap" -> sourceMap = value.get();
+          default -> webpackId = value.get();
+        }
+      }
+      if (src == null || path == null) {
+        return Outcome.err(
+            new SimpleJsonException("Malformed JSON stream: a file needs \"src\" and \"path\""));
+      }
+      return Outcome.ok(new JsonFileSpec(src, path, sourceMap, webpackId));
     }
 
     /** Reads a string or null; a boolean or a number is read as its text. */
-    private static @Nullable String readJsonString(JsonReader reader) throws IOException {
-      JsonToken peek = reader.peek();
-      if (peek == JsonToken.NULL) {
-        reader.nextNull();
-        return null;
+    private static Outcome<@Nullable String> readJsonString(SimpleJsonValue value) {
+      if (value.kind() == SimpleJsonValue.Kind.NULL) {
+        return Outcome.ok(null);
       }
-      if (peek == JsonToken.BOOLEAN) {
-        return Boolean.toString(reader.nextBoolean());
-      }
-      return reader.nextString();
+      return value.asString();
     }
 
     /** Writes this file spec as an object; a property whose value is null is left out. */
-    private void writeJson(JsonWriter writer) throws IOException {
+    private void writeJson(SimpleJsonWriter writer) {
       writer.beginObject();
-      writer.name("src").value(this.src);
-      writer.name("path").value(this.path);
-      writer.name("source_map").value(this.sourceMap);
-      writer.name("webpack_id").value(this.webpackId);
+      writer.name("src").stringValue(this.src);
+      writer.name("path").stringValue(this.path);
+      writer.name("source_map").stringValue(this.sourceMap);
+      writer.name("webpack_id").stringValue(this.webpackId);
       writer.endObject();
     }
 

@@ -22,8 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Precision;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -156,8 +155,8 @@ public final class SourceMapConsumerV3Test {
 
     assertThat(exts).hasSize(2);
     assertThat(exts).doesNotContainKey("org_int");
-    assertThat(((JsonElement) exts.get("x_org_int")).getAsInt()).isEqualTo(2);
-    assertThat((JsonArray) exts.get("x_org_array")).isEmpty();
+    assertThat(((SimpleJsonValue) exts.get("x_org_int")).asInt().get()).isEqualTo(2);
+    assertThat(((SimpleJsonValue) exts.get("x_org_array")).toString()).isEqualTo("[]");
   }
 
   @Test

@@ -19,6 +19,8 @@ package com.google.javascript.jscomp.base;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -141,6 +143,42 @@ public final class SimpleJsonWriterTest {
     SimpleJsonWriter writer = new SimpleJsonWriter();
     writer.longValue(1).stringValue("a").beginArray().endArray();
     assertThat(writer.toString()).isEqualTo("1\"a\"[]");
+  }
+
+  @Test
+  public void takeTextReturnsAndDropsWhatWasWritten() {
+    SimpleJsonWriter writer = new SimpleJsonWriter();
+    writer.beginArray().longValue(1);
+    assertThat(writer.takeText()).isEqualTo("[1");
+    assertThat(writer.toString()).isEmpty();
+    writer.longValue(2).endArray();
+    assertThat(writer.takeText()).isEqualTo(",2]");
+    assertThat(writer.takeText()).isEmpty();
+  }
+
+  @Test
+  public void aSinkGetsTheTextInPiecesThatAddUpToTheWholeText() {
+    for (String indent : new String[] {"", "  "}) {
+      SimpleJsonWriter whole = new SimpleJsonWriter();
+      SimpleJsonWriter pieces = new SimpleJsonWriter();
+      List<String> handedOver = new ArrayList<>();
+      pieces.setSink(handedOver::add);
+      for (SimpleJsonWriter writer : new SimpleJsonWriter[] {whole, pieces}) {
+        writer.setIndent(indent);
+        writer.beginObject();
+        for (int i = 0; i < 30000; i++) {
+          writer.name("key<" + i).beginArray().stringValue("value " + i).nullValue().endArray();
+        }
+        writer.endObject();
+      }
+
+      assertThat(handedOver.size()).isAtLeast(5);
+      for (String piece : handedOver) {
+        assertThat(piece.length()).isAtLeast(SimpleJsonWriter.SINK_THRESHOLD);
+        assertThat(piece.length()).isLessThan(SimpleJsonWriter.SINK_THRESHOLD + 100);
+      }
+      assertThat(String.join("", handedOver) + pieces.takeText()).isEqualTo(whole.toString());
+    }
   }
 
   @Test

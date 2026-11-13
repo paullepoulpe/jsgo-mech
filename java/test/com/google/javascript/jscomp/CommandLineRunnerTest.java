@@ -2705,7 +2705,8 @@ public final class CommandLineRunnerTest {
         "names":["log","a","console"]\n\
         }\
         """;
-    inputSourceMap = inputSourceMap.replace("\"", "\\\"");
+    // Standard JSON has no raw newline in a string.
+    inputSourceMap = inputSourceMap.replace("\"", "\\\"").replace("\n", "\\n");
     String inputString =
         """
         [{\
@@ -2764,7 +2765,8 @@ public final class CommandLineRunnerTest {
         "names":["log","a","console"]\n\
         }\
         """;
-    inputSourceMap = inputSourceMap.replace("\"", "\\\"");
+    // Standard JSON has no raw newline in a string.
+    inputSourceMap = inputSourceMap.replace("\"", "\\\"").replace("\n", "\\n");
     String inputString =
         // input JSON with `source_map` field instead of `sourceMap`
         """

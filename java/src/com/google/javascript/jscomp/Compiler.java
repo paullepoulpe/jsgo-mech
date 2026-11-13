@@ -35,12 +35,6 @@ import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.MustBeClosed;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.CodePrinter.LicenseTracker;
 import com.google.javascript.jscomp.CompilerInput.ModuleType;
 import com.google.javascript.jscomp.CompilerOptions.DevMode;
@@ -53,6 +47,8 @@ import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.jscomp.colors.ColorRegistry;
@@ -102,7 +98,6 @@ import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.google.re2j.Pattern;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -528,46 +523,13 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
   }
 
   /** Returns the HTML-safe JSON text of a JSON tree, indented by two spaces per level. */
-  private static String toPrettyJson(JsonElement element) {
-    StringWriter out = new StringWriter();
-    JsonWriter writer = new JsonWriter(out);
+  private static String toPrettyJson(SimpleJsonValue element) {
+    SimpleJsonWriter writer = new SimpleJsonWriter();
     writer.setIndent("  ");
-    writer.setLenient(true);
     writer.setHtmlSafe(true);
     writer.setSerializeNulls(false);
-    try {
-      writeJson(writer, element);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    }
-    return out.toString();
-  }
-
-  private static void writeJson(JsonWriter writer, JsonElement element) throws IOException {
-    if (element == null || element.isJsonNull()) {
-      writer.nullValue();
-    } else if (element instanceof JsonPrimitive primitive) {
-      if (primitive.isNumber()) {
-        writer.value(primitive.getAsNumber());
-      } else if (primitive.isBoolean()) {
-        writer.value(primitive.getAsBoolean());
-      } else {
-        writer.value(primitive.getAsString());
-      }
-    } else if (element instanceof JsonArray array) {
-      writer.beginArray();
-      for (JsonElement e : array) {
-        writeJson(writer, e);
-      }
-      writer.endArray();
-    } else {
-      writer.beginObject();
-      for (Map.Entry<String, JsonElement> e : ((JsonObject) element).entrySet()) {
-        writer.name(e.getKey());
-        writeJson(writer, e.getValue());
-      }
-      writer.endObject();
-    }
+    element.writeTo(writer);
+    return writer.toString();
   }
 
   private void maybeLogPrunedInputs() {

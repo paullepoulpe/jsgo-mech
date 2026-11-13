@@ -18,6 +18,7 @@ package com.google.javascript.jscomp.base;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -38,12 +39,16 @@ public final class SimpleJsonWriter {
 
   private static final String HEX_DIGITS = "0123456789abcdef";
 
+  /** With a sink, about this many characters are buffered before they are handed over. */
+  public static final int SINK_THRESHOLD = 1 << 16;
+
   private final StringBuilder out = new StringBuilder();
   private final ArrayList<Integer> stack = new ArrayList<>();
   private String indent = "";
   private boolean htmlSafe = false;
   private boolean serializeNulls = true;
   private @Nullable String deferredName = null;
+  private @Nullable Consumer<String> sink = null;
 
   public SimpleJsonWriter() {
     stack.add(DOCUMENT);
@@ -152,7 +157,23 @@ public final class SimpleJsonWriter {
     return this;
   }
 
-  /** Returns the JSON text written so far. */
+  /**
+   * Makes the writer hand the text written so far to {@code sink} whenever about {@link
+   * #SINK_THRESHOLD} characters have piled up, so that a very large text never is in memory as a
+   * whole. The pieces, followed by a final {@link #takeText}, are the text in order.
+   */
+  public void setSink(Consumer<String> sink) {
+    this.sink = sink;
+  }
+
+  /** Returns the JSON text written since the last call (or hand-over to the sink) and drops it. */
+  public String takeText() {
+    String text = out.toString();
+    out.setLength(0);
+    return text;
+  }
+
+  /** Returns the JSON text written so far that was not taken or handed to the sink. */
   @Override
   public String toString() {
     return out.toString();
@@ -183,6 +204,9 @@ public final class SimpleJsonWriter {
 
   /** Writes the pending name, if any, and the separator that precedes a value in this context. */
   private void beforeValue() {
+    if (sink != null && out.length() >= SINK_THRESHOLD) {
+      sink.accept(takeText());
+    }
     int top = stack.size() - 1;
     int context = stack.get(top);
     if (deferredName != null) {

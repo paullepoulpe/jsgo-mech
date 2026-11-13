@@ -23,9 +23,9 @@ import com.google.debugging.sourcemap.SourceMapGeneratorV3.ExtensionMergeAction;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.javascript.jscomp.SourceMap;
 import com.google.javascript.jscomp.SourceMap.Format;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -713,12 +713,12 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
         new ExtensionMergeAction() {
           @Override
           public Object merge(String extensionKey, Object currentValue, Object newValue) {
-            return (Integer) currentValue + ((JsonPrimitive) newValue).getAsInt();
+            return (Integer) currentValue + ((SimpleJsonValue) newValue).asInt().get();
           }
         }).get();
 
     assertThat(mapper.getExtension("x_company_baz")).isEqualTo(5);
-    assertThat(((JsonPrimitive) mapper.getExtension("x_company_bar")).getAsBoolean()).isFalse();
+    assertThat(mapper.getExtension("x_company_bar").toString()).isEqualTo("false");
   }
 
   @Test

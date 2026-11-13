@@ -20,16 +20,14 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.LightweightMessageFormatter.LineNumberingFormatter;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorReportGenerator;
 import com.google.javascript.jscomp.SortingErrorManager.ErrorWithLevel;
 import com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt;
 import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.TokenUtil;
-import java.io.IOException;
-import java.io.StringWriter;
 
 /**
  * An error report generator that prints error and warning data to the print stream as an array of
@@ -54,8 +52,8 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
 
   @Override
   public void generateReport(SortingErrorManager manager) {
-    StringWriter bufferedStream = new StringWriter();
-    try (JsonWriter jsonWriter = new JsonWriter(bufferedStream)) {
+    SimpleJsonWriter jsonWriter = new SimpleJsonWriter();
+    {
       jsonWriter.beginArray();
       for (ErrorWithLevel message : manager.getSortedDiagnostics()) {
         String sourceName = message.error.sourceName();
@@ -63,26 +61,28 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
         int charno = message.error.charno();
 
         jsonWriter.beginObject();
-        jsonWriter.name("level").value(message.level == CheckLevel.ERROR ? "error" : "warning");
-        jsonWriter.name("description").value(message.error.description());
-        jsonWriter.name("key").value(message.error.type().key);
+        jsonWriter
+            .name("level")
+            .stringValue(message.level == CheckLevel.ERROR ? "error" : "warning");
+        jsonWriter.name("description").stringValue(message.error.description());
+        jsonWriter.name("key").stringValue(message.error.type().key);
         if (message.error.requirement() != null) {
           jsonWriter.name("requirement").beginObject();
-          jsonWriter.name("ruleId").value(message.error.requirement().getRuleId());
+          jsonWriter.name("ruleId").stringValue(message.error.requirement().getRuleId());
           jsonWriter.name("configFiles").beginArray();
           for (String configFile : message.error.requirement().getConfigFileList()) {
-            jsonWriter.value(configFile);
+            jsonWriter.stringValue(configFile);
           }
           jsonWriter.endArray();
           jsonWriter.endObject();
         }
-        jsonWriter.name("source").value(sourceName);
-        jsonWriter.name("line").value(lineNumber);
-        jsonWriter.name("column").value(charno);
+        jsonWriter.name("source").stringValue(sourceName);
+        jsonWriter.name("line").longValue(lineNumber);
+        jsonWriter.name("column").longValue(charno);
         Node node = message.error.node();
         int regionLength = message.error.length();
         if (node != null && regionLength > 0) {
-          jsonWriter.name("length").value(message.error.length());
+          jsonWriter.name("length").longValue(message.error.length());
         }
 
         // extract source excerpt
@@ -114,7 +114,7 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
             }
           }
 
-          jsonWriter.name("context").value(b.toString());
+          jsonWriter.name("context").stringValue(b.toString());
         }
 
         OriginalMapping mapping =
@@ -123,9 +123,9 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
 
         if (mapping != null) {
           jsonWriter.name("originalLocation").beginObject();
-          jsonWriter.name("source").value(mapping.getOriginalFile());
-          jsonWriter.name("line").value(mapping.getLineNumber());
-          jsonWriter.name("column").value(mapping.getColumnPosition());
+          jsonWriter.name("source").stringValue(mapping.getOriginalFile());
+          jsonWriter.name("line").longValue(mapping.getLineNumber());
+          jsonWriter.name("column").longValue(mapping.getColumnPosition());
           jsonWriter.endObject();
         }
 
@@ -144,17 +144,14 @@ public class JsonErrorReportGenerator implements ErrorReportGenerator {
                 "%d error(s), %d warning(s)", manager.getErrorCount(), manager.getWarningCount()));
       }
       jsonWriter.beginObject();
-      jsonWriter.name("level").value("info");
-      jsonWriter.name("description").value(summaryBuilder.toString());
+      jsonWriter.name("level").stringValue("info");
+      jsonWriter.name("description").stringValue(summaryBuilder.toString());
       jsonWriter.endObject();
 
       jsonWriter.endArray();
-      jsonWriter.flush();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
     // The text as it comes back from the UTF-8 bytes it used to be written as.
-    stream.append(Io.utf8String(Io.utf8Bytes(bufferedStream.toString())));
+    stream.append(Io.utf8String(Io.utf8Bytes(jsonWriter.toString())));
     stream.flush();
   }
 }

@@ -16,19 +16,9 @@
 package com.google.debugging.sourcemap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
+import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.StringReader;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -42,42 +32,78 @@ public class SourceMapObjectParser {
 
     SourceMapObject.Builder builder = SourceMapObject.builder();
 
-    try {
-      JsonObject sourceMapRoot = parseJsonObject(contents);
-      builder.setVersion(sourceMapRoot.get("version").getAsInt());
-      builder.setFile(getStringOrNull(sourceMapRoot, "file"));
-      builder.setLineCount(
-          sourceMapRoot.has("lineCount") ? sourceMapRoot.get("lineCount").getAsInt() : -1);
-      builder.setMappings(getStringOrNull(sourceMapRoot, "mappings"));
-      builder.setSourceRoot(getStringOrNull(sourceMapRoot, "sourceRoot"));
-
-      if (sourceMapRoot.has("sections")) {
-        ImmutableList.Builder<SourceMapSection> listBuilder = ImmutableList.builder();
-        for (JsonElement each : sourceMapRoot.get("sections").getAsJsonArray()) {
-          Outcome<SourceMapSection> section = buildSection(each.getAsJsonObject());
-          if (section.isErr()) {
-            return Outcome.err(section.error());
-          }
-          listBuilder.add(section.get());
-        }
-        builder.setSections(listBuilder.build());
-      }
-
-      builder.setSources(getJavaStringArray(sourceMapRoot.get("sources")));
-      builder.setSourcesContent(getJavaStringArray(sourceMapRoot.get("sourcesContent")));
-      builder.setNames(getJavaStringArray(sourceMapRoot.get("names")));
-
-      Map<String, Object> extensions = new LinkedHashMap<>();
-      for (Map.Entry<String, JsonElement> entry : sourceMapRoot.entrySet()) {
-        if (entry.getKey().startsWith("x_")) {
-          extensions.put(entry.getKey(), entry.getValue());
-        }
-      }
-      builder.setExtensions(Collections.unmodifiableMap(extensions));
-
-    } catch (JsonParseException ex) {
-      return Outcome.err(new SourceMapParseException("JSON parse exception: " + ex));
+    Outcome<SimpleJsonValue> parsed = Json.parse(contents);
+    if (parsed.isErr()) {
+      return Outcome.err(
+          new SourceMapParseException("JSON parse exception: " + parsed.errorMessage()));
     }
+    SimpleJsonValue sourceMapRoot = parsed.get();
+    if (sourceMapRoot.kind() != SimpleJsonValue.Kind.OBJECT) {
+      return Outcome.err(new SourceMapParseException("Invalid map format: not a JSON object"));
+    }
+    Outcome<Integer> version = getInt(sourceMapRoot, "version");
+    if (version.isErr()) {
+      return Outcome.err(version.error());
+    }
+    builder.setVersion(version.get());
+    Outcome<@Nullable String> file = getStringOrNull(sourceMapRoot, "file");
+    if (file.isErr()) {
+      return Outcome.err(file.error());
+    }
+    builder.setFile(file.get());
+    int lineCount = -1;
+    if (sourceMapRoot.get("lineCount") != null) {
+      Outcome<Integer> lineCountOutcome = getInt(sourceMapRoot, "lineCount");
+      if (lineCountOutcome.isErr()) {
+        return Outcome.err(lineCountOutcome.error());
+      }
+      lineCount = lineCountOutcome.get();
+    }
+    builder.setLineCount(lineCount);
+    Outcome<@Nullable String> mappings = getStringOrNull(sourceMapRoot, "mappings");
+    if (mappings.isErr()) {
+      return Outcome.err(mappings.error());
+    }
+    builder.setMappings(mappings.get());
+    Outcome<@Nullable String> sourceRoot = getStringOrNull(sourceMapRoot, "sourceRoot");
+    if (sourceRoot.isErr()) {
+      return Outcome.err(sourceRoot.error());
+    }
+    builder.setSourceRoot(sourceRoot.get());
+
+    if (sourceMapRoot.get("sections") != null) {
+      Outcome<ImmutableList<SourceMapSection>> sections =
+          buildSections(sourceMapRoot.get("sections"));
+      if (sections.isErr()) {
+        return Outcome.err(sections.error());
+      }
+      builder.setSections(sections.get());
+    }
+
+    Outcome<String @Nullable []> sources = getJavaStringArray(sourceMapRoot, "sources");
+    if (sources.isErr()) {
+      return Outcome.err(sources.error());
+    }
+    builder.setSources(sources.get());
+    Outcome<String @Nullable []> sourcesContent =
+        getJavaStringArray(sourceMapRoot, "sourcesContent");
+    if (sourcesContent.isErr()) {
+      return Outcome.err(sourcesContent.error());
+    }
+    builder.setSourcesContent(sourcesContent.get());
+    Outcome<String @Nullable []> names = getJavaStringArray(sourceMapRoot, "names");
+    if (names.isErr()) {
+      return Outcome.err(names.error());
+    }
+    builder.setNames(names.get());
+
+    Map<String, Object> extensions = new LinkedHashMap<>();
+    for (Map.Entry<String, SimpleJsonValue> entry : sourceMapRoot.members().entrySet()) {
+      if (entry.getKey().startsWith("x_")) {
+        extensions.put(entry.getKey(), entry.getValue());
+      }
+    }
+    builder.setExtensions(Collections.unmodifiableMap(extensions));
 
     return Outcome.ok(builder.build());
   }
@@ -87,14 +113,9 @@ public class SourceMapObjectParser {
     SourceMapObject.Builder builder = SourceMapObject.builder();
     builder.setLineCount(-1);
 
-    // The catch below used to rewrap every exception of the parse, the parser's own
+    // A catch here used to rewrap every exception of the parse, the parser's own
     // SourceMapParseException included; an error outcome is rewrapped in the same way.
-    Outcome<Void> parsed;
-    try {
-      parsed = parseFastInto(builder, contents);
-    } catch (Exception ex) {
-      return Outcome.err(new SourceMapParseException("Parse exception: " + ex));
-    }
+    Outcome<Void> parsed = parseFastInto(builder, contents);
     if (parsed.isErr()) {
       return Outcome.err(new SourceMapParseException("Parse exception: " + parsed.error()));
     }
@@ -157,16 +178,15 @@ public class SourceMapObjectParser {
           if (rawSections.isErr()) {
             return Outcome.err(rawSections.error());
           }
-          JsonArray sectionsArray = parseJsonArray(rawSections.get());
-          ImmutableList.Builder<SourceMapSection> listBuilder = ImmutableList.builder();
-          for (JsonElement each : sectionsArray) {
-            Outcome<SourceMapSection> section = buildSection(each.getAsJsonObject());
-            if (section.isErr()) {
-              return Outcome.err(section.error());
-            }
-            listBuilder.add(section.get());
+          Outcome<SimpleJsonValue> sectionsArray = Json.parse(rawSections.get());
+          if (sectionsArray.isErr()) {
+            return Outcome.err(new SourceMapParseException(sectionsArray.errorMessage()));
           }
-          builder.setSections(listBuilder.build());
+          Outcome<ImmutableList<SourceMapSection>> sections = buildSections(sectionsArray.get());
+          if (sections.isErr()) {
+            return Outcome.err(sections.error());
+          }
+          builder.setSections(sections.get());
         }
         case "sources" -> {
           Outcome<String @Nullable []> sources = readStringArray(lexer);
@@ -195,7 +215,11 @@ public class SourceMapObjectParser {
             if (rawValue.isErr()) {
               return Outcome.err(rawValue.error());
             }
-            extensions.put(name, parseJsonElement(rawValue.get()));
+            Outcome<SimpleJsonValue> value = Json.parse(rawValue.get());
+            if (value.isErr()) {
+              return Outcome.err(new SourceMapParseException(value.errorMessage()));
+            }
+            extensions.put(name, value.get());
           } else {
             Outcome<Void> skipped = lexer.skipValue();
             if (skipped.isErr()) {
@@ -221,24 +245,50 @@ public class SourceMapObjectParser {
     return Outcome.ok();
   }
 
-  private static Outcome<SourceMapSection> buildSection(JsonObject section) {
-    JsonObject offset = section.get("offset").getAsJsonObject();
-    int line = offset.get("line").getAsInt();
-    int column = offset.get("column").getAsInt();
+  private static Outcome<ImmutableList<SourceMapSection>> buildSections(SimpleJsonValue sections) {
+    if (sections.kind() != SimpleJsonValue.Kind.ARRAY) {
+      return Outcome.err(invalidMember("sections"));
+    }
+    ImmutableList.Builder<SourceMapSection> listBuilder = ImmutableList.builder();
+    for (SimpleJsonValue each : sections.elements()) {
+      Outcome<SourceMapSection> section = buildSection(each);
+      if (section.isErr()) {
+        return Outcome.err(section.error());
+      }
+      listBuilder.add(section.get());
+    }
+    return Outcome.ok(listBuilder.build());
+  }
 
-    if (section.has("map") && section.has("url")) {
+  private static Outcome<SourceMapSection> buildSection(SimpleJsonValue section) {
+    SimpleJsonValue offset = section.get("offset");
+    if (offset == null) {
+      return Outcome.err(invalidMember("offset"));
+    }
+    Outcome<Integer> line = getInt(offset, "line");
+    if (line.isErr()) {
+      return Outcome.err(line.error());
+    }
+    Outcome<Integer> column = getInt(offset, "column");
+    if (column.isErr()) {
+      return Outcome.err(column.error());
+    }
+
+    SimpleJsonValue map = section.get("map");
+    if (map != null && section.get("url") != null) {
       return Outcome.err(
           new SourceMapParseException(
               "Invalid map format: section may not have both 'map' and 'url'"));
-    } else if (section.has("url")) {
-      return Outcome.ok(SourceMapSection.forURL(section.get("url").getAsString(), line, column));
-    } else if (section.has("map")) {
-      JsonElement map = section.get("map");
+    } else if (section.get("url") != null) {
+      Outcome<String> url = section.get("url").asString();
+      if (url.isErr()) {
+        return Outcome.err(invalidMember("url"));
+      }
+      return Outcome.ok(SourceMapSection.forURL(url.get(), line.get(), column.get()));
+    } else if (map != null) {
       String mapStr =
-          map.isJsonPrimitive() && map.getAsJsonPrimitive().isString()
-              ? map.getAsString()
-              : map.toString();
-      return Outcome.ok(SourceMapSection.forMap(mapStr, line, column));
+          map.kind() == SimpleJsonValue.Kind.STRING ? map.asString().get() : map.toString();
+      return Outcome.ok(SourceMapSection.forMap(mapStr, line.get(), column.get()));
     }
 
     return Outcome.err(
@@ -246,24 +296,56 @@ public class SourceMapObjectParser {
             "Invalid map format: section must have either 'map' or 'url'"));
   }
 
-  private static @Nullable String getStringOrNull(JsonObject object, String key) {
-    return (object.has(key) && !object.get(key).isJsonNull())
-        ? object.get(key).getAsString()
-        : null;
+  private static SourceMapParseException invalidMember(String key) {
+    return new SourceMapParseException("Invalid map format: missing or malformed '" + key + "'");
   }
 
-  private static String @Nullable [] getJavaStringArray(JsonElement element) {
-    if (element == null || element instanceof JsonNull) {
-      return null;
+  /** The int value of a member that must be present. */
+  private static Outcome<Integer> getInt(SimpleJsonValue object, String key) {
+    SimpleJsonValue value = object.get(key);
+    if (value == null) {
+      return Outcome.err(invalidMember(key));
     }
-    JsonArray array = element.getAsJsonArray();
-    int len = array.size();
-    String[] result = new String[len];
-    for (int i = 0; i < len; i++) {
-      JsonElement item = array.get(i);
-      result[i] = item.isJsonNull() ? null : item.getAsString();
+    Outcome<Integer> result = value.asInt();
+    if (result.isErr()) {
+      return Outcome.err(invalidMember(key));
     }
     return result;
+  }
+
+  private static Outcome<@Nullable String> getStringOrNull(SimpleJsonValue object, String key) {
+    SimpleJsonValue value = object.get(key);
+    if (value == null || value.kind() == SimpleJsonValue.Kind.NULL) {
+      return Outcome.ok(null);
+    }
+    Outcome<String> result = value.asString();
+    if (result.isErr()) {
+      return Outcome.err(invalidMember(key));
+    }
+    return Outcome.ok(result.get());
+  }
+
+  private static Outcome<String @Nullable []> getJavaStringArray(
+      SimpleJsonValue object, String key) {
+    SimpleJsonValue array = object.get(key);
+    if (array == null || array.kind() == SimpleJsonValue.Kind.NULL) {
+      return Outcome.ok(null);
+    } else if (array.kind() != SimpleJsonValue.Kind.ARRAY) {
+      return Outcome.err(invalidMember(key));
+    }
+    int len = array.elements().size();
+    String[] result = new String[len];
+    for (int i = 0; i < len; i++) {
+      Outcome<@Nullable String> item = Outcome.ok(null);
+      if (array.elements().get(i).kind() != SimpleJsonValue.Kind.NULL) {
+        item = array.elements().get(i).asString();
+      }
+      if (item.isErr()) {
+        return Outcome.err(invalidMember(key));
+      }
+      result[i] = item.get();
+    }
+    return Outcome.ok(result);
   }
 
   private static Outcome<String @Nullable []> readStringArray(SourceMapJsonLexer lexer) {
@@ -293,78 +375,6 @@ public class SourceMapObjectParser {
       return Outcome.err(ended.error());
     }
     return Outcome.ok(list.toArray(new String[0]));
-  }
-
-  /**
-   * Parses a whole JSON document that must be an object. Returns null for an empty document.
-   *
-   * <p>The three {@code parseJson*} methods accept and reject exactly the documents that Gson's
-   * {@code fromJson(String, Class)} did for the corresponding {@link JsonElement} class.
-   */
-  private static @Nullable JsonObject parseJsonObject(String json) {
-    JsonReader reader = new JsonReader(new StringReader(json));
-    JsonElement element = readJsonElement(reader);
-    if (element != null && !(element instanceof JsonObject)) {
-      throw unexpectedJsonElement("com.google.gson.JsonObject", element, reader);
-    }
-    checkFullyConsumed(element, reader);
-    return (JsonObject) element;
-  }
-
-  /** Parses a whole JSON document that must be an array. Returns null for an empty document. */
-  private static @Nullable JsonArray parseJsonArray(String json) {
-    JsonReader reader = new JsonReader(new StringReader(json));
-    JsonElement element = readJsonElement(reader);
-    if (element != null && !(element instanceof JsonArray)) {
-      throw unexpectedJsonElement("com.google.gson.JsonArray", element, reader);
-    }
-    checkFullyConsumed(element, reader);
-    return (JsonArray) element;
-  }
-
-  /** Parses a whole JSON document of any kind. Returns null for an empty document. */
-  private static @Nullable JsonElement parseJsonElement(String json) {
-    JsonReader reader = new JsonReader(new StringReader(json));
-    JsonElement element = readJsonElement(reader);
-    checkFullyConsumed(element, reader);
-    return element;
-  }
-
-  /** Reads the next value in lenient mode. Returns null if there is no value at all. */
-  private static @Nullable JsonElement readJsonElement(JsonReader reader) {
-    reader.setLenient(true);
-    try {
-      reader.peek();
-    } catch (EOFException e) {
-      return null;
-    } catch (IOException e) {
-      throw new JsonSyntaxException(e);
-    }
-    JsonElement element = JsonParser.parseReader(reader);
-    reader.setLenient(false);
-    return element;
-  }
-
-  private static JsonSyntaxException unexpectedJsonElement(
-      String expectedClassName, JsonElement element, JsonReader reader) {
-    return new JsonSyntaxException(
-        "Expected a "
-            + expectedClassName
-            + " but was "
-            + element.getClass().getName()
-            + "; at path "
-            + reader.getPreviousPath());
-  }
-
-  /** Rejects anything but whitespace after the value that was read; this check is strict. */
-  private static void checkFullyConsumed(@Nullable JsonElement element, JsonReader reader) {
-    try {
-      if (element != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("JSON document was not fully consumed.");
-      }
-    } catch (IOException e) {
-      throw new JsonSyntaxException(e);
-    }
   }
 
   private SourceMapObjectParser() {}

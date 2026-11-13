@@ -26,13 +26,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.CompilerPass;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.GatherGetterAndSetterProperties;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.NodeTraversal;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.javascript.jscomp.colors.Color;
 import com.google.javascript.jscomp.colors.ColorRegistry;
@@ -46,7 +46,6 @@ import com.google.javascript.jscomp.graph.DiGraph.DiGraphNode;
 import com.google.javascript.jscomp.graph.FixedPointGraphTraversal;
 import com.google.javascript.jscomp.graph.LowestCommonAncestorFinder;
 import com.google.javascript.rhino.Node;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -97,7 +96,7 @@ public final class DisambiguateProperties implements CompilerPass {
         // prevent OOMs for very large projects.
         new LogFile.StreamedJsonProducer() {
           @Override
-          public void writeJson(JsonWriter writer) throws IOException {
+          public void writeJson(SimpleJsonWriter writer) {
             ImmutableSortedSet.Builder<PropertyReferenceIndexJson> propRefsJsonBuilder =
                 ImmutableSortedSet.naturalOrder();
             for (PropertyClustering prop : propIndex.values()) {
@@ -365,13 +364,13 @@ public final class DisambiguateProperties implements CompilerPass {
       return this.name.compareTo(x.name);
     }
 
-    private void writeJson(JsonWriter writer) throws IOException {
+    private void writeJson(SimpleJsonWriter writer) {
       // creates an entry such as:
       //   foo: {name: 'foo', refs: [{location: 'bar.js:3:4', receiverIndex: 2}]}
       writer.name(this.name);
 
       writer.beginObject();
-      writer.name("name").value(this.name);
+      writer.name("name").stringValue(this.name);
       writer.name("refs").beginArray();
       for (PropertyReferenceJson ref : this.refs) {
         ref.writeJson(writer);
@@ -391,23 +390,17 @@ public final class DisambiguateProperties implements CompilerPass {
     }
 
     /** Writes this reference as an object, HTML-safe; a null location is left out. */
-    private void writeJson(JsonWriter writer) throws IOException {
-      boolean oldLenient = writer.isLenient();
+    private void writeJson(SimpleJsonWriter writer) {
       boolean oldHtmlSafe = writer.isHtmlSafe();
       boolean oldSerializeNulls = writer.getSerializeNulls();
-      writer.setLenient(true);
       writer.setHtmlSafe(true);
       writer.setSerializeNulls(false);
-      try {
-        writer.beginObject();
-        writer.name("location").value(this.location);
-        writer.name("receiverIndex").value(this.receiverIndex);
-        writer.endObject();
-      } finally {
-        writer.setLenient(oldLenient);
-        writer.setHtmlSafe(oldHtmlSafe);
-        writer.setSerializeNulls(oldSerializeNulls);
-      }
+      writer.beginObject();
+      writer.name("location").stringValue(this.location);
+      writer.name("receiverIndex").longValue(this.receiverIndex);
+      writer.endObject();
+      writer.setHtmlSafe(oldHtmlSafe);
+      writer.setSerializeNulls(oldSerializeNulls);
     }
 
     @Override

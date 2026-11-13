@@ -22,11 +22,11 @@ import static java.util.Comparator.comparing;
 
 import com.google.common.base.Splitter;
 import com.google.debugging.sourcemap.Base64VLQ;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleJsonException;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats;
@@ -34,15 +34,11 @@ import com.google.javascript.jscomp.instrumentation.reporter.proto.Instrumentati
 import com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile;
 import com.google.re2j.Matcher;
 import com.google.re2j.Pattern;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Class that helps to decode reports received from JS binaries that have been instrumented. Report
@@ -68,13 +64,14 @@ public final class ReportDecoder {
     if (fileContent.isErr()) {
       return Outcome.err(fileContent.error());
     }
-    return Outcome.ok(ReportDecoder.parseMapping(fileContent.get()));
+    return ReportDecoder.parseMapping(fileContent.get());
   }
 
   /**
    * Parses the file found at location mappingFilePath and populates the properties of this class
    */
-  public static Map<String, InstrumentationPoint> parseMapping(String mappingFileContent) {
+  public static Outcome<Map<String, InstrumentationPoint>> parseMapping(
+      String mappingFileContent) {
 
     Map<String, InstrumentationPoint> mapping = new LinkedHashMap<>();
 
@@ -96,12 +93,23 @@ public final class ReportDecoder {
         functionNamesLine.substring(functionNamesLine.indexOf(":") + 1);
     String typesAsJsonArray = typesLine.substring(typesLine.indexOf(":") + 1);
 
-    List<String> localFileNames = parseJsonStringList(fileNamesAsJsonArray);
-    List<String> functionNames = parseJsonStringList(functionNamesAsJsonArray);
+    Outcome<List<String>> localFileNamesOutcome = parseJsonStringList(fileNamesAsJsonArray);
+    if (localFileNamesOutcome.isErr()) {
+      return Outcome.err(localFileNamesOutcome.error());
+    }
+    List<String> localFileNames = localFileNamesOutcome.get();
+    Outcome<List<String>> functionNamesOutcome = parseJsonStringList(functionNamesAsJsonArray);
+    if (functionNamesOutcome.isErr()) {
+      return Outcome.err(functionNamesOutcome.error());
+    }
+    List<String> functionNames = functionNamesOutcome.get();
 
-    List<String> typesAsStringList = parseJsonStringList(typesAsJsonArray);
+    Outcome<List<String>> typesAsStringList = parseJsonStringList(typesAsJsonArray);
+    if (typesAsStringList.isErr()) {
+      return Outcome.err(typesAsStringList.error());
+    }
     List<InstrumentationPoint.Type> types = new ArrayList<>();
-    for (String typeAsString : typesAsStringList) {
+    for (String typeAsString : typesAsStringList.get()) {
       types.add(InstrumentationPoint.Type.valueOf(typeAsString));
     }
 
@@ -123,50 +131,34 @@ public final class ReportDecoder {
       mapping.putIfAbsent(id, temp);
     }
 
-    return mapping;
+    return Outcome.ok(mapping);
   }
 
   /**
-   * Parses a whole JSON document that must be an array of strings or null. Returns null for an
-   * empty document. The array is read in lenient mode; a null element stays null, and a boolean or
-   * a number is read as its text.
+   * Parses a JSON document that must be an array of strings. A null element stays null, and a
+   * boolean or a number is read as its text.
    */
-  private static @Nullable List<String> parseJsonStringList(String json) {
-    JsonReader reader = new JsonReader(new StringReader(json));
-    try {
-      reader.setLenient(true);
-      try {
-        reader.peek();
-      } catch (EOFException e) {
-        return null;
-      }
-      List<String> list = null;
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
-      } else {
-        list = new ArrayList<>();
-        reader.beginArray();
-        while (reader.hasNext()) {
-          JsonToken peek = reader.peek();
-          if (peek == JsonToken.NULL) {
-            reader.nextNull();
-            list.add(null);
-          } else if (peek == JsonToken.BOOLEAN) {
-            list.add(Boolean.toString(reader.nextBoolean()));
-          } else {
-            list.add(reader.nextString());
-          }
-        }
-        reader.endArray();
-      }
-      reader.setLenient(false);
-      if (list != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("JSON document was not fully consumed.");
-      }
-      return list;
-    } catch (IllegalStateException | IOException e) {
-      throw new JsonSyntaxException(e);
+  private static Outcome<List<String>> parseJsonStringList(String json) {
+    Outcome<SimpleJsonValue> parsed = Json.parse(json);
+    if (parsed.isErr()) {
+      return Outcome.err(parsed.error());
     }
+    if (parsed.get().kind() != SimpleJsonValue.Kind.ARRAY) {
+      return Outcome.err(new SimpleJsonException("Malformed mapping: expected a JSON array"));
+    }
+    List<String> list = new ArrayList<>();
+    for (SimpleJsonValue element : parsed.get().elements()) {
+      if (element.kind() == SimpleJsonValue.Kind.NULL) {
+        list.add(null);
+        continue;
+      }
+      Outcome<String> string = element.asString();
+      if (string.isErr()) {
+        return Outcome.err(string.error());
+      }
+      list.add(string.get());
+    }
+    return Outcome.ok(list);
   }
 
   public static ReportProfile decodeReport(

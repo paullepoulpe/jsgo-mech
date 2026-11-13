@@ -28,11 +28,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.deps.SortedDependencies;
 import com.google.javascript.jscomp.deps.SortedDependencies.MissingProvideException;
@@ -336,27 +334,27 @@ public final class JSChunkGraph implements Serializable {
    *
    * @return List of chunk JSONObjects.
    */
-  JsonArray toJson() {
-    JsonArray chunks = new JsonArray();
+  SimpleJsonValue toJson() {
+    SimpleJsonValue chunks = SimpleJsonValue.newArray();
     for (JSChunk chunk : getAllChunks()) {
-      JsonObject node = new JsonObject();
-      node.add("name", new JsonPrimitive(chunk.getName()));
-      JsonArray deps = new JsonArray();
-      node.add("dependencies", deps);
+      SimpleJsonValue node = SimpleJsonValue.newObject();
+      node.members().put("name", SimpleJsonValue.ofString(chunk.getName()));
+      SimpleJsonValue deps = SimpleJsonValue.newArray();
+      node.members().put("dependencies", deps);
       for (JSChunk m : chunk.getDependencies()) {
-        deps.add(new JsonPrimitive(m.getName()));
+        deps.elements().add(SimpleJsonValue.ofString(m.getName()));
       }
-      JsonArray transitiveDeps = new JsonArray();
-      node.add("transitive-dependencies", transitiveDeps);
+      SimpleJsonValue transitiveDeps = SimpleJsonValue.newArray();
+      node.members().put("transitive-dependencies", transitiveDeps);
       for (JSChunk m : getTransitiveDepsDeepestFirst(chunk)) {
-        transitiveDeps.add(new JsonPrimitive(m.getName()));
+        transitiveDeps.elements().add(SimpleJsonValue.ofString(m.getName()));
       }
-      JsonArray inputs = new JsonArray();
-      node.add("inputs", inputs);
+      SimpleJsonValue inputs = SimpleJsonValue.newArray();
+      node.members().put("inputs", inputs);
       for (CompilerInput input : chunk.getInputs()) {
-        inputs.add(new JsonPrimitive(input.getSourceFile().getName()));
+        inputs.elements().add(SimpleJsonValue.ofString(input.getSourceFile().getName()));
       }
-      chunks.add(node);
+      chunks.elements().add(node);
     }
     return chunks;
   }

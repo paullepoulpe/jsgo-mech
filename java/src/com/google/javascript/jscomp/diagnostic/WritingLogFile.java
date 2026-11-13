@@ -21,11 +21,9 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import com.google.errorprone.annotations.MustBeClosed;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
-import java.io.IOException;
-import java.io.StringWriter;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import java.util.function.Supplier;
 
 /**
@@ -89,15 +87,15 @@ final class WritingLogFile extends LogFile {
   @CanIgnoreReturnValue
   @Override
   public LogFile logJson(StreamedJsonProducer producer) {
-    StringWriter json = new StringWriter();
+    SimpleJsonWriter jsonWriter = new SimpleJsonWriter();
+    // The JSON goes to the log piece by piece: some of these logs are too big to build in memory.
+    jsonWriter.setSink(text -> this.writer.print(text));
     Outcome<Void> closed;
-    try (JsonWriter writer = new JsonWriter(json)) {
-      producer.writeJson(writer);
-    } catch (IOException ex) {
-      throw new AssertionError(ex);
+    try {
+      producer.writeJson(jsonWriter);
     } finally {
       // The JSON writer always closed the log it wrote to, whatever it had written.
-      this.writer.print(json.toString());
+      this.writer.print(jsonWriter.takeText());
       closed = this.writer.close();
     }
     if (closed.isErr()) {
