@@ -47,7 +47,7 @@ final class Ctx {
       "org.kohsuke.args4j.spi.StopOptionHandler", "com.google.gson.TypeAdapter",
       "java.lang.Enum", "java.util.ArrayList", "com.google.gson.reflect.TypeToken",
       "com.google.common.cache.CacheLoader", "com.google.common.escape.Escaper",
-      "java.util.zip.GZIPOutputStream", "java.io.FilterInputStream", "org.kohsuke.args4j.OptionDef"));
+      "java.util.zip.GZIPOutputStream", "java.io.FilterInputStream", "org.kohsuke.args4j.OptionDef", "com.google.gson.JsonElement"));
 
   static final Set<String> GO_RESERVED = new HashSet<>(List.of(
       "break", "default", "func", "interface", "select", "case", "defer", "go", "map", "struct", "chan",

@@ -120,6 +120,13 @@ func javaFloat_(d float64, bitSize int) string {
 		}
 		return "0.0"
 	}
+	if bitSize == 64 && math.Abs(d) == 4.9e-324 {
+		// Double.MIN_VALUE: Java keeps two digits here.
+		if d < 0 {
+			return "-4.9E-324"
+		}
+		return "4.9E-324"
+	}
 	e := strconv.FormatFloat(d, 'e', -1, bitSize) // d.ddddde±xx
 	neg := e[0] == '-'
 	if neg {
