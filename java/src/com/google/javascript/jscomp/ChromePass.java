@@ -23,6 +23,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.Token;
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -43,6 +44,8 @@ import org.jspecify.annotations.Nullable;
  * <p>For the details, see tests inside ChromePassTest.java.
  */
 public class ChromePass extends AbstractPostOrderCallback implements CompilerPass {
+  private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
+
   final AbstractCompiler compiler;
 
   private final Set<String> createdObjects;
@@ -283,7 +286,7 @@ public class ChromePass extends AbstractPostOrderCallback implements CompilerPas
    */
   private List<Node> createObjectsForQualifiedName(String namespace) {
     List<Node> objects = new ArrayList<>();
-    String[] parts = namespace.split("\\.");
+    String[] parts = DOT_PATTERN.split(namespace);
 
     createObjectIfNew(objects, parts[0], true);
 

@@ -136,6 +136,7 @@ import com.google.javascript.rhino.StaticSourceFile;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.TokenStream;
 import com.google.javascript.rhino.dtoa.DToA;
+import com.google.re2j.Pattern;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -150,6 +151,7 @@ import org.jspecify.annotations.Nullable;
 
 /** IRFactory transforms the external AST to the internal AST. */
 class IRFactory {
+  private static final Pattern CR_OR_CRLF_PATTERN = Pattern.compile("\r\n?");
 
   static final String GETTER_ERROR_MESSAGE =
       "getters are not supported in older versions of JavaScript. "
@@ -3925,7 +3927,7 @@ class IRFactory {
     // spec behaviour. For regular string literals: they can only be part of a line continuation,
     // which we want to scrub.
     if (value.indexOf('\r') >= 0) {
-      value = value.replaceAll("\r\n?", "\n");
+      value = CR_OR_CRLF_PATTERN.matcher(value).replaceAll("\n");
     }
 
     int start = templateLiteral ? 0 : 1; // skip the leading quote

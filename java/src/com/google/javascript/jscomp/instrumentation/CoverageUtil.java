@@ -16,11 +16,15 @@
 
 package com.google.javascript.jscomp.instrumentation;
 
+import com.google.re2j.Pattern;
+
 /**
  * This class contains all general purpose static methods that are used by
  * coverage instrumentation related classes - not limited to them, though.
  */
 class CoverageUtil {
+  private static final Pattern NON_ALPHANUMERIC_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
+
   /**
    * Utility Class: do not instantiate.
    */
@@ -34,6 +38,6 @@ class CoverageUtil {
    * @return the new string that can be used as in identifier
    */
   static String createIdentifierFromText(String inputText) {
-    return inputText.replaceAll("[^\\p{Alnum}]", "_");
+    return NON_ALPHANUMERIC_PATTERN.matcher(inputText).replaceAll("_");
   }
 }

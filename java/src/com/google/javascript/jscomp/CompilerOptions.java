@@ -42,6 +42,7 @@ import com.google.javascript.jscomp.parsing.Config;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
+import com.google.re2j.Pattern;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -53,11 +54,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /** Compiler options */
 public class CompilerOptions {
+  private static final Pattern ECMASCRIPT_PATTERN = Pattern.compile("ECMASCRIPT");
+  private static final Pattern LEADING_ES_PATTERN = Pattern.compile("^ES");
+
   // The number of characters after which we insert a line break in the code
   static final int DEFAULT_LINE_LENGTH_THRESHOLD = 500;
 
@@ -3771,7 +3774,7 @@ public class CompilerOptions {
         if (mode != UNSUPPORTED) {
           names.add(mode.name());
           if (mode.name().startsWith("ECMASCRIPT")) {
-            names.add(mode.name().replaceFirst("ECMASCRIPT", "ES"));
+            names.add(ECMASCRIPT_PATTERN.matcher(mode.name()).replaceFirst("ES"));
           }
         }
       }
@@ -3787,7 +3790,8 @@ public class CompilerOptions {
         return null;
       }
       // Trim spaces, disregard case, and allow abbreviation of ECMASCRIPT for convenience.
-      String canonicalizedName = Ascii.toUpperCase(value.trim()).replaceFirst("^ES", "ECMASCRIPT");
+      String canonicalizedName =
+          LEADING_ES_PATTERN.matcher(Ascii.toUpperCase(value.trim())).replaceFirst("ECMASCRIPT");
 
       if (canonicalizedName.equals("ECMASCRIPT6")
           || canonicalizedName.equals("ECMASCRIPT6_STRICT")) {

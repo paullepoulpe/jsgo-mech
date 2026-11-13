@@ -56,6 +56,7 @@ import com.google.javascript.rhino.TokenStream;
 import com.google.javascript.rhino.TokenUtil;
 import com.google.javascript.rhino.dtoa.DToA;
 import com.google.javascript.rhino.jstype.JSType;
+import com.google.re2j.Pattern;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ import org.jspecify.annotations.Nullable;
 
 /** NodeUtil contains generally useful AST utilities. */
 public final class NodeUtil {
+  private static final Pattern UNIQUE_NAME_SUFFIX_PATTERN = Pattern.compile("\\$\\$\\d+$");
 
   // Value of JavaScript's Number.MAX_SAFE_INTEGER
   static final long MAX_POSITIVE_INTEGER_NUMBER = (1L << 53) - 1;
@@ -6093,7 +6095,7 @@ public final class NodeUtil {
    */
   public static String getOriginalName(String name) {
     // Strip unique name suffix: "foo$$1" -> "foo"
-    name = name.replaceAll("\\$\\$\\d+$", "");
+    name = UNIQUE_NAME_SUFFIX_PATTERN.matcher(name).replaceAll("");
 
     // Strip contextual rename suffix: "foo$jscomp$1" -> "foo"
     name = MakeDeclaredNamesUnique.ContextualRenameInverter.getOriginalName(name);

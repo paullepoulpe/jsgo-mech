@@ -16,11 +16,13 @@
 
 package com.google.javascript.jscomp;
 
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Msg;
+import com.google.re2j.Pattern;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -127,6 +129,9 @@ class RhinoErrorReporter {
           "JSC_CLOSURE_UNAWARE_ANNOTATION_PRESENT",
           Msg.JSDOC_CLOSURE_UNAWARE_CODE_INVALID.format());
 
+  // A {0}-style place holder in a message. Must be initialized before typeMap.
+  private static final Pattern PLACE_HOLDER = Pattern.compile("\\{\\d+\\}");
+
   // A map of Rhino messages to their DiagnosticType.
   private static final ImmutableMap<Pattern, DiagnosticType> typeMap =
       ImmutableMap.<Pattern, DiagnosticType>builder()
@@ -138,50 +143,62 @@ class RhinoErrorReporter {
           .put(replacePlaceHolders("Duplicate parameter name \"{0}\""), DUPLICATE_PARAM)
           // Duplicate visiblity
           .put(replacePlaceHolders(Msg.JSDOC_EXTRA_VISIBILITY.format()), DUPLICATE_VISIBILITY)
-          .put(Pattern.compile("Unnecessary escape:.*"), UNNECESSARY_ESCAPE)
-          .put(Pattern.compile("^invalid param name.*"), INVALID_PARAM)
+          .put(Pattern.compile("Unnecessary escape:" + DOT + "*"), UNNECESSARY_ESCAPE)
+          .put(Pattern.compile("^invalid param name" + DOT + "*"), INVALID_PARAM)
           // Unknown @annotations.
           .put(replacePlaceHolders(Msg.BAD_JSDOC_TAG.format()), BAD_JSDOC_ANNOTATION)
           .put(
               Pattern.compile(
-                  "^Keywords and reserved words are not allowed as unquoted property.*"),
+                  "^Keywords and reserved words are not allowed as unquoted property" + DOT + "*"),
               INVALID_ES3_PROP_NAME)
-          .put(Pattern.compile("^Too many template parameters\n.*"), TOO_MANY_TEMPLATE_PARAMS)
+          .put(
+              Pattern.compile("^Too many template parameters\n" + DOT + "*"),
+              TOO_MANY_TEMPLATE_PARAMS)
           // Type annotation warnings.
           .put(
-              Pattern.compile(".*Type annotations should have curly braces.*"),
+              Pattern.compile(DOT + "*Type annotations should have curly braces" + DOT + "*"),
               JSDOC_MISSING_BRACES_WARNING)
           .put(Pattern.compile("Missing type declaration\\."), JSDOC_MISSING_TYPE_WARNING)
           // Unresolved types that aren't forward declared.
-          .put(Pattern.compile(".*Unknown type.*"), UNRECOGNIZED_TYPE_ERROR)
-          .put(Pattern.compile(".*Unknown type.*\n.*"), UNRECOGNIZED_TYPE_ERROR)
+          .put(Pattern.compile(DOT + "*Unknown type" + DOT + "*"), UNRECOGNIZED_TYPE_ERROR)
+          .put(
+              Pattern.compile(DOT + "*Unknown type" + DOT + "*\n" + DOT + "*"),
+              UNRECOGNIZED_TYPE_ERROR)
           // Unrecognized `typeof some.prop` errors
-          .put(Pattern.compile("^Missing type for `typeof` value.*"), UNRECOGNIZED_TYPEOF_ERROR)
+          .put(
+              Pattern.compile("^Missing type for `typeof` value" + DOT + "*"),
+              UNRECOGNIZED_TYPEOF_ERROR)
           // Cyclic inheritance errors
           .put(
-              Pattern.compile("^Cycle detected in inheritance chain of type .*"),
+              Pattern.compile("^Cycle detected in inheritance chain of type " + DOT + "*"),
               CYCLIC_INHERITANCE_ERROR)
           // Import annotation errors.
           .put(
-              Pattern.compile("^Bad type annotation. Import in typedef.*"),
+              Pattern.compile("^Bad type annotation" + DOT + " Import in typedef" + DOT + "*"),
               JSDOC_IMPORT_TYPE_WARNING)
           // Type annotation errors.
-          .put(Pattern.compile("^Bad type annotation.*"), TYPE_PARSE_ERROR)
+          .put(Pattern.compile("^Bad type annotation" + DOT + "*"), TYPE_PARSE_ERROR)
           .put(Pattern.compile("constructed type must be an object type"), TYPE_PARSE_ERROR)
           // Parse tree too deep.
           .put(Pattern.compile("Too deep recursion while parsing"), PARSE_TREE_TOO_DEEP)
           // Old-style octal literals
-          .put(Pattern.compile("^Octal .*literal.*"), INVALID_OCTAL_LITERAL)
-          .put(Pattern.compile("^String continuations.*"), STRING_CONTINUATION)
-          .put(Pattern.compile("^This language feature is only supported for .*"), LANGUAGE_FEATURE)
+          .put(Pattern.compile("^Octal " + DOT + "*literal" + DOT + "*"), INVALID_OCTAL_LITERAL)
+          .put(Pattern.compile("^String continuations" + DOT + "*"), STRING_CONTINUATION)
+          .put(
+              Pattern.compile("^This language feature is only supported for " + DOT + "*"),
+              LANGUAGE_FEATURE)
           .put(
               Pattern.compile(
-                  "^This language feature is not currently supported by the compiler:" + " .*"),
+                  "^This language feature is not currently supported by the compiler: "
+                      + DOT
+                      + "*"),
               UNSUPPORTED_LANGUAGE_FEATURE)
           .put(
               Pattern.compile("Bounded generic semantics are currently still in development"),
               UNSUPPORTED_BOUNDED_GENERIC_TYPES)
-          .put(Pattern.compile("^Bounded generic type error.*"), BOUNDED_GENERIC_TYPE_ERROR)
+          .put(
+              Pattern.compile("^Bounded generic type error" + DOT + "*"),
+              BOUNDED_GENERIC_TYPE_ERROR)
           .put(
               replacePlaceHolders(Msg.JSDOC_CLOSURE_UNAWARE_CODE_INVALID.format()),
               CLOSURE_UNAWARE_ANNOTATION_PRESENT)
@@ -195,8 +212,12 @@ class RhinoErrorReporter {
    * matching later.
    */
   private static Pattern replacePlaceHolders(String s) {
-    s = Pattern.quote(s);
-    return Pattern.compile(s.replaceAll("\\{\\d+\\}", "\\\\E.*\\\\Q"));
+    String[] parts = PLACE_HOLDER.split(s, -1);
+    StringBuilder regex = new StringBuilder(Pattern.quote(parts[0]));
+    for (int i = 1; i < parts.length; i++) {
+      regex.append(DOT).append("*").append(Pattern.quote(parts[i]));
+    }
+    return Pattern.compile(regex.toString());
   }
 
   private RhinoErrorReporter(ErrorHandler internalReporter) {

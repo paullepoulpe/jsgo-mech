@@ -24,6 +24,7 @@ import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Node.AncestorIterable;
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -90,6 +91,7 @@ import org.jspecify.annotations.Nullable;
  * <p>In addition, the CSS names before replacement can optionally be gathered.
  */
 class ReplaceCssNames implements CompilerPass {
+  private static final Pattern DASH_PATTERN = Pattern.compile("-");
 
   // This is used only for qualified name comparison, so it's OK to build it with IR instead of
   // AstFactory. Type information isn't important here.
@@ -514,7 +516,7 @@ class ReplaceCssNames implements CompilerPass {
       // External substitution maps should do the same.
       return;
     }
-    String[] parts = name.split("-");
+    String[] parts = DASH_PATTERN.split(name);
     if (symbolMap != null) {
       String replacement = null;
 

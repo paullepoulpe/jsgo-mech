@@ -17,6 +17,8 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Ascii;
@@ -47,6 +49,8 @@ import com.google.javascript.jscomp.transpile.BaseTranspiler.CompilerSupplier;
 import com.google.javascript.jscomp.transpile.Transpiler;
 import com.google.javascript.rhino.TokenStream;
 import com.google.protobuf.TextFormat;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,8 +79,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -116,6 +118,7 @@ import org.jspecify.annotations.Nullable;
  * This class is totally not thread-safe.
  */
 public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, CompilerOptions> {
+  private static final Pattern LEADING_DASHES_PATTERN = Pattern.compile("^--");
 
   public static final String OUTPUT_MARKER = AbstractCommandLineRunner.OUTPUT_MARKER;
 
@@ -1203,7 +1206,8 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
 
     private static final String BOLD_PREFIX = "\033[1m";
     private static final String NORMAL_PREFIX = "\033[0m";
-    private static final String MARKDOWN_CHARS_TO_ESCAPE = "[-*\\`\\[\\]{}\\(\\)#+\\.!<>]";
+    private static final Pattern MARKDOWN_CHARS_TO_ESCAPE =
+        Pattern.compile("[-*\\`\\[\\]{}\\(\\)#+\\.!<>]");
 
     private void printCategoryUsage(
         String categoryName,
@@ -1225,7 +1229,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
             parser.printUsage(
                 stringWriter,
                 (option) ->
-                    !option.hidden() && optionName.equals(option.name().replaceFirst("^--", "")));
+                    !option.hidden() && optionName.equals(LEADING_DASHES_PATTERN.matcher(option.name()).replaceFirst("")));
             stringWriter.flush();
             String rawOptionUsage = stringWriter.toString();
             int delimiterIndex = rawOptionUsage.indexOf(" : ");
@@ -1234,13 +1238,14 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
                   "\n**" + rawOptionUsage.substring(0, delimiterIndex).trim() + "**  \n");
 
               String optionDescription =
-                  rawOptionUsage
-                      .substring(delimiterIndex + 3)
-                      .replaceAll(MARKDOWN_CHARS_TO_ESCAPE, "\\\\$0")
+                  MARKDOWN_CHARS_TO_ESCAPE
+                      .matcher(rawOptionUsage.substring(delimiterIndex + 3))
+                      .replaceAll("\\\\$0")
                       .trim();
               outputStream.write(optionDescription + "\n");
             } else {
-              outputStream.write(rawOptionUsage.replaceAll(MARKDOWN_CHARS_TO_ESCAPE, "\\\\$0"));
+              outputStream.write(
+                  MARKDOWN_CHARS_TO_ESCAPE.matcher(rawOptionUsage).replaceAll("\\\\$0"));
             }
             outputStream.flush();
           }
@@ -1249,7 +1254,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
           parser.printUsage(
               outputStream,
               (option) ->
-                  !option.hidden() && options.contains(option.name().replaceFirst("^--", "")));
+                  !option.hidden() && options.contains(LEADING_DASHES_PATTERN.matcher(option.name()).replaceFirst("")));
         }
 
         if (suffix != null) {
@@ -1261,7 +1266,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     }
 
     private int maxLineLength = 80;
-    private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s");
+    private static final Pattern WHITESPACE_PATTERN = Pattern.compile(SPACE);
 
     private void printStringLineWrapped(String input, OutputStreamWriter outputStream)
         throws IOException {
@@ -1453,7 +1458,7 @@ public class CommandLineRunner extends AbstractCommandLineRunner<Compiler, Compi
     // So we use some voodoo to get the args into the format that CmdLineParser
     // expects.
     Pattern argPattern = Pattern.compile("(--?[a-zA-Z_]+)=(.*)", Pattern.DOTALL);
-    Pattern quotesPattern = Pattern.compile("^['\"](.*)['\"]$");
+    Pattern quotesPattern = Pattern.compile("^['\"](" + DOT + "*)['\"]$");
     List<String> processedArgs = new ArrayList<>();
 
     for (String arg : args) {

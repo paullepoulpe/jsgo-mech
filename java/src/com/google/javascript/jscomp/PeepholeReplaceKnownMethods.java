@@ -31,18 +31,19 @@ import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
+import com.google.re2j.Pattern;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /** Just to fold known methods when they are called with constants. */
 class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
 
   private static final String ECMA_WHITESPACE =
-      "[ \t\n-\r\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\uFEFF]+";
+      "[ \t\n-\r\\x{00A0}\\x{1680}\\x{2000}-\\x{200A}\\x{2028}\\x{2029}\\x{202F}\\x{205F}\\x{3000}"
+          + "\\x{FEFF}]+";
   private static final Pattern TRIM_BOTH_PATTERN =
       Pattern.compile("^" + ECMA_WHITESPACE + "|" + ECMA_WHITESPACE + "\\z");
   private static final Pattern TRIM_START_PATTERN = Pattern.compile("^" + ECMA_WHITESPACE);

@@ -16,6 +16,7 @@
 
 package com.google.javascript.jscomp;
 
+import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
 import static java.util.Comparator.naturalOrder;
 
 import com.google.common.base.Ascii;
@@ -27,6 +28,7 @@ import com.google.javascript.rhino.JSDocInfo.Visibility;
 import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +39,9 @@ import org.jspecify.annotations.Nullable;
  * Prints a JSDocInfo, used for preserving type annotations in ES6 transpilation.
  */
 public final class JSDocInfoPrinter {
+  private static final Pattern DESCRIPTION_LINE_START_PATTERN =
+      Pattern.compile("\n" + SPACE + "*\\*" + SPACE + "*");
+  private static final Pattern STAR_WITHOUT_SPACE_PATTERN = Pattern.compile("\n \\*([^ \n])");
 
   private final boolean useOriginalName;
   private final boolean printDesc;
@@ -353,7 +358,8 @@ public final class JSDocInfoPrinter {
     }
 
     if (printDesc && info.getBlockDescription() != null) {
-      String cleaned = info.getBlockDescription().replaceAll("\n\\s*\\*\\s*", "\n");
+      String cleaned =
+          DESCRIPTION_LINE_START_PATTERN.matcher(info.getBlockDescription()).replaceAll("\n");
       if (!cleaned.isEmpty()) {
         multiline = true;
         cleaned = cleaned.trim();
@@ -375,7 +381,10 @@ public final class JSDocInfoPrinter {
     }
     // Ensure all lines start with " *", and then ensure all non blank lines have a space after
     // the *.
-    String s = sb.toString().replace("\n", "\n *").replaceAll("\n \\*([^ \n])", "\n * $1");
+    String s =
+        STAR_WITHOUT_SPACE_PATTERN
+            .matcher(sb.toString().replace("\n", "\n *"))
+            .replaceAll("\n * $1");
     if (multiline) {
       s += "\n */\n";
     } else {

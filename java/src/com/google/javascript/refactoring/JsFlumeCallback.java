@@ -19,9 +19,9 @@ package com.google.javascript.refactoring;
 import com.google.common.base.Strings;
 import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.rhino.Node;
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**

@@ -16,10 +16,10 @@
 
 package com.google.javascript.jscomp;
 
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * An ErrorManager that verifies expected diagnostics and reports missing or unexpected ones.

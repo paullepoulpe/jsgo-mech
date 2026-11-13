@@ -105,8 +105,8 @@ public final class DefaultPassConfig extends PassConfig {
   private static final String CLOSURE_LOCALE_CONSTANT_NAME = "goog.LOCALE";
 
   // Miscellaneous errors.
-  private static final java.util.regex.Pattern GLOBAL_SYMBOL_NAMESPACE_PATTERN =
-      java.util.regex.Pattern.compile("^[a-zA-Z0-9$_]+$");
+  private static final com.google.re2j.Pattern GLOBAL_SYMBOL_NAMESPACE_PATTERN =
+      com.google.re2j.Pattern.compile("^[a-zA-Z0-9$_]+$");
 
   /** A symbol table for registering references that get removed during preprocessing. */
   private final transient PreprocessorSymbolTable.CachedInstanceFactory

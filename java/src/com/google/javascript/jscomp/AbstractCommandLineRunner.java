@@ -56,6 +56,7 @@ import com.google.javascript.jscomp.parsing.Config;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.TokenStream;
+import com.google.re2j.Pattern;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -121,6 +122,9 @@ import org.jspecify.annotations.Nullable;
  * </pre>
  */
 public abstract class AbstractCommandLineRunner<A extends Compiler, B extends CompilerOptions> {
+  private static final Pattern EQUALS_PATTERN = Pattern.compile("=");
+  private static final Pattern COLON_PATTERN = Pattern.compile(":");
+  private static final Pattern COMMA_PATTERN = Pattern.compile(",");
 
   static final DiagnosticType OUTPUT_SAME_AS_INPUT_ERROR =
       DiagnosticType.error(
@@ -2060,7 +2064,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
   public static void createDefineReplacements(List<String> definitions, CompilerOptions options) {
     // Parse the definitions
     for (String override : definitions) {
-      String[] assignment = override.split("=", 2);
+      String[] assignment = EQUALS_PATTERN.split(override, 2);
       String defName = assignment[0];
 
       if (defName.length() > 0) {
@@ -3203,7 +3207,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
      */
     public static JsChunkSpec create(String specString, boolean isFirstChunk) {
       // Format is "<name>:<num-js-files>[:[<dep>,...][:]]".
-      String[] parts = specString.split(":");
+      String[] parts = COLON_PATTERN.split(specString);
       if (parts.length < 2 || parts.length > 4) {
         throw new FlagUsageException(
             "Expected 2-4 colon-delimited parts in " + "chunk spec: " + specString);
@@ -3214,7 +3218,7 @@ public abstract class AbstractCommandLineRunner<A extends Compiler, B extends Co
 
       // Parse chunk dependencies.
       String[] deps =
-          parts.length > 2 && parts[2].length() > 0 ? parts[2].split(",") : new String[0];
+          parts.length > 2 && parts[2].length() > 0 ? COMMA_PATTERN.split(parts[2]) : new String[0];
 
       // Parse chunk inputs.
       int numInputs = -1;

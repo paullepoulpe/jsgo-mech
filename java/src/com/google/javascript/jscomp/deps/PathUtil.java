@@ -22,6 +22,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.List;
  * https://docs.oracle.com/javase/8/docs/api/java/nio/file/Path.html
  */
 public final class PathUtil {
+  private static final Pattern SLASH_PATTERN = Pattern.compile("/");
 
   private static final CharMatcher SLASH_MATCHER = CharMatcher.is('/');
   private static final CharMatcher NON_SLASH_MATCHER = CharMatcher.isNot('/');
@@ -171,8 +173,8 @@ public final class PathUtil {
 
     basePath = collapseDots(basePath);
     targetPath = collapseDots(targetPath);
-    String[] baseFragments = basePath.split("/");
-    String[] targetFragments = targetPath.split("/");
+    String[] baseFragments = SLASH_PATTERN.split(basePath);
+    String[] targetFragments = SLASH_PATTERN.split(targetPath);
 
     int i = -1;
     do {

@@ -16,6 +16,8 @@
 
 package com.google.javascript.jscomp.deps;
 
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.CharMatcher;
@@ -26,6 +28,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -35,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A parser that can extract dependency information from existing deps.js files.
@@ -51,7 +53,8 @@ public final class DepsFileRegexParser extends JsFileLineParser {
    * goog.addDependency({1});
    */
   private final Matcher depMatcher =
-      Pattern.compile("\\s*goog.addDependency\\((.*)\\);?\\s*").matcher("");
+      Pattern.compile(SPACE + "*goog" + DOT + "addDependency\\((" + DOT + "*)\\);?" + SPACE + "*")
+          .matcher("");
 
   /**
    * Pattern for matching the args of a goog.addDependency(). The group is:
@@ -59,8 +62,11 @@ public final class DepsFileRegexParser extends JsFileLineParser {
    */
   private final Matcher depArgsMatch =
       Pattern.compile(
-              "\\s*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])"
-                  + "(?:, (true|false|\\{[^{}]*\\}))?\\s*")
+              SPACE
+                  + "*([^,]*), (\\[[^\\]]*\\]), (\\[[^\\]]*\\])"
+                  + "(?:, (true|false|\\{[^{}]*\\}))?"
+                  + SPACE
+                  + "*")
           .matcher("");
 
   /**

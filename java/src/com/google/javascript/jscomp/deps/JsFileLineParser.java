@@ -16,11 +16,16 @@
 
 package com.google.javascript.jscomp.deps;
 
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
+
 import com.google.common.base.CharMatcher;
 import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -28,8 +33,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Base class for classes that parse JavaScript sources on a line-by-line basis. Strips comments
@@ -69,7 +72,11 @@ public abstract class JsFileLineParser {
 
   /** Pattern for matching JavaScript string literals. */
   private static final Pattern STRING_LITERAL_PATTERN =
-      Pattern.compile("\\s*(?:'((?:\\\\.|[^'\\\\])*)'|\"((?:\\\\.|[^\"\\\\])*)\")\\s*");
+      Pattern.compile(
+          SPACE
+              + "*(?:'((?:\\\\" + DOT + "|[^'\\\\])*)'|\"((?:\\\\" + DOT + "|[^\"\\\\])*)\")"
+              + SPACE
+              + "*");
 
   /** Matcher used in the parsing string literals. */
   private final Matcher valueMatcher = STRING_LITERAL_PATTERN.matcher("");
@@ -327,7 +334,7 @@ public abstract class JsFileLineParser {
         // Add it to the results.
         results.add(valueMatcher.group(1) != null ?
             valueMatcher.group(1) : valueMatcher.group(2));
-        if (valueMatcher.hitEnd()) {
+        if (valueMatcher.end() == innerValues.length()) {
           break;
         }
         // Ensure there is a comma after the value.
@@ -335,7 +342,8 @@ public abstract class JsFileLineParser {
           throw new ParseException("Missing comma in string array", /* fatal= */ true);
         }
         // Move to the next value.
-        valueMatcher.region(valueMatcher.end() + 1, valueMatcher.regionEnd());
+        innerValues = innerValues.substring(valueMatcher.end() + 1);
+        valueMatcher.reset(innerValues);
       }
     }
     return results;
@@ -362,17 +370,19 @@ public abstract class JsFileLineParser {
       // Parse the next key (TODO(sdh): need to support non-quoted keys?).
       check(valueMatcher.lookingAt(), "Bad key in JS object literal");
       String key = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
-      check(!valueMatcher.hitEnd(), "Missing value in JS object literal");
+      check(valueMatcher.end() != input.length(), "Missing value in JS object literal");
       check(input.charAt(valueMatcher.end()) == ':', "Missing colon in JS object literal");
-      valueMatcher.region(valueMatcher.end() + 1, valueMatcher.regionEnd());
+      input = input.substring(valueMatcher.end() + 1);
+      valueMatcher.reset(input);
 
       // Parse the corresponding value.
       check(valueMatcher.lookingAt(), "Bad value in JS object literal");
       String val = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
       results.put(key, val);
-      if (!valueMatcher.hitEnd()) {
+      if (valueMatcher.end() != input.length()) {
         check(input.charAt(valueMatcher.end()) == ',', "Missing comma in JS object literal");
-        valueMatcher.region(valueMatcher.end() + 1, valueMatcher.regionEnd());
+        input = input.substring(valueMatcher.end() + 1);
+        valueMatcher.reset(input);
       } else {
         done = true;
       }

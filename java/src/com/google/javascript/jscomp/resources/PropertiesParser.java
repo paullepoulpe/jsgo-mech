@@ -17,6 +17,7 @@
 package com.google.javascript.jscomp.resources;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.re2j.Pattern;
 
 /**
  * Parses a Java properties file in a a way that can be transpiled into JS.
@@ -25,12 +26,13 @@ import com.google.common.collect.ImmutableMap;
  * inside Closure.
  */
 final class PropertiesParser {
+  private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("\r?\n");
 
   @SuppressWarnings("StringSplitter") // Can't use Splitter.onPattern in J2CL.
   static ImmutableMap<String, String> parse(String source) {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
-    String[] lines = source.split("\r?\n");
+    String[] lines = LINE_BREAK_PATTERN.split(source);
     for (int i = 0; i < lines.length; ++i) {
       String line = lines[i];
       if (line.isEmpty() || line.startsWith("#") || line.startsWith("!")) {

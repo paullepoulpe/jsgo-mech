@@ -19,6 +19,7 @@ import static java.lang.Math.max;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Immutable;
+import com.google.re2j.Pattern;
 
 /**
  * A decoder for strings encoded by the ReplaceStrings JS compiler pass. This class is immutable.
@@ -30,6 +31,9 @@ public final class ReplacedStringsDecoder {
   // Note: We're not allowing this to be changed here because it's present in
   // the replacement strings in the js_storage protocol buffer.
   public static final String ARGUMENT_PLACE_HOLDER = "`";
+
+  private static final Pattern ARGUMENT_PLACE_HOLDER_PATTERN =
+      Pattern.compile(ARGUMENT_PLACE_HOLDER);
 
   private final ImmutableMap<String, String> originalToNewNameMap;
 
@@ -62,12 +66,12 @@ public final class ReplacedStringsDecoder {
    * @see com.google.javascript.jscomp.ReplaceStrings
    */
   public String decode(String encodedStr) {
-    String[] suppliedBits = encodedStr.split(ARGUMENT_PLACE_HOLDER, -1);
+    String[] suppliedBits = ARGUMENT_PLACE_HOLDER_PATTERN.split(encodedStr, -1);
     String originalStr = originalToNewNameMap.get(suppliedBits[0]);
     if (originalStr == null) {
       return encodedStr; // Failed to decode.
     }
-    String[] originalBits = originalStr.split(ARGUMENT_PLACE_HOLDER, -1);
+    String[] originalBits = ARGUMENT_PLACE_HOLDER_PATTERN.split(originalStr, -1);
     StringBuilder sb = new StringBuilder(originalBits[0]);
     for (int i = 1; i < max(originalBits.length, suppliedBits.length); i++) {
       // Replace missing bits with "-". Shouldn't happen except that we aren't

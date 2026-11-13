@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
-import java.util.regex.Pattern;
+import com.google.re2j.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**

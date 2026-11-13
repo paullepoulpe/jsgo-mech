@@ -16,11 +16,14 @@
 
 package com.google.javascript.jscomp;
 
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+import static com.google.javascript.jscomp.base.JavaRegex.END;
+
 import com.google.errorprone.annotations.Immutable;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 /**
  * This describes the Google-specific JavaScript coding conventions. Within Google, variable names
@@ -39,9 +42,10 @@ public class GoogleCodingConvention extends CodingConventions.Proxy {
     Pattern.compile("[A-Z0-9][A-Z0-9_]*");
 
   private static final Pattern PACKAGE_WITH_TEST_DIR =
-    Pattern.compile("^(.*)/(?:test|tests|testing)/(?:[^/]+)$");
+    Pattern.compile("^(" + DOT + "*)/(?:test|tests|testing)/(?:[^/]+)" + END);
 
-  private static final Pattern GENFILES_DIR = Pattern.compile("-out/.*/(bin|genfiles)/(.*)$");
+  private static final Pattern GENFILES_DIR =
+      Pattern.compile("-out/" + DOT + "*/(bin|genfiles)/(" + DOT + "*)" + END);
 
   /** By default, decorate the ClosureCodingConvention. */
   public GoogleCodingConvention() {

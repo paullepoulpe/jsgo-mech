@@ -34,8 +34,8 @@ import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.jscomp.parsing.Config;
 import com.google.javascript.rhino.Node;
+import com.google.re2j.Pattern;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**

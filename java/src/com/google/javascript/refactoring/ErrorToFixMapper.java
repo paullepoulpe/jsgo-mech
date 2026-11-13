@@ -18,6 +18,7 @@ package com.google.javascript.refactoring;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.AbstractCompiler;
@@ -31,11 +32,11 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -46,15 +47,16 @@ import org.jspecify.annotations.Nullable;
 public final class ErrorToFixMapper {
 
 
-  private static final Pattern DID_YOU_MEAN = Pattern.compile(".*Did you mean (.*)\\?");
+  private static final Pattern DID_YOU_MEAN =
+      Pattern.compile(DOT + "*Did you mean (" + DOT + "*)\\?");
   private static final Pattern EARLY_REF =
-      Pattern.compile("Variable referenced before declaration: (.*)");
+      Pattern.compile("Variable referenced before declaration: (" + DOT + "*)");
   private static final Pattern MISSING_REQUIRE =
       Pattern.compile("'([^']+)' references a .*", Pattern.DOTALL);
   private static final Pattern FULLY_QUALIFIED_NAME =
-      Pattern.compile("Reference to fully qualified import name '([^']+)'.*");
+      Pattern.compile("Reference to fully qualified import name '([^']+)'" + DOT + "*");
   private static final Pattern USE_SHORT_NAME =
-      Pattern.compile(".*Please use the short name '(.*)' instead.");
+      Pattern.compile(DOT + "*Please use the short name '(" + DOT + "*)' instead" + DOT);
 
   private final AbstractCompiler compiler;
   private final LinkedHashMap<Node, ScriptMetadata> metadataForEachScript = new LinkedHashMap<>();

@@ -17,6 +17,8 @@
 package com.google.javascript.jscomp.deps;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
 
 import com.google.common.base.CharMatcher;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -24,6 +26,8 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -32,8 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A parser that can extract dependency information from a .js file, including goog.require,
@@ -48,10 +50,19 @@ public final class JsFileRegexParser extends JsFileLineParser {
       // TODO(sdh): this handles goog.loadModule(function(){"use strict";goog.module
       // but fails to match without "use strict"; since we look for semicolon, not open brace.
       Pattern.compile(
-          "(?:^|;)(?:[\\p{L}\\p{Nl}\\p{Nd}$_,:{}\\s]+=)?\\s*"
+          "(?:^|;)(?:[\\p{L}\\p{Nl}\\p{Nd}$_,:{}\\s\\x0B]+=)?"
+              + SPACE
+              + "*"
               + "goog\\.(?<func>provide|module|require|requireType|forwardDeclare|addDependency|declareModuleId)"
               // TODO(johnplaisted): Remove declareNamespace.
-              + "\\s*\\(\\s*(?<args>.*?)\\s*\\)");
+              + SPACE
+              + "*\\("
+              + SPACE
+              + "*(?<args>"
+              + DOT
+              + "*?)"
+              + SPACE
+              + "*\\)");
 
   /**
    * Pattern for matching import ... from './path/to/file'.
@@ -64,18 +75,23 @@ public final class JsFileRegexParser extends JsFileLineParser {
           // Require the import/export to be at the beginning of the line
           "^"
               // Either an import or export, but we don't care which, followed by at least one space
-              + "(?:import|export)\\b\\s*"
+              + "(?:import|export)\\b"
+              + SPACE
+              + "*"
               // Skip any identifier chars, as well as star, comma, braces, and spaces
               // This should match, e.g., "* as foo from ", or "Foo, {Bar as Baz} from ".
               // The 'from' keyword is required except in the case of "import '...';",
               // where there's nothing between 'import' and the module key string literal.
-              + "(?:[a-zA-Z0-9$_*,{}\\s]+\\bfrom\\s*|)"
+              + "(?:[a-zA-Z0-9$_*,{}\\s\\x0B]+\\bfrom"
+              + SPACE
+              + "*|)"
               // Imports require a string literal at the end; it's optional for exports
               // (e.g. "export * from './other';", which is effectively also an import).
               // This optionally captures group #1, which is the imported module name.
               + "(?:['\"]([^'\"]+)['\"])?"
               // Finally, this should be the entire statement, so ensure there's a semicolon.
-              + "\\s*;");
+              + SPACE
+              + "*;");
 
   /**
    * Pattern for 'export' keyword, e.g. "export default class ..." or "export {blah}". The '\b'

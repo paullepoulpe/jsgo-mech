@@ -28,6 +28,7 @@ import com.google.common.io.CharSource;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.re2j.Pattern;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -35,7 +36,6 @@ import java.io.Reader;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -45,6 +45,9 @@ import org.jspecify.annotations.Nullable;
  * first line of warnings description.
  */
 public class AllowlistWarningsGuard extends WarningsGuard {
+  private static final Pattern BLAZE_OUT_DIR_PATTERN =
+      Pattern.compile("blaze-out/[^/]*/(bin|genfiles)/");
+
   private static final Splitter LINE_SPLITTER = Splitter.on('\n');
 
   /** The set of allowlisted warnings, same format as {@code formatWarning}. */
@@ -200,7 +203,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
     if (sourceName != null) {
       // e.g.
       // "blaze-out/k8-fastbuild/genfiles/some/path/foo.js" -> "some/path/foo.js"
-      return sourceName.replaceFirst("blaze-out/[^/]*/(bin|genfiles)/", "");
+      return BLAZE_OUT_DIR_PATTERN.matcher(sourceName).replaceFirst("");
     }
     return sourceName;
   }

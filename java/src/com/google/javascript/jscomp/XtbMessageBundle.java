@@ -17,15 +17,16 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.javascript.jscomp.base.JavaRegex.SPACE;
 
 import com.google.common.collect.Iterables;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -130,7 +131,8 @@ public final class XtbMessageBundle implements MessageBundle {
     private static final String NEUTER_GENDER_CASE = "NEUTER";
     private static final String OTHER_GENDER_CASE = "OTHER";
 
-    private static final String GENDER_VARIANT_PATTERN = "grammatical_gender_case:\\s*(\\w+)";
+    private static final String GENDER_VARIANT_PATTERN =
+        "grammatical_gender_case:" + SPACE + "*(\\w+)";
     private static final Pattern GET_STRING_PATTERN = Pattern.compile(GENDER_VARIANT_PATTERN);
     private String genderCase;
 

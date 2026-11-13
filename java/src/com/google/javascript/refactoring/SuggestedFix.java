@@ -40,10 +40,10 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.NonJSDocComment;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSType;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.util.Collection;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -489,7 +489,7 @@ public final class SuggestedFix {
 
       // Only "@type" allows type names without "{}"
       replaceTypePattern(n, type, Pattern.compile(
-          "@(type) *\\{?[^@\\s}]+\\}?"));
+          "@(type) *\\{?[^@\\s\\x0B}]+\\}?"));
 
       // Text following other annotations may be a comment, not a type.
       replaceTypePattern(n, type, Pattern.compile(

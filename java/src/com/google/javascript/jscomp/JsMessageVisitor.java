@@ -18,6 +18,8 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+import static com.google.javascript.jscomp.base.JavaRegex.NON_SPACE;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Ascii;
@@ -34,6 +36,8 @@ import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,8 +45,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -133,7 +135,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    * <p>After '$jscomp$scope$' expect some sequence of digits and dollar signs ending in '$MSG_
    */
   private static final Pattern SCOPED_ALIASES_PREFIX_PATTERN =
-      Pattern.compile("\\$jscomp\\$scope\\$\\S+\\$MSG_");
+      Pattern.compile("\\$jscomp\\$scope\\$" + NON_SPACE + "+\\$MSG_");
 
   /**
    * Pattern for unnamed messages.
@@ -145,7 +147,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    * <p><a href="https://github.com/google/closure-templates">Soy</a> generates messages with names
    * MSG_UNNAMED.* . This pattern recognizes such messages.
    */
-  private static final Pattern MSG_UNNAMED_PATTERN = Pattern.compile("MSG_UNNAMED.*");
+  private static final Pattern MSG_UNNAMED_PATTERN = Pattern.compile("MSG_UNNAMED" + DOT + "*");
 
   private final JsMessage.IdGenerator idGenerator;
   final AbstractCompiler compiler;

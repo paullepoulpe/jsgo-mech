@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModuleResolverFactory;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
+import com.google.re2j.Pattern;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -37,6 +38,8 @@ import org.jspecify.annotations.Nullable;
  * within the nearest node_modules folder ancestor.
  */
 public class NodeModuleResolver extends ModuleResolver {
+  private static final Pattern NODE_MODULES_PATTERN = Pattern.compile("/node_modules/");
+
   private static final String[] FILE_EXTENSIONS_TO_SEARCH = {
     "",
     ".js",
@@ -107,7 +110,7 @@ public class NodeModuleResolver extends ModuleResolver {
           break;
         }
       }
-      String[] nodeModulesDirs = modulePath.split("/node_modules/");
+      String[] nodeModulesDirs = NODE_MODULES_PATTERN.split(modulePath);
       String parentPath = "";
 
       for (int i = 0; i < nodeModulesDirs.length - 1; i++) {

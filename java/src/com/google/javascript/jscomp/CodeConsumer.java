@@ -21,6 +21,7 @@ import static com.google.javascript.jscomp.base.JSCompDoubles.isPositive;
 
 import com.google.errorprone.annotations.ForOverride;
 import com.google.javascript.rhino.Node;
+import com.google.re2j.Pattern;
 import java.math.BigInteger;
 
 /**
@@ -31,6 +32,7 @@ import java.math.BigInteger;
  * @see InlineCostEstimator
  */
 public abstract class CodeConsumer {
+  private static final Pattern LEADING_ZERO_PATTERN = Pattern.compile("^0\\.");
 
   boolean statementNeedsEnded = false;
   boolean statementStarted = false;
@@ -337,7 +339,7 @@ public abstract class CodeConsumer {
 
   static String formatNumber(double x) {
     if ((long) x != x) {
-      return String.valueOf(x).replace(".0E", "E").replaceFirst("^0\\.", ".");
+      return LEADING_ZERO_PATTERN.matcher(String.valueOf(x).replace(".0E", "E")).replaceFirst(".");
     }
 
     long value = (long) x;

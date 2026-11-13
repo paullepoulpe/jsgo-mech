@@ -17,6 +17,7 @@
 package com.google.javascript.jscomp.instrumentation.reporter;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 
@@ -31,6 +32,8 @@ import com.google.javascript.jscomp.instrumentation.reporter.proto.Instrumentati
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats.Presence;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.ReportProfile;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -41,8 +44,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -203,7 +204,7 @@ public final class ReportDecoder {
       String fileContent,
       String instrumentationArrayName) {
     Matcher matcher =
-        Pattern.compile(instrumentationArrayName + "\\.push\\(['\"](.*?)['\"]\\)")
+        Pattern.compile(instrumentationArrayName + "\\.push\\(['\"](" + DOT + "*?)['\"]\\)")
             .matcher(fileContent);
     final LinkedHashSet<String> encodedPoints = new LinkedHashSet<>();
     while (matcher.find()) {

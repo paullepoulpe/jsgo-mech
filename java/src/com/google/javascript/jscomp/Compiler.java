@@ -102,6 +102,7 @@ import com.google.javascript.rhino.StaticScope;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
+import com.google.re2j.Pattern;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -151,6 +152,8 @@ import org.jspecify.annotations.Nullable;
 // TODO(tbreisacher): Rename Compiler to JsCompiler and remove this suppression.
 @SuppressWarnings("JavaLangClash")
 public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFileMapping {
+  private static final Pattern SLASH_PATTERN = Pattern.compile("/");
+
   static final DiagnosticType CHUNK_DEPENDENCY_ERROR =
       DiagnosticType.error(
           "JSC_CHUNK_DEPENDENCY_ERROR",
@@ -1646,7 +1649,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         for (Node fileNode = r.getFirstChild(); fileNode != null; fileNode = fileNode.getNext()) {
           String fileName = fileNode.getSourceFileName();
           for (String regex : fileNameRegexList) {
-            if (fileName.matches(regex)) {
+            if (Pattern.matches(regex, fileName)) {
               String source = "// " + fileName + "\n" + toSource(fileNode);
               builder.append(source);
               break;
@@ -1668,7 +1671,7 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
         final String chunkName = jsChunk.getName();
         lt.setCurrentChunkContext(jsChunk);
         for (String regex : chunkNameRegexList) {
-          if (chunkName.matches(regex)) {
+          if (Pattern.matches(regex, chunkName)) {
             String source = "// module '" + chunkName + "'\n" + toSource(lt, jsChunk);
             builder.append(source);
             break;
@@ -4699,8 +4702,8 @@ public class Compiler extends AbstractCompiler implements ErrorHandler, SourceFi
       return toPath;
     }
 
-    List<String> fromPathParts = new ArrayList<>(Arrays.asList(fromPath.split("/")));
-    List<String> toPathParts = new ArrayList<>(Arrays.asList(toPath.split("/")));
+    List<String> fromPathParts = new ArrayList<>(Arrays.asList(SLASH_PATTERN.split(fromPath)));
+    List<String> toPathParts = new ArrayList<>(Arrays.asList(SLASH_PATTERN.split(toPath)));
     if (!fromPathParts.isEmpty()) {
       fromPathParts.remove(fromPathParts.size() - 1);
     }

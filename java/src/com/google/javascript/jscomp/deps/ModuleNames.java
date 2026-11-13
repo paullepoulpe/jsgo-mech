@@ -17,16 +17,21 @@
 package com.google.javascript.jscomp.deps;
 
 import com.google.common.base.Joiner;
+import com.google.re2j.Pattern;
 import java.util.Arrays;
 
 /**
  * Static methods related to module names.
  */
 public class ModuleNames {
+  private static final Pattern LEADING_DOT_SLASH_PATTERN = Pattern.compile("^\\./");
+
   private ModuleNames() {} // Static methods only; do not instantiate.
 
   /** According to the spec, the forward slash should be the delimiter on all platforms. */
   static final String MODULE_SLASH = "/";
+
+  private static final Pattern MODULE_SLASH_PATTERN = Pattern.compile(MODULE_SLASH);
 
   /** To join together normalized module names. */
   private static final Joiner MODULE_JOINER = Joiner.on(MODULE_SLASH);
@@ -56,8 +61,9 @@ public class ModuleNames {
   }
 
   static String toJSIdentifier(String path) {
-    return stripJsExtension(path)
-        .replaceFirst("^\\./", "")
+    return LEADING_DOT_SLASH_PATTERN
+        .matcher(stripJsExtension(path))
+        .replaceFirst("")
         .replace(MODULE_SLASH, "$")
         .replace('\\', '$')
         .replace('@', '$')
@@ -94,7 +100,7 @@ public class ModuleNames {
    * If no segment could be consumed for "..", retains the segment.
    */
   static String canonicalizePath(String path) {
-    String[] parts = path.split(MODULE_SLASH);
+    String[] parts = MODULE_SLASH_PATTERN.split(path);
     String[] buffer = new String[parts.length];
     int position = 0;
     int available = 0;

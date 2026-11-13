@@ -29,6 +29,7 @@ import com.google.common.collect.Iterables;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
+import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.jspecify.annotations.Nullable;
  * <p>Based in concept on the work by Jared Jacobs.
  */
 class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
+  private static final Pattern COMMA_PATTERN = Pattern.compile(",");
 
   static final DiagnosticType BAD_REPLACEMENT_CONFIGURATION =
       DiagnosticType.error(
@@ -413,7 +415,7 @@ class ReplaceStrings extends AbstractPostOrderCallback implements CompilerPass {
         colon == -1
             ? ImmutableSet.of()
             : ImmutableSet.copyOf(
-                function.substring(colon + EXCLUSION_PREFIX.length()).split(",")));
+                COMMA_PATTERN.split(function.substring(colon + EXCLUSION_PREFIX.length()))));
   }
 
   /**

@@ -16,18 +16,23 @@
 
 package com.google.javascript.refactoring;
 
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
+
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.JSDocInfo.Visibility;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSTypeNative;
+import com.google.re2j.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Class that contains common Matchers that are useful to everyone.
  */
 public final class Matchers {
+  private static final Pattern PROTOTYPE_PATTERN = Pattern.compile(DOT + "prototype" + DOT);
+
   // TODO(mknichel): Make sure all this code works with goog.scope.
 
   /**
@@ -437,7 +442,7 @@ public final class Matchers {
    */
   private static boolean matchesPrototypeInstanceVar(Node node, NodeMetadata metadata,
       String name) {
-    String[] parts = name.split(".prototype.");
+    String[] parts = PROTOTYPE_PATTERN.split(name);
     String className = parts[0];
     String propertyName = parts[1];
     JSType providedJsType = getJsType(metadata, className);

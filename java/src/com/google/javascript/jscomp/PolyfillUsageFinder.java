@@ -17,6 +17,7 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -35,6 +36,7 @@ import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import com.google.javascript.rhino.Node;
+import com.google.re2j.Pattern;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -44,6 +46,7 @@ import org.jspecify.annotations.Nullable;
 
 /** Detects all potential usages of polyfilled classes or methods */
 final class PolyfillUsageFinder {
+  private static final Pattern PROTOTYPE_PREFIX_PATTERN = Pattern.compile(DOT + "*\\.prototype\\.");
 
   /**
    * Represents a single polyfill: specifically, for a native symbol, a set of native and polyfill
@@ -155,7 +158,7 @@ final class PolyfillUsageFinder {
                 tokens.size() > 3 ? tokens.get(3) : "",
                 isPrototypeMethod ? Polyfill.Kind.METHOD : Polyfill.Kind.STATIC);
         if (isPrototypeMethod) {
-          methods.put(symbol.replaceAll(".*\\.prototype\\.", ""), polyfill);
+          methods.put(PROTOTYPE_PREFIX_PATTERN.matcher(symbol).replaceAll(""), polyfill);
         } else {
           statics.put(symbol, polyfill);
         }
