@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Checks for errors related to interfaces. */
@@ -131,12 +132,12 @@ public final class CheckInterfaces extends AbstractPostOrderCallback implements 
       }
       if (memberFuncDef.isStaticMember()) {
         // `static foo() {...}`
-        String className = NodeUtil.getName(classNode);
-        if (className == null) {
-          className = ANONYMOUS_CLASSNAME;
+        Optional<String> className = Optional.of(NodeUtil.getName(classNode)).filter(s -> !s.isEmpty());
+        if (className.isEmpty()) {
+          className = Optional.of(ANONYMOUS_CLASSNAME);
         }
         String funcName = memberFuncDef.getString();
-        t.report(memberFuncDef, STATIC_MEMBER_FUNCTION_IN_INTERFACE_CLASS, className, funcName);
+        t.report(memberFuncDef, STATIC_MEMBER_FUNCTION_IN_INTERFACE_CLASS, className.orElse("null"), funcName);
       } else {
         Node block = memberFuncDef.getLastChild().getLastChild();
         if (block.hasChildren()) {

@@ -36,6 +36,7 @@ import com.google.javascript.rhino.Node;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -76,9 +77,9 @@ final class ClosureModuleProcessor implements ModuleProcessor {
 
     @Override
     public @Nullable ResolveExportResult resolveExport(
-        ModuleRequestResolver moduleRequestResolver, String exportName) {
-      if (namespace.containsKey(exportName)) {
-        return ResolveExportResult.of(namespace.get(exportName));
+        ModuleRequestResolver moduleRequestResolver, Optional<String> exportName) {
+      if (exportName.isPresent() && namespace.containsKey(exportName.get())) {
+        return ResolveExportResult.of((exportName.isPresent() ? namespace.get(exportName.get()) : null));
       }
       return ResolveExportResult.NOT_FOUND;
     }
@@ -86,8 +87,8 @@ final class ClosureModuleProcessor implements ModuleProcessor {
     @Override
     public @Nullable ResolveExportResult resolveExport(
         ModuleRequestResolver moduleRequestResolver,
-        @Nullable String moduleSpecifier,
-        String exportName,
+        Optional<String> moduleSpecifier,
+        Optional<String> exportName,
         Set<ExportTrace> resolveSet,
         Set<UnresolvedModule> exportStarSet) {
       return resolveExport(moduleRequestResolver, exportName);
@@ -95,7 +96,7 @@ final class ClosureModuleProcessor implements ModuleProcessor {
 
     @Override
     public Module resolve(
-        ModuleRequestResolver moduleRequestResolver, @Nullable String moduleSpecifier) {
+        ModuleRequestResolver moduleRequestResolver, Optional<String> moduleSpecifier) {
       if (resolved == null) {
         // Every import creates a locally bound name.
         Map<String, Binding> boundNames =
@@ -108,7 +109,7 @@ final class ClosureModuleProcessor implements ModuleProcessor {
                 .namespace(namespace)
                 .boundNames(ImmutableMap.copyOf(boundNames))
                 .localNameToLocalExport(ImmutableMap.of())
-                .closureNamespace(Iterables.getOnlyElement(metadataField.googNamespaces()))
+                .closureNamespace(Optional.ofNullable(Iterables.getOnlyElement(metadataField.googNamespaces())))
                 .build();
       }
       return resolved;
@@ -149,8 +150,8 @@ final class ClosureModuleProcessor implements ModuleProcessor {
         ResolveExportResult result =
             requested.resolveExport(
                 moduleRequestResolver,
-                importRecord.moduleRequest(),
-                importRecord.importName(),
+                Optional.of(importRecord.moduleRequest()),
+                Optional.of(importRecord.importName()),
                 new LinkedHashSet<>(),
                 new LinkedHashSet<>());
         if (!result.found() && !result.hadError()) {
@@ -223,7 +224,7 @@ final class ClosureModuleProcessor implements ModuleProcessor {
       }
       compiler.report(
           JSError.make(
-              srcFileName,
+              Optional.of(srcFileName),
               importRecord.importNode().getLineno(),
               importRecord.importNode().getCharno(),
               DOES_NOT_HAVE_EXPORT_WITH_DETAILS,
@@ -384,10 +385,10 @@ final class ClosureModuleProcessor implements ModuleProcessor {
           Export.NAMESPACE,
           Binding.from(
               Export.builder()
-                  .exportName(Export.NAMESPACE)
+                  .exportName(Optional.of(Export.NAMESPACE))
                   .exportNode(exportsNode)
                   .moduleMetadata(metadata)
-                  .closureNamespace(closureNamespace)
+                  .closureNamespace(Optional.of(closureNamespace))
                   .modulePath(metadata.path())
                   .build(),
               exportsNode));
@@ -413,10 +414,10 @@ final class ClosureModuleProcessor implements ModuleProcessor {
           exportedId,
           Binding.from(
               Export.builder()
-                  .exportName(exportedId)
+                  .exportName(Optional.of(exportedId))
                   .exportNode(propNode)
                   .moduleMetadata(metadata)
-                  .closureNamespace(closureNamespace)
+                  .closureNamespace(Optional.of(closureNamespace))
                   .modulePath(metadata.path())
                   .build(),
               propNode));

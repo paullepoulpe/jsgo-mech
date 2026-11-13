@@ -111,6 +111,7 @@ import com.google.javascript.jscomp.parsing.parser.util.SourcePosition;
 import com.google.javascript.jscomp.parsing.parser.util.SourceRange;
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -175,7 +176,7 @@ public class Parser {
   private final ArrayDeque<FunctionFlavor> functionContextStack = new ArrayDeque<>();
   private FeatureSet features = FeatureSet.BARE_MINIMUM;
   private SourcePosition lastSourcePosition;
-  private @Nullable String sourceMapURL;
+  private Optional<String> sourceMapURL = Optional.empty();
 
   public Parser(Config config, ErrorReporter errorReporter, SourceFile source) {
     this.config = config;
@@ -227,7 +228,7 @@ public class Parser {
       if (lastCommentEndPosition == null || range.end.offset > this.lastCommentEndPosition.offset) {
         value = value.trim();
         if (value.startsWith(SOURCE_MAPPING_URL_PREFIX)) {
-          sourceMapURL = value.substring(SOURCE_MAPPING_URL_PREFIX.length());
+          sourceMapURL = Optional.of(value.substring(SOURCE_MAPPING_URL_PREFIX.length()));
         }
         comments.add(new Comment(value, range, type));
         this.lastCommentEndPosition = range.end;
@@ -248,7 +249,7 @@ public class Parser {
   }
 
   /** Returns the url provided by the sourceMappingURL if any was found. */
-  public @Nullable String getSourceMapURL() {
+  public Optional<String> getSourceMapURL() {
     return sourceMapURL;
   }
 
@@ -3583,7 +3584,7 @@ public class Parser {
   }
 
   private void reportTemplateErrorIfPresent(TemplateLiteralToken templateToken) {
-    if (templateToken.errorMessage == null) {
+    if (templateToken.errorMessage.isEmpty()) {
       return;
     }
     switch (templateToken.errorLevel) {

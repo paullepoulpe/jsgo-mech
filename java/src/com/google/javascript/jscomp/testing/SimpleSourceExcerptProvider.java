@@ -20,6 +20,7 @@ import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.javascript.jscomp.Region;
 import com.google.javascript.jscomp.SourceExcerptProvider;
 import com.google.javascript.jscomp.SourceFile;
+import java.util.Optional;
 
 /**
  * A simple source excerpt provider for testing.
@@ -33,22 +34,22 @@ public final class SimpleSourceExcerptProvider implements SourceExcerptProvider 
   }
 
   @Override
-  public String getSourceLine(String sourceName, int lineNumber) {
+  public Optional<String> getSourceLine(Optional<String> sourceName, int lineNumber) {
     return sourceFile.getLine(lineNumber);
   }
 
   @Override
-  public Region getSourceLines(String sourceName, int lineNumber, int length) {
+  public Region getSourceLines(Optional<String> sourceName, int lineNumber, int length) {
     return sourceFile.getLines(lineNumber, length);
   }
 
   @Override
-  public Region getSourceRegion(String sourceName, int lineNumber) {
+  public Region getSourceRegion(Optional<String> sourceName, int lineNumber) {
     return sourceFile.getRegion(lineNumber);
   }
 
   @Override
-  public OriginalMapping getSourceMapping(String sourceName, int lineNumber,
+  public OriginalMapping getSourceMapping(Optional<String> sourceName, int lineNumber,
                                           int columnNumber) {
     return null;
   }

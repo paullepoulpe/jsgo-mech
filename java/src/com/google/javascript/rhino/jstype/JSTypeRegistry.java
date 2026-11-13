@@ -77,6 +77,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -495,7 +496,7 @@ public final class JSTypeRegistry {
      */
     PrototypeObjectType functionPrototype =
         PrototypeObjectType.builder(this)
-            .setName("Function.prototype")
+            .setName(Optional.of("Function.prototype"))
             .setNative(true)
             // Defer until `Object` is defined. .setImplicitPrototype(objectType)
             .build();
@@ -509,7 +510,7 @@ public final class JSTypeRegistry {
      */
     PrototypeObjectType functionInstancePrototype =
         PrototypeObjectType.builder(this)
-            .setName("?.prototype")
+            .setName(Optional.of("?.prototype"))
             .setNative(true)
             // Defer until `Object` is defined. .setImplicitPrototype(objectType)
             .build();
@@ -522,7 +523,7 @@ public final class JSTypeRegistry {
      */
     FunctionType functionType =
         FunctionType.builder(this)
-            .withName("Function")
+            .withName(Optional.of("Function"))
             .forConstructor()
             .forNativeType()
             .withParameters(createParametersWithVarArgs(unknownType))
@@ -539,7 +540,7 @@ public final class JSTypeRegistry {
      */
     FunctionType functionFunctionType =
         FunctionType.builder(this)
-            .withName("Function")
+            .withName(Optional.of("Function"))
             .forConstructor()
             .forNativeType()
             .withParameters(createParametersWithVarArgs(allType))
@@ -552,7 +553,7 @@ public final class JSTypeRegistry {
     // `Object.prototype`
     ObjectType objectPrototype =
         PrototypeObjectType.builder(this)
-            .setName("Object.prototype")
+            .setName(Optional.of("Object.prototype"))
             .setNative(true)
             .setImplicitPrototype(null)
             .build();
@@ -709,7 +710,7 @@ public final class JSTypeRegistry {
         nativeConstructorBuilder("ITemplateArray").withParameters().build();
     ObjectType iTemplateArrayPrototype =
         PrototypeObjectType.builder(this)
-            .setName("ITemplateArray.prototype")
+            .setName(Optional.of("ITemplateArray.prototype"))
             .setNative(true)
             .setImplicitPrototype(arrayOfString)
             .build();
@@ -1230,7 +1231,6 @@ public final class JSTypeRegistry {
 
   private @Nullable JSType resolveViaProperties(
       StaticTypedScope declarationScope, String qualifiedName) {
-    checkNotNull(qualifiedName);
     checkArgument(!qualifiedName.isEmpty());
     String rootName = getRootElementOfName(qualifiedName);
     StaticTypedSlot slot = declarationScope.getOwnSlot(rootName);
@@ -1559,54 +1559,54 @@ public final class JSTypeRegistry {
   /**
    * First dereferences the JSType to remove null/undefined then returns a human-readable type name
    */
-  public String getReadableTypeName(Node n) {
+  public Optional<String> getReadableTypeName(Node n) {
     return getReadableJSTypeName(n, /* dereference= */ true);
   }
 
-  public String getReadableTypeNameNoDeref(Node n) {
+  public Optional<String> getReadableTypeNameNoDeref(Node n) {
     return getReadableJSTypeName(n, /* dereference= */ false);
   }
 
-  private static @Nullable String getSimpleReadableJSTypeName(JSType type) {
+  private static Optional<String> getSimpleReadableJSTypeName(JSType type) {
     if (type instanceof AllType) {
-      return type.toString();
+      return Optional.of(type.toString());
     } else if (type instanceof ValueType) {
-      return type.toString();
+      return Optional.of(type.toString());
     } else if (type.isFunctionPrototypeType()) {
-      return type.toString();
+      return Optional.of(type.toString());
     } else if (type instanceof ObjectType) {
       if (!isReadableObjectType(type.toMaybeObjectType())) {
-        return null;
+        return Optional.empty();
       }
 
       Node source = type.toObjectType().getConstructor().getSource();
       if (source != null) {
         checkState(source.isFunction() || source.isClass(), source);
         String readable = source.getFirstChild().getOriginalName();
-        if (readable != null) {
-          return readable;
+        if (!readable.isEmpty()) {
+          return Optional.of(readable);
         }
       }
-      return type.toString();
+      return Optional.of(type.toString());
 
     } else if (type instanceof UnionType) {
       UnionType unionType = type.toMaybeUnionType();
-      String union = null;
+      Optional<String> union = Optional.empty();
       for (JSType alternate : unionType.getAlternates()) {
-        String name = getSimpleReadableJSTypeName(alternate);
-        if (name == null) {
-          return null;
+        Optional<String> name = getSimpleReadableJSTypeName(alternate);
+        if (name.isEmpty()) {
+          return Optional.empty();
         }
-        if (union == null) {
-          union = "(" + name;
+        if (union.isEmpty()) {
+          union = Optional.of("(" + name.get());
         } else {
-          union += "|" + name;
+          union = Optional.of(union.get() + "|" + name.get());
         }
       }
-      union += ")";
+      union = Optional.of(union.orElse("null") + ")");
       return union;
     }
-    return null;
+    return Optional.empty();
   }
 
   /**
@@ -1622,7 +1622,7 @@ public final class JSTypeRegistry {
    *     #getReadableTypeNameNoDeref(String) instead of passing this as an argument.
    */
   @VisibleForTesting
-  String getReadableJSTypeName(Node n, boolean dereference) {
+  Optional<String> getReadableJSTypeName(Node n, boolean dereference) {
     JSType type = getJSTypeOrUnknown(n);
     if (dereference) {
       JSType autoboxed = type.autobox();
@@ -1631,8 +1631,8 @@ public final class JSTypeRegistry {
       }
     }
 
-    String name = getSimpleReadableJSTypeName(type);
-    if (name != null) {
+    Optional<String> name = getSimpleReadableJSTypeName(type);
+    if (name.isPresent()) {
       return name;
     }
 
@@ -1648,18 +1648,18 @@ public final class JSTypeRegistry {
         // Don't show complex function names or anonymous types.
         // Instead, try to get a human-readable type name.
         if (isReadableObjectType(objectType)) {
-          return objectType + "." + propName;
+          return Optional.of(objectType + "." + propName);
         }
       }
     }
 
     if (n.isQualifiedName()) {
-      return n.getQualifiedName();
+      return Optional.of(n.getQualifiedName()).filter(s -> !s.isEmpty());
     } else if (type.isFunctionType()) {
       // Don't show complex function names.
-      return "function";
+      return Optional.of("function");
     } else {
-      return type.toString();
+      return Optional.of(type.toString());
     }
   }
 
@@ -1712,7 +1712,7 @@ public final class JSTypeRegistry {
    *     corresponding JSType object.
    */
   public JSType getType(
-      StaticTypedScope scope, String jsTypeName, String sourceName, int lineno, int charno) {
+      StaticTypedScope scope, String jsTypeName, Optional<String> sourceName, int lineno, int charno) {
     switch (jsTypeName) {
       case "boolean" -> {
         return getNativeType(JSTypeNative.BOOLEAN_TYPE);
@@ -1999,7 +1999,7 @@ public final class JSTypeRegistry {
   }
 
   /** Create an object type. */
-  public ObjectType createObjectType(String name, ObjectType implicitPrototype) {
+  public ObjectType createObjectType(Optional<String> name, ObjectType implicitPrototype) {
     return PrototypeObjectType.builder(this)
         .setName(name)
         .setImplicitPrototype(implicitPrototype)
@@ -2053,7 +2053,7 @@ public final class JSTypeRegistry {
     checkArgument(source == null || source.isFunction() || source.isClass());
     return FunctionType.builder(this)
         .forConstructor()
-        .withName(name)
+        .withName(Optional.of(name))
         .withSourceNode(source)
         .withParameters(parameters)
         .withReturnType(returnType)
@@ -2128,34 +2128,32 @@ public final class JSTypeRegistry {
   /** Creates a named type. */
   @VisibleForTesting
   public NamedType createNamedType(
-      StaticTypedScope scope, String reference, String sourceName, int lineno, int charno) {
+      StaticTypedScope scope, String reference, Optional<String> sourceName, int lineno, int charno) {
     return NamedType.builder(this, reference)
         .setScope(scope)
         .setResolutionKind(ResolutionKind.TYPE_NAME)
-        .setErrorReportingLocation(sourceName, lineno, charno)
+        .setErrorReportingLocation(sourceName.orElse(""), lineno, charno)
         .build();
   }
 
   /** Identifies the name of a typedef or enum before we actually declare it. */
   public void identifyNonNullableName(@Nullable StaticScope scope, String name) {
-    checkNotNull(name);
     StaticScope lookupScope = getLookupScope(scope, name);
     nonNullableTypeNames.put(getRootNodeForScope(lookupScope), name);
   }
 
   /** Identifies the name of a typedef or enum before we actually declare it. */
   public boolean isNonNullableName(StaticScope scope, String name) {
-    checkNotNull(name);
     scope = getLookupScope(scope, name);
     return nonNullableTypeNames.containsEntry(getRootNodeForScope(scope), name);
   }
 
   public JSType evaluateTypeExpression(JSTypeExpression expr, StaticTypedScope scope) {
-    return createTypeFromCommentNode(expr.getRoot(), expr.getSourceName(), scope);
+    return createTypeFromCommentNode(expr.getRoot(), Optional.of(expr.getSourceName()).filter(s -> !s.isEmpty()), scope);
   }
 
   public JSType createTypeFromCommentNode(Node n) {
-    return createTypeFromCommentNode(n, "[internal]", null);
+    return createTypeFromCommentNode(n, Optional.of("[internal]"), null);
   }
 
   /**
@@ -2166,7 +2164,7 @@ public final class JSTypeRegistry {
    * @param scope A scope for doing type name lookups.
    */
   public JSType createTypeFromCommentNode(
-      Node n, String sourceName, @Nullable StaticTypedScope scope) {
+      Node n, Optional<String> sourceName, @Nullable StaticTypedScope scope) {
     return switch (n.getToken()) {
       case LC ->
           // Record type.
@@ -2359,7 +2357,7 @@ public final class JSTypeRegistry {
   }
 
   private @Nullable ImmutableList<JSType> parseTemplateArgs(
-      JSType nominalType, Node typeNode, String sourceName, StaticTypedScope scope) {
+      JSType nominalType, Node typeNode, Optional<String> sourceName, StaticTypedScope scope) {
     Node typeList = typeNode.getFirstChild();
     if (typeList == null) {
       return null;
@@ -2416,7 +2414,7 @@ public final class JSTypeRegistry {
    * @param sourceName The source file name.
    * @param scope A scope for doing type name lookups.
    */
-  private JSType createRecordTypeFromNodes(Node n, String sourceName, StaticTypedScope scope) {
+  private JSType createRecordTypeFromNodes(Node n, Optional<String> sourceName, StaticTypedScope scope) {
 
     RecordTypeBuilder builder = new RecordTypeBuilder(this);
 
@@ -2466,7 +2464,7 @@ public final class JSTypeRegistry {
    */
   public void registerTemplateTypeNamesInScope(Iterable<TemplateType> keys, Node scopeRoot) {
     for (TemplateType key : keys) {
-      scopedNameTable.put(scopeRoot, key.getReferenceName(), key);
+      scopedNameTable.put(scopeRoot, key.getReferenceName().orElseThrow(), key);
     }
   }
 
@@ -2493,7 +2491,7 @@ public final class JSTypeRegistry {
               ? syntheticTemplateScope.types
               : HamtPMap.<String, TemplateType>empty();
       for (TemplateType key : templates) {
-        types = types.plus(key.getReferenceName(), key);
+        types = types.plus(key.getReferenceName().orElseThrow(), key);
       }
       this.types = types;
     }
@@ -2537,12 +2535,12 @@ public final class JSTypeRegistry {
   }
 
   private FunctionType.Builder nativeConstructorBuilder(String name) {
-    return FunctionType.builder(this).forNativeType().forConstructor().withName(name);
+    return FunctionType.builder(this).forNativeType().forConstructor().withName(Optional.of(name));
   }
 
   private FunctionType nativeInterface(String name, TemplateType... templateKeys) {
     FunctionType.Builder builder =
-        FunctionType.builder(this).forNativeType().forInterface().withName(name);
+        FunctionType.builder(this).forNativeType().forInterface().withName(Optional.of(name));
     if (templateKeys.length > 0) {
       builder.withTemplateKeys(templateKeys);
     }

@@ -22,12 +22,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Precision;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -57,7 +57,7 @@ public final class SourceMapConsumerV3Test {
                 .build())).get();
 
     assertThat(consumer.getOriginalSources()).containsExactly("testcode");
-    assertThat(consumer.getSourceRoot()).isNull();
+    assertThat(consumer.getSourceRoot()).isEmpty();
   }
 
   @Test
@@ -134,7 +134,7 @@ public final class SourceMapConsumerV3Test {
 
     //By default sourceRoot is not prepended
     assertThat(consumer.getOriginalSources()).containsExactly("testcode");
-    assertThat(consumer.getSourceRoot()).isEqualTo("http://server/path/");
+    assertThat(consumer.getSourceRoot()).hasValue("http://server/path/");
   }
 
   @Test
@@ -156,8 +156,8 @@ public final class SourceMapConsumerV3Test {
 
     assertThat(exts).hasSize(2);
     assertThat(exts).doesNotContainKey("org_int");
-    assertThat(((JsonElement) exts.get("x_org_int")).getAsInt()).isEqualTo(2);
-    assertThat((JsonArray) exts.get("x_org_array")).isEmpty();
+    assertThat(((SimpleJsonValue) exts.get("x_org_int")).asInt().get()).isEqualTo(2);
+    assertThat(((SimpleJsonValue) exts.get("x_org_array")).toString()).isEqualTo("[]");
   }
 
   @Test
@@ -351,7 +351,7 @@ public final class SourceMapConsumerV3Test {
     List<String> symbols = new ArrayList<>();
     consumer.visitMappings(
         (sourceName, symbolName, sourcePos, startPos, endPos) -> {
-          if (symbolName != null) {
+          if (!symbolName.isEmpty()) {
             symbols.add(symbolName);
           }
         });

@@ -24,6 +24,7 @@ import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 
 /**
  * Records all of the symbols and properties that should be exported.
@@ -88,14 +89,14 @@ class FindExportableNodes extends AbstractPostOrderCallback {
     }
 
     Mode mode = null;
-    String export = null;
+    Optional<String> export = Optional.empty();
     Node context = null;
 
     switch (n.getToken()) {
       case FUNCTION:
       case CLASS:
         if (parent.isScript()) {
-          export = NodeUtil.getName(n);
+          export = Optional.of(NodeUtil.getName(n)).filter(s -> !s.isEmpty());
           context = n;
           mode = Mode.EXPORT;
         }
@@ -106,11 +107,11 @@ class FindExportableNodes extends AbstractPostOrderCallback {
         Node child = n.getFirstChild();
         if (parent.isExprResult() && !n.getLastChild().isAssign()) {
           if (grandparent != null && grandparent.isScript() && child.isQualifiedName()) {
-            export = child.getQualifiedName();
+            export = Optional.of(child.getQualifiedName()).filter(s -> !s.isEmpty());
             context = n;
             mode = Mode.EXPORT;
           } else if (allowLocalExports && child.isGetProp()) {
-            export = child.getString();
+            export = Optional.of(child.getString());
             mode = Mode.EXTERN;
           }
         }
@@ -121,7 +122,7 @@ class FindExportableNodes extends AbstractPostOrderCallback {
       case CONST:
         if (parent.isScript()) {
           if (n.getFirstChild().hasChildren() && !n.getFirstFirstChild().isAssign()) {
-            export = n.getFirstChild().getString();
+            export = Optional.of(n.getFirstChild().getString());
             context = n;
             mode = Mode.EXPORT;
           }
@@ -135,7 +136,7 @@ class FindExportableNodes extends AbstractPostOrderCallback {
           // This means that the top-level code we want to rewrite works by accident, only when
           // allowLocalExports happens to be true.
           if (allowLocalExports && parent.isExprResult()) {
-            export = n.getString();
+            export = Optional.of(n.getString());
             mode = Mode.EXTERN;
           }
           break;
@@ -145,28 +146,28 @@ class FindExportableNodes extends AbstractPostOrderCallback {
         if (n.isStaticMember()) {
           Node classNode = parent.getParent();
           String className = NodeUtil.getName(classNode);
-          if (className == null) {
+          if (className.isEmpty()) {
             t.report(n, EXPORT_ANNOTATION_NOT_ALLOWED);
             return;
           }
-          export = className + "." + n.getString();
+          export = Optional.of(className + "." + n.getString());
           mode = Mode.EXPORT;
           context = n;
         } else if (allowLocalExports) {
-          export = n.getString();
+          export = Optional.of(n.getString());
           mode = Mode.EXTERN;
         }
         break;
 
       case MEMBER_FUNCTION_DEF:
         if (parent.getParent().isClass()) {
-          String methodOwnerName =
+          Optional<String> methodOwnerName =
               NodeUtil.getBestLValueName(NodeUtil.getBestLValue(parent.getParent()));
-          if (methodOwnerName == null) {
+          if (methodOwnerName.isEmpty()) {
             t.report(n, EXPORT_ANNOTATION_NOT_ALLOWED);
             return;
           }
-          es6ClassExports.put(n, methodOwnerName + (n.isStaticMember() ? "" : ".prototype"));
+          es6ClassExports.put(n, methodOwnerName.get() + (n.isStaticMember() ? "" : ".prototype"));
           return;
         }
         // fallthrough
@@ -175,7 +176,7 @@ class FindExportableNodes extends AbstractPostOrderCallback {
       case GETTER_DEF:
       case SETTER_DEF:
         if (allowLocalExports) {
-          export = n.getString();
+          export = Optional.of(n.getString());
           mode = Mode.EXTERN;
         }
         break;
@@ -183,15 +184,15 @@ class FindExportableNodes extends AbstractPostOrderCallback {
         break;
     }
 
-    if (export != null) {
+    if (export.isPresent()) {
       if (mode == Mode.EXPORT) {
         checkNotNull(context);
-        exports.put(export, context);
+        exports.put(export.get(), context);
       } else {
         checkState(context == null);
         checkState(mode == Mode.EXTERN);
-        checkState(!export.isEmpty());
-        localExports.add(export);
+        checkState(!export.get().isEmpty());
+        localExports.add(export.get());
       }
     } else if (!(n.isGetProp() && parent.isExprResult())) {
       // Silently ignore exports of the form:

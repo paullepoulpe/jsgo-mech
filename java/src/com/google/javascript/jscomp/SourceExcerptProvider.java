@@ -16,6 +16,7 @@
 package com.google.javascript.jscomp;
 
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -33,9 +34,9 @@ public interface SourceExcerptProvider {
      */
     LINE {
       @Override
-      public String get(
+      public Optional<String> get(
           SourceExcerptProvider source,
-          String sourceName,
+          Optional<String> sourceName,
           int lineNumber,
           int unused,
           ExcerptFormatter formatter) {
@@ -46,9 +47,9 @@ public interface SourceExcerptProvider {
     /** Multiple lines excerpt. */
     FULL {
       @Override
-      public String get(
+      public Optional<String> get(
           SourceExcerptProvider source,
-          String sourceName,
+          Optional<String> sourceName,
           int startLineNumber,
           int length,
           ExcerptFormatter formatter) {
@@ -60,9 +61,9 @@ public interface SourceExcerptProvider {
      */
     REGION {
       @Override
-      public String get(
+      public Optional<String> get(
           SourceExcerptProvider source,
-          String sourceName,
+          Optional<String> sourceName,
           int lineNumber,
           int length,
           ExcerptFormatter formatter) {
@@ -72,18 +73,18 @@ public interface SourceExcerptProvider {
     };
 
     /** Get a source excerpt string based on the type of the source excerpt. */
-    public String get(
+    public Optional<String> get(
         SourceExcerptProvider source,
-        String sourceName,
+        Optional<String> sourceName,
         int lineNumber,
         ExcerptFormatter formatter) {
       return this.get(source, sourceName, lineNumber, -1, formatter);
     }
 
     /** Get a source excerpt string based on the type of the source excerpt. */
-    public abstract String get(
+    public abstract Optional<String> get(
         SourceExcerptProvider source,
-        String sourceName,
+        Optional<String> sourceName,
         int lineNumber,
         int length,
         ExcerptFormatter formatter);
@@ -96,7 +97,7 @@ public interface SourceExcerptProvider {
    * @param lineNumber the line number, 1 being the first line of the file
    * @return the line indicated, or {@code null} if it does not exist
    */
-  String getSourceLine(String sourceName, int lineNumber);
+  Optional<String> getSourceLine(Optional<String> sourceName, int lineNumber);
 
   /**
    * Gets the specific lines returned by the beginning and excerpt length. Must not start or end
@@ -109,7 +110,7 @@ public interface SourceExcerptProvider {
    * @return the region around the line number indicated, or {@code null} if it does not exist
    */
   @Nullable
-  Region getSourceLines(String sourceName, int lineNumber, int length);
+  Region getSourceLines(Optional<String> sourceName, int lineNumber, int length);
 
   /**
    * Get a region around the indicated line number. The exact definition of a region is
@@ -120,13 +121,13 @@ public interface SourceExcerptProvider {
    * @return the region around the line number indicated, or {@code null} if it does not exist
    */
   @Nullable
-  Region getSourceRegion(String sourceName, int lineNumber);
+  Region getSourceRegion(Optional<String> sourceName, int lineNumber);
 
   /**
    * If the source file is associated with an inputSourceMap, does a lookup
    * for the original file position based on this source map.
    */
-  OriginalMapping getSourceMapping(String sourceName, int lineNumber, int columnNumber);
+  OriginalMapping getSourceMapping(Optional<String> sourceName, int lineNumber, int columnNumber);
 
   /**
    * A excerpt formatter is responsible of formatting source excerpts.
@@ -135,9 +136,9 @@ public interface SourceExcerptProvider {
     /**
      * Format a line excerpt.
      */
-    String formatLine(String line, int lineNumber);
+    Optional<String> formatLine(Optional<String> line, int lineNumber);
 
     /** Format a region excerpt. */
-    String formatRegion(@Nullable Region region);
+    Optional<String> formatRegion(@Nullable Region region);
   }
 }

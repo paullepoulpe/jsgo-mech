@@ -81,6 +81,7 @@ import com.google.javascript.rhino.testing.TypeSubject;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -394,7 +395,7 @@ public final class TypeInferenceTest {
   }
 
   private EnumType createEnumTypeJSType(String name, JSType elemType) {
-    return EnumType.builder(registry).setName(name).setElementType(elemType).build();
+    return EnumType.builder(registry).setName(Optional.ofNullable(name)).setElementType(elemType).build();
   }
 
   private JSType createUndefinableType(JSTypeNative type) {
@@ -1798,7 +1799,7 @@ public final class TypeInferenceTest {
   @Test
   public void testAssertElement_doesNotChangeElementType() {
     JSType elementType =
-        registry.createObjectType("Element", registry.getNativeObjectType(OBJECT_TYPE));
+        registry.createObjectType(Optional.of("Element"), registry.getNativeObjectType(OBJECT_TYPE));
     includeGoogAssertionFn("assertElement", elementType);
     assuming("x", elementType);
 
@@ -3255,7 +3256,7 @@ public final class TypeInferenceTest {
             .toMaybeFunctionType();
 
     assertThat(specializedFn).isNotEqualTo(templateFn);
-    assertThat(specializedFn.getReferenceName()).isEqualTo(templateFn.getReferenceName());
+    assertThat(specializedFn.getReferenceName().orElse(null)).isEqualTo(templateFn.getReferenceName().orElse(null));
     assertThat(specializedFn.getSource()).isEqualTo(templateFn.getSource());
     assertThat(specializedFn.getGoogModuleId()).isEqualTo(templateFn.getGoogModuleId());
   }
@@ -4364,7 +4365,7 @@ public final class TypeInferenceTest {
   @Test
   public void constDeclarationWithCtorJSDoc_ignoresKnownMixinReturnType() {
     // Create a function always returning a constructor for 'Foo'
-    JSType fooType = FunctionType.builder(registry).forConstructor().withName("Foo").build();
+    JSType fooType = FunctionType.builder(registry).forConstructor().withName(Optional.of("Foo")).build();
     assuming("Foo", fooType);
     FunctionType mixinType = FunctionType.builder(registry).withReturnType(fooType).build();
     assuming("mixin", mixinType);
@@ -4512,7 +4513,7 @@ public final class TypeInferenceTest {
         FunctionType.builder(registry)
             .withReturnType(returnType)
             .withParameters(registry.createParameters(getNativeType(UNKNOWN_TYPE)))
-            .withName(fullName)
+            .withName(Optional.ofNullable(fullName))
             .build();
     assuming(fullName, fnType);
   }
@@ -4522,7 +4523,7 @@ public final class TypeInferenceTest {
     TemplateType t = registry.createTemplateType("T");
     FunctionType assertType =
         FunctionType.builder(registry)
-            .withName(fnName)
+            .withName(Optional.ofNullable(fnName))
             .withClosurePrimitiveId(ClosurePrimitive.ASSERTS_TRUTHY)
             .withReturnType(t)
             .withParameters(registry.createParameters(t))
@@ -4540,7 +4541,7 @@ public final class TypeInferenceTest {
         FunctionType.builder(registry)
             .withReturnType(returnType)
             .withParameters(registry.createParameters(getNativeType(UNKNOWN_TYPE)))
-            .withName(fullName)
+            .withName(Optional.ofNullable(fullName))
             .withClosurePrimitiveId(ClosurePrimitive.ASSERTS_MATCHES_RETURN)
             .build();
     assuming(fullName, fnType);
@@ -4567,7 +4568,7 @@ public final class TypeInferenceTest {
                 registry.createParameters(getNativeType(UNKNOWN_TYPE), templateTypeCtor))
             .withTemplateKeys(templateType)
             .withReturnType(templateType)
-            .withName(fullName)
+            .withName(Optional.ofNullable(fullName))
             .build();
     assuming(fullName, fnType);
   }

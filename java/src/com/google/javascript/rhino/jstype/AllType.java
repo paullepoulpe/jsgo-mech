@@ -41,6 +41,7 @@ package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.rhino.ErrorReporter;
+import java.util.Optional;
 
 /**
  * All type, representing all values.
@@ -84,8 +85,8 @@ public final class AllType extends JSType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "<Any Type>";
+  public Optional<String> getDisplayName() {
+    return Optional.of("<Any Type>");
   }
 
   @Override

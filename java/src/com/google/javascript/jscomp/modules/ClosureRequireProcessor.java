@@ -44,7 +44,6 @@ final class ClosureRequireProcessor {
    */
   record Require(String localName, Import importRecord, CreatedBy createdBy) {
     Require {
-      requireNonNull(localName, "localName");
       requireNonNull(importRecord, "importRecord");
       requireNonNull(createdBy, "createdBy");
       checkArgument(createdBy.isClosureImport());

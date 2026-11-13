@@ -73,7 +73,7 @@ public class SimpleReference<T extends StaticTypedSlot> implements StaticTypedRe
 
   @Override
   public String toString() {
-    String sourceName = node == null ? null : node.getSourceFileName();
+    String sourceName = node == null ? "" : node.getSourceFileName();
     int lineNo = node == null ? -1 : node.getLineno();
     return node.getQualifiedName() + "@" + sourceName + ":" + lineNo;
   }

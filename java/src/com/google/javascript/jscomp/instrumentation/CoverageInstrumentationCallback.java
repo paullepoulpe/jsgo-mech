@@ -24,6 +24,7 @@ import com.google.javascript.jscomp.instrumentation.CoverageInstrumentationPass.
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import java.util.Map;
+import java.util.Optional;
 
 /** This class implements a traversal to instrument an AST for code coverage. */
 class CoverageInstrumentationCallback implements NodeTraversal.Callback {
@@ -45,7 +46,7 @@ class CoverageInstrumentationCallback implements NodeTraversal.Callback {
    * @param traversal the traversal
    * @return the name of the file it originates from
    */
-  private static String getFileName(NodeTraversal traversal) {
+  private static Optional<String> getFileName(NodeTraversal traversal) {
     return traversal.getSourceName();
   }
 
@@ -55,7 +56,7 @@ class CoverageInstrumentationCallback implements NodeTraversal.Callback {
    */
   private String createArrayName(NodeTraversal traversal) {
     return ARRAY_NAME_PREFIX
-        + CoverageUtil.createIdentifierFromText(getFileName(traversal));
+        + CoverageUtil.createIdentifierFromText(getFileName(traversal).get());
   }
 
   /**
@@ -80,10 +81,10 @@ class CoverageInstrumentationCallback implements NodeTraversal.Callback {
     Node exprNode = IR.exprResult(IR.assign(getElemNode, IR.trueNode()));
 
     // Note line as instrumented
-    String fileName = getFileName(traversal);
+    Optional<String> fileName = getFileName(traversal);
     instrumentationData.computeIfAbsent(
-        fileName, (String k) -> new FileInstrumentationData(k, arrayName));
-    instrumentationData.get(fileName).setLineAsInstrumented(lineNumber);
+        fileName.orElse(null), (String k) -> new FileInstrumentationData(k, arrayName));
+    (fileName.isPresent() ? instrumentationData.get(fileName.get()) : null).setLineAsInstrumented(lineNumber);
 
     return exprNode.srcrefTreeIfMissing(node);
   }
@@ -103,9 +104,9 @@ class CoverageInstrumentationCallback implements NodeTraversal.Callback {
    * @return a Node containing file specific setup logic.
    */
   private Node newHeaderNode(NodeTraversal traversal, Node srcref) {
-    String fileName = getFileName(traversal);
+    Optional<String> fileName = getFileName(traversal);
     String arrayName = createArrayName(traversal);
-    FileInstrumentationData data = instrumentationData.get(fileName);
+    FileInstrumentationData data = fileName.isPresent() ? instrumentationData.get(fileName.get()) : null;
     checkNotNull(data);
 
     String objName = CoverageInstrumentationPass.JS_INSTRUMENTATION_OBJECT_NAME;
@@ -128,7 +129,7 @@ class CoverageInstrumentationCallback implements NodeTraversal.Callback {
             IR.exprResult(
                 IR.call(
                     IR.getprop(IR.getelem(IR.name(objName), IR.string("fileNames")), "push"),
-                    IR.string(fileName))))
+                    IR.string(fileName.get()))))
         .srcrefTreeIfMissing(srcref);
   }
 
@@ -147,8 +148,8 @@ class CoverageInstrumentationCallback implements NodeTraversal.Callback {
     // SCRIPT node is special - it is the root of the AST for code from a file.
     // Append code to declare and initialize structures used in instrumentation.
     if (node.isScript()) {
-      String fileName = getFileName(traversal);
-      if (instrumentationData.get(fileName) != null) {
+      Optional<String> fileName = getFileName(traversal);
+      if ((fileName.isPresent() ? instrumentationData.get(fileName.get()) : null) != null) {
         if (node.hasChildren() && node.getFirstChild().isModuleBody()) {
           node = node.getFirstChild();
         }

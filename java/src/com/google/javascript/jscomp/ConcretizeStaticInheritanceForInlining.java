@@ -276,7 +276,7 @@ public final class ConcretizeStaticInheritanceForInlining implements CompilerPas
       JSDocInfo classInfo = NodeUtil.getBestJSDocInfo(n);
       if (classInfo != null && classInfo.isConstructor()) {
         String name = NodeUtil.getName(n);
-        if (name == null) {
+        if (name.isEmpty()) {
           return;
         }
         if (classByAlias.containsKey(name)) {
@@ -288,8 +288,6 @@ public final class ConcretizeStaticInheritanceForInlining implements CompilerPas
     }
 
     private void setAlias(String original, String alias) {
-      Preconditions.checkNotNull(original, "original is null");
-      Preconditions.checkNotNull(alias, "alias is null");
       checkArgument(classByAlias.containsKey(original));
       classByAlias.put(alias, classByAlias.get(original));
     }
@@ -297,9 +295,9 @@ public final class ConcretizeStaticInheritanceForInlining implements CompilerPas
     private void visitAssign(NodeTraversal t, Node n) {
       // Alias for classes. We assume that the alias appears after the class declaration.
       String existingClassQname = n.getLastChild().getQualifiedName();
-      if (existingClassQname != null && classByAlias.containsKey(existingClassQname)) {
+      if (!existingClassQname.isEmpty() && classByAlias.containsKey(existingClassQname)) {
         String alias = n.getFirstChild().getQualifiedName();
-        if (alias != null) {
+        if (!alias.isEmpty()) {
           setAlias(existingClassQname, alias);
         }
       } else if (n.getFirstChild().isGetProp()) {
@@ -318,9 +316,9 @@ public final class ConcretizeStaticInheritanceForInlining implements CompilerPas
         return;
       }
       String maybeOriginalName = child.getFirstChild().getQualifiedName();
-      if (maybeOriginalName != null && classByAlias.containsKey(maybeOriginalName)) {
+      if (!maybeOriginalName.isEmpty() && classByAlias.containsKey(maybeOriginalName)) {
         String maybeAlias = child.getQualifiedName();
-        if (maybeAlias != null) {
+        if (!maybeAlias.isEmpty()) {
           setAlias(maybeOriginalName, maybeAlias);
         }
       }

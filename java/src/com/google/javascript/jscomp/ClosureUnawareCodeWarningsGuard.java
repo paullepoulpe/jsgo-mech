@@ -17,6 +17,7 @@
 package com.google.javascript.jscomp;
 
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -27,7 +28,7 @@ public final class ClosureUnawareCodeWarningsGuard extends WarningsGuard {
 
   private static final DiagnosticGroup DEFAULT_CLOSURE_UNAWARE_CODE_SUPPRESSIONS =
       new DiagnosticGroup(
-          "closureUnawareCodeJSDocIncompatible",
+          Optional.of("closureUnawareCodeJSDocIncompatible"),
           RhinoErrorReporter.TYPE_PARSE_ERROR,
           RhinoErrorReporter.UNRECOGNIZED_TYPE_ERROR,
           RhinoErrorReporter.JSDOC_MISSING_BRACES_WARNING,

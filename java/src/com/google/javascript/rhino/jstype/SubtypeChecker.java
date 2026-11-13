@@ -52,6 +52,7 @@ import com.google.javascript.rhino.jstype.JSType.SubtypingMode;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import org.jspecify.annotations.Nullable;
 
@@ -656,7 +657,9 @@ final class SubtypeChecker {
    */
   private static boolean isBivariantType(JSType type) {
     ObjectType unwrapped = getObjectTypeIfNative(type);
-    return unwrapped != null && BIVARIANT_TYPES.contains(unwrapped.getReferenceName());
+    return unwrapped != null
+        && unwrapped.hasReferenceName()
+        && BIVARIANT_TYPES.contains(unwrapped.getReferenceName().orElseThrow());
   }
 
   /**
@@ -673,11 +676,11 @@ final class SubtypeChecker {
       }
     }
     ObjectType unwrapped = getObjectTypeIfNative(type);
-    String unwrappedTypeName = unwrapped == null ? null : unwrapped.getReferenceName();
-    if (unwrappedTypeName == null) {
+    Optional<String> unwrappedTypeName = unwrapped == null ? Optional.empty() : unwrapped.getReferenceName();
+    if (unwrappedTypeName.isEmpty()) {
       return null;
     }
-    return switch (unwrappedTypeName) {
+    return switch (unwrappedTypeName.get()) {
       case "ReadonlyArray" -> unwrapped.registry.getReadonlyArrayElementKey();
       case "IteratorLike" -> unwrapped.registry.getIteratorLikeValueTemplate();
       case "Iterator" -> unwrapped.registry.getIteratorValueTemplate();

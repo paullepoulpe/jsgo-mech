@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -154,13 +155,13 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
     if (n.isName() && NodeUtil.isNonlocalModuleExportName(n)) {
       return;
     }
-    String newName = getReplacementName(n.getString());
-    if (newName == null) {
+    Optional<String> newName = getReplacementName(n.getString());
+    if (newName.isEmpty()) {
       return;
     }
     if (assertOnChange) {
       throw new IllegalStateException(
-          "Unexpected renaming in MakeDeclaredNamesUnique. new name: " + newName + " for " + n);
+          "Unexpected renaming in MakeDeclaredNamesUnique. new name: " + newName.get() + " for " + n);
     }
 
     Renamer renamer = renamerStack.peek();
@@ -173,7 +174,7 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
         jsDocInfoNode.setJSDocInfo(builder.build());
       }
     }
-    n.setString(newName);
+    n.setString(newName.get());
     if (markChanges) {
       t.reportCodeChange();
       // If we are renaming a function declaration, make sure the containing scope
@@ -185,14 +186,14 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
   }
 
   /** Walks the stack of name maps and finds the replacement name for the current scope. */
-  private @Nullable String getReplacementName(String oldName) {
+  private Optional<String> getReplacementName(String oldName) {
     for (Renamer renamer : renamerStack) {
-      String newName = renamer.getReplacementName(oldName);
-      if (newName != null) {
+      Optional<String> newName = renamer.getReplacementName(oldName);
+      if (newName.isPresent()) {
         return newName;
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   /**
@@ -221,7 +222,7 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
     /**
      * @return A replacement name, null if oldName is unknown or should not be replaced.
      */
-    String getReplacementName(String oldName);
+    Optional<String> getReplacementName(String oldName);
 
     /**
      * @return Whether the constant-ness of a name should be removed.
@@ -689,7 +690,7 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
 
     // By contrast, this is a different map for each ContextualRenamer because it's just keeping
     // track of the names used by this renamer.
-    private final Map<String, String> declarations = new LinkedHashMap<>();
+    private final Map<String, Optional<String>> declarations = new LinkedHashMap<>();
     private final boolean global;
 
     private final Renamer hoistRenamer;
@@ -750,12 +751,12 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
       } else {
         if (!name.equals(ARGUMENTS)) {
           if (global) {
-            reserveName(name);
+            reserveName(Optional.of(name));
           } else {
             // It hasn't been declared locally yet, so increment the count.
             if (!declarations.containsKey(name)) {
-              int id = incrementNameCount(name);
-              String newName = null;
+              int id = incrementNameCount(Optional.of(name));
+              Optional<String> newName = Optional.empty();
               if (id != 0) {
                 // this name is exists at another source location, create another
                 // The stack of renamers traverse all scopes and track all declared
@@ -771,11 +772,11 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
                 // We could stop tracking the counts and switch the renamer to use the file hashcode
                 // based UniqueIdSupplier, but that requires updating several unit tests that run
                 // normalize.
-                newName = getUniqueName(name, id);
-                while (nameUsage.contains(newName)) {
+                newName = Optional.of(getUniqueName(name, id));
+                while (newName.isPresent() && nameUsage.contains(newName.get())) {
                   // if the newName also exists at another location, create another
                   id = incrementNameCount(newName);
-                  newName = getUniqueName(name, id);
+                  newName = Optional.of(getUniqueName(name, id));
                 }
                 reserveName(newName); // reserve this new name so that it's never reused
               }
@@ -787,8 +788,8 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
     }
 
     @Override
-    public String getReplacementName(String oldName) {
-      return declarations.get(oldName);
+    public Optional<String> getReplacementName(String oldName) {
+      return declarations.getOrDefault(oldName, Optional.empty());
     }
 
     /** Given a name and the associated id, create a new unique name. */
@@ -796,12 +797,12 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
       return name + UNIQUE_ID_SEPARATOR + id;
     }
 
-    private void reserveName(String name) {
-      nameUsage.setCount(name, 0, 1);
+    private void reserveName(Optional<String> name) {
+      nameUsage.setCount(name.orElse(null), 0, 1);
     }
 
-    private int incrementNameCount(String name) {
-      return nameUsage.add(name, 1);
+    private int incrementNameCount(Optional<String> name) {
+      return nameUsage.add(name.orElse(null), 1);
     }
 
     @Override
@@ -886,8 +887,8 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
     }
 
     @Override
-    public String getReplacementName(String oldName) {
-      return declarations.get(oldName);
+    public Optional<String> getReplacementName(String oldName) {
+      return Optional.ofNullable(declarations.get(oldName));
     }
 
     @Override
@@ -947,8 +948,8 @@ class MakeDeclaredNamesUnique extends NodeTraversal.AbstractScopedCallback {
     }
 
     @Override
-    public @Nullable String getReplacementName(String oldName) {
-      return targets.contains(oldName) ? delegate.getReplacementName(oldName) : null;
+    public Optional<String> getReplacementName(String oldName) {
+      return targets.contains(oldName) ? delegate.getReplacementName(oldName) : Optional.empty();
     }
 
     @Override

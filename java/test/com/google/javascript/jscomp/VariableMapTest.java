@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -71,16 +72,16 @@ public final class VariableMapTest {
   public void testFromBytes() throws ParseException {
     VariableMap vm = VariableMap.fromBytes("AAA:a\nBBB:b\n".getBytes(UTF_8)).get();
     assertThat(vm.getOriginalNameToNewNameMap()).hasSize(2);
-    assertThat(vm.lookupNewName("AAA")).isEqualTo("a");
-    assertThat(vm.lookupNewName("BBB")).isEqualTo("b");
-    assertThat(vm.lookupSourceName("a")).isEqualTo("AAA");
-    assertThat(vm.lookupSourceName("b")).isEqualTo("BBB");
+    assertThat(vm.lookupNewName("AAA").orElse(null)).isEqualTo("a");
+    assertThat(vm.lookupNewName("BBB").orElse(null)).isEqualTo("b");
+    assertThat(vm.lookupSourceName(Optional.of("a"))).isEqualTo("AAA");
+    assertThat(vm.lookupSourceName(Optional.of("b"))).isEqualTo("BBB");
   }
 
   @Test
   public void testFromBytesWithEmptyValue() throws ParseException {
     VariableMap vm = VariableMap.fromBytes("AAA:".getBytes(UTF_8)).get();
-    assertThat(vm.lookupNewName("AAA")).isEmpty();
+    assertThat(vm.lookupNewName("AAA").orElse(null)).isEmpty();
   }
 
   @Test
@@ -88,8 +89,8 @@ public final class VariableMapTest {
     VariableMap vm =
         VariableMap.fromStreamBytes("AAA:a\nBBB:b\n".getBytes(UTF_8)).get();
     assertThat(vm.getOriginalNameToNewNameMap()).hasSize(2);
-    assertThat(vm.lookupNewName("AAA")).isEqualTo("a");
-    assertThat(vm.lookupNewName("BBB")).isEqualTo("b");
+    assertThat(vm.lookupNewName("AAA").orElse(null)).isEqualTo("a");
+    assertThat(vm.lookupNewName("BBB").orElse(null)).isEqualTo("b");
   }
 
   @Test
@@ -130,10 +131,10 @@ public final class VariableMapTest {
     VariableMap vm = VariableMap.fromBytes("AAA['\\:f']:a\n".getBytes(UTF_8)).get();
 
     assertThat(vm.getOriginalNameToNewNameMap()).hasSize(1);
-    assertThat(vm.lookupNewName("AAA[':f']")).isEqualTo("a");
+    assertThat(vm.lookupNewName("AAA[':f']").orElse(null)).isEqualTo("a");
 
     assertThat(vm.getNewNameToOriginalNameMap()).hasSize(1);
-    assertThat(vm.lookupSourceName("a")).isEqualTo("AAA[':f']");
+    assertThat(vm.lookupSourceName(Optional.of("a"))).isEqualTo("AAA[':f']");
   }
 
   private void assertEqual(byte[] bytes1, byte[] bytes2) {
@@ -157,16 +158,16 @@ public final class VariableMapTest {
   @Test
   public void testReverseLookupOfNullFindsNoName() {
     VariableMap vm = new VariableMap(ImmutableMap.of("AA", "a", "BB", "b"));
-    assertThat(vm.lookupSourceName(null)).isNull();
+    assertThat(vm.lookupSourceName(Optional.empty())).isNull();
   }
 
   @Test
   public void testFromLines_leadingNewline() throws ParseException {
     VariableMap vm = VariableMap.fromBytes("\na:b\n".getBytes(UTF_8)).get();
-    assertThat(vm.lookupNewName("a")).isEqualTo("b");
+    assertThat(vm.lookupNewName("a").orElse(null)).isEqualTo("b");
 
     VariableMap vmCrlf = VariableMap.fromBytes("\r\na:b\r\n".getBytes(UTF_8)).get();
-    assertThat(vmCrlf.lookupNewName("a")).isEqualTo("b");
+    assertThat(vmCrlf.lookupNewName("a").orElse(null)).isEqualTo("b");
   }
 
   @Test

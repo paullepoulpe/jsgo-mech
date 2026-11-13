@@ -19,14 +19,15 @@ package com.google.debugging.sourcemap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /** Wraps a JsonObject to provide a V3 source map. */
 public class SourceMapObject {
   private final int version;
   private final int lineCount;
-  private final String sourceRoot;
-  private final String file;
-  private final String mappings;
+  private final Optional<String> sourceRoot;
+  private final Optional<String> file;
+  private final Optional<String> mappings;
   private final String[] sources;
   private final String[] sourcesContent;
   private final String[] names;
@@ -36,9 +37,9 @@ public class SourceMapObject {
   private SourceMapObject(
       int version,
       int lineCount,
-      String sourceRoot,
-      String file,
-      String mappings,
+      Optional<String> sourceRoot,
+      Optional<String> file,
+      Optional<String> mappings,
       String[] sources,
       String[] sourcesContent,
       String[] names,
@@ -64,15 +65,15 @@ public class SourceMapObject {
     return lineCount;
   }
 
-  public String getSourceRoot() {
+  public Optional<String> getSourceRoot() {
     return sourceRoot;
   }
 
-  public String getFile() {
+  public Optional<String> getFile() {
     return file;
   }
 
-  public String getMappings() {
+  public Optional<String> getMappings() {
     return mappings;
   }
 
@@ -103,9 +104,9 @@ public class SourceMapObject {
   static class Builder {
     private int version;
     private int lineCount;
-    private String sourceRoot;
-    private String file;
-    private String mappings;
+    private Optional<String> sourceRoot = Optional.empty();
+    private Optional<String> file = Optional.empty();
+    private Optional<String> mappings = Optional.empty();
     private String[] sources;
     private String[] sourcesContent;
     private String[] names;
@@ -125,19 +126,19 @@ public class SourceMapObject {
     }
 
     @CanIgnoreReturnValue
-    public Builder setSourceRoot(String sourceRoot) {
+    public Builder setSourceRoot(Optional<String> sourceRoot) {
       this.sourceRoot = sourceRoot;
       return this;
     }
 
     @CanIgnoreReturnValue
-    public Builder setFile(String file) {
+    public Builder setFile(Optional<String> file) {
       this.file = file;
       return this;
     }
 
     @CanIgnoreReturnValue
-    public Builder setMappings(String mappings) {
+    public Builder setMappings(Optional<String> mappings) {
       this.mappings = mappings;
       return this;
     }

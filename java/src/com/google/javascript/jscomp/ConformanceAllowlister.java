@@ -30,7 +30,7 @@ public class ConformanceAllowlister {
       Compiler compiler, Node externs, Node ast, Requirement requirement) {
     ImmutableSet.Builder<String> result = ImmutableSet.builder();
     for (JSError error : getConformanceErrors(compiler, externs, ast, requirement)) {
-      result.add(error.sourceName());
+      result.add(error.sourceName().get());
     }
     return result.build();
   }

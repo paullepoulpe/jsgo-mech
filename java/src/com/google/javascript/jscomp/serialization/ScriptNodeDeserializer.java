@@ -45,7 +45,7 @@ final class ScriptNodeDeserializer {
 
   private final SourceFile sourceFile;
   private final ByteString scriptBytes;
-  private final String sourceMappingURL;
+  private final java.util.Optional<String> sourceMappingURL;
   private final Optional<ColorPool.ShardView> colorPoolShard;
   private final StringPool stringPool;
   private final ImmutableList<SourceFile> filePool;
@@ -57,7 +57,7 @@ final class ScriptNodeDeserializer {
       ImmutableList<SourceFile> filePool) {
     this.scriptBytes = ast.getScript();
     this.sourceFile = filePool.get(ast.getSourceFile() - 1);
-    this.sourceMappingURL = ast.getSourceMappingUrl();
+    this.sourceMappingURL = java.util.Optional.ofNullable(ast.getSourceMappingUrl());
     this.colorPoolShard = colorPoolShard;
     this.stringPool = stringPool;
     this.filePool = filePool;
@@ -173,7 +173,7 @@ final class ScriptNodeDeserializer {
     }
   }
 
-  public String getSourceMappingURL() {
+  public java.util.Optional<String> getSourceMappingURL() {
     return sourceMappingURL;
   }
 

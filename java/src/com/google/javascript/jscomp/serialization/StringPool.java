@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.serialization;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -97,7 +96,6 @@ public final class StringPool {
 
     /** Inserts the given string into the string pool if not present and returns its index */
     public int put(String string) {
-      checkNotNull(string);
 
       if (string.length() > this.maxLength) {
         this.maxLength = string.length();

@@ -131,9 +131,9 @@ public final class SourceFileTest {
     assertThat(fCr.getLineOffset(3)).isEqualTo(10);
     assertThat(fCr.getNumBytes()).isEqualTo(14);
     assertThat(fCr.getNumLines()).isEqualTo(4);
-    assertThat(fCr.getLine(1)).isEqualTo("'1';");
-    assertThat(fCr.getLine(2)).isEqualTo("'2';");
-    assertThat(fCr.getLine(3)).isEqualTo("'3'");
+    assertThat(fCr.getLine(1).orElse(null)).isEqualTo("'1';");
+    assertThat(fCr.getLine(2).orElse(null)).isEqualTo("'2';");
+    assertThat(fCr.getLine(3).orElse(null)).isEqualTo("'3'");
 
     SourceFile fLs = factory.apply("'1';\u2028'2';\u2028'3'\u2028");
     assertThat(fLs.getLineOffset(1)).isEqualTo(0);
@@ -141,9 +141,9 @@ public final class SourceFileTest {
     assertThat(fLs.getLineOffset(3)).isEqualTo(10);
     assertThat(fLs.getNumBytes()).isEqualTo(14);
     assertThat(fLs.getNumLines()).isEqualTo(4);
-    assertThat(fLs.getLine(1)).isEqualTo("'1';");
-    assertThat(fLs.getLine(2)).isEqualTo("'2';");
-    assertThat(fLs.getLine(3)).isEqualTo("'3'");
+    assertThat(fLs.getLine(1).orElse(null)).isEqualTo("'1';");
+    assertThat(fLs.getLine(2).orElse(null)).isEqualTo("'2';");
+    assertThat(fLs.getLine(3).orElse(null)).isEqualTo("'3'");
 
     SourceFile fPs = factory.apply("'1';\u2029'2';\u2029'3'\u2029");
     assertThat(fPs.getLineOffset(1)).isEqualTo(0);
@@ -151,9 +151,9 @@ public final class SourceFileTest {
     assertThat(fPs.getLineOffset(3)).isEqualTo(10);
     assertThat(fPs.getNumBytes()).isEqualTo(14);
     assertThat(fPs.getNumLines()).isEqualTo(4);
-    assertThat(fPs.getLine(1)).isEqualTo("'1';");
-    assertThat(fPs.getLine(2)).isEqualTo("'2';");
-    assertThat(fPs.getLine(3)).isEqualTo("'3'");
+    assertThat(fPs.getLine(1).orElse(null)).isEqualTo("'1';");
+    assertThat(fPs.getLine(2).orElse(null)).isEqualTo("'2';");
+    assertThat(fPs.getLine(3).orElse(null)).isEqualTo("'3'");
 
     SourceFile fCrLf = factory.apply("'1';\r\n'2';\r\n'3'\r\n");
     assertThat(fCrLf.getLineOffset(1)).isEqualTo(0);
@@ -161,9 +161,9 @@ public final class SourceFileTest {
     assertThat(fCrLf.getLineOffset(3)).isEqualTo(12);
     assertThat(fCrLf.getNumBytes()).isEqualTo(17);
     assertThat(fCrLf.getNumLines()).isEqualTo(4);
-    assertThat(fCrLf.getLine(1)).isEqualTo("'1';");
-    assertThat(fCrLf.getLine(2)).isEqualTo("'2';");
-    assertThat(fCrLf.getLine(3)).isEqualTo("'3'");
+    assertThat(fCrLf.getLine(1).orElse(null)).isEqualTo("'1';");
+    assertThat(fCrLf.getLine(2).orElse(null)).isEqualTo("'2';");
+    assertThat(fCrLf.getLine(3).orElse(null)).isEqualTo("'3'");
 
     SourceFile fMixed = factory.apply("'1';\r\n'2';\r'3'\u2028'4'\u2029'5'\n");
     assertThat(fMixed.getLineOffset(1)).isEqualTo(0);
@@ -172,12 +172,12 @@ public final class SourceFileTest {
     assertThat(fMixed.getLineOffset(4)).isEqualTo(15);
     assertThat(fMixed.getLineOffset(5)).isEqualTo(19);
     assertThat(fMixed.getNumLines()).isEqualTo(6);
-    assertThat(fMixed.getLine(1)).isEqualTo("'1';");
-    assertThat(fMixed.getLine(2)).isEqualTo("'2';");
-    assertThat(fMixed.getLine(3)).isEqualTo("'3'");
-    assertThat(fMixed.getLine(4)).isEqualTo("'4'");
-    assertThat(fMixed.getLine(5)).isEqualTo("'5'");
-    assertThat(fMixed.getLine(6)).isNull();
+    assertThat(fMixed.getLine(1).orElse(null)).isEqualTo("'1';");
+    assertThat(fMixed.getLine(2).orElse(null)).isEqualTo("'2';");
+    assertThat(fMixed.getLine(3).orElse(null)).isEqualTo("'3'");
+    assertThat(fMixed.getLine(4).orElse(null)).isEqualTo("'4'");
+    assertThat(fMixed.getLine(5).orElse(null)).isEqualTo("'5'");
+    assertThat(fMixed.getLine(6).orElse(null)).isNull();
 
     assertThat(fMixed.getLineOfOffset(0)).isEqualTo(1);
     assertThat(fMixed.getColumnOfOffset(0)).isEqualTo(0);
@@ -351,13 +351,13 @@ public final class SourceFileTest {
     SourceFile newFile = SourceFile.fromFile(tempFile.toString());
     String actualContent;
 
-    actualContent = newFile.getLine(1);
+    actualContent = newFile.getLine(1).orElse(null);
     assertThat(actualContent).isEqualTo(expectedContent);
 
     newFile.clearCachedSource();
 
     assertThat(newFile.hasSourceInMemory()).isFalse();
-    actualContent = newFile.getLine(1);
+    actualContent = newFile.getLine(1).orElse(null);
     assertThat(actualContent).isEqualTo(expectedContent);
   }
 
@@ -375,13 +375,13 @@ public final class SourceFileTest {
             .build();
     String actualContent;
 
-    actualContent = newFile.getLine(1);
+    actualContent = newFile.getLine(1).orElse(null);
     assertThat(actualContent).isEqualTo(expectedContent);
 
     newFile.clearCachedSource();
 
     assertThat(newFile.hasSourceInMemory()).isFalse();
-    actualContent = newFile.getLine(1);
+    actualContent = newFile.getLine(1).orElse(null);
     assertThat(actualContent).isEqualTo(expectedContent);
 
     assertThat(newFile.getName()).isEqualTo("original_test.js");

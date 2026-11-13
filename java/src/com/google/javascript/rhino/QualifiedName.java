@@ -42,6 +42,7 @@ package com.google.javascript.rhino;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -123,8 +124,8 @@ public abstract class QualifiedName {
   }
 
   /** Returns the qualified name as a string. */
-  public String join() {
-    return join('.');
+  public Optional<String> join() {
+    return Optional.of(join('.'));
   }
 
   /** Returns the qualified name as a string, with the given separator between components. */
@@ -298,8 +299,8 @@ public abstract class QualifiedName {
     }
 
     @Override
-    public String join() {
-      return node.getQualifiedName();
+    public Optional<String> join() {
+      return Optional.of(node.getQualifiedName()).filter(s -> !s.isEmpty());
     }
 
     @Override

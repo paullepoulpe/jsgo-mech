@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -76,36 +77,36 @@ public final class JsMessageTest {
 
   /** Return a new message builder that uses the given string as both its key and its ID. */
   private JsMessage.Builder newTestMessageBuilder(String keyAndId) {
-    return new JsMessage.Builder().setKey(keyAndId).setId(keyAndId);
+    return new JsMessage.Builder().setKey(keyAndId).setId(Optional.ofNullable(keyAndId));
   }
 
   @Test
   public void testHashValues() {
     final long answerString64 = 0x43ec5d9731515874L;
-    assertThat(JsMessage.Hash.hash64("Hello, world")).isEqualTo(answerString64);
+    assertThat(JsMessage.Hash.hash64(Optional.of("Hello, world"))).isEqualTo(answerString64);
 
     final long answerEmpty64 = 0x468d9ea2c42361aaL;
-    assertThat(JsMessage.Hash.hash64("")).isEqualTo(answerEmpty64);
+    assertThat(JsMessage.Hash.hash64(Optional.of(""))).isEqualTo(answerEmpty64);
   }
 
   @Test
   public void testNoAlternateId() {
-    JsMessage msg = newTestMessageBuilder("MSG_SOME_KEY").setDesc("Hello.").build();
-    assertThat(msg.getDesc()).isEqualTo("Hello.");
+    JsMessage msg = newTestMessageBuilder("MSG_SOME_KEY").setDesc(Optional.of("Hello.")).build();
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello.");
     assertThat(msg.getId()).isEqualTo("MSG_SOME_KEY");
-    assertThat(msg.getAlternateId()).isNull();
+    assertThat(msg.getAlternateId().orElse(null)).isNull();
   }
 
   @Test
   public void testSelfReferentialAlternateId() {
     JsMessage msg =
         newTestMessageBuilder("MSG_SOME_NAME")
-            .setDesc("Hello.")
-            .setAlternateId("MSG_SOME_NAME")
+            .setDesc(Optional.of("Hello."))
+            .setAlternateId(Optional.of("MSG_SOME_NAME"))
             .build();
-    assertThat(msg.getDesc()).isEqualTo("Hello.");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello.");
     assertThat(msg.getId()).isEqualTo("MSG_SOME_NAME");
-    assertThat(msg.getAlternateId()).isNull();
+    assertThat(msg.getAlternateId().orElse(null)).isNull();
   }
 
   @Test
@@ -113,19 +114,19 @@ public final class JsMessageTest {
     JsMessage msg =
         new JsMessage.Builder()
             .setKey("MSG_KEY")
-            .setDesc("Hello.")
-            .setAlternateId("foo")
-            .setMeaning("meaning")
-            .setId("meaning")
+            .setDesc(Optional.of("Hello."))
+            .setAlternateId(Optional.of("foo"))
+            .setMeaning(Optional.of("meaning"))
+            .setId(Optional.of("meaning"))
             .appendJsPlaceholderReference("placeholder0")
             .appendJsPlaceholderReference("placeholder1")
             .appendStringPart("part0")
             .appendStringPart("part1")
             .appendStringPart("part2")
             .build();
-    assertThat(msg.getDesc()).isEqualTo("Hello.");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello.");
     assertThat(msg.getId()).isEqualTo("meaning");
-    assertThat(msg.getAlternateId()).isEqualTo("foo");
+    assertThat(msg.getAlternateId().orElse(null)).isEqualTo("foo");
   }
 
   @Test
@@ -133,8 +134,8 @@ public final class JsMessageTest {
     JsMessage msg =
         new JsMessage.Builder()
             .setKey("MSG_KEY")
-            .setId("1234567890")
-            .setDesc("A welcome message.")
+            .setId(Optional.of("1234567890"))
+            .setDesc(Optional.of("A welcome message."))
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.MASCULINE)
             .appendStringPart(JsMessage.GrammaticalGenderCase.MASCULINE, "Beinvenido, ")
             .appendJsPlaceholderReference(JsMessage.GrammaticalGenderCase.MASCULINE, "placeholder")
@@ -184,8 +185,8 @@ public final class JsMessageTest {
     JsMessage msg =
         new JsMessage.Builder()
             .setKey("MSG_KEY")
-            .setId("1234567890")
-            .setDesc("A welcome message.")
+            .setId(Optional.of("1234567890"))
+            .setDesc(Optional.of("A welcome message."))
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.MASCULINE)
             .appendStringPart(JsMessage.GrammaticalGenderCase.MASCULINE, "Bienvenido, ")
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.FEMININE)
@@ -212,8 +213,8 @@ public final class JsMessageTest {
     JsMessage msg =
         new JsMessage.Builder()
             .setKey("MSG_KEY")
-            .setId("1234567890")
-            .setDesc("A welcome message.")
+            .setId(Optional.of("1234567890"))
+            .setDesc(Optional.of("A welcome message."))
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.MASCULINE)
             .appendStringPart(JsMessage.GrammaticalGenderCase.MASCULINE, "Bienvenido, ")
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.FEMININE)
@@ -237,8 +238,8 @@ public final class JsMessageTest {
     JsMessage msg =
         new JsMessage.Builder()
             .setKey("MSG_KEY")
-            .setId("1234567890")
-            .setDesc("A welcome message.")
+            .setId(Optional.of("1234567890"))
+            .setDesc(Optional.of("A welcome message."))
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.MASCULINE)
             .appendStringPart(JsMessage.GrammaticalGenderCase.MASCULINE, "Beinvenido, ")
             .appendJsPlaceholderReference(JsMessage.GrammaticalGenderCase.MASCULINE, "placeholder")
@@ -279,8 +280,8 @@ public final class JsMessageTest {
     JsMessage genderedMsg =
         new JsMessage.Builder()
             .setKey("MSG_KEY")
-            .setId("1234567890")
-            .setDesc("A welcome message.")
+            .setId(Optional.of("1234567890"))
+            .setDesc(Optional.of("A welcome message."))
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.MASCULINE)
             .appendStringPart(JsMessage.GrammaticalGenderCase.MASCULINE, "Bienvenido, ")
             .addGenderedMessageKey(JsMessage.GrammaticalGenderCase.FEMININE)

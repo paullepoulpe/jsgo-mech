@@ -19,6 +19,7 @@ package com.google.javascript.jscomp;
 import com.google.debugging.sourcemap.SourceMapConsumerV3;
 import com.google.debugging.sourcemap.SourceMapParseException;
 import com.google.javascript.jscomp.base.Outcome;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** A lazy-loaded SourceMapConsumerV3 instance. */
@@ -51,7 +52,7 @@ public final class SourceMapInput {
       if (codeRes.isErr()) {
         JSError error =
             JSError.make(
-                SourceMapInput.SOURCEMAP_RESOLVE_FAILED, sourceMapPath, codeRes.errorMessage());
+                SourceMapInput.SOURCEMAP_RESOLVE_FAILED, sourceMapPath, codeRes.errorMessage().orElse("null"));
         errorManager.report(error.defaultLevel(), error);
         return parsedSourceMap;
       }
@@ -70,10 +71,10 @@ public final class SourceMapInput {
       // to treat this file as having a real source map (implying this is an
       // intermediate source file). Rather, this is the original source file.
       // https://github.com/gulp-sourcemaps/gulp-sourcemaps/blob/91b94954/src/init/index.js#L116-L124
-      if (consumer.getFile() != null
-          && !consumer.getFile().isEmpty()
+      if (consumer.getFile().isPresent()
+          && !consumer.getFile().get().isEmpty()
           && consumer.getOriginalSources().size() == 1
-          && consumer.getOriginalSources().contains(consumer.getFile())
+          && consumer.getOriginalSources().contains(consumer.getFile().get())
           && consumer.getOriginalSourcesContent().size() == 1
           && consumer.getOriginalNames().isEmpty()
           && consumer.getLineCount() == -1) {
@@ -90,11 +91,11 @@ public final class SourceMapInput {
     return sourceFile.getName();
   }
 
-  public @Nullable String getRawSourceMapContents() {
+  public Optional<String> getRawSourceMapContents() {
     Outcome<String> codeRes = this.sourceFile.readCode();
     if (codeRes.isErr()) {
-      return null;
+      return Optional.empty();
     }
-    return codeRes.get();
+    return Optional.ofNullable(codeRes.get());
   }
 }

@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
@@ -38,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -354,7 +354,7 @@ class ScopedAliases implements CompilerPass {
         // Already visited.
         return;
       }
-      String aliasExpanded = checkNotNull(getAliasedNamespace(aliasDefinition));
+      String aliasExpanded = getAliasedNamespace(aliasDefinition);
       Preconditions.checkState(
           typeName.startsWith(aliasName), "%s must start with %s", typeName, aliasName);
       String replacement = aliasExpanded + typeName.substring(aliasName.length());
@@ -591,7 +591,7 @@ class ScopedAliases implements CompilerPass {
           injectedDecls.add(newDecl);
 
           // Rewrite "var name = EXPR;" to "var name = $jscomp$scope$uniqueId$name;"
-          v.getNameNode().addChildToFront(NodeUtil.newName(compiler, globalName, n, name));
+          v.getNameNode().addChildToFront(NodeUtil.newName(compiler, globalName, n, Optional.of(name)));
           recordAlias(v);
         } else {
           // Do not other kinds of local symbols, like catch params.
@@ -724,7 +724,7 @@ class ScopedAliases implements CompilerPass {
       } else {
         Node anonymousFnNode = n.getSecondChild();
         if (!anonymousFnNode.isFunction()
-            || NodeUtil.getName(anonymousFnNode) != null
+            || !NodeUtil.getName(anonymousFnNode).isEmpty()
             || NodeUtil.getFunctionParameters(anonymousFnNode).hasChildren()) {
           report(anonymousFnNode, GOOG_SCOPE_HAS_BAD_PARAMETERS);
         } else {

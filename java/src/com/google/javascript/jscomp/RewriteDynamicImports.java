@@ -16,7 +16,6 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.AstFactory.type;
 import static com.google.javascript.jscomp.AstFactory.typeJSType;
@@ -42,7 +41,7 @@ import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.TemplateType;
 import com.google.javascript.rhino.jstype.TemplatizedType;
 import java.util.Iterator;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Rewrite dynamic import expressions to account for bundling and module rewriting. Since dynamic
@@ -99,7 +98,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
 
   private final AbstractCompiler compiler;
   private final AstFactory astFactory;
-  private final String alias;
+  private final Optional<String> alias;
   private final boolean requiresAliasing;
   private final boolean shouldWrapDynamicImportCallbacks;
   private boolean dynamicImportsRemoved = false;
@@ -107,7 +106,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
 
   /** @param compiler The compiler */
   public RewriteDynamicImports(
-      AbstractCompiler compiler, @Nullable String alias, ChunkOutputType chunkOutputType) {
+      AbstractCompiler compiler, Optional<String> alias, ChunkOutputType chunkOutputType) {
     this.compiler = compiler;
     this.astFactory = compiler.createAstFactory();
     this.alias = alias;
@@ -117,9 +116,9 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
   }
 
   private final boolean aliasIsValid() {
-    return alias != null
-        && (alias.equals("import")
-            || NodeUtil.isValidQualifiedName(compiler.getAllowableFeatures(), alias));
+    return alias.isPresent()
+        && (alias.get().equals("import")
+            || NodeUtil.isValidQualifiedName(compiler.getAllowableFeatures(), alias.get()));
   }
 
   @Override
@@ -163,16 +162,16 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
           t.getInput()
               .getPath()
               .resolveJsModule(
-                  importSpecifier.getString(), n.getSourceFileName(), n.getLineno(), n.getCharno());
+                  importSpecifier.getString(), Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty()), n.getLineno(), n.getCharno());
       final Module module =
           (targetPath == null) ? null : compiler.getModuleMap().getModule(targetPath);
 
-      final String targetModuleVarName =
+      final Optional<String> targetModuleVarName =
           (module == null)
-              ? null
-              : GlobalizedModuleName.create(module.metadata(), null, null).aliasName().join();
+              ? Optional.empty()
+              : GlobalizedModuleName.create(module.metadata(), Optional.empty(), null).aliasName().join();
       final Var targetModuleNS =
-          (targetModuleVarName == null) ? null : t.getScope().getVar(targetModuleVarName);
+          (targetModuleVarName.isEmpty()) ? null : t.getScope().getVar(targetModuleVarName.get());
 
       if (targetModuleNS != null) {
         final JSChunk targetChunk = targetModuleNS.getInput().getChunk();
@@ -195,7 +194,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
     }
     if (aliasIsValid()) {
       aliasDynamicImport(t, n);
-    } else if (this.alias != null) {
+    } else if (this.alias.isPresent()) {
       t.report(n, DYNAMIC_IMPORT_INVALID_ALIAS);
     } else if (requiresAliasing) {
       t.report(n, DYNAMIC_IMPORT_ALIASING_REQUIRED);
@@ -368,8 +367,8 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
    * </pre>
    */
   private void aliasDynamicImport(NodeTraversal t, Node dynamicImport) {
-    checkNotNull(this.alias);
-    final Node aliasNode = astFactory.createQNameWithUnknownType(this.alias);
+    checkState(this.alias.isPresent());
+    final Node aliasNode = astFactory.createQNameWithUnknownType(this.alias.get());
     aliasNode.setOriginalName("import");
     final Node moduleSpecifier = dynamicImport.removeFirstChild();
     Node importAliasCall =
@@ -422,7 +421,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
       checkState(aliasIsValid());
 
       // If the extern is a simple name and already declared, there is nothing to do
-      if (NodeUtil.isValidSimpleName(alias) && t.getScope().getVar(alias) != null) {
+      if (NodeUtil.isValidSimpleName(alias.get()) && t.getScope().getVar(alias.get()) != null) {
         return false;
       }
 
@@ -437,17 +436,17 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
       Node externsRoot = compiler.getSynthesizedExternsInput().getAstRoot(compiler);
       // "import" is not a valid JS name and will not parse. However we can manually create it
       // and inject it into the externs.
-      if (alias.equals("import") || NodeUtil.isValidSimpleName(alias)) {
+      if (alias.get().equals("import") || NodeUtil.isValidSimpleName(alias.get())) {
         Node aliasNode =
             astFactory.createFunction(
-                alias,
+                alias.get(),
                 astFactory.createParamList("specifier"),
                 astFactory.createBlock(),
                 typeJSType(registry.createFunctionType(promiseTemplatizedType, stringType)));
         aliasNode.srcrefTree(externsRoot);
         externsRoot.addChildToBack(aliasNode);
       } else {
-        String aliasRootName = NodeUtil.getRootOfQualifiedNameString(alias);
+        String aliasRootName = NodeUtil.getRootOfQualifiedNameString(alias.get());
         Var aliasVar = t.getScope().getVar(aliasRootName);
         // If the namespace root is defined, just assume the whole name is properly defined.
         // This may need revisited in the future, but checking if the full qualified name
@@ -462,7 +461,7 @@ public class RewriteDynamicImports extends NodeTraversal.AbstractPostOrderCallba
         externsRoot.addChildToBack(aliasRootNode);
 
         // Define the rest of the parts of the name
-        Iterator<String> aliasNameParts = Splitter.on(".").split(alias).iterator();
+        Iterator<String> aliasNameParts = Splitter.on(".").split(alias.get()).iterator();
         Node qName = aliasRootNode.getFirstChild().cloneNode();
         aliasNameParts.next(); // skip over root name
         while (aliasNameParts.hasNext()) {

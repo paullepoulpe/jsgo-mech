@@ -32,7 +32,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathResolver;
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -609,10 +609,10 @@ public final class ModuleLoaderTest {
                     PathEscaper pathEscaper) ->
                     new ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper) {
                       @Override
-                      public @Nullable String resolveJsModule(
+                      public Optional<String> resolveJsModule(
                           String scriptAddress,
                           String moduleAddress,
-                          String sourcename,
+                          Optional<String> sourcename,
                           int lineno,
                           int colno) {
                         if (moduleAddress.startsWith("@custom/")) {
@@ -622,9 +622,9 @@ public final class ModuleLoaderTest {
                       }
 
                       @Override
-                      public @Nullable String resolveJsModuleSilently(
+                      public Optional<String> resolveJsModuleSilently(
                           String scriptAddress, String moduleAddress) {
-                        return resolveJsModule(scriptAddress, moduleAddress, "", 0, 0);
+                        return resolveJsModule(scriptAddress, moduleAddress, Optional.of(""), 0, 0);
                       }
                     })
             .build();
@@ -741,7 +741,7 @@ public final class ModuleLoaderTest {
             .build();
 
     ModulePath appPath1 = regularLoader.resolve("app.js");
-    appPath1.resolveJsModule("https://cdn.example.com/lib.js", "test.js", 1, 1);
+    appPath1.resolveJsModule("https://cdn.example.com/lib.js", Optional.of("test.js"), 1, 1);
     assertThat(errorsFromRegular).hasSize(1);
   }
 
@@ -758,7 +758,7 @@ public final class ModuleLoaderTest {
             .build();
 
     ModulePath appPath = regularLoader.resolve("app.js");
-    appPath.resolveJsModule("https://cdn.example.com/lib.js", "test.js", 1, 1);
+    appPath.resolveJsModule("https://cdn.example.com/lib.js", Optional.of("test.js"), 1, 1);
     assertThat(errorsFromRegular).hasSize(1);
   }
 
@@ -896,6 +896,6 @@ public final class ModuleLoaderTest {
   }
 
   public static ModulePath resolveJsModule(ModulePath context, String moduleAddress) {
-    return context.resolveJsModule(moduleAddress, null, -1, -1);
+    return context.resolveJsModule(moduleAddress, Optional.empty(), -1, -1);
   }
 }

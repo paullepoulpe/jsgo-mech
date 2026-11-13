@@ -28,7 +28,6 @@ import static com.google.javascript.jscomp.ClosurePrimitiveErrors.INVALID_REQUIR
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -49,6 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -209,7 +209,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
   private static final class ExportDefinition {
     // Null if the export is a default export (exports = expr)
-    @Nullable String exportName;
+    Optional<String> exportName = Optional.empty();
     // Null if the export is of a @typedef
     @Nullable Node rhs;
     // Null if the export is of anything other than a name
@@ -218,7 +218,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     @Override
     public String toString() {
       return MoreObjects.toStringHelper(this)
-          .add("exportName", exportName)
+          .add("exportName", exportName.isPresent() ? (Object) exportName.get() : null)
           .add("rhs", rhs)
           .add("nameDecl", nameDecl)
           .omitNullValues()
@@ -229,10 +229,10 @@ public final class ClosureRewriteModule implements CompilerPass {
         Sets.immutableEnumSet(Token.VAR, Token.CONST, Token.LET, Token.FUNCTION, Token.CLASS);
 
     static ExportDefinition newDefaultExport(NodeTraversal t, Node rhs) {
-      return newNamedExport(t, null, rhs);
+      return newNamedExport(t, Optional.empty(), rhs);
     }
 
-    static ExportDefinition newNamedExport(NodeTraversal t, @Nullable String name, Node rhs) {
+    static ExportDefinition newNamedExport(NodeTraversal t, Optional<String> name, Node rhs) {
       ExportDefinition newExport = new ExportDefinition();
       newExport.exportName = name;
       newExport.rhs = rhs;
@@ -243,10 +243,10 @@ public final class ClosureRewriteModule implements CompilerPass {
     }
 
     String getExportPostfix() {
-      if (exportName == null) {
+      if (exportName.isEmpty()) {
         return "";
       }
-      return "." + exportName;
+      return "." + exportName.get();
     }
 
     boolean hasInlinableName(Set<Var> exportedNames) {
@@ -272,16 +272,16 @@ public final class ClosureRewriteModule implements CompilerPass {
       return !name.equals("require") && !name.equals("forwardDeclare") && !name.equals("getMsg");
     }
 
-    @Nullable String getLocalName() {
-      return nameDecl != null ? nameDecl.getName() : null;
+    Optional<String> getLocalName() {
+      return nameDecl != null ? Optional.of(nameDecl.getName()) : Optional.empty();
     }
   }
 
   private static class AliasName {
     final String newName;
-    final @Nullable String namespaceId; // non-null only if this is an alias of a module itself
+    final Optional<String> namespaceId; // non-null only if this is an alias of a module itself
 
-    AliasName(String newName, @Nullable String namespaceId) {
+    AliasName(String newName, Optional<String> namespaceId) {
       this.newName = newName;
       this.namespaceId = namespaceId;
     }
@@ -290,7 +290,7 @@ public final class ClosureRewriteModule implements CompilerPass {
   private static final class ScriptDescription {
     boolean isModule;
     boolean declareLegacyNamespace;
-    String namespaceId; // "a.b.c"
+    Optional<String> namespaceId = Optional.empty(); // "a.b.c"
     String contentsPrefix; // "module$contents$a$b$c_
     final Set<String> topLevelNames = new LinkedHashSet<>(); // For prefixed content renaming.
     final Deque<ScriptDescription> childScripts = new ArrayDeque<>();
@@ -302,7 +302,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
     boolean hasCreatedExportObject;
     ExportDefinition defaultExport;
-    @Nullable String defaultExportLocalName;
+    Optional<String> defaultExportLocalName = Optional.empty();
     final Set<String> namedExports = new LinkedHashSet<>();
     final Map<Var, ExportDefinition> exportsToInline = new LinkedHashMap<>();
 
@@ -319,14 +319,14 @@ public final class ClosureRewriteModule implements CompilerPass {
     }
 
     // "module$exports$a$b$c" for non-legacy modules
-    @Nullable String getBinaryNamespace() {
+    Optional<String> getBinaryNamespace() {
       if (!this.isModule || this.declareLegacyNamespace) {
-        return null;
+        return Optional.empty();
       }
-      return getBinaryModuleNamespace(namespaceId);
+      return Optional.of(getBinaryModuleNamespace(namespaceId.get()));
     }
 
-    @Nullable String getExportedNamespace() {
+    Optional<String> getExportedNamespace() {
       if (this.declareLegacyNamespace) {
         return this.namespaceId;
       }
@@ -581,9 +581,9 @@ public final class ClosureRewriteModule implements CompilerPass {
       } else if (currentScript.isModule && rootOfType.equals("exports")) {
         // rewrite a type reference to the implicit "exports" variable
         // e.g. /** @type {exports.Foo} */ -> /** @type {module$exports$my$mod.Foo} */
-        String namespace = currentScript.getBinaryNamespace();
+        Optional<String> namespace = currentScript.getBinaryNamespace();
         String remainder = dot == -1 ? "" : typeName.substring(dot);
-        safeSetString(typeRefNode, namespace + remainder);
+        safeSetString(typeRefNode, namespace.orElse("null") + remainder);
       } else {
         rewriteIfClosureNamespaceRef(typeName, typeRefNode);
       }
@@ -602,9 +602,9 @@ public final class ClosureRewriteModule implements CompilerPass {
       String suffix = "";
 
       while (true) {
-        String binaryNamespaceIfModule = rewriteState.getBinaryNamespace(prefixTypeName);
+        Optional<String> binaryNamespaceIfModule = rewriteState.getBinaryNamespace(prefixTypeName);
         if (legacyScriptNamespacesAndPrefixes.contains(prefixTypeName)
-            && binaryNamespaceIfModule == null) {
+            && binaryNamespaceIfModule.isEmpty()) {
           // This thing is definitely coming from a legacy script and so the fully qualified
           // type name will always resolve as is.
           return;
@@ -614,8 +614,8 @@ public final class ClosureRewriteModule implements CompilerPass {
         // "foo.bar.Baz" of something that is actually a module then rewrite the JsDoc reference
         // to "module$exports$Bar".
         // Note: we may want to ban this pattern in the future. See b/133501660.
-        if (binaryNamespaceIfModule != null) {
-          safeSetString(typeRefNode, binaryNamespaceIfModule + suffix);
+        if (binaryNamespaceIfModule.isPresent()) {
+          safeSetString(typeRefNode, binaryNamespaceIfModule.get() + suffix);
           return;
         }
 
@@ -652,9 +652,9 @@ public final class ClosureRewriteModule implements CompilerPass {
       return scriptDescriptionsByGoogModuleNamespace.get(namespaceId).declareLegacyNamespace;
     }
 
-    @Nullable String getBinaryNamespace(String namespaceId) {
+    Optional<String> getBinaryNamespace(String namespaceId) {
       ScriptDescription script = scriptDescriptionsByGoogModuleNamespace.get(namespaceId);
-      return script == null ? null : script.getBinaryNamespace();
+      return script == null ? Optional.empty() : script.getBinaryNamespace();
     }
 
     /** Returns the type of a goog.require of the given goog.module, or null if not a module. */
@@ -663,12 +663,12 @@ public final class ClosureRewriteModule implements CompilerPass {
       return googModule == null ? null : googModule.rootNode.getJSType();
     }
 
-    private @Nullable String getExportedNamespaceOrScript(String namespaceId) {
+    private Optional<String> getExportedNamespaceOrScript(String namespaceId) {
       if (providedNamespaces.contains(namespaceId)) {
-        return namespaceId;
+        return Optional.of(namespaceId);
       }
       ScriptDescription script = scriptDescriptionsByGoogModuleNamespace.get(namespaceId);
-      return script == null ? null : script.getExportedNamespace();
+      return script == null ? Optional.empty() : script.getExportedNamespace();
     }
   }
 
@@ -861,7 +861,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     }
     String namespaceId = namespaceIdNode.getString();
 
-    currentScript.namespaceId = namespaceId;
+    currentScript.namespaceId = Optional.of(namespaceId);
     currentScript.contentsPrefix = toModuleContentsPrefix(namespaceId);
 
     Node scriptNode = NodeUtil.getEnclosingScript(currentScript.rootNode);
@@ -871,7 +871,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
   private void recordGoogDeclareLegacyNamespace() {
     currentScript.declareLegacyNamespace = true;
-    updateLegacyScriptNamespacesAndPrefixes(currentScript.namespaceId);
+    updateLegacyScriptNamespacesAndPrefixes(currentScript.namespaceId.get());
   }
 
   private void updateLegacyScriptNamespacesAndPrefixes(String namespace) {
@@ -1014,7 +1014,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
   private void recordTopLevelClassOrFunctionName(Node classOrFunctionNode) {
     Node nameNode = classOrFunctionNode.getFirstChild();
-    if (nameNode.isName() && !Strings.isNullOrEmpty(nameNode.getString())) {
+    if (nameNode.isName() && !nameNode.getString().isEmpty()) {
       String name = nameNode.getString();
       currentScript.topLevelNames.add(name);
     }
@@ -1034,11 +1034,11 @@ public final class ClosureRewriteModule implements CompilerPass {
     // may be suppressed. If so then use the final assignment as the canonical one.
     if (currentScript.defaultExport != null) {
       ExportDefinition previousExport = currentScript.defaultExport;
-      String localName = previousExport.getLocalName();
-      if (localName != null && currentScript.namesToInlineByAlias.containsKey(localName)) {
-        currentScript.namesToInlineByAlias.remove(localName);
+      Optional<String> localName = previousExport.getLocalName();
+      if (localName.isPresent() && currentScript.namesToInlineByAlias.containsKey(localName.get())) {
+        currentScript.namesToInlineByAlias.remove(localName.get());
       }
-      currentScript.defaultExportLocalName = null;
+      currentScript.defaultExportLocalName = Optional.empty();
     }
     Node exportRhs = n.getNext();
 
@@ -1052,7 +1052,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     currentScript.defaultExport = defaultExport;
     if (!currentScript.declareLegacyNamespace
         && defaultExport.hasInlinableName(currentScript.exportsToInline.keySet())) {
-      String localName = defaultExport.getLocalName();
+      Optional<String> localName = defaultExport.getLocalName();
       currentScript.defaultExportLocalName = localName;
       recordExportToInline(defaultExport);
     }
@@ -1121,13 +1121,13 @@ public final class ClosureRewriteModule implements CompilerPass {
         && isTopLevel(t, statementNode, ScopeType.EXEC_CONTEXT)) {
       // Record alias -> exportedNamespace associations for later inlining.
       Node lhs = call.getParent();
-      String exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
-      if (exportedNamespace == null) {
+      Optional<String> exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
+      if (exportedNamespace.isEmpty()) {
         // There's nothing to inline. The missing provide/module will be reported elsewhere.
       } else if (lhs.isName()) {
         // `var Foo` case
         String aliasName = statementNode.getFirstChild().getString();
-        recordNameToInline(aliasName, exportedNamespace, namespaceId);
+        recordNameToInline(aliasName, exportedNamespace.get(), Optional.of(namespaceId));
         maybeAddAliasToSymbolTable(statementNode.getFirstChild(), currentScript.namespaceId);
       } else if (lhs.isDestructuringLhs() && lhs.getFirstChild().isObjectPattern()) {
         // `const {Foo}` case
@@ -1139,8 +1139,8 @@ public final class ClosureRewriteModule implements CompilerPass {
           String importedProperty = importSpec.getString();
           Node aliasNode = importSpec.getFirstChild();
           String aliasName = aliasNode.getString();
-          String fullName = exportedNamespace + "." + importedProperty;
-          recordNameToInline(aliasName, fullName, /* namespaceId= */ null);
+          String fullName = exportedNamespace.get() + "." + importedProperty;
+          recordNameToInline(aliasName, fullName, /* namespaceId= */ Optional.empty());
 
           // Record alias before we rename node.
           maybeAddAliasToSymbolTable(aliasNode, currentScript.namespaceId);
@@ -1258,9 +1258,9 @@ public final class ClosureRewriteModule implements CompilerPass {
   private void updateGoogRequireDynamicCallInThen(Node call) {
     Node namespaceIdNode = call.getSecondChild();
     String namespaceId = namespaceIdNode.getString();
-    String exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
+    Optional<String> exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
     checkState(
-        exportedNamespace != null, "Exported namespace for goog.requireDynamic() canot be null");
+        exportedNamespace.isPresent(), "Exported namespace for goog.requireDynamic() canot be null");
 
     // `goog.requireDynamic('a.b.c').then()`
     final Node getProp = call.getParent();
@@ -1281,7 +1281,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
     // `module$exports$a$b$c`
     Node exportedNamespaceNameNode =
-        this.astFactory.createNameStaticScope(this.globalTypedScope, exportedNamespace).srcrefTree(call);
+        this.astFactory.createNameStaticScope(this.globalTypedScope, exportedNamespace.get()).srcrefTree(call);
     exportedNamespaceNameNode.setOriginalName(namespaceId);
 
     // Get `{Foo}` from `goog.requireDynamic().then(   ({Foo}) => {  }   )`;
@@ -1359,9 +1359,9 @@ public final class ClosureRewriteModule implements CompilerPass {
   private void updateGoogRequireDynamicCallInAwait(Node call) {
     Node namespaceIdNode = call.getSecondChild();
     String namespaceId = namespaceIdNode.getString();
-    String exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
+    Optional<String> exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
     checkState(
-        exportedNamespace != null, "Exported namespace for goog.requireDynamic() cannot be null");
+        exportedNamespace.isPresent(), "Exported namespace for goog.requireDynamic() cannot be null");
 
     // `await goog.requireDynamic('a.b.c')`
     final Node existingAwait = call.getParent();
@@ -1385,7 +1385,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     // `module$exports$a$b$c`
     Node exportedNamespaceNameNode =
         this.astFactory
-            .createQNameUsingJSTypeInfo(this.globalTypedScope, exportedNamespace)
+            .createQNameUsingJSTypeInfo(this.globalTypedScope, exportedNamespace.get())
             .srcrefTree(call);
     exportedNamespaceNameNode.setJSType(rewriteState.getGoogModuleNamespaceType(namespaceId));
     exportedNamespaceNameNode.setOriginalName(namespaceId);
@@ -1433,12 +1433,12 @@ public final class ClosureRewriteModule implements CompilerPass {
     // Remaining calls to goog.module.get() are not alias updates,
     // and should be replaced by a reference to the proper name.
     // Replace "goog.module.get('pkg.Foo')" with either "pkg.Foo" or "module$exports$pkg$Foo".
-    String exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
-    if (exportedNamespace != null) {
+    Optional<String> exportedNamespace = rewriteState.getExportedNamespaceOrScript(namespaceId);
+    if (exportedNamespace.isPresent()) {
       compiler.reportChangeToEnclosingScope(call);
       Node exportedNamespaceName =
           this.astFactory
-              .createQNameUsingJSTypeInfo(this.globalTypedScope, exportedNamespace)
+              .createQNameUsingJSTypeInfo(this.globalTypedScope, exportedNamespace.get())
               .srcrefTree(call);
       exportedNamespaceName.setJSType(rewriteState.getGoogModuleNamespaceType(namespaceId));
       exportedNamespaceName.setOriginalName(namespaceId);
@@ -1461,7 +1461,7 @@ public final class ClosureRewriteModule implements CompilerPass {
       String exportName = getpropNode.getString();
       currentScript.namedExports.add(exportName);
       Node exportRhs = getpropNode.getNext();
-      ExportDefinition namedExport = ExportDefinition.newNamedExport(t, exportName, exportRhs);
+      ExportDefinition namedExport = ExportDefinition.newNamedExport(t, Optional.of(exportName), exportRhs);
       if (!currentScript.declareLegacyNamespace
           && currentScript.defaultExport == null
           && namedExport.hasInlinableName(currentScript.exportsToInline.keySet())) {
@@ -1482,8 +1482,8 @@ public final class ClosureRewriteModule implements CompilerPass {
     // Update "exports.foo = Foo" to "module$exports$pkg$Foo.foo = Foo";
     Node exportsNameNode = getpropNode.getFirstChild();
     checkState(exportsNameNode.getString().equals("exports"));
-    String exportedNamespace = currentScript.getExportedNamespace();
-    safeSetMaybeQualifiedString(exportsNameNode, exportedNamespace, /* isModuleNamespace= */ false);
+    Optional<String> exportedNamespace = currentScript.getExportedNamespace();
+    safeSetMaybeQualifiedString(exportsNameNode, exportedNamespace.get(), /* isModuleNamespace= */ false);
 
     Node jsdocNode = parent.isAssign() ? parent : getpropNode;
     markConstAndCopyJsDoc(jsdocNode, jsdocNode);
@@ -1530,14 +1530,14 @@ public final class ClosureRewriteModule implements CompilerPass {
 
       AliasName inline = currentScript.namesToInlineByAlias.get(name);
       String namespaceToInline = inline.newName;
-      if (namespaceToInline.equals(currentScript.getBinaryNamespace())) {
+      if (Optional.of(namespaceToInline).equals(currentScript.getBinaryNamespace())) {
         currentScript.hasCreatedExportObject = true;
       }
       boolean isModuleNamespace =
-          inline.namespaceId != null
+          inline.namespaceId.isPresent()
               && rewriteState.scriptDescriptionsByGoogModuleNamespace.containsKey(
-                  inline.namespaceId)
-              && !rewriteState.scriptDescriptionsByGoogModuleNamespace.get(inline.namespaceId)
+                  inline.namespaceId.get())
+              && !rewriteState.scriptDescriptionsByGoogModuleNamespace.get(inline.namespaceId.get())
                   .willCreateExportsObject;
       safeSetMaybeQualifiedString(nameNode, namespaceToInline, isModuleNamespace);
 
@@ -1636,10 +1636,10 @@ public final class ClosureRewriteModule implements CompilerPass {
       return;
     }
 
-    if (!currentScript.declareLegacyNamespace && currentScript.defaultExportLocalName != null) {
+    if (!currentScript.declareLegacyNamespace && currentScript.defaultExportLocalName.isPresent()) {
       assignNode.getParent().detach();
 
-      Node binaryNamespaceName = astFactory.createName(currentScript.getBinaryNamespace(), type(n));
+      Node binaryNamespaceName = astFactory.createName(currentScript.getBinaryNamespace().get(), type(n));
       this.declareGlobalVariable(binaryNamespaceName, t);
       return;
     }
@@ -1649,7 +1649,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     if (currentScript.declareLegacyNamespace) {
       Node legacyQname =
           this.astFactory
-              .createQNameUsingJSTypeInfo(this.globalTypedScope, currentScript.namespaceId)
+              .createQNameUsingJSTypeInfo(this.globalTypedScope, currentScript.namespaceId.get())
               .srcrefTree(n);
       legacyQname.setJSType(n.getJSType());
       n.replaceWith(legacyQname);
@@ -1657,7 +1657,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     } else {
       rhs.detach();
       Node exprResultNode = assignNode.getParent();
-      Node binaryNamespaceName = astFactory.createName(currentScript.getBinaryNamespace(), type(n));
+      Node binaryNamespaceName = astFactory.createName(currentScript.getBinaryNamespace().get(), type(n));
       binaryNamespaceName.setOriginalName("exports");
       this.declareGlobalVariable(binaryNamespaceName, t);
 
@@ -1685,7 +1685,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     if (currentScript.declareLegacyNamespace) {
       Node legacyQname =
           this.astFactory
-              .createQNameUsingJSTypeInfo(this.globalTypedScope, currentScript.namespaceId)
+              .createQNameUsingJSTypeInfo(this.globalTypedScope, currentScript.namespaceId.get())
               .srcrefTree(n);
       legacyQname.setJSType(n.getJSType());
       n.replaceWith(legacyQname);
@@ -1693,7 +1693,7 @@ public final class ClosureRewriteModule implements CompilerPass {
       return;
     }
 
-    safeSetString(n, currentScript.getBinaryNamespace());
+    safeSetString(n, currentScript.getBinaryNamespace().get());
 
     // Either this module is going to create it's own exports object at some point or else if it's
     // going to be defensively created automatically then that should have occurred at the top of
@@ -1711,7 +1711,7 @@ public final class ClosureRewriteModule implements CompilerPass {
     for (ExportDefinition export : currentScript.exportsToInline.values()) {
       Node nameNode = export.nameDecl.getNameNode();
       safeSetMaybeQualifiedString(
-          nameNode, currentScript.getBinaryNamespace() + export.getExportPostfix(), false);
+          nameNode, currentScript.getBinaryNamespace().orElse("null") + export.getExportPostfix(), false);
     }
     checkState(currentScript.isModule, currentScript);
     checkState(
@@ -1748,10 +1748,10 @@ public final class ClosureRewriteModule implements CompilerPass {
       return;
     }
 
-    String binaryNamespaceString = currentScript.getBinaryNamespace();
+    Optional<String> binaryNamespaceString = currentScript.getBinaryNamespace();
     AstFactory.Type moduleType = type(currentScript.rootNode);
-    Node binaryNamespaceName = astFactory.createName(binaryNamespaceString, moduleType);
-    binaryNamespaceName.setOriginalName(currentScript.namespaceId);
+    Node binaryNamespaceName = astFactory.createName(binaryNamespaceString.get(), moduleType);
+    binaryNamespaceName.setOriginalName(currentScript.namespaceId.orElse(""));
     this.declareGlobalVariable(binaryNamespaceName, t);
 
     Node binaryNamespaceExportNode = IR.var(binaryNamespaceName, astFactory.createObjectLit());
@@ -1812,15 +1812,13 @@ public final class ClosureRewriteModule implements CompilerPass {
         null == currentScript.exportsToInline.put(exportDefinition.nameDecl, exportDefinition),
         "Already found a mapping for inlining export: %s",
         exportDefinition.nameDecl);
-    String localName = exportDefinition.getLocalName();
+    Optional<String> localName = exportDefinition.getLocalName();
     String fullExportedName =
-        currentScript.getBinaryNamespace() + exportDefinition.getExportPostfix();
-    recordNameToInline(localName, fullExportedName, /* namespaceId= */ null);
+        currentScript.getBinaryNamespace().orElse("null") + exportDefinition.getExportPostfix();
+    recordNameToInline(localName.orElseThrow(), fullExportedName, /* namespaceId= */ Optional.empty());
   }
 
-  private void recordNameToInline(String aliasName, String newName, @Nullable String namespaceId) {
-    checkNotNull(aliasName);
-    checkNotNull(newName);
+  private void recordNameToInline(String aliasName, String newName, Optional<String> namespaceId) {
     // This intentionally overwrites a possibly pre-existing alias of the same name.
     // User code might import the same name twice, with the same variable name. That's an error
     // (duplicate variable definition, reported in TypeValidator), but this code still shouldn't
@@ -1879,7 +1877,7 @@ public final class ClosureRewriteModule implements CompilerPass {
 
     String originalName = n.getString();
     n.setString(newString);
-    if (n.getOriginalName() == null) {
+    if (n.getOriginalName().isEmpty()) {
       n.setOriginalName(originalName);
     }
     // TODO(blickly): It would be better not to be renaming detached nodes
@@ -2009,14 +2007,14 @@ public final class ClosureRewriteModule implements CompilerPass {
       return;
     }
 
-    String name = sourceName.getOriginalName();
-    if (name == null) {
-      name = sourceName.getString();
+    Optional<String> name = Optional.of(sourceName.getOriginalName()).filter(s -> !s.isEmpty());
+    if (name.isEmpty()) {
+      name = Optional.of(sourceName.getString());
     }
 
     // The source range of this NAME includes its declared value, which we don't want.
     sourceName = sourceName.cloneNode();
-    sourceName.setLength(name.length());
+    sourceName.setLength(name.get().length());
 
     // Receiver and prop string should both use the position of the source name.
     getProp.srcrefTree(sourceName);
@@ -2084,16 +2082,16 @@ public final class ClosureRewriteModule implements CompilerPass {
    * <p>const Foo = goog.require('my.project.Foo'); const bar = goog.require('my.project.baz');
    * const {baz} = goog.require('my.project.utils');
    */
-  private void maybeAddAliasToSymbolTable(Node n, String module) {
+  private void maybeAddAliasToSymbolTable(Node n, Optional<String> module) {
     if (preprocessorSymbolTable != null) {
       n.putBooleanProp(Node.MODULE_ALIAS, true);
       // Alias can be used in js types. Types have node type STRING and not NAME so we have to
       // use their name as string.
-      String nodeName =
-          n.isStringLit() ? n.getString() : preprocessorSymbolTable.getQualifiedName(n);
+      Optional<String> nodeName =
+          n.isStringLit() ? Optional.of(n.getString()) : preprocessorSymbolTable.getQualifiedName(n);
       // We need to include module as part of the name because aliases are local to current module.
       // Aliases with the same name from different module should be completely different entities.
-      String name = "alias_" + module + "_" + nodeName;
+      String name = "alias_" + module.orElse("null") + "_" + nodeName.orElse("null");
       preprocessorSymbolTable.addReference(n, name);
     }
   }

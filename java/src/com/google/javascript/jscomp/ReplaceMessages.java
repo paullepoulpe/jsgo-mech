@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -240,13 +241,13 @@ public final class ReplaceMessages {
       // icu_placeholder_names: ['PH1', 'PH2']
       msgPropsBuilder.addNode("icu_placeholder_names", namesArrayLit);
     }
-    String altId = message.getAlternateId();
-    if (altId != null) {
-      msgPropsBuilder.addString("alt_id", altId);
+    Optional<String> altId = message.getAlternateId();
+    if (altId.isPresent()) {
+      msgPropsBuilder.addString("alt_id", altId.get());
     }
-    final String meaning = message.getMeaning();
-    if (meaning != null) {
-      msgPropsBuilder.addString("meaning", meaning);
+    final Optional<String> meaning = message.getMeaning();
+    if (meaning.isPresent()) {
+      msgPropsBuilder.addString("meaning", meaning.get());
     }
     if (msgOptions.isIcuTemplate()) {
       msgPropsBuilder.addString("msg_text", message.asIcuMessageString());
@@ -433,12 +434,12 @@ public final class ReplaceMessages {
       return translatedMessage;
     }
 
-    String alternateId = message.getAlternateId();
-    if (alternateId == null) {
+    Optional<String> alternateId = message.getAlternateId();
+    if (alternateId.isEmpty()) {
       return null;
     }
 
-    JsMessage alternateMessage = bundle.getMessage(alternateId);
+    JsMessage alternateMessage = bundle.getMessage(alternateId.get());
     if (alternateMessage != null) {
       // Validate that the alternate message is compatible with this message. Ideally we'd also
       // check meaning and description, but they're not populated by `MessageBundle.getMessage`.
@@ -467,7 +468,7 @@ public final class ReplaceMessages {
               JSError.make(
                   callNode,
                   INVALID_ALTERNATE_MESSAGE_PLACEHOLDERS,
-                  alternateId,
+                  alternateId.get(),
                   String.valueOf(alternateMsgPlaceholderNames),
                   message.getKey(),
                   String.valueOf(jsCodePlaceholderNames)));
@@ -708,9 +709,9 @@ public final class ReplaceMessages {
 
     PlaceholderNodeProvider placeholderNodeProvider =
         (placeholderName) -> {
-          String placeholderId = placeholderMapIds.get(placeholderName);
-          return placeholderId != null
-              ? astFactory.createName(placeholderId, type(nodeToReplace))
+          Optional<String> placeholderId = Optional.ofNullable(placeholderMapIds.get(placeholderName));
+          return placeholderId.isPresent()
+              ? astFactory.createName(placeholderId.get(), type(nodeToReplace))
               : null;
         };
 
@@ -1036,10 +1037,10 @@ public final class ReplaceMessages {
       boolean isIcuTemplate = false;
       JsMessage.Builder jsMessageBuilder = new JsMessage.Builder();
       checkState(propertiesNode.isObjectLit(), propertiesNode);
-      String msgKey = null;
-      String meaning = null;
+      Optional<String> msgKey = Optional.empty();
+      Optional<String> meaning = Optional.empty();
       Set<String> icuPlaceholderNames = new LinkedHashSet<>();
-      String messageText = null;
+      Optional<String> messageText = Optional.empty();
       Node messageTextNode = null;
       for (Node strKey = propertiesNode.getFirstChild();
           strKey != null;
@@ -1078,20 +1079,20 @@ public final class ReplaceMessages {
         switch (key) {
           case "key" -> {
             jsMessageBuilder.setKey(value);
-            msgKey = value;
+            msgKey = Optional.of(value);
           }
           case "meaning" -> {
-            jsMessageBuilder.setMeaning(value);
-            meaning = value;
+            jsMessageBuilder.setMeaning(Optional.of(value));
+            meaning = Optional.of(value);
           }
-          case "alt_id" -> jsMessageBuilder.setAlternateId(value);
+          case "alt_id" -> jsMessageBuilder.setAlternateId(Optional.of(value));
           case "msg_text" -> {
             // This may be an ICU template that also has the `icu_placeholder_names` property, which
             // means we need to append multiple parts of the message to `jsMessageBuilder`. For now,
             // we will save the message text and current node, and we'll parse it once we know if
             // this is an ICU template with multiple parts (after this loop to run through all the
             // properties is finished).
-            messageText = value;
+            messageText = Optional.of(value);
             messageTextNode = valueNode;
           }
           case "isIcuTemplate" -> isIcuTemplate = true;
@@ -1114,7 +1115,7 @@ public final class ReplaceMessages {
         // XTB file (because when the XMB message was created during message extraction, we
         // treated this ICU template as having multiple parts).
         final IcuMessageTemplateString icuMessageTemplateString =
-            new IcuMessageTemplateString(messageText);
+            new IcuMessageTemplateString(messageText.orElse(null));
         final ExtractedIcuTemplateParts extractedIcuTemplateParts =
             icuMessageTemplateString.extractParts(icuPlaceholderNames);
 
@@ -1124,21 +1125,21 @@ public final class ReplaceMessages {
         // This message is a single string part. It may be an ICU template without placeholders,
         // or it may be a normal `goog.getMsg()` message.
         Outcome<ImmutableList<Part>> partsRes =
-            JsMessageVisitor.parseJsMessageTextIntoParts(messageText);
+            JsMessageVisitor.parseJsMessageTextIntoParts(messageText.orElse(null));
         if (partsRes.isErr()) {
           // Somehow we stored the protected message text incorrectly, which should never
           // happen 🙏
           throw new IllegalStateException(
               messageTextNode.getLocation()
                   + ": Placeholder incorrectly formatted: >"
-                  + messageText
+                  + messageText.orElse("null")
                   + "<");
         }
         jsMessageBuilder.appendParts(partsRes.get());
       }
 
-      final String externalMessageId = JsMessageVisitor.getExternalMessageId(msgKey);
-      if (externalMessageId != null) {
+      final Optional<String> externalMessageId = JsMessageVisitor.getExternalMessageId(msgKey.get());
+      if (externalMessageId.isPresent()) {
         // MSG_EXTERNAL_12345 = ...
         jsMessageBuilder.setIsExternalMsg(true).setId(externalMessageId);
       } else {
@@ -1148,12 +1149,12 @@ public final class ReplaceMessages {
         // flag...
         // TODO(bradfordcsmith): Maybe remove the isAnonymous flag for jsMessage objects?
         final String meaningForIdGeneration =
-            meaning != null ? meaning : JsMessageVisitor.removeScopedAliasesPrefix(msgKey);
+            meaning.isPresent() ? meaning.get() : JsMessageVisitor.removeScopedAliasesPrefix(msgKey.get());
         if (idGenerator != null) {
           jsMessageBuilder.setId(
-              idGenerator.generateId(meaningForIdGeneration, jsMessageBuilder.getParts()));
+              Optional.of(idGenerator.generateId(Optional.of(meaningForIdGeneration), jsMessageBuilder.getParts())));
         } else {
-          jsMessageBuilder.setId(meaningForIdGeneration);
+          jsMessageBuilder.setId(Optional.of(meaningForIdGeneration));
         }
       }
 

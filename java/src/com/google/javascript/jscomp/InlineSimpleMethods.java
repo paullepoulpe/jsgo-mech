@@ -23,6 +23,7 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -316,12 +317,12 @@ class InlineSimpleMethods implements CompilerPass {
       switch (n.getToken()) {
         case GETPROP, GETELEM -> {
           // TODO(b/251573710): Handle ES2015+ language features that can reference properties
-          String name = getPropName(n);
-          if (name == null) {
+          Optional<String> name = getPropName(n);
+          if (name.isEmpty()) {
             return;
           }
 
-          if (name.equals("prototype")) {
+          if (name.get().equals("prototype")) {
             processPrototypeParent(parent);
           } else {
             // Static methods of the form Foo.bar = function() {} or
@@ -333,7 +334,7 @@ class InlineSimpleMethods implements CompilerPass {
             //          string bar
             //      function or name  <- n.getNext()
             if (parent.isAssign() && n.isFirstChildOf(parent)) {
-              addPossibleSignature(name, n.getNext());
+              addPossibleSignature(name.get(), n.getNext());
             }
           }
         }
@@ -389,10 +390,10 @@ class InlineSimpleMethods implements CompilerPass {
           //         string getBar
           //     function or name            <- assignee
           Node grandparent = n.getGrandparent();
-          String name = getPropName(n);
-          if (name != null && grandparent.isAssign()) {
+          Optional<String> name = getPropName(n);
+          if (name.isPresent() && grandparent.isAssign()) {
             Node assignee = grandparent.getSecondChild();
-            addPossibleSignature(name, assignee);
+            addPossibleSignature(name.get(), assignee);
           }
         }
         default -> {}
@@ -400,13 +401,13 @@ class InlineSimpleMethods implements CompilerPass {
     }
   }
 
-  private static @Nullable String getPropName(Node getPropElem) {
+  private static Optional<String> getPropName(Node getPropElem) {
     if (getPropElem.isGetProp()) {
-      return getPropElem.getString();
+      return Optional.of(getPropElem.getString());
     } else if (getPropElem.getSecondChild().isStringLit()) {
-      return getPropElem.getSecondChild().getString();
+      return Optional.of(getPropElem.getSecondChild().getString());
     } else {
-      return null;
+      return Optional.empty();
     }
   }
 }

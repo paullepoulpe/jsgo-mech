@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.rhino.IR;
@@ -26,6 +27,7 @@ import com.google.javascript.rhino.JSDocInfo.Visibility;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -209,7 +211,7 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
   private void addNode(Node n) {
     Node injectAfter = null;
     Node fn = null;
-    String name = null;
+    Optional<String> name = Optional.empty();
 
     switch (n.getToken()) {
       case ASSIGN -> {
@@ -220,7 +222,7 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
           compiler.report(JSError.make(n, INJECTED_FUNCTION_ON_NON_QNAME));
           return;
         }
-        name = n.getFirstChild().getQualifiedName();
+        name = Optional.of(n.getFirstChild().getQualifiedName()).filter(s -> !s.isEmpty());
         // last node of chained assignment.
         fn = n;
         while (fn.isAssign()) {
@@ -231,7 +233,7 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
       case FUNCTION -> {
         // handles function case:
         // function fnName() {}
-        name = NodeUtil.getName(n);
+        name = Optional.of(NodeUtil.getName(n)).filter(s -> !s.isEmpty());
         fn = n;
         injectAfter = n;
         if (n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject()) {
@@ -245,7 +247,7 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
         // handles var declaration cases like:
         // var a = function() {}
         // var a = b = function() {}
-        name = n.getFirstChild().getString();
+        name = Optional.of(n.getFirstChild().getString());
         // looks for a function node.
         fn = getDeclarationRValue(n);
         injectAfter = n;
@@ -260,9 +262,9 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
         if (parent.isClassMembers()) {
           Node classNode = parent.getParent();
           String midPart = n.isStaticMember() ? "." : ".prototype.";
-          name = NodeUtil.getName(classNode) + midPart + n.getString();
+          name = Optional.of(NodeUtil.getName(classNode) + midPart + n.getString());
           if (NodeUtil.isEs6ConstructorMemberFunctionDef(n)) {
-            name = NodeUtil.getName(classNode);
+            name = Optional.of(NodeUtil.getName(classNode)).filter(s -> !s.isEmpty());
           }
           fn = n.getFirstChild();
           injectAfter = NodeUtil.getEnclosingStatement(classNode);
@@ -288,9 +290,9 @@ class AngularPass extends AbstractPostOrderCallback implements CompilerPass {
     // checks that name is present, which must always be the case unless the
     // compiler allowed a syntax error or a dangling anonymous function
     // expression.
-    checkNotNull(name);
+    checkState(name.isPresent());
     // registers the node.
-    injectables.add(new NodeContext(name, n, fn, injectAfter));
+    injectables.add(new NodeContext(name.get(), n, fn, injectAfter));
   }
 
   /**

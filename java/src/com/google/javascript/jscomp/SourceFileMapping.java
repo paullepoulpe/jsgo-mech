@@ -16,6 +16,7 @@
 package com.google.javascript.jscomp;
 
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -32,5 +33,5 @@ public interface SourceFileMapping {
    * @param lineNo The line number, 1-based.
    * @param columnNo The column index, 1-based.
    */
-  @Nullable OriginalMapping getSourceMapping(String fileName, int lineNo, int columnNo);
+  @Nullable OriginalMapping getSourceMapping(Optional<String> fileName, int lineNo, int columnNo);
 }

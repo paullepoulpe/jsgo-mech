@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -58,7 +59,7 @@ public final class XtbMessageBundle implements MessageBundle {
    * @param xtb  the XTB file as a byte stream
    * @param projectId  the translation console project id (i.e. name)
    */
-  public XtbMessageBundle(byte[] xtb, @Nullable String projectId) {
+  public XtbMessageBundle(byte[] xtb, Optional<String> projectId) {
     this.messages = new LinkedHashMap<>();
     this.idGeneratorField = new GoogleJsMessageIdGenerator(projectId);
 
@@ -136,7 +137,7 @@ public final class XtbMessageBundle implements MessageBundle {
     private static final Pattern GET_STRING_PATTERN = Pattern.compile(GENDER_VARIANT_PATTERN);
     private String genderCase;
 
-    String lang;
+    Optional<String> lang = Optional.empty();
     JsMessage.@Nullable Builder msgBuilder;
 
     @Override
@@ -159,15 +160,15 @@ public final class XtbMessageBundle implements MessageBundle {
                              Attributes atts) {
       switch (qName) {
         case BUNDLE_ELEM_NAME -> {
-          checkState(lang == null);
-          lang = atts.getValue(LANG_ATT_NAME);
-          checkState(lang != null && !lang.isEmpty());
+          checkState(lang.isEmpty());
+          lang = Optional.ofNullable(atts.getValue(LANG_ATT_NAME));
+          checkState(lang.isPresent() && !lang.get().isEmpty());
         }
         case TRANSLATION_ELEM_NAME -> {
           checkState(msgBuilder == null);
-          String id = atts.getValue(MESSAGE_ID_ATT_NAME);
-          checkState(id != null && !id.isEmpty());
-          msgBuilder = new JsMessage.Builder().setKey(id).setId(id);
+          Optional<String> id = Optional.ofNullable(atts.getValue(MESSAGE_ID_ATT_NAME));
+          checkState(id.isPresent() && !id.get().isEmpty());
+          msgBuilder = new JsMessage.Builder().setKey(id.get()).setId(id);
         }
         case PLACEHOLDER_ELEM_NAME -> {
           checkState(msgBuilder != null);
@@ -207,8 +208,8 @@ public final class XtbMessageBundle implements MessageBundle {
         if (!msgBuilder.hasParts()) {
           msgBuilder.appendStringPart("");
         }
-        String key = msgBuilder.getKey();
-        messages.put(key, msgBuilder.build());
+        Optional<String> key = msgBuilder.getKey();
+        messages.put(key.orElse(null), msgBuilder.build());
         msgBuilder = null;
       }
     }

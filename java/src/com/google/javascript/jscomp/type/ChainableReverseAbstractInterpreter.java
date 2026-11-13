@@ -17,7 +17,7 @@
 package com.google.javascript.jscomp.type;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.rhino.jstype.JSTypeNative.ALL_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.ARRAY_TYPE;
 import static com.google.javascript.rhino.jstype.JSTypeNative.BIGINT_TYPE;
@@ -133,7 +133,7 @@ public abstract class ChainableReverseAbstractInterpreter
       }
       case GETPROP -> {
         String qualifiedName = node.getQualifiedName();
-        if (qualifiedName == null) {
+        if (qualifiedName.isEmpty()) {
           return null;
         }
         StaticTypedSlot propVar = scope.getSlot(qualifiedName);
@@ -166,7 +166,7 @@ public abstract class ChainableReverseAbstractInterpreter
       case NAME -> scope.inferSlotType(node.getString(), type);
       case GETPROP -> {
         String qualifiedName = node.getQualifiedName();
-        checkNotNull(qualifiedName);
+        checkState(!qualifiedName.isEmpty());
 
         JSType origType = node.getJSType();
         origType = origType == null ? getNativeType(UNKNOWN_TYPE) : origType;

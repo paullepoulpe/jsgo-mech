@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.Node;
@@ -28,6 +27,7 @@ import com.google.javascript.rhino.jstype.StaticTypedScope;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -92,11 +92,10 @@ final class PreprocessorSymbolTable
   }
 
   void addReference(Node node) {
-    addReference(node, getQualifiedName(node));
+    addReference(node, getQualifiedName(node).orElseThrow());
   }
 
   void addReference(Node node, String name) {
-    checkNotNull(name);
 
     symbols.computeIfAbsent(name, (String k) -> new SimpleSlot(k, null, true));
 
@@ -107,8 +106,8 @@ final class PreprocessorSymbolTable
    * This variant of Node#getQualifiedName is adds special support STRING nodes which represent
    * module names.
    */
-  public String getQualifiedName(Node n) {
-    return n.isStringLit() ? n.getString() : n.getQualifiedName();
+  public Optional<String> getQualifiedName(Node n) {
+    return n.isStringLit() ? Optional.of(n.getString()) : Optional.of(n.getQualifiedName()).filter(s -> !s.isEmpty());
   }
 
   static final class Reference extends SimpleReference<SimpleSlot> {

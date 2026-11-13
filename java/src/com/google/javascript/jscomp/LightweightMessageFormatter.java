@@ -29,6 +29,7 @@ import com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.TokenUtil;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -89,7 +90,7 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
 
   private String format(JSError error, boolean warning) {
     SourceExcerptProvider source = getSource();
-    String sourceName = error.sourceName();
+    Optional<String> sourceName = error.sourceName();
     int lineNumber = error.getLineNumber();
     int charno = error.charno();
 
@@ -107,7 +108,7 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
       if (mapping != null) {
         appendPosition(b, sourceName, lineNumber, charno);
 
-        sourceName = mapping.getOriginalFile();
+        sourceName = Optional.ofNullable(mapping.getOriginalFile());
         lineNumber = mapping.getLineNumber();
         charno = mapping.getColumnPosition();
 
@@ -131,12 +132,12 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
 
     // For reverse-mapped sources, fall back to a single line excerpt because the excerpt length
     // cannot be reliably mapped.
-    String sourceExcerptWithPosition =
+    Optional<String> sourceExcerptWithPosition =
         getExcerptWithPosition(
             error, sourceName, lineNumber, charno, mapping != null ? LINE : defaultFormat);
 
-    if (sourceExcerptWithPosition != null) {
-      b.append(sourceExcerptWithPosition);
+    if (sourceExcerptWithPosition.isPresent()) {
+      b.append(sourceExcerptWithPosition.get());
     }
 
     return b.toString();
@@ -152,15 +153,15 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
         defaultFormat);
   }
 
-  private String getExcerptWithPosition(
-      JSError error, String sourceName, int lineNumber, int charno, SourceExcerpt format) {
+  private Optional<String> getExcerptWithPosition(
+      JSError error, Optional<String> sourceName, int lineNumber, int charno, SourceExcerpt format) {
     int nodeLength = error.length();
-    return getExcerptWithPosition(error, sourceName, lineNumber, charno, nodeLength, format);
+    return Optional.of(getExcerptWithPosition(error, sourceName, lineNumber, charno, nodeLength, format));
   }
 
   private String getExcerptWithPosition(
       JSError error,
-      String sourceName,
+      Optional<String> sourceName,
       int lineNumber,
       int charno,
       int length,
@@ -170,16 +171,16 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
     SourceExcerptProvider source = getSource();
     int cookedLength = charno >= 0 && length >= 0 ? charno + length : -1;
 
-    String sourceExcerpt =
+    Optional<String> sourceExcerpt =
         source == null
-            ? null
+            ? Optional.empty()
             : format.get(source, sourceName, lineNumber, cookedLength, excerptFormatter);
 
-    if (sourceExcerpt == null) {
+    if (sourceExcerpt.isEmpty()) {
       return "";
     }
 
-    boolean success = padSourceExcerpt(error, sourceExcerpt, charno, length, format, b);
+    boolean success = padSourceExcerpt(error, sourceExcerpt.get(), charno, length, format, b);
     if (success) {
       return b.toString();
     }
@@ -222,9 +223,9 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
   }
 
   private static void appendPosition(
-      StringBuilder b, String sourceName, int lineNumber, int charno) {
-    if (sourceName != null) {
-      b.append(sourceName);
+      StringBuilder b, Optional<String> sourceName, int lineNumber, int charno) {
+    if (sourceName.isPresent()) {
+      b.append(sourceName.get());
       if (lineNumber > 0) {
         b.append(':').append(lineNumber);
         if (charno >= 0) {
@@ -342,18 +343,18 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
    */
   static class LineNumberingFormatter implements ExcerptFormatter {
     @Override
-    public String formatLine(String line, int lineNumber) {
+    public Optional<String> formatLine(Optional<String> line, int lineNumber) {
       return line;
     }
 
     @Override
-    public @Nullable String formatRegion(@Nullable Region region) {
+    public Optional<String> formatRegion(@Nullable Region region) {
       if (region == null) {
-        return null;
+        return Optional.empty();
       }
       String code = region.getSourceExcerpt();
       if (code.isEmpty()) {
-        return null;
+        return Optional.empty();
       }
 
       // max length of the number display
@@ -371,7 +372,7 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
         if (end < 0) {
           line = code.substring(start);
           if (line.isEmpty()) {
-            return builder.substring(0, builder.length() - 1);
+            return Optional.of(builder.substring(0, builder.length() - 1));
           }
         } else {
           line = code.substring(start, end);
@@ -396,7 +397,7 @@ public final class LightweightMessageFormatter extends AbstractMessageFormatter 
           lineNumber++;
         }
       }
-      return builder.toString();
+      return Optional.of(builder.toString());
     }
   }
 }

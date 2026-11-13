@@ -45,6 +45,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 
 /** An object type that is an instance of some function constructor. */
 final class InstanceObjectType extends PrototypeObjectType {
@@ -98,7 +99,7 @@ final class InstanceObjectType extends PrototypeObjectType {
   }
 
   @Override
-  public String getReferenceName() {
+  public Optional<String> getReferenceName() {
     return getConstructor().getReferenceName();
   }
 
@@ -127,12 +128,12 @@ final class InstanceObjectType extends PrototypeObjectType {
       super.appendTo(sb);
       return;
     } else if (sb.isForAnnotations()) {
-      sb.append(constructor.getNormalizedReferenceName());
+      sb.append(constructor.getNormalizedReferenceName().orElseThrow());
       return;
     }
 
-    String name = constructor.getReferenceName();
-    if (name.isEmpty()) {
+    Optional<String> name = constructor.getReferenceName();
+    if (name.get().isEmpty()) {
       Node n = constructor.getSource();
       sb.append("<anonymous@")
           .append(n != null ? n.getSourceFileName() : "unknown")
@@ -140,13 +141,13 @@ final class InstanceObjectType extends PrototypeObjectType {
           .append(Integer.toString(n != null ? n.getLineno() : 0))
           .append(">");
     }
-    sb.append(name);
+    sb.append(name.orElse(null));
   }
 
   @Override
   boolean isTheObjectType() {
     return getConstructor().isNativeObjectType()
-        && "Object".equals(getReferenceName());
+        && "Object".equals(getReferenceName().orElse(""));
   }
 
   @Override
@@ -157,53 +158,53 @@ final class InstanceObjectType extends PrototypeObjectType {
   @Override
   public boolean isArrayType() {
     return getConstructor().isNativeObjectType()
-        && "Array".equals(getReferenceName());
+        && "Array".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isReadonlyArrayType() {
     return getConstructor().isNativeObjectType()
-        && "ReadonlyArray".equals(getReferenceName());
+        && "ReadonlyArray".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isBigIntObjectType() {
-    return getConstructor().isNativeObjectType() && "BigInt".equals(getReferenceName());
+    return getConstructor().isNativeObjectType() && "BigInt".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isStringObjectType() {
     return getConstructor().isNativeObjectType()
-        && "String".equals(getReferenceName());
+        && "String".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isSymbolObjectType() {
-    return getConstructor().isNativeObjectType() && "Symbol".equals(getReferenceName());
+    return getConstructor().isNativeObjectType() && "Symbol".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isBooleanObjectType() {
     return getConstructor().isNativeObjectType()
-        && "Boolean".equals(getReferenceName());
+        && "Boolean".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isNumberObjectType() {
     return getConstructor().isNativeObjectType()
-        && "Number".equals(getReferenceName());
+        && "Number".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isDateType() {
     return getConstructor().isNativeObjectType()
-        && "Date".equals(getReferenceName());
+        && "Date".equals(getReferenceName().orElse(""));
   }
 
   @Override
   public boolean isRegexpType() {
     return getConstructor().isNativeObjectType()
-        && "RegExp".equals(getReferenceName());
+        && "RegExp".equals(getReferenceName().orElse(""));
   }
 
   @Override

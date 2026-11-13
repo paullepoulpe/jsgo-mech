@@ -38,6 +38,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -158,7 +159,7 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = definition.getMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_ICU_EXAMPLE");
-    assertThat(msg.getDesc()).isEqualTo("ICU example message");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("ICU example message");
     assertThat(msg.asIcuMessageString())
         .isEqualTo(
             """
@@ -170,7 +171,7 @@ public final class JsMessageVisitorTest {
                 }\
             """);
     // NOTE: "testcode" is the file name used by compiler.parseTestCode(code)
-    assertThat(msg.getSourceName()).isEqualTo("testcode:1");
+    assertThat(msg.getSourceName().orElse(null)).isEqualTo("testcode:1");
   }
 
   @Test
@@ -258,9 +259,9 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_HELLO");
-    assertThat(msg.getDesc()).isEqualTo("Hello");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello");
     // NOTE: "testcode" is the file name used by compiler.parseTestCode(code)
-    assertThat(msg.getSourceName()).isEqualTo("testcode:1");
+    assertThat(msg.getSourceName().orElse(null)).isEqualTo("testcode:1");
   }
 
   @Test
@@ -270,9 +271,9 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_HELLO");
-    assertThat(msg.getDesc()).isEqualTo("Hello");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello");
     // NOTE: "testcode" is the file name used by compiler.parseTestCode(code)
-    assertThat(msg.getSourceName()).isEqualTo("testcode:1");
+    assertThat(msg.getSourceName().orElse(null)).isEqualTo("testcode:1");
   }
 
   @Test
@@ -282,9 +283,9 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_HELLO");
-    assertThat(msg.getDesc()).isEqualTo("Hello");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello");
     // NOTE: "testcode" is the file name used by compiler.parseTestCode(code)
-    assertThat(msg.getSourceName()).isEqualTo("testcode:1");
+    assertThat(msg.getSourceName().orElse(null)).isEqualTo("testcode:1");
   }
 
   @Test
@@ -292,18 +293,18 @@ public final class JsMessageVisitorTest {
     SourceMapGeneratorV3 sourceMap = new SourceMapGeneratorV3();
     sourceMap.addMapping(
         "source1.html",
-        null,
+        "",
         new FilePosition(10, 0),
         new FilePosition(0, 0),
         new FilePosition(0, 100));
     sourceMap.addMapping(
         "source2.html",
-        null,
+        "",
         new FilePosition(10, 0),
         new FilePosition(1, 0),
         new FilePosition(1, 100));
     StringBuilder output = new StringBuilder();
-    sourceMap.appendTo(output, "unused.js");
+    sourceMap.appendTo(output, Optional.of("unused.js"));
 
     compilerOptions = new CompilerOptions();
     // NOTE: "testcode" is the file name used by compiler.parseTestCode(code)
@@ -321,13 +322,13 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg1 = messages.get(0);
     assertThat(msg1.getKey()).isEqualTo("MSG_HELLO");
-    assertThat(msg1.getDesc()).isEqualTo("Hello");
-    assertThat(msg1.getSourceName()).isEqualTo("source1.html:11");
+    assertThat(msg1.getDesc().orElse(null)).isEqualTo("Hello");
+    assertThat(msg1.getSourceName().orElse(null)).isEqualTo("source1.html:11");
 
     JsMessage msg2 = messages.get(1);
     assertThat(msg2.getKey()).isEqualTo("MSG_HI");
-    assertThat(msg2.getDesc()).isEqualTo("Hi");
-    assertThat(msg2.getSourceName()).isEqualTo("source2.html:11");
+    assertThat(msg2.getDesc().orElse(null)).isEqualTo("Hi");
+    assertThat(msg2.getSourceName().orElse(null)).isEqualTo("source2.html:11");
   }
 
   @Test
@@ -336,7 +337,7 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_MENU_MARK_AS_UNREAD");
-    assertThat(msg.getDesc()).isEqualTo("a");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("a");
   }
 
   @Test
@@ -465,7 +466,7 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_MENU");
-    assertThat(msg.getDesc()).isEqualTo("a");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("a");
   }
 
   @Test
@@ -510,7 +511,7 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_MENU_MARK_AS_UNREAD");
-    assertThat(msg.getDesc()).isEqualTo("a");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("a");
   }
 
   @Test
@@ -687,7 +688,7 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_FOO_HELP");
-    assertThat(msg.getDesc()).isEqualTo("help text");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("help text");
     assertThat(msg.asJsMessageString()).isEqualTo("Help!");
   }
 
@@ -771,7 +772,7 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = jsMessageDefinition.getMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_SILLY");
-    assertThat(msg.getDesc()).isEqualTo("help text");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("help text");
     assertThat(msg.asJsMessageString()).isEqualTo("{$adjective} message");
   }
 
@@ -802,7 +803,7 @@ public final class JsMessageVisitorTest {
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_HUGE");
-    assertThat(msg.getDesc()).isEqualTo("A message with lots of stuff.");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("A message with lots of stuff.");
     assertThat(msg.asJsMessageString())
         .isEqualTo(
             """
@@ -817,7 +818,7 @@ public final class JsMessageVisitorTest {
     extractMessages("var MSG_UNNAMED = goog.getMsg('Hullo');");
 
     JsMessage msg = assertOneMessage();
-    assertThat(msg.getDesc()).isNull();
+    assertThat(msg.getDesc().orElse(null)).isNull();
     assertThat(msg.getKey()).isEqualTo("MSG_16LJMYKCXT84X");
     assertThat(msg.getId()).isEqualTo("MSG_16LJMYKCXT84X");
     assertThat(compiler.getErrors()).isEmpty();
@@ -834,7 +835,7 @@ public final class JsMessageVisitorTest {
 
     assertThat(icuTemplateDefinitions).hasSize(1);
     JsMessage msg = icuTemplateDefinitions.get(0).getMessage();
-    assertThat(msg.getDesc()).isEqualTo("description");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("description");
     assertThat(msg.getKey()).isEqualTo("MSG_16LJMYKCXT84X");
     assertThat(msg.getId()).isEqualTo("MSG_16LJMYKCXT84X");
   }
@@ -851,9 +852,9 @@ public final class JsMessageVisitorTest {
         """);
 
     JsMessage msg = assertOneMessage();
-    assertThat(msg.getDesc()).isEqualTo("some description");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("some description");
     assertThat(msg.getKey()).isEqualTo("MSG_HULLO");
-    assertThat(msg.getMeaning()).isEqualTo("some meaning");
+    assertThat(msg.getMeaning().orElse(null)).isEqualTo("some meaning");
     assertThat(msg.getId()).isEqualTo("some meaning");
   }
 
@@ -954,7 +955,7 @@ public final class JsMessageVisitorTest {
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_SILLY");
     assertThat(msg.asJsMessageString()).isEqualTo("{$adjective} {$someNoun}");
-    assertThat(msg.getDesc()).isEqualTo("A message that demonstrates placeholders");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("A message that demonstrates placeholders");
   }
 
   @Test
@@ -974,7 +975,7 @@ public final class JsMessageVisitorTest {
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_SILLY");
     assertThat(msg.asJsMessageString()).isEqualTo("{$adjective} {$someNoun}");
-    assertThat(msg.getDesc()).isEqualTo("A message that demonstrates placeholders");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("A message that demonstrates placeholders");
   }
 
   @Test
@@ -1237,9 +1238,9 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_HELLO");
-    assertThat(msg.getDesc()).isEqualTo("Hello");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello");
     // NOTE: "testcode" is the file name used by compiler.parseTestCode(code)
-    assertThat(msg.getSourceName()).isEqualTo("testcode:1");
+    assertThat(msg.getSourceName().orElse(null)).isEqualTo("testcode:1");
   }
 
   @Test
@@ -1250,7 +1251,7 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
 
     JsMessage msg = assertOneMessage();
     assertThat(msg.getKey()).isEqualTo("MSG_MENU_MARK_AS_UNREAD");
-    assertThat(msg.getDesc()).isEqualTo("a");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("a");
   }
 
   @Test
@@ -1280,7 +1281,7 @@ var MSG_WITH_CAMELCASE = goog.getMsg('Slide {$slideNumber}:', {'slideNumber': op
     // MSG_HELLO =
     assertThat(msg.getKey()).isEqualTo("MSG_HELLO");
     // * @desc Hello
-    assertThat(msg.getDesc()).isEqualTo("Hello");
+    assertThat(msg.getDesc().orElse(null)).isEqualTo("Hello");
 
     JsMessageDefinition msgDefinition = messageDefinitions.get(0);
 

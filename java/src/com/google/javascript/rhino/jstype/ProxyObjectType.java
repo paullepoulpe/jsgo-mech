@@ -48,6 +48,7 @@ import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import java.util.Collections;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -121,8 +122,8 @@ public class ProxyObjectType extends ObjectType {
   }
 
   @Override
-  public String getReferenceName() {
-    return referencedObjType == null ? "" : referencedObjType.getReferenceName();
+  public Optional<String> getReferenceName() {
+    return referencedObjType == null ? Optional.of("") : referencedObjType.getReferenceName();
   }
 
   @Override

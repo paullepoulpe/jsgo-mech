@@ -28,6 +28,7 @@ import com.google.javascript.rhino.jstype.FunctionType;
 import com.google.javascript.rhino.jstype.JSType;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -94,7 +95,7 @@ public final class CodingConventions {
     }
 
     @Override
-    public boolean isValidEnumKey(String key) {
+    public boolean isValidEnumKey(Optional<String> key) {
       return nextConvention.isValidEnumKey(key);
     }
 
@@ -124,7 +125,7 @@ public final class CodingConventions {
     }
 
     @Override
-    public String getPackageName(StaticSourceFile source) {
+    public Optional<String> getPackageName(StaticSourceFile source) {
       return nextConvention.getPackageName(source);
     }
 
@@ -149,12 +150,12 @@ public final class CodingConventions {
     }
 
     @Override
-    public String extractClassNameIfProvide(Node node, Node parent) {
+    public Optional<String> extractClassNameIfProvide(Node node, Node parent) {
       return nextConvention.extractClassNameIfProvide(node, parent);
     }
 
     @Override
-    public String extractClassNameIfRequire(Node node, Node parent) {
+    public Optional<String> extractClassNameIfRequire(Node node, Node parent) {
       return nextConvention.extractClassNameIfRequire(node, parent);
     }
 
@@ -252,8 +253,8 @@ public final class CodingConventions {
     }
 
     @Override
-    public boolean isValidEnumKey(String key) {
-      return key != null && key.length() > 0;
+    public boolean isValidEnumKey(Optional<String> key) {
+      return key.isPresent() && key.get().length() > 0;
     }
 
     @Override
@@ -277,11 +278,11 @@ public final class CodingConventions {
     }
 
     @Override
-    public String getPackageName(StaticSourceFile source) {
+    public Optional<String> getPackageName(StaticSourceFile source) {
       // The package name of a source file is its file path.
       String name = source.getName();
       int lastSlash = name.lastIndexOf('/');
-      return lastSlash == -1 ? "" : name.substring(0, lastSlash);
+      return lastSlash == -1 ? Optional.of("") : Optional.of(name.substring(0, lastSlash));
     }
 
     @Override
@@ -328,25 +329,25 @@ public final class CodingConventions {
     }
 
     @Override
-    public String extractClassNameIfProvide(Node node, Node parent) {
+    public Optional<String> extractClassNameIfProvide(Node node, Node parent) {
       String message = "only implemented in ClosureCodingConvention";
       throw new UnsupportedOperationException(message);
     }
 
     @Override
-    public String extractClassNameIfRequire(Node node, Node parent) {
+    public Optional<String> extractClassNameIfRequire(Node node, Node parent) {
       String message = "only implemented in ClosureCodingConvention";
       throw new UnsupportedOperationException(message);
     }
 
     @Override
     public String getExportPropertyFunction() {
-      return null;
+      return "";
     }
 
     @Override
     public String getExportSymbolFunction() {
-      return null;
+      return "";
     }
 
     @Override
@@ -362,12 +363,12 @@ public final class CodingConventions {
 
     @Override
     public String getAbstractMethodName() {
-      return null;
+      return "";
     }
 
     @Override
     public String getSingletonGetterClassName(Node callNode) {
-      return null;
+      return "";
     }
 
     @Override

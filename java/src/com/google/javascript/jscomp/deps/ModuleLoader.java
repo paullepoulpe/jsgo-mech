@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -203,12 +204,12 @@ public final class ModuleLoader {
      * @return The normalized module URI, or {@code null} if not found.
      */
     public @Nullable ModulePath resolveJsModule(
-        String moduleAddress, String sourcename, int lineno, int colno) {
-      String loadAddress =
+        String moduleAddress, Optional<String> sourcename, int lineno, int colno) {
+      Optional<String> loadAddress =
           moduleResolver.resolveJsModule(this.path, moduleAddress, sourcename, lineno, colno);
 
-      if (loadAddress != null) {
-        return new ModulePath(loadAddress);
+      if (loadAddress.isPresent()) {
+        return new ModulePath(loadAddress.get());
       }
 
       return null;
@@ -220,10 +221,10 @@ public final class ModuleLoader {
      * @return The resolved module path, or {@code null} if unresolvable (or ambiguous)
      */
     public @Nullable ModulePath resolveJsModuleSilently(String moduleAddress) {
-      String loadAddress = moduleResolver.resolveJsModuleSilently(this.path, moduleAddress);
+      Optional<String> loadAddress = moduleResolver.resolveJsModuleSilently(this.path, moduleAddress);
 
-      if (loadAddress != null) {
-        return new ModulePath(loadAddress);
+      if (loadAddress.isPresent()) {
+        return new ModulePath(loadAddress.get());
       }
 
       return null;
@@ -327,23 +328,23 @@ public final class ModuleLoader {
   public static Outcome<String> relativePathFrom(String fromUriPath, String toUriPath) {
     try {
       String toPath = Io.pathString(toUriPath);
-      String fromFolder = Io.pathParent(fromUriPath);
+      Optional<String> fromFolder = Io.pathParent(fromUriPath);
 
       // if the from URIs are simple names without paths, they are in the same folder
       // example: m0.js
-      if (fromFolder == null && Io.pathParent(toUriPath) == null) {
+      if (fromFolder.isEmpty() && Io.pathParent(toUriPath).isEmpty()) {
         return Outcome.ok("./" + toUriPath);
-      } else if (fromFolder == null
+      } else if (fromFolder.isEmpty()
           && (toUriPath.startsWith(".")
               || toPath.startsWith("/")
               || toPath.startsWith("\\"))) {
         return Outcome.ok(toUriPath);
-      } else if (fromFolder == null) {
+      } else if (fromFolder.isEmpty()) {
         return Outcome.err(
             new IllegalArgumentException("Relative path between URIs cannot be calculated"));
       }
 
-      String calculatedPath = Io.pathRelativize(fromFolder, toUriPath);
+      String calculatedPath = Io.pathRelativize(fromFolder.get(), toUriPath);
       if (calculatedPath.startsWith(".") || calculatedPath.startsWith("/")) {
         return Outcome.ok(calculatedPath);
       }

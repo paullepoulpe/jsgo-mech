@@ -45,6 +45,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.javascript.rhino.testing.TestErrorReporter;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -151,7 +152,7 @@ public class PropertyMapTest {
   public void lookUpKeysFromParent_stringKey() {
     ObjectType parentType =
         registry.createRecordType(ImmutableMap.of("x", numberType)).assertObjectType();
-    ObjectType childType = registry.createObjectType("Child", parentType);
+    ObjectType childType = registry.createObjectType(Optional.of("Child"), parentType);
     PropertyMap child = new PropertyMap();
     child.setParentSource(childType);
 
@@ -165,7 +166,7 @@ public class PropertyMapTest {
   public void lookUpKeysFromParent_symbolKey() {
     ObjectType parentType = registry.createRecordType(ImmutableMap.of()).assertObjectType();
     parentType.defineDeclaredPropertyKey(symbolKey, numberType, null);
-    ObjectType childType = registry.createObjectType("Child", parentType);
+    ObjectType childType = registry.createObjectType(Optional.of("Child"), parentType);
     PropertyMap child = new PropertyMap();
     child.setParentSource(childType);
 

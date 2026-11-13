@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import org.jspecify.annotations.Nullable;
 
@@ -66,11 +67,11 @@ public class LazyParsedDependencyInfo implements DependencyInfo {
       loadFlagsBuilder.putAll(delegate.getLoadFlags());
       FeatureSet features = ast.getFeatures(compiler);
       if (features.has(Feature.MODULES)) {
-        String previousModule = loadFlagsBuilder.get("module");
-        if (previousModule != null && !previousModule.equals("es6")) {
+        Optional<String> previousModule = Optional.ofNullable(loadFlagsBuilder.get("module"));
+        if (previousModule.isPresent() && !previousModule.get().equals("es6")) {
           compiler.report(
               JSError.make(
-                  getName(),
+                  Optional.of(getName()),
                   /* lineno= */ -1,
                   /* charno= */ -1,
                   ModuleLoader.MODULE_CONFLICT,

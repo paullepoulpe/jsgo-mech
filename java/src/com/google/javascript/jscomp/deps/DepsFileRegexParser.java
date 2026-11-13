@@ -33,6 +33,7 @@ import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -166,7 +167,7 @@ public final class DepsFileRegexParser extends JsFileLineParser {
           return Outcome.err(providesOutcome.error());
         }
         List<String> provides = providesOutcome.get();
-        Outcome<Map<String, String>> loadFlagsOutcome = parseLoadFlags(depArgsMatch.group(4));
+        Outcome<Map<String, String>> loadFlagsOutcome = parseLoadFlags(Optional.ofNullable(depArgsMatch.group(4)));
         if (loadFlagsOutcome.isErr()) {
           return Outcome.err(loadFlagsOutcome.error());
         }
@@ -207,13 +208,13 @@ public final class DepsFileRegexParser extends JsFileLineParser {
     return result.build();
   }
 
-  private Outcome<Map<String, String>> parseLoadFlags(String loadFlags) {
-    if (loadFlags == null || loadFlags.equals("false")) {
+  private Outcome<Map<String, String>> parseLoadFlags(Optional<String> loadFlags) {
+    if (loadFlags.isEmpty() || loadFlags.get().equals("false")) {
       return Outcome.ok(ImmutableMap.of());
-    } else if (loadFlags.equals("true")) {
+    } else if (loadFlags.get().equals("true")) {
       return Outcome.ok(ImmutableMap.of("module", "goog"));
     } else {
-      return parseJsStringMap(loadFlags);
+      return parseJsStringMap(loadFlags.get());
     }
   }
 }

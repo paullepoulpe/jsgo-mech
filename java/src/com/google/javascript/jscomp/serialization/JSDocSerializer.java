@@ -58,8 +58,8 @@ public final class JSDocSerializer {
       builder.addKind(JsdocTag.JSDOC_FILEOVERVIEW);
     }
 
-    if (jsdoc.getLicense() != null) {
-      builder.setLicenseTextPointer(stringPool.put(jsdoc.getLicense()));
+    if (jsdoc.getLicense().isPresent()) {
+      builder.setLicenseTextPointer(stringPool.put(jsdoc.getLicense().get()));
     }
 
     if (jsdoc.isSassGeneratedCssTs()) {
@@ -157,14 +157,14 @@ public final class JSDocSerializer {
     }
 
     // Used by ReplaceMessages
-    if (jsdoc.getDescription() != null) {
-      builder.setDescriptionPointer(stringPool.put(jsdoc.getDescription()));
+    if (jsdoc.getDescription().isPresent()) {
+      builder.setDescriptionPointer(stringPool.put(jsdoc.getDescription().get()));
     }
-    if (jsdoc.getAlternateMessageId() != null) {
-      builder.setAlternateMessageIdPointer(stringPool.put(jsdoc.getAlternateMessageId()));
+    if (jsdoc.getAlternateMessageId().isPresent()) {
+      builder.setAlternateMessageIdPointer(stringPool.put(jsdoc.getAlternateMessageId().get()));
     }
-    if (jsdoc.getMeaning() != null) {
-      builder.setMeaningPointer(stringPool.put(jsdoc.getMeaning()));
+    if (jsdoc.getMeaning().isPresent()) {
+      builder.setMeaningPointer(stringPool.put(jsdoc.getMeaning().get()));
     }
     if (jsdoc.getSuppressions().contains("messageConventions")) {
       builder.addKind(JsdocTag.JSDOC_SUPPRESS_MESSAGE_CONVENTION);

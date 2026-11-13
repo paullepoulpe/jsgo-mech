@@ -23,25 +23,23 @@ import static com.google.javascript.jscomp.serialization.TypePointers.trimOffset
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.gson.JsonIOException;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.InvalidatingTypes;
 import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.jscomp.TypeMismatch;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.jscomp.colors.ColorId;
 import com.google.javascript.jscomp.diagnostic.LogFile;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.JSType;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -212,21 +210,15 @@ final class SerializeTypesToPointers {
 
   /** Returns the compact, HTML-safe JSON text of an array with one object per mismatch. */
   private static String typeMismatchesToJson(ImmutableSortedSet<TypeMismatchJson> typeMismatches) {
-    StringWriter out = new StringWriter();
-    JsonWriter writer = new JsonWriter(out);
-    writer.setLenient(true);
+    SimpleJsonWriter writer = new SimpleJsonWriter();
     writer.setHtmlSafe(true);
     writer.setSerializeNulls(false);
-    try {
-      writer.beginArray();
-      for (TypeMismatchJson typeMismatch : typeMismatches) {
-        typeMismatch.writeJson(writer);
-      }
-      writer.endArray();
-    } catch (IOException e) {
-      throw new JsonIOException(e);
+    writer.beginArray();
+    for (TypeMismatchJson typeMismatch : typeMismatches) {
+      typeMismatch.writeJson(writer);
     }
-    return out.toString();
+    writer.endArray();
+    return writer.toString();
   }
 
   /**
@@ -242,7 +234,7 @@ final class SerializeTypesToPointers {
     }
 
     @Override
-    public void writeJson(JsonWriter jsonWriter) throws IOException {
+    public void writeJson(SimpleJsonWriter jsonWriter) {
       jsonWriter.beginObject();
       for (Map.Entry<String, List<JSType>> entry : allSerializedTypes.entrySet()) {
         jsonWriter.name(entry.getKey()); // color id
@@ -254,7 +246,7 @@ final class SerializeTypesToPointers {
         }
         Collections.sort(jstypes);
         for (String typeName : jstypes) { // all corresponding JSTypes
-          jsonWriter.value(typeName);
+          jsonWriter.stringValue(Optional.of(typeName));
         }
         jsonWriter.endArray();
       }
@@ -273,11 +265,11 @@ final class SerializeTypesToPointers {
       this.requiredColorId = required.toString();
     }
 
-    private void writeJson(JsonWriter writer) throws IOException {
+    private void writeJson(SimpleJsonWriter writer) {
       writer.beginObject();
-      writer.name("location").value(this.location);
-      writer.name("foundColorId").value(this.foundColorId);
-      writer.name("requiredColorId").value(this.requiredColorId);
+      writer.name("location").stringValue(Optional.of(this.location));
+      writer.name("foundColorId").stringValue(Optional.of(this.foundColorId));
+      writer.name("requiredColorId").stringValue(Optional.of(this.requiredColorId));
       writer.endObject();
     }
 

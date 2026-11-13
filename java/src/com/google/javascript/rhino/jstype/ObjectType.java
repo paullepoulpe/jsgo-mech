@@ -55,6 +55,7 @@ import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.Property.OwnedProperty;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -207,7 +208,7 @@ public abstract class ObjectType extends JSType {
    *
    * @return the object's name or {@code null} if this is an anonymous object
    */
-  public abstract @Nullable String getReferenceName();
+  public abstract Optional<String> getReferenceName();
 
   /**
    * INVARIANT: {@code hasReferenceName()} is true if and only if {@code getReferenceName()} returns
@@ -216,7 +217,7 @@ public abstract class ObjectType extends JSType {
    * @return true if the object is named, false if it is anonymous
    */
   public final boolean hasReferenceName() {
-    return getReferenceName() != null;
+    return getReferenceName().isPresent();
   }
 
   /**
@@ -228,21 +229,21 @@ public abstract class ObjectType extends JSType {
    * implicit types back to their real type. Note that suffixes such as ".prototype" can be added
    * <i>after</i> the delegate suffix, so anything after the parentheses must still be retained.
    */
-  public final @Nullable String getNormalizedReferenceName() {
-    String name = getReferenceName();
-    if (name != null) {
-      int start = name.indexOf('(');
+  public final Optional<String> getNormalizedReferenceName() {
+    Optional<String> name = getReferenceName();
+    if (name.isPresent()) {
+      int start = name.get().indexOf('(');
       if (start != -1) {
-        int end = name.lastIndexOf(')');
-        String prefix = name.substring(0, start);
-        return end + 1 % name.length() == 0 ? prefix : prefix + name.substring(end + 1);
+        int end = name.get().lastIndexOf(')');
+        String prefix = name.get().substring(0, start);
+        return end + 1 % name.get().length() == 0 ? Optional.of(prefix) : Optional.of(prefix + name.get().substring(end + 1));
       }
     }
     return name;
   }
 
   @Override
-  public String getDisplayName() {
+  public Optional<String> getDisplayName() {
     return getNormalizedReferenceName();
   }
 
@@ -403,7 +404,7 @@ public abstract class ObjectType extends JSType {
   public final boolean defineInferredPropertyKey(
       Property.Key propertyName, JSType type, Node propertyNode) {
     checkArgument(
-        propertyName.string() != null,
+        propertyName.kind().equals(Property.KeyKind.STRING),
         "Symbol-based property keys are not supported for inferred properties.");
     return defineInferredProperty(propertyName.string(), type, propertyNode);
   }

@@ -29,6 +29,7 @@ import com.google.javascript.rhino.QualifiedName;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -137,7 +138,7 @@ class ReplaceIdGenerators implements CompilerPass {
   }
 
   private static interface NameSupplier {
-    String getName(String id, String name);
+    Optional<String> getName(String id, String name);
 
     RenameStrategy getRenameStrategy();
   }
@@ -155,10 +156,10 @@ class ReplaceIdGenerators implements CompilerPass {
     }
 
     @Override
-    public String getName(String id, String name) {
-      String newName = previousMappings.get(id);
-      if (newName == null) {
-        newName = generator.generateNextName();
+    public Optional<String> getName(String id, String name) {
+      Optional<String> newName = Optional.ofNullable(previousMappings.get(id));
+      if (newName.isEmpty()) {
+        newName = Optional.of(generator.generateNextName());
       }
       return newName;
     }
@@ -178,13 +179,13 @@ class ReplaceIdGenerators implements CompilerPass {
     }
 
     @Override
-    public String getName(String id, String name) {
+    public Optional<String> getName(String id, String name) {
       if (renameStrategy == RenameStrategy.INCONSISTENT) {
         String result = name + "$" + counter;
         counter++;
-        return result;
+        return Optional.of(result);
       }
-      return name + "$0";
+      return Optional.of(name + "$0");
     }
 
     @Override
@@ -195,8 +196,8 @@ class ReplaceIdGenerators implements CompilerPass {
 
   private static class StableNameSupplier implements NameSupplier {
     @Override
-    public String getName(String id, String name) {
-      return Base64.base64EncodeInt(name.hashCode());
+    public Optional<String> getName(String id, String name) {
+      return Optional.of(Base64.base64EncodeInt(name.hashCode()));
     }
 
     @Override
@@ -213,8 +214,8 @@ class ReplaceIdGenerators implements CompilerPass {
     }
 
     @Override
-    public String getName(String id, String name) {
-      return xid.get(name);
+    public Optional<String> getName(String id, String name) {
+      return Optional.of(xid.get(name));
     }
 
     @Override
@@ -231,7 +232,7 @@ class ReplaceIdGenerators implements CompilerPass {
     }
 
     @Override
-    public String getName(String id, String name) {
+    public Optional<String> getName(String id, String name) {
       return map.get(name);
     }
 
@@ -274,35 +275,35 @@ class ReplaceIdGenerators implements CompilerPass {
         return;
       }
 
-      String name = null;
+      Optional<String> name = Optional.empty();
       if (n.isAssign()) {
-        name = n.getFirstChild().getQualifiedName();
+        name = Optional.of(n.getFirstChild().getQualifiedName()).filter(s -> !s.isEmpty());
       } else if (NodeUtil.isNameDeclaration(n)) {
-        name = n.getFirstChild().getString();
+        name = Optional.of(n.getFirstChild().getString());
       } else if (n.isFunction()) {
-        name = n.getFirstChild().getString();
-        if (name.isEmpty()) {
+        name = Optional.of(n.getFirstChild().getString());
+        if (name.get().isEmpty()) {
           return;
         }
       }
-      if (nameGenerators.containsKey(name)) {
+      if (name.isPresent() && nameGenerators.containsKey(name.get())) {
         // This generator is already registered from our constructor.
         // Don't override it.
         return;
       }
       if (doc.isConsistentIdGenerator()) {
-        consistNameMap.put(name, new LinkedHashMap<String, String>());
+        consistNameMap.put(name.orElse(null), new LinkedHashMap<String, String>());
         nameGenerators.put(
-            name, createNameSupplier(RenameStrategy.CONSISTENT, previousMap.get(name)));
+            name.orElse(null), createNameSupplier(RenameStrategy.CONSISTENT, (name.isPresent() ? previousMap.get(name.get()) : null)));
       } else if (doc.isStableIdGenerator()) {
-        nameGenerators.put(name, createNameSupplier(RenameStrategy.STABLE, previousMap.get(name)));
+        nameGenerators.put(name.orElse(null), createNameSupplier(RenameStrategy.STABLE, (name.isPresent() ? previousMap.get(name.get()) : null)));
       } else if (doc.isXidGenerator()) {
-        nameGenerators.put(name, createNameSupplier(RenameStrategy.XID, previousMap.get(name)));
+        nameGenerators.put(name.orElse(null), createNameSupplier(RenameStrategy.XID, (name.isPresent() ? previousMap.get(name.get()) : null)));
       } else if (doc.isIdGenerator()) {
         nameGenerators.put(
-            name, createNameSupplier(RenameStrategy.INCONSISTENT, previousMap.get(name)));
+            name.orElse(null), createNameSupplier(RenameStrategy.INCONSISTENT, (name.isPresent() ? previousMap.get(name.get()) : null)));
       } else if (doc.isMappedIdGenerator()) {
-        NameSupplier supplier = nameGenerators.get(name);
+        NameSupplier supplier = name.isPresent() ? nameGenerators.get(name.get()) : null;
         if (supplier == null || supplier.getRenameStrategy() != RenameStrategy.MAPPED) {
           compiler.report(JSError.make(n, MISSING_NAME_MAP_FOR_GENERATOR));
           // skip registering the name in the list of Generators if there no
@@ -312,7 +313,7 @@ class ReplaceIdGenerators implements CompilerPass {
       } else {
         throw new IllegalStateException("unexpected");
       }
-      idGeneratorMaps.put(name, new LinkedHashMap<String, String>());
+      idGeneratorMaps.put(name.orElse(null), new LinkedHashMap<String, String>());
     }
   }
 
@@ -356,29 +357,29 @@ class ReplaceIdGenerators implements CompilerPass {
       }
 
       if (n.isCall()) {
-        maybeReplaceCall(t, n, callName, nameGenerator);
+        maybeReplaceCall(t, n, Optional.of(callName).filter(s -> !s.isEmpty()), nameGenerator);
       } else {
-        maybeReplaceTaggedTemplateLit(t, n, callName, nameGenerator);
+        maybeReplaceTaggedTemplateLit(t, n, Optional.of(callName).filter(s -> !s.isEmpty()), nameGenerator);
       }
     }
 
     private void maybeReplaceTaggedTemplateLit(
-        NodeTraversal t, Node n, String callName, NameSupplier nameGenerator) {
+        NodeTraversal t, Node n, Optional<String> callName, NameSupplier nameGenerator) {
       Node arg = n.getLastChild();
 
       if (arg == null || !arg.isTemplateLit()) {
         throw new IllegalStateException();
       } else if (arg.hasOneChild()) {
         var cooked = arg.getFirstChild().getCookedString();
-        if (cooked == null) {
+        if (cooked.isEmpty()) {
           // We don't allow strings with odd escape sequences... We could but it doesn't seem
           // necessary
           compiler.report(JSError.make(n, INVALID_TEMPLATE_LITERAL_PARAMETER));
           return;
         }
 
-        String rename = getObfuscatedName(arg, callName, nameGenerator, cooked);
-        n.replaceWith(IR.string(rename));
+        Optional<String> rename = getObfuscatedName(arg, callName, nameGenerator, cooked.get());
+        n.replaceWith(IR.string(rename.get()));
         t.reportCodeChange();
       } else {
         // There is an alternating sequence of template literals and expressions, in this case we
@@ -387,13 +388,13 @@ class ReplaceIdGenerators implements CompilerPass {
         for (Node child = arg.getFirstChild(); child != null; child = child.getNext()) {
           if (child.isTemplateLitString()) {
             var cooked = child.getCookedString();
-            if (cooked == null) {
+            if (cooked.isEmpty()) {
               compiler.report(JSError.make(n, INVALID_TEMPLATE_LITERAL_PARAMETER));
               return;
             }
-            String rename = getObfuscatedName(child, callName, nameGenerator, cooked);
+            Optional<String> rename = getObfuscatedName(child, callName, nameGenerator, cooked.get());
             newTemplateLit.addChildToBack(
-                IR.templateLiteralString(rename, rename).srcrefIfMissing(child));
+                IR.templateLiteralString(rename, rename.get()).srcrefIfMissing(child));
           } else {
             newTemplateLit.addChildToBack(
                 IR.templateLiteralSubstitution(child.removeFirstChild()).srcrefIfMissing(child));
@@ -405,21 +406,21 @@ class ReplaceIdGenerators implements CompilerPass {
     }
 
     private void maybeReplaceCall(
-        NodeTraversal t, Node n, String callName, NameSupplier nameGenerator) {
+        NodeTraversal t, Node n, Optional<String> callName, NameSupplier nameGenerator) {
       Node arg = n.getSecondChild();
       if (arg == null) {
         compiler.report(JSError.make(n, INVALID_GENERATOR_PARAMETER));
       } else if (arg.isStringLit()) {
-        String rename = getObfuscatedName(arg, callName, nameGenerator, arg.getString());
-        n.replaceWith(IR.string(rename));
+        Optional<String> rename = getObfuscatedName(arg, callName, nameGenerator, arg.getString());
+        n.replaceWith(IR.string(rename.get()));
         t.reportCodeChange();
       } else if (arg.isTemplateLit() && arg.hasOneChild()) {
         var cooked = arg.getFirstChild().getCookedString();
-        if (cooked == null) {
+        if (cooked.isEmpty()) {
           compiler.report(JSError.make(n, INVALID_GENERATOR_PARAMETER));
         } else {
-          String rename = getObfuscatedName(arg, callName, nameGenerator, cooked);
-          n.replaceWith(IR.string(rename));
+          Optional<String> rename = getObfuscatedName(arg, callName, nameGenerator, cooked.get());
+          n.replaceWith(IR.string(rename.get()));
           t.reportCodeChange();
         }
       } else if (arg.isObjectLit()) {
@@ -433,8 +434,8 @@ class ReplaceIdGenerators implements CompilerPass {
             return;
           }
 
-          String rename = getObfuscatedName(key, callName, nameGenerator, key.getString());
-          key.setString(rename);
+          Optional<String> rename = getObfuscatedName(key, callName, nameGenerator, key.getString());
+          key.setString(rename.get());
           // Prevent standard renaming by marking the key as quoted.
           key.putBooleanProp(Node.QUOTED_PROP, true);
         }
@@ -461,8 +462,8 @@ class ReplaceIdGenerators implements CompilerPass {
         // otherwise we need to rewrite the array in place.
         if (paramsArrayLiteral.getChildCount() == 1) {
           String originalName = paramsArrayLiteral.getFirstChild().getString();
-          String rename = getObfuscatedName(arg, callName, nameGenerator, originalName);
-          n.replaceWith(IR.string(rename));
+          Optional<String> rename = getObfuscatedName(arg, callName, nameGenerator, originalName);
+          n.replaceWith(IR.string(rename.get()));
           t.reportCodeChange();
           t.reportCodeChange(ttlVar);
           ttlVar.detach();
@@ -473,8 +474,8 @@ class ReplaceIdGenerators implements CompilerPass {
               param != null;
               param = param.getNext()) {
             String originalName = param.getString();
-            String rename = getObfuscatedName(arg, callName, nameGenerator, originalName);
-            param.setString(rename);
+            Optional<String> rename = getObfuscatedName(arg, callName, nameGenerator, originalName);
+            param.setString(rename.get());
           }
           t.reportCodeChange(paramsArrayLiteral);
         }
@@ -510,24 +511,24 @@ class ReplaceIdGenerators implements CompilerPass {
       return null;
     }
 
-    private String getObfuscatedName(
-        Node id, String callName, NameSupplier nameGenerator, String name) {
-      String rename = null;
-      Map<String, String> idGeneratorMap = idGeneratorMaps.get(callName);
+    private Optional<String> getObfuscatedName(
+        Node id, Optional<String> callName, NameSupplier nameGenerator, String name) {
+      Optional<String> rename = Optional.empty();
+      Map<String, String> idGeneratorMap = callName.isPresent() ? idGeneratorMaps.get(callName.get()) : null;
       String instanceId =
           getIdForGeneratorNode(
               nameGenerator.getRenameStrategy() != RenameStrategy.INCONSISTENT, id, name);
       if (nameGenerator.getRenameStrategy() == RenameStrategy.CONSISTENT) {
-        Map<String, String> entry = consistNameMap.get(callName);
-        rename = entry.get(instanceId);
-        if (rename == null) {
+        Map<String, String> entry = callName.isPresent() ? consistNameMap.get(callName.get()) : null;
+        rename = Optional.ofNullable(entry.get(instanceId));
+        if (rename.isEmpty()) {
           rename = nameGenerator.getName(instanceId, name);
-          entry.put(instanceId, rename);
+          entry.put(instanceId, rename.orElse(null));
         }
       } else {
         rename = nameGenerator.getName(instanceId, name);
       }
-      idGeneratorMap.put(rename, instanceId);
+      idGeneratorMap.put(rename.orElse(null), instanceId);
       return rename;
     }
   }

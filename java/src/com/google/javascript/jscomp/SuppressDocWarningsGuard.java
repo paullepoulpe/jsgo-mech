@@ -147,11 +147,11 @@ class SuppressDocWarningsGuard extends WarningsGuard {
   }
 
   private final @Nullable Node getScriptNodeBySourceName(JSError error) {
-    if (error.sourceName() == null) {
+    if (error.sourceName().isEmpty()) {
       return null;
     }
 
-    Node scriptNode = this.compiler.getScriptNode(error.sourceName());
+    Node scriptNode = this.compiler.getScriptNode(error.sourceName().get());
     if (scriptNode == null) {
       return null;
     }

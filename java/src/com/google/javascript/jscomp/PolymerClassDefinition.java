@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -66,7 +67,7 @@ final class PolymerClassDefinition {
   final MemberDefinition constructor;
 
   /** The name of the native HTML element which this element extends. */
-  final @Nullable String nativeBaseElement;
+  final Optional<String> nativeBaseElement;
 
   /** Properties declared in the Polymer "properties" block. */
   final List<MemberDefinition> props;
@@ -83,7 +84,7 @@ final class PolymerClassDefinition {
   /** Language features that should be carried over to the extraction destination. */
   final @Nullable FeatureSet features;
 
-  private @Nullable String interfaceName = null;
+  private Optional<String> interfaceName = Optional.empty();
 
   PolymerClassDefinition(
       DefinitionType defType,
@@ -93,7 +94,7 @@ final class PolymerClassDefinition {
       Node descriptor,
       JSDocInfo classInfo,
       MemberDefinition constructor,
-      @Nullable String nativeBaseElement,
+      Optional<String> nativeBaseElement,
       List<MemberDefinition> props,
       @Nullable Map<MemberDefinition, BehaviorDefinition> behaviorProps,
       List<MemberDefinition> methods,
@@ -182,7 +183,7 @@ final class PolymerClassDefinition {
     }
 
     Node baseClass = NodeUtil.getFirstPropMatchingKey(descriptor, "extends");
-    String nativeBaseElement = baseClass == null ? null : baseClass.getString();
+    Optional<String> nativeBaseElement = baseClass == null ? Optional.empty() : Optional.of(baseClass.getString());
 
     Node behaviorArray = NodeUtil.getFirstPropMatchingKey(descriptor, "behaviors");
     ImmutableList<BehaviorDefinition> behaviors =
@@ -366,7 +367,7 @@ final class PolymerClassDefinition {
         propertiesDescriptor,
         classInfo,
         new MemberDefinition(ctorInfo, null, constructor, enclosingModule),
-        null,
+        Optional.empty(),
         properties,
         null,
         methods,
@@ -499,18 +500,18 @@ final class PolymerClassDefinition {
         .add("defType", defType)
         .add("definition", definition)
         .add("target", target)
-        .add("nativeBaseElement", nativeBaseElement)
+        .add("nativeBaseElement", nativeBaseElement.isPresent() ? (Object) nativeBaseElement.get() : null)
         .omitNullValues()
         .toString();
   }
 
-  String getInterfaceName(UniqueIdSupplier uniqueIdSupplier) {
-    if (interfaceName == null) {
+  Optional<String> getInterfaceName(UniqueIdSupplier uniqueIdSupplier) {
+    if (interfaceName.isEmpty()) {
       interfaceName =
-          "Polymer"
+          Optional.of("Polymer"
               + target.getQualifiedName().replace('.', '_')
               + "Interface$"
-              + uniqueIdSupplier.getUniqueId(input);
+              + uniqueIdSupplier.getUniqueId(input));
     }
     return interfaceName;
   }

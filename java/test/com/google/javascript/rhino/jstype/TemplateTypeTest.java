@@ -43,6 +43,7 @@ import static com.google.javascript.rhino.testing.TypeSubject.assertType;
 
 import com.google.javascript.rhino.jstype.NamedType.ResolutionKind;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -67,7 +68,7 @@ public final class TemplateTypeTest extends BaseJSTypeTestCase {
   @Test
   public void templateTypes_boundedByNominalTypes_areNotEqual() {
     JSType fooType =
-        registry.createObjectType("Foo", registry.getNativeObjectType(JSTypeNative.OBJECT_TYPE));
+        registry.createObjectType(Optional.of("Foo"), registry.getNativeObjectType(JSTypeNative.OBJECT_TYPE));
     TemplateType t1 = new TemplateType(registry, "T", fooType);
     TemplateType t2 = new TemplateType(registry, "T", fooType);
 
@@ -81,7 +82,7 @@ public final class TemplateTypeTest extends BaseJSTypeTestCase {
   @Test
   public void proxiesOf_templateTypes_boundedByNominalTypes_areNotEqual() {
     JSType fooType =
-        registry.createObjectType("Foo", registry.getNativeObjectType(JSTypeNative.OBJECT_TYPE));
+        registry.createObjectType(Optional.of("Foo"), registry.getNativeObjectType(JSTypeNative.OBJECT_TYPE));
 
     TemplateType t1 = new TemplateType(registry, "T", fooType);
     TemplateType t2 = new TemplateType(registry, "T", fooType);

@@ -28,7 +28,6 @@ import static java.util.Objects.requireNonNull;
 record ExportTrace(UnresolvedModule module, String exportName) {
   ExportTrace {
     requireNonNull(module, "module");
-    requireNonNull(exportName, "exportName");
   }
 
   static ExportTrace create(UnresolvedModule module, String exportName) {

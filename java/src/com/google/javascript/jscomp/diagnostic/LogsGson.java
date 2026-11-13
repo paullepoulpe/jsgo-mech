@@ -16,16 +16,14 @@
 
 package com.google.javascript.jscomp.diagnostic;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.base.SimpleBiMap;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.jscomp.base.SimpleMultiset;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** A JSON stringifier tailored to generating logs output. */
@@ -54,32 +52,26 @@ public final class LogsGson {
    * name).
    */
   static String toJson(@Nullable Object o) {
-    StringWriter out = new StringWriter();
-    JsonWriter writer = new JsonWriter(out);
-    writer.setLenient(true);
+    SimpleJsonWriter writer = new SimpleJsonWriter();
     writer.setHtmlSafe(true);
     writer.setSerializeNulls(false);
-    try {
-      write(writer, o);
-    } catch (IOException e) {
-      throw new JsonIOException(e);
-    }
-    return out.toString();
+    write(writer, o);
+    return writer.toString();
   }
 
-  private static void write(JsonWriter out, @Nullable Object value) throws IOException {
+  private static void write(SimpleJsonWriter out, @Nullable Object value) {
     if (value == null) {
       out.nullValue();
     } else if (value instanceof Able able) {
-      out.jsonValue(toJson(able.toLogsGson()));
+      out.rawValue(Optional.of(toJson(able.toLogsGson())));
     } else if (value instanceof SimpleListMultimap<?, ?> multimap) {
-      out.jsonValue(toJson(multimap.asMap()));
+      out.rawValue(Optional.of(toJson(multimap.asMap())));
     } else if (value instanceof SimpleSetMultimap<?, ?> multimap) {
-      out.jsonValue(toJson(multimap.asMap()));
+      out.rawValue(Optional.of(toJson(multimap.asMap())));
     } else if (value instanceof SimpleBiMap<?, ?> bimap) {
-      out.jsonValue(toJson(bimap.asMap()));
+      out.rawValue(Optional.of(toJson(bimap.asMap())));
     } else if (value instanceof SimpleMultiset<?> multiset) {
-      out.jsonValue(toJson(multiset.asList()));
+      out.rawValue(Optional.of(toJson(multiset.asList())));
     } else if (value instanceof Map<?, ?> map) {
       out.beginObject();
       for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -94,13 +86,13 @@ public final class LogsGson {
       }
       out.endArray();
     } else if (value instanceof String string) {
-      out.value(string);
+      out.stringValue(Optional.of(string));
     } else if (value instanceof Boolean bool) {
-      out.value(bool);
+      out.booleanValue(bool);
     } else if (value instanceof Integer || value instanceof Long) {
-      out.value((Number) value);
+      out.longValue(((Number) value).longValue());
     } else if (value instanceof Enum<?> enumValue) {
-      out.value(enumValue.name());
+      out.stringValue(Optional.of(enumValue.name()));
     } else {
       throw new IllegalArgumentException(
           "Cannot log a " + value.getClass().getName() + "; it must implement LogsGson.Able");

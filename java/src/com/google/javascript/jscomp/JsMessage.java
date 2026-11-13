@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -71,23 +72,21 @@ import org.jspecify.annotations.Nullable;
  *     declarations.
  */
 public record JsMessage(
-    @Nullable String getSourceName,
+    Optional<String> getSourceName,
     String getKey,
     boolean isAnonymous,
     boolean isExternal,
     String getId,
     ImmutableList<Part> getParts,
     ImmutableMap<GrammaticalGenderCase, ImmutableList<Part>> getGenderedMessagesMap,
-    @Nullable String getAlternateId,
-    @Nullable String getDesc,
-    @Nullable String getMeaning,
+    Optional<String> getAlternateId,
+    Optional<String> getDesc,
+    Optional<String> getMeaning,
     ImmutableMap<String, String> getPlaceholderNameToExampleMap,
     ImmutableMap<String, String> getPlaceholderNameToOriginalCodeMap,
     ImmutableSet<String> jsPlaceholderNames,
     ImmutableSet<String> canonicalPlaceholderNames) {
   public JsMessage {
-    requireNonNull(getKey, "getKey");
-    requireNonNull(getId, "getId");
     requireNonNull(getParts, "getParts");
     requireNonNull(getPlaceholderNameToExampleMap, "getPlaceholderNameToExampleMap");
     requireNonNull(getPlaceholderNameToOriginalCodeMap, "getPlaceholderNameToOriginalCodeMap");
@@ -311,7 +310,6 @@ public record JsMessage(
   /** Represents a literal string part of a message. */
   public record StringPart(String string) implements Part {
     public StringPart {
-      requireNonNull(string, "string");
     }
 
     @InlineMe(replacement = "this.string()")
@@ -409,7 +407,6 @@ public record JsMessage(
   public record PlaceholderReference(String storedPlaceholderName, boolean canonicalFormat)
       implements Part {
     public PlaceholderReference {
-      requireNonNull(storedPlaceholderName, "storedPlaceholderName");
     }
 
     @InlineMe(replacement = "this.storedPlaceholderName()")
@@ -475,16 +472,16 @@ public record JsMessage(
    */
   public static final class Builder {
 
-    private @Nullable String key = null;
+    private Optional<String> key = Optional.empty();
 
-    private String meaning;
+    private Optional<String> meaning = Optional.empty();
 
-    private String desc;
+    private Optional<String> desc = Optional.empty();
     private boolean isAnonymous = false;
     private boolean isExternal = false;
 
-    private @Nullable String id;
-    private @Nullable String alternateId;
+    private Optional<String> id = Optional.empty();
+    private Optional<String> alternateId = Optional.empty();
 
     private final List<Part> parts = new ArrayList<>();
     private final Map<GrammaticalGenderCase, List<Part>> genderedMessageMap = new LinkedHashMap<>();
@@ -497,10 +494,10 @@ public record JsMessage(
     private ImmutableMap<String, String> placeholderNameToExampleMap = ImmutableMap.of();
     private ImmutableMap<String, String> placeholderNameToOriginalCodeMap = ImmutableMap.of();
 
-    private String sourceName;
+    private Optional<String> sourceName = Optional.empty();
 
     /** Gets the message's key (e.g. {@code "MSG_HELLO"}). */
-    public String getKey() {
+    public Optional<String> getKey() {
       return key;
     }
 
@@ -510,7 +507,7 @@ public record JsMessage(
      */
     @CanIgnoreReturnValue
     public Builder setKey(String key) {
-      this.key = key;
+      this.key = Optional.of(key);
       return this;
     }
 
@@ -519,7 +516,7 @@ public record JsMessage(
      */
     @CanIgnoreReturnValue
     public Builder setSourceName(String sourceName) {
-      this.sourceName = sourceName;
+      this.sourceName = Optional.of(sourceName);
       return this;
     }
 
@@ -549,7 +546,6 @@ public record JsMessage(
      */
     @CanIgnoreReturnValue
     public Builder appendJsPlaceholderReference(String name) {
-      checkNotNull(name, "Placeholder name must not be null");
       parts.add(PlaceholderReference.createForJsName(name));
       jsPlaceholderNames.add(name);
       return this;
@@ -562,7 +558,6 @@ public record JsMessage(
      */
     @CanIgnoreReturnValue
     public Builder appendJsPlaceholderReference(GrammaticalGenderCase genderCase, String name) {
-      checkNotNull(name, "Placeholder name must not be null");
       genderedMessageMap.get(genderCase).add(PlaceholderReference.createForJsName(name));
       jsPlaceholderNames.add(name);
       return this;
@@ -575,7 +570,6 @@ public record JsMessage(
      */
     @CanIgnoreReturnValue
     public Builder appendCanonicalPlaceholderReference(String name) {
-      checkNotNull(name, "Placeholder name must not be null");
       final PlaceholderReference placeholder = PlaceholderReference.createForCanonicalName(name);
       parts.add(placeholder);
       jsPlaceholderNames.add(placeholder.getJsPlaceholderName());
@@ -590,7 +584,6 @@ public record JsMessage(
     @CanIgnoreReturnValue
     public Builder appendCanonicalPlaceholderReference(
         GrammaticalGenderCase genderCase, String name) {
-      checkNotNull(name, "Placeholder name must not be null");
       final PlaceholderReference placeholder = PlaceholderReference.createForCanonicalName(name);
       genderedMessageMap.get(genderCase).add(placeholder);
       jsPlaceholderNames.add(placeholder.getJsPlaceholderName());
@@ -600,7 +593,6 @@ public record JsMessage(
     /** Appends a translatable string literal to the message. */
     @CanIgnoreReturnValue
     public Builder appendStringPart(String part) {
-      checkNotNull(part, "String part of the message must not be null");
       parts.add(StringPart.create(part));
       return this;
     }
@@ -612,7 +604,6 @@ public record JsMessage(
     @CanIgnoreReturnValue
     public Builder appendStringPart(GrammaticalGenderCase genderCase, String part) {
       checkNotNull(genderCase, "Grammatical gender case must not be null");
-      checkNotNull(part, "String part of the message must not be null");
       genderedMessageMap.get(genderCase).add(StringPart.create(part));
       return this;
     }
@@ -639,7 +630,7 @@ public record JsMessage(
 
     /** Sets the description of the message, which helps translators. */
     @CanIgnoreReturnValue
-    public Builder setDesc(@Nullable String desc) {
+    public Builder setDesc(Optional<String> desc) {
       this.desc = desc;
       return this;
     }
@@ -649,14 +640,14 @@ public record JsMessage(
      * differently.
      */
     @CanIgnoreReturnValue
-    public Builder setMeaning(@Nullable String meaning) {
+    public Builder setMeaning(Optional<String> meaning) {
       this.meaning = meaning;
       return this;
     }
 
     /** Sets the alternate message ID, to be used if the primary ID is not yet translated. */
     @CanIgnoreReturnValue
-    public Builder setAlternateId(@Nullable String alternateId) {
+    public Builder setAlternateId(Optional<String> alternateId) {
       this.alternateId = alternateId;
       return this;
     }
@@ -668,8 +659,8 @@ public record JsMessage(
     }
 
     @CanIgnoreReturnValue
-    public Builder setId(String id) {
-      checkState(this.id == null, "id already set to '%s': cannot change it to '%s'", this.id, id);
+    public Builder setId(Optional<String> id) {
+      checkState(this.id.isEmpty(), "id already set to '%s': cannot change it to '%s'", this.id.orElse("null"), id.orElse("null"));
       this.id = id;
       return this;
     }
@@ -695,13 +686,13 @@ public record JsMessage(
     }
 
     public JsMessage build() {
-      checkNotNull(key, "key has not been set");
-      checkNotNull(id, "id has not been set");
+      checkState(key.isPresent(), "key has not been set");
+      checkState(id.isPresent(), "id has not been set");
       checkState(!isExternal || !isAnonymous, "a message cannot be both anonymous and external");
 
       // An alternate ID that points to itself is a no-op, so just omit it.
-      if ((alternateId != null) && alternateId.equals(id)) {
-        alternateId = null;
+      if ((alternateId.isPresent()) && alternateId.equals(id)) {
+        alternateId = Optional.empty();
       }
 
       ImmutableMap.Builder<GrammaticalGenderCase, ImmutableList<Part>>
@@ -714,10 +705,10 @@ public record JsMessage(
 
       return new JsMessage(
           sourceName,
-          key,
+          key.get(),
           isAnonymous,
           isExternal,
-          id,
+          id.get(),
           ImmutableList.copyOf(parts),
           immutableGenderedMessageMap,
           alternateId,
@@ -769,7 +760,7 @@ public record JsMessage(
      * @param value the string to hash
      * @return 64 bit hash value
      */
-    static long hash64(@Nullable String value) {
+    static long hash64(Optional<String> value) {
       return hash64String(value, SEED64);
     }
 
@@ -780,11 +771,11 @@ public record JsMessage(
      * @param seed the seed
      * @return 64 bit hash value
      */
-    private static long hash64String(@Nullable String value, long seed) {
-      if (value == null) {
+    private static long hash64String(Optional<String> value, long seed) {
+      if (value.isEmpty()) {
         return hash64(null, 0, 0, seed);
       }
-      return hash64(Io.utf8Bytes(value), seed);
+      return hash64(Io.utf8Bytes(value.get()), seed);
     }
 
     /**
@@ -1001,6 +992,6 @@ public record JsMessage(
      *     we will just use a fingerprint of the message.
      * @param messageParts The parts of the message, including the main message text.
      */
-    String generateId(String meaning, List<Part> messageParts);
+    String generateId(Optional<String> meaning, List<Part> messageParts);
   }
 }

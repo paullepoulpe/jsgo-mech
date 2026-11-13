@@ -1,0 +1,26 @@
+# Sites where Convert.java reads a nullable String as present because a review of the code
+# established it: the tool writes X.orElseThrow() there instead of X.orElse(null).
+# One line per site: <enclosing class>#<method> :: <source text of X> ## <reason>
+# Reason categories:
+#   error-outcome    Outcome.errorMessage() right after isErr()
+#   same-condition   the value is present under the condition that guards the statement
+#   always-named     the type always has a name (constant, or a non-null field wrapped in Optional)
+#   callee-asserts   the method that returns the value asserts its presence itself
+com.google.javascript.jscomp.AbstractCommandLineRunner#setRunOptions :: yearRes.errorMessage() ## error-outcome
+com.google.javascript.jscomp.CommandLineRunner#initConfigFromFlags :: dependencyOptionsRes.errorMessage() ## error-outcome
+com.google.javascript.jscomp.JsMessageVisitor#extractJsMessageDefinition :: googGetMsgParsedTextRes.errorMessage() ## error-outcome
+com.google.javascript.jscomp.LoggerErrorManager#println :: error.format(level, formatter) ## same-condition: format() is present for ERROR and WARNING, the two cases of the switch
+com.google.javascript.jscomp.parsing.JsDocInfoParser#parseAnnotation :: templateName ## same-condition: validTemplateTypeName(templateName) is true only for a present name
+com.google.javascript.rhino.jstype.PrototypeObjectType#appendTo :: getNormalizedReferenceName() ## same-condition: under hasReferenceName()
+com.google.javascript.rhino.jstype.PrototypeObjectType#appendTo :: getReferenceName() ## same-condition: under hasReferenceName()
+com.google.javascript.rhino.jstype.InstanceObjectType#appendTo :: constructor.getNormalizedReferenceName() ## same-condition: after the early return for !constructor.hasReferenceName()
+com.google.javascript.rhino.jstype.UnknownType#appendTo :: getReferenceName() ## always-named: "?" or "??"
+com.google.javascript.rhino.jstype.NamedType#appendTo :: getReferenceName() ## always-named: NamedType.reference
+com.google.javascript.rhino.jstype.NamedType#resolveTypeof :: getReferenceName() ## always-named: NamedType.reference
+com.google.javascript.jscomp.TypeInference#buildTypeVariables :: e.getKey().getReferenceName() ## always-named: TemplateType.name
+com.google.javascript.jscomp.TypedScopeCreator.FunctionScopeBuilder#declareTemplatesInFunctionBody :: templateKey.getReferenceName() ## always-named: TemplateType.name
+com.google.javascript.rhino.jstype.JSTypeRegistry#registerTemplateTypeNamesInScope :: key.getReferenceName() ## always-named: TemplateType.name
+com.google.javascript.rhino.jstype.JSTypeRegistry.SyntheticTemplateScope#<init> :: key.getReferenceName() ## always-named: TemplateType.name
+com.google.javascript.rhino.jstype.Property#getName :: s.getDisplayName() ## always-named: a known symbol has a display name
+com.google.javascript.rhino.jstype.Property.SymbolKey#humanReadableName :: symbol().getDisplayName() ## always-named: a known symbol has a display name
+com.google.javascript.jscomp.ReplaceCssNames#process :: getCssNameInstance.getCssClosureClassesQualifiedName() ## callee-asserts: the getter checks presence before returning

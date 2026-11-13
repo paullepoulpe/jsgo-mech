@@ -33,6 +33,7 @@ import com.google.javascript.rhino.NonJSDocComment;
 import com.google.javascript.rhino.QualifiedName;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.TokenStream;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** CodeGenerator generates codes from a parse tree, sending it to the specified CodeConsumer. */
@@ -106,17 +107,17 @@ public class CodeGenerator {
   }
 
   private void printJsDocComment(Node node, JSDocInfo jsDocInfo) {
-    String jsdocAsString;
+    Optional<String> jsdocAsString;
     // In gents mode, we print NonJSDocInfo without special handling, as we already have
     // pre-filtered the comments properly.
     if (gentsMode) {
       jsdocAsString = jsDocInfo.getOriginalCommentString();
     } else {
-      jsdocAsString = jsDocInfoPrinter.print(jsDocInfo);
+      jsdocAsString = Optional.of(jsDocInfoPrinter.print(jsDocInfo));
     }
     // Don't print an empty jsdoc
-    if (jsdocAsString != null && !jsdocAsString.equals("/** */ ")) {
-      add(jsdocAsString);
+    if (jsdocAsString.isPresent() && !jsdocAsString.get().equals("/** */ ")) {
+      add(jsdocAsString.get());
       if (!node.isCast()) {
         cc.endLine();
       }
@@ -218,17 +219,17 @@ public class CodeGenerator {
     cc.trackLicenses(node);
 
     Token type = node.getToken();
-    String opstr = NodeUtil.opToStr(type);
+    Optional<String> opstr = NodeUtil.opToStr(type);
     int childCount = node.getChildCount();
     Node first = node.getFirstChild();
     Node last = node.getLastChild();
 
     // Handle all binary operators
-    if (opstr != null && first != last) {
+    if (opstr.isPresent() && first != last) {
       Preconditions.checkState(
           childCount == 2,
           "Bad binary operator \"%s\": expected 2 arguments but got %s",
-          opstr,
+          opstr.get(),
           childCount);
       int p = precedence(node);
 
@@ -246,10 +247,10 @@ public class CodeGenerator {
       if (NodeUtil.isAssignmentOp(node) || type == Token.EXPONENT) {
         // Assignment operators and '**' are the only right-associative binary operators
         addExpr(first, p + 1, context);
-        cc.addOp(opstr, true);
+        cc.addOp(opstr.get(), true);
         addExpr(last, p, rhsContext);
       } else {
-        unrollBinaryOperator(node, type, opstr, context, rhsContext, p, p + 1);
+        unrollBinaryOperator(node, type, opstr.get(), context, rhsContext, p, p + 1);
       }
 
       if (node.isAssign() && needsParens) {
@@ -356,7 +357,7 @@ public class CodeGenerator {
         }
       }
       case NAME -> {
-        if (useOriginalName && node.getOriginalName() != null) {
+        if (useOriginalName && !node.getOriginalName().isEmpty()) {
           addIdentifier(node.getOriginalName());
         } else {
           addIdentifier(node.getString());
@@ -847,7 +848,7 @@ public class CodeGenerator {
         // such as when using goog.scope(). See ScopedAliases.java for the original code.
         // NOTE: OPTCHAIN_GETPROP case doesn't need this logic, because it only applies to
         // qualified names.
-        if (useOriginalName && node.getOriginalName() != null) {
+        if (useOriginalName && !node.getOriginalName().isEmpty()) {
           // The ScopedAliases pass will convert variable assignments and function declarations
           // to assignments to GETPROP nodes, like $jscomp.scope.SOME_VAR = 3;. This attempts to
           // rewrite it back to the original code.

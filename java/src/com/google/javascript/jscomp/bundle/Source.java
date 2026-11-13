@@ -28,6 +28,7 @@ import com.google.errorprone.annotations.Immutable;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.deps.DependencyInfo;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
@@ -62,10 +63,6 @@ public record Source(
     Lazy<String> codeSupplier,
     @Nullable Lazy<String> originalCodeSupplier) {
   public Source {
-    requireNonNull(path, "path");
-    requireNonNull(sourceMap, "sourceMap");
-    requireNonNull(sourceUrl, "sourceUrl");
-    requireNonNull(sourceMappingUrl, "sourceMappingUrl");
     requireNonNull(runtimes, "runtimes");
     requireNonNull(loadFlags, "loadFlags");
     requireNonNull(codeSupplier, "codeSupplier");
@@ -119,10 +116,10 @@ public record Source(
 
   /** Builder for Source instances. */
   public static final class Builder {
-    private @Nullable String path;
-    private @Nullable String sourceMap;
-    private @Nullable String sourceUrl;
-    private @Nullable String sourceMappingUrl;
+    private Optional<String> path = Optional.empty();
+    private Optional<String> sourceMap = Optional.empty();
+    private Optional<String> sourceUrl = Optional.empty();
+    private Optional<String> sourceMappingUrl = Optional.empty();
     private @Nullable ImmutableSet<String> runtimesField;
     private @Nullable ImmutableMap<String, String> loadFlags;
     private int estimatedSize;
@@ -134,10 +131,10 @@ public record Source(
     }
 
     Builder(Source source) {
-      this.path = source.path();
-      this.sourceMap = source.sourceMap();
-      this.sourceUrl = source.sourceUrl();
-      this.sourceMappingUrl = source.sourceMappingUrl();
+      this.path = Optional.of(source.path());
+      this.sourceMap = Optional.of(source.sourceMap());
+      this.sourceUrl = Optional.of(source.sourceUrl());
+      this.sourceMappingUrl = Optional.of(source.sourceMappingUrl());
       this.runtimesField = source.runtimes();
       this.loadFlags = source.loadFlags();
       this.estimatedSize = source.estimatedSize();
@@ -147,31 +144,19 @@ public record Source(
     }
 
     public Builder setPath(String path) {
-      if (path == null) {
-        throw new NullPointerException("Null path");
-      }
-      this.path = Io.pathString(path);
+      this.path = Optional.of(Io.pathString(path));
       return this;
     }
     public Builder setSourceMap(String sourceMap) {
-      if (sourceMap == null) {
-        throw new NullPointerException("Null sourceMap");
-      }
-      this.sourceMap = sourceMap;
+      this.sourceMap = Optional.of(sourceMap);
       return this;
     }
     public Builder setSourceUrl(String sourceUrl) {
-      if (sourceUrl == null) {
-        throw new NullPointerException("Null sourceUrl");
-      }
-      this.sourceUrl = sourceUrl;
+      this.sourceUrl = Optional.of(sourceUrl);
       return this;
     }
     public Builder setSourceMappingUrl(String sourceMappingUrl) {
-      if (sourceMappingUrl == null) {
-        throw new NullPointerException("Null sourceMappingUrl");
-      }
-      this.sourceMappingUrl = sourceMappingUrl;
+      this.sourceMappingUrl = Optional.of(sourceMappingUrl);
       return this;
     }
     public Builder setRuntimes(ImmutableSet<String> runtimes) {
@@ -248,24 +233,24 @@ public record Source(
     }
     Source autoBuild() {
       if (set0 != 1
-          || this.path == null
-          || this.sourceMap == null
-          || this.sourceUrl == null
-          || this.sourceMappingUrl == null
+          || this.path.isEmpty()
+          || this.sourceMap.isEmpty()
+          || this.sourceUrl.isEmpty()
+          || this.sourceMappingUrl.isEmpty()
           || this.runtimesField == null
           || this.loadFlags == null
           || this.codeSupplierField == null) {
         StringBuilder missing = new StringBuilder();
-        if (this.path == null) {
+        if (this.path.isEmpty()) {
           missing.append(" path");
         }
-        if (this.sourceMap == null) {
+        if (this.sourceMap.isEmpty()) {
           missing.append(" sourceMap");
         }
-        if (this.sourceUrl == null) {
+        if (this.sourceUrl.isEmpty()) {
           missing.append(" sourceUrl");
         }
-        if (this.sourceMappingUrl == null) {
+        if (this.sourceMappingUrl.isEmpty()) {
           missing.append(" sourceMappingUrl");
         }
         if (this.runtimesField == null) {
@@ -283,10 +268,10 @@ public record Source(
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new Source(
-          this.path,
-          this.sourceMap,
-          this.sourceUrl,
-          this.sourceMappingUrl,
+          this.path.get(),
+          this.sourceMap.get(),
+          this.sourceUrl.get(),
+          this.sourceMappingUrl.get(),
           this.runtimesField,
           this.loadFlags,
           this.estimatedSize,

@@ -42,6 +42,7 @@ package com.google.javascript.rhino.jstype;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** The {@code Unknown} type. */
@@ -121,7 +122,7 @@ public final class UnknownType extends ObjectType {
 
   @Override
   void appendTo(TypeStringBuilder sb) {
-    sb.append(getReferenceName());
+    sb.append(getReferenceName().orElseThrow());
   }
 
   @Override
@@ -142,13 +143,13 @@ public final class UnknownType extends ObjectType {
   }
 
   @Override
-  public String getReferenceName() {
-    return isChecked ? "??" : "?";
+  public Optional<String> getReferenceName() {
+    return isChecked ? Optional.of("??") : Optional.of("?");
   }
 
   @Override
-  public String getDisplayName() {
-    return "Unknown";
+  public Optional<String> getDisplayName() {
+    return Optional.of("Unknown");
   }
 
   @Override

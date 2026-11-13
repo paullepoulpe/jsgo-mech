@@ -37,6 +37,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * A PerformanceTracker collects statistics about the runtime of each pass, and how much a pass
@@ -417,7 +418,7 @@ public final class PerformanceTracker {
    * contains stats for each individual run.
    */
   public void outputTracerReport(Io.Output output) {
-    JvmMetrics.maybeWriteJvmMetrics(output, "verbose:pretty:all");
+    JvmMetrics.maybeWriteJvmMetrics(output, Optional.of("verbose:pretty:all"));
     calcTotalStats();
 
     output.println(

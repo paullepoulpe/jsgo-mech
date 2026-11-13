@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -209,18 +210,18 @@ public final class DotFormatter {
         DiGraphEdge<Node, ControlFlowGraph.Branch> edge = outEdges.get(i);
         DiGraphNode<Node, Branch> succ = edge.getDestination();
 
-        String toNode = null;
+        Optional<String> toNode = Optional.empty();
         if (succ == cfg.getImplicitReturn()) {
-          toNode = "RETURN";
+          toNode = Optional.of("RETURN");
         } else {
           int keySucc = key(succ.getValue());
-          toNode = formatNodeName(keySucc);
+          toNode = Optional.of(formatNodeName(keySucc));
         }
 
         edgeList[i] =
             formatNodeName(keyParent)
                 + ARROW
-                + toNode
+                + toNode.orElse("null")
                 + " [label=\""
                 + edge.getValue()
                 + "\", "

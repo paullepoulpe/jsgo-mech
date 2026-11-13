@@ -22,7 +22,7 @@ import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.base.SimpleTable;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /** Renames references in JSDoc. */
 final class Es6RenameTypeReferences extends AbstractPostOrderCallback {
@@ -65,14 +65,14 @@ final class Es6RenameTypeReferences extends AbstractPostOrderCallback {
     checkState(n.isStringLit());
     String fullName = n.getString();
     String rootName;
-    String rest;
+    Optional<String> rest;
     int endPos = fullName.indexOf('.');
     if (endPos == -1) {
       rootName = fullName;
-      rest = null;
+      rest = Optional.empty();
     } else {
       rootName = fullName.substring(0, endPos);
-      rest = fullName.substring(endPos);
+      rest = Optional.of(fullName.substring(endPos));
     }
     renameReference(t, n, rootName, rest);
   }
@@ -82,7 +82,7 @@ final class Es6RenameTypeReferences extends AbstractPostOrderCallback {
    * @param oldName The root name of a qualified name.
    * @param rest The rest of the qualified name or null.
    */
-  private void renameReference(NodeTraversal t, Node n, String oldName, @Nullable String rest) {
+  private void renameReference(NodeTraversal t, Node n, String oldName, Optional<String> rest) {
     Scope current = t.getScope();
 
     // You should be wondering:
@@ -105,15 +105,15 @@ final class Es6RenameTypeReferences extends AbstractPostOrderCallback {
     // - bradfordcsmith@google.com
     while (current != null) {
       Node currentRootNode = current.getRootNode();
-      String newName = renameTable.get(currentRootNode, oldName);
-      if (newName != null) {
+      Optional<String> newName = Optional.ofNullable(renameTable.get(currentRootNode, oldName));
+      if (newName.isPresent()) {
         checkState(
             currentRootNode.isModuleBody()
                 || currentRootNode.isScript()
                 || NodeUtil.isFunctionBlock(currentRootNode),
             "Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s",
             currentRootNode);
-        String newFullName = rest == null ? newName : newName + rest;
+        String newFullName = rest.isEmpty() ? newName.get() : newName.get() + rest.get();
         n.setString(newFullName);
         return;
       } else if (current.hasOwnSlot(oldName)) {

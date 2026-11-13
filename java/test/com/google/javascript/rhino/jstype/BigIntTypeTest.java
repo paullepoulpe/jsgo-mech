@@ -45,6 +45,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.javascript.rhino.testing.Asserts;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
 import com.google.javascript.rhino.testing.MapBasedScope;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,8 +66,8 @@ public class BigIntTypeTest extends BaseJSTypeTestCase {
       MapBasedScope scope = new MapBasedScope(ImmutableMap.of("goog", googObject));
       functionType = FunctionType.builder(registry).withReturnType(NUMBER_TYPE).build();
       errorReporter.expectAllWarnings("Bad type annotation. Unknown type not.resolved.named.type");
-      unresolvedNamedType = registry.createNamedType(scope, "not.resolved.named.type", "", -1, -1);
-      enumType = EnumType.builder(registry).setName("Enum").setElementType(BIGINT_TYPE).build();
+      unresolvedNamedType = registry.createNamedType(scope, "not.resolved.named.type", Optional.of(""), -1, -1);
+      enumType = EnumType.builder(registry).setName(Optional.of("Enum")).setElementType(BIGINT_TYPE).build();
       elementsType = enumType.getElementsType();
     }
   }
@@ -172,7 +173,7 @@ public class BigIntTypeTest extends BaseJSTypeTestCase {
 
   private EnumElementType enumElementFor(JSType type) {
     return EnumType.builder(registry)
-        .setName("Enum")
+        .setName(Optional.of("Enum"))
         .setElementType(type)
         .build()
         .getElementsType();
@@ -391,10 +392,10 @@ public class BigIntTypeTest extends BaseJSTypeTestCase {
   public void testToString() {
     assertThat(BIGINT_TYPE.toString()).isEqualTo("bigint");
     assertThat(BIGINT_TYPE.hasDisplayName()).isTrue();
-    assertThat(BIGINT_TYPE.getDisplayName()).isEqualTo("bigint");
+    assertThat(BIGINT_TYPE.getDisplayName().orElse(null)).isEqualTo("bigint");
     assertThat(BIGINT_OBJECT_TYPE.toString()).isEqualTo("BigInt");
     assertThat(BIGINT_OBJECT_TYPE.hasDisplayName()).isTrue();
-    assertThat(BIGINT_OBJECT_TYPE.getDisplayName()).isEqualTo("BigInt");
+    assertThat(BIGINT_OBJECT_TYPE.getDisplayName().orElse(null)).isEqualTo("BigInt");
   }
 
   @Test

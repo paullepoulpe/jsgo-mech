@@ -26,6 +26,7 @@ import com.google.errorprone.annotations.InlineMe;
 import com.google.javascript.jscomp.base.Outcome;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -193,12 +194,12 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
       @Nullable DependencyMode dependencyModeFlag,
       List<String> entryPointFlag,
       List<String> closureEntryPointFlag,
-      String commonJsEntryModuleFlag,
+      Optional<String> commonJsEntryModuleFlag,
       boolean manageClosureDependenciesFlag,
       boolean onlyClosureDependenciesFlag) {
 
     boolean hasEntryPoint =
-        commonJsEntryModuleFlag != null
+        commonJsEntryModuleFlag.isPresent()
             || !entryPointFlag.isEmpty()
             || !closureEntryPointFlag.isEmpty();
 
@@ -226,7 +227,7 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
           new FlagUsageException("--closure_entry_point cannot be used with --entry_point."));
     }
 
-    if (commonJsEntryModuleFlag != null
+    if (commonJsEntryModuleFlag.isPresent()
         && (!entryPointFlag.isEmpty() || !closureEntryPointFlag.isEmpty())) {
       return Outcome.err(new FlagUsageException(
           "--common_js_entry_module cannot be used with either --entry_point or "
@@ -264,8 +265,8 @@ public record DependencyOptions(DependencyMode mode, ImmutableList<ModuleIdentif
     }
 
     ImmutableList.Builder<ModuleIdentifier> entryPointsBuilder = ImmutableList.builder();
-    if (commonJsEntryModuleFlag != null) {
-      entryPointsBuilder.add(ModuleIdentifier.forFile(commonJsEntryModuleFlag));
+    if (commonJsEntryModuleFlag.isPresent()) {
+      entryPointsBuilder.add(ModuleIdentifier.forFile(commonJsEntryModuleFlag.get()));
     }
     for (String entryPoint : entryPointFlag) {
       entryPointsBuilder.add(ModuleIdentifier.forFlagValue(entryPoint));

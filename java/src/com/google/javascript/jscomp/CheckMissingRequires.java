@@ -28,6 +28,7 @@ import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.QualifiedName;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -219,8 +220,8 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
       visitJsDocExpr(t, currentModule, info.getType(), Strength.WEAK_TYPE);
     }
     for (String param : info.getParameterNames()) {
-      if (info.hasParameterType(param)) {
-        visitJsDocExpr(t, currentModule, info.getParameterType(param), Strength.WEAK_TYPE);
+      if (info.hasParameterType(Optional.of(param))) {
+        visitJsDocExpr(t, currentModule, info.getParameterType(Optional.of(param)), Strength.WEAK_TYPE);
       }
     }
     if (info.hasReturnType()) {
@@ -327,7 +328,7 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
       }
 
       // Not destructured.
-      if (require.property() == null) {
+      if (require.property().isEmpty()) {
         return;
       }
 
@@ -342,7 +343,7 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
         return;
       }
 
-      String reference = require.namespace() + '.' + require.property();
+      String reference = require.namespace() + '.' + require.property().get();
 
       // Do not report references to a namespace provided in the same file, and do not recurse
       // into parent namespaces either.
@@ -484,7 +485,8 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
       // Find longest prefix match that is actually a provide/legacy namespace, if any.
       ModuleMetadata originalImport = null;
       for (QualifiedName subName = aliasedName; subName != null; subName = subName.getOwner()) {
-        ModuleMetadata imported = moduleByNamespace.get(subName.join());
+        Optional<String> joined = subName.join();
+        ModuleMetadata imported = joined.isPresent() ? moduleByNamespace.get(joined.get()) : null;
         if (imported != null) {
           originalImport = imported;
           break;
@@ -584,12 +586,12 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
     for (QualifiedName subName = normalizedQualifiedName;
         subName != null;
         subName = subName.getOwner()) {
-      String namespace = subName.join();
-      if (isAllowedNamespace(currentFile, namespace)) {
+      Optional<String> namespace = subName.join();
+      if (isAllowedNamespace(currentFile, namespace.get())) {
         return;
       }
 
-      ModuleMetadata requiredFile = moduleByNamespace.get(namespace);
+      ModuleMetadata requiredFile = namespace.isPresent() ? moduleByNamespace.get(namespace.get()) : null;
       if (requiredFile == null) {
         // Not a known namespace check the parent
         continue;
@@ -632,7 +634,7 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
           for (int i = 0; i < diff && errorNode.isGetProp(); i++) {
             errorNode = errorNode.getFirstChild();
           }
-          t.report(NodeUtil.getRootOfQualifiedName(errorNode), errorNode, toReport, namespace);
+          t.report(NodeUtil.getRootOfQualifiedName(errorNode), errorNode, toReport, namespace.orElse("null"));
         } else {
           // JSDoc reference case
           // Trim the original qualified name from the source text by the same difference.
@@ -641,15 +643,15 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
             errorQName = errorQName.getOwner();
           }
 
-          String correctName = errorQName.join();
+          Optional<String> correctName = errorQName.join();
           // For JSDoc, the entire qualified name is a single STRINGLIT node.
           // To report the error on the correct sub-expression, we create a new
           // temporary node with the correct string and length.
           Node newErrorNode = n.cloneNode();
-          newErrorNode.setString(correctName);
-          newErrorNode.setLength(correctName.length());
+          newErrorNode.setString(correctName.get());
+          newErrorNode.setLength(correctName.get().length());
 
-          t.report(newErrorNode, toReport, namespace);
+          t.report(newErrorNode, toReport, namespace.orElse("null"));
         }
       }
 
@@ -677,12 +679,12 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
 
     // Look for the longest prefix match against a provided namespace.
     for (QualifiedName subName = qualifiedName; subName != null; subName = subName.getOwner()) {
-      String namespace = subName.join();
-      if (isAllowedNamespace(currentFile, namespace)) {
+      Optional<String> namespace = subName.join();
+      if (isAllowedNamespace(currentFile, namespace.get())) {
         return;
       }
 
-      ModuleMetadata requiredFile = moduleByNamespace.get(namespace);
+      ModuleMetadata requiredFile = namespace.isPresent() ? moduleByNamespace.get(namespace.get()) : null;
       if (requiredFile == null) {
         // Not a known namespace check the parent
         continue;
@@ -715,7 +717,7 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
         return;
       }
 
-      t.report(n, toReport, namespace, fileName);
+      t.report(n, toReport, namespace.orElse("null"), fileName);
       return;
     }
   }
@@ -728,8 +730,8 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
       QualifiedName qualifiedName, NodeUtil.GoogRequire imported) {
     QualifiedName newQName = QualifiedName.of(imported.namespace());
 
-    if (imported.property() != null) {
-      newQName = newQName.getprop(imported.property());
+    if (imported.property().isPresent()) {
+      newQName = newQName.getprop(imported.property().get());
     }
     return swapRootOfQualifiedName(qualifiedName, newQName);
   }
@@ -794,7 +796,8 @@ public class CheckMissingRequires extends AbstractModuleCallback implements Comp
     acceptableRequires = Sets.intersection(acceptableRequires, dep.googNamespaces().elementSet());
 
     for (QualifiedName parent = namespace; parent != null; parent = parent.getOwner()) {
-      if (acceptableRequires.contains(parent.join())) {
+      Optional<String> joined = parent.join();
+      if (joined.isPresent() && acceptableRequires.contains(joined.get())) {
         return true;
       }
     }

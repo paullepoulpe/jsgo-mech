@@ -46,6 +46,7 @@ import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.rhino.testing.Asserts;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
 import com.google.javascript.rhino.testing.MapBasedScope;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,33 +69,33 @@ public class UnionTypeTest extends BaseJSTypeTestCase {
       this.base =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Base")
+              .withName(Optional.of("Base"))
               .build()
               .getInstanceType();
       this.baseNameConflict =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Base")
+              .withName(Optional.of("Base"))
               .build()
               .getInstanceType();
       this.sub1 =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Sub1")
+              .withName(Optional.of("Sub1"))
               .withPrototypeBasedOn(base)
               .build()
               .getInstanceType();
       this.sub2 =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Sub2")
+              .withName(Optional.of("Sub2"))
               .withPrototypeBasedOn(base)
               .build()
               .getInstanceType();
       this.sub3 =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Sub3")
+              .withName(Optional.of("Sub3"))
               .withPrototypeBasedOn(base)
               .build()
               .getInstanceType();
@@ -137,7 +138,7 @@ public class UnionTypeTest extends BaseJSTypeTestCase {
   public void testUnionOfNullAndUnresolvedNamedType() {
     errorReporter.expectAllWarnings("Bad type annotation. Unknown type not.resolved.named.type");
     NamedType unresolvedNamedType =
-        registry.createNamedType(EMPTY_SCOPE, "not.resolved.named.type", "", -1, -1);
+        registry.createNamedType(EMPTY_SCOPE, "not.resolved.named.type", Optional.of(""), -1, -1);
     UnionType nullOrUnknown = (UnionType) createUnionType(NULL_TYPE, unresolvedNamedType);
     assertThat(nullOrUnknown.isUnknownType()).isTrue();
     assertType(NULL_TYPE.getLeastSupertype(nullOrUnknown)).isEqualTo(nullOrUnknown);

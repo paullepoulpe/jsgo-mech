@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -95,7 +96,7 @@ public final class SourceMap {
      * @param location the location to transform
      * @return the transformed location or null if not transformed
      */
-    @Nullable String map(String location);
+    Optional<String> map(Optional<String> location);
   }
 
   /** Simple {@link LocationMapping} that strips a prefix from a location. */
@@ -109,11 +110,11 @@ public final class SourceMap {
     }
 
     @Override
-    public @Nullable String map(String location) {
-      if (location.startsWith(prefix)) {
-        return replacement + location.substring(prefix.length());
+    public Optional<String> map(Optional<String> location) {
+      if (location.get().startsWith(prefix)) {
+        return Optional.of(replacement + location.get().substring(prefix.length()));
       }
-      return null;
+      return Optional.empty();
     }
 
     public String toString() {
@@ -182,10 +183,10 @@ public final class SourceMap {
       return;
     }
 
-    String sourceFileName = sourceFile.getName();
+    Optional<String> sourceFileName = Optional.of(sourceFile.getName());
     int lineNo = node.getLineno();
     int charNo = node.getCharno();
-    String originalName = SourceMap.getOriginalName(node);
+    Optional<String> originalName = Optional.of(SourceMap.getOriginalName(node)).filter(s -> !s.isEmpty());
 
     if (mapping != null) {
       OriginalMapping sourceMapping = mapping.getSourceMapping(sourceFileName, lineNo, charNo);
@@ -200,12 +201,12 @@ public final class SourceMap {
         return;
       } else {
         // The source file mapped our code range to its original source location.
-        sourceFileName = sourceMapping.getOriginalFile();
+        sourceFileName = Optional.ofNullable(sourceMapping.getOriginalFile());
         lineNo = sourceMapping.getLineNumber();
         charNo = sourceMapping.getColumnPosition();
         String identifier = sourceMapping.getIdentifier();
         if (sourceMapping.hasIdentifier() && !identifier.isEmpty()) {
-          originalName = identifier;
+          originalName = Optional.of(identifier);
         }
       }
     }
@@ -217,19 +218,19 @@ public final class SourceMap {
     int lineBaseOffset = 1;
 
     generator.addMapping(
-        sourceFileName,
-        originalName,
+        sourceFileName.orElse(""),
+        originalName.orElse(""),
         new FilePosition(lineNo - lineBaseOffset, charNo),
         outputStartPosition,
         outputEndPosition);
   }
 
   public void addSourceFile(String name, String code) {
-    generator.addSourcesContent(fixupSourceLocation(name), code);
+    generator.addSourcesContent(fixupSourceLocation(Optional.of(name)).orElse(null), code);
   }
 
-  private static @Nullable String getOriginalName(Node node) {
-    if (node.getOriginalName() != null) {
+  private static String getOriginalName(Node node) {
+    if (!node.getOriginalName().isEmpty()) {
       return node.getOriginalName();
     }
     // If this is the name identifier of a function declaration/expression and the name node itself
@@ -248,41 +249,44 @@ public final class SourceMap {
     if (node.isMemberFunctionDef()) {
       return node.getFirstChild().getOriginalName();
     }
-    return null;
+    return "";
   }
 
   /**
    * @param sourceFile The source file location to fixup.
    * @return a remapped source file.
    */
-  private String fixupSourceLocation(String sourceFile) {
+  private Optional<String> fixupSourceLocation(Optional<String> sourceFile) {
     if (prefixMappings.isEmpty()) {
       return sourceFile;
     }
 
-    String fixed = sourceLocationFixupCache.get(sourceFile);
-    if (fixed != null) {
+    Optional<String> fixed =
+        sourceFile.isPresent()
+            ? Optional.ofNullable(sourceLocationFixupCache.get(sourceFile.get()))
+            : Optional.empty();
+    if (fixed.isPresent()) {
       return fixed;
     }
 
     // Replace the first prefix found with its replacement
     for (LocationMapping mapping : prefixMappings) {
       fixed = mapping.map(sourceFile);
-      if (fixed != null) {
+      if (fixed.isPresent()) {
         break;
       }
     }
 
     // If none of the mappings match then use the original file path.
-    if (fixed == null) {
+    if (fixed.isEmpty()) {
       fixed = sourceFile;
     }
 
-    sourceLocationFixupCache.put(sourceFile, fixed);
+    sourceLocationFixupCache.put(sourceFile.orElse(null), fixed.orElse(null));
     return fixed;
   }
 
-  public void appendTo(Appendable out, String name) throws IOException {
+  public void appendTo(Appendable out, Optional<String> name) throws IOException {
     generator.appendTo(out, fixupSourceLocation(name));
   }
 

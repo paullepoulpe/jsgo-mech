@@ -46,8 +46,8 @@ public final class LoggerErrorManager extends BasicErrorManager {
   @Override
   public void println(CheckLevel level, JSError error) {
     switch (level) {
-      case ERROR -> logger.severe(error.format(level, formatter));
-      case WARNING -> logger.warning(error.format(level, formatter));
+      case ERROR -> logger.severe(error.format(level, formatter).orElseThrow());
+      case WARNING -> logger.warning(error.format(level, formatter).orElseThrow());
       case OFF -> {}
     }
   }

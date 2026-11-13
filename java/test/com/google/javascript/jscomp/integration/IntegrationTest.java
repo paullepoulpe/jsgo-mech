@@ -60,6 +60,7 @@ import com.google.javascript.jscomp.testing.TestExternsBuilder;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -1336,8 +1337,8 @@ public final class IntegrationTest extends IntegrationTestCase {
             "xid",
             new RenamingMap() {
               @Override
-              public String get(String value) {
-                return ":" + value + ":";
+              public Optional<String> get(String value) {
+                return Optional.ofNullable(":" + value + ":");
               }
             }));
 
@@ -3095,7 +3096,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     String code = "var a;";
 
     options.setSkipNonTranspilationPasses(true);
-    options.setSourceMapOutputPath("./src.map");
+    options.setSourceMapOutputPath(Optional.of("./src.map"));
 
     Compiler compiler = compile(options, code);
     compiler.toSource();
@@ -3981,7 +3982,7 @@ public final class IntegrationTest extends IntegrationTestCase {
   public void testRenamePrefix() {
     String code = "var x = {}; function f(y) {}";
     CompilerOptions options = createCompilerOptions();
-    options.setRenamePrefix("G_");
+    options.setRenamePrefix(Optional.of("G_"));
     options.setVariableRenaming(VariableRenamingPolicy.ALL);
     test(options, code, "var G_={}; function G_a(a) {}");
   }
@@ -3994,7 +3995,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     testSame(options, code);
 
     options.setCollapsePropertiesLevel(PropertyCollapseLevel.ALL);
-    options.setRenamePrefixNamespace("_");
+    options.setRenamePrefixNamespace(Optional.of("_"));
     test(options, code, "_.x$FOO = 5; _.x$bar = 3;");
   }
 
@@ -4003,7 +4004,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     String code = "if (true) { function f() {} } if (true) { function f() {} }";
 
     CompilerOptions options = createCompilerOptions();
-    options.setRenamePrefixNamespace("_");
+    options.setRenamePrefixNamespace(Optional.of("_"));
 
     // In the ES6 spec: function declarations are always block-scoped.
     // In the ES5 spec, this changes between browsers & strict / sloppy mode.
@@ -4021,7 +4022,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     String code = "if (true) { function f() {} } if (true) { function f() {} }";
 
     CompilerOptions options = createCompilerOptions();
-    options.setRenamePrefixNamespace("_");
+    options.setRenamePrefixNamespace(Optional.of("_"));
 
     // In the ES6 spec: function declarations are always block-scoped.
     // In the ES5 spec, this changes between browsers & strict / sloppy mode.
@@ -4036,7 +4037,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     String code = "if (true) { function f() {} } if (true) { function f() {} }";
 
     CompilerOptions options = createCompilerOptions();
-    options.setRenamePrefixNamespace("_");
+    options.setRenamePrefixNamespace(Optional.of("_"));
 
     // In the ES6 spec: function declarations are always block-scoped.
     // In the ES5 spec, this changes between browsers & strict / sloppy mode.
@@ -4066,7 +4067,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     testSame(options, code);
 
     CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-    options.setRenamePrefixNamespace("_");
+    options.setRenamePrefixNamespace(Optional.of("_"));
     test(options, code, "_.x = null; try { +_.x.FOO; } catch (a) {}");
   }
 
@@ -4098,7 +4099,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     testSame(options, code);
 
     CompilationLevel.SIMPLE_OPTIMIZATIONS.setOptionsForCompilationLevel(options);
-    options.setRenamePrefixNamespace("a");
+    options.setRenamePrefixNamespace(Optional.of("a"));
     options.setVariableRenaming(VariableRenamingPolicy.ALL);
     options.setRenamePrefixNamespaceAssumeCrossChunkNames(false);
     WarningLevel.DEFAULT.setOptionsForWarningLevel(options);
@@ -4112,7 +4113,7 @@ public final class IntegrationTest extends IntegrationTestCase {
     String code = "var x = f; function f() { return 3; }";
     testSame(options, code);
     assertThat(options.shouldRewriteGlobalDeclarationsForTryCatchWrapping()).isFalse();
-    options.setRenamePrefixNamespace("_");
+    options.setRenamePrefixNamespace(Optional.of("_"));
     test(options, code, "_.f = function() { return 3; }; _.x = _.f;");
   }
 
@@ -4854,7 +4855,7 @@ async function abc() {
     // A bug in Es6RewriteClasses meant we were putting the wrong `originalName` on some nodes.
     CompilerOptions options = createCompilerOptions();
     // force SourceInformationAnnotator to run
-    options.setExternExportsPath("exports.js");
+    options.setExternExportsPath(Optional.of("exports.js"));
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
     options.setClosurePass(true);
 

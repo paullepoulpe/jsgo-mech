@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -33,6 +32,7 @@ import com.google.javascript.rhino.jstype.FunctionType;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSType.Nullability;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** This class walks the AST and validates that the structure is correct. */
@@ -939,7 +939,7 @@ public final class AstValidator implements CompilerPass {
 
   private void validateHasSourceName(Node n) {
     String sourceName = n.getSourceFileName();
-    if (isNullOrEmpty(sourceName)) {
+    if (sourceName.isEmpty()) {
       violation("Missing 'source name' annotation.", n);
     }
   }
@@ -1002,7 +1002,7 @@ public final class AstValidator implements CompilerPass {
     validateNonNullString(n);
     validateProperties(n);
     validateChildCount(n);
-    boolean isEmpty = n.getString() != null && n.getString().isEmpty();
+    boolean isEmpty = n.getString().isEmpty();
     if (!isEmpty) {
       validateTypeInformation(n);
     }

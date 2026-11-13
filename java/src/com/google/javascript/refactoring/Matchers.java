@@ -25,7 +25,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.JSType;
 import com.google.javascript.rhino.jstype.JSTypeNative;
 import com.google.re2j.Pattern;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Class that contains common Matchers that are useful to everyone.
@@ -94,7 +94,7 @@ public final class Matchers {
    * Returns a matcher that matches any constructor definitions.
    */
   public static Matcher constructor() {
-    return constructor(null);
+    return constructor(Optional.empty());
   }
 
   /**
@@ -102,7 +102,7 @@ public final class Matchers {
    *
    * @param name The name of the class constructor to match.
    */
-  public static Matcher constructor(final @Nullable String name) {
+  public static Matcher constructor(final Optional<String> name) {
     return new Matcher() {
       @Override public boolean matches(Node node, NodeMetadata metadata) {
         JSDocInfo info = node.getJSDocInfo();
@@ -113,11 +113,11 @@ public final class Matchers {
           //   /** @constructor */
           //   name: function() {}
           // }
-          if (name == null) {
+          if (name.isEmpty()) {
             return true;
           }
           if ((firstChild.isGetProp() || firstChild.isName())
-              && firstChild.matchesQualifiedName(name)) {
+              && firstChild.matchesQualifiedName(name.get())) {
             return true;
           }
         }
@@ -168,7 +168,7 @@ public final class Matchers {
    * Returns a Matcher that matches any function call.
    */
   public static Matcher functionCall() {
-    return functionCall(null);
+    return functionCall(Optional.empty());
   }
 
   /**
@@ -179,7 +179,7 @@ public final class Matchers {
    *     ns.AppContext.prototype.get} will match {@code appContext.get} and {@code this.get} when
    *     called from the AppContext class.
    */
-  public static Matcher functionCall(final @Nullable String name) {
+  public static Matcher functionCall(final Optional<String> name) {
     return new Matcher() {
       @Override
       public boolean matches(Node node, NodeMetadata metadata) {
@@ -212,7 +212,7 @@ public final class Matchers {
    *     AppContext class.
    */
   public static Matcher functionCallWithNumArgs(final String name, final int numArgs) {
-    return allOf(functionCallWithNumArgs(numArgs), functionCall(name));
+    return allOf(functionCallWithNumArgs(numArgs), functionCall(Optional.of(name)));
   }
 
   public static Matcher googRequirelike(final String namespace) {
@@ -227,30 +227,30 @@ public final class Matchers {
   }
 
   public static Matcher googRequire() {
-    return functionCall("goog.require");
+    return functionCall(Optional.of("goog.require"));
   }
 
   public static Matcher googRequireType() {
-    return functionCall("goog.requireType");
+    return functionCall(Optional.of("goog.requireType"));
   }
 
   public static Matcher googForwardDeclare() {
-    return functionCall("goog.forwardDeclare");
+    return functionCall(Optional.of("goog.forwardDeclare"));
   }
 
   public static Matcher googModule() {
-    return functionCall("goog.module");
+    return functionCall(Optional.of("goog.module"));
   }
 
   public static Matcher googModuleOrProvide() {
-    return anyOf(googModule(), functionCall("goog.provide"));
+    return anyOf(googModule(), functionCall(Optional.of("goog.provide")));
   }
 
   /**
    * Returns a Matcher that matches any property access.
    */
   public static Matcher propertyAccess() {
-    return propertyAccess(null);
+    return propertyAccess(Optional.empty());
   }
 
   /**
@@ -261,18 +261,18 @@ public final class Matchers {
    *     ns.AppContext.prototype.root} will match {@code appContext.root} and {@code this.root} when
    *     accessed from the AppContext.
    */
-  public static Matcher propertyAccess(final @Nullable String name) {
+  public static Matcher propertyAccess(final Optional<String> name) {
     return new Matcher() {
       @Override
       public boolean matches(Node node, NodeMetadata metadata) {
         if (node.isGetProp()) {
-          if (name == null) {
+          if (name.isEmpty()) {
             return true;
           }
-          if (node.matchesQualifiedName(name)) {
+          if (node.matchesQualifiedName(name.get())) {
             return true;
-          } else if (name.contains(".prototype.")) {
-            return matchesPrototypeInstanceVar(node, metadata, name);
+          } else if (name.get().contains(".prototype.")) {
+            return matchesPrototypeInstanceVar(node, metadata, name.get());
           }
         }
         return false;

@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -210,7 +211,6 @@ class FunctionInjector {
     //    large performance implications.
 
     final String fnRecursionName = fnNode.getFirstChild().getString();
-    checkState(fnRecursionName != null);
 
     // If the function references "arguments" directly in the function or in an arrow function
     boolean referencesArguments =
@@ -325,7 +325,7 @@ class FunctionInjector {
   }
 
   /** Inline a function into the call site. */
-  Node inline(Reference ref, String fnName, Node fnNode) {
+  Node inline(Reference ref, Optional<String> fnName, Node fnNode) {
     checkState(compiler.getLifeCycleStage().isNormalized());
     return internalInline(ref, fnName, fnNode);
   }
@@ -336,15 +336,16 @@ class FunctionInjector {
    * of code you're inlining is safe without being normalized first.
    */
   Node unsafeInline(Reference ref, String fnName, Node fnNode) {
-    return internalInline(ref, fnName, fnNode);
+    return internalInline(ref, Optional.of(fnName), fnNode);
   }
 
-  private Node internalInline(Reference ref, String fnName, Node fnNode) {
+  private Node internalInline(Reference ref, Optional<String> fnName, Node fnNode) {
     Node result;
     if (ref.mode == InliningMode.DIRECT) {
       result = inlineReturnValue(ref, fnNode);
     } else {
-      result = inlineFunction(ref, fnNode, fnName);
+      // The name is only used for labels, where no name and "" are the same.
+      result = inlineFunction(ref, fnNode, fnName.orElse(""));
     }
     compiler.reportChangeToEnclosingScope(result);
     return result;
@@ -568,19 +569,19 @@ class FunctionInjector {
     // Store the name for the result. This will be used to
     // replace "return expr" statements with "resultName = expr"
     // to replace
-    String resultName = null;
+    Optional<String> resultName = Optional.empty();
     boolean needsDefaultReturnResult = true;
     switch (callSiteType) {
       case SIMPLE_ASSIGNMENT -> {
-        resultName = parent.getFirstChild().getString();
-        removeConstantVarAnnotation(ref.scope, resultName);
+        resultName = Optional.of(parent.getFirstChild().getString());
+        removeConstantVarAnnotation(ref.scope, resultName.get());
       }
       case VAR_DECL_SIMPLE_ASSIGNMENT -> {
-        resultName = parent.getString();
-        removeConstantVarAnnotation(ref.scope, resultName);
+        resultName = Optional.of(parent.getString());
+        removeConstantVarAnnotation(ref.scope, resultName.get());
       }
       case SIMPLE_CALL -> {
-        resultName = null; // "foo()" doesn't need a result.
+        resultName = Optional.empty(); // "foo()" doesn't need a result.
         needsDefaultReturnResult = false;
       }
       case EXPRESSION ->

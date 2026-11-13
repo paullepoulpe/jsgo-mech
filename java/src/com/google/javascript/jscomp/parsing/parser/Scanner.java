@@ -27,6 +27,7 @@ import com.google.javascript.jscomp.parsing.parser.util.SourcePosition;
 import com.google.javascript.jscomp.parsing.parser.util.SourceRange;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -806,9 +807,9 @@ public class Scanner {
       ch = peekChar();
     }
 
-    String value = contents.substring(valueStartIndex, index);
+    Optional<String> value = Optional.of(contents.substring(valueStartIndex, index));
 
-    if (isPrivateIdentifier && value.equals("#")) {
+    if (isPrivateIdentifier && value.get().equals("#")) {
       reportError(getPosition(beginToken), "Invalid usage of #");
       return createToken(TokenType.ERROR, beginToken);
     }
@@ -816,7 +817,7 @@ public class Scanner {
     // Process unicode escapes.
     if (containsUnicodeEscape) {
       value = processUnicodeEscapes(value);
-      if (value == null) {
+      if (value.isEmpty()) {
         reportError(getPosition(index), "Invalid escape sequence");
         return createToken(TokenType.ERROR, beginToken);
       }
@@ -824,10 +825,10 @@ public class Scanner {
 
     // Check to make sure the first character (or the unicode escape at the
     // beginning of the identifier) is a valid identifier start character.
-    char start = value.charAt(0);
+    char start = value.get().charAt(0);
     if (isPrivateIdentifier) {
       // Skip the leading # for name validation.
-      start = value.charAt(1);
+      start = value.get().charAt(1);
     }
     if (!Identifiers.isIdentifierStart(start)) {
       reportError(
@@ -838,49 +839,49 @@ public class Scanner {
       return createToken(TokenType.ERROR, beginToken);
     }
 
-    Keywords k = Keywords.getString(value);
+    Keywords k = Keywords.getString(value.orElseThrow());
     // Keywords containing unicode escape sequences are treated as IdentifierTokens rather than
     // keyword Tokens (ECMA-262 11.6.2).
     if (k != null && !containsUnicodeEscape) {
       return new Token(k.type, getTokenRange(beginToken));
     }
 
-    return new IdentifierToken(getTokenRange(beginToken), value);
+    return new IdentifierToken(getTokenRange(beginToken), value.get());
   }
 
   /**
    * Converts unicode escapes in the given string to the equivalent unicode character. If there are
    * no escapes, returns the input unchanged. If there is an invalid escape sequence, returns null.
    */
-  private static @Nullable String processUnicodeEscapes(String value) {
-    while (value.contains("\\")) {
-      int escapeStart = value.indexOf('\\');
+  private static Optional<String> processUnicodeEscapes(Optional<String> value) {
+    while (value.get().contains("\\")) {
+      int escapeStart = value.get().indexOf('\\');
       try {
-        if (value.charAt(escapeStart + 1) != 'u') {
-          return null;
+        if (value.get().charAt(escapeStart + 1) != 'u') {
+          return Optional.empty();
         }
 
         String hexDigits;
         int escapeEnd;
-        if (value.charAt(escapeStart + 2) != '{') {
+        if (value.get().charAt(escapeStart + 2) != '{') {
           // Simple escape with exactly four hex digits: \\uXXXX
           escapeEnd = escapeStart + 6;
           // TODO(b/155480859): Don't trust String#substring to throw on out of bounds. J2CL
           // implements it incorrectly.
-          if (escapeEnd > value.length()) {
-            return null;
+          if (escapeEnd > value.get().length()) {
+            return Optional.empty();
           }
-          hexDigits = value.substring(escapeStart + 2, escapeEnd);
+          hexDigits = value.get().substring(escapeStart + 2, escapeEnd);
         } else {
           // Escape with braces can have any number of hex digits: \\u{XXXXXXX}
           escapeEnd = escapeStart + 3;
-          while (isHexDigit(value.charAt(escapeEnd))) {
+          while (isHexDigit(value.get().charAt(escapeEnd))) {
             escapeEnd++;
           }
-          if (value.charAt(escapeEnd) != '}') {
-            return null;
+          if (value.get().charAt(escapeEnd) != '}') {
+            return Optional.empty();
           }
-          hexDigits = value.substring(escapeStart + 3, escapeEnd);
+          hexDigits = value.get().substring(escapeStart + 3, escapeEnd);
           escapeEnd++;
         }
         // Identifiers are carried around the compiler as sequences of char (UTF-16 code
@@ -892,15 +893,15 @@ public class Scanner {
         // TODO(mattloring): Allow code points >= 0xFFFF (greater than the size of a char).
         int codePoint = Integer.parseInt(hexDigits, 0x10);
         if (codePoint > 0xFFFF) {
-          return null;
+          return Optional.empty();
         }
         char ch = (char) codePoint;
         if (!Identifiers.isIdentifierPart(ch)) {
-          return null;
+          return Optional.empty();
         }
-        value = value.substring(0, escapeStart) + ch + value.substring(escapeEnd);
+        value = Optional.of(value.get().substring(0, escapeStart) + ch + value.get().substring(escapeEnd));
       } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
-        return null;
+        return Optional.empty();
       }
     }
     return value;
@@ -959,7 +960,7 @@ public class Scanner {
         yield new TemplateLiteralToken(
             endType,
             value,
-            skipTemplateCharactersResult.getErrorMessage(),
+            skipTemplateCharactersResult.getErrorMessage().orElse(""),
             skipTemplateCharactersResult.getErrorLevel(),
             skipTemplateCharactersResult.getPosition(),
             getTokenRangeSourcePosition(startingPosition));
@@ -970,7 +971,7 @@ public class Scanner {
         yield new TemplateLiteralToken(
             middleType,
             value,
-            skipTemplateCharactersResult.getErrorMessage(),
+            skipTemplateCharactersResult.getErrorMessage().orElse(""),
             skipTemplateCharactersResult.getErrorLevel(),
             skipTemplateCharactersResult.getPosition(),
             getTokenRangeSourcePosition(startingPosition));
@@ -980,7 +981,7 @@ public class Scanner {
           new TemplateLiteralToken(
               endType,
               value,
-              skipTemplateCharactersResult.getErrorMessage(),
+              skipTemplateCharactersResult.getErrorMessage().orElse(""),
               skipTemplateCharactersResult.getErrorLevel(),
               skipTemplateCharactersResult.getPosition(),
               getTokenRangeSourcePosition(startingPosition));
@@ -1004,7 +1005,7 @@ public class Scanner {
   }
 
   private SkipTemplateCharactersResult skipTemplateCharacters() {
-    SkipTemplateCharactersResult result = createSkipTemplateCharactersResult(null, null);
+    SkipTemplateCharactersResult result = createSkipTemplateCharactersResult(Optional.empty(), null);
     while (!isAtEnd()) {
       switch (peekChar()) {
         case '`':
@@ -1047,17 +1048,17 @@ public class Scanner {
     switch (next) {
       case '0' -> {
         if (isDecimalDigit(peekChar())) {
-          return createSkipTemplateCharactersResult("Invalid escape sequence", ErrorLevel.ERROR);
+          return createSkipTemplateCharactersResult(Optional.of("Invalid escape sequence"), ErrorLevel.ERROR);
         }
         return null;
       }
       case '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-        return createSkipTemplateCharactersResult("Invalid escape sequence", ErrorLevel.ERROR);
+        return createSkipTemplateCharactersResult(Optional.of("Invalid escape sequence"), ErrorLevel.ERROR);
       }
       case 'x' -> {
         boolean doubleHexDigit = skipHexDigit() && skipHexDigit();
         if (!doubleHexDigit) {
-          return createSkipTemplateCharactersResult("Hex digit expected", ErrorLevel.ERROR);
+          return createSkipTemplateCharactersResult(Optional.of("Hex digit expected"), ErrorLevel.ERROR);
         }
         return null;
       }
@@ -1065,14 +1066,14 @@ public class Scanner {
         if (peek('{')) {
           nextChar();
           if (peek('}')) {
-            return createSkipTemplateCharactersResult("Empty unicode escape", ErrorLevel.ERROR);
+            return createSkipTemplateCharactersResult(Optional.of("Empty unicode escape"), ErrorLevel.ERROR);
           }
           boolean allHexDigits = true;
           while (!peek('}') && allHexDigits) {
             allHexDigits = allHexDigits && skipHexDigit();
           }
           if (!allHexDigits) {
-            return createSkipTemplateCharactersResult("Hex digit expected", ErrorLevel.ERROR);
+            return createSkipTemplateCharactersResult(Optional.of("Hex digit expected"), ErrorLevel.ERROR);
           }
           nextChar();
           return null;
@@ -1080,7 +1081,7 @@ public class Scanner {
           boolean quadHexDigit =
               skipHexDigit() && skipHexDigit() && skipHexDigit() && skipHexDigit();
           if (!quadHexDigit) {
-            return createSkipTemplateCharactersResult("Hex digit expected", ErrorLevel.ERROR);
+            return createSkipTemplateCharactersResult(Optional.of("Hex digit expected"), ErrorLevel.ERROR);
           }
           return null;
         }
@@ -1093,12 +1094,12 @@ public class Scanner {
       case '\'' -> {
         // special the error message for a single quote
         return createSkipTemplateCharactersResult(
-            lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", next, next),
+            Optional.of(lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", next, next)),
             ErrorLevel.WARNING);
       }
       default -> {
         return createSkipTemplateCharactersResult(
-            lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", next, next),
+            Optional.of(lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", next, next)),
             ErrorLevel.WARNING);
       }
     }
@@ -1361,23 +1362,23 @@ public class Scanner {
   }
 
   private SkipTemplateCharactersResult createSkipTemplateCharactersResult(
-      @Nullable String message, @Nullable ErrorLevel errorLevel) {
+      Optional<String> message, @Nullable ErrorLevel errorLevel) {
     return new SkipTemplateCharactersResult(message, errorLevel, getPosition());
   }
 
   private static class SkipTemplateCharactersResult {
-    private final @Nullable String errorMessage;
+    private final Optional<String> errorMessage;
     private final SourcePosition position;
     private final @Nullable ErrorLevel errorLevel;
 
     SkipTemplateCharactersResult(
-        @Nullable String message, @Nullable ErrorLevel errorLevel, SourcePosition position) {
+        Optional<String> message, @Nullable ErrorLevel errorLevel, SourcePosition position) {
       this.errorMessage = message;
       this.errorLevel = errorLevel;
       this.position = position;
     }
 
-    @Nullable String getErrorMessage() {
+    Optional<String> getErrorMessage() {
       return this.errorMessage;
     }
 
@@ -1390,7 +1391,7 @@ public class Scanner {
     }
 
     boolean hasMessage() {
-      return this.errorMessage != null;
+      return this.errorMessage.isPresent();
     }
 
     boolean hasError() {

@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,36 +48,36 @@ public final class JSCompilerSourceExcerptProviderTest {
 
   @Test
   public void testExcerptOneLine() {
-    assertThat(provider.getSourceLine("foo", 1)).isEqualTo("foo:first line");
-    assertThat(provider.getSourceLine("foo", 2)).isEqualTo("foo:second line");
-    assertThat(provider.getSourceLine("foo", 3)).isEqualTo("foo:third line");
-    assertThat(provider.getSourceLine("bar", 1)).isEqualTo("bar:first line");
-    assertThat(provider.getSourceLine("bar", 2)).isEqualTo("bar:second line");
-    assertThat(provider.getSourceLine("bar", 3)).isEqualTo("bar:third line");
-    assertThat(provider.getSourceLine("bar", 4)).isEqualTo("bar:fourth line");
+    assertThat(provider.getSourceLine(Optional.of("foo"), 1).orElse(null)).isEqualTo("foo:first line");
+    assertThat(provider.getSourceLine(Optional.of("foo"), 2).orElse(null)).isEqualTo("foo:second line");
+    assertThat(provider.getSourceLine(Optional.of("foo"), 3).orElse(null)).isEqualTo("foo:third line");
+    assertThat(provider.getSourceLine(Optional.of("bar"), 1).orElse(null)).isEqualTo("bar:first line");
+    assertThat(provider.getSourceLine(Optional.of("bar"), 2).orElse(null)).isEqualTo("bar:second line");
+    assertThat(provider.getSourceLine(Optional.of("bar"), 3).orElse(null)).isEqualTo("bar:third line");
+    assertThat(provider.getSourceLine(Optional.of("bar"), 4).orElse(null)).isEqualTo("bar:fourth line");
   }
 
   @Test
   public void testExcerptLineFromInexistentSource() {
-    assertThat(provider.getSourceLine("inexistent", 1)).isNull();
-    assertThat(provider.getSourceLine("inexistent", 7)).isNull();
-    assertThat(provider.getSourceLine("inexistent", 90)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("inexistent"), 1).orElse(null)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("inexistent"), 7).orElse(null)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("inexistent"), 90).orElse(null)).isNull();
   }
 
   @Test
   public void testExcerptInexistentLine() {
-    assertThat(provider.getSourceLine("foo", 0)).isNull();
-    assertThat(provider.getSourceLine("foo", 4)).isNull();
-    assertThat(provider.getSourceLine("bar", 0)).isNull();
-    assertThat(provider.getSourceLine("bar", 5)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("foo"), 0).orElse(null)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("foo"), 4).orElse(null)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("bar"), 0).orElse(null)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("bar"), 5).orElse(null)).isNull();
   }
 
   @Test
   public void testExceptNoNewLine() {
-    assertThat(provider.getSourceLine("foo2", 1)).isEqualTo("foo2:first line");
-    assertThat(provider.getSourceLine("foo2", 2)).isEqualTo("foo2:second line");
-    assertThat(provider.getSourceLine("foo2", 3)).isEqualTo("foo2:third line");
-    assertThat(provider.getSourceLine("foo2", 4)).isNull();
+    assertThat(provider.getSourceLine(Optional.of("foo2"), 1).orElse(null)).isEqualTo("foo2:first line");
+    assertThat(provider.getSourceLine(Optional.of("foo2"), 2).orElse(null)).isEqualTo("foo2:second line");
+    assertThat(provider.getSourceLine(Optional.of("foo2"), 3).orElse(null)).isEqualTo("foo2:third line");
+    assertThat(provider.getSourceLine(Optional.of("foo2"), 4).orElse(null)).isNull();
   }
 
   @Test
@@ -92,17 +93,17 @@ public final class JSCompilerSourceExcerptProviderTest {
 
   @Test
   public void testExcerptRegionFromInexistentSource() {
-    assertThat(provider.getSourceRegion("inexistent", 0)).isNull();
-    assertThat(provider.getSourceRegion("inexistent", 6)).isNull();
-    assertThat(provider.getSourceRegion("inexistent", 90)).isNull();
+    assertThat(provider.getSourceRegion(Optional.of("inexistent"), 0)).isNull();
+    assertThat(provider.getSourceRegion(Optional.of("inexistent"), 6)).isNull();
+    assertThat(provider.getSourceRegion(Optional.of("inexistent"), 90)).isNull();
   }
 
   @Test
   public void testExcerptInexistentRegion() {
-    assertThat(provider.getSourceRegion("foo", 0)).isNull();
-    assertThat(provider.getSourceRegion("foo", 4)).isNull();
-    assertThat(provider.getSourceRegion("bar", 0)).isNull();
-    assertThat(provider.getSourceRegion("bar", 5)).isNull();
+    assertThat(provider.getSourceRegion(Optional.of("foo"), 0)).isNull();
+    assertThat(provider.getSourceRegion(Optional.of("foo"), 4)).isNull();
+    assertThat(provider.getSourceRegion(Optional.of("bar"), 0)).isNull();
+    assertThat(provider.getSourceRegion(Optional.of("bar"), 5)).isNull();
   }
 
   /**
@@ -110,7 +111,7 @@ public final class JSCompilerSourceExcerptProviderTest {
    * carriage return. In addition, it must contain the line whose region we are taking.
    */
   private void assertRegionWellFormed(String sourceName, int lineNumber) {
-    Region region = provider.getSourceRegion(sourceName, lineNumber);
+    Region region = provider.getSourceRegion(Optional.ofNullable(sourceName), lineNumber);
     assertThat(region).isNotNull();
     String sourceRegion = region.getSourceExcerpt();
     assertThat(sourceRegion).isNotNull();
@@ -125,7 +126,7 @@ public final class JSCompilerSourceExcerptProviderTest {
     assertWithMessage(sourceRegion)
         .that(sourceRegion.charAt(sourceRegion.length() - 1))
         .isNotSameInstanceAs('\n');
-    String line = provider.getSourceLine(sourceName, lineNumber);
+    String line = provider.getSourceLine(Optional.ofNullable(sourceName), lineNumber).orElse(null);
     assertWithMessage(sourceRegion).that(sourceRegion.contains(line)).isTrue();
   }
 }

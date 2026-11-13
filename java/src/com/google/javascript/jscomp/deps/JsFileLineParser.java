@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Base class for classes that parse JavaScript sources on a line-by-line basis. Strips comments
@@ -81,7 +82,7 @@ public abstract class JsFileLineParser {
   private final Matcher valueMatcher = STRING_LITERAL_PATTERN.matcher("");
 
   /** Path of the file currently being parsed. */
-  String filePath;
+  Optional<String> filePath = Optional.empty();
   /** The line number of the line currently being parsed. */
   int lineNum;
   /** Handles error messages. */
@@ -123,14 +124,14 @@ public abstract class JsFileLineParser {
    * @param fileContents The contents of the file.
    */
   void doParse(String filePath, String fileContents) {
-    this.filePath = filePath;
+    this.filePath = Optional.of(filePath);
     parseSucceeded = true;
 
     List<String> lines = Io.splitLines(fileContents);
     int lineIndex = 0;
 
     // Parse all lines.
-    String line = null;
+    Optional<String> line = Optional.empty();
     lineNum = 0;
     boolean inMultilineComment = false;
     boolean inJsDocComment = false;
@@ -139,68 +140,68 @@ public abstract class JsFileLineParser {
       if (lineIndex == lines.size()) {
         break;
       }
-      line = lines.get(lineIndex);
+      line = Optional.ofNullable(lines.get(lineIndex));
       lineIndex++;
       ++lineNum;
-      String revisedLine = line;
-      String revisedJsDocCommentLine = "";
+      Optional<String> revisedLine = line;
+      Optional<String> revisedJsDocCommentLine = Optional.of("");
       if (inMultilineComment) {
-        int endOfComment = revisedLine.indexOf("*/");
+        int endOfComment = revisedLine.get().indexOf("*/");
         if (endOfComment != -1) {
           if (inJsDocComment) {
-            revisedJsDocCommentLine = revisedLine.substring(0, endOfComment + 2);
+            revisedJsDocCommentLine = Optional.of(revisedLine.get().substring(0, endOfComment + 2));
             inJsDocComment = false;
           }
-          revisedLine = revisedLine.substring(endOfComment + 2);
+          revisedLine = Optional.of(revisedLine.get().substring(endOfComment + 2));
           inMultilineComment = false;
         } else {
           if (inJsDocComment) {
             revisedJsDocCommentLine = line;
           }
-          revisedLine = "";
+          revisedLine = Optional.of("");
         }
       }
 
       if (!inMultilineComment) {
         while (true) {
-          int startOfLineComment = revisedLine.indexOf("//");
-          int startOfMultilineComment = revisedLine.indexOf("/*");
+          int startOfLineComment = revisedLine.get().indexOf("//");
+          int startOfMultilineComment = revisedLine.get().indexOf("/*");
           if (startOfLineComment != -1 &&
               (startOfMultilineComment == -1 ||
                startOfLineComment < startOfMultilineComment)) {
-            revisedLine = revisedLine.substring(0, startOfLineComment);
+            revisedLine = Optional.of(revisedLine.get().substring(0, startOfLineComment));
             break;
           } else if (startOfMultilineComment != -1) {
             // If comment is in a string (single or double quoted), don't parse as a comment.
-            if (isCommentQuoted(revisedLine, startOfMultilineComment, '\'')) {
+            if (isCommentQuoted(revisedLine.get(), startOfMultilineComment, '\'')) {
               break;
             }
-            if (isCommentQuoted(revisedLine, startOfMultilineComment, '"')) {
+            if (isCommentQuoted(revisedLine.get(), startOfMultilineComment, '"')) {
               break;
             }
-            if (startOfMultilineComment == revisedLine.indexOf("/**")) {
+            if (startOfMultilineComment == revisedLine.get().indexOf("/**")) {
               inJsDocComment = true;
             }
-            int endOfMultilineComment = revisedLine.indexOf("*/", startOfMultilineComment + 2);
+            int endOfMultilineComment = revisedLine.get().indexOf("*/", startOfMultilineComment + 2);
             if (endOfMultilineComment == -1) {
               if (inJsDocComment) {
-                revisedJsDocCommentLine = revisedLine.substring(startOfMultilineComment);
+                revisedJsDocCommentLine = Optional.of(revisedLine.get().substring(startOfMultilineComment));
               }
-              revisedLine = revisedLine.substring(0, startOfMultilineComment);
+              revisedLine = Optional.of(revisedLine.get().substring(0, startOfMultilineComment));
               inMultilineComment = true;
               break;
             } else {
               if (inJsDocComment) {
                 String jsDocComment =
-                    revisedLine.substring(startOfMultilineComment, endOfMultilineComment + 2);
+                    revisedLine.get().substring(startOfMultilineComment, endOfMultilineComment + 2);
                 if (!parseJsDocCommentLine(jsDocComment) && shortcutMode) {
                   break;
                 }
                 inJsDocComment = false;
               }
               revisedLine =
-                  revisedLine.substring(0, startOfMultilineComment) +
-                  revisedLine.substring(endOfMultilineComment + 2);
+                  Optional.of(revisedLine.get().substring(0, startOfMultilineComment) +
+                  revisedLine.get().substring(endOfMultilineComment + 2));
             }
           } else {
             break;
@@ -208,24 +209,24 @@ public abstract class JsFileLineParser {
         }
       }
 
-      if (!revisedJsDocCommentLine.isEmpty()) {
-        if (!parseJsDocCommentLine(revisedJsDocCommentLine) && shortcutMode) {
+      if (!revisedJsDocCommentLine.get().isEmpty()) {
+        if (!parseJsDocCommentLine(revisedJsDocCommentLine.get()) && shortcutMode) {
           break;
         }
       }
 
-      if (!revisedLine.isEmpty()) {
+      if (!revisedLine.get().isEmpty()) {
         // This check for shortcut mode should be redundant, but
         // it's done for safety reasons.
-        Outcome<Boolean> keepGoing = parseLine(revisedLine);
+        Outcome<Boolean> keepGoing = parseLine(revisedLine.get());
         if (keepGoing.isErr()) {
           ParseException e = (ParseException) keepGoing.error();
           // Inform the error handler of the exception.
           errorManager.report(
               e.isFatal() ? CheckLevel.ERROR : CheckLevel.WARNING,
-              JSError.make(filePath, lineNum, 0 /* char offset */,
+              JSError.make(Optional.of(filePath), lineNum, 0 /* char offset */,
                   e.isFatal() ? PARSE_ERROR : PARSE_WARNING,
-                  e.getMessage(), line));
+                  e.getMessage(), line.orElse("null")));
           parseSucceeded = parseSucceeded && !e.isFatal();
         } else if (!keepGoing.get() && shortcutMode) {
           break;
@@ -237,7 +238,7 @@ public abstract class JsFileLineParser {
   /** Reports that the file could not be read. */
   void reportReadError(String filePath) {
     errorManager.report(CheckLevel.ERROR,
-        JSError.make(filePath, 0, 0 /* char offset */,
+        JSError.make(Optional.of(filePath), 0, 0 /* char offset */,
             PARSE_ERROR, "Error reading file: " + filePath));
     parseSucceeded = false;
   }
@@ -310,7 +311,9 @@ public abstract class JsFileLineParser {
           new ParseException("Syntax error in JS String literal", /* fatal= */ true));
     }
     return Outcome.ok(
-        valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2));
+        Optional.ofNullable(valueMatcher.group(1)).isPresent()
+            ? valueMatcher.group(1)
+            : valueMatcher.group(2));
   }
 
   /**
@@ -338,8 +341,10 @@ public abstract class JsFileLineParser {
               new ParseException("Syntax error in JS String literal", /* fatal= */ true));
         }
         // Add it to the results.
-        results.add(valueMatcher.group(1) != null ?
-            valueMatcher.group(1) : valueMatcher.group(2));
+        results.add(
+            Optional.ofNullable(valueMatcher.group(1)).isPresent()
+                ? valueMatcher.group(1)
+                : valueMatcher.group(2));
         if (valueMatcher.end() == innerValues.length()) {
           break;
         }
@@ -383,7 +388,9 @@ public abstract class JsFileLineParser {
       if (checked.isErr()) {
         return Outcome.err(checked.error());
       }
-      String key = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
+      String key = Optional.ofNullable(valueMatcher.group(1)).isPresent()
+            ? valueMatcher.group(1)
+            : valueMatcher.group(2);
       checked = check(valueMatcher.end() != input.length(), "Missing value in JS object literal");
       if (checked.isErr()) {
         return Outcome.err(checked.error());
@@ -400,7 +407,9 @@ public abstract class JsFileLineParser {
       if (checked.isErr()) {
         return Outcome.err(checked.error());
       }
-      String val = valueMatcher.group(1) != null ? valueMatcher.group(1) : valueMatcher.group(2);
+      String val = Optional.ofNullable(valueMatcher.group(1)).isPresent()
+            ? valueMatcher.group(1)
+            : valueMatcher.group(2);
       results.put(key, val);
       if (valueMatcher.end() != input.length()) {
         checked = check(input.charAt(valueMatcher.end()) == ',', "Missing comma in JS object literal");

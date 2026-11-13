@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * An AST construction helper class for Node
@@ -182,7 +183,7 @@ public final class TypeDeclarationsIR {
       Node returnType,
       LinkedHashMap<String, Node> requiredParams,
       LinkedHashMap<String, Node> optionalParams,
-      String restName,
+      Optional<String> restName,
       Node restType) {
     Node node = new Node(Token.FUNCTION_TYPE, returnType);
     checkNotNull(requiredParams);
@@ -199,8 +200,8 @@ public final class TypeDeclarationsIR {
       node.addChildToBack(maybeAddType(name, param.getValue()));
     }
 
-    if (restName != null) {
-      Node rest = new Node(Token.ITER_REST, IR.name(restName));
+    if (restName.isPresent()) {
+      Node rest = new Node(Token.ITER_REST, IR.name(restName.get()));
       node.addChildToBack(maybeAddType(rest, restType));
     }
     return node;

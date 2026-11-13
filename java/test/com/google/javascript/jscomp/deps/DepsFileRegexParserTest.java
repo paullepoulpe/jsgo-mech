@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.PrintStreamErrorManager;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,13 +73,13 @@ public final class DepsFileRegexParserTest {
     List<DependencyInfo> result = parser.parseFile(SRC_PATH, contents);
     ImmutableList<DependencyInfo> expected =
         ImmutableList.of(
-            SimpleDependencyInfo.builder("yes1", SRC_PATH).build(),
-            SimpleDependencyInfo.builder("yes2", SRC_PATH).build(),
-            SimpleDependencyInfo.builder("yes3", SRC_PATH)
+            SimpleDependencyInfo.builder("yes1", Optional.ofNullable(SRC_PATH)).build(),
+            SimpleDependencyInfo.builder("yes2", Optional.ofNullable(SRC_PATH)).build(),
+            SimpleDependencyInfo.builder("yes3", Optional.ofNullable(SRC_PATH))
                 .setProvides(ImmutableList.of("a", "b"))
                 .setRequiresRequireVarargs(Require.parsedFromDeps("c"))
                 .build(),
-            SimpleDependencyInfo.builder("yes4", SRC_PATH)
+            SimpleDependencyInfo.builder("yes4", Optional.ofNullable(SRC_PATH))
                 .setRequiresRequireVarargs(
                     Require.parsedFromDeps("a"),
                     Require.parsedFromDeps("b"),
@@ -136,8 +137,8 @@ public final class DepsFileRegexParserTest {
             """);
     ImmutableList<DependencyInfo> expected =
         ImmutableList.of(
-            SimpleDependencyInfo.builder("yes1", SRC_PATH).setGoogModule(true).build(),
-            SimpleDependencyInfo.builder("yes2", SRC_PATH).build());
+            SimpleDependencyInfo.builder("yes1", Optional.ofNullable(SRC_PATH)).setGoogModule(true).build(),
+            SimpleDependencyInfo.builder("yes2", Optional.ofNullable(SRC_PATH)).build());
     assertThat(result).isEqualTo(expected);
   }
 
@@ -152,12 +153,12 @@ public final class DepsFileRegexParserTest {
             """);
     ImmutableList<DependencyInfo> expected =
         ImmutableList.of(
-            SimpleDependencyInfo.builder("path/from/closure.js", SRC_PATH)
+            SimpleDependencyInfo.builder("path/from/closure.js", Optional.ofNullable(SRC_PATH))
                 .setLoadFlags(ImmutableMap.of("module", "es6"))
                 .setProvides(ImmutableList.of("path/from/closure.js"))
                 .setRequiresRequireVarargs(Require.parsedFromDeps("nexttoclosure.js"))
                 .build(),
-            SimpleDependencyInfo.builder("nexttoclosure.js", SRC_PATH)
+            SimpleDependencyInfo.builder("nexttoclosure.js", Optional.ofNullable(SRC_PATH))
                 .setLoadFlags(ImmutableMap.of("module", "es6"))
                 .setProvides(ImmutableList.of("nexttoclosure.js"))
                 .build());
@@ -176,13 +177,13 @@ public final class DepsFileRegexParserTest {
             """);
     ImmutableList<DependencyInfo> expected =
         ImmutableList.of(
-            SimpleDependencyInfo.builder("yes1", SRC_PATH)
+            SimpleDependencyInfo.builder("yes1", Optional.ofNullable(SRC_PATH))
                 .setLoadFlags(ImmutableMap.of("module", "goog"))
                 .build(),
-            SimpleDependencyInfo.builder("yes2", SRC_PATH)
+            SimpleDependencyInfo.builder("yes2", Optional.ofNullable(SRC_PATH))
                 .setLoadFlags(ImmutableMap.of("lang", "es6"))
                 .build(),
-            SimpleDependencyInfo.builder("yes3", SRC_PATH).build());
+            SimpleDependencyInfo.builder("yes3", Optional.ofNullable(SRC_PATH)).build());
     assertThat(result).isEqualTo(expected);
   }
 
@@ -197,7 +198,7 @@ public final class DepsFileRegexParserTest {
             goog.addDependency('no1', [], []);
             """);
     ImmutableList<DependencyInfo> expected =
-        ImmutableList.<DependencyInfo>of(SimpleDependencyInfo.builder("yes1", SRC_PATH).build());
+        ImmutableList.<DependencyInfo>of(SimpleDependencyInfo.builder("yes1", Optional.ofNullable(SRC_PATH)).build());
     assertThat(result).isEqualTo(expected);
   }
 
@@ -214,8 +215,8 @@ public final class DepsFileRegexParserTest {
             """);
     ImmutableList<DependencyInfo> expected =
         ImmutableList.of(
-            SimpleDependencyInfo.builder("yes1", SRC_PATH).build(),
-            SimpleDependencyInfo.builder("yes2", SRC_PATH).build());
+            SimpleDependencyInfo.builder("yes1", Optional.ofNullable(SRC_PATH)).build(),
+            SimpleDependencyInfo.builder("yes2", Optional.ofNullable(SRC_PATH)).build());
     assertThat(result).isEqualTo(expected);
   }
 }

@@ -2,7 +2,9 @@
 //
 // Attributes the production sources (java/src without */testing/, same flags as
 // tools/gate0/build.sh) and reports every reference, in any file other than the facade
-// (com/google/javascript/jscomp/base/Io.java), to a type of a forbidden package:
+// (com/google/javascript/jscomp/base/Io.java) and the JSON facade
+// (com/google/javascript/jscomp/base/Json.java, which hands the JSON library a
+// java.io.StringReader over the text to parse), to a type of a forbidden package:
 //   java.io.*, java.nio.file.*, java.nio.channels.*, java.nio.charset.*, java.util.zip.*,
 //   java.util.jar.*, com.google.common.io.*, java.net.*
 // A reference is: a use of the type's name, a call of / reference to one of its members, or an
@@ -13,8 +15,6 @@
 // java.io.UncheckedIOException (the error type carried by Outcome).
 // Exemptions (reported as EXEMPT, do not fail the check), all of them in-memory glue for a
 // library API that is replaced by a later step; see EXEMPT below:
-//   * java.io.StringReader / StringWriter / EOFException where Gson's JsonReader / JsonWriter
-//     reads or writes an in-memory string (EOFException is how JsonReader reports an empty text);
 //   * java.io.ByteArrayInputStream / StringReader for javax.xml's InputSource in XtbMessageBundle;
 //   * java.io.ObjectInputStream in JSChunk.readObject (Java serialization hook).
 //
@@ -64,6 +64,9 @@ import javax.tools.ToolProvider;
 public final class Scan {
   static final String FACADE = "java/src/com/google/javascript/jscomp/base/Io.java";
 
+  // The JSON library reads from a java.io.Reader: Json.parse wraps its text in a StringReader.
+  static final String JSON_FACADE = "java/src/com/google/javascript/jscomp/base/Json.java";
+
   static final String[] FORBIDDEN_PACKAGES = {
     "java.io", "java.nio.file", "java.nio.channels", "java.nio.charset", "java.util.zip",
     "java.util.jar", "com.google.common.io", "java.net",
@@ -82,26 +85,6 @@ public final class Scan {
   }
 
   static {
-    // Gson JsonReader / JsonWriter over in-memory strings.
-    exempt("debugging/sourcemap/SourceMapObjectParser.java", "StringReader", "EOFException");
-    exempt("javascript/jscomp/AbstractCommandLineRunner.java", "StringReader", "StringWriter");
-    exempt("javascript/jscomp/Compiler.java", "StringWriter");
-    exempt("javascript/jscomp/DiagnosticToSuppressionMapper.java", "StringWriter");
-    exempt("javascript/jscomp/JsonErrorReportGenerator.java", "StringWriter");
-    exempt("javascript/jscomp/diagnostic/LogsGson.java", "StringWriter");
-    exempt("javascript/jscomp/diagnostic/WritingLogFile.java", "StringWriter");
-    exempt(
-        "javascript/jscomp/instrumentation/ProductionCoverageInstrumentationCallback.java",
-        "StringWriter");
-    exempt(
-        "javascript/jscomp/instrumentation/reporter/ProductionInstrumentationReporter.java",
-        "StringReader",
-        "EOFException");
-    exempt(
-        "javascript/jscomp/instrumentation/reporter/ReportDecoder.java",
-        "StringReader",
-        "EOFException");
-    exempt("javascript/jscomp/serialization/SerializeTypesToPointers.java", "StringWriter");
     // javax.xml InputSource over in-memory bytes / an empty string.
     exempt("javascript/jscomp/XtbMessageBundle.java", "ByteArrayInputStream", "StringReader");
     // Java serialization hook.
@@ -211,7 +194,7 @@ public final class Scan {
     }
     for (CompilationUnitTree unit : units) {
       String file = Paths.get("").toAbsolutePath().relativize(Paths.get(unit.getSourceFile().toUri())).toString();
-      if (file.equals(FACADE)) {
+      if (file.equals(FACADE) || file.equals(JSON_FACADE)) {
         continue;
       }
       new TreePathScanner<Void, Void>() {

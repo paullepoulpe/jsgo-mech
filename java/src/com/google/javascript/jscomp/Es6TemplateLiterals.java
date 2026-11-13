@@ -60,8 +60,8 @@ class Es6TemplateLiterals {
       n.replaceWith(astFactory.createString("\"\""));
     } else {
       Node first = n.removeFirstChild();
-      checkState(first.isTemplateLitString() && first.getCookedString() != null);
-      Node firstStr = astFactory.createString(first.getCookedString());
+      checkState(first.isTemplateLitString() && first.getCookedString().isPresent());
+      Node firstStr = astFactory.createString(first.getCookedString().get());
       if (length == 1) {
         n.replaceWith(firstStr);
       } else {
@@ -71,10 +71,10 @@ class Es6TemplateLiterals {
         for (int i = 2; i < length; i++) {
           Node child = n.removeFirstChild();
           if (child.isTemplateLitString()) {
-            checkState(child.getCookedString() != null);
-            if (child.getCookedString().isEmpty()) {
+            checkState(child.getCookedString().isPresent());
+            if (child.getCookedString().get().isEmpty()) {
               continue;
-            } else if (i == 2 && first.getCookedString().isEmpty()) {
+            } else if (i == 2 && first.getCookedString().get().isEmpty()) {
               // So that `${hello} world` gets translated into (hello + " world")
               // instead of ("" + hello + " world").
               add = add.getSecondChild().detach();
@@ -84,7 +84,7 @@ class Es6TemplateLiterals {
               astFactory.createAdd(
                   add,
                   child.isTemplateLitString()
-                      ? astFactory.createString(child.getCookedString())
+                      ? astFactory.createString(child.getCookedString().get())
                       : child.removeFirstChild());
         }
         n.replaceWith(add.srcrefTreeIfMissing(n));
@@ -199,8 +199,8 @@ class Es6TemplateLiterals {
             .setColor(templateArrayType); // tighten the type from Array to ITemplateArray
     for (Node child = n.getFirstChild(); child != null; child = child.getNext()) {
       if (child.isTemplateLitString()) {
-        if (child.getCookedString() != null) {
-          array.addChildToBack(astFactory.createString(child.getCookedString()));
+        if (child.getCookedString().isPresent()) {
+          array.addChildToBack(astFactory.createString(child.getCookedString().get()));
         } else {
           // undefined cooked string due to exception in template escapes
           array.addChildToBack(astFactory.createVoid(astFactory.createNumber(0)));
@@ -216,8 +216,8 @@ class Es6TemplateLiterals {
         continue;
       }
       // getCookedString() returns null when the template literal has an illegal escape sequence.
-      if (child.getCookedString() == null
-          || !child.getCookedString().equals(child.getRawString())) {
+      if (child.getCookedString().isEmpty()
+          || !child.getCookedString().get().equals(child.getRawString())) {
         return false;
       }
     }

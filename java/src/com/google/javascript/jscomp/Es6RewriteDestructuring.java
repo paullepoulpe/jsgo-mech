@@ -35,6 +35,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.Optional;
 
 /**
  * Rewrites destructuring patterns and default parameters to valid ES3 code or to a different form
@@ -448,13 +449,13 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
     String tempVarName = getTempVariableName();
     final AstFactory.Type tempVarType = type(objectPattern);
 
-    String restTempVarName = null;
+    Optional<String> restTempVarName = Optional.empty();
     // If the last child is a rest node we will want a list of the stated properties so we can
     // exclude them from being written to the rest variable.
     ArrayList<Node> propsToDeleteForRest = null;
     if (objectPattern.hasChildren() && objectPattern.getLastChild().isRest()) {
       propsToDeleteForRest = new ArrayList<>();
-      restTempVarName = getTempVariableName();
+      restTempVarName = Optional.of(getTempVariableName());
     } else if (rewriteMode == ObjectDestructuringRewriteMode.REWRITE_OBJECT_REST) {
       // We are configured to only break object pattern rest, but this destructure has none.
       if (!this.patternNestingStack.peekLast().hasNestedObjectRest) {
@@ -577,7 +578,7 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
                     astFactory.createObjectLit(),
                     createTempVarNameNode(tempVarName, tempVarType));
 
-        Node restTempDecl = IR.var(createTempVarNameNode(restTempVarName, tempVarType), assignCall);
+        Node restTempDecl = IR.var(createTempVarNameNode(restTempVarName.get(), tempVarType), assignCall);
         restTempDecl.srcrefTreeIfMissing(objectPattern);
         restTempDecl.insertBefore(nodeToDetach);
 
@@ -588,7 +589,7 @@ public final class Es6RewriteDestructuring implements NodeTraversal.Callback, Co
         } else {
           newLHS = restName.detach();
         }
-        newRHS = objectPatternRestRHS(objectPattern, child, restTempVarName, propsToDeleteForRest);
+        newRHS = objectPatternRestRHS(objectPattern, child, restTempVarName.get(), propsToDeleteForRest);
       } else {
         throw new IllegalStateException("unexpected child");
       }

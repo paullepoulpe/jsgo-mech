@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -95,13 +96,13 @@ final class RenameVars implements CompilerPass {
     final boolean isLocal;
     final String oldName;
     final int orderOfOccurrence;
-    @Nullable String newName;
+    Optional<String> newName = Optional.empty();
     int count; // Number of times this is referenced
 
     Assignment(String name) {
       this.isLocal = name.startsWith(LOCAL_VAR_PREFIX);
       this.oldName = name;
-      this.newName = null;
+      this.newName = Optional.empty();
       this.count = 0;
 
       // Represents the order at which a symbol appears in the source.
@@ -113,8 +114,8 @@ final class RenameVars implements CompilerPass {
      * Assigns the new name.
      */
     void setNewName(String newName) {
-      checkState(this.newName == null);
-      this.newName = newName;
+      checkState(this.newName.isEmpty());
+      this.newName = Optional.of(newName);
     }
   }
 
@@ -142,7 +143,7 @@ final class RenameVars implements CompilerPass {
    */
   RenameVars(
       AbstractCompiler compiler,
-      String prefix,
+      Optional<String> prefix,
       boolean localRenamingOnly,
       boolean generatePseudoNames,
       boolean preferStableNames,
@@ -151,7 +152,7 @@ final class RenameVars implements CompilerPass {
       @Nullable Set<String> reservedNames,
       NameGenerator nameGenerator) {
     this.compiler = compiler;
-    this.prefix = nullToEmpty(prefix);
+    this.prefix = prefix.orElse("");
     this.localRenamingOnly = localRenamingOnly;
     if (generatePseudoNames) {
       this.pseudoNameMap = new LinkedHashMap<>();
@@ -343,14 +344,14 @@ final class RenameVars implements CompilerPass {
     }
   }
 
-  private void setNameAndReport(Node n, @Nullable String newName) {
+  private void setNameAndReport(Node n, Optional<String> newName) {
     // A null newName, indicates it should not be renamed.
-    if (newName != null && !newName.equals(n.getString())) {
-      n.setString(newName);
+    if (newName.isPresent() && !newName.get().equals(n.getString())) {
+      n.setString(newName.get());
 
       // Only mark changes if the final name change is different than it was original before being
       // filled with the "L" temporary name.
-      if (!newName.equals(originalNameByNode.get(n))) {
+      if (!newName.get().equals(originalNameByNode.get(n))) {
         compiler.reportChangeToEnclosingScope(n);
         Node parent = n.getParent();
         if (parent.isFunction() && NodeUtil.isFunctionDeclaration(parent)) {
@@ -362,29 +363,29 @@ final class RenameVars implements CompilerPass {
     }
   }
 
-  private @Nullable String getNewGlobalName(Node n) {
+  private Optional<String> getNewGlobalName(Node n) {
     String oldName = n.getString();
     Assignment a = assignments.get(oldName);
-    if (a.newName != null && !a.newName.equals(oldName)) {
+    if (a.newName.isPresent() && !a.newName.get().equals(oldName)) {
       if (pseudoNameMap != null) {
-        return pseudoNameMap.get(n);
+        return Optional.ofNullable(pseudoNameMap.get(n));
       }
       return a.newName;
     } else {
-      return null;
+      return Optional.empty();
     }
   }
 
-  private @Nullable String getNewLocalName(Node n) {
+  private Optional<String> getNewLocalName(Node n) {
     String oldTempName = n.getString();
     Assignment a = assignments.get(oldTempName);
-    if (!a.newName.equals(oldTempName)) {
+    if (!a.newName.get().equals(oldTempName)) {
       if (pseudoNameMap != null) {
-        return pseudoNameMap.get(n);
+        return Optional.ofNullable(pseudoNameMap.get(n));
       }
       return a.newName;
     }
-    return null;
+    return Optional.empty();
   }
 
   private void recordPseudoName(Node n) {
@@ -403,16 +404,16 @@ final class RenameVars implements CompilerPass {
     // In such a case, the following will throw an IllegalArgumentException.
     checkNotNull(prevUsedRenameMap.getNewNameToOriginalNameMap());
     for (Assignment a : varsToRename) {
-      String prevNewName = prevUsedRenameMap.lookupNewName(a.oldName);
-      if (prevNewName == null || reservedNames.contains(prevNewName)) {
+      Optional<String> prevNewName = prevUsedRenameMap.lookupNewName(a.oldName);
+      if (prevNewName.isEmpty() || reservedNames.contains(prevNewName.get())) {
         continue;
       }
 
       if (a.isLocal
           || (!externNames.contains(a.oldName)
-              && prevNewName.startsWith(prefix))) {
-        reservedNames.add(prevNewName);
-        finalizeNameAssignment(a, prevNewName);
+              && prevNewName.get().startsWith(prefix))) {
+        reservedNames.add(prevNewName.get());
+        finalizeNameAssignment(a, prevNewName.get());
       }
     }
   }
@@ -440,7 +441,7 @@ final class RenameVars implements CompilerPass {
     List<String> generatedNamesForAssignments = new ArrayList<>();
 
     for (Assignment a : varsToRename) {
-      if (a.newName != null) {
+      if (a.newName.isPresent()) {
         continue;
       }
 

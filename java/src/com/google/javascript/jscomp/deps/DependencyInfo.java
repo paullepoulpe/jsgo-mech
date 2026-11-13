@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 /** A data structure for JS dependency information for a single .js file. */
 public interface DependencyInfo {
@@ -44,8 +44,6 @@ public interface DependencyInfo {
   @Immutable
   record Require(String getSymbol, String getRawText, Type getType) {
     public Require {
-      requireNonNull(getSymbol, "getSymbol");
-      requireNonNull(getRawText, "getRawText");
       requireNonNull(getType, "getType");
     }
 
@@ -118,16 +116,16 @@ public interface DependencyInfo {
     }
 
     static final class Builder {
-      private String symbol;
-      private String rawText;
+      private Optional<String> symbol = Optional.empty();
+      private Optional<String> rawText = Optional.empty();
       private DependencyInfo.Require.Type type;
 
       Builder() {
       }
 
       Builder(DependencyInfo.Require source) {
-        this.symbol = source.getSymbol();
-        this.rawText = source.getRawText();
+        this.symbol = Optional.of(source.getSymbol());
+        this.rawText = Optional.of(source.getRawText());
         this.type = source.getType();
       }
 
@@ -140,30 +138,24 @@ public interface DependencyInfo {
       }
 
       public Builder setRawText(String rawText) {
-        if (rawText == null) {
-          throw new NullPointerException("Null rawText");
-        }
-        this.rawText = rawText;
+        this.rawText = Optional.of(rawText);
         return this;
       }
 
       public Builder setSymbol(String value) {
-        if (value == null) {
-          throw new NullPointerException("Null symbol");
-        }
-        this.symbol = value;
+        this.symbol = Optional.of(value);
         return this;
       }
 
       public Require build() {
-        if (this.symbol == null
-            || this.rawText == null
+        if (this.symbol.isEmpty()
+            || this.rawText.isEmpty()
             || this.type == null) {
           StringBuilder missing = new StringBuilder();
-          if (this.symbol == null) {
+          if (this.symbol.isEmpty()) {
             missing.append(" symbol");
           }
-          if (this.rawText == null) {
+          if (this.rawText.isEmpty()) {
             missing.append(" rawText");
           }
           if (this.type == null) {
@@ -172,8 +164,8 @@ public interface DependencyInfo {
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new Require(
-            this.symbol,
-            this.rawText,
+            this.symbol.get(),
+            this.rawText.get(),
             this.type);
       }
     }
@@ -203,12 +195,12 @@ public interface DependencyInfo {
 
   /** Whether the symbol is provided by an ES6 module */
   default boolean isEs6Module() {
-    return Objects.equals(getLoadFlags().get("module"), "es6");
+    return "es6".equals(getLoadFlags().get("module"));
   }
 
   /** Whether the symbol is provided by a goog module */
   default boolean isGoogModule() {
-    return Objects.equals(getLoadFlags().get("module"), "goog");
+    return "goog".equals(getLoadFlags().get("module"));
   }
 
   /** Whether the file '@externs' annotation. */

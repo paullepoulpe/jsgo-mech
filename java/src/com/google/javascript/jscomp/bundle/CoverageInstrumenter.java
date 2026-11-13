@@ -42,7 +42,7 @@ public class CoverageInstrumenter extends CompilerBasedTransformer {
       options.setStrictModeInput(false);
       // Setting the path to any non-null value will trigger source map generation.
       // CompilerBasedTransformer attachs the sourcemap to the result.
-      options.setSourceMapOutputPath("/dev/null");
+      options.setSourceMapOutputPath(Optional.of("/dev/null"));
       options.setVariableRenaming(VariableRenamingPolicy.OFF);
       options.setInstrumentForCoverageOption(InstrumentOption.LINE_ONLY);
       options.setInstrumentForCoverageOnly(true);

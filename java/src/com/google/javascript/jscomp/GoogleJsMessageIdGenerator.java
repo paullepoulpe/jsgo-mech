@@ -18,11 +18,11 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Strings;
 import com.google.javascript.jscomp.JsMessage.IdGenerator;
 import com.google.javascript.jscomp.JsMessage.Part;
 import com.google.javascript.jscomp.base.Io;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * An {@link IdGenerator} designed to play nicely with Google's Translation
@@ -42,20 +42,20 @@ import java.util.List;
  */
 public final class GoogleJsMessageIdGenerator implements IdGenerator {
 
-  private final String projectId;
+  private final Optional<String> projectId;
 
   /**
    * Creates an instance.
    *
    * @param projectId A TC project name (e.g. "MyProject")
    */
-  public GoogleJsMessageIdGenerator(String projectId) {
+  public GoogleJsMessageIdGenerator(Optional<String> projectId) {
     this.projectId = projectId;
   }
 
   @Override
-  public String generateId(String meaning, List<Part> messageParts) {
-    checkState(meaning != null);
+  public String generateId(Optional<String> meaning, List<Part> messageParts) {
+    checkState(meaning.isPresent());
 
     StringBuilder sb = new StringBuilder();
     for (Part part : messageParts) {
@@ -68,9 +68,9 @@ public final class GoogleJsMessageIdGenerator implements IdGenerator {
     String tcValue = sb.toString();
 
     String projectScopedMeaning =
-        (Strings.isNullOrEmpty(projectId) ? "" : (projectId + ": ")) + meaning;
+        (projectId.orElse("").isEmpty() ? "" : (projectId.get() + ": ")) + meaning.get();
     return String.valueOf(
-        MessageId.generateId(tcValue, projectScopedMeaning));
+        MessageId.generateId(tcValue, Optional.of(projectScopedMeaning)));
   }
 
 
@@ -230,11 +230,11 @@ public final class GoogleJsMessageIdGenerator implements IdGenerator {
    * Forked from the i18n library.
    */
   private static class MessageId {
-    private static final long generateId(String message, String meaning) {
+    private static final long generateId(String message, Optional<String> meaning) {
       long fp = FP.fingerprint(message);
-      if (null != meaning && meaning.length() > 0) {
+      if (meaning.isPresent() && meaning.get().length() > 0) {
         // combine the fingerprints of message and meaning
-        long fp2 = FP.fingerprint(meaning);
+        long fp2 = FP.fingerprint(meaning.get());
         fp = fp2 + (fp << 1) + (fp < 0 ? 1 : 0);
       }
       // To avoid negative ids we strip the high-order bit

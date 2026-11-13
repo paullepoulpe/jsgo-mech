@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Immutable;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 /** A class to hold JS dependency information for a single .js file. */
 @Immutable
@@ -37,8 +38,6 @@ public record SimpleDependencyInfo(
     boolean getHasNoCompileAnnotation)
     implements DependencyInfo {
   public SimpleDependencyInfo {
-    requireNonNull(getName, "getName");
-    requireNonNull(getPathRelativeToClosureBase, "getPathRelativeToClosureBase");
     requireNonNull(getProvides, "getProvides");
     requireNonNull(getRequires, "getRequires");
     requireNonNull(getTypeRequires, "getTypeRequires");
@@ -59,7 +58,7 @@ public record SimpleDependencyInfo(
         + "}";
   }
 
-  public static Builder builder(String srcPathRelativeToClosure, String pathOfDefiningFile) {
+  public static Builder builder(String srcPathRelativeToClosure, Optional<String> pathOfDefiningFile) {
     return new Builder()
         .setName(pathOfDefiningFile)
         .setPathRelativeToClosureBase(srcPathRelativeToClosure)
@@ -76,8 +75,8 @@ public record SimpleDependencyInfo(
    * Use the {@link SimpleDependencyInfo#builder(String, String)} method to create an instance.
    */
   public static final class Builder {
-    private String name;
-    private String pathRelativeToClosureBase;
+    private Optional<String> name = Optional.empty();
+    private Optional<String> pathRelativeToClosureBase = Optional.empty();
     private ImmutableList<String> provides;
     private ImmutableList<DependencyInfo.Require> requires;
     private ImmutableList<String> typeRequires;
@@ -91,7 +90,7 @@ public record SimpleDependencyInfo(
 
     public static Builder from(DependencyInfo copy) {
       return new Builder()
-          .setName(copy.getName())
+          .setName(Optional.of(copy.getName()))
           .setPathRelativeToClosureBase(copy.getPathRelativeToClosureBase())
           .setProvides(copy.getProvides())
           .setRequires(copy.getRequires())
@@ -101,18 +100,15 @@ public record SimpleDependencyInfo(
           .setHasNoCompileAnnotation(copy.getHasNoCompileAnnotation());
     }
 
-    Builder setName(String name) {
-      if (name == null) {
+    Builder setName(Optional<String> name) {
+      if (name.isEmpty()) {
         throw new NullPointerException("Null name");
       }
       this.name = name;
       return this;
     }
     Builder setPathRelativeToClosureBase(String srcPathRelativeToClosure) {
-      if (srcPathRelativeToClosure == null) {
-        throw new NullPointerException("Null pathRelativeToClosureBase");
-      }
-      this.pathRelativeToClosureBase = srcPathRelativeToClosure;
+      this.pathRelativeToClosureBase = Optional.of(srcPathRelativeToClosure);
       return this;
     }
 
@@ -168,17 +164,17 @@ public record SimpleDependencyInfo(
 
     public SimpleDependencyInfo build() {
       if (set0 != 3
-          || this.name == null
-          || this.pathRelativeToClosureBase == null
+          || this.name.isEmpty()
+          || this.pathRelativeToClosureBase.isEmpty()
           || this.provides == null
           || this.requires == null
           || this.typeRequires == null
           || this.loadFlags == null) {
         StringBuilder missing = new StringBuilder();
-        if (this.name == null) {
+        if (this.name.isEmpty()) {
           missing.append(" name");
         }
-        if (this.pathRelativeToClosureBase == null) {
+        if (this.pathRelativeToClosureBase.isEmpty()) {
           missing.append(" pathRelativeToClosureBase");
         }
         if (this.provides == null) {
@@ -202,8 +198,8 @@ public record SimpleDependencyInfo(
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new SimpleDependencyInfo(
-          this.name,
-          this.pathRelativeToClosureBase,
+          this.name.get(),
+          this.pathRelativeToClosureBase.get(),
           this.provides,
           this.requires,
           this.typeRequires,
@@ -213,5 +209,5 @@ public record SimpleDependencyInfo(
     }
   }
 
-  public static final SimpleDependencyInfo EMPTY = builder("", "").build();
+  public static final SimpleDependencyInfo EMPTY = builder("", Optional.of("")).build();
 }

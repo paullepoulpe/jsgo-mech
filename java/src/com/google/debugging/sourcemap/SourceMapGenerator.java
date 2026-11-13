@@ -19,7 +19,7 @@ package com.google.debugging.sourcemap;
 
 import java.io.IOException;
 import java.util.List;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Collects information mapping the generated (compiled) source back to
@@ -34,7 +34,7 @@ public interface SourceMapGenerator {
    * @param name The name of the generated source file that this source map
    *   represents.
    */
-  void appendTo(Appendable out, String name) throws IOException;
+  void appendTo(Appendable out, Optional<String> name) throws IOException;
 
   /**
    * Appends the index source map to the given buffer.
@@ -64,7 +64,7 @@ public interface SourceMapGenerator {
    * @param outputStartPosition The position on the starting line
    * @param outputEndPosition The position on the ending line.
    */
-  void addMapping(String sourceName, @Nullable String symbolName,
+  void addMapping(String sourceName, String symbolName,
            FilePosition sourceStartPosition,
            FilePosition outputStartPosition, FilePosition outputEndPosition);
 

@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -392,10 +393,10 @@ final class PolymerClassRewriter {
     // If an external interface is required, mark the class as implementing it
     Node jsDocInfoNode = NodeUtil.getBestJSDocInfoNode(clazz);
     JSDocInfo.Builder classInfo = JSDocInfo.Builder.maybeCopyFrom(jsDocInfoNode.getJSDocInfo());
-    String interfaceName = cls.getInterfaceName(compiler.getUniqueIdSupplier());
+    Optional<String> interfaceName = cls.getInterfaceName(compiler.getUniqueIdSupplier());
     JSTypeExpression interfaceType =
         new JSTypeExpression(
-            new Node(Token.BANG, IR.string(interfaceName)).srcrefTree(jsDocInfoNode), VIRTUAL_FILE);
+            new Node(Token.BANG, IR.string(interfaceName.get())).srcrefTree(jsDocInfoNode), VIRTUAL_FILE);
     classInfo.recordImplementedInterface(interfaceType);
     jsDocInfoNode.setJSDocInfo(classInfo.build());
 
@@ -566,10 +567,10 @@ final class PolymerClassRewriter {
             VIRTUAL_FILE);
     constructorDoc.recordBaseType(baseType);
 
-    String interfaceName = cls.getInterfaceName(compiler.getUniqueIdSupplier());
+    Optional<String> interfaceName = cls.getInterfaceName(compiler.getUniqueIdSupplier());
     JSTypeExpression interfaceType =
         new JSTypeExpression(
-            new Node(Token.BANG, IR.string(interfaceName)).srcrefTree(cls.definition),
+            new Node(Token.BANG, IR.string(interfaceName.get())).srcrefTree(cls.definition),
             VIRTUAL_FILE);
     constructorDoc.recordImplementedInterface(interfaceType);
 
@@ -726,7 +727,7 @@ final class PolymerClassRewriter {
 
       // Forming @type {{ propertyName : ? }}
       JSTypeExpression newType =
-          createNewTypeExpressionForExtern(propName, propType.getSourceName(), prop);
+          createNewTypeExpressionForExtern(propName, Optional.of(propType.getSourceName()).filter(s -> !s.isEmpty()), prop);
 
       JSDocInfo.Builder oldInfoBuilder = JSDocInfo.Builder.maybeCopyFrom(prop.info);
       JSDocInfo info = oldInfoBuilder.build();
@@ -739,7 +740,7 @@ final class PolymerClassRewriter {
 
   /** Creates a new type expression for JSDoc like @type {{ propertyName : ? }} */
   private static JSTypeExpression createNewTypeExpressionForExtern(
-      String propName, String sourceName, MemberDefinition prop) {
+      String propName, Optional<String> sourceName, MemberDefinition prop) {
     Node leftCurly = new Node(Token.LC);
     Node leftBracket = new Node(Token.LB);
     Node colon = new Node(Token.COLON);
@@ -751,7 +752,7 @@ final class PolymerClassRewriter {
     leftBracket.addChildToBack(colon);
     leftCurly.addChildToBack(leftBracket);
     leftCurly.srcrefTreeIfMissing(prop.name);
-    return new JSTypeExpression(leftCurly, sourceName);
+    return new JSTypeExpression(leftCurly, sourceName.orElse(""));
   }
 
   /** Remove all JSDocs from properties of a class definition */
@@ -963,16 +964,16 @@ final class PolymerClassRewriter {
       final PolymerClassDefinition cls, List<MemberDefinition> readOnlyProps) {
     Node block = IR.block();
 
-    String interfaceName = cls.getInterfaceName(compiler.getUniqueIdSupplier());
+    Optional<String> interfaceName = cls.getInterfaceName(compiler.getUniqueIdSupplier());
     Node fnNode = NodeUtil.emptyFunction();
     compiler.reportChangeToChangeScope(fnNode);
-    Node varNode = IR.var(NodeUtil.newQName(compiler, interfaceName), fnNode);
+    Node varNode = IR.var(NodeUtil.newQName(compiler, interfaceName.get()), fnNode);
 
     JSDocInfo.Builder info = JSDocInfo.builder().parseDocumentation();
     info.recordInterface();
     varNode.setJSDocInfo(info.build());
     block.addChildToBack(varNode);
-    String interfaceBasePath = interfaceName + ".prototype.";
+    String interfaceBasePath = interfaceName.orElse("null") + ".prototype.";
 
     appendBehaviorPropertiesToBlock(cls, block, interfaceBasePath, /* isExternsBlock= */ true);
     appendPropertiesToBlock(cls.props, block, interfaceBasePath, /* isExternsBlock= */ true);

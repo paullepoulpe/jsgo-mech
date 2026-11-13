@@ -23,8 +23,7 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import java.util.ArrayList;
@@ -497,20 +496,20 @@ public final class JSChunkGraphTest {
   public void testToJson() {
     makeDeps();
     makeGraph();
-    JsonArray chunks = graph.toJson();
+    List<SimpleJsonValue> chunks = graph.toJson().elements();
     assertThat(chunks).hasSize(7);
     for (int i = 0; i < chunks.size(); i++) {
-      JsonObject m = chunks.get(i).getAsJsonObject();
+      SimpleJsonValue m = chunks.get(i);
       assertThat(m.get("name")).isNotNull();
       assertThat(m.get("dependencies")).isNotNull();
       assertThat(m.get("transitive-dependencies")).isNotNull();
       assertThat(m.get("inputs")).isNotNull();
     }
-    JsonObject m = chunks.get(3).getAsJsonObject();
-    assertThat(m.get("name").getAsString()).isEqualTo("chunkD");
-    assertThat(m.get("dependencies").getAsJsonArray().toString()).isEqualTo("[\"chunkB\"]");
-    assertThat(m.get("transitive-dependencies").getAsJsonArray()).hasSize(2);
-    assertThat(m.get("inputs").getAsJsonArray().toString()).isEqualTo("[]");
+    SimpleJsonValue m = chunks.get(3);
+    assertThat(m.get("name").asString().get()).isEqualTo("chunkD");
+    assertThat(m.get("dependencies").toString()).isEqualTo("[\"chunkB\"]");
+    assertThat(m.get("transitive-dependencies").elements()).hasSize(2);
+    assertThat(m.get("inputs").toString()).isEqualTo("[]");
   }
 
   private List<CompilerInput> setUpManageDependenciesTest() {

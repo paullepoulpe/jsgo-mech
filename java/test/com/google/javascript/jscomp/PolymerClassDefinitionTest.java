@@ -89,7 +89,7 @@ public final class PolymerClassDefinitionTest extends CompilerTypeTestCase {
     assertThat(def.defType).isEqualTo(PolymerClassDefinition.DefinitionType.ObjectLiteral);
     assertNode(def.target).hasType(Token.NAME);
     assertThat(def.target.getString()).isEqualTo("A");
-    assertThat(def.nativeBaseElement).isNull();
+    assertThat(def.nativeBaseElement.orElse(null)).isNull();
     assertThat(def.behaviors).hasSize(1);
     assertThat(def.props).hasSize(2);
     assertThat(def.props.get(0).name.getString()).isEqualTo("pets");
@@ -123,7 +123,7 @@ public final class PolymerClassDefinitionTest extends CompilerTypeTestCase {
     assertThat(def.target.getString()).isEqualTo("A");
     assertThat(def.descriptor).isNotNull();
     assertNode(def.descriptor).hasType(Token.OBJECTLIT);
-    assertThat(def.nativeBaseElement).isNull();
+    assertThat(def.nativeBaseElement.orElse(null)).isNull();
     assertThat(def.behaviors).isNull();
     assertThat(def.props).hasSize(2);
   }

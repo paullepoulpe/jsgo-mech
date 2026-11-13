@@ -33,6 +33,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -141,19 +142,19 @@ public final class CompilerOptionsTest {
 
   @Test
   public void testLanguageModeFromString() {
-    assertThat(LanguageMode.fromString("ECMASCRIPT3")).isEqualTo(LanguageMode.ECMASCRIPT3);
+    assertThat(LanguageMode.fromString(Optional.of("ECMASCRIPT3"))).isEqualTo(LanguageMode.ECMASCRIPT3);
     // Whitespace should be trimmed, characters converted to uppercase and leading 'ES' replaced
     // with 'ECMASCRIPT'.
-    assertThat(LanguageMode.fromString("  es3  ")).isEqualTo(LanguageMode.ECMASCRIPT3);
-    assertThat(LanguageMode.fromString("junk")).isNull();
+    assertThat(LanguageMode.fromString(Optional.of("  es3  "))).isEqualTo(LanguageMode.ECMASCRIPT3);
+    assertThat(LanguageMode.fromString(Optional.of("junk"))).isNull();
 
-    assertThat(LanguageMode.fromString("ECMASCRIPT_2020")).isEqualTo(LanguageMode.ECMASCRIPT_2020);
+    assertThat(LanguageMode.fromString(Optional.of("ECMASCRIPT_2020"))).isEqualTo(LanguageMode.ECMASCRIPT_2020);
     // Whitespace should be trimmed, characters converted to uppercase and leading 'ES' replaced
     // with 'ECMASCRIPT'.
-    assertThat(LanguageMode.fromString("  es_2020  ")).isEqualTo(LanguageMode.ECMASCRIPT_2020);
-    assertThat(LanguageMode.fromString("  es2020  "))
+    assertThat(LanguageMode.fromString(Optional.of("  es_2020  "))).isEqualTo(LanguageMode.ECMASCRIPT_2020);
+    assertThat(LanguageMode.fromString(Optional.of("  es2020  ")))
         .isNull(); // generates invalid "ECMASCRIPT2020"
-    assertThat(LanguageMode.fromString("junk")).isNull();
+    assertThat(LanguageMode.fromString(Optional.of("junk"))).isNull();
   }
 
   @Test

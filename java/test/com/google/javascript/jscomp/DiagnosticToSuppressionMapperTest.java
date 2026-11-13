@@ -27,6 +27,7 @@ import com.google.javascript.jscomp.parsing.ParserRunner;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -92,7 +93,7 @@ public final class DiagnosticToSuppressionMapperTest {
     ImmutableMap<String, DiagnosticGroup> diagnosticGroups =
         ImmutableMap.of(
             "suppressionA",
-            new DiagnosticGroup("suppressionA", testError2, testError3),
+            new DiagnosticGroup(Optional.of("suppressionA"), testError2, testError3),
             "suppressionB",
             DiagnosticGroup.forType(testError1));
 

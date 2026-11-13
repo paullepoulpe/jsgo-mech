@@ -37,6 +37,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Just to fold known methods when they are called with constants. */
@@ -522,19 +523,19 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     // See ECMA-262 § 22.1.3.32 (trim), § 22.1.3.34 (trimStart), § 22.1.3.33 (trimEnd),
     // Annex B.2.2.15 (trimLeft), Annex B.2.2.16 (trimRight), § 12.2, and § 12.3
     // All Unicode whitespace + LineTerminator + BOM
-    String result =
+    Optional<String> result =
         switch (functionName) {
-          case "trim" -> TRIM_BOTH_PATTERN.matcher(stringNode.getString()).replaceAll("");
+          case "trim" -> Optional.ofNullable(TRIM_BOTH_PATTERN.matcher(stringNode.getString()).replaceAll(""));
           case "trimStart", "trimLeft" ->
-              TRIM_START_PATTERN.matcher(stringNode.getString()).replaceAll("");
+              Optional.ofNullable(TRIM_START_PATTERN.matcher(stringNode.getString()).replaceAll(""));
           case "trimEnd", "trimRight" ->
-              TRIM_END_PATTERN.matcher(stringNode.getString()).replaceAll("");
-          default -> null;
+              Optional.ofNullable(TRIM_END_PATTERN.matcher(stringNode.getString()).replaceAll(""));
+          default -> Optional.empty();
         };
-    if (result == null) {
+    if (result.isEmpty()) {
       return subtree;
     }
-    Node replacement = IR.string(result).srcref(subtree);
+    Node replacement = IR.string(result.get()).srcref(subtree);
     subtree.replaceWith(replacement);
     reportChangeToEnclosingScope(replacement);
     return replacement;
@@ -614,7 +615,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
 
     if (!isParseInt) {
       // parseFloat logic
-      String stringVal;
+      Optional<String> stringVal;
       if (NodeUtil.isNumericLiteral(firstArg)) {
         Double checkVal = getSideEffectFreeNumberValue(firstArg);
         Node numericNode = NodeUtil.numberNode(checkVal, n);
@@ -623,18 +624,18 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
         return numericNode;
       } else {
         stringVal = getSideEffectFreeStringValue(firstArg);
-        if (stringVal == null) {
-          return n;
-        }
-        Double checkVal = NodeUtil.getStringNumberValue(stringVal);
-        if (checkVal == null) {
-          return n;
-        }
-        stringVal = NodeUtil.trimJsWhiteSpace(stringVal);
         if (stringVal.isEmpty()) {
           return n;
         }
-        if (stringVal.equals("0")) {
+        Double checkVal = NodeUtil.getStringNumberValue(stringVal.get());
+        if (checkVal == null) {
+          return n;
+        }
+        stringVal = Optional.of(NodeUtil.trimJsWhiteSpace(stringVal.get()));
+        if (stringVal.get().isEmpty()) {
+          return n;
+        }
+        if (stringVal.get().equals("0")) {
           Node newNode = IR.number(0);
           n.replaceWith(newNode);
           reportChangeToEnclosingScope(newNode);
@@ -642,14 +643,14 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
         }
         String normalizedNewVal = "0";
         // Double.parseDouble trims its argument; other than that Doubles.tryParse accepts the same.
-        Double parsed = Doubles.tryParse(stringVal.trim());
+        Double parsed = Doubles.tryParse(stringVal.get().trim());
         if (parsed == null) {
           return n;
         }
         double newVal = parsed;
         Node newNode = NodeUtil.numberNode(newVal, n);
         normalizedNewVal = normalizeNumericString(String.valueOf(newVal));
-        if (!normalizeNumericString(stringVal).equals(normalizedNewVal)) {
+        if (!normalizeNumericString(stringVal.get()).equals(normalizedNewVal)) {
           return n;
         }
         n.replaceWith(newNode);
@@ -659,30 +660,30 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     }
 
     // parseInt logic following ECMA-262 semantics
-    String stringVal = getSideEffectFreeStringValue(firstArg);
-    if (stringVal == null) {
-      return n;
-    }
-
-    stringVal = NodeUtil.trimJsWhiteSpace(stringVal);
+    Optional<String> stringVal = getSideEffectFreeStringValue(firstArg);
     if (stringVal.isEmpty()) {
       return n;
     }
 
+    stringVal = Optional.of(NodeUtil.trimJsWhiteSpace(stringVal.get()));
+    if (stringVal.get().isEmpty()) {
+      return n;
+    }
+
     boolean isNegative = false;
-    if (stringVal.startsWith("-")) {
+    if (stringVal.get().startsWith("-")) {
       isNegative = true;
-      stringVal = stringVal.substring(1);
-    } else if (stringVal.startsWith("+")) {
-      stringVal = stringVal.substring(1);
+      stringVal = Optional.of(stringVal.get().substring(1));
+    } else if (stringVal.get().startsWith("+")) {
+      stringVal = Optional.of(stringVal.get().substring(1));
     }
 
     if (radix == 0 || radix == 16) {
-      if (stringVal.length() > 1 && Ascii.equalsIgnoreCase(stringVal.substring(0, 2), "0x")) {
+      if (stringVal.get().length() > 1 && Ascii.equalsIgnoreCase(stringVal.get().substring(0, 2), "0x")) {
         radix = 16;
-        stringVal = stringVal.substring(2);
+        stringVal = Optional.of(stringVal.get().substring(2));
       } else if (radix == 0) {
-        if (!isEcmaScript5OrGreater() && stringVal.startsWith("0")) {
+        if (!isEcmaScript5OrGreater() && stringVal.get().startsWith("0")) {
           return n;
         }
         radix = 10;
@@ -690,8 +691,8 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     }
 
     int endDigitIndex = 0;
-    while (endDigitIndex < stringVal.length()) {
-      char c = stringVal.charAt(endDigitIndex);
+    while (endDigitIndex < stringVal.get().length()) {
+      char c = stringVal.get().charAt(endDigitIndex);
       if (getRadixDigit(c, radix) < 0) {
         break;
       }
@@ -702,7 +703,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
       return n;
     }
 
-    String digits = stringVal.substring(0, endDigitIndex);
+    String digits = stringVal.get().substring(0, endDigitIndex);
     // Cannot throw NumberFormatException: digits is one or more valid digits in a radix of 2..36.
     BigInteger bi = new BigInteger(digits, radix);
     double newVal = bi.doubleValue();
@@ -748,9 +749,9 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     String lstring = lstringNode.getString();
     boolean isIndexOf = functionName.equals("indexOf");
     Node secondArg = firstArg.getNext();
-    String searchValue = getSideEffectFreeStringValue(firstArg);
+    Optional<String> searchValue = getSideEffectFreeStringValue(firstArg);
     // searchValue must be a valid string.
-    if (searchValue == null) {
+    if (searchValue.isEmpty()) {
       return n;
     }
     int fromIndex = isIndexOf ? 0 : lstring.length();
@@ -764,8 +765,8 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     }
     int indexVal =
         isIndexOf
-            ? lstring.indexOf(searchValue, fromIndex)
-            : lstring.lastIndexOf(searchValue, fromIndex);
+            ? lstring.indexOf(searchValue.get(), fromIndex)
+            : lstring.lastIndexOf(searchValue.get(), fromIndex);
     Node newNode = NodeUtil.numberNode(indexVal, n);
     n.replaceWith(newNode);
     reportChangeToEnclosingScope(newNode);
@@ -790,8 +791,8 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     }
 
     String lstring = lstringNode.getString();
-    String searchValue = getSideEffectFreeStringValue(firstArg);
-    if (searchValue == null) {
+    Optional<String> searchValue = getSideEffectFreeStringValue(firstArg);
+    if (searchValue.isEmpty()) {
       return n;
     }
 
@@ -809,7 +810,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
       }
     }
 
-    boolean contains = lstring.indexOf(searchValue, fromIndex) != -1;
+    boolean contains = lstring.indexOf(searchValue.get(), fromIndex) != -1;
     Node newNode = NodeUtil.booleanNode(contains).srcref(n);
     n.replaceWith(newNode);
     reportChangeToEnclosingScope(newNode);
@@ -833,8 +834,8 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     }
 
     String lstring = lstringNode.getString();
-    String searchValue = getSideEffectFreeStringValue(firstArg);
-    if (searchValue == null) {
+    Optional<String> searchValue = getSideEffectFreeStringValue(firstArg);
+    if (searchValue.isEmpty()) {
       return n;
     }
 
@@ -852,7 +853,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
       }
     }
 
-    boolean result = lstring.startsWith(searchValue, start);
+    boolean result = lstring.startsWith(searchValue.get(), start);
     Node newNode = NodeUtil.booleanNode(result).srcref(n);
     n.replaceWith(newNode);
     reportChangeToEnclosingScope(newNode);
@@ -876,8 +877,8 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     }
 
     String lstring = lstringNode.getString();
-    String searchValue = getSideEffectFreeStringValue(firstArg);
-    if (searchValue == null) {
+    Optional<String> searchValue = getSideEffectFreeStringValue(firstArg);
+    if (searchValue.isEmpty()) {
       return n;
     }
 
@@ -899,9 +900,9 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
       }
     }
 
-    int searchLength = searchValue.length();
+    int searchLength = searchValue.get().length();
     int start = end - searchLength;
-    boolean result = start >= 0 && lstring.startsWith(searchValue, start);
+    boolean result = start >= 0 && lstring.startsWith(searchValue.get(), start);
     Node newNode = NodeUtil.booleanNode(result).srcref(n);
     n.replaceWith(newNode);
     reportChangeToEnclosingScope(newNode);
@@ -988,8 +989,8 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
 
     // logic above ensures that `right` is immutable, so no need to check for
     // side effects with getSideEffectFreeStringValue(right)
-    String joinString =
-        (right == null || NodeUtil.isUndefined(right)) ? "," : NodeUtil.getStringValue(right);
+    Optional<String> joinString =
+        (right == null || NodeUtil.isUndefined(right)) ? Optional.of(",") : NodeUtil.getStringValue(right);
     List<Node> arrayFoldedChildren = new ArrayList<>();
     StringBuilder sb = null;
     int foldedSize = 0;
@@ -1001,13 +1002,13 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
         if (sb == null) {
           sb = new StringBuilder();
         } else {
-          sb.append(joinString);
+          sb.append(joinString.orElse("null"));
         }
-        String elementStr = NodeUtil.getArrayElementStringValue(elem);
-        if (elementStr == null) {
+        Optional<String> elementStr = NodeUtil.getArrayElementStringValue(elem);
+        if (elementStr.isEmpty()) {
           return n; // TODO(nickreid): Is this ever null?
         }
-        sb.append(elementStr);
+        sb.append(elementStr.get());
       } else {
         if (sb != null) {
           checkNotNull(prev);
@@ -1348,9 +1349,8 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
   }
 
   /** Implement the JS String.split method using a string separator. */
-  private String[] jsSplit(String stringValue, String separator, int limit) {
+  private String[] jsSplit(String stringValue, Optional<String> separator, int limit) {
     checkArgument(limit >= 0);
-    checkArgument(stringValue != null);
 
     // For limits of 0, return an empty array
     if (limit == 0) {
@@ -1359,7 +1359,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
 
     // If a separator is not specified, return the entire string as
     // the only element of an array.
-    if (separator == null) {
+    if (separator.isEmpty()) {
       return new String[] {stringValue};
     }
 
@@ -1367,7 +1367,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
 
     // If an empty string is specified for the separator, split apart each
     // character of the string.
-    if (separator.isEmpty()) {
+    if (separator.get().isEmpty()) {
       for (int i = 0; i < stringValue.length() && i < limit; i++) {
         splitStrings.add(stringValue.substring(i, i + 1));
       }
@@ -1375,13 +1375,13 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
       int startIndex = 0;
       int matchIndex;
       while (true) {
-        matchIndex = jsSplitMatch(stringValue, startIndex, separator);
+        matchIndex = jsSplitMatch(stringValue, startIndex, separator.get());
         if (!(matchIndex >= 0 && splitStrings.size() < limit)) {
           break;
         }
         splitStrings.add(stringValue.substring(startIndex, matchIndex));
 
-        startIndex = matchIndex + separator.length();
+        startIndex = matchIndex + separator.get().length();
       }
 
       if (splitStrings.size() < limit) {
@@ -1405,7 +1405,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
     checkArgument(n.isCall());
     checkArgument(stringNode.isStringLit());
 
-    String separator = null;
+    Optional<String> separator = Optional.empty();
     String stringValue = stringNode.getString();
 
     // Maximum number of possible splits
@@ -1413,7 +1413,7 @@ class PeepholeReplaceKnownMethods extends AbstractPeepholeOptimization {
 
     if (arg1 != null) {
       if (arg1.isStringLit()) {
-        separator = arg1.getString();
+        separator = Optional.of(arg1.getString());
       } else if (!arg1.isNull()) {
         return n;
       }

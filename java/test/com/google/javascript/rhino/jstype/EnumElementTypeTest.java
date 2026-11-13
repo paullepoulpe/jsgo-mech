@@ -42,6 +42,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.javascript.rhino.testing.TypeSubject.assertType;
 
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -126,6 +127,6 @@ public class EnumElementTypeTest extends BaseJSTypeTestCase {
   }
 
   private EnumType createEnumType(String name, JSType elementType) {
-    return EnumType.builder(registry).setName(name).setElementType(elementType).build();
+    return EnumType.builder(registry).setName(Optional.ofNullable(name)).setElementType(elementType).build();
   }
 }

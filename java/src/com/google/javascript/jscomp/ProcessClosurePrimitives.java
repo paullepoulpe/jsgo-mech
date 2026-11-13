@@ -37,6 +37,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -177,25 +178,25 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
           break;
         }
         String lhs = n.getFirstFirstChild().getQualifiedName();
-        checkPossibleGoogProvideInit(lhs, n.getFirstChild().getJSDocInfo(), n);
+        checkPossibleGoogProvideInit(Optional.of(lhs).filter(s -> !s.isEmpty()), n.getFirstChild().getJSDocInfo(), n);
       }
       case VAR, CONST, LET -> {
         if (!n.getFirstChild().isName()) {
           break;
         }
-        checkPossibleGoogProvideInit(n.getFirstChild().getString(), n.getJSDocInfo(), n);
+        checkPossibleGoogProvideInit(Optional.of(n.getFirstChild().getString()), n.getJSDocInfo(), n);
       }
       default -> {}
     }
   }
 
   private void checkPossibleGoogProvideInit(
-      String namespace, @Nullable JSDocInfo info, Node definition) {
+      Optional<String> namespace, @Nullable JSDocInfo info, Node definition) {
     if (info == null || definition.isFromExterns()) {
       return;
     }
 
-    ModuleMetadata metadata = this.closureModules.get(namespace);
+    ModuleMetadata metadata = namespace.isPresent() ? this.closureModules.get(namespace.get()) : null;
     if (metadata == null || !metadata.isGoogProvide()) {
       return;
     }
@@ -357,7 +358,7 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
     if (enclosingFnNameNode == null || !enclosingFnNameNode.isUnscopedQualifiedName()) {
       // some unknown container method or a MEMBER_FUNCTION_DEF.
       if (knownClosureSubclasses.contains(baseContainer)) {
-        reportBadBaseMethodUse(n, baseContainer, "Could not find enclosing method.");
+        reportBadBaseMethodUse(n, Optional.of(baseContainer).filter(s -> !s.isEmpty()), "Could not find enclosing method.");
       } else if (baseUsedInClass(n)) {
         Node clazz = NodeUtil.getEnclosingClass(n);
         // TODO(lharker): this check ignores class expressions like "foo.Bar = class extends X {}"
@@ -367,7 +368,7 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
                 && clazz.getSecondChild().getString().equals(baseContainer))) {
           reportBadBaseMethodUse(
               n,
-              clazz.getFirstChild().getString(),
+              Optional.of(clazz.getFirstChild().getString()),
               "base method is not allowed in ES6 class. Use super instead.");
         }
       }
@@ -376,7 +377,7 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
 
     if (baseUsedInClass(n)) {
       Node clazz = NodeUtil.getEnclosingClass(n);
-      String name = NodeUtil.getBestLValueName(clazz);
+      Optional<String> name = NodeUtil.getBestLValueName(clazz);
       reportBadBaseMethodUse(
           n, name, "base method is not allowed in ES6 class. Use super instead.");
       return;
@@ -384,20 +385,20 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
 
     String enclosingQname = enclosingFnNameNode.getQualifiedName();
     if (!enclosingQname.contains(".prototype.")) {
-      rewriteBaseCallInConstructor(enclosingQname, baseContainer, n, enclosingFnNameNode);
+      rewriteBaseCallInConstructor(enclosingQname, Optional.of(baseContainer).filter(s -> !s.isEmpty()), n, enclosingFnNameNode);
     } else {
-      rewriteBaseCallInMethod(enclosingQname, baseContainer, n, enclosingFnNameNode);
+      rewriteBaseCallInMethod(Optional.of(enclosingQname).filter(s -> !s.isEmpty()), Optional.of(baseContainer).filter(s -> !s.isEmpty()), n, enclosingFnNameNode);
     }
   }
 
   private void rewriteBaseCallInConstructor(
-      String enclosingQname, String baseContainer, Node n, Node enclosingFnNameNode) {
+      String enclosingQname, Optional<String> baseContainer, Node n, Node enclosingFnNameNode) {
     // Check if this is some other "base" method.
-    if (!enclosingQname.equals(baseContainer)) {
+    if (!Optional.of(enclosingQname).equals(baseContainer)) {
       // Report misuse of "base" methods from other known classes.
-      if (knownClosureSubclasses.contains(baseContainer)) {
+      if (baseContainer.isPresent() && knownClosureSubclasses.contains(baseContainer.get())) {
         reportBadBaseMethodUse(
-            n, baseContainer, "Must be used within " + baseContainer + " methods");
+            n, baseContainer, "Must be used within " + baseContainer.orElse("null") + " methods");
       }
       return;
     }
@@ -442,8 +443,8 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
   }
 
   private void rewriteBaseCallInMethod(
-      String enclosingQname, String baseContainer, Node n, Node enclosingFnNameNode) {
-    if (!knownClosureSubclasses.contains(baseContainer)) {
+      Optional<String> enclosingQname, Optional<String> baseContainer, Node n, Node enclosingFnNameNode) {
+    if (!(baseContainer.isPresent() && knownClosureSubclasses.contains(baseContainer.get()))) {
       // Can't determine if this is a known "class" that has a known "base" method. Don't rewrite
       // the "base" method call because if it's not a Closure subclass, the rewriting would be
       // wrong. Instead emit an error the user can either suppress or fix.
@@ -451,9 +452,9 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
           n,
           baseContainer,
           "base used outside a known Closure subclass, in: "
-              + baseContainer
+              + baseContainer.orElse("null")
               + "\nIf "
-              + baseContainer
+              + baseContainer.orElse("null")
               + " is actually a Closure subclass, the compiler is unable to statically determine"
               + " this. This can happen when calling .base off of some import or other alias of the"
               + " original Closure subclass, such as from a goog.require in another file. Instead"
@@ -462,10 +463,10 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
     }
 
     boolean misuseOfBase =
-        !enclosingFnNameNode.getFirstFirstChild().matchesQualifiedName(baseContainer);
+        !enclosingFnNameNode.getFirstFirstChild().matchesQualifiedName(baseContainer.get());
     if (misuseOfBase) {
       // Report misuse of "base" methods from other known classes.
-      reportBadBaseMethodUse(n, baseContainer, "Must be used within " + baseContainer + " methods");
+      reportBadBaseMethodUse(n, baseContainer, "Must be used within " + baseContainer.orElse("null") + " methods");
       return;
     }
 
@@ -486,7 +487,7 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
 
     String methodName = methodNameNode.getString();
     String ending = ".prototype." + methodName;
-    if (enclosingQname == null || !enclosingQname.endsWith(ending)) {
+    if (enclosingQname.isEmpty() || !enclosingQname.get().endsWith(ending)) {
       reportBadBaseMethodUse(n, baseContainer, "Enclosing method does not match " + methodName);
       return;
     }
@@ -498,7 +499,7 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
             compiler,
             className.getQualifiedName() + ".superClass_." + methodName + ".call",
             callee,
-            enclosingQname + ".base"));
+            enclosingQname.get() + ".base"));
     methodNameNode.detach();
     compiler.reportChangeToEnclosingScope(n);
   }
@@ -556,8 +557,8 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
   }
 
   /** Reports an incorrect use of super-method calling. */
-  private void reportBadBaseMethodUse(Node n, String className, String extraMessage) {
-    compiler.report(JSError.make(n, BASE_CLASS_ERROR, className, extraMessage));
+  private void reportBadBaseMethodUse(Node n, Optional<String> className, String extraMessage) {
+    compiler.report(JSError.make(n, BASE_CLASS_ERROR, className.orElse("null"), extraMessage));
   }
 
   /**
@@ -567,8 +568,8 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
    * positive that should be suppressible in JS code, instead of a coding pattern that is definitely
    * bad and is not suppressible.
    */
-  private void reportPossibleBadBaseMethodUse(Node n, String className, String extraMessage) {
-    compiler.report(JSError.make(n, POSSIBLE_BASE_CLASS_ERROR, className, extraMessage));
+  private void reportPossibleBadBaseMethodUse(Node n, Optional<String> className, String extraMessage) {
+    compiler.report(JSError.make(n, POSSIBLE_BASE_CLASS_ERROR, className.orElse("null"), extraMessage));
   }
 
   /**
@@ -639,8 +640,8 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
           continue;
         }
         for (Map.Entry<String, String> a : cssNames.entrySet()) {
-          String combined = cssNames.get(a.getKey() + "-" + b.getKey());
-          if (combined != null && !combined.equals(a.getValue() + "-" + b.getValue())) {
+          Optional<String> combined = Optional.ofNullable(cssNames.get(a.getKey() + "-" + b.getKey()));
+          if (combined.isPresent() && !combined.get().equals(a.getValue() + "-" + b.getValue())) {
             errors.add(
                 "map("
                     + a.getKey()
@@ -661,11 +662,11 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
 
     return new CssRenamingMap() {
       @Override
-      public String get(String value) {
+      public Optional<String> get(String value) {
         if (cssNames.containsKey(value)) {
-          return cssNames.get(value);
+          return Optional.ofNullable(cssNames.get(value));
         } else {
-          return value;
+          return Optional.of(value);
         }
       }
 
@@ -694,10 +695,10 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
     }
     CodingConvention convention = compiler.getCodingConvention();
 
-    String typeDeclaration = null;
+    Optional<String> typeDeclaration = Optional.empty();
     try {
-      typeDeclaration = Iterables.getOnlyElement(
-          convention.identifyTypeDeclarationCall(n));
+      typeDeclaration = Optional.ofNullable(Iterables.getOnlyElement(
+          convention.identifyTypeDeclarationCall(n)));
     } catch (NullPointerException | NoSuchElementException | IllegalArgumentException e) {
       compiler.report(
           JSError.make(
@@ -706,8 +707,8 @@ class ProcessClosurePrimitives extends AbstractPostOrderCallback implements Comp
               "A single type could not identified for the goog.forwardDeclare statement"));
     }
 
-    if (typeDeclaration != null) {
-      compiler.forwardDeclareType(typeDeclaration);
+    if (typeDeclaration.isPresent()) {
+      compiler.forwardDeclareType(typeDeclaration.get());
     }
   }
 

@@ -21,6 +21,7 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** A normalization pass to re-write Util.$getDefine calls to make them work in compiled mode. */
@@ -83,12 +84,12 @@ public class J2clUtilGetDefineRewriterPass extends AbstractPostOrderCallback
   }
 
   private static boolean isUtilGetDefineCall(Node n) {
-    return n.isCall() && isUtilGetDefineMethodName(n.getFirstChild().getQualifiedName());
+    return n.isCall() && isUtilGetDefineMethodName(Optional.of(n.getFirstChild().getQualifiedName()).filter(s -> !s.isEmpty()));
   }
 
-  private static boolean isUtilGetDefineMethodName(String fnName) {
+  private static boolean isUtilGetDefineMethodName(Optional<String> fnName) {
     // TODO: Switch this to the filename + property name heuristic which is less brittle.
-    return fnName != null && fnName.endsWith(".$getDefine") && fnName.contains("Util");
+    return fnName.isPresent() && fnName.get().endsWith(".$getDefine") && fnName.get().contains("Util");
   }
 
   static final DiagnosticType J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME =
@@ -119,16 +120,16 @@ public class J2clUtilGetDefineRewriterPass extends AbstractPostOrderCallback
     @Override
     public void visit(NodeTraversal t, Node n, @Nullable Node parent) {
       if (isAddSystemPropertyFromGoogDefine(n)) {
-        String defineName = getDefineNameParameter(n);
-        if (defineName != null) {
-          defineNameToAddSystemPropertyCall.put(defineName, n);
+        Optional<String> defineName = getDefineNameParameter(n);
+        if (defineName.isPresent()) {
+          defineNameToAddSystemPropertyCall.put(defineName.get(), n);
         } else {
           compiler.report(JSError.make(n, J2CL_ADD_SYSTEM_PROPERTY_CONSTANT_NAME));
         }
       } else if (isUtilGetDefineCall(n)) {
-        String defineName = getDefineNameParameter(n);
-        if (defineName != null) {
-          defineNameToGetDefineCall.put(defineName, n);
+        Optional<String> defineName = getDefineNameParameter(n);
+        if (defineName.isPresent()) {
+          defineNameToGetDefineCall.put(defineName.get(), n);
         } else {
           compiler.report(JSError.make(n, J2CL_SYSTEM_GET_PROPERTY_CONSTANT_NAME));
         }
@@ -163,17 +164,17 @@ public class J2clUtilGetDefineRewriterPass extends AbstractPostOrderCallback
       }
     }
 
-    private static @Nullable String getDefineNameParameter(Node callNode) {
+    private static Optional<String> getDefineNameParameter(Node callNode) {
       Node nameNode = callNode.getSecondChild();
       if (nameNode == null || !nameNode.isString()) {
-        return null;
+        return Optional.empty();
       }
-      return nameNode.getString();
+      return Optional.of(nameNode.getString());
     }
 
     private static boolean isAddSystemPropertyFromGoogDefine(Node n) {
       return n.isCall()
-          && n.getFirstChild().getQualifiedName() != null
+          && !n.getFirstChild().getQualifiedName().isEmpty()
           && n.getFirstChild().getQualifiedName().endsWith("addSystemPropertyFromGoogDefine");
     }
   }

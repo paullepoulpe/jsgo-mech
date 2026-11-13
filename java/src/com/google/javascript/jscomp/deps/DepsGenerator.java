@@ -40,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -243,7 +244,7 @@ public class DepsGenerator {
       newJsFiles.put(
           dependencyInfo.getPathRelativeToClosureBase(),
           SimpleDependencyInfo.builder(
-                  dependencyInfo.getPathRelativeToClosureBase(), dependencyInfo.getName())
+                  dependencyInfo.getPathRelativeToClosureBase(), Optional.of(dependencyInfo.getName()))
               .setProvides(provides)
               .setRequires(newRequires)
               .setLoadFlags(dependencyInfo.getLoadFlags())
@@ -301,25 +302,25 @@ public class DepsGenerator {
 
   private void reportMissingFile(DependencyInfo depInfo, String path) {
     errorManager.report(
-        CheckLevel.ERROR, JSError.make(depInfo.getName(), -1, -1, UNKNOWN_PATH_IMPORT, path));
+        CheckLevel.ERROR, JSError.make(Optional.of(depInfo.getName()), -1, -1, UNKNOWN_PATH_IMPORT, path));
   }
 
   private void reportEs6ImportForNonEs6Module(DependencyInfo provider, DependencyInfo depInfo) {
     errorManager.report(
         CheckLevel.ERROR,
-        JSError.make(depInfo.getName(), -1, -1, ES6_IMPORT_FOR_NON_ES6_MODULE, provider.getName()));
+        JSError.make(Optional.of(depInfo.getName()), -1, -1, ES6_IMPORT_FOR_NON_ES6_MODULE, provider.getName()));
   }
 
   private void reportSameFile(String namespace, DependencyInfo depInfo) {
     errorManager.report(CheckLevel.WARNING,
-        JSError.make(depInfo.getName(), -1, -1,
+        JSError.make(Optional.of(depInfo.getName()), -1, -1,
             SAME_FILE_WARNING, namespace));
   }
 
   private void reportUndefinedNamespace(
       String namespace, DependencyInfo depInfo) {
     errorManager.report(CheckLevel.ERROR,
-        JSError.make(depInfo.getName(), -1, -1,
+        JSError.make(Optional.of(depInfo.getName()), -1, -1,
             NEVER_PROVIDED_ERROR, namespace));
   }
 
@@ -329,18 +330,18 @@ public class DepsGenerator {
       if (!firstDep.getPathRelativeToClosureBase().equals(namespace)) {
         errorManager.report(
             CheckLevel.WARNING,
-            JSError.make(firstDep.getName(), -1, -1, DUPE_PROVIDES_WARNING, namespace));
+            JSError.make(Optional.of(firstDep.getName()), -1, -1, DUPE_PROVIDES_WARNING, namespace));
       }
     } else {
       errorManager.report(CheckLevel.ERROR,
-          JSError.make(secondDep.getName(), -1, -1,
+          JSError.make(Optional.of(secondDep.getName()), -1, -1,
               MULTIPLE_PROVIDES_ERROR, namespace, firstDep.getName()));
     }
   }
 
   private void reportNoDepsInDepsFile(String filePath) {
     errorManager.report(CheckLevel.WARNING,
-        JSError.make(filePath, -1, -1, NO_DEPS_WARNING));
+        JSError.make(Optional.of(filePath), -1, -1, NO_DEPS_WARNING));
   }
 
   /**

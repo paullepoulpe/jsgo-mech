@@ -590,7 +590,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       Node mapVar =
           astFactory
               .createSingleConstNameDeclaration(
-                  record.getPrivateMapVarName(compiler, t),
+                  record.getPrivateMapVarName(compiler, t).get(),
                   astFactory.createNewNode(astFactory.createQNameWithUnknownTypeJsLibField(jscompPrivateMap)))
               .srcrefTreeIfMissing(record.classNode);
       mapVar.insertBefore(classInsertionPoint);
@@ -655,7 +655,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
         Node protoVar =
             astFactory
                 .createSingleConstNameDeclaration(
-                    record.getPrivateProtoVarName(compiler, t), protoCall)
+                    record.getPrivateProtoVarName(compiler, t).get(), protoCall)
                 .srcrefTreeIfMissing(record.classNode);
         protoVar.insertBefore(classInsertionPoint);
         compiler.reportChangeToEnclosingScope(protoVar);
@@ -669,7 +669,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       Node staticMapVar =
           astFactory
               .createSingleConstNameDeclaration(
-                  record.getStaticPrivateMapVarName(compiler, t),
+                  record.getStaticPrivateMapVarName(compiler, t).get(),
                   astFactory.createNewNode(astFactory.createQNameWithUnknownTypeJsLibField(jscompPrivateMap)))
               .srcrefTreeIfMissing(record.classNode);
       staticMapVar.insertBefore(classInsertionPoint);
@@ -709,12 +709,12 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     Node right = inNode.getLastChild().detach();
     ClassRecord record = resolved.classRecord();
     boolean isStatic = resolved.privateMember().isStatic;
-    String mapVarName =
+    Optional<String> mapVarName =
         isStatic
             ? record.getStaticPrivateMapVarName(compiler, t)
             : record.getPrivateMapVarName(compiler, t);
 
-    Node mapNameNode = astFactory.createNameWithUnknownType(mapVarName);
+    Node mapNameNode = astFactory.createNameWithUnknownType(mapVarName.get());
     Node hasCallee = astFactory.createGetPropWithUnknownType(mapNameNode, "has");
     Node hasCall = astFactory.createCallWithUnknownType(hasCallee, right);
 
@@ -796,14 +796,14 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       ClassRecord.PrivateMember pm,
       Node parent) {
     boolean isStatic = pm.isStatic;
-    String mapVarName =
+    Optional<String> mapVarName =
         isStatic
             ? record.getStaticPrivateMapVarName(compiler, t)
             : record.getPrivateMapVarName(compiler, t);
     String memberPropName = pm.propertyName();
 
     Node receiver = getPropNode.getFirstChild().detach();
-    Node mapNameNode = astFactory.createNameWithUnknownType(mapVarName);
+    Node mapNameNode = astFactory.createNameWithUnknownType(mapVarName.get());
     Node getCallee = astFactory.createGetPropWithUnknownType(mapNameNode, "get");
 
     boolean isOptChain = getPropNode.isOptChainGetProp();
@@ -1256,14 +1256,14 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     Node insertionPoint = addTemporaryInsertionPoint(ctorBlock, record);
 
     if (hasPriv) {
-      String mapName = record.getPrivateMapVarName(compiler, t);
-      String privName = record.getPrivateVarName(compiler, t);
+      Optional<String> mapName = record.getPrivateMapVarName(compiler, t);
+      Optional<String> privName = record.getPrivateVarName(compiler, t);
 
       Node privInit;
       if (record.hasInstancePrivateMethodsOrAccessors) {
         // Initializer: Object.create(PRIVATE_PROTO$uid)
         Node protoName =
-            astFactory.createNameWithUnknownType(record.getPrivateProtoVarName(compiler, t));
+            astFactory.createNameWithUnknownType(record.getPrivateProtoVarName(compiler, t).get());
         Node createProp =
             astFactory.createGetPropWithUnknownType(
                 astFactory.createNameWithUnknownType("Object"), "create");
@@ -1278,7 +1278,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       // Add `const PRIVATE$uid = privInit;` to the original code.
       Node privDecl =
           astFactory
-              .createSingleConstNameDeclaration(privName, privInit)
+              .createSingleConstNameDeclaration(privName.get(), privInit)
               .srcrefTreeIfMissing(record.classNode);
       privDecl.insertBefore(insertionPoint);
 
@@ -1286,7 +1286,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
         // Add `PRIVATE$uid.$self = this;` to the original code.
         Node privSelf =
             astFactory.createGetPropWithUnknownType(
-                astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), "$self");
+                astFactory.createConstantName(privName.get(), typeColor(StandardColors.UNKNOWN)), "$self");
         Node assignSelf =
             astFactory
                 .createAssignStatement(privSelf, astFactory.createThisForEs6Class(record.classNode))
@@ -1295,13 +1295,13 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       }
 
       // Add `PRIVATE_MAP$uid.set(this, PRIVATE$uid);` to the original code.
-      Node mapNameNode = astFactory.createNameWithUnknownType(mapName);
+      Node mapNameNode = astFactory.createNameWithUnknownType(mapName.get());
       Node mapSetCallee = astFactory.createGetPropWithUnknownType(mapNameNode, "set");
       Node mapSetCall =
           astFactory.createCallWithUnknownType(
               mapSetCallee,
               astFactory.createThisForEs6Class(record.classNode),
-              astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)));
+              astFactory.createConstantName(privName.get(), typeColor(StandardColors.UNKNOWN)));
       Node mapSetStmt = astFactory.exprResult(mapSetCall).srcrefTreeIfMissing(record.classNode);
       mapSetStmt.insertBefore(insertionPoint);
     }
@@ -1313,12 +1313,12 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
 
       if (instanceMember.isPrivateIdentifier()) {
         if (transpilePrivateClassFields) {
-          String privName = record.getPrivateVarName(compiler, t);
+          Optional<String> privName = record.getPrivateVarName(compiler, t);
           String propName = instanceMember.getString().substring(1);
           // Add `PRIVATE$uid.field = fieldValue;` to the original code.
           Node lhs =
               astFactory.createGetPropWithUnknownType(
-                  astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), propName);
+                  astFactory.createConstantName(privName.get(), typeColor(StandardColors.UNKNOWN)), propName);
           Node fieldValue =
               instanceMember.hasChildren()
                   ? instanceMember.removeFirstChild()
@@ -1544,7 +1544,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     }
 
     String propName = noncomputedField.getString();
-    if (Objects.equals(propName, "__proto__")) {
+    if ("__proto__".equals(propName)) {
       return createFieldDefineProperty(
           noncomputedField, fieldValue, receiver, astFactory.createString(propName));
     }
@@ -1576,7 +1576,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       compFieldNameExpr = computedField.getFirstChild().cloneTree();
     }
 
-    if (Objects.equals(NodeUtil.getStringValue(compFieldNameExpr), "__proto__")) {
+    if ("__proto__".equals(NodeUtil.getStringValue(compFieldNameExpr).orElse(""))) {
       return createFieldDefineProperty(computedField, fieldValue, receiver, compFieldNameExpr);
     }
 
@@ -1671,8 +1671,8 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     Node staticInitTempParent = IR.block();
 
     if (hasPriv) {
-      String staticMapName = record.getStaticPrivateMapVarName(compiler, t);
-      String privName = record.getStaticPrivateVarName(compiler, t);
+      Optional<String> staticMapName = record.getStaticPrivateMapVarName(compiler, t);
+      Optional<String> privName = record.getStaticPrivateVarName(compiler, t);
 
       // Pre-scan static private accessors to check if any getter/setter references 'this'.
       // If so, we must set $self on the static private object.
@@ -1699,7 +1699,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
           astFactory.createCallWithUnknownType(createProp, astFactory.createNull());
       Node privDecl =
           astFactory
-              .createSingleConstNameDeclaration(privName, staticPrivInit)
+              .createSingleConstNameDeclaration(privName.get(), staticPrivInit)
               .srcrefTreeIfMissing(record.classNode);
       staticInitTempParent.addChildToBack(privDecl);
 
@@ -1707,7 +1707,7 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
         // Add `PRIVATE$uid.$self = ClassName;` to the original code.
         Node privSelf =
             astFactory.createGetPropWithUnknownType(
-                astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), "$self");
+                astFactory.createConstantName(privName.get(), typeColor(StandardColors.UNKNOWN)), "$self");
         Node assignSelf =
             astFactory
                 .createAssignStatement(
@@ -1718,29 +1718,29 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       }
 
       // Add `STATIC_PRIVATE_MAP$uid.set(ClassName, PRIVATE$uid);` to the original code.
-      Node mapNameNode = astFactory.createNameWithUnknownType(staticMapName);
+      Node mapNameNode = astFactory.createNameWithUnknownType(staticMapName.get());
       Node mapSetCallee = astFactory.createGetPropWithUnknownType(mapNameNode, "set");
       Node mapSetCall =
           astFactory.createCallWithUnknownType(
               mapSetCallee,
               record.createNewNameReferenceNode().srcrefTreeIfMissing(record.classNode),
-              astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)));
+              astFactory.createConstantName(privName.get(), typeColor(StandardColors.UNKNOWN)));
       Node mapSetStmt = astFactory.exprResult(mapSetCall).srcrefTreeIfMissing(record.classNode);
       staticInitTempParent.addChildToBack(mapSetStmt);
 
-      addStaticPrivateMembers(record, privName, staticInitTempParent);
+      addStaticPrivateMembers(record, privName.get(), staticInitTempParent);
     }
 
     while (!staticMembers.isEmpty()) {
       Node staticMember = staticMembers.remove();
       if (staticMember.isPrivateIdentifier()) {
         if (transpilePrivateClassFields) {
-          String privName = record.getStaticPrivateVarName(compiler, t);
+          Optional<String> privName = record.getStaticPrivateVarName(compiler, t);
           String propName = staticMember.getString().substring(1);
           // Add `PRIVATE$uid.staticField = fieldValue;` to the original code.
           Node lhs =
               astFactory.createGetPropWithUnknownType(
-                  astFactory.createConstantName(privName, typeColor(StandardColors.UNKNOWN)), propName);
+                  astFactory.createConstantName(privName.get(), typeColor(StandardColors.UNKNOWN)), propName);
           Node fieldValue =
               staticMember.hasChildren()
                   ? staticMember.removeFirstChild()
@@ -2000,7 +2000,8 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     }
 
     if (newNameNode != null) {
-      String originalName = checkNotNull(n.getQualifiedName());
+      String originalName = n.getQualifiedName();
+      checkState(!originalName.isEmpty());
       newNameNode.srcrefTree(n).setOriginalName(originalName);
       n.replaceWith(newNameNode);
       t.reportCodeChange(newNameNode);
@@ -2089,10 +2090,10 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
     final Map<String, PrivateMember> privateMembersByName = new LinkedHashMap<>();
 
     /** Name of the unique PrivateMap variable for instance private fields. */
-    private String privateMapVarName = null;
+    private Optional<String> privateMapVarName = Optional.empty();
 
     /** Name of the unique PrivateMap variable for static private fields. */
-    private String staticPrivateMapVarName = null;
+    private Optional<String> staticPrivateMapVarName = Optional.empty();
 
     /** Whether the class has any instance private members. */
     boolean hasInstancePrivateMembers = false;
@@ -2160,41 +2161,41 @@ public final class Es6NormalizeClasses implements NodeTraversal.ScopedCallback, 
       return privateMembersByName.get(name);
     }
 
-    private String privateVarName = null;
-    private String staticPrivateVarName = null;
-    private String privateProtoVarName = null;
+    private Optional<String> privateVarName = Optional.empty();
+    private Optional<String> staticPrivateVarName = Optional.empty();
+    private Optional<String> privateProtoVarName = Optional.empty();
 
-    String getPrivateMapVarName(AbstractCompiler compiler, NodeTraversal t) {
-      if (privateMapVarName == null) {
-        privateMapVarName = generateUniquePrivateMapVarName(compiler, t);
+    Optional<String> getPrivateMapVarName(AbstractCompiler compiler, NodeTraversal t) {
+      if (privateMapVarName.isEmpty()) {
+        privateMapVarName = Optional.of(generateUniquePrivateMapVarName(compiler, t));
       }
       return privateMapVarName;
     }
 
-    String getPrivateProtoVarName(AbstractCompiler compiler, NodeTraversal t) {
-      if (privateProtoVarName == null) {
-        privateProtoVarName = generateUniquePrivateProtoVarName(compiler, t);
+    Optional<String> getPrivateProtoVarName(AbstractCompiler compiler, NodeTraversal t) {
+      if (privateProtoVarName.isEmpty()) {
+        privateProtoVarName = Optional.of(generateUniquePrivateProtoVarName(compiler, t));
       }
       return privateProtoVarName;
     }
 
-    String getStaticPrivateMapVarName(AbstractCompiler compiler, NodeTraversal t) {
-      if (staticPrivateMapVarName == null) {
-        staticPrivateMapVarName = generateUniqueStaticPrivateMapVarName(compiler, t);
+    Optional<String> getStaticPrivateMapVarName(AbstractCompiler compiler, NodeTraversal t) {
+      if (staticPrivateMapVarName.isEmpty()) {
+        staticPrivateMapVarName = Optional.of(generateUniqueStaticPrivateMapVarName(compiler, t));
       }
       return staticPrivateMapVarName;
     }
 
-    String getPrivateVarName(AbstractCompiler compiler, NodeTraversal t) {
-      if (privateVarName == null) {
-        privateVarName = generateUniquePrivateVarName(compiler, t);
+    Optional<String> getPrivateVarName(AbstractCompiler compiler, NodeTraversal t) {
+      if (privateVarName.isEmpty()) {
+        privateVarName = Optional.of(generateUniquePrivateVarName(compiler, t));
       }
       return privateVarName;
     }
 
-    String getStaticPrivateVarName(AbstractCompiler compiler, NodeTraversal t) {
-      if (staticPrivateVarName == null) {
-        staticPrivateVarName = generateUniquePrivateVarName(compiler, t);
+    Optional<String> getStaticPrivateVarName(AbstractCompiler compiler, NodeTraversal t) {
+      if (staticPrivateVarName.isEmpty()) {
+        staticPrivateVarName = Optional.of(generateUniquePrivateVarName(compiler, t));
       }
       return staticPrivateVarName;
     }

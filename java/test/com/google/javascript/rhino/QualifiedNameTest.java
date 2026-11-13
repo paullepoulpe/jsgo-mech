@@ -58,7 +58,7 @@ public class QualifiedNameTest {
   @Test
   public void testJoin_fromString() {
     QualifiedName n = QualifiedName.of("foo.bar.baz");
-    assertThat(n.join()).isEqualTo("foo.bar.baz");
+    assertThat(n.join().orElse(null)).isEqualTo("foo.bar.baz");
   }
 
   @Test
@@ -70,13 +70,13 @@ public class QualifiedNameTest {
   @Test
   public void testJoin_fromNode() {
     QualifiedName n = qname(IR.name("foo"), "bar", "baz").getQualifiedNameObject();
-    assertThat(n.join()).isEqualTo("foo.bar.baz");
+    assertThat(n.join().orElse(null)).isEqualTo("foo.bar.baz");
 
     n = qname(IR.thisNode(), "bar", "baz").getQualifiedNameObject();
-    assertThat(n.join()).isEqualTo("this.bar.baz");
+    assertThat(n.join().orElse(null)).isEqualTo("this.bar.baz");
 
     n = qname(IR.superNode(), "bar", "baz").getQualifiedNameObject();
-    assertThat(n.join()).isEqualTo("super.bar.baz");
+    assertThat(n.join().orElse(null)).isEqualTo("super.bar.baz");
   }
 
   @Test
@@ -94,7 +94,7 @@ public class QualifiedNameTest {
   @Test
   public void testJoin_fromGetprop() {
     QualifiedName n = QualifiedName.of("foo").getprop("bar").getprop("baz");
-    assertThat(n.join()).isEqualTo("foo.bar.baz");
+    assertThat(n.join().orElse(null)).isEqualTo("foo.bar.baz");
   }
 
   @Test
@@ -123,14 +123,14 @@ public class QualifiedNameTest {
 
   @Test
   public void testGetOwner_fromString() {
-    assertThat(QualifiedName.of("foo.bar.baz").getOwner().join()).isEqualTo("foo.bar");
+    assertThat(QualifiedName.of("foo.bar.baz").getOwner().join().orElse(null)).isEqualTo("foo.bar");
     assertThat(QualifiedName.of("foo").getOwner()).isNull();
   }
 
   @Test
   public void testGetOwner_fromNode() {
     QualifiedName n = qname(IR.name("foo"), "bar", "baz").getQualifiedNameObject();
-    assertThat(n.getOwner().join()).isEqualTo("foo.bar");
+    assertThat(n.getOwner().join().orElse(null)).isEqualTo("foo.bar");
     assertThat(IR.name("foo").getQualifiedNameObject().getOwner()).isNull();
     assertThat(IR.thisNode().getQualifiedNameObject().getOwner()).isNull();
     assertThat(IR.superNode().getQualifiedNameObject().getOwner()).isNull();

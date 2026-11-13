@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -117,7 +118,7 @@ public final class DependencyFile implements SourceFile {
     // Add implicit base.js entry.
     dependencies.put(
         CLOSURE_BASE_PROVIDE,
-        SimpleDependencyInfo.builder(CLOSURE_BASE, CLOSURE_BASE).setProvides(provides).build());
+        SimpleDependencyInfo.builder(CLOSURE_BASE, Optional.of(CLOSURE_BASE)).setProvides(provides).build());
     errorManager.generateReport();
 
     logger.info("Dependencies loaded");

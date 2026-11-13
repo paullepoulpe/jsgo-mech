@@ -28,6 +28,7 @@ import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Collects global variable references for use by {@link CrossChunkCodeMotion}. */
@@ -166,7 +167,7 @@ public final class CrossChunkReferenceCollector implements CompilerPass {
             compiler.getCodingConvention().getClassesDefinedByCall(expr);
         if (relationship != null) {
           // Check for $jscomp.inherits(SubC, SuperC), goog.inherits(Sub, SuperC), etc.
-          String declaredName = checkNotNull(relationship.subclassName);
+          String declaredName = relationship.subclassName.orElseThrow();
           for (Node callArg = expr.getSecondChild(); callArg != null; callArg = callArg.getNext()) {
             // We're assuming that the child class must be an argument to the function that
             // establishes its inheritance, which is true for `goog.inherits()` and
@@ -359,8 +360,8 @@ public final class CrossChunkReferenceCollector implements CompilerPass {
         // is movable. Any properties on `Symbol` are also movable (e.g `Symbol.iterator`).
         Node child = valueNode.getFirstChild();
         if (child != null && child.isName()) {
-          String symbol = child.getString();
-          if (symbol != null && symbol.equals("Symbol")) {
+          Optional<String> symbol = Optional.of(child.getString());
+          if (symbol.isPresent() && symbol.get().equals("Symbol")) {
             return true;
           }
         }

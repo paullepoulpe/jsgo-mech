@@ -1385,7 +1385,7 @@ public final class DisambiguatePropertiesTest extends CompilerTestCase {
     try {
       Path dir =
           Path.of(
-              this.getLastCompiler().getOptions().getDebugLogDirectory().toString(),
+              this.getLastCompiler().getOptions().getDebugLogDirectory().get().toString(),
               DisambiguateProperties.class.getSimpleName());
 
       try (Stream<Path> files = Files.list(dir)) {

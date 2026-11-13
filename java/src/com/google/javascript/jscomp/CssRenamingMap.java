@@ -16,6 +16,8 @@
 
 package com.google.javascript.jscomp;
 
+import java.util.Optional;
+
 /**
  * Interface used by {@link ReplaceCssNames} to substitute CSS class names.
  */
@@ -28,14 +30,14 @@ public interface CssRenamingMap extends RenamingMap {
   }
 
   @Override
-  String get(String value);
+  Optional<String> get(String value);
 
   Style getStyle();
 
   /** ByPart renaming map */
   public abstract static class ByPart implements CssRenamingMap {
     @Override
-    public abstract String get(String value);
+    public abstract Optional<String> get(String value);
 
     @Override
     public Style getStyle() {
@@ -46,7 +48,7 @@ public interface CssRenamingMap extends RenamingMap {
   /** ByWhole renaming map */
   public abstract static class ByWhole implements CssRenamingMap {
     @Override
-    public abstract String get(String value);
+    public abstract Optional<String> get(String value);
 
     @Override
     public Style getStyle() {

@@ -19,8 +19,7 @@ package com.google.javascript.jscomp.diagnostic;
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
 import com.google.errorprone.annotations.MustBeClosed;
-import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import java.util.function.Supplier;
 
 /**
@@ -33,12 +32,12 @@ import java.util.function.Supplier;
 public abstract class LogFile implements AutoCloseable {
 
   /**
-   * An interface allowing streaming JSON to a LogFile via a {@link JsonWriter}
+   * An interface allowing streaming JSON to a LogFile via a {@link SimpleJsonWriter}
    *
    * <p>Use with {@link #logJson(StreamedJsonProducer)}
    */
   public interface StreamedJsonProducer {
-    public void writeJson(JsonWriter jsonWriter) throws IOException;
+    public void writeJson(SimpleJsonWriter jsonWriter);
   }
 
   @MustBeClosed

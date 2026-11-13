@@ -25,6 +25,7 @@ import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -58,7 +59,7 @@ public class MatchersTest {
     assertFalse(Matchers.allOf(notMatcher).matches(root, null));
     assertFalse(Matchers.allOf(notMatcher, Matchers.functionCall()).matches(fnCall, null));
     assertTrue(Matchers.allOf(
-        Matchers.anything(), Matchers.functionCall("goog.require")).matches(fnCall, null));
+        Matchers.anything(), Matchers.functionCall(Optional.of("goog.require"))).matches(fnCall, null));
   }
 
   @Test
@@ -71,7 +72,7 @@ public class MatchersTest {
     Matcher notMatcher = Matchers.not(Matchers.anything());
     assertFalse(Matchers.anyOf(notMatcher).matches(root, null));
     assertTrue(Matchers.anyOf(notMatcher, Matchers.functionCall()).matches(fnCall, null));
-    assertTrue(Matchers.anyOf(Matchers.functionCall("goog.require")).matches(fnCall, null));
+    assertTrue(Matchers.anyOf(Matchers.functionCall(Optional.of("goog.require"))).matches(fnCall, null));
   }
 
   @Test
@@ -83,7 +84,7 @@ public class MatchersTest {
     Node fnCall = root.getFirstFirstChild();
     assertTrue(fnCall.isCall());
     assertFalse(Matchers.not(Matchers.functionCall()).matches(fnCall, null));
-    assertFalse(Matchers.not(Matchers.functionCall("goog.require")).matches(fnCall, null));
+    assertFalse(Matchers.not(Matchers.functionCall(Optional.of("goog.require"))).matches(fnCall, null));
   }
 
   @Test
@@ -97,8 +98,8 @@ public class MatchersTest {
   public void testConstructor_specificClass() {
     String input = "/** @constructor */ var Foo = function() {};";
     Node root = compileToScriptRoot(getCompiler(input));
-    assertTrue(Matchers.constructor("Foo").matches(root.getFirstChild(), null));
-    assertFalse(Matchers.constructor("Bar").matches(root.getFirstChild(), null));
+    assertTrue(Matchers.constructor(Optional.of("Foo")).matches(root.getFirstChild(), null));
+    assertFalse(Matchers.constructor(Optional.of("Bar")).matches(root.getFirstChild(), null));
   }
 
   @Test
@@ -106,17 +107,17 @@ public class MatchersTest {
     String input = "/** @constructor */ var Foo = function() {};";
     Node root = compileToScriptRoot(getCompiler(input));
     Node ctorNode = root.getFirstChild();
-    assertTrue(Matchers.constructor("Foo").matches(ctorNode, null));
+    assertTrue(Matchers.constructor(Optional.of("Foo")).matches(ctorNode, null));
 
     input = "/** @constructor */ bar.Foo = function() {};";
     root = compileToScriptRoot(getCompiler(input));
     ctorNode = root.getFirstFirstChild();
-    assertTrue(Matchers.constructor("bar.Foo").matches(ctorNode, null));
+    assertTrue(Matchers.constructor(Optional.of("bar.Foo")).matches(ctorNode, null));
 
     input = "/** @constructor */ function Foo() {};";
     root = compileToScriptRoot(getCompiler(input));
     ctorNode = root.getFirstChild();
-    assertTrue(Matchers.constructor("Foo").matches(ctorNode, null));
+    assertTrue(Matchers.constructor(Optional.of("Foo")).matches(ctorNode, null));
 
     // TODO(mknichel): Make this test case work.
     // input =
@@ -191,8 +192,8 @@ public class MatchersTest {
     Node root = compileToScriptRoot(getCompiler(input));
     Node fnCall = root.getFirstFirstChild();
     assertTrue(fnCall.isCall());
-    assertTrue(Matchers.functionCall("goog.require").matches(fnCall, null));
-    assertFalse(Matchers.functionCall("goog.provide").matches(fnCall, null));
+    assertTrue(Matchers.functionCall(Optional.of("goog.require")).matches(fnCall, null));
+    assertFalse(Matchers.functionCall(Optional.of("goog.provide")).matches(fnCall, null));
   }
 
   @Test
@@ -210,8 +211,8 @@ public class MatchersTest {
     Node root = compileToScriptRoot(compiler);
     Node fnCall = root.getLastChild().getFirstChild();
     assertTrue(fnCall.isCall());
-    assertTrue(Matchers.functionCall("Foo.prototype.bar").matches(fnCall, metadata));
-    assertFalse(Matchers.functionCall("Foo.prototype.baz").matches(fnCall, metadata));
+    assertTrue(Matchers.functionCall(Optional.of("Foo.prototype.bar")).matches(fnCall, metadata));
+    assertFalse(Matchers.functionCall(Optional.of("Foo.prototype.baz")).matches(fnCall, metadata));
   }
 
   @Test
@@ -258,10 +259,10 @@ public class MatchersTest {
     Node root = compileToScriptRoot(compiler);
     Node assignNode = root.getFirstFirstChild();
     assertTrue(
-        Matchers.assignmentWithRhs(Matchers.functionCall("goog.number")).matches(assignNode, null));
+        Matchers.assignmentWithRhs(Matchers.functionCall(Optional.of("goog.number"))).matches(assignNode, null));
     assertFalse(
-        Matchers.assignmentWithRhs(Matchers.functionCall("goog.base")).matches(assignNode, null));
-    assertFalse(Matchers.assignmentWithRhs(Matchers.functionCall("goog.number"))
+        Matchers.assignmentWithRhs(Matchers.functionCall(Optional.of("goog.base"))).matches(assignNode, null));
+    assertFalse(Matchers.assignmentWithRhs(Matchers.functionCall(Optional.of("goog.number")))
         .matches(assignNode.getFirstChild(), null));
   }
 
@@ -350,11 +351,11 @@ public class MatchersTest {
     Node barNode = methodNode.getFirstChild();
     assertTrue(Matchers.propertyAccess().matches(methodNode, new NodeMetadata(compiler)));
     assertTrue(Matchers.propertyAccess().matches(barNode, new NodeMetadata(compiler)));
-    assertTrue(Matchers.propertyAccess("foo.bar.method").matches(
+    assertTrue(Matchers.propertyAccess(Optional.of("foo.bar.method")).matches(
           methodNode, new NodeMetadata(compiler)));
-    assertTrue(Matchers.propertyAccess("foo.bar").matches(
+    assertTrue(Matchers.propertyAccess(Optional.of("foo.bar")).matches(
           barNode, new NodeMetadata(compiler)));
-    assertFalse(Matchers.propertyAccess("foo").matches(
+    assertFalse(Matchers.propertyAccess(Optional.of("foo")).matches(
           barNode.getFirstChild(), new NodeMetadata(compiler)));
   }
 
@@ -371,9 +372,9 @@ public class MatchersTest {
     Node root = compileToScriptRoot(compiler);
     Node node = root.getLastChild().getFirstChild();
     assertTrue(Matchers.propertyAccess().matches(node, new NodeMetadata(compiler)));
-    assertTrue(Matchers.propertyAccess("Foo.prototype.bar").matches(
+    assertTrue(Matchers.propertyAccess(Optional.of("Foo.prototype.bar")).matches(
           node, new NodeMetadata(compiler)));
-    assertTrue(Matchers.propertyAccess("foo.bar").matches(
+    assertTrue(Matchers.propertyAccess(Optional.of("foo.bar")).matches(
           node, new NodeMetadata(compiler)));
   }
 

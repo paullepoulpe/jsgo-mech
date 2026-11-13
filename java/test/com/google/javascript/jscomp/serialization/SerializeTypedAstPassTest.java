@@ -575,7 +575,7 @@ public final class SerializeTypedAstPassTest extends CompilerTestCase {
     try {
       Path dir =
           Path.of(
-              this.getLastCompiler().getOptions().getDebugLogDirectory().toString(),
+              this.getLastCompiler().getOptions().getDebugLogDirectory().get().toString(),
               SerializeTypesToPointers.class.getSimpleName());
 
       try (Stream<Path> files = Files.list(dir)) {

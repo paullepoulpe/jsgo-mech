@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
@@ -78,7 +79,7 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
     final Node value;
 
     Export(String symbolName, Node value) {
-      this.symbolName = checkNotNull(symbolName);
+      this.symbolName = symbolName;
       this.value = checkNotNull(value);
     }
 
@@ -296,7 +297,7 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
       }
       if (nameOrPatternNode.isName()) {
         String originalName = nameOrPatternNode.getOriginalName();
-        return (originalName != null) ? originalName : nameOrPatternNode.getString();
+        return (!originalName.isEmpty()) ? originalName : nameOrPatternNode.getString();
       } else {
         checkState(nameOrPatternNode.isDestructuringPattern(), nameOrPatternNode);
         return "";
@@ -380,7 +381,7 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
     @Nullable Node getValue() {
       String qualifiedName = value.getQualifiedName();
 
-      if (qualifiedName == null) {
+      if (qualifiedName.isEmpty()) {
         // We expect to see
         // goog.exportSymbol('exportedName', some.path);
         // goog.exportProperty(some.path, 'exportedName', some.path.prop);
@@ -419,7 +420,7 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
 
       String qualifiedName = value.getQualifiedName();
 
-      if (qualifiedName != null) {
+      if (!qualifiedName.isEmpty()) {
         mappedPaths.put(qualifiedName, symbolName);
       }
     }
@@ -439,7 +440,7 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
     PropertyExport(String exportPath, String symbolName, Node value) {
       super(symbolName, value);
 
-      this.exportPath = checkNotNull(exportPath);
+      this.exportPath = exportPath;
     }
 
     @Override
@@ -449,14 +450,14 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
         checkState(currentPath.length() > 0);
 
         // If this path is mapped, return the mapped path plus any remaining pieces.
-        @Nullable String mappedPath = mappedPaths.get(currentPath);
-        if (mappedPath == null) {
+        Optional<String> mappedPath = Optional.ofNullable(mappedPaths.get(currentPath));
+        if (mappedPath.isEmpty()) {
           continue;
         }
 
         // Append the remaining path segments, including a leading separator.
-        mappedPath += exportPath.substring(currentPath.length());
-        return Q_NAME_JOINER.join(mappedPath, symbolName);
+        mappedPath = Optional.of(mappedPath.get() + exportPath.substring(currentPath.length()));
+        return Q_NAME_JOINER.join(mappedPath.get(), symbolName);
       }
 
       return Q_NAME_JOINER.join(exportPath, symbolName);
@@ -590,10 +591,10 @@ final class ExternExportsPass extends NodeTraversal.AbstractPostOrderCallback
       }
     } else if (n.isMemberFunctionDef()) {
       // Try to find a fully qualified name for the method
-      String lvalueName = NodeUtil.getBestLValueName(n);
-      if (lvalueName != null) {
+      Optional<String> lvalueName = NodeUtil.getBestLValueName(n);
+      if (lvalueName.isPresent()) {
         // Store the function as the value
-        definitionMap.put(lvalueName, n.getOnlyChild());
+        definitionMap.put(lvalueName.get(), n.getOnlyChild());
       }
     }
     // TODO(b/123725422): Getters and setters?

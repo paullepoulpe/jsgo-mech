@@ -46,7 +46,7 @@ import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * An AST construction helper class
@@ -697,7 +697,7 @@ public class IR {
     return new Node(Token.TEMPLATELIT);
   }
 
-  public static Node templateLiteralString(@Nullable String cooked, String raw) {
+  public static Node templateLiteralString(Optional<String> cooked, String raw) {
     return Node.newTemplateLitString(cooked, raw);
   }
 

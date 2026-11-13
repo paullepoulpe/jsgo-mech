@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -44,17 +45,14 @@ public record Import(
     Node importNode,
     Node nameNode) {
   public Import {
-    requireNonNull(moduleRequest, "moduleRequest");
-    requireNonNull(importName, "importName");
-    requireNonNull(localName, "localName");
     requireNonNull(importNode, "importNode");
     requireNonNull(nameNode, "nameNode");
   }
 
   static final class Builder {
-    private String moduleRequestField;
-    private String importNameField;
-    private String localNameField;
+    private Optional<String> moduleRequestField = Optional.empty();
+    private Optional<String> importNameField = Optional.empty();
+    private Optional<String> localNameField = Optional.empty();
     private ModulePath modulePathField;
     private Node importNodeField;
     private Node nameNodeField;
@@ -63,26 +61,17 @@ public record Import(
     }
 
     Builder moduleRequest(String value) {
-      if (value == null) {
-        throw new NullPointerException("Null moduleRequest");
-      }
-      this.moduleRequestField = value;
+      this.moduleRequestField = Optional.of(value);
       return this;
     }
 
     Builder importName(String value) {
-      if (value == null) {
-        throw new NullPointerException("Null importName");
-      }
-      this.importNameField = value;
+      this.importNameField = Optional.of(value);
       return this;
     }
 
     Builder localName(String value) {
-      if (value == null) {
-        throw new NullPointerException("Null localName");
-      }
-      this.localNameField = value;
+      this.localNameField = Optional.of(value);
       return this;
     }
 
@@ -108,19 +97,19 @@ public record Import(
     }
 
     Import build() {
-      if (this.moduleRequestField == null
-          || this.importNameField == null
-          || this.localNameField == null
+      if (this.moduleRequestField.isEmpty()
+          || this.importNameField.isEmpty()
+          || this.localNameField.isEmpty()
           || this.importNodeField == null
           || this.nameNodeField == null) {
         StringBuilder missing = new StringBuilder();
-        if (this.moduleRequestField == null) {
+        if (this.moduleRequestField.isEmpty()) {
           missing.append(" moduleRequest");
         }
-        if (this.importNameField == null) {
+        if (this.importNameField.isEmpty()) {
           missing.append(" importName");
         }
-        if (this.localNameField == null) {
+        if (this.localNameField.isEmpty()) {
           missing.append(" localName");
         }
         if (this.importNodeField == null) {
@@ -132,9 +121,9 @@ public record Import(
         throw new IllegalStateException("Missing required properties:" + missing);
       }
       return new Import(
-          this.moduleRequestField,
-          this.importNameField,
-          this.localNameField,
+          this.moduleRequestField.get(),
+          this.importNameField.get(),
+          this.localNameField.get(),
           this.modulePathField,
           this.importNodeField,
           this.nameNodeField);

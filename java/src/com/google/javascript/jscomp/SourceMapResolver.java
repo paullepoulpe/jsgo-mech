@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Utility class for resolving source maps and files referenced in source maps. */
@@ -42,10 +43,10 @@ public final class SourceMapResolver {
   public static @Nullable SourceFile extractSourceMap(
       SourceFile jsFile, String sourceMapURL, boolean parseInlineSourceMaps) {
     if (parseInlineSourceMaps && sourceMapURL.startsWith(BASE64_URL_PREFIX)) {
-      String extractedString = extractBase64String(sourceMapURL);
-      if (extractedString != null) {
+      Optional<String> extractedString = extractBase64String(sourceMapURL);
+      if (extractedString.isPresent()) {
         return SourceFile.fromCode(
-            jsFile.getName() + ".inline.map", extractedString, SourceKind.NON_CODE);
+            jsFile.getName() + ".inline.map", extractedString.get(), SourceKind.NON_CODE);
       }
       return null;
     }
@@ -64,17 +65,17 @@ public final class SourceMapResolver {
    *
    * @return String or null.
    */
-  private static @Nullable String extractBase64String(String url) {
+  private static Optional<String> extractBase64String(String url) {
     if (url.startsWith(BASE64_URL_PREFIX) && url.contains(BASE64_START)) {
       int base64StartIndex = url.indexOf(BASE64_START);
       String mediaType = url.substring(BASE64_URL_PREFIX.length(), base64StartIndex);
       if (ACCEPTED_MEDIA_TYPES.contains(mediaType)) {
         byte[] data = Io.base64Decode(
                 url.substring(base64StartIndex + BASE64_START.length()));
-        return Io.utf8String(data);
+        return Optional.of(Io.utf8String(data));
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   private static boolean isAbsolute(String url) {
@@ -82,7 +83,7 @@ public final class SourceMapResolver {
     if (uri.isErr()) {
       throw new RuntimeException("Sourcemap url was invalid: " + url, uri.error());
     }
-    return Io.uriScheme(url) != null || url.startsWith("/");
+    return Io.uriScheme(url).isPresent() || url.startsWith("/");
   }
 
   /**
@@ -99,8 +100,8 @@ public final class SourceMapResolver {
 
   /** Resolves the path against the directory of the base file. */
   private static String resolveSibling(String baseFilePath, String path) {
-    String directory = Io.pathParent(baseFilePath);
-    return directory == null ? Io.pathString(path) : Io.pathResolve(directory, path);
+    Optional<String> directory = Io.pathParent(baseFilePath);
+    return directory.isEmpty() ? Io.pathString(path) : Io.pathResolve(directory.get(), path);
   }
 
   /**

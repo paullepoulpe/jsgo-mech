@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 import static com.google.javascript.jscomp.base.JavaRegex.NON_SPACE;
@@ -44,6 +43,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
@@ -270,7 +270,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     }
 
     String messageKeyFromLhs =
-        originalMessageKey != null ? originalMessageKey : possiblyObfuscatedMessageKey;
+        !originalMessageKey.isEmpty() ? originalMessageKey : possiblyObfuscatedMessageKey;
 
     // If we've reached this point, then messageKey is the name of a variable or a property that is
     // being assigned a value and msgNode is the Node representing the value being assigned.
@@ -308,7 +308,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     if (mapping != null) {
       sourceName = mapping.getOriginalFile() + ":" + mapping.getLineNumber();
     } else {
-      sourceName = traversal.getSourceName() + ":" + node.getLineno();
+      sourceName = traversal.getSourceName().orElse("null") + ":" + node.getLineno();
     }
 
     checkState(msgNode.isCall());
@@ -340,8 +340,8 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
       reportErrorIfEmptyMessage(node, extractedMessage);
 
       // goog.getMsg() calls are required to have `@desc` unless they are external.
-      final String desc = extractedMessage.getDesc();
-      if ((desc == null || desc.trim().isEmpty()) && !extractedMessage.isExternal()) {
+      final Optional<String> desc = extractedMessage.getDesc();
+      if ((desc.isEmpty() || desc.get().trim().isEmpty()) && !extractedMessage.isExternal()) {
         compiler.report(
             JSError.make(node, MESSAGE_HAS_NO_DESCRIPTION, extractedMessage.getKey()));
       }
@@ -367,7 +367,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     // TODO(bradfordcsmith): Make this check more robust, possibly building on ModuleMetadata or
     // ProcessClosurePrimitives.
     final String qualifiedName = calleeNode.getQualifiedName();
-    return qualifiedName != null && qualifiedName.endsWith(ICU_MSG_FUNCTION_NAME);
+    return !qualifiedName.isEmpty() && qualifiedName.endsWith(ICU_MSG_FUNCTION_NAME);
   }
 
   interface InputForBuildJsMsg {
@@ -383,11 +383,11 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
     Map<String, String> getPlaceholderOriginalCodeMap();
 
-    String getDescription();
+    Optional<String> getDescription();
 
-    String getMeaning();
+    Optional<String> getMeaning();
 
-    String getAlternateMessageId();
+    Optional<String> getAlternateMessageId();
   }
 
   private JsMessage buildJsMessage(InputForBuildJsMsg input) {
@@ -395,13 +395,13 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     final String messageKeyFromLhs = input.getMessageKeyFromLhs();
 
     // non-null for `MSG_EXTERNAL_12345`
-    final String externalMessageId = getExternalMessageId(messageKeyFromLhs);
+    final Optional<String> externalMessageId = getExternalMessageId(messageKeyFromLhs);
 
     final boolean isAnonymous;
     final boolean isExternal;
-    final String messageId;
+    final Optional<String> messageId;
     final String messageKeyFinal;
-    if (externalMessageId != null) {
+    if (externalMessageId.isPresent()) {
       // MSG_EXTERNAL_12345 = ...
       isAnonymous = false;
       isExternal = true;
@@ -412,30 +412,30 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
       // We will need to generate the message ID from a combination of the message text and
       // its "meaning". If the code explicitly specifies a "meaning" string we'll use that,
       // otherwise we'll use the message key as the meaning
-      String meaningForIdGeneration = input.getMeaning();
+      Optional<String> meaningForIdGeneration = input.getMeaning();
       if (isUnnamedMessageName(messageKeyFromLhs)) {
         // MSG_UNNAMED_XXXX = goog.getMsg(....);
         // JS code that is automatically generated uses this, since it is harder for it to create
         // message variable names that are guaranteed to be unique.
         isAnonymous = true;
         messageKeyFinal = generateKeyFromMessageText(input.getMessageText());
-        if (meaningForIdGeneration == null) {
-          meaningForIdGeneration = messageKeyFinal;
+        if (meaningForIdGeneration.isEmpty()) {
+          meaningForIdGeneration = Optional.of(messageKeyFinal);
         }
       } else {
         isAnonymous = false;
         messageKeyFinal = messageKeyFromLhs;
-        if (meaningForIdGeneration == null) {
+        if (meaningForIdGeneration.isEmpty()) {
           // Transpilation of goog.scope() may have added a prefix onto the variable name,
           // which we need to strip off when we treat it as a "meaning" for ID generation purposes.
           // Otherwise, the message ID would change if a goog.scope() call were added or removed.
-          meaningForIdGeneration = removeScopedAliasesPrefix(messageKeyFromLhs);
+          meaningForIdGeneration = Optional.of(removeScopedAliasesPrefix(messageKeyFromLhs));
         }
       }
       messageId =
           idGenerator == null
               ? meaningForIdGeneration
-              : idGenerator.generateId(meaningForIdGeneration, messageParts);
+              : Optional.of(idGenerator.generateId(meaningForIdGeneration, messageParts));
     }
 
     return new JsMessage.Builder()
@@ -487,7 +487,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    * @param messageKey the message key (usually the variable or property name)
    * @return the external ID if it is found, otherwise `null`
    */
-  public static @Nullable String getExternalMessageId(String messageKey) {
+  public static Optional<String> getExternalMessageId(String messageKey) {
     if (messageKey.startsWith(MSG_EXTERNAL_PREFIX)) {
       int start = MSG_EXTERNAL_PREFIX.length();
       int end = start;
@@ -498,14 +498,14 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         }
       }
       if (end > start) {
-        return messageKey.substring(start, end);
+        return Optional.of(messageKey.substring(start, end));
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   private String generateKeyFromMessageText(String msgText) {
-    long nonnegativeHash = Long.MAX_VALUE & Hash.hash64(msgText);
+    long nonnegativeHash = Long.MAX_VALUE & Hash.hash64(Optional.of(msgText));
     return MSG_PREFIX + Ascii.toUpperCase(Long.toString(nonnegativeHash, 36));
   }
 
@@ -575,7 +575,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     }
 
     String originalName =
-        (msgNode.getOriginalName() != null) ? msgNode.getOriginalName() : msgNode.getString();
+        (!msgNode.getOriginalName().isEmpty()) ? msgNode.getOriginalName() : msgNode.getString();
 
     if (originalName.startsWith(MSG_PREFIX)) {
       // Creating an alias for a message is also allowed, and sometimes happens in generated code,
@@ -643,7 +643,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         if (node.hasOneChild()) {
           // Cooked string can be null only for tagged template literals.
           // A tagged template literal would hit the default case below.
-          return Outcome.ok(checkNotNull(node.getFirstChild().getCookedString()));
+          return Outcome.ok(node.getFirstChild().getCookedString().orElseThrow());
         } else {
           return Outcome.err(
               new MalformedException(
@@ -696,13 +696,13 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
     // Specifying them there instead of in annotations will make them available to the uncompiled
     // `goog.getMsg()` call during runtime, which could enable runtime lookup of translated messages
     // in uncompiled code.
-    final @Nullable String description;
-    final @Nullable String meaning;
-    final @Nullable String alternateMessageId;
+    final Optional<String> description;
+    final Optional<String> meaning;
+    final Optional<String> alternateMessageId;
     if (jsDocInfo == null) {
-      description = null;
-      meaning = null;
-      alternateMessageId = null;
+      description = Optional.empty();
+      meaning = Optional.empty();
+      alternateMessageId = Optional.empty();
     } else {
       description = jsDocInfo.getDescription();
       meaning = jsDocInfo.getMeaning();
@@ -738,7 +738,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
         extractGoogGetMsgParsedText(msgTextString);
     if (googGetMsgParsedTextRes.isErr()) {
       return Outcome.err(
-          new MalformedException(googGetMsgParsedTextRes.errorMessage(), msgTextNode));
+          new MalformedException(googGetMsgParsedTextRes.errorMessage().orElseThrow(), msgTextNode));
     }
     final GoogGetMsgParsedText googGetMsgParsedText = googGetMsgParsedTextRes.get();
 
@@ -829,17 +829,17 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
               }
 
               @Override
-              public String getDescription() {
+              public Optional<String> getDescription() {
                 return description;
               }
 
               @Override
-              public String getMeaning() {
+              public Optional<String> getMeaning() {
                 return meaning;
               }
 
               @Override
-              public String getAlternateMessageId() {
+              public Optional<String> getAlternateMessageId() {
                 return alternateMessageId;
               }
             });
@@ -920,18 +920,18 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
       // For declareIcuTemplateData() it is not valid to use the @desc, @meaning, and
       // @alternateMessageId annotations.
       // Instead, that information should go into the options bag parameter.
-      if (jsDocInfo.getAlternateMessageId() != null) {
+      if (jsDocInfo.getAlternateMessageId().isPresent()) {
         return Outcome.err(
             new MalformedException(
                 "Use the 'alternate_message_id' option, not the '@alternateMessageId' annotation",
                 msgNode));
       }
-      if (jsDocInfo.getDescription() != null) {
+      if (jsDocInfo.getDescription().isPresent()) {
         return Outcome.err(
             new MalformedException(
                 "Use the 'description' option, not the '@desc' annotation", msgNode));
       }
-      if (jsDocInfo.getMeaning() != null) {
+      if (jsDocInfo.getMeaning().isPresent()) {
         return Outcome.err(
             new MalformedException(
                 "Use the 'meaning' option, not the '@meaning' annotation", msgNode));
@@ -1015,17 +1015,17 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
               }
 
               @Override
-              public String getDescription() {
-                return icuTemplateOptions.getDescription();
+              public Optional<String> getDescription() {
+                return Optional.of(icuTemplateOptions.getDescription());
               }
 
               @Override
-              public String getMeaning() {
+              public Optional<String> getMeaning() {
                 return icuTemplateOptions.getMeaning();
               }
 
               @Override
-              public String getAlternateMessageId() {
+              public Optional<String> getAlternateMessageId() {
                 return icuTemplateOptions.getAlternateMessageId();
               }
             });
@@ -1232,9 +1232,9 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
   private interface IcuTemplateOptions {
     String getDescription();
 
-    @Nullable String getMeaning();
+    Optional<String> getMeaning();
 
-    @Nullable String getAlternateMessageId();
+    Optional<String> getAlternateMessageId();
 
     ImmutableMap<String, String> getPlaceholderExampleMap();
 
@@ -1302,30 +1302,30 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
     // optional meaning string
     final @Nullable Node meaningNode = objectLiteralMap.getValueNode("meaning");
-    final @Nullable String meaning;
+    final Optional<String> meaning;
     if (meaningNode == null) {
-      meaning = null;
+      meaning = Optional.empty();
     } else {
       Outcome<String> meaningOutcome = extractStringFromStringExprNode(meaningNode);
       if (meaningOutcome.isErr()) {
         return Outcome.err(meaningOutcome.error());
       }
-      meaning = meaningOutcome.get();
+      meaning = Optional.ofNullable(meaningOutcome.get());
     }
 
     // optional alternate message ID
     final @Nullable Node alternateMessageIdNode =
         objectLiteralMap.getValueNode("alternate_message_id");
-    final @Nullable String alternateMessageId;
+    final Optional<String> alternateMessageId;
     if (alternateMessageIdNode == null) {
-      alternateMessageId = null;
+      alternateMessageId = Optional.empty();
     } else {
       Outcome<String> alternateMessageIdOutcome =
           extractStringFromStringExprNode(alternateMessageIdNode);
       if (alternateMessageIdOutcome.isErr()) {
         return Outcome.err(alternateMessageIdOutcome.error());
       }
-      alternateMessageId = alternateMessageIdOutcome.get();
+      alternateMessageId = Optional.ofNullable(alternateMessageIdOutcome.get());
     }
 
     // optional map of placeholder names to example string values
@@ -1386,12 +1386,12 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
       }
 
       @Override
-      public @Nullable String getMeaning() {
+      public Optional<String> getMeaning() {
         return meaning;
       }
 
       @Override
-      public @Nullable String getAlternateMessageId() {
+      public Optional<String> getAlternateMessageId() {
         return alternateMessageId;
       }
 
@@ -1741,7 +1741,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
 
   private static boolean isMessageIdentifier(Node node) {
     String qname = node.getQualifiedName();
-    return qname != null && qname.contains(MSG_PREFIX);
+    return !qname.isEmpty() && qname.contains(MSG_PREFIX);
   }
 
   /**
@@ -1756,7 +1756,7 @@ public abstract class JsMessageVisitor extends AbstractPostOrderCallback impleme
    */
   private @Nullable JsMessage getJsMessageFromNode(NodeTraversal t, Node node) {
     String messageName = node.getQualifiedName();
-    if (messageName == null || !messageName.contains(MSG_PREFIX)) {
+    if (messageName.isEmpty() || !messageName.contains(MSG_PREFIX)) {
       return null;
     }
 

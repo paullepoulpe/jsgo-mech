@@ -42,6 +42,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.javascript.rhino.testing.TypeSubject.assertType;
 
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -223,7 +224,7 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     //   [Symbol.foo];
     // }
     FunctionType stringPropCtor =
-        FunctionType.builder(registry).forInterface().setName("String").buildAndResolve();
+        FunctionType.builder(registry).forInterface().setName(Optional.of("String")).buildAndResolve();
     stringPropCtor.setImplicitMatch(true);
     Property.Key foo = new Property.SymbolKey(new KnownSymbolType(registry, "Symbol.foo"));
     stringPropCtor.getPrototype().defineDeclaredPropertyKey(foo, STRING_TYPE, null);
@@ -234,7 +235,7 @@ public final class SymbolTypeTest extends BaseJSTypeTestCase {
     //   [Symbol.foo];
     // }
     FunctionType stringOrNumberPropCtor =
-        FunctionType.builder(registry).forInterface().setName("StringOrNumber").buildAndResolve();
+        FunctionType.builder(registry).forInterface().setName(Optional.of("StringOrNumber")).buildAndResolve();
     stringOrNumberPropCtor.setImplicitMatch(true);
     stringOrNumberPropCtor
         .getPrototype()

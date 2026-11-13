@@ -18,6 +18,7 @@ package com.google.javascript.jscomp;
 
 
 import com.google.javascript.jscomp.base.Io;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -27,15 +28,15 @@ final class OutputCharsetEncoder {
 
   private final Io.@Nullable CharEncoder encoder;
 
-  OutputCharsetEncoder(String outputCharset) {
-    if (outputCharset == null || Io.charsetName(outputCharset).equals(Io.US_ASCII)) {
+  OutputCharsetEncoder(Optional<String> outputCharset) {
+    if (outputCharset.isEmpty() || Io.charsetName(outputCharset.get()).equals(Io.US_ASCII)) {
       // If we want our default (pretending to be UTF-8, but escaping anything
       // outside of straight ASCII), then don't use the encoder, but
       // just special-case the code.  This keeps the normal path through
       // the code identical to how it's been for years.
       this.encoder = null;
     } else {
-      this.encoder = Io.newEncoder(outputCharset);
+      this.encoder = Io.newEncoder(outputCharset.get());
     }
   }
 

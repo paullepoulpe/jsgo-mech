@@ -25,7 +25,6 @@ import static com.google.javascript.jscomp.base.JSCompDoubles.isAtLeastIntegerPr
 import static com.google.javascript.jscomp.base.JSCompDoubles.isEitherZero;
 import static com.google.javascript.jscomp.base.JSCompDoubles.isExactInt64;
 import static com.google.javascript.jscomp.base.JSCompDoubles.isNegative;
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -67,6 +66,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
@@ -124,8 +124,8 @@ public final class NodeUtil {
         if (n.hasOneChild()) {
           Node templateLitString = n.getOnlyChild();
           checkState(templateLitString.isTemplateLitString(), templateLitString);
-          String cookedString = templateLitString.getCookedString();
-          yield Tri.forBoolean(cookedString != null && !cookedString.isEmpty());
+          Optional<String> cookedString = templateLitString.getCookedString();
+          yield Tri.forBoolean(cookedString.isPresent() && !cookedString.get().isEmpty());
         } else {
           yield Tri.UNKNOWN;
         }
@@ -200,10 +200,10 @@ public final class NodeUtil {
    *
    * <p>IMPORTANT: This method does not consider whether {@code n} may have side effects.
    */
-  public static @Nullable String getStringValue(Node n) {
+  public static Optional<String> getStringValue(Node n) {
     // TODO(user): regex literals as well.
     return switch (n.getToken()) {
-      case STRINGLIT, STRING_KEY -> n.getString();
+      case STRINGLIT, STRING_KEY -> Optional.of(n.getString());
       case TEMPLATELIT -> {
         // Only convert a template literal if all its expressions can be converted.
         StringBuilder string = new StringBuilder();
@@ -212,45 +212,45 @@ public final class NodeUtil {
           if (child.isTemplateLitSub()) {
             expression = child.getFirstChild();
           }
-          String expressionString = getStringValue(expression);
-          if (expressionString == null) {
+          Optional<String> expressionString = getStringValue(expression);
+          if (expressionString.isEmpty()) {
             // Cannot convert.
-            yield null;
+            yield Optional.empty();
           }
-          string.append(expressionString);
+          string.append(expressionString.orElse("null"));
         }
-        yield string.toString();
+        yield Optional.of(string.toString());
       }
       case TEMPLATELIT_STRING -> n.getCookedString();
       case NAME -> {
         String name = n.getString();
         if ("undefined".equals(name) || "Infinity".equals(name) || "NaN".equals(name)) {
-          yield name;
+          yield Optional.of(name);
         }
-        yield null;
+        yield Optional.empty();
       }
       case NEG, NUMBER -> {
         Double value = getNumberValue(n);
         if (value != null) {
-          yield DToA.numberToString(value.doubleValue());
+          yield Optional.of(DToA.numberToString(value.doubleValue()));
         }
-        yield null;
+        yield Optional.empty();
       }
-      case BIGINT -> n.getBigInt().toString();
-      case FALSE -> "false";
-      case TRUE -> "true";
-      case NULL -> "null";
-      case VOID -> "undefined";
+      case BIGINT -> Optional.ofNullable(n.getBigInt().toString());
+      case FALSE -> Optional.of("false");
+      case TRUE -> Optional.of("true");
+      case NULL -> Optional.of("null");
+      case VOID -> Optional.of("undefined");
       case NOT -> {
         Tri child = getBooleanValue(n.getFirstChild());
         if (child != Tri.UNKNOWN) {
-          yield child.toBoolean(true) ? "false" : "true"; // reversed.
+          yield child.toBoolean(true) ? Optional.of("false") : Optional.of("true"); // reversed.
         }
-        yield null;
+        yield Optional.empty();
       }
       case ARRAYLIT -> arrayToString(n);
-      case OBJECTLIT -> n.hasChildren() ? null : "[object Object]";
-      default -> null;
+      case OBJECTLIT -> n.hasChildren() ? Optional.empty() : Optional.of("[object Object]");
+      default -> Optional.empty();
     };
   }
 
@@ -262,24 +262,24 @@ public final class NodeUtil {
    * @param n A node that is a member of an Array.
    * @return The string representation.
    */
-  static String getArrayElementStringValue(Node n) {
-    return (NodeUtil.isNullOrUndefined(n) || n.isEmpty()) ? "" : getStringValue(n);
+  static Optional<String> getArrayElementStringValue(Node n) {
+    return (NodeUtil.isNullOrUndefined(n) || n.isEmpty()) ? Optional.of("") : getStringValue(n);
   }
 
-  static @Nullable String arrayToString(Node literal) {
+  static Optional<String> arrayToString(Node literal) {
     Node first = literal.getFirstChild();
     StringBuilder result = new StringBuilder();
     for (Node n = first; n != null; n = n.getNext()) {
-      String childValue = getArrayElementStringValue(n);
-      if (childValue == null) {
-        return null;
+      Optional<String> childValue = getArrayElementStringValue(n);
+      if (childValue.isEmpty()) {
+        return Optional.empty();
       }
       if (n != first) {
         result.append(',');
       }
-      result.append(childValue);
+      result.append(childValue.get());
     }
-    return result.toString();
+    return Optional.of(result.toString());
   }
 
 
@@ -362,11 +362,11 @@ public final class NodeUtil {
         if (!numberConversions) {
           return null;
         }
-        String string = getStringValue(n);
-        if (string == null) {
+        Optional<String> string = getStringValue(n);
+        if (string.isEmpty()) {
           return null;
         }
-        return getStringNumberValue(string);
+        return getStringNumberValue(string.get());
       }
       case STRINGLIT -> {
         if (!numberConversions) {
@@ -378,8 +378,8 @@ public final class NodeUtil {
         if (!numberConversions) {
           return null;
         }
-        String value = getStringValue(n);
-        return value != null ? getStringNumberValue(value) : null;
+        Optional<String> value = getStringValue(n);
+        return value.isPresent() ? getStringNumberValue(value.get()) : null;
       }
       default -> {}
     }
@@ -504,11 +504,11 @@ public final class NodeUtil {
           };
 
       case TEMPLATELIT -> {
-        String string = getStringValue(n);
-        if (string == null) {
+        Optional<String> string = getStringValue(n);
+        if (string.isEmpty()) {
           yield null;
         }
-        yield getStringBigIntValue(string);
+        yield getStringBigIntValue(string.get());
       }
 
       case STRINGLIT -> getStringBigIntValue(n.getString());
@@ -523,8 +523,8 @@ public final class NodeUtil {
       }
 
       case ARRAYLIT, OBJECTLIT -> {
-        String value = getStringValue(n);
-        yield value != null ? getStringBigIntValue(value) : null;
+        Optional<String> value = getStringValue(n);
+        yield value.isPresent() ? getStringBigIntValue(value.get()) : null;
       }
       case VOID, NAME, NULL -> null;
       default -> null;
@@ -598,9 +598,9 @@ public final class NodeUtil {
    * @param n A function or class node.
    * @return The name of the given function or class, if it has one.
    */
-  public static @Nullable String getName(Node n) {
+  public static String getName(Node n) {
     Node nameNode = getNameNode(n);
-    return nameNode == null ? null : nameNode.getQualifiedName();
+    return nameNode == null ? "" : nameNode.getQualifiedName();
   }
 
   /**
@@ -673,23 +673,23 @@ public final class NodeUtil {
    * @param n a node whose type is {@link Token#FUNCTION}
    * @return the function's name, or {@code null} if it has no name
    */
-  public static @Nullable String getNearestFunctionName(Node n) {
+  public static Optional<String> getNearestFunctionName(Node n) {
     if (!n.isFunction()) {
-      return null;
+      return Optional.empty();
     }
 
     String name = getName(n);
-    if (name != null) {
-      return name;
+    if (!name.isEmpty()) {
+      return Optional.of(name);
     }
 
     // Check for the form { 'x' : function() { }} and {x() {}}
     Node parent = n.getParent();
     return switch (parent.getToken()) {
       // Return the name of the literal's key.
-      case MEMBER_FUNCTION_DEF, SETTER_DEF, GETTER_DEF, STRING_KEY -> parent.getString();
+      case MEMBER_FUNCTION_DEF, SETTER_DEF, GETTER_DEF, STRING_KEY -> Optional.of(parent.getString());
       case NUMBER -> getStringValue(parent);
-      default -> null;
+      default -> Optional.empty();
     };
   }
 
@@ -2421,7 +2421,7 @@ public final class NodeUtil {
   // TODO(tbreisacher): Add a method for detecting nodes injected as runtime libraries.
   static boolean isInSyntheticScript(Node n) {
     String sourceFileName = n.getSourceFileName();
-    return sourceFileName != null
+    return !sourceFileName.isEmpty()
         && (sourceFileName.startsWith(" [synthetic:")
             || sourceFileName.startsWith(AbstractCompiler.RUNTIME_LIB_DIR));
   }
@@ -3410,10 +3410,10 @@ public final class NodeUtil {
    *
    * @param key A node
    */
-  static String getObjectOrClassLitKeyName(Node key) {
+  static Optional<String> getObjectOrClassLitKeyName(Node key) {
     Node keyNode = getObjectOrClassLitKeyNode(key);
     if (keyNode != null) {
-      return keyNode.getString();
+      return Optional.of(keyNode.getString());
     }
     throw new IllegalStateException("Unexpected node type: " + key);
   }
@@ -3461,54 +3461,54 @@ public final class NodeUtil {
    * @param operator the operator's token value to convert
    * @return the string representation or {@code null} if the token value is not an operator
    */
-  public static @Nullable String opToStr(Token operator) {
+  public static Optional<String> opToStr(Token operator) {
     return switch (operator) {
-      case COALESCE -> "??";
-      case BITOR -> "|";
-      case OR -> "||";
-      case BITXOR -> "^";
-      case AND -> "&&";
-      case BITAND -> "&";
-      case SHEQ -> "===";
-      case EQ -> "==";
-      case NOT -> "!";
-      case NE -> "!=";
-      case SHNE -> "!==";
-      case LSH -> "<<";
-      case IN -> "in";
-      case LE -> "<=";
-      case LT -> "<";
-      case URSH -> ">>>";
-      case RSH -> ">>";
-      case GE -> ">=";
-      case GT -> ">";
-      case MUL -> "*";
-      case DIV -> "/";
-      case MOD -> "%";
-      case EXPONENT -> "**";
-      case BITNOT -> "~";
-      case ADD, POS -> "+";
-      case SUB, NEG -> "-";
-      case ASSIGN -> "=";
-      case ASSIGN_BITOR -> "|=";
-      case ASSIGN_BITXOR -> "^=";
-      case ASSIGN_BITAND -> "&=";
-      case ASSIGN_LSH -> "<<=";
-      case ASSIGN_RSH -> ">>=";
-      case ASSIGN_URSH -> ">>>=";
-      case ASSIGN_ADD -> "+=";
-      case ASSIGN_SUB -> "-=";
-      case ASSIGN_MUL -> "*=";
-      case ASSIGN_EXPONENT -> "**=";
-      case ASSIGN_DIV -> "/=";
-      case ASSIGN_MOD -> "%=";
-      case ASSIGN_OR -> "||=";
-      case ASSIGN_AND -> "&&=";
-      case ASSIGN_COALESCE -> "??=";
-      case VOID -> "void";
-      case TYPEOF -> "typeof";
-      case INSTANCEOF -> "instanceof";
-      default -> null;
+      case COALESCE -> Optional.of("??");
+      case BITOR -> Optional.of("|");
+      case OR -> Optional.of("||");
+      case BITXOR -> Optional.of("^");
+      case AND -> Optional.of("&&");
+      case BITAND -> Optional.of("&");
+      case SHEQ -> Optional.of("===");
+      case EQ -> Optional.of("==");
+      case NOT -> Optional.of("!");
+      case NE -> Optional.of("!=");
+      case SHNE -> Optional.of("!==");
+      case LSH -> Optional.of("<<");
+      case IN -> Optional.of("in");
+      case LE -> Optional.of("<=");
+      case LT -> Optional.of("<");
+      case URSH -> Optional.of(">>>");
+      case RSH -> Optional.of(">>");
+      case GE -> Optional.of(">=");
+      case GT -> Optional.of(">");
+      case MUL -> Optional.of("*");
+      case DIV -> Optional.of("/");
+      case MOD -> Optional.of("%");
+      case EXPONENT -> Optional.of("**");
+      case BITNOT -> Optional.of("~");
+      case ADD, POS -> Optional.of("+");
+      case SUB, NEG -> Optional.of("-");
+      case ASSIGN -> Optional.of("=");
+      case ASSIGN_BITOR -> Optional.of("|=");
+      case ASSIGN_BITXOR -> Optional.of("^=");
+      case ASSIGN_BITAND -> Optional.of("&=");
+      case ASSIGN_LSH -> Optional.of("<<=");
+      case ASSIGN_RSH -> Optional.of(">>=");
+      case ASSIGN_URSH -> Optional.of(">>>=");
+      case ASSIGN_ADD -> Optional.of("+=");
+      case ASSIGN_SUB -> Optional.of("-=");
+      case ASSIGN_MUL -> Optional.of("*=");
+      case ASSIGN_EXPONENT -> Optional.of("**=");
+      case ASSIGN_DIV -> Optional.of("/=");
+      case ASSIGN_MOD -> Optional.of("%=");
+      case ASSIGN_OR -> Optional.of("||=");
+      case ASSIGN_AND -> Optional.of("&&=");
+      case ASSIGN_COALESCE -> Optional.of("??=");
+      case VOID -> Optional.of("void");
+      case TYPEOF -> Optional.of("typeof");
+      case INSTANCEOF -> Optional.of("instanceof");
+      default -> Optional.empty();
     };
   }
 
@@ -3520,11 +3520,11 @@ public final class NodeUtil {
    * @throws Error if the token value is not an operator
    */
   static String opToStrNoFail(Token operator) {
-    String res = opToStr(operator);
-    if (res == null) {
+    Optional<String> res = opToStr(operator);
+    if (res.isEmpty()) {
       throw new Error("Unknown op " + operator);
     }
-    return res;
+    return res.get();
   }
 
   /**
@@ -3801,8 +3801,8 @@ public final class NodeUtil {
    *     debugging information.
    * @return The node created.
    */
-  static Node newName(AbstractCompiler compiler, String name, Node basisNode, String originalName) {
-    return newNameCodingConvention(compiler.getCodingConvention(), name, basisNode, originalName);
+  static Node newName(AbstractCompiler compiler, String name, Node basisNode, Optional<String> originalName) {
+    return newNameCodingConvention(compiler.getCodingConvention(), name, basisNode, originalName.orElse(""));
   }
 
   static Node newNameCodingConvention(
@@ -4671,8 +4671,8 @@ public final class NodeUtil {
    * @return The source name property on the node or its ancestors.
    */
   public static String getSourceName(Node n) {
-    String sourceName = null;
-    while (sourceName == null && n != null) {
+    String sourceName = "";
+    while (sourceName.isEmpty() && n != null) {
       sourceName = n.getSourceFileName();
       n = n.getParent();
     }
@@ -4847,7 +4847,7 @@ public final class NodeUtil {
           FALSE,
           NEW ->
           true;
-      case TEMPLATELIT_STRING -> value.getCookedString() != null;
+      case TEMPLATELIT_STRING -> value.getCookedString().isPresent();
       case NAME -> {
         String name = value.getString();
         // We assume here that programs don't change the value of the keyword
@@ -4946,7 +4946,7 @@ public final class NodeUtil {
     if (parent.isParamList()) {
       JSDocInfo functionJsdoc = getBestJSDocInfo(parent.getParent());
       if (functionJsdoc != null) {
-        return functionJsdoc.getParameterType(declaration.getString());
+        return functionJsdoc.getParameterType(Optional.of(declaration.getString()));
       }
     }
     return null;
@@ -5155,33 +5155,33 @@ public final class NodeUtil {
   }
 
   /** Get the name of the given l-value node. */
-  public static @Nullable String getBestLValueName(@Nullable Node lValue) {
+  public static Optional<String> getBestLValueName(@Nullable Node lValue) {
     if (lValue == null || lValue.getParent() == null) {
-      return null;
+      return Optional.empty();
     }
     if (lValue.getParent().isClassMembers() && !lValue.isComputedProp()) {
       String className = NodeUtil.getName(lValue.getGrandparent());
-      if (className == null) { // Anonymous class
-        return null;
+      if (className.isEmpty()) { // Anonymous class
+        return Optional.empty();
       }
       String methodName = lValue.getString();
       String maybePrototype = lValue.isStaticMember() ? "." : ".prototype.";
-      return className + maybePrototype + methodName;
+      return Optional.of(className + maybePrototype + methodName);
     }
     // TODO(sdh): Tighten this to simply require !lValue.isQuotedString()
     // Could get rid of the isJSIdentifier check, but may need to fix depot.
     if (mayBeObjectLitKey(lValue)) {
       Node owner = getBestLValue(lValue.getParent());
       if (owner != null) {
-        String ownerName = getBestLValueName(owner);
-        if (ownerName != null) {
-          String key = getObjectOrClassLitKeyName(lValue);
-          return TokenStream.isJSIdentifier(key) ? ownerName + "." + key : null;
+        Optional<String> ownerName = getBestLValueName(owner);
+        if (ownerName.isPresent()) {
+          Optional<String> key = getObjectOrClassLitKeyName(lValue);
+          return TokenStream.isJSIdentifier(key.get()) ? Optional.of(ownerName.get() + "." + key.orElse("null")) : Optional.empty();
         }
       }
-      return null;
+      return Optional.empty();
     }
-    return lValue.getQualifiedName();
+    return Optional.of(lValue.getQualifiedName()).filter(s -> !s.isEmpty());
   }
 
   /** Gets the root of a qualified name l-value. */
@@ -6017,18 +6017,17 @@ public final class NodeUtil {
    *     requires.
    * @param isStrongRequire true if the require is a goog.require, false if it is a goog.requireType
    */
-  public record GoogRequire(String namespace, @Nullable String property, boolean isStrongRequire) {
+  public record GoogRequire(String namespace, Optional<String> property, boolean isStrongRequire) {
     public GoogRequire {
-      requireNonNull(namespace, "namespace");
     }
 
     static GoogRequire fromNamespace(String namespace, boolean isStrongRequire) {
-      return new GoogRequire(namespace, /* property= */ null, isStrongRequire);
+      return new GoogRequire(namespace, /* property= */ Optional.empty(), isStrongRequire);
     }
 
     static GoogRequire fromNamespaceAndProperty(
         String namespace, String property, boolean isStrongRequire) {
-      return new GoogRequire(namespace, property, isStrongRequire);
+      return new GoogRequire(namespace, Optional.of(property), isStrongRequire);
     }
   }
 

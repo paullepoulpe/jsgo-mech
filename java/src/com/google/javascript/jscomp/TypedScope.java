@@ -180,7 +180,7 @@ public class TypedScope extends AbstractScope<TypedScope, TypedVar> implements S
 
   TypedVar declare(String name, Node nameNode,
       JSType type, CompilerInput input, boolean inferred) {
-    checkState(name != null && !name.isEmpty());
+    checkState(!name.isEmpty());
     if (!reservedNames.isEmpty()) {
       // (reservedNames only contains simple, non-qualified names; so it's completely normal to
       // declare qualified names that were not 'reserved')

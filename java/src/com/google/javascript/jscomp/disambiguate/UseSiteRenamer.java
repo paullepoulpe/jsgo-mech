@@ -66,7 +66,7 @@ final class UseSiteRenamer {
       Node site = usage.getKey();
       ColorGraphNode flatRep = prop.getClusters().find(usage.getValue());
       String newName = clusterNames.get(flatRep);
-      if (!Objects.equals(newName, site.getString())) {
+      if (!site.getString().equals(newName)) {
         site.setString(newName);
         this.mutationCb.accept(site);
       }

@@ -23,6 +23,7 @@ import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Msg;
 import com.google.re2j.Pattern;
 import java.util.Map.Entry;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -228,13 +229,13 @@ class RhinoErrorReporter {
     return new OldRhinoErrorReporter(internalReporter);
   }
 
-  void warningAtLine(String message, String sourceName, int line,
+  void warningAtLine(String message, Optional<String> sourceName, int line,
       int lineOffset) {
     internalReporter.report(
         null, makeError(message, sourceName, line, lineOffset, CheckLevel.WARNING));
   }
 
-  void errorAtLine(String message, String sourceName, int line,
+  void errorAtLine(String message, Optional<String> sourceName, int line,
       int lineOffset) {
     internalReporter.report(
         null, makeError(message, sourceName, line, lineOffset, CheckLevel.ERROR));
@@ -250,7 +251,7 @@ class RhinoErrorReporter {
   }
 
   private static JSError makeError(
-      String message, String sourceName, int line, int lineOffset, CheckLevel defaultLevel) {
+      String message, Optional<String> sourceName, int line, int lineOffset, CheckLevel defaultLevel) {
     // Try to see if the message is one of the rhino errors we want to
     // expose as DiagnosticType by matching it with the regex key.
     DiagnosticType type = mapError(message);
@@ -275,13 +276,13 @@ class RhinoErrorReporter {
     }
 
     @Override
-    public void error(String message, String sourceName, int line,
+    public void error(String message, Optional<String> sourceName, int line,
         int lineOffset) {
       super.errorAtLine(message, sourceName, line, lineOffset);
     }
 
     @Override
-    public void warning(String message, String sourceName, int line,
+    public void warning(String message, Optional<String> sourceName, int line,
         int lineOffset) {
       super.warningAtLine(message, sourceName, line, lineOffset);
     }

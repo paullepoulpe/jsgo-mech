@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public final class GenerateExportsTest extends CompilerTestCase {
   @Override
   protected CompilerPass getProcessor(Compiler compiler) {
     return new GenerateExports(
-        compiler, allowNonGlobalExports, exportSymbolFunction, exportPropertyFunction);
+        compiler, allowNonGlobalExports, Optional.ofNullable(exportSymbolFunction), Optional.ofNullable(exportPropertyFunction));
   }
 
   @Override

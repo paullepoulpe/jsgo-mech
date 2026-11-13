@@ -40,6 +40,7 @@
 package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.jscomp.base.Tri;
+import java.util.Optional;
 
 /**
  * Boolean type.
@@ -97,8 +98,8 @@ public final class BooleanType extends ValueType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "boolean";
+  public Optional<String> getDisplayName() {
+    return Optional.of("boolean");
   }
 
   @Override

@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -42,7 +43,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
   private String[] sources;
   private String[] sourcesContent;
   private String[] names;
-  private @Nullable String file;
+  private Optional<String> file = Optional.empty();
   private int lineCount;
 
   private Mappings mappings = null;
@@ -50,13 +51,13 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
   /** originalFile path ==> original line ==> target mappings */
   private Map<String, Map<Integer, Collection<OriginalMapping>>> reverseSourceMapping;
 
-  private String sourceRoot;
+  private Optional<String> sourceRoot = Optional.empty();
   private final Map<String, Object> extensions = new LinkedHashMap<>();
 
   static class DefaultSourceMapSupplier implements SourceMapSupplier {
     @Override
-    public String getSourceMap(String url) {
-      return null;
+    public Optional<String> getSourceMap(String url) {
+      return Optional.empty();
     }
   }
 
@@ -81,7 +82,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
     }
 
     file = sourceMapObject.getFile();
-    if (file != null && file.isEmpty()) {
+    if (file.isPresent() && file.get().isEmpty()) {
       return Outcome.err(new SourceMapParseException("File entry is empty"));
     }
 
@@ -100,7 +101,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
         (sources.length < 65535) && (names == null || names.length < 65535);
 
     int estimatedEntries = (lineCount >= 0) ? lineCount * 2 : 1000;
-    if (sourceMapObject.getMappings() != null) {
+    if (sourceMapObject.getMappings().isPresent()) {
       // Estimate the number of entries in the string encoding. A entry has 5 values
       // and a separator, for a minimum of 6 characters.
       //
@@ -112,7 +113,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
       // final trim() will still trigger an Arrays.copyOf to scale back down to 266K!
       // If we start with a bigger estimate, we might still need to trim down at the end, but we
       // save potentially many array copies.
-      estimatedEntries = Math.max(estimatedEntries, sourceMapObject.getMappings().length() / 6);
+      estimatedEntries = Math.max(estimatedEntries, sourceMapObject.getMappings().get().length() / 6);
     }
 
     // The value type of each extension is the native JSON type (e.g. JsonObject, or JSONObject
@@ -120,7 +121,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
     extensions.putAll(sourceMapObject.getExtensions());
     Outcome<Mappings> built =
         new MappingBuilder(
-                sourceMapObject.getMappings(), lineCount, useCompactMappings, estimatedEntries)
+                sourceMapObject.getMappings().get(), lineCount, useCompactMappings, estimatedEntries)
             .build();
     if (built.isErr()) {
       return Outcome.err(built.error());
@@ -138,7 +139,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
 
     try {
       if (sourceMapObject.getLineCount() >= 0
-          || sourceMapObject.getMappings() != null
+          || sourceMapObject.getMappings().isPresent()
           || (sourceMapObject.getSources() != null && sourceMapObject.getSources().length > 0)
           || sourceMapObject.getNames() != null) {
         return Outcome.err(new SourceMapParseException("Invalid map format"));
@@ -148,16 +149,16 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
       // map will be rendered to JSON and then parsed using this consumer.
       SourceMapGeneratorV3 generator = new SourceMapGeneratorV3();
       for (SourceMapSection section : sourceMapObject.getSections()) {
-        String mapSectionContents = section.getSectionValue();
+        Optional<String> mapSectionContents = Optional.of(section.getSectionValue());
         if (section.getSectionType() == SourceMapSection.SectionType.URL) {
           mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue());
         }
-        if (mapSectionContents == null) {
+        if (mapSectionContents.isEmpty()) {
           return Outcome.err(
               new SourceMapParseException("Unable to retrieve: " + section.getSectionValue()));
         }
         Outcome<Void> merged =
-            generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents);
+            generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.get());
         if (merged.isErr()) {
           return Outcome.err(merged.error());
         }
@@ -212,7 +213,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
     return Arrays.asList(names);
   }
 
-  public @Nullable String getFile() {
+  public Optional<String> getFile() {
     return file;
   }
 
@@ -248,7 +249,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
     }
   }
 
-  public String getSourceRoot(){
+  public Optional<String> getSourceRoot(){
     return this.sourceRoot;
   }
 
@@ -764,8 +765,8 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
 
   public void visitMappings(EntryVisitor visitor) {
     boolean pending = false;
-    String sourceName = null;
-    String symbolName = null;
+    Optional<String> sourceName = Optional.empty();
+    Optional<String> symbolName = Optional.empty();
     FilePosition sourceStartPosition = null;
     FilePosition startPosition = null;
 
@@ -777,8 +778,8 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
           if (pending) {
             FilePosition endPosition = new FilePosition(i, mappings.getGeneratedColumn(j));
             visitor.visit(
-                sourceName,
-                symbolName,
+                sourceName.orElse(""),
+                symbolName.orElse(""),
                 sourceStartPosition,
                 startPosition,
                 endPosition);
@@ -788,9 +789,9 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
           int sourceFileId = mappings.getSourceFileId(j);
           if (sourceFileId != UNMAPPED) {
             pending = true;
-            sourceName = sources[sourceFileId];
+            sourceName = Optional.of(sources[sourceFileId]);
             int nameId = mappings.getNameId(j);
-            symbolName = (nameId != UNMAPPED) ? names[nameId] : null;
+            symbolName = (nameId != UNMAPPED) ? Optional.of(names[nameId]) : Optional.empty();
             sourceStartPosition =
                 new FilePosition(mappings.getSourceLine(j), mappings.getSourceColumn(j));
             startPosition = new FilePosition(i, mappings.getGeneratedColumn(j));
@@ -804,7 +805,7 @@ public final class SourceMapConsumerV3 implements SourceMapConsumer, SourceMappi
       // after that entry - make it of length 1.
       FilePosition endPosition =
           new FilePosition(startPosition.getLine(), startPosition.getColumn() + 1);
-      visitor.visit(sourceName, symbolName, sourceStartPosition, startPosition, endPosition);
+      visitor.visit(sourceName.orElse(""), symbolName.orElse(""), sourceStartPosition, startPosition, endPosition);
     }
   }
 }

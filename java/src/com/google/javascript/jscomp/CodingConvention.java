@@ -30,6 +30,7 @@ import com.google.javascript.rhino.jstype.JSType;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -62,7 +63,7 @@ public interface CodingConvention extends Serializable {
    * @return {@code true} if the {@code key} may be used as an enum key,
    *     {@code false} otherwise
    */
-  public boolean isValidEnumKey(String key);
+  public boolean isValidEnumKey(Optional<String> key);
 
   /**
    * This checks whether a given parameter name should be treated as an
@@ -133,7 +134,7 @@ public interface CodingConvention extends Serializable {
    * @return the package name for the given source file, or null if
    *     no package name is known.
    */
-  public String getPackageName(StaticSourceFile source);
+  public Optional<String> getPackageName(StaticSourceFile source);
 
   /**
    * Checks if the given method defines a subclass relationship,
@@ -170,13 +171,13 @@ public interface CodingConvention extends Serializable {
    * Convenience method for determining provided dependencies amongst different
    * JS scripts.
    */
-  public String extractClassNameIfProvide(Node node, Node parent);
+  public Optional<String> extractClassNameIfProvide(Node node, Node parent);
 
   /**
    * Convenience method for determining required dependencies amongst different
    * JS scripts.
    */
-  public String extractClassNameIfRequire(Node node, Node parent);
+  public Optional<String> extractClassNameIfRequire(Node node, Node parent);
 
   /**
    * Function name used when exporting properties.
@@ -340,8 +341,8 @@ public interface CodingConvention extends Serializable {
   /** Record subclass relations */
   static class SubclassRelationship {
     final SubclassType type;
-    final String subclassName;
-    final String superclassName;
+    final Optional<String> subclassName;
+    final Optional<String> superclassName;
 
     public SubclassRelationship(
         SubclassType type, Node subclassNode, Node superclassNode) {
@@ -350,8 +351,8 @@ public interface CodingConvention extends Serializable {
       checkArgument(
           superclassNode.isQualifiedName(), "Expected qualified name, found: %s", superclassNode);
       this.type = type;
-      this.subclassName = subclassNode.getQualifiedName();
-      this.superclassName = superclassNode.getQualifiedName();
+      this.subclassName = Optional.of(subclassNode.getQualifiedName()).filter(s -> !s.isEmpty());
+      this.superclassName = Optional.of(superclassNode.getQualifiedName()).filter(s -> !s.isEmpty());
     }
   }
 
@@ -361,7 +362,7 @@ public interface CodingConvention extends Serializable {
    */
   static class ObjectLiteralCast {
     /** Type to cast to. */
-    final String typeName;
+    final Optional<String> typeName;
 
     /** Object to cast. */
     final Node objectNode;
@@ -369,7 +370,7 @@ public interface CodingConvention extends Serializable {
     /** Error message */
     final DiagnosticType diagnosticType;
 
-    ObjectLiteralCast(String typeName, Node objectNode,
+    ObjectLiteralCast(Optional<String> typeName, Node objectNode,
         DiagnosticType diagnosticType) {
       this.typeName = typeName;
       this.objectNode = objectNode;
@@ -389,7 +390,7 @@ public interface CodingConvention extends Serializable {
   @Immutable
   record AssertionFunctionSpec(
       // TODO(b/126254920): remove this field and always use ClosurePrimitive
-      @Nullable String getFunctionName,
+      Optional<String> getFunctionName,
       @Nullable ClosurePrimitive getClosurePrimitive,
       AssertionKind getAssertionKind,
       int getParamIndex) { // the index of the formal parameter that is actually asserted
@@ -400,7 +401,7 @@ public interface CodingConvention extends Serializable {
     @Override
     public String toString() {
       return "AssertionFunctionSpec{"
-          + "functionName=" + getFunctionName + ", "
+          + "functionName=" + getFunctionName.orElse("null") + ", "
           + "closurePrimitive=" + getClosurePrimitive + ", "
           + "assertionKind=" + getAssertionKind + ", "
           + "paramIndex=" + getParamIndex
@@ -425,7 +426,7 @@ public interface CodingConvention extends Serializable {
     }
 
     public static final class Builder {
-      private @Nullable String functionName;
+      private Optional<String> functionName = Optional.empty();
       private @Nullable ClosurePrimitive closurePrimitive;
       private CodingConvention.AssertionFunctionSpec.@Nullable AssertionKind assertionKind;
       private int paramIndex;
@@ -435,7 +436,7 @@ public interface CodingConvention extends Serializable {
       }
 
       public Builder setFunctionName(String name) {
-        this.functionName = name;
+        this.functionName = Optional.of(name);
         return this;
       }
 
@@ -480,14 +481,14 @@ public interface CodingConvention extends Serializable {
       public AssertionFunctionSpec build() {
         AssertionFunctionSpec spec = autoBuild();
         Preconditions.checkState(
-            spec.getFunctionName() != null || spec.getClosurePrimitive() != null,
+            spec.getFunctionName().isPresent() || spec.getClosurePrimitive() != null,
             "Must provide a function name or ClosurePrimitive for each spec");
         return spec;
       }
     }
 
     private Object getId() {
-      return getClosurePrimitive() != null ? getClosurePrimitive() : getFunctionName();
+      return getClosurePrimitive() != null ? getClosurePrimitive() : getFunctionName().orElse(null);
     }
 
     /** Returns which argument is actually being asserted, or null if fewer args than expected */

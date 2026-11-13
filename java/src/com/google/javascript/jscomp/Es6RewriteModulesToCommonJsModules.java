@@ -15,9 +15,7 @@
  */
 package com.google.javascript.jscomp;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Objects.requireNonNull;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
@@ -27,6 +25,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import org.jspecify.annotations.Nullable;
@@ -109,8 +108,6 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
 
   private record ModuleRequest(String specifier, String varName) {
     ModuleRequest {
-      requireNonNull(specifier, "specifier");
-      requireNonNull(varName, "varName");
     }
 
     private static ModuleRequest create(String specifier, String varName) {
@@ -230,7 +227,7 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
      * @return qualified name to use to reference an imported value if the given node is an imported
      *     name or null if the value is not imported or if it is in the import statement itself
      */
-    private @Nullable String maybeGetNameOfImportedValue(Scope s, Node nameNode) {
+    private Optional<String> maybeGetNameOfImportedValue(Scope s, Node nameNode) {
       checkState(nameNode.isName());
       Var var = s.getVar(nameNode.getString());
 
@@ -239,10 +236,10 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
           && var.getNameNode() != null
           && NodeUtil.isImportedName(var.getNameNode())
           && nameNode != var.getNameNode()) {
-        return getNameOfImportedValue(var.getNameNode());
+        return Optional.of(getNameOfImportedValue(var.getNameNode()));
       }
 
-      return null;
+      return Optional.empty();
     }
 
     /** Renames the given name node if it is an imported value. */
@@ -257,10 +254,10 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
         return;
       }
 
-      String qName = maybeGetNameOfImportedValue(t.getScope(), n);
+      Optional<String> qName = maybeGetNameOfImportedValue(t.getScope(), n);
 
-      if (qName != null) {
-        n.replaceWith(NodeUtil.newQName(compiler, qName));
+      if (qName.isPresent()) {
+        n.replaceWith(NodeUtil.newQName(compiler, qName.get()));
         t.reportCodeChange();
       }
     }
@@ -415,25 +412,25 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
 
     private void visitExportDefault(NodeTraversal t, Node export) {
       Node child = export.getFirstChild();
-      String name = null;
+      Optional<String> name = Optional.empty();
 
       if (child.isFunction() || child.isClass()) {
-        name = NodeUtil.getName(child);
+        name = Optional.of(NodeUtil.getName(child)).filter(s -> !s.isEmpty());
       }
 
-      if (name != null) {
+      if (name.isPresent()) {
         Node decl = child.detach();
         export.replaceWith(decl);
       } else {
-        name = JSCOMP_DEFAULT_EXPORT;
+        name = Optional.of(JSCOMP_DEFAULT_EXPORT);
         // Default exports are constant in more ways than one. Not only can they not be
         // overwritten but they also act like a const for temporal dead-zone purposes.
-        Node var = IR.constNode(IR.name(name), export.removeFirstChild());
+        Node var = IR.constNode(IR.name(name.get()), export.removeFirstChild());
         export.replaceWith(var.srcrefTreeIfMissing(export));
         NodeUtil.addFeatureToScript(t.getCurrentScript(), Feature.CONST_DECLARATIONS, compiler);
       }
 
-      exportedNameToLocalQName.put("default", new LocalQName(name, export));
+      exportedNameToLocalQName.put("default", new LocalQName(name.orElse(null), export));
       t.reportCodeChange();
     }
 
@@ -464,14 +461,14 @@ public class Es6RewriteModulesToCommonJsModules implements CompilerPass {
       for (Node exportSpec = export.getFirstFirstChild();
           exportSpec != null;
           exportSpec = exportSpec.getNext()) {
-        String localName = exportSpec.getFirstChild().getString();
-        Var var = t.getScope().getVar(localName);
+        Optional<String> localName = Optional.of(exportSpec.getFirstChild().getString());
+        Var var = t.getScope().getVar(localName.get());
         if (var != null && NodeUtil.isImportedName(var.getNameNode())) {
           localName = maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild());
-          checkNotNull(localName);
+          checkState(localName.isPresent());
         }
         exportedNameToLocalQName.put(
-            exportSpec.getLastChild().getString(), new LocalQName(localName, exportSpec));
+            exportSpec.getLastChild().getString(), new LocalQName(localName.orElse(null), exportSpec));
       }
       export.detach();
       t.reportCodeChange();

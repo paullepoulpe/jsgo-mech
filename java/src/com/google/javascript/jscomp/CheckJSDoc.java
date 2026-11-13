@@ -26,6 +26,7 @@ import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import com.google.re2j.Pattern;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -119,7 +120,7 @@ final class CheckJSDoc extends AbstractPostOrderCallback implements CompilerPass
    * Checks for block comments (e.g. starting with /*) that look like they are JsDoc, and thus
    * should start with /**.
    */
-  private void checkJsDocInBlockComments(String fileName) {
+  private void checkJsDocInBlockComments(Optional<String> fileName) {
     if (!compiler.getOptions().preservesDetailedSourceInfo()) {
       // Comments only available if preservesDetailedSourceInfo is true.
       return;
@@ -142,7 +143,7 @@ final class CheckJSDoc extends AbstractPostOrderCallback implements CompilerPass
   @Override
   public void visit(NodeTraversal t, Node n, Node parent) {
     if (n.isScript()) {
-      checkJsDocInBlockComments(n.getSourceFileName());
+      checkJsDocInBlockComments(Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty()));
     }
     JSDocInfo info = n.getJSDocInfo();
     validateTypeAnnotations(n, info);
@@ -508,12 +509,12 @@ final class CheckJSDoc extends AbstractPostOrderCallback implements CompilerPass
       return;
     }
 
-    boolean hasNonDescMsgTag = info.getMeaning() != null || info.getAlternateMessageId() != null;
+    boolean hasNonDescMsgTag = info.getMeaning().isPresent() || info.getAlternateMessageId().isPresent();
 
     if (hasNonDescMsgTag
         // Don't error on TS gencode using @desc on a non-message. There's a lot of code that
         // uses @desc as a general purpose "@desc" tag
-        || (info.getDescription() != null && !isFromTs(n))) {
+        || (info.getDescription().isPresent() && !isFromTs(n))) {
       boolean descOkay = false;
       switch (n.getToken()) {
         case ASSIGN, VAR, LET, CONST -> descOkay = isValidMsgName(n.getFirstChild());
@@ -635,7 +636,7 @@ final class CheckJSDoc extends AbstractPostOrderCallback implements CompilerPass
     } else if (functionInfo != null) {
       if (restParam.getFirstChild().isName()) {
         String paramName = restParam.getFirstChild().getString();
-        paramTypeAnnotation = functionInfo.getParameterType(paramName);
+        paramTypeAnnotation = functionInfo.getParameterType(Optional.of(paramName));
       } else {
         // destructuring rest param. use the nth JSDoc parameter if present. the name will not match
         int indexOfRest = paramList.getIndexOfChild(restParam);

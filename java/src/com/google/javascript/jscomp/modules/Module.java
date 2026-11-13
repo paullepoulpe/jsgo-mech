@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -77,7 +78,7 @@ public record Module(
     ImmutableMap<String, Binding> namespace,
     ImmutableMap<String, Binding> boundNames,
     ImmutableMap<String, Export> localNameToLocalExport,
-    @Nullable String closureNamespace) {
+    Optional<String> closureNamespace) {
   public Module {
     requireNonNull(metadata, "metadata");
     requireNonNull(namespace, "namespace");
@@ -102,7 +103,7 @@ public record Module(
     private @Nullable ImmutableMap<String, Binding> namespaceField;
     private @Nullable ImmutableMap<String, Binding> boundNamesField;
     private @Nullable ImmutableMap<String, Export> localNameToLocalExportField;
-    private String closureNamespaceField;
+    private Optional<String> closureNamespaceField = Optional.empty();
 
     Builder() {
     }
@@ -153,7 +154,7 @@ public record Module(
       return this;
     }
 
-    public Builder closureNamespace(@Nullable String value) {
+    public Builder closureNamespace(Optional<String> value) {
       this.closureNamespaceField = value;
       return this;
     }

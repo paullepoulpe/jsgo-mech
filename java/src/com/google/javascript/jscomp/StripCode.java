@@ -27,6 +27,7 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
@@ -576,7 +577,7 @@ class StripCode implements CompilerPass {
       // Replace class with null if it is a strip type
       if (nameNode != null && nameNode.isQualifiedName()) {
         className = nameNode.getQualifiedName();
-        if (qualifiedNameBeginsWithStripTypeString(className)) {
+        if (qualifiedNameBeginsWithStripTypeString(Optional.of(className).filter(s -> !s.isEmpty()))) {
           decisionsLog.log(() -> className + ": removing class");
           if (NodeUtil.isStatementParent(parent)) {
             replaceWithEmpty(classNode, parent);
@@ -594,7 +595,7 @@ class StripCode implements CompilerPass {
       Node superclassNode = classNode.getSecondChild();
       if (superclassNode != null && superclassNode.isQualifiedName()) {
         String superclassName = superclassNode.getQualifiedName();
-        if (qualifiedNameBeginsWithStripTypeString(superclassName)) {
+        if (qualifiedNameBeginsWithStripTypeString(Optional.of(superclassName).filter(s -> !s.isEmpty()))) {
           t.report(classNode, STRIP_TYPE_INHERIT_ERROR, className, superclassName);
         }
       }
@@ -631,7 +632,7 @@ class StripCode implements CompilerPass {
      */
     boolean qualifiedNameBeginsWithStripType(Node n) {
       String name = n.getQualifiedName();
-      return qualifiedNameBeginsWithStripTypeString(name);
+      return qualifiedNameBeginsWithStripTypeString(Optional.of(name).filter(s -> !s.isEmpty()));
     }
 
     /**
@@ -643,16 +644,16 @@ class StripCode implements CompilerPass {
      * @param name A qualified class name
      * @return Whether the name begins with a strip name
      */
-    boolean qualifiedNameBeginsWithStripTypeString(String name) {
-      if (name != null) {
+    boolean qualifiedNameBeginsWithStripTypeString(Optional<String> name) {
+      if (name.isPresent()) {
         for (String type : stripTypesList) {
-          if (name.equals(type)) {
+          if (name.get().equals(type)) {
             logStripName(name, "equals strip type");
             return true;
           }
         }
         for (String type : stripTypePrefixesList) {
-          if (name.startsWith(type)) {
+          if (name.get().startsWith(type)) {
             logStripName(name, "starts with strip type prefix");
             return true;
           }
@@ -777,7 +778,7 @@ class StripCode implements CompilerPass {
         // strip type.
         if (qualifiedNameBeginsWithStripTypeString(classes.superclassName)) {
           t.report(
-              callNode, STRIP_TYPE_INHERIT_ERROR, classes.subclassName, classes.superclassName);
+              callNode, STRIP_TYPE_INHERIT_ERROR, classes.subclassName.orElse("null"), classes.superclassName.orElse("null"));
         }
       }
 
@@ -793,17 +794,17 @@ class StripCode implements CompilerPass {
      */
     boolean isStripName(String name) {
       if (stripNameSuffixes.contains(name)) {
-        logStripName(name, "matches a suffix");
+        logStripName(Optional.of(name), "matches a suffix");
         return true;
       }
 
       if (stripNamePrefixes.contains(name)) {
-        logStripName(name, "matches a prefix");
+        logStripName(Optional.of(name), "matches a prefix");
         return true;
       }
 
       if (name.isEmpty() || Character.isUpperCase(name.charAt(0))) {
-        logNotAStripName(name, "empty or starts with uppercase");
+        logNotAStripName(Optional.of(name), "empty or starts with uppercase");
         return false;
       }
 
@@ -822,19 +823,19 @@ class StripCode implements CompilerPass {
         }
       }
 
-      logNotAStripName(name, "no matches");
+      logNotAStripName(Optional.of(name), "no matches");
       return false;
     }
 
-    private void logNotAStripName(String name, String reason) {
+    private void logNotAStripName(Optional<String> name, String reason) {
       if (decisionsLog.isLogging()) {
-        decisionsLog.log(() -> name + "\tnot a strip name: " + reason);
+        decisionsLog.log(() -> name.orElse("null") + "\tnot a strip name: " + reason);
       }
     }
 
-    private void logStripName(String name, String reason) {
+    private void logStripName(Optional<String> name, String reason) {
       if (decisionsLog.isLogging()) {
-        decisionsLog.log(() -> name + "\tstrip name: " + reason);
+        decisionsLog.log(() -> name.orElse("null") + "\tstrip name: " + reason);
       }
     }
 

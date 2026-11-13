@@ -74,6 +74,6 @@ public final class SourceInformationAnnotatorTest {
 
     // No need for the original name because strings are almost never mangled by JSCompiler and
     // source information mapping "identifier"s don't care about raw strings.
-    assertThat(string.getOriginalName()).isNull();
+    assertThat(string.getOriginalName()).isEmpty();
   }
 }

@@ -22,6 +22,7 @@ import com.google.javascript.jscomp.CodingConvention.SubclassRelationship;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -98,13 +99,13 @@ public final class GoogleCodingConventionTest {
 
   @Test
   public void testEnumKey() {
-    assertThat(conv.isValidEnumKey("A")).isTrue();
-    assertThat(conv.isValidEnumKey("123")).isTrue();
-    assertThat(conv.isValidEnumKey("FOO_BAR")).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("A"))).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("123"))).isTrue();
+    assertThat(conv.isValidEnumKey(Optional.of("FOO_BAR"))).isTrue();
 
-    assertThat(conv.isValidEnumKey("a")).isFalse();
-    assertThat(conv.isValidEnumKey("someKeyInCamelCase")).isFalse();
-    assertThat(conv.isValidEnumKey("_FOO_BAR")).isFalse();
+    assertThat(conv.isValidEnumKey(Optional.of("a"))).isFalse();
+    assertThat(conv.isValidEnumKey(Optional.of("someKeyInCamelCase"))).isFalse();
+    assertThat(conv.isValidEnumKey(Optional.of("_FOO_BAR"))).isFalse();
   }
 
   @Test
@@ -187,7 +188,7 @@ public final class GoogleCodingConventionTest {
 
   private void assertPackageName(String filename, String expectedPackageName) {
     StaticSourceFile sourceFile = SourceFile.fromCode(filename, "");
-    assertThat(conv.getPackageName(sourceFile)).isEqualTo(expectedPackageName);
+    assertThat(conv.getPackageName(sourceFile).orElse(null)).isEqualTo(expectedPackageName);
   }
 
   private void assertNotClassDefining(String code) {
@@ -199,8 +200,8 @@ public final class GoogleCodingConventionTest {
     Node n = parseTestCode(code);
     SubclassRelationship classes = conv.getClassesDefinedByCall(n.getFirstChild());
     assertThat(classes).isNotNull();
-    assertThat(classes.subclassName).isEqualTo(subclassName);
-    assertThat(classes.superclassName).isEqualTo(superclassName);
+    assertThat(classes.subclassName.orElse(null)).isEqualTo(subclassName);
+    assertThat(classes.superclassName.orElse(null)).isEqualTo(superclassName);
   }
 
   private Node parseTestCode(String code) {

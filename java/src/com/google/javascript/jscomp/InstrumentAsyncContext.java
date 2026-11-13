@@ -29,6 +29,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -357,10 +358,10 @@ public class InstrumentAsyncContext implements CompilerPass, NodeTraversal.Callb
     Node argumentsReference = null;
     ArgumentsRenamer renamer = new ArgumentsRenamer();
     NodeTraversal.traverse(compiler, generatorBody, renamer);
-    if (renamer.argumentsName != null) {
+    if (renamer.argumentsName.isPresent()) {
       argumentsReference = astFactory.createArgumentsReference();
       argumentsParam =
-          astFactory.createName(renamer.argumentsName, AstFactory.type(argumentsReference));
+          astFactory.createName(renamer.argumentsName.get(), AstFactory.type(argumentsReference));
       argumentsParam.insertAfter(innerFactoryName);
     }
 
@@ -486,7 +487,7 @@ public class InstrumentAsyncContext implements CompilerPass, NodeTraversal.Callb
 
   // Renames all instances of `arguments` with a new unique name.
   private class ArgumentsRenamer implements NodeTraversal.Callback {
-    String argumentsName = null;
+    Optional<String> argumentsName = Optional.empty();
 
     @Override
     public boolean shouldTraverse(NodeTraversal t, Node n, @Nullable Node parent) {
@@ -496,10 +497,10 @@ public class InstrumentAsyncContext implements CompilerPass, NodeTraversal.Callb
     @Override
     public void visit(NodeTraversal t, Node n, @Nullable Node parent) {
       if (n.isName() && n.getString().equals("arguments")) {
-        if (argumentsName == null) {
-          argumentsName = "$jscomp$arguments$" + uniqueIdSupplier.getUniqueId(t.getInput());
+        if (argumentsName.isEmpty()) {
+          argumentsName = Optional.of("$jscomp$arguments$" + uniqueIdSupplier.getUniqueId(t.getInput()));
         }
-        n.setString(argumentsName);
+        n.setString(argumentsName.get());
         if (compiler.getOptions().preservesDetailedSourceInfo()) {
           n.setOriginalName("arguments");
         }

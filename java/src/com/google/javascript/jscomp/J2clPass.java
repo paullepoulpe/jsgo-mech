@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -191,13 +192,13 @@ public class J2clPass implements CompilerPass {
           // Then store a reference to it.
           InlinableFunction inlinableFunction =
               new InlinableFunction(n.getLastChild(), inlineSpec.inliningMode);
-          String qualifiedFnName =
+          Optional<String> qualifiedFnName =
               switch (n.getToken()) {
-                case ASSIGN -> n.getFirstChild().getQualifiedName();
+                case ASSIGN -> Optional.of(n.getFirstChild().getQualifiedName()).filter(s -> !s.isEmpty());
                 case MEMBER_FUNCTION_DEF -> NodeUtil.getBestLValueName(n);
                 default -> throw new AssertionError();
               };
-          var previousValue = fnsToInlineByQualifiedName.put(qualifiedFnName, inlinableFunction);
+          var previousValue = fnsToInlineByQualifiedName.put(qualifiedFnName.orElse(null), inlinableFunction);
           checkState(
               previousValue == null,
               "expected each function to match at most one InliningSpec, but found:\n%s\n%s",

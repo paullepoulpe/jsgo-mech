@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -37,9 +38,9 @@ import org.junit.runners.JUnit4;
 public final class ClosureBundlerTest {
 
   private static final DependencyInfo MODULE =
-      SimpleDependencyInfo.builder("", "").setGoogModule(true).build();
+      SimpleDependencyInfo.builder("", Optional.of("")).setGoogModule(true).build();
 
-  private static final DependencyInfo TRADITIONAL = SimpleDependencyInfo.builder("", "").build();
+  private static final DependencyInfo TRADITIONAL = SimpleDependencyInfo.builder("", Optional.of("")).build();
 
   /** Fake that returns the canned result for the given arguments, like the mock it replaces. */
   private static final class FakeTranspiler implements Transpiler {
@@ -181,7 +182,7 @@ public final class ClosureBundlerTest {
     bundler.appendRuntimeTo(sb);
     bundler.appendTo(
         sb,
-        SimpleDependencyInfo.builder("", "").setLoadFlags(ImmutableMap.of("module", "es6")).build(),
+        SimpleDependencyInfo.builder("", Optional.of("")).setLoadFlags(ImmutableMap.of("module", "es6")).build(),
         input);
     String result = sb.toString();
     // ES6 module runtime should be injected.
@@ -210,7 +211,7 @@ public final class ClosureBundlerTest {
     String input = "/** Hello Comments! */ const s = 0;\n  let intended;";
     ClosureBundler bundler = new ClosureBundler(BaseTranspiler.LATEST_TRANSPILER);
     StringBuilder sb = new StringBuilder();
-    bundler.appendTo(sb, SimpleDependencyInfo.builder("", "").build(), input);
+    bundler.appendTo(sb, SimpleDependencyInfo.builder("", Optional.of("")).build(), input);
     assertThat(sb.toString()).isEqualTo(input);
   }
 
@@ -219,7 +220,7 @@ public final class ClosureBundlerTest {
     String input = "/** Hello Comments! */ const s = 0;\n  let intended;";
     ClosureBundler bundler = new ClosureBundler(BaseTranspiler.ES5_TRANSPILER);
     StringBuilder sb = new StringBuilder();
-    bundler.appendTo(sb, SimpleDependencyInfo.builder("", "").build(), input);
+    bundler.appendTo(sb, SimpleDependencyInfo.builder("", Optional.of("")).build(), input);
     assertThat(sb.toString()).isEqualTo("var s = 0;\nvar intended;\n");
   }
 
@@ -229,7 +230,7 @@ public final class ClosureBundlerTest {
     String input = "var ａｅｓｔｈｅｔｉｃ＿";
     ClosureBundler bundler = new ClosureBundler();
     StringBuilder sb = new StringBuilder();
-    bundler.appendTo(sb, SimpleDependencyInfo.builder("", "").build(), input);
+    bundler.appendTo(sb, SimpleDependencyInfo.builder("", Optional.of("")).build(), input);
     assertThat(sb.toString()).isEqualTo(input);
   }
 
@@ -242,7 +243,7 @@ public final class ClosureBundlerTest {
     ClosureBundler bundler = new ClosureBundler(BaseTranspiler.ES5_TRANSPILER);
     StringBuilder sb = new StringBuilder();
     try {
-      bundler.appendTo(sb, SimpleDependencyInfo.builder("", "").build(), input);
+      bundler.appendTo(sb, SimpleDependencyInfo.builder("", Optional.of("")).build(), input);
       assertWithMessage("Expected an exception").fail();
     } catch (TranspilationException e) {
       assertThat(e)

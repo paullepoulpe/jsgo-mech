@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayDeque;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -337,11 +338,11 @@ final class CheckSuper implements CompilerPass, NodeTraversal.Callback {
     void visitSuperConstructorCall(NodeTraversal t, Node superNode) {
       if (isClassMethod) {
         // super() - not allowed in non-constructor methods.
-        String propName = getPropertyName();
-        if (propName != null) {
+        Optional<String> propName = getPropertyName();
+        if (propName.isPresent()) {
           // Maybe the user was confused by other languages where super() invokes the
           // same method in the parent class?
-          t.report(superNode, INVALID_SUPER_CALL_WITH_SUGGESTION, propName);
+          t.report(superNode, INVALID_SUPER_CALL_WITH_SUGGESTION, propName.get());
         } else {
           t.report(superNode, INVALID_SUPER_CALL);
         }
@@ -352,8 +353,7 @@ final class CheckSuper implements CompilerPass, NodeTraversal.Callback {
     }
 
     /** Return the property name associated with the method, if any, otherwise NULL. */
-    @Nullable
-    String getPropertyName() {
+    Optional<String> getPropertyName() {
       Node parent = checkNotNull(getContextNode().getParent());
       // ```
       // class X {
@@ -364,9 +364,9 @@ final class CheckSuper implements CompilerPass, NodeTraversal.Callback {
       // }
       // ```
       if (parent.isMemberFunctionDef() || parent.isGetterDef() || parent.isSetterDef()) {
-        return parent.getString();
+        return Optional.of(parent.getString());
       } else {
-        return null;
+        return Optional.empty();
       }
     }
   }

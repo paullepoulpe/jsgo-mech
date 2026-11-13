@@ -16,7 +16,6 @@
 package com.google.javascript.jscomp;
 
 import static java.lang.Math.min;
-import static java.util.Objects.requireNonNull;
 
 import com.google.errorprone.annotations.Immutable;
 import com.google.errorprone.annotations.InlineMe;
@@ -40,9 +39,6 @@ import java.io.Serializable;
 public record ModuleIdentifier(String name, String closureNamespace, String moduleName)
     implements Serializable {
   public ModuleIdentifier {
-    requireNonNull(name, "name");
-    requireNonNull(closureNamespace, "closureNamespace");
-    requireNonNull(moduleName, "moduleName");
   }
 
   @InlineMe(replacement = "this.name()")

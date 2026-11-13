@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /** A utility class for generating and parsing id mappings held by {@link ReplaceIdGenerators}. */
@@ -60,9 +61,9 @@ public final class IdMappingUtil {
   public static class MappingReader {
     private final List<String> lines;
     private int nextLine = 0;
-    private String currentSection = null;
-    private String currentKey = null;
-    private String currentValue = null;
+    private Optional<String> currentSection = Optional.empty();
+    private Optional<String> currentKey = Optional.empty();
+    private Optional<String> currentValue = Optional.empty();
     private int lineIndex = 0;
 
     public MappingReader(String text) {
@@ -82,15 +83,15 @@ public final class IdMappingUtil {
           continue;
         }
         if (line.charAt(0) == '[') {
-          currentSection = line.substring(1, line.length() - 1);
-          currentKey = null;
-          currentValue = null;
+          currentSection = Optional.of(line.substring(1, line.length() - 1));
+          currentKey = Optional.empty();
+          currentValue = Optional.empty();
           return true;
         } else {
           int split = line.indexOf(':');
           if (split != -1) {
-            currentKey = line.substring(0, split);
-            currentValue = line.substring(split + 1);
+            currentKey = Optional.of(line.substring(0, split));
+            currentValue = Optional.of(line.substring(split + 1));
             return true;
           } else {
             throw new IllegalArgumentException(
@@ -102,18 +103,18 @@ public final class IdMappingUtil {
     }
 
     public boolean isSection() {
-      return currentKey == null;
+      return currentKey.isEmpty();
     }
 
-    public String getSection() {
+    public Optional<String> getSection() {
       return currentSection;
     }
 
-    public String getKey() {
+    public Optional<String> getKey() {
       return currentKey;
     }
 
-    public String getValue() {
+    public Optional<String> getValue() {
       return currentValue;
     }
 
@@ -134,11 +135,11 @@ public final class IdMappingUtil {
         if (inSection) {
           break; // Next section found, stop
         }
-        if (mr.getSection().equals(sectionFilter)) {
+        if (mr.getSection().get().equals(sectionFilter)) {
           inSection = true;
         }
       } else if (inSection) {
-        mapBuilder.put(mr.getKey(), mr.getValue());
+        mapBuilder.put(mr.getKey().get(), mr.getValue().get());
       }
     }
     return mapBuilder.buildKeepingLast();
@@ -153,20 +154,20 @@ public final class IdMappingUtil {
 
     while (mr.next()) {
       if (mr.isSection()) {
-        String sectionName = mr.getSection();
-        if (!sectionNames.add(sectionName)) {
+        Optional<String> sectionName = mr.getSection();
+        if (!sectionNames.add(sectionName.orElse(null))) {
           throw new IllegalArgumentException(
               String.format(
                   "Cannot parse id map: Duplicate section %s\n lineIndex: %d",
-                  sectionName, mr.getLineIndex()));
+                  sectionName.orElse("null"), mr.getLineIndex()));
         }
         currentSectionMap = SimpleBiMap.create();
-        resultMap.put(sectionName, currentSectionMap);
+        resultMap.put(sectionName.orElse(null), currentSectionMap);
       } else {
         if (currentSectionMap == null) {
           throw new IllegalArgumentException("Mapping entry outside of section");
         }
-        currentSectionMap.put(mr.getKey(), mr.getValue()); // throws if duplicate values
+        currentSectionMap.put(mr.getKey().orElse(null), mr.getValue().orElse(null)); // throws if duplicate values
       }
     }
     return resultMap;

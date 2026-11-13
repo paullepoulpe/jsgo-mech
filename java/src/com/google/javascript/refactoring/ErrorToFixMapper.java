@@ -16,7 +16,6 @@
 package com.google.javascript.refactoring;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JavaRegex.DOT;
 
@@ -37,6 +36,7 @@ import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -209,7 +209,7 @@ public final class ErrorToFixMapper {
     NodeMetadata metadata = new NodeMetadata(compiler);
     Match match = new Match(error.node(), metadata);
 
-    Node script = compiler.getScriptNode(error.sourceName());
+    Node script = compiler.getScriptNode(error.sourceName().orElseThrow());
     ScriptMetadata scriptMetadata = this.getMetadataForScript(script);
 
     Matcher fullNameMatcher = FULLY_QUALIFIED_NAME.matcher(error.description());
@@ -217,27 +217,27 @@ public final class ErrorToFixMapper {
     String fullName = fullNameMatcher.group(1);
 
     Matcher shortNameMatcher = USE_SHORT_NAME.matcher(error.description());
-    String shortName;
+    Optional<String> shortName;
     if (shortNameMatcher.matches()) {
-      shortName = shortNameMatcher.group(1);
+      shortName = Optional.ofNullable(shortNameMatcher.group(1));
     } else {
       fix.addGoogRequire(match, fullName, scriptMetadata);
       shortName = scriptMetadata.getAlias(fullName);
     }
 
-    String oldName =
-        error.node().isQualifiedName() ? error.node().getQualifiedName() : error.node().getString();
+    Optional<String> oldName =
+        error.node().isQualifiedName() ? Optional.of(error.node().getQualifiedName()).filter(s -> !s.isEmpty()) : Optional.of(error.node().getString());
 
     return fix.replace(
             error.node(),
-            NodeUtil.newQName(compiler, oldName.replace(fullName, shortName)),
+            NodeUtil.newQName(compiler, oldName.get().replace(fullName, shortName.get())),
             compiler)
         .build();
   }
 
   private ImmutableList<SuggestedFix> getFixesForImplicitNullabilityErrors(JSError error) {
 
-    if (error.node().getSourceFileName() == null) {
+    if (error.node().getSourceFileName().isEmpty()) {
       // If we don't have a source location we can't generate a valid fix.
       return ImmutableList.of();
     }
@@ -298,7 +298,7 @@ public final class ErrorToFixMapper {
   private @Nullable SuggestedFix getFixForInvalidSuper(JSError error) {
     Matcher m = DID_YOU_MEAN.matcher(error.description());
     if (m.matches()) {
-      String superDotSuggestion = checkNotNull(m.group(1));
+      String superDotSuggestion = Optional.ofNullable(m.group(1)).orElseThrow();
       return new SuggestedFix.Builder()
           .attachMatchedNodeInfo(error.node(), compiler)
           .setDescription("Call '" + superDotSuggestion + "' instead")
@@ -326,16 +326,16 @@ public final class ErrorToFixMapper {
     checkState(regexMatcher.matches(), "Unexpected error description: %s", error.description());
     String namespaceToRequire = regexMatcher.group(1);
 
-    String qName =
-        error.node().isQualifiedName() ? error.node().getQualifiedName() : error.node().getString();
+    Optional<String> qName =
+        error.node().isQualifiedName() ? Optional.of(error.node().getQualifiedName()).filter(s -> !s.isEmpty()) : Optional.of(error.node().getString());
 
     checkState(
-        qName.startsWith(namespaceToRequire),
+        qName.get().startsWith(namespaceToRequire),
         "Expected error location %s to start with namespace <%s>",
         error.node(),
         namespaceToRequire);
 
-    Node script = compiler.getScriptNode(error.sourceName());
+    Node script = compiler.getScriptNode(error.sourceName().orElseThrow());
     ScriptMetadata scriptMetadata = this.getMetadataForScript(script);
 
     NodeMetadata metadata = new NodeMetadata(compiler);
@@ -345,11 +345,11 @@ public final class ErrorToFixMapper {
             .attachMatchedNodeInfo(error.node(), compiler)
             .addImport(match, namespaceToRequire, importType, scriptMetadata);
 
-    String alias = scriptMetadata.getAlias(namespaceToRequire);
-    if (alias != null) {
+    Optional<String> alias = scriptMetadata.getAlias(namespaceToRequire);
+    if (alias.isPresent()) {
       fix.replace(
           error.node(),
-          NodeUtil.newQName(compiler, qName.replace(namespaceToRequire, alias)),
+          NodeUtil.newQName(compiler, qName.get().replace(namespaceToRequire, alias.get())),
           compiler);
     }
 
@@ -389,7 +389,7 @@ public final class ErrorToFixMapper {
 
     return new SuggestedFix.Builder()
         .attachMatchedNodeInfo(callback.getFirstNode(), compiler)
-        .replaceRange(callback.getFirstNode(), callback.getLastNode(), callback.getReplacement())
+        .replaceRange(callback.getFirstNode(), callback.getLastNode(), callback.getReplacement().orElseThrow())
         .build();
   }
 
@@ -406,7 +406,7 @@ public final class ErrorToFixMapper {
 
     return new SuggestedFix.Builder()
         .attachMatchedNodeInfo(callback.getFirstNode(), compiler)
-        .replaceRange(callback.getFirstNode(), callback.getLastNode(), callback.getReplacement())
+        .replaceRange(callback.getFirstNode(), callback.getLastNode(), callback.getReplacement().orElseThrow())
         .build();
   }
 

@@ -23,15 +23,16 @@ import com.google.debugging.sourcemap.SourceMapGeneratorV3.ExtensionMergeAction;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.javascript.jscomp.SourceMap;
 import com.google.javascript.jscomp.SourceMap.Format;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -476,7 +477,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
   private static String getEmptyMapFor(String name) throws IOException {
     StringWriter out = new StringWriter();
     SourceMapGeneratorV3 generator = new SourceMapGeneratorV3();
-    generator.appendTo(out, name);
+    generator.appendTo(out, Optional.ofNullable(name));
     return out.toString();
   }
 
@@ -561,8 +562,8 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
         mapContents.toString(),
         new SourceMapSupplier() {
           @Override
-          public String getSourceMap(String url) {
-            return maps.get(url);
+          public Optional<String> getSourceMap(String url) {
+            return Optional.ofNullable(maps.get(url));
           }
         });
   }
@@ -587,7 +588,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
     generator.mergeMapSection(offset.getLine(), offset.getColumn(), result2.sourceMapFileContent).get();
 
     StringBuilder mapContents = new StringBuilder();
-    generator.appendTo(mapContents, "out.js");
+    generator.appendTo(mapContents, Optional.of("out.js"));
 
     check(inputs, output.toString(), mapContents.toString());
   }
@@ -603,7 +604,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
         new FilePosition(2, 2),
         new FilePosition(3, 3));
     StringWriter w = new StringWriter();
-    sourceMapGeneratorV3.appendTo(w, "foo.js.sourcemap");
+    sourceMapGeneratorV3.appendTo(w, Optional.of("foo.js.sourcemap"));
     String sourceMap1 = w.toString();
 
     // construct second source map
@@ -615,14 +616,14 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
         new FilePosition(2, 5),
         new FilePosition(3, 6));
     w = new StringWriter();
-    sourceMapGeneratorV3.appendTo(w, "bar.js.sourcemap");
+    sourceMapGeneratorV3.appendTo(w, Optional.of("bar.js.sourcemap"));
     String sourceMap2 = w.toString();
 
     // combine the two
     sourceMapGeneratorV3 = new SourceMapGeneratorV3();
     sourceMapGeneratorV3.mergeMapSection(0, 0, sourceMap1).get();
     sourceMapGeneratorV3.mergeMapSection(4, 0, sourceMap2).get();
-    sourceMapGeneratorV3.appendTo(w, "foobar.js.sourcemap");
+    sourceMapGeneratorV3.appendTo(w, Optional.of("foobar.js.sourcemap"));
     String combinedMap = w.toString();
 
     // Construct the same map manually
@@ -639,7 +640,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
         new FilePosition(1, 4),
         new FilePosition(6, 5),
         new FilePosition(7, 6));
-    sourceMapGeneratorV3.appendTo(w, "foobar.js.sourcemap");
+    sourceMapGeneratorV3.appendTo(w, Optional.of("foobar.js.sourcemap"));
     String manuallyCombined = w.toString();
     // TODO(b/62591567): these should be equal, but combinedMap is missing the last mapping.
     assertThat(combinedMap).isNotEqualTo(manuallyCombined);
@@ -657,7 +658,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
 
     mapper.removeExtension("x_google_foo");
     StringBuilder out = new StringBuilder();
-    mapper.appendTo(out, "out.js");
+    mapper.appendTo(out, Optional.of("out.js"));
 
     assertThat(mapper.hasExtension("x_google_test")).isTrue();
 
@@ -713,12 +714,12 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
         new ExtensionMergeAction() {
           @Override
           public Object merge(String extensionKey, Object currentValue, Object newValue) {
-            return (Integer) currentValue + ((JsonPrimitive) newValue).getAsInt();
+            return (Integer) currentValue + ((SimpleJsonValue) newValue).asInt().get();
           }
         }).get();
 
     assertThat(mapper.getExtension("x_company_baz")).isEqualTo(5);
-    assertThat(((JsonPrimitive) mapper.getExtension("x_company_bar")).getAsBoolean()).isFalse();
+    assertThat(mapper.getExtension("x_company_bar").toString()).isEqualTo("false");
   }
 
   @Test
@@ -727,7 +728,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
 
     // checking absence of sourceRoot
     StringBuilder out = new StringBuilder();
-    mapper.appendTo(out, "out.js");
+    mapper.appendTo(out, Optional.of("out.js"));
     JsonObject mapping = parseJsonObject(out.toString());
 
     assertThat(mapping.get("version").getAsInt()).isEqualTo(3);
@@ -735,7 +736,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
 
     out = new StringBuilder();
     mapper.setSourceRoot("");
-    mapper.appendTo(out, "out2.js");
+    mapper.appendTo(out, Optional.of("out2.js"));
     mapping = parseJsonObject(out.toString());
 
     assertThat(mapping.has("sourceRoot")).isFalse();
@@ -743,7 +744,7 @@ public final class SourceMapGeneratorV3Test extends SourceMapTestCase {
     // checking sourceRoot
     out = new StringBuilder();
     mapper.setSourceRoot("http://url/path");
-    mapper.appendTo(out, "out3.js");
+    mapper.appendTo(out, Optional.of("out3.js"));
     mapping = parseJsonObject(out.toString());
 
     assertThat(mapping.get("sourceRoot").getAsString()).isEqualTo("http://url/path");

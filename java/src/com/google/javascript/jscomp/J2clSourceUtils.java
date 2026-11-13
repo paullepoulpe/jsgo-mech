@@ -18,16 +18,17 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 
 final class J2clSourceUtils {
 
-  public static boolean isJ2clSourceString(String sourceFileName) {
-    return sourceFileName != null && sourceFileName.endsWith(".java.js");
+  public static boolean isJ2clSourceString(Optional<String> sourceFileName) {
+    return sourceFileName.isPresent() && sourceFileName.get().endsWith(".java.js");
   }
 
   public static boolean isJ2clSource(Node scriptNode) {
     checkArgument(scriptNode.isScript());
-    return isJ2clSourceString(scriptNode.getSourceFileName());
+    return isJ2clSourceString(Optional.of(scriptNode.getSourceFileName()).filter(s -> !s.isEmpty()));
   }
 
   public static boolean isInsideJ2clSource(Node node) {
@@ -38,10 +39,10 @@ final class J2clSourceUtils {
     return isJ2clSource(scriptNode);
   }
 
-  public static boolean isJ2clHeaderSource(String sourceFileName) {
-    return sourceFileName != null
-        && sourceFileName.endsWith(".java.js")
-        && !sourceFileName.endsWith(".impl.java.js");
+  public static boolean isJ2clHeaderSource(Optional<String> sourceFileName) {
+    return sourceFileName.isPresent()
+        && sourceFileName.get().endsWith(".java.js")
+        && !sourceFileName.get().endsWith(".impl.java.js");
   }
 
   private J2clSourceUtils() {}

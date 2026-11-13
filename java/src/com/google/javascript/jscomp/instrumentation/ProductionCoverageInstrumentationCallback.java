@@ -20,22 +20,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.debugging.sourcemap.Base64VLQ;
-import com.google.gson.JsonIOException;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.AbstractCompiler;
 import com.google.javascript.jscomp.AstManipulations;
 import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.jscomp.VariableMap;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -87,14 +85,14 @@ final class ProductionCoverageInstrumentationCallback implements NodeTraversal.C
     // polyfill code is injected into the sourceFile AST and this check avoids instrumenting it. We
     // avoid instrumentation as this callback does not distinguish between sourceFile code and
     // injected code and can result in an error.
-    if (!n.isRoot() && !Objects.equals(t.getSourceName(), n.getSourceFileName())) {
+    if (!n.isRoot() && !t.getSourceName().orElse("").equals(n.getSourceFileName())) {
       return false;
     }
 
     if (n.isFunction()) {
-      String fnName = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
-      fnName = (fnName == null) ? ANONYMOUS_FUNCTION_NAME : fnName;
-      functionNameStack.push(fnName);
+      Optional<String> fnName = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
+      fnName = (fnName.isEmpty()) ? Optional.of(ANONYMOUS_FUNCTION_NAME) : fnName;
+      functionNameStack.push(fnName.orElse(null));
     }
 
     if (functionNameStack.isEmpty()) {
@@ -106,7 +104,7 @@ final class ProductionCoverageInstrumentationCallback implements NodeTraversal.C
 
   @Override
   public void visit(NodeTraversal traversal, Node node, Node parent) {
-    String fileName = traversal.getSourceName();
+    Optional<String> fileName = traversal.getSourceName();
     String sourceFileName = node.getSourceFileName();
 
     String functionName = functionNameStack.peek();
@@ -116,7 +114,7 @@ final class ProductionCoverageInstrumentationCallback implements NodeTraversal.C
         // If the function node has been visited by visit() then we can be assured that all its
         // children nodes have been visited and properly instrumented.
         functionNameStack.pop();
-        instrumentBlockNode(node.getLastChild(), fileName, functionName, Type.FUNCTION);
+        instrumentBlockNode(node.getLastChild(), fileName.orElse(null), functionName, Type.FUNCTION);
       }
       case IF -> {
         Node ifTrueNode = node.getSecondChild();
@@ -358,21 +356,15 @@ final class ProductionCoverageInstrumentationCallback implements NodeTraversal.C
 
     /** Returns the compact JSON text, without HTML escaping, of an array of strings. */
     private static String toJsonArray(Set<String> strings) {
-      StringWriter out = new StringWriter();
-      JsonWriter writer = new JsonWriter(out);
-      writer.setLenient(true);
+      SimpleJsonWriter writer = new SimpleJsonWriter();
       writer.setHtmlSafe(false);
       writer.setSerializeNulls(false);
-      try {
-        writer.beginArray();
-        for (String string : strings) {
-          writer.value(string);
-        }
-        writer.endArray();
-      } catch (IOException e) {
-        throw new JsonIOException(e);
+      writer.beginArray();
+      for (String string : strings) {
+        writer.stringValue(Optional.of(string));
       }
-      return out.toString();
+      writer.endArray();
+      return writer.toString();
     }
   }
 }

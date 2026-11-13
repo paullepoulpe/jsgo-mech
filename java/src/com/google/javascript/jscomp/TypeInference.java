@@ -75,6 +75,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -429,14 +430,14 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
 
         // Update the global scope for the implicit assignment "legacy.module.id = exports;" created
         // by `goog.module.declareLegacyNamespace();`
-        String moduleId = module.closureNamespace();
+        Optional<String> moduleId = module.closureNamespace();
         TypedScope globalScope = syntacticBlockScope.getGlobalScope();
-        TypedVar globalVar = globalScope.getVar(moduleId);
+        TypedVar globalVar = globalScope.getVar(moduleId.get());
         if (globalVar.isTypeInferred()) {
           globalVar.setType(exportsType);
         }
         // Update the property slot on the parent namespace.
-        QualifiedName moduleQname = QualifiedName.of(moduleId);
+        QualifiedName moduleQname = QualifiedName.of(moduleId.get());
         if (!moduleQname.isSimple()) {
           JSType parentType = globalScope.lookupQualifiedName(moduleQname.getOwner());
           ObjectType parentObjectType = parentType != null ? parentType.toMaybeObjectType() : null;
@@ -1648,7 +1649,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
       return scope;
     }
 
-    String qObjName = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
+    Optional<String> qObjName = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
     for (Node key = n.getFirstChild(); key != null; key = key.getNext()) {
       if (key.isComputedProp()) {
         // Don't define computed properties as inferred properties on the object
@@ -1662,8 +1663,8 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
         break;
       }
 
-      String memberName = NodeUtil.getObjectOrClassLitKeyName(key);
-      if (memberName != null) {
+      Optional<String> memberName = NodeUtil.getObjectOrClassLitKeyName(key);
+      if (memberName.isPresent()) {
         JSType rawValueType = key.getFirstChild().getJSType();
         JSType valueType = TypeCheck.getObjectLitKeyTypeFromValueType(key, rawValueType);
         if (valueType == null) {
@@ -1677,12 +1678,12 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
         // has already been propagated to OBJECT_TYPE, do not add newly inferred properties to the
         // type.
         if (!spreadOperatorSeen || !n.getJSType().isNativeObjectType()) {
-          objectType.defineInferredProperty(memberName, valueType, key);
+          objectType.defineInferredProperty(memberName.get(), valueType, key);
         }
 
         // Do normal flow inference if this is a direct property assignment.
-        if (qObjName != null && key.isStringKey()) {
-          String qKeyName = qObjName + "." + memberName;
+        if (qObjName.isPresent() && key.isStringKey()) {
+          String qKeyName = qObjName.get() + "." + memberName.get();
           TypedVar var = getDeclaredVar(scope, qKeyName);
           JSType oldType = var == null ? null : var.getType();
           if (var != null && var.isTypeInferred()) {
@@ -1916,7 +1917,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
           narrowed = type.getGreatestSubtype(assertedType);
         }
         callNode.setJSType(narrowed);
-        if (assertedNodeName != null && type.differsFrom(narrowed)) {
+        if (!assertedNodeName.isEmpty() && type.differsFrom(narrowed)) {
           scope = narrowScope(scope, assertedNode, narrowed);
         }
       }
@@ -2122,7 +2123,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
     for (Entry<TemplateType, JSType> e : inferredTypes.entrySet()) {
       // Only add the template type that do not have a type transformation
       if (!e.getKey().isTypeTransformation()) {
-        typeVars.put(e.getKey().getReferenceName(), e.getValue());
+        typeVars.put(e.getKey().getReferenceName().orElseThrow(), e.getValue());
       }
     }
     return typeVars;
@@ -2152,7 +2153,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
             ttlObj.eval(type.getTypeTransformation(), ImmutableMap.copyOf(typeVars));
         result.put(type, transformedType);
         // Add the transformed type to the type variables
-        typeVars.put(type.getReferenceName(), transformedType);
+        typeVars.put(type.getReferenceName().orElse(null), transformedType);
       }
     }
     return result;
@@ -2524,7 +2525,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
 
     // Scopes sometimes contain inferred type info about qualified names.
     String qualifiedName = n.getQualifiedName();
-    StaticTypedSlot var = qualifiedName != null ? scope.getSlot(qualifiedName) : null;
+    StaticTypedSlot var = !qualifiedName.isEmpty() ? scope.getSlot(qualifiedName) : null;
     if (var != null) {
       JSType varType = var.getType();
       if (varType != null) {
@@ -2543,7 +2544,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
       }
     }
 
-    if ((propertyType == null || propertyType.isUnknownType()) && qualifiedName != null) {
+    if ((propertyType == null || propertyType.isUnknownType()) && !qualifiedName.isEmpty()) {
       // If we find this node in the registry, then we can infer its type.
       ObjectType regType =
           ObjectType.cast(registry.getType(scope.getDeclarationScope(), qualifiedName));
@@ -2685,7 +2686,7 @@ class TypeInference extends DataFlowAnalysis<Node, FlowScope> {
               .getPath()
               .resolveJsModule(
                   importSpecifier.getString(),
-                  importSpecifier.getSourceFileName(),
+                  Optional.of(importSpecifier.getSourceFileName()).filter(s -> !s.isEmpty()),
                   importSpecifier.getLineno(),
                   importSpecifier.getCharno());
       Module targetModule = targetPath != null ? moduleMap.getModule(targetPath) : null;

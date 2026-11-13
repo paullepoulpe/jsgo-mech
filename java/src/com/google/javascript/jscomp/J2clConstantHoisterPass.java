@@ -22,6 +22,7 @@ import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.Node;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -165,11 +166,11 @@ public class J2clConstantHoisterPass implements CompilerPass {
     }
 
     String fnName = NodeUtil.getName(fnNode);
-    return fnName != null && isClinitMethodName(fnName);
+    return !fnName.isEmpty() && isClinitMethodName(Optional.of(fnName));
   }
 
-  private static boolean isClinitMethodName(String methodName) {
-    return methodName != null
-        && (methodName.endsWith("$$0clinit") || methodName.endsWith(".$clinit"));
+  private static boolean isClinitMethodName(Optional<String> methodName) {
+    return methodName.isPresent()
+        && (methodName.get().endsWith("$$0clinit") || methodName.get().endsWith(".$clinit"));
   }
 }

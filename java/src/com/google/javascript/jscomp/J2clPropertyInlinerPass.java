@@ -26,6 +26,7 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This pass targets J2CL output. It looks for static get and set methods defined within a class
@@ -441,7 +442,7 @@ public class J2clPropertyInlinerPass implements CompilerPass {
             n.replaceWith(functionCall);
             Reference reference =
                 new Reference(functionCall, t.getScope(), t.getChunk(), InliningMode.DIRECT);
-            Node inlinedCall = injector.inline(reference, null, prop.getKey.getFirstChild());
+            Node inlinedCall = injector.inline(reference, Optional.empty(), prop.getKey.getFirstChild());
             t.getCompiler().reportChangeToEnclosingScope(inlinedCall);
           }
         }
@@ -463,7 +464,7 @@ public class J2clPropertyInlinerPass implements CompilerPass {
               Reference reference =
                   new Reference(functionCall, t.getScope(), t.getChunk(), InliningMode.BLOCK);
               injector.maybePrepareCall(reference);
-              Node inlinedCall = injector.inline(reference, null, prop.setKey.getFirstChild());
+              Node inlinedCall = injector.inline(reference, Optional.empty(), prop.setKey.getFirstChild());
               t.getCompiler().reportChangeToEnclosingScope(inlinedCall);
             }
           }

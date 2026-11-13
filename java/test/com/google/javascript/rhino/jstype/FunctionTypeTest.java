@@ -53,6 +53,7 @@ import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.testing.Asserts;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
 import com.google.javascript.rhino.testing.MapBasedScope;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -245,9 +246,9 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
   public void testCtorWithInstanceInheritance() {
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
       FunctionType fooCtor =
-          FunctionType.builder(registry).forConstructor().withName("Foo").build();
+          FunctionType.builder(registry).forConstructor().withName(Optional.of("Foo")).build();
       FunctionType barCtor =
-          FunctionType.builder(registry).forConstructor().withName("Bar").build();
+          FunctionType.builder(registry).forConstructor().withName(Optional.of("Bar")).build();
       barCtor.setPrototypeBasedOn(fooCtor.getInstanceType());
       fooCtor.getPrototype().defineDeclaredProperty("bar", STRING_TYPE, null);
 
@@ -261,14 +262,14 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
   public void testCtorWithClassSideInheritance() {
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
       FunctionType fooCtor =
-          FunctionType.builder(registry).forConstructor().withName("Foo").build();
+          FunctionType.builder(registry).forConstructor().withName(Optional.of("Foo")).build();
       // NOTE: FunctionType does not look into the node, only at its token.
       Node source = new Node(Token.CLASS);
       FunctionType barCtor =
           FunctionType.builder(registry)
               .withSourceNode(source)
               .forConstructor()
-              .withName("Bar")
+              .withName(Optional.of("Bar"))
               .build();
       barCtor.setPrototypeBasedOn(fooCtor.getInstanceType());
       fooCtor.defineDeclaredProperty("foo", NUMBER_TYPE, null);
@@ -290,10 +291,10 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
       fooCtor =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Foo")
+              .withName(Optional.of("Foo"))
               .withTemplateKeys(key)
               .build();
-      barType = registry.createNamedType(emptyScope, "Bar", "", -1, -1);
+      barType = registry.createNamedType(emptyScope, "Bar", Optional.of(""), -1, -1);
       registry.declareType(emptyScope, "Bar", fooCtor);
     }
 
@@ -309,7 +310,7 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
       FunctionType fooCtor =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Foo")
+              .withName(Optional.of("Foo"))
               .withTemplateKeys(key)
               .withReturnType(key)
               .build();
@@ -537,14 +538,14 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
   @Test
   public void testPrint_constructorFunction_withoutSource() {
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
-      FunctionType fn = FunctionType.builder(registry).forConstructor().withName("Foo").build();
+      FunctionType fn = FunctionType.builder(registry).forConstructor().withName(Optional.of("Foo")).build();
       assertType(fn).toStringIsEqualTo("function(new:Foo, ...?): ?");
     }
   }
 
   @Test
   public void testPrint_interfaceFunction_withoutSource() {
-    FunctionType fn = FunctionType.builder(registry).forInterface().withName("Foo").build();
+    FunctionType fn = FunctionType.builder(registry).forInterface().withName(Optional.of("Foo")).build();
     assertType(fn).toStringIsEqualTo("function(this:Foo): ?");
   }
 
@@ -554,7 +555,7 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
       FunctionType fn =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Foo")
+              .withName(Optional.of("Foo"))
               .withSourceNode(IR.function(IR.name(""), IR.paramList(), IR.block()))
               .build();
       assertType(fn).toStringIsEqualTo("(typeof Foo)");
@@ -567,7 +568,7 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
       FunctionType fn =
           FunctionType.builder(registry)
               .forInterface()
-              .withName("Foo")
+              .withName(Optional.of("Foo"))
               .withSourceNode(IR.function(IR.name(""), IR.paramList(), IR.block()))
               .build();
       assertType(fn).toStringIsEqualTo("(typeof Foo)");
@@ -588,7 +589,7 @@ public class FunctionTypeTest extends BaseJSTypeTestCase {
     FunctionType fn =
         FunctionType.builder(registry)
             .forInterface()
-            .withName(name)
+            .withName(Optional.ofNullable(name))
             .withParameters()
             .withTemplateKeysImmutableList(templateKeys)
             .build();

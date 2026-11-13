@@ -31,6 +31,7 @@ import com.google.javascript.rhino.Node;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -259,7 +260,7 @@ public class RewriteGoogJsImports implements CompilerPass {
           valid = false;
           compiler.report(
               JSError.make(
-                  scriptRoot.getSourceFileName(),
+                  Optional.of(scriptRoot.getSourceFileName()).filter(s -> !s.isEmpty()),
                   child.getLineno(),
                   child.getCharno(),
                   GOOG_JS_IMPORT_MUST_BE_GOOG_STAR));
@@ -281,7 +282,7 @@ public class RewriteGoogJsImports implements CompilerPass {
     if (googVar != null && googVar.getNameNode() != null) {
       compiler.report(
           JSError.make(
-              scriptRoot.getSourceFileName(),
+              Optional.of(scriptRoot.getSourceFileName()).filter(s -> !s.isEmpty()),
               googVar.getNameNode().getLineno(),
               googVar.getNameNode().getCharno(),
               CANNOT_HAVE_MODULE_VAR_NAMED_GOOG));
@@ -337,7 +338,7 @@ public class RewriteGoogJsImports implements CompilerPass {
         } else if (script.getSourceFileName().endsWith("/goog.js")) {
           // Ban the name goog.js as input except for Closure's goog.js file. This simplifies a lot
           // of logic if the only file that is allowed to be named goog.js is Closure's.
-          compiler.report(JSError.make(script.getSourceFileName(), -1, -1, CANNOT_NAME_FILE_GOOG));
+          compiler.report(JSError.make(Optional.of(script.getSourceFileName()).filter(s -> !s.isEmpty()), -1, -1, CANNOT_NAME_FILE_GOOG));
         }
       }
 

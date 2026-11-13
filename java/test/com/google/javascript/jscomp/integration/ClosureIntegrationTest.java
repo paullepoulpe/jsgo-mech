@@ -47,6 +47,7 @@ import com.google.javascript.jscomp.testing.TestExternsBuilder;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.Token;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -1356,7 +1357,7 @@ goog.exportSymbol('foo.example.ClassName', module$contents$foo$example$ClassName
     // A bug in Es6RewriteClasses meant we were putting the wrong `originalName` on some nodes.
     CompilerOptions options = createCompilerOptions();
     // force SourceInformationAnnotator to run
-    options.setExternExportsPath("exports.js");
+    options.setExternExportsPath(Optional.of("exports.js"));
     options.setLanguageOut(LanguageMode.ECMASCRIPT5);
     options.setClosurePass(true);
 

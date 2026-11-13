@@ -28,6 +28,7 @@ import com.google.javascript.rhino.JSTypeExpression;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -93,8 +94,8 @@ public class CheckNullabilityModifiers extends AbstractPostOrderCallback impleme
         handleHasType(info.getType(), n);
       }
       for (String param : info.getParameterNames()) {
-        if (info.hasParameterType(param)) {
-          visitTypeExpression(info.getParameterType(param), false);
+        if (info.hasParameterType(Optional.of(param))) {
+          visitTypeExpression(info.getParameterType(Optional.of(param)), false);
         }
       }
       if (info.hasReturnType()) {

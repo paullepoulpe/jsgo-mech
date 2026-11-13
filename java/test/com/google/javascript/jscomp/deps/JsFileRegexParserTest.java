@@ -27,6 +27,7 @@ import com.google.javascript.jscomp.ErrorManager;
 import com.google.javascript.jscomp.PrintStreamErrorManager;
 import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.deps.DependencyInfo.Require;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +73,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1", "yes2"))
             .setRequiresRequireVarargs(
                 googRequireSymbol("yes3"),
@@ -96,7 +97,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setRequires(
                 ImmutableList.of(
@@ -126,7 +127,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setRequires(
                 ImmutableList.of(
@@ -162,7 +163,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setRequires(
                 ImmutableList.of(
@@ -185,7 +186,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setRequires(ImmutableList.of(googRequireSymbol("imaginary.test.namespace")))
             .build();
 
@@ -209,7 +210,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setTypeRequires(ImmutableList.of("yes2", "a.b.C", "a.b.d", "a.b.F"))
             .setLoadFlags(ImmutableMap.of("module", "goog"))
@@ -230,7 +231,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setTypeRequires(ImmutableList.of("a.b.C", "a.b.D"))
             .build();
@@ -255,7 +256,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setRequires(
                 ImmutableList.of(
@@ -285,7 +286,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder("a.js", "b.js")
+        SimpleDependencyInfo.builder("a.js", Optional.of("b.js"))
             .setProvides(ImmutableList.of("module$b"))
             .setRequiresRequireVarargs(
                 es6Import("module$yes2", "./yes2"),
@@ -313,7 +314,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder("../../a/b.js", "/foo/bar/a/b.js")
+        SimpleDependencyInfo.builder("../../a/b.js", Optional.of("/foo/bar/a/b.js"))
             .setProvides(ImmutableList.of("module$foo$bar$a$b"))
             .setRequires(
                 ImmutableList.of(
@@ -338,7 +339,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder("b.js", "a.js")
+        SimpleDependencyInfo.builder("b.js", Optional.of("a.js"))
             .setProvides(ImmutableList.of("module$a"))
             .setRequires(
                 ImmutableList.of(googRequireSymbol("foo.bar.baz"), googRequireSymbol("baz.qux")))
@@ -369,7 +370,7 @@ public final class JsFileRegexParserTest {
         import '../../corge/f';
         """;
     DependencyInfo expected =
-        SimpleDependencyInfo.builder("../bar/baz.js", "/foo/js/bar/baz.js")
+        SimpleDependencyInfo.builder("../bar/baz.js", Optional.of("/foo/js/bar/baz.js"))
             .setProvides(ImmutableList.of("module$js$bar$baz"))
             .setRequires(
                 ImmutableList.of(
@@ -402,7 +403,7 @@ public final class JsFileRegexParserTest {
     String contents = "goog.provide('my.namespace');\nexport {};";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder("../bar/baz.js", "/foo/js/bar/baz.js")
+        SimpleDependencyInfo.builder("../bar/baz.js", Optional.of("/foo/js/bar/baz.js"))
             .setProvides(ImmutableList.of("my.namespace"))
             .build();
 
@@ -427,7 +428,7 @@ public final class JsFileRegexParserTest {
     String contents = "goog.declareModuleId('my.namespace');\nexport {};";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder("../bar/baz.js", "/foo/js/bar/baz.js")
+        SimpleDependencyInfo.builder("../bar/baz.js", Optional.of("/foo/js/bar/baz.js"))
             .setProvides(ImmutableList.of("my.namespace", "module$js$bar$baz"))
             .setLoadFlags(ImmutableMap.of("module", "es6"))
             .build();
@@ -452,7 +453,7 @@ public final class JsFileRegexParserTest {
     String contents = "import '@root/my/file.js';";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder("../bar/baz.js", "/foo/js/bar/baz.js")
+        SimpleDependencyInfo.builder("../bar/baz.js", Optional.of("/foo/js/bar/baz.js"))
             .setProvides(ImmutableList.of("module$foo$js$bar$baz"))
             .setRequiresRequireVarargs(Require.es6Import("module$path$to$project$my$file", "@root/my/file.js"))
             .setLoadFlags(ImmutableMap.of("module", "es6"))
@@ -481,7 +482,7 @@ public final class JsFileRegexParserTest {
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setRequiresRequireVarargs(
                 googRequireSymbol("yes2"), googRequireSymbol("a.b.C"), googRequireSymbol("a.b.d"))
@@ -501,7 +502,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
 """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1", "yes2", "yes3"))
             .setGoogModule(false)
             .build();
@@ -526,7 +527,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1", "yes2"))
             .setGoogModule(false)
             .build();
@@ -546,7 +547,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setGoogModule(false)
             .build();
@@ -566,7 +567,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1"))
             .setGoogModule(false)
             .build();
@@ -585,7 +586,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("goog"))
             .setGoogModule(false)
             .build();
@@ -599,7 +600,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "var x = \"/**\\\\n * @provideGoog\\\\n */\\\\n\";";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of())
             .setGoogModule(false)
             .build();
@@ -613,7 +614,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "var x = \"/** @provideGoog */\";";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of())
             .setGoogModule(false)
             .build();
@@ -627,7 +628,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "var x = \"foo\"; /** @provideGoog */";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("goog"))
             .setGoogModule(false)
             .build();
@@ -641,7 +642,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "var x = \"foo\"; var y = \"/** @provideGoog */\";";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvidesStringVarargs()
             .setGoogModule(false)
             .build();
@@ -655,7 +656,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "goog.require('bar');";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setRequires(ImmutableList.of(googRequireSymbol("goog"), googRequireSymbol("bar")))
             .setGoogModule(false)
             .build();
@@ -677,7 +678,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("x"))
             .setRequires(ImmutableList.of(googRequireSymbol("goog")))
             .setGoogModule(false)
@@ -692,7 +693,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "goog.addDependency('foo', [], []);\n";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setRequires(ImmutableList.of(googRequireSymbol("goog")))
             .setGoogModule(false)
             .build();
@@ -711,7 +712,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH).setHasExternsAnnotation(true).build();
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH)).setHasExternsAnnotation(true).build();
     DependencyInfo result =
         parser.setIncludeGoogBase(true).parseFile(SRC_PATH, CLOSURE_PATH, contents);
     assertDeps(expected, result);
@@ -722,7 +723,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "/** @externs */\n";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH).setHasExternsAnnotation(true).build();
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH)).setHasExternsAnnotation(true).build();
     DependencyInfo result =
         parser.setIncludeGoogBase(true).parseFile(SRC_PATH, CLOSURE_PATH, contents);
     assertDeps(expected, result);
@@ -733,7 +734,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "/* @externs */\n";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH).setHasExternsAnnotation(false).build();
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH)).setHasExternsAnnotation(false).build();
     DependencyInfo result =
         parser.setIncludeGoogBase(true).parseFile(SRC_PATH, CLOSURE_PATH, contents);
     assertDeps(expected, result);
@@ -744,7 +745,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "/*\n @externs */\n";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH).setHasExternsAnnotation(false).build();
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH)).setHasExternsAnnotation(false).build();
     DependencyInfo result =
         parser.setIncludeGoogBase(true).parseFile(SRC_PATH, CLOSURE_PATH, contents);
     assertDeps(expected, result);
@@ -760,7 +761,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setHasNoCompileAnnotation(true)
             .build();
     DependencyInfo result =
@@ -773,7 +774,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "/** @nocompile */\n";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setHasNoCompileAnnotation(true)
             .build();
     DependencyInfo result =
@@ -786,7 +787,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
     String contents = "/* @nocompile */\n";
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setHasNoCompileAnnotation(false)
             .build();
     DependencyInfo result =
@@ -809,7 +810,7 @@ goog.provide('yes1');goog.provide('yes2');/*goog.provide('no1');*/goog.provide('
         """;
 
     DependencyInfo expected =
-        SimpleDependencyInfo.builder(CLOSURE_PATH, SRC_PATH)
+        SimpleDependencyInfo.builder(CLOSURE_PATH, Optional.ofNullable(SRC_PATH))
             .setProvides(ImmutableList.of("yes1", "my.provide"))
             .setRequires(
                 ImmutableList.of(

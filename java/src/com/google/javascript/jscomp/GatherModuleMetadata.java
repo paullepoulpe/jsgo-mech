@@ -35,6 +35,7 @@ import com.google.re2j.Pattern;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -558,7 +559,7 @@ public final class GatherModuleMetadata implements CompilerPass {
       }
 
       ModuleType existingType = null;
-      String existingFileSource = null;
+      Optional<String> existingFileSource = Optional.empty();
       if (module.googNamespaces.contains(namespace)) {
         existingType = module.metadataBuilder.moduleType();
         existingFileSource = t.getSourceName();
@@ -566,7 +567,7 @@ public final class GatherModuleMetadata implements CompilerPass {
         ModuleMetadata existingModule = modulesByGoogNamespace.get(namespace);
         if (existingModule != null) {
           existingType = existingModule.moduleType();
-          existingFileSource = existingModule.rootNode().getSourceFileName();
+          existingFileSource = Optional.of(existingModule.rootNode().getSourceFileName()).filter(s -> !s.isEmpty());
         }
       }
       currentModule.googNamespaces.add(namespace);
@@ -577,7 +578,7 @@ public final class GatherModuleMetadata implements CompilerPass {
                 moduleType.equals(ModuleType.GOOG_PROVIDE)
                     ? ClosurePrimitiveErrors.DUPLICATE_NAMESPACE_AND_MODULE
                     : ClosurePrimitiveErrors.DUPLICATE_MODULE;
-            t.report(n, diagnostic, namespace, existingFileSource);
+            t.report(n, diagnostic, namespace, existingFileSource.orElse("null"));
             return;
           }
           case GOOG_PROVIDE -> {
@@ -585,7 +586,7 @@ public final class GatherModuleMetadata implements CompilerPass {
                 moduleType.equals(ModuleType.GOOG_PROVIDE)
                     ? ClosurePrimitiveErrors.DUPLICATE_NAMESPACE
                     : ClosurePrimitiveErrors.DUPLICATE_NAMESPACE_AND_MODULE;
-            t.report(n, diagnostic, namespace, existingFileSource);
+            t.report(n, diagnostic, namespace, existingFileSource.orElse("null"));
             return;
           }
           case COMMON_JS, SCRIPT -> {}

@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.throwIfUnchecked;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +45,7 @@ class CompilerExecutor {
 
   private int timeout = 0;
 
-  private String debugMessage = null;
+  private Optional<String> debugMessage = Optional.empty();
 
   /**
    * Under JRE 1.6, the JS Compiler overflows the stack when running on some large or complex JS
@@ -78,7 +79,7 @@ class CompilerExecutor {
   }
 
   void setDebugMessage(String debugMessage) {
-    this.debugMessage = debugMessage;
+    this.debugMessage = Optional.of(debugMessage);
   }
 
   <T> T runInCompilerThread(final Callable<T> callable, final boolean dumpTraceReport) {
@@ -134,8 +135,8 @@ class CompilerExecutor {
 
     // Pass on any exception caught by the runnable object.
     if (exception[0] != null) {
-      if (debugMessage != null) {
-        throw new RuntimeException("Exception during compilation: " + debugMessage, exception[0]);
+      if (debugMessage.isPresent()) {
+        throw new RuntimeException("Exception during compilation: " + debugMessage.get(), exception[0]);
       }
       throwIfUnchecked(exception[0]);
       throw new RuntimeException(exception[0]);

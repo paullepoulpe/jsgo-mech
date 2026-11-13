@@ -66,6 +66,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
@@ -311,12 +312,12 @@ public final class Node {
      * <p>Null iff the raw string contains an uncookable escape sequence.
      * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#es2018_revision_of_illegal_escape_sequences
      */
-    private final @Nullable String cooked;
+    private final Optional<String> cooked;
 
     /** The raw version of the template literal substring, is not null */
     private final String raw;
 
-    TemplateLiteralSubstring(@Nullable String cooked, String raw) {
+    TemplateLiteralSubstring(Optional<String> cooked, String raw) {
       this.cooked = cooked;
       this.raw = raw;
     }
@@ -480,12 +481,12 @@ public final class Node {
     return n;
   }
 
-  public static Node newTemplateLitString(String cooked, String raw) {
+  public static Node newTemplateLitString(Optional<String> cooked, String raw) {
     Node n = new Node(Token.TEMPLATELIT_STRING);
     // RhinoStringPool is null-hostile.
     n.payload =
         new TemplateLiteralSubstring(
-            (cooked == null) ? null : RhinoStringPool.addOrGet(cooked),
+            (cooked.isEmpty()) ? Optional.empty() : Optional.of(RhinoStringPool.addOrGet(cooked.get())),
             RhinoStringPool.addOrGet(raw));
     return n;
   }
@@ -497,7 +498,7 @@ public final class Node {
     Node n = new Node(Token.TEMPLATELIT_STRING);
     n.payload =
         new TemplateLiteralSubstring(
-            (cookedOffsetOrNegativeOne == -1) ? null : stringPool.get(cookedOffsetOrNegativeOne),
+            (cookedOffsetOrNegativeOne == -1) ? Optional.empty() : Optional.of(stringPool.get(cookedOffsetOrNegativeOne)),
             stringPool.get(rawOffset));
     return n;
   }
@@ -1267,10 +1268,9 @@ public final class Node {
 
     // Make sure the deserialized properties are valid.
     validateProperties(
-        // NOTE: errorMessage will never be null, but just passing `false` to `checkState()`
-        // triggers warning messages from some code analysis tools.
-        errorMessage ->
-            checkState(errorMessage == null, "deserialize error: %s: %s", errorMessage, this));
+        errorMessage -> {
+          throw new IllegalStateException("deserialize error: " + errorMessage + ": " + this);
+        });
   }
 
   /** Sets the syntactical type specified on this node. */
@@ -1453,7 +1453,7 @@ public final class Node {
     return substring.raw;
   }
 
-  public final @Nullable String getCookedString() {
+  public final Optional<String> getCookedString() {
     if (!(this.payload instanceof TemplateLiteralSubstring substring)) {
       throw this.payloadKindMismatch("template literal string");
     }
@@ -1530,7 +1530,7 @@ public final class Node {
         sb.append(x);
         sb.append(']');
       }
-      if (this.originalName != null) {
+      if (!this.originalName.isEmpty()) {
         sb.append(" [original_name: ");
         sb.append(this.originalName);
         sb.append(']');
@@ -1538,11 +1538,8 @@ public final class Node {
     }
 
     if (printType && jstypeOrColor != null) {
-      String typeString = jstypeOrColor.toString();
-      if (typeString != null) {
-        sb.append(" : ");
-        sb.append(typeString);
-      }
+      sb.append(" : ");
+      sb.append(jstypeOrColor.toString());
     }
   }
 
@@ -1588,7 +1585,7 @@ public final class Node {
       sb.append("}");
     }
 
-    if (this.originalName != null) {
+    if (!this.originalName.isEmpty()) {
       sb.append(",");
       sb.append(createJsonPair("original_name", this.originalName));
     }
@@ -1612,11 +1609,8 @@ public final class Node {
     }
 
     if (jstypeOrColor != null) {
-      String typeString = jstypeOrColor.toString();
-      if (typeString != null) {
-        sb.append(',');
-        sb.append(createJsonPair("typeString", typeString.replace("\"", "\\\"")));
-      }
+      sb.append(',');
+      sb.append(createJsonPair("typeString", jstypeOrColor.toString().replace("\"", "\\\"")));
     }
 
     if (this.first != null) {
@@ -1695,7 +1689,7 @@ public final class Node {
 
   private transient @Nullable Object jstypeOrColor;
 
-  private transient @Nullable String originalName;
+  private transient String originalName = "";
 
   /**
    * Linked list of properties. Since vast majority of nodes would have no more than 2 properties,
@@ -1757,9 +1751,9 @@ public final class Node {
   }
 
   // TODO(johnlenz): make this final
-  public @Nullable String getSourceFileName() {
+  public String getSourceFileName() {
     StaticSourceFile file = getStaticSourceFile();
-    return file == null ? null : file.getName();
+    return file == null ? "" : file.getName();
   }
 
   /** Returns the source file associated with this input. */
@@ -1789,12 +1783,12 @@ public final class Node {
    * @deprecated "original name" is poorly defined.
    */
   @Deprecated
-  public final @Nullable String getOriginalName() {
+  public final String getOriginalName() {
     return this.originalName;
   }
 
   public final void setOriginalName(String s) {
-    this.originalName = (s == null) ? null : RhinoStringPool.addOrGet(s);
+    this.originalName = (s.isEmpty()) ? "" : RhinoStringPool.addOrGet(s);
   }
 
   public final void setOriginalNameFromStringPool(
@@ -2497,7 +2491,7 @@ public final class Node {
     } else if (this.payload instanceof TemplateLiteralSubstring substring) {
       TemplateLiteralSubstring other = (TemplateLiteralSubstring) node.payload;
       return RhinoStringPool.uncheckedEquals(substring.raw, other.raw)
-          && RhinoStringPool.uncheckedEquals(substring.cooked, other.cooked);
+          && substring.cooked.equals(other.cooked);
     }
 
     return true;
@@ -2549,19 +2543,19 @@ public final class Node {
    * @return a null if this is not a qualified name, or a dot-separated string of the name and
    *     properties.
    */
-  public final @Nullable String getQualifiedName() {
+  public final String getQualifiedName() {
     return switch (token) {
       case NAME -> {
         String name = getString();
-        yield name.isEmpty() ? null : name;
+        yield name.isEmpty() ? "" : name;
       }
       case GETPROP -> {
         StringBuilder builder = getQualifiedNameForGetProp(0);
-        yield builder != null ? builder.toString() : null;
+        yield builder != null ? builder.toString() : "";
       }
       case THIS -> "this";
       case SUPER -> "super";
-      default -> null;
+      default -> "";
     };
   }
 
@@ -2587,7 +2581,7 @@ public final class Node {
       }
     } else {
       String left = first.getQualifiedName();
-      if (left == null) {
+      if (left.isEmpty()) {
         return null;
       }
       builder = new StringBuilder(left.length() + reserve);
@@ -2608,21 +2602,21 @@ public final class Node {
    * @deprecated "original name" is poorly defined. See #getOriginalName
    */
   @Deprecated
-  public final @Nullable String getOriginalQualifiedName() {
+  public final String getOriginalQualifiedName() {
     if (token == Token.NAME) {
       String name = getOriginalName();
-      if (name == null) {
+      if (name.isEmpty()) {
         name = getString();
       }
-      return name.isEmpty() ? null : name;
+      return name;
     } else if (token == Token.GETPROP) {
       String left = getFirstChild().getOriginalQualifiedName();
-      if (left == null) {
-        return null;
+      if (left.isEmpty()) {
+        return "";
       }
 
       String right = this.getOriginalName();
-      if (right == null) {
+      if (right.isEmpty()) {
         right = this.getString();
       }
 
@@ -2632,7 +2626,7 @@ public final class Node {
     } else if (token == Token.SUPER) {
       return "super";
     } else {
-      return null;
+      return "";
     }
   }
 
@@ -2874,7 +2868,7 @@ public final class Node {
     // TODO(lharker): should this be inside the above if condition?
     // If the node already has a source file, it seems strange to
     // go ahead and set the original name anyway.
-    if (this.originalName == null) {
+    if (this.originalName.isEmpty()) {
       this.originalName = other.originalName;
     }
 

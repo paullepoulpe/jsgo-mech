@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -216,10 +217,10 @@ class RenameProperties implements CompilerPass {
         continue;
       }
       Property p = propertyMap.get(oldName);
-      if (p != null && p.newName != null) {
+      if (p != null && p.newName.isPresent()) {
         checkState(oldName.equals(p.oldName));
-        n.setString(p.newName);
-        if (!p.newName.equals(oldName)) {
+        n.setString(p.newName.get());
+        if (!p.newName.get().equals(oldName)) {
           compiler.reportChangeToEnclosingScope(n);
         }
       }
@@ -233,12 +234,12 @@ class RenameProperties implements CompilerPass {
       for (String oldName : DOT_SPLITTER.split(firstArg.getString())) {
         Property p = propertyMap.get(oldName);
         String replacement;
-        if (p != null && p.newName != null) {
+        if (p != null && p.newName.isPresent()) {
           checkState(oldName.equals(p.oldName));
           if (filteredOutNames.contains(oldName)) {
             replacement = oldName;
           } else {
-            replacement = p.newName;
+            replacement = p.newName.get();
           }
         } else {
           replacement = oldName;
@@ -280,15 +281,15 @@ class RenameProperties implements CompilerPass {
     for (Property prop : allProps) {
       // Check if this node can reuse a name from a previous compilation - if
       // it can set the newName for the property too.
-      String prevName = prevUsedPropertyMap.lookupNewName(prop.oldName);
-      if (!generatePseudoNames && prevName != null) {
+      Optional<String> prevName = prevUsedPropertyMap.lookupNewName(prop.oldName);
+      if (!generatePseudoNames && prevName.isPresent()) {
         // We can reuse prevName if it's not reserved.
-        if (reservedNames.contains(prevName)) {
+        if (reservedNames.contains(prevName.get())) {
           continue;
         }
 
         prop.newName = prevName;
-        reservedNames.add(prevName);
+        reservedNames.add(prevName.get());
       }
     }
   }
@@ -305,14 +306,14 @@ class RenameProperties implements CompilerPass {
         reservedNames, "", this.reservedFirstCharacters, this.reservedNonFirstCharacters);
     for (Property p : props) {
       if (generatePseudoNames) {
-        p.newName = "$" + p.oldName + "$";
+        p.newName = Optional.of("$" + p.oldName + "$");
       } else {
         // If we haven't already given this property a reusable name.
-        if (p.newName == null) {
-          p.newName = nameGenerator.generateNextName();
+        if (p.newName.isEmpty()) {
+          p.newName = Optional.of(nameGenerator.generateNextName());
         }
       }
-      reservedNames.add(p.newName);
+      reservedNames.add(p.newName.orElse(null));
     }
   }
 
@@ -324,8 +325,8 @@ class RenameProperties implements CompilerPass {
   VariableMap getPropertyMap() {
     ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
     for (Property p : propertyMap.values()) {
-      if (p.newName != null) {
-        map.put(p.oldName, p.newName);
+      if (p.newName.isPresent()) {
+        map.put(p.oldName, p.newName.get());
       }
     }
     return new VariableMap(map.buildOrThrow());
@@ -479,7 +480,7 @@ class RenameProperties implements CompilerPass {
    */
   private static class Property {
     final String oldName;
-    String newName;
+    Optional<String> newName = Optional.empty();
     int numOccurrences;
 
     Property(String name) {

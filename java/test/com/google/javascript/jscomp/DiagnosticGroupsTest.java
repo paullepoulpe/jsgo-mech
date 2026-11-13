@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.common.collect.Sets;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -51,7 +52,7 @@ public final class DiagnosticGroupsTest {
       }
       assertWithMessage(
               "DiagnosticTypes common to DiagnosticGroups %s and %s",
-              lintChecks.getName(), group.getName())
+              lintChecks.getName().orElse(null), group.getName().orElse(null))
           .that(Sets.intersection(lintChecks.getTypes(), group.getTypes()))
           .isEmpty();
     }
@@ -60,7 +61,7 @@ public final class DiagnosticGroupsTest {
   @Test
   public void conformanceErrorsCannotBeDowngraded() {
     for (DiagnosticGroup group : DiagnosticGroups.getRegisteredGroups().values()) {
-      assertWithMessage("Group '%s' should not include JSC_CONFORMANCE_ERROR", group.getName())
+      assertWithMessage("Group '%s' should not include JSC_CONFORMANCE_ERROR", group.getName().orElse(null))
           .that(group.getTypes())
           .doesNotContain(CheckConformance.CONFORMANCE_ERROR);
     }
@@ -98,20 +99,20 @@ public final class DiagnosticGroupsTest {
             DiagnosticGroups.LINT_CHECKS, "suppress_me");
 
     DiagnosticType lintCheck = DiagnosticGroups.LINT_CHECKS.getTypes().iterator().next();
-    JSError errorInPath = JSError.make("some/path/suppress_me/file.js", -1, -1, lintCheck);
+    JSError errorInPath = JSError.make(Optional.of("some/path/suppress_me/file.js"), -1, -1, lintCheck);
     assertWithMessage(
             "DiagnosticGroupPathSuppressingWarningsGuard should suppress in matching path")
         .that(guard.level(errorInPath))
         .isEqualTo(CheckLevel.OFF);
 
-    JSError errorInOtherPath = JSError.make("some/other/file.js", -1, -1, lintCheck);
+    JSError errorInOtherPath = JSError.make(Optional.of("some/other/file.js"), -1, -1, lintCheck);
     assertWithMessage(
             "DiagnosticGroupPathSuppressingWarningsGuard should not suppress in other path")
         .that(guard.level(errorInOtherPath))
         .isNull();
 
     JSError otherErrorInPath =
-        JSError.make("some/path/suppress_me/file.js", -1, -1, DiagnosticType.error("FOO", "foo"));
+        JSError.make(Optional.of("some/path/suppress_me/file.js"), -1, -1, DiagnosticType.error("FOO", "foo"));
     assertWithMessage(
             "DiagnosticGroupPathSuppressingWarningsGuard should not suppress unrelated errors")
         .that(guard.level(otherErrorInPath))

@@ -16,10 +16,8 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
@@ -33,7 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -110,9 +108,9 @@ public class J2clClinitPrunerPass implements CompilerPass {
     if (node == null) {
       return null;
     }
-    String clinitName = getClinitMethodName(node);
-    return emptiedClinitMethods.containsKey(clinitName)
-        ? resolveReplacement(emptiedClinitMethods.get(clinitName))
+    Optional<String> clinitName = getClinitMethodName(node);
+    return (clinitName.isPresent() && emptiedClinitMethods.containsKey(clinitName.get()))
+        ? resolveReplacement((clinitName.isPresent() ? emptiedClinitMethods.get(clinitName.get()) : null))
         : node;
   }
 
@@ -124,9 +122,9 @@ public class J2clClinitPrunerPass implements CompilerPass {
         new AbstractPostOrderCallback() {
           @Override
           public void visit(NodeTraversal t, Node node, Node parent) {
-            String clinitName = getClinitMethodName(node);
-            if (clinitName != null) {
-              clinitReferences.put(clinitName, node);
+            Optional<String> clinitName = getClinitMethodName(node);
+            if (clinitName.isPresent()) {
+              clinitReferences.put(clinitName.get(), node);
             }
           }
         });
@@ -150,7 +148,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
           replacement = replacement.cloneTree();
           reference.replaceWith(replacement);
           compiler.reportChangeToChangeScope(changedScope);
-          clinitReferences.put(getClinitMethodName(replacement), replacement);
+          clinitReferences.put(getClinitMethodName(replacement).orElse(null), replacement);
         }
         newChangedScopes.add(changedScope);
       }
@@ -197,7 +195,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
         clinitsCalledAtBranch = new HierarchicalSet<>(clinitsCalledAtBranch);
         if (isClinitMethod(parent)) {
           // Adds itself as any of your children can assume clinit is already called.
-          clinitsCalledAtBranch.add(getQualifiedNameOfFunction(parent));
+          clinitsCalledAtBranch.add(getQualifiedNameOfFunction(parent).orElse(null));
         }
       }
 
@@ -222,12 +220,12 @@ public class J2clClinitPrunerPass implements CompilerPass {
     }
 
     private void tryRemovingClinit(Node node) {
-      String clinitName = getClinitMethodName(node);
-      if (clinitName == null) {
+      Optional<String> clinitName = getClinitMethodName(node);
+      if (clinitName.isEmpty()) {
         return;
       }
 
-      if (clinitsCalledAtBranch.add(clinitName)) {
+      if (clinitsCalledAtBranch.add(clinitName.get())) {
         // This is the first time we are seeing this clinit so cannot remove it.
         return;
       }
@@ -261,8 +259,8 @@ public class J2clClinitPrunerPass implements CompilerPass {
       }
 
       // Find clinit calls.
-      String clinitName = getClinitMethodName(node.getFirstChild());
-      if (clinitName == null) {
+      Optional<String> clinitName = getClinitMethodName(node.getFirstChild());
+      if (clinitName.isEmpty()) {
         return;
       }
 
@@ -275,9 +273,9 @@ public class J2clClinitPrunerPass implements CompilerPass {
       // Check that the call isn't a recursive call to the same function.
       Node enclosingFunction = NodeUtil.getEnclosingFunction(node);
       if (enclosingFunction == null
-          || callOrNewNode
+          || Optional.of(callOrNewNode
               .getFirstChild()
-              .getString()
+              .getString())
               .equals(NodeUtil.getNearestFunctionName(enclosingFunction))) {
         return;
       }
@@ -290,7 +288,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
 
       // Check that the clinit call is safe to prune.
       Node staticFnNode = var.getInitialValue();
-      if (callsClinit(staticFnNode, clinitName) && hasSafeArguments(t, callOrNewNode)) {
+      if (callsClinit(staticFnNode, clinitName.get()) && hasSafeArguments(t, callOrNewNode)) {
         node.detach();
         compiler.reportChangeToEnclosingScope(parent);
       }
@@ -340,13 +338,12 @@ public class J2clClinitPrunerPass implements CompilerPass {
 
     /** Returns whether the specified function contains a call to the specified clinit. */
     private boolean callsClinit(Node fnNode, String clinitName) {
-      checkNotNull(clinitName);
       // TODO(michaelthomas): Consider checking all children, but watch out for return statements
       // that could short-circuit the clinit.
       Node child = fnNode.getLastChild().getFirstChild();
       return child != null
           && child.isExprResult()
-          && clinitName.equals(getClinitMethodName(child.getFirstChild()));
+          && Optional.of(clinitName).equals(getClinitMethodName(child.getFirstChild()));
     }
   }
 
@@ -364,10 +361,10 @@ public class J2clClinitPrunerPass implements CompilerPass {
 
     /** Clears the body of any functions that are equivalent to empty functions. */
     private void trySubstituteEmptyFunction(Node fnNode) {
-      String fnQualifiedName = getQualifiedNameOfFunction(fnNode);
+      Optional<String> fnQualifiedName = getQualifiedNameOfFunction(fnNode);
 
       // Ignore anonymous/constructor functions.
-      if (Strings.isNullOrEmpty(fnQualifiedName)) {
+      if (fnQualifiedName.orElse("").isEmpty()) {
         return;
       }
 
@@ -378,7 +375,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
 
       // Ensure that the first expression in the body is setting itself to the empty function
       Node firstExpr = body.getFirstChild();
-      if (!isAssignToEmptyFn(firstExpr, fnQualifiedName)) {
+      if (!isAssignToEmptyFn(firstExpr, fnQualifiedName.get())) {
         return;
       }
 
@@ -389,7 +386,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
         replaceReferencesWith = null;
       } else if (secondExpr.getNext() == null
           && secondExpr.isExprResult()
-          && getClinitMethodName(secondExpr.getFirstChild()) != null) {
+          && getClinitMethodName(secondExpr.getFirstChild()).isPresent()) {
         // Only expression in clinit is a call to another clinit. We can safely replace all
         // references with the other clinit.
         replaceReferencesWith = secondExpr.getFirstChild();
@@ -398,7 +395,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
         return;
       }
 
-      emptiedClinitMethods.put(fnQualifiedName, replaceReferencesWith);
+      emptiedClinitMethods.put(fnQualifiedName.get(), replaceReferencesWith);
       NodeUtil.deleteNode(firstExpr, compiler);
     }
 
@@ -416,7 +413,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
 
       Node rhs = node.getFirstChild().getLastChild();
       return NodeUtil.isEmptyFunctionExpression(rhs)
-          && Objects.equals(NodeUtil.getBestLValueName(lhs), enclosingFnName);
+          && NodeUtil.getBestLValueName(lhs).equals(Optional.of(enclosingFnName));
     }
   }
 
@@ -424,17 +421,17 @@ public class J2clClinitPrunerPass implements CompilerPass {
     return node.isFunction() && isClinitMethodName(getQualifiedNameOfFunction(node));
   }
 
-  private static @Nullable String getClinitMethodName(Node node) {
+  private static Optional<String> getClinitMethodName(Node node) {
     if (node.isCall()) {
-      String fnName = NodeUtil.getBestLValueName(node.getFirstChild());
-      return isClinitMethodName(fnName) ? fnName : null;
+      Optional<String> fnName = NodeUtil.getBestLValueName(node.getFirstChild());
+      return isClinitMethodName(fnName) ? fnName : Optional.empty();
     }
-    return null;
+    return Optional.empty();
   }
 
-  private static boolean isClinitMethodName(String fnName) {
+  private static boolean isClinitMethodName(Optional<String> fnName) {
     // The '.$clinit' case) only happens when collapseProperties is off.
-    return fnName != null && (fnName.endsWith("$$0clinit") || fnName.endsWith(".$clinit"));
+    return fnName.isPresent() && (fnName.get().endsWith("$$0clinit") || fnName.get().endsWith(".$clinit"));
   }
 
   /**
@@ -468,7 +465,7 @@ public class J2clClinitPrunerPass implements CompilerPass {
    * <p>TODO(b/123354857): Delete this method when naming concepts have been unified. It was created
    * as a temporary measure to support ES6 in this pass without becoming blocked on name APIs.
    */
-  private static String getQualifiedNameOfFunction(Node function) {
+  private static Optional<String> getQualifiedNameOfFunction(Node function) {
     checkArgument(function.isFunction(), function);
     // The node representing the name (e.g. GETPROP, MEMBER_FUNCTION_DEF, etc.).
     Node lValue = NodeUtil.getBestLValue(function);

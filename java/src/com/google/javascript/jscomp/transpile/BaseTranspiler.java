@@ -18,7 +18,6 @@ package com.google.javascript.jscomp.transpile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.CheckLevel;
@@ -41,6 +40,7 @@ import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import java.io.IOException;
+import java.util.Optional;
 
 /** Basic Transpiler implementation for outputting ES5 code. */
 public final class BaseTranspiler implements Transpiler {
@@ -50,7 +50,7 @@ public final class BaseTranspiler implements Transpiler {
 
   public BaseTranspiler(CompilerSupplier compilerSupplier, String runtimeLibraryName) {
     this.compilerSupplier = checkNotNull(compilerSupplier);
-    this.runtimeLibraryName = checkNotNull(runtimeLibraryName);
+    this.runtimeLibraryName = runtimeLibraryName;
   }
 
   @Override
@@ -65,7 +65,7 @@ public final class BaseTranspiler implements Transpiler {
   @Override
   public String runtime() {
     StringBuilder sb = new StringBuilder();
-    if (!Strings.isNullOrEmpty(runtimeLibraryName)) {
+    if (!runtimeLibraryName.isEmpty()) {
       sb.append(compilerSupplier.runtime(runtimeLibraryName));
     }
     sb.append(compilerSupplier.runtime("modules"));
@@ -136,7 +136,7 @@ public final class BaseTranspiler implements Transpiler {
       StringBuilder sourceMap = new StringBuilder();
       if (result.sourceMap != null) {
         try {
-          result.sourceMap.appendTo(sourceMap, path);
+          result.sourceMap.appendTo(sourceMap, Optional.of(path));
         } catch (IOException e) {
           // impossible, and not a big deal even if it did happen.
         }
@@ -190,7 +190,7 @@ public final class BaseTranspiler implements Transpiler {
       options.setPathEscaper(PathEscaper.CANONICALIZE_ONLY);
       options.setParseInlineSourceMaps(true);
       options.setApplyInputSourceMaps(true);
-      options.setSourceMapOutputPath("/dev/null");
+      options.setSourceMapOutputPath(Optional.of("/dev/null"));
       options.setSourceMapIncludeSourcesContent(true);
       // Make sourcemaps use absolute paths, so that the path is not duplicated if a build tool adds
       // a sourceurl. Exception: if the location has a scheme (like http:) then leave the path
@@ -199,7 +199,7 @@ public final class BaseTranspiler implements Transpiler {
           ImmutableList.of(
               (location) -> {
                 // An invalid URI gets the absolute version below.
-                if (Io.uriParse(location).isOk() && Io.uriScheme(location) != null) {
+                if (Io.uriParse(location.get()).isOk() && Io.uriScheme(location.get()).isPresent()) {
                   return location;
                 }
                 return new SourceMap.PrefixLocationMapping("", "/").map(location);
@@ -222,9 +222,9 @@ public final class BaseTranspiler implements Transpiler {
     public final String sourceMap;
 
     public CompileResult(String source, boolean transpiled, String sourceMap) {
-      this.source = checkNotNull(source);
+      this.source = source;
       this.transpiled = transpiled;
-      this.sourceMap = checkNotNull(sourceMap);
+      this.sourceMap = sourceMap;
     }
   }
 }

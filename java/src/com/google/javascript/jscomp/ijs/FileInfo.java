@@ -15,7 +15,6 @@
  */
 package com.google.javascript.jscomp.ijs;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.javascript.jscomp.base.SimpleListMultimap;
 import com.google.javascript.rhino.Node;
@@ -106,7 +105,6 @@ final class FileInfo {
   }
 
   void markProvided(String providedName) {
-    checkNotNull(providedName);
     providedNamespaces.add(providedName);
   }
 }

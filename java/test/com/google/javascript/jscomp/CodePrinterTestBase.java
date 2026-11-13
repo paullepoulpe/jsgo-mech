@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.parsing.Config;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 
@@ -60,7 +61,7 @@ public abstract class CodePrinterTestBase {
     CompilerOptions options = new CompilerOptions();
     options.setTrustedStrings(trustedStrings);
     options.setPreserveTypeAnnotations(preserveTypeAnnotations);
-    options.setOutputCharset(outputCharset);
+    options.setOutputCharset(Optional.ofNullable(outputCharset));
     options.setLanguageIn(languageMode);
     if (preserveNonJSDocComments) {
       options.setParseJsDocDocumentation(Config.JsDocParsing.INCLUDE_ALL_COMMENTS);
@@ -132,7 +133,7 @@ public abstract class CodePrinterTestBase {
 
   CompilerOptions newCompilerOptions(CompilerOptionBuilder builder) {
     CompilerOptions options = new CompilerOptions();
-    options.setOutputCharset(outputCharset);
+    options.setOutputCharset(Optional.ofNullable(outputCharset));
     options.setTrustedStrings(trustedStrings);
     options.setPreserveTypeAnnotations(preserveTypeAnnotations);
     options.setPreserveNonJSDocComments(preserveNonJSDocComments);
@@ -145,7 +146,7 @@ public abstract class CodePrinterTestBase {
     CompilerOptions options = new CompilerOptions();
     options.setLineLengthThreshold(CompilerOptions.DEFAULT_LINE_LENGTH_THRESHOLD);
     options.setLanguageOut(languageMode);
-    options.setOutputCharset(outputCharset);
+    options.setOutputCharset(Optional.ofNullable(outputCharset));
     return new CodePrinter.Builder(n).setCompilerOptions(options).build();
   }
 
@@ -157,7 +158,7 @@ public abstract class CodePrinterTestBase {
     CompilerOptions options = new CompilerOptions();
     options.setLineLengthThreshold(CompilerOptions.DEFAULT_LINE_LENGTH_THRESHOLD);
     options.setLanguageOut(languageMode);
-    options.setOutputCharset(outputCharset);
+    options.setOutputCharset(Optional.ofNullable(outputCharset));
     options.setPrettyPrint(true);
     return new CodePrinter.Builder(n).setCompilerOptions(options).build();
   }

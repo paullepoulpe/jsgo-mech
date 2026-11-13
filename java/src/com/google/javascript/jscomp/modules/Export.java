@@ -16,13 +16,13 @@
 
 package com.google.javascript.jscomp.modules;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import com.google.javascript.jscomp.deps.ModuleLoader.ModulePath;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -49,15 +49,15 @@ import org.jspecify.annotations.Nullable;
  */
 // TODO(johnplaisted): Add validation tests. Current ModulePath makes this difficult as it is non
 public record Export(
-    @Nullable String exportName,
-    @Nullable String moduleRequest,
-    @Nullable String importName,
-    @Nullable String localName,
+    Optional<String> exportName,
+    Optional<String> moduleRequest,
+    Optional<String> importName,
+    Optional<String> localName,
     @Nullable ModulePath modulePath,
     @Nullable Node exportNode,
     @Nullable Node nameNode,
     ModuleMetadata moduleMetadata,
-    @Nullable String closureNamespace,
+    Optional<String> closureNamespace,
     boolean mutated) {
   public Export {
     requireNonNull(moduleMetadata, "moduleMetadata");
@@ -82,15 +82,15 @@ public record Export(
   public static final String NAMESPACE = "*exports*";
 
   static final class Builder {
-    private String exportNameField;
-    private String moduleRequestField;
-    private String importNameField;
-    private String localNameField;
+    private Optional<String> exportNameField = Optional.empty();
+    private Optional<String> moduleRequestField = Optional.empty();
+    private Optional<String> importNameField = Optional.empty();
+    private Optional<String> localNameField = Optional.empty();
     private ModulePath modulePathField;
     private Node exportNodeField;
     private Node nameNodeField;
     private ModuleMetadataMap.@Nullable ModuleMetadata moduleMetadataField;
-    private String closureNamespaceField;
+    private Optional<String> closureNamespaceField = Optional.empty();
     private boolean mutatedField;
     private byte set0;
 
@@ -111,22 +111,22 @@ public record Export(
       set0 = (byte) 1;
     }
 
-    Builder exportName(@Nullable String value) {
+    Builder exportName(Optional<String> value) {
       this.exportNameField = value;
       return this;
     }
 
-    Builder moduleRequest(@Nullable String value) {
+    Builder moduleRequest(Optional<String> value) {
       this.moduleRequestField = value;
       return this;
     }
 
-    Builder importName(@Nullable String value) {
+    Builder importName(Optional<String> value) {
       this.importNameField = value;
       return this;
     }
 
-    Builder localName(@Nullable String value) {
+    Builder localName(Optional<String> value) {
       this.localNameField = value;
       return this;
     }
@@ -154,7 +154,7 @@ public record Export(
       return this;
     }
 
-    Builder closureNamespace(@Nullable String value) {
+    Builder closureNamespace(Optional<String> value) {
       this.closureNamespaceField = value;
       return this;
     }
@@ -204,46 +204,46 @@ public record Export(
 
     /** Export from an ES module. */
     private void validateEsModule(Export e) {
-      checkState(e.closureNamespace() == null);
+      checkState(e.closureNamespace().isEmpty());
 
       checkState(
-          !"*".equals(e.importName())
-              || (e.moduleRequest() != null && e.exportName() == null && e.localName() == null),
+          !"*".equals(e.importName().orElse(""))
+              || (e.moduleRequest().isPresent() && e.exportName().isEmpty() && e.localName().isEmpty()),
           "Star exports should not have exported / local names.");
 
       checkState(
-          e.localName() == null || e.moduleRequest() == null,
+          e.localName().isEmpty() || e.moduleRequest().isEmpty(),
           "Local exports should not have module requests.");
       checkState(
-          e.moduleRequest() == null || e.localName() == null,
+          e.moduleRequest().isEmpty() || e.localName().isEmpty(),
           "Reexports should not have local names.");
 
       checkState(
-          e.moduleRequest() == null || e.importName() != null,
+          e.moduleRequest().isEmpty() || e.importName().isPresent(),
           "Reexports should have import names.");
       checkState(
-          e.importName() == null || e.moduleRequest() != null,
+          e.importName().isEmpty() || e.moduleRequest().isPresent(),
           "Exports with an import name should be a reexport.");
     }
 
     /** Some export from a goog module. */
     private static void validateGoogModule(Export e) {
-      checkState(e.closureNamespace() != null, "Exports should be associated with a namespace");
-      checkState(e.exportName() != null, "Exports should be named");
+      checkState(e.closureNamespace().isPresent(), "Exports should be associated with a namespace");
+      checkState(e.exportName().isPresent(), "Exports should be named");
       checkState(e.exportNode() != null, "Exports should have a node");
-      checkState(e.localName() == null, "goog.module Exports don't set a localName");
-      checkState(e.moduleRequest() == null, "goog modules cannot export from other modules");
+      checkState(e.localName().isEmpty(), "goog.module Exports don't set a localName");
+      checkState(e.moduleRequest().isEmpty(), "goog modules cannot export from other modules");
     }
 
     /** Some faux export from a non-ES module. */
     private static void validateOtherModule(Export e) {
-      checkNotNull(e.exportName());
+      checkState(e.exportName().isPresent());
 
       // Fields ignored for these fake exports. Should not set these.
       checkState(e.exportNode() == null);
-      checkState(e.localName() == null);
-      checkState(e.moduleRequest() == null);
-      checkState(e.importName() == null);
+      checkState(e.localName().isEmpty());
+      checkState(e.moduleRequest().isEmpty());
+      checkState(e.importName().isEmpty());
       checkState(e.nameNode() == null);
     }
   }

@@ -27,7 +27,7 @@ import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 /** Instrument branch coverage for javascript. */
 public class BranchCoverageInstrumentationCallback extends NodeTraversal.AbstractCfgCallback {
@@ -39,7 +39,7 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
   /** Returns a string that can be used for the branch coverage data. */
   private static String createArrayName(NodeTraversal traversal) {
     return BRANCH_ARRAY_NAME_PREFIX
-        + CoverageUtil.createIdentifierFromText(traversal.getSourceName());
+        + CoverageUtil.createIdentifierFromText(traversal.getSourceName().get());
   }
 
   public BranchCoverageInstrumentationCallback(
@@ -50,24 +50,24 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
 
   @Override
   public void visit(NodeTraversal traversal, Node node, Node parent) {
-    String fileName = traversal.getSourceName();
+    Optional<String> fileName = traversal.getSourceName();
 
     // If origin of node is not from sourceFile, do not instrument. This typically occurs when
     // polyfill code is injected into the sourceFile AST and this check avoids instrumenting it. We
     // avoid instrumentation as this callback does not distinguish between sourceFile code and
     // injected code and can result in an error.
-    if (!Objects.equals(fileName, node.getSourceFileName())) {
+    if (!fileName.orElse("").equals(node.getSourceFileName())) {
       return;
     }
 
     if (node.isScript()) {
-      if (instrumentationData.get(fileName) != null) {
+      if ((fileName.isPresent() ? instrumentationData.get(fileName.get()) : null) != null) {
         Node toAddTo =
             node.hasChildren() && node.getFirstChild().isModuleBody() ? node.getFirstChild() : node;
         // Add instrumentation code
         toAddTo.addChildrenToFront(newHeaderNode(traversal, toAddTo).removeChildren());
         compiler.reportChangeToEnclosingScope(node);
-        instrumentBranchCoverage(traversal, instrumentationData.get(fileName));
+        instrumentBranchCoverage(traversal, (fileName.isPresent() ? instrumentationData.get(fileName.get()) : null));
       }
     }
 
@@ -90,8 +90,8 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
         addDefaultBlock(node);
       }
       instrumentationData.computeIfAbsent(
-          fileName, (String k) -> new FileInstrumentationData(k, createArrayName(traversal)));
-      processBranchInfo(node, instrumentationData.get(fileName), getChildrenBlocks(node));
+          fileName.orElse(null), (String k) -> new FileInstrumentationData(k, createArrayName(traversal)));
+      processBranchInfo(node, (fileName.isPresent() ? instrumentationData.get(fileName.get()) : null), getChildrenBlocks(node));
     } else if (NodeUtil.isLoopStructure(node)) {
       List<Node> blocks = getChildrenBlocks(node);
       ControlFlowGraph<Node> cfg = getControlFlowGraph(compiler);
@@ -117,8 +117,8 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
         }
       }
       instrumentationData.computeIfAbsent(
-          fileName, (String k) -> new FileInstrumentationData(k, createArrayName(traversal)));
-      processBranchInfo(node, instrumentationData.get(fileName), blocks);
+          fileName.orElse(null), (String k) -> new FileInstrumentationData(k, createArrayName(traversal)));
+      processBranchInfo(node, (fileName.isPresent() ? instrumentationData.get(fileName.get()) : null), blocks);
     }
   }
 
@@ -166,9 +166,9 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
     Node exprNode = IR.exprResult(IR.assign(getElemNode, IR.trueNode()));
 
     // Note line as instrumented
-    String fileName = traversal.getSourceName();
+    Optional<String> fileName = traversal.getSourceName();
     instrumentationData.computeIfAbsent(
-        fileName, (String k) -> new FileInstrumentationData(k, arrayName));
+        fileName.orElse(null), (String k) -> new FileInstrumentationData(k, arrayName));
     return exprNode.srcrefTreeIfMissing(node);
   }
 
@@ -194,8 +194,8 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
   }
 
   private Node newHeaderNode(NodeTraversal traversal, Node srcref) {
-    String fileName = traversal.getSourceName();
-    FileInstrumentationData data = instrumentationData.get(fileName);
+    Optional<String> fileName = traversal.getSourceName();
+    FileInstrumentationData data = fileName.isPresent() ? instrumentationData.get(fileName.get()) : null;
     checkNotNull(data);
 
     // var JSCompiler_lcov_branch_data_xx = [];
@@ -226,7 +226,7 @@ public class BranchCoverageInstrumentationCallback extends NodeTraversal.Abstrac
         IR.exprResult(
             IR.call(
                 IR.getprop(IR.getelem(IR.name(objName), IR.string("fileNames")), "push"),
-                IR.string(fileName))));
+                IR.string(fileName.get()))));
     return IR.blockList(nodes).srcrefTreeIfMissing(srcref);
   }
 

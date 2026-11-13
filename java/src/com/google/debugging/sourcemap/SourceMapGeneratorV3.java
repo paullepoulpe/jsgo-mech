@@ -17,7 +17,6 @@
 package com.google.debugging.sourcemap;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.nullToEmpty;
 
 import com.google.common.base.Preconditions;
 import com.google.debugging.sourcemap.SourceMapConsumerV3.EntryVisitor;
@@ -31,7 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -90,7 +89,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
        new LinkedHashMap<>();
 
   /** Cache of the last mappings source name. */
-  private @Nullable String lastSourceFile = null;
+  private Optional<String> lastSourceFile = Optional.empty();
 
   /**
    * Cache of the last mappings source name index.
@@ -124,7 +123,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
    * The source root path for relocating source fails or avoid duplicate values
    * on the source entry.
    */
-  private String sourceRootPath;
+  private Optional<String> sourceRootPath = Optional.empty();
 
   /**
    * {@inheritDoc}
@@ -136,7 +135,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
     lastMapping = null;
     sourceFileMap.clear();
     originalNameMap.clear();
-    lastSourceFile = null;
+    lastSourceFile = Optional.empty();
     lastSourceFileIndex = -1;
     offsetPosition = new FilePosition(0, 0);
     prefixPosition = new FilePosition(0, 0);
@@ -200,12 +199,12 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
    */
   @Override
   public void addMapping(
-      String sourceName, @Nullable String symbolName,
+      String sourceName, String symbolName,
       FilePosition sourceStartPosition,
       FilePosition startPosition, FilePosition endPosition) {
 
     // Don't bother if there is not sufficient information to be useful.
-    if (sourceName == null || sourceStartPosition.getLine() < 0) {
+    if (sourceName.isEmpty() || sourceStartPosition.getLine() < 0) {
       return;
     }
 
@@ -365,20 +364,20 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
    * </ol>
    */
   @Override
-  public void appendTo(Appendable out, @Nullable String name) throws IOException {
+  public void appendTo(Appendable out, Optional<String> name) throws IOException {
     int maxLine = prepMappings() + 1;
 
     // Add the header fields.
     out.append("{\n");
     appendFirstField(out, "version", "3");
-    if (name != null) {
-      appendField(out, "file", escapeString(name));
+    if (name.isPresent()) {
+      appendField(out, "file", escapeString(name.get()));
     }
     appendField(out, "lineCount", String.valueOf(maxLine));
 
     //optional source root
-    if (this.sourceRootPath != null && !this.sourceRootPath.isEmpty()) {
-      appendField(out, "sourceRoot", escapeString(this.sourceRootPath));
+    if (this.sourceRootPath.isPresent() && !this.sourceRootPath.get().isEmpty()) {
+      appendField(out, "sourceRoot", escapeString(this.sourceRootPath.get()));
     }
 
     // Add the mappings themselves.
@@ -429,7 +428,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
    * @param path The URL prefix to save in the sourcemap file. (Not validated.)
    */
   public void setSourceRoot(String path){
-    this.sourceRootPath = path;
+    this.sourceRootPath = Optional.of(path);
   }
 
   /**
@@ -499,9 +498,9 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
     for (Map.Entry<String, Integer> entry : sourceFileMap.entrySet()) {
       Integer index = entry.getValue();
       checkState(index < size);
-      String content = sourceFileContentMap.get(entry.getKey());
-      if (content != null) {
-        contents.set(index, content);
+      Optional<String> content = Optional.ofNullable(sourceFileContentMap.get(entry.getKey()));
+      if (content.isPresent()) {
+        contents.set(index, content.get());
         found = true;
       }
     }
@@ -515,8 +514,8 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
       if (i != 0) {
         out.append(",");
       }
-      String sourceContent = contents.get(i);
-      out.append(escapeString(nullToEmpty(sourceContent)));
+      Optional<String> sourceContent = Optional.ofNullable(contents.get(i));
+      out.append(escapeString(sourceContent.orElse("")));
     }
     out.append("]");
     appendFieldEnd(out);
@@ -645,7 +644,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
      * The original name of the token found at the position
      * represented by this mapping (if any).
      */
-    String originalName;
+    String originalName = "";
 
     /**
      * Whether the mapping is actually used by the source map.
@@ -854,8 +853,8 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
   }
 
   private int getSourceId(String sourceName) {
-    if (!Objects.equals(sourceName, lastSourceFile)) {
-      lastSourceFile = sourceName;
+    if (!(lastSourceFile.isPresent() && lastSourceFile.get().equals(sourceName))) {
+      lastSourceFile = Optional.of(sourceName);
       Integer index = sourceFileMap.get(sourceName);
       if (index != null) {
         lastSourceFileIndex = index;
@@ -959,7 +958,7 @@ public final class SourceMapGeneratorV3 implements SourceMapGenerator {
         Base64VLQ.encode(out, srcColumn - previousSourceColumn);
         previousSourceColumn = srcColumn;
 
-        if (m.originalName != null) {
+        if (!m.originalName.isEmpty()) {
           // The relative id for the associated symbol name
           int nameId = getNameId(m.originalName);
           Base64VLQ.encode(out, (nameId - previousNameId));

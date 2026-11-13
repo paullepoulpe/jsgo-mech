@@ -39,6 +39,7 @@ import com.google.javascript.rhino.InputId;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -196,7 +197,7 @@ public class JsFileFullParser {
 
   /** Interface for reporting errors. */
   public interface Reporter {
-    void report(boolean fatal, String message, String sourceName, int line, int lineOffset);
+    void report(boolean fatal, String message, Optional<String> sourceName, int line, int lineOffset);
   }
 
   private static final class DelegatingReporter implements ErrorReporter {
@@ -208,12 +209,12 @@ public class JsFileFullParser {
     }
 
     @Override
-    public void warning(String message, String sourceName, int line, int lineOffset) {
+    public void warning(String message, Optional<String> sourceName, int line, int lineOffset) {
       delegate.report(false, message, sourceName, line, lineOffset);
     }
 
     @Override
-    public void error(String message, String sourceName, int line, int lineOffset) {
+    public void error(String message, Optional<String> sourceName, int line, int lineOffset) {
       this.seenError = true;
       delegate.report(true, message, sourceName, line, lineOffset);
     }

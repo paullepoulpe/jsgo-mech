@@ -46,8 +46,8 @@ public final class ScriptMetadataTest extends CompilerTestCase {
         const Qux = goog.forwardDeclare('a.b.Qux');
         """);
 
-    assertThat(this.lastMetadata.getAlias("a.b.Foo")).isEqualTo("Foo");
-    assertThat(this.lastMetadata.getAlias("a.b.Bar")).isEqualTo("Bar");
-    assertThat(this.lastMetadata.getAlias("a.b.Qux")).isEqualTo("Qux");
+    assertThat(this.lastMetadata.getAlias("a.b.Foo").orElse(null)).isEqualTo("Foo");
+    assertThat(this.lastMetadata.getAlias("a.b.Bar").orElse(null)).isEqualTo("Bar");
+    assertThat(this.lastMetadata.getAlias("a.b.Qux").orElse(null)).isEqualTo("Qux");
   }
 }

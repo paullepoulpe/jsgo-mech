@@ -26,6 +26,7 @@ import com.google.javascript.rhino.SimpleSourceFile;
 import com.google.javascript.rhino.StaticSourceFile;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import com.google.javascript.rhino.Token;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -117,7 +118,7 @@ final class JsdocUtil {
       builder.recordReturnType(replaceWithUnusableType(jsdoc.getReturnType()));
     }
     for (int i = 0; i < jsdoc.getParameterCount(); i++) {
-      String name = jsdoc.getParameterNameAt(i);
+      Optional<String> name = jsdoc.getParameterNameAt(i);
       var original = jsdoc.getParameterType(name);
       if (original == null) {
         continue;
@@ -128,7 +129,7 @@ final class JsdocUtil {
       } else if (original.isVarArgs()) {
         newType = JSTypeExpression.makeVarArgs(newType);
       }
-      builder.recordParameter(name, newType);
+      builder.recordParameter(name.get(), newType);
     }
     if (jsdoc.hasThisType()) {
       builder.recordThisType(replaceWithUnusableType(jsdoc.getThisType()));
@@ -192,7 +193,7 @@ final class JsdocUtil {
         }
       }
       case UNDETERMINED -> {
-        if (oldJSDoc != null && oldJSDoc.getDescription() != null) {
+        if (oldJSDoc != null && oldJSDoc.getDescription().isPresent()) {
           return getConstJSDoc(oldJSDoc, "string");
         }
       }

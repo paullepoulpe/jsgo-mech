@@ -32,6 +32,7 @@ import com.google.javascript.rhino.QualifiedName;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -85,27 +86,27 @@ public class CheckExtraRequires extends NodeTraversal.AbstractPostOrderCallback
     NodeTraversal.traverse(compiler, root, this);
   }
 
-  private @Nullable String extractNamespace(Node call, String... primitiveNames) {
+  private Optional<String> extractNamespace(Node call, String... primitiveNames) {
     Node callee = call.getFirstChild();
     if (!callee.isGetProp()) {
-      return null;
+      return Optional.empty();
     }
     for (String primitiveName : primitiveNames) {
       if (callee.matchesQualifiedName(primitiveName)) {
         Node target = callee.getNext();
         if (target != null && target.isStringLit()) {
-          return target.getString();
+          return Optional.of(target.getString());
         }
       }
     }
-    return null;
+    return Optional.empty();
   }
 
-  private String extractNamespaceIfRequire(Node call) {
+  private Optional<String> extractNamespaceIfRequire(Node call) {
     return extractNamespace(call, "goog.require", "goog.requireType");
   }
 
-  private String extractNamespaceIfForwardDeclare(Node call) {
+  private Optional<String> extractNamespaceIfForwardDeclare(Node call) {
     return extractNamespace(call, "goog.forwardDeclare");
   }
 
@@ -225,14 +226,14 @@ public class CheckExtraRequires extends NodeTraversal.AbstractPostOrderCallback
   private static final QualifiedName GOOG_MODULE_GET = QualifiedName.of("goog.module.get");
 
   private void visitCallNode(Node call, Node parent) {
-    String required = extractNamespaceIfRequire(call);
-    if (required != null) {
-      visitGoogRequire(required, call, parent);
+    Optional<String> required = extractNamespaceIfRequire(call);
+    if (required.isPresent()) {
+      visitGoogRequire(required.get(), call, parent);
       return;
     }
-    String declare = extractNamespaceIfForwardDeclare(call);
-    if (declare != null) {
-      visitForwardDeclare(declare, call, parent);
+    Optional<String> declare = extractNamespaceIfForwardDeclare(call);
+    if (declare.isPresent()) {
+      visitForwardDeclare(declare.get(), call, parent);
       return;
     }
     Node callee = call.getFirstChild();
@@ -242,13 +243,13 @@ public class CheckExtraRequires extends NodeTraversal.AbstractPostOrderCallback
   }
 
   private void addUsagesOfAllPrefixes(QualifiedName qualifiedName) {
-    usages.add(qualifiedName.join());
+    usages.add(qualifiedName.join().orElse(null));
     // For "foo.bar.baz.qux" add usages for "foo.bar.baz.qux", "foo.bar.baz",
     // "foo.bar", and "foo" because any of those might be a require that
     // we need to include.
     while (!qualifiedName.isSimple()) {
       qualifiedName = qualifiedName.getOwner();
-      usages.add(qualifiedName.join());
+      usages.add(qualifiedName.join().orElse(null));
     }
   }
 

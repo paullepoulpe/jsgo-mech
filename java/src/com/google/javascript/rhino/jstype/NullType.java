@@ -40,6 +40,7 @@
 package com.google.javascript.rhino.jstype;
 
 import com.google.javascript.jscomp.base.Tri;
+import java.util.Optional;
 
 /**
  * Null type.
@@ -106,8 +107,8 @@ public final class NullType extends ValueType {
   }
 
   @Override
-  public String getDisplayName() {
-    return "null";
+  public Optional<String> getDisplayName() {
+    return Optional.of("null");
   }
 
   @Override

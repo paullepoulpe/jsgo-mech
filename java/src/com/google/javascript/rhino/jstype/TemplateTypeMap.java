@@ -444,7 +444,7 @@ public final class TemplateTypeMap {
     int size = this.templateKeys.size();
     for (int i = size - 1; i >= 0; i--) {
       TemplateType key = this.templateKeys.get(i);
-      if (key.getReferenceName().equals(keyName)) {
+      if (key.getReferenceName().get().equals(keyName)) {
         return key;
       }
     }

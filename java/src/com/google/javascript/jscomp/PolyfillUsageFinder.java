@@ -40,6 +40,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
@@ -197,7 +198,6 @@ final class PolyfillUsageFinder {
     PolyfillUsage {
       requireNonNull(polyfill, "polyfill");
       requireNonNull(node, "node");
-      requireNonNull(name, "name");
     }
 
     private static PolyfillUsage createExplicit(Polyfill polyfill, Node node, String name) {
@@ -330,7 +330,7 @@ final class PolyfillUsageFinder {
         if (!methodPolyfills.isEmpty()
             && includeGuardedUsages.shouldInclude(isGuarded("." + propertyName))) {
           for (Polyfill polyfill : methodPolyfills) {
-            String ownerName = getMethodOwner(polyfill.nativeSymbol);
+            Optional<String> ownerName = getMethodOwner(polyfill.nativeSymbol);
             // isDisjointFromIterator check is guarded by the shouldDisambiguateProperties flag.
             if (disambiguateProperties && isDisjointFromIterator(getPropNode, ownerName)) {
               continue;
@@ -370,14 +370,14 @@ final class PolyfillUsageFinder {
     final String rootName = ownerNode.getString();
     components.addFirst(rootName);
     final String fullName = String.join(".", components);
-    final String globalPrefix = findGlobalPrefix(fullName);
-    if (globalPrefix != null) {
+    final Optional<String> globalPrefix = findGlobalPrefix(fullName);
+    if (globalPrefix.isPresent()) {
       // The full name starts with a known global value, like `goog.global.` or `globalThis.`.
       // We must strip that off before matching with the known polyfill names.
       // (Note that the connecting '.' is included and will also be stripped.)
       // Also, the presence of the explicit global value name means we don't have to check the
       // scope for a shadowing variable as we do below.
-      Polyfill polyfill = polyfills.statics.get(fullName.substring(globalPrefix.length()));
+      Polyfill polyfill = polyfills.statics.get(fullName.substring(globalPrefix.get().length()));
       if (polyfill != null) {
         return PolyfillUsage.createExplicit(polyfill, getPropNode, polyfill.nativeSymbol);
       }
@@ -417,13 +417,13 @@ final class PolyfillUsageFinder {
         || t.getScope().getVar(globalName) == null);
   }
 
-  private static @Nullable String findGlobalPrefix(String qualifiedName) {
+  private static Optional<String> findGlobalPrefix(String qualifiedName) {
     for (String global : GLOBAL_NAMES) {
       if (qualifiedName.startsWith(global)) {
-        return global;
+        return Optional.of(global);
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   private static final ImmutableSet<String> GLOBAL_NAMES =
@@ -446,19 +446,19 @@ final class PolyfillUsageFinder {
           StandardColors.READONLY_SET_ID,
           StandardColors.READONLY_SET_PROTOTYPE_ID);
 
-  private static @Nullable String getMethodOwner(String nativeSymbol) {
+  private static Optional<String> getMethodOwner(String nativeSymbol) {
     int protoIdx = nativeSymbol.indexOf(".prototype.");
     if (protoIdx != -1) {
-      return nativeSymbol.substring(0, protoIdx);
+      return Optional.of(nativeSymbol.substring(0, protoIdx));
     }
-    return null;
+    return Optional.empty();
   }
 
-  boolean isDisjointFromIterator(Node getPropNode, @Nullable String ownerName) {
+  boolean isDisjointFromIterator(Node getPropNode, Optional<String> ownerName) {
     // Currently only checks "Iterator" because ES2025 Iterator helper methods (forEach, reduce,
     // toArray) collide with very common Array/Collection method names, causing significant binary
     // size regressions when polyfills cannot be pruned.
-    if (!"Iterator".equals(ownerName)) {
+    if (!"Iterator".equals(ownerName.orElse(""))) {
       return false;
     }
     // Registry can be null in three supported scenarios:

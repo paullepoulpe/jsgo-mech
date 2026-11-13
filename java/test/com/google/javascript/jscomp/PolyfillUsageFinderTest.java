@@ -37,6 +37,7 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import com.google.javascript.rhino.testing.NodeSubject;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
@@ -547,25 +548,25 @@ public final class PolyfillUsageFinderTest {
 
     // Receiver has Array color, owner is Iterator -> disjoint
     receiverNode.setColor(array);
-    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, "Iterator")).isTrue();
+    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, Optional.of("Iterator"))).isTrue();
 
     // Receiver has Iterator color, owner is Iterator -> not disjoint
     receiverNode.setColor(iterator);
-    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, "Iterator")).isFalse();
+    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, Optional.of("Iterator"))).isFalse();
 
     // Receiver has null color -> not disjoint
     receiverNode.setColor(null);
-    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, "Iterator")).isFalse();
+    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, Optional.of("Iterator"))).isFalse();
 
     // Owner is null or not Iterator -> not disjoint
     receiverNode.setColor(array);
-    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, (String) null)).isFalse();
-    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, "Array")).isFalse();
-    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, "UnknownType")).isFalse();
+    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, Optional.empty())).isFalse();
+    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, Optional.of("Array"))).isFalse();
+    assertThat(finderWithRegistry.isDisjointFromIterator(getPropNode, Optional.of("UnknownType"))).isFalse();
 
     // Compiler without registry -> always not disjoint
     receiverNode.setColor(array);
-    assertThat(finderWithoutRegistry.isDisjointFromIterator(getPropNode, "Iterator")).isFalse();
+    assertThat(finderWithoutRegistry.isDisjointFromIterator(getPropNode, Optional.of("Iterator"))).isFalse();
   }
 
   @Test
@@ -577,7 +578,7 @@ public final class PolyfillUsageFinderTest {
     assertThat(receiverNode.getColor()).isNull();
     Node getPropNode = IR.getprop(receiverNode, "toArray");
 
-    assertThat(finder.isDisjointFromIterator(getPropNode, "Iterator")).isFalse();
+    assertThat(finder.isDisjointFromIterator(getPropNode, Optional.of("Iterator"))).isFalse();
   }
 
   @Test

@@ -193,24 +193,24 @@ public final class ConformanceRules {
     boolean matches(String path) {
       // If the path ends with .closure.js or .tsx.cl.js, it is probably a tsickle-generated file,
       // and there may be entries in the allow list for the TypeScript path
-      String tsPath =
+      java.util.Optional<String> tsPath =
           path.endsWith(".closure.js")
-              ? path.substring(0, path.length() - ".closure.js".length()) + ".ts"
+              ? java.util.Optional.of(path.substring(0, path.length() - ".closure.js".length()) + ".ts")
               // TSX
               : (path.endsWith(".tsx.cl.js")
-                  ? path.substring(0, path.length() - ".cl.js".length())
-                  : null);
+                  ? java.util.Optional.of(path.substring(0, path.length() - ".cl.js".length()))
+                  : java.util.Optional.empty());
       if (prefixes != null) {
         for (String prefix : prefixes) {
           if (!path.isEmpty()
-              && (path.startsWith(prefix) || (tsPath != null && tsPath.startsWith(prefix)))) {
+              && (path.startsWith(prefix) || (tsPath.isPresent() && tsPath.get().startsWith(prefix)))) {
             return true;
           }
         }
       }
 
       return regexp != null
-          && (regexp.matcher(path).find() || (tsPath != null && regexp.matcher(tsPath).find()));
+          && (regexp.matcher(path).find() || (tsPath.isPresent() && regexp.matcher(tsPath.get()).find()));
     }
   }
 
@@ -373,7 +373,7 @@ public final class ConformanceRules {
       JSError err = JSError.make(requirement, n, msg, message, separator, result.note);
 
       String path = NodeUtil.getSourceName(n);
-      AllowList allowlist = path != null ? findAllowListForPath(path) : null;
+      AllowList allowlist = !path.isEmpty() ? findAllowListForPath(path) : null;
       boolean isAllowlisted =
           !(allowlist == null && (onlyApplyTo == null || onlyApplyTo.matches(path)));
       boolean shouldReport =
@@ -853,15 +853,15 @@ public final class ConformanceRules {
 
       SimpleSetMultimap<String, JSType> builder = SimpleSetMultimap.create();
       for (String value : requirement.getValueList()) {
-        String typename = ConformanceUtil.getClassFromDeclarationName(value);
-        String property = ConformanceUtil.getPropertyFromDeclarationName(value);
-        if (typename == null || property == null) {
+        java.util.Optional<String> typename = ConformanceUtil.getClassFromDeclarationName(value);
+        java.util.Optional<String> property = ConformanceUtil.getPropertyFromDeclarationName(value);
+        if (typename.isEmpty() || property.isEmpty()) {
           return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
 
-        JSType type = registry.getGlobalType(typename);
+        JSType type = registry.getGlobalType(typename.get());
         if (type == null) {
-          type = registry.resolveViaClosureNamespace(typename);
+          type = registry.resolveViaClosureNamespace(typename.get());
         }
 
         // If type doesn't exist in the copmilation, it can't be a violation. Also, bottom types
@@ -870,7 +870,7 @@ public final class ConformanceRules {
           continue;
         }
 
-        builder.put(property, type);
+        builder.put(property.get(), type);
       }
       this.props = builder.immutableCopy();
       return Outcome.ok();
@@ -883,7 +883,8 @@ public final class ConformanceRules {
 
     @Override
     protected ConformanceResult checkConformance(NodeTraversal t, Node n) {
-      Set<JSType> checkTypes = this.props.get(this.extractName(n));
+      java.util.Optional<String> name = this.extractName(n);
+      Set<JSType> checkTypes = name.isPresent() ? this.props.get(name.get()) : ImmutableSet.of();
       if (checkTypes.isEmpty()) {
         return ConformanceResult.CONFORMANCE;
       }
@@ -969,19 +970,19 @@ public final class ConformanceRules {
       };
     }
 
-    private @Nullable String extractName(Node n) {
+    private java.util.Optional<String> extractName(Node n) {
 
       return switch (n.getToken()) {
-        case GETPROP, STRING_KEY -> n.getString();
+        case GETPROP, STRING_KEY -> java.util.Optional.of(n.getString());
         case GETELEM -> {
           Node string = n.getSecondChild();
-          yield string.isStringLit() ? string.getString() : null;
+          yield string.isStringLit() ? java.util.Optional.of(string.getString()) : java.util.Optional.empty();
         }
         case COMPUTED_PROP -> {
           Node string = n.getFirstChild();
-          yield string.isStringLit() ? string.getString() : null;
+          yield string.isStringLit() ? java.util.Optional.of(string.getString()) : java.util.Optional.empty();
         }
-        default -> null;
+        default -> java.util.Optional.empty();
       };
     }
   }
@@ -1041,9 +1042,9 @@ public final class ConformanceRules {
           return ConformanceResult.VIOLATION;
         }
       } else if (node.isTemplateLitString()) {
-        String cookedString = node.getCookedString();
-        if (cookedString != null) {
-          if (this.stringPattern.matcher(cookedString).matches()) {
+        java.util.Optional<String> cookedString = node.getCookedString();
+        if (cookedString.isPresent()) {
+          if (this.stringPattern.matcher(cookedString.get()).matches()) {
             return ConformanceResult.VIOLATION;
           }
         } else {
@@ -1145,24 +1146,24 @@ public final class ConformanceRules {
     }
 
     /** Extracts the method name from a provided name. */
-    private static @Nullable String getPropertyFromDeclarationName(String specName) {
+    private static java.util.Optional<String> getPropertyFromDeclarationName(String specName) {
       List<String> parts = ON_PROTOTYPE.splitToList(specName);
       checkState(parts.size() == 1 || parts.size() == 2);
       if (parts.size() == 2) {
-        return parts.get(1);
+        return java.util.Optional.ofNullable(parts.get(1));
       }
-      return null;
+      return java.util.Optional.empty();
     }
 
     /** Extracts the class name from a provided name. */
-    private static @Nullable String getClassFromDeclarationName(String specName) {
+    private static java.util.Optional<String> getClassFromDeclarationName(String specName) {
       String tmp = specName;
       List<String> parts = ON_PROTOTYPE.splitToList(tmp);
       checkState(parts.size() == 1 || parts.size() == 2);
       if (parts.size() == 2) {
-        return parts.get(0);
+        return java.util.Optional.ofNullable(parts.get(0));
       }
-      return null;
+      return java.util.Optional.empty();
     }
 
     private static Outcome<String> removeTypeDecl(String specName) {
@@ -1173,36 +1174,36 @@ public final class ConformanceRules {
       return Outcome.ok(specName.substring(0, index));
     }
 
-    private static @Nullable String getTypeFromValue(String specName) {
+    private static java.util.Optional<String> getTypeFromValue(String specName) {
       int index = specName.indexOf(':');
       if (index < 1) {
-        return null;
+        return java.util.Optional.empty();
       }
-      return specName.substring(index + 1);
+      return java.util.Optional.of(specName.substring(index + 1));
     }
 
     private static boolean isAnnotatedAsConst(JSDocInfo jsdoc) {
       return jsdoc != null && jsdoc.isConstant();
     }
 
-    private static @Nullable String getValueFromGlobalName(
+    private static java.util.Optional<String> getValueFromGlobalName(
         @Nullable Scope scope, GlobalNamespace gns, String qualifiedName) {
       GlobalNamespace.Name gn = gns.getOwnSlot(qualifiedName);
       if (gn == null
           || gn.getGlobalSets() != 1
           || gn.getTotalSets() != 1
           || !isAnnotatedAsConst(gn.getJSDocInfo())) {
-        return null;
+        return java.util.Optional.empty();
       }
 
       return inferStringValue(
           scope, NodeUtil.getRValueOfLValue(gn.getDeclaration().getNode()), () -> gns);
     }
 
-    private static @Nullable String inferStringValue(
+    private static java.util.Optional<String> inferStringValue(
         @Nullable Scope scope, Node node, Supplier<GlobalNamespace> globalNamespaceSupplier) {
       if (node == null) {
-        return null;
+        return java.util.Optional.empty();
       }
 
       switch (node.getToken()) {
@@ -1211,15 +1212,15 @@ public final class ConformanceRules {
         }
         case NAME -> {
           if (scope == null) {
-            return null;
+            return java.util.Optional.empty();
           }
           String name = node.getString();
           Var var = scope.getVar(name);
           if (var == null) {
-            return null;
+            return java.util.Optional.empty();
           }
           if (!var.isConst() && !isAnnotatedAsConst(var.getJSDocInfo())) {
-            return null;
+            return java.util.Optional.empty();
           }
           Node initialValue = var.getInitialValue();
           return inferStringValue(var.getScope(), initialValue, globalNamespaceSupplier);
@@ -1227,7 +1228,7 @@ public final class ConformanceRules {
         case GETPROP -> {
           JSType type = node.getJSType();
           if (type == null) {
-            return null;
+            return java.util.Optional.empty();
           }
 
           // The JS style guide requires enums to be effectively immutable and all enum items should
@@ -1235,10 +1236,10 @@ public final class ConformanceRules {
           if (type.isEnumElementType()) {
             Node enumSource = type.toMaybeEnumElementType().getEnumType().getSource();
             if (enumSource == null) {
-              return null;
+              return java.util.Optional.empty();
             }
             if (!enumSource.isObjectLit() && !enumSource.isClassMembers()) {
-              return null;
+              return java.util.Optional.empty();
             }
             return inferStringValue(
                 null,
@@ -1247,17 +1248,17 @@ public final class ConformanceRules {
           } else if (type.isString()) {
             GlobalNamespace gns = globalNamespaceSupplier.get();
             if (gns == null) {
-              return null;
+              return java.util.Optional.empty();
             }
             return getValueFromGlobalName(scope, gns, node.getQualifiedName());
           }
-          return null;
+          return java.util.Optional.empty();
         }
         default -> {
           // Do nothing
         }
       }
-      return null;
+      return java.util.Optional.empty();
     }
 
     private static boolean isXid(JSType type) {
@@ -1266,7 +1267,7 @@ public final class ConformanceRules {
       }
       EnumElementType enumElTy = type.toMaybeEnumElementType();
       if (enumElTy != null
-          && enumElTy.getEnumType().getReferenceName().equals("enum{xid.String}")) {
+          && enumElTy.getEnumType().getReferenceName().get().equals("enum{xid.String}")) {
         return true;
       }
       return false;
@@ -1311,14 +1312,14 @@ public final class ConformanceRules {
 
       ImmutableList.Builder<Restriction> builder = ImmutableList.builder();
       for (String value : requirement.getValueList()) {
-        Node name = NodeUtil.newQName(compiler, getNameFromValue(value));
-        String restrictedDecl = ConformanceUtil.getTypeFromValue(value);
-        if (name == null || restrictedDecl == null) {
+        Node name = NodeUtil.newQName(compiler, getNameFromValue(value).get());
+        java.util.Optional<String> restrictedDecl = ConformanceUtil.getTypeFromValue(value);
+        if (name == null || restrictedDecl.isEmpty()) {
           return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
 
         Outcome<JSType> restrictedCallTypeOutcome =
-            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl);
+            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl.get());
         if (restrictedCallTypeOutcome.isErr()) {
           return Outcome.err(restrictedCallTypeOutcome.error());
         }
@@ -1357,12 +1358,12 @@ public final class ConformanceRules {
       return ConformanceResult.CONFORMANCE;
     }
 
-    private static @Nullable String getNameFromValue(String specName) {
+    private static java.util.Optional<String> getNameFromValue(String specName) {
       int index = specName.indexOf(':');
       if (index < 1) {
-        return null;
+        return java.util.Optional.empty();
       }
-      return specName.substring(0, index);
+      return java.util.Optional.of(specName.substring(0, index));
     }
   }
 
@@ -1408,19 +1409,19 @@ public final class ConformanceRules {
         if (typeDecl.isErr()) {
           return Outcome.err(typeDecl.error());
         }
-        String type = ConformanceUtil.getClassFromDeclarationName(typeDecl.get());
+        java.util.Optional<String> type = ConformanceUtil.getClassFromDeclarationName(typeDecl.get());
         Outcome<String> propertyDecl = ConformanceUtil.removeTypeDecl(value);
         if (propertyDecl.isErr()) {
           return Outcome.err(propertyDecl.error());
         }
-        String property = ConformanceUtil.getPropertyFromDeclarationName(propertyDecl.get());
-        String restrictedDecl = ConformanceUtil.getTypeFromValue(value);
-        if (type == null || property == null || restrictedDecl == null) {
+        java.util.Optional<String> property = ConformanceUtil.getPropertyFromDeclarationName(propertyDecl.get());
+        java.util.Optional<String> restrictedDecl = ConformanceUtil.getTypeFromValue(value);
+        if (type.isEmpty() || property.isEmpty() || restrictedDecl.isEmpty()) {
           return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
 
         Outcome<JSType> restrictedCallTypeOutcome =
-            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl);
+            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl.get());
         if (restrictedCallTypeOutcome.isErr()) {
           return Outcome.err(restrictedCallTypeOutcome.error());
         }
@@ -1428,7 +1429,7 @@ public final class ConformanceRules {
         if (restrictedCallType == null) {
           return Outcome.err(new InvalidRequirementSpec("invalid conformance type"));
         }
-        builder.add(new Restriction(registry.getGlobalType(type), property, restrictedCallType));
+        builder.add(new Restriction(registry.getGlobalType(type.get()), property.get(), restrictedCallType));
       }
 
       restrictions = builder.build();
@@ -1531,23 +1532,23 @@ public final class ConformanceRules {
         if (typeDecl.isErr()) {
           return Outcome.err(typeDecl.error());
         }
-        String type = ConformanceUtil.getClassFromDeclarationName(typeDecl.get());
+        java.util.Optional<String> type = ConformanceUtil.getClassFromDeclarationName(typeDecl.get());
         Outcome<String> propertyDecl = ConformanceUtil.removeTypeDecl(value);
         if (propertyDecl.isErr()) {
           return Outcome.err(propertyDecl.error());
         }
-        String property = ConformanceUtil.getPropertyFromDeclarationName(propertyDecl.get());
-        String restrictedDecl = ConformanceUtil.getTypeFromValue(value);
-        if (type == null || property == null || restrictedDecl == null) {
+        java.util.Optional<String> property = ConformanceUtil.getPropertyFromDeclarationName(propertyDecl.get());
+        java.util.Optional<String> restrictedDecl = ConformanceUtil.getTypeFromValue(value);
+        if (type.isEmpty() || property.isEmpty() || restrictedDecl.isEmpty()) {
           return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
         Outcome<JSType> restrictedTypeOutcome =
-            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl);
+            ConformanceUtil.evaluateTypeString(compiler, restrictedDecl.get());
         if (restrictedTypeOutcome.isErr()) {
           return Outcome.err(restrictedTypeOutcome.error());
         }
         JSType restrictedType = restrictedTypeOutcome.get();
-        builder.add(new Restriction(registry.getGlobalType(type), property, restrictedType));
+        builder.add(new Restriction(registry.getGlobalType(type.get()), property.get(), restrictedType));
       }
 
       restrictions = builder.build();
@@ -2158,40 +2159,40 @@ public final class ConformanceRules {
       if (n.isGetProp()) {
         Node target = n.getFirstChild();
         JSType type = target.getJSType();
-        String nonConformingPart = getNonConformingPart(type);
-        if (nonConformingPart != null && !isTypeImmediatelyTightened(n)) {
+        java.util.Optional<String> nonConformingPart = getNonConformingPart(type);
+        if (nonConformingPart.isPresent() && !isTypeImmediatelyTightened(n)) {
           return new ConformanceResult(
               ConformanceLevel.VIOLATION,
-              "Reference to type '" + nonConformingPart + "' never resolved.");
+              "Reference to type '" + nonConformingPart.get() + "' never resolved.");
         }
       }
       return ConformanceResult.CONFORMANCE;
     }
 
-    private static @Nullable String getNonConformingPart(JSType type) {
+    private static java.util.Optional<String> getNonConformingPart(JSType type) {
       if (type == null) {
-        return null;
+        return java.util.Optional.empty();
       }
       if (type.isUnionType()) {
         // unwrap union types which might contain unresolved type name
         // references for example {Foo|undefined}
         ArrayList<String> nonConformingParts = null;
         for (JSType part : type.getUnionMembers()) {
-          String nonConformingPart = getNonConformingPart(part);
-          if (nonConformingPart != null) {
+          java.util.Optional<String> nonConformingPart = getNonConformingPart(part);
+          if (nonConformingPart.isPresent()) {
             nonConformingParts =
                 nonConformingParts != null ? nonConformingParts : new ArrayList<>();
-            nonConformingParts.add(nonConformingPart);
+            nonConformingParts.add(nonConformingPart.get());
           }
         }
         if (nonConformingParts != null) {
-          return Joiner.on('|').join(nonConformingParts);
+          return java.util.Optional.of(Joiner.on('|').join(nonConformingParts));
         }
       } else if (type.isNoResolvedType()) {
         ObjectType noResolvedType = type.toObjectType();
         return noResolvedType.getReferenceName();
       }
-      return null;
+      return java.util.Optional.empty();
     }
   }
 
@@ -2217,11 +2218,11 @@ public final class ConformanceRules {
 
     @Override
     protected ConformanceResult checkConformance(NodeTraversal t, Node n) {
-      String nonConformingPart = BanUnresolvedType.getNonConformingPart(n.getJSType());
-      if (nonConformingPart != null && !isTypeImmediatelyTightened(n)) {
+      java.util.Optional<String> nonConformingPart = BanUnresolvedType.getNonConformingPart(n.getJSType());
+      if (nonConformingPart.isPresent() && !isTypeImmediatelyTightened(n)) {
         return new ConformanceResult(
             ConformanceLevel.VIOLATION,
-            "Reference to type '" + nonConformingPart + "' never resolved.");
+            "Reference to type '" + nonConformingPart.get() + "' never resolved.");
       }
       return ConformanceResult.CONFORMANCE;
     }
@@ -2627,9 +2628,9 @@ public final class ConformanceRules {
         return null;
       }
       ObjectType typeAsObj = type.toMaybeObjectType();
-      if (typeAsObj.getRawType().getDisplayName().equals("goog.dom.TagName")) {
+      if (typeAsObj.getRawType().getDisplayName().get().equals("goog.dom.TagName")) {
         JSType tagType = Iterables.getOnlyElement(typeAsObj.getTemplateTypes());
-        return ELEMENT_TAG_NAMES.get(tagType.getDisplayName());
+        return ELEMENT_TAG_NAMES.get(tagType.getDisplayName().orElse(null));
       }
       return null;
     }
@@ -2809,19 +2810,19 @@ public final class ConformanceRules {
      */
     public ConformanceResult checkConformanceForAttributeName(
         NodeTraversal traversal, Node attrName) {
-      String literalName =
+      java.util.Optional<String> literalName =
           ConformanceUtil.inferStringValue(traversal.getScope(), attrName, globalNamespaceSupplier);
-      if (literalName == null) {
+      if (literalName.isEmpty()) {
         // xid() obfuscates attribute names, thus never clashing with security-sensitive attributes.
         return ConformanceUtil.isXid(attrName.getJSType())
             ? ConformanceResult.CONFORMANCE
             : ConformanceResult.VIOLATION;
       }
 
-      literalName = literalName.toLowerCase(Locale.ROOT);
+      literalName = java.util.Optional.of(literalName.get().toLowerCase(Locale.ROOT));
 
-      if (bannedAtrrs.contains(literalName)
-          || ConformanceUtil.isEventHandlerAttrName(literalName)) {
+      if (bannedAtrrs.contains(literalName.get())
+          || ConformanceUtil.isEventHandlerAttrName(literalName.get())) {
         return ConformanceResult.VIOLATION;
       }
       return ConformanceResult.CONFORMANCE;
@@ -2835,12 +2836,12 @@ public final class ConformanceRules {
      */
     public ConformanceResult checkConformanceForAttributeNameWithHighConfidence(
         NodeTraversal traversal, Node attrName) {
-      String literalName =
+      java.util.Optional<String> literalName =
           ConformanceUtil.inferStringValue(traversal.getScope(), attrName, globalNamespaceSupplier);
-      if (literalName == null) {
+      if (literalName.isEmpty()) {
         return ConformanceResult.CONFORMANCE;
       }
-      return contains(literalName.toLowerCase(Locale.ROOT))
+      return contains(literalName.get().toLowerCase(Locale.ROOT))
           ? ConformanceResult.VIOLATION
           : ConformanceResult.CONFORMANCE;
     }
@@ -3009,14 +3010,14 @@ public final class ConformanceRules {
     private ConformanceResult checkConformanceOnGetElement(
         NodeTraversal traversal, Node getElementNode) {
       Node key = getElementNode.getSecondChild();
-      String keyName =
+      java.util.Optional<String> keyName =
           ConformanceUtil.inferStringValue(traversal.getScope(), key, this::getGlobalNamespace);
-      if (keyName != null) {
-        if (securitySensitiveAttributes.contains(keyName.toLowerCase(Locale.ROOT))
+      if (keyName.isPresent()) {
+        if (securitySensitiveAttributes.contains(keyName.get().toLowerCase(Locale.ROOT))
             || (requirement.getReportLooseTypeViolations()
                 // innerHTML and outerHTML are not attributes but properties. For simplicity we
                 // check them here instead of having another rule.
-                && (keyName.equals("innerHTML") || keyName.equals("outerHTML")))) {
+                && (keyName.get().equals("innerHTML") || keyName.get().equals("outerHTML")))) {
           if (hasElementType(getElementNode)) {
             return ConformanceResult.VIOLATION;
           }
@@ -3121,12 +3122,12 @@ public final class ConformanceRules {
       JSTypeRegistry registry = compiler.getTypeRegistry();
       ImmutableList.Builder<AttributeSettingRestriction> builder = ImmutableList.builder();
       for (String value : requirement.getValueList()) {
-        String type = ConformanceUtil.getClassFromDeclarationName(value);
-        String property = ConformanceUtil.getPropertyFromDeclarationName(value);
-        if (type == null || property == null) {
+        java.util.Optional<String> type = ConformanceUtil.getClassFromDeclarationName(value);
+        java.util.Optional<String> property = ConformanceUtil.getPropertyFromDeclarationName(value);
+        if (type.isEmpty() || property.isEmpty()) {
           return Outcome.err(new InvalidRequirementSpec("bad prop value"));
         }
-        builder.add(new AttributeSettingRestriction(registry.getGlobalType(type), property));
+        builder.add(new AttributeSettingRestriction(registry.getGlobalType(type.get()), property.get()));
       }
 
       restrictions = builder.build();

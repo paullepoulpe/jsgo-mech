@@ -907,7 +907,7 @@ class InlineVariables implements CompilerPass {
 
           // issue 668: Don't inline singleton getter methods
           // calls as this confused class removing logic.
-          if (convention.getSingletonGetterClassName(callNode) != null) {
+          if (!convention.getSingletonGetterClassName(callNode).isEmpty()) {
             return false;
           }
         }

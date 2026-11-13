@@ -83,12 +83,12 @@ public class CompilerOptions {
     return crossChunkMethodMotion;
   }
 
-  public String getSourceMapOutputPath() {
+  public java.util.Optional<String> getSourceMapOutputPath() {
     return sourceMapOutputPath;
   }
 
   public boolean shouldGatherSourceMapInfo() {
-    return shouldAlwaysGatherSourceMapInfo || !Strings.isNullOrEmpty(sourceMapOutputPath);
+    return shouldAlwaysGatherSourceMapInfo || !sourceMapOutputPath.orElse("").isEmpty();
   }
 
   public void setAlwaysGatherSourceMapInfo(boolean shouldAlwaysGatherSourceMapInfo) {
@@ -258,18 +258,18 @@ public class CompilerOptions {
     return instrumentForCoverageOnly;
   }
 
-  private @Nullable String typedAstOutputFile = null;
+  private java.util.Optional<String> typedAstOutputFile = java.util.Optional.empty();
 
   /**
    * Sets file to output in-progress TypedAST format to. DO NOT USE!
    *
    * <p>The "TypedAST format" is currently a gzipped TypedAst proto but this is not stable.
    */
-  public void setTypedAstOutputFile(@Nullable String file) {
+  public void setTypedAstOutputFile(java.util.Optional<String> file) {
     this.typedAstOutputFile = file;
   }
 
-  @Nullable String getTypedAstOutputFile() {
+  java.util.Optional<String> getTypedAstOutputFile() {
     return this.typedAstOutputFile;
   }
 
@@ -604,10 +604,10 @@ public class CompilerOptions {
   private boolean generatePseudoNames;
 
   /** Specifies a prefix for all globals */
-  private @Nullable String renamePrefix;
+  private java.util.Optional<String> renamePrefix = java.util.Optional.empty();
 
   /** Specifies the name of an object that will be used to store all non-extern globals. */
-  private String renamePrefixNamespace;
+  private java.util.Optional<String> renamePrefixNamespace = java.util.Optional.empty();
 
   /**
    * Used by tests of the RescopeGlobalSymbols pass to avoid having declare 2 chunks in simple
@@ -764,11 +764,11 @@ public class CompilerOptions {
   /** A CodingConvention to use during the compile. */
   private CodingConvention codingConvention;
 
-  private @Nullable String syntheticBlockStartMarker;
-  private @Nullable String syntheticBlockEndMarker;
+  private java.util.Optional<String> syntheticBlockStartMarker = java.util.Optional.empty();
+  private java.util.Optional<String> syntheticBlockEndMarker = java.util.Optional.empty();
 
   /** Compiling locale */
-  private @Nullable String locale;
+  private java.util.Optional<String> locale = java.util.Optional.empty();
 
   /**
    * If true, then perform localization passes as late as possible.
@@ -803,7 +803,7 @@ public class CompilerOptions {
 
   private boolean j2clMinifierEnabled = true;
 
-  private @Nullable String j2clMinifierPruningManifest = null;
+  private java.util.Optional<String> j2clMinifierPruningManifest = java.util.Optional.empty();
 
   /** Remove goog.abstractMethod assignments and @abstract methods. */
   private boolean removeAbstractMethods;
@@ -994,7 +994,7 @@ public class CompilerOptions {
    *
    * <p>{@code null} indicates that no such files should be written.
    */
-  private @Nullable String debugLogDirectory;
+  private java.util.Optional<String> debugLogDirectory = java.util.Optional.empty();
 
   /**
    * A comma separated list of strings used to filter which debug logs are written. If a filter is
@@ -1003,7 +1003,7 @@ public class CompilerOptions {
    *
    * <p>{@code null} indicates that no such files should be written.
    */
-  private String debugLogFilter;
+  private java.util.Optional<String> debugLogFilter = java.util.Optional.empty();
 
   private boolean serializeExtraDebugInfo;
 
@@ -1094,13 +1094,13 @@ public class CompilerOptions {
     this.tracer = mode;
   }
 
-  private String tracerOutput;
+  private java.util.Optional<String> tracerOutput = java.util.Optional.empty();
 
-  String getTracerOutput() {
+  java.util.Optional<String> getTracerOutput() {
     return tracerOutput;
   }
 
-  public void setTracerOutput(String out) {
+  public void setTracerOutput(java.util.Optional<String> out) {
     tracerOutput = out;
   }
 
@@ -1125,7 +1125,7 @@ public class CompilerOptions {
   // --------------------------------
 
   /** The output path for the created externs file. */
-  private @Nullable String externExportsPath;
+  private java.util.Optional<String> externExportsPath = java.util.Optional.empty();
 
   private final List<SortingErrorManager.ErrorReportGenerator> extraReportGenerators =
       new ArrayList<>();
@@ -1143,7 +1143,7 @@ public class CompilerOptions {
   // --------------------------------
 
   /** The output path for the source map. */
-  private String sourceMapOutputPath;
+  private java.util.Optional<String> sourceMapOutputPath = java.util.Optional.empty();
 
   /**
    * Should we gather information needed to generate a source map even when sourceMapOutputPath
@@ -1183,7 +1183,7 @@ public class CompilerOptions {
   private boolean sourceMapIncludeSourcesContent = false;
 
   /** Charset to use when generating code. If null, then output ASCII. */
-  private transient String outputCharset;
+  private transient java.util.Optional<String> outputCharset = java.util.Optional.empty();
 
   /** When set, assume that apparently side-effect free code is meaningful. */
   private boolean protectHiddenSideEffects;
@@ -1201,7 +1201,7 @@ public class CompilerOptions {
     // TODO(lharker): would it make sense to make 'checksOnly' a tristate instead? either we're
     // running only checks for refactoring; running checks to generate a .typedast; or running
     // checks as part of a fully optimizing build?
-    return protectHiddenSideEffects && (!checksOnly || getTypedAstOutputFile() != null);
+    return protectHiddenSideEffects && (!checksOnly || getTypedAstOutputFile().isPresent());
   }
 
   /**
@@ -1434,20 +1434,20 @@ public class CompilerOptions {
     return this.allowDynamicImport;
   }
 
-  private @Nullable String dynamicImportAlias = null;
+  private java.util.Optional<String> dynamicImportAlias = java.util.Optional.empty();
 
   /** Set the alias name for dynamic import expressions */
-  public String getDynamicImportAlias() {
+  public java.util.Optional<String> getDynamicImportAlias() {
     return this.dynamicImportAlias;
   }
 
   /** Set the alias name for dynamic import expressions */
-  public void setDynamicImportAlias(String value) {
+  public void setDynamicImportAlias(java.util.Optional<String> value) {
     this.dynamicImportAlias = value;
   }
 
   boolean shouldAliasDynamicImport() {
-    return this.dynamicImportAlias != null;
+    return this.dynamicImportAlias.isPresent();
   }
 
   private ChunkOutputType chunkOutputType;
@@ -1521,7 +1521,7 @@ public class CompilerOptions {
     labelRenaming = false;
     generatePseudoNames = false;
     preferStableNames = false;
-    renamePrefix = null;
+    renamePrefix = java.util.Optional.empty();
     collapsePropertiesLevel = PropertyCollapseLevel.NONE;
     collapseObjectLiterals = false;
     devirtualizeMethods = false;
@@ -1532,9 +1532,9 @@ public class CompilerOptions {
 
     // Alterations
 
-    syntheticBlockStartMarker = null;
-    syntheticBlockEndMarker = null;
-    locale = null;
+    syntheticBlockStartMarker = java.util.Optional.empty();
+    syntheticBlockEndMarker = java.util.Optional.empty();
+    locale = java.util.Optional.empty();
     doLateLocalizationField = false;
     markAsCompiled = false;
     closurePass = false;
@@ -1959,10 +1959,10 @@ public class CompilerOptions {
   }
 
   public void setJ2clMinifierPruningManifest(String j2clMinifierPruningManifest) {
-    this.j2clMinifierPruningManifest = j2clMinifierPruningManifest;
+    this.j2clMinifierPruningManifest = java.util.Optional.of(j2clMinifierPruningManifest);
   }
 
-  String getJ2clMinifierPruningManifest() {
+  java.util.Optional<String> getJ2clMinifierPruningManifest() {
     return j2clMinifierPruningManifest;
   }
 
@@ -2005,12 +2005,12 @@ public class CompilerOptions {
   }
 
   /** Sets the output charset. */
-  public void setOutputCharset(String charset) {
+  public void setOutputCharset(java.util.Optional<String> charset) {
     this.outputCharset = charset;
   }
 
   /** Gets the output charset. */
-  String getOutputCharset() {
+  java.util.Optional<String> getOutputCharset() {
     return outputCharset;
   }
 
@@ -2437,7 +2437,7 @@ public class CompilerOptions {
   }
 
   public boolean shouldTreatGlobalScopeAsIsolated() {
-    return this.assumeGlobalScopeIsIsolated || this.renamePrefixNamespace != null;
+    return this.assumeGlobalScopeIsIsolated || this.renamePrefixNamespace.isPresent();
   }
 
   public void setInlineLocalVariables(boolean inlineLocalVariables) {
@@ -2652,19 +2652,19 @@ public class CompilerOptions {
     return this.propertyRenamingOnlyCompilationMode;
   }
 
-  public void setRenamePrefix(String renamePrefix) {
+  public void setRenamePrefix(java.util.Optional<String> renamePrefix) {
     this.renamePrefix = renamePrefix;
   }
 
-  String getRenamePrefix() {
+  java.util.Optional<String> getRenamePrefix() {
     return this.renamePrefix;
   }
 
-  public String getRenamePrefixNamespace() {
+  public java.util.Optional<String> getRenamePrefixNamespace() {
     return this.renamePrefixNamespace;
   }
 
-  public void setRenamePrefixNamespace(String renamePrefixNamespace) {
+  public void setRenamePrefixNamespace(java.util.Optional<String> renamePrefixNamespace) {
     this.renamePrefixNamespace = renamePrefixNamespace;
   }
 
@@ -2739,26 +2739,26 @@ public class CompilerOptions {
   }
 
   public void setSyntheticBlockStartMarker(String syntheticBlockStartMarker) {
-    this.syntheticBlockStartMarker = syntheticBlockStartMarker;
+    this.syntheticBlockStartMarker = java.util.Optional.of(syntheticBlockStartMarker);
   }
 
   public void setSyntheticBlockEndMarker(String syntheticBlockEndMarker) {
-    this.syntheticBlockEndMarker = syntheticBlockEndMarker;
+    this.syntheticBlockEndMarker = java.util.Optional.of(syntheticBlockEndMarker);
   }
 
-  String getSyntheticBlockStartMarker() {
+  java.util.Optional<String> getSyntheticBlockStartMarker() {
     return this.syntheticBlockStartMarker;
   }
 
-  String getSyntheticBlockEndMarker() {
+  java.util.Optional<String> getSyntheticBlockEndMarker() {
     return this.syntheticBlockEndMarker;
   }
 
   public void setLocale(String locale) {
-    this.locale = locale;
+    this.locale = java.util.Optional.of(locale);
   }
 
-  public String getLocale() {
+  public java.util.Optional<String> getLocale() {
     return this.locale;
   }
 
@@ -2895,13 +2895,13 @@ public class CompilerOptions {
     this.defineReplacements.putAll(defineReplacements);
   }
 
-  private @Nullable String enableZonesDefineName = null;
+  private java.util.Optional<String> enableZonesDefineName = java.util.Optional.empty();
 
-  public @Nullable String getEnableZonesDefineName() {
+  public java.util.Optional<String> getEnableZonesDefineName() {
     return this.enableZonesDefineName;
   }
 
-  public void setEnableZonesDefineName(@Nullable String enableZonesDefineName) {
+  public void setEnableZonesDefineName(java.util.Optional<String> enableZonesDefineName) {
     this.enableZonesDefineName = enableZonesDefineName;
   }
 
@@ -2989,26 +2989,26 @@ public class CompilerOptions {
     return this.inputDelimiter;
   }
 
-  public void setDebugLogDirectory(@Nullable String dir) {
+  public void setDebugLogDirectory(java.util.Optional<String> dir) {
     this.debugLogDirectory = dir;
   }
 
-  public @Nullable String getDebugLogDirectory() {
+  public java.util.Optional<String> getDebugLogDirectory() {
     return debugLogDirectory;
   }
 
-  public void setDebugLogFilter(String filter) {
+  public void setDebugLogFilter(java.util.Optional<String> filter) {
     this.debugLogFilter = filter;
   }
 
-  public String getDebugLogFilter() {
+  public java.util.Optional<String> getDebugLogFilter() {
     return debugLogFilter;
   }
 
   boolean shouldSerializeExtraDebugInfo() {
     // NOTE: this is tied to debug logging (via checking getDebugLogDirectory()) for convenience,
     // and it's possible to split up the two options if this begins to trigger memory issues.
-    return this.serializeExtraDebugInfo || getDebugLogDirectory() != null;
+    return this.serializeExtraDebugInfo || getDebugLogDirectory().isPresent();
   }
 
   void setSerializeExtraDebugInfo(boolean serializeExtraDebugInfo) {
@@ -3071,15 +3071,15 @@ public class CompilerOptions {
     return this.useOriginalNamesInOutput;
   }
 
-  public void setExternExportsPath(@Nullable String externExportsPath) {
+  public void setExternExportsPath(java.util.Optional<String> externExportsPath) {
     this.externExportsPath = externExportsPath;
   }
 
-  public @Nullable String getExternExportsPath() {
+  public java.util.Optional<String> getExternExportsPath() {
     return this.externExportsPath;
   }
 
-  public void setSourceMapOutputPath(String sourceMapOutputPath) {
+  public void setSourceMapOutputPath(java.util.Optional<String> sourceMapOutputPath) {
     this.sourceMapOutputPath = sourceMapOutputPath;
   }
 
@@ -3303,7 +3303,7 @@ public class CompilerOptions {
    * declared during the instrumentation pass with the name provided through this setter.
    */
   public void setProductionInstrumentationArrayName(String productionInstrumentationArrayName) {
-    this.productionInstrumentationArrayName = checkNotNull(productionInstrumentationArrayName);
+    this.productionInstrumentationArrayName = productionInstrumentationArrayName;
   }
 
   public String getProductionInstrumentationArrayName() {
@@ -3454,7 +3454,7 @@ public class CompilerOptions {
         .add("cssRenamingSkiplist", cssRenamingSkiplist)
         .add("customPasses", customPasses)
         .add("deadAssignmentElimination", deadAssignmentElimination)
-        .add("debugLogDirectory", debugLogDirectory)
+        .add("debugLogDirectory", debugLogDirectory.isPresent() ? (Object) debugLogDirectory.get() : null)
         .add("defineReplacements", getDefineReplacements())
         .add("dependencyOptions", getDependencyOptions())
         .add("devMode", devMode)
@@ -3469,7 +3469,7 @@ public class CompilerOptions {
         .add("es6SubclassTranspilation", es6SubclassTranspilation)
         .add("exportLocalPropertyDefinitions", exportLocalPropertyDefinitions)
         .add("exportTestFunctions", exportTestFunctions)
-        .add("externExportsPath", externExportsPath)
+        .add("externExportsPath", externExportsPath.isPresent() ? (Object) externExportsPath.get() : null)
         .add("extraAnnotationNames", extraAnnotationNames)
         .add("extractPrototypeMemberDeclarations", extractPrototypeMemberDeclarations)
         .add("filesToPrintAfterEachPassRegexList", filesToPrintAfterEachPassRegexList)
@@ -3499,14 +3499,14 @@ public class CompilerOptions {
         .add("instrumentForCoverageOption", instrumentForCoverageOption.toString())
         .add("isolatePolyfills", isolatePolyfills)
         .add("j2clMinifierEnabled", j2clMinifierEnabled)
-        .add("j2clMinifierPruningManifest", j2clMinifierPruningManifest)
+        .add("j2clMinifierPruningManifest", j2clMinifierPruningManifest.isPresent() ? (Object) j2clMinifierPruningManifest.get() : null)
         .add("j2clPassMode", j2clPassMode)
         .add("labelRenaming", labelRenaming)
         .add("languageIn", getLanguageIn())
         .add("languageOutIsDefaultStrict", languageOutIsDefaultStrict)
         .add("lineBreak", lineBreak)
         .add("lineLengthThreshold", lineLengthThreshold)
-        .add("locale", locale)
+        .add("locale", locale.isPresent() ? (Object) locale.get() : null)
         .add("markAsCompiled", markAsCompiled)
         .add("maxFunctionSizeAfterInlining", maxFunctionSizeAfterInlining)
         .add("messageBundle", messageBundle)
@@ -3518,7 +3518,7 @@ public class CompilerOptions {
         .add(
             "optimizeLocalAccessForGlobalSymbolNamespace",
             optimizeLocalAccessForGlobalSymbolNamespace)
-        .add("outputCharset", outputCharset)
+        .add("outputCharset", outputCharset.isPresent() ? (Object) outputCharset.get() : null)
         .add("outputFeatureSet", outputFeatureSet)
         .add("outputJs", outputJs)
         .add("outputJsStringUsage", outputJsStringUsage)
@@ -3553,8 +3553,8 @@ public class CompilerOptions {
         .add("removeUnusedLocalVars", removeUnusedLocalVars)
         .add("removeUnusedPrototypeProperties", removeUnusedPrototypeProperties)
         .add("removeUnusedVars", removeUnusedVars)
-        .add("renamePrefix", renamePrefix)
-        .add("renamePrefixNamespace", renamePrefixNamespace)
+        .add("renamePrefix", renamePrefix.isPresent() ? (Object) renamePrefix.get() : null)
+        .add("renamePrefixNamespace", renamePrefixNamespace.isPresent() ? (Object) renamePrefixNamespace.get() : null)
         .add(
             "renamePrefixNamespaceAssumeCrossChunkNames",
             renamePrefixNamespaceAssumeCrossChunkNames)
@@ -3575,14 +3575,14 @@ public class CompilerOptions {
         .add("sourceMapDetailLevel", sourceMapDetailLevel)
         .add("sourceMapFormat", sourceMapFormat)
         .add("sourceMapLocationMappings", sourceMapLocationMappings)
-        .add("sourceMapOutputPath", sourceMapOutputPath)
+        .add("sourceMapOutputPath", sourceMapOutputPath.isPresent() ? (Object) sourceMapOutputPath.get() : null)
         .add("strictMessageReplacement", strictMessageReplacement)
         .add("stripNamePrefixes", stripNamePrefixes)
         .add("stripNameSuffixes", stripNameSuffixes)
         .add("stripTypes", stripTypes)
         .add("summaryDetailLevel", summaryDetailLevel)
-        .add("syntheticBlockEndMarker", syntheticBlockEndMarker)
-        .add("syntheticBlockStartMarker", syntheticBlockStartMarker)
+        .add("syntheticBlockEndMarker", syntheticBlockEndMarker.isPresent() ? (Object) syntheticBlockEndMarker.get() : null)
+        .add("syntheticBlockStartMarker", syntheticBlockStartMarker.isPresent() ? (Object) syntheticBlockStartMarker.get() : null)
         .add("tcProjectId", tcProjectId)
         .add("tracer", tracer)
         .add("trustedStrings", trustedStrings)
@@ -3605,11 +3605,11 @@ public class CompilerOptions {
     BRANCH_ONLY, // Collect coverage for control-flow branches.
     PRODUCTION; // Collect coverage for functions where code is compiled for production.
 
-    public static @Nullable InstrumentOption fromString(String value) {
-      if (value == null) {
+    public static @Nullable InstrumentOption fromString(java.util.Optional<String> value) {
+      if (value.isEmpty()) {
         return null;
       }
-      return switch (value) {
+      return switch (value.get()) {
         case "NONE" -> InstrumentOption.NONE;
         case "LINE" -> InstrumentOption.LINE_ONLY;
         case "BRANCH" -> InstrumentOption.BRANCH_ONLY;
@@ -3794,13 +3794,13 @@ public class CompilerOptions {
       return names;
     }
 
-    public static @Nullable LanguageMode fromString(String value) {
-      if (value == null) {
+    public static @Nullable LanguageMode fromString(java.util.Optional<String> value) {
+      if (value.isEmpty()) {
         return null;
       }
       // Trim spaces, disregard case, and allow abbreviation of ECMASCRIPT for convenience.
       String canonicalizedName =
-          LEADING_ES_PATTERN.matcher(Ascii.toUpperCase(value.trim())).replaceFirst("ECMASCRIPT");
+          LEADING_ES_PATTERN.matcher(Ascii.toUpperCase(value.get().trim())).replaceFirst("ECMASCRIPT");
 
       if (canonicalizedName.equals("ECMASCRIPT6")
           || canonicalizedName.equals("ECMASCRIPT6_STRICT")) {

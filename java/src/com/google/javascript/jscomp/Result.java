@@ -19,6 +19,7 @@ package com.google.javascript.jscomp;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -35,8 +36,8 @@ public class Result {
   public final VariableMap instrumentationMappings;
   public final SourceMap sourceMap;
   public final Set<String> cssNames;
-  public final String externExport;
-  public final String idGeneratorMap;
+  public final Optional<String> externExport;
+  public final Optional<String> idGeneratorMap;
   public final boolean transpiledFiles;
 
   Result(
@@ -48,9 +49,9 @@ public class Result {
       @Nullable VariableMap stringMap,
       @Nullable VariableMap instrumentationMappings,
       @Nullable SourceMap sourceMap,
-      String externExport,
+      Optional<String> externExport,
       @Nullable Set<String> cssNames,
-      @Nullable String idGeneratorMap,
+      Optional<String> idGeneratorMap,
       boolean transpiledFiles) {
     this.success = errors.isEmpty();
     this.errors = errors;
@@ -86,9 +87,9 @@ public class Result {
         /* stringMap= */ null,
         /* instrumentationMappings= */ null,
         sourceMap,
-        externExport,
+        Optional.of(externExport),
         /* cssNames= */ null,
-        /* idGeneratorMap= */ null,
+        /* idGeneratorMap= */ Optional.empty(),
         /* transpiledFiles= */ false);
   }
 
@@ -111,9 +112,9 @@ public class Result {
         /* stringMap= */ null,
         /* instrumentationMappings= */ emptyVariableMap,
         /* sourceMap= */ null,
-        /* externExport= */ "",
+        /* externExport= */ Optional.of(""),
         /* cssNames= */ null,
-        /* idGeneratorMap= */ null,
+        /* idGeneratorMap= */ Optional.empty(),
         /* transpiledFiles= */ false);
   }
 }

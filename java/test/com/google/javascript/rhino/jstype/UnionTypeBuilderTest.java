@@ -45,6 +45,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.rhino.testing.BaseJSTypeTestCase;
 import com.google.javascript.rhino.testing.MapBasedScope;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,12 +68,12 @@ public class UnionTypeBuilderTest extends BaseJSTypeTestCase {
   public void setUp() throws Exception {
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
       FunctionType baseCtor =
-          FunctionType.builder(registry).forConstructor().withName("Base").build();
+          FunctionType.builder(registry).forConstructor().withName(Optional.of("Base")).build();
       this.base = baseCtor.getInstanceType();
       FunctionType subCtor =
           FunctionType.builder(registry)
               .forConstructor()
-              .withName("Sub")
+              .withName(Optional.of("Sub"))
               .withPrototypeBasedOn(base)
               .build();
       this.sub = subCtor.getInstanceType();
@@ -161,9 +162,9 @@ public class UnionTypeBuilderTest extends BaseJSTypeTestCase {
         "Bad type annotation. Unknown type not.resolved.B");
 
     try (JSTypeResolver.Closer closer = this.registry.getResolver().openForDefinition()) {
-      JSType unresolvedNameA1 = registry.createNamedType(EMPTY_SCOPE, "not.resolved.A", "", -1, -1);
-      JSType unresolvedNameA2 = registry.createNamedType(EMPTY_SCOPE, "not.resolved.A", "", -1, -1);
-      JSType unresolvedNameB = registry.createNamedType(EMPTY_SCOPE, "not.resolved.B", "", -1, -1);
+      JSType unresolvedNameA1 = registry.createNamedType(EMPTY_SCOPE, "not.resolved.A", Optional.of(""), -1, -1);
+      JSType unresolvedNameA2 = registry.createNamedType(EMPTY_SCOPE, "not.resolved.A", Optional.of(""), -1, -1);
+      JSType unresolvedNameB = registry.createNamedType(EMPTY_SCOPE, "not.resolved.B", Optional.of(""), -1, -1);
 
       // NOTE: "(?)" means there are multiple unknown types in the union.
       assertUnion("?", UNKNOWN_TYPE, unresolvedNameA1);

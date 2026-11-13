@@ -42,6 +42,7 @@ package com.google.javascript.rhino.jstype;
 import com.google.javascript.jscomp.base.Tri;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -62,12 +63,12 @@ public final class EnumElementType extends ObjectType {
   // The primitive type, if it is an object.
   private ObjectType primitiveObjectType;
 
-  private final String name;
+  private final Optional<String> name;
 
   private final EnumType enumType;
 
   EnumElementType(JSTypeRegistry registry, JSType elementType,
-      String name, EnumType enumType) {
+      Optional<String> name, EnumType enumType) {
     super(registry);
     this.primitiveType = elementType;
     this.primitiveObjectType = elementType.toObjectType();
@@ -173,12 +174,12 @@ public final class EnumElementType extends ObjectType {
       // TODO(dimvar): this should use getReferenceName() instead of this.primitiveType
       sb.appendJSType(this.primitiveType);
     } else {
-      sb.append(getReferenceName()).append("<").appendJSType(this.primitiveType).append(">");
+      sb.append(getReferenceName().orElse(null)).append("<").appendJSType(this.primitiveType).append(">");
     }
   }
 
   @Override
-  public String getReferenceName() {
+  public Optional<String> getReferenceName() {
     return name;
   }
 

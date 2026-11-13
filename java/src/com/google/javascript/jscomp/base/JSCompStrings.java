@@ -16,6 +16,7 @@
 
 package com.google.javascript.jscomp.base;
 
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Basic String functions used by JSComp. */
@@ -34,18 +35,18 @@ public final class JSCompStrings {
    * NumberFormatException: the string must be an optional '+' or '-' followed by one or more
    * digits (as {@link Character#digit} defines them) whose value fits an int.
    */
-  public static @Nullable Integer parseIntOrNull(@Nullable String s) {
-    if (s == null || s.isEmpty()) {
+  public static @Nullable Integer parseIntOrNull(Optional<String> s) {
+    if (s.isEmpty() || s.get().isEmpty()) {
       return null;
     }
-    boolean negative = s.charAt(0) == '-';
-    int start = negative || s.charAt(0) == '+' ? 1 : 0;
-    if (start == s.length()) {
+    boolean negative = s.get().charAt(0) == '-';
+    int start = negative || s.get().charAt(0) == '+' ? 1 : 0;
+    if (start == s.get().length()) {
       return null;
     }
     long value = 0;
-    for (int i = start; i < s.length(); i++) {
-      int digit = Character.digit(s.charAt(i), 10);
+    for (int i = start; i < s.get().length(); i++) {
+      int digit = Character.digit(s.get().charAt(i), 10);
       if (digit < 0) {
         return null;
       }

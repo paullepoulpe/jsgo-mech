@@ -33,7 +33,7 @@ import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.math.BigInteger;
-import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Peephole optimization to fold constants (e.g. x + 1 + 7 --> x + 8). */
@@ -229,27 +229,27 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
       return originalTypeofNode;
     }
 
-    String typeNameString = null;
+    Optional<String> typeNameString = Optional.empty();
 
     switch (argumentNode.getToken()) {
-      case FUNCTION -> typeNameString = "function";
-      case STRINGLIT -> typeNameString = "string";
-      case NUMBER -> typeNameString = "number";
-      case TRUE, FALSE -> typeNameString = "boolean";
-      case NULL, OBJECTLIT, ARRAYLIT -> typeNameString = "object";
-      case VOID -> typeNameString = "undefined";
+      case FUNCTION -> typeNameString = Optional.of("function");
+      case STRINGLIT -> typeNameString = Optional.of("string");
+      case NUMBER -> typeNameString = Optional.of("number");
+      case TRUE, FALSE -> typeNameString = Optional.of("boolean");
+      case NULL, OBJECTLIT, ARRAYLIT -> typeNameString = Optional.of("object");
+      case VOID -> typeNameString = Optional.of("undefined");
       case NAME -> {
         // We assume here that programs don't change the value of the
         // keyword undefined to something other than the value undefined.
         if (argumentNode.getString().equals("undefined")) {
-          typeNameString = "undefined";
+          typeNameString = Optional.of("undefined");
         }
       }
       default -> {}
     }
 
-    if (typeNameString != null) {
-      Node newNode = IR.string(typeNameString);
+    if (typeNameString.isPresent()) {
+      Node newNode = IR.string(typeNameString.get());
       reportChangeToEnclosingScope(originalTypeofNode);
       originalTypeofNode.replaceWith(newNode);
       markFunctionsDeleted(originalTypeofNode);
@@ -368,7 +368,7 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
         if (!mayHaveSideEffects(left)) {
           replacementNode = IR.falseNode();
         }
-      } else if (right.isName() && Objects.equals(right.getString(), "Object")) {
+      } else if (right.isName() && "Object".equals(right.getString())) {
         replacementNode = IR.trueNode();
       }
 
@@ -643,7 +643,7 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
               // Dangling literal term has no typecasting side effects; fold it!
               || (rr == null);
       if (foldIsTypeSafe) {
-        String result = left.getString() + NodeUtil.getStringValue(right);
+        String result = left.getString() + NodeUtil.getStringValue(right).orElse("null");
         // If the right parent is the root, shift the left parent up so as not to overwrite the tree
         // Otherwise, shift the right parent up
         if (rightParent.getSecondChild().equals(right)) {
@@ -662,10 +662,10 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
   private Node tryFoldAddConstantString(Node n, Node left, Node right) {
     if (left.isStringLit() || right.isStringLit() || left.isArrayLit() || right.isArrayLit()) {
       // Add strings.
-      String leftString = getSideEffectFreeStringValue(left);
-      String rightString = getSideEffectFreeStringValue(right);
-      if (leftString != null && rightString != null) {
-        Node newStringNode = IR.string(leftString + rightString);
+      Optional<String> leftString = getSideEffectFreeStringValue(left);
+      Optional<String> rightString = getSideEffectFreeStringValue(right);
+      if (leftString.isPresent() && rightString.isPresent()) {
+        Node newStringNode = IR.string(leftString.get() + rightString.get());
         n.replaceWith(newStringNode);
         reportChangeToEnclosingScope(newStringNode);
         return newStringNode;
@@ -1001,7 +1001,7 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
     }
     Node mergeNode =
         IR.templateLiteralString(
-            lastLeft.getCookedString() + firstRight.getCookedString(),
+            Optional.of(lastLeft.getCookedString().orElse("null") + firstRight.getCookedString().orElse("null")),
             lastLeft.getRawString() + firstRight.getRawString());
     mergeNode.srcrefTreeIfMissing(lastLeft);
 
@@ -1083,33 +1083,33 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
         Node expr = next.getFirstChild();
         if (expr != null
             && (expr.isStringLit() || expr.isNumber() || expr.isTrue() || expr.isFalse())) {
-          String strValue = getSideEffectFreeStringValue(expr);
-          if (strValue != null && isSimpleTemplateStringValue(strValue)) {
+          Optional<String> strValue = getSideEffectFreeStringValue(expr);
+          if (strValue.isPresent() && isSimpleTemplateStringValue(strValue.get())) {
             Node nextNext = next.getNext();
             if (nextNext != null && nextNext.isTemplateLitString()) {
-              String curCooked = cur.getCookedString();
-              String nextNextCooked = nextNext.getCookedString();
+              Optional<String> curCooked = cur.getCookedString();
+              Optional<String> nextNextCooked = nextNext.getCookedString();
 
               // Avoid creating a new `${` sequence when folding.
-              if (strValue.isEmpty()
+              if (strValue.get().isEmpty()
                   && endsWithUnescapedDollar(cur.getRawString())
                   && nextNext.getRawString().startsWith("{")) {
                 cur = next;
                 continue;
               }
 
-              String combinedCooked = curCooked + strValue + nextNextCooked;
-              String combinedRaw = cur.getRawString() + strValue + nextNext.getRawString();
+              String combinedCooked = curCooked.orElse("null") + strValue.get() + nextNextCooked.orElse("null");
+              String combinedRaw = cur.getRawString() + strValue.get() + nextNext.getRawString();
 
               // Avoid creating a restricted octal escape sequence (e.g. \07)
-              if (isRestrictedOctalEscape(cur.getRawString(), strValue)
+              if (isRestrictedOctalEscape(cur.getRawString(), strValue.get())
                   || isRestrictedOctalEscape(
-                      cur.getRawString() + strValue, nextNext.getRawString())) {
+                      cur.getRawString() + strValue.get(), nextNext.getRawString())) {
                 cur = next;
                 continue;
               }
 
-              Node newStringNode = IR.templateLiteralString(combinedCooked, combinedRaw);
+              Node newStringNode = IR.templateLiteralString(Optional.of(combinedCooked), combinedRaw);
               newStringNode.srcrefTree(cur);
 
               cur.replaceWith(newStringNode);
@@ -1156,14 +1156,14 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
       if (left.isTemplateLit() && right.isTemplateLit()) {
         return foldAddTemplateLiterals(node, left, right);
       } else if (left.isTemplateLit()) {
-        String rightStr = getSideEffectFreeStringValue(right);
-        if (rightStr != null && isSimpleTemplateStringValue(rightStr)) {
-          return foldTemplateLiteralAndConstant(node, left, rightStr);
+        Optional<String> rightStr = getSideEffectFreeStringValue(right);
+        if (rightStr.isPresent() && isSimpleTemplateStringValue(rightStr.get())) {
+          return foldTemplateLiteralAndConstant(node, left, rightStr.get());
         }
       } else if (right.isTemplateLit()) {
-        String leftStr = getSideEffectFreeStringValue(left);
-        if (leftStr != null && isSimpleTemplateStringValue(leftStr)) {
-          return foldConstantAndTemplateLiteral(node, leftStr, right);
+        Optional<String> leftStr = getSideEffectFreeStringValue(left);
+        if (leftStr.isPresent() && isSimpleTemplateStringValue(leftStr.get())) {
+          return foldConstantAndTemplateLiteral(node, leftStr.get(), right);
         }
       }
 
@@ -1194,7 +1194,7 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
 
     Node mergeNode =
         IR.templateLiteralString(
-            lastLeft.getCookedString() + rightStr, lastLeft.getRawString() + rightStr);
+            Optional.of(lastLeft.getCookedString().orElse("null") + rightStr), lastLeft.getRawString() + rightStr);
     mergeNode.srcrefTreeIfMissing(lastLeft);
 
     lastLeft.replaceWith(mergeNode);
@@ -1212,7 +1212,7 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
 
     Node mergeNode =
         IR.templateLiteralString(
-            leftStr + firstRight.getCookedString(), leftStr + firstRight.getRawString());
+            Optional.of(leftStr + firstRight.getCookedString().orElse("null")), leftStr + firstRight.getRawString());
     mergeNode.srcrefTreeIfMissing(firstRight);
 
     firstRight.replaceWith(mergeNode);
@@ -1307,14 +1307,14 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
     ValueType rightValueType = NodeUtil.getKnownValueType(right);
     // First, check for a string comparison.
     if (leftValueType == ValueType.STRING && rightValueType == ValueType.STRING) {
-      String lvStr = peepholeOptimization.getSideEffectFreeStringValue(left);
-      String rvStr = peepholeOptimization.getSideEffectFreeStringValue(right);
-      if (lvStr != null && rvStr != null) {
+      Optional<String> lvStr = peepholeOptimization.getSideEffectFreeStringValue(left);
+      Optional<String> rvStr = peepholeOptimization.getSideEffectFreeStringValue(right);
+      if (lvStr.isPresent() && rvStr.isPresent()) {
         // In JS, browsers parse \v differently. So do not compare strings if one contains \v.
-        if (lvStr.indexOf('\u000B') != -1 || rvStr.indexOf('\u000B') != -1) {
+        if (lvStr.get().indexOf('\u000B') != -1 || rvStr.get().indexOf('\u000B') != -1) {
           return Tri.UNKNOWN;
         } else {
-          return Tri.forBoolean(lvStr.compareTo(rvStr) < 0);
+          return Tri.forBoolean(lvStr.get().compareTo(rvStr.get()) < 0);
         }
       } else if (left.isTypeOf()
           && right.isTypeOf()
@@ -1331,9 +1331,9 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
     // StringToBigInt(string). If StringToBigInt returns undefined (invalid BigInt syntax like
     // "foo", "1e2", "1.5"), all relational comparisons (<, >, <=, >=) return false.
     if (leftValueType == ValueType.BIGINT && rightValueType == ValueType.STRING) {
-      String rvStr = peepholeOptimization.getSideEffectFreeStringValue(right);
-      if (rvStr != null) {
-        BigInteger rvBig = NodeUtil.getStringBigIntValue(rvStr);
+      Optional<String> rvStr = peepholeOptimization.getSideEffectFreeStringValue(right);
+      if (rvStr.isPresent()) {
+        BigInteger rvBig = NodeUtil.getStringBigIntValue(rvStr.get());
         if (rvBig == null) {
           return Tri.forBoolean(willNegate);
         }
@@ -1345,9 +1345,9 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
       return Tri.UNKNOWN;
     }
     if (leftValueType == ValueType.STRING && rightValueType == ValueType.BIGINT) {
-      String lvStr = peepholeOptimization.getSideEffectFreeStringValue(left);
-      if (lvStr != null) {
-        BigInteger lvBig = NodeUtil.getStringBigIntValue(lvStr);
+      Optional<String> lvStr = peepholeOptimization.getSideEffectFreeStringValue(left);
+      if (lvStr.isPresent()) {
+        BigInteger lvBig = NodeUtil.getStringBigIntValue(lvStr.get());
         if (lvBig == null) {
           return Tri.forBoolean(willNegate);
         }
@@ -1460,9 +1460,9 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
       }
 
       if (leftValueType == ValueType.BIGINT && rightValueType == ValueType.STRING) {
-        String rvStr = peepholeOptimization.getSideEffectFreeStringValue(right);
-        if (rvStr != null) {
-          BigInteger rvBig = NodeUtil.getStringBigIntValue(rvStr);
+        Optional<String> rvStr = peepholeOptimization.getSideEffectFreeStringValue(right);
+        if (rvStr.isPresent()) {
+          BigInteger rvBig = NodeUtil.getStringBigIntValue(rvStr.get());
           if (rvBig == null) {
             return Tri.FALSE;
           }
@@ -1472,9 +1472,9 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
         return Tri.UNKNOWN;
       }
       if (leftValueType == ValueType.STRING && rightValueType == ValueType.BIGINT) {
-        String lvStr = peepholeOptimization.getSideEffectFreeStringValue(left);
-        if (lvStr != null) {
-          BigInteger lvBig = NodeUtil.getStringBigIntValue(lvStr);
+        Optional<String> lvStr = peepholeOptimization.getSideEffectFreeStringValue(left);
+        if (lvStr.isPresent()) {
+          BigInteger lvBig = NodeUtil.getStringBigIntValue(lvStr.get());
           if (lvBig == null) {
             return Tri.FALSE;
           }
@@ -1497,12 +1497,12 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
           return Tri.FALSE;
         }
         if (leftValueType == ValueType.STRING
-            && peepholeOptimization.getSideEffectFreeStringValue(left) != null
+            && peepholeOptimization.getSideEffectFreeStringValue(left).isPresent()
             && lv == null) {
           return Tri.FALSE;
         }
         if (rightValueType == ValueType.STRING
-            && peepholeOptimization.getSideEffectFreeStringValue(right) != null
+            && peepholeOptimization.getSideEffectFreeStringValue(right).isPresent()
             && rv == null) {
           return Tri.FALSE;
         }
@@ -1553,12 +1553,12 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
           }
         }
         case STRING -> {
-          String lv = peepholeOptimization.getSideEffectFreeStringValue(left);
-          String rv = peepholeOptimization.getSideEffectFreeStringValue(right);
-          if (lv != null && rv != null) {
+          Optional<String> lv = peepholeOptimization.getSideEffectFreeStringValue(left);
+          Optional<String> rv = peepholeOptimization.getSideEffectFreeStringValue(right);
+          if (lv.isPresent() && rv.isPresent()) {
             // In JS, browsers parse \v differently. So do not consider strings
             // equal if one contains \v.
-            if (lv.indexOf('\u000B') != -1 || rv.indexOf('\u000B') != -1) {
+            if (lv.get().indexOf('\u000B') != -1 || rv.get().indexOf('\u000B') != -1) {
               return Tri.UNKNOWN;
             } else {
               return lv.equals(rv) ? Tri.TRUE : Tri.FALSE;
@@ -1688,19 +1688,19 @@ class PeepholeFoldConstants extends AbstractPeepholeOptimization {
 
     if (objectType.getString().equals("String")) {
       Node value = objectType.getNext();
-      String stringValue;
+      Optional<String> stringValue;
       if (value == null) {
-        stringValue = "";
+        stringValue = Optional.of("");
       } else {
         stringValue = getSideEffectFreeStringValue(value);
       }
 
-      if (stringValue == null) {
+      if (stringValue.isEmpty()) {
         return n;
       }
 
       Node parent = n.getParent();
-      Node newString = IR.string(stringValue);
+      Node newString = IR.string(stringValue.get());
 
       n.replaceWith(newString);
       newString.srcrefIfMissing(parent);

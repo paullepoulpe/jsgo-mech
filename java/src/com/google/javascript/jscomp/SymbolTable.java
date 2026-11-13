@@ -60,6 +60,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -271,8 +272,8 @@ public final class SymbolTable {
       return null;
     }
 
-    String name = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(rootNode));
-    return name == null ? null : scope.getParentScope().getQualifiedSlot(name);
+    Optional<String> name = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(rootNode));
+    return name.isEmpty() ? null : scope.getParentScope().getQualifiedSlot(name.get());
   }
 
   /**
@@ -318,8 +319,8 @@ public final class SymbolTable {
     return getSymbolForName(fn.getSource(), pType.getReferenceName());
   }
 
-  private @Nullable Symbol getSymbolForName(@Nullable Node source, String name) {
-    if (name == null || globalScope == null) {
+  private @Nullable Symbol getSymbolForName(@Nullable Node source, Optional<String> name) {
+    if (name.isEmpty() || globalScope == null) {
       return null;
     }
 
@@ -345,12 +346,12 @@ public final class SymbolTable {
                       .googNamespaces(),
                   null)
               + ".";
-      if (name.startsWith(moduleNameWithDot)) {
-        name = name.substring(moduleNameWithDot.length());
+      if (name.get().startsWith(moduleNameWithDot)) {
+        name = Optional.of(name.get().substring(moduleNameWithDot.length()));
       }
     }
 
-    return scope.getQualifiedSlot(name);
+    return scope.getQualifiedSlot(name.get());
   }
 
   /**
@@ -821,7 +822,7 @@ public final class SymbolTable {
           currentNode = currentNode.getFirstChild();
 
           String name = currentNode.getQualifiedName();
-          if (name == null) {
+          if (name.isEmpty()) {
             continue;
           }
           Symbol namespace = isAnySymbolDeclared(name, currentNode, root.scope);
@@ -971,7 +972,7 @@ public final class SymbolTable {
     }
 
     // Anonymous objects
-    if (type.getReferenceName() == null) {
+    if (type.getReferenceName().isEmpty()) {
       return true;
     }
 
@@ -1316,7 +1317,7 @@ public final class SymbolTable {
             declaration = moduleScope.getOwnSlot("exports");
         case GOOG_PROVIDE ->
             // For goog.provide `some.constant` should be defined in global namespace.
-            declaration = getSymbolForName(null, moduleName);
+            declaration = getSymbolForName(null, Optional.of(moduleName));
         default -> {
           // skip
         }
@@ -1338,7 +1339,7 @@ public final class SymbolTable {
         // differently.
         switch (moduleType) {
           case GOOG_MODULE, LEGACY_GOOG_MODULE -> varDeclaration = moduleScope.getOwnSlot(varName);
-          case GOOG_PROVIDE -> varDeclaration = getSymbolForName(null, moduleName + "." + varName);
+          case GOOG_PROVIDE -> varDeclaration = getSymbolForName(null, Optional.of(moduleName + "." + varName));
           default -> {
             // skip
           }
@@ -1640,7 +1641,7 @@ public final class SymbolTable {
       }
 
       return isTypeInferred() == other.isTypeInferred()
-          && Objects.equals(getName(), other.getName())
+          && getName().equals(other.getName())
           && Objects.equals(getType(), other.getType())
           && Objects.equals(scope, other.scope);
     }
@@ -1673,9 +1674,9 @@ public final class SymbolTable {
       return declaration == null ? null : declaration.getNode();
     }
 
-    public @Nullable String getSourceFileName() {
+    public String getSourceFileName() {
       Node n = getDeclarationNode();
-      return n == null ? null : n.getSourceFileName();
+      return n == null ? "" : n.getSourceFileName();
     }
 
     public SymbolScope getPropertyScope() {
@@ -1928,9 +1929,9 @@ public final class SymbolTable {
     }
 
     // Try to find the symbol by its fully qualified name.
-    private boolean tryDefineLexicalQualifiedNameRef(String name, Node n) {
-      if (name != null) {
-        Symbol lexicalSym = getEnclosingScope(n).getQualifiedSlot(name);
+    private boolean tryDefineLexicalQualifiedNameRef(Optional<String> name, Node n) {
+      if (name.isPresent()) {
+        Symbol lexicalSym = getEnclosingScope(n).getQualifiedSlot(name.get());
         if (lexicalSym != null) {
           lexicalSym.defineReferenceAt(n);
           return true;
@@ -1941,9 +1942,9 @@ public final class SymbolTable {
 
     // Try to remove a reference by its fully qualified name.
     // If the symbol has no references left, remove it completely.
-    private void tryRemoveLexicalQualifiedNameRef(String name, Node n) {
-      if (name != null) {
-        Symbol lexicalSym = getEnclosingScope(n).getQualifiedSlot(name);
+    private void tryRemoveLexicalQualifiedNameRef(Optional<String> name, Node n) {
+      if (name.isPresent()) {
+        Symbol lexicalSym = getEnclosingScope(n).getQualifiedSlot(name.get());
         if (lexicalSym != null
             && lexicalSym.isLexicalVariable()
             && lexicalSym.getDeclaration().getNode() == n) {
@@ -1996,7 +1997,7 @@ public final class SymbolTable {
         if (propNodeDecl != null
             && (propNodeDecl.isGetProp() || propNodeDecl.isOptChainGetProp())) {
           Node namespace = propNodeDecl.getFirstChild();
-          Symbol namespaceSym = getSymbolForName(namespace, namespace.getQualifiedName());
+          Symbol namespaceSym = getSymbolForName(namespace, Optional.of(namespace.getQualifiedName()).filter(s -> !s.isEmpty()));
           if (namespaceSym != null && namespaceSym.getPropertyScope() != null) {
             Symbol propSym = namespaceSym.getPropertyScope().getSlot(propName);
             if (propSym != null && propSym.getDeclarationNode() != n) {
@@ -2021,7 +2022,7 @@ public final class SymbolTable {
         if (propNodeDeclScope == null || !propNodeDeclScope.isModuleScope()) {
           return false;
         }
-        Symbol symbol = getSymbolForName(propNodeDecl, propName);
+        Symbol symbol = getSymbolForName(propNodeDecl, Optional.of(propName));
         if (symbol != null && symbol.getDeclarationNode() != n) {
           symbol.defineReferenceAt(n);
           return true;
@@ -2045,12 +2046,12 @@ public final class SymbolTable {
           boolean defined = maybeDefineTypedReference(n, n.getString(), owner);
 
           if (defined) {
-            tryRemoveLexicalQualifiedNameRef(n.getQualifiedName(), n);
+            tryRemoveLexicalQualifiedNameRef(Optional.of(n.getQualifiedName()).filter(s -> !s.isEmpty()), n);
             return;
           }
         }
 
-        tryDefineLexicalQualifiedNameRef(n.getQualifiedName(), n);
+        tryDefineLexicalQualifiedNameRef(Optional.of(n.getQualifiedName()).filter(s -> !s.isEmpty()), n);
       } else if (n.isStringKey()) {
         JSType owner = parent.getJSType();
         if (owner != null) {
@@ -2194,7 +2195,7 @@ public final class SymbolTable {
         Symbol symbol = lookupPossiblyDottedName(scope, n.getString());
         if (symbol != null) {
           Node ref = n;
-          String typeString = n.getOriginalName() != null ? n.getOriginalName() : n.getString();
+          String typeString = !n.getOriginalName().isEmpty() ? n.getOriginalName() : n.getString();
           // Qualified names in JSDoc types are kept as a single string: "foo.bar.MyType". In order
           // to have good indexing we need to make the SymbolTable reference include only "MyType"
           // instead of "foo.bar.MyType". To do that we clone the type node and change the source

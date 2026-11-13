@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.javascript.rhino.Node;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,8 +96,8 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
   CssRenamingMap getPartialMap() {
     return new CssRenamingMap.ByPart() {
       @Override
-      public String get(String value) {
-        return replacementMap.get(value);
+      public Optional<String> get(String value) {
+        return Optional.ofNullable(replacementMap.get(value));
       }
     };
   }
@@ -104,8 +105,8 @@ public final class ReplaceCssNamesTest extends CompilerTestCase {
   CssRenamingMap getFullMap() {
     return new CssRenamingMap.ByWhole() {
       @Override
-      public String get(String value) {
-        return replacementMapFull.get(value);
+      public Optional<String> get(String value) {
+        return Optional.ofNullable(replacementMapFull.get(value));
       }
     };
   }

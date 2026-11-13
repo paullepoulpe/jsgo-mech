@@ -28,6 +28,7 @@ import com.google.javascript.jscomp.base.SimpleSetMultimap;
 import com.google.re2j.Pattern;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -143,7 +144,6 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    */
   // TODO(nicksantos): This is a weird API.
   static Set<String> loadAllowlistedJsWarningsText(String text) {
-    checkNotNull(text);
     Set<String> result = new LinkedHashSet<>();
 
     result.addAll(Io.splitLines(text));
@@ -165,7 +165,7 @@ public class AllowlistWarningsGuard extends WarningsGuard {
    */
   protected String formatWarning(JSError error, boolean withMetaData) {
     StringBuilder sb = new StringBuilder();
-    sb.append(normalizeSourceName(error.sourceName())).append(":");
+    sb.append(normalizeSourceName(error.sourceName()).orElse("null")).append(":");
     if (withMetaData) {
       sb.append(error.getLineNumber());
     }
@@ -183,11 +183,11 @@ public class AllowlistWarningsGuard extends WarningsGuard {
     return sb.toString();
   }
 
-  private String normalizeSourceName(String sourceName) {
-    if (sourceName != null) {
+  private Optional<String> normalizeSourceName(Optional<String> sourceName) {
+    if (sourceName.isPresent()) {
       // e.g.
       // "blaze-out/k8-fastbuild/genfiles/some/path/foo.js" -> "some/path/foo.js"
-      return BLAZE_OUT_DIR_PATTERN.matcher(sourceName).replaceFirst("");
+      return Optional.ofNullable(BLAZE_OUT_DIR_PATTERN.matcher(sourceName.get()).replaceFirst(""));
     }
     return sourceName;
   }
@@ -203,28 +203,28 @@ public class AllowlistWarningsGuard extends WarningsGuard {
   /** Allowlist builder */
   public class AllowlistBuilder implements ErrorHandler {
     private final Set<JSError> warnings = new LinkedHashSet<>();
-    private @Nullable String productName = null;
-    private @Nullable String generatorTarget = null;
-    private @Nullable String headerNote = null;
+    private Optional<String> productName = Optional.empty();
+    private Optional<String> generatorTarget = Optional.empty();
+    private Optional<String> headerNote = Optional.empty();
 
     /** Fill in your product name to get a fun message! */
     @CanIgnoreReturnValue
     public AllowlistBuilder setProductName(String name) {
-      this.productName = name;
+      this.productName = Optional.of(name);
       return this;
     }
 
     /** Fill in instructions on how to generate this allowlist. */
     @CanIgnoreReturnValue
     public AllowlistBuilder setGeneratorTarget(String name) {
-      this.generatorTarget = name;
+      this.generatorTarget = Optional.of(name);
       return this;
     }
 
     /** A note to include at the top of the allowlist file. */
     @CanIgnoreReturnValue
     public AllowlistBuilder setNote(String note) {
-      this.headerNote = note;
+      this.headerNote = Optional.of(note);
       return this;
     }
 
@@ -257,20 +257,20 @@ public class AllowlistWarningsGuard extends WarningsGuard {
     public void appendAllowlist(Io.Output out) {
       out.append("# This is a list of legacy warnings that have yet to be fixed.\n");
 
-      if (productName != null && !productName.isEmpty() && !warnings.isEmpty()) {
+      if (productName.isPresent() && !productName.get().isEmpty() && !warnings.isEmpty()) {
         out.append(
             "# Please find some time and fix at least one of them "
                 + "and it will be the happiest day for "
-                + productName
+                + productName.get()
                 + ".\n");
       }
 
-      if (generatorTarget != null && !generatorTarget.isEmpty()) {
-        out.append("# When you fix any of these warnings, run " + generatorTarget + " task.\n");
+      if (generatorTarget.isPresent() && !generatorTarget.get().isEmpty()) {
+        out.append("# When you fix any of these warnings, run " + generatorTarget.get() + " task.\n");
       }
 
-      if (headerNote != null) {
-        out.append("#" + Joiner.on("\n# ").join(Splitter.on('\n').split(headerNote)) + "\n");
+      if (headerNote.isPresent()) {
+        out.append("#" + Joiner.on("\n# ").join(Splitter.on('\n').split(headerNote.get())) + "\n");
       }
 
       SimpleSetMultimap<DiagnosticType, String> warningsByType = SimpleSetMultimap.createSorted();

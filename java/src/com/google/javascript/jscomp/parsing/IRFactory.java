@@ -144,6 +144,7 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -203,7 +204,7 @@ class IRFactory {
   static final String UNDEFINED_LABEL = "undefined label \"%s\"";
 
   private final StaticSourceFile sourceFile;
-  private final @Nullable String sourceName;
+  private final Optional<String> sourceName;
 
   /** Source file reference that also contains the file content. */
   private final SourceFile fileWithContent;
@@ -301,7 +302,7 @@ class IRFactory {
     this.closureUnawareTemplateNode = createClosureUnawareTemplateNode();
 
     // Sometimes this will be null in tests.
-    this.sourceName = sourceFile == null ? null : sourceFile.getName();
+    this.sourceName = sourceFile == null ? Optional.empty() : Optional.of(sourceFile.getName());
 
     this.config = config;
     this.errorReporter = errorReporter;
@@ -758,8 +759,8 @@ class IRFactory {
    * @return true if the jsDocParser represents a fileoverview.
    */
   private boolean handlePossibleFileOverviewJsDoc(JsDocInfoParser jsDocParser) {
-    if (jsDocParser.getLicenseText() != null) {
-      this.licenseBuilder.add(jsDocParser.getLicenseText());
+    if (jsDocParser.getLicenseText().isPresent()) {
+      this.licenseBuilder.add(jsDocParser.getLicenseText().get());
     }
 
     JSDocInfo newFileoverview = jsDocParser.getFileOverviewJSDocInfo();
@@ -1303,7 +1304,7 @@ class IRFactory {
         new JsDocInfoParser(
             new JsDocTokenStream(
                 comment.substring(numOpeningChars), lineno, charno + numOpeningChars),
-            comment,
+            Optional.of(comment),
             position,
             templateNode,
             config,
@@ -1331,7 +1332,7 @@ class IRFactory {
         new JsDocInfoParser(
             new JsDocTokenStream(
                 comment.substring(numOpeningChars), lineno, charno + numOpeningChars),
-            comment,
+            Optional.of(comment),
             node.location.start.offset,
             templateNode,
             config,
@@ -2464,9 +2465,9 @@ class IRFactory {
               || token.type == TokenType.TEMPLATE_TAIL);
       Node node;
       if (token.hasError()) {
-        node = newTemplateLitStringNode(null, token.value);
+        node = newTemplateLitStringNode(Optional.empty(), token.value);
       } else {
-        node = newTemplateLitStringNode(normalizeString(token, true), token.value);
+        node = newTemplateLitStringNode(Optional.of(normalizeString(token, true)), token.value);
       }
       setSourceInfoToken(node, token);
       return node;
@@ -3810,7 +3811,7 @@ class IRFactory {
     if (yieldNode != null) {
       errorReporter.error(
           "`yield` is illegal in parameter default value.",
-          yieldNode.getSourceFileName(),
+          Optional.of(yieldNode.getSourceFileName()).filter(s -> !s.isEmpty()),
           yieldNode.getLineno(),
           yieldNode.getCharno());
     }
@@ -3818,7 +3819,7 @@ class IRFactory {
     if (awaitNode != null) {
       errorReporter.error(
           "`await` is illegal in parameter default value.",
-          awaitNode.getSourceFileName(),
+          Optional.of(awaitNode.getSourceFileName()).filter(s -> !s.isEmpty()),
           awaitNode.getLineno(),
           awaitNode.getCharno());
     }
@@ -4376,7 +4377,7 @@ class IRFactory {
     return node;
   }
 
-  Node newTemplateLitStringNode(@Nullable String cooked, String raw) {
+  Node newTemplateLitStringNode(Optional<String> cooked, String raw) {
     return Node.newTemplateLitString(cooked, raw).clonePropsFrom(templateNode);
   }
 
@@ -4390,6 +4391,6 @@ class IRFactory {
 
   private void error(Node rhinoNode, String message) {
     errorReporter.error(
-        message, rhinoNode.getSourceFileName(), rhinoNode.getLineno(), rhinoNode.getCharno());
+        message, Optional.of(rhinoNode.getSourceFileName()).filter(s -> !s.isEmpty()), rhinoNode.getLineno(), rhinoNode.getCharno());
   }
 }

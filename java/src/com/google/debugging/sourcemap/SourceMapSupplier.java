@@ -17,6 +17,7 @@
 package com.google.debugging.sourcemap;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * A class for mapping source map names to the actual contents. Used
@@ -28,5 +29,5 @@ public interface SourceMapSupplier {
    * @param url The URL of the source map.
    * @return The contents of the map associated with the URL
    */
-  String getSourceMap(String url) throws IOException;
+  Optional<String> getSourceMap(String url) throws IOException;
 }

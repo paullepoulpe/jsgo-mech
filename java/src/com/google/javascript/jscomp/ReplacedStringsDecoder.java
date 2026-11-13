@@ -20,6 +20,7 @@ import static java.lang.Math.max;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.Immutable;
 import com.google.re2j.Pattern;
+import java.util.Optional;
 
 /**
  * A decoder for strings encoded by the ReplaceStrings JS compiler pass. This class is immutable.
@@ -67,11 +68,11 @@ public final class ReplacedStringsDecoder {
    */
   public String decode(String encodedStr) {
     String[] suppliedBits = ARGUMENT_PLACE_HOLDER_PATTERN.split(encodedStr, -1);
-    String originalStr = originalToNewNameMap.get(suppliedBits[0]);
-    if (originalStr == null) {
+    Optional<String> originalStr = Optional.ofNullable(originalToNewNameMap.get(suppliedBits[0]));
+    if (originalStr.isEmpty()) {
       return encodedStr; // Failed to decode.
     }
-    String[] originalBits = ARGUMENT_PLACE_HOLDER_PATTERN.split(originalStr, -1);
+    String[] originalBits = ARGUMENT_PLACE_HOLDER_PATTERN.split(originalStr.get(), -1);
     StringBuilder sb = new StringBuilder(originalBits[0]);
     for (int i = 1; i < max(originalBits.length, suppliedBits.length); i++) {
       // Replace missing bits with "-". Shouldn't happen except that we aren't

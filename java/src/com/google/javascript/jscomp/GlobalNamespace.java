@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -357,7 +358,6 @@ class GlobalNamespace
 
   @Nullable Name getNameFromModule(ModuleMetadata moduleMetadata, String name) {
     checkNotNull(moduleMetadata);
-    checkNotNull(name);
     ensureGenerated();
     return nameMapByModule.get(moduleMetadata, name);
   }
@@ -456,7 +456,7 @@ class GlobalNamespace
     private void collect(Scope scope, JSChunk chunk, Node n) {
       Node parent = n.getParent();
 
-      String name;
+      Optional<String> name;
       boolean isSet = false;
       NameProp type = NameProp.OTHER_OBJECT;
 
@@ -477,7 +477,7 @@ class GlobalNamespace
           }
         }
         case STRING_KEY -> {
-          name = null;
+          name = Optional.empty();
           if (parent.isObjectLit()) {
             ObjLitStringKeyAnalysis analysis = createObjLitStringKeyAnalysis(n);
             name = analysis.nameString();
@@ -577,7 +577,7 @@ class GlobalNamespace
           if (!n.isQualifiedName()) {
             return;
           }
-          name = n.getQualifiedName();
+          name = Optional.of(n.getQualifiedName()).filter(s -> !s.isEmpty());
         }
         case CALL -> {
           if (parent.isExprResult()
@@ -596,11 +596,11 @@ class GlobalNamespace
         }
       }
 
-      if (name == null) {
+      if (name.isEmpty()) {
         return;
       }
 
-      Node root = getRootNode(name, scope);
+      Node root = getRootNode(name.get(), scope);
       // We are only interested in global and module names.
       if (!isTopLevelScopeRoot(root)) {
         return;
@@ -616,22 +616,22 @@ class GlobalNamespace
         // name set in a module scope is a 'global' set.
         if (hoistScope.isGlobal()
             || (root != globalRoot && hoistScope.getRootNode() == curModuleRoot)) {
-          handleSetFromGlobal(chunk, scope, n, name, type, nameMetadata);
+          handleSetFromGlobal(chunk, scope, n, name.get(), type, nameMetadata);
         } else {
-          handleSetFromLocal(chunk, scope, n, name, nameMetadata);
+          handleSetFromLocal(chunk, scope, n, name.get(), nameMetadata);
         }
       } else {
-        handleGet(chunk, scope, n, name, nameMetadata);
+        handleGet(chunk, scope, n, name.get(), nameMetadata);
       }
     }
 
     private ObjLitStringKeyAnalysis createObjLitStringKeyAnalysis(Node stringKeyNode) {
-      String nameString = NodeUtil.getBestLValueName(stringKeyNode);
-      if (nameString != null) {
+      Optional<String> nameString = NodeUtil.getBestLValueName(stringKeyNode);
+      if (nameString.isPresent()) {
         // `parent.qname = { myPropName: myValue }`;
         // `NodeUtil.getBestLValueName()` finds the name being assigned for this case.
         return ObjLitStringKeyAnalysis.forObjLitAssignment(
-            nameString, getValueType(stringKeyNode.getOnlyChild()));
+            nameString.get(), getValueType(stringKeyNode.getOnlyChild()));
       } else {
         // maybe we have a case like
         // `Object.defineProperties(parentName, { myPropName: { get: ..., set: ..., ... })`
@@ -642,8 +642,8 @@ class GlobalNamespace
           Node receiverNode = objLitParentNode.getSecondChild();
           if (receiverNode.isQualifiedName()) {
             checkState(objLitNode == receiverNode.getNext(), objLitParentNode);
-            nameString = receiverNode.getQualifiedName() + "." + stringKeyNode.getString();
-            return ObjLitStringKeyAnalysis.forObjectDefineProperty(nameString);
+            nameString = Optional.of(receiverNode.getQualifiedName() + "." + stringKeyNode.getString());
+            return ObjLitStringKeyAnalysis.forObjectDefineProperty(nameString.orElseThrow());
           }
         }
         return ObjLitStringKeyAnalysis.forNonReference();
@@ -697,7 +697,7 @@ class GlobalNamespace
      * @return The global name, or null if {@code n} doesn't correspond to the key of an object
      *     literal that can be named
      */
-    @Nullable String getNameForObjectPatternKey(Node stringKey) {
+    Optional<String> getNameForObjectPatternKey(Node stringKey) {
       Node parent = stringKey.getParent();
       checkState(parent.isObjectPattern());
 
@@ -707,13 +707,13 @@ class GlobalNamespace
         Node rhs = patternParent.getSecondChild();
         if (rhs == null || !rhs.isQualifiedName()) {
           // The rhs is null for patterns in parameter lists, enhanced for loops, and catch exprs
-          return null;
+          return Optional.empty();
         }
-        return rhs.getQualifiedName() + "." + stringKey.getString();
+        return Optional.of(rhs.getQualifiedName() + "." + stringKey.getString());
 
       } else {
         // skip this step for nested patterns for now
-        return null;
+        return Optional.empty();
       }
     }
 
@@ -1052,7 +1052,7 @@ class GlobalNamespace
 
       // Look for calls to goog.addSingletonGetter calls.
       String className = convention.getSingletonGetterClassName(callNode);
-      return className != null;
+      return !className.isEmpty();
     }
 
     /** Detect calls of the form a.b.hasOwnProperty(c); that prevent property collapsing on a.b */
@@ -2572,7 +2572,7 @@ class GlobalNamespace
     }
   }
 
-  private record ObjLitStringKeyAnalysis(@Nullable String nameString, @Nullable NameProp nameType) {
+  private record ObjLitStringKeyAnalysis(Optional<String> nameString, @Nullable NameProp nameType) {
     /**
      * The object literal key is used to define a property. <code>
      * Object.defineProperty(parent.qname, { strKeyName: value, { get: ..., } })</code>
@@ -2581,17 +2581,17 @@ class GlobalNamespace
       // Technically the definition may not have a getter or setter, but we'll just
       // always pretend it does, because we cannot inline and collapse properties defined this
       // way.
-      return new ObjLitStringKeyAnalysis(checkNotNull(nameString), NameProp.GET_SET);
+      return new ObjLitStringKeyAnalysis(Optional.of(nameString), NameProp.GET_SET);
     }
 
     /** The object literal key represents `parent.qname = { strKeyName: value }` */
     static ObjLitStringKeyAnalysis forObjLitAssignment(String nameString, NameProp nameType) {
-      return new ObjLitStringKeyAnalysis(checkNotNull(nameString), nameType);
+      return new ObjLitStringKeyAnalysis(Optional.of(nameString), nameType);
     }
 
     /** The object literal key does not represent a qualified name assignment. */
     static ObjLitStringKeyAnalysis forNonReference() {
-      return new ObjLitStringKeyAnalysis(/* nameString= */ null, NameProp.OTHER_OBJECT);
+      return new ObjLitStringKeyAnalysis(/* nameString= */ Optional.empty(), NameProp.OTHER_OBJECT);
     }
   }
 }

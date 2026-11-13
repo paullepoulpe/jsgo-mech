@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
@@ -271,7 +272,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     RemovalLogRecord(
         String kind, Supplier<String> nameSupplier, Supplier<String> functionNameSupplier) {
-      this.kind = checkNotNull(kind);
+      this.kind = kind;
       this.nameSupplier = checkNotNull(nameSupplier);
       this.functionNameSupplier = checkNotNull(functionNameSupplier);
     }
@@ -335,11 +336,8 @@ class RemoveUnusedCode implements CompilerPass {
      */
     private static Supplier<String> getLoggableFunctionNameSupplier(Node argList) {
       return () -> {
-        String functionName = NodeUtil.getNearestFunctionName(checkNotNull(argList).getParent());
-        if (functionName == null) {
-          functionName = "<anonymous>";
-        }
-        return functionName;
+        Optional<String> functionName = NodeUtil.getNearestFunctionName(checkNotNull(argList).getParent());
+        return functionName.orElse("<anonymous>");
       };
     }
   }
@@ -702,7 +700,7 @@ class RemoveUnusedCode implements CompilerPass {
       traverseNode(callNode.getFirstChild(), scope);
     } else {
       Node parent = callNode.getParent();
-      String classVarName = null;
+      Optional<String> classVarName = Optional.empty();
       boolean classDefiningCall = false;
 
       // A call that is a statement unto itself or the left side of a comma expression might be
@@ -721,13 +719,13 @@ class RemoveUnusedCode implements CompilerPass {
           classDefiningCall = true;
         } else {
           // Look for calls to addSingletonGetter calls.
-          classVarName = codingConvention.getSingletonGetterClassName(callNode);
+          classVarName = Optional.of(codingConvention.getSingletonGetterClassName(callNode)).filter(s -> !s.isEmpty());
         }
       }
 
       Var classVar = null;
-      if (classVarName != null && NodeUtil.isValidSimpleName(classVarName)) {
-        classVar = checkNotNull(scope.getVar(classVarName), classVarName);
+      if (classVarName.isPresent() && NodeUtil.isValidSimpleName(classVarName.get())) {
+        classVar = checkNotNull(scope.getVar(classVarName.get()), classVarName.get());
       }
 
       if (classVar == null || !classVar.isGlobal()) {
@@ -1743,7 +1741,7 @@ class RemoveUnusedCode implements CompilerPass {
      * If this object represents an assignment of a value to a property. This is the name of the
      * property.
      */
-    private final @Nullable String propertyName;
+    private final Optional<String> propertyName;
 
     /**
      * If this object represents a variable declaration or assignment of a value, this is the node
@@ -1766,7 +1764,7 @@ class RemoveUnusedCode implements CompilerPass {
     }
 
     String getPropertyName() {
-      return checkNotNull(propertyName);
+      return propertyName.orElseThrow();
     }
 
     /** Remove the associated nodes from the AST. */
@@ -1800,7 +1798,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     /** True if this object represents a named property, either assignment or declaration. */
     boolean isNamedProperty() {
-      return propertyName != null;
+      return propertyName.isPresent();
     }
 
     /**
@@ -1826,7 +1824,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     /** Is this a direct assignment to `varName.prototype`? */
     boolean isPrototypeAssignment() {
-      return isNamedPropertyAssignment() && propertyName.equals("prototype");
+      return isNamedPropertyAssignment() && propertyName.get().equals("prototype");
     }
 
     /** Is this an assignment to a property on a prototype object? */
@@ -1878,7 +1876,7 @@ class RemoveUnusedCode implements CompilerPass {
   private class RemovableBuilder {
     final List<Continuation> continuations = new ArrayList<>();
 
-    @Nullable String propertyName = null;
+    Optional<String> propertyName = Optional.empty();
     boolean isPrototypeDotPropertyReference = false;
     boolean isThisDotPropertyReference = false;
 
@@ -1923,12 +1921,12 @@ class RemoveUnusedCode implements CompilerPass {
               || NodeUtil.isGetOrSetKey(propertyNode)
               || (propertyNode.isStringKey() && !propertyNode.isQuotedStringKey()),
           propertyNode);
-      this.propertyName = propertyNode.getString();
+      this.propertyName = Optional.of(propertyNode.getString());
       return new ClassOrPrototypeNamedProperty(this, propertyNode);
     }
 
     ObjectDefinePropertiesDefinition buildObjectDefinePropertiesDefinition(Node propertyNode) {
-      this.propertyName = propertyNode.getString();
+      this.propertyName = Optional.of(propertyNode.getString());
       return new ObjectDefinePropertiesDefinition(this, propertyNode);
     }
 
@@ -1945,7 +1943,7 @@ class RemoveUnusedCode implements CompilerPass {
     }
 
     Assign buildNamedPropertyAssign(Node assignNode, Node propertyNode, @Nullable VarInfo varInfo) {
-      this.propertyName = propertyNode.getString();
+      this.propertyName = Optional.of(propertyNode.getString());
       return new Assign(this, assignNode, Kind.NAMED_PROPERTY, propertyNode, varInfo);
     }
 
@@ -1971,17 +1969,17 @@ class RemoveUnusedCode implements CompilerPass {
 
     AnonymousPrototypeNamedPropertyAssign buildAnonymousPrototypeNamedPropertyAssign(
         Node assignNode, String propertyName) {
-      this.propertyName = propertyName;
+      this.propertyName = Optional.of(propertyName);
       return new AnonymousPrototypeNamedPropertyAssign(this, assignNode);
     }
 
     IncOrDecOp buildIncOrDepOp(Node incOrDecOp, Node propertyNode, @Nullable Node toPreseve) {
-      this.propertyName = propertyNode.getString();
+      this.propertyName = Optional.of(propertyNode.getString());
       return new IncOrDecOp(this, incOrDecOp, toPreseve);
     }
 
     UnusedReadReference buildUnusedReadReference(Node referenceNode, Node propertyNode) {
-      this.propertyName = propertyNode.getString();
+      this.propertyName = Optional.of(propertyNode.getString());
       return new UnusedReadReference(this, referenceNode);
     }
 
@@ -2689,7 +2687,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     AnonymousPrototypeNamedPropertyAssign(RemovableBuilder builder, Node assignNode) {
       super(assignNode.getFirstChild(), builder);
-      checkNotNull(builder.propertyName);
+      checkState(builder.propertyName.isPresent());
       checkArgument(assignNode.isAssign(), assignNode);
       this.assignNode = assignNode;
     }
@@ -3163,7 +3161,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     StaticPropertyPolyfillInfo(Polyfill removable, String key, String ownerName) {
       super(removable, key);
-      this.polyfillOwnerName = checkNotNull(ownerName);
+      this.polyfillOwnerName = ownerName;
     }
 
     @Override
@@ -3185,7 +3183,7 @@ class RemoveUnusedCode implements CompilerPass {
 
     PrototypePropertyPolyfillInfo(Polyfill removable, String key, String polyfillOwnerName) {
       super(removable, key);
-      this.polyfillOwnerName = checkNotNull(polyfillOwnerName);
+      this.polyfillOwnerName = polyfillOwnerName;
     }
 
     @Override
@@ -3198,7 +3196,7 @@ class RemoveUnusedCode implements CompilerPass {
       if (NodeUtil.isNormalOrOptChainGetProp(possiblyReferencingNode)) {
         if (disambiguateProperties
             && polyfillUsageFinder.isDisjointFromIterator(
-                possiblyReferencingNode, polyfillOwnerName)) {
+                possiblyReferencingNode, Optional.of(polyfillOwnerName))) {
           return;
         }
         // Prototype properties are simply not removable.

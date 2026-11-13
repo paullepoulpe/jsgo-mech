@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -189,7 +190,7 @@ class AliasStrings implements CompilerPass, NodeTraversal.Callback {
       StringInfo info = entry.getValue();
       if (shouldReplaceWithAlias(literal, info)) {
         for (Node node : info.occurrences) {
-          replaceStringWithAliasName(node, info.getVariableName(literal), info);
+          replaceStringWithAliasName(node, info.getVariableName(literal).get(), info);
         }
       }
     }
@@ -205,8 +206,8 @@ class AliasStrings implements CompilerPass, NodeTraversal.Callback {
       if (!info.isAliased) {
         continue;
       }
-      String alias = info.getVariableName(entry.getKey());
-      Node var = IR.var(IR.name(alias), IR.string(entry.getKey()));
+      Optional<String> alias = info.getVariableName(entry.getKey());
+      Node var = IR.var(IR.name(alias.get()), IR.string(entry.getKey()));
       Node firstUse = info.occurrences.get(0);
       var.srcrefTree(firstUse);
       if (info.siblingToInsertVarDeclBefore == null) {
@@ -294,7 +295,7 @@ class AliasStrings implements CompilerPass, NodeTraversal.Callback {
     Node parentForNewVarDecl;
     Node siblingToInsertVarDeclBefore;
 
-    String aliasName;
+    Optional<String> aliasName = Optional.empty();
 
     StringInfo(int id) {
       this.id = id;
@@ -302,9 +303,9 @@ class AliasStrings implements CompilerPass, NodeTraversal.Callback {
     }
 
     /** Returns the JS variable name to be substituted for this string. */
-    String getVariableName(String stringLiteral) {
-      if (aliasName == null) {
-        aliasName = encodeStringAsIdentifier(STRING_ALIAS_PREFIX, stringLiteral);
+    Optional<String> getVariableName(String stringLiteral) {
+      if (aliasName.isEmpty()) {
+        aliasName = Optional.of(encodeStringAsIdentifier(STRING_ALIAS_PREFIX, stringLiteral));
       }
       return aliasName;
     }

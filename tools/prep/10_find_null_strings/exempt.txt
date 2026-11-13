@@ -1,0 +1,3 @@
+# Findings of Scan.java that are accepted. Format: see the header of Scan.java.
+lib:com.google.common.collect.Iterables#getFirst ## getFirst(list, null) is the library's way to say "or absent"; every use is wrapped in Optional.ofNullable at once
+java/src/com/google/javascript/jscomp/SourceFile.java::if (isNullOrEmpty(fileName)) { ## public API entry point (SourceFile constructor): callers outside this tree may still pass null

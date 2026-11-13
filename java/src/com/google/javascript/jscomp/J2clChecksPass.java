@@ -20,6 +20,7 @@ import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.jstype.FunctionType;
 import com.google.javascript.rhino.jstype.JSType;
+import java.util.Optional;
 
 /**
  * Performs correctness checks which are specific to J2CL-generated patterns.
@@ -79,16 +80,16 @@ public class J2clChecksPass extends AbstractPostOrderCallback implements Compile
     if (jsType.toMaybeObjectType() == null) {
       return false;
     }
-    String sourceName = getSourceName(jsType);
-    return sourceName != null && sourceName.endsWith(fileName);
+    Optional<String> sourceName = getSourceName(jsType);
+    return sourceName.isPresent() && sourceName.get().endsWith(fileName);
   }
 
-  private String getSourceName(JSType jsType) {
+  private Optional<String> getSourceName(JSType jsType) {
     FunctionType constructor = jsType.toMaybeObjectType().getConstructor();
     if (constructor == null) {
-      return "";
+      return Optional.of("");
     }
-    return NodeUtil.getSourceName(constructor.getSource());
+    return Optional.of(NodeUtil.getSourceName(constructor.getSource())).filter(s -> !s.isEmpty());
   }
 
   @Override

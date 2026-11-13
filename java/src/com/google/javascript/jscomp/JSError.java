@@ -24,6 +24,7 @@ import com.google.errorprone.annotations.InlineMe;
 import com.google.javascript.rhino.Node;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -42,7 +43,7 @@ import org.jspecify.annotations.Nullable;
 public record JSError(
     DiagnosticType type,
     String description,
-    @Nullable String sourceName,
+    Optional<String> sourceName,
     int lineno,
     int charno,
     int length,
@@ -52,7 +53,6 @@ public record JSError(
     implements Serializable {
   public JSError {
     requireNonNull(type, "type");
-    requireNonNull(description, "description");
     requireNonNull(defaultLevel, "defaultLevel");
   }
 
@@ -67,7 +67,7 @@ public record JSError(
   }
 
   @InlineMe(replacement = "this.sourceName()")
-  public @Nullable String getSourceName() {
+  public Optional<String> getSourceName() {
     return sourceName();
   }
 
@@ -104,7 +104,7 @@ public record JSError(
   private static final int DEFAULT_LINENO = -1;
   private static final int DEFAULT_CHARNO = -1;
   private static final int DEFAULT_LENGTH = 0;
-  private static final @Nullable String DEFAULT_SOURCENAME = null;
+  private static final Optional<String> DEFAULT_SOURCENAME = Optional.empty();
   private static final @Nullable Node DEFAULT_NODE = null;
   private static final @Nullable Requirement DEFAULT_REQUIREMENT = null;
 
@@ -128,7 +128,7 @@ public record JSError(
    * @param arguments Arguments to be incorporated into the message
    */
   public static JSError make(
-      String sourceName, int lineno, int charno, DiagnosticType type, String... arguments) {
+      Optional<String> sourceName, int lineno, int charno, DiagnosticType type, String... arguments) {
     return builder(type, arguments).setSourceLocation(sourceName, lineno, charno).build();
   }
 
@@ -174,7 +174,7 @@ public record JSError(
 
     private CheckLevel level;
     private Node n = DEFAULT_NODE;
-    private String sourceName = DEFAULT_SOURCENAME;
+    private Optional<String> sourceName = DEFAULT_SOURCENAME;
     private int lineno = DEFAULT_LINENO;
     private int charno = DEFAULT_CHARNO;
     private int length = DEFAULT_LENGTH;
@@ -194,10 +194,10 @@ public record JSError(
     @CanIgnoreReturnValue
     Builder setNode(Node n) {
       Preconditions.checkState(
-          Objects.equals(DEFAULT_SOURCENAME, this.sourceName),
+          DEFAULT_SOURCENAME.equals(this.sourceName),
           "Cannot provide a Node when there's already a source name");
       this.n = n;
-      this.sourceName = n.getSourceFileName();
+      this.sourceName = Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty());
       this.lineno = n.getLineno();
       this.charno = n.getCharno();
       this.length = n.getLength();
@@ -207,10 +207,10 @@ public record JSError(
     @CanIgnoreReturnValue
     Builder setNodeRange(Node start, Node end) {
       Preconditions.checkState(
-          Objects.equals(DEFAULT_SOURCENAME, this.sourceName),
+          DEFAULT_SOURCENAME.equals(this.sourceName),
           "Cannot provide a Node when there's already a source name");
       this.n = start;
-      this.sourceName = n.getSourceFileName();
+      this.sourceName = Optional.of(n.getSourceFileName()).filter(s -> !s.isEmpty());
       this.lineno = n.getLineno();
       this.charno = n.getCharno();
       int endOffset = end.getSourceOffset();
@@ -251,7 +251,7 @@ public record JSError(
      * @param charno Column number within line, or -1 for whole line.
      */
     @CanIgnoreReturnValue
-    Builder setSourceLocation(String sourceName, int lineno, int charno) {
+    Builder setSourceLocation(Optional<String> sourceName, int lineno, int charno) {
       Preconditions.checkState(
           this.n == DEFAULT_NODE, "Cannot provide a source location when there is already a Node");
       this.sourceName = sourceName;
@@ -280,7 +280,7 @@ public record JSError(
   @Override
   public final String toString() {
     String sourceName =
-        emptyToNull(this.sourceName()) != null ? this.sourceName() : "(unknown source)";
+        this.sourceName().orElse("").isEmpty() ? "(unknown source)" : this.sourceName().get();
     String lineno =
         this.lineno() != DEFAULT_LINENO ? String.valueOf(this.lineno()) : "(unknown line)";
     String charno =
@@ -302,11 +302,11 @@ public record JSError(
    *
    * @return the formatted message or {@code null}
    */
-  public final @Nullable String format(CheckLevel level, MessageFormatter formatter) {
+  public final Optional<String> format(CheckLevel level, MessageFormatter formatter) {
     return switch (level) {
-      case ERROR -> formatter.formatError(this);
-      case WARNING -> formatter.formatWarning(this);
-      default -> null;
+      case ERROR -> Optional.of(formatter.formatError(this));
+      case WARNING -> Optional.of(formatter.formatWarning(this));
+      default -> Optional.empty();
     };
   }
 

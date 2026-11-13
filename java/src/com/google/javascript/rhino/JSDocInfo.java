@@ -41,7 +41,6 @@ package com.google.javascript.rhino;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Strings.nullToEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CaseFormat;
@@ -61,6 +60,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Supplier;
@@ -1026,8 +1026,8 @@ public class JSDocInfo implements Serializable {
 
   /** Returns whether the {@code @code} is present within this {@link JSDocInfo}. */
   public boolean isAtSignCodePresent() {
-    final String entireComment = getOriginalCommentString();
-    return (entireComment == null) ? false : entireComment.contains("@code");
+    final Optional<String> entireComment = getOriginalCommentString();
+    return (entireComment.isEmpty()) ? false : entireComment.get().contains("@code");
   }
 
   /**
@@ -1046,9 +1046,9 @@ public class JSDocInfo implements Serializable {
    * @return the parameter's type or {@code null} if this parameter is not defined or has a {@code
    *     null} type
    */
-  public @Nullable JSTypeExpression getParameterType(String parameter) {
+  public @Nullable JSTypeExpression getParameterType(Optional<String> parameter) {
     LinkedHashMap<String, JSTypeExpression> params = PARAMETERS.get(this);
-    return params != null ? params.get(parameter) : null;
+    return params != null ? (parameter.isPresent() ? params.get(parameter.get()) : null) : null;
   }
 
   /** Returns whether the parameter is defined. */
@@ -1063,7 +1063,7 @@ public class JSDocInfo implements Serializable {
    * @return {@code true} if the parameter has an attached type, {@code false} if the parameter has
    *     no attached type or does not exist.
    */
-  public boolean hasParameterType(String parameter) {
+  public boolean hasParameterType(Optional<String> parameter) {
     return getParameterType(parameter) != null;
   }
 
@@ -1083,12 +1083,12 @@ public class JSDocInfo implements Serializable {
    * Returns the nth name in the defined parameters. The iteration order is the order in which
    * parameters are defined in the JSDoc, rather than the order in which the function declares them.
    */
-  public @Nullable String getParameterNameAt(int index) {
+  public Optional<String> getParameterNameAt(int index) {
     LinkedHashMap<String, JSTypeExpression> params = PARAMETERS.get(this);
     if (params == null || index >= params.size()) {
-      return null;
+      return Optional.empty();
     }
-    return Iterables.get(params.keySet(), index);
+    return Optional.ofNullable(Iterables.get(params.keySet(), index));
   }
 
   /** Gets the number of parameters defined. */
@@ -1178,8 +1178,8 @@ public class JSDocInfo implements Serializable {
   }
 
   /** Gets the description specified by the {@code @desc} annotation. */
-  public String getDescription() {
-    return DESCRIPTION.get(this);
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(DESCRIPTION.get(this));
   }
 
   /** Gets the ts type declarations specified by the {@code @tsType} annotations. */
@@ -1198,8 +1198,8 @@ public class JSDocInfo implements Serializable {
    * <p>But some code generators (like Closure Templates) inject their own meaning with the jsdoc
    * {@code @meaning} annotation.
    */
-  public String getMeaning() {
-    return MEANING.get(this);
+  public Optional<String> getMeaning() {
+    return Optional.ofNullable(MEANING.get(this));
   }
 
   /**
@@ -1211,8 +1211,8 @@ public class JSDocInfo implements Serializable {
    *
    * <p>Some code generators (like Closure Templates) inject this.
    */
-  public String getAlternateMessageId() {
-    return ALTERNATE_MESSAGE_ID.get(this);
+  public Optional<String> getAlternateMessageId() {
+    return Optional.ofNullable(ALTERNATE_MESSAGE_ID.get(this));
   }
 
   /**
@@ -1231,13 +1231,13 @@ public class JSDocInfo implements Serializable {
   }
 
   /** Returns the {@code @closurePrimitive {id}} identifier */
-  public String getClosurePrimitiveId() {
-    return CLOSURE_PRIMITIVE_ID.get(this);
+  public Optional<String> getClosurePrimitiveId() {
+    return Optional.ofNullable(CLOSURE_PRIMITIVE_ID.get(this));
   }
 
   /** Whether this JSDoc is annotated with {@code @closurePrimitive} */
   public boolean hasClosurePrimitiveId() {
-    return CLOSURE_PRIMITIVE_ID.get(this) != null;
+    return Optional.ofNullable(CLOSURE_PRIMITIVE_ID.get(this)).isPresent();
   }
 
   /** Returns whether JSDoc is annotated with {@code @ngInject} annotation. */
@@ -1307,8 +1307,8 @@ public class JSDocInfo implements Serializable {
   }
 
   /** Gets the description specified by the {@code @license} annotation. */
-  public String getLicense() {
-    return LICENSE.get(this);
+  public Optional<String> getLicense() {
+    return Optional.ofNullable(LICENSE.get(this));
   }
 
   @Override
@@ -1376,8 +1376,8 @@ public class JSDocInfo implements Serializable {
   }
 
   /** Returns the deprecation reason or null if none specified. */
-  public String getDeprecationReason() {
-    return DEPRECATION_REASON.get(this);
+  public Optional<String> getDeprecationReason() {
+    return Optional.ofNullable(DEPRECATION_REASON.get(this));
   }
 
   /** Returns the set of suppressed warnings. */
@@ -1416,9 +1416,9 @@ public class JSDocInfo implements Serializable {
   }
 
   /** Returns the description for the parameter with the given name, if its exists. */
-  public @Nullable String getDescriptionForParameter(String name) {
+  public Optional<String> getDescriptionForParameter(String name) {
     LinkedHashMap<String, String> params = PARAMETER_DESCRIPTIONS.get(this);
-    return params != null ? params.get(name) : null;
+    return params != null ? Optional.ofNullable(params.get(name)) : Optional.empty();
   }
 
   /** Returns the list of authors or null if none. */
@@ -1432,13 +1432,13 @@ public class JSDocInfo implements Serializable {
   }
 
   /** Returns the description of the returned object or null if none specified. */
-  public String getReturnDescription() {
-    return RETURN_DESCRIPTION.get(this);
+  public Optional<String> getReturnDescription() {
+    return Optional.ofNullable(RETURN_DESCRIPTION.get(this));
   }
 
   /** Returns the block-level description or null if none specified. */
-  public String getBlockDescription() {
-    return BLOCK_DESCRIPTION.get(this);
+  public Optional<String> getBlockDescription() {
+    return Optional.ofNullable(BLOCK_DESCRIPTION.get(this));
   }
 
   /** Returns whether this has a fileoverview flag. */
@@ -1463,7 +1463,7 @@ public class JSDocInfo implements Serializable {
 
   /** Returns whether this has a modded namespace. */
   public boolean hasMods() {
-    return MODS.get(this) != null;
+    return Optional.ofNullable(MODS.get(this)).isPresent();
   }
 
   /** Returns the modded namespace or null if none is specified. */
@@ -1579,8 +1579,8 @@ public class JSDocInfo implements Serializable {
    * Returns the original JSDoc comment string. Returns null unless parseJsDocDocumentation is
    * enabled via the ParserConfig.
    */
-  public String getOriginalCommentString() {
-    return SOURCE_COMMENT.get(this);
+  public Optional<String> getOriginalCommentString() {
+    return Optional.ofNullable(SOURCE_COMMENT.get(this));
   }
 
   public int getOriginalCommentPosition() {
@@ -2081,7 +2081,7 @@ public class JSDocInfo implements Serializable {
 
     /** Returns whether a deprecation reason has been recorded. */
     public boolean isDeprecationReasonRecorded() {
-      return getProp(DEPRECATION_REASON) != null;
+      return Optional.ofNullable(getProp(DEPRECATION_REASON)).isPresent();
     }
 
     public void recordSuppressions(ImmutableSet<String> suppressions, String description) {
@@ -2367,8 +2367,8 @@ public class JSDocInfo implements Serializable {
         return false;
       }
 
-      String txt = getProp(LICENSE);
-      return recordLicense(RhinoStringPool.addOrGet(nullToEmpty(txt) + license));
+      Optional<String> txt = Optional.ofNullable(getProp(LICENSE));
+      return recordLicense(RhinoStringPool.addOrGet(txt.orElse("") + license));
     }
 
     /**
@@ -2692,9 +2692,9 @@ public class JSDocInfo implements Serializable {
     }
 
     /** Returns whether a parameter of the given name has already been recorded. */
-    public boolean hasParameter(String name) {
+    public boolean hasParameter(Optional<String> name) {
       Map<String, JSTypeExpression> params = getProp(PARAMETERS);
-      return params != null && params.containsKey(name);
+      return params != null && name.isPresent() && params.containsKey(name.get());
     }
 
     /** Records an implemented interface. */

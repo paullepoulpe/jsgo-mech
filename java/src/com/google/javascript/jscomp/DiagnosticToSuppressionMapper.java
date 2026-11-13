@@ -18,14 +18,12 @@ package com.google.javascript.jscomp;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonIOException;
-import com.google.gson.stream.JsonWriter;
 import com.google.javascript.jscomp.base.Io;
-import java.io.IOException;
-import java.io.StringWriter;
+import com.google.javascript.jscomp.base.SimpleJsonWriter;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /** Used to print a map from diagnostic id to suppression. */
@@ -93,21 +91,15 @@ public final class DiagnosticToSuppressionMapper {
   }
 
   private static void printAsJson(ImmutableSortedMap<String, String> diagnosticToSuppression) {
-    StringWriter out = new StringWriter();
-    JsonWriter writer = new JsonWriter(out);
-    writer.setLenient(true);
+    SimpleJsonWriter writer = new SimpleJsonWriter();
     writer.setHtmlSafe(true);
     writer.setSerializeNulls(false);
-    try {
-      writer.beginObject();
-      for (Map.Entry<String, String> entry : diagnosticToSuppression.entrySet()) {
-        writer.name(entry.getKey()).value(entry.getValue());
-      }
-      writer.endObject();
-    } catch (IOException e) {
-      throw new JsonIOException(e);
+    writer.beginObject();
+    for (Map.Entry<String, String> entry : diagnosticToSuppression.entrySet()) {
+      writer.name(entry.getKey()).stringValue(Optional.ofNullable(entry.getValue()));
     }
-    Io.stdout().println(out.toString());
+    writer.endObject();
+    Io.stdout().println(writer.toString());
   }
 
   private static void printAsMarkdown(ImmutableSortedMap<String, String> diagnosticToSuppression) {

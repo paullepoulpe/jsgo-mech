@@ -23,6 +23,7 @@ import com.google.javascript.jscomp.NodeTraversal;
 import com.google.javascript.jscomp.NodeUtil;
 import com.google.javascript.rhino.Node;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -76,24 +77,24 @@ public final class CheckGoogModuleTypeScriptName implements NodeTraversal.Callba
   }
 
   private void checkGoogModuleNamespace(NodeTraversal t, Node n) {
-    String originalNamespace = n.getFirstChild().getSecondChild().getString();
-    String sourceName = t.getSourceName();
-    if (originalNamespace == null || sourceName == null) {
+    Optional<String> originalNamespace = Optional.of(n.getFirstChild().getSecondChild().getString());
+    Optional<String> sourceName = t.getSourceName();
+    if (originalNamespace.isEmpty() || sourceName.isEmpty()) {
       return;
     }
     // MOE::begin_strip
-    int google3Index = sourceName.indexOf("google3");
+    int google3Index = sourceName.get().indexOf("google3");
     if (google3Index == -1) {
-      sourceName = "google3/" + sourceName;
+      sourceName = Optional.of("google3/" + sourceName.get());
     } else if (google3Index != 0) {
-      sourceName = sourceName.substring(google3Index);
+      sourceName = Optional.of(sourceName.get().substring(google3Index));
     }
     // MOE::end_strip
     String replacementNamespace =
-        sourceName.replace('/', '.').substring(0, sourceName.length() - ".js".length());
-    if (!originalNamespace.equals(replacementNamespace)) {
+        sourceName.get().replace('/', '.').substring(0, sourceName.get().length() - ".js".length());
+    if (!originalNamespace.get().equals(replacementNamespace)) {
       for (String allowedDirectory : allowedDirectories) {
-        if (sourceName.startsWith(allowedDirectory)) {
+        if (sourceName.get().startsWith(allowedDirectory)) {
           t.report(n, MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE, replacementNamespace);
           return;
         }

@@ -945,7 +945,7 @@ public final class AttachJsdocsTest extends BaseJSTypeTestCase {
     Node root = parse("var x; /** foo */ /** bar */ function f() {}");
     JSDocInfo info = root.getLastChild().getJSDocInfo();
     assertThat(info).isNotNull();
-    assertThat(info.getOriginalCommentString()).isEqualTo("/** bar */");
+    assertThat(info.getOriginalCommentString().orElse(null)).isEqualTo("/** bar */");
   }
 
   @Test

@@ -61,6 +61,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -129,7 +130,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
   private Node source;
 
   /** The ID of the goog.module in which this function was declared. */
-  private final @Nullable String googModuleId;
+  private final String googModuleId;
 
   /** if this is an interface, indicate whether or not it supports structural interface matching */
   private boolean isStructuralInterfaceField;
@@ -433,8 +434,8 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
   public final ObjectType getPrototype() {
     // lazy initialization of the prototype field
     if (prototypeSlot == null) {
-      String refName = getReferenceName();
-      if (refName == null) {
+      Optional<String> refName = getReferenceName();
+      if (refName.isEmpty()) {
         // Someone is trying to access the prototype of a structural function.
         // We don't want to give real properties to this prototype, because
         // then it would propagate to all structural functions.
@@ -442,7 +443,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
       } else {
         setPrototype(
             PrototypeObjectType.builder(registry)
-                .setName(getReferenceName() + ".prototype")
+                .setName(Optional.of(getReferenceName().orElse("null") + ".prototype"))
                 .setImplicitPrototype(registry.getNativeObjectType(OBJECT_TYPE))
                 .setNative(isNativeObjectType())
                 .build(),
@@ -497,7 +498,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
       }
       baseType =
           PrototypeObjectType.builder(registry)
-              .setName(getReferenceName() + ".prototype")
+              .setName(Optional.of(getReferenceName().orElse("null") + ".prototype"))
               .setImplicitPrototype(baseType)
               .build();
     }
@@ -1029,7 +1030,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
   }
 
   @Override
-  public @Nullable String getGoogModuleId() {
+  public String getGoogModuleId() {
     return this.googModuleId;
   }
 
@@ -1127,7 +1128,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
       if (!rt.isObjectType()) {
         reporter.warning(
             "not an object type: " + rt + " (at " + toString() + ")",
-            source.getSourceFileName(),
+            Optional.of(source.getSourceFileName()).filter(s -> !s.isEmpty()),
             source.getLineno(),
             source.getCharno());
         continue;
@@ -1373,7 +1374,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
 
   private boolean isDelegateProxy() {
     // TODO(bradfordcsmith): There should be a better way to determine that we have a proxy type.
-    return hasReferenceName() && getReferenceName().endsWith(DELEGATE_SUFFIX);
+    return hasReferenceName() && getReferenceName().get().endsWith(DELEGATE_SUFFIX);
   }
 
   /** Returns the {@code @closurePrimitive} identifier associated with this function */
@@ -1416,7 +1417,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
   public static final class Builder extends PrototypeObjectType.Builder<Builder> {
 
     private @Nullable Node sourceNode = null;
-    private @Nullable String googModuleId = null;
+    private String googModuleId = "";
     private @Nullable List<Parameter> parameters = null;
     private @Nullable JSType returnType = null;
     private @Nullable JSType typeOfThis = null;
@@ -1438,7 +1439,7 @@ public class FunctionType extends PrototypeObjectType implements JSType.WithSour
     }
 
     /** Set the name of the function type. */
-    public Builder withName(String name) {
+    public Builder withName(Optional<String> name) {
       return setName(name);
     }
 

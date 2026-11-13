@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleMetadata;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -50,7 +51,7 @@ public record Binding(
     @Nullable Node sourceNode,
     @Nullable Export originatingExport,
     boolean isModuleNamespace,
-    @Nullable String closureNamespace,
+    Optional<String> closureNamespace,
     CreatedBy createdBy) {
   public Binding {
     requireNonNull(metadata, "metadata");
@@ -139,13 +140,13 @@ public record Binding(
         sourceNode,
         /* originatingExport= */ null,
         /* isModuleNamespace= */ true,
-        closureNamespace,
+        Optional.of(closureNamespace),
         createdBy);
   }
 
   /** Binding for an entire module namespace created by an <code>import *</code>. */
   static Binding from(
-      ModuleMetadata metadataOfBoundModule, @Nullable String closureNamespace, Node sourceNode) {
+      ModuleMetadata metadataOfBoundModule, Optional<String> closureNamespace, Node sourceNode) {
     return new Binding(
         metadataOfBoundModule,
         sourceNode,
@@ -172,7 +173,7 @@ public record Binding(
    * The name of the variable this export is bound to, assuming it is not a binding of a module
    * namespace.
    */
-  public final String boundName() {
+  public final Optional<String> boundName() {
     checkState(!isModuleNamespace());
     return originatingExport().localName();
   }

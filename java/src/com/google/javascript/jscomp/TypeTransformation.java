@@ -725,7 +725,7 @@ class TypeTransformation {
   private JSType evalInstanceOf(Node ttlAst, NameResolver nameResolver) {
     JSType type = evalInternal(getCallArgument(ttlAst, 0), nameResolver);
     if (type.isUnknownType() || !type.isConstructor()) {
-      reportWarning(ttlAst, INVALID_CTOR, type.getDisplayName());
+      reportWarning(ttlAst, INVALID_CTOR, type.getDisplayName().orElse("null"));
       return getUnknownType();
     }
     return type.toMaybeFunctionType().getInstanceType();

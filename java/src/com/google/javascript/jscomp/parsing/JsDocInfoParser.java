@@ -17,7 +17,6 @@
 package com.google.javascript.jscomp.parsing;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -41,6 +40,7 @@ import com.google.javascript.rhino.TokenUtil;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -76,11 +76,11 @@ public final class JsDocInfoParser {
   private final Node templateNode;
 
   private void addParserWarning(Msg msg, String messageArg) {
-    addParserWarning(msg, messageArg, stream.getLineno(), stream.getCharno());
+    addParserWarning(msg, Optional.of(messageArg), stream.getLineno(), stream.getCharno());
   }
 
-  private void addParserWarning(Msg msg, String messageArg, int lineno, int charno) {
-    errorReporter.warning(msg.format(messageArg), getSourceName(), lineno, charno);
+  private void addParserWarning(Msg msg, Optional<String> messageArg, int lineno, int charno) {
+    errorReporter.warning(msg.format(messageArg.orElse(null)), getSourceName(), lineno, charno);
   }
 
   private void addParserWarning(Msg msg) {
@@ -92,12 +92,12 @@ public final class JsDocInfoParser {
   }
 
   private void addTypeWarning(Msg msg, String messageArg) {
-    addTypeWarning(msg, messageArg, stream.getLineno(), stream.getCharno());
+    addTypeWarning(msg, Optional.of(messageArg), stream.getLineno(), stream.getCharno());
   }
 
-  private void addTypeWarning(Msg msg, String messageArg, int lineno, int charno) {
+  private void addTypeWarning(Msg msg, Optional<String> messageArg, int lineno, int charno) {
     errorReporter.warning(
-        "Bad type annotation. " + msg.format(messageArg) + BAD_TYPE_WIKI_LINK,
+        "Bad type annotation. " + msg.format(messageArg.orElse(null)) + BAD_TYPE_WIKI_LINK,
         getSourceName(),
         lineno,
         charno);
@@ -135,15 +135,14 @@ public final class JsDocInfoParser {
       ImmutableSet.of("number", "string", "boolean", "symbol");
   private final boolean onlyParseLicenseJsDoc;
 
-  private @Nullable String licenseText;
+  private Optional<String> licenseText = Optional.empty();
 
   private void setLicenseTextMonotonic(String x) {
-    checkNotNull(x);
-    checkState(this.licenseText == null);
-    this.licenseText = x;
+    checkState(this.licenseText.isEmpty());
+    this.licenseText = Optional.of(x);
   }
 
-  @Nullable String getLicenseText() {
+  Optional<String> getLicenseText() {
     return this.licenseText;
   }
 
@@ -175,7 +174,7 @@ public final class JsDocInfoParser {
 
   public JsDocInfoParser(
       JsDocTokenStream stream,
-      String comment,
+      Optional<String> comment,
       int commentPosition,
       @Nullable Node templateNode,
       Config config,
@@ -188,8 +187,8 @@ public final class JsDocInfoParser {
     if (parseDocumentation) {
       this.jsdocBuilder.parseDocumentation();
     }
-    if (comment != null) {
-      this.jsdocBuilder.recordOriginalCommentString(comment);
+    if (comment.isPresent()) {
+      this.jsdocBuilder.recordOriginalCommentString(comment.get());
       this.jsdocBuilder.recordOriginalCommentPosition(commentPosition);
     }
     this.recordTsType = config.jsDocParsingMode().shouldParseDescriptions();
@@ -205,9 +204,9 @@ public final class JsDocInfoParser {
     this.templateNode = templateNode == null ? IR.script() : templateNode;
   }
 
-  private @Nullable String getSourceName() {
+  private Optional<String> getSourceName() {
     StaticSourceFile sourceFile = getSourceFile();
-    return sourceFile == null ? null : sourceFile.getName();
+    return sourceFile == null ? Optional.empty() : Optional.of(sourceFile.getName());
   }
 
   /** Parse a description as a {@code @type}. */
@@ -272,7 +271,7 @@ public final class JsDocInfoParser {
             .build();
     return new JsDocInfoParser(
         new JsDocTokenStream(toParse),
-        toParse,
+        Optional.of(toParse),
         0,
         null,
         config,
@@ -907,7 +906,7 @@ public final class JsDocInfoParser {
             hasParamType = true;
           }
 
-          String name = null;
+          Optional<String> name = Optional.empty();
           boolean isBracketedParam = JsDocToken.LEFT_SQUARE == token;
           if (isBracketedParam) {
             token = next();
@@ -920,7 +919,7 @@ public final class JsDocInfoParser {
               addMissingTypeWarning(stream.getLineno(), stream.getCharno());
             }
 
-            name = stream.getString();
+            name = Optional.of(stream.getString());
 
             if (isBracketedParam) {
               token = next();
@@ -948,10 +947,10 @@ public final class JsDocInfoParser {
             // for handling properties of params, so if the param name has a DOT
             // in it, report a warning and throw it out.
             // See https://github.com/google/closure-compiler/issues/499
-            if (!TokenStream.isJSIdentifier(name)) {
+            if (!TokenStream.isJSIdentifier(name.get())) {
               addParserWarning(Msg.INVALID_VARIABLE_NAME, name, lineno, charno);
-              name = null;
-            } else if (!jsdocBuilder.recordParameter(name, type)) {
+              name = Optional.empty();
+            } else if (!jsdocBuilder.recordParameter(name.get(), type)) {
               if (jsdocBuilder.hasParameter(name)) {
                 addTypeWarning(Msg.DUP_VARIABLE_NAME, name, lineno, charno);
               } else {
@@ -960,12 +959,12 @@ public final class JsDocInfoParser {
             }
           }
 
-          if (name == null) {
+          if (name.isEmpty()) {
             token = eatUntilEOLIfNotAnnotation(token);
             return token;
           }
 
-          jsdocBuilder.markName(name, templateNode, lineno, charno);
+          jsdocBuilder.markName(name.get(), templateNode, lineno, charno);
 
           // Find the parameter's description (if applicable).
           if (jsdocBuilder.shouldParseDocumentation() && token != JsDocToken.ANNOTATION) {
@@ -974,7 +973,7 @@ public final class JsDocInfoParser {
             String paramDescription = paramDescriptionInfo.string;
 
             if (paramDescription.length() > 0) {
-              jsdocBuilder.recordParameterDescription(name, paramDescription);
+              jsdocBuilder.recordParameterDescription(name.get(), paramDescription);
             }
 
             token = paramDescriptionInfo.token;
@@ -1043,10 +1042,10 @@ public final class JsDocInfoParser {
             // Parse a list of comma separated names.
             do {
               @Nullable Node nameNode = parseNameExpression(next());
-              @Nullable String templateName = (nameNode == null) ? null : nameNode.getString();
+              Optional<String> templateName = (nameNode == null) ? Optional.empty() : Optional.of(nameNode.getString());
 
               if (validTemplateTypeName(templateName)) {
-                templateNames.add(templateName);
+                templateNames.add(templateName.orElseThrow());
               }
             } while (eatIfMatch(JsDocToken.COMMA));
           }
@@ -1358,8 +1357,8 @@ public final class JsDocInfoParser {
    * The types in @template annotations must contain only letters, digits, underscores and dollar
    * signs.
    */
-  private static boolean validTemplateTypeName(String name) {
-    return name != null && !name.isEmpty() && TEMPLATE_NAME_MATCHER.matchesAllOf(name);
+  private static boolean validTemplateTypeName(Optional<String> name) {
+    return name.isPresent() && !name.get().isEmpty() && TEMPLATE_NAME_MATCHER.matchesAllOf(name.get());
   }
 
   /**
@@ -1529,7 +1528,7 @@ public final class JsDocInfoParser {
       while (true) {
         if (match(JsDocToken.STRING)) {
           String name = stream.getString();
-          if (!modifiesAnnotationKeywords.contains(name) && !jsdocBuilder.hasParameter(name)) {
+          if (!modifiesAnnotationKeywords.contains(name) && !jsdocBuilder.hasParameter(Optional.of(name))) {
             addParserWarning(Msg.JSDOC_MODIFIES_UNKNOWN, name);
           }
 
@@ -1572,7 +1571,7 @@ public final class JsDocInfoParser {
     if (token == JsDocToken.LEFT_CURLY) {
       if (match(JsDocToken.STRING)) {
         String name = stream.getString();
-        if (!idGeneratorAnnotationKeywords.contains(name) && !jsdocBuilder.hasParameter(name)) {
+        if (!idGeneratorAnnotationKeywords.contains(name) && !jsdocBuilder.hasParameter(Optional.of(name))) {
           addParserWarning(Msg.JSDOC_IDGEN_UNKNOWN, name);
         }
 
@@ -1733,7 +1732,7 @@ public final class JsDocInfoParser {
    * @param n A node. May be null.
    */
   @Nullable JSTypeExpression createJSTypeExpression(Node n) {
-    return n == null ? null : new JSTypeExpression(n, getSourceName());
+    return n == null ? null : new JSTypeExpression(n, getSourceName().orElse(""));
   }
 
   /**

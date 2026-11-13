@@ -18,17 +18,15 @@ package com.google.javascript.jscomp.instrumentation.reporter;
 
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
+import com.google.common.primitives.Longs;
 import com.google.javascript.jscomp.CmdLineException;
 import com.google.javascript.jscomp.CmdLineParser;
 import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Json;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleJsonException;
+import com.google.javascript.jscomp.base.SimpleJsonValue;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
@@ -50,7 +48,7 @@ final class ProductionInstrumentationReporter {
   public static void main(String[] args) {
     Outcome<Void> done = new ProductionInstrumentationReporter().doMain(args);
     if (done.isErr()) {
-      Io.stderr().println(done.errorMessage());
+      Io.stderr().println(done.errorMessage().get());
     }
   }
 
@@ -72,96 +70,73 @@ final class ProductionInstrumentationReporter {
       if (executionResult.isErr()) {
         return Outcome.err(executionResult.error());
       }
-      Map<String, Long> executedInstrumentationData =
+      Outcome<Map<String, Long>> executedInstrumentationData =
           parseJsonStringToLongMap(executionResult.get());
+      if (executedInstrumentationData.isErr()) {
+        return Outcome.err(executedInstrumentationData.error());
+      }
 
-      result.add(executedInstrumentationData);
+      result.add(executedInstrumentationData.get());
     }
 
     return Outcome.ok(result.build());
   }
 
   /**
-   * Parses a whole JSON document that must be null or an object whose values are integers or null
-   * (or the same as an array of [name, value] pairs). Returns null for an empty document. The
-   * object is read in lenient mode; a repeated name is an error.
+   * Parses a JSON document that must be an object whose values are integers or null, or the same
+   * as an array of [name, value] pairs, in which a repeated name is an error.
    */
-  private static @Nullable Map<String, Long> parseJsonStringToLongMap(String json) {
-    JsonReader reader = new JsonReader(new StringReader(json));
-    try {
-      reader.setLenient(true);
-      try {
-        reader.peek();
-      } catch (EOFException e) {
-        return null;
-      }
-      Map<String, Long> map = null;
-      if (reader.peek() == JsonToken.NULL) {
-        reader.nextNull();
-      } else {
-        map = new LinkedHashMap<>();
-        boolean pairs = reader.peek() == JsonToken.BEGIN_ARRAY;
-        if (pairs) {
-          reader.beginArray();
-        } else {
-          reader.beginObject();
-        }
-        while (reader.hasNext()) {
-          String key;
-          if (pairs) {
-            reader.beginArray();
-            key = readJsonString(reader);
-          } else {
-            key = reader.nextName();
-          }
-          Long value = null;
-          if (reader.peek() == JsonToken.NULL) {
-            reader.nextNull();
-          } else {
-            try {
-              value = reader.nextLong();
-            } catch (NumberFormatException e) {
-              throw new JsonSyntaxException(e);
-            }
-          }
-          if (pairs) {
-            reader.endArray();
-          }
-          if (key == null) {
-            throw new NullPointerException("key == null");
-          }
-          Long replaced = map.put(key, value);
-          if (replaced != null) {
-            throw new JsonSyntaxException("duplicate key: " + key);
-          }
-        }
-        if (pairs) {
-          reader.endArray();
-        } else {
-          reader.endObject();
-        }
-      }
-      reader.setLenient(false);
-      if (map != null && reader.peek() != JsonToken.END_DOCUMENT) {
-        throw new JsonSyntaxException("JSON document was not fully consumed.");
-      }
-      return map;
-    } catch (IllegalStateException | IOException e) {
-      throw new JsonSyntaxException(e);
+  private static Outcome<Map<String, Long>> parseJsonStringToLongMap(String json) {
+    Outcome<SimpleJsonValue> parsed = Json.parse(json);
+    if (parsed.isErr()) {
+      return Outcome.err(parsed.error());
     }
+    SimpleJsonValue document = parsed.get();
+    Map<String, Long> map = new LinkedHashMap<>();
+    if (document.kind() == SimpleJsonValue.Kind.OBJECT) {
+      for (Map.Entry<String, SimpleJsonValue> member : document.members().entrySet()) {
+        Outcome<@Nullable Long> value = readJsonLong(member.getValue());
+        if (value.isErr()) {
+          return Outcome.err(value.error());
+        }
+        map.put(member.getKey(), value.get());
+      }
+      return Outcome.ok(map);
+    } else if (document.kind() != SimpleJsonValue.Kind.ARRAY) {
+      return Outcome.err(new SimpleJsonException("Malformed report: expected a JSON object"));
+    }
+    for (SimpleJsonValue pair : document.elements()) {
+      if (pair.kind() != SimpleJsonValue.Kind.ARRAY || pair.elements().size() != 2) {
+        return Outcome.err(new SimpleJsonException("Malformed report: expected a [name, value]"));
+      }
+      Outcome<String> key = pair.elements().get(0).asString();
+      if (key.isErr()) {
+        return Outcome.err(key.error());
+      }
+      Outcome<@Nullable Long> value = readJsonLong(pair.elements().get(1));
+      if (value.isErr()) {
+        return Outcome.err(value.error());
+      }
+      Long replaced = map.put(key.get(), value.get());
+      if (replaced != null) {
+        return Outcome.err(new SimpleJsonException("duplicate key: " + key.get()));
+      }
+    }
+    return Outcome.ok(map);
   }
 
-  /** Reads a string or null; a boolean or a number is read as its text. */
-  private static @Nullable String readJsonString(JsonReader reader) throws IOException {
-    JsonToken peek = reader.peek();
-    if (peek == JsonToken.NULL) {
-      reader.nextNull();
-      return null;
+  /** Reads null, or an integer that fits a long, given as a number or as a string. */
+  private static Outcome<@Nullable Long> readJsonLong(SimpleJsonValue value) {
+    if (value.kind() == SimpleJsonValue.Kind.NULL) {
+      return Outcome.ok(null);
     }
-    if (peek == JsonToken.BOOLEAN) {
-      return Boolean.toString(reader.nextBoolean());
+    Outcome<String> text = value.asString();
+    // Longs.tryParse accepts an optional '-' and ASCII digits whose value fits a long.
+    Long result = text.isErr() ? null : Longs.tryParse(text.get());
+    if (result == null) {
+      return Outcome.err(new SimpleJsonException("Malformed report: expected an integer"));
     }
-    return reader.nextString();
+    return Outcome.ok(result);
   }
 
   /**

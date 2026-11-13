@@ -31,6 +31,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -201,9 +202,9 @@ class AnalyzePrototypeProperties implements CompilerPass {
       Scope scope = t.getScope();
       Node root = scope.getRootNode();
       if (root.isFunction()) {
-        String propName = getPrototypePropertyNameFromRValue(n);
-        if (propName != null) {
-          symbolStack.push(new NameContext(getNameInfoForName(propName, PROPERTY), scope));
+        Optional<String> propName = getPrototypePropertyNameFromRValue(n);
+        if (propName.isPresent()) {
+          symbolStack.push(new NameContext(getNameInfoForName(propName.get(), PROPERTY), scope));
         } else if (isGlobalFunctionDeclaration(t, n)) {
           Node parent = n.getParent();
           String name =
@@ -246,9 +247,9 @@ class AnalyzePrototypeProperties implements CompilerPass {
     public boolean shouldTraverse(NodeTraversal t, Node n, Node parent) {
       if (!rootScopeUsesAreGlobal) {
         // Process assignment of a non-function expression to a prototype property.
-        String propName = processNonFunctionPrototypeAssign(n, parent);
-        if (propName != null) {
-          symbolStack.push(new NameContext(getNameInfoForName(propName, PROPERTY), null));
+        Optional<String> propName = processNonFunctionPrototypeAssign(n, parent);
+        if (propName.isPresent()) {
+          symbolStack.push(new NameContext(getNameInfoForName(propName.get(), PROPERTY), null));
         }
       }
       return true;
@@ -297,8 +298,8 @@ class AnalyzePrototypeProperties implements CompilerPass {
               return;
             } else {
               if (parent.isAssign() && n == parent.getFirstChild()) {
-                String rValueName = getPrototypePropertyNameFromRValue(n);
-                if (rValueName != null) {
+                Optional<String> rValueName = getPrototypePropertyNameFromRValue(n);
+                if (rValueName.isPresent()) {
                   // e.g. `Foo.prototype.bar = something`
                   // We record the declaration of `bar` when we look at the `Foo.prototype`
                   // Node via the call to handlePossibleAssignmentToPrototype() above.
@@ -317,8 +318,8 @@ class AnalyzePrototypeProperties implements CompilerPass {
           // Make sure that we're not handling object literals being
           // assigned to a prototype, as in:
           // Foo.prototype = {bar: 3, baz: 5};
-          String lValueName = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
-          if (lValueName != null && lValueName.endsWith(".prototype")) {
+          Optional<String> lValueName = NodeUtil.getBestLValueName(NodeUtil.getBestLValue(n));
+          if (lValueName.isPresent() && lValueName.get().endsWith(".prototype")) {
             return;
           }
 
@@ -397,7 +398,7 @@ class AnalyzePrototypeProperties implements CompilerPass {
           break;
       }
       // Process prototype assignments to non-functions.
-      if (!rootScopeUsesAreGlobal && processNonFunctionPrototypeAssign(n, parent) != null) {
+      if (!rootScopeUsesAreGlobal && processNonFunctionPrototypeAssign(n, parent).isPresent()) {
         symbolStack.pop();
       }
     }
@@ -418,11 +419,11 @@ class AnalyzePrototypeProperties implements CompilerPass {
     }
 
     /** If this is a non-function prototype assign, return the prop name. Otherwise, return null. */
-    private @Nullable String processNonFunctionPrototypeAssign(Node n, Node parent) {
+    private Optional<String> processNonFunctionPrototypeAssign(Node n, Node parent) {
       if (isAssignRValue(n, parent) && !n.isFunction()) {
         return getPrototypePropertyNameFromRValue(n);
       }
-      return null;
+      return Optional.empty();
     }
 
     /** Determines whether {@code n} is the FUNCTION node in a global function declaration. */
@@ -451,30 +452,30 @@ class AnalyzePrototypeProperties implements CompilerPass {
      * in multiple expressions (i.e., if there's a prototype property assignment in a more complex
      * expression).
      */
-    private @Nullable String getPrototypePropertyNameFromRValue(Node rValue) {
+    private Optional<String> getPrototypePropertyNameFromRValue(Node rValue) {
       Node lValue = NodeUtil.getBestLValue(rValue);
       if (lValue == null
           || !((NodeUtil.mayBeObjectLitKey(lValue) && !lValue.isQuotedStringKey())
               || NodeUtil.isExprAssign(lValue.getGrandparent()))) {
-        return null;
+        return Optional.empty();
       }
 
-      String lValueName = NodeUtil.getBestLValueName(lValue);
+      Optional<String> lValueName = NodeUtil.getBestLValueName(lValue);
 
-      if (lValueName == null) {
-        return null;
+      if (lValueName.isEmpty()) {
+        return Optional.empty();
       }
-      int lastDot = lValueName.lastIndexOf('.');
+      int lastDot = lValueName.get().lastIndexOf('.');
       if (lastDot == -1) {
-        return null;
+        return Optional.empty();
       }
 
-      String firstPart = lValueName.substring(0, lastDot);
+      String firstPart = lValueName.get().substring(0, lastDot);
       if (!firstPart.endsWith(".prototype")) {
-        return null;
+        return Optional.empty();
       }
 
-      return lValueName.substring(lastDot + 1);
+      return Optional.of(lValueName.get().substring(lastDot + 1));
     }
 
     /**

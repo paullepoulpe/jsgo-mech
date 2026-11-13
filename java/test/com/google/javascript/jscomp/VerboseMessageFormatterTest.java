@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +33,7 @@ public final class VerboseMessageFormatterTest {
   @Test
   public void testFormatError_validLineNumber() {
     VerboseMessageFormatter formatter = new VerboseMessageFormatter(emptySourceProvider());
-    JSError error = JSError.make("test.js", 10, 5, FOO_TYPE);
+    JSError error = JSError.make(Optional.of("test.js"), 10, 5, FOO_TYPE);
 
     String formatted = formatter.formatError(error);
 
@@ -44,7 +45,7 @@ public final class VerboseMessageFormatterTest {
   @Test
   public void testFormatError_unknownLineNumber() {
     VerboseMessageFormatter formatter = new VerboseMessageFormatter(emptySourceProvider());
-    JSError error = JSError.make("test.js", -1, -1, FOO_TYPE);
+    JSError error = JSError.make(Optional.of("test.js"), -1, -1, FOO_TYPE);
 
     String formatted = formatter.formatError(error);
 
@@ -57,7 +58,7 @@ public final class VerboseMessageFormatterTest {
   @Test
   public void testFormatError_unknownSourceName() {
     VerboseMessageFormatter formatter = new VerboseMessageFormatter(emptySourceProvider());
-    JSError error = JSError.make(null, 10, 5, FOO_TYPE);
+    JSError error = JSError.make(Optional.empty(), 10, 5, FOO_TYPE);
 
     String formatted = formatter.formatError(error);
 
@@ -69,7 +70,7 @@ public final class VerboseMessageFormatterTest {
   @Test
   public void testFormatError_unknownSourceAndLineNumber() {
     VerboseMessageFormatter formatter = new VerboseMessageFormatter(emptySourceProvider());
-    JSError error = JSError.make(null, -1, -1, FOO_TYPE);
+    JSError error = JSError.make(Optional.empty(), -1, -1, FOO_TYPE);
 
     String formatted = formatter.formatError(error);
 
@@ -84,18 +85,18 @@ public final class VerboseMessageFormatterTest {
     SourceExcerptProvider provider =
         new SourceExcerptProvider() {
           @Override
-          public @Nullable String getSourceLine(String sourceName, int lineNumber) {
+          public Optional<String> getSourceLine(Optional<String> sourceName, int lineNumber) {
+            return Optional.empty();
+          }
+
+          @Override
+          public @Nullable Region getSourceLines(Optional<String> sourceName, int lineNumber, int length) {
             return null;
           }
 
           @Override
-          public @Nullable Region getSourceLines(String sourceName, int lineNumber, int length) {
-            return null;
-          }
-
-          @Override
-          public @Nullable Region getSourceRegion(String sourceName, int lineNumber) {
-            if (Objects.equals(sourceName, "test.js") && lineNumber == 10) {
+          public @Nullable Region getSourceRegion(Optional<String> sourceName, int lineNumber) {
+            if (Objects.equals(sourceName.orElse(null), "test.js") && lineNumber == 10) {
               return new SimpleRegion(10, 10, "const x = 1;");
             }
             return null;
@@ -103,13 +104,13 @@ public final class VerboseMessageFormatterTest {
 
           @Override
           public @Nullable OriginalMapping getSourceMapping(
-              String sourceName, int lineNumber, int columnNumber) {
+              Optional<String> sourceName, int lineNumber, int columnNumber) {
             return null;
           }
         };
 
     VerboseMessageFormatter formatter = new VerboseMessageFormatter(provider);
-    JSError error = JSError.make("test.js", 10, 0, FOO_TYPE);
+    JSError error = JSError.make(Optional.of("test.js"), 10, 0, FOO_TYPE);
 
     String formatted = formatter.formatError(error);
 
@@ -121,7 +122,7 @@ public final class VerboseMessageFormatterTest {
   public void testFormatWarning_validLineNumber() {
     VerboseMessageFormatter formatter = new VerboseMessageFormatter(emptySourceProvider());
     DiagnosticType warningType = DiagnosticType.warning("TEST_WARN", "warning description here");
-    JSError warning = JSError.make("test.js", 42, 0, warningType);
+    JSError warning = JSError.make(Optional.of("test.js"), 42, 0, warningType);
 
     String formatted = formatter.formatWarning(warning);
 
@@ -133,23 +134,23 @@ public final class VerboseMessageFormatterTest {
   private static SourceExcerptProvider emptySourceProvider() {
     return new SourceExcerptProvider() {
       @Override
-      public @Nullable String getSourceLine(String sourceName, int lineNumber) {
+      public Optional<String> getSourceLine(Optional<String> sourceName, int lineNumber) {
+        return Optional.empty();
+      }
+
+      @Override
+      public @Nullable Region getSourceLines(Optional<String> sourceName, int lineNumber, int length) {
         return null;
       }
 
       @Override
-      public @Nullable Region getSourceLines(String sourceName, int lineNumber, int length) {
-        return null;
-      }
-
-      @Override
-      public @Nullable Region getSourceRegion(String sourceName, int lineNumber) {
+      public @Nullable Region getSourceRegion(Optional<String> sourceName, int lineNumber) {
         return null;
       }
 
       @Override
       public @Nullable OriginalMapping getSourceMapping(
-          String sourceName, int lineNumber, int columnNumber) {
+          Optional<String> sourceName, int lineNumber, int columnNumber) {
         return null;
       }
     };

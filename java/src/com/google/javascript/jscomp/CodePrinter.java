@@ -35,6 +35,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -105,7 +106,7 @@ public final class CodePrinter {
       checkState(sourceMapDetailLevel != null);
       checkState(node != null);
       if (createSrcMap
-          && node.getSourceFileName() != null
+          && !node.getSourceFileName().isEmpty()
           && node.getLineno() > 0
           && sourceMapDetailLevel.apply(node)) {
         int line = getCurrentLineIndex();
@@ -321,8 +322,8 @@ public final class CodePrinter {
     void addNumber(double x, Node n) {
       checkState(isPositive(x), x);
 
-      String numberFromSource = getNumberFromSource(n);
-      if (numberFromSource == null) {
+      Optional<String> numberFromSource = getNumberFromSource(n);
+      if (numberFromSource.isEmpty()) {
         super.addNumber(x, n);
         return;
       }
@@ -332,7 +333,7 @@ public final class CodePrinter {
       // with the right value. This excludes some valid constants (hex, etc.)
       // for simplicity.
       // Double.parseDouble trims its argument; other than that Doubles.tryParse accepts the same.
-      Double parsed = Doubles.tryParse(numberFromSource.trim());
+      Double parsed = Doubles.tryParse(numberFromSource.get().trim());
       if (parsed == null) {
         super.addNumber(x, n);
         return;
@@ -344,7 +345,7 @@ public final class CodePrinter {
         return;
       }
 
-      addConstant(numberFromSource);
+      addConstant(numberFromSource.get());
     }
 
     /**
@@ -531,23 +532,23 @@ public final class CodePrinter {
       maybeEndStatement();
     }
 
-    private static @Nullable String getNumberFromSource(Node n) {
+    private static Optional<String> getNumberFromSource(Node n) {
       if (!n.isNumber()) {
-        return null;
+        return Optional.empty();
       }
 
       StaticSourceFile staticSrc = NodeUtil.getSourceFile(n);
       if (!(staticSrc instanceof SourceFile src)) {
-        return null;
+        return Optional.empty();
       }
 
       if (src.isStubSourceFileForAlreadyProvidedInput()) {
         // source file is a stub file, so we can not get number from source.
-        return null;
+        return Optional.empty();
       }
       Outcome<String> codeRes = src.readCode();
       if (codeRes.isErr()) {
-        return null;
+        return Optional.empty();
       }
       String srcCode = codeRes.get();
 
@@ -555,15 +556,15 @@ public final class CodePrinter {
       // src.getLineOffset(lineno) with a line number that src does not have.
       int lineno = n.getLineno();
       if (lineno != -1 && !src.isValidLineNumber(lineno)) {
-        return null;
+        return Optional.empty();
       }
       int offset = n.getSourceOffset();
       int endOffset = offset + n.getLength();
       if (offset < 0 || endOffset > srcCode.length()) {
-        return null;
+        return Optional.empty();
       }
 
-      return srcCode.substring(offset, endOffset);
+      return Optional.of(srcCode.substring(offset, endOffset));
     }
   }
 

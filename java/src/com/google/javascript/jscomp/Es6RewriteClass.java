@@ -37,6 +37,7 @@ import com.google.javascript.rhino.StaticScope;
 import com.google.javascript.rhino.Token;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** Converts ES6 classes to valid ES5 or ES3 code. */
@@ -515,7 +516,6 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
   record ClassProperty(
       String propertyKey, PropertyKind kind, JSDocInfo jsDocInfo, @Nullable Color propertyType) {
     ClassProperty {
-      requireNonNull(propertyKey, "propertyKey");
       requireNonNull(kind, "kind");
       requireNonNull(jsDocInfo, "jsDocInfo");
     }
@@ -602,7 +602,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
     }
 
     static final class Builder {
-      private @Nullable String propertyKeyField;
+      private Optional<String> propertyKeyField = Optional.empty();
       private Es6RewriteClass.ClassProperty.@Nullable PropertyKind kindField;
       private @Nullable JSDocInfo jsDocInfoField;
       private Color propertyTypeField;
@@ -611,10 +611,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
       }
 
       Builder propertyKey(String value) {
-        if (value == null) {
-          throw new NullPointerException("Null propertyKey");
-        }
-        this.propertyKeyField = value;
+        this.propertyKeyField = Optional.of(value);
         return this;
       }
 
@@ -640,11 +637,11 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
       }
 
       ClassProperty build() {
-        if (this.propertyKeyField == null
+        if (this.propertyKeyField.isEmpty()
             || this.kindField == null
             || this.jsDocInfoField == null) {
           StringBuilder missing = new StringBuilder();
-          if (this.propertyKeyField == null) {
+          if (this.propertyKeyField.isEmpty()) {
             missing.append(" propertyKey");
           }
           if (this.kindField == null) {
@@ -656,7 +653,7 @@ public final class Es6RewriteClass implements NodeTraversal.Callback, CompilerPa
           throw new IllegalStateException("Missing required properties:" + missing);
         }
         return new Es6RewriteClass.ClassProperty(
-            this.propertyKeyField,
+            this.propertyKeyField.get(),
             this.kindField,
             this.jsDocInfoField,
             this.propertyTypeField);

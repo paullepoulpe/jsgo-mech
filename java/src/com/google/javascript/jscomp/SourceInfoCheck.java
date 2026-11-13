@@ -109,7 +109,7 @@ class SourceInfoCheck implements NodeTraversal.Callback, CompilerPass {
   /** Verifies that all type nodes have source files (if not an actual length) */
   private void checkJSDoc(JSDocInfo info) {
     for (JSTypeExpression expression : info.getTypeExpressions()) {
-      if (expression.getSourceName() == null) {
+      if (expression.getSourceName().isEmpty()) {
         compiler.report(
             JSError.make(
                 expression.getRoot(), MISSING_SOURCE_NAME, "JSTypeExpression " + expression));

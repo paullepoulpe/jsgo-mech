@@ -48,6 +48,7 @@ import com.google.javascript.rhino.jstype.JSTypeNative;
 import com.google.javascript.rhino.jstype.ObjectType;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.junit.Ignore;
@@ -15155,7 +15156,7 @@ override: (Object|null|string)
     JSType aType = p.scope.getVar("a").getType();
     assertThat(aType).isInstanceOf(ObjectType.class);
     ObjectType aObjectType = (ObjectType) aType;
-    assertThat(aObjectType.getConstructor().getReferenceName()).isEqualTo("A");
+    assertThat(aObjectType.getConstructor().getReferenceName().orElse(null)).isEqualTo("A");
   }
 
   @Test
@@ -16994,7 +16995,7 @@ override: (Object|null|string)
     JSType type = p.scope.getVar("A").getType();
     assertThat(type).isInstanceOf(FunctionType.class);
     FunctionType fType = (FunctionType) type;
-    assertThat(fType.getReferenceName()).isEqualTo("A");
+    assertThat(fType.getReferenceName().orElse(null)).isEqualTo("A");
   }
 
   @Test
@@ -17438,7 +17439,7 @@ override: (Object|null|string)
 
     JSType retType = ((FunctionType) typeOfFoo).getReturnType();
     assertType(retType).isInstanceOf(ObjectType.class);
-    assertThat(((ObjectType) retType).getReferenceName()).isEqualTo("goog.MyClass");
+    assertThat(((ObjectType) retType).getReferenceName().orElse(null)).isEqualTo("goog.MyClass");
   }
 
   @Test
@@ -19648,7 +19649,7 @@ override: function(this:Foo): number
     JSType type = n.getLastChild().getLastChild().getJSType();
     assertThat(type.isUnknownType()).isFalse();
     assertThat(type).isInstanceOf(FunctionType.class);
-    assertThat(((FunctionType) type).getInstanceType().getReferenceName()).isEqualTo("u.T");
+    assertThat(((FunctionType) type).getInstanceType().getReferenceName().orElse(null)).isEqualTo("u.T");
   }
 
   @Test

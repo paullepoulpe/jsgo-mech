@@ -42,6 +42,7 @@ package com.google.javascript.rhino.jstype;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -90,8 +91,8 @@ public class NoObjectType extends FunctionType {
   }
 
   @Override
-  public String getReferenceName() {
-    return null;
+  public Optional<String> getReferenceName() {
+    return Optional.empty();
   }
   @Override
   public final boolean matchesNumberContext() {

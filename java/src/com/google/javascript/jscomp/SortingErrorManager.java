@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -153,16 +154,16 @@ public class SortingErrorManager implements ErrorManager {
       }
 
       // sourceName comparison
-      String source1 = p1.error.sourceName();
-      String source2 = p2.error.sourceName();
-      if (source1 != null && source2 != null) {
-        int sourceCompare = source1.compareTo(source2);
+      Optional<String> source1 = p1.error.sourceName();
+      Optional<String> source2 = p2.error.sourceName();
+      if (source1.isPresent() && source2.isPresent()) {
+        int sourceCompare = source1.get().compareTo(source2.get());
         if (sourceCompare != 0) {
           return sourceCompare;
         }
-      } else if (source1 == null && source2 != null) {
+      } else if (source1.isEmpty() && source2.isPresent()) {
         return P1_LT_P2;
-      } else if (source1 != null && source2 == null) {
+      } else if (source1.isPresent() && source2.isEmpty()) {
         return P1_GT_P2;
       }
       // lineno comparison
@@ -211,8 +212,8 @@ public class SortingErrorManager implements ErrorManager {
         return false;
       }
       return Objects.equals(level, e.level)
-          && Objects.equals(error.description(), e.error.description())
-          && Objects.equals(error.sourceName(), e.error.sourceName())
+          && error.description().equals(e.error.description())
+          && error.sourceName().equals(e.error.sourceName())
           && error.getLineNumber() == e.error.getLineNumber()
           && error.charno() == e.error.charno();
     }

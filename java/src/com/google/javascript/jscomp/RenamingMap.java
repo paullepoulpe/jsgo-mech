@@ -16,10 +16,11 @@
 package com.google.javascript.jscomp;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * Interface used by to substitute names.
  */
 public interface RenamingMap extends Serializable {
-  String get(String value);
+  Optional<String> get(String value);
 }

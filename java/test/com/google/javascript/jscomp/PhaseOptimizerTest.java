@@ -28,6 +28,7 @@ import com.google.javascript.rhino.Node;
 import com.google.javascript.rhino.Token;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -184,7 +185,7 @@ public final class PhaseOptimizerTest {
         PassFactory.builder()
             .setName("myPass")
             .setInternalFactory((compiler) -> createPass("myPass", 0))
-            .setPreconditionCheck((options) -> new PassFactory.PreconditionResult(true, null))
+            .setPreconditionCheck((options) -> new PassFactory.PreconditionResult(true, Optional.empty()))
             .build();
     optimizer.addOneTimePass(passFactory);
     assertPasses("myPass");
@@ -196,7 +197,7 @@ public final class PhaseOptimizerTest {
         PassFactory.builder()
             .setName("myPass")
             .setInternalFactory((compiler) -> createPass("myPass", 0))
-            .setPreconditionCheck((options) -> new PassFactory.PreconditionResult(false, "message"))
+            .setPreconditionCheck((options) -> new PassFactory.PreconditionResult(false, Optional.of("message")))
             .build();
     optimizer.addOneTimePass(passFactory);
 

@@ -25,8 +25,8 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.StringTokenizer;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A class to report jvm/jmx statistics. Borrowed from:
@@ -39,14 +39,14 @@ final class JvmMetrics {
   private static final long ONE_MEGA_BYTE = 1L << 20L;
   private static final long ONE_GIGA_BYTE = 1L << 30L;
 
-  public static void maybeWriteJvmMetrics(Io.Output out, String options) {
-    if (options == null) {
+  public static void maybeWriteJvmMetrics(Io.Output out, Optional<String> options) {
+    if (options.isEmpty()) {
       return;
     }
 
     boolean verboseMode = false;
     boolean prettyMode = false;
-    StringTokenizer st = new StringTokenizer(options, ":");
+    StringTokenizer st = new StringTokenizer(options.get(), ":");
     // options are grouped in order 'detail:format:types'
     if (st.hasMoreTokens()) {
       String mode = st.nextToken();
@@ -131,7 +131,7 @@ final class JvmMetrics {
       Io.Output out,
       MemoryUsage usage,
       MemoryUsage peakUsage,
-      @Nullable String prefix,
+      Optional<String> prefix,
       boolean pretty) {
     if (pretty) {
       out.print(String.format("\t\tavailable         : %s\n",
@@ -142,11 +142,11 @@ final class JvmMetrics {
           formatBytes(usage.getUsed())));
     } else {
       out.println(normalizeTabularColonPos(
-          String.format("%s-available-bytes : %d", prefix, usage.getMax())));
+          String.format("%s-available-bytes : %d", prefix.orElse("null"), usage.getMax())));
       out.println(normalizeTabularColonPos(
-          String.format("%s-peak-bytes : %d", prefix, peakUsage.getUsed())));
+          String.format("%s-peak-bytes : %d", prefix.orElse("null"), peakUsage.getUsed())));
       out.println(normalizeTabularColonPos(
-          String.format("%s-current-bytes : %d", prefix, usage.getUsed())));
+          String.format("%s-current-bytes : %d", prefix.orElse("null"), usage.getUsed())));
     }
   }
 
@@ -173,10 +173,10 @@ final class JvmMetrics {
         MemoryUsage peakUsage = mpBean.getPeakUsage();
         if (pretty) {
           out.println("\tPool " + mpBean.getName());
-          writePoolMemoryUsage(out, currentUsage, peakUsage, null, true);
+          writePoolMemoryUsage(out, currentUsage, peakUsage, Optional.empty(), true);
         } else {
           writePoolMemoryUsage(out, currentUsage, peakUsage,
-              "mem-pool-" + normalizeName(mpBean.getName()), false);
+              Optional.of("mem-pool-" + normalizeName(mpBean.getName())), false);
         }
       }
     } else {
@@ -196,9 +196,9 @@ final class JvmMetrics {
       MemoryUsage summaryPeakUsage = new MemoryUsage(0, peak, peak, peak);
       if (pretty) {
         out.print(String.format("\tAggregate of %d memory pools\n", mpBeans.size()));
-        writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, null, true);
+        writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional.empty(), true);
       } else {
-        writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, "mem", false);
+        writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional.of("mem"), false);
       }
     }
   }

@@ -477,7 +477,7 @@ public final class SemanticReverseAbstractInterpreter extends ChainableReverseAb
     }
     if (!hasProperty) {
       String qualifiedName = object.getQualifiedName();
-      if (qualifiedName != null) {
+      if (!qualifiedName.isEmpty()) {
         String propertyQualifiedName = qualifiedName + "." + propertyName;
         if (blindScope.getSlot(propertyQualifiedName) == null) {
           JSType unknownType = typeRegistry.getNativeType(JSTypeNative.UNKNOWN_TYPE);

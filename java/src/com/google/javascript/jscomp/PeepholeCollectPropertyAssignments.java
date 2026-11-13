@@ -22,6 +22,7 @@ import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.Node;
+import java.util.Optional;
 
 /**
  * A pass that looks for assignments to properties of an object or array
@@ -252,18 +253,18 @@ final class PeepholeCollectPropertyAssignments extends AbstractPeepholeOptimizat
     checkState(lhs.isGetProp() || lhs.isGetElem(), lhs);
 
     // The property must be statically known.
-    final String propertyName;
+    final Optional<String> propertyName;
     if (lhs.isGetElem()) {
       Node property = obj.getNext();
       if (property.isNumber()) {
         propertyName = getSideEffectFreeStringValue(property);
       } else if (property.isStringLit()) {
-        propertyName = property.getString();
+        propertyName = Optional.of(property.getString());
       } else {
         return false;
       }
     } else if (lhs.isGetProp()) {
-      propertyName = lhs.getString();
+      propertyName = Optional.of(lhs.getString());
     } else {
       return false;
     }
@@ -280,7 +281,7 @@ final class PeepholeCollectPropertyAssignments extends AbstractPeepholeOptimizat
         // Get the value of the property
         Node currentValue = currentProperty.getFirstChild();
         // Compare the current property name with the new property name
-        if (currentPropertyName.equals(propertyName)) {
+        if (Optional.of(currentPropertyName).equals(propertyName)) {
           existingProperty = currentProperty;
           // Check if the current value and the new value are side-effect
           boolean isCurrentValueSideEffect = NodeUtil.canBeSideEffected(currentValue);
@@ -294,18 +295,18 @@ final class PeepholeCollectPropertyAssignments extends AbstractPeepholeOptimizat
         }
       } else if (currentProperty.isGetterDef() || currentProperty.isSetterDef()) {
         String currentPropertyName = currentProperty.getString();
-        if (currentPropertyName.equals(propertyName)) {
+        if (Optional.of(currentPropertyName).equals(propertyName)) {
           return false;
         }
       } else if (currentProperty.isComputedProp()) {
         Node keyNode = currentProperty.getFirstChild();
-        if (!keyNode.isStringLit() || keyNode.getString().equals(propertyName)) {
+        if (!keyNode.isStringLit() || Optional.of(keyNode.getString()).equals(propertyName)) {
           return false;
         }
       }
     }
 
-    Node newProperty = IR.stringKey(propertyName).srcrefIfMissing(propertyCandidate);
+    Node newProperty = IR.stringKey(propertyName.get()).srcrefIfMissing(propertyCandidate);
     // Preserve the quotedness of a property reference
     if (lhs.isGetElem()) {
       newProperty.setQuotedStringKey();
