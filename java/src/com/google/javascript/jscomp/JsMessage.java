@@ -19,7 +19,6 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.CaseFormat;
@@ -28,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.InlineMe;
+import com.google.javascript.jscomp.base.Io;
 import com.google.re2j.Pattern;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -784,7 +784,7 @@ public record JsMessage(
       if (value == null) {
         return hash64(null, 0, 0, seed);
       }
-      return hash64(value.getBytes(UTF_8), seed);
+      return hash64(Io.utf8Bytes(value), seed);
     }
 
     /**

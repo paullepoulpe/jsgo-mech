@@ -22,7 +22,6 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.testing.EqualsTester;
-import java.nio.file.Path;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -43,8 +42,8 @@ public final class SourceTest {
             Source.builder().setCode("foo").build())
         .addEqualityGroup(Source.builder().setCode("bar").build())
         .addEqualityGroup(
-            foo.toBuilder().setPath(Path.of("/x")).build(),
-            foo.toBuilder().setPath(Path.of("/x")).build())
+            foo.toBuilder().setPath("/x").build(),
+            foo.toBuilder().setPath("/x").build())
         .addEqualityGroup(
             foo.toBuilder().setOriginalCode("bar").build(),
             foo.toBuilder().setOriginalCode("bar").build())

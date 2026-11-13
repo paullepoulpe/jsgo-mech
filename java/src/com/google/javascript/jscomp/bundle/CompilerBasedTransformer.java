@@ -34,7 +34,6 @@ import com.google.javascript.jscomp.Result;
 import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.jscomp.VariableRenamingPolicy;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -91,15 +90,15 @@ public abstract class CompilerBasedTransformer implements Source.Transformer {
   @Immutable
   public static class CompilerSupplier {
 
-    public CompileResult compile(Path path, String code) {
+    public CompileResult compile(String path, String code) {
       Compiler compiler = compiler();
       Result result =
-          compiler.compileSourceFile(EXTERNS, SourceFile.fromCode(path.toString(), code), options());
+          compiler.compileSourceFile(EXTERNS, SourceFile.fromCode(path, code), options());
       String source = compiler.toSource();
       StringBuilder sourceMap = new StringBuilder();
       if (result.sourceMap != null) {
         try {
-          result.sourceMap.appendTo(sourceMap, path.toString());
+          result.sourceMap.appendTo(sourceMap, path);
         } catch (IOException e) {
           // impossible, and not a big deal even if it did happen.
         }

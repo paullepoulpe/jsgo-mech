@@ -17,11 +17,9 @@
 package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.rhino.Node;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
 
 /**
  * Rewrites ES6 import paths to be relative after resolving according to the compiler's module
@@ -73,24 +71,21 @@ public class Es6RelativizeImportPaths implements CompilerPass {
       if (ModuleLoader.isRelativeIdentifier(specifier)) {
         return;
       } else {
-        try {
-          URI specifierURI = new URI(specifier);
-          if (specifierURI.isAbsolute()) {
-            return;
-          }
-        } catch (URISyntaxException e) {
+        if (Io.uriParse(specifier).isErr()) {
+          return;
+        }
+        if (Io.uriIsAbsolute(specifier)) {
           return;
         }
       }
 
       String scriptPath = t.getInput().getPath().toString();
 
-      try {
-        // If the script path has a scheme / host / port then just use the path part.
-        scriptPath = new URI(scriptPath).getPath();
-      } catch (URISyntaxException e) {
+      if (Io.uriParse(scriptPath).isErr()) {
         return;
       }
+      // If the script path has a scheme / host / port then just use the path part.
+      scriptPath = Io.uriPath(scriptPath);
 
       String newSpecifier = t.getInput().getPath().resolveModuleAsPath(specifier).toString();
 
@@ -99,7 +94,7 @@ public class Es6RelativizeImportPaths implements CompilerPass {
         newSpecifier = "/" + newSpecifier;
       }
 
-      newSpecifier = Path.of(scriptPath).getParent().relativize(Path.of(newSpecifier)).toString();
+      newSpecifier = Io.pathRelativize(Io.pathParent(scriptPath), newSpecifier);
 
       // Relativizing two paths with the same directory yields an ambiguous path rather than one
       // starting with "./".

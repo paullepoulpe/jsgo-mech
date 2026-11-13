@@ -25,7 +25,6 @@ import com.google.javascript.jscomp.transpile.BaseTranspiler;
 import com.google.javascript.jscomp.transpile.TranspileResult;
 import com.google.javascript.jscomp.transpile.Transpiler;
 import java.io.IOException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public final class ClosureBundlerTest {
     String runtimeField = "";
 
     @Override
-    public TranspileResult transpile(URI path, String code) {
+    public TranspileResult transpile(String path, String code) {
       return transpileResults.get(ImmutableList.of(path, code));
     }
 
@@ -136,7 +135,7 @@ public final class ClosureBundlerTest {
   @Test
   public void testTranspilation() throws Exception {
     String input = "goog.module('Foo');\nclass Foo {}";
-    URI uri = new URI("foo.js");
+    String uri = "foo.js";
 
     FakeTranspiler transpiler = new FakeTranspiler();
     transpiler.runtimeField = "RUNTIME;";

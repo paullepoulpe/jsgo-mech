@@ -16,24 +16,19 @@
 
 package com.google.javascript.jscomp.instrumentation.reporter;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.javascript.jscomp.CmdLineException;
 import com.google.javascript.jscomp.CmdLineParser;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
 import java.io.EOFException;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
@@ -53,16 +48,15 @@ final class ProductionInstrumentationReporter {
   private String finalResultOutput = "";
 
   public static void main(String[] args) {
-    try {
-      new ProductionInstrumentationReporter().doMain(args);
-    } catch (IOException e) {
-      System.err.println(e.getMessage());
+    Outcome<Boolean> done = new ProductionInstrumentationReporter().doMain(args);
+    if (done.isErr()) {
+      Io.stderr().println(done.errorMessage());
     }
   }
 
   /** This function reads a file at the given filePath and converts the contents into a string. */
-  public static String readFile(String filePath) throws IOException {
-    return CharStreams.toString(Files.newBufferedReader(Path.of(filePath), UTF_8));
+  public static Outcome<String> readFile(String filePath) {
+    return Io.readTextStrict(filePath, Io.UTF_8);
   }
 
   /**
@@ -70,17 +64,21 @@ final class ProductionInstrumentationReporter {
    * ProfilingData> data structure where it is a mapping of the unique param value to the encoded
    * values. The folder contains all the reports sent by the instrumented production code.
    */
-  private ImmutableList<Map<String, Long>> getAllExecutionResults(File folder) throws IOException {
+  private Outcome<ImmutableList<Map<String, Long>>> getAllExecutionResults(String folder) {
     ImmutableList.Builder<Map<String, Long>> result = ImmutableList.builder();
 
-    for (final File fileEntry : folder.listFiles()) {
-      String executionResult = readFile(fileEntry.getAbsolutePath());
-      Map<String, Long> executedInstrumentationData = parseJsonStringToLongMap(executionResult);
+    for (final String fileEntry : Io.listDirectory(folder)) {
+      Outcome<String> executionResult = readFile(Io.fileAbsolutePath(fileEntry));
+      if (executionResult.isErr()) {
+        return Outcome.err(executionResult.error());
+      }
+      Map<String, Long> executedInstrumentationData =
+          parseJsonStringToLongMap(executionResult.get());
 
       result.add(executedInstrumentationData);
     }
 
-    return result.build();
+    return Outcome.ok(result.build());
   }
 
   /**
@@ -170,32 +168,39 @@ final class ProductionInstrumentationReporter {
    * Creates a file with the given fileName (including extension) with the contents of the file
    * being provided by fileContents.
    */
-  private void createFile(String fileName, String fileContents) throws IOException {
+  private Outcome<Boolean> createFile(String fileName, String fileContents) {
 
-    File fold = new File(fileName);
-    fold.delete();
-    File myObj = new File(fileName);
-    myObj.createNewFile();
-
-    try (Writer myWriter = Files.newBufferedWriter(Path.of(fileName), UTF_8)) {
-      myWriter.write(fileContents);
+    Io.delete(fileName);
+    Outcome<Boolean> created = Io.createNewFile(fileName);
+    if (created.isErr()) {
+      return Outcome.err(created.error());
     }
+
+    return Io.writeTextStrict(fileName, Io.UTF_8, fileContents);
   }
 
-  private void doMain(String[] args) throws IOException {
+  private Outcome<Boolean> doMain(String[] args) {
 
     parseCmdLineArguments(args);
 
-    Map<String, InstrumentationPoint> mapping =
+    Outcome<Map<String, InstrumentationPoint>> mapping =
         ReportDecoder.parseMappingFromFile(instrumentationMappingLocation);
+    if (mapping.isErr()) {
+      return Outcome.err(mapping.error());
+    }
 
-    File folder = new File(instrumentationReportsDirectory);
+    String folder = instrumentationReportsDirectory;
 
-    ImmutableList<Map<String, Long>> listOfExecutionResults = getAllExecutionResults(folder);
+    Outcome<ImmutableList<Map<String, Long>>> listOfExecutionResults =
+        getAllExecutionResults(folder);
+    if (listOfExecutionResults.isErr()) {
+      return Outcome.err(listOfExecutionResults.error());
+    }
 
-    createFile(
+    return createFile(
         finalResultOutput,
-        ProfilingReport.createTabSeparatedProfilingReport(mapping, listOfExecutionResults));
+        ProfilingReport.createTabSeparatedProfilingReport(
+            mapping.get(), listOfExecutionResults.get()));
   }
 
   private void parseCmdLineArguments(String[] args) {
@@ -224,7 +229,7 @@ final class ProductionInstrumentationReporter {
     Outcome<Void> parsed = parser.parseArgument(args);
     if (parsed.isErr()) {
       CmdLineException e = (CmdLineException) parsed.error();
-      System.err.println(e.getMessage());
+      Io.stderr().println(e.getMessage());
       return;
     }
   }

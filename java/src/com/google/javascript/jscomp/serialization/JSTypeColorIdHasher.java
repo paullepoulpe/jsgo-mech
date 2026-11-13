@@ -17,12 +17,12 @@
 package com.google.javascript.jscomp.serialization;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.colors.ColorId;
 import com.google.javascript.jscomp.colors.StandardColors;
 import com.google.javascript.rhino.jstype.FunctionType;
@@ -121,7 +121,7 @@ final class JSTypeColorIdHasher {
   private static final HashFunction FARM_64 = Hashing.farmHashFingerprint64();
 
   private static void putUtf8(Hasher hasher, String s) {
-    hasher.putString(s, UTF_8);
+    hasher.putBytes(Io.utf8Bytes(s));
   }
 
   /**

@@ -15,20 +15,19 @@
  */
 package com.google.javascript.jscomp;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.rhino.Node;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 /** A class to get a raw and gzip'ed size estimate; it doesn't generate code. */
 final class PerformanceTrackerCodeSizeEstimator extends CodeConsumer {
   private int size = 0;
   private char lastChar = '\0';
-  private final @Nullable ByteArrayOutputStream output;
-  private final @Nullable GZIPOutputStream stream;
+  // The UTF-8 bytes of each appended string, when tracking the gzipped size.
+  private final @Nullable List<byte[]> output;
   private final boolean trackGzSize;
 
   static PerformanceTrackerCodeSizeEstimator estimate(Node jsRoot, boolean trackGzSize) {
@@ -41,15 +40,9 @@ final class PerformanceTrackerCodeSizeEstimator extends CodeConsumer {
   private PerformanceTrackerCodeSizeEstimator(boolean trackGzSize) {
     this.trackGzSize = trackGzSize;
     if (trackGzSize) {
-      try {
-        output = new ByteArrayOutputStream();
-        stream = new GZIPOutputStream(output);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      output = new ArrayList<>();
     } else {
       output = null;
-      stream = null;
     }
   }
 
@@ -60,11 +53,7 @@ final class PerformanceTrackerCodeSizeEstimator extends CodeConsumer {
       size += len;
       lastChar = str.charAt(len - 1);
       if (trackGzSize) {
-        try {
-          stream.write(str.getBytes(UTF_8));
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
+        output.add(Io.utf8Bytes(str));
       }
     }
   }
@@ -80,13 +69,17 @@ final class PerformanceTrackerCodeSizeEstimator extends CodeConsumer {
 
   int getZippedCodeSize() {
     if (trackGzSize) {
-      try {
-        stream.finish();
-        stream.close();
-        return output.size();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+      int length = 0;
+      for (byte[] chunk : output) {
+        length += chunk.length;
       }
+      byte[] bytes = new byte[length];
+      int offset = 0;
+      for (byte[] chunk : output) {
+        System.arraycopy(chunk, 0, bytes, offset, chunk.length);
+        offset += chunk.length;
+      }
+      return Io.gzipSize(bytes);
     } else {
       return 0;
     }

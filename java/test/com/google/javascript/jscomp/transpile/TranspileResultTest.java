@@ -19,7 +19,6 @@ package com.google.javascript.jscomp.transpile;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.javascript.jscomp.testing.EqualsTester;
-import java.net.URI;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,35 +31,35 @@ public final class TranspileResultTest {
   public void testEquals() throws Exception {
     new EqualsTester()
         .addEqualityGroup(
-            new TranspileResult(new URI("a"), "b", "c", "d"),
-            new TranspileResult(new URI("a"), "b", "c", "d"))
-        .addEqualityGroup(new TranspileResult(new URI("A"), "b", "c", "d"))
-        .addEqualityGroup(new TranspileResult(new URI("a"), "B", "c", "d"))
-        .addEqualityGroup(new TranspileResult(new URI("a"), "b", "C", "d"))
-        .addEqualityGroup(new TranspileResult(new URI("a"), "b", "c", "D"))
+            new TranspileResult("a", "b", "c", "d"),
+            new TranspileResult("a", "b", "c", "d"))
+        .addEqualityGroup(new TranspileResult("A", "b", "c", "d"))
+        .addEqualityGroup(new TranspileResult("a", "B", "c", "d"))
+        .addEqualityGroup(new TranspileResult("a", "b", "C", "d"))
+        .addEqualityGroup(new TranspileResult("a", "b", "c", "D"))
         .testEquals();
   }
 
   @Test
   public void testEmbedSourceMap_noSourceMap() throws Exception {
-    TranspileResult result = new TranspileResult(new URI("a"), "b", "c", "");
+    TranspileResult result = new TranspileResult("a", "b", "c", "");
     assertThat(result.embedSourcemap()).isSameInstanceAs(result);
     assertThat(result.embedSourcemapUrl("foo")).isSameInstanceAs(result);
   }
 
   @Test
   public void testEmbedSourceMap() throws Exception {
-    TranspileResult result = new TranspileResult(new URI("a"), "b", "c", "{\"version\": 3}");
+    TranspileResult result = new TranspileResult("a", "b", "c", "{\"version\": 3}");
     assertThat(result.embedSourcemap())
         .isEqualTo(
             new TranspileResult(
-                new URI("a"),
+                "a",
                 "b",
                 "c\n//# sourceMappingURL=data:,%7B%22version%22%3A%203%7D\n",
                 ""));
     assertThat(result.embedSourcemapUrl("foo.js.map"))
         .isEqualTo(
             new TranspileResult(
-                new URI("a"), "b", "c\n//# sourceMappingURL=foo.js.map\n", "{\"version\": 3}"));
+                "a", "b", "c\n//# sourceMappingURL=foo.js.map\n", "{\"version\": 3}"));
   }
 }

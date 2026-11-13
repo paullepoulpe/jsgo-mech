@@ -25,8 +25,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.Immutable;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.deps.DependencyInfo;
-import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
@@ -49,7 +49,7 @@ import org.jspecify.annotations.Nullable;
  */
 @Immutable
 public record Source(
-    Path path,
+    String path,
     String sourceMap,
     String sourceUrl,
     String sourceMappingUrl,
@@ -115,11 +115,11 @@ public record Source(
         .setEstimatedSize(0);
   }
 
-  private static final Path DEV_NULL = Path.of("/dev/null");
+  private static final String DEV_NULL = "/dev/null";
 
   /** Builder for Source instances. */
   public static final class Builder {
-    private @Nullable Path path;
+    private @Nullable String path;
     private @Nullable String sourceMap;
     private @Nullable String sourceUrl;
     private @Nullable String sourceMappingUrl;
@@ -146,11 +146,11 @@ public record Source(
       set0 = (byte) 1;
     }
 
-    public Builder setPath(Path path) {
+    public Builder setPath(String path) {
       if (path == null) {
         throw new NullPointerException("Null path");
       }
-      this.path = path;
+      this.path = Io.pathString(path);
       return this;
     }
     public Builder setSourceMap(String sourceMap) {

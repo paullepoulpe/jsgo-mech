@@ -20,8 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,7 +49,7 @@ public final class CachingTranspilerTest {
     int runtimeCalls = 0;
 
     @Override
-    public TranspileResult transpile(URI path, String code) {
+    public TranspileResult transpile(String path, String code) {
       transpileCalls.add(ImmutableList.of(path, code));
       return transpileResults.get(ImmutableList.of(path, code));
     }
@@ -63,22 +61,15 @@ public final class CachingTranspilerTest {
     }
   }
 
-  private static final URI FOO_JS;
-  private static final URI BAR_JS;
-  private static final URI QUX_JS;
+  private static final String FOO_JS = "foo.js";
+  private static final String BAR_JS = "bar.js";
+  private static final String QUX_JS = "qux.js";
 
   private static final TranspileResult RESULT1;
   private static final TranspileResult RESULT2;
   private static final TranspileResult RESULT3;
 
   static {
-    try {
-      FOO_JS = new URI("foo.js");
-      BAR_JS = new URI("bar.js");
-      QUX_JS = new URI("qux.js");
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
     RESULT1 = new TranspileResult(FOO_JS, "bar", "baz", "");
     RESULT2 = new TranspileResult(QUX_JS, "qux", "corge", "");
     RESULT3 = new TranspileResult(BAR_JS, "baz", "xyzzy", "");

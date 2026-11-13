@@ -15,14 +15,11 @@
  */
 package com.google.javascript.jscomp;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.BaseEncoding;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
 import org.jspecify.annotations.Nullable;
 
 /** Utility class for resolving source maps and files referenced in source maps. */
@@ -72,20 +69,20 @@ public final class SourceMapResolver {
       int base64StartIndex = url.indexOf(BASE64_START);
       String mediaType = url.substring(BASE64_URL_PREFIX.length(), base64StartIndex);
       if (ACCEPTED_MEDIA_TYPES.contains(mediaType)) {
-        byte[] data = BaseEncoding.base64().decode(
+        byte[] data = Io.base64Decode(
                 url.substring(base64StartIndex + BASE64_START.length()));
-        return new String(data, UTF_8);
+        return Io.utf8String(data);
       }
     }
     return null;
   }
 
   private static boolean isAbsolute(String url) {
-    try {
-      return new URI(url).isAbsolute() || url.startsWith("/");
-    } catch (URISyntaxException e) {
-      throw new RuntimeException("Sourcemap url was invalid: " + url, e);
+    Outcome<String> uri = Io.uriParse(url);
+    if (uri.isErr()) {
+      throw new RuntimeException("Sourcemap url was invalid: " + url, uri.error());
     }
+    return Io.uriIsAbsolute(url) || url.startsWith("/");
   }
 
   /**
@@ -95,8 +92,7 @@ public final class SourceMapResolver {
    */
   static @Nullable SourceFile getRelativePath(String baseFilePath, String relativePath) {
     return SourceFile.builder()
-        .withPathPath(
-            FileSystems.getDefault().getPath(baseFilePath).resolveSibling(relativePath).normalize())
+        .withPath(Io.pathNormalize(Io.pathResolveSibling(baseFilePath, relativePath)))
         .withKind(SourceKind.NON_CODE)
         .build();
   }

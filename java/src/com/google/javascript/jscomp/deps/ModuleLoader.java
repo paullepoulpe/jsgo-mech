@@ -30,9 +30,9 @@ import com.google.javascript.jscomp.CheckLevel;
 import com.google.javascript.jscomp.DiagnosticType;
 import com.google.javascript.jscomp.ErrorHandler;
 import com.google.javascript.jscomp.JSError;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.base.SimpleMultiset;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -326,25 +326,24 @@ public final class ModuleLoader {
 
   public static Outcome<String> relativePathFrom(String fromUriPath, String toUriPath) {
     try {
-      Path fromPath = Path.of(fromUriPath);
-      Path toPath = Path.of(toUriPath);
-      Path fromFolder = fromPath.getParent();
+      String toPath = Io.pathString(toUriPath);
+      String fromFolder = Io.pathParent(fromUriPath);
 
       // if the from URIs are simple names without paths, they are in the same folder
       // example: m0.js
-      if (fromFolder == null && toPath.getParent() == null) {
+      if (fromFolder == null && Io.pathParent(toUriPath) == null) {
         return Outcome.ok("./" + toUriPath);
       } else if (fromFolder == null
           && (toUriPath.startsWith(".")
-              || toPath.toString().startsWith("/")
-              || toPath.toString().startsWith("\\"))) {
+              || toPath.startsWith("/")
+              || toPath.startsWith("\\"))) {
         return Outcome.ok(toUriPath);
       } else if (fromFolder == null) {
         return Outcome.err(
             new IllegalArgumentException("Relative path between URIs cannot be calculated"));
       }
 
-      String calculatedPath = fromFolder.relativize(toPath).toString();
+      String calculatedPath = Io.pathRelativize(fromFolder, toUriPath);
       if (calculatedPath.startsWith(".") || calculatedPath.startsWith("/")) {
         return Outcome.ok(calculatedPath);
       }
@@ -408,7 +407,7 @@ public final class ModuleLoader {
     ABSOLUTE {
       @Override
       public String apply(String path) {
-        return Path.of(path).toAbsolutePath().toString();
+        return Io.pathToAbsolute(path);
       }
     };
   }

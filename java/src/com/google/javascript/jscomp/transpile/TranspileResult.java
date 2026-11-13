@@ -17,12 +17,10 @@
 package com.google.javascript.jscomp.transpile;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.escape.Escaper;
-import com.google.common.io.BaseEncoding;
 import com.google.common.net.PercentEscaper;
-import java.net.URI;
+import com.google.javascript.jscomp.base.Io;
 import java.util.Objects;
 
 /**
@@ -31,19 +29,19 @@ import java.util.Objects;
  */
 public final class TranspileResult {
 
-  private final URI pathField;
+  private final String pathField;
   private final String originalField;
   private final String transpiledField;
   private final String sourceMapField;
 
-  public TranspileResult(URI path, String original, String transpiled, String sourceMap) {
+  public TranspileResult(String path, String original, String transpiled, String sourceMap) {
     this.pathField = checkNotNull(path);
     this.originalField = checkNotNull(original);
     this.transpiledField = checkNotNull(transpiled);
     this.sourceMapField = checkNotNull(sourceMap);
   }
 
-  public URI path() {
+  public String path() {
     return pathField;
   }
 
@@ -89,7 +87,7 @@ public final class TranspileResult {
     String embedded =
         transpiledField
             + "\n//# sourceMappingURL=data:application/json;base64,"
-            + BaseEncoding.base64().encode(sourceMapField.getBytes(UTF_8))
+            + Io.base64Encode(Io.utf8Bytes(sourceMapField))
             + "\n";
     return new TranspileResult(pathField, originalField, embedded, "");
   }
@@ -105,7 +103,7 @@ public final class TranspileResult {
   @Override
   public boolean equals(Object other) {
     return other instanceof TranspileResult transpileResult
-        && transpileResult.pathField.equals(pathField)
+        && Io.uriEquals(transpileResult.pathField, pathField)
         && transpileResult.originalField.equals(originalField)
         && transpileResult.transpiledField.equals(transpiledField)
         && transpileResult.sourceMapField.equals(sourceMapField);
@@ -113,7 +111,7 @@ public final class TranspileResult {
 
   @Override
   public int hashCode() {
-    return Objects.hash(pathField, originalField, transpiledField, sourceMapField);
+    return Objects.hash(Io.uriHashCode(pathField), originalField, transpiledField, sourceMapField);
   }
 
   @Override

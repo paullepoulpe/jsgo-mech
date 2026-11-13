@@ -22,7 +22,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.javascript.jscomp.base.SimpleBiMap;
-import java.io.ByteArrayInputStream;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,8 +71,7 @@ public final class IdMappingUtilTest {
         .append("id2:data2");
 
     ImmutableMap<String, String> result =
-        IdMappingUtil.parseSectionAsStream(
-            new ByteArrayInputStream(mapping.toString().getBytes(UTF_8)), "gen1");
+        IdMappingUtil.parseSectionOfBytes(mapping.toString().getBytes(UTF_8), "gen1");
 
     assertThat(result).containsExactly("id1", "data1");
   }

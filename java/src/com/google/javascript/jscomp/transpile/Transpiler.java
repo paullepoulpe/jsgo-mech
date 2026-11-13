@@ -16,7 +16,6 @@
 
 package com.google.javascript.jscomp.transpile;
 
-import java.net.URI;
 
 /**
  * Common interface for a transpiler.
@@ -40,7 +39,7 @@ import java.net.URI;
  */
 public interface Transpiler {
   /** Transforms the given chunk of code. The input should be an entire file worth of code. */
-  TranspileResult transpile(URI path, String code);
+  TranspileResult transpile(String path, String code);
 
   /**
    * Returns any necessary runtime code as a string.  This should include
@@ -53,7 +52,7 @@ public interface Transpiler {
   Transpiler NULL =
       new Transpiler() {
         @Override
-        public TranspileResult transpile(URI path, String code) {
+        public TranspileResult transpile(String path, String code) {
           return new TranspileResult(path, code, code, "");
         }
 

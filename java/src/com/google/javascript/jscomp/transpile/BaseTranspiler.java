@@ -33,6 +33,7 @@ import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.jscomp.SourceMap;
 import com.google.javascript.jscomp.VariableRenamingPolicy;
 import com.google.javascript.jscomp.annotations.LegacySetFeatureSetCaller;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.bundle.TranspilationException;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
@@ -40,8 +41,6 @@ import com.google.javascript.jscomp.deps.ModuleLoader.ResolutionMode;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet;
 import com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /** Basic Transpiler implementation for outputting ES5 code. */
 public final class BaseTranspiler implements Transpiler {
@@ -55,7 +54,7 @@ public final class BaseTranspiler implements Transpiler {
   }
 
   @Override
-  public TranspileResult transpile(URI path, String code) {
+  public TranspileResult transpile(String path, String code) {
     CompileResult result = compilerSupplier.compile(path, code);
     if (!result.transpiled) {
       return new TranspileResult(path, code, code, "");
@@ -128,16 +127,16 @@ public final class BaseTranspiler implements Transpiler {
       this.prefixReplacements = prefixReplacements;
     }
 
-    public CompileResult compile(URI path, String code) {
+    public CompileResult compile(String path, String code) {
       Compiler compiler = compiler();
       Result result =
           compiler.compileSourceFile(
-              createTrivialExterns(), SourceFile.fromCode(path.toString(), code), options());
+              createTrivialExterns(), SourceFile.fromCode(path, code), options());
       String source = compiler.toSource();
       StringBuilder sourceMap = new StringBuilder();
       if (result.sourceMap != null) {
         try {
-          result.sourceMap.appendTo(sourceMap, path.toString());
+          result.sourceMap.appendTo(sourceMap, path);
         } catch (IOException e) {
           // impossible, and not a big deal even if it did happen.
         }
@@ -199,12 +198,9 @@ public final class BaseTranspiler implements Transpiler {
       options.setSourceMapLocationMappings(
           ImmutableList.of(
               (location) -> {
-                try {
-                  if (new URI(location).getScheme() != null) {
-                    return location;
-                  }
-                } catch (URISyntaxException e) {
-                  // Swallow, return the absolute version below.
+                // An invalid URI gets the absolute version below.
+                if (Io.uriParse(location).isOk() && Io.uriScheme(location) != null) {
+                  return location;
                 }
                 return new SourceMap.PrefixLocationMapping("", "/").map(location);
               }));

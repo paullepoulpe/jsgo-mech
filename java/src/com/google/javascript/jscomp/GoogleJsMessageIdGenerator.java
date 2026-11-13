@@ -17,11 +17,11 @@
 package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Strings;
 import com.google.javascript.jscomp.JsMessage.IdGenerator;
 import com.google.javascript.jscomp.JsMessage.Part;
+import com.google.javascript.jscomp.base.Io;
 import java.util.List;
 
 /**
@@ -99,7 +99,7 @@ public final class GoogleJsMessageIdGenerator implements IdGenerator {
      * bytes and then fingerprinting those bytes.
      */
     private static long fingerprint(String str) {
-      byte[] tmp = str.getBytes(UTF_8);
+      byte[] tmp = Io.utf8Bytes(str);
       return FP.fingerprint(tmp, 0, tmp.length);
     }
 

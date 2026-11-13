@@ -24,7 +24,6 @@ import com.google.debugging.sourcemap.SourceMapConsumerV3;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping;
 import com.google.debugging.sourcemap.proto.Mapping.OriginalMapping.Precision;
 import com.google.javascript.jscomp.JSError;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public final class CoverageInstrumenterTest {
     final Map<String, String> runtimes = new HashMap<>();
 
     @Override
-    public CoverageInstrumenter.CompileResult compile(Path path, String code) {
+    public CoverageInstrumenter.CompileResult compile(String path, String code) {
       return compileResults.get(ImmutableList.of(path, code));
     }
 
@@ -58,8 +57,8 @@ public final class CoverageInstrumenterTest {
     }
   }
 
-  private static final Path FOO_JS = Path.of("foo.js");
-  private static final Path SOURCE_JS = Path.of("source.js");
+  private static final String FOO_JS = "foo.js";
+  private static final String SOURCE_JS = "source.js";
   private static final ImmutableList<JSError> NO_ERRORS = ImmutableList.of();
 
   @Before
@@ -94,7 +93,7 @@ public final class CoverageInstrumenterTest {
     assertThat(instrumenter.transform(source(FOO_JS, "bar"))).isEqualTo(source(FOO_JS, "bar"));
   }
 
-  private static Source source(Path path, String code) {
+  private static Source source(String path, String code) {
     return Source.builder().setPath(path).setCode(code).build();
   }
 

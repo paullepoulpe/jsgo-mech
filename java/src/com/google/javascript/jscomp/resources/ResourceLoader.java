@@ -16,28 +16,27 @@
 
 package com.google.javascript.jscomp.resources;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.CharStreams;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 
 /**
  * Utility class that handles resource loading.
  */
 public final class ResourceLoader {
   public static String loadTextResource(Class<?> clazz, String path) {
-    try {
-      return CharStreams.toString(new InputStreamReader(clazz.getResourceAsStream(path), UTF_8));
-    } catch (NullPointerException e) {
+    Outcome<byte[]> bytes = Io.readResource(clazz, path);
+    if (bytes.isErr()) {
+      throw new RuntimeException(bytes.error());
+    }
+    if (bytes.get() == null) {
       if (!resourceExists(clazz, path)) {
         throw new RuntimeException("No such resource: " + path);
       }
-      throw e;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new NullPointerException();
     }
+    return Io.utf8String(bytes.get());
   }
 
   public static ImmutableMap<String, String> loadPropertiesMap(
@@ -46,7 +45,7 @@ public final class ResourceLoader {
   }
 
   public static boolean resourceExists(Class<?> clazz, String path) {
-    return clazz.getResource(path) != null;
+    return Io.resourceExists(clazz, path);
   }
 
   private ResourceLoader() {}

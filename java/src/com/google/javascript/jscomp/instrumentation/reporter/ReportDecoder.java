@@ -18,15 +18,15 @@ package com.google.javascript.jscomp.instrumentation.reporter;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.javascript.jscomp.base.JavaRegex.DOT;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 
 import com.google.common.base.Splitter;
-import com.google.common.io.CharStreams;
 import com.google.debugging.sourcemap.Base64VLQ;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.FileProfile;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPoint;
 import com.google.javascript.jscomp.instrumentation.reporter.proto.InstrumentationPointStats;
@@ -37,8 +37,6 @@ import com.google.re2j.Pattern;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -63,12 +61,14 @@ public final class ReportDecoder {
 
   private ReportDecoder() {}
 
-  public static Map<String, InstrumentationPoint> parseMappingFromFile(String mappingFilePath)
-      throws IOException {
+  public static Outcome<Map<String, InstrumentationPoint>> parseMappingFromFile(
+      String mappingFilePath) {
 
-    String fileContent =
-        CharStreams.toString(Files.newBufferedReader(Path.of(mappingFilePath), UTF_8));
-    return ReportDecoder.parseMapping(fileContent);
+    Outcome<String> fileContent = Io.readTextStrict(mappingFilePath, Io.UTF_8);
+    if (fileContent.isErr()) {
+      return Outcome.err(fileContent.error());
+    }
+    return Outcome.ok(ReportDecoder.parseMapping(fileContent.get()));
   }
 
   /**

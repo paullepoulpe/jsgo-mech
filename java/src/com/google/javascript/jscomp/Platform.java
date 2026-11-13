@@ -15,14 +15,14 @@
  */
 package com.google.javascript.jscomp;
 
-import java.io.File;
+import com.google.javascript.jscomp.base.Io;
 import java.text.MessageFormat;
 
 /** A utility to abstract platform specific logic so it could be super-sourced for Web. */
 final class Platform {
 
   static String getFileSeperator() {
-    return File.separator;
+    return Io.fileSeparator();
   }
 
   static boolean isThreadInterrupted() {

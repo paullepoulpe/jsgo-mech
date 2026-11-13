@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.common.collect.ImmutableList;
 import com.google.javascript.jscomp.bundle.TranspilationException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +44,7 @@ public final class BaseTranspilerTest {
     final Map<String, String> runtimes = new HashMap<>();
 
     @Override
-    public BaseTranspiler.CompileResult compile(URI path, String code) {
+    public BaseTranspiler.CompileResult compile(String path, String code) {
       return compileResults.get(ImmutableList.of(path, code));
     }
 
@@ -56,17 +54,8 @@ public final class BaseTranspilerTest {
     }
   }
 
-  private static final URI FOO_JS;
-  private static final URI SOURCE_JS;
-
-  static {
-    try {
-      FOO_JS = new URI("foo.js");
-      SOURCE_JS = new URI("source.js");
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  private static final String FOO_JS = "foo.js";
+  private static final String SOURCE_JS = "source.js";
 
   @Before
   public void setUp() {

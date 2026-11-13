@@ -16,16 +16,12 @@
 package com.google.javascript.jscomp.deps;
 
 import com.google.common.base.Strings;
-import com.google.common.io.CharSource;
-import com.google.common.io.Files;
+import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Outcome;
 import com.google.javascript.jscomp.transpile.BaseTranspiler;
 import com.google.javascript.jscomp.transpile.TranspileResult;
 import com.google.javascript.jscomp.transpile.Transpiler;
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.Nullable;
@@ -177,18 +173,7 @@ public final class ClosureBundler {
 
   /** Append the contents of the string to the supplied appendable. */
   public void appendTo(Appendable out, DependencyInfo info, String content) throws IOException {
-    appendToCharSource(out, info, CharSource.wrap(content));
-  }
-
-  /** Append the contents of the file to the supplied appendable. */
-  public void appendTo(Appendable out, DependencyInfo info, File content, Charset contentCharset)
-      throws IOException {
-    appendToCharSource(out, info, Files.asCharSource(content, contentCharset));
-  }
-
-  /** Append the contents of the CharSource to the supplied appendable. */
-  public void appendToCharSource(Appendable out, DependencyInfo info, CharSource content) throws IOException {
-    String code = content.read();
+    String code = content;
     if (info.isGoogModule()) {
       mode.appendGoogModule(transpile(code), out, sourceUrl);
     } else if (info.isEs6Module() && transpiler == Transpiler.NULL) {
@@ -238,12 +223,11 @@ public final class ClosureBundler {
   }
 
   private String transpile(String s, Transpiler t) {
-    TranspileResult result;
-    try {
-      result = t.transpile(new URI(path), s);
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
+    Outcome<String> uri = Io.uriParse(path);
+    if (uri.isErr()) {
+      throw new RuntimeException(uri.error());
     }
+    TranspileResult result = t.transpile(path, s);
     sourceMapCache.put(path, result.sourceMap());
     return embedSourcemapField ? result.embedSourcemapBase64().transpiled() : result.transpiled();
   }

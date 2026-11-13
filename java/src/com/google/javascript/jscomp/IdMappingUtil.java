@@ -16,19 +16,14 @@
 
 package com.google.javascript.jscomp;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.javascript.jscomp.base.Io;
 import com.google.javascript.jscomp.base.SimpleBiMap;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,23 +58,25 @@ public final class IdMappingUtil {
 
   /** A stateful pull parser for reading id mapping sections and entries line by line. */
   public static class MappingReader {
-    private final BufferedReader reader;
+    private final List<String> lines;
+    private int nextLine = 0;
     private String currentSection = null;
     private String currentKey = null;
     private String currentValue = null;
     private int lineIndex = 0;
 
-    public MappingReader(BufferedReader reader) {
-      this.reader = reader;
+    public MappingReader(String text) {
+      this.lines = Io.splitLines(text);
     }
 
-    public boolean next() throws IOException {
+    public boolean next() {
       String line;
       while (true) {
-        line = reader.readLine();
-        if (line == null) {
+        if (nextLine == lines.size()) {
           break;
         }
+        line = lines.get(nextLine);
+        nextLine++;
         lineIndex++;
         if (line.isEmpty()) {
           continue;
@@ -125,12 +122,11 @@ public final class IdMappingUtil {
     }
   }
 
-  public static ImmutableMap<String, String> parseSectionAsStream(
-      InputStream stream, String sectionFilter) throws IOException {
+  public static ImmutableMap<String, String> parseSectionOfBytes(
+      byte[] idMappings, String sectionFilter) {
     ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
 
-    BufferedReader br = new BufferedReader(new InputStreamReader(stream, UTF_8));
-    MappingReader mr = new MappingReader(br);
+    MappingReader mr = new MappingReader(Io.utf8String(idMappings));
     boolean inSection = false;
 
     while (mr.next()) {
@@ -148,10 +144,10 @@ public final class IdMappingUtil {
     return mapBuilder.buildKeepingLast();
   }
 
-  public static Map<String, SimpleBiMap<String, String>> parseSerializedIdMappingsBufferedReader(BufferedReader br)
-      throws IOException {
+  public static Map<String, SimpleBiMap<String, String>> parseSerializedIdMappingsText(
+      String idMappings) {
     Map<String, SimpleBiMap<String, String>> resultMap = new LinkedHashMap<>();
-    MappingReader mr = new MappingReader(br);
+    MappingReader mr = new MappingReader(idMappings);
     SimpleBiMap<String, String> currentSectionMap = null;
     Set<String> sectionNames = new LinkedHashSet<>();
 
@@ -180,10 +176,6 @@ public final class IdMappingUtil {
     if (Strings.isNullOrEmpty(idMappings)) {
       return ImmutableMap.of();
     }
-    try (BufferedReader br = new BufferedReader(new StringReader(idMappings))) {
-      return parseSerializedIdMappingsBufferedReader(br);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Failed to parse id mappings", e);
-    }
+    return parseSerializedIdMappingsText(idMappings);
   }
 }
