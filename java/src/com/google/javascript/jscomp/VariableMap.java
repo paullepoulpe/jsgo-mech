@@ -20,13 +20,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Map.Entry.comparingByKey;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Files;
 import com.google.errorprone.annotations.Immutable;
 import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.SimpleBiMap;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -50,10 +50,10 @@ public final class VariableMap implements Serializable {
   private static final char SEPARATOR = ':';
 
   /** Maps between original source name to new name */
-  private final ImmutableBiMap<String, String> map;
+  private final SimpleBiMap<String, String> map;
 
   public VariableMap(Map<String, String> map) {
-    this.map = ImmutableBiMap.copyOf(map);
+    this.map = SimpleBiMap.copyOf(map);
   }
 
   /** Given an original variable name, look up new name, may return null if it's not found. */
@@ -68,12 +68,12 @@ public final class VariableMap implements Serializable {
 
   /** Returns an immutable mapping from original names to new names. */
   public ImmutableMap<String, String> getOriginalNameToNewNameMap() {
-    return ImmutableSortedMap.copyOf(map);
+    return ImmutableSortedMap.copyOf(map.asMap());
   }
 
   /** Returns an immutable mapping from new names to original names. */
   public ImmutableMap<String, String> getNewNameToOriginalNameMap() {
-    return map.inverse();
+    return ImmutableMap.copyOf(map.inverse());
   }
 
   /** Saves the variable map to a file. */
@@ -98,7 +98,7 @@ public final class VariableMap implements Serializable {
     try {
       // The output order should be stable.
       for (Map.Entry<String, String> entry :
-          ImmutableSortedSet.copyOf(comparingByKey(), map.entrySet())) {
+          ImmutableSortedSet.copyOf(comparingByKey(), map.asMap().entrySet())) {
         writer.write(escape(entry.getKey()));
         writer.write(SEPARATOR);
         writer.write(escape(entry.getValue()));
@@ -224,6 +224,6 @@ public final class VariableMap implements Serializable {
 
   @VisibleForTesting
   ImmutableMap<String, String> toMap() {
-    return map;
+    return ImmutableMap.copyOf(map.asMap());
   }
 }

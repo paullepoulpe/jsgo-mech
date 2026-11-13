@@ -21,8 +21,7 @@ import static com.google.javascript.jscomp.base.JSCompStrings.lines;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
+import com.google.javascript.jscomp.base.SimpleTable;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.JSDocInfo.Visibility;
 import com.google.javascript.rhino.Node;
@@ -33,7 +32,6 @@ import com.google.javascript.rhino.jstype.JSTypeNative;
 import com.google.javascript.rhino.jstype.JSTypeRegistry;
 import com.google.javascript.rhino.jstype.ObjectType;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -132,8 +130,8 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
   // handful of elements, it provides the smoothest API (push, pop, and a peek that doesn't throw
   // on empty), and (unlike ArrayDeque) is null-permissive. No other option meets all these needs.
   private final Deque<ObjectType> currentClassStack = new LinkedList<>();
-  private final Table<JSType, String, ConstantDeclaration> constPropertyInits =
-      Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
+  private final SimpleTable<JSType, String, ConstantDeclaration> constPropertyInits =
+      SimpleTable.create();
 
   /**
    * Distinguishes between different kinds of "constant" JSDoc to provide more useful error messages
@@ -678,17 +676,19 @@ class CheckAccessControls implements NodeTraversal.Callback, CompilerPass {
 
   private void recordConstPropertyInit(
       PropertyReference ref, ObjectType type, Constancy annotation) {
-    this.constPropertyInits
-        .row(type)
-        .putIfAbsent(ref.name(), new ConstantDeclaration(ref.sourceNode(), annotation));
+    if (!this.constPropertyInits.contains(type, ref.name())) {
+      this.constPropertyInits.put(
+          type, ref.name(), new ConstantDeclaration(ref.sourceNode(), annotation));
+    }
 
     // Add the prototype when we're looking at an instance object
     if (type.isInstanceType()) {
       ObjectType prototype = type.getImplicitPrototype();
       if (prototype != null && prototype.hasProperty(ref.name())) {
-        this.constPropertyInits
-            .row(prototype)
-            .putIfAbsent(ref.name(), new ConstantDeclaration(ref.sourceNode(), annotation));
+        if (!this.constPropertyInits.contains(prototype, ref.name())) {
+          this.constPropertyInits.put(
+              prototype, ref.name(), new ConstantDeclaration(ref.sourceNode(), annotation));
+        }
       }
     }
   }

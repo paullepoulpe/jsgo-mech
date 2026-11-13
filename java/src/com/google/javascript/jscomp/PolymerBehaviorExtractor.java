@@ -18,8 +18,7 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
+import com.google.javascript.jscomp.base.SimpleTable;
 import java.util.LinkedHashMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -67,8 +66,8 @@ final class PolymerBehaviorExtractor {
   private final ModuleMetadataMap moduleMetadataMap;
   private final ModuleMap moduleMap;
 
-  private final Table<String, ModuleMetadata, ResolveBehaviorNameResult> resolveMemoized =
-      Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
+  private final SimpleTable<String, ModuleMetadata, ResolveBehaviorNameResult> resolveMemoized =
+      SimpleTable.create();
   private final Map<String, ResolveBehaviorNameResult> globalResolveMemoized =
       new LinkedHashMap<>();
 

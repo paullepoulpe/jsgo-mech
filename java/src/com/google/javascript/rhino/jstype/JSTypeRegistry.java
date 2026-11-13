@@ -53,14 +53,13 @@ import static com.google.javascript.rhino.jstype.JSTypeNative.VOID_TYPE;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
 import java.util.LinkedHashMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.javascript.jscomp.base.SimpleSetMultimap;
+import com.google.javascript.jscomp.base.SimpleTable;
 import com.google.javascript.rhino.ErrorReporter;
 import com.google.javascript.rhino.HamtPMap;
 import com.google.javascript.rhino.JSDocInfo;
@@ -212,7 +211,7 @@ public final class JSTypeRegistry {
   // CPU time on bounds checking inside get().
   private final JSType[] nativeTypes;
 
-  private final Table<Node, String, JSType> scopedNameTable = Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
+  private final SimpleTable<Node, String, JSType> scopedNameTable = SimpleTable.create();
 
   // Only needed for type resolution at the moment
   private final transient Map<String, ClosureNamespace> closureNamespaces = new LinkedHashMap<>();

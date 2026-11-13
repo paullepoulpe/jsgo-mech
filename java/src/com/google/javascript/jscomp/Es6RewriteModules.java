@@ -28,8 +28,7 @@ import static com.google.javascript.jscomp.ClosurePrimitiveErrors.MODULE_USES_GO
 import static com.google.javascript.jscomp.ClosureRewriteModule.ILLEGAL_MODULE_RENAMING_CONFLICT;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
+import com.google.javascript.jscomp.base.SimpleTable;
 import java.util.LinkedHashMap;
 import com.google.javascript.jscomp.CompilerOptions.ChunkOutputType;
 import com.google.javascript.jscomp.ModuleRenaming.GlobalizedModuleName;
@@ -217,10 +216,10 @@ public final class Es6RewriteModules implements CompilerPass, NodeTraversal.Call
     // An (s, old, new) entry indicates that occurrences of `old` in scope `s` should be rewritten
     // as `new`. This is used to rewrite namespaces that appear in calls to goog.requireType and
     // goog.forwardDeclare.
-    private Table<Node, String, String> renameTable;
+    private SimpleTable<Node, String, String> renameTable;
 
     void rewrite(Node scriptNode) {
-      renameTable = Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
+      renameTable = SimpleTable.create();
       NodeTraversal.traverse(compiler, scriptNode, this);
 
       if (!renameTable.isEmpty()) {

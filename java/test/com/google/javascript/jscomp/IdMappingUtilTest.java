@@ -20,8 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.javascript.jscomp.IdMappingUtil.NEW_LINE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableMap;
+import com.google.javascript.jscomp.base.SimpleBiMap;
 import java.io.ByteArrayInputStream;
 import java.util.Map;
 import org.junit.Test;
@@ -45,18 +45,18 @@ public final class IdMappingUtilTest {
         .append(NEW_LINE)
         .append("[gen2]");
 
-    Map<String, BiMap<String, String>> result =
+    Map<String, SimpleBiMap<String, String>> result =
         IdMappingUtil.parseSerializedIdMappings(mapping.toString());
 
     assertThat(result).hasSize(2);
 
     assertThat(result).containsKey("gen1");
-    assertThat(result.get("gen1")).hasSize(2);
-    assertThat(result.get("gen1")).containsEntry("id1", "data1");
-    assertThat(result.get("gen1")).containsEntry("id2", "data2:data22");
+    assertThat(result.get("gen1").asMap()).hasSize(2);
+    assertThat(result.get("gen1").asMap()).containsEntry("id1", "data1");
+    assertThat(result.get("gen1").asMap()).containsEntry("id2", "data2:data22");
 
     assertThat(result).containsKey("gen2");
-    assertThat(result.get("gen2")).isEmpty();
+    assertThat(result.get("gen2").asMap()).isEmpty();
   }
 
   @Test

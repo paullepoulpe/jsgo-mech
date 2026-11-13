@@ -18,11 +18,10 @@ package com.google.javascript.jscomp;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.debugging.sourcemap.Base64;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.base.SimpleBiMap;
 import com.google.javascript.rhino.IR;
 import com.google.javascript.rhino.JSDocInfo;
 import com.google.javascript.rhino.Node;
@@ -79,7 +78,7 @@ class ReplaceIdGenerators implements CompilerPass {
   private final Map<String, Map<String, String>> consistNameMap;
 
   private final Map<String, Map<String, String>> idGeneratorMaps;
-  private final Map<String, BiMap<String, String>> previousMap;
+  private final Map<String, SimpleBiMap<String, String>> previousMap;
 
   private final boolean generatePseudoNames;
   private final Xid.HashFunction xidHashFunction;
@@ -99,7 +98,7 @@ class ReplaceIdGenerators implements CompilerPass {
     idGeneratorMaps = new LinkedHashMap<>();
     consistNameMap = new LinkedHashMap<>();
 
-    Map<String, BiMap<String, String>> previousMap =
+    Map<String, SimpleBiMap<String, String>> previousMap =
         IdMappingUtil.parseSerializedIdMappings(previousMapSerialized);
     this.previousMap = previousMap;
 
@@ -148,7 +147,7 @@ class ReplaceIdGenerators implements CompilerPass {
     private final Map<String, String> previousMappings;
     private final RenameStrategy renameStrategy;
 
-    ObfuscatedNameSupplier(RenameStrategy renameStrategy, BiMap<String, String> previousMappings) {
+    ObfuscatedNameSupplier(RenameStrategy renameStrategy, SimpleBiMap<String, String> previousMappings) {
       this.previousMappings = previousMappings.inverse();
       this.generator =
           new DefaultNameGenerator(previousMappings.keySet(), "", ImmutableSet.<Character>of());
@@ -243,9 +242,9 @@ class ReplaceIdGenerators implements CompilerPass {
   }
 
   private NameSupplier createNameSupplier(
-      RenameStrategy renameStrategy, BiMap<String, String> previousMappings) {
+      RenameStrategy renameStrategy, SimpleBiMap<String, String> previousMappings) {
     previousMappings =
-        previousMappings != null ? previousMappings : ImmutableBiMap.<String, String>of();
+        previousMappings != null ? previousMappings : SimpleBiMap.<String, String>create();
     if (renameStrategy == RenameStrategy.STABLE) {
       return new StableNameSupplier();
     } else if (renameStrategy == RenameStrategy.XID) {

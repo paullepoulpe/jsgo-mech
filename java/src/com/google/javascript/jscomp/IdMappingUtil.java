@@ -20,9 +20,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
+import com.google.javascript.jscomp.base.SimpleBiMap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -149,11 +148,11 @@ public final class IdMappingUtil {
     return mapBuilder.buildKeepingLast();
   }
 
-  public static Map<String, BiMap<String, String>> parseSerializedIdMappingsBufferedReader(BufferedReader br)
+  public static Map<String, SimpleBiMap<String, String>> parseSerializedIdMappingsBufferedReader(BufferedReader br)
       throws IOException {
-    Map<String, BiMap<String, String>> resultMap = new LinkedHashMap<>();
+    Map<String, SimpleBiMap<String, String>> resultMap = new LinkedHashMap<>();
     MappingReader mr = new MappingReader(br);
-    BiMap<String, String> currentSectionMap = null;
+    SimpleBiMap<String, String> currentSectionMap = null;
     Set<String> sectionNames = new LinkedHashSet<>();
 
     while (mr.next()) {
@@ -165,7 +164,7 @@ public final class IdMappingUtil {
                   "Cannot parse id map: Duplicate section %s\n lineIndex: %d",
                   sectionName, mr.getLineIndex()));
         }
-        currentSectionMap = HashBiMap.create();
+        currentSectionMap = SimpleBiMap.create();
         resultMap.put(sectionName, currentSectionMap);
       } else {
         if (currentSectionMap == null) {
@@ -177,7 +176,7 @@ public final class IdMappingUtil {
     return resultMap;
   }
 
-  public static Map<String, BiMap<String, String>> parseSerializedIdMappings(String idMappings) {
+  public static Map<String, SimpleBiMap<String, String>> parseSerializedIdMappings(String idMappings) {
     if (Strings.isNullOrEmpty(idMappings)) {
       return ImmutableMap.of();
     }

@@ -16,8 +16,8 @@
 
 package com.google.javascript.jscomp;
 
-import com.google.common.collect.Table;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
+import com.google.javascript.jscomp.base.SimpleTable;
 import com.google.javascript.rhino.Node;
 
 /** Renames references in code. */
@@ -29,9 +29,9 @@ final class Es6RenameReferences extends AbstractPostOrderCallback {
    * <p>An entry in this map means we should rename a variable that was originally declared in the
    * scope with the given root and had the original variable name to the new name.
    */
-  private final Table<Node, String, String> renameTable;
+  private final SimpleTable<Node, String, String> renameTable;
 
-  Es6RenameReferences(Table<Node, String, String> renameTable) {
+  Es6RenameReferences(SimpleTable<Node, String, String> renameTable) {
     this.renameTable = renameTable;
   }
 

@@ -25,11 +25,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
 import com.google.javascript.jscomp.NodeTraversal.AbstractPostOrderCallback;
 import com.google.javascript.jscomp.base.LinkedIdentityHashMap;
 import com.google.javascript.jscomp.base.SimpleListMultimap;
+import com.google.javascript.jscomp.base.SimpleTable;
 import com.google.javascript.jscomp.modules.Module;
 import com.google.javascript.jscomp.modules.ModuleMetadataMap.ModuleType;
 import com.google.javascript.rhino.JSDocInfo;
@@ -110,8 +109,8 @@ public final class SymbolTable {
    * All symbols in the program, uniquely identified by the node where they're declared and their
    * name.
    */
-  private final Table<Node, String, Symbol> symbols =
-      Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
+  private final SimpleTable<Node, String, Symbol> symbols =
+      SimpleTable.create();
 
   /**
    * All syntactic scopes in the program, uniquely identified by the node where they're declared.
@@ -1516,8 +1515,8 @@ public final class SymbolTable {
     // To find duplicated symbols we rely on the fact that duplicated symbol share the same
     // source position as original symbol and going to use filename => sourcePosition => symbol
     // table.
-    Table<String, Integer, Symbol> externSymbols =
-        Tables.newCustomTable(new LinkedHashMap<>(), LinkedHashMap::new);
+    SimpleTable<String, Integer, Symbol> externSymbols =
+        SimpleTable.create();
     for (Symbol symbol : ImmutableList.copyOf(symbols.values())) {
       if (symbol.getDeclarationNode() == null
           || symbol.getDeclarationNode().getStaticSourceFile() == null

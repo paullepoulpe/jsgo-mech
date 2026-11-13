@@ -18,10 +18,9 @@ package com.google.javascript.jscomp;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.javascript.jscomp.NodeUtil.Visitor;
+import com.google.javascript.jscomp.base.SimpleBiMap;
 import com.google.javascript.rhino.Node;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +34,7 @@ import java.util.function.Supplier;
  */
 public class ChangeVerifier {
   private final ChangeTracker changeTracker;
-  private final BiMap<Node, Node> clonesByCurrent = HashBiMap.create();
+  private final SimpleBiMap<Node, Node> clonesByCurrent = SimpleBiMap.create();
   private int snapshotChange;
 
   ChangeVerifier(AbstractCompiler compiler) {
