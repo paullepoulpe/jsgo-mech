@@ -74,7 +74,7 @@ import org.jspecify.annotations.Nullable;
  * This class implements the root of the intermediate representation.
  *
  */
-public class Node {
+public final class Node {
 
   enum Prop {
     // Is this Node within parentheses
@@ -299,107 +299,11 @@ public class Node {
   public static final Prop IS_SHORTHAND_PROPERTY = Prop.IS_SHORTHAND_PROPERTY;
   public static final Prop ES6_MODULE = Prop.ES6_MODULE;
 
-  private static final class NumberNode extends Node {
-
-    private static final long serialVersionUID = 1L;
-
-    private double number;
-
-    NumberNode(double number) {
-      super(Token.NUMBER);
-      this.setDouble(number);
-    }
-
-    @Override
-    public boolean isEquivalentTo(
-        Node node,
-        RecursionMode recursion,
-        TypeComparison typeConfig,
-        JsDocComparison jsDocConfig,
-        SideEffectComparison sideEffectConfig) {
-      return super.isEquivalentTo(node, recursion, typeConfig, jsDocConfig, sideEffectConfig)
-          && (this.number == ((NumberNode) node).number); // -0.0 and NaN are forbidden.
-    }
-
-    @Override
-    NumberNode cloneNode(boolean cloneTypeExprs) {
-      NumberNode clone = new NumberNode(number);
-      copyBaseNodeFields(this, clone, cloneTypeExprs);
-      return clone;
-    }
-  }
-
-  private static final class BigIntNode extends Node {
-    private static final long serialVersionUID = 1L;
-
-    private BigInteger bigint;
-
-    BigIntNode(BigInteger bigint) {
-      super(Token.BIGINT);
-      setBigInt(bigint);
-    }
-
-    @Override
-    public boolean isEquivalentTo(
-        Node node,
-        RecursionMode recursion,
-        TypeComparison typeConfig,
-        JsDocComparison jsDocConfig,
-        SideEffectComparison sideEffectConfig) {
-      return super.isEquivalentTo(node, recursion, typeConfig, jsDocConfig, sideEffectConfig)
-          && getBigInt().equals(node.getBigInt());
-    }
-
-    @Override
-    BigIntNode cloneNode(boolean cloneTypeExprs) {
-      BigIntNode clone = new BigIntNode(bigint);
-      copyBaseNodeFields(this, clone, cloneTypeExprs);
-      return clone;
-    }
-  }
-
-  private static final class StringNode extends Node {
-
-    private static final long serialVersionUID = 1L;
-
-    private String str;
-
-    // Only for cloneNode
-    private StringNode(Token token) {
-      super(token);
-    }
-
-    StringNode(Token token, String str) {
-      super(token);
-      setString(str);
-    }
-
-    StringNode(Token token, RhinoStringPool.LazyInternedStringList stringPool, int offset) {
-      super(token);
-      setStringFromStringPool(stringPool, offset);
-    }
-
-    @Override
-    public boolean isEquivalentTo(
-        Node node,
-        RecursionMode recursion,
-        TypeComparison typeConfig,
-        JsDocComparison jsDocConfig,
-        SideEffectComparison sideEffectConfig) {
-      return super.isEquivalentTo(node, recursion, typeConfig, jsDocConfig, sideEffectConfig)
-          && RhinoStringPool.uncheckedEquals(this.str, ((StringNode) node).str);
-    }
-
-    @Override
-    StringNode cloneNode(boolean cloneTypeExprs) {
-      StringNode clone = new StringNode(this.getToken());
-      copyBaseNodeFields(this, clone, cloneTypeExprs);
-      clone.str = this.str;
-      return clone;
-    }
-  }
-
-  private static final class TemplateLiteralSubstringNode extends Node {
+  /**
+   * The raw and cooked strings of a TEMPLATELIT_STRING node; the {@link #payload} of nodes created
+   * by {@link #newTemplateLitString}.
+   */
+  private static final class TemplateLiteralSubstring {
 
     /**
      * The cooked version of the template literal substring.
@@ -412,44 +316,9 @@ public class Node {
     /** The raw version of the template literal substring, is not null */
     private final String raw;
 
-    TemplateLiteralSubstringNode(@Nullable String cooked, String raw) {
-      super(Token.TEMPLATELIT_STRING);
-      // RhinoStringPool is null-hostile.
-      this.cooked = (cooked == null) ? null : RhinoStringPool.addOrGet(cooked);
-      this.raw = RhinoStringPool.addOrGet(raw);
-    }
-
-    private TemplateLiteralSubstringNode(
-        RhinoStringPool.LazyInternedStringList stringPool,
-        int cookedOffsetOrNegativeOne,
-        int rawOffset) {
-      super(Token.TEMPLATELIT_STRING);
-      this.cooked =
-          (cookedOffsetOrNegativeOne == -1) ? null : stringPool.get(cookedOffsetOrNegativeOne);
-      this.raw = stringPool.get(rawOffset);
-    }
-
-    @Override
-    public boolean isEquivalentTo(
-        Node node,
-        RecursionMode recursion,
-        TypeComparison typeConfig,
-        JsDocComparison jsDocConfig,
-        SideEffectComparison sideEffectConfig) {
-      if (!super.isEquivalentTo(node, recursion, typeConfig, jsDocConfig, sideEffectConfig)) {
-        return false;
-      }
-
-      TemplateLiteralSubstringNode castNode = (TemplateLiteralSubstringNode) node;
-      return RhinoStringPool.uncheckedEquals(this.raw, castNode.raw)
-          && RhinoStringPool.uncheckedEquals(this.cooked, castNode.cooked);
-    }
-
-    @Override
-    TemplateLiteralSubstringNode cloneNode(boolean cloneTypeExprs) {
-      TemplateLiteralSubstringNode clone = new TemplateLiteralSubstringNode(this.cooked, this.raw);
-      copyBaseNodeFields(this, clone, cloneTypeExprs);
-      return clone;
+    TemplateLiteralSubstring(@Nullable String cooked, String raw) {
+      this.cooked = cooked;
+      this.raw = raw;
     }
   }
 
@@ -580,35 +449,57 @@ public class Node {
   }
 
   public static Node newNumber(double number) {
-    return new NumberNode(number);
+    Node n = new Node(Token.NUMBER);
+    n.payload = NUMBER_PAYLOAD_UNSET;
+    n.setDouble(number);
+    return n;
   }
 
   public static Node newBigInt(BigInteger bigint) {
-    return new BigIntNode(bigint);
+    Node n = new Node(Token.BIGINT);
+    n.payload = BIGINT_PAYLOAD_UNSET;
+    n.setBigInt(bigint);
+    return n;
   }
 
   public static Node newString(String str) {
-    return new StringNode(Token.STRINGLIT, str);
+    return newString(Token.STRINGLIT, str);
   }
 
   public static Node newString(Token token, String str) {
-    return new StringNode(token, str);
+    Node n = new Node(token);
+    n.payload = RhinoStringPool.addOrGet(str); // RhinoStringPool is null-hostile.
+    return n;
   }
 
   public static Node newString(
       Token token, RhinoStringPool.LazyInternedStringList stringPool, int offset) {
-    return new StringNode(token, stringPool, offset);
+    Node n = new Node(token);
+    // See setStringFromStringPool.
+    n.payload = stringPool.get(offset);
+    return n;
   }
 
   public static Node newTemplateLitString(String cooked, String raw) {
-    return new TemplateLiteralSubstringNode(cooked, raw);
+    Node n = new Node(Token.TEMPLATELIT_STRING);
+    // RhinoStringPool is null-hostile.
+    n.payload =
+        new TemplateLiteralSubstring(
+            (cooked == null) ? null : RhinoStringPool.addOrGet(cooked),
+            RhinoStringPool.addOrGet(raw));
+    return n;
   }
 
   public static Node newTemplateLitString(
       RhinoStringPool.LazyInternedStringList stringPool,
       int cookedOffsetOrNegativeOne,
       int rawOffset) {
-    return new TemplateLiteralSubstringNode(stringPool, cookedOffsetOrNegativeOne, rawOffset);
+    Node n = new Node(Token.TEMPLATELIT_STRING);
+    n.payload =
+        new TemplateLiteralSubstring(
+            (cookedOffsetOrNegativeOne == -1) ? null : stringPool.get(cookedOffsetOrNegativeOne),
+            stringPool.get(rawOffset));
+    return n;
   }
 
   public final Token getToken() {
@@ -1494,31 +1385,49 @@ public class Node {
   }
 
   public final double getDouble() {
-    return ((NumberNode) this).number;
+    if (!(this.payload instanceof Double number)) {
+      throw this.payloadKindMismatch("number");
+    }
+    return number;
   }
 
   public final void setDouble(double x) {
     checkState(!Double.isNaN(x), x);
     checkState(isPositive(x), x);
-    ((NumberNode) this).number = x;
+    if (!(this.payload instanceof Double)) {
+      throw this.payloadKindMismatch("number");
+    }
+    this.payload = x;
   }
 
   public final BigInteger getBigInt() {
-    return ((BigIntNode) this).bigint;
+    if (!(this.payload instanceof BigInteger bigint)) {
+      throw this.payloadKindMismatch("bigint");
+    }
+    return bigint;
   }
 
   public final void setBigInt(BigInteger number) {
     checkNotNull(number);
     checkState(number.signum() >= 0, number);
-    ((BigIntNode) this).bigint = number;
+    if (!(this.payload instanceof BigInteger)) {
+      throw this.payloadKindMismatch("bigint");
+    }
+    this.payload = number;
   }
 
   public final String getString() {
-    return ((StringNode) this).str;
+    if (!(this.payload instanceof String str)) {
+      throw this.payloadKindMismatch("string");
+    }
+    return str;
   }
 
   public final void setString(String str) {
-    ((StringNode) this).str = RhinoStringPool.addOrGet(str); // RhinoStringPool is null-hostile.
+    if (!(this.payload instanceof String)) {
+      throw this.payloadKindMismatch("string");
+    }
+    this.payload = RhinoStringPool.addOrGet(str); // RhinoStringPool is null-hostile.
   }
 
   final void setStringFromStringPool(
@@ -1526,15 +1435,32 @@ public class Node {
     // RhinoStringPool.LazyInternedStringList guarantees that the result of calling get(offset) is
     // interned. In some cases this is more performance than RhinoStringPool.addOrGet because the
     // LazyInternedStringList caches interning results.
-    ((StringNode) this).str = stringPool.get(offset);
+    if (!(this.payload instanceof String)) {
+      throw this.payloadKindMismatch("string");
+    }
+    this.payload = stringPool.get(offset);
   }
 
   public final String getRawString() {
-    return ((TemplateLiteralSubstringNode) this).raw;
+    if (!(this.payload instanceof TemplateLiteralSubstring substring)) {
+      throw this.payloadKindMismatch("template literal string");
+    }
+    return substring.raw;
   }
 
   public final @Nullable String getCookedString() {
-    return ((TemplateLiteralSubstringNode) this).cooked;
+    if (!(this.payload instanceof TemplateLiteralSubstring substring)) {
+      throw this.payloadKindMismatch("template literal string");
+    }
+    return substring.cooked;
+  }
+
+  /**
+   * The exception for calling a payload accessor on a node of another kind (formerly the failed
+   * downcast to the private Node subclass that held the value).
+   */
+  private ClassCastException payloadKindMismatch(String wanted) {
+    return new ClassCastException(this.token + " node is not a " + wanted + " node");
   }
 
   @Override
@@ -1551,7 +1477,7 @@ public class Node {
   private void toString(
       StringBuilder sb, boolean printSource, boolean printAnnotations, boolean printType) {
     sb.append(token);
-    if (this instanceof StringNode) {
+    if (this.payload instanceof String) {
       sb.append(' ');
       sb.append(getString());
     } else if (token == Token.FUNCTION) {
@@ -1626,7 +1552,7 @@ public class Node {
   private void toJson(Appendable sb) throws IOException {
     sb.append('{');
     sb.append(createJsonPair("token", token.toString()));
-    if (this instanceof StringNode) {
+    if (this.payload instanceof String) {
       sb.append(',');
       sb.append(createJsonPair("string", getString()));
     } else if (token == Token.FUNCTION) {
@@ -1772,6 +1698,24 @@ public class Node {
    * replaced by UintMap.
    */
   private transient @Nullable PropListItem propListHead;
+
+  /**
+   * The value of a value-carrying node; its class is the node's kind, fixed at construction:
+   *
+   * <ul>
+   *   <li>{@code null}: a plain node ({@code new Node(token)}).
+   *   <li>{@link String}: a string node ({@link #newString}); see {@link #getString}.
+   *   <li>{@link Double}: a number node ({@link #newNumber}); see {@link #getDouble}.
+   *   <li>{@link BigInteger}: a bigint node ({@link #newBigInt}); see {@link #getBigInt}.
+   *   <li>{@link TemplateLiteralSubstring}: a template literal string node ({@link
+   *       #newTemplateLitString}); see {@link #getRawString} and {@link #getCookedString}.
+   * </ul>
+   */
+  private transient @Nullable Object payload;
+
+  // Kind markers for a number / bigint node under construction; replaced before it escapes.
+  private static final Double NUMBER_PAYLOAD_UNSET = 0.0;
+  private static final BigInteger BIGINT_PAYLOAD_UNSET = BigInteger.ZERO;
 
   // ==========================================================================
   // Source position management
@@ -2455,7 +2399,7 @@ public class Node {
       SideEffectComparison sideEffectConfig) {
     if (token != node.token
         || getChildCount() != node.getChildCount()
-        || this.getClass() != node.getClass()) {
+        || payloadClass(this.payload) != payloadClass(node.payload)) {
       return false;
     }
 
@@ -2536,7 +2480,25 @@ public class Node {
       }
     }
 
+    // The payloads have the same class (checked above).
+    if (this.payload instanceof String str) {
+      return RhinoStringPool.uncheckedEquals(str, (String) node.payload);
+    } else if (this.payload instanceof Double number) {
+      // -0.0 and NaN are forbidden.
+      return number.doubleValue() == ((Double) node.payload).doubleValue();
+    } else if (this.payload instanceof BigInteger bigint) {
+      return bigint.equals(node.payload);
+    } else if (this.payload instanceof TemplateLiteralSubstring substring) {
+      TemplateLiteralSubstring other = (TemplateLiteralSubstring) node.payload;
+      return RhinoStringPool.uncheckedEquals(substring.raw, other.raw)
+          && RhinoStringPool.uncheckedEquals(substring.cooked, other.cooked);
+    }
+
     return true;
+  }
+
+  private static @Nullable Class<?> payloadClass(@Nullable Object payload) {
+    return (payload == null) ? null : payload.getClass();
   }
 
   /**
@@ -2817,6 +2779,7 @@ public class Node {
   Node cloneNode(boolean cloneTypeExprs) {
     Node clone = new Node(token);
     copyBaseNodeFields(this, clone, cloneTypeExprs);
+    clone.payload = this.payload; // Payload values are immutable.
     return clone;
   }
 
@@ -3507,20 +3470,20 @@ public class Node {
   }
 
   public final boolean isQuotedStringKey() {
-    return (this instanceof StringNode) && this.getBooleanProp(Prop.QUOTED);
+    return (this.payload instanceof String) && this.getBooleanProp(Prop.QUOTED);
   }
 
   public final void setQuotedStringKey() {
-    checkState(this instanceof StringNode, this);
+    checkState(this.payload instanceof String, this);
     this.putBooleanProp(Prop.QUOTED, true);
   }
 
   public final boolean isPrivateIdentifier() {
-    return (this instanceof StringNode) && this.getBooleanProp(Prop.PRIVATE_IDENTIFIER);
+    return (this.payload instanceof String) && this.getBooleanProp(Prop.PRIVATE_IDENTIFIER);
   }
 
   public final void setPrivateIdentifier() {
-    checkState(this instanceof StringNode, this);
+    checkState(this.payload instanceof String, this);
     checkState(this.getString().startsWith("#"));
     this.putBooleanProp(Prop.PRIVATE_IDENTIFIER, true);
   }
