@@ -18,7 +18,7 @@ package com.google.javascript.jscomp;
 
 import com.google.javascript.jscomp.NodeTraversal.AbstractPreOrderCallback;
 import com.google.javascript.jscomp.base.FilePaths;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Uris;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.rhino.Node;
 import java.util.Optional;
@@ -73,21 +73,21 @@ public class Es6RelativizeImportPaths implements CompilerPass {
       if (ModuleLoader.isRelativeIdentifier(specifier)) {
         return;
       } else {
-        if (Io.uriParse(specifier).isErr()) {
+        if (!Uris.isValid(specifier)) {
           return;
         }
-        if (Io.uriScheme(specifier).isPresent()) {
+        if (Uris.hasScheme(specifier)) {
           return;
         }
       }
 
       Optional<String> scriptPath = Optional.of(t.getInput().getPath().toString());
 
-      if (Io.uriParse(scriptPath.get()).isErr()) {
+      if (!Uris.isValid(scriptPath.get())) {
         return;
       }
       // If the script path has a scheme / host / port then just use the path part.
-      scriptPath = Io.uriPath(scriptPath.get());
+      scriptPath = Optional.of(Uris.path(scriptPath.get()));
 
       String newSpecifier = t.getInput().getPath().resolveModuleAsPath(specifier).toString();
 

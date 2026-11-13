@@ -15,8 +15,7 @@
  */
 package com.google.javascript.jscomp.deps;
 
-import com.google.javascript.jscomp.base.Io;
-import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Uris;
 import com.google.javascript.jscomp.transpile.BaseTranspiler;
 import com.google.javascript.jscomp.transpile.TranspileResult;
 import com.google.javascript.jscomp.transpile.Transpiler;
@@ -222,9 +221,8 @@ public final class ClosureBundler {
   }
 
   private String transpile(String s, Transpiler t) {
-    Outcome<String> uri = Io.uriParse(path);
-    if (uri.isErr()) {
-      throw new RuntimeException(uri.error());
+    if (!Uris.isValid(path)) {
+      throw new RuntimeException("Invalid path: " + path);
     }
     TranspileResult result = t.transpile(path, s);
     sourceMapCache.put(path, result.sourceMap());

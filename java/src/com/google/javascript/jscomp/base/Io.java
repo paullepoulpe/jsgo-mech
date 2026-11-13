@@ -32,8 +32,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -516,27 +514,6 @@ public final class Io {
   /** The absolute path of the process's working directory. */
   public static String workingDirectory() {
     return Path.of("").toAbsolutePath().toString();
-  }
-
-  // ---- URI arithmetic on strings (java.net.URI semantics)
-
-  /** ok(uri) if it is a syntactically valid URI, else the URISyntaxException. */
-  public static Outcome<String> uriParse(String uri) {
-    try {
-      return Outcome.ok(new URI(uri).toString());
-    } catch (URISyntaxException e) {
-      return Outcome.err(e);
-    }
-  }
-
-  /** The scheme of a valid URI; null if it has none (it is not absolute). */
-  public static Optional<String> uriScheme(String uri) {
-    return Optional.ofNullable(URI.create(uri).getScheme());
-  }
-
-  /** The decoded path of a valid URI; null if it is opaque. */
-  public static Optional<String> uriPath(String uri) {
-    return Optional.ofNullable(URI.create(uri).getPath());
   }
 
   // ---- In-memory helpers

@@ -32,7 +32,7 @@ import com.google.javascript.jscomp.SourceFile;
 import com.google.javascript.jscomp.SourceMap;
 import com.google.javascript.jscomp.VariableRenamingPolicy;
 import com.google.javascript.jscomp.annotations.LegacySetFeatureSetCaller;
-import com.google.javascript.jscomp.base.Io;
+import com.google.javascript.jscomp.base.Uris;
 import com.google.javascript.jscomp.bundle.TranspilationException;
 import com.google.javascript.jscomp.deps.ModuleLoader;
 import com.google.javascript.jscomp.deps.ModuleLoader.PathEscaper;
@@ -199,7 +199,7 @@ public final class BaseTranspiler implements Transpiler {
           ImmutableList.of(
               (location) -> {
                 // An invalid URI gets the absolute version below.
-                if (Io.uriParse(location.get()).isOk() && Io.uriScheme(location.get()).isPresent()) {
+                if (Uris.isValid(location.get()) && Uris.hasScheme(location.get())) {
                   return location;
                 }
                 return new SourceMap.PrefixLocationMapping("", "/").map(location);

@@ -19,7 +19,7 @@ package com.google.javascript.jscomp;
 import com.google.common.collect.ImmutableSet;
 import com.google.javascript.jscomp.base.FilePaths;
 import com.google.javascript.jscomp.base.Io;
-import com.google.javascript.jscomp.base.Outcome;
+import com.google.javascript.jscomp.base.Uris;
 import com.google.javascript.rhino.StaticSourceFile.SourceKind;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
@@ -80,11 +80,10 @@ public final class SourceMapResolver {
   }
 
   private static boolean isAbsolute(String url) {
-    Outcome<String> uri = Io.uriParse(url);
-    if (uri.isErr()) {
-      throw new RuntimeException("Sourcemap url was invalid: " + url, uri.error());
+    if (!Uris.isValid(url)) {
+      throw new RuntimeException("Sourcemap url was invalid: " + url);
     }
-    return Io.uriScheme(url).isPresent() || url.startsWith("/");
+    return Uris.hasScheme(url) || url.startsWith("/");
   }
 
   /**
