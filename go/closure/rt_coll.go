@@ -671,8 +671,10 @@ const hsmall_ = 8
 type hindex_ struct {
 	strs   map[string]int32  // string keys
 	prim   map[any]int32     // keys compared by identity or by Go equality
-	custom map[int32][]int32 // keys with their own hashCode/equals: hash -> positions
-	ents   []*hmapEntry_     // beside keys once entrySet has handed out an entry; else nil
+	custom map[int32]int32   // keys with their own hashCode/equals: hash code -> first position
+	next   []int32           // beside keys once two such keys share a hash code: 1 + the position
+	//                          of the next key with the same hash code, 0 for the last
+	ents []*hmapEntry_ // beside keys once entrySet has handed out an entry; else nil
 }
 
 // customKey_ returns k as a key with its own hashCode/equals, if the table should use them.
@@ -704,10 +706,15 @@ func (t *htable_) find(k any) int {
 	}
 	x := t.x
 	if h, ok := t.customKey_(k); ok {
-		for _, i := range x.custom[h.hashCode()] {
+		i, ok := x.custom[h.hashCode()]
+		for ok {
 			if h.equals(t.keys[i]) {
 				return int(i)
 			}
+			if x.next == nil || x.next[i] == 0 {
+				break
+			}
+			i = x.next[i] - 1
 		}
 		return -1
 	}
@@ -733,6 +740,16 @@ func (t *htable_) findStr(s string) int {
 	return -1
 }
 
+// hfirst_ is the capacity a table starts with (append alone would grow it 1, 2, 4, 8).
+const hfirst_ = 4
+
+func (t *htable_) firstVals() []any {
+	if t.vals == nil {
+		return make([]any, 0, hfirst_)
+	}
+	return t.vals
+}
+
 // setAt replaces the value at position i.
 func (t *htable_) setAt(i int, v any) (old any) {
 	old = t.vals[i]
@@ -748,7 +765,7 @@ func (t *htable_) put(k, v any) (old any, existed bool) {
 	if i := t.find(k); i >= 0 {
 		return t.setAt(i, v), true
 	}
-	t.vals = append(t.vals, v)
+	t.vals = append(t.firstVals(), v)
 	t.insert(k)
 	return nil, false
 }
@@ -758,7 +775,7 @@ func (t *htable_) putStr(s string, v any) (old any, existed bool) {
 	if i := t.findStr(s); i >= 0 {
 		return t.setAt(i, v), true
 	}
-	t.vals = append(t.vals, v)
+	t.vals = append(t.firstVals(), v)
 	t.insertPlain(s)
 	return nil, false
 }
@@ -794,10 +811,18 @@ func (t *htable_) insert(k any) {
 // insertPlain is insert for a key without its own equals/hashCode.
 func (t *htable_) insertPlain(k any) {
 	i := len(t.keys)
+	if t.keys == nil {
+		t.keys = make([]any, 0, hfirst_)
+	}
 	t.keys = append(t.keys, k)
 	t.live++
-	if x := t.x; x != nil && x.ents != nil {
-		x.ents = append(x.ents, nil)
+	if x := t.x; x != nil {
+		if x.ents != nil {
+			x.ents = append(x.ents, nil)
+		}
+		if x.next != nil {
+			x.next = append(x.next, 0)
+		}
 	}
 	if t.indexed {
 		t.index(k, int32(i))
@@ -830,10 +855,22 @@ func (t *htable_) index(k any, i int32) {
 	}
 	if h, ok := t.customKey_(k); ok {
 		if x.custom == nil {
-			x.custom = map[int32][]int32{}
+			x.custom = map[int32]int32{}
 		}
 		hc := h.hashCode()
-		x.custom[hc] = append(x.custom[hc], i)
+		j, shared := x.custom[hc]
+		if !shared {
+			x.custom[hc] = i
+			return
+		}
+		// Append to the chain of the keys with this hash code.
+		if x.next == nil {
+			x.next = make([]int32, len(t.keys), cap(t.keys))
+		}
+		for x.next[j] != 0 {
+			j = x.next[j] - 1
+		}
+		x.next[j] = i + 1
 		return
 	}
 	if x.prim == nil {
@@ -849,17 +886,22 @@ func (t *htable_) unindex(k any, i int) {
 		delete(x.strs, s)
 	} else if h, ok := t.customKey_(k); ok {
 		hc := h.hashCode()
-		b := x.custom[hc]
-		for j, p := range b {
-			if int(p) == i {
-				b = append(b[:j], b[j+1:]...)
-				break
-			}
+		var after int32 // what follows position i in its chain
+		if x.next != nil {
+			after = x.next[i]
+			x.next[i] = 0
 		}
-		if len(b) == 0 {
-			delete(x.custom, hc)
+		if j := x.custom[hc]; int(j) == i {
+			if after == 0 {
+				delete(x.custom, hc)
+			} else {
+				x.custom[hc] = after - 1
+			}
 		} else {
-			x.custom[hc] = b
+			for int(x.next[j]) != i+1 {
+				j = x.next[j] - 1
+			}
+			x.next[j] = after
 		}
 	} else {
 		delete(x.prim, k)
@@ -893,6 +935,7 @@ func (t *htable_) removeAt(i int) (moved bool) {
 		}
 		if t.x != nil {
 			t.x.ents = nil
+			t.x.next = t.x.next[:0]
 		}
 		return true
 	}
