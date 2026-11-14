@@ -709,7 +709,7 @@ func (t *htable_) find(k any) int {
 	if h, ok := t.customKey_(k); ok {
 		i, ok := x.custom[h.hashCode()]
 		for ok {
-			if h.equals(t.keys[i]) {
+			if t.keys[i] == k || h.equals(t.keys[i]) { // identity first, as java.util.HashMap
 				return int(i)
 			}
 			if x.next == nil || x.next[i] == 0 {

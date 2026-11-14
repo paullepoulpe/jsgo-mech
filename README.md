@@ -182,6 +182,33 @@ medians, same harness and machine as above):
 | typed-full | 52.9s | 88.1s | 1.67x | 109.2s | 1421M |
 | sum | 173.6s | 253.1s | 1.46x | 308.6s | |
 
+**Representation prototypes and what was taken from them.** Three larger directions were
+prototyped on copies of the generated code (byte-identical with Java, interleaved medians of 3,
+no PGO):
+
+| prototype | bundle | shaka-blockly | typed-app |
+|---|---:|---:|---:|
+| typed `String` field for the Node string payload | -6.5% | -6.0% | -1.9% |
+| typed collections for six hot class groups (half of all collection time) | -8.4% | -2.6% | -3.0% |
+| interned name ids with id-keyed scopes (on top of the two above) | -2% | 0% | 0% |
+| slab allocation for 11 short-lived classes | -3.0% | -0.6% | 0% |
+| all together | -16.8% | -10.3% | -8.2% |
+
+Slabs for long-lived classes are harmful (RSS x2 to x7, no time gained: one live object pins
+its chunk). Typed collections are the largest translator change of the four (reified
+generics, about 2.6k lines of runtime collections redone, no variance in Go) for 8-10% on
+optimisation-heavy inputs; not built. Taken: the string field, as Java prep step
+`04b-node-string-field` (12 sites in `Node.java`, no translator change), plus two runtime
+items (immutable enum sets answer `contains` by ordinal; hash lookups test identity before
+`equals`, as `java.util.HashMap` does). Measured together against the build above
+(interleaved, medians of 3): bundle 42.7s -> 40.3s, shaka-blockly 38.6s -> 35.7s, typed-app
+11.3s -> 11.0s.
+
+Per pass, the translation is about 1.5x slower than Java and uniformly so (1.0x to 2.8x); the
+hand port is 3.3x *faster than Java* per pass (1.3x to 33x), which no translation of the
+Java can reproduce: that part of the gap is hand-rewritten passes and data structures, not
+translation overhead.
+
 Tried and left out: a list of capacity up to 2 in one object with its header plus a first
 capacity of 4 for `ArrayList` (5% fewer mallocs, no time gained); a profile regenerated after
 the changes (not better than the first one, which is the one committed).

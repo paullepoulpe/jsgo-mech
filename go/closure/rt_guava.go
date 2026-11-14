@@ -115,6 +115,7 @@ type ImmutableCollection struct {
 	all_   []any // multiset: the elements with repetition
 	hash_  int32 // plain set: the hash code, once computed (Guava computes it at construction)
 	hashed bool
+	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
 }
 
 type ImmutableList = ImmutableCollection
@@ -248,7 +249,18 @@ func (this *ImmutableCollection) size() int32 {
 }
 
 func (this *ImmutableCollection) isEmpty() bool       { return len(this.items) == 0 }
-func (this *ImmutableCollection) contains(v any) bool { return this.find_(v) >= 0 }
+func (this *ImmutableCollection) contains(v any) bool {
+	if this.byOrd != nil {
+		// Enum constants are equal only to themselves.
+		e, ok := v.(interface{ ordinal() int32 })
+		if !ok {
+			return false
+		}
+		o := int(e.ordinal())
+		return o < len(this.byOrd) && this.byOrd[o] == v
+	}
+	return this.find_(v) >= 0
+}
 
 func (this *ImmutableCollection) contains_s(v string) bool {
 	if this.kind == icList_ {
