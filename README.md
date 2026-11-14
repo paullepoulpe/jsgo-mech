@@ -204,6 +204,22 @@ items (immutable enum sets answer `contains` by ordinal; hash lookups test ident
 (interleaved, medians of 3): bundle 42.7s -> 40.3s, shaka-blockly 38.6s -> 35.7s, typed-app
 11.3s -> 11.0s.
 
+Nine tasks with this build, all byte-identical with Java (3 cold runs, medians, Java and Go
+interleaved):
+
+| task | Java wall | Go wall | Go/Java | Go CPU | Go RSS |
+|---|---:|---:|---:|---:|---:|
+| typed-app | 10.7s | 10.8s | 1.01x | 13.3s | 339M |
+| incremental-ijs-check | 7.1s | 7.1s | 1.00x | 9.3s | 613M |
+| downlevel-simple | 8.3s | 7.5s | 0.91x | 8.9s | 240M |
+| checks-only | 13.2s | 17.0s | 1.29x | 20.3s | 944M |
+| generate-ijs | 5.7s | 8.1s | 1.42x | 9.4s | 656M |
+| conformance-checks | 18.3s | 25.8s | 1.41x | 31.0s | 1281M |
+| shaka-blockly | 26.5s | 35.7s | 1.35x | 44.6s | 675M |
+| bundle | 26.0s | 38.3s | 1.47x | 45.2s | 746M |
+| typed-full | 51.2s | 79.7s | 1.56x | 99.6s | 1461M |
+| sum | 166.9s | 229.9s | 1.38x | 281.6s | |
+
 Per pass, the translation is about 1.5x slower than Java and uniformly so (1.0x to 2.8x); the
 hand port is 3.3x *faster than Java* per pass (1.3x to 33x), which no translation of the
 Java can reproduce: that part of the gap is hand-rewritten passes and data structures, not
