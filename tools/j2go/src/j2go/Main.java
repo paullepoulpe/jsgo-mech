@@ -230,6 +230,10 @@ public final class Main {
       }
     }
     cx.registerHandles(handleNames);
+    if (System.getenv("J2GO_COLLECTIONS") != null) {
+      for (CompilationUnitTree cu : units) CollScan.scan(cx, trees, cu);
+      CollScan.report();
+    }
     if (!cx.handles.isEmpty()) {
       for (CompilationUnitTree cu : units) checkHandleUses(cx, trees, cu);
     }
