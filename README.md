@@ -231,6 +231,25 @@ interleaved):
 Per pass, the translation is about 1.5x slower than Java and uniformly so (1.0x to 2.8x); the
 hand port is 3.3x *faster than Java* per pass (1.3x to 33x).
 
+**Wall-clock against CPU time.** The tables above compare wall-clock on a 4-core machine. In
+the same runs Java uses 2.7 cores on average (JIT compilation and collection run beside the
+compiler thread) and the translation 1.2: summed over ten tasks the translation takes 1.36x
+Java's wall-clock, 0.61x its CPU time (284.8s against 464.8s) and less memory (bundle: 747M
+against 1764M). With both compilers restricted to fewer cores (`taskset`, medians of 2 cold
+runs, Java / Go wall):
+
+| task | 1 core | 2 cores | 4 cores |
+|---|---:|---:|---:|
+| typed-app | 30.5s / 13.8s (0.45x) | 15.9s / 13.8s (0.87x) | 10.7s / 10.8s (1.01x) |
+| checks-only | 36.0s / 21.3s (0.59x) | 19.0s / 20.1s (1.05x) | 13.2s / 17.0s (1.29x) |
+| bundle | 66.1s / 49.2s (0.74x) | 31.9s / 46.2s (1.45x) | 26.0s / 38.3s (1.47x) |
+
+So the translation is the faster compiler where a compile gets one core and the slower one
+where it gets several: its compiler thread is slower than warmed-up Java's, and nothing but
+the collector runs beside it. Letting the heap grow further between collections (`GOGC`) does
+not help wall-clock for the same reason (bundle 40.5s at 100, 39.6s at 200, 38.3s at 800, with
+772M, 1030M and 2662M of memory; CPU time 47.7s, 43.5s, 40.3s); the default is kept.
+
 **Where the hand port's speed comes from** (bundle, one thread, the hand port's optional
 caches off; CPU profiles of both binaries with every function put in one bucket, and node
 visits counted per pass in both):
