@@ -32,3 +32,8 @@ typed-full +7%: the traversal wants the small pointer-free record).
 Where the time is after step 3 (CPU of the whole process): typed-full 97.6s = collection
 (GC) 20%, allocation 8%, hashing 16%, lists and iterators 2%, Node fields 17%, casts 3%,
 everything else 34%; shaka-blockly has the same shape.
+
+The collector is not what the wall-clock waits for: with collection switched off entirely
+(`GOGC=off`, bundle after step 3) CPU time drops from 40s to 30s and wall-clock stays at
+35-37s (34-36s with the collector on). What is left is the compiler thread's own work, about
+30s on bundle against Java's 26s of wall-clock.
