@@ -18,8 +18,8 @@ type TypedScopeCreator struct {
 	escapedVarNames SetOf[*ScopedName]
 	assignedVarNames *SimpleMultiset
 	unknownType *ObjectType
-	weakImports ListOf[*TypedScopeCreator_WeakModuleImport]
-	unresolvedNodes ListOf[Node]
+	weakImports []*TypedScopeCreator_WeakModuleImport
+	unresolvedNodes []Node
 	undeclaredNamesForClosure SetOf[Node]
 	providedNamesFromCall *SimpleSetMultimap
 	stage *TypedScopeCreator_Stage
@@ -265,22 +265,22 @@ func TypedScopeCreator_declareNativeType(scope *TypedScope, name string, t *JSTy
 func (this *TypedScopeCreator) setDeferredType(node Node, type_ *JSType) {
 	node.setJSType(type_)
 	if !type_.isResolved() {
-		this.unresolvedNodes.add(node.box_())
+		this.unresolvedNodes = append(this.unresolvedNodes, node)
 	}
 }
 
 func (this *TypedScopeCreator) resolveWeakImportsPreResolution() {
-	it_1 := foreach_(any(this.weakImports))
+	it_1 := eachOf_(&this.weakImports)
 	for it_1.next() {
-		var weakImport *TypedScopeCreator_WeakModuleImport = cast_[*TypedScopeCreator_WeakModuleImport](it_1.v)
+		var weakImport *TypedScopeCreator_WeakModuleImport = it_1.v
 		weakImport.resolve()
 	}
 }
 
 func (this *TypedScopeCreator) finishAndFreeze() {
-	it_1 := foreach_(any(this.unresolvedNodes))
+	it_1 := eachOf_(&this.unresolvedNodes)
 	for it_1.next() {
-		var node Node = Node_of_(it_1.v)
+		var node Node = it_1.v
 		var resolved *JSType = node.getJSType().resolve(this.typeParsingErrorReporter)
 		node.setJSType(resolved)
 	}
@@ -303,8 +303,8 @@ func (this *TypedScopeCreator) clearCommonState() {
 	this.functionsWithNonEmptyReturns = icast_Set(obj_(new_LinkedHashSet()))
 	this.escapedVarNames = icast_Set(obj_(new_LinkedHashSet()))
 	this.assignedVarNames = SimpleMultiset_create()
-	this.weakImports = icast_List(new_ArrayList_0().self())
-	this.unresolvedNodes = icast_List(new_ArrayList_0().self())
+	this.weakImports = []*TypedScopeCreator_WeakModuleImport{}
+	this.unresolvedNodes = []Node{}
 	this.undeclaredNamesForClosure = icast_Set(obj_(new_LinkedHashSet()))
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered()
 }
@@ -611,7 +611,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) initializeModuleScope(module
 		it_2 := foreach_(obj_(cast_[*ImmutableSet](unresolvedImports.entrySet())))
 		for it_2.next() {
 			var entry Map_Entry = icast_Map_Entry(it_2.v)
-			this.outer_.weakImports.add(obj_(new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope)))
+			this.outer_.weakImports = append(this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, Node_of_(entry.getKey()), to_ScopedName(entry.getValue()), this.currentScope))
 		}
 	default:
 		panic(new_IllegalStateException_String(String_format("Unexpected module type %s in module %s", []any{obj_(moduleType), obj_(this.getModule())})).self())
@@ -1031,7 +1031,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 			return
 		}
 	}
-	this.outer_.weakImports.add(obj_(new_TypedScopeCreator_WeakModuleImport(this.outer_, localNameNode, exportedName, scopeToDeclareIn)))
+	this.outer_.weakImports = append(this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, localNameNode, exportedName, scopeToDeclareIn))
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType(type_ *FunctionType, info *JSDocInfo, lValue Node) bool {

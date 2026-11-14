@@ -314,21 +314,21 @@ func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	if (cached != 0) {
 		return cached
 	}
-	var innerFns ArrayListOf[Node] = new_ArrayList_0()
+	var innerFns []Node = []Node{}
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if Object_equals(n.box_(), containerFn.box_()) {
 			return
 		}
 		if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
-			innerFns.add(n.box_())
+			innerFns = append(innerFns, n)
 		}
 	}})
 	cached = func() Node {
-		switch innerFns.size() {
+		switch int32(len(innerFns)) {
 		case 0:
 			return FunctionInjector_NO_FUNCTIONS
 		case 1:
-			return Node_of_(innerFns.get(0))
+			return innerFns[0]
 		default:
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}

@@ -5,7 +5,7 @@ package closure
 type CheckConstPrivateProperties struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
-	candidates ListOf[Node]
+	candidates []Node
 	modified SetOf[string]
 	constructorsAndInterfaces LinkedHashSetOf[string]
 }
@@ -18,7 +18,7 @@ func (this *CheckConstPrivateProperties) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *CheckConstPrivateProperties) finit_CheckConstPrivateProperties() {
-	this.candidates = icast_List(new_ArrayList_0().self())
+	this.candidates = []Node{}
 	this.modified = icast_Set(obj_(new_LinkedHashSet()))
 	this.constructorsAndInterfaces = new_LinkedHashSet()
 }
@@ -41,15 +41,16 @@ func (this *CheckConstPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
-	it_1 := foreach_(any(this.candidates))
+	it_1 := eachOf_(&this.candidates)
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		var propName string = n.getString()
 		if !Collection_contains_s(this.modified, propName) {
 			t.report(n, CheckConstPrivateProperties_MISSING_CONST_PROPERTY, []string{propName})
 		}
 	}
-	this.candidates.clear()
+	clear(this.candidates)
+this.candidates = this.candidates[:0]
 	this.modified.clear()
 }
 
@@ -67,7 +68,7 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 			return
 		}
 		if this.isCandidatePropertyDefinition(n) {
-			this.candidates.add(propNode.box_())
+			this.candidates = append(this.candidates, propNode)
 		} else if this.isModificationOp(n) {
 			Collection_add_s(this.modified, propNode.getString())
 		}

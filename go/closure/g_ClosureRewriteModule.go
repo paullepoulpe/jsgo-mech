@@ -13,7 +13,7 @@ type ClosureRewriteModule struct {
 	currentScript *ClosureRewriteModule_ScriptDescription
 	rewriteState *ClosureRewriteModule_GlobalRewriteState
 	legacyScriptNamespacesAndPrefixes SetOf[string]
-	unrecognizedRequires ListOf[*ClosureRewriteModule_UnrecognizedRequire]
+	unrecognizedRequires []*ClosureRewriteModule_UnrecognizedRequire
 	googModuleGetCalls ArrayListOf[Node]
 	googRequireDynamicCalls ArrayListOf[Node]
 	globalTypedScope *TypedScope
@@ -26,7 +26,7 @@ func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
 	this.legacyScriptNamespacesAndPrefixes = icast_Set(obj_(new_LinkedHashSet()))
-	this.unrecognizedRequires = icast_List(new_ArrayList_0().self())
+	this.unrecognizedRequires = []*ClosureRewriteModule_UnrecognizedRequire{}
 	this.googModuleGetCalls = new_ArrayList_0()
 	this.googRequireDynamicCalls = new_ArrayList_0()
 }
@@ -207,7 +207,7 @@ func (this *ClosureRewriteModule) recordGoogRequire(t *NodeTraversal, call Node)
 	var targetIsAModule bool = this.rewriteState.containsModule(namespaceId)
 	var targetIsALegacyScript bool = Collection_contains_s(this.rewriteState.providedNamespaces, namespaceId)
 	if ((this.currentScript.isModule_ && !targetIsAModule) && !targetIsALegacyScript) {
-		this.unrecognizedRequires.add(obj_(new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId)))
+		this.unrecognizedRequires = append(this.unrecognizedRequires, new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId))
 	}
 }
 
@@ -237,7 +237,7 @@ func (this *ClosureRewriteModule) recordGoogRequireDynamic(t *NodeTraversal, cal
 	}
 	var namespaceId string = namespaceIdNode.getString()
 	if !this.rewriteState.containsModule(namespaceId) {
-		this.unrecognizedRequires.add(obj_(new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId)))
+		this.unrecognizedRequires = append(this.unrecognizedRequires, new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId))
 	}
 	this.googRequireDynamicCalls.add(call.box_())
 }
@@ -250,7 +250,7 @@ func (this *ClosureRewriteModule) recordGoogModuleGet(t *NodeTraversal, call Nod
 	}
 	var namespaceId string = namespaceIdNode.getString()
 	if !this.rewriteState.containsModule(namespaceId) {
-		this.unrecognizedRequires.add(obj_(new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId)))
+		this.unrecognizedRequires = append(this.unrecognizedRequires, new_ClosureRewriteModule_UnrecognizedRequire(call, namespaceId))
 	}
 	this.googModuleGetCalls.add(call.box_())
 	var maybeAssign Node = call.getParent()
@@ -827,9 +827,9 @@ func (this *ClosureRewriteModule) recordNameToInline(aliasName string, newName s
 }
 
 func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
-	it_1 := foreach_(any(this.unrecognizedRequires))
+	it_1 := eachOf_(&this.unrecognizedRequires)
 	for it_1.next() {
-		var unrecognizedRequire *ClosureRewriteModule_UnrecognizedRequire = cast_[*ClosureRewriteModule_UnrecognizedRequire](it_1.v)
+		var unrecognizedRequire *ClosureRewriteModule_UnrecognizedRequire = it_1.v
 		var namespaceId string = unrecognizedRequire.namespaceId
 		var requireNode Node = unrecognizedRequire.requireNode
 		var targetGoogModuleExists bool = this.rewriteState.containsModule(namespaceId)

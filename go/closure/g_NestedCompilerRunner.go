@@ -4,7 +4,7 @@ package closure
 
 type NestedCompilerRunner struct {
 	shadowCompiler *Compiler
-	inputs ListOf[*CompilerInput]
+	inputs []*CompilerInput
 	baseChunk *JSChunk
 	original_ *AbstractCompiler
 	shadowOptions *CompilerOptions
@@ -14,7 +14,7 @@ type NestedCompilerRunner struct {
 
 func (this *NestedCompilerRunner) finit_NestedCompilerRunner() {
 	this.shadowCompiler = new_Compiler_0()
-	this.inputs = icast_List(new_ArrayList_0().self())
+	this.inputs = []*CompilerInput{}
 	this.baseChunk = new_JSChunk("shadow_base")
 }
 
@@ -43,7 +43,7 @@ func (this *NestedCompilerRunner) addScript(shadowScript Node, uniqueShadowId st
 	shadowInput.initShadowAst(shadowScript)
 	shadowScript.setInputId(shadowInput.getInputId())
 	shadowScript.setStaticSourceFile(icast_StaticSourceFile(obj_(shadowFile)))
-	this.inputs.add(obj_(shadowInput))
+	this.inputs = append(this.inputs, shadowInput)
 	return this
 }
 
@@ -67,9 +67,9 @@ func (this *NestedCompilerRunner) initializeCompiler() {
 func (this *NestedCompilerRunner) createChunks() *ImmutableList {
 	this.baseChunk.addCompilerInput(new_CompilerInput_SourceFile(SourceFile_jscomp_fromCode_String_String_SourceKind("synthetic_base", "", StaticSourceFile_SourceKind_STRONG)))
 	var chunks ImmutableList_BuilderOf[*JSChunk] = cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().add(obj_(this.baseChunk))))
-	it_1 := foreach_(any(this.inputs))
+	it_1 := eachOf_(&this.inputs)
 	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+		var input *CompilerInput = it_1.v
 		var chunk *JSChunk = new_JSChunk(("shadow_chunk_" + sstr_(input.getSourceFile().getName())))
 		chunk.addCompilerInput(input)
 		chunk.addDependency(this.baseChunk)

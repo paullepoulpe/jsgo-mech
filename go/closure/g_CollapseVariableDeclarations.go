@@ -4,12 +4,12 @@ package closure
 
 type CollapseVariableDeclarations struct {
 	compiler_ *AbstractCompiler
-	collapses ListOf[*CollapseVariableDeclarations_Collapse]
+	collapses []*CollapseVariableDeclarations_Collapse
 	nodesToCollapse SetOf[Node]
 }
 
 func (this *CollapseVariableDeclarations) finit_CollapseVariableDeclarations() {
-	this.collapses = icast_List(new_ArrayList_0().self())
+	this.collapses = []*CollapseVariableDeclarations_Collapse{}
 	this.nodesToCollapse = icast_Set(obj_(new_LinkedHashSet()))
 }
 
@@ -26,18 +26,19 @@ func new_CollapseVariableDeclarations(compiler *AbstractCompiler) *CollapseVaria
 }
 
 func (this *CollapseVariableDeclarations) process_2(externs Node, root Node) {
-	this.collapses.clear()
+	clear(this.collapses)
+this.collapses = this.collapses[:0]
 	this.nodesToCollapse.clear()
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_CollapseVariableDeclarations_GatherCollapses(this))))
-	if !this.collapses.isEmpty() {
+	if !(len(this.collapses) == 0) {
 		this.applyCollapses()
 	}
 }
 
 func (this *CollapseVariableDeclarations) applyCollapses() {
-	it_1 := foreach_(any(this.collapses))
+	it_1 := eachOf_(&this.collapses)
 	for it_1.next() {
-		var collapse *CollapseVariableDeclarations_Collapse = cast_[*CollapseVariableDeclarations_Collapse](it_1.v)
+		var collapse *CollapseVariableDeclarations_Collapse = it_1.v
 		var var_ Node = collapse.startNode
 		this.compiler_.reportChangeToEnclosingScope(var_)
 		for ((var_.getNext() != 0) && (var_.getNext().getToken() == var_.getToken())) {
@@ -106,7 +107,7 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 	}
 	if hasNodesToCollapse {
 		this.outer_.nodesToCollapse.add(varNode.box_())
-		this.outer_.collapses.add(obj_(new_CollapseVariableDeclarations_Collapse(varNode)))
+		this.outer_.collapses = append(this.outer_.collapses, new_CollapseVariableDeclarations_Collapse(varNode))
 	}
 }
 

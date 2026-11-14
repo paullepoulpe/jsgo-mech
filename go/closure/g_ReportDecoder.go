@@ -50,18 +50,18 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 	if typesAsStringList.isErr() {
 		return Outcome_base_err(typesAsStringList.error())
 	}
-	var types ListOf[*InstrumentationPoint_Type] = icast_List(new_ArrayList_0().self())
+	var types []*InstrumentationPoint_Type = []*InstrumentationPoint_Type{}
 	it_1 := foreach_(any(icast_List(typesAsStringList.get())))
 	for it_1.next() {
 		var typeAsString string = str_(it_1.v)
-		types.add(obj_(InstrumentationPoint_Type_valueOf(typeAsString)))
+		types = append(types, InstrumentationPoint_Type_valueOf(typeAsString))
 	}
 	for i := int32(3); (i < linesOfFile.size()); i++ {
 		var lineItem string = str_(linesOfFile.get(i))
 		var id string = String_substring(lineItem, 0, String_indexOf(lineItem, 58))
 		var encodedDetails string = String_substring_int(lineItem, (String_indexOf(lineItem, 58) + 1))
 		var encodedDetailsAsCharIt *ReportDecoder_StringCharIterator = new_ReportDecoder_StringCharIterator(encodedDetails)
-		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))))).setType(cast_[*InstrumentationPoint_Type](types.get(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))))).setLineNumber(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))).setColumnNumber(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))).build())
+		var temp *InstrumentationPoint = cast_[*InstrumentationPoint](InstrumentationPoint_newBuilder().setFileName(str_(localFileNames.get(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))))).setFunctionName(str_(functionNames.get(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))))).setType(types[Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))]).setLineNumber(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))).setColumnNumber(Base64VLQ_decode(icast_Base64VLQ_CharIterator(obj_(encodedDetailsAsCharIt)))).build())
 		Map_putIfAbsent_s(mapping, id, obj_(temp))
 	}
 	return Outcome_base_ok_Object(any(mapping))

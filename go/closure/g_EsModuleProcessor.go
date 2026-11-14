@@ -255,7 +255,7 @@ type EsModuleProcessor_UnresolvedModuleBuilder struct {
 	path_ *ModuleLoader_ModulePath
 	root Node
 	importsByLocalName MapOf[string, *Import]
-	exports ListOf[*Export]
+	exports []*Export
 	exportedNames SetOf[string]
 }
 
@@ -263,7 +263,7 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) init_EsModuleProcessor_Un
 	this.path_ = path
 	this.root = root
 	this.importsByLocalName = icast_Map(obj_(new_LinkedHashMap()))
-	this.exports = icast_List(new_ArrayList_0().self())
+	this.exports = []*Export{}
 	this.exportedNames = icast_Set(obj_(new_LinkedHashSet()))
 }
 
@@ -280,13 +280,13 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) addImport(i *Import) {
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 	if e.exportName().isEmpty() {
-		this.exports.add(obj_(e))
+		this.exports = append(this.exports, e)
 		return true
 	} else {
 		if Collection_contains_s(this.exportedNames, str_(e.exportName().get())) {
 			return false
 		}
-		this.exports.add(obj_(e))
+		this.exports = append(this.exports, e)
 		Collection_add_s(this.exportedNames, str_(e.exportName().get()))
 		return true
 	}
@@ -297,9 +297,9 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 	var localExports ListOf[*Export] = icast_List(new_ArrayList_0().self())
 	var indirectExportsBuilder ImmutableList_BuilderOf[*Export] = new_ImmutableList_Builder()
 	var starExportsBuilder ImmutableList_BuilderOf[*Export] = new_ImmutableList_Builder()
-	it_1 := foreach_(any(this.exports))
+	it_1 := eachOf_(&this.exports)
 	for it_1.next() {
-		var ee *Export = cast_[*Export](it_1.v)
+		var ee *Export = it_1.v
 		if ee.moduleRequest().isEmpty() {
 			if (ee.localName().isPresent() && Map_containsKey_s(this.importsByLocalName, str_(ee.localName().get()))) {
 				indirectExportsBuilder.add(obj_(ee))

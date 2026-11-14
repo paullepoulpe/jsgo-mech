@@ -331,13 +331,13 @@ type CoalesceVariableNames_LiveRangeChecker struct {
 	root Node
 	state *DataFlowAnalysis_LinearFlowState
 	orderedVariables []*Var
-	isAssignToList ListOf[BoxedOf[int32]]
-	isReadFromList ListOf[BoxedOf[int32]]
+	isAssignToList []BoxedOf[int32]
+	isReadFromList []BoxedOf[int32]
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) finit_CoalesceVariableNames_LiveRangeChecker() {
-	this.isAssignToList = icast_List(new_ArrayList_0().self())
-	this.isReadFromList = icast_List(new_ArrayList_0().self())
+	this.isAssignToList = []BoxedOf[int32]{}
+	this.isReadFromList = []BoxedOf[int32]{}
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) init_CoalesceVariableNames_LiveRangeChecker(root Node, orderedVariables []*Var, state *DataFlowAnalysis_LinearFlowState) {
@@ -375,24 +375,24 @@ func (this *CoalesceVariableNames_LiveRangeChecker) check(n Node) {
 func (this *CoalesceVariableNames_LiveRangeChecker) visit(n Node, parent Node) {
 	for iVar := int32(0); (iVar < int32(len(this.orderedVariables))); iVar++ {
 		if CoalesceVariableNames_LiveRangeChecker_isAssignTo(this.orderedVariables[iVar], n, parent) {
-			this.isAssignToList.add(any(int32(iVar)))
+			this.isAssignToList = append(this.isAssignToList, any(int32(iVar)))
 		}
 	}
-	if !this.isAssignToList.isEmpty() {
+	if !(len(this.isAssignToList) == 0) {
 		for iVar := int32(0); (iVar < int32(len(this.orderedVariables))); iVar++ {
 			var varOutLive bool = cast_[*LiveVariablesAnalysis_LiveVariableLattice](this.state.getOut()).isLive(iVar)
 			if (varOutLive || CoalesceVariableNames_LiveRangeChecker_isReadFrom(this.orderedVariables[iVar], n)) {
-				this.isReadFromList.add(any(int32(iVar)))
+				this.isReadFromList = append(this.isReadFromList, any(int32(iVar)))
 			}
 		}
 	}
 }
 
 func (this *CoalesceVariableNames_LiveRangeChecker) setCrossingVariables(interferenceBitSet []*BitSet) {
-	it_1 := foreach_(any(this.isAssignToList))
+	it_1 := eachOf_(&this.isAssignToList)
 	for it_1.next() {
 		var iWrittenVar any = it_1.v
-		it_3 := foreach_(any(this.isReadFromList))
+		it_3 := eachOf_(&this.isReadFromList)
 		for it_3.next() {
 			var iReadVar any = it_3.v
 			interferenceBitSet[unbox_[int32](iWrittenVar)].set(unbox_[int32](iReadVar))

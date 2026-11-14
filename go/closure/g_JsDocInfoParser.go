@@ -754,13 +754,13 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 					boundTypeExpression = this.createJSTypeExpression(boundTypeNode)
 				}
 			}
-			var templateNames ListOf[string] = icast_List(new_ArrayList_0().self())
+			var templateNames []string = []string{}
 			if !this.match(JsDocToken_COLON) {
 				for do_3 := true; do_3; do_3 = this.eatIfMatch(JsDocToken_COMMA) {
 					var nameNode Node = this.parseNameExpression(this.next())
 					var templateName OptionalOf[string] = func() *Optional { if (nameNode == 0) { return Optional_empty() }; return Optional_of(strobj_(nameNode.getString())) }()
 					if JsDocInfoParser_validTemplateTypeName(templateName) {
-						templateNames.add(templateName.orElseThrow())
+						templateNames = append(templateNames, str_(templateName.orElseThrow()))
 					}
 				}
 			}
@@ -772,7 +772,7 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 			} else {
 				token = this.eatUntilEOLIfNotAnnotation_1(this.current())
 			}
-			switch templateNames.size() {
+			switch int32(len(templateNames)) {
 			case 0:
 				this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_MISSING, lineno, charno)
 				return token
@@ -787,17 +787,17 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 				return token
 			}
 			if (ttlAst != 0) {
-				if !this.jsdocBuilder.recordTypeTransformation(str_(templateNames.get(0)), ttlAst) {
+				if !this.jsdocBuilder.recordTypeTransformation(templateNames[0], ttlAst) {
 					this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 				}
 			} else if (boundTypeExpression != nil) {
-				if !this.jsdocBuilder.recordTemplateTypeName_2(str_(templateNames.get(0)), boundTypeExpression) {
+				if !this.jsdocBuilder.recordTemplateTypeName_2(templateNames[0], boundTypeExpression) {
 					this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 				}
 			} else {
-				it_5 := foreach_(any(templateNames))
+				it_5 := eachOf_(&templateNames)
 				for it_5.next() {
-					var templateName string = str_(it_5.v)
+					var templateName string = it_5.v
 					if !this.jsdocBuilder.recordTemplateTypeName(templateName) {
 						this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 					}

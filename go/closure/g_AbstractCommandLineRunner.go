@@ -21,7 +21,7 @@ type AbstractCommandLineRunner struct {
 	parsedChunkWrappers MapOf[string, string]
 	parsedChunkOutputFiles ImmutableMapOf[string, string]
 	parsedChunkConformanceFiles ImmutableMapOf[string, string]
-	filesToStreamOut ListOf[*AbstractCommandLineRunner_JsonFileSpec]
+	filesToStreamOut []*AbstractCommandLineRunner_JsonFileSpec
 }
 
 func (this *AbstractCommandLineRunner) as_AbstractCommandLineRunner() *AbstractCommandLineRunner { return this }
@@ -61,7 +61,7 @@ func (this *AbstractCommandLineRunner) finit_AbstractCommandLineRunner() {
 	this.parsedChunkWrappers = nil
 	this.parsedChunkOutputFiles = nil
 	this.parsedChunkConformanceFiles = nil
-	this.filesToStreamOut = icast_List(new_ArrayList_0().self())
+	this.filesToStreamOut = []*AbstractCommandLineRunner_JsonFileSpec{}
 }
 
 func (this *AbstractCommandLineRunner) init_AbstractCommandLineRunner_0() {
@@ -857,9 +857,9 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 	var chunks ListOf[*JSChunk] = nil
 	this.rootRelativePathsMap = this.constructRootRelativePathsMap()
 	var writeOutputToFile bool = !String_isEmpty(this.config.jsOutputFile)
-	var outputFileNames ListOf[string] = icast_List(new_ArrayList_0().self())
+	var outputFileNames []string = []string{}
 	if writeOutputToFile {
-		outputFileNames.add(strobj_(this.config.jsOutputFile))
+		outputFileNames = append(outputFileNames, this.config.jsOutputFile)
 	}
 	var createCommonJsModules bool = false
 	if (options.getProcessCommonJSModules() && ((this.config.chunk_.size() == 1) && ("auto" == str_(this.config.chunk_.get(0))))) {
@@ -947,7 +947,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 			if chunkOutputFileName.isErr() {
 				return Outcome_base_err(chunkOutputFileName.error())
 			}
-			outputFileNames.add(chunkOutputFileName.get())
+			outputFileNames = append(outputFileNames, str_(chunkOutputFileName.get()))
 		}
 		if typedAstListInputFilename.isPresent() {
 			this.initChunksWithTypedAstFilesystem(externs, chunks, options, str_(typedAstListInputFilename.get()))
@@ -1005,12 +1005,12 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 			if chunkOutputFileName.isErr() {
 				return Outcome_base_err(chunkOutputFileName.error())
 			}
-			outputFileNames.add(chunkOutputFileName.get())
+			outputFileNames = append(outputFileNames, str_(chunkOutputFileName.get()))
 		}
 	}
-	it_13 := foreach_(any(outputFileNames))
+	it_13 := eachOf_(&outputFileNames)
 	for it_13.next() {
-		var outputFileName string = str_(it_13.v)
+		var outputFileName string = it_13.v
 		if (this.compiler_.getSourceFileByName(Optional_of(strobj_(outputFileName))) != nil) {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_OUTPUT_SAME_AS_INPUT_ERROR, []string{outputFileName}))
 			return Outcome_base_ok_Object(any(int32(1)))
@@ -1337,7 +1337,7 @@ func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptio
 		escaper = this.getJavascriptEscaper()
 	}
 	if this.isOutputInJson() {
-		this.filesToStreamOut.add(obj_(this.createJsonFile(options, marker, escaper)))
+		this.filesToStreamOut = append(this.filesToStreamOut, this.createJsonFile(options, marker, escaper))
 	} else {
 		if !String_isEmpty(this.config.jsOutputFile) {
 			AbstractCommandLineRunner_maybeCreateDirsForPath(this.config.jsOutputFile)
@@ -1373,9 +1373,9 @@ func (this *AbstractCommandLineRunner) outputJsonStream() *Outcome_base {
 	jsonWriter.setHtmlSafe(false)
 	jsonWriter.setSerializeNulls(false)
 	jsonWriter.beginArray()
-	it_1 := foreach_(any(this.filesToStreamOut))
+	it_1 := eachOf_(&this.filesToStreamOut)
 	for it_1.next() {
-		var jsonFile *AbstractCommandLineRunner_JsonFileSpec = cast_[*AbstractCommandLineRunner_JsonFileSpec](it_1.v)
+		var jsonFile *AbstractCommandLineRunner_JsonFileSpec = it_1.v
 		jsonFile.writeJson(jsonWriter)
 	}
 	jsonWriter.endArray()
@@ -1414,7 +1414,7 @@ func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph
 			if jsonFile.isErr() {
 				return Outcome_base_err(jsonFile.error())
 			}
-			this.filesToStreamOut.add(jsonFile.get())
+			this.filesToStreamOut = append(this.filesToStreamOut, cast_[*AbstractCommandLineRunner_JsonFileSpec](jsonFile.get()))
 		} else {
 			if this.shouldGenerateMapPerChunk(options) {
 				var sourceMapPath *Outcome_base = this.expandSourceMapPath(options, m)

@@ -5,13 +5,13 @@ package closure
 type CheckUnusedPrivateProperties struct {
 	compiler_ *AbstractCompiler
 	used SetOf[string]
-	candidates ListOf[Node]
+	candidates []Node
 	constructorsAndInterfaces LinkedHashSetOf[string]
 }
 
 func (this *CheckUnusedPrivateProperties) finit_CheckUnusedPrivateProperties() {
 	this.used = icast_Set(obj_(new_LinkedHashSet()))
-	this.candidates = icast_List(new_ArrayList_0().self())
+	this.candidates = []Node{}
 	this.constructorsAndInterfaces = new_LinkedHashSet()
 }
 
@@ -31,9 +31,9 @@ func (this *CheckUnusedPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
-	it_1 := foreach_(any(this.candidates))
+	it_1 := eachOf_(&this.candidates)
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		var propName string = this.getPropName(n)
 		if !Collection_contains_s(this.used, propName) {
 			t.report(n, CheckUnusedPrivateProperties_UNUSED_PRIVATE_PROPERTY, []string{propName})
@@ -54,7 +54,8 @@ func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Nod
 	if n.isScript() {
 		this.used.clear()
 		Collection_add_s(this.used, "constructor")
-		this.candidates.clear()
+		clear(this.candidates)
+this.candidates = this.candidates[:0]
 	}
 	return true
 }
@@ -69,12 +70,12 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 			Collection_add_s(this.used, propName)
 		} else {
 			if this.isCheckablePrivatePropDecl(n) {
-				this.candidates.add(n.box_())
+				this.candidates = append(this.candidates, n)
 			}
 		}
 	case Token_rhino_MEMBER_FUNCTION_DEF:
 		if this.isCheckablePrivatePropDecl(n) {
-			this.candidates.add(n.box_())
+			this.candidates = append(this.candidates, n)
 		}
 	case Token_rhino_OBJECTLIT:
 		{

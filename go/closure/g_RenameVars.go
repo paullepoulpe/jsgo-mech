@@ -159,8 +159,8 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 	this.nameGenerator.reset(this.reservedNames, this.prefix_, this.reservedCharacters)
 	var globalNameGenerator NameGenerator = this.nameGenerator
 	var localNameGenerator NameGenerator = func() NameGenerator { if String_isEmpty(this.prefix_) { return globalNameGenerator }; return this.nameGenerator.clone(this.reservedNames, "", this.reservedCharacters) }()
-	var pendingAssignments ListOf[*RenameVars_Assignment] = icast_List(new_ArrayList_0().self())
-	var generatedNamesForAssignments ListOf[string] = icast_List(new_ArrayList_0().self())
+	var pendingAssignments []*RenameVars_Assignment = []*RenameVars_Assignment{}
+	var generatedNamesForAssignments []string = []string{}
 	it_1 := foreach_(any(varsToRename))
 	for it_1.next() {
 		var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](it_1.v)
@@ -176,22 +176,22 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 			this.finalizeNameAssignment(a, newName)
 		} else {
 			newName = globalNameGenerator.generateNextName()
-			pendingAssignments.add(obj_(a))
-			generatedNamesForAssignments.add(strobj_(newName))
+			pendingAssignments = append(pendingAssignments, a)
+			generatedNamesForAssignments = append(generatedNamesForAssignments, newName)
 		}
 		Collection_add_s(this.reservedNames, newName)
 	}
-	var numPendingAssignments int32 = generatedNamesForAssignments.size()
+	var numPendingAssignments int32 = int32(len(generatedNamesForAssignments))
 	for i := int32(0); (i < numPendingAssignments);  {
 		var varsByOrderOfOccurrence SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR)))
-		var len_ int32 = String_length(str_(generatedNamesForAssignments.get(i)))
-		for j := int32(i); ((j < numPendingAssignments) && (String_length(str_(generatedNamesForAssignments.get(j))) == len_)); j++ {
-			varsByOrderOfOccurrence.add(pendingAssignments.get(j))
+		var len_ int32 = String_length(generatedNamesForAssignments[i])
+		for j := int32(i); ((j < numPendingAssignments) && (String_length(generatedNamesForAssignments[j]) == len_)); j++ {
+			varsByOrderOfOccurrence.add(obj_(pendingAssignments[j]))
 		}
 		it_5 := foreach_(any(varsByOrderOfOccurrence))
 		for it_5.next() {
 			var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](it_5.v)
-			this.finalizeNameAssignment(a, str_(generatedNamesForAssignments.get(i)))
+			this.finalizeNameAssignment(a, generatedNamesForAssignments[i])
 			i++
 		}
 	}

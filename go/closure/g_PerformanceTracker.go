@@ -36,7 +36,7 @@ type PerformanceTracker struct {
 	currentPass DequeOf[*PerformanceTracker_Stats]
 	passSummary ImmutableMapOf[string, *PerformanceTracker_Stats]
 	astManifest *SimpleMultiset
-	log_ ListOf[*PerformanceTracker_Stats]
+	log_ []*PerformanceTracker_Stats
 	pruningAnalysisSummary string
 	disambiguatePropertiesSummary string
 	ambiguatePropertiesSummary string
@@ -75,7 +75,7 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.diff = 0
 	this.gzDiff = 0
 	this.currentPass = icast_Deque(obj_(new_ArrayDeque()))
-	this.log_ = icast_List(new_ArrayList_0().self())
+	this.log_ = []*PerformanceTracker_Stats{}
 	this.pruningAnalysisSummary = "not executed"
 	this.disambiguatePropertiesSummary = "not executed"
 	this.ambiguatePropertiesSummary = "not executed"
@@ -134,7 +134,7 @@ func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	var allocMem int32 = this.getAllocatedMegabytes()
 	var logStats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](this.currentPass.pop())
 	Preconditions_checkState((passName == logStats.pass))
-	this.log_.add(obj_(logStats))
+	this.log_ = append(this.log_, logStats)
 	logStats.runtime_ = runtime
 	logStats.allocMem = allocMem
 	logStats.runs = 1
@@ -316,9 +316,9 @@ func (this *PerformanceTracker) calcTotalStats() {
 
 func (this *PerformanceTracker) populatePassSummary() {
 	var tmpPassSummary LinkedHashMapOf[string, *PerformanceTracker_Stats] = new_LinkedHashMap()
-	it_1 := foreach_(any(this.log_))
+	it_1 := eachOf_(&this.log_)
 	for it_1.next() {
-		var logStat *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](it_1.v)
+		var logStat *PerformanceTracker_Stats = it_1.v
 		var passName string = logStat.pass
 		var entry *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](Map_computeIfAbsent_s(tmpPassSummary, passName, &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
@@ -401,9 +401,9 @@ func (this *PerformanceTracker) outputTracerReport(output *Output) {
 		output.println(String_format("%s,%d,%d,%d,%d,%d,%d,%d", []any{strobj_(key), any(int64(stats.runtime_)), any(int32(stats.allocMem)), any(int32(stats.runs)), any(int32(stats.changes)), any(int32(stats.astDiff)), any(int32(stats.diff)), any(int32(stats.gzDiff))}))
 	}
 	output.println(JSCompStrings_lines([]string{"", "Log:", "pass,runtime,allocMem,codeChanged,astReduction,reduction,gzReduction,astSize,size,gzSize"}))
-	it_3 := foreach_(any(this.log_))
+	it_3 := eachOf_(&this.log_)
 	for it_3.next() {
-		var stats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](it_3.v)
+		var stats *PerformanceTracker_Stats = it_3.v
 		output.print(String_format("%s,%d,%d,%s,%d,%d,%d,%d,%d,%d\n", []any{strobj_(stats.pass), any(int64(stats.runtime_)), any(int32(stats.allocMem)), strobj_(String_valueOf_boolean((stats.changes == 1))), any(int32(stats.astDiff)), any(int32(stats.diff)), any(int32(stats.gzDiff)), any(int32(stats.astSize)), any(int32(stats.size_)), any(int32(stats.gzSize))}))
 	}
 	if (this.astManifest != nil) {

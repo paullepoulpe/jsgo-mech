@@ -58,12 +58,12 @@ type RenameLabels_ProcessLabels struct {
 	outer_ *RenameLabels
 	markChanges bool
 	namespaceStack DequeOf[*RenameLabels_LabelNamespace]
-	names_ ArrayListOf[string]
+	names_ []string
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
 	this.namespaceStack = icast_Deque(obj_(new_ArrayDeque()))
-	this.names_ = new_ArrayList_0()
+	this.names_ = []string{}
 }
 
 func (this *RenameLabels_ProcessLabels) init_RenameLabels_ProcessLabels(markChanges bool) {
@@ -99,8 +99,8 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 		var li *RenameLabels_LabelInfo = new_RenameLabels_LabelInfo(currentDepth)
 		Preconditions_checkState(!Map_containsKey_s(current.renameMap, name))
 		Map_put_s(current.renameMap, name, obj_(li))
-		if (this.names_.size() < currentDepth) {
-			this.names_.add(this.outer_.nameSupplier.get())
+		if (int32(len(this.names_)) < currentDepth) {
+			this.names_ = append(this.names_, str_(this.outer_.nameSupplier.get()))
 		}
 	}
 	return true
@@ -163,7 +163,7 @@ func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) 
 }
 
 func (this *RenameLabels_ProcessLabels) getNameForId(id int32) string {
-	return str_(this.names_.get((id - 1)))
+	return this.names_[(id - 1)]
 }
 
 func (this *RenameLabels_ProcessLabels) getLabelInfo(name string) *RenameLabels_LabelInfo {

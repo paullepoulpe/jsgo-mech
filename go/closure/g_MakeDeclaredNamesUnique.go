@@ -286,7 +286,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_ *MakeDeclaredNamesUnique_ContextualRenameInverter
-	referenceNodes ListOf[Node]
+	referenceNodes []Node
 	potentialShadowVariables SetOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName string
 	preferredName string
@@ -298,7 +298,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
-	this.referenceNodes = icast_List(new_ArrayList_0().self())
+	this.referenceNodes = []Node{}
 	this.potentialShadowVariables = icast_Set(obj_(new_LinkedHashSet()))
 }
 
@@ -341,9 +341,9 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attem
 	if (newName == this.currentName) {
 		return this.currentName
 	}
-	it_5 := foreach_(any(this.referenceNodes))
+	it_5 := eachOf_(&this.referenceNodes)
 	for it_5.next() {
-		var referenceNode Node = Node_of_(it_5.v)
+		var referenceNode Node = it_5.v
 		referenceNode.setString(newName)
 		this.outer_.compiler_.reportChangeToEnclosingScope(referenceNode)
 		var parent Node = referenceNode.getParent()
@@ -393,7 +393,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addReferenceNode(nameNode Node) {
 	if (this.renamingInfo != nil) {
-		this.renamingInfo.referenceNodes.add(nameNode.box_())
+		this.renamingInfo.referenceNodes = append(this.renamingInfo.referenceNodes, nameNode)
 	}
 }
 

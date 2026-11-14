@@ -7,7 +7,7 @@ type TemplateAstMatcher struct {
 	typeRegistry *JSTypeRegistry
 	templateStart Node
 	templateParams ListOf[string]
-	paramNodeMatches ArrayListOf[Node]
+	paramNodeMatches []Node
 	templateLocals ListOf[string]
 	localVarMatches ArrayListOf[string]
 	stringLiteralMatches LinkedHashMapOf[string, Node]
@@ -17,7 +17,7 @@ type TemplateAstMatcher struct {
 
 func (this *TemplateAstMatcher) finit_TemplateAstMatcher() {
 	this.templateParams = icast_List(new_ArrayList_0().self())
-	this.paramNodeMatches = new_ArrayList_0()
+	this.paramNodeMatches = []Node{}
 	this.templateLocals = icast_List(new_ArrayList_0().self())
 	this.localVarMatches = new_ArrayList_0()
 	this.stringLiteralMatches = new_LinkedHashMap()
@@ -41,7 +41,7 @@ func new_TemplateAstMatcher(compiler *AbstractCompiler, templateFunctionNode Nod
 
 func (this *TemplateAstMatcher) matches(n Node) bool {
 	if this.matchesTemplateShape(this.templateStart, n) {
-		if (this.paramNodeMatches.isEmpty() && this.localVarMatches.isEmpty()) {
+		if ((len(this.paramNodeMatches) == 0) && this.localVarMatches.isEmpty()) {
 			return true
 		}
 		this.reset()
@@ -58,7 +58,7 @@ func (this *TemplateAstMatcher) getTemplateNodeToMatchMap() Map {
 	var map_ MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap_Map(icast_Map(obj_(this.stringLiteralMatches)))))
 	for i := int32(0); (i < this.templateParams.size()); i++ {
 		var name string = str_(this.templateParams.get(i))
-		Map_put_s(map_, name, this.paramNodeMatches.get(i))
+		Map_put_s(map_, name, this.paramNodeMatches[i].box_())
 	}
 	for i := int32(0); (i < this.templateLocals.size()); i++ {
 		var name string = str_(this.templateLocals.get(i))
@@ -81,7 +81,7 @@ func (this *TemplateAstMatcher) initTemplate(templateFunctionNode Node) Node {
 		this.localVarMatches.add(nil)
 	}
 	for i := int32(0); (i < this.templateParams.size()); i++ {
-		this.paramNodeMatches.add(nil)
+		this.paramNodeMatches = append(this.paramNodeMatches, Node_of_(nil))
 	}
 	return startNode
 }
@@ -135,8 +135,8 @@ func (this *TemplateAstMatcher) traverse(n Node, callback TemplateAstMatcher_Vis
 func (this *TemplateAstMatcher) reset() {
 	this.isLooseMatchField = false
 	Collections_fill(icast_List(this.localVarMatches.self()), nil)
-	for i := int32(0); (i < this.paramNodeMatches.size()); i++ {
-		this.paramNodeMatches.set(i, nil)
+	for i := int32(0); (i < int32(len(this.paramNodeMatches))); i++ {
+		this.paramNodeMatches[i] = Node_of_(nil)
 	}
 }
 
@@ -225,7 +225,7 @@ func (this *TemplateAstMatcher) matchesTemplate(template Node, ast Node) bool {
 func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 	if this.isTemplateParameterNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
-		var previousMatch Node = Node_of_(this.paramNodeMatches.get(paramIndex))
+		var previousMatch Node = this.paramNodeMatches[paramIndex]
 		if (previousMatch != 0) {
 			return ast.isEquivalentTo(previousMatch)
 		}
@@ -238,7 +238,7 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		this.isLooseMatchField = matchResult.isLooseMatch()
 		var isMatch bool = matchResult.isMatch()
 		if (isMatch && (previousMatch == 0)) {
-			this.paramNodeMatches.set(paramIndex, ast.box_())
+			this.paramNodeMatches[paramIndex] = ast
 		}
 		return isMatch
 	} else if this.isTemplateLocalNameNode(template) {
@@ -253,12 +253,12 @@ func (this *TemplateAstMatcher) matchesNode(template Node, ast Node) bool {
 		}
 	} else if this.isTemplateParameterStringLiteralNode(template) {
 		var paramIndex int32 = f2i_[int32](float64(template.getDouble()))
-		var previousMatch Node = Node_of_(this.paramNodeMatches.get(paramIndex))
+		var previousMatch Node = this.paramNodeMatches[paramIndex]
 		if (previousMatch != 0) {
 			return ast.isEquivalentTo(previousMatch)
 		}
 		if NodeUtil_isSomeCompileTimeConstStringValue(ast) {
-			this.paramNodeMatches.set(paramIndex, ast.box_())
+			this.paramNodeMatches[paramIndex] = ast
 			return true
 		}
 		return false

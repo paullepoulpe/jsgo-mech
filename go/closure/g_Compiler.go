@@ -1061,7 +1061,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	}
 	if !chunkNameRegexList.isEmpty() {
 		var chunks IterableOf[*JSChunk] = icast_Iterable(Preconditions_checkNotNull(any(this.getChunks())))
-		var unmatchedChunkNames ListOf[string] = icast_List(new_ArrayList_0().self())
+		var unmatchedChunkNames []string = []string{}
 		var lt *Compiler_ChunkGraphAwareLicenseTracker = new_Compiler_ChunkGraphAwareLicenseTracker(this.up_AbstractCompiler())
 		it_6 := foreach_(any(chunks))
 		for it_6.next() {
@@ -1077,13 +1077,13 @@ func (this *Compiler) getCurrentJsSource() string {
 					break
 				}
 			}
-			unmatchedChunkNames.add(strobj_(chunkName))
+			unmatchedChunkNames = append(unmatchedChunkNames, chunkName)
 		}
 		if (builder.length() == 0) {
 			builder.append("// No chunks were matched:\n")
-			it_10 := foreach_(any(unmatchedChunkNames))
+			it_10 := eachOf_(&unmatchedChunkNames)
 			for it_10.next() {
-				var chunkName string = str_(it_10.v)
+				var chunkName string = it_10.v
 				builder.append("// ").append(chunkName).append("\n")
 			}
 		}
@@ -1581,7 +1581,7 @@ func (this *Compiler) orderInputs() {
 
 func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, supportCommonJSModules bool) {
 	this.maybeDoThreadedParsing()
-	var entryPoints ListOf[*CompilerInput] = icast_List(new_ArrayList_0().self())
+	var entryPoints []*CompilerInput = []*CompilerInput{}
 	var inputsByProvide MapOf[string, *CompilerInput] = icast_Map(obj_(new_LinkedHashMap()))
 	var inputsByIdentifier MapOf[string, *CompilerInput] = icast_Map(obj_(new_LinkedHashMap()))
 	it_1 := foreach_(any(this.chunkGraph.getAllInputs()))
@@ -1593,7 +1593,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 			return !String_startsWith(p, "module$")
 		}})
 		if (!this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides)) {
-			entryPoints.add(obj_(input))
+			entryPoints = append(entryPoints, input)
 		}
 		Map_put_s(inputsByIdentifier, ModuleIdentifier_forFile(input.getPath().toString()).toString(), obj_(input))
 		it_3 := foreach_(any(provides))
@@ -1610,7 +1610,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 			input = cast_[*CompilerInput](Map_get_s(inputsByIdentifier, moduleIdentifier.toString()))
 		}
 		if (input != nil) {
-			entryPoints.add(obj_(input))
+			entryPoints = append(entryPoints, input)
 		}
 	}
 	var workingInputSet SetOf[*CompilerInput] = icast_Set(obj_(new_LinkedHashSet()))
@@ -1619,9 +1619,9 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 		var input *CompilerInput = cast_[*CompilerInput](it_7.v)
 		workingInputSet.add(obj_(input))
 	}
-	it_9 := foreach_(any(entryPoints))
+	it_9 := eachOf_(&entryPoints)
 	for it_9.next() {
-		var entryPoint *CompilerInput = cast_[*CompilerInput](it_9.v)
+		var entryPoint *CompilerInput = it_9.v
 		this.findModulesFromInput(entryPoint, false, workingInputSet, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
 	}
 }

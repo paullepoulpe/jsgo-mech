@@ -33,9 +33,9 @@ func (this *ConcretizeStaticInheritanceForInlining) process_2(externs Node, root
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
-	it_1 := foreach_(any(findStaticMembers.inheritsCalls))
+	it_1 := eachOf_(&findStaticMembers.inheritsCalls)
 	for it_1.next() {
-		var inheritsCall Node = Node_of_(it_1.v)
+		var inheritsCall Node = it_1.v
 		var superclassNameNode Node = inheritsCall.getLastChild()
 		var superclassQname string = superclassNameNode.getQualifiedName()
 		var subclassNameNode Node = superclassNameNode.getPrevious()
@@ -154,7 +154,7 @@ func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMem
 type ConcretizeStaticInheritanceForInlining_FindStaticMembers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_ *ConcretizeStaticInheritanceForInlining
-	inheritsCalls ListOf[Node]
+	inheritsCalls []Node
 	nodeOrder MapOf[Node, BoxedOf[int32]]
 }
 
@@ -166,7 +166,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) up_NodeTra
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) finit_ConcretizeStaticInheritanceForInlining_FindStaticMembers() {
-	this.inheritsCalls = icast_List(new_ArrayList_0().self())
+	this.inheritsCalls = []Node{}
 	this.nodeOrder = icast_Map(obj_(new_LinkedHashMap()))
 }
 
@@ -187,7 +187,7 @@ func (this *ConcretizeStaticInheritanceForInlining_FindStaticMembers) visit_impl
 	switch n.getToken() {
 	case Token_rhino_CALL:
 		if this.outer_.inherits.matches(n.getFirstChild()) {
-			this.inheritsCalls.add(n.box_())
+			this.inheritsCalls = append(this.inheritsCalls, n)
 			this.nodeOrder.put(n.box_(), any(int32(this.nodeOrder.size())))
 		}
 		if NodeUtil_isObjectDefinePropertiesDefinition(n) {
