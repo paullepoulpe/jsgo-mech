@@ -119,6 +119,21 @@ final class Ctx {
     return n;
   }
 
+  /**
+   * Fields of handle classes, declared Object, that have a second slot of Go type string (handles.txt,
+   * "Class::field string-slot"): a String stored in such a field goes to the string slot unboxed.
+   */
+  final Set<VariableElement> strSlots = new HashSet<>();
+
+  boolean strSlot(VariableElement f) {
+    return strSlots.contains(f);
+  }
+
+  /** The Go lvalue of the string slot of field f of recv. */
+  String strSlotLoc(String recv, VariableElement f) {
+    return recv + ".ps_()." + fieldName(f) + "_s_";
+  }
+
   /** The storage location of instance field f of the object recv (a Go lvalue). */
   String fieldLoc(String recv, VariableElement f) {
     if (!isHandle(ownerOf(f))) return recv + "." + fieldName(f);
@@ -127,6 +142,7 @@ final class Ctx {
 
   /** Go expression reading instance field f of recv, at the Go type of f's Java type. */
   String fieldGet(String recv, VariableElement f) {
+    if (strSlot(f)) return recv + "." + fieldName(f) + "_get_()";
     String loc = fieldLoc(recv, f);
     TypeElement en = isHandle(ownerOf(f)) ? storedEnum(f.asType()) : null;
     return en == null ? loc : className(en) + "_byOrd1_[" + loc + "]";
@@ -134,6 +150,7 @@ final class Ctx {
 
   /** Go statement storing value (of the Go type of f's Java type) into instance field f of recv. */
   String fieldSet(String recv, VariableElement f, String value) {
+    if (strSlot(f)) return recv + "." + fieldName(f) + "_set_(" + value + ")";
     return fieldLoc(recv, f) + " = " + stored(f, value);
   }
 
@@ -144,7 +161,12 @@ final class Ctx {
 
   /** Registers the classes named in handles.txt and checks that each may be a handle class. */
   void registerHandles(List<String> names) {
+    List<String> slots = new ArrayList<>();
     for (String qn : names) {
+      if (qn.contains("::")) {
+        slots.add(qn);
+        continue;
+      }
       TypeElement te = elems.getTypeElement(qn);
       if (te == null || !isSource(te)) {
         handleErrors.add(qn + ": not a class of the translated sources");
@@ -169,6 +191,17 @@ final class Ctx {
         TypeElement en = storedEnum(f.asType());
         if (en != null) handleEnums.add(en);
       }
+    }
+    for (String line : slots) {
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+string-slot").matcher(line);
+      TypeElement te = m.matches() ? elems.getTypeElement(m.group(1)) : null;
+      VariableElement field = null;
+      if (te != null && handles.contains(te)) {
+        for (VariableElement f : instanceFields(te)) if (f.getSimpleName().contentEquals(m.group(2))) field = f;
+      }
+      if (field == null) handleErrors.add(line + ": not \"Class::field string-slot\" naming a field of a handle class");
+      else if (!types.isSameType(field.asType(), elems.getTypeElement("java.lang.Object").asType())) handleErrors.add(line + ": the field is not declared Object");
+      else strSlots.add(field);
     }
   }
 

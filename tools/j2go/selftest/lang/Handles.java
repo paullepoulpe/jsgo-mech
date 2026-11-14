@@ -496,12 +496,56 @@ public class Handles {
     return sb.toString();
   }
 
+  /**
+   * Item.payload is a string-slot field (selftest/handles.txt): Strings go to a slot of their own,
+   * and reads, tests, casts and copies must not be able to tell.
+   */
+  static String stringSlot() {
+    StringBuilder sb = new StringBuilder();
+    Item a = new Item(41);
+    sb.append(a.payload == null).append(' ').append(a.payload instanceof String).append(' ');
+    a.payload = "text";
+    Object o = a.payload;
+    sb.append(a.payload instanceof String).append(' ').append(a.payload instanceof Double).append(' ').append(o).append(' ')
+        .append(o.equals("text")).append(' ').append(((String) a.payload).length()).append(' ');
+    if (a.payload instanceof String s) {
+      sb.append(s.concat("!")).append(' ');
+    }
+    if (!(a.payload instanceof Double d)) {
+      sb.append("not-double ");
+    }
+    Item b = new Item(42);
+    b.payload = a.payload;
+    sb.append(b.payload).append(' ').append(b.payload == a.payload).append(' ');
+    a.payload = 2.5;
+    sb.append(a.payload instanceof String).append(' ').append(a.payload instanceof Double).append(' ').append(a.payload).append(' ')
+        .append(b.payload).append(' ');
+    if (a.payload instanceof Double d) {
+      sb.append(d + 1).append(' ');
+    }
+    try {
+      sb.append(((String) a.payload).length());
+    } catch (ClassCastException e) {
+      sb.append("cce ");
+    }
+    Object any = "late";
+    a.payload = any;
+    sb.append(a.payload instanceof String).append(' ').append(a.payload).append(' ');
+    String none = null;
+    a.payload = none;
+    sb.append(a.payload == null).append(' ').append(a.payload instanceof String).append(' ').append((String) a.payload).append(' ');
+    a.payload = b;
+    sb.append(a.payload == b).append(' ').append(a.payload instanceof Item).append(' ').append(a.payload instanceof String);
+    return sb.append('\n').toString();
+  }
+
   public static String run() {
     p(fields());
     p(nulls());
     p(objects());
     p(collections());
     p(trees());
+    p(stringSlot());
     return out.toString();
   }
 

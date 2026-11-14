@@ -197,12 +197,20 @@ no PGO):
 Slabs for long-lived classes are harmful (RSS x2 to x7, no time gained: one live object pins
 its chunk). Typed collections are the largest translator change of the four (reified
 generics, about 2.6k lines of runtime collections redone, no variance in Go) for 8-10% on
-optimisation-heavy inputs; not built. Taken: the string field, as Java prep step
-`04b-node-string-field` (12 sites in `Node.java`, no translator change), plus two runtime
+optimisation-heavy inputs; not built. Taken: the string field, plus two runtime
 items (immutable enum sets answer `contains` by ordinal; hash lookups test identity before
 `equals`, as `java.util.HashMap` does). Measured together against the build above
 (interleaved, medians of 3): bundle 42.7s -> 40.3s, shaka-blockly 38.6s -> 35.7s, typed-app
 11.3s -> 11.0s.
+
+The string field was first taken as Java prep step `04b-node-string-field` (a second field
+in `Node.java`). That step is reverted: it made every `Node` 64 bytes instead of 56 on the
+JVM and slowed Java by 4-6% (stock against prepped Java, 3 interleaved runs per milestone:
+every other prep step is within 1.5% of stock; a dummy `int` field added to `Node` alone
+costs 4.2%). The Go build gets the same slot from a translator rule instead
+(`tools/j2go/handles.txt`, `Node::payload string-slot`), measured equal to the 04b build
+(bundle 41.4s / 41.3s, shaka-blockly 37.4s / 37.1s, typed-app 12.5s / 12.8s, same
+allocation counts).
 
 Nine tasks with this build, all byte-identical with Java (3 cold runs, medians, Java and Go
 interleaved):
@@ -221,9 +229,35 @@ interleaved):
 | sum | 166.9s | 229.9s | 1.38x | 281.6s | |
 
 Per pass, the translation is about 1.5x slower than Java and uniformly so (1.0x to 2.8x); the
-hand port is 3.3x *faster than Java* per pass (1.3x to 33x), which no translation of the
-Java can reproduce: that part of the gap is hand-rewritten passes and data structures, not
-translation overhead.
+hand port is 3.3x *faster than Java* per pass (1.3x to 33x).
+
+**Where the hand port's speed comes from** (bundle, one thread, the hand port's optional
+caches off; CPU profiles of both binaries with every function put in one bucket, and node
+visits counted per pass in both):
+
+| cost | translation | hand port | share of the gap |
+|---|---:|---:|---:|
+| allocation and collection | 12.1s | 0.5s | 29% |
+| hash tables, hashing, equality | 9.9s | 1.1s | 22% |
+| compiler logic proper | 13.1s | 3.6s | 24% |
+| Node record access | 6.9s | 2.7s | 11% |
+| type tests, casts, lists, iterators, strings | 4.5s | 0.1s | 11% |
+| panic/defer, scheduler | 1.1s | 0.2s | 2% |
+| total | 47.6s | 8.2s | |
+
+No single change accounts for it. The translation allocates 168M objects against 0.7M, most
+of them Java collections (`ArrayList`, `LinkedHashSet`, `LinkedHashMap`, table internals,
+Strings boxed as keys); the hand port keeps scopes, variables and references in id-indexed
+flat structures. 14 of the 20 most expensive passes visit exactly the same number of nodes
+in both compilers and are 3x to 15x cheaper per visit in the hand port (`inlineVariables`:
+5.9M visits in both, 3.5s against 1.0s; `invertContextualRenaming`: 2.7s of 3.5s is hash
+maps keyed by objects, against 0.24s in total with integer lists). A few passes are
+different algorithms (`flowSensitiveInlineVariables` 21x fewer visits,
+`deadAssignmentsElimination` 15x, `coalesceVariableNames` 5x; `removeUnusedCode` and
+`processDefines` do not use the shared traversal). The AST record is the smaller part: a
+prototype with a pointer-free node (strings, type, payload and property list as 4-byte ids,
+nothing of the AST scanned by the collector) changed bundle from 41.7s to 41.0s and
+typed-app from 11.65s to 11.50s.
 
 Tried and left out: a list of capacity up to 2 in one object with its header plus a first
 capacity of 4 for `ArrayList` (5% fewer mallocs, no time gained); a profile regenerated after

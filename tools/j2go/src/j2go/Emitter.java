@@ -50,6 +50,7 @@ final class Emitter extends StmtEmitter {
     if (te == null || !cx.isSource(te)) return false;
     for (Element e : te.getEnclosedElements()) {
       if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) return true;
+      if (e.getKind() == ElementKind.FIELD && cx.strSlot((VariableElement) e)) return true;
     }
     return needsZero(cx.superclass(te));
   }
@@ -226,6 +227,9 @@ final class Emitter extends StmtEmitter {
         if (e.getKind() == ElementKind.FIELD && !e.getModifiers().contains(Modifier.STATIC) && cx.kind(e.asType()) == Ctx.K.STR) {
           sb.append("\t").append(cx.fieldLoc("this", (VariableElement) e)).append(" = nullstr_\n");
         }
+        if (e.getKind() == ElementKind.FIELD && cx.strSlot((VariableElement) e)) {
+          sb.append("\t").append(cx.strSlotLoc("this", (VariableElement) e)).append(" = nullstr_\n");
+        }
       }
       sb.append("}\n\n");
     }
@@ -275,11 +279,29 @@ final class Emitter extends StmtEmitter {
       sb.append("type ").append(rec).append(" struct {\n");
       // The handle's own value, for box_ to point an interface at.
       if (k == 0) sb.append("\tself_ uint32\n");
-      for (VariableElement f : k == 0 ? ns : ps) sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
+      for (VariableElement f : k == 0 ? ns : ps) {
+        sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
+        if (cx.strSlot(f)) sb.append("\t").append(cx.fieldName(f)).append("_s_ string\n");
+      }
       sb.append("}\n\n");
       sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]").append(rec).append("\n\n");
       sb.append(recv(te)).append(acc).append("() *").append(rec).append(" {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
       alloc.append("\t\t").append(tab).append("[h>>handleShift_] = new([handleChunkSize_]").append(rec).append(")\n");
+    }
+    for (VariableElement f : ps) {
+      if (!cx.strSlot(f)) continue;
+      // A string-slot field: the String a Java Object field holds is kept unboxed next to it.
+      String fn = cx.fieldName(f);
+      sb.append(recv(te)).append(fn).append("_get_() any {\n\tp := this.ps_()\n\tif p.").append(fn).append("_s_ != nullstr_ {\n\t\treturn p.")
+          .append(fn).append("_s_\n\t}\n\treturn p.").append(fn).append("\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_set_(v any) {\n\tp := this.ps_()\n\tif s, ok := v.(string); ok {\n\t\tp.").append(fn).append("_s_, p.")
+          .append(fn).append(" = s, nil\n\t} else {\n\t\tp.").append(fn).append("_s_, p.").append(fn).append(" = nullstr_, v\n\t}\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_sets_(s string) {\n\tp := this.ps_()\n\tp.").append(fn).append("_s_, p.").append(fn).append(" = s, nil\n}\n\n");
+      // (String) field: the string slot; a value of another class fails the cast as it would in Java.
+      sb.append(recv(te)).append(fn).append("_str_() string {\n\tp := this.ps_()\n\tif p.").append(fn).append(" != nil {\n\t\treturn str_(p.")
+          .append(fn).append(")\n\t}\n\treturn p.").append(fn).append("_s_\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_copy_(o ").append(n).append(") {\n\tp, q := this.ps_(), o.ps_()\n\tp.").append(fn).append("_s_, p.")
+          .append(fn).append(" = q.").append(fn).append("_s_, q.").append(fn).append("\n}\n\n");
     }
     // Chunk 0 is never allocated: handle 0 is null, and reaching for its record is a nil dereference.
     sb.append("var ").append(n).append("_count_ uint32 = handleChunkSize_\n\n");

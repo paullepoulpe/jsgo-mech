@@ -1,3 +1,5 @@
 # Handle classes of the self-test (lang/Handles.java).
 lang.Handles.Item
 lang.Handles.Tag
+# String slot (see tools/j2go/handles.txt).
+lang.Handles.Item::payload string-slot

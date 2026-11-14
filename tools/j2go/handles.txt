@@ -2,3 +2,9 @@
 # as a 32-bit handle into a store (type C uint32; 0 is null) instead of a pointer to a struct.
 # The translator checks each one (tools/j2go/README.md, "Handle classes").
 com.google.javascript.rhino.Node
+#
+# String slots: "Class::field string-slot" names a field of a handle class, declared Object, that
+# often holds a String. The translation keeps a second slot of Go type string for it, so that
+# storing a String and testing `field instanceof String s` touch no interface value
+# (tools/j2go/README.md, "Handle classes").
+com.google.javascript.rhino.Node::payload string-slot

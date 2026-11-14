@@ -278,6 +278,8 @@ abstract class ExprEmitter extends Base {
       case TYPE_CAST: {
         TypeCastTree c = (TypeCastTree) t;
         TypeMirror to = typeOf(t);
+        Object[] slot = strSlotRead(c.getExpression());
+        if (slot != null && cx.kind(to) == Ctx.K.STR) return slot[0] + "." + cx.fieldName((VariableElement) slot[1]) + "_str_()";
         Object cv = constOf(t);
         if (cv != null && to.getKind().isPrimitive()) {
           return cv instanceof Character ch ? charLit(ch) : cv.toString();
@@ -717,7 +719,36 @@ abstract class ExprEmitter extends Base {
     }
   }
 
+  /**
+   * If t reads a string-slot field (Ctx.strSlots): the receiver's Go code and the field; else null.
+   */
+  Object[] strSlotRead(ExpressionTree t0) {
+    ExpressionTree t = strip(t0);
+    Element e = (t instanceof IdentifierTree || t instanceof MemberSelectTree) ? elemOf(t) : null;
+    if (!(e instanceof VariableElement f) || e.getKind() != ElementKind.FIELD || !cx.strSlot(f)) return null;
+    if (t instanceof IdentifierTree) return new Object[] {implicitRecv(cx.ownerOf(f)).code, f};
+    return new Object[] {expr(((MemberSelectTree) t).getExpression()), f};
+  }
+
   String instanceOf(InstanceOfTree t) {
+    Object[] slot = strSlotRead(t.getExpression());
+    if (slot != null) {
+      // The String of a string-slot field is in the string slot, everything else in the other.
+      TypeMirror target = t.getPattern() instanceof BindingPatternTree b0 ? cx.erase(elemOf(b0.getVariable()).asType())
+          : typeOf(t.getType()) != null ? typeOf(t.getType()) : cx.trees.getTypeMirror(cx.trees.getPath(cu, t.getType()));
+      VariableElement f = (VariableElement) slot[1];
+      if (cx.kind(target) == Ctx.K.STR) {
+        String loc = cx.strSlotLoc((String) slot[0], f);
+        if (t.getPattern() == null) return "(" + loc + " != nullstr_)";
+        String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
+        return "func() bool { v_ := " + loc + "; if v_ == nullstr_ { return false }; " + name + " = v_; return true }()";
+      }
+      String raw = cx.fieldLoc((String) slot[0], f);
+      if (t.getPattern() == null) return isCheck(raw, target);
+      String name = declareHoisted(elemOf(((BindingPatternTree) t.getPattern()).getVariable()));
+      return "func() bool { v_ := " + raw + "; if !" + isCheck("v_", target) + " { return false }; " + name + " = "
+          + cx.coerce("v_", objectType(), target) + "; return true }()";
+    }
     String v = asAny(t.getExpression());
     if (t.getPattern() == null) return isCheck(v, typeOf(t.getType()) != null ? typeOf(t.getType()) : cx.trees.getTypeMirror(cx.trees.getPath(cu, t.getType())));
     if (!(t.getPattern() instanceof BindingPatternTree bp)) throw unsupported(t, "pattern " + t.getPattern().getKind());
@@ -1279,6 +1310,15 @@ abstract class ExprEmitter extends Base {
         return invocation((MethodInvocationTree) t).code;
       case ASSIGNMENT: {
         AssignmentTree a = (AssignmentTree) t;
+        Object[] slot = strSlotRead(a.getVariable());
+        if (slot != null) {
+          String fn = slot[0] + "." + cx.fieldName((VariableElement) slot[1]);
+          Object[] from = strSlotRead(a.getExpression());
+          if (from != null && from[1] == slot[1]) return fn + "_copy_(" + from[0] + ")";
+          TypeMirror rt = typeOf(a.getExpression());
+          if (rt != null && cx.kind(rt) == Ctx.K.STR) return fn + "_sets_(" + expr(a.getExpression()) + ")";
+          return fn + "_set_(" + asAny(a.getExpression()) + ")";
+        }
         LValue lv = lvalue(a.getVariable());
         String val = exprAs(a.getExpression(), lv.type);
         return lv.code + " = " + (lv.field == null ? val : cx.stored(lv.field, val));

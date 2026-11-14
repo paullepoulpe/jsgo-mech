@@ -67,6 +67,16 @@ nothing in the translator knows a class by name. `JSGO_HANDLE_STATS=1` makes the
 Go program print, at exit, how many objects of each handle class exist and how
 often each field is set. `go/closure/rt_handles.go` is the handwritten part.
 
+A line `Class::field string-slot` in `handles.txt` (today `Node::payload`) names
+a field of a handle class that is declared `Object` and often holds a `String`.
+Its record gets a second slot `field_s_ string` (the null-string sentinel when
+the field holds no String): assigning an expression of static type `String`
+writes that slot directly, `field instanceof String s` and `(String) field`
+read it, a copy from the same field of another object copies both slots, and
+any other read or write goes through generated `field_get_()`/`field_set_(v)`,
+which behave as the single `Object` field would. The Java keeps one field, so
+the object does not grow on the JVM (a 57th byte in `Node` costs Java 4%).
+
 **Constructors.** `new_C(args)` allocates, `init_C(args)` runs the constructor
 body (calling the superclass's `init_`), `finit_C()` runs field initializers.
 Overloads are told apart by a suffix made of the parameter types.
