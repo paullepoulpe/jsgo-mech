@@ -351,7 +351,7 @@ abstract class StmtEmitter extends ExprEmitter {
     if (mc.hoisted.contains(name)) name = fresh(name);
     mc.names.put(e, name);
     TypeMirror ty = cx.erase(e.asType());
-    String gt = cx.goType(ty);
+    String gt = cx.declType(e.asType());
     String code = "var " + name + " " + gt;
     if (v.getInitializer() != null) {
       ExpressionTree init = v.getInitializer();
@@ -385,7 +385,7 @@ abstract class StmtEmitter extends ExprEmitter {
       String val = exprAs(v.getInitializer(), ty);
       init = name + " := " + cx.goType(ty) + "(" + val + ")";
       if (cx.kind(ty) != Ctx.K.PRIM || ty.getKind() == TypeKind.BOOLEAN) {
-        pre.append("var ").append(name).append(" ").append(cx.goType(ty)).append(" = ").append(val).append("\n");
+        pre.append("var ").append(name).append(" ").append(cx.declType(e.asType())).append(" = ").append(val).append("\n");
         init = "";
       }
     } else {

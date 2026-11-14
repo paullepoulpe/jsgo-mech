@@ -194,7 +194,7 @@ final class Emitter extends StmtEmitter {
         if (fe.getKind() == ElementKind.ENUM_CONSTANT) {
           enumConsts.add(v);
         } else if (!fe.getModifiers().contains(Modifier.STATIC)) {
-          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.goType(fe.asType())).append("\n");
+          if (!handle) sb.append("\t").append(cx.fieldName((VariableElement) fe)).append(" ").append(cx.declType(fe.asType())).append("\n");
           if (v.getInitializer() != null) instanceInits.add(v);
         }
       } else if (m instanceof BlockTree b && !b.isStatic()) {
@@ -379,7 +379,7 @@ final class Emitter extends StmtEmitter {
         nm.append(", ");
       }
       if (cx.goType(declared).equals(cx.goType(group))) {
-        d.append(name).append(" ").append(cx.goType(group));
+        d.append(name).append(" ").append(cx.declType(pe.asType()));
         nm.append(name);
       } else {
         d.append(name).append("_ ").append(cx.goType(group));

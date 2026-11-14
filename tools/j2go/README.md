@@ -77,6 +77,15 @@ any other read or write goes through generated `field_get_()`/`field_set_(v)`,
 which behave as the single `Object` field would. The Java keeps one field, so
 the object does not grow on the JVM (a 57th byte in `Node` costs Java 4%).
 
+**Type arguments in declarations.** Generics are erased, but the declared type
+of a field, local or parameter whose Java type is a parameterized library type
+is written through a generic alias: `List<Reference>` becomes
+`ListOf[*Reference]`, with `type ListOf[T0 any] = List` in `g_0aliases.go`
+(`BoxedOf[int32]` for `Integer`; a type variable or unbounded wildcard is
+`any`). An alias is its right-hand side, so nothing changes for the compiler or
+at run time; the Java type arguments stay in the source, checked as Go types,
+for the post-flip steps that give collections real element types.
+
 **Constructors.** `new_C(args)` allocates, `init_C(args)` runs the constructor
 body (calling the superclass's `init_`), `finit_C()` runs field initializers.
 Overloads are told apart by a suffix made of the parameter types.

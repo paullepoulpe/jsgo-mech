@@ -109,7 +109,7 @@ final class Ctx {
   /** Go type of the stored form of handle-class field f. */
   String storedType(VariableElement f) {
     TypeElement en = storedEnum(f.asType());
-    if (en == null) return goType(f.asType());
+    if (en == null) return declType(f.asType());
     return enumConstants(en) < 256 ? "uint8" : "uint16";
   }
 
@@ -448,6 +448,45 @@ final class Ctx {
       case VOID: return "";
       default: return "any";
     }
+  }
+
+  /** Generic aliases used by declType: alias name -> its declaration. */
+  final TreeMap<String, String> typeAliases = new TreeMap<>();
+
+  /**
+   * The Go type to write in a declaration for Java type t. Same type as goType(t); where t is a
+   * parameterized library type, it is spelled through a generic alias (`ListOf[*Reference]` is
+   * `List`), so that the Java type arguments stay in the Go source, checked by the compiler.
+   */
+  String declType(TypeMirror t) {
+    String g = goType(t);
+    if (t == null || t.getKind() != TypeKind.DECLARED) return g;
+    List<? extends TypeMirror> args = ((DeclaredType) t).getTypeArguments();
+    TypeElement te = typeElement(erase(t));
+    K k = kind(erase(t));
+    if (args.isEmpty() || te == null || isSource(te) || (k != K.CLS && k != K.IFACE)) return g;
+    String alias = className(te) + "Of";
+    StringBuilder ps = new StringBuilder(), as = new StringBuilder();
+    for (int i = 0; i < args.size(); i++) {
+      ps.append(i > 0 ? ", " : "").append("T").append(i);
+      as.append(i > 0 ? ", " : "").append(typeArg(args.get(i)));
+    }
+    typeAliases.put(alias, "type " + alias + "[" + ps + " any] = " + g);
+    return alias + "[" + as + "]";
+  }
+
+  private String typeArg(TypeMirror a) {
+    if (a.getKind() == TypeKind.WILDCARD) {
+      TypeMirror b = ((WildcardType) a).getExtendsBound();
+      return b == null ? "any" : typeArg(b);
+    }
+    if (a.getKind() == TypeKind.TYPEVAR) return "any";
+    TypeMirror u = unboxed(a);
+    if (u != null && !a.getKind().isPrimitive()) {
+      typeAliases.put("BoxedOf", "type BoxedOf[T0 any] = any");
+      return "BoxedOf[" + primName(u.getKind()) + "]";
+    }
+    return declType(a);
   }
 
   /** The type a boxed type unboxes to, or the type itself if primitive, else null. */
