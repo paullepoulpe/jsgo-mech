@@ -44,6 +44,87 @@ func (it *sliceIter_) remove() {
 	it.del(it.i)
 }
 
+// each_ is the cursor of a translated for-each loop:
+//
+//	for it := foreach_(c); it.next(); { x := it.v; ... }
+//
+// It is a local variable of the loop's function, so the loop allocates nothing when c is one
+// of the runtime's own collections, which each_ reads in place exactly as their iterators do
+// (position by position against the collection's current length, so that what the body appends
+// is visited and the loop ends early if the body shortens the collection). Any other Iterable
+// (a translated class, a subclass of ArrayList, a view) is walked through its iterator().
+type each_ struct {
+	v    any      // the current element
+	src  *[]any   // the collection is one of: a slice (the list's own, read anew at each step),
+	t    *htable_ // a hash table (keys, values or entries according to mode),
+	it   Iterator // or something with an iterator
+	i    int
+	mode int8
+}
+
+func foreach_(c any) each_ {
+	switch x := c.(type) {
+	case *ArrayList:
+		return each_{src: &x.items}
+	case *ImmutableCollection:
+		if x.kind == icMultiset_ {
+			x.elems_()
+			return each_{src: &x.all_}
+		}
+		return each_{src: &x.items}
+	case *LinkedHashSet:
+		return each_{t: x.t(), mode: hkeys_}
+	case *mapKeys_:
+		return each_{t: x.t(), mode: hkeys_}
+	case *mapValues_:
+		return each_{t: x.t(), mode: hvals_}
+	case *mapEntries_:
+		return each_{t: x.t(), mode: hentries_}
+	case nil:
+		panic(new_NullPointerException_0().self())
+	}
+	return each_{it: c.(Iterable).iterator()}
+}
+
+// next is small so that the slice case is inlined into the loop.
+func (e *each_) next() bool {
+	if s := e.src; s != nil && e.i < len(*s) {
+		e.v = (*s)[e.i]
+		e.i++
+		return true
+	}
+	return e.more()
+}
+
+func (e *each_) more() bool {
+	if e.src != nil {
+		return false
+	}
+	if t := e.t; t != nil {
+		for e.i < len(t.keys) {
+			i := e.i
+			e.i++
+			if k := t.keys[i]; k != dead_ {
+				switch e.mode {
+				case hkeys_:
+					e.v = k
+				case hvals_:
+					e.v = t.vals[i]
+				default:
+					e.v = t.entry(i)
+				}
+				return true
+			}
+		}
+		return false
+	}
+	if e.it.hasNext() {
+		e.v = e.it.next()
+		return true
+	}
+	return false
+}
+
 type funcIter_ struct {
 	has func() bool
 	nxt func() any

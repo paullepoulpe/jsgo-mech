@@ -289,3 +289,76 @@ func TestHashSetAgainstModel(t *testing.T) {
 		}
 	}
 }
+
+// TestForeachLikeIterator: the for-each cursor yields what the collection's iterator yields,
+// also when the body appends to the list or shortens it.
+func TestForeachLikeIterator(t *testing.T) {
+	m := new_LinkedHashMap()
+	set := new_LinkedHashSet()
+	list := new_ArrayList_0()
+	tree := new_TreeSet()
+	for i := int32(0); i < 20; i++ {
+		m.put(i, "v"+istr_(int64(i)))
+		set.add(i)
+		list.add(i)
+		tree.add(-i)
+	}
+	m.remove(int32(3))
+	set.remove_Object(int32(0))
+	set.remove_Object(int32(19))
+	multi := immMultiset_([]any{"a", "b", "a"})
+	for _, c := range []Iterable{list, set, m.keySet(), m.values(), m.entrySet(), tree, multi, immList_(list.toArray_0()),
+		immSet_(list.toArray_0()), new_ArrayList_0(), new_LinkedHashSet(), new_ArrayDeque_Collection(list)} {
+		var want, got []any
+		for it := c.iterator(); it.hasNext(); {
+			want = append(want, it.next())
+		}
+		it := foreach_(c)
+		for it.next() {
+			got = append(got, it.v)
+		}
+		if len(got) != len(want) || !sameSlice_(got, want) {
+			t.Errorf("%T: foreach yields %v, iterator %v", c, got, want)
+		}
+	}
+	walk := func(body func(l *ArrayList, x any), withIterator bool) (seen []any) {
+		l := new_ArrayList_Collection(list)
+		if withIterator {
+			for it := l.iterator(); it.hasNext(); {
+				x := it.next()
+				seen = append(seen, x)
+				body(l, x)
+			}
+			return seen
+		}
+		it := foreach_(l)
+		for it.next() {
+			seen = append(seen, it.v)
+			body(l, it.v)
+		}
+		return seen
+	}
+	for name, body := range map[string]func(l *ArrayList, x any){
+		"append": func(l *ArrayList, x any) {
+			if x.(int32) < 5 {
+				l.add(x.(int32) + 100)
+			}
+		},
+		"shorten": func(l *ArrayList, x any) {
+			if x == int32(7) {
+				l.remove(l.size() - 1)
+				l.remove(0)
+			}
+		},
+	} {
+		if a, b := walk(body, true), walk(body, false); !sameSlice_(a, b) {
+			t.Errorf("%s: foreach saw %v, iterator %v", name, b, a)
+		}
+	}
+	defer func() {
+		if _, ok := recover().(*NullPointerException); !ok {
+			t.Error("foreach over null should throw NullPointerException")
+		}
+	}()
+	foreach_(nil)
+}

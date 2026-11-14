@@ -445,7 +445,7 @@ abstract class StmtEmitter extends ExprEmitter {
     ExpressionTree ex = t.getExpression();
     TypeMirror et = cx.erase(typeOf(ex));
     String lab;
-    String head, bind = "";
+    String head, bind = "", cursor = "";
     if (et.getKind() == TypeKind.ARRAY) {
       TypeMirror comp = cx.erase(((ArrayType) et).getComponentType());
       String src = expr(ex);
@@ -460,20 +460,26 @@ abstract class StmtEmitter extends ExprEmitter {
     } else {
       TypeMirror iterable = cx.elems.getTypeElement("java.lang.Iterable").asType();
       String it = fresh("it");
-      String src = cx.coerce(expr(ex), et, iterable);
+      // Performance rule: the loop runs on a cursor that is a local struct (foreach_ in
+      // rt_coll.go). It reads the runtime's slice-backed collections in place and holds an
+      // Iterator only for other Iterables, so the common loop allocates nothing.
+      String src = cx.coerce(expr(ex), et, objectType());
       TypeElement itE = Ctx.typeElement(iterable), iterE = cx.elems.getTypeElement("java.util.Iterator");
       cx.noteMethodOn(itE, "iterator", List.of(), iterE.asType());
       cx.noteMethodOn(iterE, "hasNext", List.of(), prim(TypeKind.BOOLEAN));
       cx.noteMethodOn(iterE, "next", List.of(), objectType());
       lab = enter("loop");
-      head = "for " + it + " := " + src + ".iterator(); " + it + ".hasNext(); ";
-      bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".next()", objectType(), vt) + "\n";
+      // The cursor is declared before the loop: as a variable of the for statement it would be
+      // copied at every iteration (Go's per-iteration loop variables; next() takes its address).
+      cursor = it + " := foreach_(" + src + ")\n";
+      head = "for " + it + ".next() ";
+      bind = "var " + name + " " + cx.goType(vt) + " = " + cx.coerce(it + ".v", objectType(), vt) + "\n";
     }
     List<String> held = holdPre();
     String body = bind + useMarker(e) + "\n" + (t.getStatement() instanceof BlockTree b ? blockCode(b) : stmt(t.getStatement()) + "\n");
     popScope();
     restorePre(held);
-    return lab + head + "{\n" + indent(body, "\t") + "}";
+    return cursor + lab + head + "{\n" + indent(body, "\t") + "}";
   }
 
   // ---- switch
