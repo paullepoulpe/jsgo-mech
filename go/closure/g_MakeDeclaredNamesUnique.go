@@ -4,7 +4,7 @@ package closure
 
 type MakeDeclaredNamesUnique struct {
 	NodeTraversal_AbstractScopedCallback
-	renamerStack    DequeOf[MakeDeclaredNamesUnique_Renamer]
+	renamerStack    Deque
 	rootRenamer     MakeDeclaredNamesUnique_Renamer
 	markChanges     bool
 	assertOnChange_ bool
@@ -76,7 +76,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 	if n.isName() && NodeUtil_isNonlocalModuleExportName(n) {
 		return
 	}
-	var newName OptionalOf[string] = this.getReplacementName(n.getString())
+	var newName *Optional = this.getReplacementName(n.getString())
 	if newName.isEmpty() {
 		return
 	}
@@ -106,7 +106,7 @@ func (this *MakeDeclaredNamesUnique) getReplacementName(oldName string) *Optiona
 	it_1 := foreach_(any(this.renamerStack))
 	for it_1.next() {
 		var renamer MakeDeclaredNamesUnique_Renamer = icast_MakeDeclaredNamesUnique_Renamer(it_1.v)
-		var newName OptionalOf[string] = renamer.getReplacementName(oldName)
+		var newName *Optional = renamer.getReplacementName(oldName)
 		if newName.isPresent() {
 			return newName
 		}
@@ -178,7 +178,7 @@ type MakeDeclaredNamesUnique_Renamer interface {
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter struct {
 	compiler_              *AbstractCompiler
-	scopeContextStack      DequeOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext]
+	scopeContextStack      Deque
 	variablesStackedByName *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap
 }
 
@@ -221,16 +221,16 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 		return
 	}
 	var scope *Scope = t.getScope()
-	var declaredVariablesBuilder ImmutableList_BuilderOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo] = ImmutableList_builder()
+	var declaredVariablesBuilder *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo] = newTList_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]()
 	it_1 := foreach_(any(scope.getVarIterable()))
 	for it_1.next() {
 		var var_ *Var = cast_[*Var](it_1.v)
 		var variableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = this.createDeclaredVariableInfo(var_)
-		declaredVariablesBuilder.add(obj_(variableInfo))
+		declaredVariablesBuilder.add(variableInfo)
 		this.variablesStackedByName.pushVariableInfo(icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(variableInfo)))
 	}
 	var parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext](this.scopeContextStack.peek())
-	this.scopeContextStack.push(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, cast_[*ImmutableList](obj_(declaredVariablesBuilder.build())), parent)))
+	this.scopeContextStack.push(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, declaredVariablesBuilder, parent)))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createDeclaredVariableInfo(var_ *Var) *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo {
@@ -251,14 +251,14 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		return
 	}
 	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext](Preconditions_checkNotNull(this.scopeContextStack.pop()))
-	it_1 := foreach_(any(scopeContext.referencedVariables))
+	it_1 := scopeContext.referencedVariables.each()
 	for it_1.next() {
-		var referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(it_1.v)
+		var referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.k
 		scopeContext.recordPotentialConflicts(referencedVariable)
 	}
-	it_3 := foreach_(obj_(scopeContext.declaredVariableInfos))
+	it_3 := scopeContext.declaredVariableInfos.each()
 	for it_3.next() {
-		var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo](it_3.v)
+		var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = it_3.v
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
 		Preconditions_checkState_boolean_String_Object((any(oldStackTop) == obj_(declaredVariableInfo)), "Declared variable \"%s\" was not the top of the name stack", strobj_(variableName))
@@ -292,7 +292,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
 	referenceNodes           []Node
-	potentialShadowVariables SetOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	potentialShadowVariables *OSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
 }
@@ -304,7 +304,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
 	this.referenceNodes = []Node{}
-	this.potentialShadowVariables = icast_Set(obj_(new_LinkedHashSet()))
+	this.potentialShadowVariables = newOSet_[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]()
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) init_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo(currentName string, preferredName string) {
@@ -322,15 +322,15 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo(outer_ *M
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPotentialShadowVariable(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	this.potentialShadowVariables.add(any(variableInfo))
+	this.potentialShadowVariables.add(variableInfo)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
 	var disallowedNames map[string]struct{} = map[string]struct{}{}
 	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
-	it_1 := foreach_(any(this.potentialShadowVariables))
+	it_1 := this.potentialShadowVariables.each()
 	for it_1.next() {
-		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(it_1.v)
+		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = it_1.k
 		var potentialShadowName string = potentialShadowVariable.getName()
 		disallowedNames[potentialShadowName] = struct{}{}
 	}
@@ -412,39 +412,39 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 type MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext struct {
 	parent                *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	scope_                *Scope
-	declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
-	referencedVariables   SetOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
+	referencedVariables   *OSet[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext() {
-	this.referencedVariables = icast_Set(obj_(new_LinkedHashSet()))
+	this.referencedVariables = newOSet_[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]()
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
+func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
 	this.finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext()
 	this.scope_ = scope
 	this.declaredVariableInfos = declaredVariableInfos
 	this.parent = parent
 }
 
-func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
+func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos *TList[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext {
 	this := &MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext{}
 	this.init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, declaredVariableInfos, parent)
 	return this
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) addReferencedVariableInfo(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	this.referencedVariables.add(any(variableInfo))
+	this.referencedVariables.add(variableInfo)
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recordPotentialConflicts(referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
 	var thisScopeDepth int32 = this.scope_.getDepth()
 	var referencedVariableDeclarationDepth int32 = referencedVariable.getScopeDepth()
 	if thisScopeDepth >= referencedVariableDeclarationDepth {
-		it_1 := foreach_(obj_(this.declaredVariableInfos))
+		it_1 := this.declaredVariableInfos.each()
 		for it_1.next() {
-			var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo](it_1.v)
-			referencedVariable.addPotentialConflict(icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(declaredVariableInfo)))
+			var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = it_1.v
+			referencedVariable.addPotentialConflict(MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(declaredVariableInfo))
 			declaredVariableInfo.addPotentialConflict(referencedVariable)
 		}
 		if this.parent != nil {
@@ -455,11 +455,11 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recor
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap struct {
 	outer_      *MakeDeclaredNamesUnique_ContextualRenameInverter
-	mapOfStacks MapOf[string, DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]]
+	mapOfStacks *OMap[string, *TList[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]]
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
-	this.mapOfStacks = icast_Map(obj_(new_LinkedHashMap()))
+	this.mapOfStacks = newOMap_[string, *TList[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]]()
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) init_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap() {
@@ -475,36 +475,37 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap(o
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) pushVariableInfo(info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
 	var name string = info.getName()
-	var variableInfoStack DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.getVariableInfoStack(name)
-	variableInfoStack.push(any(info))
+	var variableInfoStack = this.getVariableInfoStack(name)
+	variableInfoStack.push(info)
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) Deque {
-	return icast_Deque(Map_computeIfAbsent_s(this.mapOfStacks, name, &Function_fn{func(ignoredKey_ any) any {
-		var ignoredKey string = str_(ignoredKey_)
-		_ = ignoredKey
-		return obj_(new_ArrayDeque())
-	}}))
+func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getVariableInfoStack(name string) *TList[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] {
+	if s_, ok_ := this.mapOfStacks.get2(name); ok_ {
+		return s_
+	}
+	s_ := newTList_[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]()
+	this.mapOfStacks.insert(name, s_)
+	return s_
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) getOrCreateCurrentVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
-	var variableInfoStack DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.getVariableInfoStack(name)
+	var variableInfoStack = this.getVariableInfoStack(name)
 	var variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo
 	if variableInfoStack.isEmpty() {
 		variableInfo = this.outer_.createUndeclaredVariableInfo(name)
-		variableInfoStack.push(any(variableInfo))
+		variableInfoStack.push(variableInfo)
 	} else {
-		variableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfoStack.peek())
+		variableInfo = variableInfoStack.peek()
 	}
 	return variableInfo
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfoStackMap) popVariableInfo(name string) MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo {
-	var variableInfos DequeOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = icast_Deque(Map_get_s(this.mapOfStacks, name))
-	Preconditions_checkNotNull_Object_String_Object(any(variableInfos), "Nonexistent variable info requested: '%s'", strobj_(name))
-	var info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(variableInfos.pop())
+	var variableInfos *TList[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo] = this.mapOfStacks.get(name)
+	Preconditions_checkNotNull_Object_String_Object(obj_(variableInfos), "Nonexistent variable info requested: '%s'", strobj_(name))
+	var info MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = variableInfos.pop()
 	if variableInfos.isEmpty() {
-		Map_remove_s(this.mapOfStacks, name)
+		this.mapOfStacks.remove(name)
 	}
 	return info
 }
@@ -559,7 +560,7 @@ type MakeDeclaredNamesUnique_ContextualRenamer struct {
 	self_        any
 	scopeRoot    Node
 	nameUsage    *SimpleMultiset
-	declarations MapOf[string, OptionalOf[string]]
+	declarations Map
 	global       bool
 	hoistRenamer MakeDeclaredNamesUnique_Renamer
 }
@@ -653,7 +654,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name stri
 			} else {
 				if !Map_containsKey_s(this.declarations, name) {
 					var id int32 = this.incrementNameCount(Optional_of(strobj_(name)))
-					var newName OptionalOf[string] = Optional_empty()
+					var newName *Optional = Optional_empty()
 					if id != 0 {
 						newName = Optional_of(strobj_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id)))
 						for newName.isPresent() && this.nameUsage.contains(newName.get()) {
@@ -677,11 +678,11 @@ func MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name string, id int
 	return (sstr_(name) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR) + istr_(int64(id)))
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenamer) reserveName(name OptionalOf[string]) {
+func (this *MakeDeclaredNamesUnique_ContextualRenamer) reserveName(name *Optional) {
 	this.nameUsage.setCount(name.orElse(nil), 0, 1)
 }
 
-func (this *MakeDeclaredNamesUnique_ContextualRenamer) incrementNameCount(name OptionalOf[string]) int32 {
+func (this *MakeDeclaredNamesUnique_ContextualRenamer) incrementNameCount(name *Optional) int32 {
 	return this.nameUsage.add_2(name.orElse(nil), 1)
 }
 
@@ -702,8 +703,8 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) createForChildScope(p0 No
 const MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR string = "$jscomp$"
 
 type MakeDeclaredNamesUnique_InlineRenamer struct {
-	declarations     MapOf[string, string]
-	uniqueIdSupplier SupplierOf[string]
+	declarations     Map
+	uniqueIdSupplier Supplier
 	idPrefix         string
 	removeConstness  bool
 	convention       CodingConvention
@@ -718,7 +719,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) finit_MakeDeclaredNamesUnique
 	this.declarations = icast_Map(obj_(new_LinkedHashMap()))
 }
 
-func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniqueIdSupplier SupplierOf[string], idPrefix string, removeConstness bool, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
+func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniqueIdSupplier Supplier, idPrefix string, removeConstness bool, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) {
 	this.finit_MakeDeclaredNamesUnique_InlineRenamer()
 	this.convention = convention
 	this.uniqueIdSupplier = uniqueIdSupplier
@@ -732,7 +733,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) init_MakeDeclaredNamesUnique_
 	}
 }
 
-func new_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniqueIdSupplier SupplierOf[string], idPrefix string, removeConstness bool, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) *MakeDeclaredNamesUnique_InlineRenamer {
+func new_MakeDeclaredNamesUnique_InlineRenamer(convention CodingConvention, uniqueIdSupplier Supplier, idPrefix string, removeConstness bool, hoistingTargetScope bool, parent MakeDeclaredNamesUnique_Renamer) *MakeDeclaredNamesUnique_InlineRenamer {
 	this := &MakeDeclaredNamesUnique_InlineRenamer{}
 	this.zero_MakeDeclaredNamesUnique_InlineRenamer()
 	this.init_MakeDeclaredNamesUnique_InlineRenamer(convention, uniqueIdSupplier, idPrefix, removeConstness, hoistingTargetScope, parent)
@@ -779,7 +780,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getHoistRenamer() MakeDeclare
 
 type MakeDeclaredNamesUnique_BoilerplateRenamer struct {
 	MakeDeclaredNamesUnique_ContextualRenamer
-	uniqueIdSupplier SupplierOf[string]
+	uniqueIdSupplier Supplier
 	idPrefix         string
 	convention       CodingConvention
 }
@@ -795,14 +796,14 @@ func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) zero_MakeDeclaredNamesUn
 	this.idPrefix = nullstr_
 }
 
-func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) init_MakeDeclaredNamesUnique_BoilerplateRenamer(convention CodingConvention, uniqueIdSupplier SupplierOf[string], idPrefix string) {
+func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) init_MakeDeclaredNamesUnique_BoilerplateRenamer(convention CodingConvention, uniqueIdSupplier Supplier, idPrefix string) {
 	this.MakeDeclaredNamesUnique_ContextualRenamer.init_MakeDeclaredNamesUnique_ContextualRenamer_0()
 	this.convention = convention
 	this.uniqueIdSupplier = uniqueIdSupplier
 	this.idPrefix = idPrefix
 }
 
-func new_MakeDeclaredNamesUnique_BoilerplateRenamer(convention CodingConvention, uniqueIdSupplier SupplierOf[string], idPrefix string) *MakeDeclaredNamesUnique_BoilerplateRenamer {
+func new_MakeDeclaredNamesUnique_BoilerplateRenamer(convention CodingConvention, uniqueIdSupplier Supplier, idPrefix string) *MakeDeclaredNamesUnique_BoilerplateRenamer {
 	this := &MakeDeclaredNamesUnique_BoilerplateRenamer{}
 	this.self_ = this
 	this.zero_MakeDeclaredNamesUnique_BoilerplateRenamer()
@@ -816,15 +817,15 @@ func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) createForChildScope_impl
 
 type MakeDeclaredNamesUnique_TargettedRenamer struct {
 	delegate MakeDeclaredNamesUnique_Renamer
-	targets  SetOf[string]
+	targets  Set
 }
 
-func (this *MakeDeclaredNamesUnique_TargettedRenamer) init_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets SetOf[string]) {
+func (this *MakeDeclaredNamesUnique_TargettedRenamer) init_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets Set) {
 	this.delegate = delegate
 	this.targets = targets
 }
 
-func new_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets SetOf[string]) *MakeDeclaredNamesUnique_TargettedRenamer {
+func new_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets Set) *MakeDeclaredNamesUnique_TargettedRenamer {
 	this := &MakeDeclaredNamesUnique_TargettedRenamer{}
 	this.init_MakeDeclaredNamesUnique_TargettedRenamer(delegate, targets)
 	return this

@@ -3,11 +3,11 @@
 package closure
 
 type ReferenceCollection struct {
-	references ListOf[*Reference]
+	references *TList[*Reference]
 }
 
 func (this *ReferenceCollection) finit_ReferenceCollection() {
-	this.references = icast_List(new_ArrayList_0().self())
+	this.references = newTList_[*Reference]()
 }
 
 func (this *ReferenceCollection) init_ReferenceCollection() {
@@ -21,11 +21,11 @@ func new_ReferenceCollection() *ReferenceCollection {
 }
 
 func (this *ReferenceCollection) iterator() Iterator {
-	return this.references.iterator()
+	return &tlistIter_[*Reference]{l: this.references}
 }
 
 func (this *ReferenceCollection) add(reference *Reference) {
-	this.references.add(obj_(reference))
+	this.references.add(reference)
 }
 
 func (this *ReferenceCollection) isWellDefined() bool {
@@ -37,10 +37,10 @@ func (this *ReferenceCollection) isWellDefined() bool {
 	if init_ == nil {
 		return false
 	}
-	Preconditions_checkState(cast_[*Reference](this.references.get(0)).isDeclaration())
+	Preconditions_checkState(this.references.get(0).isDeclaration())
 	var initBlock *BasicBlock = init_.getBasicBlock()
 	for i := int32(1); i < size; i++ {
-		if !initBlock.provablyExecutesBefore(cast_[*Reference](this.references.get(i)).getBasicBlock()) {
+		if !initBlock.provablyExecutesBefore(this.references.get(i).getBasicBlock()) {
 			return false
 		}
 	}
@@ -49,9 +49,9 @@ func (this *ReferenceCollection) isWellDefined() bool {
 
 func (this *ReferenceCollection) isEscaped() bool {
 	var closureScope *Scope = nil
-	it_1 := foreach_(any(this.references))
+	it_1 := this.references.each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		var refClosureScope *Scope = ReferenceCollection_getEnclosingClosureScope(ref.getScope())
 		if closureScope == nil {
 			closureScope = refClosureScope
@@ -76,9 +76,9 @@ func ReferenceCollection_getEnclosingClosureScope(scope *Scope) *Scope {
 
 func (this *ReferenceCollection) isThisRebound() bool {
 	var hoistScope *Scope = nil
-	it_1 := foreach_(any(this.references))
+	it_1 := this.references.each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		var refHoistScope *Scope = cast_[*Scope](ref.getScope().getClosestHoistScope().self())
 		if hoistScope == nil {
 			hoistScope = refHoistScope
@@ -98,7 +98,7 @@ func (this *ReferenceCollection) isThisRebound() bool {
 }
 
 func (this *ReferenceCollection) isInitializingDeclarationAt(index int32) bool {
-	var maybeInit *Reference = cast_[*Reference](this.references.get(index))
+	var maybeInit *Reference = this.references.get(index)
 	if maybeInit.isInitializingDeclaration() {
 		return true
 	}
@@ -107,10 +107,10 @@ func (this *ReferenceCollection) isInitializingDeclarationAt(index int32) bool {
 
 func (this *ReferenceCollection) isInitializingAssignmentAt(index int32) bool {
 	if (index < this.references.size()) && (index > 0) {
-		var maybeDecl *Reference = cast_[*Reference](this.references.get((index - 1)))
+		var maybeDecl *Reference = this.references.get((index - 1))
 		if maybeDecl.isVarDeclaration() || maybeDecl.isLetDeclaration() {
 			Preconditions_checkState(!maybeDecl.isInitializingDeclaration())
-			var maybeInit *Reference = cast_[*Reference](this.references.get(index))
+			var maybeInit *Reference = this.references.get(index)
 			if maybeInit.isSimpleAssignmentToName() {
 				return true
 			}
@@ -121,22 +121,22 @@ func (this *ReferenceCollection) isInitializingAssignmentAt(index int32) bool {
 
 func (this *ReferenceCollection) getInitializingReference() *Reference {
 	if this.isInitializingDeclarationAt(0) {
-		return cast_[*Reference](this.references.get(0))
+		return this.references.get(0)
 	} else if this.isInitializingAssignmentAt(1) && this.areInSameFile(0, 1) {
-		return cast_[*Reference](this.references.get(1))
+		return this.references.get(1)
 	}
 	return nil
 }
 
 func (this *ReferenceCollection) areInSameFile(ref0 int32, ref1 int32) bool {
-	return Objects_equals(obj_(cast_[*Reference](this.references.get(ref0)).getInputId()), obj_(cast_[*Reference](this.references.get(ref1)).getInputId()))
+	return Objects_equals(obj_(this.references.get(ref0).getInputId()), obj_(this.references.get(ref1).getInputId()))
 }
 
 func (this *ReferenceCollection) getInitializingReferenceForConstants() *Reference {
 	var size int32 = this.references.size()
 	for i := int32(0); i < size; i++ {
 		if this.isInitializingDeclarationAt(i) || this.isInitializingAssignmentAt(i) {
-			return cast_[*Reference](this.references.get(i))
+			return this.references.get(i)
 		}
 	}
 	return nil
@@ -168,9 +168,9 @@ func (this *ReferenceCollection) isAssignedOnceInLifetime() bool {
 }
 
 func (this *ReferenceCollection) isReferencedWeakly() bool {
-	it_1 := foreach_(any(this.references))
+	it_1 := this.references.each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		if NodeUtil_isGoogWeakUsageCall(ref.getParent()) {
 			return true
 		}
@@ -182,7 +182,7 @@ func (this *ReferenceCollection) getOneAndOnlyAssignment() *Reference {
 	var assignment *Reference = nil
 	var size int32 = this.references.size()
 	for i := int32(0); i < size; i++ {
-		var ref *Reference = cast_[*Reference](this.references.get(i))
+		var ref *Reference = this.references.get(i)
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			if assignment == nil {
 				assignment = ref
@@ -197,7 +197,7 @@ func (this *ReferenceCollection) getOneAndOnlyAssignment() *Reference {
 func (this *ReferenceCollection) isNeverAssigned() bool {
 	var size int32 = this.references.size()
 	for i := int32(0); i < size; i++ {
-		var ref *Reference = cast_[*Reference](this.references.get(i))
+		var ref *Reference = this.references.get(i)
 		if ref.isLvalue() || ref.isInitializingDeclaration() {
 			return false
 		}
@@ -207,9 +207,9 @@ func (this *ReferenceCollection) isNeverAssigned() bool {
 
 func (this *ReferenceCollection) firstReferenceIsAssigningDeclaration() bool {
 	var size int32 = this.references.size()
-	return ((size > 0) && cast_[*Reference](this.references.get(0)).isInitializingDeclaration())
+	return ((size > 0) && this.references.get(0).isInitializingDeclaration())
 }
 
 func (this *ReferenceCollection) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("initRef", obj_(this.getInitializingReference())).add("references", any(this.references)).add_String_boolean("wellDefined", this.isWellDefined()).add_String_boolean("assignedOnce", this.isAssignedOnceInLifetime())))
+	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("initRef", obj_(this.getInitializingReference())).add("references", any(listOf_(toSlice_(this)))).add_String_boolean("wellDefined", this.isWellDefined()).add_String_boolean("assignedOnce", this.isAssignedOnceInLifetime())))
 }

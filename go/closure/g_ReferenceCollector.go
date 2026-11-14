@@ -3,12 +3,12 @@
 package closure
 
 type ReferenceCollector struct {
-	referenceMap                            MapOf[*Var, *ReferenceCollection]
-	blockStack                              ArrayDequeOf[*BasicBlock]
+	referenceMap                            *HMap[*Var, *ReferenceCollection]
+	blockStack                              *ArrayDeque
 	behavior                                ReferenceCollector_Behavior
 	scopeCreator                            ScopeCreator
 	compiler_                               *AbstractCompiler
-	varFilter                               Predicate_baseOf[*Var]
+	varFilter                               Predicate_base
 	collectHoistedFunctionsInReferenceOrder bool
 	callback                                *ReferenceCollector_CollectorCallback
 	collectedHoistedFunctions               map[Node]struct{}
@@ -16,7 +16,7 @@ type ReferenceCollector struct {
 }
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
-	this.referenceMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.referenceMap = newHMap_[*Var, *ReferenceCollection]()
 	this.blockStack = new_ArrayDeque()
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
 	this.collectedHoistedFunctions = map[Node]struct{}{}
@@ -32,17 +32,17 @@ func new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(compiler *Abs
 	return this
 }
 
-func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_baseOf[*Var]) {
+func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_base) {
 	this.init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler, behavior, creator, varFilter, true)
 }
 
-func new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_baseOf[*Var]) *ReferenceCollector {
+func new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_base) *ReferenceCollector {
 	this := &ReferenceCollector{}
 	this.init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate(compiler, behavior, creator, varFilter)
 	return this
 }
 
-func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_baseOf[*Var], collectHoistedFunctionsInReferenceOrder bool) {
+func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_base, collectHoistedFunctionsInReferenceOrder bool) {
 	this.finit_ReferenceCollector()
 	this.compiler_ = compiler
 	this.behavior = behavior
@@ -51,7 +51,7 @@ func (this *ReferenceCollector) init_ReferenceCollector_AbstractCompiler_Behavio
 	this.collectHoistedFunctionsInReferenceOrder = collectHoistedFunctionsInReferenceOrder
 }
 
-func new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_baseOf[*Var], collectHoistedFunctionsInReferenceOrder bool) *ReferenceCollector {
+func new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler *AbstractCompiler, behavior ReferenceCollector_Behavior, creator ScopeCreator, varFilter Predicate_base, collectHoistedFunctionsInReferenceOrder bool) *ReferenceCollector {
 	this := &ReferenceCollector{}
 	this.init_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator_Predicate_boolean(compiler, behavior, creator, varFilter, collectHoistedFunctionsInReferenceOrder)
 	return this
@@ -83,7 +83,7 @@ func (this *ReferenceCollector) createTraversalBuilder() *NodeTraversal_Builder 
 }
 
 func (this *ReferenceCollector) getAllSymbols() Iterable {
-	return Iterable(this.referenceMap.keySet())
+	return Iterable(refMapKeysView_{this.referenceMap})
 }
 
 func (this *ReferenceCollector) getScope(var__ StaticSlot) StaticScope {
@@ -93,7 +93,7 @@ func (this *ReferenceCollector) getScope(var__ StaticSlot) StaticScope {
 }
 
 func (this *ReferenceCollector) getReferences_Var(v *Var) *ReferenceCollection {
-	return cast_[*ReferenceCollection](this.referenceMap.get(obj_(v)))
+	return this.referenceMap.get(v)
 }
 
 func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTraversal) {
@@ -102,7 +102,7 @@ func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTra
 	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || has_(this.collectedHoistedFunctions, fnNode) {
 		return
 	}
-	var oldBlockStack ArrayDequeOf[*BasicBlock] = this.blockStack
+	var oldBlockStack *ArrayDeque = this.blockStack
 	this.blockStack = new_ArrayDeque()
 	if varScope.isGlobal() {
 		SequencedCollection_addLast(icast_SequencedCollection(obj_(this.blockStack)), SequencedCollection_getFirst(icast_SequencedCollection(obj_(oldBlockStack))))
@@ -151,11 +151,13 @@ func (this *ReferenceCollector) addReference(v *Var, n Node, t *NodeTraversal) *
 	if !this.varFilter.apply(obj_(v)) {
 		return nil
 	}
-	var collection *ReferenceCollection = cast_[*ReferenceCollection](Map_computeIfAbsent(this.referenceMap, obj_(v), &Function_fn{func(k_ any) any {
-		var k *Var = cast_[*Var](k_)
-		_ = k
-		return obj_(new_ReferenceCollection())
-	}}))
+	var collection *ReferenceCollection
+	if i_, h_ := this.referenceMap.find(v); i_ >= 0 {
+		collection = this.referenceMap.vals[i_]
+	} else {
+		collection = new_ReferenceCollection()
+		this.referenceMap.insert(v, h_, collection)
+	}
 	var reference *Reference = new_Reference_Node_NodeTraversal_BasicBlock(n, t, cast_[*BasicBlock](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.blockStack)))))
 	collection.add(reference)
 	return reference

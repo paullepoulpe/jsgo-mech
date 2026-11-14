@@ -49,7 +49,7 @@ func InlineVariables_clinit() {
 
 type InlineVariables_Mode struct {
 	Enum
-	varPredicate Predicate_baseOf[*Var]
+	varPredicate Predicate_base
 }
 
 func (this *InlineVariables_Mode) up_Enum() *Enum {
@@ -59,12 +59,12 @@ func (this *InlineVariables_Mode) up_Enum() *Enum {
 	return &this.Enum
 }
 
-func (this *InlineVariables_Mode) init_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_baseOf[*Var]) {
+func (this *InlineVariables_Mode) init_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_base) {
 	this.Enum.init_Enum(name_, ordinal_)
 	this.varPredicate = varPredicate
 }
 
-func new_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_baseOf[*Var]) *InlineVariables_Mode {
+func new_InlineVariables_Mode(name_ string, ordinal_ int32, varPredicate Predicate_base) *InlineVariables_Mode {
 	this := &InlineVariables_Mode{}
 	this.self_ = this
 	this.init_InlineVariables_Mode(name_, ordinal_, varPredicate)
@@ -232,7 +232,7 @@ func (this *InlineVariables_InlineVarAnalysis) getAliasedVar() *Var {
 
 type InlineVariables_InliningBehavior struct {
 	outer_                            *InlineVariables
-	currentScopeHandledVarAnalysesMap LinkedHashMapOf[*Var, *InlineVariables_InlineVarAnalysis]
+	currentScopeHandledVarAnalysesMap *LinkedHashMap
 	varToAliasRetryHandlersMap        *SimpleSetMultimap
 }
 
@@ -289,9 +289,9 @@ func (this *InlineVariables_InliningBehavior) varsInThisScopeMayBeModifiedUsingA
 		var arguments *Var = cast_[*Var](scope.getArgumentsVar().self())
 		var refs *ReferenceCollection = referenceMap.getReferences_Var(arguments)
 		if (refs != nil) && !refs.references.isEmpty() {
-			it_1 := foreach_(any(refs.references))
+			it_1 := refs.references.each()
 			for it_1.next() {
-				var ref *Reference = cast_[*Reference](it_1.v)
+				var ref *Reference = it_1.v
 				if !this.isSafeUseOfArguments(ref.getNode()) {
 					return true
 				}
@@ -383,10 +383,10 @@ func (this *InlineVariables_InliningBehavior) inline(decl *Reference, init_ *Ref
 	}
 }
 
-func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, value Node, refSet ListOf[*Reference]) {
-	it_1 := foreach_(any(refSet))
+func (this *InlineVariables_InliningBehavior) inlineWellDefinedVariable(v *Var, value Node, refSet *TList[*Reference]) {
+	it_1 := refSet.each()
 	for it_1.next() {
-		var r *Reference = cast_[*Reference](it_1.v)
+		var r *Reference = it_1.v
 		if r.getNode() == v.getNameNode() {
 			this.removeDeclaration(r)
 		} else if r.isSimpleAssignmentToName() {
@@ -455,7 +455,7 @@ func (this *InlineVariables_InliningBehavior) canMoveAggressively(value Node) bo
 }
 
 func (this *InlineVariables_InliningBehavior) canMoveModerately(initialization *Reference, reference *Reference) bool {
-	var it IteratorOf[Node]
+	var it Iterator
 	if NodeUtil_isNameDeclaration(initialization.getParent()) {
 		it = icast_Iterator(obj_(NodeIterators_LocalVarMotion_forVar(this.outer_.compiler_, initialization.getNode(), initialization.getParent(), initialization.getGrandparent())))
 	} else if initialization.getParent().isAssign() {
@@ -578,7 +578,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) init_InlineVaria
 	this.finit_InlineVariables_InliningBehavior_StandardVarExpert()
 	this.v = initData.v
 	this.referenceInfo = initData.referenceInfo
-	this.declaration_ = cast_[*Reference](initData.referenceInfo.references.get(0))
+	this.declaration_ = initData.referenceInfo.references.get(0)
 	this.isDeclaredOrInferredConstant = initData.isDeclaredOrInferredConstant
 	this.mayBeAParameterModifiedViaArguments = initData.mayBeAParameterModifiedViaArguments
 }
@@ -670,9 +670,9 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) allReferencesAre
 		var neverAssigned bool = this.isNeverAssigned()
 		if hasValidDeclaration && (hasValidInitialization || neverAssigned) {
 			var initialization *Reference = this.getInitialization()
-			it_1 := foreach_(any(this.referenceInfo.references))
+			it_1 := this.referenceInfo.references.each()
 			for it_1.next() {
-				var ref *Reference = cast_[*Reference](it_1.v)
+				var ref *Reference = it_1.v
 				if ((ref != this.declaration_) && (ref != initialization)) && !this.outer_.isValidReference(ref) {
 					return unbox_[bool](this.allReferencesAreValidField.setKnownValueOnce(any(bool(false))))
 				}
@@ -732,7 +732,7 @@ func (this *InlineVariables_InliningBehavior_StandardVarExpert) analyzeWithIniti
 			return this.createInlineWellDefinedVarAnalysis(initValue).up_InlineVariables_InlineVarAnalysis()
 		}
 		if numReadRefs == 1 {
-			var singleReadReference *Reference = cast_[*Reference](this.referenceInfo.references.get(firstReadRefIndex))
+			var singleReadReference *Reference = this.referenceInfo.references.get(firstReadRefIndex)
 			if this.outer_.canInline(this.declaration_, initialization, singleReadReference, initValue) {
 				return new_InlineVariables_InliningBehavior_PositiveInlineVarAnalysis(&Runnable_fn{func() {
 					this.outer_.inline(this.declaration_, initialization, singleReadReference)

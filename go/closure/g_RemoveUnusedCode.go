@@ -9,9 +9,9 @@ type RemoveUnusedCode struct {
 	removeLocalVars_                               bool
 	removeGlobals_                                 bool
 	preserveFunctionExpressionNames_               bool
-	worklist                                       DequeOf[*RemoveUnusedCode_Continuation]
-	varInfoMap                                     LinkedHashMapOf[*Var, RemoveUnusedCode_VarInfo]
-	pinnedPropertyNames                            SetOf[string]
+	worklist                                       Deque
+	varInfoMap                                     *HMap[*Var, RemoveUnusedCode_VarInfo]
+	pinnedPropertyNames                            *OSet[string]
 	removablesForPropertyNames                     *SimpleSetMultimap
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         []*Scope
@@ -32,8 +32,9 @@ type RemoveUnusedCode struct {
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = icast_Deque(obj_(new_ArrayDeque()))
-	this.varInfoMap = new_LinkedHashMap()
-	this.pinnedPropertyNames = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)))))
+	this.varInfoMap = newHMap_[*Var, RemoveUnusedCode_VarInfo]()
+	this.pinnedPropertyNames = newOSet_[string]()
+	strSetAddAll_(this.pinnedPropertyNames, obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered()
 	this.allFunctionParamScopes = []*Scope{}
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered()
@@ -68,7 +69,7 @@ func new_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) *RemoveUnusedCode {
 
 func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	this.pinnedPropertyNames.addAll(icast_Collection(obj_(this.compiler_.getExternProperties())))
+	strSetAddAll_(this.pinnedPropertyNames, obj_(this.compiler_.getExternProperties()))
 	_ = func() (code_ int) {
 		defer func() {
 			this.removalLog = nil
@@ -345,7 +346,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 		this.traverseNode(callNode.getFirstChild(), scope)
 	} else {
 		var parent Node = callNode.getParent()
-		var classVarName OptionalOf[string] = Optional_empty()
+		var classVarName *Optional = Optional_empty()
 		var classDefiningCall bool = false
 		if parent.isExprResult() || (parent.isComma() && (parent.getFirstChild() == callNode)) {
 			var subclassRelationship *CodingConvention_SubclassRelationship = this.codingConvention.getClassesDefinedByCall(callNode)
@@ -898,7 +899,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 }
 
 func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
-	if Collection_add_s(this.pinnedPropertyNames, propertyName) {
+	if this.pinnedPropertyNames.add(propertyName) {
 		it_1 := foreach_(any(this.removablesForPropertyNames.removeAll(strobj_(propertyName))))
 		for it_1.next() {
 			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_1.v)
@@ -910,7 +911,7 @@ func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
 func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnusedCode_Removable) {
 	if removable.isNamedProperty() {
 		var propertyName string = removable.getPropertyName()
-		if Collection_contains_s(this.pinnedPropertyNames, propertyName) || this.codingConvention.isExported_2(propertyName, false) {
+		if this.pinnedPropertyNames.has(propertyName) || this.codingConvention.isExported_2(propertyName, false) {
 			removable.applyContinuations()
 		} else if this.isIndependentlyRemovable(removable) {
 			this.removablesForPropertyNames.put(strobj_(propertyName), removable.self())
@@ -1066,7 +1067,11 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	} else if var_.isArguments() {
 		return this.canonicalUnremovableVarInfo
 	} else {
-		var varInfo RemoveUnusedCode_VarInfo = icast_RemoveUnusedCode_VarInfo(this.varInfoMap.get(obj_(var_)))
+		i_, h_ := this.varInfoMap.find(var_)
+		var varInfo RemoveUnusedCode_VarInfo
+		if i_ >= 0 {
+			varInfo = this.varInfoMap.vals[i_]
+		}
 		if varInfo == nil {
 			varInfo = icast_RemoveUnusedCode_VarInfo(obj_(new_RemoveUnusedCode_RealVarInfo(this, var_.getName())))
 			if var_.getParentNode().isParamList() {
@@ -1081,7 +1086,7 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 					return strobj_("not removing locals")
 				}})
 			}
-			this.varInfoMap.put(obj_(var_), any(varInfo))
+			this.varInfoMap.insert(var_, h_, varInfo)
 		}
 		return varInfo
 	}
@@ -1089,11 +1094,10 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 }
 
 func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
-	it_1 := foreach_(any(this.varInfoMap.entrySet()))
+	it_1 := this.varInfoMap.each()
 	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		var var_ *Var = cast_[*Var](entry.getKey())
-		var varInfo RemoveUnusedCode_VarInfo = icast_RemoveUnusedCode_VarInfo(entry.getValue())
+		var var_ *Var = it_1.k
+		var varInfo RemoveUnusedCode_VarInfo = it_1.v
 		if !varInfo.isRemovable() {
 			continue
 		}
@@ -1112,7 +1116,7 @@ func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
 			Preconditions_checkState_boolean_String_Object((toRemove.isParamList() || (toRemove.getParent().isParamList() && (toRemove.isDefaultValue() || toRemove.isRest()))), "unremoved code: %s", toRemove.box_())
 		}
 	}
-	var iter IteratorOf[*RemoveUnusedCode_PolyfillInfo] = this.polyfills.values().iterator()
+	var iter Iterator = this.polyfills.values().iterator()
 	for iter.hasNext() {
 		var polyfill *RemoveUnusedCode_PolyfillInfo = to_RemoveUnusedCode_PolyfillInfo(iter.next())
 		if polyfill.isRemovable_ {
@@ -1312,34 +1316,34 @@ func (this *RemoveUnusedCode_Builder) build() *RemoveUnusedCode {
 
 type RemoveUnusedCode_RemovalLogRecord struct {
 	kind_                string
-	nameSupplier         SupplierOf[string]
-	functionNameSupplier SupplierOf[string]
+	nameSupplier         Supplier
+	functionNameSupplier Supplier
 }
 
 func (this *RemoveUnusedCode_RemovalLogRecord) zero_RemoveUnusedCode_RemovalLogRecord() {
 	this.kind_ = nullstr_
 }
 
-func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier Supplier, functionNameSupplier Supplier) {
 	this.kind_ = kind
 	this.nameSupplier = icast_Supplier(Preconditions_checkNotNull(any(nameSupplier)))
 	this.functionNameSupplier = icast_Supplier(Preconditions_checkNotNull(any(functionNameSupplier)))
 }
 
-func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier SupplierOf[string], functionNameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
+func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind string, nameSupplier Supplier, functionNameSupplier Supplier) *RemoveUnusedCode_RemovalLogRecord {
 	this := &RemoveUnusedCode_RemovalLogRecord{}
 	this.zero_RemoveUnusedCode_RemovalLogRecord()
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, functionNameSupplier)
 	return this
 }
 
-func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RemovalLogRecord) init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier Supplier) {
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier_Supplier(kind, nameSupplier, &Supplier_fn{func() any {
 		return strobj_("")
 	}})
 }
 
-func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier SupplierOf[string]) *RemoveUnusedCode_RemovalLogRecord {
+func new_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind string, nameSupplier Supplier) *RemoveUnusedCode_RemovalLogRecord {
 	this := &RemoveUnusedCode_RemovalLogRecord{}
 	this.zero_RemoveUnusedCode_RemovalLogRecord()
 	this.init_RemoveUnusedCode_RemovalLogRecord_String_Supplier(kind, nameSupplier)
@@ -1380,7 +1384,7 @@ func RemoveUnusedCode_RemovalLogRecord_forMarkingNamedArg(nameNode Node, argList
 
 func RemoveUnusedCode_RemovalLogRecord_getLoggableFunctionNameSupplier(argList Node) Supplier {
 	return &Supplier_fn{func() any {
-		var functionName OptionalOf[string] = NodeUtil_getNearestFunctionName(Node_of_(Preconditions_checkNotNull(argList.box_())).getParent())
+		var functionName *Optional = NodeUtil_getNearestFunctionName(Node_of_(Preconditions_checkNotNull(argList.box_())).getParent())
 		return functionName.orElse(strobj_("<anonymous>"))
 		panic("unreachable")
 	}}
@@ -1415,8 +1419,8 @@ func (this *RemoveUnusedCode_Continuation) apply() {
 type RemoveUnusedCode_Removable struct {
 	self_                                any
 	outer_                               *RemoveUnusedCode
-	continuations                        ListOf[*RemoveUnusedCode_Continuation]
-	propertyName_                        OptionalOf[string]
+	continuations                        List
+	propertyName_                        *Optional
 	targetNode                           Node
 	isPrototypeDotPropertyReferenceField bool
 	isThisDotPropertyReferenceField      bool
@@ -1594,8 +1598,8 @@ func (this *RemoveUnusedCode_Removable) isPrototypeProperty() bool {
 
 type RemoveUnusedCode_RemovableBuilder struct {
 	outer_                           *RemoveUnusedCode
-	continuations                    ListOf[*RemoveUnusedCode_Continuation]
-	propertyName_                    OptionalOf[string]
+	continuations                    List
+	propertyName_                    *Optional
 	isPrototypeDotPropertyReference_ bool
 	isThisDotPropertyReference_      bool
 }
@@ -2670,7 +2674,7 @@ func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) isRemovable() bool {
 	return false
 }
 
-func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) setIsExplicitlyNotRemovable(reasonSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_CanonicalUnremovableVarInfo) setIsExplicitlyNotRemovable(reasonSupplier Supplier) {
 
 }
 
@@ -2753,7 +2757,7 @@ func (this *RemoveUnusedCode_RealVarInfo) isRemovable() bool {
 	return this.isEntirelyRemovable
 }
 
-func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupplier SupplierOf[string]) {
+func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupplier Supplier) {
 	if this.isEntirelyRemovable {
 		this.isEntirelyRemovable = false
 		this.outer_.unremovableLog.logString(String_format("%s: %s", []any{strobj_(this.varName_), reasonSupplier.get()}))

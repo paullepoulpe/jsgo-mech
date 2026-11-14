@@ -4,8 +4,8 @@ package closure
 
 type AbstractScope struct {
 	self_        any
-	vars         MapOf[string, any]
-	implicitVars MapOf[*AbstractScope_ImplicitVar, any]
+	vars         *OMap[string, *AbstractVar]
+	implicitVars Map
 	rootNode_    Node
 }
 
@@ -31,7 +31,7 @@ func (this *AbstractScope) self() any {
 }
 
 func (this *AbstractScope) finit_AbstractScope() {
-	this.vars = icast_Map(obj_(ImmutableMap_of()))
+	this.vars = nil
 	this.implicitVars = icast_Map(obj_(ImmutableMap_of()))
 }
 
@@ -81,25 +81,24 @@ func (this *AbstractScope) getParentScope() StaticScope {
 
 func (this *AbstractScope) undeclare(var_ *AbstractVar) {
 	Preconditions_checkState((to_AbstractScope(var_.getScope()) == this))
-	Preconditions_checkState(to_AbstractVar(Map_get_s(this.vars, var_.getName())).equals(var_.self()))
+	Preconditions_checkState(this.vars.get(var_.getName()).equals(var_.self()))
 	this.undeclareInteral(var_)
 }
 
 func (this *AbstractScope) undeclareInteral(var_ *AbstractVar) {
-	Map_remove_s(this.vars, var_.getName())
+	this.vars.remove(var_.getName())
 }
 
 func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 	Preconditions_checkState_boolean_String_Object((this.hasOwnSlot(name) || this.canDeclare(name)), "Illegal shadow: %s", var_.getNode().box_())
-	var emptySentinel ImmutableMapOf[string, any] = ImmutableMap_of()
-	if any(this.vars) == obj_(emptySentinel) {
-		this.vars = icast_Map(obj_(Maps_newLinkedHashMapWithExpectedSize(1)))
+	if this.vars == nil {
+		this.vars = newOMap_[string, *AbstractVar]()
 	}
-	Map_put_s(this.vars, name, var_.self())
+	this.vars.put(name, var_)
 }
 
 func (this *AbstractScope) clearVarsInternal() {
-	if !this.vars.isEmpty() {
+	if this.vars != nil && !this.vars.isEmpty() {
 		this.vars.clear()
 	}
 }
@@ -109,7 +108,7 @@ func (this *AbstractScope) hasOwnImplicitSlot_impl(name *AbstractScope_ImplicitV
 }
 
 func (this *AbstractScope) hasOwnSlot(name string) bool {
-	return (Map_containsKey_s(this.vars, name) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
+	return ((this.vars != nil && this.vars.has(name)) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
 }
 
 func (this *AbstractScope) hasSlot(name string) bool {
@@ -128,7 +127,7 @@ func (this *AbstractScope) getOwnImplicitSlot(name *AbstractScope_ImplicitVar) *
 	if !this.hasOwnImplicitSlot(name) {
 		return nil
 	}
-	var emptySentinel ImmutableMapOf[*AbstractScope_ImplicitVar, any] = ImmutableMap_of()
+	var emptySentinel *ImmutableMap = ImmutableMap_of()
 	if any(this.implicitVars) == obj_(emptySentinel) {
 		this.implicitVars = icast_Map(obj_(new_EnumMap(classOf_("com.google.javascript.jscomp.AbstractScope.ImplicitVar"))))
 	}
@@ -136,7 +135,10 @@ func (this *AbstractScope) getOwnImplicitSlot(name *AbstractScope_ImplicitVar) *
 }
 
 func (this *AbstractScope) getOwnSlot(name string) StaticSlot {
-	var var_ *AbstractVar = to_AbstractVar(Map_get_s(this.vars, name))
+	var var_ *AbstractVar
+	if this.vars != nil {
+		var_ = this.vars.get(name)
+	}
 	if var_ != nil {
 		return icast_StaticSlot(var_.self())
 	}
@@ -183,11 +185,11 @@ func (this *AbstractScope) isBleedingFunctionName(name string) bool {
 }
 
 func (this *AbstractScope) getVarIterable() Iterable {
-	return Iterable(this.vars.values())
+	return Iterable(scopeVarsView_{this.vars})
 }
 
 func (this *AbstractScope) getAllAccessibleVariables() Iterable {
-	var accessibleVars MapOf[string, any] = icast_Map(obj_(new_LinkedHashMap()))
+	var accessibleVars Map = icast_Map(obj_(new_LinkedHashMap()))
 	var s *AbstractScope = this.thisScope()
 	for s != nil {
 		it_2 := foreach_(any(s.getVarIterable()))
@@ -201,10 +203,13 @@ func (this *AbstractScope) getAllAccessibleVariables() Iterable {
 }
 
 func (this *AbstractScope) getAllSymbols() Iterable {
-	return Iterable(Collections_unmodifiableCollection(this.vars.values()))
+	return Iterable(scopeVarsView_{this.vars})
 }
 
 func (this *AbstractScope) getVarCount() int32 {
+	if this.vars == nil {
+		return 0
+	}
 	return this.vars.size()
 }
 
