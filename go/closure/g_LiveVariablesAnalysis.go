@@ -7,7 +7,7 @@ type LiveVariablesAnalysis struct {
 	jsScope *Scope
 	jsScopeChild *Scope
 	escaped SetOf[*Var]
-	scopeVariables MapOf[string, BoxedOf[int32]]
+	scopeVariables map[string]BoxedOf[int32]
 	orderedVars ListOf[*Var]
 	allVarsInFn MapOf[string, *Var]
 }
@@ -25,7 +25,7 @@ func (this *LiveVariablesAnalysis) init_LiveVariablesAnalysis(cfg *ControlFlowGr
 	this.jsScope = jsScope
 	this.jsScopeChild = jsScopeChild
 	this.escaped = icast_Set(obj_(new_LinkedHashSet()))
-	this.scopeVariables = icast_Map(obj_(new_LinkedHashMap()))
+	this.scopeVariables = map[string]BoxedOf[int32]{}
 	this.orderedVars = allVarsDeclaredInFunction.getAllVariablesInOrder()
 	this.allVarsInFn = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(jsScope, this.escaped, compiler, scopeCreator, this.allVarsInFn)
@@ -44,7 +44,7 @@ func (this *LiveVariablesAnalysis) addScopeVariables() {
 	it_1 := foreach_(any(this.orderedVars))
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
-		Map_put_s(this.scopeVariables, v.getName(), any(int32(num)))
+		this.scopeVariables[v.getName()] = any(int32(num))
 		num++
 	}
 }
@@ -62,7 +62,7 @@ func (this *LiveVariablesAnalysis) getAllVariablesInOrder() List {
 }
 
 func (this *LiveVariablesAnalysis) getVarIndex(var_ string) int32 {
-	return unbox_[int32](Map_get_s(this.scopeVariables, var_))
+	return unbox_[int32](this.scopeVariables[var_])
 }
 
 func (this *LiveVariablesAnalysis) isForward_impl() bool {

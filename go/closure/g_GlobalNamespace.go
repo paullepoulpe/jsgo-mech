@@ -8,7 +8,7 @@ type GlobalNamespace struct {
 	root Node
 	externsRoot Node
 	globalRoot Node
-	spreadSiblingCache LinkedHashMapOf[Node, BoxedOf[bool]]
+	spreadSiblingCache map[Node]BoxedOf[bool]
 	sourceKind *GlobalNamespace_SourceKind
 	generated bool
 	decisionsLog *LogFile
@@ -20,7 +20,7 @@ type GlobalNamespace struct {
 
 func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
-	this.spreadSiblingCache = new_LinkedHashMap()
+	this.spreadSiblingCache = map[Node]BoxedOf[bool]{}
 	this.generated = false
 	this.globalNames = icast_List(new_ArrayList_0().self())
 	this.nameMap = icast_Map(obj_(new_LinkedHashMap()))
@@ -193,7 +193,7 @@ func (this *GlobalNamespace) getNameFromModule(moduleMetadata *ModuleMetadataMap
 
 func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declaration Node) bool {
 	Preconditions_checkState_boolean_Object(declaration.getParent().isObjectLit(), declaration.box_())
-	var cached any = this.spreadSiblingCache.get(declaration.box_())
+	var cached any = this.spreadSiblingCache[declaration]
 	if (cached != nil) {
 		return unbox_[bool](cached)
 	}
@@ -204,10 +204,10 @@ func (this *GlobalNamespace) declarationHasFollowingObjectSpreadSibling(declarat
 			if sibling.isSpread() {
 				toCache = true
 			}
-			this.spreadSiblingCache.put(sibling.box_(), any(bool(toCache)))
+			this.spreadSiblingCache[sibling] = any(bool(toCache))
 		}
 	}
-	return unbox_[bool](this.spreadSiblingCache.get(declaration.box_()))
+	return unbox_[bool](this.spreadSiblingCache[declaration])
 }
 
 func (this *GlobalNamespace) createNameForTesting(name string) *GlobalNamespace_Name {

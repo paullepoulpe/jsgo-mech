@@ -10,15 +10,15 @@ type InstrumentAsyncContext struct {
 	shouldInstrumentAwait bool
 	tryFunctionStack DequeOf[Node]
 	needsInstrumentation MapOf[Node, *InstrumentAsyncContext_FunctionContext]
-	alreadyInstrumented SetOf[Node]
-	hasSuper SetOf[Node]
+	alreadyInstrumented map[Node]struct{}
+	hasSuper map[Node]struct{}
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
 	this.tryFunctionStack = icast_Deque(obj_(new_ArrayDeque()))
 	this.needsInstrumentation = icast_Map(obj_(new_LinkedHashMap()))
-	this.alreadyInstrumented = icast_Set(obj_(new_LinkedHashSet()))
-	this.hasSuper = icast_Set(obj_(new_LinkedHashSet()))
+	this.alreadyInstrumented = map[Node]struct{}{}
+	this.hasSuper = map[Node]struct{}{}
 }
 
 func (this *InstrumentAsyncContext) init_InstrumentAsyncContext(compiler *AbstractCompiler, shouldInstrumentAwait bool) {
@@ -59,14 +59,14 @@ func (this *InstrumentAsyncContext) isReentrance(n Node) bool {
 
 func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node) {
 	if (n.isName() && String_startsWith(n.getString(), InstrumentAsyncContext_FACTORY)) {
-		this.alreadyInstrumented.add(t.getEnclosingFunction().box_())
+		this.alreadyInstrumented[t.getEnclosingFunction()] = struct{}{}
 	} else if n.isSuper() {
-		this.hasSuper.add(t.getEnclosingFunction().box_())
+		this.hasSuper[t.getEnclosingFunction()] = struct{}{}
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
 	} else if Object_equals(n.box_(), this.tryFunctionStack.peek()) {
 		this.tryFunctionStack.pop()
-		if this.alreadyInstrumented.contains(n.box_()) {
+		if has_(this.alreadyInstrumented, n) {
 			return
 		}
 		var context *InstrumentAsyncContext_FunctionContext = func() *InstrumentAsyncContext_FunctionContext { if n.isGeneratorFunction() { return cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation, n.box_(), &Function_fn{func(unused_ any) any {
@@ -96,7 +96,7 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 	var enclosingFunction Node = t.getEnclosingFunction()
 	if (enclosingFunction == 0) {
 		return
-	} else if this.alreadyInstrumented.contains(enclosingFunction.box_()) {
+	} else if has_(this.alreadyInstrumented, enclosingFunction) {
 		return
 	} else if parent.isFunction() {
 		return
@@ -160,7 +160,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorFunction(t *NodeTraversal
 	if !f.getLastChild().hasChildren() {
 		return
 	}
-	if this.hasSuper.contains(f.box_()) {
+	if has_(this.hasSuper, f) {
 		this.instrumentGeneratorMethod(t, f, functionContext)
 		return
 	}

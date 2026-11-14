@@ -3,12 +3,12 @@
 package closure
 
 type MemoizedScopeCreator struct {
-	scopesByScopeRoot MapOf[Node, *AbstractScope]
+	scopesByScopeRoot map[Node]*AbstractScope
 	delegate ScopeCreator
 }
 
 func (this *MemoizedScopeCreator) finit_MemoizedScopeCreator() {
-	this.scopesByScopeRoot = icast_Map(obj_(new_LinkedHashMap()))
+	this.scopesByScopeRoot = map[Node]*AbstractScope{}
 }
 
 func (this *MemoizedScopeCreator) init_MemoizedScopeCreator(delegate ScopeCreator) {
@@ -23,10 +23,10 @@ func new_MemoizedScopeCreator(delegate ScopeCreator) *MemoizedScopeCreator {
 }
 
 func (this *MemoizedScopeCreator) createScopeAbstractScope(n Node, parent *AbstractScope) *AbstractScope {
-	var scope *AbstractScope = to_AbstractScope(this.scopesByScopeRoot.get(n.box_()))
+	var scope *AbstractScope = this.scopesByScopeRoot[n]
 	if (scope == nil) {
 		scope = this.delegate.createScopeAbstractScope(n, parent)
-		this.scopesByScopeRoot.put(n.box_(), scope.self())
+		this.scopesByScopeRoot[n] = scope
 	} else {
 		Preconditions_checkState((parent == scope.getParent()))
 	}

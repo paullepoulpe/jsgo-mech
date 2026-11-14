@@ -1814,14 +1814,14 @@ func (this *JsDocInfoParser) parseRecordType(token *JsDocToken) Node {
 
 func (this *JsDocInfoParser) parseFieldTypeList(token *JsDocToken) Node {
 	var fieldTypeList Node = this.newNode(Token_rhino_LB)
-	var names SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var names map[string]struct{} = map[string]struct{}{}
 	for do_2 := true; do_2; do_2 = true {
 		var fieldType Node = this.parseFieldType(token)
 		if (fieldType == 0) {
 			return 0
 		}
 		var name string = func() string { if fieldType.isStringKey() { return fieldType.getString() }; return fieldType.getFirstChild().getString() }()
-		if Collection_add_s(names, name) {
+		if setAdd_(names, name) {
 			fieldTypeList.addChildToBack(fieldType)
 		} else {
 			this.addTypeWarning_2(Msg_JSDOC_TYPE_RECORD_DUPLICATE, name)

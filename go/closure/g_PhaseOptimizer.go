@@ -11,7 +11,7 @@ type PhaseOptimizer struct {
 	validityCheck *PassFactory
 	printAstHashcodes bool
 	currentPass *PhaseOptimizer_NamedPass
-	lastRuns MapOf[*PhaseOptimizer_NamedPass, BoxedOf[int32]]
+	lastRuns map[*PhaseOptimizer_NamedPass]BoxedOf[int32]
 	lastChange int32
 	jsRoot Node
 	useSizeHeuristicToStopOptimizationLoop bool
@@ -137,7 +137,7 @@ func (this *PhaseOptimizer) hasScopeChanged(n Node) bool {
 	if !this.inLoop_ {
 		return true
 	}
-	var timeOfLastRun int32 = unbox_[int32](this.lastRuns.get(obj_(this.currentPass)))
+	var timeOfLastRun int32 = unbox_[int32](this.lastRuns[this.currentPass])
 	return ((timeOfLastRun == PhaseOptimizer_START_TIME) || (n.getChangeTime() > timeOfLastRun))
 }
 
@@ -305,7 +305,7 @@ func (this *PhaseOptimizer_ScopedChangeHandler) hasCodeChangedSinceLastCall() bo
 type PhaseOptimizer_Loop struct {
 	outer_ *PhaseOptimizer
 	myPasses []*PhaseOptimizer_NamedPass
-	myNames SetOf[string]
+	myNames map[string]struct{}
 	scopeHandler *PhaseOptimizer_ScopedChangeHandler
 	isCodeRemovalLoopField bool
 	howmanyIterationsUnderThreshold int32
@@ -313,7 +313,7 @@ type PhaseOptimizer_Loop struct {
 
 func (this *PhaseOptimizer_Loop) finit_PhaseOptimizer_Loop() {
 	this.myPasses = []*PhaseOptimizer_NamedPass{}
-	this.myNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.myNames = map[string]struct{}{}
 	this.isCodeRemovalLoopField = false
 	this.howmanyIterationsUnderThreshold = 0
 }
@@ -331,8 +331,8 @@ func new_PhaseOptimizer_Loop(outer_ *PhaseOptimizer) *PhaseOptimizer_Loop {
 
 func (this *PhaseOptimizer_Loop) addLoopedPass(factory *PassFactory) {
 	var name string = factory.getName()
-	Preconditions_checkArgument_boolean_String_Object(!Collection_contains_s(this.myNames, name), "Already a pass with name '%s' in this loop", strobj_(name))
-	Collection_add_s(this.myNames, name)
+	Preconditions_checkArgument_boolean_String_Object(!has_(this.myNames, name), "Already a pass with name '%s' in this loop", strobj_(name))
+	this.myNames[name] = struct{}{}
 	this.myPasses = append(this.myPasses, new_PhaseOptimizer_NamedPass(this.outer_, factory))
 }
 
@@ -342,15 +342,15 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 	this.isCodeRemovalLoopField = this.isCodeRemovalLoop()
 	this.scopeHandler = new_PhaseOptimizer_ScopedChangeHandler(this.outer_)
 	this.outer_.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
-	this.outer_.lastRuns = icast_Map(obj_(new_LinkedHashMap()))
+	this.outer_.lastRuns = map[*PhaseOptimizer_NamedPass]BoxedOf[int32]{}
 	it_1 := eachOf_(&this.myPasses)
 	for it_1.next() {
 		var pass *PhaseOptimizer_NamedPass = it_1.v
-		this.outer_.lastRuns.put(obj_(pass), any(int32(PhaseOptimizer_START_TIME)))
+		this.outer_.lastRuns[pass] = any(int32(PhaseOptimizer_START_TIME))
 	}
 	var madeChanges SetOf[*PhaseOptimizer_NamedPass] = icast_Set(obj_(new_LinkedHashSet()))
 	var runInPrevIter SetOf[*PhaseOptimizer_NamedPass] = icast_Set(obj_(new_LinkedHashSet()))
-	var didNotMakeChanges SetOf[*PhaseOptimizer_NamedPass] = icast_Set(obj_(new_LinkedHashSet()))
+	var didNotMakeChanges map[*PhaseOptimizer_NamedPass]struct{} = map[*PhaseOptimizer_NamedPass]struct{}{}
 	var state *PhaseOptimizer_State = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
 	var lastIterMadeChanges bool
 	var count int32 = 1
@@ -373,21 +373,21 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 			it_5 := eachOf_(&this.myPasses)
 			for it_5.next() {
 				var pass *PhaseOptimizer_NamedPass = it_5.v
-				if ((((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(obj_(pass))) && !didNotMakeChanges.contains(obj_(pass))) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(obj_(pass)))) {
+				if ((((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(obj_(pass))) && !has_(didNotMakeChanges, pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(obj_(pass)))) {
 					this.outer_.changeTracker.incrementChangeStamp()
 					this.outer_.currentPass = pass
 					pass.process_2(externs, root)
 					runInPrevIter.add(obj_(pass))
-					this.outer_.lastRuns.put(obj_(pass), any(int32(this.outer_.changeTracker.getChangeStamp())))
+					this.outer_.lastRuns[pass] = any(int32(this.outer_.changeTracker.getChangeStamp()))
 					if this.outer_.hasHaltingErrors() {
 						return 1
 					} else if this.scopeHandler.hasCodeChangedSinceLastCall() {
 						madeChanges.add(obj_(pass))
-						didNotMakeChanges.clear()
+						clear(didNotMakeChanges)
 						lastIterMadeChanges = true
 					} else {
 						madeChanges.remove_Object(obj_(pass))
-						didNotMakeChanges.add(obj_(pass))
+						didNotMakeChanges[pass] = struct{}{}
 					}
 				} else {
 					runInPrevIter.remove_Object(obj_(pass))

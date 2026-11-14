@@ -1259,7 +1259,7 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) toString() string {
 
 type Es6NormalizeClasses_ClassRecord struct {
 	privateMembers []*Es6NormalizeClasses_ClassRecord_PrivateMember
-	privateMembersByName MapOf[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembersByName map[string]*Es6NormalizeClasses_ClassRecord_PrivateMember
 	privateMapVarName OptionalOf[string]
 	staticPrivateMapVarName OptionalOf[string]
 	hasInstancePrivateMembers bool
@@ -1282,7 +1282,7 @@ type Es6NormalizeClasses_ClassRecord struct {
 
 func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassRecord() {
 	this.privateMembers = []*Es6NormalizeClasses_ClassRecord_PrivateMember{}
-	this.privateMembersByName = icast_Map(obj_(new_LinkedHashMap()))
+	this.privateMembersByName = map[string]*Es6NormalizeClasses_ClassRecord_PrivateMember{}
 	this.privateMapVarName = Optional_empty()
 	this.staticPrivateMapVarName = Optional_empty()
 	this.hasInstancePrivateMembers = false
@@ -1329,8 +1329,8 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 		panic(new_IllegalStateException_String(("Unexpected node for private member: " + objstr_(n.box_()))).self())
 	}
 	var pm *Es6NormalizeClasses_ClassRecord_PrivateMember
-	if Map_containsKey_s(this.privateMembersByName, name) {
-		pm = cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](Map_get_s(this.privateMembersByName, name))
+	if has_(this.privateMembersByName, name) {
+		pm = this.privateMembersByName[name]
 		pm.declarationNodes.add(n.box_())
 		if n.isGetterDef() {
 			pm.getterNode = n
@@ -1340,7 +1340,7 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 	} else {
 		pm = new_Es6NormalizeClasses_ClassRecord_PrivateMember(name, kind, isStatic, n)
 		this.privateMembers = append(this.privateMembers, pm)
-		Map_put_s(this.privateMembersByName, name, obj_(pm))
+		this.privateMembersByName[name] = pm
 	}
 	if (((kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) || (kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR)) && !isStatic) {
 		this.hasInstancePrivateMethodsOrAccessors = true
@@ -1353,11 +1353,11 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) hasPrivateMember(name string) bool {
-	return Map_containsKey_s(this.privateMembersByName, name)
+	return has_(this.privateMembersByName, name)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMember(name string) *Es6NormalizeClasses_ClassRecord_PrivateMember {
-	return cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](Map_get_s(this.privateMembersByName, name))
+	return this.privateMembersByName[name]
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMapVarName(compiler *AbstractCompiler, t *NodeTraversal) *Optional {

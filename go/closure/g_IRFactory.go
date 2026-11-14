@@ -10,7 +10,7 @@ type IRFactory struct {
 	errorReporter ErrorReporter_rhino
 	transformDispatcher *IRFactory_TransformDispatcher
 	reservedKeywords ImmutableSetOf[string]
-	parsedComments SetOf[*Comment]
+	parsedComments map[*Comment]struct{}
 	licenseBuilder LinkedHashSetOf[string]
 	firstFileoverview *JSDocInfo
 	templateNode Node
@@ -26,7 +26,7 @@ type IRFactory struct {
 }
 
 func (this *IRFactory) finit_IRFactory() {
-	this.parsedComments = icast_Set(obj_(new_LinkedHashSet()))
+	this.parsedComments = map[*Comment]struct{}{}
 	this.licenseBuilder = new_LinkedHashSet()
 	this.firstFileoverview = nil
 	this.currentFileIsExterns = false
@@ -92,7 +92,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 		it_1 := foreach_(obj_(tree.sourceComments))
 		for it_1.next() {
 			var comment *Comment = cast_[*Comment](it_1.v)
-			if (((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.contains(obj_(comment))) {
+			if (((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !has_(irFactory.parsedComments, comment)) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
 			}
@@ -364,7 +364,7 @@ func (this *IRFactory) validateParameters(n Node) {
 	if !n.isParamList() {
 		return
 	}
-	var seenNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var seenNames map[string]struct{} = map[string]struct{}{}
 	{
 		var c Node = n.getFirstChild()
 		for ; (c != 0); c = c.getNext() {
@@ -372,7 +372,7 @@ func (this *IRFactory) validateParameters(n Node) {
 				var param Node = Node_of_(param_)
 				_ = param
 				var paramName string = param.getString()
-				if !Collection_add_s(seenNames, paramName) {
+				if !setAdd_(seenNames, paramName) {
 					this.errorReporter.warning(String_format(IRFactory_DUPLICATE_PARAMETER, []any{strobj_(paramName)}), this.sourceName_, param.getLineno(), param.getCharno())
 				}
 			}})
@@ -438,7 +438,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 
 func (this *IRFactory) handlePossibleFileOverviewJsDoc_2(comment *Comment, useLicensesOnlyConfig bool) {
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser_2(comment, useLicensesOnlyConfig)
-	this.parsedComments.add(obj_(comment))
+	this.parsedComments[comment] = struct{}{}
 	this.handlePossibleFileOverviewJsDoc(jsDocParser)
 }
 
@@ -460,7 +460,7 @@ func (this *IRFactory) parseJSDocInfoFrom(comment *Comment) *JSDocInfo {
 		return nil
 	}
 	var jsDocParser *JsDocInfoParser = this.createJsDocInfoParser(comment)
-	this.parsedComments.add(obj_(comment))
+	this.parsedComments[comment] = struct{}{}
 	if this.handlePossibleFileOverviewJsDoc(jsDocParser) {
 		return nil
 	}
@@ -529,7 +529,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		result.append(currentComment.value_)
 		lastComment = currentComment
 		if commentFromJsdocTracker {
-			this.parsedComments.add(obj_(currentComment))
+			this.parsedComments[currentComment] = struct{}{}
 			this.jsdocTracker.advance()
 		} else {
 			this.nonJsdocTracker.advance()

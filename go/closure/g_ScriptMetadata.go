@@ -5,13 +5,13 @@ package closure
 type ScriptMetadata struct {
 	script_ Node
 	supportsRequireAliasesField bool
-	requireAliases LinkedHashMapOf[string, string]
-	namesInUse LinkedHashSetOf[string]
+	requireAliases map[string]string
+	namesInUse map[string]struct{}
 }
 
 func (this *ScriptMetadata) finit_ScriptMetadata() {
-	this.requireAliases = new_LinkedHashMap()
-	this.namesInUse = new_LinkedHashSet()
+	this.requireAliases = map[string]string{}
+	this.namesInUse = map[string]struct{}{}
 }
 
 func (this *ScriptMetadata) init_ScriptMetadata(script Node) {
@@ -33,7 +33,7 @@ func ScriptMetadata_create(script Node, compiler *AbstractCompiler) *ScriptMetad
 	Preconditions_checkArgument(script.isScript())
 	var toFill *ScriptMetadata = new_ScriptMetadata(script)
 	NodeTraversal_traverse(compiler, script, icast_NodeTraversal_Callback(obj_(new_ScriptMetadata_FillerCallback(toFill))))
-	if !toFill.requireAliases.isEmpty() {
+	if !(len(toFill.requireAliases) == 0) {
 		toFill.supportsRequireAliasesField = true
 	}
 	return toFill
@@ -48,17 +48,17 @@ func (this *ScriptMetadata) supportsRequireAliases() bool {
 }
 
 func (this *ScriptMetadata) usesName(name string) bool {
-	return Collection_contains_s(this.namesInUse, name)
+	return has_(this.namesInUse, name)
 }
 
 func (this *ScriptMetadata) getAlias(namespace string) *Optional {
-	return Optional_ofNullable(Map_get_s(this.requireAliases, namespace))
+	return Optional_ofNullable(strobj_(mapStr_(this.requireAliases, namespace)))
 }
 
 func (this *ScriptMetadata) addAlias(namespace string, alias string) {
 	Preconditions_checkState(this.supportsRequireAliasesField)
-	Collection_add_s(this.namesInUse, alias)
-	Map_put_s(this.requireAliases, namespace, strobj_(alias))
+	this.namesInUse[alias] = struct{}{}
+	this.requireAliases[namespace] = alias
 }
 
 var ScriptMetadata_DOT_SPLITTER *Splitter
@@ -138,7 +138,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectRequirelikeAlias(n Node) 
 		alias = Optional_of(strobj_(aliasNode.getString()))
 	}
 	var namespace string = requirelikeCall.getSecondChild().getString()
-	Map_put_s(this.toFill.requireAliases, namespace, alias.orElse(nil))
+	this.toFill.requireAliases[namespace] = str_(alias.orElse(nil))
 }
 
 func (this *ScriptMetadata_FillerCallback) isRequirelikeCall(call Node) bool {
@@ -151,7 +151,7 @@ func (this *ScriptMetadata_FillerCallback) isRequirelikeCall(call Node) bool {
 
 func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 	if n.isName() {
-		Collection_add_s(this.toFill.namesInUse, n.getString())
+		this.toFill.namesInUse[n.getString()] = struct{}{}
 	}
 	var jsdoc *JSDocInfo = n.getJSDocInfo()
 	if (jsdoc != nil) {
@@ -161,7 +161,7 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectNames(n Node) {
 			it_3 := foreach_(obj_(expr.getAllTypeNames()))
 			for it_3.next() {
 				var type_ string = str_(it_3.v)
-				Collection_add_s(this.toFill.namesInUse, str_(ScriptMetadata_DOT_SPLITTER.split(strobj_(type_)).iterator().next()))
+				this.toFill.namesInUse[str_(ScriptMetadata_DOT_SPLITTER.split(strobj_(type_)).iterator().next())] = struct{}{}
 			}
 		}
 	}

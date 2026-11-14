@@ -6,12 +6,12 @@ type CheckConstantCaseNames struct {
 	compiler_ *AbstractCompiler
 	convention CodingConvention
 	invalidNamesPerModule LinkedHashMapOf[string, Node]
-	reassignedNames LinkedHashSetOf[string]
+	reassignedNames map[string]struct{}
 }
 
 func (this *CheckConstantCaseNames) finit_CheckConstantCaseNames() {
 	this.invalidNamesPerModule = new_LinkedHashMap()
-	this.reassignedNames = new_LinkedHashSet()
+	this.reassignedNames = map[string]struct{}{}
 }
 
 func (this *CheckConstantCaseNames) init_CheckConstantCaseNames(compiler *AbstractCompiler) {
@@ -67,7 +67,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 		}
 		var v *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
 		if v.getScopeRoot().isModuleBody() {
-			Collection_add_s(this.reassignedNames, n.getString())
+			this.reassignedNames[n.getString()] = struct{}{}
 		}
 	default:
 	}
@@ -78,14 +78,14 @@ func (this *CheckConstantCaseNames) reportWarningsAndClear() {
 	for it_1.next() {
 		var nameNode Node = Node_of_(it_1.v)
 		var name string = nameNode.getString()
-		if Collection_contains_s(this.reassignedNames, name) {
+		if has_(this.reassignedNames, name) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_REASSIGNED_CONSTANT_CASE_NAME, []string{name}))
 		} else {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_MISSING_CONST_PROPERTY, []string{name}))
 		}
 	}
 	this.invalidNamesPerModule = new_LinkedHashMap()
-	this.reassignedNames = new_LinkedHashSet()
+	this.reassignedNames = map[string]struct{}{}
 }
 
 var CheckConstantCaseNames_MISSING_CONST_PROPERTY *DiagnosticType

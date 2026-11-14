@@ -521,7 +521,7 @@ func (this *PolymerClassRewriter) getJSDocInfoBuilderForBehavior(behavior *Polym
 
 func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClassDefinition, block Node) {
 	var qualifiedPath string = (sstr_(cls.target.getQualifiedName()) + ".prototype.")
-	var nameToExprResult MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
+	var nameToExprResult map[string]Node = map[string]Node{}
 	it_1 := foreach_(obj_(cls.behaviors))
 	for it_1.next() {
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](it_1.v)
@@ -532,8 +532,8 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			if (NodeUtil_getFirstPropMatchingKey(cls.descriptor, fnName) != 0) {
 				continue
 			}
-			if Map_containsKey_s(nameToExprResult, fnName) {
-				Node_of_(Map_get_s(nameToExprResult, fnName)).detach()
+			if has_(nameToExprResult, fnName) {
+				nameToExprResult[fnName].detach()
 			}
 			var fnValue Node = behaviorFunction.value_.cloneTree()
 			NodeUtil_markNewScopesChanged(fnValue, this.compiler_)
@@ -566,14 +566,14 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			Map_put_s(nameToExprResult, fnName, exprResult.box_())
+			nameToExprResult[fnName] = exprResult
 		}
 		it_6 := foreach_(any(behavior.nonPropertyMembersToCopy))
 		for it_6.next() {
 			var behaviorProp *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_6.v)
 			var propName string = behaviorProp.name_.getString()
-			if Map_containsKey_s(nameToExprResult, propName) {
-				Node_of_(Map_get_s(nameToExprResult, propName)).detach()
+			if has_(nameToExprResult, propName) {
+				nameToExprResult[propName].detach()
 			}
 			var exprResult Node = IR_exprResult(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(qualifiedPath) + sstr_(propName))))
 			exprResult.srcrefTree(behaviorProp.name_)
@@ -589,7 +589,7 @@ func (this *PolymerClassRewriter) appendBehaviorMembersToBlock(cls *PolymerClass
 			}
 			exprResult.getFirstChild().setJSDocInfo(info.build())
 			block.addChildToBack(exprResult)
-			Map_put_s(nameToExprResult, propName, exprResult.box_())
+			nameToExprResult[propName] = exprResult
 		}
 	}
 }

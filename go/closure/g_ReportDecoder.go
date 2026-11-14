@@ -104,15 +104,15 @@ func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], fr
 
 func ReportDecoder_createProfileOfStaticallyUsedCode(mapping MapOf[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
 	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher(strobj_(fileContent))
-	var encodedPoints LinkedHashSetOf[string] = new_LinkedHashSet()
+	var encodedPoints map[string]struct{} = map[string]struct{}{}
 	for matcher.find() {
-		Collection_add_s(encodedPoints, matcher.group(1))
+		encodedPoints[matcher.group(1)] = struct{}{}
 	}
 	var instrumentationPoints ListOf[*InstrumentationPointStats] = icast_List(new_ArrayList_0().self())
 	it_2 := foreach_(any(mapping.entrySet()))
 	for it_2.next() {
 		var entry Map_Entry = icast_Map_Entry(it_2.v)
-		instrumentationPoints.add(any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence { if Collection_contains_s(encodedPoints, str_(entry.getKey())) { return InstrumentationPointStats_Presence_PRESENT }; return InstrumentationPointStats_Presence_STATICALLY_REMOVED }()).build()))
+		instrumentationPoints.add(any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence { if has_(encodedPoints, str_(entry.getKey())) { return InstrumentationPointStats_Presence_PRESENT }; return InstrumentationPointStats_Presence_STATICALLY_REMOVED }()).build()))
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }

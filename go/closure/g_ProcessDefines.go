@@ -12,21 +12,21 @@ type ProcessDefines struct {
 	enableZonesDefineName OptionalOf[string]
 	zoneInputPattern *Pattern
 	unknownDefinesToIgnore ImmutableSetOf[string]
-	knownDefineJsdocs LinkedHashSetOf[*JSDocInfo]
-	knownGoogDefineCalls LinkedHashSetOf[Node]
+	knownDefineJsdocs map[*JSDocInfo]struct{}
+	knownGoogDefineCalls map[Node]struct{}
 	defineByDefineName LinkedHashMapOf[string, *ProcessDefines_Define]
 	replacementValuesFromClosureDefines LinkedHashMapOf[string, Node]
-	validDefineValueExpressions LinkedHashSetOf[Node]
+	validDefineValueExpressions map[Node]struct{}
 	hasZoneInput bool
 	namespace_ *GlobalNamespace
 }
 
 func (this *ProcessDefines) finit_ProcessDefines() {
-	this.knownDefineJsdocs = new_LinkedHashSet()
-	this.knownGoogDefineCalls = new_LinkedHashSet()
+	this.knownDefineJsdocs = map[*JSDocInfo]struct{}{}
+	this.knownGoogDefineCalls = map[Node]struct{}{}
 	this.defineByDefineName = new_LinkedHashMap()
 	this.replacementValuesFromClosureDefines = new_LinkedHashMap()
-	this.validDefineValueExpressions = new_LinkedHashSet()
+	this.validDefineValueExpressions = map[Node]struct{}{}
 	this.hasZoneInput = false
 }
 
@@ -201,7 +201,7 @@ func (this *ProcessDefines) selectDefineDeclaration(name *GlobalNamespace_Name) 
 		if ((jsdoc == nil) || !jsdoc.isDefine()) {
 			continue
 		}
-		this.knownDefineJsdocs.add(obj_(jsdoc))
+		this.knownDefineJsdocs[jsdoc] = struct{}{}
 		return ref
 	}
 	return nil
@@ -236,7 +236,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 		for it_5.next() {
 			var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_5.v)
 			if !r.isSet() {
-				this.validDefineValueExpressions.add(r.getNode().box_())
+				this.validDefineValueExpressions[r.getNode()] = struct{}{}
 			}
 		}
 	}
@@ -251,7 +251,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 				it_11 := foreach_(any(name.getRefs()))
 				for it_11.next() {
 					var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_11.v)
-					this.validDefineValueExpressions.add(ref.getNode().box_())
+					this.validDefineValueExpressions[ref.getNode()] = struct{}{}
 				}
 			case Tri_UNKNOWN:
 				namesToCheckAgain.add(obj_(name))
@@ -293,10 +293,10 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallbackAbstractPostOrderCallbackInterface(&NodeTraversal_AbstractPostOrderCallbackInterface_fn{func(t *NodeTraversal, n Node, parent Node) {
 		var jsdoc *JSDocInfo = n.getJSDocInfo()
-		if (((jsdoc != nil) && jsdoc.isDefine()) && this.knownDefineJsdocs.add(obj_(jsdoc))) {
+		if (((jsdoc != nil) && jsdoc.isDefine()) && setAdd_(this.knownDefineJsdocs, jsdoc)) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessDefines_INVALID_DEFINE_LOCATION, []string{}))
 		}
-		if (this.isGoogDefineCall(n) && this.knownGoogDefineCalls.add(n.box_())) {
+		if (this.isGoogDefineCall(n) && setAdd_(this.knownGoogDefineCalls, n)) {
 			this.verifyGoogDefine(n)
 		}
 		if ((n.matchesName("CLOSURE_DEFINES") && (NodeUtil_isNameDeclaration(parent) || (parent.isGetElem() && parent.getParent().isAssign()))) && !NodeUtil_getEnclosingScopeRoot(n).isRoot()) {
@@ -361,7 +361,7 @@ func (this *ProcessDefines) isValidDefineValue(val Node) *Tri {
 		return this.isValidDefineValue(val.getFirstChild())
 	case Token_rhino_NAME, Token_rhino_GETPROP:
 		if val.isQualifiedName() {
-			return func() *Tri { if this.validDefineValueExpressions.contains(val.box_()) { return Tri_TRUE }; return Tri_UNKNOWN }()
+			return func() *Tri { if has_(this.validDefineValueExpressions, val) { return Tri_TRUE }; return Tri_UNKNOWN }()
 		}
 	case Token_rhino_CALL:
 		if !this.isGoogDefineCall(val) {
@@ -423,7 +423,7 @@ func (this *ProcessDefines) isGoogDefineCall(node Node) bool {
 }
 
 func (this *ProcessDefines) verifyGoogDefine(callNode Node) bool {
-	this.knownGoogDefineCalls.add(callNode.box_())
+	this.knownGoogDefineCalls[callNode] = struct{}{}
 	var parent Node = callNode.getParent()
 	var methodName Node = callNode.getFirstChild()
 	var args Node = callNode.getSecondChild()

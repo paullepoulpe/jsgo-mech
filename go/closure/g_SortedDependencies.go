@@ -7,7 +7,7 @@ type SortedDependencies struct {
 	importOrderedInputs ListOf[any]
 	completedInputs SetOf[any]
 	nonExportingInputs MapOf[string, any]
-	exportingInputBySymbolName MapOf[string, any]
+	exportingInputBySymbolName map[string]any
 	importedInputByImportingInput *SimpleSetMultimap
 }
 
@@ -16,7 +16,7 @@ func (this *SortedDependencies) finit_SortedDependencies() {
 	this.importOrderedInputs = icast_List(new_ArrayList_0().self())
 	this.completedInputs = icast_Set(obj_(new_LinkedHashSet()))
 	this.nonExportingInputs = icast_Map(obj_(new_LinkedHashMap()))
-	this.exportingInputBySymbolName = icast_Map(obj_(new_LinkedHashMap()))
+	this.exportingInputBySymbolName = map[string]any{}
 	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -41,7 +41,7 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 			it_2 := foreach_(obj_(input.getRequiredSymbols()))
 			for it_2.next() {
 				var symbolName string = str_(it_2.v)
-				var importedSymbolName DependencyInfo = icast_DependencyInfo(Map_get_s(this.exportingInputBySymbolName, symbolName))
+				var importedSymbolName DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 				if (importedSymbolName != nil) {
 					worklist.add(any(importedSymbolName))
 				}
@@ -89,7 +89,7 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 		it_2 := foreach_(any(edges))
 		for it_2.next() {
 			var symbolName string = str_(it_2.v)
-			var importedSymbolName DependencyInfo = icast_DependencyInfo(Map_get_s(this.exportingInputBySymbolName, symbolName))
+			var importedSymbolName DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 			if (((importedSymbolName != nil) && !strongInputs.contains(any(importedSymbolName))) && !weakInputs.contains(any(importedSymbolName))) {
 				worklist.add(any(importedSymbolName))
 			}
@@ -111,8 +111,8 @@ func (this *SortedDependencies) getSortedList() List {
 }
 
 func (this *SortedDependencies) maybeGetInputProviding(symbol string) DependencyInfo {
-	if Map_containsKey_s(this.exportingInputBySymbolName, symbol) {
-		return icast_DependencyInfo(Map_get_s(this.exportingInputBySymbolName, symbol))
+	if has_(this.exportingInputBySymbolName, symbol) {
+		return icast_DependencyInfo(this.exportingInputBySymbolName[symbol])
 	}
 	return icast_DependencyInfo(Map_get_s(this.nonExportingInputs, ModuleNames_fileToModuleName(symbol)))
 }
@@ -142,7 +142,7 @@ func (this *SortedDependencies) processInputs() {
 		it_3 := foreach_(obj_(userOrderedInput.getProvides()))
 		for it_3.next() {
 			var providedSymbolName string = str_(it_3.v)
-			Map_put_s(this.exportingInputBySymbolName, providedSymbolName, any(userOrderedInput))
+			this.exportingInputBySymbolName[providedSymbolName] = any(userOrderedInput)
 		}
 	}
 	it_5 := foreach_(any(this.userOrderedInputs))
@@ -151,7 +151,7 @@ func (this *SortedDependencies) processInputs() {
 		it_7 := foreach_(obj_(userOrderedInput.getRequiredSymbols()))
 		for it_7.next() {
 			var symbolName string = str_(it_7.v)
-			var importedInput DependencyInfo = icast_DependencyInfo(Map_get_s(this.exportingInputBySymbolName, symbolName))
+			var importedInput DependencyInfo = icast_DependencyInfo(this.exportingInputBySymbolName[symbolName])
 			if (importedInput != nil) {
 				this.importedInputByImportingInput.put(any(userOrderedInput), any(importedInput))
 			}

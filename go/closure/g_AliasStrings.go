@@ -7,7 +7,7 @@ type AliasStrings struct {
 	chunkGraph *JSChunkGraph
 	outputStringUsageField bool
 	stringInfoMap SortedMapOf[string, *AliasStrings_StringInfo]
-	usedHashedAliases SetOf[string]
+	usedHashedAliases map[string]struct{}
 	aliasStringsMode *CompilerOptions_AliasStringsMode
 	chunkVarParentMap MapOf[*JSChunk, Node]
 	unitTestHashReductionMask int32
@@ -15,7 +15,7 @@ type AliasStrings struct {
 
 func (this *AliasStrings) finit_AliasStrings() {
 	this.stringInfoMap = icast_SortedMap(obj_(new_TreeMap()))
-	this.usedHashedAliases = icast_Set(obj_(new_LinkedHashSet()))
+	this.usedHashedAliases = map[string]struct{}{}
 	this.chunkVarParentMap = icast_Map(obj_(new_LinkedHashMap()))
 	this.unitTestHashReductionMask = -1
 }
@@ -249,7 +249,7 @@ func (this *AliasStrings_StringInfo) encodeStringAsIdentifier(prefix string, s s
 	sb.append_char('_')
 	sb.append(Integer_toHexString(hash))
 	var encoded string = Object_toString(obj_(sb))
-	if !Collection_add_s(this.outer_.usedHashedAliases, encoded) {
+	if !setAdd_(this.outer_.usedHashedAliases, encoded) {
 		encoded += sstr_(("_" + istr_(int64(this.id))))
 	}
 	return encoded

@@ -16,7 +16,7 @@ type RenameProperties struct {
 	quotedNames SetOf[string]
 	nameGenerator NameGenerator
 	propertyRenameEligibilityFilter PredicateOf[Node]
-	filteredOutNames SetOf[string]
+	filteredOutNames map[string]struct{}
 }
 
 func (this *RenameProperties) finit_RenameProperties() {
@@ -26,7 +26,7 @@ func (this *RenameProperties) finit_RenameProperties() {
 	this.propertyMap = icast_Map(obj_(new_LinkedHashMap()))
 	this.externedNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(Arrays_asList([]any{strobj_("prototype")})))))
 	this.quotedNames = icast_Set(obj_(new_LinkedHashSet()))
-	this.filteredOutNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.filteredOutNames = map[string]struct{}{}
 }
 
 func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator) {
@@ -77,7 +77,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	for it_1.next() {
 		var n Node = it_1.v
 		var oldName string = n.getString()
-		if Collection_contains_s(this.filteredOutNames, oldName) {
+		if has_(this.filteredOutNames, oldName) {
 			continue
 		}
 		var p *RenameProperties_Property = cast_[*RenameProperties_Property](Map_get_s(this.propertyMap, oldName))
@@ -102,7 +102,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			var replacement string
 			if ((p != nil) && p.newName.isPresent()) {
 				Preconditions_checkState((oldName == p.oldName))
-				if Collection_contains_s(this.filteredOutNames, oldName) {
+				if has_(this.filteredOutNames, oldName) {
 					replacement = oldName
 				} else {
 					replacement = str_(p.newName.get())
@@ -248,7 +248,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 				it_2 := foreach_(any(RenameProperties_DOT_SPLITTER.split(strobj_(stringArgument.getString()))))
 				for it_2.next() {
 					var name string = str_(it_2.v)
-					Collection_add_s(this.outer_.filteredOutNames, name)
+					this.outer_.filteredOutNames[name] = struct{}{}
 				}
 			}
 		}
@@ -290,7 +290,7 @@ func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 	var name string = n.getString()
 	if !Collection_contains_s(this.outer_.externedNames, name) {
 		if !this.outer_.propertyRenameEligibilityFilter.test(n.box_()) {
-			Collection_add_s(this.outer_.filteredOutNames, n.getString())
+			this.outer_.filteredOutNames[n.getString()] = struct{}{}
 		}
 		this.outer_.stringNodesToRename = append(this.outer_.stringNodesToRename, n)
 		this.countPropertyOccurrence(name)

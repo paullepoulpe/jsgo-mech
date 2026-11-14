@@ -58,15 +58,15 @@ func (this *IsolatePolyfills) process_2(externs Node, root Node) {
 	var polyfillUsages []*PolyfillUsageFinder_PolyfillUsage = []*PolyfillUsageFinder_PolyfillUsage{}
 	var shouldDisambiguateProperties bool = this.compiler_.getOptions().shouldDisambiguateProperties()
 	new_PolyfillUsageFinder(this.compiler_, this.polyfills, shouldDisambiguateProperties).traverseIncludingGuarded(root, &Consumer_fn{func(p0 any) { polyfillUsages = append(polyfillUsages, cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) }})
-	var visitedNodes LinkedHashSetOf[Node] = new_LinkedHashSet()
+	var visitedNodes map[Node]struct{} = map[Node]struct{}{}
 	it_1 := eachOf_(&polyfillUsages)
 	for it_1.next() {
 		var usage *PolyfillUsageFinder_PolyfillUsage = it_1.v
-		if ((visitedNodes.contains(usage.node().box_()) || String_isEmpty(usage.polyfill().library)) || !Collection_contains_s(injectedPolyfills, usage.polyfill().nativeSymbol)) {
+		if ((has_(visitedNodes, usage.node()) || String_isEmpty(usage.polyfill().library)) || !Collection_contains_s(injectedPolyfills, usage.polyfill().nativeSymbol)) {
 			continue
 		}
 		this.rewritePolyfill(usage)
-		visitedNodes.add(usage.node().box_())
+		visitedNodes[usage.node()] = struct{}{}
 	}
 	this.cleanUpJscompLookupPolyfilledValue()
 }

@@ -722,12 +722,12 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_YieldFinder) 
 
 type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext struct {
 	outer_ *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler
-	namedLabels LinkedHashMapOf[string, *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases]
+	namedLabels map[string]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases
 	breakCases ArrayDequeOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	continueCases ArrayDequeOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	catchCases ArrayDequeOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_CatchCase]
 	finallyCases ArrayDequeOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
-	catchNames LinkedHashSetOf[string]
+	catchNames map[string]struct{}
 	allCases ArrayListOf[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case]
 	switchBreaks ArrayListOf[Node]
 	programEndCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case
@@ -739,12 +739,12 @@ type Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) finit_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext() {
-	this.namedLabels = new_LinkedHashMap()
+	this.namedLabels = map[string]*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases{}
 	this.breakCases = new_ArrayDeque()
 	this.continueCases = new_ArrayDeque()
 	this.catchCases = new_ArrayDeque()
 	this.finallyCases = new_ArrayDeque()
-	this.catchNames = new_LinkedHashSet()
+	this.catchNames = map[string]struct{}{}
 	this.allCases = new_ArrayList_0()
 	this.switchBreaks = new_ArrayList_0()
 	this.nestedFinallyBlockCount = 0
@@ -868,7 +868,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 }
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext) checkStateIsEmpty() {
-	Preconditions_checkState(this.namedLabels.isEmpty())
+	Preconditions_checkState((len(this.namedLabels) == 0))
 	Preconditions_checkState(this.breakCases.isEmpty())
 	Preconditions_checkState(this.continueCases.isEmpty())
 	Preconditions_checkState(this.catchCases.isEmpty())
@@ -1075,7 +1075,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	Preconditions_checkState(exceptionName.isName())
 	this.addCatchFinallyCases(nil, finallyCase)
 	var nextCatchCase *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = this.getNextCatchCase()
-	if Collection_add_s(this.catchNames, exceptionName.getString()) {
+	if setAdd_(this.catchNames, exceptionName.getString()) {
 		this.outer_.hoistVarNode(IR_var_Node(exceptionName.cloneNode()).srcref(exceptionName))
 	}
 	var args ArrayListOf[Node] = new_ArrayList_0()
@@ -1136,7 +1136,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	for it_1.next() {
 		var labelName Node = Node_of_(it_1.v)
 		Preconditions_checkState(labelName.isLabelName())
-		Map_put_s(this.namedLabels, labelName.getString(), obj_(new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases(breakCase, continueCase)))
+		this.namedLabels[labelName.getString()] = new_Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases(breakCase, continueCase)
 	}
 }
 
@@ -1145,7 +1145,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 	for it_1.next() {
 		var labelName Node = Node_of_(it_1.v)
 		Preconditions_checkState(labelName.isLabelName())
-		Map_remove_s(this.namedLabels, labelName.getString())
+		delete(this.namedLabels, labelName.getString())
 	}
 }
 
@@ -1300,7 +1300,7 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_Transpilation
 
 func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_UnmarkedNodeTranspiler) visitNamedBreakContinue(n Node) {
 	Preconditions_checkState(n.getFirstChild().isLabelName())
-	var cases *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases = cast_[*Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases](Map_get_s(this.outer_.namedLabels, n.getFirstChild().getString()))
+	var cases *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_LabelCases = this.outer_.namedLabels[n.getFirstChild().getString()]
 	if (cases != nil) {
 		var caseSection *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case = func() *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler_TranspilationContext_Case { if n.isBreak() { return cases.breakCase }; return cases.continueCase }()
 		this.outer_.outer_.context.replaceBreakContinueWithJump(n, caseSection, this.breakSuppressors)

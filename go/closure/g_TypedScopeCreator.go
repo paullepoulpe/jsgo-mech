@@ -14,13 +14,13 @@ type TypedScopeCreator struct {
 	processClosurePrimitives bool
 	memoized MapOf[Node, *TypedScope]
 	reservedNamesForScope *SimpleListMultimap
-	functionsWithNonEmptyReturns SetOf[Node]
+	functionsWithNonEmptyReturns map[Node]struct{}
 	escapedVarNames SetOf[*ScopedName]
 	assignedVarNames *SimpleMultiset
 	unknownType *ObjectType
 	weakImports []*TypedScopeCreator_WeakModuleImport
 	unresolvedNodes []Node
-	undeclaredNamesForClosure SetOf[Node]
+	undeclaredNamesForClosure map[Node]struct{}
 	providedNamesFromCall *SimpleSetMultimap
 	stage *TypedScopeCreator_Stage
 }
@@ -170,17 +170,17 @@ func (this *TypedScopeCreator) markGoogModuleExportsAsConst(moduleBody Node) {
 			}
 			var lhs Node = statement.getFirstFirstChild()
 			if lhs.matchesName("exports") {
-				this.undeclaredNamesForClosure.add(lhs.box_())
+				this.undeclaredNamesForClosure[lhs] = struct{}{}
 				if NodeUtil_isNamedExportsLiteral(lhs.getNext()) {
 					{
 						var key Node = lhs.getNext().getFirstChild()
 						for ; (key != 0); key = key.getNext() {
-							this.undeclaredNamesForClosure.add(key.box_())
+							this.undeclaredNamesForClosure[key] = struct{}{}
 						}
 					}
 				}
 			} else if (lhs.isGetProp() && lhs.getFirstChild().matchesName("exports")) {
-				this.undeclaredNamesForClosure.add(lhs.box_())
+				this.undeclaredNamesForClosure[lhs] = struct{}{}
 			}
 		}
 	}
@@ -202,7 +202,7 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 		if (name.getCandidateDefinition() != 0) {
 			var firstDefinitionNode Node = name.getCandidateDefinition()
 			if (NodeUtil_isExprAssign(firstDefinitionNode) && firstDefinitionNode.getFirstFirstChild().isName()) {
-				this.undeclaredNamesForClosure.add(firstDefinitionNode.getFirstFirstChild().box_())
+				this.undeclaredNamesForClosure[firstDefinitionNode.getFirstFirstChild()] = struct{}{}
 			}
 		} else if (((name.getFirstProvideCall() != 0) && NodeUtil_isExprCall(name.getFirstProvideCall())) && !name.isFromLegacyModule()) {
 			this.providedNamesFromCall.put(name.getFirstProvideCall().box_(), obj_(name))
@@ -300,12 +300,12 @@ func (this *TypedScopeCreator) finishAndFreeze() {
 
 func (this *TypedScopeCreator) clearCommonState() {
 	this.reservedNamesForScope = SimpleListMultimap_create()
-	this.functionsWithNonEmptyReturns = icast_Set(obj_(new_LinkedHashSet()))
+	this.functionsWithNonEmptyReturns = map[Node]struct{}{}
 	this.escapedVarNames = icast_Set(obj_(new_LinkedHashSet()))
 	this.assignedVarNames = SimpleMultiset_create()
 	this.weakImports = []*TypedScopeCreator_WeakModuleImport{}
 	this.unresolvedNodes = []Node{}
-	this.undeclaredNamesForClosure = icast_Set(obj_(new_LinkedHashSet()))
+	this.undeclaredNamesForClosure = map[Node]struct{}{}
 	this.providedNamesFromCall = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -1212,7 +1212,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		}
 	}
 	var contents *FunctionTypeBuilder_AstFunctionContents = func() *FunctionTypeBuilder_AstFunctionContents { if (fnRoot != 0) { return new_FunctionTypeBuilder_AstFunctionContents(fnRoot) }; return nil }()
-	if this.outer_.functionsWithNonEmptyReturns.contains(fnRoot.box_()) {
+	if has_(this.outer_.functionsWithNonEmptyReturns, fnRoot) {
 		contents.recordNonEmptyReturn()
 	}
 	var bestTypeName OptionalOf[string] = this.getBestTypeName(lvalueNode, name)
@@ -1494,10 +1494,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleExports(lValue N
 	if ((this.getModule() == nil) || (lValue == 0)) {
 		return false
 	}
-	if this.outer_.undeclaredNamesForClosure.contains(lValue.box_()) {
+	if has_(this.outer_.undeclaredNamesForClosure, lValue) {
 		return true
 	}
-	return ((((lValue.isStringKey() && lValue.getParent().isObjectLit()) && lValue.getGrandparent().isAssign()) && lValue.getParent().getPrevious().matchesName("exports")) && this.outer_.undeclaredNamesForClosure.contains(lValue.getParent().getPrevious().box_()))
+	return ((((lValue.isStringKey() && lValue.getParent().isObjectLit()) && lValue.getGrandparent().isAssign()) && lValue.getParent().getPrevious().matchesName("exports")) && has_(this.outer_.undeclaredNamesForClosure, lValue.getParent().getPrevious()))
 }
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) getDefinitionNode(qname *QualifiedName, scope *TypedScope) Node {
@@ -1975,7 +1975,7 @@ func (this *TypedScopeCreator_NormalScopeBuilder) visitPostorder_impl(t *NodeTra
 			this.maybeDeclareQualifiedName(t, n.getJSDocInfo(), firstChild, n, firstChild.getNext())
 		} else if (firstChild.isGetElem() && firstChild.getFirstChild().isQualifiedName()) {
 			this.maybeDeclareGetElem(n.getJSDocInfo(), firstChild, firstChild.getNext())
-		} else if this.outer_.undeclaredNamesForClosure.contains(firstChild.box_()) {
+		} else if has_(this.outer_.undeclaredNamesForClosure, firstChild) {
 			this.defineAssignAsIfVarDeclaration(n)
 		}
 	case Token_rhino_CATCH:
@@ -2351,7 +2351,7 @@ func (this *TypedScopeCreator_FirstOrderFunctionAnalyzer) visit_impl(t *NodeTrav
 	}
 	var containerScope *Scope = cast_[*Scope](t.getClosestContainerScope().self())
 	if ((n.isReturn() && n.hasChildren()) || NodeUtil_isBlocklessArrowFunctionResult(n)) {
-		this.outer_.functionsWithNonEmptyReturns.add(containerScope.getRootNode().box_())
+		this.outer_.functionsWithNonEmptyReturns[containerScope.getRootNode()] = struct{}{}
 	}
 	if ((n.isName() && NodeUtil_isLValue(n)) && !NodeUtil_isBleedingFunctionName(n)) {
 		var name string = n.getString()

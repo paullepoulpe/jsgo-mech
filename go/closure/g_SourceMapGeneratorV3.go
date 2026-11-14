@@ -5,7 +5,7 @@ package closure
 type SourceMapGeneratorV3 struct {
 	mappings []*SourceMapGeneratorV3_Mapping
 	sourceFileMap LinkedHashMapOf[string, BoxedOf[int32]]
-	sourceFileContentMap LinkedHashMapOf[string, string]
+	sourceFileContentMap map[string]string
 	originalNameMap LinkedHashMapOf[string, BoxedOf[int32]]
 	lastSourceFile OptionalOf[string]
 	lastSourceFileIndex int32
@@ -19,7 +19,7 @@ type SourceMapGeneratorV3 struct {
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
 	this.mappings = []*SourceMapGeneratorV3_Mapping{}
 	this.sourceFileMap = new_LinkedHashMap()
-	this.sourceFileContentMap = new_LinkedHashMap()
+	this.sourceFileContentMap = map[string]string{}
 	this.originalNameMap = new_LinkedHashMap()
 	this.lastSourceFile = Optional_empty()
 	this.lastSourceFileIndex = -1
@@ -112,7 +112,7 @@ func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName strin
 }
 
 func (this *SourceMapGeneratorV3) addSourcesContent(source string, content string) {
-	Map_put_s(this.sourceFileContentMap, source, strobj_(content))
+	this.sourceFileContentMap[source] = content
 }
 
 func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapSectionContents string) *Outcome_base {
@@ -229,7 +229,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var index any = entry.getValue()
 		Preconditions_checkState((unbox_[int32](index) < size))
-		var content OptionalOf[string] = Optional_ofNullable(Map_get_s(this.sourceFileContentMap, str_(entry.getKey())))
+		var content OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.sourceFileContentMap, str_(entry.getKey()))))
 		if content.isPresent() {
 			contents.set(unbox_[int32](index), content.get())
 			found = true

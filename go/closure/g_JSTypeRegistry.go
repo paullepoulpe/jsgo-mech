@@ -31,14 +31,14 @@ type JSTypeRegistry struct {
 	reporter ErrorReporter_rhino
 	nativeTypes []*JSType
 	scopedNameTable *SimpleTable
-	closureNamespaces MapOf[string, *JSTypeRegistry_ClosureNamespace]
+	closureNamespaces map[string]*JSTypeRegistry_ClosureNamespace
 	nameTableGlobalRoot Node
 	nonNullableTypeNames *SimpleSetMultimap
 	forwardDeclaredTypes SetOf[string]
 	nonRefTypesIndexedByProperty *SimpleSetMultimap
 	sentinelObjectLiteral *JSType
 	propertiesOfSupertypesInUnions SetOf[string]
-	droppedPropertiesOfUnions SetOf[string]
+	droppedPropertiesOfUnions map[string]struct{}
 	eachRefTypeIndexedByProperty *SimpleSetMultimap
 	emptyTemplateTypeMap *TemplateTypeMap
 	resolver *JSTypeResolver
@@ -46,12 +46,12 @@ type JSTypeRegistry struct {
 
 func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.scopedNameTable = SimpleTable_create()
-	this.closureNamespaces = icast_Map(obj_(new_LinkedHashMap()))
+	this.closureNamespaces = map[string]*JSTypeRegistry_ClosureNamespace{}
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create()
 	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create()
 	this.propertiesOfSupertypesInUnions = icast_Set(obj_(new_LinkedHashSet()))
-	this.droppedPropertiesOfUnions = icast_Set(obj_(new_LinkedHashSet()))
+	this.droppedPropertiesOfUnions = map[string]struct{}{}
 	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create()
 }
 
@@ -564,7 +564,7 @@ func (this *JSTypeRegistry) resolveViaClosureNamespace(reference string) *JSType
 	var prefix string = reference
 	var unusedComponents ImmutableList_BuilderOf[string] = ImmutableList_builder()
 	for {
-		var namespace *JSTypeRegistry_ClosureNamespace = cast_[*JSTypeRegistry_ClosureNamespace](Map_get_s(this.closureNamespaces, prefix))
+		var namespace *JSTypeRegistry_ClosureNamespace = this.closureNamespaces[prefix]
 		if (namespace != nil) {
 			if namespace.isLegacy() {
 				return nil
@@ -684,7 +684,7 @@ func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType
 		var pname string = str_(it_1.v)
 		if !supertype.hasProperty(pname) {
 			foundDroppedProperty = true
-			Collection_add_s(this.droppedPropertiesOfUnions, pname)
+			this.droppedPropertiesOfUnions[pname] = struct{}{}
 		}
 	}
 	if foundDroppedProperty {
@@ -766,7 +766,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 					break
 				}
 			}
-			if (mayBeInUnion && Collection_contains_s(this.droppedPropertiesOfUnions, propertyName)) {
+			if (mayBeInUnion && has_(this.droppedPropertiesOfUnions, propertyName)) {
 				return JSTypeRegistry_PropDefinitionKind_LOOSE
 			}
 		}
@@ -1439,11 +1439,11 @@ func (this *JSTypeRegistry) nativeRecord(name string, templateKeys []*TemplateTy
 }
 
 func (this *JSTypeRegistry) registerNonLegacyClosureNamespace(moduleName string, definitionNode Node, type_ *JSType) {
-	Map_put_s(this.closureNamespaces, moduleName, obj_(JSTypeRegistry_ClosureNamespace_create(false, definitionNode, type_)))
+	this.closureNamespaces[moduleName] = JSTypeRegistry_ClosureNamespace_create(false, definitionNode, type_)
 }
 
 func (this *JSTypeRegistry) registerLegacyClosureNamespace(moduleName string) {
-	Map_put_s(this.closureNamespaces, moduleName, obj_(JSTypeRegistry_ClosureNamespace_create(true, 0, nil)))
+	this.closureNamespaces[moduleName] = JSTypeRegistry_ClosureNamespace_create(true, 0, nil)
 }
 
 var JSTypeRegistry_DOT_SPLITTER *Splitter

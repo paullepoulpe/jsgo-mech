@@ -6,7 +6,7 @@ type CheckSideEffects struct {
 	NodeTraversal_AbstractPostOrderCallback
 	report_ bool
 	problemNodes []Node
-	noSideEffectExterns SetOf[string]
+	noSideEffectExterns map[string]struct{}
 	compiler_ *AbstractCompiler
 	protectSideEffectFreeCode bool
 	preserveFunctionInjected bool
@@ -21,7 +21,7 @@ func (this *CheckSideEffects) up_NodeTraversal_AbstractPostOrderCallback() *Node
 
 func (this *CheckSideEffects) finit_CheckSideEffects() {
 	this.problemNodes = []Node{}
-	this.noSideEffectExterns = icast_Set(obj_(new_LinkedHashSet()))
+	this.noSideEffectExterns = map[string]struct{}{}
 	this.preserveFunctionInjected = false
 }
 
@@ -91,7 +91,7 @@ func (this *CheckSideEffects) visit_impl(t *NodeTraversal, n Node, parent Node) 
 					isDefinedInSrc = (cast_[*Var](t.getScope().getVar(qname).self()) != nil)
 				}
 			}
-			if ((!String_isEmpty(qname) && Collection_contains_s(this.noSideEffectExterns, qname)) && !isDefinedInSrc) {
+			if ((!String_isEmpty(qname) && has_(this.noSideEffectExterns, qname)) && !isDefinedInSrc) {
 				this.problemNodes = append(this.problemNodes, n)
 				if this.report_ {
 					var msg string = ("The result of the extern function call '" + sstr_(qname) + "' is not being used.")
@@ -221,7 +221,7 @@ func (this *CheckSideEffects_GetNoSideEffectExterns) visit_impl(t *NodeTraversal
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
 		if ((jsDoc != nil) && jsDoc.isNoSideEffects()) {
 			var name string = NodeUtil_getName(n)
-			Collection_add_s(this.outer_.noSideEffectExterns, name)
+			this.outer_.noSideEffectExterns[name] = struct{}{}
 		}
 	}
 	if (n.isName() && (CheckSideEffects_PROTECTOR_FN == n.getString())) {

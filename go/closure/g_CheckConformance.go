@@ -97,7 +97,7 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) bool {
 	Preconditions_checkState(Object_equals(obj_(reportingMode), obj_(CompilerOptions_ConformanceReportingMode_RESPECT_LIBRARY_LEVEL_BEHAVIOR_SPECIFIED_IN_CONFIG)))
-	var baseRequirementBehaviors MapOf[string, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = icast_Map(obj_(new_LinkedHashMap()))
+	var baseRequirementBehaviors map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = map[string]*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior{}
 	it_1 := foreach_(obj_(configs))
 	for it_1.next() {
 		var config *ConformanceConfig = cast_[*ConformanceConfig](it_1.v)
@@ -109,7 +109,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 		for it_3.next() {
 			var requirement *Requirement = cast_[*Requirement](it_3.v)
 			if requirement.hasRuleId() {
-				Map_put_s(baseRequirementBehaviors, requirement.getRuleId(), obj_(behavior))
+				baseRequirementBehaviors[requirement.getRuleId()] = behavior
 			}
 		}
 	}
@@ -125,8 +125,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 			if requirement.hasExtends() {
 				var extendingBehavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 				var baseRuleId string = requirement.getExtends()
-				if Map_containsKey_s(baseRequirementBehaviors, baseRuleId) {
-					var baseBehavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Map_get_s(baseRequirementBehaviors, baseRuleId))
+				if has_(baseRequirementBehaviors, baseRuleId) {
+					var baseBehavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors[baseRuleId]
 					if !Object_equals(obj_(baseBehavior), obj_(extendingBehavior)) {
 						CheckConformance_reportInvalidRequirement(compiler, requirement, "extending rule's config may not specify a different value of 'library_level_non_allowlisted_conformance_violations_behavior' than the base rule's config. Skipping all conformance checks.")
 						return false

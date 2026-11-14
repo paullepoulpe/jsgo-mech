@@ -33,12 +33,12 @@ func (this *CheckDuplicateCase) process_2(externs Node, root Node) {
 func (this *CheckDuplicateCase) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isSwitch() {
 		var switchBody Node = n.getSecondChild()
-		var cases SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+		var cases map[string]struct{} = map[string]struct{}{}
 		{
 			var curr Node = switchBody.getFirstChild()
 			for ; (curr != 0); curr = curr.getNext() {
 				var source string = this.compiler_.toSource_1(curr.getFirstChild())
-				if !Collection_add_s(cases, source) {
+				if !setAdd_(cases, source) {
 					t.report(curr, CheckDuplicateCase_DUPLICATE_CASE, []string{})
 				}
 			}

@@ -236,21 +236,21 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		options.setInputPropertyMap(cast_[*VariableMap](propertyMap.get()))
 	}
 	if !this.config.outputManifests.isEmpty() {
-		var uniqueNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+		var uniqueNames map[string]struct{} = map[string]struct{}{}
 		it_3 := foreach_(any(this.config.outputManifests))
 		for it_3.next() {
 			var filename string = str_(it_3.v)
-			if !Collection_add_s(uniqueNames, filename) {
+			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err(new_FlagUsageException(("output_manifest flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
 		}
 	}
 	if !this.config.outputBundles.isEmpty() {
-		var uniqueNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+		var uniqueNames map[string]struct{} = map[string]struct{}{}
 		it_5 := foreach_(any(this.config.outputBundles))
 		for it_5.next() {
 			var filename string = str_(it_5.v)
-			if !Collection_add_s(uniqueNames, filename) {
+			if !setAdd_(uniqueNames, filename) {
 				return Outcome_base_err(new_FlagUsageException(("output_bundle flags specify duplicate file names: " + sstr_(filename))).up_Throwable())
 			}
 		}
@@ -492,14 +492,14 @@ func (this *AbstractCommandLineRunner) createInputs_4(files ListOf[*AbstractComm
 
 func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files ListOf[*AbstractCommandLineRunner_FlagEntry], moduleRoots ListOf[string], hasChunkSpecs bool) *Outcome_base {
 	var errors ImmutableList_BuilderOf[*JSError] = ImmutableList_builder()
-	var relativeToAbsoluteName MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+	var relativeToAbsoluteName map[string]string = map[string]string{}
 	it_1 := foreach_(any(files))
 	for it_1.next() {
 		var file *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](it_1.v)
 		if ((cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP)) {
 			var absoluteName string = file.value_
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
-			Map_put_s(relativeToAbsoluteName, relativeName, strobj_(absoluteName))
+			relativeToAbsoluteName[relativeName] = absoluteName
 		}
 	}
 	var iterator IteratorOf[*AbstractCommandLineRunner_FlagEntry] = files.iterator()
@@ -516,8 +516,8 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files ListOf[*Abstrac
 			}
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
 			var relativeNonIjsName string = String_substring(relativeName, 0, (String_length(relativeName) - String_length(".i.js")))
-			if Map_containsKey_s(relativeToAbsoluteName, relativeNonIjsName) {
-				errors.add(obj_(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{str_(Map_get_s(relativeToAbsoluteName, relativeNonIjsName)), absoluteName})))
+			if has_(relativeToAbsoluteName, relativeNonIjsName) {
+				errors.add(obj_(JSError_make_DiagnosticType_StringArr(IjsErrors_CONFLICTING_IJS_FILE, []string{mapStr_(relativeToAbsoluteName, relativeNonIjsName), absoluteName})))
 				Iterator_remove(iterator)
 			}
 		}
@@ -590,7 +590,7 @@ func AbstractCommandLineRunner_createJsChunks(specs ListOf[*AbstractCommandLineR
 	Preconditions_checkState((inputs != nil))
 	var chunkNames ListOf[string] = icast_List(new_ArrayList_int(specs.size()).self())
 	var chunksByName MapOf[string, *JSChunk] = icast_Map(obj_(new_LinkedHashMap()))
-	var chunksFileCountMap MapOf[string, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
+	var chunksFileCountMap map[string]BoxedOf[int32] = map[string]BoxedOf[int32]{}
 	var numJsFilesExpected int32 = 0
 	var minJsFilesRequired int32 = 0
 	it_1 := foreach_(any(specs))
@@ -618,7 +618,7 @@ func AbstractCommandLineRunner_createJsChunks(specs ListOf[*AbstractCommandLineR
 			numJsFilesExpected += spec.numJsFiles
 		}
 		chunkNames.add_int_Object(0, strobj_(spec.name_))
-		Map_put_s(chunksFileCountMap, spec.name_, any(int32(spec.numJsFiles)))
+		chunksFileCountMap[spec.name_] = any(int32(spec.numJsFiles))
 		Map_put_s(chunksByName, spec.name_, obj_(chunk))
 	}
 	var totalNumJsFiles int32 = inputs.size()
@@ -637,7 +637,7 @@ func AbstractCommandLineRunner_createJsChunks(specs ListOf[*AbstractCommandLineR
 	it_5 := foreach_(any(chunkNames))
 	for it_5.next() {
 		var chunkName string = str_(it_5.v)
-		var numJsFiles int32 = unbox_[int32](Map_get_s(chunksFileCountMap, chunkName))
+		var numJsFiles int32 = unbox_[int32](chunksFileCountMap[chunkName])
 		var chunk *JSChunk = cast_[*JSChunk](Map_get_s(chunksByName, chunkName))
 		if ((chunkIndex == (chunkNames.size() - 1)) && (numJsFiles == -1)) {
 			numJsFiles = numJsFilesLeft

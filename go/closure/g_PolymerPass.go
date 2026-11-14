@@ -7,7 +7,7 @@ type PolymerPass struct {
 	compiler_ *AbstractCompiler
 	tagNameMap ImmutableMapOf[string, string]
 	polymerElementExterns Node
-	nativeExternsAdded SetOf[string]
+	nativeExternsAdded map[string]struct{}
 	polymerElementProps ImmutableListOf[Node]
 	globalNames *GlobalNamespace
 	behaviorExtractor *PolymerBehaviorExtractor
@@ -32,7 +32,7 @@ func (this *PolymerPass) init_PolymerPass(compiler *AbstractCompiler) {
 	this.finit_PolymerPass()
 	this.compiler_ = compiler
 	this.tagNameMap = TagNameToType_getMap()
-	this.nativeExternsAdded = icast_Set(obj_(new_LinkedHashSet()))
+	this.nativeExternsAdded = map[string]struct{}{}
 }
 
 func new_PolymerPass(compiler *AbstractCompiler) *PolymerPass {
@@ -125,7 +125,7 @@ func (this *PolymerPass) normalizePolymerExport(nameDecl Node, export Node) {
 }
 
 func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition) {
-	if !Collection_add_s(this.nativeExternsAdded, str_(def.nativeBaseElement.orElse(nil))) {
+	if !setAdd_(this.nativeExternsAdded, str_(def.nativeBaseElement.orElse(nil))) {
 		return
 	}
 	var block Node = IR_block_0()

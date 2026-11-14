@@ -6,7 +6,7 @@ type ReplaceStrings struct {
 	NodeTraversal_AbstractPostOrderCallback
 	placeholderToken string
 	compiler_ *AbstractCompiler
-	functions MapOf[string, *ReplaceStrings_Config]
+	functions map[string]*ReplaceStrings_Config
 	nameGenerator *DefaultNameGenerator
 	results MapOf[string, *ReplaceStrings_Result]
 }
@@ -23,7 +23,7 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 }
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
-	this.functions = icast_Map(obj_(new_LinkedHashMap()))
+	this.functions = map[string]*ReplaceStrings_Config{}
 	this.results = icast_Map(obj_(new_LinkedHashMap()))
 }
 
@@ -79,10 +79,10 @@ func (this *ReplaceStrings) visit_impl(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *ReplaceStrings) findMatching(name string, callsiteSourceFileName string) *ReplaceStrings_Config {
-	var config *ReplaceStrings_Config = cast_[*ReplaceStrings_Config](Map_get_s(this.functions, name))
+	var config *ReplaceStrings_Config = this.functions[name]
 	if (config == nil) {
 		name = String_replace_char_char(name, '$', '.')
-		config = cast_[*ReplaceStrings_Config](Map_get_s(this.functions, name))
+		config = this.functions[name]
 	}
 	if (config != nil) {
 		it_1 := foreach_(obj_(config.excludedFilenameSuffixes))
@@ -223,7 +223,7 @@ func (this *ReplaceStrings) parseConfigurationList(functionsToInspect ListOf[str
 		var function string = str_(it_1.v)
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if (config != nil) {
-			Map_put_s(this.functions, config.name_, obj_(config))
+			this.functions[config.name_] = config
 		}
 	}
 }

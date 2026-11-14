@@ -6,7 +6,7 @@ type RenameVars struct {
 	compiler_ *AbstractCompiler
 	globalNameNodes ArrayListOf[Node]
 	localNameNodes ArrayListOf[Node]
-	originalNameByNode MapOf[Node, string]
+	originalNameByNode map[Node]string
 	pseudoNameMap MapOf[Node, string]
 	externNames_ ImmutableSetOf[string]
 	reservedNames SetOf[string]
@@ -30,7 +30,7 @@ func (this *RenameVars) zero_RenameVars() {
 func (this *RenameVars) finit_RenameVars() {
 	this.globalNameNodes = new_ArrayList_0()
 	this.localNameNodes = new_ArrayList_0()
-	this.originalNameByNode = icast_Map(obj_(new_LinkedHashMap()))
+	this.originalNameByNode = map[Node]string{}
 	this.renameMap = icast_Map(obj_(new_LinkedHashMap()))
 	this.assignmentCount = 0
 	this.localBleedingFunctions = icast_Set(obj_(new_LinkedHashSet()))
@@ -75,7 +75,7 @@ func RenameVars_frequencyComparator(a1 *RenameVars_Assignment, a2 *RenameVars_As
 
 func (this *RenameVars) process_2(externs Node, root Node) {
 	this.externNames_ = NodeUtil_collectExternVariableNames(this.compiler_, externs)
-	this.originalNameByNode.clear()
+	clear(this.originalNameByNode)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameVars_ProcessVars(this))))
 	this.reservedNames.addAll(icast_Collection(obj_(this.externNames_)))
 	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(&Comparator_fn{func(p0 any, p1 any) int32 { return RenameVars_frequencyComparator(cast_[*RenameVars_Assignment](p0), cast_[*RenameVars_Assignment](p1)) }})))
@@ -99,7 +99,7 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 func (this *RenameVars) setNameAndReport(n Node, newName OptionalOf[string]) {
 	if (newName.isPresent() && !(str_(newName.get()) == n.getString())) {
 		n.setString(str_(newName.get()))
-		if !(str_(newName.get()) == str_(this.originalNameByNode.get(n.box_()))) {
+		if !(str_(newName.get()) == mapStr_(this.originalNameByNode, n)) {
 			this.compiler_.reportChangeToEnclosingScope(n)
 			var parent Node = n.getParent()
 			if (parent.isFunction() && NodeUtil_isFunctionDeclaration(parent)) {
@@ -375,7 +375,7 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 		var tempName string = (sstr_(RenameVars_LOCAL_VAR_PREFIX) + istr_(int64(this.outer_.getLocalVarIndex(var_))))
 		this.incCount(tempName)
 		this.outer_.localNameNodes.add(n.box_())
-		this.outer_.originalNameByNode.put(n.box_(), strobj_(n.getString()))
+		this.outer_.originalNameByNode[n] = n.getString()
 		n.setString(tempName)
 	} else if (var_ != nil) {
 		this.incCount(name)

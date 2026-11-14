@@ -6,7 +6,7 @@ type JsMessageVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
 	idGenerator_ JsMessage_IdGenerator
 	compiler_ *AbstractCompiler
-	messageNames MapOf[string, *JsMessageVisitor_MessageLocation]
+	messageNames map[string]*JsMessageVisitor_MessageLocation
 	unnamedMessages MapOf[*Var, *JsMessage]
 	googMsgNodes SetOf[Node]
 }
@@ -40,7 +40,7 @@ func (this *JsMessageVisitor) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *JsMessageVisitor) finit_JsMessageVisitor() {
-	this.messageNames = icast_Map(obj_(new_LinkedHashMap()))
+	this.messageNames = map[string]*JsMessageVisitor_MessageLocation{}
 	this.unnamedMessages = icast_Map(obj_(new_LinkedHashMap()))
 	this.googMsgNodes = icast_Set(obj_(new_LinkedHashSet()))
 }
@@ -259,7 +259,7 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 
 func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName string, msgNode Node) {
 	var location *JsMessageVisitor_MessageLocation = new_JsMessageVisitor_MessageLocation(message, msgNode)
-	Map_put_s(this.messageNames, msgName, obj_(location))
+	this.messageNames[msgName] = location
 }
 
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
@@ -292,13 +292,13 @@ func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgName
 }
 
 func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage {
-	var location *JsMessageVisitor_MessageLocation = cast_[*JsMessageVisitor_MessageLocation](Map_get_s(this.messageNames, msgName))
+	var location *JsMessageVisitor_MessageLocation = this.messageNames[msgName]
 	return func() *JsMessage { if (location == nil) { return nil }; return location.message_ }()
 }
 
 func (this *JsMessageVisitor) checkIfMessageDuplicated(msgName string, msgNode Node) {
-	if Map_containsKey_s(this.messageNames, msgName) {
-		var location *JsMessageVisitor_MessageLocation = cast_[*JsMessageVisitor_MessageLocation](Map_get_s(this.messageNames, msgName))
+	if has_(this.messageNames, msgName) {
+		var location *JsMessageVisitor_MessageLocation = this.messageNames[msgName]
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(msgNode, JsMessageVisitor_MESSAGE_DUPLICATE_KEY, []string{msgName, location.messageNode_.getSourceFileName(), Integer_toString(location.messageNode_.getLineno())}))
 	}
 }

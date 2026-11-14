@@ -6,7 +6,7 @@ type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
 	requires MapOf[string, Node]
-	usages SetOf[string]
+	usages map[string]struct{}
 	requiresToRemove ImmutableSetOf[string]
 }
 
@@ -19,7 +19,7 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
 	this.requires = icast_Map(obj_(new_LinkedHashMap()))
-	this.usages = icast_Set(obj_(new_LinkedHashSet()))
+	this.usages = map[string]struct{}{}
 }
 
 func (this *CheckExtraRequires) init_CheckExtraRequires(compiler *AbstractCompiler, requiresToRemove ImmutableSetOf[string]) {
@@ -88,7 +88,7 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 }
 
 func (this *CheckExtraRequires) reset() {
-	this.usages.clear()
+	clear(this.usages)
 	this.requires.clear()
 }
 
@@ -98,7 +98,7 @@ func (this *CheckExtraRequires) visitScriptNode() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var require string = str_(entry.getKey())
 		var call Node = Node_of_(entry.getValue())
-		if (!Collection_contains_s(this.usages, require) && ((this.requiresToRemove == nil) || Collection_contains_s(this.requiresToRemove, require))) {
+		if (!has_(this.usages, require) && ((this.requiresToRemove == nil) || Collection_contains_s(this.requiresToRemove, require))) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
@@ -175,15 +175,15 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 	}
 	var callee Node = call.getFirstChild()
 	if (CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit()) {
-		Collection_add_s(this.usages, call.getSecondChild().getString())
+		this.usages[call.getSecondChild().getString()] = struct{}{}
 	}
 }
 
 func (this *CheckExtraRequires) addUsagesOfAllPrefixes(qualifiedName *QualifiedName) {
-	Collection_add_s(this.usages, str_(qualifiedName.join().orElse(nil)))
+	this.usages[str_(qualifiedName.join().orElse(nil))] = struct{}{}
 	for !qualifiedName.isSimple() {
 		qualifiedName = qualifiedName.getOwner()
-		Collection_add_s(this.usages, str_(qualifiedName.join().orElse(nil)))
+		this.usages[str_(qualifiedName.join().orElse(nil))] = struct{}{}
 	}
 }
 

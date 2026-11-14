@@ -5,13 +5,13 @@ package closure
 type SourceMap struct {
 	generator SourceMapGenerator
 	prefixMappings ListOf[SourceMap_LocationMapping]
-	sourceLocationFixupCache MapOf[string, string]
+	sourceLocationFixupCache map[string]string
 	mapping SourceFileMapping
 }
 
 func (this *SourceMap) finit_SourceMap() {
 	this.prefixMappings = icast_List(obj_(ImmutableList_of()))
-	this.sourceLocationFixupCache = icast_Map(obj_(new_LinkedHashMap()))
+	this.sourceLocationFixupCache = map[string]string{}
 }
 
 func (this *SourceMap) init_SourceMap(generator SourceMapGenerator) {
@@ -86,7 +86,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile OptionalOf[string]) *Optio
 	if this.prefixMappings.isEmpty() {
 		return sourceFile
 	}
-	var fixed OptionalOf[string] = func() *Optional { if sourceFile.isPresent() { return Optional_ofNullable(Map_get_s(this.sourceLocationFixupCache, str_(sourceFile.get()))) }; return Optional_empty() }()
+	var fixed OptionalOf[string] = func() *Optional { if sourceFile.isPresent() { return Optional_ofNullable(strobj_(mapStr_(this.sourceLocationFixupCache, str_(sourceFile.get())))) }; return Optional_empty() }()
 	if fixed.isPresent() {
 		return fixed
 	}
@@ -101,7 +101,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile OptionalOf[string]) *Optio
 	if fixed.isEmpty() {
 		fixed = sourceFile
 	}
-	Map_put_s(this.sourceLocationFixupCache, str_(sourceFile.orElse(nil)), fixed.orElse(nil))
+	this.sourceLocationFixupCache[str_(sourceFile.orElse(nil))] = str_(fixed.orElse(nil))
 	return fixed
 }
 
@@ -111,7 +111,7 @@ func (this *SourceMap) appendTo(out Appendable, name OptionalOf[string]) {
 
 func (this *SourceMap) reset() {
 	this.generator.reset()
-	this.sourceLocationFixupCache.clear()
+	clear(this.sourceLocationFixupCache)
 }
 
 func (this *SourceMap) setStartingPosition(offsetLine int32, offsetIndex int32) {

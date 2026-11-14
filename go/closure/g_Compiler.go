@@ -9,7 +9,7 @@ type Compiler struct {
 	externs ArrayListOf[*CompilerInput]
 	chunkGraph *JSChunkGraph
 	moduleLoader *ModuleLoader
-	moduleTypesByName MapOf[string, *CompilerInput_ModuleType]
+	moduleTypesByName map[string]*CompilerInput_ModuleType
 	errorManager ErrorManager
 	warningsGuard *WarningsGuard
 	externsRoot Node
@@ -161,7 +161,7 @@ func (this *Compiler) init_Compiler_Output(outStream *Output) {
 	this.finit_Compiler()
 	this.changeTracker.addChangeHandler(icast_CodeChangeHandler(obj_(this.changeTracker.getRecentChange())))
 	this.outStream = outStream
-	this.moduleTypesByName = icast_Map(obj_(new_LinkedHashMap()))
+	this.moduleTypesByName = map[string]*CompilerInput_ModuleType{}
 }
 
 func new_Compiler_Output(outStream *Output) *Compiler {
@@ -1446,13 +1446,13 @@ func (this *Compiler) parseInputs() Node {
 			if this.options_.getLanguageIn().toFeatureSet().has(FeatureSet_Feature_MODULES) {
 				this.parsePotentialModules(this.chunkGraph.getAllInputs())
 			}
-			var inputModuleIdentifiers MapOf[string, *CompilerInput] = icast_Map(obj_(new_LinkedHashMap()))
+			var inputModuleIdentifiers map[string]*CompilerInput = map[string]*CompilerInput{}
 			it_4 := foreach_(any(this.chunkGraph.getAllInputs()))
 			for it_4.next() {
 				var input *CompilerInput = cast_[*CompilerInput](it_4.v)
 				if input.getKnownProvides().isEmpty() {
 					var modPath *ModuleLoader_ModulePath = this.moduleLoader.resolve(input.getSourceFile().getName())
-					Map_put_s(inputModuleIdentifiers, modPath.toModuleName(), obj_(input))
+					inputModuleIdentifiers[modPath.toModuleName()] = input
 				}
 			}
 			var inputsToRewrite MapOf[string, *CompilerInput] = icast_Map(obj_(new_LinkedHashMap()))
@@ -1462,8 +1462,8 @@ func (this *Compiler) parseInputs() Node {
 				it_8 := foreach_(obj_(input.getKnownRequiredSymbols()))
 				for it_8.next() {
 					var require string = str_(it_8.v)
-					if (Map_containsKey_s(inputModuleIdentifiers, require) && !Map_containsKey_s(inputsToRewrite, require)) {
-						Map_put_s(inputsToRewrite, require, Map_get_s(inputModuleIdentifiers, require))
+					if (has_(inputModuleIdentifiers, require) && !Map_containsKey_s(inputsToRewrite, require)) {
+						Map_put_s(inputsToRewrite, require, obj_(inputModuleIdentifiers[require]))
 					}
 				}
 			}
@@ -1638,7 +1638,7 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 	if (wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE)) {
 		input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 	}
-	Map_put_s(this.moduleTypesByName, input.getPath().toModuleName(), obj_(input.getJsModuleType()))
+	this.moduleTypesByName[input.getPath().toModuleName()] = input.getJsModuleType()
 	var allDeps IterableOf[string] = Iterables_concat_Iterable_Iterable_Iterable(icast_Iterable(obj_(input.getRequiredSymbols())), icast_Iterable(obj_(input.getDynamicRequires())), icast_Iterable(obj_(input.getTypeRequires())))
 	it_1 := foreach_(any(allDeps))
 	for it_1.next() {
@@ -2832,9 +2832,9 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	}
 	builder.setTypeCheckingHasRun(this.typeCheckingHasRun).setHasRegExpGlobalReferences(this.hasRegExpGlobalReferencesField).setLifeCycleStage(Compiler_toProto(this.getLifeCycleStage())).setMergedPrecompiledLibraries(this.options_.getMergedPrecompiledLibraries())
 	var chunkList []*JSChunk = this.chunkGraph.getIntegralChunkArrayForSerialization()
-	var chunkNameMap MapOf[string, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
+	var chunkNameMap map[string]BoxedOf[int32] = map[string]BoxedOf[int32]{}
 	for i := int32(0); (i < int32(len(chunkList))); i++ {
-		Map_put_s(chunkNameMap, chunkList[i].getName(), any(int32(i)))
+		chunkNameMap[chunkList[i].getName()] = any(int32(i))
 	}
 	for _, chunk := range chunkList {
 		var chunkBuilder *ChunkProto_Builder = ChunkProto_newBuilder()
@@ -2842,7 +2842,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		it_5 := foreach_(obj_(chunk.getDependencies()))
 		for it_5.next() {
 			var dep *JSChunk = cast_[*JSChunk](it_5.v)
-			var depIdx any = Map_get_s(chunkNameMap, dep.getName())
+			var depIdx any = chunkNameMap[dep.getName()]
 			Preconditions_checkState_boolean_String_Object_Object((depIdx != nil), "Missing dependency %s for chunk %s", strobj_(dep.getName()), strobj_(chunk.getName()))
 			chunkBuilder.addDependencies(unbox_[int32](depIdx))
 		}
@@ -3107,7 +3107,7 @@ func (this *Compiler) deserializeCompilerState(state []int8) {
 }
 
 func (this *Compiler) getModuleTypeByName_impl(moduleName OptionalOf[string]) *CompilerInput_ModuleType {
-	return func() *CompilerInput_ModuleType { if moduleName.isPresent() { return cast_[*CompilerInput_ModuleType](Map_get_s(this.moduleTypesByName, str_(moduleName.get()))) }; return nil }()
+	return func() *CompilerInput_ModuleType { if moduleName.isPresent() { return this.moduleTypesByName[str_(moduleName.get())] }; return nil }()
 }
 
 func (this *Compiler) getModuleMetadataMap_impl() *ModuleMetadataMap {
@@ -3421,7 +3421,7 @@ func (this *Compiler_SingleBinaryLicenseTracker) shouldUseLicenseInfo_impl(node 
 
 type Compiler_ChunkGraphAwareLicenseTracker struct {
 	compiler_ *AbstractCompiler
-	licensesFromChunks MapOf[*JSChunk, SetOf[string]]
+	licensesFromChunks map[*JSChunk]SetOf[string]
 	haveInitializedCurrentChunkLicenses bool
 	currentChunkLicencesInTDeps SetOf[string]
 	lastSeenFile string
@@ -3436,7 +3436,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
-	this.licensesFromChunks = icast_Map(obj_(new_LinkedHashMap()))
+	this.licensesFromChunks = map[*JSChunk]SetOf[string]{}
 	this.haveInitializedCurrentChunkLicenses = false
 	this.currentChunkLicencesInTDeps = icast_Set(obj_(new_LinkedHashSet()))
 	this.lastSeenFile = ""
@@ -3467,11 +3467,11 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) setCurrentChunkContext(chunk
 	this.currentChunkLicencesInTDeps.clear()
 	this.licensesNewInCurrentFile.clear()
 	this.haveInitializedCurrentChunkLicenses = false
-	if this.licensesFromChunks.containsKey(obj_(chunk)) {
+	if has_(this.licensesFromChunks, chunk) {
 		panic(new_IllegalStateException_String("Visiting a chunk more than once is not allowed.").self())
 	}
 	this.licensesNewInCurrentChunk = icast_Set(obj_(new_LinkedHashSet()))
-	this.licensesFromChunks.put(obj_(chunk), any(this.licensesNewInCurrentChunk))
+	this.licensesFromChunks[chunk] = this.licensesNewInCurrentChunk
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node Node) {
@@ -3492,10 +3492,10 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 		for it_1.next() {
 			var depChunk *JSChunk = cast_[*JSChunk](it_1.v)
 			this.log_.log_2("Chunk %s depends on chunk %s", []any{obj_(this.currentChunk), obj_(depChunk)})
-			if !this.licensesFromChunks.containsKey(obj_(depChunk)) {
+			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order.").self())
 			}
-			this.currentChunkLicencesInTDeps.addAll(icast_Collection(this.licensesFromChunks.get(obj_(depChunk))))
+			this.currentChunkLicencesInTDeps.addAll(icast_Collection(any(this.licensesFromChunks[depChunk])))
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}

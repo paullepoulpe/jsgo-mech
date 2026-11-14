@@ -321,19 +321,19 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPo
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
-	var disallowedNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-	Collection_add_s(disallowedNames, MakeDeclaredNamesUnique_ARGUMENTS)
+	var disallowedNames map[string]struct{} = map[string]struct{}{}
+	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
 	it_1 := foreach_(any(this.potentialShadowVariables))
 	for it_1.next() {
 		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(it_1.v)
 		var potentialShadowName string = potentialShadowVariable.getName()
-		Collection_add_s(disallowedNames, potentialShadowName)
+		disallowedNames[potentialShadowName] = struct{}{}
 	}
 	var newName string = this.preferredName
-	if Collection_contains_s(disallowedNames, this.preferredName) {
+	if has_(disallowedNames, this.preferredName) {
 		var baseName string = (sstr_(this.preferredName) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
 		var i int32 = 0
-		for do_4 := true; do_4; do_4 = Collection_contains_s(disallowedNames, newName) {
+		for do_4 := true; do_4; do_4 = has_(disallowedNames, newName) {
 			newName = (sstr_(baseName) + istr_(int64(i)))
 			i++
 		}
