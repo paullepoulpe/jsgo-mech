@@ -51,7 +51,7 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf
 	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(fixChoices, nil)).getAlternatives().size()
 	Preconditions_checkArgument_boolean_Object(ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount), strobj_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense"))
 	var result ImmutableList_BuilderOf[ImmutableMapOf[string, string]] = ImmutableList_builder()
-	for i := int32(0); (i < alternativeCount); i++ {
+	for i := int32(0); i < alternativeCount; i++ {
 		result.add(obj_(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap)))
 	}
 	return cast_[*ImmutableList](obj_(result.build()))
@@ -61,7 +61,7 @@ func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*Suggeste
 	it_1 := foreach_(any(fixChoices))
 	for it_1.next() {
 		var f *SuggestedFix = cast_[*SuggestedFix](it_1.v)
-		if (f.getAlternatives().size() != alternativeCount) {
+		if f.getAlternatives().size() != alternativeCount {
 			return false
 		}
 	}
@@ -113,7 +113,7 @@ func ApplySuggestedFixes_applyCodeReplacements(replacements CollectionOf[*CodeRe
 		sb.append(replacement.getNewContent())
 		lastIndex = replacement.getEndPosition()
 	}
-	if (lastIndex <= String_length(code)) {
+	if lastIndex <= String_length(code) {
 		sb.append_CharSequence_int_int(strobj_(code), lastIndex, String_length(code))
 	}
 	return Object_toString(obj_(sb))
@@ -124,7 +124,7 @@ func ApplySuggestedFixes_containsOverlaps(replacements ImmutableSortedSetOf[*Cod
 	it_1 := foreach_(obj_(replacements))
 	for it_1.next() {
 		var replacement *CodeReplacement = cast_[*CodeReplacement](it_1.v)
-		if (replacement.getStartPosition() < start) {
+		if replacement.getStartPosition() < start {
 			return true
 		}
 		start = replacement.getEndPosition()
@@ -184,4 +184,3 @@ func (this *ApplySuggestedFixes_ReplacementMap) canPut(fix *SuggestedFix) bool {
 func (this *ApplySuggestedFixes_ReplacementMap) entrySet() Set {
 	return this.map__.asMap().entrySet()
 }
-

@@ -3,10 +3,10 @@
 package closure
 
 type ColorSerializer struct {
-	serializationMode *SerializationOptions
-	getStringPoolIndexFn FunctionOf[string, BoxedOf[int32]]
-	propertyFilter PredicateOf[string]
-	colorIdToTypePointer LinkedHashMapOf[*ColorId, BoxedOf[int32]]
+	serializationMode       *SerializationOptions
+	getStringPoolIndexFn    FunctionOf[string, BoxedOf[int32]]
+	propertyFilter          PredicateOf[string]
+	colorIdToTypePointer    LinkedHashMapOf[*ColorId, BoxedOf[int32]]
 	colorsInSerializedOrder ArrayListOf[*Color]
 }
 
@@ -56,7 +56,7 @@ func (this *ColorSerializer) addColor(color *Color) int32 {
 
 func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn FunctionOf[*Color, SetOf[*Color]], getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
-	for i := int32(TypePointers_untrimOffset(0)); (i < this.colorsInSerializedOrder.size()); i++ {
+	for i := int32(TypePointers_untrimOffset(0)); i < this.colorsInSerializedOrder.size(); i++ {
 		var color *Color = cast_[*Color](this.colorsInSerializedOrder.get(i))
 		var typePointer any = this.colorIdToTypePointer.get(obj_(color.getId()))
 		typePoolBuilder.addType(this.generateTypeProto(color))
@@ -116,4 +116,3 @@ func (this *ColorSerializer) getOwnPropertyStringPoolOffsets(color *Color) *Immu
 	}
 	return cast_[*ImmutableList](obj_(builder.build()))
 }
-

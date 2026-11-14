@@ -4,7 +4,7 @@ package closure
 
 type PassListBuilder struct {
 	options_ *CompilerOptions
-	passes ListOf[*PassFactory]
+	passes   ListOf[*PassFactory]
 }
 
 func (this *PassListBuilder) finit_PassListBuilder() {
@@ -47,8 +47,8 @@ func (this *PassListBuilder) addAfter(factory *PassFactory, passName string) {
 func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string) {
 	var otherPasses ImmutableListOf[*PassFactory] = other.build()
 	var index int32 = -1
-	for i := int32(0); (i < otherPasses.size()); i++ {
-		if (passName == cast_[*PassFactory](otherPasses.get(i)).getName()) {
+	for i := int32(0); i < otherPasses.size(); i++ {
+		if passName == cast_[*PassFactory](otherPasses.get(i)).getName() {
 			index = i
 			break
 		}
@@ -60,7 +60,7 @@ func (this *PassListBuilder) findByName(name string) *PassFactory {
 	it_1 := foreach_(any(this.passes))
 	for it_1.next() {
 		var pass *PassFactory = cast_[*PassFactory](it_1.v)
-		if (pass.getName() == name) {
+		if pass.getName() == name {
 			return pass
 		}
 	}
@@ -68,8 +68,8 @@ func (this *PassListBuilder) findByName(name string) *PassFactory {
 }
 
 func (this *PassListBuilder) removeByName(name string) {
-	for i := int32(0); (i < this.passes.size()); i++ {
-		if (cast_[*PassFactory](this.passes.get(i)).getName() == name) {
+	for i := int32(0); i < this.passes.size(); i++ {
+		if cast_[*PassFactory](this.passes.get(i)).getName() == name {
 			this.passes.remove(i)
 			return
 		}
@@ -77,8 +77,8 @@ func (this *PassListBuilder) removeByName(name string) {
 }
 
 func (this *PassListBuilder) findIndexByName(name string) int32 {
-	for i := int32(0); (i < this.passes.size()); i++ {
-		if (cast_[*PassFactory](this.passes.get(i)).getName() == name) {
+	for i := int32(0); i < this.passes.size(); i++ {
+		if cast_[*PassFactory](this.passes.get(i)).getName() == name {
 			return i
 		}
 	}
@@ -108,8 +108,7 @@ func (this *PassListBuilder) assertAllLoopablePasses() {
 func (this *PassListBuilder) assertPassOrder(pass1 *PassFactory, pass2 *PassFactory, msg string) {
 	var pass1Index int32 = this.passes.indexOf(obj_(pass1))
 	var pass2Index int32 = this.passes.indexOf(obj_(pass2))
-	if ((pass1Index != -1) && (pass2Index != -1)) {
+	if (pass1Index != -1) && (pass2Index != -1) {
 		Preconditions_checkState_boolean_Object((pass1Index < pass2Index), strobj_(msg))
 	}
 }
-

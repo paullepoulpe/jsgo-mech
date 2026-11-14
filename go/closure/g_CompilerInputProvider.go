@@ -13,4 +13,3 @@ type CompilerInputProvider_fn struct {
 func (this *CompilerInputProvider_fn) getInput(p0 *InputId) *CompilerInput {
 	return this.f(p0)
 }
-

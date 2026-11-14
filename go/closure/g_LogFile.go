@@ -64,7 +64,9 @@ func (this *LogFile) logJsonSupplier(p0 Supplier) *LogFile {
 }
 
 func (this *LogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
-	return this.self_.(interface{ logJson_impl(LogFile_StreamedJsonProducer) *LogFile }).logJson_impl(p0)
+	return this.self_.(interface {
+		logJson_impl(LogFile_StreamedJsonProducer) *LogFile
+	}).logJson_impl(p0)
 }
 
 func (this *LogFile) close() {
@@ -86,4 +88,3 @@ type LogFile_StreamedJsonProducer_fn struct {
 func (this *LogFile_StreamedJsonProducer_fn) writeJson(p0 *SimpleJsonWriter) {
 	this.f(p0)
 }
-

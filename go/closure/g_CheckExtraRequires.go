@@ -4,9 +4,9 @@ package closure
 
 type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	requires MapOf[string, Node]
-	usages map[string]struct{}
+	compiler_        *AbstractCompiler
+	requires         MapOf[string, Node]
+	usages           map[string]struct{}
 	requiresToRemove ImmutableSetOf[string]
 }
 
@@ -49,7 +49,7 @@ func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []str
 	for _, primitiveName := range primitiveNames {
 		if callee.matchesQualifiedName(primitiveName) {
 			var target Node = callee.getNext()
-			if ((target != 0) && target.isStringLit()) {
+			if (target != 0) && target.isStringLit() {
 				return Optional_of(strobj_(target.getString()))
 			}
 		}
@@ -69,11 +69,11 @@ func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node
 	this.maybeAddJsDocUsages(n)
 	switch n.getToken() {
 	case Token_rhino_NAME:
-		if ((!NodeUtil_isLValue(n) && !parent.isGetProp()) && !parent.isImportSpec()) {
+		if (!NodeUtil_isLValue(n) && !parent.isGetProp()) && !parent.isImportSpec() {
 			this.visitQualifiedName(n)
 		}
 	case Token_rhino_GETPROP:
-		if (!parent.isGetProp() && n.isQualifiedName()) {
+		if !parent.isGetProp() && n.isQualifiedName() {
 			this.visitQualifiedName(n)
 		}
 	case Token_rhino_CALL:
@@ -98,7 +98,7 @@ func (this *CheckExtraRequires) visitScriptNode() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var require string = str_(entry.getKey())
 		var call Node = Node_of_(entry.getValue())
-		if (!has_(this.usages, require) && ((this.requiresToRemove == nil) || Collection_contains_s(this.requiresToRemove, require))) {
+		if !has_(this.usages, require) && ((this.requiresToRemove == nil) || Collection_contains_s(this.requiresToRemove, require)) {
 			this.reportExtraRequireWarning(call, require)
 		}
 	}
@@ -109,7 +109,7 @@ func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require str
 		return
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(call)
-	if ((jsDoc != nil) && Collection_contains_s(jsDoc.getSuppressions(), "extraRequire")) {
+	if (jsDoc != nil) && Collection_contains_s(jsDoc.getSuppressions(), "extraRequire") {
 		return
 	}
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, CheckExtraRequires_EXTRA_REQUIRE_WARNING, []string{require}))
@@ -128,7 +128,7 @@ func (this *CheckExtraRequires) visitImportNode(importNode Node) {
 	if namedImports.isImportSpecs() {
 		{
 			var importSpec Node = namedImports.getFirstChild()
-			for ; (importSpec != 0); importSpec = importSpec.getNext() {
+			for ; importSpec != 0; importSpec = importSpec.getNext() {
 				this.visitRequire(importSpec.getLastChild().getString(), importNode)
 			}
 		}
@@ -142,11 +142,11 @@ func (this *CheckExtraRequires) visitForwardDeclare(namespace string, forwardDec
 func (this *CheckExtraRequires) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {
 	if parent.isName() {
 		this.visitRequire(parent.getString(), googRequireCall)
-	} else if (parent.isDestructuringLhs() && parent.getFirstChild().isObjectPattern()) {
+	} else if parent.isDestructuringLhs() && parent.getFirstChild().isObjectPattern() {
 		if parent.getFirstChild().hasChildren() {
 			{
 				var stringKey Node = parent.getFirstFirstChild()
-				for ; (stringKey != 0); stringKey = stringKey.getNext() {
+				for ; stringKey != 0; stringKey = stringKey.getNext() {
 					var importName Node = stringKey.getFirstChild()
 					if !importName.isName() {
 						continue
@@ -174,7 +174,7 @@ func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 		return
 	}
 	var callee Node = call.getFirstChild()
-	if (CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit()) {
+	if CheckExtraRequires_GOOG_MODULE_GET.matches(callee) && call.getSecondChild().isStringLit() {
 		this.usages[call.getSecondChild().getString()] = struct{}{}
 	}
 }
@@ -194,7 +194,7 @@ func (this *CheckExtraRequires) visitQualifiedName(n Node) {
 
 func (this *CheckExtraRequires) maybeAddJsDocUsages(n Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info == nil) {
+	if info == nil {
 		return
 	}
 	it_1 := foreach_(any(info.getTypeExpressions()))
@@ -224,4 +224,3 @@ func CheckExtraRequires_clinit() {
 	CheckExtraRequires_GOOG_MODULE_GET = QualifiedName_of("goog.module.get")
 
 }
-

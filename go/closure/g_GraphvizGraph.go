@@ -21,4 +21,3 @@ type GraphvizGraph_GraphvizEdge interface {
 	getColor() string
 	getLabel() string
 }
-

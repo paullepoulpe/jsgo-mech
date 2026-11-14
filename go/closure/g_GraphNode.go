@@ -6,4 +6,3 @@ type GraphNode interface {
 	Annotatable
 	getValue() any
 }
-

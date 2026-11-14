@@ -3,7 +3,7 @@
 package closure
 
 type Outcome_base struct {
-	value_ any
+	value_     any
 	errorField *Throwable
 }
 
@@ -27,7 +27,7 @@ func Outcome_base_ok_0() *Outcome_base {
 }
 
 func Outcome_base_err(error_ *Throwable) *Outcome_base {
-	if (error_ == nil) {
+	if error_ == nil {
 		panic(new_NullPointerException_0().self())
 	}
 	return new_Outcome_base(nil, error_)
@@ -42,7 +42,7 @@ func (this *Outcome_base) isErr() bool {
 }
 
 func (this *Outcome_base) get() any {
-	if (this.errorField != nil) {
+	if this.errorField != nil {
 		panic(new_IllegalStateException_String_Throwable("Outcome.get() called on an error outcome", this.errorField).self())
 	}
 	return this.value_
@@ -53,6 +53,10 @@ func (this *Outcome_base) error() *Throwable {
 }
 
 func (this *Outcome_base) errorMessage() *Optional {
-	return func() *Optional { if (this.errorField == nil) { return Optional_empty() }; return Optional_of(strobj_(this.errorField.getMessage())) }()
+	return func() *Optional {
+		if this.errorField == nil {
+			return Optional_empty()
+		}
+		return Optional_of(strobj_(this.errorField.getMessage()))
+	}()
 }
-

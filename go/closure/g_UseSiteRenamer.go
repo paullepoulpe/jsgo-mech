@@ -3,7 +3,7 @@
 package closure
 
 type UseSiteRenamer struct {
-	mutationCb ConsumerOf[Node]
+	mutationCb    ConsumerOf[Node]
 	renamingIndex *SimpleSetMultimap
 }
 
@@ -28,7 +28,7 @@ func (this *UseSiteRenamer) renameUses(prop *PropertyClustering) *UseSiteRenamer
 		return UseSiteRenamer_RenameUsesResult_INVALIDATED
 	}
 	var clusterNames ImmutableMapOf[*ColorGraphNode, string] = UseSiteRenamer_createAllClusterNames(prop)
-	if (clusterNames.size() <= 1) {
+	if clusterNames.size() <= 1 {
 		this.renamingIndex.put(strobj_(prop.getName()), strobj_(prop.getName()))
 		return UseSiteRenamer_RenameUsesResult_ONLY_ONE_CLUSTER
 	}
@@ -124,4 +124,3 @@ func UseSiteRenamer_RenameUsesResult_clinit() {
 	registerEnum_("com.google.javascript.jscomp.disambiguate.UseSiteRenamer.RenameUsesResult", enumValues_(UseSiteRenamer_RenameUsesResult_values_))
 
 }
-

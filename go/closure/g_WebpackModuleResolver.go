@@ -76,4 +76,3 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 	}
 	return new_WebpackModuleResolver(modulePaths, moduleRootPaths, normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }
-

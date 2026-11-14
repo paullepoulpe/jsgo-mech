@@ -4,7 +4,7 @@ package closure
 
 type MemoizedScopeCreator struct {
 	scopesByScopeRoot map[Node]*AbstractScope
-	delegate ScopeCreator
+	delegate          ScopeCreator
 }
 
 func (this *MemoizedScopeCreator) finit_MemoizedScopeCreator() {
@@ -24,7 +24,7 @@ func new_MemoizedScopeCreator(delegate ScopeCreator) *MemoizedScopeCreator {
 
 func (this *MemoizedScopeCreator) createScopeAbstractScope(n Node, parent *AbstractScope) *AbstractScope {
 	var scope *AbstractScope = this.scopesByScopeRoot[n]
-	if (scope == nil) {
+	if scope == nil {
 		scope = this.delegate.createScopeAbstractScope(n, parent)
 		this.scopesByScopeRoot[n] = scope
 	} else {
@@ -32,4 +32,3 @@ func (this *MemoizedScopeCreator) createScopeAbstractScope(n Node, parent *Abstr
 	}
 	return scope
 }
-

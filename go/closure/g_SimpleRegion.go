@@ -4,8 +4,8 @@ package closure
 
 type SimpleRegion struct {
 	beginningLineNumber int32
-	endingLineNumber int32
-	source string
+	endingLineNumber    int32
+	source              string
 }
 
 func (this *SimpleRegion) zero_SimpleRegion() {
@@ -36,4 +36,3 @@ func (this *SimpleRegion) getEndingLineNumber() int32 {
 func (this *SimpleRegion) getSourceExcerpt() string {
 	return this.source
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type ConstCheck struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_            *AbstractCompiler
 	initializedConstants SetOf[*Var]
 }
 
@@ -53,9 +53,9 @@ func (this *ConstCheck) visit_impl(t *NodeTraversal, n Node, parent Node) {
 		if lhs.isName() {
 			var name string = lhs.getString()
 			var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
-			if (this.isConstant(var_, lhs) && !this.initializedConstants.add(obj_(var_))) {
+			if this.isConstant(var_, lhs) && !this.initializedConstants.add(obj_(var_)) {
 				this.reportError(n, var_, name)
-			} else if (((var_ != nil) && var_.isGoogModuleExports()) && !this.initializedConstants.add(obj_(var_))) {
+			} else if ((var_ != nil) && var_.isGoogModuleExports()) && !this.initializedConstants.add(obj_(var_)) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ConstCheck_CONST_REASSIGNED_VALUE_ERROR, []string{"exports", n.getSourceFileName()}))
 			}
 		}
@@ -79,7 +79,7 @@ func (this *ConstCheck) isConstant(var_ *Var, nameNode Node) bool {
 
 func (this *ConstCheck) reportError(n Node, var_ *Var, name string) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-	if ((info == nil) || !Collection_contains_s(info.getSuppressions(), "const")) {
+	if (info == nil) || !Collection_contains_s(info.getSuppressions(), "const") {
 		var declNode Node = var_.getNode()
 		var declaredPosition string = (sstr_(declNode.getSourceFileName()) + ":" + istr_(int64(declNode.getLineno())))
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ConstCheck_CONST_REASSIGNED_VALUE_ERROR, []string{name, declaredPosition}))
@@ -98,4 +98,3 @@ func ConstCheck_clinit() {
 	ConstCheck_CONST_REASSIGNED_VALUE_ERROR = DiagnosticType_warning("JSC_CONSTANT_REASSIGNED_VALUE_ERROR", "constant {0} assigned a value more than once.\nOriginal definition at {1}")
 
 }
-

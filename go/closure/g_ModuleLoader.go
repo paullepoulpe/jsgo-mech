@@ -3,11 +3,11 @@
 package closure
 
 type ModuleLoader struct {
-	errorHandler ErrorHandler
+	errorHandler    ErrorHandler
 	moduleRootPaths ImmutableListOf[string]
-	pathResolver *ModuleLoader_PathResolver
-	pathEscaper *ModuleLoader_PathEscaper
-	moduleResolver *ModuleResolver
+	pathResolver    *ModuleLoader_PathResolver
+	pathEscaper     *ModuleLoader_PathEscaper
+	moduleResolver  *ModuleResolver
 }
 
 func (this *ModuleLoader) init_ModuleLoader(builder *ModuleLoader_Builder) {
@@ -38,7 +38,7 @@ func (this *ModuleLoader) resolve(path string) *ModuleLoader_ModulePath {
 }
 
 func ModuleLoader_isRelativeIdentifier(name string) bool {
-	return (((String_startsWith(name, ("." + sstr_(ModuleLoader_MODULE_SLASH))) || String_startsWith(name, (".." + sstr_(ModuleLoader_MODULE_SLASH)))) || (name == ".")) || (name == ".."))
+	return (((String_startsWith(name, ("."+sstr_(ModuleLoader_MODULE_SLASH))) || String_startsWith(name, (".."+sstr_(ModuleLoader_MODULE_SLASH)))) || (name == ".")) || (name == ".."))
 }
 
 func ModuleLoader_isAbsoluteIdentifier(name string) bool {
@@ -59,7 +59,12 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) *ImmutableLi
 	for it_1.next() {
 		var root string = str_(it_1.v)
 		var n string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(root))))
-		result.add(func() any { if ModuleLoader_isAmbiguousIdentifier(n) { return strobj_((sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n))) }; return strobj_(n) }())
+		result.add(func() any {
+			if ModuleLoader_isAmbiguousIdentifier(n) {
+				return strobj_((sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n)))
+			}
+			return strobj_(n)
+		}())
 	}
 	return cast_[*ImmutableSortedSet](obj_(result.build())).asList()
 }
@@ -71,7 +76,12 @@ func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) *Immut
 		var input DependencyInfo = icast_DependencyInfo(it_1.v)
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, icast_Iterable(obj_(this.moduleRootPaths)))
-		sortedModulePaths.add(func() any { if ModuleLoader_isAmbiguousIdentifier(n) { return strobj_((sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n))) }; return strobj_(n) }())
+		sortedModulePaths.add(func() any {
+			if ModuleLoader_isAmbiguousIdentifier(n) {
+				return strobj_((sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n)))
+			}
+			return strobj_(n)
+		}())
 	}
 	List_sort(sortedModulePaths, ModuleLoader_BEST_MATCH_PATH_ORDERING)
 	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths))
@@ -100,9 +110,9 @@ func ModuleLoader_normalize(path string, moduleRootPaths IterableOf[string]) str
 func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcome_base {
 	var toPath string = FilePaths_clean(toUriPath)
 	var fromFolder OptionalOf[string] = FilePaths_parent(fromUriPath)
-	if (fromFolder.isEmpty() && FilePaths_parent(toUriPath).isEmpty()) {
+	if fromFolder.isEmpty() && FilePaths_parent(toUriPath).isEmpty() {
 		return Outcome_base_ok_Object(strobj_(("./" + sstr_(toUriPath))))
-	} else if (fromFolder.isEmpty() && ((String_startsWith(toUriPath, ".") || String_startsWith(toPath, "/")) || String_startsWith(toPath, "\\"))) {
+	} else if fromFolder.isEmpty() && ((String_startsWith(toUriPath, ".") || String_startsWith(toPath, "/")) || String_startsWith(toPath, "\\")) {
 		return Outcome_base_ok_Object(strobj_(toUriPath))
 	} else if fromFolder.isEmpty() {
 		return Outcome_base_err(new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
@@ -111,14 +121,14 @@ func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcom
 	if calculatedPath.isEmpty() {
 		return Outcome_base_err(new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
-	if (String_startsWith(str_(calculatedPath.get()), ".") || String_startsWith(str_(calculatedPath.get()), "/")) {
+	if String_startsWith(str_(calculatedPath.get()), ".") || String_startsWith(str_(calculatedPath.get()), "/") {
 		return Outcome_base_ok_Object(calculatedPath.get())
 	}
 	return Outcome_base_ok_Object(strobj_(("./" + sstr_(str_(calculatedPath.get())))))
 }
 
 func (this *ModuleLoader) setErrorHandler(errorHandler ErrorHandler) {
-	if (errorHandler == nil) {
+	if errorHandler == nil {
 		this.errorHandler = ModuleLoader_NOOP_ERROR_HANDER
 	} else {
 		this.errorHandler = errorHandler
@@ -131,9 +141,11 @@ func (this *ModuleLoader) getErrorHandler() ErrorHandler {
 }
 
 var ModuleLoader_MODULE_CONFLICT *DiagnosticType
+
 const ModuleLoader_MODULE_SLASH string = "/"
 const ModuleLoader_DEFAULT_FILENAME_PREFIX string = "./"
 const ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER string = "$jscomp$browser$skiplisted"
+
 var ModuleLoader_LOAD_WARNING *DiagnosticType
 var ModuleLoader_INVALID_MODULE_PATH *DiagnosticType
 var ModuleLoader_BEST_MATCH_PATH_ORDERING Comparator
@@ -159,11 +171,11 @@ func ModuleLoader_clinit() {
 
 type ModuleLoader_Builder struct {
 	errorHandler ErrorHandler
-	moduleRoots IterableOf[string]
-	inputs IterableOf[DependencyInfo]
-	factory ModuleLoader_ModuleResolverFactory
+	moduleRoots  IterableOf[string]
+	inputs       IterableOf[DependencyInfo]
+	factory      ModuleLoader_ModuleResolverFactory
 	pathResolver *ModuleLoader_PathResolver
-	pathEscaper *ModuleLoader_PathEscaper
+	pathEscaper  *ModuleLoader_PathEscaper
 }
 
 func (this *ModuleLoader_Builder) finit_ModuleLoader_Builder() {
@@ -183,7 +195,7 @@ func new_ModuleLoader_Builder() *ModuleLoader_Builder {
 }
 
 func (this *ModuleLoader_Builder) setErrorHandler(x ErrorHandler) *ModuleLoader_Builder {
-	if (x != nil) {
+	if x != nil {
 		this.errorHandler = x
 	}
 	return this
@@ -220,7 +232,7 @@ func (this *ModuleLoader_Builder) build() *ModuleLoader {
 
 type ModuleLoader_ModulePath struct {
 	outer_ *ModuleLoader
-	path_ string
+	path_  string
 }
 
 func (this *ModuleLoader_ModulePath) zero_ModuleLoader_ModulePath() {
@@ -275,17 +287,23 @@ type ModuleLoader_PathEscaper struct {
 	Enum
 }
 
-func (this *ModuleLoader_PathEscaper) as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper { return this }
+func (this *ModuleLoader_PathEscaper) as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper {
+	return this
+}
 
 func to_ModuleLoader_PathEscaper(v any) *ModuleLoader_PathEscaper {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper }).as_ModuleLoader_PathEscaper()
+	return v.(interface {
+		as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper
+	}).as_ModuleLoader_PathEscaper()
 }
 
 func is_ModuleLoader_PathEscaper(v any) bool {
-	_, ok := v.(interface{ as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper })
+	_, ok := v.(interface {
+		as_ModuleLoader_PathEscaper() *ModuleLoader_PathEscaper
+	})
 	return ok
 }
 
@@ -346,17 +364,23 @@ type ModuleLoader_PathResolver struct {
 	Enum
 }
 
-func (this *ModuleLoader_PathResolver) as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver { return this }
+func (this *ModuleLoader_PathResolver) as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver {
+	return this
+}
 
 func to_ModuleLoader_PathResolver(v any) *ModuleLoader_PathResolver {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver }).as_ModuleLoader_PathResolver()
+	return v.(interface {
+		as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver
+	}).as_ModuleLoader_PathResolver()
 }
 
 func is_ModuleLoader_PathResolver(v any) bool {
-	_, ok := v.(interface{ as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver })
+	_, ok := v.(interface {
+		as_ModuleLoader_PathResolver() *ModuleLoader_PathResolver
+	})
 	return ok
 }
 
@@ -725,4 +749,3 @@ func ModuleLoader_PathResolver_2_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ModuleLoader.PathResolver>", enumValues_(ModuleLoader_PathResolver_2_values_))
 
 }
-

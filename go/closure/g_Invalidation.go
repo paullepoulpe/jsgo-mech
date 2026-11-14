@@ -3,7 +3,7 @@
 package closure
 
 type Invalidation struct {
-	self_ any
+	self_  any
 	reason *Invalidation_Reason
 }
 
@@ -159,4 +159,3 @@ func (this *Invalidation_WithReceiverType) toLogsGson_impl() any {
 	Map_put_s(json, "reason", obj_(this.reason))
 	return obj_(json)
 }
-

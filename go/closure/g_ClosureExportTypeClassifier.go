@@ -3,7 +3,7 @@
 package closure
 
 type ClosureExportTypeClassifier struct {
-	topLevelNames MapOf[string, *ClosureExportTypeClassifier_NameInfo]
+	topLevelNames     MapOf[string, *ClosureExportTypeClassifier_NameInfo]
 	forcedNamedExport map[string]struct{}
 }
 
@@ -27,7 +27,7 @@ func ClosureExportTypeClassifier_classify(moduleRoot Node, googNamespace string)
 	classifier.addGoogModuleExports()
 	ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot, &Consumer_fn{func(p0 any) { classifier.visitStatement(Node_of_(p0)) }})
 	var info *ClosureExportTypeClassifier_NameInfo = cast_[*ClosureExportTypeClassifier_NameInfo](Map_get_s(classifier.topLevelNames, ClosureExportTypeClassifier_EXPORTS))
-	if (has_(classifier.forcedNamedExport, googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE)) {
+	if has_(classifier.forcedNamedExport, googNamespace) || (classifier.kindOfName(info, 0) == ClosureExportTypeClassifier_Kind_NAMESPACE) {
 		return ClosureExportTypeClassifier_TsExportType_NAMED
 	}
 	return ClosureExportTypeClassifier_TsExportType_DEFAULT
@@ -44,7 +44,7 @@ func ClosureExportTypeClassifier_forEachTopLevelStatement(moduleRoot Node, callb
 	var body Node = moduleRoot.getFirstChild()
 	{
 		var statement Node = body.getFirstChild()
-		for ; (statement != 0); statement = statement.getNext() {
+		for ; statement != 0; statement = statement.getNext() {
 			callback.accept(statement.box_())
 		}
 	}
@@ -71,7 +71,7 @@ func (this *ClosureExportTypeClassifier) maybeRecordLegacyNamedTsExport(statemen
 	}
 	var call Node = statement.getFirstChild()
 	var jsdoc *JSDocInfo = call.getJSDocInfo()
-	if ((jsdoc == nil) || !jsdoc.isLegacyNamedTsExport()) {
+	if (jsdoc == nil) || !jsdoc.isLegacyNamedTsExport() {
 		return
 	}
 	this.forcedNamedExport[call.getSecondChild().getString()] = struct{}{}
@@ -80,7 +80,7 @@ func (this *ClosureExportTypeClassifier) maybeRecordLegacyNamedTsExport(statemen
 func (this *ClosureExportTypeClassifier) visitNameDeclaration(declaration Node) {
 	{
 		var lhs Node = declaration.getFirstChild()
-		for ; (lhs != 0); lhs = lhs.getNext() {
+		for ; lhs != 0; lhs = lhs.getNext() {
 			if lhs.isName() {
 				this.visitDeclaredName(lhs)
 			}
@@ -91,14 +91,14 @@ func (this *ClosureExportTypeClassifier) visitNameDeclaration(declaration Node) 
 func (this *ClosureExportTypeClassifier) visitDeclaredName(lhs Node) {
 	var initializer Node = lhs.getFirstChild()
 	var info *ClosureExportTypeClassifier_NameInfo = this.getOrCreate(lhs.getString())
-	if ((initializer != 0) && initializer.isAssign()) {
+	if (initializer != 0) && initializer.isAssign() {
 		this.visitExpression(initializer)
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(lhs)
-	if (initializer != 0) {
+	if initializer != 0 {
 		info.value_ = initializer
 		info.jsdoc = jsdoc
-	} else if ((info.value_ == 0) && (jsdoc != nil)) {
+	} else if (info.value_ == 0) && (jsdoc != nil) {
 		info.jsdoc = jsdoc
 	}
 }
@@ -108,7 +108,7 @@ func (this *ClosureExportTypeClassifier) visitExpression(expr Node) {
 	case Token_rhino_ASSIGN:
 		this.visitAssign(expr)
 	case Token_rhino_GETPROP:
-		if ((expr.getJSDocInfo() != nil) && expr.getFirstChild().isName()) {
+		if (expr.getJSDocInfo() != nil) && expr.getFirstChild().isName() {
 			var variableName string = expr.getFirstChild().getString()
 			this.getOrCreate(variableName).propertyCount++
 		}
@@ -128,7 +128,7 @@ func (this *ClosureExportTypeClassifier) visitAssign(expr Node) {
 		assigned.isNamedExportsLiteral = (assigned.isGoogModuleExports_ && NodeUtil_isNamedExportsLiteral(rhs))
 		return
 	}
-	if (lhs.isGetProp() && lhs.getFirstChild().isName()) {
+	if lhs.isGetProp() && lhs.getFirstChild().isName() {
 		this.getOrCreate(lhs.getFirstChild().getString()).propertyCount++
 	}
 }
@@ -149,27 +149,32 @@ func (this *ClosureExportTypeClassifier) kindOfName(info *ClosureExportTypeClass
 		return ClosureExportTypeClassifier_Kind_NAMESPACE
 	}
 	var kind *ClosureExportTypeClassifier_Kind
-	if ((info.value_ != 0) || (info.jsdoc != nil)) {
+	if (info.value_ != 0) || (info.jsdoc != nil) {
 		kind = this.kindOfValue(info.value_, info.jsdoc, depth)
 	} else {
-		kind = func() *ClosureExportTypeClassifier_Kind { if info.isGoogModuleExports_ { return ClosureExportTypeClassifier_Kind_EMPTY_OBJECT }; return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE }()
+		kind = func() *ClosureExportTypeClassifier_Kind {
+			if info.isGoogModuleExports_ {
+				return ClosureExportTypeClassifier_Kind_EMPTY_OBJECT
+			}
+			return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
+		}()
 	}
-	if ((kind == ClosureExportTypeClassifier_Kind_EMPTY_OBJECT) && (info.propertyCount > 0)) {
+	if (kind == ClosureExportTypeClassifier_Kind_EMPTY_OBJECT) && (info.propertyCount > 0) {
 		return ClosureExportTypeClassifier_Kind_NAMESPACE
 	}
 	return kind
 }
 
 func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInfo, depth int32) *ClosureExportTypeClassifier_Kind {
-	if (jsdoc != nil) {
-		if ((jsdoc.hasEnumParameterType() || jsdoc.hasTypedefType()) || jsdoc.isConstructorOrInterface()) {
+	if jsdoc != nil {
+		if (jsdoc.hasEnumParameterType() || jsdoc.hasTypedefType()) || jsdoc.isConstructorOrInterface() {
 			return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 		}
 		if jsdoc.hasType() {
 			return ClosureExportTypeClassifier_kindOfDeclaredType(jsdoc.getType())
 		}
 	}
-	if (value == 0) {
+	if value == 0 {
 		return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 	}
 	return func() *ClosureExportTypeClassifier_Kind {
@@ -177,19 +182,24 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 		case Token_rhino_OBJECTLIT:
 			{
 				var member Node = value.getFirstChild()
-				for ; (member != 0); member = member.getNext() {
-					if (!member.isComputedProp() && !member.isSpread()) {
+				for ; member != 0; member = member.getNext() {
+					if !member.isComputedProp() && !member.isSpread() {
 						return ClosureExportTypeClassifier_Kind_NAMESPACE
 					}
 				}
 			}
 			return ClosureExportTypeClassifier_Kind_EMPTY_OBJECT
 		case Token_rhino_NAME:
-			if (depth >= ClosureExportTypeClassifier_MAX_ALIAS_DEPTH) {
+			if depth >= ClosureExportTypeClassifier_MAX_ALIAS_DEPTH {
 				return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
 			}
 			var aliased *ClosureExportTypeClassifier_NameInfo = cast_[*ClosureExportTypeClassifier_NameInfo](Map_get_s(this.topLevelNames, value.getString()))
-			return func() *ClosureExportTypeClassifier_Kind { if (aliased == nil) { return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE }; return this.kindOfName(aliased, (depth + 1)) }()
+			return func() *ClosureExportTypeClassifier_Kind {
+				if aliased == nil {
+					return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
+				}
+				return this.kindOfName(aliased, (depth + 1))
+			}()
 		case Token_rhino_CAST:
 			return this.kindOfValue(value.getFirstChild(), value.getJSDocInfo(), depth)
 		default:
@@ -201,7 +211,12 @@ func (this *ClosureExportTypeClassifier) kindOfValue(value Node, jsdoc *JSDocInf
 
 func ClosureExportTypeClassifier_kindOfDeclaredType(type_ *JSTypeExpression) *ClosureExportTypeClassifier_Kind {
 	var root Node = type_.getRoot()
-	return func() *ClosureExportTypeClassifier_Kind { if (root.getToken() == Token_rhino_LC) { return ClosureExportTypeClassifier_Kind_NAMESPACE }; return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE }()
+	return func() *ClosureExportTypeClassifier_Kind {
+		if root.getToken() == Token_rhino_LC {
+			return ClosureExportTypeClassifier_Kind_NAMESPACE
+		}
+		return ClosureExportTypeClassifier_Kind_NOT_NAMESPACE
+	}()
 }
 
 const ClosureExportTypeClassifier_EXPORTS string = "exports"
@@ -263,11 +278,11 @@ func ClosureExportTypeClassifier_Kind_clinit() {
 }
 
 type ClosureExportTypeClassifier_NameInfo struct {
-	value_ Node
-	jsdoc *JSDocInfo
-	isNeverNamespace bool
-	propertyCount int32
-	isGoogModuleExports_ bool
+	value_                Node
+	jsdoc                 *JSDocInfo
+	isNeverNamespace      bool
+	propertyCount         int32
+	isGoogModuleExports_  bool
 	isNamedExportsLiteral bool
 }
 
@@ -333,4 +348,3 @@ func ClosureExportTypeClassifier_TsExportType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.ClosureExportTypeClassifier.TsExportType", enumValues_(ClosureExportTypeClassifier_TsExportType_values_))
 
 }
-

@@ -16,7 +16,7 @@ func new_JSTypeIterations() *JSTypeIterations {
 }
 
 func JSTypeIterations_anyTypeMatchesImmutableList(predicate PredicateOf[any], types ImmutableListOf[*JSType]) bool {
-	for i := int32(0); (i < types.size()); i++ {
+	for i := int32(0); i < types.size(); i++ {
 		if predicate.test(types.get(i)) {
 			return true
 		}
@@ -29,7 +29,7 @@ func JSTypeIterations_anyTypeMatches(predicate PredicateOf[any], union *UnionTyp
 }
 
 func JSTypeIterations_allTypesMatchImmutableList(predicate PredicateOf[any], types ImmutableListOf[*JSType]) bool {
-	for i := int32(0); (i < types.size()); i++ {
+	for i := int32(0); i < types.size(); i++ {
 		if !predicate.test(types.get(i)) {
 			return false
 		}
@@ -43,7 +43,7 @@ func JSTypeIterations_allTypesMatch(predicate PredicateOf[any], union *UnionType
 
 func JSTypeIterations_mapTypesImmutableList(mapper FunctionOf[any, any], types ImmutableListOf[*JSType]) *ImmutableList {
 	var builder ImmutableList_BuilderOf[any] = ImmutableList_builder()
-	for i := int32(0); (i < types.size()); i++ {
+	for i := int32(0); i < types.size(); i++ {
 		builder.add(mapper.apply(types.get(i)))
 	}
 	return cast_[*ImmutableList](obj_(builder.build()))
@@ -52,4 +52,3 @@ func JSTypeIterations_mapTypesImmutableList(mapper FunctionOf[any, any], types I
 func JSTypeIterations_mapTypes(mapper FunctionOf[any, *JSType], union *UnionType) *JSType {
 	return UnionType_builder(union.registry).addAlternates(icast_List(obj_(JSTypeIterations_mapTypesImmutableList(mapper, union.getAlternates())))).build()
 }
-

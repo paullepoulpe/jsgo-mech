@@ -31,7 +31,7 @@ func (this *ImplicitNullabilityCheck) process_2(externs Node, root Node) {
 }
 
 func ImplicitNullabilityCheck_findImplicitNullabilityResults(info *JSDocInfo, t *NodeTraversal) *ImmutableList {
-	if (info == nil) {
+	if info == nil {
 		return ImmutableList_of()
 	}
 	var builder ImmutableList_BuilderOf[*ImplicitNullabilityCheck_Result] = ImmutableList_builder()
@@ -49,7 +49,12 @@ func (this *ImplicitNullabilityCheck) visit_impl(t *NodeTraversal, n Node, p Nod
 	for it_1.next() {
 		var r *ImplicitNullabilityCheck_Result = cast_[*ImplicitNullabilityCheck_Result](it_1.v)
 		var stringNode Node = r.getNode()
-		var dt *DiagnosticType = func() *DiagnosticType { if r.getNullability().isNullable() { return ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC }; return ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC }()
+		var dt *DiagnosticType = func() *DiagnosticType {
+			if r.getNullability().isNullable() {
+				return ImplicitNullabilityCheck_IMPLICITLY_NULLABLE_JSDOC
+			}
+			return ImplicitNullabilityCheck_IMPLICITLY_NONNULL_JSDOC
+		}()
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(stringNode, dt, []string{stringNode.getString()}))
 	}
 }
@@ -129,7 +134,7 @@ func ImplicitNullabilityCheck_Nullability_clinit() {
 }
 
 type ImplicitNullabilityCheck_Result struct {
-	node_ Node
+	node_       Node
 	nullability *ImplicitNullabilityCheck_Nullability
 }
 
@@ -158,7 +163,7 @@ func (this *ImplicitNullabilityCheck_Result) getNode() Node {
 }
 
 type ImplicitNullabilityCheck_1 struct {
-	cap_t *NodeTraversal
+	cap_t       *NodeTraversal
 	cap_builder *ImmutableList_Builder
 }
 
@@ -179,19 +184,19 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 		return
 	}
 	var parent Node = node.getParent()
-	if (parent != 0) {
+	if parent != 0 {
 		switch parent.getToken() {
 		case Token_rhino_BANG, Token_rhino_QMARK, Token_rhino_THIS, Token_rhino_NEW, Token_rhino_TYPEOF:
 			return
 		case Token_rhino_PIPE:
 			var gp Node = parent.getParent()
-			if ((gp != 0) && (gp.getToken() == Token_rhino_QMARK)) {
+			if (gp != 0) && (gp.getToken() == Token_rhino_QMARK) {
 				return
 			}
 			{
 				var child Node = parent.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
-					if ((child.isStringLit() && (child.getString() == "null")) || (child.getToken() == Token_rhino_QMARK)) {
+				for ; child != 0; child = child.getNext() {
+					if (child.isStringLit() && (child.getString() == "null")) || (child.getToken() == Token_rhino_QMARK) {
 						return
 					}
 				}
@@ -205,11 +210,15 @@ func (this *ImplicitNullabilityCheck_1) visit(node Node) {
 	}
 	var registry *JSTypeRegistry = this.cap_t.getCompiler().getTypeRegistry()
 	var type_ *JSType = registry.getType(icast_StaticScope(obj_(this.cap_t.getScope())), typeName)
-	if (type_ == nil) {
+	if type_ == nil {
 		return
 	}
 	var isNonNullableName bool = (registry.isNonNullableName(icast_StaticScope(obj_(this.cap_t.getScope())), typeName) && !type_.isNullable())
-	var nullability *ImplicitNullabilityCheck_Nullability = func() *ImplicitNullabilityCheck_Nullability { if isNonNullableName { return ImplicitNullabilityCheck_Nullability_NONNULL }; return ImplicitNullabilityCheck_Nullability_NULLABLE }()
+	var nullability *ImplicitNullabilityCheck_Nullability = func() *ImplicitNullabilityCheck_Nullability {
+		if isNonNullableName {
+			return ImplicitNullabilityCheck_Nullability_NONNULL
+		}
+		return ImplicitNullabilityCheck_Nullability_NULLABLE
+	}()
 	this.cap_builder.add(obj_(ImplicitNullabilityCheck_Result_create(node, nullability)))
 }
-

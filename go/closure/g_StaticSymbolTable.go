@@ -7,4 +7,3 @@ type StaticSymbolTable interface {
 	getScope(StaticSlot) StaticScope
 	getAllSymbols() Iterable
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type DefaultDependencyResolver struct {
-	depsFiles ListOf[*DependencyFile]
+	depsFiles      ListOf[*DependencyFile]
 	strictRequires bool
 }
 
@@ -47,7 +47,7 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 
 func (this *DefaultDependencyResolver) addDependency(symbol string, seen SetOf[string], list ListOf[string]) {
 	var dependency DependencyInfo = this.getDependencyInfo(symbol)
-	if (dependency == nil) {
+	if dependency == nil {
 		if this.strictRequires {
 			panic(obj_(new_ServiceException(("Unknown require of " + sstr_(symbol)))))
 		}
@@ -80,7 +80,7 @@ func (this *DefaultDependencyResolver) getDependencyInfo(symbol string) Dependen
 	for it_1.next() {
 		var depsFile *DependencyFile = cast_[*DependencyFile](it_1.v)
 		var di DependencyInfo = depsFile.getDependencyInfo(symbol)
-		if (di != nil) {
+		if di != nil {
 			return di
 		}
 	}
@@ -89,6 +89,7 @@ func (this *DefaultDependencyResolver) getDependencyInfo(symbol string) Dependen
 
 const DefaultDependencyResolver_CLOSURE_BASE string = "base.js"
 const DefaultDependencyResolver_CLOSURE_BASE_PROVIDE string = "goog"
+
 var DefaultDependencyResolver_logger *Logger
 
 var DefaultDependencyResolver_clinit_done bool
@@ -101,4 +102,3 @@ func DefaultDependencyResolver_clinit() {
 	DefaultDependencyResolver_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DefaultDependencyResolver").getName())
 
 }
-

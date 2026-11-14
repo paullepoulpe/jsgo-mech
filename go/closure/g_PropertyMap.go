@@ -3,12 +3,12 @@
 package closure
 
 type PropertyMap struct {
-	parentSource *ObjectType
-	properties MapOf[string, *Property]
-	knownSymbols MapOf[*KnownSymbolType, *Property]
-	cachedKeySet ImmutableSortedSetOf[string]
+	parentSource             *ObjectType
+	properties               MapOf[string, *Property]
+	knownSymbols             MapOf[*KnownSymbolType, *Property]
+	cachedKeySet             ImmutableSortedSetOf[string]
 	cachedKnownSymbolsKeySet ImmutableSetOf[*KnownSymbolType]
-	cachedKeySetCounter int32
+	cachedKeySetCounter      int32
 }
 
 func (this *PropertyMap) finit_PropertyMap() {
@@ -45,7 +45,7 @@ func PropertyMap_immutableEmptyMap() *PropertyMap {
 }
 
 func (this *PropertyMap) setParentSource(ownerType *ObjectType) {
-	if (this == PropertyMap_EMPTY_MAP) {
+	if this == PropertyMap_EMPTY_MAP {
 		return
 	}
 	this.parentSource = ownerType
@@ -58,18 +58,23 @@ func (this *PropertyMap) setParentForTesting(parent *PropertyMap) {
 }
 
 func (this *PropertyMap) getPrimaryParent() *PropertyMap {
-	if (this.parentSource == nil) {
+	if this.parentSource == nil {
 		return nil
 	}
 	var iProto *ObjectType = this.parentSource.getImplicitPrototype()
-	return func() *PropertyMap { if (iProto == nil) { return nil }; return iProto.getPropertyMap() }()
+	return func() *PropertyMap {
+		if iProto == nil {
+			return nil
+		}
+		return iProto.getPropertyMap()
+	}()
 }
 
 func (this *PropertyMap) getSecondaryParentObjects() Iterable {
-	if (this.parentSource == nil) {
+	if this.parentSource == nil {
 		return icast_Iterable(obj_(ImmutableList_of()))
 	}
-	if ((this.parentSource.getConstructor() != nil) && this.parentSource.getConstructor().isAbstract()) {
+	if (this.parentSource.getConstructor() != nil) && this.parentSource.getConstructor().isAbstract() {
 		return icast_Iterable(obj_(this.parentSource.getConstructor().getOwnImplementedInterfaces()))
 	}
 	return this.parentSource.getCtorExtendedInterfaces()
@@ -82,23 +87,23 @@ func (this *PropertyMap) findClosestString(name string) *Property_OwnedProperty 
 func (this *PropertyMap) findClosest(name Property_Key) *Property_OwnedProperty {
 	{
 		var map_ *PropertyMap = this
-		for ; (map_ != nil); map_ = map_.getPrimaryParent() {
+		for ; map_ != nil; map_ = map_.getPrimaryParent() {
 			var prop *Property = map_.getOwnProperty(name)
-			if (prop != nil) {
+			if prop != nil {
 				return new_Property_OwnedProperty(map_.parentSource, prop)
 			}
 		}
 	}
 	{
 		var map_ *PropertyMap = this
-		for ; (map_ != nil); map_ = map_.getPrimaryParent() {
+		for ; map_ != nil; map_ = map_.getPrimaryParent() {
 			it_3 := foreach_(any(map_.getSecondaryParentObjects()))
 			for it_3.next() {
 				var o *ObjectType = to_ObjectType(it_3.v)
 				var parent *PropertyMap = o.getPropertyMap()
-				if (parent != nil) {
+				if parent != nil {
 					var e *Property_OwnedProperty = parent.findClosest(name)
-					if (e != nil) {
+					if e != nil {
 						return e
 					}
 				}
@@ -118,7 +123,12 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 		case Property_KeyKind_STRING:
 			return this.getOwnPropertyString(propertyName.string())
 		case Property_KeyKind_SYMBOL:
-			return func() *Property { if (this.knownSymbols != nil) { return cast_[*Property](this.knownSymbols.get(obj_(propertyName.symbol()))) }; return nil }()
+			return func() *Property {
+				if this.knownSymbols != nil {
+					return cast_[*Property](this.knownSymbols.get(obj_(propertyName.symbol())))
+				}
+				return nil
+			}()
 		}
 		panic("unreachable")
 	}()
@@ -126,7 +136,7 @@ func (this *PropertyMap) getOwnProperty(propertyName Property_Key) *Property {
 
 func (this *PropertyMap) getPropertiesCount() int32 {
 	var primaryParent *PropertyMap = this.getPrimaryParent()
-	if (primaryParent == nil) {
+	if primaryParent == nil {
 		return this.properties.size()
 	}
 	return this.getAllKeys().stringKeys().size()
@@ -137,7 +147,12 @@ func (this *PropertyMap) getOwnPropertyNames() Set {
 }
 
 func (this *PropertyMap) getOwnKnownSymbols() Set {
-	return func() Set { if (this.knownSymbols != nil) { return this.knownSymbols.keySet() }; return icast_Set(obj_(ImmutableSet_of())) }()
+	return func() Set {
+		if this.knownSymbols != nil {
+			return this.knownSymbols.keySet()
+		}
+		return icast_Set(obj_(ImmutableSet_of()))
+	}()
 }
 
 func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
@@ -147,11 +162,11 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	it_1 := foreach_(obj_(ancestors))
 	for it_1.next() {
 		var ancestor *PropertyMap = cast_[*PropertyMap](it_1.v)
-		if (ancestor.cachedKeySetCounter > maxAncestorCounter) {
+		if ancestor.cachedKeySetCounter > maxAncestorCounter {
 			maxAncestorCounter = ancestor.cachedKeySetCounter
 		}
 	}
-	if ((maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil)) {
+	if (maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil) {
 		var keys TreeSetOf[string] = new_TreeSet()
 		var knownSymbolsKeys SetOf[*KnownSymbolType] = icast_Set(obj_(new_LinkedHashSet()))
 		it_3 := foreach_(obj_(ancestors))
@@ -174,14 +189,14 @@ func (this *PropertyMap) collectAllAncestors(ancestors LinkedHashSetOf[*Property
 		return
 	}
 	var primaryParent *PropertyMap = this.getPrimaryParent()
-	if (primaryParent != nil) {
+	if primaryParent != nil {
 		primaryParent.collectAllAncestors(ancestors)
 	}
 	it_1 := foreach_(any(this.getSecondaryParentObjects()))
 	for it_1.next() {
 		var parentType *ObjectType = to_ObjectType(it_1.v)
 		var parentMap *PropertyMap = parentType.getPropertyMap()
-		if (parentMap != nil) {
+		if parentMap != nil {
 			parentMap.collectAllAncestors(ancestors)
 		}
 	}
@@ -189,7 +204,7 @@ func (this *PropertyMap) collectAllAncestors(ancestors LinkedHashSetOf[*Property
 
 func (this *PropertyMap) putPropertyString(name string, newProp *Property) {
 	var oldProp *Property = cast_[*Property](Map_get_s(this.properties, name))
-	if (oldProp == nil) {
+	if oldProp == nil {
 		this.incrementCachedKeySetCounter()
 	} else {
 		newProp.setJSDocInfo(oldProp.getJSDocInfo())
@@ -198,11 +213,16 @@ func (this *PropertyMap) putPropertyString(name string, newProp *Property) {
 }
 
 func (this *PropertyMap) putPropertyKnownSymbolType(symbol *KnownSymbolType, newProp *Property) {
-	var oldProp *Property = func() *Property { if (this.knownSymbols != nil) { return cast_[*Property](this.knownSymbols.get(obj_(symbol))) }; return nil }()
-	if (oldProp == nil) {
+	var oldProp *Property = func() *Property {
+		if this.knownSymbols != nil {
+			return cast_[*Property](this.knownSymbols.get(obj_(symbol)))
+		}
+		return nil
+	}()
+	if oldProp == nil {
 		this.incrementCachedKeySetCounter()
 	}
-	if (this.knownSymbols == nil) {
+	if this.knownSymbols == nil {
 		this.knownSymbols = icast_Map(obj_(new_LinkedHashMap()))
 	}
 	this.knownSymbols.put(obj_(symbol), obj_(newProp))
@@ -222,7 +242,12 @@ func (this *PropertyMap) values() Iterable {
 }
 
 func (this *PropertyMap) hashCode() int32 {
-	return func() int32 { if (this.knownSymbols == nil) { return Objects_hashCode(any(this.properties.keySet())) }; return Objects_hash([]any{any(this.properties.keySet()), any(this.knownSymbols.keySet())}) }()
+	return func() int32 {
+		if this.knownSymbols == nil {
+			return Objects_hashCode(any(this.properties.keySet()))
+		}
+		return Objects_hash([]any{any(this.properties.keySet()), any(this.knownSymbols.keySet())})
+	}()
 }
 
 func (this *PropertyMap) incrementCachedKeySetCounter() {
@@ -245,7 +270,7 @@ func PropertyMap_clinit() {
 }
 
 type PropertyMap_AllKeys struct {
-	stringKeys_ ImmutableSortedSetOf[string]
+	stringKeys_      ImmutableSortedSetOf[string]
 	knownSymbolKeys_ SetOf[*KnownSymbolType]
 }
 
@@ -286,4 +311,3 @@ func (this *PropertyMap_AllKeys) hashCode() int32 {
 func (this *PropertyMap_AllKeys) toString() string {
 	return "AllKeys[" + "stringKeys=" + objstr_(obj_(this.stringKeys_)) + ", knownSymbolKeys=" + objstr_(any(this.knownSymbolKeys_)) + "]"
 }
-

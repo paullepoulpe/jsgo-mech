@@ -3,9 +3,9 @@
 package closure
 
 type GatherExternProperties struct {
-	compiler_ *AbstractCompiler
+	compiler_        *AbstractCompiler
 	externProperties LinkedHashSetOf[string]
-	mode_ *GatherExternProperties_Mode
+	mode_            *GatherExternProperties_Mode
 }
 
 func (this *GatherExternProperties) finit_GatherExternProperties() {
@@ -16,7 +16,7 @@ func (this *GatherExternProperties) init_GatherExternProperties(compiler *Abstra
 	this.finit_GatherExternProperties()
 	this.compiler_ = compiler
 	this.mode_ = mode
-	if (compiler.getExternProperties() != nil) {
+	if compiler.getExternProperties() != nil {
 		this.externProperties.addAll(icast_Collection(obj_(compiler.getExternProperties())))
 	}
 }
@@ -51,7 +51,7 @@ func (this *GatherExternProperties) visit(t *NodeTraversal, n Node, parent Node)
 		}
 	}
 	var jsDocInfo *JSDocInfo = n.getJSDocInfo()
-	if ((jsDocInfo != nil) && this.mode_.check_) {
+	if (jsDocInfo != nil) && this.mode_.check_ {
 		this.gatherPropertiesFromJSDocInfo(jsDocInfo)
 	}
 }
@@ -71,7 +71,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsTypeExpressionNode(jsT
 	default:
 		{
 			var child Node = jsTypeExpressionNode.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				this.gatherPropertiesFromJsTypeExpressionNode(child)
 			}
 		}
@@ -82,10 +82,10 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 	Preconditions_checkState_boolean_Object((jsDocRecordNode.getToken() == Token_rhino_LB), jsDocRecordNode.box_())
 	{
 		var fieldNode Node = jsDocRecordNode.getFirstChild()
-		for ; (fieldNode != 0); fieldNode = fieldNode.getNext() {
+		for ; fieldNode != 0; fieldNode = fieldNode.getNext() {
 			var fieldNameNode Node
 			var fieldTypeNode Node
-			if (fieldNode.getToken() == Token_rhino_COLON) {
+			if fieldNode.getToken() == Token_rhino_COLON {
 				fieldNameNode = fieldNode.getFirstChild()
 				fieldTypeNode = fieldNameNode.getNext()
 			} else {
@@ -94,11 +94,11 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 			}
 			Preconditions_checkState_boolean_Object(fieldNameNode.isStringKey(), fieldNameNode.box_())
 			var fieldName string = fieldNameNode.getString()
-			if (String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"")) {
+			if String_startsWith(fieldName, "'") || String_startsWith(fieldName, "\"") {
 				fieldName = String_substring(fieldName, 1, (String_length(fieldName) - 1))
 			}
 			Collection_add_s(this.externProperties, fieldName)
-			if (fieldTypeNode != 0) {
+			if fieldTypeNode != 0 {
 				this.gatherPropertiesFromJsTypeExpressionNode(fieldTypeNode)
 			}
 		}
@@ -107,7 +107,7 @@ func (this *GatherExternProperties) gatherPropertiesFromJsDocRecordType(jsDocRec
 
 type GatherExternProperties_Mode struct {
 	Enum
-	check_ bool
+	check_   bool
 	optimize bool
 }
 
@@ -163,4 +163,3 @@ func GatherExternProperties_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.GatherExternProperties.Mode", enumValues_(GatherExternProperties_Mode_values_))
 
 }
-

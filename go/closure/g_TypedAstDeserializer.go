@@ -3,15 +3,15 @@
 package closure
 
 type TypedAstDeserializer struct {
-	mode_ *TypedAstDeserializer_Mode
-	syntheticExterns *SourceFile_jscomp
-	colorPoolBuilder Optional_baseOf[*ColorPool_Builder]
-	requiredInputFiles Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]]
-	filePoolBuilder map[string]*SourceFile_jscomp
-	canonicalFilePool LinkedHashMapOf[string, *SourceFile_jscomp]
-	typedAstFilesystem ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
-	externProperties ImmutableSet_BuilderOf[string]
-	runtimeLibraries_ ImmutableSet_BuilderOf[string]
+	mode_                         *TypedAstDeserializer_Mode
+	syntheticExterns              *SourceFile_jscomp
+	colorPoolBuilder              Optional_baseOf[*ColorPool_Builder]
+	requiredInputFiles            Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]]
+	filePoolBuilder               map[string]*SourceFile_jscomp
+	canonicalFilePool             LinkedHashMapOf[string, *SourceFile_jscomp]
+	typedAstFilesystem            ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
+	externProperties              ImmutableSet_BuilderOf[string]
+	runtimeLibraries_             ImmutableSet_BuilderOf[string]
 	syntheticExternsDeserializers ArrayListOf[*ScriptNodeDeserializer]
 }
 
@@ -66,12 +66,20 @@ func TypedAstDeserializer_deserialize(compiler *AbstractCompiler, syntheticExter
 		compiler.initRuntimeLibraryTypedAsts(deserializer.colorPoolBuilder)
 	}
 	TypedAstDeserializer_deserializeTypedAsts(typedAstStream, deserializer, compiler, resolveSourceMapAnnotations, parseInlineSourceMaps)
-	deserializer.typedAstFilesystem.put(obj_(syntheticExterns), any(func() *Supplier_fn { recv_1 := new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns, deserializer.syntheticExternsDeserializers); return &Supplier_fn{func() any { return recv_1.deserialize().box_() }} }()))
+	deserializer.typedAstFilesystem.put(obj_(syntheticExterns), any(func() *Supplier_fn {
+		recv_1 := new_TypedAstDeserializer_SyntheticExternsDeserializer(syntheticExterns, deserializer.syntheticExternsDeserializers)
+		return &Supplier_fn{func() any { return recv_1.deserialize().box_() }}
+	}()))
 	return deserializer.toDeserializedAst()
 }
 
 func (this *TypedAstDeserializer) toDeserializedAst() *TypedAstDeserializer_DeserializedAst {
-	var registry Optional_baseOf[*ColorRegistry] = func() *Optional_base { if (Object_equals(obj_(this.mode_), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) || !this.colorPoolBuilder.isPresent()) { return Optional_base_absent() }; return Optional_base_of(obj_(cast_[*ColorPool_Builder](this.colorPoolBuilder.get()).build().getRegistry())) }()
+	var registry Optional_baseOf[*ColorRegistry] = func() *Optional_base {
+		if Object_equals(obj_(this.mode_), obj_(TypedAstDeserializer_Mode_RUNTIME_LIBRARY_ONLY)) || !this.colorPoolBuilder.isPresent() {
+			return Optional_base_absent()
+		}
+		return Optional_base_of(obj_(cast_[*ColorPool_Builder](this.colorPoolBuilder.get()).build().getRegistry()))
+	}()
 	return TypedAstDeserializer_DeserializedAst_create(this.typedAstFilesystem, registry, cast_[*ImmutableSet](obj_(this.externProperties.build())), cast_[*ImmutableSet](obj_(this.runtimeLibraries_.build())))
 }
 
@@ -93,7 +101,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 		}
 	}
 	var runtimeLibraryList ProtocolStringList = icast_ProtocolStringList(typedAstProto.getRuntimeLibraryToInjectList())
-	for i := int32(0); (i < runtimeLibraryList.size()); i++ {
+	for i := int32(0); i < runtimeLibraryList.size(); i++ {
 		this.runtimeLibraries_.add(runtimeLibraryList.get(i))
 	}
 	var stringShard *StringPool = StringPool_fromProto(typedAstProto.getStringPool())
@@ -124,12 +132,12 @@ func (this *TypedAstDeserializer) addToFilePool(filename string, file *SourceFil
 
 func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_jscomp {
 	var exact *SourceFile_jscomp = this.filePoolBuilder[filename]
-	if (exact != nil) {
+	if exact != nil {
 		return exact
 	}
 	var canonicalPath string = SourceFile_jscomp_canonicalizePathForMatching(filename)
 	var canonical *SourceFile_jscomp = cast_[*SourceFile_jscomp](Map_get_s(this.canonicalFilePool, canonicalPath))
-	if (canonical != nil) {
+	if canonical != nil {
 		return canonical
 	}
 	return this.filePoolBuilder[canonicalPath]
@@ -138,10 +146,10 @@ func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_
 func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) *ImmutableList {
 	var fileShardBuilder ImmutableList_BuilderOf[*SourceFile_jscomp] = ImmutableList_builder()
 	var protos ListOf[*SourceFileProto] = typedAstProto.getSourceFilePool().getSourceFileList()
-	for i := int32(0); (i < protos.size()); i++ {
+	for i := int32(0); i < protos.size(); i++ {
 		var p *SourceFileProto = cast_[*SourceFileProto](protos.get(i))
 		var existingFile *SourceFile_jscomp = this.findExistingFile(p.getFilename())
-		if (existingFile != nil) {
+		if existingFile != nil {
 			existingFile.restoreCachedStateFrom(p)
 			fileShardBuilder.add(obj_(existingFile))
 		} else {
@@ -155,11 +163,13 @@ func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) *Immutabl
 
 func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, fileShard ImmutableListOf[*SourceFile_jscomp], colorShard Optional_baseOf[*ColorPool_ShardView], stringShard *StringPool, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var file *SourceFile_jscomp = cast_[*SourceFile_jscomp](fileShard.get((lazyAst.getSourceFile() - 1)))
-	if ((this.requiredInputFiles.isPresent() && !cast_[*ImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && !JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file))) {
+	if (this.requiredInputFiles.isPresent() && !cast_[*ImmutableSet](this.requiredInputFiles.get()).contains(obj_(file))) && !JSCompObjects_identical(obj_(this.syntheticExterns), obj_(file)) {
 		return
 	}
 	if file.isWeak() {
-		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), &Function_fn{func(p0 any) any { return any(TypedAstDeserializer_createStubWeakScriptNode(cast_[*SourceFile_jscomp](p0))) }})
+		Map_computeIfAbsent(Map(this.typedAstFilesystem), obj_(file), &Function_fn{func(p0 any) any {
+			return any(TypedAstDeserializer_createStubWeakScriptNode(cast_[*SourceFile_jscomp](p0)))
+		}})
 		return
 	}
 	var deserializer *ScriptNodeDeserializer = new_ScriptNodeDeserializer(lazyAst, stringShard, colorShard, fileShard)
@@ -178,10 +188,10 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 func TypedAstDeserializer_addInputSourceMap(deserializer *ScriptNodeDeserializer, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var sourceFile *SourceFile_jscomp = deserializer.getSourceFile()
 	var sourceMappingURL OptionalOf[string] = deserializer.getSourceMappingURL()
-	if ((sourceMappingURL.isPresent() && (String_length(str_(sourceMappingURL.get())) > 0)) && resolveSourceMapAnnotations) {
+	if (sourceMappingURL.isPresent() && (String_length(str_(sourceMappingURL.get())) > 0)) && resolveSourceMapAnnotations {
 		var base64EncodedSourceMap string = SourceMapResolver_addBase64PrefixToEncodedSourceMap(str_(sourceMappingURL.get()))
 		var sourceMapSourceFile *SourceFile_jscomp = SourceMapResolver_extractSourceMap(sourceFile, base64EncodedSourceMap, parseInlineSourceMaps)
-		if (sourceMapSourceFile != nil) {
+		if sourceMapSourceFile != nil {
 			compiler.addInputSourceMap(sourceFile.getName(), new_SourceMapInput(sourceMapSourceFile))
 		}
 	}
@@ -213,7 +223,7 @@ func TypedAstDeserializer_deserializeTypedAsts(typedAstsStream []int8, deseriali
 		var typedAstBuilder *TypedAst_Builder = TypedAst_newBuilder()
 		for !codedInput.isAtEnd() {
 			var tag int32 = codedInput.readTag()
-			if ((WireFormat_getTagFieldNumber(tag) != int32(1)) || (WireFormat_getTagWireType(tag) != int32(2))) {
+			if (WireFormat_getTagFieldNumber(tag) != int32(1)) || (WireFormat_getTagWireType(tag) != int32(2)) {
 				panic(new_InvalidProtocolBufferException_String(("Unexpected field number " + istr_(int64(WireFormat_getTagFieldNumber(tag))) + " or wire type " + istr_(int64(WireFormat_getTagWireType(tag))))).self())
 			}
 			codedInput.readMessage(icast_MessageLite_Builder(obj_(typedAstBuilder)), ExtensionRegistry_getEmptyRegistry().up_ExtensionRegistryLite())
@@ -280,7 +290,7 @@ func TypedAstDeserializer_Mode_clinit() {
 }
 
 type TypedAstDeserializer_SyntheticExternsDeserializer struct {
-	syntheticExterns *SourceFile_jscomp
+	syntheticExterns              *SourceFile_jscomp
 	syntheticExternsDeserializers ArrayListOf[*ScriptNodeDeserializer]
 }
 
@@ -307,8 +317,8 @@ func (this *TypedAstDeserializer_SyntheticExternsDeserializer) deserialize() Nod
 }
 
 type TypedAstDeserializer_DeserializedAst struct {
-	getFilesystem_ ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
-	getColorRegistry_ Optional_baseOf[*ColorRegistry]
+	getFilesystem_       ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
+	getColorRegistry_    Optional_baseOf[*ColorRegistry]
 	getExternProperties_ ImmutableSetOf[string]
 	getRuntimeLibraries_ ImmutableSetOf[string]
 }
@@ -369,4 +379,3 @@ func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
 	h = h*31 + Objects_hashCode(obj_(this.getRuntimeLibraries_))
 	return h
 }
-

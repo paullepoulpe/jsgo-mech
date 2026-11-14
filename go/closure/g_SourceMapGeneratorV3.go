@@ -3,17 +3,17 @@
 package closure
 
 type SourceMapGeneratorV3 struct {
-	mappings []*SourceMapGeneratorV3_Mapping
-	sourceFileMap LinkedHashMapOf[string, BoxedOf[int32]]
+	mappings             []*SourceMapGeneratorV3_Mapping
+	sourceFileMap        LinkedHashMapOf[string, BoxedOf[int32]]
 	sourceFileContentMap map[string]string
-	originalNameMap LinkedHashMapOf[string, BoxedOf[int32]]
-	lastSourceFile OptionalOf[string]
-	lastSourceFileIndex int32
-	lastMapping *SourceMapGeneratorV3_Mapping
-	offsetPosition *FilePosition
-	prefixPosition *FilePosition
-	extensions LinkedHashMapOf[string, any]
-	sourceRootPath OptionalOf[string]
+	originalNameMap      LinkedHashMapOf[string, BoxedOf[int32]]
+	lastSourceFile       OptionalOf[string]
+	lastSourceFileIndex  int32
+	lastMapping          *SourceMapGeneratorV3_Mapping
+	offsetPosition       *FilePosition
+	prefixPosition       *FilePosition
+	extensions           LinkedHashMapOf[string, any]
+	sourceRootPath       OptionalOf[string]
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
@@ -41,7 +41,7 @@ func new_SourceMapGeneratorV3() *SourceMapGeneratorV3 {
 
 func (this *SourceMapGeneratorV3) reset() {
 	clear(this.mappings)
-this.mappings = this.mappings[:0]
+	this.mappings = this.mappings[:0]
 	this.lastMapping = nil
 	this.sourceFileMap.clear()
 	this.originalNameMap.clear()
@@ -58,8 +58,8 @@ func (this *SourceMapGeneratorV3) validate(validate bool) {
 func (this *SourceMapGeneratorV3) setWrapperPrefix(prefix string) {
 	var prefixLine int32 = 0
 	var prefixIndex int32 = 0
-	for i := int32(0); (i < String_length(prefix)); i++ {
-		if (String_charAt(prefix, i) == '\n') {
+	for i := int32(0); i < String_length(prefix); i++ {
+		if String_charAt(prefix, i) == '\n' {
 			prefixLine++
 			prefixIndex = 0
 		} else {
@@ -76,19 +76,19 @@ func (this *SourceMapGeneratorV3) setStartingPosition(offsetLine int32, offsetIn
 }
 
 func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName string, sourceStartPosition *FilePosition, startPosition *FilePosition, endPosition *FilePosition) {
-	if (String_isEmpty(sourceName) || (sourceStartPosition.getLine() < 0)) {
+	if String_isEmpty(sourceName) || (sourceStartPosition.getLine() < 0) {
 		return
 	}
 	var adjustedStart *FilePosition = startPosition
 	var adjustedEnd *FilePosition = endPosition
-	if ((this.offsetPosition.getLine() != 0) || (this.offsetPosition.getColumn() != 0)) {
+	if (this.offsetPosition.getLine() != 0) || (this.offsetPosition.getColumn() != 0) {
 		var offsetLine int32 = this.offsetPosition.getLine()
 		var startOffsetPosition int32 = this.offsetPosition.getColumn()
 		var endOffsetPosition int32 = this.offsetPosition.getColumn()
-		if (startPosition.getLine() > 0) {
+		if startPosition.getLine() > 0 {
 			startOffsetPosition = 0
 		}
-		if (endPosition.getLine() > 0) {
+		if endPosition.getLine() > 0 {
 			endOffsetPosition = 0
 		}
 		adjustedStart = new_FilePosition((startPosition.getLine() + offsetLine), (startPosition.getColumn() + startOffsetPosition))
@@ -100,7 +100,7 @@ func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName strin
 	mapping.originalName = symbolName
 	mapping.startPosition = adjustedStart
 	mapping.endPosition = adjustedEnd
-	if (this.lastMapping != nil) {
+	if this.lastMapping != nil {
 		var lastLine int32 = this.lastMapping.startPosition.getLine()
 		var lastColumn int32 = this.lastMapping.startPosition.getColumn()
 		var nextLine int32 = mapping.startPosition.getLine()
@@ -155,7 +155,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 		SourceMapGeneratorV3_appendField(out, "file", strobj_(SourceMapGeneratorV3_escapeString(str_(name.get()))))
 	}
 	SourceMapGeneratorV3_appendField(out, "lineCount", strobj_(String_valueOf(maxLine)))
-	if (this.sourceRootPath.isPresent() && !String_isEmpty(str_(this.sourceRootPath.get()))) {
+	if this.sourceRootPath.isPresent() && !String_isEmpty(str_(this.sourceRootPath.get())) {
 		SourceMapGeneratorV3_appendField(out, "sourceRoot", strobj_(SourceMapGeneratorV3_escapeString(str_(this.sourceRootPath.get()))))
 	}
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "mappings")
@@ -179,7 +179,14 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 		var value string
 		var string_ string
 		_ = string_
-		if func() bool { v_ := objValue; if !isstr_(v_) { return false }; string_ = str_(v_); return true }() {
+		if func() bool {
+			v_ := objValue
+			if !isstr_(v_) {
+				return false
+			}
+			string_ = str_(v_)
+			return true
+		}() {
 			value = SourceMapGeneratorV3_escapeString(string_)
 		} else {
 			value = Object_toString(objValue)
@@ -240,8 +247,8 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	}
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "sourcesContent")
 	out.append_CharSequence(strobj_("["))
-	for i := int32(0); (i < size); i++ {
-		if (i != 0) {
+	for i := int32(0); i < size; i++ {
+		if i != 0 {
 			out.append_CharSequence(strobj_(","))
 		}
 		var sourceContent OptionalOf[string] = Optional_ofNullable(contents.get(i))
@@ -261,7 +268,7 @@ func SourceMapGeneratorV3_addNameMap(out Appendable, map_ MapOf[string, BoxedOf[
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var key string = str_(entry.getKey())
-		if (i != 0) {
+		if i != 0 {
 			out.append_CharSequence(strobj_(","))
 		}
 		out.append_CharSequence(strobj_(SourceMapGeneratorV3_escapeString(key)))
@@ -336,9 +343,9 @@ func (this *SourceMapGeneratorV3) appendIndexMapTo(out Appendable, name string, 
 		out.append_CharSequence(strobj_("{\n"))
 		SourceMapGeneratorV3_appendFieldStart_Appendable_String_boolean(out, "offset", true)
 		SourceMapGeneratorV3_appendOffsetValue(out, section.getLine(), section.getColumn())
-		if (section.getSectionType() == SourceMapSection_SectionType_URL) {
+		if section.getSectionType() == SourceMapSection_SectionType_URL {
 			SourceMapGeneratorV3_appendField(out, "url", strobj_(SourceMapGeneratorV3_escapeString(section.getSectionValue())))
-		} else if (section.getSectionType() == SourceMapSection_SectionType_MAP) {
+		} else if section.getSectionType() == SourceMapSection_SectionType_MAP {
 			SourceMapGeneratorV3_appendField(out, "map", strobj_(section.getSectionValue()))
 		} else {
 			panic(new_IOException_String("Unexpected section type").self())
@@ -361,7 +368,7 @@ func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 	if !(this.lastSourceFile.isPresent() && (str_(this.lastSourceFile.get()) == sourceName)) {
 		this.lastSourceFile = Optional_of(strobj_(sourceName))
 		var index any = Map_get_s(this.sourceFileMap, sourceName)
-		if (index != nil) {
+		if index != nil {
 			this.lastSourceFileIndex = unbox_[int32](index)
 		} else {
 			this.lastSourceFileIndex = this.sourceFileMap.size()
@@ -374,7 +381,7 @@ func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 func (this *SourceMapGeneratorV3) getNameId(symbolName string) int32 {
 	var originalNameIndex int32
 	var index any = Map_get_s(this.originalNameMap, symbolName)
-	if (index != nil) {
+	if index != nil {
 		originalNameIndex = unbox_[int32](index)
 	} else {
 		originalNameIndex = this.originalNameMap.size()
@@ -417,13 +424,13 @@ func (this *SourceMapGeneratorV3_ConsumerEntryVisitor) visit(sourceName string, 
 }
 
 type SourceMapGeneratorV3_Mapping struct {
-	id int32
-	sourceFile string
+	id               int32
+	sourceFile       string
 	originalPosition *FilePosition
-	startPosition *FilePosition
-	endPosition *FilePosition
-	originalName string
-	used bool
+	startPosition    *FilePosition
+	endPosition      *FilePosition
+	originalName     string
+	used             bool
 }
 
 func (this *SourceMapGeneratorV3_Mapping) zero_SourceMapGeneratorV3_Mapping() {
@@ -462,7 +469,7 @@ func new_SourceMapGeneratorV3_UsedMappingCheck() *SourceMapGeneratorV3_UsedMappi
 }
 
 func (this *SourceMapGeneratorV3_UsedMappingCheck) visit(m *SourceMapGeneratorV3_Mapping, line int32, col int32, nextLine int32, nextCol int32) {
-	if (m != nil) {
+	if m != nil {
 		m.used = true
 	}
 }
@@ -481,8 +488,8 @@ func (this *SourceMapGeneratorV3_MappingVisitor_fn) visit(p0 *SourceMapGenerator
 
 type SourceMapGeneratorV3_MappingTraversal struct {
 	outer_ *SourceMapGeneratorV3
-	line_ int32
-	col int32
+	line_  int32
+	col    int32
 }
 
 func (this *SourceMapGeneratorV3_MappingTraversal) init_SourceMapGeneratorV3_MappingTraversal() {
@@ -501,7 +508,7 @@ func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v SourceMapGenerator
 	it_1 := eachOf_(&this.outer_.mappings)
 	for it_1.next() {
 		var m *SourceMapGeneratorV3_Mapping = it_1.v
-		for (!stack.isEmpty() && !this.isOverlapped(cast_[*SourceMapGeneratorV3_Mapping](stack.peek()), m)) {
+		for !stack.isEmpty() && !this.isOverlapped(cast_[*SourceMapGeneratorV3_Mapping](stack.peek()), m) {
 			var previous *SourceMapGeneratorV3_Mapping = cast_[*SourceMapGeneratorV3_Mapping](stack.pop())
 			this.maybeVisit(v, previous)
 		}
@@ -522,7 +529,12 @@ func (this *SourceMapGeneratorV3_MappingTraversal) getAdjustedLine(p *FilePositi
 func (this *SourceMapGeneratorV3_MappingTraversal) getAdjustedCol(p *FilePosition) int32 {
 	var rawLine int32 = p.getLine()
 	var rawCol int32 = p.getColumn()
-	return func() int32 { if (rawLine != 0) { return rawCol }; return (rawCol + this.outer_.prefixPosition.getColumn()) }()
+	return func() int32 {
+		if rawLine != 0 {
+			return rawCol
+		}
+		return (rawCol + this.outer_.prefixPosition.getColumn())
+	}()
 }
 
 func (this *SourceMapGeneratorV3_MappingTraversal) isOverlapped(m1 *SourceMapGeneratorV3_Mapping, m2 *SourceMapGeneratorV3_Mapping) bool {
@@ -536,7 +548,7 @@ func (this *SourceMapGeneratorV3_MappingTraversal) isOverlapped(m1 *SourceMapGen
 func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisit(v SourceMapGeneratorV3_MappingVisitor, m *SourceMapGeneratorV3_Mapping) {
 	var nextLine int32 = this.getAdjustedLine(m.endPosition)
 	var nextCol int32 = this.getAdjustedCol(m.endPosition)
-	if ((this.line_ < nextLine) || ((this.line_ == nextLine) && (this.col < nextCol))) {
+	if (this.line_ < nextLine) || ((this.line_ == nextLine) && (this.col < nextCol)) {
 		this.visit(v, m, nextLine, nextCol)
 	}
 }
@@ -545,7 +557,7 @@ func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisitParent(v SourceMapG
 	var nextLine int32 = this.getAdjustedLine(m.startPosition)
 	var nextCol int32 = this.getAdjustedCol(m.startPosition)
 	Preconditions_checkState(((this.line_ < nextLine) || (this.col <= nextCol)))
-	if ((this.line_ < nextLine) || ((this.line_ == nextLine) && (this.col < nextCol))) {
+	if (this.line_ < nextLine) || ((this.line_ == nextLine) && (this.col < nextCol)) {
 		this.visit(v, parent, nextLine, nextCol)
 	}
 }
@@ -553,7 +565,7 @@ func (this *SourceMapGeneratorV3_MappingTraversal) maybeVisitParent(v SourceMapG
 func (this *SourceMapGeneratorV3_MappingTraversal) visit(v SourceMapGeneratorV3_MappingVisitor, m *SourceMapGeneratorV3_Mapping, nextLine int32, nextCol int32) {
 	Preconditions_checkState((this.line_ <= nextLine))
 	Preconditions_checkState(((this.line_ < nextLine) || (this.col < nextCol)))
-	if ((this.line_ == nextLine) && (this.col == nextCol)) {
+	if (this.line_ == nextLine) && (this.col == nextCol) {
 		panic(new_IllegalStateException_0().self())
 	}
 	v.visit(m, this.line_, this.col, nextLine, nextCol)
@@ -562,15 +574,15 @@ func (this *SourceMapGeneratorV3_MappingTraversal) visit(v SourceMapGeneratorV3_
 }
 
 type SourceMapGeneratorV3_LineMapper struct {
-	outer_ *SourceMapGeneratorV3
-	out Appendable
-	maxLine int32
-	previousLine int32
-	previousColumn int32
+	outer_               *SourceMapGeneratorV3
+	out                  Appendable
+	maxLine              int32
+	previousLine         int32
+	previousColumn       int32
 	previousSourceFileId int32
-	previousSourceLine int32
+	previousSourceLine   int32
 	previousSourceColumn int32
-	previousNameId int32
+	previousNameId       int32
 }
 
 func (this *SourceMapGeneratorV3_LineMapper) finit_SourceMapGeneratorV3_LineMapper() {
@@ -592,12 +604,12 @@ func new_SourceMapGeneratorV3_LineMapper(outer_ *SourceMapGeneratorV3, out Appen
 }
 
 func (this *SourceMapGeneratorV3_LineMapper) visit(m *SourceMapGeneratorV3_Mapping, line int32, col int32, nextLine int32, nextCol int32) {
-	if (this.previousLine != line) {
+	if this.previousLine != line {
 		this.previousColumn = 0
 	}
-	if ((line != nextLine) || (col != nextCol)) {
-		if (line < this.maxLine) {
-			if (this.previousLine == line) {
+	if (line != nextLine) || (col != nextCol) {
+		if line < this.maxLine {
+			if this.previousLine == line {
 				this.out.append_char(',')
 			}
 			this.writeEntry(m, col)
@@ -607,8 +619,8 @@ func (this *SourceMapGeneratorV3_LineMapper) visit(m *SourceMapGeneratorV3_Mappi
 			Preconditions_checkState((m == nil))
 		}
 	}
-	for i := int32(line); ((i <= nextLine) && (i < this.maxLine)); i++ {
-		if (i == nextLine) {
+	for i := int32(line); (i <= nextLine) && (i < this.maxLine); i++ {
+		if i == nextLine {
 			break
 		}
 		this.closeLine(false)
@@ -619,7 +631,7 @@ func (this *SourceMapGeneratorV3_LineMapper) visit(m *SourceMapGeneratorV3_Mappi
 func (this *SourceMapGeneratorV3_LineMapper) writeEntry(m *SourceMapGeneratorV3_Mapping, column int32) {
 	Base64VLQ_encode(this.out, (column - this.previousColumn))
 	this.previousColumn = column
-	if (m != nil) {
+	if m != nil {
 		var sourceId int32 = this.outer_.getSourceId(m.sourceFile)
 		Base64VLQ_encode(this.out, (sourceId - this.previousSourceFileId))
 		this.previousSourceFileId = sourceId
@@ -655,4 +667,3 @@ func (this *SourceMapGeneratorV3_LineMapper) closeLine(finalEntry bool) {
 		this.out.append_char('"')
 	}
 }
-

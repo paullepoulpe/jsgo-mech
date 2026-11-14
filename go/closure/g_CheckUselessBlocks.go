@@ -3,7 +3,7 @@
 package closure
 
 type CheckUselessBlocks struct {
-	compiler_ *AbstractCompiler
+	compiler_  *AbstractCompiler
 	loneBlocks DequeOf[Node]
 }
 
@@ -24,7 +24,7 @@ func (this *CheckUselessBlocks) process_2(externs Node, root Node) {
 
 func (this *CheckUselessBlocks) isLoneBlock(n Node) bool {
 	var parent Node = n.getParent()
-	if ((parent != 0) && (parent.isScript() || ((parent.isBlock() && !parent.isSyntheticBlock()) && !parent.isAddedBlock()))) {
+	if (parent != 0) && (parent.isScript() || ((parent.isBlock() && !parent.isSyntheticBlock()) && !parent.isAddedBlock())) {
 		return (!n.isSyntheticBlock() && !n.isAddedBlock())
 	}
 	return false
@@ -34,7 +34,7 @@ func (this *CheckUselessBlocks) allowLoneBlock(parent Node) {
 	if this.loneBlocks.isEmpty() {
 		return
 	}
-	if (Node_of_(this.loneBlocks.peek()) == parent) {
+	if Node_of_(this.loneBlocks.peek()) == parent {
 		this.loneBlocks.pop()
 	}
 }
@@ -61,7 +61,7 @@ func (this *CheckUselessBlocks) shouldTraverse(t *NodeTraversal, n Node, parent 
 }
 
 func (this *CheckUselessBlocks) visit(t *NodeTraversal, n Node, parent Node) {
-	if ((n.isBlock() && !this.loneBlocks.isEmpty()) && (Node_of_(this.loneBlocks.peek()) == n)) {
+	if (n.isBlock() && !this.loneBlocks.isEmpty()) && (Node_of_(this.loneBlocks.peek()) == n) {
 		this.loneBlocks.pop()
 		t.report(n, CheckUselessBlocks_USELESS_BLOCK, []string{})
 	}
@@ -79,4 +79,3 @@ func CheckUselessBlocks_clinit() {
 	CheckUselessBlocks_USELESS_BLOCK = DiagnosticType_disabled("JSC_USELESS_BLOCK", "Useless block.")
 
 }
-

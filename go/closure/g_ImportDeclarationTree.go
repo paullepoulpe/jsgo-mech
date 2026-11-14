@@ -4,10 +4,10 @@ package closure
 
 type ImportDeclarationTree struct {
 	ParseTree
-	defaultBindingIdentifier *IdentifierToken
-	importSpecifierList ImmutableListOf[*ParseTree]
+	defaultBindingIdentifier  *IdentifierToken
+	importSpecifierList       ImmutableListOf[*ParseTree]
 	nameSpaceImportIdentifier *IdentifierToken
-	moduleSpecifier *LiteralToken
+	moduleSpecifier           *LiteralToken
 }
 
 func (this *ImportDeclarationTree) up_ParseTree() *ParseTree {
@@ -31,4 +31,3 @@ func new_ImportDeclarationTree(location *SourceRange, defaultBindingIdentifier *
 	this.init_ImportDeclarationTree(location, defaultBindingIdentifier, importSpecifierList, nameSpaceImportIdentifier, moduleSpecifier)
 	return this
 }
-

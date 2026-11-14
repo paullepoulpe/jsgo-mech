@@ -4,7 +4,7 @@ package closure
 
 type ColorGraphNodeFactory struct {
 	typeIndex LinkedHashMapOf[*Color, *ColorGraphNode]
-	registry *ColorRegistry
+	registry  *ColorRegistry
 }
 
 func (this *ColorGraphNodeFactory) init_ColorGraphNodeFactory(initialTypeIndex LinkedHashMapOf[*Color, *ColorGraphNode], registry *ColorRegistry) {
@@ -50,13 +50,18 @@ func (this *ColorGraphNodeFactory) simplifyColors(types ImmutableSetOf[*Color]) 
 }
 
 func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
-	if (type_ == nil) {
+	if type_ == nil {
 		return StandardColors_UNKNOWN
 	}
 	if type_.isUnion() {
 		type_ = type_.subtractNullOrVoid()
-		return func() *Color { if type_.isUnion() { return Color_createUnion(icast_Set(obj_(this.simplifyColors(type_.getUnionElements())))) }; return this.simplifyColor(type_) }()
-	} else if (type_.getBoxId() != nil) {
+		return func() *Color {
+			if type_.isUnion() {
+				return Color_createUnion(icast_Set(obj_(this.simplifyColors(type_.getUnionElements()))))
+			}
+			return this.simplifyColor(type_)
+		}()
+	} else if type_.getBoxId() != nil {
 		return this.registry.get(type_.getBoxId())
 	} else if type_.equals(obj_(StandardColors_NULL_OR_VOID)) {
 		return StandardColors_UNKNOWN
@@ -65,4 +70,3 @@ func (this *ColorGraphNodeFactory) simplifyColor(type_ *Color) *Color {
 	}
 	panic("unreachable")
 }
-

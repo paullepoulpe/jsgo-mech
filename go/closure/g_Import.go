@@ -4,11 +4,11 @@ package closure
 
 type Import struct {
 	moduleRequest_ string
-	importName_ string
-	localName_ string
-	modulePath_ *ModuleLoader_ModulePath
-	importNode_ Node
-	nameNode_ Node
+	importName_    string
+	localName_     string
+	modulePath_    *ModuleLoader_ModulePath
+	importNode_    Node
+	nameNode_      Node
 }
 
 func (this *Import) zero_Import() {
@@ -88,11 +88,11 @@ func (this *Import) toString() string {
 
 type Import_Builder struct {
 	moduleRequestField OptionalOf[string]
-	importNameField OptionalOf[string]
-	localNameField OptionalOf[string]
-	modulePathField *ModuleLoader_ModulePath
-	importNodeField Node
-	nameNodeField Node
+	importNameField    OptionalOf[string]
+	localNameField     OptionalOf[string]
+	modulePathField    *ModuleLoader_ModulePath
+	importNodeField    Node
+	nameNodeField      Node
 }
 
 func (this *Import_Builder) finit_Import_Builder() {
@@ -132,7 +132,7 @@ func (this *Import_Builder) modulePath(value *ModuleLoader_ModulePath) *Import_B
 }
 
 func (this *Import_Builder) importNode(value Node) *Import_Builder {
-	if (value == 0) {
+	if value == 0 {
 		panic(new_NullPointerException_String("Null importNode").self())
 	}
 	this.importNodeField = value
@@ -140,7 +140,7 @@ func (this *Import_Builder) importNode(value Node) *Import_Builder {
 }
 
 func (this *Import_Builder) nameNode(value Node) *Import_Builder {
-	if (value == 0) {
+	if value == 0 {
 		panic(new_NullPointerException_String("Null nameNode").self())
 	}
 	this.nameNodeField = value
@@ -148,7 +148,7 @@ func (this *Import_Builder) nameNode(value Node) *Import_Builder {
 }
 
 func (this *Import_Builder) build() *Import {
-	if ((((this.moduleRequestField.isEmpty() || this.importNameField.isEmpty()) || this.localNameField.isEmpty()) || (this.importNodeField == 0)) || (this.nameNodeField == 0)) {
+	if (((this.moduleRequestField.isEmpty() || this.importNameField.isEmpty()) || this.localNameField.isEmpty()) || (this.importNodeField == 0)) || (this.nameNodeField == 0) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.moduleRequestField.isEmpty() {
 			missing.append(" moduleRequest")
@@ -159,14 +159,13 @@ func (this *Import_Builder) build() *Import {
 		if this.localNameField.isEmpty() {
 			missing.append(" localName")
 		}
-		if (this.importNodeField == 0) {
+		if this.importNodeField == 0 {
 			missing.append(" importNode")
 		}
-		if (this.nameNodeField == 0) {
+		if this.nameNodeField == 0 {
 			missing.append(" nameNode")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
 	return new_Import(str_(this.moduleRequestField.get()), str_(this.importNameField.get()), str_(this.localNameField.get()), this.modulePathField, this.importNodeField, this.nameNodeField)
 }
-

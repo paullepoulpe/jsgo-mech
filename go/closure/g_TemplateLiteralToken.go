@@ -6,7 +6,7 @@ type TemplateLiteralToken struct {
 	LiteralToken
 	errorMessage_ string
 	errorPosition *SourcePosition_util
-	errorLevel *TemplateLiteralToken_ErrorLevel
+	errorLevel    *TemplateLiteralToken_ErrorLevel
 }
 
 func (this *TemplateLiteralToken) up_LiteralToken() *LiteralToken {
@@ -103,4 +103,3 @@ func TemplateLiteralToken_ErrorLevel_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.TemplateLiteralToken.ErrorLevel", enumValues_(TemplateLiteralToken_ErrorLevel_values_))
 
 }
-

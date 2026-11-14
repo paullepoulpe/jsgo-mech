@@ -5,7 +5,7 @@ package closure
 type RewriteGlobalDeclarationsForTryCatchWrapping struct {
 	compiler_ *AbstractCompiler
 	functions *SimpleListMultimap
-	classes ArrayListOf[Node]
+	classes   ArrayListOf[Node]
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) finit_RewriteGlobalDeclarationsForTryCatchWrapping() {
@@ -65,7 +65,7 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) shouldTraverse(t *Node
 }
 
 func (this *RewriteGlobalDeclarationsForTryCatchWrapping) visit(t *NodeTraversal, n Node, parent Node) {
-	if ((parent == 0) || !parent.isScript()) {
+	if (parent == 0) || !parent.isScript() {
 		return
 	}
 	if NodeUtil_isFunctionDeclaration(n) {
@@ -74,9 +74,8 @@ func (this *RewriteGlobalDeclarationsForTryCatchWrapping) visit(t *NodeTraversal
 	if NodeUtil_isClassDeclaration(n) {
 		this.classes.add(n.box_())
 	}
-	if (n.isConst() || n.isLet()) {
+	if n.isConst() || n.isLet() {
 		n.setToken(Token_rhino_VAR)
 		this.compiler_.reportChangeToEnclosingScope(n)
 	}
 }
-

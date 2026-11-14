@@ -4,9 +4,9 @@ package closure
 
 type ProductionCoverageInstrumentationCallback struct {
 	instrumentationArrayName string
-	compiler_ *AbstractCompiler
-	parameterMapping *ProductionCoverageInstrumentationCallback_ParameterMapping
-	functionNameStack DequeOf[string]
+	compiler_                *AbstractCompiler
+	parameterMapping         *ProductionCoverageInstrumentationCallback_ParameterMapping
+	functionNameStack        DequeOf[string]
 }
 
 func (this *ProductionCoverageInstrumentationCallback) zero_ProductionCoverageInstrumentationCallback() {
@@ -32,12 +32,17 @@ func new_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, i
 }
 
 func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if (!n.isRoot() && !(str_(t.getSourceName().orElse(strobj_(""))) == n.getSourceFileName())) {
+	if !n.isRoot() && !(str_(t.getSourceName().orElse(strobj_(""))) == n.getSourceFileName()) {
 		return false
 	}
 	if n.isFunction() {
 		var fnName OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		fnName = func() *Optional { if fnName.isEmpty() { return Optional_of(strobj_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)) }; return fnName }()
+		fnName = func() *Optional {
+			if fnName.isEmpty() {
+				return Optional_of(strobj_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME))
+			}
+			return fnName
+		}()
 		this.functionNameStack.push(fnName.orElse(nil))
 	}
 	if this.functionNameStack.isEmpty() {
@@ -57,11 +62,11 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 	case Token_rhino_IF:
 		var ifTrueNode Node = node.getSecondChild()
 		this.instrumentBlockNode(ifTrueNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
-		if (node.getChildCount() == 2) {
+		if node.getChildCount() == 2 {
 			this.addElseBlock(node)
 		}
 		var ifFalseNode Node = node.getLastChild()
-		if (NodeUtil_isEmptyBlock(ifFalseNode) || (ifFalseNode.hasChildren() && !ifFalseNode.getFirstChild().isIf())) {
+		if NodeUtil_isEmptyBlock(ifFalseNode) || (ifFalseNode.hasChildren() && !ifFalseNode.getFirstChild().isIf()) {
 			this.instrumentBlockNode(ifFalseNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 		}
 	case Token_rhino_SWITCH:
@@ -69,7 +74,7 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 		var switchBody Node = node.getSecondChild()
 		{
 			var c Node = switchBody.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				if c.isDefaultCase() {
 					this.instrumentBlockNode(c.getLastChild(), sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 					hasDefaultCase = true
@@ -199,10 +204,10 @@ func ProductionCoverageInstrumentationCallback_Type_clinit() {
 }
 
 type ProductionCoverageInstrumentationCallback_ParameterMapping struct {
-	paramValueEncodings MapOf[string, string]
-	fileNameToIndex MapOf[string, BoxedOf[int32]]
-	functionNameToIndex MapOf[string, BoxedOf[int32]]
-	typeToIndex MapOf[string, BoxedOf[int32]]
+	paramValueEncodings  MapOf[string, string]
+	fileNameToIndex      MapOf[string, BoxedOf[int32]]
+	functionNameToIndex  MapOf[string, BoxedOf[int32]]
+	typeToIndex          MapOf[string, BoxedOf[int32]]
 	nextUniqueIdentifier int64
 }
 
@@ -247,7 +252,7 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 	var encodedParam string = Object_toString(obj_(sb))
 	if !Map_containsKey_s(this.paramValueEncodings, encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
-		if (uniqueIdentifier > int64(int32(2147483647))) {
+		if uniqueIdentifier > int64(int32(2147483647)) {
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
 		}
 		sb = new_StringBuilder()
@@ -298,4 +303,3 @@ func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(stri
 	writer.endArray()
 	return writer.toString()
 }
-

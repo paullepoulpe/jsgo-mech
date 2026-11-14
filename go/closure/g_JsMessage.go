@@ -3,20 +3,20 @@
 package closure
 
 type JsMessage struct {
-	getSourceName_ OptionalOf[string]
-	getKey_ string
-	isAnonymous_ bool
-	isExternal_ bool
-	getId_ string
-	getParts_ ImmutableListOf[JsMessage_Part]
-	getGenderedMessagesMap_ ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]
-	getAlternateId_ OptionalOf[string]
-	getDesc_ OptionalOf[string]
-	getMeaning_ OptionalOf[string]
-	getPlaceholderNameToExampleMap_ ImmutableMapOf[string, string]
+	getSourceName_                       OptionalOf[string]
+	getKey_                              string
+	isAnonymous_                         bool
+	isExternal_                          bool
+	getId_                               string
+	getParts_                            ImmutableListOf[JsMessage_Part]
+	getGenderedMessagesMap_              ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]
+	getAlternateId_                      OptionalOf[string]
+	getDesc_                             OptionalOf[string]
+	getMeaning_                          OptionalOf[string]
+	getPlaceholderNameToExampleMap_      ImmutableMapOf[string, string]
 	getPlaceholderNameToOriginalCodeMap_ ImmutableMapOf[string, string]
-	jsPlaceholderNames_ ImmutableSetOf[string]
-	canonicalPlaceholderNames_ ImmutableSetOf[string]
+	jsPlaceholderNames_                  ImmutableSetOf[string]
+	canonicalPlaceholderNames_           ImmutableSetOf[string]
 }
 
 func (this *JsMessage) zero_JsMessage() {
@@ -145,7 +145,7 @@ func (this *JsMessage) isEmpty() bool {
 		it_1 := foreach_(obj_(this.getParts()))
 		for it_1.next() {
 			var part JsMessage_Part = icast_JsMessage_Part(it_1.v)
-			if (part.isPlaceholder() || (String_length(part.getString()) > 0)) {
+			if part.isPlaceholder() || (String_length(part.getString()) > 0) {
 				return false
 			}
 		}
@@ -156,7 +156,7 @@ func (this *JsMessage) isEmpty() bool {
 			it_5 := foreach_(obj_(parts))
 			for it_5.next() {
 				var part JsMessage_Part = icast_JsMessage_Part(it_5.v)
-				if (part.isPlaceholder() || (String_length(part.getString()) > 0)) {
+				if part.isPlaceholder() || (String_length(part.getString()) > 0) {
 					return false
 				}
 			}
@@ -171,10 +171,10 @@ func JsMessage_isLowerCamelCaseWithNumericSuffixes(input string) bool {
 
 func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
 	var suffixStart int32 = String_length(input)
-	for (suffixStart > 0) {
+	for suffixStart > 0 {
 		var ch uint16 = 0x0000
 		var numberStart int32 = suffixStart
-		for (numberStart > 0) {
+		for numberStart > 0 {
 			ch = String_charAt(input, (numberStart - 1))
 			if Character_isDigit(ch) {
 				numberStart--
@@ -182,13 +182,13 @@ func JsMessage_toLowerCamelCaseWithNumericSuffixes(input string) string {
 				break
 			}
 		}
-		if (((numberStart > 0) && (numberStart < suffixStart)) && (ch == '_')) {
+		if ((numberStart > 0) && (numberStart < suffixStart)) && (ch == '_') {
 			suffixStart = (numberStart - 1)
 		} else {
 			break
 		}
 	}
-	if (suffixStart == String_length(input)) {
+	if suffixStart == String_length(input) {
 		return CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, input)
 	} else {
 		return (sstr_(CaseFormat_UPPER_UNDERSCORE.to(CaseFormat_LOWER_CAMEL, String_substring(input, 0, suffixStart))) + sstr_(String_substring_int(input, suffixStart)))
@@ -289,6 +289,7 @@ func (this *JsMessage) toString() string {
 
 const JsMessage_PH_JS_PREFIX string = "{$"
 const JsMessage_PH_JS_SUFFIX string = "}"
+
 var JsMessage_JS_PLACEHOLDER_NAME_RE *Pattern
 var JsMessage_CANONICAL_PLACEHOLDER_NAME_RE *Pattern
 
@@ -453,7 +454,7 @@ func (this *JsMessage_StringPart) toString() string {
 
 type JsMessage_PlaceholderReference struct {
 	storedPlaceholderName_ string
-	canonicalFormat_ bool
+	canonicalFormat_       bool
 }
 
 func (this *JsMessage_PlaceholderReference) zero_JsMessage_PlaceholderReference() {
@@ -496,12 +497,22 @@ func (this *JsMessage_PlaceholderReference) isPlaceholder() bool {
 
 func (this *JsMessage_PlaceholderReference) getJsPlaceholderName() string {
 	var storedPlaceholderName string = this.storedPlaceholderName()
-	return func() string { if this.canonicalFormat() { return JsMessage_toLowerCamelCaseWithNumericSuffixes(storedPlaceholderName) }; return storedPlaceholderName }()
+	return func() string {
+		if this.canonicalFormat() {
+			return JsMessage_toLowerCamelCaseWithNumericSuffixes(storedPlaceholderName)
+		}
+		return storedPlaceholderName
+	}()
 }
 
 func (this *JsMessage_PlaceholderReference) getCanonicalPlaceholderName() string {
 	var storedPlaceholderName string = this.storedPlaceholderName()
-	return func() string { if this.canonicalFormat() { return storedPlaceholderName }; return CaseFormat_LOWER_CAMEL.to(CaseFormat_UPPER_UNDERSCORE, storedPlaceholderName) }()
+	return func() string {
+		if this.canonicalFormat() {
+			return storedPlaceholderName
+		}
+		return CaseFormat_LOWER_CAMEL.to(CaseFormat_UPPER_UNDERSCORE, storedPlaceholderName)
+	}()
 }
 
 func (this *JsMessage_PlaceholderReference) getString() string {
@@ -536,20 +547,20 @@ func (this *JsMessage_PlaceholderReference) toString() string {
 }
 
 type JsMessage_Builder struct {
-	key_ OptionalOf[string]
-	meaning OptionalOf[string]
-	desc OptionalOf[string]
-	isAnonymous_ bool
-	isExternal_ bool
-	id OptionalOf[string]
-	alternateId OptionalOf[string]
-	parts ListOf[JsMessage_Part]
-	genderedMessageMap MapOf[*JsMessage_GrammaticalGenderCase, ListOf[JsMessage_Part]]
-	jsPlaceholderNames_ SetOf[string]
-	canonicalPlaceholderNames_ SetOf[string]
-	placeholderNameToExampleMap ImmutableMapOf[string, string]
+	key_                             OptionalOf[string]
+	meaning                          OptionalOf[string]
+	desc                             OptionalOf[string]
+	isAnonymous_                     bool
+	isExternal_                      bool
+	id                               OptionalOf[string]
+	alternateId                      OptionalOf[string]
+	parts                            ListOf[JsMessage_Part]
+	genderedMessageMap               MapOf[*JsMessage_GrammaticalGenderCase, ListOf[JsMessage_Part]]
+	jsPlaceholderNames_              SetOf[string]
+	canonicalPlaceholderNames_       SetOf[string]
+	placeholderNameToExampleMap      ImmutableMapOf[string, string]
 	placeholderNameToOriginalCodeMap ImmutableMapOf[string, string]
-	sourceName_ OptionalOf[string]
+	sourceName_                      OptionalOf[string]
 }
 
 func (this *JsMessage_Builder) finit_JsMessage_Builder() {
@@ -712,7 +723,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 	Preconditions_checkState_boolean_Object(this.key_.isPresent(), strobj_("key has not been set"))
 	Preconditions_checkState_boolean_Object(this.id.isPresent(), strobj_("id has not been set"))
 	Preconditions_checkState_boolean_Object((!this.isExternal_ || !this.isAnonymous_), strobj_("a message cannot be both anonymous and external"))
-	if (this.alternateId.isPresent() && Object_equals(obj_(this.alternateId), obj_(this.id))) {
+	if this.alternateId.isPresent() && Object_equals(obj_(this.alternateId), obj_(this.id)) {
 		this.alternateId = Optional_empty()
 	}
 	var immutableGenderedPartsBuilder ImmutableMap_BuilderOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = ImmutableMap_builder()
@@ -750,7 +761,12 @@ func JsMessage_Hash_hash64String(value OptionalOf[string], seed int64) int64 {
 }
 
 func JsMessage_Hash_hash64_byteArr_long(value []int8, seed int64) int64 {
-	return JsMessage_Hash_hash64_byteArr_int_int_long(value, 0, func() int32 { if (value == nil) { return 0 }; return int32(len(value)) }(), seed)
+	return JsMessage_Hash_hash64_byteArr_int_int_long(value, 0, func() int32 {
+		if value == nil {
+			return 0
+		}
+		return int32(len(value))
+	}(), seed)
 }
 
 func JsMessage_Hash_hash64_byteArr_int_int_long(value []int8, offset int32, length int32, seed int64) int64 {
@@ -811,85 +827,85 @@ func JsMessage_Hash_hash64_byteArr_int_int_long(value []int8, offset int32, leng
 		}
 	}
 	c += int64(length)
-	if (keylen >= 16) {
-		if (keylen == 23) {
-			c += (int64(value[(offset + 22)]) << 56)
+	if keylen >= 16 {
+		if keylen == 23 {
+			c += (int64(value[(offset+22)]) << 56)
 		}
-		if (keylen >= 22) {
-			c += ((int64(value[(offset + 21)]) & 255) << 48)
+		if keylen >= 22 {
+			c += ((int64(value[(offset+21)]) & 255) << 48)
 		}
-		if (keylen >= 21) {
-			c += ((int64(value[(offset + 20)]) & 255) << 40)
+		if keylen >= 21 {
+			c += ((int64(value[(offset+20)]) & 255) << 40)
 		}
-		if (keylen >= 20) {
-			c += ((int64(value[(offset + 19)]) & 255) << 32)
+		if keylen >= 20 {
+			c += ((int64(value[(offset+19)]) & 255) << 32)
 		}
-		if (keylen >= 19) {
-			c += ((int64(value[(offset + 18)]) & 255) << 24)
+		if keylen >= 19 {
+			c += ((int64(value[(offset+18)]) & 255) << 24)
 		}
-		if (keylen >= 18) {
-			c += ((int64(value[(offset + 17)]) & 255) << 16)
+		if keylen >= 18 {
+			c += ((int64(value[(offset+17)]) & 255) << 16)
 		}
-		if (keylen >= 17) {
-			c += ((int64(value[(offset + 16)]) & 255) << 8)
+		if keylen >= 17 {
+			c += ((int64(value[(offset+16)]) & 255) << 8)
 		}
-		if (keylen >= 16) {
+		if keylen >= 16 {
 			b += JsMessage_Hash_word64At(value, (offset + 8))
 			a += JsMessage_Hash_word64At(value, offset)
 		}
-	} else if (keylen >= 8) {
-		if (keylen == 15) {
-			b += ((int64(value[(offset + 14)]) & 255) << 48)
+	} else if keylen >= 8 {
+		if keylen == 15 {
+			b += ((int64(value[(offset+14)]) & 255) << 48)
 		}
-		if (keylen >= 14) {
-			b += ((int64(value[(offset + 13)]) & 255) << 40)
+		if keylen >= 14 {
+			b += ((int64(value[(offset+13)]) & 255) << 40)
 		}
-		if (keylen >= 13) {
-			b += ((int64(value[(offset + 12)]) & 255) << 32)
+		if keylen >= 13 {
+			b += ((int64(value[(offset+12)]) & 255) << 32)
 		}
-		if (keylen >= 12) {
-			b += ((int64(value[(offset + 11)]) & 255) << 24)
+		if keylen >= 12 {
+			b += ((int64(value[(offset+11)]) & 255) << 24)
 		}
-		if (keylen >= 11) {
-			b += ((int64(value[(offset + 10)]) & 255) << 16)
+		if keylen >= 11 {
+			b += ((int64(value[(offset+10)]) & 255) << 16)
 		}
-		if (keylen >= 10) {
-			b += ((int64(value[(offset + 9)]) & 255) << 8)
+		if keylen >= 10 {
+			b += ((int64(value[(offset+9)]) & 255) << 8)
 		}
-		if (keylen >= 9) {
-			b += (int64(value[(offset + 8)]) & 255)
+		if keylen >= 9 {
+			b += (int64(value[(offset+8)]) & 255)
 		}
-		if (keylen >= 8) {
+		if keylen >= 8 {
 			a += JsMessage_Hash_word64At(value, offset)
 		}
 	} else {
-		if (keylen == 7) {
-			a += ((int64(value[(offset + 6)]) & 255) << 48)
+		if keylen == 7 {
+			a += ((int64(value[(offset+6)]) & 255) << 48)
 		}
-		if (keylen >= 6) {
-			a += ((int64(value[(offset + 5)]) & 255) << 40)
+		if keylen >= 6 {
+			a += ((int64(value[(offset+5)]) & 255) << 40)
 		}
-		if (keylen >= 5) {
-			a += ((int64(value[(offset + 4)]) & 255) << 32)
+		if keylen >= 5 {
+			a += ((int64(value[(offset+4)]) & 255) << 32)
 		}
-		if (keylen >= 4) {
-			a += ((int64(value[(offset + 3)]) & 255) << 24)
+		if keylen >= 4 {
+			a += ((int64(value[(offset+3)]) & 255) << 24)
 		}
-		if (keylen >= 3) {
-			a += ((int64(value[(offset + 2)]) & 255) << 16)
+		if keylen >= 3 {
+			a += ((int64(value[(offset+2)]) & 255) << 16)
 		}
-		if (keylen >= 2) {
-			a += ((int64(value[(offset + 1)]) & 255) << 8)
+		if keylen >= 2 {
+			a += ((int64(value[(offset+1)]) & 255) << 8)
 		}
-		if (keylen >= 1) {
-			a += (int64(value[(offset + 0)]) & 255)
+		if keylen >= 1 {
+			a += (int64(value[(offset+0)]) & 255)
 		}
 	}
 	return JsMessage_Hash_mix64(a, b, c)
 }
 
 func JsMessage_Hash_word64At(bytes []int8, offset int32) int64 {
-	return ((((((((int64(bytes[(offset + 0)]) & 255) + ((int64(bytes[(offset + 1)]) & 255) << 8)) + ((int64(bytes[(offset + 2)]) & 255) << 16)) + ((int64(bytes[(offset + 3)]) & 255) << 24)) + ((int64(bytes[(offset + 4)]) & 255) << 32)) + ((int64(bytes[(offset + 5)]) & 255) << 40)) + ((int64(bytes[(offset + 6)]) & 255) << 48)) + ((int64(bytes[(offset + 7)]) & 255) << 56))
+	return ((((((((int64(bytes[(offset+0)]) & 255) + ((int64(bytes[(offset+1)]) & 255) << 8)) + ((int64(bytes[(offset+2)]) & 255) << 16)) + ((int64(bytes[(offset+3)]) & 255) << 24)) + ((int64(bytes[(offset+4)]) & 255) << 32)) + ((int64(bytes[(offset+5)]) & 255) << 40)) + ((int64(bytes[(offset+6)]) & 255) << 48)) + ((int64(bytes[(offset+7)]) & 255) << 56))
 }
 
 func JsMessage_Hash_mix64(a int64, b int64, c int64) int64 {
@@ -946,4 +962,3 @@ type JsMessage_IdGenerator_fn struct {
 func (this *JsMessage_IdGenerator_fn) generateId(p0 *Optional, p1 List) string {
 	return this.f(p0, p1)
 }
-

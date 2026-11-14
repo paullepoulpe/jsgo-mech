@@ -39,7 +39,9 @@ func (this *ErrorFormat) init_ErrorFormat(name_ string, ordinal_ int32) {
 }
 
 func (this *ErrorFormat) toFormatter(p0 SourceExcerptProvider, p1 bool) MessageFormatter {
-	return this.self_.(interface{ toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter }).toFormatter_impl(p0, p1)
+	return this.self_.(interface {
+		toFormatter_impl(SourceExcerptProvider, bool) MessageFormatter
+	}).toFormatter_impl(p0, p1)
 }
 
 func ErrorFormat_values() []*ErrorFormat {
@@ -324,4 +326,3 @@ func ErrorFormat_4_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.ErrorFormat>", enumValues_(ErrorFormat_4_values_))
 
 }
-

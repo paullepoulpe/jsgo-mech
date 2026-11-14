@@ -4,7 +4,7 @@ package closure
 
 type RewriteNewDotTarget struct {
 	AbstractPeepholeTranspilation
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	astFactory_ *AstFactory
 }
 
@@ -33,11 +33,11 @@ func (this *RewriteNewDotTarget) getTranspiledAwayFeatures_impl() *FeatureSet {
 }
 
 func (this *RewriteNewDotTarget) transpileSubtree_impl(n Node) Node {
-	if (n.getToken() != Token_rhino_NEW_TARGET) {
+	if n.getToken() != Token_rhino_NEW_TARGET {
 		return n
 	}
 	var enclosingNonArrowFunction Node = NodeUtil_getEnclosingNonArrowFunction(n)
-	if ((enclosingNonArrowFunction != 0) && NodeUtil_isEs6Constructor(enclosingNonArrowFunction)) {
+	if (enclosingNonArrowFunction != 0) && NodeUtil_isEs6Constructor(enclosingNonArrowFunction) {
 		var enclosingClass Node = enclosingNonArrowFunction.getParent().getGrandparent()
 		var replacement Node = this.astFactory_.createGetProp(this.astFactory_.createThisForEs6Class(enclosingClass), "constructor", AstFactory_type_Node(n)).srcrefTree(n)
 		n.replaceWith(replacement)
@@ -48,4 +48,3 @@ func (this *RewriteNewDotTarget) transpileSubtree_impl(n Node) Node {
 	}
 	return n
 }
-

@@ -3,12 +3,12 @@
 package closure
 
 type Config struct {
-	languageMode_ *Config_LanguageMode
-	strictMode_ *Config_StrictMode
-	jsDocParsingMode_ *Config_JsDocParsing
-	runMode_ *Config_RunMode
-	annotations_ ImmutableMapOf[string, *Annotation_parsing]
-	suppressionNames_ ImmutableSetOf[string]
+	languageMode_          *Config_LanguageMode
+	strictMode_            *Config_StrictMode
+	jsDocParsingMode_      *Config_JsDocParsing
+	runMode_               *Config_RunMode
+	annotations_           ImmutableMapOf[string, *Annotation_parsing]
+	suppressionNames_      ImmutableSetOf[string]
 	closurePrimitiveNames_ ImmutableSetOf[string]
 	parseInlineSourceMaps_ bool
 }
@@ -59,7 +59,7 @@ func Config_buildAnnotations(allowlist IterableOf[string]) *ImmutableMap {
 	it_1 := foreach_(any(allowlist))
 	for it_1.next() {
 		var unrecognizedAnnotation string = str_(it_1.v)
-		if (!String_isEmpty(unrecognizedAnnotation) && !Map_containsKey_s(Annotation_parsing_recognizedAnnotations, unrecognizedAnnotation)) {
+		if !String_isEmpty(unrecognizedAnnotation) && !Map_containsKey_s(Annotation_parsing_recognizedAnnotations, unrecognizedAnnotation) {
 			annotationsBuilder.put(strobj_(unrecognizedAnnotation), obj_(Annotation_parsing_NOT_IMPLEMENTED))
 		}
 	}
@@ -396,15 +396,15 @@ func Config_RunMode_clinit() {
 }
 
 type Config_Builder struct {
-	languageMode_ *Config_LanguageMode
-	strictMode_ *Config_StrictMode
-	jsDocParsingMode_ *Config_JsDocParsing
-	runMode_ *Config_RunMode
-	annotations_ ImmutableMapOf[string, *Annotation_parsing]
-	suppressionNames_ ImmutableSetOf[string]
+	languageMode_          *Config_LanguageMode
+	strictMode_            *Config_StrictMode
+	jsDocParsingMode_      *Config_JsDocParsing
+	runMode_               *Config_RunMode
+	annotations_           ImmutableMapOf[string, *Annotation_parsing]
+	suppressionNames_      ImmutableSetOf[string]
 	closurePrimitiveNames_ ImmutableSetOf[string]
 	parseInlineSourceMaps_ bool
-	set0 int8
+	set0                   int8
 }
 
 func (this *Config_Builder) init_Config_Builder_0() {
@@ -436,7 +436,7 @@ func new_Config_Builder_Config(source *Config) *Config_Builder {
 }
 
 func (this *Config_Builder) setLanguageMode(mode *Config_LanguageMode) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null languageMode").self())
 	}
 	this.languageMode_ = mode
@@ -444,7 +444,7 @@ func (this *Config_Builder) setLanguageMode(mode *Config_LanguageMode) *Config_B
 }
 
 func (this *Config_Builder) setStrictMode(mode *Config_StrictMode) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null strictMode").self())
 	}
 	this.strictMode_ = mode
@@ -452,7 +452,7 @@ func (this *Config_Builder) setStrictMode(mode *Config_StrictMode) *Config_Build
 }
 
 func (this *Config_Builder) setJsDocParsingMode(mode *Config_JsDocParsing) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null jsDocParsingMode").self())
 	}
 	this.jsDocParsingMode_ = mode
@@ -460,7 +460,7 @@ func (this *Config_Builder) setJsDocParsingMode(mode *Config_JsDocParsing) *Conf
 }
 
 func (this *Config_Builder) setRunMode(mode *Config_RunMode) *Config_Builder {
-	if (mode == nil) {
+	if mode == nil {
 		panic(new_NullPointerException_String("Null runMode").self())
 	}
 	this.runMode_ = mode
@@ -488,30 +488,30 @@ func (this *Config_Builder) setExtraAnnotationNames(names IterableOf[string]) *C
 }
 
 func (this *Config_Builder) build() *Config {
-	if ((((((((int32(this.set0) != 1) || (this.languageMode_ == nil)) || (this.strictMode_ == nil)) || (this.jsDocParsingMode_ == nil)) || (this.runMode_ == nil)) || (this.annotations_ == nil)) || (this.suppressionNames_ == nil)) || (this.closurePrimitiveNames_ == nil)) {
+	if (((((((int32(this.set0) != 1) || (this.languageMode_ == nil)) || (this.strictMode_ == nil)) || (this.jsDocParsingMode_ == nil)) || (this.runMode_ == nil)) || (this.annotations_ == nil)) || (this.suppressionNames_ == nil)) || (this.closurePrimitiveNames_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
-		if (this.languageMode_ == nil) {
+		if this.languageMode_ == nil {
 			missing.append(" languageMode")
 		}
-		if (this.strictMode_ == nil) {
+		if this.strictMode_ == nil {
 			missing.append(" strictMode")
 		}
-		if (this.jsDocParsingMode_ == nil) {
+		if this.jsDocParsingMode_ == nil {
 			missing.append(" jsDocParsingMode")
 		}
-		if (this.runMode_ == nil) {
+		if this.runMode_ == nil {
 			missing.append(" runMode")
 		}
-		if (this.annotations_ == nil) {
+		if this.annotations_ == nil {
 			missing.append(" annotations")
 		}
-		if (this.suppressionNames_ == nil) {
+		if this.suppressionNames_ == nil {
 			missing.append(" suppressionNames")
 		}
-		if (this.closurePrimitiveNames_ == nil) {
+		if this.closurePrimitiveNames_ == nil {
 			missing.append(" closurePrimitiveNames")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" parseInlineSourceMaps")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
@@ -520,10 +520,9 @@ func (this *Config_Builder) build() *Config {
 }
 
 func (this *Config_Builder) setAnnotations(names ImmutableMapOf[string, *Annotation_parsing]) *Config_Builder {
-	if (names == nil) {
+	if names == nil {
 		panic(new_NullPointerException_String("Null annotations").self())
 	}
 	this.annotations_ = names
 	return this
 }
-

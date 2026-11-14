@@ -3,13 +3,13 @@
 package closure
 
 type ModuleMapCreator struct {
-	compiler_ *AbstractCompiler
-	esModuleProcessor *EsModuleProcessor
-	closureModuleProcessor *ClosureModuleProcessor
-	nonEsModuleProcessor *NonEsModuleProcessor
-	unresolvedModules MapOf[string, *UnresolvedModule]
+	compiler_                           *AbstractCompiler
+	esModuleProcessor                   *EsModuleProcessor
+	closureModuleProcessor              *ClosureModuleProcessor
+	nonEsModuleProcessor                *NonEsModuleProcessor
+	unresolvedModules                   MapOf[string, *UnresolvedModule]
 	unresolvedModulesByClosureNamespace MapOf[string, *UnresolvedModule]
-	moduleMetadataMap *ModuleMetadataMap
+	moduleMetadataMap                   *ModuleMetadataMap
 }
 
 func (this *ModuleMapCreator) init_ModuleMapCreator(compiler *AbstractCompiler, moduleMetadataMap *ModuleMetadataMap) {
@@ -76,7 +76,7 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 	case ModuleMetadataMap_ModuleType_ES6_MODULE:
 		processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.esModuleProcessor))
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
-		if (moduleMetadata.googNamespaces().size() == 1) {
+		if moduleMetadata.googNamespaces().size() == 1 {
 			processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.closureModuleProcessor))
 		} else {
 			processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.nonEsModuleProcessor))
@@ -85,7 +85,7 @@ func (this *ModuleMapCreator) process(moduleMetadata *ModuleMetadataMap_ModuleMe
 		processor = icast_ModuleMapCreator_ModuleProcessor(obj_(this.nonEsModuleProcessor))
 	}
 	var module *UnresolvedModule = processor.process(moduleMetadata, moduleMetadata.path(), moduleMetadata.rootNode())
-	if (moduleMetadata.path() != nil) {
+	if moduleMetadata.path() != nil {
 		Map_put_s(this.unresolvedModules, moduleMetadata.path().toModuleName(), module.self())
 	}
 	it_2 := foreach_(obj_(moduleMetadata.googNamespaces()))
@@ -139,7 +139,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) getFallbackForMissingClo
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveImport(i *Import) *UnresolvedModule {
-	if (i.modulePath() == nil) {
+	if i.modulePath() == nil {
 		return this.resolveForClosure(i.moduleRequest())
 	}
 	return this.resolve_3(i.moduleRequest(), i.modulePath(), i.importNode())
@@ -163,7 +163,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		_ = s
 		return !String_isEmpty(s)
 	}}), forLineInfo.getLineno(), forLineInfo.getCharno())
-	if (requestedPath == nil) {
+	if requestedPath == nil {
 		requestedPath = modulePath.resolveModuleAsPath(moduleRequest)
 		if !Map_containsKey_s(this.outer_.unresolvedModules, requestedPath.toModuleName()) {
 			var module *UnresolvedModule = this.getFallbackForMissingNonClosureModule(requestedPath)
@@ -188,8 +188,8 @@ func (this *ModuleMapCreator_ModuleProcessor_fn) process(p0 *ModuleMetadataMap_M
 
 type ModuleMapCreator_ModuleRequestResolverImpl_1 struct {
 	UnresolvedModule
-	outer_ *ModuleMapCreator_ModuleRequestResolverImpl
-	cap_path *ModuleLoader_ModulePath
+	outer_       *ModuleMapCreator_ModuleRequestResolverImpl
+	cap_path     *ModuleLoader_ModulePath
 	cap_metadata *ModuleMetadataMap_ModuleMetadata
 }
 
@@ -237,4 +237,3 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) getExportedNames_2_imp
 func (this *ModuleMapCreator_ModuleRequestResolverImpl_1) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
 	return ResolveExportResult_of(Binding_from_Export_Node(Export_builder().localName(exportName).moduleMetadata(this.cap_metadata).modulePath(this.cap_path).closureNamespace(Optional_empty()).build(), 0))
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type LinkedIdentityHashMap struct {
-	innerMap IdentityHashMapOf[any, *LinkedIdentityHashMap_Entry]
+	innerMap       IdentityHashMapOf[any, *LinkedIdentityHashMap_Entry]
 	iterationOrder ArrayListOf[*LinkedIdentityHashMap_Entry]
 }
 
@@ -24,12 +24,17 @@ func new_LinkedIdentityHashMap() *LinkedIdentityHashMap {
 
 func (this *LinkedIdentityHashMap) get(key any) any {
 	var entry *LinkedIdentityHashMap_Entry = cast_[*LinkedIdentityHashMap_Entry](this.innerMap.get(key))
-	return func() any { if (entry == nil) { return nil }; return entry.value_ }()
+	return func() any {
+		if entry == nil {
+			return nil
+		}
+		return entry.value_
+	}()
 }
 
 func (this *LinkedIdentityHashMap) put(key any, value any) any {
 	var entry *LinkedIdentityHashMap_Entry = cast_[*LinkedIdentityHashMap_Entry](this.innerMap.get(key))
-	if (entry == nil) {
+	if entry == nil {
 		entry = new_LinkedIdentityHashMap_Entry(key, value)
 		this.innerMap.put(key, obj_(entry))
 		this.iterationOrder.add(obj_(entry))
@@ -44,7 +49,7 @@ func (this *LinkedIdentityHashMap) put(key any, value any) any {
 
 func (this *LinkedIdentityHashMap) computeIfAbsent(key any, fn FunctionOf[any, any]) any {
 	var oldValue any = this.get(key)
-	if (oldValue != nil) {
+	if oldValue != nil {
 		return oldValue
 	}
 	var newValue any = fn.apply(key)
@@ -54,7 +59,7 @@ func (this *LinkedIdentityHashMap) computeIfAbsent(key any, fn FunctionOf[any, a
 
 func (this *LinkedIdentityHashMap) merge(key any, value any, fn BiFunctionOf[any, any, any]) any {
 	var oldValue any = this.get(key)
-	if (oldValue == nil) {
+	if oldValue == nil {
 		this.put(key, value)
 		return value
 	}
@@ -72,7 +77,7 @@ func (this *LinkedIdentityHashMap) forEach(fn BiConsumerOf[any, any]) {
 }
 
 type LinkedIdentityHashMap_Entry struct {
-	key_ any
+	key_   any
 	value_ any
 }
 
@@ -86,4 +91,3 @@ func new_LinkedIdentityHashMap_Entry(key any, value any) *LinkedIdentityHashMap_
 	this.init_LinkedIdentityHashMap_Entry(key, value)
 	return this
 }
-

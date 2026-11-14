@@ -4,7 +4,7 @@ package closure
 
 type JSDocInfoPrinter struct {
 	useOriginalName bool
-	printDesc bool
+	printDesc       bool
 }
 
 func (this *JSDocInfoPrinter) init_JSDocInfoPrinter_boolean(useOriginalName bool) {
@@ -40,10 +40,10 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.isExport() {
 		parts.add(strobj_("@export"))
-	} else if ((info.getVisibility() != nil) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED)) {
+	} else if (info.getVisibility() != nil) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED) {
 		parts.add(strobj_(("@" + sstr_(Ascii_toLowerCase(Object_toString(obj_(info.getVisibility())))))))
 	}
-	if (info.getAuthors() != nil) {
+	if info.getAuthors() != nil {
 		multiline = true
 		it_1 := foreach_(any(info.getAuthors()))
 		for it_1.next() {
@@ -57,7 +57,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.hasLendsName() {
 		parts.add(strobj_(this.buildAnnotationWithType("lends", info.getLendsName().getRoot())))
 	}
-	if (info.hasConstAnnotation() && !info.isDefine()) {
+	if info.hasConstAnnotation() && !info.isDefine() {
 		parts.add(strobj_("@const"))
 	}
 	if info.isFinal() {
@@ -68,7 +68,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add(strobj_(("@desc " + sstr_(str_(description.get())))))
 	}
-	if (info.getReferences() != nil) {
+	if info.getReferences() != nil {
 		multiline = true
 		it_3 := foreach_(any(info.getReferences()))
 		for it_3.next() {
@@ -124,10 +124,10 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isConstructor() {
 		parts.add(strobj_("@constructor"))
 	}
-	if (info.isInterface() && !info.usesImplicitMatch()) {
+	if info.isInterface() && !info.usesImplicitMatch() {
 		parts.add(strobj_("@interface"))
 	}
-	if (info.isInterface() && info.usesImplicitMatch()) {
+	if info.isInterface() && info.usesImplicitMatch() {
 		parts.add(strobj_("@record"))
 	}
 	if info.isClosureUnawareCode() {
@@ -157,7 +157,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		var typeNode Node = this.stripBang(info.getThisType().getRoot())
 		parts.add(strobj_(this.buildAnnotationWithType("this", typeNode)))
 	}
-	if (info.getParameterCount() > 0) {
+	if info.getParameterCount() > 0 {
 		multiline = true
 		it_9 := foreach_(any(info.getParameterNames()))
 		for it_9.next() {
@@ -169,7 +169,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		multiline = true
 		parts.add(strobj_(this.buildAnnotationWithType_3("return", info.getReturnType(), info.getReturnDescription())))
 	}
-	if (!info.getThrowsAnnotations().isEmpty() && !String_isEmpty(str_(info.getThrowsAnnotations().get(0)))) {
+	if !info.getThrowsAnnotations().isEmpty() && !String_isEmpty(str_(info.getThrowsAnnotations().get(0))) {
 		multiline = true
 		parts.add(strobj_(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0))))))
 	}
@@ -182,7 +182,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			var boundExpr *JSTypeExpression = cast_[*JSTypeExpression](boundExpr_)
 			_ = boundExpr
 			var boundRoot Node = boundExpr.getRoot()
-			if ((boundRoot.getToken() == Token_rhino_QMARK) && !boundRoot.hasChildren()) {
+			if (boundRoot.getToken() == Token_rhino_QMARK) && !boundRoot.hasChildren() {
 				parts.add(strobj_(("@template " + sstr_(name))))
 			} else {
 				parts.add(strobj_(this.buildAnnotationWithType_3("template", boundExpr, Optional_of(strobj_(name)))))
@@ -203,7 +203,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	if info.isOverride() {
 		parts.add(strobj_("@override"))
 	}
-	if (info.hasType() && !info.isDefine()) {
+	if info.hasType() && !info.isDefine() {
 		if info.isInlineType() {
 			parts.add(strobj_(this.typeNode(info.getType().getRoot())))
 		} else {
@@ -231,7 +231,14 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		for it_13.next() {
 			var suppression Map_Entry = icast_Map_Entry(it_13.v)
 			var warnings []string = arrmap_(cast_[*ImmutableSet](suppression.getKey()).toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-			func() { arr_15 := warnings; tmp_16 := arrmap_(arr_15, func(v_ string) any { return strobj_(v_) }); Arrays_sort_ObjectArr_Comparator(tmp_16, Comparator_naturalOrder()); for i_ := range tmp_16 { arr_15[i_] = str_(tmp_16[i_]) } }()
+			func() {
+				arr_15 := warnings
+				tmp_16 := arrmap_(arr_15, func(v_ string) any { return strobj_(v_) })
+				Arrays_sort_ObjectArr_Comparator(tmp_16, Comparator_naturalOrder())
+				for i_ := range tmp_16 {
+					arr_15[i_] = str_(tmp_16[i_])
+				}
+			}()
 			var text string = str_(suppression.getValue())
 			var sb *StringBuilder = new_StringBuilder()
 			sb.append("@suppress {").append(Joiner_on_char(',').join_ObjectArr(arrmap_(warnings, func(v_ string) any { return strobj_(v_) }))).append("}")
@@ -244,7 +251,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.isDeprecated() {
 		var deprecationReason OptionalOf[string] = info.getDeprecationReason()
-		parts.add(strobj_(("@deprecated" + sstr_(func() string { if deprecationReason.isPresent() { return (" " + sstr_(str_(deprecationReason.get()))) }; return "" }()))))
+		parts.add(strobj_(("@deprecated" + sstr_(func() string {
+			if deprecationReason.isPresent() {
+				return (" " + sstr_(str_(deprecationReason.get())))
+			}
+			return ""
+		}()))))
 		multiline = true
 	}
 	if info.isPolymer() {
@@ -281,12 +293,12 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 		var tsType string = str_(it_17.v)
 		parts.add(strobj_(("@tsType " + sstr_(tsType))))
 	}
-	if (this.printDesc && info.getBlockDescription().isPresent()) {
+	if this.printDesc && info.getBlockDescription().isPresent() {
 		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher(info.getBlockDescription().get()).replaceAll("\n")
 		if !String_isEmpty(cleaned) {
 			multiline = true
 			cleaned = String_trim(cleaned)
-			if (parts.size() > 1) {
+			if parts.size() > 1 {
 				cleaned += "\n"
 			}
 			parts.add_int_Object(1, strobj_(cleaned))
@@ -309,7 +321,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 }
 
 func (this *JSDocInfoPrinter) stripBang(typeNode Node) Node {
-	if (typeNode.getToken() == Token_rhino_BANG) {
+	if typeNode.getToken() == Token_rhino_BANG {
 		typeNode = typeNode.getFirstChild()
 	}
 	return typeNode
@@ -343,8 +355,13 @@ func (this *JSDocInfoPrinter) buildAnnotationWithTypeNode(annotation string, typ
 
 func (this *JSDocInfoPrinter) buildParamType(info *JSDocInfo, name string) string {
 	var type_ *JSTypeExpression = info.getParameterType(Optional_of(strobj_(name)))
-	if (type_ != nil) {
-		var p string = ("{" + sstr_(this.typeNode(type_.getRoot())) + "} " + sstr_(name) + sstr_(func() string { if (this.printDesc && info.getDescriptionForParameter(name).isPresent()) { return str_(info.getDescriptionForParameter(name).get()) }; return "" }()))
+	if type_ != nil {
+		var p string = ("{" + sstr_(this.typeNode(type_.getRoot())) + "} " + sstr_(name) + sstr_(func() string {
+			if this.printDesc && info.getDescriptionForParameter(name).isPresent() {
+				return str_(info.getDescriptionForParameter(name).get())
+			}
+			return ""
+		}()))
 		return String_trim(p)
 	} else {
 		return name
@@ -359,7 +376,7 @@ func (this *JSDocInfoPrinter) typeNode(typeNode Node) string {
 }
 
 func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
-	if (this.useOriginalName && !String_isEmpty(typeNode.getOriginalName())) {
+	if this.useOriginalName && !String_isEmpty(typeNode.getOriginalName()) {
 		sb.append(typeNode.getOriginalName())
 		return
 	}
@@ -375,9 +392,9 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 		var lastChild Node = typeNode.getLastChild()
 		{
 			var child Node = typeNode.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				this.appendTypeNode(sb, child)
-				if (child != lastChild) {
+				if child != lastChild {
 					sb.append("|")
 				}
 			}
@@ -385,7 +402,7 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 		sb.append(")")
 	case Token_rhino_ITER_REST:
 		sb.append("...")
-		if (typeNode.hasChildren() && !typeNode.getFirstChild().isEmpty()) {
+		if typeNode.hasChildren() && !typeNode.getFirstChild().isEmpty() {
 			this.appendTypeNode(sb, typeNode.getFirstChild())
 		}
 	case Token_rhino_STAR:
@@ -403,14 +420,14 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 		var lastColon Node = lb.getLastChild()
 		{
 			var colon Node = lb.getFirstChild()
-			for ; (colon != 0); colon = colon.getNext() {
+			for ; colon != 0; colon = colon.getNext() {
 				if colon.hasChildren() {
 					sb.append(colon.getFirstChild().getString()).append(":")
 					this.appendTypeNode(sb, colon.getLastChild())
 				} else {
 					sb.append(colon.getString())
 				}
-				if (colon != lastColon) {
+				if colon != lastColon {
 					sb.append(",")
 				}
 			}
@@ -426,9 +443,9 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 		var last Node = typeNode.getLastChild()
 		{
 			var type_ Node = typeNode.getFirstChild()
-			for ; (type_ != 0); type_ = type_.getNext() {
+			for ; type_ != 0; type_ = type_.getNext() {
 				this.appendTypeNode(sb, type_)
-				if (type_ != last) {
+				if type_ != last {
 					sb.append(",")
 				}
 			}
@@ -470,12 +487,12 @@ func (this *JSDocInfoPrinter) appendFunctionNode(sb *StringBuilder, function Nod
 	} else if first.getNext().isParamList() {
 		paramList = first.getNext()
 	}
-	if (paramList != 0) {
+	if paramList != 0 {
 		var firstParam bool = true
 		{
 			var param Node = paramList.getFirstChild()
-			for ; (param != 0); param = param.getNext() {
-				if (!firstParam || hasNewOrThis) {
+			for ; param != 0; param = param.getNext() {
+				if !firstParam || hasNewOrThis {
 					sb.append(",")
 				}
 				this.appendTypeNode(sb, param)
@@ -505,4 +522,3 @@ func JSDocInfoPrinter_clinit() {
 	JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN = Pattern_compile("\n \\*([^ \n])")
 
 }
-

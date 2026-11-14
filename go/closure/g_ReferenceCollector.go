@@ -3,16 +3,16 @@
 package closure
 
 type ReferenceCollector struct {
-	referenceMap MapOf[*Var, *ReferenceCollection]
-	blockStack ArrayDequeOf[*BasicBlock]
-	behavior ReferenceCollector_Behavior
-	scopeCreator ScopeCreator
-	compiler_ *AbstractCompiler
-	varFilter Predicate_baseOf[*Var]
+	referenceMap                            MapOf[*Var, *ReferenceCollection]
+	blockStack                              ArrayDequeOf[*BasicBlock]
+	behavior                                ReferenceCollector_Behavior
+	scopeCreator                            ScopeCreator
+	compiler_                               *AbstractCompiler
+	varFilter                               Predicate_baseOf[*Var]
 	collectHoistedFunctionsInReferenceOrder bool
-	callback *ReferenceCollector_CollectorCallback
-	collectedHoistedFunctions map[Node]struct{}
-	narrowScope_ *Scope
+	callback                                *ReferenceCollector_CollectorCallback
+	collectedHoistedFunctions               map[Node]struct{}
+	narrowScope_                            *Scope
 }
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
@@ -99,7 +99,7 @@ func (this *ReferenceCollector) getReferences_Var(v *Var) *ReferenceCollection {
 func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTraversal) {
 	var fnNode Node = var_.getParentNode()
 	var varScope *Scope = cast_[*Scope](var_.getScope())
-	if ((((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || has_(this.collectedHoistedFunctions, fnNode)) {
+	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || has_(this.collectedHoistedFunctions, fnNode) {
 		return
 	}
 	var oldBlockStack ArrayDequeOf[*BasicBlock] = this.blockStack
@@ -111,7 +111,7 @@ func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTra
 		for it_1.next() {
 			var b *BasicBlock = cast_[*BasicBlock](it_1.v)
 			SequencedCollection_addLast(icast_SequencedCollection(obj_(this.blockStack)), obj_(b))
-			if (b.getRoot() == varScope.getRootNode()) {
+			if b.getRoot() == varScope.getRootNode() {
 				break
 			}
 		}
@@ -135,7 +135,7 @@ func (this *ReferenceCollector) popLastBlock(root Node) {
 }
 
 func ReferenceCollector_isBlockBoundary(n Node, parent Node) bool {
-	if (parent != 0) {
+	if parent != 0 {
 		switch parent.getToken() {
 		case Token_rhino_DO, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_TRY, Token_rhino_WHILE, Token_rhino_WITH, Token_rhino_CLASS, Token_rhino_SWITCH_BODY:
 			return true
@@ -190,7 +190,7 @@ func new_ReferenceCollector_CollectorCallback(outer_ *ReferenceCollector) *Refer
 }
 
 func (this *ReferenceCollector_CollectorCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
-	if (this.outer_.collectHoistedFunctionsInReferenceOrder && NodeUtil_isHoistedFunctionDeclaration(n)) {
+	if this.outer_.collectHoistedFunctionsInReferenceOrder && NodeUtil_isHoistedFunctionDeclaration(n) {
 		if !setAdd_(this.outer_.collectedHoistedFunctions, n) {
 			return false
 		}
@@ -217,9 +217,9 @@ func (this *ReferenceCollector_CollectorCallback) exitScope(t *NodeTraversal) {
 
 func (this *ReferenceCollector_CollectorCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	var addedReference *Reference = nil
-	if ((n.isName() || n.isImportStar()) && !ReferenceCollector_isNonLocalModuleSpecifierName(n, parent)) {
+	if (n.isName() || n.isImportStar()) && !ReferenceCollector_isNonLocalModuleSpecifierName(n, parent) {
 		var v *Var = cast_[*Var](t.getScope().getVar(n.getString()).self())
-		if (v != nil) {
+		if v != nil {
 			addedReference = this.outer_.addReference(v, n, t)
 			if this.outer_.collectHoistedFunctionsInReferenceOrder {
 				this.outer_.maybeJumpToHoistedFunction(v, t)
@@ -286,4 +286,3 @@ func (this *ReferenceCollector_1) beforeTraverseNode(p0 *NodeTraversal, p1 Node,
 func (this *ReferenceCollector_1) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
 	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
 }
-

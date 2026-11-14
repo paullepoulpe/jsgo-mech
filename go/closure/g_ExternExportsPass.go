@@ -4,13 +4,13 @@ package closure
 
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports ListOf[*ExternExportsPass_Export]
-	definitionMap map[string]Node
-	compiler_ *AbstractCompiler
-	externsRoot Node
-	mappedPaths map[string]string
-	alreadyExportedPaths map[string]struct{}
-	exportSymbolFunctionNames ImmutableSetOf[string]
+	exports                     ListOf[*ExternExportsPass_Export]
+	definitionMap               map[string]Node
+	compiler_                   *AbstractCompiler
+	externsRoot                 Node
+	mappedPaths                 map[string]string
+	alreadyExportedPaths        map[string]struct{}
+	exportSymbolFunctionNames   ImmutableSetOf[string]
 	exportPropertyFunctionNames ImmutableSetOf[string]
 }
 
@@ -44,7 +44,7 @@ func ExternExportsPass_computePathPrefixes(path string) *ImmutableList {
 	var pathPrefixes ImmutableList_BuilderOf[string] = ImmutableList_builder()
 	var partial string = str_(pieces.get(0))
 	pathPrefixes.add(strobj_(partial))
-	for i := int32(1); (i < pieces.size()); i++ {
+	for i := int32(1); i < pieces.size(); i++ {
 		partial = ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(partial), pieces.get(i), []any{})
 		pathPrefixes.add(strobj_(partial))
 	}
@@ -92,14 +92,14 @@ func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 		}
 	} else if n.isAssign() {
 		var lhs Node = n.getFirstChild()
-		if (lhs.isQualifiedName() && (!lhs.hasChildren() || !lhs.getFirstChild().isThis())) {
+		if lhs.isQualifiedName() && (!lhs.hasChildren() || !lhs.getFirstChild().isThis()) {
 			this.definitionMap[lhs.getQualifiedName()] = n.getLastChild()
 		}
 	} else if n.isName() {
 		var parent Node = Node_of_(Preconditions_checkNotNull_Object_Object(n.getParent().box_(), n.box_()))
 		if NodeUtil_isNameDeclaration(parent) {
 			var value Node = n.getFirstChild()
-			if (value != 0) {
+			if value != 0 {
 				this.definitionMap[n.getString()] = value
 			}
 		}
@@ -158,18 +158,23 @@ func (this *ExternExportsPass) isCallToOneOf(n Node, functionQnames ImmutableSet
 }
 
 func (this *ExternExportsPass) lookForAtExportOnThisDotProperty(t *NodeTraversal, thisDotPropName Node) {
-	if (!thisDotPropName.isGetProp() || !thisDotPropName.getFirstChild().isThis()) {
+	if !thisDotPropName.isGetProp() || !thisDotPropName.getFirstChild().isThis() {
 		return
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(thisDotPropName)
-	if ((jsdoc == nil) || !jsdoc.isExport()) {
+	if (jsdoc == nil) || !jsdoc.isExport() {
 		return
 	}
 	var constructorNode Node = t.getEnclosingFunction()
 	if !NodeUtil_isConstructor(constructorNode) {
 		return
 	}
-	var classNode Node = func() Node { if NodeUtil_isEs6Constructor(constructorNode) { return NodeUtil_getEnclosingClass(constructorNode) }; return constructorNode }()
+	var classNode Node = func() Node {
+		if NodeUtil_isEs6Constructor(constructorNode) {
+			return NodeUtil_getEnclosingClass(constructorNode)
+		}
+		return constructorNode
+	}()
 	var className string = NodeUtil_getName(classNode)
 	var propertyName string = thisDotPropName.getString()
 	var prototypeName string = (sstr_(className) + ".prototype")
@@ -193,23 +198,29 @@ func ExternExportsPass_clinit() {
 }
 
 type ExternExportsPass_Export struct {
-	self_ any
-	outer_ *ExternExportsPass
+	self_      any
+	outer_     *ExternExportsPass
 	symbolName string
-	value_ Node
+	value_     Node
 }
 
-func (this *ExternExportsPass_Export) as_ExternExportsPass_Export() *ExternExportsPass_Export { return this }
+func (this *ExternExportsPass_Export) as_ExternExportsPass_Export() *ExternExportsPass_Export {
+	return this
+}
 
 func to_ExternExportsPass_Export(v any) *ExternExportsPass_Export {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ExternExportsPass_Export() *ExternExportsPass_Export }).as_ExternExportsPass_Export()
+	return v.(interface {
+		as_ExternExportsPass_Export() *ExternExportsPass_Export
+	}).as_ExternExportsPass_Export()
 }
 
 func is_ExternExportsPass_Export(v any) bool {
-	_, ok := v.(interface{ as_ExternExportsPass_Export() *ExternExportsPass_Export })
+	_, ok := v.(interface {
+		as_ExternExportsPass_Export() *ExternExportsPass_Export
+	})
 	return ok
 }
 
@@ -235,7 +246,7 @@ func (this *ExternExportsPass_Export) generateExterns() {
 
 func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport Node) {
 	var pathPrefixes ImmutableListOf[string] = ExternExportsPass_computePathPrefixes(path)
-	for i := int32(0); (i < pathPrefixes.size()); i++ {
+	for i := int32(0); i < pathPrefixes.size(); i++ {
 		var pathPrefix string = str_(pathPrefixes.get(i))
 		var isCompletePathPrefix bool = (i == (pathPrefixes.size() - 1))
 		var skipPathPrefix bool = (String_endsWith(pathPrefix, ".prototype") || (has_(this.outer_.alreadyExportedPaths, pathPrefix) && !isCompletePathPrefix))
@@ -243,15 +254,15 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 			continue
 		}
 		var exportedValueDefinesNewType bool = false
-		if (valueToExport != 0) {
+		if valueToExport != 0 {
 			var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(valueToExport)
-			if (valueToExport.isClass() || ((jsdoc != nil) && jsdoc.containsTypeDefinition())) {
+			if valueToExport.isClass() || ((jsdoc != nil) && jsdoc.containsTypeDefinition()) {
 				exportedValueDefinesNewType = true
 			}
 		}
 		var initializer Node
 		var jsdoc *JSDocInfo = nil
-		if (isCompletePathPrefix && (valueToExport != 0)) {
+		if isCompletePathPrefix && (valueToExport != 0) {
 			if valueToExport.isFunction() {
 				initializer = this.createExternFunction(valueToExport)
 			} else if valueToExport.isClass() {
@@ -260,7 +271,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 				Preconditions_checkState(valueToExport.isObjectLit())
 				initializer = this.createExternObjectLit(valueToExport)
 			}
-		} else if (!isCompletePathPrefix && exportedValueDefinesNewType) {
+		} else if !isCompletePathPrefix && exportedValueDefinesNewType {
 			jsdoc = this.buildNamespaceJSDoc()
 			initializer = this.createExternObjectLit(IR_objectlit([]Node{}))
 			initializer.setJSDocInfo(nil)
@@ -287,7 +298,7 @@ func (this *ExternExportsPass_Export) appendPathDefinition(path string, initiali
 			pathDefinition = NodeUtil_newVarNode(path, initializer)
 		}
 	}
-	if (jsdoc != nil) {
+	if jsdoc != nil {
 		if pathDefinition.isExprResult() {
 			pathDefinition.getFirstChild().setJSDocInfo(jsdoc)
 		} else {
@@ -311,7 +322,7 @@ func (this *ExternExportsPass_Export) createExternsParamListFromOriginalFunction
 	var originalParamNames ListOf[string] = icast_List(new_ArrayList_0().self())
 	{
 		var originalParam Node = originalParamList.getFirstChild()
-		for ; (originalParam != 0); originalParam = originalParam.getNext() {
+		for ; originalParam != 0; originalParam = originalParam.getNext() {
 			originalParamNames.add(strobj_(this.getOriginalNameForParam(originalParam)))
 		}
 	}
@@ -329,7 +340,12 @@ func (this *ExternExportsPass_Export) createExternsParamListFromOriginalParamLis
 	it_1 := foreach_(any(originalParamNames))
 	for it_1.next() {
 		var originalParamName string = str_(it_1.v)
-		var externParamName string = func() string { if String_isEmpty(originalParamName) { return nameGenerator.generateNextName() }; return originalParamName }()
+		var externParamName string = func() string {
+			if String_isEmpty(originalParamName) {
+				return nameGenerator.generateNextName()
+			}
+			return originalParamName
+		}()
 		paramList.addChildToBack(IR_name(externParamName))
 	}
 	return paramList
@@ -346,7 +362,12 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 	}
 	if nameOrPatternNode.isName() {
 		var originalName string = nameOrPatternNode.getOriginalName()
-		return func() string { if !String_isEmpty(originalName) { return originalName }; return nameOrPatternNode.getString() }()
+		return func() string {
+			if !String_isEmpty(originalName) {
+				return originalName
+			}
+			return nameOrPatternNode.getString()
+		}()
 	} else {
 		Preconditions_checkState_boolean_Object(nameOrPatternNode.isDestructuringPattern(), nameOrPatternNode.box_())
 		return ""
@@ -356,7 +377,7 @@ func (this *ExternExportsPass_Export) getOriginalNameForParam(paramNode Node) st
 
 func (this *ExternExportsPass_Export) createExternFunctionForEs6Class(exportedClass Node) Node {
 	var constructorMethodDefinition Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(exportedClass)
-	if (constructorMethodDefinition == 0) {
+	if constructorMethodDefinition == 0 {
 		var classJSType *JSType = exportedClass.getJSType()
 		var paramList Node = this.createExternsParamListFromFunctionType(classJSType)
 		var externFunction Node = IR_function(IR_name(""), paramList, IR_block_0())
@@ -386,7 +407,7 @@ func (this *ExternExportsPass_Export) createExternObjectLit(exportedObjectLit No
 	var index int32 = 1
 	{
 		var child Node = exportedObjectLit.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isStringKey() {
 				lit.addChildToBack(IR_propdef(IR_stringKey_String(child.getString()), IR_number(float64(index))))
 				index++
@@ -402,10 +423,10 @@ func (this *ExternExportsPass_Export) getValue() Node {
 		return 0
 	}
 	var definition Node = this.outer_.definitionMap[qualifiedName]
-	if (definition == 0) {
+	if definition == 0 {
 		return 0
 	}
-	if ((definition.isFunction() || definition.isClass()) || definition.isObjectLit()) {
+	if (definition.isFunction() || definition.isClass()) || definition.isObjectLit() {
 		return definition
 	}
 	return 0
@@ -455,7 +476,7 @@ func (this *ExternExportsPass_SymbolExport) getExportedPath_impl() string {
 
 type ExternExportsPass_PropertyExport struct {
 	ExternExportsPass_Export
-	outer_ *ExternExportsPass
+	outer_     *ExternExportsPass
 	exportPath string
 }
 
@@ -500,4 +521,3 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	}
 	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{})
 }
-

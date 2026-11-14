@@ -3,8 +3,8 @@
 package closure
 
 type InjectClosureUnawareRuntimeLibraries struct {
-	mainCompiler *AbstractCompiler
-	shadowCompiler *AbstractCompiler
+	mainCompiler        *AbstractCompiler
+	shadowCompiler      *AbstractCompiler
 	closureUnawareCalls ListOf[*InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite]
 }
 
@@ -57,7 +57,7 @@ func (this *InjectClosureUnawareRuntimeLibraries) injectAll(callSite *InjectClos
 	}
 	var parameterParent Node = NodeUtil_getFunctionParameters(callSite.closureUnawareFunction())
 	var argumentParent Node = callSite.callNode()
-	if (parameterParent.hasChildren() && parameterParent.getLastChild().isRest()) {
+	if parameterParent.hasChildren() && parameterParent.getLastChild().isRest() {
 		panic(new_IllegalStateException_String(("rest parameters not allowed in closureUnaware function parameters, found " + objstr_(parameterParent.getLastChild().box_()))).self())
 	}
 	it_1 := foreach_(any(toInject))
@@ -79,7 +79,7 @@ func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnow
 			return
 		}
 		var field RuntimeJsLibManager_ExternedField = icast_RuntimeJsLibManager_ExternedField(Map_get_s(allKnownFields, n.getString()))
-		if (field != nil) {
+		if field != nil {
 			seen.add(any(field))
 		}
 	}}
@@ -88,7 +88,7 @@ func InjectClosureUnawareRuntimeLibraries_gatherRuntimeFields(root Node, allKnow
 }
 
 type InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite struct {
-	callNode_ Node
+	callNode_               Node
 	closureUnawareFunction_ Node
 }
 
@@ -131,4 +131,3 @@ func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) hashCod
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) toString() string {
 	return "ClosureUnawareCallSite[" + "callNode=" + objstr_(this.callNode_.box_()) + ", closureUnawareFunction=" + objstr_(this.closureUnawareFunction_.box_()) + "]"
 }
-

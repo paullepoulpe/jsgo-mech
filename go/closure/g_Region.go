@@ -7,4 +7,3 @@ type Region interface {
 	getBeginningLineNumber() int32
 	getEndingLineNumber() int32
 }
-

@@ -25,4 +25,3 @@ func new_BlockTree(location *SourceRange, statements ImmutableListOf[*ParseTree]
 	this.init_BlockTree(location, statements)
 	return this
 }
-

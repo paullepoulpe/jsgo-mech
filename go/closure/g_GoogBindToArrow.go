@@ -37,7 +37,7 @@ func (this *GoogBindToArrow) matches_impl(node Node, metadata *NodeMetadata) boo
 		return false
 	}
 	var firstArg Node = callee.getNext()
-	if ((firstArg == 0) || !firstArg.isFunction()) {
+	if (firstArg == 0) || !firstArg.isFunction() {
 		return false
 	}
 	var secondArg Node = firstArg.getNext()
@@ -74,4 +74,3 @@ func GoogBindToArrow_clinit() {
 	GoogBindToArrow_GOOG_BIND_NAME = QualifiedName_of("goog.bind")
 
 }
-

@@ -17,13 +17,13 @@ type ErrorManager interface {
 }
 
 func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
-	if (this.getErrorCount() == 0) {
+	if this.getErrorCount() == 0 {
 		return false
 	}
 	it_1 := foreach_(obj_(this.getErrors()))
 	for it_1.next() {
 		var error_ *JSError = cast_[*JSError](it_1.v)
-		if (error_.type_().level_ == CheckLevel_ERROR) {
+		if error_.type_().level_ == CheckLevel_ERROR {
 			return true
 		}
 	}
@@ -33,4 +33,3 @@ func ErrorManager_hasHaltingErrors_default(this ErrorManager) bool {
 func ErrorManager_shouldReportConformanceViolation_default(this ErrorManager, requirement *Requirement, allowlistEntry Optional_baseOf[*RequirementScopeEntry], diagnostic *JSError, behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior, isAllowlisted bool) bool {
 	return (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_RECORD_ONLY)
 }
-

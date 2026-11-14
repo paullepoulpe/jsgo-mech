@@ -3,10 +3,10 @@
 package closure
 
 type ColorGraphBuilder struct {
-	registry *ColorRegistry
-	nodeFactory *ColorGraphNodeFactory
-	lcaFinder *LowestCommonAncestorFinder
-	topNode *LinkedDirectedGraph_LinkedDiGraphNode
+	registry                *ColorRegistry
+	nodeFactory             *ColorGraphNodeFactory
+	lcaFinder               *LowestCommonAncestorFinder
+	topNode                 *LinkedDirectedGraph_LinkedDiGraphNode
 	colorHoldsInstanceGraph *LinkedDirectedGraph
 }
 
@@ -69,7 +69,7 @@ func (this *ColorGraphBuilder) addInternal(color *Color) *LinkedDirectedGraph_Li
 
 func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *LinkedDirectedGraph_LinkedDiGraphNode {
 	var flatNode *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.colorHoldsInstanceGraph.getNode(obj_(node)))
-	if (flatNode != nil) {
+	if flatNode != nil {
 		return flatNode
 	}
 	flatNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.colorHoldsInstanceGraph.createNode(obj_(node)))
@@ -166,4 +166,3 @@ func ColorGraphBuilder_EdgeReason_clinit() {
 	registerEnum_("com.google.javascript.jscomp.disambiguate.ColorGraphBuilder.EdgeReason", enumValues_(ColorGraphBuilder_EdgeReason_values_))
 
 }
-

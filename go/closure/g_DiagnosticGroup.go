@@ -66,10 +66,16 @@ func (this *DiagnosticGroup) getName() *Optional {
 }
 
 func (this *DiagnosticGroup) toString() string {
-	return func() string { if this.name_.isEmpty() { return defaultToString_(any(this)) }; return ("DiagnosticGroup<" + sstr_(str_(this.name_.get())) + ">") }()
+	return func() string {
+		if this.name_.isEmpty() {
+			return defaultToString_(any(this))
+		}
+		return ("DiagnosticGroup<" + sstr_(str_(this.name_.get())) + ">")
+	}()
 }
 
 const DiagnosticGroup_serialVersionUID int64 = 1
+
 var DiagnosticGroup_singletons Map
 
 var DiagnosticGroup_clinit_done bool
@@ -82,4 +88,3 @@ func DiagnosticGroup_clinit() {
 	DiagnosticGroup_singletons = icast_Map(obj_(new_LinkedHashMap()))
 
 }
-

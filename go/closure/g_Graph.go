@@ -3,7 +3,7 @@
 package closure
 
 type Graph struct {
-	self_ any
+	self_               any
 	nodeAnnotationStack DequeOf[*Graph_GraphAnnotationState]
 	edgeAnnotationStack DequeOf[*Graph_GraphAnnotationState]
 }
@@ -49,7 +49,7 @@ func (this *Graph) hasNode(n any) bool {
 
 func (this *Graph) getNodeOrFail(val any) GraphNode {
 	var node GraphNode = this.getNode(val)
-	if (node == nil) {
+	if node == nil {
 		panic(new_IllegalArgumentException_String((objstr_(val) + " does not exist in graph")).self())
 	}
 	return node
@@ -72,7 +72,7 @@ func (this *Graph) clearEdgeAnnotations() {
 }
 
 func (this *Graph) pushNodeAnnotations() {
-	if (this.nodeAnnotationStack == nil) {
+	if this.nodeAnnotationStack == nil {
 		this.nodeAnnotationStack = icast_Deque(obj_(new_ArrayDeque()))
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, this.getNodes())
@@ -84,7 +84,7 @@ func (this *Graph) popNodeAnnotations() {
 }
 
 func (this *Graph) pushEdgeAnnotations() {
-	if (this.edgeAnnotationStack == nil) {
+	if this.edgeAnnotationStack == nil {
 		this.edgeAnnotationStack = icast_Deque(obj_(new_ArrayDeque()))
 	}
 	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges()))
@@ -154,7 +154,9 @@ func (this *Graph) disconnect(p0 any, p1 any) {
 }
 
 func (this *Graph) getFirstEdge(p0 any, p1 any) Graph_GraphEdge {
-	return this.self_.(interface{ getFirstEdge_impl(any, any) Graph_GraphEdge }).getFirstEdge_impl(p0, p1)
+	return this.self_.(interface {
+		getFirstEdge_impl(any, any) Graph_GraphEdge
+	}).getFirstEdge_impl(p0, p1)
 }
 
 func (this *Graph) getNodeCount() int32 {
@@ -170,7 +172,7 @@ func (this *Graph) getNodeDegree(p0 any) int32 {
 }
 
 type Graph_AnnotationState struct {
-	first Annotatable
+	first  Annotatable
 	second Annotation_graph
 }
 
@@ -217,7 +219,7 @@ type Graph_GraphEdge interface {
 }
 
 type Graph_SimpleSubGraph struct {
-	graph *Graph
+	graph  *Graph
 	nodes_ []GraphNode
 }
 
@@ -251,4 +253,3 @@ func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 func (this *Graph_SimpleSubGraph) addNode(value any) {
 	this.nodes_ = append(this.nodes_, this.graph.getNodeOrFail(value))
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type PruningAnalysis struct {
-	sorter_ *SortedDependencies
+	sorter_      *SortedDependencies
 	entryPoints_ ImmutableSetOf[*CompilerInput]
 }
 
@@ -48,7 +48,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *ImmutableMap {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
-		if (!(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1)) {
+		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
 			Map_put_s(bottleneckBlame, node, any(int32(retainedCount)))
 		}
 	}
@@ -59,7 +59,7 @@ func (this *PruningAnalysis) calculateBottlenecks() *ImmutableMap {
 		return unbox_[int32](entry.getValue())
 	}})))
 	var result ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
-	for i := int32(0); ((i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD)); i++ {
+	for i := int32(0); (i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
 		var entry Map_EntryOf[string, BoxedOf[int32]] = icast_Map_Entry(sortedBlame.get(i))
 		result.put(entry.getKey(), entry.getValue())
 	}
@@ -111,7 +111,7 @@ const PruningAnalysis_VIRTUAL_ROOT string = "ENTRY POINTS ROOT"
 
 type PruningAnalysis_Result struct {
 	entryPointDependencyCount_ ImmutableMapOf[string, BoxedOf[int32]]
-	bottleneckBlame_ ImmutableMapOf[string, BoxedOf[int32]]
+	bottleneckBlame_           ImmutableMapOf[string, BoxedOf[int32]]
 }
 
 func (this *PruningAnalysis_Result) init_PruningAnalysis_Result(entryPointDependencyCount ImmutableMapOf[string, BoxedOf[int32]], bottleneckBlame ImmutableMapOf[string, BoxedOf[int32]]) {
@@ -151,4 +151,3 @@ func (this *PruningAnalysis_Result) hashCode() int32 {
 func (this *PruningAnalysis_Result) toString() string {
 	return "Result[" + "entryPointDependencyCount=" + objstr_(obj_(this.entryPointDependencyCount_)) + ", bottleneckBlame=" + objstr_(obj_(this.bottleneckBlame_)) + "]"
 }
-

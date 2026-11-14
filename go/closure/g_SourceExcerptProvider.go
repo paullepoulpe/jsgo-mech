@@ -13,17 +13,23 @@ type SourceExcerptProvider_SourceExcerpt struct {
 	Enum
 }
 
-func (this *SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt { return this }
+func (this *SourceExcerptProvider_SourceExcerpt) as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt {
+	return this
+}
 
 func to_SourceExcerptProvider_SourceExcerpt(v any) *SourceExcerptProvider_SourceExcerpt {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt }).as_SourceExcerptProvider_SourceExcerpt()
+	return v.(interface {
+		as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt
+	}).as_SourceExcerptProvider_SourceExcerpt()
 }
 
 func is_SourceExcerptProvider_SourceExcerpt(v any) bool {
-	_, ok := v.(interface{ as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt })
+	_, ok := v.(interface {
+		as_SourceExcerptProvider_SourceExcerpt() *SourceExcerptProvider_SourceExcerpt
+	})
 	return ok
 }
 
@@ -50,7 +56,9 @@ func (this *SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvide
 }
 
 func (this *SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 *Optional, p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) *Optional {
-	return this.self_.(interface{ get_5_impl(SourceExcerptProvider, *Optional, int32, int32, SourceExcerptProvider_ExcerptFormatter) *Optional }).get_5_impl(p0, p1, p2, p3, p4)
+	return this.self_.(interface {
+		get_5_impl(SourceExcerptProvider, *Optional, int32, int32, SourceExcerptProvider_ExcerptFormatter) *Optional
+	}).get_5_impl(p0, p1, p2, p3, p4)
 }
 
 func SourceExcerptProvider_SourceExcerpt_values() []*SourceExcerptProvider_SourceExcerpt {
@@ -270,4 +278,3 @@ func SourceExcerptProvider_SourceExcerpt_3_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.SourceExcerptProvider.SourceExcerpt>", enumValues_(SourceExcerptProvider_SourceExcerpt_3_values_))
 
 }
-

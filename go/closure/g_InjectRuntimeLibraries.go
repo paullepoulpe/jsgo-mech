@@ -3,7 +3,7 @@
 package closure
 
 type InjectRuntimeLibraries struct {
-	runtimeLibs *RuntimeJsLibManager
+	runtimeLibs            *RuntimeJsLibManager
 	forceInjectedLibraries ImmutableSetOf[string]
 }
 
@@ -29,4 +29,3 @@ func (this *InjectRuntimeLibraries) injectLibraries() {
 		this.runtimeLibs.ensureLibraryInjected(forced, true)
 	}
 }
-

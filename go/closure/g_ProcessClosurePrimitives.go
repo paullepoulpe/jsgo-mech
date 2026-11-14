@@ -4,9 +4,9 @@ package closure
 
 type ProcessClosurePrimitives struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_              *AbstractCompiler
 	knownClosureSubclasses map[string]struct{}
-	closureModules ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
+	closureModules         ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
 }
 
 func (this *ProcessClosurePrimitives) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -47,19 +47,24 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 			this.checkPropertyRenameCall(n)
 		}
 	case Token_rhino_FUNCTION, Token_rhino_CLASS:
-		if (!t.inGlobalHoistScope() || n.isFromExterns()) {
+		if !t.inGlobalHoistScope() || n.isFromExterns() {
 			return
 		}
-		if (!NodeUtil_isFunctionDeclaration(n) && !NodeUtil_isClassDeclaration(n)) {
+		if !NodeUtil_isFunctionDeclaration(n) && !NodeUtil_isClassDeclaration(n) {
 			return
 		}
 		var name string = n.getFirstChild().getString()
 		var pn *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, name))
-		if ((pn != nil) && pn.isGoogProvide()) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, func() *DiagnosticType { if n.isClass() { return ProcessClosurePrimitives_CLASS_NAMESPACE_ERROR }; return ProcessClosurePrimitives_FUNCTION_NAMESPACE_ERROR }(), []string{name, pn.toString()}))
+		if (pn != nil) && pn.isGoogProvide() {
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, func() *DiagnosticType {
+				if n.isClass() {
+					return ProcessClosurePrimitives_CLASS_NAMESPACE_ERROR
+				}
+				return ProcessClosurePrimitives_FUNCTION_NAMESPACE_ERROR
+			}(), []string{name, pn.toString()}))
 		}
 	case Token_rhino_EXPR_RESULT:
-		if (!n.getFirstChild().isAssign() || !n.getFirstFirstChild().isQualifiedName()) {
+		if !n.getFirstChild().isAssign() || !n.getFirstFirstChild().isQualifiedName() {
 			break
 		}
 		var lhs string = n.getFirstFirstChild().getQualifiedName()
@@ -78,22 +83,27 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 }
 
 func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace OptionalOf[string], info *JSDocInfo, definition Node) {
-	if ((info == nil) || definition.isFromExterns()) {
+	if (info == nil) || definition.isFromExterns() {
 		return
 	}
-	var metadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata { if namespace.isPresent() { return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, str_(namespace.get()))) }; return nil }()
-	if ((metadata == nil) || !metadata.isGoogProvide()) {
+	var metadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
+		if namespace.isPresent() {
+			return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, str_(namespace.get())))
+		}
+		return nil
+	}()
+	if (metadata == nil) || !metadata.isGoogProvide() {
 		return
 	}
 	var expr *JSTypeExpression = info.getType()
-	if (expr == nil) {
+	if expr == nil {
 		return
 	}
 	var n Node = expr.getRoot()
-	if (n.getToken() == Token_rhino_BANG) {
+	if n.getToken() == Token_rhino_BANG {
 		n = n.getFirstChild()
 	}
-	if ((n.isStringLit() && !n.hasChildren()) && (n.getString() == "Object")) {
+	if (n.isStringLit() && !n.hasChildren()) && (n.getString() == "Object") {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(definition, ProcessClosurePrimitives_WEAK_NAMESPACE_TYPE, []string{}))
 	}
 }
@@ -104,7 +114,7 @@ func (this *ProcessClosurePrimitives) checkGoogFunctions(t *NodeTraversal, call 
 		return
 	}
 	var receiver Node = callee.getFirstChild()
-	if (!receiver.isName() || !(receiver.getString() == ProcessClosurePrimitives_GOOG)) {
+	if !receiver.isName() || !(receiver.getString() == ProcessClosurePrimitives_GOOG) {
 		return
 	}
 	var methodName string = callee.getString()
@@ -132,10 +142,10 @@ func (this *ProcessClosurePrimitives) validateWeakUsageCall(call Node) {
 	var childCount int32 = call.getChildCount()
 	var arg Node = call.getSecondChild()
 	var calleeName string = call.getFirstChild().getQualifiedName()
-	if (childCount != 2) {
+	if childCount != 2 {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("should have exactly one argument, not " + istr_(int64((childCount - 1))))}))
 	}
-	if ((childCount >= 2) && !call.getSecondChild().isQualifiedName()) {
+	if (childCount >= 2) && !call.getSecondChild().isQualifiedName() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL, []string{calleeName, ("argument should be a name or qualified name, not " + objstr_(arg.box_()))}))
 	}
 }
@@ -148,10 +158,10 @@ func (this *ProcessClosurePrimitives) validatePrimitiveCallWithMessage(t *NodeTr
 	if this.compiler_.getOptions().shouldPreserveGoogModule() {
 		return true
 	}
-	if (!t.inGlobalHoistScope() && !t.inModuleScope()) {
+	if !t.inGlobalHoistScope() && !t.inModuleScope() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ClosurePrimitiveErrors_INVALID_CLOSURE_CALL_SCOPE_ERROR, []string{}))
 		return false
-	} else if (!n.getParent().isExprResult() && !t.inModuleScope()) {
+	} else if !n.getParent().isExprResult() && !t.inModuleScope() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, invalidAliasingError, []string{(sstr_(ProcessClosurePrimitives_GOOG) + "." + sstr_(methodName))}))
 		return false
 	}
@@ -160,7 +170,7 @@ func (this *ProcessClosurePrimitives) validatePrimitiveCallWithMessage(t *NodeTr
 
 func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var callTarget Node = n.getFirstChild()
-	if (!callTarget.isGetProp() || !(callTarget.getString() == "base")) {
+	if !callTarget.isGetProp() || !(callTarget.getString() == "base") {
 		return
 	}
 	var baseContainerNode Node = callTarget.getFirstChild()
@@ -169,7 +179,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	}
 	var baseContainer string = callTarget.getFirstChild().getQualifiedName()
 	var enclosingFnNameNode Node = ProcessClosurePrimitives_getEnclosingDeclNameNode(n)
-	if ((enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName()) {
+	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
 		if has_(this.knownClosureSubclasses, baseContainer) {
 			this.reportBadBaseMethodUse(n, Optional_of(strobj_(baseContainer)).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
@@ -178,7 +188,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 			}}), "Could not find enclosing method.")
 		} else if ProcessClosurePrimitives_baseUsedInClass(n) {
 			var clazz Node = NodeUtil_getEnclosingClass(n)
-			if ((clazz.getFirstChild().isName() && (clazz.getFirstChild().getString() == baseContainer)) || (clazz.getSecondChild().isName() && (clazz.getSecondChild().getString() == baseContainer))) {
+			if (clazz.getFirstChild().isName() && (clazz.getFirstChild().getString() == baseContainer)) || (clazz.getSecondChild().isName() && (clazz.getSecondChild().getString() == baseContainer)) {
 				this.reportBadBaseMethodUse(n, Optional_of(strobj_(clazz.getFirstChild().getString())), "base method is not allowed in ES6 class. Use super instead.")
 			}
 		}
@@ -212,24 +222,29 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQname string, baseContainer OptionalOf[string], n Node, enclosingFnNameNode Node) {
 	if !Object_equals(obj_(Optional_of(strobj_(enclosingQname))), obj_(baseContainer)) {
-		if (baseContainer.isPresent() && has_(this.knownClosureSubclasses, str_(baseContainer.get()))) {
+		if baseContainer.isPresent() && has_(this.knownClosureSubclasses, str_(baseContainer.get())) {
 			this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(str_(baseContainer.orElse(strobj_("null")))) + " methods"))
 		}
 		return
 	}
 	var enclosingParent Node = enclosingFnNameNode.getParent()
-	var baseClassNode Node = ProcessClosurePrimitives_findGoogInheritsCall(func() Node { if enclosingParent.isAssign() { return enclosingParent.getParent() }; return enclosingParent }())
-	if (baseClassNode == 0) {
+	var baseClassNode Node = ProcessClosurePrimitives_findGoogInheritsCall(func() Node {
+		if enclosingParent.isAssign() {
+			return enclosingParent.getParent()
+		}
+		return enclosingParent
+	}())
+	if baseClassNode == 0 {
 		return
 	}
 	var callee Node = n.getFirstChild()
 	var thisArg Node = callee.getNext()
-	if ((thisArg == 0) || !thisArg.isThis()) {
+	if (thisArg == 0) || !thisArg.isThis() {
 		this.reportBadBaseMethodUse(n, baseContainer, "First argument must be 'this'.")
 		return
 	}
 	var methodNameNode Node = thisArg.getNext()
-	if (((methodNameNode == 0) || !methodNameNode.isStringLit()) || !(methodNameNode.getString() == "constructor")) {
+	if ((methodNameNode == 0) || !methodNameNode.isStringLit()) || !(methodNameNode.getString() == "constructor") {
 		this.reportBadBaseMethodUse(n, baseContainer, "Second argument must be 'constructor'.")
 		return
 	}
@@ -250,18 +265,18 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Opt
 	}
 	var callee Node = n.getFirstChild()
 	var thisArg Node = callee.getNext()
-	if ((thisArg == 0) || !thisArg.isThis()) {
+	if (thisArg == 0) || !thisArg.isThis() {
 		this.reportBadBaseMethodUse(n, baseContainer, "First argument must be 'this'.")
 		return
 	}
 	var methodNameNode Node = thisArg.getNext()
-	if ((methodNameNode == 0) || !methodNameNode.isStringLit()) {
+	if (methodNameNode == 0) || !methodNameNode.isStringLit() {
 		this.reportBadBaseMethodUse(n, baseContainer, "Second argument must name a method.")
 		return
 	}
 	var methodName string = methodNameNode.getString()
 	var ending string = (".prototype." + sstr_(methodName))
-	if (enclosingQname.isEmpty() || !String_endsWith(str_(enclosingQname.get()), ending)) {
+	if enclosingQname.isEmpty() || !String_endsWith(str_(enclosingQname.get()), ending) {
 		this.reportBadBaseMethodUse(n, baseContainer, ("Enclosing method does not match " + sstr_(methodName)))
 		return
 	}
@@ -273,13 +288,13 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Opt
 
 func ProcessClosurePrimitives_findGoogInheritsCall(ctorDeclarationNode Node) Node {
 	var maybeInheritsExpr Node = ctorDeclarationNode.getNext()
-	for ((maybeInheritsExpr != 0) && (maybeInheritsExpr.isEmpty() || NodeUtil_isExprAssign(maybeInheritsExpr))) {
+	for (maybeInheritsExpr != 0) && (maybeInheritsExpr.isEmpty() || NodeUtil_isExprAssign(maybeInheritsExpr)) {
 		maybeInheritsExpr = maybeInheritsExpr.getNext()
 	}
 	var baseClassNode Node = 0
-	if ((maybeInheritsExpr != 0) && NodeUtil_isExprCall(maybeInheritsExpr)) {
+	if (maybeInheritsExpr != 0) && NodeUtil_isExprCall(maybeInheritsExpr) {
 		var callNode Node = maybeInheritsExpr.getFirstChild()
-		if (ProcessClosurePrimitives_GOOG_INHERITS.matches(callNode.getFirstChild()) && callNode.getLastChild().isQualifiedName()) {
+		if ProcessClosurePrimitives_GOOG_INHERITS.matches(callNode.getFirstChild()) && callNode.getLastChild().isQualifiedName() {
 			baseClassNode = callNode.getLastChild()
 		}
 	}
@@ -290,7 +305,7 @@ func (this *ProcessClosurePrimitives) processInheritsCall(n Node) {
 	if n.hasXChildren(3) {
 		var subClass Node = n.getSecondChild()
 		var superClass Node = subClass.getNext()
-		if (subClass.isUnscopedQualifiedName() && superClass.isUnscopedQualifiedName()) {
+		if subClass.isUnscopedQualifiedName() && superClass.isUnscopedQualifiedName() {
 			this.knownClosureSubclasses[subClass.getQualifiedName()] = struct{}{}
 		}
 	}
@@ -298,13 +313,18 @@ func (this *ProcessClosurePrimitives) processInheritsCall(n Node) {
 
 func ProcessClosurePrimitives_getEnclosingDeclNameNode(n Node) Node {
 	var fn Node = NodeUtil_getEnclosingFunction(n)
-	return func() Node { if (fn == 0) { return 0 }; return NodeUtil_getNameNode(fn) }()
+	return func() Node {
+		if fn == 0 {
+			return 0
+		}
+		return NodeUtil_getNameNode(fn)
+	}()
 }
 
 func ProcessClosurePrimitives_baseUsedInClass(n Node) bool {
 	{
 		var curr Node = n
-		for ; (curr != 0); curr = curr.getParent() {
+		for ; curr != 0; curr = curr.getParent() {
 			if curr.isClassMembers() {
 				return true
 			}
@@ -330,9 +350,9 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	var cssNames MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
 	{
 		var key Node = arg.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
+		for ; key != 0; key = key.getNext() {
 			var value Node = key.getFirstChild()
-			if ((!key.isStringKey() || (value == 0)) || !value.isStringLit()) {
+			if (!key.isStringKey() || (value == 0)) || !value.isStringLit() {
 				compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_NON_STRING_PASSED_TO_SET_CSS_NAME_MAPPING_ERROR, []string{}))
 				return nil
 			}
@@ -340,46 +360,46 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 		}
 	}
 	var styleStr string = "BY_PART"
-	if (arg.getNext() != 0) {
+	if arg.getNext() != 0 {
 		styleStr = arg.getNext().getString()
 	}
 	var styleOrNull *CssRenamingMap_Style = nil
 	for _, candidate := range CssRenamingMap_Style_values() {
-		if (candidate.name() == styleStr) {
+		if candidate.name() == styleStr {
 			styleOrNull = candidate
 			break
 		}
 	}
-	if (styleOrNull == nil) {
+	if styleOrNull == nil {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_STYLE_ERROR, []string{styleStr}))
 		return nil
 	}
 	var style *CssRenamingMap_Style = styleOrNull
-	if (style == CssRenamingMap_Style_BY_PART) {
+	if style == CssRenamingMap_Style_BY_PART {
 		var errors ListOf[string] = icast_List(new_ArrayList_0().self())
 		it_3 := foreach_(any(cssNames.keySet()))
 		for it_3.next() {
 			var key string = str_(it_3.v)
-			if (String_contains(key, strobj_("-")) && !String_startsWith(key, "--")) {
+			if String_contains(key, strobj_("-")) && !String_startsWith(key, "--") {
 				errors.add(strobj_(key))
 			}
 		}
 		if !errors.isEmpty() {
 			compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_INVALID_CSS_RENAMING_MAP, []string{Object_toString(any(errors))}))
 		}
-	} else if (style == CssRenamingMap_Style_BY_WHOLE) {
+	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors ListOf[string] = icast_List(new_ArrayList_0().self())
 		it_5 := foreach_(any(cssNames.entrySet()))
 		for it_5.next() {
 			var b Map_Entry = icast_Map_Entry(it_5.v)
-			if (String_length(str_(b.getKey())) > 10) {
+			if String_length(str_(b.getKey())) > 10 {
 				continue
 			}
 			it_7 := foreach_(any(cssNames.entrySet()))
 			for it_7.next() {
 				var a Map_Entry = icast_Map_Entry(it_7.v)
 				var combined OptionalOf[string] = Optional_ofNullable(Map_get_s(cssNames, (sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())))))
-				if (combined.isPresent() && !(str_(combined.get()) == (sstr_(str_(a.getValue())) + "-" + sstr_(str_(b.getValue()))))) {
+				if combined.isPresent() && !(str_(combined.get()) == (sstr_(str_(a.getValue())) + "-" + sstr_(str_(b.getValue())))) {
 					errors.add(strobj_(("map(" + sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())) + ") != map(" + sstr_(str_(a.getKey())) + ")-map(" + sstr_(str_(b.getKey())) + ")")))
 				}
 			}
@@ -426,19 +446,19 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 
 func ProcessClosurePrimitives_verifySetCssNameMapping(compiler *AbstractCompiler, methodName Node, firstArg Node) bool {
 	var diagnostic *DiagnosticType = nil
-	if (firstArg == 0) {
+	if firstArg == 0 {
 		diagnostic = ClosurePrimitiveErrors_NULL_ARGUMENT_ERROR
 	} else if !firstArg.isObjectLit() {
 		diagnostic = ProcessClosurePrimitives_EXPECTED_OBJECTLIT_ERROR
-	} else if (firstArg.getNext() != 0) {
+	} else if firstArg.getNext() != 0 {
 		var secondArg Node = firstArg.getNext()
 		if !secondArg.isStringLit() {
 			diagnostic = ProcessClosurePrimitives_EXPECTED_STRING_ERROR
-		} else if (secondArg.getNext() != 0) {
+		} else if secondArg.getNext() != 0 {
 			diagnostic = ClosurePrimitiveErrors_TOO_MANY_ARGUMENTS_ERROR
 		}
 	}
-	if (diagnostic != nil) {
+	if diagnostic != nil {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(methodName, diagnostic, []string{methodName.getQualifiedName()}))
 		return false
 	}
@@ -451,13 +471,13 @@ func (this *ProcessClosurePrimitives) checkPropertyRenameCall(call Node) {
 		return
 	}
 	var calleeName string = callee.getQualifiedName()
-	switch (call.getChildCount() - 1) {
+	switch call.getChildCount() - 1 {
 	case 1, 2:
 	default:
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "Must be called with 1 or 2 arguments."}))
 	}
 	var propName Node = callee.getNext()
-	if ((propName == 0) || !propName.isStringLit()) {
+	if (propName == 0) || !propName.isStringLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must be a string literal."}))
 	} else if String_contains(propName.getString(), strobj_(".")) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ProcessClosurePrimitives_INVALID_RENAME_FUNCTION, []string{calleeName, "The first argument must not be a property path."}))
@@ -480,7 +500,9 @@ var ProcessClosurePrimitives_CLOSURE_CALL_CANNOT_BE_ALIASED_ERROR *DiagnosticTyp
 var ProcessClosurePrimitives_CLOSURE_CALL_CANNOT_BE_ALIASED_OUTSIDE_MODULE_ERROR *DiagnosticType
 var ProcessClosurePrimitives_INVALID_RENAME_FUNCTION *DiagnosticType
 var ProcessClosurePrimitives_INVALID_GOOG_WEAK_USAGE_CALL *DiagnosticType
+
 const ProcessClosurePrimitives_GOOG string = "goog"
+
 var ProcessClosurePrimitives_GOOG_INHERITS *QualifiedName
 
 var ProcessClosurePrimitives_clinit_done bool
@@ -512,7 +534,7 @@ func ProcessClosurePrimitives_clinit() {
 
 type ProcessClosurePrimitives_1 struct {
 	cap_cssNames Map
-	cap_style *CssRenamingMap_Style
+	cap_style    *CssRenamingMap_Style
 }
 
 func (this *ProcessClosurePrimitives_1) init_ProcessClosurePrimitives_1() {
@@ -539,4 +561,3 @@ func (this *ProcessClosurePrimitives_1) get(value string) *Optional {
 func (this *ProcessClosurePrimitives_1) getStyle() *CssRenamingMap_Style {
 	return this.cap_style
 }
-

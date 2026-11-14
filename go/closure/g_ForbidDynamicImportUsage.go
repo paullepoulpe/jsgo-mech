@@ -32,7 +32,12 @@ func (this *ForbidDynamicImportUsage) shouldTraverse(t *NodeTraversal, n Node, p
 
 func (this *ForbidDynamicImportUsage) getFeatureSetOfScript(n Node) *FeatureSet {
 	var featureSet *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
-	return func() *FeatureSet { if (featureSet == nil) { return FeatureSet_BARE_MINIMUM }; return featureSet }()
+	return func() *FeatureSet {
+		if featureSet == nil {
+			return FeatureSet_BARE_MINIMUM
+		}
+		return featureSet
+	}()
 }
 
 func (this *ForbidDynamicImportUsage) visit(t *NodeTraversal, n Node, parent Node) {
@@ -55,4 +60,3 @@ func ForbidDynamicImportUsage_clinit() {
 	ForbidDynamicImportUsage_DYNAMIC_IMPORT_USAGE = DiagnosticType_error("JSC_DYNAMIC_IMPORT_USAGE", "Dynamic import expressions cannot be transpiled.")
 
 }
-

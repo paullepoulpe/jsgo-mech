@@ -26,6 +26,7 @@ func InlineCostEstimator_getCost_Node_int(root Node, costThreshold int32) int32 
 }
 
 const InlineCostEstimator_ESTIMATED_IDENTIFIER string = "ab"
+
 var InlineCostEstimator_ESTIMATED_IDENTIFIER_COST int32
 
 var InlineCostEstimator_clinit_done bool
@@ -41,9 +42,9 @@ func InlineCostEstimator_clinit() {
 
 type InlineCostEstimator_CompiledSizeEstimator struct {
 	CodeConsumer
-	maxCost int32
-	cost int32
-	last uint16
+	maxCost                 int32
+	cost                    int32
+	last                    uint16
 	continueProcessingField bool
 }
 
@@ -93,7 +94,7 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) getLastChar_impl() uint16
 func (this *InlineCostEstimator_CompiledSizeEstimator) append_impl(str string) {
 	this.last = String_charAt(str, (String_length(str) - 1))
 	this.cost += String_length(str)
-	if (this.maxCost <= this.cost) {
+	if this.maxCost <= this.cost {
 		this.continueProcessingField = false
 	}
 }
@@ -105,4 +106,3 @@ func (this *InlineCostEstimator_CompiledSizeEstimator) addIdentifier_impl(identi
 func (this *InlineCostEstimator_CompiledSizeEstimator) addConstant_impl(newcode string) {
 	this.add("0")
 }
-

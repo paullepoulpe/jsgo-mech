@@ -4,7 +4,7 @@ package closure
 
 type AccessorSummary struct {
 	assumeAlwaysGetterAndSetter bool
-	accessors ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind]
+	accessors                   ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind]
 }
 
 func (this *AccessorSummary) init_AccessorSummary(accessors ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind], assumeAlwaysGetterAndSetter bool) {
@@ -187,4 +187,3 @@ func AccessorSummary_PropertyAccessKind_clinit() {
 	registerEnum_("com.google.javascript.jscomp.AccessorSummary.PropertyAccessKind", enumValues_(AccessorSummary_PropertyAccessKind_values_))
 
 }
-

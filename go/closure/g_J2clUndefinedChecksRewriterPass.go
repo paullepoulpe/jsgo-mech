@@ -40,12 +40,12 @@ func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree_impl(subtree Node) 
 		return subtree
 	}
 	var replacement Node = 0
-	if (J2clUndefinedChecksRewriterPass_isUtilCall(subtree, "$isUndefined") && subtree.hasXChildren(2)) {
+	if J2clUndefinedChecksRewriterPass_isUtilCall(subtree, "$isUndefined") && subtree.hasXChildren(2) {
 		replacement = J2clUndefinedChecksRewriterPass_maybeOptimizeIsUndefinedCall(subtree)
-	} else if (J2clUndefinedChecksRewriterPass_isUtilCall(subtree, "$coerceToNull") && subtree.hasXChildren(2)) {
+	} else if J2clUndefinedChecksRewriterPass_isUtilCall(subtree, "$coerceToNull") && subtree.hasXChildren(2) {
 		replacement = J2clUndefinedChecksRewriterPass_maybeOptimizeCoerceToNullCall(subtree)
 	}
-	if (replacement != 0) {
+	if replacement != 0 {
 		Preconditions_checkState((replacement != subtree))
 		replacement.srcrefTreeIfMissing(subtree)
 		subtree.replaceWith(replacement)
@@ -79,10 +79,9 @@ func J2clUndefinedChecksRewriterPass_maybeOptimizeCoerceToNullCall(node Node) No
 }
 
 func J2clUndefinedChecksRewriterPass_isUtilCall(node Node, methodName string) bool {
-	if (!node.isCall() || !node.getFirstChild().isQualifiedName()) {
+	if !node.isCall() || !node.getFirstChild().isQualifiedName() {
 		return false
 	}
 	var qualifiedName string = node.getFirstChild().getOriginalQualifiedName()
 	return (String_contains(qualifiedName, strobj_("nativebootstrap$Util")) && String_endsWith(qualifiedName, methodName))
 }
-

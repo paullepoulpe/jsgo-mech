@@ -3,7 +3,7 @@
 package closure
 
 type RequireAliasGenerator struct {
-	parts ImmutableListOf[string]
+	parts      ImmutableListOf[string]
 	capitalize bool
 }
 
@@ -39,7 +39,7 @@ func (this *RequireAliasGenerator) iterator() Iterator {
 }
 
 func RequireAliasGenerator_captializeFirstChar(w string) string {
-	if (String_isEmpty(w) || Ascii_isUpperCase(String_charAt(w, 0))) {
+	if String_isEmpty(w) || Ascii_isUpperCase(String_charAt(w, 0)) {
 		return w
 	}
 	return (chrstr_(Ascii_toUpperCase_char(String_charAt(w, 0))) + sstr_(String_substring_int(w, 1)))
@@ -108,7 +108,7 @@ func (this *RequireAliasGenerator_NameIterator) computeNext() any {
 }
 
 func (this *RequireAliasGenerator_NameIterator) computeNextWithoutFiltering() string {
-	if (this.index_ >= this.outer_.parts.size()) {
+	if this.index_ >= this.outer_.parts.size() {
 		var result string = (sstr_(this.concat) + istr_(int64(this.suffix)))
 		this.suffix++
 		return result
@@ -121,4 +121,3 @@ func (this *RequireAliasGenerator_NameIterator) computeNextWithoutFiltering() st
 	this.concat = (sstr_(part) + sstr_(RequireAliasGenerator_captializeFirstChar(this.concat)))
 	return this.concat
 }
-

@@ -32,7 +32,7 @@ func (this *Es6RewriteBlockScopedFunctionDeclaration) process_2(externs Node, ro
 }
 
 func (this *Es6RewriteBlockScopedFunctionDeclaration) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (((n.isFunction() && (parent != 0)) && parent.isBlock()) && !parent.getParent().isFunction()) {
+	if ((n.isFunction() && (parent != 0)) && parent.isBlock()) && !parent.getParent().isFunction() {
 		this.visitBlockScopedFunctionDeclaration(t, n, parent)
 	}
 }
@@ -62,4 +62,3 @@ func Es6RewriteBlockScopedFunctionDeclaration_clinit() {
 	Es6RewriteBlockScopedFunctionDeclaration_transpiledFeatures = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION)
 
 }
-

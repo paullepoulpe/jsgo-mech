@@ -4,7 +4,7 @@ package closure
 
 type GatherRawExports struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_         *AbstractCompiler
 	exportedVariables SetOf[string]
 }
 
@@ -38,10 +38,10 @@ func (this *GatherRawExports) process_2(externs Node, root Node) {
 }
 
 func (this *GatherRawExports) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (NodeUtil_isNormalOrOptChainGet(n) && GatherRawExports_isGlobalThisObject(t, n.getFirstChild())) {
+	if NodeUtil_isNormalOrOptChainGet(n) && GatherRawExports_isGlobalThisObject(t, n.getFirstChild()) {
 		if NodeUtil_isNormalOrOptChainGetProp(n) {
 			Collection_add_s(this.exportedVariables, n.getString())
-		} else if (NodeUtil_isNormalOrOptChainGet(n) && n.getSecondChild().isStringLit()) {
+		} else if NodeUtil_isNormalOrOptChainGet(n) && n.getSecondChild().isStringLit() {
 			Collection_add_s(this.exportedVariables, n.getSecondChild().getString())
 		}
 	}
@@ -52,7 +52,7 @@ func GatherRawExports_isGlobalThisObject(t *NodeTraversal, n Node) bool {
 		return t.inGlobalHoistScope()
 	} else if n.isQualifiedName() {
 		var items int32 = int32(len(GatherRawExports_GLOBAL_THIS_NAMES))
-		for i := int32(0); (i < items); i++ {
+		for i := int32(0); i < items; i++ {
 			if n.matchesQualifiedName(GatherRawExports_GLOBAL_THIS_NAMES[i]) {
 				return true
 			}
@@ -77,4 +77,3 @@ func GatherRawExports_clinit() {
 	GatherRawExports_GLOBAL_THIS_NAMES = []string{"window", "globalThis", "top", "self", "goog$global", "goog.global", "$jscomp.global", "$jscomp$global"}
 
 }
-

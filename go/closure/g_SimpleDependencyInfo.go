@@ -3,14 +3,14 @@
 package closure
 
 type SimpleDependencyInfo struct {
-	getName_ string
+	getName_                      string
 	getPathRelativeToClosureBase_ string
-	getProvides_ ImmutableListOf[string]
-	getRequires_ ImmutableListOf[*DependencyInfo_Require]
-	getTypeRequires_ ImmutableListOf[string]
-	getLoadFlags_ ImmutableMapOf[string, string]
-	getHasExternsAnnotation_ bool
-	getHasNoCompileAnnotation_ bool
+	getProvides_                  ImmutableListOf[string]
+	getRequires_                  ImmutableListOf[*DependencyInfo_Require]
+	getTypeRequires_              ImmutableListOf[string]
+	getLoadFlags_                 ImmutableMapOf[string, string]
+	getHasExternsAnnotation_      bool
+	getHasNoCompileAnnotation_    bool
 }
 
 func (this *SimpleDependencyInfo) zero_SimpleDependencyInfo() {
@@ -127,15 +127,15 @@ func SimpleDependencyInfo_clinit() {
 }
 
 type SimpleDependencyInfo_Builder struct {
-	name_ OptionalOf[string]
+	name_                     OptionalOf[string]
 	pathRelativeToClosureBase OptionalOf[string]
-	provides ImmutableListOf[string]
-	requires ImmutableListOf[*DependencyInfo_Require]
-	typeRequires ImmutableListOf[string]
-	loadFlags_ ImmutableMapOf[string, string]
-	hasExternsAnnotation bool
-	hasNoCompileAnnotation bool
-	set0 int8
+	provides                  ImmutableListOf[string]
+	requires                  ImmutableListOf[*DependencyInfo_Require]
+	typeRequires              ImmutableListOf[string]
+	loadFlags_                ImmutableMapOf[string, string]
+	hasExternsAnnotation      bool
+	hasNoCompileAnnotation    bool
+	set0                      int8
 }
 
 func (this *SimpleDependencyInfo_Builder) finit_SimpleDependencyInfo_Builder() {
@@ -215,11 +215,16 @@ func (this *SimpleDependencyInfo_Builder) setHasNoCompileAnnotation(hasNoCompile
 }
 
 func (this *SimpleDependencyInfo_Builder) setGoogModule(isModule bool) *SimpleDependencyInfo_Builder {
-	return this.setLoadFlags(func() Map { if isModule { return icast_Map(obj_(SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS)) }; return icast_Map(obj_(ImmutableMap_of())) }())
+	return this.setLoadFlags(func() Map {
+		if isModule {
+			return icast_Map(obj_(SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS))
+		}
+		return icast_Map(obj_(ImmutableMap_of()))
+	}())
 }
 
 func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
-	if (((((((int32(this.set0) != 3) || this.name_.isEmpty()) || this.pathRelativeToClosureBase.isEmpty()) || (this.provides == nil)) || (this.requires == nil)) || (this.typeRequires == nil)) || (this.loadFlags_ == nil)) {
+	if ((((((int32(this.set0) != 3) || this.name_.isEmpty()) || this.pathRelativeToClosureBase.isEmpty()) || (this.provides == nil)) || (this.requires == nil)) || (this.typeRequires == nil)) || (this.loadFlags_ == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.name_.isEmpty() {
 			missing.append(" name")
@@ -227,22 +232,22 @@ func (this *SimpleDependencyInfo_Builder) build() *SimpleDependencyInfo {
 		if this.pathRelativeToClosureBase.isEmpty() {
 			missing.append(" pathRelativeToClosureBase")
 		}
-		if (this.provides == nil) {
+		if this.provides == nil {
 			missing.append(" provides")
 		}
-		if (this.requires == nil) {
+		if this.requires == nil {
 			missing.append(" requires")
 		}
-		if (this.typeRequires == nil) {
+		if this.typeRequires == nil {
 			missing.append(" typeRequires")
 		}
-		if (this.loadFlags_ == nil) {
+		if this.loadFlags_ == nil {
 			missing.append(" loadFlags")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" hasExternsAnnotation")
 		}
-		if ((int32(this.set0) & 2) == 0) {
+		if (int32(this.set0) & 2) == 0 {
 			missing.append(" hasNoCompileAnnotation")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
@@ -262,4 +267,3 @@ func SimpleDependencyInfo_Builder_clinit() {
 	SimpleDependencyInfo_Builder_GOOG_MODULE_FLAGS = ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog"))
 
 }
-

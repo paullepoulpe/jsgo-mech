@@ -3,9 +3,9 @@
 package closure
 
 type CheckUnusedPrivateProperties struct {
-	compiler_ *AbstractCompiler
-	used map[string]struct{}
-	candidates []Node
+	compiler_                 *AbstractCompiler
+	used                      map[string]struct{}
+	candidates                []Node
 	constructorsAndInterfaces map[string]struct{}
 }
 
@@ -55,7 +55,7 @@ func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Nod
 		clear(this.used)
 		this.used["constructor"] = struct{}{}
 		clear(this.candidates)
-this.candidates = this.candidates[:0]
+		this.candidates = this.candidates[:0]
 	}
 	return true
 }
@@ -66,7 +66,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 		this.reportUnused(t)
 	case Token_rhino_GETPROP:
 		var propName string = n.getString()
-		if (CheckUnusedPrivateProperties_isPinningPropertyUse(n) || !this.isCandidatePropertyDefinition(n)) {
+		if CheckUnusedPrivateProperties_isPinningPropertyUse(n) || !this.isCandidatePropertyDefinition(n) {
 			this.used[propName] = struct{}{}
 		} else {
 			if this.isCheckablePrivatePropDecl(n) {
@@ -80,15 +80,15 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 	case Token_rhino_OBJECTLIT:
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
-				if (((c.isStringKey() || c.isGetterDef()) || c.isSetterDef()) || c.isMemberFunctionDef()) {
+			for ; c != 0; c = c.getNext() {
+				if ((c.isStringKey() || c.isGetterDef()) || c.isSetterDef()) || c.isMemberFunctionDef() {
 					this.used[c.getString()] = struct{}{}
 				}
 			}
 		}
 	case Token_rhino_CALL:
 		var target Node = n.getFirstChild()
-		if (n.hasMoreThanOneChild() && this.compiler_.getCodingConvention().isPropertyRenameFunction(target)) {
+		if n.hasMoreThanOneChild() && this.compiler_.getCodingConvention().isPropertyRenameFunction(target) {
 			var propName Node = target.getNext()
 			if propName.isStringLit() {
 				this.used[propName.getString()] = struct{}{}
@@ -96,7 +96,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 		}
 	case Token_rhino_FUNCTION:
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-		if ((info != nil) && (info.isConstructor() || info.isInterface())) {
+		if (info != nil) && (info.isConstructor() || info.isInterface()) {
 			this.recordConstructorOrInterface(n)
 		}
 	case Token_rhino_CLASS:
@@ -130,12 +130,12 @@ func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) 
 
 func CheckUnusedPrivateProperties_isPinningPropertyUse(n Node) bool {
 	var parent Node = n.getParent()
-	if (n == parent.getFirstChild()) {
+	if n == parent.getFirstChild() {
 		if parent.isExprResult() {
 			return false
 		} else if parent.isAssign() {
 			return false
-		} else if ((NodeUtil_isAssignmentOp(parent) || parent.isInc()) || parent.isDec()) {
+		} else if (NodeUtil_isAssignmentOp(parent) || parent.isInc()) || parent.isDec() {
 			return NodeUtil_isExpressionResultUsed(parent)
 		}
 	}
@@ -154,4 +154,3 @@ func CheckUnusedPrivateProperties_clinit() {
 	CheckUnusedPrivateProperties_UNUSED_PRIVATE_PROPERTY = DiagnosticType_disabled("JSC_UNUSED_PRIVATE_PROPERTY", "Private property {0} is never read")
 
 }
-

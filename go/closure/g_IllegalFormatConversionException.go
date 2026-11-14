@@ -23,4 +23,3 @@ func new_IllegalFormatConversionException(conversionType uint16, class1 ClassOf[
 	this.init_IllegalFormatConversionException(conversionType, class1)
 	return this
 }
-

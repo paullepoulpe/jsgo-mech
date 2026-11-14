@@ -3,12 +3,12 @@
 package closure
 
 type DepsGenerator struct {
-	srcs CollectionOf[*SourceFile_jscomp]
-	deps CollectionOf[*SourceFile_jscomp]
+	srcs           CollectionOf[*SourceFile_jscomp]
+	deps           CollectionOf[*SourceFile_jscomp]
 	closurePathAbs string
-	mergeStrategy *DepsGenerator_InclusionStrategy
-	loader *ModuleLoader
-	errorManager ErrorManager
+	mergeStrategy  *DepsGenerator_InclusionStrategy
+	loader         *ModuleLoader
+	errorManager   ErrorManager
 }
 
 func (this *DepsGenerator) zero_DepsGenerator() {
@@ -45,13 +45,13 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base {
 		return Outcome_base_err(jsFilesRes.error())
 	}
 	var jsFiles MapOf[string, DependencyInfo] = icast_Map(jsFilesRes.get())
-	if (this.errorManager.getErrorCount() > 0) {
+	if this.errorManager.getErrorCount() > 0 {
 		return Outcome_base_ok_Object(nil)
 	}
 	this.cleanUpDuplicatedFiles(depsFiles, jsFiles)
 	jsFiles = this.removeMungedSymbols(depsFiles, jsFiles)
 	this.validateDependencies(Iterable(depsFiles.values()), Iterable(jsFiles.values()))
-	if (this.errorManager.getErrorCount() > 0) {
+	if this.errorManager.getErrorCount() > 0 {
 		return Outcome_base_ok_Object(nil)
 	}
 	var output *StringBuilder = new_StringBuilder()
@@ -64,7 +64,7 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, Depend
 	it_1 := foreach_(any(depsPathsCopy))
 	for it_1.next() {
 		var path string = str_(it_1.v)
-		if (this.mergeStrategy != DepsGenerator_InclusionStrategy_WHEN_IN_SRCS) {
+		if this.mergeStrategy != DepsGenerator_InclusionStrategy_WHEN_IN_SRCS {
 			Map_remove_s(jsFiles, path)
 		}
 	}
@@ -87,9 +87,9 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 		it_3 := foreach_(obj_(dependencyInfo.getRequires()))
 		for it_3.next() {
 			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
-			if (require.getType() == DependencyInfo_Require_Type_ES6_IMPORT) {
+			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
 				var provider DependencyInfo = icast_DependencyInfo(Map_get_s(providesMap, require.getSymbol()))
-				if (provider == nil) {
+				if provider == nil {
 					this.reportMissingFile(dependencyInfo, require.getRawText())
 				} else {
 					newRequires.add(obj_(require.withSymbol(provider.getPathRelativeToClosureBase())))
@@ -105,7 +105,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 			it_5 := foreach_(obj_(provides))
 			for it_5.next() {
 				var provide string = str_(it_5.v)
-				if (!(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase())) {
+				if !(provide == mungedProvide) && !(provide == dependencyInfo.getPathRelativeToClosureBase()) {
 					builder.add(strobj_(provide))
 				}
 			}
@@ -128,9 +128,9 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
 			var namespace string = require.getSymbol()
 			var provider DependencyInfo = icast_DependencyInfo(Map_get_s(providesMap, namespace))
-			if (provider == nil) {
+			if provider == nil {
 				this.reportUndefinedNamespace(namespace, depInfo)
-			} else if (provider == depInfo) {
+			} else if provider == depInfo {
 				this.reportSameFile(namespace, depInfo)
 			} else {
 				var providerIsEs6Module bool = provider.isEs6Module()
@@ -165,7 +165,7 @@ func (this *DepsGenerator) reportUndefinedNamespace(namespace string, depInfo De
 }
 
 func (this *DepsGenerator) reportDuplicateProvide(namespace string, firstDep DependencyInfo, secondDep DependencyInfo) {
-	if (firstDep == secondDep) {
+	if firstDep == secondDep {
 		if !(firstDep.getPathRelativeToClosureBase() == namespace) {
 			this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(firstDep.getName())), -1, -1, DepsGenerator_DUPE_PROVIDES_WARNING, []string{namespace}))
 		}
@@ -195,7 +195,7 @@ func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], 
 		for it_3.next() {
 			var provide string = str_(it_3.v)
 			var prevValue DependencyInfo = icast_DependencyInfo(Map_put_s(providesMap, provide, any(depInfo)))
-			if (prevValue != nil) {
+			if prevValue != nil {
 				this.reportDuplicateProvide(provide, prevValue, depInfo)
 			}
 		}
@@ -294,7 +294,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 		if DepsGenerator_logger.isLoggable(Level_FINE) {
 			DepsGenerator_logger.fine(("Closure-relative path: " + sstr_(closureRelativePath)))
 		}
-		if ((DepsGenerator_InclusionStrategy_WHEN_IN_SRCS == this.mergeStrategy) || !Collection_contains_s(preparsedFiles, closureRelativePath)) {
+		if (DepsGenerator_InclusionStrategy_WHEN_IN_SRCS == this.mergeStrategy) || !Collection_contains_s(preparsedFiles, closureRelativePath) {
 			var code *Outcome_base = file.readCode()
 			if code.isErr() {
 				return Outcome_base_err(code.error())
@@ -313,7 +313,7 @@ func (this *DepsGenerator) parseSources(preparsedFiles SetOf[string]) *Outcome_b
 
 func (this *DepsGenerator) writeDepsContent(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo], out *StringBuilder) {
 	DepsGenerator_writeDepInfos(out, jsFiles.values())
-	if (this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS) {
+	if this.mergeStrategy == DepsGenerator_InclusionStrategy_ALWAYS {
 		var infosIndex *SimpleListMultimap = SimpleListMultimap_create()
 		it_1 := foreach_(any(depsFiles.values()))
 		for it_1.next() {
@@ -451,4 +451,3 @@ func DepsGenerator_InclusionStrategy_clinit() {
 	registerEnum_("com.google.javascript.jscomp.deps.DepsGenerator.InclusionStrategy", enumValues_(DepsGenerator_InclusionStrategy_values_))
 
 }
-

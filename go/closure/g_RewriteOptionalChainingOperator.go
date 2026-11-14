@@ -3,7 +3,7 @@
 package closure
 
 type RewriteOptionalChainingOperator struct {
-	compiler_ *AbstractCompiler
+	compiler_                    *AbstractCompiler
 	getTmpVarNameCreatorForInput FunctionOf[*CompilerInput, OptionalChainRewriter_TmpVarNameCreator]
 }
 
@@ -46,9 +46,9 @@ func (this *RewriteOptionalChainingOperator) process_2(externs Node, root Node) 
 }
 
 type RewriteOptionalChainingOperator_TranspilationCallback struct {
-	outer_ *RewriteOptionalChainingOperator
+	outer_          *RewriteOptionalChainingOperator
 	rewriterBuilder *OptionalChainRewriter_Builder
-	optChains ArrayListOf[*OptionalChainRewriter]
+	optChains       ArrayListOf[*OptionalChainRewriter]
 }
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) finit_RewriteOptionalChainingOperator_TranspilationCallback() {
@@ -90,4 +90,3 @@ func (this *RewriteOptionalChainingOperator_TranspilationCallback) visit(t *Node
 		}
 	}
 }
-

@@ -84,4 +84,3 @@ const PassNames_RENAME_PROPERTIES string = "renameProperties"
 const PassNames_BEFORE_RENAME_PROPERTIES string = "beforeRenameProperties"
 const PassNames_STRIP_SIDE_EFFECT_PROTECTION string = "stripSideEffectProtection"
 const PassNames_WIZ_PASS string = "wizPass"
-

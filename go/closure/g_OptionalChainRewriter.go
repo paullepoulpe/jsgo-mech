@@ -3,14 +3,14 @@
 package closure
 
 type OptionalChainRewriter struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_         *AbstractCompiler
+	astFactory_       *AstFactory
 	tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator
-	scope_ *Scope
-	chainParent Node
-	wholeChain Node
-	insertionPoint_ Node
-	deletesToDelete ArrayDequeOf[Node]
+	scope_            *Scope
+	chainParent       Node
+	wholeChain        Node
+	insertionPoint_   Node
+	deletesToDelete   ArrayDequeOf[Node]
 }
 
 func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalChainRewriter_Builder, wholeChain Node) {
@@ -22,7 +22,7 @@ func (this *OptionalChainRewriter) init_OptionalChainRewriter(builder *OptionalC
 	this.wholeChain = wholeChain
 	this.chainParent = Node_of_(Preconditions_checkNotNull_Object_Object(wholeChain.getParent().box_(), wholeChain.box_()))
 	var enclosingStatement Node = NodeUtil_getEnclosingStatement(wholeChain)
-	if ((enclosingStatement.getPrevious() != 0) && enclosingStatement.getPrevious().isLabelName()) {
+	if (enclosingStatement.getPrevious() != 0) && enclosingStatement.getPrevious().isLabelName() {
 		this.insertionPoint_ = enclosingStatement.getParent()
 	} else {
 		this.insertionPoint_ = enclosingStatement
@@ -54,7 +54,7 @@ func (this *OptionalChainRewriter) rewrite() {
 	for !startNodeStack.isEmpty() {
 		this.rewriteInitialSegment(Node_of_(startNodeStack.pop()), this.wholeChain)
 	}
-	if (((this.chainParent.isCall() && !this.chainParent.getBooleanProp(Node_FREE_CALL)) && optChainReplacement.isFirstChildOf(this.chainParent)) && NodeUtil_isNormalGet(this.wholeChain)) {
+	if ((this.chainParent.isCall() && !this.chainParent.getBooleanProp(Node_FREE_CALL)) && optChainReplacement.isFirstChildOf(this.chainParent)) && NodeUtil_isNormalGet(this.wholeChain) {
 		var thisValue Node = this.wholeChain.getFirstChild()
 		var tmpThisNode Node = this.getSubExprNameNode(thisValue)
 		optChainReplacement.detach()
@@ -88,7 +88,7 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 	NodeUtil_convertToNonOptionalChainSegment(initialChainEnd)
 	var placeholder Node = IR_empty()
 	fullChainEnd.replaceWith(placeholder)
-	if ((NodeUtil_isNormalGet(receiverNode) && fullChainStart.isCall()) && !fullChainStart.getBooleanProp(Node_FREE_CALL)) {
+	if (NodeUtil_isNormalGet(receiverNode) && fullChainStart.isCall()) && !fullChainStart.getBooleanProp(Node_FREE_CALL) {
 		var thisValue Node = receiverNode.getFirstChild()
 		var tmpThisNode Node = this.getSubExprNameNode(thisValue)
 		var tmpReceiverNode Node = this.getSubExprNameNode(receiverNode)
@@ -100,7 +100,17 @@ func (this *OptionalChainRewriter) rewriteInitialSegment(fullChainStart Node, fu
 		receiverNode = fullChainStart.getFirstChild()
 		receiverNode.replaceWith(tmpReceiverNode)
 	}
-	var optChainReplacement Node = this.astFactory_.createHook(this.astFactory_.createEq(receiverNode, this.astFactory_.createNull()), func() Node { if isBeingDeleted { return this.astFactory_.createBoolean(true) }; return this.astFactory_.createUndefinedValue() }(), func() Node { if isBeingDeleted { return this.astFactory_.createDelProp(fullChainEnd) }; return fullChainEnd }()).srcrefTreeIfMissing(fullChainEnd)
+	var optChainReplacement Node = this.astFactory_.createHook(this.astFactory_.createEq(receiverNode, this.astFactory_.createNull()), func() Node {
+		if isBeingDeleted {
+			return this.astFactory_.createBoolean(true)
+		}
+		return this.astFactory_.createUndefinedValue()
+	}(), func() Node {
+		if isBeingDeleted {
+			return this.astFactory_.createDelProp(fullChainEnd)
+		}
+		return fullChainEnd
+	}()).srcrefTreeIfMissing(fullChainEnd)
 	placeholder.replaceWith(optChainReplacement)
 	return optChainReplacement
 }
@@ -121,7 +131,7 @@ func (this *OptionalChainRewriter) declareTempVarName(valueNode Node) string {
 	declarationStatement.getFirstChild().setInferredConstantVar(true)
 	declarationStatement.insertBefore(this.insertionPoint_)
 	this.compiler_.reportChangeToEnclosingScope(declarationStatement)
-	if (this.scope_ != nil) {
+	if this.scope_ != nil {
 		this.scope_.declare(tempVarName, declarationStatement.getFirstChild(), nil)
 	}
 	return tempVarName
@@ -140,10 +150,10 @@ func (this *OptionalChainRewriter_TmpVarNameCreator_fn) createTmpVarName() strin
 }
 
 type OptionalChainRewriter_Builder struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_         *AbstractCompiler
+	astFactory_       *AstFactory
 	tmpVarNameCreator OptionalChainRewriter_TmpVarNameCreator
-	scope_ *Scope
+	scope_            *Scope
 }
 
 func (this *OptionalChainRewriter_Builder) init_OptionalChainRewriter_Builder(compiler *AbstractCompiler) {
@@ -170,4 +180,3 @@ func (this *OptionalChainRewriter_Builder) setScope(scope *Scope) *OptionalChain
 func (this *OptionalChainRewriter_Builder) build(wholeChain Node) *OptionalChainRewriter {
 	return new_OptionalChainRewriter(this, wholeChain)
 }
-

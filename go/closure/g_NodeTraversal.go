@@ -3,21 +3,21 @@
 package closure
 
 type NodeTraversal struct {
-	compiler_ *AbstractCompiler
-	callback NodeTraversal_Callback
-	scopeCallback NodeTraversal_ScopedCallback
-	scopeCreator ScopeCreator
+	compiler_                                      *AbstractCompiler
+	callback                                       NodeTraversal_Callback
+	scopeCallback                                  NodeTraversal_ScopedCallback
+	scopeCreator                                   ScopeCreator
 	obeyDestructuringAndDefaultValueExecutionOrder bool
-	mayContainSyntheticBlocks bool
-	currentNode Node
-	currentHoistScopeRoot Node
-	currentFunction Node
-	currentScript Node
-	currentChangeScope Node
-	scopes ArrayListOf[any]
-	sourceName_ OptionalOf[string]
-	inputId *InputId
-	compilerInput *CompilerInput
+	mayContainSyntheticBlocks                      bool
+	currentNode                                    Node
+	currentHoistScopeRoot                          Node
+	currentFunction                                Node
+	currentScript                                  Node
+	currentChangeScope                             Node
+	scopes                                         ArrayListOf[any]
+	sourceName_                                    OptionalOf[string]
+	inputId                                        *InputId
+	compilerInput                                  *CompilerInput
 }
 
 func (this *NodeTraversal) finit_NodeTraversal() {
@@ -31,8 +31,25 @@ func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
 	this.callback = icast_NodeTraversal_Callback(Preconditions_checkNotNull(any(builder.callback)))
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
-	this.scopeCallback = func() NodeTraversal_ScopedCallback { if func() bool { v_ := any(this.callback); if !is_[NodeTraversal_ScopedCallback](v_) { return false }; scopedCallback = icast_NodeTraversal_ScopedCallback(v_); return true }() { return scopedCallback }; return nil }()
-	this.scopeCreator = func() ScopeCreator { if (builder.scopeCreator == nil) { return icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_))) }; return builder.scopeCreator }()
+	this.scopeCallback = func() NodeTraversal_ScopedCallback {
+		if func() bool {
+			v_ := any(this.callback)
+			if !is_[NodeTraversal_ScopedCallback](v_) {
+				return false
+			}
+			scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+			return true
+		}() {
+			return scopedCallback
+		}
+		return nil
+	}()
+	this.scopeCreator = func() ScopeCreator {
+		if builder.scopeCreator == nil {
+			return icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))
+		}
+		return builder.scopeCreator
+	}()
 	this.obeyDestructuringAndDefaultValueExecutionOrder = builder.obeyDestructuringAndDefaultValueExecutionOrder
 	var options *CompilerOptions = this.compiler_.getOptions()
 	this.mayContainSyntheticBlocks = ((options == nil) || options.getSyntheticBlockStartMarker().isPresent())
@@ -50,14 +67,19 @@ func NodeTraversal_builder() *NodeTraversal_Builder {
 
 func (this *NodeTraversal) throwUnexpectedException(unexpectedException *Throwable) {
 	var message string = unexpectedException.getMessage()
-	if (this.currentScript != 0) {
-		message = (sstr_(unexpectedException.getMessage()) + "\n" + sstr_(this.formatNodeContext("Node", this.currentNode)) + sstr_(func() string { if (this.currentNode == 0) { return "" }; return this.formatNodeContext("Parent", this.currentNode.getParent()) }()))
+	if this.currentScript != 0 {
+		message = (sstr_(unexpectedException.getMessage()) + "\n" + sstr_(this.formatNodeContext("Node", this.currentNode)) + sstr_(func() string {
+			if this.currentNode == 0 {
+				return ""
+			}
+			return this.formatNodeContext("Parent", this.currentNode.getParent())
+		}()))
 	}
 	this.compiler_.throwInternalError(message, unexpectedException)
 }
 
 func (this *NodeTraversal) formatNodeContext(label string, n Node) string {
-	if (n == 0) {
+	if n == 0 {
 		return ("  " + sstr_(label) + ": NULL")
 	}
 	return ("  " + sstr_(label) + "(" + sstr_(n.toString_3(false, false, false)) + "): " + sstr_(this.formatNodePosition(n)))
@@ -162,7 +184,7 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 	this.currentNode = n
 	var parentScopes DequeOf[*AbstractScope] = icast_Deque(obj_(new_ArrayDeque()))
 	var temp *AbstractScope = s.getParent()
-	for (temp != nil) {
+	for temp != nil {
 		parentScopes.push(temp.self())
 		temp = temp.getParent()
 	}
@@ -277,18 +299,23 @@ func (this *NodeTraversal) getCompiler() *AbstractCompiler {
 
 func (this *NodeTraversal) getSourceName() *Optional {
 	if this.sourceName_.isEmpty() {
-		this.sourceName_ = func() *Optional { if (this.currentScript != 0) { return Optional_of(strobj_(this.currentScript.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}) }; return Optional_of(strobj_("")) }()
+		this.sourceName_ = func() *Optional {
+			if this.currentScript != 0 {
+				return Optional_of(strobj_(this.currentScript.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+					var s string = str_(s_)
+					_ = s
+					return !String_isEmpty(s)
+				}})
+			}
+			return Optional_of(strobj_(""))
+		}()
 	}
 	return this.sourceName_
 }
 
 func (this *NodeTraversal) getInput() *CompilerInput {
 	var inputId *InputId = this.getInputId()
-	if ((this.compilerInput == nil) && (inputId != nil)) {
+	if (this.compilerInput == nil) && (inputId != nil) {
 		this.compilerInput = this.compiler_.getInput(inputId)
 	}
 	return this.compilerInput
@@ -296,7 +323,12 @@ func (this *NodeTraversal) getInput() *CompilerInput {
 
 func (this *NodeTraversal) getChunk() *JSChunk {
 	var input *CompilerInput = this.getInput()
-	return func() *JSChunk { if (input == nil) { return nil }; return input.getChunk() }()
+	return func() *JSChunk {
+		if input == nil {
+			return nil
+		}
+		return input.getChunk()
+	}()
 }
 
 func (this *NodeTraversal) getCurrentNode() Node {
@@ -349,7 +381,7 @@ func (this *NodeTraversal) handleDestructuringOrDefaultValue(n Node, parent Node
 	if this.callback.shouldTraverse(this, n, parent) {
 		var first Node = n.getFirstChild()
 		var second Node = first.getNext()
-		if (second != 0) {
+		if second != 0 {
 			Preconditions_checkState_boolean_Object((second.getNext() == 0), second.box_())
 			this.traverseBranch(second, n)
 		}
@@ -363,7 +395,7 @@ func (this *NodeTraversal) createsBlockScope(n Node) bool {
 	return func() bool {
 		switch n.getToken() {
 		case Token_rhino_BLOCK:
-			if (this.mayContainSyntheticBlocks && n.isSyntheticBlock()) {
+			if this.mayContainSyntheticBlocks && n.isSyntheticBlock() {
 				return false
 			}
 			var parent Node = n.getParent()
@@ -415,7 +447,7 @@ func (this *NodeTraversal) traverseBranch(n Node, parent Node) {
 	}
 	{
 		var child Node = n.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
 			this.traverseBranch(child, n)
 			child = next
@@ -484,9 +516,9 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 	}
 	{
 		var child Node = n.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
-			if (child.isComputedProp() || child.isComputedFieldDef()) {
+			if child.isComputedProp() || child.isComputedFieldDef() {
 				this.traverseBranch(child.getFirstChild(), child)
 			}
 			child = next
@@ -494,7 +526,7 @@ func (this *NodeTraversal) handleClassMembers(n Node, parent Node) {
 	}
 	{
 		var child Node = n.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
 			switch child.getToken() {
 			case Token_rhino_COMPUTED_PROP:
@@ -544,7 +576,7 @@ func (this *NodeTraversal) handleMemberFieldDef(n Node, child Node) {
 func (this *NodeTraversal) traverseChildren(n Node) {
 	{
 		var child Node = n.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
 			this.traverseBranch(child, n)
 			child = next
@@ -560,7 +592,7 @@ func (this *NodeTraversal) pushScope(node Node) {
 	Preconditions_checkNotNull(this.currentNode.box_())
 	Preconditions_checkNotNull(node.box_())
 	this.scopes.add(node.box_())
-	if (this.scopeCallback != nil) {
+	if this.scopeCallback != nil {
 		this.scopeCallback.enterScope(this)
 	}
 }
@@ -572,7 +604,7 @@ func (this *NodeTraversal) pushScopeAbstractScope(s *AbstractScope) {
 func (this *NodeTraversal) pushScope_2(s *AbstractScope, quietly bool) {
 	Preconditions_checkNotNull(this.currentNode.box_())
 	this.scopes.add(s.self())
-	if (!quietly && (this.scopeCallback != nil)) {
+	if !quietly && (this.scopeCallback != nil) {
 		this.scopeCallback.enterScope(this)
 	}
 }
@@ -582,7 +614,7 @@ func (this *NodeTraversal) popScope() {
 }
 
 func (this *NodeTraversal) popScope_1(quietly bool) {
-	if (!quietly && (this.scopeCallback != nil)) {
+	if !quietly && (this.scopeCallback != nil) {
 		this.scopeCallback.exitScope(this)
 	}
 	this.scopes.remove((this.scopes.size() - 1))
@@ -591,12 +623,24 @@ func (this *NodeTraversal) popScope_1(quietly bool) {
 func (this *NodeTraversal) getNodeRootFromScopeObj(root any) Node {
 	var node Node
 	_ = node
-	return func() Node { if func() bool { v_ := root; if !is_[Node](v_) { return false }; node = Node_of_(v_); return true }() { return node }; return to_AbstractScope(root).getRootNode() }()
+	return func() Node {
+		if func() bool {
+			v_ := root
+			if !is_[Node](v_) {
+				return false
+			}
+			node = Node_of_(v_)
+			return true
+		}() {
+			return node
+		}
+		return to_AbstractScope(root).getRootNode()
+	}()
 }
 
 func (this *NodeTraversal) getScopeRoot() Node {
 	var roots int32 = this.scopes.size()
-	if (roots > 0) {
+	if roots > 0 {
 		return this.getNodeRootFromScopeObj(this.scopes.get((roots - 1)))
 	} else {
 		return 0
@@ -626,8 +670,20 @@ func (this *NodeTraversal) getAbstractScope_1(rootDepth int32) *AbstractScope {
 	var o any = this.scopes.get(rootDepth)
 	var node Node
 	_ = node
-	if func() bool { v_ := o; if !is_[Node](v_) { return false }; node = Node_of_(v_); return true }() {
-		var parentScope *AbstractScope = func() *AbstractScope { if (rootDepth > 0) { return this.getAbstractScope_1((rootDepth - 1)) }; return nil }()
+	if func() bool {
+		v_ := o
+		if !is_[Node](v_) {
+			return false
+		}
+		node = Node_of_(v_)
+		return true
+	}() {
+		var parentScope *AbstractScope = func() *AbstractScope {
+			if rootDepth > 0 {
+				return this.getAbstractScope_1((rootDepth - 1))
+			}
+			return nil
+		}()
 		var scope *AbstractScope = this.scopeCreator.createScopeAbstractScope(node, parentScope)
 		this.scopes.set(rootDepth, scope.self())
 		return scope
@@ -642,7 +698,7 @@ func (this *NodeTraversal) isHoistScope() bool {
 }
 
 func (this *NodeTraversal) getClosestHoistScopeRoot() Node {
-	for i := int32((this.scopes.size() - 1)); (i >= 0); i-- {
+	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
 		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
 		if NodeTraversal_isHoistScopeRootNode(rootNode) {
 			return rootNode
@@ -652,7 +708,7 @@ func (this *NodeTraversal) getClosestHoistScopeRoot() Node {
 }
 
 func (this *NodeTraversal) getClosestContainerScope() *AbstractScope {
-	for i := int32((this.scopes.size() - 1)); (i >= 0); i-- {
+	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
 		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
 		if !NodeUtil_createsBlockScope(rootNode) {
 			return this.getAbstractScope_1(i)
@@ -662,7 +718,7 @@ func (this *NodeTraversal) getClosestContainerScope() *AbstractScope {
 }
 
 func (this *NodeTraversal) getClosestHoistScope() *AbstractScope {
-	for i := int32((this.scopes.size() - 1)); (i >= 0); i-- {
+	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
 		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
 		if NodeTraversal_isHoistScopeRootNode(rootNode) {
 			return this.getAbstractScope_1(i)
@@ -684,8 +740,8 @@ func NodeTraversal_isHoistScopeRootNode(n Node) bool {
 }
 
 func (this *NodeTraversal) getClosestScopeRootNodeBindingThisOrSuper() Node {
-	L_1:
-	for i := int32((this.scopes.size() - 1)); (i >= 0); i-- {
+L_1:
+	for i := int32((this.scopes.size() - 1)); i >= 0; i-- {
 		var rootNode Node = this.getNodeRootFromScopeObj(this.scopes.get(i))
 		switch rootNode.getToken() {
 		case Token_rhino_FUNCTION:
@@ -733,7 +789,7 @@ func (this *NodeTraversal) inGlobalHoistScope() bool {
 
 func (this *NodeTraversal) inModuleHoistScope() bool {
 	var moduleRoot Node = this.currentHoistScopeRoot
-	if (moduleRoot == 0) {
+	if moduleRoot == 0 {
 		return false
 	}
 	if moduleRoot.isFunction() {
@@ -764,7 +820,7 @@ func (this *NodeTraversal) reportCodeChange_1(n Node) {
 }
 
 func (this *NodeTraversal) getCurrentScript() Node {
-	if (this.currentScript == 0) {
+	if this.currentScript == 0 {
 		panic(new_UnsupportedOperationException_String("getCurrentScript not supported").self())
 	}
 	return this.currentScript
@@ -775,7 +831,7 @@ func (this *NodeTraversal) setChangeScope(n Node) {
 }
 
 func (this *NodeTraversal) getEnclosingScript(n Node) Node {
-	for ((n != 0) && !n.isScript()) {
+	for (n != 0) && !n.isScript() {
 		n = n.getParent()
 	}
 	return n
@@ -787,9 +843,19 @@ func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 	}
 	var hoistScopeRoot Node = NodeUtil_getEnclosingHoistScopeRoot(traversalRoot)
 	this.currentHoistScopeRoot = hoistScopeRoot
-	var changeScope Node = ChangeTracker_getEnclosingChangeScopeRoot(func() Node { if (hoistScopeRoot != 0) { return hoistScopeRoot }; return traversalRoot }())
+	var changeScope Node = ChangeTracker_getEnclosingChangeScopeRoot(func() Node {
+		if hoistScopeRoot != 0 {
+			return hoistScopeRoot
+		}
+		return traversalRoot
+	}())
 	this.setChangeScope(changeScope)
-	var enclosingFunction Node = func() Node { if (hoistScopeRoot != 0) { return NodeUtil_getEnclosingFunction(hoistScopeRoot) }; return 0 }()
+	var enclosingFunction Node = func() Node {
+		if hoistScopeRoot != 0 {
+			return NodeUtil_getEnclosingFunction(hoistScopeRoot)
+		}
+		return 0
+	}()
 	this.currentFunction = enclosingFunction
 	var script Node = this.getEnclosingScript(changeScope)
 	this.currentScript = script
@@ -798,7 +864,7 @@ func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 
 func (this *NodeTraversal) initScopeRoots(n Node) {
 	var queuedScopeRoots DequeOf[Node] = icast_Deque(obj_(new_ArrayDeque()))
-	for (n != 0) {
+	for n != 0 {
 		if this.isScopeRoot(n) {
 			SequencedCollection_addFirst(SequencedCollection(queuedScopeRoots), n.box_())
 		}
@@ -812,7 +878,7 @@ func (this *NodeTraversal) initScopeRoots(n Node) {
 }
 
 func (this *NodeTraversal) isScopeRoot(n Node) bool {
-	if (n.isRoot() && (n.getParent() == 0)) {
+	if n.isRoot() && (n.getParent() == 0) {
 		return true
 	} else if n.isFunction() {
 		return true
@@ -829,18 +895,23 @@ func (this *NodeTraversal) clearScriptState() {
 }
 
 func (this *NodeTraversal) getInputId() *InputId {
-	if ((this.currentScript != 0) && (this.inputId == nil)) {
+	if (this.currentScript != 0) && (this.inputId == nil) {
 		this.inputId = this.currentScript.getInputId()
 	}
 	return this.inputId
 }
 
 func (this *NodeTraversal) getBestSourceFileName(n Node) *Optional {
-	return func() *Optional { if (n == 0) { return this.getSourceName() }; return Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}) }()
+	return func() *Optional {
+		if n == 0 {
+			return this.getSourceName()
+		}
+		return Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+			var s string = str_(s_)
+			_ = s
+			return !String_isEmpty(s)
+		}})
+	}()
 }
 
 const NodeTraversal_MISSING_SOURCE string = "[source unknown]"
@@ -860,17 +931,23 @@ type NodeTraversal_AbstractPostOrderCallback struct {
 	self_ any
 }
 
-func (this *NodeTraversal_AbstractPostOrderCallback) as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback { return this }
+func (this *NodeTraversal_AbstractPostOrderCallback) as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractPostOrderCallback(v any) *NodeTraversal_AbstractPostOrderCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback }).as_NodeTraversal_AbstractPostOrderCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback
+	}).as_NodeTraversal_AbstractPostOrderCallback()
 }
 
 func is_NodeTraversal_AbstractPostOrderCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback
+	})
 	return ok
 }
 
@@ -890,24 +967,32 @@ func (this *NodeTraversal_AbstractPostOrderCallback) shouldTraverse(nodeTraversa
 }
 
 func (this *NodeTraversal_AbstractPostOrderCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node, Node) }).visit_impl(p0, p1, p2)
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_ExternsSkippingCallback struct {
 	self_ any
 }
 
-func (this *NodeTraversal_ExternsSkippingCallback) as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback { return this }
+func (this *NodeTraversal_ExternsSkippingCallback) as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback {
+	return this
+}
 
 func to_NodeTraversal_ExternsSkippingCallback(v any) *NodeTraversal_ExternsSkippingCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback }).as_NodeTraversal_ExternsSkippingCallback()
+	return v.(interface {
+		as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback
+	}).as_NodeTraversal_ExternsSkippingCallback()
 }
 
 func is_NodeTraversal_ExternsSkippingCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_ExternsSkippingCallback() *NodeTraversal_ExternsSkippingCallback
+	})
 	return ok
 }
 
@@ -927,7 +1012,9 @@ func (this *NodeTraversal_ExternsSkippingCallback) shouldTraverse(t *NodeTravers
 }
 
 func (this *NodeTraversal_ExternsSkippingCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node, Node) }).visit_impl(p0, p1, p2)
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractPostOrderCallbackInterface interface {
@@ -946,17 +1033,23 @@ type NodeTraversal_AbstractPreOrderCallback struct {
 	self_ any
 }
 
-func (this *NodeTraversal_AbstractPreOrderCallback) as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback { return this }
+func (this *NodeTraversal_AbstractPreOrderCallback) as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractPreOrderCallback(v any) *NodeTraversal_AbstractPreOrderCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback }).as_NodeTraversal_AbstractPreOrderCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback
+	}).as_NodeTraversal_AbstractPreOrderCallback()
 }
 
 func is_NodeTraversal_AbstractPreOrderCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback
+	})
 	return ok
 }
 
@@ -976,24 +1069,32 @@ func (this *NodeTraversal_AbstractPreOrderCallback) visit(t *NodeTraversal, n No
 }
 
 func (this *NodeTraversal_AbstractPreOrderCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	return this.self_.(interface{ shouldTraverse_impl(*NodeTraversal, Node, Node) bool }).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.(interface {
+		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
+	}).shouldTraverse_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractScopedCallback struct {
 	self_ any
 }
 
-func (this *NodeTraversal_AbstractScopedCallback) as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback { return this }
+func (this *NodeTraversal_AbstractScopedCallback) as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractScopedCallback(v any) *NodeTraversal_AbstractScopedCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback }).as_NodeTraversal_AbstractScopedCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback
+	}).as_NodeTraversal_AbstractScopedCallback()
 }
 
 func is_NodeTraversal_AbstractScopedCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractScopedCallback() *NodeTraversal_AbstractScopedCallback
+	})
 	return ok
 }
 
@@ -1029,25 +1130,33 @@ func (this *NodeTraversal_AbstractScopedCallback) exitScope(p0 *NodeTraversal) {
 }
 
 func (this *NodeTraversal_AbstractScopedCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node, Node) }).visit_impl(p0, p1, p2)
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractCfgCallback struct {
 	self_ any
-	cfgs ArrayDequeOf[any]
+	cfgs  ArrayDequeOf[any]
 }
 
-func (this *NodeTraversal_AbstractCfgCallback) as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback { return this }
+func (this *NodeTraversal_AbstractCfgCallback) as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractCfgCallback(v any) *NodeTraversal_AbstractCfgCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback }).as_NodeTraversal_AbstractCfgCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback
+	}).as_NodeTraversal_AbstractCfgCallback()
 }
 
 func is_NodeTraversal_AbstractCfgCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback
+	})
 	return ok
 }
 
@@ -1072,7 +1181,14 @@ func (this *NodeTraversal_AbstractCfgCallback) getControlFlowGraph(compiler *Abs
 	Preconditions_checkState((o != nil))
 	var cfgRoot Node
 	_ = cfgRoot
-	if func() bool { v_ := o; if !is_[Node](v_) { return false }; cfgRoot = Node_of_(v_); return true }() {
+	if func() bool {
+		v_ := o
+		if !is_[Node](v_) {
+			return false
+		}
+		cfgRoot = Node_of_(v_)
+		return true
+	}() {
 		result = ControlFlowAnalysis_builder().setCompiler(compiler).setCfgRoot(cfgRoot).setIncludeEdgeAnnotations(true).computeCfg()
 		this.cfgs.pop()
 		this.cfgs.push(result.self())
@@ -1119,11 +1235,15 @@ func (this *NodeTraversal_AbstractCfgCallback) enterScopeWithCfg(p0 *NodeTravers
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
-	return this.self_.(interface{ shouldTraverse_impl(*NodeTraversal, Node, Node) bool }).shouldTraverse_impl(p0, p1, p2)
+	return this.self_.(interface {
+		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
+	}).shouldTraverse_impl(p0, p1, p2)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node, Node) }).visit_impl(p0, p1, p2)
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
 }
 
 func (this *NodeTraversal_AbstractCfgCallback) exitScopeWithCfg(p0 *NodeTraversal) {
@@ -1134,17 +1254,23 @@ type NodeTraversal_AbstractShallowCallback struct {
 	self_ any
 }
 
-func (this *NodeTraversal_AbstractShallowCallback) as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback { return this }
+func (this *NodeTraversal_AbstractShallowCallback) as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractShallowCallback(v any) *NodeTraversal_AbstractShallowCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback }).as_NodeTraversal_AbstractShallowCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback
+	}).as_NodeTraversal_AbstractShallowCallback()
 }
 
 func is_NodeTraversal_AbstractShallowCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback
+	})
 	return ok
 }
 
@@ -1164,24 +1290,32 @@ func (this *NodeTraversal_AbstractShallowCallback) shouldTraverse(nodeTraversal 
 }
 
 func (this *NodeTraversal_AbstractShallowCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node, Node) }).visit_impl(p0, p1, p2)
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractShallowStatementCallback struct {
 	self_ any
 }
 
-func (this *NodeTraversal_AbstractShallowStatementCallback) as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback { return this }
+func (this *NodeTraversal_AbstractShallowStatementCallback) as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractShallowStatementCallback(v any) *NodeTraversal_AbstractShallowStatementCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback }).as_NodeTraversal_AbstractShallowStatementCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback
+	}).as_NodeTraversal_AbstractShallowStatementCallback()
 }
 
 func is_NodeTraversal_AbstractShallowStatementCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractShallowStatementCallback() *NodeTraversal_AbstractShallowStatementCallback
+	})
 	return ok
 }
 
@@ -1201,29 +1335,37 @@ func (this *NodeTraversal_AbstractShallowStatementCallback) shouldTraverse(nodeT
 }
 
 func (this *NodeTraversal_AbstractShallowStatementCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node, Node) }).visit_impl(p0, p1, p2)
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
 }
 
 type NodeTraversal_AbstractModuleCallback struct {
-	self_ any
-	compiler_ *AbstractCompiler
+	self_             any
+	compiler_         *AbstractCompiler
 	moduleMetadataMap *ModuleMetadataMap
-	currentModule *ModuleMetadataMap_ModuleMetadata
-	scopeRoot Node
-	inLoadModule bool
+	currentModule     *ModuleMetadataMap_ModuleMetadata
+	scopeRoot         Node
+	inLoadModule      bool
 }
 
-func (this *NodeTraversal_AbstractModuleCallback) as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback { return this }
+func (this *NodeTraversal_AbstractModuleCallback) as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractModuleCallback(v any) *NodeTraversal_AbstractModuleCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback }).as_NodeTraversal_AbstractModuleCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback
+	}).as_NodeTraversal_AbstractModuleCallback()
 }
 
 func is_NodeTraversal_AbstractModuleCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractModuleCallback() *NodeTraversal_AbstractModuleCallback
+	})
 	return ok
 }
 
@@ -1252,7 +1394,12 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 	case Token_rhino_SCRIPT:
 		this.currentModule = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByPath(), t.getInput().getPath().toString()))
 		Preconditions_checkNotNull(obj_(this.currentModule))
-		this.scopeRoot = func() Node { if (n.hasChildren() && n.getFirstChild().isModuleBody()) { return n.getFirstChild() }; return n }()
+		this.scopeRoot = func() Node {
+			if n.hasChildren() && n.getFirstChild().isModuleBody() {
+				return n.getFirstChild()
+			}
+			return n
+		}()
 		this.enterModule(this.currentModule, this.scopeRoot)
 	case Token_rhino_BLOCK:
 		if NodeUtil_isBundledGoogModuleScopeRoot(n) {
@@ -1260,7 +1407,7 @@ func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse(t *NodeTraversa
 			this.inLoadModule = true
 		}
 	case Token_rhino_CALL:
-		if (this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild())) {
+		if this.inLoadModule && NodeTraversal_AbstractModuleCallback_GOOG_MODULE.matches(n.getFirstChild()) {
 			var newModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleMetadataMap.getModulesByGoogNamespace(), n.getLastChild().getString()))
 			Preconditions_checkNotNull(obj_(newModule))
 			if !JSCompObjects_identical(obj_(newModule), obj_(this.currentModule)) {
@@ -1303,19 +1450,27 @@ func (this *NodeTraversal_AbstractModuleCallback) visit_4_impl(t *NodeTraversal,
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	this.self_.(interface{ enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node) }).enterModule_impl(p0, p1)
+	this.self_.(interface {
+		enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	}).enterModule_impl(p0, p1)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
-	this.self_.(interface{ visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) }).visit_4_impl(p0, p1, p2, p3)
+	this.self_.(interface {
+		visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
+	}).visit_4_impl(p0, p1, p2, p3)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) shouldTraverse_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) bool {
-	return this.self_.(interface{ shouldTraverse_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) bool }).shouldTraverse_4_impl(p0, p1, p2, p3)
+	return this.self_.(interface {
+		shouldTraverse_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node) bool
+	}).shouldTraverse_4_impl(p0, p1, p2, p3)
 }
 
 func (this *NodeTraversal_AbstractModuleCallback) exitModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
-	this.self_.(interface{ exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node) }).exitModule_impl(p0, p1)
+	this.self_.(interface {
+		exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	}).exitModule_impl(p0, p1)
 }
 
 var NodeTraversal_AbstractModuleCallback_GOOG_MODULE *QualifiedName
@@ -1335,17 +1490,23 @@ type NodeTraversal_AbstractChangedScopeCallback struct {
 	NodeTraversal_AbstractPreOrderCallback
 }
 
-func (this *NodeTraversal_AbstractChangedScopeCallback) as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback { return this }
+func (this *NodeTraversal_AbstractChangedScopeCallback) as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback {
+	return this
+}
 
 func to_NodeTraversal_AbstractChangedScopeCallback(v any) *NodeTraversal_AbstractChangedScopeCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback }).as_NodeTraversal_AbstractChangedScopeCallback()
+	return v.(interface {
+		as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback
+	}).as_NodeTraversal_AbstractChangedScopeCallback()
 }
 
 func is_NodeTraversal_AbstractChangedScopeCallback(v any) bool {
-	_, ok := v.(interface{ as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback })
+	_, ok := v.(interface {
+		as_NodeTraversal_AbstractChangedScopeCallback() *NodeTraversal_AbstractChangedScopeCallback
+	})
 	return ok
 }
 
@@ -1368,7 +1529,7 @@ func (this *NodeTraversal_AbstractChangedScopeCallback) init_NodeTraversal_Abstr
 }
 
 func (this *NodeTraversal_AbstractChangedScopeCallback) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
-	if (ChangeTracker_isChangeScopeRoot(n) && t.getCompiler().hasScopeChanged(n)) {
+	if ChangeTracker_isChangeScopeRoot(n) && t.getCompiler().hasScopeChanged(n) {
 		this.enterChangedScopeRoot(t.getCompiler(), n)
 	}
 	return true
@@ -1379,9 +1540,9 @@ func (this *NodeTraversal_AbstractChangedScopeCallback) enterChangedScopeRoot(p0
 }
 
 type NodeTraversal_Builder struct {
-	callback NodeTraversal_Callback
-	compiler_ *AbstractCompiler
-	scopeCreator ScopeCreator
+	callback                                       NodeTraversal_Callback
+	compiler_                                      *AbstractCompiler
+	scopeCreator                                   ScopeCreator
 	obeyDestructuringAndDefaultValueExecutionOrder bool
 }
 
@@ -1446,9 +1607,9 @@ func (this *NodeTraversal_Builder) traverseWithScope(root Node, s *AbstractScope
 
 type NodeTraversal_1TraverseScopeRootsCallback struct {
 	cap_traverseNested bool
-	cap_cb NodeTraversal_Callback
-	insideScopeNode bool
-	scopeNode Node
+	cap_cb             NodeTraversal_Callback
+	insideScopeNode    bool
+	scopeNode          Node
 }
 
 func (this *NodeTraversal_1TraverseScopeRootsCallback) finit_NodeTraversal_1TraverseScopeRootsCallback() {
@@ -1469,14 +1630,14 @@ func new_NodeTraversal_1TraverseScopeRootsCallback(cap_traverseNested bool, cap_
 }
 
 func (this *NodeTraversal_1TraverseScopeRootsCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if (this.scopeNode == n) {
+	if this.scopeNode == n {
 		this.insideScopeNode = true
 	}
 	return (((this.cap_traverseNested || (this.scopeNode == n)) || !ChangeTracker_isChangeScopeRoot(n)) && this.cap_cb.shouldTraverse(t, n, parent))
 }
 
 func (this *NodeTraversal_1TraverseScopeRootsCallback) visit(t *NodeTraversal, n Node, parent Node) {
-	if (this.scopeNode == n) {
+	if this.scopeNode == n {
 		this.insideScopeNode = false
 	}
 	this.cap_cb.visit(t, n, parent)
@@ -1485,7 +1646,14 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) visit(t *NodeTraversal, n
 func (this *NodeTraversal_1TraverseScopeRootsCallback) enterScope(t *NodeTraversal) {
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
-	if (this.insideScopeNode && func() bool { v_ := any(this.cap_cb); if !is_[NodeTraversal_ScopedCallback](v_) { return false }; scopedCallback = icast_NodeTraversal_ScopedCallback(v_); return true }()) {
+	if this.insideScopeNode && func() bool {
+		v_ := any(this.cap_cb)
+		if !is_[NodeTraversal_ScopedCallback](v_) {
+			return false
+		}
+		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		return true
+	}() {
 		scopedCallback.enterScope(t)
 	}
 }
@@ -1493,7 +1661,14 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) enterScope(t *NodeTravers
 func (this *NodeTraversal_1TraverseScopeRootsCallback) exitScope(t *NodeTraversal) {
 	var scopedCallback NodeTraversal_ScopedCallback
 	_ = scopedCallback
-	if (this.insideScopeNode && func() bool { v_ := any(this.cap_cb); if !is_[NodeTraversal_ScopedCallback](v_) { return false }; scopedCallback = icast_NodeTraversal_ScopedCallback(v_); return true }()) {
+	if this.insideScopeNode && func() bool {
+		v_ := any(this.cap_cb)
+		if !is_[NodeTraversal_ScopedCallback](v_) {
+			return false
+		}
+		scopedCallback = icast_NodeTraversal_ScopedCallback(v_)
+		return true
+	}() {
 		scopedCallback.exitScope(t)
 	}
 }
@@ -1501,7 +1676,7 @@ func (this *NodeTraversal_1TraverseScopeRootsCallback) exitScope(t *NodeTraversa
 type NodeTraversal_Builder_1 struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_ *NodeTraversal_Builder
-	cap_x NodeTraversal_AbstractPostOrderCallbackInterface
+	cap_x  NodeTraversal_AbstractPostOrderCallbackInterface
 }
 
 func (this *NodeTraversal_Builder_1) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -1527,4 +1702,3 @@ func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x NodeTraver
 func (this *NodeTraversal_Builder_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	this.cap_x.visit(t, n, parent)
 }
-

@@ -3,14 +3,14 @@
 package closure
 
 type Source struct {
-	path_ string
-	sourceMap_ string
-	sourceUrl_ string
-	sourceMappingUrl_ string
-	runtimes_ ImmutableSetOf[string]
-	loadFlags_ ImmutableMapOf[string, string]
-	estimatedSize_ int32
-	codeSupplier_ *Source_Lazy
+	path_                 string
+	sourceMap_            string
+	sourceUrl_            string
+	sourceMappingUrl_     string
+	runtimes_             ImmutableSetOf[string]
+	loadFlags_            ImmutableMapOf[string, string]
+	estimatedSize_        int32
+	codeSupplier_         *Source_Lazy
 	originalCodeSupplier_ *Source_Lazy
 }
 
@@ -124,16 +124,16 @@ func (this *Source) hashCode() int32 {
 const Source_DEV_NULL string = "/dev/null"
 
 type Source_Builder struct {
-	path_ OptionalOf[string]
-	sourceMap_ OptionalOf[string]
-	sourceUrl_ OptionalOf[string]
-	sourceMappingUrl_ OptionalOf[string]
-	runtimesField ImmutableSetOf[string]
-	loadFlags_ ImmutableMapOf[string, string]
-	estimatedSize_ int32
-	codeSupplierField *Source_Lazy
+	path_                     OptionalOf[string]
+	sourceMap_                OptionalOf[string]
+	sourceUrl_                OptionalOf[string]
+	sourceMappingUrl_         OptionalOf[string]
+	runtimesField             ImmutableSetOf[string]
+	loadFlags_                ImmutableMapOf[string, string]
+	estimatedSize_            int32
+	codeSupplierField         *Source_Lazy
 	originalCodeSupplierField *Source_Lazy
-	set0 int8
+	set0                      int8
 }
 
 func (this *Source_Builder) finit_Source_Builder() {
@@ -194,7 +194,7 @@ func (this *Source_Builder) setSourceMappingUrl(sourceMappingUrl string) *Source
 }
 
 func (this *Source_Builder) setRuntimes(runtimes ImmutableSetOf[string]) *Source_Builder {
-	if (runtimes == nil) {
+	if runtimes == nil {
 		panic(new_NullPointerException_String("Null runtimes").self())
 	}
 	this.runtimesField = runtimes
@@ -202,7 +202,7 @@ func (this *Source_Builder) setRuntimes(runtimes ImmutableSetOf[string]) *Source
 }
 
 func (this *Source_Builder) setLoadFlags(flags ImmutableMapOf[string, string]) *Source_Builder {
-	if (flags == nil) {
+	if flags == nil {
 		panic(new_NullPointerException_String("Null loadFlags").self())
 	}
 	this.loadFlags_ = flags
@@ -236,14 +236,14 @@ func (this *Source_Builder) setDependencyInfo(info DependencyInfo) *Source_Build
 }
 
 func (this *Source_Builder) build() *Source {
-	if (this.originalCodeSupplier() == nil) {
+	if this.originalCodeSupplier() == nil {
 		this.setOriginalCodeSupplier(this.codeSupplier())
 	}
 	return this.autoBuild()
 }
 
 func (this *Source_Builder) setCodeSupplier(code *Source_Lazy) *Source_Builder {
-	if (code == nil) {
+	if code == nil {
 		panic(new_NullPointerException_String("Null codeSupplier").self())
 	}
 	this.codeSupplierField = code
@@ -256,21 +256,21 @@ func (this *Source_Builder) setOriginalCodeSupplier(code *Source_Lazy) *Source_B
 }
 
 func (this *Source_Builder) runtimes() *ImmutableSet {
-	if (this.runtimesField == nil) {
+	if this.runtimesField == nil {
 		panic(new_IllegalStateException_String("Property \"runtimes\" has not been set").self())
 	}
 	return this.runtimesField
 }
 
 func (this *Source_Builder) codeSupplier() *Source_Lazy {
-	if (this.codeSupplierField == nil) {
+	if this.codeSupplierField == nil {
 		panic(new_IllegalStateException_String("Property \"codeSupplier\" has not been set").self())
 	}
 	return this.codeSupplierField
 }
 
 func (this *Source_Builder) autoBuild() *Source {
-	if ((((((((int32(this.set0) != 1) || this.path_.isEmpty()) || this.sourceMap_.isEmpty()) || this.sourceUrl_.isEmpty()) || this.sourceMappingUrl_.isEmpty()) || (this.runtimesField == nil)) || (this.loadFlags_ == nil)) || (this.codeSupplierField == nil)) {
+	if (((((((int32(this.set0) != 1) || this.path_.isEmpty()) || this.sourceMap_.isEmpty()) || this.sourceUrl_.isEmpty()) || this.sourceMappingUrl_.isEmpty()) || (this.runtimesField == nil)) || (this.loadFlags_ == nil)) || (this.codeSupplierField == nil) {
 		var missing *StringBuilder = new_StringBuilder()
 		if this.path_.isEmpty() {
 			missing.append(" path")
@@ -284,16 +284,16 @@ func (this *Source_Builder) autoBuild() *Source {
 		if this.sourceMappingUrl_.isEmpty() {
 			missing.append(" sourceMappingUrl")
 		}
-		if (this.runtimesField == nil) {
+		if this.runtimesField == nil {
 			missing.append(" runtimes")
 		}
-		if (this.loadFlags_ == nil) {
+		if this.loadFlags_ == nil {
 			missing.append(" loadFlags")
 		}
-		if ((int32(this.set0) & 1) == 0) {
+		if (int32(this.set0) & 1) == 0 {
 			missing.append(" estimatedSize")
 		}
-		if (this.codeSupplierField == nil) {
+		if this.codeSupplierField == nil {
 			missing.append(" codeSupplier")
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
@@ -465,4 +465,3 @@ func new_Source_Lazy_2(cap_memoized Supplier_base) *Source_Lazy_2 {
 func (this *Source_Lazy_2) get_impl() any {
 	return this.cap_memoized.get()
 }
-

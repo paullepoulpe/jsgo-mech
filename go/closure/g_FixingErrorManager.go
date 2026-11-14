@@ -4,9 +4,9 @@ package closure
 
 type FixingErrorManager struct {
 	BasicErrorManager
-	fixer *ErrorToFixMapper
-	sureFixes LinkedHashMapOf[*JSError, *SuggestedFix]
-	multiFixes *SimpleListMultimap
+	fixer           *ErrorToFixMapper
+	sureFixes       LinkedHashMapOf[*JSError, *SuggestedFix]
+	multiFixes      *SimpleListMultimap
 	unfixableErrors ImmutableSetOf[*DiagnosticType]
 }
 
@@ -61,7 +61,7 @@ func (this *FixingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError
 	this.BasicErrorManager.report_2_impl(level, error_)
 	if !this.unfixableErrors.contains(obj_(error_.type_())) {
 		var fixes ImmutableListOf[*SuggestedFix] = this.fixer.getFixesForJsError(error_)
-		if (fixes.size() == 1) {
+		if fixes.size() == 1 {
 			this.sureFixes.put(obj_(error_), fixes.get(0))
 		} else {
 			this.multiFixes.putAll(obj_(error_), icast_Iterable(obj_(fixes)))
@@ -102,11 +102,11 @@ func (this *FixingErrorManager) getFixes(fixTypes *FixingErrorManager_FixTypes) 
 	it_1 := foreach_(obj_(this.getErrors()))
 	for it_1.next() {
 		var error_ *JSError = cast_[*JSError](it_1.v)
-		if (containsFixableShorthandModuleWarning && error_.type_().equals(obj_(CheckExtraRequires_EXTRA_REQUIRE_WARNING))) {
+		if containsFixableShorthandModuleWarning && error_.type_().equals(obj_(CheckExtraRequires_EXTRA_REQUIRE_WARNING)) {
 		} else {
-			if ((fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(obj_(error_))) {
+			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(obj_(error_)) {
 				fixes.add(this.sureFixes.get(obj_(error_)))
-			} else if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES) {
+			} else if fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES {
 				fixes.addAll(Collection(this.getFixesForJsError(error_)))
 			}
 		}
@@ -114,11 +114,11 @@ func (this *FixingErrorManager) getFixes(fixTypes *FixingErrorManager_FixTypes) 
 	it_3 := foreach_(obj_(this.getWarnings()))
 	for it_3.next() {
 		var warning *JSError = cast_[*JSError](it_3.v)
-		if (warning.type_().equals(obj_(CheckExtraRequires_EXTRA_REQUIRE_WARNING)) && containsFixableShorthandModuleWarning) {
+		if warning.type_().equals(obj_(CheckExtraRequires_EXTRA_REQUIRE_WARNING)) && containsFixableShorthandModuleWarning {
 		} else {
-			if ((fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(obj_(warning))) {
+			if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX) && this.sureFixes.containsKey(obj_(warning)) {
 				fixes.add(this.sureFixes.get(obj_(warning)))
-			} else if (fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES) {
+			} else if fixTypes == FixingErrorManager_FixTypes_ONE_FIX_AND_MULTI_FIXES {
 				fixes.addAll(Collection(this.getFixesForJsError(warning)))
 			}
 		}
@@ -194,4 +194,3 @@ func FixingErrorManager_FixTypes_clinit() {
 	registerEnum_("com.google.javascript.refactoring.FixingErrorManager.FixTypes", enumValues_(FixingErrorManager_FixTypes_values_))
 
 }
-

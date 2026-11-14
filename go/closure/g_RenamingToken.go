@@ -60,4 +60,3 @@ func RenamingToken_clinit() {
 	registerEnum_("com.google.javascript.jscomp.RenamingToken", enumValues_(RenamingToken_values_))
 
 }
-

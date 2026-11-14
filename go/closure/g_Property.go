@@ -3,11 +3,11 @@
 package closure
 
 type Property struct {
-	name_ any
-	type__ *JSType
-	inferred bool
+	name_        any
+	type__       *JSType
+	inferred     bool
 	propertyNode Node
-	docInfo *JSDocInfo
+	docInfo      *JSDocInfo
 }
 
 func (this *Property) finit_Property() {
@@ -46,18 +46,18 @@ func Property_createFromKey(name Property_Key, type_ *JSType, inferred bool, pro
 func (this *Property) getName() string {
 	return func() string {
 		{
-		sel_ := this.name_
-		_ = sel_
-		switch {
-		case isstr_(sel_):
-			var s string = str_(sel_)
-			return s
-		case is_[*KnownSymbolType](sel_):
-			var s *KnownSymbolType = cast_[*KnownSymbolType](sel_)
-			return str_(s.getDisplayName().orElseThrow())
-		default:
-			panic(new_AssertionError_0().self())
-		}
+			sel_ := this.name_
+			_ = sel_
+			switch {
+			case isstr_(sel_):
+				var s string = str_(sel_)
+				return s
+			case is_[*KnownSymbolType](sel_):
+				var s *KnownSymbolType = cast_[*KnownSymbolType](sel_)
+				return str_(s.getDisplayName().orElseThrow())
+			default:
+				panic(new_AssertionError_0().self())
+			}
 		}
 		panic("unreachable")
 	}()
@@ -68,7 +68,12 @@ func (this *Property) getNode() Node {
 }
 
 func (this *Property) getSourceFile() StaticSourceFile {
-	return func() StaticSourceFile { if (this.propertyNode == 0) { return nil }; return this.propertyNode.getStaticSourceFile() }()
+	return func() StaticSourceFile {
+		if this.propertyNode == 0 {
+			return nil
+		}
+		return this.propertyNode.getStaticSourceFile()
+	}()
 }
 
 func (this *Property) getSymbol() StaticSlot {
@@ -76,7 +81,12 @@ func (this *Property) getSymbol() StaticSlot {
 }
 
 func (this *Property) getDeclaration() StaticRef {
-	return func() StaticRef { if (this.propertyNode == 0) { return nil }; return icast_StaticRef(any(this)) }()
+	return func() StaticRef {
+		if this.propertyNode == 0 {
+			return nil
+		}
+		return icast_StaticRef(any(this))
+	}()
 }
 
 func (this *Property) getType() *JSType {
@@ -88,7 +98,12 @@ func (this *Property) isTypeInferred() bool {
 }
 
 func (this *Property) isFromExterns() bool {
-	return func() bool { if (this.propertyNode == 0) { return false }; return this.propertyNode.isFromExterns() }()
+	return func() bool {
+		if this.propertyNode == 0 {
+			return false
+		}
+		return this.propertyNode.isFromExterns()
+	}()
 }
 
 func (this *Property) setType(type_ *JSType) {
@@ -321,10 +336,19 @@ func (this *Property_OwnedProperty) getValue() *Property {
 }
 
 func (this *Property_OwnedProperty) getOwnerInstanceType() *ObjectType {
-	return func() *ObjectType { if this.owner_.isFunctionPrototypeType() { return this.owner_.getOwnerFunction().getInstanceType() }; return this.owner_ }()
+	return func() *ObjectType {
+		if this.owner_.isFunctionPrototypeType() {
+			return this.owner_.getOwnerFunction().getInstanceType()
+		}
+		return this.owner_
+	}()
 }
 
 func (this *Property_OwnedProperty) isOwnedByInterface() bool {
-	return func() bool { if this.owner_.isFunctionPrototypeType() { return this.owner_.getOwnerFunction().isInterface() }; return this.owner_.isInterface() }()
+	return func() bool {
+		if this.owner_.isFunctionPrototypeType() {
+			return this.owner_.getOwnerFunction().isInterface()
+		}
+		return this.owner_.isInterface()
+	}()
 }
-

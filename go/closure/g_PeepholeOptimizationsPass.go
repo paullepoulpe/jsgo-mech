@@ -3,10 +3,10 @@
 package closure
 
 type PeepholeOptimizationsPass struct {
-	compiler_ *AbstractCompiler
-	passName string
+	compiler_             *AbstractCompiler
+	passName              string
 	peepholeOptimizations []*AbstractPeepholeOptimization
-	retraverseOnChange bool
+	retraverseOnChange    bool
 }
 
 func (this *PeepholeOptimizationsPass) zero_PeepholeOptimizationsPass() {
@@ -39,8 +39,8 @@ func (this *PeepholeOptimizationsPass) process_2(externs Node, root Node) {
 	this.beginTraversal()
 	{
 		var changedScopeNodes ListOf[Node] = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName)
-		for ; ((changedScopeNodes == nil) || !changedScopeNodes.isEmpty()); changedScopeNodes = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName) {
-			if (changedScopeNodes == nil) {
+		for ; (changedScopeNodes == nil) || !changedScopeNodes.isEmpty(); changedScopeNodes = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName) {
+			if changedScopeNodes == nil {
 				NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PeepholeOptimizationsPass_PeepCallback(this))))
 			} else {
 				NodeTraversal_traverseScopeRoots(this.compiler_, changedScopeNodes, icast_NodeTraversal_Callback(obj_(new_PeepholeOptimizationsPass_PeepCallback(this))), false)
@@ -93,7 +93,7 @@ func (this *PeepholeOptimizationsPass_PeepCallback) visit_impl(t *NodeTraversal,
 	var currentNode Node = n
 	for _, optim := range this.outer_.peepholeOptimizations {
 		currentNode = optim.optimizeSubtree(currentNode)
-		if (currentNode == 0) {
+		if currentNode == 0 {
 			return
 		}
 	}
@@ -116,4 +116,3 @@ func (this *PeepholeOptimizationsPass_PeepCallback) updateFeatures(t *NodeTraver
 		optim.clearNewFeatures()
 	}
 }
-

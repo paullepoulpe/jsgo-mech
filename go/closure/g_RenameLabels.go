@@ -3,10 +3,10 @@
 package closure
 
 type RenameLabels struct {
-	compiler_ *AbstractCompiler
+	compiler_    *AbstractCompiler
 	nameSupplier SupplierOf[string]
 	removeUnused bool
-	markChanges bool
+	markChanges  bool
 }
 
 func (this *RenameLabels) init_RenameLabels_AbstractCompiler(compiler *AbstractCompiler) {
@@ -55,10 +55,10 @@ func (this *RenameLabels_DefaultNameSupplier) get() any {
 }
 
 type RenameLabels_ProcessLabels struct {
-	outer_ *RenameLabels
-	markChanges bool
+	outer_         *RenameLabels
+	markChanges    bool
 	namespaceStack DequeOf[*RenameLabels_LabelNamespace]
-	names_ []string
+	names_         []string
 }
 
 func (this *RenameLabels_ProcessLabels) finit_RenameLabels_ProcessLabels() {
@@ -99,7 +99,7 @@ func (this *RenameLabels_ProcessLabels) shouldTraverse(nodeTraversal *NodeTraver
 		var li *RenameLabels_LabelInfo = new_RenameLabels_LabelInfo(currentDepth)
 		Preconditions_checkState(!has_(current.renameMap, name))
 		current.renameMap[name] = li
-		if (int32(len(this.names_)) < currentDepth) {
+		if int32(len(this.names_)) < currentDepth {
 			this.names_ = append(this.names_, str_(this.outer_.nameSupplier.get()))
 		}
 	}
@@ -118,11 +118,11 @@ func (this *RenameLabels_ProcessLabels) visit(t *NodeTraversal, node Node, paren
 
 func (this *RenameLabels_ProcessLabels) visitBreakOrContinue(t *NodeTraversal, node Node) {
 	var nameNode Node = node.getFirstChild()
-	if (nameNode != 0) {
+	if nameNode != 0 {
 		var name string = nameNode.getString()
 		Preconditions_checkState(!String_isEmpty(name))
 		var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
-		if (li != nil) {
+		if li != nil {
 			var newName string = this.getNameForId(li.id)
 			li.referenced = true
 			if !(name == newName) {
@@ -140,7 +140,7 @@ func (this *RenameLabels_ProcessLabels) visitLabel(t *NodeTraversal, node Node) 
 	Preconditions_checkState((nameNode != 0))
 	var name string = nameNode.getString()
 	var li *RenameLabels_LabelInfo = this.getLabelInfo(name)
-	if (li.referenced || !this.outer_.removeUnused) {
+	if li.referenced || !this.outer_.removeUnused {
 		var newName string = this.getNameForId(li.id)
 		if !(name == newName) {
 			nameNode.setString(newName)
@@ -172,7 +172,7 @@ func (this *RenameLabels_ProcessLabels) getLabelInfo(name string) *RenameLabels_
 
 type RenameLabels_LabelInfo struct {
 	referenced bool
-	id int32
+	id         int32
 }
 
 func (this *RenameLabels_LabelInfo) finit_RenameLabels_LabelInfo() {
@@ -207,4 +207,3 @@ func new_RenameLabels_LabelNamespace() *RenameLabels_LabelNamespace {
 	this.init_RenameLabels_LabelNamespace()
 	return this
 }
-

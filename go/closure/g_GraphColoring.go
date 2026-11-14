@@ -3,9 +3,9 @@
 package closure
 
 type GraphColoring struct {
-	self_ any
+	self_          any
 	colorToNodeMap []any
-	graph AdjacencyGraph
+	graph          AdjacencyGraph
 }
 
 func (this *GraphColoring) as_GraphColoring() *GraphColoring { return this }
@@ -37,7 +37,7 @@ func (this *GraphColoring) getPartitionSuperNode(node any) any {
 	Preconditions_checkNotNull_Object_Object(any(this.colorToNodeMap), strobj_("No coloring founded. color() should be called first."))
 	var color *GraphColoring_Color = cast_[*GraphColoring_Color](Annotatable_getAnnotation(Annotatable(this.graph.getNode(node))))
 	var headNode any = this.colorToNodeMap[color.value_]
-	if (headNode == nil) {
+	if headNode == nil {
 		this.colorToNodeMap[color.value_] = node
 		return node
 	} else {
@@ -85,7 +85,14 @@ func new_GraphColoring_Color(value int32) *GraphColoring_Color {
 func (this *GraphColoring_Color) equals(other any) bool {
 	var color *GraphColoring_Color
 	_ = color
-	if !(func() bool { v_ := other; if !is_[*GraphColoring_Color](v_) { return false }; color = cast_[*GraphColoring_Color](v_); return true }()) {
+	if !(func() bool {
+		v_ := other
+		if !is_[*GraphColoring_Color](v_) {
+			return false
+		}
+		color = cast_[*GraphColoring_Color](v_)
+		return true
+	}()) {
 		return false
 	} else {
 		return (this.value_ == color.value_)
@@ -136,7 +143,12 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 	var worklist ListOf[GraphNode] = icast_List(new_ArrayList_Collection(this.graph.getNodes()).self())
 	Collections_sort_List_Comparator(worklist, Comparator_comparing_Function_Comparator(&Function_fn{func(p0 any) any { return icast_GraphNode(p0).getValue() }}, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
-		return func() int32 { if ((result == 0) && (this.tieBreaker != nil)) { return this.tieBreaker.compare(leftProperty, rightProperty) }; return result }()
+		return func() int32 {
+			if (result == 0) && (this.tieBreaker != nil) {
+				return this.tieBreaker.compare(leftProperty, rightProperty)
+			}
+			return result
+		}()
 		panic("unreachable")
 	}}))
 	var count int32 = 0
@@ -160,4 +172,3 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 	this.colorToNodeMap = map_
 	return count
 }
-

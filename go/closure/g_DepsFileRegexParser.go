@@ -4,9 +4,9 @@ package closure
 
 type DepsFileRegexParser struct {
 	JsFileLineParser
-	depMatcher *Matcher_re2j
-	depArgsMatch *Matcher_re2j
-	depInfos ListOf[DependencyInfo]
+	depMatcher     *Matcher_re2j
+	depArgsMatch   *Matcher_re2j
+	depInfos       ListOf[DependencyInfo]
 	pathTranslator Function_baseOf[string, string]
 }
 
@@ -90,7 +90,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 				return Outcome_base_err(loadFlagsOutcome.error())
 			}
 			var loadFlags MapOf[string, string] = icast_Map(loadFlagsOutcome.get())
-			if ("es6" == str_(Map_get_s(loadFlags, "module"))) {
+			if "es6" == str_(Map_get_s(loadFlags, "module")) {
 				provides.add(strobj_(relativePath))
 			}
 			var requiresOutcome *Outcome_base = this.parseJsStringArray(this.depArgsMatch.group(3))
@@ -118,9 +118,9 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) *Immutab
 }
 
 func (this *DepsFileRegexParser) parseLoadFlags(loadFlags OptionalOf[string]) *Outcome_base {
-	if (loadFlags.isEmpty() || (str_(loadFlags.get()) == "false")) {
+	if loadFlags.isEmpty() || (str_(loadFlags.get()) == "false") {
 		return Outcome_base_ok_Object(obj_(ImmutableMap_of()))
-	} else if (str_(loadFlags.get()) == "true") {
+	} else if str_(loadFlags.get()) == "true" {
 		return Outcome_base_ok_Object(obj_(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog"))))
 	} else {
 		return this.parseJsStringMap(str_(loadFlags.get()))
@@ -140,4 +140,3 @@ func DepsFileRegexParser_clinit() {
 	DepsFileRegexParser_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DepsFileRegexParser").getName())
 
 }
-

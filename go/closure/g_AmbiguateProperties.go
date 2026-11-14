@@ -3,16 +3,16 @@
 package closure
 
 type AmbiguateProperties struct {
-	compiler_ *AbstractCompiler
-	stringNodesToRename []Node
-	reservedFirstCharacters SetOf[BoxedOf[uint16]]
+	compiler_                  *AbstractCompiler
+	stringNodesToRename        []Node
+	reservedFirstCharacters    SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
-	propertyMap MapOf[string, *AmbiguateProperties_Property]
-	externedNames ImmutableSetOf[string]
-	quotedNames SetOf[string]
-	colorRegistry *ColorRegistry
-	renamingMap MapOf[string, string]
-	graphNodeFactory *ColorGraphNodeFactory
+	propertyMap                MapOf[string, *AmbiguateProperties_Property]
+	externedNames              ImmutableSetOf[string]
+	quotedNames                SetOf[string]
+	colorRegistry              *ColorRegistry
+	renamingMap                MapOf[string, string]
+	graphNodeFactory           *ColorGraphNodeFactory
 }
 
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
@@ -72,7 +72,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		_ = subtype
 		var supertype *ColorGraphNode = cast_[*ColorGraphNode](supertype_)
 		_ = supertype
-		if (subtype.getSubtypeIndices().size() > supertype.getSubtypeIndices().size()) {
+		if subtype.getSubtypeIndices().size() > supertype.getSubtypeIndices().size() {
 			supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
 			return true
 		}
@@ -84,7 +84,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	it_4 := foreach_(any(this.propertyMap.values()))
 	for it_4.next() {
 		var prop *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](it_4.v)
-		if (prop.relatedColorsSeeds == nil) {
+		if prop.relatedColorsSeeds == nil {
 			continue
 		}
 		it_6 := foreach_(any(prop.relatedColorsSeeds.keySet()))
@@ -116,14 +116,14 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var numNewPropertyNames int32 = coloring.color()
 	var nameGen NameGenerator = icast_NameGenerator(obj_(new_DefaultNameGenerator_Set_String_Set_Set(icast_Set(obj_(reservedNames.build())), "", this.reservedFirstCharacters, this.reservedNonFirstCharacters)))
 	var colorMap []string = newstrarr_(numNewPropertyNames)
-	for i := int32(0); (i < numNewPropertyNames); i++ {
+	for i := int32(0); i < numNewPropertyNames; i++ {
 		colorMap[i] = nameGen.generateNextName()
 	}
 	it_11 := foreach_(any(icast_List(propertyGraph.getNodes())))
 	for it_11.next() {
 		var node *AmbiguateProperties_PropertyGraphNode = cast_[*AmbiguateProperties_PropertyGraphNode](it_11.v)
 		cast_[*AmbiguateProperties_Property](node.getValue()).newName = Optional_of(strobj_(colorMap[Object_hashCode(any(Annotatable_getAnnotation(icast_Annotatable(obj_(node)))))]))
-		if (this.renamingMap != nil) {
+		if this.renamingMap != nil {
 			Map_put_s(this.renamingMap, cast_[*AmbiguateProperties_Property](node.getValue()).oldName, cast_[*AmbiguateProperties_Property](node.getValue()).newName.orElse(nil))
 		}
 	}
@@ -132,7 +132,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var n Node = it_13.v
 		var oldName string = n.getString()
 		var p *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](Map_get_s(this.propertyMap, oldName))
-		if ((p != nil) && p.newName.isPresent()) {
+		if (p != nil) && p.newName.isPresent() {
 			Preconditions_checkState((oldName == p.oldName))
 			if !(str_(p.newName.get()) == oldName) {
 				n.setString(str_(p.newName.get()))
@@ -156,7 +156,7 @@ func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_P
 
 func (this *AmbiguateProperties) getColor(n Node) *Color {
 	var type_ *Color = n.getColor()
-	if (type_ == nil) {
+	if type_ == nil {
 		return StandardColors_UNKNOWN
 	} else {
 		return type_
@@ -180,7 +180,7 @@ func AmbiguateProperties_clinit() {
 		_ = p1
 		var p2 *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](p2_)
 		_ = p2
-		if (p1.numOccurrences != p2.numOccurrences) {
+		if p1.numOccurrences != p2.numOccurrences {
 			return (p2.numOccurrences - p1.numOccurrences)
 		}
 		return String_compareTo(p1.oldName, p2.oldName)
@@ -266,7 +266,7 @@ func (this *AmbiguateProperties_PropertySubGraph) addNode(prop_ any) {
 }
 
 type AmbiguateProperties_PropertyGraphNode struct {
-	property_ *AmbiguateProperties_Property
+	property_  *AmbiguateProperties_Property
 	annotation Annotation_graph
 }
 
@@ -325,7 +325,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit_impl(t *
 		this.processCall(n)
 		return
 	case Token_rhino_NAME:
-		if (NodeUtil_isNameDeclaration(parent) || parent.isFunction()) {
+		if NodeUtil_isNameDeclaration(parent) || parent.isFunction() {
 			this.outer_.graphNodeFactory.createNode(this.outer_.getColor(n))
 		}
 		return
@@ -345,7 +345,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit_impl(t *
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processGetProp(getProp Node) {
 	var type_ *Color = this.outer_.getColor(getProp.getFirstChild())
 	this.maybeMarkCandidate(getProp, type_)
-	if (NodeUtil_isLhsOfAssign(getProp) || NodeUtil_isStatement(getProp.getParent())) {
+	if NodeUtil_isLhsOfAssign(getProp) || NodeUtil_isStatement(getProp.getParent()) {
 		this.outer_.graphNodeFactory.createNode(type_)
 	}
 }
@@ -357,7 +357,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processCall(ca
 	}
 	if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(target) {
 		var propName Node = call.getSecondChild()
-		if ((propName == 0) || !propName.isStringLit()) {
+		if (propName == 0) || !propName.isStringLit() {
 			return
 		}
 		var p *AmbiguateProperties_Property = this.outer_.getProperty(propName.getString())
@@ -371,7 +371,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processCall(ca
 		}
 		{
 			var key Node = objectLiteral.getFirstChild()
-			for ; (key != 0); key = key.getNext() {
+			for ; key != 0; key = key.getNext() {
 				this.processObjectProperty(objectLiteral, key, type_)
 			}
 		}
@@ -398,13 +398,13 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectP
 }
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectLitOrPattern(objectLit Node) {
-	if (objectLit.getParent().isCall() && NodeUtil_isObjectDefinePropertiesDefinition(objectLit.getParent())) {
+	if objectLit.getParent().isCall() && NodeUtil_isObjectDefinePropertiesDefinition(objectLit.getParent()) {
 		return
 	}
 	var type_ *Color = this.outer_.getColor(objectLit)
 	{
 		var key Node = objectLit.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
+		for ; key != 0; key = key.getNext() {
 			this.processObjectProperty(objectLit, key, type_)
 		}
 	}
@@ -421,14 +421,19 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 	var classConstructorType *Color = this.outer_.getColor(classNode)
 	this.outer_.graphNodeFactory.createNode(classConstructorType)
 	var possiblePrototypes ImmutableSetOf[*Color] = classConstructorType.getPrototypes()
-	var classPrototype *Color = func() *Color { if possiblePrototypes.isEmpty() { return StandardColors_UNKNOWN }; return Color_createUnion(icast_Set(obj_(possiblePrototypes))) }()
+	var classPrototype *Color = func() *Color {
+		if possiblePrototypes.isEmpty() {
+			return StandardColors_UNKNOWN
+		}
+		return Color_createUnion(icast_Set(obj_(possiblePrototypes)))
+	}()
 	{
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
-		for ; (member != 0); member = member.getNext() {
+		for ; member != 0; member = member.getNext() {
 			if member.isQuotedStringKey() {
 				Collection_add_s(this.outer_.quotedNames, member.getString())
 				continue
-			} else if (member.isComputedProp() || member.isComputedFieldDef()) {
+			} else if member.isComputedProp() || member.isComputedFieldDef() {
 				if member.getFirstChild().isStringLit() {
 					Collection_add_s(this.outer_.quotedNames, member.getFirstChild().getString())
 				}
@@ -443,7 +448,12 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 				memberOwnerColor = classConstructorType
 			} else if member.isMemberFieldDef() {
 				var possibleInstances ImmutableSetOf[*Color] = classConstructorType.getInstanceColors()
-				memberOwnerColor = func() *Color { if possibleInstances.isEmpty() { return StandardColors_UNKNOWN }; return Color_createUnion(icast_Set(obj_(possibleInstances))) }()
+				memberOwnerColor = func() *Color {
+					if possibleInstances.isEmpty() {
+						return StandardColors_UNKNOWN
+					}
+					return Color_createUnion(icast_Set(obj_(possibleInstances)))
+				}()
 			} else {
 				Preconditions_checkState(((member.isMemberFunctionDef() || member.isGetterDef()) || member.isSetterDef()))
 				memberOwnerColor = classPrototype
@@ -468,13 +478,13 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) recordProperty
 }
 
 type AmbiguateProperties_Property struct {
-	outer_ *AmbiguateProperties
-	oldName string
-	newName OptionalOf[string]
-	numOccurrences int32
-	skipAmbiguating bool
+	outer_             *AmbiguateProperties
+	oldName            string
+	newName            OptionalOf[string]
+	numOccurrences     int32
+	skipAmbiguating    bool
 	relatedColorsSeeds LinkedHashMapOf[*ColorGraphNode, BoxedOf[int32]]
-	relatedColors *BitSet
+	relatedColors      *BitSet
 }
 
 func (this *AmbiguateProperties_Property) zero_AmbiguateProperties_Property() {
@@ -505,14 +515,13 @@ func (this *AmbiguateProperties_Property) addRelatedColor(color *Color) {
 		return
 	}
 	this.numOccurrences++
-	if (color.isInvalidating() || color.getPropertiesKeepOriginalName()) {
+	if color.isInvalidating() || color.getPropertiesKeepOriginalName() {
 		this.skipAmbiguating = true
 		return
 	}
-	if (this.relatedColorsSeeds == nil) {
+	if this.relatedColorsSeeds == nil {
 		this.relatedColorsSeeds = new_LinkedHashMap()
 	}
 	var newColorGraphNode *ColorGraphNode = this.outer_.graphNodeFactory.createNode(color)
 	this.relatedColorsSeeds.put(obj_(newColorGraphNode), any(int32(0)))
 }
-

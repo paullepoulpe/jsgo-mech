@@ -106,7 +106,12 @@ func FeatureSet_emptyEnumSet() *EnumSet {
 }
 
 func FeatureSet_enumSetOf(set SetOf[*FeatureSet_Feature]) *EnumSet {
-	return func() *EnumSet { if set.isEmpty() { return FeatureSet_emptyEnumSet() }; return EnumSet_copyOf(Collection(set)) }()
+	return func() *EnumSet {
+		if set.isEmpty() {
+			return FeatureSet_emptyEnumSet()
+		}
+		return EnumSet_copyOf(Collection(set))
+	}()
 }
 
 func FeatureSet_add(features SetOf[*FeatureSet_Feature], feature *FeatureSet_Feature) *EnumSet {
@@ -157,7 +162,14 @@ func (this *FeatureSet) getFeatures() *ImmutableSet {
 func (this *FeatureSet) equals(other any) bool {
 	var featureSet *FeatureSet
 	_ = featureSet
-	return (func() bool { v_ := other; if !is_[*FeatureSet](v_) { return false }; featureSet = cast_[*FeatureSet](v_); return true }() && Object_equals(obj_(featureSet.features_), obj_(this.features_)))
+	return (func() bool {
+		v_ := other
+		if !is_[*FeatureSet](v_) {
+			return false
+		}
+		featureSet = cast_[*FeatureSet](v_)
+		return true
+	}() && Object_equals(obj_(featureSet.features_), obj_(this.features_)))
 }
 
 func (this *FeatureSet) hashCode() int32 {
@@ -337,7 +349,7 @@ func (this *FeatureSet_LangVersion) features() *EnumSet {
 	it_1 := foreach_(obj_(EnumSet_allOf(classOf_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature"))))
 	for it_1.next() {
 		var feature *FeatureSet_Feature = cast_[*FeatureSet_Feature](it_1.v)
-		if (feature.version_ == this) {
+		if feature.version_ == this {
 			set.add(obj_(feature))
 		}
 	}
@@ -402,7 +414,7 @@ func FeatureSet_LangVersion_clinit() {
 type FeatureSet_Feature struct {
 	Enum
 	nameField string
-	version_ *FeatureSet_LangVersion
+	version_  *FeatureSet_LangVersion
 }
 
 func (this *FeatureSet_Feature) up_Enum() *Enum {
@@ -578,4 +590,3 @@ func FeatureSet_Feature_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.FeatureSet.Feature", enumValues_(FeatureSet_Feature_values_))
 
 }
-

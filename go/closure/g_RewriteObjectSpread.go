@@ -3,9 +3,9 @@
 package closure
 
 type RewriteObjectSpread struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	namespace_ StaticScope
+	compiler_       *AbstractCompiler
+	astFactory_     *AstFactory
+	namespace_      StaticScope
 	useJscompAssign bool
 }
 
@@ -42,7 +42,7 @@ func (this *RewriteObjectSpread) visit(t *NodeTraversal, n Node, parent Node) {
 func (this *RewriteObjectSpread) visitObject(obj Node) {
 	{
 		var child Node = obj.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isSpread() {
 				this.visitObjectWithSpread(obj)
 				return
@@ -53,18 +53,23 @@ func (this *RewriteObjectSpread) visitObject(obj Node) {
 
 func (this *RewriteObjectSpread) visitObjectWithSpread(obj Node) {
 	Preconditions_checkArgument(obj.isObjectLit())
-	var result Node = func() Node { if this.useJscompAssign { return this.astFactory_.createJscompAssignCall(this.namespace_, AstFactory_type_Node(obj), []Node{this.astFactory_.createObjectLit([]Node{})}) }; return this.astFactory_.createObjectDotAssignCall(this.namespace_, AstFactory_type_Node(obj), []Node{this.astFactory_.createObjectLit([]Node{})}) }()
+	var result Node = func() Node {
+		if this.useJscompAssign {
+			return this.astFactory_.createJscompAssignCall(this.namespace_, AstFactory_type_Node(obj), []Node{this.astFactory_.createObjectLit([]Node{})})
+		}
+		return this.astFactory_.createObjectDotAssignCall(this.namespace_, AstFactory_type_Node(obj), []Node{this.astFactory_.createObjectLit([]Node{})})
+	}()
 	var trailingObjectLiteral Node = 0
 	{
 		var child Node = obj.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
 			if child.isSpread() {
 				var spreaded Node = child.removeFirstChild()
 				result.addChildToBack(spreaded)
 				trailingObjectLiteral = 0
 			} else {
-				if (trailingObjectLiteral == 0) {
+				if trailingObjectLiteral == 0 {
 					trailingObjectLiteral = this.astFactory_.createObjectLit([]Node{})
 					result.addChildToBack(trailingObjectLiteral)
 				}
@@ -90,4 +95,3 @@ func RewriteObjectSpread_clinit() {
 	RewriteObjectSpread_transpiledFeatures = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_OBJECT_LITERALS_WITH_SPREAD)
 
 }
-

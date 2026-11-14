@@ -36,11 +36,11 @@ func (this *J2clStringValueOfRewriterPass) beginTraversal_impl(compiler *Abstrac
 }
 
 func (this *J2clStringValueOfRewriterPass) optimizeSubtree_impl(node Node) Node {
-	if (!this.shouldRunJ2clPasses || !J2clStringValueOfRewriterPass_isStringValueOfCall(node)) {
+	if !this.shouldRunJ2clPasses || !J2clStringValueOfRewriterPass_isStringValueOfCall(node) {
 		return node
 	}
 	var replacement Node = this.tryRewriteStringValueOfCall(node)
-	if (replacement != node) {
+	if replacement != node {
 		replacement = replacement.srcrefIfMissing(node)
 		node.replaceWith(replacement)
 		this.reportChangeToEnclosingScope(replacement)
@@ -52,7 +52,7 @@ func (this *J2clStringValueOfRewriterPass) tryRewriteStringValueOfCall(n Node) N
 	var param Node = n.getSecondChild()
 	if NodeUtil_isUndefined(param) {
 		return IR_string("null")
-	} else if (NodeUtil_isDefinedValue(param) && !param.isArrayLit()) {
+	} else if NodeUtil_isDefinedValue(param) && !param.isArrayLit() {
 		return NodeUtil_newCallNode(IR_name("String").srcref(n), []Node{param.detach()})
 	}
 	return n
@@ -67,4 +67,3 @@ func J2clStringValueOfRewriterPass_isStringValueOfMethodName(fnName Node) bool {
 }
 
 const J2clStringValueOfRewriterPass_METHOD_NAME string = "module$exports$java$lang$String$impl.m_valueOf__java_lang_Object__java_lang_String"
-

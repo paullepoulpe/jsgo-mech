@@ -85,4 +85,3 @@ func (this *CoverageInstrumenter_CompilerSupplier) setOptions_impl(options *Comp
 func (this *CoverageInstrumenter_CompilerSupplier) transformed_impl(result *Result) bool {
 	return true
 }
-

@@ -3,9 +3,9 @@
 package closure
 
 type LazyParsedDependencyInfo struct {
-	delegate DependencyInfo
-	ast *CompilerInput
-	compiler_ *AbstractCompiler
+	delegate   DependencyInfo
+	ast        *CompilerInput
+	compiler_  *AbstractCompiler
 	loadFlags_ ImmutableMapOf[string, string]
 }
 
@@ -30,14 +30,14 @@ func (this *LazyParsedDependencyInfo) isGoogModule() bool {
 }
 
 func (this *LazyParsedDependencyInfo) getLoadFlags() *ImmutableMap {
-	if (this.loadFlags_ == nil) {
+	if this.loadFlags_ == nil {
 		var loadFlagsBuilder MapOf[string, string] = icast_Map(obj_(new_TreeMap()))
 		var hadSourceInMemory bool = this.ast.getSourceFile().hasSourceInMemory()
 		loadFlagsBuilder.putAll(icast_Map(obj_(this.delegate.getLoadFlags())))
 		var features *FeatureSet = this.ast.getFeatures(this.compiler_)
 		if features.has(FeatureSet_Feature_MODULES) {
 			var previousModule OptionalOf[string] = Optional_ofNullable(Map_get_s(loadFlagsBuilder, "module"))
-			if (previousModule.isPresent() && !(str_(previousModule.get()) == "es6")) {
+			if previousModule.isPresent() && !(str_(previousModule.get()) == "es6") {
 				this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.getName())), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.getName()}))
 			}
 			Map_put_s(loadFlagsBuilder, "module", strobj_("es6"))
@@ -86,4 +86,3 @@ func (this *LazyParsedDependencyInfo) getHasNoCompileAnnotation() bool {
 func (this *LazyParsedDependencyInfo) getRequiredSymbols() *ImmutableList {
 	return DependencyInfo_getRequiredSymbols_default(icast_DependencyInfo(any(this)))
 }
-

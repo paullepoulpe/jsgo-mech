@@ -3,7 +3,7 @@
 package closure
 
 type CheckEs6Modules struct {
-	compiler_ *AbstractCompiler
+	compiler_        *AbstractCompiler
 	importSpecifiers MapOf[string, Node]
 }
 
@@ -51,7 +51,7 @@ func (this *CheckEs6Modules) shouldTraverse(t *NodeTraversal, n Node, parent Nod
 func (this *CheckEs6Modules) visitImport(t *NodeTraversal, importNode Node) {
 	var specifier string = importNode.getLastChild().getString()
 	var duplicateImport Node = Node_of_(Map_putIfAbsent_s(this.importSpecifiers, specifier, importNode.box_()))
-	if (duplicateImport != 0) {
+	if duplicateImport != 0 {
 		t.report(importNode, CheckEs6Modules_DUPLICATE_IMPORT, []string{specifier, ("" + istr_(int64(duplicateImport.getLineno()))), ("" + istr_(int64(duplicateImport.getCharno())))})
 	}
 }
@@ -80,4 +80,3 @@ func CheckEs6Modules_clinit() {
 	CheckEs6Modules_NO_DEFAULT_EXPORT = DiagnosticType_warning("JSC_DEFAULT_EXPORT", "Do not use the default export. There is no way to force consistent naming when imported.")
 
 }
-

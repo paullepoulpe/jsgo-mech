@@ -3,7 +3,7 @@
 package closure
 
 type CheckUnusedLabels struct {
-	compiler_ *AbstractCompiler
+	compiler_      *AbstractCompiler
 	currentContext *CheckUnusedLabels_LabelContext
 }
 
@@ -26,8 +26,8 @@ func (this *CheckUnusedLabels) shouldTraverse(t *NodeTraversal, n Node, parent N
 	case Token_rhino_BREAK, Token_rhino_CONTINUE:
 		if n.hasChildren() {
 			var temp *CheckUnusedLabels_LabelContext = this.currentContext
-			for (temp != nil) {
-				if (temp.name_ == n.getFirstChild().getString()) {
+			for temp != nil {
+				if temp.name_ == n.getFirstChild().getString() {
 					temp.used = true
 					break
 				}
@@ -43,7 +43,7 @@ func (this *CheckUnusedLabels) shouldTraverse(t *NodeTraversal, n Node, parent N
 }
 
 func (this *CheckUnusedLabels) visit(t *NodeTraversal, n Node, parent Node) {
-	if (n.isLabel() && (this.currentContext != nil)) {
+	if n.isLabel() && (this.currentContext != nil) {
 		if !this.currentContext.used {
 			t.report(n, CheckUnusedLabels_UNUSED_LABEL, []string{n.getFirstChild().getString()})
 		}
@@ -65,9 +65,9 @@ func CheckUnusedLabels_clinit() {
 }
 
 type CheckUnusedLabels_LabelContext struct {
-	name_ string
+	name_  string
 	parent *CheckUnusedLabels_LabelContext
-	used bool
+	used   bool
 }
 
 func (this *CheckUnusedLabels_LabelContext) zero_CheckUnusedLabels_LabelContext() {
@@ -85,4 +85,3 @@ func new_CheckUnusedLabels_LabelContext(name string, parent *CheckUnusedLabels_L
 	this.init_CheckUnusedLabels_LabelContext(name, parent)
 	return this
 }
-

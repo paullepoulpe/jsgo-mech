@@ -47,7 +47,7 @@ func ColorId_fromAscii(str string) *ColorId {
 func ColorId_fromBytesAt(source any, length int32, byteAt ColorId_ByteAt) *ColorId {
 	Preconditions_checkState_boolean_Object((length <= 8), any(int32(length)))
 	var rightAligned int64 = 0
-	for i := int32(0); (i < length); i++ {
+	for i := int32(0); i < length; i++ {
 		rightAligned = (rightAligned << 8)
 		rightAligned |= (int64(byteAt.get(source, i)) & 255)
 	}
@@ -55,7 +55,7 @@ func ColorId_fromBytesAt(source any, length int32, byteAt ColorId_ByteAt) *Color
 }
 
 func ColorId_union(ids SetOf[*ColorId]) *ColorId {
-	if (ids.size() <= 1) {
+	if ids.size() <= 1 {
 		return cast_[*ColorId](Iterables_getOnlyElement(Iterable(ids)))
 	}
 	var index int32 = 0
@@ -68,7 +68,7 @@ func ColorId_union(ids SetOf[*ColorId]) *ColorId {
 	}
 	Arrays_sort_longArr(sorted)
 	var hasher Hasher = ColorId_FARM_64.newHasher()
-	for i := int32(0); (i < int32(len(sorted))); i++ {
+	for i := int32(0); i < int32(len(sorted)); i++ {
 		hasher.putLong(sorted[i])
 	}
 	return new_ColorId(hasher.hash().asLong())
@@ -77,7 +77,14 @@ func ColorId_union(ids SetOf[*ColorId]) *ColorId {
 func (this *ColorId) equals(x any) bool {
 	var that *ColorId
 	_ = that
-	if !(func() bool { v_ := x; if !is_[*ColorId](v_) { return false }; that = cast_[*ColorId](v_); return true }()) {
+	if !(func() bool {
+		v_ := x
+		if !is_[*ColorId](v_) {
+			return false
+		}
+		that = cast_[*ColorId](v_)
+		return true
+	}()) {
 		return false
 	}
 	return (this.rightAligned == that.rightAligned)
@@ -90,7 +97,7 @@ func (this *ColorId) hashCode() int32 {
 func (this *ColorId) asByteString() *ByteString {
 	var copy_ int64 = this.rightAligned
 	var out []int8 = make([]int8, 8)
-	for i := int32(7); (i >= 0); i-- {
+	for i := int32(7); i >= 0; i-- {
 		out[i] = int8(copy_)
 		copy_ = int64(uint64(copy_) >> 8)
 	}
@@ -138,4 +145,3 @@ type ColorId_ByteAt_fn struct {
 func (this *ColorId_ByteAt_fn) get(p0 any, p1 int32) int8 {
 	return this.f(p0, p1)
 }
-

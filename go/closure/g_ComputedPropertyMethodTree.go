@@ -5,7 +5,7 @@ package closure
 type ComputedPropertyMethodTree struct {
 	ParseTree
 	property_ *ParseTree
-	method *ParseTree
+	method    *ParseTree
 }
 
 func (this *ComputedPropertyMethodTree) up_ParseTree() *ParseTree {
@@ -27,4 +27,3 @@ func new_ComputedPropertyMethodTree(location *SourceRange, property *ParseTree, 
 	this.init_ComputedPropertyMethodTree(location, property, method)
 	return this
 }
-

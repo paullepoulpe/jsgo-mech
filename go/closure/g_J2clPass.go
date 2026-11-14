@@ -3,7 +3,7 @@
 package closure
 
 type J2clPass struct {
-	compiler_ *AbstractCompiler
+	compiler_           *AbstractCompiler
 	safeNameIdSupplier_ SupplierOf[string]
 }
 
@@ -33,9 +33,9 @@ func (this *J2clPass) process_2(externs Node, root Node) {
 const J2clPass_ALL_CLASS_FILE_NAMES string = "*"
 
 type J2clPass_InlineSpec struct {
-	classFileName_ string
+	classFileName_   string
 	fnNamesToInline_ SetOf[string]
-	inliningMode_ *FunctionInjector_InliningMode
+	inliningMode_    *FunctionInjector_InliningMode
 }
 
 func (this *J2clPass_InlineSpec) zero_J2clPass_InlineSpec() {
@@ -88,11 +88,11 @@ func (this *J2clPass_InlineSpec) toString() string {
 }
 
 type J2clPass_ClassStaticFunctionsInliner struct {
-	outer_ *J2clPass
+	outer_                     *J2clPass
 	fnsToInlineByQualifiedName MapOf[string, *J2clPass_ClassStaticFunctionsInliner_InlinableFunction]
-	injector *FunctionInjector
-	root Node
-	inlineSpecs ListOf[*J2clPass_InlineSpec]
+	injector                   *FunctionInjector
+	root                       Node
+	inlineSpecs                ListOf[*J2clPass_InlineSpec]
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) finit_J2clPass_ClassStaticFunctionsInliner() {
@@ -135,7 +135,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourc
 	it_1 := foreach_(any(this.inlineSpecs))
 	for it_1.next() {
 		var inlineSpec *J2clPass_InlineSpec = cast_[*J2clPass_InlineSpec](it_1.v)
-		if ((inlineSpec.classFileName_ == J2clPass_ALL_CLASS_FILE_NAMES) || String_endsWith(sourceFileName, inlineSpec.classFileName_)) {
+		if (inlineSpec.classFileName_ == J2clPass_ALL_CLASS_FILE_NAMES) || String_endsWith(sourceFileName, inlineSpec.classFileName_) {
 			matchingSpecs.add(obj_(inlineSpec))
 		}
 	}
@@ -143,7 +143,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourc
 }
 
 type J2clPass_ClassStaticFunctionsInliner_InlinableFunction struct {
-	impl_ Node
+	impl_         Node
 	inliningMode_ *FunctionInjector_InliningMode
 }
 
@@ -186,7 +186,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) toString() s
 }
 
 type J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector struct {
-	outer_ *J2clPass_ClassStaticFunctionsInliner
+	outer_              *J2clPass_ClassStaticFunctionsInliner
 	currFileInlineSpecs ImmutableListOf[*J2clPass_InlineSpec]
 }
 
@@ -217,7 +217,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			return
 		}
 		var qualifiedNameNode Node = n.getFirstChild()
-		if (!qualifiedNameNode.isGetProp() || !qualifiedNameNode.isQualifiedName()) {
+		if !qualifiedNameNode.isGetProp() || !qualifiedNameNode.isQualifiedName() {
 			return
 		}
 		fnName = qualifiedNameNode.getString()
@@ -282,22 +282,21 @@ func (this *J2clPass_ClassStaticFunctionsInliner_StaticCallInliner) visit_impl(t
 		return
 	}
 	var qualifiedNameNode Node = n.getFirstChild()
-	if (!qualifiedNameNode.isGetProp() || !qualifiedNameNode.isQualifiedName()) {
+	if !qualifiedNameNode.isGetProp() || !qualifiedNameNode.isQualifiedName() {
 		return
 	}
 	var qualifiedFnName string = qualifiedNameNode.getQualifiedName()
 	var fn *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = cast_[*J2clPass_ClassStaticFunctionsInliner_InlinableFunction](Map_get_s(this.outer_.fnsToInlineByQualifiedName, qualifiedFnName))
-	if (fn == nil) {
+	if fn == nil {
 		return
 	}
 	var fnName string = qualifiedNameNode.getString()
 	var fnImpl Node = fn.impl()
 	var inliningMode *FunctionInjector_InliningMode = fn.inliningMode()
-	if ((inliningMode == FunctionInjector_InliningMode_DIRECT) && !NodeUtil_getFunctionBody(fnImpl).getFirstChild().isReturn()) {
+	if (inliningMode == FunctionInjector_InliningMode_DIRECT) && !NodeUtil_getFunctionBody(fnImpl).getFirstChild().isReturn() {
 		panic(new_IllegalStateException_String(("Attempted to direct inline function " + sstr_(qualifiedFnName) + ", but function is not a simple return.")).self())
 	}
 	var inlinedCall Node = this.outer_.injector.unsafeInline(new_FunctionInjector_Reference(n, t.getScope(), t.getChunk(), inliningMode), fnName, fnImpl)
 	inlinedCall.srcrefTree(n)
 	t.getCompiler().reportChangeToEnclosingScope(inlinedCall)
 }
-

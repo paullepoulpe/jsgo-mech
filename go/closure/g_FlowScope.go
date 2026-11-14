@@ -10,4 +10,3 @@ type FlowScope interface {
 	inferQualifiedSlot(Node, string, *JSType, *JSType, bool) FlowScope
 	getDeclarationScope() StaticTypedScope
 }
-

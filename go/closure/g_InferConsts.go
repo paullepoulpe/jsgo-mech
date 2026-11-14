@@ -38,9 +38,9 @@ func (this *InferConsts) considerVar(v *Var, refCollection *ReferenceCollection)
 	}
 	var nameNode Node = v.getNameNode()
 	var docInfo *JSDocInfo = v.getJSDocInfo()
-	if ((docInfo != nil) && docInfo.isConstant()) {
+	if (docInfo != nil) && docInfo.isConstant() {
 		nameNode.setDeclaredConstantVar(true)
-	} else if ((nameNode != 0) && nameNode.getParent().isConst()) {
+	} else if (nameNode != 0) && nameNode.getParent().isConst() {
 		nameNode.setDeclaredConstantVar(true)
 	}
 	if InferConsts_isInferredConst(v, refCollection) {
@@ -50,7 +50,7 @@ func (this *InferConsts) considerVar(v *Var, refCollection *ReferenceCollection)
 
 func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) bool {
 	var nameNode Node = v.getNameNode()
-	if (((nameNode == 0) || (refCollection == nil)) || !refCollection.isAssignedOnceInLifetime()) {
+	if ((nameNode == 0) || (refCollection == nil)) || !refCollection.isAssignedOnceInLifetime() {
 		return false
 	}
 	if v.isImplicitGoogNamespace() {
@@ -73,4 +73,3 @@ func InferConsts_isInferredConst(v *Var, refCollection *ReferenceCollection) boo
 		panic("unreachable")
 	}()
 }
-

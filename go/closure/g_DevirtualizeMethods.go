@@ -4,7 +4,7 @@ package closure
 
 type DevirtualizeMethods struct {
 	compiler_ *AbstractCompiler
-	refMap *OptimizeCalls_ReferenceMap
+	refMap    *OptimizeCalls_ReferenceMap
 }
 
 func (this *DevirtualizeMethods) init_DevirtualizeMethods(compiler *AbstractCompiler) {
@@ -68,7 +68,7 @@ func (this *DevirtualizeMethods) processReferenceList(name string, sites ListOf[
 func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) bool {
 	var parent Node = node.getParent()
 	var grandparent Node = node.getGrandparent()
-	if ((parent == 0) || (grandparent == 0)) {
+	if (parent == 0) || (grandparent == 0) {
 		return false
 	}
 	return func() bool {
@@ -82,7 +82,7 @@ func (this *DevirtualizeMethods) isPrototypeOrStaticMethodDefinition(node Node) 
 			}
 			return true
 		case Token_rhino_GETPROP:
-			if ((!node.isFirstChildOf(parent) || !NodeUtil_isExprAssign(grandparent)) || !parent.getLastChild().isFunction()) {
+			if (!node.isFirstChildOf(parent) || !NodeUtil_isExprAssign(grandparent)) || !parent.getLastChild().isFunction() {
 				return false
 			}
 			if NodeUtil_isPrototypeProperty(node) {
@@ -114,14 +114,14 @@ func (this *DevirtualizeMethods) isDefinitelyCtorOrInterface(receiver Node) bool
 		return false
 	}
 	var var_ *Var = cast_[*Var](this.refMap.getGlobalScope().getVar(qname).self())
-	if (var_ == nil) {
+	if var_ == nil {
 		return false
 	}
 	if var_.isClass() {
 		return true
 	}
 	var jsdoc *JSDocInfo = var_.getJSDocInfo()
-	if (jsdoc == nil) {
+	if jsdoc == nil {
 		return false
 	} else if jsdoc.isConstructorOrInterface() {
 		return true
@@ -185,11 +185,11 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 	}
 	{
 		var ancestor Node = definitionFunction.getParent()
-		for ; (ancestor != 0); ancestor = ancestor.getParent() {
+		for ; ancestor != 0; ancestor = ancestor.getParent() {
 			if DevirtualizeMethods_isScopingOrBranchingConstruct(ancestor) {
 				return false
 			}
-			if (ancestor.isClass() && DevirtualizeMethods_localNameIsDeclaredByClass(ancestor)) {
+			if ancestor.isClass() && DevirtualizeMethods_localNameIsDeclaredByClass(ancestor) {
 				return false
 			}
 		}
@@ -205,14 +205,14 @@ func (this *DevirtualizeMethods) isEligibleDefinitionFunction(definitionFunction
 
 func (this *DevirtualizeMethods) isEligibleCallSite(access Node, definitionSite Node) bool {
 	var invocation Node = access.getParent()
-	if (!NodeUtil_isInvocationTarget(access) || !invocation.isCall()) {
+	if !NodeUtil_isInvocationTarget(access) || !invocation.isCall() {
 		return false
 	}
 	var chunkGraph *JSChunkGraph = this.compiler_.getChunkGraph()
 	var definitionChunk *JSChunk = this.chunkForNode(definitionSite)
 	var callChunk *JSChunk = this.chunkForNode(access)
-	if (definitionChunk == callChunk) {
-	} else if (callChunk == nil) {
+	if definitionChunk == callChunk {
+	} else if callChunk == nil {
 		return false
 	} else if !chunkGraph.dependsOn(callChunk, definitionChunk) {
 		return false
@@ -293,12 +293,12 @@ func (this *DevirtualizeMethods) rewriteDefinition(definitionSite Node, newMetho
 }
 
 func (this *DevirtualizeMethods) replaceReferencesToThis(node Node, name string) {
-	if (((node.isFunction() && !node.isArrowFunction()) || node.isMemberFieldDef()) || NodeUtil_isClassStaticBlock(node)) {
+	if ((node.isFunction() && !node.isArrowFunction()) || node.isMemberFieldDef()) || NodeUtil_isClassStaticBlock(node) {
 		return
 	}
 	if node.isComputedFieldDef() {
 		var key Node = node.getFirstChild()
-		if (key != 0) {
+		if key != 0 {
 			if key.isThis() {
 				var newName Node = IR_name(name).srcref(key).copyTypeFrom(key)
 				key.replaceWith(newName)
@@ -311,7 +311,7 @@ func (this *DevirtualizeMethods) replaceReferencesToThis(node Node, name string)
 	}
 	{
 		var child Node = node.getFirstChild()
-		for (child != 0) {
+		for child != 0 {
 			var next Node = child.getNext()
 			if child.isThis() {
 				var newName Node = IR_name(name).srcref(child).copyTypeFrom(child)
@@ -348,4 +348,3 @@ func DevirtualizeMethods_localNameIsDeclaredByClass(clazz Node) bool {
 	}
 	return true
 }
-

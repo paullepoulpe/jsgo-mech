@@ -3,10 +3,10 @@
 package closure
 
 type DotFormatter struct {
-	assignments map[Node]BoxedOf[int32]
-	keyCount int32
-	builder Appendable
-	cfg *ControlFlowGraph
+	assignments      map[Node]BoxedOf[int32]
+	keyCount         int32
+	builder          Appendable
+	cfg              *ControlFlowGraph
 	printAnnotations bool
 }
 
@@ -57,20 +57,37 @@ func DotFormatter_toDot_Node_ControlFlowGraph(n Node, inCFG *ControlFlowGraph) s
 
 func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 	var builder *StringBuilder = new_StringBuilder()
-	builder.append(func() string { if graph.isDirected() { return "digraph" }; return "graph" }())
+	builder.append(func() string {
+		if graph.isDirected() {
+			return "digraph"
+		}
+		return "graph"
+	}())
 	builder.append(DotFormatter_INDENT)
 	builder.append(graph.getName())
 	builder.append(" {\n")
 	builder.append(DotFormatter_INDENT)
 	builder.append("node [color=lightblue2, style=filled];\n")
-	var edgeSymbol string = func() string { if graph.isDirected() { return DotFormatter_ARROW }; return DotFormatter_LINE }()
+	var edgeSymbol string = func() string {
+		if graph.isDirected() {
+			return DotFormatter_ARROW
+		}
+		return DotFormatter_LINE
+	}()
 	var nodes ListOf[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
 	var nodeNames []string = newstrarr_(nodes.size())
-	for i := int32(0); (i < int32(len(nodeNames))); i++ {
+	for i := int32(0); i < int32(len(nodeNames)); i++ {
 		var gNode GraphvizGraph_GraphvizNode = icast_GraphvizGraph_GraphvizNode(nodes.get(i))
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
-	func() { arr_2 := nodeNames; tmp_3 := arrmap_(arr_2, func(v_ string) any { return strobj_(v_) }); Arrays_sort(tmp_3); for i_ := range tmp_3 { arr_2[i_] = str_(tmp_3[i_]) } }()
+	func() {
+		arr_2 := nodeNames
+		tmp_3 := arrmap_(arr_2, func(v_ string) any { return strobj_(v_) })
+		Arrays_sort(tmp_3)
+		for i_ := range tmp_3 {
+			arr_2[i_] = str_(tmp_3[i_])
+		}
+	}()
 	for _, nodeName := range nodeNames {
 		builder.append(DotFormatter_INDENT)
 		builder.append(nodeName)
@@ -105,7 +122,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 	var keyParent int32 = this.key(parent)
 	{
 		var child Node = parent.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			var keyChild int32 = this.key(child)
 			this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
 			this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(any(int32(keyParent)))))
@@ -115,14 +132,14 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			this.traverseNodes(child)
 		}
 	}
-	if ((this.cfg != nil) && this.cfg.hasNode(parent.box_())) {
+	if (this.cfg != nil) && this.cfg.hasNode(parent.box_()) {
 		var outEdges ListOf[DiGraph_DiGraphEdge] = this.cfg.getOutEdges(parent.box_())
 		var edgeList []string = newstrarr_(outEdges.size())
-		for i := int32(0); (i < int32(len(edgeList))); i++ {
+		for i := int32(0); i < int32(len(edgeList)); i++ {
 			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(outEdges.get(i))
 			var succ DiGraph_DiGraphNode = edge.getDestination()
 			var toNode OptionalOf[string] = Optional_empty()
-			if (succ == this.cfg.getImplicitReturn()) {
+			if succ == this.cfg.getImplicitReturn() {
 				toNode = Optional_of(strobj_("RETURN"))
 			} else {
 				var keySucc int32 = this.key(Node_of_(succ.getValue()))
@@ -130,7 +147,14 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 			}
 			edgeList[i] = (sstr_(DotFormatter_formatNodeName(any(int32(keyParent)))) + sstr_(DotFormatter_ARROW) + sstr_(str_(toNode.orElse(strobj_("null")))) + " [label=\"" + objstr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
 		}
-		func() { arr_3 := edgeList; tmp_4 := arrmap_(arr_3, func(v_ string) any { return strobj_(v_) }); Arrays_sort(tmp_4); for i_ := range tmp_4 { arr_3[i_] = str_(tmp_4[i_]) } }()
+		func() {
+			arr_3 := edgeList
+			tmp_4 := arrmap_(arr_3, func(v_ string) any { return strobj_(v_) })
+			Arrays_sort(tmp_4)
+			for i_ := range tmp_4 {
+				arr_3[i_] = str_(tmp_4[i_])
+			}
+		}()
 		for _, element := range edgeList {
 			this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
 			this.builder.append_CharSequence(strobj_(element))
@@ -140,7 +164,7 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 
 func (this *DotFormatter) key(n Node) int32 {
 	var key any = this.assignments[n]
-	if (key == nil) {
+	if key == nil {
 		key = any(int32(this.keyCount))
 		this.keyCount++
 		this.assignments[n] = key
@@ -148,23 +172,23 @@ func (this *DotFormatter) key(n Node) int32 {
 		this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(key)))
 		this.builder.append_CharSequence(strobj_(" [label=\""))
 		this.builder.append_CharSequence(strobj_(Object_toString(obj_(n.getToken()))))
-		if ((((n.isName() || n.isStringLit()) || n.isGetProp()) || n.isImportStar()) || n.isStringKey()) {
+		if (((n.isName() || n.isStringLit()) || n.isGetProp()) || n.isImportStar()) || n.isStringKey() {
 			this.builder.append_CharSequence(strobj_(DotFormatter_getNodeLabel(n)))
 		}
 		var type_ *JSType = n.getJSType()
-		if (type_ != nil) {
+		if type_ != nil {
 			this.builder.append_CharSequence(strobj_(" : "))
 			this.builder.append_CharSequence(strobj_(type_.toString()))
 		}
-		if ((this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n.box_())) {
+		if (this.printAnnotations && (this.cfg != nil)) && this.cfg.hasNode(n.box_()) {
 			var annotation any = any(Annotatable_getAnnotation(Annotatable(this.cfg.getNode(n.box_()))))
-			if (annotation != nil) {
+			if annotation != nil {
 				this.builder.append_CharSequence(strobj_("\\n"))
 				this.builder.append_CharSequence(strobj_(Object_toString(annotation)))
 			}
 		}
 		this.builder.append_CharSequence(strobj_("\""))
-		if (n.getJSDocInfo() != nil) {
+		if n.getJSDocInfo() != nil {
 			this.builder.append_CharSequence(strobj_(" color=\"green\""))
 		}
 		this.builder.append_CharSequence(strobj_("];\n"))
@@ -174,7 +198,7 @@ func (this *DotFormatter) key(n Node) int32 {
 
 func DotFormatter_getNodeLabel(n Node) string {
 	var content string = n.getString()
-	if (String_length(content) > DotFormatter_MAX_LABEL_NAME_LENGTH) {
+	if String_length(content) > DotFormatter_MAX_LABEL_NAME_LENGTH {
 		content = String_substring(content, 0, DotFormatter_MAX_LABEL_NAME_LENGTH)
 	}
 	if !String_isEmpty(content) {
@@ -201,4 +225,3 @@ const DotFormatter_INDENT string = "  "
 const DotFormatter_ARROW string = " -> "
 const DotFormatter_LINE string = " -- "
 const DotFormatter_MAX_LABEL_NAME_LENGTH int32 = 10
-

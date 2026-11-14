@@ -3,13 +3,13 @@
 package closure
 
 type RandomNameGenerator struct {
-	firstChars ImmutableSetOf[BoxedOf[uint16]]
-	nonFirstChars ImmutableSetOf[BoxedOf[uint16]]
-	random *Random
-	reservedNames ImmutableSetOf[string]
-	prefix_ string
-	nameCount int32
-	shuffledFirst string
+	firstChars       ImmutableSetOf[BoxedOf[uint16]]
+	nonFirstChars    ImmutableSetOf[BoxedOf[uint16]]
+	random           *Random
+	reservedNames    ImmutableSetOf[string]
+	prefix_          string
+	nameCount        int32
+	shuffledFirst    string
 	shuffledNonFirst ImmutableListOf[string]
 }
 
@@ -73,15 +73,20 @@ func (this *RandomNameGenerator) clone(reservedNames SetOf[string], prefix strin
 }
 
 func RandomNameGenerator_asSet(chars []uint16) *ImmutableSet {
-	return func() *ImmutableSet { if (chars == nil) { return ImmutableSet_of() }; return ImmutableSet_copyOf(Collection(Chars_asList(chars))) }()
+	return func() *ImmutableSet {
+		if chars == nil {
+			return ImmutableSet_of()
+		}
+		return ImmutableSet_copyOf(Collection(Chars_asList(chars)))
+	}()
 }
 
 func (this *RandomNameGenerator) checkPrefix(prefix string) {
-	if (String_length(prefix) > 0) {
+	if String_length(prefix) > 0 {
 		if !this.firstChars.contains(any(uint16(String_charAt(prefix, 0)))) {
 			panic(new_IllegalArgumentException_String(("prefix must start with one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.firstChars)))))).self())
 		}
-		for pos := int32(1); (pos < String_length(prefix)); pos++ {
+		for pos := int32(1); pos < String_length(prefix); pos++ {
 			if !this.nonFirstChars.contains(any(uint16(String_charAt(prefix, pos)))) {
 				panic(new_IllegalArgumentException_String(("prefix has invalid characters, must be one of: " + sstr_(Joiner_on(", ").join(icast_Iterable(obj_(this.nonFirstChars)))))).self())
 			}
@@ -98,7 +103,7 @@ func RandomNameGenerator_shuffleAndCopyAlphabet(input SetOf[BoxedOf[uint16]], ra
 func (this *RandomNameGenerator) shuffleAlphabets() {
 	this.shuffledFirst = RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.firstChars)), this.random)
 	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
-	for i := int32(0); (i < RandomNameGenerator_NUM_SHUFFLES); i++ {
+	for i := int32(0); i < RandomNameGenerator_NUM_SHUFFLES; i++ {
 		builder.add(strobj_(RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.nonFirstChars)), this.random)))
 	}
 	this.shuffledNonFirst = cast_[*ImmutableList](obj_(builder.build()))
@@ -109,7 +114,12 @@ func (this *RandomNameGenerator) getNameLength(position int32, nameIdx int32) in
 	nameIdx++
 	for do_2 := true; do_2; do_2 = (nameIdx > 0) {
 		nameIdx--
-		var alphabetSize int32 = func() int32 { if (position == 0) { return this.firstChars.size() }; return this.nonFirstChars.size() }()
+		var alphabetSize int32 = func() int32 {
+			if position == 0 {
+				return this.firstChars.size()
+			}
+			return this.nonFirstChars.size()
+		}()
 		nameIdx /= alphabetSize
 		position++
 		length++
@@ -124,7 +134,7 @@ func (this *RandomNameGenerator) generateSuffix(position int32, nameIdx int32) s
 	for do_2 := true; do_2; do_2 = (nameIdx > 0) {
 		nameIdx--
 		var alphabet string
-		if (position == 0) {
+		if position == 0 {
 			alphabet = this.shuffledFirst
 		} else {
 			var hasher Hasher = Hashing_murmur3_128().newHasher()
@@ -146,7 +156,7 @@ func (this *RandomNameGenerator) generateNextName() string {
 	for {
 		var name string = (sstr_(this.prefix_) + sstr_(this.generateSuffix(String_length(this.prefix_), this.nameCount)))
 		this.nameCount++
-		if ((TokenStream_isKeyword(name) || Collection_contains_s(this.reservedNames, name)) || DefaultNameGenerator_isBadName(name)) {
+		if (TokenStream_isKeyword(name) || Collection_contains_s(this.reservedNames, name)) || DefaultNameGenerator_isBadName(name) {
 			continue
 		}
 		return name
@@ -156,6 +166,7 @@ func (this *RandomNameGenerator) generateNextName() string {
 
 var RandomNameGenerator_FIRST_CHAR *ImmutableSet
 var RandomNameGenerator_NONFIRST_CHAR *ImmutableSet
+
 const RandomNameGenerator_NUM_SHUFFLES int32 = 16
 
 var RandomNameGenerator_clinit_done bool
@@ -169,4 +180,3 @@ func RandomNameGenerator_clinit() {
 	RandomNameGenerator_NONFIRST_CHAR = RandomNameGenerator_asSet(DefaultNameGenerator_NONFIRST_CHAR)
 
 }
-

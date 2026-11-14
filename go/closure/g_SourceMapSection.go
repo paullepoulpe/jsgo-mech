@@ -3,9 +3,9 @@
 package closure
 
 type SourceMapSection struct {
-	type__ *SourceMapSection_SectionType
-	value_ string
-	line_ int32
+	type__  *SourceMapSection_SectionType
+	value_  string
+	line_   int32
 	column_ int32
 }
 
@@ -140,4 +140,3 @@ func SourceMapSection_SectionType_clinit() {
 	registerEnum_("com.google.debugging.sourcemap.SourceMapSection.SectionType", enumValues_(SourceMapSection_SectionType_values_))
 
 }
-

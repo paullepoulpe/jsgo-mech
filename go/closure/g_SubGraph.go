@@ -6,4 +6,3 @@ type SubGraph interface {
 	isIndependentOf(any) bool
 	addNode(any)
 }
-

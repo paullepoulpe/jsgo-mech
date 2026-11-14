@@ -3,10 +3,10 @@
 package closure
 
 type EqualityChecker struct {
-	eqMethod *EqualityChecker_EqMethod
-	eqCache LinkedHashMapOf[*EqualityChecker_CacheKey, *JSType_MatchStatus]
+	eqMethod       *EqualityChecker_EqMethod
+	eqCache        LinkedHashMapOf[*EqualityChecker_CacheKey, *JSType_MatchStatus]
 	recursionDepth int32
-	hasRun bool
+	hasRun         bool
 }
 
 func (this *EqualityChecker) finit_EqualityChecker() {
@@ -48,12 +48,12 @@ func (this *EqualityChecker) checkParameters(left *ArrowType, right *ArrowType) 
 }
 
 func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
-	if (this.recursionDepth > EqualityChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH) {
-		if (this.eqCache == nil) {
+	if this.recursionDepth > EqualityChecker_POTENTIALLY_CYCLIC_RECURSION_DEPTH {
+		if this.eqCache == nil {
 			this.eqCache = new_LinkedHashMap()
 		}
 	}
-	if (this.eqCache == nil) {
+	if this.eqCache == nil {
 		var ret_1 bool
 		code_1 := func() (code_ int) {
 			defer func() {
@@ -70,12 +70,12 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 	}
 	var key *EqualityChecker_CacheKey = new_EqualityChecker_CacheKey(left, right)
 	var cached *JSType_MatchStatus = cast_[*JSType_MatchStatus](Map_putIfAbsent(icast_Map(obj_(this.eqCache)), obj_(key), obj_(JSType_MatchStatus_PROCESSING)))
-	if (cached == nil) {
+	if cached == nil {
 		var result bool = this.areEqualInternal(left, right)
 		this.eqCache.put(obj_(key), obj_(JSType_MatchStatus_valueOfBoolean(result)))
 		return result
 	}
-	if (cached == JSType_MatchStatus_PROCESSING) {
+	if cached == JSType_MatchStatus_PROCESSING {
 		this.eqCache.put(obj_(key), obj_(JSType_MatchStatus_MATCH))
 		return true
 	}
@@ -85,55 +85,69 @@ func (this *EqualityChecker) areEqualCaching(left *JSType, right *JSType) bool {
 func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool {
 	if JSCompObjects_identical(left.self(), right.self()) {
 		return true
-	} else if ((left == nil) || (right == nil)) {
+	} else if (left == nil) || (right == nil) {
 		return false
 	}
-	if (left.isNoResolvedType() && right.isNoResolvedType()) {
+	if left.isNoResolvedType() && right.isNoResolvedType() {
 		return Object_equals(obj_(left.toObjectType().getReferenceName()), obj_(right.toObjectType().getReferenceName()))
 	}
 	var leftUnknown bool = left.isUnknownType()
 	var rightUnknown bool = right.isUnknownType()
-	if (leftUnknown || rightUnknown) {
-		if (this.eqMethod == EqualityChecker_EqMethod_DATA_FLOW) {
+	if leftUnknown || rightUnknown {
+		if this.eqMethod == EqualityChecker_EqMethod_DATA_FLOW {
 			return (leftUnknown && rightUnknown)
-		} else if ((leftUnknown && rightUnknown) && (left.isNominalType() != right.isNominalType())) {
+		} else if (leftUnknown && rightUnknown) && (left.isNominalType() != right.isNominalType()) {
 			return false
 		}
 	}
-	if (left.isUnionType() && right.isUnionType()) {
+	if left.isUnionType() && right.isUnionType() {
 		return this.areUnionEqual(left.toMaybeUnionType(), right.toMaybeUnionType())
 	} else if left.isUnionType() {
 		var leftAlts ImmutableListOf[*JSType] = left.toMaybeUnionType().getAlternates()
-		if (leftAlts.size() == 1) {
+		if leftAlts.size() == 1 {
 			return this.areEqualInternal(to_JSType(leftAlts.get(0)), right)
 		}
 	} else if right.isUnionType() {
 		var rightAlts ImmutableListOf[*JSType] = right.toMaybeUnionType().getAlternates()
-		if (rightAlts.size() == 1) {
+		if rightAlts.size() == 1 {
 			return this.areEqualInternal(left, to_JSType(rightAlts.get(0)))
 		}
 	}
-	if (left.isFunctionType() && right.isFunctionType()) {
+	if left.isFunctionType() && right.isFunctionType() {
 		return this.areFunctionEqual(left.toMaybeFunctionType(), right.toMaybeFunctionType())
 	}
 	var leftArrow *ArrowType
 	_ = leftArrow
 	var rightArrow *ArrowType
 	_ = rightArrow
-	if (func() bool { v_ := left.self(); if !is_[*ArrowType](v_) { return false }; leftArrow = cast_[*ArrowType](v_); return true }() && func() bool { v_ := right.self(); if !is_[*ArrowType](v_) { return false }; rightArrow = cast_[*ArrowType](v_); return true }()) {
+	if func() bool {
+		v_ := left.self()
+		if !is_[*ArrowType](v_) {
+			return false
+		}
+		leftArrow = cast_[*ArrowType](v_)
+		return true
+	}() && func() bool {
+		v_ := right.self()
+		if !is_[*ArrowType](v_) {
+			return false
+		}
+		rightArrow = cast_[*ArrowType](v_)
+		return true
+	}() {
 		return this.areArrowEqual(leftArrow, rightArrow)
 	}
 	if !this.areTypeMapEqual(left.getTemplateTypeMap(), right.getTemplateTypeMap()) {
 		return false
 	}
-	if (left.isRecordType() && right.isRecordType()) {
+	if left.isRecordType() && right.isRecordType() {
 		return this.areRecordEqual(left.toMaybeRecordType(), right.toMaybeRecordType())
 	}
-	if (left.isNominalType() && right.isNominalType()) {
+	if left.isNominalType() && right.isNominalType() {
 		var leftUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(left.toObjectType())
 		var rightUnwrapped *ObjectType = EqualityChecker_unwrapNominalTypeProxies(right.toObjectType())
 		Preconditions_checkState((leftUnwrapped.isNominalType() && rightUnwrapped.isNominalType()))
-		if (left.isResolved() && right.isResolved()) {
+		if left.isResolved() && right.isResolved() {
 			return JSCompObjects_identical(leftUnwrapped.self(), rightUnwrapped.self())
 		} else {
 			var nameOfleft string = str_(leftUnwrapped.getReferenceName().orElseThrow())
@@ -145,12 +159,26 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 	}
 	var proxyObjectType *ProxyObjectType
 	_ = proxyObjectType
-	if (func() bool { v_ := left.self(); if !is_ProxyObjectType(v_) { return false }; proxyObjectType = to_ProxyObjectType(v_); return true }() && !is_[*TemplateType](left.self())) {
+	if func() bool {
+		v_ := left.self()
+		if !is_ProxyObjectType(v_) {
+			return false
+		}
+		proxyObjectType = to_ProxyObjectType(v_)
+		return true
+	}() && !is_[*TemplateType](left.self()) {
 		return this.areEqualCaching(proxyObjectType.getReferencedTypeInternal(), right)
 	}
 	var proxyObjectType_1 *ProxyObjectType
 	_ = proxyObjectType_1
-	if (func() bool { v_ := right.self(); if !is_ProxyObjectType(v_) { return false }; proxyObjectType_1 = to_ProxyObjectType(v_); return true }() && !is_[*TemplateType](right.self())) {
+	if func() bool {
+		v_ := right.self()
+		if !is_ProxyObjectType(v_) {
+			return false
+		}
+		proxyObjectType_1 = to_ProxyObjectType(v_)
+		return true
+	}() && !is_[*TemplateType](right.self()) {
 		return this.areEqualCaching(left, proxyObjectType_1.getReferencedTypeInternal())
 	}
 	return false
@@ -159,13 +187,13 @@ func (this *EqualityChecker) areEqualInternal(left *JSType, right *JSType) bool 
 func (this *EqualityChecker) areUnionEqual(left *UnionType, right *UnionType) bool {
 	var leftAlternates ImmutableListOf[*JSType] = left.getAlternates()
 	var rightAlternates ImmutableListOf[*JSType] = right.getAlternates()
-	if ((this.eqMethod == EqualityChecker_EqMethod_IDENTITY) && (leftAlternates.size() != rightAlternates.size())) {
+	if (this.eqMethod == EqualityChecker_EqMethod_IDENTITY) && (leftAlternates.size() != rightAlternates.size()) {
 		return false
 	}
-	outer_:
-	for i := int32(0); (i < rightAlternates.size()); i++ {
+outer_:
+	for i := int32(0); i < rightAlternates.size(); i++ {
 		var rightAlt *JSType = to_JSType(rightAlternates.get(i))
-		for k := int32(0); (k < leftAlternates.size()); k++ {
+		for k := int32(0); k < leftAlternates.size(); k++ {
 			var leftAlt *JSType = to_JSType(leftAlternates.get(k))
 			if this.areEqualCaching(leftAlt, rightAlt) {
 				continue outer_
@@ -179,10 +207,17 @@ func (this *EqualityChecker) areUnionEqual(left *UnionType, right *UnionType) bo
 func EqualityChecker_getGoogModuleId(type_ *ObjectType) string {
 	var functionType *FunctionType
 	_ = functionType
-	if func() bool { v_ := type_.self(); if !is_FunctionType(v_) { return false }; functionType = to_FunctionType(v_); return true }() {
+	if func() bool {
+		v_ := type_.self()
+		if !is_FunctionType(v_) {
+			return false
+		}
+		functionType = to_FunctionType(v_)
+		return true
+	}() {
 		return functionType.getGoogModuleId()
 	}
-	if (type_.getConstructor() != nil) {
+	if type_.getConstructor() != nil {
 		return type_.getConstructor().getGoogModuleId()
 	}
 	return ""
@@ -213,27 +248,27 @@ func (this *EqualityChecker) areArrowEqual(left *ArrowType, right *ArrowType) bo
 }
 
 func (this *EqualityChecker) areArrowParameterEqual(left *ArrowType, right *ArrowType) bool {
-	if (left.getParameterList().size() != right.getParameterList().size()) {
+	if left.getParameterList().size() != right.getParameterList().size() {
 		return false
 	}
-	for i := int32(0); (i < left.getParameterList().size()); i++ {
+	for i := int32(0); i < left.getParameterList().size(); i++ {
 		var leftParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](left.getParameterList().get(i))
 		var rightParam *FunctionType_Parameter = cast_[*FunctionType_Parameter](right.getParameterList().get(i))
 		var leftParamType *JSType = leftParam.getJSType()
 		var rightParamType *JSType = rightParam.getJSType()
-		if (leftParamType != nil) {
-			if ((rightParamType != nil) && !this.areEqualCaching(leftParamType, rightParamType)) {
+		if leftParamType != nil {
+			if (rightParamType != nil) && !this.areEqualCaching(leftParamType, rightParamType) {
 				return false
 			}
 		} else {
-			if (rightParamType != nil) {
+			if rightParamType != nil {
 				return false
 			}
 		}
-		if (leftParam.isOptional() != rightParam.isOptional()) {
+		if leftParam.isOptional() != rightParam.isOptional() {
 			return false
 		}
-		if (leftParam.isVariadic() != rightParam.isVariadic()) {
+		if leftParam.isVariadic() != rightParam.isVariadic() {
 			return false
 		}
 	}
@@ -261,17 +296,27 @@ func (this *EqualityChecker) areTypeMapEqual(left *TemplateTypeMap, right *Templ
 	var leftValues ImmutableListOf[*JSType] = left.getTemplateValues()
 	var rightKeys ImmutableListOf[*TemplateType] = right.getTemplateKeys()
 	var rightValues ImmutableListOf[*JSType] = right.getTemplateValues()
-	outer_:
-	for i := int32(0); (i < leftKeys.size()); i++ {
+outer_:
+	for i := int32(0); i < leftKeys.size(); i++ {
 		var leftKey *TemplateType = cast_[*TemplateType](leftKeys.get(i))
-		inner_:
-		for j := int32(0); (j < rightKeys.size()); j++ {
+	inner_:
+		for j := int32(0); j < rightKeys.size(); j++ {
 			var rightKey *TemplateType = cast_[*TemplateType](rightKeys.get(j))
 			if !JSCompObjects_identical(obj_(leftKey), obj_(rightKey)) {
 				continue inner_
 			}
-			var leftValue *JSType = func() *JSType { if (i < leftValues.size()) { return to_JSType(leftValues.get(i)) }; return left.defaultValueType(leftKey) }()
-			var rightValue *JSType = func() *JSType { if (j < rightValues.size()) { return to_JSType(rightValues.get(j)) }; return right.defaultValueType(rightKey) }()
+			var leftValue *JSType = func() *JSType {
+				if i < leftValues.size() {
+					return to_JSType(leftValues.get(i))
+				}
+				return left.defaultValueType(leftKey)
+			}()
+			var rightValue *JSType = func() *JSType {
+				if j < rightValues.size() {
+					return to_JSType(rightValues.get(j))
+				}
+				return right.defaultValueType(rightKey)
+			}()
 			if this.areEqualCaching(leftValue, rightValue) {
 				continue outer_
 			}
@@ -282,10 +327,15 @@ func (this *EqualityChecker) areTypeMapEqual(left *TemplateTypeMap, right *Templ
 }
 
 func EqualityChecker_unwrapNominalTypeProxies(objType *ObjectType) *ObjectType {
-	if (!objType.isResolved() || (!objType.isNamedType() && !objType.isTemplatizedType())) {
+	if !objType.isResolved() || (!objType.isNamedType() && !objType.isTemplatizedType()) {
 		return objType
 	}
-	var internal *ObjectType = func() *ObjectType { if objType.isNamedType() { return objType.toMaybeNamedType().getReferencedObjTypeInternal() }; return objType.toMaybeTemplatizedType().getReferencedObjTypeInternal() }()
+	var internal *ObjectType = func() *ObjectType {
+		if objType.isNamedType() {
+			return objType.toMaybeNamedType().getReferencedObjTypeInternal()
+		}
+		return objType.toMaybeTemplatizedType().getReferencedObjTypeInternal()
+	}()
 	return EqualityChecker_unwrapNominalTypeProxies(internal)
 }
 
@@ -345,8 +395,8 @@ func EqualityChecker_EqMethod_clinit() {
 }
 
 type EqualityChecker_CacheKey struct {
-	left *JSType
-	right *JSType
+	left          *JSType
+	right         *JSType
 	hashCodeField int32
 }
 
@@ -373,4 +423,3 @@ func (this *EqualityChecker_CacheKey) equals(other any) bool {
 	}
 	return bor_(band_(JSCompObjects_identical(this.left.self(), right.left.self()), JSCompObjects_identical(this.right.self(), right.right.self())), band_(JSCompObjects_identical(this.left.self(), right.right.self()), JSCompObjects_identical(this.right.self(), right.left.self())))
 }
-

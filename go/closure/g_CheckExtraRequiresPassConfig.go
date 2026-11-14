@@ -44,4 +44,3 @@ func (this *CheckExtraRequiresPassConfig) getChecks_impl() *PassListBuilder {
 func (this *CheckExtraRequiresPassConfig) getOptimizations_impl() *PassListBuilder {
 	return new_PassListBuilder(this.options_)
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type ClosureRequireProcessor struct {
 	nameDeclaration Node
-	requireKind *Binding_CreatedBy
+	requireKind     *Binding_CreatedBy
 }
 
 func (this *ClosureRequireProcessor) init_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_CreatedBy) {
@@ -20,16 +20,21 @@ func new_ClosureRequireProcessor(nameDeclaration Node, requireKind *Binding_Crea
 }
 
 func ClosureRequireProcessor_getAllRequires(nameDeclaration Node) *ImmutableList {
-	var rhs Node = func() Node { if nameDeclaration.getFirstChild().isDestructuringLhs() { return nameDeclaration.getFirstChild().getSecondChild() }; return nameDeclaration.getFirstFirstChild() }()
+	var rhs Node = func() Node {
+		if nameDeclaration.getFirstChild().isDestructuringLhs() {
+			return nameDeclaration.getFirstChild().getSecondChild()
+		}
+		return nameDeclaration.getFirstFirstChild()
+	}()
 	var requireKind *Binding_CreatedBy = ClosureRequireProcessor_getModuleDependencyTypeFromRhs(rhs)
-	if (requireKind == nil) {
+	if requireKind == nil {
 		return ImmutableList_of()
 	}
 	return new_ClosureRequireProcessor(nameDeclaration, requireKind).getAllRequiresInDeclaration()
 }
 
 func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) *Binding_CreatedBy {
-	if ((((value == 0) || !value.isCall()) || !value.hasTwoChildren()) || !value.getSecondChild().isStringLit()) {
+	if (((value == 0) || !value.isCall()) || !value.hasTwoChildren()) || !value.getSecondChild().isStringLit() {
 		return nil
 	}
 	var callee Node = value.getFirstChild()
@@ -37,14 +42,19 @@ func ClosureRequireProcessor_getModuleDependencyTypeFromRhs(value Node) *Binding
 		return nil
 	}
 	var owner Node = callee.getFirstChild()
-	if (!owner.isName() || !(owner.getString() == "goog")) {
+	if !owner.isName() || !(owner.getString() == "goog") {
 		return nil
 	}
 	return cast_[*Binding_CreatedBy](Map_get_s(ClosureRequireProcessor_GOOG_DEPENDENCY_CALLS, callee.getString()))
 }
 
 func (this *ClosureRequireProcessor) getAllRequiresInDeclaration() *ImmutableList {
-	var rhs Node = func() Node { if this.nameDeclaration.getFirstChild().isDestructuringLhs() { return this.nameDeclaration.getFirstChild().getSecondChild() }; return this.nameDeclaration.getFirstFirstChild() }()
+	var rhs Node = func() Node {
+		if this.nameDeclaration.getFirstChild().isDestructuringLhs() {
+			return this.nameDeclaration.getFirstChild().getSecondChild()
+		}
+		return this.nameDeclaration.getFirstFirstChild()
+	}()
 	var namespace string = rhs.getSecondChild().getString()
 	if this.nameDeclaration.getFirstChild().isName() {
 		var lhs Node = this.nameDeclaration.getFirstChild()
@@ -63,7 +73,7 @@ func (this *ClosureRequireProcessor) getAllRequiresFromDestructuring(objectPatte
 	var requireBuilder ImmutableList_BuilderOf[*ClosureRequireProcessor_Require] = ImmutableList_builder()
 	{
 		var key Node = objectPattern.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
+		for ; key != 0; key = key.getNext() {
 			if !key.isStringKey() {
 				continue
 			}
@@ -91,9 +101,9 @@ func ClosureRequireProcessor_clinit() {
 }
 
 type ClosureRequireProcessor_Require struct {
-	localName_ string
+	localName_    string
 	importRecord_ *Import
-	createdBy_ *Binding_CreatedBy
+	createdBy_    *Binding_CreatedBy
 }
 
 func (this *ClosureRequireProcessor_Require) zero_ClosureRequireProcessor_Require() {
@@ -151,4 +161,3 @@ func (this *ClosureRequireProcessor_Require) hashCode() int32 {
 func (this *ClosureRequireProcessor_Require) toString() string {
 	return "Require[" + "localName=" + objstr_(strobj_(this.localName_)) + ", importRecord=" + objstr_(obj_(this.importRecord_)) + ", createdBy=" + objstr_(obj_(this.createdBy_)) + "]"
 }
-

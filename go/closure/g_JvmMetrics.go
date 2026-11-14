@@ -49,13 +49,13 @@ func JvmMetrics_maybeWriteJvmMetrics(out *Output, options OptionalOf[string]) {
 }
 
 func JvmMetrics_writeMetrics(out *Output, type_ string, verbose bool, pretty bool) {
-	if ((type_ == "gc") || String_equalsIgnoreCase(type_, "all")) {
+	if (type_ == "gc") || String_equalsIgnoreCase(type_, "all") {
 		JvmMetrics_writeGarbageCollectionStats(out, verbose, pretty)
 	}
-	if ((type_ == "mem") || String_equalsIgnoreCase(type_, "all")) {
+	if (type_ == "mem") || String_equalsIgnoreCase(type_, "all") {
 		JvmMetrics_writeMemoryMetrics(out, verbose, pretty)
 	}
-	if ((type_ == "jit") || String_equalsIgnoreCase(type_, "all")) {
+	if (type_ == "jit") || String_equalsIgnoreCase(type_, "all") {
 		JvmMetrics_writeJitMetrics(out, verbose, pretty)
 	}
 }
@@ -201,18 +201,18 @@ func JvmMetrics_normalizeName(name string) string {
 func JvmMetrics_normalizeTabularColonPos(string_ string) string {
 	var sb *StringBuilder = new_StringBuilder_String(string_)
 	var index int32 = sb.indexOf(":")
-	for ; (index < JvmMetrics_TABULAR_COLON_POS); index++ {
+	for ; index < JvmMetrics_TABULAR_COLON_POS; index++ {
 		sb.insert(index, ' ')
 	}
 	return Object_toString(obj_(sb))
 }
 
 func JvmMetrics_formatBytes(numBytes int64) string {
-	if (numBytes < JvmMetrics_ONE_KILO_BYTE) {
+	if numBytes < JvmMetrics_ONE_KILO_BYTE {
 		return String_format("%d B", []any{any(int64(numBytes))})
-	} else if (numBytes < JvmMetrics_ONE_MEGA_BYTE) {
+	} else if numBytes < JvmMetrics_ONE_MEGA_BYTE {
 		return String_format("%d KB", []any{any(int64((numBytes / JvmMetrics_ONE_KILO_BYTE)))})
-	} else if (numBytes < JvmMetrics_ONE_GIGA_BYTE) {
+	} else if numBytes < JvmMetrics_ONE_GIGA_BYTE {
 		return String_format("%d MB", []any{any(int64((numBytes / JvmMetrics_ONE_MEGA_BYTE)))})
 	} else {
 		return String_format("%d GB", []any{any(int64((numBytes / JvmMetrics_ONE_GIGA_BYTE)))})
@@ -224,4 +224,3 @@ const JvmMetrics_TABULAR_COLON_POS int32 = 40
 const JvmMetrics_ONE_KILO_BYTE int64 = 1024
 const JvmMetrics_ONE_MEGA_BYTE int64 = 1048576
 const JvmMetrics_ONE_GIGA_BYTE int64 = 1073741824
-

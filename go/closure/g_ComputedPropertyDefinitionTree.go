@@ -5,7 +5,7 @@ package closure
 type ComputedPropertyDefinitionTree struct {
 	ParseTree
 	property_ *ParseTree
-	value_ *ParseTree
+	value_    *ParseTree
 }
 
 func (this *ComputedPropertyDefinitionTree) up_ParseTree() *ParseTree {
@@ -27,4 +27,3 @@ func new_ComputedPropertyDefinitionTree(location *SourceRange, property *ParseTr
 	this.init_ComputedPropertyDefinitionTree(location, property, value)
 	return this
 }
-

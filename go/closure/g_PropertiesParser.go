@@ -18,13 +18,13 @@ func new_PropertiesParser() *PropertiesParser {
 func PropertiesParser_parse(source string) *ImmutableMap {
 	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 	var lines []string = PropertiesParser_LINE_BREAK_PATTERN.split(source)
-	for i := int32(0); (i < int32(len(lines))); i++ {
+	for i := int32(0); i < int32(len(lines)); i++ {
 		var line string = lines[i]
-		if ((String_isEmpty(line) || String_startsWith(line, "#")) || String_startsWith(line, "!")) {
+		if (String_isEmpty(line) || String_startsWith(line, "#")) || String_startsWith(line, "!") {
 			continue
 		}
 		var delimeterIndex int32 = PropertiesParser_findDelimiter(line)
-		if (delimeterIndex == -1) {
+		if delimeterIndex == -1 {
 			continue
 		}
 		var data string = ""
@@ -33,7 +33,7 @@ func PropertiesParser_parse(source string) *ImmutableMap {
 		for {
 			if String_endsWith(line, "\\") {
 				data += sstr_(String_substring(line, 0, (String_length(line) - 1)))
-				if ((i + 1) == int32(len(lines))) {
+				if (i + 1) == int32(len(lines)) {
 					break
 				}
 				i++
@@ -49,8 +49,8 @@ func PropertiesParser_parse(source string) *ImmutableMap {
 }
 
 func PropertiesParser_trimLeft(str string) string {
-	for i := int32(0); (i < String_length(str)); i++ {
-		if (String_charAt(str, i) != ' ') {
+	for i := int32(0); i < String_length(str); i++ {
+		if String_charAt(str, i) != ' ' {
 			return String_substring_int(str, i)
 		}
 	}
@@ -58,7 +58,7 @@ func PropertiesParser_trimLeft(str string) string {
 }
 
 func PropertiesParser_findDelimiter(line string) int32 {
-	for i := int32(0); (i < String_length(line)); i++ {
+	for i := int32(0); i < String_length(line); i++ {
 		switch String_charAt(line, i) {
 		case ':', '=':
 			return i
@@ -80,4 +80,3 @@ func PropertiesParser_clinit() {
 	PropertiesParser_LINE_BREAK_PATTERN = Pattern_compile("\r?\n")
 
 }
-

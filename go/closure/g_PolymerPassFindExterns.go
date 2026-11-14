@@ -4,7 +4,7 @@ package closure
 
 type PolymerPassFindExterns struct {
 	polymerElementExterns Node
-	polymerElementProps ImmutableList_BuilderOf[Node]
+	polymerElementProps   ImmutableList_BuilderOf[Node]
 }
 
 func (this *PolymerPassFindExterns) init_PolymerPassFindExterns() {
@@ -46,4 +46,3 @@ func PolymerPassFindExterns_isPolymerElementPropExpr(value Node) bool {
 }
 
 const PolymerPassFindExterns_POLYMER_ELEMENT_NAME string = "PolymerElement"
-

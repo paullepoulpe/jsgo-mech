@@ -3,9 +3,9 @@
 package closure
 
 type EsModuleProcessor struct {
-	compiler_ *AbstractCompiler
+	compiler_            *AbstractCompiler
 	currentModuleBuilder *EsModuleProcessor_UnresolvedModuleBuilder
-	metadata_ *ModuleMetadataMap_ModuleMetadata
+	metadata_            *ModuleMetadataMap_ModuleMetadata
 }
 
 func (this *EsModuleProcessor) init_EsModuleProcessor(compiler *AbstractCompiler) {
@@ -57,7 +57,7 @@ func (this *EsModuleProcessor) visitExportAllFrom(t *NodeTraversal, export Node)
 func (this *EsModuleProcessor) visitExportDefault(t *NodeTraversal, export Node) {
 	var child Node = export.getFirstChild()
 	var name string = Export_DEFAULT_EXPORT_NAME
-	if (child.isFunction() || child.isClass()) {
+	if child.isFunction() || child.isClass() {
 		var maybeName string = NodeUtil_getName(child)
 		if !String_isEmpty(maybeName) {
 			name = maybeName
@@ -71,7 +71,7 @@ func (this *EsModuleProcessor) visitExportDefault(t *NodeTraversal, export Node)
 func (this *EsModuleProcessor) visitExportFrom(t *NodeTraversal, export Node) {
 	{
 		var child Node = export.getFirstFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			var importName string = child.getFirstChild().getString()
 			var exportedName string = child.getLastChild().getString()
 			if !this.currentModuleBuilder.add(Export_builder().exportName(Optional_of(strobj_(exportedName))).moduleRequest(Optional_of(strobj_(export.getSecondChild().getString()))).importName(Optional_of(strobj_(importName))).localName(Optional_empty()).modulePath(t.getInput().getPath()).exportNode(export).nameNode(child.getFirstChild()).moduleMetadata(this.metadata_).build()) {
@@ -84,7 +84,7 @@ func (this *EsModuleProcessor) visitExportFrom(t *NodeTraversal, export Node) {
 func (this *EsModuleProcessor) visitExportSpecs(t *NodeTraversal, export Node) {
 	{
 		var child Node = export.getFirstFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			var localName string = child.getFirstChild().getString()
 			var exportedName string = child.getLastChild().getString()
 			if !this.currentModuleBuilder.add(Export_builder().exportName(Optional_of(strobj_(exportedName))).moduleRequest(Optional_empty()).importName(Optional_empty()).localName(Optional_of(strobj_(localName))).modulePath(t.getInput().getPath()).exportNode(export).nameNode(child.getFirstChild()).moduleMetadata(this.metadata_).build()) {
@@ -145,7 +145,7 @@ func (this *EsModuleProcessor) visitImportDefault(t *NodeTraversal, importNode N
 func (this *EsModuleProcessor) visitImportSpecs(t *NodeTraversal, importNode Node, moduleRequest string) {
 	{
 		var child Node = importNode.getSecondChild().getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			var importName string = child.getFirstChild().getString()
 			var localName string = child.getLastChild().getString()
 			this.currentModuleBuilder.addImport(Import_builder().moduleRequest(moduleRequest).importName(importName).localName(localName).modulePath(t.getInput().getPath()).importNode(importNode).nameNode(child.getSecondChild()).build())
@@ -194,7 +194,7 @@ func EsModuleProcessor_clinit() {
 
 type EsModuleProcessor_FindMutableExports struct {
 	NodeTraversal_AbstractPostOrderCallback
-	exports ListOf[*Export]
+	exports            ListOf[*Export]
 	exportsByLocalName *SimpleListMultimap
 }
 
@@ -228,7 +228,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		return
 	}
 	var scope *Scope = t.getScope()
-	if (!NodeUtil_isLValue(n) || cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope()) {
+	if !NodeUtil_isLValue(n) || cast_[*Scope](scope.getClosestHoistScope().self()).isModuleScope() {
 		return
 	}
 	var exports ListOf[*Export] = this.exportsByLocalName.get(strobj_(n.getString()))
@@ -236,7 +236,7 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 		return
 	}
 	var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
-	if ((var_ == nil) || !cast_[*Scope](var_.getScope()).isModuleScope()) {
+	if (var_ == nil) || !cast_[*Scope](var_.getScope()).isModuleScope() {
 		return
 	}
 	it_1 := foreach_(new_ArrayList_Collection(Collection(exports)).self())
@@ -251,12 +251,12 @@ func (this *EsModuleProcessor_FindMutableExports) visit_impl(t *NodeTraversal, n
 }
 
 type EsModuleProcessor_UnresolvedModuleBuilder struct {
-	outer_ *EsModuleProcessor
-	path_ *ModuleLoader_ModulePath
-	root Node
+	outer_             *EsModuleProcessor
+	path_              *ModuleLoader_ModulePath
+	root               Node
 	importsByLocalName MapOf[string, *Import]
-	exports []*Export
-	exportedNames map[string]struct{}
+	exports            []*Export
+	exportedNames      map[string]struct{}
 }
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) init_EsModuleProcessor_UnresolvedModuleBuilder(path *ModuleLoader_ModulePath, root Node) {
@@ -301,12 +301,12 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 	for it_1.next() {
 		var ee *Export = it_1.v
 		if ee.moduleRequest().isEmpty() {
-			if (ee.localName().isPresent() && Map_containsKey_s(this.importsByLocalName, str_(ee.localName().get()))) {
+			if ee.localName().isPresent() && Map_containsKey_s(this.importsByLocalName, str_(ee.localName().get())) {
 				indirectExportsBuilder.add(obj_(ee))
 			} else {
 				localExports.add(obj_(ee))
 			}
-		} else if ("*" == str_(ee.importName().orElse(strobj_("")))) {
+		} else if "*" == str_(ee.importName().orElse(strobj_(""))) {
 			starExportsBuilder.add(obj_(ee))
 		} else {
 			indirectExportsBuilder.add(obj_(ee))
@@ -318,17 +318,17 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule
 
 type EsModuleProcessor_UnresolvedEsModule struct {
 	UnresolvedModule
-	outer_ *EsModuleProcessor
-	metadataField *ModuleMetadataMap_ModuleMetadata
-	path_ *ModuleLoader_ModulePath
+	outer_             *EsModuleProcessor
+	metadataField      *ModuleMetadataMap_ModuleMetadata
+	path_              *ModuleLoader_ModulePath
 	importsByLocalName ImmutableMapOf[string, *Import]
-	localExports ImmutableListOf[*Export]
-	indirectExports ImmutableListOf[*Export]
-	starExports ImmutableListOf[*Export]
-	exportedNames ImmutableSetOf[string]
-	resolvedImports map[string]*ResolveExportResult
-	resolvedExports map[string]*ResolveExportResult
-	resolved_ *Module
+	localExports       ImmutableListOf[*Export]
+	indirectExports    ImmutableListOf[*Export]
+	starExports        ImmutableListOf[*Export]
+	exportedNames      ImmutableSetOf[string]
+	resolvedImports    map[string]*ResolveExportResult
+	resolvedExports    map[string]*ResolveExportResult
+	resolved_          *Module
 }
 
 func (this *EsModuleProcessor_UnresolvedEsModule) up_UnresolvedModule() *UnresolvedModule {
@@ -368,7 +368,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) reset_impl() {
 }
 
 func (this *EsModuleProcessor_UnresolvedEsModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string]) *Module {
-	if (this.resolved_ == nil) {
+	if this.resolved_ == nil {
 		var boundNames MapOf[string, *Binding] = icast_Map(obj_(new_LinkedHashMap_Map(this.getAllResolvedImports(moduleRequestResolver))))
 		var localNameToLocalExport MapOf[string, *Export] = icast_Map(obj_(new_LinkedHashMap()))
 		it_1 := foreach_(obj_(this.localExports))
@@ -421,31 +421,41 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveImport(moduleRequestRes
 func (this *EsModuleProcessor_UnresolvedEsModule) resolveImportImpl(moduleRequestResolver ModuleRequestResolver, name string, resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
 	var i *Import = cast_[*Import](Map_get_s(this.importsByLocalName, name))
 	var requested *UnresolvedModule = moduleRequestResolver.resolveImport(i)
-	if (requested == nil) {
+	if requested == nil {
 		return ResolveExportResult_ERROR
 	} else {
 		var importStar bool = (i.importName() == "*")
-		if (importStar || ((i.importName() == Export_DEFAULT) && (requested.metadata().isGoogProvide() || requested.metadata().isGoogModule()))) {
-			if (!GoogEsImports_isGoogImportSpecifier(i.moduleRequest()) && (requested.metadata().isGoogModule() || requested.metadata().isGoogProvide())) {
+		if importStar || ((i.importName() == Export_DEFAULT) && (requested.metadata().isGoogProvide() || requested.metadata().isGoogModule())) {
+			if !GoogEsImports_isGoogImportSpecifier(i.moduleRequest()) && (requested.metadata().isGoogModule() || requested.metadata().isGoogProvide()) {
 				this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.path_.toString())), i.importNode().getLineno(), i.importNode().getCharno(), EsModuleProcessor_CANNOT_PATH_IMPORT_CLOSURE_FILE, []string{i.localName(), i.moduleRequest()}))
 				return ResolveExportResult_ERROR
 			}
-			if (importStar && GoogEsImports_isGoogImportSpecifier(i.moduleRequest())) {
+			if importStar && GoogEsImports_isGoogImportSpecifier(i.moduleRequest()) {
 				this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.path_.toString())), i.importNode().getLineno(), i.importNode().getCharno(), EsModuleProcessor_NAMESPACE_IMPORT_CANNOT_USE_STAR, []string{i.localName(), i.moduleRequest()}))
 				return ResolveExportResult_ERROR
 			}
-			var closureNamespace OptionalOf[string] = func() *Optional { if GoogEsImports_isGoogImportSpecifier(i.moduleRequest()) { return Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(i.moduleRequest()))) }; return Optional_empty() }()
+			var closureNamespace OptionalOf[string] = func() *Optional {
+				if GoogEsImports_isGoogImportSpecifier(i.moduleRequest()) {
+					return Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(i.moduleRequest())))
+				}
+				return Optional_empty()
+			}()
 			return ResolveExportResult_of(Binding_from_ModuleMetadata_Optional_Node(requested.metadata(), closureNamespace, i.nameNode()))
 		} else {
 			var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, Optional_of(strobj_(i.moduleRequest())), Optional_of(strobj_(i.importName())), resolveSet, exportStarSet)
-			if (!result.found() && !result.hadError()) {
+			if !result.found() && !result.hadError() {
 				this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.path_.toString())), i.importNode().getLineno(), i.importNode().getCharno(), ModuleMapCreator_DOES_NOT_HAVE_EXPORT, []string{i.importName()}))
 				return ResolveExportResult_ERROR
 			} else if result.isAmbiguous() {
 				this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.path_.toString())), i.importNode().getLineno(), i.importNode().getCharno(), EsModuleProcessor_IMPORTED_AMBIGUOUS_EXPORT, []string{i.importName()}))
 				return ResolveExportResult_ERROR
 			}
-			var forSourceInfo Node = func() Node { if (i.nameNode() == 0) { return i.importNode() }; return i.nameNode() }()
+			var forSourceInfo Node = func() Node {
+				if i.nameNode() == 0 {
+					return i.importNode()
+				}
+				return i.nameNode()
+			}()
 			return result.copy(forSourceInfo, Binding_CreatedBy_IMPORT)
 		}
 	}
@@ -453,7 +463,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveImportImpl(moduleReques
 }
 
 func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_impl(moduleRequestResolver ModuleRequestResolver) *ImmutableSet {
-	if (this.exportedNames == nil) {
+	if this.exportedNames == nil {
 		this.exportedNames = this.getExportedNames_2(moduleRequestResolver, icast_Set(obj_(new_LinkedHashSet())))
 	}
 	return this.exportedNames
@@ -479,12 +489,12 @@ func (this *EsModuleProcessor_UnresolvedEsModule) getExportedNames_2_impl(module
 	for it_5.next() {
 		var e *Export = cast_[*Export](it_5.v)
 		var requested *UnresolvedModule = moduleRequestResolver.resolve(e)
-		if (requested != nil) {
+		if requested != nil {
 			if requested.metadata().isEs6Module() {
 				it_7 := foreach_(obj_(requested.getExportedNames_2(moduleRequestResolver, visited)))
 				for it_7.next() {
 					var n string = str_(it_7.v)
-					if (!(Export_DEFAULT == n) && !Collection_contains_s(exportedNames, n)) {
+					if !(Export_DEFAULT == n) && !Collection_contains_s(exportedNames, n) {
 						Collection_add_s(exportedNames, n)
 					}
 				}
@@ -524,7 +534,12 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 	for it_1.next() {
 		var e *Export = cast_[*Export](it_1.v)
 		if Object_equals(obj_(exportName), obj_(e.exportName())) {
-			var forSourceInfo Node = func() Node { if (e.nameNode() != 0) { return e.nameNode() }; return e.exportNode() }()
+			var forSourceInfo Node = func() Node {
+				if e.nameNode() != 0 {
+					return e.nameNode()
+				}
+				return e.exportNode()
+			}()
 			return ResolveExportResult_of(Binding_from_Export_Node(e, forSourceInfo))
 		}
 	}
@@ -532,15 +547,15 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 	for it_3.next() {
 		var e *Export = cast_[*Export](it_3.v)
 		if Object_equals(obj_(exportName), obj_(e.exportName())) {
-			if (e.localName().isPresent() && Map_containsKey_s(this.importsByLocalName, str_(e.localName().get()))) {
+			if e.localName().isPresent() && Map_containsKey_s(this.importsByLocalName, str_(e.localName().get())) {
 				return this.resolveImport_4(moduleRequestResolver, str_(e.localName().orElse(nil)), resolveSet, exportStarSet).copy(e.nameNode(), Binding_CreatedBy_EXPORT)
 			} else {
 				var requested *UnresolvedModule = moduleRequestResolver.resolve(e)
-				if (requested == nil) {
+				if requested == nil {
 					return ResolveExportResult_ERROR
 				} else {
 					var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, e.moduleRequest(), e.importName(), resolveSet, exportStarSet)
-					if (!result.found() && !result.hadError()) {
+					if !result.found() && !result.hadError() {
 						this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.path_.toString())), e.exportNode().getLineno(), e.exportNode().getCharno(), ModuleMapCreator_DOES_NOT_HAVE_EXPORT, []string{str_(e.importName().orElse(strobj_("null")))}))
 						return ResolveExportResult_ERROR
 					} else if result.isAmbiguous() {
@@ -562,37 +577,41 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_4(moduleRequestR
 	for it_5.next() {
 		var e *Export = cast_[*Export](it_5.v)
 		var requested *UnresolvedModule = moduleRequestResolver.resolve(e)
-		if (requested == nil) {
+		if requested == nil {
 			return ResolveExportResult_ERROR
-		} else if (exportName.isPresent() && Collection_contains_s(requested.getExportedNames(moduleRequestResolver), str_(exportName.get()))) {
+		} else if exportName.isPresent() && Collection_contains_s(requested.getExportedNames(moduleRequestResolver), str_(exportName.get())) {
 			var resolution *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, e.moduleRequest(), exportName, resolveSet, exportStarSet)
 			if resolution.hadError() {
 				return resolution
 			} else if resolution.isAmbiguous() {
 				return resolution
 			} else {
-				if (starResolution == nil) {
+				if starResolution == nil {
 					starResolution = resolution.copy(e.exportNode(), Binding_CreatedBy_EXPORT)
 				} else {
-					if (starResolution != resolution) {
+					if starResolution != resolution {
 						return ResolveExportResult_AMBIGUOUS
 					}
 				}
 			}
 		}
 	}
-	if (starResolution == nil) {
+	if starResolution == nil {
 		return ResolveExportResult_ERROR
 	}
 	return starResolution
 }
 
 func (this *EsModuleProcessor_UnresolvedEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
-	if (exportName.isPresent() && has_(this.resolvedExports, str_(exportName.get()))) {
-		return func() *ResolveExportResult { if exportName.isPresent() { return this.resolvedExports[str_(exportName.get())] }; return nil }()
+	if exportName.isPresent() && has_(this.resolvedExports, str_(exportName.get())) {
+		return func() *ResolveExportResult {
+			if exportName.isPresent() {
+				return this.resolvedExports[str_(exportName.get())]
+			}
+			return nil
+		}()
 	}
 	var b *ResolveExportResult = this.resolveExport_4(moduleRequestResolver, exportName, resolveSet, exportStarSet)
 	this.resolvedExports[str_(exportName.orElse(nil))] = b
 	return b
 }
-

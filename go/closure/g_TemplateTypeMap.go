@@ -3,11 +3,11 @@
 package closure
 
 type TemplateTypeMap struct {
-	templateKeys ImmutableListOf[*TemplateType]
-	templateValues ImmutableListOf[*JSType]
+	templateKeys           ImmutableListOf[*TemplateType]
+	templateValues         ImmutableListOf[*JSType]
 	resolvedTemplateValues []*JSType
-	subMapStarts *BitSet
-	registry *JSTypeRegistry
+	subMapStarts           *BitSet
+	registry               *JSTypeRegistry
 }
 
 func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, templateKeys ImmutableListOf[*TemplateType], templateValues ImmutableListOf[*JSType], subMapStarts *BitSet) {
@@ -23,8 +23,8 @@ func (this *TemplateTypeMap) init_TemplateTypeMap(registry *JSTypeRegistry, temp
 	var nValues int32 = this.templateValues.size()
 	var nKeys int32 = this.templateKeys.size()
 	var resolvedValues []*JSType = make([]*JSType, nKeys)
-	for i := int32(0); (i < nKeys); i++ {
-		if (i < nValues) {
+	for i := int32(0); i < nKeys; i++ {
+		if i < nValues {
 			var nextSubMap int32 = this.nextSubMapStart((i + 1))
 			var templateKey *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
 			replacer.setKeyType(templateKey, nextSubMap)
@@ -49,7 +49,7 @@ func TemplateTypeMap_createEmpty(registry *JSTypeRegistry) *TemplateTypeMap {
 }
 
 func (this *TemplateTypeMap) nextSubMapStart(index int32) int32 {
-	for ((index < this.templateKeys.size()) && !this.subMapStarts.get(index)) {
+	for (index < this.templateKeys.size()) && !this.subMapStarts.get(index) {
 		index++
 	}
 	return index
@@ -58,7 +58,7 @@ func (this *TemplateTypeMap) nextSubMapStart(index int32) int32 {
 func (this *TemplateTypeMap) copyFilledWithValues(values ImmutableListOf[*JSType]) *TemplateTypeMap {
 	var requiredUnknownCount int32 = (this.numUnfilledTemplateKeys() - values.size())
 	Preconditions_checkArgument_boolean_Object((requiredUnknownCount >= 0), any(int32(requiredUnknownCount)))
-	if (this.numUnfilledTemplateKeys() == 0) {
+	if this.numUnfilledTemplateKeys() == 0 {
 		return this
 	}
 	var extendedValues ArrayListOf[*JSType] = new_ArrayList_0()
@@ -84,7 +84,7 @@ func (this *TemplateTypeMap) copyWithExtension_2(keys ImmutableListOf[*TemplateT
 func (this *TemplateTypeMap) copyWithExtension_3(keys ImmutableListOf[*TemplateType], values ImmutableListOf[*JSType], newsubMapStarts *BitSet) *TemplateTypeMap {
 	var extendedUnfilledCount int32 = (keys.size() - values.size())
 	Preconditions_checkArgument_boolean_Object((extendedUnfilledCount >= 0), any(int32(extendedUnfilledCount)))
-	if ((this.numUnfilledTemplateKeys() == 0) && keys.isEmpty()) {
+	if (this.numUnfilledTemplateKeys() == 0) && keys.isEmpty() {
 		return this
 	}
 	var extendedKeys ImmutableListOf[*TemplateType] = cast_[*ImmutableList](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(ImmutableList_builder().addAll(icast_Iterable(obj_(this.templateKeys))))).addAll(icast_Iterable(obj_(keys))))).build()))
@@ -94,7 +94,7 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys ImmutableListOf[*TemplateT
 	extendedValues.addAll(icast_Collection(obj_(values)))
 	var extendedsubMapStarts *BitSet = new_BitSet_int((keys.size() + this.templateKeys.size()))
 	extendedsubMapStarts.or(this.subMapStarts)
-	for i := int32(0); (i < keys.size()); i++ {
+	for i := int32(0); i < keys.size(); i++ {
 		extendedsubMapStarts.set_int_boolean((i + this.templateKeys.size()), newsubMapStarts.get(i))
 	}
 	return new_TemplateTypeMap(this.registry, extendedKeys, ImmutableList_copyOf(icast_Collection(extendedValues.self())), extendedsubMapStarts)
@@ -104,12 +104,12 @@ func (this *TemplateTypeMap) copyWithoutKeys(removals SetOf[*TemplateType]) *Tem
 	var keys ImmutableList_BuilderOf[*TemplateType] = ImmutableList_builder()
 	var newsubMapStarts *BitSet = new_BitSet()
 	keys.addAll(Iterable(this.templateKeys.subList(0, this.templateValues.size())))
-	for i := int32(0); (i < this.templateValues.size()); i++ {
+	for i := int32(0); i < this.templateValues.size(); i++ {
 		newsubMapStarts.set_int_boolean(i, this.subMapStarts.get(i))
 	}
 	var newKeysSize int32 = 0
 	var inNewSubmap bool = false
-	for i := int32(this.templateValues.size()); (i < this.templateKeys.size()); i++ {
+	for i := int32(this.templateValues.size()); i < this.templateKeys.size(); i++ {
 		var key *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
 		inNewSubmap = (inNewSubmap || this.subMapStarts.get(i))
 		if !removals.contains(obj_(key)) {
@@ -119,7 +119,7 @@ func (this *TemplateTypeMap) copyWithoutKeys(removals SetOf[*TemplateType]) *Tem
 			inNewSubmap = false
 		}
 	}
-	if (cast_[*ImmutableList](obj_(keys.build())).size() == this.templateKeys.size()) {
+	if cast_[*ImmutableList](obj_(keys.build())).size() == this.templateKeys.size() {
 		return this
 	}
 	return new_TemplateTypeMap(this.registry, cast_[*ImmutableList](obj_(keys.build())), this.templateValues, newsubMapStarts)
@@ -148,7 +148,7 @@ func (this *TemplateTypeMap) hasTemplateKey(templateKey *TemplateType) bool {
 func (this *TemplateTypeMap) hasTemplateKey_2(templateKey *TemplateType, nextSubMap int32) bool {
 	var keyCount int32 = this.templateKeys.size()
 	var start int32 = Math_max(0, nextSubMap)
-	for i := int32(start); (i < keyCount); i++ {
+	for i := int32(start); i < keyCount; i++ {
 		var entry *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
 		if JSCompObjects_identical(obj_(templateKey), obj_(entry)) {
 			return true
@@ -160,7 +160,7 @@ func (this *TemplateTypeMap) hasTemplateKey_2(templateKey *TemplateType, nextSub
 func (this *TemplateTypeMap) getTemplateKeyCountThisShouldAlwaysBeOneOrZeroButIsnt(templateKey *TemplateType) int32 {
 	var matches int32 = 0
 	var keyCount int32 = this.templateKeys.size()
-	for i := int32(0); (i < keyCount); i++ {
+	for i := int32(0); i < keyCount; i++ {
 		var entry *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
 		if JSCompObjects_identical(obj_(templateKey), obj_(entry)) {
 			matches++
@@ -179,14 +179,19 @@ func (this *TemplateTypeMap) hasTemplateType(key *TemplateType) bool {
 
 func (this *TemplateTypeMap) getUnresolvedOriginalTemplateType(key *TemplateType) *JSType {
 	var index int32 = this.getTemplateTypeIndex(key)
-	return func() *JSType { if (index == -1) { return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE) }; return to_JSType(this.templateValues.get(index)) }()
+	return func() *JSType {
+		if index == -1 {
+			return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+		}
+		return to_JSType(this.templateValues.get(index))
+	}()
 }
 
 func (this *TemplateTypeMap) getLastTemplateTypeKeyByName(keyName string) *TemplateType {
 	var size int32 = this.templateKeys.size()
-	for i := int32((size - 1)); (i >= 0); i-- {
+	for i := int32((size - 1)); i >= 0; i-- {
 		var key *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
-		if (str_(key.getReferenceName().get()) == keyName) {
+		if str_(key.getReferenceName().get()) == keyName {
 			return key
 		}
 	}
@@ -195,7 +200,7 @@ func (this *TemplateTypeMap) getLastTemplateTypeKeyByName(keyName string) *Templ
 
 func (this *TemplateTypeMap) getTemplateTypeIndex(key *TemplateType) int32 {
 	var maxIndex int32 = Math_min(this.templateKeys.size(), this.templateValues.size())
-	for i := int32((maxIndex - 1)); (i >= 0); i-- {
+	for i := int32((maxIndex - 1)); i >= 0; i-- {
 		if JSCompObjects_identical(this.templateKeys.get(i), obj_(key)) {
 			return i
 		}
@@ -205,11 +210,16 @@ func (this *TemplateTypeMap) getTemplateTypeIndex(key *TemplateType) int32 {
 
 func (this *TemplateTypeMap) getResolvedTemplateType(key *TemplateType) *JSType {
 	var index int32 = this.getTemplateTypeIndex(key)
-	return func() *JSType { if (index == -1) { return this.defaultValueType(key) }; return this.resolvedTemplateValues[index] }()
+	return func() *JSType {
+		if index == -1 {
+			return this.defaultValueType(key)
+		}
+		return this.resolvedTemplateValues[index]
+	}()
 }
 
 func (this *TemplateTypeMap) hasAnyTemplateTypesInternal() bool {
-	if (this.resolvedTemplateValues != nil) {
+	if this.resolvedTemplateValues != nil {
 		for _, templateValue := range this.resolvedTemplateValues {
 			if templateValue.hasAnyTemplateTypes() {
 				return true
@@ -223,13 +233,23 @@ func (this *TemplateTypeMap) toString() string {
 	var s string = ""
 	var len_ int32 = this.templateKeys.size()
 	s += "{ "
-	for i := int32(0); (i < len_); i++ {
+	for i := int32(0); i < len_; i++ {
 		s += "("
 		s += objstr_(this.templateKeys.get(i))
 		s += ","
-		s += objstr_(func() any { if (i < this.templateValues.size()) { return this.templateValues.get(i) }; return strobj_("") }())
+		s += objstr_(func() any {
+			if i < this.templateValues.size() {
+				return this.templateValues.get(i)
+			}
+			return strobj_("")
+		}())
 		s += ","
-		s += objstr_(func() any { if ((this.resolvedTemplateValues != nil) && (i < int32(len(this.resolvedTemplateValues)))) { return this.resolvedTemplateValues[i].self() }; return strobj_("") }())
+		s += objstr_(func() any {
+			if (this.resolvedTemplateValues != nil) && (i < int32(len(this.resolvedTemplateValues))) {
+				return this.resolvedTemplateValues[i].self()
+			}
+			return strobj_("")
+		}())
 		s += ") "
 	}
 	s += "}"
@@ -238,22 +258,26 @@ func (this *TemplateTypeMap) toString() string {
 
 func (this *TemplateTypeMap) padToSameLength(keys ImmutableListOf[*TemplateType], builder ArrayListOf[*JSType]) {
 	Preconditions_checkArgument((builder.size() <= keys.size()))
-	for i := int32(builder.size()); (i < keys.size()); i++ {
+	for i := int32(builder.size()); i < keys.size(); i++ {
 		builder.add(this.defaultValueType(cast_[*TemplateType](keys.get(i))).self())
 	}
 }
 
 func (this *TemplateTypeMap) defaultValueType(type_ *TemplateType) *JSType {
-	return func() *JSType { if type_.getBound().isUnknownType() { return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE) }; return type_.up_JSType() }()
+	return func() *JSType {
+		if type_.getBound().isUnknownType() {
+			return this.registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+		}
+		return type_.up_JSType()
+	}()
 }
 
 func (this *TemplateTypeMap) getIndicesOfSubmapsForTesting() *ImmutableList {
 	var indices ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
-	for i := int32(0); (i < this.subMapStarts.length()); i++ {
+	for i := int32(0); i < this.subMapStarts.length(); i++ {
 		if this.subMapStarts.get(i) {
 			indices.add(any(int32(i)))
 		}
 	}
 	return cast_[*ImmutableList](obj_(indices.build()))
 }
-

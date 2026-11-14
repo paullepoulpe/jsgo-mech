@@ -3,38 +3,44 @@
 package closure
 
 type AbstractCommandLineRunner struct {
-	self_ any
-	config *AbstractCommandLineRunner_CommandLineConfig
-	in *Io_Input
-	defaultJsOutput *Output
-	err *Output
-	compiler_ *Compiler
-	inputCharset string
-	outputCharset2 OptionalOf[string]
-	legacyOutputCharset OptionalOf[string]
-	testMode bool
-	externsSupplierForTesting Supplier_baseOf[ListOf[*SourceFile_jscomp]]
-	inputsSupplierForTesting Supplier_baseOf[ListOf[*SourceFile_jscomp]]
-	chunksSupplierForTesting Supplier_baseOf[ListOf[*JSChunk]]
-	exitCodeReceiver Function_baseOf[BoxedOf[int32], any]
-	rootRelativePathsMap MapOf[string, string]
-	parsedChunkWrappers MapOf[string, string]
-	parsedChunkOutputFiles ImmutableMapOf[string, string]
+	self_                       any
+	config                      *AbstractCommandLineRunner_CommandLineConfig
+	in                          *Io_Input
+	defaultJsOutput             *Output
+	err                         *Output
+	compiler_                   *Compiler
+	inputCharset                string
+	outputCharset2              OptionalOf[string]
+	legacyOutputCharset         OptionalOf[string]
+	testMode                    bool
+	externsSupplierForTesting   Supplier_baseOf[ListOf[*SourceFile_jscomp]]
+	inputsSupplierForTesting    Supplier_baseOf[ListOf[*SourceFile_jscomp]]
+	chunksSupplierForTesting    Supplier_baseOf[ListOf[*JSChunk]]
+	exitCodeReceiver            Function_baseOf[BoxedOf[int32], any]
+	rootRelativePathsMap        MapOf[string, string]
+	parsedChunkWrappers         MapOf[string, string]
+	parsedChunkOutputFiles      ImmutableMapOf[string, string]
 	parsedChunkConformanceFiles ImmutableMapOf[string, string]
-	filesToStreamOut []*AbstractCommandLineRunner_JsonFileSpec
+	filesToStreamOut            []*AbstractCommandLineRunner_JsonFileSpec
 }
 
-func (this *AbstractCommandLineRunner) as_AbstractCommandLineRunner() *AbstractCommandLineRunner { return this }
+func (this *AbstractCommandLineRunner) as_AbstractCommandLineRunner() *AbstractCommandLineRunner {
+	return this
+}
 
 func to_AbstractCommandLineRunner(v any) *AbstractCommandLineRunner {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_AbstractCommandLineRunner() *AbstractCommandLineRunner }).as_AbstractCommandLineRunner()
+	return v.(interface {
+		as_AbstractCommandLineRunner() *AbstractCommandLineRunner
+	}).as_AbstractCommandLineRunner()
 }
 
 func is_AbstractCommandLineRunner(v any) bool {
-	_, ok := v.(interface{ as_AbstractCommandLineRunner() *AbstractCommandLineRunner })
+	_, ok := v.(interface {
+		as_AbstractCommandLineRunner() *AbstractCommandLineRunner
+	})
 	return ok
 }
 
@@ -106,19 +112,19 @@ func (this *AbstractCommandLineRunner) getCommandLineConfig() *AbstractCommandLi
 }
 
 func (this *AbstractCommandLineRunner) getDiagnosticGroups() *DiagnosticGroups {
-	if (this.compiler_ == nil) {
+	if this.compiler_ == nil {
 		return new_DiagnosticGroups()
 	}
 	return this.compiler_.getDiagnosticGroups()
 }
 
 func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, warningGuards ArrayListOf[*AbstractCommandLineRunner_FlagEntry], diagnosticGroups *DiagnosticGroups) *Outcome_base {
-	if (warningGuards != nil) {
+	if warningGuards != nil {
 		var groupNames ImmutableSetOf[string] = cast_[*ImmutableSet](DiagnosticGroups_getRegisteredGroups().keySet())
 		it_1 := foreach_(warningGuards.self())
 		for it_1.next() {
 			var entry *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](it_1.v)
-			if ("*" == entry.value_) {
+			if "*" == entry.value_ {
 				it_3 := foreach_(obj_(groupNames))
 				for it_3.next() {
 					var groupName string = str_(it_3.v)
@@ -138,7 +144,7 @@ func AbstractCommandLineRunner_setWarningGuardOptions(options *CompilerOptions, 
 
 func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *Outcome_base {
 	var diagnosticGroups *DiagnosticGroups = this.getDiagnosticGroups()
-	if (this.config.shouldSaveAfterStage1() || this.config.shouldContinueCompilation()) {
+	if this.config.shouldSaveAfterStage1() || this.config.shouldContinueCompilation() {
 		if options.isChecksOnly() {
 			return Outcome_base_err(new_FlagUsageException("checks_only mode is incompatible with multi-stage compilation").up_Throwable())
 		}
@@ -157,7 +163,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		options.addWarningsGuard(new_ShowByPathWarningsGuard_StringArr_ShowType(arrmap_(this.config.hideWarningsFor.toArray(arrmap_([]string{}, func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) }), ShowByPathWarningsGuard_ShowType_EXCLUDE).up_WarningsGuard())
 	}
 	var define ListOf[string] = icast_List(new_ArrayList_Collection(Collection(this.config.define)).self())
-	if (this.config.browserFeaturesetYear != 0) {
+	if this.config.browserFeaturesetYear != 0 {
 		var yearRes *Outcome_base = CompilerOptions_BrowserFeaturesetYear_fromResult(this.config.browserFeaturesetYear)
 		if yearRes.isErr() {
 			return Outcome_base_err(new_FlagUsageException(str_(yearRes.errorMessage().orElseThrow())).up_Throwable())
@@ -166,7 +172,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	}
 	AbstractCommandLineRunner_createDefineReplacements(define, options)
 	options.setTweakProcessing(this.config.tweakProcessing)
-	if (this.config.dependencyOptions != nil) {
+	if this.config.dependencyOptions != nil {
 		options.setDependencyOptions(this.config.dependencyOptions)
 	}
 	options.setDevMode(this.config.jscompDevMode)
@@ -189,21 +195,21 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		return Outcome_base_err(inputCharsetOutcome.error())
 	}
 	this.inputCharset = str_(inputCharsetOutcome.get())
-	if (String_length(this.config.jsOutputFile) > 0) {
+	if String_length(this.config.jsOutputFile) > 0 {
 		if this.config.skipNormalOutputs {
 			return Outcome_base_err(new_FlagUsageException("skip_normal_outputs and js_output_file cannot be used together.").up_Throwable())
 		}
 	}
-	if (this.config.skipNormalOutputs && this.config.printAst) {
+	if this.config.skipNormalOutputs && this.config.printAst {
 		return Outcome_base_err(new_FlagUsageException("skip_normal_outputs and print_ast cannot be used together.").up_Throwable())
 	}
-	if (this.config.skipNormalOutputs && this.config.printTree) {
+	if this.config.skipNormalOutputs && this.config.printTree {
 		return Outcome_base_err(new_FlagUsageException("skip_normal_outputs and print_tree cannot be used together.").up_Throwable())
 	}
-	if (this.config.skipNormalOutputs && this.config.printTreeJson) {
+	if this.config.skipNormalOutputs && this.config.printTreeJson {
 		return Outcome_base_err(new_FlagUsageException("skip_normal_outputs and print_tree_json_path cannot be used together.").up_Throwable())
 	}
-	if (String_length(this.config.createSourceMap) > 0) {
+	if String_length(this.config.createSourceMap) > 0 {
 		options.setSourceMapOutputPath(Optional_of(strobj_(this.config.createSourceMap)))
 	} else if this.isOutputInJson() {
 		options.setSourceMapOutputPath(Optional_of(strobj_("%outname%")))
@@ -265,11 +271,11 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 		}
 		options.addReportGenerator(icast_SortingErrorManager_ErrorReportGenerator(obj_(new_JsonErrorReportGenerator(cast_[*Output](jsonWarnings.get()), icast_SourceExcerptProvider(obj_(this.compiler_))))))
 	}
-	if (this.config.errorFormat == AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON) {
+	if this.config.errorFormat == AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_JSON {
 		var errorGenerator *JsonErrorReportGenerator = new_JsonErrorReportGenerator(this.getErrorPrintStream(), icast_SourceExcerptProvider(obj_(this.compiler_)))
 		this.compiler_.setErrorManager(icast_ErrorManager(new_SortingErrorManager(icast_Set(obj_(ImmutableSet_of_Object(obj_(errorGenerator))))).self()))
 	}
-	if (this.config.printTree || this.config.printTreeJson) {
+	if this.config.printTree || this.config.printTreeJson {
 		options.setParseJsDocDocumentation(Config_JsDocParsing_INCLUDE_ALL_COMMENTS)
 	}
 	if this.config.skipNormalOutputs {
@@ -342,13 +348,27 @@ func (this *AbstractCommandLineRunner) run() {
 		if resultOutcome.isErr() {
 			var e *FlagUsageException
 			_ = e
-			if func() bool { v_ := resultOutcome.error().self(); if !is_[*FlagUsageException](v_) { return false }; e = cast_[*FlagUsageException](v_); return true }() {
+			if func() bool {
+				v_ := resultOutcome.error().self()
+				if !is_[*FlagUsageException](v_) {
+					return false
+				}
+				e = cast_[*FlagUsageException](v_)
+				return true
+			}() {
 				this.err.println(e.getMessage())
 				result = -1
 			} else {
 				var e_2 *IOException
 				_ = e_2
-				if func() bool { v_ := resultOutcome.error().self(); if !is_IOException(v_) { return false }; e_2 = to_IOException(v_); return true }() {
+				if func() bool {
+					v_ := resultOutcome.error().self()
+					if !is_IOException(v_) {
+						return false
+					}
+					e_2 = to_IOException(v_)
+					return true
+				}() {
 					this.err.println(("ERROR - " + sstr_(e_2.getMessage())))
 					result = -2
 				} else {
@@ -386,7 +406,7 @@ func (this *AbstractCommandLineRunner) parseJsonFilesFromInputStream() *Outcome_
 	if parsed.isErr() {
 		return Outcome_base_err(new_SimpleJsonException("Malformed JSON in the JSON stream input").up_Throwable())
 	}
-	if (cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY) {
+	if cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(new_SimpleJsonException("Malformed JSON stream: expected an array").up_Throwable())
 	}
 	it_1 := foreach_(any(cast_[*SimpleJsonValue](parsed.get()).elements()))
@@ -414,11 +434,16 @@ func (this *AbstractCommandLineRunner) createInputs_4(files ListOf[*AbstractComm
 	var usingStdin bool = false
 	var jsChunkIndex int32 = 0
 	var jsChunkSpec *AbstractCommandLineRunner_JsChunkSpec = cast_[*AbstractCommandLineRunner_JsChunkSpec](Iterables_getFirst(Iterable(jsChunkSpecs), nil))
-	var cumulatedInputFilesExpected int32 = func() int32 { if (jsChunkSpec == nil) { return int32(2147483647) }; return jsChunkSpec.getNumInputs() }()
-	for i := int32(0); (i < files.size()); i++ {
+	var cumulatedInputFilesExpected int32 = func() int32 {
+		if jsChunkSpec == nil {
+			return int32(2147483647)
+		}
+		return jsChunkSpec.getNumInputs()
+	}()
+	for i := int32(0); i < files.size(); i++ {
 		var file *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](files.get(i))
 		var filename string = file.value_
-		if (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS_ZIP) {
+		if cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS_ZIP {
 			if this.config.typedAstListInputFilename.isPresent() {
 				return Outcome_base_err(new_FlagUsageException("Can't use TypedASTs with --zip.").up_Throwable())
 			}
@@ -440,12 +465,17 @@ func (this *AbstractCommandLineRunner) createInputs_4(files ListOf[*AbstractComm
 					}
 				}
 				inputs.addAll(Collection(newFiles))
-				if (jsChunkSpec != nil) {
+				if jsChunkSpec != nil {
 					jsChunkSpec.numJsFiles += (newFiles.size() - 1)
 				}
 			}
 		} else if !("-" == filename) {
-			var kind *StaticSourceFile_SourceKind = func() *StaticSourceFile_SourceKind { if (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) { return StaticSourceFile_SourceKind_WEAK }; return StaticSourceFile_SourceKind_STRONG }()
+			var kind *StaticSourceFile_SourceKind = func() *StaticSourceFile_SourceKind {
+				if cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP {
+					return StaticSourceFile_SourceKind_WEAK
+				}
+				return StaticSourceFile_SourceKind_STRONG
+			}()
 			var newFile *SourceFile_jscomp = SourceFile_jscomp_builder().withPath(filename).withCharset(this.inputCharset).withKind(kind).build()
 			inputs.add(obj_(newFile))
 		} else {
@@ -472,15 +502,15 @@ func (this *AbstractCommandLineRunner) createInputs_4(files ListOf[*AbstractComm
 			inputs.add(obj_(SourceFile_jscomp_builder().withPath("stdin").withContent(str_(stdinCode.get())).withCharset(this.inputCharset).build()))
 			usingStdin = true
 		}
-		if (i >= (cumulatedInputFilesExpected - 1)) {
+		if i >= (cumulatedInputFilesExpected - 1) {
 			jsChunkIndex++
-			if (jsChunkIndex < jsChunkSpecs.size()) {
+			if jsChunkIndex < jsChunkSpecs.size() {
 				jsChunkSpec = cast_[*AbstractCommandLineRunner_JsChunkSpec](jsChunkSpecs.get(jsChunkIndex))
 				cumulatedInputFilesExpected += jsChunkSpec.getNumInputs()
 			}
 		}
 	}
-	if (jsonFiles != nil) {
+	if jsonFiles != nil {
 		it_4 := foreach_(any(jsonFiles))
 		for it_4.next() {
 			var jsonFile *AbstractCommandLineRunner_JsonFileSpec = cast_[*AbstractCommandLineRunner_JsonFileSpec](it_4.v)
@@ -496,7 +526,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files ListOf[*Abstrac
 	it_1 := foreach_(any(files))
 	for it_1.next() {
 		var file *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](it_1.v)
-		if ((cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP)) {
+		if (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_JS) || (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_WEAKDEP) {
 			var absoluteName string = file.value_
 			var relativeName string = this.getModuleRootRelativeName(absoluteName, moduleRoots)
 			relativeToAbsoluteName[relativeName] = absoluteName
@@ -505,7 +535,7 @@ func (this *AbstractCommandLineRunner) deduplicateIjsFiles(files ListOf[*Abstrac
 	var iterator IteratorOf[*AbstractCommandLineRunner_FlagEntry] = files.iterator()
 	for iterator.hasNext() {
 		var file *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](iterator.next())
-		if (cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_IJS) {
+		if cast_[*AbstractCommandLineRunner_JsSourceType](file.flag_) == AbstractCommandLineRunner_JsSourceType_IJS {
 			if hasChunkSpecs {
 				return Outcome_base_err(new_FlagUsageException("--ijs is incompatible with --chunk or --module.").up_Throwable())
 			}
@@ -538,9 +568,14 @@ func (this *AbstractCommandLineRunner) getModuleRootRelativeName(filename string
 
 func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs ListOf[*AbstractCommandLineRunner_JsChunkSpec], files ListOf[*AbstractCommandLineRunner_FlagEntry], jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec], moduleRoots ListOf[string]) *Outcome_base {
 	if this.isInTestMode() {
-		return Outcome_base_ok_Object(func() any { if (this.inputsSupplierForTesting != nil) { return this.inputsSupplierForTesting.get() }; return nil }())
+		return Outcome_base_ok_Object(func() any {
+			if this.inputsSupplierForTesting != nil {
+				return this.inputsSupplierForTesting.get()
+			}
+			return nil
+		}())
 	}
-	if ((files.isEmpty() && (jsonFiles == nil)) && this.config.defaultToStdin) {
+	if (files.isEmpty() && (jsonFiles == nil)) && this.config.defaultToStdin {
 		files = icast_List(obj_(ImmutableList_of_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), "-")))))
 	}
 	var ijsErrors *Outcome_base = this.deduplicateIjsFiles(files, moduleRoots, !jsChunkSpecs.isEmpty())
@@ -553,12 +588,12 @@ func (this *AbstractCommandLineRunner) createSourceInputs(jsChunkSpecs ListOf[*A
 		this.compiler_.report(error_)
 	}
 	var inputsRes *Outcome_base
-	if (jsonFiles != nil) {
+	if jsonFiles != nil {
 		inputsRes = this.createInputsList(files, jsonFiles, jsChunkSpecs)
 	} else {
 		inputsRes = this.createInputs(files, true, jsChunkSpecs)
 	}
-	if (inputsRes.isErr() && is_IOException(inputsRes.error().self())) {
+	if inputsRes.isErr() && is_IOException(inputsRes.error().self()) {
 		return Outcome_base_err(inputsRes.error())
 	}
 	if inputsRes.isErr() {
@@ -575,7 +610,7 @@ func (this *AbstractCommandLineRunner) createExternInputs(files ListOf[string]) 
 		externFiles.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_EXTERN), file)))
 	}
 	var inputsRes *Outcome_base = this.createInputs(externFiles, false, icast_List(new_ArrayList_0().self()))
-	if (inputsRes.isErr() && is_IOException(inputsRes.error().self())) {
+	if inputsRes.isErr() && is_IOException(inputsRes.error().self()) {
 		return Outcome_base_err(inputsRes.error())
 	}
 	if inputsRes.isErr() {
@@ -604,17 +639,17 @@ func AbstractCommandLineRunner_createJsChunks(specs ListOf[*AbstractCommandLineR
 		for it_3.next() {
 			var dep string = str_(it_3.v)
 			var other *JSChunk = cast_[*JSChunk](Map_get_s(chunksByName, dep))
-			if (other == nil) {
+			if other == nil {
 				return Outcome_base_err(new_FlagUsageException(("Chunk '" + sstr_(spec.name_) + "' depends on unknown chunk '" + sstr_(dep) + "'. Be sure to list chunks in dependency order.")).up_Throwable())
 			}
 			chunk.addDependency(other)
 		}
-		if (spec.numJsFiles < 0) {
+		if spec.numJsFiles < 0 {
 			numJsFilesExpected = -1
 		} else {
 			minJsFilesRequired += spec.numJsFiles
 		}
-		if (numJsFilesExpected >= 0) {
+		if numJsFilesExpected >= 0 {
 			numJsFilesExpected += spec.numJsFiles
 		}
 		chunkNames.add_int_Object(0, strobj_(spec.name_))
@@ -622,13 +657,13 @@ func AbstractCommandLineRunner_createJsChunks(specs ListOf[*AbstractCommandLineR
 		Map_put_s(chunksByName, spec.name_, obj_(chunk))
 	}
 	var totalNumJsFiles int32 = inputs.size()
-	if ((numJsFilesExpected >= 0) || (minJsFilesRequired > totalNumJsFiles)) {
-		if (minJsFilesRequired > totalNumJsFiles) {
+	if (numJsFilesExpected >= 0) || (minJsFilesRequired > totalNumJsFiles) {
+		if minJsFilesRequired > totalNumJsFiles {
 			numJsFilesExpected = minJsFilesRequired
 		}
-		if (numJsFilesExpected > totalNumJsFiles) {
+		if numJsFilesExpected > totalNumJsFiles {
 			return Outcome_base_err(new_FlagUsageException(("Not enough JS files specified. Expected " + istr_(int64(numJsFilesExpected)) + " but found " + istr_(int64(totalNumJsFiles)))).up_Throwable())
-		} else if (numJsFilesExpected < totalNumJsFiles) {
+		} else if numJsFilesExpected < totalNumJsFiles {
 			return Outcome_base_err(new_FlagUsageException(("Too many JS files specified. Expected " + istr_(int64(numJsFilesExpected)) + " but found " + istr_(int64(totalNumJsFiles)))).up_Throwable())
 		}
 	}
@@ -639,7 +674,7 @@ func AbstractCommandLineRunner_createJsChunks(specs ListOf[*AbstractCommandLineR
 		var chunkName string = str_(it_5.v)
 		var numJsFiles int32 = unbox_[int32](chunksFileCountMap[chunkName])
 		var chunk *JSChunk = cast_[*JSChunk](Map_get_s(chunksByName, chunkName))
-		if ((chunkIndex == (chunkNames.size() - 1)) && (numJsFiles == -1)) {
+		if (chunkIndex == (chunkNames.size() - 1)) && (numJsFiles == -1) {
 			numJsFiles = numJsFilesLeft
 		}
 		var chunkFiles ListOf[*CompilerInput] = inputs.subList((numJsFilesLeft - numJsFiles), numJsFilesLeft)
@@ -673,7 +708,7 @@ func AbstractCommandLineRunner_parseChunkWrappers(specs ListOf[string], chunks I
 	for it_3.next() {
 		var spec string = str_(it_3.v)
 		var pos int32 = String_indexOf(spec, 58)
-		if (pos == -1) {
+		if pos == -1 {
 			return Outcome_base_err(new_FlagUsageException(("Expected chunk wrapper to have <name>:<wrapper> format: " + sstr_(spec))).up_Throwable())
 		}
 		var name string = String_substring(spec, 0, pos)
@@ -697,7 +732,7 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs ListOf[string]) *Outc
 	for it_1.next() {
 		var spec string = str_(it_1.v)
 		var pos int32 = String_indexOf(spec, 58)
-		if (pos == -1) {
+		if pos == -1 {
 			return Outcome_base_err(new_FlagUsageException(("Expected chunk_output_file to have <name>:<output_file> format: " + sstr_(spec))).up_Throwable())
 		}
 		var name string = String_substring(spec, 0, pos)
@@ -708,7 +743,7 @@ func AbstractCommandLineRunner_parseChunkOutputFiles(specs ListOf[string]) *Outc
 }
 
 func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outcome_base {
-	if (this.parsedChunkOutputFiles == nil) {
+	if this.parsedChunkOutputFiles == nil {
 		var parsedChunkOutputFilesOutcome *Outcome_base = AbstractCommandLineRunner_parseChunkOutputFiles(this.config.chunkOutputFiles)
 		if parsedChunkOutputFilesOutcome.isErr() {
 			return Outcome_base_err(parsedChunkOutputFilesOutcome.error())
@@ -723,7 +758,7 @@ func (this *AbstractCommandLineRunner) getChunkOutputFileName(m *JSChunk) *Outco
 }
 
 func (this *AbstractCommandLineRunner) getChunkConformanceFileName(m *JSChunk) *Outcome_base {
-	if (this.parsedChunkConformanceFiles == nil) {
+	if this.parsedChunkConformanceFiles == nil {
 		var parsedChunkConformanceFilesOutcome *Outcome_base = AbstractCommandLineRunner_parseChunkOutputFiles(this.config.chunkConformanceFiles)
 		if parsedChunkConformanceFilesOutcome.isErr() {
 			return Outcome_base_err(parsedChunkConformanceFilesOutcome.error())
@@ -734,7 +769,7 @@ func (this *AbstractCommandLineRunner) getChunkConformanceFileName(m *JSChunk) *
 }
 
 func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out Appendable, lt CodePrinter_LicenseTracker, m *JSChunk) *Outcome_base {
-	if (this.parsedChunkWrappers == nil) {
+	if this.parsedChunkWrappers == nil {
 		var parsedChunkWrappersOutcome *Outcome_base = AbstractCommandLineRunner_parseChunkWrappers(this.config.chunkWrapper, icast_Iterable(obj_(ImmutableList_copyOf_Iterable(this.compiler_.getChunkGraph().getAllChunks()))))
 		if parsedChunkWrappersOutcome.isErr() {
 			return Outcome_base_err(parsedChunkWrappersOutcome.error())
@@ -750,32 +785,42 @@ func (this *AbstractCommandLineRunner) writeChunkOutput(fileName string, out App
 }
 
 func (this *AbstractCommandLineRunner) writeOutput_8(out Appendable, compiler *Compiler, licenseTracker CodePrinter_LicenseTracker, chunk *JSChunk, wrapper string, codePlaceholder string, escaper Function_baseOf[string, string], filename string) {
-	if (compiler.getOptions().getOutputJs() == CompilerOptions_OutputJs_SENTINEL) {
+	if compiler.getOptions().getOutputJs() == CompilerOptions_OutputJs_SENTINEL {
 		out.append_CharSequence(strobj_("// No JS output because the compiler was run in checks-only mode.\n"))
 		return
 	}
 	Preconditions_checkState((compiler.getOptions().getOutputJs() == CompilerOptions_OutputJs_NORMAL))
-	var code string = func() string { if (chunk == nil) { return compiler.toSource() }; return compiler.toSource_2(licenseTracker, chunk) }()
+	var code string = func() string {
+		if chunk == nil {
+			return compiler.toSource()
+		}
+		return compiler.toSource_2(licenseTracker, chunk)
+	}()
 	this.writeOutput(out, compiler, code, wrapper, codePlaceholder, escaper, filename)
 }
 
 func (this *AbstractCommandLineRunner) writeOutput(out Appendable, compiler *Compiler, code string, wrapper string, codePlaceholder string, escaper Function_baseOf[string, string], filename string) {
 	var pos int32 = String_indexOf_String(wrapper, codePlaceholder)
-	if (pos != -1) {
+	if pos != -1 {
 		var prefix string = ""
-		if (pos > 0) {
+		if pos > 0 {
 			prefix = String_substring(wrapper, 0, pos)
 			out.append_CharSequence(strobj_(prefix))
 		}
-		out.append_CharSequence(func() any { if (escaper == nil) { return strobj_(code) }; return escaper.apply(strobj_(code)) }())
+		out.append_CharSequence(func() any {
+			if escaper == nil {
+				return strobj_(code)
+			}
+			return escaper.apply(strobj_(code))
+		}())
 		var suffixStart int32 = (pos + String_length(codePlaceholder))
-		if (suffixStart != String_length(wrapper)) {
+		if suffixStart != String_length(wrapper) {
 			out.append_CharSequence(strobj_(String_substring_int(wrapper, suffixStart)))
 		}
 		if this.getCommandLineConfig().includeTrailingNewline {
 			out.append_char('\n')
 		}
-		if ((compiler != nil) && (compiler.getSourceMap() != nil)) {
+		if (compiler != nil) && (compiler.getSourceMap() != nil) {
 			compiler.getSourceMap().setWrapperPrefix(prefix)
 		}
 	} else {
@@ -812,7 +857,14 @@ func (this *AbstractCommandLineRunner) createDefaultOutput() *Outcome_base {
 func AbstractCommandLineRunner_closeAppendable(output Appendable) *Outcome_base {
 	var out *Output
 	_ = out
-	if func() bool { v_ := any(output); if !is_[*Output](v_) { return false }; out = cast_[*Output](v_); return true }() {
+	if func() bool {
+		v_ := any(output)
+		if !is_[*Output](v_) {
+			return false
+		}
+		out = cast_[*Output](v_)
+		return true
+	}() {
 		out.flush()
 		return AbstractCommandLineRunner_closeOutput(out)
 	}
@@ -820,7 +872,7 @@ func AbstractCommandLineRunner_closeAppendable(output Appendable) *Outcome_base 
 }
 
 func AbstractCommandLineRunner_closeOutput(output *Output) *Outcome_base {
-	if (output != nil) {
+	if output != nil {
 		return output.close()
 	}
 	return Outcome_base_ok_0()
@@ -862,12 +914,12 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 		outputFileNames = append(outputFileNames, this.config.jsOutputFile)
 	}
 	var createCommonJsModules bool = false
-	if (options.getProcessCommonJSModules() && ((this.config.chunk_.size() == 1) && ("auto" == str_(this.config.chunk_.get(0))))) {
+	if options.getProcessCommonJSModules() && ((this.config.chunk_.size() == 1) && ("auto" == str_(this.config.chunk_.get(0)))) {
 		createCommonJsModules = true
 		this.config.chunk_.remove(0)
 	}
 	var jsChunkSpecs ListOf[*AbstractCommandLineRunner_JsChunkSpec] = icast_List(new_ArrayList_0().self())
-	for i := int32(0); (i < this.config.chunk_.size()); i++ {
+	for i := int32(0); i < this.config.chunk_.size(); i++ {
 		var jsChunkSpec *Outcome_base = AbstractCommandLineRunner_JsChunkSpec_create(str_(this.config.chunk_.get(i)), (i == 0))
 		if jsChunkSpec.isErr() {
 			return Outcome_base_err(jsChunkSpec.error())
@@ -875,7 +927,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 		jsChunkSpecs.add(jsChunkSpec.get())
 	}
 	var jsonFiles ListOf[*AbstractCommandLineRunner_JsonFileSpec] = nil
-	if ((this.config.jsonStreamMode == CompilerOptions_JsonStreamMode_IN) || (this.config.jsonStreamMode == CompilerOptions_JsonStreamMode_BOTH)) {
+	if (this.config.jsonStreamMode == CompilerOptions_JsonStreamMode_IN) || (this.config.jsonStreamMode == CompilerOptions_JsonStreamMode_BOTH) {
 		var jsonFilesOutcome *Outcome_base = this.parseJsonFilesFromInputStream()
 		if jsonFilesOutcome.isErr() {
 			return Outcome_base_err(jsonFilesOutcome.error())
@@ -887,7 +939,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 		it_2 := foreach_(any(jsonFiles))
 		for it_2.next() {
 			var jsonFile *AbstractCommandLineRunner_JsonFileSpec = cast_[*AbstractCommandLineRunner_JsonFileSpec](it_2.v)
-			if (jsonFile.getSourceMap().isPresent() && (String_length(str_(jsonFile.getSourceMap().get())) > 0)) {
+			if jsonFile.getSourceMap().isPresent() && (String_length(str_(jsonFile.getSourceMap().get())) > 0) {
 				var sourceMapPath string = (sstr_(str_(jsonFile.getPath().orElse(strobj_("null")))) + ".map")
 				var sourceMap *SourceFile_jscomp = SourceFile_jscomp_fromCode_String_String(sourceMapPath, str_(jsonFile.getSourceMap().get()))
 				inputSourceMaps.put(jsonFile.getPath().get(), obj_(new_SourceMapInput(sourceMap)))
@@ -918,7 +970,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 		if this.isInTestMode() {
 			chunks = icast_List(this.chunksSupplierForTesting.get())
 		} else {
-			if (Object_equals(obj_(CompilerOptions_JsonStreamMode_IN), obj_(this.config.jsonStreamMode)) || Object_equals(obj_(CompilerOptions_JsonStreamMode_NONE), obj_(this.config.jsonStreamMode))) {
+			if Object_equals(obj_(CompilerOptions_JsonStreamMode_IN), obj_(this.config.jsonStreamMode)) || Object_equals(obj_(CompilerOptions_JsonStreamMode_NONE), obj_(this.config.jsonStreamMode)) {
 				it_4 := foreach_(any(jsChunkSpecs))
 				for it_4.next() {
 					var m *AbstractCommandLineRunner_JsChunkSpec = cast_[*AbstractCommandLineRunner_JsChunkSpec](it_4.v)
@@ -1011,7 +1063,7 @@ func (this *AbstractCommandLineRunner) doRun() *Outcome_base {
 	it_13 := eachOf_(&outputFileNames)
 	for it_13.next() {
 		var outputFileName string = it_13.v
-		if (this.compiler_.getSourceFileByName(Optional_of(strobj_(outputFileName))) != nil) {
+		if this.compiler_.getSourceFileByName(Optional_of(strobj_(outputFileName))) != nil {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_OUTPUT_SAME_AS_INPUT_ERROR, []string{outputFileName}))
 			return Outcome_base_ok_Object(any(int32(1)))
 		}
@@ -1074,7 +1126,12 @@ func (this *AbstractCommandLineRunner) runCompilerPasses(metricsRecorder Compile
 		actionMetricsName = "stage 3/3"
 		runStage3 = true
 	} else {
-		actionMetricsName = func() string { if this.compiler_.getOptions().isChecksOnly() { return "checks-only" }; return "full compile" }()
+		actionMetricsName = func() string {
+			if this.compiler_.getOptions().isChecksOnly() {
+				return "checks-only"
+			}
+			return "full compile"
+		}()
 		runStage1 = true
 		runStage2 = true
 		runStage3 = true
@@ -1138,7 +1195,7 @@ func AbstractCommandLineRunner_readTypedAstList(filename string) *Outcome_base {
 }
 
 func (this *AbstractCommandLineRunner) initializeStateBeforeCompilation() *Outcome_base {
-	if (this.config.restoredCompilationStage != -1) {
+	if this.config.restoredCompilationStage != -1 {
 		var restored *Outcome_base = this.restoreState(str_(this.config.getContinueSavedCompilationFileName().orElse(nil)))
 		if restored.isErr() {
 			return Outcome_base_err(restored.error())
@@ -1177,7 +1234,7 @@ func (this *AbstractCommandLineRunner) saveState() {
 
 func (this *AbstractCommandLineRunner) processResults(result *Result, chunks ListOf[*JSChunk], options *CompilerOptions) *Outcome_base {
 	if this.config.printAst {
-		if (this.compiler_.getRoot() == 0) {
+		if this.compiler_.getRoot() == 0 {
 			return Outcome_base_ok_Object(any(int32(1)))
 		} else {
 			var jsOutputOutcome *Outcome_base = this.createDefaultOutput()
@@ -1196,7 +1253,7 @@ func (this *AbstractCommandLineRunner) processResults(result *Result, chunks Lis
 		}
 	}
 	if this.config.printTree {
-		if (this.compiler_.getRoot() == 0) {
+		if this.compiler_.getRoot() == 0 {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_NO_TREE_GENERATED_ERROR, []string{}))
 			return Outcome_base_ok_Object(any(int32(1)))
 		} else {
@@ -1215,7 +1272,7 @@ func (this *AbstractCommandLineRunner) processResults(result *Result, chunks Lis
 		}
 	}
 	if this.config.printTreeJson {
-		if (this.compiler_.getRoot() == 0) {
+		if this.compiler_.getRoot() == 0 {
 			this.compiler_.report(JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_NO_TREE_GENERATED_ERROR, []string{}))
 			return Outcome_base_ok_Object(any(int32(1)))
 		} else {
@@ -1246,12 +1303,12 @@ func (this *AbstractCommandLineRunner) processResults(result *Result, chunks Lis
 			return Outcome_base_err(outputChunkGraphJsonOutcome1.error())
 		}
 		return Outcome_base_ok_Object(any(int32(0)))
-	} else if ((options.getOutputJs() != CompilerOptions_OutputJs_NONE) && result.success_) {
+	} else if (options.getOutputJs() != CompilerOptions_OutputJs_NONE) && result.success_ {
 		var outputChunkGraphJsonOutcome2 *Outcome_base = this.outputChunkGraphJson()
 		if outputChunkGraphJsonOutcome2.isErr() {
 			return Outcome_base_err(outputChunkGraphJsonOutcome2.error())
 		}
-		if (chunks == nil) {
+		if chunks == nil {
 			var outputSingleBinaryOutcome3 *Outcome_base = this.outputSingleBinary(options)
 			if outputSingleBinaryOutcome3.isErr() {
 				return Outcome_base_err(outputSingleBinaryOutcome3.error())
@@ -1268,7 +1325,7 @@ func (this *AbstractCommandLineRunner) processResults(result *Result, chunks Lis
 				return Outcome_base_err(errorOutcome.error())
 			}
 			var error_ *DiagnosticType = cast_[*DiagnosticType](errorOutcome.get())
-			if (error_ != nil) {
+			if error_ != nil {
 				this.compiler_.report(JSError_make_DiagnosticType_StringArr(error_, []string{}))
 				return Outcome_base_ok_Object(any(int32(1)))
 			}
@@ -1359,7 +1416,12 @@ func (this *AbstractCommandLineRunner) outputSingleBinary(options *CompilerOptio
 func (this *AbstractCommandLineRunner) createJsonFile(options *CompilerOptions, outputMarker string, escaper Function_baseOf[string, string]) *AbstractCommandLineRunner_JsonFileSpec {
 	var jsOutput Appendable = icast_Appendable(obj_(new_StringBuilder()))
 	this.writeOutput_8(jsOutput, this.compiler_, icast_CodePrinter_LicenseTracker(obj_(new_Compiler_SingleBinaryLicenseTracker(this.compiler_.up_AbstractCompiler()))), nil, this.config.outputWrapper, outputMarker, escaper, this.config.jsOutputFile)
-	var jsonOutput *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(Object_toString(any(jsOutput)), func() string { if Strings_isNullOrEmpty(this.config.jsOutputFile) { return "compiled.js" }; return this.config.jsOutputFile }())
+	var jsonOutput *AbstractCommandLineRunner_JsonFileSpec = new_AbstractCommandLineRunner_JsonFileSpec_String_String(Object_toString(any(jsOutput)), func() string {
+		if Strings_isNullOrEmpty(this.config.jsOutputFile) {
+			return "compiled.js"
+		}
+		return this.config.jsOutputFile
+	}())
 	if options.shouldGatherSourceMapInfo() {
 		var sourcemap *StringBuilder = new_StringBuilder()
 		this.compiler_.getSourceMap().appendTo(icast_Appendable(obj_(sourcemap)), jsonOutput.getPath())
@@ -1406,7 +1468,7 @@ func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph
 	it_1 := foreach_(any(chunks))
 	for it_1.next() {
 		var m *JSChunk = cast_[*JSChunk](it_1.v)
-		if (m.getName() == JSChunk_WEAK_CHUNK_NAME) {
+		if m.getName() == JSChunk_WEAK_CHUNK_NAME {
 			continue
 		}
 		if this.isOutputInJson() {
@@ -1464,7 +1526,7 @@ func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph
 			if writerClosed.isErr() {
 				return Outcome_base_err(writerClosed.error())
 			}
-			if (this.shouldGenerateMapPerChunk(options) && (mapFileOut != nil)) {
+			if this.shouldGenerateMapPerChunk(options) && (mapFileOut != nil) {
 				var mapFileOutClosed2 *Outcome_base = AbstractCommandLineRunner_closeOutput(mapFileOut)
 				if mapFileOutClosed2.isErr() {
 					return Outcome_base_err(mapFileOutClosed2.error())
@@ -1473,7 +1535,7 @@ func (this *AbstractCommandLineRunner) outputChunkBinaryAndSourceMaps(chunkGraph
 			}
 		}
 	}
-	if (mapFileOut != nil) {
+	if mapFileOut != nil {
 		var mapFileOutClosed3 *Outcome_base = AbstractCommandLineRunner_closeOutput(mapFileOut)
 		if mapFileOutClosed3.isErr() {
 			return Outcome_base_err(mapFileOutClosed3.error())
@@ -1560,7 +1622,7 @@ func (this *AbstractCommandLineRunner) openExternExportsStream(options *Compiler
 
 func (this *AbstractCommandLineRunner) expandCommandLinePath(path string, forChunk *JSChunk) *Outcome_base {
 	var sub string
-	if (forChunk != nil) {
+	if forChunk != nil {
 		var subOutcome *Outcome_base = this.getChunkOutputFileName(forChunk)
 		if subOutcome.isErr() {
 			return Outcome_base_err(subOutcome.error())
@@ -1615,7 +1677,7 @@ func (this *AbstractCommandLineRunner) streamToLegacyOutputWriter(stream *Output
 }
 
 func (this *AbstractCommandLineRunner) outputSourceMap(options *CompilerOptions, associatedName string) *Outcome_base {
-	if (!options.shouldGatherSourceMapInfo() || (str_(options.getSourceMapOutputPath().get()) == "/dev/null")) {
+	if !options.shouldGatherSourceMapInfo() || (str_(options.getSourceMapOutputPath().get()) == "/dev/null") {
 		return Outcome_base_ok_0()
 	}
 	var outNameOutcome *Outcome_base = this.expandSourceMapPath(options, nil)
@@ -1686,13 +1748,13 @@ func (this *AbstractCommandLineRunner) outputNameMaps() *Outcome_base {
 		}
 		propertyMapOutputPath = Optional_of(strobj_(this.config.propertyMapOutputFile))
 	}
-	if (variableMapOutputPath.isPresent() && (this.compiler_.getVariableMap() != nil)) {
+	if variableMapOutputPath.isPresent() && (this.compiler_.getVariableMap() != nil) {
 		var savedVariableMap *Outcome_base = this.compiler_.getVariableMap().save(str_(variableMapOutputPath.get()))
 		if savedVariableMap.isErr() {
 			return Outcome_base_err(savedVariableMap.error())
 		}
 	}
-	if (propertyMapOutputPath.isPresent() && (this.compiler_.getPropertyMap() != nil)) {
+	if propertyMapOutputPath.isPresent() && (this.compiler_.getPropertyMap() != nil) {
 		var savedPropertyMap *Outcome_base = this.compiler_.getPropertyMap().save(str_(propertyMapOutputPath.get()))
 		if savedPropertyMap.isErr() {
 			return Outcome_base_err(savedPropertyMap.error())
@@ -1703,7 +1765,7 @@ func (this *AbstractCommandLineRunner) outputNameMaps() *Outcome_base {
 
 func (this *AbstractCommandLineRunner) outputStringMap() *Outcome_base {
 	if !String_isEmpty(this.config.stringMapOutputPath) {
-		if (this.compiler_.getStringMap() == nil) {
+		if this.compiler_.getStringMap() == nil {
 			if Io_exists(this.config.stringMapOutputPath) {
 				return Outcome_base_err(new_IOException_String(("Could not create file: " + sstr_(this.config.stringMapOutputPath))).up_Throwable())
 			}
@@ -1727,26 +1789,31 @@ func AbstractCommandLineRunner_createDefineReplacements(definitions ListOf[strin
 		var override string = str_(it_1.v)
 		var assignment []string = AbstractCommandLineRunner_EQUALS_PATTERN.split_String_int(override, 2)
 		var defName string = assignment[0]
-		if (String_length(defName) > 0) {
-			var defValue string = func() string { if (int32(len(assignment)) == 1) { return "true" }; return assignment[1] }()
+		if String_length(defName) > 0 {
+			var defValue string = func() string {
+				if int32(len(assignment)) == 1 {
+					return "true"
+				}
+				return assignment[1]
+			}()
 			var isTrue bool = (defValue == "true")
 			var isFalse bool = (defValue == "false")
-			if (isTrue || isFalse) {
+			if isTrue || isFalse {
 				options.setDefineToBooleanLiteral(defName, isTrue)
 				continue
-			} else if ((String_length(defValue) > 1) && (((String_charAt(defValue, 0) == '\'') && (String_charAt(defValue, (String_length(defValue) - 1)) == '\'')) || ((String_charAt(defValue, 0) == '"') && (String_charAt(defValue, (String_length(defValue) - 1)) == '"')))) {
+			} else if (String_length(defValue) > 1) && (((String_charAt(defValue, 0) == '\'') && (String_charAt(defValue, (String_length(defValue)-1)) == '\'')) || ((String_charAt(defValue, 0) == '"') && (String_charAt(defValue, (String_length(defValue)-1)) == '"'))) {
 				var maybeStringVal string = String_substring(defValue, 1, (String_length(defValue) - 1))
-				if (String_indexOf(maybeStringVal, int32(String_charAt(defValue, 0))) == -1) {
+				if String_indexOf(maybeStringVal, int32(String_charAt(defValue, 0))) == -1 {
 					options.setDefineToStringLiteral(defName, maybeStringVal)
 					continue
 				}
 			} else {
 				var value any = Doubles_tryParse(String_trim(defValue))
-				if (value != nil) {
+				if value != nil {
 					options.setDefineToDoubleLiteral(defName, unbox_[float64](value))
 					continue
 				}
-				if (String_length(defValue) > 0) {
+				if String_length(defValue) > 0 {
 					options.setDefineToStringLiteral(defName, defValue)
 					continue
 				}
@@ -1887,7 +1954,7 @@ func (this *AbstractCommandLineRunner) outputManifestOrBundle(outputFiles ListOf
 }
 
 func (this *AbstractCommandLineRunner) outputChunkGraphJson() *Outcome_base {
-	if (this.config.outputChunkDependencies.isPresent() && (String_length(str_(this.config.outputChunkDependencies.get())) != 0)) {
+	if this.config.outputChunkDependencies.isPresent() && (String_length(str_(this.config.outputChunkDependencies.get())) != 0) {
 		var outOutcome *Outcome_base = this.fileNameToOutputWriter2(this.config.outputChunkDependencies)
 		if outOutcome.isErr() {
 			return Outcome_base_err(outOutcome.error())
@@ -1918,7 +1985,7 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 	it_1 := foreach_(any(graph.getAllChunks()))
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
-		if (!isManifest && chunk.isWeak()) {
+		if !isManifest && chunk.isWeak() {
 			continue
 		}
 		if requiresNewline {
@@ -1926,7 +1993,12 @@ func (this *AbstractCommandLineRunner) printChunkGraphManifestOrBundleTo(graph *
 		}
 		if isManifest {
 			var dependencies string = commas.join(Iterable(chunk.getSortedDependencyNames()))
-			out.append_CharSequence(strobj_(String_format("{%s%s}\n", []any{strobj_(chunk.getName()), func() any { if String_isEmpty(dependencies) { return strobj_("") }; return strobj_((":" + sstr_(dependencies))) }()})))
+			out.append_CharSequence(strobj_(String_format("{%s%s}\n", []any{strobj_(chunk.getName()), func() any {
+				if String_isEmpty(dependencies) {
+					return strobj_("")
+				}
+				return strobj_((":" + sstr_(dependencies)))
+			}()})))
 			this.printManifestTo(chunk, out)
 		} else {
 			var printBundleToOutcome *Outcome_base = this.printBundleTo(chunk, out)
@@ -1957,10 +2029,10 @@ func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appen
 func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appendable) *Outcome_base {
 	var inputs ImmutableListOf[*CompilerInput] = chunk.getInputs()
 	var options *CompilerOptions = this.compiler_.getOptions()
-	if (options.getNumParallelThreads() > 1) {
+	if options.getNumParallelThreads() > 1 {
 		new_PrebuildAst(this.compiler_.up_AbstractCompiler(), this.compiler_.getOptions().getNumParallelThreads()).prebuild(icast_Iterable(obj_(inputs)))
 	}
-	if (options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_INJECT) {
+	if options.getRuntimeLibraryMode() == RuntimeJsLibManager_RuntimeLibraryMode_INJECT {
 		it_1 := foreach_(obj_(inputs))
 		for it_1.next() {
 			var input *CompilerInput = cast_[*CompilerInput](it_1.v)
@@ -1982,11 +2054,16 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 			return Outcome_base_err(codeRes.error())
 		}
 		var code string = str_(codeRes.get())
-		if (AbstractCompiler_isFillFileName(name) && String_isEmpty(code)) {
+		if AbstractCompiler_isFillFileName(name) && String_isEmpty(code) {
 			continue
 		}
 		var rootRelativePath OptionalOf[string] = Optional_ofNullable(Map_get_s(this.rootRelativePathsMap, name))
-		var displayName string = func() string { if rootRelativePath.isPresent() { return str_(rootRelativePath.get()) }; return input.getName() }()
+		var displayName string = func() string {
+			if rootRelativePath.isPresent() {
+				return str_(rootRelativePath.get())
+			}
+			return input.getName()
+		}()
 		out.append_CharSequence(strobj_("//"))
 		out.append_CharSequence(strobj_(displayName))
 		out.append_CharSequence(strobj_("\n"))
@@ -2019,7 +2096,9 @@ func (this *AbstractCommandLineRunner) getVersionText() string {
 }
 
 func (this *AbstractCommandLineRunner) addAllowlistWarningsGuard(p0 *CompilerOptions, p1 string) {
-	this.self_.(interface{ addAllowlistWarningsGuard_impl(*CompilerOptions, string) }).addAllowlistWarningsGuard_impl(p0, p1)
+	this.self_.(interface {
+		addAllowlistWarningsGuard_impl(*CompilerOptions, string)
+	}).addAllowlistWarningsGuard_impl(p0, p1)
 }
 
 func (this *AbstractCommandLineRunner) checkChunkName(p0 string) *Outcome_base {
@@ -2035,15 +2114,21 @@ func (this *AbstractCommandLineRunner) createCompiler() *Compiler {
 }
 
 func (this *AbstractCommandLineRunner) prepForBundleAndAppendTo(p0 Appendable, p1 *CompilerInput, p2 string) *Outcome_base {
-	return this.self_.(interface{ prepForBundleAndAppendTo_impl(Appendable, *CompilerInput, string) *Outcome_base }).prepForBundleAndAppendTo_impl(p0, p1, p2)
+	return this.self_.(interface {
+		prepForBundleAndAppendTo_impl(Appendable, *CompilerInput, string) *Outcome_base
+	}).prepForBundleAndAppendTo_impl(p0, p1, p2)
 }
 
 func (this *AbstractCommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_base {
-	return this.self_.(interface{ appendRuntimeTo_impl(Appendable) *Outcome_base }).appendRuntimeTo_impl(p0)
+	return this.self_.(interface {
+		appendRuntimeTo_impl(Appendable) *Outcome_base
+	}).appendRuntimeTo_impl(p0)
 }
 
 func (this *AbstractCommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base {
-	return this.self_.(interface{ createExterns_impl(*CompilerOptions) *Outcome_base }).createExterns_impl(p0)
+	return this.self_.(interface {
+		createExterns_impl(*CompilerOptions) *Outcome_base
+	}).createExterns_impl(p0)
 }
 
 var AbstractCommandLineRunner_EQUALS_PATTERN *Pattern
@@ -2056,6 +2141,7 @@ var AbstractCommandLineRunner_NO_TREE_GENERATED_ERROR *DiagnosticType
 var AbstractCommandLineRunner_INVALID_CHUNK_SOURCEMAP_PATTERN *DiagnosticType
 var AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND *DiagnosticType
 var AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION *DiagnosticType
+
 const AbstractCommandLineRunner_WAITING_FOR_INPUT_WARNING string = "The compiler is waiting for input via stdin."
 const AbstractCommandLineRunner_OUTPUT_MARKER string = "%output%"
 const AbstractCommandLineRunner_OUTPUT_MARKER_JS_STRING string = "%output|jsstring%"
@@ -2081,64 +2167,64 @@ func AbstractCommandLineRunner_clinit() {
 }
 
 type AbstractCommandLineRunner_CommandLineConfig struct {
-	printVersion bool
-	printTree bool
-	printTreeJson bool
-	printAst bool
-	jscompDevMode *CompilerOptions_DevMode
-	loggingLevel string
-	externs ListOf[string]
-	mixedJsSources ListOf[*AbstractCommandLineRunner_FlagEntry]
-	defaultToStdin bool
-	jsOutputFile string
+	printVersion                     bool
+	printTree                        bool
+	printTreeJson                    bool
+	printAst                         bool
+	jscompDevMode                    *CompilerOptions_DevMode
+	loggingLevel                     string
+	externs                          ListOf[string]
+	mixedJsSources                   ListOf[*AbstractCommandLineRunner_FlagEntry]
+	defaultToStdin                   bool
+	jsOutputFile                     string
 	continueSavedCompilationFileName OptionalOf[string]
-	restoredCompilationStage int32
-	saveAfterCompilationStage int32
-	typedAstListInputFilename OptionalOf[string]
-	saveCompilationStateToFilename OptionalOf[string]
-	chunk_ ListOf[string]
-	sourceMapInputFiles MapOf[string, string]
-	parseInlineSourceMaps_ bool
-	expectedDiagnostics ListOf[string]
-	variableMapInputFile string
-	propertyMapInputFile string
-	variableMapOutputFile string
-	createNameMapFiles bool
-	propertyMapOutputFile string
-	stringMapOutputPath string
-	instrumentationMappingFile string
-	codingConvention CodingConvention
-	summaryDetailLevel int32
-	outputWrapper string
-	chunkWrapper ListOf[string]
-	chunkOutputPathPrefix string
-	chunkOutputFiles ListOf[string]
-	chunkConformanceFiles ListOf[string]
-	createSourceMap string
-	sourceMapDetailLevel *SourceMap_DetailLevel
-	sourceMapFormat *SourceMap_Format
-	sourceMapLocationMappings ImmutableListOf[SourceMap_LocationMapping]
-	applyInputSourceMaps bool
-	warningGuards ArrayListOf[*AbstractCommandLineRunner_FlagEntry]
-	define ListOf[string]
-	browserFeaturesetYear int32
-	tweakProcessing *CompilerOptions_TweakProcessing
-	charset string
-	dependencyOptions *DependencyOptions
-	outputManifests ListOf[string]
-	outputChunkDependencies OptionalOf[string]
-	outputBundles ListOf[string]
-	skipNormalOutputs bool
-	manifestMaps ListOf[string]
-	processCommonJSModules bool
-	moduleRoots ListOf[string]
-	warningsAllowFile string
-	hideWarningsFor ListOf[string]
-	angularPass bool
-	jsonStreamMode *CompilerOptions_JsonStreamMode
-	errorFormat *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
-	jsonWarningsFile string
-	includeTrailingNewline bool
+	restoredCompilationStage         int32
+	saveAfterCompilationStage        int32
+	typedAstListInputFilename        OptionalOf[string]
+	saveCompilationStateToFilename   OptionalOf[string]
+	chunk_                           ListOf[string]
+	sourceMapInputFiles              MapOf[string, string]
+	parseInlineSourceMaps_           bool
+	expectedDiagnostics              ListOf[string]
+	variableMapInputFile             string
+	propertyMapInputFile             string
+	variableMapOutputFile            string
+	createNameMapFiles               bool
+	propertyMapOutputFile            string
+	stringMapOutputPath              string
+	instrumentationMappingFile       string
+	codingConvention                 CodingConvention
+	summaryDetailLevel               int32
+	outputWrapper                    string
+	chunkWrapper                     ListOf[string]
+	chunkOutputPathPrefix            string
+	chunkOutputFiles                 ListOf[string]
+	chunkConformanceFiles            ListOf[string]
+	createSourceMap                  string
+	sourceMapDetailLevel             *SourceMap_DetailLevel
+	sourceMapFormat                  *SourceMap_Format
+	sourceMapLocationMappings        ImmutableListOf[SourceMap_LocationMapping]
+	applyInputSourceMaps             bool
+	warningGuards                    ArrayListOf[*AbstractCommandLineRunner_FlagEntry]
+	define                           ListOf[string]
+	browserFeaturesetYear            int32
+	tweakProcessing                  *CompilerOptions_TweakProcessing
+	charset                          string
+	dependencyOptions                *DependencyOptions
+	outputManifests                  ListOf[string]
+	outputChunkDependencies          OptionalOf[string]
+	outputBundles                    ListOf[string]
+	skipNormalOutputs                bool
+	manifestMaps                     ListOf[string]
+	processCommonJSModules           bool
+	moduleRoots                      ListOf[string]
+	warningsAllowFile                string
+	hideWarningsFor                  ListOf[string]
+	angularPass                      bool
+	jsonStreamMode                   *CompilerOptions_JsonStreamMode
+	errorFormat                      *AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption
+	jsonWarningsFile                 string
+	includeTrailingNewline           bool
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) zero_AbstractCommandLineRunner_CommandLineConfig() {
@@ -2291,7 +2377,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setContinueSavedCompila
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldSaveAfterStage1() bool {
-	if (this.saveCompilationStateToFilename.isPresent() && (this.saveAfterCompilationStage == 1)) {
+	if this.saveCompilationStateToFilename.isPresent() && (this.saveAfterCompilationStage == 1) {
 		Preconditions_checkState_boolean_String_int((this.restoredCompilationStage < 0), "cannot perform stage 1 after restoring from stage %s", this.restoredCompilationStage)
 		Preconditions_checkState_boolean_Object(this.continueSavedCompilationFileName.isEmpty(), strobj_("cannot restore a saved compilation and also save after stage 1"))
 		return true
@@ -2332,7 +2418,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerform
 }
 
 func (this *AbstractCommandLineRunner_CommandLineConfig) shouldRestoreAndPerformStage3() bool {
-	if (this.shouldContinueCompilation() && (this.restoredCompilationStage == 2)) {
+	if this.shouldContinueCompilation() && (this.restoredCompilationStage == 2) {
 		Preconditions_checkState_boolean_String_int((this.saveAfterCompilationStage < 0), "request to save after stage %s is invalid when restoring from stage 2", this.saveAfterCompilationStage)
 		return true
 	} else {
@@ -2648,10 +2734,10 @@ func AbstractCommandLineRunner_CommandLineConfig_ErrorFormatOption_clinit() {
 }
 
 type AbstractCommandLineRunner_JsonFileSpec struct {
-	src OptionalOf[string]
-	path_ OptionalOf[string]
+	src        OptionalOf[string]
+	path_      OptionalOf[string]
 	sourceMap_ OptionalOf[string]
-	webpackId OptionalOf[string]
+	webpackId  OptionalOf[string]
 }
 
 func (this *AbstractCommandLineRunner_JsonFileSpec) finit_AbstractCommandLineRunner_JsonFileSpec() {
@@ -2693,7 +2779,7 @@ func new_AbstractCommandLineRunner_JsonFileSpec_Optional_Optional_Optional_Optio
 }
 
 func AbstractCommandLineRunner_JsonFileSpec_readJson(object *SimpleJsonValue) *Outcome_base {
-	if (object.kind() != SimpleJsonValue_Kind_OBJECT) {
+	if object.kind() != SimpleJsonValue_Kind_OBJECT {
 		return Outcome_base_err(new_SimpleJsonException("Malformed JSON stream: expected an object").up_Throwable())
 	}
 	var src OptionalOf[string] = Optional_empty()
@@ -2731,14 +2817,14 @@ func AbstractCommandLineRunner_JsonFileSpec_readJson(object *SimpleJsonValue) *O
 			webpackId = Optional_ofNullable(value.get())
 		}
 	}
-	if (src.isEmpty() || path.isEmpty()) {
+	if src.isEmpty() || path.isEmpty() {
 		return Outcome_base_err(new_SimpleJsonException("Malformed JSON stream: a file needs \"src\" and \"path\"").up_Throwable())
 	}
 	return Outcome_base_ok_Object(obj_(new_AbstractCommandLineRunner_JsonFileSpec_Optional_Optional_Optional_Optional(src, path, sourceMap, webpackId)))
 }
 
 func AbstractCommandLineRunner_JsonFileSpec_readJsonString(value *SimpleJsonValue) *Outcome_base {
-	if (value.kind() == SimpleJsonValue_Kind_NULL) {
+	if value.kind() == SimpleJsonValue_Kind_NULL {
 		return Outcome_base_ok_Object(nil)
 	}
 	return value.asString()
@@ -2840,7 +2926,7 @@ func AbstractCommandLineRunner_JsSourceType_clinit() {
 }
 
 type AbstractCommandLineRunner_FlagEntry struct {
-	flag_ any
+	flag_  any
 	value_ string
 }
 
@@ -2885,9 +2971,9 @@ func (this *AbstractCommandLineRunner_FlagEntry) getValue() string {
 }
 
 type AbstractCommandLineRunner_JsChunkSpec struct {
-	name_ string
-	numInputs int32
-	deps ImmutableListOf[string]
+	name_      string
+	numInputs  int32
+	deps       ImmutableListOf[string]
 	numJsFiles int32
 }
 
@@ -2911,18 +2997,23 @@ func new_AbstractCommandLineRunner_JsChunkSpec(name string, numInputs int32, dep
 
 func AbstractCommandLineRunner_JsChunkSpec_create(specString string, isFirstChunk bool) *Outcome_base {
 	var parts []string = AbstractCommandLineRunner_COLON_PATTERN.split(specString)
-	if ((int32(len(parts)) < 2) || (int32(len(parts)) > 4)) {
+	if (int32(len(parts)) < 2) || (int32(len(parts)) > 4) {
 		return Outcome_base_err(new_FlagUsageException(("Expected 2-4 colon-delimited parts in chunk spec: " + sstr_(specString))).up_Throwable())
 	}
 	var name string = parts[0]
-	var deps []string = func() []string { if ((int32(len(parts)) > 2) && (String_length(parts[2]) > 0)) { return AbstractCommandLineRunner_COMMA_PATTERN.split(parts[2]) }; return newstrarr_(0) }()
+	var deps []string = func() []string {
+		if (int32(len(parts)) > 2) && (String_length(parts[2]) > 0) {
+			return AbstractCommandLineRunner_COMMA_PATTERN.split(parts[2])
+		}
+		return newstrarr_(0)
+	}()
 	var numInputs int32 = -1
 	var parsedNumInputs any = JSCompStrings_parseIntOrNull(Optional_of(strobj_(parts[1])))
-	if (parsedNumInputs != nil) {
+	if parsedNumInputs != nil {
 		numInputs = unbox_[int32](parsedNumInputs)
 	}
-	if (numInputs < 0) {
-		if ((int32(len(parts)) == 2) && ("auto" == parts[1])) {
+	if numInputs < 0 {
+		if (int32(len(parts)) == 2) && ("auto" == parts[1]) {
 			if !isFirstChunk {
 				return Outcome_base_err(new_FlagUsageException(("Invalid JS file count '" + sstr_(parts[1]) + "' for chunk: " + sstr_(name) + ". Only the first chunk may specify a size of 'auto' and it must have no dependencies.")).up_Throwable())
 			}
@@ -2965,7 +3056,7 @@ func new_AbstractCommandLineRunner_SystemExitCodeReceiver() *AbstractCommandLine
 func (this *AbstractCommandLineRunner_SystemExitCodeReceiver) apply(exitCode any) any {
 	var exitCodeValue int32 = unbox_[int32](Preconditions_checkNotNull(exitCode))
 	var exitCodeByte int8 = int8(exitCodeValue)
-	if ((int32(exitCodeByte) == 0) && (exitCodeValue != 0)) {
+	if (int32(exitCodeByte) == 0) && (exitCodeValue != 0) {
 		exitCodeByte = -1
 	}
 	System_exit(int32(exitCodeByte))
@@ -2984,4 +3075,3 @@ func AbstractCommandLineRunner_SystemExitCodeReceiver_clinit() {
 	AbstractCommandLineRunner_SystemExitCodeReceiver_INSTANCE = new_AbstractCommandLineRunner_SystemExitCodeReceiver()
 
 }
-

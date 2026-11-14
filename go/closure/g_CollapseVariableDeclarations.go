@@ -3,8 +3,8 @@
 package closure
 
 type CollapseVariableDeclarations struct {
-	compiler_ *AbstractCompiler
-	collapses []*CollapseVariableDeclarations_Collapse
+	compiler_       *AbstractCompiler
+	collapses       []*CollapseVariableDeclarations_Collapse
 	nodesToCollapse map[Node]struct{}
 }
 
@@ -27,7 +27,7 @@ func new_CollapseVariableDeclarations(compiler *AbstractCompiler) *CollapseVaria
 
 func (this *CollapseVariableDeclarations) process_2(externs Node, root Node) {
 	clear(this.collapses)
-this.collapses = this.collapses[:0]
+	this.collapses = this.collapses[:0]
 	clear(this.nodesToCollapse)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_CollapseVariableDeclarations_GatherCollapses(this))))
 	if !(len(this.collapses) == 0) {
@@ -41,7 +41,7 @@ func (this *CollapseVariableDeclarations) applyCollapses() {
 		var collapse *CollapseVariableDeclarations_Collapse = it_1.v
 		var var_ Node = collapse.startNode
 		this.compiler_.reportChangeToEnclosingScope(var_)
-		for ((var_.getNext() != 0) && (var_.getNext().getToken() == var_.getToken())) {
+		for (var_.getNext() != 0) && (var_.getNext().getToken() == var_.getToken()) {
 			var next Node = var_.getNext().detach()
 			var_.addChildrenToBack(next.removeChildren())
 		}
@@ -100,7 +100,7 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 	var nType *Token_rhino = n.getToken()
 	n = n.getNext()
 	var hasNodesToCollapse bool = false
-	for ((n != 0) && (nType == n.getToken())) {
+	for (n != 0) && (nType == n.getToken()) {
 		this.outer_.nodesToCollapse[n] = struct{}{}
 		hasNodesToCollapse = true
 		n = n.getNext()
@@ -110,4 +110,3 @@ func (this *CollapseVariableDeclarations_GatherCollapses) visit_impl(t *NodeTrav
 		this.outer_.collapses = append(this.outer_.collapses, new_CollapseVariableDeclarations_Collapse(varNode))
 	}
 }
-

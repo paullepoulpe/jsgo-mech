@@ -3,20 +3,20 @@
 package closure
 
 type RenameProperties struct {
-	compiler_ *AbstractCompiler
-	generatePseudoNames bool
-	prevUsedPropertyMap *VariableMap
-	toRemove []Node
-	stringNodesToRename []Node
-	callNodeToParentMap MapOf[Node, Node]
-	reservedFirstCharacters SetOf[BoxedOf[uint16]]
-	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
-	propertyMap MapOf[string, *RenameProperties_Property]
-	externedNames SetOf[string]
-	quotedNames SetOf[string]
-	nameGenerator NameGenerator
+	compiler_                       *AbstractCompiler
+	generatePseudoNames             bool
+	prevUsedPropertyMap             *VariableMap
+	toRemove                        []Node
+	stringNodesToRename             []Node
+	callNodeToParentMap             MapOf[Node, Node]
+	reservedFirstCharacters         SetOf[BoxedOf[uint16]]
+	reservedNonFirstCharacters      SetOf[BoxedOf[uint16]]
+	propertyMap                     MapOf[string, *RenameProperties_Property]
+	externedNames                   SetOf[string]
+	quotedNames                     SetOf[string]
+	nameGenerator                   NameGenerator
 	propertyRenameEligibilityFilter PredicateOf[Node]
-	filteredOutNames map[string]struct{}
+	filteredOutNames                map[string]struct{}
 }
 
 func (this *RenameProperties) finit_RenameProperties() {
@@ -69,7 +69,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	reservedNames.addAll(Collection(this.quotedNames))
 	var propsByFreq SetOf[*RenameProperties_Property] = icast_Set(obj_(new_TreeSet_Comparator(RenameProperties_FREQUENCY_COMPARATOR)))
 	propsByFreq.addAll(this.propertyMap.values())
-	if (this.prevUsedPropertyMap != nil) {
+	if this.prevUsedPropertyMap != nil {
 		this.reusePropertyNames(reservedNames, Collection(propsByFreq))
 	}
 	this.generateNames(propsByFreq, reservedNames)
@@ -81,7 +81,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			continue
 		}
 		var p *RenameProperties_Property = cast_[*RenameProperties_Property](Map_get_s(this.propertyMap, oldName))
-		if ((p != nil) && p.newName.isPresent()) {
+		if (p != nil) && p.newName.isPresent() {
 			Preconditions_checkState((oldName == p.oldName))
 			n.setString(str_(p.newName.get()))
 			if !(str_(p.newName.get()) == oldName) {
@@ -100,7 +100,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			var oldName string = str_(it_5.v)
 			var p *RenameProperties_Property = cast_[*RenameProperties_Property](Map_get_s(this.propertyMap, oldName))
 			var replacement string
-			if ((p != nil) && p.newName.isPresent()) {
+			if (p != nil) && p.newName.isPresent() {
 				Preconditions_checkState((oldName == p.oldName))
 				if has_(this.filteredOutNames, oldName) {
 					replacement = oldName
@@ -110,7 +110,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			} else {
 				replacement = oldName
 			}
-			if (sb.length() > 0) {
+			if sb.length() > 0 {
 				sb.append_char('.')
 			}
 			sb.append(replacement)
@@ -125,7 +125,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		this.compiler_.reportChangeToEnclosingScope(n)
 		n.detach()
 		NodeUtil_markFunctionsDeleted(n, this.compiler_)
-		if (!parent.hasChildren() && !parent.isScript()) {
+		if !parent.hasChildren() && !parent.isScript() {
 			parent.detach()
 		}
 	}
@@ -138,7 +138,7 @@ func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], al
 	for it_1.next() {
 		var prop *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
 		var prevName OptionalOf[string] = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
-		if (!this.generatePseudoNames && prevName.isPresent()) {
+		if !this.generatePseudoNames && prevName.isPresent() {
 			if Collection_contains_s(reservedNames, str_(prevName.get())) {
 				continue
 			}
@@ -194,7 +194,7 @@ func RenameProperties_clinit() {
 		_ = p1
 		var p2 *RenameProperties_Property = cast_[*RenameProperties_Property](p2_)
 		_ = p2
-		if (p1.numOccurrences != p2.numOccurrences) {
+		if p1.numOccurrences != p2.numOccurrences {
 			return (p2.numOccurrences - p1.numOccurrences)
 		}
 		return String_compareTo(p1.oldName, p2.oldName)
@@ -235,7 +235,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 		this.maybeMarkCandidate(n)
 	case Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM:
 		var child Node = n.getLastChild()
-		if ((child != 0) && child.isStringLit()) {
+		if (child != 0) && child.isStringLit() {
 			Collection_add_s(this.outer_.quotedNames, child.getString())
 		}
 	case Token_rhino_CALL:
@@ -268,17 +268,17 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 	case Token_rhino_FUNCTION:
 		if NodeUtil_isFunctionDeclaration(n) {
 			var name string = n.getFirstChild().getString()
-			if (NodeUtil_JSC_PROPERTY_NAME_FN == name) {
+			if NodeUtil_JSC_PROPERTY_NAME_FN == name {
 				this.outer_.toRemove = append(this.outer_.toRemove, n)
 			}
-		} else if (parent.isName() && (NodeUtil_JSC_PROPERTY_NAME_FN == parent.getString())) {
+		} else if parent.isName() && (NodeUtil_JSC_PROPERTY_NAME_FN == parent.getString()) {
 			var varNode Node = parent.getParent()
 			if varNode.isVar() {
 				this.outer_.toRemove = append(this.outer_.toRemove, parent)
 			}
-		} else if (((NodeUtil_isFunctionExpression(n) && parent.isAssign()) && parent.getFirstChild().isGetProp()) && this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(parent.getFirstChild())) {
+		} else if ((NodeUtil_isFunctionExpression(n) && parent.isAssign()) && parent.getFirstChild().isGetProp()) && this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(parent.getFirstChild()) {
 			var exprResult Node = parent.getParent()
-			if ((exprResult.isExprResult() && NodeUtil_isStatementBlock(exprResult.getParent())) && exprResult.getFirstChild().isAssign()) {
+			if (exprResult.isExprResult() && NodeUtil_isStatementBlock(exprResult.getParent())) && exprResult.getFirstChild().isAssign() {
 				this.outer_.toRemove = append(this.outer_.toRemove, exprResult)
 			}
 		}
@@ -323,8 +323,8 @@ func (this *RenameProperties_ProcessProperties) countPropertyOccurrence(name str
 }
 
 type RenameProperties_Property struct {
-	oldName string
-	newName OptionalOf[string]
+	oldName        string
+	newName        OptionalOf[string]
 	numOccurrences int32
 }
 
@@ -347,4 +347,3 @@ func new_RenameProperties_Property(name string) *RenameProperties_Property {
 	this.init_RenameProperties_Property(name)
 	return this
 }
-

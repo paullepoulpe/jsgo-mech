@@ -3,7 +3,7 @@
 package closure
 
 type PrebuildAst struct {
-	compiler_ *AbstractCompiler
+	compiler_          *AbstractCompiler
 	numParallelThreads int32
 }
 
@@ -52,4 +52,3 @@ func (this *PrebuildAst) prebuild(allInputs IterableOf[*CompilerInput]) {
 		return 0
 	}()
 }
-

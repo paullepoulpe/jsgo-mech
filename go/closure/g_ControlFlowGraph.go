@@ -5,7 +5,7 @@ package closure
 type ControlFlowGraph struct {
 	LinkedDirectedGraph
 	implicitReturn DiGraph_DiGraphNode
-	entry DiGraph_DiGraphNode
+	entry          DiGraph_DiGraphNode
 }
 
 func (this *ControlFlowGraph) as_ControlFlowGraph() *ControlFlowGraph { return this }
@@ -183,17 +183,23 @@ type ControlFlowGraph_AbstractCfgNodeTraversalCallback struct {
 	self_ any
 }
 
-func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback { return this }
+func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback {
+	return this
+}
 
 func to_ControlFlowGraph_AbstractCfgNodeTraversalCallback(v any) *ControlFlowGraph_AbstractCfgNodeTraversalCallback {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback }).as_ControlFlowGraph_AbstractCfgNodeTraversalCallback()
+	return v.(interface {
+		as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback
+	}).as_ControlFlowGraph_AbstractCfgNodeTraversalCallback()
 }
 
 func is_ControlFlowGraph_AbstractCfgNodeTraversalCallback(v any) bool {
-	_, ok := v.(interface{ as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback })
+	_, ok := v.(interface {
+		as_ControlFlowGraph_AbstractCfgNodeTraversalCallback() *ControlFlowGraph_AbstractCfgNodeTraversalCallback
+	})
 	return ok
 }
 
@@ -209,13 +215,14 @@ func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) init_ControlFlowG
 }
 
 func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
-	if (parent == 0) {
+	if parent == 0 {
 		return true
 	}
 	return !ControlFlowGraph_isEnteringNewCfgNode(n)
 }
 
 func (this *ControlFlowGraph_AbstractCfgNodeTraversalCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface{ visit_impl(*NodeTraversal, Node, Node) }).visit_impl(p0, p1, p2)
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
 }
-

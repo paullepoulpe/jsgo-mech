@@ -66,7 +66,9 @@ func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetter
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind *AccessorSummary_PropertyAccessKind) {
-	Map_merge(icast_Map(obj_(this.properties)), strobj_(property), obj_(kind), &BiFunction_fn{func(p0 any, p1 any) any { return obj_(cast_[*AccessorSummary_PropertyAccessKind](p0).unionWith(cast_[*AccessorSummary_PropertyAccessKind](p1))) }})
+	Map_merge(icast_Map(obj_(this.properties)), strobj_(property), obj_(kind), &BiFunction_fn{func(p0 any, p1 any) any {
+		return obj_(cast_[*AccessorSummary_PropertyAccessKind](p0).unionWith(cast_[*AccessorSummary_PropertyAccessKind](p1)))
+	}})
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -78,7 +80,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visit_impl(t *NodeTr
 	case Token_rhino_CALL:
 		if NodeUtil_isObjectDefinePropertyDefinition(n) {
 			this.visitDefineProperty(n)
-		} else if (NodeUtil_isObjectDefinePropertiesDefinition(n) || NodeUtil_isObjectCreateWithPropertiesDefinition(n)) {
+		} else if NodeUtil_isObjectDefinePropertiesDefinition(n) || NodeUtil_isObjectCreateWithPropertiesDefinition(n) {
 			this.visitDefineProperties(n)
 		}
 	default:
@@ -100,11 +102,11 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) recordSetterDef(sett
 func (this *GatherGetterAndSetterProperties_GatherCallback) visitDescriptor(propertyName string, descriptor Node) {
 	{
 		var key Node = descriptor.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
-			if (key.isStringKey() || key.isMemberFunctionDef()) {
-				if ("get" == key.getString()) {
+		for ; key != 0; key = key.getNext() {
+			if key.isStringKey() || key.isMemberFunctionDef() {
+				if "get" == key.getString() {
 					this.record(propertyName, AccessorSummary_PropertyAccessKind_GETTER_ONLY)
-				} else if ("set" == key.getString()) {
+				} else if "set" == key.getString() {
 					this.record(propertyName, AccessorSummary_PropertyAccessKind_SETTER_ONLY)
 				}
 			}
@@ -115,7 +117,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visitDescriptor(prop
 func (this *GatherGetterAndSetterProperties_GatherCallback) visitDefineProperty(definePropertyCall Node) {
 	var propertyNameNode Node = definePropertyCall.getChildAtIndex(2)
 	var descriptor Node = definePropertyCall.getChildAtIndex(3)
-	if (!propertyNameNode.isStringLit() || !descriptor.isObjectLit()) {
+	if !propertyNameNode.isStringLit() || !descriptor.isObjectLit() {
 		return
 	}
 	var propertyName string = propertyNameNode.getString()
@@ -129,8 +131,8 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visitDefinePropertie
 	}
 	{
 		var prop Node = props.getFirstChild()
-		for ; (prop != 0); prop = prop.getNext() {
-			if ((prop.isStringKey() && prop.hasOneChild()) && prop.getFirstChild().isObjectLit()) {
+		for ; prop != 0; prop = prop.getNext() {
+			if (prop.isStringKey() && prop.hasOneChild()) && prop.getFirstChild().isObjectLit() {
 				var propertyName string = prop.getString()
 				var descriptor Node = prop.getFirstChild()
 				this.visitDescriptor(propertyName, descriptor)
@@ -138,4 +140,3 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) visitDefinePropertie
 		}
 	}
 }
-

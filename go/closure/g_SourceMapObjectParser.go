@@ -22,7 +22,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 		return Outcome_base_err(new_SourceMapParseException(("JSON parse exception: " + sstr_(str_(parsed.errorMessage().orElse(strobj_("null")))))).up_Throwable())
 	}
 	var sourceMapRoot *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
-	if (sourceMapRoot.kind() != SimpleJsonValue_Kind_OBJECT) {
+	if sourceMapRoot.kind() != SimpleJsonValue_Kind_OBJECT {
 		return Outcome_base_err(new_SourceMapParseException("Invalid map format: not a JSON object").up_Throwable())
 	}
 	var version *Outcome_base = SourceMapObjectParser_getInt(sourceMapRoot, "version")
@@ -36,7 +36,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 	}
 	builder.setFile(Optional_ofNullable(file.get()))
 	var lineCount int32 = -1
-	if (sourceMapRoot.get("lineCount") != nil) {
+	if sourceMapRoot.get("lineCount") != nil {
 		var lineCountOutcome *Outcome_base = SourceMapObjectParser_getInt(sourceMapRoot, "lineCount")
 		if lineCountOutcome.isErr() {
 			return Outcome_base_err(lineCountOutcome.error())
@@ -54,7 +54,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 		return Outcome_base_err(sourceRoot.error())
 	}
 	builder.setSourceRoot(Optional_ofNullable(sourceRoot.get()))
-	if (sourceMapRoot.get("sections") != nil) {
+	if sourceMapRoot.get("sections") != nil {
 		var sections *Outcome_base = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
 		if sections.isErr() {
 			return Outcome_base_err(sections.error())
@@ -202,7 +202,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 		return Outcome_base_err(ended.error())
 	}
 	lexer.skipWhitespace()
-	if (lexer.pos < lexer.length_) {
+	if lexer.pos < lexer.length_ {
 		return Outcome_base_err(new_SourceMapParseException("Unexpected trailing characters").up_Throwable())
 	}
 	builder.setExtensions(Collections_unmodifiableMap(extensions))
@@ -210,7 +210,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 }
 
 func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_base {
-	if (sections.kind() != SimpleJsonValue_Kind_ARRAY) {
+	if sections.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(SourceMapObjectParser_invalidMember("sections").up_Throwable())
 	}
 	var listBuilder ImmutableList_BuilderOf[*SourceMapSection] = ImmutableList_builder()
@@ -228,7 +228,7 @@ func SourceMapObjectParser_buildSections(sections *SimpleJsonValue) *Outcome_bas
 
 func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base {
 	var offset *SimpleJsonValue = section.get("offset")
-	if (offset == nil) {
+	if offset == nil {
 		return Outcome_base_err(SourceMapObjectParser_invalidMember("offset").up_Throwable())
 	}
 	var line *Outcome_base = SourceMapObjectParser_getInt(offset, "line")
@@ -240,16 +240,21 @@ func SourceMapObjectParser_buildSection(section *SimpleJsonValue) *Outcome_base 
 		return Outcome_base_err(column.error())
 	}
 	var map_ *SimpleJsonValue = section.get("map")
-	if ((map_ != nil) && (section.get("url") != nil)) {
+	if (map_ != nil) && (section.get("url") != nil) {
 		return Outcome_base_err(new_SourceMapParseException("Invalid map format: section may not have both 'map' and 'url'").up_Throwable())
-	} else if (section.get("url") != nil) {
+	} else if section.get("url") != nil {
 		var url *Outcome_base = section.get("url").asString()
 		if url.isErr() {
 			return Outcome_base_err(SourceMapObjectParser_invalidMember("url").up_Throwable())
 		}
 		return Outcome_base_ok_Object(obj_(SourceMapSection_forURL(str_(url.get()), unbox_[int32](line.get()), unbox_[int32](column.get()))))
-	} else if (map_ != nil) {
-		var mapStr string = func() string { if (map_.kind() == SimpleJsonValue_Kind_STRING) { return str_(map_.asString().get()) }; return map_.toString() }()
+	} else if map_ != nil {
+		var mapStr string = func() string {
+			if map_.kind() == SimpleJsonValue_Kind_STRING {
+				return str_(map_.asString().get())
+			}
+			return map_.toString()
+		}()
 		return Outcome_base_ok_Object(obj_(SourceMapSection_forMap(mapStr, unbox_[int32](line.get()), unbox_[int32](column.get()))))
 	}
 	return Outcome_base_err(new_SourceMapParseException("Invalid map format: section must have either 'map' or 'url'").up_Throwable())
@@ -261,7 +266,7 @@ func SourceMapObjectParser_invalidMember(key string) *SourceMapParseException {
 
 func SourceMapObjectParser_getInt(object *SimpleJsonValue, key string) *Outcome_base {
 	var value *SimpleJsonValue = object.get(key)
-	if (value == nil) {
+	if value == nil {
 		return Outcome_base_err(SourceMapObjectParser_invalidMember(key).up_Throwable())
 	}
 	var result *Outcome_base = value.asInt()
@@ -273,7 +278,7 @@ func SourceMapObjectParser_getInt(object *SimpleJsonValue, key string) *Outcome_
 
 func SourceMapObjectParser_getStringOrNull(object *SimpleJsonValue, key string) *Outcome_base {
 	var value *SimpleJsonValue = object.get(key)
-	if ((value == nil) || (value.kind() == SimpleJsonValue_Kind_NULL)) {
+	if (value == nil) || (value.kind() == SimpleJsonValue_Kind_NULL) {
 		return Outcome_base_ok_Object(nil)
 	}
 	var result *Outcome_base = value.asString()
@@ -285,16 +290,16 @@ func SourceMapObjectParser_getStringOrNull(object *SimpleJsonValue, key string) 
 
 func SourceMapObjectParser_getJavaStringArray(object *SimpleJsonValue, key string) *Outcome_base {
 	var array *SimpleJsonValue = object.get(key)
-	if ((array == nil) || (array.kind() == SimpleJsonValue_Kind_NULL)) {
+	if (array == nil) || (array.kind() == SimpleJsonValue_Kind_NULL) {
 		return Outcome_base_ok_Object(nil)
-	} else if (array.kind() != SimpleJsonValue_Kind_ARRAY) {
+	} else if array.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(SourceMapObjectParser_invalidMember(key).up_Throwable())
 	}
 	var len_ int32 = array.elements().size()
 	var result []string = newstrarr_(len_)
-	for i := int32(0); (i < len_); i++ {
+	for i := int32(0); i < len_; i++ {
 		var item *Outcome_base = Outcome_base_ok_Object(nil)
-		if (cast_[*SimpleJsonValue](array.elements().get(i)).kind() != SimpleJsonValue_Kind_NULL) {
+		if cast_[*SimpleJsonValue](array.elements().get(i)).kind() != SimpleJsonValue_Kind_NULL {
 			item = cast_[*SimpleJsonValue](array.elements().get(i)).asString()
 		}
 		if item.isErr() {
@@ -307,7 +312,7 @@ func SourceMapObjectParser_getJavaStringArray(object *SimpleJsonValue, key strin
 
 func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_base {
 	lexer.skipWhitespace()
-	if ((lexer.pos < lexer.length_) && String_startsWith_String_int(lexer.json, "null", lexer.pos)) {
+	if (lexer.pos < lexer.length_) && String_startsWith_String_int(lexer.json, "null", lexer.pos) {
 		lexer.pos += 4
 		return Outcome_base_ok_Object(nil)
 	}
@@ -333,4 +338,3 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 	}
 	return Outcome_base_ok_Object(any(arrmap_(list.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
 }
-

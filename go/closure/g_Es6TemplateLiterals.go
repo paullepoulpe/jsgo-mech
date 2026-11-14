@@ -3,10 +3,10 @@
 package closure
 
 type Es6TemplateLiterals struct {
-	astFactory_ *AstFactory
-	compiler_ *AbstractCompiler
-	namespace_ StaticScope
-	createTemplateTagFirstArg RuntimeJsLibManager_JsLibField
+	astFactory_                      *AstFactory
+	compiler_                        *AbstractCompiler
+	namespace_                       StaticScope
+	createTemplateTagFirstArg        RuntimeJsLibManager_JsLibField
 	createTemplateTagFirstArgWithRaw RuntimeJsLibManager_JsLibField
 }
 
@@ -27,27 +27,32 @@ func new_Es6TemplateLiterals(compiler *AbstractCompiler) *Es6TemplateLiterals {
 
 func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) {
 	var length int32 = n.getChildCount()
-	if (length == 0) {
+	if length == 0 {
 		n.replaceWith(this.astFactory_.createString("\"\""))
 	} else {
 		var first Node = n.removeFirstChild()
 		Preconditions_checkState((first.isTemplateLitString() && first.getCookedString().isPresent()))
 		var firstStr Node = this.astFactory_.createString(str_(first.getCookedString().get()))
-		if (length == 1) {
+		if length == 1 {
 			n.replaceWith(firstStr)
 		} else {
 			var add Node = this.astFactory_.createAdd(firstStr, n.removeFirstChild().removeFirstChild())
-			for i := int32(2); (i < length); i++ {
+			for i := int32(2); i < length; i++ {
 				var child Node = n.removeFirstChild()
 				if child.isTemplateLitString() {
 					Preconditions_checkState(child.getCookedString().isPresent())
 					if String_isEmpty(str_(child.getCookedString().get())) {
 						continue
-					} else if ((i == 2) && String_isEmpty(str_(first.getCookedString().get()))) {
+					} else if (i == 2) && String_isEmpty(str_(first.getCookedString().get())) {
 						add = add.getSecondChild().detach()
 					}
 				}
-				add = this.astFactory_.createAdd(add, func() Node { if child.isTemplateLitString() { return this.astFactory_.createString(str_(child.getCookedString().get())) }; return child.removeFirstChild() }())
+				add = this.astFactory_.createAdd(add, func() Node {
+					if child.isTemplateLitString() {
+						return this.astFactory_.createString(str_(child.getCookedString().get()))
+					}
+					return child.removeFirstChild()
+				}())
 			}
 			n.replaceWith(add.srcrefTreeIfMissing(n))
 		}
@@ -77,7 +82,7 @@ func (this *Es6TemplateLiterals) visitTaggedTemplateLiteral(t *NodeTraversal, n 
 	var call Node = this.astFactory_.createCall(n.removeFirstChild(), AstFactory_type_Node(n), []Node{tagFnFirstArg})
 	{
 		var child Node = templateLit.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if !child.isTemplateLitString() {
 				call.addChildToBack(child.removeFirstChild())
 			}
@@ -93,7 +98,7 @@ func (this *Es6TemplateLiterals) createRawStringArray(n Node) Node {
 	var array Node = this.astFactory_.createArraylit([]Node{})
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isTemplateLitString() {
 				array.addChildToBack(this.astFactory_.createString(child.getRawString()))
 			}
@@ -103,11 +108,16 @@ func (this *Es6TemplateLiterals) createRawStringArray(n Node) Node {
 }
 
 func (this *Es6TemplateLiterals) createCookedStringArray(n Node) Node {
-	var templateArrayType *Color = func() *Color { if this.astFactory_.isAddingColors() { return this.compiler_.getColorRegistry().get(StandardColors_I_TEMPLATE_ARRAY_ID) }; return nil }()
+	var templateArrayType *Color = func() *Color {
+		if this.astFactory_.isAddingColors() {
+			return this.compiler_.getColorRegistry().get(StandardColors_I_TEMPLATE_ARRAY_ID)
+		}
+		return nil
+	}()
 	var array Node = this.astFactory_.createArraylit([]Node{}).setColor(templateArrayType)
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isTemplateLitString() {
 				if child.getCookedString().isPresent() {
 					array.addChildToBack(this.astFactory_.createString(str_(child.getCookedString().get())))
@@ -123,11 +133,11 @@ func (this *Es6TemplateLiterals) createCookedStringArray(n Node) Node {
 func Es6TemplateLiterals_cookedAndRawStringsSame(n Node) bool {
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if !child.isTemplateLitString() {
 				continue
 			}
-			if (child.getCookedString().isEmpty() || !(str_(child.getCookedString().get()) == child.getRawString())) {
+			if child.getCookedString().isEmpty() || !(str_(child.getCookedString().get()) == child.getRawString()) {
 				return false
 			}
 		}
@@ -136,4 +146,3 @@ func Es6TemplateLiterals_cookedAndRawStringsSame(n Node) bool {
 }
 
 const Es6TemplateLiterals_TEMPLATELIT_VAR string = "$jscomp$templatelit$"
-

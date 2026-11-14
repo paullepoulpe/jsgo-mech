@@ -29,13 +29,13 @@ func (this *CheckNestedNames) shouldTraverse(nodeTraversal *NodeTraversal, n Nod
 
 func (this *CheckNestedNames) visit(t *NodeTraversal, n Node, parent Node) {
 	Preconditions_checkArgument(t.inGlobalOrModuleScope())
-	if (!n.isGetProp() || !n.isQualifiedName()) {
+	if !n.isGetProp() || !n.isQualifiedName() {
 		return
 	}
 	var targetGetProp Node = CheckNestedNames_getTargetGetProp(n)
-	if (((parent.isAssign() || parent.isExprResult()) && n.isFirstChildOf(parent)) && !CheckNestedNames_isDotPrototype(targetGetProp)) {
+	if ((parent.isAssign() || parent.isExprResult()) && n.isFirstChildOf(parent)) && !CheckNestedNames_isDotPrototype(targetGetProp) {
 		var owner Node = targetGetProp.getFirstChild()
-		if (!owner.isName() || (owner.getString() == "exports")) {
+		if !owner.isName() || (owner.getString() == "exports") {
 			return
 		}
 		var ownerName string = owner.getString()
@@ -61,11 +61,11 @@ func CheckNestedNames_isDotPrototype(getProp Node) bool {
 
 func (this *CheckNestedNames) getNestedDeclarationKind(lhs Node, parent Node) *CheckNestedNames_DeclarationKind {
 	Preconditions_checkArgument_boolean_Object(lhs.isFirstChildOf(parent), lhs.box_())
-	if (lhs.getTypedefTypeProp() != nil) {
+	if lhs.getTypedefTypeProp() != nil {
 		return CheckNestedNames_DeclarationKind_TYPEDEF
 	}
 	var type_ *JSType = lhs.getJSType()
-	if (type_ != nil) {
+	if type_ != nil {
 		if type_.isEnumType() {
 			return CheckNestedNames_DeclarationKind_ENUM
 		} else if type_.isInterface() {
@@ -148,4 +148,3 @@ func CheckNestedNames_DeclarationKind_clinit() {
 	registerEnum_("com.google.javascript.jscomp.lint.CheckNestedNames.DeclarationKind", enumValues_(CheckNestedNames_DeclarationKind_values_))
 
 }
-

@@ -3,9 +3,9 @@
 package closure
 
 type Comment struct {
-	value_ string
+	value_    string
 	location_ *SourceRange
-	type__ *Comment_Type
+	type__    *Comment_Type
 }
 
 func (this *Comment) zero_Comment() {
@@ -95,4 +95,3 @@ func Comment_Type_clinit() {
 	registerEnum_("com.google.javascript.jscomp.parsing.parser.trees.Comment.Type", enumValues_(Comment_Type_values_))
 
 }
-

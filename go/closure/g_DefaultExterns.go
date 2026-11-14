@@ -23,7 +23,7 @@ func DefaultExterns_prepareExterns(env *CompilerOptions_Environment, externs Map
 		Preconditions_checkState_boolean_String_Object(Map_containsKey_s(externs, key), "Externs must contain builtin: %s", strobj_(key))
 		out.add(Map_remove_s(externs, key))
 	}
-	if (env == CompilerOptions_Environment_BROWSER) {
+	if env == CompilerOptions_Environment_BROWSER {
 		it_3 := foreach_(obj_(DefaultExterns_BROWSER_EXTERN_DEP_ORDER))
 		for it_3.next() {
 			var key string = str_(it_3.v)
@@ -49,4 +49,3 @@ func DefaultExterns_clinit() {
 	DefaultExterns_BROWSER_EXTERN_DEP_ORDER = ImmutableList_of_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("intl.js"), strobj_("w3c_event.js"), strobj_("w3c_event3.js"), strobj_("gecko_event.js"), strobj_("ie_event.js"), strobj_("webkit_event.js"), strobj_("w3c_device_sensor_event.js"), strobj_("w3c_dom1.js"), strobj_("w3c_dom2.js"), strobj_("w3c_dom3.js"), strobj_("w3c_dom4.js"), strobj_("gecko_dom.js"), []any{strobj_("ie_dom.js"), strobj_("webkit_dom.js"), strobj_("w3c_css.js"), strobj_("gecko_css.js"), strobj_("ie_css.js"), strobj_("webkit_css.js"), strobj_("w3c_touch_event.js"), strobj_("webstorage.js"), strobj_("whatwg_console.js"), strobj_("nonstandard_console.js"), strobj_("w3c_rtc.js")})
 
 }
-

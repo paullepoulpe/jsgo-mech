@@ -3,10 +3,10 @@
 package closure
 
 type JSChunk struct {
-	name_ string
+	name_  string
 	inputs MapOf[string, *CompilerInput]
-	deps ListOf[*JSChunk]
-	depth int32
+	deps   ListOf[*JSChunk]
+	depth  int32
 	index_ int32
 }
 
@@ -231,4 +231,3 @@ func (this *JSChunk) getRequiredSymbols() *ImmutableList {
 const JSChunk_STRONG_CHUNK_NAME string = "$strong$"
 const JSChunk_WEAK_CHUNK_NAME string = "$weak$"
 const JSChunk_serialVersionUID int64 = 1
-

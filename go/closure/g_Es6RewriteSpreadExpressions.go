@@ -4,9 +4,9 @@ package closure
 
 type Es6RewriteSpreadExpressions struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	astFactory_ *AstFactory
-	namespace_ StaticScope
+	namespace_  StaticScope
 }
 
 func (this *Es6RewriteSpreadExpressions) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -37,10 +37,10 @@ func (this *Es6RewriteSpreadExpressions) process_2(externs Node, root Node) {
 
 func (this *Es6RewriteSpreadExpressions) visit_impl(traversal *NodeTraversal, current Node, parent Node) {
 	var token *Token_rhino = current.getToken()
-	if (((token == Token_rhino_ARRAYLIT) || (token == Token_rhino_NEW)) || (token == Token_rhino_CALL)) {
+	if ((token == Token_rhino_ARRAYLIT) || (token == Token_rhino_NEW)) || (token == Token_rhino_CALL) {
 		{
 			var child Node = current.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				if child.isSpread() {
 					this.visitArrayLitOrCallWithSpread(traversal, current)
 					break
@@ -67,31 +67,31 @@ func (this *Es6RewriteSpreadExpressions) extractSpreadGroups(spreadParent Node) 
 	var currGroup Node = 0
 	{
 		var currElement Node = spreadParent.removeFirstChild()
-		for ; (currElement != 0); currElement = spreadParent.removeFirstChild() {
+		for ; currElement != 0; currElement = spreadParent.removeFirstChild() {
 			if currElement.isSpread() {
 				var spreadExpression Node = currElement.removeFirstChild()
 				if spreadExpression.isArrayLit() {
-					if (currGroup == 0) {
+					if currGroup == 0 {
 						currGroup = spreadExpression
 					} else {
 						currGroup.addChildrenToBack(spreadExpression.removeChildren())
 					}
 				} else {
-					if (currGroup != 0) {
+					if currGroup != 0 {
 						groups.add(currGroup.box_())
 						currGroup = 0
 					}
 					groups.add(this.astFactory_.createJscompArrayFromIterableCall(spreadExpression, this.namespace_).box_())
 				}
 			} else {
-				if (currGroup == 0) {
+				if currGroup == 0 {
 					currGroup = this.astFactory_.createArraylit([]Node{})
 				}
 				currGroup.addChildToBack(currElement)
 			}
 		}
 	}
-	if (currGroup != 0) {
+	if currGroup != 0 {
 		groups.add(currGroup.box_())
 	}
 	return groups
@@ -128,22 +128,27 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 		callee = callee.removeFirstChild()
 	}
 	var joinedGroups Node
-	if (spreadParent.hasOneChild() && this.isSpreadOfArguments(spreadParent.getOnlyChild())) {
+	if spreadParent.hasOneChild() && this.isSpreadOfArguments(spreadParent.getOnlyChild()) {
 		joinedGroups = spreadParent.removeFirstChild().removeFirstChild()
 	} else {
 		var groups ListOf[Node] = this.extractSpreadGroups(spreadParent)
 		Preconditions_checkState(!groups.isEmpty())
-		if (groups.size() == 1) {
+		if groups.size() == 1 {
 			joinedGroups = Node_of_(groups.remove(0))
 		} else {
-			var baseArrayLit Node = func() Node { if Node_of_(groups.get(0)).isArrayLit() { return Node_of_(groups.remove(0)) }; return this.astFactory_.createArraylit([]Node{}) }()
+			var baseArrayLit Node = func() Node {
+				if Node_of_(groups.get(0)).isArrayLit() {
+					return Node_of_(groups.remove(0))
+				}
+				return this.astFactory_.createArraylit([]Node{})
+			}()
 			var concat Node = this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType)
 			joinedGroups = this.astFactory_.createCall(concat, Es6RewriteSpreadExpressions_arrayType, arrmap_(groups.toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
 		}
 	}
 	var isFreeCall bool = spreadParent.getBooleanProp(Node_FREE_CALL)
 	var callToApply Node
-	if ((calleeMayHaveSideEffects && (callee.isGetProp() || callee.isGetElem())) && !isFreeCall) {
+	if (calleeMayHaveSideEffects && (callee.isGetProp() || callee.isGetElem())) && !isFreeCall {
 		var freshVar Node = this.astFactory_.createName((sstr_(Es6RewriteSpreadExpressions_FRESH_SPREAD_VAR) + sstr_(this.compiler_.getUniqueIdSupplier().getUniqueId(t.getInput()))), AstFactory_type_Node(callee.getFirstChild()))
 		var freshVarDeclaration Node = IR_var_Node(freshVar.cloneTree())
 		var statementContainingSpread Node = NodeUtil_getEnclosingStatement(spreadParent)
@@ -152,7 +157,12 @@ func (this *Es6RewriteSpreadExpressions) visitCallContainingSpread(t *NodeTraver
 		callee.addChildToFront(this.astFactory_.createAssign(freshVar.cloneTree(), callee.removeFirstChild()))
 		callToApply = this.astFactory_.createCallWithUnknownType(this.astFactory_.createGetPropWithUnknownType(callee, "apply"), []Node{freshVar.cloneTree(), joinedGroups})
 	} else {
-		var context Node = func() Node { if ((callee.isGetProp() || callee.isGetElem()) && !isFreeCall) { return callee.getFirstChild().cloneTree() }; return this.astFactory_.createNull() }()
+		var context Node = func() Node {
+			if (callee.isGetProp() || callee.isGetElem()) && !isFreeCall {
+				return callee.getFirstChild().cloneTree()
+			}
+			return this.astFactory_.createNull()
+		}()
 		callToApply = this.astFactory_.createCall(this.astFactory_.createGetPropWithUnknownType(callee, "apply"), AstFactory_type_Node(spreadParent), []Node{context, joinedGroups})
 	}
 	callToApply.setColor(spreadParent.getColor())
@@ -176,7 +186,12 @@ func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
 		baseArrayLit = this.astFactory_.createArraylit([]Node{})
 	}
 	baseArrayLit.addChildToFront(this.astFactory_.createNull())
-	var joinedGroups Node = func() Node { if groups.isEmpty() { return baseArrayLit }; return this.astFactory_.createCall(this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType), Es6RewriteSpreadExpressions_arrayType, arrmap_(groups.toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) })) }()
+	var joinedGroups Node = func() Node {
+		if groups.isEmpty() {
+			return baseArrayLit
+		}
+		return this.astFactory_.createCall(this.astFactory_.createGetProp(baseArrayLit, "concat", Es6RewriteSpreadExpressions_concatFnType), Es6RewriteSpreadExpressions_arrayType, arrmap_(groups.toArray(arrmap_(make([]Node, 0), func(v_ Node) any { return v_.box_() })), func(v_ any) Node { return Node_of_(v_) }))
+	}()
 	if FeatureSet_ES3.containsFeatureSet(this.compiler_.getOptions().getOutputFeatureSet()) {
 		TranspilationUtil_cannotConvert(this.compiler_, spreadParent, "\"...\" passed to a constructor (consider using --language_out=ES5)")
 	}
@@ -188,7 +203,9 @@ func (this *Es6RewriteSpreadExpressions) visitNewWithSpread(spreadParent Node) {
 }
 
 var Es6RewriteSpreadExpressions_TRANSPILED_FEATURES *FeatureSet
+
 const Es6RewriteSpreadExpressions_FRESH_SPREAD_VAR string = "$jscomp$spread$args"
+
 var Es6RewriteSpreadExpressions_arrayType AstFactory_Type
 var Es6RewriteSpreadExpressions_concatFnType AstFactory_Type
 
@@ -204,4 +221,3 @@ func Es6RewriteSpreadExpressions_clinit() {
 	Es6RewriteSpreadExpressions_concatFnType = AstFactory_typeColor(StandardColors_TOP_OBJECT)
 
 }
-

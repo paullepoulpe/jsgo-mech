@@ -48,4 +48,3 @@ func CheckVar_clinit() {
 	CheckVar_VAR = DiagnosticType_disabled("JSC_VAR", "Using `var` (prefer `const` or `let`).")
 
 }
-

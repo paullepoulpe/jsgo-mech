@@ -3,11 +3,11 @@
 package closure
 
 type AstFactory struct {
-	colorRegistry *ColorRegistry
-	registry *JSTypeRegistry
-	unknownType *JSType
-	typeMode *AstFactory_TypeMode
-	lifeCycleStage *AbstractCompiler_LifeCycleStage
+	colorRegistry       *ColorRegistry
+	registry            *JSTypeRegistry
+	unknownType         *JSType
+	typeMode            *AstFactory_TypeMode
+	lifeCycleStage      *AbstractCompiler_LifeCycleStage
 	runtimeJsLibManager *RuntimeJsLibManager
 }
 
@@ -16,7 +16,12 @@ func (this *AstFactory) init_AstFactory_LifeCycleStage_JSTypeRegistry_ColorRegis
 	this.registry = registry
 	this.runtimeJsLibManager = runtimeJsLibManager
 	this.colorRegistry = colorRegistry
-	this.unknownType = func() *JSType { if (typeMode == AstFactory_TypeMode_JSTYPE) { return this.getNativeType(JSTypeNative_UNKNOWN_TYPE) }; return nil }()
+	this.unknownType = func() *JSType {
+		if typeMode == AstFactory_TypeMode_JSTYPE {
+			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+		}
+		return nil
+	}()
 	this.typeMode = typeMode
 }
 
@@ -145,7 +150,12 @@ func (this *AstFactory) createNumber(value float64) Node {
 }
 
 func (this *AstFactory) createBoolean(value bool) Node {
-	var result Node = func() Node { if value { return IR_trueNode() }; return IR_falseNode() }()
+	var result Node = func() Node {
+		if value {
+			return IR_trueNode()
+		}
+		return IR_falseNode()
+	}()
 	this.setJSTypeOrColor(AstFactory_type_JSTypeNative_Color(JSTypeNative_BOOLEAN_TYPE, StandardColors_BOOLEAN), result)
 	return result
 }
@@ -242,7 +252,7 @@ func (this *AstFactory) getFunctionType(functionNode Node) *FunctionType {
 	this.assertNotAddingColors()
 	var typeBeforeCast *JSType = functionNode.getJSTypeBeforeCast()
 	var functionType *FunctionType
-	if (typeBeforeCast != nil) {
+	if typeBeforeCast != nil {
 		functionType = typeBeforeCast.assertFunctionType()
 	} else {
 		functionType = functionNode.getJSTypeRequired().assertFunctionType()
@@ -316,7 +326,7 @@ func (this *AstFactory) createName(name string, type_ AstFactory_Type) Node {
 	Preconditions_checkArgument_boolean_String_Object(!(name == "$jscomp"), "Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", strobj_(name))
 	var result Node = IR_name(name)
 	this.setJSTypeOrColor(type_, result)
-	if (this.lifeCycleStage.isNormalized() && String_startsWith(name, "$jscomp")) {
+	if this.lifeCycleStage.isNormalized() && String_startsWith(name, "$jscomp") {
 		result.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
 	return result
@@ -335,10 +345,10 @@ func (this *AstFactory) createConstantName(name string, type_ AstFactory_Type) N
 func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) Node {
 	Preconditions_checkArgument_boolean_String_Object(!(name == "$jscomp"), "Use createQName(RuntimeJsLibManager.Field) to reference $jscomp.* methods. Found: %s", strobj_(name))
 	var result Node = IR_name(name)
-	if (this.lifeCycleStage.isNormalized() || !Object_equals(obj_(this.typeMode), obj_(AstFactory_TypeMode_NONE))) {
+	if this.lifeCycleStage.isNormalized() || !Object_equals(obj_(this.typeMode), obj_(AstFactory_TypeMode_NONE)) {
 		Preconditions_checkNotNull_Object_String_Object_Object(any(scope), "A scope is required [lifeCycleStage: %s, typeMode: %s]", obj_(this.lifeCycleStage), obj_(this.typeMode))
 		var var_ StaticSlot = scope.getSlot(name)
-		if (var_ == nil) {
+		if var_ == nil {
 			Preconditions_checkState_boolean_String_Object_Object(Object_equals(obj_(this.typeMode), obj_(AstFactory_TypeMode_NONE)), "Missing var %s in scope %s", strobj_(name), any(scope))
 		} else {
 			var declaration StaticRef = icast_StaticRef(Preconditions_checkNotNull_Object_String_Object(any(var_.getDeclaration()), "Cannot find type for var with missing declaration %s", any(var_)))
@@ -349,10 +359,20 @@ func (this *AstFactory) createNameStaticScope(scope StaticScope, name string) No
 			switch this.typeMode {
 			case AstFactory_TypeMode_JSTYPE:
 				var definitionType *JSType = varDefinitionNode.getJSType()
-				result.setJSType(func() *JSType { if (definitionType != nil) { return definitionType }; return this.unknownType }())
+				result.setJSType(func() *JSType {
+					if definitionType != nil {
+						return definitionType
+					}
+					return this.unknownType
+				}())
 			case AstFactory_TypeMode_COLOR:
 				var definitionColor *Color = varDefinitionNode.getColor()
-				result.setColor(func() *Color { if (definitionColor != nil) { return definitionColor }; return StandardColors_UNKNOWN }())
+				result.setColor(func() *Color {
+					if definitionColor != nil {
+						return definitionColor
+					}
+					return StandardColors_UNKNOWN
+				}())
 			case AstFactory_TypeMode_NONE:
 			}
 		}
@@ -406,7 +426,7 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 		var propertyName string = str_(it_1.v)
 		name += sstr_(("." + sstr_(propertyName)))
 		var type_ AstFactory_Type = nil
-		if (this.isAddingTypes() || this.isAddingColors()) {
+		if this.isAddingTypes() || this.isAddingColors() {
 			var def Node = icast_StaticSlot(Preconditions_checkNotNull_Object_String_Object(any(scope.getSlot(name)), "Cannot find name %s in StaticScope.", strobj_(name))).getDeclaration().getNode()
 			type_ = AstFactory_type_Node(def)
 		}
@@ -420,7 +440,12 @@ func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager
 	var parts ListOf[string] = AstFactory_DOT_SPLITTER.splitToList(strobj_(qname))
 	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts), nil)).orElseThrow())
 	Preconditions_checkState_boolean_String_Object(String_startsWith(baseName, "$jscomp"), "Unexpected Field name %s", strobj_(baseName))
-	var baseNameNode Node = func() Node { if (baseName == "$jscomp") { return this.createJscomp() }; return this.createName(baseName, AstFactory_typeJSType_JSType_Color(this.unknownType, StandardColors_UNKNOWN)) }()
+	var baseNameNode Node = func() Node {
+		if baseName == "$jscomp" {
+			return this.createJscomp()
+		}
+		return this.createName(baseName, AstFactory_typeJSType_JSType_Color(this.unknownType, StandardColors_UNKNOWN))
+	}()
 	if this.lifeCycleStage.isNormalized() {
 		baseNameNode.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -436,7 +461,12 @@ func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibM
 	var parts ListOf[string] = AstFactory_DOT_SPLITTER.splitToList(strobj_(field.assertInjected().qualifiedName()))
 	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts), nil)).orElseThrow())
 	Preconditions_checkState_boolean_String_Object(String_startsWith(baseName, "$jscomp"), "Unexpected Field name %s", strobj_(baseName))
-	var baseNameNode Node = func() Node { if (baseName == "$jscomp") { return this.createJscomp() }; return this.createName(baseName, AstFactory_typeJSType_JSType_Color(this.unknownType, StandardColors_UNKNOWN)) }()
+	var baseNameNode Node = func() Node {
+		if baseName == "$jscomp" {
+			return this.createJscomp()
+		}
+		return this.createName(baseName, AstFactory_typeJSType_JSType_Color(this.unknownType, StandardColors_UNKNOWN))
+	}()
 	if this.lifeCycleStage.isNormalized() {
 		baseNameNode.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
@@ -472,7 +502,12 @@ func (this *AstFactory) createPrototypeAccess(receiver Node) Node {
 	case AstFactory_TypeMode_COLOR:
 		Preconditions_checkNotNull_Object_String_Object(obj_(receiver.getColor()), "Missing color on %s", receiver.box_())
 		var possiblePrototypes ImmutableSetOf[*Color] = receiver.getColor().getPrototypes()
-		result.setColor(func() *Color { if possiblePrototypes.isEmpty() { return StandardColors_UNKNOWN }; return Color_createUnion(icast_Set(obj_(possiblePrototypes))) }())
+		result.setColor(func() *Color {
+			if possiblePrototypes.isEmpty() {
+				return StandardColors_UNKNOWN
+			}
+			return Color_createUnion(icast_Set(obj_(possiblePrototypes)))
+		}())
 	case AstFactory_TypeMode_NONE:
 	}
 	return result
@@ -741,7 +776,12 @@ func (this *AstFactory) createNewNode(target Node, args []Node) Node {
 
 func (this *AstFactory) getInstanceOfColor(color *Color) *Color {
 	var possibleInstanceColors ImmutableSetOf[*Color] = color.getInstanceColors()
-	return func() *Color { if possibleInstanceColors.isEmpty() { return StandardColors_UNKNOWN }; return Color_createUnion(icast_Set(obj_(possibleInstanceColors))) }()
+	return func() *Color {
+		if possibleInstanceColors.isEmpty() {
+			return StandardColors_UNKNOWN
+		}
+		return Color_createUnion(icast_Set(obj_(possibleInstanceColors)))
+	}()
 }
 
 func (this *AstFactory) createConstructorCall(classType AstFactory_Type, callee Node, args []Node) Node {
@@ -832,7 +872,12 @@ func (this *AstFactory) createParamList(parameterNames []string) Node {
 }
 
 func (this *AstFactory) createZeroArgFunction(name string, body Node, returnType *JSType) Node {
-	var functionType *FunctionType = func() *FunctionType { if this.isAddingTypes() { return this.registry.createFunctionType(returnType, []*JSType{}).toMaybeFunctionType() }; return nil }()
+	var functionType *FunctionType = func() *FunctionType {
+		if this.isAddingTypes() {
+			return this.registry.createFunctionType(returnType, []*JSType{}).toMaybeFunctionType()
+		}
+		return nil
+	}()
 	return this.createFunction(name, IR_paramList([]Node{}), body, AstFactory_typeJSType_JSType_Color(functionType.up_JSType(), StandardColors_TOP_OBJECT))
 }
 
@@ -1055,17 +1100,22 @@ func (this *AstFactory) getNativeType(nativeType *JSTypeNative) *JSType {
 func (this *AstFactory) getJsTypeForProperty(receiver Node, propertyName string) *JSType {
 	var getpropType *JSType = nil
 	var receiverJSType *JSType = receiver.getJSType()
-	if (receiverJSType != nil) {
+	if receiverJSType != nil {
 		getpropType = receiverJSType.findPropertyType(propertyName)
-		if (getpropType == nil) {
+		if getpropType == nil {
 			var receiverObjectType *ObjectType = ObjectType_cast(receiverJSType.autobox())
-			getpropType = func() *JSType { if (receiverObjectType == nil) { return this.unknownType }; return receiverObjectType.getPropertyType(propertyName) }()
+			getpropType = func() *JSType {
+				if receiverObjectType == nil {
+					return this.unknownType
+				}
+				return receiverObjectType.getPropertyType(propertyName)
+			}()
 		}
 	}
-	if (getpropType == nil) {
+	if getpropType == nil {
 		getpropType = this.unknownType
 	}
-	if ((getpropType.isUnknownType() && (propertyName == "global")) && receiver.matchesName("$jscomp")) {
+	if (getpropType.isUnknownType() && (propertyName == "global")) && receiver.matchesName("$jscomp") {
 		getpropType = this.getNativeType(JSTypeNative_GLOBAL_THIS)
 	}
 	return getpropType
@@ -1206,19 +1256,29 @@ func new_AstFactory_TypeOnNode(n Node) *AstFactory_TypeOnNode {
 
 func (this *AstFactory_TypeOnNode) getJSType(registry *JSTypeRegistry) *JSType {
 	var jstype *JSType = this.n.getJSType()
-	return func() *JSType { if (jstype != nil) { return jstype }; return registry.getNativeType(JSTypeNative_UNKNOWN_TYPE) }()
+	return func() *JSType {
+		if jstype != nil {
+			return jstype
+		}
+		return registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+	}()
 }
 
 func (this *AstFactory_TypeOnNode) getColor(registry *ColorRegistry) *Color {
 	var color *Color = this.n.getColor()
-	return func() *Color { if (color != nil) { return color }; return StandardColors_UNKNOWN }()
+	return func() *Color {
+		if color != nil {
+			return color
+		}
+		return StandardColors_UNKNOWN
+	}()
 }
 
 type AstFactory_JSTypeOrColor struct {
-	jstype *JSType
+	jstype       *JSType
 	jstypeNative *JSTypeNative
-	color_ *Color
-	colorId *ColorId
+	color_       *Color
+	colorId      *ColorId
 }
 
 func (this *AstFactory_JSTypeOrColor) init_AstFactory_JSTypeOrColor(jstype *JSType, jstypeNative *JSTypeNative, color *Color, colorId *ColorId) {
@@ -1235,10 +1295,19 @@ func new_AstFactory_JSTypeOrColor(jstype *JSType, jstypeNative *JSTypeNative, co
 }
 
 func (this *AstFactory_JSTypeOrColor) getJSType(registry *JSTypeRegistry) *JSType {
-	return func() *JSType { if (this.jstype != nil) { return this.jstype }; return registry.getNativeType(this.jstypeNative) }()
+	return func() *JSType {
+		if this.jstype != nil {
+			return this.jstype
+		}
+		return registry.getNativeType(this.jstypeNative)
+	}()
 }
 
 func (this *AstFactory_JSTypeOrColor) getColor(registry *ColorRegistry) *Color {
-	return func() *Color { if (this.color_ != nil) { return this.color_ }; return registry.get(cast_[*ColorId](Preconditions_checkNotNull(obj_(this.colorId)))) }()
+	return func() *Color {
+		if this.color_ != nil {
+			return this.color_
+		}
+		return registry.get(cast_[*ColorId](Preconditions_checkNotNull(obj_(this.colorId))))
+	}()
 }
-

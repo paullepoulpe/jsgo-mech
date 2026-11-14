@@ -25,4 +25,3 @@ func new_ArrayPatternTree(location *SourceRange, elements ImmutableListOf[*Parse
 	this.init_ArrayPatternTree(location, elements)
 	return this
 }
-

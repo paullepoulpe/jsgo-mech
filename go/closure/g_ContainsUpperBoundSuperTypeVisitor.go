@@ -5,7 +5,7 @@ package closure
 type ContainsUpperBoundSuperTypeVisitor struct {
 	Visitor_WithDefaultCase
 	target *JSType
-	seen *LinkedIdentityHashSet
+	seen   *LinkedIdentityHashSet
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) up_Visitor_WithDefaultCase() *Visitor_WithDefaultCase {
@@ -33,10 +33,15 @@ func new_ContainsUpperBoundSuperTypeVisitor(target *JSType) *ContainsUpperBoundS
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) caseDefault_impl(type_ *JSType) any {
-	if (this.target == nil) {
+	if this.target == nil {
 		return obj_(ContainsUpperBoundSuperTypeVisitor_Result_ABSENT)
 	}
-	return func() any { if JSCompObjects_identical(type_.self(), this.target.self()) { return obj_(ContainsUpperBoundSuperTypeVisitor_Result_PRESENT) }; return obj_(ContainsUpperBoundSuperTypeVisitor_Result_ABSENT) }()
+	return func() any {
+		if JSCompObjects_identical(type_.self(), this.target.self()) {
+			return obj_(ContainsUpperBoundSuperTypeVisitor_Result_PRESENT)
+		}
+		return obj_(ContainsUpperBoundSuperTypeVisitor_Result_ABSENT)
+	}()
 }
 
 func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplateType_impl(type_ *TemplateType) any {
@@ -59,7 +64,7 @@ func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType_impl(type_ *UnionT
 	for it_1.next() {
 		var alt *JSType = to_JSType(it_1.v)
 		var foundInAlt *ContainsUpperBoundSuperTypeVisitor_Result = cast_[*ContainsUpperBoundSuperTypeVisitor_Result](alt.visit(icast_Visitor(obj_(this))))
-		if (foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT) {
+		if foundInAlt != ContainsUpperBoundSuperTypeVisitor_Result_ABSENT {
 			return obj_(foundInAlt)
 		}
 	}
@@ -132,4 +137,3 @@ func ContainsUpperBoundSuperTypeVisitor_Result_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.ContainsUpperBoundSuperTypeVisitor.Result", enumValues_(ContainsUpperBoundSuperTypeVisitor_Result_values_))
 
 }
-

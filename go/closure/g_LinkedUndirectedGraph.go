@@ -4,7 +4,7 @@ package closure
 
 type LinkedUndirectedGraph struct {
 	UndiGraph
-	nodes_ MapOf[any, *LinkedUndirectedGraph_LinkedUndirectedGraphNode]
+	nodes_             MapOf[any, *LinkedUndirectedGraph_LinkedUndirectedGraphNode]
 	useNodeAnnotations bool
 	useEdgeAnnotations bool
 }
@@ -52,7 +52,12 @@ func LinkedUndirectedGraph_create() *LinkedUndirectedGraph {
 func (this *LinkedUndirectedGraph) connect_impl(srcValue any, edgeValue any, destValue any) {
 	var src *LinkedUndirectedGraph_LinkedUndirectedGraphNode = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(this.getNodeOrFail(srcValue))
 	var dest *LinkedUndirectedGraph_LinkedUndirectedGraphNode = to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(this.getNodeOrFail(destValue))
-	var edge *LinkedUndirectedGraph_LinkedUndirectedGraphEdge = func() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge { if this.useEdgeAnnotations { return new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge(icast_UndiGraph_UndiGraphNode(src.self()), edgeValue, icast_UndiGraph_UndiGraphNode(dest.self())).up_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() }; return new_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(icast_UndiGraph_UndiGraphNode(src.self()), edgeValue, icast_UndiGraph_UndiGraphNode(dest.self())) }()
+	var edge *LinkedUndirectedGraph_LinkedUndirectedGraphEdge = func() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
+		if this.useEdgeAnnotations {
+			return new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge(icast_UndiGraph_UndiGraphNode(src.self()), edgeValue, icast_UndiGraph_UndiGraphNode(dest.self())).up_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
+		}
+		return new_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(icast_UndiGraph_UndiGraphNode(src.self()), edgeValue, icast_UndiGraph_UndiGraphNode(dest.self()))
+	}()
 	src.getNeighborEdges().add(edge.self())
 	dest.getNeighborEdges().add(edge.self())
 }
@@ -70,7 +75,12 @@ func (this *LinkedUndirectedGraph) disconnect_impl(srcValue any, destValue any) 
 
 func (this *LinkedUndirectedGraph) createUndirectedGraphNode_impl(nodeValue any) UndiGraph_UndiGraphNode {
 	return icast_UndiGraph_UndiGraphNode(Map_computeIfAbsent(this.nodes_, nodeValue, &Function_fn{func(k any) any {
-		return func() any { if this.useNodeAnnotations { return obj_(new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode(k)) }; return new_LinkedUndirectedGraph_LinkedUndirectedGraphNode(k).self() }()
+		return func() any {
+			if this.useNodeAnnotations {
+				return obj_(new_LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode(k))
+			}
+			return new_LinkedUndirectedGraph_LinkedUndirectedGraphNode(k).self()
+		}()
 	}}))
 }
 
@@ -81,18 +91,18 @@ func (this *LinkedUndirectedGraph) getNeighborNodes_impl(value any) List {
 
 func (this *LinkedUndirectedGraph) getUndirectedGraphEdges_impl(n1 any, n2 any) List {
 	var dNode1 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.nodes_.get(n1))
-	if (dNode1 == nil) {
+	if dNode1 == nil {
 		return nil
 	}
 	var dNode2 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.nodes_.get(n2))
-	if (dNode2 == nil) {
+	if dNode2 == nil {
 		return nil
 	}
 	var edges ListOf[UndiGraph_UndiGraphEdge] = icast_List(new_ArrayList_0().self())
 	it_1 := foreach_(any(dNode1.getNeighborEdges()))
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge = icast_UndiGraph_UndiGraphEdge(it_1.v)
-		if ((any(outEdge.getNodeA()) == any(dNode2)) || (any(outEdge.getNodeB()) == any(dNode2))) {
+		if (any(outEdge.getNodeA()) == any(dNode2)) || (any(outEdge.getNodeB()) == any(dNode2)) {
 			edges.add(any(outEdge))
 		}
 	}
@@ -123,7 +133,7 @@ func (this *LinkedUndirectedGraph) getEdges_impl() List {
 		it_3 := foreach_(any(node.getNeighborEdges()))
 		for it_3.next() {
 			var edge UndiGraph_UndiGraphEdge = icast_UndiGraph_UndiGraphEdge(it_3.v)
-			if (any(edge.getNodeA()) == node.self()) {
+			if any(edge.getNodeA()) == node.self() {
 				result.add(any(edge))
 			}
 		}
@@ -137,7 +147,7 @@ func (this *LinkedUndirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_Graph
 	it_1 := foreach_(any(dNode1.getNeighborEdges()))
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge = icast_UndiGraph_UndiGraphEdge(it_1.v)
-		if ((any(outEdge.getNodeA()) == any(dNode2)) || (any(outEdge.getNodeB()) == any(dNode2))) {
+		if (any(outEdge.getNodeA()) == any(dNode2)) || (any(outEdge.getNodeB()) == any(dNode2)) {
 			return Graph_GraphEdge(outEdge)
 		}
 	}
@@ -158,17 +168,17 @@ func (this *LinkedUndirectedGraph) isConnected_3_impl(n1 any, e any, n2 any) boo
 
 func (this *LinkedUndirectedGraph) isConnectedPredicate(n1 any, edgePredicate Predicate_baseOf[any], n2 any) bool {
 	var dNode1 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.nodes_.get(n1))
-	if (dNode1 == nil) {
+	if dNode1 == nil {
 		return false
 	}
 	var dNode2 UndiGraph_UndiGraphNode = icast_UndiGraph_UndiGraphNode(this.nodes_.get(n2))
-	if (dNode2 == nil) {
+	if dNode2 == nil {
 		return false
 	}
 	it_1 := foreach_(any(dNode1.getNeighborEdges()))
 	for it_1.next() {
 		var outEdge UndiGraph_UndiGraphEdge = icast_UndiGraph_UndiGraphEdge(it_1.v)
-		if (((any(outEdge.getNodeA()) == any(dNode1)) && (any(outEdge.getNodeB()) == any(dNode2))) || ((any(outEdge.getNodeA()) == any(dNode2)) && (any(outEdge.getNodeB()) == any(dNode1)))) {
+		if ((any(outEdge.getNodeA()) == any(dNode1)) && (any(outEdge.getNodeB()) == any(dNode2))) || ((any(outEdge.getNodeA()) == any(dNode2)) && (any(outEdge.getNodeB()) == any(dNode1))) {
 			if edgePredicate.apply(outEdge.getValue()) {
 				return true
 			}
@@ -185,7 +195,7 @@ func (this *LinkedUndirectedGraph) getGraphvizEdges() List {
 		it_3 := foreach_(any(node.getNeighborEdges()))
 		for it_3.next() {
 			var edge UndiGraph_UndiGraphEdge = icast_UndiGraph_UndiGraphEdge(it_3.v)
-			if (any(edge.getNodeA()) == node.self()) {
+			if any(edge.getNodeA()) == node.self() {
 				edgeList.add(any(icast_GraphvizGraph_GraphvizEdge(edge)))
 			}
 		}
@@ -221,29 +231,35 @@ func (this *LinkedUndirectedGraph) getNodeCount_impl() int32 {
 
 func (this *LinkedUndirectedGraph) getNodeDegree_impl(value any) int32 {
 	var uNode UndiGraph_UndiGraphNode = this.getUndirectedGraphNode(value)
-	if (uNode == nil) {
+	if uNode == nil {
 		panic(new_IllegalArgumentException_String((objstr_(value) + " not found in graph")).self())
 	}
 	return uNode.getNeighborEdges().size()
 }
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphNode struct {
-	self_ any
+	self_         any
 	neighborEdges ListOf[UndiGraph_UndiGraphEdge]
-	value_ any
+	value_        any
 }
 
-func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode { return this }
+func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode {
+	return this
+}
 
 func to_LinkedUndirectedGraph_LinkedUndirectedGraphNode(v any) *LinkedUndirectedGraph_LinkedUndirectedGraphNode {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode }).as_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
+	return v.(interface {
+		as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode
+	}).as_LinkedUndirectedGraph_LinkedUndirectedGraphNode()
 }
 
 func is_LinkedUndirectedGraph_LinkedUndirectedGraphNode(v any) bool {
-	_, ok := v.(interface{ as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode })
+	_, ok := v.(interface {
+		as_LinkedUndirectedGraph_LinkedUndirectedGraphNode() *LinkedUndirectedGraph_LinkedUndirectedGraphNode
+	})
 	return ok
 }
 
@@ -307,7 +323,7 @@ func (this *LinkedUndirectedGraph_LinkedUndirectedGraphNode) neighborList() List
 	it_1 := foreach_(any(this.neighborEdges))
 	for it_1.next() {
 		var edge UndiGraph_UndiGraphEdge = icast_UndiGraph_UndiGraphEdge(it_1.v)
-		if (any(edge.getNodeA()) == this.self()) {
+		if any(edge.getNodeA()) == this.self() {
 			result.add(any(edge.getNodeB()))
 		} else {
 			result.add(any(edge.getNodeA()))
@@ -356,23 +372,29 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphNode) setAnnotat
 }
 
 type LinkedUndirectedGraph_LinkedUndirectedGraphEdge struct {
-	self_ any
-	nodeA UndiGraph_UndiGraphNode
-	nodeB UndiGraph_UndiGraphNode
+	self_  any
+	nodeA  UndiGraph_UndiGraphNode
+	nodeB  UndiGraph_UndiGraphNode
 	value_ any
 }
 
-func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge { return this }
+func (this *LinkedUndirectedGraph_LinkedUndirectedGraphEdge) as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
+	return this
+}
 
 func to_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(v any) *LinkedUndirectedGraph_LinkedUndirectedGraphEdge {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge }).as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
+	return v.(interface {
+		as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge
+	}).as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge()
 }
 
 func is_LinkedUndirectedGraph_LinkedUndirectedGraphEdge(v any) bool {
-	_, ok := v.(interface{ as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge })
+	_, ok := v.(interface {
+		as_LinkedUndirectedGraph_LinkedUndirectedGraphEdge() *LinkedUndirectedGraph_LinkedUndirectedGraphEdge
+	})
 	return ok
 }
 
@@ -474,4 +496,3 @@ func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge) getAnnotat
 func (this *LinkedUndirectedGraph_AnnotatedLinkedUndirectedGraphEdge) setAnnotation_impl(data Annotation_graph) {
 	this.annotation = data
 }
-

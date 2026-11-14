@@ -46,17 +46,17 @@ func TextFiles_write(path string, charset string, text string) *Outcome_base {
 func TextFiles_splitLines(text string) List {
 	var lines ListOf[string] = icast_List(new_ArrayList_0().self())
 	var start int32 = 0
-	for i := int32(0); (i < String_length(text)); i++ {
+	for i := int32(0); i < String_length(text); i++ {
 		var c uint16 = String_charAt(text, i)
-		if ((c == '\n') || (c == '\r')) {
+		if (c == '\n') || (c == '\r') {
 			lines.add(strobj_(String_substring(text, start, i)))
-			if (((c == '\r') && ((i + 1) < String_length(text))) && (String_charAt(text, (i + 1)) == '\n')) {
+			if ((c == '\r') && ((i + 1) < String_length(text))) && (String_charAt(text, (i+1)) == '\n') {
 				i++
 			}
 			start = (i + 1)
 		}
 	}
-	if (start < String_length(text)) {
+	if start < String_length(text) {
 		lines.add(strobj_(String_substring_int(text, start)))
 	}
 	return lines
@@ -85,4 +85,3 @@ func new_TextFiles_DecodingException(message string) *TextFiles_DecodingExceptio
 }
 
 const TextFiles_DecodingException_serialVersionUID int64 = 1
-

@@ -3,7 +3,7 @@
 package closure
 
 type BaseTranspiler struct {
-	compilerSupplier *BaseTranspiler_CompilerSupplier
+	compilerSupplier   *BaseTranspiler_CompilerSupplier
 	runtimeLibraryName string
 }
 
@@ -64,10 +64,10 @@ func BaseTranspiler_clinit() {
 }
 
 type BaseTranspiler_CompilerSupplier struct {
-	moduleResolution *ModuleLoader_ResolutionMode
-	moduleRoots ImmutableListOf[string]
+	moduleResolution   *ModuleLoader_ResolutionMode
+	moduleRoots        ImmutableListOf[string]
 	prefixReplacements ImmutableMapOf[string, string]
-	outputFeatureSet *FeatureSet
+	outputFeatureSet   *FeatureSet
 }
 
 func (this *BaseTranspiler_CompilerSupplier) init_BaseTranspiler_CompilerSupplier_0() {
@@ -108,7 +108,7 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	var result *Result = compiler.compileSourceFile(this.createTrivialExterns(), SourceFile_jscomp_fromCode_String_String(path, code), this.options())
 	var source string = compiler.toSource()
 	var sourceMap *StringBuilder = new_StringBuilder()
-	if (result.sourceMap_ != nil) {
+	if result.sourceMap_ != nil {
 		_ = func() (code_ int) {
 			defer func() {
 				if r_ := recover(); r_ != nil {
@@ -129,7 +129,12 @@ func (this *BaseTranspiler_CompilerSupplier) compile(path string, code string) *
 	if !result.errors_.isEmpty() {
 		panic(obj_(new_TranspilationException_SourceExcerptProvider_ImmutableList_ImmutableList(icast_SourceExcerptProvider(obj_(compiler)), result.errors_, result.warnings_)))
 	}
-	return new_BaseTranspiler_CompileResult(source, transpiled, func() string { if transpiled { return Object_toString(obj_(sourceMap)) }; return "" }())
+	return new_BaseTranspiler_CompileResult(source, transpiled, func() string {
+		if transpiled {
+			return Object_toString(obj_(sourceMap))
+		}
+		return ""
+	}())
 }
 
 func (this *BaseTranspiler_CompilerSupplier) runtime(library string) string {
@@ -172,7 +177,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setSourceMapOutputPath(Optional_of(strobj_("/dev/null")))
 	options.setSourceMapIncludeSourcesContent(true)
 	options.setSourceMapLocationMappings(icast_List(obj_(ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location *Optional) *Optional {
-		if (Uris_isValid(str_(location.get())) && Uris_hasScheme(str_(location.get()))) {
+		if Uris_isValid(str_(location.get())) && Uris_hasScheme(str_(location.get())) {
 			return location
 		}
 		return new_SourceMap_PrefixLocationMapping("", "/").map_(location)
@@ -189,9 +194,9 @@ func (this *BaseTranspiler_CompilerSupplier) createEmptySource() *SourceFile_jsc
 }
 
 type BaseTranspiler_CompileResult struct {
-	source string
+	source      string
 	transpiled_ bool
-	sourceMap_ string
+	sourceMap_  string
 }
 
 func (this *BaseTranspiler_CompileResult) zero_BaseTranspiler_CompileResult() {
@@ -211,4 +216,3 @@ func new_BaseTranspiler_CompileResult(source string, transpiled bool, sourceMap 
 	this.init_BaseTranspiler_CompileResult(source, transpiled, sourceMap)
 	return this
 }
-

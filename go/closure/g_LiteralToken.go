@@ -55,4 +55,3 @@ func new_LiteralToken(type_ *TokenType, value string, location *SourceRange) *Li
 func (this *LiteralToken) toString_impl() string {
 	return this.value_
 }
-

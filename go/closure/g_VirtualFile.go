@@ -43,9 +43,15 @@ func (this *VirtualFile) hashCode() int32 {
 func (this *VirtualFile) equals(o any) bool {
 	var vf *VirtualFile
 	_ = vf
-	if func() bool { v_ := o; if !is_[*VirtualFile](v_) { return false }; vf = cast_[*VirtualFile](v_); return true }() {
+	if func() bool {
+		v_ := o
+		if !is_[*VirtualFile](v_) {
+			return false
+		}
+		vf = cast_[*VirtualFile](v_)
+		return true
+	}() {
 		return ((this.name_ == vf.name_) && (this.code_ == vf.code_))
 	}
 	return false
 }
-

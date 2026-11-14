@@ -5,7 +5,7 @@ package closure
 type VariableDeclarationListTree struct {
 	ParseTree
 	declarationType_ *TokenType
-	declarations ImmutableListOf[*VariableDeclarationTree]
+	declarations     ImmutableListOf[*VariableDeclarationTree]
 }
 
 func (this *VariableDeclarationListTree) up_ParseTree() *ParseTree {
@@ -27,4 +27,3 @@ func new_VariableDeclarationListTree(location *SourceRange, declarationType *Tok
 	this.init_VariableDeclarationListTree(location, declarationType, declarations)
 	return this
 }
-

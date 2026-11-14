@@ -3,10 +3,10 @@
 package closure
 
 type ColorGraphNode struct {
-	color_ *Color
+	color_          *Color
 	associatedProps LinkedHashMapOf[*PropertyClustering, *ColorGraphNode_PropAssociation]
-	index_ int32
-	subtypeIndices *BitSet
+	index_          int32
+	subtypeIndices  *BitSet
 }
 
 func (this *ColorGraphNode) finit_ColorGraphNode() {
@@ -116,4 +116,3 @@ func ColorGraphNode_PropAssociation_clinit() {
 	registerEnum_("com.google.javascript.jscomp.disambiguate.ColorGraphNode.PropAssociation", enumValues_(ColorGraphNode_PropAssociation_values_))
 
 }
-

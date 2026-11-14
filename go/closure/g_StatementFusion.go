@@ -25,7 +25,7 @@ func new_StatementFusion() *StatementFusion {
 }
 
 func (this *StatementFusion) optimizeSubtree_impl(n Node) Node {
-	if (n.getParent().isFunction() || !this.canFuseIntoOneStatement(n)) {
+	if n.getParent().isFunction() || !this.canFuseIntoOneStatement(n) {
 		return n
 	}
 	var start Node = n.getFirstChild()
@@ -40,14 +40,14 @@ func (this *StatementFusion) canFuseIntoOneStatement(block Node) bool {
 	if !block.isBlock() {
 		return false
 	}
-	if (!block.hasChildren() || block.hasOneChild()) {
+	if !block.hasChildren() || block.hasOneChild() {
 		return false
 	}
 	var last Node = block.getLastChild()
 	{
 		var c Node = block.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
-			if (!c.isExprResult() && (c != last)) {
+		for ; c != 0; c = c.getNext() {
+			if !c.isExprResult() && (c != last) {
 				return false
 			}
 		}
@@ -75,14 +75,14 @@ func (this *StatementFusion) isFusableControlStatement(n Node) bool {
 }
 
 func StatementFusion_fuseIntoOneStatement(first Node, last Node) Node {
-	if (first.getNext() == last) {
+	if first.getNext() == last {
 		return first
 	}
 	var commaTree Node = first.removeFirstChild()
 	var next Node = 0
 	{
 		var cur Node = first.getNext()
-		for ; (cur != last); cur = next {
+		for ; cur != last; cur = next {
 			commaTree = AstManipulations_fuseExpressions(commaTree, cur.removeFirstChild())
 			next = cur.getNext()
 			cur.detach()
@@ -121,4 +121,3 @@ func StatementFusion_fuseExpressionIntoSecondChild(exp Node, stmt Node) {
 	var comma Node = AstManipulations_fuseExpressions(exp, val)
 	comma.insertAfter(stmt.getFirstChild())
 }
-

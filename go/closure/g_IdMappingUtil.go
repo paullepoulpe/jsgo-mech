@@ -42,7 +42,7 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 			if inSection {
 				break
 			}
-			if (str_(mr.getSection().get()) == sectionFilter) {
+			if str_(mr.getSection().get()) == sectionFilter {
 				inSection = true
 			}
 		} else if inSection {
@@ -66,7 +66,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) Map {
 			currentSectionMap = SimpleBiMap_create()
 			Map_put_s(resultMap, str_(sectionName.orElse(nil)), obj_(currentSectionMap))
 		} else {
-			if (currentSectionMap == nil) {
+			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
 			}
 			currentSectionMap.put(mr.getKey().orElse(nil), mr.getValue().orElse(nil))
@@ -85,12 +85,12 @@ func IdMappingUtil_parseSerializedIdMappings(idMappings string) Map {
 const IdMappingUtil_NEW_LINE uint16 = '\n'
 
 type IdMappingUtil_MappingReader struct {
-	lines ListOf[string]
-	nextLine int32
+	lines          ListOf[string]
+	nextLine       int32
 	currentSection OptionalOf[string]
-	currentKey OptionalOf[string]
-	currentValue OptionalOf[string]
-	lineIndex int32
+	currentKey     OptionalOf[string]
+	currentValue   OptionalOf[string]
+	lineIndex      int32
 }
 
 func (this *IdMappingUtil_MappingReader) finit_IdMappingUtil_MappingReader() {
@@ -115,7 +115,7 @@ func new_IdMappingUtil_MappingReader(text string) *IdMappingUtil_MappingReader {
 func (this *IdMappingUtil_MappingReader) next() bool {
 	var line string
 	for {
-		if (this.nextLine == this.lines.size()) {
+		if this.nextLine == this.lines.size() {
 			break
 		}
 		line = str_(this.lines.get(this.nextLine))
@@ -124,14 +124,14 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 		if String_isEmpty(line) {
 			continue
 		}
-		if (String_charAt(line, 0) == '[') {
+		if String_charAt(line, 0) == '[' {
 			this.currentSection = Optional_of(strobj_(String_substring(line, 1, (String_length(line) - 1))))
 			this.currentKey = Optional_empty()
 			this.currentValue = Optional_empty()
 			return true
 		} else {
 			var split int32 = String_indexOf(line, 58)
-			if (split != -1) {
+			if split != -1 {
 				this.currentKey = Optional_of(strobj_(String_substring(line, 0, split)))
 				this.currentValue = Optional_of(strobj_(String_substring_int(line, (split + 1))))
 				return true
@@ -162,4 +162,3 @@ func (this *IdMappingUtil_MappingReader) getValue() *Optional {
 func (this *IdMappingUtil_MappingReader) getLineIndex() int32 {
 	return this.lineIndex
 }
-

@@ -333,17 +333,23 @@ type ArrayIndexOutOfBoundsException struct {
 	IndexOutOfBoundsException
 }
 
-func (this *ArrayIndexOutOfBoundsException) as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException { return this }
+func (this *ArrayIndexOutOfBoundsException) as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException {
+	return this
+}
 
 func to_ArrayIndexOutOfBoundsException(v any) *ArrayIndexOutOfBoundsException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException }).as_ArrayIndexOutOfBoundsException()
+	return v.(interface {
+		as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException
+	}).as_ArrayIndexOutOfBoundsException()
 }
 
 func is_ArrayIndexOutOfBoundsException(v any) bool {
-	_, ok := v.(interface{ as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException })
+	_, ok := v.(interface {
+		as_ArrayIndexOutOfBoundsException() *ArrayIndexOutOfBoundsException
+	})
 	return ok
 }
 
@@ -595,17 +601,23 @@ type CloneNotSupportedException struct {
 	Exception
 }
 
-func (this *CloneNotSupportedException) as_CloneNotSupportedException() *CloneNotSupportedException { return this }
+func (this *CloneNotSupportedException) as_CloneNotSupportedException() *CloneNotSupportedException {
+	return this
+}
 
 func to_CloneNotSupportedException(v any) *CloneNotSupportedException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_CloneNotSupportedException() *CloneNotSupportedException }).as_CloneNotSupportedException()
+	return v.(interface {
+		as_CloneNotSupportedException() *CloneNotSupportedException
+	}).as_CloneNotSupportedException()
 }
 
 func is_CloneNotSupportedException(v any) bool {
-	_, ok := v.(interface{ as_CloneNotSupportedException() *CloneNotSupportedException })
+	_, ok := v.(interface {
+		as_CloneNotSupportedException() *CloneNotSupportedException
+	})
 	return ok
 }
 
@@ -685,17 +697,23 @@ type ConcurrentModificationException struct {
 	RuntimeException
 }
 
-func (this *ConcurrentModificationException) as_ConcurrentModificationException() *ConcurrentModificationException { return this }
+func (this *ConcurrentModificationException) as_ConcurrentModificationException() *ConcurrentModificationException {
+	return this
+}
 
 func to_ConcurrentModificationException(v any) *ConcurrentModificationException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ConcurrentModificationException() *ConcurrentModificationException }).as_ConcurrentModificationException()
+	return v.(interface {
+		as_ConcurrentModificationException() *ConcurrentModificationException
+	}).as_ConcurrentModificationException()
 }
 
 func is_ConcurrentModificationException(v any) bool {
-	_, ok := v.(interface{ as_ConcurrentModificationException() *ConcurrentModificationException })
+	_, ok := v.(interface {
+		as_ConcurrentModificationException() *ConcurrentModificationException
+	})
 	return ok
 }
 
@@ -1227,17 +1245,23 @@ type IllegalArgumentException struct {
 	RuntimeException
 }
 
-func (this *IllegalArgumentException) as_IllegalArgumentException() *IllegalArgumentException { return this }
+func (this *IllegalArgumentException) as_IllegalArgumentException() *IllegalArgumentException {
+	return this
+}
 
 func to_IllegalArgumentException(v any) *IllegalArgumentException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_IllegalArgumentException() *IllegalArgumentException }).as_IllegalArgumentException()
+	return v.(interface {
+		as_IllegalArgumentException() *IllegalArgumentException
+	}).as_IllegalArgumentException()
 }
 
 func is_IllegalArgumentException(v any) bool {
-	_, ok := v.(interface{ as_IllegalArgumentException() *IllegalArgumentException })
+	_, ok := v.(interface {
+		as_IllegalArgumentException() *IllegalArgumentException
+	})
 	return ok
 }
 
@@ -1379,17 +1403,23 @@ type IndexOutOfBoundsException struct {
 	RuntimeException
 }
 
-func (this *IndexOutOfBoundsException) as_IndexOutOfBoundsException() *IndexOutOfBoundsException { return this }
+func (this *IndexOutOfBoundsException) as_IndexOutOfBoundsException() *IndexOutOfBoundsException {
+	return this
+}
 
 func to_IndexOutOfBoundsException(v any) *IndexOutOfBoundsException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_IndexOutOfBoundsException() *IndexOutOfBoundsException }).as_IndexOutOfBoundsException()
+	return v.(interface {
+		as_IndexOutOfBoundsException() *IndexOutOfBoundsException
+	}).as_IndexOutOfBoundsException()
 }
 
 func is_IndexOutOfBoundsException(v any) bool {
-	_, ok := v.(interface{ as_IndexOutOfBoundsException() *IndexOutOfBoundsException })
+	_, ok := v.(interface {
+		as_IndexOutOfBoundsException() *IndexOutOfBoundsException
+	})
 	return ok
 }
 
@@ -1545,17 +1575,23 @@ type InvalidProtocolBufferException struct {
 	IOException
 }
 
-func (this *InvalidProtocolBufferException) as_InvalidProtocolBufferException() *InvalidProtocolBufferException { return this }
+func (this *InvalidProtocolBufferException) as_InvalidProtocolBufferException() *InvalidProtocolBufferException {
+	return this
+}
 
 func to_InvalidProtocolBufferException(v any) *InvalidProtocolBufferException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_InvalidProtocolBufferException() *InvalidProtocolBufferException }).as_InvalidProtocolBufferException()
+	return v.(interface {
+		as_InvalidProtocolBufferException() *InvalidProtocolBufferException
+	}).as_InvalidProtocolBufferException()
 }
 
 func is_InvalidProtocolBufferException(v any) bool {
-	_, ok := v.(interface{ as_InvalidProtocolBufferException() *InvalidProtocolBufferException })
+	_, ok := v.(interface {
+		as_InvalidProtocolBufferException() *InvalidProtocolBufferException
+	})
 	return ok
 }
 
@@ -1767,17 +1803,23 @@ type NegativeArraySizeException struct {
 	RuntimeException
 }
 
-func (this *NegativeArraySizeException) as_NegativeArraySizeException() *NegativeArraySizeException { return this }
+func (this *NegativeArraySizeException) as_NegativeArraySizeException() *NegativeArraySizeException {
+	return this
+}
 
 func to_NegativeArraySizeException(v any) *NegativeArraySizeException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NegativeArraySizeException() *NegativeArraySizeException }).as_NegativeArraySizeException()
+	return v.(interface {
+		as_NegativeArraySizeException() *NegativeArraySizeException
+	}).as_NegativeArraySizeException()
 }
 
 func is_NegativeArraySizeException(v any) bool {
-	_, ok := v.(interface{ as_NegativeArraySizeException() *NegativeArraySizeException })
+	_, ok := v.(interface {
+		as_NegativeArraySizeException() *NegativeArraySizeException
+	})
 	return ok
 }
 
@@ -1827,11 +1869,15 @@ func to_NoSuchElementException(v any) *NoSuchElementException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_NoSuchElementException() *NoSuchElementException }).as_NoSuchElementException()
+	return v.(interface {
+		as_NoSuchElementException() *NoSuchElementException
+	}).as_NoSuchElementException()
 }
 
 func is_NoSuchElementException(v any) bool {
-	_, ok := v.(interface{ as_NoSuchElementException() *NoSuchElementException })
+	_, ok := v.(interface {
+		as_NoSuchElementException() *NoSuchElementException
+	})
 	return ok
 }
 
@@ -2098,13 +2144,17 @@ func (this *ParseException) up_Exception() *Exception {
 	return &this.Exception
 }
 
-func (this *ParserConfigurationException) as_ParserConfigurationException() *ParserConfigurationException { return this }
+func (this *ParserConfigurationException) as_ParserConfigurationException() *ParserConfigurationException {
+	return this
+}
 
 func to_ParserConfigurationException(v any) *ParserConfigurationException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ParserConfigurationException() *ParserConfigurationException }).as_ParserConfigurationException()
+	return v.(interface {
+		as_ParserConfigurationException() *ParserConfigurationException
+	}).as_ParserConfigurationException()
 }
 
 func (this *ParserConfigurationException) self() any {
@@ -2146,11 +2196,15 @@ func to_PatternSyntaxException(v any) *PatternSyntaxException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_PatternSyntaxException() *PatternSyntaxException }).as_PatternSyntaxException()
+	return v.(interface {
+		as_PatternSyntaxException() *PatternSyntaxException
+	}).as_PatternSyntaxException()
 }
 
 func is_PatternSyntaxException(v any) bool {
-	_, ok := v.(interface{ as_PatternSyntaxException() *PatternSyntaxException })
+	_, ok := v.(interface {
+		as_PatternSyntaxException() *PatternSyntaxException
+	})
 	return ok
 }
 
@@ -2527,17 +2581,23 @@ type StringIndexOutOfBoundsException struct {
 	IndexOutOfBoundsException
 }
 
-func (this *StringIndexOutOfBoundsException) as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException { return this }
+func (this *StringIndexOutOfBoundsException) as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException {
+	return this
+}
 
 func to_StringIndexOutOfBoundsException(v any) *StringIndexOutOfBoundsException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException }).as_StringIndexOutOfBoundsException()
+	return v.(interface {
+		as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException
+	}).as_StringIndexOutOfBoundsException()
 }
 
 func is_StringIndexOutOfBoundsException(v any) bool {
-	_, ok := v.(interface{ as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException })
+	_, ok := v.(interface {
+		as_StringIndexOutOfBoundsException() *StringIndexOutOfBoundsException
+	})
 	return ok
 }
 
@@ -2770,11 +2830,15 @@ func to_UncheckedExecutionException(v any) *UncheckedExecutionException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_UncheckedExecutionException() *UncheckedExecutionException }).as_UncheckedExecutionException()
+	return v.(interface {
+		as_UncheckedExecutionException() *UncheckedExecutionException
+	}).as_UncheckedExecutionException()
 }
 
 func is_UncheckedExecutionException(v any) bool {
-	_, ok := v.(interface{ as_UncheckedExecutionException() *UncheckedExecutionException })
+	_, ok := v.(interface {
+		as_UncheckedExecutionException() *UncheckedExecutionException
+	})
 	return ok
 }
 
@@ -2859,17 +2923,23 @@ type UnsupportedOperationException struct {
 	RuntimeException
 }
 
-func (this *UnsupportedOperationException) as_UnsupportedOperationException() *UnsupportedOperationException { return this }
+func (this *UnsupportedOperationException) as_UnsupportedOperationException() *UnsupportedOperationException {
+	return this
+}
 
 func to_UnsupportedOperationException(v any) *UnsupportedOperationException {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_UnsupportedOperationException() *UnsupportedOperationException }).as_UnsupportedOperationException()
+	return v.(interface {
+		as_UnsupportedOperationException() *UnsupportedOperationException
+	}).as_UnsupportedOperationException()
 }
 
 func is_UnsupportedOperationException(v any) bool {
-	_, ok := v.(interface{ as_UnsupportedOperationException() *UnsupportedOperationException })
+	_, ok := v.(interface {
+		as_UnsupportedOperationException() *UnsupportedOperationException
+	})
 	return ok
 }
 
@@ -3182,4 +3252,3 @@ type BooleanSupplier_fn struct {
 func (this *BooleanSupplier_fn) getAsBoolean() bool {
 	return this.f()
 }
-

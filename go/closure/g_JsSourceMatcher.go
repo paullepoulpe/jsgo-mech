@@ -23,4 +23,3 @@ func (this *JsSourceMatcher) matches(n Node, metadata *NodeMetadata) bool {
 func (this *JsSourceMatcher) getTemplateNodeToMatchMap() Map {
 	return this.matcher.getTemplateNodeToMatchMap()
 }
-

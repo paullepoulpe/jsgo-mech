@@ -68,7 +68,7 @@ func JsdocUtil_markConstant(oldJSDoc *JSDocInfo) *JSDocInfo {
 }
 
 func JsdocUtil_mergeJsdocs(classicJsdoc *JSDocInfo, inlineJsdoc *JSDocInfo) *JSDocInfo {
-	if ((inlineJsdoc == nil) || !inlineJsdoc.hasType()) {
+	if (inlineJsdoc == nil) || !inlineJsdoc.hasType() {
 		return classicJsdoc
 	}
 	var builder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(classicJsdoc)
@@ -84,10 +84,10 @@ func JsdocUtil_replaceAnnotatedTypesWithUnusableType(jsdoc *JSDocInfo) *JSDocInf
 	if jsdoc.hasReturnType() {
 		builder.recordReturnType(JsdocUtil_replaceWithUnusableType(jsdoc.getReturnType()))
 	}
-	for i := int32(0); (i < jsdoc.getParameterCount()); i++ {
+	for i := int32(0); i < jsdoc.getParameterCount(); i++ {
 		var name OptionalOf[string] = jsdoc.getParameterNameAt(i)
 		var original *JSTypeExpression = jsdoc.getParameterType(name)
-		if (original == nil) {
+		if original == nil {
 			continue
 		}
 		var newType *JSTypeExpression = JsdocUtil_replaceWithBottomType(original)
@@ -104,14 +104,14 @@ func JsdocUtil_replaceAnnotatedTypesWithUnusableType(jsdoc *JSDocInfo) *JSDocInf
 	if jsdoc.isConstant() {
 		builder.recordConstancy()
 	}
-	if (jsdoc.getVisibility() != nil) {
+	if jsdoc.getVisibility() != nil {
 		builder.recordVisibility(jsdoc.getVisibility())
 	}
 	return builder.build()
 }
 
 func JsdocUtil_hasAnnotatedType(jsdoc *JSDocInfo) bool {
-	if (jsdoc == nil) {
+	if jsdoc == nil {
 		return false
 	}
 	return ((((((jsdoc.hasType() || jsdoc.hasReturnType()) || (jsdoc.getParameterCount() > 0)) || jsdoc.isConstructorOrInterface()) || jsdoc.hasTypedefType()) || jsdoc.hasThisType()) || jsdoc.hasEnumParameterType())
@@ -136,7 +136,7 @@ func JsdocUtil_getJSDocForRhs(rhs Node, oldJSDoc *JSDocInfo) *JSDocInfo {
 			return JsdocUtil_getConstJSDocNode(oldJSDoc, new_Node_Token_Node(Token_rhino_BANG, IR_string("RegExp")))
 		}
 	case NodeUtil_ValueType_UNDETERMINED:
-		if ((oldJSDoc != nil) && oldJSDoc.getDescription().isPresent()) {
+		if (oldJSDoc != nil) && oldJSDoc.getDescription().isPresent() {
 			return JsdocUtil_getConstJSDoc(oldJSDoc, "string")
 		}
 	}
@@ -147,11 +147,11 @@ func JsdocUtil_getJSDocForRhs(rhs Node, oldJSDoc *JSDocInfo) *JSDocInfo {
 }
 
 func JsdocUtil_getJSDocForName(decl *Var, oldJSDoc *JSDocInfo) *JSDocInfo {
-	if (decl == nil) {
+	if decl == nil {
 		return nil
 	}
 	var expr *JSTypeExpression = NodeUtil_getDeclaredTypeExpression(decl.getNameNode())
-	if (expr == nil) {
+	if expr == nil {
 		return nil
 	}
 	var typeAst Node = expr.getRoot()
@@ -180,6 +180,7 @@ func JsdocUtil_isUnknownType(type_ *JSTypeExpression) bool {
 }
 
 const JsdocUtil_SYNTHETIC_FILE_NAME string = "<synthetic>"
+
 var JsdocUtil_SYNTHETIC_FILE StaticSourceFile
 var JsdocUtil_SYNTETIC_SRCINFO_NODE Node
 
@@ -194,4 +195,3 @@ func JsdocUtil_clinit() {
 	JsdocUtil_SYNTETIC_SRCINFO_NODE = new_Node_Token(Token_rhino_EMPTY).setStaticSourceFile(JsdocUtil_SYNTHETIC_FILE)
 
 }
-

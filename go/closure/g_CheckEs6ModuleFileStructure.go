@@ -4,7 +4,7 @@ package closure
 
 type CheckEs6ModuleFileStructure struct {
 	NodeTraversal_AbstractPreOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_         *AbstractCompiler
 	orderedStatements TreeSetOf[*CheckEs6ModuleFileStructure_OrderedStatement]
 }
 
@@ -50,7 +50,7 @@ func (this *CheckEs6ModuleFileStructure) shouldTraverse_impl(t *NodeTraversal, n
 		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
 			return this.visitDeclaration(t, n, parent)
 		default:
-			if ((parent != 0) && parent.isModuleBody()) {
+			if (parent != 0) && parent.isModuleBody() {
 				this.checkOrder(t, n, CheckEs6ModuleFileStructure_OrderedStatement_OTHER)
 			}
 			return false
@@ -68,7 +68,7 @@ func (this *CheckEs6ModuleFileStructure) checkOrder(t *NodeTraversal, n Node, st
 }
 
 func (this *CheckEs6ModuleFileStructure) visitExprResult(t *NodeTraversal, exprResult Node, parent Node) bool {
-	if (parent.isModuleBody() && exprResult.getFirstChild().isCall()) {
+	if parent.isModuleBody() && exprResult.getFirstChild().isCall() {
 		var call Node = exprResult.getFirstChild()
 		if CheckEs6ModuleFileStructure_GOOG_DECLAREMODULEID.matches(call.getFirstChild()) {
 			this.checkOrder(t, call, CheckEs6ModuleFileStructure_OrderedStatement_DECLARE_MODULE_ID)
@@ -83,7 +83,7 @@ func (this *CheckEs6ModuleFileStructure) visitExprResult(t *NodeTraversal, exprR
 }
 
 func (this *CheckEs6ModuleFileStructure) visitDeclaration(t *NodeTraversal, declaration Node, parent Node) bool {
-	if (((parent.isModuleBody() && declaration.hasOneChild()) && declaration.getFirstChild().hasOneChild()) && declaration.getFirstFirstChild().isCall()) {
+	if ((parent.isModuleBody() && declaration.hasOneChild()) && declaration.getFirstChild().hasOneChild()) && declaration.getFirstFirstChild().isCall() {
 		var call Node = declaration.getFirstFirstChild()
 		if CheckEs6ModuleFileStructure_GOOG_REQUIRE.matches(call.getFirstChild()) {
 			this.checkOrder(t, call, CheckEs6ModuleFileStructure_OrderedStatement_GOOG_REQUIRE)
@@ -186,4 +186,3 @@ func CheckEs6ModuleFileStructure_OrderedStatement_clinit() {
 	registerEnum_("com.google.javascript.jscomp.lint.CheckEs6ModuleFileStructure.OrderedStatement", enumValues_(CheckEs6ModuleFileStructure_OrderedStatement_values_))
 
 }
-

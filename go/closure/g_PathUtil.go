@@ -24,7 +24,7 @@ func PathUtil_collapseDots(path string) string {
 	it_1 := foreach_(any(Splitter_on('/').split(strobj_(path))))
 	for it_1.next() {
 		var fragment string = str_(it_1.v)
-		if (fragment == "..") {
+		if fragment == ".." {
 			if !dstFragments.isEmpty() {
 				dstFragments.remove((dstFragments.size() - 1))
 			}
@@ -32,7 +32,7 @@ func PathUtil_collapseDots(path string) string {
 			dstFragments.add(strobj_(fragment))
 		}
 	}
-	if ((dstFragments.size() == 1) && String_isEmpty(str_(dstFragments.get(0)))) {
+	if (dstFragments.size() == 1) && String_isEmpty(str_(dstFragments.get(0))) {
 		return "/"
 	}
 	return Joiner_on("/").join(Iterable(dstFragments))
@@ -44,7 +44,7 @@ func PathUtil_isAbsolute(path string) bool {
 
 func PathUtil_removeExtraneousSlashes(s string) string {
 	var lastNonSlash int32 = PathUtil_NON_SLASH_MATCHER.lastIndexIn(strobj_(s))
-	if (lastNonSlash != -1) {
+	if lastNonSlash != -1 {
 		s = String_substring(s, 0, (lastNonSlash + 1))
 	}
 	return PathUtil_SLASH_MATCHER.collapseFrom(strobj_(s), '/')
@@ -62,7 +62,7 @@ func PathUtil_makeAbsolute_String_String(path string, rootPath string) string {
 }
 
 func PathUtil_makeRelative(basePath string, targetPath string) string {
-	if (PathUtil_isAbsolute(basePath) != PathUtil_isAbsolute(targetPath)) {
+	if PathUtil_isAbsolute(basePath) != PathUtil_isAbsolute(targetPath) {
 		panic(new_IllegalArgumentException_String(("Paths must both be relative or both absolute.\n  basePath: " + sstr_(basePath) + "\n  targetPath: " + sstr_(targetPath))).self())
 	}
 	basePath = PathUtil_collapseDots(basePath)
@@ -72,15 +72,15 @@ func PathUtil_makeRelative(basePath string, targetPath string) string {
 	var i int32 = -1
 	for do_2 := true; do_2; do_2 = (baseFragments[i] == targetFragments[i]) {
 		i += 1
-		if ((i == int32(len(baseFragments))) && (i == int32(len(targetFragments)))) {
+		if (i == int32(len(baseFragments))) && (i == int32(len(targetFragments))) {
 			return "."
-		} else if (i == int32(len(baseFragments))) {
+		} else if i == int32(len(baseFragments)) {
 			return Joiner_on("/").join(icast_Iterable(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self()))
-		} else if (i == int32(len(targetFragments))) {
-			return (sstr_(String_repeat("../", ((int32(len(baseFragments)) - i) - 1))) + "..")
+		} else if i == int32(len(targetFragments)) {
+			return (sstr_(String_repeat("../", ((int32(len(baseFragments))-i)-1))) + "..")
 		}
 	}
-	return (sstr_(String_repeat("../", (int32(len(baseFragments)) - i))) + sstr_(Joiner_on("/").join(icast_Iterable(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self()))))
+	return (sstr_(String_repeat("../", (int32(len(baseFragments))-i))) + sstr_(Joiner_on("/").join(icast_Iterable(Lists_newArrayList(Iterator(Arrays_asList(arrmap_(targetFragments, func(v_ string) any { return strobj_(v_) })).listIterator(i))).self()))))
 }
 
 var PathUtil_SLASH_PATTERN *Pattern
@@ -99,4 +99,3 @@ func PathUtil_clinit() {
 	PathUtil_NON_SLASH_MATCHER = CharMatcher_isNot('/')
 
 }
-

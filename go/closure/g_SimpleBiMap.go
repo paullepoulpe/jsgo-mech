@@ -3,7 +3,7 @@
 package closure
 
 type SimpleBiMap struct {
-	forward LinkedHashMapOf[any, any]
+	forward  LinkedHashMapOf[any, any]
 	backward LinkedHashMapOf[any, any]
 }
 
@@ -39,7 +39,7 @@ func SimpleBiMap_copyOf(map_ MapOf[any, any]) *SimpleBiMap {
 func (this *SimpleBiMap) put(key any, value any) any {
 	var hadKey bool = this.forward.containsKey(key)
 	var oldValue any = this.forward.get(key)
-	if (hadKey && Objects_equals(oldValue, value)) {
+	if hadKey && Objects_equals(oldValue, value) {
 		return oldValue
 	}
 	Preconditions_checkArgument_boolean_String_Object(!this.backward.containsKey(value), "value already present: %s", value)
@@ -81,4 +81,3 @@ func (this *SimpleBiMap) inverse() Map {
 func (this *SimpleBiMap) toString() string {
 	return Object_toString(obj_(this.forward))
 }
-

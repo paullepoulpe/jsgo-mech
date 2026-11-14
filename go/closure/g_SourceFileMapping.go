@@ -13,4 +13,3 @@ type SourceFileMapping_fn struct {
 func (this *SourceFileMapping_fn) getSourceMapping_Optional_int_int(p0 *Optional, p1 int32, p2 int32) *Mapping_OriginalMapping {
 	return this.f(p0, p1, p2)
 }
-

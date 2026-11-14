@@ -33,7 +33,7 @@ func (this *CheckEnums) process_2(externs Node, root Node) {
 func (this *CheckEnums) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isObjectLit() {
 		var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-		if ((jsdoc != nil) && jsdoc.hasEnumParameterType()) {
+		if (jsdoc != nil) && jsdoc.hasEnumParameterType() {
 			this.checkNamingAndAssignmentUsage(t, n)
 			CheckEnums_checkDuplicateEnumValues(t, n)
 			CheckEnums_checkEnumTypeAndInitializerValues(t, n, jsdoc)
@@ -47,7 +47,7 @@ func CheckEnums_checkEnumTypeAndInitializerValues(t *NodeTraversal, n Node, jsDo
 	var enumType Node = enumTypeExpr.getRoot()
 	var isStringEnum bool = (enumType.isStringLit() && (enumType.getString() == "string"))
 	var isNumberEnum bool = (enumType.isStringLit() && (enumType.getString() == "number"))
-	if (!isStringEnum && !isNumberEnum) {
+	if !isStringEnum && !isNumberEnum {
 		t.report(n, CheckEnums_ENUM_TYPE_NOT_STRING_OR_NUMBER, []string{})
 	}
 	if isStringEnum {
@@ -59,9 +59,9 @@ func CheckEnums_checkStringEnumInitializerValues(t *NodeTraversal, enumNode Node
 	Preconditions_checkArgument_boolean_Object(enumNode.isObjectLit(), enumNode.box_())
 	{
 		var prop Node = enumNode.getFirstChild()
-		for ; (prop != 0); prop = prop.getNext() {
+		for ; prop != 0; prop = prop.getNext() {
 			var valueNode Node = prop.getLastChild()
-			if (!valueNode.isStringLit() && !(valueNode.isTemplateLit() && valueNode.hasOneChild())) {
+			if !valueNode.isStringLit() && !(valueNode.isTemplateLit() && valueNode.hasOneChild()) {
 				t.report(valueNode, CheckEnums_NON_STATIC_INITIALIZER_STRING_VALUE_IN_ENUM, []string{})
 			}
 		}
@@ -71,7 +71,7 @@ func CheckEnums_checkStringEnumInitializerValues(t *NodeTraversal, enumNode Node
 func (this *CheckEnums) checkNamingAndAssignmentUsage(t *NodeTraversal, objLit Node) {
 	{
 		var child Node = objLit.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.checkName(t, child)
 		}
 	}
@@ -82,7 +82,7 @@ func (this *CheckEnums) checkName(t *NodeTraversal, prop Node) {
 		t.report(prop, CheckEnums_COMPUTED_PROP_NAME_IN_ENUM, []string{})
 		return
 	}
-	if (prop.isStringKey() && prop.isShorthandProperty()) {
+	if prop.isStringKey() && prop.isShorthandProperty() {
 		t.report(prop, CheckEnums_SHORTHAND_ASSIGNMENT_IN_ENUM, []string{})
 	}
 	if !this.compiler_.getCodingConvention().isValidEnumKey(Optional_of(strobj_(prop.getString()))) {
@@ -94,10 +94,10 @@ func CheckEnums_checkDuplicateEnumValues(t *NodeTraversal, enumNode Node) {
 	var values map[string]struct{} = map[string]struct{}{}
 	{
 		var prop Node = enumNode.getFirstChild()
-		for ; (prop != 0); prop = prop.getNext() {
+		for ; prop != 0; prop = prop.getNext() {
 			var valueNode Node = prop.getLastChild()
 			var value string
-			if (valueNode == 0) {
+			if valueNode == 0 {
 				return
 			} else if valueNode.isStringLit() {
 				value = valueNode.getString()
@@ -135,4 +135,3 @@ func CheckEnums_clinit() {
 	CheckEnums_NON_STATIC_INITIALIZER_STRING_VALUE_IN_ENUM = DiagnosticType_disabled("JSC_NON_STATIC_INITIALIZER_STRING_VALUE_IN_ENUM", "Enum string values must be statically initialized as per the style guide.")
 
 }
-

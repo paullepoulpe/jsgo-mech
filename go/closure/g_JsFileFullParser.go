@@ -37,7 +37,7 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	var gatherModuleMetadata *GatherModuleMetadata = new_GatherModuleMetadata(compiler.up_AbstractCompiler(), false, ModuleLoader_ResolutionMode_BROWSER)
 	gatherModuleMetadata.process_2(new_Node_Token(Token_rhino_ROOT), parsed.ast)
 	compiler.generateReport()
-	if (compiler.getModuleMetadataMap().getModulesByPath().size() != 1) {
+	if compiler.getModuleMetadataMap().getModulesByPath().size() != 1 {
 		return info
 	}
 	var module *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Iterables_getOnlyElement(Iterable(compiler.getModuleMetadataMap().getModulesByPath().values())))
@@ -83,19 +83,19 @@ func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, modu
 }
 
 type JsFileFullParser_FileInfo struct {
-	goog bool
-	testonly bool
-	moduleType_ *JsFileFullParser_FileInfo_ModuleType
+	goog              bool
+	testonly          bool
+	moduleType_       *JsFileFullParser_FileInfo_ModuleType
 	isLegacyNamespace bool
-	importedModules SetOf[string]
-	dynamicRequires SetOf[string]
-	readToggles_ SetOf[string]
-	provides *SimpleMultiset
-	requires *SimpleMultiset
-	typeRequires *SimpleMultiset
-	maybeRequires *SimpleMultiset
-	loadFlags_ *SimpleSetMultimap
-	parsed *ParserRunner_ParseResult
+	importedModules   SetOf[string]
+	dynamicRequires   SetOf[string]
+	readToggles_      SetOf[string]
+	provides          *SimpleMultiset
+	requires          *SimpleMultiset
+	typeRequires      *SimpleMultiset
+	maybeRequires     *SimpleMultiset
+	loadFlags_        *SimpleSetMultimap
+	parsed            *ParserRunner_ParseResult
 }
 
 func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
@@ -194,7 +194,7 @@ func (this *JsFileFullParser_Reporter_fn) report(p0 bool, p1 string, p2 *Optiona
 }
 
 type JsFileFullParser_DelegatingReporter struct {
-	delegate JsFileFullParser_Reporter
+	delegate  JsFileFullParser_Reporter
 	seenError bool
 }
 
@@ -254,9 +254,9 @@ func new_JsFileFullParser_1(cap_errorReporter *JsFileFullParser_DelegatingReport
 }
 
 func (this *JsFileFullParser_1) println_impl(level *CheckLevel, error_ *JSError) {
-	if (level == CheckLevel_ERROR) {
+	if level == CheckLevel_ERROR {
 		this.cap_errorReporter.error(error_.description(), error_.sourceName(), error_.getLineNumber(), error_.charno())
-	} else if (level == CheckLevel_WARNING) {
+	} else if level == CheckLevel_WARNING {
 		this.cap_errorReporter.warning(error_.description(), error_.sourceName(), error_.getLineNumber(), error_.charno())
 	}
 }
@@ -264,4 +264,3 @@ func (this *JsFileFullParser_1) println_impl(level *CheckLevel, error_ *JSError)
 func (this *JsFileFullParser_1) printSummary_impl() {
 
 }
-

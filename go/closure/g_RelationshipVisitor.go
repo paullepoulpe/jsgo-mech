@@ -15,4 +15,3 @@ type RelationshipVisitor interface {
 	caseTemplateType(*TemplateType, *JSType) any
 	caseEnumElementType(*EnumElementType, *JSType) any
 }
-

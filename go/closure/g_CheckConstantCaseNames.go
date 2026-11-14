@@ -3,10 +3,10 @@
 package closure
 
 type CheckConstantCaseNames struct {
-	compiler_ *AbstractCompiler
-	convention CodingConvention
+	compiler_             *AbstractCompiler
+	convention            CodingConvention
 	invalidNamesPerModule LinkedHashMapOf[string, Node]
-	reassignedNames map[string]struct{}
+	reassignedNames       map[string]struct{}
 }
 
 func (this *CheckConstantCaseNames) finit_CheckConstantCaseNames() {
@@ -48,7 +48,7 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 			return
 		}
 		var info *JSDocInfo = n.getJSDocInfo()
-		if ((info != nil) && info.hasConstAnnotation()) {
+		if (info != nil) && info.hasConstAnnotation() {
 			break
 		}
 		NodeUtil_visitLhsNodesInNode(n, &Consumer_fn{func(name_ any) {
@@ -102,4 +102,3 @@ func CheckConstantCaseNames_clinit() {
 	CheckConstantCaseNames_REASSIGNED_CONSTANT_CASE_NAME = DiagnosticType_disabled("JSC_REASSIGNED_CONSTANT_CASE_NAME", "CONSTANT_CASE name \"{0}\" is constant-by-convention but is reassigned. Use camelCase instead.")
 
 }
-

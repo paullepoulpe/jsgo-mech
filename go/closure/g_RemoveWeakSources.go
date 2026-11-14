@@ -19,7 +19,7 @@ func new_RemoveWeakSources(compiler *AbstractCompiler) *RemoveWeakSources {
 func (this *RemoveWeakSources) process_2(externs Node, root Node) {
 	{
 		var script Node = root.getFirstChild()
-		for ; (script != 0); script = script.getNext() {
+		for ; script != 0; script = script.getNext() {
 			Preconditions_checkState(script.isScript())
 			if script.getStaticSourceFile().isWeak() {
 				NodeUtil_deleteChildren(script, this.compiler_)
@@ -27,4 +27,3 @@ func (this *RemoveWeakSources) process_2(externs Node, root Node) {
 		}
 	}
 }
-

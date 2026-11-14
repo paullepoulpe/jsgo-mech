@@ -5,14 +5,14 @@ package closure
 type Node uint32
 
 type Node_ns_ struct {
-	self_ uint32
-	next_ Node
-	previous Node
-	first Node
-	parent Node
+	self_        uint32
+	next_        Node
+	previous     Node
+	first        Node
+	parent       Node
 	linenoCharno int32
-	length_ int32
-	token uint8
+	length_      int32
+	token        uint8
 }
 
 var Node_ns_chunks_ [handleChunks_]*[handleChunkSize_]Node_ns_
@@ -23,10 +23,10 @@ func (this Node) ns_() *Node_ns_ {
 
 type Node_ps_ struct {
 	jstypeOrColor any
-	originalName string
-	propListHead *Node_PropListItem
-	payload any
-	payload_s_ string
+	originalName  string
+	propListHead  *Node_PropListItem
+	payload       any
+	payload_s_    string
 }
 
 var Node_ps_chunks_ [handleChunks_]*[handleChunkSize_]Node_ps_
@@ -142,7 +142,7 @@ func init() {
 				c[10]++
 			}
 		}
-		return handleStatsText_("Node", Node_count_, []string{"next (Node, pointer-free)", "previous (Node, pointer-free)", "first (Node, pointer-free)", "parent (Node, pointer-free)", "linenoCharno (int32, pointer-free)", "length (int32, pointer-free)", "token (uint8, pointer-free)", "jstypeOrColor (any)", "originalName (string)", "propListHead (*Node_PropListItem)", "payload (any)", }, c[:])
+		return handleStatsText_("Node", Node_count_, []string{"next (Node, pointer-free)", "previous (Node, pointer-free)", "first (Node, pointer-free)", "parent (Node, pointer-free)", "linenoCharno (int32, pointer-free)", "length (int32, pointer-free)", "token (uint8, pointer-free)", "jstypeOrColor (any)", "originalName (string)", "propListHead (*Node_PropListItem)", "payload (any)"}, c[:])
 	})
 }
 
@@ -226,7 +226,7 @@ func new_Node_Token_Node_Node_Node(token *Token_rhino, left Node, mid Node, righ
 }
 
 func (this Node) getNonJSDocCommentString() string {
-	if (this.getProp(Node_Prop_NON_JSDOC_COMMENT) == nil) {
+	if this.getProp(Node_Prop_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
 	return cast_[*NonJSDocComment](this.getProp(Node_Prop_NON_JSDOC_COMMENT)).getCommentString()
@@ -237,7 +237,7 @@ func (this Node) getNonJSDocComment() *NonJSDocComment {
 }
 
 func (this Node) getTrailingNonJSDocCommentString() string {
-	if (this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT) == nil) {
+	if this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT) == nil {
 		return ""
 	}
 	return cast_[*NonJSDocComment](this.getProp(Node_Prop_TRAILING_NON_JSDOC_COMMENT)).getCommentString()
@@ -298,13 +298,23 @@ func Node_newString_Token_LazyInternedStringList_int(token *Token_rhino, stringP
 
 func Node_newTemplateLitString_Optional_String(cooked OptionalOf[string], raw string) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() *Optional { if cooked.isEmpty() { return Optional_empty() }; return Optional_of(strobj_(RhinoStringPool_addOrGet(str_(cooked.get())))) }(), RhinoStringPool_addOrGet(raw))))
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() *Optional {
+		if cooked.isEmpty() {
+			return Optional_empty()
+		}
+		return Optional_of(strobj_(RhinoStringPool_addOrGet(str_(cooked.get()))))
+	}(), RhinoStringPool_addOrGet(raw))))
 	return n
 }
 
 func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoStringPool_LazyInternedStringList, cookedOffsetOrNegativeOne int32, rawOffset int32) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() *Optional { if (cookedOffsetOrNegativeOne == -1) { return Optional_empty() }; return Optional_of(strobj_(stringPool.get(cookedOffsetOrNegativeOne))) }(), stringPool.get(rawOffset))))
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() *Optional {
+		if cookedOffsetOrNegativeOne == -1 {
+			return Optional_empty()
+		}
+		return Optional_of(strobj_(stringPool.get(cookedOffsetOrNegativeOne)))
+	}(), stringPool.get(rawOffset))))
 	return n
 }
 
@@ -338,7 +348,12 @@ func (this Node) getSecondChild() Node {
 }
 
 func (this Node) getLastChild() Node {
-	return func() Node { if (this.ns_().first != 0) { return this.ns_().first.ns_().previous }; return 0 }()
+	return func() Node {
+		if this.ns_().first != 0 {
+			return this.ns_().first.ns_().previous
+		}
+		return 0
+	}()
 }
 
 func (this Node) getNext() Node {
@@ -346,7 +361,12 @@ func (this Node) getNext() Node {
 }
 
 func (this Node) getPrevious() Node {
-	return func() Node { if (this == this.ns_().parent.ns_().first) { return 0 }; return this.ns_().previous }()
+	return func() Node {
+		if this == this.ns_().parent.ns_().first {
+			return 0
+		}
+		return this.ns_().previous
+	}()
 }
 
 func (this Node) setClosureUnawareShadow(shadowRoot Node) {
@@ -356,14 +376,14 @@ func (this Node) setClosureUnawareShadow(shadowRoot Node) {
 }
 
 func (this Node) getClosureUnawareShadow() Node {
-	if (Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME) {
+	if Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME {
 		return 0
 	}
 	return Node_of_(this.getProp(Node_Prop_CLOSURE_UNAWARE_SHADOW))
 }
 
 func (this Node) setIsInClosureUnawareSubtree(value bool) {
-	if (((this.ps_().propListHead == nil) || (int32(this.ps_().propListHead.propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.ps_().propListHead.next_ != nil)) {
+	if ((this.ps_().propListHead == nil) || (int32(this.ps_().propListHead.propType) != Node_Prop_SOURCE_FILE.ordinal())) || (this.ps_().propListHead.next_ != nil) {
 		panic(new_IllegalArgumentException_String(String_format("Cannot set IS_IN_CLOSURE_UNAWARE_SUBTREE property on a node which proplist is not a single SOURCE_FILE prop: %s %s", []any{this.box_(), strobj_(this.getPropListDebugString())})).self())
 	}
 	this.putBooleanProp(Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE, value)
@@ -375,7 +395,7 @@ func (this Node) getIsInClosureUnawareSubtree() bool {
 
 func (this Node) getChildAtIndex(i int32) Node {
 	var n Node = this.ns_().first
-	for (i > 0) {
+	for i > 0 {
 		n = n.ns_().next_
 		i--
 	}
@@ -385,8 +405,8 @@ func (this Node) getChildAtIndex(i int32) Node {
 func (this Node) getIndexOfChild(child Node) int32 {
 	var n Node = this.ns_().first
 	var i int32 = 0
-	for (n != 0) {
-		if (child == n) {
+	for n != 0 {
+		if child == n {
 			return i
 		}
 		n = n.ns_().next_
@@ -401,7 +421,7 @@ func (this Node) addChildToFront(child Node) {
 	Preconditions_checkArgument((child.ns_().previous == 0))
 	child.ns_().parent = this
 	child.ns_().next_ = this.ns_().first
-	if (this.ns_().first == 0) {
+	if this.ns_().first == 0 {
 		child.ns_().previous = child
 	} else {
 		var last Node = this.ns_().first.ns_().previous
@@ -416,7 +436,7 @@ func (this Node) addChildToBack(child Node) {
 	Preconditions_checkArgument_boolean_String_Object_Object_Object((child.ns_().parent == 0), "Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", child.box_(), child.ns_().parent.box_(), this.box_())
 	Preconditions_checkArgument((child.ns_().next_ == 0))
 	Preconditions_checkArgument((child.ns_().previous == 0))
-	if (this.ns_().first == 0) {
+	if this.ns_().first == 0 {
 		child.ns_().previous = child
 		this.ns_().first = child
 	} else {
@@ -429,19 +449,19 @@ func (this Node) addChildToBack(child Node) {
 }
 
 func (this Node) addChildrenToFront(children Node) {
-	if (children == 0) {
+	if children == 0 {
 		return
 	}
 	Preconditions_checkNotNull_Object_Object(children.ns_().previous.box_(), children.box_())
 	{
 		var child Node = children
-		for ; (child != 0); child = child.ns_().next_ {
+		for ; child != 0; child = child.ns_().next_ {
 			Preconditions_checkArgument((child.ns_().parent == 0))
 			child.ns_().parent = this
 		}
 	}
 	var lastSib Node = children.ns_().previous
-	if (this.ns_().first != 0) {
+	if this.ns_().first != 0 {
 		var last Node = this.ns_().first.ns_().previous
 		children.ns_().previous = last
 		lastSib.ns_().next_ = this.ns_().first
@@ -462,7 +482,7 @@ func (this Node) insertAfter(existing Node) {
 	this.ns_().parent = existingParent
 	existing.ns_().next_ = this
 	this.ns_().previous = existing
-	if (existingNext == 0) {
+	if existingNext == 0 {
 		existingParent.ns_().first.ns_().previous = this
 	} else {
 		existingNext.ns_().previous = this
@@ -479,7 +499,7 @@ func (this Node) insertBefore(existing Node) {
 	this.ns_().next_ = existing
 	existing.ns_().previous = this
 	this.ns_().previous = existingPrevious
-	if (existingPrevious.ns_().next_ == 0) {
+	if existingPrevious.ns_().next_ == 0 {
 		existingParent.ns_().first = this
 	} else {
 		existingPrevious.ns_().next_ = this
@@ -487,18 +507,18 @@ func (this Node) insertBefore(existing Node) {
 }
 
 func (this Node) addChildrenAfter(children Node, node Node) {
-	if (children == 0) {
+	if children == 0 {
 		return
 	}
 	Preconditions_checkArgument(((node == 0) || (node.ns_().parent == this)))
 	Preconditions_checkNotNull_Object_Object(children.ns_().previous.box_(), children.box_())
-	if (node == 0) {
+	if node == 0 {
 		this.addChildrenToFront(children)
 		return
 	}
 	{
 		var child Node = children
-		for ; (child != 0); child = child.ns_().next_ {
+		for ; child != 0; child = child.ns_().next_ {
 			Preconditions_checkArgument((child.ns_().parent == 0))
 			child.ns_().parent = this
 		}
@@ -506,7 +526,7 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 	var lastSibling Node = children.ns_().previous
 	var nodeAfter Node = node.ns_().next_
 	lastSibling.ns_().next_ = nodeAfter
-	if (nodeAfter == 0) {
+	if nodeAfter == 0 {
 		this.ns_().first.ns_().previous = lastSibling
 	} else {
 		nodeAfter.ns_().previous = lastSibling
@@ -526,12 +546,12 @@ func (this Node) replaceWith(replacement Node) {
 	replacement.ns_().parent = existingParent
 	this.ns_().previous = 0
 	replacement.ns_().previous = existingPrevious
-	if (existingPrevious.ns_().next_ == 0) {
+	if existingPrevious.ns_().next_ == 0 {
 		existingParent.ns_().first = replacement
 	} else {
 		existingPrevious.ns_().next_ = replacement
 	}
-	if (existingNext == 0) {
+	if existingNext == 0 {
 		existingParent.ns_().first.ns_().previous = replacement
 	} else {
 		this.ns_().next_ = 0
@@ -546,14 +566,14 @@ func (this Node) detach() Node {
 	var existingNext Node = this.ns_().next_
 	var existingPrevious Node = this.ns_().previous
 	this.ns_().parent = 0
-	if (existingNext == 0) {
+	if existingNext == 0 {
 		existingParent.ns_().first.ns_().previous = existingPrevious
 	} else {
 		this.ns_().next_ = 0
 		existingNext.ns_().previous = existingPrevious
 	}
 	this.ns_().previous = 0
-	if (existingPrevious.ns_().next_ == 0) {
+	if existingPrevious.ns_().next_ == 0 {
 		existingParent.ns_().first = existingNext
 	} else {
 		existingPrevious.ns_().next_ = existingNext
@@ -573,7 +593,7 @@ func (this Node) checkDetached() {
 
 func (this Node) removeFirstChild() Node {
 	var child Node = this.ns_().first
-	if (child != 0) {
+	if child != 0 {
 		child.detach()
 	}
 	return child
@@ -583,7 +603,7 @@ func (this Node) removeChildren() Node {
 	var children Node = this.ns_().first
 	{
 		var child Node = this.ns_().first
-		for ; (child != 0); child = child.ns_().next_ {
+		for ; child != 0; child = child.ns_().next_ {
 			child.ns_().parent = 0
 		}
 	}
@@ -594,7 +614,7 @@ func (this Node) removeChildren() Node {
 func (this Node) detachChildren() {
 	{
 		var child Node = this.ns_().first
-		for (child != 0) {
+		for child != 0 {
 			var nextChild Node = child.ns_().next_
 			child.ns_().parent = 0
 			child.ns_().next_ = 0
@@ -608,7 +628,7 @@ func (this Node) detachChildren() {
 func (this Node) lookupProperty(prop *Node_Prop) *Node_PropListItem {
 	var propType int8 = int8(prop.ordinal())
 	var x *Node_PropListItem = this.ps_().propListHead
-	for ((x != nil) && (propType != x.propType)) {
+	for (x != nil) && (propType != x.propType) {
 		x = x.next_
 	}
 	return x
@@ -621,15 +641,15 @@ func (this Node) clonePropsFrom(other Node) Node {
 }
 
 func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string]) {
-	if (this.ps_().propListHead == nil) {
+	if this.ps_().propListHead == nil {
 		return
 	}
-	if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ROOT) {
+	if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ROOT {
 		violationMessageConsumer.accept(strobj_("ROOT has properties"))
 	}
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
-		for ; (propListItem != nil); propListItem = propListItem.next_ {
+		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
 			Preconditions_checkState_boolean_String_Object((prop.ordinal() == int32(propListItem.propType)), "ordinal doesn't match: %s", obj_(prop))
 			switch prop {
@@ -650,7 +670,7 @@ func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string])
 					violationMessageConsumer.accept(strobj_("invalid SYNTHETIC prop"))
 				}
 			case Node_Prop_COLOR_FROM_CAST:
-				if (this.getColor() == nil) {
+				if this.getColor() == nil {
 					violationMessageConsumer.accept(strobj_("COLOR_FROM_CAST with no Color"))
 				}
 			case Node_Prop_START_OF_OPT_CHAIN:
@@ -667,7 +687,7 @@ func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string])
 				}
 			case Node_Prop_CLOSURE_UNAWARE_SHADOW:
 				var shadowProp *Node_PropListItem = this.lookupProperty(Node_Prop_CLOSURE_UNAWARE_SHADOW)
-				if (!is_[*Node_ObjectPropListItem](shadowProp.self()) || !is_[Node](shadowProp.getObjectValue())) {
+				if !is_[*Node_ObjectPropListItem](shadowProp.self()) || !is_[Node](shadowProp.getObjectValue()) {
 					violationMessageConsumer.accept(strobj_("CLOSURE_UNAWARE_SHADOW property must point to a Node"))
 				}
 			default:
@@ -677,20 +697,25 @@ func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string])
 }
 
 func Node_rebuildListWithoutProp(item *Node_PropListItem, prop *Node_Prop) *Node_PropListItem {
-	if (item == nil) {
+	if item == nil {
 		return nil
-	} else if (int32(item.propType) == prop.ordinal()) {
+	} else if int32(item.propType) == prop.ordinal() {
 		return item.next_
 	} else {
 		var result *Node_PropListItem = Node_rebuildListWithoutProp(item.next_, prop)
-		return func() *Node_PropListItem { if (result == item.next_) { return item }; return item.chain(result) }()
+		return func() *Node_PropListItem {
+			if result == item.next_ {
+				return item
+			}
+			return item.chain(result)
+		}()
 	}
 	panic("unreachable")
 }
 
 func (this Node) getProp(propType *Node_Prop) any {
 	var item *Node_PropListItem = this.lookupProperty(propType)
-	if (item == nil) {
+	if item == nil {
 		return nil
 	}
 	return item.getObjectValue()
@@ -702,7 +727,7 @@ func (this Node) getBooleanProp(propType *Node_Prop) bool {
 
 func (this Node) getIntProp(propType *Node_Prop) int32 {
 	var item *Node_PropListItem = this.lookupProperty(propType)
-	if (item == nil) {
+	if item == nil {
 		return 0
 	}
 	return item.getIntValue()
@@ -710,18 +735,23 @@ func (this Node) getIntProp(propType *Node_Prop) int32 {
 
 func (this Node) putProp(prop *Node_Prop, value any) {
 	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
-	if (value != nil) {
+	if value != nil {
 		this.ps_().propListHead = new_Node_ObjectPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
 	}
 }
 
 func (this Node) putBooleanProp(propType *Node_Prop, value bool) {
-	this.putIntProp(propType, func() int32 { if value { return 1 }; return 0 }())
+	this.putIntProp(propType, func() int32 {
+		if value {
+			return 1
+		}
+		return 0
+	}())
 }
 
 func (this Node) putIntProp(prop *Node_Prop, value int32) {
 	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
-	if (value != 0) {
+	if value != 0 {
 		this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
 	}
 }
@@ -754,7 +784,7 @@ func (this Node) serializeProperties() int64 {
 	var propSet int64 = 0
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
-		for ; (propListItem != nil); propListItem = propListItem.next_ {
+		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
 			switch prop {
 			case Node_Prop_TYPE_BEFORE_CAST:
@@ -774,7 +804,7 @@ func (this Node) serializeProperties() int64 {
 			default:
 				if is_[*Node_IntPropListItem](propListItem.self()) {
 					var nodeProperty *NodeProperty = PropTranslator_serialize(prop)
-					if (nodeProperty != nil) {
+					if nodeProperty != nil {
 						propSet = Node_setNodePropertyBit(propSet, nodeProperty)
 					}
 				}
@@ -803,7 +833,7 @@ func (this Node) setNodePropertySideEffectFlags(propSet int64, sideEffectFlags i
 func (this Node) getPropListDebugString() string {
 	var propListItem *Node_PropListItem = this.ps_().propListHead
 	var propListStrRepr ListOf[string] = icast_List(new_ArrayList_0().self())
-	for (propListItem != nil) {
+	for propListItem != nil {
 		propListStrRepr.add(strobj_(Node_Prop_values()[propListItem.propType].name()))
 		propListItem = propListItem.next_
 	}
@@ -819,7 +849,7 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 	}
 	var constantVarFlags int32 = 0
 	var sideEffectFlags int32 = 0
-	for i := int32(0); (i < 63); i++ {
+	for i := int32(0); i < 63; i++ {
 		if !Node_hasBitSet(propSet, i) {
 			continue
 		}
@@ -840,16 +870,16 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 		case NodeProperty_CLOSURE_UNAWARE_SHADOW:
 		default:
 			var prop *Node_Prop = PropTranslator_deserialize(nodeProperty)
-			if (prop == nil) {
+			if prop == nil {
 				panic(new_IllegalStateException_String(("Can not translate " + objstr_(obj_(nodeProperty)) + " to AST Prop")).self())
 			}
 			this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), 1, this.ps_().propListHead).up_Node_PropListItem()
 		}
 	}
-	if (constantVarFlags != 0) {
+	if constantVarFlags != 0 {
 		this.ps_().propListHead = new_Node_IntPropListItem(int8(Node_Prop_CONSTANT_VAR_FLAGS.ordinal()), constantVarFlags, this.ps_().propListHead).up_Node_PropListItem()
 	}
-	if (sideEffectFlags != 0) {
+	if sideEffectFlags != 0 {
 		this.ps_().propListHead = new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, this.ps_().propListHead).up_Node_PropListItem()
 	}
 	this.validateProperties(&Consumer_fn{func(errorMessage_ any) {
@@ -940,14 +970,14 @@ func (this Node) getSortedPropTypes() []int8 {
 	var count int32 = 0
 	{
 		var x *Node_PropListItem = this.ps_().propListHead
-		for ; (x != nil); x = x.next_ {
+		for ; x != nil; x = x.next_ {
 			count++
 		}
 	}
 	var keys []int8 = make([]int8, count)
 	{
 		var x *Node_PropListItem = this.ps_().propListHead
-		for ; (x != nil); x = x.next_ {
+		for ; x != nil; x = x.next_ {
 			count--
 			keys[count] = x.propType
 		}
@@ -959,7 +989,14 @@ func (this Node) getSortedPropTypes() []int8 {
 func (this Node) getDouble() float64 {
 	var number any
 	_ = number
-	if !(func() bool { v_ := this.ps_().payload; if !is_[float64](v_) { return false }; number = v_; return true }()) {
+	if !(func() bool {
+		v_ := this.ps_().payload
+		if !is_[float64](v_) {
+			return false
+		}
+		number = v_
+		return true
+	}()) {
 		panic(this.payloadKindMismatch("number").self())
 	}
 	return unbox_[float64](number)
@@ -977,7 +1014,14 @@ func (this Node) setDouble(x float64) {
 func (this Node) getBigInt() *BigInteger {
 	var bigint *BigInteger
 	_ = bigint
-	if !(func() bool { v_ := this.ps_().payload; if !is_[*BigInteger](v_) { return false }; bigint = cast_[*BigInteger](v_); return true }()) {
+	if !(func() bool {
+		v_ := this.ps_().payload
+		if !is_[*BigInteger](v_) {
+			return false
+		}
+		bigint = cast_[*BigInteger](v_)
+		return true
+	}()) {
 		panic(this.payloadKindMismatch("bigint").self())
 	}
 	return bigint
@@ -999,7 +1043,14 @@ func (this Node) hasStringPayload() bool {
 func (this Node) getString() string {
 	var str string
 	_ = str
-	if !(func() bool { v_ := this.ps_().payload_s_; if v_ == nullstr_ { return false }; str = v_; return true }()) {
+	if !(func() bool {
+		v_ := this.ps_().payload_s_
+		if v_ == nullstr_ {
+			return false
+		}
+		str = v_
+		return true
+	}()) {
 		panic(this.payloadKindMismatch("string").self())
 	}
 	return str
@@ -1022,7 +1073,14 @@ func (this Node) setStringFromStringPool(stringPool *RhinoStringPool_LazyInterne
 func (this Node) getRawString() string {
 	var substring *Node_TemplateLiteralSubstring
 	_ = substring
-	if !(func() bool { v_ := this.ps_().payload; if !is_[*Node_TemplateLiteralSubstring](v_) { return false }; substring = cast_[*Node_TemplateLiteralSubstring](v_); return true }()) {
+	if !(func() bool {
+		v_ := this.ps_().payload
+		if !is_[*Node_TemplateLiteralSubstring](v_) {
+			return false
+		}
+		substring = cast_[*Node_TemplateLiteralSubstring](v_)
+		return true
+	}()) {
 		panic(this.payloadKindMismatch("template literal string").self())
 	}
 	return substring.raw
@@ -1031,7 +1089,14 @@ func (this Node) getRawString() string {
 func (this Node) getCookedString() *Optional {
 	var substring *Node_TemplateLiteralSubstring
 	_ = substring
-	if !(func() bool { v_ := this.ps_().payload; if !is_[*Node_TemplateLiteralSubstring](v_) { return false }; substring = cast_[*Node_TemplateLiteralSubstring](v_); return true }()) {
+	if !(func() bool {
+		v_ := this.ps_().payload
+		if !is_[*Node_TemplateLiteralSubstring](v_) {
+			return false
+		}
+		substring = cast_[*Node_TemplateLiteralSubstring](v_)
+		return true
+	}()) {
 		panic(this.payloadKindMismatch("template literal string").self())
 	}
 	return substring.cooked
@@ -1053,30 +1118,30 @@ func (this Node) toString_3(printSource bool, printAnnotations bool, printType b
 
 func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
 	sb.append_Object(obj_(Token_rhino_byOrd1_[this.ns_().token]))
-	if (this.ps_().payload_s_ != nullstr_) {
+	if this.ps_().payload_s_ != nullstr_ {
 		sb.append_char(' ')
 		sb.append(this.getString())
-	} else if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION) {
+	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION {
 		sb.append_char(' ')
-		if ((this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME)) {
+		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
 			sb.append("<invalid>")
 		} else {
 			sb.append(this.ns_().first.getString())
 		}
-	} else if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER) {
+	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER {
 		sb.append_char(' ')
 		sb.append_double(this.getDouble())
 	}
 	if printSource {
 		var lineno int32 = this.getLineno()
-		if (lineno != -1) {
+		if lineno != -1 {
 			sb.append_char(' ')
 			sb.append_int(lineno)
 			sb.append_char(':')
 			sb.append_int(this.getCharno())
 			sb.append_char(' ')
 		}
-		if (this.ns_().length_ != 0) {
+		if this.ns_().length_ != 0 {
 			sb.append(" [length: ")
 			sb.append_int(this.ns_().length_)
 			sb.append_char(']')
@@ -1084,9 +1149,9 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 	}
 	if printAnnotations {
 		var keys []int8 = this.getSortedPropTypes()
-		for i := int32(0); (i < int32(len(keys))); i++ {
+		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ *Node_Prop = Node_propValues[keys[i]]
-			if (type_ == Node_Prop_CLOSURE_UNAWARE_SHADOW) {
+			if type_ == Node_Prop_CLOSURE_UNAWARE_SHADOW {
 				sb.append(" [is_shadow_host]")
 				continue
 			}
@@ -1103,7 +1168,7 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 			sb.append_char(']')
 		}
 	}
-	if (printType && (this.ps_().jstypeOrColor != nil)) {
+	if printType && (this.ps_().jstypeOrColor != nil) {
 		sb.append(" : ")
 		sb.append(Object_toString(this.ps_().jstypeOrColor))
 	}
@@ -1120,28 +1185,28 @@ func Node_createJsonPairRawValue(name string, value string) string {
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
 	sb.append_CharSequence(strobj_(Node_createJsonPair("token", Object_toString(obj_(Token_rhino_byOrd1_[this.ns_().token])))))
-	if (this.ps_().payload_s_ != nullstr_) {
+	if this.ps_().payload_s_ != nullstr_ {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("string", this.getString())))
-	} else if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION) {
+	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION {
 		sb.append_char(',')
-		if ((this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME)) {
+		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
 			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", "<invalid>")))
 		} else {
 			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", this.ns_().first.getString())))
 		}
-	} else if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER) {
+	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("number", String_valueOf_double(this.getDouble()))))
 	}
 	var lineno int32 = this.getLineno()
-	if (lineno != -1) {
+	if lineno != -1 {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_("\"sourceLocation\":{"))
 		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("line", String_valueOf(lineno))))
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("col", String_valueOf(this.getCharno()))))
-		if (this.ns_().length_ != 0) {
+		if this.ns_().length_ != 0 {
 			sb.append_char(',')
 			sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("length", String_valueOf(this.ns_().length_))))
 		}
@@ -1152,31 +1217,31 @@ func (this Node) toJson(sb Appendable) {
 		sb.append_CharSequence(strobj_(Node_createJsonPair("original_name", this.ps_().originalName)))
 	}
 	var keys []int8 = this.getSortedPropTypes()
-	if (int32(len(keys)) != 0) {
+	if int32(len(keys)) != 0 {
 		sb.append_CharSequence(strobj_(","))
 		sb.append_CharSequence(strobj_("\"props\":{"))
-		for i := int32(0); (i < int32(len(keys))); i++ {
+		for i := int32(0); i < int32(len(keys)); i++ {
 			var type_ *Node_Prop = Node_propValues[keys[i]]
 			var x *Node_PropListItem = this.lookupProperty(type_)
 			sb.append_CharSequence(strobj_(Node_createJsonPair(Ascii_toLowerCase(String_valueOf_Object(obj_(type_))), String_replace(String_replace(Object_toString(x.self()), strobj_("\n"), strobj_("\\n")), strobj_("\""), strobj_("\\\"")))))
-			if ((i + 1) < int32(len(keys))) {
+			if (i + 1) < int32(len(keys)) {
 				sb.append_char(',')
 			}
 		}
 		sb.append_CharSequence(strobj_("}"))
 	}
-	if (this.ps_().jstypeOrColor != nil) {
+	if this.ps_().jstypeOrColor != nil {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("typeString", String_replace(Object_toString(this.ps_().jstypeOrColor), strobj_("\""), strobj_("\\\"")))))
 	}
-	if (this.ns_().first != 0) {
+	if this.ns_().first != 0 {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_("\"children\":["))
 		{
 			var child Node = this.ns_().first
-			for ; (child != 0); child = child.ns_().next_ {
+			for ; child != 0; child = child.ns_().next_ {
 				child.toJson(sb)
-				if (child.ns_().next_ != 0) {
+				if child.ns_().next_ != 0 {
 					sb.append_char(',')
 				}
 			}
@@ -1221,19 +1286,19 @@ func (this Node) appendStringTree(appendable Appendable) {
 }
 
 func Node_toStringTreeHelper(n Node, level int32, sb Appendable) {
-	for i := int32(0); (i != level); i++ {
+	for i := int32(0); i != level; i++ {
 		sb.append_CharSequence(strobj_("    "))
 	}
 	sb.append_CharSequence(strobj_(n.toString()))
 	sb.append_char('\n')
 	{
 		var cursor Node = n.ns_().first
-		for ; (cursor != 0); cursor = cursor.ns_().next_ {
+		for ; cursor != 0; cursor = cursor.ns_().next_ {
 			Node_toStringTreeHelper(cursor, (level + 1), sb)
 		}
 	}
 	var shadow Node = n.getClosureUnawareShadow()
-	if (shadow != 0) {
+	if shadow != 0 {
 		Node_toStringTreeHelper(shadow, (level + 1), sb)
 	}
 }
@@ -1247,12 +1312,12 @@ func Node_toJsonTreeHelper(n Node, sb Appendable) {
 }
 
 func (this Node) setStaticSourceFileFrom(other Node) {
-	if ((other.ps_().propListHead != nil) && ((this.ps_().propListHead == nil) || ((int32(this.ps_().propListHead.propType) == Node_Prop_SOURCE_FILE.ordinal()) && (this.ps_().propListHead.next_ == nil)))) {
+	if (other.ps_().propListHead != nil) && ((this.ps_().propListHead == nil) || ((int32(this.ps_().propListHead.propType) == Node_Prop_SOURCE_FILE.ordinal()) && (this.ps_().propListHead.next_ == nil))) {
 		var tail *Node_PropListItem = other.ps_().propListHead
-		for (tail.next_ != nil) {
+		for tail.next_ != nil {
 			tail = tail.next_
 		}
-		if (int32(tail.propType) == Node_Prop_SOURCE_FILE.ordinal()) {
+		if int32(tail.propType) == Node_Prop_SOURCE_FILE.ordinal() {
 			this.ps_().propListHead = tail
 			return
 		}
@@ -1271,7 +1336,12 @@ func (this Node) setSourceFileForTesting(name string) {
 
 func (this Node) getSourceFileName() string {
 	var file StaticSourceFile = this.getStaticSourceFile()
-	return func() string { if (file == nil) { return "" }; return file.getName() }()
+	return func() string {
+		if file == nil {
+			return ""
+		}
+		return file.getName()
+	}()
 }
 
 func (this Node) getStaticSourceFile() StaticSourceFile {
@@ -1291,7 +1361,12 @@ func (this Node) getOriginalName() string {
 }
 
 func (this Node) setOriginalName(s string) {
-	this.ps_().originalName = func() string { if String_isEmpty(s) { return "" }; return RhinoStringPool_addOrGet(s) }()
+	this.ps_().originalName = func() string {
+		if String_isEmpty(s) {
+			return ""
+		}
+		return RhinoStringPool_addOrGet(s)
+	}()
 }
 
 func (this Node) setOriginalNameFromStringPool(stringPool *RhinoStringPool_LazyInternedStringList, offset int32) {
@@ -1314,7 +1389,7 @@ func (this Node) makeNonIndexableRecursive() {
 	this.makeNonIndexable()
 	{
 		var child Node = this.ns_().first
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			child.makeNonIndexableRecursive()
 		}
 	}
@@ -1322,7 +1397,12 @@ func (this Node) makeNonIndexableRecursive() {
 
 func (this Node) isFromExterns() bool {
 	var file StaticSourceFile = this.getStaticSourceFile()
-	return func() bool { if (file == nil) { return false }; return file.isExtern() }()
+	return func() bool {
+		if file == nil {
+			return false
+		}
+		return file.isExtern()
+	}()
 }
 
 func (this Node) isClosureUnawareCode() bool {
@@ -1339,7 +1419,7 @@ func (this Node) setLength(length int32) {
 }
 
 func (this Node) getLineno() int32 {
-	if (this.ns_().linenoCharno == -1) {
+	if this.ns_().linenoCharno == -1 {
 		return -1
 	} else {
 		return int32(uint32(this.ns_().linenoCharno) >> 12)
@@ -1348,7 +1428,7 @@ func (this Node) getLineno() int32 {
 }
 
 func (this Node) getCharno() int32 {
-	if (this.ns_().linenoCharno == -1) {
+	if this.ns_().linenoCharno == -1 {
 		return -1
 	} else {
 		return (this.ns_().linenoCharno & Node_MAX_COLUMN_NUMBER)
@@ -1362,11 +1442,11 @@ func (this Node) getLocation() string {
 
 func (this Node) getSourceOffset() int32 {
 	var file StaticSourceFile = this.getStaticSourceFile()
-	if (file == nil) {
+	if file == nil {
 		return -1
 	}
 	var lineno int32 = this.getLineno()
-	if (lineno == -1) {
+	if lineno == -1 {
 		return -1
 	}
 	return (file.getLineOffset(lineno) + this.getCharno())
@@ -1377,11 +1457,11 @@ func (this Node) getSourcePosition() int32 {
 }
 
 func (this Node) setLinenoCharno(lineno int32, charno int32) Node {
-	if ((lineno < 0) || (charno < 0)) {
+	if (lineno < 0) || (charno < 0) {
 		this.ns_().linenoCharno = -1
 		return this
 	}
-	if (charno > Node_MAX_COLUMN_NUMBER) {
+	if charno > Node_MAX_COLUMN_NUMBER {
 		charno = Node_MAX_COLUMN_NUMBER
 	}
 	this.ns_().linenoCharno = ((lineno << 12) | charno)
@@ -1389,7 +1469,7 @@ func (this Node) setLinenoCharno(lineno int32, charno int32) Node {
 }
 
 func (this Node) children() Iterable {
-	if (this.ns_().first == 0) {
+	if this.ns_().first == 0 {
 		return icast_Iterable(obj_(ImmutableSet_of()))
 	} else {
 		return icast_Iterable(obj_(new_Node_SiblingNodeIterable(this.ns_().first)))
@@ -1414,13 +1494,18 @@ func (this Node) hasParent() bool {
 }
 
 func (this Node) getGrandparent() Node {
-	return func() Node { if (this.ns_().parent == 0) { return 0 }; return this.ns_().parent.ns_().parent }()
+	return func() Node {
+		if this.ns_().parent == 0 {
+			return 0
+		}
+		return this.ns_().parent.ns_().parent
+	}()
 }
 
 func (this Node) getAncestor(level int32) Node {
 	Preconditions_checkArgument((level >= 0))
 	var node Node = this
-	for ((node != 0) && (level > 0)) {
+	for (node != 0) && (level > 0) {
 		level--
 		node = node.getParent()
 	}
@@ -1430,8 +1515,8 @@ func (this Node) getAncestor(level int32) Node {
 func (this Node) isDescendantOf(node Node) bool {
 	{
 		var n Node = this
-		for ; (n != 0); n = n.ns_().parent {
-			if (n == node) {
+		for ; n != 0; n = n.ns_().parent {
+			if n == node {
 				return true
 			}
 		}
@@ -1476,7 +1561,7 @@ func (this Node) hasXChildren(x int32) bool {
 	var c int32 = 0
 	{
 		var n Node = this.ns_().first
-		for ; ((n != 0) && (c <= x)); n = n.ns_().next_ {
+		for ; (n != 0) && (c <= x); n = n.ns_().next_ {
 			c++
 		}
 	}
@@ -1487,7 +1572,7 @@ func (this Node) getChildCount() int32 {
 	var c int32 = 0
 	{
 		var n Node = this.ns_().first
-		for ; (n != 0); n = n.ns_().next_ {
+		for ; n != 0; n = n.ns_().next_ {
 			c++
 		}
 	}
@@ -1497,8 +1582,8 @@ func (this Node) getChildCount() int32 {
 func (this Node) hasChild(child Node) bool {
 	{
 		var n Node = this.ns_().first
-		for ; (n != 0); n = n.ns_().next_ {
-			if (child == n) {
+		for ; n != 0; n = n.ns_().next_ {
+			if child == n {
 				return true
 			}
 		}
@@ -1528,10 +1613,10 @@ func (this Node) isEquivalentTo(node Node) bool {
 
 func (this Node) getSecondToLastPropListItem() *Node_PropListItem {
 	var propListItem *Node_PropListItem = this.ps_().propListHead
-	if ((propListItem == nil) || (propListItem.next_ == nil)) {
+	if (propListItem == nil) || (propListItem.next_ == nil) {
 		return nil
 	}
-	for (propListItem.next_.next_ != nil) {
+	for propListItem.next_.next_ != nil {
 		propListItem = propListItem.next_
 	}
 	return propListItem
@@ -1539,10 +1624,10 @@ func (this Node) getSecondToLastPropListItem() *Node_PropListItem {
 
 func (this Node) getLastPropListItem() *Node_PropListItem {
 	var propListItem *Node_PropListItem = this.ps_().propListHead
-	if (propListItem == nil) {
+	if propListItem == nil {
 		return nil
 	}
-	for (propListItem.next_ != nil) {
+	for propListItem.next_ != nil {
 		propListItem = propListItem.next_
 	}
 	return propListItem
@@ -1551,18 +1636,18 @@ func (this Node) getLastPropListItem() *Node_PropListItem {
 func (this Node) validatePropListTailOrdering(shouldNodeBeClosureUnaware bool) bool {
 	var prev *Node_PropListItem = nil
 	var curr *Node_PropListItem = this.ps_().propListHead
-	if (curr == nil) {
+	if curr == nil {
 		return false
 	}
-	for (curr.next_ != nil) {
+	for curr.next_ != nil {
 		prev = curr
 		curr = curr.next_
 	}
-	if (int32(curr.propType) != Node_Prop_SOURCE_FILE.ordinal()) {
+	if int32(curr.propType) != Node_Prop_SOURCE_FILE.ordinal() {
 		return false
 	}
 	if shouldNodeBeClosureUnaware {
-		if ((prev == nil) || (int32(prev.propType) != Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE.ordinal())) {
+		if (prev == nil) || (int32(prev.propType) != Node_Prop_IS_IN_CLOSURE_UNAWARE_SUBTREE.ordinal()) {
 			return false
 		}
 	}
@@ -1576,11 +1661,11 @@ func Node_validateMemorySensitivePropertyGuarantees(node1 Node, shouldNode1BeClo
 	if !node2.validatePropListTailOrdering(shouldNode2BeClosureUnaware) {
 		return false
 	}
-	if (node1.getLastPropListItem() != node2.getLastPropListItem()) {
+	if node1.getLastPropListItem() != node2.getLastPropListItem() {
 		return false
 	}
-	if (shouldNode1BeClosureUnaware && shouldNode2BeClosureUnaware) {
-		if (node1.getSecondToLastPropListItem() != node2.getSecondToLastPropListItem()) {
+	if shouldNode1BeClosureUnaware && shouldNode2BeClosureUnaware {
+		if node1.getSecondToLastPropListItem() != node2.getSecondToLastPropListItem() {
 			return false
 		}
 	}
@@ -1592,23 +1677,43 @@ func (this Node) isEquivalentTo_4(node Node, compareType bool, recurse bool, jsD
 }
 
 func (this Node) isEquivalentToBoolean(node Node, compareType bool, recurse bool, jsDoc bool, sideEffect bool) bool {
-	return this.isEquivalentTo_5(node, func() *Node_RecursionMode { if recurse { return Node_RecursionMode_DEEP }; return Node_RecursionMode_SHALLOW }(), func() *Node_TypeComparison { if compareType { return Node_TypeComparison_COMPARE }; return Node_TypeComparison_IGNORE }(), func() *Node_JsDocComparison { if jsDoc { return Node_JsDocComparison_COMPARE }; return Node_JsDocComparison_IGNORE }(), func() *Node_SideEffectComparison { if sideEffect { return Node_SideEffectComparison_COMPARE }; return Node_SideEffectComparison_IGNORE }())
+	return this.isEquivalentTo_5(node, func() *Node_RecursionMode {
+		if recurse {
+			return Node_RecursionMode_DEEP
+		}
+		return Node_RecursionMode_SHALLOW
+	}(), func() *Node_TypeComparison {
+		if compareType {
+			return Node_TypeComparison_COMPARE
+		}
+		return Node_TypeComparison_IGNORE
+	}(), func() *Node_JsDocComparison {
+		if jsDoc {
+			return Node_JsDocComparison_COMPARE
+		}
+		return Node_JsDocComparison_IGNORE
+	}(), func() *Node_SideEffectComparison {
+		if sideEffect {
+			return Node_SideEffectComparison_COMPARE
+		}
+		return Node_SideEffectComparison_IGNORE
+	}())
 }
 
 func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, typeConfig *Node_TypeComparison, jsDocConfig *Node_JsDocComparison, sideEffectConfig *Node_SideEffectComparison) bool {
-	if (((Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_byOrd1_[node.ns_().token]) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_()))) {
+	if ((Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_byOrd1_[node.ns_().token]) || (this.getChildCount() != node.getChildCount())) || (Node_payloadClass(this.payload_get_()) != Node_payloadClass(node.payload_get_())) {
 		return false
 	}
-	if ((typeConfig == Node_TypeComparison_COMPARE) && !Objects_equals(this.ps_().jstypeOrColor, node.ps_().jstypeOrColor)) {
+	if (typeConfig == Node_TypeComparison_COMPARE) && !Objects_equals(this.ps_().jstypeOrColor, node.ps_().jstypeOrColor) {
 		return false
 	}
-	if ((jsDocConfig == Node_JsDocComparison_COMPARE) && !JSDocInfo_areEquivalent(this.getJSDocInfo(), node.getJSDocInfo())) {
+	if (jsDocConfig == Node_JsDocComparison_COMPARE) && !JSDocInfo_areEquivalent(this.getJSDocInfo(), node.getJSDocInfo()) {
 		return false
 	}
 	var thisDte Node = this.getDeclaredTypeExpression()
 	var thatDte Node = node.getDeclaredTypeExpression()
-	if (thisDte == thatDte) {
-	} else if ((thisDte == 0) || (thatDte == 0)) {
+	if thisDte == thatDte {
+	} else if (thisDte == 0) || (thatDte == 0) {
 		return false
 	} else if !thisDte.isEquivalentTo_5(thatDte, recursion, typeConfig, jsDocConfig, sideEffectConfig) {
 		return false
@@ -1616,14 +1721,14 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 	var propSet EnumSetOf[*Node_Prop] = EnumSet_noneOf(classOf_("com.google.javascript.rhino.Node.Prop"))
 	{
 		var propListItem *Node_PropListItem = this.ps_().propListHead
-		for ; (propListItem != nil); propListItem = propListItem.next_ {
+		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
 			propSet.add(obj_(prop))
 		}
 	}
 	{
 		var propListItem *Node_PropListItem = node.ps_().propListHead
-		for ; (propListItem != nil); propListItem = propListItem.next_ {
+		for ; propListItem != nil; propListItem = propListItem.next_ {
 			var prop *Node_Prop = Node_propValues[propListItem.propType]
 			propSet.add(obj_(prop))
 		}
@@ -1638,20 +1743,20 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 			}
 		}
 	}
-	if (sideEffectConfig == Node_SideEffectComparison_COMPARE) {
-		if (this.getSideEffectFlags() != node.getSideEffectFlags()) {
+	if sideEffectConfig == Node_SideEffectComparison_COMPARE {
+		if this.getSideEffectFlags() != node.getSideEffectFlags() {
 			return false
 		}
-		if (this.isUnusedParameter() != node.isUnusedParameter()) {
+		if this.isUnusedParameter() != node.isUnusedParameter() {
 			return false
 		}
 	}
 	var thisIsShadowHost bool = (this.getClosureUnawareShadow() != 0)
 	var nodeIsShadowHost bool = (node.getClosureUnawareShadow() != 0)
-	if (thisIsShadowHost != nodeIsShadowHost) {
+	if thisIsShadowHost != nodeIsShadowHost {
 		return false
 	}
-	if ((recursion.recurseShadowAst() && thisIsShadowHost) && nodeIsShadowHost) {
+	if (recursion.recurseShadowAst() && thisIsShadowHost) && nodeIsShadowHost {
 		var thisShadow Node = this.getClosureUnawareShadow()
 		var nodeShadow Node = node.getClosureUnawareShadow()
 		if !thisShadow.isEquivalentTo_5(nodeShadow, recursion, typeConfig, jsDocConfig, sideEffectConfig) {
@@ -1679,22 +1784,50 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 	}
 	var str string
 	_ = str
-	if func() bool { v_ := this.ps_().payload_s_; if v_ == nullstr_ { return false }; str = v_; return true }() {
+	if func() bool {
+		v_ := this.ps_().payload_s_
+		if v_ == nullstr_ {
+			return false
+		}
+		str = v_
+		return true
+	}() {
 		return RhinoStringPool_uncheckedEquals(str, node.payload_str_())
 	} else {
 		var number any
 		_ = number
-		if func() bool { v_ := this.ps_().payload; if !is_[float64](v_) { return false }; number = v_; return true }() {
+		if func() bool {
+			v_ := this.ps_().payload
+			if !is_[float64](v_) {
+				return false
+			}
+			number = v_
+			return true
+		}() {
 			return (Double_doubleValue(number) == Double_doubleValue(node.payload_get_()))
 		} else {
 			var bigint *BigInteger
 			_ = bigint
-			if func() bool { v_ := this.ps_().payload; if !is_[*BigInteger](v_) { return false }; bigint = cast_[*BigInteger](v_); return true }() {
+			if func() bool {
+				v_ := this.ps_().payload
+				if !is_[*BigInteger](v_) {
+					return false
+				}
+				bigint = cast_[*BigInteger](v_)
+				return true
+			}() {
 				return Object_equals(obj_(bigint), node.payload_get_())
 			} else {
 				var substring *Node_TemplateLiteralSubstring
 				_ = substring
-				if func() bool { v_ := this.ps_().payload; if !is_[*Node_TemplateLiteralSubstring](v_) { return false }; substring = cast_[*Node_TemplateLiteralSubstring](v_); return true }() {
+				if func() bool {
+					v_ := this.ps_().payload
+					if !is_[*Node_TemplateLiteralSubstring](v_) {
+						return false
+					}
+					substring = cast_[*Node_TemplateLiteralSubstring](v_)
+					return true
+				}() {
 					var other *Node_TemplateLiteralSubstring = cast_[*Node_TemplateLiteralSubstring](node.payload_get_())
 					return (RhinoStringPool_uncheckedEquals(substring.raw, other.raw) && Object_equals(obj_(substring.cooked), obj_(other.cooked)))
 				}
@@ -1705,7 +1838,12 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 }
 
 func Node_payloadClass(payload any) *Class {
-	return func() *Class { if (payload == nil) { return nil }; return Object_getClass(payload) }()
+	return func() *Class {
+		if payload == nil {
+			return nil
+		}
+		return Object_getClass(payload)
+	}()
 }
 
 func (this Node) getQualifiedName() string {
@@ -1713,10 +1851,20 @@ func (this Node) getQualifiedName() string {
 		switch Token_rhino_byOrd1_[this.ns_().token] {
 		case Token_rhino_NAME:
 			var name string = this.getString()
-			return func() string { if String_isEmpty(name) { return "" }; return name }()
+			return func() string {
+				if String_isEmpty(name) {
+					return ""
+				}
+				return name
+			}()
 		case Token_rhino_GETPROP:
 			var builder *StringBuilder = this.getQualifiedNameForGetProp(0)
-			return func() string { if (builder != nil) { return Object_toString(obj_(builder)) }; return "" }()
+			return func() string {
+				if builder != nil {
+					return Object_toString(obj_(builder))
+				}
+				return ""
+			}()
 		case Token_rhino_THIS:
 			return "this"
 		case Token_rhino_SUPER:
@@ -1729,7 +1877,12 @@ func (this Node) getQualifiedName() string {
 }
 
 func (this Node) getQualifiedNameObject() *QualifiedName {
-	return func() *QualifiedName { if this.isQualifiedName() { return new_QualifiedName_NodeQname(this).up_QualifiedName() }; return nil }()
+	return func() *QualifiedName {
+		if this.isQualifiedName() {
+			return new_QualifiedName_NodeQname(this).up_QualifiedName()
+		}
+		return nil
+	}()
 }
 
 func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
@@ -1738,7 +1891,7 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 	var builder *StringBuilder
 	if this.ns_().first.isGetProp() {
 		builder = this.ns_().first.getQualifiedNameForGetProp(reserve)
-		if (builder == nil) {
+		if builder == nil {
 			return nil
 		}
 	} else {
@@ -1754,13 +1907,13 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 }
 
 func (this Node) getOriginalQualifiedName() string {
-	if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME) {
+	if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME {
 		var name string = this.getOriginalName()
 		if String_isEmpty(name) {
 			name = this.getString()
 		}
 		return name
-	} else if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETPROP) {
+	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETPROP {
 		var left string = this.getFirstChild().getOriginalQualifiedName()
 		if String_isEmpty(left) {
 			return ""
@@ -1770,9 +1923,9 @@ func (this Node) getOriginalQualifiedName() string {
 			right = this.getString()
 		}
 		return (sstr_(left) + "." + sstr_(right))
-	} else if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THIS) {
+	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THIS {
 		return "this"
-	} else if (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUPER) {
+	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUPER {
 		return "super"
 	} else {
 		return ""
@@ -1795,7 +1948,7 @@ func (this Node) isQualifiedName() bool {
 }
 
 func (this Node) matchesName(name string) bool {
-	if (Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME) {
+	if Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME {
 		return false
 	}
 	var internalString string = this.getString()
@@ -1803,7 +1956,7 @@ func (this Node) matchesName(name string) bool {
 }
 
 func (this Node) matchesNameNode(n Node) bool {
-	if ((Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME) || (Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_NAME)) {
+	if (Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME) || (Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_NAME) {
 		return false
 	}
 	var internalString string = this.getString()
@@ -1815,7 +1968,7 @@ func (this Node) matchesQualifiedName(name string) bool {
 }
 
 func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
-	var start int32 = (String_lastIndexOf_int_int(qname, 46, (endIndex - 1)) + 1)
+	var start int32 = (String_lastIndexOf_int_int(qname, 46, (endIndex-1)) + 1)
 	switch this.getToken() {
 	case Token_rhino_NAME, Token_rhino_IMPORT_STAR:
 		var name string = this.getString()
@@ -1826,7 +1979,7 @@ func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 		return (((start == 0) && (endIndex == 5)) && String_startsWith(qname, "super"))
 	case Token_rhino_GETPROP:
 		var prop string = this.getString()
-		return ((((start > 1) && (String_length(prop) == (endIndex - start))) && String_regionMatches_int_String_int_int(prop, 0, qname, start, (endIndex - start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start - 1)))
+		return ((((start > 1) && (String_length(prop) == (endIndex - start))) && String_regionMatches_int_String_int_int(prop, 0, qname, start, (endIndex-start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start-1)))
 	default:
 		return false
 	}
@@ -1834,7 +1987,7 @@ func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 }
 
 func (this Node) matchesQualifiedNameNode(n Node) bool {
-	if (Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_byOrd1_[this.ns_().token]) {
+	if Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_byOrd1_[this.ns_().token] {
 		return false
 	}
 	switch Token_rhino_byOrd1_[this.ns_().token] {
@@ -1899,7 +2052,7 @@ func Node_copyBaseNodeFields(source Node, dest Node, cloneTypeExprs bool) {
 	dest.ps_().propListHead = source.ps_().propListHead
 	if cloneTypeExprs {
 		var info *JSDocInfo = source.getJSDocInfo()
-		if (info != nil) {
+		if info != nil {
 			dest.setJSDocInfo(info.clone_1(true))
 		}
 	}
@@ -1916,10 +2069,10 @@ func (this Node) cloneTree_1(cloneTypeExprs bool) Node {
 	if this.hasChildren() {
 		{
 			var n2 Node = this.getFirstChild()
-			for ; (n2 != 0); n2 = n2.ns_().next_ {
+			for ; n2 != 0; n2 = n2.ns_().next_ {
 				var n2clone Node = n2.cloneTree_1(cloneTypeExprs)
 				n2clone.ns_().parent = result
-				if (firstChild == 0) {
+				if firstChild == 0 {
 					firstChild = n2clone
 					lastChild = firstChild
 				} else {
@@ -1934,7 +2087,7 @@ func (this Node) cloneTree_1(cloneTypeExprs bool) Node {
 		result.ns_().first = firstChild
 	}
 	var shadow Node = this.getClosureUnawareShadow()
-	if (shadow != 0) {
+	if shadow != 0 {
 		result.setClosureUnawareShadow(shadow.cloneTree_1(cloneTypeExprs))
 	}
 	return result
@@ -1952,7 +2105,7 @@ func (this Node) srcrefTree(other Node) Node {
 	this.srcref(other)
 	{
 		var child Node = this.ns_().first
-		for ; (child != 0); child = child.ns_().next_ {
+		for ; child != 0; child = child.ns_().next_ {
 			child.srcrefTree(other)
 		}
 	}
@@ -1960,7 +2113,7 @@ func (this Node) srcrefTree(other Node) Node {
 }
 
 func (this Node) srcrefIfMissing(other Node) Node {
-	if (this.getStaticSourceFile() == nil) {
+	if this.getStaticSourceFile() == nil {
 		this.setStaticSourceFileFrom(other)
 		this.ns_().linenoCharno = other.ns_().linenoCharno
 		this.ns_().length_ = other.ns_().length_
@@ -1975,7 +2128,7 @@ func (this Node) srcrefTreeIfMissing(other Node) Node {
 	this.srcrefIfMissing(other)
 	{
 		var child Node = this.ns_().first
-		for ; (child != 0); child = child.ns_().next_ {
+		for ; child != 0; child = child.ns_().next_ {
 			child.srcrefTreeIfMissing(other)
 		}
 	}
@@ -1985,7 +2138,19 @@ func (this Node) srcrefTreeIfMissing(other Node) Node {
 func (this Node) getJSType() *JSType {
 	var jSType *JSType
 	_ = jSType
-	return func() *JSType { if func() bool { v_ := this.ps_().jstypeOrColor; if !is_JSType(v_) { return false }; jSType = to_JSType(v_); return true }() { return jSType }; return nil }()
+	return func() *JSType {
+		if func() bool {
+			v_ := this.ps_().jstypeOrColor
+			if !is_JSType(v_) {
+				return false
+			}
+			jSType = to_JSType(v_)
+			return true
+		}() {
+			return jSType
+		}
+		return nil
+	}()
 }
 
 func (this Node) getJSTypeRequired() *JSType {
@@ -2001,7 +2166,19 @@ func (this Node) setJSType(x *JSType) Node {
 func (this Node) getColor() *Color {
 	var color *Color
 	_ = color
-	return func() *Color { if func() bool { v_ := this.ps_().jstypeOrColor; if !is_[*Color](v_) { return false }; color = cast_[*Color](v_); return true }() { return color }; return nil }()
+	return func() *Color {
+		if func() bool {
+			v_ := this.ps_().jstypeOrColor
+			if !is_[*Color](v_) {
+				return false
+			}
+			color = cast_[*Color](v_)
+			return true
+		}() {
+			return color
+		}
+		return nil
+	}()
 }
 
 func (this Node) setColor(x *Color) Node {
@@ -2792,8 +2969,10 @@ var Node_IS_SHORTHAND_PROPERTY *Node_Prop
 var Node_ES6_MODULE *Node_Prop
 var Node_NUMBER_PAYLOAD_UNSET any
 var Node_BIGINT_PAYLOAD_UNSET *BigInteger
+
 const Node_CHARNO_BITS int32 = 12
 const Node_MAX_COLUMN_NUMBER int32 = 4095
+
 var Node_PROP_MAP_FOR_EQUALITY *ImmutableMap
 var Node_propMapForEqualityKeys *EnumSet
 
@@ -3041,7 +3220,7 @@ func Node_Prop_clinit() {
 
 type Node_TemplateLiteralSubstring struct {
 	cooked OptionalOf[string]
-	raw string
+	raw    string
 }
 
 func (this *Node_TemplateLiteralSubstring) zero_Node_TemplateLiteralSubstring() {
@@ -3061,8 +3240,8 @@ func new_Node_TemplateLiteralSubstring(cooked OptionalOf[string], raw string) *N
 }
 
 type Node_PropListItem struct {
-	self_ any
-	next_ *Node_PropListItem
+	self_    any
+	next_    *Node_PropListItem
 	propType int8
 }
 
@@ -3101,7 +3280,9 @@ func (this *Node_PropListItem) getObjectValue() any {
 }
 
 func (this *Node_PropListItem) chain(p0 *Node_PropListItem) *Node_PropListItem {
-	return this.self_.(interface{ chain_impl(*Node_PropListItem) *Node_PropListItem }).chain_impl(p0)
+	return this.self_.(interface {
+		chain_impl(*Node_PropListItem) *Node_PropListItem
+	}).chain_impl(p0)
 }
 
 type Node_ObjectPropListItem struct {
@@ -3222,7 +3403,7 @@ func (this *Node_SiblingNodeIterator) hasNext() bool {
 }
 
 func (this *Node_SiblingNodeIterator) next() any {
-	if (this.current_ == 0) {
+	if this.current_ == 0 {
 		panic(new_NoSuchElementException_0().self())
 	}
 	var n Node = this.current_
@@ -3539,16 +3720,16 @@ func (this *Node_SideEffectFlags) setMutatesArguments() *Node_SideEffectFlags {
 
 func (this *Node_SideEffectFlags) toString() string {
 	var builder *StringBuilder = new_StringBuilder_String("Side effects: ")
-	if ((this.value_ & Node_SideEffectFlags_MUTATES_THIS) != 0) {
+	if (this.value_ & Node_SideEffectFlags_MUTATES_THIS) != 0 {
 		builder.append("this ")
 	}
-	if ((this.value_ & Node_SideEffectFlags_MUTATES_GLOBAL_STATE) != 0) {
+	if (this.value_ & Node_SideEffectFlags_MUTATES_GLOBAL_STATE) != 0 {
 		builder.append("global ")
 	}
-	if ((this.value_ & Node_SideEffectFlags_THROWS) != 0) {
+	if (this.value_ & Node_SideEffectFlags_THROWS) != 0 {
 		builder.append("throw ")
 	}
-	if ((this.value_ & Node_SideEffectFlags_MUTATES_ARGUMENTS) != 0) {
+	if (this.value_ & Node_SideEffectFlags_MUTATES_ARGUMENTS) != 0 {
 		builder.append("args ")
 	}
 	return Object_toString(obj_(builder))
@@ -3609,4 +3790,3 @@ func (this *Node_AncestorIterable_1) next() any {
 func (this *Node_AncestorIterable_1) remove() {
 	panic(new_UnsupportedOperationException_0().self())
 }
-

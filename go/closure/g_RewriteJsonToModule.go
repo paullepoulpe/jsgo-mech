@@ -5,7 +5,7 @@ package closure
 type RewriteJsonToModule struct {
 	NodeTraversal_AbstractPostOrderCallback
 	packageJsonMainEntries MapOf[string, string]
-	compiler_ *AbstractCompiler
+	compiler_              *AbstractCompiler
 }
 
 func (this *RewriteJsonToModule) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -48,7 +48,7 @@ func (this *RewriteJsonToModule) visit_impl(t *NodeTraversal, n Node, parent Nod
 		return
 	case Token_rhino_OBJECTLIT, Token_rhino_ARRAYLIT, Token_rhino_NUMBER, Token_rhino_TRUE, Token_rhino_FALSE, Token_rhino_NULL, Token_rhino_STRINGLIT:
 	case Token_rhino_STRING_KEY:
-		if (!n.isQuotedStringKey() || !n.hasOneChild()) {
+		if !n.isQuotedStringKey() || !n.hasOneChild() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		}
 	case Token_rhino_EXPR_RESULT:
@@ -58,14 +58,14 @@ func (this *RewriteJsonToModule) visit_impl(t *NodeTraversal, n Node, parent Nod
 	default:
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 	}
-	if (n.getLineno() == 1) {
+	if n.getLineno() == 1 {
 		n.setLinenoCharno(1, (n.getCharno() - 1))
 		t.reportCodeChange()
 	}
 }
 
 func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
-	if (!n.hasOneChild() || !n.getFirstChild().isExprResult()) {
+	if !n.hasOneChild() || !n.getFirstChild().isExprResult() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, RewriteJsonToModule_JSON_UNEXPECTED_TOKEN, []string{}))
 		return
 	}
@@ -79,13 +79,13 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 	n.addChildToFront(IR_var_Node_Node(IR_name(moduleName).srcref(jsonObject), jsonObject).srcref(jsonObject))
 	n.addChildToFront(IR_exprResult(IR_call(IR_getprop_Node_String(IR_name("goog"), "provide"), []Node{IR_string(moduleName)})).srcrefTreeIfMissing(n))
 	var inputPath string = t.getInput().getSourceFile().getName()
-	if (String_endsWith(inputPath, "/package.json") && jsonObject.isObjectLit()) {
+	if String_endsWith(inputPath, "/package.json") && jsonObject.isObjectLit() {
 		var possibleMainEntries ListOf[string] = this.compiler_.getOptions().getPackageJsonEntryNames()
 		it_1 := foreach_(any(possibleMainEntries))
 		for it_1.next() {
 			var entryName string = str_(it_1.v)
 			var entry Node = NodeUtil_getFirstPropMatchingKey(jsonObject, entryName)
-			if ((entry != 0) && (entry.isStringLit() || entry.isObjectLit())) {
+			if (entry != 0) && (entry.isStringLit() || entry.isObjectLit()) {
 				var dirName string = String_substring(inputPath, 0, (String_length(inputPath) - String_length("package.json")))
 				if entry.isStringLit() {
 					Map_put_s(this.packageJsonMainEntries, inputPath, strobj_((sstr_(dirName) + sstr_(entry.getString()))))
@@ -103,14 +103,19 @@ func (this *RewriteJsonToModule) visitScript(t *NodeTraversal, n Node) {
 func (this *RewriteJsonToModule) processBrowserFieldAdvancedUsage(dirName string, entry Node) {
 	{
 		var child Node = entry.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			var value Node = child.getFirstChild()
 			Preconditions_checkState((child.isStringKey() && (value.isStringLit() || value.isFalse())))
 			var path string = child.getString()
 			if String_startsWith(path, ModuleLoader_DEFAULT_FILENAME_PREFIX) {
 				path = String_substring_int(path, String_length(ModuleLoader_DEFAULT_FILENAME_PREFIX))
 			}
-			var replacement string = func() string { if value.isStringLit() { return (sstr_(dirName) + sstr_(value.getString())) }; return ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER }()
+			var replacement string = func() string {
+				if value.isStringLit() {
+					return (sstr_(dirName) + sstr_(value.getString()))
+				}
+				return ModuleLoader_JSC_BROWSER_SKIPLISTED_MARKER
+			}()
 			Map_put_s(this.packageJsonMainEntries, (sstr_(dirName) + sstr_(path)), strobj_(replacement))
 		}
 	}
@@ -128,4 +133,3 @@ func RewriteJsonToModule_clinit() {
 	RewriteJsonToModule_JSON_UNEXPECTED_TOKEN = DiagnosticType_error("JSC_JSON_UNEXPECTED_TOKEN", "Unexpected JSON token")
 
 }
-

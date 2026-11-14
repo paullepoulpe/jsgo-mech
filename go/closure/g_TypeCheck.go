@@ -3,21 +3,21 @@
 package closure
 
 type TypeCheck struct {
-	compiler_ *AbstractCompiler
-	validator *TypeValidator
-	reverseInterpreter ReverseAbstractInterpreter
-	typeRegistry *JSTypeRegistry
-	topScope *TypedScope
-	scopeCreator *TypedScopeCreator
-	reportUnknownTypesField bool
-	subtypingMode *JSType_SubtypingMode
+	compiler_                    *AbstractCompiler
+	validator                    *TypeValidator
+	reverseInterpreter           ReverseAbstractInterpreter
+	typeRegistry                 *JSTypeRegistry
+	topScope                     *TypedScope
+	scopeCreator                 *TypedScopeCreator
+	reportUnknownTypesField      bool
+	subtypingMode                *JSType_SubtypingMode
 	reportMissingPropertiesField bool
-	inferJSDocInfo *InferJSDocInfo
-	typedCount int32
-	nullCount int32
-	unknownCount int32
-	inExterns_ bool
-	debugTypeLogger *TypeCheck_DebugTypeLogger
+	inferJSDocInfo               *InferJSDocInfo
+	typedCount                   int32
+	nullCount                    int32
+	unknownCount                 int32
+	inExterns_                   bool
+	debugTypeLogger              *TypeCheck_DebugTypeLogger
 }
 
 func (this *TypeCheck) finit_TypeCheck() {
@@ -78,7 +78,7 @@ func (this *TypeCheck) process_2(externsRoot Node, jsRoot Node) {
 		var debugTypeLogger *TypeCheck_DebugTypeLogger = new_TypeCheck_DebugTypeLogger(this)
 		defer closeResource_(obj_(debugTypeLogger))
 		this.debugTypeLogger = debugTypeLogger
-		if (externsRoot != 0) {
+		if externsRoot != 0 {
 			this.check(externsRoot, true)
 		}
 		this.check(jsRoot, false)
@@ -131,7 +131,7 @@ func (this *TypeCheck) shouldTraverse(t *NodeTraversal, n Node, parent Node) boo
 	} else if n.isFunction() {
 		var outerScope *TypedScope = t.getTypedScope()
 		var var_ *TypedVar = cast_[*TypedVar](outerScope.getVar(n.getFirstChild().getString()).self())
-		if ((((var_ != nil) && cast_[*TypedScope](var_.getScope()).hasSameContainerScope(outerScope.up_AbstractScope())) && !is_FunctionType(var_.getType().self())) && !TypeValidator_hasDuplicateDeclarationSuppression(this.compiler_, var_.getNameNode())) {
+		if (((var_ != nil) && cast_[*TypedScope](var_.getScope()).hasSameContainerScope(outerScope.up_AbstractScope())) && !is_FunctionType(var_.getType().self())) && !TypeValidator_hasDuplicateDeclarationSuppression(this.compiler_, var_.getNameNode()) {
 			this.report(n, TypeCheck_FUNCTION_MASKS_VARIABLE, []string{var_.getName()})
 		}
 	}
@@ -156,7 +156,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		}
 		this.ensureTypedJSType(n, castType)
 		expr.setJSTypeBeforeCast(exprType)
-		if (castType.restrictByNotNullOrUndefined().isSubtypeOf(exprType) || expr.isObjectLit()) {
+		if castType.restrictByNotNullOrUndefined().isSubtypeOf(exprType) || expr.isObjectLit() {
 			expr.setJSType(castType)
 		}
 	case Token_rhino_NAME:
@@ -230,7 +230,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 			if right.isStringLit() {
 				this.checkTypeofString(right, right.getString())
 			}
-		} else if (right.isTypeOf() && left.isStringLit()) {
+		} else if right.isTypeOf() && left.isStringLit() {
 			this.checkTypeofString(left, left.getString())
 		}
 		leftType = this.getJSType(left)
@@ -238,17 +238,22 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		var leftTypeRestricted *JSType = leftType.restrictByNotNullOrUndefined()
 		var rightTypeRestricted *JSType = rightType.restrictByNotNullOrUndefined()
 		var result *Tri = Tri_UNKNOWN
-		if (n.isEQ() || n.isNE()) {
+		if n.isEQ() || n.isNE() {
 			result = leftTypeRestricted.testForEquality(rightTypeRestricted)
 			if n.isNE() {
 				result = result.not()
 			}
 		} else {
 			if !leftTypeRestricted.canTestForShallowEqualityWith(rightTypeRestricted) {
-				result = func() *Tri { if n.isSHEQ() { return Tri_FALSE }; return Tri_TRUE }()
+				result = func() *Tri {
+					if n.isSHEQ() {
+						return Tri_FALSE
+					}
+					return Tri_TRUE
+				}()
 			}
 		}
-		if (result != Tri_UNKNOWN) {
+		if result != Tri_UNKNOWN {
 			this.report(n, TypeCheck_DETERMINISTIC_TEST, []string{leftType.toString(), rightType.toString(), result.toString()})
 		}
 		this.ensureTyped_2(n, JSTypeNative_BOOLEAN_TYPE)
@@ -268,7 +273,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		} else {
 			var errorMsg string = "expected matching types in comparison"
 			this.validator.expectMatchingTypesStrict(n, leftType, rightType, errorMsg)
-			if (!leftType.matchesNumberContext() || !rightType.matchesNumberContext()) {
+			if !leftType.matchesNumberContext() || !rightType.matchesNumberContext() {
 				var message string = "left side of comparison"
 				this.validator.expectString(leftSide, leftType, message)
 				this.validator.expectNotNullOrUndefined(t, leftSide, leftType, message, this.getNativeType(JSTypeNative_STRING_TYPE))
@@ -344,9 +349,9 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		var typ *JSType = parent.getJSType().toMaybeFunctionType().getInstanceType().up_JSType()
 		{
 			var child Node = n.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				this.visitObjectOrClassLiteralKey(child, n.getParent(), typ)
-				if (child.isSetterDef() || child.isGetterDef()) {
+				if child.isSetterDef() || child.isGetterDef() {
 					this.checkGetterOrSetterType(child, parent.getJSType().toMaybeFunctionType())
 				}
 			}
@@ -372,7 +377,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 		var typ *JSType = this.getJSType(n)
 		{
 			var key Node = n.getFirstChild()
-			for ; (key != 0); key = key.getNext() {
+			for ; key != 0; key = key.getNext() {
 				this.visitObjectOrClassLiteralKey(key, n, typ)
 			}
 		}
@@ -386,7 +391,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 	if NodeUtil_isBlocklessArrowFunctionResult(n) {
 		this.visitImplicitReturnExpression(t, n)
 	}
-	if ((n.getParent().isForOf() || n.getParent().isForAwaitOf()) && (n.getParent().getFirstChild() == n)) {
+	if (n.getParent().isForOf() || n.getParent().isForAwaitOf()) && (n.getParent().getFirstChild() == n) {
 		this.checkForOfTypes(t, n.getParent())
 	}
 	typeable = (typeable && !this.inExterns_)
@@ -453,10 +458,10 @@ func (this *TypeCheck) checkTypeofString(n Node, s string) {
 
 func (this *TypeCheck) doPercentTypedAccounting(n Node) {
 	var type_ *JSType = n.getJSType()
-	if (type_ == nil) {
+	if type_ == nil {
 		this.nullCount++
 	} else if type_.isUnknownType() {
-		if (this.reportUnknownTypesField && !n.getParent().isExprResult()) {
+		if this.reportUnknownTypesField && !n.getParent().isExprResult() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_UNKNOWN_EXPR_TYPE, []string{}))
 		}
 		this.unknownCount++
@@ -468,15 +473,40 @@ func (this *TypeCheck) doPercentTypedAccounting(n Node) {
 func (this *TypeCheck) checkGetterOrSetterType(child Node, classType *FunctionType) {
 	var propertyName string = child.getString()
 	var methodType *FunctionType = child.getLastChild().getJSType().toMaybeFunctionType()
-	var propertyType *JSType = func() *JSType { if child.isGetterDef() { return this.determineGetterType(methodType) }; return cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(methodType.getParameters())))).getJSType() }()
-	var officialPropertyType *JSType = func() *JSType { if child.isStaticMember() { return classType.getPropertyType(propertyName) }; return classType.getPrototype().getPropertyType(propertyName) }()
+	var propertyType *JSType = func() *JSType {
+		if child.isGetterDef() {
+			return this.determineGetterType(methodType)
+		}
+		return cast_[*FunctionType_Parameter](Iterables_getOnlyElement(icast_Iterable(obj_(methodType.getParameters())))).getJSType()
+	}()
+	var officialPropertyType *JSType = func() *JSType {
+		if child.isStaticMember() {
+			return classType.getPropertyType(propertyName)
+		}
+		return classType.getPrototype().getPropertyType(propertyName)
+	}()
 	if !propertyType.equals(officialPropertyType.self()) {
-		this.report(child, TypeCheck_CONFLICTING_GETTER_SETTER_TYPE, []string{propertyName, func() string { if child.isGetterDef() { return propertyType.toString() }; return officialPropertyType.toString() }(), func() string { if child.isGetterDef() { return officialPropertyType.toString() }; return propertyType.toString() }()})
+		this.report(child, TypeCheck_CONFLICTING_GETTER_SETTER_TYPE, []string{propertyName, func() string {
+			if child.isGetterDef() {
+				return propertyType.toString()
+			}
+			return officialPropertyType.toString()
+		}(), func() string {
+			if child.isGetterDef() {
+				return officialPropertyType.toString()
+			}
+			return propertyType.toString()
+		}()})
 	}
 }
 
 func (this *TypeCheck) determineGetterType(methodType *FunctionType) *JSType {
-	return func() *JSType { if !methodType.isReturnTypeInferred() { return methodType.getReturnType() }; return this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE) }()
+	return func() *JSType {
+		if !methodType.isReturnTypeInferred() {
+			return methodType.getReturnType()
+		}
+		return this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+	}()
 }
 
 func (this *TypeCheck) visitAssign(t *NodeTraversal, assign Node) {
@@ -513,13 +543,13 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 		var pname string = lvalue.getString()
 		if object.isGetProp() {
 			var jsType *JSType = this.getJSType(object.getFirstChild())
-			if (jsType.isInterface() && (object.getString() == "prototype")) {
+			if jsType.isInterface() && (object.getString() == "prototype") {
 				this.visitInterfacePropertyAssignment(object, lvalue)
 			}
 		}
 		this.checkEnumAlias(t, info, rightType, nodeToWarn)
 		this.checkPropCreation(lvalue)
-		if (pname == "prototype") {
+		if pname == "prototype" {
 			this.validator.expectCanAssignToPrototype(objectJsType, nodeToWarn, rightType)
 			return
 		}
@@ -532,7 +562,7 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 			}
 			return
 		}
-	} else if (lvalue.isGetElem() && lvalue.getSecondChild().getJSType().isKnownSymbolValueType()) {
+	} else if lvalue.isGetElem() && lvalue.getSecondChild().getJSType().isKnownSymbolValueType() {
 		var object Node = lvalue.getFirstChild()
 		var objectJsType *JSType = this.getJSType(object)
 		var objectCastType *ObjectType = ObjectType_cast(objectJsType.restrictByNotNullOrUndefined())
@@ -543,14 +573,14 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 	var leftType *JSType = this.getJSType(lvalue)
 	if lvalue.isQualifiedName() {
 		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVar(lvalue.getQualifiedName()).self())
-		if (var_ != nil) {
+		if var_ != nil {
 			if var_.isTypeInferred() {
 				return
 			}
-			if (NodeUtil_getRootOfQualifiedName(lvalue).isThis() && (t.getTypedScope() != cast_[*TypedScope](var_.getScope()))) {
+			if NodeUtil_getRootOfQualifiedName(lvalue).isThis() && (t.getTypedScope() != cast_[*TypedScope](var_.getScope())) {
 				return
 			}
-			if (var_.getType() != nil) {
+			if var_.getType() != nil {
 				leftType = var_.getType()
 			}
 		}
@@ -561,7 +591,7 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 func (this *TypeCheck) checkPropCreation(lvalue Node) {
 	if lvalue.isGetProp() {
 		var objType *JSType = this.getJSType(lvalue.getFirstChild())
-		if (!objType.isEmptyType() && !objType.isUnknownType()) {
+		if !objType.isEmptyType() && !objType.isUnknownType() {
 			var propName string = lvalue.getString()
 			var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objType, propName)
 			if !Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_KNOWN)) {
@@ -572,7 +602,7 @@ func (this *TypeCheck) checkPropCreation(lvalue Node) {
 						this.report(lvalue, TypeCheck_ILLEGAL_PROPERTY_CREATION, []string{})
 					}
 				} else {
-					if ((!objType.isNoType() && !objType.isUnknownType()) && objType.isSubtypeOf(this.getNativeType(JSTypeNative_NULL_VOID))) {
+					if (!objType.isNoType() && !objType.isUnknownType()) && objType.isSubtypeOf(this.getNativeType(JSTypeNative_NULL_VOID)) {
 						return
 					}
 					this.reportMissingProperty(lvalue.getFirstChild(), objType, lvalue, kind, true)
@@ -583,17 +613,17 @@ func (this *TypeCheck) checkPropCreation(lvalue Node) {
 }
 
 func (this *TypeCheck) checkPropertyInheritanceOnAssignment(assign Node, object Node, property Property_Key, info *JSDocInfo, propertyType *JSType) {
-	if (object.isGetProp() && (object.getString() == "prototype")) {
+	if object.isGetProp() && (object.getString() == "prototype") {
 		var preObject Node = object.getFirstChild()
 		var ctorType *FunctionType = this.getJSType(preObject).toMaybeFunctionType()
-		if ((ctorType == nil) || !ctorType.hasInstanceType()) {
+		if (ctorType == nil) || !ctorType.hasInstanceType() {
 			return
 		}
 		this.checkDeclaredPropertyAgainstNominalInheritance(assign, ctorType, property, info, propertyType)
 		this.checkAbstractMethodInConcreteClass(assign, ctorType, info)
 	} else {
 		var ctorType *FunctionType = this.getJSType(object).toMaybeFunctionType()
-		if ((ctorType == nil) || !ctorType.hasInstanceType()) {
+		if (ctorType == nil) || !ctorType.hasInstanceType() {
 			return
 		}
 		this.checkDeclaredPropertyAgainstPrototypalInheritance(assign, ctorType.up_ObjectType(), property, info, propertyType)
@@ -613,7 +643,7 @@ func (this *TypeCheck) checkPropertyInheritanceOnClassMember(key Node, propertyN
 }
 
 func (this *TypeCheck) checkPropertyInheritance(key Node, propertyName Property_Key, ctorType *FunctionType, type_ *ObjectType) {
-	if ((ctorType == nil) || !ctorType.hasInstanceType()) {
+	if (ctorType == nil) || !ctorType.hasInstanceType() {
 		return
 	}
 	this.checkDeclaredPropertyAgainstNominalInheritance(key.getFirstChild(), ctorType, propertyName, key.getJSDocInfo(), type_.getPropertyTypeKey(propertyName))
@@ -625,7 +655,7 @@ func (this *TypeCheck) visitObjectPattern(pattern Node) {
 	this.validator.expectObject(pattern, patternType, "cannot destructure 'null' or 'undefined'")
 	{
 		var child Node = pattern.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			var target *DestructuredTarget = DestructuredTarget_createTargetJSType(this.typeRegistry, patternType, child)
 			if target.hasComputedProperty() {
 				var computedProperty Node = target.getComputedProperty()
@@ -651,7 +681,7 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 		this.ensureTyped(key)
 		return
 	}
-	if (key.isComputedProp() || key.isComputedFieldDef()) {
+	if key.isComputedProp() || key.isComputedFieldDef() {
 		var keyType *JSType = this.getJSType(key.getFirstChild())
 		this.validator.expectIndexMatch(key, ownerType, keyType)
 		if keyType.isKnownSymbolValueType() {
@@ -672,23 +702,33 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 	}
 	if key.isQuotedStringKey() {
 		if ownerType.isStruct() {
-			this.report(key, func() *DiagnosticType { if owner.isClass() { return TypeCheck_ILLEGAL_CLASS_KEY }; return TypeCheck_ILLEGAL_OBJLIT_KEY }(), []string{"struct"})
+			this.report(key, func() *DiagnosticType {
+				if owner.isClass() {
+					return TypeCheck_ILLEGAL_CLASS_KEY
+				}
+				return TypeCheck_ILLEGAL_OBJLIT_KEY
+			}(), []string{"struct"})
 		}
 	} else {
-		if (ownerType.isDict() && !NodeUtil_isEs6ConstructorMemberFunctionDef(key)) {
-			this.report(key, func() *DiagnosticType { if owner.isClass() { return TypeCheck_ILLEGAL_CLASS_KEY }; return TypeCheck_ILLEGAL_OBJLIT_KEY }(), []string{"dict"})
+		if ownerType.isDict() && !NodeUtil_isEs6ConstructorMemberFunctionDef(key) {
+			this.report(key, func() *DiagnosticType {
+				if owner.isClass() {
+					return TypeCheck_ILLEGAL_CLASS_KEY
+				}
+				return TypeCheck_ILLEGAL_OBJLIT_KEY
+			}(), []string{"dict"})
 		}
 	}
 	if key.isSpread() {
 		return
 	}
 	var rvalue Node = key.getFirstChild()
-	if (rvalue == 0) {
+	if rvalue == 0 {
 		this.ensureTyped(key)
 		return
 	}
 	var rightType *JSType = TypeCheck_getObjectLitKeyTypeFromValueType(key, this.getJSType(rvalue))
-	if (rightType == nil) {
+	if rightType == nil {
 		rightType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	}
 	var keyType *JSType = this.getJSType(key)
@@ -707,15 +747,15 @@ func (this *TypeCheck) visitObjectOrClassLiteralKey(key Node, owner Node, ownerT
 	if owner.isClass() {
 		var classConstructorType *FunctionType = owner.getJSType().assertFunctionType()
 		this.checkPropertyInheritanceOnClassMember(key, propertyKey, classConstructorType)
-	} else if (ownerType.toMaybeObjectType() != nil) {
+	} else if ownerType.toMaybeObjectType() != nil {
 		this.checkPropertyInheritanceOnPrototypeLitKey(key, propertyKey, ownerType.toMaybeObjectType())
 	}
 }
 
 func TypeCheck_propertyIsImplicitCast(type_ *ObjectType, prop string) bool {
-	for ; (type_ != nil); type_ = type_.getImplicitPrototype() {
+	for ; type_ != nil; type_ = type_.getImplicitPrototype() {
 		var docInfo *JSDocInfo = type_.getOwnPropertyJSDocInfo(prop)
-		if ((docInfo != nil) && docInfo.isImplicitCast()) {
+		if (docInfo != nil) && docInfo.isImplicitCast() {
 			return true
 		}
 	}
@@ -723,7 +763,7 @@ func TypeCheck_propertyIsImplicitCast(type_ *ObjectType, prop string) bool {
 }
 
 func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ctorType *FunctionType, propertyName Property_Key, info *JSDocInfo, propertyType *JSType) {
-	if (propertyName.matches("__proto__") || propertyName.matches("constructor")) {
+	if propertyName.matches("__proto__") || propertyName.matches("constructor") {
 		return
 	}
 	if ctorType.isInterface() {
@@ -734,7 +774,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 	}
 	var foundProperty bool = false
 	var superCtor *FunctionType = ctorType.getSuperClassConstructor()
-	if (superCtor != nil) {
+	if superCtor != nil {
 		var propSlot *Property_OwnedProperty = superCtor.getInstanceType().findClosestDefinition(propertyName)
 		var superClassHasProperty bool = ((propSlot != nil) && !propSlot.isOwnedByInterface())
 		foundProperty = bor_(foundProperty, superClassHasProperty)
@@ -742,7 +782,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 			var superClass *ObjectType = propSlot.getOwnerInstanceType()
 			var superClassHasDeclaredProperty bool = !propSlot.getValue().isTypeInferred()
 			if superClassHasDeclaredProperty {
-				if (TypeCheck_isDeclaredLocally(ctorType, propertyName) && !TypeCheck_declaresOverride(info)) {
+				if TypeCheck_isDeclaredLocally(ctorType, propertyName) && !TypeCheck_declaresOverride(info) {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_HIDDEN_SUPERCLASS_PROPERTY, []string{propertyName.humanReadableName(), str_(superClass.getReferenceName().orElse(strobj_("null")))}))
 				}
 				this.validator.checkPropertyType(n, ctorType.getTypeOfThis(), superClass, propertyName, propertyType)
@@ -752,18 +792,18 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 	it_1 := foreach_(any(ctorType.getAllImplementedInterfaces()))
 	for it_1.next() {
 		var implementedInterface *ObjectType = to_ObjectType(it_1.v)
-		if (implementedInterface.isUnknownType() || implementedInterface.isEmptyType()) {
+		if implementedInterface.isUnknownType() || implementedInterface.isEmptyType() {
 			continue
 		}
 		Preconditions_checkState_boolean_Object(implementedInterface.isInstanceType(), implementedInterface.self())
 		var propSlot *Property_OwnedProperty = implementedInterface.findClosestDefinition(propertyName)
 		var interfaceHasProperty bool = (propSlot != nil)
 		foundProperty = bor_(foundProperty, interfaceHasProperty)
-		if (interfaceHasProperty && !TypeCheck_declaresOverride(info)) {
+		if interfaceHasProperty && !TypeCheck_declaresOverride(info) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_HIDDEN_INTERFACE_PROPERTY, []string{propertyName.humanReadableName(), str_(propSlot.getOwnerInstanceType().getReferenceName().orElse(strobj_("null")))}))
 		}
 	}
-	if (!foundProperty && TypeCheck_declaresOverride(info)) {
+	if !foundProperty && TypeCheck_declaresOverride(info) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_UNKNOWN_OVERRIDE, []string{propertyName.humanReadableName(), str_(ctorType.getInstanceType().getReferenceName().orElse(strobj_("null")))}))
 	}
 }
@@ -784,8 +824,8 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstPrototypalInheritance(n Node,
 			break
 		}
 	}
-	if (supertypeWithProperty == nil) {
-		if (declaredOverride && !receiverType.loosenTypecheckingDueToForwardReferencedSupertype()) {
+	if supertypeWithProperty == nil {
+		if declaredOverride && !receiverType.loosenTypecheckingDueToForwardReferencedSupertype() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_UNKNOWN_PROTOTYPAL_OVERRIDE, []string{propertyName.humanReadableName(), receiverType.toString()}))
 		}
 	} else {
@@ -800,10 +840,10 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstPrototypalInheritance(n Node,
 }
 
 func (this *TypeCheck) checkAbstractMethodInConcreteClass(n Node, ctorType *FunctionType, info *JSDocInfo) {
-	if ((info == nil) || !info.isAbstract()) {
+	if (info == nil) || !info.isAbstract() {
 		return
 	}
-	if (ctorType.isConstructor() && !ctorType.isAbstract()) {
+	if ctorType.isConstructor() && !ctorType.isAbstract() {
 		this.report(n, TypeCheck_ABSTRACT_METHOD_IN_CONCRETE_CLASS, []string{})
 	}
 }
@@ -813,14 +853,14 @@ func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 	Preconditions_checkArgument(!ctor.isUnknownType())
 	for {
 		var maybeSuperInstanceType *ObjectType = ctor.getPrototype().getImplicitPrototype()
-		if (maybeSuperInstanceType == nil) {
+		if maybeSuperInstanceType == nil {
 			return false
 		}
-		if (maybeSuperInstanceType.isUnknownType() || maybeSuperInstanceType.isEmptyType()) {
+		if maybeSuperInstanceType.isUnknownType() || maybeSuperInstanceType.isEmptyType() {
 			return true
 		}
 		ctor = maybeSuperInstanceType.getConstructor()
-		if (ctor == nil) {
+		if ctor == nil {
 			return false
 		}
 		Preconditions_checkState((ctor.isConstructor() || ctor.isInterface()))
@@ -829,7 +869,7 @@ func TypeCheck_hasUnknownOrEmptySupertype(ctor *FunctionType) bool {
 }
 
 func TypeCheck_getObjectLitKeyTypeFromValueType(key Node, valueType *JSType) *JSType {
-	if (valueType != nil) {
+	if valueType != nil {
 		switch key.getToken() {
 		case Token_rhino_GETTER_DEF:
 			if valueType.isFunctionType() {
@@ -863,7 +903,7 @@ func (this *TypeCheck) visitInterfacePropertyAssignment(object Node, lvalue Node
 	if !rvalueType.isFunctionType() {
 		this.reportInvalidInterfaceMemberDeclaration(object)
 	}
-	if (rvalue.isFunction() && !NodeUtil_isEmptyBlock(NodeUtil_getFunctionBody(rvalue))) {
+	if rvalue.isFunction() && !NodeUtil_isEmptyBlock(NodeUtil_getFunctionBody(rvalue)) {
 		var abstractMethodName string = this.compiler_.getCodingConvention().getAbstractMethodName()
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(object, TypeCheck_INTERFACE_METHOD_NOT_EMPTY, []string{abstractMethodName}))
 	}
@@ -871,28 +911,33 @@ func (this *TypeCheck) visitInterfacePropertyAssignment(object Node, lvalue Node
 
 func (this *TypeCheck) reportInvalidInterfaceMemberDeclaration(interfaceNode Node) {
 	var abstractMethodName string = this.compiler_.getCodingConvention().getAbstractMethodName()
-	var abstractMethodMessage string = func() string { if !String_isEmpty(abstractMethodName) { return (", or " + sstr_(abstractMethodName)) }; return "" }()
+	var abstractMethodMessage string = func() string {
+		if !String_isEmpty(abstractMethodName) {
+			return (", or " + sstr_(abstractMethodName))
+		}
+		return ""
+	}()
 	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(interfaceNode, TypeCheck_INVALID_INTERFACE_MEMBER_DECLARATION, []string{abstractMethodMessage}))
 }
 
 func (this *TypeCheck) visitName(t *NodeTraversal, n Node, parent Node) bool {
 	var isFunctionName bool = (n.getParent().isFunction() && n.isFirstChildOf(parent))
-	if (isFunctionName && String_isEmpty(n.getString())) {
+	if isFunctionName && String_isEmpty(n.getString()) {
 		return false
 	}
 	var reportIfMissingType bool = true
 	var parentNodeType *Token_rhino = parent.getToken()
-	if (((isFunctionName || (parentNodeType == Token_rhino_CATCH)) || (parentNodeType == Token_rhino_PARAM_LIST)) || NodeUtil_isNameDeclaration(parent)) {
+	if ((isFunctionName || (parentNodeType == Token_rhino_CATCH)) || (parentNodeType == Token_rhino_PARAM_LIST)) || NodeUtil_isNameDeclaration(parent) {
 		reportIfMissingType = false
 	}
-	if (NodeUtil_isEnhancedFor(parent) && (parent.getFirstChild() == n)) {
+	if NodeUtil_isEnhancedFor(parent) && (parent.getFirstChild() == n) {
 		reportIfMissingType = false
 	}
 	var type_ *JSType = n.getJSType()
-	if (type_ == nil) {
+	if type_ == nil {
 		type_ = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		var var_ *TypedVar = cast_[*TypedVar](t.getTypedScope().getVar(n.getString()).self())
-		if (var_ != nil) {
+		if var_ != nil {
 			type_ = to_JSType(Preconditions_checkNotNull(var_.getType().self()))
 		}
 	}
@@ -961,7 +1006,7 @@ func (this *TypeCheck) checkPropertyAccessForDestructuring(pattern Node, objectT
 	Preconditions_checkArgument_boolean_Object(stringKey.isStringKey(), stringKey.box_())
 	var objNode Node = 0
 	var patternParent Node = pattern.getParent()
-	if ((patternParent.isAssign() || patternParent.isDestructuringLhs()) && (pattern.getNext() != 0)) {
+	if (patternParent.isAssign() || patternParent.isDestructuringLhs()) && (pattern.getNext() != 0) {
 		objNode = pattern.getNext()
 	}
 	this.checkPropertyAccess(objectType, stringKey, inferredPropType, objNode)
@@ -972,7 +1017,7 @@ func (this *TypeCheck) checkAbstractPropertyAccess(method Node) {
 		return
 	}
 	var methodType *FunctionType = this.getJSType(method).toMaybeFunctionType()
-	if (((methodType == nil) || !methodType.isAbstract()) || methodType.isConstructor()) {
+	if ((methodType == nil) || !methodType.isAbstract()) || methodType.isConstructor() {
 		return
 	}
 	var objectNode Node = method.getFirstChild()
@@ -980,7 +1025,7 @@ func (this *TypeCheck) checkAbstractPropertyAccess(method Node) {
 		this.report(method, TypeCheck_ABSTRACT_SUPER_METHOD_NOT_USABLE, []string{str_(methodType.getDisplayName().orElse(strobj_("null")))})
 	} else if objectNode.isGetProp() {
 		var objectProp string = objectNode.getString()
-		if ((objectProp == "prototype") || this.compiler_.getCodingConvention().isSuperClassReference(objectProp)) {
+		if (objectProp == "prototype") || this.compiler_.getCodingConvention().isSuperClassReference(objectProp) {
 			this.report(method, TypeCheck_ABSTRACT_SUPER_METHOD_NOT_USABLE, []string{str_(methodType.getDisplayName().orElse(strobj_("null")))})
 		}
 	}
@@ -992,8 +1037,8 @@ func (this *TypeCheck) checkPropertyAccess(childType *JSType, propNode Node, pro
 	if propType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
 		childType = childType.autobox()
 		var objectType *ObjectType = ObjectType_cast(childType)
-		if (objectType != nil) {
-			if (!objectType.hasProperty(propName) || objectType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self())) {
+		if objectType != nil {
+			if !objectType.hasProperty(propName) || objectType.equals(this.typeRegistry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
 				if is_[*EnumType](objectType.self()) {
 					this.report(propNode, TypeCheck_INEXISTENT_ENUM_ELEMENT, []string{propName})
 				} else {
@@ -1003,7 +1048,7 @@ func (this *TypeCheck) checkPropertyAccess(childType *JSType, propNode Node, pro
 		} else {
 			this.checkPropertyAccessHelper(childType, propNode, objNode, false)
 		}
-	} else if ((childType.isUnionType() && isGetprop) && !this.isLValueGetProp(propNode)) {
+	} else if (childType.isUnionType() && isGetprop) && !this.isLValueGetProp(propNode) {
 		this.checkPropertyAccessHelper(childType, propNode, objNode, true)
 	}
 }
@@ -1016,7 +1061,7 @@ func (this *TypeCheck) isLValueGetProp(n Node) bool {
 func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode Node, objNode Node, strictCheck bool) {
 	var isGetprop bool = NodeUtil_isNormalOrOptChainGetProp(propNode)
 	var propName string = propNode.getString()
-	if ((!this.reportMissingPropertiesField || objectType.isEmptyType()) || (isGetprop && this.allowStrictPropertyAccessOnNode(propNode))) {
+	if (!this.reportMissingPropertiesField || objectType.isEmptyType()) || (isGetprop && this.allowStrictPropertyAccessOnNode(propNode)) {
 		return
 	}
 	var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objectType, propName)
@@ -1025,7 +1070,7 @@ func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode No
 	}
 	var isLooselyAssociated bool = (Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE)) || Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE_UNION)))
 	var isUnknownType bool = objectType.isUnknownType()
-	if (isLooselyAssociated && isUnknownType) {
+	if isLooselyAssociated && isUnknownType {
 		return
 	}
 	var isStruct bool = objectType.isStruct()
@@ -1041,17 +1086,22 @@ func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, p
 	var lowConfidence bool = ((objectType.isUnknownType() || objectType.isAllType()) || isObjectType)
 	var isKnownToUnionMember bool = Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE_UNION))
 	var pair *TypeCheck_SuggestionPair = nil
-	if (!lowConfidence && !isKnownToUnionMember) {
+	if !lowConfidence && !isKnownToUnionMember {
 		pair = TypeCheck_getClosestPropertySuggestion(objectType, propName, ((String_length(propName) - 1) / 4))
 	}
-	if (pair != nil) {
+	if pair != nil {
 		var reportType *DiagnosticType
 		if strictReport {
 			reportType = TypeCheck_STRICT_INEXISTENT_PROPERTY_WITH_SUGGESTION
 		} else {
 			reportType = TypeCheck_INEXISTENT_PROPERTY_WITH_SUGGESTION
 		}
-		this.report(propNode, reportType, []string{propName, func() string { if (objNode != 0) { return str_(this.typeRegistry.getReadableTypeName(objNode).orElse(nil)) }; return objectType.toString() }(), pair.suggestion})
+		this.report(propNode, reportType, []string{propName, func() string {
+			if objNode != 0 {
+				return str_(this.typeRegistry.getReadableTypeName(objNode).orElse(nil))
+			}
+			return objectType.toString()
+		}(), pair.suggestion})
 	} else {
 		var reportType *DiagnosticType
 		if strictReport {
@@ -1065,7 +1115,12 @@ func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, p
 		} else {
 			reportType = TypeCheck_INEXISTENT_PROPERTY
 		}
-		this.report(propNode, reportType, []string{propName, func() string { if (objNode != 0) { return str_(this.typeRegistry.getReadableTypeName(objNode).orElse(nil)) }; return objectType.toString() }()})
+		this.report(propNode, reportType, []string{propName, func() string {
+			if objNode != 0 {
+				return str_(this.typeRegistry.getReadableTypeName(objNode).orElse(nil))
+			}
+			return objectType.toString()
+		}()})
 	}
 }
 
@@ -1095,7 +1150,7 @@ func (this *TypeCheck) visitGetElem(n Node) {
 func (this *TypeCheck) visitOptChainGetElem(optChainGetElem Node) {
 	var obj Node = optChainGetElem.getFirstChild()
 	var objType *JSType = this.getJSType(obj)
-	if (objType.isNullType() || objType.isVoidType()) {
+	if objType.isNullType() || objType.isVoidType() {
 		this.ensureTyped_2(optChainGetElem, JSTypeNative_VOID_TYPE)
 	} else {
 		this.visitGetElem(optChainGetElem)
@@ -1103,19 +1158,24 @@ func (this *TypeCheck) visitOptChainGetElem(optChainGetElem Node) {
 }
 
 func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
-	if ((n.getParent().isForOf() || n.getParent().isForIn()) || n.getParent().isForAwaitOf()) {
+	if (n.getParent().isForOf() || n.getParent().isForIn()) || n.getParent().isForAwaitOf() {
 		return
 	}
-	var varInfo *JSDocInfo = func() *JSDocInfo { if n.hasOneChild() { return n.getJSDocInfo() }; return nil }()
+	var varInfo *JSDocInfo = func() *JSDocInfo {
+		if n.hasOneChild() {
+			return n.getJSDocInfo()
+		}
+		return nil
+	}()
 	{
 		var child Node = n.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isName() {
 				var value Node = child.getFirstChild()
-				if (value != 0) {
+				if value != 0 {
 					var valueType *JSType = this.getJSType(value)
 					var info *JSDocInfo = child.getJSDocInfo()
-					if (info == nil) {
+					if info == nil {
 						info = varInfo
 					}
 					this.checkEnumAlias(t, info, valueType, value)
@@ -1135,19 +1195,24 @@ func (this *TypeCheck) visitVar(t *NodeTraversal, n Node) {
 func (this *TypeCheck) visitNew(n Node) {
 	var constructor Node = n.getFirstChild()
 	var type_ *JSType = this.getJSType(constructor).restrictByNotNullOrUndefined()
-	if ((!this.couldBeAConstructor(type_) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE).self())) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE).self())) {
+	if (!this.couldBeAConstructor(type_) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_SYMBOL_OBJECT_FUNCTION_TYPE).self())) || type_.equals(this.typeRegistry.getNativeType(JSTypeNative_BIGINT_OBJECT_FUNCTION_TYPE).self()) {
 		this.report(n, TypeCheck_NOT_A_CONSTRUCTOR, []string{type_.toString()})
 		this.ensureTyped(n)
 		return
 	}
 	var fnType *FunctionType = type_.toMaybeFunctionType()
-	if ((fnType != nil) && fnType.hasInstanceType()) {
+	if (fnType != nil) && fnType.hasInstanceType() {
 		if fnType.isAbstract() {
 			this.report(n, TypeCheck_INSTANTIATE_ABSTRACT_CLASS, []string{})
 		}
 		this.visitArgumentList(n, fnType)
 		var objType *ObjectType = fnType.getInstanceType()
-		this.ensureTypedJSType(n, func() *JSType { if (objType != nil) { return objType.up_JSType() }; return this.getNativeType(JSTypeNative_UNKNOWN_TYPE) }())
+		this.ensureTypedJSType(n, func() *JSType {
+			if objType != nil {
+				return objType.up_JSType()
+			}
+			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+		}())
 	} else {
 		this.ensureTyped(n)
 	}
@@ -1160,7 +1225,7 @@ func (this *TypeCheck) couldBeAConstructor(type_ *JSType) bool {
 func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName string, properties MapOf[Property_Key, *ObjectType], currentProperties MapOf[Property_Key, *ObjectType], interfaceType *ObjectType) {
 	var implicitProto *ObjectType = interfaceType.getImplicitPrototype()
 	var currentPropertyNames ImmutableSetOf[Property_Key]
-	if (implicitProto == nil) {
+	if implicitProto == nil {
 		currentPropertyNames = ImmutableSet_of()
 	} else {
 		currentPropertyNames = implicitProto.getOwnPropertyKeys()
@@ -1170,10 +1235,10 @@ func (this *TypeCheck) checkInterfaceConflictProperties(n Node, functionName str
 		var name Property_Key = icast_Property_Key(it_1.v)
 		var oType *ObjectType = to_ObjectType(properties.get(any(name)))
 		currentProperties.put(any(name), interfaceType.self())
-		if (oType != nil) {
+		if oType != nil {
 			var thisPropType *JSType = interfaceType.getPropertyTypeKey(name)
 			var oPropType *JSType = oType.getPropertyTypeKey(name)
-			if ((thisPropType.isSubtypeOf_2(oPropType, this.subtypingMode) || oPropType.isSubtypeOf_2(thisPropType, this.subtypingMode)) || ((thisPropType.isFunctionType() && oPropType.isFunctionType()) && thisPropType.toMaybeFunctionType().hasEqualCallType(oPropType.toMaybeFunctionType()))) {
+			if (thisPropType.isSubtypeOf_2(oPropType, this.subtypingMode) || oPropType.isSubtypeOf_2(thisPropType, this.subtypingMode)) || ((thisPropType.isFunctionType() && oPropType.isFunctionType()) && thisPropType.toMaybeFunctionType().hasEqualCallType(oPropType.toMaybeFunctionType())) {
 				continue
 			}
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INCOMPATIBLE_EXTENDED_PROPERTY_TYPE, []string{functionName, name.humanReadableName(), oType.toString(), interfaceType.toString()}))
@@ -1212,10 +1277,15 @@ func (this *TypeCheck) visitClass(n Node) {
 	var extendsClause Node = n.getSecondChild()
 	if !extendsClause.isEmpty() {
 		var superType *JSType = extendsClause.getJSType()
-		if (superType.isConstructor() || superType.isInterface()) {
+		if superType.isConstructor() || superType.isInterface() {
 			this.validator.expectExtends(n, functionType, superType.toMaybeFunctionType())
 		} else if !superType.isUnknownType() {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{func() string { if functionType.isConstructor() { return "constructor" }; return "interface" }(), this.getBestFunctionName(n)}))
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{func() string {
+				if functionType.isConstructor() {
+					return "constructor"
+				}
+				return "interface"
+			}(), this.getBestFunctionName(n)}))
 		}
 	}
 	if functionType.isConstructor() {
@@ -1229,13 +1299,13 @@ func (this *TypeCheck) visitClass(n Node) {
 
 func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 	var baseConstructor *FunctionType = functionType.getSuperClassConstructor()
-	if ((!Objects_equals(baseConstructor.self(), this.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE).self()) && (baseConstructor != nil)) && baseConstructor.isInterface()) {
+	if (!Objects_equals(baseConstructor.self(), this.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE).self()) && (baseConstructor != nil)) && baseConstructor.isInterface() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"constructor", this.getBestFunctionName(n)}))
 	} else {
-		if ((((n.isFunction() && (baseConstructor != nil)) && (baseConstructor.getSource() != 0)) && baseConstructor.getSource().isClass()) && !functionType.getSource().isClass()) {
+		if (((n.isFunction() && (baseConstructor != nil)) && (baseConstructor.getSource() != 0)) && baseConstructor.getSource().isClass()) && !functionType.getSource().isClass() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_ES5_CLASS_EXTENDING_ES6_CLASS, []string{str_(functionType.getDisplayName().orElse(strobj_("null"))), str_(baseConstructor.getDisplayName().orElse(strobj_("null")))}))
 		}
-		if (baseConstructor != nil) {
+		if baseConstructor != nil {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
 		}
 		var alreadySeenInterfaces SetOf[*JSType] = icast_Set(obj_(new_LinkedHashSet()))
@@ -1244,9 +1314,9 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 			var baseInterface *JSType = to_JSType(it_1.v)
 			var badImplementedType bool = false
 			var baseInterfaceObj *ObjectType = ObjectType_cast(baseInterface)
-			if (baseInterfaceObj != nil) {
+			if baseInterfaceObj != nil {
 				var interfaceConstructor *FunctionType = baseInterfaceObj.getConstructor()
-				if ((interfaceConstructor != nil) && !interfaceConstructor.isInterface()) {
+				if (interfaceConstructor != nil) && !interfaceConstructor.isInterface() {
 					badImplementedType = true
 				}
 			} else {
@@ -1275,9 +1345,9 @@ func (this *TypeCheck) normalizeTemplatizedType(maybeTemplatizedType *JSType) *J
 }
 
 func (this *TypeCheck) checkStructDictSubtyping(n Node, subtype *FunctionType, supertype *FunctionType) {
-	if (subtype.makesDicts() && supertype.makesStructs()) {
+	if subtype.makesDicts() && supertype.makesStructs() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_DICT_EXTEND_STRUCT_TYPE, []string{str_(subtype.getDisplayName().orElse(strobj_("null"))), str_(supertype.getDisplayName().orElse(strobj_("null")))}))
-	} else if (subtype.makesStructs() && supertype.makesDicts()) {
+	} else if subtype.makesStructs() && supertype.makesDicts() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_STRUCT_EXTEND_DICT_TYPE, []string{str_(subtype.getDisplayName().orElse(strobj_("null"))), str_(supertype.getDisplayName().orElse(strobj_("null")))}))
 	}
 }
@@ -1286,11 +1356,11 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 	it_1 := foreach_(obj_(functionType.getExtendedInterfaces()))
 	for it_1.next() {
 		var extInterface *ObjectType = to_ObjectType(it_1.v)
-		if ((extInterface.getConstructor() != nil) && !extInterface.getConstructor().isInterface()) {
+		if (extInterface.getConstructor() != nil) && !extInterface.getConstructor().isInterface() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"interface", this.getBestFunctionName(n)}))
 		}
 	}
-	if (functionType.getExtendedInterfacesCount() > 1) {
+	if functionType.getExtendedInterfacesCount() > 1 {
 		var properties LinkedHashMapOf[Property_Key, *ObjectType] = new_LinkedHashMap()
 		var currentProperties LinkedHashMapOf[Property_Key, *ObjectType] = new_LinkedHashMap()
 		it_3 := foreach_(obj_(functionType.getExtendedInterfaces()))
@@ -1302,7 +1372,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 		}
 	}
 	var loopPath ListOf[*FunctionType] = functionType.checkExtendsLoop()
-	if (loopPath != nil) {
+	if loopPath != nil {
 		var displayNames ListOf[string] = icast_List(new_ArrayList_0().self())
 		it_5 := foreach_(any(loopPath))
 		for it_5.next() {
@@ -1318,19 +1388,24 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 func (this *TypeCheck) getBestFunctionName(n Node) string {
 	Preconditions_checkState((n.isClass() || n.isFunction()))
 	var name OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-	return func() string { if name.isPresent() { return str_(name.get()) }; return ("<anonymous@" + sstr_(n.getSourceFileName()) + ":" + istr_(int64(n.getLineno())) + ">") }()
+	return func() string {
+		if name.isPresent() {
+			return str_(name.get())
+		}
+		return ("<anonymous@" + sstr_(n.getSourceFileName()) + ":" + istr_(int64(n.getLineno())) + ">")
+	}()
 }
 
 func (this *TypeCheck) checkCallConventions(t *NodeTraversal, n Node) {
 	var relationship *CodingConvention_SubclassRelationship = this.compiler_.getCodingConvention().getClassesDefinedByCall(n)
 	var scope *TypedScope = t.getTypedScope()
-	if (relationship != nil) {
+	if relationship != nil {
 		var superClass *JSType = scope.lookupQualifiedName(QualifiedName_of(str_(relationship.superclassName.get())))
 		var superClassInstanceType *ObjectType = TypeValidator_getInstanceOfCtor(superClass)
 		var subClass *JSType = scope.lookupQualifiedName(QualifiedName_of(str_(relationship.subclassName.get())))
 		var subClassInstance *ObjectType = TypeValidator_getInstanceOfCtor(subClass)
-		if (((((relationship.type__ == CodingConvention_SubclassType_INHERITS) && (superClassInstanceType != nil)) && !superClassInstanceType.isEmptyType()) && (subClassInstance != nil)) && !subClassInstance.isEmptyType()) {
-			if ((((n.getFirstChild().isQualifiedName() && TypeCheck_GOOG_INHERITS.matches(n.getFirstChild())) && (subClass.toMaybeFunctionType() != nil)) && (subClass.toMaybeFunctionType().getSource() != 0)) && subClass.toMaybeFunctionType().getSource().isClass()) {
+		if ((((relationship.type__ == CodingConvention_SubclassType_INHERITS) && (superClassInstanceType != nil)) && !superClassInstanceType.isEmptyType()) && (subClassInstance != nil)) && !subClassInstance.isEmptyType() {
+			if (((n.getFirstChild().isQualifiedName() && TypeCheck_GOOG_INHERITS.matches(n.getFirstChild())) && (subClass.toMaybeFunctionType() != nil)) && (subClass.toMaybeFunctionType().getSource() != 0)) && subClass.toMaybeFunctionType().getSource().isClass() {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_ES6_CLASS_EXTENDING_CLASS_WITH_GOOG_INHERITS, []string{}))
 			}
 			this.validator.expectSuperType(n, superClassInstanceType, subClassInstance)
@@ -1349,12 +1424,12 @@ func (this *TypeCheck) visitCall(t *NodeTraversal, n Node) {
 	}
 	if childType.isFunctionType() {
 		var functionType *FunctionType = childType.toMaybeFunctionType()
-		if (((functionType.isConstructor() && !functionType.isNativeObjectType()) && (functionType.getReturnType().isUnknownType() || functionType.getReturnType().isVoidType())) && !n.getFirstChild().isSuper()) {
+		if ((functionType.isConstructor() && !functionType.isNativeObjectType()) && (functionType.getReturnType().isUnknownType() || functionType.getReturnType().isVoidType())) && !n.getFirstChild().isSuper() {
 			this.report(n, TypeCheck_CONSTRUCTOR_NOT_CALLABLE, []string{childType.toString()})
 		}
-		if (functionType.isOrdinaryFunction() && !NodeUtil_isNormalOrOptChainGet(child)) {
+		if functionType.isOrdinaryFunction() && !NodeUtil_isNormalOrOptChainGet(child) {
 			var receiverType *JSType = functionType.getTypeOfThis()
-			if (((receiverType.isUnknownType() || receiverType.isAllType()) || receiverType.isVoidType()) || (receiverType.isObjectType() && receiverType.toObjectType().isNativeObjectType())) {
+			if ((receiverType.isUnknownType() || receiverType.isAllType()) || receiverType.isVoidType()) || (receiverType.isObjectType() && receiverType.toObjectType().isNativeObjectType()) {
 			} else {
 				this.report(n, TypeCheck_EXPECTED_THIS_TYPE, []string{functionType.toString()})
 			}
@@ -1389,7 +1464,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 		if checkArgumentTypeAgainstParameter {
 			if parameters.hasNext() {
 				parameter = cast_[*FunctionType_Parameter](parameters.next())
-			} else if ((parameter != nil) && parameter.isVariadic()) {
+			} else if (parameter != nil) && parameter.isVariadic() {
 			} else {
 				parameter = nil
 				checkArgumentTypeAgainstParameter = false
@@ -1401,13 +1476,23 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 	}
 	var minArity int32 = functionType.getMinArity()
 	var maxArity int32 = functionType.getMaxArity()
-	if (spreadArgumentCount > 0) {
-		if (normalArgumentCount > maxArity) {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{str_(this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse(strobj_("null"))), ("at least " + istr_(int64(normalArgumentCount))), String_valueOf(minArity), func() string { if (maxArity == int32(2147483647)) { return "" }; return (" and no more than " + istr_(int64(maxArity)) + " argument(s)") }()})
+	if spreadArgumentCount > 0 {
+		if normalArgumentCount > maxArity {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{str_(this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse(strobj_("null"))), ("at least " + istr_(int64(normalArgumentCount))), String_valueOf(minArity), func() string {
+				if maxArity == int32(2147483647) {
+					return ""
+				}
+				return (" and no more than " + istr_(int64(maxArity)) + " argument(s)")
+			}()})
 		}
 	} else {
-		if ((minArity > normalArgumentCount) || (maxArity < normalArgumentCount)) {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{str_(this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse(strobj_("null"))), String_valueOf(normalArgumentCount), String_valueOf(minArity), func() string { if (maxArity == int32(2147483647)) { return "" }; return (" and no more than " + istr_(int64(maxArity)) + " argument(s)") }()})
+		if (minArity > normalArgumentCount) || (maxArity < normalArgumentCount) {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{str_(this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse(strobj_("null"))), String_valueOf(normalArgumentCount), String_valueOf(minArity), func() string {
+				if maxArity == int32(2147483647) {
+					return ""
+				}
+				return (" and no more than " + istr_(int64(maxArity)) + " argument(s)")
+			}()})
 		}
 	}
 }
@@ -1418,7 +1503,7 @@ func (this *TypeCheck) visitImplicitReturnExpression(t *NodeTraversal, exprNode 
 	if jsType.isFunctionType() {
 		var functionType *FunctionType = jsType.toMaybeFunctionType()
 		var expectedReturnType *JSType = functionType.getReturnType()
-		if (expectedReturnType == nil) {
+		if expectedReturnType == nil {
 			expectedReturnType = this.getNativeType(JSTypeNative_VOID_TYPE)
 		} else if enclosingFunction.isAsyncFunction() {
 			expectedReturnType = Promises_createAsyncReturnableType(this.typeRegistry, expectedReturnType)
@@ -1434,7 +1519,7 @@ func (this *TypeCheck) visitReturn(t *NodeTraversal, n Node) {
 	if jsType.isFunctionType() {
 		var functionType *FunctionType = jsType.toMaybeFunctionType()
 		var returnType *JSType = functionType.getReturnType()
-		if (returnType == nil) {
+		if returnType == nil {
 			returnType = this.getNativeType(JSTypeNative_VOID_TYPE)
 		} else if enclosingFunction.isGeneratorFunction() {
 			returnType = JsIterables_getReturnElementType(returnType, this.typeRegistry)
@@ -1443,7 +1528,7 @@ func (this *TypeCheck) visitReturn(t *NodeTraversal, n Node) {
 			}
 		} else if enclosingFunction.isAsyncFunction() {
 			returnType = Promises_createAsyncReturnableType(this.typeRegistry, returnType)
-		} else if (returnType.isVoidType() && functionType.isConstructor()) {
+		} else if returnType.isVoidType() && functionType.isConstructor() {
 			if !n.hasChildren() {
 				return
 			}
@@ -1451,7 +1536,7 @@ func (this *TypeCheck) visitReturn(t *NodeTraversal, n Node) {
 		}
 		var valueNode Node = n.getFirstChild()
 		var actualReturnType *JSType
-		if (valueNode == 0) {
+		if valueNode == 0 {
 			actualReturnType = this.getNativeType(JSTypeNative_VOID_TYPE)
 			valueNode = n
 		} else {
@@ -1474,7 +1559,7 @@ func (this *TypeCheck) visitYield(t *NodeTraversal, n Node) {
 	}
 	var valueNode Node = n.getFirstChild()
 	var actualYieldType *JSType
-	if (valueNode == 0) {
+	if valueNode == 0 {
 		actualYieldType = this.getNativeType(JSTypeNative_VOID_TYPE)
 		valueNode = n
 	} else {
@@ -1515,7 +1600,7 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 	}
 	var firstParameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](parameters.next())
 	var parameterType *JSType = firstParameter.getJSType().restrictByNotNullOrUndefined()
-	if (parameterType != nil) {
+	if parameterType != nil {
 		this.validator.expectITemplateArraySupertype(tag, parameterType, "Invalid type for the first parameter of tag function")
 	}
 	this.checkArgumentsMatchParameters(n, tagFnType, NodeUtil_getInvocationArgsAsIterable(n).iterator(), parameters, 1)
@@ -1586,8 +1671,13 @@ func (this *TypeCheck) visitModuleBody(t *NodeTraversal, moduleBody Node) {
 		this.validator.expectCanAssignTo(googModuleCall, moduleBody.getJSType(), globalVar.getType(), "legacy goog.module export")
 	} else {
 		var parentType *JSType = this.topScope.lookupQualifiedName(moduleName.getOwner())
-		var parentObjectType *ObjectType = func() *ObjectType { if (parentType != nil) { return parentType.toMaybeObjectType() }; return nil }()
-		if (parentObjectType == nil) {
+		var parentObjectType *ObjectType = func() *ObjectType {
+			if parentType != nil {
+				return parentType.toMaybeObjectType()
+			}
+			return nil
+		}()
+		if parentObjectType == nil {
 			return
 		}
 		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), &Supplier_base_fn{func() any {
@@ -1600,7 +1690,7 @@ func (this *TypeCheck) visitDynamicImport(t *NodeTraversal, dynamicImport Node) 
 	this.ensureTypedJSType(dynamicImport, this.getNativeType(JSTypeNative_PROMISE_TYPE))
 	var importSpecifier Node = dynamicImport.getFirstChild()
 	var importSpecifierType *JSType = importSpecifier.getJSType()
-	if (importSpecifierType == nil) {
+	if importSpecifierType == nil {
 		this.ensureTyped_2(importSpecifier, JSTypeNative_STRING_TYPE)
 	} else {
 		this.validator.expectNotNullOrUndefined(t, importSpecifier, importSpecifierType, "dynamic import specifier", this.getNativeType(JSTypeNative_STRING_TYPE))
@@ -1608,7 +1698,7 @@ func (this *TypeCheck) visitDynamicImport(t *NodeTraversal, dynamicImport Node) 
 }
 
 func (this *TypeCheck) checkEnumAlias(t *NodeTraversal, declInfo *JSDocInfo, valueType *JSType, nodeToWarn Node) {
-	if ((declInfo == nil) || !declInfo.hasEnumParameterType()) {
+	if (declInfo == nil) || !declInfo.hasEnumParameterType() {
 		return
 	}
 	if !valueType.isEnumType() {
@@ -1621,7 +1711,7 @@ func (this *TypeCheck) checkEnumAlias(t *NodeTraversal, declInfo *JSDocInfo, val
 
 func (this *TypeCheck) getJSType(n Node) *JSType {
 	var jsType *JSType = n.getJSType()
-	if (jsType == nil) {
+	if jsType == nil {
 		return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	} else {
 		return jsType
@@ -1630,7 +1720,7 @@ func (this *TypeCheck) getJSType(n Node) *JSType {
 }
 
 func (this *TypeCheck) getPropertyTypeIfDeclared(objectType *ObjectType, propertyName Property_Key) *JSType {
-	if (((objectType != nil) && objectType.hasPropertyKey(propertyName)) && !objectType.isPropertyTypeInferredKey(propertyName)) {
+	if ((objectType != nil) && objectType.hasPropertyKey(propertyName)) && !objectType.isPropertyTypeInferredKey(propertyName) {
 		return objectType.getPropertyTypeKey(propertyName)
 	}
 	return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
@@ -1646,14 +1736,19 @@ func (this *TypeCheck) ensureTyped_2(n Node, type_ *JSTypeNative) {
 
 func (this *TypeCheck) ensureTypedJSType(n Node, type_ *JSType) {
 	Preconditions_checkState(((!n.isFunction() || type_.isFunctionType()) || type_.isUnknownType()))
-	if (n.getJSType() == nil) {
+	if n.getJSType() == nil {
 		n.setJSType(type_)
 	}
 }
 
 func (this *TypeCheck) getTypedPercent() float64 {
 	var total int32 = ((this.nullCount + this.unknownCount) + this.typedCount)
-	return func() float64 { if (total == 0) { return 0.0 }; return ((100.0 * float64(this.typedCount)) / float64(total)) }()
+	return func() float64 {
+		if total == 0 {
+			return 0.0
+		}
+		return ((100.0 * float64(this.typedCount)) / float64(total))
+	}()
 }
 
 func (this *TypeCheck) getNativeType(typeId *JSTypeNative) *JSType {
@@ -1661,7 +1756,7 @@ func (this *TypeCheck) getNativeType(typeId *JSTypeNative) *JSType {
 }
 
 func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
-	if (n.getJSDocInfo() != nil) {
+	if n.getJSDocInfo() != nil {
 		var info *JSDocInfo = n.getJSDocInfo()
 		this.checkTypeContainsObjectWithBadKey(n, info.getType())
 		this.checkTypeContainsObjectWithBadKey(n, info.getReturnType())
@@ -1675,20 +1770,20 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 }
 
 func (this *TypeCheck) checkTypeContainsObjectWithBadKey(n Node, type_ *JSTypeExpression) {
-	if ((type_ != nil) && (type_.getRoot().getJSType() != nil)) {
+	if (type_ != nil) && (type_.getRoot().getJSType() != nil) {
 		var realType *JSType = type_.getRoot().getJSType()
 		var objectWithBadKey *JSType = this.findObjectWithNonStringifiableKey(realType, icast_Set(obj_(new_LinkedHashSet())))
-		if (objectWithBadKey != nil) {
+		if objectWithBadKey != nil {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_NON_STRINGIFIABLE_OBJECT_KEY, []string{objectWithBadKey.toString()}))
 		}
 	}
 }
 
 func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
-	if (((((((((((type_.isUnknownType() || type_.isNumber()) || type_.isString()) || type_.isSymbol()) || type_.isBooleanObjectType()) || type_.isBooleanValueType()) || type_.isDateType()) || type_.isRegexpType()) || type_.isInterface()) || type_.isRecordType()) || type_.isNullType()) || type_.isVoidType()) {
+	if ((((((((((type_.isUnknownType() || type_.isNumber()) || type_.isString()) || type_.isSymbol()) || type_.isBooleanObjectType()) || type_.isBooleanValueType()) || type_.isDateType()) || type_.isRegexpType()) || type_.isInterface()) || type_.isRecordType()) || type_.isNullType()) || type_.isVoidType() {
 		return true
 	}
-	if (type_.toMaybeEnumElementType() != nil) {
+	if type_.toMaybeEnumElementType() != nil {
 		return this.isReasonableObjectPropertyKey(type_.toMaybeEnumElementType().getPrimitiveType())
 	}
 	if type_.isArrayType() {
@@ -1702,7 +1797,14 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 	}
 	var namedType *NamedType
 	_ = namedType
-	if func() bool { v_ := type_.self(); if !is_[*NamedType](v_) { return false }; namedType = cast_[*NamedType](v_); return true }() {
+	if func() bool {
+		v_ := type_.self()
+		if !is_[*NamedType](v_) {
+			return false
+		}
+		namedType = cast_[*NamedType](v_)
+		return true
+	}() {
 		return this.isReasonableObjectPropertyKey(namedType.getReferencedType())
 	}
 	if type_.isUnionType() {
@@ -1718,7 +1820,7 @@ func (this *TypeCheck) isReasonableObjectPropertyKey(type_ *JSType) bool {
 	if type_.isObject() {
 		var objectType *ObjectType = type_.toMaybeObjectType()
 		var constructor *JSType = objectType.getConstructor().up_JSType()
-		if ((constructor != nil) && constructor.isInterface()) {
+		if (constructor != nil) && constructor.isInterface() {
 			return true
 		}
 		return this.classHasToString(objectType)
@@ -1754,7 +1856,7 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		for it_1.next() {
 			var alternateType *JSType = to_JSType(it_1.v)
 			var result *JSType = this.findObjectWithNonStringifiableKey(alternateType, alreadyCheckedTypes)
-			if (result != nil) {
+			if result != nil {
 				return result
 			}
 		}
@@ -1764,7 +1866,7 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		for it_3.next() {
 			var templateType *JSType = to_JSType(it_3.v)
 			var result *JSType = this.findObjectWithNonStringifiableKey(templateType, alreadyCheckedTypes)
-			if (result != nil) {
+			if result != nil {
 				return result
 			}
 		}
@@ -1775,7 +1877,7 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 		for it_5.next() {
 			var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](it_5.v)
 			var result *JSType = this.findObjectWithNonStringifiableKey(parameter.getJSType(), alreadyCheckedTypes)
-			if (result != nil) {
+			if result != nil {
 				return result
 			}
 		}
@@ -1786,29 +1888,29 @@ func (this *TypeCheck) findObjectWithNonStringifiableKey(type_ *JSType, alreadyC
 
 func (this *TypeCheck) classHasToString(type_ *ObjectType) bool {
 	var toStringProperty *Property = type_.getOwnSlotString("toString")
-	if (toStringProperty != nil) {
+	if toStringProperty != nil {
 		return toStringProperty.getType().isFunctionType()
 	}
 	var parent *ObjectType = type_.getImplicitPrototype()
-	if ((parent != nil) && !parent.isNativeObjectType()) {
+	if (parent != nil) && !parent.isNativeObjectType() {
 		return this.classHasToString(parent)
 	}
 	return false
 }
 
 func (this *TypeCheck) checkNotReadonlyPropertyAssignment(lhs Node) {
-	if (!lhs.isGetProp() && !lhs.isGetElem()) {
+	if !lhs.isGetProp() && !lhs.isGetElem() {
 		return
 	}
 	var lhsType *JSType = lhs.getFirstChild().getJSType()
-	if (lhsType == nil) {
+	if lhsType == nil {
 		return
 	}
 	var roArray *JSType = this.getNativeType(JSTypeNative_READONLY_ARRAY_TYPE)
 	var alternates ImmutableListOf[*JSType] = TypeCheck_flattenUnion(lhsType)
-	for i := int32(0); (i < alternates.size()); i++ {
+	for i := int32(0); i < alternates.size(); i++ {
 		var type_ *JSType = to_JSType(alternates.get(i))
-		if (roArray.equals(type_.self()) || roArray.equals(TypeCheck_maybeReferencedType(type_).self())) {
+		if roArray.equals(type_.self()) || roArray.equals(TypeCheck_maybeReferencedType(type_).self()) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(lhs, TypeCheck_PROPERTY_ASSIGNMENT_TO_READONLY_VALUE, []string{type_.toString()}))
 			break
 		}
@@ -1817,12 +1919,22 @@ func (this *TypeCheck) checkNotReadonlyPropertyAssignment(lhs Node) {
 
 func TypeCheck_maybeReferencedType(type_ *JSType) *JSType {
 	var maybeTemplatized *TemplatizedType = type_.toMaybeTemplatizedType()
-	return func() *JSType { if (maybeTemplatized != nil) { return maybeTemplatized.getReferencedType().up_JSType() }; return nil }()
+	return func() *JSType {
+		if maybeTemplatized != nil {
+			return maybeTemplatized.getReferencedType().up_JSType()
+		}
+		return nil
+	}()
 }
 
 func TypeCheck_flattenUnion(maybeUnion *JSType) *ImmutableList {
 	var union *UnionType = maybeUnion.toMaybeUnionType()
-	return func() *ImmutableList { if (union == nil) { return ImmutableList_of_Object(maybeUnion.self()) }; return union.getAlternates() }()
+	return func() *ImmutableList {
+		if union == nil {
+			return ImmutableList_of_Object(maybeUnion.self())
+		}
+		return union.getAlternates()
+	}()
 }
 
 func TypeCheck_declaresOverride(jsdoc *JSDocInfo) bool {
@@ -1833,7 +1945,9 @@ var TypeCheck_UNEXPECTED_TOKEN *DiagnosticType
 var TypeCheck_DETERMINISTIC_TEST *DiagnosticType
 var TypeCheck_INEXISTENT_ENUM_ELEMENT *DiagnosticType
 var TypeCheck_INEXISTENT_PROPERTY *DiagnosticType
+
 const TypeCheck_POSSIBLE_INEXISTENT_PROPERTY_EXPLANATION string = "\n\nThis property is accessed on a \"loose\" type, but is not defined anywhere in the program, so it must not exist."
+
 var TypeCheck_POSSIBLE_INEXISTENT_PROPERTY *DiagnosticType
 var TypeCheck_INEXISTENT_PROPERTY_WITH_SUGGESTION *DiagnosticType
 var TypeCheck_STRICT_INEXISTENT_PROPERTY *DiagnosticType
@@ -1949,7 +2063,7 @@ func TypeCheck_clinit() {
 
 type TypeCheck_SuggestionPair struct {
 	suggestion string
-	distance int32
+	distance   int32
 }
 
 func (this *TypeCheck_SuggestionPair) zero_TypeCheck_SuggestionPair() {
@@ -1969,13 +2083,18 @@ func new_TypeCheck_SuggestionPair(suggestion string, distance int32) *TypeCheck_
 }
 
 type TypeCheck_DebugTypeLogger struct {
-	outer_ *TypeCheck
+	outer_      *TypeCheck
 	typeLogFile *LogFile
-	parentNode Node
+	parentNode  Node
 }
 
 func (this *TypeCheck_DebugTypeLogger) init_TypeCheck_DebugTypeLogger() {
-	this.typeLogFile = func() *LogFile { if this.outer_.compiler_.isDebugLoggingEnabled() { return this.outer_.compiler_.createOrReopenLog(Object_getClass(any(this)), "types_logged_in_compiler.log", []string{}) }; return nil }()
+	this.typeLogFile = func() *LogFile {
+		if this.outer_.compiler_.isDebugLoggingEnabled() {
+			return this.outer_.compiler_.createOrReopenLog(Object_getClass(any(this)), "types_logged_in_compiler.log", []string{})
+		}
+		return nil
+	}()
 }
 
 func new_TypeCheck_DebugTypeLogger(outer_ *TypeCheck) *TypeCheck_DebugTypeLogger {
@@ -1989,35 +2108,34 @@ func (this *TypeCheck_DebugTypeLogger) maybeStartLoggingAt(n Node) {
 	if !this.outer_.compiler_.isDebugLoggingEnabled() {
 		return
 	}
-	if (this.parentNode != 0) {
+	if this.parentNode != 0 {
 		return
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
-	if ((info == nil) || !info.getLogTypeInCompiler()) {
+	if (info == nil) || !info.getLogTypeInCompiler() {
 		return
 	}
 	this.parentNode = n
 }
 
 func (this *TypeCheck_DebugTypeLogger) stopLoggingIfThisIsWhereWeStarted(n Node) {
-	if (n == this.parentNode) {
+	if n == this.parentNode {
 		this.parentNode = 0
 	}
 }
 
 func (this *TypeCheck_DebugTypeLogger) close() {
-	if (this.typeLogFile != nil) {
+	if this.typeLogFile != nil {
 		this.typeLogFile.close()
 	}
 }
 
 func (this *TypeCheck_DebugTypeLogger) maybeLogTypeOfNode(n Node) {
-	if (this.parentNode == 0) {
+	if this.parentNode == 0 {
 		return
 	}
-	if (n.getJSType() == nil) {
+	if n.getJSType() == nil {
 		return
 	}
 	this.typeLogFile.logString(n.toString_3(true, true, true))
 }
-

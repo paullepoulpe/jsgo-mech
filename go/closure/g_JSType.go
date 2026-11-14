@@ -3,14 +3,14 @@
 package closure
 
 type JSType struct {
-	self_ any
-	resolveResult *JSType
-	templateTypeMap *TemplateTypeMap
+	self_                                                  any
+	resolveResult                                          *JSType
+	templateTypeMap                                        *TemplateTypeMap
 	loosenTypecheckingDueToForwardReferencedSupertypeField bool
-	hashCodeInProgress bool
-	inTemplatedCheckVisit bool
-	templateCheckResult any
-	registry *JSTypeRegistry
+	hashCodeInProgress                                     bool
+	inTemplatedCheckVisit                                  bool
+	templateCheckResult                                    any
+	registry                                               *JSTypeRegistry
 }
 
 func (this *JSType) as_JSType() *JSType { return this }
@@ -48,7 +48,12 @@ func (this *JSType) init_JSType_JSTypeRegistry(registry *JSTypeRegistry) {
 func (this *JSType) init_JSType_JSTypeRegistry_TemplateTypeMap(registry *JSTypeRegistry, templateTypeMap *TemplateTypeMap) {
 	this.finit_JSType()
 	this.registry = registry
-	this.templateTypeMap = func() *TemplateTypeMap { if (templateTypeMap == nil) { return registry.getEmptyTemplateTypeMap() }; return templateTypeMap }()
+	this.templateTypeMap = func() *TemplateTypeMap {
+		if templateTypeMap == nil {
+			return registry.getEmptyTemplateTypeMap()
+		}
+		return templateTypeMap
+	}()
 	registry.getResolver().addUnresolved(this)
 }
 
@@ -233,7 +238,7 @@ func (this *JSType) isStruct_impl() bool {
 	if this.isObject() {
 		var objType *ObjectType = this.toObjectType()
 		var ctor *FunctionType = objType.getConstructor()
-		if (ctor == nil) {
+		if ctor == nil {
 			var info *JSDocInfo = objType.getJSDocInfo()
 			return ((info != nil) && info.makesStructs())
 		} else {
@@ -247,7 +252,7 @@ func (this *JSType) isDict_impl() bool {
 	if this.isObject() {
 		var objType *ObjectType = this.toObjectType()
 		var ctor *FunctionType = objType.getConstructor()
-		if (ctor == nil) {
+		if ctor == nil {
 			var info *JSDocInfo = objType.getJSDocInfo()
 			return ((info != nil) && info.makesDicts())
 		} else {
@@ -265,7 +270,14 @@ func (this *JSType) containsReferenceAncestor(target *JSType) bool {
 func (this *JSType) isLiteralObject() bool {
 	var prototypeObjectType *PrototypeObjectType
 	_ = prototypeObjectType
-	if func() bool { v_ := this.self(); if !is_PrototypeObjectType(v_) { return false }; prototypeObjectType = to_PrototypeObjectType(v_); return true }() {
+	if func() bool {
+		v_ := this.self()
+		if !is_PrototypeObjectType(v_) {
+			return false
+		}
+		prototypeObjectType = to_PrototypeObjectType(v_)
+		return true
+	}() {
 		return prototypeObjectType.isAnonymous()
 	}
 	return false
@@ -298,7 +310,12 @@ func (this *JSType) assertObjectType() *ObjectType {
 }
 
 func JSType_toMaybeFunctionType(type_ *JSType) *FunctionType {
-	return func() *FunctionType { if (type_ == nil) { return nil }; return type_.toMaybeFunctionType() }()
+	return func() *FunctionType {
+		if type_ == nil {
+			return nil
+		}
+		return type_.toMaybeFunctionType()
+	}()
 }
 
 func (this *JSType) toMaybeKnownSymbolType_impl() *KnownSymbolType {
@@ -311,7 +328,12 @@ func (this *JSType) isEnumElementType() bool {
 
 func (this *JSType) getEnumeratedTypeOfEnumElement() *JSType {
 	var e *EnumElementType = this.toMaybeEnumElementType()
-	return func() *JSType { if (e == nil) { return nil }; return e.getPrimitiveType() }()
+	return func() *JSType {
+		if e == nil {
+			return nil
+		}
+		return e.getPrimitiveType()
+	}()
 }
 
 func (this *JSType) toMaybeEnumElementType_impl() *EnumElementType {
@@ -367,7 +389,7 @@ func (this *JSType) toMaybeTemplateType_impl() *TemplateType {
 }
 
 func (this *JSType) hasAnyTemplateTypes() bool {
-	if (this.templateCheckResult != nil) {
+	if this.templateCheckResult != nil {
 		return unbox_[bool](this.templateCheckResult)
 	}
 	if this.inTemplatedCheckVisit {
@@ -424,12 +446,12 @@ func (this *JSType) isNominalType_impl() bool {
 }
 
 func (this *JSType) isNominalConstructorOrInterface() bool {
-	if (this.isConstructor() || this.isInterface()) {
+	if this.isConstructor() || this.isInterface() {
 		var fn *FunctionType = this.toMaybeFunctionType()
-		if (fn == nil) {
+		if fn == nil {
 			return false
 		}
-		if (fn.getSource() != 0) {
+		if fn.getSource() != 0 {
 			return true
 		}
 		return fn.isNativeObjectType()
@@ -446,7 +468,7 @@ func (this *JSType) loosenTypecheckingDueToForwardReferencedSupertype_impl() boo
 }
 
 func (this *JSType) maybeLoosenTypecheckingDueToForwardReferencedSupertype(supertype *JSType) {
-	if ((supertype.isNamedType() && !supertype.isResolved()) || supertype.loosenTypecheckingDueToForwardReferencedSupertype()) {
+	if (supertype.isNamedType() && !supertype.isResolved()) || supertype.loosenTypecheckingDueToForwardReferencedSupertype() {
 		this.loosenTypecheckingDueToForwardReferencedSupertypeField = true
 	}
 }
@@ -464,12 +486,19 @@ func (this *JSType) isOrdinaryFunction_impl() bool {
 }
 
 func (this *JSType) equals(other any) bool {
-	if (this.self() == other) {
+	if this.self() == other {
 		return true
 	}
 	var jSType *JSType
 	_ = jSType
-	return (func() bool { v_ := other; if !is_JSType(v_) { return false }; jSType = to_JSType(v_); return true }() && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
+	return (func() bool {
+		v_ := other
+		if !is_JSType(v_) {
+			return false
+		}
+		jSType = to_JSType(v_)
+		return true
+	}() && new_EqualityChecker().setEqMethod(EqualityChecker_EqMethod_IDENTITY).check(this, jSType))
 }
 
 func (this *JSType) differsFrom(that *JSType) bool {
@@ -477,7 +506,7 @@ func (this *JSType) differsFrom(that *JSType) bool {
 }
 
 func JSType_areSimilar(first *JSType, second *JSType) bool {
-	if ((first == nil) || (second == nil)) {
+	if (first == nil) || (second == nil) {
 		return (first == second)
 	}
 	return !first.differsFrom(second)
@@ -511,10 +540,10 @@ func (this *JSType) matchesObjectContext_impl() bool {
 
 func (this *JSType) findPropertyTypeKey(propertyName Property_Key) *JSType {
 	var propertyType *JSType = this.findPropertyTypeWithoutConsideringTemplateTypes(propertyName)
-	if (propertyType == nil) {
+	if propertyType == nil {
 		return nil
 	}
-	if (this.getTemplateTypeMap().isEmpty() || !propertyType.hasAnyTemplateTypes()) {
+	if this.getTemplateTypeMap().isEmpty() || !propertyType.hasAnyTemplateTypes() {
 		return propertyType
 	}
 	var typeMap *TemplateTypeMap = this.getTemplateTypeMap()
@@ -528,7 +557,7 @@ func (this *JSType) findPropertyType(propertyName string) *JSType {
 
 func (this *JSType) findPropertyTypeWithoutConsideringTemplateTypes_impl(propertyName Property_Key) *JSType {
 	var autoboxObjType *ObjectType = ObjectType_cast(this.autoboxesTo())
-	if (autoboxObjType != nil) {
+	if autoboxObjType != nil {
 		return autoboxObjType.findPropertyTypeKey(propertyName)
 	}
 	return nil
@@ -553,13 +582,30 @@ func (this *JSType) isBoxableScalar() bool {
 func (this *JSType) toObjectType() *ObjectType {
 	var objectType *ObjectType
 	_ = objectType
-	return func() *ObjectType { if func() bool { v_ := this.self(); if !is_ObjectType(v_) { return false }; objectType = to_ObjectType(v_); return true }() { return objectType }; return nil }()
+	return func() *ObjectType {
+		if func() bool {
+			v_ := this.self()
+			if !is_ObjectType(v_) {
+				return false
+			}
+			objectType = to_ObjectType(v_)
+			return true
+		}() {
+			return objectType
+		}
+		return nil
+	}()
 }
 
 func (this *JSType) autobox_impl() *JSType {
 	var restricted *JSType = this.restrictByNotNullOrUndefined()
 	var autobox *JSType = restricted.autoboxesTo()
-	return func() *JSType { if (autobox == nil) { return restricted }; return autobox }()
+	return func() *JSType {
+		if autobox == nil {
+			return restricted
+		}
+		return autobox
+	}()
 }
 
 func (this *JSType) dereference() *ObjectType {
@@ -575,13 +621,13 @@ func (this *JSType) testForEquality_impl(that *JSType) *Tri {
 }
 
 func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
-	if (((((bType.isAllType() || bType.isUnknownType()) || bType.isNoResolvedType()) || aType.isAllType()) || aType.isUnknownType()) || aType.isNoResolvedType()) {
+	if ((((bType.isAllType() || bType.isUnknownType()) || bType.isNoResolvedType()) || aType.isAllType()) || aType.isUnknownType()) || aType.isNoResolvedType() {
 		return Tri_UNKNOWN
 	}
 	var aIsEmpty bool = aType.isEmptyType()
 	var bIsEmpty bool = bType.isEmptyType()
-	if (aIsEmpty || bIsEmpty) {
-		if (aIsEmpty && bIsEmpty) {
+	if aIsEmpty || bIsEmpty {
+		if aIsEmpty && bIsEmpty {
 			return Tri_TRUE
 		} else {
 			return Tri_UNKNOWN
@@ -590,13 +636,18 @@ func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
 	if bType.isUnionType() {
 		return bType.testForEquality(aType)
 	}
-	if (aType.isFunctionType() || bType.isFunctionType()) {
-		var otherType *JSType = func() *JSType { if aType.isFunctionType() { return bType }; return aType }()
+	if aType.isFunctionType() || bType.isFunctionType() {
+		var otherType *JSType = func() *JSType {
+			if aType.isFunctionType() {
+				return bType
+			}
+			return aType
+		}()
 		if otherType.isSymbol() {
 			return Tri_FALSE
 		}
 		var greatestSubtype *JSType = otherType.getGreatestSubtype(this.getNativeType(JSTypeNative_OBJECT_TYPE))
-		if (greatestSubtype.isNoType() || greatestSubtype.isNoObjectType()) {
+		if greatestSubtype.isNoType() || greatestSubtype.isNoObjectType() {
 			return Tri_FALSE
 		} else {
 			return Tri_UNKNOWN
@@ -606,19 +657,29 @@ func (this *JSType) testForEqualityHelper(aType *JSType, bType *JSType) *Tri {
 		return bType.testForEquality(aType)
 	}
 	if aType.isSymbol() {
-		return func() *Tri { if (bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE))) { return Tri_UNKNOWN }; return Tri_FALSE }()
+		return func() *Tri {
+			if bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || bType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
+				return Tri_UNKNOWN
+			}
+			return Tri_FALSE
+		}()
 	}
 	if bType.isSymbol() {
-		return func() *Tri { if (aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE))) { return Tri_UNKNOWN }; return Tri_FALSE }()
+		return func() *Tri {
+			if aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || aType.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
+				return Tri_UNKNOWN
+			}
+			return Tri_FALSE
+		}()
 	}
 	return nil
 }
 
 func (this *JSType) canTestForShallowEqualityWith(that *JSType) bool {
-	if (this.isNoResolvedType() || that.isNoResolvedType()) {
+	if this.isNoResolvedType() || that.isNoResolvedType() {
 		return true
 	}
-	if (this.isEmptyType() || that.isEmptyType()) {
+	if this.isEmptyType() || that.isEmptyType() {
 		return (this.isSubtypeOf(that) || that.isSubtypeOf(this))
 	}
 	var inf *JSType = this.getGreatestSubtype(that)
@@ -653,7 +714,12 @@ func (this *JSType) getLeastSupertype_impl(that *JSType) *JSType {
 
 func JSType_getLeastSupertype(thisType *JSType, thatType *JSType) *JSType {
 	var areEquivalent bool = thisType.equals(thatType.self())
-	return func() *JSType { if areEquivalent { return thisType }; return thisType.registry.createUnionType([]*JSType{thisType, thatType}) }()
+	return func() *JSType {
+		if areEquivalent {
+			return thisType
+		}
+		return thisType.registry.createUnionType([]*JSType{thisType, thatType})
+	}()
 }
 
 func (this *JSType) getGreatestSubtype_impl(that *JSType) *JSType {
@@ -661,14 +727,14 @@ func (this *JSType) getGreatestSubtype_impl(that *JSType) *JSType {
 }
 
 func JSType_getGreatestSubtype(thisType *JSType, thatType *JSType) *JSType {
-	if (thisType.isFunctionType() && thatType.isFunctionType()) {
+	if thisType.isFunctionType() && thatType.isFunctionType() {
 		return thisType.toMaybeFunctionType().supAndInfHelper(thatType.toMaybeFunctionType(), false).up_JSType()
 	} else if thisType.equals(thatType.self()) {
 		return thisType
 	} else if thisType.isUnknownType() {
 		if !thatType.isUnknownType() {
 			return thatType
-		} else if (thisType.isCheckedUnknownType() || thatType.isCheckedUnknownType()) {
+		} else if thisType.isCheckedUnknownType() || thatType.isCheckedUnknownType() {
 			return thisType.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
 		} else {
 			return thisType.getNativeType(JSTypeNative_UNKNOWN_TYPE)
@@ -694,27 +760,27 @@ func JSType_getGreatestSubtype(thisType *JSType, thatType *JSType) *JSType {
 	}
 	if thisType.isEnumElementType() {
 		var inf *JSType = EnumElementType_getGreatestSubtypeEnumElementType(thisType.toMaybeEnumElementType(), thatType)
-		if (inf != nil) {
+		if inf != nil {
 			return inf
 		}
 	} else if thatType.isEnumElementType() {
 		var inf *JSType = EnumElementType_getGreatestSubtypeEnumElementType(thatType.toMaybeEnumElementType(), thisType)
-		if (inf != nil) {
+		if inf != nil {
 			return inf
 		}
 	}
-	if (thisType.isObject() && thatType.isObject()) {
+	if thisType.isObject() && thatType.isObject() {
 		return thisType.getNativeType(JSTypeNative_NO_OBJECT_TYPE)
 	}
 	return thisType.getNativeType(JSTypeNative_NO_TYPE)
 }
 
 func (this *JSType) getRestrictedTypeGivenOutcome_impl(outcome *Outcome_rhino) *JSType {
-	if (outcome.isTruthy() && JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self())) {
+	if outcome.isTruthy() && JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()) {
 		return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
 	}
 	if outcome.isNullish().toBoolean(false) {
-		if (JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_VOID_TYPE).self()) || JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_NULL_TYPE).self())) {
+		if JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_VOID_TYPE).self()) || JSCompObjects_identical(this.self(), this.getNativeType(JSTypeNative_NULL_TYPE).self()) {
 			return this
 		} else {
 			return this.getNativeType(JSTypeNative_NO_TYPE)
@@ -750,7 +816,7 @@ func (this *JSType) getTypesUnderInequality_impl(that *JSType) *JSType_TypePair 
 		var p *JSType_TypePair = that.toMaybeUnionType().getTypesUnderInequality(this)
 		return new_JSType_TypePair(p.typeB, p.typeA)
 	}
-	if (this.isNullTypeOrVoidType() && that.isNullTypeOrVoidType()) {
+	if this.isNullTypeOrVoidType() && that.isNullTypeOrVoidType() {
 		var noType *JSType = this.registry.getNativeType(JSTypeNative_NO_TYPE)
 		return new_JSType_TypePair(noType, noType)
 	}
@@ -767,7 +833,7 @@ func (this *JSType) getTypesUnderShallowInequality_impl(that *JSType) *JSType_Ty
 		var p *JSType_TypePair = that.toMaybeUnionType().getTypesUnderShallowInequality(this)
 		return new_JSType_TypePair(p.typeB, p.typeA)
 	}
-	if (JSCompObjects_identical(this.self(), that.self()) && this.isNullTypeOrVoidType()) {
+	if JSCompObjects_identical(this.self(), that.self()) && this.isNullTypeOrVoidType() {
 		return new_JSType_TypePair(nil, nil)
 	}
 	return new_JSType_TypePair(this, that)
@@ -778,7 +844,12 @@ func (this *JSType) isNullTypeOrVoidType() bool {
 }
 
 func (this *JSType) getUnionMembers() Iterable {
-	return func() Iterable { if this.isUnionType() { return icast_Iterable(obj_(this.toMaybeUnionType().getAlternates())) }; return nil }()
+	return func() Iterable {
+		if this.isUnionType() {
+			return icast_Iterable(obj_(this.toMaybeUnionType().getAlternates()))
+		}
+		return nil
+	}()
 }
 
 func (this *JSType) restrictByNotNullOrUndefined_impl() *JSType {
@@ -850,7 +921,12 @@ func (this *JSType) isUnsuccessfullyResolved() bool {
 }
 
 func JSType_safeResolve(type_ *JSType, reporter ErrorReporter_rhino) *JSType {
-	return func() *JSType { if (type_ == nil) { return nil }; return type_.resolve(reporter) }()
+	return func() *JSType {
+		if type_ == nil {
+			return nil
+		}
+		return type_.resolve(reporter)
+	}()
 }
 
 func (this *JSType) setValidator_impl(validator Predicate_baseOf[*JSType]) bool {
@@ -863,7 +939,12 @@ func (this *JSType) toString_impl() string {
 
 func (this *JSType) toAnnotationString(nullability *JSType_Nullability) string {
 	var builder *TypeStringBuilder = new_TypeStringBuilder(true)
-	return func() *TypeStringBuilder { if (nullability == JSType_Nullability_EXPLICIT) { return builder.appendNonNull(this) }; return builder.appendJSType(this) }().build()
+	return func() *TypeStringBuilder {
+		if nullability == JSType_Nullability_EXPLICIT {
+			return builder.appendNonNull(this)
+		}
+		return builder.appendJSType(this)
+	}().build()
 }
 
 func (this *JSType) matchConstraint_impl(constraint *JSType) {
@@ -911,7 +992,9 @@ func (this *JSType) visitUntyped(p0 Visitor) any {
 }
 
 func (this *JSType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
-	return this.self_.(interface{ visitUntyped_2_impl(RelationshipVisitor, *JSType) any }).visitUntyped_2_impl(p0, p1)
+	return this.self_.(interface {
+		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
+	}).visitUntyped_2_impl(p0, p1)
 }
 
 func (this *JSType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
@@ -919,7 +1002,9 @@ func (this *JSType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
 }
 
 func (this *JSType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
-	return this.self_.(interface{ resolveInternal_impl(ErrorReporter_rhino) *JSType }).resolveInternal_impl(p0)
+	return this.self_.(interface {
+		resolveInternal_impl(ErrorReporter_rhino) *JSType
+	}).resolveInternal_impl(p0)
 }
 
 func (this *JSType) recursionUnsafeHashCode() int32 {
@@ -967,7 +1052,9 @@ func (this *JSType) isBooleanValueType() bool {
 }
 
 func (this *JSType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
-	return this.self_.(interface{ getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind }).getPropertyKind_2_impl(p0, p1)
+	return this.self_.(interface {
+		getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
+	}).getPropertyKind_2_impl(p0, p1)
 }
 
 func (this *JSType) toMaybeEnumElementType() *EnumElementType {
@@ -1199,15 +1286,21 @@ func (this *JSType) getRestrictedTypeGivenOutcome(p0 *Outcome_rhino) *JSType {
 }
 
 func (this *JSType) getTypesUnderEquality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface{ getTypesUnderEquality_impl(*JSType) *JSType_TypePair }).getTypesUnderEquality_impl(p0)
+	return this.self_.(interface {
+		getTypesUnderEquality_impl(*JSType) *JSType_TypePair
+	}).getTypesUnderEquality_impl(p0)
 }
 
 func (this *JSType) getTypesUnderInequality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface{ getTypesUnderInequality_impl(*JSType) *JSType_TypePair }).getTypesUnderInequality_impl(p0)
+	return this.self_.(interface {
+		getTypesUnderInequality_impl(*JSType) *JSType_TypePair
+	}).getTypesUnderInequality_impl(p0)
 }
 
 func (this *JSType) getTypesUnderShallowInequality(p0 *JSType) *JSType_TypePair {
-	return this.self_.(interface{ getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair }).getTypesUnderShallowInequality_impl(p0)
+	return this.self_.(interface {
+		getTypesUnderShallowInequality_impl(*JSType) *JSType_TypePair
+	}).getTypesUnderShallowInequality_impl(p0)
 }
 
 func (this *JSType) isVoidType() bool {
@@ -1215,6 +1308,7 @@ func (this *JSType) isVoidType() bool {
 }
 
 const JSType_serialVersionUID int64 = 1
+
 var JSType_CAN_CAST_TO_VISITOR *CanCastToVisitor
 
 var JSType_clinit_done bool
@@ -1251,7 +1345,12 @@ func new_JSType_HasPropertyKind(name_ string, ordinal_ int32) *JSType_HasPropert
 }
 
 func JSType_HasPropertyKind_of(has bool) *JSType_HasPropertyKind {
-	return func() *JSType_HasPropertyKind { if has { return JSType_HasPropertyKind_KNOWN_PRESENT }; return JSType_HasPropertyKind_ABSENT }()
+	return func() *JSType_HasPropertyKind {
+		if has {
+			return JSType_HasPropertyKind_KNOWN_PRESENT
+		}
+		return JSType_HasPropertyKind_ABSENT
+	}()
 }
 
 func JSType_HasPropertyKind_values() []*JSType_HasPropertyKind {
@@ -1390,7 +1489,12 @@ func (this *JSType_MatchStatus) subtypeValue() bool {
 }
 
 func JSType_MatchStatus_valueOfBoolean(match bool) *JSType_MatchStatus {
-	return func() *JSType_MatchStatus { if match { return JSType_MatchStatus_MATCH }; return JSType_MatchStatus_NOT_MATCH }()
+	return func() *JSType_MatchStatus {
+		if match {
+			return JSType_MatchStatus_MATCH
+		}
+		return JSType_MatchStatus_NOT_MATCH
+	}()
 }
 
 func JSType_MatchStatus_values() []*JSType_MatchStatus {
@@ -1478,4 +1582,3 @@ func JSType_Nullability_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.JSType.Nullability", enumValues_(JSType_Nullability_values_))
 
 }
-

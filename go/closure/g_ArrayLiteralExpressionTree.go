@@ -4,7 +4,7 @@ package closure
 
 type ArrayLiteralExpressionTree struct {
 	ParseTree
-	elements_ ImmutableListOf[*ParseTree]
+	elements_         ImmutableListOf[*ParseTree]
 	hasTrailingComma_ bool
 }
 
@@ -27,4 +27,3 @@ func new_ArrayLiteralExpressionTree(location *SourceRange, elements ImmutableLis
 	this.init_ArrayLiteralExpressionTree(location, elements, hasTrailingComma)
 	return this
 }
-

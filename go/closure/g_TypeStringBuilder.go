@@ -3,9 +3,9 @@
 package closure
 
 type TypeStringBuilder struct {
-	builder *StringBuilder
+	builder               *StringBuilder
 	isForAnnotationsField bool
-	indentation string
+	indentation           string
 }
 
 func (this *TypeStringBuilder) zero_TypeStringBuilder() {
@@ -55,7 +55,14 @@ func (this *TypeStringBuilder) appendAll(elements IterableOf[any], separator str
 		}
 		var jSType *JSType
 		_ = jSType
-		if func() bool { v_ := e; if !is_JSType(v_) { return false }; jSType = to_JSType(v_); return true }() {
+		if func() bool {
+			v_ := e
+			if !is_JSType(v_) {
+				return false
+			}
+			jSType = to_JSType(v_)
+			return true
+		}() {
 			this.appendJSType(jSType)
 		} else {
 			this.append(str_(e))
@@ -65,7 +72,7 @@ func (this *TypeStringBuilder) appendAll(elements IterableOf[any], separator str
 }
 
 func (this *TypeStringBuilder) appendNonNull(type_ *JSType) *TypeStringBuilder {
-	if (((((((this.isForAnnotationsField && type_.isObject()) && !type_.isUnknownType()) && !type_.isTemplateType()) && !type_.isRecordType()) && !type_.isFunctionType()) && !type_.isUnionType()) && !type_.isLiteralObject()) {
+	if ((((((this.isForAnnotationsField && type_.isObject()) && !type_.isUnknownType()) && !type_.isTemplateType()) && !type_.isRecordType()) && !type_.isFunctionType()) && !type_.isUnionType()) && !type_.isLiteralObject() {
 		this.append("!")
 	}
 	return this.appendJSType(type_)
@@ -93,4 +100,3 @@ func (this *TypeStringBuilder) cloneWithConfig() *TypeStringBuilder {
 	clone.indentation = this.indentation
 	return clone
 }
-

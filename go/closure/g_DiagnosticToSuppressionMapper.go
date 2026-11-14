@@ -4,7 +4,7 @@ package closure
 
 type DiagnosticToSuppressionMapper struct {
 	validSuppressions SetOf[string]
-	diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]
+	diagnosticGroups  ImmutableMapOf[string, *DiagnosticGroup]
 }
 
 func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions SetOf[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) {
@@ -58,7 +58,12 @@ func (this *DiagnosticToSuppressionMapper) createSuppressionMap() *ImmutableSort
 func (this *DiagnosticToSuppressionMapper) preferMoreTargetedGroup(next string, current string) string {
 	var nextGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, next))
 	var currentGroup *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.diagnosticGroups, current))
-	return func() string { if (nextGroup.getTypes().size() < currentGroup.getTypes().size()) { return next }; return current }()
+	return func() string {
+		if nextGroup.getTypes().size() < currentGroup.getTypes().size() {
+			return next
+		}
+		return current
+	}()
 }
 
 func DiagnosticToSuppressionMapper_printAsJson(diagnosticToSuppression ImmutableSortedMapOf[string, string]) {
@@ -137,4 +142,3 @@ func DiagnosticToSuppressionMapper_OutputFormat_clinit() {
 	registerEnum_("com.google.javascript.jscomp.DiagnosticToSuppressionMapper.OutputFormat", enumValues_(DiagnosticToSuppressionMapper_OutputFormat_values_))
 
 }
-

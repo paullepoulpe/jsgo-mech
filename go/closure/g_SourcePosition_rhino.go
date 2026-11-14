@@ -3,12 +3,12 @@
 package closure
 
 type SourcePosition_rhino struct {
-	self_ any
-	item any
+	self_       any
+	item        any
 	startLineno int32
 	startCharno int32
-	endLineno int32
-	endCharno int32
+	endLineno   int32
+	endCharno   int32
 }
 
 func (this *SourcePosition_rhino) as_SourcePosition_rhino() *SourcePosition_rhino { return this }
@@ -49,9 +49,9 @@ func (this *SourcePosition_rhino) setItem_impl(item any) {
 }
 
 func (this *SourcePosition_rhino) setPositionInformation(startLineno int32, startCharno int32, endLineno int32, endCharno int32) {
-	if (startLineno > endLineno) {
+	if startLineno > endLineno {
 		panic(new_IllegalStateException_String(("Recorded bad position information\nstart-line: " + istr_(int64(startLineno)) + "\nend-line: " + istr_(int64(endLineno)))).self())
-	} else if ((startLineno == endLineno) && (startCharno >= endCharno)) {
+	} else if (startLineno == endLineno) && (startCharno >= endCharno) {
 		panic(new_IllegalStateException_String(("Recorded bad position information\nline: " + istr_(int64(startLineno)) + "\nstart-char: " + istr_(int64(startCharno)) + "\nend-char: " + istr_(int64(endCharno)))).self())
 	}
 	this.startLineno = startLineno
@@ -87,4 +87,3 @@ func (this *SourcePosition_rhino) isSamePositionAs(that *SourcePosition_rhino) b
 func (this *SourcePosition_rhino) setItem(p0 any) {
 	this.self_.(interface{ setItem_impl(any) }).setItem_impl(p0)
 }
-

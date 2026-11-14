@@ -29,7 +29,7 @@ func (this *ClosureUnawareCodeWarningsGuard) level_impl(error_ *JSError) *CheckL
 		return nil
 	}
 	var node Node = error_.node()
-	if (node == 0) {
+	if node == 0 {
 		return nil
 	}
 	if node.isClosureUnawareCode() {
@@ -54,4 +54,3 @@ func ClosureUnawareCodeWarningsGuard_clinit() {
 	ClosureUnawareCodeWarningsGuard_DEFAULT_CLOSURE_UNAWARE_CODE_SUPPRESSIONS = new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_of(strobj_("closureUnawareCodeJSDocIncompatible")), []*DiagnosticType{RhinoErrorReporter_TYPE_PARSE_ERROR, RhinoErrorReporter_UNRECOGNIZED_TYPE_ERROR, RhinoErrorReporter_JSDOC_MISSING_BRACES_WARNING, RhinoErrorReporter_JSDOC_MISSING_TYPE_WARNING, RhinoErrorReporter_UNNECESSARY_ESCAPE, RhinoErrorReporter_BAD_JSDOC_ANNOTATION, RhinoErrorReporter_UNSUPPORTED_BOUNDED_GENERIC_TYPES, RhinoErrorReporter_BOUNDED_GENERIC_TYPE_ERROR})
 
 }
-

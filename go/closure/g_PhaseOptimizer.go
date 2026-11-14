@@ -3,20 +3,20 @@
 package closure
 
 type PhaseOptimizer struct {
-	compiler_ *AbstractCompiler
-	changeTracker *ChangeTracker
-	tracker *PerformanceTracker
-	passes []CompilerPass
-	inLoop_ bool
-	validityCheck *PassFactory
-	printAstHashcodes bool
-	currentPass *PhaseOptimizer_NamedPass
-	lastRuns map[*PhaseOptimizer_NamedPass]BoxedOf[int32]
-	lastChange int32
-	jsRoot Node
+	compiler_                              *AbstractCompiler
+	changeTracker                          *ChangeTracker
+	tracker                                *PerformanceTracker
+	passes                                 []CompilerPass
+	inLoop_                                bool
+	validityCheck                          *PassFactory
+	printAstHashcodes                      bool
+	currentPass                            *PhaseOptimizer_NamedPass
+	lastRuns                               map[*PhaseOptimizer_NamedPass]BoxedOf[int32]
+	lastChange                             int32
+	jsRoot                                 Node
 	useSizeHeuristicToStopOptimizationLoop bool
-	changeVerifier *ChangeVerifier
-	optimizationLoopMaxIterations int32
+	changeVerifier                         *ChangeVerifier
+	optimizationLoopMaxIterations          int32
 }
 
 func (this *PhaseOptimizer) finit_PhaseOptimizer() {
@@ -34,7 +34,7 @@ func (this *PhaseOptimizer) init_PhaseOptimizer(comp *AbstractCompiler, tracker 
 	this.lastChange = PhaseOptimizer_START_TIME
 	this.useSizeHeuristicToStopOptimizationLoop = comp.getOptions().shouldUseSizeHeuristicToStopOptimizationLoop()
 	var maxIterations int32 = comp.getOptions().getMaxOptimizationLoopIterations()
-	if ((maxIterations > 0) && (maxIterations <= PhaseOptimizer_MAX_LOOPS)) {
+	if (maxIterations > 0) && (maxIterations <= PhaseOptimizer_MAX_LOOPS) {
 		this.optimizationLoopMaxIterations = maxIterations
 	} else {
 		this.optimizationLoopMaxIterations = PhaseOptimizer_MAX_LOOPS
@@ -108,7 +108,7 @@ func (this *PhaseOptimizer) maybePrintAstHashcodes(passName string, root Node) {
 }
 
 func (this *PhaseOptimizer) maybeRunValidityCheck(passName string, externs Node, root Node) {
-	if (this.validityCheck == nil) {
+	if this.validityCheck == nil {
 		return
 	}
 	_ = func() (code_ int) {
@@ -142,8 +142,11 @@ func (this *PhaseOptimizer) hasScopeChanged(n Node) bool {
 }
 
 var PhaseOptimizer_logger *Logger
+
 const PhaseOptimizer_START_TIME int32 = 0
+
 var PhaseOptimizer_CODE_REMOVING_PASSES *ImmutableList
+
 const PhaseOptimizer_MAX_LOOPS int32 = 100
 const PhaseOptimizer_OPTIMIZE_LOOP_ERROR string = "Fixed point loop exceeded the maximum number of iterations."
 
@@ -213,10 +216,10 @@ func PhaseOptimizer_State_clinit() {
 }
 
 type PhaseOptimizer_NamedPass struct {
-	outer_ *PhaseOptimizer
-	name_ string
+	outer_  *PhaseOptimizer
+	name_   string
 	factory *PassFactory
-	tracer *Tracer
+	tracer  *Tracer
 }
 
 func (this *PhaseOptimizer_NamedPass) zero_PhaseOptimizer_NamedPass() {
@@ -239,10 +242,10 @@ func new_PhaseOptimizer_NamedPass(outer_ *PhaseOptimizer, factory *PassFactory) 
 func (this *PhaseOptimizer_NamedPass) process_2(externs Node, root Node) {
 	PhaseOptimizer_logger.fine(("Running pass " + sstr_(this.name_)))
 	this.factory.validatePreconditions(this.outer_.compiler_.getOptions())
-	if (this.outer_.validityCheck != nil) {
+	if this.outer_.validityCheck != nil {
 		this.outer_.changeVerifier = new_ChangeVerifier(this.outer_.compiler_).snapshot(this.outer_.jsRoot)
 	}
-	if (this.outer_.tracker != nil) {
+	if this.outer_.tracker != nil {
 		this.outer_.tracker.recordPassStart(this.name_, !this.factory.isRunInFixedPointLoop())
 	}
 	this.tracer = new_Tracer_Optional_Optional(Optional_of(strobj_("Compiler")), Optional_of(strobj_(this.name_)))
@@ -262,7 +265,7 @@ func (this *PhaseOptimizer_NamedPass) process_2(externs Node, root Node) {
 			}
 		}()
 		var traceRuntime int64 = this.tracer.stop()
-		if (this.outer_.tracker != nil) {
+		if this.outer_.tracker != nil {
 			this.outer_.tracker.recordPassStop(this.name_, traceRuntime)
 		}
 		this.outer_.maybePrintAstHashcodes(this.name_, root)
@@ -276,7 +279,7 @@ func (this *PhaseOptimizer_NamedPass) toString() string {
 }
 
 type PhaseOptimizer_ScopedChangeHandler struct {
-	outer_ *PhaseOptimizer
+	outer_              *PhaseOptimizer
 	lastCodeChangeQuery int32
 }
 
@@ -303,11 +306,11 @@ func (this *PhaseOptimizer_ScopedChangeHandler) hasCodeChangedSinceLastCall() bo
 }
 
 type PhaseOptimizer_Loop struct {
-	outer_ *PhaseOptimizer
-	myPasses []*PhaseOptimizer_NamedPass
-	myNames map[string]struct{}
-	scopeHandler *PhaseOptimizer_ScopedChangeHandler
-	isCodeRemovalLoopField bool
+	outer_                          *PhaseOptimizer
+	myPasses                        []*PhaseOptimizer_NamedPass
+	myNames                         map[string]struct{}
+	scopeHandler                    *PhaseOptimizer_ScopedChangeHandler
+	isCodeRemovalLoopField          bool
 	howmanyIterationsUnderThreshold int32
 }
 
@@ -362,10 +365,10 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 			this.outer_.changeTracker.removeChangeHandler(icast_CodeChangeHandler(obj_(this.scopeHandler)))
 		}()
 		for {
-			if ((count > this.outer_.optimizationLoopMaxIterations) && this.isCodeRemovalLoopField) {
+			if (count > this.outer_.optimizationLoopMaxIterations) && this.isCodeRemovalLoopField {
 				return 1
 			}
-			if (count > PhaseOptimizer_MAX_LOOPS) {
+			if count > PhaseOptimizer_MAX_LOOPS {
 				this.outer_.compiler_.throwInternalError(PhaseOptimizer_OPTIMIZE_LOOP_ERROR, nil)
 			}
 			count++
@@ -373,7 +376,7 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 			it_5 := eachOf_(&this.myPasses)
 			for it_5.next() {
 				var pass *PhaseOptimizer_NamedPass = it_5.v
-				if ((((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(obj_(pass))) && !has_(didNotMakeChanges, pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(obj_(pass)))) {
+				if (((state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) && !runInPrevIter.contains(obj_(pass))) && !has_(didNotMakeChanges, pass)) || ((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER) && madeChanges.contains(obj_(pass))) {
 					this.outer_.changeTracker.incrementChangeStamp()
 					this.outer_.currentPass = pass
 					pass.process_2(externs, root)
@@ -395,15 +398,15 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 			}
 			previousAstSize = astSize
 			astSize = NodeUtil_countAstSize(root)
-			if (state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER) {
-				if (lastIterMadeChanges && this.isAstSufficientlyChanging(previousAstSize, astSize)) {
+			if state == PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER {
+				if lastIterMadeChanges && this.isAstSufficientlyChanging(previousAstSize, astSize) {
 					state = PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER
 				} else {
 					return 1
 				}
 			} else {
 				Preconditions_checkState((state == PhaseOptimizer_State_RUN_PASSES_THAT_CHANGED_STH_IN_PREV_ITER))
-				if (!lastIterMadeChanges || !this.isAstSufficientlyChanging(previousAstSize, astSize)) {
+				if !lastIterMadeChanges || !this.isAstSufficientlyChanging(previousAstSize, astSize) {
 					state = PhaseOptimizer_State_RUN_PASSES_NOT_RUN_IN_PREV_ITER
 				}
 			}
@@ -416,9 +419,9 @@ func (this *PhaseOptimizer_Loop) process_2(externs Node, root Node) {
 }
 
 func (this *PhaseOptimizer_Loop) isAstSufficientlyChanging(oldAstSize int32, newAstSize int32) bool {
-	if (this.outer_.useSizeHeuristicToStopOptimizationLoop && this.isCodeRemovalLoopField) {
+	if this.outer_.useSizeHeuristicToStopOptimizationLoop && this.isCodeRemovalLoopField {
 		var percentChange float32 = (100 * (float32(Math_abs_int((newAstSize - oldAstSize))) / float32(oldAstSize)))
-		if (float64(percentChange) < 0.05) {
+		if float64(percentChange) < 0.05 {
 			this.howmanyIterationsUnderThreshold++
 		} else {
 			this.howmanyIterationsUnderThreshold = 0
@@ -445,7 +448,7 @@ func (this *PhaseOptimizer_Loop) isCodeRemovalLoop() bool {
 
 type PhaseOptimizer_ProgressRange struct {
 	initialValue float64
-	maxValue float64
+	maxValue     float64
 }
 
 func (this *PhaseOptimizer_ProgressRange) init_PhaseOptimizer_ProgressRange(initialValue float64, maxValue float64) {
@@ -458,4 +461,3 @@ func new_PhaseOptimizer_ProgressRange(initialValue float64, maxValue float64) *P
 	this.init_PhaseOptimizer_ProgressRange(initialValue, maxValue)
 	return this
 }
-
