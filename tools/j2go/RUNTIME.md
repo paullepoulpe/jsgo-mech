@@ -85,6 +85,32 @@ field and `as_X`/`to_X`/`is_X`/`self()` functions) must keep those, and call
 methods the subclass may override through `this.self_`, e.g.
 `this.self_.(interface{ computeNext() any }).computeNext()`.
 
+## Collections and allocation
+
+Most objects the compiler allocates are collections and what hangs off them, so the
+collections in `rt_coll.go` are written to allocate little:
+
+- A hash map or set is one `htable_`: the keys in insertion order in one slice, the values in
+  a second (a set has none), and nothing per entry. A removed entry leaves a marker in the key
+  slice until the table is compacted.
+- A table of up to `hsmall_` (8) entries has no index: lookups scan the key slice. Only
+  strings and keys compared by identity or Go equality live in such a table; the first key
+  with its own `equals`/`hashCode` builds the index, so that it is found by hash code and
+  `equals` exactly as in Java.
+- `Map.Entry` objects exist only for entries that an `entrySet()` iteration hands out. The
+  table remembers them, so a mapping has one entry object, which sees later `put`s and whose
+  `setValue` writes through.
+- `keySet()`, `values()` and `entrySet()` are the table itself under another Go type.
+- `Map_get_s` and its siblings take a Go string key (see "Performance-motivated rules" in
+  `README.md`); `foreach_` is the cursor of translated for-each loops. Both take a fast path
+  only when the receiver is exactly one of the runtime's own types, so a translated class
+  that implements or extends a collection keeps its own methods.
+
+`rt_coll_test.go` checks maps and sets against a linear model under random operations, and
+the for-each cursor against the iterators. To see where allocations come from, run the
+compiler with `JSGO_MEM_PROFILE=<file>` (then `go tool pprof -sample_index=alloc_objects`),
+`JSGO_MEMSTATS=<file>` for totals, `JSGO_CPU_PROFILE=<file>` for CPU.
+
 ## Rules
 
 - Names and signatures come from `g_zstubs.go`. Do not rename; do not change a

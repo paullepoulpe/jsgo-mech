@@ -147,6 +147,45 @@ to +11% depending on the task. The large gains the plan expects from a
 NodeStore do not appear with this translator; allocation of other objects
 (16%), the remaining marking (25%), boxed strings and hash lookups dominate.
 
+**Cheap performance items (branch `wip/perf1`).** A measurement study found that the
+translated compiler allocates 500 times more objects than a hand-written port, a third of them
+Java Strings boxed into `any` as lookup keys. Six cheap remedies are now in the translator and
+the runtime (`tools/j2go/README.md`, "Performance-motivated rules"; `tools/j2go/RUNTIME.md`,
+"Collections and allocation"), one commit each with its measurement. On the `bundle` task
+(interleaved runs, medians of 3 or more; the machine is noisy, so walls of different rows are
+not comparable, only the two sides of one row):
+
+| change | mallocs | wall | CPU |
+|---|---:|---:|---:|
+| profile-guided optimization (`default.pgo`) | 331.8M -> 313.3M | 56.0s -> 53.9s | 67.0s -> 64.3s |
+| String keys reach maps and sets unboxed | 313.3M -> 236.7M | 51.8s -> 50.5s | 61.9s -> 59.4s |
+| hash-table entries by value, sets without values | 236.9M -> 225.3M | 45.5s -> 44.9s | 53.4s -> 52.9s |
+| tables of up to 8 entries searched linearly | 225.3M -> 216.1M | 45.3s -> 41.8s | 52.9s -> 48.8s |
+| casts to interfaces through non-generic functions | 216.1M -> 215.3M | 43.3s -> 42.1s | 50.3s -> 49.3s |
+| for-each on a stack cursor, no iterator object | 215.3M -> 195.3M | 37.4s -> 37.5s | 44.1s -> 43.7s |
+| table capacity 4 at first insert, hash chains in a slice | 195.3M -> 181.5M | 44.1s -> 42.6s | 52.2s -> 49.9s |
+| all together | 331.8M -> 181.5M | 54.6s -> 43.6s | 65.4s -> 51.1s |
+
+Nine benchmark tasks with the final build, all byte-identical with Java (3 cold runs,
+medians, same harness and machine as above):
+
+| task | Java wall | Go wall | Go/Java | Go CPU | Go RSS |
+|---|---:|---:|---:|---:|---:|
+| typed-app | 11.4s | 12.2s | 1.07x | 15.0s | 300M |
+| incremental-ijs-check | 7.8s | 7.7s | 0.99x | 10.2s | 606M |
+| downlevel-simple | 8.8s | 8.7s | 0.99x | 10.2s | 228M |
+| checks-only | 14.1s | 17.7s | 1.26x | 21.6s | 848M |
+| generate-ijs | 6.4s | 8.8s | 1.36x | 10.2s | 624M |
+| conformance-checks | 18.8s | 27.1s | 1.44x | 32.8s | 1201M |
+| shaka-blockly | 26.8s | 40.1s | 1.49x | 49.3s | 654M |
+| bundle | 26.6s | 42.8s | 1.61x | 50.2s | 726M |
+| typed-full | 52.9s | 88.1s | 1.67x | 109.2s | 1421M |
+| sum | 173.6s | 253.1s | 1.46x | 308.6s | |
+
+Tried and left out: a list of capacity up to 2 in one object with its header plus a first
+capacity of 4 for `ArrayList` (5% fewer mallocs, no time gained); a profile regenerated after
+the changes (not better than the first one, which is the one committed).
+
 **Not done.** The transpiler still lowers try/catch to closures (56 catch
 clauses remain in the Java), keeps the null-string sentinel and erases
 generics. `rt_io.go` is 330 lines since step 16 reduced `Io.java` to 25

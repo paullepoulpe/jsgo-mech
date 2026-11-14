@@ -669,11 +669,12 @@ type htable_ struct {
 const hsmall_ = 8
 
 type hindex_ struct {
-	strs   map[string]int32  // string keys
-	prim   map[any]int32     // keys compared by identity or by Go equality
-	custom map[int32]int32   // keys with their own hashCode/equals: hash code -> first position
-	next   []int32           // beside keys once two such keys share a hash code: 1 + the position
-	//                          of the next key with the same hash code, 0 for the last
+	strs   map[string]int32 // string keys
+	prim   map[any]int32    // keys compared by identity or by Go equality
+	custom map[int32]int32  // keys with their own hashCode/equals: hash code -> first position
+	// next is beside keys once two such keys share a hash code: 1 + the position of the next
+	// key with the same hash code, 0 for the last.
+	next []int32
 	ents []*hmapEntry_ // beside keys once entrySet has handed out an entry; else nil
 }
 
@@ -1242,9 +1243,6 @@ func new_IdentityHashMap() *IdentityHashMap {
 	this.t.identity = true
 	return this
 }
-
-// viewBase_ supplies the Collection methods of a map view from three functions.
-type viewBase_ struct{}
 
 type mapKeys_ htable_
 

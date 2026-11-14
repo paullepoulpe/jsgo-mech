@@ -43,7 +43,13 @@ restore || exit 1
 go build ./... || { echo "does not build"; exit 1; }
 "$bin/prune" roots closure
 printf 'package main\n\nimport "jsgomech/closure"\n\nvar _ = closure.Roots_\n' >cmd/mech/roots_tmp.go
-"$gobin/deadcode" ./cmd/mech >"$bin/dead.txt" 2>&1
+# deadcode must be built with the Go toolchain that go/go.mod names (an older one cannot
+# type-check the standard library and finds nothing); DEADCODE=<binary> uses another build.
+"${DEADCODE:-$gobin/deadcode}" ./cmd/mech >"$bin/dead.txt" 2>&1
+if grep -q "packages contain errors" "$bin/dead.txt"; then
+  head -3 "$bin/dead.txt"; rm -f closure/rt_zroots.go cmd/mech/roots_tmp.go
+  echo "deadcode failed: rebuild it with $(go version | cut -d' ' -f3)"; exit 1
+fi
 echo "unreachable runtime functions: $(grep -c closure/rt_ "$bin/dead.txt")"
 "$bin/prune" closure <"$bin/dead.txt"
 rm -f closure/rt_zroots.go cmd/mech/roots_tmp.go

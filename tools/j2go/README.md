@@ -89,6 +89,39 @@ value become immediately-called function literals. Numeric promotion is spelled
 out. Local and anonymous classes become top-level structs that hold their
 captured variables and enclosing instance.
 
+## Performance-motivated rules
+
+These rules change no behaviour; each exists because a measurement said so (the commit that
+introduced it has the numbers). All are keyed on Java types and methods, never on a class of
+the translated program.
+
+- **String keys are not boxed for a lookup.** A call whose root method is `Map.get`,
+  `containsKey`, `remove(Object)`, `put`, `getOrDefault`, `putIfAbsent` or `computeIfAbsent`,
+  `Collection.contains` or `remove(Object)`, or `add` on a static `Set` type, and whose key or
+  element argument is statically a `String`, becomes a call of a runtime function that takes
+  the Go string: `m.get(s)` is `Map_get_s(m, s)` (`ExprEmitter.stringKeyHelper`; runtime side in
+  `rt_coll.go`, "String keys without a box"). Otherwise the string would be converted to `any`
+  first, which allocates; that was a third of all allocations. A `put` or `add` boxes the key
+  only when it is new. The runtime takes the fast path only for its own hash maps, hash sets
+  and immutable collections; any other receiver gets the boxed call. `strobj_("literal")`
+  needs no rule: Go allocates nothing for a constant.
+- **Casts to an interface are not generic.** A conversion to an interface type `I` is
+  `icast_I(v)`, a function generated once per interface in `g_0casts.go`, not `cast_[I](v)`:
+  Go caches an interface type assertion per assertion site, but inside a generic function it
+  cannot and searches the global method-table cache every time (7 ns against 2 ns). Casts to
+  a concrete class keep `cast_[*T]`, which is a pointer comparison either way.
+- **For-each has no iterator object.** `for (T x : c)` over an `Iterable` is
+  `it := foreach_(c)` followed by `for it.next() { x := it.v … }`. The cursor is a local
+  struct; for the runtime's lists, immutable collections, hash sets and map views it walks
+  the backing slice in place, as their iterators do, and it holds an `Iterator` only for
+  anything else. The cursor must be declared before the `for`, not in its init clause, where
+  Go would copy it at every iteration.
+- **Profile-guided optimization.** `go/cmd/mech/default.pgo` is a merged CPU profile of the
+  four gate projects; `go build` uses it by itself. `tools/pgo/regen.sh` regenerates it.
+
+What the runtime does for the same reason (entries of hash tables stored by value, small
+tables searched linearly, no per-entry or per-view objects) is described in `RUNTIME.md`.
+
 ## Library code
 
 Calls into the JDK, Guava, Gson, protobuf and args4j are translated by rule: an
