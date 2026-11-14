@@ -469,7 +469,7 @@ public final class Node {
 
   public static Node newString(Token token, String str) {
     Node n = new Node(token);
-    n.stringPayload = RhinoStringPool.addOrGet(str); // RhinoStringPool is null-hostile.
+    n.payload = RhinoStringPool.addOrGet(str); // RhinoStringPool is null-hostile.
     return n;
   }
 
@@ -477,7 +477,7 @@ public final class Node {
       Token token, RhinoStringPool.LazyInternedStringList stringPool, int offset) {
     Node n = new Node(token);
     // See setStringFromStringPool.
-    n.stringPayload = stringPool.get(offset);
+    n.payload = stringPool.get(offset);
     return n;
   }
 
@@ -1418,22 +1418,21 @@ public final class Node {
 
   /** Whether this is a string node, i.e. whether {@link #getString} can be called on it. */
   public final boolean hasStringPayload() {
-    return this.stringPayload != null;
+    return this.payload instanceof String;
   }
 
   public final String getString() {
-    String str = this.stringPayload;
-    if (str == null) {
+    if (!(this.payload instanceof String str)) {
       throw this.payloadKindMismatch("string");
     }
     return str;
   }
 
   public final void setString(String str) {
-    if (this.stringPayload == null) {
+    if (!(this.payload instanceof String)) {
       throw this.payloadKindMismatch("string");
     }
-    this.stringPayload = RhinoStringPool.addOrGet(str); // RhinoStringPool is null-hostile.
+    this.payload = RhinoStringPool.addOrGet(str); // RhinoStringPool is null-hostile.
   }
 
   final void setStringFromStringPool(
@@ -1441,10 +1440,10 @@ public final class Node {
     // RhinoStringPool.LazyInternedStringList guarantees that the result of calling get(offset) is
     // interned. In some cases this is more performance than RhinoStringPool.addOrGet because the
     // LazyInternedStringList caches interning results.
-    if (this.stringPayload == null) {
+    if (!(this.payload instanceof String)) {
       throw this.payloadKindMismatch("string");
     }
-    this.stringPayload = stringPool.get(offset);
+    this.payload = stringPool.get(offset);
   }
 
   public final String getRawString() {
@@ -1483,7 +1482,7 @@ public final class Node {
   private void toString(
       StringBuilder sb, boolean printSource, boolean printAnnotations, boolean printType) {
     sb.append(token);
-    if (this.stringPayload != null) {
+    if (this.payload instanceof String) {
       sb.append(' ');
       sb.append(getString());
     } else if (token == Token.FUNCTION) {
@@ -1555,7 +1554,7 @@ public final class Node {
   private void toJson(Appendable sb) throws IOException {
     sb.append('{');
     sb.append(createJsonPair("token", token.toString()));
-    if (this.stringPayload != null) {
+    if (this.payload instanceof String) {
       sb.append(',');
       sb.append(createJsonPair("string", getString()));
     } else if (token == Token.FUNCTION) {
@@ -1703,8 +1702,8 @@ public final class Node {
    * The value of a value-carrying node; its class is the node's kind, fixed at construction:
    *
    * <ul>
-   *   <li>{@code null}: a plain node ({@code new Node(token)}), or a string node (see {@link
-   *       #stringPayload}).
+   *   <li>{@code null}: a plain node ({@code new Node(token)}).
+   *   <li>{@link String}: a string node ({@link #newString}); see {@link #getString}.
    *   <li>{@link Double}: a number node ({@link #newNumber}); see {@link #getDouble}.
    *   <li>{@link BigInteger}: a bigint node ({@link #newBigInt}); see {@link #getBigInt}.
    *   <li>{@link TemplateLiteralSubstring}: a template literal string node ({@link
@@ -1712,13 +1711,6 @@ public final class Node {
    * </ul>
    */
   private transient @Nullable Object payload;
-
-  /**
-   * The string of a string node ({@link #newString}); see {@link #getString}. Non-null exactly on
-   * string nodes, whose {@link #payload} is null. Kept apart from {@link #payload} so that the
-   * most frequent accessor reads a typed field.
-   */
-  private transient @Nullable String stringPayload;
 
   // Kind markers for a number / bigint node under construction; replaced before it escapes.
   private static final Double NUMBER_PAYLOAD_UNSET = 0.0;
@@ -2407,7 +2399,6 @@ public final class Node {
       SideEffectComparison sideEffectConfig) {
     if (token != node.token
         || getChildCount() != node.getChildCount()
-        || (this.stringPayload == null) != (node.stringPayload == null)
         || payloadClass(this.payload) != payloadClass(node.payload)) {
       return false;
     }
@@ -2490,8 +2481,8 @@ public final class Node {
     }
 
     // The payloads have the same class (checked above).
-    if (this.stringPayload != null) {
-      return RhinoStringPool.uncheckedEquals(this.stringPayload, node.stringPayload);
+    if (this.payload instanceof String str) {
+      return RhinoStringPool.uncheckedEquals(str, (String) node.payload);
     } else if (this.payload instanceof Double number) {
       // -0.0 and NaN are forbidden.
       return number.doubleValue() == ((Double) node.payload).doubleValue();
@@ -2788,7 +2779,6 @@ public final class Node {
   Node cloneNode(boolean cloneTypeExprs) {
     Node clone = new Node(token);
     copyBaseNodeFields(this, clone, cloneTypeExprs);
-    clone.stringPayload = this.stringPayload;
     clone.payload = this.payload; // Payload values are immutable.
     return clone;
   }
@@ -3480,20 +3470,20 @@ public final class Node {
   }
 
   public final boolean isQuotedStringKey() {
-    return (this.stringPayload != null) && this.getBooleanProp(Prop.QUOTED);
+    return (this.payload instanceof String) && this.getBooleanProp(Prop.QUOTED);
   }
 
   public final void setQuotedStringKey() {
-    checkState(this.stringPayload != null, this);
+    checkState(this.payload instanceof String, this);
     this.putBooleanProp(Prop.QUOTED, true);
   }
 
   public final boolean isPrivateIdentifier() {
-    return (this.stringPayload != null) && this.getBooleanProp(Prop.PRIVATE_IDENTIFIER);
+    return (this.payload instanceof String) && this.getBooleanProp(Prop.PRIVATE_IDENTIFIER);
   }
 
   public final void setPrivateIdentifier() {
-    checkState(this.stringPayload != null, this);
+    checkState(this.payload instanceof String, this);
     checkState(this.getString().startsWith("#"));
     this.putBooleanProp(Prop.PRIVATE_IDENTIFIER, true);
   }
