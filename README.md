@@ -78,8 +78,12 @@ Notes on individual steps:
   one-line errors.
 
 Java speed of the fully prepped tree against the stock release (nine tasks,
-3 cold runs): 225.2s stock, 233.1s prepped (+3.5%), outputs identical; measured
-on a busy machine with per-task swings of -18% to +29%, so not yet conclusive.
+3 interleaved cold runs, outputs identical): 178.9s stock, 181.0s prepped
+(+1.2%). The three tasks that read +4% to +9% in that run (checks-only,
+incremental-ijs-check, typed-app) are +1.1%, +0.7% and -1.0% with 7 runs, and
+each milestone of the prep series is within 1.5% of stock on bundle,
+conformance-checks and typed-full. One step did regress Java and is reverted
+(04b, below).
 
 **The Go translation of the fully prepped tree** matches Java byte for byte on
 the four gate projects and on all nine benchmark tasks. The handwritten
