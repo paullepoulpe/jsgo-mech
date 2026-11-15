@@ -63,8 +63,8 @@ func (this *ProcessCommonJSModules) shouldTraverse_impl(t *NodeTraversal, n Node
 				}
 			}
 			defaultExportIsConst = finder.initializeModule()
-			exports.addAll(Iterable(finder.getModuleExports()))
-			exports.addAll(Iterable(finder.getExports()))
+			exports.addAll(Iterable(finder.getModuleExports().asList()))
+			exports.addAll(Iterable(finder.getExports().asList()))
 		}
 		finder.reportModuleErrors()
 		this.compiler_.getModuleLoader().setErrorHandler(moduleLoaderErrorHandler)
@@ -339,10 +339,10 @@ func (this *ProcessCommonJSModules) reportNestedScopesChanged(n Node) {
 	NodeUtil_visitPreOrder_Node_Visitor(n, icast_NodeUtil_Visitor(obj_(new_ProcessCommonJSModules_2(this))))
 }
 
-func ProcessCommonJSModules_findUmdPattern(umdPatterns ListOf[*ProcessCommonJSModules_UmdPattern], n Node) *ProcessCommonJSModules_UmdPattern {
-	it_1 := foreach_(any(umdPatterns))
+func ProcessCommonJSModules_findUmdPattern(umdPatterns *TList[*ProcessCommonJSModules_UmdPattern], n Node) *ProcessCommonJSModules_UmdPattern {
+	it_1 := umdPatterns.each()
 	for it_1.next() {
-		var umd *ProcessCommonJSModules_UmdPattern = cast_[*ProcessCommonJSModules_UmdPattern](it_1.v)
+		var umd *ProcessCommonJSModules_UmdPattern = it_1.v
 		if umd.ifRoot == n {
 			return umd
 		}
@@ -431,18 +431,18 @@ type ProcessCommonJSModules_FindImportsAndExports struct {
 	outer_                 *ProcessCommonJSModules
 	hasGoogProvideOrModule bool
 	script_                Node
-	umdPatterns            ListOf[*ProcessCommonJSModules_UmdPattern]
-	moduleExports          ListOf[*ProcessCommonJSModules_ExportInfo]
-	exports                ListOf[*ProcessCommonJSModules_ExportInfo]
+	umdPatterns            *TList[*ProcessCommonJSModules_UmdPattern]
+	moduleExports          *TList[*ProcessCommonJSModules_ExportInfo]
+	exports                *TList[*ProcessCommonJSModules_ExportInfo]
 	errors_                []*JSError
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) finit_ProcessCommonJSModules_FindImportsAndExports() {
 	this.hasGoogProvideOrModule = false
 	this.script_ = 0
-	this.umdPatterns = icast_List(new_ArrayList_0().self())
-	this.moduleExports = icast_List(new_ArrayList_0().self())
-	this.exports = icast_List(new_ArrayList_0().self())
+	this.umdPatterns = newTList_(tc_p_ProcessCommonJSModules_UmdPattern)
+	this.moduleExports = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
+	this.exports = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
 	this.errors_ = []*JSError{}
 }
 
@@ -465,12 +465,12 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) report_2(ignoredLevel 
 	this.errors_ = append(this.errors_, error_)
 }
 
-func (this *ProcessCommonJSModules_FindImportsAndExports) getModuleExports() ListOf[*ProcessCommonJSModules_ExportInfo] {
-	return icast_List(obj_(ImmutableList_copyOf(Collection(this.moduleExports))))
+func (this *ProcessCommonJSModules_FindImportsAndExports) getModuleExports() *TList[*ProcessCommonJSModules_ExportInfo] {
+	return tlistImm_(tc_p_ProcessCommonJSModules_ExportInfo, ImmutableList_copyOf(Collection(this.moduleExports.asList())))
 }
 
-func (this *ProcessCommonJSModules_FindImportsAndExports) getExports() ListOf[*ProcessCommonJSModules_ExportInfo] {
-	return icast_List(obj_(ImmutableList_copyOf(Collection(this.exports))))
+func (this *ProcessCommonJSModules_FindImportsAndExports) getExports() *TList[*ProcessCommonJSModules_ExportInfo] {
+	return tlistImm_(tc_p_ProcessCommonJSModules_ExportInfo, ImmutableList_copyOf(Collection(this.exports.asList())))
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
@@ -495,12 +495,12 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 	}
 	if n.matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) || (((n.isGetElem() && n.getFirstChild().matchesQualifiedName(ProcessCommonJSModules_MODULE)) && n.getSecondChild().isStringLit()) && (n.getSecondChild().getString() == ProcessCommonJSModules_EXPORTS)) {
 		if this.outer_.isCommonJsExport(t, n) {
-			this.moduleExports.add(obj_(new_ProcessCommonJSModules_ExportInfo(n, t.getScope())))
+			this.moduleExports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 			var umdTestAncestor *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo = this.getOutermostUmdTest(parent)
 			if (umdTestAncestor != nil) && !this.isInIfTest(n) {
 				var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
 				if existingPattern == nil {
-					this.umdPatterns.add(obj_(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch)))
+					this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
 				}
 			}
 		}
@@ -509,7 +509,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 		if (umdTestAncestor != nil) && this.isInIfTest(n) {
 			var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
 			if (existingPattern == nil) && (umdTestAncestor.enclosingIf.getChildAtIndex(2) == 0) {
-				this.umdPatterns.add(obj_(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, 0)))
+				this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, 0))
 			}
 		}
 	}
@@ -519,23 +519,23 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 			var qNameRoot Node = this.outer_.getBaseQualifiedNameNode(n)
 			if ((qNameRoot != 0) && qNameRoot.matchesQualifiedName(ProcessCommonJSModules_EXPORTS)) && NodeUtil_isLValue(qNameRoot) {
 				if (n.getGrandparent().isExprResult() && (n.getNext() != 0)) && ((n.getNext().isGetProp() && n.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) || (n.getNext().isAssign() && n.getNext().getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))))) {
-					this.exports.add(obj_(new_ProcessCommonJSModules_ExportInfo(n, t.getScope())))
+					this.exports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 				} else if !this.hasGoogProvideOrModule && ((v == nil) || ((v.getNameNode() == 0) && (v.getNameNode().getFirstChild() != n))) {
 					this.errors_ = append(this.errors_, JSError_make_Node_DiagnosticType_StringArr(qNameRoot, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, []string{}))
 				}
 			} else {
-				this.exports.add(obj_(new_ProcessCommonJSModules_ExportInfo(n, t.getScope())))
+				this.exports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 				var umdTestAncestor *ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo = this.getOutermostUmdTest(parent)
 				if (umdTestAncestor != nil) && !this.isInIfTest(n) {
 					var existingPattern *ProcessCommonJSModules_UmdPattern = ProcessCommonJSModules_findUmdPattern(this.umdPatterns, umdTestAncestor.enclosingIf)
 					if existingPattern == nil {
-						this.umdPatterns.add(obj_(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch)))
+						this.umdPatterns.add(new_ProcessCommonJSModules_UmdPattern(umdTestAncestor.enclosingIf, umdTestAncestor.activeBranch))
 					}
 				}
 			}
 		}
 	} else if (n.isThis() && n.getParent().isGetProp()) && t.inGlobalScope() {
-		this.exports.add(obj_(new_ProcessCommonJSModules_ExportInfo(n, t.getScope())))
+		this.exports.add(new_ProcessCommonJSModules_ExportInfo(n, t.getScope()))
 	}
 	if this.outer_.isCommonJsImport(n) {
 		this.visitRequireCall(t, n, parent)
@@ -602,33 +602,33 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 		return true
 	}
 	var moduleName OptionalOf[string] = ProcessCommonJSModules_getModuleName(ci)
-	var exportsToRemove ListOf[*ProcessCommonJSModules_ExportInfo] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(this.exports))
+	var exportsToRemove *TList[*ProcessCommonJSModules_ExportInfo] = newTList_(tc_p_ProcessCommonJSModules_ExportInfo)
+	it_1 := this.exports.each()
 	for it_1.next() {
-		var export *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_1.v)
+		var export *ProcessCommonJSModules_ExportInfo = it_1.v
 		if NodeUtil_getEnclosingScript(export.node_) == 0 {
-			exportsToRemove.add(obj_(export))
+			exportsToRemove.add(export)
 			continue
 		}
 		var qNameBase Node = this.outer_.getBaseQualifiedNameNode(export.node_)
 		if ((((export.node_ == qNameBase) && export.node_.getParent().isAssign()) && export.node_.getGrandparent().isExprResult()) && (export.node_.getPrevious() == 0)) && (export.node_.getNext() != 0) {
 			if export.node_.getNext().isGetProp() && export.node_.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
-				it_3 := foreach_(any(this.moduleExports))
+				it_3 := this.moduleExports.each()
 				for it_3.next() {
-					var moduleExport *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_3.v)
+					var moduleExport *ProcessCommonJSModules_ExportInfo = it_3.v
 					if moduleExport.node_ == export.node_.getNext() {
-						this.moduleExports.remove_Object(obj_(moduleExport))
+						this.moduleExports.asList().remove_Object(obj_(moduleExport))
 						break
 					}
 				}
 				var changeRoot Node = export.node_.getGrandparent().getParent()
 				export.node_.getGrandparent().detach()
-				exportsToRemove.add(obj_(export))
+				exportsToRemove.add(export)
 				this.outer_.compiler_.reportChangeToEnclosingScope(changeRoot)
 			} else if export.node_.getNext().isAssign() && export.node_.getNext().getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
 				var assign Node = export.node_.getNext()
 				export.node_.getParent().replaceWith(assign.detach())
-				exportsToRemove.add(obj_(export))
+				exportsToRemove.add(export)
 				this.outer_.compiler_.reportChangeToEnclosingScope(assign)
 			}
 		} else if ((((export.node_.getParent().isGetElem() && export.node_.getNext().isStringLit()) && (export.node_.getNext().getString() == ProcessCommonJSModules_EXPORT_PROPERTY_NAME)) && export.node_.getGrandparent().isAssign()) && (export.node_.getParent().getPrevious() != 0)) && export.node_.getParent().getPrevious().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))) {
@@ -639,14 +639,14 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 			this.outer_.compiler_.reportChangeToEnclosingScope(grandparent)
 		}
 	}
-	this.exports.removeAll(Collection(exportsToRemove))
+	this.exports.asList().removeAll(Collection(exportsToRemove.asList()))
 	exportsToRemove.clear()
 	var exportsToReplace LinkedHashMapOf[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = new_LinkedHashMap()
-	it_5 := foreach_(any(this.moduleExports))
+	it_5 := this.moduleExports.each()
 	for it_5.next() {
-		var export *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_5.v)
+		var export *ProcessCommonJSModules_ExportInfo = it_5.v
 		if NodeUtil_getEnclosingScript(export.node_) == 0 {
-			exportsToRemove.add(obj_(export))
+			exportsToRemove.add(export)
 		} else if export.node_.isGetElem() {
 			var prop Node = export.node_.getSecondChild().detach()
 			var newExport *ProcessCommonJSModules_ExportInfo = new_ProcessCommonJSModules_ExportInfo(IR_getprop_Node_String(export.node_.removeFirstChild(), prop.getString()), export.scope_)
@@ -655,18 +655,18 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 			exportsToReplace.put(obj_(export), obj_(newExport))
 		}
 	}
-	this.moduleExports.removeAll(Collection(exportsToRemove))
+	this.moduleExports.asList().removeAll(Collection(exportsToRemove.asList()))
 	it_7 := foreach_(any(exportsToReplace.keySet()))
 	for it_7.next() {
 		var oldExport *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_7.v)
-		var oldIndex int32 = this.moduleExports.indexOf(obj_(oldExport))
-		this.moduleExports.remove(oldIndex)
-		this.moduleExports.add_int_Object(oldIndex, exportsToReplace.get(obj_(oldExport)))
+		var oldIndex int32 = this.moduleExports.asList().indexOf(obj_(oldExport))
+		this.moduleExports.removeAt(oldIndex)
+		this.moduleExports.insert(oldIndex, cast_[*ProcessCommonJSModules_ExportInfo](exportsToReplace.get(obj_(oldExport))))
 	}
 	var directAssignments int32 = 0
-	it_9 := foreach_(any(this.moduleExports))
+	it_9 := this.moduleExports.each()
 	for it_9.next() {
-		var export *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_9.v)
+		var export *ProcessCommonJSModules_ExportInfo = it_9.v
 		if NodeUtil_getEnclosingScript(export.node_) == 0 {
 			continue
 		}
@@ -726,10 +726,10 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) getOutermostUmdTest(n 
 			}
 			return umdTestInfo
 		}
-		var umdTests ListOf[Node] = icast_List(new_ArrayList_0().self())
+		var umdTests *TList[Node] = newTList_(tc_Node)
 		NodeUtil_visitPreOrder_Node_Visitor(parent.getFirstChild(), icast_NodeUtil_Visitor(obj_(new_ProcessCommonJSModules_FindImportsAndExports_1(this, umdTests))))
 		if umdTests.isEmpty() && parent.getFirstChild().isTrue() {
-			umdTests.add(parent.getFirstChild().box_())
+			umdTests.add(parent.getFirstChild())
 		}
 		if !umdTests.isEmpty() {
 			return new_ProcessCommonJSModules_FindImportsAndExports_UmdTestInfo(parent, n)
@@ -756,9 +756,9 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) isInIfTest(n Node) boo
 func (this *ProcessCommonJSModules_FindImportsAndExports) replaceUmdPatterns() bool {
 	var needsRetraverse bool = false
 	var changeScope Node
-	it_1 := foreach_(any(this.umdPatterns))
+	it_1 := this.umdPatterns.each()
 	for it_1.next() {
-		var umdPattern *ProcessCommonJSModules_UmdPattern = cast_[*ProcessCommonJSModules_UmdPattern](it_1.v)
+		var umdPattern *ProcessCommonJSModules_UmdPattern = it_1.v
 		if NodeUtil_getEnclosingScript(umdPattern.ifRoot) == 0 {
 			this.outer_.reportNestedScopesDeleted(umdPattern.ifRoot)
 			continue
@@ -878,7 +878,7 @@ type ProcessCommonJSModules_RewriteModule struct {
 	exports                   ImmutableCollectionOf[*ProcessCommonJSModules_ExportInfo]
 	imports                   []Node
 	rewrittenClassExpressions []Node
-	functionsToHoist          ListOf[Node]
+	functionsToHoist          *TList[Node]
 	defaultExportIsConst      bool
 }
 
@@ -892,7 +892,7 @@ func (this *ProcessCommonJSModules_RewriteModule) up_NodeTraversal_AbstractPostO
 func (this *ProcessCommonJSModules_RewriteModule) finit_ProcessCommonJSModules_RewriteModule() {
 	this.imports = []Node{}
 	this.rewrittenClassExpressions = []Node{}
-	this.functionsToHoist = icast_List(new_ArrayList_0().self())
+	this.functionsToHoist = newTList_(tc_Node)
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) init_ProcessCommonJSModules_RewriteModule(allowFullRewrite bool, exports ImmutableCollectionOf[*ProcessCommonJSModules_ExportInfo], defaultExportIsConst bool) {
@@ -923,15 +923,15 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 		var ci *CompilerInput = this.outer_.compiler_.getInput(n.getInputId())
 		var moduleName OptionalOf[string] = ProcessCommonJSModules_getModuleName(ci)
 		for i := int32(1); i < this.functionsToHoist.size(); i++ {
-			if Node_of_(this.functionsToHoist.get(i)).getFirstFirstChild().matchesQualifiedName(str_(this.outer_.getBasePropertyImport(moduleName).get())) {
-				var fncVar Node = Node_of_(this.functionsToHoist.get(i))
-				this.functionsToHoist.remove(i)
-				this.functionsToHoist.add_int_Object(0, fncVar.box_())
+			if this.functionsToHoist.get(i).getFirstFirstChild().matchesQualifiedName(str_(this.outer_.getBasePropertyImport(moduleName).get())) {
+				var fncVar Node = this.functionsToHoist.get(i)
+				this.functionsToHoist.removeAt(i)
+				this.functionsToHoist.insert(0, fncVar)
 				break
 			}
 		}
 		for i := int32((this.functionsToHoist.size() - 1)); i >= 0; i-- {
-			var functionExpr Node = Node_of_(this.functionsToHoist.get(i))
+			var functionExpr Node = this.functionsToHoist.get(i)
 			var scopeRoot Node = t.getClosestHoistScopeRoot()
 			var insertionPoint Node = scopeRoot.getFirstChild()
 			if (insertionPoint == 0) || !(insertionPoint.isVar() && Object_equals(obj_(Optional_of(strobj_(insertionPoint.getFirstChild().getString()))), obj_(moduleName))) {
@@ -961,11 +961,11 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 		}
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
 		if (n.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent)) && !parent.isExport() {
-			var vars ListOf[Node] = this.splitMultipleDeclarations(n)
+			var vars *TList[Node] = this.splitMultipleDeclarations(n)
 			t.reportCodeChange()
-			it_10 := foreach_(any(vars))
+			it_10 := vars.each()
 			for it_10.next() {
-				var var_ Node = Node_of_(it_10.v)
+				var var_ Node = it_10.v
 				this.visit(t, var_.getFirstChild(), var_)
 			}
 		}
@@ -1265,7 +1265,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 				expr.getFirstChild().setJSDocInfo(info.build())
 				this.fixTypeAnnotationsForNode(t, expr.getFirstChild())
 			}
-			this.functionsToHoist.add(expr.box_())
+			this.functionsToHoist.add(expr)
 		} else {
 			nameRef.setString(newName)
 			nameRef.setOriginalName(str_(originalName.orElse(strobj_(""))))
@@ -1567,9 +1567,9 @@ func (this *ProcessCommonJSModules_RewriteModule) fixTypeNode(t *NodeTraversal, 
 	}
 }
 
-func (this *ProcessCommonJSModules_RewriteModule) splitMultipleDeclarations(var_ Node) ListOf[Node] {
+func (this *ProcessCommonJSModules_RewriteModule) splitMultipleDeclarations(var_ Node) *TList[Node] {
 	Preconditions_checkState(NodeUtil_isNameDeclaration(var_))
-	var vars ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var vars *TList[Node] = newTList_(tc_Node)
 	var info *JSDocInfo = var_.getJSDocInfo()
 	for var_.getSecondChild() != 0 {
 		var newVar Node = new_Node_Token_Node(var_.getToken(), var_.removeFirstChild())
@@ -1578,9 +1578,9 @@ func (this *ProcessCommonJSModules_RewriteModule) splitMultipleDeclarations(var_
 		}
 		newVar.srcref(var_)
 		newVar.insertBefore(var_)
-		vars.add(newVar.box_())
+		vars.add(newVar)
 	}
-	vars.add(var_.box_())
+	vars.add(var_)
 	return vars
 }
 
@@ -1628,14 +1628,14 @@ func (this *ProcessCommonJSModules_2) visit(n Node) {
 
 type ProcessCommonJSModules_FindImportsAndExports_1 struct {
 	outer_       *ProcessCommonJSModules_FindImportsAndExports
-	cap_umdTests List
+	cap_umdTests *TList[Node]
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports_1) init_ProcessCommonJSModules_FindImportsAndExports_1() {
 
 }
 
-func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSModules_FindImportsAndExports, cap_umdTests List) *ProcessCommonJSModules_FindImportsAndExports_1 {
+func new_ProcessCommonJSModules_FindImportsAndExports_1(outer_ *ProcessCommonJSModules_FindImportsAndExports, cap_umdTests *TList[Node]) *ProcessCommonJSModules_FindImportsAndExports_1 {
 	this := &ProcessCommonJSModules_FindImportsAndExports_1{}
 	this.outer_ = outer_
 	this.cap_umdTests = cap_umdTests
@@ -1663,5 +1663,5 @@ func (this *ProcessCommonJSModules_FindImportsAndExports_1) visit(node Node) {
 	default:
 		return
 	}
-	this.cap_umdTests.add(node.box_())
+	this.cap_umdTests.add(node)
 }

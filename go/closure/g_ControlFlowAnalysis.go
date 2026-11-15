@@ -92,8 +92,8 @@ func (this *ControlFlowAnalysis) prioritizeFromEntryNode(entry DiGraph_DiGraphNo
 		}
 		this.priorityCounter++
 		current.setPriority(this.priorityCounter)
-		var successors ListOf[DiGraph_DiGraphNode] = this.cfg.getDirectedSuccNodesDiGraphNode(current)
-		worklist.addAll(Collection(successors))
+		var successors *TList[DiGraph_DiGraphNode] = this.cfg.getDirectedSuccNodesDiGraphNode(current)
+		worklist.addAll(Collection(successors.asList()))
 	}
 }
 

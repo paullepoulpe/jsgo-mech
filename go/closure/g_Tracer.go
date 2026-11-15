@@ -398,7 +398,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 
 type Tracer_ThreadTrace struct {
 	defaultSilenceThreshold      int32
-	events                       ArrayListOf[*Tracer_Event]
+	events                       *TList[*Tracer_Event]
 	outstandingEvents            LinkedHashSetOf[*Tracer]
 	stats                        MapOf[string, *Tracer_Stat]
 	isOutstandingEventsTruncated bool
@@ -408,7 +408,7 @@ type Tracer_ThreadTrace struct {
 }
 
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
-	this.events = new_ArrayList_0()
+	this.events = newTList_(tc_p_Tracer_Event)
 	this.outstandingEvents = new_LinkedHashSet()
 	this.stats = icast_Map(obj_(new_LinkedHashMap()))
 	this.isOutstandingEventsTruncated = false
@@ -436,7 +436,7 @@ func (this *Tracer_ThreadTrace) isInitialized() bool {
 }
 
 func (this *Tracer_ThreadTrace) startEvent(t *Tracer) {
-	this.events.add(obj_(new_Tracer_Event(true, t)))
+	this.events.add(new_Tracer_Event(true, t))
 	var notAlreadyOutstanding bool = this.outstandingEvents.add(obj_(t))
 	Preconditions_checkState(notAlreadyOutstanding)
 }
@@ -457,17 +457,17 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 	if elapsed < int64(silenceThreshold) {
 		var removed bool = false
 		for i := int32(0); i < this.events.size(); i++ {
-			var e *Tracer_Event = cast_[*Tracer_Event](this.events.get(i))
+			var e *Tracer_Event = this.events.get(i)
 			if e.tracer == t {
 				Preconditions_checkState(e.isStart)
-				this.events.remove(i)
+				this.events.removeAt(i)
 				removed = true
 				break
 			}
 		}
 		Preconditions_checkState((removed || this.isEventsTruncated))
 	} else {
-		this.events.add(obj_(new_Tracer_Event(false, t)))
+		this.events.add(new_Tracer_Event(false, t))
 	}
 	if t.type__.isPresent() {
 		var stat *Tracer_Stat = cast_[*Tracer_Stat](Map_get_s(this.stats, str_(t.type__.get())))
@@ -529,9 +529,9 @@ func (this *Tracer_ThreadTrace) toString() string {
 		}
 		return nil
 	}()
-	it_1 := foreach_(this.events.self())
+	it_1 := this.events.each()
 	for it_1.next() {
-		var e *Tracer_Event = cast_[*Tracer_Event](it_1.v)
+		var e *Tracer_Event = it_1.v
 		if (this.prettyPrint && !e.isStart) && !indent.isEmpty() {
 			indent.pop()
 		}
@@ -577,9 +577,9 @@ func (this *Tracer_ThreadTrace) toString() string {
 func (this *Tracer_ThreadTrace) getMaxDigits() int32 {
 	var etime int64 = -1
 	var maxTime int64 = 0
-	it_1 := foreach_(this.events.self())
+	it_1 := this.events.each()
 	for it_1.next() {
-		var e *Tracer_Event = cast_[*Tracer_Event](it_1.v)
+		var e *Tracer_Event = it_1.v
 		if etime != -1 {
 			var time int64 = (e.eventTime() - etime)
 			maxTime = Math_max_long_long(maxTime, time)

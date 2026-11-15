@@ -74,10 +74,10 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		}
 		return DotFormatter_LINE
 	}()
-	var nodes ListOf[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
+	var nodes *TList[GraphvizGraph_GraphvizNode] = graph.getGraphvizNodes()
 	var nodeNames []string = newstrarr_(nodes.size())
 	for i := int32(0); i < int32(len(nodeNames)); i++ {
-		var gNode GraphvizGraph_GraphvizNode = icast_GraphvizGraph_GraphvizNode(nodes.get(i))
+		var gNode GraphvizGraph_GraphvizNode = nodes.get(i)
 		nodeNames[i] = (sstr_(gNode.getId()) + " [label=\"" + sstr_(gNode.getLabel()) + "\" color=\"" + sstr_(gNode.getColor()) + "\"]")
 	}
 	func() {
@@ -93,11 +93,11 @@ func DotFormatter_toDot_GraphvizGraph(graph GraphvizGraph) string {
 		builder.append(nodeName)
 		builder.append(";\n")
 	}
-	var edges ListOf[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
-	List_sort(edges, Comparator_thenComparing(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode1Id()) }}), &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode2Id()) }}))
-	it_5 := foreach_(any(edges))
+	var edges *TList[GraphvizGraph_GraphvizEdge] = graph.getGraphvizEdges()
+	List_sort(edges.asList(), Comparator_thenComparing(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode1Id()) }}), &Function_fn{func(p0 any) any { return strobj_(icast_GraphvizGraph_GraphvizEdge(p0).getNode2Id()) }}))
+	it_5 := edges.each()
 	for it_5.next() {
-		var edge GraphvizGraph_GraphvizEdge = icast_GraphvizGraph_GraphvizEdge(it_5.v)
+		var edge GraphvizGraph_GraphvizEdge = it_5.v
 		builder.append(DotFormatter_INDENT)
 		builder.append(edge.getNode1Id())
 		builder.append(edgeSymbol)
@@ -133,10 +133,10 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		}
 	}
 	if (this.cfg != nil) && this.cfg.hasNode(parent.box_()) {
-		var outEdges ListOf[DiGraph_DiGraphEdge] = this.cfg.getOutEdges(parent.box_())
+		var outEdges *TList[DiGraph_DiGraphEdge] = this.cfg.getOutEdges(parent.box_())
 		var edgeList []string = newstrarr_(outEdges.size())
 		for i := int32(0); i < int32(len(edgeList)); i++ {
-			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(outEdges.get(i))
+			var edge DiGraph_DiGraphEdge = outEdges.get(i)
 			var succ DiGraph_DiGraphNode = edge.getDestination()
 			var toNode OptionalOf[string] = Optional_empty()
 			if succ == this.cfg.getImplicitReturn() {

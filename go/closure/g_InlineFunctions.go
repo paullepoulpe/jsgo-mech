@@ -366,44 +366,44 @@ func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionSta
 }
 
 func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *CompilerOptions) *InlineFunctions_ShouldRequireInlining {
-	var problems ListOf[string] = icast_List(new_ArrayList_0().self())
+	var problems *TList[string] = newTList_(tc_string)
 	if !options.shouldOptimize() {
-		problems.add(strobj_("non-optimized code"))
+		problems.add("non-optimized code")
 	}
 	if !options.shouldInlineProperties() {
-		problems.add(strobj_("missing shouldInlineProperties"))
+		problems.add("missing shouldInlineProperties")
 	}
 	if !options.shouldInlineConstantVars() {
-		problems.add(strobj_("missing inlineConstantVars"))
+		problems.add("missing inlineConstantVars")
 	}
 	if !options.getSmartNameRemoval() {
-		problems.add(strobj_("missing smartNameRemoval"))
+		problems.add("missing smartNameRemoval")
 	}
 	if !options.getInlineFunctionsLevel().isOn() {
-		problems.add(strobj_("missing inlineFunctions"))
+		problems.add("missing inlineFunctions")
 	}
 	if !options.getInlineFunctionsLevel().includesGlobals() {
-		problems.add(strobj_("inlineFunctions does not include globals"))
+		problems.add("inlineFunctions does not include globals")
 	}
 	if options.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
-		problems.add(strobj_("instrumentForCoverageOption enabled"))
+		problems.add("instrumentForCoverageOption enabled")
 	}
 	if !Object_equals(obj_(options.getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) {
-		problems.add(strobj_("missing property collapsing"))
+		problems.add("missing property collapsing")
 	}
 	if !options.shouldRemoveClosureAsserts() {
-		problems.add(strobj_("missing removeClosureAsserts"))
+		problems.add("missing removeClosureAsserts")
 	}
 	if !options.shouldDevirtualizeMethods() {
-		problems.add(strobj_("missing devirtualizeMethods"))
+		problems.add("missing devirtualizeMethods")
 	}
 	if options.getMaxOptimizationLoopIterations() == 1 {
-		problems.add(strobj_(("optimizationLoopMaxIterations should be >= 2, but is: " + istr_(int64(options.getMaxOptimizationLoopIterations())))))
+		problems.add(("optimizationLoopMaxIterations should be >= 2, but is: " + istr_(int64(options.getMaxOptimizationLoopIterations()))))
 	}
 	if problems.isEmpty() {
 		return new_InlineFunctions_ShouldRequireInlining(true, "")
 	}
-	return new_InlineFunctions_ShouldRequireInlining(false, String_format("[%s]", []any{strobj_(String_join(strobj_(", "), Iterable(problems)))}))
+	return new_InlineFunctions_ShouldRequireInlining(false, String_format("[%s]", []any{strobj_(String_join(strobj_(", "), Iterable(problems.asList())))}))
 }
 
 var InlineFunctions_MISSED_REQUIRED_INLINING *DiagnosticType

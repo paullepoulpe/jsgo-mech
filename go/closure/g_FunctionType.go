@@ -442,12 +442,12 @@ func (this *FunctionType) getOwnImplementedInterfaces() ImmutableListOf[*ObjectT
 	return this.implementedInterfaces
 }
 
-func (this *FunctionType) setImplementedInterfaces(implementedInterfaces ListOf[*ObjectType]) {
+func (this *FunctionType) setImplementedInterfaces(implementedInterfaces *TList[*ObjectType]) {
 	Preconditions_checkState(this.isConstructor())
-	this.implementedInterfaces = ImmutableList_copyOf(Collection(implementedInterfaces))
-	it_1 := foreach_(any(implementedInterfaces))
+	this.implementedInterfaces = ImmutableList_copyOf(Collection(implementedInterfaces.asList()))
+	it_1 := implementedInterfaces.each()
 	for it_1.next() {
-		var type_ *ObjectType = to_ObjectType(it_1.v)
+		var type_ *ObjectType = it_1.v
 		this.typeOfThis.mergeSupertypeTemplateTypes(type_)
 	}
 }
@@ -460,12 +460,12 @@ func (this *FunctionType) getExtendedInterfacesCount() int32 {
 	return this.extendedInterfaces.size()
 }
 
-func (this *FunctionType) setExtendedInterfaces(extendedInterfaces ListOf[*ObjectType]) {
+func (this *FunctionType) setExtendedInterfaces(extendedInterfaces *TList[*ObjectType]) {
 	Preconditions_checkState(this.isInterface())
-	this.extendedInterfaces = ImmutableList_copyOf(Collection(extendedInterfaces))
-	it_1 := foreach_(any(extendedInterfaces))
+	this.extendedInterfaces = ImmutableList_copyOf(Collection(extendedInterfaces.asList()))
+	it_1 := extendedInterfaces.each()
 	for it_1.next() {
-		var extendedInterface *ObjectType = to_ObjectType(it_1.v)
+		var extendedInterface *ObjectType = it_1.v
 		this.typeOfThis.mergeSupertypeTemplateTypes(extendedInterface)
 	}
 }
@@ -479,7 +479,7 @@ func (this *FunctionType) getPropertyTypeKey_impl(name Property_Key) *JSType {
 		} else if name.matches("apply") {
 			var builder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this.registry)
 			builder.addOptionalParams([]*JSType{this.registry.createNullableType(this.getTypeOfThis()), this.registry.createNullableType(this.registry.getNativeType(JSTypeNative_OBJECT_TYPE))})
-			this.defineDeclaredPropertyKey(name, FunctionType_builder(this.registry).withParameters_1(icast_List(obj_(builder.build()))).withReturnType(this.getReturnType()).withTemplateKeysImmutableList(this.getTemplateTypeMap().getTemplateKeys()).build().up_JSType(), this.source)
+			this.defineDeclaredPropertyKey(name, FunctionType_builder(this.registry).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, builder.build())).withReturnType(this.getReturnType()).withTemplateKeysImmutableList(this.getTemplateTypeMap().getTemplateKeys()).build().up_JSType(), this.source)
 		}
 	}
 	return this.PrototypeObjectType.getPropertyTypeKey_impl(name)
@@ -491,12 +491,12 @@ func (this *FunctionType) getBindReturnType(argsToBind int32) *FunctionType {
 		return to_FunctionType(builder.build().self())
 	}
 	var origParams ImmutableListOf[*FunctionType_Parameter] = this.call.getParameterList()
-	var params ListOf[*FunctionType_Parameter] = icast_List(new_ArrayList_Collection(icast_Collection(obj_(origParams))).self())
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams)))
 	for i := int32(1); (i < argsToBind) && !params.isEmpty(); i++ {
-		if cast_[*FunctionType_Parameter](params.get(0)).isVariadic() {
+		if params.get(0).isVariadic() {
 			break
 		}
-		params.remove(0)
+		params.removeAt(0)
 	}
 	builder.withParameters_1(params)
 	return to_FunctionType(builder.build().self())
@@ -511,25 +511,25 @@ func (this *FunctionType) getCallOrBindSignature(isCall bool) *FunctionType {
 		return this.getBindReturnType(-1).up_JSType()
 	}()).withTemplateKeysImmutableList(this.getTemplateTypeMap().getTemplateKeys())
 	var origParams ImmutableListOf[*FunctionType_Parameter] = this.getInternalArrowType().getParameterList()
-	var params ListOf[*FunctionType_Parameter] = icast_List(new_ArrayList_Collection(icast_Collection(obj_(origParams))).self())
+	var params *TList[*FunctionType_Parameter] = tlistFrom_(tc_p_FunctionType_Parameter, icast_Collection(obj_(origParams)))
 	var thisType *FunctionType_Parameter = FunctionType_Parameter_create(this.registry.createOptionalNullableType(this.getTypeOfThis()), false, false)
-	params.add_int_Object(0, obj_(thisType))
+	params.insert(0, thisType)
 	if isBind {
 		for i := int32(1); i < params.size(); i++ {
-			var current *FunctionType_Parameter = cast_[*FunctionType_Parameter](params.get(i))
+			var current *FunctionType_Parameter = params.get(i)
 			var optionalCopy *FunctionType_Parameter = FunctionType_Parameter_create(current.getJSType(), true, current.isVariadic())
-			params.set(i, obj_(optionalCopy))
+			params.set(i, optionalCopy)
 		}
 	} else if isCall {
 		var firstArg *FunctionType_Parameter = func() *FunctionType_Parameter {
 			if params.size() > 1 {
-				return cast_[*FunctionType_Parameter](params.get(1))
+				return params.get(1)
 			}
 			return nil
 		}()
 		if ((firstArg == nil) || firstArg.isOptional()) || firstArg.isVariadic() {
 			var optionalThisType *FunctionType_Parameter = FunctionType_Parameter_create(thisType.getJSType(), true, false)
-			params.set(0, obj_(optionalThisType))
+			params.set(0, optionalThisType)
 		}
 	}
 	builder.withParameters_1(params)
@@ -632,7 +632,7 @@ func (this *FunctionType) tryMergeFunctionPiecewise(other *FunctionType, leastSu
 		newTypeOfThis = maybeNewTypeOfThis
 	}
 	var newReturnTypeInferred bool = (this.call.returnTypeInferred || other.call.returnTypeInferred)
-	return to_FunctionType(FunctionType_builder(this.registry).withParameters_1(icast_List(obj_(newParamsNode))).withReturnType_2(newReturnType, newReturnTypeInferred).withTypeOfThis(newTypeOfThis).build().self())
+	return to_FunctionType(FunctionType_builder(this.registry).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, newParamsNode)).withReturnType_2(newReturnType, newReturnTypeInferred).withTypeOfThis(newTypeOfThis).build().self())
 }
 
 func (this *FunctionType) getSuperClassConstructor_impl() *FunctionType {
@@ -902,11 +902,11 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap MapOf[s
 	}
 }
 
-func (this *FunctionType) checkExtendsLoop() ListOf[*FunctionType] {
-	return this.checkExtendsLoop_2(icast_Set(obj_(new_LinkedHashSet())), icast_List(new_ArrayList_0().self()))
+func (this *FunctionType) checkExtendsLoop() *TList[*FunctionType] {
+	return this.checkExtendsLoop_2(icast_Set(obj_(new_LinkedHashSet())), newTList_(tc_p_FunctionType))
 }
 
-func (this *FunctionType) checkExtendsLoop_2(cache SetOf[*FunctionType], path ListOf[*FunctionType]) ListOf[*FunctionType] {
+func (this *FunctionType) checkExtendsLoop_2(cache SetOf[*FunctionType], path *TList[*FunctionType]) *TList[*FunctionType] {
 	var iterable ImmutableListOf[*ObjectType] = this.getExtendedInterfaces()
 	if iterable != nil {
 		it_1 := foreach_(obj_(iterable))
@@ -917,27 +917,27 @@ func (this *FunctionType) checkExtendsLoop_2(cache SetOf[*FunctionType], path Li
 				continue
 			}
 			if cache.contains(superConstructor.self()) {
-				path.add(superConstructor.self())
-				for !JSCompObjects_identical(path.get(0), superConstructor.self()) {
-					path.remove(0)
+				path.add(superConstructor)
+				for !JSCompObjects_identical(path.get(0).self(), superConstructor.self()) {
+					path.removeAt(0)
 				}
 				return path
 			}
 			cache.add(superConstructor.self())
-			path.add(superConstructor.self())
-			var result ListOf[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
+			path.add(superConstructor)
+			var result *TList[*FunctionType] = superConstructor.checkExtendsLoop_2(cache, path)
 			if result != nil {
 				return result
 			}
 			cache.remove_Object(superConstructor.self())
-			path.remove((path.size() - 1))
+			path.removeAt((path.size() - 1))
 		}
 	}
 	return nil
 }
 
-func (this *FunctionType) acceptsArguments(argumentTypes ListOf[*JSType]) bool {
-	var arguments IteratorOf[*JSType] = argumentTypes.iterator()
+func (this *FunctionType) acceptsArguments(argumentTypes *TList[*JSType]) bool {
+	var arguments IteratorOf[*JSType] = argumentTypes.asList().iterator()
 	var parameters IteratorOf[*FunctionType_Parameter] = this.getParameters().iterator()
 	var parameter *FunctionType_Parameter = nil
 	var argument *JSType = nil
@@ -1013,7 +1013,7 @@ func FunctionType_builder(registry *JSTypeRegistry) *FunctionType_Builder {
 }
 
 func (this *FunctionType) toBuilder() *FunctionType_Builder {
-	var builder *FunctionType_Builder = cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](FunctionType_builder(this.registry).setGoogModuleId(this.getGoogModuleId()).setName(this.getReferenceName()).self()).setNative(this.isNativeObjectType()).self()).setTemplateTypeMap(this.getTemplateTypeMap()).self()).withCanonicalRepresentation(this.getCanonicalRepresentation()).setIsKnownAmbiguous((this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)).withClosurePrimitiveId(this.getClosurePrimitive()).withIsAbstract(this.isAbstract()).withKind(this.getKind()).withParameters_1(icast_List(obj_(this.getParameters()))).withReturnType_2(this.getReturnType(), this.isReturnTypeInferred()).withSourceNode(this.getSource()).withTypeOfThis(this.getTypeOfThis()).setTemplateParamCount(this.getTemplateParamCount()).self())
+	var builder *FunctionType_Builder = cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](cast_[*FunctionType_Builder](FunctionType_builder(this.registry).setGoogModuleId(this.getGoogModuleId()).setName(this.getReferenceName()).self()).setNative(this.isNativeObjectType()).self()).setTemplateTypeMap(this.getTemplateTypeMap()).self()).withCanonicalRepresentation(this.getCanonicalRepresentation()).setIsKnownAmbiguous((this.constructorAmbiguity == FunctionType_ConstructorAmbiguity_IS_AMBIGUOUS_CONSTRUCTOR)).withClosurePrimitiveId(this.getClosurePrimitive()).withIsAbstract(this.isAbstract()).withKind(this.getKind()).withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.getParameters())).withReturnType_2(this.getReturnType(), this.isReturnTypeInferred()).withSourceNode(this.getSource()).withTypeOfThis(this.getTypeOfThis()).setTemplateParamCount(this.getTemplateParamCount()).self())
 	if this.isConstructor() {
 		builder.withConstructorTemplateKeys(icast_Iterable(obj_(this.getConstructorOnlyTemplateParameters())))
 	}
@@ -1212,7 +1212,7 @@ type FunctionType_Builder struct {
 	PrototypeObjectType_Builder
 	sourceNode_             Node
 	googModuleId            string
-	parameters              ListOf[*FunctionType_Parameter]
+	parameters              *TList[*FunctionType_Parameter]
 	returnType              *JSType
 	typeOfThis              *JSType
 	setPrototypeBasedOn_    *ObjectType
@@ -1279,13 +1279,13 @@ func (this *FunctionType_Builder) setGoogModuleId(x string) *FunctionType_Builde
 	return this
 }
 
-func (this *FunctionType_Builder) withParameters_1(parameters ListOf[*FunctionType_Parameter]) *FunctionType_Builder {
+func (this *FunctionType_Builder) withParameters_1(parameters *TList[*FunctionType_Parameter]) *FunctionType_Builder {
 	this.parameters = parameters
 	return this
 }
 
 func (this *FunctionType_Builder) withParameters() *FunctionType_Builder {
-	this.parameters = icast_List(obj_(ImmutableList_of()))
+	this.parameters = tlistImm_(tc_p_FunctionType_Parameter, ImmutableList_of())
 	return this
 }
 
@@ -1344,7 +1344,7 @@ func (this *FunctionType_Builder) forConstructor() *FunctionType_Builder {
 
 func (this *FunctionType_Builder) forInterface() *FunctionType_Builder {
 	this.kind_ = FunctionType_Kind_INTERFACE
-	this.parameters = icast_List(obj_(ImmutableList_of()))
+	this.parameters = tlistImm_(tc_p_FunctionType_Parameter, ImmutableList_of())
 	return this
 }
 

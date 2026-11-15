@@ -2025,12 +2025,12 @@ func new_RegExpTree_Concatenation_RegExpTree_RegExpTree(a *RegExpTree, b *RegExp
 	return this
 }
 
-func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements ListOf[*RegExpTree]) {
+func (this *RegExpTree_Concatenation) init_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) {
 	this.RegExpTree.init_RegExpTree()
-	this.elements_ = ImmutableList_copyOf(Collection(elements))
+	this.elements_ = ImmutableList_copyOf(Collection(elements.asList()))
 }
 
-func new_RegExpTree_Concatenation_List(elements ListOf[*RegExpTree]) *RegExpTree_Concatenation {
+func new_RegExpTree_Concatenation_List(elements *TList[*RegExpTree]) *RegExpTree_Concatenation {
 	this := &RegExpTree_Concatenation{}
 	this.self_ = this
 	this.init_RegExpTree_Concatenation_List(elements)
@@ -2049,7 +2049,7 @@ func (this *RegExpTree_Concatenation) simplify_impl(flags string) *RegExpTree {
 		case 0:
 			return RegExpTree_Empty_INSTANCE.up_RegExpTree()
 		case 1:
-			return to_RegExpTree(s.simplified.get(0))
+			return s.simplified.get(0)
 		default:
 			return new_RegExpTree_Concatenation_List(s.simplified).up_RegExpTree()
 		}
@@ -2712,11 +2712,11 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 type RegExpTree_Concatenation_1Simplifier struct {
 	outer_     *RegExpTree_Concatenation
 	cap_flags  string
-	simplified ListOf[*RegExpTree]
+	simplified *TList[*RegExpTree]
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) finit_RegExpTree_Concatenation_1Simplifier() {
-	this.simplified = icast_List(new_ArrayList_0().self())
+	this.simplified = newTList_(tc_p_RegExpTree)
 }
 
 func (this *RegExpTree_Concatenation_1Simplifier) init_RegExpTree_Concatenation_1Simplifier() {
@@ -2751,13 +2751,13 @@ func (this *RegExpTree_Concatenation_1Simplifier) simplify(t *RegExpTree) {
 	} else {
 		var lastIndex int32 = (this.simplified.size() - 1)
 		if lastIndex >= 0 {
-			var pairwise *RegExpTree = this.simplifyPairwise(to_RegExpTree(this.simplified.get(lastIndex)), t)
+			var pairwise *RegExpTree = this.simplifyPairwise(this.simplified.get(lastIndex), t)
 			if pairwise != nil {
-				this.simplified.set(lastIndex, pairwise.self())
+				this.simplified.set(lastIndex, pairwise)
 				return
 			}
 		}
-		this.simplified.add(t.self())
+		this.simplified.add(t)
 	}
 }
 

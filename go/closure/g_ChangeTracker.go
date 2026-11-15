@@ -6,14 +6,14 @@ type ChangeTracker struct {
 	changeStamp        int32
 	changeTimeline     *Timeline
 	recentChange       *RecentChange
-	codeChangeHandlers ListOf[CodeChangeHandler]
+	codeChangeHandlers *TList[CodeChangeHandler]
 }
 
 func (this *ChangeTracker) finit_ChangeTracker() {
 	this.changeStamp = 1
 	this.changeTimeline = new_Timeline()
 	this.recentChange = new_RecentChange()
-	this.codeChangeHandlers = icast_List(new_ArrayList_0().self())
+	this.codeChangeHandlers = newTList_(tc_CodeChangeHandler)
 }
 
 func (this *ChangeTracker) init_ChangeTracker() {
@@ -27,11 +27,11 @@ func new_ChangeTracker() *ChangeTracker {
 }
 
 func (this *ChangeTracker) addChangeHandler(handler CodeChangeHandler) {
-	this.codeChangeHandlers.add(any(handler))
+	this.codeChangeHandlers.add(handler)
 }
 
 func (this *ChangeTracker) removeChangeHandler(handler CodeChangeHandler) {
-	this.codeChangeHandlers.remove_Object(any(handler))
+	this.codeChangeHandlers.asList().remove_Object(any(handler))
 }
 
 func (this *ChangeTracker) getRecentChange() *RecentChange {
@@ -67,8 +67,8 @@ func (this *ChangeTracker) reportFunctionDeleted(n Node) {
 	this.changeTimeline.remove(n.box_())
 }
 
-func (this *ChangeTracker) getChangedScopeNodesForPass(passName string) ListOf[Node] {
-	var changedScopeNodes ListOf[Node] = this.changeTimeline.getSince(passName)
+func (this *ChangeTracker) getChangedScopeNodesForPass(passName string) *TList[Node] {
+	var changedScopeNodes *TList[Node] = this.changeTimeline.getSince(passName)
 	this.changeTimeline.mark(passName)
 	return changedScopeNodes
 }
@@ -97,9 +97,9 @@ func ChangeTracker_getEnclosingChangeScopeRoot(n Node) Node {
 }
 
 func (this *ChangeTracker) notifyChangeHandlers() {
-	it_1 := foreach_(any(this.codeChangeHandlers))
+	it_1 := this.codeChangeHandlers.each()
 	for it_1.next() {
-		var handler CodeChangeHandler = icast_CodeChangeHandler(it_1.v)
+		var handler CodeChangeHandler = it_1.v
 		handler.reportChange()
 	}
 }

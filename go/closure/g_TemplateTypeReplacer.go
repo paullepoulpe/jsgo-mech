@@ -142,11 +142,11 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 		}
 	}
 	if changed {
-		return type_.toBuilder().withParameters_1(func() List {
+		return type_.toBuilder().withParameters_1(func() *TList[*FunctionType_Parameter] {
 			if paramsChanged {
-				return icast_List(obj_(paramBuilder.build()))
+				return tlistImm_(tc_p_FunctionType_Parameter, paramBuilder.build())
 			}
-			return icast_List(obj_(type_.getParameters()))
+			return tlistImm_(tc_p_FunctionType_Parameter, type_.getParameters())
 		}()).withReturnType(afterReturn).withTypeOfThis(afterThis).withIsAbstract(false).build().up_JSType()
 	}
 	return type_.up_JSType()
@@ -257,7 +257,7 @@ func (this *TemplateTypeReplacer) caseUnionType(type_ *UnionType) any {
 
 func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSType {
 	var changed bool = false
-	var results ListOf[*JSType] = icast_List(new_ArrayList_0().self())
+	var results *TList[*JSType] = newTList_(tc_p_JSType)
 	var alternates ImmutableListOf[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
 	for i := int32(0); i < alternateCount; i++ {
@@ -266,7 +266,7 @@ func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSTy
 		if !JSCompObjects_identical(replacement.self(), alternative.self()) {
 			changed = true
 		}
-		results.add(replacement.self())
+		results.add(replacement)
 	}
 	if changed {
 		return this.registry.createUnionTypeList(results)

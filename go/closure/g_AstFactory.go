@@ -387,15 +387,15 @@ func (this *AstFactory) createNameWithUnknownType(name string) Node {
 func (this *AstFactory) createQNameUsingJSTypeInfo(globalTypedScope *TypedScope, qname string) Node {
 	Preconditions_checkArgument_boolean_Object(((globalTypedScope == nil) || globalTypedScope.isGlobal()), obj_(globalTypedScope))
 	this.assertNotAddingColors()
-	var nameParts ListOf[string] = AstFactory_DOT_SPLITTER.splitToList(strobj_(qname))
+	var nameParts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(qname)))
 	Preconditions_checkState(!nameParts.isEmpty())
-	var receiverPart string = str_(nameParts.get(0))
+	var receiverPart string = nameParts.get(0)
 	var receiver Node = IR_name(receiverPart)
 	if this.isAddingTypes() {
 		var var_ *TypedVar = cast_[*TypedVar](Preconditions_checkNotNull_Object_Object(globalTypedScope.getVar(receiverPart).self(), strobj_(receiverPart)))
 		receiver.setJSType(to_JSType(Preconditions_checkNotNull_Object_Object(var_.getType().self(), obj_(var_))))
 	}
-	var otherParts ListOf[string] = nameParts.subList(1, nameParts.size())
+	var otherParts ListOf[string] = nameParts.asList().subList(1, nameParts.size())
 	return this.createGetPropsWithoutColors(receiver, Iterable(otherParts))
 }
 
@@ -437,8 +437,8 @@ func (this *AstFactory) createQName_4(scope StaticScope, baseName string, baseNa
 
 func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager_JsLibField) Node {
 	var qname string = field.assertInjected().qualifiedName()
-	var parts ListOf[string] = AstFactory_DOT_SPLITTER.splitToList(strobj_(qname))
-	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts), nil)).orElseThrow())
+	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(qname)))
+	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
 	Preconditions_checkState_boolean_String_Object(String_startsWith(baseName, "$jscomp"), "Unexpected Field name %s", strobj_(baseName))
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {
@@ -449,7 +449,7 @@ func (this *AstFactory) createQName(scope StaticScope, field RuntimeJsLibManager
 	if this.lifeCycleStage.isNormalized() {
 		baseNameNode.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
-	var propertyNames IterableOf[string] = Iterables_skip(Iterable(parts), 1)
+	var propertyNames IterableOf[string] = Iterables_skip(Iterable(parts.asList()), 1)
 	return this.createQName_4(scope, baseName, baseNameNode, propertyNames)
 }
 
@@ -458,8 +458,8 @@ func (this *AstFactory) createQNameWithUnknownType(qname string) Node {
 }
 
 func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibManager_JsLibField) Node {
-	var parts ListOf[string] = AstFactory_DOT_SPLITTER.splitToList(strobj_(field.assertInjected().qualifiedName()))
-	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts), nil)).orElseThrow())
+	var parts *TList[string] = tlistImm_(tc_string, AstFactory_DOT_SPLITTER.splitToList(strobj_(field.assertInjected().qualifiedName())))
+	var baseName string = str_(Optional_ofNullable(Iterables_getFirst(Iterable(parts.asList()), nil)).orElseThrow())
 	Preconditions_checkState_boolean_String_Object(String_startsWith(baseName, "$jscomp"), "Unexpected Field name %s", strobj_(baseName))
 	var baseNameNode Node = func() Node {
 		if baseName == "$jscomp" {
@@ -470,7 +470,7 @@ func (this *AstFactory) createQNameWithUnknownTypeJsLibField(field RuntimeJsLibM
 	if this.lifeCycleStage.isNormalized() {
 		baseNameNode.putBooleanProp(Node_IS_CONSTANT_NAME, true)
 	}
-	var propertyNames IterableOf[string] = Iterables_skip(Iterable(parts), 1)
+	var propertyNames IterableOf[string] = Iterables_skip(Iterable(parts.asList()), 1)
 	return this.createGetPropsWithUnknownType(baseNameNode, propertyNames)
 }
 

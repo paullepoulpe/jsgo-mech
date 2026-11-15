@@ -85,9 +85,9 @@ func (this *NodeIterators_FunctionlessLocalScope) currentParent() Node {
 	}()
 }
 
-func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() ListOf[Node] {
-	var list ListOf[Node] = icast_List(new_ArrayList_Collection(Collection(this.ancestors)).self())
-	Collections_reverse(list)
+func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() *TList[Node] {
+	var list *TList[Node] = tlistFrom_(tc_Node, Collection(this.ancestors))
+	Collections_reverse(list.asList())
 	return list
 }
 

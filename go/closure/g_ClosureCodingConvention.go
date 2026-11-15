@@ -141,12 +141,12 @@ func (this *ClosureCodingConvention) getExportSymbolFunction_impl() string {
 	return "goog.exportSymbol"
 }
 
-func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) ListOf[string] {
+func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) *TList[string] {
 	var callName Node = n.getFirstChild()
 	if ClosureCodingConvention_GOOG_FORWARDDECLARE.matches(callName) && n.hasTwoChildren() {
 		var typeDeclaration Node = n.getSecondChild()
 		if typeDeclaration.isStringLit() {
-			return icast_List(obj_(ImmutableList_of_Object(strobj_(typeDeclaration.getString()))))
+			return tlistImm_(tc_string, ImmutableList_of_Object(strobj_(typeDeclaration.getString())))
 		}
 	}
 	return this.CodingConventions_Proxy.identifyTypeDeclarationCall_impl(n)

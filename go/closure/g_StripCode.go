@@ -24,9 +24,9 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 	it_1 := foreach_(obj_(stripNameSuffixes))
 	for it_1.next() {
 		var s string = str_(it_1.v)
-		it_3 := foreach_(StripCode_toListWithCollapsedVersions(s).self())
+		it_3 := StripCode_toListWithCollapsedVersions(s).each()
 		for it_3.next() {
-			var form string = str_(it_3.v)
+			var form string = it_3.v
 			stripNameSuffixesBuilder.add(strobj_(form))
 		}
 	}
@@ -35,51 +35,51 @@ func (this *StripCode) init_StripCode(compiler *AbstractCompiler, stripTypes Imm
 	it_5 := foreach_(obj_(stripNamePrefixes))
 	for it_5.next() {
 		var s string = str_(it_5.v)
-		it_7 := foreach_(StripCode_toListWithCollapsedVersions(s).self())
+		it_7 := StripCode_toListWithCollapsedVersions(s).each()
 		for it_7.next() {
-			var form string = str_(it_7.v)
+			var form string = it_7.v
 			stripNamePrefixesBuilder.add(strobj_(form))
 		}
 	}
 	this.stripNamePrefixes = cast_[*ImmutableSet](obj_(stripNamePrefixesBuilder.build()))
-	var stripTypesToAdjust ArrayListOf[string] = new_ArrayList_Collection(icast_Collection(obj_(stripTypes)))
+	var stripTypesToAdjust *TList[string] = tlistFrom_(tc_string, icast_Collection(obj_(stripTypes)))
 	if enableTweakStripping {
-		stripTypesToAdjust.add(strobj_("goog.tweak"))
+		stripTypesToAdjust.add("goog.tweak")
 	}
 	var stripTypesAdjustedBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_9 := foreach_(stripTypesToAdjust.self())
+	it_9 := stripTypesToAdjust.each()
 	for it_9.next() {
-		var s string = str_(it_9.v)
-		it_11 := foreach_(StripCode_toListWithCollapsedVersions(s).self())
+		var s string = it_9.v
+		it_11 := StripCode_toListWithCollapsedVersions(s).each()
 		for it_11.next() {
-			var form string = str_(it_11.v)
+			var form string = it_11.v
 			stripTypesAdjustedBuilder.add(strobj_(form))
 		}
 	}
 	var stripTypesAdjusted ImmutableSetOf[string] = cast_[*ImmutableSet](obj_(stripTypesAdjustedBuilder.build()))
 	this.stripTypesList = arrmap_(stripTypesAdjusted.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripTypePrefixes ArrayListOf[string] = new_ArrayList_0()
+	var stripTypePrefixes *TList[string] = newTList_(tc_string)
 	it_13 := foreach_(obj_(stripTypesAdjusted))
 	for it_13.next() {
 		var s string = str_(it_13.v)
-		stripTypePrefixes.add(strobj_((sstr_(s) + ".")))
-		stripTypePrefixes.add(strobj_((sstr_(s) + "$")))
+		stripTypePrefixes.add((sstr_(s) + "."))
+		stripTypePrefixes.add((sstr_(s) + "$"))
 	}
-	this.stripTypePrefixesList = arrmap_(stripTypePrefixes.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripNamePrefixesLowerCase ArrayListOf[string] = new_ArrayList_0()
+	this.stripTypePrefixesList = arrmap_(stripTypePrefixes.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	var stripNamePrefixesLowerCase *TList[string] = newTList_(tc_string)
 	it_15 := foreach_(obj_(this.stripNamePrefixes))
 	for it_15.next() {
 		var s string = str_(it_15.v)
-		stripNamePrefixesLowerCase.add(strobj_(String_toLowerCase(s, Locale_ROOT)))
+		stripNamePrefixesLowerCase.add(String_toLowerCase(s, Locale_ROOT))
 	}
-	this.stripNamePrefixesLowerCaseList = arrmap_(stripNamePrefixesLowerCase.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
-	var stripNameSuffixesLowerCase ArrayListOf[string] = new_ArrayList_0()
+	this.stripNamePrefixesLowerCaseList = arrmap_(stripNamePrefixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	var stripNameSuffixesLowerCase *TList[string] = newTList_(tc_string)
 	it_17 := foreach_(obj_(this.stripNameSuffixes))
 	for it_17.next() {
 		var s string = str_(it_17.v)
-		stripNameSuffixesLowerCase.add(strobj_(String_toLowerCase(s, Locale_ROOT)))
+		stripNameSuffixesLowerCase.add(String_toLowerCase(s, Locale_ROOT))
 	}
-	this.stripNameSuffixesLowerCaseList = arrmap_(stripNameSuffixesLowerCase.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	this.stripNameSuffixesLowerCaseList = arrmap_(stripNameSuffixesLowerCase.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 }
 
 func new_StripCode(compiler *AbstractCompiler, stripTypes ImmutableSetOf[string], stripNameSuffixes ImmutableSetOf[string], stripNamePrefixes ImmutableSetOf[string], enableTweakStripping bool) *StripCode {
@@ -88,14 +88,14 @@ func new_StripCode(compiler *AbstractCompiler, stripTypes ImmutableSetOf[string]
 	return this
 }
 
-func StripCode_toListWithCollapsedVersions(s string) ArrayListOf[string] {
-	var possibleForms ArrayListOf[string] = new_ArrayList_0()
-	possibleForms.add(strobj_(s))
+func StripCode_toListWithCollapsedVersions(s string) *TList[string] {
+	var possibleForms *TList[string] = newTList_(tc_string)
+	possibleForms.add(s)
 	var chars []uint16 = String_toCharArray(s)
 	for i := int32(0); i < int32(len(chars)); i++ {
 		if chars[i] == '.' {
 			chars[i] = '$'
-			possibleForms.add(strobj_(new_String(chars)))
+			possibleForms.add(new_String(chars))
 		}
 	}
 	return possibleForms

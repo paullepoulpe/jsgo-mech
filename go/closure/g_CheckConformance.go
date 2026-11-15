@@ -71,10 +71,10 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 			return ImmutableList_of()
 		}
 	}
-	var mergedRequirements ListOf[*Requirement] = this.mergeRequirements(compiler, icast_List(obj_(configs)), isLibraryLevelReportingMode)
-	it_1 := foreach_(any(mergedRequirements))
+	var mergedRequirements *TList[*Requirement] = this.mergeRequirements(compiler, tlistImm_(tc_p_ConformanceConfig, configs), isLibraryLevelReportingMode)
+	it_1 := mergedRequirements.each()
 	for it_1.next() {
-		var requirement *Requirement = cast_[*Requirement](it_1.v)
+		var requirement *Requirement = it_1.v
 		var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
 		if rule != nil {
@@ -138,12 +138,12 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 	return true
 }
 
-func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs ListOf[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) ListOf[*Requirement] {
+func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) *TList[*Requirement] {
 	var rootRequirements MapOf[*Requirement_Builder, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = icast_Map(obj_(new_LinkedHashMap()))
 	var extendable MapOf[string, *Requirement_Builder] = icast_Map(obj_(new_LinkedHashMap()))
-	it_1 := foreach_(any(configs))
+	it_1 := configs.each()
 	for it_1.next() {
-		var config *ConformanceConfig = cast_[*ConformanceConfig](it_1.v)
+		var config *ConformanceConfig = it_1.v
 		it_3 := foreach_(any(config.getRequirementList()))
 		for it_3.next() {
 			var requirement *Requirement = cast_[*Requirement](it_3.v)
@@ -174,9 +174,9 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			}
 		}
 	}
-	it_5 := foreach_(any(configs))
+	it_5 := configs.each()
 	for it_5.next() {
-		var config *ConformanceConfig = cast_[*ConformanceConfig](it_5.v)
+		var config *ConformanceConfig = it_5.v
 		it_7 := foreach_(any(config.getRequirementList()))
 		for it_7.next() {
 			var requirement *Requirement = cast_[*Requirement](it_7.v)
@@ -192,7 +192,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 			}
 		}
 	}
-	var cleanedUpRootRequirements ListOf[*Requirement] = icast_List(new_ArrayList_int(rootRequirements.size()).self())
+	var cleanedUpRootRequirements *TList[*Requirement] = newTListN_(tc_p_Requirement, rootRequirements.size())
 	it_9 := foreach_(any(rootRequirements.entrySet()))
 	for it_9.next() {
 		var entry Map_Entry = icast_Map_Entry(it_9.v)
@@ -203,7 +203,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		if (isLibraryLevelConformanceReportingMode && (behavior != nil)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
 			this.mergedBehaviors.put(obj_(requirement), obj_(behavior))
 		}
-		cleanedUpRootRequirements.add(obj_(requirement))
+		cleanedUpRootRequirements.add(requirement)
 	}
 	return cleanedUpRootRequirements
 }

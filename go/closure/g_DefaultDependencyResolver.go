@@ -3,16 +3,16 @@
 package closure
 
 type DefaultDependencyResolver struct {
-	depsFiles      ListOf[*DependencyFile]
+	depsFiles      *TList[*DependencyFile]
 	strictRequires bool
 }
 
-func (this *DefaultDependencyResolver) init_DefaultDependencyResolver(depsFiles ListOf[*DependencyFile], strictRequires bool) {
+func (this *DefaultDependencyResolver) init_DefaultDependencyResolver(depsFiles *TList[*DependencyFile], strictRequires bool) {
 	this.depsFiles = depsFiles
 	this.strictRequires = strictRequires
 }
 
-func new_DefaultDependencyResolver(depsFiles ListOf[*DependencyFile], strictRequires bool) *DefaultDependencyResolver {
+func new_DefaultDependencyResolver(depsFiles *TList[*DependencyFile], strictRequires bool) *DefaultDependencyResolver {
 	this := &DefaultDependencyResolver{}
 	this.init_DefaultDependencyResolver(depsFiles, strictRequires)
 	return this
@@ -31,10 +31,10 @@ func (this *DefaultDependencyResolver) getDependencies_3(code string, seen SetOf
 }
 
 func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen SetOf[string]) Collection {
-	var list ListOf[string] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(this.depsFiles))
+	var list *TList[string] = newTList_(tc_string)
+	it_1 := this.depsFiles.each()
 	for it_1.next() {
-		var depsFile *DependencyFile = cast_[*DependencyFile](it_1.v)
+		var depsFile *DependencyFile = it_1.v
 		depsFile.ensureUpToDate()
 	}
 	it_3 := foreach_(any(symbols))
@@ -42,10 +42,10 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 		var symbol string = str_(it_3.v)
 		this.addDependency(symbol, seen, list)
 	}
-	return Collection(list)
+	return Collection(list.asList())
 }
 
-func (this *DefaultDependencyResolver) addDependency(symbol string, seen SetOf[string], list ListOf[string]) {
+func (this *DefaultDependencyResolver) addDependency(symbol string, seen SetOf[string], list *TList[string]) {
 	var dependency DependencyInfo = this.getDependencyInfo(symbol)
 	if dependency == nil {
 		if this.strictRequires {
@@ -58,7 +58,7 @@ func (this *DefaultDependencyResolver) addDependency(symbol string, seen SetOf[s
 			var require string = str_(it_1.v)
 			this.addDependency(require, seen, list)
 		}
-		list.add(strobj_(dependency.getPathRelativeToClosureBase()))
+		list.add(dependency.getPathRelativeToClosureBase())
 	}
 }
 
@@ -66,19 +66,19 @@ func DefaultDependencyResolver_parseRequires(code string, addClosureBase bool) C
 	var errorManager ErrorManager = icast_ErrorManager(obj_(new_LoggerErrorManager_Logger(DefaultDependencyResolver_logger)))
 	var parser *JsFileRegexParser = new_JsFileRegexParser(errorManager)
 	var deps DependencyInfo = parser.parseFile("<unknown path>", "<unknown path>", code)
-	var requires ListOf[string] = icast_List(new_ArrayList_0().self())
+	var requires *TList[string] = newTList_(tc_string)
 	if addClosureBase {
-		requires.add(strobj_(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE))
+		requires.add(DefaultDependencyResolver_CLOSURE_BASE_PROVIDE)
 	}
-	requires.addAll(icast_Collection(obj_(deps.getRequiredSymbols())))
+	requires.asList().addAll(icast_Collection(obj_(deps.getRequiredSymbols())))
 	errorManager.generateReport()
-	return Collection(requires)
+	return Collection(requires.asList())
 }
 
 func (this *DefaultDependencyResolver) getDependencyInfo(symbol string) DependencyInfo {
-	it_1 := foreach_(any(this.depsFiles))
+	it_1 := this.depsFiles.each()
 	for it_1.next() {
-		var depsFile *DependencyFile = cast_[*DependencyFile](it_1.v)
+		var depsFile *DependencyFile = it_1.v
 		var di DependencyInfo = depsFile.getDependencyInfo(symbol)
 		if di != nil {
 			return di

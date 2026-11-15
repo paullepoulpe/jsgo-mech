@@ -71,7 +71,7 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 		}
 		return 0
 	}
-	var functionsToHoist ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var functionsToHoist *TList[Node] = newTList_(tc_Node)
 	{
 		var c Node = n.getFirstChild()
 		var next Node
@@ -79,13 +79,13 @@ func FunctionToBlockMutator_rewriteFunctionDeclarations(n Node) Node {
 			next = c.getNext()
 			var fnVar Node = FunctionToBlockMutator_rewriteFunctionDeclarations(c)
 			if fnVar != 0 {
-				functionsToHoist.add_int_Object(0, fnVar.box_())
+				functionsToHoist.insert(0, fnVar)
 			}
 		}
 	}
-	it_2 := foreach_(any(functionsToHoist))
+	it_2 := functionsToHoist.each()
 	for it_2.next() {
-		var fnVar Node = Node_of_(it_2.v)
+		var fnVar Node = it_2.v
 		if n.getFirstChild() != fnVar {
 			n.addChildToFront(fnVar.detach())
 		}
@@ -164,7 +164,7 @@ func FunctionToBlockMutator_fixUninitializedVarDeclarations_Node_Node_boolean(n 
 
 func (this *FunctionToBlockMutator) makeLocalNamesUnique(fnNode Node, isCallInLoop bool) {
 	var idSupplier SupplierOf[string] = this.compiler_.getUniqueNameIdSupplier()
-	NodeTraversal_traverseScopeRoots(this.compiler_, icast_List(obj_(ImmutableList_of_Object(fnNode.box_()))), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)))).withMarkChanges(false).build())), true)
+	NodeTraversal_traverseScopeRoots(this.compiler_, tlistImm_(tc_Node, ImmutableList_of_Object(fnNode.box_())), icast_NodeTraversal_Callback(obj_(MakeDeclaredNamesUnique_builder().withRenamer(icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_InlineRenamer(this.compiler_.getCodingConvention(), idSupplier, "inline_", isCallInLoop, true, nil)))).withMarkChanges(false).build())), true)
 	new_RenameLabels_AbstractCompiler_Supplier_boolean_boolean(this.compiler_, icast_Supplier(obj_(new_FunctionToBlockMutator_LabelNameSupplier(idSupplier))), false, false).process_2(0, fnNode)
 }
 
@@ -195,7 +195,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 		return result
 	} else {
 		var paramReplacements MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
-		var newAliasesToAdd ListOf[Node] = icast_List(new_ArrayList_0().self())
+		var newAliasesToAdd *TList[Node] = newTList_(tc_Node)
 		it_3 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
 		for it_3.next() {
 			var entry Map_Entry = icast_Map_Entry(it_3.v)
@@ -213,7 +213,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 					var newName string = this.getUniqueThisName()
 					var newValue Node = originalValue.cloneTree()
 					var newNode Node = NodeUtil_newVarNode(newName, newValue).srcrefTreeIfMissing(newValue)
-					newAliasesToAdd.add_int_Object(0, newNode.box_())
+					newAliasesToAdd.insert(0, newNode)
 					replacement = IR_name(newName).srcrefTree(newValue)
 				}
 				Map_put_s(paramReplacements, FunctionArgumentInjector_THIS_MARKER, replacement.box_())
@@ -222,14 +222,14 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 				var newValue Node = arg.arg().cloneTree()
 				newName.srcref(newValue)
 				var newNode Node = IR_var_Node_Node(newName, newValue).srcrefTreeIfMissing(newValue)
-				newAliasesToAdd.add_int_Object(0, newNode.box_())
+				newAliasesToAdd.insert(0, newNode)
 			}
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, paramReplacements)
 		Preconditions_checkState((result == fnTemplateRoot))
-		it_5 := foreach_(any(newAliasesToAdd))
+		it_5 := newAliasesToAdd.each()
 		for it_5.next() {
-			var n Node = Node_of_(it_5.v)
+			var n Node = it_5.v
 			fnTemplateRoot.addChildToFront(n)
 		}
 		return result

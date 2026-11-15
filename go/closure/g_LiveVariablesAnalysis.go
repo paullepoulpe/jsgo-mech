@@ -8,7 +8,7 @@ type LiveVariablesAnalysis struct {
 	jsScopeChild   *Scope
 	escaped        SetOf[*Var]
 	scopeVariables map[string]BoxedOf[int32]
-	orderedVars    ListOf[*Var]
+	orderedVars    *TList[*Var]
 	allVarsInFn    MapOf[string, *Var]
 }
 
@@ -41,9 +41,9 @@ func new_LiveVariablesAnalysis(cfg *ControlFlowGraph, jsScope *Scope, jsScopeChi
 
 func (this *LiveVariablesAnalysis) addScopeVariables() {
 	var num int32 = 0
-	it_1 := foreach_(any(this.orderedVars))
+	it_1 := this.orderedVars.each()
 	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+		var v *Var = it_1.v
 		this.scopeVariables[v.getName()] = any(int32(num))
 		num++
 	}
@@ -57,7 +57,7 @@ func (this *LiveVariablesAnalysis) getAllVariables() MapOf[string, *Var] {
 	return this.allVarsInFn
 }
 
-func (this *LiveVariablesAnalysis) getAllVariablesInOrder() ListOf[*Var] {
+func (this *LiveVariablesAnalysis) getAllVariablesInOrder() *TList[*Var] {
 	return this.orderedVars
 }
 
@@ -89,10 +89,10 @@ func (this *LiveVariablesAnalysis) flowThrough_impl(node_ any, input_ LatticeEle
 	var gen *BitSet = new_BitSet_int(input.liveSet.size())
 	var kill *BitSet = new_BitSet_int(input.liveSet.size())
 	var conditional bool = false
-	var edgeList ListOf[DiGraph_DiGraphEdge] = this.getCfg().getOutEdges(node.box_())
-	it_1 := foreach_(any(edgeList))
+	var edgeList *TList[DiGraph_DiGraphEdge] = this.getCfg().getOutEdges(node.box_())
+	it_1 := edgeList.each()
 	for it_1.next() {
-		var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
+		var edge DiGraph_DiGraphEdge = it_1.v
 		if Object_equals(obj_(ControlFlowGraph_Branch_ON_EX), edge.getValue()) {
 			conditional = true
 		}

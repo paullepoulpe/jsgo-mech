@@ -140,8 +140,8 @@ func new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(graph Adjac
 }
 
 func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
-	var worklist ListOf[GraphNode] = icast_List(new_ArrayList_Collection(this.graph.getNodes()).self())
-	Collections_sort_List_Comparator(worklist, Comparator_comparing_Function_Comparator(&Function_fn{func(p0 any) any { return icast_GraphNode(p0).getValue() }}, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
+	var worklist *TList[GraphNode] = tlistFrom_(tc_GraphNode, this.graph.getNodes())
+	Collections_sort_List_Comparator(worklist.asList(), Comparator_comparing_Function_Comparator(&Function_fn{func(p0 any) any { return icast_GraphNode(p0).getValue() }}, &Comparator_fn{func(leftProperty any, rightProperty any) int32 {
 		var result int32 = (this.graph.getWeight(rightProperty) - this.graph.getWeight(leftProperty))
 		return func() int32 {
 			if (result == 0) && (this.tieBreaker != nil) {
@@ -156,7 +156,7 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 		var color *GraphColoring_Color = new_GraphColoring_Color(count)
 		var subgraph SubGraph = this.graph.newSubGraph()
 		{
-			var i IteratorOf[GraphNode] = worklist.iterator()
+			var i IteratorOf[GraphNode] = worklist.asList().iterator()
 			for i.hasNext() {
 				var node GraphNode = icast_GraphNode(i.next())
 				if subgraph.isIndependentOf(node.getValue()) {

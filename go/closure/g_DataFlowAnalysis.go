@@ -68,15 +68,15 @@ func (this *DataFlowAnalysis) analyze() {
 		}
 		this.joinInputs(curNode)
 		if this.flow(curNode) {
-			var nextNodes ListOf[DiGraph_DiGraphNode] = func() List {
+			var nextNodes *TList[DiGraph_DiGraphNode] = func() *TList[DiGraph_DiGraphNode] {
 				if this.isForward() {
 					return this.cfg.getDirectedSuccNodesDiGraphNode(curNode)
 				}
 				return this.cfg.getDirectedPredNodesDiGraphNode(curNode)
 			}()
-			it_2 := foreach_(any(nextNodes))
+			it_2 := nextNodes.each()
 			for it_2.next() {
-				var nextNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_2.v)
+				var nextNode DiGraph_DiGraphNode = it_2.v
 				if nextNode != this.cfg.getImplicitReturn() {
 					this.workQueue.add(any(nextNode))
 				}
@@ -99,9 +99,9 @@ func (this *DataFlowAnalysis) initialize() {
 		}
 	}
 	if this.isBranched() {
-		it_3 := foreach_(any(this.cfg.getEdges()))
+		it_3 := this.cfg.getEdges().each()
 		for it_3.next() {
-			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
+			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(any(it_3.v))
 			edge.setAnnotation(Annotation_graph(this.createInitialEstimateLattice()))
 		}
 	}
@@ -115,9 +115,9 @@ func (this *DataFlowAnalysis) flow(node DiGraph_DiGraphNode) bool {
 		var changed bool = !Object_equals(any(outBefore), state.getOut())
 		if this.isBranched() {
 			var brancher DataFlowAnalysis_FlowBrancher = this.createFlowBrancher(node.getValue(), icast_LatticeElement(state.getOut()))
-			it_1 := foreach_(any(node.getOutEdges()))
+			it_1 := node.getOutEdges().each()
 			for it_1.next() {
-				var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
+				var outEdge DiGraph_DiGraphEdge = it_1.v
 				var outBranchBefore LatticeElement = icast_LatticeElement(Annotatable_getAnnotation(Annotatable(outEdge)))
 				outEdge.setAnnotation(icast_Annotation_graph(brancher.branchFlow(cast_[*ControlFlowGraph_Branch](outEdge.getValue()))))
 				if !changed {
@@ -140,7 +140,7 @@ func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
 		state.setIn(any(this.createEntryLattice()))
 		return
 	}
-	var inEdges ListOf[DiGraph_DiGraphEdge] = func() List {
+	var inEdges *TList[DiGraph_DiGraphEdge] = func() *TList[DiGraph_DiGraphEdge] {
 		if this.isForward() {
 			return node.getInEdges()
 		}
@@ -151,12 +151,12 @@ func (this *DataFlowAnalysis) joinInputs(node DiGraph_DiGraphNode) {
 	case 0:
 		return
 	case 1:
-		result = this.getInputFromEdge(icast_DiGraph_DiGraphEdge(inEdges.get(0)))
+		result = this.getInputFromEdge(inEdges.get(0))
 	default:
 		var joiner DataFlowAnalysis_FlowJoiner = this.createFlowJoiner()
-		it_2 := foreach_(any(inEdges))
+		it_2 := inEdges.each()
 		for it_2.next() {
-			var inEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_2.v)
+			var inEdge DiGraph_DiGraphEdge = it_2.v
 			joiner.joinFlow(any(this.getInputFromEdge(inEdge)))
 		}
 		result = icast_LatticeElement(joiner.finish())

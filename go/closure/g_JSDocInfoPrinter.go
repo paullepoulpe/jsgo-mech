@@ -30,148 +30,148 @@ func new_JSDocInfoPrinter_boolean_boolean(useOriginalName bool, printDesc bool) 
 
 func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	var multiline bool = false
-	var parts ListOf[string] = icast_List(new_ArrayList_0().self())
-	parts.add(strobj_("/**"))
+	var parts *TList[string] = newTList_(tc_string)
+	parts.add("/**")
 	if info.isExterns() {
-		parts.add(strobj_("@externs"))
+		parts.add("@externs")
 	}
 	if info.isTypeSummary() {
-		parts.add(strobj_("@typeSummary"))
+		parts.add("@typeSummary")
 	}
 	if info.isExport() {
-		parts.add(strobj_("@export"))
+		parts.add("@export")
 	} else if (info.getVisibility() != nil) && (info.getVisibility() != JSDocInfo_Visibility_INHERITED) {
-		parts.add(strobj_(("@" + sstr_(Ascii_toLowerCase(Object_toString(obj_(info.getVisibility())))))))
+		parts.add(("@" + sstr_(Ascii_toLowerCase(Object_toString(obj_(info.getVisibility()))))))
 	}
 	if info.getAuthors() != nil {
 		multiline = true
 		it_1 := foreach_(any(info.getAuthors()))
 		for it_1.next() {
 			var name string = str_(it_1.v)
-			parts.add(strobj_(("@author " + sstr_(name))))
+			parts.add(("@author " + sstr_(name)))
 		}
 	}
 	if info.isAbstract() {
-		parts.add(strobj_("@abstract"))
+		parts.add("@abstract")
 	}
 	if info.hasLendsName() {
-		parts.add(strobj_(this.buildAnnotationWithType("lends", info.getLendsName().getRoot())))
+		parts.add(this.buildAnnotationWithType("lends", info.getLendsName().getRoot()))
 	}
 	if info.hasConstAnnotation() && !info.isDefine() {
-		parts.add(strobj_("@const"))
+		parts.add("@const")
 	}
 	if info.isFinal() {
-		parts.add(strobj_("@final"))
+		parts.add("@final")
 	}
 	var description OptionalOf[string] = info.getDescription()
 	if description.isPresent() {
 		multiline = true
-		parts.add(strobj_(("@desc " + sstr_(str_(description.get())))))
+		parts.add(("@desc " + sstr_(str_(description.get()))))
 	}
 	if info.getReferences() != nil {
 		multiline = true
 		it_3 := foreach_(any(info.getReferences()))
 		for it_3.next() {
 			var desc string = str_(it_3.v)
-			parts.add(strobj_(("@see " + sstr_(desc))))
+			parts.add(("@see " + sstr_(desc)))
 		}
 	}
 	if info.isWizaction() {
-		parts.add(strobj_("@wizaction"))
+		parts.add("@wizaction")
 	}
 	if info.isNoSideEffects() {
-		parts.add(strobj_("@nosideeffects"))
+		parts.add("@nosideeffects")
 	}
 	if info.isNoCompile() {
-		parts.add(strobj_("@nocompile"))
+		parts.add("@nocompile")
 	}
 	if info.isNoInline() {
-		parts.add(strobj_("@noinline"))
+		parts.add("@noinline")
 	}
 	if info.isRequireInlining() {
-		parts.add(strobj_("@requireInlining"))
+		parts.add("@requireInlining")
 	}
 	if info.isEncourageInlining() {
-		parts.add(strobj_("@encourageInlining"))
+		parts.add("@encourageInlining")
 	}
 	if info.isProvideAlreadyProvided() {
-		parts.add(strobj_("@provideAlreadyProvided"))
+		parts.add("@provideAlreadyProvided")
 	}
 	if info.isIdGenerator() {
-		parts.add(strobj_("@idGenerator {unique}"))
+		parts.add("@idGenerator {unique}")
 	}
 	if info.isConsistentIdGenerator() {
-		parts.add(strobj_("@idGenerator {consistent}"))
+		parts.add("@idGenerator {consistent}")
 	}
 	if info.isStableIdGenerator() {
-		parts.add(strobj_("@idGenerator {stable}"))
+		parts.add("@idGenerator {stable}")
 	}
 	if info.isXidGenerator() {
-		parts.add(strobj_("@idGenerator {xid}"))
+		parts.add("@idGenerator {xid}")
 	}
 	if info.isMappedIdGenerator() {
-		parts.add(strobj_("@idGenerator {mapped}"))
+		parts.add("@idGenerator {mapped}")
 	}
 	if info.makesDicts() {
-		parts.add(strobj_("@dict"))
+		parts.add("@dict")
 	}
 	if info.makesStructs() {
-		parts.add(strobj_("@struct"))
+		parts.add("@struct")
 	}
 	if info.makesUnrestricted() {
-		parts.add(strobj_("@unrestricted "))
+		parts.add("@unrestricted ")
 	}
 	if info.isConstructor() {
-		parts.add(strobj_("@constructor"))
+		parts.add("@constructor")
 	}
 	if info.isInterface() && !info.usesImplicitMatch() {
-		parts.add(strobj_("@interface"))
+		parts.add("@interface")
 	}
 	if info.isInterface() && info.usesImplicitMatch() {
-		parts.add(strobj_("@record"))
+		parts.add("@record")
 	}
 	if info.isClosureUnawareCode() {
-		parts.add(strobj_("@closureUnaware"))
+		parts.add("@closureUnaware")
 	}
 	if info.hasBaseType() {
 		multiline = true
 		var typeNode Node = this.stripBang(info.getBaseType().getRoot())
-		parts.add(strobj_(this.buildAnnotationWithType("extends", typeNode)))
+		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
 	it_5 := foreach_(any(info.getExtendedInterfaces()))
 	for it_5.next() {
 		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_5.v)
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
-		parts.add(strobj_(this.buildAnnotationWithType("extends", typeNode)))
+		parts.add(this.buildAnnotationWithType("extends", typeNode))
 	}
 	it_7 := foreach_(any(info.getImplementedInterfaces()))
 	for it_7.next() {
 		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_7.v)
 		multiline = true
 		var typeNode Node = this.stripBang(type_.getRoot())
-		parts.add(strobj_(this.buildAnnotationWithType("implements", typeNode)))
+		parts.add(this.buildAnnotationWithType("implements", typeNode))
 	}
 	if info.hasThisType() {
 		multiline = true
 		var typeNode Node = this.stripBang(info.getThisType().getRoot())
-		parts.add(strobj_(this.buildAnnotationWithType("this", typeNode)))
+		parts.add(this.buildAnnotationWithType("this", typeNode))
 	}
 	if info.getParameterCount() > 0 {
 		multiline = true
 		it_9 := foreach_(any(info.getParameterNames()))
 		for it_9.next() {
 			var name string = str_(it_9.v)
-			parts.add(strobj_(("@param " + sstr_(this.buildParamType(info, name)))))
+			parts.add(("@param " + sstr_(this.buildParamType(info, name))))
 		}
 	}
 	if info.hasReturnType() {
 		multiline = true
-		parts.add(strobj_(this.buildAnnotationWithType_3("return", info.getReturnType(), info.getReturnDescription())))
+		parts.add(this.buildAnnotationWithType_3("return", info.getReturnType(), info.getReturnDescription()))
 	}
 	if !info.getThrowsAnnotations().isEmpty() && !String_isEmpty(str_(info.getThrowsAnnotations().get(0))) {
 		multiline = true
-		parts.add(strobj_(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0))))))
+		parts.add(("@throws " + sstr_(str_(info.getThrowsAnnotations().get(0)))))
 	}
 	var templates ImmutableMapOf[string, *JSTypeExpression] = info.getTemplateTypes()
 	if !templates.isEmpty() {
@@ -183,9 +183,9 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			_ = boundExpr
 			var boundRoot Node = boundExpr.getRoot()
 			if (boundRoot.getToken() == Token_rhino_QMARK) && !boundRoot.hasChildren() {
-				parts.add(strobj_(("@template " + sstr_(name))))
+				parts.add(("@template " + sstr_(name)))
 			} else {
-				parts.add(strobj_(this.buildAnnotationWithType_3("template", boundExpr, Optional_of(strobj_(name)))))
+				parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of(strobj_(name))))
 			}
 		}})
 	}
@@ -197,33 +197,33 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			var e Map_Entry = icast_Map_Entry(it_11.v)
 			var name string = str_(e.getKey())
 			var tranformationDefinition string = new_CodePrinter_Builder(Node_of_(e.getValue())).build()
-			parts.add(strobj_(("@template " + sstr_(name) + " := " + sstr_(tranformationDefinition) + " =:")))
+			parts.add(("@template " + sstr_(name) + " := " + sstr_(tranformationDefinition) + " =:"))
 		}
 	}
 	if info.isOverride() {
-		parts.add(strobj_("@override"))
+		parts.add("@override")
 	}
 	if info.hasType() && !info.isDefine() {
 		if info.isInlineType() {
-			parts.add(strobj_(this.typeNode(info.getType().getRoot())))
+			parts.add(this.typeNode(info.getType().getRoot()))
 		} else {
-			parts.add(strobj_(this.buildAnnotationWithTypeJSTypeExpression("type", info.getType())))
+			parts.add(this.buildAnnotationWithTypeJSTypeExpression("type", info.getType()))
 		}
 	}
 	if info.isDefine() {
-		parts.add(strobj_(this.buildAnnotationWithTypeJSTypeExpression("define", info.getType())))
+		parts.add(this.buildAnnotationWithTypeJSTypeExpression("define", info.getType()))
 	}
 	if info.hasTypedefType() {
-		parts.add(strobj_(this.buildAnnotationWithTypeJSTypeExpression("typedef", info.getTypedefType())))
+		parts.add(this.buildAnnotationWithTypeJSTypeExpression("typedef", info.getTypedefType()))
 	}
 	if info.hasEnumParameterType() {
-		parts.add(strobj_(this.buildAnnotationWithTypeJSTypeExpression("enum", info.getEnumParameterType())))
+		parts.add(this.buildAnnotationWithTypeJSTypeExpression("enum", info.getEnumParameterType()))
 	}
 	if info.isImplicitCast() {
-		parts.add(strobj_("@implicitCast"))
+		parts.add("@implicitCast")
 	}
 	if info.isNoCollapse() {
-		parts.add(strobj_("@nocollapse"))
+		parts.add("@nocollapse")
 	}
 	var suppressions ImmutableMapOf[ImmutableSetOf[string], string] = info.getSuppressionsAndTheirDescription()
 	if !suppressions.isEmpty() {
@@ -245,53 +245,53 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			if !String_isEmpty(text) {
 				sb.append(" ").append(text)
 			}
-			parts.add(strobj_(Object_toString(obj_(sb))))
+			parts.add(Object_toString(obj_(sb)))
 		}
 		multiline = true
 	}
 	if info.isDeprecated() {
 		var deprecationReason OptionalOf[string] = info.getDeprecationReason()
-		parts.add(strobj_(("@deprecated" + sstr_(func() string {
+		parts.add(("@deprecated" + sstr_(func() string {
 			if deprecationReason.isPresent() {
 				return (" " + sstr_(str_(deprecationReason.get())))
 			}
 			return ""
-		}()))))
+		}())))
 		multiline = true
 	}
 	if info.isPolymer() {
 		multiline = true
-		parts.add(strobj_("@polymer"))
+		parts.add("@polymer")
 	}
 	if info.isPolymerBehavior() {
 		multiline = true
-		parts.add(strobj_("@polymerBehavior"))
+		parts.add("@polymerBehavior")
 	}
 	if info.isMixinFunction() {
 		multiline = true
-		parts.add(strobj_("@mixinFunction"))
+		parts.add("@mixinFunction")
 	}
 	if info.isMixinClass() {
 		multiline = true
-		parts.add(strobj_("@mixinClass"))
+		parts.add("@mixinClass")
 	}
 	if info.isCustomElement() {
 		multiline = true
-		parts.add(strobj_("@customElement"))
+		parts.add("@customElement")
 	}
 	if info.getClosurePrimitiveId().isPresent() {
-		parts.add(strobj_(("@closurePrimitive {" + sstr_(str_(info.getClosurePrimitiveId().get())) + "}")))
+		parts.add(("@closurePrimitive {" + sstr_(str_(info.getClosurePrimitiveId().get())) + "}"))
 	}
 	if info.isNgInject() {
-		parts.add(strobj_("@ngInject"))
+		parts.add("@ngInject")
 	}
 	if info.isLegacyNamedTsExport() {
-		parts.add(strobj_("@legacyNamedTsExport"))
+		parts.add("@legacyNamedTsExport")
 	}
 	it_17 := foreach_(obj_(info.getTsTypes()))
 	for it_17.next() {
 		var tsType string = str_(it_17.v)
-		parts.add(strobj_(("@tsType " + sstr_(tsType))))
+		parts.add(("@tsType " + sstr_(tsType)))
 	}
 	if this.printDesc && info.getBlockDescription().isPresent() {
 		var cleaned string = JSDocInfoPrinter_DESCRIPTION_LINE_START_PATTERN.matcher(info.getBlockDescription().get()).replaceAll("\n")
@@ -301,14 +301,14 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			if parts.size() > 1 {
 				cleaned += "\n"
 			}
-			parts.add_int_Object(1, strobj_(cleaned))
+			parts.insert(1, cleaned)
 		}
 	}
 	var sb *StringBuilder = new_StringBuilder()
 	if multiline {
-		Joiner_on("\n").appendTo(sb, Iterable(parts))
+		Joiner_on("\n").appendTo(sb, Iterable(parts.asList()))
 	} else {
-		Joiner_on(" ").appendTo(sb, Iterable(parts))
+		Joiner_on(" ").appendTo(sb, Iterable(parts.asList()))
 		sb.append(" */")
 	}
 	var s string = JSDocInfoPrinter_STAR_WITHOUT_SPACE_PATTERN.matcher(strobj_(String_replace(Object_toString(obj_(sb)), strobj_("\n"), strobj_("\n *")))).replaceAll("\n * $1")

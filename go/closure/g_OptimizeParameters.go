@@ -302,7 +302,7 @@ func (this *OptimizeParameters) tryEliminateOptionalArgs(refs ArrayListOf[Node])
 }
 
 func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node]) {
-	var parameters ListOf[*OptimizeParameters_Parameter] = this.findFixedArguments(refs)
+	var parameters *TList[*OptimizeParameters_Parameter] = this.findFixedArguments(refs)
 	if parameters == nil {
 		return
 	}
@@ -325,8 +325,8 @@ func (this *OptimizeParameters) tryEliminateConstantArgs(refs ArrayListOf[Node])
 	this.optimizeFunctionDefinition(parameters, fn)
 }
 
-func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) ListOf[*OptimizeParameters_Parameter] {
-	var parameters ListOf[*OptimizeParameters_Parameter] = icast_List(new_ArrayList_0().self())
+func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) *TList[*OptimizeParameters_Parameter] {
+	var parameters *TList[*OptimizeParameters_Parameter] = newTList_(tc_p_OptimizeParameters_Parameter)
 	var firstCall bool = true
 	var continueLooking bool = false
 	it_1 := foreach_(refs.self())
@@ -349,7 +349,7 @@ func (this *OptimizeParameters) findFixedArguments(refs ArrayListOf[Node]) ListO
 			}
 		}
 	}
-	return func() List {
+	return func() *TList[*OptimizeParameters_Parameter] {
 		if continueLooking {
 			return parameters
 		}
@@ -366,7 +366,7 @@ func OptimizeParameters_hasSpreadInFirstCallParam(n Node) bool {
 	return false
 }
 
-func OptimizeParameters_adjustForConstraints(fn Node, parameters ListOf[*OptimizeParameters_Parameter]) bool {
+func OptimizeParameters_adjustForConstraints(fn Node, parameters *TList[*OptimizeParameters_Parameter]) bool {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(fn)
 	if (info != nil) && info.isNoInline() {
 		return false
@@ -386,7 +386,7 @@ func OptimizeParameters_adjustForConstraints(fn Node, parameters ListOf[*Optimiz
 	var seenUnmoveableSideEffected bool = false
 	var allRestValueRemovable bool = true
 	for i := int32((parameters.size() - 1)); i >= 0; i-- {
-		var current *OptimizeParameters_Parameter = cast_[*OptimizeParameters_Parameter](parameters.get(i))
+		var current *OptimizeParameters_Parameter = parameters.get(i)
 		if i <= lastNonRestFormal {
 			if formal.isDefaultValue() && current.mayBeUndefined {
 				current.shouldRemoveField = false
@@ -402,7 +402,7 @@ func OptimizeParameters_adjustForConstraints(fn Node, parameters ListOf[*Optimiz
 					anyMovable = false
 					allRestValueRemovable = false
 					for j := int32((i + 1)); j < parameters.size(); j++ {
-						var p *OptimizeParameters_Parameter = cast_[*OptimizeParameters_Parameter](parameters.get(j))
+						var p *OptimizeParameters_Parameter = parameters.get(j)
 						p.shouldRemoveField = false
 						if p.canBeSideEffectedField {
 							seenUnmoveableSideEffected = true
@@ -430,17 +430,17 @@ func OptimizeParameters_adjustForConstraints(fn Node, parameters ListOf[*Optimiz
 	return anyMovable
 }
 
-func (this *OptimizeParameters) findFixedParameters(parameters ListOf[*OptimizeParameters_Parameter], cur Node) bool {
+func (this *OptimizeParameters) findFixedParameters(parameters *TList[*OptimizeParameters_Parameter], cur Node) bool {
 	var anyMovable bool = false
 	var index int32 = 0
 	for cur != 0 {
 		var p *OptimizeParameters_Parameter
 		if index >= parameters.size() {
 			p = new_OptimizeParameters_Parameter(cur, false)
-			parameters.add(obj_(p))
+			parameters.add(p)
 			this.setParameterSideEffectInfo(p, cur)
 		} else {
-			p = cast_[*OptimizeParameters_Parameter](parameters.get(index))
+			p = parameters.get(index)
 			if p.shouldRemove() {
 				var value Node = p.getArg()
 				if !cur.isEquivalentTo(value) {
@@ -459,18 +459,18 @@ func (this *OptimizeParameters) findFixedParameters(parameters ListOf[*OptimizeP
 		index++
 	}
 	for ; index < parameters.size(); index++ {
-		cast_[*OptimizeParameters_Parameter](parameters.get(index)).setShouldRemove(false)
+		parameters.get(index).setShouldRemove(false)
 	}
 	return anyMovable
 }
 
-func (this *OptimizeParameters) buildInitialParameterList(parameters ListOf[*OptimizeParameters_Parameter], cur Node) bool {
+func (this *OptimizeParameters) buildInitialParameterList(parameters *TList[*OptimizeParameters_Parameter], cur Node) bool {
 	var anyMovable bool = false
 	for cur != 0 {
 		var movable bool = OptimizeParameters_isMovableValue(cur, this.globalScope)
 		var p *OptimizeParameters_Parameter = new_OptimizeParameters_Parameter(cur, movable)
 		this.setParameterSideEffectInfo(p, cur)
-		parameters.add(obj_(p))
+		parameters.add(p)
 		if movable {
 			anyMovable = true
 		}
@@ -518,18 +518,18 @@ func OptimizeParameters_isMovableValue(n Node, globalScope *Scope) bool {
 	return true
 }
 
-func (this *OptimizeParameters) optimizeFunctionDefinition(parameters ListOf[*OptimizeParameters_Parameter], fn Node) {
+func (this *OptimizeParameters) optimizeFunctionDefinition(parameters *TList[*OptimizeParameters_Parameter], fn Node) {
 	var paramList Node = NodeUtil_getFunctionParameters(fn)
 	var maybeRest Node = paramList.getLastChild()
 	var lastParameter int32 = (parameters.size() - 1)
 	if (maybeRest != 0) && maybeRest.isRest() {
 		var restIndex int32 = (paramList.getChildCount() - 1)
-		if (parameters.size() < restIndex) || ((restIndex < parameters.size()) && cast_[*OptimizeParameters_Parameter](parameters.get(restIndex)).shouldRemove()) {
+		if (parameters.size() < restIndex) || ((restIndex < parameters.size()) && parameters.get(restIndex).shouldRemove()) {
 			var value Node = IR_arraylit([]Node{}).srcref(maybeRest)
 			for i := int32(restIndex); i < parameters.size(); i++ {
-				var parameter *OptimizeParameters_Parameter = cast_[*OptimizeParameters_Parameter](parameters.get(i))
+				var parameter *OptimizeParameters_Parameter = parameters.get(i)
 				Preconditions_checkState(parameter.shouldRemove())
-				value.addChildToBack(cast_[*OptimizeParameters_Parameter](parameters.get(i)).getArg())
+				value.addChildToBack(parameters.get(i).getArg())
 			}
 			maybeRest.detach()
 			var lhs Node = maybeRest.removeFirstChild()
@@ -538,7 +538,7 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters ListOf[*Op
 		lastParameter = Math_min((parameters.size() - 1), (restIndex - 1))
 	}
 	for i := int32(lastParameter); i >= 0; i-- {
-		var parameter *OptimizeParameters_Parameter = cast_[*OptimizeParameters_Parameter](parameters.get(i))
+		var parameter *OptimizeParameters_Parameter = parameters.get(i)
 		if parameter.shouldRemove() {
 			var formalParam Node = NodeUtil_getArgumentForFunction(fn, i)
 			if formalParam != 0 {
@@ -548,7 +548,7 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters ListOf[*Op
 					formalParam = formalParam.removeFirstChild()
 				}
 			}
-			var value Node = cast_[*OptimizeParameters_Parameter](parameters.get(i)).getArg()
+			var value Node = parameters.get(i).getArg()
 			if formalParam != 0 {
 				this.addVariableDeclarationToFunction(fn, formalParam, value)
 			} else {
@@ -558,12 +558,12 @@ func (this *OptimizeParameters) optimizeFunctionDefinition(parameters ListOf[*Op
 	}
 }
 
-func (this *OptimizeParameters) optimizeCallSite(parameters ListOf[*OptimizeParameters_Parameter], target Node) {
+func (this *OptimizeParameters) optimizeCallSite(parameters *TList[*OptimizeParameters_Parameter], target Node) {
 	var call Node = OptimizeCalls_ReferenceMap_getCallOrNewNodeForTarget(target)
 	var callMayMutateArgs bool = call.mayMutateArguments()
 	var callMayMutateGlobalsOrThrow bool = call.mayMutateGlobalStateOrThrow()
 	for index := int32((parameters.size() - 1)); index >= 0; index-- {
-		var p *OptimizeParameters_Parameter = cast_[*OptimizeParameters_Parameter](parameters.get(index))
+		var p *OptimizeParameters_Parameter = parameters.get(index)
 		if p.shouldRemove() {
 			this.eliminateCallTargetArgAt(target, index)
 			if !callMayMutateGlobalsOrThrow && (p.hasSideEffects() || (callMayMutateArgs && !NodeUtil_isImmutableValue(p.getArg()))) {
@@ -583,22 +583,22 @@ func (this *OptimizeParameters) addVariableDeclarationToFunction(function Node, 
 	Preconditions_checkState_boolean_Object((value.getParent() == 0), strobj_("Value must be detached"))
 	Preconditions_checkState_boolean_Object((lhs != 0), strobj_("formal parameter being declared must not be null"))
 	Preconditions_checkState_boolean_Object((lhs.getParent() == 0), strobj_("formal parameter being declared must be detached"))
-	var stmts ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var stmts *TList[Node] = newTList_(tc_Node)
 	if lhs.isDestructuringPattern() {
 		this.rewriteDestructuringPattern(lhs, value, stmts)
 	} else {
-		stmts.add(NodeUtil_newVarNodeNode(lhs, value).box_())
+		stmts.add(NodeUtil_newVarNodeNode(lhs, value))
 	}
 	this.insertStatements(function, stmts)
 }
 
 func (this *OptimizeParameters) addExpressionToFunction(function Node, value Node) {
-	var stmts ListOf[Node] = icast_List(new_ArrayList_0().self())
-	stmts.add(IR_exprResult(value).srcref(value).box_())
+	var stmts *TList[Node] = newTList_(tc_Node)
+	stmts.add(IR_exprResult(value).srcref(value))
 	this.insertStatements(function, stmts)
 }
 
-func (this *OptimizeParameters) insertStatements(function Node, stmts ListOf[Node]) {
+func (this *OptimizeParameters) insertStatements(function Node, stmts *TList[Node]) {
 	if stmts.isEmpty() {
 		return
 	}
@@ -609,19 +609,19 @@ func (this *OptimizeParameters) insertStatements(function Node, stmts ListOf[Nod
 	} else {
 		this.addStatementsBefore(insertionPoint, stmts)
 	}
-	this.compiler_.reportChangeToEnclosingScope(Node_of_(stmts.get(0)))
+	this.compiler_.reportChangeToEnclosingScope(stmts.get(0))
 }
 
-func (this *OptimizeParameters) addStatementsToBack(block Node, stmts ListOf[Node]) {
-	it_1 := foreach_(any(stmts))
+func (this *OptimizeParameters) addStatementsToBack(block Node, stmts *TList[Node]) {
+	it_1 := stmts.each()
 	for it_1.next() {
-		var stmt Node = Node_of_(it_1.v)
+		var stmt Node = it_1.v
 		block.addChildToBack(stmt)
 	}
 }
 
-func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts ListOf[Node]) {
-	it_1 := foreach_(any(Lists_reverse(stmts)))
+func (this *OptimizeParameters) addStatementsBefore(insertionPoint Node, stmts *TList[Node]) {
+	it_1 := foreach_(any(Lists_reverse(stmts.asList())))
 	for it_1.next() {
 		var item Node = Node_of_(it_1.v)
 		item.insertBefore(insertionPoint)
@@ -640,7 +640,7 @@ func (this *OptimizeParameters) eliminateParamsAfterInt(fnNode Node, argIndex in
 func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 	if formal != 0 {
 		this.eliminateParamsAfter(fnNode, formal.getNext())
-		var stmts ListOf[Node] = icast_List(new_ArrayList_0().self())
+		var stmts *TList[Node] = newTList_(tc_Node)
 		formal.detach()
 		if formal.isRest() {
 			Preconditions_checkState((formal.getNext() == 0))
@@ -656,13 +656,13 @@ func (this *OptimizeParameters) eliminateParamsAfter(fnNode Node, formal Node) {
 			this.rewriteDestructuringPattern(formal, value, stmts)
 			this.insertStatements(fnNode, stmts)
 		} else {
-			stmts.add(IR_var_Node(formal).srcrefIfMissing(formal).box_())
+			stmts.add(IR_var_Node(formal).srcrefIfMissing(formal))
 			this.insertStatements(fnNode, stmts)
 		}
 	}
 }
 
-func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts ListOf[Node]) {
+func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern Node, value Node, stmts *TList[Node]) {
 	Preconditions_checkState(destructuringPattern.isDestructuringPattern())
 	Preconditions_checkState_boolean_Object(!destructuringPattern.hasParent(), strobj_("Formal parameter must be detached for rewriting"))
 	NodeUtil_visitLhsNodesInDestructuringPattern(destructuringPattern, &Consumer_fn{func(name_ any) {
@@ -671,10 +671,10 @@ func (this *OptimizeParameters) rewriteDestructuringPattern(destructuringPattern
 		Preconditions_checkState_boolean_String_Object(name.isName(), "lhs in destructuring declaration should be a simple name. (%s)", name.box_())
 		var newName Node = IR_name(name.getString()).srcref(name)
 		var newVar Node = IR_var_Node(newName).srcref(name)
-		stmts.add(newVar.box_())
+		stmts.add(newVar)
 	}})
 	var expr Node = IR_exprResult(IR_assign(destructuringPattern, value).srcref(destructuringPattern)).srcref(destructuringPattern)
-	stmts.add(expr.box_())
+	stmts.add(expr)
 }
 
 func (this *OptimizeParameters) eliminateCallTargetArgAt(ref Node, argIndex int32) {
@@ -893,7 +893,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
 
 type OptimizeParameters_CandidateAnalysis struct {
 	outer_                 *OptimizeParameters
-	taggedTemplateLiterals ArrayListOf[Node]
+	taggedTemplateLiterals *TList[Node]
 	isSafeToOptimizeField  bool
 }
 
@@ -914,9 +914,9 @@ func (this *OptimizeParameters_CandidateAnalysis) shouldConvertTaggedTemplateLit
 }
 
 func (this *OptimizeParameters_CandidateAnalysis) convertTaggedTemplateLiterals() {
-	it_1 := foreach_(this.taggedTemplateLiterals.self())
+	it_1 := this.taggedTemplateLiterals.each()
 	for it_1.next() {
-		var taggedTemplateLiteral Node = Node_of_(it_1.v)
+		var taggedTemplateLiteral Node = it_1.v
 		this.outer_.convertTaggedTemplateLiteralToNormalCall(taggedTemplateLiteral)
 	}
 	this.taggedTemplateLiterals.clear()
@@ -928,12 +928,12 @@ func (this *OptimizeParameters_CandidateAnalysis) isSafeToOptimize() bool {
 
 type OptimizeParameters_CandidateAnalysisBuilder struct {
 	outer_                 *OptimizeParameters
-	taggedTemplateLiterals ArrayListOf[Node]
+	taggedTemplateLiterals *TList[Node]
 	isSafeToOptimize_      bool
 }
 
 func (this *OptimizeParameters_CandidateAnalysisBuilder) finit_OptimizeParameters_CandidateAnalysisBuilder() {
-	this.taggedTemplateLiterals = new_ArrayList_0()
+	this.taggedTemplateLiterals = newTList_(tc_Node)
 	this.isSafeToOptimize_ = false
 }
 
@@ -954,7 +954,7 @@ func (this *OptimizeParameters_CandidateAnalysisBuilder) setIsSafeToOptimize(isS
 }
 
 func (this *OptimizeParameters_CandidateAnalysisBuilder) addTaggedTemplateLiteral(ttlNode Node) *OptimizeParameters_CandidateAnalysisBuilder {
-	this.taggedTemplateLiterals.add(ttlNode.box_())
+	this.taggedTemplateLiterals.add(ttlNode)
 	return this
 }
 

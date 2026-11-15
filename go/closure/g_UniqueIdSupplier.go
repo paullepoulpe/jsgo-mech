@@ -29,12 +29,12 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	return (sstr_(fileHashString) + "$" + istr_(int64(id)))
 }
 
-func (this *UniqueIdSupplier) toProto() ListOf[*UniqueIdProto] {
-	var result ListOf[*UniqueIdProto] = icast_List(new_ArrayList_0().self())
+func (this *UniqueIdSupplier) toProto() *TList[*UniqueIdProto] {
+	var result *TList[*UniqueIdProto] = newTList_(tc_p_UniqueIdProto)
 	it_1 := foreach_(any(this.counter.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		result.add(any(UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey())).setCounter(unbox_[int32](entry.getValue())).build()))
+		result.add(cast_[*UniqueIdProto](any(UniqueIdProto_newBuilder().setHash(unbox_[int32](entry.getKey())).setCounter(unbox_[int32](entry.getValue())).build())))
 	}
 	return result
 }

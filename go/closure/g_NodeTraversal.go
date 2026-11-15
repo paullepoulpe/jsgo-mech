@@ -261,12 +261,12 @@ func NodeTraversal_traverseAtScope(compiler *AbstractCompiler, cb NodeTraversal_
 	NodeTraversal_builder().setCompiler(compiler).setCallback(cb).traverseAtScope(scope)
 }
 
-func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes ListOf[Node], cb NodeTraversal_Callback, traverseNested bool) {
+func NodeTraversal_traverseScopeRoots(compiler *AbstractCompiler, scopeNodes *TList[Node], cb NodeTraversal_Callback, traverseNested bool) {
 	var scb *NodeTraversal_1TraverseScopeRootsCallback = new_NodeTraversal_1TraverseScopeRootsCallback(traverseNested, cb)
 	var scopeCreator *MemoizedScopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
-	it_1 := foreach_(any(scopeNodes))
+	it_1 := scopeNodes.each()
 	for it_1.next() {
-		var scopeNode Node = Node_of_(it_1.v)
+		var scopeNode Node = it_1.v
 		scb.scopeNode = scopeNode
 		NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(obj_(scb))).setScopeCreator(icast_ScopeCreator(obj_(scopeCreator))).build().traverseScopeRoot(scopeNode)
 	}

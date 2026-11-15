@@ -5,11 +5,11 @@ package closure
 type OptimizeConstructors struct {
 	compiler_             *AbstractCompiler
 	astAnalyzer           *AstAnalyzer
-	removableConstructors ArrayListOf[Node]
+	removableConstructors *TList[Node]
 }
 
 func (this *OptimizeConstructors) finit_OptimizeConstructors() {
-	this.removableConstructors = new_ArrayList_0()
+	this.removableConstructors = newTList_(tc_Node)
 }
 
 func (this *OptimizeConstructors) init_OptimizeConstructors(compiler *AbstractCompiler) {
@@ -35,9 +35,9 @@ func (this *OptimizeConstructors) process_3(externs Node, root Node, refMap *Opt
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		this.addConstructorsToBeRemoved(str_(entry.getKey()), to_ArrayList(entry.getValue()))
 	}
-	it_3 := foreach_(this.removableConstructors.self())
+	it_3 := this.removableConstructors.each()
 	for it_3.next() {
-		var ref Node = Node_of_(it_3.v)
+		var ref Node = it_3.v
 		this.removeConstructorMethod(ref)
 	}
 }
@@ -48,7 +48,7 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs A
 	}
 	var candidateClassDefinition Node = 0
 	var candidateConstructor Node = 0
-	var subclassConstructors ArrayListOf[Node] = nil
+	var subclassConstructors *TList[Node] = nil
 	it_1 := foreach_(refs.self())
 	for it_1.next() {
 		var n Node = Node_of_(it_1.v)
@@ -78,9 +78,9 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs A
 				var subclassConstructor Node = NodeUtil_getEs6ClassConstructorMemberFunctionDef(subclassLiteral)
 				if (subclassConstructor != 0) && OptimizeConstructors_constructorHasRemovableDefinition(subclassConstructor) {
 					if subclassConstructors == nil {
-						subclassConstructors = new_ArrayList_0()
+						subclassConstructors = newTList_(tc_Node)
 					}
-					subclassConstructors.add(subclassConstructor.box_())
+					subclassConstructors.add(subclassConstructor)
 				}
 			} else {
 				if OptimizeConstructors_isAssigningReference(n) {
@@ -93,15 +93,15 @@ func (this *OptimizeConstructors) addConstructorsToBeRemoved(name string, refs A
 		return
 	}
 	if candidateConstructor != 0 {
-		this.removableConstructors.add(candidateConstructor.box_())
+		this.removableConstructors.add(candidateConstructor)
 	}
 	if subclassConstructors != nil {
 		var summary *OptimizeConstructors_ClassConstructorSummary = OptimizeConstructors_ClassConstructorSummary_build(candidateClassDefinition)
-		it_3 := foreach_(subclassConstructors.self())
+		it_3 := subclassConstructors.each()
 		for it_3.next() {
-			var n Node = Node_of_(it_3.v)
+			var n Node = it_3.v
 			if summary.isEquivalentConstructorDefinition(n) {
-				this.removableConstructors.add(n.box_())
+				this.removableConstructors.add(n)
 			}
 		}
 	}

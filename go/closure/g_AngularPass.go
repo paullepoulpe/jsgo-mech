@@ -39,11 +39,11 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 		var entry *AngularPass_NodeContext = it_1.v
 		var name string = entry.getName()
 		var fn Node = entry.getFunctionNode()
-		var dependencies ListOf[Node] = this.createDependenciesList(fn)
+		var dependencies *TList[Node] = this.createDependenciesList(fn)
 		if dependencies.isEmpty() {
 			continue
 		}
-		var dependenciesArray Node = IR_arraylitIterable(Iterable(dependencies))
+		var dependenciesArray Node = IR_arraylitIterable(Iterable(dependencies.asList()))
 		var statement Node = IR_exprResult(IR_assign(IR_getelem(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, name), IR_string(AngularPass_INJECT_PROPERTY_NAME)), dependenciesArray))
 		statement.srcrefTree(entry.getNode())
 		statement.setOriginalName(name)
@@ -61,31 +61,31 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *AngularPass) createDependenciesList(n Node) ListOf[Node] {
+func (this *AngularPass) createDependenciesList(n Node) *TList[Node] {
 	Preconditions_checkArgument(n.isFunction())
 	var params Node = NodeUtil_getFunctionParameters(n)
 	if params != 0 {
 		return this.createStringsFromParamList(params)
 	}
-	return icast_List(new_ArrayList_0().self())
+	return newTList_(tc_Node)
 }
 
-func (this *AngularPass) createStringsFromParamList(params Node) ListOf[Node] {
+func (this *AngularPass) createStringsFromParamList(params Node) *TList[Node] {
 	var param Node = params.getFirstChild()
-	var names ArrayListOf[Node] = new_ArrayList_0()
+	var names *TList[Node] = newTList_(tc_Node)
 	for param != 0 {
 		if param.isName() {
-			names.add(IR_string(param.getString()).srcref(param).box_())
+			names.add(IR_string(param.getString()).srcref(param))
 		} else if param.isDestructuringPattern() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, AngularPass_INJECTED_FUNCTION_HAS_DESTRUCTURED_PARAM, []string{}))
-			return icast_List(new_ArrayList_0().self())
+			return newTList_(tc_Node)
 		} else if param.isDefaultValue() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(param, AngularPass_INJECTED_FUNCTION_HAS_DEFAULT_VALUE, []string{}))
-			return icast_List(new_ArrayList_0().self())
+			return newTList_(tc_Node)
 		}
 		param = param.getNext()
 	}
-	return icast_List(names.self())
+	return names
 }
 
 func (this *AngularPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {

@@ -389,13 +389,13 @@ func (this *ConvertToTypedInterface_SimplifyDeclarations) removeDuplicateDeclara
 		if String_startsWith(name, "this.") {
 			continue
 		}
-		var declList ListOf[*PotentialDeclaration] = icast_List(new_ArrayList_Collection(Collection(this.currentFile.getDeclarations().get(strobj_(name)))).self())
-		List_sort(declList, ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST)
+		var declList *TList[*PotentialDeclaration] = tlistFrom_(tc_p_PotentialDeclaration, Collection(this.currentFile.getDeclarations().get(strobj_(name))))
+		List_sort(declList.asList(), ConvertToTypedInterface_SimplifyDeclarations_DECLARATIONS_FIRST)
 		for declList.size() > 1 {
-			var decl *PotentialDeclaration = to_PotentialDeclaration(declList.remove(1))
+			var decl *PotentialDeclaration = declList.removeAt(1)
 			decl.remove(this.compiler_)
 		}
-		this.currentFile.getDeclarations().replaceValues(strobj_(name), Iterable(declList))
+		this.currentFile.getDeclarations().replaceValues(strobj_(name), Iterable(declList.asList()))
 	}
 }
 

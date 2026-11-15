@@ -184,7 +184,7 @@ func (this *JsDocInfoParser) parse() bool {
 			this.jsdocBuilder.recordBlockDescription("")
 		}
 	}
-	return this.parseHelperLoop(token, icast_List(new_ArrayList_0().self()))
+	return this.parseHelperLoop(token, newTList_(tc_p_JsDocInfoParser_ExtendedTypeInfo))
 }
 
 func (this *JsDocInfoParser) parseImportantComment() {
@@ -201,7 +201,7 @@ func (this *JsDocInfoParser) parseImportantComment() {
 	}
 }
 
-func (this *JsDocInfoParser) parseHelperLoop(token *JsDocToken, extendedTypes ListOf[*JsDocInfoParser_ExtendedTypeInfo]) bool {
+func (this *JsDocInfoParser) parseHelperLoop(token *JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) bool {
 	for {
 		switch token {
 		case JsDocToken_ANNOTATION:
@@ -247,7 +247,7 @@ func (this *JsDocInfoParser) parseHelperLoop(token *JsDocToken, extendedTypes Li
 	panic("unreachable")
 }
 
-func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes ListOf[*JsDocInfoParser_ExtendedTypeInfo]) *JsDocToken {
+func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) *JsDocToken {
 	var type_ *JSTypeExpression
 	var lineno int32 = this.stream.getLineno()
 	var charno int32 = this.stream.getCharno()
@@ -456,7 +456,7 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 				typeNode = this.wrapNode(Token_rhino_BANG, typeNode)
 				type_ = this.createJSTypeExpression(typeNode)
 				if annotation == Annotation_parsing_EXTENDS {
-					extendedTypes.add(obj_(new_JsDocInfoParser_ExtendedTypeInfo(type_, this.stream.getLineno(), this.stream.getCharno())))
+					extendedTypes.add(new_JsDocInfoParser_ExtendedTypeInfo(type_, this.stream.getLineno(), this.stream.getCharno()))
 				} else {
 					Preconditions_checkState((annotation == Annotation_parsing_IMPLEMENTS))
 					if !this.jsdocBuilder.recordImplementedInterface(type_) {
@@ -994,19 +994,19 @@ func (this *JsDocInfoParser) recordDescription(token *JsDocToken) *JsDocToken {
 	return token
 }
 
-func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes ListOf[*JsDocInfoParser_ExtendedTypeInfo]) {
+func (this *JsDocInfoParser) checkExtendedTypes(extendedTypes *TList[*JsDocInfoParser_ExtendedTypeInfo]) {
 	if extendedTypes.size() > 1 {
 		var isInterface bool = this.jsdocBuilder.isInterfaceRecorded()
 		var isFromTsickle bool = Object_equals(obj_(this.jsDocSourceKind), obj_(JsDocInfoParser_JsDocSourceKind_TSICKLE))
 		if !isInterface && isFromTsickle {
-			var result bool = this.jsdocBuilder.recordBaseType(this.createJSTypeExpression(this.wrapNode(Token_rhino_BANG, this.newStringNode(JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER)).srcrefTree(cast_[*JsDocInfoParser_ExtendedTypeInfo](extendedTypes.get(0)).type__.getRoot())))
+			var result bool = this.jsdocBuilder.recordBaseType(this.createJSTypeExpression(this.wrapNode(Token_rhino_BANG, this.newStringNode(JsDocInfoParser_TSICKLE_MISSING_TYPE_PLACEHOLDER)).srcrefTree(extendedTypes.get(0).type__.getRoot())))
 			Preconditions_checkState_boolean_Object(result, strobj_("Unexpected failure to record base type"))
 			return
 		}
 	}
-	it_1 := foreach_(any(extendedTypes))
+	it_1 := extendedTypes.each()
 	for it_1.next() {
-		var typeInfo *JsDocInfoParser_ExtendedTypeInfo = cast_[*JsDocInfoParser_ExtendedTypeInfo](it_1.v)
+		var typeInfo *JsDocInfoParser_ExtendedTypeInfo = it_1.v
 		if this.jsdocBuilder.isInterfaceRecorded() {
 			if !this.jsdocBuilder.recordExtendedInterface(typeInfo.type__) {
 				this.addParserWarning_3(Msg_JSDOC_EXTENDS_DUPLICATE, typeInfo.lineno_, typeInfo.charno_)

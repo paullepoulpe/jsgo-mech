@@ -31,12 +31,12 @@ func (this *Scanner_refactoring) init_Scanner_refactoring() {
 
 }
 
-func (this *Scanner_refactoring) processMatch_impl(match *Match) ListOf[*SuggestedFix] {
-	return icast_List(obj_(ImmutableList_of()))
+func (this *Scanner_refactoring) processMatch_impl(match *Match) *TList[*SuggestedFix] {
+	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of())
 }
 
-func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) ListOf[*SuggestedFix] {
-	return icast_List(obj_(ImmutableList_of()))
+func (this *Scanner_refactoring) processAllMatches(matches CollectionOf[*Match]) *TList[*SuggestedFix] {
+	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of())
 }
 
 func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {
@@ -45,6 +45,8 @@ func (this *Scanner_refactoring) matches(p0 Node, p1 *NodeMetadata) bool {
 	}).matches_impl(p0, p1)
 }
 
-func (this *Scanner_refactoring) processMatch(p0 *Match) List {
-	return this.self_.(interface{ processMatch_impl(*Match) List }).processMatch_impl(p0)
+func (this *Scanner_refactoring) processMatch(p0 *Match) *TList[*SuggestedFix] {
+	return this.self_.(interface {
+		processMatch_impl(*Match) *TList[*SuggestedFix]
+	}).processMatch_impl(p0)
 }

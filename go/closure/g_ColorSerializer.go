@@ -7,12 +7,12 @@ type ColorSerializer struct {
 	getStringPoolIndexFn    FunctionOf[string, BoxedOf[int32]]
 	propertyFilter          PredicateOf[string]
 	colorIdToTypePointer    LinkedHashMapOf[*ColorId, BoxedOf[int32]]
-	colorsInSerializedOrder ArrayListOf[*Color]
+	colorsInSerializedOrder *TList[*Color]
 }
 
 func (this *ColorSerializer) finit_ColorSerializer() {
 	this.colorIdToTypePointer = new_LinkedHashMap()
-	this.colorsInSerializedOrder = new_ArrayList_0()
+	this.colorsInSerializedOrder = newTList_(tc_p_Color)
 }
 
 func (this *ColorSerializer) init_ColorSerializer(serializationMode *SerializationOptions, stringPoolIndexFn FunctionOf[string, BoxedOf[int32]], propertyFilter PredicateOf[string]) {
@@ -48,7 +48,7 @@ func (this *ColorSerializer) addColor(color *Color) int32 {
 		var unusedKey *ColorId = cast_[*ColorId](unusedKey_)
 		_ = unusedKey
 		var index int32 = this.colorsInSerializedOrder.size()
-		this.colorsInSerializedOrder.add(obj_(color))
+		this.colorsInSerializedOrder.add(color)
 		return any(int32(index))
 		panic("unreachable")
 	}}))
@@ -57,7 +57,7 @@ func (this *ColorSerializer) addColor(color *Color) int32 {
 func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn FunctionOf[*Color, SetOf[*Color]], getMismatchSourceRefsFn FunctionOf[*Color, SetOf[string]]) *TypePool {
 	var typePoolBuilder *TypePool_Builder = TypePool_newBuilder()
 	for i := int32(TypePointers_untrimOffset(0)); i < this.colorsInSerializedOrder.size(); i++ {
-		var color *Color = cast_[*Color](this.colorsInSerializedOrder.get(i))
+		var color *Color = this.colorsInSerializedOrder.get(i)
 		var typePointer any = this.colorIdToTypePointer.get(obj_(color.getId()))
 		typePoolBuilder.addType(this.generateTypeProto(color))
 		it_2 := foreach_(any(icast_Set(getDisambiguationSupertypesFn.apply(obj_(color)))))
@@ -70,9 +70,9 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 		Preconditions_checkNotNull(any(getMismatchSourceRefsFn))
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
 		var srcRefToTypePointerList LinkedHashMapOf[string, ArrayListOf[BoxedOf[int32]]] = new_LinkedHashMap()
-		it_4 := foreach_(this.colorsInSerializedOrder.self())
+		it_4 := this.colorsInSerializedOrder.each()
 		for it_4.next() {
-			var color *Color = cast_[*Color](it_4.v)
+			var color *Color = it_4.v
 			var typePointer any = this.colorIdToTypePointer.get(obj_(color.getId()))
 			it_6 := foreach_(any(icast_Set(getMismatchSourceRefsFn.apply(obj_(color)))))
 			for it_6.next() {

@@ -44,8 +44,8 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 			}
 		}
 	}
-	var result ListOf[Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]] = icast_List(new_ArrayList_Collection(Collection(metrics.entrySet())).self())
-	Collections_sort_List_Comparator(result, Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_fn{func(point_ any) any {
+	var result *TList[Map_EntryOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics]] = tlistFrom_(tc_Map_EntryOf_p_InstrumentationPoint__p_ProfilingReport_InstrumentationPointMetrics_, Collection(metrics.entrySet()))
+	Collections_sort_List_Comparator(result.asList(), Comparator_thenComparingInt(Comparator_thenComparingInt(Comparator_thenComparingLong(Comparator_comparing(&Function_fn{func(point_ any) any {
 		var point Map_Entry = icast_Map_Entry(point_)
 		_ = point
 		return strobj_(cast_[*InstrumentationPoint](point.getKey()).getFileName())
@@ -64,18 +64,18 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 	}}))
 	var output []ListOf[string] = []ListOf[string]{}
 	output = append(output, icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))))
-	it_11 := foreach_(any(result))
+	it_11 := result.each()
 	for it_11.next() {
-		var entry Map_Entry = icast_Map_Entry(it_11.v)
+		var entry Map_Entry = it_11.v
 		output = append(output, icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(String_valueOf(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber())), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(String_valueOf_long(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted)), strobj_(String_valueOf(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
 	}
-	var rows ListOf[string] = icast_List(new_ArrayList_0().self())
+	var rows *TList[string] = newTList_(tc_string)
 	it_13 := eachOf_(&output)
 	for it_13.next() {
 		var row List = it_13.v
-		rows.add(strobj_(String_join(strobj_("\t"), Iterable(row))))
+		rows.add(String_join(strobj_("\t"), Iterable(row)))
 	}
-	return String_join(strobj_("\n"), Iterable(rows))
+	return String_join(strobj_("\n"), Iterable(rows.asList()))
 }
 
 type ProfilingReport_InstrumentationPointMetrics struct {

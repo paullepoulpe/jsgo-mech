@@ -65,7 +65,7 @@ func DependencyOptions_pruneForEntryPoints(entryPoints IterableOf[*ModuleIdentif
 	return new_DependencyOptions(DependencyOptions_DependencyMode_PRUNE, ImmutableList_copyOf_Iterable(entryPoints))
 }
 
-func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag ListOf[string], commonJsEntryModuleFlag OptionalOf[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base {
+func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_DependencyMode, entryPointFlag ListOf[string], closureEntryPointFlag *TList[string], commonJsEntryModuleFlag OptionalOf[string], manageClosureDependenciesFlag bool, onlyClosureDependenciesFlag bool) *Outcome_base {
 	var hasEntryPoint bool = ((commonJsEntryModuleFlag.isPresent() || !entryPointFlag.isEmpty()) || !closureEntryPointFlag.isEmpty())
 	if !hasEntryPoint && onlyClosureDependenciesFlag {
 		return Outcome_base_err(new_FlagUsageException("--only_closure_dependencies requires --entry_point.").up_Throwable())
@@ -112,9 +112,9 @@ func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_Dependenc
 		var entryPoint string = str_(it_1.v)
 		entryPointsBuilder.add(obj_(ModuleIdentifier_forFlagValue(entryPoint)))
 	}
-	it_3 := foreach_(any(closureEntryPointFlag))
+	it_3 := closureEntryPointFlag.each()
 	for it_3.next() {
-		var closureEntryPoint string = str_(it_3.v)
+		var closureEntryPoint string = it_3.v
 		entryPointsBuilder.add(obj_(ModuleIdentifier_forClosure(closureEntryPoint)))
 	}
 	var result *DependencyOptions = func() *DependencyOptions {

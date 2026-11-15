@@ -8,11 +8,11 @@ type CompilerInput struct {
 	sourceFile                 *SourceFile_jscomp
 	ast                        *CompilerInput_JsAst
 	dependencyInfo             DependencyInfo
-	extraRequires              ListOf[*DependencyInfo_Require]
-	extraProvides              ListOf[string]
-	orderedRequires            ListOf[*DependencyInfo_Require]
-	dynamicRequires            ListOf[string]
-	requireDynamicImports      ListOf[string]
+	extraRequires              *TList[*DependencyInfo_Require]
+	extraProvides              *TList[string]
+	orderedRequires            *TList[*DependencyInfo_Require]
+	dynamicRequires            *TList[string]
+	requireDynamicImports      *TList[string]
 	hasFullParseDependencyInfo bool
 	jsModuleType               *CompilerInput_ModuleType
 	typedScope                 *TypedScope
@@ -22,11 +22,11 @@ type CompilerInput struct {
 
 func (this *CompilerInput) finit_CompilerInput() {
 	this.ast = new_CompilerInput_JsAst(this)
-	this.extraRequires = icast_List(new_ArrayList_0().self())
-	this.extraProvides = icast_List(new_ArrayList_0().self())
-	this.orderedRequires = icast_List(new_ArrayList_0().self())
-	this.dynamicRequires = icast_List(new_ArrayList_0().self())
-	this.requireDynamicImports = icast_List(new_ArrayList_0().self())
+	this.extraRequires = newTList_(tc_p_DependencyInfo_Require)
+	this.extraProvides = newTList_(tc_string)
+	this.orderedRequires = newTList_(tc_p_DependencyInfo_Require)
+	this.dynamicRequires = newTList_(tc_string)
+	this.requireDynamicImports = newTList_(tc_string)
 	this.hasFullParseDependencyInfo = false
 	this.jsModuleType = CompilerInput_ModuleType_NONE
 }
@@ -121,7 +121,7 @@ func (this *CompilerInput) setCompiler(compiler *AbstractCompiler) {
 
 func (this *CompilerInput) getRequires() ImmutableListOf[*DependencyInfo_Require] {
 	if this.hasFullParseDependencyInfo {
-		return ImmutableList_copyOf(Collection(this.orderedRequires))
+		return ImmutableList_copyOf(Collection(this.orderedRequires.asList()))
 	}
 	return this.getDependencyInfo().getRequires()
 }
@@ -136,7 +136,7 @@ func (this *CompilerInput) getKnownRequires() ImmutableCollectionOf[*DependencyI
 			return icast_Iterable(obj_(this.dependencyInfo.getRequires()))
 		}
 		return icast_Iterable(obj_(ImmutableList_of()))
-	}(), Iterable(this.extraRequires)).up_ImmutableCollection()
+	}(), Iterable(this.extraRequires.asList())).up_ImmutableCollection()
 }
 
 func (this *CompilerInput) getKnownRequiredSymbols() ImmutableListOf[string] {
@@ -161,40 +161,40 @@ func (this *CompilerInput) getKnownProvides() ImmutableCollectionOf[string] {
 			return icast_Iterable(obj_(this.dependencyInfo.getProvides()))
 		}
 		return icast_Iterable(obj_(ImmutableList_of()))
-	}(), Iterable(this.extraProvides)).up_ImmutableCollection()
+	}(), Iterable(this.extraProvides.asList())).up_ImmutableCollection()
 }
 
 func (this *CompilerInput) addProvide(provide string) {
-	this.extraProvides.add(strobj_(provide))
+	this.extraProvides.add(provide)
 }
 
 func (this *CompilerInput) addOrderedRequire(require *DependencyInfo_Require) bool {
-	if !this.orderedRequires.contains(obj_(require)) {
-		this.orderedRequires.add(obj_(require))
+	if !this.orderedRequires.asList().contains(obj_(require)) {
+		this.orderedRequires.add(require)
 		return true
 	}
 	return false
 }
 
 func (this *CompilerInput) getDynamicRequires() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(this.dynamicRequires))
+	return ImmutableList_copyOf(Collection(this.dynamicRequires.asList()))
 }
 
 func (this *CompilerInput) addDynamicRequire(require string) bool {
-	if !Collection_contains_s(this.dynamicRequires, require) {
-		this.dynamicRequires.add(strobj_(require))
+	if !Collection_contains_s(this.dynamicRequires.asList(), require) {
+		this.dynamicRequires.add(require)
 		return true
 	}
 	return false
 }
 
 func (this *CompilerInput) getRequireDynamicImports() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(this.requireDynamicImports))
+	return ImmutableList_copyOf(Collection(this.requireDynamicImports.asList()))
 }
 
 func (this *CompilerInput) addRequireDynamicImports(require string) {
-	if !Collection_contains_s(this.requireDynamicImports, require) {
-		this.requireDynamicImports.add(strobj_(require))
+	if !Collection_contains_s(this.requireDynamicImports.asList(), require) {
+		this.requireDynamicImports.add(require)
 	}
 }
 
@@ -211,7 +211,7 @@ func (this *CompilerInput) setJsModuleType(moduleType *CompilerInput_ModuleType)
 }
 
 func (this *CompilerInput) addRequire(require *DependencyInfo_Require) {
-	this.extraRequires.add(obj_(require))
+	this.extraRequires.add(require)
 }
 
 func (this *CompilerInput) getDependencyInfo() DependencyInfo {
@@ -219,7 +219,7 @@ func (this *CompilerInput) getDependencyInfo() DependencyInfo {
 		this.dependencyInfo = this.generateDependencyInfo()
 	}
 	if !this.extraRequires.isEmpty() || !this.extraProvides.isEmpty() {
-		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of(strobj_(this.getName()))).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides())), Iterable(this.extraProvides))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires())), Iterable(this.extraRequires))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
+		this.dependencyInfo = icast_DependencyInfo(obj_(SimpleDependencyInfo_builder(this.getName(), Optional_of(strobj_(this.getName()))).setProvides(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getProvides())), Iterable(this.extraProvides.asList()))))).setRequires(icast_Collection(obj_(CompilerInput_concat(icast_Iterable(obj_(this.dependencyInfo.getRequires())), Iterable(this.extraRequires.asList()))))).setTypeRequires(icast_Collection(obj_(this.dependencyInfo.getTypeRequires()))).setLoadFlags(icast_Map(obj_(this.dependencyInfo.getLoadFlags()))).setHasExternsAnnotation(this.dependencyInfo.getHasExternsAnnotation()).setHasNoCompileAnnotation(this.dependencyInfo.getHasNoCompileAnnotation()).build()))
 		this.extraRequires.clear()
 		this.extraProvides.clear()
 	}
@@ -245,7 +245,7 @@ func (this *CompilerInput) generateDependencyInfo() DependencyInfo {
 		}
 		finder.visitTree(root)
 		var info *JSDocInfo = root.getJSDocInfo()
-		return icast_DependencyInfo(obj_(SimpleDependencyInfo_builder("", Optional_of(strobj_(""))).setProvides(Collection(finder.provides)).setRequires(Collection(finder.requires)).setTypeRequires(Collection(finder.typeRequires)).setLoadFlags(finder.loadFlags_).setHasExternsAnnotation(((info != nil) && info.isExterns())).setHasNoCompileAnnotation(((info != nil) && info.isNoCompile())).build()))
+		return icast_DependencyInfo(obj_(SimpleDependencyInfo_builder("", Optional_of(strobj_(""))).setProvides(Collection(finder.provides.asList())).setRequires(Collection(finder.requires.asList())).setTypeRequires(Collection(finder.typeRequires.asList())).setLoadFlags(finder.loadFlags_).setHasExternsAnnotation(((info != nil) && info.isExterns())).setHasNoCompileAnnotation(((info != nil) && info.isNoCompile())).build()))
 	}
 	panic("unreachable")
 }
@@ -321,17 +321,17 @@ const CompilerInput_serialVersionUID int64 = 2
 
 type CompilerInput_DepsFinder struct {
 	loadFlags_   MapOf[string, string]
-	provides     ListOf[string]
-	requires     ListOf[*DependencyInfo_Require]
-	typeRequires ListOf[string]
+	provides     *TList[string]
+	requires     *TList[*DependencyInfo_Require]
+	typeRequires *TList[string]
 	modulePath_  *ModuleLoader_ModulePath
 }
 
 func (this *CompilerInput_DepsFinder) finit_CompilerInput_DepsFinder() {
 	this.loadFlags_ = icast_Map(obj_(new_TreeMap()))
-	this.provides = icast_List(new_ArrayList_0().self())
-	this.requires = icast_List(new_ArrayList_0().self())
-	this.typeRequires = icast_List(new_ArrayList_0().self())
+	this.provides = newTList_(tc_string)
+	this.requires = newTList_(tc_p_DependencyInfo_Require)
+	this.typeRequires = newTList_(tc_string)
 }
 
 func (this *CompilerInput_DepsFinder) init_CompilerInput_DepsFinder(modulePath *ModuleLoader_ModulePath) {
@@ -361,8 +361,8 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_CALL:
 		if (n.hasTwoChildren() && n.getFirstChild().isGetProp()) && n.getFirstFirstChild().matchesName("goog") {
-			if !this.requires.contains(obj_(DependencyInfo_Require_BASE)) {
-				this.requires.add(obj_(DependencyInfo_Require_BASE))
+			if !this.requires.asList().contains(obj_(DependencyInfo_Require_BASE)) {
+				this.requires.add(DependencyInfo_Require_BASE)
 			}
 			var callee Node = n.getFirstChild()
 			var argument Node = n.getLastChild()
@@ -376,19 +376,19 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 				if !argument.isStringLit() {
 					return
 				}
-				this.provides.add(strobj_(argument.getString()))
+				this.provides.add(argument.getString())
 				return
 			case "require":
 				if !argument.isStringLit() {
 					return
 				}
-				this.requires.add(obj_(DependencyInfo_Require_googRequireSymbol(argument.getString())))
+				this.requires.add(DependencyInfo_Require_googRequireSymbol(argument.getString()))
 				return
 			case "requireType", "forwardDeclare":
 				if !argument.isStringLit() {
 					return
 				}
-				this.typeRequires.add(strobj_(argument.getString()))
+				this.typeRequires.add(argument.getString())
 				return
 			case "loadModule":
 				if argument.isStringLit() {
@@ -399,14 +399,14 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 				if !argument.isStringLit() {
 					return
 				}
-				this.provides.add(strobj_(argument.getString()))
+				this.provides.add(argument.getString())
 			default:
 				return
 			}
 		}
 	case Token_rhino_MODULE_BODY:
 		if !parent.getBooleanProp(Node_GOOG_MODULE) {
-			this.provides.add(strobj_(this.modulePath_.toModuleName()))
+			this.provides.add(this.modulePath_.toModuleName())
 			Map_put_s(this.loadFlags_, "module", strobj_("es6"))
 		}
 	case Token_rhino_IMPORT:
@@ -421,7 +421,7 @@ func (this *CompilerInput_DepsFinder) visitSubtree(n Node, parent Node) {
 	case Token_rhino_SCRIPT:
 		var jsdoc *JSDocInfo = n.getJSDocInfo()
 		if (jsdoc != nil) && jsdoc.isProvideGoog() {
-			this.provides.add(strobj_("goog"))
+			this.provides.add("goog")
 		}
 	default:
 		return
@@ -439,14 +439,14 @@ func (this *CompilerInput_DepsFinder) visitEs6ModuleName(n Node, parent Node) {
 	Preconditions_checkArgument((parent.isExport() || parent.isImport()))
 	var moduleName string = n.getString()
 	if String_startsWith(moduleName, "goog:") {
-		this.requires.add(obj_(DependencyInfo_Require_googRequireSymbol(String_substring_int(moduleName, 5))))
+		this.requires.add(DependencyInfo_Require_googRequireSymbol(String_substring_int(moduleName, 5)))
 		return
 	}
 	var importedModule *ModuleLoader_ModulePath = this.modulePath_.resolveJsModule(moduleName, Optional_of(strobj_(this.modulePath_.toString())), n.getLineno(), n.getCharno())
 	if importedModule == nil {
 		importedModule = this.modulePath_.resolveModuleAsPath(moduleName)
 	}
-	this.requires.add(obj_(DependencyInfo_Require_es6Import(importedModule.toModuleName(), n.getString())))
+	this.requires.add(DependencyInfo_Require_es6Import(importedModule.toModuleName(), n.getString()))
 }
 
 type CompilerInput_ModuleType struct {

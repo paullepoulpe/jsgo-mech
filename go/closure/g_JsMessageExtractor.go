@@ -63,7 +63,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 type JsMessageExtractor_ExtractMessagesVisitor struct {
 	JsMessageVisitor
 	outer_   *JsMessageExtractor
-	messages ListOf[*JsMessage]
+	messages *TList[*JsMessage]
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) up_JsMessageVisitor() *JsMessageVisitor {
@@ -81,7 +81,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) up_NodeTraversal_Abstract
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) finit_JsMessageExtractor_ExtractMessagesVisitor() {
-	this.messages = icast_List(new_ArrayList_0().self())
+	this.messages = newTList_(tc_p_JsMessage)
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) init_JsMessageExtractor_ExtractMessagesVisitor(compiler *AbstractCompiler) {
@@ -107,10 +107,10 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processIcuTemplateDefinit
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessage(jsMessage *JsMessage) {
 	if this.outer_.extractExternalMessages || !jsMessage.isExternal() {
-		this.messages.add(obj_(jsMessage))
+		this.messages.add(jsMessage)
 	}
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) getMessages() CollectionOf[*JsMessage] {
-	return Collection(this.messages)
+	return Collection(this.messages.asList())
 }

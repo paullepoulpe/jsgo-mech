@@ -71,9 +71,9 @@ func (this *CheckMissingReturn) enterScopeWithCfg_impl(t *NodeTraversal) {
 }
 
 func (this *CheckMissingReturn) fastAllPathsReturnCheck(cfg *ControlFlowGraph) bool {
-	it_1 := foreach_(any(cfg.getImplicitReturn().getInEdges()))
+	it_1 := cfg.getImplicitReturn().getInEdges().each()
 	for it_1.next() {
-		var s DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
+		var s DiGraph_DiGraphEdge = it_1.v
 		var n Node = Node_of_(s.getSource().getValue())
 		if !n.isReturn() && !this.convention.isFunctionCallThatAlwaysThrows(n) {
 			return false

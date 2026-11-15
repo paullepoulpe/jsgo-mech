@@ -38,7 +38,7 @@ func (this *PeepholeOptimizationsPass) setRetraverseOnChange(retraverse bool) {
 func (this *PeepholeOptimizationsPass) process_2(externs Node, root Node) {
 	this.beginTraversal()
 	{
-		var changedScopeNodes ListOf[Node] = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName)
+		var changedScopeNodes *TList[Node] = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName)
 		for ; (changedScopeNodes == nil) || !changedScopeNodes.isEmpty(); changedScopeNodes = this.compiler_.getChangeTracker().getChangedScopeNodesForPass(this.passName) {
 			if changedScopeNodes == nil {
 				NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_PeepholeOptimizationsPass_PeepCallback(this))))

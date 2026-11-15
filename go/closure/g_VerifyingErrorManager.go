@@ -4,7 +4,7 @@ package closure
 
 type VerifyingErrorManager struct {
 	ThreadSafeDelegatingErrorManager
-	unmatchedExpectations ListOf[*Pattern]
+	unmatchedExpectations *TList[*Pattern]
 	formatter             *LightweightMessageFormatter
 }
 
@@ -15,18 +15,18 @@ func (this *VerifyingErrorManager) up_ThreadSafeDelegatingErrorManager() *Thread
 	return &this.ThreadSafeDelegatingErrorManager
 }
 
-func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics ListOf[string]) {
+func (this *VerifyingErrorManager) init_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) {
 	this.ThreadSafeDelegatingErrorManager.init_ThreadSafeDelegatingErrorManager(delegate)
 	this.formatter = LightweightMessageFormatter_withoutSource()
-	this.unmatchedExpectations = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(expectedDiagnostics))
+	this.unmatchedExpectations = newTList_(tc_p_Pattern)
+	it_1 := expectedDiagnostics.each()
 	for it_1.next() {
-		var exp string = str_(it_1.v)
-		this.unmatchedExpectations.add(obj_(Pattern_compile(exp)))
+		var exp string = it_1.v
+		this.unmatchedExpectations.add(Pattern_compile(exp))
 	}
 }
 
-func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics ListOf[string]) *VerifyingErrorManager {
+func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics *TList[string]) *VerifyingErrorManager {
 	this := &VerifyingErrorManager{}
 	this.self_ = this
 	this.init_VerifyingErrorManager(delegate, expectedDiagnostics)
@@ -36,7 +36,7 @@ func new_VerifyingErrorManager(delegate ErrorManager, expectedDiagnostics ListOf
 func (this *VerifyingErrorManager) report_2_impl(level *CheckLevel, error_ *JSError) {
 	var formattedError string = this.formatErrorForMatching(level, error_)
 	var matchedPattern *Pattern = nil
-	var iterator IteratorOf[*Pattern] = this.unmatchedExpectations.iterator()
+	var iterator IteratorOf[*Pattern] = this.unmatchedExpectations.asList().iterator()
 	for iterator.hasNext() {
 		var p *Pattern = cast_[*Pattern](iterator.next())
 		if p.matcher(strobj_(formattedError)).find() {
@@ -63,9 +63,9 @@ func (this *VerifyingErrorManager) generateReport_impl() {
 }
 
 func (this *VerifyingErrorManager) reportMissingExpectations() {
-	it_1 := foreach_(any(this.unmatchedExpectations))
+	it_1 := this.unmatchedExpectations.each()
 	for it_1.next() {
-		var p *Pattern = cast_[*Pattern](it_1.v)
+		var p *Pattern = it_1.v
 		this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_EXPECTED_DIAGNOSTIC_NOT_FOUND, []string{Object_toString(obj_(p))}))
 	}
 	this.unmatchedExpectations.clear()

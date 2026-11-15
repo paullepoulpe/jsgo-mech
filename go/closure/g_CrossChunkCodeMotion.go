@@ -160,9 +160,9 @@ func new_CrossChunkCodeMotion_GlobalSymbolCollector(outer_ *CrossChunkCodeMotion
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(referenceCollector *CrossChunkReferenceCollector) CollectionOf[*CrossChunkCodeMotion_GlobalSymbol] {
-	it_1 := foreach_(any(referenceCollector.getTopLevelStatements()))
+	it_1 := referenceCollector.getTopLevelStatements().each()
 	for it_1.next() {
-		var statement *CrossChunkReferenceCollector_TopLevelStatement = cast_[*CrossChunkReferenceCollector_TopLevelStatement](it_1.v)
+		var statement *CrossChunkReferenceCollector_TopLevelStatement = it_1.v
 		if statement.isDeclarationStatement() {
 			this.processDeclarationStatement(statement)
 		} else {
@@ -173,9 +173,9 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) collectGlobalSymbols(ref
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processImmovableStatement(statement *CrossChunkReferenceCollector_TopLevelStatement) {
-	it_1 := foreach_(any(statement.getNonDeclarationReferences()))
+	it_1 := statement.getNonDeclarationReferences().each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		this.processImmovableReference(ref, statement.getChunk())
 	}
 }
@@ -202,9 +202,9 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatementContainedReferences(statement *CrossChunkReferenceCollector_TopLevelStatement, declaredSymbol *CrossChunkCodeMotion_GlobalSymbol, dsg *CrossChunkCodeMotion_DeclarationStatementGroup) {
-	it_1 := foreach_(any(statement.getNonDeclarationReferences()))
+	it_1 := statement.getNonDeclarationReferences().each()
 	for it_1.next() {
-		var ref *Reference = cast_[*Reference](it_1.v)
+		var ref *Reference = it_1.v
 		var refSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](ref.getSymbol()))
 		if Object_equals(obj_(refSymbol), obj_(declaredSymbol)) {
 			continue
@@ -340,10 +340,10 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 		Preconditions_checkState_boolean_String_Object(!symbol.isMoveDeclarationStatementsDone, "duplicate attempt to move %s", obj_(symbol))
 	}
 	var chunksWithImmovableReferences *BitSet = new_BitSet_int(this.outer_.graph.getChunkCount())
-	var cyclesLatestFirst ListOf[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = this.getDsgCyclesLatestFirst()
-	it_3 := foreach_(any(cyclesLatestFirst))
+	var cyclesLatestFirst *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = this.getDsgCyclesLatestFirst()
+	it_3 := cyclesLatestFirst.each()
 	for it_3.next() {
-		var dsgCycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = cast_[*CrossChunkCodeMotion_DeclarationStatementGroupCycle](it_3.v)
+		var dsgCycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = it_3.v
 		it_5 := foreach_(any(this.symbols))
 		for it_5.next() {
 			var symbol *CrossChunkCodeMotion_GlobalSymbol = cast_[*CrossChunkCodeMotion_GlobalSymbol](it_5.v)
@@ -358,8 +358,8 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) moveDeclarationStatements() 
 	}
 }
 
-func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() ListOf[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] {
-	var cyclesLatestFirst ListOf[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = icast_List(new_ArrayList_0().self())
+func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] {
+	var cyclesLatestFirst *TList[*CrossChunkCodeMotion_DeclarationStatementGroupCycle] = newTList_(tc_p_CrossChunkCodeMotion_DeclarationStatementGroupCycle)
 	var dsgsLatestFirst DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup] = this.getDsgsLatestFirst()
 	var cycle *CrossChunkCodeMotion_DeclarationStatementGroupCycle = nil
 	it_1 := foreach_(any(dsgsLatestFirst))
@@ -367,7 +367,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() Li
 		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](it_1.v)
 		if (cycle == nil) || !Object_equals(obj_(cycle.currentChunk), obj_(dsg.currentChunk)) {
 			cycle = new_CrossChunkCodeMotion_DeclarationStatementGroupCycle(this.outer_, dsg.currentChunk)
-			cyclesLatestFirst.add(obj_(cycle))
+			cyclesLatestFirst.add(cycle)
 		}
 		cycle.dsgs.add(obj_(dsg))
 	}

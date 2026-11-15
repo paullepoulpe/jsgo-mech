@@ -70,10 +70,10 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), any(root))
 	for !this.searchQueue.isEmpty() {
 		var curr DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.searchQueue))))
-		var parentEdges ListOf[DiGraph_DiGraphEdge] = curr.getInEdges()
-		it_2 := foreach_(any(parentEdges))
+		var parentEdges *TList[DiGraph_DiGraphEdge] = curr.getInEdges()
+		it_2 := parentEdges.each()
 		for it_2.next() {
-			var parentEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_2.v)
+			var parentEdge DiGraph_DiGraphEdge = it_2.v
 			var parent DiGraph_DiGraphNode = parentEdge.getSource()
 			if Object_equals(any(parent), any(root)) {
 				continue

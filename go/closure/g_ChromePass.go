@@ -107,10 +107,10 @@ func ChromePass_setJsDocWithType(target Node, type_ Node) {
 }
 
 func (this *ChromePass) createAndInsertObjectsForQualifiedName(scriptChild Node, namespace string) {
-	var objectsForQualifiedName ListOf[Node] = this.createObjectsForQualifiedName(namespace)
-	it_1 := foreach_(any(objectsForQualifiedName))
+	var objectsForQualifiedName *TList[Node] = this.createObjectsForQualifiedName(namespace)
+	it_1 := objectsForQualifiedName.each()
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		n.srcrefTree(scriptChild).insertBefore(scriptChild)
 	}
 	if !objectsForQualifiedName.isEmpty() {
@@ -167,8 +167,8 @@ func ChromePass_objectLitToMap(objectLit Node) MapOf[string, string] {
 	return res
 }
 
-func (this *ChromePass) createObjectsForQualifiedName(namespace string) ListOf[Node] {
-	var objects ListOf[Node] = icast_List(new_ArrayList_0().self())
+func (this *ChromePass) createObjectsForQualifiedName(namespace string) *TList[Node] {
+	var objects *TList[Node] = newTList_(tc_Node)
 	var parts []string = ChromePass_DOT_PATTERN.split(namespace)
 	this.createObjectIfNew(objects, parts[0], true)
 	if int32(len(parts)) >= 2 {
@@ -181,19 +181,19 @@ func (this *ChromePass) createObjectsForQualifiedName(namespace string) ListOf[N
 	return objects
 }
 
-func (this *ChromePass) createObjectIfNew(objects ListOf[Node], name string, needVar bool) {
+func (this *ChromePass) createObjectIfNew(objects *TList[Node], name string, needVar bool) {
 	if Collection_contains_s(this.createdObjects, name) {
 		return
 	}
 	Collection_add_s(this.createdObjects, name)
 	var v Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, name)
 	var lhs Node = IR_or(v.cloneTree(), IR_objectlit([]Node{}))
-	objects.add(func() any {
+	objects.add(Node_of_(func() any {
 		if needVar {
 			return IR_var_Node_Node(v, lhs).box_()
 		}
 		return IR_exprResult(IR_assign(v, lhs)).box_()
-	}())
+	}()))
 }
 
 var ChromePass_DOT_PATTERN *Pattern

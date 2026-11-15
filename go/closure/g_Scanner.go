@@ -8,7 +8,7 @@ type Scanner_parser struct {
 	lineNumberScanner  *LineNumberScanner
 	contents           string
 	contentsLength     int32
-	currentTokens      ArrayListOf[*Token_parser]
+	currentTokens      *TList[*Token_parser]
 	index_             int32
 	commentRecorder    Scanner_CommentRecorder
 	typeParameterLevel int32
@@ -19,7 +19,7 @@ func (this *Scanner_parser) zero_Scanner_parser() {
 }
 
 func (this *Scanner_parser) finit_Scanner_parser() {
-	this.currentTokens = new_ArrayList_0()
+	this.currentTokens = newTList_(tc_p_Token_parser)
 }
 
 func (this *Scanner_parser) init_Scanner_parser(errorReporter *ErrorReporter_util, commentRecorder Scanner_CommentRecorder, file *SourceFile_parser, offset int32) {
@@ -84,7 +84,7 @@ func (this *Scanner_parser) getTokenRangeSourcePosition(position *SourcePosition
 
 func (this *Scanner_parser) nextToken() *Token_parser {
 	this.peekToken()
-	return to_Token_parser(this.currentTokens.remove(0))
+	return this.currentTokens.removeAt(0)
 }
 
 func (this *Scanner_parser) clearTokenLookahead() {
@@ -211,9 +211,9 @@ func (this *Scanner_parser) peekToken() *Token_parser {
 
 func (this *Scanner_parser) peekToken_1(index int32) *Token_parser {
 	for this.currentTokens.size() <= index {
-		this.currentTokens.add(this.scanToken().self())
+		this.currentTokens.add(this.scanToken())
 	}
-	return to_Token_parser(this.currentTokens.get(index))
+	return this.currentTokens.get(index)
 }
 
 func (this *Scanner_parser) isAtEnd() bool {

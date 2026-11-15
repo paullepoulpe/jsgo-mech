@@ -658,7 +658,7 @@ func ConformanceRules_AbstractTypeRestrictionRule_isBottom(n Node) bool {
 
 func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf[string]) *JSType {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()
-	var types ListOf[*JSType] = icast_List(new_ArrayList_0().self())
+	var types *TList[*JSType] = newTList_(tc_p_JSType)
 	it_1 := foreach_(any(typeNames))
 	for it_1.next() {
 		var typeName string = str_(it_1.v)
@@ -667,7 +667,7 @@ func (this *ConformanceRules_AbstractTypeRestrictionRule) union(typeNames ListOf
 			type_ = registry.resolveViaClosureNamespace(typeName)
 		}
 		if type_ != nil {
-			types.add(type_.self())
+			types.add(type_)
 		}
 	}
 	if types.isEmpty() {
@@ -1450,24 +1450,24 @@ func ConformanceRules_ConformanceUtil_validateParameterList(compiler *AbstractCo
 		}
 		argumentTypes.add(argType.self())
 	}
-	return functionType.acceptsArguments(icast_List(obj_(argumentTypes.build())))
+	return functionType.acceptsArguments(tlistImm_(tc_p_JSType, argumentTypes.build()))
 }
 
 func ConformanceRules_ConformanceUtil_getPropertyFromDeclarationName(specName string) OptionalOf[string] {
-	var parts ListOf[string] = ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(specName))
+	var parts *TList[string] = tlistImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(specName)))
 	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
 	if parts.size() == 2 {
-		return Optional_ofNullable(parts.get(1))
+		return Optional_ofNullable(strobj_(parts.get(1)))
 	}
 	return Optional_empty()
 }
 
 func ConformanceRules_ConformanceUtil_getClassFromDeclarationName(specName string) OptionalOf[string] {
 	var tmp string = specName
-	var parts ListOf[string] = ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(tmp))
+	var parts *TList[string] = tlistImm_(tc_string, ConformanceRules_ON_PROTOTYPE.splitToList(strobj_(tmp)))
 	Preconditions_checkState(((parts.size() == 1) || (parts.size() == 2)))
 	if parts.size() == 2 {
-		return Optional_ofNullable(parts.get(0))
+		return Optional_ofNullable(strobj_(parts.get(0)))
 	}
 	return Optional_empty()
 }
@@ -3190,12 +3190,12 @@ func (this *ConformanceRules_BanCreateDom) initBanCreateDom(compiler *AbstractCo
 	it_1 := foreach_(any(icast_ProtocolStringList(requirement.getValueList())))
 	for it_1.next() {
 		var value string = str_(it_1.v)
-		var tagAttr ListOf[string] = ConformanceRules_ON_DOT.splitToList(strobj_(value))
-		if ((tagAttr.size() != 2) || String_isEmpty(str_(tagAttr.get(0)))) || String_isEmpty(str_(tagAttr.get(1))) {
+		var tagAttr *TList[string] = tlistImm_(tc_string, ConformanceRules_ON_DOT.splitToList(strobj_(value)))
+		if ((tagAttr.size() != 2) || String_isEmpty(tagAttr.get(0))) || String_isEmpty(tagAttr.get(1)) {
 			return Outcome_base_err(new_CheckConformance_InvalidRequirementSpec_String("Values must be in the format tagname.attribute.").up_Throwable())
 		}
-		var lowercasedTag string = String_toLowerCase(str_(tagAttr.get(0)), Locale_ROOT)
-		bannedTagAttrs.add(any([]string{lowercasedTag, str_(tagAttr.get(1))}))
+		var lowercasedTag string = String_toLowerCase(tagAttr.get(0), Locale_ROOT)
+		bannedTagAttrs.add(any([]string{lowercasedTag, tagAttr.get(1)}))
 	}
 	this.bannedTagAttrs = cast_[*ImmutableList](obj_(bannedTagAttrs.build()))
 	if this.bannedTagAttrs.isEmpty() {

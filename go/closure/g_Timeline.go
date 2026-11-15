@@ -46,8 +46,8 @@ func (this *Timeline) mark(timeName string) {
 	this.addEvent(obj_(new_Timeline_Time(timeName)), this.eventsByTime)
 }
 
-func (this *Timeline) getSince(timeName string) ListOf[any] {
-	var values ListOf[any] = icast_List(new_ArrayList_0().self())
+func (this *Timeline) getSince(timeName string) *TList[Node] {
+	var values *TList[Node] = newTList_(tc_Node)
 	var firstEvent *Timeline_Event = cast_[*Timeline_Event](this.eventsByTime.get(obj_(new_Timeline_Time(timeName))))
 	if firstEvent == nil {
 		return nil
@@ -56,7 +56,7 @@ func (this *Timeline) getSince(timeName string) ListOf[any] {
 		var event *Timeline_Event = firstEvent
 		for ; event != nil; event = event.nextEvent {
 			if !is_[*Timeline_Time](event.value_) {
-				values.add(event.value_)
+				values.add(Node_of_(event.value_))
 			}
 		}
 	}

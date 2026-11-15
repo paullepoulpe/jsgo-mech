@@ -22,11 +22,11 @@ func (this *J2clPass) process_2(externs Node, root Node) {
 	if !J2clSourceFileChecker_shouldRunJ2clPasses(this.compiler_) {
 		return
 	}
-	var inlinings ListOf[*J2clPass_InlineSpec] = icast_List(new_ArrayList_0().self())
-	inlinings.add(obj_(new_J2clPass_InlineSpec("Arrays.impl.java.js", icast_Set(obj_(ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("$create"), strobj_("$createWithInitializer"), strobj_("$init"), strobj_("$instanceIsOfType"), strobj_("$castTo"), strobj_("$stampType"), []any{}))), FunctionInjector_InliningMode_DIRECT)))
-	inlinings.add(obj_(new_J2clPass_InlineSpec("Casts.impl.java.js", icast_Set(obj_(ImmutableSet_of_Object(strobj_("$to")))), FunctionInjector_InliningMode_DIRECT)))
-	inlinings.add(obj_(new_J2clPass_InlineSpec(J2clPass_ALL_CLASS_FILE_NAMES, icast_Set(obj_(ImmutableSet_of_Object(strobj_("$markImplementor")))), FunctionInjector_InliningMode_BLOCK)))
-	inlinings.add(obj_(new_J2clPass_InlineSpec("Util.impl.java.js", icast_Set(obj_(ImmutableSet_of_Object_Object_Object_Object(strobj_("$setClassMetadata"), strobj_("$setClassMetadataForInterface"), strobj_("$setClassMetadataForEnum"), strobj_("$setClassMetadataForPrimitive")))), FunctionInjector_InliningMode_BLOCK)))
+	var inlinings *TList[*J2clPass_InlineSpec] = newTList_(tc_p_J2clPass_InlineSpec)
+	inlinings.add(new_J2clPass_InlineSpec("Arrays.impl.java.js", icast_Set(obj_(ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("$create"), strobj_("$createWithInitializer"), strobj_("$init"), strobj_("$instanceIsOfType"), strobj_("$castTo"), strobj_("$stampType"), []any{}))), FunctionInjector_InliningMode_DIRECT))
+	inlinings.add(new_J2clPass_InlineSpec("Casts.impl.java.js", icast_Set(obj_(ImmutableSet_of_Object(strobj_("$to")))), FunctionInjector_InliningMode_DIRECT))
+	inlinings.add(new_J2clPass_InlineSpec(J2clPass_ALL_CLASS_FILE_NAMES, icast_Set(obj_(ImmutableSet_of_Object(strobj_("$markImplementor")))), FunctionInjector_InliningMode_BLOCK))
+	inlinings.add(new_J2clPass_InlineSpec("Util.impl.java.js", icast_Set(obj_(ImmutableSet_of_Object_Object_Object_Object(strobj_("$setClassMetadata"), strobj_("$setClassMetadataForInterface"), strobj_("$setClassMetadataForEnum"), strobj_("$setClassMetadataForPrimitive")))), FunctionInjector_InliningMode_BLOCK))
 	new_J2clPass_ClassStaticFunctionsInliner(this, root, inlinings).run()
 }
 
@@ -92,22 +92,22 @@ type J2clPass_ClassStaticFunctionsInliner struct {
 	fnsToInlineByQualifiedName MapOf[string, *J2clPass_ClassStaticFunctionsInliner_InlinableFunction]
 	injector                   *FunctionInjector
 	root                       Node
-	inlineSpecs                ListOf[*J2clPass_InlineSpec]
+	inlineSpecs                *TList[*J2clPass_InlineSpec]
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner) finit_J2clPass_ClassStaticFunctionsInliner() {
 	this.fnsToInlineByQualifiedName = icast_Map(obj_(new_LinkedHashMap()))
 }
 
-func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunctionsInliner(root Node, inlineSpecs ListOf[*J2clPass_InlineSpec]) {
+func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunctionsInliner(root Node, inlineSpecs *TList[*J2clPass_InlineSpec]) {
 	this.finit_J2clPass_ClassStaticFunctionsInliner()
 	this.root = root
 	this.inlineSpecs = inlineSpecs
 	this.injector = new_FunctionInjector_Builder(this.outer_.compiler_).safeNameIdSupplier(this.outer_.safeNameIdSupplier_).assumeStrictThis(true).build()
 	var fnNamesToInlineBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
-	it_1 := foreach_(any(inlineSpecs))
+	it_1 := inlineSpecs.each()
 	for it_1.next() {
-		var b *J2clPass_InlineSpec = cast_[*J2clPass_InlineSpec](it_1.v)
+		var b *J2clPass_InlineSpec = it_1.v
 		it_3 := foreach_(any(b.fnNamesToInline_))
 		for it_3.next() {
 			var fnName string = str_(it_3.v)
@@ -118,7 +118,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner) init_J2clPass_ClassStaticFunct
 	this.injector.setKnownConstantFunctions(fnNamesToInline)
 }
 
-func new_J2clPass_ClassStaticFunctionsInliner(outer_ *J2clPass, root Node, inlineSpecs ListOf[*J2clPass_InlineSpec]) *J2clPass_ClassStaticFunctionsInliner {
+func new_J2clPass_ClassStaticFunctionsInliner(outer_ *J2clPass, root Node, inlineSpecs *TList[*J2clPass_InlineSpec]) *J2clPass_ClassStaticFunctionsInliner {
 	this := &J2clPass_ClassStaticFunctionsInliner{}
 	this.outer_ = outer_
 	this.init_J2clPass_ClassStaticFunctionsInliner(root, inlineSpecs)
@@ -132,9 +132,9 @@ func (this *J2clPass_ClassStaticFunctionsInliner) run() {
 
 func (this *J2clPass_ClassStaticFunctionsInliner) findMatchingSpecsForFile(sourceFileName string) ImmutableListOf[*J2clPass_InlineSpec] {
 	var matchingSpecs ImmutableList_BuilderOf[*J2clPass_InlineSpec] = ImmutableList_builder()
-	it_1 := foreach_(any(this.inlineSpecs))
+	it_1 := this.inlineSpecs.each()
 	for it_1.next() {
-		var inlineSpec *J2clPass_InlineSpec = cast_[*J2clPass_InlineSpec](it_1.v)
+		var inlineSpec *J2clPass_InlineSpec = it_1.v
 		if (inlineSpec.classFileName_ == J2clPass_ALL_CLASS_FILE_NAMES) || String_endsWith(sourceFileName, inlineSpec.classFileName_) {
 			matchingSpecs.add(obj_(inlineSpec))
 		}
