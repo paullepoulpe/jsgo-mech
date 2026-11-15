@@ -198,26 +198,23 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 	if var_ == nil {
 		return
 	}
-	it_1 := foreach_(any(def.reachingDef.entrySet()))
-	for it_1.next() {
-		var pair Map_Entry = icast_Map_Entry(it_1.v)
-		var otherDef *MustBeReachingVariableDef_Definition = cast_[*MustBeReachingVariableDef_Definition](pair.getValue())
+	for i_, otherDef := range def.reachingDef.vals {
 		if otherDef == nil {
 			continue
 		}
 		if otherDef.depends.contains(obj_(var_)) {
-			pair.setValue(nil)
+			def.reachingDef.vals[i_] = nil
 		}
 	}
 	if !this.escaped.contains(obj_(var_)) {
 		if node == 0 {
-			def.reachingDef.put(obj_(var_), nil)
+			def.reachingDef.put(var_, nil)
 		} else {
 			var definition *MustBeReachingVariableDef_Definition = new_MustBeReachingVariableDef_Definition(node)
 			if rValue != 0 {
 				this.computeDependence(definition, rValue)
 			}
-			def.reachingDef.put(obj_(var_), obj_(definition))
+			def.reachingDef.put(var_, definition)
 		}
 	}
 }
@@ -227,13 +224,10 @@ func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVa
 	for it_1.next() {
 		var v *Var = it_1.v
 		if MustBeReachingVariableDef_isParameter(v) {
-			output.reachingDef.put(obj_(v), nil)
+			output.reachingDef.put(v, nil)
 		}
 	}
-	it_3 := foreach_(any(output.reachingDef.entrySet()))
-	for it_3.next() {
-		var pair Map_Entry = icast_Map_Entry(it_3.v)
-		var value *MustBeReachingVariableDef_Definition = cast_[*MustBeReachingVariableDef_Definition](pair.getValue())
+	for i_, value := range output.reachingDef.vals {
 		if value == nil {
 			continue
 		}
@@ -241,7 +235,7 @@ func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVa
 		for it_5.next() {
 			var dep *Var = cast_[*Var](it_5.v)
 			if MustBeReachingVariableDef_isParameter(dep) {
-				pair.setValue(nil)
+				output.reachingDef.vals[i_] = nil
 				break
 			}
 		}
@@ -260,7 +254,7 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
 	Preconditions_checkArgument(this.getCfg().hasNode(useNode.box_()))
 	var n GraphNode = this.getCfg().getNode(useNode.box_())
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MustBeReachingVariableDef_Definition](cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(obj_(this.allVarsInFn.get(name))))
+	return func() *MustBeReachingVariableDef_Definition { d, _ := cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name)); return d }()
 }
 
 func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
@@ -334,11 +328,10 @@ func (this *MustBeReachingVariableDef_Definition) hashCode() int32 {
 }
 
 type MustBeReachingVariableDef_MustDef struct {
-	reachingDef LinkedHashMapOf[*Var, *MustBeReachingVariableDef_Definition]
+	reachingDef varMap_[*MustBeReachingVariableDef_Definition]
 }
 
 func (this *MustBeReachingVariableDef_MustDef) finit_MustBeReachingVariableDef_MustDef() {
-	this.reachingDef = new_LinkedHashMap()
 }
 
 func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_MustDef_0() {
@@ -356,7 +349,7 @@ func (this *MustBeReachingVariableDef_MustDef) init_MustBeReachingVariableDef_Mu
 	it_1 := foreach_(any(vars))
 	for it_1.next() {
 		var var_ *Var = cast_[*Var](it_1.v)
-		this.reachingDef.put(obj_(var_), obj_(new_MustBeReachingVariableDef_Definition(cast_[*Scope](var_.getScope()).getRootNode())))
+		this.reachingDef.put(var_, new_MustBeReachingVariableDef_Definition(cast_[*Scope](var_.getScope()).getRootNode()))
 	}
 }
 
@@ -368,7 +361,7 @@ func new_MustBeReachingVariableDef_MustDef_Collection(vars CollectionOf[*Var]) *
 
 func MustBeReachingVariableDef_MustDef_createFromMustDef(other *MustBeReachingVariableDef_MustDef) *MustBeReachingVariableDef_MustDef {
 	var copy_ *MustBeReachingVariableDef_MustDef = new_MustBeReachingVariableDef_MustDef_0()
-	copy_.reachingDef.putAll(icast_Map(obj_(other.reachingDef)))
+	copy_.reachingDef.copyFrom(&other.reachingDef)
 	return copy_
 }
 
@@ -382,21 +375,21 @@ func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
 		}
 		mustDef = cast_[*MustBeReachingVariableDef_MustDef](v_)
 		return true
-	}() && Object_equals(obj_(mustDef.reachingDef), obj_(this.reachingDef)))
+	}() && mustDef.reachingDef.equalsWith(&this.reachingDef, func(a, b *MustBeReachingVariableDef_Definition) bool { return Objects_equals(obj_(a), obj_(b)) }))
 }
 
 func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
-	return Object_hashCode(obj_(this.reachingDef))
+	return this.reachingDef.hashWith(func(d *MustBeReachingVariableDef_Definition) int32 { return objhash_(obj_(d)) })
 }
 
 type MustBeReachingVariableDef_MustDefJoin struct {
 	result    *MustBeReachingVariableDef_MustDef
-	resultMap LinkedHashMapOf[*Var, *MustBeReachingVariableDef_Definition]
+	resultMap *varMap_[*MustBeReachingVariableDef_Definition]
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) finit_MustBeReachingVariableDef_MustDefJoin() {
 	this.result = new_MustBeReachingVariableDef_MustDef_0()
-	this.resultMap = this.result.reachingDef
+	this.resultMap = &this.result.reachingDef
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) init_MustBeReachingVariableDef_MustDefJoin() {
@@ -412,23 +405,23 @@ func new_MustBeReachingVariableDef_MustDefJoin() *MustBeReachingVariableDef_Must
 func (this *MustBeReachingVariableDef_MustDefJoin) joinFlow(input_ any) {
 	var input *MustBeReachingVariableDef_MustDef = cast_[*MustBeReachingVariableDef_MustDef](input_)
 	_ = input
-	Map_forEach(icast_Map(obj_(input.reachingDef)), &BiConsumer_fn{func(p0 any, p1 any) {
-		this.mergeVarDef(cast_[*Var](p0), cast_[*MustBeReachingVariableDef_Definition](p1))
-	}})
+	for i_, v := range input.reachingDef.vars {
+		this.mergeVarDef(v, input.reachingDef.vals[i_])
+	}
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) mergeVarDef(var_ *Var, def *MustBeReachingVariableDef_Definition) {
 	var resultDef *MustBeReachingVariableDef_Definition
 	if def == nil {
 		resultDef = nil
-	} else if !this.resultMap.containsKey(obj_(var_)) {
+	} else if old, ok := this.resultMap.get(var_); !ok {
 		resultDef = def
-	} else if def.equals(this.resultMap.get(obj_(var_))) {
+	} else if def.equals(obj_(old)) {
 		return
 	} else {
 		resultDef = nil
 	}
-	this.resultMap.put(obj_(var_), obj_(resultDef))
+	this.resultMap.put(var_, resultDef)
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) finish() any {
