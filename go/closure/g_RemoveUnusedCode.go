@@ -10,7 +10,7 @@ type RemoveUnusedCode struct {
 	removeGlobals_                                 bool
 	preserveFunctionExpressionNames_               bool
 	worklist                                       DequeOf[*RemoveUnusedCode_Continuation]
-	varInfoMap                                     LinkedHashMapOf[*Var, RemoveUnusedCode_VarInfo]
+	varInfoMap                                     varMap_[RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            *TSet[string]
 	removablesForPropertyNames                     *SimpleSetMultimap
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
@@ -32,7 +32,6 @@ type RemoveUnusedCode struct {
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = icast_Deque(obj_(new_ArrayDeque()))
-	this.varInfoMap = new_LinkedHashMap()
 	this.pinnedPropertyNames = tsetFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)), false)
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered()
 	this.allFunctionParamScopes = []*Scope{}
@@ -1066,7 +1065,7 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 	} else if var_.isArguments() {
 		return this.canonicalUnremovableVarInfo
 	} else {
-		var varInfo RemoveUnusedCode_VarInfo = icast_RemoveUnusedCode_VarInfo(this.varInfoMap.get(obj_(var_)))
+		var varInfo, _ = this.varInfoMap.get(var_)
 		if varInfo == nil {
 			varInfo = icast_RemoveUnusedCode_VarInfo(obj_(new_RemoveUnusedCode_RealVarInfo(this, var_.getName())))
 			if var_.getParentNode().isParamList() {
@@ -1081,7 +1080,7 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 					return strobj_("not removing locals")
 				}})
 			}
-			this.varInfoMap.put(obj_(var_), any(varInfo))
+			this.varInfoMap.put(var_, varInfo)
 		}
 		return varInfo
 	}
@@ -1089,11 +1088,9 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 }
 
 func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
-	it_1 := foreach_(any(this.varInfoMap.entrySet()))
-	for it_1.next() {
-		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		var var_ *Var = cast_[*Var](entry.getKey())
-		var varInfo RemoveUnusedCode_VarInfo = icast_RemoveUnusedCode_VarInfo(entry.getValue())
+	for i_ := 0; i_ < len(this.varInfoMap.vars); i_++ {
+		var var_ *Var = this.varInfoMap.vars[i_]
+		var varInfo RemoveUnusedCode_VarInfo = this.varInfoMap.vals[i_]
 		if !varInfo.isRemovable() {
 			continue
 		}
