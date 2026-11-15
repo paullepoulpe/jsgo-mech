@@ -39,7 +39,7 @@ func new_AllowlistWarningsGuard_Set(allowlist SetOf[string]) *AllowlistWarningsG
 }
 
 func AllowlistWarningsGuard_normalizeAllowlist(allowlist SetOf[string]) ImmutableSetOf[string] {
-	var result SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var result *TSet[string] = newTSet_(tc_string)
 	it_1 := foreach_(any(allowlist))
 	for it_1.next() {
 		var line string = str_(it_1.v)
@@ -47,9 +47,9 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist SetOf[string]) Immutabl
 		if String_isEmpty(trimmed) || (String_charAt(trimmed, 0) == '#') {
 			continue
 		}
-		Collection_add_s(result, AllowlistWarningsGuard_LINE_NUMBER.matcher(strobj_(trimmed)).replaceFirst(":"))
+		result.add(AllowlistWarningsGuard_LINE_NUMBER.matcher(strobj_(trimmed)).replaceFirst(":"))
 	}
-	return ImmutableSet_copyOf(Collection(result))
+	return ImmutableSet_copyOf(Collection(result.asSet()))
 }
 
 func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) *CheckLevel {

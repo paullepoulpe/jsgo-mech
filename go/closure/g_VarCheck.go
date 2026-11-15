@@ -3,7 +3,7 @@
 package closure
 
 type VarCheck struct {
-	undefinedNamesFromExterns SetOf[string]
+	undefinedNamesFromExterns *TSet[string]
 	compiler_                 *AbstractCompiler
 	validityCheck             bool
 	strictExternCheck         bool
@@ -11,7 +11,7 @@ type VarCheck struct {
 }
 
 func (this *VarCheck) finit_VarCheck() {
-	this.undefinedNamesFromExterns = icast_Set(obj_(new_LinkedHashSet()))
+	this.undefinedNamesFromExterns = newTSet_(tc_string)
 }
 
 func (this *VarCheck) init_VarCheck_AbstractCompiler(compiler *AbstractCompiler) {
@@ -53,9 +53,9 @@ func (this *VarCheck) process_2(externs Node, root Node) {
 		NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(obj_(new_VarCheck_NameRefInExternsCheck(this)))).setScopeCreator(scopeCreator).traverse(externs)
 	}
 	NodeTraversal_builder().setCompiler(this.compiler_).setCallback(icast_NodeTraversal_Callback(any(this))).setScopeCreator(scopeCreator).traverseRoots(externs, root)
-	it_1 := foreach_(any(this.undefinedNamesFromExterns))
+	it_1 := this.undefinedNamesFromExterns.each()
 	for it_1.next() {
-		var varName string = str_(it_1.v)
+		var varName string = it_1.v
 		this.createSynthesizedExternVar(varName, false)
 	}
 	if this.dupHandler != nil {
@@ -142,7 +142,7 @@ func (this *VarCheck) handleUndeclaredVariableRef(t *NodeTraversal, n Node) {
 	}
 	if this.validityCheck {
 		panic(new_IllegalStateException_String(("Unexpected variable " + sstr_(varName))).self())
-	} else if !Collection_contains_s(this.undefinedNamesFromExterns, varName) {
+	} else if !this.undefinedNamesFromExterns.contains(varName) {
 		this.createSynthesizedExternVar(varName, true)
 	}
 }
@@ -159,7 +159,7 @@ func (this *VarCheck) exitScope(t *NodeTraversal) {
 			var requiredSymbol string = str_(it_1.v)
 			var var_ *Var = cast_[*Var](scope.getVar(requiredSymbol).self())
 			if var_ == nil {
-				Collection_add_s(this.undefinedNamesFromExterns, requiredSymbol)
+				this.undefinedNamesFromExterns.add(requiredSymbol)
 			}
 		}
 	}
@@ -284,7 +284,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 					return
 				}
 				t.report(n, VarCheck_UNDEFINED_EXTERN_VAR_ERROR, []string{n.getString()})
-				Collection_add_s(this.outer_.undefinedNamesFromExterns, n.getString())
+				this.outer_.undefinedNamesFromExterns.add(n.getString())
 			}
 			return
 		case Token_rhino_ASSIGN:
@@ -305,7 +305,7 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 		var scope *Scope = t.getScope()
 		var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
 		if var_ == nil {
-			Collection_add_s(this.outer_.undefinedNamesFromExterns, n.getString())
+			this.outer_.undefinedNamesFromExterns.add(n.getString())
 		}
 	}
 }

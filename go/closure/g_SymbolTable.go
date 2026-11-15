@@ -288,14 +288,14 @@ func (this *SymbolTable) toDebugStringTree() string {
 			this.toDebugStringTree_4(builder, "", scope, childrenScopes)
 		}
 	}
-	var visitedScopes LinkedHashSetOf[*SymbolTable_SymbolScope] = new_LinkedHashSet_Collection(this.getAllScopes())
+	var visitedScopes *TSet[*SymbolTable_SymbolScope] = tsetFrom_(tc_p_SymbolTable_SymbolScope, this.getAllScopes(), false)
 	it_5 := foreach_(obj_(this.getAllSymbols()))
 	for it_5.next() {
 		var symbol *SymbolTable_Symbol = cast_[*SymbolTable_Symbol](it_5.v)
-		if (symbol.propertyScope == nil) || visitedScopes.contains(obj_(symbol.propertyScope)) {
+		if (symbol.propertyScope == nil) || visitedScopes.contains(symbol.propertyScope) {
 			continue
 		}
-		visitedScopes.add(obj_(symbol.getPropertyScope()))
+		visitedScopes.add(symbol.getPropertyScope())
 		this.toDebugStringTree_4(builder, "", symbol.propertyScope, childrenScopes)
 	}
 	return Object_toString(obj_(builder))

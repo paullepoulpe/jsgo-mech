@@ -83,16 +83,16 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 	for it_5.next() {
 		var input *CompilerInput = it_5.v
 		var name string = input.getName()
-		var depSymbols SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+		var depSymbols *TSet[string] = newTSet_(tc_string)
 		it_7 := foreach_(obj_(input.getRequires()))
 		for it_7.next() {
 			var req *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_7.v)
-			Collection_add_s(depSymbols, req.getSymbol())
+			depSymbols.add(req.getSymbol())
 		}
-		depSymbols.addAll(icast_Collection(obj_(input.getTypeRequires())))
-		it_9 := foreach_(any(depSymbols))
+		depSymbols.asSet().addAll(icast_Collection(obj_(input.getTypeRequires())))
+		it_9 := depSymbols.each()
 		for it_9.next() {
-			var symbol string = str_(it_9.v)
+			var symbol string = it_9.v
 			var depRes *Outcome_base = this.sorter_.getInputProviding(symbol)
 			if depRes.isErr() {
 			} else {

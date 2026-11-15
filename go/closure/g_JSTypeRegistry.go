@@ -37,7 +37,7 @@ type JSTypeRegistry struct {
 	forwardDeclaredTypes            SetOf[string]
 	nonRefTypesIndexedByProperty    *SimpleSetMultimap
 	sentinelObjectLiteral           *JSType
-	propertiesOfSupertypesInUnions  SetOf[string]
+	propertiesOfSupertypesInUnions  *TSet[string]
 	droppedPropertiesOfUnions       map[string]struct{}
 	eachRefTypeIndexedByProperty    *SimpleSetMultimap
 	emptyTemplateTypeMap            *TemplateTypeMap
@@ -50,7 +50,7 @@ func (this *JSTypeRegistry) finit_JSTypeRegistry() {
 	this.nameTableGlobalRoot = new_Node_Token(Token_rhino_ROOT)
 	this.nonNullableTypeNames = SimpleSetMultimap_create()
 	this.nonRefTypesIndexedByProperty = SimpleSetMultimap_create()
-	this.propertiesOfSupertypesInUnions = icast_Set(obj_(new_LinkedHashSet()))
+	this.propertiesOfSupertypesInUnions = newTSet_(tc_string)
 	this.droppedPropertiesOfUnions = map[string]struct{}{}
 	this.eachRefTypeIndexedByProperty = SimpleSetMultimap_create()
 }
@@ -729,7 +729,7 @@ func (this *JSTypeRegistry) registerDroppedPropertiesInUnion(subtype *RecordType
 		}
 	}
 	if foundDroppedProperty {
-		this.propertiesOfSupertypesInUnions.addAll(Collection(supertype.getPropertyMap().getOwnPropertyNames()))
+		this.propertiesOfSupertypesInUnions.asSet().addAll(Collection(supertype.getPropertyMap().getOwnPropertyNames()))
 	}
 }
 
@@ -809,7 +809,7 @@ func (this *JSTypeRegistry) canPropertyBeDefined(type_ *JSType, propertyName str
 			it_5 := foreach_(any(rec.getPropertyMap().getOwnPropertyNames()))
 			for it_5.next() {
 				var pname string = str_(it_5.v)
-				if Collection_contains_s(this.propertiesOfSupertypesInUnions, pname) {
+				if this.propertiesOfSupertypesInUnions.contains(pname) {
 					mayBeInUnion = true
 					break
 				}

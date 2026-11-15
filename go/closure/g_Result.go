@@ -12,13 +12,13 @@ type Result struct {
 	stringMap               *VariableMap
 	instrumentationMappings *VariableMap
 	sourceMap_              *SourceMap
-	cssNames                SetOf[string]
+	cssNames                *TSet[string]
 	externExport            OptionalOf[string]
 	idGeneratorMap          OptionalOf[string]
 	transpiledFiles         bool
 }
 
-func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames SetOf[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) {
+func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames *TSet[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) {
 	this.success_ = errors.isEmpty()
 	this.errors_ = errors
 	this.warnings_ = warnings
@@ -34,7 +34,7 @@ func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_Variable
 	this.transpiledFiles = transpiledFiles
 }
 
-func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames SetOf[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) *Result {
+func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames *TSet[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) *Result {
 	this := &Result{}
 	this.init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors, warnings, variableMap, propertyMap, namedAnonFunctionMap, stringMap, instrumentationMappings, sourceMap, externExport, cssNames, idGeneratorMap, transpiledFiles)
 	return this

@@ -7,7 +7,7 @@ type FindExportableNodes struct {
 	compiler_         *AbstractCompiler
 	exports           *TMap[string, Node]
 	es6ClassExports   *TMap[Node, string]
-	localExports      LinkedHashSetOf[string]
+	localExports      *TSet[string]
 	allowLocalExports bool
 }
 
@@ -21,7 +21,7 @@ func (this *FindExportableNodes) up_NodeTraversal_AbstractPostOrderCallback() *N
 func (this *FindExportableNodes) finit_FindExportableNodes() {
 	this.exports = newTMap_(tc_string, tc_Node)
 	this.es6ClassExports = newTMap_(tc_Node, tc_string)
-	this.localExports = new_LinkedHashSet()
+	this.localExports = newTSet_(tc_string)
 }
 
 func (this *FindExportableNodes) init_FindExportableNodes(compiler *AbstractCompiler, allowLocalExports bool) {
@@ -142,7 +142,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 			Preconditions_checkState((context == 0))
 			Preconditions_checkState((mode == FindExportableNodes_Mode_EXTERN))
 			Preconditions_checkState(!String_isEmpty(str_(export.get())))
-			Collection_add_s(this.localExports, str_(export.get()))
+			this.localExports.add(str_(export.get()))
 		}
 	} else if !(n.isGetProp() && parent.isExprResult()) {
 		if !n.isFunction() || !NodeUtil_mayBeObjectLitKey(parent) {
@@ -159,7 +159,7 @@ func (this *FindExportableNodes) getExports() *TMap[string, Node] {
 	return this.exports
 }
 
-func (this *FindExportableNodes) getLocalExports() LinkedHashSetOf[string] {
+func (this *FindExportableNodes) getLocalExports() *TSet[string] {
 	return this.localExports
 }
 

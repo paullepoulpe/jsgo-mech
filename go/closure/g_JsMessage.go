@@ -556,8 +556,8 @@ type JsMessage_Builder struct {
 	alternateId                      OptionalOf[string]
 	parts                            *TList[JsMessage_Part]
 	genderedMessageMap               *TMap[*JsMessage_GrammaticalGenderCase, ListOf[JsMessage_Part]]
-	jsPlaceholderNames_              SetOf[string]
-	canonicalPlaceholderNames_       SetOf[string]
+	jsPlaceholderNames_              *TSet[string]
+	canonicalPlaceholderNames_       *TSet[string]
 	placeholderNameToExampleMap      ImmutableMapOf[string, string]
 	placeholderNameToOriginalCodeMap ImmutableMapOf[string, string]
 	sourceName_                      OptionalOf[string]
@@ -573,8 +573,8 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.alternateId = Optional_empty()
 	this.parts = newTList_(tc_JsMessage_Part)
 	this.genderedMessageMap = newTMap_(tc_p_JsMessage_GrammaticalGenderCase, tc_ListOf_JsMessage_Part_)
-	this.jsPlaceholderNames_ = icast_Set(obj_(new_LinkedHashSet()))
-	this.canonicalPlaceholderNames_ = icast_Set(obj_(new_LinkedHashSet()))
+	this.jsPlaceholderNames_ = newTSet_(tc_string)
+	this.canonicalPlaceholderNames_ = newTSet_(tc_string)
 	this.placeholderNameToExampleMap = ImmutableMap_of()
 	this.placeholderNameToOriginalCodeMap = ImmutableMap_of()
 	this.sourceName_ = Optional_empty()
@@ -608,8 +608,8 @@ func (this *JsMessage_Builder) appendPart(part JsMessage_Part) *JsMessage_Builde
 	Preconditions_checkNotNull(any(part))
 	this.parts.add(part)
 	if part.isPlaceholder() {
-		Collection_add_s(this.jsPlaceholderNames_, part.getJsPlaceholderName())
-		Collection_add_s(this.canonicalPlaceholderNames_, part.getCanonicalPlaceholderName())
+		this.jsPlaceholderNames_.add(part.getJsPlaceholderName())
+		this.canonicalPlaceholderNames_.add(part.getCanonicalPlaceholderName())
 	}
 	return this
 }
@@ -625,27 +625,27 @@ func (this *JsMessage_Builder) appendParts(parts ListOf[JsMessage_Part]) *JsMess
 
 func (this *JsMessage_Builder) appendJsPlaceholderReference(name string) *JsMessage_Builder {
 	this.parts.add(icast_JsMessage_Part(obj_(JsMessage_PlaceholderReference_createForJsName(name))))
-	Collection_add_s(this.jsPlaceholderNames_, name)
+	this.jsPlaceholderNames_.add(name)
 	return this
 }
 
 func (this *JsMessage_Builder) appendJsPlaceholderReference_2(genderCase *JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
 	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_PlaceholderReference_createForJsName(name)))
-	Collection_add_s(this.jsPlaceholderNames_, name)
+	this.jsPlaceholderNames_.add(name)
 	return this
 }
 
 func (this *JsMessage_Builder) appendCanonicalPlaceholderReference(name string) *JsMessage_Builder {
 	var placeholder *JsMessage_PlaceholderReference = JsMessage_PlaceholderReference_createForCanonicalName(name)
 	this.parts.add(icast_JsMessage_Part(obj_(placeholder)))
-	Collection_add_s(this.jsPlaceholderNames_, placeholder.getJsPlaceholderName())
+	this.jsPlaceholderNames_.add(placeholder.getJsPlaceholderName())
 	return this
 }
 
 func (this *JsMessage_Builder) appendCanonicalPlaceholderReference_2(genderCase *JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
 	var placeholder *JsMessage_PlaceholderReference = JsMessage_PlaceholderReference_createForCanonicalName(name)
 	this.genderedMessageMap.get(genderCase).add(obj_(placeholder))
-	Collection_add_s(this.jsPlaceholderNames_, placeholder.getJsPlaceholderName())
+	this.jsPlaceholderNames_.add(placeholder.getJsPlaceholderName())
 	return this
 }
 
@@ -733,7 +733,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 		immutableGenderedPartsBuilder.put(entry.getKey(), obj_(ImmutableList_copyOf(icast_Collection(entry.getValue()))))
 	}
 	var immutableGenderedMessageMap ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = immutableGenderedPartsBuilder.buildOrThrow()
-	return new_JsMessage(this.sourceName_, str_(this.key_.get()), this.isAnonymous_, this.isExternal_, str_(this.id.get()), ImmutableList_copyOf(Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, ImmutableSet_copyOf(Collection(this.jsPlaceholderNames_)), ImmutableSet_copyOf(Collection(this.canonicalPlaceholderNames_)))
+	return new_JsMessage(this.sourceName_, str_(this.key_.get()), this.isAnonymous_, this.isExternal_, str_(this.id.get()), ImmutableList_copyOf(Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, ImmutableSet_copyOf(Collection(this.jsPlaceholderNames_.asSet())), ImmutableSet_copyOf(Collection(this.canonicalPlaceholderNames_.asSet())))
 }
 
 type JsMessage_Hash struct {

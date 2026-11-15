@@ -66,7 +66,7 @@ type Compiler struct {
 	syntheticTypeSummaryInput      *CompilerInput
 	indexProvidersByType           *TMap[ClassOf[any], IndexProvider]
 	crossChunkIdGenerator          *IdGenerator
-	cssNames                       SetOf[string]
+	cssNames                       *TSet[string]
 	variableMap                    *VariableMap
 	propertyMap                    *VariableMap
 	stringMap                      *VariableMap
@@ -1054,7 +1054,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	this.resetAndIntitializeSourceMap()
 	var fileNameRegexList ListOf[string] = this.options_.getFilesToPrintAfterEachPassRegexList()
 	var chunkNameRegexList ListOf[string] = this.options_.getChunksToPrintAfterEachPassRegexList()
-	var qnameSet SetOf[string] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(this.options_.getQnameUsesToPrintAfterEachPassList()))))
+	var qnameSet *TSet[string] = tsetFrom_(tc_string, Collection(this.options_.getQnameUsesToPrintAfterEachPassList()), false)
 	var builder *StringBuilder = new_StringBuilder()
 	if (fileNameRegexList.isEmpty() && chunkNameRegexList.isEmpty()) && qnameSet.isEmpty() {
 		return this.toSource()
@@ -1121,9 +1121,9 @@ func (this *Compiler) getCurrentJsSource() string {
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
 		builder.append("//\n")
-		it_12 := foreach_(any(qnameSet))
+		it_12 := qnameSet.each()
 		for it_12.next() {
-			var qname string = str_(it_12.v)
+			var qname string = it_12.v
 			builder.append(String_format("// '%s'\n", []any{strobj_(qname)}))
 			it_14 := foreach_(any(originalToNewQNameMap.get(strobj_(qname))))
 			for it_14.next() {
@@ -1143,11 +1143,11 @@ func (this *Compiler) getCurrentJsSource() string {
 					return false
 				}
 				var qname string = n.getQualifiedName()
-				if Collection_contains_s(qnameSet, qname) {
+				if qnameSet.contains(qname) {
 					return true
 				}
 				var originalQname string = n.getOriginalQualifiedName()
-				if !String_isEmpty(originalQname) && Collection_contains_s(qnameSet, originalQname) {
+				if !String_isEmpty(originalQname) && qnameSet.contains(originalQname) {
 					originalToNewQNameMap.put(strobj_(originalQname), strobj_(qname))
 					return true
 				} else {
@@ -1664,11 +1664,11 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 			entryPoints = append(entryPoints, input)
 		}
 	}
-	var workingInputSet SetOf[*CompilerInput] = icast_Set(obj_(new_LinkedHashSet()))
+	var workingInputSet *TSet[*CompilerInput] = newTSet_(tc_p_CompilerInput)
 	it_7 := foreach_(any(this.chunkGraph.getAllInputs()))
 	for it_7.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_7.v)
-		workingInputSet.add(obj_(input))
+		workingInputSet.add(input)
 	}
 	it_9 := eachOf_(&entryPoints)
 	for it_9.next() {
@@ -1677,8 +1677,8 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 	}
 }
 
-func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs SetOf[*CompilerInput], inputsByIdentifier *TMap[string, *CompilerInput], inputsByProvide *TMap[string, *CompilerInput], supportEs6Modules bool, supportCommonJSModules bool) {
-	if !inputs.remove_Object(obj_(input)) {
+func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs *TSet[*CompilerInput], inputsByIdentifier *TMap[string, *CompilerInput], inputsByProvide *TMap[string, *CompilerInput], supportEs6Modules bool, supportCommonJSModules bool) {
+	if !inputs.remove(input) {
 		if wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE) {
 			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 		}
@@ -2296,7 +2296,7 @@ func (this *Compiler) createConfig(mode *Config_LanguageMode, strictMode *Config
 			return Config_RunMode_KEEP_GOING
 		}
 		return Config_RunMode_STOP_AFTER_ERROR
-	}(), icast_Set(obj_(this.options_.getExtraAnnotationNames())), this.options_.getParseInlineSourceMaps(), strictMode)
+	}(), tsetFrom_(tc_string, this.options_.getExtraAnnotationNames(), true), this.options_.getParseInlineSourceMaps(), strictMode)
 }
 
 func (this *Compiler) getDiagnosticGroups() *DiagnosticGroups {
@@ -2533,7 +2533,7 @@ func (this *Compiler) setStringMap_impl(stringMap *VariableMap) {
 	this.stringMap = stringMap
 }
 
-func (this *Compiler) setCssNames_impl(cssNames SetOf[string]) {
+func (this *Compiler) setCssNames_impl(cssNames *TSet[string]) {
 	this.cssNames = cssNames
 }
 
@@ -2569,8 +2569,8 @@ func (this *Compiler) getInstrumentationMapping() *VariableMap {
 	return this.instrumentationMapping
 }
 
-func (this *Compiler) addExportedNames_impl(exportedNames SetOf[string]) {
-	this.exportedNames.addAll(Collection(exportedNames))
+func (this *Compiler) addExportedNames_impl(exportedNames *TSet[string]) {
+	this.exportedNames.addAll(Collection(exportedNames.asSet()))
 }
 
 func (this *Compiler) getExportedNames_impl() SetOf[string] {
@@ -2957,7 +2957,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto().asList())).addAllExportedNames(icast_Iterable(obj_(this.exportedNames)))
 	builder.setHasCssNames((this.cssNames != nil))
 	if this.cssNames != nil {
-		builder.addAllCssNames(Iterable(this.cssNames))
+		builder.addAllCssNames(Iterable(this.cssNames.asSet()))
 	}
 	if this.idGeneratorMap.isPresent() {
 		builder.setIdGeneratorMap(str_(this.idGeneratorMap.get()))
@@ -3013,7 +3013,7 @@ func (this *Compiler) restoreFromState(compilerState *JSCompilerStateProto) {
 	this.exportedNames.clear()
 	this.exportedNames.addAll(Collection(compilerState.getExportedNamesList()))
 	if compilerState.getHasCssNames() {
-		this.cssNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(compilerState.getCssNamesList()))))
+		this.cssNames = tsetFrom_(tc_string, Collection(compilerState.getCssNamesList()), false)
 	} else {
 		this.cssNames = nil
 	}
@@ -3396,8 +3396,8 @@ func new_Compiler_ResolvedSourceMap() *Compiler_ResolvedSourceMap {
 type Compiler_SeenSetLicenseTracker struct {
 	self_                  any
 	compiler_              *AbstractCompiler
-	globallyUniqueLicenses SetOf[string]
-	currentlySeenLicenses  SetOf[string]
+	globallyUniqueLicenses *TSet[string]
+	currentlySeenLicenses  *TSet[string]
 	lastSeenFile           string
 }
 
@@ -3433,8 +3433,8 @@ func (this *Compiler_SeenSetLicenseTracker) zero_Compiler_SeenSetLicenseTracker(
 }
 
 func (this *Compiler_SeenSetLicenseTracker) finit_Compiler_SeenSetLicenseTracker() {
-	this.globallyUniqueLicenses = icast_Set(obj_(new_LinkedHashSet()))
-	this.currentlySeenLicenses = icast_Set(obj_(new_LinkedHashSet()))
+	this.globallyUniqueLicenses = newTSet_(tc_string)
+	this.currentlySeenLicenses = newTSet_(tc_string)
 	this.lastSeenFile = ""
 }
 
@@ -3464,15 +3464,15 @@ func (this *Compiler_SeenSetLicenseTracker) trackLicensesForNode(node Node) {
 	if license.isEmpty() {
 		return
 	}
-	if Collection_contains_s(this.globallyUniqueLicenses, str_(license.get())) {
+	if this.globallyUniqueLicenses.contains(str_(license.get())) {
 		return
 	}
-	Collection_add_s(this.currentlySeenLicenses, str_(license.get()))
+	this.currentlySeenLicenses.add(str_(license.get()))
 }
 
 func (this *Compiler_SeenSetLicenseTracker) emitLicenses() ImmutableSetOf[string] {
-	var rv ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.currentlySeenLicenses))
-	this.globallyUniqueLicenses.addAll(Collection(this.currentlySeenLicenses))
+	var rv ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.currentlySeenLicenses.asSet()))
+	this.globallyUniqueLicenses.addAllT(this.currentlySeenLicenses)
 	this.currentlySeenLicenses.clear()
 	return rv
 }
@@ -3547,9 +3547,9 @@ type Compiler_ChunkGraphAwareLicenseTracker struct {
 	compiler_                           *AbstractCompiler
 	licensesFromChunks                  map[*JSChunk]SetOf[string]
 	haveInitializedCurrentChunkLicenses bool
-	currentChunkLicencesInTDeps         SetOf[string]
+	currentChunkLicencesInTDeps         *TSet[string]
 	lastSeenFile                        string
-	licensesNewInCurrentFile            SetOf[string]
+	licensesNewInCurrentFile            *TSet[string]
 	licensesNewInCurrentChunk           SetOf[string]
 	log_                                *LogFile
 	currentChunk                        *JSChunk
@@ -3562,9 +3562,9 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) zero_Compiler_ChunkGraphAwar
 func (this *Compiler_ChunkGraphAwareLicenseTracker) finit_Compiler_ChunkGraphAwareLicenseTracker() {
 	this.licensesFromChunks = map[*JSChunk]SetOf[string]{}
 	this.haveInitializedCurrentChunkLicenses = false
-	this.currentChunkLicencesInTDeps = icast_Set(obj_(new_LinkedHashSet()))
+	this.currentChunkLicencesInTDeps = newTSet_(tc_string)
 	this.lastSeenFile = ""
-	this.licensesNewInCurrentFile = icast_Set(obj_(new_LinkedHashSet()))
+	this.licensesNewInCurrentFile = newTSet_(tc_string)
 	this.licensesNewInCurrentChunk = icast_Set(obj_(new_LinkedHashSet()))
 	this.log_ = LogFile_createNoOp()
 }
@@ -3619,7 +3619,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 			if !has_(this.licensesFromChunks, depChunk) {
 				panic(new_IllegalStateException_String("Chunk aware license analysis error - analysis out of order.").self())
 			}
-			this.currentChunkLicencesInTDeps.addAll(icast_Collection(any(this.licensesFromChunks[depChunk])))
+			this.currentChunkLicencesInTDeps.asSet().addAll(icast_Collection(any(this.licensesFromChunks[depChunk])))
 		}
 		this.haveInitializedCurrentChunkLicenses = true
 	}
@@ -3631,13 +3631,13 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 	if license.isEmpty() {
 		return
 	}
-	if Collection_contains_s(this.currentChunkLicencesInTDeps, str_(license.get())) {
+	if this.currentChunkLicencesInTDeps.contains(str_(license.get())) {
 		return
 	}
 	if Collection_contains_s(this.licensesNewInCurrentChunk, str_(license.get())) {
 		return
 	}
-	var newlyAddedLicense bool = Collection_add_s(this.licensesNewInCurrentFile, str_(license.get()))
+	var newlyAddedLicense bool = this.licensesNewInCurrentFile.add(str_(license.get()))
 	if !newlyAddedLicense {
 		this.log_.log_2("Chunk %s already depends on license\n==================\n%s\n==================\n\n", []any{obj_(this.currentChunk), license.get()})
 	} else {
@@ -3646,7 +3646,7 @@ func (this *Compiler_ChunkGraphAwareLicenseTracker) trackLicensesForNode(node No
 }
 
 func (this *Compiler_ChunkGraphAwareLicenseTracker) emitLicenses() ImmutableSetOf[string] {
-	var licensesNewInFile ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.licensesNewInCurrentFile))
+	var licensesNewInFile ImmutableSetOf[string] = ImmutableSet_copyOf(Collection(this.licensesNewInCurrentFile.asSet()))
 	this.licensesNewInCurrentChunk.addAll(icast_Collection(obj_(licensesNewInFile)))
 	this.licensesNewInCurrentFile.clear()
 	return licensesNewInFile

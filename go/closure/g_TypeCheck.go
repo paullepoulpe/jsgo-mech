@@ -1761,9 +1761,9 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 		this.checkTypeContainsObjectWithBadKey(n, info.getType())
 		this.checkTypeContainsObjectWithBadKey(n, info.getReturnType())
 		this.checkTypeContainsObjectWithBadKey(n, info.getTypedefType())
-		it_1 := foreach_(any(info.getParameterNames()))
+		it_1 := info.getParameterNames().each()
 		for it_1.next() {
-			var param string = str_(it_1.v)
+			var param string = it_1.v
 			this.checkTypeContainsObjectWithBadKey(n, info.getParameterType(Optional_of(strobj_(param))))
 		}
 	}

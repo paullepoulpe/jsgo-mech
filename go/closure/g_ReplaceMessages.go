@@ -889,7 +889,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 	Preconditions_checkState_boolean_Object(propertiesNode.isObjectLit(), propertiesNode.box_())
 	var msgKey OptionalOf[string] = Optional_empty()
 	var meaning OptionalOf[string] = Optional_empty()
-	var icuPlaceholderNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var icuPlaceholderNames *TSet[string] = newTSet_(tc_string)
 	var messageText OptionalOf[string] = Optional_empty()
 	var messageTextNode Node = 0
 	{
@@ -903,7 +903,7 @@ func ReplaceMessages_ProtectedJsMessage_fromAstNode(node Node, idGenerator JsMes
 				it_2 := foreach_(any(valueNode.children()))
 				for it_2.next() {
 					var valueNodeChild Node = Node_of_(it_2.v)
-					Collection_add_s(icuPlaceholderNames, valueNodeChild.getString())
+					icuPlaceholderNames.add(valueNodeChild.getString())
 				}
 				continue
 			}

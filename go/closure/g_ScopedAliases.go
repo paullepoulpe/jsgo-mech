@@ -404,7 +404,7 @@ type ScopedAliases_Traversal struct {
 	aliases_                 map[string]*Var
 	injectedDecls            map[Node]struct{}
 	deletedAliasVars         SetOf[*Var]
-	forbiddenLocals          SetOf[string]
+	forbiddenLocals          *TSet[string]
 	hasNamespaceShadows      bool
 	hasErrorsField           bool
 	scopeFunctionBody        Node
@@ -424,7 +424,7 @@ func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
 	this.aliases_ = map[string]*Var{}
 	this.injectedDecls = map[Node]struct{}{}
 	this.deletedAliasVars = icast_Set(obj_(new_LinkedHashSet()))
-	this.forbiddenLocals = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(ImmutableSet_of_Object(strobj_("$jscomp")))))))
+	this.forbiddenLocals = tsetFrom_(tc_string, icast_Collection(obj_(ImmutableSet_of_Object(strobj_("$jscomp")))), false)
 	this.hasNamespaceShadows = false
 	this.hasErrorsField = false
 	this.scopeFunctionBody = 0
@@ -620,7 +620,7 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	if rootIndex != -1 {
 		var qNameRoot string = String_substring(qualifiedName, 0, rootIndex)
 		if !has_(this.aliases_, qNameRoot) {
-			Collection_add_s(this.forbiddenLocals, qNameRoot)
+			this.forbiddenLocals.add(qNameRoot)
 		}
 	}
 }
@@ -650,7 +650,7 @@ func (this *ScopedAliases_Traversal) findNamespaceShadows(t *NodeTraversal) {
 	it_1 := foreach_(any(scope.getVarIterable()))
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
-		if Collection_contains_s(this.forbiddenLocals, v.getName()) {
+		if this.forbiddenLocals.contains(v.getName()) {
 			this.hasNamespaceShadows = true
 			return
 		}
@@ -661,9 +661,9 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 	Preconditions_checkState_boolean_Object(NodeUtil_isFunctionBlock(t.getScopeRoot()), t.getScopeRoot().box_())
 	if this.hasNamespaceShadows {
 		var renamer MakeDeclaredNamesUnique_Renamer = icast_MakeDeclaredNamesUnique_Renamer(obj_(new_MakeDeclaredNamesUnique_TargettedRenamer(icast_MakeDeclaredNamesUnique_Renamer(new_MakeDeclaredNamesUnique_ContextualRenamer_0().self()), this.forbiddenLocals)))
-		it_1 := foreach_(any(this.forbiddenLocals))
+		it_1 := this.forbiddenLocals.each()
 		for it_1.next() {
-			var s string = str_(it_1.v)
+			var s string = it_1.v
 			renamer.addDeclaredName(s, false)
 		}
 		var uniquifier *MakeDeclaredNamesUnique = MakeDeclaredNamesUnique_builder().withRenamer(renamer).build()

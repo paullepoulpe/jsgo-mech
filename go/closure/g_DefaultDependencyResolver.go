@@ -23,14 +23,14 @@ func (this *DefaultDependencyResolver) getDependencies(code string) Collection {
 }
 
 func (this *DefaultDependencyResolver) getDependenciesCollection(symbols CollectionOf[string]) Collection {
-	return this.getDependencies_2(symbols, icast_Set(obj_(new_LinkedHashSet())))
+	return this.getDependencies_2(symbols, newTSet_(tc_string))
 }
 
-func (this *DefaultDependencyResolver) getDependencies_3(code string, seen SetOf[string], addClosureBaseFile bool) Collection {
+func (this *DefaultDependencyResolver) getDependencies_3(code string, seen *TSet[string], addClosureBaseFile bool) Collection {
 	return this.getDependencies_2(DefaultDependencyResolver_parseRequires(code, addClosureBaseFile), seen)
 }
 
-func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen SetOf[string]) Collection {
+func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[string], seen *TSet[string]) Collection {
 	var list *TList[string] = newTList_(tc_string)
 	it_1 := this.depsFiles.each()
 	for it_1.next() {
@@ -45,14 +45,14 @@ func (this *DefaultDependencyResolver) getDependencies_2(symbols CollectionOf[st
 	return Collection(list.asList())
 }
 
-func (this *DefaultDependencyResolver) addDependency(symbol string, seen SetOf[string], list *TList[string]) {
+func (this *DefaultDependencyResolver) addDependency(symbol string, seen *TSet[string], list *TList[string]) {
 	var dependency DependencyInfo = this.getDependencyInfo(symbol)
 	if dependency == nil {
 		if this.strictRequires {
 			panic(obj_(new_ServiceException(("Unknown require of " + sstr_(symbol)))))
 		}
-	} else if !seen.containsAll(icast_Collection(obj_(dependency.getProvides()))) {
-		seen.addAll(icast_Collection(obj_(dependency.getProvides())))
+	} else if !seen.asSet().containsAll(icast_Collection(obj_(dependency.getProvides()))) {
+		seen.asSet().addAll(icast_Collection(obj_(dependency.getProvides())))
 		it_1 := foreach_(obj_(dependency.getRequiredSymbols()))
 		for it_1.next() {
 			var require string = str_(it_1.v)

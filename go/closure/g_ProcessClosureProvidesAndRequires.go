@@ -6,20 +6,20 @@ type ProcessClosureProvidesAndRequires struct {
 	compiler_                       *AbstractCompiler
 	chunkGraph                      *JSChunkGraph
 	providedNames                   *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName]
-	exportedVariables               SetOf[string]
+	exportedVariables               *TSet[string]
 	preserveGoogProvidesAndRequires bool
 	requiresToBeRemoved             []Node
 	hasRewritingOccurred            bool
-	forwardDeclaresToRemove         SetOf[Node]
+	forwardDeclaresToRemove         *TSet[Node]
 	astFactory_                     *AstFactory
 }
 
 func (this *ProcessClosureProvidesAndRequires) finit_ProcessClosureProvidesAndRequires() {
 	this.providedNames = newTMap_(tc_string, tc_p_ProcessClosureProvidesAndRequires_ProvidedName)
-	this.exportedVariables = icast_Set(obj_(new_LinkedHashSet()))
+	this.exportedVariables = newTSet_(tc_string)
 	this.requiresToBeRemoved = []Node{}
 	this.hasRewritingOccurred = false
-	this.forwardDeclaresToRemove = icast_Set(obj_(new_LinkedHashSet()))
+	this.forwardDeclaresToRemove = newTSet_(tc_Node)
 }
 
 func (this *ProcessClosureProvidesAndRequires) init_ProcessClosureProvidesAndRequires(compiler *AbstractCompiler, preserveGoogProvidesAndRequires bool) {
@@ -40,7 +40,7 @@ func (this *ProcessClosureProvidesAndRequires) process_2(externs Node, root Node
 	this.rewriteProvidesAndRequires(externs, root)
 }
 
-func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() SetOf[string] {
+func (this *ProcessClosureProvidesAndRequires) getExportedVariableNames() *TSet[string] {
 	return this.exportedVariables
 }
 
@@ -67,9 +67,9 @@ func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(extern
 		this.compiler_.reportChangeToEnclosingScope(closureRequire)
 		closureRequire.detach()
 	}
-	it_5 := foreach_(any(this.forwardDeclaresToRemove))
+	it_5 := this.forwardDeclaresToRemove.each()
 	for it_5.next() {
-		var forwardDeclare Node = Node_of_(it_5.v)
+		var forwardDeclare Node = it_5.v
 		NodeUtil_deleteNode(forwardDeclare, this.compiler_)
 	}
 }
@@ -82,9 +82,9 @@ func (this *ProcessClosureProvidesAndRequires) visitGoogMethodCall(t *NodeTraver
 			var argString string = arg.getString()
 			var dot int32 = String_indexOf(argString, 46)
 			if dot == -1 {
-				Collection_add_s(this.exportedVariables, argString)
+				this.exportedVariables.add(argString)
 			} else {
-				Collection_add_s(this.exportedVariables, String_substring(argString, 0, dot))
+				this.exportedVariables.add(String_substring(argString, 0, dot))
 			}
 		}
 	case "require", "requireType":
@@ -243,7 +243,7 @@ func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, par
 			}
 			return parent.getParent()
 		}()
-		this.forwardDeclaresToRemove.add(toRemove.box_())
+		this.forwardDeclaresToRemove.add(toRemove)
 	}
 }
 

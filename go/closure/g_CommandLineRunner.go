@@ -585,7 +585,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 		}
 		return icast_Map(obj_(new_LinkedHashMap()))
 	}()
-	var excludes SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var excludes *TSet[string] = newTSet_(tc_string)
 	it_1 := foreach_(any(patterns))
 	for it_1.next() {
 		var pattern string = str_(it_1.v)
@@ -604,7 +604,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 			} else {
 				var original string = FilePaths_clean(pattern)
 				var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(original))
-				if !Collection_contains_s(excludes, pathStringAbsolute) {
+				if !excludes.contains(pathStringAbsolute) {
 					Map_put_s(allJsInputs, pathStringAbsolute, strobj_(original))
 				}
 			}
@@ -618,7 +618,7 @@ func CommandLineRunner_findJsFiles_Collection_boolean(patterns CollectionOf[stri
 	return Outcome_base_ok_Object(new_ArrayList_Collection(allJsInputs.values()).self())
 }
 
-func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, string], excludes SetOf[string]) *Outcome_base {
+func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, string], excludes *TSet[string]) *Outcome_base {
 	var remove bool = (String_indexOf(pattern, 33) == 0)
 	if remove {
 		pattern = String_substring_int(pattern, 1)
@@ -646,9 +646,9 @@ func CommandLineRunner_matchPaths(pattern string, allJsInputs MapOf[string, stri
 		}
 		var pathStringAbsolute string = FilePaths_toAbsolute(FilePaths_normalize(p))
 		if remove {
-			Collection_add_s(excludes, pathStringAbsolute)
+			excludes.add(pathStringAbsolute)
 			Map_remove_s(allJsInputs, pathStringAbsolute)
-		} else if !Collection_contains_s(excludes, pathStringAbsolute) {
+		} else if !excludes.contains(pathStringAbsolute) {
 			Map_put_s(allJsInputs, pathStringAbsolute, strobj_(p))
 		}
 	}

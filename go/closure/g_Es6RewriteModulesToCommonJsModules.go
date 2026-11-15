@@ -127,7 +127,7 @@ type Es6RewriteModulesToCommonJsModules_Rewriter struct {
 	requireInsertSpot        Node
 	script_                  Node
 	exportedNameToLocalQName MapOf[string, *Es6RewriteModulesToCommonJsModules_LocalQName]
-	imports                  SetOf[Node]
+	imports                  *TSet[Node]
 	importRequests           SetOf[*Es6RewriteModulesToCommonJsModules_ModuleRequest]
 	compiler_                *AbstractCompiler
 	modulePath_              *ModuleLoader_ModulePath
@@ -147,7 +147,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) init_Es6RewriteModulesT
 	this.requireInsertSpot = 0
 	this.exportedNameToLocalQName = icast_Map(obj_(new_TreeMap()))
 	this.importRequests = icast_Set(obj_(new_LinkedHashSet()))
-	this.imports = icast_Set(obj_(new_LinkedHashSet()))
+	this.imports = newTSet_(tc_Node)
 	this.modulePath_ = compiler.getInput(script.getInputId()).getPath()
 }
 
@@ -236,9 +236,9 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitScript(t *NodeTrav
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
 	if !this.importRequests.isEmpty() {
-		it_1 := foreach_(any(this.imports))
+		it_1 := this.imports.each()
 		for it_1.next() {
-			var importDecl Node = Node_of_(it_1.v)
+			var importDecl Node = it_1.v
 			importDecl.detach()
 		}
 		var importedNames map[string]struct{} = map[string]struct{}{}
@@ -305,7 +305,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitImport(path *Modul
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(importDecl, TranspilationUtil_CANNOT_CONVERT, []string{"Module requests with protocols."}))
 	}
 	this.importRequests.add(obj_(Es6RewriteModulesToCommonJsModules_ModuleRequest_create(Es6RewriteModulesToCommonJsModules_normalizePath(path.resolveModuleAsPath(importDecl.getLastChild().getString()).toString()), this.getVarNameOfImportNode(importDecl))))
-	this.imports.add(importDecl.box_())
+	this.imports.add(importDecl)
 }
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *NodeTraversal, export Node) {

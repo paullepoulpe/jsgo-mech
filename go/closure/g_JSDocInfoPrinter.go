@@ -159,9 +159,9 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 	}
 	if info.getParameterCount() > 0 {
 		multiline = true
-		it_9 := foreach_(any(info.getParameterNames()))
+		it_9 := info.getParameterNames().each()
 		for it_9.next() {
-			var name string = str_(it_9.v)
+			var name string = it_9.v
 			parts.add(("@param " + sstr_(this.buildParamType(info, name))))
 		}
 	}

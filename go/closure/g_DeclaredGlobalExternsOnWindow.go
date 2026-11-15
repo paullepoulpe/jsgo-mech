@@ -5,7 +5,7 @@ package closure
 type DeclaredGlobalExternsOnWindow struct {
 	NodeTraversal_AbstractShallowStatementCallback
 	compiler_       *AbstractCompiler
-	nodes_          SetOf[Node]
+	nodes_          *TSet[Node]
 	windowInExterns bool
 }
 
@@ -17,7 +17,7 @@ func (this *DeclaredGlobalExternsOnWindow) up_NodeTraversal_AbstractShallowState
 }
 
 func (this *DeclaredGlobalExternsOnWindow) finit_DeclaredGlobalExternsOnWindow() {
-	this.nodes_ = icast_Set(obj_(new_LinkedHashSet()))
+	this.nodes_ = newTSet_(tc_Node)
 	this.windowInExterns = false
 }
 
@@ -41,9 +41,9 @@ func (this *DeclaredGlobalExternsOnWindow) process_2(externs Node, root Node) {
 
 func (this *DeclaredGlobalExternsOnWindow) addWindowProperties() {
 	if !this.nodes_.isEmpty() {
-		it_1 := foreach_(any(this.nodes_))
+		it_1 := this.nodes_.each()
 		for it_1.next() {
-			var node Node = Node_of_(it_1.v)
+			var node Node = it_1.v
 			DeclaredGlobalExternsOnWindow_addExtern(node, this.windowInExterns)
 			this.compiler_.reportChangeToEnclosingScope(node)
 		}
@@ -102,7 +102,7 @@ func DeclaredGlobalExternsOnWindow_addExtern(node Node, defineOnWindow bool) {
 
 func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isFunction() {
-		this.nodes_.add(n.getFirstChild().box_())
+		this.nodes_.add(n.getFirstChild())
 	} else if n.isVar() {
 		{
 			var c Node = n.getFirstChild()
@@ -112,7 +112,7 @@ func (this *DeclaredGlobalExternsOnWindow) visit_impl(t *NodeTraversal, n Node, 
 					continue
 				}
 				if !(c.getString() == "location") {
-					this.nodes_.add(c.box_())
+					this.nodes_.add(c)
 				}
 			}
 		}

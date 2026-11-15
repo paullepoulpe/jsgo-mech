@@ -57,7 +57,7 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
 	CombinedCompilerPass_traverse(this.compiler_, root, tlistImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(findCrossChunkNames), obj_(findNamesReferencingThis))))
 	var externNames ImmutableSetOf[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
-	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, icast_Set(obj_(externNames)), findCrossChunkNames.crossChunkNames_, findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_, findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_, findCrossChunkNames.globalNamesWithReadInDefiningChunk_, findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_, findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, findNamesReferencingThis.maybeReferencesThis_)
+	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, tsetFrom_(tc_string, externNames, true), findCrossChunkNames.crossChunkNames_, findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_, findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_, findCrossChunkNames.globalNamesWithReadInDefiningChunk_, findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_, findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, findNamesReferencingThis.maybeReferencesThis_)
 	var renameHelper *RescopeGlobalSymbolsRenameHelper = renameHelperBuilder.build(symbolInfo)
 	var rewriteScope *RescopeGlobalSymbolsRewriteCallback = new_RescopeGlobalSymbolsRewriteCallback(this.compiler_, this.optimizeLocalAccess, symbolInfo, renameHelper)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(rewriteScope)))
@@ -120,12 +120,12 @@ type RescopeGlobalSymbols_FindCrossChunkNamesCallback struct {
 	compiler_                                               *AbstractCompiler
 	assumeCrossChunkNames                                   bool
 	trackLocalAccessSets                                    bool
-	crossChunkNames_                                        SetOf[string]
-	crossChunkNamesWithWriteFromOtherChunk_                 SetOf[string]
-	crossChunkNamesUsedInNonDependentChunk_                 SetOf[string]
-	globalNamesWithReadInDefiningChunk_                     SetOf[string]
-	globalNamesWithInnerScopeWriteInDefiningChunk_          SetOf[string]
-	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ SetOf[string]
+	crossChunkNames_                                        *TSet[string]
+	crossChunkNamesWithWriteFromOtherChunk_                 *TSet[string]
+	crossChunkNamesUsedInNonDependentChunk_                 *TSet[string]
+	globalNamesWithReadInDefiningChunk_                     *TSet[string]
+	globalNamesWithInnerScopeWriteInDefiningChunk_          *TSet[string]
+	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ *TSet[string]
 	renameHelperBuilder                                     *RescopeGlobalSymbolsRenameHelper_HelperBuilder
 }
 
@@ -137,12 +137,12 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) up_NodeTraversal_A
 }
 
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) finit_RescopeGlobalSymbols_FindCrossChunkNamesCallback() {
-	this.crossChunkNames_ = icast_Set(obj_(new_LinkedHashSet()))
-	this.crossChunkNamesWithWriteFromOtherChunk_ = icast_Set(obj_(new_LinkedHashSet()))
-	this.crossChunkNamesUsedInNonDependentChunk_ = icast_Set(obj_(new_LinkedHashSet()))
-	this.globalNamesWithReadInDefiningChunk_ = icast_Set(obj_(new_LinkedHashSet()))
-	this.globalNamesWithInnerScopeWriteInDefiningChunk_ = icast_Set(obj_(new_LinkedHashSet()))
-	this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ = icast_Set(obj_(new_LinkedHashSet()))
+	this.crossChunkNames_ = newTSet_(tc_string)
+	this.crossChunkNamesWithWriteFromOtherChunk_ = newTSet_(tc_string)
+	this.crossChunkNamesUsedInNonDependentChunk_ = newTSet_(tc_string)
+	this.globalNamesWithReadInDefiningChunk_ = newTSet_(tc_string)
+	this.globalNamesWithInnerScopeWriteInDefiningChunk_ = newTSet_(tc_string)
+	this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ = newTSet_(tc_string)
 }
 
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) init_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractCompiler, assumeCrossChunkNames bool, trackLocalAccessSets bool, renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder) {
@@ -164,7 +164,7 @@ func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractComp
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if String_isEmpty(name) || (!this.trackLocalAccessSets && Collection_contains_s(this.crossChunkNames_, name)) {
+		if String_isEmpty(name) || (!this.trackLocalAccessSets && this.crossChunkNames_.contains(name)) {
 			return
 		}
 		this.renameHelperBuilder.recordExistingName(name)
@@ -174,33 +174,33 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *Node
 			return
 		}
 		if this.assumeCrossChunkNames || this.compiler_.getCodingConvention().isExported_2(name, false) {
-			Collection_add_s(this.crossChunkNames_, name)
+			this.crossChunkNames_.add(name)
 		}
 		var input *CompilerInput = v.getInput()
 		if ((this.trackLocalAccessSets && !t.inGlobalScope()) && ((input == nil) || (input.getChunk() == t.getChunk()))) && NodeUtil_isLValueWrite(n) {
-			Collection_add_s(this.globalNamesWithInnerScopeWriteInDefiningChunk_, name)
+			this.globalNamesWithInnerScopeWriteInDefiningChunk_.add(name)
 		}
 		if input == nil {
-			Collection_add_s(this.crossChunkNames_, name)
+			this.crossChunkNames_.add(name)
 			return
 		}
 		var chunk *JSChunk = input.getChunk()
 		if chunk != t.getChunk() {
-			Collection_add_s(this.crossChunkNames_, name)
+			this.crossChunkNames_.add(name)
 			if this.trackLocalAccessSets {
 				if NodeUtil_isLValueWrite(n) {
-					Collection_add_s(this.crossChunkNamesWithWriteFromOtherChunk_, name)
+					this.crossChunkNamesWithWriteFromOtherChunk_.add(name)
 				}
 				if !this.compiler_.getChunkGraph().dependsOn(t.getChunk(), chunk) {
-					Collection_add_s(this.crossChunkNamesUsedInNonDependentChunk_, name)
+					this.crossChunkNamesUsedInNonDependentChunk_.add(name)
 				}
 			}
 		} else if this.trackLocalAccessSets {
 			if RescopeGlobalSymbols_FindCrossChunkNamesCallback_isReadReference(n) {
-				Collection_add_s(this.globalNamesWithReadInDefiningChunk_, name)
+				this.globalNamesWithReadInDefiningChunk_.add(name)
 			}
 			if NodeUtil_isLValueWrite(n) && !RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMirroring(n, parent) {
-				Collection_add_s(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, name)
+				this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_.add(name)
 			}
 		}
 	}
@@ -238,7 +238,7 @@ func RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMi
 
 type RescopeGlobalSymbols_FindNamesReferencingThis struct {
 	NodeTraversal_AbstractPostOrderCallback
-	maybeReferencesThis_ SetOf[string]
+	maybeReferencesThis_ *TSet[string]
 }
 
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -249,7 +249,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) up_NodeTraversal_Abst
 }
 
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) finit_RescopeGlobalSymbols_FindNamesReferencingThis() {
-	this.maybeReferencesThis_ = icast_Set(obj_(new_LinkedHashSet()))
+	this.maybeReferencesThis_ = newTSet_(tc_string)
 }
 
 func (this *RescopeGlobalSymbols_FindNamesReferencingThis) init_RescopeGlobalSymbols_FindNamesReferencingThis() {
@@ -281,7 +281,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 		if (value == 0) && !NodeUtil_isLhsByDestructuring(n) {
 			return
 		}
-		if Collection_contains_s(this.maybeReferencesThis_, name) {
+		if this.maybeReferencesThis_.contains(name) {
 			return
 		}
 		var s *Scope = t.getScope()
@@ -290,7 +290,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 			return
 		}
 		if ((value == 0) || !value.isFunction()) || NodeUtil_referencesOwnReceiver(value) {
-			Collection_add_s(this.maybeReferencesThis_, name)
+			this.maybeReferencesThis_.add(name)
 		}
 	}
 }

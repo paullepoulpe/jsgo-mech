@@ -18,7 +18,7 @@ func (this *TypedScope) up_AbstractScope() *AbstractScope {
 	return &this.AbstractScope
 }
 
-func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames SetOf[string], module *Module) {
+func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) {
 	this.AbstractScope.init_AbstractScope(rootNode)
 	this.checkChildScope(parent.up_AbstractScope())
 	this.parent = parent
@@ -28,12 +28,12 @@ func (this *TypedScope) init_TypedScope_TypedScope_Node_Set_Module(parent *Typed
 		if reservedNames.isEmpty() {
 			return icast_Set(obj_(ImmutableSet_of()))
 		}
-		return icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames))))
+		return icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames.asSet()))))
 	}()
 	this.module_ = module
 }
 
-func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames SetOf[string], module *Module) *TypedScope {
+func new_TypedScope_TypedScope_Node_Set_Module(parent *TypedScope, rootNode Node, reservedNames *TSet[string], module *Module) *TypedScope {
 	this := &TypedScope{}
 	this.self_ = this
 	this.init_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, reservedNames, module)
@@ -58,7 +58,7 @@ func new_TypedScope_Node_boolean(rootNode Node, isBottom bool) *TypedScope {
 }
 
 func TypedScope_createFromParent(parent *TypedScope, rootNode Node) *TypedScope {
-	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, icast_Set(obj_(new_LinkedHashSet())), nil)
+	return new_TypedScope_TypedScope_Node_Set_Module(parent, rootNode, newTSet_(tc_string), nil)
 }
 
 func TypedScope_createGlobalScope(rootNode Node) *TypedScope {
