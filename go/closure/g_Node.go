@@ -1041,16 +1041,8 @@ func (this Node) hasStringPayload() bool {
 }
 
 func (this Node) getString() string {
-	var str string
-	_ = str
-	if !(func() bool {
-		v_ := this.ps_().payload_s_
-		if v_ == nullstr_ {
-			return false
-		}
-		str = v_
-		return true
-	}()) {
+	str := this.ps_().payload_s_
+	if str == nullstr_ {
 		panic(this.payloadKindMismatch("string").self())
 	}
 	return str
