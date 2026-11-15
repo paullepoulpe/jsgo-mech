@@ -115,6 +115,7 @@ type ImmutableCollection struct {
 	all_   []any // multiset: the elements with repetition
 	hash_  int32 // plain set: the hash code, once computed (Guava computes it at construction)
 	hashed bool
+	typed_ immTyped_ // its typed copy (post-flip typed collections), made on first use
 	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
 }
 

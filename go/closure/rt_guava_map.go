@@ -20,6 +20,7 @@ type ImmutableMap struct {
 	cmp      Comparator // sorted map (nil: natural ordering)
 	inv      *ImmutableMap
 	keySet_  *ImmutableCollection
+	typed_   immTyped_ // its typed copy (post-flip typed collections), made on first use
 	values_  *ImmutableCollection
 	entries_ *ImmutableCollection
 }
