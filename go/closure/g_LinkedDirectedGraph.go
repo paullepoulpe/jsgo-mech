@@ -5,6 +5,7 @@ package closure
 type LinkedDirectedGraph struct {
 	DiGraph
 	nodes_             MapOf[any, *LinkedDirectedGraph_LinkedDiGraphNode]
+	nodeIdx_           map[any]any // nodes_ for keys whose Go == is their equals (fastKey_): a Go map in front of the ordered table
 	useNodeAnnotations bool
 	useEdgeAnnotations bool
 }
@@ -129,7 +130,7 @@ func (this *LinkedDirectedGraph) getNodes_impl() CollectionOf[*LinkedDirectedGra
 }
 
 func (this *LinkedDirectedGraph) getNode_impl(nodeValue any) GraphNode {
-	return icast_GraphNode(this.nodes_.get(nodeValue))
+	return icast_GraphNode(this.lookupNode_(nodeValue))
 }
 
 func (this *LinkedDirectedGraph) getInEdges_impl(nodeValue any) *TList[DiGraph_DiGraphEdge] {
@@ -142,8 +143,31 @@ func (this *LinkedDirectedGraph) getOutEdges_impl(nodeValue any) *TList[DiGraph_
 	return node.getOutEdges()
 }
 
+// lookupNode_ is nodes_.get(nodeValue), through the Go index for keys it holds.
+func (this *LinkedDirectedGraph) lookupNode_(nodeValue any) any {
+	if fastKey_(nodeValue) {
+		return this.nodeIdx_[nodeValue]
+	}
+	return this.nodes_.get(nodeValue)
+}
+
 func (this *LinkedDirectedGraph) createNode_impl(nodeValue any) GraphNode {
-	return icast_GraphNode(Map_computeIfAbsent(this.nodes_, nodeValue, &Function_fn{func(k any) any {
+	if fastKey_(nodeValue) {
+		if n, ok := this.nodeIdx_[nodeValue]; ok {
+			return icast_GraphNode(n)
+		}
+		n := this.createNode_erased_(nodeValue)
+		if this.nodeIdx_ == nil {
+			this.nodeIdx_ = map[any]any{}
+		}
+		this.nodeIdx_[nodeValue] = n
+		return icast_GraphNode(n)
+	}
+	return icast_GraphNode(this.createNode_erased_(nodeValue))
+}
+
+func (this *LinkedDirectedGraph) createNode_erased_(nodeValue any) any {
+	return (Map_computeIfAbsent(this.nodes_, nodeValue, &Function_fn{func(k any) any {
 		return func() any {
 			if this.useNodeAnnotations {
 				return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(k))
@@ -247,7 +271,7 @@ func (this *LinkedDirectedGraph) isConnectedInDirectionPredicate(n1 any, edgeMat
 }
 
 func (this *LinkedDirectedGraph) getDirectedPredNodes_impl(nodeValue any) *TList[DiGraph_DiGraphNode] {
-	return this.getDirectedPredNodesDiGraphNode(icast_DiGraph_DiGraphNode(this.nodes_.get(nodeValue)))
+	return this.getDirectedPredNodesDiGraphNode(icast_DiGraph_DiGraphNode(this.lookupNode_(nodeValue)))
 }
 
 func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {
@@ -263,7 +287,7 @@ func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode_impl(dNode DiGr
 }
 
 func (this *LinkedDirectedGraph) getDirectedSuccNodes_impl(nodeValue any) *TList[DiGraph_DiGraphNode] {
-	return this.getDirectedSuccNodesDiGraphNode(icast_DiGraph_DiGraphNode(this.nodes_.get(nodeValue)))
+	return this.getDirectedSuccNodesDiGraphNode(icast_DiGraph_DiGraphNode(this.lookupNode_(nodeValue)))
 }
 
 func (this *LinkedDirectedGraph) getDirectedSuccNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {

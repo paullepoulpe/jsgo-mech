@@ -1,6 +1,9 @@
 package closure
 
-import "maps"
+import (
+	"maps"
+	"reflect"
+)
 
 // varMap_ is a LinkedHashMap<Var, V> (post-flip manual step): insertion order, keyed by
 // what Var.equals compares (ScopedName: the name and the scope root), so a lookup compares
@@ -112,4 +115,16 @@ func (m *varMap_[V]) varList() List {
 		items[i] = v.self()
 	}
 	return listOf_(items)
+}
+
+// fastKey_ reports whether Go's == on k is Java's equals, so that a Go map can index it:
+// handles, strings, boxed integers, and objects of classes without equals of their own.
+func fastKey_(k any) bool {
+	switch k.(type) {
+	case Node, string, int32, int64:
+		return true
+	case hashed_:
+		return false
+	}
+	return k != nil && reflect.TypeOf(k).Kind() == reflect.Pointer
 }
