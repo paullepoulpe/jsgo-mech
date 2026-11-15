@@ -75,9 +75,9 @@ func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 }
 
 func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePrototypeProperties_NameInfo] {
-	var result ListOf[*AnalyzePrototypeProperties_NameInfo] = icast_List(new_ArrayList_Collection(this.propertyNameInfo.values()).self())
-	result.addAll(this.varNameInfo.values())
-	return Collection(result)
+	var result *TList[*AnalyzePrototypeProperties_NameInfo] = tlistFrom_(tc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.values())
+	result.asList().addAll(this.varNameInfo.values())
+	return Collection(result.asList())
 }
 
 func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *AnalyzePrototypeProperties_SymbolType) *AnalyzePrototypeProperties_NameInfo {

@@ -20,22 +20,22 @@ func PathUtil_collapseDots(path string) string {
 	if !String_contains(path, strobj_(".")) {
 		return path
 	}
-	var dstFragments ListOf[string] = icast_List(new_ArrayList_0().self())
+	var dstFragments *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(any(Splitter_on('/').split(strobj_(path))))
 	for it_1.next() {
 		var fragment string = str_(it_1.v)
 		if fragment == ".." {
 			if !dstFragments.isEmpty() {
-				dstFragments.remove((dstFragments.size() - 1))
+				dstFragments.removeAt((dstFragments.size() - 1))
 			}
 		} else if !(fragment == ".") {
-			dstFragments.add(strobj_(fragment))
+			dstFragments.add(fragment)
 		}
 	}
-	if (dstFragments.size() == 1) && String_isEmpty(str_(dstFragments.get(0))) {
+	if (dstFragments.size() == 1) && String_isEmpty(dstFragments.get(0)) {
 		return "/"
 	}
-	return Joiner_on("/").join(Iterable(dstFragments))
+	return Joiner_on("/").join(Iterable(dstFragments.asList()))
 }
 
 func PathUtil_isAbsolute(path string) bool {

@@ -4,11 +4,11 @@ package closure
 
 type PassListBuilder struct {
 	options_ *CompilerOptions
-	passes   ListOf[*PassFactory]
+	passes   *TList[*PassFactory]
 }
 
 func (this *PassListBuilder) finit_PassListBuilder() {
-	this.passes = icast_List(new_ArrayList_0().self())
+	this.passes = newTList_(tc_p_PassFactory)
 }
 
 func (this *PassListBuilder) init_PassListBuilder(options *CompilerOptions) {
@@ -23,25 +23,25 @@ func new_PassListBuilder(options *CompilerOptions) *PassListBuilder {
 }
 
 func (this *PassListBuilder) build() ImmutableListOf[*PassFactory] {
-	return ImmutableList_copyOf(Collection(this.passes))
+	return ImmutableList_copyOf(Collection(this.passes.asList()))
 }
 
 func (this *PassListBuilder) addAll(other *PassListBuilder) {
-	this.passes.addAll(icast_Collection(obj_(other.build())))
+	this.passes.asList().addAll(icast_Collection(obj_(other.build())))
 }
 
 func (this *PassListBuilder) maybeAdd(factory *PassFactory) {
 	if unbox_[bool](factory.getCondition().apply(obj_(this.options_))) {
-		this.passes.add(obj_(factory))
+		this.passes.add(factory)
 	}
 }
 
 func (this *PassListBuilder) addBefore(factory *PassFactory, passName string) {
-	this.passes.add_int_Object(this.findIndexByName(passName), obj_(factory))
+	this.passes.insert(this.findIndexByName(passName), factory)
 }
 
 func (this *PassListBuilder) addAfter(factory *PassFactory, passName string) {
-	this.passes.add_int_Object((this.findIndexByName(passName) + 1), obj_(factory))
+	this.passes.insert((this.findIndexByName(passName) + 1), factory)
 }
 
 func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string) {
@@ -53,13 +53,13 @@ func (this *PassListBuilder) addAllUpTo(other *PassListBuilder, passName string)
 			break
 		}
 	}
-	this.passes.addAll(Collection(otherPasses.subList(0, (index + 1))))
+	this.passes.asList().addAll(Collection(otherPasses.subList(0, (index + 1))))
 }
 
 func (this *PassListBuilder) findByName(name string) *PassFactory {
-	it_1 := foreach_(any(this.passes))
+	it_1 := this.passes.each()
 	for it_1.next() {
-		var pass *PassFactory = cast_[*PassFactory](it_1.v)
+		var pass *PassFactory = it_1.v
 		if pass.getName() == name {
 			return pass
 		}
@@ -69,8 +69,8 @@ func (this *PassListBuilder) findByName(name string) *PassFactory {
 
 func (this *PassListBuilder) removeByName(name string) {
 	for i := int32(0); i < this.passes.size(); i++ {
-		if cast_[*PassFactory](this.passes.get(i)).getName() == name {
-			this.passes.remove(i)
+		if this.passes.get(i).getName() == name {
+			this.passes.removeAt(i)
 			return
 		}
 	}
@@ -78,7 +78,7 @@ func (this *PassListBuilder) removeByName(name string) {
 
 func (this *PassListBuilder) findIndexByName(name string) int32 {
 	for i := int32(0); i < this.passes.size(); i++ {
-		if cast_[*PassFactory](this.passes.get(i)).getName() == name {
+		if this.passes.get(i).getName() == name {
 			return i
 		}
 	}
@@ -86,28 +86,28 @@ func (this *PassListBuilder) findIndexByName(name string) int32 {
 }
 
 func (this *PassListBuilder) contains(factory *PassFactory) bool {
-	return this.passes.contains(obj_(factory))
+	return this.passes.asList().contains(obj_(factory))
 }
 
 func (this *PassListBuilder) assertAllOneTimePasses() {
-	it_1 := foreach_(any(this.passes))
+	it_1 := this.passes.each()
 	for it_1.next() {
-		var pass *PassFactory = cast_[*PassFactory](it_1.v)
+		var pass *PassFactory = it_1.v
 		Preconditions_checkState(!pass.isRunInFixedPointLoop())
 	}
 }
 
 func (this *PassListBuilder) assertAllLoopablePasses() {
-	it_1 := foreach_(any(this.passes))
+	it_1 := this.passes.each()
 	for it_1.next() {
-		var pass *PassFactory = cast_[*PassFactory](it_1.v)
+		var pass *PassFactory = it_1.v
 		Preconditions_checkState(pass.isRunInFixedPointLoop())
 	}
 }
 
 func (this *PassListBuilder) assertPassOrder(pass1 *PassFactory, pass2 *PassFactory, msg string) {
-	var pass1Index int32 = this.passes.indexOf(obj_(pass1))
-	var pass2Index int32 = this.passes.indexOf(obj_(pass2))
+	var pass1Index int32 = this.passes.asList().indexOf(obj_(pass1))
+	var pass2Index int32 = this.passes.asList().indexOf(obj_(pass2))
 	if (pass1Index != -1) && (pass2Index != -1) {
 		Preconditions_checkState_boolean_Object((pass1Index < pass2Index), strobj_(msg))
 	}

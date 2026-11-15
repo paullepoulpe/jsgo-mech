@@ -21,28 +21,28 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) zero_BrowserWithTransf
 
 func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
-	var sortedReplacements ListOf[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] = icast_List(new_ArrayList_0().self())
+	var sortedReplacements *TList[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement] = newTList_(tc_p_BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](prefixReplacements.entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		sortedReplacements.add(obj_(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(str_(entry.getKey()), str_(entry.getValue()))))
+		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(str_(entry.getKey()), str_(entry.getValue())))
 	}
-	List_sort(sortedReplacements, Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(r_ any) int32 {
+	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(r_ any) int32 {
 		var r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](r_)
 		_ = r
 		return String_length(r.prefix())
 	}})), &Function_fn{func(p0 any) any {
 		return strobj_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0).prefix())
 	}}))
-	this.prefixReplacements = ImmutableSet_copyOf(Collection(sortedReplacements))
-	var sortedPrefixes ListOf[string] = icast_List(new_ArrayList_0().self())
+	this.prefixReplacements = ImmutableSet_copyOf(Collection(sortedReplacements.asList()))
+	var sortedPrefixes *TList[string] = newTList_(tc_string)
 	it_3 := foreach_(obj_(this.prefixReplacements))
 	for it_3.next() {
 		var replacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](it_3.v)
-		sortedPrefixes.add(strobj_(replacement.prefix()))
+		sortedPrefixes.add(replacement.prefix())
 	}
-	Collections_sort(sortedPrefixes)
-	this.expectedPrefixes = String_join(strobj_(", "), Iterable(sortedPrefixes))
+	Collections_sort(sortedPrefixes.asList())
+	this.expectedPrefixes = String_join(strobj_(", "), Iterable(sortedPrefixes.asList()))
 }
 
 func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver {

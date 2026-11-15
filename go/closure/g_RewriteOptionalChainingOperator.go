@@ -48,12 +48,12 @@ func (this *RewriteOptionalChainingOperator) process_2(externs Node, root Node) 
 type RewriteOptionalChainingOperator_TranspilationCallback struct {
 	outer_          *RewriteOptionalChainingOperator
 	rewriterBuilder *OptionalChainRewriter_Builder
-	optChains       ArrayListOf[*OptionalChainRewriter]
+	optChains       *TList[*OptionalChainRewriter]
 }
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) finit_RewriteOptionalChainingOperator_TranspilationCallback() {
 	this.rewriterBuilder = OptionalChainRewriter_builder(this.outer_.compiler_)
-	this.optChains = new_ArrayList_0()
+	this.optChains = newTList_(tc_p_OptionalChainRewriter)
 }
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) init_RewriteOptionalChainingOperator_TranspilationCallback() {
@@ -78,12 +78,12 @@ func (this *RewriteOptionalChainingOperator_TranspilationCallback) shouldTravers
 
 func (this *RewriteOptionalChainingOperator_TranspilationCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	if NodeUtil_isEndOfFullOptChain(n) {
-		this.optChains.add(obj_(this.rewriterBuilder.build(n)))
+		this.optChains.add(this.rewriterBuilder.build(n))
 	} else if n.isScript() {
 		if !this.optChains.isEmpty() {
-			it_1 := foreach_(this.optChains.self())
+			it_1 := this.optChains.each()
 			for it_1.next() {
-				var optChain *OptionalChainRewriter = cast_[*OptionalChainRewriter](it_1.v)
+				var optChain *OptionalChainRewriter = it_1.v
 				optChain.rewrite()
 			}
 			this.optChains.clear()

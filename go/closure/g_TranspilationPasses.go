@@ -249,16 +249,16 @@ func TranspilationPasses_clinit() {
 	TranspilationPasses_peepholeTranspilationsPasses = PassFactory_builder().setName("peepholeTranspilationsPasses").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		var peepholeTranspilations ListOf[*AbstractPeepholeTranspilation] = icast_List(new_ArrayList_0().self())
-		peepholeTranspilations.add(obj_(new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet())))
+		var peepholeTranspilations *TList[*AbstractPeepholeTranspilation] = newTList_(tc_p_AbstractPeepholeTranspilation)
+		peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_ReportUntranspilableFeatures(compiler, compiler.getOptions().getBrowserFeaturesetYearObject(), compiler.getOptions().getOutputFeatureSet()))))
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_OPTIONAL_CATCH_BINDING) {
-			peepholeTranspilations.add(obj_(new_RewriteCatchWithNoBinding(compiler)))
+			peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_RewriteCatchWithNoBinding(compiler))))
 		}
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_SHORTHAND_OBJECT_PROPERTIES) {
-			peepholeTranspilations.add(obj_(new_Es6NormalizeShorthandProperties(compiler)))
+			peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_Es6NormalizeShorthandProperties(compiler))))
 		}
 		if compiler.getOptions().needsTranspilationOf(FeatureSet_Feature_NEW_TARGET) {
-			peepholeTranspilations.add(obj_(new_RewriteNewDotTarget(compiler)))
+			peepholeTranspilations.add(to_AbstractPeepholeTranspilation(obj_(new_RewriteNewDotTarget(compiler))))
 		}
 		return obj_(PeepholeTranspilationsPass_create(compiler, peepholeTranspilations))
 		panic("unreachable")

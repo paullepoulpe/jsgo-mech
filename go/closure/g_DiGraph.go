@@ -50,16 +50,22 @@ func (this *DiGraph) disconnectInDirection(p0 any, p1 any) {
 	this.self_.(interface{ disconnectInDirection_impl(any, any) }).disconnectInDirection_impl(p0, p1)
 }
 
-func (this *DiGraph) getInEdges(p0 any) List {
-	return this.self_.(interface{ getInEdges_impl(any) List }).getInEdges_impl(p0)
+func (this *DiGraph) getInEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
+	return this.self_.(interface {
+		getInEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	}).getInEdges_impl(p0)
 }
 
-func (this *DiGraph) getOutEdges(p0 any) List {
-	return this.self_.(interface{ getOutEdges_impl(any) List }).getOutEdges_impl(p0)
+func (this *DiGraph) getOutEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
+	return this.self_.(interface {
+		getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	}).getOutEdges_impl(p0)
 }
 
-func (this *DiGraph) getEdgesInDirection(p0 any, p1 any) List {
-	return this.self_.(interface{ getEdgesInDirection_impl(any, any) List }).getEdgesInDirection_impl(p0, p1)
+func (this *DiGraph) getEdgesInDirection(p0 any, p1 any) *TList[*LinkedDirectedGraph_LinkedDiGraphEdge] {
+	return this.self_.(interface {
+		getEdgesInDirection_impl(any, any) *TList[*LinkedDirectedGraph_LinkedDiGraphEdge]
+	}).getEdgesInDirection_impl(p0, p1)
 }
 
 func (this *DiGraph) isConnectedInDirection(p0 any, p1 any) bool {
@@ -70,30 +76,34 @@ func (this *DiGraph) isConnectedInDirection_3(p0 any, p1 any, p2 any) bool {
 	return this.self_.(interface{ isConnectedInDirection_3_impl(any, any, any) bool }).isConnectedInDirection_3_impl(p0, p1, p2)
 }
 
-func (this *DiGraph) getDirectedPredNodes(p0 any) List {
-	return this.self_.(interface{ getDirectedPredNodes_impl(any) List }).getDirectedPredNodes_impl(p0)
+func (this *DiGraph) getDirectedPredNodes(p0 any) *TList[DiGraph_DiGraphNode] {
+	return this.self_.(interface {
+		getDirectedPredNodes_impl(any) *TList[DiGraph_DiGraphNode]
+	}).getDirectedPredNodes_impl(p0)
 }
 
-func (this *DiGraph) getDirectedPredNodesDiGraphNode(p0 DiGraph_DiGraphNode) List {
+func (this *DiGraph) getDirectedPredNodesDiGraphNode(p0 DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {
 	return this.self_.(interface {
-		getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) List
+		getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode]
 	}).getDirectedPredNodesDiGraphNode_impl(p0)
 }
 
-func (this *DiGraph) getDirectedSuccNodes(p0 any) List {
-	return this.self_.(interface{ getDirectedSuccNodes_impl(any) List }).getDirectedSuccNodes_impl(p0)
+func (this *DiGraph) getDirectedSuccNodes(p0 any) *TList[DiGraph_DiGraphNode] {
+	return this.self_.(interface {
+		getDirectedSuccNodes_impl(any) *TList[DiGraph_DiGraphNode]
+	}).getDirectedSuccNodes_impl(p0)
 }
 
-func (this *DiGraph) getDirectedSuccNodesDiGraphNode(p0 DiGraph_DiGraphNode) List {
+func (this *DiGraph) getDirectedSuccNodesDiGraphNode(p0 DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {
 	return this.self_.(interface {
-		getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) List
+		getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode]
 	}).getDirectedSuccNodesDiGraphNode_impl(p0)
 }
 
 type DiGraph_DiGraphNode interface {
 	GraphNode
-	getOutEdges() List
-	getInEdges() List
+	getOutEdges() *TList[DiGraph_DiGraphEdge]
+	getInEdges() *TList[DiGraph_DiGraphEdge]
 	hasPriority() bool
 	getPriority() int32
 	setPriority(int32)

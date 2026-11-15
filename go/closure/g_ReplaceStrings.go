@@ -27,7 +27,7 @@ func (this *ReplaceStrings) finit_ReplaceStrings() {
 	this.results = icast_Map(obj_(new_LinkedHashMap()))
 }
 
-func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect ListOf[string]) {
+func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.finit_ReplaceStrings()
 	this.compiler_ = compiler
@@ -41,7 +41,7 @@ func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, plac
 	this.parseConfigurationList(functionsToInspect)
 }
 
-func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect ListOf[string]) *ReplaceStrings {
+func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) *ReplaceStrings {
 	this := &ReplaceStrings{}
 	this.self_ = this
 	this.zero_ReplaceStrings()
@@ -49,8 +49,8 @@ func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, fun
 	return this
 }
 
-func (this *ReplaceStrings) getResult() ListOf[*ReplaceStrings_Result] {
-	return icast_List(obj_(ImmutableList_copyOf_Iterable(Iterables_filter(Iterable(this.results.values()), ReplaceStrings_USED_RESULTS))))
+func (this *ReplaceStrings) getResult() *TList[*ReplaceStrings_Result] {
+	return tlistImm_(tc_p_ReplaceStrings_Result, ImmutableList_copyOf_Iterable(Iterables_filter(Iterable(this.results.values()), ReplaceStrings_USED_RESULTS)))
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
@@ -222,10 +222,10 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 	panic("unreachable")
 }
 
-func (this *ReplaceStrings) parseConfigurationList(functionsToInspect ListOf[string]) {
-	it_1 := foreach_(any(functionsToInspect))
+func (this *ReplaceStrings) parseConfigurationList(functionsToInspect *TList[string]) {
+	it_1 := functionsToInspect.each()
 	for it_1.next() {
-		var function string = str_(it_1.v)
+		var function string = it_1.v
 		var config *ReplaceStrings_Config = this.parseConfiguration(function)
 		if config != nil {
 			this.functions[config.name_] = config
@@ -246,10 +246,10 @@ func (this *ReplaceStrings) parseConfiguration(function string) *ReplaceStrings_
 	var params string = String_substring(function, (first + 1), last)
 	var paramCount int32 = 0
 	var replacementParameters ListOf[BoxedOf[int32]] = icast_List(new_ArrayList_0().self())
-	var parts ListOf[string] = Splitter_on(',').splitToList(strobj_(params))
-	it_1 := foreach_(any(parts))
+	var parts *TList[string] = tlistImm_(tc_string, Splitter_on(',').splitToList(strobj_(params)))
+	it_1 := parts.each()
 	for it_1.next() {
-		var param string = str_(it_1.v)
+		var param string = it_1.v
 		paramCount++
 		if param == ReplaceStrings_REPLACE_ALL_MARKER {
 			Preconditions_checkState(((paramCount == 1) && (parts.size() == 1)))

@@ -57,18 +57,18 @@ func (this *DisambiguateProperties) process_2(externs Node, root Node) {
 		this.registerOwnDeclaredProperties(colorGraphNode, icast_Map(obj_(propIndex)))
 	}
 	this.logForDiagnostics("graph", &Supplier_base_fn{func() any {
-		var result ListOf[*DisambiguateProperties_TypeNodeJson] = icast_List(new_ArrayList_0().self())
+		var result *TList[*DisambiguateProperties_TypeNodeJson] = newTList_(tc_p_DisambiguateProperties_TypeNodeJson)
 		it_5 := foreach_(any(graph.getNodes()))
 		for it_5.next() {
 			var n DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(it_5.v)
-			result.add(obj_(new_DisambiguateProperties_TypeNodeJson(n)))
+			result.add(new_DisambiguateProperties_TypeNodeJson(n))
 		}
-		List_sort(result, Comparator_comparingInt(&ToIntFunction_fn{func(x_ any) int32 {
+		List_sort(result.asList(), Comparator_comparingInt(&ToIntFunction_fn{func(x_ any) int32 {
 			var x *DisambiguateProperties_TypeNodeJson = cast_[*DisambiguateProperties_TypeNodeJson](x_)
 			_ = x
 			return x.index_
 		}}))
-		return obj_(ImmutableList_copyOf(Collection(result)))
+		return obj_(ImmutableList_copyOf(Collection(result.asList())))
 		panic("unreachable")
 	}})
 	this.invalidateBasedOnType(flattener)
@@ -395,9 +395,9 @@ func (this *DisambiguateProperties_TypeNodeJson) init_DisambiguateProperties_Typ
 	this.colorId = t.getColor().getId().toString()
 	this.invalidating = t.getColor().isInvalidating()
 	var edgesBuilder ImmutableSortedSet_BuilderOf[*DisambiguateProperties_TypeEdgeJson] = ImmutableSortedSet_naturalOrder()
-	it_1 := foreach_(any(n.getOutEdges()))
+	it_1 := n.getOutEdges().each()
 	for it_1.next() {
-		var e DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
+		var e DiGraph_DiGraphEdge = it_1.v
 		edgesBuilder.add(obj_(new_DisambiguateProperties_TypeEdgeJson(e)))
 	}
 	this.edges = cast_[*ImmutableSortedSet](obj_(edgesBuilder.build()))

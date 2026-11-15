@@ -16,9 +16,9 @@ func new_Glob() *Glob {
 }
 
 func Glob_matches(glob string, path string) bool {
-	it_1 := foreach_(any(Glob_expandBraces(glob)))
+	it_1 := Glob_expandBraces(glob).each()
 	for it_1.next() {
-		var alternative string = str_(it_1.v)
+		var alternative string = it_1.v
 		if Glob_matchesWithoutBraces(alternative, path) {
 			return true
 		}
@@ -26,8 +26,8 @@ func Glob_matches(glob string, path string) bool {
 	return false
 }
 
-func Glob_expandBraces(glob string) ListOf[string] {
-	var result ListOf[string] = icast_List(new_ArrayList_0().self())
+func Glob_expandBraces(glob string) *TList[string] {
+	var result *TList[string] = newTList_(tc_string)
 	var open int32 = -1
 	for i := int32(0); (i < String_length(glob)) && (open < 0); i++ {
 		var c uint16 = String_charAt(glob, i)
@@ -44,11 +44,11 @@ func Glob_expandBraces(glob string) ListOf[string] {
 		return Glob_findUnescaped(glob, '}', (open + 1))
 	}()
 	if close_ < 0 {
-		result.add(strobj_(glob))
+		result.add(glob)
 		return result
 	}
 	var head string = String_substring(glob, 0, open)
-	var tails ListOf[string] = Glob_expandBraces(String_substring_int(glob, (close_ + 1)))
+	var tails *TList[string] = Glob_expandBraces(String_substring_int(glob, (close_ + 1)))
 	var start int32 = (open + 1)
 	for start <= close_ {
 		var comma int32 = Glob_findUnescaped(glob, ',', start)
@@ -58,10 +58,10 @@ func Glob_expandBraces(glob string) ListOf[string] {
 			}
 			return comma
 		}()
-		it_3 := foreach_(any(tails))
+		it_3 := tails.each()
 		for it_3.next() {
-			var tail string = str_(it_3.v)
-			result.add(strobj_((sstr_(head) + sstr_(String_substring(glob, start, end)) + sstr_(tail))))
+			var tail string = it_3.v
+			result.add((sstr_(head) + sstr_(String_substring(glob, start, end)) + sstr_(tail)))
 		}
 		start = (end + 1)
 	}

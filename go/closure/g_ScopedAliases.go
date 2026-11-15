@@ -39,20 +39,20 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 	var traversal *ScopedAliases_Traversal = new_ScopedAliases_Traversal(this)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(traversal)))
 	if !traversal.hasErrors() {
-		var aliasWorkQueue ListOf[*ScopedAliases_AliasUsage] = icast_List(new_ArrayList_Collection(Collection(traversal.getAliasUsages())).self())
+		var aliasWorkQueue *TList[*ScopedAliases_AliasUsage] = tlistFrom_(tc_p_ScopedAliases_AliasUsage, Collection(traversal.getAliasUsages().asList()))
 		for !aliasWorkQueue.isEmpty() {
-			var newQueue ListOf[*ScopedAliases_AliasUsage] = icast_List(new_ArrayList_0().self())
-			it_2 := foreach_(any(aliasWorkQueue))
+			var newQueue *TList[*ScopedAliases_AliasUsage] = newTList_(tc_p_ScopedAliases_AliasUsage)
+			it_2 := aliasWorkQueue.each()
 			for it_2.next() {
-				var aliasUsage *ScopedAliases_AliasUsage = to_ScopedAliases_AliasUsage(it_2.v)
+				var aliasUsage *ScopedAliases_AliasUsage = it_2.v
 				if aliasUsage.referencesOtherAlias(traversal.deletedAliasVars) {
-					newQueue.add(aliasUsage.self())
+					newQueue.add(aliasUsage)
 				} else {
 					aliasUsage.applyAlias(this.compiler_)
 				}
 			}
 			if newQueue.size() == aliasWorkQueue.size() {
-				var cycleVar *Var = to_ScopedAliases_AliasUsage(newQueue.get(0)).aliasVar
+				var cycleVar *Var = newQueue.get(0).aliasVar
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cycleVar.getNode(), ScopedAliases_GOOG_SCOPE_ALIAS_CYCLE, []string{cycleVar.getName()}))
 				break
 			} else {
@@ -69,9 +69,9 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 				aliasDefinition.detach()
 			}
 		}
-		it_6 := foreach_(any(traversal.getScopeCalls()))
+		it_6 := traversal.getScopeCalls().each()
 		for it_6.next() {
-			var scopeCall Node = Node_of_(it_6.v)
+			var scopeCall Node = it_6.v
 			var expressionWithScopeCall Node = scopeCall.getParent()
 			var scopeClosureBlock Node = scopeCall.getLastChild().getLastChild()
 			scopeClosureBlock.detach()
@@ -398,9 +398,9 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 type ScopedAliases_Traversal struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_                   *ScopedAliases
-	aliasDefinitionsToDelete ListOf[Node]
-	scopeCalls               ListOf[Node]
-	aliasUsages              ListOf[*ScopedAliases_AliasUsage]
+	aliasDefinitionsToDelete *TList[Node]
+	scopeCalls               *TList[Node]
+	aliasUsages              *TList[*ScopedAliases_AliasUsage]
 	aliases_                 map[string]*Var
 	injectedDecls            map[Node]struct{}
 	deletedAliasVars         SetOf[*Var]
@@ -418,9 +418,9 @@ func (this *ScopedAliases_Traversal) up_NodeTraversal_AbstractPostOrderCallback(
 }
 
 func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
-	this.aliasDefinitionsToDelete = icast_List(new_ArrayList_0().self())
-	this.scopeCalls = icast_List(new_ArrayList_0().self())
-	this.aliasUsages = icast_List(new_ArrayList_0().self())
+	this.aliasDefinitionsToDelete = newTList_(tc_Node)
+	this.scopeCalls = newTList_(tc_Node)
+	this.aliasUsages = newTList_(tc_p_ScopedAliases_AliasUsage)
 	this.aliases_ = map[string]*Var{}
 	this.injectedDecls = map[Node]struct{}{}
 	this.deletedAliasVars = icast_Set(obj_(new_LinkedHashSet()))
@@ -444,14 +444,14 @@ func new_ScopedAliases_Traversal(outer_ *ScopedAliases) *ScopedAliases_Traversal
 }
 
 func (this *ScopedAliases_Traversal) getAliasDefinitionsToDelete() CollectionOf[Node] {
-	return Collection(this.aliasDefinitionsToDelete)
+	return Collection(this.aliasDefinitionsToDelete.asList())
 }
 
-func (this *ScopedAliases_Traversal) getAliasUsages() ListOf[*ScopedAliases_AliasUsage] {
+func (this *ScopedAliases_Traversal) getAliasUsages() *TList[*ScopedAliases_AliasUsage] {
 	return this.aliasUsages
 }
 
-func (this *ScopedAliases_Traversal) getScopeCalls() ListOf[Node] {
+func (this *ScopedAliases_Traversal) getScopeCalls() *TList[Node] {
 	return this.scopeCalls
 }
 
@@ -596,7 +596,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 
 func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	var initialValue Node = aliasVar.getInitialValue()
-	this.aliasDefinitionsToDelete.add(aliasVar.getNameNode().box_())
+	this.aliasDefinitionsToDelete.add(aliasVar.getNameNode())
 	if this.outer_.invalidModuleGetHandling.shouldGiveUniqueName() && this.containsInvalidGoogModuleGet(initialValue) {
 		var name string = aliasVar.getName()
 		var fileName string = initialValue.getSourceFileName()
@@ -667,7 +667,7 @@ func (this *ScopedAliases_Traversal) renameNamespaceShadows(t *NodeTraversal) {
 			renamer.addDeclaredName(s, false)
 		}
 		var uniquifier *MakeDeclaredNamesUnique = MakeDeclaredNamesUnique_builder().withRenamer(renamer).build()
-		NodeTraversal_traverseScopeRoots(this.outer_.compiler_, icast_List(obj_(ImmutableList_of_Object(t.getScopeRoot().box_()))), icast_NodeTraversal_Callback(obj_(uniquifier)), true)
+		NodeTraversal_traverseScopeRoots(this.outer_.compiler_, tlistImm_(tc_Node, ImmutableList_of_Object(t.getScopeRoot().box_())), icast_NodeTraversal_Callback(obj_(uniquifier)), true)
 	}
 }
 
@@ -696,7 +696,7 @@ func (this *ScopedAliases_Traversal) validateScopeCall(t *NodeTraversal, n Node,
 		if (!anonymousFnNode.isFunction() || !String_isEmpty(NodeUtil_getName(anonymousFnNode))) || NodeUtil_getFunctionParameters(anonymousFnNode).hasChildren() {
 			this.report(anonymousFnNode, ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS, []string{})
 		} else {
-			this.scopeCalls.add(n.box_())
+			this.scopeCalls.add(n)
 		}
 	}
 }
@@ -743,7 +743,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 		this.renameBleedingFunctionName(t, n)
 	}
 	if aliasVar != nil {
-		this.aliasUsages.add(obj_(new_ScopedAliases_AliasedNode(aliasVar, n)))
+		this.aliasUsages.add(to_ScopedAliases_AliasUsage(obj_(new_ScopedAliases_AliasedNode(aliasVar, n))))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	if (info != nil) && !has_(this.injectedDecls, n) {
@@ -765,7 +765,7 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 		var baseName string = String_substring(name, 0, endIndex)
 		var aliasVar *Var = this.aliases_[baseName]
 		if aliasVar != nil {
-			this.aliasUsages.add(obj_(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode)))
+			this.aliasUsages.add(to_ScopedAliases_AliasUsage(obj_(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode))))
 		}
 		if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() {
 			typeNode.setOriginalName(name)

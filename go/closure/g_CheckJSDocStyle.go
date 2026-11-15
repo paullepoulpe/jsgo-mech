@@ -155,11 +155,11 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 	if (jsDoc != nil) && (jsDoc.getType() != nil) {
 		return
 	}
-	var paramsFromJsDoc ListOf[string] = func() List {
+	var paramsFromJsDoc *TList[string] = func() *TList[string] {
 		if jsDoc == nil {
-			return icast_List(obj_(ImmutableList_of()))
+			return tlistImm_(tc_string, ImmutableList_of())
 		}
-		return icast_List(obj_(ImmutableList_copyOf(Collection(jsDoc.getParameterNames()))))
+		return tlistImm_(tc_string, ImmutableList_copyOf(Collection(jsDoc.getParameterNames())))
 	}()
 	if paramsFromJsDoc.isEmpty() {
 		this.checkInlineParams(t, function, jsDoc)
@@ -175,9 +175,9 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 			return
 		}
 		var param Node = paramList.getFirstChild()
-		it_1 := foreach_(any(paramsFromJsDoc))
+		it_1 := paramsFromJsDoc.each()
 		for it_1.next() {
-			var s string = str_(it_1.v)
+			var s string = it_1.v
 			if param.getJSDocInfo() != nil {
 				t.report(param, CheckJSDocStyle_MIXED_PARAM_JSDOC_STYLES, []string{})
 			}

@@ -83,8 +83,8 @@ func (this *LinkedDirectedGraph) connect_impl(srcValue any, edgeValue any, destV
 		}
 		return new_LinkedDirectedGraph_LinkedDiGraphEdge(src, edgeValue, dest)
 	}()
-	src.getOutEdges().add(edge.self())
-	dest.getInEdges().add(edge.self())
+	src.getOutEdges().add(icast_DiGraph_DiGraphEdge(edge.self()))
+	dest.getInEdges().add(icast_DiGraph_DiGraphEdge(edge.self()))
 }
 
 func (this *LinkedDirectedGraph) connectDiGraphNode(src DiGraph_DiGraphNode, edgeValue any, dest DiGraph_DiGraphNode) {
@@ -96,8 +96,8 @@ func (this *LinkedDirectedGraph) connectDiGraphNode(src DiGraph_DiGraphNode, edg
 		}
 		return new_LinkedDirectedGraph_LinkedDiGraphEdge(lSrc, edgeValue, lDest)
 	}()
-	lSrc.getOutEdges().add(edge.self())
-	lDest.getInEdges().add(edge.self())
+	lSrc.getOutEdges().add(icast_DiGraph_DiGraphEdge(edge.self()))
+	lDest.getInEdges().add(icast_DiGraph_DiGraphEdge(edge.self()))
 }
 
 func (this *LinkedDirectedGraph) connectIfNotConnectedInDirection(srcValue any, edgeValue any, destValue any) {
@@ -116,11 +116,11 @@ func (this *LinkedDirectedGraph) disconnect_impl(n1 any, n2 any) {
 func (this *LinkedDirectedGraph) disconnectInDirection_impl(srcValue any, destValue any) {
 	var src *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(srcValue))
 	var dest *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(destValue))
-	it_1 := foreach_(any(this.getEdgesInDirection(srcValue, destValue)))
+	it_1 := this.getEdgesInDirection(srcValue, destValue).each()
 	for it_1.next() {
-		var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
-		src.getOutEdges().remove_Object(any(edge))
-		dest.getInEdges().remove_Object(any(edge))
+		var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v.self())
+		src.getOutEdges().asList().remove_Object(any(edge))
+		dest.getInEdges().asList().remove_Object(any(edge))
 	}
 }
 
@@ -132,14 +132,14 @@ func (this *LinkedDirectedGraph) getNode_impl(nodeValue any) GraphNode {
 	return icast_GraphNode(this.nodes_.get(nodeValue))
 }
 
-func (this *LinkedDirectedGraph) getInEdges_impl(nodeValue any) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] {
+func (this *LinkedDirectedGraph) getInEdges_impl(nodeValue any) *TList[DiGraph_DiGraphEdge] {
 	var node *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(nodeValue))
-	return Collections_unmodifiableList(node.getInEdges())
+	return node.getInEdges()
 }
 
-func (this *LinkedDirectedGraph) getOutEdges_impl(nodeValue any) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] {
+func (this *LinkedDirectedGraph) getOutEdges_impl(nodeValue any) *TList[DiGraph_DiGraphEdge] {
 	var node *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(nodeValue))
-	return Collections_unmodifiableList(node.getOutEdges())
+	return node.getOutEdges()
 }
 
 func (this *LinkedDirectedGraph) createNode_impl(nodeValue any) GraphNode {
@@ -153,39 +153,39 @@ func (this *LinkedDirectedGraph) createNode_impl(nodeValue any) GraphNode {
 	}}))
 }
 
-func (this *LinkedDirectedGraph) getEdges_2_impl(n1 any, n2 any) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] {
-	var forwardEdges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = this.getEdgesInDirection(n1, n2)
-	var backwardEdges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = this.getEdgesInDirection(n2, n1)
+func (this *LinkedDirectedGraph) getEdges_2_impl(n1 any, n2 any) *TList[UndiGraph_UndiGraphEdge] {
+	var forwardEdges *TList[*LinkedDirectedGraph_LinkedDiGraphEdge] = this.getEdgesInDirection(n1, n2)
+	var backwardEdges *TList[*LinkedDirectedGraph_LinkedDiGraphEdge] = this.getEdgesInDirection(n2, n1)
 	var totalSize int32 = (forwardEdges.size() + backwardEdges.size())
-	var edges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = icast_List(new_ArrayList_int(totalSize).self())
-	edges.addAll(Collection(forwardEdges))
-	edges.addAll(Collection(backwardEdges))
+	var edges *TList[UndiGraph_UndiGraphEdge] = newTListN_(tc_UndiGraph_UndiGraphEdge, totalSize)
+	edges.asList().addAll(Collection(forwardEdges.asList()))
+	edges.asList().addAll(Collection(backwardEdges.asList()))
 	return edges
 }
 
-func (this *LinkedDirectedGraph) getEdges_impl() ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] {
-	var result ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = icast_List(new_ArrayList_0().self())
+func (this *LinkedDirectedGraph) getEdges_impl() *TList[Graph_GraphEdge] {
+	var result *TList[Graph_GraphEdge] = newTList_(tc_Graph_GraphEdge)
 	it_1 := foreach_(any(this.nodes_.values()))
 	for it_1.next() {
 		var node *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(it_1.v)
-		result.addAll(Collection(node.getOutEdges()))
+		result.asList().addAll(Collection(node.getOutEdges().asList()))
 	}
-	return Collections_unmodifiableList(result)
+	return result
 }
 
 func (this *LinkedDirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_GraphEdge {
 	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(n1))
 	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(n2))
-	it_1 := foreach_(any(dNode1.getOutEdges()))
+	it_1 := dNode1.getOutEdges().each()
 	for it_1.next() {
-		var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
+		var outEdge DiGraph_DiGraphEdge = it_1.v
 		if any(outEdge.getDestination()) == dNode2.self() {
 			return Graph_GraphEdge(outEdge)
 		}
 	}
-	it_3 := foreach_(any(dNode2.getOutEdges()))
+	it_3 := dNode2.getOutEdges().each()
 	for it_3.next() {
-		var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
+		var outEdge DiGraph_DiGraphEdge = it_3.v
 		if any(outEdge.getDestination()) == dNode1.self() {
 			return Graph_GraphEdge(outEdge)
 		}
@@ -193,15 +193,15 @@ func (this *LinkedDirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_GraphEd
 	return nil
 }
 
-func (this *LinkedDirectedGraph) getEdgesInDirection_impl(n1 any, n2 any) ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] {
+func (this *LinkedDirectedGraph) getEdgesInDirection_impl(n1 any, n2 any) *TList[*LinkedDirectedGraph_LinkedDiGraphEdge] {
 	var dNode1 *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(n1))
 	var dNode2 *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(n2))
-	var edges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(dNode1.getOutEdges()))
+	var edges *TList[*LinkedDirectedGraph_LinkedDiGraphEdge] = newTList_(tc_p_LinkedDirectedGraph_LinkedDiGraphEdge)
+	it_1 := dNode1.getOutEdges().each()
 	for it_1.next() {
-		var outEdge *LinkedDirectedGraph_LinkedDiGraphEdge = to_LinkedDirectedGraph_LinkedDiGraphEdge(it_1.v)
+		var outEdge *LinkedDirectedGraph_LinkedDiGraphEdge = to_LinkedDirectedGraph_LinkedDiGraphEdge(any(it_1.v))
 		if to_LinkedDirectedGraph_LinkedDiGraphNode(outEdge.getDestination()) == dNode2 {
-			edges.add(outEdge.self())
+			edges.add(outEdge)
 		}
 	}
 	return edges
@@ -216,22 +216,22 @@ func (this *LinkedDirectedGraph) isConnectedInDirection_3_impl(source any, edgeV
 }
 
 func (this *LinkedDirectedGraph) isConnectedInDirectionLinkedDiGraphNode(source *LinkedDirectedGraph_LinkedDiGraphNode, edgeFilter Predicate_baseOf[any], dest *LinkedDirectedGraph_LinkedDiGraphNode) bool {
-	var outEdges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = source.getOutEdges()
+	var outEdges *TList[DiGraph_DiGraphEdge] = source.getOutEdges()
 	var outEdgesLen int32 = outEdges.size()
-	var inEdges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = dest.getInEdges()
+	var inEdges *TList[DiGraph_DiGraphEdge] = dest.getInEdges()
 	var inEdgesLen int32 = inEdges.size()
 	if outEdgesLen < inEdgesLen {
-		it_1 := foreach_(any(outEdges))
+		it_1 := outEdges.each()
 		for it_1.next() {
-			var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
+			var outEdge DiGraph_DiGraphEdge = it_1.v
 			if (any(outEdge.getDestination()) == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
 				return true
 			}
 		}
 	} else {
-		it_3 := foreach_(any(inEdges))
+		it_3 := inEdges.each()
 		for it_3.next() {
-			var inEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
+			var inEdge DiGraph_DiGraphEdge = it_3.v
 			if (any(inEdge.getSource()) == source.self()) && edgeFilter.apply(inEdge.getValue()) {
 				return true
 			}
@@ -246,58 +246,58 @@ func (this *LinkedDirectedGraph) isConnectedInDirectionPredicate(n1 any, edgeMat
 	return this.isConnectedInDirectionLinkedDiGraphNode(dNode1, edgeMatcher, dNode2)
 }
 
-func (this *LinkedDirectedGraph) getDirectedPredNodes_impl(nodeValue any) ListOf[*LinkedDirectedGraph_LinkedDiGraphNode] {
+func (this *LinkedDirectedGraph) getDirectedPredNodes_impl(nodeValue any) *TList[DiGraph_DiGraphNode] {
 	return this.getDirectedPredNodesDiGraphNode(icast_DiGraph_DiGraphNode(this.nodes_.get(nodeValue)))
 }
 
-func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) ListOf[*LinkedDirectedGraph_LinkedDiGraphNode] {
+func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {
 	Preconditions_checkNotNull(any(dNode))
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(dNode)
-	var nodeList ListOf[*LinkedDirectedGraph_LinkedDiGraphNode] = icast_List(new_ArrayList_int(lNode.getInEdges().size()).self())
-	it_1 := foreach_(any(lNode.getInEdges()))
+	var nodeList *TList[DiGraph_DiGraphNode] = newTListN_(tc_DiGraph_DiGraphNode, lNode.getInEdges().size())
+	it_1 := lNode.getInEdges().each()
 	for it_1.next() {
-		var edge *LinkedDirectedGraph_LinkedDiGraphEdge = to_LinkedDirectedGraph_LinkedDiGraphEdge(it_1.v)
-		nodeList.add(any(edge.getSource()))
+		var edge *LinkedDirectedGraph_LinkedDiGraphEdge = to_LinkedDirectedGraph_LinkedDiGraphEdge(any(it_1.v))
+		nodeList.add(edge.getSource())
 	}
 	return nodeList
 }
 
-func (this *LinkedDirectedGraph) getDirectedSuccNodes_impl(nodeValue any) ListOf[*LinkedDirectedGraph_LinkedDiGraphNode] {
+func (this *LinkedDirectedGraph) getDirectedSuccNodes_impl(nodeValue any) *TList[DiGraph_DiGraphNode] {
 	return this.getDirectedSuccNodesDiGraphNode(icast_DiGraph_DiGraphNode(this.nodes_.get(nodeValue)))
 }
 
-func (this *LinkedDirectedGraph) getDirectedSuccNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) ListOf[*LinkedDirectedGraph_LinkedDiGraphNode] {
+func (this *LinkedDirectedGraph) getDirectedSuccNodesDiGraphNode_impl(dNode DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {
 	Preconditions_checkNotNull(any(dNode))
 	var lNode *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(dNode)
-	var nodeList ListOf[*LinkedDirectedGraph_LinkedDiGraphNode] = icast_List(new_ArrayList_int(lNode.getOutEdges().size()).self())
-	it_1 := foreach_(any(lNode.getOutEdges()))
+	var nodeList *TList[DiGraph_DiGraphNode] = newTListN_(tc_DiGraph_DiGraphNode, lNode.getOutEdges().size())
+	it_1 := lNode.getOutEdges().each()
 	for it_1.next() {
-		var edge *LinkedDirectedGraph_LinkedDiGraphEdge = to_LinkedDirectedGraph_LinkedDiGraphEdge(it_1.v)
-		nodeList.add(any(edge.getDestination()))
+		var edge *LinkedDirectedGraph_LinkedDiGraphEdge = to_LinkedDirectedGraph_LinkedDiGraphEdge(any(it_1.v))
+		nodeList.add(edge.getDestination())
 	}
 	return nodeList
 }
 
-func (this *LinkedDirectedGraph) getGraphvizEdges() ListOf[GraphvizGraph_GraphvizEdge] {
-	var edgeList ListOf[GraphvizGraph_GraphvizEdge] = icast_List(new_ArrayList_0().self())
+func (this *LinkedDirectedGraph) getGraphvizEdges() *TList[GraphvizGraph_GraphvizEdge] {
+	var edgeList *TList[GraphvizGraph_GraphvizEdge] = newTList_(tc_GraphvizGraph_GraphvizEdge)
 	it_1 := foreach_(any(this.nodes_.values()))
 	for it_1.next() {
 		var node *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(it_1.v)
-		it_3 := foreach_(any(node.getOutEdges()))
+		it_3 := node.getOutEdges().each()
 		for it_3.next() {
-			var edge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
-			edgeList.add(to_LinkedDirectedGraph_LinkedDiGraphEdge(edge).self())
+			var edge DiGraph_DiGraphEdge = it_3.v
+			edgeList.add(icast_GraphvizGraph_GraphvizEdge(to_LinkedDirectedGraph_LinkedDiGraphEdge(edge).self()))
 		}
 	}
 	return edgeList
 }
 
-func (this *LinkedDirectedGraph) getGraphvizNodes() ListOf[GraphvizGraph_GraphvizNode] {
-	var nodeList ListOf[GraphvizGraph_GraphvizNode] = icast_List(new_ArrayList_int(this.nodes_.size()).self())
+func (this *LinkedDirectedGraph) getGraphvizNodes() *TList[GraphvizGraph_GraphvizNode] {
+	var nodeList *TList[GraphvizGraph_GraphvizNode] = newTListN_(tc_GraphvizGraph_GraphvizNode, this.nodes_.size())
 	it_1 := foreach_(any(this.nodes_.values()))
 	for it_1.next() {
 		var node *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(it_1.v)
-		nodeList.add(node.self())
+		nodeList.add(icast_GraphvizGraph_GraphvizNode(node.self()))
 	}
 	return nodeList
 }
@@ -314,18 +314,18 @@ func (this *LinkedDirectedGraph) getNodeCount_impl() int32 {
 	return this.nodes_.size()
 }
 
-func (this *LinkedDirectedGraph) getNeighborNodes_impl(value any) ListOf[GraphNode] {
+func (this *LinkedDirectedGraph) getNeighborNodes_impl(value any) *TList[GraphNode] {
 	var node *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNode(value))
-	var result ListOf[GraphNode] = icast_List(new_ArrayList_int((node.getInEdges().size() + node.getOutEdges().size())).self())
-	it_1 := foreach_(any(node.getInEdges()))
+	var result *TList[GraphNode] = newTListN_(tc_GraphNode, (node.getInEdges().size() + node.getOutEdges().size()))
+	it_1 := node.getInEdges().each()
 	for it_1.next() {
-		var inEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
-		result.add(any(inEdge.getSource()))
+		var inEdge DiGraph_DiGraphEdge = it_1.v
+		result.add(icast_GraphNode(any(inEdge.getSource())))
 	}
-	it_3 := foreach_(any(node.getOutEdges()))
+	it_3 := node.getOutEdges().each()
 	for it_3.next() {
-		var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
-		result.add(any(outEdge.getDestination()))
+		var outEdge DiGraph_DiGraphEdge = it_3.v
+		result.add(icast_GraphNode(any(outEdge.getDestination())))
 	}
 	return result
 }
@@ -337,8 +337,8 @@ func (this *LinkedDirectedGraph) getNodeDegree_impl(value any) int32 {
 
 type LinkedDirectedGraph_LinkedDiGraphNode struct {
 	self_       any
-	inEdgeList  ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge]
-	outEdgeList ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge]
+	inEdgeList  *TList[DiGraph_DiGraphEdge]
+	outEdgeList *TList[DiGraph_DiGraphEdge]
 	value_      any
 	priority    int32
 }
@@ -371,8 +371,8 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) self() any {
 }
 
 func (this *LinkedDirectedGraph_LinkedDiGraphNode) finit_LinkedDirectedGraph_LinkedDiGraphNode() {
-	this.inEdgeList = icast_List(new_ArrayList_int(1).self())
-	this.outEdgeList = icast_List(new_ArrayList_int(1).self())
+	this.inEdgeList = newTListN_(tc_DiGraph_DiGraphEdge, 1)
+	this.outEdgeList = newTListN_(tc_DiGraph_DiGraphEdge, 1)
 	this.priority = -1
 }
 
@@ -416,11 +416,11 @@ func (this *LinkedDirectedGraph_LinkedDiGraphNode) toString() string {
 	return String_valueOf_Object(this.value_)
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphNode) getInEdges() ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] {
+func (this *LinkedDirectedGraph_LinkedDiGraphNode) getInEdges() *TList[DiGraph_DiGraphEdge] {
 	return this.inEdgeList
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphNode) getOutEdges() ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] {
+func (this *LinkedDirectedGraph_LinkedDiGraphNode) getOutEdges() *TList[DiGraph_DiGraphEdge] {
 	return this.outEdgeList
 }
 

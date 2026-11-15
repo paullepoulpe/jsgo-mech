@@ -16,12 +16,12 @@ func new_GoogleJsMessageIdGenerator(projectId OptionalOf[string]) *GoogleJsMessa
 	return this
 }
 
-func (this *GoogleJsMessageIdGenerator) generateId(meaning OptionalOf[string], messageParts ListOf[JsMessage_Part]) string {
+func (this *GoogleJsMessageIdGenerator) generateId(meaning OptionalOf[string], messageParts *TList[JsMessage_Part]) string {
 	Preconditions_checkState(meaning.isPresent())
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(any(messageParts))
+	it_1 := messageParts.each()
 	for it_1.next() {
-		var part JsMessage_Part = icast_JsMessage_Part(it_1.v)
+		var part JsMessage_Part = it_1.v
 		if part.isPlaceholder() {
 			sb.append(part.getCanonicalPlaceholderName())
 		} else {

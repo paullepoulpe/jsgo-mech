@@ -47,11 +47,11 @@ func new_PhaseOptimizer(comp *AbstractCompiler, tracker *PerformanceTracker) *Ph
 	return this
 }
 
-func (this *PhaseOptimizer) consume(factories ListOf[*PassFactory]) {
+func (this *PhaseOptimizer) consume(factories *TList[*PassFactory]) {
 	var currentLoop *PhaseOptimizer_Loop = new_PhaseOptimizer_Loop(this)
-	it_1 := foreach_(any(factories))
+	it_1 := factories.each()
 	for it_1.next() {
-		var factory *PassFactory = cast_[*PassFactory](it_1.v)
+		var factory *PassFactory = it_1.v
 		if factory.isRunInFixedPointLoop() {
 			currentLoop.addLoopedPass(factory)
 		} else {

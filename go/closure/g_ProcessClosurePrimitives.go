@@ -436,7 +436,7 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 				panic(r_)
 			}
 		}()
-		typeDeclaration = Optional_ofNullable(Iterables_getOnlyElement(Iterable(convention.identifyTypeDeclarationCall(n))))
+		typeDeclaration = Optional_ofNullable(Iterables_getOnlyElement(Iterable(convention.identifyTypeDeclarationCall(n).asList())))
 		return 0
 	}()
 	if typeDeclaration.isPresent() {

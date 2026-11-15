@@ -762,7 +762,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		}
 		return NodeUtil_getStringValue(right)
 	}()
-	var arrayFoldedChildren ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var arrayFoldedChildren *TList[Node] = newTList_(tc_Node)
 	var sb *StringBuilder = nil
 	var foldedSize int32 = 0
 	var prev Node = 0
@@ -783,11 +783,11 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 			if sb != nil {
 				Preconditions_checkNotNull(prev.box_())
 				foldedSize += (sb.length() + 2)
-				arrayFoldedChildren.add(IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev).box_())
+				arrayFoldedChildren.add(IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev))
 				sb = nil
 			}
 			foldedSize += InlineCostEstimator_getCost_Node(elem)
-			arrayFoldedChildren.add(elem.box_())
+			arrayFoldedChildren.add(elem)
 		}
 		prev = elem
 		elem = elem.getNext()
@@ -795,7 +795,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 	if sb != nil {
 		Preconditions_checkNotNull(prev.box_())
 		foldedSize += (sb.length() + 2)
-		arrayFoldedChildren.add(IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev).box_())
+		arrayFoldedChildren.add(IR_string(Object_toString(obj_(sb))).srcrefIfMissing(prev))
 	}
 	foldedSize += (arrayFoldedChildren.size() - 1)
 	var originalSize int32 = InlineCostEstimator_getCost_Node(n)
@@ -806,7 +806,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		this.reportChangeToEnclosingScope(emptyStringNode)
 		return emptyStringNode
 	case 1:
-		var foldedStringNode Node = Node_of_(arrayFoldedChildren.remove(0))
+		var foldedStringNode Node = arrayFoldedChildren.removeAt(0)
 		if foldedStringNode.isSpread() || (foldedSize > originalSize) {
 			return n
 		}
@@ -834,9 +834,9 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 			return n
 		}
 		arrayNode.detachChildren()
-		it_3 := foreach_(any(arrayFoldedChildren))
+		it_3 := arrayFoldedChildren.each()
 		for it_3.next() {
-			var node Node = Node_of_(it_3.v)
+			var node Node = it_3.v
 			arrayNode.addChildToBack(node)
 		}
 		this.reportChangeToEnclosingScope(arrayNode)
@@ -1037,10 +1037,10 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 	if separator.isEmpty() {
 		return []string{stringValue}
 	}
-	var splitStrings ListOf[string] = icast_List(new_ArrayList_0().self())
+	var splitStrings *TList[string] = newTList_(tc_string)
 	if String_isEmpty(str_(separator.get())) {
 		for i := int32(0); (i < String_length(stringValue)) && (i < limit); i++ {
-			splitStrings.add(strobj_(String_substring(stringValue, i, (i + 1))))
+			splitStrings.add(String_substring(stringValue, i, (i + 1)))
 		}
 	} else {
 		var startIndex int32 = 0
@@ -1050,18 +1050,18 @@ func (this *PeepholeReplaceKnownMethods) jsSplit(stringValue string, separator O
 			if !((matchIndex >= 0) && (splitStrings.size() < limit)) {
 				break
 			}
-			splitStrings.add(strobj_(String_substring(stringValue, startIndex, matchIndex)))
+			splitStrings.add(String_substring(stringValue, startIndex, matchIndex))
 			startIndex = (matchIndex + String_length(str_(separator.get())))
 		}
 		if splitStrings.size() < limit {
 			if startIndex < String_length(stringValue) {
-				splitStrings.add(strobj_(String_substring_int(stringValue, startIndex)))
+				splitStrings.add(String_substring_int(stringValue, startIndex))
 			} else {
-				splitStrings.add(strobj_(""))
+				splitStrings.add("")
 			}
 		}
 	}
-	return arrmap_(splitStrings.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
+	return arrmap_(splitStrings.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringSplit(n Node, stringNode Node, arg1 Node) Node {

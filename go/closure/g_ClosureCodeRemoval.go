@@ -31,12 +31,12 @@ func new_ClosureCodeRemoval(compiler *AbstractCompiler, removeAbstractMethods bo
 }
 
 func (this *ClosureCodeRemoval) process_2(externs Node, root Node) {
-	var passes ListOf[NodeTraversal_Callback] = icast_List(new_ArrayList_0().self())
+	var passes *TList[NodeTraversal_Callback] = newTList_(tc_NodeTraversal_Callback)
 	if this.removeAbstractMethods {
-		passes.add(obj_(new_ClosureCodeRemoval_FindAbstractMethods(this)))
+		passes.add(icast_NodeTraversal_Callback(obj_(new_ClosureCodeRemoval_FindAbstractMethods(this))))
 	}
 	if this.removeAssertionCalls {
-		passes.add(obj_(new_ClosureCodeRemoval_FindAssertionCalls(this)))
+		passes.add(icast_NodeTraversal_Callback(obj_(new_ClosureCodeRemoval_FindAssertionCalls(this))))
 	}
 	CombinedCompilerPass_traverse(this.compiler_, root, passes)
 	it_1 := eachOf_(&this.abstractMethodAssignmentNodes)

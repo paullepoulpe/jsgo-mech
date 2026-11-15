@@ -55,7 +55,7 @@ func (this *JsFileLineParser) didParseSucceed() bool {
 func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 	this.filePath = Optional_of(strobj_(filePath))
 	this.parseSucceeded = true
-	var lines ListOf[string] = TextFiles_splitLines(fileContents)
+	var lines *TList[string] = TextFiles_splitLines(fileContents)
 	var lineIndex int32 = 0
 	var line OptionalOf[string] = Optional_empty()
 	this.lineNum = 0
@@ -65,7 +65,7 @@ func (this *JsFileLineParser) doParse(filePath string, fileContents string) {
 		if lineIndex == lines.size() {
 			break
 		}
-		line = Optional_ofNullable(lines.get(lineIndex))
+		line = Optional_ofNullable(strobj_(lines.get(lineIndex)))
 		lineIndex++
 		this.lineNum++
 		var revisedLine OptionalOf[string] = line

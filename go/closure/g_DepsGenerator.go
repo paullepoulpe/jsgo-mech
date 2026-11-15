@@ -182,18 +182,18 @@ func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], 
 	it_1 := foreach_(any(depInfos))
 	for it_1.next() {
 		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
-		var provides ListOf[string] = icast_List(new_ArrayList_Collection(icast_Collection(obj_(depInfo.getProvides()))).self())
+		var provides *TList[string] = tlistFrom_(tc_string, icast_Collection(obj_(depInfo.getProvides())))
 		if isFromDepsFile {
-			provides.add(strobj_(this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName()))
+			provides.add(this.loader.resolve(PathUtil_makeAbsolute_String_String(depInfo.getPathRelativeToClosureBase(), this.closurePathAbs)).toModuleName())
 		} else {
 			if !depInfo.isEs6Module() {
-				provides.add(strobj_(this.loader.resolve(depInfo.getName()).toModuleName()))
+				provides.add(this.loader.resolve(depInfo.getName()).toModuleName())
 			}
 		}
-		provides.add(strobj_(depInfo.getPathRelativeToClosureBase()))
-		it_3 := foreach_(any(provides))
+		provides.add(depInfo.getPathRelativeToClosureBase())
+		it_3 := provides.each()
 		for it_3.next() {
-			var provide string = str_(it_3.v)
+			var provide string = it_3.v
 			var prevValue DependencyInfo = icast_DependencyInfo(Map_put_s(providesMap, provide, any(depInfo)))
 			if prevValue != nil {
 				this.reportDuplicateProvide(provide, prevValue, depInfo)
@@ -267,16 +267,16 @@ func DepsGenerator_parseDepsFile(depsParser *DepsFileRegexParser, file *SourceFi
 }
 
 func (this *DepsGenerator) removeRelativePathProvide(info DependencyInfo) DependencyInfo {
-	return icast_DependencyInfo(obj_(SimpleDependencyInfo_Builder_from(info).setProvides(Collection(DepsGenerator_providesWithoutRelativePath(info))).build()))
+	return icast_DependencyInfo(obj_(SimpleDependencyInfo_Builder_from(info).setProvides(Collection(DepsGenerator_providesWithoutRelativePath(info).asList())).build()))
 }
 
-func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) ListOf[string] {
-	var result ListOf[string] = icast_List(new_ArrayList_0().self())
+func DepsGenerator_providesWithoutRelativePath(info DependencyInfo) *TList[string] {
+	var result *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(obj_(info.getProvides()))
 	for it_1.next() {
 		var p string = str_(it_1.v)
 		if !(p == info.getPathRelativeToClosureBase()) {
-			result.add(strobj_(p))
+			result.add(p)
 		}
 	}
 	return result
@@ -342,17 +342,17 @@ func DepsGenerator_writeDepInfos(out *StringBuilder, depInfos CollectionOf[Depen
 	}
 }
 
-func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) ListOf[*SourceFile_jscomp] {
-	var files ListOf[*SourceFile_jscomp] = icast_List(new_ArrayList_0().self())
+func DepsGenerator_createSourceFilesFromPaths(paths CollectionOf[string]) *TList[*SourceFile_jscomp] {
+	var files *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	it_1 := foreach_(any(paths))
 	for it_1.next() {
 		var path string = str_(it_1.v)
-		files.add(obj_(SourceFile_jscomp_fromFile_String(path)))
+		files.add(SourceFile_jscomp_fromFile_String(path))
 	}
 	return files
 }
 
-func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) ListOf[*SourceFile_jscomp] {
+func DepsGenerator_createSourceFilesFromPathsStringVarargs(paths []string) *TList[*SourceFile_jscomp] {
 	return DepsGenerator_createSourceFilesFromPaths(Collection(Arrays_asList(arrmap_(paths, func(v_ string) any { return strobj_(v_) }))))
 }
 

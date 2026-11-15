@@ -83,13 +83,13 @@ func (this *TypedScopeCreator) getScope(var__ StaticSlot) StaticScope {
 }
 
 func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
-	var vars ListOf[*TypedVar] = icast_List(new_ArrayList_0().self())
+	var vars *TList[*TypedVar] = newTList_(tc_p_TypedVar)
 	it_1 := foreach_(any(this.memoized.values()))
 	for it_1.next() {
 		var s *TypedScope = cast_[*TypedScope](it_1.v)
-		Iterables_addAll(Collection(vars), s.getAllSymbols())
+		Iterables_addAll(Collection(vars.asList()), s.getAllSymbols())
 	}
-	return Iterable(vars)
+	return Iterable(vars.asList())
 }
 
 func (this *TypedScopeCreator) getNodeToScopeMapper() FunctionOf[Node, *TypedScope] {

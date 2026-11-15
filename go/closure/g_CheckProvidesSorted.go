@@ -87,9 +87,9 @@ func CheckProvidesSorted_formatProvide(namespace string) string {
 }
 
 func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
-	var sortedProvides ListOf[string] = icast_List(new_ArrayList_Collection(Collection(this.originalProvides)).self())
-	Collections_sort(sortedProvides)
-	var canonicalProvides ImmutableListOf[string] = ImmutableList_copyOf(icast_Collection(obj_(new_LinkedHashSet_Collection(Collection(sortedProvides)))))
+	var sortedProvides *TList[string] = tlistFrom_(tc_string, Collection(this.originalProvides))
+	Collections_sort(sortedProvides.asList())
+	var canonicalProvides ImmutableListOf[string] = ImmutableList_copyOf(icast_Collection(obj_(new_LinkedHashSet_Collection(Collection(sortedProvides.asList())))))
 	if !Object_equals(any(this.originalProvides), obj_(canonicalProvides)) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of(strobj_(String_join(strobj_("\n"), Iterables_transform(icast_Iterable(obj_(canonicalProvides)), &Function_base_fn{func(p0 any) any { return strobj_(CheckProvidesSorted_formatProvide(str_(p0))) }}))))

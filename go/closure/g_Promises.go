@@ -70,6 +70,6 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 	if asyncTemplateAlternates.isEmpty() {
 		return unknownType
 	}
-	var asyncTemplateUnion *JSType = registry.createUnionTypeList(icast_List(obj_(asyncTemplateAlternates)))
+	var asyncTemplateUnion *JSType = registry.createUnionTypeList(tlistImm_(tc_p_JSType, asyncTemplateAlternates))
 	return registry.createUnionType([]*JSType{asyncTemplateUnion, registry.createTemplatizedType(iThenableType, []*JSType{asyncTemplateUnion}).up_JSType()})
 }

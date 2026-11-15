@@ -176,13 +176,13 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of(strobj_("/dev/null")))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(icast_List(obj_(ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location *Optional) *Optional {
+	options.setSourceMapLocationMappings(tlistImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(&SourceMap_LocationMapping_fn{func(location *Optional) *Optional {
 		if Uris_isValid(str_(location.get())) && Uris_hasScheme(str_(location.get())) {
 			return location
 		}
 		return new_SourceMap_PrefixLocationMapping("", "/").map_(location)
 		panic("unreachable")
-	}})))))
+	}}))))
 }
 
 func (this *BaseTranspiler_CompilerSupplier) createTrivialExterns() *SourceFile_jscomp {

@@ -49,16 +49,16 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 				continue
 			}
 		}
-		it_3 := foreach_(any(cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](entry.getValue()).instances))
+		it_3 := cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](entry.getValue()).instances.each()
 		for it_3.next() {
-			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstance](it_3.v)
+			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = it_3.v
 			this.extractInstance(instance, alias)
 		}
 	}
 }
 
 func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *ExtractPrototypeMemberDeclarations_ExtractionInstance, alias string) {
-	var first *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](instance.declarations.get(0))
+	var first *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = instance.declarations.get(0)
 	var className OptionalOf[string] = first.qualifiedClassName
 	if (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP) || (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP) {
 		var classNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, str_(className.get()))
@@ -75,16 +75,16 @@ func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *Extrac
 		stmt.srcrefTreeIfMissing(first.node_)
 		stmt.insertBefore(first.node_)
 		this.compiler_.reportChangeToEnclosingScope(stmt)
-		it_1 := foreach_(any(instance.declarations))
+		it_1 := instance.declarations.each()
 		for it_1.next() {
-			var declar *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](it_1.v)
+			var declar *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = it_1.v
 			this.compiler_.reportChangeToEnclosingScope(declar.node_)
 			block.addChildToBack(declar.node_.detach())
 		}
 	}
-	it_3 := foreach_(any(instance.declarations))
+	it_3 := instance.declarations.each()
 	for it_3.next() {
-		var declar *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](it_3.v)
+		var declar *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = it_3.v
 		this.replacePrototypeMemberDeclaration(declar, alias)
 	}
 }
@@ -172,12 +172,12 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo struct {
-	instances  ListOf[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
+	instances  *TList[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
 	totalDelta int32
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo) finit_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() {
-	this.instances = icast_List(new_ArrayList_0().self())
+	this.instances = newTList_(tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstance)
 	this.totalDelta = 0
 }
 
@@ -233,7 +233,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 				continue
 			}
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
-			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(instance.declarations))).node_
+			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(instance.declarations.asList()))).node_
 			if instance.isFavorable() {
 				Map_computeIfAbsent(this.instancesByChunk, obj_(t.getChunk()), &Function_fn{func(k_ any) any {
 					var k *JSChunk = cast_[*JSChunk](k_)
@@ -241,7 +241,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 					return obj_(new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo())
 				}})
 				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](this.instancesByChunk.get(obj_(t.getChunk())))
-				instanceInfo.instances.add(obj_(instance))
+				instanceInfo.instances.add(instance)
 				instanceInfo.totalDelta += instance.delta
 			}
 		}
@@ -268,20 +268,20 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstance struct {
 	outer_       *ExtractPrototypeMemberDeclarations
-	declarations ListOf[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
+	declarations *TList[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
 	delta        int32
 	parent       Node
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) finit_ExtractPrototypeMemberDeclarations_ExtractionInstance() {
-	this.declarations = icast_List(new_ArrayList_0().self())
+	this.declarations = newTList_(tc_p_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration)
 	this.delta = 0
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) init_ExtractPrototypeMemberDeclarations_ExtractionInstance(head *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration, parent Node) {
 	this.finit_ExtractPrototypeMemberDeclarations_ExtractionInstance()
 	this.parent = parent
-	this.declarations.add(obj_(head))
+	this.declarations.add(head)
 	this.delta = (this.outer_.pattern.perExtractionOverhead + this.outer_.pattern.perMemberOverhead)
 	{
 		var cur Node = head.node_.getNext()
@@ -293,7 +293,7 @@ func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) init_ExtractP
 			if (prototypeMember == nil) || !head.isSameClass(prototypeMember) {
 				break
 			}
-			this.declarations.add(obj_(prototypeMember))
+			this.declarations.add(prototypeMember)
 			this.delta += this.outer_.pattern.perMemberOverhead
 		}
 	}

@@ -3,7 +3,7 @@
 package closure
 
 type CrossChunkReferenceCollector struct {
-	topLevelStatements     ListOf[*CrossChunkReferenceCollector_TopLevelStatement]
+	topLevelStatements     *TList[*CrossChunkReferenceCollector_TopLevelStatement]
 	compiler_              *AbstractCompiler
 	referenceCollector     *ReferenceCollector
 	statementCounter       int32
@@ -11,7 +11,7 @@ type CrossChunkReferenceCollector struct {
 }
 
 func (this *CrossChunkReferenceCollector) finit_CrossChunkReferenceCollector() {
-	this.topLevelStatements = icast_List(new_ArrayList_0().self())
+	this.topLevelStatements = newTList_(tc_p_CrossChunkReferenceCollector_TopLevelStatement)
 	this.statementCounter = 0
 	this.topLevelStatementDraft = nil
 }
@@ -132,8 +132,8 @@ func CrossChunkReferenceCollector_isPotentiallyMoveableGetElem(maybeGetElem Node
 	return (name.isName() && (name.getString() == "Symbol"))
 }
 
-func (this *CrossChunkReferenceCollector) getTopLevelStatements() ListOf[*CrossChunkReferenceCollector_TopLevelStatement] {
-	return Collections_unmodifiableList(this.topLevelStatements)
+func (this *CrossChunkReferenceCollector) getTopLevelStatements() *TList[*CrossChunkReferenceCollector_TopLevelStatement] {
+	return this.topLevelStatements
 }
 
 func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode Node) bool {
@@ -270,13 +270,13 @@ func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) af
 		return
 	}
 	if Object_equals(n.box_(), this.outer_.topLevelStatementDraft.statementNode.box_()) {
-		this.outer_.topLevelStatements.add(obj_(new_CrossChunkReferenceCollector_TopLevelStatement(this.outer_, this.outer_.topLevelStatementDraft)))
+		this.outer_.topLevelStatements.add(new_CrossChunkReferenceCollector_TopLevelStatement(this.outer_, this.outer_.topLevelStatementDraft))
 		this.outer_.topLevelStatementDraft = nil
 	} else if (addedReference != nil) && n.isName() {
 		if JSCompObjects_identical(addedReference.getNode().box_(), this.outer_.topLevelStatementDraft.declaredNameNode.box_()) {
 			this.outer_.topLevelStatementDraft.declaredNameReference = addedReference
 		} else {
-			this.outer_.topLevelStatementDraft.nonDeclarationReferences.add(obj_(addedReference))
+			this.outer_.topLevelStatementDraft.nonDeclarationReferences.add(addedReference)
 		}
 	}
 }
@@ -290,7 +290,7 @@ type CrossChunkReferenceCollector_TopLevelStatement struct {
 	originalOrder            int32
 	chunk_                   *JSChunk
 	statementNode            Node
-	nonDeclarationReferences ListOf[*Reference]
+	nonDeclarationReferences *TList[*Reference]
 	declaredNameReference    *Reference
 	declaredValueNode        Node
 }
@@ -299,7 +299,7 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) init_CrossChunkRefer
 	this.originalOrder = draft.originalOrder
 	this.chunk_ = draft.chunk_
 	this.statementNode = draft.statementNode
-	this.nonDeclarationReferences = Collections_unmodifiableList(draft.nonDeclarationReferences)
+	this.nonDeclarationReferences = draft.nonDeclarationReferences
 	this.declaredNameReference = draft.declaredNameReference
 	this.declaredValueNode = draft.declaredValueNode
 }
@@ -323,8 +323,8 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) getStatementNode() N
 	return this.statementNode
 }
 
-func (this *CrossChunkReferenceCollector_TopLevelStatement) getNonDeclarationReferences() ListOf[*Reference] {
-	return Collections_unmodifiableList(this.nonDeclarationReferences)
+func (this *CrossChunkReferenceCollector_TopLevelStatement) getNonDeclarationReferences() *TList[*Reference] {
+	return this.nonDeclarationReferences
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) isDeclarationStatement() bool {
@@ -347,14 +347,14 @@ type CrossChunkReferenceCollector_TopLevelStatementDraft struct {
 	originalOrder            int32
 	chunk_                   *JSChunk
 	statementNode            Node
-	nonDeclarationReferences ListOf[*Reference]
+	nonDeclarationReferences *TList[*Reference]
 	declaredValueNode        Node
 	declaredNameNode         Node
 	declaredNameReference    *Reference
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementDraft) finit_CrossChunkReferenceCollector_TopLevelStatementDraft() {
-	this.nonDeclarationReferences = icast_List(new_ArrayList_0().self())
+	this.nonDeclarationReferences = newTList_(tc_p_Reference)
 	this.declaredValueNode = 0
 	this.declaredNameNode = 0
 	this.declaredNameReference = nil

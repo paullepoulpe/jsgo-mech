@@ -5,7 +5,7 @@ package closure
 type JSChunk struct {
 	name_  string
 	inputs MapOf[string, *CompilerInput]
-	deps   ListOf[*JSChunk]
+	deps   *TList[*JSChunk]
 	depth  int32
 	index_ int32
 }
@@ -16,7 +16,7 @@ func (this *JSChunk) zero_JSChunk() {
 
 func (this *JSChunk) finit_JSChunk() {
 	this.inputs = icast_Map(obj_(new_LinkedHashMap()))
-	this.deps = icast_List(new_ArrayList_0().self())
+	this.deps = newTList_(tc_p_JSChunk)
 }
 
 func (this *JSChunk) init_JSChunk(name string) {
@@ -51,9 +51,9 @@ func (this *JSChunk) getHasNoCompileAnnotation() bool {
 
 func (this *JSChunk) getRequires() ImmutableListOf[*DependencyInfo_Require] {
 	var builder ImmutableList_BuilderOf[*DependencyInfo_Require] = ImmutableList_builder()
-	it_1 := foreach_(any(this.deps))
+	it_1 := this.deps.each()
 	for it_1.next() {
-		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
+		var chunk *JSChunk = it_1.v
 		builder.add(obj_(DependencyInfo_Require_compilerChunk(chunk.getName())))
 	}
 	return cast_[*ImmutableList](obj_(builder.build()))
@@ -93,7 +93,7 @@ func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 func (this *JSChunk) addDependency(dep *JSChunk) {
 	Preconditions_checkNotNull(obj_(dep))
 	Preconditions_checkState_boolean_String_Object((dep != this), "Cannot add dependency on self (%s)", any(this))
-	this.deps.add(obj_(dep))
+	this.deps.add(dep)
 }
 
 func (this *JSChunk) remove(input *CompilerInput) {
@@ -111,30 +111,30 @@ func (this *JSChunk) removeAll() {
 }
 
 func (this *JSChunk) getDependencies() ImmutableListOf[*JSChunk] {
-	return ImmutableList_copyOf(Collection(this.deps))
+	return ImmutableList_copyOf(Collection(this.deps.asList()))
 }
 
-func (this *JSChunk) getSortedDependencyNames() ListOf[string] {
-	var names ListOf[string] = icast_List(new_ArrayList_0().self())
+func (this *JSChunk) getSortedDependencyNames() *TList[string] {
+	var names *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(obj_(this.getDependencies()))
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
-		names.add(strobj_(chunk.getName()))
+		names.add(chunk.getName())
 	}
-	Collections_sort(names)
+	Collections_sort(names.asList())
 	return names
 }
 
 func (this *JSChunk) getAllDependencies() SetOf[*JSChunk] {
 	var allDeps LinkedHashSetOf[*JSChunk] = new_LinkedHashSet()
-	allDeps.addAll(Collection(this.deps))
-	var stack ArrayDequeOf[*JSChunk] = new_ArrayDeque_Collection(Collection(this.deps))
+	allDeps.addAll(Collection(this.deps.asList()))
+	var stack ArrayDequeOf[*JSChunk] = new_ArrayDeque_Collection(Collection(this.deps.asList()))
 	for !stack.isEmpty() {
 		var chunk *JSChunk = cast_[*JSChunk](stack.pop())
-		var chunkDeps ListOf[*JSChunk] = chunk.deps
-		it_2 := foreach_(any(chunkDeps))
+		var chunkDeps *TList[*JSChunk] = chunk.deps
+		it_2 := chunkDeps.each()
 		for it_2.next() {
-			var dep *JSChunk = cast_[*JSChunk](it_2.v)
+			var dep *JSChunk = it_2.v
 			if allDeps.add(obj_(dep)) {
 				stack.push(obj_(dep))
 			}
@@ -192,11 +192,11 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
 		input.setCompiler(compiler)
 	}
-	var sortedList ListOf[*CompilerInput] = new_SortedDependencies(icast_List(obj_(this.getInputs()))).getSortedList()
+	var sortedList *TList[*CompilerInput] = new_SortedDependencies(icast_List(obj_(this.getInputs()))).getSortedList()
 	this.inputs.clear()
-	it_3 := foreach_(any(sortedList))
+	it_3 := sortedList.each()
 	for it_3.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+		var input *CompilerInput = it_3.v
 		Map_put_s(this.inputs, input.getName(), obj_(input))
 	}
 }

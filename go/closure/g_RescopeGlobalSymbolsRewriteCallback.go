@@ -62,16 +62,16 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visit(t *NodeTraversal, n Node,
 }
 
 func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTraversal, declaration Node) {
-	var allLhsNodes ArrayListOf[Node] = new_ArrayList_0()
-	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(p0 any) { allLhsNodes.add(Node_of_(p0).box_()) }})
+	var allLhsNodes *TList[Node] = newTList_(tc_Node)
+	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(p0 any) { allLhsNodes.add(Node_of_(p0)) }})
 	if allLhsNodes.isEmpty() {
 		return
 	}
 	var hasImportantName bool = false
-	var isGlobalDeclaration bool = cast_[*Var](t.getScope().getVar(Node_of_(allLhsNodes.get(0)).getString()).self()).isGlobal()
-	it_1 := foreach_(allLhsNodes.self())
+	var isGlobalDeclaration bool = cast_[*Var](t.getScope().getVar(allLhsNodes.get(0).getString()).self()).isGlobal()
+	it_1 := allLhsNodes.each()
 	for it_1.next() {
-		var lhs Node = Node_of_(it_1.v)
+		var lhs Node = it_1.v
 		Preconditions_checkState_boolean_String_Object(lhs.isName(), "Unexpected lhs node %s, expected NAME", lhs.box_())
 		if (isGlobalDeclaration && this.isCrossChunkName(lhs.getString())) || this.isExternVar(lhs.getString(), t) {
 			hasImportantName = true
@@ -79,7 +79,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) visitNameDeclaration(t *NodeTra
 		}
 	}
 	if hasImportantName {
-		this.rewriteNameDeclaration(t, declaration, icast_List(allLhsNodes.self()), isGlobalDeclaration)
+		this.rewriteNameDeclaration(t, declaration, allLhsNodes, isGlobalDeclaration)
 	}
 }
 
@@ -100,7 +100,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) globalVarStaysLocalInDefiningCh
 	return (!Collection_contains_s(this.symbolInfo.crossChunkNamesWithWriteFromOtherChunk(), name) && Collection_contains_s(this.symbolInfo.globalNamesWithReadInDefiningChunk(), name))
 }
 
-func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes ListOf[Node], isGlobalDeclaration bool) {
+func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeTraversal, declaration Node, allLhsNodes *TList[Node], isGlobalDeclaration bool) {
 	if this.optimizeLocalAccess.shouldPreserveLocalVarDeclarations() && !NodeUtil_isAnyFor(declaration.getParent()) {
 		var changed bool = false
 		if (isGlobalDeclaration && !declaration.isVar()) && this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
@@ -144,9 +144,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) rewriteNameDeclaration(t *NodeT
 		return
 	}
 	if !this.optimizeLocalAccess.shouldOptimize() || this.containsNonLocalOrInitializedVars(t, declaration, isGlobalDeclaration) {
-		it_2 := foreach_(any(allLhsNodes))
+		it_2 := allLhsNodes.each()
 		for it_2.next() {
-			var lhs Node = Node_of_(it_2.v)
+			var lhs Node = it_2.v
 			this.maybeAddPreDeclaration(t, lhs, isGlobalDeclaration)
 		}
 	}
@@ -471,18 +471,18 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	}
 	var allLocalAliases IterableOf[string] = Iterables_concat(icast_Iterable(Map_getOrDefault(this.localAliasesForUnwrappedCrossChunkNames, obj_(chunk), obj_(ImmutableSet_of()))), Iterable(wrappedReassignableLocalAliases))
 	if !Iterables_isEmpty(allLocalAliases) {
-		var aliasesToKeep ListOf[string] = icast_List(new_ArrayList_0().self())
-		var aliasesToDelete ListOf[string] = icast_List(new_ArrayList_0().self())
+		var aliasesToKeep *TList[string] = newTList_(tc_string)
+		var aliasesToDelete *TList[string] = newTList_(tc_string)
 		it_3 := foreach_(any(allLocalAliases))
 		for it_3.next() {
 			var name string = str_(it_3.v)
 			if this.optimizeLocalAccess.shouldDeleteGlobalsOnLastAccess() && this.canDeleteFromGlobalNamespace(chunk, name) {
-				aliasesToDelete.add(strobj_(name))
+				aliasesToDelete.add(name)
 			} else {
-				aliasesToKeep.add(strobj_(name))
+				aliasesToKeep.add(name)
 			}
 		}
-		var localAliases IterableOf[string] = Iterables_concat(Iterable(aliasesToKeep), Iterable(aliasesToDelete))
+		var localAliases IterableOf[string] = Iterables_concat(Iterable(aliasesToKeep.asList()), Iterable(aliasesToDelete.asList()))
 		var outputFeatures *FeatureSet = this.compiler_.getOptions().getOutputFeatureSet()
 		if (outputFeatures.contains(FeatureSet_Feature_OBJECT_DESTRUCTURING) && outputFeatures.contains(FeatureSet_Feature_FOR_OF)) && outputFeatures.contains(FeatureSet_Feature_LET_DECLARATIONS) {
 			var objectPattern Node = IR_objectPattern([]Node{})
@@ -496,19 +496,19 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 			RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_var_Node_Node(objectPattern, IR_name(this.symbolInfo.globalSymbolNamespace())))
 			NodeUtil_addFeatureToScript(script, FeatureSet_Feature_OBJECT_DESTRUCTURING, this.compiler_)
 			if !aliasesToDelete.isEmpty() {
-				var cleanupCall Node = IR_exprResult(IR_call(IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), cleanupHelperName), []Node{IR_string(Joiner_on_char(',').join(Iterable(aliasesToDelete)))}))
+				var cleanupCall Node = IR_exprResult(IR_call(IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), cleanupHelperName), []Node{IR_string(Joiner_on_char(',').join(Iterable(aliasesToDelete.asList())))}))
 				RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, cleanupCall)
 				usedCleanupHelper = true
 			}
 		} else {
-			it_7 := foreach_(any(aliasesToKeep))
+			it_7 := aliasesToKeep.each()
 			for it_7.next() {
-				var name string = str_(it_7.v)
+				var name string = it_7.v
 				RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_var_Node_Node(IR_name(name), IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)))
 			}
-			it_9 := foreach_(any(aliasesToDelete))
+			it_9 := aliasesToDelete.each()
 			for it_9.next() {
-				var name string = str_(it_9.v)
+				var name string = it_9.v
 				RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_var_Node_Node(IR_name(name), IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name)))
 				RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_exprResult(IR_delprop(IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name))))
 			}

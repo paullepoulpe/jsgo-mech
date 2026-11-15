@@ -120,9 +120,9 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		this.updateDeclarationsPostCoalescing(n, coalescedVar, var_, parent)
 	} else {
 		var allMergedNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
-		it_1 := foreach_(any(this.liveness.getAllVariablesInOrder()))
+		it_1 := this.liveness.getAllVariablesInOrder().each()
 		for it_1.next() {
-			var iVar *Var = cast_[*Var](it_1.v)
+			var iVar *Var = it_1.v
 			if (to_GraphColoring(this.colorings.peek()).getGraph().getNode(obj_(iVar)) != nil) && to_GraphColoring(this.colorings.peek()).haveSameColor(obj_(iVar), obj_(coalescedVar)) {
 				Collection_add_s(allMergedNames, iVar.getName())
 			}
@@ -161,7 +161,7 @@ func (this *CoalesceVariableNames) isNameInsideDestructuringAssignment(n Node) b
 
 func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *ControlFlowGraph, escaped SetOf[*Var]) *UndiGraph {
 	var interferenceGraph *UndiGraph = LinkedUndirectedGraph_create().up_UndiGraph()
-	var orderedVariables []*Var = arrmap_(this.liveness.getAllVariablesInOrder().toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
+	var orderedVariables []*Var = arrmap_(this.liveness.getAllVariablesInOrder().asList().toArray(arrmap_(make([]*Var, 0), func(v_ *Var) any { return obj_(v_) })), func(v_ any) *Var { return cast_[*Var](v_) })
 	var interferenceGraphNodes *BitSet = new_BitSet()
 	var interferenceBitSet []*BitSet = make([]*BitSet, int32(len(orderedVariables)))
 	func() {

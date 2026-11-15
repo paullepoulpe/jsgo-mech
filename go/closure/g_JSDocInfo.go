@@ -736,13 +736,13 @@ func (this *JSDocInfo) getTypeExpressions() CollectionOf[*JSTypeExpression] {
 }
 
 func (this *JSDocInfo) getTypeNodes() CollectionOf[Node] {
-	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var nodes *TList[Node] = newTList_(tc_Node)
 	it_1 := foreach_(any(this.getTypeExpressions()))
 	for it_1.next() {
 		var type_ *JSTypeExpression = cast_[*JSTypeExpression](it_1.v)
-		nodes.add(type_.getRoot().box_())
+		nodes.add(type_.getRoot())
 	}
-	return Collection(nodes)
+	return Collection(nodes.asList())
 }
 
 func (this *JSDocInfo) hasModifies() bool {

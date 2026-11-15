@@ -64,9 +64,9 @@ func (this *Graph) clearNodeAnnotations() {
 }
 
 func (this *Graph) clearEdgeAnnotations() {
-	it_1 := foreach_(any(this.getEdges()))
+	it_1 := this.getEdges().each()
 	for it_1.next() {
-		var e Graph_GraphEdge = icast_Graph_GraphEdge(it_1.v)
+		var e Graph_GraphEdge = it_1.v
 		e.setAnnotation(nil)
 	}
 }
@@ -87,7 +87,7 @@ func (this *Graph) pushEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
 		this.edgeAnnotationStack = icast_Deque(obj_(new_ArrayDeque()))
 	}
-	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges()))
+	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges().asList()))
 }
 
 func (this *Graph) popEdgeAnnotations() {
@@ -125,12 +125,16 @@ func (this *Graph) getNode(p0 any) GraphNode {
 	return this.self_.(interface{ getNode_impl(any) GraphNode }).getNode_impl(p0)
 }
 
-func (this *Graph) getEdges() List {
-	return this.self_.(interface{ getEdges_impl() List }).getEdges_impl()
+func (this *Graph) getEdges() *TList[Graph_GraphEdge] {
+	return this.self_.(interface {
+		getEdges_impl() *TList[Graph_GraphEdge]
+	}).getEdges_impl()
 }
 
-func (this *Graph) getEdges_2(p0 any, p1 any) List {
-	return this.self_.(interface{ getEdges_2_impl(any, any) List }).getEdges_2_impl(p0, p1)
+func (this *Graph) getEdges_2(p0 any, p1 any) *TList[UndiGraph_UndiGraphEdge] {
+	return this.self_.(interface {
+		getEdges_2_impl(any, any) *TList[UndiGraph_UndiGraphEdge]
+	}).getEdges_2_impl(p0, p1)
 }
 
 func (this *Graph) isConnected(p0 any, p1 any) bool {
@@ -163,8 +167,8 @@ func (this *Graph) getNodeCount() int32 {
 	return this.self_.(interface{ getNodeCount_impl() int32 }).getNodeCount_impl()
 }
 
-func (this *Graph) getNeighborNodes(p0 any) List {
-	return this.self_.(interface{ getNeighborNodes_impl(any) List }).getNeighborNodes_impl(p0)
+func (this *Graph) getNeighborNodes(p0 any) *TList[GraphNode] {
+	return this.self_.(interface{ getNeighborNodes_impl(any) *TList[GraphNode] }).getNeighborNodes_impl(p0)
 }
 
 func (this *Graph) getNodeDegree(p0 any) int32 {
@@ -243,7 +247,7 @@ func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 	it_1 := eachOf_(&this.nodes_)
 	for it_1.next() {
 		var n GraphNode = it_1.v
-		if this.graph.getNeighborNodes(n.getValue()).contains(any(node)) {
+		if this.graph.getNeighborNodes(n.getValue()).asList().contains(any(node)) {
 			return false
 		}
 	}

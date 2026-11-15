@@ -212,7 +212,7 @@ func (this *Compiler) initOptions(options *CompilerOptions) {
 			this.setErrorManager(icast_ErrorManager(obj_(new_LoggerErrorManager_MessageFormatter_Logger(this.createMessageFormatter(), Compiler_logger))))
 		} else {
 			var builder ImmutableSet_BuilderOf[SortingErrorManager_ErrorReportGenerator] = ImmutableSet_builder()
-			cast_[*ImmutableSet_Builder](obj_(builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))))).addAll(Iterable(options.getExtraReportGenerators()))
+			cast_[*ImmutableSet_Builder](obj_(builder.add(obj_(new_PrintStreamErrorReportGenerator(this.createMessageFormatter(), this.outStream, options.getSummaryDetailLevel()))))).addAll(Iterable(options.getExtraReportGenerators().asList()))
 			this.setErrorManager(icast_ErrorManager(new_SortingErrorManager(icast_Set(obj_(builder.build()))).self()))
 		}
 	}
@@ -321,7 +321,7 @@ func (this *Compiler) logToFile(logFileName string, logStringSupplier SupplierOf
 func (this *Compiler) initWarningsGuard(warningsGuard *WarningsGuard) {
 	var guards ImmutableList_BuilderOf[*WarningsGuard] = ImmutableList_builder()
 	cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(guards.add(obj_(new_J2clSuppressWarningsGuard())))).add(obj_(new_ClosureUnawareCodeWarningsGuard())))).add(obj_(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), icast_Map(obj_(DiagnosticGroups_getRegisteredGroups()))))))).add(warningsGuard.self())
-	this.warningsGuard = new_ComposeWarningsGuard(icast_List(obj_(guards.build()))).up_WarningsGuard()
+	this.warningsGuard = new_ComposeWarningsGuard(tlistImm_(tc_p_WarningsGuard, guards.build())).up_WarningsGuard()
 }
 
 func (this *Compiler) reconcileOptionsWithGuards() {
@@ -503,7 +503,7 @@ func (this *Compiler) initBasedOnOptions() {
 	this.inputSourceMaps.putAll(icast_Map(obj_(this.options_.getInputSourceMaps())))
 	if this.options_.shouldGatherSourceMapInfo() {
 		this.sourceMap_ = this.options_.getSourceMapFormat().getInstance()
-		this.sourceMap_.setPrefixMappings(icast_List(obj_(this.options_.getSourceMapLocationMappings())))
+		this.sourceMap_.setPrefixMappings(tlistImm_(tc_SourceMap_LocationMapping, this.options_.getSourceMapLocationMappings()))
 		if this.options_.getApplyInputSourceMaps() {
 			this.sourceMap_.setSourceFileMapping(icast_SourceFileMapping(obj_(this)))
 			if this.options_.getSourceMapIncludeSourcesContent() {
@@ -887,7 +887,7 @@ func (this *Compiler) createPhaseOptimizer() *PhaseOptimizer {
 func (this *Compiler) check() {
 	this.runCustomPasses(CustomPassExecutionTime_BEFORE_CHECKS)
 	this.phaseOptimizer = this.createPhaseOptimizer()
-	this.phaseOptimizer.consume(icast_List(obj_(this.getPassConfig().getChecks().build())))
+	this.phaseOptimizer.consume(tlistImm_(tc_p_PassFactory, this.getPassConfig().getChecks().build()))
 	this.phaseOptimizer.process_2(this.externsRoot, this.jsRoot)
 	if this.hasErrors() {
 		return
@@ -982,11 +982,11 @@ func (this *Compiler) isDebugLoggingEnabled_impl() bool {
 	return this.getOptions().getDebugLogDirectory().isPresent()
 }
 
-func (this *Compiler) getDebugLogFilterList_impl() ListOf[string] {
+func (this *Compiler) getDebugLogFilterList_impl() *TList[string] {
 	if this.getOptions().getDebugLogFilter().isEmpty() {
-		return icast_List(new_ArrayList_0().self())
+		return newTList_(tc_string)
 	}
-	return Splitter_on(',').omitEmptyStrings().splitToList(this.getOptions().getDebugLogFilter().get())
+	return tlistImm_(tc_string, Splitter_on(',').omitEmptyStrings().splitToList(this.getOptions().getDebugLogFilter().get()))
 }
 
 func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart string, restNameParts []string) *LogFile {
@@ -996,13 +996,13 @@ func (this *Compiler) createOrReopenLog_impl(owner ClassOf[any], firstNamePart s
 	var dir OptionalOf[string] = this.getOptions().getDebugLogDirectory()
 	var relativeParts string = FilePaths_join(firstNamePart, restNameParts)
 	var file string = FilePaths_resolve(FilePaths_resolve(str_(dir.get()), owner.getSimpleName()), relativeParts)
-	var filters ListOf[string] = this.getDebugLogFilterList()
+	var filters *TList[string] = this.getDebugLogFilterList()
 	if filters.isEmpty() {
 		return LogFile_createOrReopen(file)
 	}
-	it_1 := foreach_(any(filters))
+	it_1 := filters.each()
 	for it_1.next() {
-		var filter string = str_(it_1.v)
+		var filter string = it_1.v
 		if String_contains(file, strobj_(filter)) {
 			return LogFile_createOrReopen(file)
 		}
@@ -1116,7 +1116,7 @@ func (this *Compiler) getCurrentJsSource() string {
 	}
 	if !qnameSet.isEmpty() {
 		var originalToNewQNameMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-		var statements ListOf[Node] = this.getTopLevelStatements(this.jsRoot)
+		var statements *TList[Node] = this.getTopLevelStatements(this.jsRoot)
 		builder.append("//\n")
 		builder.append("// closure-compiler: Printing all of the top-level statements\n")
 		builder.append("// that contain references to these qualified names.\n")
@@ -1132,9 +1132,9 @@ func (this *Compiler) getCurrentJsSource() string {
 			}
 		}
 		builder.append("//\n")
-		it_16 := foreach_(any(statements))
+		it_16 := statements.each()
 		for it_16.next() {
-			var statement Node = Node_of_(it_16.v)
+			var statement Node = it_16.v
 			if !NodeUtil_has(statement, &Predicate_base_fn{func(n_ any) bool {
 				var n Node = Node_of_(n_)
 				_ = n
@@ -1167,8 +1167,8 @@ func (this *Compiler) getCurrentJsSource() string {
 	return Object_toString(obj_(builder))
 }
 
-func (this *Compiler) getTopLevelStatements(root Node) ListOf[Node] {
-	var result ListOf[Node] = icast_List(new_ArrayList_0().self())
+func (this *Compiler) getTopLevelStatements(root Node) *TList[Node] {
+	var result *TList[Node] = newTList_(tc_Node)
 	NodeTraversal_traverse(this.up_AbstractCompiler(), root, icast_NodeTraversal_Callback(obj_(new_Compiler_2(this, result))))
 	return result
 }
@@ -1809,20 +1809,20 @@ func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInpu
 }
 
 func (this *Compiler) parsePotentialModules(inputsToProcess IterableOf[*CompilerInput]) {
-	var filteredInputs ListOf[*CompilerInput] = icast_List(new_ArrayList_0().self())
+	var filteredInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
 	it_1 := foreach_(any(inputsToProcess))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
 		if (!this.options_.getDependencyOptions().shouldPrune() || !JsFileRegexParser_isSupported()) || input.isEs6Module() {
-			filteredInputs.add(obj_(input))
+			filteredInputs.add(input)
 		}
 	}
 	if this.options_.getNumParallelThreads() > 1 {
-		new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(Iterable(filteredInputs))
+		new_PrebuildAst(this.up_AbstractCompiler(), this.options_.getNumParallelThreads()).prebuild(Iterable(filteredInputs.asList()))
 	}
-	it_3 := foreach_(any(filteredInputs))
+	it_3 := filteredInputs.each()
 	for it_3.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
+		var input *CompilerInput = it_3.v
 		input.setCompiler(this.up_AbstractCompiler())
 		input.getRequires()
 		input.setJsModuleType(CompilerInput_ModuleType_ES6)
@@ -1856,9 +1856,9 @@ func (this *Compiler) parseTestCode_impl(js string) Node {
 func (this *Compiler) parseTestCodeImmutableList_impl(code ImmutableListOf[string]) Node {
 	this.initCompilerOptionsIfTesting()
 	this.initBasedOnOptions()
-	var sources ListOf[*SourceFile_jscomp] = icast_List(new_ArrayList_0().self())
+	var sources *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 	for index := int32(0); index < code.size(); index++ {
-		sources.add(obj_(SourceFile_jscomp_fromCode_String_String(("testcode" + istr_(int64(index))), str_(code.get(index)))))
+		sources.add(SourceFile_jscomp_fromCode_String_String(("testcode" + istr_(int64(index))), str_(code.get(index))))
 	}
 	return this.parseCodeHelperList(sources)
 }
@@ -1871,11 +1871,11 @@ func (this *Compiler) parseCodeHelper(src *SourceFile_jscomp) Node {
 	return Node_of_(Preconditions_checkNotNull(root.box_()))
 }
 
-func (this *Compiler) parseCodeHelperList(srcs ListOf[*SourceFile_jscomp]) Node {
+func (this *Compiler) parseCodeHelperList(srcs *TList[*SourceFile_jscomp]) Node {
 	var root Node = IR_root([]Node{})
-	it_1 := foreach_(any(srcs))
+	it_1 := srcs.each()
 	for it_1.next() {
-		var src *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_1.v)
+		var src *SourceFile_jscomp = it_1.v
 		root.addChildToBack(this.parseCodeHelper(src))
 	}
 	return root
@@ -2011,9 +2011,9 @@ func (this *Compiler) toSource_4(cb *Compiler_CodeBuilder, licenseTracker CodePr
 			cb.append(";")
 		}
 		if this.options_.shouldGatherSourceMapInfo() {
-			it_3 := foreach_(any(sourceAndMappings.mappings))
+			it_3 := sourceAndMappings.mappings.each()
 			for it_3.next() {
-				var mapping *SourceMap_Mapping = cast_[*SourceMap_Mapping](it_3.v)
+				var mapping *SourceMap_Mapping = it_3.v
 				this.sourceMap_.addMapping(mapping)
 			}
 		}
@@ -2090,7 +2090,7 @@ func (this *Compiler) performTranspilationAndOptimizations(segmentOfCompilationT
 	if allOptimizationPassesToRun.isEmpty() {
 		return
 	}
-	var optimizationPassesToRunInCurrentSegment ListOf[*PassFactory] = this.getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun, icast_List(obj_(allOptimizationPassesToRun)))
+	var optimizationPassesToRunInCurrentSegment *TList[*PassFactory] = this.getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun, tlistImm_(tc_p_PassFactory, allOptimizationPassesToRun))
 	this.markTranspiledFiles()
 	this.phaseOptimizer = this.createPhaseOptimizer()
 	this.phaseOptimizer.consume(optimizationPassesToRunInCurrentSegment)
@@ -2104,7 +2104,7 @@ func (this *Compiler) performFinalizations() {
 		return
 	}
 	this.phaseOptimizer = this.createPhaseOptimizer()
-	this.phaseOptimizer.consume(icast_List(obj_(finalizations)))
+	this.phaseOptimizer.consume(tlistImm_(tc_p_PassFactory, finalizations))
 	this.phaseOptimizer.process_2(this.externsRoot, this.jsRoot)
 	this.phaseOptimizer = nil
 }
@@ -2117,8 +2117,8 @@ func (this *Compiler) computeCFG() *ControlFlowGraph {
 	return cfg
 }
 
-func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun ListOf[*PassFactory]) ListOf[*PassFactory] {
-	return func() List {
+func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun, allOptimizationPassesToRun *TList[*PassFactory]) *TList[*PassFactory] {
+	return func() *TList[*PassFactory] {
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_OPTIMIZATIONS:
 			return allOptimizationPassesToRun
@@ -2133,29 +2133,29 @@ func (this *Compiler) getOptimizationPassesToRunInCurrentSegment(segmentOfCompil
 	}()
 }
 
-func (this *Compiler) passListUntil(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
-	var passList ListOf[*PassFactory] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(passes))
+func (this *Compiler) passListUntil(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
+	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
+	it_1 := passes.each()
 	for it_1.next() {
-		var pass *PassFactory = cast_[*PassFactory](it_1.v)
+		var pass *PassFactory = it_1.v
 		if pass.getName() == passName {
 			return passList
 		}
-		passList.add(obj_(pass))
+		passList.add(pass)
 	}
 	return passList
 }
 
-func (this *Compiler) passListAfter(passes ListOf[*PassFactory], passName string) ListOf[*PassFactory] {
-	var passList ListOf[*PassFactory] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(passes))
+func (this *Compiler) passListAfter(passes *TList[*PassFactory], passName string) *TList[*PassFactory] {
+	var passList *TList[*PassFactory] = newTList_(tc_p_PassFactory)
+	it_1 := passes.each()
 	for it_1.next() {
-		var pass *PassFactory = cast_[*PassFactory](it_1.v)
+		var pass *PassFactory = it_1.v
 		if pass.getName() == passName {
 			passList.clear()
 			continue
 		}
-		passList.add(obj_(pass))
+		passList.add(pass)
 	}
 	return passList
 }
@@ -2631,10 +2631,10 @@ func (this *Compiler) getExternsInOrder() ListOf[*CompilerInput] {
 	return Collections_unmodifiableList(icast_List(this.externs.self()))
 }
 
-func (this *Compiler) getInputsForTesting() ListOf[*CompilerInput] {
-	return func() List {
+func (this *Compiler) getInputsForTesting() *TList[*CompilerInput] {
+	return func() *TList[*CompilerInput] {
 		if this.chunkGraph != nil {
-			return icast_List(obj_(ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs())))
+			return tlistImm_(tc_p_CompilerInput, ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs()))
 		}
 		return nil
 	}()
@@ -2866,13 +2866,13 @@ func Compiler_toProto(stage *AbstractCompiler_LifeCycleStage) *LifeCycleStagePro
 	}()
 }
 
-func Compiler_toVariableMapEntries(map_ *VariableMap) ListOf[*VariableMapEntryProto] {
-	var entries ListOf[*VariableMapEntryProto] = icast_List(new_ArrayList_0().self())
+func Compiler_toVariableMapEntries(map_ *VariableMap) *TList[*VariableMapEntryProto] {
+	var entries *TList[*VariableMapEntryProto] = newTList_(tc_p_VariableMapEntryProto)
 	if map_ != nil {
 		it_1 := foreach_(obj_(cast_[*ImmutableSet](map_.getOriginalNameToNewNameMap().entrySet())))
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
-			entries.add(any(VariableMapEntryProto_newBuilder().setOriginalName(str_(entry.getKey())).setNewName(str_(entry.getValue())).build()))
+			entries.add(cast_[*VariableMapEntryProto](any(VariableMapEntryProto_newBuilder().setOriginalName(str_(entry.getKey())).setNewName(str_(entry.getValue())).build())))
 		}
 	}
 	return entries
@@ -2954,7 +2954,7 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 		}
 		builder.addChunks(cast_[*ChunkProto](chunkBuilder.build()))
 	}
-	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto())).addAllExportedNames(icast_Iterable(obj_(this.exportedNames)))
+	builder.setUniqueNameId(this.uniqueNameId).addAllUniqueIdSupplier(Iterable(this.uniqueIdSupplier.toProto().asList())).addAllExportedNames(icast_Iterable(obj_(this.exportedNames)))
 	builder.setHasCssNames((this.cssNames != nil))
 	if this.cssNames != nil {
 		builder.addAllCssNames(Iterable(this.cssNames))
@@ -2981,11 +2981,11 @@ func (this *Compiler) getCompilerStateProtoBuilder() *JSCompilerStateProto_Build
 	}
 	builder.setHasStringMap((this.stringMap != nil))
 	if this.stringMap != nil {
-		builder.addAllStringMap(Iterable(Compiler_toVariableMapEntries(this.stringMap)))
+		builder.addAllStringMap(Iterable(Compiler_toVariableMapEntries(this.stringMap).asList()))
 	}
 	builder.setHasInstrumentationMapping((this.instrumentationMapping != nil))
 	if this.instrumentationMapping != nil {
-		builder.addAllInstrumentationMapping(Iterable(Compiler_toVariableMapEntries(this.instrumentationMapping)))
+		builder.addAllInstrumentationMapping(Iterable(Compiler_toVariableMapEntries(this.instrumentationMapping).asList()))
 	}
 	return builder
 }
@@ -3246,23 +3246,23 @@ func Compiler_resolveSibling(fromPath string, toPath string) string {
 	if String_startsWith(toPath, "/") {
 		return toPath
 	}
-	var fromPathParts ListOf[string] = icast_List(new_ArrayList_Collection(Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) })))).self())
-	var toPathParts ListOf[string] = icast_List(new_ArrayList_Collection(Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) })))).self())
+	var fromPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(fromPath), func(v_ string) any { return strobj_(v_) }))))
+	var toPathParts *TList[string] = tlistFrom_(tc_string, Collection(Arrays_asList(arrmap_(Compiler_SLASH_PATTERN.split(toPath), func(v_ string) any { return strobj_(v_) }))))
 	if !fromPathParts.isEmpty() {
-		fromPathParts.remove((fromPathParts.size() - 1))
+		fromPathParts.removeAt((fromPathParts.size() - 1))
 	}
 	for !fromPathParts.isEmpty() && !toPathParts.isEmpty() {
-		if str_(toPathParts.get(0)) == "." {
-			toPathParts.remove(0)
-		} else if str_(toPathParts.get(0)) == ".." {
-			toPathParts.remove(0)
-			fromPathParts.remove((fromPathParts.size() - 1))
+		if toPathParts.get(0) == "." {
+			toPathParts.removeAt(0)
+		} else if toPathParts.get(0) == ".." {
+			toPathParts.removeAt(0)
+			fromPathParts.removeAt((fromPathParts.size() - 1))
 		} else {
 			break
 		}
 	}
-	fromPathParts.addAll(Collection(toPathParts))
-	return String_join(strobj_("/"), Iterable(fromPathParts))
+	fromPathParts.addAllT(toPathParts)
+	return String_join(strobj_("/"), Iterable(fromPathParts.asList()))
 }
 
 func (this *Compiler) resetAndIntitializeSourceMap() {
@@ -3280,7 +3280,7 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 		}
 		var allChunks IterableOf[*JSChunk] = this.getChunks()
 		if allChunks != nil {
-			var sourceFiles ListOf[*SourceFile_jscomp] = icast_List(new_ArrayList_0().self())
+			var sourceFiles *TList[*SourceFile_jscomp] = newTList_(tc_p_SourceFile_jscomp)
 			it_3 := foreach_(any(allChunks))
 			for it_3.next() {
 				var chunk *JSChunk = cast_[*JSChunk](it_3.v)
@@ -3291,10 +3291,10 @@ func (this *Compiler) resetAndIntitializeSourceMap() {
 					if sourceFile.isStubSourceFileForAlreadyProvidedInput() {
 						continue
 					}
-					sourceFiles.add(obj_(input.getSourceFile()))
+					sourceFiles.add(input.getSourceFile())
 				}
 			}
-			this.addFilesToSourceMap(Iterable(sourceFiles))
+			this.addFilesToSourceMap(Iterable(sourceFiles.asList()))
 		}
 	}
 }
@@ -3763,7 +3763,7 @@ func (this *Compiler_1) size() int32 {
 type Compiler_2 struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_     *Compiler
-	cap_result List
+	cap_result *TList[Node]
 }
 
 func (this *Compiler_2) up_NodeTraversal_AbstractPreOrderCallback() *NodeTraversal_AbstractPreOrderCallback {
@@ -3777,7 +3777,7 @@ func (this *Compiler_2) init_Compiler_2() {
 	this.NodeTraversal_AbstractPreOrderCallback.init_NodeTraversal_AbstractPreOrderCallback()
 }
 
-func new_Compiler_2(outer_ *Compiler, cap_result List) *Compiler_2 {
+func new_Compiler_2(outer_ *Compiler, cap_result *TList[Node]) *Compiler_2 {
 	this := &Compiler_2{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -3788,7 +3788,7 @@ func new_Compiler_2(outer_ *Compiler, cap_result List) *Compiler_2 {
 
 func (this *Compiler_2) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	if NodeUtil_isStatement(n) {
-		this.cap_result.add(n.box_())
+		this.cap_result.add(n)
 		return false
 	} else {
 		return true

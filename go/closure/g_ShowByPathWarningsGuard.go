@@ -31,9 +31,9 @@ func (this *ShowByPathWarningsGuard) init_ShowByPathWarningsGuard_StringArr_Show
 	Preconditions_checkArgument((showType != nil))
 	var pathList ImmutableListOf[string] = ImmutableList_copyOf_ObjectArr(arrmap_(paths, func(v_ string) any { return strobj_(v_) }))
 	if showType == ShowByPathWarningsGuard_ShowType_INCLUDE {
-		this.warningsGuard = ByPathWarningsGuard_exceptPath(icast_List(obj_(pathList)), CheckLevel_OFF)
+		this.warningsGuard = ByPathWarningsGuard_exceptPath(tlistImm_(tc_string, pathList), CheckLevel_OFF)
 	} else {
-		this.warningsGuard = ByPathWarningsGuard_forPath(icast_List(obj_(pathList)), CheckLevel_OFF)
+		this.warningsGuard = ByPathWarningsGuard_forPath(tlistImm_(tc_string, pathList), CheckLevel_OFF)
 	}
 }
 
