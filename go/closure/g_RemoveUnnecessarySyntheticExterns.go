@@ -4,11 +4,11 @@ package closure
 
 type RemoveUnnecessarySyntheticExterns struct {
 	compiler_     *AbstractCompiler
-	nodesToDetach LinkedHashSetOf[Node]
+	nodesToDetach *TSet[Node]
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) finit_RemoveUnnecessarySyntheticExterns() {
-	this.nodesToDetach = new_LinkedHashSet()
+	this.nodesToDetach = newTSet_(tc_Node)
 }
 
 func (this *RemoveUnnecessarySyntheticExterns) init_RemoveUnnecessarySyntheticExterns(compiler *AbstractCompiler) {
@@ -29,9 +29,9 @@ func (this *RemoveUnnecessarySyntheticExterns) process_2(externs Node, root Node
 	if this.nodesToDetach.isEmpty() {
 		return
 	}
-	it_1 := foreach_(obj_(this.nodesToDetach))
+	it_1 := this.nodesToDetach.each()
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		n.detach()
 	}
 	var syntheticExternsScript Node = this.compiler_.getSynthesizedExternsInput().getAstRoot(this.compiler_)
@@ -60,9 +60,9 @@ func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedec
 	var origNode Node = origVar.getNode()
 	if isSynthetic {
 		if n.getParent().isSynthesizedUnfulfilledNameDeclaration() {
-			this.outer_.nodesToDetach.add(n.getParent().box_())
+			this.outer_.nodesToDetach.add(n.getParent())
 		}
 	} else if (origNode != 0) && origNode.getParent().isSynthesizedUnfulfilledNameDeclaration() {
-		this.outer_.nodesToDetach.add(origNode.getParent().box_())
+		this.outer_.nodesToDetach.add(origNode.getParent())
 	}
 }

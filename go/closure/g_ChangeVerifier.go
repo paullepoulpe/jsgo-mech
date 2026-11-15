@@ -59,16 +59,16 @@ func (this *ChangeVerifier) verifyScopeChangesHaveBeenRecorded(passName string, 
 		}
 		return (sstr_(passName) + ": ")
 	}()
-	var snapshotScopeNodes SetOf[Node] = icast_Set(obj_(new_LinkedHashSet()))
+	var snapshotScopeNodes *TSet[Node] = newTSet_(tc_Node)
 	NodeUtil_visitPreOrder_Node_Visitor(Node_of_(this.clonesByCurrent.get(root.box_())), icast_NodeUtil_Visitor(obj_(new_ChangeVerifier_1(this, snapshotScopeNodes))))
 	NodeUtil_visitPreOrder_Node_Visitor(root, icast_NodeUtil_Visitor(obj_(new_ChangeVerifier_2(this, snapshotScopeNodes, passNameMsg))))
 	this.verifyDeletedScopeNodes(passNameMsg, snapshotScopeNodes)
 }
 
-func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes SetOf[Node]) {
-	it_1 := foreach_(any(deletedScopeNodes))
+func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedScopeNodes *TSet[Node]) {
+	it_1 := deletedScopeNodes.each()
 	for it_1.next() {
-		var snapshotScopeNode Node = Node_of_(it_1.v)
+		var snapshotScopeNode Node = it_1.v
 		var currentNode Node = Node_of_(strobj_(this.clonesByCurrent.inverse().get(str_(snapshotScopeNode.box_()))))
 		if currentNode.isDeleted() {
 			continue
@@ -255,14 +255,14 @@ func (this *ChangeVerifier_EqualsResult) toString() string {
 
 type ChangeVerifier_1 struct {
 	outer_                 *ChangeVerifier
-	cap_snapshotScopeNodes Set
+	cap_snapshotScopeNodes *TSet[Node]
 }
 
 func (this *ChangeVerifier_1) init_ChangeVerifier_1() {
 
 }
 
-func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes Set) *ChangeVerifier_1 {
+func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes *TSet[Node]) *ChangeVerifier_1 {
 	this := &ChangeVerifier_1{}
 	this.outer_ = outer_
 	this.cap_snapshotScopeNodes = cap_snapshotScopeNodes
@@ -272,13 +272,13 @@ func new_ChangeVerifier_1(outer_ *ChangeVerifier, cap_snapshotScopeNodes Set) *C
 
 func (this *ChangeVerifier_1) visit(oldNode Node) {
 	if ChangeTracker_isChangeScopeRoot(oldNode) {
-		this.cap_snapshotScopeNodes.add(oldNode.box_())
+		this.cap_snapshotScopeNodes.add(oldNode)
 	}
 }
 
 type ChangeVerifier_2 struct {
 	outer_                 *ChangeVerifier
-	cap_snapshotScopeNodes Set
+	cap_snapshotScopeNodes *TSet[Node]
 	cap_passNameMsg        string
 }
 
@@ -286,7 +286,7 @@ func (this *ChangeVerifier_2) init_ChangeVerifier_2() {
 
 }
 
-func new_ChangeVerifier_2(outer_ *ChangeVerifier, cap_snapshotScopeNodes Set, cap_passNameMsg string) *ChangeVerifier_2 {
+func new_ChangeVerifier_2(outer_ *ChangeVerifier, cap_snapshotScopeNodes *TSet[Node], cap_passNameMsg string) *ChangeVerifier_2 {
 	this := &ChangeVerifier_2{}
 	this.outer_ = outer_
 	this.cap_snapshotScopeNodes = cap_snapshotScopeNodes
@@ -300,7 +300,7 @@ func (this *ChangeVerifier_2) visit(n Node) {
 		this.outer_.verifyRoot(n)
 	} else if ChangeTracker_isChangeScopeRoot(n) {
 		var clone Node = Node_of_(this.outer_.clonesByCurrent.get(n.box_()))
-		this.cap_snapshotScopeNodes.remove_Object(clone.box_())
+		this.cap_snapshotScopeNodes.remove(clone)
 		this.outer_.verifyNode(this.cap_passNameMsg, n)
 		if clone == 0 {
 			this.outer_.verifyNewNode(this.cap_passNameMsg, n)

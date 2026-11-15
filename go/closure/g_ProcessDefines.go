@@ -245,18 +245,18 @@ func ProcessDefines_getValueParentForDefine(declaration *GlobalNamespace_Ref) No
 }
 
 func (this *ProcessDefines) collectValidDefineValueExpressions() {
-	var namesToCheck LinkedHashSetOf[*GlobalNamespace_Name] = new_LinkedHashSet()
+	var namesToCheck *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
 	it_1 := foreach_(any(icast_Collection(this.namespace_.getAllSymbols())))
 	for it_1.next() {
 		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
 		if ProcessDefines_isGlobalConst(name) {
-			namesToCheck.add(obj_(name))
+			namesToCheck.add(name)
 		}
 	}
 	it_3 := this.defineByDefineName.each()
 	for it_3.next() {
 		var define *ProcessDefines_Define = it_3.v
-		namesToCheck.remove_Object(obj_(define.name_))
+		namesToCheck.remove(define.name_)
 		it_5 := foreach_(any(define.name_.getRefs()))
 		for it_5.next() {
 			var r *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_5.v)
@@ -266,10 +266,10 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 		}
 	}
 	for {
-		var namesToCheckAgain LinkedHashSetOf[*GlobalNamespace_Name] = new_LinkedHashSet()
-		it_8 := foreach_(obj_(namesToCheck))
+		var namesToCheckAgain *TSet[*GlobalNamespace_Name] = newTSet_(tc_p_GlobalNamespace_Name)
+		it_8 := namesToCheck.each()
 		for it_8.next() {
-			var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_8.v)
+			var name *GlobalNamespace_Name = it_8.v
 			var declValue Node = ProcessDefines_getConstantDeclValue(cast_[*GlobalNamespace_Ref](name.getDeclaration()).getNode())
 			switch this.isValidDefineValue(declValue) {
 			case Tri_TRUE:
@@ -279,7 +279,7 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 					this.validDefineValueExpressions[ref.getNode()] = struct{}{}
 				}
 			case Tri_UNKNOWN:
-				namesToCheckAgain.add(obj_(name))
+				namesToCheckAgain.add(name)
 			default:
 			}
 		}

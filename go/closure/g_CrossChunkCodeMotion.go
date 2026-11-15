@@ -239,7 +239,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 	var_                                         *Var
 	dsgStack                                     DequeOf[*CrossChunkCodeMotion_DeclarationStatementGroup]
 	chunksWithImmovableReferences                *BitSet
-	referencingGlobalSymbols                     SetOf[*CrossChunkCodeMotion_GlobalSymbol]
+	referencingGlobalSymbols                     *TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	instanceofReferencesToGuard                  DequeOf[CrossChunkCodeMotion_InstanceofReference]
 	preorderNumber                               int32
 	hasBeenAssignedToAStronglyConnectedComponent bool
@@ -249,7 +249,7 @@ type CrossChunkCodeMotion_GlobalSymbol struct {
 func (this *CrossChunkCodeMotion_GlobalSymbol) finit_CrossChunkCodeMotion_GlobalSymbol() {
 	this.dsgStack = icast_Deque(obj_(new_ArrayDeque()))
 	this.chunksWithImmovableReferences = new_BitSet_int(this.outer_.graph.getChunkCount())
-	this.referencingGlobalSymbols = icast_Set(obj_(new_LinkedHashSet()))
+	this.referencingGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.instanceofReferencesToGuard = icast_Deque(obj_(new_ArrayDeque()))
 	this.preorderNumber = -1
 	this.hasBeenAssignedToAStronglyConnectedComponent = false
@@ -295,7 +295,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbol) addDeclarationStatement(statement
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) addReferringGlobalSymbol(declaredSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencingGlobalSymbols.add(obj_(declaredSymbol))
+	this.referencingGlobalSymbols.add(declaredSymbol)
 }
 
 func (this *CrossChunkCodeMotion_GlobalSymbol) declarationsCoverChunk(chunk *JSChunk) bool {
@@ -407,13 +407,13 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgsLatestFirst() DequeOf
 
 type CrossChunkCodeMotion_DeclarationStatementGroup struct {
 	declaredGlobalSymbol    *CrossChunkCodeMotion_GlobalSymbol
-	referencedGlobalSymbols SetOf[*CrossChunkCodeMotion_GlobalSymbol]
+	referencedGlobalSymbols *TSet[*CrossChunkCodeMotion_GlobalSymbol]
 	currentChunk            *JSChunk
 	statementStack          DequeOf[*CrossChunkReferenceCollector_TopLevelStatement]
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) finit_CrossChunkCodeMotion_DeclarationStatementGroup() {
-	this.referencedGlobalSymbols = icast_Set(obj_(new_LinkedHashSet()))
+	this.referencedGlobalSymbols = newTSet_(tc_p_CrossChunkCodeMotion_GlobalSymbol)
 	this.statementStack = icast_Deque(obj_(new_ArrayDeque()))
 }
 
@@ -441,14 +441,14 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroup) allStatementsCanMove
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) addReferenceToGlobalSymbol(refSymbol *CrossChunkCodeMotion_GlobalSymbol) {
-	this.referencedGlobalSymbols.add(obj_(refSymbol))
+	this.referencedGlobalSymbols.add(refSymbol)
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroup) makeReferencesImmovable() {
 	this.declaredGlobalSymbol.addImmovableReference(this.currentChunk)
-	it_1 := foreach_(any(this.referencedGlobalSymbols))
+	it_1 := this.referencedGlobalSymbols.each()
 	for it_1.next() {
-		var symbol *CrossChunkCodeMotion_GlobalSymbol = cast_[*CrossChunkCodeMotion_GlobalSymbol](it_1.v)
+		var symbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
 		Preconditions_checkState_boolean_String_Object_Object(!symbol.isMoveDeclarationStatementsDone, "symbol %s moved before referring symbol %s", obj_(symbol), obj_(this.declaredGlobalSymbol))
 		symbol.addImmovableReference(this.currentChunk)
 	}
@@ -499,9 +499,9 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymb
 	this.preorderCounter++
 	this.componentRoots.push(obj_(symbol))
 	this.componentContents.push(obj_(symbol))
-	it_1 := foreach_(any(symbol.referencingGlobalSymbols))
+	it_1 := symbol.referencingGlobalSymbols.each()
 	for it_1.next() {
-		var referringSymbol *CrossChunkCodeMotion_GlobalSymbol = cast_[*CrossChunkCodeMotion_GlobalSymbol](it_1.v)
+		var referringSymbol *CrossChunkCodeMotion_GlobalSymbol = it_1.v
 		if referringSymbol.preorderNumber < 0 {
 			this.processGlobalSymbol(referringSymbol)
 		} else {

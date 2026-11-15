@@ -5,12 +5,12 @@ package closure
 type CheckNoMutatedEs6Exports struct {
 	compiler_          *AbstractCompiler
 	mutatedNames       *SimpleSetMultimap
-	exportedLocalNames SetOf[string]
+	exportedLocalNames *TSet[string]
 }
 
 func (this *CheckNoMutatedEs6Exports) finit_CheckNoMutatedEs6Exports() {
 	this.mutatedNames = SimpleSetMultimap_create()
-	this.exportedLocalNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.exportedLocalNames = newTSet_(tc_string)
 }
 
 func (this *CheckNoMutatedEs6Exports) init_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) {
@@ -25,7 +25,7 @@ func new_CheckNoMutatedEs6Exports(compiler *AbstractCompiler) *CheckNoMutatedEs6
 }
 
 func (this *CheckNoMutatedEs6Exports) checkNoMutations() {
-	var mutatedExports SetOf[string] = icast_Set(obj_(Sets_intersection(this.mutatedNames.keySet(), this.exportedLocalNames)))
+	var mutatedExports SetOf[string] = icast_Set(obj_(Sets_intersection(this.mutatedNames.keySet(), this.exportedLocalNames.asSet())))
 	it_1 := foreach_(any(mutatedExports))
 	for it_1.next() {
 		var mutatedExport string = str_(it_1.v)
@@ -69,7 +69,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 			var exportSpec Node = export.getFirstFirstChild()
 			for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
 				Preconditions_checkState(exportSpec.hasTwoChildren())
-				Collection_add_s(this.exportedLocalNames, exportSpec.getFirstChild().getString())
+				this.exportedLocalNames.add(exportSpec.getFirstChild().getString())
 			}
 		}
 	} else if export.hasOneChild() && !export.getBooleanProp(Node_EXPORT_ALL_FROM) {
@@ -79,7 +79,7 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 				var lhs Node = Node_of_(lhs_)
 				_ = lhs
 				Preconditions_checkState(lhs.isName())
-				Collection_add_s(this.exportedLocalNames, lhs.getString())
+				this.exportedLocalNames.add(lhs.getString())
 			}})
 		} else if export.getBooleanProp(Node_EXPORT_DEFAULT) {
 			if !declaration.isClass() && !declaration.isFunction() {
@@ -87,12 +87,12 @@ func (this *CheckNoMutatedEs6Exports) visitExport(export Node) {
 			}
 			var nameNode Node = declaration.getFirstChild()
 			if !nameNode.isEmpty() && !String_isEmpty(nameNode.getString()) {
-				Collection_add_s(this.exportedLocalNames, nameNode.getString())
+				this.exportedLocalNames.add(nameNode.getString())
 			}
 		} else {
 			Preconditions_checkState((declaration.isClass() || declaration.isFunction()))
 			var nameNode Node = declaration.getFirstChild()
-			Collection_add_s(this.exportedLocalNames, nameNode.getString())
+			this.exportedLocalNames.add(nameNode.getString())
 		}
 	}
 }

@@ -9,7 +9,7 @@ type AmbiguateProperties struct {
 	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
 	propertyMap                *TMap[string, *AmbiguateProperties_Property]
 	externedNames              ImmutableSetOf[string]
-	quotedNames                SetOf[string]
+	quotedNames                *TSet[string]
 	colorRegistry              *ColorRegistry
 	renamingMap                MapOf[string, string]
 	graphNodeFactory           *ColorGraphNodeFactory
@@ -18,28 +18,28 @@ type AmbiguateProperties struct {
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
 	this.stringNodesToRename = []Node{}
 	this.propertyMap = newTMap_(tc_string, tc_p_AmbiguateProperties_Property)
-	this.quotedNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.quotedNames = newTSet_(tc_string)
 	this.renamingMap = nil
 	this.graphNodeFactory = nil
 }
 
-func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties SetOf[string]) {
+func (this *AmbiguateProperties) init_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) {
 	this.finit_AmbiguateProperties()
 	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
 	this.compiler_ = compiler
 	this.reservedFirstCharacters = reservedFirstCharacters
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
-	this.externedNames = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().add(strobj_("prototype")))).addAll(Iterable(externProperties)))).build()))
+	this.externedNames = cast_[*ImmutableSet](obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().add(strobj_("prototype")))).addAll(Iterable(externProperties.asSet())))).build()))
 	this.colorRegistry = compiler.getColorRegistry()
 }
 
-func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties SetOf[string]) *AmbiguateProperties {
+func new_AmbiguateProperties(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) *AmbiguateProperties {
 	this := &AmbiguateProperties{}
 	this.init_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
 	return this
 }
 
-func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties SetOf[string]) *AmbiguateProperties {
+func AmbiguateProperties_makePassForTesting(compiler *AbstractCompiler, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], externProperties *TSet[string]) *AmbiguateProperties {
 	var ap *AmbiguateProperties = new_AmbiguateProperties(compiler, reservedFirstCharacters, reservedNonFirstCharacters, externProperties)
 	ap.renamingMap = icast_Map(obj_(new_LinkedHashMap()))
 	return ap
@@ -94,7 +94,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		}
 		prop.relatedColorsSeeds = nil
 	}
-	var reservedNames ImmutableSet_BuilderOf[string] = cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames))))).addAll(Iterable(this.quotedNames))))
+	var reservedNames ImmutableSet_BuilderOf[string] = cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(this.externedNames))))).addAll(Iterable(this.quotedNames.asSet()))))
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes ArrayListOf[*AmbiguateProperties_PropertyGraphNode] = new_ArrayList_int(this.propertyMap.size())
@@ -383,11 +383,11 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectP
 	switch key.getToken() {
 	case Token_rhino_COMPUTED_PROP:
 		if key.getFirstChild().isStringLit() {
-			Collection_add_s(this.outer_.quotedNames, key.getFirstChild().getString())
+			this.outer_.quotedNames.add(key.getFirstChild().getString())
 		}
 	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
 		if key.isQuotedStringKey() {
-			Collection_add_s(this.outer_.quotedNames, key.getString())
+			this.outer_.quotedNames.add(key.getString())
 		} else {
 			this.maybeMarkCandidate(key, type_)
 		}
@@ -413,7 +413,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectL
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processGetElem(n Node) {
 	var child Node = n.getLastChild()
 	if child.isStringLit() {
-		Collection_add_s(this.outer_.quotedNames, child.getString())
+		this.outer_.quotedNames.add(child.getString())
 	}
 }
 
@@ -431,11 +431,11 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 		var member Node = NodeUtil_getClassMembers(classNode).getFirstChild()
 		for ; member != 0; member = member.getNext() {
 			if member.isQuotedStringKey() {
-				Collection_add_s(this.outer_.quotedNames, member.getString())
+				this.outer_.quotedNames.add(member.getString())
 				continue
 			} else if member.isComputedProp() || member.isComputedFieldDef() {
 				if member.getFirstChild().isStringLit() {
-					Collection_add_s(this.outer_.quotedNames, member.getFirstChild().getString())
+					this.outer_.quotedNames.add(member.getFirstChild().getString())
 				}
 				continue
 			} else if NodeUtil_isEs6ConstructorMemberFunctionDef(member) {

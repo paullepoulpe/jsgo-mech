@@ -8,7 +8,7 @@ type RewritePolyfills struct {
 	polyfills                *PolyfillUsageFinder_Polyfills
 	injectPolyfills          bool
 	isolatePolyfills         bool
-	libraries                SetOf[string]
+	libraries                *TSet[string]
 	injectPolyfillsNewerThan *CompilerOptions_LanguageMode
 	disambiguateProperties_  bool
 }
@@ -51,7 +51,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		return
 	}
 	if this.injectPolyfills {
-		this.libraries = icast_Set(obj_(new_LinkedHashSet()))
+		this.libraries = newTSet_(tc_string)
 		new_PolyfillUsageFinder(this.compiler_, this.polyfills, this.disambiguateProperties_).traverseExcludingGuarded(root, &Consumer_fn{func(p0 any) { this.inject(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) }})
 	}
 	var librariesToInject ImmutableListOf[string]
@@ -67,7 +67,7 @@ func (this *RewritePolyfills) process_2(externs Node, root Node) {
 		}
 		librariesToInject = cast_[*ImmutableList](obj_(librariesToInjectBuilder.build()))
 	} else {
-		librariesToInject = ImmutableList_copyOf(Collection(this.libraries))
+		librariesToInject = ImmutableList_copyOf(Collection(this.libraries.asSet()))
 	}
 	this.injectAll(icast_Iterable(obj_(librariesToInject)), (this.injectPolyfillsNewerThan != nil))
 }
@@ -123,7 +123,7 @@ func (this *RewritePolyfills) inject(polyfillUsage *PolyfillUsageFinder_Polyfill
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(polyfillUsage.node(), RewritePolyfills_INSUFFICIENT_OUTPUT_VERSION_ERROR, []string{polyfillUsage.name(), outputFeatureSet.version()}))
 	}
 	if !outputFeatureSet.containsFeatureSet(FeatureSet_valueOf(polyfill.nativeVersion)) && !String_isEmpty(polyfill.library) {
-		Collection_add_s(this.libraries, polyfill.library)
+		this.libraries.add(polyfill.library)
 	}
 }
 

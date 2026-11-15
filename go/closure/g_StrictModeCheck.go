@@ -91,10 +91,10 @@ func (this *StrictModeCheck) checkDelete(t *NodeTraversal, n Node) {
 }
 
 func (this *StrictModeCheck) checkObjectLiteralOrClass(n Node) {
-	var getters LinkedHashSetOf[string] = new_LinkedHashSet()
-	var setters LinkedHashSetOf[string] = new_LinkedHashSet()
-	var staticGetters LinkedHashSetOf[string] = new_LinkedHashSet()
-	var staticSetters LinkedHashSetOf[string] = new_LinkedHashSet()
+	var getters *TSet[string] = newTSet_(tc_string)
+	var setters *TSet[string] = newTSet_(tc_string)
+	var staticGetters *TSet[string] = newTSet_(tc_string)
+	var staticSetters *TSet[string] = newTSet_(tc_string)
 	{
 		var key Node = n.getLastChild()
 		for ; key != 0; key = key.getPrevious() {
@@ -103,24 +103,24 @@ func (this *StrictModeCheck) checkObjectLiteralOrClass(n Node) {
 			}
 			var keyName string = key.getString()
 			if !key.isSetterDef() {
-				var set LinkedHashSetOf[string] = func() *LinkedHashSet {
+				var set *TSet[string] = func() *TSet[string] {
 					if key.isStaticMember() {
 						return staticGetters
 					}
 					return getters
 				}()
-				if !Collection_add_s(set, keyName) {
+				if !set.add(keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
 			}
 			if !key.isGetterDef() {
-				var set LinkedHashSetOf[string] = func() *LinkedHashSet {
+				var set *TSet[string] = func() *TSet[string] {
 					if key.isStaticMember() {
 						return staticSetters
 					}
 					return setters
 				}()
-				if !Collection_add_s(set, keyName) {
+				if !set.add(keyName) {
 					this.report(key, StrictModeCheck_DUPLICATE_MEMBER, []string{keyName})
 				}
 			}

@@ -399,7 +399,7 @@ func (this *Tracer_Event) toString(prevEventTime int64, indent string, digitsCol
 type Tracer_ThreadTrace struct {
 	defaultSilenceThreshold      int32
 	events                       *TList[*Tracer_Event]
-	outstandingEvents            LinkedHashSetOf[*Tracer]
+	outstandingEvents            *TSet[*Tracer]
 	stats                        *TMap[string, *Tracer_Stat]
 	isOutstandingEventsTruncated bool
 	isEventsTruncated            bool
@@ -409,7 +409,7 @@ type Tracer_ThreadTrace struct {
 
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
 	this.events = newTList_(tc_p_Tracer_Event)
-	this.outstandingEvents = new_LinkedHashSet()
+	this.outstandingEvents = newTSet_(tc_p_Tracer)
 	this.stats = newTMap_(tc_string, tc_p_Tracer_Stat)
 	this.isOutstandingEventsTruncated = false
 	this.isEventsTruncated = false
@@ -437,12 +437,12 @@ func (this *Tracer_ThreadTrace) isInitialized() bool {
 
 func (this *Tracer_ThreadTrace) startEvent(t *Tracer) {
 	this.events.add(new_Tracer_Event(true, t))
-	var notAlreadyOutstanding bool = this.outstandingEvents.add(obj_(t))
+	var notAlreadyOutstanding bool = this.outstandingEvents.add(t)
 	Preconditions_checkState(notAlreadyOutstanding)
 }
 
 func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
-	var wasOutstanding bool = this.outstandingEvents.remove_Object(obj_(t))
+	var wasOutstanding bool = this.outstandingEvents.remove(t)
 	if !wasOutstanding {
 		if this.isOutstandingEventsTruncated {
 			Tracer_logger.log(Level_WARNING, "event not found, probably because the event stack overflowed and was truncated", new_Throwable_0())
@@ -550,9 +550,9 @@ func (this *Tracer_ThreadTrace) toString() string {
 	if !this.outstandingEvents.isEmpty() {
 		var now int64 = Tracer_clock.currentTimeMillis()
 		sb.append(" Unstopped timers:\n")
-		it_3 := foreach_(obj_(this.outstandingEvents))
+		it_3 := this.outstandingEvents.each()
 		for it_3.next() {
-			var t *Tracer = cast_[*Tracer](it_3.v)
+			var t *Tracer = it_3.v
 			sb.append("  ").append_Object(obj_(t)).append(" (").append_long((now - t.startTimeMs)).append(" ms, started at ").append(Tracer_formatTime(t.startTimeMs)).append(")\n")
 		}
 	}

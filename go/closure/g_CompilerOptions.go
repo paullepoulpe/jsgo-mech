@@ -910,11 +910,11 @@ func (this *CompilerOptions) shouldReplaceIdGenerators() bool {
 	return this.replaceIdGenerators
 }
 
-func (this *CompilerOptions) setIdGenerators(idGenerators SetOf[string]) {
+func (this *CompilerOptions) setIdGenerators(idGenerators *TSet[string]) {
 	var builder ImmutableMap_BuilderOf[string, RenamingMap] = ImmutableMap_builder()
-	it_1 := foreach_(any(idGenerators))
+	it_1 := idGenerators.each()
 	for it_1.next() {
-		var name string = str_(it_1.v)
+		var name string = it_1.v
 		builder.put(strobj_(name), obj_(RenamingToken_INCONSISTENT))
 	}
 	this.idGenerators = builder.buildOrThrow()
@@ -1306,8 +1306,8 @@ func (this *CompilerOptions) setAssumeStrictThis(enable bool) {
 	this.assumeStrictThisField = enable
 }
 
-func (this *CompilerOptions) setPropertiesThatMustDisambiguate(names SetOf[string]) {
-	this.propertiesThatMustDisambiguate = ImmutableSet_copyOf(Collection(names))
+func (this *CompilerOptions) setPropertiesThatMustDisambiguate(names *TSet[string]) {
+	this.propertiesThatMustDisambiguate = ImmutableSet_copyOf(Collection(names.asSet()))
 }
 
 func (this *CompilerOptions) getPropertiesThatMustDisambiguate() ImmutableSetOf[string] {
@@ -1874,24 +1874,24 @@ func (this *CompilerOptions) shouldGatherCssNames() bool {
 	return this.gatherCssNames
 }
 
-func (this *CompilerOptions) setStripTypes(stripTypes SetOf[string]) {
-	this.stripTypes = ImmutableSet_copyOf(Collection(stripTypes))
+func (this *CompilerOptions) setStripTypes(stripTypes *TSet[string]) {
+	this.stripTypes = ImmutableSet_copyOf(Collection(stripTypes.asSet()))
 }
 
 func (this *CompilerOptions) getStripTypes() ImmutableSetOf[string] {
 	return this.stripTypes
 }
 
-func (this *CompilerOptions) setStripNameSuffixes(stripNameSuffixes SetOf[string]) {
-	this.stripNameSuffixes = ImmutableSet_copyOf(Collection(stripNameSuffixes))
+func (this *CompilerOptions) setStripNameSuffixes(stripNameSuffixes *TSet[string]) {
+	this.stripNameSuffixes = ImmutableSet_copyOf(Collection(stripNameSuffixes.asSet()))
 }
 
 func (this *CompilerOptions) getStripNameSuffixes() ImmutableSetOf[string] {
 	return this.stripNameSuffixes
 }
 
-func (this *CompilerOptions) setStripNamePrefixes(stripNamePrefixes SetOf[string]) {
-	this.stripNamePrefixes = ImmutableSet_copyOf(Collection(stripNamePrefixes))
+func (this *CompilerOptions) setStripNamePrefixes(stripNamePrefixes *TSet[string]) {
+	this.stripNamePrefixes = ImmutableSet_copyOf(Collection(stripNamePrefixes.asSet()))
 }
 
 func (this *CompilerOptions) getStripNamePrefixes() ImmutableSetOf[string] {
@@ -1951,8 +1951,8 @@ func (this *CompilerOptions) getCssRenamingMap() CssRenamingMap {
 	return this.cssRenamingMap
 }
 
-func (this *CompilerOptions) setCssRenamingSkiplist(skiplist SetOf[string]) {
-	this.cssRenamingSkiplist = ImmutableSet_copyOf(Collection(skiplist))
+func (this *CompilerOptions) setCssRenamingSkiplist(skiplist *TSet[string]) {
+	this.cssRenamingSkiplist = ImmutableSet_copyOf(Collection(skiplist.asSet()))
 }
 
 func (this *CompilerOptions) getCssRenamingSkiplist() ImmutableSetOf[string] {

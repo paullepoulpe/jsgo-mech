@@ -5,7 +5,7 @@ package closure
 type SerializeTypesToPointers struct {
 	compiler_                 *AbstractCompiler
 	jstypeReconserializer     *JSTypeReconserializer
-	propertiesReferencedInAst LinkedHashSetOf[string]
+	propertiesReferencedInAst *TSet[string]
 	typePointersByJstype      *LinkedIdentityHashMap
 	typePool                  *TypePool
 }
@@ -15,14 +15,14 @@ func (this *SerializeTypesToPointers) finit_SerializeTypesToPointers() {
 	this.typePool = nil
 }
 
-func (this *SerializeTypesToPointers) init_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconserializer *JSTypeReconserializer, propertiesReferencedInAst LinkedHashSetOf[string]) {
+func (this *SerializeTypesToPointers) init_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconserializer *JSTypeReconserializer, propertiesReferencedInAst *TSet[string]) {
 	this.finit_SerializeTypesToPointers()
 	this.compiler_ = compiler
 	this.jstypeReconserializer = jstypeReconserializer
 	this.propertiesReferencedInAst = propertiesReferencedInAst
 }
 
-func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconserializer *JSTypeReconserializer, propertiesReferencedInAst LinkedHashSetOf[string]) *SerializeTypesToPointers {
+func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconserializer *JSTypeReconserializer, propertiesReferencedInAst *TSet[string]) *SerializeTypesToPointers {
 	this := &SerializeTypesToPointers{}
 	this.init_SerializeTypesToPointers(compiler, jstypeReconserializer, propertiesReferencedInAst)
 	return this
@@ -30,8 +30,8 @@ func new_SerializeTypesToPointers(compiler *AbstractCompiler, jstypeReconseriali
 
 func SerializeTypesToPointers_create(compiler *AbstractCompiler, stringPoolBuilder *StringPool_Builder, serializationOptions *SerializationOptions) *SerializeTypesToPointers {
 	var invalidatingTypes *InvalidatingTypes = new_InvalidatingTypes_Builder(compiler.getTypeRegistry()).addAllTypeMismatches(compiler.getTypeMismatches()).build()
-	var propertiesReferencedInAst LinkedHashSetOf[string] = new_LinkedHashSet()
-	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, &Predicate_fn{func(p0 any) bool { return Collection_contains_s(propertiesReferencedInAst, str_(p0)) }}, serializationOptions)
+	var propertiesReferencedInAst *TSet[string] = newTSet_(tc_string)
+	var jsTypeReconserializer *JSTypeReconserializer = JSTypeReconserializer_create(compiler.getTypeRegistry(), invalidatingTypes, stringPoolBuilder, &Predicate_fn{func(p0 any) bool { return propertiesReferencedInAst.contains(str_(p0)) }}, serializationOptions)
 	return new_SerializeTypesToPointers(compiler, jsTypeReconserializer, propertiesReferencedInAst)
 }
 
@@ -123,10 +123,10 @@ func (this *SerializeTypesToPointers_PropertySearchCallback) shouldTraverse(t *N
 func (this *SerializeTypesToPointers_PropertySearchCallback) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
-		Collection_add_s(this.outer_.propertiesReferencedInAst, n.getString())
+		this.outer_.propertiesReferencedInAst.add(n.getString())
 	case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
 		if !n.isQuotedStringKey() {
-			Collection_add_s(this.outer_.propertiesReferencedInAst, n.getString())
+			this.outer_.propertiesReferencedInAst.add(n.getString())
 		}
 	default:
 	}

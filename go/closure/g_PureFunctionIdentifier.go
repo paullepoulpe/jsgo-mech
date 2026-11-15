@@ -8,7 +8,7 @@ type PureFunctionIdentifier struct {
 	validateArtificialPurityField        bool
 	summariesByName                      *TMap[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap
-	artificiallyPureLiteralsForDebugging LinkedHashSetOf[Node]
+	artificiallyPureLiteralsForDebugging *TSet[Node]
 	allFunctionCalls                     []Node
 	reverseCallGraph                     *LinkedDirectedGraph
 	unknownFunctionSummary               *PureFunctionIdentifier_AmbiguatedFunctionSummary
@@ -19,7 +19,7 @@ type PureFunctionIdentifier struct {
 func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = newTMap_(tc_string, tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create()
-	this.artificiallyPureLiteralsForDebugging = new_LinkedHashSet()
+	this.artificiallyPureLiteralsForDebugging = newTSet_(tc_Node)
 	this.allFunctionCalls = []Node{}
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations()
 	this.unknownFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<unknown>").setMutatesGlobalStateAndAllOtherFlags(0)
@@ -56,9 +56,9 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 	if !this.validateArtificialPurityField {
 		return
 	}
-	it_1 := foreach_(obj_(this.artificiallyPureLiteralsForDebugging))
+	it_1 := this.artificiallyPureLiteralsForDebugging.each()
 	for it_1.next() {
-		var function Node = Node_of_(it_1.v)
+		var function Node = it_1.v
 		it_3 := foreach_(any(this.summariesForAllNamesOfFunctionByNode.get(function.box_())))
 		for it_3.next() {
 			var summary *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](it_3.v)
@@ -258,7 +258,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 						var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(callable)
 						var isArtificiallyPure bool = ((jsdoc != nil) && jsdoc.isNoSideEffects())
 						if isArtificiallyPure {
-							this.artificiallyPureLiteralsForDebugging.add(callable.box_())
+							this.artificiallyPureLiteralsForDebugging.add(callable)
 							summaryForName.setCollectImpureDebuggingReason()
 						}
 					}

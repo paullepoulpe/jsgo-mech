@@ -75,7 +75,7 @@ func (this *JSDocInfo) clone() any {
 	return obj_(this.clone_1(false))
 }
 
-func (this *JSDocInfo) cloneAndReplaceTypeNames(names SetOf[string]) *JSDocInfo {
+func (this *JSDocInfo) cloneAndReplaceTypeNames(names *TSet[string]) *JSDocInfo {
 	return this.toBuilder_1(&JSDocInfo_TypeTransform_fn{func(type_ *JSTypeExpression) *JSTypeExpression {
 		return type_.replaceNamesWithUnknownType(names)
 	}}).build()
@@ -341,13 +341,13 @@ func (this *JSDocInfo) hasParameterType(parameter OptionalOf[string]) bool {
 	return (this.getParameterType(parameter) != nil)
 }
 
-func (this *JSDocInfo) getParameterNames() SetOf[string] {
+func (this *JSDocInfo) getParameterNames() *TSet[string] {
 	var params LinkedHashMapOf[string, *JSTypeExpression] = cast_[*LinkedHashMap](JSDocInfo_PARAMETERS.get(this))
-	return func() Set {
+	return func() *TSet[string] {
 		if params != nil {
-			return icast_Set(obj_(ImmutableSet_copyOf(Collection(params.keySet()))))
+			return tsetFrom_(tc_string, ImmutableSet_copyOf(Collection(params.keySet())), true)
 		}
-		return icast_Set(obj_(ImmutableSet_of()))
+		return tsetFrom_(tc_string, ImmutableSet_of(), true)
 	}()
 }
 
@@ -590,13 +590,13 @@ func (this *JSDocInfo) getSuppressions() SetOf[string] {
 		return icast_Set(obj_(ImmutableSet_of()))
 	}
 	var nameSets ImmutableSetOf[ImmutableSetOf[string]] = cast_[*ImmutableSet](suppressions.keySet())
-	var names SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var names *TSet[string] = newTSet_(tc_string)
 	it_1 := foreach_(obj_(nameSets))
 	for it_1.next() {
 		var nameSet Set = icast_Set(it_1.v)
-		names.addAll(Collection(nameSet))
+		names.asSet().addAll(Collection(nameSet))
 	}
-	return icast_Set(obj_(ImmutableSet_copyOf(Collection(names))))
+	return icast_Set(obj_(ImmutableSet_copyOf(Collection(names.asSet()))))
 }
 
 func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[ImmutableSetOf[string], string] {
@@ -609,13 +609,13 @@ func (this *JSDocInfo) getSuppressionsAndTheirDescription() ImmutableMapOf[Immut
 	}()
 }
 
-func (this *JSDocInfo) getModifies() SetOf[string] {
+func (this *JSDocInfo) getModifies() *TSet[string] {
 	var modifies ImmutableSetOf[string] = cast_[*ImmutableSet](JSDocInfo_MODIFIES.get(this))
-	return func() Set {
+	return func() *TSet[string] {
 		if modifies != nil {
-			return icast_Set(obj_(modifies))
+			return tsetFrom_(tc_string, modifies, true)
 		}
-		return icast_Set(obj_(ImmutableSet_of()))
+		return tsetFrom_(tc_string, ImmutableSet_of(), true)
 	}()
 }
 
@@ -764,12 +764,12 @@ func (this *JSDocInfo) getOriginalCommentPosition() int32 {
 }
 
 func (this *JSDocInfo) modifiesThis() bool {
-	return Collection_contains_s(this.getModifies(), "this")
+	return this.getModifies().contains("this")
 }
 
 func (this *JSDocInfo) hasSideEffectsArgumentsAnnotation() bool {
-	var modifies SetOf[string] = this.getModifies()
-	return ((modifies.size() > 1) || ((modifies.size() == 1) && !Collection_contains_s(modifies, "this")))
+	var modifies *TSet[string] = this.getModifies()
+	return ((modifies.size() > 1) || ((modifies.size() == 1) && !modifies.contains("this")))
 }
 
 func (this *JSDocInfo) getLogTypeInCompiler() bool {
@@ -1967,7 +1967,7 @@ type JSDocInfo_Builder struct {
 	bits          int64
 	populated     bool
 	currentMarker *JSDocInfo_Marker
-	licenseTexts  SetOf[string]
+	licenseTexts  *TSet[string]
 }
 
 func (this *JSDocInfo_Builder) finit_JSDocInfo_Builder() {
@@ -2009,7 +2009,7 @@ func JSDocInfo_Builder_copyFromWithNewType(info *JSDocInfo, typeExpression *JSTy
 	return info.toBuilder().setType(typeExpression)
 }
 
-func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace SetOf[string]) *JSDocInfo_Builder {
+func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocalNamesToReplace *TSet[string]) *JSDocInfo_Builder {
 	return func() *JSDocInfo_Builder {
 		if info != nil {
 			return JSDocInfo_Builder_copyFromAndReplaceNames(info, moduleLocalNamesToReplace)
@@ -2018,7 +2018,7 @@ func JSDocInfo_Builder_maybeCopyFromAndReplaceNames(info *JSDocInfo, moduleLocal
 	}()
 }
 
-func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames SetOf[string]) *JSDocInfo_Builder {
+func JSDocInfo_Builder_copyFromAndReplaceNames(info *JSDocInfo, oldNames *TSet[string]) *JSDocInfo_Builder {
 	return info.cloneAndReplaceTypeNames(oldNames).toBuilder()
 }
 
@@ -2411,9 +2411,9 @@ func (this *JSDocInfo_Builder) recordLicense(license string) bool {
 
 func (this *JSDocInfo_Builder) addLicense(license string) bool {
 	if this.licenseTexts == nil {
-		this.licenseTexts = icast_Set(obj_(new_LinkedHashSet()))
+		this.licenseTexts = newTSet_(tc_string)
 	}
-	if !Collection_add_s(this.licenseTexts, license) {
+	if !this.licenseTexts.add(license) {
 		return false
 	}
 	var txt OptionalOf[string] = Optional_ofNullable(this.getProp(JSDocInfo_LICENSE))

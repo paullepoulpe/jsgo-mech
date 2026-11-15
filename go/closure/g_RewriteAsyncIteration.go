@@ -357,7 +357,7 @@ func (this *RewriteAsyncIteration) replaceSuper(ctx *RewriteAsyncIteration_Lexic
 	}
 	getPropReplacement.srcrefTree(parent)
 	parent.replaceWith(getPropReplacement)
-	ctx.thisSuperArgsContext.usedSuperProperties.add(parent.box_())
+	ctx.thisSuperArgsContext.usedSuperProperties.add(parent)
 	this.compiler_.reportChangeToChangeScope(ctx.function)
 }
 
@@ -376,9 +376,9 @@ func (this *RewriteAsyncIteration) prependTempVarDeclarations(ctx *RewriteAsyncI
 	if thisSuperArgsCtx.usedArguments {
 		prefixBlock.addChildToBack(this.astFactory_.createSingleConstNameDeclaration(RewriteAsyncIteration_ARGUMENTS_VAR_NAME, this.astFactory_.createArgumentsReference()).srcrefTree(block))
 	}
-	it_1 := foreach_(any(thisSuperArgsCtx.usedSuperProperties))
+	it_1 := thisSuperArgsCtx.usedSuperProperties.each()
 	for it_1.next() {
-		var replacedMethodReference Node = Node_of_(it_1.v)
+		var replacedMethodReference Node = it_1.v
 		prefixBlock.addChildToBack(this.createSuperMethodReferenceGetter(replacedMethodReference, t))
 	}
 	prefixBlock.srcrefTreeIfMissing(block)
@@ -488,7 +488,7 @@ func (this *RewriteAsyncIteration_LexicalContext) mustReplaceThisSuperArgs() boo
 
 type RewriteAsyncIteration_ThisSuperArgsContext struct {
 	ctx                 *RewriteAsyncIteration_LexicalContext
-	usedSuperProperties SetOf[Node]
+	usedSuperProperties *TSet[Node]
 	thisNodeToAdd       Node
 	usedArguments       bool
 	uniqueId            string
@@ -499,7 +499,7 @@ func (this *RewriteAsyncIteration_ThisSuperArgsContext) zero_RewriteAsyncIterati
 }
 
 func (this *RewriteAsyncIteration_ThisSuperArgsContext) finit_RewriteAsyncIteration_ThisSuperArgsContext() {
-	this.usedSuperProperties = icast_Set(obj_(new_LinkedHashSet()))
+	this.usedSuperProperties = newTSet_(tc_Node)
 	this.thisNodeToAdd = 0
 	this.usedArguments = false
 }

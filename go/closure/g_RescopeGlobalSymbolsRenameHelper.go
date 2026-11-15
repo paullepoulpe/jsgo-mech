@@ -33,21 +33,21 @@ func RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name string) str
 	return (sstr_(name) + sstr_(RescopeGlobalSymbolsRenameHelper_DISAMBIGUATION_SUFFIX))
 }
 
-func RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, namesStartingWithUnderscore SetOf[string]) ImmutableMapOf[string, string] {
+func RescopeGlobalSymbolsRenameHelper_collectUnwrappedLocalNamesInDefiningChunk(optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess, symbolInfo *RescopeGlobalSymbolsInfo, namesStartingWithUnderscore *TSet[string]) ImmutableMapOf[string, string] {
 	if !optimizeLocalAccess.shouldKeepLocalAliasForWrappedReassignables() {
 		return ImmutableMap_of()
 	}
-	var usedNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(namesStartingWithUnderscore))))
+	var usedNames *TSet[string] = tsetFrom_(tc_string, Collection(namesStartingWithUnderscore.asSet()), false)
 	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 	it_1 := foreach_(obj_(symbolInfo.wrappedCrossChunkNames()))
 	for it_1.next() {
 		var name string = str_(it_1.v)
 		if (!Collection_contains_s(symbolInfo.crossChunkNamesWithWriteFromOtherChunk(), name) && !Collection_contains_s(symbolInfo.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk(), name)) && Collection_contains_s(symbolInfo.globalNamesWithReadInDefiningChunk(), name) {
 			var unwrappedName string = (sstr_(RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) + sstr_(name))
-			for (Collection_contains_s(usedNames, unwrappedName) || Collection_contains_s(symbolInfo.externNames(), unwrappedName)) || (unwrappedName == symbolInfo.globalSymbolNamespace()) {
+			for (usedNames.contains(unwrappedName) || Collection_contains_s(symbolInfo.externNames(), unwrappedName)) || (unwrappedName == symbolInfo.globalSymbolNamespace()) {
 				unwrappedName = (sstr_(RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) + sstr_(unwrappedName))
 			}
-			Collection_add_s(usedNames, unwrappedName)
+			usedNames.add(unwrappedName)
 			builder.put(strobj_(name), strobj_(unwrappedName))
 		}
 	}
@@ -92,7 +92,7 @@ type RescopeGlobalSymbolsRenameHelper_HelperBuilder struct {
 	compiler_                   *AbstractCompiler
 	globalSymbolNamespace_      string
 	optimizeLocalAccess         *CompilerOptions_OptimizeLocalAccess
-	namesStartingWithUnderscore SetOf[string]
+	namesStartingWithUnderscore *TSet[string]
 }
 
 func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) zero_RescopeGlobalSymbolsRenameHelper_HelperBuilder() {
@@ -100,7 +100,7 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) zero_RescopeGlobalSy
 }
 
 func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) finit_RescopeGlobalSymbolsRenameHelper_HelperBuilder() {
-	this.namesStartingWithUnderscore = icast_Set(obj_(new_LinkedHashSet()))
+	this.namesStartingWithUnderscore = newTSet_(tc_string)
 }
 
 func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) init_RescopeGlobalSymbolsRenameHelper_HelperBuilder(compiler *AbstractCompiler, globalSymbolNamespace string, optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess) {
@@ -122,12 +122,12 @@ func (this *RescopeGlobalSymbolsRenameHelper_HelperBuilder) recordExistingName(n
 		return
 	}
 	if String_startsWith(name, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
-		Collection_add_s(this.namesStartingWithUnderscore, name)
+		this.namesStartingWithUnderscore.add(name)
 	}
 	if RescopeGlobalSymbolsRenameHelper_conflictsWithGlobalSymbolNamespace(name, this.globalSymbolNamespace_) {
 		var disambiguatedName string = RescopeGlobalSymbolsRenameHelper_getDisambiguatedLocalName(name)
 		if String_startsWith(disambiguatedName, RescopeGlobalSymbolsRenameHelper_UNWRAPPED_LOCAL_NAME_PREFIX) {
-			Collection_add_s(this.namesStartingWithUnderscore, disambiguatedName)
+			this.namesStartingWithUnderscore.add(disambiguatedName)
 		}
 	}
 }

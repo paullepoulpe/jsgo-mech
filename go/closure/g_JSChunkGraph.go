@@ -81,9 +81,9 @@ func JSChunkGraph_makeWeakChunk(chunksInDepOrder ListOf[*JSChunk]) ListOf[*JSChu
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
 		if chunk.getName() == JSChunk_WEAK_CHUNK_NAME {
 			hasWeakChunk = true
-			var allOtherChunks SetOf[*JSChunk] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(chunksInDepOrder))))
-			allOtherChunks.remove_Object(obj_(chunk))
-			Preconditions_checkState_boolean_Object(chunk.getAllDependencies().containsAll(Collection(allOtherChunks)), strobj_("A weak chunk already exists but it does not depend on every other chunk."))
+			var allOtherChunks *TSet[*JSChunk] = tsetFrom_(tc_p_JSChunk, Collection(chunksInDepOrder), false)
+			allOtherChunks.remove(chunk)
+			Preconditions_checkState_boolean_Object(chunk.getAllDependencies().containsAll(Collection(allOtherChunks.asSet())), strobj_("A weak chunk already exists but it does not depend on every other chunk."))
 			Preconditions_checkState_boolean_Object((chunk.getAllDependencies().size() == allOtherChunks.size()), strobj_("The weak chunk cannot have extra dependencies."))
 			break
 		}
@@ -393,7 +393,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		var transitiveClosure *TList[*CompilerInput]
 		if dependencyOptions.shouldSort() && dependencyOptions.shouldPrune() {
 			transitiveClosure = newTList_(tc_p_CompilerInput)
-			var inputsNotYetReached SetOf[*CompilerInput] = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(originalInputs)))))
+			var inputsNotYetReached *TSet[*CompilerInput] = tsetFrom_(tc_p_CompilerInput, icast_Collection(obj_(originalInputs)), false)
 			it_18 := foreach_(any(entryPointInputsPerChunk.get(obj_(chunk))))
 			for it_18.next() {
 				var entryPoint *CompilerInput = cast_[*CompilerInput](it_18.v)
@@ -453,9 +453,9 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	return Outcome_base_ok_Object(obj_(new_JSChunkGraph_DependencyManagementResult(ImmutableList_copyOf(Collection(orderedInputs)), sorter, ImmutableSet_copyOf(Collection(entryPointInputs)))))
 }
 
-func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs SetOf[*CompilerInput], inputsByProvide *TMap[string, SetOf[*CompilerInput]]) *TList[*CompilerInput] {
+func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs *TSet[*CompilerInput], inputsByProvide *TMap[string, SetOf[*CompilerInput]]) *TList[*CompilerInput] {
 	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
-	if !unreachedInputs.remove_Object(obj_(rootInput)) {
+	if !unreachedInputs.remove(rootInput) {
 		return orderedInputs
 	}
 	it_1 := foreach_(obj_(rootInput.getRequiredSymbols()))
@@ -465,7 +465,7 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 			it_3 := foreach_(any(inputsByProvide.get(importedNamespace)))
 			for it_3.next() {
 				var input *CompilerInput = cast_[*CompilerInput](it_3.v)
-				if unreachedInputs.contains(obj_(input)) {
+				if unreachedInputs.contains(input) {
 					orderedInputs.addAllT(this.getDepthFirstDependenciesOf(input, unreachedInputs, inputsByProvide))
 				}
 			}

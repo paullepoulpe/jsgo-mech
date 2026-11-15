@@ -15,20 +15,20 @@ func new_ParserRunner() *ParserRunner {
 	return this
 }
 
-func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode *Config_LanguageMode, extraAnnotationNames SetOf[string], strictMode *Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode *Config_LanguageMode, extraAnnotationNames *TSet[string], strictMode *Config_StrictMode) *Config {
 	return ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode, Config_JsDocParsing_TYPES_ONLY, Config_RunMode_STOP_AFTER_ERROR, extraAnnotationNames, true, strictMode)
 }
 
-func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode *Config_LanguageMode, jsdocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, extraAnnotationNames SetOf[string], parseInlineSourceMaps bool, strictMode *Config_StrictMode) *Config {
+func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode *Config_LanguageMode, jsdocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, extraAnnotationNames *TSet[string], parseInlineSourceMaps bool, strictMode *Config_StrictMode) *Config {
 	ParserRunner_initResourceConfig()
-	var effectiveAnnotationNames SetOf[string]
+	var effectiveAnnotationNames *TSet[string]
 	if extraAnnotationNames == nil {
-		effectiveAnnotationNames = icast_Set(obj_(ParserRunner_annotationNames))
+		effectiveAnnotationNames = tsetFrom_(tc_string, ParserRunner_annotationNames, true)
 	} else {
-		effectiveAnnotationNames = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(ParserRunner_annotationNames)))))
-		effectiveAnnotationNames.addAll(Collection(extraAnnotationNames))
+		effectiveAnnotationNames = tsetFrom_(tc_string, icast_Collection(obj_(ParserRunner_annotationNames)), false)
+		effectiveAnnotationNames.addAllT(extraAnnotationNames)
 	}
-	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames)).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(icast_Iterable(obj_(ParserRunner_suppressionNames))).setClosurePrimitiveNames(icast_Iterable(obj_(ParserRunner_closurePrimitiveNames))).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
+	return Config_builder().setExtraAnnotationNames(Iterable(effectiveAnnotationNames.asSet())).setJsDocParsingMode(jsdocParsingMode).setRunMode(runMode).setSuppressionNames(icast_Iterable(obj_(ParserRunner_suppressionNames))).setClosurePrimitiveNames(icast_Iterable(obj_(ParserRunner_closurePrimitiveNames))).setLanguageMode(languageMode).setParseInlineSourceMaps(parseInlineSourceMaps).setStrictMode(strictMode).build()
 }
 
 func ParserRunner_getReservedVars() ImmutableSetOf[string] {

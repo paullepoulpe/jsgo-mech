@@ -156,12 +156,12 @@ func (this *PropertyMap) getOwnKnownSymbols() SetOf[*KnownSymbolType] {
 }
 
 func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
-	var ancestors LinkedHashSetOf[*PropertyMap] = new_LinkedHashSet()
+	var ancestors *TSet[*PropertyMap] = newTSet_(tc_p_PropertyMap)
 	this.collectAllAncestors(ancestors)
 	var maxAncestorCounter int32 = 0
-	it_1 := foreach_(obj_(ancestors))
+	it_1 := ancestors.each()
 	for it_1.next() {
-		var ancestor *PropertyMap = cast_[*PropertyMap](it_1.v)
+		var ancestor *PropertyMap = it_1.v
 		if ancestor.cachedKeySetCounter > maxAncestorCounter {
 			maxAncestorCounter = ancestor.cachedKeySetCounter
 		}
@@ -169,9 +169,9 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	if (maxAncestorCounter != this.cachedKeySetCounter) || (this.cachedKeySet == nil) {
 		var keys TreeSetOf[string] = new_TreeSet()
 		var knownSymbolsKeys SetOf[*KnownSymbolType] = icast_Set(obj_(new_LinkedHashSet()))
-		it_3 := foreach_(obj_(ancestors))
+		it_3 := ancestors.each()
 		for it_3.next() {
-			var ancestor *PropertyMap = cast_[*PropertyMap](it_3.v)
+			var ancestor *PropertyMap = it_3.v
 			ancestor.cachedKeySetCounter = maxAncestorCounter
 			ancestor.cachedKeySet = nil
 			ancestor.cachedKnownSymbolsKeySet = nil
@@ -184,8 +184,8 @@ func (this *PropertyMap) getAllKeys() *PropertyMap_AllKeys {
 	return new_PropertyMap_AllKeys(this.cachedKeySet, icast_Set(obj_(this.cachedKnownSymbolsKeySet)))
 }
 
-func (this *PropertyMap) collectAllAncestors(ancestors LinkedHashSetOf[*PropertyMap]) {
-	if !ancestors.add(any(this)) {
+func (this *PropertyMap) collectAllAncestors(ancestors *TSet[*PropertyMap]) {
+	if !ancestors.add(this) {
 		return
 	}
 	var primaryParent *PropertyMap = this.getPrimaryParent()

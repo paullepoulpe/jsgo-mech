@@ -5,10 +5,10 @@ package closure
 type CheckNullabilityModifiers struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_             *AbstractCompiler
-	redundantCandidates   LinkedHashSetOf[Node]
-	missingCandidates     LinkedHashSetOf[Node]
-	nullMissingCandidates LinkedHashSetOf[Node]
-	templateTypeNames     LinkedHashSetOf[string]
+	redundantCandidates   *TSet[Node]
+	missingCandidates     *TSet[Node]
+	nullMissingCandidates *TSet[Node]
+	templateTypeNames     *TSet[string]
 }
 
 func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -19,10 +19,10 @@ func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallbac
 }
 
 func (this *CheckNullabilityModifiers) finit_CheckNullabilityModifiers() {
-	this.redundantCandidates = new_LinkedHashSet()
-	this.missingCandidates = new_LinkedHashSet()
-	this.nullMissingCandidates = new_LinkedHashSet()
-	this.templateTypeNames = new_LinkedHashSet()
+	this.redundantCandidates = newTSet_(tc_Node)
+	this.missingCandidates = newTSet_(tc_Node)
+	this.nullMissingCandidates = newTSet_(tc_Node)
+	this.templateTypeNames = newTSet_(tc_string)
 }
 
 func (this *CheckNullabilityModifiers) init_CheckNullabilityModifiers(compiler *AbstractCompiler) {
@@ -45,14 +45,14 @@ func (this *CheckNullabilityModifiers) process_2(externs Node, root Node) {
 func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
 	if info != nil {
-		this.templateTypeNames.addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
-		this.templateTypeNames.addAll(Collection(info.getTypeTransformations().keySet()))
+		this.templateTypeNames.asSet().addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
+		this.templateTypeNames.asSet().addAll(Collection(info.getTypeTransformations().keySet()))
 		if info.hasType() {
 			this.handleHasType(info.getType(), n)
 		}
-		it_1 := foreach_(any(info.getParameterNames()))
+		it_1 := info.getParameterNames().each()
 		for it_1.next() {
-			var param string = str_(it_1.v)
+			var param string = it_1.v
 			if info.hasParameterType(Optional_of(strobj_(param))) {
 				this.visitTypeExpression(info.getParameterType(Optional_of(strobj_(param))), false)
 			}
@@ -92,23 +92,23 @@ func (this *CheckNullabilityModifiers) handleHasType(expr *JSTypeExpression, n N
 }
 
 func (this *CheckNullabilityModifiers) report(t *NodeTraversal) {
-	it_1 := foreach_(obj_(this.missingCandidates))
+	it_1 := this.missingCandidates.each()
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		if this.shouldReport(n) {
 			t.report(n, CheckNullabilityModifiers_MISSING_NULLABILITY_MODIFIER_JSDOC, []string{CheckNullabilityModifiers_getReportedTypeName(n)})
 		}
 	}
-	it_3 := foreach_(obj_(this.nullMissingCandidates))
+	it_3 := this.nullMissingCandidates.each()
 	for it_3.next() {
-		var n Node = Node_of_(it_3.v)
+		var n Node = it_3.v
 		if this.shouldReport(n) {
 			t.report(n, CheckNullabilityModifiers_NULL_MISSING_NULLABILITY_MODIFIER_JSDOC, []string{CheckNullabilityModifiers_getReportedTypeName(n)})
 		}
 	}
-	it_5 := foreach_(obj_(this.redundantCandidates))
+	it_5 := this.redundantCandidates.each()
 	for it_5.next() {
-		var n Node = Node_of_(it_5.v)
+		var n Node = it_5.v
 		if this.shouldReport(n) {
 			t.report(n.getParent(), CheckNullabilityModifiers_REDUNDANT_NULLABILITY_MODIFIER_JSDOC, []string{CheckNullabilityModifiers_getReportedTypeName(n)})
 		}
@@ -116,7 +116,7 @@ func (this *CheckNullabilityModifiers) report(t *NodeTraversal) {
 }
 
 func (this *CheckNullabilityModifiers) shouldReport(n Node) bool {
-	return (!n.isStringLit() || !Collection_contains_s(this.templateTypeNames, n.getString()))
+	return (!n.isStringLit() || !this.templateTypeNames.contains(n.getString()))
 }
 
 func (this *CheckNullabilityModifiers) visitTypeExpression(expr *JSTypeExpression, hasArtificialTopLevelBang bool) {
@@ -137,12 +137,12 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.getToken() == Token_rhino_PIPE)))
 		if (((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType {
 			if (isAppliedToRValue && (rValue != 0)) && rValue.isNull() {
-				this.nullMissingCandidates.add(node.box_())
+				this.nullMissingCandidates.add(node)
 			} else {
-				this.missingCandidates.add(node.box_())
+				this.missingCandidates.add(node)
 			}
 		} else if isPrimitiveOrLiteral && hasNonArtificialBang {
-			this.redundantCandidates.add(node.box_())
+			this.redundantCandidates.add(node)
 		}
 	}})
 }

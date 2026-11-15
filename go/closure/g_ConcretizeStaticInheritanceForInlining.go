@@ -54,9 +54,9 @@ func (this *ConcretizeStaticInheritanceForInlining) processInherits(findStaticMe
 }
 
 func (this *ConcretizeStaticInheritanceForInlining) copyStaticMembers(superClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, subClass *ConcretizeStaticInheritanceForInlining_JavascriptClass, inheritsCall Node, findStaticMembers *ConcretizeStaticInheritanceForInlining_FindStaticMembers) {
-	it_1 := foreach_(any(superClass.staticMembers))
+	it_1 := superClass.staticMembers.each()
 	for it_1.next() {
-		var staticMember Node = Node_of_(it_1.v)
+		var staticMember Node = it_1.v
 		Preconditions_checkState_boolean_Object(staticMember.isAssign(), staticMember.box_())
 		var memberName string = staticMember.getFirstChild().getString()
 		if has_(superClass.definedProperties, memberName) {
@@ -125,13 +125,13 @@ func ConcretizeStaticInheritanceForInlining_clinit() {
 }
 
 type ConcretizeStaticInheritanceForInlining_JavascriptClass struct {
-	staticMembers     SetOf[Node]
+	staticMembers     *TSet[Node]
 	staticMemberNames map[string]struct{}
 	definedProperties map[string]struct{}
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) finit_ConcretizeStaticInheritanceForInlining_JavascriptClass() {
-	this.staticMembers = icast_Set(obj_(new_LinkedHashSet()))
+	this.staticMembers = newTSet_(tc_Node)
 	this.staticMemberNames = map[string]struct{}{}
 	this.definedProperties = map[string]struct{}{}
 }
@@ -147,7 +147,7 @@ func new_ConcretizeStaticInheritanceForInlining_JavascriptClass() *ConcretizeSta
 }
 
 func (this *ConcretizeStaticInheritanceForInlining_JavascriptClass) addStaticMember(node Node) {
-	this.staticMembers.add(node.box_())
+	this.staticMembers.add(node)
 	this.staticMemberNames[node.getFirstChild().getString()] = struct{}{}
 }
 

@@ -5,7 +5,7 @@ package closure
 type EnumType struct {
 	PrototypeObjectType
 	elementType  *EnumElementType
-	elements_    SetOf[string]
+	elements_    *TSet[string]
 	source       Node
 	googModuleId string
 }
@@ -36,7 +36,7 @@ func (this *EnumType) zero_EnumType() {
 }
 
 func (this *EnumType) finit_EnumType() {
-	this.elements_ = icast_Set(obj_(new_LinkedHashSet()))
+	this.elements_ = newTSet_(tc_string)
 }
 
 func (this *EnumType) init_EnumType(builder *EnumType_Builder) {
@@ -72,12 +72,12 @@ func (this *EnumType) getImplicitPrototype_impl() *ObjectType {
 	return this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE)
 }
 
-func (this *EnumType) getElements() SetOf[string] {
-	return Collections_unmodifiableSet(this.elements_)
+func (this *EnumType) getElements() *TSet[string] {
+	return this.elements_
 }
 
 func (this *EnumType) defineElement(name string, definingNode Node) bool {
-	Collection_add_s(this.elements_, name)
+	this.elements_.add(name)
 	return this.defineDeclaredProperty(name, this.elementType.up_JSType(), definingNode)
 }
 
