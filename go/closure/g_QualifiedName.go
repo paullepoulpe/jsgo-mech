@@ -114,8 +114,8 @@ func (this *QualifiedName) matches(p0 Node) bool {
 	return this.self_.(interface{ matches_impl(Node) bool }).matches_impl(p0)
 }
 
-func (this *QualifiedName) join() *Optional {
-	return this.self_.(interface{ join_impl() *Optional }).join_impl()
+func (this *QualifiedName) join() Optional {
+	return this.self_.(interface{ join_impl() Optional }).join_impl()
 }
 
 var QualifiedName_THIS string

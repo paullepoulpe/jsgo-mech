@@ -97,7 +97,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
 	}
 	var baseClass Node = NodeUtil_getFirstPropMatchingKey(descriptor, "extends")
-	var nativeBaseElement OptionalOf[string] = func() *Optional {
+	var nativeBaseElement OptionalOf[string] = func() Optional {
 		if baseClass == 0 {
 			return Optional_empty()
 		}

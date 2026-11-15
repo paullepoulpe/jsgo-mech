@@ -86,7 +86,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile OptionalOf[string]) Option
 	if this.prefixMappings.isEmpty() {
 		return sourceFile
 	}
-	var fixed OptionalOf[string] = func() *Optional {
+	var fixed OptionalOf[string] = func() Optional {
 		if sourceFile.isPresent() {
 			return Optional_ofNullable(strobj_(mapStr_(this.sourceLocationFixupCache, str_(sourceFile.get()))))
 		}
@@ -286,14 +286,14 @@ func SourceMap_DetailLevel_clinit() {
 }
 
 type SourceMap_LocationMapping interface {
-	map_(*Optional) *Optional
+	map_(Optional) Optional
 }
 
 type SourceMap_LocationMapping_fn struct {
-	f func(*Optional) *Optional
+	f func(Optional) Optional
 }
 
-func (this *SourceMap_LocationMapping_fn) map_(p0 *Optional) *Optional {
+func (this *SourceMap_LocationMapping_fn) map_(p0 Optional) Optional {
 	return this.f(p0)
 }
 

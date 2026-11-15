@@ -309,7 +309,7 @@ func Node_newString_Token_LazyInternedStringList_int(token *Token_rhino, stringP
 
 func Node_newTemplateLitString_Optional_String(cooked OptionalOf[string], raw string) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() *Optional {
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() Optional {
 		if cooked.isEmpty() {
 			return Optional_empty()
 		}
@@ -320,7 +320,7 @@ func Node_newTemplateLitString_Optional_String(cooked OptionalOf[string], raw st
 
 func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoStringPool_LazyInternedStringList, cookedOffsetOrNegativeOne int32, rawOffset int32) Node {
 	var n Node = new_Node_Token(Token_rhino_TEMPLATELIT_STRING)
-	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() *Optional {
+	n.payload_set_(obj_(new_Node_TemplateLiteralSubstring(func() Optional {
 		if cookedOffsetOrNegativeOne == -1 {
 			return Optional_empty()
 		}

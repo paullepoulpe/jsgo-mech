@@ -131,7 +131,7 @@ func J2clClinitPrunerPass_isClinitMethod(node Node) bool {
 func J2clClinitPrunerPass_getClinitMethodName(node Node) OptionalOf[string] {
 	if node.isCall() {
 		var fnName OptionalOf[string] = NodeUtil_getBestLValueName(node.getFirstChild())
-		return func() *Optional {
+		return func() Optional {
 			if J2clClinitPrunerPass_isClinitMethodName(fnName) {
 				return fnName
 			}

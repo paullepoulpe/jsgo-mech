@@ -118,7 +118,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)
-				}}), func() *Optional {
+				}}), func() Optional {
 					if node.getParent().isGetProp() {
 						return Optional_of(strobj_(node.getParent().getString()))
 					}

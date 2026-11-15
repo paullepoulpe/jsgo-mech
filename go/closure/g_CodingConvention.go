@@ -5,20 +5,20 @@ package closure
 type CodingConvention interface {
 	isConstant(string) bool
 	isConstantKey(string) bool
-	isValidEnumKey(*Optional) bool
+	isValidEnumKey(Optional) bool
 	isOptionalParameter(Node) bool
 	isVarArgsParameter(Node) bool
 	isFunctionCallThatAlwaysThrows(Node) bool
 	isExported_2(string, bool) bool
 	isExported(string) bool
 	blockRenamingForProperty(string) bool
-	getPackageName(StaticSourceFile) *Optional
+	getPackageName(StaticSourceFile) Optional
 	getClassesDefinedByCall(Node) *CodingConvention_SubclassRelationship
 	isClassFactoryCall(Node) bool
 	isSuperClassReference(string) bool
 	extractIsModuleFile(Node, Node) bool
-	extractClassNameIfProvide(Node, Node) *Optional
-	extractClassNameIfRequire(Node, Node) *Optional
+	extractClassNameIfProvide(Node, Node) Optional
+	extractClassNameIfRequire(Node, Node) Optional
 	getExportPropertyFunction() string
 	getExportSymbolFunction() string
 	identifyTypeDeclarationCall(Node) *TList[string]
@@ -244,7 +244,7 @@ func (this *CodingConvention_AssertionFunctionSpec) getAssertedArg(firstArg Node
 	return firstArg
 }
 
-func (this *CodingConvention_AssertionFunctionSpec) getFunctionName() *Optional {
+func (this *CodingConvention_AssertionFunctionSpec) getFunctionName() Optional {
 	return this.getFunctionName_
 }
 

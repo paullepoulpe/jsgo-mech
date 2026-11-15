@@ -29,7 +29,7 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			var lineNumber int32 = message.error_.getLineNumber()
 			var charno int32 = message.error_.charno()
 			jsonWriter.beginObject()
-			jsonWriter.name("level").stringValue(func() *Optional {
+			jsonWriter.name("level").stringValue(func() Optional {
 				if message.level_ == CheckLevel_ERROR {
 					return Optional_of(strobj_("error"))
 				}

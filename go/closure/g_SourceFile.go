@@ -657,11 +657,11 @@ func (this *SourceFile_Builder) setIsStubSourceFileForAlreadyProvidedInput() *So
 }
 
 func (this *SourceFile_Builder) build() *SourceFile_jscomp {
-	var displayPath OptionalOf[string] = func() *Optional {
+	var displayPath OptionalOf[string] = func() Optional {
 		if this.originalPath.isPresent() {
 			return this.originalPath
 		}
-		return func() *Optional {
+		return func() Optional {
 			if this.zipEntryPath.isEmpty() {
 				return this.path_
 			}

@@ -37,7 +37,7 @@ func (this *BrowserModuleResolver) resolveJsModule_impl(scriptAddress string, mo
 }
 
 func (this *BrowserModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if ModuleLoader_isAmbiguousIdentifier(moduleAddress) {
 			return Optional_empty()
 		}

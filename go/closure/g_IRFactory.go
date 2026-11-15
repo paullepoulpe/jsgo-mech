@@ -51,7 +51,7 @@ func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Confi
 	this.defaultTemplateNode = this.createTemplateNode()
 	this.templateNode = this.defaultTemplateNode
 	this.closureUnawareTemplateNode = this.createClosureUnawareTemplateNode()
-	this.sourceName_ = func() *Optional {
+	this.sourceName_ = func() Optional {
 		if sourceFile == nil {
 			return Optional_empty()
 		}

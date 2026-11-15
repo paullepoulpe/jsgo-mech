@@ -74,7 +74,7 @@ func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if n.isStringLit() {
 			return Optional_of(strobj_(n.getString()))
 		}

@@ -222,12 +222,12 @@ func (this *CodingConventions_Proxy) extractIsModuleFile(p0 Node, p1 Node) bool 
 	return this.self_.(interface{ extractIsModuleFile_impl(Node, Node) bool }).extractIsModuleFile_impl(p0, p1)
 }
 
-func (this *CodingConventions_Proxy) extractClassNameIfProvide(p0 Node, p1 Node) *Optional {
-	return this.self_.(interface{ extractClassNameIfProvide_impl(Node, Node) *Optional }).extractClassNameIfProvide_impl(p0, p1)
+func (this *CodingConventions_Proxy) extractClassNameIfProvide(p0 Node, p1 Node) Optional {
+	return this.self_.(interface{ extractClassNameIfProvide_impl(Node, Node) Optional }).extractClassNameIfProvide_impl(p0, p1)
 }
 
-func (this *CodingConventions_Proxy) extractClassNameIfRequire(p0 Node, p1 Node) *Optional {
-	return this.self_.(interface{ extractClassNameIfRequire_impl(Node, Node) *Optional }).extractClassNameIfRequire_impl(p0, p1)
+func (this *CodingConventions_Proxy) extractClassNameIfRequire(p0 Node, p1 Node) Optional {
+	return this.self_.(interface{ extractClassNameIfRequire_impl(Node, Node) Optional }).extractClassNameIfRequire_impl(p0, p1)
 }
 
 func (this *CodingConventions_Proxy) getExportPropertyFunction() string {
@@ -288,8 +288,8 @@ func (this *CodingConventions_Proxy) isConstantKey(p0 string) bool {
 	return this.self_.(interface{ isConstantKey_impl(string) bool }).isConstantKey_impl(p0)
 }
 
-func (this *CodingConventions_Proxy) isValidEnumKey(p0 *Optional) bool {
-	return this.self_.(interface{ isValidEnumKey_impl(*Optional) bool }).isValidEnumKey_impl(p0)
+func (this *CodingConventions_Proxy) isValidEnumKey(p0 Optional) bool {
+	return this.self_.(interface{ isValidEnumKey_impl(Optional) bool }).isValidEnumKey_impl(p0)
 }
 
 func (this *CodingConventions_Proxy) isOptionalParameter(p0 Node) bool {
@@ -308,9 +308,9 @@ func (this *CodingConventions_Proxy) isClassFactoryCall(p0 Node) bool {
 	return this.self_.(interface{ isClassFactoryCall_impl(Node) bool }).isClassFactoryCall_impl(p0)
 }
 
-func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) *Optional {
+func (this *CodingConventions_Proxy) getPackageName(p0 StaticSourceFile) Optional {
 	return this.self_.(interface {
-		getPackageName_impl(StaticSourceFile) *Optional
+		getPackageName_impl(StaticSourceFile) Optional
 	}).getPackageName_impl(p0)
 }
 
@@ -362,7 +362,7 @@ func (this *CodingConventions_DefaultCodingConvention) isFunctionCallThatAlwaysT
 func (this *CodingConventions_DefaultCodingConvention) getPackageName(source StaticSourceFile) OptionalOf[string] {
 	var name string = source.getName()
 	var lastSlash int32 = String_lastIndexOf(name, 47)
-	return func() *Optional {
+	return func() Optional {
 		if lastSlash == -1 {
 			return Optional_of(strobj_(""))
 		}

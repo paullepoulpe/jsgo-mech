@@ -1025,7 +1025,7 @@ func ClosureRewriteModule_isTypedefTarget(n Node) bool {
 func (this *ClosureRewriteModule) maybeAddAliasToSymbolTable(n Node, module OptionalOf[string]) {
 	if this.preprocessorSymbolTable != nil {
 		n.putBooleanProp(Node_MODULE_ALIAS, true)
-		var nodeName OptionalOf[string] = func() *Optional {
+		var nodeName OptionalOf[string] = func() Optional {
 			if n.isStringLit() {
 				return Optional_of(strobj_(n.getString()))
 			}
@@ -1316,7 +1316,7 @@ func (this *ClosureRewriteModule_ExportDefinition) hasInlinableName(exportedName
 }
 
 func (this *ClosureRewriteModule_ExportDefinition) getLocalName() OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if this.nameDecl != nil {
 			return Optional_of(strobj_(this.nameDecl.getName()))
 		}
@@ -1734,7 +1734,7 @@ func (this *ClosureRewriteModule_GlobalRewriteState) isLegacyModule(namespaceId 
 
 func (this *ClosureRewriteModule_GlobalRewriteState) getBinaryNamespace(namespaceId string) OptionalOf[string] {
 	var script *ClosureRewriteModule_ScriptDescription = this.scriptDescriptionsByGoogModuleNamespace[namespaceId]
-	return func() *Optional {
+	return func() Optional {
 		if script == nil {
 			return Optional_empty()
 		}
@@ -1757,7 +1757,7 @@ func (this *ClosureRewriteModule_GlobalRewriteState) getExportedNamespaceOrScrip
 		return Optional_of(strobj_(namespaceId))
 	}
 	var script *ClosureRewriteModule_ScriptDescription = this.scriptDescriptionsByGoogModuleNamespace[namespaceId]
-	return func() *Optional {
+	return func() Optional {
 		if script == nil {
 			return Optional_empty()
 		}

@@ -148,7 +148,7 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 		}
 		return -1
 	}()
-	var sourceExcerpt OptionalOf[string] = func() *Optional {
+	var sourceExcerpt OptionalOf[string] = func() Optional {
 		if source == nil {
 			return Optional_empty()
 		}

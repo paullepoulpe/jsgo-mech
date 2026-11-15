@@ -206,7 +206,7 @@ func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuil
 				meaningForIdGeneration = Optional_of(strobj_(JsMessageVisitor_removeScopedAliasesPrefix(messageKeyFromLhs)))
 			}
 		}
-		messageId = func() *Optional {
+		messageId = func() Optional {
 			if this.idGenerator_ == nil {
 				return meaningForIdGeneration
 			}
@@ -847,9 +847,9 @@ type JsMessageVisitor_InputForBuildJsMsg interface {
 	getMessageParts() *ImmutableList
 	getPlaceholderExampleMap() *TMap[string, string]
 	getPlaceholderOriginalCodeMap() *TMap[string, string]
-	getDescription() *Optional
-	getMeaning() *Optional
-	getAlternateMessageId() *Optional
+	getDescription() Optional
+	getMeaning() Optional
+	getAlternateMessageId() Optional
 }
 
 type JsMessageVisitor_IcuMessageTemplateString struct {
@@ -919,8 +919,8 @@ type JsMessageVisitor_JsMessageOptions interface {
 
 type JsMessageVisitor_IcuTemplateOptions interface {
 	getDescription() string
-	getMeaning() *Optional
-	getAlternateMessageId() *Optional
+	getMeaning() Optional
+	getAlternateMessageId() Optional
 	getPlaceholderExampleMap() *ImmutableMap
 	getPlaceholderOriginalCodeMap() *ImmutableMap
 	checkForUnknownPlaceholders(*TSet[string]) *Outcome_base
@@ -1083,16 +1083,16 @@ type JsMessageVisitor_1 struct {
 	cap_sourceName           string
 	cap_googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText
 	cap_jsMessageOptions     JsMessageVisitor_JsMessageOptions
-	cap_description          *Optional
-	cap_meaning              *Optional
-	cap_alternateMessageId   *Optional
+	cap_description          Optional
+	cap_meaning              Optional
+	cap_alternateMessageId   Optional
 }
 
 func (this *JsMessageVisitor_1) init_JsMessageVisitor_1() {
 
 }
 
-func new_JsMessageVisitor_1(outer_ *JsMessageVisitor, cap_messageKeyFromLhs string, cap_sourceName string, cap_googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText, cap_jsMessageOptions JsMessageVisitor_JsMessageOptions, cap_description *Optional, cap_meaning *Optional, cap_alternateMessageId *Optional) *JsMessageVisitor_1 {
+func new_JsMessageVisitor_1(outer_ *JsMessageVisitor, cap_messageKeyFromLhs string, cap_sourceName string, cap_googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText, cap_jsMessageOptions JsMessageVisitor_JsMessageOptions, cap_description Optional, cap_meaning Optional, cap_alternateMessageId Optional) *JsMessageVisitor_1 {
 	this := &JsMessageVisitor_1{}
 	this.outer_ = outer_
 	this.cap_messageKeyFromLhs = cap_messageKeyFromLhs
@@ -1353,8 +1353,8 @@ func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders *T
 type JsMessageVisitor_6 struct {
 	outer_                           *JsMessageVisitor
 	cap_description                  string
-	cap_meaning                      *Optional
-	cap_alternateMessageId           *Optional
+	cap_meaning                      Optional
+	cap_alternateMessageId           Optional
 	cap_placeholderExamplesMap       *ImmutableMap
 	cap_placeholderOriginalCodeMap   *ImmutableMap
 	cap_placeholderNames             *ImmutableSet
@@ -1366,7 +1366,7 @@ func (this *JsMessageVisitor_6) init_JsMessageVisitor_6() {
 
 }
 
-func new_JsMessageVisitor_6(outer_ *JsMessageVisitor, cap_description string, cap_meaning *Optional, cap_alternateMessageId *Optional, cap_placeholderExamplesMap *ImmutableMap, cap_placeholderOriginalCodeMap *ImmutableMap, cap_placeholderNames *ImmutableSet, cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_6 {
+func new_JsMessageVisitor_6(outer_ *JsMessageVisitor, cap_description string, cap_meaning Optional, cap_alternateMessageId Optional, cap_placeholderExamplesMap *ImmutableMap, cap_placeholderOriginalCodeMap *ImmutableMap, cap_placeholderNames *ImmutableSet, cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap, cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap) *JsMessageVisitor_6 {
 	this := &JsMessageVisitor_6{}
 	this.outer_ = outer_
 	this.cap_description = cap_description

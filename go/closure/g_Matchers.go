@@ -280,14 +280,14 @@ func (this *Matchers_4) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_5 struct {
-	cap_name *Optional
+	cap_name Optional
 }
 
 func (this *Matchers_5) init_Matchers_5() {
 
 }
 
-func new_Matchers_5(cap_name *Optional) *Matchers_5 {
+func new_Matchers_5(cap_name Optional) *Matchers_5 {
 	this := &Matchers_5{}
 	this.cap_name = cap_name
 	this.init_Matchers_5()
@@ -357,14 +357,14 @@ func (this *Matchers_7) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_8 struct {
-	cap_name *Optional
+	cap_name Optional
 }
 
 func (this *Matchers_8) init_Matchers_8() {
 
 }
 
-func new_Matchers_8(cap_name *Optional) *Matchers_8 {
+func new_Matchers_8(cap_name Optional) *Matchers_8 {
 	this := &Matchers_8{}
 	this.cap_name = cap_name
 	this.init_Matchers_8()
@@ -395,14 +395,14 @@ func (this *Matchers_9) matches(node Node, metadata *NodeMetadata) bool {
 }
 
 type Matchers_10 struct {
-	cap_name *Optional
+	cap_name Optional
 }
 
 func (this *Matchers_10) init_Matchers_10() {
 
 }
 
-func new_Matchers_10(cap_name *Optional) *Matchers_10 {
+func new_Matchers_10(cap_name Optional) *Matchers_10 {
 	this := &Matchers_10{}
 	this.cap_name = cap_name
 	this.init_Matchers_10()

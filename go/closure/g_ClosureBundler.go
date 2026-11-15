@@ -214,15 +214,15 @@ func (this *ClosureBundler_EvalMode) init_ClosureBundler_EvalMode(name_ string, 
 	this.Enum.init_Enum(name_, ordinal_)
 }
 
-func (this *ClosureBundler_EvalMode) appendTraditional(p0 string, p1 Appendable, p2 *Optional) {
+func (this *ClosureBundler_EvalMode) appendTraditional(p0 string, p1 Appendable, p2 Optional) {
 	this.self_.(interface {
-		appendTraditional_impl(string, Appendable, *Optional)
+		appendTraditional_impl(string, Appendable, Optional)
 	}).appendTraditional_impl(p0, p1, p2)
 }
 
-func (this *ClosureBundler_EvalMode) appendGoogModule(p0 string, p1 Appendable, p2 *Optional) {
+func (this *ClosureBundler_EvalMode) appendGoogModule(p0 string, p1 Appendable, p2 Optional) {
 	this.self_.(interface {
-		appendGoogModule_impl(string, Appendable, *Optional)
+		appendGoogModule_impl(string, Appendable, Optional)
 	}).appendGoogModule_impl(p0, p1, p2)
 }
 

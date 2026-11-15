@@ -103,7 +103,7 @@ func (this *UnknownType) getConstructor_impl() *FunctionType {
 }
 
 func (this *UnknownType) getReferenceName_impl() OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if this.isChecked {
 			return Optional_of(strobj_("??"))
 		}

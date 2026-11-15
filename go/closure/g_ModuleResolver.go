@@ -89,15 +89,15 @@ func (this *ModuleResolver) setErrorHandler(errorHandler ErrorHandler) {
 	this.errorHandler = errorHandler
 }
 
-func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 *Optional, p3 int32, p4 int32) *Optional {
+func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional, p3 int32, p4 int32) Optional {
 	return this.self_.(interface {
-		resolveJsModule_impl(string, string, *Optional, int32, int32) *Optional
+		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
 	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
-func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) *Optional {
+func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional {
 	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) *Optional
+		resolveJsModuleSilently_impl(string, string) Optional
 	}).resolveJsModuleSilently_impl(p0, p1)
 }
 

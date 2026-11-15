@@ -132,7 +132,7 @@ func (this *ObjectType) getNormalizedReferenceName() OptionalOf[string] {
 		if start != -1 {
 			var end int32 = String_lastIndexOf(str_(name.get()), 41)
 			var prefix string = String_substring(str_(name.get()), 0, start)
-			return func() *Optional {
+			return func() Optional {
 				if (end + (1 % String_length(str_(name.get())))) == 0 {
 					return Optional_of(strobj_(prefix))
 				}
@@ -597,8 +597,8 @@ func (this *ObjectType) getPropertyMap() *PropertyMap {
 	return this.self_.(interface{ getPropertyMap_impl() *PropertyMap }).getPropertyMap_impl()
 }
 
-func (this *ObjectType) getReferenceName() *Optional {
-	return this.self_.(interface{ getReferenceName_impl() *Optional }).getReferenceName_impl()
+func (this *ObjectType) getReferenceName() Optional {
+	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
 }
 
 func (this *ObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {

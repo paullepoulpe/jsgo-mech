@@ -292,7 +292,7 @@ func (this *SourceMapConsumerV3) visitMappings(visitor SourceMapConsumerV3_Entry
 					pending = true
 					sourceName = Optional_of(strobj_(this.sources[sourceFileId]))
 					var nameId int32 = this.mappings.getNameId(j)
-					symbolName = func() *Optional {
+					symbolName = func() Optional {
 						if nameId != SourceMapConsumerV3_UNMAPPED {
 							return Optional_of(strobj_(this.names_[nameId]))
 						}

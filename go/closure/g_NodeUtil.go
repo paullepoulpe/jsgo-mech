@@ -97,7 +97,7 @@ func NodeUtil_getBooleanValue(n Node) *Tri {
 }
 
 func NodeUtil_getStringValue(n Node) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		switch n.getToken() {
 		case Token_rhino_STRINGLIT, Token_rhino_STRING_KEY:
 			return Optional_of(strobj_(n.getString()))
@@ -145,7 +145,7 @@ func NodeUtil_getStringValue(n Node) OptionalOf[string] {
 		case Token_rhino_NOT:
 			var child *Tri = NodeUtil_getBooleanValue(n.getFirstChild())
 			if child != Tri_UNKNOWN {
-				return func() *Optional {
+				return func() Optional {
 					if child.toBoolean(true) {
 						return Optional_of(strobj_("false"))
 					}
@@ -156,7 +156,7 @@ func NodeUtil_getStringValue(n Node) OptionalOf[string] {
 		case Token_rhino_ARRAYLIT:
 			return NodeUtil_arrayToString(n)
 		case Token_rhino_OBJECTLIT:
-			return func() *Optional {
+			return func() Optional {
 				if n.hasChildren() {
 					return Optional_empty()
 				}
@@ -170,7 +170,7 @@ func NodeUtil_getStringValue(n Node) OptionalOf[string] {
 }
 
 func NodeUtil_getArrayElementStringValue(n Node) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if NodeUtil_isNullOrUndefined(n) || n.isEmpty() {
 			return Optional_of(strobj_(""))
 		}
@@ -565,7 +565,7 @@ func NodeUtil_getNearestFunctionName(n Node) OptionalOf[string] {
 		return Optional_of(strobj_(name))
 	}
 	var parent Node = n.getParent()
-	return func() *Optional {
+	return func() Optional {
 		switch parent.getToken() {
 		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_SETTER_DEF, Token_rhino_GETTER_DEF, Token_rhino_STRING_KEY:
 			return Optional_of(strobj_(parent.getString()))
@@ -2455,7 +2455,7 @@ func NodeUtil_isGetOrSetKey(node Node) bool {
 }
 
 func NodeUtil_opToStr(operator *Token_rhino) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		switch operator {
 		case Token_rhino_COALESCE:
 			return Optional_of(strobj_("??"))
@@ -3662,7 +3662,7 @@ func NodeUtil_getBestLValueName(lValue Node) OptionalOf[string] {
 			var ownerName OptionalOf[string] = NodeUtil_getBestLValueName(owner)
 			if ownerName.isPresent() {
 				var key OptionalOf[string] = NodeUtil_getObjectOrClassLitKeyName(lValue)
-				return func() *Optional {
+				return func() Optional {
 					if TokenStream_isJSIdentifier(str_(key.get())) {
 						return Optional_of(strobj_((sstr_(str_(ownerName.get())) + "." + sstr_(str_(key.orElse(strobj_("null")))))))
 					}
@@ -4719,7 +4719,7 @@ func (this *NodeUtil_GoogRequire) namespace() string {
 	return this.namespace_
 }
 
-func (this *NodeUtil_GoogRequire) property() *Optional {
+func (this *NodeUtil_GoogRequire) property() Optional {
 	return this.property_
 }
 

@@ -562,7 +562,7 @@ func (this *CheckRequiresSorted_ImportStatement) namespace() string {
 	return this.namespace_
 }
 
-func (this *CheckRequiresSorted_ImportStatement) alias() *Optional {
+func (this *CheckRequiresSorted_ImportStatement) alias() Optional {
 	return this.alias_
 }
 
