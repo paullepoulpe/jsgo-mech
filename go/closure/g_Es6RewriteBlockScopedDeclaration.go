@@ -210,7 +210,7 @@ func Es6RewriteBlockScopedDeclaration_clinit() {
 type Es6RewriteBlockScopedDeclaration_LoopClosureTransformer struct {
 	NodeTraversal_AbstractPreOrderCallback
 	outer_                              *Es6RewriteBlockScopedDeclaration
-	loopObjectMap                       MapOf[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
+	loopObjectMap                       *TMap[Node, *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject]
 	nodesRequiringLoopObjectsClosureMap *SimpleSetMultimap
 	nodesHandledForLoopObjectClosure    *SimpleSetMultimap
 	referenceMap                        *SimpleSetMultimap
@@ -224,7 +224,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) up_NodeTrav
 }
 
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) finit_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer() {
-	this.loopObjectMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.loopObjectMap = newTMap_(tc_Node, tc_p_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject)
 	this.nodesRequiringLoopObjectsClosureMap = SimpleSetMultimap_createInsertionOrdered()
 	this.nodesHandledForLoopObjectClosure = SimpleSetMultimap_createInsertionOrdered()
 	this.referenceMap = SimpleSetMultimap_createInsertionOrdered()
@@ -296,7 +296,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) shouldTrave
 			return true
 		}
 		this.nodesHandledForLoopObjectClosure.put(nodeToWrapInClosure.box_(), strobj_(name))
-		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](Map_computeIfAbsent(this.loopObjectMap, loopNode.box_(), &Function_fn{func(k_ any) any {
+		var object *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](Map_computeIfAbsent(this.loopObjectMap.asMap(), loopNode.box_(), &Function_fn{func(k_ any) any {
 			var k Node = Node_of_(k_)
 			_ = k
 			return obj_(new_Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject(this.createUniqueObjectName(t.getInput())))
@@ -320,10 +320,10 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 		return
 	}
 	var wrapperFunctions SetOf[Node] = this.createWrapperFunctions()
-	it_1 := foreach_(any(this.loopObjectMap.keySet()))
+	it_1 := this.loopObjectMap.each()
 	for it_1.next() {
-		var loopNode Node = Node_of_(it_1.v)
-		var loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = cast_[*Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject](this.loopObjectMap.get(loopNode.box_()))
+		var loopNode Node = it_1.k
+		var loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject = this.loopObjectMap.get(loopNode)
 		var objectLitNextIteration Node = this.outer_.astFactory_.createObjectLit([]Node{})
 		this.renameVarsToProperties(loopObject, objectLitNextIteration, loopNode)
 		var updateLoopObject Node = this.outer_.astFactory_.createAssign(this.createLoopObjectNameNode(loopObject), objectLitNextIteration)

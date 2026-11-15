@@ -5,7 +5,7 @@ package closure
 type CheckExtraRequires struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
-	requires         MapOf[string, Node]
+	requires         *TMap[string, Node]
 	usages           map[string]struct{}
 	requiresToRemove ImmutableSetOf[string]
 }
@@ -18,7 +18,7 @@ func (this *CheckExtraRequires) up_NodeTraversal_AbstractPostOrderCallback() *No
 }
 
 func (this *CheckExtraRequires) finit_CheckExtraRequires() {
-	this.requires = icast_Map(obj_(new_LinkedHashMap()))
+	this.requires = newTMap_(tc_string, tc_Node)
 	this.usages = map[string]struct{}{}
 }
 
@@ -93,7 +93,7 @@ func (this *CheckExtraRequires) reset() {
 }
 
 func (this *CheckExtraRequires) visitScriptNode() {
-	it_1 := foreach_(any(this.requires.entrySet()))
+	it_1 := foreach_(any(this.requires.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var require string = str_(entry.getKey())
@@ -116,7 +116,7 @@ func (this *CheckExtraRequires) reportExtraRequireWarning(call Node, require str
 }
 
 func (this *CheckExtraRequires) visitRequire(localName string, node Node) {
-	Map_putIfAbsent_s(this.requires, localName, node.box_())
+	this.requires.putIfAbsent(localName, node)
 }
 
 func (this *CheckExtraRequires) visitImportNode(importNode Node) {

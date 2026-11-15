@@ -5,12 +5,12 @@ package closure
 type CheckConstantCaseNames struct {
 	compiler_             *AbstractCompiler
 	convention            CodingConvention
-	invalidNamesPerModule LinkedHashMapOf[string, Node]
+	invalidNamesPerModule *TMap[string, Node]
 	reassignedNames       map[string]struct{}
 }
 
 func (this *CheckConstantCaseNames) finit_CheckConstantCaseNames() {
-	this.invalidNamesPerModule = new_LinkedHashMap()
+	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
 	this.reassignedNames = map[string]struct{}{}
 }
 
@@ -55,11 +55,11 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 			var name Node = Node_of_(name_)
 			_ = name
 			if this.convention.isConstant(name.getString()) {
-				Map_put_s(this.invalidNamesPerModule, name.getString(), name.box_())
+				this.invalidNamesPerModule.put(name.getString(), name)
 			}
 		}})
 	case Token_rhino_NAME:
-		if !Map_containsKey_s(this.invalidNamesPerModule, n.getString()) {
+		if !this.invalidNamesPerModule.containsKey(n.getString()) {
 			return
 		}
 		if !NodeUtil_isLValue(n) {
@@ -74,9 +74,9 @@ func (this *CheckConstantCaseNames) visit(t *NodeTraversal, n Node, parent Node)
 }
 
 func (this *CheckConstantCaseNames) reportWarningsAndClear() {
-	it_1 := foreach_(any(this.invalidNamesPerModule.values()))
+	it_1 := this.invalidNamesPerModule.each()
 	for it_1.next() {
-		var nameNode Node = Node_of_(it_1.v)
+		var nameNode Node = it_1.v
 		var name string = nameNode.getString()
 		if has_(this.reassignedNames, name) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_REASSIGNED_CONSTANT_CASE_NAME, []string{name}))
@@ -84,7 +84,7 @@ func (this *CheckConstantCaseNames) reportWarningsAndClear() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nameNode, CheckConstantCaseNames_MISSING_CONST_PROPERTY, []string{name}))
 		}
 	}
-	this.invalidNamesPerModule = new_LinkedHashMap()
+	this.invalidNamesPerModule = newTMap_(tc_string, tc_Node)
 	this.reassignedNames = map[string]struct{}{}
 }
 

@@ -865,7 +865,7 @@ func (this *InlineAndCollapseProperties_RewriteSimpleDestructuringAliases) expan
 
 type InlineAndCollapseProperties_CollapseProperties struct {
 	outer_                     *InlineAndCollapseProperties
-	nameMap                    MapOf[string, *GlobalNamespace_Name]
+	nameMap                    *TMap[string, *GlobalNamespace_Name]
 	dynamicallyImportedModules LinkedHashSetOf[string]
 }
 
@@ -946,9 +946,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 	var escaped ImmutableSet_BuilderOf[*GlobalNamespace_Name] = ImmutableSet_builder()
 	var dynamicallyImportedModuleRefs LinkedHashSetOf[string] = new_LinkedHashSet_Collection(icast_Collection(obj_(this.dynamicallyImportedModules)))
 	if !this.dynamicallyImportedModules.isEmpty() {
-		it_1 := foreach_(any(this.nameMap.values()))
+		it_1 := this.nameMap.each()
 		for it_1.next() {
-			var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
+			var name *GlobalNamespace_Name = it_1.v
 			if Collection_contains_s(this.dynamicallyImportedModules, name.getFullName()) {
 				this.logDecisionForName(name, "escapes - dynamically imported module namespace")
 				escaped.add(obj_(name))
@@ -973,9 +973,9 @@ func (this *InlineAndCollapseProperties_CollapseProperties) checkNamespaces() Im
 			}
 		}
 	}
-	it_5 := foreach_(any(this.nameMap.values()))
+	it_5 := this.nameMap.each()
 	for it_5.next() {
-		var name *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_5.v)
+		var name *GlobalNamespace_Name = it_5.v
 		if !dynamicallyImportedModuleRefs.isEmpty() && Collection_contains_s(dynamicallyImportedModuleRefs, name.getFullName()) {
 			escaped.add(obj_(name))
 		}
@@ -1446,7 +1446,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) declareVariablesForO
 				propName = String_valueOf(arbitraryNameCounter)
 			}
 			var qName string = (sstr_(objlitName.getFullName()) + "." + sstr_(propName))
-			var p *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](Map_get_s(this.nameMap, qName))
+			var p *GlobalNamespace_Name = this.nameMap.get(qName)
 			if (p != nil) && !this.canCollapse(p) {
 				continue
 			}
@@ -1523,7 +1523,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) appendPropForAlias(r
 	}
 	var result string = (sstr_(root) + "$" + sstr_(prop))
 	var id int32 = 1
-	for Map_containsKey_s(this.nameMap, result) {
+	for this.nameMap.containsKey(result) {
 		result = (sstr_(root) + "$" + sstr_(prop) + "$" + istr_(int64(id)))
 		id++
 	}

@@ -289,14 +289,14 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo)
 	var loadFlags ImmutableMapOf[string, string] = info.getLoadFlags()
 	if !loadFlags.isEmpty() {
 		out.append_CharSequence(strobj_(", "))
-		DependencyInfo_Util_writeJsObject(out, icast_Map(obj_(loadFlags)))
+		DependencyInfo_Util_writeJsObject(out, tmapFrom_(tc_string, tc_string, loadFlags, true))
 	}
 	out.append_CharSequence(strobj_(");\n"))
 }
 
-func DependencyInfo_Util_writeJsObject(out Appendable, map_ MapOf[string, string]) {
+func DependencyInfo_Util_writeJsObject(out Appendable, map_ *TMap[string, string]) {
 	var entries *TList[string] = newTList_(tc_string)
-	it_1 := foreach_(any(map_.entrySet()))
+	it_1 := foreach_(any(map_.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var key string = String_replace(str_(entry.getKey()), strobj_("'"), strobj_("\\'"))

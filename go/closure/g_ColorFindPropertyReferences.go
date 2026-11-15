@@ -4,7 +4,7 @@ package closure
 
 type ColorFindPropertyReferences struct {
 	NodeTraversal_AbstractPostOrderCallback
-	propIndex             LinkedHashMapOf[string, *PropertyClustering]
+	propIndex             *TMap[string, *PropertyClustering]
 	colorGraphNodeFactory *ColorGraphNodeFactory
 	isPropertyReflector   ColorFindPropertyReferences_IsPropertyReflector
 }
@@ -17,7 +17,7 @@ func (this *ColorFindPropertyReferences) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ColorFindPropertyReferences) finit_ColorFindPropertyReferences() {
-	this.propIndex = new_LinkedHashMap()
+	this.propIndex = newTMap_(tc_string, tc_p_PropertyClustering)
 }
 
 func (this *ColorFindPropertyReferences) init_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactory, isPropertyReflector ColorFindPropertyReferences_IsPropertyReflector) {
@@ -34,8 +34,8 @@ func new_ColorFindPropertyReferences(colorGraphNodeFactory *ColorGraphNodeFactor
 	return this
 }
 
-func (this *ColorFindPropertyReferences) getPropertyIndex() LinkedHashMapOf[string, *PropertyClustering] {
-	var tmp LinkedHashMapOf[string, *PropertyClustering] = this.propIndex
+func (this *ColorFindPropertyReferences) getPropertyIndex() *TMap[string, *PropertyClustering] {
+	var tmp *TMap[string, *PropertyClustering] = this.propIndex
 	this.propIndex = nil
 	return tmp
 }
@@ -179,11 +179,11 @@ func (this *ColorFindPropertyReferences) traverseObjectlitLike(t *NodeTraversal,
 }
 
 func (this *ColorFindPropertyReferences) registerPropertyUse(t *NodeTraversal, site Node, owner *Color) {
-	var prop *PropertyClustering = cast_[*PropertyClustering](Map_computeIfAbsent_s(this.propIndex, site.getString(), &Function_fn{func(p0 any) any { return obj_(new_PropertyClustering(str_(p0))) }}))
+	var prop *PropertyClustering = this.propIndex.computeIfAbsent(site.getString(), &Function_fn{func(p0 any) any { return obj_(new_PropertyClustering(str_(p0))) }})
 	var flatOwner *ColorGraphNode = this.colorGraphNodeFactory.createNode(owner)
-	flatOwner.getAssociatedProps().put(obj_(prop), obj_(ColorGraphNode_PropAssociation_AST))
+	flatOwner.getAssociatedProps().put(prop, ColorGraphNode_PropAssociation_AST)
 	prop.getClusters().add(obj_(flatOwner))
-	prop.getUseSites().put(site.box_(), obj_(flatOwner))
+	prop.getUseSites().put(site, flatOwner)
 	if t.getCurrentScript().isFromExterns() || ((owner != nil) && owner.getPropertiesKeepOriginalName()) {
 		prop.registerOriginalNameType(flatOwner)
 	}

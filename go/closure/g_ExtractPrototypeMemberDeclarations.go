@@ -34,7 +34,7 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 		injectionPoint.addChildToFront(var_)
 		this.compiler_.reportChangeToEnclosingScope(var_)
 	}
-	it_1 := foreach_(any(info.instancesByChunk.entrySet()))
+	it_1 := foreach_(any(info.instancesByChunk.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var alias string = ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS
@@ -194,7 +194,7 @@ func new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() *ExtractPro
 type ExtractPrototypeMemberDeclarations_GatherExtractionInfo struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_           *ExtractPrototypeMemberDeclarations
-	instancesByChunk MapOf[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
+	instancesByChunk *TMap[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTraversal_AbstractShallowCallback() *NodeTraversal_AbstractShallowCallback {
@@ -205,7 +205,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) up_NodeTrav
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) finit_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {
-	this.instancesByChunk = icast_Map(obj_(new_LinkedHashMap()))
+	this.instancesByChunk = newTMap_(tc_p_JSChunk, tc_p_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo)
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) init_ExtractPrototypeMemberDeclarations_GatherExtractionInfo() {
@@ -235,12 +235,12 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
 			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(instance.declarations.asList()))).node_
 			if instance.isFavorable() {
-				Map_computeIfAbsent(this.instancesByChunk, obj_(t.getChunk()), &Function_fn{func(k_ any) any {
+				Map_computeIfAbsent(this.instancesByChunk.asMap(), obj_(t.getChunk()), &Function_fn{func(k_ any) any {
 					var k *JSChunk = cast_[*JSChunk](k_)
 					_ = k
 					return obj_(new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo())
 				}})
-				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](this.instancesByChunk.get(obj_(t.getChunk())))
+				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(t.getChunk())
 				instanceInfo.instances.add(instance)
 				instanceInfo.totalDelta += instance.delta
 			}
@@ -250,16 +250,16 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractGlobal() bool {
 	var allModulesDelta int32 = 0
-	it_1 := foreach_(any(this.instancesByChunk.values()))
+	it_1 := this.instancesByChunk.each()
 	for it_1.next() {
-		var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](it_1.v)
+		var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = it_1.v
 		allModulesDelta += instanceInfo.totalDelta
 	}
 	return ((allModulesDelta + this.outer_.pattern.globalOverhead) < 0)
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractChunk(chunk *JSChunk) bool {
-	var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](this.instancesByChunk.get(obj_(chunk)))
+	var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(chunk)
 	if instanceInfo == nil {
 		return false
 	}

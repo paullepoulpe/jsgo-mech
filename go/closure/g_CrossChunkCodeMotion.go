@@ -6,12 +6,12 @@ type CrossChunkCodeMotion struct {
 	cccmLog                                    *LogFile
 	compiler_                                  *AbstractCompiler
 	graph                                      *JSChunkGraph
-	chunkInsertionPointMap                     MapOf[*JSChunk, Node]
+	chunkInsertionPointMap                     *TMap[*JSChunk, Node]
 	parentChunkCanSeeSymbolsDeclaredInChildren bool
 }
 
 func (this *CrossChunkCodeMotion) finit_CrossChunkCodeMotion() {
-	this.chunkInsertionPointMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.chunkInsertionPointMap = newTMap_(tc_p_JSChunk, tc_Node)
 }
 
 func (this *CrossChunkCodeMotion) init_CrossChunkCodeMotion(compiler *AbstractCompiler, graph *JSChunkGraph, parentChunkCanSeeSymbolsDeclaredInChildren bool) {
@@ -577,7 +577,7 @@ func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) getGlobalSymbol
 }
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveStatementsToChunk(preferredChunk *JSChunk) {
-	var destParent Node = Node_of_(Map_computeIfAbsent(this.outer_.chunkInsertionPointMap, obj_(preferredChunk), &Function_fn{func(p0 any) any { return this.outer_.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](p0)).box_() }}))
+	var destParent Node = Node_of_(Map_computeIfAbsent(this.outer_.chunkInsertionPointMap.asMap(), obj_(preferredChunk), &Function_fn{func(p0 any) any { return this.outer_.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](p0)).box_() }}))
 	var statementsLastFirst DequeOf[*CrossChunkReferenceCollector_TopLevelStatement] = this.getStatementsLastFirst()
 	it_1 := foreach_(any(statementsLastFirst))
 	for it_1.next() {

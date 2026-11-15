@@ -358,7 +358,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.registerNativeType(JSTypeNative_I_THENABLE_FUNCTION_TYPE, ithenableFunctionType.up_JSType())
 	var ithenableType *ObjectType = ithenableFunctionType.getInstanceType()
 	this.registerNativeType(JSTypeNative_I_THENABLE_TYPE, ithenableType.up_JSType())
-	var thenableType *JSType = this.createRecordType(icast_Map(obj_(ImmutableMap_of_Object_Object(strobj_("then"), obj_(unknownType)))))
+	var thenableType *JSType = this.createRecordType(tmapFrom_(tc_string, tc_p_JSType, ImmutableMap_of_Object_Object(strobj_("then"), obj_(unknownType)), true))
 	this.identifyNonNullableName(nil, "Thenable")
 	this.registerNativeType(JSTypeNative_THENABLE_TYPE, thenableType)
 	var promiseParameterType *JSType = this.createFunctionType(unknownType.up_JSType(), []*JSType{this.createFunctionTypeList(unknownType.up_JSType(), tlistImm_(tc_p_FunctionType_Parameter, this.createOptionalParameters([]*JSType{this.createUnionType([]*JSType{this.promiseTemplateKey.up_JSType(), this.createTemplatizedType(ithenableType, []*JSType{this.promiseTemplateKey.up_JSType()}).up_JSType(), thenableType, nullType.up_JSType()})}))).up_JSType(), this.createFunctionTypeList(unknownType.up_JSType(), tlistImm_(tc_p_FunctionType_Parameter, this.createOptionalParameters([]*JSType{allType.up_JSType()}))).up_JSType()}).up_JSType()
@@ -1158,13 +1158,13 @@ func (this *JSTypeRegistry) buildRecordTypeFromObject(objType *ObjectType) *JSTy
 		var propName string = str_(it_1.v)
 		props.put(strobj_(propName), objType.getPropertyType(propName).self())
 	}
-	return this.createRecordType(icast_Map(obj_(props.buildOrThrow())))
+	return this.createRecordType(tmapFrom_(tc_string, tc_p_JSType, props.buildOrThrow(), true))
 }
 
-func (this *JSTypeRegistry) createRecordType(props MapOf[string, *JSType]) *JSType {
-	var propMap MapOf[string, *JSType] = props
+func (this *JSTypeRegistry) createRecordType(props *TMap[string, *JSType]) *JSType {
+	var propMap *TMap[string, *JSType] = props
 	var builder *RecordTypeBuilder = new_RecordTypeBuilder(this)
-	it_1 := foreach_(any(propMap.entrySet()))
+	it_1 := foreach_(any(propMap.asMap().entrySet()))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		builder.addProperty(str_(e.getKey()), to_JSType(e.getValue()), 0)

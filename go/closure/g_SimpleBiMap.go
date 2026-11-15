@@ -4,12 +4,12 @@ package closure
 
 type SimpleBiMap struct {
 	forward  LinkedHashMapOf[any, any]
-	backward LinkedHashMapOf[any, any]
+	backward *TMap[string, string]
 }
 
 func (this *SimpleBiMap) finit_SimpleBiMap() {
 	this.forward = new_LinkedHashMap()
-	this.backward = new_LinkedHashMap()
+	this.backward = newTMap_(tc_string, tc_string)
 }
 
 func (this *SimpleBiMap) init_SimpleBiMap() {
@@ -26,9 +26,9 @@ func SimpleBiMap_create() *SimpleBiMap {
 	return new_SimpleBiMap()
 }
 
-func SimpleBiMap_copyOf(map_ MapOf[any, any]) *SimpleBiMap {
+func SimpleBiMap_copyOf(map_ *TMap[string, string]) *SimpleBiMap {
 	var copy_ *SimpleBiMap = new_SimpleBiMap()
-	it_1 := foreach_(any(map_.entrySet()))
+	it_1 := foreach_(any(map_.asMap().entrySet()))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		copy_.put(e.getKey(), e.getValue())
@@ -42,17 +42,17 @@ func (this *SimpleBiMap) put(key any, value any) any {
 	if hadKey && Objects_equals(oldValue, value) {
 		return oldValue
 	}
-	Preconditions_checkArgument_boolean_String_Object(!this.backward.containsKey(value), "value already present: %s", value)
+	Preconditions_checkArgument_boolean_String_Object(!this.backward.containsKey(str_(value)), "value already present: %s", value)
 	this.forward.put(key, value)
 	if hadKey {
 		this.backward.clear()
 		it_1 := foreach_(any(this.forward.entrySet()))
 		for it_1.next() {
 			var e Map_Entry = icast_Map_Entry(it_1.v)
-			this.backward.put(e.getValue(), e.getKey())
+			this.backward.put(str_(e.getValue()), str_(e.getKey()))
 		}
 	} else {
-		this.backward.put(value, key)
+		this.backward.put(str_(value), str_(key))
 	}
 	return oldValue
 }
@@ -74,8 +74,8 @@ func (this *SimpleBiMap) asMap() MapOf[any, any] {
 	return Collections_unmodifiableMap(icast_Map(obj_(this.forward)))
 }
 
-func (this *SimpleBiMap) inverse() MapOf[any, any] {
-	return Collections_unmodifiableMap(icast_Map(obj_(this.backward)))
+func (this *SimpleBiMap) inverse() *TMap[string, string] {
+	return this.backward
 }
 
 func (this *SimpleBiMap) toString() string {

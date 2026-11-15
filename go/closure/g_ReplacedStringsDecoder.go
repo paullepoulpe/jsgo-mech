@@ -54,6 +54,6 @@ func ReplacedStringsDecoder_clinit() {
 	}
 	ReplacedStringsDecoder_clinit_done = true
 	ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN = Pattern_compile(ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER)
-	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(icast_Map(obj_(ImmutableMap_of()))))
+	ReplacedStringsDecoder_NULL_DECODER = new_ReplacedStringsDecoder(VariableMap_fromMap(tmapFrom_(tc_string, tc_string, ImmutableMap_of(), true)))
 
 }

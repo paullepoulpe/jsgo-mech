@@ -105,7 +105,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 	if (this.colorings.isEmpty() || !n.isName()) || parent.isFunction() {
 		return
 	}
-	var var_ *Var = cast_[*Var](Map_get_s(this.liveness.getAllVariables(), n.getString()))
+	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
 	var vNode GraphNode = to_GraphColoring(this.colorings.peek()).getGraph().getNode(obj_(var_))
 	if vNode == nil {
 		return

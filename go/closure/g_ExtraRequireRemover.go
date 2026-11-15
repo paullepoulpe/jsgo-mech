@@ -4,12 +4,12 @@ package closure
 
 type ExtraRequireRemover struct {
 	compiler_ *AbstractCompiler
-	requires  MapOf[string, Node]
+	requires  *TMap[string, Node]
 	usages    map[string]struct{}
 }
 
 func (this *ExtraRequireRemover) finit_ExtraRequireRemover() {
-	this.requires = icast_Map(obj_(new_LinkedHashMap()))
+	this.requires = newTMap_(tc_string, tc_Node)
 	this.usages = map[string]struct{}{}
 }
 
@@ -79,7 +79,7 @@ func (this *ExtraRequireRemover) reset() {
 }
 
 func (this *ExtraRequireRemover) removeExtraRequiresInScript() {
-	it_1 := foreach_(any(this.requires.entrySet()))
+	it_1 := foreach_(any(this.requires.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var require string = str_(entry.getKey())
@@ -134,7 +134,7 @@ func (this *ExtraRequireRemover) visitRequire(localName string, namespace string
 	if Collection_contains_s(ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES, namespace) {
 		return
 	}
-	Map_putIfAbsent_s(this.requires, localName, node.box_())
+	this.requires.putIfAbsent(localName, node)
 }
 
 func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireCall Node, parent Node) {

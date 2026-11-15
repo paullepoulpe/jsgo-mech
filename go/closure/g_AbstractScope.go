@@ -187,17 +187,17 @@ func (this *AbstractScope) getVarIterable() IterableOf[any] {
 }
 
 func (this *AbstractScope) getAllAccessibleVariables() IterableOf[any] {
-	var accessibleVars MapOf[string, any] = icast_Map(obj_(new_LinkedHashMap()))
+	var accessibleVars *TMap[string, any] = newTMap_(tc_string, tc_any)
 	var s *AbstractScope = this.thisScope()
 	for s != nil {
 		it_2 := foreach_(any(s.getVarIterable()))
 		for it_2.next() {
 			var v *AbstractVar = to_AbstractVar(it_2.v)
-			Map_putIfAbsent_s(accessibleVars, v.getName(), v.self())
+			accessibleVars.putIfAbsent(v.getName(), v.self())
 		}
 		s = s.getParent()
 	}
-	return Iterable(accessibleVars.values())
+	return Iterable(accessibleVars.asMap().values())
 }
 
 func (this *AbstractScope) getAllSymbols() IterableOf[any] {

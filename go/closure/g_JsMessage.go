@@ -555,7 +555,7 @@ type JsMessage_Builder struct {
 	id                               OptionalOf[string]
 	alternateId                      OptionalOf[string]
 	parts                            *TList[JsMessage_Part]
-	genderedMessageMap               MapOf[*JsMessage_GrammaticalGenderCase, ListOf[JsMessage_Part]]
+	genderedMessageMap               *TMap[*JsMessage_GrammaticalGenderCase, ListOf[JsMessage_Part]]
 	jsPlaceholderNames_              SetOf[string]
 	canonicalPlaceholderNames_       SetOf[string]
 	placeholderNameToExampleMap      ImmutableMapOf[string, string]
@@ -572,7 +572,7 @@ func (this *JsMessage_Builder) finit_JsMessage_Builder() {
 	this.id = Optional_empty()
 	this.alternateId = Optional_empty()
 	this.parts = newTList_(tc_JsMessage_Part)
-	this.genderedMessageMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.genderedMessageMap = newTMap_(tc_p_JsMessage_GrammaticalGenderCase, tc_ListOf_JsMessage_Part_)
 	this.jsPlaceholderNames_ = icast_Set(obj_(new_LinkedHashSet()))
 	this.canonicalPlaceholderNames_ = icast_Set(obj_(new_LinkedHashSet()))
 	this.placeholderNameToExampleMap = ImmutableMap_of()
@@ -630,7 +630,7 @@ func (this *JsMessage_Builder) appendJsPlaceholderReference(name string) *JsMess
 }
 
 func (this *JsMessage_Builder) appendJsPlaceholderReference_2(genderCase *JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
-	icast_List(this.genderedMessageMap.get(obj_(genderCase))).add(obj_(JsMessage_PlaceholderReference_createForJsName(name)))
+	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_PlaceholderReference_createForJsName(name)))
 	Collection_add_s(this.jsPlaceholderNames_, name)
 	return this
 }
@@ -644,7 +644,7 @@ func (this *JsMessage_Builder) appendCanonicalPlaceholderReference(name string) 
 
 func (this *JsMessage_Builder) appendCanonicalPlaceholderReference_2(genderCase *JsMessage_GrammaticalGenderCase, name string) *JsMessage_Builder {
 	var placeholder *JsMessage_PlaceholderReference = JsMessage_PlaceholderReference_createForCanonicalName(name)
-	icast_List(this.genderedMessageMap.get(obj_(genderCase))).add(obj_(placeholder))
+	this.genderedMessageMap.get(genderCase).add(obj_(placeholder))
 	Collection_add_s(this.jsPlaceholderNames_, placeholder.getJsPlaceholderName())
 	return this
 }
@@ -656,23 +656,23 @@ func (this *JsMessage_Builder) appendStringPart(part string) *JsMessage_Builder 
 
 func (this *JsMessage_Builder) appendStringPart_2(genderCase *JsMessage_GrammaticalGenderCase, part string) *JsMessage_Builder {
 	Preconditions_checkNotNull_Object_Object(obj_(genderCase), strobj_("Grammatical gender case must not be null"))
-	icast_List(this.genderedMessageMap.get(obj_(genderCase))).add(obj_(JsMessage_StringPart_create(part)))
+	this.genderedMessageMap.get(genderCase).add(obj_(JsMessage_StringPart_create(part)))
 	return this
 }
 
 func (this *JsMessage_Builder) addGenderedMessageKey(part *JsMessage_GrammaticalGenderCase) *JsMessage_Builder {
 	Preconditions_checkNotNull_Object_Object(obj_(part), strobj_("Gendered message key must not be null"))
-	this.genderedMessageMap.put(obj_(part), new_ArrayList_0().self())
+	this.genderedMessageMap.put(part, icast_List(new_ArrayList_0().self()))
 	return this
 }
 
-func (this *JsMessage_Builder) setPlaceholderNameToExampleMap(map_ MapOf[string, string]) *JsMessage_Builder {
-	this.placeholderNameToExampleMap = ImmutableMap_copyOf(map_)
+func (this *JsMessage_Builder) setPlaceholderNameToExampleMap(map_ *TMap[string, string]) *JsMessage_Builder {
+	this.placeholderNameToExampleMap = ImmutableMap_copyOf(map_.asMap())
 	return this
 }
 
-func (this *JsMessage_Builder) setPlaceholderNameToOriginalCodeMap(map_ MapOf[string, string]) *JsMessage_Builder {
-	this.placeholderNameToOriginalCodeMap = ImmutableMap_copyOf(map_)
+func (this *JsMessage_Builder) setPlaceholderNameToOriginalCodeMap(map_ *TMap[string, string]) *JsMessage_Builder {
+	this.placeholderNameToOriginalCodeMap = ImmutableMap_copyOf(map_.asMap())
 	return this
 }
 
@@ -727,7 +727,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 		this.alternateId = Optional_empty()
 	}
 	var immutableGenderedPartsBuilder ImmutableMap_BuilderOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = ImmutableMap_builder()
-	it_1 := foreach_(any(this.genderedMessageMap.entrySet()))
+	it_1 := foreach_(any(this.genderedMessageMap.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		immutableGenderedPartsBuilder.put(entry.getKey(), obj_(ImmutableList_copyOf(icast_Collection(entry.getValue()))))

@@ -113,7 +113,7 @@ type CompilerOptions struct {
 	stripNameSuffixes                            ImmutableSetOf[string]
 	stripNamePrefixes                            ImmutableSetOf[string]
 	customPasses                                 *SimpleSetMultimap
-	defineReplacements                           LinkedHashMapOf[string, any]
+	defineReplacements                           *TMap[string, any]
 	tweakProcessing                              *CompilerOptions_TweakProcessing
 	rewriteGlobalDeclarationsForTryCatchWrapping bool
 	checksOnly                                   bool
@@ -379,7 +379,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.stripNameSuffixes = ImmutableSet_of()
 	this.stripNamePrefixes = ImmutableSet_of()
 	this.customPasses = nil
-	this.defineReplacements = new_LinkedHashMap()
+	this.defineReplacements = newTMap_(tc_string, tc_any)
 	this.tweakProcessing = CompilerOptions_TweakProcessing_OFF
 	this.rewriteGlobalDeclarationsForTryCatchWrapping = false
 	this.checksOnly = false
@@ -792,7 +792,7 @@ func (this *CompilerOptions) setRemoveUnusedClassProperties(removeUnusedClassPro
 
 func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node] {
 	var map_ ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-	it_1 := foreach_(any(this.defineReplacements.entrySet()))
+	it_1 := foreach_(any(this.defineReplacements.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var name string = str_(entry.getKey())
@@ -842,19 +842,19 @@ func (this *CompilerOptions) getDefineReplacements() ImmutableMapOf[string, Node
 }
 
 func (this *CompilerOptions) setDefineToBooleanLiteral(defineName string, value bool) {
-	Map_put_s(this.defineReplacements, defineName, any(bool(value)))
+	this.defineReplacements.put(defineName, any(bool(value)))
 }
 
 func (this *CompilerOptions) setDefineToStringLiteral(defineName string, value string) {
-	Map_put_s(this.defineReplacements, defineName, strobj_(value))
+	this.defineReplacements.put(defineName, strobj_(value))
 }
 
 func (this *CompilerOptions) setDefineToNumberLiteral(defineName string, value int32) {
-	Map_put_s(this.defineReplacements, defineName, any(int32(value)))
+	this.defineReplacements.put(defineName, any(int32(value)))
 }
 
 func (this *CompilerOptions) setDefineToDoubleLiteral(defineName string, value float64) {
-	Map_put_s(this.defineReplacements, defineName, any(float64(value)))
+	this.defineReplacements.put(defineName, any(float64(value)))
 }
 
 func (this *CompilerOptions) skipAllCompilerPasses() {
@@ -920,12 +920,12 @@ func (this *CompilerOptions) setIdGenerators(idGenerators SetOf[string]) {
 	this.idGenerators = builder.buildOrThrow()
 }
 
-func (this *CompilerOptions) setIdGeneratorsRenamingMaps(idGenerators MapOf[string, RenamingMap]) {
-	this.idGenerators = ImmutableMap_copyOf(idGenerators)
+func (this *CompilerOptions) setIdGeneratorsRenamingMaps(idGenerators *TMap[string, RenamingMap]) {
+	this.idGenerators = ImmutableMap_copyOf(idGenerators.asMap())
 }
 
-func (this *CompilerOptions) getIdGenerators() MapOf[string, RenamingMap] {
-	return icast_Map(obj_(this.idGenerators))
+func (this *CompilerOptions) getIdGenerators() *TMap[string, RenamingMap] {
+	return tmapFrom_(tc_string, tc_RenamingMap, this.idGenerators, true)
 }
 
 func (this *CompilerOptions) setIdGeneratorsMap(previousMappings string) {
@@ -1914,9 +1914,9 @@ func (this *CompilerOptions) getCustomPassesAt(executionTime *CustomPassExecutio
 	}()
 }
 
-func (this *CompilerOptions) setDefineReplacements(defineReplacements MapOf[string, any]) {
+func (this *CompilerOptions) setDefineReplacements(defineReplacements *TMap[string, any]) {
 	this.defineReplacements.clear()
-	this.defineReplacements.putAll(defineReplacements)
+	this.defineReplacements.asMap().putAll(defineReplacements.asMap())
 }
 
 func (this *CompilerOptions) getEnableZonesDefineName() OptionalOf[string] {

@@ -6,11 +6,11 @@ type VariableMap struct {
 	map__ *SimpleBiMap
 }
 
-func (this *VariableMap) init_VariableMap(map_ MapOf[string, string]) {
+func (this *VariableMap) init_VariableMap(map_ *TMap[string, string]) {
 	this.map__ = SimpleBiMap_copyOf(map_)
 }
 
-func new_VariableMap(map_ MapOf[string, string]) *VariableMap {
+func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
 	this := &VariableMap{}
 	this.init_VariableMap(map_)
 	return this
@@ -21,7 +21,7 @@ func (this *VariableMap) lookupNewName(sourceName string) OptionalOf[string] {
 }
 
 func (this *VariableMap) lookupSourceName(newName OptionalOf[string]) string {
-	return str_(Map_get_s(this.map__.inverse(), str_(newName.orElse(nil))))
+	return this.map__.inverse().get(str_(newName.orElse(nil)))
 }
 
 func (this *VariableMap) getOriginalNameToNewNameMap() ImmutableMapOf[string, string] {
@@ -29,7 +29,7 @@ func (this *VariableMap) getOriginalNameToNewNameMap() ImmutableMapOf[string, st
 }
 
 func (this *VariableMap) getNewNameToOriginalNameMap() ImmutableMapOf[string, string] {
-	return ImmutableMap_copyOf(this.map__.inverse())
+	return ImmutableMap_copyOf(this.map__.inverse().asMap())
 }
 
 func (this *VariableMap) save(filename string) *Outcome_base {
@@ -84,7 +84,7 @@ func VariableMap_fromStreamBytes(bytes []int8) *Outcome_base {
 			return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1))))
 		}())
 	}
-	return Outcome_base_ok_Object(obj_(new_VariableMap(icast_Map(obj_(map_.buildOrThrow())))))
+	return Outcome_base_ok_Object(obj_(new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))))
 }
 
 func VariableMap_fromLines(string_ string) *Outcome_base {
@@ -115,7 +115,7 @@ func VariableMap_fromLines(string_ string) *Outcome_base {
 			return strobj_(VariableMap_unescape(String_substring_int(line, (pos + 1))))
 		}())
 	}
-	return Outcome_base_ok_Object(obj_(new_VariableMap(icast_Map(obj_(map_.buildOrThrow())))))
+	return Outcome_base_ok_Object(obj_(new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))))
 }
 
 func VariableMap_escape(value string) string {
@@ -158,7 +158,7 @@ func VariableMap_unescape(value string) string {
 	return Object_toString(obj_(sb))
 }
 
-func VariableMap_fromMap(map_ MapOf[string, string]) *VariableMap {
+func VariableMap_fromMap(map_ *TMap[string, string]) *VariableMap {
 	return new_VariableMap(map_)
 }
 

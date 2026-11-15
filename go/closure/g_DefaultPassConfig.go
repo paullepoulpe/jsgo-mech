@@ -1505,7 +1505,7 @@ func (this *DefaultPassConfig) createProcessDefines(mode *ProcessDefines_Mode) *
 	return PassFactory_builder().setName(("processDefines_" + sstr_(mode.name()))).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(icast_Map(obj_(this.options_.getDefineReplacements()))).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build())
+		return obj_(new_ProcessDefines_Builder(compiler).putReplacements(DefaultPassConfig_getAdditionalReplacements(this.options_)).putReplacements(tmapFrom_(tc_string, tc_Node, this.options_.getDefineReplacements(), true)).setMode(mode).setRecognizeClosureDefines(compiler.getOptions().getClosurePass()).setEnableZonesDefineName(this.options_.getEnableZonesDefineName()).setZoneInputPattern(this.options_.getZoneInputPattern()).setUnknownDefinesToIgnore(this.options_.getUnknownDefinesToIgnore()).build())
 	}}).build()
 }
 
@@ -1542,13 +1542,13 @@ func DefaultPassConfig_runInSerial(passes CollectionOf[CompilerPass]) CompilerPa
 	return icast_CompilerPass(obj_(new_DefaultPassConfig_13(passes)))
 }
 
-func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) MapOf[string, Node] {
-	var additionalReplacements MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
+func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap[string, Node] {
+	var additionalReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	if options.shouldMarkAsCompiled() || options.getClosurePass() {
-		Map_put_s(additionalReplacements, DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode().box_())
+		additionalReplacements.put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
 	}
 	if (options.getClosurePass() && options.getLocale().isPresent()) && !options.doLateLocalization() {
-		Map_put_s(additionalReplacements, DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(str_(options.getLocale().get())).box_())
+		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(str_(options.getLocale().get())))
 	}
 	return additionalReplacements
 }

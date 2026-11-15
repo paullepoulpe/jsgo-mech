@@ -40,7 +40,7 @@ func (this *OptimizeCalls) process_2(externs Node, root Node) {
 }
 
 func (this *OptimizeCalls) eliminateAccessorsFrom(references *OptimizeCalls_ReferenceMap) {
-	references.props.keySet().removeAll(Collection(this.compiler_.getAccessorSummary().getAccessors().keySet()))
+	references.props.asMap().keySet().removeAll(Collection(this.compiler_.getAccessorSummary().getAccessors().keySet()))
 }
 
 func OptimizeCalls_safeSet(set SetOf[string]) SetOf[string] {
@@ -149,13 +149,13 @@ func (this *OptimizeCalls_Builder) build() *OptimizeCalls {
 
 type OptimizeCalls_ReferenceMap struct {
 	globalScope *Scope
-	names_      LinkedHashMapOf[string, ArrayListOf[Node]]
-	props       LinkedHashMapOf[string, ArrayListOf[Node]]
+	names_      *TMap[string, ArrayListOf[Node]]
+	props       *TMap[string, ArrayListOf[Node]]
 }
 
 func (this *OptimizeCalls_ReferenceMap) finit_OptimizeCalls_ReferenceMap() {
-	this.names_ = new_LinkedHashMap()
-	this.props = new_LinkedHashMap()
+	this.names_ = newTMap_(tc_string, tc_ArrayListOf_Node_)
+	this.props = newTMap_(tc_string, tc_ArrayListOf_Node_)
 }
 
 func (this *OptimizeCalls_ReferenceMap) init_OptimizeCalls_ReferenceMap() {
@@ -168,12 +168,12 @@ func new_OptimizeCalls_ReferenceMap() *OptimizeCalls_ReferenceMap {
 	return this
 }
 
-func (this *OptimizeCalls_ReferenceMap) addReference(data LinkedHashMapOf[string, ArrayListOf[Node]], name string, n Node) {
-	var refs ArrayListOf[Node] = to_ArrayList(Map_computeIfAbsent_s(data, name, &Function_fn{func(k_ any) any {
+func (this *OptimizeCalls_ReferenceMap) addReference(data *TMap[string, ArrayListOf[Node]], name string, n Node) {
+	var refs ArrayListOf[Node] = data.computeIfAbsent(name, &Function_fn{func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return new_ArrayList_0().self()
-	}}))
+	}})
 	refs.add(n.box_())
 }
 
@@ -190,11 +190,11 @@ func (this *OptimizeCalls_ReferenceMap) getGlobalScope() *Scope {
 }
 
 func (this *OptimizeCalls_ReferenceMap) getNameReferences() IterableOf[Map_EntryOf[string, ArrayListOf[Node]]] {
-	return Iterable(this.names_.entrySet())
+	return Iterable(this.names_.asMap().entrySet())
 }
 
 func (this *OptimizeCalls_ReferenceMap) getPropReferences() IterableOf[Map_EntryOf[string, ArrayListOf[Node]]] {
-	return Iterable(this.props.entrySet())
+	return Iterable(this.props.asMap().entrySet())
 }
 
 func OptimizeCalls_ReferenceMap_getFunctionNodes(definitionSites ListOf[Node]) *SimpleListMultimap {

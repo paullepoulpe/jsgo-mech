@@ -9,7 +9,7 @@ type LiveVariablesAnalysis struct {
 	escaped        SetOf[*Var]
 	scopeVariables map[string]BoxedOf[int32]
 	orderedVars    *TList[*Var]
-	allVarsInFn    MapOf[string, *Var]
+	allVarsInFn    *TMap[string, *Var]
 }
 
 func (this *LiveVariablesAnalysis) up_DataFlowAnalysis() *DataFlowAnalysis {
@@ -53,7 +53,7 @@ func (this *LiveVariablesAnalysis) getEscapedLocals() SetOf[*Var] {
 	return this.escaped
 }
 
-func (this *LiveVariablesAnalysis) getAllVariables() MapOf[string, *Var] {
+func (this *LiveVariablesAnalysis) getAllVariables() *TMap[string, *Var] {
 	return this.allVarsInFn
 }
 
@@ -206,7 +206,7 @@ func (this *LiveVariablesAnalysis) computeGenKill(n Node, gen *BitSet, kill *Bit
 func (this *LiveVariablesAnalysis) addToSetIfLocal(node Node, set *BitSet) {
 	Preconditions_checkState_boolean_Object(node.isName(), node.box_())
 	var name string = node.getString()
-	var var_ *Var = cast_[*Var](Map_get_s(this.allVarsInFn, name))
+	var var_ *Var = this.allVarsInFn.get(name)
 	if var_ == nil {
 		return
 	}

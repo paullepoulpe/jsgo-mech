@@ -5,7 +5,7 @@ package closure
 type BranchCoverageInstrumentationCallback struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_           *AbstractCompiler
-	instrumentationData MapOf[string, *FileInstrumentationData]
+	instrumentationData *TMap[string, *FileInstrumentationData]
 }
 
 func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgCallback() *NodeTraversal_AbstractCfgCallback {
@@ -15,13 +15,13 @@ func (this *BranchCoverageInstrumentationCallback) up_NodeTraversal_AbstractCfgC
 	return &this.NodeTraversal_AbstractCfgCallback
 }
 
-func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData MapOf[string, *FileInstrumentationData]) {
+func (this *BranchCoverageInstrumentationCallback) init_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) {
 	this.NodeTraversal_AbstractCfgCallback.init_NodeTraversal_AbstractCfgCallback()
 	this.compiler_ = compiler
 	this.instrumentationData = instrumentationData
 }
 
-func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData MapOf[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
+func new_BranchCoverageInstrumentationCallback(compiler *AbstractCompiler, instrumentationData *TMap[string, *FileInstrumentationData]) *BranchCoverageInstrumentationCallback {
 	this := &BranchCoverageInstrumentationCallback{}
 	this.self_ = this
 	this.init_BranchCoverageInstrumentationCallback(compiler, instrumentationData)
@@ -40,7 +40,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	if node.isScript() {
 		if func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+				return this.instrumentationData.get(str_(fileName.get()))
 			}
 			return nil
 		}() != nil {
@@ -54,7 +54,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			this.compiler_.reportChangeToEnclosingScope(node)
 			this.instrumentBranchCoverage(traversal, func() *FileInstrumentationData {
 				if fileName.isPresent() {
-					return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+					return this.instrumentationData.get(str_(fileName.get()))
 				}
 				return nil
 			}())
@@ -77,14 +77,14 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		if !hasDefaultBlock {
 			this.addDefaultBlock(node)
 		}
-		Map_computeIfAbsent_s(this.instrumentationData, str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+		this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal)))
 		}})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+				return this.instrumentationData.get(str_(fileName.get()))
 			}
 			return nil
 		}(), this.getChildrenBlocks(node))
@@ -109,14 +109,14 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 				}
 			}
 		}
-		Map_computeIfAbsent_s(this.instrumentationData, str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+		this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal)))
 		}})
 		this.processBranchInfo(node, func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+				return this.instrumentationData.get(str_(fileName.get()))
 			}
 			return nil
 		}(), blocks)
@@ -157,7 +157,7 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	var getElemNode Node = IR_getelem(IR_name(arrayName), IR_number(float64(idx)))
 	var exprNode Node = IR_exprResult(IR_assign(getElemNode, IR_trueNode()))
 	var fileName OptionalOf[string] = traversal.getSourceName()
-	Map_computeIfAbsent_s(this.instrumentationData, str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+	this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return obj_(new_FileInstrumentationData(k, arrayName))
@@ -188,7 +188,7 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 	var fileName OptionalOf[string] = traversal.getSourceName()
 	var data *FileInstrumentationData = func() *FileInstrumentationData {
 		if fileName.isPresent() {
-			return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+			return this.instrumentationData.get(str_(fileName.get()))
 		}
 		return nil
 	}()

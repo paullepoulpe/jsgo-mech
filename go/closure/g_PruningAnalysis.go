@@ -42,17 +42,17 @@ func (this *PruningAnalysis) calculateTotalBlame() ImmutableMapOf[string, BoxedO
 func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, BoxedOf[int32]] {
 	var graph *DiGraph = this.buildGraph()
 	var dominatorTree *DominatorTree = DominatorTree_compute(graph, strobj_(PruningAnalysis_VIRTUAL_ROOT))
-	var bottleneckBlame MapOf[string, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
+	var bottleneckBlame *TMap[string, any] = newTMap_(tc_string, tc_any)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](dominatorTree.getAllSubtreeSizes().entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var node string = str_(entry.getKey())
 		var retainedCount int32 = unbox_[int32](entry.getValue())
 		if !(node == PruningAnalysis_VIRTUAL_ROOT) && (retainedCount > 1) {
-			Map_put_s(bottleneckBlame, node, any(int32(retainedCount)))
+			bottleneckBlame.put(node, any(int32(retainedCount)))
 		}
 	}
-	var sortedBlame *TList[Map_EntryOf[string, BoxedOf[int32]]] = tlistFrom_(tc_Map_EntryOf_string__BoxedOf_int32__, Collection(bottleneckBlame.entrySet()))
+	var sortedBlame *TList[Map_EntryOf[string, BoxedOf[int32]]] = tlistFrom_(tc_Map_EntryOf_string__BoxedOf_int32__, Collection(bottleneckBlame.asMap().entrySet()))
 	List_sort(sortedBlame.asList(), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(entry_ any) int32 {
 		var entry Map_Entry = icast_Map_Entry(entry_)
 		_ = entry

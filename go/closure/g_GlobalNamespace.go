@@ -13,7 +13,7 @@ type GlobalNamespace struct {
 	generated                     bool
 	decisionsLog                  *LogFile
 	globalNames                   *TList[*GlobalNamespace_Name]
-	nameMap                       MapOf[string, *GlobalNamespace_Name]
+	nameMap                       *TMap[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable
 	shouldTraverseScript          PredicateOf[Node]
 }
@@ -23,7 +23,7 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.spreadSiblingCache = map[Node]BoxedOf[bool]{}
 	this.generated = false
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
-	this.nameMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create()
 	this.shouldTraverseScript = &Predicate_fn{func(n_ any) bool {
 		var n Node = Node_of_(n_)
@@ -87,7 +87,7 @@ func (this *GlobalNamespace) getRootNode_2(name string, s *Scope) Node {
 	name = GlobalNamespace_getTopVarName(name)
 	var v *Var = cast_[*Var](s.getVar(name).self())
 	if v == nil {
-		var providedName *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](Map_get_s(this.nameMap, name))
+		var providedName *GlobalNamespace_Name = this.nameMap.get(name)
 		return func() Node {
 			if (providedName != nil) && providedName.getBooleanProperty(GlobalNamespace_NameProp_IS_PROVIDED) {
 				return this.globalRoot
@@ -113,7 +113,7 @@ func (this *GlobalNamespace) getSlot(name string) StaticSlot {
 
 func (this *GlobalNamespace) getOwnSlot(name string) StaticSlot {
 	this.ensureGenerated()
-	return icast_StaticSlot(Map_get_s(this.nameMap, name))
+	return icast_StaticSlot(obj_(this.nameMap.get(name)))
 }
 
 func (this *GlobalNamespace) getReferences_StaticSlot(slot_ StaticSlot) IterableOf[*GlobalNamespace_Ref] {
@@ -131,7 +131,7 @@ func (this *GlobalNamespace) getScope(slot_ StaticSlot) StaticScope {
 
 func (this *GlobalNamespace) getAllSymbols() Iterable {
 	this.ensureGenerated()
-	return Iterable(Collections_unmodifiableCollection(this.getNameIndex().values()))
+	return Iterable(Collections_unmodifiableCollection(this.getNameIndex().asMap().values()))
 }
 
 func (this *GlobalNamespace) ensureGenerated() {
@@ -145,7 +145,7 @@ func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
 	return this.globalNames
 }
 
-func (this *GlobalNamespace) getNameIndex() MapOf[string, *GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameIndex() *TMap[string, *GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.nameMap
 }
@@ -920,7 +920,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) isNestedAssign(parent Node) bo
 func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, metadata *ModuleMetadataMap_ModuleMetadata) *GlobalNamespace_Name {
 	var node *GlobalNamespace_Name = func() *GlobalNamespace_Name {
 		if metadata == nil {
-			return cast_[*GlobalNamespace_Name](Map_get_s(this.outer_.nameMap, name))
+			return this.outer_.nameMap.get(name)
 		}
 		return cast_[*GlobalNamespace_Name](this.outer_.nameMapByModule.get(obj_(metadata), strobj_(name)))
 	}()
@@ -931,7 +931,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 			var parent *GlobalNamespace_Name = this.getOrCreateName(parentName, metadata)
 			node = parent.addProperty(String_substring_int(name, (i+1)), this.outer_.sourceKind)
 			if metadata == nil {
-				Map_put_s(this.outer_.nameMap, name, obj_(node))
+				this.outer_.nameMap.put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put(obj_(metadata), strobj_(name), obj_(node))
 			}
@@ -939,7 +939,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 			node = new_GlobalNamespace_Name(this.outer_, name, nil, this.outer_.sourceKind)
 			if metadata == nil {
 				this.outer_.globalNames.add(node)
-				Map_put_s(this.outer_.nameMap, name, obj_(node))
+				this.outer_.nameMap.put(name, node)
 			} else {
 				this.outer_.nameMapByModule.put(obj_(metadata), strobj_(name), obj_(node))
 			}

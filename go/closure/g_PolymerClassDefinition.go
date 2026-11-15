@@ -12,7 +12,7 @@ type PolymerClassDefinition struct {
 	constructor_      *PolymerPass_MemberDefinition
 	nativeBaseElement OptionalOf[string]
 	props             *TList[*PolymerPass_MemberDefinition]
-	behaviorProps     MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
+	behaviorProps     *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
 	methods           *TList[*PolymerPass_MemberDefinition]
 	behaviors         ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition]
 	features_         *FeatureSet
@@ -23,7 +23,7 @@ func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
 	this.interfaceName = Optional_empty()
 }
 
-func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) {
+func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) {
 	this.finit_PolymerClassDefinition()
 	this.defType = defType
 	this.definition = definition
@@ -41,7 +41,7 @@ func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *Polymer
 	this.input = input
 }
 
-func new_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
+func new_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition], features *FeatureSet, input *CompilerInput) *PolymerClassDefinition {
 	this := &PolymerClassDefinition{}
 	this.init_PolymerClassDefinition(defType, definition, target, hasGeneratedLhs, descriptor, classInfo, constructor, nativeBaseElement, props, behaviorProps, methods, behaviors, features, input)
 	return this
@@ -106,14 +106,14 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
 	var behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
 	var properties *TList[*PolymerPass_MemberDefinition] = newTList_(tc_p_PolymerPass_MemberDefinition)
-	var behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = icast_Map(obj_(new_LinkedHashMap()))
+	var behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition] = newTMap_(tc_p_PolymerPass_MemberDefinition, tc_p_PolymerBehaviorExtractor_BehaviorDefinition)
 	it_1 := foreach_(obj_(behaviors))
 	for it_1.next() {
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](it_1.v)
 		it_3 := behavior.props.each()
 		for it_3.next() {
 			var prop *PolymerPass_MemberDefinition = it_3.v
-			behaviorProps.put(obj_(prop), obj_(behavior))
+			behaviorProps.put(prop, behavior)
 		}
 	}
 	PolymerClassDefinition_overwriteMembersIfPresent(properties, tlistImm_(tc_p_PolymerPass_MemberDefinition, PolymerPassStaticUtils_extractProperties(descriptor, PolymerClassDefinition_DefinitionType_ObjectLiteral, compiler, 0)))
@@ -264,11 +264,11 @@ func PolymerClassDefinition_overwriteMembersIfPresent(list *TList[*PolymerPass_M
 	}
 }
 
-func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]) {
+func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]) {
 	if behaviorProps == nil {
 		return
 	}
-	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.entrySet().iterator()
+	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()
 	var seen map[string]struct{} = map[string]struct{}{}
 	for behaviorsItr.hasNext() {
 		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](icast_Map_Entry(behaviorsItr.next()).getKey())
@@ -279,7 +279,7 @@ func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps MapOf[*Po
 	}
 }
 
-func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *TList[*PolymerPass_MemberDefinition]) {
+func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps *TList[*PolymerPass_MemberDefinition]) {
 	if behaviorProps == nil {
 		return
 	}
@@ -289,7 +289,7 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 		var x *PolymerPass_MemberDefinition = it_1.v
 		elementPropNames[x.name_.getString()] = struct{}{}
 	}
-	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.entrySet().iterator()
+	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.asMap().entrySet().iterator()
 	for behaviorsItr.hasNext() {
 		var memberDefinition *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](icast_Map_Entry(behaviorsItr.next()).getKey())
 		if has_(elementPropNames, memberDefinition.name_.getString()) {

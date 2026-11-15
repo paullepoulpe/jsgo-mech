@@ -1393,20 +1393,20 @@ func (this *TypeInference) matchFunction(expectedType *FunctionType, currentType
 	return currentType
 }
 
-func (this *TypeInference) buildTypeVariables(inferredTypes MapOf[*TemplateType, *JSType]) MapOf[string, *JSType] {
-	var typeVars MapOf[string, *JSType] = icast_Map(obj_(new_LinkedHashMap()))
+func (this *TypeInference) buildTypeVariables(inferredTypes MapOf[*TemplateType, *JSType]) *TMap[string, *JSType] {
+	var typeVars *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	it_1 := foreach_(any(inferredTypes.entrySet()))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		if !cast_[*TemplateType](e.getKey()).isTypeTransformation() {
-			Map_put_s(typeVars, str_(cast_[*TemplateType](e.getKey()).getReferenceName().orElseThrow()), e.getValue())
+			typeVars.put(str_(cast_[*TemplateType](e.getKey()).getReferenceName().orElseThrow()), to_JSType(e.getValue()))
 		}
 	}
 	return typeVars
 }
 
 func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableListOf[*TemplateType], inferredTypes MapOf[*TemplateType, *JSType], scope FlowScope) MapOf[*TemplateType, *JSType] {
-	var typeVars MapOf[string, *JSType] = nil
+	var typeVars *TMap[string, *JSType] = nil
 	var result MapOf[*TemplateType, *JSType] = nil
 	var ttlObj *TypeTransformation = nil
 	it_1 := foreach_(obj_(templateTypes))
@@ -1418,9 +1418,9 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableLi
 				typeVars = this.buildTypeVariables(inferredTypes)
 				result = icast_Map(obj_(new_LinkedHashMap()))
 			}
-			var transformedType *JSType = ttlObj.eval(type_.getTypeTransformation(), ImmutableMap_copyOf(typeVars))
+			var transformedType *JSType = ttlObj.eval(type_.getTypeTransformation(), ImmutableMap_copyOf(typeVars.asMap()))
 			result.put(obj_(type_), transformedType.self())
-			Map_put_s(typeVars, str_(type_.getReferenceName().orElse(nil)), transformedType.self())
+			typeVars.put(str_(type_.getReferenceName().orElse(nil)), transformedType)
 		}
 	}
 	return result

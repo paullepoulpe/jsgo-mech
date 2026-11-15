@@ -38,8 +38,8 @@ func (this *ModuleResolver) init_ModuleResolver(modulePaths ImmutableSetOf[strin
 	this.pathEscaper = pathEscaper
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries_impl() MapOf[string, string] {
-	return icast_Map(obj_(ImmutableMap_of()))
+func (this *ModuleResolver) getPackageJsonMainEntries_impl() *TMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, ImmutableMap_of(), true)
 }
 
 func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, moduleAddress string) string {
@@ -105,6 +105,6 @@ func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
 	return this.self_.(interface{ resolveModuleAsPath_impl(string, string) string }).resolveModuleAsPath_impl(p0, p1)
 }
 
-func (this *ModuleResolver) getPackageJsonMainEntries() Map {
-	return this.self_.(interface{ getPackageJsonMainEntries_impl() Map }).getPackageJsonMainEntries_impl()
+func (this *ModuleResolver) getPackageJsonMainEntries() *TMap[string, string] {
+	return this.self_.(interface{ getPackageJsonMainEntries_impl() *TMap[string, string] }).getPackageJsonMainEntries_impl()
 }

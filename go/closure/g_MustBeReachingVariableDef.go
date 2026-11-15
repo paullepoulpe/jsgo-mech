@@ -6,7 +6,7 @@ type MustBeReachingVariableDef struct {
 	DataFlowAnalysis
 	compiler_   *AbstractCompiler
 	escaped     SetOf[*Var]
-	allVarsInFn MapOf[string, *Var]
+	allVarsInFn *TMap[string, *Var]
 }
 
 func (this *MustBeReachingVariableDef) up_DataFlowAnalysis() *DataFlowAnalysis {
@@ -16,14 +16,14 @@ func (this *MustBeReachingVariableDef) up_DataFlowAnalysis() *DataFlowAnalysis {
 	return &this.DataFlowAnalysis
 }
 
-func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped SetOf[*Var], allVarsInFn MapOf[string, *Var]) {
+func (this *MustBeReachingVariableDef) init_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.compiler_ = compiler
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped SetOf[*Var], allVarsInFn MapOf[string, *Var]) *MustBeReachingVariableDef {
+func new_MustBeReachingVariableDef(cfg *ControlFlowGraph, compiler *AbstractCompiler, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) *MustBeReachingVariableDef {
 	this := &MustBeReachingVariableDef{}
 	this.self_ = this
 	this.init_MustBeReachingVariableDef(cfg, compiler, escaped, allVarsInFn)
@@ -35,7 +35,7 @@ func (this *MustBeReachingVariableDef) isForward_impl() bool {
 }
 
 func (this *MustBeReachingVariableDef) createEntryLattice_impl() LatticeElement {
-	return icast_LatticeElement(obj_(new_MustBeReachingVariableDef_MustDef_Collection(this.allVarsInFn.values())))
+	return icast_LatticeElement(obj_(new_MustBeReachingVariableDef_MustDef_Collection(this.allVarsInFn.asMap().values())))
 }
 
 func (this *MustBeReachingVariableDef) createInitialEstimateLattice_impl() LatticeElement {
@@ -194,7 +194,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 }
 
 func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, rValue Node, def *MustBeReachingVariableDef_MustDef) {
-	var var_ *Var = cast_[*Var](Map_get_s(this.allVarsInFn, name))
+	var var_ *Var = this.allVarsInFn.get(name)
 	if var_ == nil {
 		return
 	}
@@ -223,9 +223,9 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 }
 
 func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVariableDef_MustDef) {
-	it_1 := foreach_(any(this.allVarsInFn.values()))
+	it_1 := this.allVarsInFn.each()
 	for it_1.next() {
-		var v *Var = cast_[*Var](it_1.v)
+		var v *Var = it_1.v
 		if MustBeReachingVariableDef_isParameter(v) {
 			output.reachingDef.put(obj_(v), nil)
 		}
@@ -260,7 +260,7 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
 	Preconditions_checkArgument(this.getCfg().hasNode(useNode.box_()))
 	var n GraphNode = this.getCfg().getNode(useNode.box_())
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MustBeReachingVariableDef_Definition](cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(Map_get_s(this.allVarsInFn, name)))
+	return cast_[*MustBeReachingVariableDef_Definition](cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(obj_(this.allVarsInFn.get(name))))
 }
 
 func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
@@ -463,7 +463,7 @@ func new_MustBeReachingVariableDef_1(outer_ *MustBeReachingVariableDef, cap_def 
 
 func (this *MustBeReachingVariableDef_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
-		var dep *Var = cast_[*Var](Map_get_s(this.outer_.allVarsInFn, n.getString()))
+		var dep *Var = this.outer_.allVarsInFn.get(n.getString())
 		if dep == nil {
 			this.cap_def.unknownDependencies = true
 		} else {

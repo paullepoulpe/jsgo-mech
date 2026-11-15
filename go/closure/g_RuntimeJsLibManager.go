@@ -8,13 +8,13 @@ type RuntimeJsLibManager struct {
 	resourceProvider     RuntimeJsLibManager_ResourceProvider
 	nodeForCodeInsertion SupplierOf[Node]
 	injectedLibs         SetOf[string]
-	internedFields       MapOf[string, *RuntimeJsLibManager_InternalField]
+	internedFields       *TMap[string, *RuntimeJsLibManager_InternalField]
 	lastInjectedLibrary  Node
 }
 
 func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
 	this.injectedLibs = icast_Set(obj_(new_LinkedHashSet()))
-	this.internedFields = icast_Map(obj_(new_LinkedHashMap()))
+	this.internedFields = newTMap_(tc_string, tc_p_RuntimeJsLibManager_InternalField)
 	this.lastInjectedLibrary = 0
 }
 
@@ -53,9 +53,9 @@ func (this *RuntimeJsLibManager) getExternedFields() ImmutableListOf[RuntimeJsLi
 		return ImmutableList_of()
 	}
 	var result ImmutableList_BuilderOf[RuntimeJsLibManager_ExternedField] = ImmutableList_builder()
-	it_1 := foreach_(any(this.internedFields.values()))
+	it_1 := this.internedFields.each()
 	for it_1.next() {
-		var field *RuntimeJsLibManager_InternalField = cast_[*RuntimeJsLibManager_InternalField](it_1.v)
+		var field *RuntimeJsLibManager_InternalField = it_1.v
 		if field.isInjected() {
 			result.add(obj_(field))
 		}
@@ -91,7 +91,7 @@ func (this *RuntimeJsLibManager) getJsLibField(fieldName string) RuntimeJsLibMan
 }
 
 func (this *RuntimeJsLibManager) getJsLibFieldInternal(fieldName string) *RuntimeJsLibManager_InternalField {
-	return cast_[*RuntimeJsLibManager_InternalField](Map_computeIfAbsent_s(this.internedFields, fieldName, &Function_fn{func(p0 any) any { return obj_(this.createField(str_(p0))) }}))
+	return this.internedFields.computeIfAbsent(fieldName, &Function_fn{func(p0 any) any { return obj_(this.createField(str_(p0))) }})
 }
 
 func (this *RuntimeJsLibManager) injectLibForField(fieldName string) {
