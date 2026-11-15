@@ -67,21 +67,21 @@ func (this *CheckExtraRequires) extractNamespaceIfForwardDeclare(call Node) Opti
 
 func (this *CheckExtraRequires) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	this.maybeAddJsDocUsages(n)
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		if (!NodeUtil_isLValue(n) && !parent.isGetProp()) && !parent.isImportSpec() {
 			this.visitQualifiedName(n)
 		}
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		if !parent.isGetProp() && n.isQualifiedName() {
 			this.visitQualifiedName(n)
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.visitCallNode(n, parent)
-	case Token_rhino_SCRIPT:
+	case tokOrd1_SCRIPT:
 		this.visitScriptNode()
 		this.reset()
-	case Token_rhino_IMPORT:
+	case tokOrd1_IMPORT:
 		this.visitImportNode(n)
 	default:
 	}

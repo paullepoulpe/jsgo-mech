@@ -33,7 +33,7 @@ func (this *RewriteNewDotTarget) getTranspiledAwayFeatures_impl() *FeatureSet {
 }
 
 func (this *RewriteNewDotTarget) transpileSubtree_impl(n Node) Node {
-	if n.getToken() != Token_rhino_NEW_TARGET {
+	if n.ns_().token != tokOrd1_NEW_TARGET {
 		return n
 	}
 	var enclosingNonArrowFunction Node = NodeUtil_getEnclosingNonArrowFunction(n)

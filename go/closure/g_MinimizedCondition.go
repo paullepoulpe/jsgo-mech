@@ -21,8 +21,8 @@ func new_MinimizedCondition(p *MinimizedCondition_MeasuredNode, n *MinimizedCond
 func MinimizedCondition_fromConditionNode(n Node) *MinimizedCondition {
 	Preconditions_checkState(n.hasParent())
 	return func() *MinimizedCondition {
-		switch n.getToken() {
-		case Token_rhino_NOT, Token_rhino_AND, Token_rhino_OR, Token_rhino_HOOK, Token_rhino_COMMA:
+		switch n.ns_().token {
+		case tokOrd1_NOT, tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COMMA:
 			return MinimizedCondition_computeMinimizedCondition(n)
 		default:
 			return MinimizedCondition_unoptimized(n)
@@ -66,13 +66,13 @@ func MinimizedCondition_pickBest(a *MinimizedCondition_MeasuredNode, b *Minimize
 
 func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 	return func() *MinimizedCondition {
-		switch n.getToken() {
-		case Token_rhino_NOT:
+		switch n.ns_().token {
+		case tokOrd1_NOT:
 			var subtree *MinimizedCondition = MinimizedCondition_computeMinimizedCondition(n.getFirstChild())
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{subtree.positive}), subtree.negative)
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(subtree.negative.negate(), subtree.positive)
 			return new_MinimizedCondition(positive, negative)
-		case Token_rhino_AND, Token_rhino_OR:
+		case tokOrd1_AND, tokOrd1_OR:
 			var complementNode Node = new_Node_Token(func() *Token_rhino {
 				if n.isAnd() {
 					return Token_rhino_OR
@@ -84,7 +84,7 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{leftSubtree.positive, rightSubtree.positive}), MinimizedCondition_MeasuredNode_addNode(complementNode, []*MinimizedCondition_MeasuredNode{leftSubtree.negative, rightSubtree.negative}).negate())
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_pickBest(MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{leftSubtree.positive, rightSubtree.positive}).negate(), MinimizedCondition_MeasuredNode_addNode(complementNode, []*MinimizedCondition_MeasuredNode{leftSubtree.negative, rightSubtree.negative}).change())
 			return new_MinimizedCondition(positive, negative)
-		case Token_rhino_HOOK:
+		case tokOrd1_HOOK:
 			var cond Node = n.getFirstChild()
 			var thenNode Node = cond.getNext()
 			var elseNode Node = thenNode.getNext()
@@ -93,7 +93,7 @@ func MinimizedCondition_computeMinimizedCondition(n Node) *MinimizedCondition {
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{MinimizedCondition_MeasuredNode_forNode(cond), thenSubtree.positive, elseSubtree.positive})
 			var negative *MinimizedCondition_MeasuredNode = MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{MinimizedCondition_MeasuredNode_forNode(cond), thenSubtree.negative, elseSubtree.negative})
 			return new_MinimizedCondition(positive, negative)
-		case Token_rhino_COMMA:
+		case tokOrd1_COMMA:
 			var lhs Node = n.getFirstChild()
 			var rhsSubtree *MinimizedCondition = MinimizedCondition_computeMinimizedCondition(lhs.getNext())
 			var positive *MinimizedCondition_MeasuredNode = MinimizedCondition_MeasuredNode_addNode(n, []*MinimizedCondition_MeasuredNode{MinimizedCondition_MeasuredNode_forNode(lhs), rhsSubtree.positive})

@@ -207,12 +207,12 @@ func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 	}
 	var term string = str_(this.terms.get(0))
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_NAME, Token_rhino_MEMBER_FUNCTION_DEF:
+		switch n.ns_().token {
+		case tokOrd1_NAME, tokOrd1_MEMBER_FUNCTION_DEF:
 			return RhinoStringPool_uncheckedEquals(term, n.getString())
-		case Token_rhino_THIS:
+		case tokOrd1_THIS:
 			return RhinoStringPool_uncheckedEquals(term, QualifiedName_THIS)
-		case Token_rhino_SUPER:
+		case tokOrd1_SUPER:
 			return RhinoStringPool_uncheckedEquals(term, QualifiedName_SUPER)
 		default:
 			return false

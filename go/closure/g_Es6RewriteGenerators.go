@@ -268,30 +268,30 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) transpileSta
 		this.transpileUnmarkedNode(statement)
 		return
 	}
-	switch statement.getToken() {
-	case Token_rhino_LABEL:
+	switch statement.ns_().token {
+	case tokOrd1_LABEL:
 		this.transpileLabel(statement)
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		this.transpileBlock(statement)
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		this.transpileExpressionResult(statement)
-	case Token_rhino_VAR:
+	case tokOrd1_VAR:
 		this.transpileVar(statement)
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		this.transpileReturn(statement)
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		this.transpileThrow(statement)
-	case Token_rhino_IF:
+	case tokOrd1_IF:
 		this.transpileIf(statement, breakCase)
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		this.transpileFor(statement, breakCase, continueCase)
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		this.transpileForIn(statement, breakCase, continueCase)
-	case Token_rhino_DO:
+	case tokOrd1_DO:
 		this.transpileDo(statement, breakCase, continueCase)
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		this.transpileTry(statement, breakCase)
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		this.transpileSwitch(statement, breakCase)
 	default:
 		panic(new_IllegalStateException_String(("Unsupported token: " + objstr_(obj_(statement.getToken())))).self())
@@ -704,10 +704,10 @@ func (this *Es6RewriteGenerators_SingleGeneratorFunctionTranspiler) isEndOfBlock
 		return false
 	}
 	return func() bool {
-		switch block.getLastChild().getToken() {
-		case Token_rhino_BLOCK:
+		switch block.getLastChild().ns_().token {
+		case tokOrd1_BLOCK:
 			return this.isEndOfBlockUnreachable(block.getLastChild())
-		case Token_rhino_RETURN, Token_rhino_THROW, Token_rhino_CONTINUE, Token_rhino_BREAK:
+		case tokOrd1_RETURN, tokOrd1_THROW, tokOrd1_CONTINUE, tokOrd1_BREAK:
 			return true
 		default:
 			return false

@@ -68,8 +68,8 @@ func (this *PeepholeTranspilationsPass_PeepCallback) visit(t *NodeTraversal, n N
 
 func (this *PeepholeTranspilationsPass_PeepCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT:
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 			return scriptFeatures.containsAtLeastOneOf(this.outer_.featureSetToRunOn)
 		default:

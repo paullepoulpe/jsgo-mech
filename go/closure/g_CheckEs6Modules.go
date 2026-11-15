@@ -30,15 +30,15 @@ func (this *CheckEs6Modules) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *CheckEs6Modules) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_MODULE_BODY:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_MODULE_BODY:
 			return true
-		case Token_rhino_SCRIPT:
+		case tokOrd1_SCRIPT:
 			return n.getBooleanProp(Node_ES6_MODULE)
-		case Token_rhino_IMPORT:
+		case tokOrd1_IMPORT:
 			this.visitImport(t, n)
 			return false
-		case Token_rhino_EXPORT:
+		case tokOrd1_EXPORT:
 			this.visitExport(t, n)
 			return false
 		default:

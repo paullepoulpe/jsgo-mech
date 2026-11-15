@@ -155,36 +155,36 @@ func (this *Denormalize) isCollapsableLogicalAssign(n Node) bool {
 
 func (this *Denormalize) getAssignOpFromOp(n Node) *Token_rhino {
 	return func() *Token_rhino {
-		switch n.getToken() {
-		case Token_rhino_BITOR:
+		switch n.ns_().token {
+		case tokOrd1_BITOR:
 			return Token_rhino_ASSIGN_BITOR
-		case Token_rhino_BITXOR:
+		case tokOrd1_BITXOR:
 			return Token_rhino_ASSIGN_BITXOR
-		case Token_rhino_BITAND:
+		case tokOrd1_BITAND:
 			return Token_rhino_ASSIGN_BITAND
-		case Token_rhino_LSH:
+		case tokOrd1_LSH:
 			return Token_rhino_ASSIGN_LSH
-		case Token_rhino_RSH:
+		case tokOrd1_RSH:
 			return Token_rhino_ASSIGN_RSH
-		case Token_rhino_URSH:
+		case tokOrd1_URSH:
 			return Token_rhino_ASSIGN_URSH
-		case Token_rhino_ADD:
+		case tokOrd1_ADD:
 			return Token_rhino_ASSIGN_ADD
-		case Token_rhino_SUB:
+		case tokOrd1_SUB:
 			return Token_rhino_ASSIGN_SUB
-		case Token_rhino_MUL:
+		case tokOrd1_MUL:
 			return Token_rhino_ASSIGN_MUL
-		case Token_rhino_EXPONENT:
+		case tokOrd1_EXPONENT:
 			return Token_rhino_ASSIGN_EXPONENT
-		case Token_rhino_DIV:
+		case tokOrd1_DIV:
 			return Token_rhino_ASSIGN_DIV
-		case Token_rhino_MOD:
+		case tokOrd1_MOD:
 			return Token_rhino_ASSIGN_MOD
-		case Token_rhino_OR:
+		case tokOrd1_OR:
 			return Token_rhino_ASSIGN_OR
-		case Token_rhino_AND:
+		case tokOrd1_AND:
 			return Token_rhino_ASSIGN_AND
-		case Token_rhino_COALESCE:
+		case tokOrd1_COALESCE:
 			return Token_rhino_ASSIGN_COALESCE
 		default:
 			panic(new_IllegalStateException_String(("Unexpected operator: " + objstr_(n.box_()))).self())
@@ -195,8 +195,8 @@ func (this *Denormalize) getAssignOpFromOp(n Node) *Token_rhino {
 
 func (this *Denormalize) hasCorrespondingAssignmentOp(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_BITAND, Token_rhino_LSH, Token_rhino_RSH, Token_rhino_URSH, Token_rhino_ADD, Token_rhino_SUB, Token_rhino_MUL, Token_rhino_DIV, Token_rhino_MOD:
+		switch n.ns_().token {
+		case tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_BITAND, tokOrd1_LSH, tokOrd1_RSH, tokOrd1_URSH, tokOrd1_ADD, tokOrd1_SUB, tokOrd1_MUL, tokOrd1_DIV, tokOrd1_MOD:
 			return true
 		default:
 			return false

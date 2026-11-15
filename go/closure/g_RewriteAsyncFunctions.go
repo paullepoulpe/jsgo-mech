@@ -497,8 +497,8 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit_impl(t *NodeTraversal, 
 	if (this.contextRootNode == n) && this.contextRootNode.isAsyncFunction() {
 		this.outer_.convertAsyncFunction(t, this)
 	} else if this.asyncThisAndArgumentsContext != nil {
-		switch n.getToken() {
-		case Token_rhino_NAME:
+		switch n.ns_().token {
+		case tokOrd1_NAME:
 			if n.matchesName("arguments") {
 				n.setString((sstr_(RewriteAsyncFunctions_ASYNC_ARGUMENTS) + sstr_(this.asyncThisAndArgumentsContext.uniqueId)))
 				if this.outer_.compiler_.getLifeCycleStage().isNormalized() {
@@ -507,13 +507,13 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit_impl(t *NodeTraversal, 
 				this.asyncThisAndArgumentsContext.recordAsyncArgumentsReplacementWasDone()
 				this.outer_.compiler_.reportChangeToChangeScope(this.contextRootNode)
 			}
-		case Token_rhino_THIS:
+		case tokOrd1_THIS:
 			n.replaceWith(this.asyncThisAndArgumentsContext.createThisVariableReference(AstFactory_type_Node(n)))
 			this.outer_.compiler_.reportChangeToChangeScope(this.contextRootNode)
-		case Token_rhino_NEW_TARGET:
+		case tokOrd1_NEW_TARGET:
 			n.replaceWith(this.asyncThisAndArgumentsContext.createNewTargetVariableReference(AstFactory_type_Node(n)))
 			this.outer_.compiler_.reportChangeToChangeScope(this.contextRootNode)
-		case Token_rhino_SUPER:
+		case tokOrd1_SUPER:
 			{
 				var parent Node = n.getParent()
 				if !parent.isGetProp() {
@@ -540,7 +540,7 @@ func (this *RewriteAsyncFunctions_FunctionContext) visit_impl(t *NodeTraversal, 
 				superDotProperty.replaceWith(getPropReplacement)
 				this.outer_.compiler_.reportChangeToChangeScope(this.contextRootNode)
 			}
-		case Token_rhino_AWAIT:
+		case tokOrd1_AWAIT:
 			n.replaceWith(this.outer_.astFactory_.createYield(AstFactory_type_Node(n), n.removeFirstChild()))
 		default:
 		}

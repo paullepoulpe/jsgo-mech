@@ -105,9 +105,9 @@ func (this *ScriptMetadata_FillerCallback) visit_impl(nodeTraversal *NodeTravers
 }
 
 func (this *ScriptMetadata_FillerCallback) updateSupportsRequireAlias(n Node) {
-	switch n.getToken() {
-	case Token_rhino_MODULE_BODY:
-	case Token_rhino_CALL:
+	switch n.ns_().token {
+	case tokOrd1_MODULE_BODY:
+	case tokOrd1_CALL:
 		if ((n.getChildCount() != 2) || !ScriptMetadata_FillerCallback_GOOG_MODULE.matches(n.getFirstChild())) || !n.getSecondChild().isStringLit() {
 			return
 		}

@@ -124,11 +124,11 @@ func JSTypeExpression_makeVarArgs(expr *JSTypeExpression) *JSTypeExpression {
 }
 
 func (this *JSTypeExpression) isOptionalArg() bool {
-	return (this.root.getToken() == Token_rhino_EQUALS)
+	return (this.root.ns_().token == tokOrd1_EQUALS)
 }
 
 func (this *JSTypeExpression) isVarArgs() bool {
-	return (this.root.getToken() == Token_rhino_ITER_REST)
+	return (this.root.ns_().token == tokOrd1_ITER_REST)
 }
 
 func (this *JSTypeExpression) evaluate(scope StaticTypedScope, registry *JSTypeRegistry) *JSType {

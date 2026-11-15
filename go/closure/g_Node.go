@@ -382,12 +382,12 @@ func (this Node) getPrevious() Node {
 
 func (this Node) setClosureUnawareShadow(shadowRoot Node) {
 	Preconditions_checkState_boolean_Object((this.ns_().first == 0), strobj_("Cannot set shadow root on a node with children"))
-	Preconditions_checkState_boolean_Object((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME), strobj_("Only NAME nodes can be used as shadows"))
+	Preconditions_checkState_boolean_Object((this.ns_().token == tokOrd1_NAME), strobj_("Only NAME nodes can be used as shadows"))
 	this.putProp(Node_Prop_CLOSURE_UNAWARE_SHADOW, shadowRoot.box_())
 }
 
 func (this Node) getClosureUnawareShadow() Node {
-	if Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME {
+	if this.ns_().token != tokOrd1_NAME {
 		return 0
 	}
 	return Node_of_(this.getProp(Node_Prop_CLOSURE_UNAWARE_SHADOW))
@@ -655,7 +655,7 @@ func (this Node) validateProperties(violationMessageConsumer ConsumerOf[string])
 	if this.ps_().propListHead == nil {
 		return
 	}
-	if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ROOT {
+	if this.ns_().token == tokOrd1_ROOT {
 		violationMessageConsumer.accept(strobj_("ROOT has properties"))
 	}
 	{
@@ -1132,14 +1132,14 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(' ')
 		sb.append(this.getString())
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION {
+	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(' ')
 		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
 			sb.append("<invalid>")
 		} else {
 			sb.append(this.ns_().first.getString())
 		}
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER {
+	} else if this.ns_().token == tokOrd1_NUMBER {
 		sb.append_char(' ')
 		sb.append_double(this.getDouble())
 	}
@@ -1199,14 +1199,14 @@ func (this Node) toJson(sb Appendable) {
 	if (*this.payload_s_()) != nullstr_ {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("string", this.getString())))
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION {
+	} else if this.ns_().token == tokOrd1_FUNCTION {
 		sb.append_char(',')
 		if (this.ns_().first == 0) || (Token_rhino_byOrd1_[this.ns_().first.ns_().token] != Token_rhino_NAME) {
 			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", "<invalid>")))
 		} else {
 			sb.append_CharSequence(strobj_(Node_createJsonPair("functionName", this.ns_().first.getString())))
 		}
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER {
+	} else if this.ns_().token == tokOrd1_NUMBER {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("number", String_valueOf_double(this.getDouble()))))
 	}
@@ -1918,13 +1918,13 @@ func (this Node) getQualifiedNameForGetProp(reserve int32) *StringBuilder {
 }
 
 func (this Node) getOriginalQualifiedName() string {
-	if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME {
+	if this.ns_().token == tokOrd1_NAME {
 		var name string = this.getOriginalName()
 		if String_isEmpty(name) {
 			name = this.getString()
 		}
 		return name
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETPROP {
+	} else if this.ns_().token == tokOrd1_GETPROP {
 		var left string = this.getFirstChild().getOriginalQualifiedName()
 		if String_isEmpty(left) {
 			return ""
@@ -1934,9 +1934,9 @@ func (this Node) getOriginalQualifiedName() string {
 			right = this.getString()
 		}
 		return (sstr_(left) + "." + sstr_(right))
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THIS {
+	} else if this.ns_().token == tokOrd1_THIS {
 		return "this"
-	} else if Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUPER {
+	} else if this.ns_().token == tokOrd1_SUPER {
 		return "super"
 	} else {
 		return ""
@@ -1945,12 +1945,12 @@ func (this Node) getOriginalQualifiedName() string {
 }
 
 func (this Node) isQualifiedName() bool {
-	switch this.getToken() {
-	case Token_rhino_NAME:
+	switch this.ns_().token {
+	case tokOrd1_NAME:
 		return !String_isEmpty(this.getString())
-	case Token_rhino_THIS, Token_rhino_SUPER:
+	case tokOrd1_THIS, tokOrd1_SUPER:
 		return true
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		return this.getFirstChild().isQualifiedName()
 	default:
 		return false
@@ -1959,7 +1959,7 @@ func (this Node) isQualifiedName() bool {
 }
 
 func (this Node) matchesName(name string) bool {
-	if Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME {
+	if this.ns_().token != tokOrd1_NAME {
 		return false
 	}
 	var internalString string = this.getString()
@@ -1967,7 +1967,7 @@ func (this Node) matchesName(name string) bool {
 }
 
 func (this Node) matchesNameNode(n Node) bool {
-	if (Token_rhino_byOrd1_[this.ns_().token] != Token_rhino_NAME) || (Token_rhino_byOrd1_[n.ns_().token] != Token_rhino_NAME) {
+	if (this.ns_().token != tokOrd1_NAME) || (n.ns_().token != tokOrd1_NAME) {
 		return false
 	}
 	var internalString string = this.getString()
@@ -1980,15 +1980,15 @@ func (this Node) matchesQualifiedName(name string) bool {
 
 func (this Node) matchesQualifiedName_2(qname string, endIndex int32) bool {
 	var start int32 = (String_lastIndexOf_int_int(qname, 46, (endIndex-1)) + 1)
-	switch this.getToken() {
-	case Token_rhino_NAME, Token_rhino_IMPORT_STAR:
+	switch this.ns_().token {
+	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		var name string = this.getString()
 		return ((((start == 0) && !String_isEmpty(name)) && (String_length(name) == endIndex)) && String_startsWith(qname, name))
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		return (((start == 0) && (endIndex == 4)) && String_startsWith(qname, "this"))
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		return (((start == 0) && (endIndex == 5)) && String_startsWith(qname, "super"))
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		var prop string = this.getString()
 		return ((((start > 1) && (String_length(prop) == (endIndex - start))) && String_regionMatches_int_String_int_int(prop, 0, qname, start, (endIndex-start))) && this.getFirstChild().matchesQualifiedName_2(qname, (start-1)))
 	default:
@@ -2016,10 +2016,10 @@ func (this Node) matchesQualifiedNameNode(n Node) bool {
 
 func (this Node) isUnscopedQualifiedName() bool {
 	return func() bool {
-		switch this.getToken() {
-		case Token_rhino_NAME:
+		switch this.ns_().token {
+		case tokOrd1_NAME:
 			return !String_isEmpty(this.getString())
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return this.getFirstChild().isUnscopedQualifiedName()
 		default:
 			return false
@@ -2030,8 +2030,8 @@ func (this Node) isUnscopedQualifiedName() bool {
 
 func (this Node) isValidAssignmentTarget() bool {
 	return func() bool {
-		switch this.getToken() {
-		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+		switch this.ns_().token {
+		case tokOrd1_NAME, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			return true
 		default:
 			return false
@@ -2257,7 +2257,7 @@ func (this Node) isOptionalEs6Typed() bool {
 }
 
 func (this Node) setIsSyntheticBlock(val bool) {
-	Preconditions_checkState((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BLOCK))
+	Preconditions_checkState((this.ns_().token == tokOrd1_BLOCK))
 	this.putBooleanProp(Node_Prop_SYNTHETIC, val)
 }
 
@@ -2266,7 +2266,7 @@ func (this Node) isSyntheticBlock() bool {
 }
 
 func (this Node) setIsSynthesizedUnfulfilledNameDeclaration(val bool) {
-	Preconditions_checkState_boolean_String_Object((((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_VAR) && this.hasOneChild()) && this.getFirstChild().isName()), "Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", this.box_())
+	Preconditions_checkState_boolean_String_Object((((this.ns_().token == tokOrd1_VAR) && this.hasOneChild()) && this.getFirstChild().isName()), "Expected all synthetic unfulfilled declarations to be `var <name>`, found %s", this.box_())
 	this.putBooleanProp(Node_Prop_SYNTHESIZED_UNFULFILLED_NAME_DECLARATION, val)
 }
 
@@ -2466,35 +2466,35 @@ func (this Node) setPrivateIdentifier() {
 }
 
 func (this Node) isAdd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ADD)
+	return (this.ns_().token == tokOrd1_ADD)
 }
 
 func (this Node) isSub() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUB)
+	return (this.ns_().token == tokOrd1_SUB)
 }
 
 func (this Node) isAnd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_AND)
+	return (this.ns_().token == tokOrd1_AND)
 }
 
 func (this Node) isAssignAnd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_AND)
+	return (this.ns_().token == tokOrd1_ASSIGN_AND)
 }
 
 func (this Node) isArrayLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ARRAYLIT)
+	return (this.ns_().token == tokOrd1_ARRAYLIT)
 }
 
 func (this Node) isArrayPattern() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ARRAY_PATTERN)
+	return (this.ns_().token == tokOrd1_ARRAY_PATTERN)
 }
 
 func (this Node) isAssign() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN)
+	return (this.ns_().token == tokOrd1_ASSIGN)
 }
 
 func (this Node) isAssignAdd() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_ADD)
+	return (this.ns_().token == tokOrd1_ASSIGN_ADD)
 }
 
 func (this Node) isNormalBlock() bool {
@@ -2502,91 +2502,91 @@ func (this Node) isNormalBlock() bool {
 }
 
 func (this Node) isBlock() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BLOCK)
+	return (this.ns_().token == tokOrd1_BLOCK)
 }
 
 func (this Node) isRoot() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ROOT)
+	return (this.ns_().token == tokOrd1_ROOT)
 }
 
 func (this Node) isAwait() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_AWAIT)
+	return (this.ns_().token == tokOrd1_AWAIT)
 }
 
 func (this Node) isBigInt() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BIGINT)
+	return (this.ns_().token == tokOrd1_BIGINT)
 }
 
 func (this Node) isBitNot() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BITNOT)
+	return (this.ns_().token == tokOrd1_BITNOT)
 }
 
 func (this Node) isBreak() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_BREAK)
+	return (this.ns_().token == tokOrd1_BREAK)
 }
 
 func (this Node) isCall() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CALL)
+	return (this.ns_().token == tokOrd1_CALL)
 }
 
 func (this Node) isCase() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CASE)
+	return (this.ns_().token == tokOrd1_CASE)
 }
 
 func (this Node) isCast() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CAST)
+	return (this.ns_().token == tokOrd1_CAST)
 }
 
 func (this Node) isCatch() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CATCH)
+	return (this.ns_().token == tokOrd1_CATCH)
 }
 
 func (this Node) isClass() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CLASS)
+	return (this.ns_().token == tokOrd1_CLASS)
 }
 
 func (this Node) isClassMembers() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CLASS_MEMBERS)
+	return (this.ns_().token == tokOrd1_CLASS_MEMBERS)
 }
 
 func (this Node) isComma() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COMMA)
+	return (this.ns_().token == tokOrd1_COMMA)
 }
 
 func (this Node) isComputedProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COMPUTED_PROP)
+	return (this.ns_().token == tokOrd1_COMPUTED_PROP)
 }
 
 func (this Node) isContinue() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CONTINUE)
+	return (this.ns_().token == tokOrd1_CONTINUE)
 }
 
 func (this Node) isConst() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CONST)
+	return (this.ns_().token == tokOrd1_CONST)
 }
 
 func (this Node) isDebugger() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEBUGGER)
+	return (this.ns_().token == tokOrd1_DEBUGGER)
 }
 
 func (this Node) isDec() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEC)
+	return (this.ns_().token == tokOrd1_DEC)
 }
 
 func (this Node) isDefaultCase() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEFAULT_CASE)
+	return (this.ns_().token == tokOrd1_DEFAULT_CASE)
 }
 
 func (this Node) isDefaultValue() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DEFAULT_VALUE)
+	return (this.ns_().token == tokOrd1_DEFAULT_VALUE)
 }
 
 func (this Node) isDelProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DELPROP)
+	return (this.ns_().token == tokOrd1_DELPROP)
 }
 
 func (this Node) isDestructuringLhs() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DESTRUCTURING_LHS)
+	return (this.ns_().token == tokOrd1_DESTRUCTURING_LHS)
 }
 
 func (this Node) isDestructuringPattern() bool {
@@ -2594,359 +2594,359 @@ func (this Node) isDestructuringPattern() bool {
 }
 
 func (this Node) isDo() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DO)
+	return (this.ns_().token == tokOrd1_DO)
 }
 
 func (this Node) isEmpty() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EMPTY)
+	return (this.ns_().token == tokOrd1_EMPTY)
 }
 
 func (this Node) isExponent() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPONENT)
+	return (this.ns_().token == tokOrd1_EXPONENT)
 }
 
 func (this Node) isAssignExponent() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_EXPONENT)
+	return (this.ns_().token == tokOrd1_ASSIGN_EXPONENT)
 }
 
 func (this Node) isExport() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPORT)
+	return (this.ns_().token == tokOrd1_EXPORT)
 }
 
 func (this Node) isExportSpec() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPORT_SPEC)
+	return (this.ns_().token == tokOrd1_EXPORT_SPEC)
 }
 
 func (this Node) isExportSpecs() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPORT_SPECS)
+	return (this.ns_().token == tokOrd1_EXPORT_SPECS)
 }
 
 func (this Node) isExprResult() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EXPR_RESULT)
+	return (this.ns_().token == tokOrd1_EXPR_RESULT)
 }
 
 func (this Node) isFalse() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FALSE)
+	return (this.ns_().token == tokOrd1_FALSE)
 }
 
 func (this Node) isVanillaFor() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR)
+	return (this.ns_().token == tokOrd1_FOR)
 }
 
 func (this Node) isForIn() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR_IN)
+	return (this.ns_().token == tokOrd1_FOR_IN)
 }
 
 func (this Node) isForOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR_OF)
+	return (this.ns_().token == tokOrd1_FOR_OF)
 }
 
 func (this Node) isForAwaitOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FOR_AWAIT_OF)
+	return (this.ns_().token == tokOrd1_FOR_AWAIT_OF)
 }
 
 func (this Node) isFunction() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_FUNCTION)
+	return (this.ns_().token == tokOrd1_FUNCTION)
 }
 
 func (this Node) isGetterDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETTER_DEF)
+	return (this.ns_().token == tokOrd1_GETTER_DEF)
 }
 
 func (this Node) isGetElem() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETELEM)
+	return (this.ns_().token == tokOrd1_GETELEM)
 }
 
 func (this Node) isGetProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_GETPROP)
+	return (this.ns_().token == tokOrd1_GETPROP)
 }
 
 func (this Node) isHook() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_HOOK)
+	return (this.ns_().token == tokOrd1_HOOK)
 }
 
 func (this Node) isIf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IF)
+	return (this.ns_().token == tokOrd1_IF)
 }
 
 func (this Node) isImport() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT)
+	return (this.ns_().token == tokOrd1_IMPORT)
 }
 
 func (this Node) isImportMeta() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_META)
+	return (this.ns_().token == tokOrd1_IMPORT_META)
 }
 
 func (this Node) isImportStar() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_STAR)
+	return (this.ns_().token == tokOrd1_IMPORT_STAR)
 }
 
 func (this Node) isImportSpec() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_SPEC)
+	return (this.ns_().token == tokOrd1_IMPORT_SPEC)
 }
 
 func (this Node) isImportSpecs() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IMPORT_SPECS)
+	return (this.ns_().token == tokOrd1_IMPORT_SPECS)
 }
 
 func (this Node) isIn() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_IN)
+	return (this.ns_().token == tokOrd1_IN)
 }
 
 func (this Node) isInc() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INC)
+	return (this.ns_().token == tokOrd1_INC)
 }
 
 func (this Node) isInstanceOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INSTANCEOF)
+	return (this.ns_().token == tokOrd1_INSTANCEOF)
 }
 
 func (this Node) isInterface() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INTERFACE)
+	return (this.ns_().token == tokOrd1_INTERFACE)
 }
 
 func (this Node) isInterfaceMembers() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INTERFACE_MEMBERS)
+	return (this.ns_().token == tokOrd1_INTERFACE_MEMBERS)
 }
 
 func (this Node) isRecordType() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_RECORD_TYPE)
+	return (this.ns_().token == tokOrd1_RECORD_TYPE)
 }
 
 func (this Node) isCallSignature() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_CALL_SIGNATURE)
+	return (this.ns_().token == tokOrd1_CALL_SIGNATURE)
 }
 
 func (this Node) isIndexSignature() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_INDEX_SIGNATURE)
+	return (this.ns_().token == tokOrd1_INDEX_SIGNATURE)
 }
 
 func (this Node) isLabel() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_LABEL)
+	return (this.ns_().token == tokOrd1_LABEL)
 }
 
 func (this Node) isLabelName() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_LABEL_NAME)
+	return (this.ns_().token == tokOrd1_LABEL_NAME)
 }
 
 func (this Node) isLet() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_LET)
+	return (this.ns_().token == tokOrd1_LET)
 }
 
 func (this Node) isMemberFunctionDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MEMBER_FUNCTION_DEF)
+	return (this.ns_().token == tokOrd1_MEMBER_FUNCTION_DEF)
 }
 
 func (this Node) isMemberVariableDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MEMBER_VARIABLE_DEF)
+	return (this.ns_().token == tokOrd1_MEMBER_VARIABLE_DEF)
 }
 
 func (this Node) isMemberFieldDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MEMBER_FIELD_DEF)
+	return (this.ns_().token == tokOrd1_MEMBER_FIELD_DEF)
 }
 
 func (this Node) isComputedFieldDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COMPUTED_FIELD_DEF)
+	return (this.ns_().token == tokOrd1_COMPUTED_FIELD_DEF)
 }
 
 func (this Node) isModuleBody() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_MODULE_BODY)
+	return (this.ns_().token == tokOrd1_MODULE_BODY)
 }
 
 func (this Node) isName() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NAME)
+	return (this.ns_().token == tokOrd1_NAME)
 }
 
 func (this Node) isNE() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NE)
+	return (this.ns_().token == tokOrd1_NE)
 }
 
 func (this Node) isSHNE() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SHNE)
+	return (this.ns_().token == tokOrd1_SHNE)
 }
 
 func (this Node) isEQ() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_EQ)
+	return (this.ns_().token == tokOrd1_EQ)
 }
 
 func (this Node) isSHEQ() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SHEQ)
+	return (this.ns_().token == tokOrd1_SHEQ)
 }
 
 func (this Node) isNeg() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NEG)
+	return (this.ns_().token == tokOrd1_NEG)
 }
 
 func (this Node) isNew() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NEW)
+	return (this.ns_().token == tokOrd1_NEW)
 }
 
 func (this Node) isNot() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NOT)
+	return (this.ns_().token == tokOrd1_NOT)
 }
 
 func (this Node) isNull() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NULL)
+	return (this.ns_().token == tokOrd1_NULL)
 }
 
 func (this Node) isNullishCoalesce() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_COALESCE)
+	return (this.ns_().token == tokOrd1_COALESCE)
 }
 
 func (this Node) isAssignNullishCoalesce() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_COALESCE)
+	return (this.ns_().token == tokOrd1_ASSIGN_COALESCE)
 }
 
 func (this Node) isNumber() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_NUMBER)
+	return (this.ns_().token == tokOrd1_NUMBER)
 }
 
 func (this Node) isObjectLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECTLIT)
+	return (this.ns_().token == tokOrd1_OBJECTLIT)
 }
 
 func (this Node) isObjectPattern() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_PATTERN)
+	return (this.ns_().token == tokOrd1_OBJECT_PATTERN)
 }
 
 func (this Node) isOptChainCall() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OPTCHAIN_CALL)
+	return (this.ns_().token == tokOrd1_OPTCHAIN_CALL)
 }
 
 func (this Node) isOptChainGetElem() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OPTCHAIN_GETELEM)
+	return (this.ns_().token == tokOrd1_OPTCHAIN_GETELEM)
 }
 
 func (this Node) isOptChainGetProp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OPTCHAIN_GETPROP)
+	return (this.ns_().token == tokOrd1_OPTCHAIN_GETPROP)
 }
 
 func (this Node) isOr() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OR)
+	return (this.ns_().token == tokOrd1_OR)
 }
 
 func (this Node) isAssignOr() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ASSIGN_OR)
+	return (this.ns_().token == tokOrd1_ASSIGN_OR)
 }
 
 func (this Node) isParamList() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_PARAM_LIST)
+	return (this.ns_().token == tokOrd1_PARAM_LIST)
 }
 
 func (this Node) isPos() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_POS)
+	return (this.ns_().token == tokOrd1_POS)
 }
 
 func (this Node) isRegExp() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_REGEXP)
+	return (this.ns_().token == tokOrd1_REGEXP)
 }
 
 func (this Node) isRest() bool {
-	return ((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ITER_REST) || (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_REST))
+	return ((this.ns_().token == tokOrd1_ITER_REST) || (this.ns_().token == tokOrd1_OBJECT_REST))
 }
 
 func (this Node) isObjectRest() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_REST)
+	return (this.ns_().token == tokOrd1_OBJECT_REST)
 }
 
 func (this Node) isReturn() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_RETURN)
+	return (this.ns_().token == tokOrd1_RETURN)
 }
 
 func (this Node) isScript() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SCRIPT)
+	return (this.ns_().token == tokOrd1_SCRIPT)
 }
 
 func (this Node) isSetterDef() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SETTER_DEF)
+	return (this.ns_().token == tokOrd1_SETTER_DEF)
 }
 
 func (this Node) isSpread() bool {
-	return ((Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_ITER_SPREAD) || (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_OBJECT_SPREAD))
+	return ((this.ns_().token == tokOrd1_ITER_SPREAD) || (this.ns_().token == tokOrd1_OBJECT_SPREAD))
 }
 
 func (this Node) isString() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_STRINGLIT)
+	return (this.ns_().token == tokOrd1_STRINGLIT)
 }
 
 func (this Node) isStringKey() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_STRING_KEY)
+	return (this.ns_().token == tokOrd1_STRING_KEY)
 }
 
 func (this Node) isStringLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_STRINGLIT)
+	return (this.ns_().token == tokOrd1_STRINGLIT)
 }
 
 func (this Node) isSuper() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SUPER)
+	return (this.ns_().token == tokOrd1_SUPER)
 }
 
 func (this Node) isSwitch() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SWITCH)
+	return (this.ns_().token == tokOrd1_SWITCH)
 }
 
 func (this Node) isSwitchBody() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_SWITCH_BODY)
+	return (this.ns_().token == tokOrd1_SWITCH_BODY)
 }
 
 func (this Node) isTaggedTemplateLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TAGGED_TEMPLATELIT)
+	return (this.ns_().token == tokOrd1_TAGGED_TEMPLATELIT)
 }
 
 func (this Node) isTemplateLit() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TEMPLATELIT)
+	return (this.ns_().token == tokOrd1_TEMPLATELIT)
 }
 
 func (this Node) isTemplateLitString() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TEMPLATELIT_STRING)
+	return (this.ns_().token == tokOrd1_TEMPLATELIT_STRING)
 }
 
 func (this Node) isTemplateLitSub() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TEMPLATELIT_SUB)
+	return (this.ns_().token == tokOrd1_TEMPLATELIT_SUB)
 }
 
 func (this Node) isThis() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THIS)
+	return (this.ns_().token == tokOrd1_THIS)
 }
 
 func (this Node) isThrow() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_THROW)
+	return (this.ns_().token == tokOrd1_THROW)
 }
 
 func (this Node) isTrue() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TRUE)
+	return (this.ns_().token == tokOrd1_TRUE)
 }
 
 func (this Node) isTry() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TRY)
+	return (this.ns_().token == tokOrd1_TRY)
 }
 
 func (this Node) isTypeOf() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_TYPEOF)
+	return (this.ns_().token == tokOrd1_TYPEOF)
 }
 
 func (this Node) isVar() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_VAR)
+	return (this.ns_().token == tokOrd1_VAR)
 }
 
 func (this Node) isVoid() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_VOID)
+	return (this.ns_().token == tokOrd1_VOID)
 }
 
 func (this Node) isWhile() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_WHILE)
+	return (this.ns_().token == tokOrd1_WHILE)
 }
 
 func (this Node) isWith() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_WITH)
+	return (this.ns_().token == tokOrd1_WITH)
 }
 
 func (this Node) isYield() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_YIELD)
+	return (this.ns_().token == tokOrd1_YIELD)
 }
 
 func (this Node) isDeclare() bool {
-	return (Token_rhino_byOrd1_[this.ns_().token] == Token_rhino_DECLARE)
+	return (this.ns_().token == tokOrd1_DECLARE)
 }
 
 var Node_propValues []*Node_Prop

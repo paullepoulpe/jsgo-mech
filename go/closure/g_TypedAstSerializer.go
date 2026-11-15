@@ -164,11 +164,11 @@ func (this *TypedAstSerializer) addType(n Node, builder *AstNode_Builder) {
 }
 
 func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_NAME, Token_rhino_STRINGLIT, Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_LABEL_NAME, Token_rhino_IMPORT_STAR:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_NAME, tokOrd1_STRINGLIT, tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_LABEL_NAME, tokOrd1_IMPORT_STAR:
 		builder.setStringValuePointer(this.stringPool.put(n.getString()))
 		return
-	case Token_rhino_TEMPLATELIT_STRING:
+	case tokOrd1_TEMPLATELIT_STRING:
 		builder.setTemplateStringValue(cast_[*TemplateStringValue](TemplateStringValue_newBuilder().setRawStringPointer(this.stringPool.put(n.getRawString())).setCookedStringPointer(func() int32 {
 			if n.getCookedString().isEmpty() {
 				return -1
@@ -176,10 +176,10 @@ func (this *TypedAstSerializer) valueTranslator(builder *AstNode_Builder, n Node
 			return this.stringPool.put(str_(n.getCookedString().get()))
 		}()).build()))
 		return
-	case Token_rhino_NUMBER:
+	case tokOrd1_NUMBER:
 		builder.setDoubleValue(n.getDouble())
 		return
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		builder.setStringValuePointer(this.stringPool.put(Object_toString(obj_(n.getBigInt()))))
 		return
 	default:
@@ -197,303 +197,303 @@ func (this *TypedAstSerializer) setOriginalName(builder *AstNode_Builder, n Node
 }
 
 func (this *TypedAstSerializer) kindTranslator(n Node) *NodeKind {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		return NodeKind_SOURCE_FILE
-	case Token_rhino_NUMBER:
+	case tokOrd1_NUMBER:
 		return NodeKind_NUMBER_LITERAL
-	case Token_rhino_STRINGLIT:
+	case tokOrd1_STRINGLIT:
 		return NodeKind_STRING_LITERAL
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		return NodeKind_BIGINT_LITERAL
-	case Token_rhino_REGEXP:
+	case tokOrd1_REGEXP:
 		return NodeKind_REGEX_LITERAL
-	case Token_rhino_FALSE:
+	case tokOrd1_FALSE:
 		return NodeKind_FALSE
-	case Token_rhino_TRUE:
+	case tokOrd1_TRUE:
 		return NodeKind_TRUE
-	case Token_rhino_NULL:
+	case tokOrd1_NULL:
 		return NodeKind_NULL
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		return NodeKind_THIS
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		return NodeKind_VOID
-	case Token_rhino_ARRAYLIT:
+	case tokOrd1_ARRAYLIT:
 		return NodeKind_ARRAY_LITERAL
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		return NodeKind_OBJECT_LITERAL
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		return NodeKind_IDENTIFIER
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		return NodeKind_ASSIGNMENT
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		return NodeKind_CALL
-	case Token_rhino_NEW:
+	case tokOrd1_NEW:
 		return NodeKind_NEW
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		return NodeKind_PROPERTY_ACCESS
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		return NodeKind_ELEMENT_ACCESS
-	case Token_rhino_COMMA:
+	case tokOrd1_COMMA:
 		return NodeKind_COMMA
-	case Token_rhino_OR:
+	case tokOrd1_OR:
 		return NodeKind_BOOLEAN_OR
-	case Token_rhino_AND:
+	case tokOrd1_AND:
 		return NodeKind_BOOLEAN_AND
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return NodeKind_HOOK
-	case Token_rhino_EQ:
+	case tokOrd1_EQ:
 		return NodeKind_EQUAL
-	case Token_rhino_NE:
+	case tokOrd1_NE:
 		return NodeKind_NOT_EQUAL
-	case Token_rhino_LT:
+	case tokOrd1_LT:
 		return NodeKind_LESS_THAN
-	case Token_rhino_LE:
+	case tokOrd1_LE:
 		return NodeKind_LESS_THAN_EQUAL
-	case Token_rhino_GT:
+	case tokOrd1_GT:
 		return NodeKind_GREATER_THAN
-	case Token_rhino_GE:
+	case tokOrd1_GE:
 		return NodeKind_GREATER_THAN_EQUAL
-	case Token_rhino_SHEQ:
+	case tokOrd1_SHEQ:
 		return NodeKind_TRIPLE_EQUAL
-	case Token_rhino_SHNE:
+	case tokOrd1_SHNE:
 		return NodeKind_NOT_TRIPLE_EQUAL
-	case Token_rhino_NOT:
+	case tokOrd1_NOT:
 		return NodeKind_NOT
-	case Token_rhino_POS:
+	case tokOrd1_POS:
 		return NodeKind_POSITIVE
-	case Token_rhino_NEG:
+	case tokOrd1_NEG:
 		return NodeKind_NEGATIVE
-	case Token_rhino_TYPEOF:
+	case tokOrd1_TYPEOF:
 		return NodeKind_TYPEOF
-	case Token_rhino_INSTANCEOF:
+	case tokOrd1_INSTANCEOF:
 		return NodeKind_INSTANCEOF
-	case Token_rhino_IN:
+	case tokOrd1_IN:
 		return NodeKind_IN
-	case Token_rhino_ADD:
+	case tokOrd1_ADD:
 		return NodeKind_ADD
-	case Token_rhino_SUB:
+	case tokOrd1_SUB:
 		return NodeKind_SUBTRACT
-	case Token_rhino_MUL:
+	case tokOrd1_MUL:
 		return NodeKind_MULTIPLY
-	case Token_rhino_DIV:
+	case tokOrd1_DIV:
 		return NodeKind_DIVIDE
-	case Token_rhino_MOD:
+	case tokOrd1_MOD:
 		return NodeKind_MODULO
-	case Token_rhino_EXPONENT:
+	case tokOrd1_EXPONENT:
 		return NodeKind_EXPONENT
-	case Token_rhino_BITNOT:
+	case tokOrd1_BITNOT:
 		return NodeKind_BITWISE_NOT
-	case Token_rhino_BITOR:
+	case tokOrd1_BITOR:
 		return NodeKind_BITWISE_OR
-	case Token_rhino_BITAND:
+	case tokOrd1_BITAND:
 		return NodeKind_BITWISE_AND
-	case Token_rhino_BITXOR:
+	case tokOrd1_BITXOR:
 		return NodeKind_BITWISE_XOR
-	case Token_rhino_LSH:
+	case tokOrd1_LSH:
 		return NodeKind_LEFT_SHIFT
-	case Token_rhino_RSH:
+	case tokOrd1_RSH:
 		return NodeKind_RIGHT_SHIFT
-	case Token_rhino_URSH:
+	case tokOrd1_URSH:
 		return NodeKind_UNSIGNED_RIGHT_SHIFT
-	case Token_rhino_INC:
+	case tokOrd1_INC:
 		return func() *NodeKind {
 			if n.getBooleanProp(Node_INCRDECR_PROP) {
 				return NodeKind_POST_INCREMENT
 			}
 			return NodeKind_PRE_INCREMENT
 		}()
-	case Token_rhino_DEC:
+	case tokOrd1_DEC:
 		return func() *NodeKind {
 			if n.getBooleanProp(Node_INCRDECR_PROP) {
 				return NodeKind_POST_DECREMENT
 			}
 			return NodeKind_PRE_DECREMENT
 		}()
-	case Token_rhino_ASSIGN_ADD:
+	case tokOrd1_ASSIGN_ADD:
 		return NodeKind_ASSIGN_ADD
-	case Token_rhino_ASSIGN_SUB:
+	case tokOrd1_ASSIGN_SUB:
 		return NodeKind_ASSIGN_SUBTRACT
-	case Token_rhino_ASSIGN_MUL:
+	case tokOrd1_ASSIGN_MUL:
 		return NodeKind_ASSIGN_MULTIPLY
-	case Token_rhino_ASSIGN_DIV:
+	case tokOrd1_ASSIGN_DIV:
 		return NodeKind_ASSIGN_DIVIDE
-	case Token_rhino_ASSIGN_MOD:
+	case tokOrd1_ASSIGN_MOD:
 		return NodeKind_ASSIGN_MODULO
-	case Token_rhino_ASSIGN_EXPONENT:
+	case tokOrd1_ASSIGN_EXPONENT:
 		return NodeKind_ASSIGN_EXPONENT
-	case Token_rhino_ASSIGN_BITOR:
+	case tokOrd1_ASSIGN_BITOR:
 		return NodeKind_ASSIGN_BITWISE_OR
-	case Token_rhino_ASSIGN_BITAND:
+	case tokOrd1_ASSIGN_BITAND:
 		return NodeKind_ASSIGN_BITWISE_AND
-	case Token_rhino_ASSIGN_BITXOR:
+	case tokOrd1_ASSIGN_BITXOR:
 		return NodeKind_ASSIGN_BITWISE_XOR
-	case Token_rhino_ASSIGN_LSH:
+	case tokOrd1_ASSIGN_LSH:
 		return NodeKind_ASSIGN_LEFT_SHIFT
-	case Token_rhino_ASSIGN_RSH:
+	case tokOrd1_ASSIGN_RSH:
 		return NodeKind_ASSIGN_RIGHT_SHIFT
-	case Token_rhino_ASSIGN_URSH:
+	case tokOrd1_ASSIGN_URSH:
 		return NodeKind_ASSIGN_UNSIGNED_RIGHT_SHIFT
-	case Token_rhino_YIELD:
+	case tokOrd1_YIELD:
 		return NodeKind_YIELD
-	case Token_rhino_AWAIT:
+	case tokOrd1_AWAIT:
 		return NodeKind_AWAIT
-	case Token_rhino_DELPROP:
+	case tokOrd1_DELPROP:
 		return NodeKind_DELETE
-	case Token_rhino_TAGGED_TEMPLATELIT:
+	case tokOrd1_TAGGED_TEMPLATELIT:
 		return NodeKind_TAGGED_TEMPLATELIT
-	case Token_rhino_TEMPLATELIT:
+	case tokOrd1_TEMPLATELIT:
 		return NodeKind_TEMPLATELIT
-	case Token_rhino_TEMPLATELIT_SUB:
+	case tokOrd1_TEMPLATELIT_SUB:
 		return NodeKind_TEMPLATELIT_SUB
-	case Token_rhino_TEMPLATELIT_STRING:
+	case tokOrd1_TEMPLATELIT_STRING:
 		return NodeKind_TEMPLATELIT_STRING
-	case Token_rhino_NEW_TARGET:
+	case tokOrd1_NEW_TARGET:
 		return NodeKind_NEW_TARGET
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		return NodeKind_COMPUTED_PROP
-	case Token_rhino_IMPORT_META:
+	case tokOrd1_IMPORT_META:
 		return NodeKind_IMPORT_META
-	case Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_OPTCHAIN_GETPROP:
 		return NodeKind_OPTCHAIN_PROPERTY_ACCESS
-	case Token_rhino_OPTCHAIN_CALL:
+	case tokOrd1_OPTCHAIN_CALL:
 		return NodeKind_OPTCHAIN_CALL
-	case Token_rhino_OPTCHAIN_GETELEM:
+	case tokOrd1_OPTCHAIN_GETELEM:
 		return NodeKind_OPTCHAIN_ELEMENT_ACCESS
-	case Token_rhino_COALESCE:
+	case tokOrd1_COALESCE:
 		return NodeKind_COALESCE
-	case Token_rhino_DYNAMIC_IMPORT:
+	case tokOrd1_DYNAMIC_IMPORT:
 		return NodeKind_DYNAMIC_IMPORT
-	case Token_rhino_ASSIGN_OR:
+	case tokOrd1_ASSIGN_OR:
 		return NodeKind_ASSIGN_OR
-	case Token_rhino_ASSIGN_AND:
+	case tokOrd1_ASSIGN_AND:
 		return NodeKind_ASSIGN_AND
-	case Token_rhino_ASSIGN_COALESCE:
+	case tokOrd1_ASSIGN_COALESCE:
 		return NodeKind_ASSIGN_COALESCE
-	case Token_rhino_EXPR_RESULT:
+	case tokOrd1_EXPR_RESULT:
 		return NodeKind_EXPRESSION_STATEMENT
-	case Token_rhino_BREAK:
+	case tokOrd1_BREAK:
 		return NodeKind_BREAK_STATEMENT
-	case Token_rhino_CONTINUE:
+	case tokOrd1_CONTINUE:
 		return NodeKind_CONTINUE_STATEMENT
-	case Token_rhino_DEBUGGER:
+	case tokOrd1_DEBUGGER:
 		return NodeKind_DEBUGGER_STATEMENT
-	case Token_rhino_DO:
+	case tokOrd1_DO:
 		return NodeKind_DO_STATEMENT
-	case Token_rhino_FOR:
+	case tokOrd1_FOR:
 		return NodeKind_FOR_STATEMENT
-	case Token_rhino_FOR_IN:
+	case tokOrd1_FOR_IN:
 		return NodeKind_FOR_IN_STATEMENT
-	case Token_rhino_FOR_OF:
+	case tokOrd1_FOR_OF:
 		return NodeKind_FOR_OF_STATEMENT
-	case Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_FOR_AWAIT_OF:
 		return NodeKind_FOR_AWAIT_OF_STATEMENT
-	case Token_rhino_IF:
+	case tokOrd1_IF:
 		return NodeKind_IF_STATEMENT
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		return NodeKind_RETURN_STATEMENT
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		return NodeKind_SWITCH_STATEMENT
-	case Token_rhino_THROW:
+	case tokOrd1_THROW:
 		return NodeKind_THROW_STATEMENT
-	case Token_rhino_TRY:
+	case tokOrd1_TRY:
 		return NodeKind_TRY_STATEMENT
-	case Token_rhino_WHILE:
+	case tokOrd1_WHILE:
 		return NodeKind_WHILE_STATEMENT
-	case Token_rhino_EMPTY:
+	case tokOrd1_EMPTY:
 		return NodeKind_EMPTY
-	case Token_rhino_WITH:
+	case tokOrd1_WITH:
 		return NodeKind_WITH
-	case Token_rhino_IMPORT:
+	case tokOrd1_IMPORT:
 		return NodeKind_IMPORT
-	case Token_rhino_EXPORT:
+	case tokOrd1_EXPORT:
 		return NodeKind_EXPORT
-	case Token_rhino_VAR:
+	case tokOrd1_VAR:
 		return NodeKind_VAR_DECLARATION
-	case Token_rhino_CONST:
+	case tokOrd1_CONST:
 		return NodeKind_CONST_DECLARATION
-	case Token_rhino_LET:
+	case tokOrd1_LET:
 		return NodeKind_LET_DECLARATION
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return NodeKind_FUNCTION_LITERAL
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		return NodeKind_CLASS_LITERAL
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		return NodeKind_BLOCK
-	case Token_rhino_LABEL:
+	case tokOrd1_LABEL:
 		return NodeKind_LABELED_STATEMENT
-	case Token_rhino_LABEL_NAME:
+	case tokOrd1_LABEL_NAME:
 		return NodeKind_LABELED_NAME
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		return NodeKind_CLASS_MEMBERS
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		return NodeKind_METHOD_DECLARATION
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		return NodeKind_FIELD_DECLARATION
-	case Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF:
 		return NodeKind_COMPUTED_PROP_FIELD
-	case Token_rhino_PARAM_LIST:
+	case tokOrd1_PARAM_LIST:
 		return NodeKind_PARAMETER_LIST
-	case Token_rhino_STRING_KEY:
+	case tokOrd1_STRING_KEY:
 		return func() *NodeKind {
 			if n.isQuotedStringKey() {
 				return NodeKind_QUOTED_STRING_KEY
 			}
 			return NodeKind_RENAMABLE_STRING_KEY
 		}()
-	case Token_rhino_CASE:
+	case tokOrd1_CASE:
 		return NodeKind_CASE
-	case Token_rhino_DEFAULT_CASE:
+	case tokOrd1_DEFAULT_CASE:
 		return NodeKind_DEFAULT_CASE
-	case Token_rhino_CATCH:
+	case tokOrd1_CATCH:
 		return NodeKind_CATCH
-	case Token_rhino_SUPER:
+	case tokOrd1_SUPER:
 		return NodeKind_SUPER
-	case Token_rhino_ARRAY_PATTERN:
+	case tokOrd1_ARRAY_PATTERN:
 		return NodeKind_ARRAY_PATTERN
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		return NodeKind_OBJECT_PATTERN
-	case Token_rhino_DESTRUCTURING_LHS:
+	case tokOrd1_DESTRUCTURING_LHS:
 		return NodeKind_DESTRUCTURING_LHS
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		return NodeKind_DEFAULT_VALUE
-	case Token_rhino_GETTER_DEF:
+	case tokOrd1_GETTER_DEF:
 		return func() *NodeKind {
 			if n.isQuotedStringKey() {
 				return NodeKind_QUOTED_GETTER_DEF
 			}
 			return NodeKind_RENAMABLE_GETTER_DEF
 		}()
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		return func() *NodeKind {
 			if n.isQuotedStringKey() {
 				return NodeKind_QUOTED_SETTER_DEF
 			}
 			return NodeKind_RENAMABLE_SETTER_DEF
 		}()
-	case Token_rhino_IMPORT_SPECS:
+	case tokOrd1_IMPORT_SPECS:
 		return NodeKind_IMPORT_SPECS
-	case Token_rhino_IMPORT_SPEC:
+	case tokOrd1_IMPORT_SPEC:
 		return NodeKind_IMPORT_SPEC
-	case Token_rhino_IMPORT_STAR:
+	case tokOrd1_IMPORT_STAR:
 		return NodeKind_IMPORT_STAR
-	case Token_rhino_EXPORT_SPECS:
+	case tokOrd1_EXPORT_SPECS:
 		return NodeKind_EXPORT_SPECS
-	case Token_rhino_EXPORT_SPEC:
+	case tokOrd1_EXPORT_SPEC:
 		return NodeKind_EXPORT_SPEC
-	case Token_rhino_MODULE_BODY:
+	case tokOrd1_MODULE_BODY:
 		return NodeKind_MODULE_BODY
-	case Token_rhino_ITER_REST:
+	case tokOrd1_ITER_REST:
 		return NodeKind_ITER_REST
-	case Token_rhino_ITER_SPREAD:
+	case tokOrd1_ITER_SPREAD:
 		return NodeKind_ITER_SPREAD
-	case Token_rhino_OBJECT_REST:
+	case tokOrd1_OBJECT_REST:
 		return NodeKind_OBJECT_REST
-	case Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_OBJECT_SPREAD:
 		return NodeKind_OBJECT_SPREAD
-	case Token_rhino_SWITCH_BODY:
+	case tokOrd1_SWITCH_BODY:
 		return NodeKind_SWITCH_BODY
-	case Token_rhino_ROOT, Token_rhino_STRING_TYPE, Token_rhino_BOOLEAN_TYPE, Token_rhino_NUMBER_TYPE, Token_rhino_FUNCTION_TYPE, Token_rhino_PARAMETERIZED_TYPE, Token_rhino_UNION_TYPE, Token_rhino_ANY_TYPE, Token_rhino_NULLABLE_TYPE, Token_rhino_VOID_TYPE, Token_rhino_REST_PARAMETER_TYPE, Token_rhino_NAMED_TYPE, Token_rhino_RECORD_TYPE, Token_rhino_UNDEFINED_TYPE, Token_rhino_OPTIONAL_PARAMETER, Token_rhino_ARRAY_TYPE, Token_rhino_GENERIC_TYPE, Token_rhino_GENERIC_TYPE_LIST, Token_rhino_INTERFACE, Token_rhino_INTERFACE_EXTENDS, Token_rhino_INTERFACE_MEMBERS, Token_rhino_MEMBER_VARIABLE_DEF, Token_rhino_ENUM, Token_rhino_ENUM_MEMBERS, Token_rhino_IMPLEMENTS, Token_rhino_TYPE_ALIAS, Token_rhino_DECLARE, Token_rhino_INDEX_SIGNATURE, Token_rhino_CALL_SIGNATURE, Token_rhino_NAMESPACE, Token_rhino_NAMESPACE_ELEMENTS, Token_rhino_ANNOTATION, Token_rhino_PIPE, Token_rhino_STAR, Token_rhino_EOC, Token_rhino_QMARK, Token_rhino_BANG, Token_rhino_EQUALS, Token_rhino_LB, Token_rhino_LC, Token_rhino_COLON, Token_rhino_CAST, Token_rhino_PLACEHOLDER1, Token_rhino_PLACEHOLDER2, Token_rhino_PLACEHOLDER3:
+	case tokOrd1_ROOT, tokOrd1_STRING_TYPE, tokOrd1_BOOLEAN_TYPE, tokOrd1_NUMBER_TYPE, tokOrd1_FUNCTION_TYPE, tokOrd1_PARAMETERIZED_TYPE, tokOrd1_UNION_TYPE, tokOrd1_ANY_TYPE, tokOrd1_NULLABLE_TYPE, tokOrd1_VOID_TYPE, tokOrd1_REST_PARAMETER_TYPE, tokOrd1_NAMED_TYPE, tokOrd1_RECORD_TYPE, tokOrd1_UNDEFINED_TYPE, tokOrd1_OPTIONAL_PARAMETER, tokOrd1_ARRAY_TYPE, tokOrd1_GENERIC_TYPE, tokOrd1_GENERIC_TYPE_LIST, tokOrd1_INTERFACE, tokOrd1_INTERFACE_EXTENDS, tokOrd1_INTERFACE_MEMBERS, tokOrd1_MEMBER_VARIABLE_DEF, tokOrd1_ENUM, tokOrd1_ENUM_MEMBERS, tokOrd1_IMPLEMENTS, tokOrd1_TYPE_ALIAS, tokOrd1_DECLARE, tokOrd1_INDEX_SIGNATURE, tokOrd1_CALL_SIGNATURE, tokOrd1_NAMESPACE, tokOrd1_NAMESPACE_ELEMENTS, tokOrd1_ANNOTATION, tokOrd1_PIPE, tokOrd1_STAR, tokOrd1_EOC, tokOrd1_QMARK, tokOrd1_BANG, tokOrd1_EQUALS, tokOrd1_LB, tokOrd1_LC, tokOrd1_COLON, tokOrd1_CAST, tokOrd1_PLACEHOLDER1, tokOrd1_PLACEHOLDER2, tokOrd1_PLACEHOLDER3:
 	}
 	panic(new_IllegalStateException_String(("Unserializable token for node: " + objstr_(n.box_()))).self())
 }
@@ -621,10 +621,10 @@ func (this *TypedAstSerializer_1) shouldTraverse(t *NodeTraversal, n Node, paren
 }
 
 func (this *TypedAstSerializer_1) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		this.cap_propertyNamesBuilder.add(strobj_(n.getString()))
-	case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if !n.isQuotedStringKey() {
 			this.cap_propertyNamesBuilder.add(strobj_(n.getString()))
 		}

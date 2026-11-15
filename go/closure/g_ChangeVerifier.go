@@ -116,10 +116,10 @@ func (this *ChangeVerifier) verifyNodeChange(passNameMsg string, n Node, snapsho
 func (this *ChangeVerifier) getNameForNode(n Node) string {
 	var sourceName string = NodeUtil_getSourceName(n)
 	return func() string {
-		switch n.getToken() {
-		case Token_rhino_SCRIPT:
+		switch n.ns_().token {
+		case tokOrd1_SCRIPT:
 			return ("SCRIPT: " + sstr_(sourceName))
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			var fnName OptionalOf[string] = NodeUtil_getNearestFunctionName(n)
 			if fnName.isEmpty() {
 				fnName = Optional_of(strobj_(("anonymous@" + istr_(int64(n.getLineno())) + ":" + istr_(int64(n.getCharno())))))

@@ -317,25 +317,25 @@ func new_AmbiguateProperties_ProcessPropertiesAndConstructors(outer_ *AmbiguateP
 }
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		this.processGetProp(n)
 		return
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		this.processCall(n)
 		return
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		if NodeUtil_isNameDeclaration(parent) || parent.isFunction() {
 			this.outer_.graphNodeFactory.createNode(this.outer_.getColor(n))
 		}
 		return
-	case Token_rhino_OBJECTLIT, Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECTLIT, tokOrd1_OBJECT_PATTERN:
 		this.processObjectLitOrPattern(n)
 		return
-	case Token_rhino_GETELEM:
+	case tokOrd1_GETELEM:
 		this.processGetElem(n)
 		return
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.processClass(n)
 		return
 	default:
@@ -380,18 +380,18 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processCall(ca
 
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processObjectProperty(objectLit Node, key Node, type_ *Color) {
 	Preconditions_checkArgument_boolean_Object((objectLit.isObjectLit() || objectLit.isObjectPattern()), objectLit.box_())
-	switch key.getToken() {
-	case Token_rhino_COMPUTED_PROP:
+	switch key.ns_().token {
+	case tokOrd1_COMPUTED_PROP:
 		if key.getFirstChild().isStringLit() {
 			this.outer_.quotedNames.add(key.getFirstChild().getString())
 		}
-	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
+	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_STRING_KEY:
 		if key.isQuotedStringKey() {
 			this.outer_.quotedNames.add(key.getString())
 		} else {
 			this.maybeMarkCandidate(key, type_)
 		}
-	case Token_rhino_OBJECT_REST, Token_rhino_OBJECT_SPREAD:
+	case tokOrd1_OBJECT_REST, tokOrd1_OBJECT_SPREAD:
 	default:
 		panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(objectLit.getToken())) + ": " + sstr_(key.toStringTree()))).self())
 	}

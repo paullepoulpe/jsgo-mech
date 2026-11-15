@@ -89,11 +89,11 @@ func (this *Es6NormalizeClasses) process_2(externs Node, root Node) {
 }
 
 func (this *Es6NormalizeClasses) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_SCRIPT:
+	switch n.ns_().token {
+	case tokOrd1_SCRIPT:
 		var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 		return (((((scriptFeatures == nil) || scriptFeatures.contains(FeatureSet_Feature_CLASSES)) || scriptFeatures.contains(FeatureSet_Feature_CLASS_STATIC_BLOCK)) || scriptFeatures.contains(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)) || scriptFeatures.contains(FeatureSet_Feature_PRIVATE_ELEMENTS))
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		var bindingIdentifier OptionalOf[Node] = func() Optional {
 			if n.getFirstChild().isName() {
 				return Optional_of(n.getFirstChild().box_())
@@ -114,30 +114,30 @@ func (this *Es6NormalizeClasses) shouldTraverse(t *NodeTraversal, n Node, parent
 			}
 		}
 		SequencedCollection_addFirst(SequencedCollection(this.classStack), obj_(record))
-	case Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_COMPUTED_FIELD_DEF:
 		Preconditions_checkState(!this.classStack.isEmpty())
 		var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
 		classRecord.maybeRecordComputedPropWithSideEffects(n)
 		classRecord.recordField(n)
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		Preconditions_checkState(!this.classStack.isEmpty())
 		var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
 		if n.isPrivateIdentifier() {
 			classRecord.recordPrivateMember(n)
 		}
 		classRecord.recordField(n)
-	case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if n.isPrivateIdentifier() {
 			Preconditions_checkState(!this.classStack.isEmpty())
 			cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek()).recordPrivateMember(n)
 		}
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if !NodeUtil_isClassStaticBlock(n) {
 			break
 		}
 		Preconditions_checkState(!this.classStack.isEmpty())
 		cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek()).recordStaticBlock(n)
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		if !n.getParent().isClassMembers() {
 			break
 		}
@@ -263,16 +263,16 @@ func (this *Es6NormalizeClasses) exitScope(t *NodeTraversal) {
 }
 
 func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_IN:
+	switch n.ns_().token {
+	case tokOrd1_IN:
 		if this.transpilePrivateClassFields && n.getFirstChild().isPrivateIdentifier() {
 			this.rewritePrivateIn(t, n)
 		}
-	case Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
+	case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
 		if this.transpilePrivateClassFields && n.isPrivateIdentifier() {
 			this.rewritePrivateGetProp(t, n)
 		}
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		var currClassRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](SequencedCollection_removeFirst(SequencedCollection(this.classStack)))
 		Preconditions_checkState_boolean_String_Object((currClassRecord.classNode == n), "unexpected node: %s", n.box_())
 		if currClassRecord.normalizedNames.shouldExtractExtends_ {
@@ -305,9 +305,9 @@ func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
 			this.rewriteInstanceMembers(t, currClassRecord)
 		}
 		this.rewriteStaticMembers(t, currClassRecord, classInsertionPoint)
-	case Token_rhino_NAME:
+	case tokOrd1_NAME:
 		this.maybeUpdateClassSelfRef(t, n)
-	case Token_rhino_THIS, Token_rhino_SUPER:
+	case tokOrd1_THIS, tokOrd1_SUPER:
 		this.visitThisAndSuper(t, n)
 	default:
 	}
@@ -1025,8 +1025,8 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 		} else {
 			var nameToUse Node = record.createNewNameReferenceNode().srcrefTree(staticMember)
 			var transpiledNode Node = func() Node {
-				switch staticMember.getToken() {
-				case Token_rhino_BLOCK:
+				switch staticMember.ns_().token {
+				case tokOrd1_BLOCK:
 					var block Node = staticMember.detach()
 					t.reportCodeChange()
 					return func() Node {
@@ -1035,9 +1035,9 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 						}
 						return 0
 					}()
-				case Token_rhino_MEMBER_FIELD_DEF:
+				case tokOrd1_MEMBER_FIELD_DEF:
 					return this.convNonCompFieldToGetProp(nameToUse, staticMember, true)
-				case Token_rhino_COMPUTED_FIELD_DEF:
+				case tokOrd1_COMPUTED_FIELD_DEF:
 					return this.convCompFieldToGetElem(nameToUse, staticMember, true)
 				default:
 					panic(new_IllegalStateException_String(String_valueOf_Object(staticMember.box_())).self())
@@ -1206,14 +1206,14 @@ func Es6NormalizeClasses_isSuperCall(n Node) bool {
 
 func Es6NormalizeClasses_isInStaticInitializationContext(rootNode Node) bool {
 	return func() bool {
-		switch rootNode.getToken() {
-		case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
+		switch rootNode.ns_().token {
+		case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 			Preconditions_checkState(rootNode.isStaticMember())
 			return false
-		case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
+		case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_FIELD_DEF:
 			Preconditions_checkState(rootNode.isStaticMember())
 			return true
-		case Token_rhino_BLOCK:
+		case tokOrd1_BLOCK:
 			Preconditions_checkState(rootNode.getParent().isClassMembers())
 			return true
 		default:

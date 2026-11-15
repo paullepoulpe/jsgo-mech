@@ -182,7 +182,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 			var boundExpr *JSTypeExpression = cast_[*JSTypeExpression](boundExpr_)
 			_ = boundExpr
 			var boundRoot Node = boundExpr.getRoot()
-			if (boundRoot.getToken() == Token_rhino_QMARK) && !boundRoot.hasChildren() {
+			if (boundRoot.ns_().token == tokOrd1_QMARK) && !boundRoot.hasChildren() {
 				parts.add(("@template " + sstr_(name)))
 			} else {
 				parts.add(this.buildAnnotationWithType_3("template", boundExpr, Optional_of(strobj_(name))))
@@ -321,7 +321,7 @@ func (this *JSDocInfoPrinter) print(info *JSDocInfo) string {
 }
 
 func (this *JSDocInfoPrinter) stripBang(typeNode Node) Node {
-	if typeNode.getToken() == Token_rhino_BANG {
+	if typeNode.ns_().token == tokOrd1_BANG {
 		typeNode = typeNode.getFirstChild()
 	}
 	return typeNode
@@ -380,14 +380,14 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 		sb.append(typeNode.getOriginalName())
 		return
 	}
-	switch typeNode.getToken() {
-	case Token_rhino_BANG:
+	switch typeNode.ns_().token {
+	case tokOrd1_BANG:
 		sb.append("!")
 		this.appendTypeNode(sb, typeNode.getFirstChild())
-	case Token_rhino_EQUALS:
+	case tokOrd1_EQUALS:
 		this.appendTypeNode(sb, typeNode.getFirstChild())
 		sb.append("=")
-	case Token_rhino_PIPE:
+	case tokOrd1_PIPE:
 		sb.append("(")
 		var lastChild Node = typeNode.getLastChild()
 		{
@@ -400,21 +400,21 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 			}
 		}
 		sb.append(")")
-	case Token_rhino_ITER_REST:
+	case tokOrd1_ITER_REST:
 		sb.append("...")
 		if typeNode.hasChildren() && !typeNode.getFirstChild().isEmpty() {
 			this.appendTypeNode(sb, typeNode.getFirstChild())
 		}
-	case Token_rhino_STAR:
+	case tokOrd1_STAR:
 		sb.append("*")
-	case Token_rhino_QMARK:
+	case tokOrd1_QMARK:
 		sb.append("?")
 		if typeNode.hasChildren() {
 			this.appendTypeNode(sb, typeNode.getFirstChild())
 		}
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.appendFunctionNode(sb, typeNode)
-	case Token_rhino_LC:
+	case tokOrd1_LC:
 		sb.append("{")
 		var lb Node = typeNode.getFirstChild()
 		var lastColon Node = lb.getLastChild()
@@ -433,12 +433,12 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 			}
 		}
 		sb.append("}")
-	case Token_rhino_VOID:
+	case tokOrd1_VOID:
 		sb.append("void")
-	case Token_rhino_TYPEOF:
+	case tokOrd1_TYPEOF:
 		sb.append("typeof ")
 		this.appendTypeNode(sb, typeNode.getFirstChild())
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		sb.append("<")
 		var last Node = typeNode.getLastChild()
 		{
@@ -451,7 +451,7 @@ func (this *JSDocInfoPrinter) appendTypeNode(sb *StringBuilder, typeNode Node) {
 			}
 		}
 		sb.append(">")
-	case Token_rhino_STRINGLIT:
+	case tokOrd1_STRINGLIT:
 		sb.append(typeNode.getString())
 		if typeNode.hasChildren() {
 			this.appendTypeNode(sb, typeNode.getOnlyChild())

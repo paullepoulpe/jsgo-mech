@@ -69,10 +69,10 @@ func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *Object
 	if NodeUtil_isFunctionDeclaration(n) || n.isClass() {
 		return CheckAccessControls_instanceTypeFor(n.getJSType())
 	}
-	switch parent.getToken() {
-	case Token_rhino_NAME:
+	switch parent.ns_().token {
+	case tokOrd1_NAME:
 		return CheckAccessControls_instanceTypeFor(n.getJSType())
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		var lValue Node = parent.getFirstChild()
 		if NodeUtil_isNormalGet(lValue) {
 			var lValueType *JSType = lValue.getJSType()
@@ -86,7 +86,7 @@ func (this *CheckAccessControls) bestInstanceTypeForMethodOrCtor(n Node) *Object
 		} else {
 			return CheckAccessControls_instanceTypeFor(lValue.getJSType())
 		}
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_PROP:
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_PROP:
 		var grandparent Node = parent.getParent()
 		var greatGrandparent Node = grandparent.getParent()
 		if grandparent.isObjectLit() {
@@ -685,19 +685,19 @@ func (this *CheckAccessControls) createPropertyReference(sourceNode Node) *Check
 		}
 	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF:
 		{
-			switch parent.getToken() {
-			case Token_rhino_OBJECTLIT:
+			switch parent.ns_().token {
+			case tokOrd1_OBJECTLIT:
 				if !parent.getJSType().isLiteralObject() {
 					return nil
 				}
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeOrUnknown(ObjectType_cast(parent.getJSType()))).setMutation(true).setDeclaration(true).setOverride(false).setReadableTypeName(&Supplier_fn{func() any {
 					return this.typeRegistry.getReadableTypeName(parent).orElse(nil)
 				}})
-			case Token_rhino_OBJECT_PATTERN:
+			case tokOrd1_OBJECT_PATTERN:
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeOrUnknown(ObjectType_cast(parent.getJSType()))).setMutation(false).setDeclaration(false).setOverride(false).setReadableTypeName(&Supplier_fn{func() any {
 					return this.typeRegistry.getReadableTypeName(parent).orElse(nil)
 				}})
-			case Token_rhino_CLASS_MEMBERS:
+			case tokOrd1_CLASS_MEMBERS:
 				builder.setName(sourceNode.getString()).setReceiverType(this.typeRegistry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE)).setMutation(!(sourceNode.isMemberFieldDef() && !sourceNode.hasChildren())).setDeclaration(true).setOverride((jsdoc != nil)).setReadableTypeName(&Supplier_fn{func() any {
 					return strobj_("")
 				}})

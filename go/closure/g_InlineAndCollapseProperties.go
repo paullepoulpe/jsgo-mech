@@ -926,10 +926,10 @@ func (this *InlineAndCollapseProperties_CollapseProperties) canEliminate(name *G
 		{
 			var child Node = rvalue.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				switch child.getToken() {
-				case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD:
+				switch child.ns_().token {
+				case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD:
 					return false
-				case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
+				case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF:
 				default:
 					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
 				}
@@ -1239,20 +1239,20 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 	}
 	var isSimpleName bool = n.isSimpleName()
 	var declNode Node = decl.getNode()
-	switch declNode.getParent().getToken() {
-	case Token_rhino_ASSIGN:
+	switch declNode.getParent().ns_().token {
+	case tokOrd1_ASSIGN:
 		this.logDeclarationAction(n, declNode, "updating assignment")
 		this.updateGlobalNameDeclarationAtAssignNode(n, alias, canCollapseChildNames)
-	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		this.logDeclarationAction(n, declNode, "updating variable declaration")
 		this.updateGlobalNameDeclarationAtVariableNode(n, canCollapseChildNames)
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		this.logDeclarationAction(n, declNode, "updating function declaration")
 		this.updateGlobalNameDeclarationAtFunctionNode(n, canCollapseChildNames)
-	case Token_rhino_CLASS:
+	case tokOrd1_CLASS:
 		this.logDeclarationAction(n, declNode, "updating class declaration")
 		this.updateGlobalNameDeclarationAtClassNode(n, canCollapseChildNames)
-	case Token_rhino_CLASS_MEMBERS:
+	case tokOrd1_CLASS_MEMBERS:
 		this.logDeclarationAction(n, declNode, "updating static member declaration")
 		this.updateGlobalNameDeclarationAtStaticMemberNode(n, alias, canCollapseChildNames)
 	default:
@@ -1430,10 +1430,10 @@ func (this *InlineAndCollapseProperties_CollapseProperties) declareVariablesForO
 		for ; key != 0; key = nextKey {
 			var value Node = key.getFirstChild()
 			nextKey = key.getNext()
-			switch key.getToken() {
-			case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD:
+			switch key.ns_().token {
+			case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD:
 				continue L_1
-			case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
+			case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF:
 			default:
 				panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(key.toStringTree()))).self())
 			}
@@ -1626,12 +1626,12 @@ func new_InlineAndCollapseProperties_InlineAliases_AliasesCollector(outer_ *Inli
 }
 
 func (this *InlineAndCollapseProperties_InlineAliases_AliasesCollector) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
+	switch n.ns_().token {
+	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		if n.hasOneChild() && t.inGlobalScope() {
 			this.visitAliasDefinition(n.getFirstChild(), NodeUtil_getBestJSDocInfo(n.getFirstChild()))
 		}
-	case Token_rhino_ASSIGN:
+	case tokOrd1_ASSIGN:
 		if ((parent != 0) && parent.isExprResult()) && t.inGlobalScope() {
 			this.visitAliasDefinition(n.getFirstChild(), n.getJSDocInfo())
 		}
@@ -1684,8 +1684,8 @@ func new_InlineAndCollapseProperties_InlineAliases_AliasesInliner(outer_ *Inline
 }
 
 func (this *InlineAndCollapseProperties_InlineAliases_AliasesInliner) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME, Token_rhino_GETPROP:
+	switch n.ns_().token {
+	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if n.isQualifiedName() && has_(this.outer_.aliases_, n.getQualifiedName()) {
 			if this.isLeftmostNameLocal(t, n) {
 				return

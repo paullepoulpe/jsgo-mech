@@ -344,10 +344,10 @@ func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode
 
 func ProcessDefines_isValidClosureDefinesValue(val Node) bool {
 	return func() bool {
-		switch val.getToken() {
-		case Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_TRUE, Token_rhino_FALSE:
+		switch val.ns_().token {
+		case tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_TRUE, tokOrd1_FALSE:
 			return true
-		case Token_rhino_NEG:
+		case tokOrd1_NEG:
 			return val.getFirstChild().isNumber()
 		default:
 			return false
@@ -375,16 +375,16 @@ func (this *ProcessDefines) isValidDefineValue(val Node) *Tri {
 	if val == 0 {
 		return Tri_FALSE
 	}
-	switch val.getToken() {
-	case Token_rhino_STRINGLIT, Token_rhino_NUMBER, Token_rhino_TRUE, Token_rhino_FALSE:
+	switch val.ns_().token {
+	case tokOrd1_STRINGLIT, tokOrd1_NUMBER, tokOrd1_TRUE, tokOrd1_FALSE:
 		return Tri_TRUE
-	case Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_ADD, Token_rhino_BITAND, Token_rhino_BITNOT, Token_rhino_BITOR, Token_rhino_BITXOR, Token_rhino_DIV, Token_rhino_EQ, Token_rhino_EXPONENT, Token_rhino_GE, Token_rhino_GT, Token_rhino_LE, Token_rhino_LSH, Token_rhino_LT, Token_rhino_MOD, Token_rhino_MUL, Token_rhino_NE, Token_rhino_RSH, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_SUB, Token_rhino_URSH:
+	case tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_ADD, tokOrd1_BITAND, tokOrd1_BITNOT, tokOrd1_BITOR, tokOrd1_BITXOR, tokOrd1_DIV, tokOrd1_EQ, tokOrd1_EXPONENT, tokOrd1_GE, tokOrd1_GT, tokOrd1_LE, tokOrd1_LSH, tokOrd1_LT, tokOrd1_MOD, tokOrd1_MUL, tokOrd1_NE, tokOrd1_RSH, tokOrd1_SHEQ, tokOrd1_SHNE, tokOrd1_SUB, tokOrd1_URSH:
 		return this.isValidDefineValue(val.getFirstChild()).and(this.isValidDefineValue(val.getLastChild()))
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		return this.isValidDefineValue(val.getFirstChild()).and(this.isValidDefineValue(val.getSecondChild())).and(this.isValidDefineValue(val.getLastChild()))
-	case Token_rhino_NOT, Token_rhino_NEG, Token_rhino_POS:
+	case tokOrd1_NOT, tokOrd1_NEG, tokOrd1_POS:
 		return this.isValidDefineValue(val.getFirstChild())
-	case Token_rhino_NAME, Token_rhino_GETPROP:
+	case tokOrd1_NAME, tokOrd1_GETPROP:
 		if val.isQualifiedName() {
 			return func() *Tri {
 				if has_(this.validDefineValueExpressions, val) {
@@ -393,7 +393,7 @@ func (this *ProcessDefines) isValidDefineValue(val Node) *Tri {
 				return Tri_UNKNOWN
 			}()
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		if !this.isGoogDefineCall(val) {
 			return Tri_FALSE
 		}

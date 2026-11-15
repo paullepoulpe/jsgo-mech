@@ -116,10 +116,10 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs ListOf
 		{
 			var child Node = val.getFirstChild()
 			for ; child != 0; child = child.getNext() {
-				switch child.getToken() {
-				case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD:
+				switch child.ns_().token {
+				case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD:
 					return false
-				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_STRING_KEY:
+				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_STRING_KEY:
 				default:
 					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
 				}

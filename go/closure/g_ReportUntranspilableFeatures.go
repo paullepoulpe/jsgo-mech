@@ -41,8 +41,8 @@ func (this *ReportUntranspilableFeatures) getAdditionalFeaturesToRunOn_impl() *F
 }
 
 func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
-	switch root.getToken() {
-	case Token_rhino_REGEXP:
+	switch root.ns_().token {
+	case tokOrd1_REGEXP:
 		var pattern string = root.getFirstChild().getString()
 		var flags string = func() string {
 			if root.hasTwoChildren() {
@@ -86,19 +86,19 @@ func (this *ReportUntranspilableFeatures) checkForUntranspilable(root Node) {
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_REGEXP_FLAG_D) {
 			this.checkForRegExpDFlag(root)
 		}
-	case Token_rhino_BIGINT:
+	case tokOrd1_BIGINT:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_BIGINT) {
 			this.reportUntranspilable(FeatureSet_Feature_BIGINT, root)
 		}
-	case Token_rhino_GETTER_DEF:
+	case tokOrd1_GETTER_DEF:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_GETTER) {
 			this.reportUntranspilable(FeatureSet_Feature_GETTER, root)
 		}
-	case Token_rhino_SETTER_DEF:
+	case tokOrd1_SETTER_DEF:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_SETTER) {
 			this.reportUntranspilable(FeatureSet_Feature_SETTER, root)
 		}
-	case Token_rhino_AWAIT, Token_rhino_FOR_AWAIT_OF:
+	case tokOrd1_AWAIT, tokOrd1_FOR_AWAIT_OF:
 		if this.untranspilableFeaturesToRemove.contains(FeatureSet_Feature_TOP_LEVEL_AWAIT) {
 			this.checkForTopLevelAwait(root)
 		}

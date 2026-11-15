@@ -531,8 +531,8 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 			type_ = this.getValueType(n.getFirstChild())
 		}
 	case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_OPTCHAIN_GETPROP:
-		switch parent.getToken() {
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+		switch parent.ns_().token {
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			isSet = true
 			var rvalue Node = n.getFirstChild()
 			type_ = func() *GlobalNamespace_NameProp {
@@ -541,40 +541,40 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 				}
 				return this.getValueType(rvalue)
 			}()
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			if parent.getFirstChild() == n {
 				isSet = true
 				type_ = this.getValueType(n.getNext())
 			}
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			var grandparent Node = parent.getParent()
 			if (grandparent == 0) || NodeUtil_isFunctionExpression(parent) {
 				return
 			}
 			isSet = true
 			type_ = GlobalNamespace_NameProp_FUNCTION
-		case Token_rhino_CATCH, Token_rhino_INC, Token_rhino_DEC:
+		case tokOrd1_CATCH, tokOrd1_INC, tokOrd1_DEC:
 			isSet = true
 			type_ = GlobalNamespace_NameProp_OTHER_OBJECT
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF:
 			if parent.getFirstChild() == n {
 				isSet = true
 				type_ = GlobalNamespace_NameProp_OTHER_OBJECT
 			}
-		case Token_rhino_CLASS:
+		case tokOrd1_CLASS:
 			if parent.getFirstChild() == n {
 				isSet = true
 				type_ = GlobalNamespace_NameProp_CLASS
 			}
-		case Token_rhino_STRING_KEY, Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_COMPUTED_PROP, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+		case tokOrd1_STRING_KEY, tokOrd1_ARRAY_PATTERN, tokOrd1_DEFAULT_VALUE, tokOrd1_COMPUTED_PROP, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 			if n.isName() && NodeUtil_isLhsByDestructuring(n) {
 				isSet = true
 				type_ = GlobalNamespace_NameProp_OTHER_OBJECT
 			}
-		case Token_rhino_ITER_SPREAD, Token_rhino_OBJECT_SPREAD:
-		case Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL:
+		case tokOrd1_ITER_SPREAD, tokOrd1_OBJECT_SPREAD:
+		case tokOrd1_CALL, tokOrd1_OPTCHAIN_CALL:
 			if n.isFirstChildOf(parent) && this.isObjectHasOwnPropertyCall(parent) {
 				var qname string = n.getFirstChild().getQualifiedName()
 				var globalName *GlobalNamespace_Name = this.getOrCreateName(qname, this.curMetadata)
@@ -696,16 +696,16 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getNameForObjectPatternKey(str
 }
 
 func (this *GlobalNamespace_BuildGlobalNamespace) getValueType(n Node) *GlobalNamespace_NameProp {
-	switch n.getToken() {
-	case Token_rhino_CLASS:
+	switch n.ns_().token {
+	case tokOrd1_CLASS:
 		return GlobalNamespace_NameProp_CLASS
-	case Token_rhino_OBJECTLIT:
+	case tokOrd1_OBJECTLIT:
 		return GlobalNamespace_NameProp_OBJECTLIT
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		return GlobalNamespace_NameProp_FUNCTION
-	case Token_rhino_OR:
+	case tokOrd1_OR:
 		return this.getValueType(n.getLastChild())
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		var second Node = n.getSecondChild()
 		var t *GlobalNamespace_NameProp = this.getValueType(second)
 		if t != GlobalNamespace_NameProp_OTHER_OBJECT {
@@ -838,8 +838,8 @@ func (this *GlobalNamespace_BuildGlobalNamespace) determineRefTypeForGet(n Node,
 				return GlobalNamespace_Ref_Type_DIRECT_GET
 			}
 		}
-		switch lhs.getToken() {
-		case Token_rhino_NAME, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+		switch lhs.ns_().token {
+		case tokOrd1_NAME, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			type_ = GlobalNamespace_Ref_Type_ALIASING_GET
 		default:
 			panic(new_IllegalStateException_String(("Unexpected previous sibling of " + objstr_(obj_(n.getToken())) + ": " + objstr_(n.getPrevious().box_()))).self())
@@ -1883,17 +1883,17 @@ func (this *GlobalNamespace_Name) getDocInfoForDeclaration(ref *GlobalNamespace_
 		if refParent == 0 {
 			return nil
 		}
-		switch refParent.getToken() {
-		case Token_rhino_FUNCTION, Token_rhino_ASSIGN, Token_rhino_CLASS:
+		switch refParent.ns_().token {
+		case tokOrd1_FUNCTION, tokOrd1_ASSIGN, tokOrd1_CLASS:
 			return refParent.getJSDocInfo()
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			return func() *JSDocInfo {
 				if ref.node_ == refParent.getFirstChild() {
 					return refParent.getJSDocInfo()
 				}
 				return ref.node_.getJSDocInfo()
 			}()
-		case Token_rhino_OBJECTLIT, Token_rhino_CLASS_MEMBERS:
+		case tokOrd1_OBJECTLIT, tokOrd1_CLASS_MEMBERS:
 			return ref.node_.getJSDocInfo()
 		default:
 		}
