@@ -8,3 +8,10 @@ com.google.javascript.rhino.Node
 # storing a String and testing `field instanceof String s` touch no interface value
 # (tools/j2go/README.md, "Handle classes").
 com.google.javascript.rhino.Node::payload string-slot
+#
+# Cold fields: "Class::field cold" names a pointer-free field of a handle class that traversals do
+# not read. It goes to a second pointer-free record, so that the record a traversal reads stays
+# small (tools/j2go/README.md, "Handle classes").
+com.google.javascript.rhino.Node::previous cold
+com.google.javascript.rhino.Node::linenoCharno cold
+com.google.javascript.rhino.Node::length cold

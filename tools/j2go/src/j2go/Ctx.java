@@ -129,15 +129,25 @@ final class Ctx {
     return strSlots.contains(f);
   }
 
-  /** The Go lvalue of the string slot of field f of recv. */
+  /**
+   * Pointer-free fields of handle classes that the program reads rarely (handles.txt, "Class::field cold"):
+   * they go to a second pointer-free record, so that the first one stays small.
+   */
+  final Set<VariableElement> coldFields = new HashSet<>();
+
+  boolean cold(VariableElement f) {
+    return coldFields.contains(f);
+  }
+
+  /** The Go lvalue of the string slot of field f of recv: a column of its own. */
   String strSlotLoc(String recv, VariableElement f) {
-    return recv + ".ps_()." + fieldName(f) + "_s_";
+    return "(*" + recv + "." + fieldName(f) + "_s_())";
   }
 
   /** The storage location of instance field f of the object recv (a Go lvalue). */
   String fieldLoc(String recv, VariableElement f) {
     if (!isHandle(ownerOf(f))) return recv + "." + fieldName(f);
-    return recv + (pointerFree(f) ? ".ns_()." : ".ps_().") + fieldName(f);
+    return recv + (cold(f) ? ".cs_()." : pointerFree(f) ? ".ns_()." : ".ps_().") + fieldName(f);
   }
 
   /** Go expression reading instance field f of recv, at the Go type of f's Java type. */
@@ -193,14 +203,17 @@ final class Ctx {
       }
     }
     for (String line : slots) {
-      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+string-slot").matcher(line);
+      java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\S+)::(\\w+)\\s+(string-slot|cold)").matcher(line);
       TypeElement te = m.matches() ? elems.getTypeElement(m.group(1)) : null;
       VariableElement field = null;
       if (te != null && handles.contains(te)) {
         for (VariableElement f : instanceFields(te)) if (f.getSimpleName().contentEquals(m.group(2))) field = f;
       }
-      if (field == null) handleErrors.add(line + ": not \"Class::field string-slot\" naming a field of a handle class");
-      else if (!types.isSameType(field.asType(), elems.getTypeElement("java.lang.Object").asType())) handleErrors.add(line + ": the field is not declared Object");
+      if (field == null) handleErrors.add(line + ": not \"Class::field string-slot\" or \"Class::field cold\" naming a field of a handle class");
+      else if (m.group(3).equals("cold")) {
+        if (!pointerFree(field)) handleErrors.add(line + ": a cold field must be pointer-free");
+        else coldFields.add(field);
+      } else if (!types.isSameType(field.asType(), elems.getTypeElement("java.lang.Object").asType())) handleErrors.add(line + ": the field is not declared Object");
       else strSlots.add(field);
     }
   }

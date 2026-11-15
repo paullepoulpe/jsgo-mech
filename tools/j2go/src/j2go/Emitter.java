@@ -268,21 +268,24 @@ final class Emitter extends StmtEmitter {
    */
   String handleDecl(TypeElement te) {
     String n = cx.className(te);
-    List<VariableElement> ns = new ArrayList<>(), ps = new ArrayList<>();
-    for (VariableElement f : Ctx.instanceFields(te)) (cx.pointerFree(f) ? ns : ps).add(f);
-    // Widest first, so that the pointer-free record has no padding between fields.
+    List<VariableElement> ns = new ArrayList<>(), cs = new ArrayList<>(), ps = new ArrayList<>();
+    for (VariableElement f : Ctx.instanceFields(te)) (cx.cold(f) ? cs : cx.pointerFree(f) ? ns : ps).add(f);
+    // Widest first, so that the pointer-free records have no padding between fields.
     ns.sort(Comparator.comparingInt((VariableElement f) -> -storedSize(f)));
+    cs.sort(Comparator.comparingInt((VariableElement f) -> -storedSize(f)));
+    // The handle's own value, for box_ to point an interface at, is read only when boxing: it goes
+    // with the cold fields when there are any.
+    String selfAcc = cs.isEmpty() ? "ns_" : "cs_";
     StringBuilder sb = new StringBuilder("type " + n + " uint32\n\n");
     StringBuilder alloc = new StringBuilder();
-    for (int k = 0; k < 2; k++) {
-      String rec = n + (k == 0 ? "_ns_" : "_ps_"), acc = k == 0 ? "ns_" : "ps_", tab = n + "_" + acc + "chunks_";
+    String[][] recs = {{"_ns_", "ns_"}, {"_cs_", "cs_"}, {"_ps_", "ps_"}};
+    List<List<VariableElement>> lists = List.of(ns, cs, ps);
+    for (int k = 0; k < 3; k++) {
+      if (k == 1 && cs.isEmpty()) continue;
+      String rec = n + recs[k][0], acc = recs[k][1], tab = n + "_" + acc + "chunks_";
       sb.append("type ").append(rec).append(" struct {\n");
-      // The handle's own value, for box_ to point an interface at.
-      if (k == 0) sb.append("\tself_ uint32\n");
-      for (VariableElement f : k == 0 ? ns : ps) {
-        sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
-        if (cx.strSlot(f)) sb.append("\t").append(cx.fieldName(f)).append("_s_ string\n");
-      }
+      if (acc.equals(selfAcc)) sb.append("\tself_ uint32\n");
+      for (VariableElement f : lists.get(k)) sb.append("\t").append(cx.fieldName(f)).append(" ").append(cx.storedType(f)).append("\n");
       sb.append("}\n\n");
       sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]").append(rec).append("\n\n");
       sb.append(recv(te)).append(acc).append("() *").append(rec).append(" {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
@@ -290,39 +293,43 @@ final class Emitter extends StmtEmitter {
     }
     for (VariableElement f : ps) {
       if (!cx.strSlot(f)) continue;
-      // A string-slot field: the String a Java Object field holds is kept unboxed next to it.
-      String fn = cx.fieldName(f);
-      sb.append(recv(te)).append(fn).append("_get_() any {\n\tp := this.ps_()\n\tif p.").append(fn).append("_s_ != nullstr_ {\n\t\treturn p.")
-          .append(fn).append("_s_\n\t}\n\treturn p.").append(fn).append("\n}\n\n");
-      sb.append(recv(te)).append(fn).append("_set_(v any) {\n\tp := this.ps_()\n\tif s, ok := v.(string); ok {\n\t\tp.").append(fn).append("_s_, p.")
-          .append(fn).append(" = s, nil\n\t} else {\n\t\tp.").append(fn).append("_s_, p.").append(fn).append(" = nullstr_, v\n\t}\n}\n\n");
-      sb.append(recv(te)).append(fn).append("_sets_(s string) {\n\tp := this.ps_()\n\tp.").append(fn).append("_s_, p.").append(fn).append(" = s, nil\n}\n\n");
+      // A string-slot field: the String a Java Object field holds is kept unboxed, in a column of its own
+      // (most reads of the field are of the String, and a column keeps them dense).
+      String fn = cx.fieldName(f), tab = n + "_" + fn + "_s_chunks_", s = "(*this." + fn + "_s_())";
+      sb.append("var ").append(tab).append(" [handleChunks_]*[handleChunkSize_]string\n\n");
+      sb.append(recv(te)).append(fn).append("_s_() *string {\n\treturn &").append(tab).append("[this>>handleShift_][uint16(this)]\n}\n\n");
+      alloc.append("\t\t").append(tab).append("[h>>handleShift_] = new([handleChunkSize_]string)\n");
+      sb.append(recv(te)).append(fn).append("_get_() any {\n\tif s := ").append(s).append("; s != nullstr_ {\n\t\treturn s\n\t}\n\treturn this.ps_().")
+          .append(fn).append("\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_set_(v any) {\n\tif s, ok := v.(string); ok {\n\t\t").append(s).append(", this.ps_().")
+          .append(fn).append(" = s, nil\n\t} else {\n\t\t").append(s).append(", this.ps_().").append(fn).append(" = nullstr_, v\n\t}\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_sets_(s string) {\n\t").append(s).append(", this.ps_().").append(fn).append(" = s, nil\n}\n\n");
       // (String) field: the string slot; a value of another class fails the cast as it would in Java.
-      sb.append(recv(te)).append(fn).append("_str_() string {\n\tp := this.ps_()\n\tif p.").append(fn).append(" != nil {\n\t\treturn str_(p.")
-          .append(fn).append(")\n\t}\n\treturn p.").append(fn).append("_s_\n}\n\n");
-      sb.append(recv(te)).append(fn).append("_copy_(o ").append(n).append(") {\n\tp, q := this.ps_(), o.ps_()\n\tp.").append(fn).append("_s_, p.")
-          .append(fn).append(" = q.").append(fn).append("_s_, q.").append(fn).append("\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_str_() string {\n\tif v := this.ps_().").append(fn).append("; v != nil {\n\t\treturn str_(v)\n\t}\n\treturn ")
+          .append(s).append("\n}\n\n");
+      sb.append(recv(te)).append(fn).append("_copy_(o ").append(n).append(") {\n\t").append(s).append(", this.ps_().").append(fn).append(" = *o.")
+          .append(fn).append("_s_(), o.ps_().").append(fn).append("\n}\n\n");
     }
     // Chunk 0 is never allocated: handle 0 is null, and reaching for its record is a nil dereference.
     sb.append("var ").append(n).append("_count_ uint32 = handleChunkSize_\n\n");
     sb.append("func ").append(n).append("_alloc_() ").append(n).append(" {\n\th := ").append(n).append("_count_\n\tif uint16(h) == 0 {\n\t\thandleGrow_(h)\n")
-        .append(alloc).append("\t}\n\t").append(n).append("_count_ = h + 1\n\t").append(n).append("(h).ns_().self_ = h\n\treturn ").append(n).append("(h)\n}\n\n");
+        .append(alloc).append("\t}\n\t").append(n).append("_count_ = h + 1\n\t").append(n).append("(h).").append(selfAcc).append("().self_ = h\n\treturn ").append(n).append("(h)\n}\n\n");
     sb.append(recv(te)).append("handle_() uint32 {\n\treturn uint32(this)\n}\n\n");
     // Boxing allocates nothing: the interface's data word points at the record's self_.
     sb.append("var ").append(n).append("_proto_ any = ").append(n).append("(0)\n\n");
-    sb.append(recv(te)).append("box_() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn handleBox_(").append(n).append("_proto_, &this.ns_().self_)\n}\n\n");
+    sb.append(recv(te)).append("box_() any {\n\tif this == 0 {\n\t\treturn nil\n\t}\n\treturn handleBox_(").append(n).append("_proto_, &this.").append(selfAcc).append("().self_)\n}\n\n");
     sb.append("func ").append(n).append("_of_(v any) ").append(n).append(" {\n\tif v == nil {\n\t\treturn 0\n\t}\n\treturn v.(").append(n).append(")\n}\n\n");
     // For JSGO_HANDLE_STATS: how many objects exist and how often each field is set.
-    sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + ps.size()).append("]int\n")
+    sb.append("func init() {\n\thandleStats_ = append(handleStats_, func() string {\n\t\tvar c [").append(ns.size() + cs.size() + ps.size()).append("]int\n")
         .append("\t\tfor h := ").append(n).append("(handleChunkSize_); uint32(h) < ").append(n).append("_count_; h++ {\n");
     StringBuilder names = new StringBuilder();
     int i = 0;
-    for (List<VariableElement> l : List.of(ns, ps)) {
+    for (List<VariableElement> l : lists) {
       for (VariableElement f : l) {
         String loc = cx.fieldLoc("h", f), gt = cx.storedType(f);
         String unset = cx.kind(f.asType()) == Ctx.K.STR ? loc + " == nullstr_ || " + loc + " == \"\"" : loc + " == " + (gt.equals("bool") ? "false" : cx.pointerFree(f) ? "0" : "nil");
         sb.append("\t\t\tif !(").append(unset).append(") {\n\t\t\t\tc[").append(i++).append("]++\n\t\t\t}\n");
-        names.append(quote(f.getSimpleName() + " (" + gt + (l == ns ? ", pointer-free)" : ")"))).append(", ");
+        names.append(quote(f.getSimpleName() + " (" + gt + (l != ps ? ", pointer-free)" : ")"))).append(", ");
       }
     }
     sb.append("\t\t}\n\t\treturn handleStatsText_(").append(quote(n)).append(", ").append(n).append("_count_, []string{").append(names).append("}, c[:])\n\t})\n}\n\n");

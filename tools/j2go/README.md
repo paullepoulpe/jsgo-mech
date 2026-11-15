@@ -74,8 +74,18 @@ the field holds no String): assigning an expression of static type `String`
 writes that slot directly, `field instanceof String s` and `(String) field`
 read it, a copy from the same field of another object copies both slots, and
 any other read or write goes through generated `field_get_()`/`field_set_(v)`,
-which behave as the single `Object` field would. The Java keeps one field, so
+which behave as the single `Object` field would. The string slot is a column of
+its own (`field_s_()` returns a pointer into a chunk of strings): most reads of
+such a field are of its String, and a column keeps them dense instead of
+spreading them over the larger `C_ps_` records. The Java keeps one field, so
 the object does not grow on the JVM (a 57th byte in `Node` costs Java 4%).
+
+A line `Class::field cold` names a pointer-free field of a handle class that
+traversals do not read (today `Node::previous`, `linenoCharno`, `length`). Cold
+fields, and the handle's own value that `box_` points at, go to a third record
+`C_cs_`, so that `C_ns_`, the record a traversal reads for every node, stays
+small: `Node_ns_` is 16 bytes (next, first, parent, token), four nodes to a
+cache line. Only the layout changes; reads and writes of the field are the same.
 
 **Type arguments in declarations.** Generics are erased, but the declared type
 of a field, local or parameter whose Java type is a parameterized library type
