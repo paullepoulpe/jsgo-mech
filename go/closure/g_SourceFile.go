@@ -114,16 +114,10 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	}
 	var offsets []int32 = make([]int32, this.numLines)
 	var index int32 = 1
-	for i := int32(0); i < String_length(str_(localCode.get())); i++ {
-		var ch uint16 = String_charAt(str_(localCode.get()), i)
-		if SourceFile_jscomp_isLineTerminator(ch) {
-			if ((ch == '\r') && ((i + 1) < String_length(str_(localCode.get())))) && (String_charAt(str_(localCode.get()), (i+1)) == '\n') {
-				i++
-			}
-			offsets[index] = (i + 1)
-			index++
-		}
-	}
+	SourceFile_lineEnds_(str_(localCode.get()), func(next int32) {
+		offsets[index] = next
+		index++
+	})
 	Preconditions_checkState((index == int32(len(offsets))))
 	this.lineOffsets = offsets
 }
@@ -168,17 +162,10 @@ func (this *SourceFile_jscomp) setCodeAndDoBookkeeping(sourceCode OptionalOf[str
 		if String_startsWith(str_(sourceCode.get()), SourceFile_jscomp_UTF8_BOM) {
 			sourceCode = Optional_of(strobj_(String_substring_int(str_(sourceCode.get()), String_length(SourceFile_jscomp_UTF8_BOM))))
 		}
-		this.numBytes = String_length(str_(sourceCode.get()))
+		code := str_(sourceCode.get())
+		this.numBytes = String_length(code)
 		var numLines int32 = 1
-		for i := int32(0); i < String_length(str_(sourceCode.get())); i++ {
-			var ch uint16 = String_charAt(str_(sourceCode.get()), i)
-			if SourceFile_jscomp_isLineTerminator(ch) {
-				if ((ch == '\r') && ((i + 1) < String_length(str_(sourceCode.get())))) && (String_charAt(str_(sourceCode.get()), (i+1)) == '\n') {
-					i++
-				}
-				numLines++
-			}
-		}
+		SourceFile_lineEnds_(code, func(int32) { numLines++ })
 		this.numLines = numLines
 		this.code_ = sourceCode
 	}
@@ -1018,4 +1005,28 @@ func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder(p0 string) *Sour
 	return this.self_.(interface {
 		toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
 	}).toProtoLocationBuilder_impl(p0)
+}
+
+// SourceFile_lineEnds_ calls f, for every line terminator of code (a \r\n pair counting once),
+// with the UTF-16 index just past it, as the Java loops over code.charAt(i) do: one pass over
+// the string's bytes instead of a UTF-16 lookup per character.
+func SourceFile_lineEnds_(code string, f func(next int32)) {
+	var u int32 // UTF-16 index of the code point at byte b
+	for b := 0; b < len(code); {
+		cp, size := decode_(code, b)
+		if cp > 0xFFFF {
+			u += 2 // a surrogate pair: never a line terminator
+			b += size
+			continue
+		}
+		if SourceFile_jscomp_isLineTerminator(uint16(cp)) {
+			if cp == '\r' && b+size < len(code) && code[b+size] == '\n' {
+				b++
+				u++
+			}
+			f(u + 1)
+		}
+		u++
+		b += size
+	}
 }

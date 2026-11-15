@@ -254,9 +254,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 	for referencedVariable := range scopeContext.referencedVariables { // conflicts go into sets: order-free
 		scopeContext.recordPotentialConflicts(referencedVariable)
 	}
-	it_3 := foreach_(obj_(scopeContext.declaredVariableInfos))
-	for it_3.next() {
-		var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo](it_3.v)
+	for _, declaredVariableInfo := range scopeContext.declared_ {
 		var variableName string = declaredVariableInfo.getName()
 		var oldStackTop MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = this.variablesStackedByName.popVariableInfo(variableName)
 		Preconditions_checkState_boolean_String_Object((any(oldStackTop) == obj_(declaredVariableInfo)), "Declared variable \"%s\" was not the top of the name stack", strobj_(variableName))
@@ -425,6 +423,7 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext struct {
 	parent                *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	scope_                *Scope
 	declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
+	declared_             []*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo // declaredVariableInfos as a typed slice, for the loops below
 	referencedVariables   map[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]struct{}
 }
 
@@ -436,6 +435,9 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_
 	this.finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext()
 	this.scope_ = scope
 	this.declaredVariableInfos = declaredVariableInfos
+	for _, x := range toSlice_(declaredVariableInfos) {
+		this.declared_ = append(this.declared_, cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo](x))
+	}
 	this.parent = parent
 }
 
@@ -453,10 +455,8 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recor
 	var thisScopeDepth int32 = this.scope_.getDepth()
 	var referencedVariableDeclarationDepth int32 = referencedVariable.getScopeDepth()
 	if thisScopeDepth >= referencedVariableDeclarationDepth {
-		it_1 := foreach_(obj_(this.declaredVariableInfos))
-		for it_1.next() {
-			var declaredVariableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo](it_1.v)
-			referencedVariable.addPotentialConflict(icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(declaredVariableInfo)))
+		for _, declaredVariableInfo := range this.declared_ {
+			referencedVariable.addPotentialConflict(declaredVariableInfo)
 			declaredVariableInfo.addPotentialConflict(referencedVariable)
 		}
 		if this.parent != nil {
