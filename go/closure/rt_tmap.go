@@ -1,0 +1,641 @@
+package closure
+
+// Typed maps and sets (post-flip step 4): LinkedHashMap<K, V> and LinkedHashSet<K> with
+// unboxed keys and values, for keys whose Java equality is Go's == (strings, handles, classes
+// without equals of their own).
+//
+// Insertion order is kept as in LinkedHashMap: keys and values in slices, removed positions
+// marked dead, a Go map from key to position once the table has more than tsmall_ entries.
+// Code that still expects an erased Map or Set gets asMap() / asSet(), a view with the
+// collection's identity. Behaviour mirrors rt_coll.go.
+
+const tsmall_ = 8
+
+type TMap[K comparable, V any] struct {
+	keys  []K
+	vals  []V
+	dead  []bool // beside keys once something was removed; else nil
+	idx   map[K]int32
+	live  int32
+	ndead int32
+	kc    *tconv_[K]
+	vc    *tconv_[V]
+	view  *tmapView_[K, V]
+	imm   bool
+}
+
+func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
+	return &TMap[K, V]{kc: kc, vc: vc}
+}
+
+// tmapFrom_ is new LinkedHashMap<>(from) (or an ImmutableMap, imm) as a typed map.
+func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm bool) *TMap[K, V] {
+	if from == nil && imm {
+		return nil
+	}
+	m := newTMap_(kc, vc)
+	for it := from.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		m.put(kc.unbox(e.getKey()), vc.unbox(e.getValue()))
+	}
+	m.imm = imm
+	return m
+}
+
+func (m *TMap[K, V]) find(k K) int32 {
+	if m.idx != nil {
+		if i, ok := m.idx[k]; ok {
+			return i
+		}
+		return -1
+	}
+	for i, x := range m.keys {
+		if x == k && (m.dead == nil || !m.dead[i]) {
+			return int32(i)
+		}
+	}
+	return -1
+}
+
+func (m *TMap[K, V]) size() int32   { return m.live }
+func (m *TMap[K, V]) isEmpty() bool { return m.live == 0 }
+
+func (m *TMap[K, V]) get(k K) V {
+	if i := m.find(k); i >= 0 {
+		return m.vals[i]
+	}
+	return m.vc.null
+}
+
+func (m *TMap[K, V]) containsKey(k K) bool { return m.find(k) >= 0 }
+
+func (m *TMap[K, V]) getOrDefault(k K, def V) V {
+	if i := m.find(k); i >= 0 {
+		return m.vals[i]
+	}
+	return def
+}
+
+// put stores v under k and returns the previous value (null if there was none).
+func (m *TMap[K, V]) put(k K, v V) V {
+	if m.imm {
+		throwUOE_()
+	}
+	if i := m.find(k); i >= 0 {
+		old := m.vals[i]
+		m.vals[i] = v
+		return old
+	}
+	m.keys = append(m.keys, k)
+	m.vals = append(m.vals, v)
+	if m.dead != nil {
+		m.dead = append(m.dead, false)
+	}
+	n := int32(len(m.keys) - 1)
+	m.live++
+	if m.idx != nil {
+		m.idx[k] = n
+	} else if len(m.keys) > tsmall_ {
+		m.reindex()
+	}
+	return m.vc.null
+}
+
+func (m *TMap[K, V]) reindex() {
+	m.idx = make(map[K]int32, len(m.keys))
+	for i, x := range m.keys {
+		if m.dead == nil || !m.dead[i] {
+			m.idx[x] = int32(i)
+		}
+	}
+}
+
+func (m *TMap[K, V]) putIfAbsent(k K, v V) V {
+	if i := m.find(k); i >= 0 {
+		if old := m.vals[i]; !m.vc.isNull(old) {
+			return old
+		}
+	}
+	return m.put(k, v)
+}
+
+// remove deletes the mapping of k and returns its value (null if there was none).
+func (m *TMap[K, V]) remove(k K) V {
+	if m.imm {
+		throwUOE_()
+	}
+	i := m.find(k)
+	if i < 0 {
+		return m.vc.null
+	}
+	return m.removeAt(i)
+}
+
+func (m *TMap[K, V]) removeAt(i int32) V {
+	old := m.vals[i]
+	var zk K
+	var zv V
+	if m.idx != nil {
+		delete(m.idx, m.keys[i])
+	}
+	if m.dead == nil {
+		m.dead = make([]bool, len(m.keys), cap(m.keys))
+	}
+	m.dead[i] = true
+	m.keys[i] = zk
+	m.vals[i] = zv
+	m.live--
+	m.ndead++
+	if m.ndead > tsmall_ && m.ndead > m.live {
+		m.compact()
+	}
+	return old
+}
+
+func (m *TMap[K, V]) compact() {
+	j := 0
+	for i := range m.keys {
+		if !m.dead[i] {
+			m.keys[j], m.vals[j] = m.keys[i], m.vals[i]
+			j++
+		}
+	}
+	var zk K
+	var zv V
+	for i := j; i < len(m.keys); i++ {
+		m.keys[i], m.vals[i] = zk, zv
+	}
+	m.keys, m.vals = m.keys[:j], m.vals[:j]
+	m.dead, m.ndead = nil, 0
+	if m.idx != nil {
+		m.reindex()
+	}
+}
+
+func (m *TMap[K, V]) clear() {
+	if m.imm {
+		throwUOE_()
+	}
+	clear(m.keys)
+	clear(m.vals)
+	m.keys, m.vals = m.keys[:0], m.vals[:0]
+	m.dead, m.idx, m.live, m.ndead = nil, nil, 0, 0
+}
+
+// computeIfAbsent is Map.computeIfAbsent with an erased function.
+func (m *TMap[K, V]) computeIfAbsent(k K, f Function) V {
+	if i := m.find(k); i >= 0 && !m.vc.isNull(m.vals[i]) {
+		return m.vals[i]
+	}
+	r := f.apply(m.kc.box(k))
+	if r == nil {
+		return m.vc.null
+	}
+	v := m.vc.unbox(r)
+	m.put(k, v)
+	return v
+}
+
+// each is the cursor of a for-each loop over the entries (keys, values) of the map.
+func (m *TMap[K, V]) each() tmapEach_[K, V] { return tmapEach_[K, V]{m: m} }
+
+type tmapEach_[K comparable, V any] struct {
+	m *TMap[K, V]
+	i int
+	k K
+	v V
+}
+
+func (e *tmapEach_[K, V]) next() bool {
+	m := e.m
+	for e.i < len(m.keys) {
+		i := e.i
+		e.i++
+		if m.dead == nil || !m.dead[i] {
+			e.k, e.v = m.keys[i], m.vals[i]
+			return true
+		}
+	}
+	return false
+}
+
+// ---- sets
+
+type TSet[K comparable] struct {
+	TMap[K, struct{}]
+	sview *tsetView_[K]
+}
+
+var tunit_ = &tconv_[struct{}]{box: func(struct{}) any { return nil }, unbox: func(any) struct{} { return struct{}{} }}
+
+func newTSet_[K comparable](kc *tconv_[K]) *TSet[K] {
+	return &TSet[K]{TMap: TMap[K, struct{}]{kc: kc, vc: tunit_}}
+}
+
+// tsetFrom_ is new LinkedHashSet<>(from) (or an ImmutableSet, imm) as a typed set.
+func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] {
+	if from == nil && imm {
+		return nil
+	}
+	s := newTSet_(kc)
+	for _, x := range toSlice_(from) {
+		s.add(kc.unbox(x))
+	}
+	s.imm = imm
+	return s
+}
+
+func (s *TSet[K]) add(k K) bool {
+	if s.imm {
+		throwUOE_()
+	}
+	if s.find(k) >= 0 {
+		return false
+	}
+	s.put(k, struct{}{})
+	return true
+}
+
+func (s *TSet[K]) contains(k K) bool { return s.find(k) >= 0 }
+
+func (s *TSet[K]) remove(k K) bool {
+	if s.imm {
+		throwUOE_()
+	}
+	i := s.find(k)
+	if i < 0 {
+		return false
+	}
+	s.removeAt(i)
+	return true
+}
+
+func (s *TSet[K]) each() tsetEach_[K] { return tsetEach_[K]{m: &s.TMap} }
+
+type tsetEach_[K comparable] struct {
+	m *TMap[K, struct{}]
+	i int
+	v K
+}
+
+func (e *tsetEach_[K]) next() bool {
+	m := e.m
+	for e.i < len(m.keys) {
+		i := e.i
+		e.i++
+		if m.dead == nil || !m.dead[i] {
+			e.v = m.keys[i]
+			return true
+		}
+	}
+	return false
+}
+
+// ---- the erased faces
+
+// try unboxes v, or reports that v is not a T (a lookup with a key of another class).
+func (c *tconv_[T]) try(v any) (r T, ok bool) {
+	defer func() {
+		if recover() != nil {
+			ok = false
+		}
+	}()
+	return c.unbox(v), true
+}
+
+func (c *tconv_[T]) isNull(v T) bool { return any(v) == any(c.null) }
+
+func (m *TMap[K, V]) asMap() Map {
+	if m == nil {
+		return nil
+	}
+	if m.view == nil {
+		m.view = &tmapView_[K, V]{m: m}
+	}
+	return m.view
+}
+
+func (s *TSet[K]) asSet() Set {
+	if s == nil {
+		return nil
+	}
+	if s.sview == nil {
+		s.sview = &tsetView_[K]{m: &s.TMap}
+	}
+	return s.sview
+}
+
+type tmapView_[K comparable, V any] struct{ m *TMap[K, V] }
+
+func (v *tmapView_[K, V]) self() any     { return v }
+func (v *tmapView_[K, V]) size() int32   { return v.m.live }
+func (v *tmapView_[K, V]) isEmpty() bool { return v.m.live == 0 }
+func (v *tmapView_[K, V]) clear()        { v.m.clear() }
+func (v *tmapView_[K, V]) get(k any) any {
+	if kk, ok := v.m.kc.try(k); ok {
+		if i := v.m.find(kk); i >= 0 {
+			return v.m.vc.box(v.m.vals[i])
+		}
+	}
+	return nil
+}
+func (v *tmapView_[K, V]) containsKey(k any) bool {
+	kk, ok := v.m.kc.try(k)
+	return ok && v.m.find(kk) >= 0
+}
+func (v *tmapView_[K, V]) containsValue(x any) bool {
+	for i := range v.m.keys {
+		if (v.m.dead == nil || !v.m.dead[i]) && objequals_(x, v.m.vc.box(v.m.vals[i])) {
+			return true
+		}
+	}
+	return false
+}
+func (v *tmapView_[K, V]) put(k any, x any) any {
+	return v.m.vc.box(v.m.put(v.m.kc.unbox(k), v.m.vc.unbox(x)))
+}
+func (v *tmapView_[K, V]) putAll(o Map) {
+	for it := o.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		v.put(e.getKey(), e.getValue())
+	}
+}
+func (v *tmapView_[K, V]) remove(k any) any {
+	if v.m.imm {
+		throwUOE_()
+	}
+	if kk, ok := v.m.kc.try(k); ok {
+		if i := v.m.find(kk); i >= 0 {
+			return v.m.vc.box(v.m.removeAt(i))
+		}
+	}
+	return nil
+}
+func (v *tmapView_[K, V]) keySet() Set        { return &tkeysView_[K, V]{m: v.m} }
+func (v *tmapView_[K, V]) values() Collection { return &tvalsView_[K, V]{m: v.m} }
+func (v *tmapView_[K, V]) entrySet() Set      { return &tentriesView_[K, V]{m: v.m} }
+func (v *tmapView_[K, V]) equals(o any) bool  { return mapEquals_(v, o) }
+func (v *tmapView_[K, V]) hashCode() int32    { return mapHash_(v) }
+func (v *tmapView_[K, V]) toString() string   { return mapToString_(v) }
+
+// tmapIter_ walks the live positions of a typed map for erased code; out picks what it yields.
+type tmapIter_[K comparable, V any] struct {
+	m    *TMap[K, V]
+	i    int
+	last int32
+	out  func(m *TMap[K, V], i int32) any
+}
+
+func (it *tmapIter_[K, V]) hasNext() bool {
+	for it.i < len(it.m.keys) && it.m.dead != nil && it.m.dead[it.i] {
+		it.i++
+	}
+	return it.i < len(it.m.keys)
+}
+
+func (it *tmapIter_[K, V]) next() any {
+	if !it.hasNext() {
+		panic(new_NoSuchElementException_0().self())
+	}
+	it.last = int32(it.i)
+	it.i++
+	return it.out(it.m, it.last)
+}
+
+func (it *tmapIter_[K, V]) remove() {
+	if it.m.imm {
+		throwUOE_()
+	}
+	// Live positions before the removed one: where the next element is if the table compacts.
+	live := 0
+	for j := 0; j < int(it.last); j++ {
+		if it.m.dead == nil || !it.m.dead[j] {
+			live++
+		}
+	}
+	it.m.removeAt(it.last)
+	if it.m.dead == nil { // compacted: the live positions moved down
+		it.i = live
+	}
+}
+
+func keyOut_[K comparable, V any](m *TMap[K, V], i int32) any { return m.kc.box(m.keys[i]) }
+func valOut_[K comparable, V any](m *TMap[K, V], i int32) any { return m.vc.box(m.vals[i]) }
+func entryOut_[K comparable, V any](m *TMap[K, V], i int32) any {
+	return &tmapEntry_[K, V]{m: m, k: m.keys[i], v: m.vals[i]}
+}
+
+type tmapEntry_[K comparable, V any] struct {
+	m *TMap[K, V]
+	k K
+	v V
+}
+
+func (e *tmapEntry_[K, V]) self() any     { return e }
+func (e *tmapEntry_[K, V]) getKey() any   { return e.m.kc.box(e.k) }
+func (e *tmapEntry_[K, V]) getValue() any { return e.m.vc.box(e.v) }
+func (e *tmapEntry_[K, V]) setValue(x any) any {
+	old := e.getValue()
+	e.v = e.m.vc.unbox(x)
+	if i := e.m.find(e.k); i >= 0 {
+		e.m.vals[i] = e.v
+	}
+	return old
+}
+func (e *tmapEntry_[K, V]) equals(o any) bool {
+	x, ok := o.(Map_Entry)
+	return ok && x != nil && objequals_(e.getKey(), x.getKey()) && objequals_(e.getValue(), x.getValue())
+}
+func (e *tmapEntry_[K, V]) hashCode() int32 { return objhash_(e.getKey()) ^ objhash_(e.getValue()) }
+func (e *tmapEntry_[K, V]) toString() string {
+	return objstr_(e.getKey()) + "=" + objstr_(e.getValue())
+}
+
+// tcollBase_ holds what the key, value and entry views share.
+type tcollBase_[K comparable, V any] struct {
+	m   *TMap[K, V]
+	out func(m *TMap[K, V], i int32) any
+}
+
+func (v *tcollBase_[K, V]) size() int32   { return v.m.live }
+func (v *tcollBase_[K, V]) isEmpty() bool { return v.m.live == 0 }
+func (v *tcollBase_[K, V]) clear()        { v.m.clear() }
+func (v *tcollBase_[K, V]) iterator() Iterator {
+	return &tmapIter_[K, V]{m: v.m, out: v.out}
+}
+func (v *tcollBase_[K, V]) toArray_0() []any {
+	out := make([]any, 0, v.m.live)
+	for i := range v.m.keys {
+		if v.m.dead == nil || !v.m.dead[i] {
+			out = append(out, v.out(v.m, int32(i)))
+		}
+	}
+	return out
+}
+func (v *tcollBase_[K, V]) toArray(a []any) []any { return fillArray_(v.toArray_0(), a) }
+func (v *tcollBase_[K, V]) add(x any) bool        { panic(new_UnsupportedOperationException_0().self()) }
+func (v *tcollBase_[K, V]) addAll(c Collection) bool {
+	panic(new_UnsupportedOperationException_0().self())
+}
+
+type tkeysView_[K comparable, V any] struct{ m *TMap[K, V] }
+
+func (v *tkeysView_[K, V]) base() *tcollBase_[K, V] {
+	return &tcollBase_[K, V]{m: v.m, out: keyOut_[K, V]}
+}
+func (v *tkeysView_[K, V]) self() any                { return v }
+func (v *tkeysView_[K, V]) size() int32              { return v.m.live }
+func (v *tkeysView_[K, V]) isEmpty() bool            { return v.m.live == 0 }
+func (v *tkeysView_[K, V]) clear()                   { v.m.clear() }
+func (v *tkeysView_[K, V]) iterator() Iterator       { return v.base().iterator() }
+func (v *tkeysView_[K, V]) toArray_0() []any         { return v.base().toArray_0() }
+func (v *tkeysView_[K, V]) toArray(a []any) []any    { return v.base().toArray(a) }
+func (v *tkeysView_[K, V]) add(x any) bool           { return v.base().add(x) }
+func (v *tkeysView_[K, V]) addAll(c Collection) bool { return v.base().addAll(c) }
+func (v *tkeysView_[K, V]) contains(x any) bool {
+	k, ok := v.m.kc.try(x)
+	return ok && v.m.find(k) >= 0
+}
+func (v *tkeysView_[K, V]) remove_Object(x any) bool {
+	if v.m.imm {
+		throwUOE_()
+	}
+	if k, ok := v.m.kc.try(x); ok {
+		if i := v.m.find(k); i >= 0 {
+			v.m.removeAt(i)
+			return true
+		}
+	}
+	return false
+}
+func (v *tkeysView_[K, V]) containsAll(c Collection) bool { return containsAll_(v, c) }
+func (v *tkeysView_[K, V]) removeAll(c Collection) bool   { return removeAll_(v, c) }
+func (v *tkeysView_[K, V]) equals(o any) bool             { return setEquals_(v, o) }
+func (v *tkeysView_[K, V]) hashCode() int32               { return setHash_(v) }
+func (v *tkeysView_[K, V]) toString() string              { return collToString_(v) }
+
+type tvalsView_[K comparable, V any] struct{ m *TMap[K, V] }
+
+func (v *tvalsView_[K, V]) base() *tcollBase_[K, V] {
+	return &tcollBase_[K, V]{m: v.m, out: valOut_[K, V]}
+}
+func (v *tvalsView_[K, V]) self() any                { return v }
+func (v *tvalsView_[K, V]) size() int32              { return v.m.live }
+func (v *tvalsView_[K, V]) isEmpty() bool            { return v.m.live == 0 }
+func (v *tvalsView_[K, V]) clear()                   { v.m.clear() }
+func (v *tvalsView_[K, V]) iterator() Iterator       { return v.base().iterator() }
+func (v *tvalsView_[K, V]) toArray_0() []any         { return v.base().toArray_0() }
+func (v *tvalsView_[K, V]) toArray(a []any) []any    { return v.base().toArray(a) }
+func (v *tvalsView_[K, V]) add(x any) bool           { return v.base().add(x) }
+func (v *tvalsView_[K, V]) addAll(c Collection) bool { return v.base().addAll(c) }
+func (v *tvalsView_[K, V]) contains(x any) bool {
+	for i := range v.m.keys {
+		if (v.m.dead == nil || !v.m.dead[i]) && objequals_(x, v.m.vc.box(v.m.vals[i])) {
+			return true
+		}
+	}
+	return false
+}
+func (v *tvalsView_[K, V]) remove_Object(x any) bool {
+	for i := range v.m.keys {
+		if (v.m.dead == nil || !v.m.dead[i]) && objequals_(x, v.m.vc.box(v.m.vals[i])) {
+			if v.m.imm {
+				throwUOE_()
+			}
+			v.m.removeAt(int32(i))
+			return true
+		}
+	}
+	return false
+}
+func (v *tvalsView_[K, V]) containsAll(c Collection) bool { return containsAll_(v, c) }
+func (v *tvalsView_[K, V]) removeAll(c Collection) bool   { return removeAll_(v, c) }
+func (v *tvalsView_[K, V]) toString() string              { return collToString_(v) }
+
+type tentriesView_[K comparable, V any] struct{ m *TMap[K, V] }
+
+func (v *tentriesView_[K, V]) base() *tcollBase_[K, V] {
+	return &tcollBase_[K, V]{m: v.m, out: entryOut_[K, V]}
+}
+func (v *tentriesView_[K, V]) self() any                { return v }
+func (v *tentriesView_[K, V]) size() int32              { return v.m.live }
+func (v *tentriesView_[K, V]) isEmpty() bool            { return v.m.live == 0 }
+func (v *tentriesView_[K, V]) clear()                   { v.m.clear() }
+func (v *tentriesView_[K, V]) iterator() Iterator       { return v.base().iterator() }
+func (v *tentriesView_[K, V]) toArray_0() []any         { return v.base().toArray_0() }
+func (v *tentriesView_[K, V]) toArray(a []any) []any    { return v.base().toArray(a) }
+func (v *tentriesView_[K, V]) add(x any) bool           { return v.base().add(x) }
+func (v *tentriesView_[K, V]) addAll(c Collection) bool { return v.base().addAll(c) }
+func (v *tentriesView_[K, V]) contains(x any) bool {
+	e, ok := x.(Map_Entry)
+	if !ok || e == nil {
+		return false
+	}
+	k, ok := v.m.kc.try(e.getKey())
+	if !ok {
+		return false
+	}
+	i := v.m.find(k)
+	return i >= 0 && objequals_(v.m.vc.box(v.m.vals[i]), e.getValue())
+}
+func (v *tentriesView_[K, V]) remove_Object(x any) bool {
+	if !v.contains(x) {
+		return false
+	}
+	k, _ := v.m.kc.try(x.(Map_Entry).getKey())
+	v.m.remove(k)
+	return true
+}
+func (v *tentriesView_[K, V]) containsAll(c Collection) bool { return containsAll_(v, c) }
+func (v *tentriesView_[K, V]) removeAll(c Collection) bool   { return removeAll_(v, c) }
+func (v *tentriesView_[K, V]) equals(o any) bool             { return setEquals_(v, o) }
+func (v *tentriesView_[K, V]) hashCode() int32               { return setHash_(v) }
+func (v *tentriesView_[K, V]) toString() string              { return collToString_(v) }
+
+// tsetView_ is a TSet seen as an erased Set.
+type tsetView_[K comparable] struct{ m *TMap[K, struct{}] }
+
+func (v *tsetView_[K]) keys() *tkeysView_[K, struct{}] { return &tkeysView_[K, struct{}]{m: v.m} }
+func (v *tsetView_[K]) self() any                      { return v }
+func (v *tsetView_[K]) size() int32                    { return v.m.live }
+func (v *tsetView_[K]) isEmpty() bool                  { return v.m.live == 0 }
+func (v *tsetView_[K]) clear()                         { v.m.clear() }
+func (v *tsetView_[K]) iterator() Iterator             { return v.keys().iterator() }
+func (v *tsetView_[K]) toArray_0() []any               { return v.keys().toArray_0() }
+func (v *tsetView_[K]) toArray(a []any) []any          { return v.keys().toArray(a) }
+func (v *tsetView_[K]) contains(x any) bool            { return v.keys().contains(x) }
+func (v *tsetView_[K]) remove_Object(x any) bool       { return v.keys().remove_Object(x) }
+func (v *tsetView_[K]) containsAll(c Collection) bool  { return containsAll_(v, c) }
+func (v *tsetView_[K]) removeAll(c Collection) bool    { return removeAll_(v, c) }
+func (v *tsetView_[K]) equals(o any) bool              { return setEquals_(v, o) }
+func (v *tsetView_[K]) hashCode() int32                { return setHash_(v) }
+func (v *tsetView_[K]) toString() string               { return collToString_(v) }
+func (v *tsetView_[K]) add(x any) bool {
+	if v.m.imm {
+		throwUOE_()
+	}
+	k := v.m.kc.unbox(x)
+	if v.m.find(k) >= 0 {
+		return false
+	}
+	v.m.put(k, struct{}{})
+	return true
+}
+func (v *tsetView_[K]) addAll(c Collection) bool {
+	changed := false
+	for _, x := range toSlice_(c) {
+		if v.add(x) {
+			changed = true
+		}
+	}
+	return changed
+}
+
+var (
+	_ Map        = (*tmapView_[string, int32])(nil)
+	_ Set        = (*tsetView_[string])(nil)
+	_ Set        = (*tkeysView_[string, int32])(nil)
+	_ Set        = (*tentriesView_[string, int32])(nil)
+	_ Collection = (*tvalsView_[string, int32])(nil)
+	_ List       = (*tlistView_[string])(nil)
+)

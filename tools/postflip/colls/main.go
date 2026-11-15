@@ -1315,6 +1315,16 @@ func main() {
 			fmt.Printf("class\t%d decls\t%s:%d\t%s\n", len(c.typeExpr), filepath.Base(p.Filename), p.Line, K.goType(c))
 		}
 	}
+	sort.Slice(good, func(i, j int) bool { return good[i].typeExpr[0].Pos() < good[j].typeExpr[0].Pos() })
+	if r := os.Getenv("COLLS_RANGE"); r != "" { // bisection aid: apply only classes [a, b)
+		var a, b int
+		fmt.Sscanf(r, "%d,%d", &a, &b)
+		good = good[a:min(b, len(good))]
+		for _, c := range good {
+			p := rw.Fset.Position(c.typeExpr[0].Pos())
+			fmt.Fprintf(os.Stderr, "applying %s:%d %s\n", filepath.Base(p.Filename), p.Line, K.goType(c))
+		}
+	}
 	if report {
 		return
 	}
