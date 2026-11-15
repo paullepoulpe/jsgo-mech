@@ -91,3 +91,4 @@ var tc_p_SymbolTable_SymbolScope = &tconv_[*SymbolTable_SymbolScope]{box: func(v
 var tc_p_Tracer_Stat = &tconv_[*Tracer_Stat]{box: func(v *Tracer_Stat) any { return obj_(v) }, unbox: func(v any) *Tracer_Stat { return cast_[*Tracer_Stat](v) }}
 var tc_p_TypedScope = &tconv_[*TypedScope]{box: func(v *TypedScope) any { return obj_(v) }, unbox: func(v any) *TypedScope { return cast_[*TypedScope](v) }}
 var tc_p_UnresolvedModule = &tconv_[*UnresolvedModule]{box: func(v *UnresolvedModule) any { return v.self() }, unbox: func(v any) *UnresolvedModule { return to_UnresolvedModule(v) }}
+var tc_p_AbstractVar = &tconv_[*AbstractVar]{box: func(v *AbstractVar) any { return v.self() }, unbox: func(v any) *AbstractVar { return to_AbstractVar(v) }}
