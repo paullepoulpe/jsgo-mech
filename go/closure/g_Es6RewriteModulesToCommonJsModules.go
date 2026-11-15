@@ -241,12 +241,12 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) addRequireCalls() {
 			var importDecl Node = Node_of_(it_1.v)
 			importDecl.detach()
 		}
-		var importedNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+		var importedNames map[string]struct{} = map[string]struct{}{}
 		it_3 := foreach_(any(this.importRequests))
 		for it_3.next() {
 			var request *Es6RewriteModulesToCommonJsModules_ModuleRequest = cast_[*Es6RewriteModulesToCommonJsModules_ModuleRequest](it_3.v)
 			var varName string = request.varName()
-			if Collection_add_s(importedNames, varName) {
+			if setAdd_(importedNames, varName) {
 				var requireCall Node = IR_call(IR_name(Es6RewriteModulesToCommonJsModules_REQUIRE), []Node{IR_string(request.specifier())})
 				requireCall.putBooleanProp(Node_FREE_CALL, true)
 				var decl Node = IR_var_Node_Node(IR_name(varName), requireCall)

@@ -401,8 +401,8 @@ type ScopedAliases_Traversal struct {
 	aliasDefinitionsToDelete ListOf[Node]
 	scopeCalls               ListOf[Node]
 	aliasUsages              ListOf[*ScopedAliases_AliasUsage]
-	aliases_                 MapOf[string, *Var]
-	injectedDecls            SetOf[Node]
+	aliases_                 map[string]*Var
+	injectedDecls            map[Node]struct{}
 	deletedAliasVars         SetOf[*Var]
 	forbiddenLocals          SetOf[string]
 	hasNamespaceShadows      bool
@@ -421,8 +421,8 @@ func (this *ScopedAliases_Traversal) finit_ScopedAliases_Traversal() {
 	this.aliasDefinitionsToDelete = icast_List(new_ArrayList_0().self())
 	this.scopeCalls = icast_List(new_ArrayList_0().self())
 	this.aliasUsages = icast_List(new_ArrayList_0().self())
-	this.aliases_ = icast_Map(obj_(new_LinkedHashMap()))
-	this.injectedDecls = icast_Set(obj_(new_LinkedHashSet()))
+	this.aliases_ = map[string]*Var{}
+	this.injectedDecls = map[Node]struct{}{}
 	this.deletedAliasVars = icast_Set(obj_(new_LinkedHashSet()))
 	this.forbiddenLocals = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(ImmutableSet_of_Object(strobj_("$jscomp")))))))
 	this.hasNamespaceShadows = false
@@ -494,8 +494,8 @@ func (this *ScopedAliases_Traversal) exitScope(t *NodeTraversal) {
 	if this.isGoogScopeFunctionBody(t.getScopeRoot()) {
 		this.scopeFunctionBody = 0
 		this.renameNamespaceShadows(t)
-		this.injectedDecls.clear()
-		this.aliases_.clear()
+		clear(this.injectedDecls)
+		clear(this.aliases_)
 		this.forbiddenLocals.clear()
 		this.hasNamespaceShadows = false
 	} else if this.inGoogScopeBody() {
@@ -585,7 +585,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 			if value != 0 {
 				this.outer_.compiler_.reportChangeToEnclosingScope(newDecl)
 			}
-			this.injectedDecls.add(newDecl.box_())
+			this.injectedDecls[newDecl] = struct{}{}
 			v.getNameNode().addChildToFront(NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, globalName, n, Optional_of(strobj_(name))))
 			this.recordAlias(v)
 		} else {
@@ -610,16 +610,16 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 		var newName string = (sstr_(name) + sstr_(ScopedAliases_MISSING_ALIASES_PREFIX) + sstr_(suffix))
 		initialValue.replaceWith(IR_name(newName))
 		this.deletedAliasVars.add(obj_(aliasVar))
-		Map_put_s(this.aliases_, name, obj_(aliasVar))
+		this.aliases_[name] = aliasVar
 		return
 	}
 	var name string = aliasVar.getName()
-	Map_put_s(this.aliases_, name, obj_(aliasVar))
+	this.aliases_[name] = aliasVar
 	var qualifiedName string = ScopedAliases_getAliasedNamespace(initialValue)
 	var rootIndex int32 = String_indexOf(qualifiedName, 46)
 	if rootIndex != -1 {
 		var qNameRoot string = String_substring(qualifiedName, 0, rootIndex)
-		if !Map_containsKey_s(this.aliases_, qNameRoot) {
+		if !has_(this.aliases_, qNameRoot) {
 			Collection_add_s(this.forbiddenLocals, qNameRoot)
 		}
 	}
@@ -714,7 +714,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	if type_ == Token_rhino_NAME {
 		var name string = n.getString()
 		var lexicalVar *Var = cast_[*Var](t.getScope().getVar(name).self())
-		if (lexicalVar != nil) && lexicalVar.equals(Map_get_s(this.aliases_, name)) {
+		if (lexicalVar != nil) && lexicalVar.equals(obj_(this.aliases_[name])) {
 			aliasVar = lexicalVar
 			if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() && n.isName() {
 				n.setOriginalName(name)
@@ -746,7 +746,7 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 		this.aliasUsages.add(obj_(new_ScopedAliases_AliasedNode(aliasVar, n)))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info != nil) && !this.injectedDecls.contains(n.box_()) {
+	if (info != nil) && !has_(this.injectedDecls, n) {
 		it_2 := foreach_(any(info.getTypeNodes()))
 		for it_2.next() {
 			var node Node = Node_of_(it_2.v)
@@ -763,7 +763,7 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 			endIndex = String_length(name)
 		}
 		var baseName string = String_substring(name, 0, endIndex)
-		var aliasVar *Var = cast_[*Var](Map_get_s(this.aliases_, baseName))
+		var aliasVar *Var = this.aliases_[baseName]
 		if aliasVar != nil {
 			this.aliasUsages.add(obj_(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode)))
 		}

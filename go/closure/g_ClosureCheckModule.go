@@ -209,14 +209,14 @@ func (this *ClosureCheckModule) checkModuleExport(t *NodeTraversal, n Node, pare
 	Preconditions_checkArgument(n.isAssign())
 	var lhs Node = n.getFirstChild()
 	Preconditions_checkState(ClosureCheckModule_isExportLhs(lhs))
-	var previousDefinition Node = Node_of_(Map_get_s(this.currentModuleInfo.exportNodesByName, lhs.getQualifiedName()))
+	var previousDefinition Node = this.currentModuleInfo.exportNodesByName[lhs.getQualifiedName()]
 	if previousDefinition != 0 {
 		var previousLine int32 = previousDefinition.getLineno()
 		t.report(n, ClosureCheckModule_EXPORT_REPEATED_ERROR, []string{String_valueOf(previousLine)})
 	}
-	var defaultExportNode Node = Node_of_(Map_get_s(this.currentModuleInfo.exportNodesByName, "exports"))
+	var defaultExportNode Node = this.currentModuleInfo.exportNodesByName["exports"]
 	if (defaultExportNode == 0) || lhs.matchesName("exports") {
-		Map_put_s(this.currentModuleInfo.exportNodesByName, lhs.getQualifiedName(), lhs.box_())
+		this.currentModuleInfo.exportNodesByName[lhs.getQualifiedName()] = lhs
 		if !t.inModuleScope() {
 			t.report(n, ClosureCheckModule_EXPORT_NOT_AT_MODULE_SCOPE, []string{})
 		} else if !parent.isExprResult() {
@@ -282,7 +282,7 @@ func (this *ClosureCheckModule) checkShortGoogRequireCall(t *NodeTraversal, call
 		var nameNode Node = Node_of_(nameNode_)
 		_ = nameNode
 		var name string = nameNode.getString()
-		if !Collection_add_s(this.currentModuleInfo.shortImportNames, name) {
+		if !setAdd_(this.currentModuleInfo.shortImportNames, name) {
 			t.report(nameNode, ClosureCheckModule_DUPLICATE_NAME_SHORT_REQUIRE, []string{name})
 		}
 	}})
@@ -427,8 +427,8 @@ func ClosureCheckModule_clinit() {
 type ClosureCheckModule_ModuleInfo struct {
 	name_                     string
 	importsByLongRequiredName MapOf[string, Node]
-	shortImportNames          SetOf[string]
-	exportNodesByName         MapOf[string, Node]
+	shortImportNames          map[string]struct{}
+	exportNodesByName         map[string]Node
 }
 
 func (this *ClosureCheckModule_ModuleInfo) zero_ClosureCheckModule_ModuleInfo() {
@@ -437,8 +437,8 @@ func (this *ClosureCheckModule_ModuleInfo) zero_ClosureCheckModule_ModuleInfo() 
 
 func (this *ClosureCheckModule_ModuleInfo) finit_ClosureCheckModule_ModuleInfo() {
 	this.importsByLongRequiredName = icast_Map(obj_(new_LinkedHashMap()))
-	this.shortImportNames = icast_Set(obj_(new_LinkedHashSet()))
-	this.exportNodesByName = icast_Map(obj_(new_LinkedHashMap()))
+	this.shortImportNames = map[string]struct{}{}
+	this.exportNodesByName = map[string]Node{}
 }
 
 func (this *ClosureCheckModule_ModuleInfo) init_ClosureCheckModule_ModuleInfo(moduleName string) {

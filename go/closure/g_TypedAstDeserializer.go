@@ -7,7 +7,7 @@ type TypedAstDeserializer struct {
 	syntheticExterns              *SourceFile_jscomp
 	colorPoolBuilder              Optional_baseOf[*ColorPool_Builder]
 	requiredInputFiles            Optional_baseOf[ImmutableSetOf[*SourceFile_jscomp]]
-	filePoolBuilder               LinkedHashMapOf[string, *SourceFile_jscomp]
+	filePoolBuilder               map[string]*SourceFile_jscomp
 	canonicalFilePool             LinkedHashMapOf[string, *SourceFile_jscomp]
 	typedAstFilesystem            ConcurrentMapOf[*SourceFile_jscomp, SupplierOf[Node]]
 	externProperties              ImmutableSet_BuilderOf[string]
@@ -16,7 +16,7 @@ type TypedAstDeserializer struct {
 }
 
 func (this *TypedAstDeserializer) finit_TypedAstDeserializer() {
-	this.filePoolBuilder = new_LinkedHashMap()
+	this.filePoolBuilder = map[string]*SourceFile_jscomp{}
 	this.canonicalFilePool = new_LinkedHashMap()
 	this.typedAstFilesystem = icast_ConcurrentMap(obj_(new_ConcurrentHashMap()))
 	this.externProperties = ImmutableSet_builder()
@@ -123,7 +123,7 @@ func (this *TypedAstDeserializer) deserializeTypedAst(typedAstProto *TypedAst, c
 }
 
 func (this *TypedAstDeserializer) addToFilePool(filename string, file *SourceFile_jscomp) {
-	Map_put_s(this.filePoolBuilder, filename, obj_(file))
+	this.filePoolBuilder[filename] = file
 	var canonicalPath string = SourceFile_jscomp_canonicalizePathForMatching(filename)
 	if !(canonicalPath == filename) {
 		Map_putIfAbsent_s(this.canonicalFilePool, canonicalPath, obj_(file))
@@ -131,7 +131,7 @@ func (this *TypedAstDeserializer) addToFilePool(filename string, file *SourceFil
 }
 
 func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_jscomp {
-	var exact *SourceFile_jscomp = cast_[*SourceFile_jscomp](Map_get_s(this.filePoolBuilder, filename))
+	var exact *SourceFile_jscomp = this.filePoolBuilder[filename]
 	if exact != nil {
 		return exact
 	}
@@ -140,7 +140,7 @@ func (this *TypedAstDeserializer) findExistingFile(filename string) *SourceFile_
 	if canonical != nil {
 		return canonical
 	}
-	return cast_[*SourceFile_jscomp](Map_get_s(this.filePoolBuilder, canonicalPath))
+	return this.filePoolBuilder[canonicalPath]
 }
 
 func (this *TypedAstDeserializer) toFileShard(typedAstProto *TypedAst) ImmutableListOf[*SourceFile_jscomp] {

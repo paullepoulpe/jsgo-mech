@@ -4,7 +4,7 @@ package closure
 
 type AmbiguateProperties struct {
 	compiler_                  *AbstractCompiler
-	stringNodesToRename        ListOf[Node]
+	stringNodesToRename        []Node
 	reservedFirstCharacters    SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
 	propertyMap                MapOf[string, *AmbiguateProperties_Property]
@@ -16,7 +16,7 @@ type AmbiguateProperties struct {
 }
 
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
-	this.stringNodesToRename = icast_List(new_ArrayList_0().self())
+	this.stringNodesToRename = []Node{}
 	this.propertyMap = icast_Map(obj_(new_LinkedHashMap()))
 	this.quotedNames = icast_Set(obj_(new_LinkedHashSet()))
 	this.renamingMap = nil
@@ -127,9 +127,9 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 			Map_put_s(this.renamingMap, cast_[*AmbiguateProperties_Property](node.getValue()).oldName, cast_[*AmbiguateProperties_Property](node.getValue()).newName.orElse(nil))
 		}
 	}
-	it_13 := foreach_(any(this.stringNodesToRename))
+	it_13 := eachOf_(&this.stringNodesToRename)
 	for it_13.next() {
-		var n Node = Node_of_(it_13.v)
+		var n Node = it_13.v
 		var oldName string = n.getString()
 		var p *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](Map_get_s(this.propertyMap, oldName))
 		if (p != nil) && p.newName.isPresent() {
@@ -466,7 +466,7 @@ func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) processClass(c
 func (this *AmbiguateProperties_ProcessPropertiesAndConstructors) maybeMarkCandidate(n Node, type_ *Color) {
 	var name string = n.getString()
 	if !Collection_contains_s(this.outer_.externedNames, name) {
-		this.outer_.stringNodesToRename.add(n.box_())
+		this.outer_.stringNodesToRename = append(this.outer_.stringNodesToRename, n)
 		this.recordProperty(name, type_)
 	}
 }

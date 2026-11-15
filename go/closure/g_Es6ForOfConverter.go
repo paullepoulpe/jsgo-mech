@@ -86,16 +86,16 @@ func (this *Es6ForOfConverter) visitForOf(t *NodeTraversal, node Node) {
 	var newFor Node = IR_forNode(empty, cond, incr, newBody).srcrefTreeIfMissing(node)
 	var callIteratorClose Node = this.astFactory_.createJscompIteratorCloseCall(iterName.cloneTree(), iterResult.cloneTree(), this.namespace_).srcrefTreeIfMissing(node)
 	var finallyBlock Node = this.astFactory_.createBlock([]Node{this.astFactory_.exprResult(callIteratorClose)})
-	var labelNames ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var labelNames []Node = []Node{}
 	var insertionPoint Node = node
 	for (insertionPoint.getParent() != 0) && insertionPoint.getParent().isLabel() {
 		insertionPoint = insertionPoint.getParent()
-		labelNames.add(insertionPoint.getFirstChild().cloneNode().box_())
+		labelNames = append(labelNames, insertionPoint.getFirstChild().cloneNode())
 	}
 	var innerLoop Node = newFor
-	it_2 := foreach_(any(labelNames))
+	it_2 := eachOf_(&labelNames)
 	for it_2.next() {
-		var labelName Node = Node_of_(it_2.v)
+		var labelName Node = it_2.v
 		innerLoop = this.astFactory_.createLabel(labelName, innerLoop)
 	}
 	var tryBlock Node = this.astFactory_.createBlock([]Node{innerLoop})

@@ -75,7 +75,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarInlineForbidden(var_ *Va
 
 func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs ListOf[*Reference]) bool {
 	var ret bool = false
-	var validProperties SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var validProperties map[string]struct{} = map[string]struct{}{}
 	it_1 := foreach_(any(refs))
 	for it_1.next() {
 		var ref *Reference = cast_[*Reference](it_1.v)
@@ -91,9 +91,9 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs ListOf
 				return false
 			}
 			var propName string = parent.getString()
-			if !Collection_contains_s(validProperties, propName) {
+			if !has_(validProperties, propName) {
 				if NodeUtil_isNameDeclOrSimpleAssignLhs(parent, grandparent) {
-					Collection_add_s(validProperties, propName)
+					validProperties[propName] = struct{}{}
 				} else {
 					return false
 				}
@@ -123,7 +123,7 @@ func (this *InlineObjectLiterals_InliningBehavior) isInlinableObject(refs ListOf
 				default:
 					panic(new_IllegalStateException_String(("Unexpected child of OBJECTLIT: " + sstr_(child.toStringTree()))).self())
 				}
-				Collection_add_s(validProperties, child.getString())
+				validProperties[child.getString()] = struct{}{}
 				var childVal Node = child.getFirstChild()
 				it_5 := foreach_(any(refs))
 				for it_5.next() {

@@ -9,7 +9,7 @@ type PureFunctionIdentifier struct {
 	summariesByName                      MapOf[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap
 	artificiallyPureLiteralsForDebugging LinkedHashSetOf[Node]
-	allFunctionCalls                     ListOf[Node]
+	allFunctionCalls                     []Node
 	reverseCallGraph                     *LinkedDirectedGraph
 	unknownFunctionSummary               *PureFunctionIdentifier_AmbiguatedFunctionSummary
 	assumeGettersArePure_                bool
@@ -20,7 +20,7 @@ func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
 	this.summariesByName = icast_Map(obj_(new_LinkedHashMap()))
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create()
 	this.artificiallyPureLiteralsForDebugging = new_LinkedHashSet()
-	this.allFunctionCalls = icast_List(new_ArrayList_0().self())
+	this.allFunctionCalls = []Node{}
 	this.reverseCallGraph = LinkedDirectedGraph_createWithoutAnnotations()
 	this.unknownFunctionSummary = PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<unknown>").setMutatesGlobalStateAndAllOtherFlags(0)
 	this.hasProcessed = false
@@ -307,9 +307,9 @@ func (this *PureFunctionIdentifier) propagateSideEffects() {
 }
 
 func (this *PureFunctionIdentifier) markPureFunctionCalls() {
-	it_1 := foreach_(any(this.allFunctionCalls))
+	it_1 := eachOf_(&this.allFunctionCalls)
 	for it_1.next() {
-		var callNode Node = Node_of_(it_1.v)
+		var callNode Node = it_1.v
 		var calleeSummaries ImmutableListOf[*PureFunctionIdentifier_AmbiguatedFunctionSummary] = this.getSummariesForCallee(callNode)
 		var flags *Node_SideEffectFlags = new_Node_SideEffectFlags_0()
 		if calleeSummaries.isEmpty() {
@@ -524,7 +524,7 @@ func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) shouldTraverse(traversa
 func (this *PureFunctionIdentifier_FunctionBodyAnalyzer) visit(traversal *NodeTraversal, node Node, parent Node) {
 	this.addToCatchDepthIfTryBlock(node, -1)
 	if NodeUtil_isInvocation(node) {
-		this.outer_.allFunctionCalls.add(node.box_())
+		this.outer_.allFunctionCalls = append(this.outer_.allFunctionCalls, node)
 	}
 	var enclosingFunction *PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry = cast_[*PureFunctionIdentifier_FunctionBodyAnalyzer_FunctionStackEntry](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.functionScopeStack))))
 	var root Node = enclosingFunction.root

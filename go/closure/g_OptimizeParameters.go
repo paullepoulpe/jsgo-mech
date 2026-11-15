@@ -34,7 +34,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 		defer closeResource_(decisionsLog.self())
 		this.decisionsLog = decisionsLog
 		this.globalScope = refMap.getGlobalScope()
-		var toOptimize ListOf[ArrayListOf[Node]] = icast_List(new_ArrayList_0().self())
+		var toOptimize []ArrayListOf[Node] = []ArrayListOf[Node]{}
 		it_2 := foreach_(any(refMap.getNameReferences()))
 		for it_2.next() {
 			var entry Map_Entry = icast_Map_Entry(it_2.v)
@@ -45,7 +45,7 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 				candidateAnalysis.convertTaggedTemplateLiterals()
 			}
 			if candidateAnalysis.isSafeToOptimize() {
-				toOptimize.add(refs.self())
+				toOptimize = append(toOptimize, refs)
 			}
 		}
 		it_4 := foreach_(any(refMap.getPropReferences()))
@@ -58,23 +58,23 @@ func (this *OptimizeParameters) process_3(externs Node, root Node, refMap *Optim
 				candidateAnalysis.convertTaggedTemplateLiterals()
 			}
 			if candidateAnalysis.isSafeToOptimize() {
-				toOptimize.add(refs.self())
+				toOptimize = append(toOptimize, refs)
 			}
 		}
-		it_6 := foreach_(any(toOptimize))
+		it_6 := eachOf_(&toOptimize)
 		for it_6.next() {
-			var refs *ArrayList = to_ArrayList(it_6.v)
+			var refs *ArrayList = it_6.v
 			this.tryEliminateOptionalArgs(refs)
 		}
-		it_8 := foreach_(any(toOptimize))
+		it_8 := eachOf_(&toOptimize)
 		for it_8.next() {
-			var refs *ArrayList = to_ArrayList(it_8.v)
+			var refs *ArrayList = it_8.v
 			this.tryEliminateConstantArgs(refs)
 		}
 		var optimizer *OptimizeParameters_UnusedParameterOptimizer = new_OptimizeParameters_UnusedParameterOptimizer(this)
-		it_10 := foreach_(any(toOptimize))
+		it_10 := eachOf_(&toOptimize)
 		for it_10.next() {
-			var refs *ArrayList = to_ArrayList(it_10.v)
+			var refs *ArrayList = it_10.v
 			optimizer.tryEliminateUnusedArgs(refs)
 		}
 		optimizer.applyChanges()
@@ -686,13 +686,13 @@ func (this *OptimizeParameters) eliminateCallTargetArgAt(ref Node, argIndex int3
 
 type OptimizeParameters_UnusedParameterOptimizer struct {
 	outer_            *OptimizeParameters
-	toRemove          ListOf[Node]
-	toReplaceWithZero ListOf[Node]
+	toRemove          []Node
+	toReplaceWithZero []Node
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) finit_OptimizeParameters_UnusedParameterOptimizer() {
-	this.toRemove = icast_List(new_ArrayList_0().self())
-	this.toReplaceWithZero = icast_List(new_ArrayList_0().self())
+	this.toRemove = []Node{}
+	this.toReplaceWithZero = []Node{}
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) init_OptimizeParameters_UnusedParameterOptimizer() {
@@ -807,7 +807,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) recordRemovalCallArgume
 	if index < firstRestIndex {
 		var isRemovableTrailingUndefined bool = (NodeUtil_isUndefined(arg) && removedAllTrailing)
 		if isRemovableTrailingUndefined && !this.outer_.astAnalyzer.mayHaveSideEffects(arg) {
-			this.toRemove.add(arg.box_())
+			this.toRemove = append(this.toRemove, arg)
 			return true
 		}
 		if unused.get(index) {
@@ -816,7 +816,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) recordRemovalCallArgume
 				if unremovable.get(index) {
 					this.recordReplaceWithZero(arg)
 				} else {
-					this.toRemove.add(arg.box_())
+					this.toRemove = append(this.toRemove, arg)
 					return removedAllTrailing
 				}
 			} else {
@@ -840,7 +840,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) removeFromCommaIfNoSide
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) recordReplaceWithZero(arg Node) {
 	if !arg.isNumber() || (arg.getDouble() != 0) {
-		this.toReplaceWithZero.add(arg.box_())
+		this.toReplaceWithZero = append(this.toReplaceWithZero, arg)
 	}
 }
 
@@ -848,7 +848,7 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) removeArgAndFollowing(a
 	if arg != 0 {
 		var removedAll bool = this.removeArgAndFollowing(arg.getNext())
 		if !this.outer_.astAnalyzer.mayHaveSideEffects(arg) {
-			this.toRemove.add(arg.box_())
+			this.toRemove = append(this.toRemove, arg)
 			return removedAll
 		}
 		return false
@@ -868,9 +868,9 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) removeUnusedFunctionPar
 }
 
 func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
-	it_1 := foreach_(any(this.toRemove))
+	it_1 := eachOf_(&this.toRemove)
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		if OptimizeParameters_alreadyRemoved(n) {
 			continue
 		}
@@ -878,9 +878,9 @@ func (this *OptimizeParameters_UnusedParameterOptimizer) applyChanges() {
 		n.detach()
 		NodeUtil_markFunctionsDeleted(n, this.outer_.compiler_)
 	}
-	it_3 := foreach_(any(this.toReplaceWithZero))
+	it_3 := eachOf_(&this.toReplaceWithZero)
 	for it_3.next() {
-		var n Node = Node_of_(it_3.v)
+		var n Node = it_3.v
 		Preconditions_checkState((!n.isNumber() || (n.getDouble() != 0.0)))
 		if OptimizeParameters_alreadyRemoved(n) {
 			continue

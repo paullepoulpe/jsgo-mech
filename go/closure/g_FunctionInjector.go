@@ -10,15 +10,15 @@ type FunctionInjector struct {
 	safeNameIdSupplier_       SupplierOf[string]
 	throwawayNameSupplier     SupplierOf[string]
 	functionArgumentInjector_ *FunctionArgumentInjector
-	referencesEvalCache       LinkedHashMapOf[Node, BoxedOf[bool]]
-	innerFunctionCache        LinkedHashMapOf[Node, Node]
+	referencesEvalCache       map[Node]BoxedOf[bool]
+	innerFunctionCache        map[Node]Node
 }
 
 func (this *FunctionInjector) finit_FunctionInjector() {
 	this.knownConstantFunctions = ImmutableSet_of()
 	this.throwawayNameSupplier = icast_Supplier(obj_(new_FunctionInjector_1(this)))
-	this.referencesEvalCache = new_LinkedHashMap()
-	this.innerFunctionCache = new_LinkedHashMap()
+	this.referencesEvalCache = map[Node]BoxedOf[bool]{}
+	this.innerFunctionCache = map[Node]Node{}
 }
 
 func (this *FunctionInjector) init_FunctionInjector(builder *FunctionInjector_Builder) {
@@ -296,7 +296,7 @@ func (this *FunctionInjector) canInlineReferenceAsStatementBlock(ref *FunctionIn
 
 func (this *FunctionInjector) referencesEval(fn Node) bool {
 	Preconditions_checkState(fn.isFunction())
-	var cached any = this.referencesEvalCache.get(fn.box_())
+	var cached any = this.referencesEvalCache[fn]
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
@@ -309,37 +309,37 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 		_ = n
 		return (!n.isFunction() || Object_equals(n.box_(), fn.box_()))
 	}})
-	this.referencesEvalCache.put(fn.box_(), any(bool(result)))
+	this.referencesEvalCache[fn] = any(bool(result))
 	return result
 }
 
 func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	Preconditions_checkState(containerFn.isFunction())
-	var cached Node = Node_of_(this.innerFunctionCache.get(containerFn.box_()))
+	var cached Node = this.innerFunctionCache[containerFn]
 	if cached != 0 {
 		return cached
 	}
-	var innerFns ArrayListOf[Node] = new_ArrayList_0()
+	var innerFns []Node = []Node{}
 	NodeUtil_visitPreOrder_Node_Visitor(containerFn, &NodeUtil_Visitor_fn{func(n Node) {
 		if Object_equals(n.box_(), containerFn.box_()) {
 			return
 		}
 		if NodeUtil_isFunctionOrNonStaticClassFieldInitializer(n) {
-			innerFns.add(n.box_())
+			innerFns = append(innerFns, n)
 		}
 	}})
 	cached = func() Node {
-		switch innerFns.size() {
+		switch int32(len(innerFns)) {
 		case 0:
 			return FunctionInjector_NO_FUNCTIONS
 		case 1:
-			return Node_of_(innerFns.get(0))
+			return innerFns[0]
 		default:
 			return FunctionInjector_MULTIPLE_FUNCTIONS
 		}
 		panic("unreachable")
 	}()
-	this.innerFunctionCache.put(containerFn.box_(), cached.box_())
+	this.innerFunctionCache[containerFn] = cached
 	return cached
 }
 

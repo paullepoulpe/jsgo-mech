@@ -4,15 +4,15 @@ package closure
 
 type CheckUnusedPrivateProperties struct {
 	compiler_                 *AbstractCompiler
-	used                      SetOf[string]
-	candidates                ListOf[Node]
-	constructorsAndInterfaces LinkedHashSetOf[string]
+	used                      map[string]struct{}
+	candidates                []Node
+	constructorsAndInterfaces map[string]struct{}
 }
 
 func (this *CheckUnusedPrivateProperties) finit_CheckUnusedPrivateProperties() {
-	this.used = icast_Set(obj_(new_LinkedHashSet()))
-	this.candidates = icast_List(new_ArrayList_0().self())
-	this.constructorsAndInterfaces = new_LinkedHashSet()
+	this.used = map[string]struct{}{}
+	this.candidates = []Node{}
+	this.constructorsAndInterfaces = map[string]struct{}{}
 }
 
 func (this *CheckUnusedPrivateProperties) init_CheckUnusedPrivateProperties(compiler *AbstractCompiler) {
@@ -31,11 +31,11 @@ func (this *CheckUnusedPrivateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *CheckUnusedPrivateProperties) reportUnused(t *NodeTraversal) {
-	it_1 := foreach_(any(this.candidates))
+	it_1 := eachOf_(&this.candidates)
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		var propName string = this.getPropName(n)
-		if !Collection_contains_s(this.used, propName) {
+		if !has_(this.used, propName) {
 			t.report(n, CheckUnusedPrivateProperties_UNUSED_PRIVATE_PROPERTY, []string{propName})
 		}
 	}
@@ -52,9 +52,10 @@ func (this *CheckUnusedPrivateProperties) getPropName(n Node) string {
 
 func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isScript() {
-		this.used.clear()
-		Collection_add_s(this.used, "constructor")
-		this.candidates.clear()
+		clear(this.used)
+		this.used["constructor"] = struct{}{}
+		clear(this.candidates)
+		this.candidates = this.candidates[:0]
 	}
 	return true
 }
@@ -66,22 +67,22 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 	case Token_rhino_GETPROP:
 		var propName string = n.getString()
 		if CheckUnusedPrivateProperties_isPinningPropertyUse(n) || !this.isCandidatePropertyDefinition(n) {
-			Collection_add_s(this.used, propName)
+			this.used[propName] = struct{}{}
 		} else {
 			if this.isCheckablePrivatePropDecl(n) {
-				this.candidates.add(n.box_())
+				this.candidates = append(this.candidates, n)
 			}
 		}
 	case Token_rhino_MEMBER_FUNCTION_DEF:
 		if this.isCheckablePrivatePropDecl(n) {
-			this.candidates.add(n.box_())
+			this.candidates = append(this.candidates, n)
 		}
 	case Token_rhino_OBJECTLIT:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
 				if ((c.isStringKey() || c.isGetterDef()) || c.isSetterDef()) || c.isMemberFunctionDef() {
-					Collection_add_s(this.used, c.getString())
+					this.used[c.getString()] = struct{}{}
 				}
 			}
 		}
@@ -90,7 +91,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 		if n.hasMoreThanOneChild() && this.compiler_.getCodingConvention().isPropertyRenameFunction(target) {
 			var propName Node = target.getNext()
 			if propName.isStringLit() {
-				Collection_add_s(this.used, propName.getString())
+				this.used[propName.getString()] = struct{}{}
 			}
 		}
 	case Token_rhino_FUNCTION:
@@ -107,7 +108,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 func (this *CheckUnusedPrivateProperties) recordConstructorOrInterface(n Node) {
 	var className OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	if className.isPresent() {
-		Collection_add_s(this.constructorsAndInterfaces, str_(className.get()))
+		this.constructorsAndInterfaces[str_(className.get())] = struct{}{}
 	}
 }
 
@@ -124,7 +125,7 @@ func (this *CheckUnusedPrivateProperties) isCheckablePrivatePropDecl(n Node) boo
 func (this *CheckUnusedPrivateProperties) isCandidatePropertyDefinition(n Node) bool {
 	Preconditions_checkState_boolean_Object(n.isGetProp(), n.box_())
 	var target Node = n.getFirstChild()
-	return ((target.isThis() || Collection_contains_s(this.constructorsAndInterfaces, target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
+	return ((target.isThis() || has_(this.constructorsAndInterfaces, target.getQualifiedName())) || (target.isGetProp() && (target.getString() == "prototype")))
 }
 
 func CheckUnusedPrivateProperties_isPinningPropertyUse(n Node) bool {

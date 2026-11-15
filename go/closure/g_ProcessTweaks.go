@@ -30,9 +30,9 @@ func (this *ProcessTweaks) stripAllCalls(tweakInfos MapOf[string, *ProcessTweaks
 	for it_1.next() {
 		var tweakInfo *ProcessTweaks_TweakInfo = cast_[*ProcessTweaks_TweakInfo](it_1.v)
 		var isRegistered bool = tweakInfo.isRegistered()
-		it_3 := foreach_(any(tweakInfo.functionCalls))
+		it_3 := eachOf_(&tweakInfo.functionCalls)
 		for it_3.next() {
-			var functionCall *ProcessTweaks_TweakFunctionCall = cast_[*ProcessTweaks_TweakFunctionCall](it_3.v)
+			var functionCall *ProcessTweaks_TweakFunctionCall = it_3.v
 			var callNode Node = functionCall.callNode_
 			var parent Node = callNode.getParent()
 			if functionCall.tweakFunc.isGetterFunction() {
@@ -360,7 +360,7 @@ func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc *Proc
 type ProcessTweaks_TweakInfo struct {
 	outer_           *ProcessTweaks
 	tweakId          string
-	functionCalls    ListOf[*ProcessTweaks_TweakFunctionCall]
+	functionCalls    []*ProcessTweaks_TweakFunctionCall
 	registerCall     *ProcessTweaks_TweakFunctionCall
 	defaultValueNode Node
 }
@@ -371,7 +371,7 @@ func (this *ProcessTweaks_TweakInfo) zero_ProcessTweaks_TweakInfo() {
 
 func (this *ProcessTweaks_TweakInfo) init_ProcessTweaks_TweakInfo(tweakId string) {
 	this.tweakId = tweakId
-	this.functionCalls = icast_List(new_ArrayList_0().self())
+	this.functionCalls = []*ProcessTweaks_TweakFunctionCall{}
 }
 
 func new_ProcessTweaks_TweakInfo(outer_ *ProcessTweaks, tweakId string) *ProcessTweaks_TweakInfo {
@@ -389,9 +389,9 @@ func (this *ProcessTweaks_TweakInfo) emitAllWarnings() {
 }
 
 func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
-	it_1 := foreach_(any(this.functionCalls))
+	it_1 := eachOf_(&this.functionCalls)
 	for it_1.next() {
-		var call *ProcessTweaks_TweakFunctionCall = cast_[*ProcessTweaks_TweakFunctionCall](it_1.v)
+		var call *ProcessTweaks_TweakFunctionCall = it_1.v
 		var valueNode Node = call.valueNode
 		var tweakFunc *ProcessTweaks_TweakFunction = call.tweakFunc
 		var registerFunc *ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
@@ -409,11 +409,11 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 
 func (this *ProcessTweaks_TweakInfo) addRegisterCall(tweakFunc *ProcessTweaks_TweakFunction, callNode Node, defaultValueNode Node) {
 	this.registerCall = new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc, callNode, defaultValueNode)
-	this.functionCalls.add(obj_(this.registerCall))
+	this.functionCalls = append(this.functionCalls, this.registerCall)
 }
 
 func (this *ProcessTweaks_TweakInfo) addGetterCall(tweakFunc *ProcessTweaks_TweakFunction, callNode Node) {
-	this.functionCalls.add(obj_(new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc, callNode)))
+	this.functionCalls = append(this.functionCalls, new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node(tweakFunc, callNode))
 }
 
 func (this *ProcessTweaks_TweakInfo) isRegistered() bool {

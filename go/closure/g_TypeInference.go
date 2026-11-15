@@ -13,7 +13,7 @@ type TypeInference struct {
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
 	moduleImportResolver    *ModuleImportResolver
 	optChainArrayDeque      ArrayDequeOf[*TypeInference_OptChainInfo]
-	inferredUnboundVars     SetOf[*TypedScope]
+	inferredUnboundVars     map[*TypedScope]struct{}
 	unknownType             *ObjectType
 	numberAdditionSupertype *JSType
 }
@@ -27,7 +27,7 @@ func (this *TypeInference) up_DataFlowAnalysis() *DataFlowAnalysis {
 
 func (this *TypeInference) finit_TypeInference() {
 	this.optChainArrayDeque = new_ArrayDeque()
-	this.inferredUnboundVars = icast_Set(obj_(new_LinkedHashSet()))
+	this.inferredUnboundVars = map[*TypedScope]struct{}{}
 }
 
 func (this *TypeInference) init_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph, reverseInterpreter ReverseAbstractInterpreter, syntacticScope *TypedScope, scopeCreator *TypedScopeCreator, assertionFunctionLookup *CodingConvention_AssertionFunctionLookup) {
@@ -55,7 +55,7 @@ func new_TypeInference(compiler *AbstractCompiler, cfg *ControlFlowGraph, revers
 
 func (this *TypeInference) inferDeclarativelyUnboundVarsWithoutTypes(flow FlowScope) FlowScope {
 	var scope *TypedScope = cast_[*TypedScope](flow.getDeclarationScope())
-	if !this.inferredUnboundVars.add(obj_(scope)) {
+	if !setAdd_(this.inferredUnboundVars, scope) {
 		return flow
 	}
 	it_1 := foreach_(any(scope.getDeclarativelyUnboundVarsWithoutTypes()))

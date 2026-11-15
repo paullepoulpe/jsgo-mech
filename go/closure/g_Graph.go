@@ -220,11 +220,11 @@ type Graph_GraphEdge interface {
 
 type Graph_SimpleSubGraph struct {
 	graph  *Graph
-	nodes_ ListOf[GraphNode]
+	nodes_ []GraphNode
 }
 
 func (this *Graph_SimpleSubGraph) finit_Graph_SimpleSubGraph() {
-	this.nodes_ = icast_List(new_ArrayList_0().self())
+	this.nodes_ = []GraphNode{}
 }
 
 func (this *Graph_SimpleSubGraph) init_Graph_SimpleSubGraph(graph *Graph) {
@@ -240,9 +240,9 @@ func new_Graph_SimpleSubGraph(graph *Graph) *Graph_SimpleSubGraph {
 
 func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 	var node GraphNode = this.graph.getNode(value)
-	it_1 := foreach_(any(this.nodes_))
+	it_1 := eachOf_(&this.nodes_)
 	for it_1.next() {
-		var n GraphNode = icast_GraphNode(it_1.v)
+		var n GraphNode = it_1.v
 		if this.graph.getNeighborNodes(n.getValue()).contains(any(node)) {
 			return false
 		}
@@ -251,5 +251,5 @@ func (this *Graph_SimpleSubGraph) isIndependentOf(value any) bool {
 }
 
 func (this *Graph_SimpleSubGraph) addNode(value any) {
-	this.nodes_.add(any(this.graph.getNodeOrFail(value)))
+	this.nodes_ = append(this.nodes_, this.graph.getNodeOrFail(value))
 }
