@@ -28,10 +28,10 @@ func (this *VariableReferenceCheck) process_2(externs Node, root Node) {
 	new_ReferenceCollector_AbstractCompiler_Behavior_ScopeCreator(this.compiler_, icast_ReferenceCollector_Behavior(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior(this))), icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(this.compiler_)))).process_2(externs, root)
 }
 
-func (this *VariableReferenceCheck) lookForHoistedFunction(references ListOf[*Reference]) *Reference {
-	it_1 := foreach_(any(references))
+func (this *VariableReferenceCheck) lookForHoistedFunction(references *TList[*Reference]) *Reference {
+	it_1 := references.each()
 	for it_1.next() {
-		var reference *Reference = cast_[*Reference](it_1.v)
+		var reference *Reference = it_1.v
 		if reference.isHoistedFunction() {
 			this.blocksWithDeclarations.add(reference.getBasicBlock())
 			return reference
@@ -251,12 +251,12 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(
 	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), icast_NodeTraversal_Callback(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))))
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references ListOf[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkShadowParam(v *Var, functionScope *Scope, references *TList[*Reference]) {
 	var maybeParam *Var = cast_[*Var](functionScope.getVar(v.getName()).self())
 	if ((maybeParam != nil) && maybeParam.isParam()) && (cast_[*Scope](maybeParam.getScope()) == functionScope) {
-		it_1 := foreach_(any(references))
+		it_1 := references.each()
 		for it_1.next() {
-			var r *Reference = cast_[*Reference](it_1.v)
+			var r *Reference = it_1.v
 			if (r.isVarDeclaration() || r.isHoistedFunction()) && (r.getNode() != v.getNameNode()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(r.getNode(), VariableReferenceCheck_REDECLARED_VARIABLE, []string{v.getName()}))
 			}
@@ -269,9 +269,9 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 	if (references == nil) || references.isNeverAssigned() {
 		return
 	}
-	it_1 := foreach_(any(references.references))
+	it_1 := references.references.each()
 	for it_1.next() {
-		var reference *Reference = cast_[*Reference](it_1.v)
+		var reference *Reference = it_1.v
 		if reference.isLvalue() {
 			break
 		}
@@ -279,7 +279,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkGoogModuleExp
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references ListOf[*Reference]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, references *TList[*Reference]) {
 	this.outer_.blocksWithDeclarations.clear()
 	var hasSeenDeclaration bool = false
 	var hasErrors bool = false
@@ -289,9 +289,9 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 	if hoistedFn != nil {
 		hasSeenDeclaration = true
 	}
-	it_1 := foreach_(any(references))
+	it_1 := references.each()
 	for it_1.next() {
-		var reference *Reference = cast_[*Reference](it_1.v)
+		var reference *Reference = it_1.v
 		if reference == hoistedFn {
 			continue
 		}
@@ -319,7 +319,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 			}
 		}
 		if isAssignment {
-			var decl *Reference = cast_[*Reference](references.get(0))
+			var decl *Reference = references.get(0)
 			var declNode Node = decl.getNode()
 			var gp Node = declNode.getGrandparent()
 			var lhsOfForInLoop bool = (gp.isForIn() && (gp.getFirstFirstChild() == declNode))

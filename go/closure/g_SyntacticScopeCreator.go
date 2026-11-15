@@ -51,7 +51,10 @@ func (this *SyntacticScopeCreator) createScope(n Node, parent *Scope) *Scope {
 		}
 		return Scope_createChildScope(parent, n)
 	}()
-	new_SyntacticScopeCreator_ScopeScanner(this.compiler_, this.redeclarationHandler, scope, nil, this.treatProvidesAsRedeclarations).populate()
+	// A local scanner rather than a new object: it lives for this call only.
+	var scanner SyntacticScopeCreator_ScopeScanner
+	scanner.init_SyntacticScopeCreator_ScopeScanner(this.compiler_, this.redeclarationHandler, scope, nil, this.treatProvidesAsRedeclarations)
+	scanner.populate()
 	return scope
 }
 
