@@ -2824,7 +2824,7 @@ func NodeUtil_isValidPropertyName(mode *FeatureSet, name string) bool {
 func NodeUtil_getVarsDeclaredInBranch(root Node) CollectionOf[Node] {
 	var collector *NodeUtil_VarCollector = new_NodeUtil_VarCollector()
 	NodeUtil_visitPreOrder_Node_Visitor_Predicate(root, icast_NodeUtil_Visitor(obj_(collector)), NodeUtil_MATCH_NOT_FUNCTION)
-	return collector.vars.values()
+	return collector.vars.asMap().values()
 }
 
 func NodeUtil_getLhsNodesHelper(n Node, consumer ConsumerOf[Node]) {
@@ -4140,7 +4140,7 @@ func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *Abstract
 
 func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCreator ScopeCreator, scope *Scope) *NodeUtil_AllVarsDeclaredInFunction {
 	Preconditions_checkState_boolean_Object(scope.isFunctionScope(), obj_(scope))
-	var nameVarMap MapOf[string, *Var] = icast_Map(obj_(new_LinkedHashMap()))
+	var nameVarMap *TMap[string, *Var] = newTMap_(tc_string, tc_p_Var)
 	var orderedVars *TList[*Var] = newTList_(tc_p_Var)
 	var finder NodeTraversal_ScopedCallback = icast_NodeTraversal_ScopedCallback(obj_(new_NodeUtil_2(nameVarMap, orderedVars, scope)))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseAtScope(scope.up_AbstractScope())
@@ -4448,11 +4448,11 @@ func NodeUtil_ValueType_clinit() {
 }
 
 type NodeUtil_VarCollector struct {
-	vars MapOf[string, Node]
+	vars *TMap[string, Node]
 }
 
 func (this *NodeUtil_VarCollector) finit_NodeUtil_VarCollector() {
-	this.vars = icast_Map(obj_(new_LinkedHashMap()))
+	this.vars = newTMap_(tc_string, tc_Node)
 }
 
 func (this *NodeUtil_VarCollector) init_NodeUtil_VarCollector() {
@@ -4470,7 +4470,7 @@ func (this *NodeUtil_VarCollector) visit(n Node) {
 		NodeUtil_visitLhsNodesInNode(n, &Consumer_fn{func(name_ any) {
 			var name Node = Node_of_(name_)
 			_ = name
-			Map_putIfAbsent_s(this.vars, name.getString(), name.box_())
+			this.vars.putIfAbsent(name.getString(), name)
 		}})
 	}
 }
@@ -4660,23 +4660,23 @@ func (this *NodeUtil_TemplateArgsIterable) iterator() IteratorOf[Node] {
 }
 
 type NodeUtil_AllVarsDeclaredInFunction struct {
-	allVarsInFn MapOf[string, *Var]
+	allVarsInFn *TMap[string, *Var]
 	orderedVars *TList[*Var]
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn MapOf[string, *Var], orderedVars *TList[*Var]) {
+func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) {
 	Preconditions_checkState((allVarsInFn.isEmpty() == orderedVars.isEmpty()))
 	this.allVarsInFn = allVarsInFn
 	this.orderedVars = orderedVars
 }
 
-func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn MapOf[string, *Var], orderedVars *TList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
+func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn *TMap[string, *Var], orderedVars *TList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
 	this := &NodeUtil_AllVarsDeclaredInFunction{}
 	this.init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn, orderedVars)
 	return this
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() MapOf[string, *Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() *TMap[string, *Var] {
 	return this.allVarsInFn
 }
 
@@ -4786,7 +4786,7 @@ func (this *NodeUtil_1) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 type NodeUtil_2 struct {
-	cap_nameVarMap  Map
+	cap_nameVarMap  *TMap[string, *Var]
 	cap_orderedVars *TList[*Var]
 	cap_scope       *Scope
 }
@@ -4795,7 +4795,7 @@ func (this *NodeUtil_2) init_NodeUtil_2() {
 
 }
 
-func new_NodeUtil_2(cap_nameVarMap Map, cap_orderedVars *TList[*Var], cap_scope *Scope) *NodeUtil_2 {
+func new_NodeUtil_2(cap_nameVarMap *TMap[string, *Var], cap_orderedVars *TList[*Var], cap_scope *Scope) *NodeUtil_2 {
 	this := &NodeUtil_2{}
 	this.cap_nameVarMap = cap_nameVarMap
 	this.cap_orderedVars = cap_orderedVars
@@ -4809,7 +4809,7 @@ func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	it_1 := foreach_(any(currentScope.getVarIterable()))
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
-		Map_put_s(this.cap_nameVarMap, v.getName(), obj_(v))
+		this.cap_nameVarMap.put(v.getName(), v)
 		this.cap_orderedVars.add(v)
 	}
 }

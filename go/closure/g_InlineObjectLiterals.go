@@ -148,8 +148,8 @@ func (this *InlineObjectLiterals_InliningBehavior) isVarOrAssignExprLhs(n Node) 
 	return (NodeUtil_isNameDeclaration(parent) || ((parent.isAssign() && (parent.getFirstChild() == n)) && parent.getParent().isExprResult()))
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) MapOf[string, string] {
-	var varmap MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo *ReferenceCollection) *TMap[string, string] {
+	var varmap *TMap[string, string] = newTMap_(tc_string, tc_string)
 	it_1 := foreach_(any(referenceInfo.references))
 	for it_1.next() {
 		var ref *Reference = cast_[*Reference](it_1.v)
@@ -161,7 +161,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 					var child Node = val.getFirstChild()
 					for ; child != 0; child = child.getNext() {
 						var varname string = child.getString()
-						if Map_containsKey_s(varmap, varname) {
+						if varmap.containsKey(varname) {
 							continue
 						}
 						var var_ string = varname
@@ -169,7 +169,7 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 							var_ = InlineObjectLiterals_STRING_KEY_IDENTIFIER
 						}
 						var_ = (sstr_(InlineObjectLiterals_VAR_PREFIX) + sstr_(var_) + "_" + sstr_(str_(this.outer_.safeNameIdSupplier_.get())))
-						Map_put_s(varmap, varname, strobj_(var_))
+						varmap.put(varname, var_)
 					}
 				}
 			}
@@ -178,46 +178,46 @@ func (this *InlineObjectLiterals_InliningBehavior) computeVarList(referenceInfo 
 			var getprop Node = ref.getParent()
 			Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop.box_())
 			var varname string = getprop.getString()
-			if Map_containsKey_s(varmap, varname) {
+			if varmap.containsKey(varname) {
 				continue
 			}
 			var var_ string = (sstr_(InlineObjectLiterals_VAR_PREFIX) + sstr_(varname) + "_" + sstr_(str_(this.outer_.safeNameIdSupplier_.get())))
-			Map_put_s(varmap, varname, strobj_(var_))
+			varmap.put(varname, var_)
 		}
 	}
 	return varmap
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals MapOf[string, Node]) {
+func (this *InlineObjectLiterals_InliningBehavior) fillInitialValues(init_ *Reference, initvals *TMap[string, Node]) {
 	var object Node = init_.getAssignedValue()
 	Preconditions_checkState_boolean_Object(object.isObjectLit(), object.box_())
 	{
 		var key Node = object.getFirstChild()
 		for ; key != 0; key = key.getNext() {
-			Map_put_s(initvals, key.getString(), key.removeFirstChild().box_())
+			initvals.put(key.getString(), key.removeFirstChild())
 		}
 	}
 }
 
-func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap MapOf[string, string]) {
+func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v *Var, ref *Reference, varmap *TMap[string, string]) {
 	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
 	Preconditions_checkState_boolean_Object(val.isObjectLit(), val.box_())
-	var all SetOf[string] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(varmap.keySet()))))
+	var all SetOf[string] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(varmap.asMap().keySet()))))
 	{
 		var key Node = val.getFirstChild()
 		for ; key != 0; key = key.getNext() {
 			var var_ string = key.getString()
 			var value Node = key.removeFirstChild()
-			nodes.add(IR_assign(IR_name(str_(Map_get_s(varmap, var_))), value).box_())
+			nodes.add(IR_assign(IR_name(varmap.get(var_)), value).box_())
 			Collection_remove_s(all, var_)
 		}
 	}
 	it_2 := foreach_(any(all))
 	for it_2.next() {
 		var var_ string = str_(it_2.v)
-		nodes.add(IR_assign(IR_name(str_(Map_get_s(varmap, var_))), NodeUtil_newUndefinedNode(0)).box_())
+		nodes.add(IR_assign(IR_name(varmap.get(var_)), NodeUtil_newUndefinedNode(0)).box_())
 	}
 	var replacement Node
 	if nodes.isEmpty() {
@@ -250,8 +250,8 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 }
 
 func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Reference, referenceInfo *ReferenceCollection) {
-	var varmap MapOf[string, string] = this.computeVarList(referenceInfo)
-	var initvals MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
+	var varmap *TMap[string, string] = this.computeVarList(referenceInfo)
+	var initvals *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	var vnode Node
 	var isBlockScoped bool = (v.isLet() || v.isConst())
 	var defined bool = (referenceInfo.isWellDefined() && NodeUtil_isNameDeclaration(init_.getParent()))
@@ -276,10 +276,10 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			NodeUtil_addFeatureToScript(script, FeatureSet_Feature_LET_DECLARATIONS, this.outer_.compiler_)
 		}
 	}
-	it_1 := foreach_(any(varmap.entrySet()))
+	it_1 := foreach_(any(varmap.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		var val Node = Node_of_(Map_get_s(initvals, str_(entry.getKey())))
+		var val Node = initvals.get(str_(entry.getKey()))
 		var lhs Node = IR_name(str_(entry.getValue()))
 		var declarationType *Token_rhino = func() *Token_rhino {
 			if isBlockScoped {
@@ -316,8 +316,8 @@ func (this *InlineObjectLiterals_InliningBehavior) splitObject(v *Var, init_ *Re
 			var getprop Node = ref.getParent()
 			Preconditions_checkState_boolean_Object(NodeUtil_isNormalOrOptChainGetProp(getprop), getprop.box_())
 			var var_ string = getprop.getString()
-			Preconditions_checkState(Map_containsKey_s(varmap, var_))
-			var replacement Node = IR_name(str_(Map_get_s(varmap, var_)))
+			Preconditions_checkState(varmap.containsKey(var_))
+			var replacement Node = IR_name(varmap.get(var_))
 			replacement.srcrefIfMissing(getprop)
 			ref.getParent().replaceWith(replacement)
 		}

@@ -21,12 +21,12 @@ func (this *WebpackModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById MapOf[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *WebpackModuleResolver) init_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
 	this.NodeModuleResolver.init_NodeModuleResolver(modulePaths, moduleRootPaths, nil, errorHandler, pathEscaper)
-	this.modulesById = ImmutableMap_copyOf(modulesById)
+	this.modulesById = ImmutableMap_copyOf(modulesById.asMap())
 }
 
-func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById MapOf[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *WebpackModuleResolver {
+func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], modulesById *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *WebpackModuleResolver {
 	this := &WebpackModuleResolver{}
 	this.self_ = this
 	this.init_WebpackModuleResolver(modulePaths, moduleRootPaths, modulesById, errorHandler, pathEscaper)
@@ -50,29 +50,29 @@ func (this *WebpackModuleResolver) resolveJsModuleSilently_impl(scriptAddress st
 }
 
 type WebpackModuleResolver_Factory struct {
-	lookupMap MapOf[string, string]
+	lookupMap *TMap[string, string]
 }
 
-func (this *WebpackModuleResolver_Factory) init_WebpackModuleResolver_Factory(lookupMap MapOf[string, string]) {
+func (this *WebpackModuleResolver_Factory) init_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) {
 	this.lookupMap = lookupMap
 }
 
-func new_WebpackModuleResolver_Factory(lookupMap MapOf[string, string]) *WebpackModuleResolver_Factory {
+func new_WebpackModuleResolver_Factory(lookupMap *TMap[string, string]) *WebpackModuleResolver_Factory {
 	this := &WebpackModuleResolver_Factory{}
 	this.init_WebpackModuleResolver_Factory(lookupMap)
 	return this
 }
 
 func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *ModuleResolver {
-	var normalizedPathsById MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
-	it_1 := foreach_(any(this.lookupMap.entrySet()))
+	var normalizedPathsById *TMap[string, string] = newTMap_(tc_string, tc_string)
+	it_1 := foreach_(any(this.lookupMap.asMap().entrySet()))
 	for it_1.next() {
 		var moduleEntry Map_Entry = icast_Map_Entry(it_1.v)
 		var canonicalizedPath string = ModuleLoader_normalize(pathEscaper.escape(str_(moduleEntry.getValue())), icast_Iterable(obj_(moduleRootPaths)))
 		if ModuleLoader_isAmbiguousIdentifier(canonicalizedPath) {
 			canonicalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 		}
-		Map_put_s(normalizedPathsById, str_(moduleEntry.getKey()), strobj_(canonicalizedPath))
+		normalizedPathsById.put(str_(moduleEntry.getKey()), canonicalizedPath)
 	}
 	return new_WebpackModuleResolver(modulePaths, moduleRootPaths, normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }

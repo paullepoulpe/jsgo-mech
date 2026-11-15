@@ -232,7 +232,7 @@ func Tracer_getTypeToTimeMap() MapOf[string, BoxedOf[int64]] {
 }
 
 func Tracer_getStatsForType(type_ string) *Tracer_Stat {
-	var stat *Tracer_Stat = cast_[*Tracer_Stat](Map_get_s(Tracer_getThreadTrace().stats, type_))
+	var stat *Tracer_Stat = Tracer_getThreadTrace().stats.get(type_)
 	return func() *Tracer_Stat {
 		if stat != nil {
 			return stat
@@ -400,7 +400,7 @@ type Tracer_ThreadTrace struct {
 	defaultSilenceThreshold      int32
 	events                       *TList[*Tracer_Event]
 	outstandingEvents            LinkedHashSetOf[*Tracer]
-	stats                        MapOf[string, *Tracer_Stat]
+	stats                        *TMap[string, *Tracer_Stat]
 	isOutstandingEventsTruncated bool
 	isEventsTruncated            bool
 	isInitializedField           bool
@@ -410,7 +410,7 @@ type Tracer_ThreadTrace struct {
 func (this *Tracer_ThreadTrace) finit_Tracer_ThreadTrace() {
 	this.events = newTList_(tc_p_Tracer_Event)
 	this.outstandingEvents = new_LinkedHashSet()
-	this.stats = icast_Map(obj_(new_LinkedHashMap()))
+	this.stats = newTMap_(tc_string, tc_p_Tracer_Stat)
 	this.isOutstandingEventsTruncated = false
 	this.isEventsTruncated = false
 	this.isInitializedField = false
@@ -470,13 +470,13 @@ func (this *Tracer_ThreadTrace) endEvent(t *Tracer, silenceThreshold int32) {
 		this.events.add(new_Tracer_Event(false, t))
 	}
 	if t.type__.isPresent() {
-		var stat *Tracer_Stat = cast_[*Tracer_Stat](Map_get_s(this.stats, str_(t.type__.get())))
+		var stat *Tracer_Stat = this.stats.get(str_(t.type__.get()))
 		if stat == nil {
 			stat = new_Tracer_Stat()
 			if !Tracer_extraTracingStatistics.isEmpty() {
 				stat.extraInfo = make([]int32, Tracer_extraTracingStatistics.size())
 			}
-			Map_put_s(this.stats, str_(t.type__.get()), obj_(stat))
+			this.stats.put(str_(t.type__.get()), stat)
 		}
 		stat.count_++
 		if Tracer_typeToCountMap != nil {
@@ -556,7 +556,7 @@ func (this *Tracer_ThreadTrace) toString() string {
 			sb.append("  ").append_Object(obj_(t)).append(" (").append_long((now - t.startTimeMs)).append(" ms, started at ").append(Tracer_formatTime(t.startTimeMs)).append(")\n")
 		}
 	}
-	it_5 := foreach_(any(this.stats.entrySet()))
+	it_5 := foreach_(any(this.stats.asMap().entrySet()))
 	for it_5.next() {
 		var statEntry Map_Entry = icast_Map_Entry(it_5.v)
 		var stat *Tracer_Stat = cast_[*Tracer_Stat](statEntry.getValue())

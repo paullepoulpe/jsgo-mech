@@ -3,8 +3,8 @@
 package closure
 
 type GatherModuleMetadata struct {
-	modulesByPath          MapOf[string, *ModuleMetadataMap_ModuleMetadata]
-	modulesByGoogNamespace MapOf[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByPath          *TMap[string, *ModuleMetadataMap_ModuleMetadata]
+	modulesByGoogNamespace *TMap[string, *ModuleMetadataMap_ModuleMetadata]
 	currentModule          *GatherModuleMetadata_ModuleMetadataBuilder
 	parentModule           *GatherModuleMetadata_ModuleMetadataBuilder
 	loadModuleCall         Node
@@ -14,8 +14,8 @@ type GatherModuleMetadata struct {
 }
 
 func (this *GatherModuleMetadata) finit_GatherModuleMetadata() {
-	this.modulesByPath = icast_Map(obj_(new_LinkedHashMap()))
-	this.modulesByGoogNamespace = icast_Map(obj_(new_LinkedHashMap()))
+	this.modulesByPath = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
+	this.modulesByGoogNamespace = newTMap_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata)
 }
 
 func (this *GatherModuleMetadata) init_GatherModuleMetadata(compiler *AbstractCompiler, processCommonJsModules bool, moduleResolutionMode *ModuleLoader_ResolutionMode) {
@@ -259,12 +259,12 @@ func (this *GatherModuleMetadata_Finder) leaveModule() {
 	Preconditions_checkNotNull(obj_(this.outer_.currentModule))
 	var module *ModuleMetadataMap_ModuleMetadata = this.outer_.currentModule.build()
 	if module.path() != nil {
-		Map_put_s(this.outer_.modulesByPath, module.path().toString(), obj_(module))
+		this.outer_.modulesByPath.put(module.path().toString(), module)
 	}
 	it_1 := foreach_(obj_(module.googNamespaces()))
 	for it_1.next() {
 		var namespace string = str_(it_1.v)
-		Map_put_s(this.outer_.modulesByGoogNamespace, namespace, obj_(module))
+		this.outer_.modulesByGoogNamespace.put(namespace, module)
 	}
 	if this.outer_.parentModule != nil {
 		this.outer_.parentModule.metadataBuilder.nestedModulesBuilder().add(obj_(module))
@@ -469,7 +469,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
 	} else {
-		var existingModule *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.outer_.modulesByGoogNamespace, namespace))
+		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
 			existingFileSource = Optional_of(strobj_(existingModule.rootNode().getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {

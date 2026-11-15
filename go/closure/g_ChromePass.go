@@ -147,12 +147,12 @@ func (this *ChromePass) visitNamespaceDefinition(crDefineCallNode Node, parent N
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(namespaceArg, ChromePass_CR_DEFINE_INVALID_RETURN_IN_FUNCTION, []string{}))
 		return
 	}
-	var exports MapOf[string, string] = ChromePass_objectLitToMap(objectLit)
+	var exports *TMap[string, string] = ChromePass_objectLitToMap(objectLit)
 	NodeTraversal_traverse(this.compiler_, functionBlock, icast_NodeTraversal_Callback(obj_(new_ChromePass_RenameInternalsToExternalsCallback(this, namespace, exports, functionBlock))))
 }
 
-func ChromePass_objectLitToMap(objectLit Node) MapOf[string, string] {
-	var res MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+func ChromePass_objectLitToMap(objectLit Node) *TMap[string, string] {
+	var res *TMap[string, string] = newTMap_(tc_string, tc_string)
 	{
 		var keyNode Node = objectLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -160,7 +160,7 @@ func ChromePass_objectLitToMap(objectLit Node) MapOf[string, string] {
 			var valueNode Node = keyNode.getFirstChild()
 			if valueNode.isName() {
 				var value string = keyNode.getFirstChild().getString()
-				Map_put_s(res, value, strobj_(key))
+				res.put(value, key)
 			}
 		}
 	}
@@ -242,7 +242,7 @@ type ChromePass_RenameInternalsToExternalsCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_         *ChromePass
 	namespaceName  string
-	exports        MapOf[string, string]
+	exports        *TMap[string, string]
 	namespaceBlock Node
 }
 
@@ -257,14 +257,14 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) zero_ChromePass_Renam
 	this.namespaceName = nullstr_
 }
 
-func (this *ChromePass_RenameInternalsToExternalsCallback) init_ChromePass_RenameInternalsToExternalsCallback(namespaceName string, exports MapOf[string, string], namespaceBlock Node) {
+func (this *ChromePass_RenameInternalsToExternalsCallback) init_ChromePass_RenameInternalsToExternalsCallback(namespaceName string, exports *TMap[string, string], namespaceBlock Node) {
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.namespaceName = namespaceName
 	this.exports = exports
 	this.namespaceBlock = namespaceBlock
 }
 
-func new_ChromePass_RenameInternalsToExternalsCallback(outer_ *ChromePass, namespaceName string, exports MapOf[string, string], namespaceBlock Node) *ChromePass_RenameInternalsToExternalsCallback {
+func new_ChromePass_RenameInternalsToExternalsCallback(outer_ *ChromePass, namespaceName string, exports *TMap[string, string], namespaceBlock Node) *ChromePass_RenameInternalsToExternalsCallback {
 	this := &ChromePass_RenameInternalsToExternalsCallback{}
 	this.self_ = this
 	this.zero_ChromePass_RenameInternalsToExternalsCallback()
@@ -274,7 +274,7 @@ func new_ChromePass_RenameInternalsToExternalsCallback(outer_ *ChromePass, names
 }
 
 func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if ((n.isFunction() || n.isClass()) && (parent == this.namespaceBlock)) && Map_containsKey_s(this.exports, n.getFirstChild().getString()) {
+	if ((n.isFunction() || n.isClass()) && (parent == this.namespaceBlock)) && this.exports.containsKey(n.getFirstChild().getString()) {
 		var clone Node = n.cloneTree()
 		if clone.isClass() {
 			var className Node = clone.getFirstChild()
@@ -289,7 +289,7 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTra
 		n.replaceWith(exprResult)
 		NodeUtil_markFunctionsDeleted(n, this.outer_.compiler_)
 		this.outer_.compiler_.reportChangeToEnclosingScope(exprResult)
-	} else if ((n.isName() && Map_containsKey_s(this.exports, n.getString())) && !parent.isFunction()) && !parent.isClass() {
+	} else if ((n.isName() && this.exports.containsKey(n.getString())) && !parent.isFunction()) && !parent.isClass() {
 		if NodeUtil_isNameDeclaration(parent) {
 			if parent.getParent() == this.namespaceBlock {
 				var varContent Node = n.removeFirstChild()
@@ -320,6 +320,6 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTra
 }
 
 func (this *ChromePass_RenameInternalsToExternalsCallback) buildQualifiedName(internalName Node) Node {
-	var externalName string = str_(Map_get_s(this.exports, internalName.getString()))
+	var externalName string = this.exports.get(internalName.getString())
 	return NodeUtil_newQName_AbstractCompiler_String(this.outer_.compiler_, (sstr_(this.namespaceName) + "." + sstr_(externalName))).srcrefTree(internalName)
 }

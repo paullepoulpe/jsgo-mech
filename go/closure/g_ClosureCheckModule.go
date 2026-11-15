@@ -161,7 +161,7 @@ func (this *ClosureCheckModule) checkImproperReferenceToImport(t *NodeTraversal,
 	if qname.isEmpty() {
 		return true
 	}
-	var importLhs Node = Node_of_(Map_get_s(this.currentModuleInfo.importsByLongRequiredName, str_(qname.get())))
+	var importLhs Node = this.currentModuleInfo.importsByLongRequiredName.get(str_(qname.get()))
 	if importLhs == 0 {
 		return true
 	}
@@ -245,7 +245,7 @@ func (this *ClosureCheckModule) checkRequireCall(t *NodeTraversal, callNode Node
 	switch parent.getToken() {
 	case Token_rhino_EXPR_RESULT:
 		var key OptionalOf[string] = ClosureCheckModule_extractFirstArgumentName(callNode)
-		Map_putIfAbsent_s(this.currentModuleInfo.importsByLongRequiredName, str_(key.orElse(nil)), parent.box_())
+		this.currentModuleInfo.importsByLongRequiredName.putIfAbsent(str_(key.orElse(nil)), parent)
 	case Token_rhino_NAME, Token_rhino_DESTRUCTURING_LHS:
 		this.checkShortGoogRequireCall(t, callNode, parent.getParent())
 	case Token_rhino_AWAIT:
@@ -277,7 +277,7 @@ func (this *ClosureCheckModule) checkShortGoogRequireCall(t *NodeTraversal, call
 	} else if lhs.isName() {
 		ClosureCheckModule_checkShortName(t, lhs, callNode.getLastChild().getString())
 	}
-	Map_put_s(this.currentModuleInfo.importsByLongRequiredName, str_(ClosureCheckModule_extractFirstArgumentName(callNode).orElse(nil)), lhs.box_())
+	this.currentModuleInfo.importsByLongRequiredName.put(str_(ClosureCheckModule_extractFirstArgumentName(callNode).orElse(nil)), lhs)
 	NodeUtil_visitLhsNodesInNode(declaration, &Consumer_fn{func(nameNode_ any) {
 		var nameNode Node = Node_of_(nameNode_)
 		_ = nameNode
@@ -426,7 +426,7 @@ func ClosureCheckModule_clinit() {
 
 type ClosureCheckModule_ModuleInfo struct {
 	name_                     string
-	importsByLongRequiredName MapOf[string, Node]
+	importsByLongRequiredName *TMap[string, Node]
 	shortImportNames          map[string]struct{}
 	exportNodesByName         map[string]Node
 }
@@ -436,7 +436,7 @@ func (this *ClosureCheckModule_ModuleInfo) zero_ClosureCheckModule_ModuleInfo() 
 }
 
 func (this *ClosureCheckModule_ModuleInfo) finit_ClosureCheckModule_ModuleInfo() {
-	this.importsByLongRequiredName = icast_Map(obj_(new_LinkedHashMap()))
+	this.importsByLongRequiredName = newTMap_(tc_string, tc_Node)
 	this.shortImportNames = map[string]struct{}{}
 	this.exportNodesByName = map[string]Node{}
 }

@@ -7,7 +7,7 @@ type ClosureRewriteModule struct {
 	astFactory_                       *AstFactory
 	preprocessorSymbolTable           *PreprocessorSymbolTable
 	preserveSugar                     bool
-	syntheticExterns                  LinkedHashMapOf[string, Node]
+	syntheticExterns                  *TMap[string, Node]
 	globalScope                       *Scope
 	scriptStack                       DequeOf[*ClosureRewriteModule_ScriptDescription]
 	currentScript                     *ClosureRewriteModule_ScriptDescription
@@ -20,7 +20,7 @@ type ClosureRewriteModule struct {
 }
 
 func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
-	this.syntheticExterns = new_LinkedHashMap()
+	this.syntheticExterns = newTMap_(tc_string, tc_Node)
 	this.globalScope = nil
 	this.scriptStack = icast_Deque(obj_(new_ArrayDeque()))
 	this.currentScript = nil
@@ -104,9 +104,9 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 
 func (this *ClosureRewriteModule) declareSyntheticExterns() {
 	var varsBuilder ImmutableList_BuilderOf[Node] = ImmutableList_builder()
-	it_1 := foreach_(any(this.syntheticExterns.values()))
+	it_1 := this.syntheticExterns.each()
 	for it_1.next() {
-		var lhs Node = Node_of_(it_1.v)
+		var lhs Node = it_1.v
 		if !this.isNameInGlobalScope(lhs.getString()) {
 			varsBuilder.add(IR_var_Node(this.astFactory_.createNameWithUnknownType(lhs.getString())).srcrefTree(lhs).box_())
 		}
@@ -863,7 +863,7 @@ func (this *ClosureRewriteModule) reportUnrecognizedRequires() {
 		NodeUtil_visitLhsNodesInNode(enclosingStatement, &Consumer_fn{func(lhs_ any) {
 			var lhs Node = Node_of_(lhs_)
 			_ = lhs
-			Map_putIfAbsent_s(this.syntheticExterns, lhs.getString(), lhs.box_())
+			this.syntheticExterns.putIfAbsent(lhs.getString(), lhs)
 		}})
 	}
 }

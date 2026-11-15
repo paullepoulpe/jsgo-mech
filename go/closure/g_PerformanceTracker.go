@@ -315,16 +315,16 @@ func (this *PerformanceTracker) calcTotalStats() {
 }
 
 func (this *PerformanceTracker) populatePassSummary() {
-	var tmpPassSummary LinkedHashMapOf[string, *PerformanceTracker_Stats] = new_LinkedHashMap()
+	var tmpPassSummary *TMap[string, *PerformanceTracker_Stats] = newTMap_(tc_string, tc_p_PerformanceTracker_Stats)
 	it_1 := eachOf_(&this.log_)
 	for it_1.next() {
 		var logStat *PerformanceTracker_Stats = it_1.v
 		var passName string = logStat.pass
-		var entry *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](Map_computeIfAbsent_s(tmpPassSummary, passName, &Function_fn{func(k_ any) any {
+		var entry *PerformanceTracker_Stats = tmpPassSummary.computeIfAbsent(passName, &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_PerformanceTracker_Stats(k, logStat.isOneTime))
-		}}))
+		}})
 		entry.runtime_ += logStat.runtime_
 		entry.allocMem = Math_max(entry.allocMem, logStat.allocMem)
 		entry.runs++
@@ -333,7 +333,7 @@ func (this *PerformanceTracker) populatePassSummary() {
 		entry.diff += logStat.diff
 		entry.gzDiff += logStat.gzDiff
 	}
-	this.passSummary = ImmutableMap_copyOf(icast_Map(obj_(tmpPassSummary)))
+	this.passSummary = ImmutableMap_copyOf(tmpPassSummary.asMap())
 }
 
 func (this *PerformanceTracker) populateAstManifest() {

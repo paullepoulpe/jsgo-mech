@@ -6,7 +6,7 @@ type SortedDependencies struct {
 	userOrderedInputs             *TList[*CompilerInput]
 	importOrderedInputs           *TList[*CompilerInput]
 	completedInputs               SetOf[any]
-	nonExportingInputs            MapOf[string, any]
+	nonExportingInputs            *TMap[string, any]
 	exportingInputBySymbolName    map[string]any
 	importedInputByImportingInput *SimpleSetMultimap
 }
@@ -15,7 +15,7 @@ func (this *SortedDependencies) finit_SortedDependencies() {
 	this.userOrderedInputs = newTList_(tc_p_CompilerInput)
 	this.importOrderedInputs = newTList_(tc_p_CompilerInput)
 	this.completedInputs = icast_Set(obj_(new_LinkedHashSet()))
-	this.nonExportingInputs = icast_Map(obj_(new_LinkedHashMap()))
+	this.nonExportingInputs = newTMap_(tc_string, tc_any)
 	this.exportingInputBySymbolName = map[string]any{}
 	this.importedInputByImportingInput = SimpleSetMultimap_createInsertionOrdered()
 }
@@ -73,7 +73,7 @@ func (this *SortedDependencies) getInputProviding(symbolName string) *Outcome_ba
 }
 
 func (this *SortedDependencies) getInputsWithoutProvides() ImmutableListOf[any] {
-	return ImmutableList_copyOf(this.nonExportingInputs.values())
+	return ImmutableList_copyOf(this.nonExportingInputs.asMap().values())
 }
 
 func (this *SortedDependencies) getSortedStrongDependenciesOf(roots ListOf[any]) ImmutableListOf[any] {
@@ -124,7 +124,7 @@ func (this *SortedDependencies) maybeGetInputProviding(symbol string) Dependency
 	if has_(this.exportingInputBySymbolName, symbol) {
 		return icast_DependencyInfo(this.exportingInputBySymbolName[symbol])
 	}
-	return icast_DependencyInfo(Map_get_s(this.nonExportingInputs, ModuleNames_fileToModuleName(symbol)))
+	return icast_DependencyInfo(this.nonExportingInputs.get(ModuleNames_fileToModuleName(symbol)))
 }
 
 func (this *SortedDependencies) orderInput(input DependencyInfo) {
@@ -147,7 +147,7 @@ func (this *SortedDependencies) processInputs() {
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide OptionalOf[string] = Optional_ofNullable(Iterables_getFirst(icast_Iterable(obj_(provides)), nil))
 		if firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(str_(firstProvide.get()), "module$")) && !userOrderedInput.isEs6Module()) {
-			Map_put_s(this.nonExportingInputs, ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
+			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
 		}
 		it_3 := foreach_(obj_(userOrderedInput.getProvides()))
 		for it_3.next() {

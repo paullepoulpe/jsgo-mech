@@ -139,8 +139,8 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 }
 
 func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, configs *TList[*ConformanceConfig], isLibraryLevelConformanceReportingMode bool) *TList[*Requirement] {
-	var rootRequirements MapOf[*Requirement_Builder, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = icast_Map(obj_(new_LinkedHashMap()))
-	var extendable MapOf[string, *Requirement_Builder] = icast_Map(obj_(new_LinkedHashMap()))
+	var rootRequirements *TMap[*Requirement_Builder, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior] = newTMap_(tc_p_Requirement_Builder, tc_p_ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior)
+	var extendable *TMap[string, *Requirement_Builder] = newTMap_(tc_string, tc_p_Requirement_Builder)
 	it_1 := configs.each()
 	for it_1.next() {
 		var config *ConformanceConfig = it_1.v
@@ -152,20 +152,20 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 				if !CheckConformance_validateExtendableRequirement(compiler, requirement, extendable) {
 					continue
 				}
-				Map_put_s(extendable, requirement.getRuleId(), obj_(builder))
+				extendable.put(requirement.getRuleId(), builder)
 			}
 			var hasBehavior bool = config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()
 			if !requirement.hasExtends() {
 				if !isLibraryLevelConformanceReportingMode {
-					rootRequirements.put(obj_(builder), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
+					rootRequirements.put(builder, ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
 				} else {
-					rootRequirements.put(obj_(builder), func() any {
+					rootRequirements.put(builder, cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](func() any {
 						if hasBehavior {
 							return obj_(behavior)
 						}
 						return obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
-					}())
+					}()))
 				}
 			}
 			var libraryLevelConformanceEnabled bool = ((isLibraryLevelConformanceReportingMode && hasBehavior) && (behavior == ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_RECORD_ONLY))
@@ -181,19 +181,19 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		for it_7.next() {
 			var requirement *Requirement = cast_[*Requirement](it_7.v)
 			if requirement.hasExtends() {
-				var extendableRequirement *Requirement_Builder = cast_[*Requirement_Builder](Map_get_s(extendable, requirement.getExtends()))
+				var extendableRequirement *Requirement_Builder = extendable.get(requirement.getExtends())
 				if !CheckConformance_validateExtendingRequirement(compiler, requirement, extendableRequirement) {
 					continue
 				}
 				if config.hasLibraryLevelNonAllowlistedConformanceViolationsBehavior() {
-					rootRequirements.put(obj_(extendableRequirement), obj_(config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior()))
+					rootRequirements.put(extendableRequirement, config.getLibraryLevelNonAllowlistedConformanceViolationsBehavior())
 				}
 				CheckConformance_mergeExtendingRequirementIntoExtended(extendableRequirement, requirement)
 			}
 		}
 	}
 	var cleanedUpRootRequirements *TList[*Requirement] = newTListN_(tc_p_Requirement, rootRequirements.size())
-	it_9 := foreach_(any(rootRequirements.entrySet()))
+	it_9 := foreach_(any(rootRequirements.asMap().entrySet()))
 	for it_9.next() {
 		var entry Map_Entry = icast_Map_Entry(it_9.v)
 		var builder *Requirement_Builder = cast_[*Requirement_Builder](entry.getKey())
@@ -216,13 +216,13 @@ func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement 
 	}
 }
 
-func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable MapOf[string, *Requirement_Builder]) bool {
+func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, requirement *Requirement, extendable *TMap[string, *Requirement_Builder]) bool {
 	Preconditions_checkState_boolean_Object(requirement.hasRuleId(), strobj_("Extendable requirement must have a rule_id"))
 	if String_isEmpty(requirement.getRuleId()) {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, "empty rule_id")
 		return false
 	}
-	if Map_containsKey_s(extendable, requirement.getRuleId()) {
+	if extendable.containsKey(requirement.getRuleId()) {
 		CheckConformance_reportInvalidRequirement(compiler, requirement, ("two requirements with the same rule_id: " + sstr_(requirement.getRuleId())))
 		return false
 	}

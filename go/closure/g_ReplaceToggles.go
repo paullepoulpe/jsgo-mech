@@ -86,7 +86,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"multiple initialized copies"}))
 			return
 		}
-		var mapping MapOf[string, BoxedOf[int32]] = icast_Map(obj_(new_LinkedHashMap()))
+		var mapping *TMap[string, any] = newTMap_(tc_string, tc_any)
 		var ordinals SetOf[BoxedOf[int32]] = icast_Set(obj_(new_LinkedHashSet()))
 		{
 			var c Node = rhs.getFirstChild()
@@ -96,7 +96,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 					return
 				}
 				var key string = c.getString()
-				if Map_containsKey_s(mapping, key) {
+				if mapping.containsKey(key) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate key: " + sstr_(key))}))
 					return
 				}
@@ -122,11 +122,11 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{("duplicate ordinal: " + istr_(int64(intValue)))}))
 					return
 				}
-				Map_put_s(mapping, key, any(int32(intValue)))
+				mapping.put(key, any(int32(intValue)))
 				ordinals.add(any(int32(intValue)))
 			}
 		}
-		this.outer_.ordinalMapping = ImmutableMap_copyOf(mapping)
+		this.outer_.ordinalMapping = ImmutableMap_copyOf(mapping.asMap())
 		return
 	}
 	if !n.isCall() {

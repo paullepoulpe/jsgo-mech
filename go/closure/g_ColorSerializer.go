@@ -69,7 +69,7 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 	if this.serializationMode.includeDebugInfo() {
 		Preconditions_checkNotNull(any(getMismatchSourceRefsFn))
 		var debugInfoBuilder *TypePool_DebugInfo_Builder = typePoolBuilder.getDebugInfoBuilder()
-		var srcRefToTypePointerList LinkedHashMapOf[string, ArrayListOf[BoxedOf[int32]]] = new_LinkedHashMap()
+		var srcRefToTypePointerList *TMap[string, ArrayListOf[BoxedOf[int32]]] = newTMap_(tc_string, tc_ArrayListOf_BoxedOf_int32__)
 		it_4 := this.colorsInSerializedOrder.each()
 		for it_4.next() {
 			var color *Color = it_4.v
@@ -77,15 +77,15 @@ func (this *ColorSerializer) generateTypePool(getDisambiguationSupertypesFn Func
 			it_6 := foreach_(any(icast_Set(getMismatchSourceRefsFn.apply(obj_(color)))))
 			for it_6.next() {
 				var srcRef string = str_(it_6.v)
-				var typePointerList ArrayListOf[BoxedOf[int32]] = to_ArrayList(Map_computeIfAbsent_s(srcRefToTypePointerList, srcRef, &Function_fn{func(key_ any) any {
+				var typePointerList ArrayListOf[BoxedOf[int32]] = srcRefToTypePointerList.computeIfAbsent(srcRef, &Function_fn{func(key_ any) any {
 					var key string = str_(key_)
 					_ = key
 					return new_ArrayList_0().self()
-				}}))
+				}})
 				typePointerList.add(typePointer)
 			}
 		}
-		it_8 := foreach_(any(srcRefToTypePointerList.entrySet()))
+		it_8 := foreach_(any(srcRefToTypePointerList.asMap().entrySet()))
 		for it_8.next() {
 			var entry Map_Entry = icast_Map_Entry(it_8.v)
 			debugInfoBuilder.addMismatchBuilder().setSourceRef(str_(entry.getKey())).addAllInvolvedColor(icast_Iterable(entry.getValue()))

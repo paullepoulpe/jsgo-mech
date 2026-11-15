@@ -5,8 +5,8 @@ package closure
 type FindExportableNodes struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_         *AbstractCompiler
-	exports           LinkedHashMapOf[string, Node]
-	es6ClassExports   LinkedHashMapOf[Node, string]
+	exports           *TMap[string, Node]
+	es6ClassExports   *TMap[Node, string]
 	localExports      LinkedHashSetOf[string]
 	allowLocalExports bool
 }
@@ -19,8 +19,8 @@ func (this *FindExportableNodes) up_NodeTraversal_AbstractPostOrderCallback() *N
 }
 
 func (this *FindExportableNodes) finit_FindExportableNodes() {
-	this.exports = new_LinkedHashMap()
-	this.es6ClassExports = new_LinkedHashMap()
+	this.exports = newTMap_(tc_string, tc_Node)
+	this.es6ClassExports = newTMap_(tc_Node, tc_string)
 	this.localExports = new_LinkedHashSet()
 }
 
@@ -118,12 +118,12 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				t.report(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{})
 				return
 			}
-			this.es6ClassExports.put(n.box_(), strobj_((sstr_(str_(methodOwnerName.get())) + sstr_(func() string {
+			this.es6ClassExports.put(n, (sstr_(str_(methodOwnerName.get())) + sstr_(func() string {
 				if n.isStaticMember() {
 					return ""
 				}
 				return ".prototype"
-			}()))))
+			}())))
 			return
 		}
 		fallthrough
@@ -137,7 +137,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	if export.isPresent() {
 		if mode == FindExportableNodes_Mode_EXPORT {
 			Preconditions_checkNotNull(context.box_())
-			Map_put_s(this.exports, str_(export.get()), context.box_())
+			this.exports.put(str_(export.get()), context)
 		} else {
 			Preconditions_checkState((context == 0))
 			Preconditions_checkState((mode == FindExportableNodes_Mode_EXTERN))
@@ -155,7 +155,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	}
 }
 
-func (this *FindExportableNodes) getExports() LinkedHashMapOf[string, Node] {
+func (this *FindExportableNodes) getExports() *TMap[string, Node] {
 	return this.exports
 }
 
@@ -163,7 +163,7 @@ func (this *FindExportableNodes) getLocalExports() LinkedHashSetOf[string] {
 	return this.localExports
 }
 
-func (this *FindExportableNodes) getEs6ClassExports() LinkedHashMapOf[Node, string] {
+func (this *FindExportableNodes) getEs6ClassExports() *TMap[Node, string] {
 	return this.es6ClassExports
 }
 

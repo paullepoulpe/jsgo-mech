@@ -864,13 +864,13 @@ func (this *FunctionType) isAbstract() bool {
 	return this.isAbstractField
 }
 
-func (this *FunctionType) getPropertyTypeMap_impl() MapOf[string, *JSType] {
-	var propTypeMap MapOf[string, *JSType] = icast_Map(obj_(new_LinkedHashMap()))
+func (this *FunctionType) getPropertyTypeMap_impl() *TMap[string, *JSType] {
+	var propTypeMap *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	FunctionType_updatePropertyTypeMap(this, propTypeMap, new_LinkedHashSet())
 	return propTypeMap
 }
 
-func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap MapOf[string, *JSType], cache LinkedHashSetOf[*FunctionType]) {
+func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap *TMap[string, *JSType], cache LinkedHashSetOf[*FunctionType]) {
 	if type_ == nil {
 		return
 	}
@@ -880,9 +880,9 @@ func FunctionType_updatePropertyTypeMap(type_ *FunctionType, propTypeMap MapOf[s
 		it_1 := foreach_(any(propNames))
 		for it_1.next() {
 			var name string = str_(it_1.v)
-			if !Map_containsKey_s(propTypeMap, name) {
+			if !propTypeMap.containsKey(name) {
 				var propType *JSType = prototype.getPropertyType(name)
-				Map_put_s(propTypeMap, name, propType.self())
+				propTypeMap.put(name, propType)
 			}
 		}
 	}

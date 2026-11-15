@@ -184,17 +184,17 @@ func (this *FunctionToBlockMutator) getUniqueThisName() string {
 
 func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node, paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair], namesToAlias SetOf[string]) Node {
 	if (namesToAlias == nil) || namesToAlias.isEmpty() {
-		var replacements MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
+		var replacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 		it_1 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
-			Map_put_s(replacements, str_(entry.getKey()), cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg().box_())
+			replacements.put(str_(entry.getKey()), cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg())
 		}
 		var result Node = this.functionArgumentInjector_.inject(this.compiler_, fnTemplateRoot, 0, replacements)
 		Preconditions_checkState((result == fnTemplateRoot))
 		return result
 	} else {
-		var paramReplacements MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
+		var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 		var newAliasesToAdd *TList[Node] = newTList_(tc_Node)
 		it_3 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
 		for it_3.next() {
@@ -202,7 +202,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 			var name string = str_(entry.getKey())
 			var arg *FunctionArgumentInjector_ParamArgPair = cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue())
 			if !Collection_contains_s(namesToAlias, name) {
-				Map_put_s(paramReplacements, name, arg.arg().box_())
+				paramReplacements.put(name, arg.arg())
 				continue
 			}
 			if name == FunctionArgumentInjector_THIS_MARKER {
@@ -216,7 +216,7 @@ func (this *FunctionToBlockMutator) aliasAndInlineArguments(fnTemplateRoot Node,
 					newAliasesToAdd.insert(0, newNode)
 					replacement = IR_name(newName).srcrefTree(newValue)
 				}
-				Map_put_s(paramReplacements, FunctionArgumentInjector_THIS_MARKER, replacement.box_())
+				paramReplacements.put(FunctionArgumentInjector_THIS_MARKER, replacement)
 			} else {
 				var newName Node = arg.paramNode().cloneNode()
 				var newValue Node = arg.arg().cloneTree()

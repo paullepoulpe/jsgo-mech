@@ -3,16 +3,16 @@
 package closure
 
 type CoverageInstrumentationCallback struct {
-	instrumentationData MapOf[string, *FileInstrumentationData]
+	instrumentationData *TMap[string, *FileInstrumentationData]
 	reach               *CoverageInstrumentationPass_CoverageReach
 }
 
-func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData MapOf[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) {
+func (this *CoverageInstrumentationCallback) init_CoverageInstrumentationCallback(instrumentationData *TMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) {
 	this.instrumentationData = instrumentationData
 	this.reach = reach
 }
 
-func new_CoverageInstrumentationCallback(instrumentationData MapOf[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
+func new_CoverageInstrumentationCallback(instrumentationData *TMap[string, *FileInstrumentationData], reach *CoverageInstrumentationPass_CoverageReach) *CoverageInstrumentationCallback {
 	this := &CoverageInstrumentationCallback{}
 	this.init_CoverageInstrumentationCallback(instrumentationData, reach)
 	return this
@@ -32,14 +32,14 @@ func (this *CoverageInstrumentationCallback) newInstrumentationNode(traversal *N
 	var getElemNode Node = IR_getelem(IR_name(arrayName), IR_number(float64((lineNumber - 1))))
 	var exprNode Node = IR_exprResult(IR_assign(getElemNode, IR_trueNode()))
 	var fileName OptionalOf[string] = CoverageInstrumentationCallback_getFileName(traversal)
-	Map_computeIfAbsent_s(this.instrumentationData, str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
+	this.instrumentationData.computeIfAbsent(str_(fileName.orElse(nil)), &Function_fn{func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return obj_(new_FileInstrumentationData(k, arrayName))
 	}})
 	func() *FileInstrumentationData {
 		if fileName.isPresent() {
-			return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+			return this.instrumentationData.get(str_(fileName.get()))
 		}
 		return nil
 	}().setLineAsInstrumented(lineNumber)
@@ -55,7 +55,7 @@ func (this *CoverageInstrumentationCallback) newHeaderNode(traversal *NodeTraver
 	var arrayName string = this.createArrayName(traversal)
 	var data *FileInstrumentationData = func() *FileInstrumentationData {
 		if fileName.isPresent() {
-			return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+			return this.instrumentationData.get(str_(fileName.get()))
 		}
 		return nil
 	}()
@@ -73,7 +73,7 @@ func (this *CoverageInstrumentationCallback) visit(traversal *NodeTraversal, nod
 		var fileName OptionalOf[string] = CoverageInstrumentationCallback_getFileName(traversal)
 		if func() *FileInstrumentationData {
 			if fileName.isPresent() {
-				return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+				return this.instrumentationData.get(str_(fileName.get()))
 			}
 			return nil
 		}() != nil {

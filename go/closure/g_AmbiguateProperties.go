@@ -7,7 +7,7 @@ type AmbiguateProperties struct {
 	stringNodesToRename        []Node
 	reservedFirstCharacters    SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters SetOf[BoxedOf[uint16]]
-	propertyMap                MapOf[string, *AmbiguateProperties_Property]
+	propertyMap                *TMap[string, *AmbiguateProperties_Property]
 	externedNames              ImmutableSetOf[string]
 	quotedNames                SetOf[string]
 	colorRegistry              *ColorRegistry
@@ -17,7 +17,7 @@ type AmbiguateProperties struct {
 
 func (this *AmbiguateProperties) finit_AmbiguateProperties() {
 	this.stringNodesToRename = []Node{}
-	this.propertyMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.propertyMap = newTMap_(tc_string, tc_p_AmbiguateProperties_Property)
 	this.quotedNames = icast_Set(obj_(new_LinkedHashSet()))
 	this.renamingMap = nil
 	this.graphNodeFactory = nil
@@ -81,15 +81,15 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		return (supertype.getSubtypeIndices().cardinality() > startSize)
 		panic("unreachable")
 	}}).computeFixedPoint(colorGraph.up_DiGraph())
-	it_4 := foreach_(any(this.propertyMap.values()))
+	it_4 := this.propertyMap.each()
 	for it_4.next() {
-		var prop *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](it_4.v)
+		var prop *AmbiguateProperties_Property = it_4.v
 		if prop.relatedColorsSeeds == nil {
 			continue
 		}
-		it_6 := foreach_(any(prop.relatedColorsSeeds.keySet()))
+		it_6 := prop.relatedColorsSeeds.each()
 		for it_6.next() {
-			var color *ColorGraphNode = cast_[*ColorGraphNode](it_6.v)
+			var color *ColorGraphNode = it_6.k
 			prop.relatedColors.or(color.getSubtypeIndices())
 		}
 		prop.relatedColorsSeeds = nil
@@ -98,9 +98,9 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	var numRenamedPropertyNames int32 = 0
 	var numSkippedPropertyNames int32 = 0
 	var nodes ArrayListOf[*AmbiguateProperties_PropertyGraphNode] = new_ArrayList_int(this.propertyMap.size())
-	it_8 := foreach_(any(this.propertyMap.values()))
+	it_8 := this.propertyMap.each()
 	for it_8.next() {
-		var prop *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](it_8.v)
+		var prop *AmbiguateProperties_Property = it_8.v
 		if prop.skipAmbiguating {
 			numSkippedPropertyNames++
 			reservedNames.add(strobj_(prop.oldName))
@@ -131,7 +131,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	for it_13.next() {
 		var n Node = it_13.v
 		var oldName string = n.getString()
-		var p *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](Map_get_s(this.propertyMap, oldName))
+		var p *AmbiguateProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
 			Preconditions_checkState((oldName == p.oldName))
 			if !(str_(p.newName.get()) == oldName) {
@@ -151,7 +151,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 }
 
 func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_Property {
-	return cast_[*AmbiguateProperties_Property](Map_computeIfAbsent_s(this.propertyMap, name, &Function_fn{func(p0 any) any { return obj_(new_AmbiguateProperties_Property(this, str_(p0))) }}))
+	return this.propertyMap.computeIfAbsent(name, &Function_fn{func(p0 any) any { return obj_(new_AmbiguateProperties_Property(this, str_(p0))) }})
 }
 
 func (this *AmbiguateProperties) getColor(n Node) *Color {
@@ -483,7 +483,7 @@ type AmbiguateProperties_Property struct {
 	newName            OptionalOf[string]
 	numOccurrences     int32
 	skipAmbiguating    bool
-	relatedColorsSeeds LinkedHashMapOf[*ColorGraphNode, BoxedOf[int32]]
+	relatedColorsSeeds *TMap[*ColorGraphNode, any]
 	relatedColors      *BitSet
 }
 
@@ -520,8 +520,8 @@ func (this *AmbiguateProperties_Property) addRelatedColor(color *Color) {
 		return
 	}
 	if this.relatedColorsSeeds == nil {
-		this.relatedColorsSeeds = new_LinkedHashMap()
+		this.relatedColorsSeeds = newTMap_(tc_p_ColorGraphNode, tc_any)
 	}
 	var newColorGraphNode *ColorGraphNode = this.outer_.graphNodeFactory.createNode(color)
-	this.relatedColorsSeeds.put(obj_(newColorGraphNode), any(int32(0)))
+	this.relatedColorsSeeds.put(newColorGraphNode, any(int32(0)))
 }

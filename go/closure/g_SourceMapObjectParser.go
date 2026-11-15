@@ -76,15 +76,15 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 		return Outcome_base_err(names.error())
 	}
 	builder.setNames(cast_[[]string](names.get()))
-	var extensions MapOf[string, any] = icast_Map(obj_(new_LinkedHashMap()))
+	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
 	it_1 := foreach_(any(sourceMapRoot.members().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		if String_startsWith(str_(entry.getKey()), "x_") {
-			Map_put_s(extensions, str_(entry.getKey()), entry.getValue())
+			extensions.put(str_(entry.getKey()), entry.getValue())
 		}
 	}
-	builder.setExtensions(Collections_unmodifiableMap(extensions))
+	builder.setExtensions(extensions)
 	return Outcome_base_ok_Object(obj_(builder.build()))
 }
 
@@ -104,7 +104,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	if begun.isErr() {
 		return Outcome_base_err(begun.error())
 	}
-	var extensions MapOf[string, any] = icast_Map(obj_(new_LinkedHashMap()))
+	var extensions *TMap[string, any] = newTMap_(tc_string, tc_any)
 	for lexer.hasNext() {
 		var nameOutcome *Outcome_base = lexer.nextName()
 		if nameOutcome.isErr() {
@@ -184,7 +184,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 				if value.isErr() {
 					return Outcome_base_err(new_SourceMapParseException(str_(value.errorMessage().orElse(nil))).up_Throwable())
 				}
-				Map_put_s(extensions, name, value.get())
+				extensions.put(name, value.get())
 			} else {
 				var skipped *Outcome_base = lexer.skipValue()
 				if skipped.isErr() {
@@ -205,7 +205,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 	if lexer.pos < lexer.length_ {
 		return Outcome_base_err(new_SourceMapParseException("Unexpected trailing characters").up_Throwable())
 	}
-	builder.setExtensions(Collections_unmodifiableMap(extensions))
+	builder.setExtensions(extensions)
 	return Outcome_base_ok_0()
 }
 

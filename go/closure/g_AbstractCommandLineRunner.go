@@ -17,7 +17,7 @@ type AbstractCommandLineRunner struct {
 	inputsSupplierForTesting    Supplier_baseOf[ListOf[*SourceFile_jscomp]]
 	chunksSupplierForTesting    Supplier_baseOf[ListOf[*JSChunk]]
 	exitCodeReceiver            Function_baseOf[BoxedOf[int32], any]
-	rootRelativePathsMap        MapOf[string, string]
+	rootRelativePathsMap        *TMap[string, string]
 	parsedChunkWrappers         MapOf[string, string]
 	parsedChunkOutputFiles      ImmutableMapOf[string, string]
 	parsedChunkConformanceFiles ImmutableMapOf[string, string]
@@ -220,7 +220,7 @@ func (this *AbstractCommandLineRunner) setRunOptions(options *CompilerOptions) *
 	options.setParseInlineSourceMaps(this.config.parseInlineSourceMaps_)
 	options.setApplyInputSourceMaps(this.config.applyInputSourceMaps)
 	var inputSourceMaps ImmutableMap_BuilderOf[string, *SourceMapInput] = new_ImmutableMap_Builder()
-	it_1 := foreach_(any(this.config.sourceMapInputFiles.entrySet()))
+	it_1 := foreach_(any(this.config.sourceMapInputFiles.asMap().entrySet()))
 	for it_1.next() {
 		var files Map_Entry = icast_Map_Entry(it_1.v)
 		var sourceMap *SourceFile_jscomp = SourceFile_jscomp_builder().withKind(StaticSourceFile_SourceKind_NON_CODE).withPath(str_(files.getValue())).build()
@@ -298,7 +298,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env *CompilerOptions_Environmen
 		return Outcome_base_err(new_IOException_String("Cannot read zip file externs.zip").up_Throwable())
 	}
 	var envPrefix string = (sstr_(Ascii_toLowerCase(Object_toString(obj_(env)))) + "/")
-	var mapFromExternsZip MapOf[string, *SourceFile_jscomp] = icast_Map(obj_(new_LinkedHashMap()))
+	var mapFromExternsZip *TMap[string, *SourceFile_jscomp] = newTMap_(tc_string, tc_p_SourceFile_jscomp)
 	it_1 := cast_[*ZipArchive](zip.get()).names().each()
 	for it_1.next() {
 		var entryName string = it_1.v
@@ -313,7 +313,7 @@ func AbstractCommandLineRunner_getBuiltinExterns(env *CompilerOptions_Environmen
 		if data.isEmpty() {
 			return Outcome_base_err(new_IOException_String("Cannot read zip file externs.zip").up_Throwable())
 		}
-		Map_put_s(mapFromExternsZip, filename, obj_(SourceFile_jscomp_builder().withPath(("externs.zip//" + sstr_(filename))).withContent(Io_utf8String(cast_[[]int8](data.get()))).build()))
+		mapFromExternsZip.put(filename, SourceFile_jscomp_builder().withPath(("externs.zip//" + sstr_(filename))).withContent(Io_utf8String(cast_[[]int8](data.get()))).build())
 	}
 	return Outcome_base_ok_Object(any(DefaultExterns_prepareExterns(env, mapFromExternsZip)))
 }
@@ -453,15 +453,15 @@ func (this *AbstractCommandLineRunner) createInputs_4(files *TList[*AbstractComm
 					return Outcome_base_err(newFilesRes.error())
 				}
 				var newFiles ListOf[*SourceFile_jscomp] = icast_List(newFilesRes.get())
-				if Map_containsKey_s(this.rootRelativePathsMap, filename) {
-					var rootFilename string = str_(Map_get_s(this.rootRelativePathsMap, filename))
+				if this.rootRelativePathsMap.containsKey(filename) {
+					var rootFilename string = this.rootRelativePathsMap.get(filename)
 					it_2 := foreach_(any(newFiles))
 					for it_2.next() {
 						var zipEntry *SourceFile_jscomp = cast_[*SourceFile_jscomp](it_2.v)
 						var zipEntryName string = zipEntry.getName()
 						Preconditions_checkState(String_contains(zipEntryName, strobj_(filename)))
 						var zipmap string = String_replace(zipEntryName, strobj_(filename), strobj_(rootFilename))
-						Map_put_s(this.rootRelativePathsMap, zipEntryName, strobj_(zipmap))
+						this.rootRelativePathsMap.put(zipEntryName, zipmap)
 					}
 				}
 				inputs.addAll(Collection(newFiles))
@@ -624,21 +624,21 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 	Preconditions_checkState(!specs.isEmpty())
 	Preconditions_checkState((inputs != nil))
 	var chunkNames *TList[string] = newTListN_(tc_string, specs.size())
-	var chunksByName MapOf[string, *JSChunk] = icast_Map(obj_(new_LinkedHashMap()))
+	var chunksByName *TMap[string, *JSChunk] = newTMap_(tc_string, tc_p_JSChunk)
 	var chunksFileCountMap map[string]BoxedOf[int32] = map[string]BoxedOf[int32]{}
 	var numJsFilesExpected int32 = 0
 	var minJsFilesRequired int32 = 0
 	it_1 := specs.each()
 	for it_1.next() {
 		var spec *AbstractCommandLineRunner_JsChunkSpec = it_1.v
-		if Map_containsKey_s(chunksByName, spec.name_) {
+		if chunksByName.containsKey(spec.name_) {
 			return Outcome_base_err(new_FlagUsageException(("Duplicate chunk name: " + sstr_(spec.name_))).up_Throwable())
 		}
 		var chunk *JSChunk = new_JSChunk(spec.name_)
 		it_3 := foreach_(obj_(spec.deps))
 		for it_3.next() {
 			var dep string = str_(it_3.v)
-			var other *JSChunk = cast_[*JSChunk](Map_get_s(chunksByName, dep))
+			var other *JSChunk = chunksByName.get(dep)
 			if other == nil {
 				return Outcome_base_err(new_FlagUsageException(("Chunk '" + sstr_(spec.name_) + "' depends on unknown chunk '" + sstr_(dep) + "'. Be sure to list chunks in dependency order.")).up_Throwable())
 			}
@@ -654,7 +654,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 		}
 		chunkNames.insert(0, spec.name_)
 		chunksFileCountMap[spec.name_] = any(int32(spec.numJsFiles))
-		Map_put_s(chunksByName, spec.name_, obj_(chunk))
+		chunksByName.put(spec.name_, chunk)
 	}
 	var totalNumJsFiles int32 = inputs.size()
 	if (numJsFilesExpected >= 0) || (minJsFilesRequired > totalNumJsFiles) {
@@ -673,7 +673,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 	for it_5.next() {
 		var chunkName string = it_5.v
 		var numJsFiles int32 = unbox_[int32](chunksFileCountMap[chunkName])
-		var chunk *JSChunk = cast_[*JSChunk](Map_get_s(chunksByName, chunkName))
+		var chunk *JSChunk = chunksByName.get(chunkName)
 		if (chunkIndex == (chunkNames.size() - 1)) && (numJsFiles == -1) {
 			numJsFiles = numJsFilesLeft
 		}
@@ -686,7 +686,7 @@ func AbstractCommandLineRunner_createJsChunks(specs *TList[*AbstractCommandLineR
 		numJsFilesLeft -= numJsFiles
 		chunkIndex++
 	}
-	return Outcome_base_ok_Object(new_ArrayList_Collection(chunksByName.values()).self())
+	return Outcome_base_ok_Object(new_ArrayList_Collection(chunksByName.asMap().values()).self())
 }
 
 func (this *AbstractCommandLineRunner) checkChunkName_impl(name string) *Outcome_base {
@@ -2019,7 +2019,7 @@ func (this *AbstractCommandLineRunner) printManifestTo(chunk *JSChunk, out Appen
 		if AbstractCompiler_isFillFileName(name) {
 			continue
 		}
-		var rootRelativePath OptionalOf[string] = Optional_ofNullable(Map_get_s(this.rootRelativePathsMap, name))
+		var rootRelativePath OptionalOf[string] = Optional_ofNullable(strobj_(this.rootRelativePathsMap.get(name)))
 		var displayName string = str_(rootRelativePath.orElse(strobj_(name)))
 		out.append_CharSequence(strobj_(displayName))
 		out.append_CharSequence(strobj_("\n"))
@@ -2057,7 +2057,7 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 		if AbstractCompiler_isFillFileName(name) && String_isEmpty(code) {
 			continue
 		}
-		var rootRelativePath OptionalOf[string] = Optional_ofNullable(Map_get_s(this.rootRelativePathsMap, name))
+		var rootRelativePath OptionalOf[string] = Optional_ofNullable(strobj_(this.rootRelativePathsMap.get(name)))
 		var displayName string = func() string {
 			if rootRelativePath.isPresent() {
 				return str_(rootRelativePath.get())
@@ -2076,8 +2076,8 @@ func (this *AbstractCommandLineRunner) printBundleTo(chunk *JSChunk, out Appenda
 	return Outcome_base_ok_0()
 }
 
-func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() MapOf[string, string] {
-	var rootRelativePathsMap MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() *TMap[string, string] {
+	var rootRelativePathsMap *TMap[string, string] = newTMap_(tc_string, tc_string)
 	it_1 := this.config.manifestMaps.each()
 	for it_1.next() {
 		var mapString string = it_1.v
@@ -2086,7 +2086,7 @@ func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() MapOf[str
 		var execPath string = String_substring(mapString, 0, colonIndex)
 		var rootRelativePath string = String_substring_int(mapString, (colonIndex + 1))
 		Preconditions_checkState((String_indexOf(rootRelativePath, 58) == -1))
-		Map_put_s(rootRelativePathsMap, execPath, strobj_(rootRelativePath))
+		rootRelativePathsMap.put(execPath, rootRelativePath)
 	}
 	return rootRelativePathsMap
 }
@@ -2183,7 +2183,7 @@ type AbstractCommandLineRunner_CommandLineConfig struct {
 	typedAstListInputFilename        OptionalOf[string]
 	saveCompilationStateToFilename   OptionalOf[string]
 	chunk_                           *TList[string]
-	sourceMapInputFiles              MapOf[string, string]
+	sourceMapInputFiles              *TMap[string, string]
 	parseInlineSourceMaps_           bool
 	expectedDiagnostics              *TList[string]
 	variableMapInputFile             string
@@ -2260,7 +2260,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) finit_AbstractCommandLi
 	this.typedAstListInputFilename = Optional_empty()
 	this.saveCompilationStateToFilename = Optional_empty()
 	this.chunk_ = newTList_(tc_string)
-	this.sourceMapInputFiles = icast_Map(obj_(new_LinkedHashMap()))
+	this.sourceMapInputFiles = newTMap_(tc_string, tc_string)
 	this.parseInlineSourceMaps_ = false
 	this.expectedDiagnostics = newTList_(tc_string)
 	this.variableMapInputFile = ""
@@ -2456,7 +2456,7 @@ func (this *AbstractCommandLineRunner_CommandLineConfig) setChunk(chunk ListOf[s
 	return this
 }
 
-func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapInputFiles(sourceMapInputFiles MapOf[string, string]) *AbstractCommandLineRunner_CommandLineConfig {
+func (this *AbstractCommandLineRunner_CommandLineConfig) setSourceMapInputFiles(sourceMapInputFiles *TMap[string, string]) *AbstractCommandLineRunner_CommandLineConfig {
 	this.sourceMapInputFiles = sourceMapInputFiles
 	return this
 }

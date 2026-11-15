@@ -3,12 +3,12 @@
 package closure
 
 type XtbMessageBundle struct {
-	messages         MapOf[string, *JsMessage]
+	messages         *TMap[string, *JsMessage]
 	idGeneratorField JsMessage_IdGenerator
 }
 
 func (this *XtbMessageBundle) init_XtbMessageBundle(xtb []int8, projectId OptionalOf[string]) {
-	this.messages = icast_Map(obj_(new_LinkedHashMap()))
+	this.messages = newTMap_(tc_string, tc_p_JsMessage)
 	this.idGeneratorField = icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(projectId)))
 	_ = func() (code_ int) {
 		defer func() {
@@ -52,7 +52,7 @@ func XtbMessageBundle_createSAXParser() *SAXParser {
 }
 
 func (this *XtbMessageBundle) getMessage(id string) *JsMessage {
-	return cast_[*JsMessage](Map_get_s(this.messages, id))
+	return this.messages.get(id)
 }
 
 func (this *XtbMessageBundle) idGenerator() JsMessage_IdGenerator {
@@ -60,7 +60,7 @@ func (this *XtbMessageBundle) idGenerator() JsMessage_IdGenerator {
 }
 
 func (this *XtbMessageBundle) getAllMessages() IterableOf[*JsMessage] {
-	return Iterables_unmodifiableIterable(Iterable(this.messages.values()))
+	return Iterables_unmodifiableIterable(Iterable(this.messages.asMap().values()))
 }
 
 var XtbMessageBundle_NOOP_RESOLVER *XtbMessageBundle_SecureEntityResolver
@@ -162,7 +162,7 @@ func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, q
 			this.msgBuilder.appendStringPart("")
 		}
 		var key OptionalOf[string] = this.msgBuilder.getKey()
-		Map_put_s(this.outer_.messages, str_(key.orElse(nil)), obj_(this.msgBuilder.build()))
+		this.outer_.messages.put(str_(key.orElse(nil)), this.msgBuilder.build())
 		this.msgBuilder = nil
 	}
 }

@@ -36,8 +36,8 @@ func (this *GenerateExports) getExportedVariableNames() SetOf[string] {
 func (this *GenerateExports) process_2(externs Node, root Node) {
 	var findExportableNodes *FindExportableNodes = new_FindExportableNodes(this.compiler_, this.allowNonGlobalExports)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(findExportableNodes)))
-	var exports MapOf[string, Node] = icast_Map(obj_(findExportableNodes.getExports()))
-	var es6Exports MapOf[Node, string] = icast_Map(obj_(findExportableNodes.getEs6ClassExports()))
+	var exports *TMap[string, Node] = findExportableNodes.getExports()
+	var es6Exports *TMap[Node, string] = findExportableNodes.getEs6ClassExports()
 	var localExports SetOf[string] = icast_Set(obj_(findExportableNodes.getLocalExports()))
 	it_1 := foreach_(any(localExports))
 	for it_1.next() {
@@ -49,12 +49,12 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 			return
 		}
 	}
-	it_3 := foreach_(any(es6Exports.entrySet()))
+	it_3 := foreach_(any(es6Exports.asMap().entrySet()))
 	for it_3.next() {
 		var entry Map_Entry = icast_Map_Entry(it_3.v)
 		this.addExportForEs6Method(Node_of_(entry.getKey()), str_(entry.getValue()))
 	}
-	it_5 := foreach_(any(exports.entrySet()))
+	it_5 := foreach_(any(exports.asMap().entrySet()))
 	for it_5.next() {
 		var entry Map_Entry = icast_Map_Entry(it_5.v)
 		var export string = str_(entry.getKey())
@@ -63,12 +63,12 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *GenerateExports) validateExportMethodsIncluded(exports MapOf[string, Node], es6Exports MapOf[Node, string], root Node) bool {
+func (this *GenerateExports) validateExportMethodsIncluded(exports *TMap[string, Node], es6Exports *TMap[Node, string], root Node) bool {
 	var errorLocation Node
 	if !exports.isEmpty() {
-		errorLocation = Node_of_(exports.values().iterator().next())
+		errorLocation = Node_of_(exports.asMap().values().iterator().next())
 	} else {
-		errorLocation = Node_of_(es6Exports.keySet().iterator().next())
+		errorLocation = Node_of_(es6Exports.asMap().keySet().iterator().next())
 	}
 	if this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_EXPORT_CONVENTION, []string{}))
@@ -136,7 +136,7 @@ func (this *GenerateExports) addExportForEs6Method(memberFunction Node, ownerNam
 	this.addExportPropertyCall(ownerName, memberFunction, fullExport, memberFunction.getString())
 }
 
-func (this *GenerateExports) addExportMethod(exports MapOf[string, Node], export string, context Node) {
+func (this *GenerateExports) addExportMethod(exports *TMap[string, Node], export string, context Node) {
 	var methodOwnerName string = ""
 	var isEs5StylePrototypeAssignment bool = false
 	var propertyName OptionalOf[string] = Optional_empty()
@@ -153,7 +153,7 @@ func (this *GenerateExports) addExportMethod(exports MapOf[string, Node], export
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
 		useExportSymbol = false
-	} else if !String_isEmpty(methodOwnerName) && Map_containsKey_s(exports, methodOwnerName) {
+	} else if !String_isEmpty(methodOwnerName) && exports.containsKey(methodOwnerName) {
 		useExportSymbol = false
 	}
 	if useExportSymbol {

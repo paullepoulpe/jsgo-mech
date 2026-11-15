@@ -641,7 +641,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 	}
 	this.exports.asList().removeAll(Collection(exportsToRemove.asList()))
 	exportsToRemove.clear()
-	var exportsToReplace LinkedHashMapOf[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = new_LinkedHashMap()
+	var exportsToReplace *TMap[*ProcessCommonJSModules_ExportInfo, *ProcessCommonJSModules_ExportInfo] = newTMap_(tc_p_ProcessCommonJSModules_ExportInfo, tc_p_ProcessCommonJSModules_ExportInfo)
 	it_5 := this.moduleExports.each()
 	for it_5.next() {
 		var export *ProcessCommonJSModules_ExportInfo = it_5.v
@@ -652,16 +652,16 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) initializeModule() boo
 			var newExport *ProcessCommonJSModules_ExportInfo = new_ProcessCommonJSModules_ExportInfo(IR_getprop_Node_String(export.node_.removeFirstChild(), prop.getString()), export.scope_)
 			export.node_.replaceWith(newExport.node_)
 			this.outer_.compiler_.reportChangeToEnclosingScope(newExport.node_)
-			exportsToReplace.put(obj_(export), obj_(newExport))
+			exportsToReplace.put(export, newExport)
 		}
 	}
 	this.moduleExports.asList().removeAll(Collection(exportsToRemove.asList()))
-	it_7 := foreach_(any(exportsToReplace.keySet()))
+	it_7 := exportsToReplace.each()
 	for it_7.next() {
-		var oldExport *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_7.v)
+		var oldExport *ProcessCommonJSModules_ExportInfo = it_7.k
 		var oldIndex int32 = this.moduleExports.asList().indexOf(obj_(oldExport))
 		this.moduleExports.removeAt(oldIndex)
-		this.moduleExports.insert(oldIndex, cast_[*ProcessCommonJSModules_ExportInfo](exportsToReplace.get(obj_(oldExport))))
+		this.moduleExports.insert(oldIndex, exportsToReplace.get(oldExport))
 	}
 	var directAssignments int32 = 0
 	it_9 := this.moduleExports.each()

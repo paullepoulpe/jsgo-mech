@@ -263,16 +263,16 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) init_RewriteGoogJsImports_Re
 	this.globalizeAllReferences = globalizeAllReferences
 	NodeTraversal_traverse(this.outer_.compiler_, script, icast_NodeTraversal_Callback(obj_(this)))
 	if googImportNode.getSecondChild().isImportStar() {
-		var newBindings MapOf[string, *Binding] = icast_Map(obj_(new_LinkedHashMap_Map(icast_Map(obj_(module.boundNames())))))
-		Map_remove_s(newBindings, "goog")
+		var newBindings *TMap[string, *Binding] = tmapFrom_(tc_string, tc_p_Binding, icast_Map(obj_(module.boundNames())), false)
+		newBindings.remove("goog")
 		if this.hasBadExport {
 			googImportNode.getSecondChild().setOriginalName("goog")
 			googImportNode.getSecondChild().setString("$goog")
-			Map_put_s(newBindings, "$goog", Map_get_s(module.boundNames(), "goog"))
+			newBindings.put("$goog", cast_[*Binding](Map_get_s(module.boundNames(), "goog")))
 		} else {
 			googImportNode.getSecondChild().replaceWith(IR_empty())
 		}
-		var newModule *Module = module.toBuilder().boundNames(ImmutableMap_copyOf(newBindings)).build()
+		var newModule *Module = module.toBuilder().boundNames(ImmutableMap_copyOf(newBindings.asMap())).build()
 		this.outer_.moduleReplacements.put(obj_(module), obj_(newModule))
 		this.outer_.compiler_.reportChangeToEnclosingScope(googImportNode)
 	}

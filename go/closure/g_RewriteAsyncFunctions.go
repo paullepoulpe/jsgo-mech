@@ -160,11 +160,11 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrapperInfo) createWrapperFunctio
 
 type RewriteAsyncFunctions_SuperPropertyWrappers struct {
 	outer_                *RewriteAsyncFunctions
-	propertyNameToTypeMap MapOf[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
+	propertyNameToTypeMap *TMap[string, *RewriteAsyncFunctions_SuperPropertyWrapperInfo]
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) finit_RewriteAsyncFunctions_SuperPropertyWrappers() {
-	this.propertyNameToTypeMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.propertyNameToTypeMap = newTMap_(tc_string, tc_p_RewriteAsyncFunctions_SuperPropertyWrapperInfo)
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) init_RewriteAsyncFunctions_SuperPropertyWrappers() {
@@ -185,13 +185,13 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) getOrCreateSuperPropert
 	var propertyName string = superDotPropertyNode.getString()
 	var propertyType *Color = superDotPropertyNode.getColor()
 	var superPropertyWrapperInfo *RewriteAsyncFunctions_SuperPropertyWrapperInfo
-	if Map_containsKey_s(this.propertyNameToTypeMap, propertyName) {
-		superPropertyWrapperInfo = cast_[*RewriteAsyncFunctions_SuperPropertyWrapperInfo](Map_get_s(this.propertyNameToTypeMap, propertyName))
+	if this.propertyNameToTypeMap.containsKey(propertyName) {
+		superPropertyWrapperInfo = this.propertyNameToTypeMap.get(propertyName)
 		var existingColor *Color = superPropertyWrapperInfo.getPropertyType()
 		Preconditions_checkState_boolean_String_Object_Object(Objects_equals(obj_(existingColor), obj_(propertyType)), "Previous reference type: %s differs from current reference type: %s", obj_(existingColor), obj_(propertyType))
 	} else {
 		superPropertyWrapperInfo = this.createNewInfo(superDotPropertyNode)
-		Map_put_s(this.propertyNameToTypeMap, propertyName, obj_(superPropertyWrapperInfo))
+		this.propertyNameToTypeMap.put(propertyName, superPropertyWrapperInfo)
 	}
 	return superPropertyWrapperInfo
 }
@@ -204,7 +204,7 @@ func (this *RewriteAsyncFunctions_SuperPropertyWrappers) createNewInfo(firstSupe
 }
 
 func (this *RewriteAsyncFunctions_SuperPropertyWrappers) asCollection() CollectionOf[*RewriteAsyncFunctions_SuperPropertyWrapperInfo] {
-	return this.propertyNameToTypeMap.values()
+	return this.propertyNameToTypeMap.asMap().values()
 }
 
 type RewriteAsyncFunctions_LexicalContext struct {

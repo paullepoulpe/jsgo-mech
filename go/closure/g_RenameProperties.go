@@ -8,10 +8,10 @@ type RenameProperties struct {
 	prevUsedPropertyMap             *VariableMap
 	toRemove                        []Node
 	stringNodesToRename             []Node
-	callNodeToParentMap             MapOf[Node, Node]
+	callNodeToParentMap             *TMap[Node, Node]
 	reservedFirstCharacters         SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters      SetOf[BoxedOf[uint16]]
-	propertyMap                     MapOf[string, *RenameProperties_Property]
+	propertyMap                     *TMap[string, *RenameProperties_Property]
 	externedNames                   SetOf[string]
 	quotedNames                     SetOf[string]
 	nameGenerator                   NameGenerator
@@ -22,8 +22,8 @@ type RenameProperties struct {
 func (this *RenameProperties) finit_RenameProperties() {
 	this.toRemove = []Node{}
 	this.stringNodesToRename = []Node{}
-	this.callNodeToParentMap = icast_Map(obj_(new_LinkedHashMap()))
-	this.propertyMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.callNodeToParentMap = newTMap_(tc_Node, tc_Node)
+	this.propertyMap = newTMap_(tc_string, tc_p_RenameProperties_Property)
 	this.externedNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(Arrays_asList([]any{strobj_("prototype")})))))
 	this.quotedNames = icast_Set(obj_(new_LinkedHashSet()))
 	this.filteredOutNames = map[string]struct{}{}
@@ -68,7 +68,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	reservedNames.addAll(Collection(this.externedNames))
 	reservedNames.addAll(Collection(this.quotedNames))
 	var propsByFreq SetOf[*RenameProperties_Property] = icast_Set(obj_(new_TreeSet_Comparator(RenameProperties_FREQUENCY_COMPARATOR)))
-	propsByFreq.addAll(this.propertyMap.values())
+	propsByFreq.addAll(this.propertyMap.asMap().values())
 	if this.prevUsedPropertyMap != nil {
 		this.reusePropertyNames(reservedNames, Collection(propsByFreq))
 	}
@@ -80,7 +80,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		if has_(this.filteredOutNames, oldName) {
 			continue
 		}
-		var p *RenameProperties_Property = cast_[*RenameProperties_Property](Map_get_s(this.propertyMap, oldName))
+		var p *RenameProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
 			Preconditions_checkState((oldName == p.oldName))
 			n.setString(str_(p.newName.get()))
@@ -89,7 +89,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 			}
 		}
 	}
-	it_3 := foreach_(any(this.callNodeToParentMap.entrySet()))
+	it_3 := foreach_(any(this.callNodeToParentMap.asMap().entrySet()))
 	for it_3.next() {
 		var nodeEntry Map_Entry = icast_Map_Entry(it_3.v)
 		var parent Node = Node_of_(nodeEntry.getValue())
@@ -98,7 +98,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		it_5 := foreach_(any(RenameProperties_DOT_SPLITTER.split(strobj_(firstArg.getString()))))
 		for it_5.next() {
 			var oldName string = str_(it_5.v)
-			var p *RenameProperties_Property = cast_[*RenameProperties_Property](Map_get_s(this.propertyMap, oldName))
+			var p *RenameProperties_Property = this.propertyMap.get(oldName)
 			var replacement string
 			if (p != nil) && p.newName.isPresent() {
 				Preconditions_checkState((oldName == p.oldName))
@@ -166,14 +166,14 @@ func (this *RenameProperties) generateNames(props SetOf[*RenameProperties_Proper
 
 func (this *RenameProperties) getPropertyMap() *VariableMap {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(this.propertyMap.values()))
+	it_1 := this.propertyMap.each()
 	for it_1.next() {
-		var p *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
+		var p *RenameProperties_Property = it_1.v
 		if p.newName.isPresent() {
 			map_.put(strobj_(p.oldName), p.newName.get())
 		}
 	}
-	return new_VariableMap(icast_Map(obj_(map_.buildOrThrow())))
+	return new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))
 }
 
 var RenameProperties_DOT_SPLITTER *Splitter
@@ -241,7 +241,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 	case Token_rhino_CALL:
 		var fnName Node = n.getFirstChild()
 		if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(fnName) {
-			this.outer_.callNodeToParentMap.put(n.box_(), parent.box_())
+			this.outer_.callNodeToParentMap.put(n, parent)
 			this.countCallCandidates(t, n)
 			var stringArgument Node = n.getSecondChild()
 			if !this.outer_.propertyRenameEligibilityFilter.test(n.box_()) {
@@ -318,7 +318,7 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 }
 
 func (this *RenameProperties_ProcessProperties) countPropertyOccurrence(name string) {
-	var prop *RenameProperties_Property = cast_[*RenameProperties_Property](Map_computeIfAbsent_s(this.outer_.propertyMap, name, &Function_fn{func(p0 any) any { return obj_(new_RenameProperties_Property(str_(p0))) }}))
+	var prop *RenameProperties_Property = this.outer_.propertyMap.computeIfAbsent(name, &Function_fn{func(p0 any) any { return obj_(new_RenameProperties_Property(str_(p0))) }})
 	prop.numOccurrences++
 }
 

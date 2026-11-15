@@ -77,7 +77,7 @@ func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, Depend
 
 func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) MapOf[string, DependencyInfo] {
 	var newJsFiles MapOf[string, DependencyInfo] = icast_Map(obj_(new_LinkedHashMap()))
-	var providesMap MapOf[string, DependencyInfo] = icast_Map(obj_(new_LinkedHashMap()))
+	var providesMap *TMap[string, DependencyInfo] = newTMap_(tc_string, tc_DependencyInfo)
 	this.addToProvideMap(Iterable(depFiles.values()), providesMap, true)
 	this.addToProvideMap(Iterable(jsFiles.values()), providesMap, false)
 	it_1 := foreach_(any(jsFiles.values()))
@@ -88,7 +88,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 		for it_3.next() {
 			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
 			if require.getType() == DependencyInfo_Require_Type_ES6_IMPORT {
-				var provider DependencyInfo = icast_DependencyInfo(Map_get_s(providesMap, require.getSymbol()))
+				var provider DependencyInfo = providesMap.get(require.getSymbol())
 				if provider == nil {
 					this.reportMissingFile(dependencyInfo, require.getRawText())
 				} else {
@@ -117,7 +117,7 @@ func (this *DepsGenerator) removeMungedSymbols(depFiles MapOf[string, Dependency
 }
 
 func (this *DepsGenerator) validateDependencies(preparsedFileDependencies IterableOf[DependencyInfo], parsedFileDependencies IterableOf[DependencyInfo]) {
-	var providesMap MapOf[string, DependencyInfo] = icast_Map(obj_(new_LinkedHashMap()))
+	var providesMap *TMap[string, DependencyInfo] = newTMap_(tc_string, tc_DependencyInfo)
 	this.addToProvideMap(preparsedFileDependencies, providesMap, true)
 	this.addToProvideMap(parsedFileDependencies, providesMap, false)
 	it_1 := foreach_(any(parsedFileDependencies))
@@ -127,7 +127,7 @@ func (this *DepsGenerator) validateDependencies(preparsedFileDependencies Iterab
 		for it_3.next() {
 			var require *DependencyInfo_Require = cast_[*DependencyInfo_Require](it_3.v)
 			var namespace string = require.getSymbol()
-			var provider DependencyInfo = icast_DependencyInfo(Map_get_s(providesMap, namespace))
+			var provider DependencyInfo = providesMap.get(namespace)
 			if provider == nil {
 				this.reportUndefinedNamespace(namespace, depInfo)
 			} else if provider == depInfo {
@@ -178,7 +178,7 @@ func (this *DepsGenerator) reportNoDepsInDepsFile(filePath string) {
 	this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(filePath)), -1, -1, DepsGenerator_NO_DEPS_WARNING, []string{}))
 }
 
-func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap MapOf[string, DependencyInfo], isFromDepsFile bool) {
+func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], providesMap *TMap[string, DependencyInfo], isFromDepsFile bool) {
 	it_1 := foreach_(any(depInfos))
 	for it_1.next() {
 		var depInfo DependencyInfo = icast_DependencyInfo(it_1.v)
@@ -194,7 +194,7 @@ func (this *DepsGenerator) addToProvideMap(depInfos IterableOf[DependencyInfo], 
 		it_3 := provides.each()
 		for it_3.next() {
 			var provide string = it_3.v
-			var prevValue DependencyInfo = icast_DependencyInfo(Map_put_s(providesMap, provide, any(depInfo)))
+			var prevValue DependencyInfo = providesMap.put(provide, depInfo)
 			if prevValue != nil {
 				this.reportDuplicateProvide(provide, prevValue, depInfo)
 			}

@@ -204,19 +204,19 @@ func ProductionCoverageInstrumentationCallback_Type_clinit() {
 }
 
 type ProductionCoverageInstrumentationCallback_ParameterMapping struct {
-	paramValueEncodings  MapOf[string, string]
-	fileNameToIndex      MapOf[string, BoxedOf[int32]]
-	functionNameToIndex  MapOf[string, BoxedOf[int32]]
-	typeToIndex          MapOf[string, BoxedOf[int32]]
+	paramValueEncodings  *TMap[string, string]
+	fileNameToIndex      *TMap[string, any]
+	functionNameToIndex  *TMap[string, any]
+	typeToIndex          *TMap[string, any]
 	nextUniqueIdentifier int64
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) init_ProductionCoverageInstrumentationCallback_ParameterMapping() {
 	this.nextUniqueIdentifier = 0
-	this.paramValueEncodings = icast_Map(obj_(new_LinkedHashMap()))
-	this.fileNameToIndex = icast_Map(obj_(new_LinkedHashMap()))
-	this.functionNameToIndex = icast_Map(obj_(new_LinkedHashMap()))
-	this.typeToIndex = icast_Map(obj_(new_LinkedHashMap()))
+	this.paramValueEncodings = newTMap_(tc_string, tc_string)
+	this.fileNameToIndex = newTMap_(tc_string, tc_any)
+	this.functionNameToIndex = newTMap_(tc_string, tc_any)
+	this.typeToIndex = newTMap_(tc_string, tc_any)
 }
 
 func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *ProductionCoverageInstrumentationCallback_ParameterMapping {
@@ -226,9 +226,9 @@ func new_ProductionCoverageInstrumentationCallback_ParameterMapping() *Productio
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncodedParam(fileName string, functionName string, type_ *ProductionCoverageInstrumentationCallback_Type, lineNo int32, colNo int32) string {
-	Map_putIfAbsent_s(this.fileNameToIndex, fileName, any(int32(this.fileNameToIndex.size())))
-	Map_putIfAbsent_s(this.functionNameToIndex, functionName, any(int32(this.functionNameToIndex.size())))
-	Map_putIfAbsent_s(this.typeToIndex, type_.name(), any(int32(this.typeToIndex.size())))
+	this.fileNameToIndex.putIfAbsent(fileName, any(int32(this.fileNameToIndex.size())))
+	this.functionNameToIndex.putIfAbsent(functionName, any(int32(this.functionNameToIndex.size())))
+	this.typeToIndex.putIfAbsent(type_.name(), any(int32(this.typeToIndex.size())))
 	var sb *StringBuilder = new_StringBuilder()
 	_ = func() (code_ int) {
 		defer func() {
@@ -242,15 +242,15 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 				panic(r_)
 			}
 		}()
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](Map_get_s(this.fileNameToIndex, fileName)))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](Map_get_s(this.functionNameToIndex, functionName)))
-		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](Map_get_s(this.typeToIndex, type_.name())))
+		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.fileNameToIndex.get(fileName)))
+		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.functionNameToIndex.get(functionName)))
+		Base64VLQ_encode(icast_Appendable(obj_(sb)), unbox_[int32](this.typeToIndex.get(type_.name())))
 		Base64VLQ_encode(icast_Appendable(obj_(sb)), lineNo)
 		Base64VLQ_encode(icast_Appendable(obj_(sb)), colNo)
 		return 0
 	}()
 	var encodedParam string = Object_toString(obj_(sb))
-	if !Map_containsKey_s(this.paramValueEncodings, encodedParam) {
+	if !this.paramValueEncodings.containsKey(encodedParam) {
 		var uniqueIdentifier int64 = this.generateUniqueIdentifier()
 		if uniqueIdentifier > int64(int32(2147483647)) {
 			panic(new_ArithmeticException_String("Unique Identifier exceeds value of Integer.MAX_VALUE, could not encode with Base 64 VLQ").self())
@@ -271,9 +271,9 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getEncod
 			Base64VLQ_encode(icast_Appendable(obj_(sb)), Math_toIntExact(uniqueIdentifier))
 			return 0
 		}()
-		Map_put_s(this.paramValueEncodings, encodedParam, strobj_(Object_toString(obj_(sb))))
+		this.paramValueEncodings.put(encodedParam, Object_toString(obj_(sb)))
 	}
-	return str_(Map_get_s(this.paramValueEncodings, encodedParam))
+	return this.paramValueEncodings.get(encodedParam)
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) generateUniqueIdentifier() int64 {
@@ -282,12 +282,12 @@ func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) generate
 }
 
 func (this *ProductionCoverageInstrumentationCallback_ParameterMapping) getParamMappingAsVariableMap() *VariableMap {
-	Map_put_s(this.paramValueEncodings, ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.fileNameToIndex.keySet()), strobj_(" FileNames"))
-	Map_put_s(this.paramValueEncodings, ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.functionNameToIndex.keySet()), strobj_(" FunctionNames"))
-	Map_put_s(this.paramValueEncodings, ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.keySet()), strobj_(" Types"))
+	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.fileNameToIndex.asMap().keySet()), " FileNames")
+	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.functionNameToIndex.asMap().keySet()), " FunctionNames")
+	this.paramValueEncodings.put(ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(this.typeToIndex.asMap().keySet()), " Types")
 	var preInversedMap *VariableMap = new_VariableMap(this.paramValueEncodings)
 	var inversedMap ImmutableMapOf[string, string] = preInversedMap.getNewNameToOriginalNameMap()
-	return new_VariableMap(icast_Map(obj_(inversedMap)))
+	return new_VariableMap(tmapFrom_(tc_string, tc_string, inversedMap, true))
 }
 
 func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(strings SetOf[string]) string {

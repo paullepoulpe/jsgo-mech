@@ -108,17 +108,17 @@ func (this *ReplaceMessages) getFullReplacementPass() CompilerPass {
 	return icast_CompilerPass(obj_(new_ReplaceMessages_FullReplacementPass(this)))
 }
 
-func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, placeholderMap MapOf[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
+func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
 	var paramList Node = this.astFactory_.createParamList([]string{})
 	var type_ AstFactory_Type = AstFactory_type_Node(nodeToReplace)
 	var uniqueId string = this.compiler_.getUniqueIdSupplier().getUniqueId(this.compiler_.getInput(NodeUtil_getInputId(nodeToReplace)))
-	var placeholderMapIds MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
-	it_1 := foreach_(any(placeholderMap.keySet()))
+	var placeholderMapIds *TMap[string, string] = newTMap_(tc_string, tc_string)
+	it_1 := placeholderMap.each()
 	for it_1.next() {
-		var placeholderName string = str_(it_1.v)
+		var placeholderName string = it_1.k
 		var placeholderId string = (sstr_(placeholderName) + sstr_(uniqueId))
 		paramList.addChildToBack(this.astFactory_.createName(placeholderId, type_))
-		Map_put_s(placeholderMapIds, placeholderName, strobj_(placeholderId))
+		placeholderMapIds.put(placeholderName, placeholderId)
 	}
 	var hookExpressionOutcome *Outcome_base = this.createHookExpressionForGenderedMsg(type_, message, options, nodeToReplace, placeholderMapIds)
 	if hookExpressionOutcome.isErr() {
@@ -132,9 +132,9 @@ func (this *ReplaceMessages) createNodeForGenderedMsgString(message *JsMessage, 
 	function.setColor(nodeToReplace.getColor())
 	this.compiler_.reportChangeToChangeScope(function)
 	var callNode Node = this.astFactory_.createCall(function, type_, []Node{})
-	it_3 := foreach_(any(placeholderMap.values()))
+	it_3 := placeholderMap.each()
 	for it_3.next() {
-		var node Node = Node_of_(it_3.v)
+		var node Node = it_3.v
 		callNode.addChildToBack(node.cloneTree())
 	}
 	return Outcome_base_ok_Object(callNode.box_())
@@ -166,12 +166,12 @@ func (this *ReplaceMessages) createConditionForGrammaticalGender(type_ AstFactor
 	panic("unreachable")
 }
 
-func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory_Type, msg *JsMessage, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderMapIds MapOf[string, string]) *Outcome_base {
+func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory_Type, msg *JsMessage, options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderMapIds *TMap[string, string]) *Outcome_base {
 	var hookHead Node = IR_hook(IR_name(""), IR_string(""), IR_string(""))
 	hookHead.setColor(nodeToReplace.getColor())
 	var placeholderHook Node = hookHead
 	var placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider = &ReplaceMessages_PlaceholderNodeProvider_fn{func(placeholderName string) Node {
-		var placeholderId OptionalOf[string] = Optional_ofNullable(Map_get_s(placeholderMapIds, placeholderName))
+		var placeholderId OptionalOf[string] = Optional_ofNullable(strobj_(placeholderMapIds.get(placeholderName)))
 		return func() Node {
 			if placeholderId.isPresent() {
 				return this.astFactory_.createName(str_(placeholderId.get()), AstFactory_type_Node(nodeToReplace))
@@ -246,7 +246,7 @@ func (this *ReplaceMessages) buildMessageNode(msgParts *TList[JsMessage_Part], o
 	return Outcome_base_ok_Object(message.box_())
 }
 
-func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeholderMap MapOf[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
+func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
 	if !message.getGenderedMessageVariants().isEmpty() {
 		return this.createNodeForGenderedMsgString(message, placeholderMap, options, nodeToReplace)
 	} else {
@@ -255,7 +255,7 @@ func (this *ReplaceMessages) constructStringExprNode(message *JsMessage, placeho
 	panic("unreachable")
 }
 
-func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, placeholderMap MapOf[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
+func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, placeholderMap *TMap[string, Node], options *ReplaceMessages_MsgOptions, nodeToReplace Node) *Outcome_base {
 	if placeholderMap.isEmpty() {
 		if options.isIcuTemplate() {
 			return Outcome_base_ok_Object(this.createNodeForMsgString(options, message.asIcuMessageString()).box_())
@@ -270,7 +270,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(tlistImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, &ReplaceMessages_PlaceholderNodeProvider_fn{func(p0 string) Node { return Node_of_(Map_get_s(placeholderMap, p0)) }}, false)
+	return this.buildMessageNode(tlistImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, &ReplaceMessages_PlaceholderNodeProvider_fn{func(p0 string) Node { return placeholderMap.get(p0) }}, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
@@ -494,11 +494,11 @@ func (this *ReplaceMessages_MsgProtectionPass) processMessageFallback_impl(callN
 
 type ReplaceMessages_QuotedKeyObjectLitBuilder struct {
 	outer_            *ReplaceMessages
-	keyToValueNodeMap LinkedHashMapOf[string, Node]
+	keyToValueNodeMap *TMap[string, Node]
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) finit_ReplaceMessages_QuotedKeyObjectLitBuilder() {
-	this.keyToValueNodeMap = new_LinkedHashMap()
+	this.keyToValueNodeMap = newTMap_(tc_string, tc_Node)
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) init_ReplaceMessages_QuotedKeyObjectLitBuilder() {
@@ -517,14 +517,14 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addString(key string, val
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) addNode(key string, node Node) *ReplaceMessages_QuotedKeyObjectLitBuilder {
-	Preconditions_checkState_boolean_String_Object(!Map_containsKey_s(this.keyToValueNodeMap, key), "repeated key: %s", strobj_(key))
-	Map_put_s(this.keyToValueNodeMap, key, node.box_())
+	Preconditions_checkState_boolean_String_Object(!this.keyToValueNodeMap.containsKey(key), "repeated key: %s", strobj_(key))
+	this.keyToValueNodeMap.put(key, node)
 	return this
 }
 
 func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) build() Node {
 	var result Node = this.outer_.astFactory_.createObjectLit([]Node{})
-	it_1 := foreach_(any(this.keyToValueNodeMap.entrySet()))
+	it_1 := foreach_(any(this.keyToValueNodeMap.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		result.addChildToBack(this.outer_.astFactory_.createQuotedStringKey(str_(entry.getKey()), Node_of_(entry.getValue())))
@@ -571,7 +571,7 @@ func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protec
 		msgToUse = originalMsg
 	}
 	var msgOptions *ReplaceMessages_MsgOptions = protectedJsMessage.getMsgOptions()
-	var placeholderMap MapOf[string, Node] = icast_Map(obj_(ReplaceMessages_extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode)))
+	var placeholderMap *TMap[string, Node] = tmapFrom_(tc_string, tc_Node, ReplaceMessages_extractPlaceholderValuesMapOrThrow(protectedJsMessage.substitutionsNode), true)
 	var finalMsgConstructionExpressionOutcome *Outcome_base = this.outer_.constructStringExprNode(msgToUse, placeholderMap, msgOptions, nodeToReplace)
 	if finalMsgConstructionExpressionOutcome.isErr() {
 		var e *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](finalMsgConstructionExpressionOutcome.error().self())
@@ -771,7 +771,7 @@ func (this *ReplaceMessages_FullReplacementPass) processFullReplacement(fullRepl
 		}
 	}
 	var newValue Node
-	var newValueOutcome *Outcome_base = this.outer_.constructStringExprNode(replacement, icast_Map(obj_(placeholderValueMap)), options, msgNode)
+	var newValueOutcome *Outcome_base = this.outer_.constructStringExprNode(replacement, tmapFrom_(tc_string, tc_Node, placeholderValueMap, true), options, msgNode)
 	if newValueOutcome.isErr() {
 		var e *JsMessageVisitor_MalformedException = cast_[*JsMessageVisitor_MalformedException](newValueOutcome.error().self())
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(e.getNode(), JsMessageVisitor_MESSAGE_TREE_MALFORMED, []string{e.getMessage()}))

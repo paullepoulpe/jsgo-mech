@@ -53,7 +53,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	var escaped LinkedHashSetOf[*Var] = new_LinkedHashSet()
 	var scope *Scope = t.getScope()
 	var allVarsDeclaredInFunction *NodeUtil_AllVarsDeclaredInFunction = NodeUtil_getAllVarsDeclaredInFunction(this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), cast_[*Scope](scope.getParent().self()))
-	var allVarsInFn MapOf[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
+	var allVarsInFn *TMap[string, *Var] = allVarsDeclaredInFunction.getAllVariables()
 	DataFlowAnalysis_computeEscaped(cast_[*Scope](scope.getParent().self()), icast_Set(obj_(escaped)), this.compiler_, icast_ScopeCreator(obj_(scopeCreator)), allVarsInFn)
 	this.reachingDef = new_MustBeReachingVariableDef(this.cfg, this.compiler_, icast_Set(obj_(escaped)), allVarsInFn)
 	this.reachingDef.analyze()
@@ -63,7 +63,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	this.reachingUses.analyze()
 	for !this.candidates.isEmpty() {
 		var c *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](this.candidates.iterator().next())
-		var candidateVar *Var = cast_[*Var](Preconditions_checkNotNull(Map_get_s(allVarsInFn, c.varName_)))
+		var candidateVar *Var = cast_[*Var](Preconditions_checkNotNull(obj_(allVarsInFn.get(c.varName_))))
 		if c.canInline(cast_[*Scope](candidateVar.getScope())) {
 			c.inlineVariable()
 			this.candidates.remove_Object(obj_(c))

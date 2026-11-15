@@ -90,7 +90,7 @@ func (this *TypeTransformation) createUnionType(variants []*JSType) *JSType {
 }
 
 func (this *TypeTransformation) createRecordType(props ImmutableMapOf[string, *JSType]) *JSType {
-	return this.registry.createRecordType(icast_Map(obj_(props)))
+	return this.registry.createRecordType(tmapFrom_(tc_string, tc_p_JSType, props, true))
 }
 
 func (this *TypeTransformation) reportWarning(n Node, msg *DiagnosticType, param []string) {
@@ -476,7 +476,7 @@ func (this *TypeTransformation) evalTemplateTypeOf(ttlAst Node, nameResolver *Ty
 }
 
 func (this *TypeTransformation) evalRecord(record Node, nameResolver *TypeTransformation_NameResolver) *JSType {
-	var props MapOf[string, *JSType] = icast_Map(obj_(new_LinkedHashMap()))
+	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	{
 		var propNode Node = record.getFirstChild()
 		for ; propNode != 0; propNode = propNode.getNext() {
@@ -489,11 +489,11 @@ func (this *TypeTransformation) evalRecord(record Node, nameResolver *TypeTransf
 				var propValue Node = this.getComputedPropValue(propNode)
 				var resolvedName string = str_(Map_get_s(nameResolver.nameVars, compPropName))
 				var resultingType *JSType = this.evalInternal(propValue, nameResolver)
-				Map_put_s(props, resolvedName, resultingType.self())
+				props.put(resolvedName, resultingType)
 			} else {
 				var propName string = propNode.getString()
 				var resultingType *JSType = this.evalInternal(propNode.getFirstChild(), nameResolver)
-				Map_put_s(props, propName, resultingType.self())
+				props.put(propName, resultingType)
 			}
 		}
 	}
@@ -525,16 +525,16 @@ func (this *TypeTransformation) evalRecordType(ttlAst Node, nameResolver *TypeTr
 	return this.joinRecordTypes(cast_[*ImmutableList](obj_(recTypesBuilder.build())))
 }
 
-func (this *TypeTransformation) putNewPropInPropertyMap(props MapOf[string, *JSType], newPropName string, newPropValue *JSType) {
-	if (!Map_containsKey_s(props, newPropName) || !newPropValue.isRecordType()) || !to_JSType(Map_get_s(props, newPropName)).isRecordType() {
-		Map_put_s(props, newPropName, newPropValue.self())
+func (this *TypeTransformation) putNewPropInPropertyMap(props *TMap[string, *JSType], newPropName string, newPropValue *JSType) {
+	if (!props.containsKey(newPropName) || !newPropValue.isRecordType()) || !props.get(newPropName).isRecordType() {
+		props.put(newPropName, newPropValue)
 		return
 	}
-	Map_put_s(props, newPropName, this.joinRecordTypes(ImmutableList_of_Object_Object(to_ObjectType(Map_get_s(props, newPropName)).self(), to_ObjectType(newPropValue.self()).self())).self())
+	props.put(newPropName, this.joinRecordTypes(ImmutableList_of_Object_Object(to_ObjectType(props.get(newPropName).self()).self(), to_ObjectType(newPropValue.self()).self())))
 }
 
 func (this *TypeTransformation) joinRecordTypes(recTypes ImmutableListOf[*ObjectType]) *JSType {
-	var props MapOf[string, *JSType] = icast_Map(obj_(new_LinkedHashMap()))
+	var props *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	it_1 := foreach_(obj_(recTypes))
 	for it_1.next() {
 		var recType *ObjectType = to_ObjectType(it_1.v)
@@ -545,7 +545,7 @@ func (this *TypeTransformation) joinRecordTypes(recTypes ImmutableListOf[*Object
 			this.putNewPropInPropertyMap(props, newPropName, newPropValue)
 		}
 	}
-	return this.createRecordType(ImmutableMap_copyOf(props))
+	return this.createRecordType(ImmutableMap_copyOf(props.asMap()))
 }
 
 func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
@@ -571,7 +571,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 		return this.getUnknownType()
 	}
 	var mapFnBody Node = NodeUtil_getFunctionBody(mapFunction)
-	var newProps MapOf[string, *JSType] = icast_Map(obj_(new_LinkedHashMap()))
+	var newProps *TMap[string, *JSType] = newTMap_(tc_string, tc_p_JSType)
 	it_1 := foreach_(any(objtype.getOwnPropertyNames()))
 	for it_1.next() {
 		var propName string = str_(it_1.v)
@@ -596,7 +596,7 @@ func (this *TypeTransformation) evalMaprecord(ttlAst Node, nameResolver *TypeTra
 			this.putNewPropInPropertyMap(newProps, newPropName, newPropValue)
 		}
 	}
-	return this.createRecordType(ImmutableMap_copyOf(newProps))
+	return this.createRecordType(ImmutableMap_copyOf(newProps.asMap()))
 }
 
 func (this *TypeTransformation) evalTypeOfVar(ttlAst Node) *JSType {
