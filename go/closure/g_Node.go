@@ -27,6 +27,7 @@ type Node_ps_ struct {
 	propListHead  *Node_PropListItem
 	payload       any
 	payload_s_    string
+	propMask_     uint64 // bit i set when the property list has an item of Prop ordinal i
 }
 
 var Node_ps_chunks_ [handleChunks_]*[handleChunkSize_]Node_ps_
@@ -627,7 +628,11 @@ func (this Node) detachChildren() {
 
 func (this Node) lookupProperty(prop *Node_Prop) *Node_PropListItem {
 	var propType int8 = int8(prop.ordinal())
-	var x *Node_PropListItem = this.ps_().propListHead
+	ps := this.ps_()
+	if ps.propMask_&(1<<uint(propType)) == 0 { // most lookups are of properties a node does not have
+		return nil
+	}
+	var x *Node_PropListItem = ps.propListHead
 	for (x != nil) && (propType != x.propType) {
 		x = x.next_
 	}
@@ -636,7 +641,7 @@ func (this Node) lookupProperty(prop *Node_Prop) *Node_PropListItem {
 
 func (this Node) clonePropsFrom(other Node) Node {
 	Preconditions_checkState_boolean_Object((this.ps_().propListHead == nil), strobj_("Node has existing properties."))
-	this.ps_().propListHead = other.ps_().propListHead
+	this.setPropList_(other.ps_().propListHead)
 	return this
 }
 
@@ -734,9 +739,9 @@ func (this Node) getIntProp(propType *Node_Prop) int32 {
 }
 
 func (this Node) putProp(prop *Node_Prop, value any) {
-	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
+	this.setPropList_(Node_rebuildListWithoutProp(this.ps_().propListHead, prop))
 	if value != nil {
-		this.ps_().propListHead = new_Node_ObjectPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
+		this.setPropList_(new_Node_ObjectPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem())
 	}
 }
 
@@ -750,14 +755,14 @@ func (this Node) putBooleanProp(propType *Node_Prop, value bool) {
 }
 
 func (this Node) putIntProp(prop *Node_Prop, value int32) {
-	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
+	this.setPropList_(Node_rebuildListWithoutProp(this.ps_().propListHead, prop))
 	if value != 0 {
-		this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem()
+		this.setPropList_(new_Node_IntPropListItem(int8(prop.ordinal()), value, this.ps_().propListHead).up_Node_PropListItem())
 	}
 }
 
 func (this Node) removeProp(prop *Node_Prop) {
-	this.ps_().propListHead = Node_rebuildListWithoutProp(this.ps_().propListHead, prop)
+	this.setPropList_(Node_rebuildListWithoutProp(this.ps_().propListHead, prop))
 }
 
 func Node_nodePropertyToBit(prop *NodeProperty) int64 {
@@ -873,14 +878,14 @@ func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree 
 			if prop == nil {
 				panic(new_IllegalStateException_String(("Can not translate " + objstr_(obj_(nodeProperty)) + " to AST Prop")).self())
 			}
-			this.ps_().propListHead = new_Node_IntPropListItem(int8(prop.ordinal()), 1, this.ps_().propListHead).up_Node_PropListItem()
+			this.setPropList_(new_Node_IntPropListItem(int8(prop.ordinal()), 1, this.ps_().propListHead).up_Node_PropListItem())
 		}
 	}
 	if constantVarFlags != 0 {
-		this.ps_().propListHead = new_Node_IntPropListItem(int8(Node_Prop_CONSTANT_VAR_FLAGS.ordinal()), constantVarFlags, this.ps_().propListHead).up_Node_PropListItem()
+		this.setPropList_(new_Node_IntPropListItem(int8(Node_Prop_CONSTANT_VAR_FLAGS.ordinal()), constantVarFlags, this.ps_().propListHead).up_Node_PropListItem())
 	}
 	if sideEffectFlags != 0 {
-		this.ps_().propListHead = new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, this.ps_().propListHead).up_Node_PropListItem()
+		this.setPropList_(new_Node_IntPropListItem(int8(Node_Prop_SIDE_EFFECT_FLAGS.ordinal()), sideEffectFlags, this.ps_().propListHead).up_Node_PropListItem())
 	}
 	this.validateProperties(&Consumer_fn{func(errorMessage_ any) {
 		var errorMessage string = str_(errorMessage_)
@@ -1310,7 +1315,7 @@ func (this Node) setStaticSourceFileFrom(other Node) {
 			tail = tail.next_
 		}
 		if int32(tail.propType) == Node_Prop_SOURCE_FILE.ordinal() {
-			this.ps_().propListHead = tail
+			this.setPropList_(tail)
 			return
 		}
 	}
@@ -1474,7 +1479,7 @@ func (this Node) getPropListHeadForTesting() *Node_PropListItem {
 }
 
 func (this Node) setPropListHead(propListHead *Node_PropListItem) {
-	this.ps_().propListHead = propListHead
+	this.setPropList_(propListHead)
 }
 
 func (this Node) getParent() Node {
@@ -2041,7 +2046,7 @@ func Node_copyBaseNodeFields(source Node, dest Node, cloneTypeExprs bool) {
 	dest.ns_().length_ = source.ns_().length_
 	dest.ps_().jstypeOrColor = source.ps_().jstypeOrColor
 	dest.ps_().originalName = source.ps_().originalName
-	dest.ps_().propListHead = source.ps_().propListHead
+	dest.setPropList_(source.ps_().propListHead)
 	if cloneTypeExprs {
 		var info *JSDocInfo = source.getJSDocInfo()
 		if info != nil {
@@ -3781,4 +3786,15 @@ func (this *Node_AncestorIterable_1) next() any {
 
 func (this *Node_AncestorIterable_1) remove() {
 	panic(new_UnsupportedOperationException_0().self())
+}
+
+// setPropList_ sets the property list and the mask of the properties in it.
+func (this Node) setPropList_(head *Node_PropListItem) {
+	ps := this.ps_()
+	ps.propListHead = head
+	var m uint64
+	for x := head; x != nil; x = x.next_ {
+		m |= 1 << uint(x.propType)
+	}
+	ps.propMask_ = m
 }
