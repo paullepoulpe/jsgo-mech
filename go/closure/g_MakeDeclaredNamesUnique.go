@@ -291,7 +291,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
-	referenceNodes           ListOf[Node]
+	referenceNodes           []Node
 	potentialShadowVariables SetOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
 	currentName              string
 	preferredName            string
@@ -303,7 +303,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
-	this.referenceNodes = icast_List(new_ArrayList_0().self())
+	this.referenceNodes = []Node{}
 	this.potentialShadowVariables = icast_Set(obj_(new_LinkedHashSet()))
 }
 
@@ -326,19 +326,19 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPo
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
-	var disallowedNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-	Collection_add_s(disallowedNames, MakeDeclaredNamesUnique_ARGUMENTS)
+	var disallowedNames map[string]struct{} = map[string]struct{}{}
+	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
 	it_1 := foreach_(any(this.potentialShadowVariables))
 	for it_1.next() {
 		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(it_1.v)
 		var potentialShadowName string = potentialShadowVariable.getName()
-		Collection_add_s(disallowedNames, potentialShadowName)
+		disallowedNames[potentialShadowName] = struct{}{}
 	}
 	var newName string = this.preferredName
-	if Collection_contains_s(disallowedNames, this.preferredName) {
+	if has_(disallowedNames, this.preferredName) {
 		var baseName string = (sstr_(this.preferredName) + sstr_(MakeDeclaredNamesUnique_ContextualRenamer_UNIQUE_ID_SEPARATOR))
 		var i int32 = 0
-		for do_4 := true; do_4; do_4 = Collection_contains_s(disallowedNames, newName) {
+		for do_4 := true; do_4; do_4 = has_(disallowedNames, newName) {
 			newName = (sstr_(baseName) + istr_(int64(i)))
 			i++
 		}
@@ -346,9 +346,9 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attem
 	if newName == this.currentName {
 		return this.currentName
 	}
-	it_5 := foreach_(any(this.referenceNodes))
+	it_5 := eachOf_(&this.referenceNodes)
 	for it_5.next() {
-		var referenceNode Node = Node_of_(it_5.v)
+		var referenceNode Node = it_5.v
 		referenceNode.setString(newName)
 		this.outer_.compiler_.reportChangeToEnclosingScope(referenceNode)
 		var parent Node = referenceNode.getParent()
@@ -398,7 +398,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInf
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo) addReferenceNode(nameNode Node) {
 	if this.renamingInfo != nil {
-		this.renamingInfo.referenceNodes.add(nameNode.box_())
+		this.renamingInfo.referenceNodes = append(this.renamingInfo.referenceNodes, nameNode)
 	}
 }
 

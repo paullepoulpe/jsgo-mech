@@ -16,11 +16,11 @@ func new_ProfilingReport() *ProfilingReport {
 }
 
 func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping MapOf[string, *InstrumentationPoint], allInstrumentationReports ImmutableListOf[MapOf[string, BoxedOf[int64]]]) string {
-	var profiles ListOf[*ReportProfile] = icast_List(new_ArrayList_0().self())
+	var profiles []*ReportProfile = []*ReportProfile{}
 	it_1 := foreach_(obj_(allInstrumentationReports))
 	for it_1.next() {
 		var report Map = icast_Map(it_1.v)
-		profiles.add(obj_(ReportDecoder_decodeReport(instrumentationMapping, report)))
+		profiles = append(profiles, ReportDecoder_decodeReport(instrumentationMapping, report))
 	}
 	var metricsBuilder ImmutableMap_BuilderOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = ImmutableMap_builder()
 	it_3 := foreach_(any(instrumentationMapping.values()))
@@ -29,9 +29,9 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 		metricsBuilder.put(obj_(point), obj_(new_ProfilingReport_InstrumentationPointMetrics()))
 	}
 	var metrics MapOf[*InstrumentationPoint, *ProfilingReport_InstrumentationPointMetrics] = icast_Map(obj_(metricsBuilder.buildOrThrow()))
-	it_5 := foreach_(any(profiles))
+	it_5 := eachOf_(&profiles)
 	for it_5.next() {
-		var profile *ReportProfile = cast_[*ReportProfile](it_5.v)
+		var profile *ReportProfile = it_5.v
 		it_7 := foreach_(any(profile.getFileProfileList()))
 		for it_7.next() {
 			var fileProfile *FileProfile = cast_[*FileProfile](it_7.v)
@@ -62,17 +62,17 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 		_ = point
 		return cast_[*InstrumentationPoint](point.getKey()).getType().getNumber()
 	}}))
-	var output ListOf[ListOf[string]] = icast_List(new_ArrayList_0().self())
-	output.add(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred"))))
+	var output []ListOf[string] = []ListOf[string]{}
+	output = append(output, icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_("File"), strobj_("Function name"), strobj_("Line"), strobj_("Type"), strobj_("Total executed"), strobj_("Reports occurred")))))
 	it_11 := foreach_(any(result))
 	for it_11.next() {
 		var entry Map_Entry = icast_Map_Entry(it_11.v)
-		output.add(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(String_valueOf(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber())), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(String_valueOf_long(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted)), strobj_(String_valueOf(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports)))))
+		output = append(output, icast_List(obj_(ImmutableList_of_Object_Object_Object_Object_Object_Object(strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFileName()), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getFunctionName()), strobj_(String_valueOf(cast_[*InstrumentationPoint](entry.getKey()).getLineNumber())), strobj_(cast_[*InstrumentationPoint](entry.getKey()).getType().name()), strobj_(String_valueOf_long(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).totalTimesExecuted)), strobj_(String_valueOf(cast_[*ProfilingReport_InstrumentationPointMetrics](entry.getValue()).numberOfReports))))))
 	}
 	var rows ListOf[string] = icast_List(new_ArrayList_0().self())
-	it_13 := foreach_(any(output))
+	it_13 := eachOf_(&output)
 	for it_13.next() {
-		var row List = icast_List(it_13.v)
+		var row List = it_13.v
 		rows.add(strobj_(String_join(strobj_("\t"), Iterable(row))))
 	}
 	return String_join(strobj_("\n"), Iterable(rows))

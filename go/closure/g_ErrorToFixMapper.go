@@ -102,29 +102,29 @@ func (this *ErrorToFixMapper) getFixForRedeclaration(error_ *JSError) *Suggested
 	if parent.hasOneChild() {
 		return fix.replace(parent, assign, this.compiler_).build()
 	}
-	var childrenOfAddedVarStatement ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var childrenOfAddedVarStatement []Node = []Node{}
 	{
 		var n Node = parent.getFirstChild()
 		for ; n != 0; n = n.getNext() {
 			if n == name {
 				break
 			}
-			childrenOfAddedVarStatement.add(n.box_())
+			childrenOfAddedVarStatement = append(childrenOfAddedVarStatement, n)
 		}
 	}
-	if !childrenOfAddedVarStatement.isEmpty() {
+	if !(len(childrenOfAddedVarStatement) == 0) {
 		var var_ Node = new_Node_Token(parent.getToken())
-		it_2 := foreach_(any(childrenOfAddedVarStatement))
+		it_2 := eachOf_(&childrenOfAddedVarStatement)
 		for it_2.next() {
-			var n Node = Node_of_(it_2.v)
+			var n Node = it_2.v
 			var_.addChildToBack(n.cloneTree())
 		}
 		fix.insertBefore_4(parent, var_, this.compiler_, "1")
 	}
 	if name.getNext() != 0 {
-		it_4 := foreach_(any(childrenOfAddedVarStatement))
+		it_4 := eachOf_(&childrenOfAddedVarStatement)
 		for it_4.next() {
-			var n Node = Node_of_(it_4.v)
+			var n Node = it_4.v
 			fix.delete(n)
 		}
 		fix.delete(name)

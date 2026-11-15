@@ -97,7 +97,7 @@ func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCall
 	it_1 := foreach_(any(superCalls))
 	for it_1.next() {
 		var superCall Node = Node_of_(it_1.v)
-		var sideEffectArgs ListOf[Node] = icast_List(new_ArrayList_0().self())
+		var sideEffectArgs []Node = []Node{}
 		var callee Node = superCall.removeFirstChild()
 		Preconditions_checkState_boolean_Object(callee.isSuper(), callee.box_())
 		for superCall.hasChildren() {
@@ -106,14 +106,14 @@ func (this *Es6ConvertSuperConstructorCalls) replaceSuperCallsWithThis(superCall
 				arg = arg.removeFirstChild()
 			}
 			if this.compiler_.getAstAnalyzer().mayHaveSideEffects(arg) {
-				sideEffectArgs.add(arg.box_())
+				sideEffectArgs = append(sideEffectArgs, arg)
 			}
 		}
 		var replacement Node = this.astFactory_.createThis(thisType).srcref(superCall)
-		if !sideEffectArgs.isEmpty() {
-			var exprs Node = Node_of_(sideEffectArgs.get(0))
-			for i := int32(1); i < sideEffectArgs.size(); i++ {
-				exprs = this.astFactory_.createComma(exprs, Node_of_(sideEffectArgs.get(i))).srcrefTreeIfMissing(superCall)
+		if !(len(sideEffectArgs) == 0) {
+			var exprs Node = sideEffectArgs[0]
+			for i := int32(1); i < int32(len(sideEffectArgs)); i++ {
+				exprs = this.astFactory_.createComma(exprs, sideEffectArgs[i]).srcrefTreeIfMissing(superCall)
 			}
 			replacement = this.astFactory_.createComma(exprs, replacement).srcrefTreeIfMissing(superCall)
 		}

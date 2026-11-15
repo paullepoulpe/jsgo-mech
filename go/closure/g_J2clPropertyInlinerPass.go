@@ -362,7 +362,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLClassGetterSetters) visitClass(classNode Node) {
 	var className string = NodeUtil_getName(classNode)
 	var classMembers Node = NodeUtil_getClassMembers(classNode)
-	var setterDefByName MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
+	var setterDefByName map[string]Node = map[string]Node{}
 	var getterDefByName MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
 	{
 		var memberFunction Node = classMembers.getFirstChild()
@@ -374,7 +374,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 			case Token_rhino_GETTER_DEF:
 				Map_put_s(getterDefByName, memberFunction.getString(), memberFunction.box_())
 			case Token_rhino_SETTER_DEF:
-				Map_put_s(setterDefByName, memberFunction.getString(), memberFunction.box_())
+				setterDefByName[memberFunction.getString()] = memberFunction
 			default:
 			}
 		}
@@ -383,7 +383,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 	for it_3.next() {
 		var propertyName string = str_(it_3.v)
 		var getterDef Node = Node_of_(Map_get_s(getterDefByName, propertyName))
-		var setterDef Node = Node_of_(Map_get_s(setterDefByName, propertyName))
+		var setterDef Node = setterDefByName[propertyName]
 		if this.outer_.matchesJ2clGetKeySignature(className, getterDef) && ((setterDef == 0) || this.outer_.matchesJ2clSetKeySignature(className, setterDef)) {
 			Map_put_s(this.j2clPropertiesByName, (sstr_(className) + "." + sstr_(propertyName)), obj_(new_J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_J2clPropertyEs6(this.outer_, getterDef, setterDef)))
 		}

@@ -2168,13 +2168,13 @@ type RegExpTree_1Parser struct {
 	cap_flags                         string
 	pos                               int32
 	numCapturingGroups_               int32
-	capturingGroupNames               SetOf[string]
+	capturingGroupNames               map[string]struct{}
 	limit                             int32
 	lookForNamedCaptureBackreferences bool
 }
 
 func (this *RegExpTree_1Parser) finit_RegExpTree_1Parser() {
-	this.capturingGroupNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.capturingGroupNames = map[string]struct{}{}
 	this.limit = String_length(this.cap_pattern)
 }
 
@@ -2195,7 +2195,7 @@ func (this *RegExpTree_1Parser) parseTopLevel() *RegExpTree {
 	this.numCapturingGroups_ = 0
 	this.lookForNamedCaptureBackreferences = false
 	var out *RegExpTree = this.parse()
-	if !this.capturingGroupNames.isEmpty() {
+	if !(len(this.capturingGroupNames) == 0) {
 		this.pos = 0
 		this.numCapturingGroups_ = 0
 		this.lookForNamedCaptureBackreferences = true
@@ -2308,7 +2308,7 @@ func (this *RegExpTree_1Parser) parseParenthetical() *RegExpTree {
 				} else {
 					this.pos += 2
 					captureName = Optional_of(strobj_(this.scanNamedGroupName()))
-					Collection_add_s(this.capturingGroupNames, str_(captureName.orElse(nil)))
+					this.capturingGroupNames[str_(captureName.orElse(nil))] = struct{}{}
 					type_ = RegExpTree_ParentheticalType_NAMED_GROUPS
 				}
 			default:
@@ -2559,10 +2559,10 @@ func (this *RegExpTree_1Parser) parseEscape() *RegExpTree {
 				return ch
 			}())).up_RegExpTree()
 		}
-	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (String_charAt(this.cap_pattern, (this.pos+1)) == '<')) && !this.capturingGroupNames.isEmpty() {
+	} else if (((this.lookForNamedCaptureBackreferences && (ch == 'k')) && ((this.pos + 1) < this.limit)) && (String_charAt(this.cap_pattern, (this.pos+1)) == '<')) && !(len(this.capturingGroupNames) == 0) {
 		this.pos += 2
 		var potentialName string = this.scanNamedGroupName()
-		if !Collection_contains_s(this.capturingGroupNames, potentialName) {
+		if !has_(this.capturingGroupNames, potentialName) {
 			panic(new_IllegalArgumentException_String(("Invalid named capture referenced: " + sstr_(String_substring_int(this.cap_pattern, start)))).self())
 		}
 		return new_RegExpTree_NamedBackReference(potentialName).up_RegExpTree()

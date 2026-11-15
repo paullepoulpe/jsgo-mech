@@ -434,7 +434,7 @@ type ProcessCommonJSModules_FindImportsAndExports struct {
 	umdPatterns            ListOf[*ProcessCommonJSModules_UmdPattern]
 	moduleExports          ListOf[*ProcessCommonJSModules_ExportInfo]
 	exports                ListOf[*ProcessCommonJSModules_ExportInfo]
-	errors_                ListOf[*JSError]
+	errors_                []*JSError
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) finit_ProcessCommonJSModules_FindImportsAndExports() {
@@ -443,7 +443,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) finit_ProcessCommonJSM
 	this.umdPatterns = icast_List(new_ArrayList_0().self())
 	this.moduleExports = icast_List(new_ArrayList_0().self())
 	this.exports = icast_List(new_ArrayList_0().self())
-	this.errors_ = icast_List(new_ArrayList_0().self())
+	this.errors_ = []*JSError{}
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) init_ProcessCommonJSModules_FindImportsAndExports() {
@@ -462,7 +462,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) isCommonJsModule() boo
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) report_2(ignoredLevel *CheckLevel, error_ *JSError) {
-	this.errors_.add(obj_(error_))
+	this.errors_ = append(this.errors_, error_)
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) getModuleExports() ListOf[*ProcessCommonJSModules_ExportInfo] {
@@ -521,7 +521,7 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visit(t *NodeTraversal
 				if (n.getGrandparent().isExprResult() && (n.getNext() != 0)) && ((n.getNext().isGetProp() && n.getNext().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS)))) || (n.getNext().isAssign() && n.getNext().getFirstChild().matchesQualifiedName((sstr_(ProcessCommonJSModules_MODULE) + "." + sstr_(ProcessCommonJSModules_EXPORTS))))) {
 					this.exports.add(obj_(new_ProcessCommonJSModules_ExportInfo(n, t.getScope())))
 				} else if !this.hasGoogProvideOrModule && ((v == nil) || ((v.getNameNode() == 0) && (v.getNameNode().getFirstChild() != n))) {
-					this.errors_.add(obj_(JSError_make_Node_DiagnosticType_StringArr(qNameRoot, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, []string{})))
+					this.errors_ = append(this.errors_, JSError_make_Node_DiagnosticType_StringArr(qNameRoot, ProcessCommonJSModules_SUSPICIOUS_EXPORTS_ASSIGNMENT, []string{}))
 				}
 			} else {
 				this.exports.add(obj_(new_ProcessCommonJSModules_ExportInfo(n, t.getScope())))
@@ -588,9 +588,9 @@ func (this *ProcessCommonJSModules_FindImportsAndExports) visitRequireEnsureCall
 }
 
 func (this *ProcessCommonJSModules_FindImportsAndExports) reportModuleErrors() {
-	it_1 := foreach_(any(this.errors_))
+	it_1 := eachOf_(&this.errors_)
 	for it_1.next() {
-		var error_ *JSError = cast_[*JSError](it_1.v)
+		var error_ *JSError = it_1.v
 		this.outer_.compiler_.report(error_)
 	}
 }
@@ -876,8 +876,8 @@ type ProcessCommonJSModules_RewriteModule struct {
 	outer_                    *ProcessCommonJSModules
 	allowFullRewrite          bool
 	exports                   ImmutableCollectionOf[*ProcessCommonJSModules_ExportInfo]
-	imports                   ListOf[Node]
-	rewrittenClassExpressions ListOf[Node]
+	imports                   []Node
+	rewrittenClassExpressions []Node
 	functionsToHoist          ListOf[Node]
 	defaultExportIsConst      bool
 }
@@ -890,8 +890,8 @@ func (this *ProcessCommonJSModules_RewriteModule) up_NodeTraversal_AbstractPostO
 }
 
 func (this *ProcessCommonJSModules_RewriteModule) finit_ProcessCommonJSModules_RewriteModule() {
-	this.imports = icast_List(new_ArrayList_0().self())
-	this.rewrittenClassExpressions = icast_List(new_ArrayList_0().self())
+	this.imports = []Node{}
+	this.rewrittenClassExpressions = []Node{}
 	this.functionsToHoist = icast_List(new_ArrayList_0().self())
 }
 
@@ -914,9 +914,9 @@ func new_ProcessCommonJSModules_RewriteModule(outer_ *ProcessCommonJSModules, al
 func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_SCRIPT:
-		it_2 := foreach_(any(this.rewrittenClassExpressions))
+		it_2 := eachOf_(&this.rewrittenClassExpressions)
 		for it_2.next() {
-			var clazz Node = Node_of_(it_2.v)
+			var clazz Node = it_2.v
 			clazz.getFirstChild().replaceWith(IR_empty().srcref(clazz.getFirstChild()))
 			t.reportCodeChange()
 		}
@@ -950,14 +950,14 @@ func (this *ProcessCommonJSModules_RewriteModule) visit_impl(t *NodeTraversal, n
 			var export *ProcessCommonJSModules_ExportInfo = cast_[*ProcessCommonJSModules_ExportInfo](it_6.v)
 			this.visitExport(t, export)
 		}
-		it_8 := foreach_(any(this.imports))
+		it_8 := eachOf_(&this.imports)
 		for it_8.next() {
-			var require Node = Node_of_(it_8.v)
+			var require Node = it_8.v
 			this.visitRequireCall(t, require)
 		}
 	case Token_rhino_CALL:
 		if this.outer_.isCommonJsImport(n) {
-			this.imports.add(n.box_())
+			this.imports = append(this.imports, n)
 		}
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
 		if (n.hasMoreThanOneChild() && !NodeUtil_isAnyFor(parent)) && !parent.isExport() {
@@ -1161,7 +1161,7 @@ func (this *ProcessCommonJSModules_RewriteModule) maybeUpdateName(t *NodeTravers
 		var exportedName OptionalOf[string] = this.getExportedName(t, n, var_)
 		if (((n != var_.getNode()) || n.getParent().isClass()) && exportedName.isEmpty()) && (((var_ == nil) || (var_.getNameNode().getParent() == 0)) || !NodeUtil_isLhsByDestructuring(var_.getNameNode())) {
 			if n.getParent().isClass() && (n.getParent().getFirstChild() == n) {
-				this.rewrittenClassExpressions.add(n.getParent().box_())
+				this.rewrittenClassExpressions = append(this.rewrittenClassExpressions, n.getParent())
 			}
 			return
 		}
@@ -1202,7 +1202,7 @@ func (this *ProcessCommonJSModules_RewriteModule) updateNameReference(t *NodeTra
 	switch parent.getToken() {
 	case Token_rhino_CLASS:
 		if (parent.getIndexOfChild(nameRef) == 0) && (newNameIsQualified || requireFunctionExpressions) {
-			this.rewrittenClassExpressions.add(parent.box_())
+			this.rewrittenClassExpressions = append(this.rewrittenClassExpressions, parent)
 			var newNameRef Node = NodeUtil_newQName_AbstractCompiler_String_Node_String(this.outer_.compiler_, newName, nameRef, str_(originalName.get()))
 			if newNameIsModuleExport {
 				newNameRef.putBooleanProp(Node_MODULE_EXPORT, true)

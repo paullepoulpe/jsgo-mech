@@ -8,7 +8,7 @@ type ProcessClosureProvidesAndRequires struct {
 	providedNames                   MapOf[string, *ProcessClosureProvidesAndRequires_ProvidedName]
 	exportedVariables               SetOf[string]
 	preserveGoogProvidesAndRequires bool
-	requiresToBeRemoved             ListOf[Node]
+	requiresToBeRemoved             []Node
 	hasRewritingOccurred            bool
 	forwardDeclaresToRemove         SetOf[Node]
 	astFactory_                     *AstFactory
@@ -17,7 +17,7 @@ type ProcessClosureProvidesAndRequires struct {
 func (this *ProcessClosureProvidesAndRequires) finit_ProcessClosureProvidesAndRequires() {
 	this.providedNames = icast_Map(obj_(new_LinkedHashMap()))
 	this.exportedVariables = icast_Set(obj_(new_LinkedHashSet()))
-	this.requiresToBeRemoved = icast_List(new_ArrayList_0().self())
+	this.requiresToBeRemoved = []Node{}
 	this.hasRewritingOccurred = false
 	this.forwardDeclaresToRemove = icast_Set(obj_(new_LinkedHashSet()))
 }
@@ -61,9 +61,9 @@ func (this *ProcessClosureProvidesAndRequires) rewriteProvidesAndRequires(extern
 		var pn *ProcessClosureProvidesAndRequires_ProvidedName = cast_[*ProcessClosureProvidesAndRequires_ProvidedName](it_1.v)
 		pn.replace(this.preserveGoogProvidesAndRequires, this.providedNames)
 	}
-	it_3 := foreach_(any(this.requiresToBeRemoved))
+	it_3 := eachOf_(&this.requiresToBeRemoved)
 	for it_3.next() {
-		var closureRequire Node = Node_of_(it_3.v)
+		var closureRequire Node = it_3.v
 		this.compiler_.reportChangeToEnclosingScope(closureRequire)
 		closureRequire.detach()
 	}
@@ -115,7 +115,7 @@ func (this *ProcessClosureProvidesAndRequires) processRequireCall(call Node, par
 		return
 	}
 	if !this.preserveGoogProvidesAndRequires {
-		this.requiresToBeRemoved.add(parent.box_())
+		this.requiresToBeRemoved = append(this.requiresToBeRemoved, parent)
 	}
 }
 

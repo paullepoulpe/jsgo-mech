@@ -190,12 +190,12 @@ func (this *GatherModuleMetadata_ModuleMetadataBuilder) build() *ModuleMetadataM
 
 type GatherModuleMetadata_Finder struct {
 	outer_            *GatherModuleMetadata
-	toggleModuleNames SetOf[string]
+	toggleModuleNames map[string]struct{}
 	toggleModules     SetOf[*Var]
 }
 
 func (this *GatherModuleMetadata_Finder) finit_GatherModuleMetadata_Finder() {
-	this.toggleModuleNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.toggleModuleNames = map[string]struct{}{}
 	this.toggleModules = icast_Set(obj_(new_LinkedHashSet()))
 }
 
@@ -303,7 +303,7 @@ func (this *GatherModuleMetadata_Finder) isFromGoogImport(goog *Var) bool {
 
 func (this *GatherModuleMetadata_Finder) visitName(t *NodeTraversal, n Node) {
 	var name string = n.getString()
-	if Collection_contains_s(this.toggleModuleNames, name) {
+	if has_(this.toggleModuleNames, name) {
 		var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
 		if this.toggleModules.contains(obj_(nameVar)) {
 			var parent Node = n.getParent()
@@ -408,7 +408,7 @@ func (this *GatherModuleMetadata_Finder) visitGoogCall(t *NodeTraversal, n Node)
 					var name string = callParent.getString()
 					var nameVar *Var = cast_[*Var](t.getScope().getVar(name).self())
 					this.toggleModules.add(obj_(nameVar))
-					Collection_add_s(this.toggleModuleNames, name)
+					this.toggleModuleNames[name] = struct{}{}
 				} else if this.outer_.currentModule.metadataBuilder.moduleType() != ModuleMetadataMap_ModuleType_GOOG_PROVIDE {
 					t.report(n, GatherModuleMetadata_INVALID_TOGGLE_USAGE, []string{"import must be assigned"})
 				}

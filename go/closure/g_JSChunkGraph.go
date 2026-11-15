@@ -388,7 +388,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		chunk.removeAll()
 	}
 	var orderedInputs ListOf[*CompilerInput] = icast_List(new_ArrayList_0().self())
-	var reachedInputs SetOf[*CompilerInput] = icast_Set(obj_(new_LinkedHashSet()))
+	var reachedInputs map[*CompilerInput]struct{} = map[*CompilerInput]struct{}{}
 	for _, chunk := range this.chunks {
 		var transitiveClosure ListOf[*CompilerInput]
 		if dependencyOptions.shouldSort() && dependencyOptions.shouldPrune() {
@@ -402,7 +402,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			it_20 := foreach_(any(transitiveClosure))
 			for it_20.next() {
 				var orderedInput *CompilerInput = cast_[*CompilerInput](it_20.v)
-				if reachedInputs.add(obj_(orderedInput)) {
+				if setAdd_(reachedInputs, orderedInput) {
 					orderedInputs.add(obj_(orderedInput))
 				}
 			}

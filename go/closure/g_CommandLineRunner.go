@@ -1706,7 +1706,7 @@ func CommandLineRunner_Flags_printShortUsageAfterErrors(ps *Output) {
 
 func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 	var mixedSources ListOf[*AbstractCommandLineRunner_FlagEntry] = icast_List(new_ArrayList_0().self())
-	var excludes SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var excludes map[string]struct{} = map[string]struct{}{}
 	it_1 := foreach_(any(this.mixedJsSources))
 	for it_1.next() {
 		var source *AbstractCommandLineRunner_FlagEntry = cast_[*AbstractCommandLineRunner_FlagEntry](it_1.v)
@@ -1720,7 +1720,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			it_3 := foreach_(any(icast_List(found.get())))
 			for it_3.next() {
 				var filename string = str_(it_3.v)
-				Collection_add_s(excludes, filename)
+				excludes[filename] = struct{}{}
 				mixedSources.remove_Object(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 			}
 		} else {
@@ -1731,7 +1731,7 @@ func (this *CommandLineRunner_Flags) getMixedJsSources() *Outcome_base {
 			it_5 := foreach_(any(icast_List(found.get())))
 			for it_5.next() {
 				var filename string = str_(it_5.v)
-				if !Collection_contains_s(excludes, filename) {
+				if !has_(excludes, filename) {
 					mixedSources.add(obj_(new_AbstractCommandLineRunner_FlagEntry(obj_(AbstractCommandLineRunner_JsSourceType_JS), filename)))
 				}
 			}

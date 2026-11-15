@@ -5,11 +5,11 @@ package closure
 type InlineProperties struct {
 	compiler_ *AbstractCompiler
 	registry  *ColorRegistry
-	props     MapOf[string, *InlineProperties_PropertyInfo]
+	props     map[string]*InlineProperties_PropertyInfo
 }
 
 func (this *InlineProperties) finit_InlineProperties() {
-	this.props = icast_Map(obj_(new_LinkedHashMap()))
+	this.props = map[string]*InlineProperties_PropertyInfo{}
 }
 
 func (this *InlineProperties) init_InlineProperties(compiler *AbstractCompiler) {
@@ -29,7 +29,7 @@ func (this *InlineProperties) invalidateExternProperties() {
 	it_1 := foreach_(obj_(this.compiler_.getExternProperties()))
 	for it_1.next() {
 		var name string = str_(it_1.v)
-		Map_put_s(this.props, name, obj_(InlineProperties_INVALIDATED))
+		this.props[name] = InlineProperties_INVALIDATED
 	}
 }
 
@@ -188,13 +188,13 @@ func (this *InlineProperties_GatherCandidates) maybeRecordCandidateGetpropDefini
 }
 
 func (this *InlineProperties_GatherCandidates) invalidateProperty(propName string) {
-	Map_put_s(this.outer_.props, propName, obj_(InlineProperties_INVALIDATED))
+	this.outer_.props[propName] = InlineProperties_INVALIDATED
 }
 
 func (this *InlineProperties_GatherCandidates) maybeStoreCandidateValue(color *Color, propName string, value Node) bool {
 	Preconditions_checkNotNull(value.box_())
-	if ((!Map_containsKey_s(this.outer_.props, propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
-		Map_put_s(this.outer_.props, propName, obj_(new_InlineProperties_PropertyInfo(color, value)))
+	if ((!has_(this.outer_.props, propName) && !color.isInvalidating()) && NodeUtil_isImmutableValue(value)) && NodeUtil_isExecutedExactlyOnce(value) {
+		this.outer_.props[propName] = new_InlineProperties_PropertyInfo(color, value)
 		return true
 	}
 	return false
@@ -242,7 +242,7 @@ func (this *InlineProperties_ReplaceCandidates) visit_impl(t *NodeTraversal, n N
 	if n.isGetProp() && !NodeUtil_isLValue(n) {
 		var target Node = n.getFirstChild()
 		var propName string = n.getString()
-		var info *InlineProperties_PropertyInfo = cast_[*InlineProperties_PropertyInfo](Map_get_s(this.outer_.props, propName))
+		var info *InlineProperties_PropertyInfo = this.outer_.props[propName]
 		if ((info != nil) && (info != InlineProperties_INVALIDATED)) && this.isMatchingType(target, info.color_) {
 			var replacement Node = info.value_.cloneTree()
 			if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(n.getFirstChild()) {

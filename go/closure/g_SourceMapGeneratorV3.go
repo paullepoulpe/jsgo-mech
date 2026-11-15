@@ -3,9 +3,9 @@
 package closure
 
 type SourceMapGeneratorV3 struct {
-	mappings             ListOf[*SourceMapGeneratorV3_Mapping]
+	mappings             []*SourceMapGeneratorV3_Mapping
 	sourceFileMap        LinkedHashMapOf[string, BoxedOf[int32]]
-	sourceFileContentMap LinkedHashMapOf[string, string]
+	sourceFileContentMap map[string]string
 	originalNameMap      LinkedHashMapOf[string, BoxedOf[int32]]
 	lastSourceFile       OptionalOf[string]
 	lastSourceFileIndex  int32
@@ -17,9 +17,9 @@ type SourceMapGeneratorV3 struct {
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
-	this.mappings = icast_List(new_ArrayList_0().self())
+	this.mappings = []*SourceMapGeneratorV3_Mapping{}
 	this.sourceFileMap = new_LinkedHashMap()
-	this.sourceFileContentMap = new_LinkedHashMap()
+	this.sourceFileContentMap = map[string]string{}
 	this.originalNameMap = new_LinkedHashMap()
 	this.lastSourceFile = Optional_empty()
 	this.lastSourceFileIndex = -1
@@ -40,7 +40,8 @@ func new_SourceMapGeneratorV3() *SourceMapGeneratorV3 {
 }
 
 func (this *SourceMapGeneratorV3) reset() {
-	this.mappings.clear()
+	clear(this.mappings)
+this.mappings = this.mappings[:0]
 	this.lastMapping = nil
 	this.sourceFileMap.clear()
 	this.originalNameMap.clear()
@@ -107,11 +108,11 @@ func (this *SourceMapGeneratorV3) addMapping(sourceName string, symbolName strin
 		Preconditions_checkState_boolean_String_Object_Object_Object_Object(((nextLine > lastLine) || ((nextLine == lastLine) && (nextColumn >= lastColumn))), "Incorrect source mappings order, previous : (%s,%s)\nnew : (%s,%s)", any(int32(lastLine)), any(int32(lastColumn)), any(int32(nextLine)), any(int32(nextColumn)))
 	}
 	this.lastMapping = mapping
-	this.mappings.add(obj_(mapping))
+	this.mappings = append(this.mappings, mapping)
 }
 
 func (this *SourceMapGeneratorV3) addSourcesContent(source string, content string) {
-	Map_put_s(this.sourceFileContentMap, source, strobj_(content))
+	this.sourceFileContentMap[source] = content
 }
 
 func (this *SourceMapGeneratorV3) mergeMapSection(line int32, column int32, mapSectionContents string) *Outcome_base {
@@ -235,7 +236,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var index any = entry.getValue()
 		Preconditions_checkState((unbox_[int32](index) < size))
-		var content OptionalOf[string] = Optional_ofNullable(Map_get_s(this.sourceFileContentMap, str_(entry.getKey())))
+		var content OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.sourceFileContentMap, str_(entry.getKey()))))
 		if content.isPresent() {
 			contents.set(unbox_[int32](index), content.get())
 			found = true
@@ -311,9 +312,9 @@ func (this *SourceMapGeneratorV3) prepMappings() int32 {
 	new_SourceMapGeneratorV3_MappingTraversal(this).traverse(icast_SourceMapGeneratorV3_MappingVisitor(obj_(new_SourceMapGeneratorV3_UsedMappingCheck())))
 	var id int32 = 0
 	var maxLine int32 = 0
-	it_1 := foreach_(any(this.mappings))
+	it_1 := eachOf_(&this.mappings)
 	for it_1.next() {
-		var m *SourceMapGeneratorV3_Mapping = cast_[*SourceMapGeneratorV3_Mapping](it_1.v)
+		var m *SourceMapGeneratorV3_Mapping = it_1.v
 		if m.used {
 			m.id = id
 			id++
@@ -504,9 +505,9 @@ func new_SourceMapGeneratorV3_MappingTraversal(outer_ *SourceMapGeneratorV3) *So
 
 func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v SourceMapGeneratorV3_MappingVisitor) {
 	var stack DequeOf[*SourceMapGeneratorV3_Mapping] = icast_Deque(obj_(new_ArrayDeque()))
-	it_1 := foreach_(any(this.outer_.mappings))
+	it_1 := eachOf_(&this.outer_.mappings)
 	for it_1.next() {
-		var m *SourceMapGeneratorV3_Mapping = cast_[*SourceMapGeneratorV3_Mapping](it_1.v)
+		var m *SourceMapGeneratorV3_Mapping = it_1.v
 		for !stack.isEmpty() && !this.isOverlapped(cast_[*SourceMapGeneratorV3_Mapping](stack.peek()), m) {
 			var previous *SourceMapGeneratorV3_Mapping = cast_[*SourceMapGeneratorV3_Mapping](stack.pop())
 			this.maybeVisit(v, previous)

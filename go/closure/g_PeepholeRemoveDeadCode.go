@@ -741,22 +741,22 @@ func (this *PeepholeRemoveDeadCode) redeclareIfBlockScopedVar(decl Node, parent 
 	if !NodeUtil_isBlockScopedDeclaration(decl) {
 		return
 	}
-	var blockScopedVars ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var blockScopedVars []Node = []Node{}
 	if decl.isClass() {
-		blockScopedVars.add(decl.getFirstChild().box_())
+		blockScopedVars = append(blockScopedVars, decl.getFirstChild())
 	} else {
 		NodeUtil_visitLhsNodesInNode(decl, &Consumer_fn{func(n_ any) {
 			var n Node = Node_of_(n_)
 			_ = n
 			if n.isName() {
-				blockScopedVars.add(n.box_())
+				blockScopedVars = append(blockScopedVars, n)
 			}
 		}})
 	}
 	var addBefore Node = NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(parent)
-	it_1 := foreach_(any(blockScopedVars))
+	it_1 := eachOf_(&blockScopedVars)
 	for it_1.next() {
-		var nameNode Node = Node_of_(it_1.v)
+		var nameNode Node = it_1.v
 		var var_ Node = IR_let_Node(IR_name(nameNode.getString()).srcref(nameNode)).srcref(nameNode)
 		NodeUtil_copyNameAnnotations(nameNode, var_.getFirstChild())
 		if addBefore != 0 {

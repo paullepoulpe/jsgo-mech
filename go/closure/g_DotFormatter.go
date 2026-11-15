@@ -3,7 +3,7 @@
 package closure
 
 type DotFormatter struct {
-	assignments      LinkedHashMapOf[Node, BoxedOf[int32]]
+	assignments      map[Node]BoxedOf[int32]
 	keyCount         int32
 	builder          Appendable
 	cfg              *ControlFlowGraph
@@ -11,7 +11,7 @@ type DotFormatter struct {
 }
 
 func (this *DotFormatter) finit_DotFormatter() {
-	this.assignments = new_LinkedHashMap()
+	this.assignments = map[Node]BoxedOf[int32]{}
 	this.keyCount = 0
 }
 
@@ -163,11 +163,11 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 }
 
 func (this *DotFormatter) key(n Node) int32 {
-	var key any = this.assignments.get(n.box_())
+	var key any = this.assignments[n]
 	if key == nil {
 		key = any(int32(this.keyCount))
 		this.keyCount++
-		this.assignments.put(n.box_(), key)
+		this.assignments[n] = key
 		this.builder.append_CharSequence(strobj_(DotFormatter_INDENT))
 		this.builder.append_CharSequence(strobj_(DotFormatter_formatNodeName(key)))
 		this.builder.append_CharSequence(strobj_(" [label=\""))

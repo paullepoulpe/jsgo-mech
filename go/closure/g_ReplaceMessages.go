@@ -534,11 +534,11 @@ func (this *ReplaceMessages_QuotedKeyObjectLitBuilder) build() Node {
 
 type ReplaceMessages_ReplacementCompletionPass struct {
 	outer_            *ReplaceMessages
-	translatedMsgKeys SetOf[string]
+	translatedMsgKeys map[string]struct{}
 }
 
 func (this *ReplaceMessages_ReplacementCompletionPass) finit_ReplaceMessages_ReplacementCompletionPass() {
-	this.translatedMsgKeys = icast_Set(obj_(new_LinkedHashSet()))
+	this.translatedMsgKeys = map[string]struct{}{}
 }
 
 func (this *ReplaceMessages_ReplacementCompletionPass) init_ReplaceMessages_ReplacementCompletionPass() {
@@ -563,7 +563,7 @@ func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protec
 	var msgToUse *JsMessage
 	if translatedMsg != nil {
 		msgToUse = translatedMsg
-		Collection_add_s(this.translatedMsgKeys, originalMsg.getKey())
+		this.translatedMsgKeys[originalMsg.getKey()] = struct{}{}
 	} else {
 		if this.outer_.strictReplacement {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(nodeToReplace, ReplaceMessages_BUNDLE_DOES_NOT_HAVE_THE_MESSAGE, []string{originalMsg.getId()}))
@@ -586,9 +586,9 @@ func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgDefinition(protec
 
 func (this *ReplaceMessages_ReplacementCompletionPass) visitMsgFallback(protectedMsgFallback *ReplaceMessages_ProtectedMsgFallback) {
 	var valueNodeToUse Node
-	if Collection_contains_s(this.translatedMsgKeys, protectedMsgFallback.firstMsgKey) {
+	if has_(this.translatedMsgKeys, protectedMsgFallback.firstMsgKey) {
 		valueNodeToUse = protectedMsgFallback.firstMsgValue
-	} else if Collection_contains_s(this.translatedMsgKeys, protectedMsgFallback.secondMsgKey) {
+	} else if has_(this.translatedMsgKeys, protectedMsgFallback.secondMsgKey) {
 		valueNodeToUse = protectedMsgFallback.secondMsgValue
 	} else {
 		valueNodeToUse = protectedMsgFallback.firstMsgValue

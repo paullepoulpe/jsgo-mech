@@ -6,13 +6,13 @@ type ConvertChunksToESModules struct {
 	compiler_              *AbstractCompiler
 	crossChunkExports      MapOf[*JSChunk, SetOf[string]]
 	crossChunkImports      MapOf[*JSChunk, MapOf[*JSChunk, SetOf[string]]]
-	dynamicImportCallbacks ListOf[Node]
+	dynamicImportCallbacks []Node
 }
 
 func (this *ConvertChunksToESModules) finit_ConvertChunksToESModules() {
 	this.crossChunkExports = icast_Map(obj_(new_LinkedHashMap()))
 	this.crossChunkImports = icast_Map(obj_(new_LinkedHashMap()))
-	this.dynamicImportCallbacks = icast_List(new_ArrayList_0().self())
+	this.dynamicImportCallbacks = []Node{}
 }
 
 func (this *ConvertChunksToESModules) init_ConvertChunksToESModules(compiler *AbstractCompiler) {
@@ -179,9 +179,9 @@ func ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(compiler *
 
 func (this *ConvertChunksToESModules) rewriteDynamicImportCallbacks() {
 	var astFactory *AstFactory = this.compiler_.createAstFactory()
-	it_1 := foreach_(any(this.dynamicImportCallbacks))
+	it_1 := eachOf_(&this.dynamicImportCallbacks)
 	for it_1.next() {
-		var dynamicImportCallback Node = Node_of_(it_1.v)
+		var dynamicImportCallback Node = it_1.v
 		Preconditions_checkState(dynamicImportCallback.isCall())
 		var moduleNamespace Node = ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(this.compiler_, dynamicImportCallback)
 		if moduleNamespace == 0 {
@@ -222,7 +222,7 @@ func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, cal
 	}
 	var isValidModuleNamespace bool = this.visitName(t, moduleNamespace, ConvertChunksToESModules_ImportType_DYNAMIC)
 	if isValidModuleNamespace {
-		this.dynamicImportCallbacks.add(call.box_())
+		this.dynamicImportCallbacks = append(this.dynamicImportCallbacks, call)
 	} else {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ConvertChunksToESModules_UNRECOGNIZED_DYNAMIC_IMPORT_CALLBACK, []string{" Unable to find valid namespace reference."}))
 	}

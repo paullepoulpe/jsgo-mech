@@ -321,9 +321,9 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 		mapVar.insertBefore(classInsertionPoint)
 		if record.hasInstancePrivateMethodsOrAccessors {
 			var descriptorsLit Node = this.astFactory_.createObjectLit([]Node{})
-			it_1 := foreach_(any(record.privateMembers))
+			it_1 := eachOf_(&record.privateMembers)
 			for it_1.next() {
-				var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](it_1.v)
+				var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_1.v
 				if !pm.isStatic {
 					if ((pm.kind_ == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) && (pm.methodNode != 0)) && pm.methodNode.hasChildren() {
 						this.rewriteSuperReferencesInPrivateMember(pm.methodNode, record)
@@ -763,9 +763,9 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 		}
 	}
 	if this.transpilePrivateClassFields {
-		it_2 := foreach_(any(record.privateMembers))
+		it_2 := eachOf_(&record.privateMembers)
 		for it_2.next() {
-			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](it_2.v)
+			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_2.v
 			if !pm.isStatic {
 				it_4 := foreach_(any(pm.declarationNodes))
 				for it_4.next() {
@@ -840,10 +840,10 @@ func (this *Es6NormalizeClasses) createDefaultValueHook(paramName Node, defaultV
 }
 
 func (this *Es6NormalizeClasses) addTemporaryInsertionPoint(ctorBlock Node, classRecord *Es6NormalizeClasses_ClassRecord) Node {
-	Preconditions_checkState_boolean_String_Object((classRecord.superCalls.size() <= 1), "classes with public fields must have only one super() call at the constructor root: %s", classRecord.classNode.box_())
+	Preconditions_checkState_boolean_String_Object((int32(len(classRecord.superCalls)) <= 1), "classes with public fields must have only one super() call at the constructor root: %s", classRecord.classNode.box_())
 	var tempNode Node = IR_empty()
-	if classRecord.superCalls.size() == 1 {
-		var stmt Node = this.ensureSuperCallIsOwnStatement(Node_of_(classRecord.superCalls.get(0)))
+	if int32(len(classRecord.superCalls)) == 1 {
+		var stmt Node = this.ensureSuperCallIsOwnStatement(classRecord.superCalls[0])
 		tempNode.insertAfter(stmt)
 		return tempNode
 	}
@@ -976,9 +976,9 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 	if hasPriv {
 		var staticMapName OptionalOf[string] = record.getStaticPrivateMapVarName(this.compiler_, t)
 		var privName OptionalOf[string] = record.getStaticPrivateVarName(this.compiler_, t)
-		it_1 := foreach_(any(record.privateMembers))
+		it_1 := eachOf_(&record.privateMembers)
 		for it_1.next() {
-			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](it_1.v)
+			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_1.v
 			if pm.isStatic && (pm.kind_ == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR) {
 				if ((pm.getterNode != 0) && pm.getterNode.hasChildren()) && this.hasThisReference(pm.getterNode.getFirstChild()) {
 					record.needsStaticSelf = true
@@ -1050,9 +1050,9 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 		}
 	}
 	if this.transpilePrivateClassFields {
-		it_5 := foreach_(any(record.privateMembers))
+		it_5 := eachOf_(&record.privateMembers)
 		for it_5.next() {
-			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](it_5.v)
+			var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_5.v
 			if pm.isStatic {
 				it_7 := foreach_(any(pm.declarationNodes))
 				for it_7.next() {
@@ -1100,9 +1100,9 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 }
 
 func (this *Es6NormalizeClasses) addStaticPrivateMembers(record *Es6NormalizeClasses_ClassRecord, privName string, staticInitTempParent Node) {
-	it_1 := foreach_(any(record.privateMembers))
+	it_1 := eachOf_(&record.privateMembers)
 	for it_1.next() {
-		var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](it_1.v)
+		var pm *Es6NormalizeClasses_ClassRecord_PrivateMember = it_1.v
 		if pm.isStatic {
 			if ((pm.kind_ == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) && (pm.methodNode != 0)) && pm.methodNode.hasChildren() {
 				this.rewriteSuperReferencesInPrivateMember(pm.methodNode, record)
@@ -1166,7 +1166,7 @@ func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameN
 func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 	if Es6NormalizeClasses_isSuperCall(n.getParent()) {
 		var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
-		classRecord.superCalls.add(n.getParent().box_())
+		classRecord.superCalls = append(classRecord.superCalls, n.getParent())
 		return
 	}
 	var rootNode Node = t.getClosestScopeRootNodeBindingThisOrSuper()
@@ -1334,8 +1334,8 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) toString() string {
 }
 
 type Es6NormalizeClasses_ClassRecord struct {
-	privateMembers                       ListOf[*Es6NormalizeClasses_ClassRecord_PrivateMember]
-	privateMembersByName                 MapOf[string, *Es6NormalizeClasses_ClassRecord_PrivateMember]
+	privateMembers                       []*Es6NormalizeClasses_ClassRecord_PrivateMember
+	privateMembersByName                 map[string]*Es6NormalizeClasses_ClassRecord_PrivateMember
 	privateMapVarName                    OptionalOf[string]
 	staticPrivateMapVarName              OptionalOf[string]
 	hasInstancePrivateMembers            bool
@@ -1353,12 +1353,12 @@ type Es6NormalizeClasses_ClassRecord struct {
 	staticMembers                        DequeOf[Node]
 	computedPropsWithSideEffects         DequeOf[Node]
 	constructorVars                      ImmutableSetOf[*Var]
-	superCalls                           ListOf[Node]
+	superCalls                           []Node
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassRecord() {
-	this.privateMembers = icast_List(new_ArrayList_0().self())
-	this.privateMembersByName = icast_Map(obj_(new_LinkedHashMap()))
+	this.privateMembers = []*Es6NormalizeClasses_ClassRecord_PrivateMember{}
+	this.privateMembersByName = map[string]*Es6NormalizeClasses_ClassRecord_PrivateMember{}
 	this.privateMapVarName = Optional_empty()
 	this.staticPrivateMapVarName = Optional_empty()
 	this.hasInstancePrivateMembers = false
@@ -1373,7 +1373,7 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.staticMembers = icast_Deque(obj_(new_ArrayDeque()))
 	this.computedPropsWithSideEffects = icast_Deque(obj_(new_ArrayDeque()))
 	this.constructorVars = ImmutableSet_of()
-	this.superCalls = icast_List(new_ArrayList_0().self())
+	this.superCalls = []Node{}
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) init_Es6NormalizeClasses_ClassRecord(normalizedNames *Es6NormalizeClasses_NormalizedNames, bindingIdentifier OptionalOf[Node], classNode Node) {
@@ -1405,8 +1405,8 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 		panic(new_IllegalStateException_String(("Unexpected node for private member: " + objstr_(n.box_()))).self())
 	}
 	var pm *Es6NormalizeClasses_ClassRecord_PrivateMember
-	if Map_containsKey_s(this.privateMembersByName, name) {
-		pm = cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](Map_get_s(this.privateMembersByName, name))
+	if has_(this.privateMembersByName, name) {
+		pm = this.privateMembersByName[name]
 		pm.declarationNodes.add(n.box_())
 		if n.isGetterDef() {
 			pm.getterNode = n
@@ -1415,8 +1415,8 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 		}
 	} else {
 		pm = new_Es6NormalizeClasses_ClassRecord_PrivateMember(name, kind, isStatic, n)
-		this.privateMembers.add(obj_(pm))
-		Map_put_s(this.privateMembersByName, name, obj_(pm))
+		this.privateMembers = append(this.privateMembers, pm)
+		this.privateMembersByName[name] = pm
 	}
 	if ((kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_METHOD) || (kind == Es6NormalizeClasses_ClassRecord_PrivateMemberKind_ACCESSOR)) && !isStatic {
 		this.hasInstancePrivateMethodsOrAccessors = true
@@ -1429,11 +1429,11 @@ func (this *Es6NormalizeClasses_ClassRecord) recordPrivateMember(n Node) {
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) hasPrivateMember(name string) bool {
-	return Map_containsKey_s(this.privateMembersByName, name)
+	return has_(this.privateMembersByName, name)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMember(name string) *Es6NormalizeClasses_ClassRecord_PrivateMember {
-	return cast_[*Es6NormalizeClasses_ClassRecord_PrivateMember](Map_get_s(this.privateMembersByName, name))
+	return this.privateMembersByName[name]
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMapVarName(compiler *AbstractCompiler, t *NodeTraversal) OptionalOf[string] {

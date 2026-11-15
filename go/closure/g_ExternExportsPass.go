@@ -5,11 +5,11 @@ package closure
 type ExternExportsPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	exports                     ListOf[*ExternExportsPass_Export]
-	definitionMap               MapOf[string, Node]
+	definitionMap               map[string]Node
 	compiler_                   *AbstractCompiler
 	externsRoot                 Node
-	mappedPaths                 MapOf[string, string]
-	alreadyExportedPaths        SetOf[string]
+	mappedPaths                 map[string]string
+	alreadyExportedPaths        map[string]struct{}
 	exportSymbolFunctionNames   ImmutableSetOf[string]
 	exportPropertyFunctionNames ImmutableSetOf[string]
 }
@@ -25,10 +25,10 @@ func (this *ExternExportsPass) init_ExternExportsPass(compiler *AbstractCompiler
 	this.NodeTraversal_AbstractPostOrderCallback.init_NodeTraversal_AbstractPostOrderCallback()
 	this.exports = icast_List(new_ArrayList_0().self())
 	this.compiler_ = compiler
-	this.definitionMap = icast_Map(obj_(new_LinkedHashMap()))
+	this.definitionMap = map[string]Node{}
 	this.externsRoot = IR_script_0()
-	this.alreadyExportedPaths = icast_Set(obj_(new_LinkedHashSet()))
-	this.mappedPaths = icast_Map(obj_(new_LinkedHashMap()))
+	this.alreadyExportedPaths = map[string]struct{}{}
+	this.mappedPaths = map[string]string{}
 	this.initExportMethods()
 }
 
@@ -84,29 +84,29 @@ func (this *ExternExportsPass) visit_impl(t *NodeTraversal, n Node, parent Node)
 func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 	if n.isClass() {
 		if NodeUtil_isClassDeclaration(n) {
-			Map_put_s(this.definitionMap, n.getFirstChild().getString(), n.box_())
+			this.definitionMap[n.getFirstChild().getString()] = n
 		}
 	} else if n.isFunction() {
 		if NodeUtil_isFunctionDeclaration(n) {
-			Map_put_s(this.definitionMap, n.getFirstChild().getString(), n.box_())
+			this.definitionMap[n.getFirstChild().getString()] = n
 		}
 	} else if n.isAssign() {
 		var lhs Node = n.getFirstChild()
 		if lhs.isQualifiedName() && (!lhs.hasChildren() || !lhs.getFirstChild().isThis()) {
-			Map_put_s(this.definitionMap, lhs.getQualifiedName(), n.getLastChild().box_())
+			this.definitionMap[lhs.getQualifiedName()] = n.getLastChild()
 		}
 	} else if n.isName() {
 		var parent Node = Node_of_(Preconditions_checkNotNull_Object_Object(n.getParent().box_(), n.box_()))
 		if NodeUtil_isNameDeclaration(parent) {
 			var value Node = n.getFirstChild()
 			if value != 0 {
-				Map_put_s(this.definitionMap, n.getString(), value.box_())
+				this.definitionMap[n.getString()] = value
 			}
 		}
 	} else if n.isMemberFunctionDef() {
 		var lvalueName OptionalOf[string] = NodeUtil_getBestLValueName(n)
 		if lvalueName.isPresent() {
-			Map_put_s(this.definitionMap, str_(lvalueName.get()), n.getOnlyChild().box_())
+			this.definitionMap[str_(lvalueName.get())] = n.getOnlyChild()
 		}
 	}
 }
@@ -249,7 +249,7 @@ func (this *ExternExportsPass_Export) appendExtern(path string, valueToExport No
 	for i := int32(0); i < pathPrefixes.size(); i++ {
 		var pathPrefix string = str_(pathPrefixes.get(i))
 		var isCompletePathPrefix bool = (i == (pathPrefixes.size() - 1))
-		var skipPathPrefix bool = (String_endsWith(pathPrefix, ".prototype") || (Collection_contains_s(this.outer_.alreadyExportedPaths, pathPrefix) && !isCompletePathPrefix))
+		var skipPathPrefix bool = (String_endsWith(pathPrefix, ".prototype") || (has_(this.outer_.alreadyExportedPaths, pathPrefix) && !isCompletePathPrefix))
 		if skipPathPrefix {
 			continue
 		}
@@ -307,7 +307,7 @@ func (this *ExternExportsPass_Export) appendPathDefinition(path string, initiali
 		}
 	}
 	this.outer_.externsRoot.addChildToBack(pathDefinition)
-	Collection_add_s(this.outer_.alreadyExportedPaths, path)
+	this.outer_.alreadyExportedPaths[path] = struct{}{}
 }
 
 func (this *ExternExportsPass_Export) createExternFunction(exportedFunction Node) Node {
@@ -422,7 +422,7 @@ func (this *ExternExportsPass_Export) getValue() Node {
 	if String_isEmpty(qualifiedName) {
 		return 0
 	}
-	var definition Node = Node_of_(Map_get_s(this.outer_.definitionMap, qualifiedName))
+	var definition Node = this.outer_.definitionMap[qualifiedName]
 	if definition == 0 {
 		return 0
 	}
@@ -457,7 +457,7 @@ func (this *ExternExportsPass_SymbolExport) init_ExternExportsPass_SymbolExport(
 	this.ExternExportsPass_Export.init_ExternExportsPass_Export(symbolName, value)
 	var qualifiedName string = value.getQualifiedName()
 	if !String_isEmpty(qualifiedName) {
-		Map_put_s(this.outer_.mappedPaths, qualifiedName, strobj_(symbolName))
+		this.outer_.mappedPaths[qualifiedName] = symbolName
 	}
 }
 
@@ -512,7 +512,7 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
 		Preconditions_checkState((String_length(currentPath) > 0))
-		var mappedPath OptionalOf[string] = Optional_ofNullable(Map_get_s(this.outer_.mappedPaths, currentPath))
+		var mappedPath OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.outer_.mappedPaths, currentPath)))
 		if mappedPath.isEmpty() {
 			continue
 		}

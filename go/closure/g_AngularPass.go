@@ -5,7 +5,7 @@ package closure
 type AngularPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_   *AbstractCompiler
-	injectables ListOf[*AngularPass_NodeContext]
+	injectables []*AngularPass_NodeContext
 }
 
 func (this *AngularPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -16,7 +16,7 @@ func (this *AngularPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTrave
 }
 
 func (this *AngularPass) finit_AngularPass() {
-	this.injectables = icast_List(new_ArrayList_0().self())
+	this.injectables = []*AngularPass_NodeContext{}
 }
 
 func (this *AngularPass) init_AngularPass(compiler *AbstractCompiler) {
@@ -34,9 +34,9 @@ func new_AngularPass(compiler *AbstractCompiler) *AngularPass {
 
 func (this *AngularPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
-	it_1 := foreach_(any(this.injectables))
+	it_1 := eachOf_(&this.injectables)
 	for it_1.next() {
-		var entry *AngularPass_NodeContext = cast_[*AngularPass_NodeContext](it_1.v)
+		var entry *AngularPass_NodeContext = it_1.v
 		var name string = entry.getName()
 		var fn Node = entry.getFunctionNode()
 		var dependencies ListOf[Node] = this.createDependenciesList(fn)
@@ -165,7 +165,7 @@ func (this *AngularPass) addNode(n Node) {
 		return
 	}
 	Preconditions_checkState(name.isPresent())
-	this.injectables.add(obj_(new_AngularPass_NodeContext(str_(name.get()), n, fn, injectAfter)))
+	this.injectables = append(this.injectables, new_AngularPass_NodeContext(str_(name.get()), n, fn, injectAfter))
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {

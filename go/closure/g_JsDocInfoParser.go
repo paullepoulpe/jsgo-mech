@@ -764,7 +764,7 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 					boundTypeExpression = this.createJSTypeExpression(boundTypeNode)
 				}
 			}
-			var templateNames ListOf[string] = icast_List(new_ArrayList_0().self())
+			var templateNames []string = []string{}
 			if !this.match(JsDocToken_COLON) {
 				for do_3 := true; do_3; do_3 = this.eatIfMatch(JsDocToken_COMMA) {
 					var nameNode Node = this.parseNameExpression(this.next())
@@ -775,7 +775,7 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 						return Optional_of(strobj_(nameNode.getString()))
 					}()
 					if JsDocInfoParser_validTemplateTypeName(templateName) {
-						templateNames.add(templateName.orElseThrow())
+						templateNames = append(templateNames, str_(templateName.orElseThrow()))
 					}
 				}
 			}
@@ -787,7 +787,7 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 			} else {
 				token = this.eatUntilEOLIfNotAnnotation_1(this.current())
 			}
-			switch templateNames.size() {
+			switch int32(len(templateNames)) {
 			case 0:
 				this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_MISSING, lineno, charno)
 				return token
@@ -802,17 +802,17 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes Li
 				return token
 			}
 			if ttlAst != 0 {
-				if !this.jsdocBuilder.recordTypeTransformation(str_(templateNames.get(0)), ttlAst) {
+				if !this.jsdocBuilder.recordTypeTransformation(templateNames[0], ttlAst) {
 					this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 				}
 			} else if boundTypeExpression != nil {
-				if !this.jsdocBuilder.recordTemplateTypeName_2(str_(templateNames.get(0)), boundTypeExpression) {
+				if !this.jsdocBuilder.recordTemplateTypeName_2(templateNames[0], boundTypeExpression) {
 					this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 				}
 			} else {
-				it_5 := foreach_(any(templateNames))
+				it_5 := eachOf_(&templateNames)
 				for it_5.next() {
-					var templateName string = str_(it_5.v)
+					var templateName string = it_5.v
 					if !this.jsdocBuilder.recordTemplateTypeName(templateName) {
 						this.addTypeWarning_3(Msg_JSDOC_TEMPLATE_NAME_REDECLARATION, lineno, charno)
 					}
@@ -1844,7 +1844,7 @@ func (this *JsDocInfoParser) parseRecordType(token *JsDocToken) Node {
 
 func (this *JsDocInfoParser) parseFieldTypeList(token *JsDocToken) Node {
 	var fieldTypeList Node = this.newNode(Token_rhino_LB)
-	var names SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var names map[string]struct{} = map[string]struct{}{}
 	for do_2 := true; do_2; do_2 = true {
 		var fieldType Node = this.parseFieldType(token)
 		if fieldType == 0 {
@@ -1856,7 +1856,7 @@ func (this *JsDocInfoParser) parseFieldTypeList(token *JsDocToken) Node {
 			}
 			return fieldType.getFirstChild().getString()
 		}()
-		if Collection_add_s(names, name) {
+		if setAdd_(names, name) {
 			fieldTypeList.addChildToBack(fieldType)
 		} else {
 			this.addTypeWarning_2(Msg_JSDOC_TYPE_RECORD_DUPLICATE, name)
