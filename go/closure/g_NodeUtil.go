@@ -1003,15 +1003,15 @@ func NodeUtil_allArgsUnescapedLocal(callOrNew Node) bool {
 }
 
 func NodeUtil_canBeSideEffected_Node(n Node) bool {
-	return NodeUtil_canBeSideEffected_Node_Set_Scope(n, icast_Set(obj_(NodeUtil_KNOWN_CONSTANTS)), nil)
+	return NodeUtil_canBeSideEffected_Node_Set_Scope(n, tsetFrom_(tc_string, NodeUtil_KNOWN_CONSTANTS, true), nil)
 }
 
-func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants SetOf[string], scope *Scope) bool {
+func NodeUtil_canBeSideEffected_Node_Set_Scope(n Node, knownConstants *TSet[string], scope *Scope) bool {
 	switch n.getToken() {
 	case Token_rhino_YIELD, Token_rhino_CALL, Token_rhino_OPTCHAIN_CALL, Token_rhino_NEW, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_AWAIT, Token_rhino_DYNAMIC_IMPORT:
 		return true
 	case Token_rhino_NAME:
-		return (!NodeUtil_isConstantVar(n, scope) && !Collection_contains_s(knownConstants, n.getString()))
+		return (!NodeUtil_isConstantVar(n, scope) && !knownConstants.contains(n.getString()))
 	case Token_rhino_GETPROP:
 		return !n.getFirstChild().matchesName("Symbol")
 	case Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM:
@@ -4074,31 +4074,31 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 }
 
 func NodeUtil_getParentChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
-	var parentScopeNodes SetOf[Node] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(scopeNodes.asList()))))
+	var parentScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
 	it_1 := scopeNodes.each()
 	for it_1.next() {
 		var scopeNode Node = it_1.v
-		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode).box_())
+		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode))
 	}
-	return tlistFrom_(tc_Node, Collection(parentScopeNodes))
+	return tlistFrom_(tc_Node, Collection(parentScopeNodes.asSet()))
 }
 
 func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
-	var uniqueScopeNodes SetOf[Node] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(scopeNodes.asList()))))
+	var uniqueScopeNodes *TSet[Node] = tsetFrom_(tc_Node, Collection(scopeNodes.asList()), false)
 	it_1 := scopeNodes.each()
 	for it_1.next() {
 		var scopeNode Node = it_1.v
 		{
 			var ancestor Node = scopeNode.getParent()
 			for ; ancestor != 0; ancestor = ancestor.getParent() {
-				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.contains(ancestor.box_()) {
-					uniqueScopeNodes.remove_Object(scopeNode.box_())
+				if ChangeTracker_isChangeScopeRoot(ancestor) && uniqueScopeNodes.contains(ancestor) {
+					uniqueScopeNodes.remove(scopeNode)
 					break
 				}
 			}
 		}
 	}
-	return tlistFrom_(tc_Node, Collection(uniqueScopeNodes))
+	return tlistFrom_(tc_Node, Collection(uniqueScopeNodes.asSet()))
 }
 
 func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
@@ -4129,10 +4129,10 @@ func NodeUtil_getInvocationArgsCount(invocation Node) int32 {
 	panic("unreachable")
 }
 
-func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) SetOf[string] {
+func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *AbstractCompiler, scopeCreator ScopeCreator, globalScope *Scope) *TSet[string] {
 	Preconditions_checkState_boolean_Object(moduleNode.isModuleBody(), strobj_("getAllVarsDeclaredInModule expects a module body node"))
 	Preconditions_checkState_boolean_Object(globalScope.isGlobal(), obj_(globalScope))
-	var nameVars SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var nameVars *TSet[string] = newTSet_(tc_string)
 	var finder NodeTraversal_ScopedCallback = icast_NodeTraversal_ScopedCallback(obj_(new_NodeUtil_1(nameVars)))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseWithScope(moduleNode, globalScope.up_AbstractScope())
 	return nameVars
@@ -4748,14 +4748,14 @@ func (this *NodeUtil_GoogRequire) toString() string {
 }
 
 type NodeUtil_1 struct {
-	cap_nameVars Set
+	cap_nameVars *TSet[string]
 }
 
 func (this *NodeUtil_1) init_NodeUtil_1() {
 
 }
 
-func new_NodeUtil_1(cap_nameVars Set) *NodeUtil_1 {
+func new_NodeUtil_1(cap_nameVars *TSet[string]) *NodeUtil_1 {
 	this := &NodeUtil_1{}
 	this.cap_nameVars = cap_nameVars
 	this.init_NodeUtil_1()
@@ -4768,7 +4768,7 @@ func (this *NodeUtil_1) enterScope(t *NodeTraversal) {
 		it_1 := foreach_(any(currentScope.getVarIterable()))
 		for it_1.next() {
 			var v *Var = cast_[*Var](it_1.v)
-			Collection_add_s(this.cap_nameVars, v.getName())
+			this.cap_nameVars.add(v.getName())
 		}
 	}
 }

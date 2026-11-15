@@ -449,9 +449,9 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 	var insertionPoint Node = script.getFirstChild()
 	var changed bool = false
 	var usedCleanupHelper bool = false
-	var wrappedReassignableLocalAliases SetOf[string] = icast_Set(obj_(ImmutableSet_of()))
+	var wrappedReassignableLocalAliases *TSet[string] = tsetFrom_(tc_string, ImmutableSet_of(), true)
 	if this.optimizeLocalAccess.shouldWrapReassignableSymbols() {
-		wrappedReassignableLocalAliases = icast_Set(obj_(new_LinkedHashSet()))
+		wrappedReassignableLocalAliases = newTSet_(tc_string)
 		it_1 := foreach_(obj_(this.symbolInfo.wrappedCrossChunkNames()))
 		for it_1.next() {
 			var name string = str_(it_1.v)
@@ -465,11 +465,11 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 				}
 				changed = true
 			} else if (usingChunks != nil) && usingChunks.contains(obj_(chunk)) {
-				Collection_add_s(wrappedReassignableLocalAliases, name)
+				wrappedReassignableLocalAliases.add(name)
 			}
 		}
 	}
-	var allLocalAliases IterableOf[string] = Iterables_concat(icast_Iterable(Map_getOrDefault(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(chunk), obj_(ImmutableSet_of()))), Iterable(wrappedReassignableLocalAliases))
+	var allLocalAliases IterableOf[string] = Iterables_concat(icast_Iterable(Map_getOrDefault(this.localAliasesForUnwrappedCrossChunkNames.asMap(), obj_(chunk), obj_(ImmutableSet_of()))), Iterable(wrappedReassignableLocalAliases.asSet()))
 	if !Iterables_isEmpty(allLocalAliases) {
 		var aliasesToKeep *TList[string] = newTList_(tc_string)
 		var aliasesToDelete *TList[string] = newTList_(tc_string)

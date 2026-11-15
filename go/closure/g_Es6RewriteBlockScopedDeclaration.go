@@ -6,7 +6,7 @@ type Es6RewriteBlockScopedDeclaration struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_        *AbstractCompiler
 	astFactory_      *AstFactory
-	letConsts        SetOf[Node]
+	letConsts        *TSet[Node]
 	uniqueIdSupplier *UniqueIdSupplier
 }
 
@@ -18,7 +18,7 @@ func (this *Es6RewriteBlockScopedDeclaration) up_NodeTraversal_AbstractPostOrder
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) finit_Es6RewriteBlockScopedDeclaration() {
-	this.letConsts = icast_Set(obj_(new_LinkedHashSet()))
+	this.letConsts = newTSet_(tc_Node)
 }
 
 func (this *Es6RewriteBlockScopedDeclaration) init_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) {
@@ -39,7 +39,7 @@ func new_Es6RewriteBlockScopedDeclaration(compiler *AbstractCompiler) *Es6Rewrit
 func (this *Es6RewriteBlockScopedDeclaration) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	Preconditions_checkState_boolean_Object(((parent == 0) || !parent.isForOf()), parent.box_())
 	if n.isLet() || n.isConst() {
-		this.letConsts.add(n.box_())
+		this.letConsts.add(n)
 		{
 			var nameNode Node = n.getFirstChild()
 			for ; nameNode != 0; nameNode = nameNode.getNext() {
@@ -184,9 +184,9 @@ func (this *Es6RewriteBlockScopedDeclaration) getInsertSpotBeforeLoop(loopNode N
 
 func (this *Es6RewriteBlockScopedDeclaration) rewriteDeclsToVars() {
 	if !this.letConsts.isEmpty() {
-		it_1 := foreach_(any(this.letConsts))
+		it_1 := this.letConsts.each()
 		for it_1.next() {
-			var n Node = Node_of_(it_1.v)
+			var n Node = it_1.v
 			this.handleLetConstDeclarationList(n, n.getParent())
 		}
 	}
@@ -319,7 +319,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 	if this.loopObjectMap.isEmpty() {
 		return
 	}
-	var wrapperFunctions SetOf[Node] = this.createWrapperFunctions()
+	var wrapperFunctions *TSet[Node] = this.createWrapperFunctions()
 	it_1 := this.loopObjectMap.each()
 	for it_1.next() {
 		var loopNode Node = it_1.k
@@ -341,10 +341,10 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) transformLo
 	this.updateNamesInWrapperFunctions(wrapperFunctions)
 }
 
-func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNamesInWrapperFunctions(wrapperFunctions SetOf[Node]) {
-	it_1 := foreach_(any(wrapperFunctions))
+func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNamesInWrapperFunctions(wrapperFunctions *TSet[Node]) {
+	it_1 := wrapperFunctions.each()
 	for it_1.next() {
-		var func_ Node = Node_of_(it_1.v)
+		var func_ Node = it_1.v
 		var paramList Node = func_.getSecondChild()
 		{
 			var param Node = paramList.getFirstChild()
@@ -356,8 +356,8 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) updateNames
 	}
 }
 
-func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapperFunctions() SetOf[Node] {
-	var wrapperFunctions SetOf[Node] = icast_Set(obj_(new_LinkedHashSet()))
+func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapperFunctions() *TSet[Node] {
+	var wrapperFunctions *TSet[Node] = newTSet_(tc_Node)
 	it_1 := foreach_(any(this.nodesRequiringLoopObjectsClosureMap.keySet()))
 	for it_1.next() {
 		var functionOrObjectLit Node = Node_of_(it_1.v)
@@ -380,7 +380,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 				var child Node = scopeBody.getFirstChild()
 				for ; child != 0; child = child.getNext() {
 					if child.isLet() || child.isConst() {
-						this.outer_.letConsts.add(child.box_())
+						this.outer_.letConsts.add(child)
 					}
 				}
 			}
@@ -405,7 +405,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) createWrapp
 		Preconditions_checkState_boolean_String_Object(!NodeUtil_isFunctionDeclaration(functionOrObjectLit), "block-scoped function declarations should not exist now: %s", functionOrObjectLit.box_())
 		replacement = call.srcrefTreeIfMissing(functionOrObjectLit)
 		functionOrObjectLit.replaceWith(replacement)
-		wrapperFunctions.add(iife.box_())
+		wrapperFunctions.add(iife)
 		returnNode.addChildToFront(functionOrObjectLit)
 		this.outer_.compiler_.reportChangeToEnclosingScope(replacement)
 	}
@@ -471,7 +471,7 @@ func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) changeLoopL
 func (this *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer) replaceDeclarationWithProperty(loopObject *Es6RewriteBlockScopedDeclaration_LoopClosureTransformer_LoopObject, newPropertyName string, reference Node) {
 	var declaration Node = reference.getParent()
 	var grandParent Node = declaration.getParent()
-	this.outer_.letConsts.remove_Object(declaration.box_())
+	this.outer_.letConsts.remove(declaration)
 	this.outer_.handleLetConstDeclarationList(declaration, grandParent)
 	declaration = reference.getParent()
 	if reference.hasChildren() {

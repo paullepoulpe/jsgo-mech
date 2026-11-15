@@ -816,29 +816,29 @@ func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) createForChildScope_impl
 
 type MakeDeclaredNamesUnique_TargettedRenamer struct {
 	delegate MakeDeclaredNamesUnique_Renamer
-	targets  SetOf[string]
+	targets  *TSet[string]
 }
 
-func (this *MakeDeclaredNamesUnique_TargettedRenamer) init_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets SetOf[string]) {
+func (this *MakeDeclaredNamesUnique_TargettedRenamer) init_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets *TSet[string]) {
 	this.delegate = delegate
 	this.targets = targets
 }
 
-func new_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets SetOf[string]) *MakeDeclaredNamesUnique_TargettedRenamer {
+func new_MakeDeclaredNamesUnique_TargettedRenamer(delegate MakeDeclaredNamesUnique_Renamer, targets *TSet[string]) *MakeDeclaredNamesUnique_TargettedRenamer {
 	this := &MakeDeclaredNamesUnique_TargettedRenamer{}
 	this.init_MakeDeclaredNamesUnique_TargettedRenamer(delegate, targets)
 	return this
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) addDeclaredName(name string, hoisted bool) {
-	if Collection_contains_s(this.targets, name) {
+	if this.targets.contains(name) {
 		this.delegate.addDeclaredName(name, hoisted)
 	}
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) getReplacementName(oldName string) OptionalOf[string] {
 	return func() *Optional {
-		if Collection_contains_s(this.targets, oldName) {
+		if this.targets.contains(oldName) {
 			return this.delegate.getReplacementName(oldName)
 		}
 		return Optional_empty()

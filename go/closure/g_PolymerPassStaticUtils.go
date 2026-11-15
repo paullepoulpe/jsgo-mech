@@ -78,9 +78,9 @@ func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compi
 
 func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLit Node) {
 	Preconditions_checkState(behaviorObjLit.isObjectLit())
-	var methodsToProtect SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-	methodsToProtect.addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit)))
-	methodsToProtect.addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit)))
+	var methodsToProtect *TSet[string] = newTSet_(tc_string)
+	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit).asSet()))
+	methodsToProtect.asSet().addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit).asSet()))
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
@@ -88,7 +88,7 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 				continue
 			}
 			var keyName OptionalOf[string] = NodeUtil_getObjectOrClassLitKeyName(keyNode)
-			if !(keyName.isPresent() && Collection_contains_s(methodsToProtect, str_(keyName.get()))) {
+			if !(keyName.isPresent() && methodsToProtect.contains(str_(keyName.get()))) {
 				continue
 			}
 			PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode)
@@ -96,8 +96,8 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 	}
 }
 
-func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) SetOf[string] {
-	var methodsToProtect SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) *TSet[string] {
+	var methodsToProtect *TSet[string] = newTSet_(tc_string)
 	var observers Node = NodeUtil_getFirstPropMatchingKey(behaviorObjLit, "observers")
 	if (observers != 0) && observers.isArrayLit() {
 		{
@@ -108,7 +108,7 @@ func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) Set
 				}
 				var name OptionalOf[string] = PolymerPassStaticUtils_extractMethodName(child.getString())
 				if name.isPresent() {
-					Collection_add_s(methodsToProtect, str_(name.get()))
+					methodsToProtect.add(str_(name.get()))
 				}
 			}
 		}
@@ -116,8 +116,8 @@ func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) Set
 	return methodsToProtect
 }
 
-func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) SetOf[string] {
-	var methodsToProtect SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *TSet[string] {
+	var methodsToProtect *TSet[string] = newTSet_(tc_string)
 	var properties Node = NodeUtil_getFirstPropMatchingKey(behaviorObjLit, "properties")
 	if (properties != 0) && properties.isObjectLit() {
 		{
@@ -128,13 +128,13 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) Set
 				}
 				var observer Node = NodeUtil_getFirstPropMatchingKey(prop.getLastChild(), "observer")
 				if (observer != 0) && observer.isStringLit() {
-					Collection_add_s(methodsToProtect, observer.getString())
+					methodsToProtect.add(observer.getString())
 				}
 				var computed Node = NodeUtil_getFirstPropMatchingKey(prop.getLastChild(), "computed")
 				if (computed != 0) && computed.isStringLit() {
 					var name OptionalOf[string] = PolymerPassStaticUtils_extractMethodName(computed.getString())
 					if name.isPresent() {
-						Collection_add_s(methodsToProtect, str_(name.get()))
+						methodsToProtect.add(str_(name.get()))
 					}
 				}
 			}

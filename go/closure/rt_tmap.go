@@ -30,7 +30,7 @@ func newTMap_[K comparable, V any](kc *tconv_[K], vc *tconv_[V]) *TMap[K, V] {
 
 // tmapFrom_ is new LinkedHashMap<>(from) (or an ImmutableMap, imm) as a typed map.
 func tmapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map, imm bool) *TMap[K, V] {
-	if from == nil && imm {
+	if imm && isNil_(from) {
 		return nil
 	}
 	m := newTMap_(kc, vc)
@@ -234,7 +234,7 @@ func newTSet_[K comparable](kc *tconv_[K]) *TSet[K] {
 
 // tsetFrom_ is new LinkedHashSet<>(from) (or an ImmutableSet, imm) as a typed set.
 func tsetFrom_[K comparable](kc *tconv_[K], from Collection, imm bool) *TSet[K] {
-	if from == nil && imm {
+	if imm && isNil_(from) {
 		return nil
 	}
 	s := newTSet_(kc)

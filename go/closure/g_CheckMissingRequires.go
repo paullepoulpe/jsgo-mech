@@ -4,7 +4,7 @@ package closure
 
 type CheckMissingRequires struct {
 	NodeTraversal_AbstractModuleCallback
-	templateParamNames    LinkedHashSetOf[string]
+	templateParamNames    *TSet[string]
 	moduleByNamespace     ImmutableMapOf[string, *ModuleMetadataMap_ModuleMetadata]
 	controlFlowScopeDepth int32
 }
@@ -17,7 +17,7 @@ func (this *CheckMissingRequires) up_NodeTraversal_AbstractModuleCallback() *Nod
 }
 
 func (this *CheckMissingRequires) finit_CheckMissingRequires() {
-	this.templateParamNames = new_LinkedHashSet()
+	this.templateParamNames = newTSet_(tc_string)
 	this.controlFlowScopeDepth = 0
 }
 
@@ -106,14 +106,14 @@ func (this *CheckMissingRequires) visitNode(t *NodeTraversal, n Node, currentMod
 }
 
 func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule *ModuleMetadataMap_ModuleMetadata, info *JSDocInfo) {
-	this.templateParamNames.addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
-	this.templateParamNames.addAll(Collection(info.getTypeTransformations().keySet()))
+	this.templateParamNames.asSet().addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
+	this.templateParamNames.asSet().addAll(Collection(info.getTypeTransformations().keySet()))
 	if info.hasType() {
 		this.visitJsDocExpr(t, currentModule, info.getType(), CheckMissingRequires_Strength_WEAK_TYPE)
 	}
-	it_1 := foreach_(any(info.getParameterNames()))
+	it_1 := info.getParameterNames().each()
 	for it_1.next() {
-		var param string = str_(it_1.v)
+		var param string = it_1.v
 		if info.hasParameterType(Optional_of(strobj_(param))) {
 			this.visitJsDocExpr(t, currentModule, info.getParameterType(Optional_of(strobj_(param))), CheckMissingRequires_Strength_WEAK_TYPE)
 		}
@@ -224,7 +224,7 @@ func (this *CheckMissingRequires) isTypeScriptSource(n Node) bool {
 func (this *CheckMissingRequires) visitQualifiedName(t *NodeTraversal, n Node, currentFile *ModuleMetadataMap_ModuleMetadata, qualifiedName *QualifiedName, referenceStrength *CheckMissingRequires_Strength) {
 	var rootName string = qualifiedName.getRoot()
 	if qualifiedName.isSimple() {
-		if Collection_contains_s(this.templateParamNames, rootName) {
+		if this.templateParamNames.contains(rootName) {
 			return
 		}
 	}

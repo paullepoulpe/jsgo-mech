@@ -3,16 +3,16 @@
 package closure
 
 type DiagnosticToSuppressionMapper struct {
-	validSuppressions SetOf[string]
+	validSuppressions *TSet[string]
 	diagnosticGroups  ImmutableMapOf[string, *DiagnosticGroup]
 }
 
-func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions SetOf[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) {
+func (this *DiagnosticToSuppressionMapper) init_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) {
 	this.validSuppressions = validSuppressions
 	this.diagnosticGroups = diagnosticGroups
 }
 
-func new_DiagnosticToSuppressionMapper(validSuppressions SetOf[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
+func new_DiagnosticToSuppressionMapper(validSuppressions *TSet[string], diagnosticGroups ImmutableMapOf[string, *DiagnosticGroup]) *DiagnosticToSuppressionMapper {
 	this := &DiagnosticToSuppressionMapper{}
 	this.init_DiagnosticToSuppressionMapper(validSuppressions, diagnosticGroups)
 	return this
@@ -28,15 +28,15 @@ func (this *DiagnosticToSuppressionMapper) printSuppressions(output *DiagnosticT
 }
 
 func (this *DiagnosticToSuppressionMapper) createSuppressionMap() ImmutableSortedMapOf[string, string] {
-	var validSuppressions SetOf[string] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(this.validSuppressions))))
-	Collection_remove_s(validSuppressions, "accessControls")
-	Collection_remove_s(validSuppressions, "missingSourcesWarnings")
+	var validSuppressions *TSet[string] = tsetFrom_(tc_string, Collection(this.validSuppressions.asSet()), false)
+	validSuppressions.remove("accessControls")
+	validSuppressions.remove("missingSourcesWarnings")
 	var diagnosticToSuppression LinkedHashMapOf[*DiagnosticType, string] = new_LinkedHashMap()
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](this.diagnosticGroups.entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var suppression string = str_(entry.getKey())
-		if !Collection_contains_s(validSuppressions, suppression) {
+		if !validSuppressions.contains(suppression) {
 			continue
 		}
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](entry.getValue())

@@ -22,7 +22,7 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 	var options *CompilerOptions = new_CompilerOptions()
 	options.setChecksOnly(true)
 	compiler.init(icast_List(obj_(ImmutableList_of())), icast_List(obj_(ImmutableList_of_Object(obj_(source)))), options)
-	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, icast_Set(obj_(ImmutableSet_of())), true, Config_StrictMode_SLOPPY)
+	var config *Config = ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(Config_LanguageMode_ES_NEXT, Config_JsDocParsing_INCLUDE_DESCRIPTIONS_NO_WHITESPACE, Config_RunMode_STOP_AFTER_ERROR, tsetFrom_(tc_string, ImmutableSet_of(), true), true, Config_StrictMode_SLOPPY)
 	var info *JsFileFullParser_FileInfo = new_JsFileFullParser_FileInfo()
 	var parsed *ParserRunner_ParseResult = ParserRunner_parse(icast_StaticSourceFile(obj_(source)), code, config, icast_ErrorReporter_rhino(obj_(errorReporter)))
 	if errorReporter.seenError {
@@ -65,13 +65,13 @@ func JsFileFullParser_parse(code string, filename string, reporter JsFileFullPar
 }
 
 func JsFileFullParser_recordModuleMetadata(info *JsFileFullParser_FileInfo, module *ModuleMetadataMap_ModuleMetadata) {
-	info.importedModules.addAll(Collection(module.es6ImportSpecifiers().elementSet()))
+	info.importedModules.asSet().addAll(Collection(module.es6ImportSpecifiers().elementSet()))
 	if module.usesClosure() {
 		info.provides.addAll(icast_Iterable(obj_(module.googNamespaces())))
 		info.requires.addAll(icast_Iterable(obj_(module.stronglyRequiredGoogNamespaces())))
 		info.maybeRequires.addAll(icast_Iterable(obj_(module.maybeRequiredGoogNamespaces())))
-		info.dynamicRequires.addAll(Collection(module.dynamicallyRequiredGoogNamespaces().elementSet()))
-		info.readToggles_.addAll(Collection(module.readToggles().elementSet()))
+		info.dynamicRequires.asSet().addAll(Collection(module.dynamicallyRequiredGoogNamespaces().elementSet()))
+		info.readToggles_.asSet().addAll(Collection(module.readToggles().elementSet()))
 		info.typeRequires.addAll(icast_Iterable(obj_(module.weaklyRequiredGoogNamespaces())))
 		info.testonly = module.isTestOnly()
 	}
@@ -87,9 +87,9 @@ type JsFileFullParser_FileInfo struct {
 	testonly          bool
 	moduleType_       *JsFileFullParser_FileInfo_ModuleType
 	isLegacyNamespace bool
-	importedModules   SetOf[string]
-	dynamicRequires   SetOf[string]
-	readToggles_      SetOf[string]
+	importedModules   *TSet[string]
+	dynamicRequires   *TSet[string]
+	readToggles_      *TSet[string]
 	provides          *SimpleMultiset
 	requires          *SimpleMultiset
 	typeRequires      *SimpleMultiset
@@ -103,9 +103,9 @@ func (this *JsFileFullParser_FileInfo) finit_JsFileFullParser_FileInfo() {
 	this.testonly = false
 	this.moduleType_ = JsFileFullParser_FileInfo_ModuleType_UNKNOWN
 	this.isLegacyNamespace = false
-	this.importedModules = icast_Set(obj_(new_LinkedHashSet()))
-	this.dynamicRequires = icast_Set(obj_(new_LinkedHashSet()))
-	this.readToggles_ = icast_Set(obj_(new_LinkedHashSet()))
+	this.importedModules = newTSet_(tc_string)
+	this.dynamicRequires = newTSet_(tc_string)
+	this.readToggles_ = newTSet_(tc_string)
 	this.provides = SimpleMultiset_createSorted()
 	this.requires = SimpleMultiset_createSorted()
 	this.typeRequires = SimpleMultiset_createSorted()

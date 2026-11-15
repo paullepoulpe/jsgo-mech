@@ -11,7 +11,7 @@ type RemoveUnusedCode struct {
 	preserveFunctionExpressionNames_               bool
 	worklist                                       DequeOf[*RemoveUnusedCode_Continuation]
 	varInfoMap                                     LinkedHashMapOf[*Var, RemoveUnusedCode_VarInfo]
-	pinnedPropertyNames                            SetOf[string]
+	pinnedPropertyNames                            *TSet[string]
 	removablesForPropertyNames                     *SimpleSetMultimap
 	canonicalUnremovableVarInfo                    RemoveUnusedCode_VarInfo
 	allFunctionParamScopes                         []*Scope
@@ -33,7 +33,7 @@ type RemoveUnusedCode struct {
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
 	this.worklist = icast_Deque(obj_(new_ArrayDeque()))
 	this.varInfoMap = new_LinkedHashMap()
-	this.pinnedPropertyNames = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)))))
+	this.pinnedPropertyNames = tsetFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)), false)
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered()
 	this.allFunctionParamScopes = []*Scope{}
 	this.polyfills = SimpleSetMultimap_createInsertionOrdered()
@@ -68,7 +68,7 @@ func new_RemoveUnusedCode(builder *RemoveUnusedCode_Builder) *RemoveUnusedCode {
 
 func (this *RemoveUnusedCode) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
-	this.pinnedPropertyNames.addAll(icast_Collection(obj_(this.compiler_.getExternProperties())))
+	this.pinnedPropertyNames.asSet().addAll(icast_Collection(obj_(this.compiler_.getExternProperties())))
 	_ = func() (code_ int) {
 		defer func() {
 			this.removalLog = nil
@@ -898,7 +898,7 @@ func (this *RemoveUnusedCode) removeUnreferencedFunctionArgs(fparamScope *Scope)
 }
 
 func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
-	if Collection_add_s(this.pinnedPropertyNames, propertyName) {
+	if this.pinnedPropertyNames.add(propertyName) {
 		it_1 := foreach_(any(this.removablesForPropertyNames.removeAll(strobj_(propertyName))))
 		for it_1.next() {
 			var removable *RemoveUnusedCode_Removable = to_RemoveUnusedCode_Removable(it_1.v)
@@ -910,7 +910,7 @@ func (this *RemoveUnusedCode) markPropertyNameAsPinned(propertyName string) {
 func (this *RemoveUnusedCode) considerForIndependentRemoval(removable *RemoveUnusedCode_Removable) {
 	if removable.isNamedProperty() {
 		var propertyName string = removable.getPropertyName()
-		if Collection_contains_s(this.pinnedPropertyNames, propertyName) || this.codingConvention.isExported_2(propertyName, false) {
+		if this.pinnedPropertyNames.contains(propertyName) || this.codingConvention.isExported_2(propertyName, false) {
 			removable.applyContinuations()
 		} else if this.isIndependentlyRemovable(removable) {
 			this.removablesForPropertyNames.put(strobj_(propertyName), removable.self())

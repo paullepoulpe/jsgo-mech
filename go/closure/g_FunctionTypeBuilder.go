@@ -305,9 +305,9 @@ func (this *FunctionTypeBuilder) inferThisType(info *JSDocInfo) *FunctionTypeBui
 
 func (this *FunctionTypeBuilder) inferParameterTypes(info *JSDocInfo) *FunctionTypeBuilder {
 	var lp Node = IR_paramList([]Node{})
-	it_1 := foreach_(any(info.getParameterNames()))
+	it_1 := info.getParameterNames().each()
 	for it_1.next() {
-		var name string = str_(it_1.v)
+		var name string = it_1.v
 		lp.addChildToBack(IR_name(name))
 	}
 	return this.inferParameterTypes_2(lp, info)
@@ -336,11 +336,11 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 	}
 	var builder *FunctionParamBuilder = new_FunctionParamBuilder_JSTypeRegistry(this.typeRegistry)
 	var warnedAboutArgList bool = false
-	var allJsDocParams SetOf[string] = func() Set {
+	var allJsDocParams *TSet[string] = func() *TSet[string] {
 		if info == nil {
-			return icast_Set(obj_(new_LinkedHashSet()))
+			return newTSet_(tc_string)
 		}
-		return icast_Set(obj_(new_LinkedHashSet_Collection(Collection(info.getParameterNames()))))
+		return tsetFrom_(tc_string, Collection(info.getParameterNames().asSet()), false)
 	}()
 	var isVarArgs bool = false
 	var paramIndex int32 = 0
@@ -370,7 +370,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				}
 			}
 			if paramName.isPresent() {
-				Collection_remove_s(allJsDocParams, str_(paramName.get()))
+				allJsDocParams.remove(str_(paramName.get()))
 			}
 			var parameterType *JSType = nil
 			if (info != nil) && info.hasParameterType(paramName) {
@@ -411,9 +411,9 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			}()
 		}
 	}
-	it_3 := foreach_(any(allJsDocParams))
+	it_3 := allJsDocParams.each()
 	for it_3.next() {
-		var inexistentName string = str_(it_3.v)
+		var inexistentName string = it_3.v
 		this.reportWarning(FunctionTypeBuilder_INEXISTENT_PARAM, []string{inexistentName, this.formatFnName()})
 	}
 	this.parameters = builder.build()

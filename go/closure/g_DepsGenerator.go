@@ -60,10 +60,10 @@ func (this *DepsGenerator) computeDependencyCalls() *Outcome_base {
 }
 
 func (this *DepsGenerator) cleanUpDuplicatedFiles(depsFiles MapOf[string, DependencyInfo], jsFiles MapOf[string, DependencyInfo]) {
-	var depsPathsCopy SetOf[string] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(depsFiles.keySet()))))
-	it_1 := foreach_(any(depsPathsCopy))
+	var depsPathsCopy *TSet[string] = tsetFrom_(tc_string, Collection(depsFiles.keySet()), false)
+	it_1 := depsPathsCopy.each()
 	for it_1.next() {
-		var path string = str_(it_1.v)
+		var path string = it_1.v
 		if this.mergeStrategy != DepsGenerator_InclusionStrategy_WHEN_IN_SRCS {
 			Map_remove_s(jsFiles, path)
 		}

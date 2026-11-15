@@ -640,7 +640,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.ambiguateProperties = PassFactory_builder().setName(PassNames_AMBIGUATE_PROPERTIES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_AmbiguateProperties(compiler, icast_Set(obj_(this.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.options_.getPropertyReservedNamingNonFirstChars())), icast_Set(obj_(compiler.getExternProperties()))))
+		return obj_(new_AmbiguateProperties(compiler, icast_Set(obj_(this.options_.getPropertyReservedNamingFirstChars())), icast_Set(obj_(this.options_.getPropertyReservedNamingNonFirstChars())), tsetFrom_(tc_string, compiler.getExternProperties(), true)))
 	}}).setPreconditionCheck(&Function_fn{func(p0 any) any {
 		return obj_(DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(cast_[*CompilerOptions](p0)))
 	}}).build()
@@ -1511,12 +1511,12 @@ func (this *DefaultPassConfig) createProcessDefines(mode *ProcessDefines_Mode) *
 
 func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, prevVariableMap *VariableMap, externs Node, root Node) *VariableMap {
 	var reservedChars SetOf[BoxedOf[uint16]] = icast_Set(obj_(ImmutableSet_of()))
-	var reservedNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var reservedNames *TSet[string] = newTSet_(tc_string)
 	if this.options_.getRenamePrefixNamespace().isPresent() {
-		Collection_add_s(reservedNames, str_(this.options_.getRenamePrefixNamespace().get()))
+		reservedNames.add(str_(this.options_.getRenamePrefixNamespace().get()))
 	}
-	reservedNames.addAll(Collection(compiler.getExportedNames()))
-	reservedNames.addAll(icast_Collection(obj_(ParserRunner_getReservedVars())))
+	reservedNames.asSet().addAll(Collection(compiler.getExportedNames()))
+	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars())))
 	var rn *RenameVars = new_RenameVars(compiler, this.options_.getRenamePrefix(), (this.options_.getVariableRenaming() == VariableRenamingPolicy_LOCAL), this.options_.shouldGeneratePseudoNames(), this.options_.shouldPreferStableNames(), prevVariableMap, reservedChars, reservedNames, this.options_.getNameGenerator())
 	rn.process_2(externs, root)
 	return rn.getVariableMap()
@@ -1661,11 +1661,11 @@ func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
 			_ = builder
 			builder.add(strobj_(cssName))
 		}})
-	}}, icast_Set(obj_(this.outer_.options_.getCssRenamingSkiplist())))
+	}}, tsetFrom_(tc_string, this.outer_.options_.getCssRenamingSkiplist(), true))
 	pass.process_2(externs, jsRoot)
-	this.cap_compiler.setCssNames(func() Set {
+	this.cap_compiler.setCssNames(func() *TSet[string] {
 		if cssNames.isPresent() {
-			return icast_Set(obj_(cast_[*ImmutableSet_Builder](cssNames.get()).build()))
+			return tsetFrom_(tc_string, cast_[*ImmutableSet_Builder](cssNames.get()).build(), true)
 		}
 		return nil
 	}())

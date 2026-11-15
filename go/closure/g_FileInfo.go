@@ -3,15 +3,15 @@
 package closure
 
 type FileInfo struct {
-	providedNamespaces    SetOf[string]
-	requiredLocalNames    SetOf[string]
+	providedNamespaces    *TSet[string]
+	requiredLocalNames    *TSet[string]
 	declarations          *SimpleListMultimap
 	isFromTypeScriptField bool
 }
 
 func (this *FileInfo) finit_FileInfo() {
-	this.providedNamespaces = icast_Set(obj_(new_LinkedHashSet()))
-	this.requiredLocalNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.providedNamespaces = newTSet_(tc_string)
+	this.requiredLocalNames = newTSet_(tc_string)
 	this.declarations = SimpleListMultimap_create()
 }
 
@@ -63,7 +63,7 @@ func (this *FileInfo) recordDeclaration(decl *PotentialDeclaration) {
 }
 
 func (this *FileInfo) recordImport(localName string) {
-	Collection_add_s(this.requiredLocalNames, localName)
+	this.requiredLocalNames.add(localName)
 }
 
 func (this *FileInfo) isNameDeclared(fullyQualifiedName string) bool {
@@ -82,11 +82,11 @@ func FileInfo_containsPrefix(fullyQualifiedName string, prefixNamespaces Iterabl
 }
 
 func (this *FileInfo) isPrefixProvided(fullyQualifiedName string) bool {
-	return FileInfo_containsPrefix(fullyQualifiedName, Iterable(this.providedNamespaces))
+	return FileInfo_containsPrefix(fullyQualifiedName, Iterable(this.providedNamespaces.asSet()))
 }
 
 func (this *FileInfo) isPrefixRequired(fullyQualifiedName string) bool {
-	return FileInfo_containsPrefix(fullyQualifiedName, Iterable(this.requiredLocalNames))
+	return FileInfo_containsPrefix(fullyQualifiedName, Iterable(this.requiredLocalNames.asSet()))
 }
 
 func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
@@ -101,5 +101,5 @@ func (this *FileInfo) isStrictPrefixDeclared(fullyQualifiedName string) bool {
 }
 
 func (this *FileInfo) markProvided(providedName string) {
-	Collection_add_s(this.providedNamespaces, providedName)
+	this.providedNamespaces.add(providedName)
 }

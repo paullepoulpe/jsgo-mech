@@ -12,8 +12,8 @@ type RenameProperties struct {
 	reservedFirstCharacters         SetOf[BoxedOf[uint16]]
 	reservedNonFirstCharacters      SetOf[BoxedOf[uint16]]
 	propertyMap                     *TMap[string, *RenameProperties_Property]
-	externedNames                   SetOf[string]
-	quotedNames                     SetOf[string]
+	externedNames                   *TSet[string]
+	quotedNames                     *TSet[string]
 	nameGenerator                   NameGenerator
 	propertyRenameEligibilityFilter PredicateOf[Node]
 	filteredOutNames                map[string]struct{}
@@ -24,8 +24,8 @@ func (this *RenameProperties) finit_RenameProperties() {
 	this.stringNodesToRename = []Node{}
 	this.callNodeToParentMap = newTMap_(tc_Node, tc_Node)
 	this.propertyMap = newTMap_(tc_string, tc_p_RenameProperties_Property)
-	this.externedNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(Arrays_asList([]any{strobj_("prototype")})))))
-	this.quotedNames = icast_Set(obj_(new_LinkedHashSet()))
+	this.externedNames = tsetFrom_(tc_string, Collection(Arrays_asList([]any{strobj_("prototype")})), false)
+	this.quotedNames = newTSet_(tc_string)
 	this.filteredOutNames = map[string]struct{}{}
 }
 
@@ -52,7 +52,7 @@ func (this *RenameProperties) init_RenameProperties_AbstractCompiler_boolean_Var
 	this.reservedNonFirstCharacters = reservedNonFirstCharacters
 	this.nameGenerator = nameGenerator
 	this.propertyRenameEligibilityFilter = propertyRenameEligibilityFilter
-	this.externedNames.addAll(icast_Collection(obj_(compiler.getExternProperties())))
+	this.externedNames.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties())))
 }
 
 func new_RenameProperties_AbstractCompiler_boolean_VariableMap_Set_Set_NameGenerator_Predicate(compiler *AbstractCompiler, generatePseudoNames bool, prevUsedPropertyMap *VariableMap, reservedFirstCharacters SetOf[BoxedOf[uint16]], reservedNonFirstCharacters SetOf[BoxedOf[uint16]], nameGenerator NameGenerator, propertyRenameEligibilityFilter PredicateOf[Node]) *RenameProperties {
@@ -65,8 +65,8 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameProperties_ProcessProperties(this))))
 	var reservedNames SetOf[string] = icast_Set(obj_(Sets_newLinkedHashSetWithExpectedSize((this.externedNames.size() + this.quotedNames.size()))))
-	reservedNames.addAll(Collection(this.externedNames))
-	reservedNames.addAll(Collection(this.quotedNames))
+	reservedNames.addAll(Collection(this.externedNames.asSet()))
+	reservedNames.addAll(Collection(this.quotedNames.asSet()))
 	var propsByFreq SetOf[*RenameProperties_Property] = icast_Set(obj_(new_TreeSet_Comparator(RenameProperties_FREQUENCY_COMPARATOR)))
 	propsByFreq.addAll(this.propertyMap.asMap().values())
 	if this.prevUsedPropertyMap != nil {
@@ -236,7 +236,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 	case Token_rhino_GETELEM, Token_rhino_OPTCHAIN_GETELEM:
 		var child Node = n.getLastChild()
 		if (child != 0) && child.isStringLit() {
-			Collection_add_s(this.outer_.quotedNames, child.getString())
+			this.outer_.quotedNames.add(child.getString())
 		}
 	case Token_rhino_CALL:
 		var fnName Node = n.getFirstChild()
@@ -255,13 +255,13 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 	case Token_rhino_MEMBER_FUNCTION_DEF:
 		Preconditions_checkState(!n.isQuotedStringKey())
 		if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
-			Collection_add_s(this.outer_.externedNames, n.getString())
+			this.outer_.externedNames.add(n.getString())
 		} else {
 			this.maybeMarkCandidate(n)
 		}
 	case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY:
 		if n.isQuotedStringKey() {
-			Collection_add_s(this.outer_.quotedNames, n.getString())
+			this.outer_.quotedNames.add(n.getString())
 		} else {
 			this.maybeMarkCandidate(n)
 		}
@@ -288,7 +288,7 @@ func (this *RenameProperties_ProcessProperties) visit_impl(t *NodeTraversal, n N
 
 func (this *RenameProperties_ProcessProperties) maybeMarkCandidate(n Node) {
 	var name string = n.getString()
-	if !Collection_contains_s(this.outer_.externedNames, name) {
+	if !this.outer_.externedNames.contains(name) {
 		if !this.outer_.propertyRenameEligibilityFilter.test(n.box_()) {
 			this.outer_.filteredOutNames[n.getString()] = struct{}{}
 		}
@@ -311,7 +311,7 @@ func (this *RenameProperties_ProcessProperties) countCallCandidates(t *NodeTrave
 			t.report(callNode, RenameProperties_BAD_ARG, []string{fnName})
 			continue
 		}
-		if !Collection_contains_s(this.outer_.externedNames, name) {
+		if !this.outer_.externedNames.contains(name) {
 			this.countPropertyOccurrence(name)
 		}
 	}

@@ -5,11 +5,11 @@ package closure
 type VariableReferenceCheck struct {
 	compiler_              *AbstractCompiler
 	checkUnusedLocals      bool
-	blocksWithDeclarations SetOf[*BasicBlock]
+	blocksWithDeclarations *TSet[*BasicBlock]
 }
 
 func (this *VariableReferenceCheck) finit_VariableReferenceCheck() {
-	this.blocksWithDeclarations = icast_Set(obj_(new_LinkedHashSet()))
+	this.blocksWithDeclarations = newTSet_(tc_p_BasicBlock)
 }
 
 func (this *VariableReferenceCheck) init_VariableReferenceCheck(compiler *AbstractCompiler) {
@@ -33,7 +33,7 @@ func (this *VariableReferenceCheck) lookForHoistedFunction(references ListOf[*Re
 	for it_1.next() {
 		var reference *Reference = cast_[*Reference](it_1.v)
 		if reference.isHoistedFunction() {
-			this.blocksWithDeclarations.add(obj_(reference.getBasicBlock()))
+			this.blocksWithDeclarations.add(reference.getBasicBlock())
 			return reference
 		}
 	}
@@ -81,9 +81,9 @@ func (this *VariableReferenceCheck) checkRedeclaration(v *Var, reference *Refere
 }
 
 func (this *VariableReferenceCheck) isRedeclaration(newDeclaration *BasicBlock) bool {
-	it_1 := foreach_(any(this.blocksWithDeclarations))
+	it_1 := this.blocksWithDeclarations.each()
 	for it_1.next() {
-		var previousDeclaration *BasicBlock = cast_[*BasicBlock](it_1.v)
+		var previousDeclaration *BasicBlock = it_1.v
 		if previousDeclaration.provablyExecutesBefore(newDeclaration) {
 			return true
 		}
@@ -204,11 +204,11 @@ func VariableReferenceCheck_clinit() {
 
 type VariableReferenceCheck_ReferenceCheckingBehavior struct {
 	outer_             *VariableReferenceCheck
-	varsInFunctionBody SetOf[string]
+	varsInFunctionBody *TSet[string]
 }
 
 func (this *VariableReferenceCheck_ReferenceCheckingBehavior) init_VariableReferenceCheck_ReferenceCheckingBehavior() {
-	this.varsInFunctionBody = icast_Set(obj_(new_LinkedHashSet()))
+	this.varsInFunctionBody = newTSet_(tc_string)
 }
 
 func new_VariableReferenceCheck_ReferenceCheckingBehavior(outer_ *VariableReferenceCheck) *VariableReferenceCheck_ReferenceCheckingBehavior {
@@ -225,7 +225,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 		it_1 := foreach_(any(scope.getVarIterable()))
 		for it_1.next() {
 			var v *Var = cast_[*Var](it_1.v)
-			Collection_add_s(this.varsInFunctionBody, v.getName())
+			this.varsInFunctionBody.add(v.getName())
 		}
 	}
 	it_3 := foreach_(any(scope.getVarIterable()))
@@ -247,7 +247,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterExitScope(t *
 	}
 }
 
-func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody SetOf[string]) {
+func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkDefaultParam(param *Var, scope *Scope, varsInFunctionBody *TSet[string]) {
 	NodeTraversal_traverse(this.outer_.compiler_, param.getParentNode().getSecondChild(), icast_NodeTraversal_Callback(obj_(new_VariableReferenceCheck_ReferenceCheckingBehavior_1(this, varsInFunctionBody, scope))))
 }
 
@@ -302,7 +302,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) checkVar(v *Var, r
 		if isDeclaration {
 			hasSeenDeclaration = true
 			hasErrors = this.outer_.checkRedeclaration(v, reference, referenceNode, hoistedFn, basicBlock)
-			this.outer_.blocksWithDeclarations.add(obj_(basicBlock))
+			this.outer_.blocksWithDeclarations.add(basicBlock)
 			this.outer_.checkBlocklessDeclaration(v, reference, referenceNode)
 			if reference.getGrandparent().isExport() {
 				isRead = true
@@ -349,7 +349,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior) afterVisitNode(p0 
 type VariableReferenceCheck_ReferenceCheckingBehavior_1 struct {
 	NodeTraversal_AbstractShallowCallback
 	outer_                 *VariableReferenceCheck_ReferenceCheckingBehavior
-	cap_varsInFunctionBody Set
+	cap_varsInFunctionBody *TSet[string]
 	cap_scope              *Scope
 }
 
@@ -364,7 +364,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) init_VariableRef
 	this.NodeTraversal_AbstractShallowCallback.init_NodeTraversal_AbstractShallowCallback()
 }
 
-func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody Set, cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
+func new_VariableReferenceCheck_ReferenceCheckingBehavior_1(outer_ *VariableReferenceCheck_ReferenceCheckingBehavior, cap_varsInFunctionBody *TSet[string], cap_scope *Scope) *VariableReferenceCheck_ReferenceCheckingBehavior_1 {
 	this := &VariableReferenceCheck_ReferenceCheckingBehavior_1{}
 	this.self_ = this
 	this.outer_ = outer_
@@ -379,7 +379,7 @@ func (this *VariableReferenceCheck_ReferenceCheckingBehavior_1) visit_impl(t *No
 		return
 	}
 	var refName string = n.getString()
-	if Collection_contains_s(this.cap_varsInFunctionBody, refName) && !this.cap_scope.hasSlot(refName) {
+	if this.cap_varsInFunctionBody.contains(refName) && !this.cap_scope.hasSlot(refName) {
 		this.outer_.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, VariableReferenceCheck_EARLY_REFERENCE_ERROR, []string{refName}))
 	}
 }

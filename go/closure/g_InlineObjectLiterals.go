@@ -204,19 +204,19 @@ func (this *InlineObjectLiterals_InliningBehavior) replaceAssignmentExpression(v
 	var val Node = ref.getAssignedValue()
 	this.recordStaleVarReferencesInTree(val, cast_[*Scope](v.getScope()))
 	Preconditions_checkState_boolean_Object(val.isObjectLit(), val.box_())
-	var all SetOf[string] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(varmap.asMap().keySet()))))
+	var all *TSet[string] = tsetFrom_(tc_string, Collection(varmap.asMap().keySet()), false)
 	{
 		var key Node = val.getFirstChild()
 		for ; key != 0; key = key.getNext() {
 			var var_ string = key.getString()
 			var value Node = key.removeFirstChild()
 			nodes.add(IR_assign(IR_name(varmap.get(var_)), value).box_())
-			Collection_remove_s(all, var_)
+			all.remove(var_)
 		}
 	}
-	it_2 := foreach_(any(all))
+	it_2 := all.each()
 	for it_2.next() {
-		var var_ string = str_(it_2.v)
+		var var_ string = it_2.v
 		nodes.add(IR_assign(IR_name(varmap.get(var_)), NodeUtil_newUndefinedNode(0)).box_())
 	}
 	var replacement Node

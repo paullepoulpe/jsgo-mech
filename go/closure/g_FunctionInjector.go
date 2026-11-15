@@ -407,7 +407,7 @@ func (this *FunctionInjector) canInlineReferenceDirectly(ref *FunctionInjector_R
 	return FunctionInjector_CanInlineResult_YES
 }
 
-func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias SetOf[string], isRemovable bool, referencesThis bool) bool {
+func (this *FunctionInjector) inliningLowersCost(fnChunk *JSChunk, fnNode Node, refs CollectionOf[*FunctionInjector_Reference], namesToAlias *TSet[string], isRemovable bool, referencesThis bool) bool {
 	var referenceCount int32 = refs.size()
 	if referenceCount == 0 {
 		return true
@@ -467,7 +467,7 @@ func FunctionInjector_estimateCallCost(fnNode Node, referencesThis bool) int32 {
 	return callCost
 }
 
-func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias SetOf[string], mode *FunctionInjector_InliningMode) int32 {
+func FunctionInjector_inlineCostDelta(fnNode Node, namesToAlias *TSet[string], mode *FunctionInjector_InliningMode) int32 {
 	var paramCount int32 = NodeUtil_getFunctionParameters(fnNode).getChildCount()
 	var commaCount int32 = func() int32 {
 		if paramCount > 1 {

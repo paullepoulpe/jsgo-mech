@@ -5,7 +5,7 @@ package closure
 type GatherRawExports struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_         *AbstractCompiler
-	exportedVariables SetOf[string]
+	exportedVariables *TSet[string]
 }
 
 func (this *GatherRawExports) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -16,7 +16,7 @@ func (this *GatherRawExports) up_NodeTraversal_AbstractPostOrderCallback() *Node
 }
 
 func (this *GatherRawExports) finit_GatherRawExports() {
-	this.exportedVariables = icast_Set(obj_(new_LinkedHashSet()))
+	this.exportedVariables = newTSet_(tc_string)
 }
 
 func (this *GatherRawExports) init_GatherRawExports(compiler *AbstractCompiler) {
@@ -40,9 +40,9 @@ func (this *GatherRawExports) process_2(externs Node, root Node) {
 func (this *GatherRawExports) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if NodeUtil_isNormalOrOptChainGet(n) && GatherRawExports_isGlobalThisObject(t, n.getFirstChild()) {
 		if NodeUtil_isNormalOrOptChainGetProp(n) {
-			Collection_add_s(this.exportedVariables, n.getString())
+			this.exportedVariables.add(n.getString())
 		} else if NodeUtil_isNormalOrOptChainGet(n) && n.getSecondChild().isStringLit() {
-			Collection_add_s(this.exportedVariables, n.getSecondChild().getString())
+			this.exportedVariables.add(n.getSecondChild().getString())
 		}
 	}
 }
@@ -61,7 +61,7 @@ func GatherRawExports_isGlobalThisObject(t *NodeTraversal, n Node) bool {
 	return false
 }
 
-func (this *GatherRawExports) getExportedVariableNames() SetOf[string] {
+func (this *GatherRawExports) getExportedVariableNames() *TSet[string] {
 	return this.exportedVariables
 }
 

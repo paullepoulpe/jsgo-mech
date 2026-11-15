@@ -7,13 +7,13 @@ type RuntimeJsLibManager struct {
 	mode_                *RuntimeJsLibManager_RuntimeLibraryMode
 	resourceProvider     RuntimeJsLibManager_ResourceProvider
 	nodeForCodeInsertion SupplierOf[Node]
-	injectedLibs         SetOf[string]
+	injectedLibs         *TSet[string]
 	internedFields       *TMap[string, *RuntimeJsLibManager_InternalField]
 	lastInjectedLibrary  Node
 }
 
 func (this *RuntimeJsLibManager) finit_RuntimeJsLibManager() {
-	this.injectedLibs = icast_Set(obj_(new_LinkedHashSet()))
+	this.injectedLibs = newTSet_(tc_string)
 	this.internedFields = newTMap_(tc_string, tc_p_RuntimeJsLibManager_InternalField)
 	this.lastInjectedLibrary = 0
 }
@@ -37,15 +37,15 @@ func RuntimeJsLibManager_create(mode *RuntimeJsLibManager_RuntimeLibraryMode, re
 }
 
 func (this *RuntimeJsLibManager) recordLibraryInjected(resourceName string) {
-	Collection_add_s(this.injectedLibs, resourceName)
+	this.injectedLibs.add(resourceName)
 }
 
 func (this *RuntimeJsLibManager) hasInjectedLibrary(resourceName string) bool {
-	return Collection_contains_s(this.injectedLibs, resourceName)
+	return this.injectedLibs.contains(resourceName)
 }
 
 func (this *RuntimeJsLibManager) getInjectedLibraries() ImmutableListOf[string] {
-	return ImmutableList_copyOf(Collection(this.injectedLibs))
+	return ImmutableList_copyOf(Collection(this.injectedLibs.asSet()))
 }
 
 func (this *RuntimeJsLibManager) getExternedFields() ImmutableListOf[RuntimeJsLibManager_ExternedField] {
@@ -121,7 +121,7 @@ func (this *RuntimeJsLibManager) ensureLibraryInjected(resourceName string, forc
 		case RuntimeJsLibManager_RuntimeLibraryMode_INJECT:
 		}
 	}
-	if Collection_contains_s(this.injectedLibs, resourceName) {
+	if this.injectedLibs.contains(resourceName) {
 		return this.lastInjectedLibrary
 	}
 	this.recordLibraryInjected(resourceName)

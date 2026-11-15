@@ -38,7 +38,7 @@ func (this *RenameVars) finit_RenameVars() {
 	this.assignments = newTMap_(tc_string, tc_p_RenameVars_Assignment)
 }
 
-func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix OptionalOf[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters SetOf[BoxedOf[uint16]], reservedNames SetOf[string], nameGenerator NameGenerator) {
+func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix OptionalOf[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters SetOf[BoxedOf[uint16]], reservedNames *TSet[string], nameGenerator NameGenerator) {
 	this.finit_RenameVars()
 	this.compiler_ = compiler
 	this.prefix_ = str_(prefix.orElse(strobj_("")))
@@ -54,12 +54,12 @@ func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optio
 	if reservedNames == nil {
 		this.reservedNames = icast_Set(obj_(new_LinkedHashSet()))
 	} else {
-		this.reservedNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames))))
+		this.reservedNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames.asSet()))))
 	}
 	this.nameGenerator = nameGenerator
 }
 
-func new_RenameVars(compiler *AbstractCompiler, prefix OptionalOf[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters SetOf[BoxedOf[uint16]], reservedNames SetOf[string], nameGenerator NameGenerator) *RenameVars {
+func new_RenameVars(compiler *AbstractCompiler, prefix OptionalOf[string], localRenamingOnly bool, generatePseudoNames bool, preferStableNames bool, prevUsedRenameMap *VariableMap, reservedCharacters SetOf[BoxedOf[uint16]], reservedNames *TSet[string], nameGenerator NameGenerator) *RenameVars {
 	this := &RenameVars{}
 	this.zero_RenameVars()
 	this.init_RenameVars(compiler, prefix, localRenamingOnly, generatePseudoNames, preferStableNames, prevUsedRenameMap, reservedCharacters, reservedNames, nameGenerator)

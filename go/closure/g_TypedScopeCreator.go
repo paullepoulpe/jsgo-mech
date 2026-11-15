@@ -140,12 +140,12 @@ func (this *TypedScopeCreator) createScopeInternal(root Node, typedParent *Typed
 		jsRoot.setJSType(globalThis)
 		newScope = this.createInitialScope(root)
 	} else {
-		var reservedNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-		reservedNames.addAll(Collection(this.reservedNamesForScope.removeAll(root.box_())))
+		var reservedNames *TSet[string] = newTSet_(tc_string)
+		reservedNames.asSet().addAll(Collection(this.reservedNamesForScope.removeAll(root.box_())))
 		if (module != nil) && module.metadata().isGoogModule() {
-			Collection_add_s(reservedNames, "exports")
+			reservedNames.add("exports")
 		} else if root.isFunction() && NodeUtil_isBundledGoogModuleCall(root.getParent()) {
-			Collection_remove_s(reservedNames, "exports")
+			reservedNames.remove("exports")
 		}
 		newScope = new_TypedScope_TypedScope_Node_Set_Module(typedParent, root, reservedNames, module)
 	}
@@ -2288,28 +2288,28 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareParameters(functionNo
 
 func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBody(functionNode Node, functionType *FunctionType) {
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(functionNode)
-	var templateNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var templateNames *TSet[string] = newTSet_(tc_string)
 	var isPossiblePrototypeMethod bool = (!functionType.hasInstanceType() && ((info == nil) || !info.hasThisType()))
 	if isPossiblePrototypeMethod {
 		var ownerNode Node = NodeUtil_getBestLValue(functionNode)
 		it_1 := foreach_(obj_(this.findOwnerTypeKeys(ownerNode)))
 		for it_1.next() {
 			var templateKey *TemplateType = cast_[*TemplateType](it_1.v)
-			Collection_add_s(templateNames, str_(templateKey.getReferenceName().orElseThrow()))
+			templateNames.add(str_(templateKey.getReferenceName().orElseThrow()))
 		}
 	}
 	if info != nil {
-		templateNames.addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
-		templateNames.addAll(Collection(info.getTypeTransformations().keySet()))
+		templateNames.asSet().addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
+		templateNames.asSet().addAll(Collection(info.getTypeTransformations().keySet()))
 	}
 	if templateNames.isEmpty() {
 		return
 	}
 	var input *CompilerInput = this.getCompilerInput()
 	var voidType *JSType = this.outer_.getNativeType(JSTypeNative_VOID_TYPE)
-	it_3 := foreach_(any(templateNames))
+	it_3 := templateNames.each()
 	for it_3.next() {
-		var name string = str_(it_3.v)
+		var name string = it_3.v
 		if !this.currentScope.canDeclare(name) {
 			this.outer_.validator.expectUndeclaredVariable(Optional_of(strobj_(NodeUtil_getSourceName(functionNode))).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)

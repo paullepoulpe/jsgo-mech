@@ -391,8 +391,8 @@ func (this *AbstractCompiler) setStringMap(p0 *VariableMap) {
 	this.self_.(interface{ setStringMap_impl(*VariableMap) }).setStringMap_impl(p0)
 }
 
-func (this *AbstractCompiler) setCssNames(p0 Set) {
-	this.self_.(interface{ setCssNames_impl(Set) }).setCssNames_impl(p0)
+func (this *AbstractCompiler) setCssNames(p0 *TSet[string]) {
+	this.self_.(interface{ setCssNames_impl(*TSet[string]) }).setCssNames_impl(p0)
 }
 
 func (this *AbstractCompiler) setIdGeneratorMap(p0 string) {
@@ -415,8 +415,8 @@ func (this *AbstractCompiler) setInstrumentationMapping(p0 *VariableMap) {
 	this.self_.(interface{ setInstrumentationMapping_impl(*VariableMap) }).setInstrumentationMapping_impl(p0)
 }
 
-func (this *AbstractCompiler) addExportedNames(p0 Set) {
-	this.self_.(interface{ addExportedNames_impl(Set) }).addExportedNames_impl(p0)
+func (this *AbstractCompiler) addExportedNames(p0 *TSet[string]) {
+	this.self_.(interface{ addExportedNames_impl(*TSet[string]) }).addExportedNames_impl(p0)
 }
 
 func (this *AbstractCompiler) getExportedNames() Set {

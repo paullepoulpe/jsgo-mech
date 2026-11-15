@@ -3,14 +3,14 @@
 package closure
 
 type InlineSimpleMethods struct {
-	nonInlineableProperties SetOf[string]
+	nonInlineableProperties *TSet[string]
 	methodDefinitions       *SimpleSetMultimap
 	compiler_               *AbstractCompiler
 	astAnalyzer             *AstAnalyzer
 }
 
 func (this *InlineSimpleMethods) finit_InlineSimpleMethods() {
-	this.nonInlineableProperties = icast_Set(obj_(new_LinkedHashSet()))
+	this.nonInlineableProperties = newTSet_(tc_string)
 	this.methodDefinitions = SimpleSetMultimap_createInsertionOrdered()
 }
 
@@ -18,7 +18,7 @@ func (this *InlineSimpleMethods) init_InlineSimpleMethods(compiler *AbstractComp
 	this.finit_InlineSimpleMethods()
 	this.compiler_ = compiler
 	this.astAnalyzer = compiler.getAstAnalyzer()
-	this.nonInlineableProperties.addAll(icast_Collection(obj_(compiler.getExternProperties())))
+	this.nonInlineableProperties.asSet().addAll(icast_Collection(obj_(compiler.getExternProperties())))
 }
 
 func new_InlineSimpleMethods(compiler *AbstractCompiler) *InlineSimpleMethods {
@@ -144,12 +144,12 @@ func (this *InlineSimpleMethods) addPossibleSignature(name string, node Node) {
 	if (node != 0) && node.isFunction() {
 		this.addSignature(name, node)
 	} else {
-		Collection_add_s(this.nonInlineableProperties, name)
+		this.nonInlineableProperties.add(name)
 	}
 }
 
 func (this *InlineSimpleMethods) addSignature(name string, function Node) {
-	if Collection_contains_s(this.nonInlineableProperties, name) {
+	if this.nonInlineableProperties.contains(name) {
 		return
 	}
 	this.methodDefinitions.put(strobj_(name), function.box_())
@@ -198,7 +198,7 @@ func new_InlineSimpleMethods_InlineTrivialAccessors(outer_ *InlineSimpleMethods)
 }
 
 func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTraversal, callNode Node, parent Node, callName string) {
-	if Collection_contains_s(this.outer_.nonInlineableProperties, callName) {
+	if this.outer_.nonInlineableProperties.contains(callName) {
 		return
 	}
 	var definitions SetOf[Node] = this.outer_.methodDefinitions.get(strobj_(callName))
@@ -206,11 +206,11 @@ func (this *InlineSimpleMethods_InlineTrivialAccessors) visit_4_impl(t *NodeTrav
 		return
 	}
 	if (definitions.size() > 1) && !this.outer_.allDefinitionsEquivalent(definitions) {
-		Collection_add_s(this.outer_.nonInlineableProperties, callName)
+		this.outer_.nonInlineableProperties.add(callName)
 		return
 	}
 	if this.outer_.anyDefinitionsNotInlineable(definitions) {
-		Collection_add_s(this.outer_.nonInlineableProperties, callName)
+		this.outer_.nonInlineableProperties.add(callName)
 		return
 	}
 	var firstDefinition Node = Node_of_(definitions.iterator().next())
@@ -274,7 +274,7 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_STRING_KEY:
 					this.outer_.addPossibleSignature(key.getString(), key.getFirstChild())
 				case Token_rhino_SETTER_DEF, Token_rhino_GETTER_DEF:
-					Collection_add_s(this.outer_.nonInlineableProperties, key.getString())
+					this.outer_.nonInlineableProperties.add(key.getString())
 				case Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_BLOCK:
 				default:
 					panic(new_IllegalStateException_String(("Unexpected " + objstr_(obj_(n.getToken())) + " key: " + objstr_(key.box_()))).self())
@@ -283,7 +283,7 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 		}
 	case Token_rhino_CALL:
 		if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(n.getFirstChild()) {
-			Collection_add_s(this.outer_.nonInlineableProperties, n.getSecondChild().getString())
+			this.outer_.nonInlineableProperties.add(n.getSecondChild().getString())
 		}
 	default:
 	}

@@ -7,11 +7,11 @@ type GenerateExports struct {
 	exportSymbolFunction   OptionalOf[string]
 	exportPropertyFunction OptionalOf[string]
 	allowNonGlobalExports  bool
-	exportedVariables      SetOf[string]
+	exportedVariables      *TSet[string]
 }
 
 func (this *GenerateExports) finit_GenerateExports() {
-	this.exportedVariables = icast_Set(obj_(new_LinkedHashSet()))
+	this.exportedVariables = newTSet_(tc_string)
 }
 
 func (this *GenerateExports) init_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool, exportSymbolFunction OptionalOf[string], exportPropertyFunction OptionalOf[string]) {
@@ -29,7 +29,7 @@ func new_GenerateExports(compiler *AbstractCompiler, allowNonGlobalExports bool,
 	return this
 }
 
-func (this *GenerateExports) getExportedVariableNames() SetOf[string] {
+func (this *GenerateExports) getExportedVariableNames() *TSet[string] {
 	return this.exportedVariables
 }
 
@@ -38,10 +38,10 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(findExportableNodes)))
 	var exports *TMap[string, Node] = findExportableNodes.getExports()
 	var es6Exports *TMap[Node, string] = findExportableNodes.getEs6ClassExports()
-	var localExports SetOf[string] = icast_Set(obj_(findExportableNodes.getLocalExports()))
-	it_1 := foreach_(any(localExports))
+	var localExports *TSet[string] = findExportableNodes.getLocalExports()
+	it_1 := localExports.each()
 	for it_1.next() {
-		var export string = str_(it_1.v)
+		var export string = it_1.v
 		this.addExtern(export)
 	}
 	if !exports.isEmpty() || !es6Exports.isEmpty() {
@@ -123,9 +123,9 @@ func (this *GenerateExports) addExtern(export string) {
 func (this *GenerateExports) recordExportSymbol(qname string) {
 	var dot int32 = String_indexOf(qname, 46)
 	if dot == -1 {
-		Collection_add_s(this.exportedVariables, qname)
+		this.exportedVariables.add(qname)
 	} else {
-		Collection_add_s(this.exportedVariables, String_substring(qname, 0, dot))
+		this.exportedVariables.add(String_substring(qname, 0, dot))
 	}
 }
 

@@ -16,16 +16,16 @@ func new_ApplySuggestedFixes() *ApplySuggestedFixes {
 }
 
 func ApplySuggestedFixes_applySuggestedFixesToFiles(fixes IterableOf[*SuggestedFix]) *Outcome_base {
-	var filenames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+	var filenames *TSet[string] = newTSet_(tc_string)
 	it_1 := foreach_(any(fixes))
 	for it_1.next() {
 		var fix *SuggestedFix = cast_[*SuggestedFix](it_1.v)
-		filenames.addAll(Collection(fix.getReplacements().keySet()))
+		filenames.asSet().addAll(Collection(fix.getReplacements().keySet()))
 	}
 	var filenameToCodeMap *TMap[string, string] = newTMap_(tc_string, tc_string)
-	it_3 := foreach_(any(filenames))
+	it_3 := filenames.each()
 	for it_3.next() {
-		var filename string = str_(it_3.v)
+		var filename string = it_3.v
 		var code *Outcome_base = TextFiles_read(filename, Charsets_UTF_8)
 		if code.isErr() {
 			return Outcome_base_err(code.error())

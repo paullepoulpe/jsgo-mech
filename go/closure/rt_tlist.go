@@ -1,5 +1,7 @@
 package closure
 
+import "reflect"
+
 // Typed lists (post-flip step 3): ArrayList<T> as a slice of T.
 //
 // A TList keeps its elements unboxed. Code that still expects an erased List gets asList(),
@@ -29,7 +31,7 @@ func newTListN_[T any](c *tconv_[T], n int32) *TList[T] {
 
 // tlistImm_ is an immutable list (ImmutableList.of, copyOf, build) as a typed list.
 func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
-	if from == nil {
+	if isNil_(from) {
 		return nil
 	}
 	l := tlistFrom_(c, from)
@@ -254,4 +256,14 @@ func (it *tlistIter_[T]) next() any {
 func (it *tlistIter_[T]) remove() {
 	it.i--
 	it.l.removeAt(int32(it.i))
+}
+
+// isNil_ reports whether c is null: a nil interface or an interface holding a nil pointer (an
+// ImmutableList field that is null reaches the copy as the latter).
+func isNil_(c any) bool {
+	if c == nil {
+		return true
+	}
+	v := reflect.ValueOf(c)
+	return v.Kind() == reflect.Pointer && v.IsNil()
 }

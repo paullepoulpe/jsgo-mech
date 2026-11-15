@@ -122,7 +122,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 		if functionState.canInline() {
 			functionState.setChunk(chunk)
-			var namesToAlias SetOf[string] = icast_Set(obj_(this.functionArgumentInjector_.findModifiedParameters(fnNode)))
+			var namesToAlias *TSet[string] = tsetFrom_(tc_string, this.functionArgumentInjector_.findModifiedParameters(fnNode), true)
 			if !namesToAlias.isEmpty() {
 				functionState.inlineDirectly(false)
 				functionState.setNamesToAlias(namesToAlias)
@@ -254,7 +254,7 @@ func (this *InlineFunctions) minimizeCost(functionState *InlineFunctions_Functio
 }
 
 func (this *InlineFunctions) inliningLowersCost(functionState *InlineFunctions_FunctionState) bool {
-	return ((functionState.requireInlining() || functionState.encourageInlining()) || this.injector.inliningLowersCost(functionState.getChunk(), functionState.getFn().getFunctionNode(), functionState.getReferences(), icast_Set(obj_(functionState.getNamesToAlias())), functionState.canRemove(), functionState.getReferencesThis()))
+	return ((functionState.requireInlining() || functionState.encourageInlining()) || this.injector.inliningLowersCost(functionState.getChunk(), functionState.getFn().getFunctionNode(), functionState.getReferences(), tsetFrom_(tc_string, functionState.getNamesToAlias(), true), functionState.canRemove(), functionState.getReferencesThis()))
 }
 
 func (this *InlineFunctions) resolveInlineConflicts() {
@@ -280,11 +280,11 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 		return
 	}
 	var fnNode Node = functionState.getFn().getFunctionNode()
-	var names SetOf[string] = this.findCalledFunctions(fnNode)
+	var names *TSet[string] = this.findCalledFunctions(fnNode)
 	if !names.isEmpty() {
-		it_1 := foreach_(any(names))
+		it_1 := names.each()
 		for it_1.next() {
-			var name string = str_(it_1.v)
+			var name string = it_1.v
 			var fsCalled *InlineFunctions_FunctionState = this.fns.get(name)
 			if (fsCalled != nil) && fsCalled.canRemove() {
 				fsCalled.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
@@ -297,16 +297,16 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 	}
 }
 
-func (this *InlineFunctions) findCalledFunctions(node Node) SetOf[string] {
-	var changed SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
+func (this *InlineFunctions) findCalledFunctions(node Node) *TSet[string] {
+	var changed *TSet[string] = newTSet_(tc_string)
 	InlineFunctions_findCalledFunctions(NodeUtil_getFunctionBody(node), changed)
 	return changed
 }
 
-func InlineFunctions_findCalledFunctions(node Node, changed SetOf[string]) {
+func InlineFunctions_findCalledFunctions(node Node, changed *TSet[string]) {
 	Preconditions_checkArgument((changed != nil))
 	if node.isName() && InlineFunctions_isCandidateUsage(node) {
-		Collection_add_s(changed, node.getString())
+		changed.add(node.getString())
 	}
 	{
 		var c Node = node.getFirstChild()
@@ -735,7 +735,7 @@ type InlineFunctions_FunctionState struct {
 	hasInnerClosuresField                     bool
 	references                                *TMap[Node, *InlineFunctions_Reference]
 	chunk_                                    *JSChunk
-	namesToAlias                              SetOf[string]
+	namesToAlias                              *TSet[string]
 	hasRequireInliningAnnotation              bool
 	hasRequireInliningAnnotationInitialized   bool
 	hasEncourageInliningAnnotation            bool
@@ -932,10 +932,10 @@ func (this *InlineFunctions_FunctionState) getNamesToAlias() ImmutableSetOf[stri
 	if this.namesToAlias == nil {
 		return ImmutableSet_of()
 	}
-	return ImmutableSet_copyOf(Collection(this.namesToAlias))
+	return ImmutableSet_copyOf(Collection(this.namesToAlias.asSet()))
 }
 
-func (this *InlineFunctions_FunctionState) setNamesToAlias(names SetOf[string]) {
+func (this *InlineFunctions_FunctionState) setNamesToAlias(names *TSet[string]) {
 	this.namesToAlias = names
 }
 
