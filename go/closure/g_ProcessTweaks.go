@@ -3,7 +3,7 @@
 package closure
 
 type ProcessTweaks struct {
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	stripTweaks bool
 }
 
@@ -102,10 +102,10 @@ func ProcessTweaks_clinit() {
 
 type ProcessTweaks_TweakFunction struct {
 	Enum
-	nameField string
+	nameField        string
 	expectedTypeName OptionalOf[string]
-	validNodeTypeA *Token_rhino
-	validNodeTypeB *Token_rhino
+	validNodeTypeA   *Token_rhino
+	validNodeTypeB   *Token_rhino
 	registerFunction *ProcessTweaks_TweakFunction
 }
 
@@ -265,7 +265,7 @@ func new_ProcessTweaks_CollectTweaksResult(tweakInfos MapOf[string, *ProcessTwea
 
 type ProcessTweaks_CollectTweaks struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ProcessTweaks
+	outer_    *ProcessTweaks
 	allTweaks MapOf[string, *ProcessTweaks_TweakInfo]
 }
 
@@ -299,7 +299,7 @@ func (this *ProcessTweaks_CollectTweaks) visit_impl(t *NodeTraversal, n Node, pa
 	}
 	var callName string = n.getFirstChild().getQualifiedName()
 	var tweakFunc *ProcessTweaks_TweakFunction = cast_[*ProcessTweaks_TweakFunction](Map_get_s(ProcessTweaks_TWEAK_FUNCTIONS_MAP, callName))
-	if (tweakFunc == nil) {
+	if tweakFunc == nil {
 		return
 	}
 	var tweakIdNode Node = n.getSecondChild()
@@ -358,10 +358,10 @@ func new_ProcessTweaks_TweakFunctionCall_TweakFunction_Node_Node(tweakFunc *Proc
 }
 
 type ProcessTweaks_TweakInfo struct {
-	outer_ *ProcessTweaks
-	tweakId string
-	functionCalls ListOf[*ProcessTweaks_TweakFunctionCall]
-	registerCall *ProcessTweaks_TweakFunctionCall
+	outer_           *ProcessTweaks
+	tweakId          string
+	functionCalls    ListOf[*ProcessTweaks_TweakFunctionCall]
+	registerCall     *ProcessTweaks_TweakFunctionCall
 	defaultValueNode Node
 }
 
@@ -395,7 +395,7 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 		var valueNode Node = call.valueNode
 		var tweakFunc *ProcessTweaks_TweakFunction = call.tweakFunc
 		var registerFunc *ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
-		if (valueNode != 0) {
+		if valueNode != 0 {
 			if !registerFunc.isValidNodeType(valueNode.getToken()) {
 				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(valueNode, ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING, []string{this.tweakId, registerFunc.getName(), str_(registerFunc.getExpectedTypeName().orElse(strobj_("null")))}))
 			}
@@ -422,12 +422,11 @@ func (this *ProcessTweaks_TweakInfo) isRegistered() bool {
 
 func (this *ProcessTweaks_TweakInfo) getDefaultValueNode() Node {
 	Preconditions_checkState(this.isRegistered())
-	if (this.defaultValueNode != 0) {
+	if this.defaultValueNode != 0 {
 		return this.defaultValueNode
 	}
-	if (this.registerCall.valueNode != 0) {
+	if this.registerCall.valueNode != 0 {
 		return this.registerCall.valueNode
 	}
 	return this.registerCall.tweakFunc.createDefaultValueNode()
 }
-

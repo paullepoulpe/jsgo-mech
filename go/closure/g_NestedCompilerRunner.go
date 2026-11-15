@@ -3,12 +3,12 @@
 package closure
 
 type NestedCompilerRunner struct {
-	shadowCompiler *Compiler
-	inputs ListOf[*CompilerInput]
-	baseChunk *JSChunk
-	original_ *AbstractCompiler
-	shadowOptions *CompilerOptions
-	mode_ *NestedCompilerRunner_Mode
+	shadowCompiler   *Compiler
+	inputs           ListOf[*CompilerInput]
+	baseChunk        *JSChunk
+	original_        *AbstractCompiler
+	shadowOptions    *CompilerOptions
+	mode_            *NestedCompilerRunner_Mode
 	shadowPassConfig *PassConfig
 }
 
@@ -170,4 +170,3 @@ func NestedCompilerRunner_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.NestedCompilerRunner.Mode", enumValues_(NestedCompilerRunner_Mode_values_))
 
 }
-

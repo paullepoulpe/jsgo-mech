@@ -29,4 +29,3 @@ func new_ContinueStatementTree(location *SourceRange, name *IdentifierToken) *Co
 func (this *ContinueStatementTree) hasLabel() bool {
 	return (this.name_ != nil)
 }
-

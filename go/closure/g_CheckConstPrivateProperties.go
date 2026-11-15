@@ -4,9 +4,9 @@ package closure
 
 type CheckConstPrivateProperties struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	candidates ListOf[Node]
-	modified SetOf[string]
+	compiler_                 *AbstractCompiler
+	candidates                ListOf[Node]
+	modified                  SetOf[string]
 	constructorsAndInterfaces LinkedHashSetOf[string]
 }
 
@@ -73,7 +73,7 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 		}
 	case Token_rhino_FUNCTION:
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-		if ((info != nil) && (info.isConstructor() || info.isInterface())) {
+		if (info != nil) && (info.isConstructor() || info.isInterface()) {
 			this.recordConstructorOrInterface(n)
 		}
 	case Token_rhino_CLASS:
@@ -125,4 +125,3 @@ func CheckConstPrivateProperties_clinit() {
 	CheckConstPrivateProperties_MISSING_CONST_PROPERTY = DiagnosticType_disabled("JSC_MISSING_CONST_PROPERTY", "Private property {0} is never modified, use the @const annotation")
 
 }
-

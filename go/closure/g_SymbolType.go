@@ -58,10 +58,10 @@ func (this *SymbolType) getTypeClass_impl() *JSTypeClass {
 
 func (this *SymbolType) testForEquality_impl(that *JSType) *Tri {
 	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if (result != nil) {
+	if result != nil {
 		return result
 	}
-	if (that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE))) {
+	if that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_TYPE)) || that.canCastTo(this.getNativeType(JSTypeNative_SYMBOL_OBJECT_TYPE)) {
 		return Tri_UNKNOWN
 	}
 	return Tri_FALSE
@@ -102,4 +102,3 @@ func (this *SymbolType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
 func (this *SymbolType) visitUntyped_impl(visitor Visitor) any {
 	return visitor.caseSymbolType(this)
 }
-

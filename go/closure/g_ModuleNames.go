@@ -59,11 +59,11 @@ func ModuleNames_canonicalizePath(path string) string {
 		available--
 	}
 	for _, part := range parts {
-		if (part == ".") {
+		if part == "." {
 			continue
 		}
-		if (part == "..") {
-			if (available > 0) {
+		if part == ".." {
+			if available > 0 {
 				position--
 				available--
 			} else if !absolutePath {
@@ -76,14 +76,16 @@ func ModuleNames_canonicalizePath(path string) string {
 		position++
 		available++
 	}
-	if (absolutePath && (position == 1)) {
+	if absolutePath && (position == 1) {
 		return ModuleNames_MODULE_SLASH
 	}
 	return ModuleNames_MODULE_JOINER.join_ObjectArr(Arrays_copyOf_ObjectArr_int(arrmap_(buffer, func(v_ string) any { return strobj_(v_) }), position))
 }
 
 var ModuleNames_LEADING_DOT_SLASH_PATTERN *Pattern
+
 const ModuleNames_MODULE_SLASH string = "/"
+
 var ModuleNames_MODULE_SLASH_PATTERN *Pattern
 var ModuleNames_MODULE_JOINER *Joiner
 
@@ -99,4 +101,3 @@ func ModuleNames_clinit() {
 	ModuleNames_MODULE_JOINER = Joiner_on(ModuleNames_MODULE_SLASH)
 
 }
-

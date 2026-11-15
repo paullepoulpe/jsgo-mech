@@ -39,7 +39,9 @@ func (this *UndiGraph) init_UndiGraph() {
 }
 
 func (this *UndiGraph) createUndirectedGraphNode(p0 any) UndiGraph_UndiGraphNode {
-	return this.self_.(interface{ createUndirectedGraphNode_impl(any) UndiGraph_UndiGraphNode }).createUndirectedGraphNode_impl(p0)
+	return this.self_.(interface {
+		createUndirectedGraphNode_impl(any) UndiGraph_UndiGraphNode
+	}).createUndirectedGraphNode_impl(p0)
 }
 
 func (this *UndiGraph) getUndirectedGraphEdges(p0 any, p1 any) List {
@@ -47,7 +49,9 @@ func (this *UndiGraph) getUndirectedGraphEdges(p0 any, p1 any) List {
 }
 
 func (this *UndiGraph) getUndirectedGraphNode(p0 any) UndiGraph_UndiGraphNode {
-	return this.self_.(interface{ getUndirectedGraphNode_impl(any) UndiGraph_UndiGraphNode }).getUndirectedGraphNode_impl(p0)
+	return this.self_.(interface {
+		getUndirectedGraphNode_impl(any) UndiGraph_UndiGraphNode
+	}).getUndirectedGraphNode_impl(p0)
 }
 
 func (this *UndiGraph) getUndirectedGraphNodes() Collection {
@@ -63,4 +67,3 @@ type UndiGraph_UndiGraphNode interface {
 type UndiGraph_UndiGraphEdge interface {
 	Graph_GraphEdge
 }
-

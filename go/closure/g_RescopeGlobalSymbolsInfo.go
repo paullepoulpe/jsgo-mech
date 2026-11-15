@@ -3,16 +3,16 @@
 package closure
 
 type RescopeGlobalSymbolsInfo struct {
-	globalSymbolNamespace_ string
-	externNames_ ImmutableSetOf[string]
-	crossChunkNames_ ImmutableSetOf[string]
-	crossChunkNamesWithWriteFromOtherChunk_ ImmutableSetOf[string]
-	crossChunkNamesUsedInNonDependentChunk_ ImmutableSetOf[string]
-	globalNamesWithReadInDefiningChunk_ ImmutableSetOf[string]
-	globalNamesWithInnerScopeWriteInDefiningChunk_ ImmutableSetOf[string]
+	globalSymbolNamespace_                                  string
+	externNames_                                            ImmutableSetOf[string]
+	crossChunkNames_                                        ImmutableSetOf[string]
+	crossChunkNamesWithWriteFromOtherChunk_                 ImmutableSetOf[string]
+	crossChunkNamesUsedInNonDependentChunk_                 ImmutableSetOf[string]
+	globalNamesWithReadInDefiningChunk_                     ImmutableSetOf[string]
+	globalNamesWithInnerScopeWriteInDefiningChunk_          ImmutableSetOf[string]
 	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ ImmutableSetOf[string]
-	maybeReferencesThis_ ImmutableSetOf[string]
-	wrappedCrossChunkNames_ ImmutableSetOf[string]
+	maybeReferencesThis_                                    ImmutableSetOf[string]
+	wrappedCrossChunkNames_                                 ImmutableSetOf[string]
 }
 
 func (this *RescopeGlobalSymbolsInfo) zero_RescopeGlobalSymbolsInfo() {
@@ -131,4 +131,3 @@ func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
 func (this *RescopeGlobalSymbolsInfo) toString() string {
 	return "RescopeGlobalSymbolsInfo[" + "globalSymbolNamespace=" + objstr_(strobj_(this.globalSymbolNamespace_)) + ", externNames=" + objstr_(obj_(this.externNames_)) + ", crossChunkNames=" + objstr_(obj_(this.crossChunkNames_)) + ", crossChunkNamesWithWriteFromOtherChunk=" + objstr_(obj_(this.crossChunkNamesWithWriteFromOtherChunk_)) + ", crossChunkNamesUsedInNonDependentChunk=" + objstr_(obj_(this.crossChunkNamesUsedInNonDependentChunk_)) + ", globalNamesWithReadInDefiningChunk=" + objstr_(obj_(this.globalNamesWithReadInDefiningChunk_)) + ", globalNamesWithInnerScopeWriteInDefiningChunk=" + objstr_(obj_(this.globalNamesWithInnerScopeWriteInDefiningChunk_)) + ", globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk=" + objstr_(obj_(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_)) + ", maybeReferencesThis=" + objstr_(obj_(this.maybeReferencesThis_)) + ", wrappedCrossChunkNames=" + objstr_(obj_(this.wrappedCrossChunkNames_)) + "]"
 }
-

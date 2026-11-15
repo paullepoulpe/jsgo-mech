@@ -16,7 +16,7 @@ func new_PolymerPassStaticUtils() *PolymerPassStaticUtils {
 }
 
 func PolymerPassStaticUtils_isPolymerCall(call Node) bool {
-	if ((call == 0) || !call.isCall()) {
+	if (call == 0) || !call.isCall() {
 		return false
 	}
 	var name Node = call.getFirstChild()
@@ -24,11 +24,11 @@ func PolymerPassStaticUtils_isPolymerCall(call Node) bool {
 }
 
 func PolymerPassStaticUtils_isPolymerClass(cls Node) bool {
-	if ((cls == 0) || !cls.isClass()) {
+	if (cls == 0) || !cls.isClass() {
 		return false
 	}
 	var info *JSDocInfo = NodeUtil_getBestJSDocInfo(cls)
-	if ((info != nil) && info.isPolymer()) {
+	if (info != nil) && info.isPolymer() {
 		return true
 	}
 	var heritage Node = cls.getSecondChild()
@@ -43,9 +43,9 @@ func PolymerPassStaticUtils_switchDollarSignPropsToBrackets(def Node, compiler *
 	Preconditions_checkState((def.isObjectLit() || def.isClassMembers()))
 	{
 		var keyNode Node = def.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var value Node = keyNode.getFirstChild()
-			if ((value != 0) && value.isFunction()) {
+			if (value != 0) && value.isFunction() {
 				NodeUtil_visitPostOrder_Node_Visitor(value.getLastChild(), icast_NodeUtil_Visitor(obj_(new_PolymerPassStaticUtils_1(compiler))))
 			}
 		}
@@ -56,16 +56,16 @@ func PolymerPassStaticUtils_quoteListenerAndHostAttributeKeys(objLit Node, compi
 	Preconditions_checkState(objLit.isObjectLit())
 	{
 		var keyNode Node = objLit.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			if !keyNode.isStringKey() {
 				continue
 			}
-			if (!(keyNode.getString() == "listeners") && !(keyNode.getString() == "hostAttributes")) {
+			if !(keyNode.getString() == "listeners") && !(keyNode.getString() == "hostAttributes") {
 				continue
 			}
 			{
 				var keyToQuote Node = keyNode.getFirstFirstChild()
-				for ; (keyToQuote != 0); keyToQuote = keyToQuote.getNext() {
+				for ; keyToQuote != 0; keyToQuote = keyToQuote.getNext() {
 					if !keyToQuote.isQuotedStringKey() {
 						keyToQuote.setQuotedStringKey()
 						compiler.reportChangeToEnclosingScope(keyToQuote)
@@ -83,7 +83,7 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 	methodsToProtect.addAll(Collection(PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit)))
 	{
 		var keyNode Node = behaviorObjLit.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			if !NodeUtil_isObjectLitKey(keyNode) {
 				continue
 			}
@@ -99,10 +99,10 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) SetOf[string] {
 	var methodsToProtect SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
 	var observers Node = NodeUtil_getFirstPropMatchingKey(behaviorObjLit, "observers")
-	if ((observers != 0) && observers.isArrayLit()) {
+	if (observers != 0) && observers.isArrayLit() {
 		{
 			var child Node = observers.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				if !child.isStringLit() {
 					continue
 				}
@@ -119,19 +119,19 @@ func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) Set
 func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) SetOf[string] {
 	var methodsToProtect SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
 	var properties Node = NodeUtil_getFirstPropMatchingKey(behaviorObjLit, "properties")
-	if ((properties != 0) && properties.isObjectLit()) {
+	if (properties != 0) && properties.isObjectLit() {
 		{
 			var prop Node = properties.getFirstChild()
-			for ; (prop != 0); prop = prop.getNext() {
+			for ; prop != 0; prop = prop.getNext() {
 				if !prop.getLastChild().isObjectLit() {
 					continue
 				}
 				var observer Node = NodeUtil_getFirstPropMatchingKey(prop.getLastChild(), "observer")
-				if ((observer != 0) && observer.isStringLit()) {
+				if (observer != 0) && observer.isStringLit() {
 					Collection_add_s(methodsToProtect, observer.getString())
 				}
 				var computed Node = NodeUtil_getFirstPropMatchingKey(prop.getLastChild(), "computed")
-				if ((computed != 0) && computed.isStringLit()) {
+				if (computed != 0) && computed.isStringLit() {
 					var name OptionalOf[string] = PolymerPassStaticUtils_extractMethodName(computed.getString())
 					if name.isPresent() {
 						Collection_add_s(methodsToProtect, str_(name.get()))
@@ -145,7 +145,12 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) Set
 
 func PolymerPassStaticUtils_extractMethodName(signature string) OptionalOf[string] {
 	var openParenIndex int32 = String_indexOf(signature, 40)
-	return func() *Optional { if (openParenIndex > 0) { return Optional_of(strobj_(String_trim(String_substring(signature, 0, openParenIndex)))) }; return Optional_empty() }()
+	return func() *Optional {
+		if openParenIndex > 0 {
+			return Optional_of(strobj_(String_trim(String_substring(signature, 0, openParenIndex))))
+		}
+		return Optional_empty()
+	}()
 }
 
 func PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode Node) {
@@ -157,27 +162,27 @@ func PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode Node) {
 
 func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerClassDefinition_DefinitionType, compiler *AbstractCompiler, constructor Node) ImmutableListOf[*PolymerPass_MemberDefinition] {
 	var properties Node = descriptor
-	if (defType == PolymerClassDefinition_DefinitionType_ObjectLiteral) {
+	if defType == PolymerClassDefinition_DefinitionType_ObjectLiteral {
 		properties = NodeUtil_getFirstPropMatchingKey(descriptor, "properties")
 	}
-	if (properties == 0) {
+	if properties == 0 {
 		return ImmutableList_of()
 	}
 	var constructorPropertyJsDoc MapOf[string, *JSDocInfo] = icast_Map(obj_(new_LinkedHashMap()))
-	if (constructor != 0) {
+	if constructor != 0 {
 		PolymerPassStaticUtils_collectConstructorPropertyJsDoc(constructor, constructorPropertyJsDoc)
 	}
 	var enclosingModule Node = NodeUtil_getEnclosingModuleIfPresent(descriptor)
 	var members ImmutableList_BuilderOf[*PolymerPass_MemberDefinition] = ImmutableList_builder()
 	{
 		var keyNode Node = properties.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var constructorJsDoc *JSDocInfo = cast_[*JSDocInfo](Map_get_s(constructorPropertyJsDoc, keyNode.getString()))
 			var propertiesConfigJsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(keyNode)
 			var bestJsDoc *JSDocInfo
-			if (constructorJsDoc != nil) {
+			if constructorJsDoc != nil {
 				bestJsDoc = constructorJsDoc
-				if (propertiesConfigJsDoc != nil) {
+				if propertiesConfigJsDoc != nil {
 					compiler.report(JSError_make_Node_DiagnosticType_StringArr(keyNode, PolymerPassErrors_POLYMER_MISPLACED_PROPERTY_JSDOC, []string{}))
 				}
 			} else {
@@ -193,8 +198,8 @@ func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ MapO
 	Preconditions_checkNotNull(node.box_())
 	{
 		var child Node = node.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
-			if (child.isGetProp() && child.getFirstChild().isThis()) {
+		for ; child != 0; child = child.getNext() {
+			if child.isGetProp() && child.getFirstChild().isThis() {
 				Map_put_s(map_, child.getString(), obj_(NodeUtil_getBestJSDocInfo(child)))
 			} else {
 				PolymerPassStaticUtils_collectConstructorPropertyJsDoc(child, map_)
@@ -204,13 +209,13 @@ func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ MapO
 }
 
 func PolymerPassStaticUtils_getTypeFromProperty(property *PolymerPass_MemberDefinition, compiler *AbstractCompiler) *JSTypeExpression {
-	if ((property.info != nil) && property.info.hasType()) {
+	if (property.info != nil) && property.info.hasType() {
 		return property.info.getType().copy()
 	}
 	var typeValue Node
 	if property.value_.isObjectLit() {
 		typeValue = NodeUtil_getFirstPropMatchingKey(property.value_, "type")
-		if ((typeValue == 0) || !typeValue.isName()) {
+		if (typeValue == 0) || !typeValue.isName() {
 			compiler.report(JSError_make_Node_DiagnosticType_StringArr(property.name_, PolymerPassErrors_POLYMER_INVALID_PROPERTY, []string{}))
 			return nil
 		}
@@ -219,7 +224,7 @@ func PolymerPassStaticUtils_getTypeFromProperty(property *PolymerPass_MemberDefi
 	} else {
 		typeValue = 0
 	}
-	if (typeValue == 0) {
+	if typeValue == 0 {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(property.value_, PolymerPassErrors_POLYMER_INVALID_PROPERTY, []string{}))
 		return nil
 	}
@@ -239,11 +244,17 @@ func PolymerPassStaticUtils_getTypeFromProperty(property *PolymerPass_MemberDefi
 }
 
 func PolymerPassStaticUtils_getPolymerElementType(cls *PolymerClassDefinition) string {
-	var nativeElementName string = func() string { if cls.nativeBaseElement.isEmpty() { return "" }; return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, str_(cls.nativeBaseElement.get())) }()
+	var nativeElementName string = func() string {
+		if cls.nativeBaseElement.isEmpty() {
+			return ""
+		}
+		return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, str_(cls.nativeBaseElement.get()))
+	}()
 	return String_format("Polymer%sElement", []any{strobj_(nativeElementName)})
 }
 
 const PolymerPassStaticUtils_VIRTUAL_FILE string = "<PolymerPassStaticUtils.java>"
+
 var PolymerPassStaticUtils_POLYMER_DOT_ELEMENT *QualifiedName
 
 var PolymerPassStaticUtils_clinit_done bool
@@ -277,10 +288,10 @@ func (this *PolymerPassStaticUtils_1) visit(n Node) {
 		return
 	}
 	var dollarSign Node = n.getFirstChild()
-	if (!dollarSign.isGetProp() || !(dollarSign.getString() == "$")) {
+	if !dollarSign.isGetProp() || !(dollarSign.getString() == "$") {
 		return
 	}
-	if (n.getParent().isCall() && n.getParent().hasOneChild()) {
+	if n.getParent().isCall() && n.getParent().hasOneChild() {
 		return
 	}
 	var key Node = IR_string(n.getString()).clonePropsFrom(n).srcref(n)
@@ -288,4 +299,3 @@ func (this *PolymerPassStaticUtils_1) visit(n Node) {
 	n.replaceWith(getelem)
 	this.cap_compiler.reportChangeToEnclosingScope(getelem)
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type ClosureOptimizePrimitives struct {
-	compiler_ *AbstractCompiler
+	compiler_       *AbstractCompiler
 	canUseEs6Syntax bool
 }
 
@@ -27,7 +27,7 @@ func (this *ClosureOptimizePrimitives) processObjectCreateCall(callNode Node) {
 	var curParam Node = callNode.getSecondChild()
 	if this.canOptimizeObjectCreate(curParam) {
 		var objNode Node = IR_objectlit([]Node{}).srcref(callNode)
-		for (curParam != 0) {
+		for curParam != 0 {
 			var keyNode Node = curParam
 			var valueNode Node = curParam.getNext()
 			curParam = valueNode.getNext()
@@ -54,12 +54,12 @@ func (this *ClosureOptimizePrimitives) processRenamePropertyCall(callNode Node) 
 
 func (this *ClosureOptimizePrimitives) canOptimizeObjectCreate(firstParam Node) bool {
 	var curParam Node = firstParam
-	for (curParam != 0) {
+	for curParam != 0 {
 		if !this.isOptimizableKey(curParam) {
 			return false
 		}
 		curParam = curParam.getNext()
-		if (curParam == 0) {
+		if curParam == 0 {
 			return false
 		}
 		curParam = curParam.getNext()
@@ -71,7 +71,7 @@ func (this *ClosureOptimizePrimitives) processObjectCreateSetCall(callNode Node)
 	var curParam Node = callNode.getSecondChild()
 	if this.canOptimizeObjectCreateSet(curParam) {
 		var objNode Node = IR_objectlit([]Node{}).srcref(callNode)
-		for (curParam != 0) {
+		for curParam != 0 {
 			var keyNode Node = curParam
 			var valueNode Node = IR_trueNode().srcref(keyNode)
 			curParam = curParam.getNext()
@@ -84,17 +84,22 @@ func (this *ClosureOptimizePrimitives) processObjectCreateSetCall(callNode Node)
 }
 
 func (this *ClosureOptimizePrimitives) canOptimizeObjectCreateSet(firstParam Node) bool {
-	if (((firstParam != 0) && (firstParam.getNext() == 0)) && !(firstParam.isNumber() || firstParam.isStringLit())) {
+	if ((firstParam != 0) && (firstParam.getNext() == 0)) && !(firstParam.isNumber() || firstParam.isStringLit()) {
 		return false
 	}
 	var curParam Node = firstParam
 	var keys SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-	for (curParam != 0) {
+	for curParam != 0 {
 		if !this.isOptimizableKey(curParam) {
 			return false
 		}
-		if (curParam.isStringLit() || curParam.isNumber()) {
-			var key string = func() string { if curParam.isStringLit() { return curParam.getString() }; return DToA_numberToString(curParam.getDouble()) }()
+		if curParam.isStringLit() || curParam.isNumber() {
+			var key string = func() string {
+				if curParam.isStringLit() {
+					return curParam.getString()
+				}
+				return DToA_numberToString(curParam.getDouble())
+			}()
 			if !Collection_add_s(keys, key) {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(firstParam.getPrevious(), ClosureOptimizePrimitives_DUPLICATE_SET_MEMBER, []string{key}))
 				return false
@@ -106,7 +111,7 @@ func (this *ClosureOptimizePrimitives) canOptimizeObjectCreateSet(firstParam Nod
 }
 
 func (this *ClosureOptimizePrimitives) addKeyValueToObjLit(objNode Node, keyNode Node, valueNode Node, scriptNode Node) {
-	if (keyNode.isNumber() || keyNode.isStringLit()) {
+	if keyNode.isNumber() || keyNode.isStringLit() {
 		if keyNode.isNumber() {
 			keyNode = IR_string(DToA_numberToString(keyNode.getDouble())).srcref(keyNode)
 		}
@@ -175,11 +180,10 @@ func (this *ClosureOptimizePrimitives_FindPrimitives) visit_impl(t *NodeTraversa
 		var fn Node = n.getFirstChild()
 		if this.outer_.compiler_.getCodingConvention().isPropertyRenameFunction(fn) {
 			this.outer_.processRenamePropertyCall(n)
-		} else if ((fn.matchesName("goog$object$create") || fn.matchesName("module$contents$goog$object_create")) || ClosureOptimizePrimitives_GOOG_OBJECT_CREATE.matches(fn)) {
+		} else if (fn.matchesName("goog$object$create") || fn.matchesName("module$contents$goog$object_create")) || ClosureOptimizePrimitives_GOOG_OBJECT_CREATE.matches(fn) {
 			this.outer_.processObjectCreateCall(n)
-		} else if ((fn.matchesName("goog$object$createSet") || fn.matchesName("module$contents$goog$object_createSet")) || ClosureOptimizePrimitives_GOOG_OBJECT_CREATESET.matches(fn)) {
+		} else if (fn.matchesName("goog$object$createSet") || fn.matchesName("module$contents$goog$object_createSet")) || ClosureOptimizePrimitives_GOOG_OBJECT_CREATESET.matches(fn) {
 			this.outer_.processObjectCreateSetCall(n)
 		}
 	}
 }
-

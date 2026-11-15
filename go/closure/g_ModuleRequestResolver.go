@@ -6,4 +6,3 @@ type ModuleRequestResolver interface {
 	resolveImport(*Import) *UnresolvedModule
 	resolve(*Export) *UnresolvedModule
 }
-

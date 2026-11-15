@@ -3,11 +3,11 @@
 package closure
 
 type GenerateExports struct {
-	compiler_ *AbstractCompiler
-	exportSymbolFunction OptionalOf[string]
+	compiler_              *AbstractCompiler
+	exportSymbolFunction   OptionalOf[string]
 	exportPropertyFunction OptionalOf[string]
-	allowNonGlobalExports bool
-	exportedVariables SetOf[string]
+	allowNonGlobalExports  bool
+	exportedVariables      SetOf[string]
 }
 
 func (this *GenerateExports) finit_GenerateExports() {
@@ -44,7 +44,7 @@ func (this *GenerateExports) process_2(externs Node, root Node) {
 		var export string = str_(it_1.v)
 		this.addExtern(export)
 	}
-	if (!exports.isEmpty() || !es6Exports.isEmpty()) {
+	if !exports.isEmpty() || !es6Exports.isEmpty() {
 		if !this.validateExportMethodsIncluded(exports, es6Exports, root) {
 			return
 		}
@@ -70,7 +70,7 @@ func (this *GenerateExports) validateExportMethodsIncluded(exports MapOf[string,
 	} else {
 		errorLocation = Node_of_(es6Exports.keySet().iterator().next())
 	}
-	if (this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty()) {
+	if this.exportSymbolFunction.isEmpty() || this.exportPropertyFunction.isEmpty() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorLocation, GenerateExports_MISSING_EXPORT_CONVENTION, []string{}))
 		return false
 	}
@@ -92,7 +92,7 @@ func (this *GenerateExports) includesExportMethods(root Node) bool {
 func (this *GenerateExports) declareExportMethodsInExterns(srcref Node) {
 	var exportPropertyRoot string = NodeUtil_getRootOfQualifiedNameString(str_(this.exportPropertyFunction.get()))
 	var exportSymbolRoot string = NodeUtil_getRootOfQualifiedNameString(str_(this.exportSymbolFunction.get()))
-	if (exportPropertyRoot == exportSymbolRoot) {
+	if exportPropertyRoot == exportSymbolRoot {
 		this.declareSyntheticExternsVar(exportPropertyRoot, srcref)
 	} else {
 		this.declareSyntheticExternsVar(exportPropertyRoot, srcref)
@@ -122,7 +122,7 @@ func (this *GenerateExports) addExtern(export string) {
 
 func (this *GenerateExports) recordExportSymbol(qname string) {
 	var dot int32 = String_indexOf(qname, 46)
-	if (dot == -1) {
+	if dot == -1 {
 		Collection_add_s(this.exportedVariables, qname)
 	} else {
 		Collection_add_s(this.exportedVariables, String_substring(qname, 0, dot))
@@ -141,11 +141,11 @@ func (this *GenerateExports) addExportMethod(exports MapOf[string, Node], export
 	var isEs5StylePrototypeAssignment bool = false
 	var propertyName OptionalOf[string] = Optional_empty()
 	var child Node = context.getFirstChild()
-	if ((child != 0) && child.isGetProp()) {
+	if (child != 0) && child.isGetProp() {
 		var node Node = context.getFirstChild()
 		var ownerNode Node = node.getFirstChild()
 		methodOwnerName = ownerNode.getQualifiedName()
-		if (ownerNode.isGetProp() && (ownerNode.getString() == GenerateExports_PROTOTYPE_PROPERTY)) {
+		if ownerNode.isGetProp() && (ownerNode.getString() == GenerateExports_PROTOTYPE_PROPERTY) {
 			isEs5StylePrototypeAssignment = true
 		}
 		propertyName = Optional_of(strobj_(node.getString()))
@@ -153,7 +153,7 @@ func (this *GenerateExports) addExportMethod(exports MapOf[string, Node], export
 	var useExportSymbol bool = true
 	if isEs5StylePrototypeAssignment {
 		useExportSymbol = false
-	} else if (!String_isEmpty(methodOwnerName) && Map_containsKey_s(exports, methodOwnerName)) {
+	} else if !String_isEmpty(methodOwnerName) && Map_containsKey_s(exports, methodOwnerName) {
 		useExportSymbol = false
 	}
 	if useExportSymbol {
@@ -185,7 +185,7 @@ func (this *GenerateExports) addStatement(context Node, stmt Node) {
 	}
 	for {
 		var next Node = exprRoot.getNext()
-		if (((next != 0) && NodeUtil_isExprCall(next)) && (convention.getClassesDefinedByCall(next.getFirstChild()) != nil)) {
+		if ((next != 0) && NodeUtil_isExprCall(next)) && (convention.getClassesDefinedByCall(next.getFirstChild()) != nil) {
 			exprRoot = next
 		} else {
 			break
@@ -200,6 +200,7 @@ func (this *GenerateExports) getSynthesizedExternsRoot() Node {
 }
 
 const GenerateExports_PROTOTYPE_PROPERTY string = "prototype"
+
 var GenerateExports_MISSING_EXPORT_CONVENTION *DiagnosticType
 var GenerateExports_MISSING_GOOG_FOR_EXPORT *DiagnosticType
 
@@ -214,4 +215,3 @@ func GenerateExports_clinit() {
 	GenerateExports_MISSING_GOOG_FOR_EXPORT = DiagnosticType_error("JSC_MISSING_EXPORT_SYMBOL_DEFINITION", "@export cannot be used without including closure/base.js or other definition of {0} and {1}")
 
 }
-

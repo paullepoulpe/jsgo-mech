@@ -3,9 +3,9 @@
 package closure
 
 type ColorRegistry struct {
-	nativeColors ImmutableMapOf[*ColorId, *Color]
+	nativeColors                        ImmutableMapOf[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap
-	mismatchLocations *SimpleSetMultimap
+	mismatchLocations                   *SimpleSetMultimap
 }
 
 func (this *ColorRegistry) init_ColorRegistry(builder *ColorRegistry_Builder) {
@@ -52,9 +52,9 @@ func ColorRegistry_clinit() {
 }
 
 type ColorRegistry_Builder struct {
-	nativeColors LinkedHashMapOf[*ColorId, *Color]
+	nativeColors                        LinkedHashMapOf[*ColorId, *Color]
 	colorToDisambiguationSupertypeGraph *SimpleSetMultimap
-	mismatchLocations *SimpleSetMultimap
+	mismatchLocations                   *SimpleSetMultimap
 }
 
 func (this *ColorRegistry_Builder) finit_ColorRegistry_Builder() {
@@ -101,4 +101,3 @@ func (this *ColorRegistry_Builder) setDefaultNativeColorsForTesting() *ColorRegi
 func (this *ColorRegistry_Builder) build() *ColorRegistry {
 	return new_ColorRegistry(this)
 }
-

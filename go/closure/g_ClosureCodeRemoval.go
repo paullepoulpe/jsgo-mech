@@ -3,12 +3,12 @@
 package closure
 
 type ClosureCodeRemoval struct {
-	compiler_ *AbstractCompiler
-	removeAbstractMethods bool
-	removeAssertionCalls bool
+	compiler_                     *AbstractCompiler
+	removeAbstractMethods         bool
+	removeAssertionCalls          bool
 	abstractMethodAssignmentNodes ListOf[*ClosureCodeRemoval_RemovableAssignment]
-	abstractMemberFunctionNodes ListOf[Node]
-	assertionCalls ListOf[Node]
+	abstractMemberFunctionNodes   ListOf[Node]
+	assertionCalls                ListOf[Node]
 }
 
 func (this *ClosureCodeRemoval) finit_ClosureCodeRemoval() {
@@ -62,7 +62,7 @@ func (this *ClosureCodeRemoval) process_2(externs Node, root Node) {
 			NodeUtil_markFunctionsDeleted(parent, this.compiler_)
 		} else {
 			var firstArg Node = call.getSecondChild()
-			if (firstArg == 0) {
+			if firstArg == 0 {
 				call.replaceWith(NodeUtil_newUndefinedNode(call))
 			} else {
 				var replacement Node = firstArg.detach()
@@ -77,11 +77,11 @@ func (this *ClosureCodeRemoval) process_2(externs Node, root Node) {
 const ClosureCodeRemoval_ABSTRACT_METHOD_NAME string = "goog.abstractMethod"
 
 type ClosureCodeRemoval_RemovableAssignment struct {
-	outer_ *ClosureCodeRemoval
-	node_ Node
-	parent Node
+	outer_          *ClosureCodeRemoval
+	node_           Node
+	parent          Node
 	assignAncestors ListOf[Node]
-	lastAncestor Node
+	lastAncestor    Node
 }
 
 func (this *ClosureCodeRemoval_RemovableAssignment) finit_ClosureCodeRemoval_RemovableAssignment() {
@@ -153,13 +153,13 @@ func (this *ClosureCodeRemoval_FindAbstractMethods) visit_impl(t *NodeTraversal,
 	if n.isAssign() {
 		var nameNode Node = n.getFirstChild()
 		var valueNode Node = n.getLastChild()
-		if ((nameNode.isQualifiedName() && valueNode.isQualifiedName()) && valueNode.matchesQualifiedName(ClosureCodeRemoval_ABSTRACT_METHOD_NAME)) {
+		if (nameNode.isQualifiedName() && valueNode.isQualifiedName()) && valueNode.matchesQualifiedName(ClosureCodeRemoval_ABSTRACT_METHOD_NAME) {
 			this.outer_.abstractMethodAssignmentNodes.add(obj_(new_ClosureCodeRemoval_RemovableAssignment(this.outer_, n.getFirstChild(), n)))
-		} else if ((((n.getJSDocInfo() != nil) && n.getJSDocInfo().isAbstract()) && NodeUtil_isEmptyFunctionExpression(valueNode)) && !n.getJSDocInfo().isConstructor()) {
+		} else if (((n.getJSDocInfo() != nil) && n.getJSDocInfo().isAbstract()) && NodeUtil_isEmptyFunctionExpression(valueNode)) && !n.getJSDocInfo().isConstructor() {
 			this.outer_.abstractMethodAssignmentNodes.add(obj_(new_ClosureCodeRemoval_RemovableAssignment(this.outer_, n.getFirstChild(), n)))
 		}
-	} else if (n.isMemberFunctionDef() && parent.isClassMembers()) {
-		if ((n.getJSDocInfo() != nil) && n.getJSDocInfo().isAbstract()) {
+	} else if n.isMemberFunctionDef() && parent.isClassMembers() {
+		if (n.getJSDocInfo() != nil) && n.getJSDocInfo().isAbstract() {
 			this.outer_.abstractMemberFunctionNodes.add(n.box_())
 		}
 	}
@@ -167,7 +167,7 @@ func (this *ClosureCodeRemoval_FindAbstractMethods) visit_impl(t *NodeTraversal,
 
 type ClosureCodeRemoval_FindAssertionCalls struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ClosureCodeRemoval
+	outer_         *ClosureCodeRemoval
 	assertionNames *CodingConvention_AssertionFunctionLookup
 }
 
@@ -196,8 +196,7 @@ func (this *ClosureCodeRemoval_FindAssertionCalls) visit_impl(t *NodeTraversal, 
 		return
 	}
 	var callee Node = n.getFirstChild()
-	if ((this.assertionNames.lookupByCallee(callee) != nil) || ((callee.getColor() != nil) && callee.getColor().isClosureAssert())) {
+	if (this.assertionNames.lookupByCallee(callee) != nil) || ((callee.getColor() != nil) && callee.getColor().isClosureAssert()) {
 		this.outer_.assertionCalls.add(n.box_())
 	}
 }
-

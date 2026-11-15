@@ -37,7 +37,12 @@ func QualifiedName_of(string_ string) *QualifiedName {
 	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
 	for do_2 := true; do_2; do_2 = (index >= 0) {
 		index = String_indexOf_int_int(string_, 46, lastIndex)
-		var term string = String_substring(string_, lastIndex, func() int32 { if (index < 0) { return String_length(string_) }; return index }())
+		var term string = String_substring(string_, lastIndex, func() int32 {
+			if index < 0 {
+				return String_length(string_)
+			}
+			return index
+		}())
 		builder.add(strobj_(RhinoStringPool_addOrGet(term)))
 		lastIndex = (index + 1)
 	}
@@ -61,7 +66,7 @@ func (this *QualifiedName) components_impl() IterableOf[string] {
 
 func (this *QualifiedName) buildComponents(builder ImmutableList_BuilderOf[string]) {
 	var owner *QualifiedName = this.getOwner()
-	if (owner != nil) {
+	if owner != nil {
 		owner.buildComponents(builder)
 	}
 	builder.add(strobj_(this.getComponent()))
@@ -155,7 +160,12 @@ func new_QualifiedName_StringListQname(terms ImmutableListOf[string], size int32
 }
 
 func (this *QualifiedName_StringListQname) getOwner_impl() *QualifiedName {
-	return func() *QualifiedName { if (this.size_ > 1) { return new_QualifiedName_StringListQname(this.terms, (this.size_ - 1)).up_QualifiedName() }; return nil }()
+	return func() *QualifiedName {
+		if this.size_ > 1 {
+			return new_QualifiedName_StringListQname(this.terms, (this.size_ - 1)).up_QualifiedName()
+		}
+		return nil
+	}()
 }
 
 func (this *QualifiedName_StringListQname) getComponent_impl() string {
@@ -167,8 +177,8 @@ func (this *QualifiedName_StringListQname) isSimple_impl() bool {
 }
 
 func (this *QualifiedName_StringListQname) appendTo_impl(sb *StringBuilder, separator any) {
-	for i := int32(0); (i < this.size_); i++ {
-		if (i > 0) {
+	for i := int32(0); i < this.size_; i++ {
+		if i > 0 {
 			sb.append_Object(separator)
 		}
 		sb.append(str_(this.terms.get(i)))
@@ -185,14 +195,14 @@ func (this *QualifiedName_StringListQname) getComponentCount_impl() int32 {
 
 func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 	var pos int32 = (this.size_ - 1)
-	for ((pos > 0) && n.isGetProp()) {
+	for (pos > 0) && n.isGetProp() {
 		if !RhinoStringPool_uncheckedEquals(n.getString(), str_(this.terms.get(pos))) {
 			return false
 		}
 		pos--
 		n = n.getFirstChild()
 	}
-	if (pos > 0) {
+	if pos > 0 {
 		return false
 	}
 	var term string = str_(this.terms.get(0))
@@ -214,7 +224,7 @@ func (this *QualifiedName_StringListQname) matches_impl(n Node) bool {
 type QualifiedName_GetpropQname struct {
 	QualifiedName
 	owner_ *QualifiedName
-	prop string
+	prop   string
 }
 
 func (this *QualifiedName_GetpropQname) up_QualifiedName() *QualifiedName {
@@ -292,7 +302,12 @@ func new_QualifiedName_NodeQname(n Node) *QualifiedName_NodeQname {
 }
 
 func (this *QualifiedName_NodeQname) getOwner_impl() *QualifiedName {
-	return func() *QualifiedName { if this.node_.isGetProp() { return new_QualifiedName_NodeQname(this.node_.getFirstChild()).up_QualifiedName() }; return nil }()
+	return func() *QualifiedName {
+		if this.node_.isGetProp() {
+			return new_QualifiedName_NodeQname(this.node_.getFirstChild()).up_QualifiedName()
+		}
+		return nil
+	}()
 }
 
 func (this *QualifiedName_NodeQname) getComponent_impl() string {
@@ -344,4 +359,3 @@ func (this *QualifiedName_NodeQname) getComponentCount_impl() int32 {
 	}
 	return count
 }
-

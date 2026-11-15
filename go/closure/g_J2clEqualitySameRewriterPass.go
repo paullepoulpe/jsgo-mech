@@ -4,7 +4,7 @@ package closure
 
 type J2clEqualitySameRewriterPass struct {
 	AbstractPeepholeOptimization
-	useTypes bool
+	useTypes            bool
 	shouldRunJ2clPasses bool
 }
 
@@ -45,7 +45,7 @@ func (this *J2clEqualitySameRewriterPass) optimizeSubtree_impl(node Node) Node {
 	} else if J2clEqualitySameRewriterPass_isEqualitySameCall(node) {
 		replacement = this.trySubstituteEqualitySame(node)
 	}
-	if (replacement == 0) {
+	if replacement == 0 {
 		return node
 	}
 	replacement.srcrefIfMissing(node)
@@ -56,7 +56,7 @@ func (this *J2clEqualitySameRewriterPass) optimizeSubtree_impl(node Node) Node {
 
 func (this *J2clEqualitySameRewriterPass) trySubstituteStringEquals(callNode Node) Node {
 	var firstExprValue *J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(callNode.getSecondChild())
-	if ((firstExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) || (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED)) {
+	if (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) || (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED) {
 		return 0
 	}
 	return this.trySubstituteEqualitySame(callNode)
@@ -67,16 +67,16 @@ func (this *J2clEqualitySameRewriterPass) trySubstituteEqualitySame(callNode Nod
 	var firstExprValue *J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(firstExpr)
 	var secondExpr Node = callNode.getLastChild()
 	var secondExprValue *J2clEqualitySameRewriterPass_NodeValue = J2clEqualitySameRewriterPass_getKnownLiteralValue(secondExpr)
-	if ((firstExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) && (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN)) {
+	if (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) && (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_UNKNOWN) {
 		return 0
 	}
-	if (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED) {
+	if firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED {
 		return this.rewriteNullCheck(secondExpr, firstExpr)
 	}
-	if (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED) {
+	if secondExprValue == J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED {
 		return this.rewriteNullCheck(firstExpr, secondExpr)
 	}
-	if ((firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NON_NULL) || (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_NON_NULL)) {
+	if (firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NON_NULL) || (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_NON_NULL) {
 		return this.rewriteAsStrictEq(firstExpr, secondExpr)
 	}
 	Preconditions_checkState(((firstExprValue == J2clEqualitySameRewriterPass_NodeValue_NUMBER) || (secondExprValue == J2clEqualitySameRewriterPass_NodeValue_NUMBER)))
@@ -86,7 +86,7 @@ func (this *J2clEqualitySameRewriterPass) trySubstituteEqualitySame(callNode Nod
 func (this *J2clEqualitySameRewriterPass) rewriteNullCheck(expr Node, nullExpression Node) Node {
 	expr.detach()
 	nullExpression.detach()
-	if (this.useTypes && this.canOnlyBeObject(expr)) {
+	if this.useTypes && this.canOnlyBeObject(expr) {
 		return IR_not(expr)
 	}
 	return IR_eq(expr, nullExpression)
@@ -94,7 +94,7 @@ func (this *J2clEqualitySameRewriterPass) rewriteNullCheck(expr Node, nullExpres
 
 func (this *J2clEqualitySameRewriterPass) canOnlyBeObject(n Node) bool {
 	var color *Color = n.getColor()
-	if (color == nil) {
+	if color == nil {
 		return false
 	}
 	if color.isUnion() {
@@ -112,15 +112,15 @@ func (this *J2clEqualitySameRewriterPass) rewriteAsStrictEq(firstExpr Node, seco
 func (this *J2clEqualitySameRewriterPass) rewriteNumberCheck(firstExpr Node, secondExpr Node) Node {
 	var firstValue any = NodeUtil_getNumberValue(firstExpr)
 	var secondValue any = NodeUtil_getNumberValue(secondExpr)
-	if ((firstValue != nil) && (secondValue != nil)) {
+	if (firstValue != nil) && (secondValue != nil) {
 		firstExpr.detach()
 		secondExpr.detach()
 		return NodeUtil_booleanNode(Object_equals(firstValue, secondValue))
 	}
-	if (J2clEqualitySameRewriterPass_isSafeNumber(firstValue) || J2clEqualitySameRewriterPass_isSafeNumber(secondValue)) {
+	if J2clEqualitySameRewriterPass_isSafeNumber(firstValue) || J2clEqualitySameRewriterPass_isSafeNumber(secondValue) {
 		return this.rewriteAsStrictEq(firstExpr, secondExpr)
 	}
-	if (this.useTypes && (this.canOnlyBeObject(firstExpr) || this.canOnlyBeObject(secondExpr))) {
+	if this.useTypes && (this.canOnlyBeObject(firstExpr) || this.canOnlyBeObject(secondExpr)) {
 		return this.rewriteAsStrictEq(firstExpr, secondExpr)
 	}
 	return 0
@@ -134,7 +134,12 @@ func J2clEqualitySameRewriterPass_getKnownLiteralValue(n Node) *J2clEqualitySame
 	return func() *J2clEqualitySameRewriterPass_NodeValue {
 		switch NodeUtil_getKnownValueType(n) {
 		case NodeUtil_ValueType_VOID:
-			return func() *J2clEqualitySameRewriterPass_NodeValue { if NodeUtil_canBeSideEffected_Node(n) { return J2clEqualitySameRewriterPass_NodeValue_UNKNOWN }; return J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED }()
+			return func() *J2clEqualitySameRewriterPass_NodeValue {
+				if NodeUtil_canBeSideEffected_Node(n) {
+					return J2clEqualitySameRewriterPass_NodeValue_UNKNOWN
+				}
+				return J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED
+			}()
 		case NodeUtil_ValueType_NULL:
 			return J2clEqualitySameRewriterPass_NodeValue_NULL_OR_UNDEFINED
 		case NodeUtil_ValueType_STRING, NodeUtil_ValueType_BOOLEAN, NodeUtil_ValueType_OBJECT, NodeUtil_ValueType_BIGINT:
@@ -220,4 +225,3 @@ func J2clEqualitySameRewriterPass_NodeValue_clinit() {
 	registerEnum_("com.google.javascript.jscomp.J2clEqualitySameRewriterPass.NodeValue", enumValues_(J2clEqualitySameRewriterPass_NodeValue_values_))
 
 }
-

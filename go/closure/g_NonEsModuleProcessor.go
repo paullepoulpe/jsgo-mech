@@ -22,8 +22,8 @@ func (this *NonEsModuleProcessor) process(metadata *ModuleMetadataMap_ModuleMeta
 type NonEsModuleProcessor_NonEsModule struct {
 	UnresolvedModule
 	metadataField *ModuleMetadataMap_ModuleMetadata
-	path_ *ModuleLoader_ModulePath
-	scriptNode Node
+	path_         *ModuleLoader_ModulePath
+	scriptNode    Node
 }
 
 func (this *NonEsModuleProcessor_NonEsModule) up_UnresolvedModule() *UnresolvedModule {
@@ -53,7 +53,7 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestRe
 
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
 	var namespace OptionalOf[string] = Optional_empty()
-	if (moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get()))) {
+	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get())) {
 		namespace = Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(str_(moduleSpecifier.get()))))
 	} else if this.metadataField.isGoogProvide() {
 		namespace = moduleSpecifier
@@ -72,7 +72,7 @@ func (this *NonEsModuleProcessor_NonEsModule) reset_impl() {
 
 func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string]) *Module {
 	var namespace OptionalOf[string] = Optional_empty()
-	if (moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get()))) {
+	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get())) {
 		namespace = Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(str_(moduleSpecifier.get()))))
 	}
 	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(ImmutableMap_of()).boundNames(ImmutableMap_of()).localNameToLocalExport(ImmutableMap_of()).closureNamespace(namespace).build()
@@ -89,4 +89,3 @@ func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_impl(moduleReques
 func (this *NonEsModuleProcessor_NonEsModule) getExportedNames_2_impl(moduleRequestResolver ModuleRequestResolver, visited SetOf[*UnresolvedModule]) ImmutableSetOf[string] {
 	panic(new_UnsupportedOperationException_0().self())
 }
-

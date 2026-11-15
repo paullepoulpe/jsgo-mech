@@ -4,7 +4,7 @@ package closure
 
 type DependencyFile struct {
 	dependencies MapOf[string, DependencyInfo]
-	delegate SourceFile_deps
+	delegate     SourceFile_deps
 }
 
 func (this *DependencyFile) finit_DependencyFile() {
@@ -35,7 +35,7 @@ func (this *DependencyFile) wasModified() bool {
 }
 
 func (this *DependencyFile) ensureUpToDate() {
-	if (this.dependencies.isEmpty() || this.wasModified()) {
+	if this.dependencies.isEmpty() || this.wasModified() {
 		this.loadGraph()
 	}
 }
@@ -60,7 +60,7 @@ func (this *DependencyFile) loadGraph() {
 		for it_3.next() {
 			var provide string = str_(it_3.v)
 			var existing DependencyInfo = icast_DependencyInfo(Map_get_s(this.dependencies, provide))
-			if ((existing != nil) && !Object_equals(any(existing), any(depInfo))) {
+			if (existing != nil) && !Object_equals(any(existing), any(depInfo)) {
 				panic(obj_(new_ServiceException(("Duplicate provide of " + sstr_(provide) + ". Was provided by " + sstr_(existing.getPathRelativeToClosureBase()) + " and " + sstr_(depInfo.getPathRelativeToClosureBase())))))
 			}
 			Map_put_s(this.dependencies, provide, any(depInfo))
@@ -85,4 +85,3 @@ func DependencyFile_clinit() {
 	DependencyFile_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DependencyFile").getName())
 
 }
-

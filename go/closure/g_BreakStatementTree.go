@@ -29,4 +29,3 @@ func new_BreakStatementTree(location *SourceRange, name *IdentifierToken) *Break
 func (this *BreakStatementTree) hasLabel() bool {
 	return (this.name_ != nil)
 }
-

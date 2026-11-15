@@ -44,7 +44,7 @@ func AllowlistWarningsGuard_normalizeAllowlist(allowlist SetOf[string]) Immutabl
 	for it_1.next() {
 		var line string = str_(it_1.v)
 		var trimmed string = String_trim(line)
-		if (String_isEmpty(trimmed) || (String_charAt(trimmed, 0) == '#')) {
+		if String_isEmpty(trimmed) || (String_charAt(trimmed, 0) == '#') {
 			continue
 		}
 		Collection_add_s(result, AllowlistWarningsGuard_LINE_NUMBER.matcher(strobj_(trimmed)).replaceFirst(":"))
@@ -56,7 +56,7 @@ func (this *AllowlistWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	if Object_equals(obj_(error_.defaultLevel()), obj_(CheckLevel_ERROR)) {
 		return nil
 	}
-	if (!this.allowlist.isEmpty() && this.containWarning(this.formatWarning(error_))) {
+	if !this.allowlist.isEmpty() && this.containWarning(this.formatWarning(error_)) {
 		return CheckLevel_WARNING
 	}
 	return nil
@@ -101,7 +101,7 @@ func (this *AllowlistWarningsGuard) formatWarning_2(error_ *JSError, withMetaDat
 	var lines ListOf[string] = AllowlistWarningsGuard_LINE_SPLITTER.splitToList(strobj_(error_.description()))
 	sb.append("  ").append(str_(lines.get(0)))
 	if withMetaData {
-		for i := int32(1); (i < lines.size()); i++ {
+		for i := int32(1); i < lines.size(); i++ {
 			sb.append("\n# ").append(str_(lines.get(i)))
 		}
 		sb.append("\n")
@@ -118,7 +118,7 @@ func (this *AllowlistWarningsGuard) normalizeSourceName(sourceName OptionalOf[st
 
 func AllowlistWarningsGuard_getFirstLine(warning string) string {
 	var lineLength int32 = String_indexOf(warning, 10)
-	if (lineLength > 0) {
+	if lineLength > 0 {
 		warning = String_substring(warning, 0, lineLength)
 	}
 	return warning
@@ -142,11 +142,11 @@ func AllowlistWarningsGuard_clinit() {
 }
 
 type AllowlistWarningsGuard_AllowlistBuilder struct {
-	outer_ *AllowlistWarningsGuard
-	warnings_ SetOf[*JSError]
-	productName OptionalOf[string]
+	outer_          *AllowlistWarningsGuard
+	warnings_       SetOf[*JSError]
+	productName     OptionalOf[string]
 	generatorTarget OptionalOf[string]
-	headerNote OptionalOf[string]
+	headerNote      OptionalOf[string]
 }
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) finit_AllowlistWarningsGuard_AllowlistBuilder() {
@@ -200,10 +200,10 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) writeAllowlist(out string) 
 
 func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output) {
 	out.append_CharSequence(strobj_("# This is a list of legacy warnings that have yet to be fixed.\n"))
-	if ((this.productName.isPresent() && !String_isEmpty(str_(this.productName.get()))) && !this.warnings_.isEmpty()) {
+	if (this.productName.isPresent() && !String_isEmpty(str_(this.productName.get()))) && !this.warnings_.isEmpty() {
 		out.append_CharSequence(strobj_(("# Please find some time and fix at least one of them and it will be the happiest day for " + sstr_(str_(this.productName.get())) + ".\n")))
 	}
-	if (this.generatorTarget.isPresent() && !String_isEmpty(str_(this.generatorTarget.get()))) {
+	if this.generatorTarget.isPresent() && !String_isEmpty(str_(this.generatorTarget.get())) {
 		out.append_CharSequence(strobj_(("# When you fix any of these warnings, run " + sstr_(str_(this.generatorTarget.get())) + " task.\n")))
 	}
 	if this.headerNote.isPresent() {
@@ -230,4 +230,3 @@ func (this *AllowlistWarningsGuard_AllowlistBuilder) appendAllowlist(out *Output
 	}
 	out.flush()
 }
-

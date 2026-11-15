@@ -56,7 +56,7 @@ func ReportDecoder_parseMapping(mappingFileContent string) *Outcome_base {
 		var typeAsString string = str_(it_1.v)
 		types.add(obj_(InstrumentationPoint_Type_valueOf(typeAsString)))
 	}
-	for i := int32(3); (i < linesOfFile.size()); i++ {
+	for i := int32(3); i < linesOfFile.size(); i++ {
 		var lineItem string = str_(linesOfFile.get(i))
 		var id string = String_substring(lineItem, 0, String_indexOf(lineItem, 58))
 		var encodedDetails string = String_substring_int(lineItem, (String_indexOf(lineItem, 58) + 1))
@@ -72,14 +72,14 @@ func ReportDecoder_parseJsonStringList(json string) *Outcome_base {
 	if parsed.isErr() {
 		return Outcome_base_err(parsed.error())
 	}
-	if (cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY) {
+	if cast_[*SimpleJsonValue](parsed.get()).kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(new_SimpleJsonException("Malformed mapping: expected a JSON array").up_Throwable())
 	}
 	var list ListOf[string] = icast_List(new_ArrayList_0().self())
 	it_1 := foreach_(any(cast_[*SimpleJsonValue](parsed.get()).elements()))
 	for it_1.next() {
 		var element *SimpleJsonValue = cast_[*SimpleJsonValue](it_1.v)
-		if (element.kind() == SimpleJsonValue_Kind_NULL) {
+		if element.kind() == SimpleJsonValue_Kind_NULL {
 			list.add(nil)
 			continue
 		}
@@ -112,7 +112,12 @@ func ReportDecoder_createProfileOfStaticallyUsedCode(mapping MapOf[string, *Inst
 	it_2 := foreach_(any(mapping.entrySet()))
 	for it_2.next() {
 		var entry Map_Entry = icast_Map_Entry(it_2.v)
-		instrumentationPoints.add(any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence { if Collection_contains_s(encodedPoints, str_(entry.getKey())) { return InstrumentationPointStats_Presence_PRESENT }; return InstrumentationPointStats_Presence_STATICALLY_REMOVED }()).build()))
+		instrumentationPoints.add(any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence {
+			if Collection_contains_s(encodedPoints, str_(entry.getKey())) {
+				return InstrumentationPointStats_Presence_PRESENT
+			}
+			return InstrumentationPointStats_Presence_STATICALLY_REMOVED
+		}()).build()))
 	}
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
@@ -132,14 +137,24 @@ func ReportDecoder_mergeProfiles(profiles ListOf[*ReportProfile]) *ReportProfile
 				Map_compute(frequencies, obj_(pointStats.getPoint()), &BiFunction_fn{func(p_ any, existing any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
-					return any(int64((func() int64 { if (existing == nil) { return 0 }; return unbox_[int64](existing) }() + pointStats.getTimesExecuted())))
+					return any(int64((func() int64 {
+						if existing == nil {
+							return 0
+						}
+						return unbox_[int64](existing)
+					}() + pointStats.getTimesExecuted())))
 				}})
 				Map_compute(presences, obj_(pointStats.getPoint()), &BiFunction_fn{func(p_ any, existing_ any) any {
 					var p *InstrumentationPoint = cast_[*InstrumentationPoint](p_)
 					_ = p
 					var existing *InstrumentationPointStats_Presence = cast_[*InstrumentationPointStats_Presence](existing_)
 					_ = existing
-					return func() any { if (((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == nil)) { return obj_(pointStats.getPointPresence()) }; return obj_(existing) }()
+					return func() any {
+						if ((pointStats.getPointPresence() == InstrumentationPointStats_Presence_PRESENT) || (existing == InstrumentationPointStats_Presence_PRESENCE_UNKNOWN)) || (existing == nil) {
+							return obj_(pointStats.getPointPresence())
+						}
+						return obj_(existing)
+					}()
 				}})
 			}
 		}
@@ -185,8 +200,8 @@ func ReportDecoder_createReportProfile(instrumentationPoints ListOf[*Instrumenta
 }
 
 type ReportDecoder_StringCharIterator struct {
-	content string
-	length_ int32
+	content  string
+	length_  int32
 	current_ int32
 }
 
@@ -220,4 +235,3 @@ func (this *ReportDecoder_StringCharIterator) next() uint16 {
 func (this *ReportDecoder_StringCharIterator) hasNext() bool {
 	return (this.current_ < this.length_)
 }
-

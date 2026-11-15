@@ -5,7 +5,7 @@ package closure
 type BrowserWithTransformedPrefixesModuleResolver struct {
 	ModuleResolver
 	prefixReplacements ImmutableSetOf[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement]
-	expectedPrefixes string
+	expectedPrefixes   string
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver) up_ModuleResolver() *ModuleResolver {
@@ -31,7 +31,9 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		var r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](r_)
 		_ = r
 		return String_length(r.prefix())
-	}})), &Function_fn{func(p0 any) any { return strobj_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0).prefix()) }}))
+	}})), &Function_fn{func(p0 any) any {
+		return strobj_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0).prefix())
+	}}))
 	this.prefixReplacements = ImmutableSet_copyOf(Collection(sortedReplacements))
 	var sortedPrefixes ListOf[string] = icast_List(new_ArrayList_0().self())
 	it_3 := foreach_(obj_(this.prefixReplacements))
@@ -70,7 +72,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) replacePathPrefixes(mo
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
 	var transformedAddress OptionalOf[string] = this.replacePathPrefixes(Optional_of(strobj_(moduleAddress)))
 	var replaced bool = (transformedAddress.isPresent() && !(str_(transformedAddress.get()) == moduleAddress))
-	if (!replaced && ModuleLoader_isAmbiguousIdentifier(str_(transformedAddress.get()))) {
+	if !replaced && ModuleLoader_isAmbiguousIdentifier(str_(transformedAddress.get())) {
 		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, BrowserWithTransformedPrefixesModuleResolver_INVALID_AMBIGUOUS_PATH, []string{str_(transformedAddress.orElse(strobj_("null"))), this.expectedPrefixes}))
 		return Optional_empty()
 	}
@@ -80,7 +82,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule_impl(s
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) OptionalOf[string] {
 	var transformedAddress OptionalOf[string] = this.replacePathPrefixes(Optional_of(strobj_(moduleAddress)))
 	var replaced bool = (transformedAddress.isPresent() && !(str_(transformedAddress.get()) == moduleAddress))
-	if (!replaced && ModuleLoader_isAmbiguousIdentifier(str_(transformedAddress.get()))) {
+	if !replaced && ModuleLoader_isAmbiguousIdentifier(str_(transformedAddress.get())) {
 		return Optional_empty()
 	}
 	return this.locate(scriptAddress, str_(transformedAddress.get()))
@@ -134,7 +136,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_Factory) create(moduleP
 }
 
 type BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement struct {
-	prefix_ string
+	prefix_      string
 	replacement_ string
 }
 
@@ -185,4 +187,3 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) hash
 func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) toString() string {
 	return "PrefixReplacement[" + "prefix=" + objstr_(strobj_(this.prefix_)) + ", replacement=" + objstr_(strobj_(this.replacement_)) + "]"
 }
-

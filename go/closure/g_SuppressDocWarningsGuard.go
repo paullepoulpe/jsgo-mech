@@ -5,7 +5,7 @@ package closure
 type SuppressDocWarningsGuard struct {
 	WarningsGuard
 	suppressors ImmutableMapOf[string, *DiagnosticGroup]
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 }
 
 func (this *SuppressDocWarningsGuard) up_WarningsGuard() *WarningsGuard {
@@ -37,20 +37,20 @@ func SuppressDocWarningsGuard_createSuppressors(suppressors MapOf[string, *Diagn
 
 func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	var node Node = error_.node()
-	if (node == 0) {
+	if node == 0 {
 		node = this.getScriptNodeBySourceName(error_)
 	}
-	if (node == 0) {
+	if node == 0 {
 		return nil
 	}
 	var level *CheckLevel = this.getCheckLevelFromAncestors(error_, node)
-	if (level != nil) {
+	if level != nil {
 		return level
 	}
 	var scriptNode Node = this.getScriptNodeBySourceName(error_)
-	if (scriptNode != 0) {
+	if scriptNode != 0 {
 		var info *JSDocInfo = scriptNode.getJSDocInfo()
-		if (info != nil) {
+		if info != nil {
 			return this.getCheckLevelFromInfo(error_, info)
 		}
 	}
@@ -60,18 +60,18 @@ func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 func (this *SuppressDocWarningsGuard) getCheckLevelFromAncestors(error_ *JSError, node Node) *CheckLevel {
 	{
 		var current Node = node
-		for ; (current != 0); current = current.getParent() {
+		for ; current != 0; current = current.getParent() {
 			var info *JSDocInfo = nil
-			if (current.isFunction() || current.isClass()) {
+			if current.isFunction() || current.isClass() {
 				info = NodeUtil_getBestJSDocInfo(current)
 			} else if current.isScript() {
 				info = current.getJSDocInfo()
-			} else if (((((NodeUtil_isNameDeclaration(current) || NodeUtil_mayBeObjectLitKey(current)) || current.isComputedProp()) || current.isMemberFieldDef()) || current.isComputedFieldDef()) || (current.hasParent() && current.getParent().isExprResult())) {
+			} else if ((((NodeUtil_isNameDeclaration(current) || NodeUtil_mayBeObjectLitKey(current)) || current.isComputedProp()) || current.isMemberFieldDef()) || current.isComputedFieldDef()) || (current.hasParent() && current.getParent().isExprResult()) {
 				info = NodeUtil_getBestJSDocInfo(current)
 			}
-			if (info != nil) {
+			if info != nil {
 				var level *CheckLevel = this.getCheckLevelFromInfo(error_, info)
-				if (level != nil) {
+				if level != nil {
 					return level
 				}
 			}
@@ -85,7 +85,7 @@ func (this *SuppressDocWarningsGuard) getCheckLevelFromInfo(error_ *JSError, inf
 	for it_1.next() {
 		var suppressor string = str_(it_1.v)
 		var group *DiagnosticGroup = cast_[*DiagnosticGroup](Map_get_s(this.suppressors, suppressor))
-		if (group == nil) {
+		if group == nil {
 			continue
 		}
 		if group.matches(error_) {
@@ -100,7 +100,7 @@ func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError)
 		return 0
 	}
 	var scriptNode Node = this.compiler_.getScriptNode(str_(error_.sourceName().get()))
-	if (scriptNode == 0) {
+	if scriptNode == 0 {
 		return 0
 	}
 	Preconditions_checkState(scriptNode.isScript())
@@ -112,4 +112,3 @@ func (this *SuppressDocWarningsGuard) getPriority_impl() int32 {
 }
 
 const SuppressDocWarningsGuard_serialVersionUID int64 = 1
-

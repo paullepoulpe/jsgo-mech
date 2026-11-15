@@ -4,10 +4,10 @@ package closure
 
 type Es6ForOfConverter struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	namer *DefaultNameGenerator
+	compiler_   *AbstractCompiler
+	namer       *DefaultNameGenerator
 	astFactory_ *AstFactory
-	namespace_ StaticScope
+	namespace_  StaticScope
 }
 
 func (this *Es6ForOfConverter) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -88,7 +88,7 @@ func (this *Es6ForOfConverter) visitForOf(t *NodeTraversal, node Node) {
 	var finallyBlock Node = this.astFactory_.createBlock([]Node{this.astFactory_.exprResult(callIteratorClose)})
 	var labelNames ListOf[Node] = icast_List(new_ArrayList_0().self())
 	var insertionPoint Node = node
-	for ((insertionPoint.getParent() != 0) && insertionPoint.getParent().isLabel()) {
+	for (insertionPoint.getParent() != 0) && insertionPoint.getParent().isLabel() {
 		insertionPoint = insertionPoint.getParent()
 		labelNames.add(insertionPoint.getFirstChild().cloneNode().box_())
 	}
@@ -107,6 +107,7 @@ func (this *Es6ForOfConverter) visitForOf(t *NodeTraversal, node Node) {
 }
 
 var Es6ForOfConverter_transpiledFeatures *FeatureSet
+
 const Es6ForOfConverter_ITER_BASE string = "$jscomp$iter$"
 const Es6ForOfConverter_ITER_RESULT string = "$jscomp$key$"
 
@@ -120,4 +121,3 @@ func Es6ForOfConverter_clinit() {
 	Es6ForOfConverter_transpiledFeatures = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_FOR_OF)
 
 }
-

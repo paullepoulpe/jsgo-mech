@@ -19,7 +19,7 @@ func new_WhitespaceWrapGoogModules(compiler *AbstractCompiler) *WhitespaceWrapGo
 func (this *WhitespaceWrapGoogModules) process_2(externs Node, root Node) {
 	{
 		var c Node = root.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			Preconditions_checkState(c.isScript())
 			this.visitScript(c)
 		}
@@ -46,4 +46,3 @@ func (this *WhitespaceWrapGoogModules) visitScript(scriptRoot Node) {
 	scriptRoot.addChildToBack(loadMod)
 	this.compiler_.reportChangeToChangeScope(scriptRoot)
 }
-

@@ -4,9 +4,9 @@ package closure
 
 type SuggestedFix struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
-	replacements *SimpleSetMultimap
-	description_ OptionalOf[string]
-	alternatives ImmutableListOf[*SuggestedFix]
+	replacements    *SimpleSetMultimap
+	description_    OptionalOf[string]
+	alternatives    ImmutableListOf[*SuggestedFix]
 }
 
 func (this *SuggestedFix) init_SuggestedFix(matchedNodeInfo *SuggestedFix_MatchedNodeInfo, replacements *SimpleSetMultimap, description OptionalOf[string], alternatives ImmutableListOf[*SuggestedFix]) {
@@ -64,10 +64,10 @@ func SuggestedFix_getStartPositionForNodeConsideringComments(node Node) int32 {
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(node)
 	var associatedNonJSDocComment *NonJSDocComment = node.getNonJSDocComment()
 	var start int32 = node.getSourceOffset()
-	if (jsdoc != nil) {
+	if jsdoc != nil {
 		start = jsdoc.getOriginalCommentPosition()
 	}
-	if (associatedNonJSDocComment != nil) {
+	if associatedNonJSDocComment != nil {
 		start = Math_min(start, associatedNonJSDocComment.getStartPosition().getOffset())
 	}
 	return start
@@ -128,9 +128,9 @@ func SuggestedFix_ImportType_clinit() {
 
 type SuggestedFix_Builder struct {
 	matchedNodeInfo *SuggestedFix_MatchedNodeInfo
-	replacements *SimpleSetMultimap
-	alternatives ImmutableList_BuilderOf[*SuggestedFix]
-	description_ OptionalOf[string]
+	replacements    *SimpleSetMultimap
+	alternatives    ImmutableList_BuilderOf[*SuggestedFix]
+	description_    OptionalOf[string]
 }
 
 func (this *SuggestedFix_Builder) finit_SuggestedFix_Builder() {
@@ -170,7 +170,7 @@ func (this *SuggestedFix_Builder) replaceText(node Node, length int32, newConten
 func (this *SuggestedFix_Builder) addChildToFront(parentNode Node, content string) *SuggestedFix_Builder {
 	Preconditions_checkState_boolean_Object(parentNode.isBlock(), strobj_("addChildToFront is only supported for BLOCK statements."))
 	var startPosition int32 = (parentNode.getSourceOffset() + 1)
-	this.replacements.put(strobj_(parentNode.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, 0, ("\n" + sstr_(content)))))
+	this.replacements.put(strobj_(parentNode.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, 0, ("\n"+sstr_(content)))))
 	return this
 }
 
@@ -207,17 +207,17 @@ func (this *SuggestedFix_Builder) delete_2(n Node, deleteWhitespaceBefore bool) 
 	var startPosition int32 = SuggestedFix_getStartPositionForNodeConsideringComments(n)
 	var startOffsetWithoutComments int32 = n.getSourceOffset()
 	var length int32 = ((startOffsetWithoutComments - startPosition) + n.getLength())
-	if (((n.getNext() != 0) && (NodeUtil_getBestJSDocInfo(n.getNext()) == nil)) && (n.getNext().getNonJSDocComment() == nil)) {
+	if ((n.getNext() != 0) && (NodeUtil_getBestJSDocInfo(n.getNext()) == nil)) && (n.getNext().getNonJSDocComment() == nil) {
 		length = (n.getNext().getSourceOffset() - startPosition)
 	}
-	if ((n.isName() && NodeUtil_isNameDeclaration(n.getParent())) || n.isStringKey()) {
-		if (n.getNext() != 0) {
+	if (n.isName() && NodeUtil_isNameDeclaration(n.getParent())) || n.isStringKey() {
+		if n.getNext() != 0 {
 			length = (SuggestedFix_getStartPositionForNodeConsideringComments(n.getNext()) - startPosition)
 		} else if n.hasChildren() {
 			var child Node = n.getFirstChild()
 			length = ((child.getSourceOffset() + child.getLength()) - startPosition)
 		}
-		if ((n.getParent().getLastChild() == n) && (n != n.getParent().getFirstChild())) {
+		if (n.getParent().getLastChild() == n) && (n != n.getParent().getFirstChild()) {
 			var previousSibling Node = n.getPrevious()
 			if previousSibling.hasChildren() {
 				var child Node = previousSibling.getFirstChild()
@@ -232,9 +232,9 @@ func (this *SuggestedFix_Builder) delete_2(n Node, deleteWhitespaceBefore bool) 
 		}
 	}
 	var parent Node = n.getParent()
-	if ((deleteWhitespaceBefore && (parent != 0)) && (parent.isScript() || parent.isBlock())) {
+	if (deleteWhitespaceBefore && (parent != 0)) && (parent.isScript() || parent.isBlock()) {
 		var previousSibling Node = n.getPrevious()
-		if (previousSibling != 0) {
+		if previousSibling != 0 {
 			var previousSiblingEndPosition int32 = (previousSibling.getSourceOffset() + previousSibling.getLength())
 			length += (startPosition - previousSiblingEndPosition)
 			startPosition = previousSiblingEndPosition
@@ -263,7 +263,12 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 	case Token_rhino_CALL, Token_rhino_TAGGED_TEMPLATELIT:
 		return this.rename_3(n.getFirstChild(), name, replaceNameSubtree)
 	case Token_rhino_GETPROP:
-		range_ = func() Node { if replaceNameSubtree { return SuggestedFix_Builder_subtreeRangeOfIdentifier(n) }; return n }()
+		range_ = func() Node {
+			if replaceNameSubtree {
+				return SuggestedFix_Builder_subtreeRangeOfIdentifier(n)
+			}
+			return n
+		}()
 	case Token_rhino_STRINGLIT:
 		Preconditions_checkState_boolean_Object(n.getParent().isGetProp(), n.box_())
 		range_ = n
@@ -279,7 +284,7 @@ func (this *SuggestedFix_Builder) rename_3(n Node, name string, replaceNameSubtr
 func (this *SuggestedFix_Builder) replaceRange(first Node, last Node, newContent string) *SuggestedFix_Builder {
 	Preconditions_checkState((first.getParent() == last.getParent()))
 	var start int32 = SuggestedFix_getStartPositionForNodeConsideringComments(first)
-	if (start == 0) {
+	if start == 0 {
 		start = first.getSourceOffset()
 	}
 	var end int32 = (last.getSourceOffset() + last.getLength())
@@ -290,7 +295,7 @@ func (this *SuggestedFix_Builder) replaceRange(first Node, last Node, newContent
 
 func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler *AbstractCompiler) *SuggestedFix_Builder {
 	var parent Node = original.getParent()
-	if ((parent != 0) && parent.isExprResult()) {
+	if (parent != 0) && parent.isExprResult() {
 		original = parent
 	}
 	var newCode string = this.generateCode(compiler, newNode)
@@ -298,12 +303,12 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
 	}
 	var needsSemicolon bool = ((parent != 0) && (((parent.isExprResult() || parent.isBlock()) || parent.isScript()) || parent.isModuleBody()))
-	if (String_endsWith(newCode, ";") && !needsSemicolon) {
+	if String_endsWith(newCode, ";") && !needsSemicolon {
 		newCode = String_substring(newCode, 0, (String_length(newCode) - 1))
 	}
-	if ((parent != 0) && IR_mayBeExpression(parent)) {
+	if (parent != 0) && IR_mayBeExpression(parent) {
 		var replacement Node = newNode
-		for (((replacement.isBlock() || replacement.isScript()) || replacement.isModuleBody()) && replacement.hasOneChild()) {
+		for ((replacement.isBlock() || replacement.isScript()) || replacement.isModuleBody()) && replacement.hasOneChild() {
 			replacement = replacement.getOnlyChild()
 		}
 		if replacement.isExprResult() {
@@ -313,7 +318,7 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 			var outer int32 = NodeUtil_precedence(parent.getToken())
 			var inner int32 = NodeUtil_precedence(original.getToken())
 			var newInner int32 = NodeUtil_precedence(replacement.getToken())
-			if (((newInner < NodeUtil_precedence(Token_rhino_CALL)) && (newInner <= outer)) && (inner >= outer)) {
+			if ((newInner < NodeUtil_precedence(Token_rhino_CALL)) && (newInner <= outer)) && (inner >= outer) {
 				newCode = ("(" + sstr_(newCode) + ")")
 			}
 		}
@@ -327,15 +332,15 @@ func (this *SuggestedFix_Builder) replace(original Node, newNode Node, compiler 
 }
 
 func (this *SuggestedFix_Builder) addCast(n Node, compiler *AbstractCompiler, type_ string) *SuggestedFix_Builder {
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), ("/** @type {" + sstr_(type_) + "} */ (" + sstr_(this.generateCode(compiler, n)) + ")"))))
+	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(n.getSourceOffset(), n.getLength(), ("/** @type {"+sstr_(type_)+"} */ ("+sstr_(this.generateCode(compiler, n))+")"))))
 	return this
 }
 
 func (this *SuggestedFix_Builder) removeCast(n Node, compiler *AbstractCompiler) *SuggestedFix_Builder {
 	Preconditions_checkArgument(n.isCast())
 	var jsDoc *JSDocInfo = n.getJSDocInfo()
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(jsDoc.getOriginalCommentPosition(), (n.getFirstChild().getSourceOffset() - jsDoc.getOriginalCommentPosition()), "")))
-	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(((n.getSourceOffset() + n.getLength()) - 1), 1, "")))
+	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(jsDoc.getOriginalCommentPosition(), (n.getFirstChild().getSourceOffset()-jsDoc.getOriginalCommentPosition()), "")))
+	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(((n.getSourceOffset()+n.getLength())-1), 1, "")))
 	return this
 }
 
@@ -346,7 +351,7 @@ func (this *SuggestedFix_Builder) addOrReplaceJsDoc(n Node, newJsDoc string) *Su
 		offset = SuggestedFix_Builder_subtreeRangeOfIdentifier(n).getSourceOffset()
 	}
 	var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(n)
-	if (jsDoc != nil) {
+	if jsDoc != nil {
 		offset = jsDoc.getOriginalCommentPosition()
 		length = String_length(str_(jsDoc.getOriginalCommentString().get()))
 	}
@@ -359,7 +364,7 @@ func (this *SuggestedFix_Builder) changeJsDocType(n Node, compiler *AbstractComp
 	Preconditions_checkNotNull_Object_String_Object(typeNode.box_(), "Invalid type: %s", strobj_(type_))
 	var typeExpr *JSTypeExpression = new_JSTypeExpression(typeNode, "jsflume")
 	var newJsType *JSType = typeExpr.evaluate(nil, compiler.getTypeRegistry())
-	if (newJsType == nil) {
+	if newJsType == nil {
 		panic(new_RuntimeException_String(("JS Compiler does not recognize type: " + sstr_(type_))).self())
 	}
 	this.replaceTypePattern(n, type_, Pattern_compile("@(type) *\\{?[^@\\s\\x0B}]+\\}?"))
@@ -375,7 +380,7 @@ func (this *SuggestedFix_Builder) replaceTypePattern(n Node, type_ string, patte
 	if originalComment.isPresent() {
 		var m *Matcher_re2j = pattern.matcher(originalComment.get())
 		for m.find() {
-			this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String((originalPosition + m.start()), (m.end() - m.start()), ("@" + sstr_(m.group(1)) + " {" + sstr_(type_) + "}"))))
+			this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String((originalPosition+m.start()), (m.end()-m.start()), ("@"+sstr_(m.group(1))+" {"+sstr_(type_)+"}"))))
 		}
 	}
 }
@@ -385,20 +390,20 @@ func (this *SuggestedFix_Builder) insertArguments(n Node, position int32, args [
 	var startPosition int32
 	var argument Node = n.getSecondChild()
 	var i int32 = 0
-	for ((argument != 0) && (i < position)) {
+	for (argument != 0) && (i < position) {
 		argument = argument.getNext()
 		i++
 	}
-	if (argument == 0) {
+	if argument == 0 {
 		Preconditions_checkArgument_boolean_Object((position == i), strobj_("The specified position must be less than the number of arguments."))
 		startPosition = ((n.getSourceOffset() + n.getLength()) - 1)
 	} else {
 		startPosition = SuggestedFix_getStartPositionForNodeConsideringComments(argument)
 	}
 	var newContent string = Joiner_on(", ").join_ObjectArr(arrmap_(args, func(v_ string) any { return strobj_(v_) }))
-	if (argument != 0) {
+	if argument != 0 {
 		newContent += ", "
-	} else if (i > 0) {
+	} else if i > 0 {
 		newContent = (", " + sstr_(newContent))
 	}
 	this.replacements.put(strobj_(n.getSourceFileName()), obj_(CodeReplacement_create_int_int_String(startPosition, 0, newContent)))
@@ -414,16 +419,16 @@ func (this *SuggestedFix_Builder) deleteArgument(n Node, position int32) *Sugges
 	var startOfArgumentToRemove int32 = -1
 	var endOfArgumentToRemove int32 = -1
 	var i int32 = 0
-	for (argument != 0) {
-		if (i < position) {
+	for argument != 0 {
+		if i < position {
 			startOfArgumentToRemove = (argument.getSourceOffset() + argument.getLength())
-		} else if (i == position) {
-			if (position == 0) {
+		} else if i == position {
+			if position == 0 {
 				startOfArgumentToRemove = SuggestedFix_getStartPositionForNodeConsideringComments(argument)
 			}
 			endOfArgumentToRemove = (argument.getSourceOffset() + argument.getLength())
-		} else if (i > position) {
-			if (position == 0) {
+		} else if i > position {
+			if position == 0 {
 				endOfArgumentToRemove = argument.getSourceOffset()
 			}
 			break
@@ -480,7 +485,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 		var existingAlias OptionalOf[string] = scriptMetadata.getAlias(namespace)
 		if existingAlias.isPresent() {
 			alias = existingAlias
-		} else if (String_indexOf(namespace, 46) == -1) {
+		} else if String_indexOf(namespace, 46) == -1 {
 			alias = Optional_of(strobj_(namespace))
 		} else {
 			alias = Optional_of(strobj_(SuggestedFix_Builder_firstUnusedAlias(namespace, scriptMetadata)))
@@ -491,8 +496,8 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 	}
 	var metadata *NodeMetadata = m.getMetadata()
 	var existingNode Node = SuggestedFix_Builder_findGoogRequireNode(m.getNode(), metadata, namespace)
-	if (existingNode != 0) {
-		if (existingNode.isExprResult() && alias.isPresent()) {
+	if existingNode != 0 {
+		if existingNode.isExprResult() && alias.isPresent() {
 			var newNode Node
 			if NodeUtil_isCallTo(existingNode.getFirstChild(), "goog.forwardDeclare") {
 				newNode = SuggestedFix_Builder_createImportNode(importType, alias, namespace)
@@ -512,7 +517,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 	var lastGoogRequireNode Node = 0
 	var nodeToInsertBefore Node = 0
 	var child Node = script.getFirstChild()
-	for (child != 0) {
+	for child != 0 {
 		if Matchers_googModule().matches(child, metadata) {
 			lastModuleOrProvideNode = child
 		}
@@ -522,19 +527,19 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 				lastModuleOrProvideNode = grandchild
 			} else if Matchers_googRequirelike_0().matches(grandchild, metadata) {
 				lastGoogRequireNode = grandchild
-				if (grandchild.getLastChild().isStringLit() && (String_compareTo(namespace, grandchild.getLastChild().getString()) < 0)) {
+				if grandchild.getLastChild().isStringLit() && (String_compareTo(namespace, grandchild.getLastChild().getString()) < 0) {
 					nodeToInsertBefore = child
 					break
 				}
 			}
-		} else if ((NodeUtil_isNameDeclaration(child) && (child.getFirstFirstChild() != 0)) && Matchers_googRequirelike_0().matches(child.getFirstFirstChild(), metadata)) {
+		} else if (NodeUtil_isNameDeclaration(child) && (child.getFirstFirstChild() != 0)) && Matchers_googRequirelike_0().matches(child.getFirstFirstChild(), metadata) {
 			lastGoogRequireNode = child.getFirstFirstChild()
 			var requireName string = child.getFirstChild().getString()
 			var originalName string = child.getFirstChild().getOriginalName()
 			if !String_isEmpty(originalName) {
 				requireName = originalName
 			}
-			if (String_compareTo(str_(alias.get()), requireName) < 0) {
+			if String_compareTo(str_(alias.get()), requireName) < 0 {
 				nodeToInsertBefore = child
 				break
 			}
@@ -542,9 +547,14 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 		child = child.getNext()
 	}
 	var newImportNode Node = SuggestedFix_Builder_createImportNode(importType, alias, namespace)
-	if (nodeToInsertBefore == 0) {
-		if ((lastModuleOrProvideNode != 0) || (lastGoogRequireNode != 0)) {
-			var nodeToInsertAfter Node = func() Node { if (lastGoogRequireNode != 0) { return lastGoogRequireNode }; return lastModuleOrProvideNode }()
+	if nodeToInsertBefore == 0 {
+		if (lastModuleOrProvideNode != 0) || (lastGoogRequireNode != 0) {
+			var nodeToInsertAfter Node = func() Node {
+				if lastGoogRequireNode != 0 {
+					return lastGoogRequireNode
+				}
+				return lastModuleOrProvideNode
+			}()
 			var startPosition int32 = ((nodeToInsertAfter.getSourceOffset() + nodeToInsertAfter.getLength()) + 2)
 			this.replacements.put(strobj_(nodeToInsertAfter.getSourceFileName()), obj_(CodeReplacement_create_int_int_String_String(startPosition, 0, this.generateCode(m.getMetadata().getCompiler(), newImportNode), namespace)))
 			return this
@@ -562,7 +572,7 @@ func (this *SuggestedFix_Builder) addImport(m *Match, namespace string, importTy
 
 func (this *SuggestedFix_Builder) removeGoogRequire(m *Match, namespace string) *SuggestedFix_Builder {
 	var googRequireNode Node = SuggestedFix_Builder_findGoogRequireNode(m.getNode(), m.getMetadata(), namespace)
-	if (googRequireNode != 0) {
+	if googRequireNode != 0 {
 		return this.deleteWithoutRemovingWhitespaceBefore(googRequireNode)
 	}
 	return this
@@ -575,16 +585,16 @@ func SuggestedFix_Builder_findGoogRequireNode(n Node, metadata *NodeMetadata, na
 	}
 	{
 		var child Node = script.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
-			if (NodeUtil_isExprCall(child) && Matchers_googRequirelike_String(namespace).matches(child.getFirstChild(), metadata)) {
+		for ; child != 0; child = child.getNext() {
+			if NodeUtil_isExprCall(child) && Matchers_googRequirelike_String(namespace).matches(child.getFirstChild(), metadata) {
 				return child
 			}
 		}
 	}
 	{
 		var child Node = script.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
-			if (((NodeUtil_isNameDeclaration(child) && !child.getFirstChild().isDestructuringLhs()) && (child.getFirstChild().getLastChild() != 0)) && Matchers_googRequirelike_String(namespace).matches(child.getFirstChild().getLastChild(), metadata)) {
+		for ; child != 0; child = child.getNext() {
+			if ((NodeUtil_isNameDeclaration(child) && !child.getFirstChild().isDestructuringLhs()) && (child.getFirstChild().getLastChild() != 0)) && Matchers_googRequirelike_String(namespace).matches(child.getFirstChild().getLastChild(), metadata) {
 				return child
 			}
 		}
@@ -627,9 +637,9 @@ func (this *SuggestedFix_Builder) build() *SuggestedFix {
 }
 
 type SuggestedFix_MatchedNodeInfo struct {
-	sourceFilename_ string
-	lineno_ int32
-	charno_ int32
+	sourceFilename_   string
+	lineno_           int32
+	charno_           int32
 	inClosurizedFile_ bool
 }
 
@@ -707,4 +717,3 @@ func (this *SuggestedFix_MatchedNodeInfo) hashCode() int32 {
 func (this *SuggestedFix_MatchedNodeInfo) toString() string {
 	return "MatchedNodeInfo[" + "sourceFilename=" + objstr_(strobj_(this.sourceFilename_)) + ", lineno=" + objstr_(any(int32(this.lineno_))) + ", charno=" + objstr_(any(int32(this.charno_))) + ", inClosurizedFile=" + objstr_(any(bool(this.inClosurizedFile_))) + "]"
 }
-

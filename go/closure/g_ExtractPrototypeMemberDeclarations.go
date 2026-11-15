@@ -4,7 +4,7 @@ package closure
 
 type ExtractPrototypeMemberDeclarations struct {
 	compiler_ *AbstractCompiler
-	pattern *ExtractPrototypeMemberDeclarations_Pattern
+	pattern   *ExtractPrototypeMemberDeclarations_Pattern
 }
 
 func (this *ExtractPrototypeMemberDeclarations) init_ExtractPrototypeMemberDeclarations(compiler *AbstractCompiler, pattern *ExtractPrototypeMemberDeclarations_Pattern) {
@@ -25,10 +25,10 @@ func (this *ExtractPrototypeMemberDeclarations) process_2(externs Node, root Nod
 }
 
 func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) {
-	if (((this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE) || (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP)) && !info.shouldExtractGlobal()) {
+	if ((this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE) || (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP)) && !info.shouldExtractGlobal() {
 		return
 	}
-	if (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP) {
+	if this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP {
 		var injectionPoint Node = this.compiler_.getNodeForCodeInsertion(nil)
 		var var_ Node = NodeUtil_newVarNode(ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS, 0).srcrefTreeIfMissing(injectionPoint)
 		injectionPoint.addChildToFront(var_)
@@ -38,7 +38,7 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var alias string = ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS
-		if (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP) {
+		if this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP {
 			if info.shouldExtractChunk(cast_[*JSChunk](entry.getKey())) {
 				var injectionPoint Node = this.compiler_.getNodeForCodeInsertion(cast_[*JSChunk](entry.getKey()))
 				alias = (sstr_(ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS) + istr_(int64(cast_[*JSChunk](entry.getKey()).getIndex())))
@@ -60,13 +60,13 @@ func (this *ExtractPrototypeMemberDeclarations) maybeDoExtraction(info *ExtractP
 func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *ExtractPrototypeMemberDeclarations_ExtractionInstance, alias string) {
 	var first *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](instance.declarations.get(0))
 	var className OptionalOf[string] = first.qualifiedClassName
-	if ((this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP) || (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP)) {
+	if (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP) || (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP) {
 		var classNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, str_(className.get()))
 		classNameNode.putBooleanProp(Node_IS_CONSTANT_NAME, first.constant)
 		var stmt Node = IR_exprResult(IR_assign(IR_name(alias), IR_getprop_Node_String(classNameNode, "prototype"))).srcrefTreeIfMissing(first.node_)
 		stmt.insertBefore(first.node_)
 		this.compiler_.reportChangeToEnclosingScope(stmt)
-	} else if (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE) {
+	} else if this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE {
 		var block Node = IR_block_0()
 		var func_ Node = IR_function(IR_name(""), IR_paramList([]Node{IR_name(alias)}), block)
 		var call Node = IR_call(func_, []Node{NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(str_(className.orElse(strobj_("null")))) + ".prototype"), instance.parent, (sstr_(str_(className.orElse(strobj_("null")))) + ".prototype"))})
@@ -95,7 +95,12 @@ func (this *ExtractPrototypeMemberDeclarations) replacePrototypeMemberDeclaratio
 	var name Node = NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(alias) + "." + sstr_(declar.memberName)), declar.node_, declar.memberName)
 	var accessNode Node = declar.lhs.getFirstFirstChild()
 	var originalName string = accessNode.getOriginalName()
-	var className string = func() string { if !String_isEmpty(originalName) { return originalName }; return "?" }()
+	var className string = func() string {
+		if !String_isEmpty(originalName) {
+			return originalName
+		}
+		return "?"
+	}()
 	name.getFirstChild().srcrefTree(lhs)
 	name.putBooleanProp(Node_IS_CONSTANT_NAME, lhs.getBooleanProp(Node_IS_CONSTANT_NAME))
 	name.getFirstChild().setOriginalName((sstr_(className) + ".prototype"))
@@ -107,9 +112,9 @@ const ExtractPrototypeMemberDeclarations_PROTOTYPE_ALIAS string = "JSCompiler_pr
 
 type ExtractPrototypeMemberDeclarations_Pattern struct {
 	Enum
-	globalOverhead int32
+	globalOverhead        int32
 	perExtractionOverhead int32
-	perMemberOverhead int32
+	perMemberOverhead     int32
 }
 
 func (this *ExtractPrototypeMemberDeclarations_Pattern) up_Enum() *Enum {
@@ -167,7 +172,7 @@ func ExtractPrototypeMemberDeclarations_Pattern_clinit() {
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo struct {
-	instances ListOf[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
+	instances  ListOf[*ExtractPrototypeMemberDeclarations_ExtractionInstance]
 	totalDelta int32
 }
 
@@ -188,7 +193,7 @@ func new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo() *ExtractPro
 
 type ExtractPrototypeMemberDeclarations_GatherExtractionInfo struct {
 	NodeTraversal_AbstractShallowCallback
-	outer_ *ExtractPrototypeMemberDeclarations
+	outer_           *ExtractPrototypeMemberDeclarations
 	instancesByChunk MapOf[*JSChunk, *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo]
 }
 
@@ -217,14 +222,14 @@ func new_ExtractPrototypeMemberDeclarations_GatherExtractionInfo(outer_ *Extract
 }
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (!n.isScript() && !n.isBlock()) {
+	if !n.isScript() && !n.isBlock() {
 		return
 	}
 	{
 		var cur Node = n.getFirstChild()
-		for ; (cur != 0); cur = cur.getNext() {
+		for ; cur != 0; cur = cur.getNext() {
 			var prototypeMember *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_extractDeclaration(cur)
-			if (prototypeMember == nil) {
+			if prototypeMember == nil {
 				continue
 			}
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
@@ -255,17 +260,17 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtra
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractChunk(chunk *JSChunk) bool {
 	var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = cast_[*ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo](this.instancesByChunk.get(obj_(chunk)))
-	if (instanceInfo == nil) {
+	if instanceInfo == nil {
 		return false
 	}
 	return ((instanceInfo.totalDelta + this.outer_.pattern.globalOverhead) < 0)
 }
 
 type ExtractPrototypeMemberDeclarations_ExtractionInstance struct {
-	outer_ *ExtractPrototypeMemberDeclarations
+	outer_       *ExtractPrototypeMemberDeclarations
 	declarations ListOf[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration]
-	delta int32
-	parent Node
+	delta        int32
+	parent       Node
 }
 
 func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) finit_ExtractPrototypeMemberDeclarations_ExtractionInstance() {
@@ -280,12 +285,12 @@ func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) init_ExtractP
 	this.delta = (this.outer_.pattern.perExtractionOverhead + this.outer_.pattern.perMemberOverhead)
 	{
 		var cur Node = head.node_.getNext()
-		for ; (cur != 0); cur = cur.getNext() {
+		for ; cur != 0; cur = cur.getNext() {
 			if cur.isFunction() {
 				continue
 			}
 			var prototypeMember *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_extractDeclaration(cur)
-			if ((prototypeMember == nil) || !head.isSameClass(prototypeMember)) {
+			if (prototypeMember == nil) || !head.isSameClass(prototypeMember) {
 				break
 			}
 			this.declarations.add(obj_(prototypeMember))
@@ -306,11 +311,11 @@ func (this *ExtractPrototypeMemberDeclarations_ExtractionInstance) isFavorable()
 }
 
 type ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration struct {
-	memberName string
-	node_ Node
+	memberName         string
+	node_              Node
 	qualifiedClassName OptionalOf[string]
-	lhs Node
-	constant bool
+	lhs                Node
+	constant           bool
 }
 
 func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) zero_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration() {
@@ -345,7 +350,7 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) isSam
 func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(qName Node) Node {
 	var cur Node = qName
 	for cur.isGetProp() {
-		if (cur.getString() == "prototype") {
+		if cur.getString() == "prototype" {
 			return cur.getFirstChild()
 		} else {
 			cur = cur.getFirstChild()
@@ -362,7 +367,7 @@ func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_isPrototypePr
 	if lvalue.isGetProp() {
 		var cur Node = lvalue.getFirstChild()
 		for cur.isGetProp() {
-			if (cur.getString() == "prototype") {
+			if cur.getString() == "prototype" {
 				return cur.isQualifiedName()
 			}
 			cur = cur.getFirstChild()
@@ -378,4 +383,3 @@ func ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_extractDeclar
 	var lhs Node = n.getFirstFirstChild()
 	return new_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs, n)
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type TypeMismatch struct {
-	found_ *JSType
+	found_    *JSType
 	required_ *JSType
 	location_ Node
 }
@@ -109,7 +109,7 @@ func new_TypeMismatch_Accumulator() *TypeMismatch_Accumulator {
 func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JSType, required *JSType) {
 	found = TypeMismatch_Accumulator_removeNullUndefinedAndTemplates(found)
 	required = TypeMismatch_Accumulator_removeNullUndefinedAndTemplates(required)
-	if (found.isSubtypeOf(required) || required.isSubtypeOf(found)) {
+	if found.isSubtypeOf(required) || required.isSubtypeOf(found) {
 		return
 	}
 	if required.isUnionType() {
@@ -124,12 +124,12 @@ func (this *TypeMismatch_Accumulator) registerMismatch(location Node, found *JST
 	if TypeMismatch_Accumulator_bothAreNotTemplateTypes(found, required) {
 		this.mismatches.add(obj_(TypeMismatch_create(found, required, location)))
 	}
-	if (found.isFunctionType() && required.isFunctionType()) {
+	if found.isFunctionType() && required.isFunctionType() {
 		var fnTypeA *FunctionType = found.toMaybeFunctionType()
 		var fnTypeB *FunctionType = required.toMaybeFunctionType()
 		var paramItA IteratorOf[*FunctionType_Parameter] = fnTypeA.getParameters().iterator()
 		var paramItB IteratorOf[*FunctionType_Parameter] = fnTypeB.getParameters().iterator()
-		for (paramItA.hasNext() && paramItB.hasNext()) {
+		for paramItA.hasNext() && paramItB.hasNext() {
 			this.registerIfMismatch(location, cast_[*FunctionType_Parameter](paramItA.next()).getJSType(), cast_[*FunctionType_Parameter](paramItB.next()).getJSType())
 		}
 		this.registerIfMismatch(location, fnTypeA.getReturnType(), fnTypeB.getReturnType())
@@ -141,7 +141,7 @@ func (this *TypeMismatch_Accumulator) getMismatches() ImmutableCollectionOf[*Typ
 }
 
 func (this *TypeMismatch_Accumulator) registerIfMismatch(location Node, found *JSType, required *JSType) {
-	if (((found != nil) && (required != nil)) && !found.isSubtypeOf(required)) {
+	if ((found != nil) && (required != nil)) && !found.isSubtypeOf(required) {
 		this.registerMismatch(location, found, required)
 	}
 }
@@ -153,9 +153,8 @@ func TypeMismatch_Accumulator_bothAreNotTemplateTypes(found *JSType, required *J
 func TypeMismatch_Accumulator_removeNullUndefinedAndTemplates(t *JSType) *JSType {
 	var result *JSType = t.restrictByNotNullOrUndefined()
 	var obj *ObjectType = result.toMaybeObjectType()
-	if ((obj != nil) && obj.isTemplatizedType()) {
+	if (obj != nil) && obj.isTemplatizedType() {
 		return obj.toMaybeTemplatizedType().getRawType().up_JSType()
 	}
 	return result
 }
-

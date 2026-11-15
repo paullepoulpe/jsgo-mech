@@ -5,9 +5,9 @@ package closure
 type LintPassConfig struct {
 	PassConfig_PassConfigDelegate
 	gatherModuleMetadataPass *PassFactory
-	earlyLintChecks *PassFactory
-	variableReferenceCheck *PassFactory
-	lateLintChecks *PassFactory
+	earlyLintChecks          *PassFactory
+	variableReferenceCheck   *PassFactory
+	lateLintChecks           *PassFactory
 }
 
 func (this *LintPassConfig) up_PassConfig_PassConfigDelegate() *PassConfig_PassConfigDelegate {
@@ -71,4 +71,3 @@ func (this *LintPassConfig) getOptimizations_impl() *PassListBuilder {
 func (this *LintPassConfig) getFinalizations_impl() *PassListBuilder {
 	return new_PassListBuilder(this.options_)
 }
-

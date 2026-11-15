@@ -38,7 +38,7 @@ func (this *CheckArrayWithGoogObject) isGoogObjectIterationOverArray(n Node) boo
 		return false
 	}
 	var firstArg Node = n.getSecondChild()
-	if (firstArg == 0) {
+	if firstArg == 0 {
 		return false
 	}
 	var type_ *JSType = firstArg.getJSType()
@@ -50,7 +50,7 @@ func (this *CheckArrayWithGoogObject) containsArray(type_ *JSType) bool {
 		return true
 	}
 	var templatizedType *TemplatizedType = type_.toMaybeTemplatizedType()
-	if ((templatizedType != nil) && templatizedType.getReferencedType().isArrayType()) {
+	if (templatizedType != nil) && templatizedType.getReferencedType().isArrayType() {
 		return true
 	}
 	if type_.isUnionType() {
@@ -90,4 +90,3 @@ func CheckArrayWithGoogObject_clinit() {
 	CheckArrayWithGoogObject_ARRAY_PASSED_TO_GOOG_OBJECT = DiagnosticType_warning("JSC_ARRAY_PASSED_TO_GOOG_OBJECT", "{0} expects an object, not an array. Did you mean to use goog.array?")
 
 }
-

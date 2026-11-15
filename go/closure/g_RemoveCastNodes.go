@@ -50,4 +50,3 @@ func (this *RemoveCastNodes_RemoveCastsCallback) visit_impl(t *NodeTraversal, n 
 		n.replaceWith(n.removeFirstChild())
 	}
 }
-

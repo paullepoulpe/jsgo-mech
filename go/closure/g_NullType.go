@@ -65,13 +65,13 @@ func (this *NullType) restrictByNotNull_impl() *JSType {
 
 func (this *NullType) testForEquality_impl(that *JSType) *Tri {
 	var result *Tri = this.ValueType.testForEquality_impl(that)
-	if (result != nil) {
+	if result != nil {
 		return result
 	}
-	if (that.isNullType() || that.isVoidType()) {
+	if that.isNullType() || that.isVoidType() {
 		return Tri_TRUE
 	}
-	if (that.isUnknownType() || that.isNullable()) {
+	if that.isUnknownType() || that.isNullable() {
 		return Tri_UNKNOWN
 	}
 	return Tri_FALSE
@@ -88,4 +88,3 @@ func (this *NullType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {
 func (this *NullType) visitUntyped_impl(visitor Visitor) any {
 	return visitor.caseNullType()
 }
-

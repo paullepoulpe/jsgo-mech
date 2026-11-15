@@ -4,8 +4,8 @@ package closure
 
 type PreprocessorSymbolTable struct {
 	symbols MapOf[string, *SimpleSlot]
-	refs *SimpleListMultimap
-	root Node
+	refs    *SimpleListMultimap
+	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
@@ -74,11 +74,16 @@ func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) OptionalOf[string] {
-	return func() *Optional { if n.isStringLit() { return Optional_of(strobj_(n.getString())) }; return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}) }()
+	return func() *Optional {
+		if n.isStringLit() {
+			return Optional_of(strobj_(n.getString()))
+		}
+		return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+			var s string = str_(s_)
+			_ = s
+			return !String_isEmpty(s)
+		}})
+	}()
 }
 
 func (this *PreprocessorSymbolTable) lookupQualifiedName(p0 *QualifiedName) *JSType {
@@ -128,7 +133,7 @@ func new_PreprocessorSymbolTable_CachedInstanceFactory() *PreprocessorSymbolTabl
 func (this *PreprocessorSymbolTable_CachedInstanceFactory) maybeInitialize(compiler *AbstractCompiler) {
 	if compiler.getOptions().preservesDetailedSourceInfo() {
 		var root Node = compiler.getRoot()
-		if ((this.instance_ == nil) || (this.instance_.getRootNode() != root)) {
+		if (this.instance_ == nil) || (this.instance_.getRootNode() != root) {
 			this.instance_ = new_PreprocessorSymbolTable(root)
 		}
 	}
@@ -137,4 +142,3 @@ func (this *PreprocessorSymbolTable_CachedInstanceFactory) maybeInitialize(compi
 func (this *PreprocessorSymbolTable_CachedInstanceFactory) getInstanceOrNull() *PreprocessorSymbolTable {
 	return this.instance_
 }
-

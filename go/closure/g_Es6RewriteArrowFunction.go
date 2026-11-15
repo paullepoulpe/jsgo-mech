@@ -3,8 +3,8 @@
 package closure
 
 type Es6RewriteArrowFunction struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_    *AbstractCompiler
+	astFactory_  *AstFactory
 	contextStack DequeOf[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext]
 }
 
@@ -35,7 +35,7 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 		}
 	case Token_rhino_SUPER:
 		var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](Preconditions_checkNotNull(this.contextStack.peek()))
-		if ((context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n)) {
+		if (context.isConstructor_ && parent.isCall()) && (parent.getFirstChild() == n) {
 			context.lastSuperStatement = this.getEnclosingStatement(parent, context.scopeBody)
 		}
 	default:
@@ -44,7 +44,7 @@ func (this *Es6RewriteArrowFunction) shouldTraverse(t *NodeTraversal, n Node, pa
 }
 
 func (this *Es6RewriteArrowFunction) getEnclosingStatement(n Node, block Node) Node {
-	for (Node_of_(Preconditions_checkNotNull(n.getParent().box_())) != block) {
+	for Node_of_(Preconditions_checkNotNull(n.getParent().box_())) != block {
 		n = Node_of_(Preconditions_checkNotNull(NodeUtil_getEnclosingStatement(n.getParent()).box_()))
 	}
 	return n
@@ -54,7 +54,7 @@ func (this *Es6RewriteArrowFunction) visit(t *NodeTraversal, n Node, parent Node
 	var context *ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext = cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](this.contextStack.peek())
 	if n.isArrowFunction() {
 		this.visitArrowFunction(t, n, cast_[*ThisAndArgumentsReferenceUpdater_ThisAndArgumentsContext](Preconditions_checkNotNull(obj_(context))))
-	} else if ((context != nil) && (context.scopeBody == n)) {
+	} else if (context != nil) && (context.scopeBody == n) {
 		this.contextStack.pop()
 		context.addVarDeclarations(this.compiler_, this.astFactory_, t.getCurrentScript())
 	}
@@ -90,4 +90,3 @@ func Es6RewriteArrowFunction_clinit() {
 	Es6RewriteArrowFunction_transpiledFeatures = FeatureSet_BARE_MINIMUM.with(FeatureSet_Feature_ARROW_FUNCTIONS)
 
 }
-

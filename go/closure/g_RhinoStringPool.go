@@ -37,7 +37,7 @@ func RhinoStringPool_clinit() {
 }
 
 type RhinoStringPool_LazyInternedStringList struct {
-	pool ArrayListOf[string]
+	pool       ArrayListOf[string]
 	isInterned *RhinoStringPool_WriteOnlyBitset
 }
 
@@ -98,4 +98,3 @@ func RhinoStringPool_WriteOnlyBitset_wordIndex(bitIndex int32) int32 {
 }
 
 const RhinoStringPool_WriteOnlyBitset_ADDRESS_BITS_PER_WORD int32 = 5
-

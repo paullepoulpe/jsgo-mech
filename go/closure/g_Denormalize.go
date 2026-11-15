@@ -3,7 +3,7 @@
 package closure
 
 type Denormalize struct {
-	compiler_ *AbstractCompiler
+	compiler_        *AbstractCompiler
 	outputFeatureSet *FeatureSet
 }
 
@@ -31,7 +31,7 @@ func (this *Denormalize) shouldTraverse(t *NodeTraversal, n Node, parent Node) b
 
 func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap ReferenceMap) {
 	var scopeRoot Node = t.getScopeRoot()
-	if (scopeRoot.isBlock() && scopeRoot.getParent().isFunction()) {
+	if scopeRoot.isBlock() && scopeRoot.getParent().isFunction() {
 		var changed bool = false
 		it_1 := foreach_(any(t.getScope().getVarIterable()))
 		for it_1.next() {
@@ -42,13 +42,13 @@ func (this *Denormalize) afterExitScope(t *NodeTraversal, referenceMap Reference
 			it_3 := foreach_(obj_(references))
 			for it_3.next() {
 				var r *Reference = cast_[*Reference](it_3.v)
-				if ((r.isVarDeclaration() && NodeUtil_isStatement(r.getNode().getParent())) && !r.isInitializingDeclaration()) {
+				if (r.isVarDeclaration() && NodeUtil_isStatement(r.getNode().getParent())) && !r.isInitializingDeclaration() {
 					declaration = r
-				} else if (((assign == nil) && r.isSimpleAssignmentToName()) && Object_equals(obj_(cast_[*Scope](r.getScope().getClosestHoistScope().self())), obj_(t.getScope()))) {
+				} else if ((assign == nil) && r.isSimpleAssignmentToName()) && Object_equals(obj_(cast_[*Scope](r.getScope().getClosestHoistScope().self())), obj_(t.getScope())) {
 					assign = r
 				}
 			}
-			if ((declaration != nil) && (assign != nil)) {
+			if (declaration != nil) && (assign != nil) {
 				var lhs Node = assign.getNode()
 				var assignNode Node = lhs.getParent()
 				if assignNode.getParent().isExprResult() {
@@ -74,27 +74,27 @@ func (this *Denormalize) visit(t *NodeTraversal, n Node, parent Node) {
 }
 
 func (this *Denormalize) maybeCollapseIntoForStatements(n Node, parent Node) {
-	if ((parent == 0) || !NodeUtil_isStatementBlock(parent)) {
+	if (parent == 0) || !NodeUtil_isStatementBlock(parent) {
 		return
 	}
-	if (!n.isExprResult() && !n.isVar()) {
+	if !n.isExprResult() && !n.isVar() {
 		return
 	}
 	var nextSibling Node = n.getNext()
-	if (nextSibling == 0) {
+	if nextSibling == 0 {
 		return
-	} else if (nextSibling.isForIn() || nextSibling.isForOf()) {
+	} else if nextSibling.isForIn() || nextSibling.isForOf() {
 		var forNode Node = nextSibling
 		var forVar Node = forNode.getFirstChild()
-		if ((forVar.isName() && n.isVar()) && n.hasOneChild()) {
+		if (forVar.isName() && n.isVar()) && n.hasOneChild() {
 			var name Node = n.getFirstChild()
-			if (!name.hasChildren() && (forVar.getString() == name.getString())) {
+			if !name.hasChildren() && (forVar.getString() == name.getString()) {
 				n.detach()
 				forVar.replaceWith(n)
 				this.compiler_.reportChangeToEnclosingScope(parent)
 			}
 		}
-	} else if (nextSibling.isVanillaFor() && nextSibling.getFirstChild().isEmpty()) {
+	} else if nextSibling.isVanillaFor() && nextSibling.getFirstChild().isEmpty() {
 		if NodeUtil_has(n, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isIn() }}, Predicates_alwaysTrue()) {
 			return
 		}
@@ -120,7 +120,7 @@ func (this *Denormalize) maybeCollapseAssignShorthand(n Node, parent Node) {
 	}
 	var op Node = n.getLastChild()
 	var assignOp *Token_rhino = this.getAssignOpFromOp(op)
-	if (n.getFirstChild().getString() == op.getFirstChild().getString()) {
+	if n.getFirstChild().getString() == op.getFirstChild().getString() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
 		opDetached.setJSDocInfo(n.getJSDocInfo())
@@ -135,7 +135,7 @@ func (this *Denormalize) maybeCollapseLogicalAssignShorthand(t *NodeTraversal, n
 	}
 	var op Node = n.getLastChild()
 	var assignOp *Token_rhino = this.getAssignOpFromOp(n)
-	if (n.getFirstChild().getString() == op.getFirstChild().getString()) {
+	if n.getFirstChild().getString() == op.getFirstChild().getString() {
 		op.setToken(assignOp)
 		var opDetached Node = op.detach()
 		opDetached.setJSDocInfo(n.getJSDocInfo())
@@ -212,4 +212,3 @@ func (this *Denormalize) beforeTraverseNode(p0 *NodeTraversal, p1 Node, p2 Node)
 func (this *Denormalize) afterVisitNode(p0 *NodeTraversal, p1 Node, p2 Node, p3 *Reference) {
 	ReferenceCollector_Behavior_afterVisitNode_default(icast_ReferenceCollector_Behavior(any(this)), p0, p1, p2, p3)
 }
-

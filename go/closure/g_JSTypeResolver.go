@@ -3,10 +3,10 @@
 package closure
 
 type JSTypeResolver struct {
-	registry *JSTypeRegistry
-	captureStack ArrayDequeOf[*JSType]
+	registry        *JSTypeRegistry
+	captureStack    ArrayDequeOf[*JSType]
 	resolutionQueue ArrayDequeOf[*JSType]
-	state *JSTypeResolver_State
+	state           *JSTypeResolver_State
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
@@ -27,7 +27,7 @@ func new_JSTypeResolver(registry *JSTypeRegistry) *JSTypeResolver {
 }
 
 func JSTypeResolver_create(registry *JSTypeRegistry) *JSTypeResolver {
-	if (registry.getResolver() != nil) {
+	if registry.getResolver() != nil {
 		return registry.getResolver()
 	}
 	return new_JSTypeResolver(registry)
@@ -72,7 +72,7 @@ func (this *JSTypeResolver) resolveAll() {
 	var windowType *JSType = this.registry.getGlobalType("Window")
 	if globalThis.isUnknownType() {
 		var windowObjType *ObjectType = ObjectType_cast(windowType)
-		if (windowObjType != nil) {
+		if windowObjType != nil {
 			globalThis.setImplicitPrototype(windowObjType)
 		} else {
 			globalThis.setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE))
@@ -168,4 +168,3 @@ func JSTypeResolver_State_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.JSTypeResolver.State", enumValues_(JSTypeResolver_State_values_))
 
 }
-

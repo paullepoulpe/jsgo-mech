@@ -20,7 +20,12 @@ func (this *UniqueIdSupplier) getUniqueId(input *CompilerInput) string {
 	var filePath string = input.getSourceFile().getName()
 	var fileHashCode int32 = String_hashCode(filePath)
 	var id int32 = this.counter.add_2(any(int32(fileHashCode)), 1)
-	var fileHashString string = func() string { if (fileHashCode < 0) { return ("m" + istr_(int64((-fileHashCode)))) }; return ("" + istr_(int64(fileHashCode))) }()
+	var fileHashString string = func() string {
+		if fileHashCode < 0 {
+			return ("m" + istr_(int64((-fileHashCode))))
+		}
+		return ("" + istr_(int64(fileHashCode)))
+	}()
 	return (sstr_(fileHashString) + "$" + istr_(int64(id)))
 }
 
@@ -43,4 +48,3 @@ func UniqueIdSupplier_fromProto(protos ListOf[*UniqueIdProto]) *UniqueIdSupplier
 	}
 	return supplier
 }
-

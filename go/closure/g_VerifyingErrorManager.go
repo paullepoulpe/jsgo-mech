@@ -5,7 +5,7 @@ package closure
 type VerifyingErrorManager struct {
 	ThreadSafeDelegatingErrorManager
 	unmatchedExpectations ListOf[*Pattern]
-	formatter *LightweightMessageFormatter
+	formatter             *LightweightMessageFormatter
 }
 
 func (this *VerifyingErrorManager) up_ThreadSafeDelegatingErrorManager() *ThreadSafeDelegatingErrorManager {
@@ -40,19 +40,19 @@ func (this *VerifyingErrorManager) report_2_impl(level *CheckLevel, error_ *JSEr
 	for iterator.hasNext() {
 		var p *Pattern = cast_[*Pattern](iterator.next())
 		if p.matcher(strobj_(formattedError)).find() {
-			if (matchedPattern == nil) {
+			if matchedPattern == nil {
 				matchedPattern = p
 				Iterator_remove(iterator)
 				continue
 			}
-			if (Object_toString(obj_(matchedPattern)) == Object_toString(obj_(p))) {
+			if Object_toString(obj_(matchedPattern)) == Object_toString(obj_(p)) {
 				continue
 			}
 			this.ThreadSafeDelegatingErrorManager.report_2_impl(CheckLevel_ERROR, JSError_make_DiagnosticType_StringArr(AbstractCommandLineRunner_AMBIGUOUS_EXPECTATION, []string{formattedError, Object_toString(obj_(matchedPattern)), Object_toString(obj_(p))}))
 			Iterator_remove(iterator)
 		}
 	}
-	if (matchedPattern == nil) {
+	if matchedPattern == nil {
 		this.ThreadSafeDelegatingErrorManager.report_2_impl(level, error_)
 	}
 }
@@ -72,6 +72,10 @@ func (this *VerifyingErrorManager) reportMissingExpectations() {
 }
 
 func (this *VerifyingErrorManager) formatErrorForMatching(level *CheckLevel, error_ *JSError) string {
-	return func() string { if (level == CheckLevel_ERROR) { return this.formatter.formatError(error_) }; return this.formatter.formatWarning(error_) }()
+	return func() string {
+		if level == CheckLevel_ERROR {
+			return this.formatter.formatError(error_)
+		}
+		return this.formatter.formatWarning(error_)
+	}()
 }
-

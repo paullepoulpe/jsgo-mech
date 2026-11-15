@@ -36,7 +36,7 @@ func (this *CheckDuplicateCase) visit_impl(t *NodeTraversal, n Node, parent Node
 		var cases SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
 		{
 			var curr Node = switchBody.getFirstChild()
-			for ; (curr != 0); curr = curr.getNext() {
+			for ; curr != 0; curr = curr.getNext() {
 				var source string = this.compiler_.toSource_1(curr.getFirstChild())
 				if !Collection_add_s(cases, source) {
 					t.report(curr, CheckDuplicateCase_DUPLICATE_CASE, []string{})
@@ -58,4 +58,3 @@ func CheckDuplicateCase_clinit() {
 	CheckDuplicateCase_DUPLICATE_CASE = DiagnosticType_warning("JSC_DUPLICATE_CASE", "Duplicate case in a switch statement.")
 
 }
-

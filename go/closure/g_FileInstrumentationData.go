@@ -4,11 +4,11 @@ package closure
 
 type FileInstrumentationData struct {
 	instrumentedBits *BitSet
-	arrayName string
-	fileName string
-	branchPresent *BitSet
-	branchesInLine MapOf[BoxedOf[int32], BoxedOf[int32]]
-	branchNodes MapOf[*FileInstrumentationData_BranchIndexPair, Node]
+	arrayName        string
+	fileName         string
+	branchPresent    *BitSet
+	branchesInLine   MapOf[BoxedOf[int32], BoxedOf[int32]]
+	branchNodes      MapOf[*FileInstrumentationData_BranchIndexPair, Node]
 }
 
 func (this *FileInstrumentationData) zero_FileInstrumentationData() {
@@ -51,7 +51,7 @@ func (this *FileInstrumentationData) maxBranchPresentLine() int32 {
 func (this *FileInstrumentationData) putBranchNode(lineNumber int32, branchNumber int32, block Node) {
 	Preconditions_checkArgument_boolean_String_int((lineNumber > 0), "Expected non-zero positive integer as line number: %s", lineNumber)
 	Preconditions_checkArgument_boolean_String_int((branchNumber > 0), "Expected non-zero positive integer as branch number: %s", branchNumber)
-	this.branchNodes.put(obj_(FileInstrumentationData_BranchIndexPair_of((lineNumber - 1), (branchNumber - 1))), block.box_())
+	this.branchNodes.put(obj_(FileInstrumentationData_BranchIndexPair_of((lineNumber-1), (branchNumber-1))), block.box_())
 }
 
 func (this *FileInstrumentationData) getBranchNode(lineNumber int32, branchNumber int32) Node {
@@ -92,7 +92,7 @@ func (this *FileInstrumentationData) setBranchPresent(lineNumber int32) {
 func (this *FileInstrumentationData) addBranches(lineNumber int32, numberOfBranches int32) {
 	var lineIdx int32 = (lineNumber - 1)
 	var currentValue any = this.branchesInLine.get(Integer_valueOf(lineIdx))
-	if (currentValue == nil) {
+	if currentValue == nil {
 		this.branchesInLine.put(any(int32(lineIdx)), any(int32(numberOfBranches)))
 	} else {
 		this.branchesInLine.put(any(int32(lineIdx)), any(int32((unbox_[int32](currentValue) + numberOfBranches))))
@@ -101,7 +101,7 @@ func (this *FileInstrumentationData) addBranches(lineNumber int32, numberOfBranc
 
 func (this *FileInstrumentationData) getNumBranches(lineNumber int32) int32 {
 	var numBranches any = this.branchesInLine.get(any(int32((lineNumber - 1))))
-	if (numBranches == nil) {
+	if numBranches == nil {
 		return 0
 	} else {
 		return unbox_[int32](numBranches)
@@ -110,7 +110,7 @@ func (this *FileInstrumentationData) getNumBranches(lineNumber int32) int32 {
 }
 
 type FileInstrumentationData_BranchIndexPair struct {
-	line_ int32
+	line_  int32
 	branch int32
 }
 
@@ -144,9 +144,15 @@ func (this *FileInstrumentationData_BranchIndexPair) hashCode() int32 {
 func (this *FileInstrumentationData_BranchIndexPair) equals(object any) bool {
 	var that *FileInstrumentationData_BranchIndexPair
 	_ = that
-	if func() bool { v_ := object; if !is_[*FileInstrumentationData_BranchIndexPair](v_) { return false }; that = cast_[*FileInstrumentationData_BranchIndexPair](v_); return true }() {
+	if func() bool {
+		v_ := object
+		if !is_[*FileInstrumentationData_BranchIndexPair](v_) {
+			return false
+		}
+		that = cast_[*FileInstrumentationData_BranchIndexPair](v_)
+		return true
+	}() {
 		return ((this.getLine() == that.getLine()) && (this.getBranch() == that.getBranch()))
 	}
 	return false
 }
-

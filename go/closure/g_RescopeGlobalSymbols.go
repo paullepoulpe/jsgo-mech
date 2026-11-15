@@ -3,11 +3,11 @@
 package closure
 
 type RescopeGlobalSymbols struct {
-	compiler_ *AbstractCompiler
+	compiler_              *AbstractCompiler
 	globalSymbolNamespace_ string
-	addExtern_ bool
-	assumeCrossChunkNames bool
-	optimizeLocalAccess *CompilerOptions_OptimizeLocalAccess
+	addExtern_             bool
+	assumeCrossChunkNames  bool
+	optimizeLocalAccess    *CompilerOptions_OptimizeLocalAccess
 }
 
 func (this *RescopeGlobalSymbols) zero_RescopeGlobalSymbols() {
@@ -93,7 +93,7 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 	if !t.inGlobalScope() {
 		return
 	}
-	if (!NodeUtil_isFunctionDeclaration(n) && !NodeUtil_isClassDeclaration(n)) {
+	if !NodeUtil_isFunctionDeclaration(n) && !NodeUtil_isClassDeclaration(n) {
 		return
 	}
 	var nameNode Node = NodeUtil_getNameNode(n)
@@ -107,7 +107,7 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 	var prev Node = n.getPrevious()
 	n.detach()
 	var var_ Node = NodeUtil_newVarNode(name, n)
-	if (prev == 0) {
+	if prev == 0 {
 		parent.addChildToFront(var_)
 	} else {
 		var_.insertAfter(prev)
@@ -117,16 +117,16 @@ func (this *RescopeGlobalSymbols_RewriteGlobalClassFunctionDeclarationsToVarAssi
 
 type RescopeGlobalSymbols_FindCrossChunkNamesCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	assumeCrossChunkNames bool
-	trackLocalAccessSets bool
-	crossChunkNames_ SetOf[string]
-	crossChunkNamesWithWriteFromOtherChunk_ SetOf[string]
-	crossChunkNamesUsedInNonDependentChunk_ SetOf[string]
-	globalNamesWithReadInDefiningChunk_ SetOf[string]
-	globalNamesWithInnerScopeWriteInDefiningChunk_ SetOf[string]
+	compiler_                                               *AbstractCompiler
+	assumeCrossChunkNames                                   bool
+	trackLocalAccessSets                                    bool
+	crossChunkNames_                                        SetOf[string]
+	crossChunkNamesWithWriteFromOtherChunk_                 SetOf[string]
+	crossChunkNamesUsedInNonDependentChunk_                 SetOf[string]
+	globalNamesWithReadInDefiningChunk_                     SetOf[string]
+	globalNamesWithInnerScopeWriteInDefiningChunk_          SetOf[string]
 	globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_ SetOf[string]
-	renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder
+	renameHelperBuilder                                     *RescopeGlobalSymbolsRenameHelper_HelperBuilder
 }
 
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -164,28 +164,28 @@ func new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(compiler *AbstractComp
 func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var name string = n.getString()
-		if (String_isEmpty(name) || (!this.trackLocalAccessSets && Collection_contains_s(this.crossChunkNames_, name))) {
+		if String_isEmpty(name) || (!this.trackLocalAccessSets && Collection_contains_s(this.crossChunkNames_, name)) {
 			return
 		}
 		this.renameHelperBuilder.recordExistingName(name)
 		var s *Scope = t.getScope()
 		var v *Var = cast_[*Var](s.getVar(name).self())
-		if ((v == nil) || !v.isGlobal()) {
+		if (v == nil) || !v.isGlobal() {
 			return
 		}
-		if (this.assumeCrossChunkNames || this.compiler_.getCodingConvention().isExported_2(name, false)) {
+		if this.assumeCrossChunkNames || this.compiler_.getCodingConvention().isExported_2(name, false) {
 			Collection_add_s(this.crossChunkNames_, name)
 		}
 		var input *CompilerInput = v.getInput()
-		if (((this.trackLocalAccessSets && !t.inGlobalScope()) && ((input == nil) || (input.getChunk() == t.getChunk()))) && NodeUtil_isLValueWrite(n)) {
+		if ((this.trackLocalAccessSets && !t.inGlobalScope()) && ((input == nil) || (input.getChunk() == t.getChunk()))) && NodeUtil_isLValueWrite(n) {
 			Collection_add_s(this.globalNamesWithInnerScopeWriteInDefiningChunk_, name)
 		}
-		if (input == nil) {
+		if input == nil {
 			Collection_add_s(this.crossChunkNames_, name)
 			return
 		}
 		var chunk *JSChunk = input.getChunk()
-		if (chunk != t.getChunk()) {
+		if chunk != t.getChunk() {
 			Collection_add_s(this.crossChunkNames_, name)
 			if this.trackLocalAccessSets {
 				if NodeUtil_isLValueWrite(n) {
@@ -199,7 +199,7 @@ func (this *RescopeGlobalSymbols_FindCrossChunkNamesCallback) visit_impl(t *Node
 			if RescopeGlobalSymbols_FindCrossChunkNamesCallback_isReadReference(n) {
 				Collection_add_s(this.globalNamesWithReadInDefiningChunk_, name)
 			}
-			if (NodeUtil_isLValueWrite(n) && !RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMirroring(n, parent)) {
+			if NodeUtil_isLValueWrite(n) && !RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMirroring(n, parent) {
 				Collection_add_s(this.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, name)
 			}
 		}
@@ -215,7 +215,7 @@ func RescopeGlobalSymbols_FindCrossChunkNamesCallback_isReadReference(n Node) bo
 }
 
 func RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMirroring(n Node, parent Node) bool {
-	if (((NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n)) || parent.isInc()) || parent.isDec()) {
+	if ((NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n)) || parent.isInc()) || parent.isDec() {
 		return true
 	}
 	if NodeUtil_isNameDeclaration(parent) {
@@ -228,7 +228,7 @@ func RescopeGlobalSymbols_FindCrossChunkNamesCallback_isWriteSafeForLocalAliasMi
 			var declaration Node = rootTargetParent.getParent()
 			return NodeUtil_isStatementBlock(declaration.getParent())
 		}
-		if (rootTargetParent.isAssign() && (rootTargetParent.getFirstChild() == rootTarget)) {
+		if rootTargetParent.isAssign() && (rootTargetParent.getFirstChild() == rootTarget) {
 			var exprResult Node = rootTargetParent.getParent()
 			return (exprResult.isExprResult() && NodeUtil_isStatementBlock(exprResult.getParent()))
 		}
@@ -271,14 +271,14 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 			return
 		}
 		var value Node = 0
-		if (parent.isAssign() && (n == parent.getFirstChild())) {
+		if parent.isAssign() && (n == parent.getFirstChild()) {
 			value = parent.getLastChild()
 		} else if NodeUtil_isNameDeclaration(parent) {
 			value = n.getFirstChild()
 		} else if parent.isFunction() {
 			value = parent
 		}
-		if ((value == 0) && !NodeUtil_isLhsByDestructuring(n)) {
+		if (value == 0) && !NodeUtil_isLhsByDestructuring(n) {
 			return
 		}
 		if Collection_contains_s(this.maybeReferencesThis_, name) {
@@ -286,10 +286,10 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 		}
 		var s *Scope = t.getScope()
 		var v *Var = cast_[*Var](s.getVar(name).self())
-		if ((v == nil) || !v.isGlobal()) {
+		if (v == nil) || !v.isGlobal() {
 			return
 		}
-		if (((value == 0) || !value.isFunction()) || NodeUtil_referencesOwnReceiver(value)) {
+		if ((value == 0) || !value.isFunction()) || NodeUtil_referencesOwnReceiver(value) {
 			Collection_add_s(this.maybeReferencesThis_, name)
 		}
 	}
@@ -297,7 +297,7 @@ func (this *RescopeGlobalSymbols_FindNamesReferencingThis) visit_impl(t *NodeTra
 
 type RescopeGlobalSymbols_RemoveGlobalVarCallback struct {
 	NodeTraversal_AbstractShallowStatementCallback
-	compiler_ *AbstractCompiler
+	compiler_                    *AbstractCompiler
 	preserveLocalVarDeclarations bool
 }
 
@@ -328,11 +328,11 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 	if RescopeGlobalSymbols_RemoveGlobalVarCallback_hasOnlyNameOrDestructuringChildren(n) {
 		return
 	}
-	if (NodeUtil_isAnyFor(parent) && (parent.getFirstChild() == n)) {
+	if NodeUtil_isAnyFor(parent) && (parent.getFirstChild() == n) {
 		var commas ListOf[Node] = icast_List(new_ArrayList_0().self())
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				commas.add(c.cloneTree().box_())
 			}
 		}
@@ -344,10 +344,10 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 		var currentVar Node = 0
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				Preconditions_checkState_boolean_String_Object(!c.isDestructuringLhs(), "Unexpected DESTRUCTURING_LHS child: %s", c.box_())
-				if (this.preserveLocalVarDeclarations && c.isName()) {
-					if (currentVar == 0) {
+				if this.preserveLocalVarDeclarations && c.isName() {
+					if currentVar == 0 {
 						currentVar = IR_var_Node(c.cloneTree()).srcref(n)
 						currentVar.setJSDocInfo(n.getJSDocInfo())
 						currentVar.insertBefore(n)
@@ -355,7 +355,7 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 						currentVar.addChildToBack(c.cloneTree())
 					}
 				} else if c.isAssign() {
-					if (currentVar != 0) {
+					if currentVar != 0 {
 						NodeUtil_markNewScopesChanged(currentVar, this.compiler_)
 						currentVar = 0
 					}
@@ -365,7 +365,7 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 				}
 			}
 		}
-		if (currentVar != 0) {
+		if currentVar != 0 {
 			NodeUtil_markNewScopesChanged(currentVar, this.compiler_)
 		}
 	}
@@ -377,8 +377,8 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 func RescopeGlobalSymbols_RemoveGlobalVarCallback_hasOnlyNameOrDestructuringChildren(n Node) bool {
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
-			if (!c.isName() && !c.isDestructuringLhs()) {
+		for ; c != 0; c = c.getNext() {
+			if !c.isName() && !c.isDestructuringLhs() {
 				return false
 			}
 		}
@@ -388,11 +388,10 @@ func RescopeGlobalSymbols_RemoveGlobalVarCallback_hasOnlyNameOrDestructuringChil
 
 func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas ListOf[Node], source Node) Node {
 	var comma Node = Node_of_(commas.get(0))
-	for i := int32(1); (i < commas.size()); i++ {
+	for i := int32(1); i < commas.size(); i++ {
 		var nextComma Node = IR_comma(comma, Node_of_(commas.get(i)))
 		nextComma.srcrefIfMissing(source)
 		comma = nextComma
 	}
 	return comma
 }
-

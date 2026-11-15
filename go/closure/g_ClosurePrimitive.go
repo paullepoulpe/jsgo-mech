@@ -29,7 +29,7 @@ func ClosurePrimitive_fromStringId(id OptionalOf[string]) *ClosurePrimitive {
 		return nil
 	}
 	var primitive *ClosurePrimitive = cast_[*ClosurePrimitive](Map_get_s(ClosurePrimitive_ID_TO_ENUM, str_(id.get())))
-	if (primitive == nil) {
+	if primitive == nil {
 		panic(new_IllegalArgumentException_String(("String id " + sstr_(str_(id.get())) + " does not match any ClosurePrimitive")).self())
 	}
 	return primitive
@@ -69,4 +69,3 @@ func ClosurePrimitive_clinit() {
 	ClosurePrimitive_ID_TO_ENUM = ImmutableMap_of_Object_Object_Object_Object_Object_Object(strobj_("asserts.fail"), obj_(ClosurePrimitive_ASSERTS_FAIL), strobj_("asserts.truthy"), obj_(ClosurePrimitive_ASSERTS_TRUTHY), strobj_("asserts.matchesReturn"), obj_(ClosurePrimitive_ASSERTS_MATCHES_RETURN))
 
 }
-

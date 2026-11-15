@@ -4,8 +4,8 @@ package closure
 
 type PrintStreamErrorManager struct {
 	BasicErrorManager
-	formatter MessageFormatter
-	stream *Output
+	formatter          MessageFormatter
+	stream             *Output
 	summaryDetailLevel int32
 }
 
@@ -61,12 +61,11 @@ func (this *PrintStreamErrorManager) setSummaryDetailLevel(summaryDetailLevel in
 }
 
 func (this *PrintStreamErrorManager) printSummary_impl() {
-	if (((this.summaryDetailLevel >= 3) || ((this.summaryDetailLevel >= 1) && ((this.getErrorCount() + this.getWarningCount()) > 0))) || ((this.summaryDetailLevel >= 2) && (this.getTypedPercent() > 0.0))) {
-		if (this.getTypedPercent() > 0.0) {
+	if ((this.summaryDetailLevel >= 3) || ((this.summaryDetailLevel >= 1) && ((this.getErrorCount() + this.getWarningCount()) > 0))) || ((this.summaryDetailLevel >= 2) && (this.getTypedPercent() > 0.0)) {
+		if this.getTypedPercent() > 0.0 {
 			this.stream.print(String_format("%d error(s), %d warning(s), %.1f%% typed\n", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount())), any(float64(this.getTypedPercent()))}))
 		} else {
 			this.stream.print(String_format("%d error(s), %d warning(s)\n", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount()))}))
 		}
 	}
 }
-

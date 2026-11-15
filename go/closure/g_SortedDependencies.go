@@ -3,11 +3,11 @@
 package closure
 
 type SortedDependencies struct {
-	userOrderedInputs ListOf[any]
-	importOrderedInputs ListOf[any]
-	completedInputs SetOf[any]
-	nonExportingInputs MapOf[string, any]
-	exportingInputBySymbolName MapOf[string, any]
+	userOrderedInputs             ListOf[any]
+	importOrderedInputs           ListOf[any]
+	completedInputs               SetOf[any]
+	nonExportingInputs            MapOf[string, any]
+	exportingInputBySymbolName    MapOf[string, any]
 	importedInputByImportingInput *SimpleSetMultimap
 }
 
@@ -42,14 +42,19 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 			for it_2.next() {
 				var symbolName string = str_(it_2.v)
 				var importedSymbolName DependencyInfo = icast_DependencyInfo(Map_get_s(this.exportingInputBySymbolName, symbolName))
-				if (importedSymbolName != nil) {
+				if importedSymbolName != nil {
 					worklist.add(any(importedSymbolName))
 				}
 			}
 		}
 	}
 	var builder ImmutableList_BuilderOf[any] = ImmutableList_builder()
-	it_4 := foreach_(any(func() List { if sorted { return this.importOrderedInputs }; return this.userOrderedInputs }()))
+	it_4 := foreach_(any(func() List {
+		if sorted {
+			return this.importOrderedInputs
+		}
+		return this.userOrderedInputs
+	}()))
 	for it_4.next() {
 		var input DependencyInfo = icast_DependencyInfo(it_4.v)
 		if includedInputs.contains(any(input)) {
@@ -61,7 +66,7 @@ func (this *SortedDependencies) getStrongDependenciesOf(rootInputs ListOf[any], 
 
 func (this *SortedDependencies) getInputProviding(symbolName string) *Outcome_base {
 	var input DependencyInfo = this.maybeGetInputProviding(symbolName)
-	if (input != nil) {
+	if input != nil {
 		return Outcome_base_ok_Object(any(input))
 	}
 	return Outcome_base_err(new_SortedDependencies_MissingProvideException_String(symbolName).up_Throwable())
@@ -82,15 +87,20 @@ func (this *SortedDependencies) getSortedWeakDependenciesOf(rootInputs ListOf[an
 	for !worklist.isEmpty() {
 		var input DependencyInfo = icast_DependencyInfo(worklist.pop())
 		var isStrong bool = strongInputs.contains(any(input))
-		var edges IterableOf[string] = func() Iterable { if isStrong { return icast_Iterable(obj_(input.getTypeRequires())) }; return Iterables_concat(icast_Iterable(obj_(input.getRequiredSymbols())), icast_Iterable(obj_(input.getTypeRequires()))) }()
-		if (!isStrong && !weakInputs.add(any(input))) {
+		var edges IterableOf[string] = func() Iterable {
+			if isStrong {
+				return icast_Iterable(obj_(input.getTypeRequires()))
+			}
+			return Iterables_concat(icast_Iterable(obj_(input.getRequiredSymbols())), icast_Iterable(obj_(input.getTypeRequires())))
+		}()
+		if !isStrong && !weakInputs.add(any(input)) {
 			continue
 		}
 		it_2 := foreach_(any(edges))
 		for it_2.next() {
 			var symbolName string = str_(it_2.v)
 			var importedSymbolName DependencyInfo = icast_DependencyInfo(Map_get_s(this.exportingInputBySymbolName, symbolName))
-			if (((importedSymbolName != nil) && !strongInputs.contains(any(importedSymbolName))) && !weakInputs.contains(any(importedSymbolName))) {
+			if ((importedSymbolName != nil) && !strongInputs.contains(any(importedSymbolName))) && !weakInputs.contains(any(importedSymbolName)) {
 				worklist.add(any(importedSymbolName))
 			}
 		}
@@ -136,7 +146,7 @@ func (this *SortedDependencies) processInputs() {
 		var userOrderedInput DependencyInfo = icast_DependencyInfo(it_1.v)
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide OptionalOf[string] = Optional_ofNullable(Iterables_getFirst(icast_Iterable(obj_(provides)), nil))
-		if (firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(str_(firstProvide.get()), "module$")) && !userOrderedInput.isEs6Module())) {
+		if firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(str_(firstProvide.get()), "module$")) && !userOrderedInput.isEs6Module()) {
 			Map_put_s(this.nonExportingInputs, ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
 		}
 		it_3 := foreach_(obj_(userOrderedInput.getProvides()))
@@ -152,7 +162,7 @@ func (this *SortedDependencies) processInputs() {
 		for it_7.next() {
 			var symbolName string = str_(it_7.v)
 			var importedInput DependencyInfo = icast_DependencyInfo(Map_get_s(this.exportingInputBySymbolName, symbolName))
-			if (importedInput != nil) {
+			if importedInput != nil {
 				this.importedInputByImportingInput.put(any(userOrderedInput), any(importedInput))
 			}
 		}
@@ -198,4 +208,3 @@ func new_SortedDependencies_MissingProvideException_String_Exception(provide str
 	this.init_SortedDependencies_MissingProvideException_String_Exception(provide, e)
 	return this
 }
-

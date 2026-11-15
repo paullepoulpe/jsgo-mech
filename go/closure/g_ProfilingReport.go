@@ -80,7 +80,7 @@ func ProfilingReport_createTabSeparatedProfilingReport(instrumentationMapping Ma
 
 type ProfilingReport_InstrumentationPointMetrics struct {
 	totalTimesExecuted int64
-	numberOfReports int32
+	numberOfReports    int32
 }
 
 func (this *ProfilingReport_InstrumentationPointMetrics) finit_ProfilingReport_InstrumentationPointMetrics() {
@@ -97,4 +97,3 @@ func new_ProfilingReport_InstrumentationPointMetrics() *ProfilingReport_Instrume
 	this.init_ProfilingReport_InstrumentationPointMetrics()
 	return this
 }
-

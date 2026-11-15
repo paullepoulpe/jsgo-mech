@@ -3,10 +3,10 @@
 package closure
 
 type PeepholeTranspilationsPass struct {
-	compiler_ *AbstractCompiler
-	peepholeTranspilations []*AbstractPeepholeTranspilation
+	compiler_                        *AbstractCompiler
+	peepholeTranspilations           []*AbstractPeepholeTranspilation
 	featureSetToMarkAsTranspiledAway *FeatureSet
-	featureSetToRunOn *FeatureSet
+	featureSetToRunOn                *FeatureSet
 }
 
 func (this *PeepholeTranspilationsPass) init_PeepholeTranspilationsPass(compiler *AbstractCompiler, transpilations ListOf[*AbstractPeepholeTranspilation], featureSetToRunOn *FeatureSet, featureSetToMarkAsTranspiledAway *FeatureSet) {
@@ -60,7 +60,7 @@ func (this *PeepholeTranspilationsPass_PeepCallback) visit(t *NodeTraversal, n N
 	var currentNode Node = n
 	for _, transpilation := range this.outer_.peepholeTranspilations {
 		currentNode = transpilation.transpileSubtree(currentNode)
-		if (currentNode == 0) {
+		if currentNode == 0 {
 			return
 		}
 	}
@@ -78,4 +78,3 @@ func (this *PeepholeTranspilationsPass_PeepCallback) shouldTraverse(t *NodeTrave
 		panic("unreachable")
 	}()
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type LinkedDirectedGraph struct {
 	DiGraph
-	nodes_ MapOf[any, *LinkedDirectedGraph_LinkedDiGraphNode]
+	nodes_             MapOf[any, *LinkedDirectedGraph_LinkedDiGraphNode]
 	useNodeAnnotations bool
 	useEdgeAnnotations bool
 }
@@ -77,7 +77,12 @@ func LinkedDirectedGraph_create() *LinkedDirectedGraph {
 func (this *LinkedDirectedGraph) connect_impl(srcValue any, edgeValue any, destValue any) {
 	var src *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(srcValue))
 	var dest *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(this.getNodeOrFail(destValue))
-	var edge *LinkedDirectedGraph_LinkedDiGraphEdge = func() *LinkedDirectedGraph_LinkedDiGraphEdge { if this.useEdgeAnnotations { return new_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge(src, edgeValue, dest).up_LinkedDirectedGraph_LinkedDiGraphEdge() }; return new_LinkedDirectedGraph_LinkedDiGraphEdge(src, edgeValue, dest) }()
+	var edge *LinkedDirectedGraph_LinkedDiGraphEdge = func() *LinkedDirectedGraph_LinkedDiGraphEdge {
+		if this.useEdgeAnnotations {
+			return new_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge(src, edgeValue, dest).up_LinkedDirectedGraph_LinkedDiGraphEdge()
+		}
+		return new_LinkedDirectedGraph_LinkedDiGraphEdge(src, edgeValue, dest)
+	}()
 	src.getOutEdges().add(edge.self())
 	dest.getInEdges().add(edge.self())
 }
@@ -85,7 +90,12 @@ func (this *LinkedDirectedGraph) connect_impl(srcValue any, edgeValue any, destV
 func (this *LinkedDirectedGraph) connectDiGraphNode(src DiGraph_DiGraphNode, edgeValue any, dest DiGraph_DiGraphNode) {
 	var lSrc *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(src)
 	var lDest *LinkedDirectedGraph_LinkedDiGraphNode = to_LinkedDirectedGraph_LinkedDiGraphNode(dest)
-	var edge *LinkedDirectedGraph_LinkedDiGraphEdge = func() *LinkedDirectedGraph_LinkedDiGraphEdge { if this.useEdgeAnnotations { return new_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge(lSrc, edgeValue, lDest).up_LinkedDirectedGraph_LinkedDiGraphEdge() }; return new_LinkedDirectedGraph_LinkedDiGraphEdge(lSrc, edgeValue, lDest) }()
+	var edge *LinkedDirectedGraph_LinkedDiGraphEdge = func() *LinkedDirectedGraph_LinkedDiGraphEdge {
+		if this.useEdgeAnnotations {
+			return new_LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge(lSrc, edgeValue, lDest).up_LinkedDirectedGraph_LinkedDiGraphEdge()
+		}
+		return new_LinkedDirectedGraph_LinkedDiGraphEdge(lSrc, edgeValue, lDest)
+	}()
 	lSrc.getOutEdges().add(edge.self())
 	lDest.getInEdges().add(edge.self())
 }
@@ -134,7 +144,12 @@ func (this *LinkedDirectedGraph) getOutEdges_impl(nodeValue any) ListOf[*LinkedD
 
 func (this *LinkedDirectedGraph) createNode_impl(nodeValue any) GraphNode {
 	return icast_GraphNode(Map_computeIfAbsent(this.nodes_, nodeValue, &Function_fn{func(k any) any {
-		return func() any { if this.useNodeAnnotations { return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(k)) }; return new_LinkedDirectedGraph_LinkedDiGraphNode(k).self() }()
+		return func() any {
+			if this.useNodeAnnotations {
+				return obj_(new_LinkedDirectedGraph_AnnotatedLinkedDiGraphNode(k))
+			}
+			return new_LinkedDirectedGraph_LinkedDiGraphNode(k).self()
+		}()
 	}}))
 }
 
@@ -164,14 +179,14 @@ func (this *LinkedDirectedGraph) getFirstEdge_impl(n1 any, n2 any) Graph_GraphEd
 	it_1 := foreach_(any(dNode1.getOutEdges()))
 	for it_1.next() {
 		var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
-		if (any(outEdge.getDestination()) == dNode2.self()) {
+		if any(outEdge.getDestination()) == dNode2.self() {
 			return Graph_GraphEdge(outEdge)
 		}
 	}
 	it_3 := foreach_(any(dNode2.getOutEdges()))
 	for it_3.next() {
 		var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
-		if (any(outEdge.getDestination()) == dNode1.self()) {
+		if any(outEdge.getDestination()) == dNode1.self() {
 			return Graph_GraphEdge(outEdge)
 		}
 	}
@@ -185,7 +200,7 @@ func (this *LinkedDirectedGraph) getEdgesInDirection_impl(n1 any, n2 any) ListOf
 	it_1 := foreach_(any(dNode1.getOutEdges()))
 	for it_1.next() {
 		var outEdge *LinkedDirectedGraph_LinkedDiGraphEdge = to_LinkedDirectedGraph_LinkedDiGraphEdge(it_1.v)
-		if (to_LinkedDirectedGraph_LinkedDiGraphNode(outEdge.getDestination()) == dNode2) {
+		if to_LinkedDirectedGraph_LinkedDiGraphNode(outEdge.getDestination()) == dNode2 {
 			edges.add(outEdge.self())
 		}
 	}
@@ -205,11 +220,11 @@ func (this *LinkedDirectedGraph) isConnectedInDirectionLinkedDiGraphNode(source 
 	var outEdgesLen int32 = outEdges.size()
 	var inEdges ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge] = dest.getInEdges()
 	var inEdgesLen int32 = inEdges.size()
-	if (outEdgesLen < inEdgesLen) {
+	if outEdgesLen < inEdgesLen {
 		it_1 := foreach_(any(outEdges))
 		for it_1.next() {
 			var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
-			if ((any(outEdge.getDestination()) == dest.self()) && edgeFilter.apply(outEdge.getValue())) {
+			if (any(outEdge.getDestination()) == dest.self()) && edgeFilter.apply(outEdge.getValue()) {
 				return true
 			}
 		}
@@ -217,7 +232,7 @@ func (this *LinkedDirectedGraph) isConnectedInDirectionLinkedDiGraphNode(source 
 		it_3 := foreach_(any(inEdges))
 		for it_3.next() {
 			var inEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
-			if ((any(inEdge.getSource()) == source.self()) && edgeFilter.apply(inEdge.getValue())) {
+			if (any(inEdge.getSource()) == source.self()) && edgeFilter.apply(inEdge.getValue()) {
 				return true
 			}
 		}
@@ -321,24 +336,30 @@ func (this *LinkedDirectedGraph) getNodeDegree_impl(value any) int32 {
 }
 
 type LinkedDirectedGraph_LinkedDiGraphNode struct {
-	self_ any
-	inEdgeList ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge]
+	self_       any
+	inEdgeList  ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge]
 	outEdgeList ListOf[*LinkedDirectedGraph_LinkedDiGraphEdge]
-	value_ any
-	priority int32
+	value_      any
+	priority    int32
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphNode) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode { return this }
+func (this *LinkedDirectedGraph_LinkedDiGraphNode) as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode {
+	return this
+}
 
 func to_LinkedDirectedGraph_LinkedDiGraphNode(v any) *LinkedDirectedGraph_LinkedDiGraphNode {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode }).as_LinkedDirectedGraph_LinkedDiGraphNode()
+	return v.(interface {
+		as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode
+	}).as_LinkedDirectedGraph_LinkedDiGraphNode()
 }
 
 func is_LinkedDirectedGraph_LinkedDiGraphNode(v any) bool {
-	_, ok := v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode })
+	_, ok := v.(interface {
+		as_LinkedDirectedGraph_LinkedDiGraphNode() *LinkedDirectedGraph_LinkedDiGraphNode
+	})
 	return ok
 }
 
@@ -462,30 +483,36 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode) setAnnotation_impl(d
 
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode) getLabel_impl() string {
 	var result string = this.toString()
-	if (this.annotation != nil) {
+	if this.annotation != nil {
 		result += sstr_(("\n" + objstr_(any(this.annotation))))
 	}
 	return result
 }
 
 type LinkedDirectedGraph_LinkedDiGraphEdge struct {
-	self_ any
+	self_       any
 	sourceNode_ *LinkedDirectedGraph_LinkedDiGraphNode
-	destNode *LinkedDirectedGraph_LinkedDiGraphNode
-	value_ any
+	destNode    *LinkedDirectedGraph_LinkedDiGraphNode
+	value_      any
 }
 
-func (this *LinkedDirectedGraph_LinkedDiGraphEdge) as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge { return this }
+func (this *LinkedDirectedGraph_LinkedDiGraphEdge) as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge {
+	return this
+}
 
 func to_LinkedDirectedGraph_LinkedDiGraphEdge(v any) *LinkedDirectedGraph_LinkedDiGraphEdge {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge }).as_LinkedDirectedGraph_LinkedDiGraphEdge()
+	return v.(interface {
+		as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge
+	}).as_LinkedDirectedGraph_LinkedDiGraphEdge()
 }
 
 func is_LinkedDirectedGraph_LinkedDiGraphEdge(v any) bool {
-	_, ok := v.(interface{ as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge })
+	_, ok := v.(interface {
+		as_LinkedDirectedGraph_LinkedDiGraphEdge() *LinkedDirectedGraph_LinkedDiGraphEdge
+	})
 	return ok
 }
 
@@ -595,4 +622,3 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge) getAnnotationUntyped
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge) setAnnotation_impl(data Annotation_graph) {
 	this.annotation = data
 }
-

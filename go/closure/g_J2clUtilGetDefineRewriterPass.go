@@ -5,7 +5,7 @@ package closure
 type J2clUtilGetDefineRewriterPass struct {
 	NodeTraversal_AbstractPostOrderCallback
 	compiler_ *AbstractCompiler
-	defines ImmutableSetOf[string]
+	defines   ImmutableSetOf[string]
 }
 
 func (this *J2clUtilGetDefineRewriterPass) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -47,7 +47,7 @@ func (this *J2clUtilGetDefineRewriterPass) visit_impl(t *NodeTraversal, n Node, 
 func (this *J2clUtilGetDefineRewriterPass) rewriteUtilGetDefine(t *NodeTraversal, callNode Node) {
 	var firstExpr Node = callNode.getSecondChild()
 	var secondExpr Node = callNode.getLastChild()
-	if (secondExpr != firstExpr) {
+	if secondExpr != firstExpr {
 		secondExpr.detach()
 	} else {
 		secondExpr = IR_nullNode()
@@ -103,9 +103,9 @@ func J2clUtilGetDefineRewriterPass_clinit() {
 
 type J2clUtilGetDefineRewriterPass_CheckGetDefineCalls struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *J2clUtilGetDefineRewriterPass
+	outer_                            *J2clUtilGetDefineRewriterPass
 	defineNameToAddSystemPropertyCall MapOf[string, Node]
-	defineNameToGetDefineCall MapOf[string, Node]
+	defineNameToGetDefineCall         MapOf[string, Node]
 }
 
 func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -173,7 +173,7 @@ func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) validateRegistere
 
 func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(callNode Node) OptionalOf[string] {
 	var nameNode Node = callNode.getSecondChild()
-	if ((nameNode == 0) || !nameNode.isString()) {
+	if (nameNode == 0) || !nameNode.isString() {
 		return Optional_empty()
 	}
 	return Optional_of(strobj_(nameNode.getString()))
@@ -182,4 +182,3 @@ func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(ca
 func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGoogDefine(n Node) bool {
 	return ((n.isCall() && !String_isEmpty(n.getFirstChild().getQualifiedName())) && String_endsWith(n.getFirstChild().getQualifiedName(), "addSystemPropertyFromGoogDefine"))
 }
-

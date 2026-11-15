@@ -69,13 +69,18 @@ func (this *BooleanLiteralSet) contains(literalValue bool) bool {
 }
 
 func BooleanLiteralSet_get(literalValue bool) *BooleanLiteralSet {
-	return func() *BooleanLiteralSet { if literalValue { return BooleanLiteralSet_TRUE }; return BooleanLiteralSet_FALSE }()
+	return func() *BooleanLiteralSet {
+		if literalValue {
+			return BooleanLiteralSet_TRUE
+		}
+		return BooleanLiteralSet_FALSE
+	}()
 }
 
 func (this *BooleanLiteralSet) toTri() *Tri {
-	if (this == BooleanLiteralSet_TRUE) {
+	if this == BooleanLiteralSet_TRUE {
 		return Tri_TRUE
-	} else if (this == BooleanLiteralSet_FALSE) {
+	} else if this == BooleanLiteralSet_FALSE {
 		return Tri_FALSE
 	}
 	return Tri_UNKNOWN
@@ -115,4 +120,3 @@ func BooleanLiteralSet_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.BooleanLiteralSet", enumValues_(BooleanLiteralSet_values_))
 
 }
-

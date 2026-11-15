@@ -3,20 +3,20 @@
 package closure
 
 type PolymerClassDefinition struct {
-	defType *PolymerClassDefinition_DefinitionType
-	definition Node
-	input *CompilerInput
-	target Node
-	hasGeneratedLhs bool
-	descriptor Node
-	constructor_ *PolymerPass_MemberDefinition
+	defType           *PolymerClassDefinition_DefinitionType
+	definition        Node
+	input             *CompilerInput
+	target            Node
+	hasGeneratedLhs   bool
+	descriptor        Node
+	constructor_      *PolymerPass_MemberDefinition
 	nativeBaseElement OptionalOf[string]
-	props ListOf[*PolymerPass_MemberDefinition]
-	behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
-	methods ListOf[*PolymerPass_MemberDefinition]
-	behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition]
-	features_ *FeatureSet
-	interfaceName OptionalOf[string]
+	props             ListOf[*PolymerPass_MemberDefinition]
+	behaviorProps     MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]
+	methods           ListOf[*PolymerPass_MemberDefinition]
+	behaviors         ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition]
+	features_         *FeatureSet
+	interfaceName     OptionalOf[string]
 }
 
 func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
@@ -49,17 +49,17 @@ func new_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, 
 
 func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *AbstractCompiler, moduleMetadata *ModuleMetadataMap_ModuleMetadata, behaviorExtractor *PolymerBehaviorExtractor) *PolymerClassDefinition {
 	var descriptor Node = NodeUtil_getArgumentForCallOrNew(callNode, 0)
-	if ((descriptor == 0) || !descriptor.isObjectLit()) {
+	if (descriptor == 0) || !descriptor.isObjectLit() {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(callNode, PolymerPassErrors_POLYMER_DESCRIPTOR_NOT_VALID, []string{}))
 		return nil
 	}
 	var paramCount int32 = (callNode.getChildCount() - 1)
-	if (paramCount != 1) {
+	if paramCount != 1 {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(callNode, PolymerPassErrors_POLYMER_UNEXPECTED_PARAMS, []string{}))
 		return nil
 	}
 	var elName Node = NodeUtil_getFirstPropMatchingKey(descriptor, "is")
-	if (elName == 0) {
+	if elName == 0 {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(callNode, PolymerPassErrors_POLYMER_MISSING_IS, []string{}))
 		return nil
 	}
@@ -75,7 +75,12 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 			target = callNode.getParent().getFirstChild().cloneTree()
 		}
 	} else {
-		var elNameStringBase string = func() string { if elName.isQualifiedName() { return String_replace_char_char(elName.getQualifiedName(), '.', '$') }; return elName.getString() }()
+		var elNameStringBase string = func() string {
+			if elName.isQualifiedName() {
+				return String_replace_char_char(elName.getQualifiedName(), '.', '$')
+			}
+			return elName.getString()
+		}()
 		var elNameString string = CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, elNameStringBase)
 		elNameString += "Element"
 		target = IR_name(elNameString)
@@ -84,7 +89,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	var classInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(target)
 	var ctorInfo *JSDocInfo = nil
 	var constructor Node = NodeUtil_getFirstPropMatchingKey(descriptor, "factoryImpl")
-	if (constructor == 0) {
+	if constructor == 0 {
 		constructor = NodeUtil_emptyFunction()
 		compiler.reportChangeToChangeScope(constructor)
 		constructor.srcrefTree(callNode)
@@ -92,7 +97,12 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
 	}
 	var baseClass Node = NodeUtil_getFirstPropMatchingKey(descriptor, "extends")
-	var nativeBaseElement OptionalOf[string] = func() *Optional { if (baseClass == 0) { return Optional_empty() }; return Optional_of(strobj_(baseClass.getString())) }()
+	var nativeBaseElement OptionalOf[string] = func() *Optional {
+		if baseClass == 0 {
+			return Optional_empty()
+		}
+		return Optional_of(strobj_(baseClass.getString()))
+	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
 	var behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
 	var properties ListOf[*PolymerPass_MemberDefinition] = icast_List(new_ArrayList_0().self())
@@ -112,14 +122,14 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 	var newFeatures *FeatureSet = nil
 	if !behaviors.isEmpty() {
 		newFeatures = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](behaviors.get(0)).features_
-		for i := int32(1); (i < behaviors.size()); i++ {
+		for i := int32(1); i < behaviors.size(); i++ {
 			newFeatures = newFeatures.union(cast_[*PolymerBehaviorExtractor_BehaviorDefinition](behaviors.get(i)).features_)
 		}
 	}
 	var methods ListOf[*PolymerPass_MemberDefinition] = icast_List(new_ArrayList_0().self())
 	{
 		var keyNode Node = descriptor.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var isFunctionDefinition bool = (keyNode.isMemberFunctionDef() || (keyNode.isStringKey() && keyNode.getFirstChild().isFunction()))
 			if isFunctionDefinition {
 				methods.add(obj_(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule)))
@@ -131,7 +141,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 }
 
 func PolymerClassDefinition_isGoogModuleExports(assign Node) bool {
-	if (!assign.getParent().isExprResult() || !assign.getFirstChild().matchesName("exports")) {
+	if !assign.getParent().isExprResult() || !assign.getFirstChild().matchesName("exports") {
 		return false
 	}
 	var containingBlock Node = assign.getGrandparent()
@@ -155,15 +165,15 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	Preconditions_checkState(((classNode != 0) && classNode.isClass()))
 	var propertiesDescriptor Node = 0
 	var propertiesGetter Node = NodeUtil_getFirstGetterMatchingKey(NodeUtil_getClassMembers(classNode), "properties")
-	if (propertiesGetter != 0) {
+	if propertiesGetter != 0 {
 		if !propertiesGetter.isStaticMember() {
 			compiler.report(JSError_make_Node_DiagnosticType_StringArr(classNode, PolymerPassErrors_POLYMER_CLASS_PROPERTIES_NOT_STATIC, []string{}))
 		} else {
 			{
 				var child Node = NodeUtil_getFunctionBody(propertiesGetter.getFirstChild()).getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					if child.isReturn() {
-						if (child.hasChildren() && child.getFirstChild().isObjectLit()) {
+						if child.hasChildren() && child.getFirstChild().isObjectLit() {
 							propertiesDescriptor = child.getFirstChild()
 							break
 						} else {
@@ -177,7 +187,7 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	var target Node
 	if NodeUtil_isNameDeclaration(classNode.getGrandparent()) {
 		target = IR_name(classNode.getParent().getString())
-	} else if (classNode.getParent().isAssign() && classNode.getParent().getFirstChild().isQualifiedName()) {
+	} else if classNode.getParent().isAssign() && classNode.getParent().getFirstChild().isQualifiedName() {
 		target = classNode.getParent().getFirstChild()
 	} else if !classNode.getFirstChild().isEmpty() {
 		target = classNode.getFirstChild()
@@ -191,7 +201,7 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 	var properties ImmutableListOf[*PolymerPass_MemberDefinition] = PolymerPassStaticUtils_extractProperties(propertiesDescriptor, PolymerClassDefinition_DefinitionType_ES6Class, compiler, constructor)
 	var methods ListOf[*PolymerPass_MemberDefinition] = PolymerClassDefinition_extractClassMethods(classNode, enclosingModule)
 	var ctorInfo *JSDocInfo = nil
-	if (constructor != 0) {
+	if constructor != 0 {
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
 		PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor, enclosingModule, methods)
 	}
@@ -203,8 +213,8 @@ func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule 
 	var methods ListOf[*PolymerPass_MemberDefinition] = icast_List(new_ArrayList_0().self())
 	{
 		var keyNode Node = NodeUtil_getClassMembers(classNode).getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
-			if (keyNode.isMemberFunctionDef() || PolymerClassDefinition_isFunctionField(keyNode)) {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
+			if keyNode.isMemberFunctionDef() || PolymerClassDefinition_isFunctionField(keyNode) {
 				methods.add(obj_(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(keyNode), keyNode, keyNode.getFirstChild(), enclosingModule)))
 			}
 		}
@@ -224,14 +234,14 @@ func PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor No
 	var body Node = NodeUtil_getFunctionBody(constructor.getFirstChild())
 	{
 		var stmt Node = body.getFirstChild()
-		for ; (stmt != 0); stmt = stmt.getNext() {
-			if (!stmt.isExprResult() || !stmt.getFirstChild().isAssign()) {
+		for ; stmt != 0; stmt = stmt.getNext() {
+			if !stmt.isExprResult() || !stmt.getFirstChild().isAssign() {
 				continue
 			}
 			var assignment Node = stmt.getFirstChild()
 			var propName Node = assignment.getFirstChild()
 			var propValue Node = assignment.getLastChild()
-			if ((propName.isGetProp() && propName.getFirstChild().isThis()) && propValue.isFunction()) {
+			if (propName.isGetProp() && propName.getFirstChild().isThis()) && propValue.isFunction() {
 				methods.add(obj_(new_PolymerPass_MemberDefinition(NodeUtil_getBestJSDocInfo(propName), propName, propValue, enclosingModule)))
 			}
 		}
@@ -245,7 +255,7 @@ func PolymerClassDefinition_overwriteMembersIfPresent(list ListOf[*PolymerPass_M
 		it_3 := foreach_(any(list))
 		for it_3.next() {
 			var member *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_3.v)
-			if (member.name_.getString() == newMember.name_.getString()) {
+			if member.name_.getString() == newMember.name_.getString() {
 				list.remove_Object(obj_(member))
 				break
 			}
@@ -255,7 +265,7 @@ func PolymerClassDefinition_overwriteMembersIfPresent(list ListOf[*PolymerPass_M
 }
 
 func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]) {
-	if (behaviorProps == nil) {
+	if behaviorProps == nil {
 		return
 	}
 	var behaviorsItr IteratorOf[Map_EntryOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition]] = behaviorProps.entrySet().iterator()
@@ -270,7 +280,7 @@ func PolymerClassDefinition_removeDuplicateBehaviorProps(behaviorProps MapOf[*Po
 }
 
 func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behaviorProps MapOf[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], polymerElementProps ListOf[*PolymerPass_MemberDefinition]) {
-	if (behaviorProps == nil) {
+	if behaviorProps == nil {
 		return
 	}
 	var elementPropNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
@@ -289,7 +299,12 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 }
 
 func (this *PolymerClassDefinition) toString() string {
-	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any { if this.nativeBaseElement.isPresent() { return this.nativeBaseElement.get() }; return nil }()).omitNullValues()))
+	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any {
+		if this.nativeBaseElement.isPresent() {
+			return this.nativeBaseElement.get()
+		}
+		return nil
+	}()).omitNullValues()))
 }
 
 func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) OptionalOf[string] {
@@ -351,4 +366,3 @@ func PolymerClassDefinition_DefinitionType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.PolymerClassDefinition.DefinitionType", enumValues_(PolymerClassDefinition_DefinitionType_values_))
 
 }
-

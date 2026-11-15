@@ -64,4 +64,3 @@ func (this *PrebuildDependencyInfo_1) newThread(r Runnable) *Thread {
 	t.setDaemon(true)
 	return t
 }
-

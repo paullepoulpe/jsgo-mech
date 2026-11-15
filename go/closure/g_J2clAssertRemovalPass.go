@@ -50,4 +50,3 @@ func J2clAssertRemovalPass_isAssertionMethodName(fnName Node) bool {
 	var originalQname string = fnName.getOriginalQualifiedName()
 	return (String_contains(originalQname, strobj_("Asserts")) && String_contains(originalQname, strobj_(".$assert")))
 }
-

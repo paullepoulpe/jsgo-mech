@@ -54,4 +54,3 @@ func SourceMapFormat_clinit() {
 	registerEnum_("com.google.debugging.sourcemap.SourceMapFormat", enumValues_(SourceMapFormat_values_))
 
 }
-

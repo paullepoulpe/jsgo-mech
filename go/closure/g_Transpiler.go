@@ -61,4 +61,3 @@ func Transpiler_bundle_clinit() {
 	Transpiler_bundle_TO_ES5 = new_Transpiler_bundle(new_CompilerBasedTransformer_CompilerSupplier(), "es6_runtime")
 
 }
-

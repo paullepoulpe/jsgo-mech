@@ -3,14 +3,14 @@
 package closure
 
 type InlineFunctions struct {
-	fns MapOf[string, *InlineFunctions_FunctionState]
-	anonFns MapOf[Node, string]
-	compiler_ *AbstractCompiler
-	injector *FunctionInjector
-	functionArgumentInjector_ *FunctionArgumentInjector
-	reach *CompilerOptions_Reach
+	fns                         MapOf[string, *InlineFunctions_FunctionState]
+	anonFns                     MapOf[Node, string]
+	compiler_                   *AbstractCompiler
+	injector                    *FunctionInjector
+	functionArgumentInjector_   *FunctionArgumentInjector
+	reach                       *CompilerOptions_Reach
 	enforceMaxSizeAfterInlining bool
-	maxSizeAfterInlining int32
+	maxSizeAfterInlining        int32
 }
 
 func (this *InlineFunctions) finit_InlineFunctions() {
@@ -76,7 +76,7 @@ func InlineFunctions_isAlwaysInlinable(fn Node) bool {
 
 func (this *InlineFunctions) targetSizeAfterInlineExceedsLimit(t *NodeTraversal, functionState *InlineFunctions_FunctionState) bool {
 	var containingFunction Node = t.getEnclosingFunction()
-	if (containingFunction == 0) {
+	if containingFunction == 0 {
 		return false
 	}
 	var inlinedFun Node = functionState.getFn().getFunctionNode()
@@ -105,7 +105,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_NO_INLINE_ANNOTATION)
 		return
 	}
-	if ((this.enforceMaxSizeAfterInlining && !InlineFunctions_isAlwaysInlinable(fnNode)) && (this.maxSizeAfterInlining <= NodeUtil_countAstSizeUpToLimit(fnNode, this.maxSizeAfterInlining))) {
+	if (this.enforceMaxSizeAfterInlining && !InlineFunctions_isAlwaysInlinable(fnNode)) && (this.maxSizeAfterInlining <= NodeUtil_countAstSizeUpToLimit(fnNode, this.maxSizeAfterInlining)) {
 		functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_TARGET_SIZE_EXCEEDS_LIMIT)
 		return
 	}
@@ -192,15 +192,15 @@ func (this *InlineFunctions) isCandidateFunction(fn InlineFunctions_Function) bo
 func InlineFunctions_isCandidateUsage(name Node) bool {
 	var parent Node = name.getParent()
 	Preconditions_checkState(name.isName())
-	if (NodeUtil_isNameDeclaration(parent) || parent.isFunction()) {
+	if NodeUtil_isNameDeclaration(parent) || parent.isFunction() {
 		return true
 	}
-	if (NodeUtil_isNormalOrOptChainCall(parent) && (parent.getFirstChild() == name)) {
+	if NodeUtil_isNormalOrOptChainCall(parent) && (parent.getFirstChild() == name) {
 		return true
 	}
-	if ((((parent.isGetElem() && (name == parent.getFirstChild())) && parent.getSecondChild().isStringLit()) && (parent.getSecondChild().getString() == "call")) || (parent.isGetProp() && (parent.getString() == "call"))) {
+	if (((parent.isGetElem() && (name == parent.getFirstChild())) && parent.getSecondChild().isStringLit()) && (parent.getSecondChild().getString() == "call")) || (parent.isGetProp() && (parent.getString() == "call")) {
 		var grandparent Node = name.getAncestor(2)
-		if (grandparent.isCall() && (grandparent.getFirstChild() == parent)) {
+		if grandparent.isCall() && (grandparent.getFirstChild() == parent) {
 			return true
 		}
 	}
@@ -213,7 +213,7 @@ func (this *InlineFunctions) trimCandidatesNotMeetingMinimumRequirements() {
 		i = this.fns.entrySet().iterator()
 		for i.hasNext() {
 			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](icast_Map_Entry(i.next()).getValue())
-			if (!functionState.hasExistingFunctionDefinition() || !functionState.canInline()) {
+			if !functionState.hasExistingFunctionDefinition() || !functionState.canInline() {
 				Iterator_remove(i)
 			}
 		}
@@ -243,7 +243,7 @@ func (this *InlineFunctions) minimizeCost(functionState *InlineFunctions_Functio
 		if functionState.hasBlockInliningReferences() {
 			functionState.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_BLOCK_INLINING_REFERENCE, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES)
 			functionState.removeBlockInliningReferences()
-			if (!functionState.hasReferences() || !this.inliningLowersCost(functionState)) {
+			if !functionState.hasReferences() || !this.inliningLowersCost(functionState) {
 				return false
 			}
 		} else {
@@ -276,7 +276,7 @@ func InlineFunctions_hasNonInlinableParam(node Node) bool {
 }
 
 func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *InlineFunctions_FunctionState) {
-	if (!functionState.hasReferences() || !functionState.canInline()) {
+	if !functionState.hasReferences() || !functionState.canInline() {
 		return
 	}
 	var fnNode Node = functionState.getFn().getFunctionNode()
@@ -286,9 +286,9 @@ func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *In
 		for it_1.next() {
 			var name string = str_(it_1.v)
 			var fsCalled *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](Map_get_s(this.fns, name))
-			if ((fsCalled != nil) && fsCalled.canRemove()) {
+			if (fsCalled != nil) && fsCalled.canRemove() {
 				fsCalled.setRemove(false, this.compiler_, InlineFunctions_CannotRemoveReason_CALLED_BY_INLINED_FUNCTION, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
-				if ((!this.minimizeCost(fsCalled) && !fsCalled.requireInlining()) && !fsCalled.encourageInlining()) {
+				if (!this.minimizeCost(fsCalled) && !fsCalled.requireInlining()) && !fsCalled.encourageInlining() {
 					fsCalled.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_COST)
 				}
 			}
@@ -305,12 +305,12 @@ func (this *InlineFunctions) findCalledFunctions(node Node) SetOf[string] {
 
 func InlineFunctions_findCalledFunctions(node Node, changed SetOf[string]) {
 	Preconditions_checkArgument((changed != nil))
-	if (node.isName() && InlineFunctions_isCandidateUsage(node)) {
+	if node.isName() && InlineFunctions_isCandidateUsage(node) {
 		Collection_add_s(changed, node.getString())
 	}
 	{
 		var c Node = node.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			InlineFunctions_findCalledFunctions(c, changed)
 		}
 	}
@@ -355,7 +355,12 @@ func (this *InlineFunctions) verifyAllReferencesInlined(name string, functionSta
 		var ref *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_1.v)
 		if !ref.inlined {
 			var parent Node = ref.callNode_.getParent()
-			panic(new_IllegalStateException_String(("Call site missed (" + sstr_(name) + ").\n call: " + sstr_(ref.callNode_.toStringTree()) + "\n parent:  " + sstr_(func() string { if (parent == 0) { return "null" }; return parent.toStringTree() }()))).self())
+			panic(new_IllegalStateException_String(("Call site missed (" + sstr_(name) + ").\n call: " + sstr_(ref.callNode_.toStringTree()) + "\n parent:  " + sstr_(func() string {
+				if parent == 0 {
+					return "null"
+				}
+				return parent.toStringTree()
+			}()))).self())
 		}
 	}
 }
@@ -380,7 +385,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if !options.getInlineFunctionsLevel().includesGlobals() {
 		problems.add(strobj_("inlineFunctions does not include globals"))
 	}
-	if (options.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE) {
+	if options.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
 		problems.add(strobj_("instrumentForCoverageOption enabled"))
 	}
 	if !Object_equals(obj_(options.getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) {
@@ -392,7 +397,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if !options.shouldDevirtualizeMethods() {
 		problems.add(strobj_("missing devirtualizeMethods"))
 	}
-	if (options.getMaxOptimizationLoopIterations() == 1) {
+	if options.getMaxOptimizationLoopIterations() == 1 {
 		problems.add(strobj_(("optimizationLoopMaxIterations should be >= 2, but is: " + istr_(int64(options.getMaxOptimizationLoopIterations())))))
 	}
 	if problems.isEmpty() {
@@ -416,7 +421,7 @@ func InlineFunctions_clinit() {
 
 type InlineFunctions_FindCandidateFunctions struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *InlineFunctions
+	outer_    *InlineFunctions
 	callsSeen int32
 }
 
@@ -445,7 +450,7 @@ func new_InlineFunctions_FindCandidateFunctions(outer_ *InlineFunctions) *Inline
 }
 
 func (this *InlineFunctions_FindCandidateFunctions) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (this.outer_.reach.includesGlobals() || !t.inGlobalHoistScope()) {
+	if this.outer_.reach.includesGlobals() || !t.inGlobalHoistScope() {
 		this.findNamedFunctions(t, n, parent)
 		this.findFunctionExpressions(t, n)
 	}
@@ -459,7 +464,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findNamedFunctions(t *NodeTr
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
 		Preconditions_checkState_boolean_Object(n.hasOneChild(), n.box_())
 		var nameNode Node = n.getFirstChild()
-		if ((nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction()) {
+		if (nameNode.isName() && nameNode.hasChildren()) && nameNode.getFirstChild().isFunction() {
 			this.outer_.maybeAddFunction(icast_InlineFunctions_Function(obj_(new_InlineFunctions_FunctionVar(this.outer_, n))), t.getChunk())
 		}
 	case Token_rhino_FUNCTION:
@@ -484,7 +489,7 @@ func (this *InlineFunctions_FindCandidateFunctions) findFunctionExpressions(t *N
 				fnNode = fnIdentifyingNode
 			}
 		}
-		if (fnNode != 0) {
+		if fnNode != 0 {
 			var fn InlineFunctions_Function = icast_InlineFunctions_Function(obj_(new_InlineFunctions_FunctionExpression(fnNode, this.callsSeen)))
 			this.callsSeen++
 			this.outer_.maybeAddFunction(fn, t.getChunk())
@@ -508,22 +513,28 @@ func (this *InlineFunctions_CallVisitorCallback_fn) visitCallSite(p0 *NodeTraver
 
 type InlineFunctions_CallVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
-	callback InlineFunctions_CallVisitorCallback
-	functionMap MapOf[string, *InlineFunctions_FunctionState]
+	callback        InlineFunctions_CallVisitorCallback
+	functionMap     MapOf[string, *InlineFunctions_FunctionState]
 	anonFunctionMap MapOf[Node, string]
 }
 
-func (this *InlineFunctions_CallVisitor) as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor { return this }
+func (this *InlineFunctions_CallVisitor) as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor {
+	return this
+}
 
 func to_InlineFunctions_CallVisitor(v any) *InlineFunctions_CallVisitor {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor }).as_InlineFunctions_CallVisitor()
+	return v.(interface {
+		as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor
+	}).as_InlineFunctions_CallVisitor()
 }
 
 func is_InlineFunctions_CallVisitor(v any) bool {
-	_, ok := v.(interface{ as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor })
+	_, ok := v.(interface {
+		as_InlineFunctions_CallVisitor() *InlineFunctions_CallVisitor
+	})
 	return ok
 }
 
@@ -575,7 +586,7 @@ func (this *InlineFunctions_CallVisitor) visit_impl(t *NodeTraversal, n Node, pa
 		}
 		if name.isPresent() {
 			var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](Map_get_s(this.functionMap, str_(name.get())))
-			if (functionState != nil) {
+			if functionState != nil {
 				this.callback.visitCallSite(t, n, functionState)
 			}
 		}
@@ -630,9 +641,14 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReference(t *NodeT
 	if !functionState.canInline() {
 		return
 	}
-	var mode *FunctionInjector_InliningMode = func() *FunctionInjector_InliningMode { if functionState.canInlineDirectly() { return FunctionInjector_InliningMode_DIRECT }; return FunctionInjector_InliningMode_BLOCK }()
+	var mode *FunctionInjector_InliningMode = func() *FunctionInjector_InliningMode {
+		if functionState.canInlineDirectly() {
+			return FunctionInjector_InliningMode_DIRECT
+		}
+		return FunctionInjector_InliningMode_BLOCK
+	}()
 	var referenceAdded bool = this.maybeAddReferenceUsingMode(t, functionState, callNode, chunk, mode)
-	if (!referenceAdded && (mode == FunctionInjector_InliningMode_DIRECT)) {
+	if !referenceAdded && (mode == FunctionInjector_InliningMode_DIRECT) {
 		mode = FunctionInjector_InliningMode_BLOCK
 		referenceAdded = this.maybeAddReferenceUsingMode(t, functionState, callNode, chunk, mode)
 	}
@@ -642,12 +658,12 @@ func (this *InlineFunctions_FindCandidatesReferences) maybeAddReference(t *NodeT
 }
 
 func (this *InlineFunctions_FindCandidatesReferences) maybeAddReferenceUsingMode(t *NodeTraversal, functionState *InlineFunctions_FunctionState, callNode Node, chunk *JSChunk, mode *FunctionInjector_InliningMode) bool {
-	if (this.outer_.enforceMaxSizeAfterInlining && this.outer_.targetSizeAfterInlineExceedsLimit(t, functionState)) {
+	if this.outer_.enforceMaxSizeAfterInlining && this.outer_.targetSizeAfterInlineExceedsLimit(t, functionState) {
 		return false
 	}
 	var candidate *InlineFunctions_Reference = new_InlineFunctions_Reference(callNode, t.getScope(), chunk, mode)
 	var result *FunctionInjector_CanInlineResult = this.outer_.injector.canInlineReferenceToFunction(candidate.up_FunctionInjector_Reference(), functionState.getFn().getFunctionNode(), functionState.getNamesToAlias(), functionState.getReferencesThis(), functionState.hasInnerClosures())
-	if (result != FunctionInjector_CanInlineResult_NO) {
+	if result != FunctionInjector_CanInlineResult_NO {
 		candidate.setRequiresDecomposition((result == FunctionInjector_CanInlineResult_AFTER_PREPARATION))
 		functionState.addReference(candidate)
 		return true
@@ -662,12 +678,12 @@ func (this *InlineFunctions_FindCandidatesReferences) checkNameUsage(n Node, par
 	}
 	var name string = n.getString()
 	var functionState *InlineFunctions_FunctionState = cast_[*InlineFunctions_FunctionState](Map_get_s(this.outer_.fns, name))
-	if (functionState == nil) {
+	if functionState == nil {
 		return
 	}
 	if NodeUtil_isLValue(n) {
 		functionState.disallowInlining(this.outer_.compiler_, InlineFunctions_DisallowInliningReason_REASSIGNED)
-	} else if ((((parent.isAssign() && (parent.getJSDocInfo() != nil)) && parent.getJSDocInfo().isConstant()) && (parent.getSecondChild() == n)) || (((parent.getParent() != 0) && parent.getParent().isConst()) && (parent.getFirstChild() == n))) {
+	} else if (((parent.isAssign() && (parent.getJSDocInfo() != nil)) && parent.getJSDocInfo().isConstant()) && (parent.getSecondChild() == n)) || (((parent.getParent() != 0) && parent.getParent().isConst()) && (parent.getFirstChild() == n)) {
 		functionState.setRemove(false, this.outer_.compiler_, InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)
 	} else {
 		functionState.setRemove_5(false, this.outer_.compiler_, InlineFunctions_CannotRemoveReason_UNREMOVABLE_REFERENCE, InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES, parent)
@@ -692,7 +708,7 @@ func (this *InlineFunctions_Inline) visitCallSite(t *NodeTraversal, callNode Nod
 	Preconditions_checkState(functionState.hasExistingFunctionDefinition())
 	if functionState.canInline() {
 		var ref *InlineFunctions_Reference = functionState.getReference(callNode)
-		if (ref != nil) {
+		if ref != nil {
 			this.inlineFunction(t, ref, functionState)
 			ref.inlined = true
 		}
@@ -710,19 +726,19 @@ func (this *InlineFunctions_Inline) inlineFunction(t *NodeTraversal, ref *Inline
 }
 
 type InlineFunctions_FunctionState struct {
-	fn InlineFunctions_Function
-	safeFnNode Node
-	inline_ bool
-	remove_ bool
-	inlineDirectlyField bool
-	referencesThis bool
-	hasInnerClosuresField bool
-	references MapOf[Node, *InlineFunctions_Reference]
-	chunk_ *JSChunk
-	namesToAlias SetOf[string]
-	hasRequireInliningAnnotation bool
-	hasRequireInliningAnnotationInitialized bool
-	hasEncourageInliningAnnotation bool
+	fn                                        InlineFunctions_Function
+	safeFnNode                                Node
+	inline_                                   bool
+	remove_                                   bool
+	inlineDirectlyField                       bool
+	referencesThis                            bool
+	hasInnerClosuresField                     bool
+	references                                MapOf[Node, *InlineFunctions_Reference]
+	chunk_                                    *JSChunk
+	namesToAlias                              SetOf[string]
+	hasRequireInliningAnnotation              bool
+	hasRequireInliningAnnotationInitialized   bool
+	hasEncourageInliningAnnotation            bool
 	hasEncourageInliningAnnotationInitialized bool
 }
 
@@ -779,7 +795,7 @@ func (this *InlineFunctions_FunctionState) removeBlockInliningReferences() {
 		i = this.getReferencesInternal().entrySet().iterator()
 		for i.hasNext() {
 			var entry Map_EntryOf[Node, *InlineFunctions_Reference] = icast_Map_Entry(i.next())
-			if (cast_[*InlineFunctions_Reference](entry.getValue()).mode_ == FunctionInjector_InliningMode_BLOCK) {
+			if cast_[*InlineFunctions_Reference](entry.getValue()).mode_ == FunctionInjector_InliningMode_BLOCK {
 				Iterator_remove(i)
 			}
 		}
@@ -790,7 +806,7 @@ func (this *InlineFunctions_FunctionState) hasBlockInliningReferences() bool {
 	it_1 := foreach_(any(this.getReferencesInternal().values()))
 	for it_1.next() {
 		var r *InlineFunctions_Reference = cast_[*InlineFunctions_Reference](it_1.v)
-		if (r.mode_ == FunctionInjector_InliningMode_BLOCK) {
+		if r.mode_ == FunctionInjector_InliningMode_BLOCK {
 			return true
 		}
 	}
@@ -807,7 +823,12 @@ func (this *InlineFunctions_FunctionState) setFn(fn InlineFunctions_Function) {
 }
 
 func (this *InlineFunctions_FunctionState) getSafeFnNode() Node {
-	return func() Node { if (this.safeFnNode != 0) { return this.safeFnNode }; return this.fn.getFunctionNode() }()
+	return func() Node {
+		if this.safeFnNode != 0 {
+			return this.safeFnNode
+		}
+		return this.fn.getFunctionNode()
+	}()
 }
 
 func (this *InlineFunctions_FunctionState) setSafeFnNode(safeFnNode Node) {
@@ -819,7 +840,7 @@ func (this *InlineFunctions_FunctionState) canInline() bool {
 }
 
 func (this *InlineFunctions_FunctionState) encourageInlining() bool {
-	if (this.fn == nil) {
+	if this.fn == nil {
 		return false
 	}
 	if !this.hasEncourageInliningAnnotationInitialized {
@@ -830,7 +851,7 @@ func (this *InlineFunctions_FunctionState) encourageInlining() bool {
 }
 
 func (this *InlineFunctions_FunctionState) requireInlining() bool {
-	if (this.fn == nil) {
+	if this.fn == nil {
 		return false
 	}
 	if !this.hasRequireInliningAnnotationInitialized {
@@ -845,7 +866,7 @@ func (this *InlineFunctions_FunctionState) disallowInlining(compiler *AbstractCo
 }
 
 func (this *InlineFunctions_FunctionState) disallowInlining_3(compiler *AbstractCompiler, reason *InlineFunctions_DisallowInliningReason, shouldWarnWhenRequireInliningCannotInline *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline) {
-	if ((this.requireInlining() && compiler.isDebugLoggingEnabled()) && (shouldWarnWhenRequireInliningCannotInline == InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES)) {
+	if (this.requireInlining() && compiler.isDebugLoggingEnabled()) && (shouldWarnWhenRequireInliningCannotInline == InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_YES) {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(this.fn.getFunctionNode(), InlineFunctions_MISSED_REQUIRED_INLINING, []string{reason.name()}))
 	}
 	this.inline_ = false
@@ -862,8 +883,13 @@ func (this *InlineFunctions_FunctionState) setRemove(remove bool, compiler *Abst
 }
 
 func (this *InlineFunctions_FunctionState) setRemove_5(remove bool, compiler *AbstractCompiler, reason *InlineFunctions_CannotRemoveReason, shouldWarnIfRequireInlining *InlineFunctions_ShouldWarnWhenRequireInliningCannotInline, contextNode Node) {
-	if (((!remove && (shouldWarnIfRequireInlining != InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)) && this.requireInlining()) && compiler.isDebugLoggingEnabled()) {
-		compiler.report(JSError_make_Node_DiagnosticType_StringArr(this.fn.getFunctionNode(), InlineFunctions_MISSED_REQUIRED_INLINING, []string{reason.name(), func() string { if (contextNode == 0) { return "unknown" }; return contextNode.toString() }()}))
+	if ((!remove && (shouldWarnIfRequireInlining != InlineFunctions_ShouldWarnWhenRequireInliningCannotInline_NO)) && this.requireInlining()) && compiler.isDebugLoggingEnabled() {
+		compiler.report(JSError_make_Node_DiagnosticType_StringArr(this.fn.getFunctionNode(), InlineFunctions_MISSED_REQUIRED_INLINING, []string{reason.name(), func() string {
+			if contextNode == 0 {
+				return "unknown"
+			}
+			return contextNode.toString()
+		}()}))
 	}
 	this.remove_ = remove
 }
@@ -881,14 +907,14 @@ func (this *InlineFunctions_FunctionState) hasReferences() bool {
 }
 
 func (this *InlineFunctions_FunctionState) getReferencesInternal() MapOf[Node, *InlineFunctions_Reference] {
-	if (this.references == nil) {
+	if this.references == nil {
 		return icast_Map(obj_(ImmutableMap_of()))
 	}
 	return this.references
 }
 
 func (this *InlineFunctions_FunctionState) addReference(ref *InlineFunctions_Reference) {
-	if (this.references == nil) {
+	if this.references == nil {
 		this.references = icast_Map(obj_(new_LinkedHashMap()))
 	}
 	this.references.put(ref.callNode_.box_(), obj_(ref))
@@ -903,7 +929,7 @@ func (this *InlineFunctions_FunctionState) getReference(n Node) *InlineFunctions
 }
 
 func (this *InlineFunctions_FunctionState) getNamesToAlias() ImmutableSetOf[string] {
-	if (this.namesToAlias == nil) {
+	if this.namesToAlias == nil {
 		return ImmutableSet_of()
 	}
 	return ImmutableSet_copyOf(Collection(this.namesToAlias))
@@ -931,7 +957,7 @@ type InlineFunctions_Function interface {
 
 type InlineFunctions_NamedFunction struct {
 	outer_ *InlineFunctions
-	fn Node
+	fn     Node
 }
 
 func (this *InlineFunctions_NamedFunction) init_InlineFunctions_NamedFunction(fn Node) {
@@ -969,7 +995,7 @@ func (this *InlineFunctions_NamedFunction) getDeclaringBlock() Node {
 
 type InlineFunctions_FunctionVar struct {
 	outer_ *InlineFunctions
-	var_ Node
+	var_   Node
 }
 
 func (this *InlineFunctions_FunctionVar) init_InlineFunctions_FunctionVar(var_ Node) {
@@ -1006,8 +1032,8 @@ func (this *InlineFunctions_FunctionVar) getDeclaringBlock() Node {
 }
 
 type InlineFunctions_FunctionExpression struct {
-	fn Node
-	fakeName string
+	fn           Node
+	fakeName     string
 	fakeNameNode Node
 }
 
@@ -1051,7 +1077,7 @@ func (this *InlineFunctions_FunctionExpression) getDeclaringBlock() Node {
 type InlineFunctions_Reference struct {
 	FunctionInjector_Reference
 	requiresDecomposition bool
-	inlined bool
+	inlined               bool
 }
 
 func (this *InlineFunctions_Reference) up_FunctionInjector_Reference() *FunctionInjector_Reference {
@@ -1265,7 +1291,7 @@ func InlineFunctions_DisallowInliningReason_clinit() {
 
 type InlineFunctions_ShouldRequireInlining struct {
 	shouldValidate_ bool
-	optMessage_ string
+	optMessage_     string
 }
 
 func (this *InlineFunctions_ShouldRequireInlining) zero_InlineFunctions_ShouldRequireInlining() {
@@ -1310,4 +1336,3 @@ func (this *InlineFunctions_ShouldRequireInlining) hashCode() int32 {
 func (this *InlineFunctions_ShouldRequireInlining) toString() string {
 	return "ShouldRequireInlining[" + "shouldValidate=" + objstr_(any(bool(this.shouldValidate_))) + ", optMessage=" + objstr_(strobj_(this.optMessage_)) + "]"
 }
-

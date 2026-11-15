@@ -4,7 +4,7 @@ package closure
 
 type BranchCoverageInstrumentationCallback struct {
 	NodeTraversal_AbstractCfgCallback
-	compiler_ *AbstractCompiler
+	compiler_           *AbstractCompiler
 	instrumentationData MapOf[string, *FileInstrumentationData]
 }
 
@@ -38,11 +38,26 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		return
 	}
 	if node.isScript() {
-		if (func() *FileInstrumentationData { if fileName.isPresent() { return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get()))) }; return nil }() != nil) {
-			var toAddTo Node = func() Node { if (node.hasChildren() && node.getFirstChild().isModuleBody()) { return node.getFirstChild() }; return node }()
+		if func() *FileInstrumentationData {
+			if fileName.isPresent() {
+				return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+			}
+			return nil
+		}() != nil {
+			var toAddTo Node = func() Node {
+				if node.hasChildren() && node.getFirstChild().isModuleBody() {
+					return node.getFirstChild()
+				}
+				return node
+			}()
 			toAddTo.addChildrenToFront(this.newHeaderNode(traversal, toAddTo).removeChildren())
 			this.compiler_.reportChangeToEnclosingScope(node)
-			this.instrumentBranchCoverage(traversal, func() *FileInstrumentationData { if fileName.isPresent() { return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get()))) }; return nil }())
+			this.instrumentBranchCoverage(traversal, func() *FileInstrumentationData {
+				if fileName.isPresent() {
+					return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+				}
+				return nil
+			}())
 		}
 	}
 	if node.isIf() {
@@ -51,9 +66,9 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 		it_1 := foreach_(any(cfg.getOutEdges(node.box_())))
 		for it_1.next() {
 			var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
-			if (cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE) {
+			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = Node_of_(outEdge.getDestination().getValue())
-				if ((((destination != 0) && destination.isBlock()) && (destination.getParent() != 0)) && destination.getParent().isIf()) {
+				if (((destination != 0) && destination.isBlock()) && (destination.getParent() != 0)) && destination.getParent().isIf() {
 					hasDefaultBlock = true
 				}
 				break
@@ -67,20 +82,25 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			_ = k
 			return obj_(new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal)))
 		}})
-		this.processBranchInfo(node, func() *FileInstrumentationData { if fileName.isPresent() { return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get()))) }; return nil }(), this.getChildrenBlocks(node))
+		this.processBranchInfo(node, func() *FileInstrumentationData {
+			if fileName.isPresent() {
+				return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+			}
+			return nil
+		}(), this.getChildrenBlocks(node))
 	} else if NodeUtil_isLoopStructure(node) {
 		var blocks ListOf[Node] = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph = this.getControlFlowGraph(this.compiler_)
 		it_3 := foreach_(any(cfg.getOutEdges(node.box_())))
 		for it_3.next() {
 			var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
-			if (cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE) {
+			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = Node_of_(outEdge.getDestination().getValue())
-				if ((destination != 0) && destination.isBlock()) {
+				if (destination != 0) && destination.isBlock() {
 					blocks.add(destination.box_())
 				} else {
 					var exitBlock Node = IR_block_0()
-					if ((destination != 0) && destination.getParent().isBlock()) {
+					if (destination != 0) && destination.getParent().isBlock() {
 						exitBlock.insertBefore(destination)
 					} else {
 						exitBlock.insertAfter(Node_of_(outEdge.getSource().getValue()))
@@ -94,7 +114,12 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			_ = k
 			return obj_(new_FileInstrumentationData(k, BranchCoverageInstrumentationCallback_createArrayName(traversal)))
 		}})
-		this.processBranchInfo(node, func() *FileInstrumentationData { if fileName.isPresent() { return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get()))) }; return nil }(), blocks)
+		this.processBranchInfo(node, func() *FileInstrumentationData {
+			if fileName.isPresent() {
+				return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+			}
+			return nil
+		}(), blocks)
 	}
 }
 
@@ -102,7 +127,7 @@ func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) 
 	var blocks ListOf[Node] = icast_List(new_ArrayList_0().self())
 	{
 		var child Node = node.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			if child.isBlock() {
 				blocks.add(child.box_())
 			}
@@ -114,10 +139,10 @@ func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) 
 func (this *BranchCoverageInstrumentationCallback) instrumentBranchCoverage(traversal *NodeTraversal, data *FileInstrumentationData) {
 	var maxLine int32 = data.maxBranchPresentLine()
 	var branchCoverageOffset int32 = 0
-	for lineIdx := int32(1); (lineIdx <= maxLine); lineIdx++ {
+	for lineIdx := int32(1); lineIdx <= maxLine; lineIdx++ {
 		var numBranches any = any(int32(data.getNumBranches(lineIdx)))
-		if (numBranches != nil) {
-			for branchIdx := int32(1); (branchIdx <= unbox_[int32](numBranches)); branchIdx++ {
+		if numBranches != nil {
+			for branchIdx := int32(1); branchIdx <= unbox_[int32](numBranches); branchIdx++ {
 				var block Node = data.getBranchNode(lineIdx, branchIdx)
 				block.addChildToFront(this.newBranchInstrumentationNode(traversal, block, ((branchCoverageOffset + branchIdx) - 1)))
 				this.compiler_.reportChangeToEnclosingScope(block)
@@ -161,7 +186,12 @@ func (this *BranchCoverageInstrumentationCallback) addDefaultBlock(node Node) No
 
 func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *NodeTraversal, srcref Node) Node {
 	var fileName OptionalOf[string] = traversal.getSourceName()
-	var data *FileInstrumentationData = func() *FileInstrumentationData { if fileName.isPresent() { return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get()))) }; return nil }()
+	var data *FileInstrumentationData = func() *FileInstrumentationData {
+		if fileName.isPresent() {
+			return cast_[*FileInstrumentationData](Map_get_s(this.instrumentationData, str_(fileName.get())))
+		}
+		return nil
+	}()
 	Preconditions_checkNotNull(obj_(data))
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
 	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
@@ -182,9 +212,9 @@ func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name st
 	var assignments ListOf[Node] = icast_List(new_ArrayList_0().self())
 	assignments.add(IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})).box_())
 	var lineWithBranch int32 = 0
-	for lineIdx := int32(1); (lineIdx <= data.maxBranchPresentLine()); lineIdx++ {
+	for lineIdx := int32(1); lineIdx <= data.maxBranchPresentLine(); lineIdx++ {
 		var numBranches any = any(int32(data.getNumBranches(lineIdx)))
-		if ((numBranches != nil) && (unbox_[int32](numBranches) > 0)) {
+		if (numBranches != nil) && (unbox_[int32](numBranches) > 0) {
 			var assignment Node = IR_exprResult(IR_assign(IR_getelem(IR_name(name), IR_number(float64(lineWithBranch))), IR_number(unbox_[float64](numBranches))))
 			lineWithBranch++
 			assignments.add(assignment.srcrefTreeIfMissing(assignment).box_())
@@ -194,4 +224,3 @@ func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name st
 }
 
 const BranchCoverageInstrumentationCallback_BRANCH_ARRAY_NAME_PREFIX string = "JSCompiler_lcov_branch_data_"
-

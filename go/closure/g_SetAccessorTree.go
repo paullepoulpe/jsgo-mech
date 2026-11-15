@@ -5,10 +5,10 @@ package closure
 type SetAccessorTree struct {
 	ParseTree
 	propertyName_ *Token_parser
-	parameter *FormalParameterListTree
+	parameter     *FormalParameterListTree
 	isClassMember bool
-	isStatic bool
-	body *BlockTree
+	isStatic      bool
+	body          *BlockTree
 }
 
 func (this *SetAccessorTree) up_ParseTree() *ParseTree {
@@ -33,4 +33,3 @@ func new_SetAccessorTree(location *SourceRange, propertyName *Token_parser, isCl
 	this.init_SetAccessorTree(location, propertyName, isClassMember, isStatic, parameter, body)
 	return this
 }
-

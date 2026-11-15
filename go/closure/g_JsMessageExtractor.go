@@ -3,8 +3,8 @@
 package closure
 
 type JsMessageExtractor struct {
-	idGenerator_ JsMessage_IdGenerator
-	options_ *CompilerOptions
+	idGenerator_            JsMessage_IdGenerator
+	options_                *CompilerOptions
 	extractExternalMessages bool
 }
 
@@ -62,7 +62,7 @@ func (this *JsMessageExtractor) extractMessagesIterable(inputs IterableOf[*Sourc
 
 type JsMessageExtractor_ExtractMessagesVisitor struct {
 	JsMessageVisitor
-	outer_ *JsMessageExtractor
+	outer_   *JsMessageExtractor
 	messages ListOf[*JsMessage]
 }
 
@@ -106,7 +106,7 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processIcuTemplateDefinit
 }
 
 func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessage(jsMessage *JsMessage) {
-	if (this.outer_.extractExternalMessages || !jsMessage.isExternal()) {
+	if this.outer_.extractExternalMessages || !jsMessage.isExternal() {
 		this.messages.add(obj_(jsMessage))
 	}
 }
@@ -114,4 +114,3 @@ func (this *JsMessageExtractor_ExtractMessagesVisitor) processJsMessage(jsMessag
 func (this *JsMessageExtractor_ExtractMessagesVisitor) getMessages() CollectionOf[*JsMessage] {
 	return Collection(this.messages)
 }
-

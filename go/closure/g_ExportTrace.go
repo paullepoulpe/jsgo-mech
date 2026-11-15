@@ -3,7 +3,7 @@
 package closure
 
 type ExportTrace struct {
-	module_ *UnresolvedModule
+	module_     *UnresolvedModule
 	exportName_ string
 }
 
@@ -54,4 +54,3 @@ func (this *ExportTrace) hashCode() int32 {
 func (this *ExportTrace) toString() string {
 	return "ExportTrace[" + "module=" + objstr_(this.module_.self()) + ", exportName=" + objstr_(strobj_(this.exportName_)) + "]"
 }
-

@@ -3,10 +3,10 @@
 package closure
 
 type CheckConformance struct {
-	compiler_ *AbstractCompiler
-	categories ImmutableListOf[*CheckConformance_Category]
+	compiler_       *AbstractCompiler
+	categories      ImmutableListOf[*CheckConformance_Category]
 	mergedBehaviors MapOf[*Requirement, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
-	ruleToBehavior MapOf[CheckConformance_Rule, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
+	ruleToBehavior  MapOf[CheckConformance_Rule, *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior]
 }
 
 func (this *CheckConformance) finit_CheckConformance() {
@@ -51,10 +51,10 @@ func (this *CheckConformance) isScriptOfInterest(sf *SourceFile_jscomp) bool {
 }
 
 func (this *CheckConformance) visit(t *NodeTraversal, n Node, parent Node) {
-	for c := int32((this.categories.size() - 1)); (c >= 0); c-- {
+	for c := int32((this.categories.size() - 1)); c >= 0; c-- {
 		var category *CheckConformance_Category = cast_[*CheckConformance_Category](this.categories.get(c))
 		if category.precondition.shouldCheck(n) {
-			for r := int32((category.rules.size() - 1)); (r >= 0); r-- {
+			for r := int32((category.rules.size() - 1)); r >= 0; r-- {
 				var rule CheckConformance_Rule = icast_CheckConformance_Rule(category.rules.get(r))
 				var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](Preconditions_checkNotNull(Map_getOrDefault(this.ruleToBehavior, any(rule), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))))
 				rule.check(t, n, behavior)
@@ -77,9 +77,9 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 		var requirement *Requirement = cast_[*Requirement](it_1.v)
 		var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED
 		var rule CheckConformance_Rule = CheckConformance_initRule(compiler, requirement)
-		if (rule != nil) {
+		if rule != nil {
 			builder.put(any(rule.getPrecondition()), any(rule))
-			if (isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(obj_(requirement))) {
+			if isLibraryLevelReportingMode && this.mergedBehaviors.containsKey(obj_(requirement)) {
 				behavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](this.mergedBehaviors.get(obj_(requirement)))
 				Preconditions_checkNotNull_Object_Object(obj_(behavior), strobj_("The mergeBehaviors method inserted a null behavior in the mergedBehaviors map"))
 			}
@@ -160,11 +160,16 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 				if !isLibraryLevelConformanceReportingMode {
 					rootRequirements.put(obj_(builder), obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED))
 				} else {
-					rootRequirements.put(obj_(builder), func() any { if hasBehavior { return obj_(behavior) }; return obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) }())
+					rootRequirements.put(obj_(builder), func() any {
+						if hasBehavior {
+							return obj_(behavior)
+						}
+						return obj_(ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)
+					}())
 				}
 			}
 			var libraryLevelConformanceEnabled bool = ((isLibraryLevelConformanceReportingMode && hasBehavior) && (behavior == ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_RECORD_ONLY))
-			if ((!requirement.hasRuleId() && !requirement.hasExtends()) && libraryLevelConformanceEnabled) {
+			if (!requirement.hasRuleId() && !requirement.hasExtends()) && libraryLevelConformanceEnabled {
 				CheckConformance_reportInvalidRequirement(compiler, requirement, "Library-level conformance requirements require their rule_id or extends field set.")
 			}
 		}
@@ -195,7 +200,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 		var behavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = cast_[*ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior](entry.getValue())
 		CheckConformance_removeDuplicates(builder)
 		var requirement *Requirement = cast_[*Requirement](builder.build())
-		if ((isLibraryLevelConformanceReportingMode && (behavior != nil)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED)) {
+		if (isLibraryLevelConformanceReportingMode && (behavior != nil)) && (behavior != ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior_UNSPECIFIED) {
 			this.mergedBehaviors.put(obj_(requirement), obj_(behavior))
 		}
 		cleanedUpRootRequirements.add(obj_(requirement))
@@ -206,7 +211,7 @@ func (this *CheckConformance) mergeRequirements(compiler *AbstractCompiler, conf
 func CheckConformance_mergeExtendingRequirementIntoExtended(extendedRequirement *Requirement_Builder, extendingRequirement *Requirement) {
 	Preconditions_checkState_boolean_Object((extendingRequirement.getExtends() == extendedRequirement.getRuleId()), strobj_("Attempting to merge an requirement with the wrong extended requirement"))
 	extendedRequirement.addAllWhitelist(Iterable(extendingRequirement.getWhitelistList())).addAllWhitelistRegexp(Iterable(extendingRequirement.getWhitelistRegexpList())).addAllAllowlist(Iterable(extendingRequirement.getAllowlistList())).addAllAllowlistRegexp(Iterable(extendingRequirement.getAllowlistRegexpList())).addAllOnlyApplyTo(Iterable(extendingRequirement.getOnlyApplyToList())).addAllOnlyApplyToRegexp(Iterable(extendingRequirement.getOnlyApplyToRegexpList())).addAllWhitelistEntry(Iterable(extendingRequirement.getWhitelistEntryList())).addAllAllowlistEntry(Iterable(extendingRequirement.getAllowlistEntryList())).addAllValue(Iterable(extendingRequirement.getValueList())).addAllConfigFile(Iterable(extendingRequirement.getConfigFileList()))
-	if (extendingRequirement.hasErrorMessage() && extendedRequirement.hasErrorMessage()) {
+	if extendingRequirement.hasErrorMessage() && extendedRequirement.hasErrorMessage() {
 		extendedRequirement.setErrorMessage((sstr_(extendedRequirement.getErrorMessage()) + " " + sstr_(extendingRequirement.getErrorMessage())))
 	}
 }
@@ -226,7 +231,7 @@ func CheckConformance_validateExtendableRequirement(compiler *AbstractCompiler, 
 
 func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, extendingRequirement *Requirement, extendableRequirement *Requirement_Builder) bool {
 	Preconditions_checkState_boolean_Object(extendingRequirement.hasExtends(), strobj_("Extending requirement must have an extends"))
-	if (extendableRequirement == nil) {
+	if extendableRequirement == nil {
 		CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("no extendable requirement with rule_id: " + sstr_(extendingRequirement.getExtends())))
 		return false
 	}
@@ -237,7 +242,7 @@ func CheckConformance_validateExtendingRequirement(compiler *AbstractCompiler, e
 			CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, ("extending rules allow only " + objstr_(obj_(CheckConformance_EXTENDABLE_FIELDS))))
 		}
 	}
-	if ((extendingRequirement.getValueCount() > 0) && !extendableRequirement.getAllowExtendingValue()) {
+	if (extendingRequirement.getValueCount() > 0) && !extendableRequirement.getAllowExtendingValue() {
 		CheckConformance_reportInvalidRequirement(compiler, extendingRequirement, "extending rule may not specify 'value' if extendable rule does not allow it")
 	}
 	return true
@@ -375,7 +380,7 @@ func CheckConformance_Precondition_clinit() {
 
 type CheckConformance_Category struct {
 	precondition CheckConformance_Precondition
-	rules ImmutableListOf[CheckConformance_Rule]
+	rules        ImmutableListOf[CheckConformance_Rule]
 }
 
 func (this *CheckConformance_Category) init_CheckConformance_Category(precondition CheckConformance_Precondition, rules ImmutableListOf[CheckConformance_Rule]) {
@@ -438,4 +443,3 @@ func new_CheckConformance_Precondition_1() *CheckConformance_Precondition_1 {
 func (this *CheckConformance_Precondition_1) shouldCheck(n Node) bool {
 	return true
 }
-

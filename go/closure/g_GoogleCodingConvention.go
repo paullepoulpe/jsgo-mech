@@ -36,11 +36,16 @@ func new_GoogleCodingConvention_CodingConvention(convention CodingConvention) *G
 }
 
 func (this *GoogleCodingConvention) isConstant_impl(name string) bool {
-	if (String_length(name) <= 1) {
+	if String_length(name) <= 1 {
 		return false
 	}
 	var pos int32 = String_lastIndexOf(name, 36)
-	var start int32 = func() int32 { if (pos >= 0) { return (pos + 1) }; return 0 }()
+	var start int32 = func() int32 {
+		if pos >= 0 {
+			return (pos + 1)
+		}
+		return 0
+	}()
 	return GoogleCodingConvention_isConstantKey(name, start, String_length(name))
 }
 
@@ -49,11 +54,11 @@ func (this *GoogleCodingConvention) isConstantKey_impl(name string) bool {
 }
 
 func GoogleCodingConvention_isConstantKey(name string, start int32, end int32) bool {
-	if ((start >= end) || !Character_isUpperCase(String_charAt(name, start))) {
+	if (start >= end) || !Character_isUpperCase(String_charAt(name, start)) {
 		return false
 	}
-	for i := int32((start + 1)); (i < end); i++ {
-		if (Character_toUpperCase(String_charAt(name, i)) != String_charAt(name, i)) {
+	for i := int32((start + 1)); i < end; i++ {
+		if Character_toUpperCase(String_charAt(name, i)) != String_charAt(name, i) {
 			return false
 		}
 	}
@@ -92,7 +97,12 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 		return Optional_ofNullable(strobj_(m.group(1)))
 	} else {
 		var lastSlash int32 = String_lastIndexOf(name, 47)
-		return func() *Optional { if (lastSlash == -1) { return Optional_of(strobj_("")) }; return Optional_of(strobj_(String_substring(name, 0, lastSlash))) }()
+		return func() *Optional {
+			if lastSlash == -1 {
+				return Optional_of(strobj_(""))
+			}
+			return Optional_of(strobj_(String_substring(name, 0, lastSlash)))
+		}()
 	}
 	panic("unreachable")
 }
@@ -100,6 +110,7 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 const GoogleCodingConvention_serialVersionUID int64 = 1
 const GoogleCodingConvention_OPTIONAL_ARG_PREFIX string = "opt_"
 const GoogleCodingConvention_VAR_ARGS_NAME string = "var_args"
+
 var GoogleCodingConvention_ENUM_KEY_PATTERN *Pattern
 var GoogleCodingConvention_PACKAGE_WITH_TEST_DIR *Pattern
 var GoogleCodingConvention_GENFILES_DIR *Pattern
@@ -116,4 +127,3 @@ func GoogleCodingConvention_clinit() {
 	GoogleCodingConvention_GENFILES_DIR = Pattern_compile(("-out/" + sstr_(JavaRegex_DOT) + "*/(bin|genfiles)/(" + sstr_(JavaRegex_DOT) + "*)" + sstr_(JavaRegex_END)))
 
 }
-

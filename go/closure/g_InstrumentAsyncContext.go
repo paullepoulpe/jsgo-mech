@@ -3,15 +3,15 @@
 package closure
 
 type InstrumentAsyncContext struct {
-	start_ RuntimeJsLibManager_JsLibField
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
-	uniqueIdSupplier *UniqueIdSupplier
+	start_                RuntimeJsLibManager_JsLibField
+	compiler_             *AbstractCompiler
+	astFactory_           *AstFactory
+	uniqueIdSupplier      *UniqueIdSupplier
 	shouldInstrumentAwait bool
-	tryFunctionStack DequeOf[Node]
-	needsInstrumentation MapOf[Node, *InstrumentAsyncContext_FunctionContext]
-	alreadyInstrumented SetOf[Node]
-	hasSuper SetOf[Node]
+	tryFunctionStack      DequeOf[Node]
+	needsInstrumentation  MapOf[Node, *InstrumentAsyncContext_FunctionContext]
+	alreadyInstrumented   SetOf[Node]
+	hasSuper              SetOf[Node]
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
@@ -42,7 +42,7 @@ func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
 }
 
 func (this *InstrumentAsyncContext) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if (n.isTry() || n.isFunction()) {
+	if n.isTry() || n.isFunction() {
 		this.tryFunctionStack.push(n.box_())
 	}
 	return true
@@ -58,7 +58,7 @@ func (this *InstrumentAsyncContext) isReentrance(n Node) bool {
 }
 
 func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node) {
-	if (n.isName() && String_startsWith(n.getString(), InstrumentAsyncContext_FACTORY)) {
+	if n.isName() && String_startsWith(n.getString(), InstrumentAsyncContext_FACTORY) {
 		this.alreadyInstrumented.add(t.getEnclosingFunction().box_())
 	} else if n.isSuper() {
 		this.hasSuper.add(t.getEnclosingFunction().box_())
@@ -69,12 +69,17 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		if this.alreadyInstrumented.contains(n.box_()) {
 			return
 		}
-		var context *InstrumentAsyncContext_FunctionContext = func() *InstrumentAsyncContext_FunctionContext { if n.isGeneratorFunction() { return cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation, n.box_(), &Function_fn{func(unused_ any) any {
-			var unused Node = Node_of_(unused_)
-			_ = unused
-			return obj_(this.createNewFunctionContext(t.getInput()))
-		}})) }; return cast_[*InstrumentAsyncContext_FunctionContext](this.needsInstrumentation.get(n.box_())) }()
-		if (context == nil) {
+		var context *InstrumentAsyncContext_FunctionContext = func() *InstrumentAsyncContext_FunctionContext {
+			if n.isGeneratorFunction() {
+				return cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation, n.box_(), &Function_fn{func(unused_ any) any {
+					var unused Node = Node_of_(unused_)
+					_ = unused
+					return obj_(this.createNewFunctionContext(t.getInput()))
+				}}))
+			}
+			return cast_[*InstrumentAsyncContext_FunctionContext](this.needsInstrumentation.get(n.box_()))
+		}()
+		if context == nil {
 			return
 		}
 		if n.isTry() {
@@ -90,17 +95,17 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 
 func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Node, parent Node) {
 	var enclosingTry Node = Node_of_(this.tryFunctionStack.peek())
-	if ((enclosingTry != 0) && !enclosingTry.isTry()) {
+	if (enclosingTry != 0) && !enclosingTry.isTry() {
 		enclosingTry = 0
 	}
 	var enclosingFunction Node = t.getEnclosingFunction()
-	if (enclosingFunction == 0) {
+	if enclosingFunction == 0 {
 		return
 	} else if this.alreadyInstrumented.contains(enclosingFunction.box_()) {
 		return
 	} else if parent.isFunction() {
 		return
-	} else if (parent.isReturn() && (enclosingTry == 0)) {
+	} else if parent.isReturn() && (enclosingTry == 0) {
 		return
 	}
 	var functionContext *InstrumentAsyncContext_FunctionContext = cast_[*InstrumentAsyncContext_FunctionContext](Map_computeIfAbsent(this.needsInstrumentation, enclosingFunction.box_(), &Function_fn{func(unused_ any) any {
@@ -108,7 +113,7 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 		_ = unused
 		return obj_(this.createNewFunctionContext(t.getInput()))
 	}}))
-	if (enclosingTry != 0) {
+	if enclosingTry != 0 {
 		this.needsInstrumentation.put(enclosingTry.box_(), obj_(functionContext))
 	}
 	if n.isForAwaitOf() {
@@ -117,7 +122,7 @@ func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Nod
 	}
 	var placeholder Node = IR_empty()
 	var arg Node = n.getFirstChild()
-	if (arg == 0) {
+	if arg == 0 {
 		n.addChildToBack(functionContext.suspend().srcrefTreeIfMissing(n))
 	} else {
 		arg.replaceWith(placeholder)
@@ -187,7 +192,12 @@ func (this *InstrumentAsyncContext) instrumentGeneratorFunction(t *NodeTraversal
 }
 
 func (this *InstrumentAsyncContext) instrumentGeneratorMethod(t *NodeTraversal, f Node, functionContext *InstrumentAsyncContext_FunctionContext) {
-	var innerMethodName string = (sstr_(func() string { if f.getParent().isMemberFunctionDef() { return f.getParent().getString() }; return "" }()) + "$jscomp$" + sstr_(this.uniqueIdSupplier.getUniqueId(t.getInput())))
+	var innerMethodName string = (sstr_(func() string {
+		if f.getParent().isMemberFunctionDef() {
+			return f.getParent().getString()
+		}
+		return ""
+	}()) + "$jscomp$" + sstr_(this.uniqueIdSupplier.getUniqueId(t.getInput())))
 	var outerParams Node = f.getSecondChild()
 	var innerParams Node = outerParams.cloneTree()
 	var innerFactoryName Node = functionContext.factoryName()
@@ -211,12 +221,12 @@ func (this *InstrumentAsyncContext) instrumentGeneratorMethod(t *NodeTraversal, 
 	var innerParam Node = innerParams.getFirstChild()
 	innerCall.addChildToBack(outerFactoryName.cloneTree())
 	innerParam = innerParam.getNext()
-	if ((innerParam != 0) && (innerParam == argumentsParam)) {
+	if (innerParam != 0) && (innerParam == argumentsParam) {
 		innerCall.addChildToBack(argumentsReference)
 	}
 	{
 		var outerParam Node = outerParams.getFirstChild()
-		for ; (outerParam != 0); outerParam = outerParam.getNext() {
+		for ; outerParam != 0; outerParam = outerParam.getNext() {
 			var argParamPair *InstrumentAsyncContext_ArgParamPair = this.simplifyParameter(outerParam.cloneTree(), t)
 			var newOuterParam Node = argParamPair.parameter
 			outerParam.replaceWith(newOuterParam)
@@ -235,7 +245,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorMethod(t *NodeTraversal, 
 	var np Node = newInnerMethod.getParent()
 	np.setStaticMember(fp.isStaticMember())
 	var jsdoc *JSDocInfo = fp.getJSDocInfo()
-	if (jsdoc != nil) {
+	if jsdoc != nil {
 		var builder *JSDocInfo_Builder = JSDocInfo_builder()
 		if jsdoc.isNoCollapse() {
 			builder.recordNoCollapse()
@@ -265,7 +275,7 @@ func (this *InstrumentAsyncContext) simplifyParameter(param Node, t *NodeTravers
 		return new_InstrumentAsyncContext_ArgParamPair(IR_iterSpread(simplified.argument_).srcrefTreeIfMissing(param), IR_iterRest(simplified.parameter).srcrefTreeIfMissing(param))
 	} else if param.isDefaultValue() {
 		return this.simplifyParameter(param.removeFirstChild(), t)
-	} else if (param.isArrayPattern() || param.isObjectPattern()) {
+	} else if param.isArrayPattern() || param.isObjectPattern() {
 		var newParam Node = this.astFactory_.createName(("$jscomp$param$" + sstr_(this.uniqueIdSupplier.getUniqueId(t.getInput()))), AstFactory_type_Node(param)).srcrefTreeIfMissing(param)
 		return new_InstrumentAsyncContext_ArgParamPair(newParam.cloneTree(), newParam)
 	} else if param.isName() {
@@ -348,7 +358,7 @@ func new_InstrumentAsyncContext_ArgParamPair(argument Node, parameter Node) *Ins
 }
 
 type InstrumentAsyncContext_ArgumentsRenamer struct {
-	outer_ *InstrumentAsyncContext
+	outer_        *InstrumentAsyncContext
 	argumentsName OptionalOf[string]
 }
 
@@ -372,7 +382,7 @@ func (this *InstrumentAsyncContext_ArgumentsRenamer) shouldTraverse(t *NodeTrave
 }
 
 func (this *InstrumentAsyncContext_ArgumentsRenamer) visit(t *NodeTraversal, n Node, parent Node) {
-	if (n.isName() && (n.getString() == "arguments")) {
+	if n.isName() && (n.getString() == "arguments") {
 		if this.argumentsName.isEmpty() {
 			this.argumentsName = Optional_of(strobj_(("$jscomp$arguments$" + sstr_(this.outer_.uniqueIdSupplier.getUniqueId(t.getInput())))))
 		}
@@ -387,10 +397,10 @@ func (this *InstrumentAsyncContext_ArgumentsRenamer) visit(t *NodeTraversal, n N
 
 type InstrumentAsyncContext_FunctionContext struct {
 	uniqueSuffix_ string
-	suspendName_ Node
-	resumeName_ Node
-	factoryName_ Node
-	astFactory_ *AstFactory
+	suspendName_  Node
+	resumeName_   Node
+	factoryName_  Node
+	astFactory_   *AstFactory
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) zero_InstrumentAsyncContext_FunctionContext() {
@@ -469,4 +479,3 @@ func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
 func (this *InstrumentAsyncContext_FunctionContext) toString() string {
 	return "FunctionContext[" + "uniqueSuffix=" + objstr_(strobj_(this.uniqueSuffix_)) + ", suspendName=" + objstr_(this.suspendName_.box_()) + ", resumeName=" + objstr_(this.resumeName_.box_()) + ", factoryName=" + objstr_(this.factoryName_.box_()) + ", astFactory=" + objstr_(obj_(this.astFactory_)) + "]"
 }
-

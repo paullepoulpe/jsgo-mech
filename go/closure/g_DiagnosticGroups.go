@@ -57,7 +57,9 @@ func (this *DiagnosticGroups) setWarningLevel(options *CompilerOptions, name str
 var DiagnosticGroups_UNUSED *DiagnosticType
 var DiagnosticGroups_wildcardExcludedGroups *ImmutableSet
 var DiagnosticGroups_groupsByName Map
+
 const DiagnosticGroups_DIAGNOSTIC_GROUP_NAMES string = "accessControls, checkPrototypalTypes, checkRegExp, checkTypes, checkVars, conformanceViolations, const, constantProperty, deprecated, deprecatedAnnotations, defineWithoutGoogDefine, duplicateMessage, es5Strict, externsValidation, functionParams, globalThis, invalidCasts, lintVarDeclarations, misplacedTypeAnnotation, missingCallToSuper, missingOverride, missingPolyfill, missingProperties, missingProvide, missingRequire, missingReturn, missingSourcesWarnings, moduleLoad, moduleImport, msgDescriptions, nonStandardJsDocs, partialAlias, polymer, reportUnknownTypes, strictCheckTypes, strictMissingProperties, strictModuleDepCheck, strictPrimitiveOperators, suspiciousCode, typeInvalidation, undefinedVars, underscore, unknownDefines, unusedLocalVariables, uselessCode, untranspilableFeatures,visibility, weakModuleGet"
+
 var DiagnosticGroups_UNTRANSPILABLE_FEATURES *DiagnosticGroup
 var DiagnosticGroups_MODULE_LOAD *DiagnosticGroup
 var DiagnosticGroups_MODULE_IMPORT *DiagnosticGroup
@@ -240,4 +242,3 @@ func DiagnosticGroups_clinit() {
 	DiagnosticGroups_ARTIFICIAL_FUNCTION_PURITY_VALIDATION = DiagnosticGroups_registerGroup("artificialFunctionPurityValidation", []*DiagnosticType{PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION})
 
 }
-

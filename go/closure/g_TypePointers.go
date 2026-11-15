@@ -43,4 +43,3 @@ func TypePointers_clinit() {
 	TypePointers_AXIOMATIC_COLOR_COUNT = TypePointers_OFFSET_TO_AXIOMATIC_COLOR.size()
 
 }
-

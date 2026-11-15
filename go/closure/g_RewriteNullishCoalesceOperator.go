@@ -3,8 +3,8 @@
 package closure
 
 type RewriteNullishCoalesceOperator struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_        *AbstractCompiler
+	astFactory_      *AstFactory
 	uniqueIdSupplier *UniqueIdSupplier
 }
 
@@ -63,4 +63,3 @@ func (this *RewriteNullishCoalesceOperator) visitNullishCoalesce(t *NodeTraversa
 }
 
 const RewriteNullishCoalesceOperator_TEMP_VAR_NAME_PREFIX string = "$jscomp$nullish$tmp"
-

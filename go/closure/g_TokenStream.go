@@ -18,26 +18,26 @@ func new_TokenStream() *TokenStream {
 func TokenStream_isKeyword(name string) bool {
 	var id bool = false
 	var s string = name
-	complete_:
+complete_:
 	for range 1 {
 		var X OptionalOf[string] = Optional_empty()
 		var c int32
-		partial_:
+	partial_:
 		switch String_length(s) {
 		case 2:
 			c = int32(String_charAt(s, 1))
-			if (c == 102) {
-				if (String_charAt(s, 0) == 'i') {
+			if c == 102 {
+				if String_charAt(s, 0) == 'i' {
 					id = true
 					break complete_
 				}
-			} else if (c == 110) {
-				if (String_charAt(s, 0) == 'i') {
+			} else if c == 110 {
+				if String_charAt(s, 0) == 'i' {
 					id = true
 					break complete_
 				}
-			} else if (c == 111) {
-				if (String_charAt(s, 0) == 'd') {
+			} else if c == 111 {
+				if String_charAt(s, 0) == 'd' {
 					id = true
 					break complete_
 				}
@@ -46,31 +46,31 @@ func TokenStream_isKeyword(name string) bool {
 		case 3:
 			switch String_charAt(s, 0) {
 			case 'f':
-				if ((String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'o')) {
+				if (String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'o') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'i':
-				if ((String_charAt(s, 2) == 't') && (String_charAt(s, 1) == 'n')) {
+				if (String_charAt(s, 2) == 't') && (String_charAt(s, 1) == 'n') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'n':
-				if ((String_charAt(s, 2) == 'w') && (String_charAt(s, 1) == 'e')) {
+				if (String_charAt(s, 2) == 'w') && (String_charAt(s, 1) == 'e') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 't':
-				if ((String_charAt(s, 2) == 'y') && (String_charAt(s, 1) == 'r')) {
+				if (String_charAt(s, 2) == 'y') && (String_charAt(s, 1) == 'r') {
 					id = true
 					break complete_
 				}
 				break partial_
 			case 'v':
-				if ((String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'a')) {
+				if (String_charAt(s, 2) == 'r') && (String_charAt(s, 1) == 'a') {
 					id = true
 					break complete_
 				}
@@ -85,13 +85,13 @@ func TokenStream_isKeyword(name string) bool {
 				break partial_
 			case 'c':
 				c = int32(String_charAt(s, 3))
-				if (c == 101) {
-					if ((String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'a')) {
+				if c == 101 {
+					if (String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'a') {
 						id = true
 						break complete_
 					}
-				} else if (c == 114) {
-					if ((String_charAt(s, 2) == 'a') && (String_charAt(s, 1) == 'h')) {
+				} else if c == 114 {
+					if (String_charAt(s, 2) == 'a') && (String_charAt(s, 1) == 'h') {
 						id = true
 						break complete_
 					}
@@ -99,13 +99,13 @@ func TokenStream_isKeyword(name string) bool {
 				break partial_
 			case 'e':
 				c = int32(String_charAt(s, 3))
-				if (c == 101) {
-					if ((String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'l')) {
+				if c == 101 {
+					if (String_charAt(s, 2) == 's') && (String_charAt(s, 1) == 'l') {
 						id = true
 						break complete_
 					}
-				} else if (c == 109) {
-					if ((String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'n')) {
+				} else if c == 109 {
+					if (String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'n') {
 						id = true
 						break complete_
 					}
@@ -125,13 +125,13 @@ func TokenStream_isKeyword(name string) bool {
 				break partial_
 			case 't':
 				c = int32(String_charAt(s, 3))
-				if (c == 101) {
-					if ((String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'r')) {
+				if c == 101 {
+					if (String_charAt(s, 2) == 'u') && (String_charAt(s, 1) == 'r') {
 						id = true
 						break complete_
 					}
-				} else if (c == 115) {
-					if ((String_charAt(s, 2) == 'i') && (String_charAt(s, 1) == 'h')) {
+				} else if c == 115 {
+					if (String_charAt(s, 2) == 'i') && (String_charAt(s, 1) == 'h') {
 						id = true
 						break complete_
 					}
@@ -167,20 +167,20 @@ func TokenStream_isKeyword(name string) bool {
 				break partial_
 			case 'n':
 				c = int32(String_charAt(s, 0))
-				if (c == 99) {
+				if c == 99 {
 					X = Optional_of(strobj_("const"))
 					id = true
-				} else if (c == 102) {
+				} else if c == 102 {
 					X = Optional_of(strobj_("final"))
 					id = true
 				}
 				break partial_
 			case 'o':
 				c = int32(String_charAt(s, 0))
-				if (c == 102) {
+				if c == 102 {
 					X = Optional_of(strobj_("float"))
 					id = true
-				} else if (c == 115) {
+				} else if c == 115 {
 					X = Optional_of(strobj_("short"))
 					id = true
 				}
@@ -207,10 +207,10 @@ func TokenStream_isKeyword(name string) bool {
 				break partial_
 			case 'e':
 				c = int32(String_charAt(s, 0))
-				if (c == 100) {
+				if c == 100 {
 					X = Optional_of(strobj_("delete"))
 					id = true
-				} else if (c == 114) {
+				} else if c == 114 {
 					X = Optional_of(strobj_("return"))
 					id = true
 				}
@@ -303,23 +303,23 @@ func TokenStream_isKeyword(name string) bool {
 			break partial_
 		case 9:
 			c = int32(String_charAt(s, 0))
-			if (c == 105) {
+			if c == 105 {
 				X = Optional_of(strobj_("interface"))
 				id = true
-			} else if (c == 112) {
+			} else if c == 112 {
 				X = Optional_of(strobj_("protected"))
 				id = true
-			} else if (c == 116) {
+			} else if c == 116 {
 				X = Optional_of(strobj_("transient"))
 				id = true
 			}
 			break partial_
 		case 10:
 			c = int32(String_charAt(s, 1))
-			if (c == 109) {
+			if c == 109 {
 				X = Optional_of(strobj_("implements"))
 				id = true
-			} else if (c == 110) {
+			} else if c == 110 {
 				X = Optional_of(strobj_("instanceof"))
 				id = true
 			}
@@ -329,7 +329,7 @@ func TokenStream_isKeyword(name string) bool {
 			id = true
 			break partial_
 		}
-		if ((X.isPresent() && (str_(X.get()) != s)) && !(str_(X.get()) == s)) {
+		if (X.isPresent() && (str_(X.get()) != s)) && !(str_(X.get()) == s) {
 			return false
 		}
 	}
@@ -339,4 +339,3 @@ func TokenStream_isKeyword(name string) bool {
 func TokenStream_isJSIdentifier(s string) bool {
 	return JSIdentifier_isJSIdentifier(s)
 }
-

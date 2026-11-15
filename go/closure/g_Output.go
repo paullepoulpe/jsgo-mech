@@ -3,11 +3,11 @@
 package closure
 
 type Output struct {
-	sink *Io_Sink
-	charset string
+	sink     *Io_Sink
+	charset  string
 	buffered bool
-	pending *StringBuilder
-	started bool
+	pending  *StringBuilder
+	started  bool
 }
 
 func (this *Output) zero_Output() {
@@ -66,7 +66,7 @@ func (this *Output) print(s string) {
 		return
 	}
 	this.pending.append(s)
-	if (!this.buffered || (this.pending.length() >= Output_BUFFER_SIZE)) {
+	if !this.buffered || (this.pending.length() >= Output_BUFFER_SIZE) {
 		this.write(false)
 	}
 }
@@ -100,7 +100,7 @@ func (this *Output) flush() {
 
 func (this *Output) close() *Outcome_base {
 	this.write(true)
-	if (this.sink == nil) {
+	if this.sink == nil {
 		return Outcome_base_ok_0()
 	}
 	return this.sink.close()
@@ -108,20 +108,24 @@ func (this *Output) close() *Outcome_base {
 
 func (this *Output) write(last bool) {
 	var end int32 = this.pending.length()
-	if ((!last && (end > 0)) && Character_isHighSurrogate(this.pending.charAt((end - 1)))) {
+	if (!last && (end > 0)) && Character_isHighSurrogate(this.pending.charAt((end - 1))) {
 		end--
 	}
-	if (end == 0) {
+	if end == 0 {
 		return
 	}
 	var text string = this.pending.substring(0, end)
 	this.pending.delete(0, end)
-	var encoding string = func() string { if (this.started && (this.charset == Charsets_UTF_16)) { return Charsets_UTF_16BE }; return this.charset }()
+	var encoding string = func() string {
+		if this.started && (this.charset == Charsets_UTF_16) {
+			return Charsets_UTF_16BE
+		}
+		return this.charset
+	}()
 	this.started = true
-	if (this.sink != nil) {
+	if this.sink != nil {
 		this.sink.write(Charsets_encode(text, encoding))
 	}
 }
 
 const Output_BUFFER_SIZE int32 = 8192
-

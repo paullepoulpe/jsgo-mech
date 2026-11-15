@@ -4,7 +4,7 @@ package closure
 
 type ClosureUnawareOptions struct {
 	shadowOptions *CompilerOptions
-	original_ *CompilerOptions
+	original_     *CompilerOptions
 }
 
 func (this *ClosureUnawareOptions) finit_ClosureUnawareOptions() {
@@ -62,7 +62,7 @@ func (this *ClosureUnawareOptions) setSafeOptimizationAssumptions() {
 	this.shadowOptions.setAssumePropertiesAreStaticallyAnalyzable(false)
 	this.shadowOptions.setAssumeStaticInheritanceIsNotUsed(false)
 	this.shadowOptions.setAssumeStrictThis(false)
-	if (this.original_.getMaxFunctionSizeAfterInlining() != CompilerOptions_UNLIMITED_FUN_SIZE_AFTER_INLINING) {
+	if this.original_.getMaxFunctionSizeAfterInlining() != CompilerOptions_UNLIMITED_FUN_SIZE_AFTER_INLINING {
 		this.shadowOptions.setMaxFunctionSizeAfterInlining(this.original_.getMaxFunctionSizeAfterInlining())
 	}
 	this.shadowOptions.setUseSizeHeuristicToStopOptimizationLoop(this.original_.shouldUseSizeHeuristicToStopOptimizationLoop())
@@ -102,4 +102,3 @@ func (this *ClosureUnawareOptions) copyDebugOptions() {
 		this.shadowOptions.setDebugLogDirectory(Optional_of(strobj_(FilePaths_resolve(str_(debugLogDirectory.get()), "./TranspileAndOptimizeClosureUnaware"))))
 	}
 }
-

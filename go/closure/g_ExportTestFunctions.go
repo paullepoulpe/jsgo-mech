@@ -3,8 +3,8 @@
 package closure
 
 type ExportTestFunctions struct {
-	compiler_ *AbstractCompiler
-	exportSymbolFunction string
+	compiler_              *AbstractCompiler
+	exportSymbolFunction   string
 	exportPropertyFunction string
 }
 
@@ -69,7 +69,7 @@ func ExportTestFunctions_isGoogTestingTestSuite(t *NodeTraversal, qname Node) bo
 	var root Node = NodeUtil_getRootOfQualifiedName(qname)
 	var rootName string = root.getString()
 	var rootVar *Var = cast_[*Var](t.getScope().getSlot(rootName))
-	if ((rootVar == nil) || rootVar.isGlobal()) {
+	if (rootVar == nil) || rootVar.isGlobal() {
 		return qname.matchesQualifiedName(ExportTestFunctions_GOOG_TESTING_TEST_SUITE)
 	} else if cast_[*Scope](rootVar.getScope()).isModuleScope() {
 		var originalValue Node = rootVar.getInitialValue()
@@ -83,6 +83,7 @@ func ExportTestFunctions_isTestFunction(functionName OptionalOf[string]) bool {
 }
 
 var ExportTestFunctions_TEST_FUNCTIONS_NAME_PATTERN *Pattern
+
 const ExportTestFunctions_GOOG_TESTING_TEST_SUITE string = "goog.testing.testSuite"
 
 var ExportTestFunctions_clinit_done bool
@@ -121,10 +122,10 @@ func new_ExportTestFunctions_ExportTestFunctionsNodes(outer_ *ExportTestFunction
 }
 
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (parent == 0) {
+	if parent == 0 {
 		return
 	}
-	if (parent.isScript() || parent.isModuleBody()) {
+	if parent.isScript() || parent.isModuleBody() {
 		if NodeUtil_isFunctionDeclaration(n) {
 			var functionName string = NodeUtil_getName(n)
 			if ExportTestFunctions_isTestFunction(Optional_of(strobj_(functionName)).filter(&Predicate_fn{func(s_ any) bool {
@@ -157,7 +158,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 		}
 	} else if NodeUtil_isExprAssign(parent) {
 		var grandparent Node = parent.getParent()
-		if ((grandparent != 0) && (grandparent.isScript() || grandparent.isModuleBody())) {
+		if (grandparent != 0) && (grandparent.isScript() || grandparent.isModuleBody()) {
 			var firstChild Node = n.getFirstChild()
 			var lastChild Node = n.getLastChild()
 			var nodeName string = firstChild.getQualifiedName()
@@ -184,9 +185,9 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 	} else if ExportTestFunctions_isTestSuiteArgument(n, t) {
 		{
 			var c Node = n.getFirstChild()
-			for (c != 0) {
+			for c != 0 {
 				var next Node = c.getNext()
-				if (c.isStringKey() && !c.isQuotedStringKey()) {
+				if c.isStringKey() && !c.isQuotedStringKey() {
 					c.setQuotedStringKey()
 					this.outer_.compiler_.reportChangeToEnclosingScope(c)
 				} else if c.isMemberFunctionDef() {
@@ -211,7 +212,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass_3(classNod
 	var classMembers Node = classNode.getLastChild()
 	{
 		var maybeMemberFunctionDef Node = classMembers.getFirstChild()
-		for ; (maybeMemberFunctionDef != 0); maybeMemberFunctionDef = maybeMemberFunctionDef.getNext() {
+		for ; maybeMemberFunctionDef != 0; maybeMemberFunctionDef = maybeMemberFunctionDef.getNext() {
 			if maybeMemberFunctionDef.isMemberFunctionDef() {
 				var methodName string = maybeMemberFunctionDef.getString()
 				if ExportTestFunctions_isTestFunction(Optional_of(strobj_(methodName))) {
@@ -260,4 +261,3 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) isNameDeclaredClass(no
 	var grandchild Node = this.getNameDeclaredGrandchild(node)
 	return ((grandchild != 0) && grandchild.isClass())
 }
-

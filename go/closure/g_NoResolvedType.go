@@ -81,6 +81,10 @@ func (this *NoResolvedType) defineProperty_impl(propertyName Property_Key, type_
 }
 
 func (this *NoResolvedType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(func() string { if sb.isForAnnotations() { return "?" }; return ("NoResolvedType<" + sstr_(str_(this.referenceName.orElse(strobj_("null")))) + ">") }())
+	sb.append(func() string {
+		if sb.isForAnnotations() {
+			return "?"
+		}
+		return ("NoResolvedType<" + sstr_(str_(this.referenceName.orElse(strobj_("null")))) + ">")
+	}())
 }
-

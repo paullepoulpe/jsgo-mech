@@ -17,7 +17,12 @@ func new_CodePrinter() *CodePrinter {
 
 func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *CompilerOptions, licenseTracker CodePrinter_LicenseTracker, tagAsTypeSummary bool, tagAsStrict bool, lineBreak bool, codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory) *CodePrinter_SourceAndMappings {
 	Preconditions_checkState((options.getSourceMapDetailLevel() != nil))
-	var mcp *CodePrinter_MappedCodePrinter = func() *CodePrinter_MappedCodePrinter { if (outputFormat == CodePrinter_Format_COMPACT) { return new_CodePrinter_CompactCodePrinter(lineBreak, options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter() }; return new_CodePrinter_PrettyCodePrinter(options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter() }()
+	var mcp *CodePrinter_MappedCodePrinter = func() *CodePrinter_MappedCodePrinter {
+		if outputFormat == CodePrinter_Format_COMPACT {
+			return new_CodePrinter_CompactCodePrinter(lineBreak, options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter()
+		}
+		return new_CodePrinter_PrettyCodePrinter(options.getLineLengthThreshold(), options.shouldGatherSourceMapInfo(), options.getSourceMapDetailLevel(), licenseTracker).up_CodePrinter_MappedCodePrinter()
+	}()
 	var cg *CodeGenerator = codeGeneratorFactory.getCodeGenerator(outputFormat, mcp.up_CodeConsumer())
 	if tagAsTypeSummary {
 		cg.tagAsTypeSummary()
@@ -37,30 +42,36 @@ func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *
 
 type CodePrinter_MappedCodePrinter struct {
 	CodeConsumer
-	mappings DequeOf[*SourceMap_Mapping]
-	allMappings ListOf[*SourceMap_Mapping]
-	completeMappings ListOf[*SourceMap_Mapping]
+	mappings                    DequeOf[*SourceMap_Mapping]
+	allMappings                 ListOf[*SourceMap_Mapping]
+	completeMappings            ListOf[*SourceMap_Mapping]
 	firstCandidateMappingForCut int32
-	createSrcMap bool
-	sourceMapDetailLevel *SourceMap_DetailLevel
-	licenseTracker CodePrinter_LicenseTracker
-	code_ *StringBuilder
-	lineLengthThreshold int32
-	lineLength int32
-	lineIndex int32
+	createSrcMap                bool
+	sourceMapDetailLevel        *SourceMap_DetailLevel
+	licenseTracker              CodePrinter_LicenseTracker
+	code_                       *StringBuilder
+	lineLengthThreshold         int32
+	lineLength                  int32
+	lineIndex                   int32
 }
 
-func (this *CodePrinter_MappedCodePrinter) as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter { return this }
+func (this *CodePrinter_MappedCodePrinter) as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter {
+	return this
+}
 
 func to_CodePrinter_MappedCodePrinter(v any) *CodePrinter_MappedCodePrinter {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter }).as_CodePrinter_MappedCodePrinter()
+	return v.(interface {
+		as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter
+	}).as_CodePrinter_MappedCodePrinter()
 }
 
 func is_CodePrinter_MappedCodePrinter(v any) bool {
-	_, ok := v.(interface{ as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter })
+	_, ok := v.(interface {
+		as_CodePrinter_MappedCodePrinter() *CodePrinter_MappedCodePrinter
+	})
 	return ok
 }
 
@@ -89,12 +100,32 @@ func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(li
 	this.CodeConsumer.init_CodeConsumer()
 	this.finit_CodePrinter_MappedCodePrinter()
 	Preconditions_checkState((sourceMapDetailLevel != nil))
-	this.lineLengthThreshold = func() int32 { if (lineLengthThreshold <= 0) { return int32(2147483647) }; return lineLengthThreshold }()
+	this.lineLengthThreshold = func() int32 {
+		if lineLengthThreshold <= 0 {
+			return int32(2147483647)
+		}
+		return lineLengthThreshold
+	}()
 	this.createSrcMap = createSrcMap
 	this.sourceMapDetailLevel = sourceMapDetailLevel
-	this.mappings = func() Deque { if createSrcMap { return icast_Deque(obj_(new_ArrayDeque())) }; return nil }()
-	this.allMappings = func() List { if createSrcMap { return icast_List(new_ArrayList_0().self()) }; return nil }()
-	this.completeMappings = func() List { if createSrcMap { return icast_List(new_ArrayList_0().self()) }; return nil }()
+	this.mappings = func() Deque {
+		if createSrcMap {
+			return icast_Deque(obj_(new_ArrayDeque()))
+		}
+		return nil
+	}()
+	this.allMappings = func() List {
+		if createSrcMap {
+			return icast_List(new_ArrayList_0().self())
+		}
+		return nil
+	}()
+	this.completeMappings = func() List {
+		if createSrcMap {
+			return icast_List(new_ArrayList_0().self())
+		}
+		return nil
+	}()
 	this.licenseTracker = licenseTracker
 }
 
@@ -104,7 +135,7 @@ func (this *CodePrinter_MappedCodePrinter) append_impl(str string) {
 }
 
 func (this *CodePrinter_MappedCodePrinter) trackLicenses_impl(node Node) {
-	if (this.licenseTracker != nil) {
+	if this.licenseTracker != nil {
 		this.licenseTracker.trackLicensesForNode(node)
 	}
 }
@@ -112,7 +143,7 @@ func (this *CodePrinter_MappedCodePrinter) trackLicenses_impl(node Node) {
 func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 	Preconditions_checkState((this.sourceMapDetailLevel != nil))
 	Preconditions_checkState((node != 0))
-	if (((this.createSrcMap && !String_isEmpty(node.getSourceFileName())) && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_())) {
+	if ((this.createSrcMap && !String_isEmpty(node.getSourceFileName())) && (node.getLineno() > 0)) && this.sourceMapDetailLevel.apply(node.box_()) {
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
 		Preconditions_checkState((line >= 0))
@@ -125,7 +156,7 @@ func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 }
 
 func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
-	if ((this.createSrcMap && !this.mappings.isEmpty()) && (cast_[*SourceMap_Mapping](this.mappings.peek()).node_ == node)) {
+	if (this.createSrcMap && !this.mappings.isEmpty()) && (cast_[*SourceMap_Mapping](this.mappings.peek()).node_ == node) {
 		var mapping *SourceMap_Mapping = cast_[*SourceMap_Mapping](this.mappings.pop())
 		var line int32 = this.getCurrentLineIndex()
 		var index int32 = this.getCurrentCharIndex()
@@ -156,7 +187,7 @@ func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) ListOf
 func (this *CodePrinter_MappedCodePrinter) reportLineCut(lineIndex int32, charIndex int32) {
 	if this.createSrcMap {
 		var mappingCount int32 = this.allMappings.size()
-		for i := int32(this.firstCandidateMappingForCut); (i < mappingCount); i++ {
+		for i := int32(this.firstCandidateMappingForCut); i < mappingCount; i++ {
 			var mapping *SourceMap_Mapping = cast_[*SourceMap_Mapping](this.allMappings.get(i))
 			mapping.start_ = CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(mapping.start_, lineIndex, charIndex)
 		}
@@ -173,7 +204,7 @@ func (this *CodePrinter_MappedCodePrinter) reportLineCut(lineIndex int32, charIn
 func CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(position *FilePosition, lineIndex int32, characterPosition int32) *FilePosition {
 	var originalLine int32 = position.getLine()
 	var originalChar int32 = position.getColumn()
-	if ((originalLine == lineIndex) && (originalChar >= characterPosition)) {
+	if (originalLine == lineIndex) && (originalChar >= characterPosition) {
 		return new_FilePosition((originalLine + 1), (originalChar - characterPosition))
 	} else {
 		return position
@@ -186,7 +217,12 @@ func (this *CodePrinter_MappedCodePrinter) getCode() string {
 }
 
 func (this *CodePrinter_MappedCodePrinter) getLastChar_impl() uint16 {
-	return func() uint16 { if (this.code_.length() > 0) { return this.code_.charAt((this.code_.length() - 1)) }; return 0x0000 }()
+	return func() uint16 {
+		if this.code_.length() > 0 {
+			return this.code_.charAt((this.code_.length() - 1))
+		}
+		return 0x0000
+	}()
 }
 
 func (this *CodePrinter_MappedCodePrinter) getCurrentCharIndex() int32 {
@@ -201,7 +237,7 @@ func CodePrinter_MappedCodePrinter_computeLineLengths(code string) ImmutableList
 	var builder ImmutableList_BuilderOf[BoxedOf[int32]] = ImmutableList_builder()
 	var lineStartPos int32 = 0
 	var lineEndPos int32 = String_indexOf(code, 10)
-	for (lineEndPos > -1) {
+	for lineEndPos > -1 {
 		builder.add(any(int32((lineEndPos - lineStartPos))))
 		lineStartPos = (lineEndPos + 1)
 		lineEndPos = String_indexOf_int_int(code, 10, lineStartPos)
@@ -211,11 +247,11 @@ func CodePrinter_MappedCodePrinter_computeLineLengths(code string) ImmutableList
 
 func CodePrinter_MappedCodePrinter_adjustEndPosition(lineLengths ListOf[BoxedOf[int32]], endPosition *FilePosition) *FilePosition {
 	var line int32 = endPosition.getLine()
-	if (line >= lineLengths.size()) {
+	if line >= lineLengths.size() {
 		return endPosition
 	}
 	Preconditions_checkState_boolean_String_Object_Object((endPosition.getColumn() <= unbox_[int32](lineLengths.get(line))), "End position %s points to a column larger than line length %s", obj_(endPosition), lineLengths.get(line))
-	if (endPosition.getColumn() == unbox_[int32](lineLengths.get(line))) {
+	if endPosition.getColumn() == unbox_[int32](lineLengths.get(line)) {
 		return new_FilePosition((line + 1), 0)
 	}
 	return endPosition
@@ -257,8 +293,8 @@ func new_CodePrinter_PrettyCodePrinter(lineLengthThreshold int32, createSourceMa
 }
 
 func (this *CodePrinter_PrettyCodePrinter) append_impl(str string) {
-	if ((this.lineLength == 0) && !this.isInTemplateLiteral()) {
-		for i := int32(0); (i < this.indent_); i++ {
+	if (this.lineLength == 0) && !this.isInTemplateLiteral() {
+		for i := int32(0); i < this.indent_; i++ {
 			this.code_.append(CodePrinter_PrettyCodePrinter_INDENT)
 			this.lineLength += String_length(CodePrinter_PrettyCodePrinter_INDENT)
 		}
@@ -274,12 +310,12 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 		return
 	}
 	var parsed any = Doubles_tryParse(String_trim(str_(numberFromSource.get())))
-	if (parsed == nil) {
+	if parsed == nil {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
 	var d float64 = unbox_[float64](parsed)
-	if (x != d) {
+	if x != d {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
@@ -287,7 +323,7 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) startNewLine_impl() {
-	if ((this.lineLength <= 0) && !this.isInTemplateLiteral()) {
+	if (this.lineLength <= 0) && !this.isInTemplateLiteral() {
 		return
 	}
 	this.code_.append_char('\n')
@@ -300,7 +336,7 @@ func (this *CodePrinter_PrettyCodePrinter) maybeLineBreak_impl() {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) maybeCutLine_impl() {
-	if (this.lineLength > this.lineLengthThreshold) {
+	if this.lineLength > this.lineLengthThreshold {
 		this.startNewLine()
 	}
 }
@@ -351,7 +387,7 @@ func (this *CodePrinter_PrettyCodePrinter) endCaseBody_impl() {
 }
 
 func (this *CodePrinter_PrettyCodePrinter) appendOp_impl(op string, binOp bool) {
-	if (((this.getLastChar() != ' ') && binOp) && (String_charAt(op, 0) != ',')) {
+	if ((this.getLastChar() != ' ') && binOp) && (String_charAt(op, 0) != ',') {
 		this.add(" ")
 	}
 	this.add(op)
@@ -361,20 +397,20 @@ func (this *CodePrinter_PrettyCodePrinter) appendOp_impl(op string, binOp bool) 
 }
 
 func (this *CodePrinter_PrettyCodePrinter) shouldPreserveExtras_impl(n Node) bool {
-	if ((!n.isBlock() || !n.isAddedBlock()) || !n.hasParent()) {
+	if (!n.isBlock() || !n.isAddedBlock()) || !n.hasParent() {
 		return true
 	}
 	var parent Node = n.getParent()
 	var isElse bool = ((parent.isIf() && parent.hasXChildren(3)) && (n == parent.getLastChild()))
 	var onlyChildIsIf bool = (n.hasOneChild() && n.getFirstChild().isIf())
-	if (isElse && onlyChildIsIf) {
+	if isElse && onlyChildIsIf {
 		return false
 	}
 	return true
 }
 
 func (this *CodePrinter_PrettyCodePrinter) maybeInsertSpace_impl() {
-	if ((this.getLastChar() != ' ') && (this.getLastChar() != '\n')) {
+	if (this.getLastChar() != ' ') && (this.getLastChar() != '\n') {
 		this.add(" ")
 	}
 }
@@ -425,7 +461,14 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string
 	var staticSrc StaticSourceFile = NodeUtil_getSourceFile(n)
 	var src *SourceFile_jscomp
 	_ = src
-	if !(func() bool { v_ := any(staticSrc); if !is_[*SourceFile_jscomp](v_) { return false }; src = cast_[*SourceFile_jscomp](v_); return true }()) {
+	if !(func() bool {
+		v_ := any(staticSrc)
+		if !is_[*SourceFile_jscomp](v_) {
+			return false
+		}
+		src = cast_[*SourceFile_jscomp](v_)
+		return true
+	}()) {
 		return Optional_empty()
 	}
 	if src.isStubSourceFileForAlreadyProvidedInput() {
@@ -437,12 +480,12 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string
 	}
 	var srcCode string = str_(codeRes.get())
 	var lineno int32 = n.getLineno()
-	if ((lineno != -1) && !src.isValidLineNumber(lineno)) {
+	if (lineno != -1) && !src.isValidLineNumber(lineno) {
 		return Optional_empty()
 	}
 	var offset int32 = n.getSourceOffset()
 	var endOffset int32 = (offset + n.getLength())
-	if ((offset < 0) || (endOffset > String_length(srcCode))) {
+	if (offset < 0) || (endOffset > String_length(srcCode)) {
 		return Optional_empty()
 	}
 	return Optional_of(strobj_(String_substring(srcCode, offset, endOffset)))
@@ -452,8 +495,8 @@ const CodePrinter_PrettyCodePrinter_INDENT string = "  "
 
 type CodePrinter_CompactCodePrinter struct {
 	CodePrinter_MappedCodePrinter
-	lineBreak bool
-	lineStartPosition int32
+	lineBreak              bool
+	lineStartPosition      int32
 	preferredBreakPosition int32
 }
 
@@ -490,7 +533,7 @@ func new_CodePrinter_CompactCodePrinter(lineBreak bool, lineLengthThreshold int3
 }
 
 func (this *CodePrinter_CompactCodePrinter) startNewLine_impl() {
-	if ((this.lineLength <= 0) && !this.isInTemplateLiteral()) {
+	if (this.lineLength <= 0) && !this.isInTemplateLiteral() {
 		return
 	}
 	this.code_.append_char('\n')
@@ -507,9 +550,9 @@ func (this *CodePrinter_CompactCodePrinter) maybeLineBreak_impl() {
 		}
 	}
 	var len_ int32 = this.code_.length()
-	if (this.preferredBreakPosition == (len_ - 1)) {
+	if this.preferredBreakPosition == (len_ - 1) {
 		var ch uint16 = this.code_.charAt((len_ - 1))
-		if (ch == ';') {
+		if ch == ';' {
 			this.preferredBreakPosition = len_
 		}
 	}
@@ -517,10 +560,10 @@ func (this *CodePrinter_CompactCodePrinter) maybeLineBreak_impl() {
 }
 
 func (this *CodePrinter_CompactCodePrinter) maybeCutLine_impl() {
-	if (this.lineLength <= this.lineLengthThreshold) {
+	if this.lineLength <= this.lineLengthThreshold {
 		return
 	}
-	if ((this.preferredBreakPosition > this.lineStartPosition) && (this.preferredBreakPosition < (this.lineStartPosition + this.lineLength))) {
+	if (this.preferredBreakPosition > this.lineStartPosition) && (this.preferredBreakPosition < (this.lineStartPosition + this.lineLength)) {
 		this.code_.insert(this.preferredBreakPosition, '\n')
 		this.reportLineCut(this.lineIndex, (this.preferredBreakPosition - this.lineStartPosition))
 		this.lineIndex++
@@ -541,15 +584,15 @@ type CodePrinter_LicenseTracker interface {
 }
 
 type CodePrinter_Builder struct {
-	root Node
-	options_ *CompilerOptions
-	lineBreak bool
-	prettyPrint bool
-	outputTypes bool
-	tagAsTypeSummary_ bool
-	tagAsStrict_ bool
-	licenseTracker CodePrinter_LicenseTracker
-	registry *JSTypeRegistry
+	root                 Node
+	options_             *CompilerOptions
+	lineBreak            bool
+	prettyPrint          bool
+	outputTypes          bool
+	tagAsTypeSummary_    bool
+	tagAsStrict_         bool
+	licenseTracker       CodePrinter_LicenseTracker
+	registry             *JSTypeRegistry
 	codeGeneratorFactory CodePrinter_Builder_CodeGeneratorFactory
 }
 
@@ -622,7 +665,7 @@ func (this *CodePrinter_Builder) build() string {
 }
 
 func (this *CodePrinter_Builder) buildWithSourceMappings() *CodePrinter_SourceAndMappings {
-	if (this.root == 0) {
+	if this.root == 0 {
 		panic(new_IllegalStateException_String("Cannot build without root node being specified").self())
 	}
 	return CodePrinter_toSource(this.root, CodePrinter_Format_fromOptions(this.options_, this.outputTypes, this.prettyPrint), this.options_, this.licenseTracker, this.tagAsTypeSummary_, this.tagAsStrict_, this.lineBreak, this.codeGeneratorFactory)
@@ -666,7 +709,7 @@ func CodePrinter_Format_fromOptions(options *CompilerOptions, outputTypes bool, 
 	if outputTypes {
 		return CodePrinter_Format_TYPED
 	}
-	if (prettyPrint || options.getOutputFeatureSet().contains(FeatureSet_Feature_TYPE_ANNOTATION)) {
+	if prettyPrint || options.getOutputFeatureSet().contains(FeatureSet_Feature_TYPE_ANNOTATION) {
 		return CodePrinter_Format_PRETTY
 	}
 	return CodePrinter_Format_COMPACT
@@ -706,7 +749,7 @@ func CodePrinter_Format_clinit() {
 }
 
 type CodePrinter_SourceAndMappings struct {
-	source string
+	source   string
 	mappings ListOf[*SourceMap_Mapping]
 }
 
@@ -741,6 +784,10 @@ func new_CodePrinter_Builder_1(outer_ *CodePrinter_Builder) *CodePrinter_Builder
 }
 
 func (this *CodePrinter_Builder_1) getCodeGenerator(outputFormat *CodePrinter_Format, cc *CodeConsumer) *CodeGenerator {
-	return func() *CodeGenerator { if (outputFormat == CodePrinter_Format_TYPED) { return new_TypedCodeGenerator(cc, this.outer_.options_, this.outer_.registry).up_CodeGenerator() }; return new_CodeGenerator_CodeConsumer_CompilerOptions(cc, this.outer_.options_) }()
+	return func() *CodeGenerator {
+		if outputFormat == CodePrinter_Format_TYPED {
+			return new_TypedCodeGenerator(cc, this.outer_.options_, this.outer_.registry).up_CodeGenerator()
+		}
+		return new_CodeGenerator_CodeConsumer_CompilerOptions(cc, this.outer_.options_)
+	}()
 }
-

@@ -3,9 +3,9 @@
 package closure
 
 type SimpleReference struct {
-	self_ any
+	self_   any
 	symbol_ StaticTypedSlot
-	node_ Node
+	node_   Node
 }
 
 func (this *SimpleReference) as_SimpleReference() *SimpleReference { return this }
@@ -54,8 +54,17 @@ func (this *SimpleReference) getSourceFile() StaticSourceFile {
 }
 
 func (this *SimpleReference) toString() string {
-	var sourceName string = func() string { if (this.node_ == 0) { return "" }; return this.node_.getSourceFileName() }()
-	var lineNo int32 = func() int32 { if (this.node_ == 0) { return -1 }; return this.node_.getLineno() }()
+	var sourceName string = func() string {
+		if this.node_ == 0 {
+			return ""
+		}
+		return this.node_.getSourceFileName()
+	}()
+	var lineNo int32 = func() int32 {
+		if this.node_ == 0 {
+			return -1
+		}
+		return this.node_.getLineno()
+	}()
 	return (sstr_(this.node_.getQualifiedName()) + "@" + sstr_(sourceName) + ":" + istr_(int64(lineNo)))
 }
-

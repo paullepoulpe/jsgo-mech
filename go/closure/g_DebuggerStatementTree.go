@@ -23,4 +23,3 @@ func new_DebuggerStatementTree(location *SourceRange) *DebuggerStatementTree {
 	this.init_DebuggerStatementTree(location)
 	return this
 }
-

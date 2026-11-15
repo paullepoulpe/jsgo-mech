@@ -3,7 +3,7 @@
 package closure
 
 type FunctionParamBuilder struct {
-	registry *JSTypeRegistry
+	registry   *JSTypeRegistry
 	parameters ArrayListOf[*FunctionType_Parameter]
 }
 
@@ -63,7 +63,7 @@ func (this *FunctionParamBuilder) newParameterFrom(n *FunctionType_Parameter) {
 
 func (this *FunctionParamBuilder) newOptionalParameterFrom(p *FunctionType_Parameter) {
 	var isOptional bool = (p.isOptional() || !p.isVariadic())
-	if (isOptional != p.isOptional()) {
+	if isOptional != p.isOptional() {
 		this.newParameter(p.getJSType(), isOptional, p.isVariadic())
 	} else {
 		this.newParameterFrom(p)
@@ -90,4 +90,3 @@ func (this *FunctionParamBuilder) hasVarArgs() bool {
 func (this *FunctionParamBuilder) build() ImmutableListOf[*FunctionType_Parameter] {
 	return ImmutableList_copyOf(icast_Collection(this.parameters.self()))
 }
-

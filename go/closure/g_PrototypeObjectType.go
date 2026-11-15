@@ -4,14 +4,14 @@ package closure
 
 type PrototypeObjectType struct {
 	ObjectType
-	className OptionalOf[string]
-	templateParamCount int32
-	properties *PropertyMap
-	nativeType bool
-	anonymousType bool
+	className                 OptionalOf[string]
+	templateParamCount        int32
+	properties                *PropertyMap
+	nativeType                bool
+	anonymousType             bool
 	implicitPrototypeFallback *ObjectType
-	ownerFunction *FunctionType
-	prettyPrint bool
+	ownerFunction             *FunctionType
+	prettyPrint               bool
 }
 
 func (this *PrototypeObjectType) as_PrototypeObjectType() *PrototypeObjectType { return this }
@@ -63,7 +63,7 @@ func (this *PrototypeObjectType) init_PrototypeObjectType(builder *PrototypeObje
 	this.nativeType = builder.nativeType
 	this.anonymousType = builder.anonymousType
 	this.properties.setParentSource(this.up_ObjectType())
-	if (this.nativeType || (builder.implicitPrototype != nil)) {
+	if this.nativeType || (builder.implicitPrototype != nil) {
 		this.setImplicitPrototype(builder.implicitPrototype)
 	} else {
 		this.setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE))
@@ -105,12 +105,12 @@ func (this *PrototypeObjectType) defineProperty_impl(name Property_Key, type_ *J
 }
 
 func (this *PrototypeObjectType) setPropertyJSDocInfoKey_impl(propertyName Property_Key, info *JSDocInfo) {
-	if (info != nil) {
-		if (this.properties.getOwnProperty(propertyName) == nil) {
+	if info != nil {
+		if this.properties.getOwnProperty(propertyName) == nil {
 			this.defineInferredPropertyKey(propertyName, this.getPropertyTypeKey(propertyName), 0)
 		}
 		var property *Property = this.properties.getOwnProperty(propertyName)
-		if (property != nil) {
+		if property != nil {
 			property.setJSDocInfo(info)
 		}
 	}
@@ -118,7 +118,7 @@ func (this *PrototypeObjectType) setPropertyJSDocInfoKey_impl(propertyName Prope
 
 func (this *PrototypeObjectType) setPropertyNode_impl(propertyName Property_Key, defSite Node) {
 	var property *Property = this.properties.getOwnProperty(propertyName)
-	if (property != nil) {
+	if property != nil {
 		property.setNode(defSite)
 	}
 }
@@ -140,7 +140,12 @@ func (this *PrototypeObjectType) hasOverriddenNativeProperty(propertyName string
 		return false
 	}
 	var propertyType *JSType = this.getPropertyType(propertyName)
-	var nativeType *ObjectType = func() *ObjectType { if this.isFunctionType() { return this.registry.getNativeObjectType(JSTypeNative_FUNCTION_PROTOTYPE) }; return this.registry.getNativeObjectType(JSTypeNative_OBJECT_PROTOTYPE) }()
+	var nativeType *ObjectType = func() *ObjectType {
+		if this.isFunctionType() {
+			return this.registry.getNativeObjectType(JSTypeNative_FUNCTION_PROTOTYPE)
+		}
+		return this.registry.getNativeObjectType(JSTypeNative_OBJECT_PROTOTYPE)
+	}()
 	var nativePropertyType *JSType = nativeType.getPropertyType(propertyName)
 	return !JSCompObjects_identical(propertyType.self(), nativePropertyType.self())
 }
@@ -151,19 +156,29 @@ func (this *PrototypeObjectType) matchesObjectContext_impl() bool {
 
 func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 	if this.hasReferenceName() {
-		sb.append(func() string { if sb.isForAnnotations() { return str_(this.getNormalizedReferenceName().orElseThrow()) }; return str_(this.getReferenceName().orElseThrow()) }())
+		sb.append(func() string {
+			if sb.isForAnnotations() {
+				return str_(this.getNormalizedReferenceName().orElseThrow())
+			}
+			return str_(this.getReferenceName().orElseThrow())
+		}())
 		return
 	}
 	if !this.prettyPrint {
-		sb.append(func() string { if sb.isForAnnotations() { return "?" }; return "{...}" }())
+		sb.append(func() string {
+			if sb.isForAnnotations() {
+				return "?"
+			}
+			return "{...}"
+		}())
 		return
 	}
 	this.prettyPrint = false
 	var properties SetOf[*PrototypeObjectType_PropertyForPrettyPrinting] = icast_Set(obj_(new_TreeSet_Comparator(PrototypeObjectType_PROP_COMPARATOR)))
 	{
 		var current *ObjectType = this.up_ObjectType()
-		for ; (current != nil); current = current.getImplicitPrototype() {
-			if (current.isNativeObjectType() || (properties.size() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES)) {
+		for ; current != nil; current = current.getImplicitPrototype() {
+			if current.isNativeObjectType() || (properties.size() > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				break
 			}
 			it_2 := foreach_(any(current.getOwnPropertyNames()))
@@ -190,12 +205,12 @@ func (this *PrototypeObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		for it_6.next() {
 			var property *PrototypeObjectType_PropertyForPrettyPrinting = cast_[*PrototypeObjectType_PropertyForPrettyPrinting](it_6.v)
 			i++
-			if (!sb.isForAnnotations() && (i > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES)) {
+			if !sb.isForAnnotations() && (i > PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES) {
 				sb.append("...")
 				break
 			}
 			property.appendTo(sb)
-			if (i < properties.size()) {
+			if i < properties.size() {
 				sb.append(",")
 				if multiline {
 					sb.breakLineAndIndent()
@@ -231,7 +246,7 @@ func (this *PrototypeObjectType) getImplicitPrototype_impl() *ObjectType {
 func (this *PrototypeObjectType) setImplicitPrototype(implicitPrototype *ObjectType) {
 	Preconditions_checkState(!this.hasCachedValues())
 	this.implicitPrototypeFallback = implicitPrototype
-	if (implicitPrototype != nil) {
+	if implicitPrototype != nil {
 		this.maybeLoosenTypecheckingDueToForwardReferencedSupertype(implicitPrototype.up_JSType())
 	}
 }
@@ -243,7 +258,7 @@ func (this *PrototypeObjectType) getTemplateParamCount_impl() int32 {
 func (this *PrototypeObjectType) getReferenceName_impl() OptionalOf[string] {
 	if this.className.isPresent() {
 		return this.className
-	} else if (this.ownerFunction != nil) {
+	} else if this.ownerFunction != nil {
 		return Optional_of(strobj_((sstr_(str_(this.ownerFunction.getReferenceName().orElse(strobj_("null")))) + ".prototype")))
 	} else {
 		return Optional_empty()
@@ -269,16 +284,26 @@ func (this *PrototypeObjectType) getOwnerFunction_impl() *FunctionType {
 }
 
 func (this *PrototypeObjectType) getCtorImplementedInterfaces_impl() IterableOf[*ObjectType] {
-	return func() Iterable { if this.isFunctionPrototypeType() { return icast_Iterable(obj_(this.getOwnerFunction().getImplementedInterfaces())) }; return icast_Iterable(obj_(ImmutableList_of())) }()
+	return func() Iterable {
+		if this.isFunctionPrototypeType() {
+			return icast_Iterable(obj_(this.getOwnerFunction().getImplementedInterfaces()))
+		}
+		return icast_Iterable(obj_(ImmutableList_of()))
+	}()
 }
 
 func (this *PrototypeObjectType) getCtorExtendedInterfaces_impl() IterableOf[*ObjectType] {
-	return func() Iterable { if this.isFunctionPrototypeType() { return icast_Iterable(obj_(this.getOwnerFunction().getExtendedInterfaces())) }; return icast_Iterable(obj_(ImmutableList_of())) }()
+	return func() Iterable {
+		if this.isFunctionPrototypeType() {
+			return icast_Iterable(obj_(this.getOwnerFunction().getExtendedInterfaces()))
+		}
+		return icast_Iterable(obj_(ImmutableList_of()))
+	}()
 }
 
 func (this *PrototypeObjectType) resolveInternal_impl(reporter ErrorReporter_rhino) *JSType {
 	var implicitPrototype *ObjectType = this.getImplicitPrototype()
-	if (implicitPrototype != nil) {
+	if implicitPrototype != nil {
 		this.implicitPrototypeFallback = to_ObjectType(implicitPrototype.resolve(reporter).self())
 	}
 	it_1 := foreach_(any(this.properties.values()))
@@ -331,7 +356,9 @@ func (this *PrototypeObjectType) recursionUnsafeHashCode_impl() int32 {
 }
 
 var PrototypeObjectType_TYPE_CLASS *JSTypeClass
+
 const PrototypeObjectType_MAX_PRETTY_PRINTED_PROPERTIES int32 = 10
+
 var PrototypeObjectType_PROP_COMPARATOR Comparator
 
 var PrototypeObjectType_clinit_done bool
@@ -381,27 +408,33 @@ func PrototypeObjectType_clinit() {
 }
 
 type PrototypeObjectType_Builder struct {
-	self_ any
-	registry *JSTypeRegistry
-	className OptionalOf[string]
-	implicitPrototype *ObjectType
-	nativeType bool
-	anonymousType bool
-	templateTypeMap *TemplateTypeMap
+	self_              any
+	registry           *JSTypeRegistry
+	className          OptionalOf[string]
+	implicitPrototype  *ObjectType
+	nativeType         bool
+	anonymousType      bool
+	templateTypeMap    *TemplateTypeMap
 	templateParamCount int32
 }
 
-func (this *PrototypeObjectType_Builder) as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder { return this }
+func (this *PrototypeObjectType_Builder) as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
+	return this
+}
 
 func to_PrototypeObjectType_Builder(v any) *PrototypeObjectType_Builder {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder }).as_PrototypeObjectType_Builder()
+	return v.(interface {
+		as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder
+	}).as_PrototypeObjectType_Builder()
 }
 
 func is_PrototypeObjectType_Builder(v any) bool {
-	_, ok := v.(interface{ as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder })
+	_, ok := v.(interface {
+		as_PrototypeObjectType_Builder() *PrototypeObjectType_Builder
+	})
 	return ok
 }
 
@@ -468,7 +501,9 @@ func (this *PrototypeObjectType_Builder) build_impl() *PrototypeObjectType {
 }
 
 func (this *PrototypeObjectType_Builder) setName(p0 *Optional) *PrototypeObjectType_Builder {
-	return this.self_.(interface{ setName_impl(*Optional) *PrototypeObjectType_Builder }).setName_impl(p0)
+	return this.self_.(interface {
+		setName_impl(*Optional) *PrototypeObjectType_Builder
+	}).setName_impl(p0)
 }
 
 func (this *PrototypeObjectType_Builder) build() *PrototypeObjectType {
@@ -476,7 +511,7 @@ func (this *PrototypeObjectType_Builder) build() *PrototypeObjectType {
 }
 
 type PrototypeObjectType_PropertyForPrettyPrinting struct {
-	key_ Property_Key
+	key_   Property_Key
 	type__ *JSType
 }
 
@@ -529,4 +564,3 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) hashCode() int32 {
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) toString() string {
 	return "PropertyForPrettyPrinting[" + "key=" + objstr_(any(this.key_)) + ", type=" + objstr_(this.type__.self()) + "]"
 }
-

@@ -48,10 +48,15 @@ func JSCompDoubles_ecmascriptToInt32(number float64) int32 {
 	if JSCompDoubles_isExactInt32(number) {
 		return f2i_[int32](float64(number))
 	}
-	if (Double_isNaN(number) || Double_isInfinite(number)) {
+	if Double_isNaN(number) || Double_isInfinite(number) {
 		return 0
 	}
-	var posInt float64 = func() float64 { if (number >= 0) { return Math_floor(number) }; return Math_ceil(number) }()
+	var posInt float64 = func() float64 {
+		if number >= 0 {
+			return Math_floor(number)
+		}
+		return Math_ceil(number)
+	}()
 	var int32bit int64 = f2i_[int64](float64(float64(fmod_(float64(posInt), float64(JSCompDoubles_POW_2_32)))))
 	return int32(int32bit)
 }
@@ -74,4 +79,3 @@ func JSCompDoubles_clinit() {
 	JSCompDoubles_POW_2_53 = Math_pow(2, 53)
 
 }
-

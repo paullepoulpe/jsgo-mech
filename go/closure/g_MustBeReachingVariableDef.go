@@ -4,8 +4,8 @@ package closure
 
 type MustBeReachingVariableDef struct {
 	DataFlowAnalysis
-	compiler_ *AbstractCompiler
-	escaped SetOf[*Var]
+	compiler_   *AbstractCompiler
+	escaped     SetOf[*Var]
 	allVarsInFn MapOf[string, *Var]
 }
 
@@ -89,7 +89,7 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 		this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		{
 			var c Node = n.getSecondChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				this.computeMustDef(c, cfgNode, output, true)
 			}
 		}
@@ -102,11 +102,16 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 	case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				if c.hasChildren() {
 					if c.isName() {
 						this.computeMustDef(c.getFirstChild(), cfgNode, output, conditional)
-						this.addToDefIfLocal(c.getString(), func() Node { if conditional { return 0 }; return cfgNode }(), c.getFirstChild(), output)
+						this.addToDefIfLocal(c.getString(), func() Node {
+							if conditional {
+								return 0
+							}
+							return cfgNode
+						}(), c.getFirstChild(), output)
 					} else {
 						Preconditions_checkState_boolean_Object(c.isDestructuringLhs(), c.box_())
 						this.computeMustDef(c.getSecondChild(), cfgNode, output, conditional)
@@ -122,15 +127,25 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 		} else if n.getFirstChild().isName() {
 			this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
-			this.addToDefIfLocal(n.getFirstChild().getString(), func() Node { if conditional { return 0 }; return cfgNode }(), 0, output)
+			this.addToDefIfLocal(n.getFirstChild().getString(), func() Node {
+				if conditional {
+					return 0
+				}
+				return cfgNode
+			}(), 0, output)
 		} else {
 			this.computeMustDef(n.getFirstChild(), cfgNode, output, conditional)
 			this.computeMustDef(n.getSecondChild(), cfgNode, output, true)
 		}
 	case Token_rhino_NAME:
 		if NodeUtil_isLhsByDestructuring(n) {
-			this.addToDefIfLocal(n.getString(), func() Node { if conditional { return 0 }; return cfgNode }(), 0, output)
-		} else if ("arguments" == n.getString()) {
+			this.addToDefIfLocal(n.getString(), func() Node {
+				if conditional {
+					return 0
+				}
+				return cfgNode
+			}(), 0, output)
+		} else if "arguments" == n.getString() {
 			this.escapeParameters(output)
 		}
 		return
@@ -139,11 +154,16 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 			if n.getFirstChild().isName() {
 				var name Node = n.getFirstChild()
 				this.computeMustDef(name.getNext(), cfgNode, output, conditional)
-				this.addToDefIfLocal(name.getString(), func() Node { if conditional { return 0 }; return cfgNode }(), n.getLastChild(), output)
+				this.addToDefIfLocal(name.getString(), func() Node {
+					if conditional {
+						return 0
+					}
+					return cfgNode
+				}(), n.getLastChild(), output)
 				return
 			} else if NodeUtil_isNormalGet(n.getFirstChild()) {
 				var obj Node = n.getFirstFirstChild()
-				if (obj.isName() && ("arguments" == obj.getString())) {
+				if obj.isName() && ("arguments" == obj.getString()) {
 					this.escapeParameters(output)
 				}
 			} else if n.getFirstChild().isDestructuringPattern() {
@@ -152,16 +172,21 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 				return
 			}
 		}
-		if (n.isDec() || n.isInc()) {
+		if n.isDec() || n.isInc() {
 			var target Node = n.getFirstChild()
 			if target.isName() {
-				this.addToDefIfLocal(target.getString(), func() Node { if conditional { return 0 }; return cfgNode }(), 0, output)
+				this.addToDefIfLocal(target.getString(), func() Node {
+					if conditional {
+						return 0
+					}
+					return cfgNode
+				}(), 0, output)
 				return
 			}
 		}
 		{
 			var c Node = n.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
+			for ; c != 0; c = c.getNext() {
 				this.computeMustDef(c, cfgNode, output, conditional)
 			}
 		}
@@ -170,14 +195,14 @@ func (this *MustBeReachingVariableDef) computeMustDef(n Node, cfgNode Node, outp
 
 func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, rValue Node, def *MustBeReachingVariableDef_MustDef) {
 	var var_ *Var = cast_[*Var](Map_get_s(this.allVarsInFn, name))
-	if (var_ == nil) {
+	if var_ == nil {
 		return
 	}
 	it_1 := foreach_(any(def.reachingDef.entrySet()))
 	for it_1.next() {
 		var pair Map_Entry = icast_Map_Entry(it_1.v)
 		var otherDef *MustBeReachingVariableDef_Definition = cast_[*MustBeReachingVariableDef_Definition](pair.getValue())
-		if (otherDef == nil) {
+		if otherDef == nil {
 			continue
 		}
 		if otherDef.depends.contains(obj_(var_)) {
@@ -185,11 +210,11 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 		}
 	}
 	if !this.escaped.contains(obj_(var_)) {
-		if (node == 0) {
+		if node == 0 {
 			def.reachingDef.put(obj_(var_), nil)
 		} else {
 			var definition *MustBeReachingVariableDef_Definition = new_MustBeReachingVariableDef_Definition(node)
-			if (rValue != 0) {
+			if rValue != 0 {
 				this.computeDependence(definition, rValue)
 			}
 			def.reachingDef.put(obj_(var_), obj_(definition))
@@ -209,7 +234,7 @@ func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVa
 	for it_3.next() {
 		var pair Map_Entry = icast_Map_Entry(it_3.v)
 		var value *MustBeReachingVariableDef_Definition = cast_[*MustBeReachingVariableDef_Definition](pair.getValue())
-		if (value == nil) {
+		if value == nil {
 			continue
 		}
 		it_5 := foreach_(any(value.depends))
@@ -240,7 +265,12 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
 
 func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
 	var def *MustBeReachingVariableDef_Definition = this.getDef(name, useNode)
-	return func() Node { if (def == nil) { return 0 }; return def.node_ }()
+	return func() Node {
+		if def == nil {
+			return 0
+		}
+		return def.node_
+	}()
 }
 
 func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachingVariableDef_Definition) bool {
@@ -258,8 +288,8 @@ func (this *MustBeReachingVariableDef) dependsOnOuterScopeVars(def *MustBeReachi
 }
 
 type MustBeReachingVariableDef_Definition struct {
-	node_ Node
-	depends SetOf[*Var]
+	node_               Node
+	depends             SetOf[*Var]
 	unknownDependencies bool
 }
 
@@ -282,7 +312,14 @@ func new_MustBeReachingVariableDef_Definition(node Node) *MustBeReachingVariable
 func (this *MustBeReachingVariableDef_Definition) equals(other any) bool {
 	var otherDef *MustBeReachingVariableDef_Definition
 	_ = otherDef
-	if !(func() bool { v_ := other; if !is_[*MustBeReachingVariableDef_Definition](v_) { return false }; otherDef = cast_[*MustBeReachingVariableDef_Definition](v_); return true }()) {
+	if !(func() bool {
+		v_ := other
+		if !is_[*MustBeReachingVariableDef_Definition](v_) {
+			return false
+		}
+		otherDef = cast_[*MustBeReachingVariableDef_Definition](v_)
+		return true
+	}()) {
 		return false
 	}
 	return (otherDef.node_ == this.node_)
@@ -338,7 +375,14 @@ func MustBeReachingVariableDef_MustDef_createFromMustDef(other *MustBeReachingVa
 func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
 	var mustDef *MustBeReachingVariableDef_MustDef
 	_ = mustDef
-	return (func() bool { v_ := other; if !is_[*MustBeReachingVariableDef_MustDef](v_) { return false }; mustDef = cast_[*MustBeReachingVariableDef_MustDef](v_); return true }() && Object_equals(obj_(mustDef.reachingDef), obj_(this.reachingDef)))
+	return (func() bool {
+		v_ := other
+		if !is_[*MustBeReachingVariableDef_MustDef](v_) {
+			return false
+		}
+		mustDef = cast_[*MustBeReachingVariableDef_MustDef](v_)
+		return true
+	}() && Object_equals(obj_(mustDef.reachingDef), obj_(this.reachingDef)))
 }
 
 func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
@@ -346,7 +390,7 @@ func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
 }
 
 type MustBeReachingVariableDef_MustDefJoin struct {
-	result *MustBeReachingVariableDef_MustDef
+	result    *MustBeReachingVariableDef_MustDef
 	resultMap LinkedHashMapOf[*Var, *MustBeReachingVariableDef_Definition]
 }
 
@@ -368,12 +412,14 @@ func new_MustBeReachingVariableDef_MustDefJoin() *MustBeReachingVariableDef_Must
 func (this *MustBeReachingVariableDef_MustDefJoin) joinFlow(input_ any) {
 	var input *MustBeReachingVariableDef_MustDef = cast_[*MustBeReachingVariableDef_MustDef](input_)
 	_ = input
-	Map_forEach(icast_Map(obj_(input.reachingDef)), &BiConsumer_fn{func(p0 any, p1 any) { this.mergeVarDef(cast_[*Var](p0), cast_[*MustBeReachingVariableDef_Definition](p1)) }})
+	Map_forEach(icast_Map(obj_(input.reachingDef)), &BiConsumer_fn{func(p0 any, p1 any) {
+		this.mergeVarDef(cast_[*Var](p0), cast_[*MustBeReachingVariableDef_Definition](p1))
+	}})
 }
 
 func (this *MustBeReachingVariableDef_MustDefJoin) mergeVarDef(var_ *Var, def *MustBeReachingVariableDef_Definition) {
 	var resultDef *MustBeReachingVariableDef_Definition
-	if (def == nil) {
+	if def == nil {
 		resultDef = nil
 	} else if !this.resultMap.containsKey(obj_(var_)) {
 		resultDef = def
@@ -391,7 +437,7 @@ func (this *MustBeReachingVariableDef_MustDefJoin) finish() any {
 
 type MustBeReachingVariableDef_1 struct {
 	ControlFlowGraph_AbstractCfgNodeTraversalCallback
-	outer_ *MustBeReachingVariableDef
+	outer_  *MustBeReachingVariableDef
 	cap_def *MustBeReachingVariableDef_Definition
 }
 
@@ -418,11 +464,10 @@ func new_MustBeReachingVariableDef_1(outer_ *MustBeReachingVariableDef, cap_def 
 func (this *MustBeReachingVariableDef_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
 		var dep *Var = cast_[*Var](Map_get_s(this.outer_.allVarsInFn, n.getString()))
-		if (dep == nil) {
+		if dep == nil {
 			this.cap_def.unknownDependencies = true
 		} else {
 			this.cap_def.depends.add(obj_(dep))
 		}
 	}
 }
-

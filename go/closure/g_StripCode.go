@@ -3,12 +3,12 @@
 package closure
 
 type StripCode struct {
-	compiler_ *AbstractCompiler
-	stripNameSuffixes ImmutableSetOf[string]
-	stripNamePrefixes ImmutableSetOf[string]
-	varsToRemove *LinkedIdentityHashSet
-	stripTypesList []string
-	stripTypePrefixesList []string
+	compiler_                      *AbstractCompiler
+	stripNameSuffixes              ImmutableSetOf[string]
+	stripNamePrefixes              ImmutableSetOf[string]
+	varsToRemove                   *LinkedIdentityHashSet
+	stripTypesList                 []string
+	stripTypePrefixesList          []string
 	stripNamePrefixesLowerCaseList []string
 	stripNameSuffixesLowerCaseList []string
 }
@@ -92,8 +92,8 @@ func StripCode_toListWithCollapsedVersions(s string) ArrayListOf[string] {
 	var possibleForms ArrayListOf[string] = new_ArrayList_0()
 	possibleForms.add(strobj_(s))
 	var chars []uint16 = String_toCharArray(s)
-	for i := int32(0); (i < int32(len(chars))); i++ {
-		if (chars[i] == '.') {
+	for i := int32(0); i < int32(len(chars)); i++ {
+		if chars[i] == '.' {
 			chars[i] = '$'
 			possibleForms.add(strobj_(new_String(chars)))
 		}
@@ -173,7 +173,7 @@ func (this *StripCode_StripCodeConfigRecord) get() any {
 }
 
 type StripCode_Strip struct {
-	outer_ *StripCode
+	outer_       *StripCode
 	decisionsLog *LogFile
 }
 
@@ -228,7 +228,7 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 	var next Node = 0
 	{
 		var nameNode Node = n.getFirstChild()
-		for ; (nameNode != 0); nameNode = next {
+		for ; nameNode != 0; nameNode = next {
 			next = nameNode.getNext()
 			if nameNode.isDestructuringLhs() {
 				continue
@@ -236,8 +236,13 @@ func (this *StripCode_Strip) removeVarDeclarationsByNameOrRvalue(t *NodeTraversa
 			Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
 			var name string = nameNode.getString()
 			var lastDollarSign int32 = String_lastIndexOf(name, 36)
-			var possibleStripName string = func() string { if (lastDollarSign != -1) { return String_substring_int(name, (lastDollarSign + 1)) }; return name }()
-			if ((this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild())) {
+			var possibleStripName string = func() string {
+				if lastDollarSign != -1 {
+					return String_substring_int(name, (lastDollarSign + 1))
+				}
+				return name
+			}()
+			if (this.isStripName(possibleStripName) || this.qualifiedNameBeginsWithStripType(nameNode)) || this.isCallWhoseReturnValueShouldBeStripped(nameNode.getFirstChild()) {
 				this.outer_.varsToRemove.add(strobj_(name))
 				if String_contains(name, strobj_("$")) {
 					this.decisionsLog.log(&Supplier_fn{func() any {
@@ -269,7 +274,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 	switch parent.getToken() {
 	case Token_rhino_VAR, Token_rhino_CONST, Token_rhino_LET:
 	case Token_rhino_GETPROP, Token_rhino_GETELEM:
-		if ((parent.getFirstChild() == n) && this.isReferenceToRemovedVar(n)) {
+		if (parent.getFirstChild() == n) && this.isReferenceToRemovedVar(n) {
 			this.decisionsLog.log(&Supplier_fn{func() any {
 				return strobj_((sstr_(n.getString()) + ": removing getelem/getprop/call chain"))
 			}})
@@ -277,7 +282,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 		}
 	case Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD:
 		if this.isReferenceToRemovedVar(n) {
-			if (parent.getFirstChild() == n) {
+			if parent.getFirstChild() == n {
 				var grandparent Node = parent.getParent()
 				this.decisionsLog.log(&Supplier_fn{func() any {
 					return strobj_((sstr_(n.getQualifiedName()) + ": removing assignment to stripped var"))
@@ -301,7 +306,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 			}
 		}
 	case Token_rhino_NEW, Token_rhino_CALL:
-		if (!n.isFirstChildOf(parent) && this.isReferenceToRemovedVar(n)) {
+		if !n.isFirstChildOf(parent) && this.isReferenceToRemovedVar(n) {
 			this.decisionsLog.log(&Supplier_fn{func() any {
 				return strobj_((sstr_(n.getQualifiedName()) + ": replacing parameter reference with null"))
 			}})
@@ -313,7 +318,7 @@ func (this *StripCode_Strip) maybeRemoveReferenceToRemovedVariable(t *NodeTraver
 		var isLastChild bool = (parent.getLastChild() == n)
 		var parentIsCallee bool = ((grandparent.isCall() || grandparent.isNew()) && parent.isFirstChildOf(grandparent))
 		var isSafeToRemove bool = (!isLastChild || !parentIsCallee)
-		if (isSafeToRemove && this.isReferenceToRemovedVar(n)) {
+		if isSafeToRemove && this.isReferenceToRemovedVar(n) {
 			this.decisionsLog.log(&Supplier_fn{func() any {
 				return strobj_((sstr_(n.getQualifiedName()) + ": replacing reference in comma expr with null"))
 			}})
@@ -337,10 +342,10 @@ func (this *StripCode_Strip) replaceHighestNestedCallWithNull(t *NodeTraversal, 
 	var ancestorParent Node
 	for {
 		ancestorParent = ancestor.getParent()
-		if (ancestorParent == 0) {
+		if ancestorParent == 0 {
 			return
 		}
-		if (ancestor.getFirstChild() != ancestorChild) {
+		if ancestor.getFirstChild() != ancestorChild {
 			this.replaceWithNull(ancestorChild)
 			break
 		}
@@ -352,7 +357,7 @@ func (this *StripCode_Strip) replaceHighestNestedCallWithNull(t *NodeTraversal, 
 			ancestor.replaceWith(ancestor.getLastChild().detach())
 			break
 		}
-		if (!NodeUtil_isNormalGet(ancestor) && !ancestor.isCall()) {
+		if !NodeUtil_isNormalGet(ancestor) && !ancestor.isCall() {
 			this.replaceWithNull(ancestorChild)
 			break
 		}
@@ -364,13 +369,13 @@ func (this *StripCode_Strip) replaceHighestNestedCallWithNull(t *NodeTraversal, 
 
 func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTraversal, n Node, parent Node) {
 	var lvalue Node = n.getFirstChild()
-	if (this.nameIncludesFieldNameToStrip(lvalue) || this.qualifiedNameBeginsWithStripType(lvalue)) {
+	if this.nameIncludesFieldNameToStrip(lvalue) || this.qualifiedNameBeginsWithStripType(lvalue) {
 		if parent.isExprResult() {
 			this.decisionsLog.log(&Supplier_fn{func() any {
 				return strobj_((sstr_(lvalue.getString()) + ": removing assignment statement"))
 			}})
 			var grandparent Node = parent.getParent()
-			if (grandparent != 0) {
+			if grandparent != 0 {
 				this.replaceWithEmpty(parent, grandparent)
 				this.outer_.compiler_.reportChangeToEnclosingScope(grandparent)
 			}
@@ -383,11 +388,11 @@ func (this *StripCode_Strip) maybeEliminateAssignmentByLvalueName(t *NodeTravers
 func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 	Preconditions_checkArgument_boolean_Object(n.isExprResult(), n.box_())
 	var parent Node = n.getParent()
-	if (parent == 0) {
+	if parent == 0 {
 		return
 	}
 	var expression Node = n.getFirstChild()
-	if (this.nameIncludesFieldNameToStrip(expression) || this.qualifiedNameBeginsWithStripType(expression)) {
+	if this.nameIncludesFieldNameToStrip(expression) || this.qualifiedNameBeginsWithStripType(expression) {
 		this.decisionsLog.log(&Supplier_fn{func() any {
 			return strobj_((sstr_(expression.getString()) + ": removing property declaration statement"))
 		}})
@@ -398,7 +403,7 @@ func (this *StripCode_Strip) maybeEliminateExpressionByName(n Node) {
 
 func (this *StripCode_Strip) eliminateKeysWithStripNamesFromObjLit(n Node) {
 	var key Node = n.getFirstChild()
-	for (key != 0) {
+	for key != 0 {
 		switch key.getToken() {
 		case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF:
 			if this.isStripName(key.getString()) {
@@ -419,7 +424,7 @@ func (this *StripCode_Strip) eliminateKeysWithStripNamesFromObjLit(n Node) {
 func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal, classNode Node, parent Node) {
 	var nameNode Node = NodeUtil_getNameNode(classNode)
 	var className string
-	if ((nameNode != 0) && nameNode.isQualifiedName()) {
+	if (nameNode != 0) && nameNode.isQualifiedName() {
 		className = nameNode.getQualifiedName()
 		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(className)).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
@@ -441,7 +446,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 		className = "<anonymous>"
 	}
 	var superclassNode Node = classNode.getSecondChild()
-	if ((superclassNode != 0) && superclassNode.isQualifiedName()) {
+	if (superclassNode != 0) && superclassNode.isQualifiedName() {
 		var superclassName string = superclassNode.getQualifiedName()
 		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(superclassName)).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
@@ -454,7 +459,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 }
 
 func (this *StripCode_Strip) isCallWhoseReturnValueShouldBeStripped(n Node) bool {
-	if (((n == 0) || (!n.isCall() && !n.isNew())) || !n.hasChildren()) {
+	if ((n == 0) || (!n.isCall() && !n.isNew())) || !n.hasChildren() {
 		return false
 	}
 	var function Node = NodeUtil_getCallTargetResolvingIndirectCalls(n)
@@ -473,7 +478,7 @@ func (this *StripCode_Strip) qualifiedNameBeginsWithStripType(n Node) bool {
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripTypeString(name OptionalOf[string]) bool {
 	if name.isPresent() {
 		for _, type_ := range this.outer_.stripTypesList {
-			if (str_(name.get()) == type_) {
+			if str_(name.get()) == type_ {
 				this.logStripName(name, "equals strip type")
 				return true
 			}
@@ -495,16 +500,16 @@ func (this *StripCode_Strip) isReferenceToRemovedVar(n Node) bool {
 
 func (this *StripCode_Strip) isMethodOrCtorCallThatTriggersRemoval(t *NodeTraversal, n Node, parent Node) bool {
 	var function Node = NodeUtil_getCallTargetResolvingIndirectCalls(n)
-	if ((function == 0) || !function.isQualifiedName()) {
+	if (function == 0) || !function.isQualifiedName() {
 		return false
 	}
-	if ((parent != 0) && parent.isName()) {
+	if (parent != 0) && parent.isName() {
 		var grandparent Node = parent.getParent()
-		if ((grandparent != 0) && NodeUtil_isNameDeclaration(grandparent)) {
+		if (grandparent != 0) && NodeUtil_isNameDeclaration(grandparent) {
 			return false
 		}
 	}
-	if (function.isName() && this.isStripName(function.getString())) {
+	if function.isName() && this.isStripName(function.getString()) {
 		return true
 	}
 	var callee Node = function.getFirstChild()
@@ -512,14 +517,14 @@ func (this *StripCode_Strip) isMethodOrCtorCallThatTriggersRemoval(t *NodeTraver
 }
 
 func (this *StripCode_Strip) nameIncludesFieldNameToStrip(n Node) bool {
-	if (n == 0) {
+	if n == 0 {
 		return false
 	} else if n.isGetProp() {
 		return (this.isStripName(n.getString()) || this.nameIncludesFieldNameToStrip(n.getFirstChild()))
 	} else if n.isName() {
 		var nameString string = n.getString()
 		var end int32 = String_indexOf(nameString, 36)
-		if (end == -1) {
+		if end == -1 {
 			return false
 		}
 		var start int32 = 0
@@ -527,13 +532,18 @@ func (this *StripCode_Strip) nameIncludesFieldNameToStrip(n Node) bool {
 			if this.isStripName(String_substring(nameString, start, end)) {
 				return true
 			}
-			if (end == String_length(nameString)) {
+			if end == String_length(nameString) {
 				break
 			}
 			var newStart int32 = (end + 1)
 			var newEnd int32 = String_indexOf_int_int(nameString, 36, newStart)
 			start = newStart
-			end = func() int32 { if (newEnd == -1) { return String_length(nameString) }; return newEnd }()
+			end = func() int32 {
+				if newEnd == -1 {
+					return String_length(nameString)
+				}
+				return newEnd
+			}()
 		}
 	}
 	return false
@@ -541,7 +551,7 @@ func (this *StripCode_Strip) nameIncludesFieldNameToStrip(n Node) bool {
 
 func (this *StripCode_Strip) actsOnStripType(t *NodeTraversal, callNode Node) bool {
 	var classes *CodingConvention_SubclassRelationship = this.outer_.compiler_.getCodingConvention().getClassesDefinedByCall(callNode)
-	if (classes != nil) {
+	if classes != nil {
 		if this.qualifiedNameBeginsWithStripTypeString(classes.subclassName) {
 			this.logStripName(classes.subclassName, "class defining call")
 			return true
@@ -562,7 +572,7 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 		this.logStripName(Optional_of(strobj_(name)), "matches a prefix")
 		return true
 	}
-	if (String_isEmpty(name) || Character_isUpperCase(String_charAt(name, 0))) {
+	if String_isEmpty(name) || Character_isUpperCase(String_charAt(name, 0)) {
 		this.logNotAStripName(Optional_of(strobj_(name)), "empty or starts with uppercase")
 		return false
 	}
@@ -626,4 +636,3 @@ func (this *StripCode_Strip) replaceWithEmpty(n Node, parent Node) {
 	NodeUtil_removeChild(parent, n)
 	NodeUtil_markFunctionsDeleted(n, this.outer_.compiler_)
 }
-

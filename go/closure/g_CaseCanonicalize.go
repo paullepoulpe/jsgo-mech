@@ -19,15 +19,15 @@ func CaseCanonicalize_caseCanonicalizeString(s string) string {
 	{
 		var i int32 = 0
 		var n int32 = String_length(s)
-		for ; (i < n); i++ {
+		for ; i < n; i++ {
 			var ch uint16 = String_charAt(s, i)
 			var cu uint16 = CaseCanonicalize_caseCanonicalize(ch)
-			if (cu != ch) {
+			if cu != ch {
 				var sb *StringBuilder = new_StringBuilder_String(s)
 				sb.setCharAt(i, cu)
 				for {
 					i++
-					if (i >= n) {
+					if i >= n {
 						break
 					}
 					sb.setCharAt(i, CaseCanonicalize_caseCanonicalize(String_charAt(s, i)))
@@ -40,8 +40,13 @@ func CaseCanonicalize_caseCanonicalizeString(s string) string {
 }
 
 func CaseCanonicalize_caseCanonicalize(ch uint16) uint16 {
-	if (int32(ch) < 128) {
-		return func() uint16 { if ((65 <= int32(ch)) && (int32(ch) <= 90)) { return uint16((int32(ch) | 32)) }; return ch }()
+	if int32(ch) < 128 {
+		return func() uint16 {
+			if (65 <= int32(ch)) && (int32(ch) <= 90) {
+				return uint16((int32(ch) | 32))
+			}
+			return ch
+		}()
 	}
 	if CaseCanonicalize_CASE_SENSITIVE.contains(int32(ch)) {
 		it_1 := foreach_(obj_(CaseCanonicalize_CANON_DELTA_SETS))
@@ -104,7 +109,7 @@ func CaseCanonicalize_clinit() {
 }
 
 type CaseCanonicalize_DeltaSet struct {
-	delta int32
+	delta     int32
 	codeUnits *CharRanges
 }
 
@@ -118,4 +123,3 @@ func new_CaseCanonicalize_DeltaSet(delta int32, codeUnits *CharRanges) *CaseCano
 	this.init_CaseCanonicalize_DeltaSet(delta, codeUnits)
 	return this
 }
-

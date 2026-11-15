@@ -3,24 +3,24 @@
 package closure
 
 type RenameVars struct {
-	compiler_ *AbstractCompiler
-	globalNameNodes ArrayListOf[Node]
-	localNameNodes ArrayListOf[Node]
-	originalNameByNode MapOf[Node, string]
-	pseudoNameMap MapOf[Node, string]
-	externNames_ ImmutableSetOf[string]
-	reservedNames SetOf[string]
-	renameMap MapOf[string, string]
-	prevUsedRenameMap *VariableMap
-	prefix_ string
-	assignmentCount int32
-	localBleedingFunctions SetOf[*Var]
+	compiler_                      *AbstractCompiler
+	globalNameNodes                ArrayListOf[Node]
+	localNameNodes                 ArrayListOf[Node]
+	originalNameByNode             MapOf[Node, string]
+	pseudoNameMap                  MapOf[Node, string]
+	externNames_                   ImmutableSetOf[string]
+	reservedNames                  SetOf[string]
+	renameMap                      MapOf[string, string]
+	prevUsedRenameMap              *VariableMap
+	prefix_                        string
+	assignmentCount                int32
+	localBleedingFunctions         SetOf[*Var]
 	localBleedingFunctionsPerScope *SimpleListMultimap
-	assignments MapOf[string, *RenameVars_Assignment]
-	localRenamingOnly bool
-	preferStableNames bool
-	reservedCharacters SetOf[BoxedOf[uint16]]
-	nameGenerator NameGenerator
+	assignments                    MapOf[string, *RenameVars_Assignment]
+	localRenamingOnly              bool
+	preferStableNames              bool
+	reservedCharacters             SetOf[BoxedOf[uint16]]
+	nameGenerator                  NameGenerator
 }
 
 func (this *RenameVars) zero_RenameVars() {
@@ -51,7 +51,7 @@ func (this *RenameVars) init_RenameVars(compiler *AbstractCompiler, prefix Optio
 	this.prevUsedRenameMap = prevUsedRenameMap
 	this.reservedCharacters = reservedCharacters
 	this.preferStableNames = preferStableNames
-	if (reservedNames == nil) {
+	if reservedNames == nil {
 		this.reservedNames = icast_Set(obj_(new_LinkedHashSet()))
 	} else {
 		this.reservedNames = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(reservedNames))))
@@ -67,7 +67,7 @@ func new_RenameVars(compiler *AbstractCompiler, prefix OptionalOf[string], local
 }
 
 func RenameVars_frequencyComparator(a1 *RenameVars_Assignment, a2 *RenameVars_Assignment) int32 {
-	if (a1.count_ != a2.count_) {
+	if a1.count_ != a2.count_ {
 		return (a2.count_ - a1.count_)
 	}
 	return RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR.compare(obj_(a1), obj_(a2))
@@ -78,9 +78,11 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 	this.originalNameByNode.clear()
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameVars_ProcessVars(this))))
 	this.reservedNames.addAll(icast_Collection(obj_(this.externNames_)))
-	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(&Comparator_fn{func(p0 any, p1 any) int32 { return RenameVars_frequencyComparator(cast_[*RenameVars_Assignment](p0), cast_[*RenameVars_Assignment](p1)) }})))
+	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(&Comparator_fn{func(p0 any, p1 any) int32 {
+		return RenameVars_frequencyComparator(cast_[*RenameVars_Assignment](p0), cast_[*RenameVars_Assignment](p1))
+	}})))
 	varsByFrequency.addAll(this.assignments.values())
-	if (this.prevUsedRenameMap != nil) {
+	if this.prevUsedRenameMap != nil {
 		this.reusePreviouslyUsedVariableMap(varsByFrequency)
 	}
 	this.assignNames(varsByFrequency)
@@ -97,12 +99,12 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 }
 
 func (this *RenameVars) setNameAndReport(n Node, newName OptionalOf[string]) {
-	if (newName.isPresent() && !(str_(newName.get()) == n.getString())) {
+	if newName.isPresent() && !(str_(newName.get()) == n.getString()) {
 		n.setString(str_(newName.get()))
 		if !(str_(newName.get()) == str_(this.originalNameByNode.get(n.box_()))) {
 			this.compiler_.reportChangeToEnclosingScope(n)
 			var parent Node = n.getParent()
-			if (parent.isFunction() && NodeUtil_isFunctionDeclaration(parent)) {
+			if parent.isFunction() && NodeUtil_isFunctionDeclaration(parent) {
 				this.compiler_.reportChangeToEnclosingScope(parent)
 			}
 		}
@@ -112,8 +114,8 @@ func (this *RenameVars) setNameAndReport(n Node, newName OptionalOf[string]) {
 func (this *RenameVars) getNewGlobalName(n Node) OptionalOf[string] {
 	var oldName string = n.getString()
 	var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](Map_get_s(this.assignments, oldName))
-	if (a.newName.isPresent() && !(str_(a.newName.get()) == oldName)) {
-		if (this.pseudoNameMap != nil) {
+	if a.newName.isPresent() && !(str_(a.newName.get()) == oldName) {
+		if this.pseudoNameMap != nil {
 			return Optional_ofNullable(this.pseudoNameMap.get(n.box_()))
 		}
 		return a.newName
@@ -127,7 +129,7 @@ func (this *RenameVars) getNewLocalName(n Node) OptionalOf[string] {
 	var oldTempName string = n.getString()
 	var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](Map_get_s(this.assignments, oldTempName))
 	if !(str_(a.newName.get()) == oldTempName) {
-		if (this.pseudoNameMap != nil) {
+		if this.pseudoNameMap != nil {
 			return Optional_ofNullable(this.pseudoNameMap.get(n.box_()))
 		}
 		return a.newName
@@ -145,10 +147,10 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[
 	for it_1.next() {
 		var a *RenameVars_Assignment = cast_[*RenameVars_Assignment](it_1.v)
 		var prevNewName OptionalOf[string] = this.prevUsedRenameMap.lookupNewName(a.oldName)
-		if (prevNewName.isEmpty() || Collection_contains_s(this.reservedNames, str_(prevNewName.get()))) {
+		if prevNewName.isEmpty() || Collection_contains_s(this.reservedNames, str_(prevNewName.get())) {
 			continue
 		}
-		if (a.isLocal_ || (!Collection_contains_s(this.externNames_, a.oldName) && String_startsWith(str_(prevNewName.get()), this.prefix_))) {
+		if a.isLocal_ || (!Collection_contains_s(this.externNames_, a.oldName) && String_startsWith(str_(prevNewName.get()), this.prefix_)) {
 			Collection_add_s(this.reservedNames, str_(prevNewName.get()))
 			this.finalizeNameAssignment(a, str_(prevNewName.get()))
 		}
@@ -158,7 +160,12 @@ func (this *RenameVars) reusePreviouslyUsedVariableMap(varsToRename SortedSetOf[
 func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignment]) {
 	this.nameGenerator.reset(this.reservedNames, this.prefix_, this.reservedCharacters)
 	var globalNameGenerator NameGenerator = this.nameGenerator
-	var localNameGenerator NameGenerator = func() NameGenerator { if String_isEmpty(this.prefix_) { return globalNameGenerator }; return this.nameGenerator.clone(this.reservedNames, "", this.reservedCharacters) }()
+	var localNameGenerator NameGenerator = func() NameGenerator {
+		if String_isEmpty(this.prefix_) {
+			return globalNameGenerator
+		}
+		return this.nameGenerator.clone(this.reservedNames, "", this.reservedCharacters)
+	}()
 	var pendingAssignments ListOf[*RenameVars_Assignment] = icast_List(new_ArrayList_0().self())
 	var generatedNamesForAssignments ListOf[string] = icast_List(new_ArrayList_0().self())
 	it_1 := foreach_(any(varsToRename))
@@ -182,10 +189,10 @@ func (this *RenameVars) assignNames(varsToRename SortedSetOf[*RenameVars_Assignm
 		Collection_add_s(this.reservedNames, newName)
 	}
 	var numPendingAssignments int32 = generatedNamesForAssignments.size()
-	for i := int32(0); (i < numPendingAssignments);  {
+	for i := int32(0); i < numPendingAssignments; {
 		var varsByOrderOfOccurrence SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR)))
 		var len_ int32 = String_length(str_(generatedNamesForAssignments.get(i)))
-		for j := int32(i); ((j < numPendingAssignments) && (String_length(str_(generatedNamesForAssignments.get(j))) == len_)); j++ {
+		for j := int32(i); (j < numPendingAssignments) && (String_length(str_(generatedNamesForAssignments.get(j))) == len_); j++ {
 			varsByOrderOfOccurrence.add(pendingAssignments.get(j))
 		}
 		it_5 := foreach_(any(varsByOrderOfOccurrence))
@@ -213,11 +220,11 @@ func (this *RenameVars) okToRenameVar(name string, isLocal bool) bool {
 func (this *RenameVars) getLocalVarIndex(v *Var) int32 {
 	var num int32 = v.getIndex()
 	var s *Scope = cast_[*Scope](cast_[*Scope](v.getScope()).getParent().self())
-	if (s == nil) {
+	if s == nil {
 		panic(new_IllegalArgumentException_String("Var is not local").self())
 	}
 	var isBleedingIntoScope bool = ((cast_[*Scope](s.getParent().self()) != nil) && this.localBleedingFunctions.contains(obj_(v)))
-	for (cast_[*Scope](s.getParent().self()) != nil) {
+	for cast_[*Scope](s.getParent().self()) != nil {
 		if isBleedingIntoScope {
 			num += (this.localBleedingFunctionsPerScope.get(obj_(s)).indexOf(obj_(v)) + 1)
 			isBleedingIntoScope = false
@@ -238,6 +245,7 @@ func (this *RenameVars) shouldTemporarilyRenameLocalsInScope(s *Scope) bool {
 
 const RenameVars_MAX_LOCALS_IN_SCOPE_TO_TEMP_RENAME int32 = 1000
 const RenameVars_LOCAL_VAR_PREFIX string = "L "
+
 var RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR Comparator
 
 var RenameVars_clinit_done bool
@@ -256,12 +264,12 @@ func RenameVars_clinit() {
 }
 
 type RenameVars_Assignment struct {
-	outer_ *RenameVars
-	isLocal_ bool
-	oldName string
+	outer_            *RenameVars
+	isLocal_          bool
+	oldName           string
 	orderOfOccurrence int32
-	newName OptionalOf[string]
-	count_ int32
+	newName           OptionalOf[string]
+	count_            int32
 }
 
 func (this *RenameVars_Assignment) zero_RenameVars_Assignment() {
@@ -320,7 +328,7 @@ func new_RenameVars_ProcessVars(outer_ *RenameVars) *RenameVars_ProcessVars {
 }
 
 func (this *RenameVars_ProcessVars) enterScope(t *NodeTraversal) {
-	if (t.inGlobalHoistScope() || !this.outer_.shouldTemporarilyRenameLocalsInScope(t.getScope())) {
+	if t.inGlobalHoistScope() || !this.outer_.shouldTemporarilyRenameLocalsInScope(t.getScope()) {
 		return
 	}
 	var scope *Scope = t.getScope()
@@ -346,16 +354,16 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 	if String_isEmpty(name) {
 		return
 	}
-	if ((parent.isImportSpec() && parent.hasTwoChildren()) && (parent.getFirstChild() == n)) {
+	if (parent.isImportSpec() && parent.hasTwoChildren()) && (parent.getFirstChild() == n) {
 		return
 	}
 	var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
 	var local bool = (((var_ != nil) && var_.isLocal()) && (cast_[*Scope](cast_[*Scope](var_.getScope()).getParent().self()).isLocal() || !var_.isBleedingFunction()))
-	if ((var_ != nil) && var_.isArguments()) {
+	if (var_ != nil) && var_.isArguments() {
 		Collection_add_s(this.outer_.reservedNames, name)
 		return
 	}
-	if (!local && this.outer_.localRenamingOnly) {
+	if !local && this.outer_.localRenamingOnly {
 		Collection_add_s(this.outer_.reservedNames, name)
 		return
 	}
@@ -368,16 +376,16 @@ func (this *RenameVars_ProcessVars) visit_impl(t *NodeTraversal, n Node, parent 
 		}
 		return
 	}
-	if (this.outer_.pseudoNameMap != nil) {
+	if this.outer_.pseudoNameMap != nil {
 		this.outer_.recordPseudoName(n)
 	}
-	if (local && this.outer_.shouldTemporarilyRenameLocalsInScope(cast_[*Scope](var_.getScope()))) {
+	if local && this.outer_.shouldTemporarilyRenameLocalsInScope(cast_[*Scope](var_.getScope())) {
 		var tempName string = (sstr_(RenameVars_LOCAL_VAR_PREFIX) + istr_(int64(this.outer_.getLocalVarIndex(var_))))
 		this.incCount(tempName)
 		this.outer_.localNameNodes.add(n.box_())
 		this.outer_.originalNameByNode.put(n.box_(), strobj_(n.getString()))
 		n.setString(tempName)
-	} else if (var_ != nil) {
+	} else if var_ != nil {
 		this.incCount(name)
 		this.outer_.globalNameNodes.add(n.box_())
 	}
@@ -387,4 +395,3 @@ func (this *RenameVars_ProcessVars) incCount(name string) {
 	var s *RenameVars_Assignment = cast_[*RenameVars_Assignment](Map_computeIfAbsent_s(this.outer_.assignments, name, &Function_fn{func(p0 any) any { return obj_(new_RenameVars_Assignment(this.outer_, str_(p0))) }}))
 	s.count_++
 }
-

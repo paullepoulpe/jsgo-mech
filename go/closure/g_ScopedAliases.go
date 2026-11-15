@@ -3,12 +3,12 @@
 package closure
 
 type ScopedAliases struct {
-	compiler_ *AbstractCompiler
-	preprocessorSymbolTable *PreprocessorSymbolTable
-	moduleMetadataMap *ModuleMetadataMap
-	uniqueIdInput *CompilerInput
-	scopedAliasNames *SimpleMultiset
-	closureNamespaces SetOf[string]
+	compiler_                *AbstractCompiler
+	preprocessorSymbolTable  *PreprocessorSymbolTable
+	moduleMetadataMap        *ModuleMetadataMap
+	uniqueIdInput            *CompilerInput
+	scopedAliasNames         *SimpleMultiset
+	closureNamespaces        SetOf[string]
 	invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling
 }
 
@@ -51,7 +51,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 					aliasUsage.applyAlias(this.compiler_)
 				}
 			}
-			if (newQueue.size() == aliasWorkQueue.size()) {
+			if newQueue.size() == aliasWorkQueue.size() {
 				var cycleVar *Var = to_ScopedAliases_AliasUsage(newQueue.get(0)).aliasVar
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(cycleVar.getNode(), ScopedAliases_GOOG_SCOPE_ALIAS_CYCLE, []string{cycleVar.getName()}))
 				break
@@ -63,7 +63,7 @@ func (this *ScopedAliases) process_2(externs Node, root Node) {
 		for it_4.next() {
 			var aliasDefinition Node = Node_of_(it_4.v)
 			this.compiler_.reportChangeToEnclosingScope(aliasDefinition)
-			if (NodeUtil_isNameDeclaration(aliasDefinition.getParent()) && aliasDefinition.getParent().hasOneChild()) {
+			if NodeUtil_isNameDeclaration(aliasDefinition.getParent()) && aliasDefinition.getParent().hasOneChild() {
 				aliasDefinition.getParent().detach()
 			} else {
 				aliasDefinition.detach()
@@ -132,6 +132,7 @@ func ScopedAliases_isScopedAliases(name string) bool {
 const ScopedAliases_SCOPING_METHOD_NAME string = "goog.scope"
 const ScopedAliases_SCOPED_ALIASES_PREFIX string = "$jscomp$scope$"
 const ScopedAliases_MISSING_ALIASES_PREFIX string = "$$jscomp$missingAlias$"
+
 var ScopedAliases_GOOG_SCOPE_MUST_BE_ALONE *DiagnosticType
 var ScopedAliases_GOOG_SCOPE_MUST_BE_IN_GLOBAL_SCOPE *DiagnosticType
 var ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS *DiagnosticType
@@ -223,9 +224,9 @@ func ScopedAliases_InvalidModuleGetHandling_clinit() {
 }
 
 type ScopedAliases_Builder struct {
-	compiler_ *AbstractCompiler
-	preprocessorSymbolTable *PreprocessorSymbolTable
-	moduleMetadataMap *ModuleMetadataMap
+	compiler_                *AbstractCompiler
+	preprocessorSymbolTable  *PreprocessorSymbolTable
+	moduleMetadataMap        *ModuleMetadataMap
 	invalidModuleGetHandling *ScopedAliases_InvalidModuleGetHandling
 }
 
@@ -262,26 +263,37 @@ func (this *ScopedAliases_Builder) setInvalidModuleGetHandling(invalidModuleGetH
 }
 
 func (this *ScopedAliases_Builder) build() *ScopedAliases {
-	return new_ScopedAliases(this.compiler_, this.preprocessorSymbolTable, func() Set { if (this.moduleMetadataMap == nil) { return icast_Set(obj_(ImmutableSet_of())) }; return this.moduleMetadataMap.getModulesByGoogNamespace().keySet() }(), this.invalidModuleGetHandling)
+	return new_ScopedAliases(this.compiler_, this.preprocessorSymbolTable, func() Set {
+		if this.moduleMetadataMap == nil {
+			return icast_Set(obj_(ImmutableSet_of()))
+		}
+		return this.moduleMetadataMap.getModulesByGoogNamespace().keySet()
+	}(), this.invalidModuleGetHandling)
 }
 
 type ScopedAliases_AliasUsage struct {
-	self_ any
-	aliasVar *Var
+	self_          any
+	aliasVar       *Var
 	aliasReference Node
 }
 
-func (this *ScopedAliases_AliasUsage) as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage { return this }
+func (this *ScopedAliases_AliasUsage) as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage {
+	return this
+}
 
 func to_ScopedAliases_AliasUsage(v any) *ScopedAliases_AliasUsage {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage }).as_ScopedAliases_AliasUsage()
+	return v.(interface {
+		as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage
+	}).as_ScopedAliases_AliasUsage()
 }
 
 func is_ScopedAliases_AliasUsage(v any) bool {
-	_, ok := v.(interface{ as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage })
+	_, ok := v.(interface {
+		as_ScopedAliases_AliasUsage() *ScopedAliases_AliasUsage
+	})
 	return ok
 }
 
@@ -301,7 +313,12 @@ func (this *ScopedAliases_AliasUsage) referencesOtherAlias(deletedAliasVars SetO
 	var aliasDefinition Node = this.aliasVar.getInitialValue()
 	var qname string = ScopedAliases_getAliasedNamespace(aliasDefinition)
 	var dotIndex int32 = String_indexOf(qname, 46)
-	var rootName string = func() string { if (dotIndex == -1) { return qname }; return String_substring(qname, 0, dotIndex) }()
+	var rootName string = func() string {
+		if dotIndex == -1 {
+			return qname
+		}
+		return String_substring(qname, 0, dotIndex)
+	}()
 	var otherAliasVar *Var = cast_[*Var](cast_[*Scope](this.aliasVar.getScope()).getOwnSlot(rootName))
 	return ((otherAliasVar != nil) && !deletedAliasVars.contains(obj_(otherAliasVar)))
 }
@@ -380,17 +397,17 @@ func (this *ScopedAliases_AliasedTypeNode) applyAlias_impl(compiler *AbstractCom
 
 type ScopedAliases_Traversal struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ScopedAliases
+	outer_                   *ScopedAliases
 	aliasDefinitionsToDelete ListOf[Node]
-	scopeCalls ListOf[Node]
-	aliasUsages ListOf[*ScopedAliases_AliasUsage]
-	aliases_ MapOf[string, *Var]
-	injectedDecls SetOf[Node]
-	deletedAliasVars SetOf[*Var]
-	forbiddenLocals SetOf[string]
-	hasNamespaceShadows bool
-	hasErrorsField bool
-	scopeFunctionBody Node
+	scopeCalls               ListOf[Node]
+	aliasUsages              ListOf[*ScopedAliases_AliasUsage]
+	aliases_                 MapOf[string, *Var]
+	injectedDecls            SetOf[Node]
+	deletedAliasVars         SetOf[*Var]
+	forbiddenLocals          SetOf[string]
+	hasNamespaceShadows      bool
+	hasErrorsField           bool
+	scopeFunctionBody        Node
 }
 
 func (this *ScopedAliases_Traversal) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -467,7 +484,7 @@ func (this *ScopedAliases_Traversal) enterScope(t *NodeTraversal) {
 		return
 	}
 	var scopeMethodCall Node = this.findScopeMethodCall(t.getScopeRoot())
-	if (scopeMethodCall != 0) {
+	if scopeMethodCall != 0 {
 		this.findAliases(t.getScope())
 		this.scopeFunctionBody = scopeMethodCall.getLastChild().getLastChild()
 	}
@@ -490,7 +507,7 @@ func (this *ScopedAliases_Traversal) exitScope(t *NodeTraversal) {
 func (this *ScopedAliases_Traversal) reportInvalidVariables(t *NodeTraversal) {
 	var scopeRoot Node = t.getScopeRoot()
 	var enclosingFunctionBody Node = t.getEnclosingFunction().getLastChild()
-	if ((this.isGoogScopeFunctionBody(enclosingFunctionBody) && scopeRoot.isBlock()) && !scopeRoot.getParent().isFunction()) {
+	if (this.isGoogScopeFunctionBody(enclosingFunctionBody) && scopeRoot.isBlock()) && !scopeRoot.getParent().isFunction() {
 		it_1 := foreach_(any(t.getScope().getVarIterable()))
 		for it_1.next() {
 			var v *Var = cast_[*Var](it_1.v)
@@ -515,16 +532,16 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 		var parent Node = n.getParent()
 		var isVar bool = (NodeUtil_isNameDeclaration(parent) && parent.getParent().isBlock())
 		var isFunctionDecl bool = NodeUtil_isFunctionDeclaration(parent)
-		if (isVar && ScopedAliases_isAliasDefinition(n)) {
+		if isVar && ScopedAliases_isAliasDefinition(n) {
 			this.recordAlias(v)
 		} else if v.isBleedingFunction() {
 		} else if parent.isParamList() {
-		} else if ((isVar || isFunctionDecl) || NodeUtil_isClassDeclaration(parent)) {
+		} else if (isVar || isFunctionDecl) || NodeUtil_isClassDeclaration(parent) {
 			var isHoisted bool = NodeUtil_isHoistedFunctionDeclaration(parent)
 			var grandparent Node = parent.getParent()
 			var value Node = v.getInitialValue()
 			var varNode Node = 0
-			if (n.getJSDocInfo() != nil) {
+			if n.getJSDocInfo() != nil {
 				var builder *JSDocInfo_Builder = JSDocInfo_Builder_maybeCopyFrom(parent.getJSDocInfo())
 				if isFunctionDecl {
 					builder.recordReturnType(n.getJSDocInfo().getType())
@@ -539,7 +556,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 			this.outer_.scopedAliasNames.add(strobj_(name))
 			var uniqueId string = this.outer_.compiler_.getUniqueIdSupplier().getUniqueId(this.outer_.uniqueIdInput)
 			var globalName string = ("$jscomp$scope$" + sstr_(uniqueId) + "$" + sstr_(name))
-			if (isFunctionDecl || NodeUtil_isClassDeclaration(parent)) {
+			if isFunctionDecl || NodeUtil_isClassDeclaration(parent) {
 				var newName Node
 				if isFunctionDecl {
 					newName = IR_name("")
@@ -552,7 +569,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 				varNode = IR_var_Node(n).srcref(n)
 				parent.replaceWith(varNode)
 			} else {
-				if (value != 0) {
+				if value != 0 {
 					value.detach()
 				}
 				varNode = parent
@@ -565,7 +582,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 			} else {
 				newDecl.insertBefore(varNode)
 			}
-			if (value != 0) {
+			if value != 0 {
 				this.outer_.compiler_.reportChangeToEnclosingScope(newDecl)
 			}
 			this.injectedDecls.add(newDecl.box_())
@@ -580,11 +597,16 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	var initialValue Node = aliasVar.getInitialValue()
 	this.aliasDefinitionsToDelete.add(aliasVar.getNameNode().box_())
-	if (this.outer_.invalidModuleGetHandling.shouldGiveUniqueName() && this.containsInvalidGoogModuleGet(initialValue)) {
+	if this.outer_.invalidModuleGetHandling.shouldGiveUniqueName() && this.containsInvalidGoogModuleGet(initialValue) {
 		var name string = aliasVar.getName()
 		var fileName string = initialValue.getSourceFileName()
 		var metadata *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.outer_.moduleMetadataMap.getModulesByPath(), fileName))
-		var suffix string = func() string { if (metadata != nil) { return metadata.path().toModuleName() }; return "unknownScript" }()
+		var suffix string = func() string {
+			if metadata != nil {
+				return metadata.path().toModuleName()
+			}
+			return "unknownScript"
+		}()
 		var newName string = (sstr_(name) + sstr_(ScopedAliases_MISSING_ALIASES_PREFIX) + sstr_(suffix))
 		initialValue.replaceWith(IR_name(newName))
 		this.deletedAliasVars.add(obj_(aliasVar))
@@ -595,7 +617,7 @@ func (this *ScopedAliases_Traversal) recordAlias(aliasVar *Var) {
 	Map_put_s(this.aliases_, name, obj_(aliasVar))
 	var qualifiedName string = ScopedAliases_getAliasedNamespace(initialValue)
 	var rootIndex int32 = String_indexOf(qualifiedName, 46)
-	if (rootIndex != -1) {
+	if rootIndex != -1 {
 		var qNameRoot string = String_substring(qualifiedName, 0, rootIndex)
 		if !Map_containsKey_s(this.aliases_, qNameRoot) {
 			Collection_add_s(this.forbiddenLocals, qNameRoot)
@@ -658,20 +680,20 @@ func (this *ScopedAliases_Traversal) renameBleedingFunctionName(t *NodeTraversal
 }
 
 func (this *ScopedAliases_Traversal) validateScopeCall(t *NodeTraversal, n Node, parent Node) {
-	if (this.outer_.preprocessorSymbolTable != nil) {
+	if this.outer_.preprocessorSymbolTable != nil {
 		this.outer_.preprocessorSymbolTable.addReference(n.getFirstChild())
 	}
 	if !parent.isExprResult() {
 		this.report(n, ScopedAliases_GOOG_SCOPE_MUST_BE_ALONE, []string{})
 	}
-	if (t.getEnclosingFunction() != 0) {
+	if t.getEnclosingFunction() != 0 {
 		this.report(n, ScopedAliases_GOOG_SCOPE_MUST_BE_IN_GLOBAL_SCOPE, []string{})
 	}
 	if !n.hasTwoChildren() {
 		this.report(n, ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS, []string{})
 	} else {
 		var anonymousFnNode Node = n.getSecondChild()
-		if ((!anonymousFnNode.isFunction() || !String_isEmpty(NodeUtil_getName(anonymousFnNode))) || NodeUtil_getFunctionParameters(anonymousFnNode).hasChildren()) {
+		if (!anonymousFnNode.isFunction() || !String_isEmpty(NodeUtil_getName(anonymousFnNode))) || NodeUtil_getFunctionParameters(anonymousFnNode).hasChildren() {
 			this.report(anonymousFnNode, ScopedAliases_GOOG_SCOPE_HAS_BAD_PARAMETERS, []string{})
 		} else {
 			this.scopeCalls.add(n.box_())
@@ -689,19 +711,19 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	}
 	var type_ *Token_rhino = n.getToken()
 	var aliasVar *Var = nil
-	if (type_ == Token_rhino_NAME) {
+	if type_ == Token_rhino_NAME {
 		var name string = n.getString()
 		var lexicalVar *Var = cast_[*Var](t.getScope().getVar(name).self())
-		if ((lexicalVar != nil) && lexicalVar.equals(Map_get_s(this.aliases_, name))) {
+		if (lexicalVar != nil) && lexicalVar.equals(Map_get_s(this.aliases_, name)) {
 			aliasVar = lexicalVar
-			if (this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() && n.isName()) {
+			if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() && n.isName() {
 				n.setOriginalName(name)
 			}
 		}
 	}
 	if this.isGoogScopeFunctionBody(t.getEnclosingFunction().getLastChild()) {
-		if ((aliasVar != nil) && NodeUtil_isLValue(n)) {
-			if (aliasVar.getNode() == n) {
+		if (aliasVar != nil) && NodeUtil_isLValue(n) {
+			if aliasVar.getNode() == n {
 				return
 			} else {
 				this.report(n, ScopedAliases_GOOG_SCOPE_ALIAS_REDEFINED, []string{n.getString()})
@@ -720,11 +742,11 @@ func (this *ScopedAliases_Traversal) visit_impl(t *NodeTraversal, n Node, parent
 	if NodeUtil_isBleedingFunctionName(n) {
 		this.renameBleedingFunctionName(t, n)
 	}
-	if (aliasVar != nil) {
+	if aliasVar != nil {
 		this.aliasUsages.add(obj_(new_ScopedAliases_AliasedNode(aliasVar, n)))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
-	if ((info != nil) && !this.injectedDecls.contains(n.box_())) {
+	if (info != nil) && !this.injectedDecls.contains(n.box_()) {
 		it_2 := foreach_(any(info.getTypeNodes()))
 		for it_2.next() {
 			var node Node = Node_of_(it_2.v)
@@ -737,12 +759,12 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 	if typeNode.isStringLit() {
 		var name string = typeNode.getString()
 		var endIndex int32 = String_indexOf(name, 46)
-		if (endIndex == -1) {
+		if endIndex == -1 {
 			endIndex = String_length(name)
 		}
 		var baseName string = String_substring(name, 0, endIndex)
 		var aliasVar *Var = cast_[*Var](Map_get_s(this.aliases_, baseName))
-		if (aliasVar != nil) {
+		if aliasVar != nil {
 			this.aliasUsages.add(obj_(new_ScopedAliases_AliasedTypeNode(aliasVar, typeNode)))
 		}
 		if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() {
@@ -751,7 +773,7 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 	}
 	{
 		var child Node = typeNode.getFirstChild()
-		for ; (child != 0); child = child.getNext() {
+		for ; child != 0; child = child.getNext() {
 			this.fixTypeNode(child)
 		}
 	}
@@ -759,8 +781,8 @@ func (this *ScopedAliases_Traversal) fixTypeNode(typeNode Node) {
 
 type ScopedAliases_Traversal_1 struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ScopedAliases_Traversal
-	cap_name string
+	outer_     *ScopedAliases_Traversal
+	cap_name   string
 	cap_fnName Node
 	cap_suffix string
 }
@@ -788,9 +810,8 @@ func new_ScopedAliases_Traversal_1(outer_ *ScopedAliases_Traversal, cap_name str
 }
 
 func (this *ScopedAliases_Traversal_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if ((n.isName() && (n.getString() == this.cap_name)) && (cast_[*Var](t.getScope().getVar(this.cap_name).self()).getNode() == this.cap_fnName)) {
+	if (n.isName() && (n.getString() == this.cap_name)) && (cast_[*Var](t.getScope().getVar(this.cap_name).self()).getNode() == this.cap_fnName) {
 		n.setString((sstr_(this.cap_name) + "$jscomp$scopedAliases$" + sstr_(this.cap_suffix)))
 		this.outer_.outer_.compiler_.reportChangeToEnclosingScope(n)
 	}
 }
-

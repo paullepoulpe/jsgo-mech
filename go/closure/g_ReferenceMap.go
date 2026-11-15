@@ -13,4 +13,3 @@ type ReferenceMap_fn struct {
 func (this *ReferenceMap_fn) getReferences_Var(p0 *Var) *ReferenceCollection {
 	return this.f(p0)
 }
-

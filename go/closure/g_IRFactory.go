@@ -3,26 +3,26 @@
 package closure
 
 type IRFactory struct {
-	sourceFile StaticSourceFile
-	sourceName_ OptionalOf[string]
-	fileWithContent *SourceFile_parser
-	config *Config
-	errorReporter ErrorReporter_rhino
-	transformDispatcher *IRFactory_TransformDispatcher
-	reservedKeywords ImmutableSetOf[string]
-	parsedComments SetOf[*Comment]
-	licenseBuilder LinkedHashSetOf[string]
-	firstFileoverview *JSDocInfo
-	templateNode Node
-	defaultTemplateNode Node
+	sourceFile                 StaticSourceFile
+	sourceName_                OptionalOf[string]
+	fileWithContent            *SourceFile_parser
+	config                     *Config
+	errorReporter              ErrorReporter_rhino
+	transformDispatcher        *IRFactory_TransformDispatcher
+	reservedKeywords           ImmutableSetOf[string]
+	parsedComments             SetOf[*Comment]
+	licenseBuilder             LinkedHashSetOf[string]
+	firstFileoverview          *JSDocInfo
+	templateNode               Node
+	defaultTemplateNode        Node
 	closureUnawareTemplateNode Node
-	jsdocTracker *IRFactory_CommentTracker
-	nonJsdocTracker *IRFactory_CommentTracker
-	jsDocSourceKind *JsDocInfoParser_JsDocSourceKind
-	currentFileIsExterns bool
-	features_ *FeatureSet
-	resultNode Node
-	closureUnawareCodeRanges RangeSetOf[*IRFactory_LineAndColumn]
+	jsdocTracker               *IRFactory_CommentTracker
+	nonJsdocTracker            *IRFactory_CommentTracker
+	jsDocSourceKind            *JsDocInfoParser_JsDocSourceKind
+	currentFileIsExterns       bool
+	features_                  *FeatureSet
+	resultNode                 Node
+	closureUnawareCodeRanges   RangeSetOf[*IRFactory_LineAndColumn]
 }
 
 func (this *IRFactory) finit_IRFactory() {
@@ -51,13 +51,18 @@ func (this *IRFactory) init_IRFactory(sourceFile StaticSourceFile, config *Confi
 	this.defaultTemplateNode = this.createTemplateNode()
 	this.templateNode = this.defaultTemplateNode
 	this.closureUnawareTemplateNode = this.createClosureUnawareTemplateNode()
-	this.sourceName_ = func() *Optional { if (sourceFile == nil) { return Optional_empty() }; return Optional_of(strobj_(sourceFile.getName())) }()
+	this.sourceName_ = func() *Optional {
+		if sourceFile == nil {
+			return Optional_empty()
+		}
+		return Optional_of(strobj_(sourceFile.getName()))
+	}()
 	this.config = config
 	this.errorReporter = errorReporter
 	this.transformDispatcher = new_IRFactory_TransformDispatcher(this)
 	if config.strictMode().isStrict() {
 		this.reservedKeywords = IRFactory_ES5_STRICT_RESERVED_KEYWORDS
-	} else if (config.languageMode() == Config_LanguageMode_ECMASCRIPT3) {
+	} else if config.languageMode() == Config_LanguageMode_ECMASCRIPT3 {
 		this.reservedKeywords = nil
 	} else {
 		this.reservedKeywords = IRFactory_ES5_RESERVED_KEYWORDS
@@ -84,15 +89,20 @@ func (this *IRFactory) createClosureUnawareTemplateNode() Node {
 }
 
 func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, config *Config, errorReporter ErrorReporter_rhino, file *SourceFile_parser) *IRFactory {
-	var jsDocSourceKind *JsDocInfoParser_JsDocSourceKind = func() *JsDocInfoParser_JsDocSourceKind { if sourceFile.isTypeScriptSource() { return JsDocInfoParser_JsDocSourceKind_TSICKLE }; return JsDocInfoParser_JsDocSourceKind_NORMAL }()
+	var jsDocSourceKind *JsDocInfoParser_JsDocSourceKind = func() *JsDocInfoParser_JsDocSourceKind {
+		if sourceFile.isTypeScriptSource() {
+			return JsDocInfoParser_JsDocSourceKind_TSICKLE
+		}
+		return JsDocInfoParser_JsDocSourceKind_NORMAL
+	}()
 	var irFactory *IRFactory = new_IRFactory(sourceFile, config, errorReporter, tree.sourceComments, file, jsDocSourceKind)
 	var n Node = irFactory.transformDispatcher.process(tree.up_ParseTree())
 	irFactory.setSourceInfo(n, tree.up_ParseTree())
-	if (tree.sourceComments != nil) {
+	if tree.sourceComments != nil {
 		it_1 := foreach_(obj_(tree.sourceComments))
 		for it_1.next() {
 			var comment *Comment = cast_[*Comment](it_1.v)
-			if (((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.contains(obj_(comment))) {
+			if ((comment.type__ == Comment_Type_JSDOC) || (comment.type__ == Comment_Type_IMPORTANT)) && !irFactory.parsedComments.contains(obj_(comment)) {
 				var useLicensesOnlyConfig bool = irFactory.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_)
 				irFactory.handlePossibleFileOverviewJsDoc_2(comment, useLicensesOnlyConfig)
 			}
@@ -100,7 +110,7 @@ func IRFactory_transformTree(tree *ProgramTree, sourceFile StaticSourceFile, con
 		if n.isScript() {
 			var endOfFilePos *SourcePosition_util = tree.location_.end_
 			var nonJSDocComment *NonJSDocComment = irFactory.parseNonJSDocCommentAt(endOfFilePos, false)
-			if (nonJSDocComment != nil) {
+			if nonJSDocComment != nil {
 				n.setTrailingNonJSDocComment(nonJSDocComment)
 			}
 		}
@@ -121,16 +131,16 @@ func (this *IRFactory) getFeatures() *FeatureSet {
 
 func (this *IRFactory) validateAll(n Node) {
 	var work ArrayDequeOf[Node] = new_ArrayDeque()
-	for (n != 0) {
+	for n != 0 {
 		this.validate(n)
 		var nextSibling Node = n.getNext()
 		var firstChild Node = n.getFirstChild()
-		if (firstChild != 0) {
-			if (nextSibling != 0) {
+		if firstChild != 0 {
+			if nextSibling != 0 {
 				work.push(nextSibling.box_())
 			}
 			n = firstChild
-		} else if (nextSibling != 0) {
+		} else if nextSibling != 0 {
 			n = nextSibling
 		} else {
 			n = Node_of_(work.poll())
@@ -152,10 +162,10 @@ func (this *IRFactory) validate(n Node) {
 }
 
 func (this *IRFactory) validateShadowHost(n Node) {
-	if (n.getClosureUnawareShadow() == 0) {
+	if n.getClosureUnawareShadow() == 0 {
 		return
 	}
-	if ((this.firstFileoverview == nil) || !this.firstFileoverview.isClosureUnawareCode()) {
+	if (this.firstFileoverview == nil) || !this.firstFileoverview.isClosureUnawareCode() {
 		this.error(n, "invalid @closureUnaware node: must be in a file annotated with @closureUnaware")
 		return
 	}
@@ -164,9 +174,9 @@ func (this *IRFactory) validateShadowHost(n Node) {
 		return
 	}
 	var grandparent Node = parent.getParent()
-	if ((parent.isGetProp() && (grandparent != 0)) && grandparent.isCall()) {
+	if (parent.isGetProp() && (grandparent != 0)) && grandparent.isCall() {
 		var calledFn string = parent.getString()
-		if ((calledFn == "call") || (calledFn == "apply")) {
+		if (calledFn == "call") || (calledFn == "apply") {
 			return
 		}
 	}
@@ -185,10 +195,10 @@ func (this *IRFactory) validateAwait(n Node) {
 	var parent Node = n
 	for {
 		parent = parent.getParent()
-		if (parent == 0) {
+		if parent == 0 {
 			break
 		}
-		if ((parent.isBlock() || parent.isMemberFieldDef()) && parent.getParent().isClassMembers()) {
+		if (parent.isBlock() || parent.isMemberFieldDef()) && parent.getParent().isClassMembers() {
 			this.errorReporter.error(errorMsg, this.sourceName_, n.getLineno(), n.getCharno())
 			return
 		}
@@ -199,7 +209,7 @@ func (this *IRFactory) validateAwait(n Node) {
 			this.errorReporter.error(errorMsg, this.sourceName_, n.getLineno(), n.getCharno())
 			return
 		}
-		if (parent.isScript() && parent.getBooleanProp(Node_ES6_MODULE)) {
+		if parent.isScript() && parent.getBooleanProp(Node_ES6_MODULE) {
 			this.maybeWarnForFeatureNode(n, FeatureSet_Feature_TOP_LEVEL_AWAIT)
 			return
 		}
@@ -214,7 +224,7 @@ func (this *IRFactory) validateYield(n Node) {
 	var parent Node = n
 	for {
 		parent = parent.getParent()
-		if (parent == 0) {
+		if parent == 0 {
 			break
 		}
 		if parent.isClassMembers() {
@@ -234,7 +244,7 @@ func (this *IRFactory) validateReturn(n Node) {
 	var parent Node = n
 	for {
 		parent = parent.getParent()
-		if (parent == 0) {
+		if parent == 0 {
 			break
 		}
 		if parent.isClassMembers() {
@@ -249,7 +259,7 @@ func (this *IRFactory) validateReturn(n Node) {
 }
 
 func (this *IRFactory) validateNewDotTarget(n Node) {
-	if (n.getToken() != Token_rhino_NEW_TARGET) {
+	if n.getToken() != Token_rhino_NEW_TARGET {
 		return
 	}
 	var child Node = n
@@ -264,10 +274,10 @@ func (this *IRFactory) validateNewDotTarget(n Node) {
 			if !(parent != 0) {
 				break
 			}
-			if (parent.isFunction() && !parent.isArrowFunction()) {
+			if parent.isFunction() && !parent.isArrowFunction() {
 				return
 			}
-			if ((parent.isMemberFieldDef() || (parent.isComputedFieldDef() && child.isSecondChildOf(parent))) || (parent.isClassMembers() && child.isBlock())) {
+			if (parent.isMemberFieldDef() || (parent.isComputedFieldDef() && child.isSecondChildOf(parent))) || (parent.isClassMembers() && child.isBlock()) {
 				this.errorReporter.error(IRFactory_NEW_DOT_TARGET_IN_CLASS_FIELD_OR_STATIC_BLOCK, this.sourceName_, n.getLineno(), n.getCharno())
 				return
 			}
@@ -277,28 +287,28 @@ func (this *IRFactory) validateNewDotTarget(n Node) {
 }
 
 func (this *IRFactory) validateBreakContinue(n Node) {
-	if (!n.isBreak() && !n.isContinue()) {
+	if !n.isBreak() && !n.isContinue() {
 		return
 	}
 	var labelName Node = n.getFirstChild()
-	if (labelName != 0) {
+	if labelName != 0 {
 		var parent Node = n.getParent()
-		for (!parent.isLabel() || !IRFactory_labelsMatch(parent, labelName)) {
-			if ((parent.isFunction() || parent.isScript()) || parent.isClassMembers()) {
+		for !parent.isLabel() || !IRFactory_labelsMatch(parent, labelName) {
+			if (parent.isFunction() || parent.isScript()) || parent.isClassMembers() {
 				this.errorReporter.error(String_format(IRFactory_UNDEFINED_LABEL, []any{strobj_(labelName.getString())}), this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
 			parent = parent.getParent()
 		}
-		if (parent.isLabel() && IRFactory_labelsMatch(parent, labelName)) {
-			if (n.isContinue() && !IRFactory_isContinueTarget(parent.getLastChild())) {
+		if parent.isLabel() && IRFactory_labelsMatch(parent, labelName) {
+			if n.isContinue() && !IRFactory_isContinueTarget(parent.getLastChild()) {
 				this.errorReporter.error(IRFactory_UNEXPECTED_LABELLED_CONTINUE, this.sourceName_, n.getLineno(), n.getCharno())
 			}
 		}
 	} else if n.isContinue() {
 		var parent Node = n.getParent()
 		for !IRFactory_isContinueTarget(parent) {
-			if ((parent.isFunction() || parent.isScript()) || parent.isClassMembers()) {
+			if (parent.isFunction() || parent.isScript()) || parent.isClassMembers() {
 				this.errorReporter.error(IRFactory_UNEXPECTED_CONTINUE, this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
@@ -307,7 +317,7 @@ func (this *IRFactory) validateBreakContinue(n Node) {
 	} else {
 		var parent Node = n.getParent()
 		for !IRFactory_isBreakTarget(parent) {
-			if ((parent.isFunction() || parent.isScript()) || parent.isClassMembers()) {
+			if (parent.isFunction() || parent.isScript()) || parent.isClassMembers() {
 				this.errorReporter.error(IRFactory_UNLABELED_BREAK, this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
@@ -351,8 +361,8 @@ func (this *IRFactory) validateLabel(n Node) {
 	var labelName Node = n.getFirstChild()
 	{
 		var parent Node = n.getParent()
-		for ; ((parent != 0) && !parent.isFunction()); parent = parent.getParent() {
-			if (parent.isLabel() && IRFactory_labelsMatch(parent, labelName)) {
+		for ; (parent != 0) && !parent.isFunction(); parent = parent.getParent() {
+			if parent.isLabel() && IRFactory_labelsMatch(parent, labelName) {
 				this.errorReporter.error(String_format(IRFactory_DUPLICATE_LABEL, []any{strobj_(labelName.getString())}), this.sourceName_, n.getLineno(), n.getCharno())
 				break
 			}
@@ -367,7 +377,7 @@ func (this *IRFactory) validateParameters(n Node) {
 	var seenNames SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			ParsingUtil_getParamOrPatternNames(c, &Consumer_fn{func(param_ any) {
 				var param Node = Node_of_(param_)
 				_ = param
@@ -381,13 +391,18 @@ func (this *IRFactory) validateParameters(n Node) {
 }
 
 func (this *IRFactory) validateBlockScopedFunctions(n Node) {
-	if ((n.isFunction() && n.getParent().isBlock()) && !n.getGrandparent().isFunction()) {
+	if (n.isFunction() && n.getParent().isBlock()) && !n.getGrandparent().isFunction() {
 		this.maybeWarnForFeatureNode(n, FeatureSet_Feature_BLOCK_SCOPED_FUNCTION_DECLARATION)
 	}
 }
 
 func (this *IRFactory) setFileOverviewJsDoc(irNode Node) {
-	var fileoverview *JSDocInfo_Builder = func() *JSDocInfo_Builder { if (this.firstFileoverview == nil) { return JSDocInfo_builder() }; return this.firstFileoverview.toBuilder() }()
+	var fileoverview *JSDocInfo_Builder = func() *JSDocInfo_Builder {
+		if this.firstFileoverview == nil {
+			return JSDocInfo_builder()
+		}
+		return this.firstFileoverview.toBuilder()
+	}()
 	if !this.licenseBuilder.isEmpty() {
 		fileoverview.recordLicense(String_join(strobj_(""), icast_Iterable(obj_(this.licenseBuilder))))
 	}
@@ -399,7 +414,12 @@ func (this *IRFactory) transformBlock(node *ParseTree) Node {
 	if irNode.isBlock() {
 		return irNode
 	}
-	var newBlock Node = func() Node { if irNode.isEmpty() { return this.newNode(Token_rhino_BLOCK) }; return this.newNode_2(Token_rhino_BLOCK, irNode) }()
+	var newBlock Node = func() Node {
+		if irNode.isEmpty() {
+			return this.newNode(Token_rhino_BLOCK)
+		}
+		return this.newNode_2(Token_rhino_BLOCK, irNode)
+	}()
 	this.setSourceInfoNode(newBlock, irNode)
 	newBlock.setIsAddedBlock(true)
 	return newBlock
@@ -413,7 +433,7 @@ func (this *IRFactory) handlePossibleFileOverviewJsDoc(jsDocParser *JsDocInfoPar
 	if JSCompObjects_identical(obj_(newFileoverview), obj_(this.firstFileoverview)) {
 		return false
 	}
-	if (this.firstFileoverview == nil) {
+	if this.firstFileoverview == nil {
 		this.firstFileoverview = newFileoverview
 		this.currentFileIsExterns = newFileoverview.isExterns()
 	} else {
@@ -452,7 +472,7 @@ func (this *IRFactory) getJSDocCommentAt(pos *SourcePosition_util) *Comment {
 }
 
 func (this *IRFactory) parseJSDocInfoFrom(comment *Comment) *JSDocInfo {
-	if (comment == nil) {
+	if comment == nil {
 		return nil
 	}
 	if this.withinClosureUnawareCodeRange(comment.location_.start_.line_, comment.location_.start_.column_) {
@@ -474,7 +494,7 @@ func (this *IRFactory) parseJSDocInfoOnTree(tree *ParseTree) *JSDocInfo {
 	case ParseTreeType_CALL_EXPRESSION, ParseTreeType_CONDITIONAL_EXPRESSION, ParseTreeType_COMMA_EXPRESSION, ParseTreeType_BINARY_OPERATOR, ParseTreeType_MEMBER_EXPRESSION, ParseTreeType_MEMBER_LOOKUP_EXPRESSION, ParseTreeType_UPDATE_EXPRESSION:
 		{
 			var nearest *ParseTree = IRFactory_findNearestNode(tree)
-			if (nearest.type__ == ParseTreeType_PAREN_EXPRESSION) {
+			if nearest.type__ == ParseTreeType_PAREN_EXPRESSION {
 				return nil
 			}
 		}
@@ -492,7 +512,12 @@ func (this *IRFactory) parseInlineJSDocAt(pos *SourcePosition_util) *JSDocInfo {
 		return nil
 	}
 	var comment *Comment = this.getJSDocCommentAt(pos)
-	return func() *JSDocInfo { if ((comment != nil) && !String_contains(comment.value_, strobj_("@"))) { return this.parseInlineTypeDoc(comment) }; return this.parseJSDocInfoFrom(comment) }()
+	return func() *JSDocInfo {
+		if (comment != nil) && !String_contains(comment.value_, strobj_("@")) {
+			return this.parseInlineTypeDoc(comment)
+		}
+		return this.parseJSDocInfoFrom(comment)
+	}()
 }
 
 func (this *IRFactory) hasAnyPendingCommentBefore(pos *SourcePosition_util, withinClosureUnawareCodeRange bool) bool {
@@ -509,7 +534,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 		var commentFromJsdocTracker bool = false
 		if withinClosureUnawareCodeRange {
 			var currentJsDocComment *Comment = this.jsdocTracker.current()
-			if ((currentComment == nil) || ((currentJsDocComment != nil) && (IRFactory_COMMENT_START_POSITION_COMPARATOR.compare(obj_(currentComment), obj_(currentJsDocComment)) > 0))) {
+			if (currentComment == nil) || ((currentJsDocComment != nil) && (IRFactory_COMMENT_START_POSITION_COMPARATOR.compare(obj_(currentComment), obj_(currentJsDocComment)) > 0)) {
 				if String_contains(currentJsDocComment.value_, strobj_("@license")) {
 					this.jsdocTracker.advance()
 					continue
@@ -518,11 +543,11 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 				currentComment = currentJsDocComment
 			}
 		}
-		if (firstComment == nil) {
+		if firstComment == nil {
 			firstComment = currentComment
 		}
-		if (lastComment != nil) {
-			for blankCount := int32((currentComment.location_.start_.line_ - lastComment.location_.end_.line_)); (blankCount > 0); blankCount-- {
+		if lastComment != nil {
+			for blankCount := int32((currentComment.location_.start_.line_ - lastComment.location_.end_.line_)); blankCount > 0; blankCount-- {
 				result.append("\n")
 			}
 		}
@@ -535,10 +560,10 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 			this.nonJsdocTracker.advance()
 		}
 	}
-	if (firstComment == nil) {
+	if firstComment == nil {
 		return nil
 	}
-	if (this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS) {
+	if this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS {
 		return nil
 	}
 	var nonJSDocComment *NonJSDocComment = new_NonJSDocComment(firstComment.location_.start_, lastComment.location_.end_, Object_toString(obj_(result)))
@@ -548,7 +573,7 @@ func (this *IRFactory) parseNonJSDocCommentAt(pos *SourcePosition_util, isInline
 }
 
 func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_util, possibleNextTokenStart *SourcePosition_util) *NonJSDocComment {
-	if (this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS) {
+	if this.config.jsDocParsingMode() != Config_JsDocParsing_INCLUDE_ALL_COMMENTS {
 		return nil
 	}
 	if !this.nonJsdocTracker.hasPendingCommentBefore(possibleNextTokenStart) {
@@ -556,10 +581,10 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 	}
 	var result *StringBuilder = new_StringBuilder()
 	var comment *Comment = this.nonJsdocTracker.current()
-	if (tokenEnd.line_ != comment.location_.start_.line_) {
+	if tokenEnd.line_ != comment.location_.start_.line_ {
 		return nil
 	}
-	if (comment.location_.start_.offset <= tokenEnd.offset) {
+	if comment.location_.start_.offset <= tokenEnd.offset {
 		return nil
 	}
 	var preCommentText string = String_substring(this.fileWithContent.contents, (tokenEnd.offset + 1), comment.location_.start_.offset)
@@ -574,7 +599,7 @@ func (this *IRFactory) parseTrailingNonJSDocCommentAt(tokenEnd *SourcePosition_u
 }
 
 func IRFactory_findNearestNode(tree *ParseTree) *ParseTree {
-	L_1:
+L_1:
 	for {
 		switch tree.type__ {
 		case ParseTreeType_EXPRESSION_STATEMENT:
@@ -620,11 +645,11 @@ func (this *IRFactory) transform(tree *ParseTree) Node {
 		this.closureUnawareCodeRanges.add(Range_closed(obj_(nextClosureUnawareRangeStart), obj_(nextClosureUnawareRangeEnd)))
 	}
 	var node Node = this.transformDispatcher.process(tree)
-	if (info != nil) {
+	if info != nil {
 		node = this.maybeInjectCastNode(tree, info, node)
 		node.setJSDocInfo(info)
 	}
-	if (comment != nil) {
+	if comment != nil {
 		node.setNonJSDocComment(comment)
 	}
 	if isRootOfClosureUnawareSubTree {
@@ -642,7 +667,7 @@ func (this *IRFactory) hideClosureUnawareCodeRoot(fn Node) Node {
 		return fn
 	}
 	var info *JSDocInfo = fn.getJSDocInfo()
-	if (info.getPerFileClosureUnawareMode() != JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED) {
+	if info.getPerFileClosureUnawareMode() != JSDocInfo_PerFileClosureUnawareMode_UNSPECIFIED {
 		this.error(fn, "@closureUnaware mode can only be specified at the fileoverview level")
 	}
 	fn.setJSDocInfo(nil)
@@ -666,7 +691,7 @@ func (this *IRFactory) withinClosureUnawareCodeRange(line int32, lineColumnNo in
 }
 
 func (this *IRFactory) maybeInjectCastNode(node *ParseTree, info *JSDocInfo, irNode Node) Node {
-	if ((node.type__ == ParseTreeType_PAREN_EXPRESSION) && info.hasType()) {
+	if (node.type__ == ParseTreeType_PAREN_EXPRESSION) && info.hasType() {
 		irNode = this.newNode_2(Token_rhino_CAST, irNode)
 	}
 	return irNode
@@ -676,10 +701,10 @@ func (this *IRFactory) transformNodeWithInlineComments(tree *ParseTree) Node {
 	var info *JSDocInfo = this.parseInlineJSDocAt(tree.getStart())
 	var comment *NonJSDocComment = this.parseNonJSDocCommentAt(tree.getStart(), true)
 	var node Node = this.transformDispatcher.process(tree)
-	if (info != nil) {
+	if info != nil {
 		node.setJSDocInfo(info)
 	}
-	if (comment != nil) {
+	if comment != nil {
 		node.setNonJSDocComment(comment)
 	}
 	this.setSourceInfo(node, tree)
@@ -712,7 +737,7 @@ func IRFactory_charno(location *SourcePosition_util) int32 {
 
 func IRFactory_languageFeatureWarningMessage(feature *FeatureSet_Feature) string {
 	var forFeature *Config_LanguageMode = Config_LanguageMode_minimumRequiredFor(feature)
-	if (forFeature == Config_LanguageMode_UNSUPPORTED) {
+	if forFeature == Config_LanguageMode_UNSUPPORTED {
 		return ("This language feature is not currently supported by the compiler: " + objstr_(obj_(feature)))
 	} else {
 		return ("This language feature is only supported for " + objstr_(obj_(Config_LanguageMode_minimumRequiredFor(feature))) + " mode or better: " + objstr_(obj_(feature)))
@@ -765,7 +790,7 @@ func (this *IRFactory) setSourceInfoNode(node Node, ref Node) {
 }
 
 func (this *IRFactory) setSourceInfo(irNode Node, node *ParseTree) {
-	if (irNode.getLineno() == -1) {
+	if irNode.getLineno() == -1 {
 		this.setSourceInfo_3(irNode, node.location_.start_, node.location_.end_)
 	}
 }
@@ -775,7 +800,7 @@ func (this *IRFactory) setSourceInfoToken(irNode Node, token *Token_parser) {
 }
 
 func (this *IRFactory) setSourceInfo_3(node Node, start *SourcePosition_util, end *SourcePosition_util) {
-	if (node.getLineno() == -1) {
+	if node.getLineno() == -1 {
 		node.setLinenoCharno(IRFactory_linenoSourcePosition(start), IRFactory_charno(start))
 		this.setLength(node, start, end)
 	}
@@ -795,9 +820,9 @@ func (this *IRFactory) createJsDocInfoParser_2(node *Comment, useLicensesOnlyCon
 		config = config.toBuilder().setJsDocParsingMode(Config_JsDocParsing_LICENSE_COMMENTS_ONLY).build()
 	}
 	var numOpeningChars int32 = 3
-	var jsdocParser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno + numOpeningChars)), Optional_of(strobj_(comment)), position, this.templateNode, config, this.jsDocSourceKind, this.errorReporter)
+	var jsdocParser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), Optional_of(strobj_(comment)), position, this.templateNode, config, this.jsDocSourceKind, this.errorReporter)
 	jsdocParser.setFileOverviewJSDocInfo(this.firstFileoverview)
-	if ((node.type__ == Comment_Type_IMPORTANT) && (String_length(node.value_) > 0)) {
+	if (node.type__ == Comment_Type_IMPORTANT) && (String_length(node.value_) > 0) {
 		jsdocParser.parseImportantComment()
 	} else {
 		jsdocParser.parse()
@@ -810,7 +835,7 @@ func (this *IRFactory) parseInlineTypeDoc(node *Comment) *JSDocInfo {
 	var lineno int32 = IRFactory_linenoSourcePosition(node.location_.start_)
 	var charno int32 = IRFactory_charno(node.location_.start_)
 	var numOpeningChars int32 = 3
-	var parser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno + numOpeningChars)), Optional_of(strobj_(comment)), node.location_.start_.offset, this.templateNode, this.config, this.jsDocSourceKind, this.errorReporter)
+	var parser *JsDocInfoParser = new_JsDocInfoParser(new_JsDocTokenStream_String_int_int(String_substring_int(comment, numOpeningChars), lineno, (charno+numOpeningChars)), Optional_of(strobj_(comment)), node.location_.start_.offset, this.templateNode, this.config, this.jsDocSourceKind, this.errorReporter)
 	return parser.parseInlineTypeDoc()
 }
 
@@ -824,7 +849,7 @@ func (this *IRFactory) setLengthFrom(node Node, ref Node) {
 
 func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode Node) {
 	var yieldNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_YIELD)
-	if (yieldNode != 0) {
+	if yieldNode != 0 {
 		this.errorReporter.error("`yield` is illegal in parameter default value.", Optional_of(strobj_(yieldNode.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
@@ -832,7 +857,7 @@ func (this *IRFactory) reportErrorIfYieldOrAwaitInDefaultValue(defaultValueNode 
 		}}), yieldNode.getLineno(), yieldNode.getCharno())
 	}
 	var awaitNode Node = IRFactory_findNodeTypeInExpression(defaultValueNode, Token_rhino_AWAIT)
-	if (awaitNode != 0) {
+	if awaitNode != 0 {
 		this.errorReporter.error("`await` is illegal in parameter default value.", Optional_of(strobj_(awaitNode.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
@@ -846,12 +871,12 @@ func IRFactory_findNodeTypeInExpression(expressionNode Node, token *Token_rhino)
 	worklist.add(expressionNode.box_())
 	for !worklist.isEmpty() {
 		var node Node = Node_of_(worklist.remove_0())
-		if (node.getToken() == token) {
+		if node.getToken() == token {
 			return node
-		} else if (!node.isFunction() && !node.isClass()) {
+		} else if !node.isFunction() && !node.isClass() {
 			{
 				var child Node = node.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					worklist.add(child.box_())
 				}
 			}
@@ -864,12 +889,12 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 	var value string = token.value_
 	var lastSlash int32 = String_lastIndexOf(value, 47)
 	var cur int32 = String_indexOf(value, 92)
-	if (cur == -1) {
+	if cur == -1 {
 		return String_substring(value, 1, lastSlash)
 	}
 	var result *StringBuilder = new_StringBuilder()
 	var start int32 = 1
-	for (cur != -1) {
+	for cur != -1 {
 		result.append_CharSequence_int_int(strobj_(value), start, cur)
 		cur++
 		var c uint16 = String_charAt(value, cur)
@@ -889,16 +914,26 @@ func (this *IRFactory) normalizeRegex(token *LiteralToken) string {
 
 func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool) string {
 	var value string = token.value_
-	if (String_indexOf(value, 13) >= 0) {
+	if String_indexOf(value, 13) >= 0 {
 		value = IRFactory_CR_OR_CRLF_PATTERN.matcher(strobj_(value)).replaceAll("\n")
 	}
-	var start int32 = func() int32 { if templateLiteral { return 0 }; return 1 }()
+	var start int32 = func() int32 {
+		if templateLiteral {
+			return 0
+		}
+		return 1
+	}()
 	var cur int32 = String_indexOf(value, 92)
-	if (cur == -1) {
-		return func() string { if templateLiteral { return value }; return String_substring(value, 1, (String_length(value) - 1)) }()
+	if cur == -1 {
+		return func() string {
+			if templateLiteral {
+				return value
+			}
+			return String_substring(value, 1, (String_length(value) - 1))
+		}()
 	}
 	var result *StringBuilder = new_StringBuilder()
-	for (cur != -1) {
+	for cur != -1 {
 		result.append_CharSequence_int_int(strobj_(value), start, cur)
 		cur += 1
 		var c uint16 = String_charAt(value, cur)
@@ -920,8 +955,8 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 			this.errorReporter.warning(IRFactory_STRING_CONTINUATION_WARNING, this.sourceName_, IRFactory_linenoSourcePosition(token.location_.start_), IRFactory_charno(token.location_.start_))
 		case '0', '1', '2', '3', '4', '5', '6', '7':
 			var numDigits int32
-			if (((cur + 1) < String_length(value)) && IRFactory_isOctalDigit(String_charAt(value, (cur + 1)))) {
-				if (((int32(c) <= 51) && ((cur + 2) < String_length(value))) && IRFactory_isOctalDigit(String_charAt(value, (cur + 2)))) {
+			if ((cur + 1) < String_length(value)) && IRFactory_isOctalDigit(String_charAt(value, (cur+1))) {
+				if ((int32(c) <= 51) && ((cur + 2) < String_length(value))) && IRFactory_isOctalDigit(String_charAt(value, (cur+2))) {
 					numDigits = 3
 				} else {
 					numDigits = 2
@@ -929,33 +964,33 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 			} else {
 				numDigits = 1
 			}
-			if (this.inStrictContext() || templateLiteral) {
-				if ((c == '0') && (numDigits == 1)) {
+			if this.inStrictContext() || templateLiteral {
+				if (c == '0') && (numDigits == 1) {
 				} else {
 					this.errorReporter.warning(IRFactory_OCTAL_STRING_LITERAL_WARNING, this.sourceName_, IRFactory_linenoSourcePosition(token.location_.start_), IRFactory_charno(token.location_.start_))
 				}
 			}
-			result.append_char(uint16(Integer_parseInt(String_substring(value, cur, (cur + numDigits)), 8)))
+			result.append_char(uint16(Integer_parseInt(String_substring(value, cur, (cur+numDigits)), 8)))
 			cur += (numDigits - 1)
 		case 'x':
-			result.append_char(uint16(((IRFactory_hexdigit(String_charAt(value, (cur + 1))) * 16) + IRFactory_hexdigit(String_charAt(value, (cur + 2))))))
+			result.append_char(uint16(((IRFactory_hexdigit(String_charAt(value, (cur+1))) * 16) + IRFactory_hexdigit(String_charAt(value, (cur+2))))))
 			cur += 2
 		case 'u':
 			var escapeEnd int32
 			var hexDigits string
-			if (String_charAt(value, (cur + 1)) != '{') {
+			if String_charAt(value, (cur+1)) != '{' {
 				escapeEnd = (cur + 5)
 				hexDigits = String_substring(value, (cur + 1), escapeEnd)
 			} else {
 				escapeEnd = (cur + 2)
-				for (Character_digit(String_charAt(value, escapeEnd), 16) >= 0) {
+				for Character_digit(String_charAt(value, escapeEnd), 16) >= 0 {
 					escapeEnd++
 				}
 				hexDigits = String_substring(value, (cur + 2), escapeEnd)
 				escapeEnd++
 			}
 			var codePointValue int32 = Integer_parseInt(hexDigits, 16)
-			if (codePointValue > 1114111) {
+			if codePointValue > 1114111 {
 				this.errorReporter.error("Undefined Unicode code-point", this.sourceName_, IRFactory_linenoSourcePosition(token.location_.start_), IRFactory_charno(token.location_.start_))
 				result.append("\\u{")
 				result.append(hexDigits)
@@ -970,7 +1005,12 @@ func (this *IRFactory) normalizeString(token *LiteralToken, templateLiteral bool
 		start = (cur + 1)
 		cur = String_indexOf_int_int(value, 92, start)
 	}
-	result.append_CharSequence_int_int(strobj_(value), start, func() int32 { if templateLiteral { return String_length(value) }; return (String_length(value) - 1) }())
+	result.append_CharSequence_int_int(strobj_(value), start, func() int32 {
+		if templateLiteral {
+			return String_length(value)
+		}
+		return (String_length(value) - 1)
+	}())
 	return Object_toString(obj_(result))
 }
 
@@ -991,9 +1031,9 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 	var length int32 = String_length(value)
 	Preconditions_checkState((length > 0))
 	Preconditions_checkState(((String_charAt(value, 0) != '-') && (String_charAt(value, 0) != '+')))
-	if (String_charAt(value, 0) == '.') {
+	if String_charAt(value, 0) == '.' {
 		return Double_parseDouble(("0" + sstr_(value)))
-	} else if ((String_charAt(value, 0) == '0') && (length > 1)) {
+	} else if (String_charAt(value, 0) == '0') && (length > 1) {
 		return func() float64 {
 			switch String_charAt(value, 1) {
 			case '.', 'e', 'E':
@@ -1004,7 +1044,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 				var c int32 = 1
 				for {
 					c++
-					if (c >= length) {
+					if c >= length {
 						break
 					}
 					v = ((v * 2) + float64(IRFactory_binarydigit(String_charAt(value, c))))
@@ -1016,7 +1056,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 				var c int32 = 1
 				for {
 					c++
-					if (c >= length) {
+					if c >= length {
 						break
 					}
 					v = ((v * 8) + float64(IRFactory_octaldigit(String_charAt(value, c))))
@@ -1027,7 +1067,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 				var c int32 = 1
 				for {
 					c++
-					if (c >= length) {
+					if c >= length {
 						break
 					}
 					v = ((v * 16) + float64(IRFactory_hexdigit(String_charAt(value, c))))
@@ -1038,7 +1078,7 @@ func (this *IRFactory) normalizeNumber(token *LiteralToken) float64 {
 				var c int32 = 0
 				for {
 					c++
-					if (c >= length) {
+					if c >= length {
 						break
 					}
 					var digit uint16 = String_charAt(value, c)
@@ -1078,7 +1118,7 @@ func (this *IRFactory) normalizeBigInt(token *LiteralToken) *BigInteger {
 	var length int32 = String_length(value)
 	Preconditions_checkState((length > 0))
 	Preconditions_checkState(((String_charAt(value, 0) != '-') && (String_charAt(value, 0) != '+')))
-	if ((String_charAt(value, 0) == '0') && (length > 1)) {
+	if (String_charAt(value, 0) == '0') && (length > 1) {
 		return func() *BigInteger {
 			switch String_charAt(value, 1) {
 			case 'b', 'B':
@@ -1108,11 +1148,16 @@ func (this *IRFactory) removeNumericSeparators(value string, token *LiteralToken
 }
 
 func IRFactory_roundLargeRadixLiteral(v float64, digits string, radix int32) float64 {
-	return func() float64 { if (v < 9.007199254740992E15) { return v }; return new_BigInteger(digits, radix).doubleValue() }()
+	return func() float64 {
+		if v < 9.007199254740992e15 {
+			return v
+		}
+		return new_BigInteger(digits, radix).doubleValue()
+	}()
 }
 
 func IRFactory_binarydigit(c uint16) int32 {
-	if ((int32(c) >= 48) && (int32(c) <= 49)) {
+	if (int32(c) >= 48) && (int32(c) <= 49) {
 		return (int32(c) - 48)
 	}
 	panic(new_IllegalStateException_String(("unexpected: " + chrstr_(c))).self())
@@ -1343,7 +1388,7 @@ func (this *IRFactory) newStringNode_2(type_ *Token_rhino, value string) Node {
 
 func (this *IRFactory) maybeAddNonJsDocComment(node Node, start *SourcePosition_util) Node {
 	var comment *NonJSDocComment = this.parseNonJSDocCommentAt(start, false)
-	if (comment != nil) {
+	if comment != nil {
 		node.setNonJSDocComment(comment)
 	}
 	return node
@@ -1370,6 +1415,7 @@ func (this *IRFactory) error(rhinoNode Node, message string) {
 }
 
 var IRFactory_CR_OR_CRLF_PATTERN *Pattern
+
 const IRFactory_GETTER_ERROR_MESSAGE string = "getters are not supported in older versions of JavaScript. If you are targeting newer versions of JavaScript, set the appropriate language_in option."
 const IRFactory_SETTER_ERROR_MESSAGE string = "setters are not supported in older versions of JavaScript. If you are targeting newer versions of JavaScript, set the appropriate language_in option."
 const IRFactory_INVALID_ES3_PROP_NAME string = "Keywords and reserved words are not allowed as unquoted property names in older versions of JavaScript. If you are targeting newer versions of JavaScript, set the appropriate language_in option."
@@ -1389,11 +1435,14 @@ const IRFactory_UNEXPECTED_FOR_AWAIT_OF string = "'for-await-of' used in a non-a
 const IRFactory_UNEXPECTED_NEW_DOT_TARGET string = "new.target must be inside a function"
 const IRFactory_NEW_DOT_TARGET_IN_CLASS_FIELD_OR_STATIC_BLOCK string = "new.target is not supported in class field initializers or static blocks"
 const IRFactory_UNDEFINED_LABEL string = "undefined label \"%s\""
+
 var IRFactory_ES5_RESERVED_KEYWORDS *ImmutableSet
 var IRFactory_ES5_STRICT_RESERVED_KEYWORDS *ImmutableSet
 var IRFactory_COMMENT_START_POSITION_COMPARATOR Comparator
+
 const IRFactory_JSCOMP_CLOSURE_UNAWARE_CODE_SHADOW_HOST_NAME string = "$jscomp_wrap_closure_unaware_code"
 const IRFactory_JSCOMP_CLOSURE_UNAWARE_SINK_VALUE string = "$jscomp_sink_closure_unaware_impl"
+
 var IRFactory_GOOG_MODULE *QualifiedName
 
 var IRFactory_clinit_done bool
@@ -1473,9 +1522,9 @@ func (this *IRFactory_LineAndColumn) toString() string {
 }
 
 type IRFactory_CommentTracker struct {
-	source ImmutableListOf[*Comment]
-	filter PredicateOf[*Comment]
-	index_ int32
+	source        ImmutableListOf[*Comment]
+	filter        PredicateOf[*Comment]
+	index_        int32
 	previousIndex int32
 }
 
@@ -1498,7 +1547,12 @@ func new_IRFactory_CommentTracker(source ImmutableListOf[*Comment], filter Predi
 }
 
 func (this *IRFactory_CommentTracker) current() *Comment {
-	return func() *Comment { if (this.index_ >= this.source.size()) { return nil }; return cast_[*Comment](this.source.get(this.index_)) }()
+	return func() *Comment {
+		if this.index_ >= this.source.size() {
+			return nil
+		}
+		return cast_[*Comment](this.source.get(this.index_))
+	}()
 }
 
 func (this *IRFactory_CommentTracker) advance() {
@@ -1506,7 +1560,7 @@ func (this *IRFactory_CommentTracker) advance() {
 	for {
 		this.index_++
 		var c *Comment = this.current()
-		if ((c == nil) || this.filter.test(obj_(c))) {
+		if (c == nil) || this.filter.test(obj_(c)) {
 			break
 		}
 	}
@@ -1522,8 +1576,8 @@ func (this *IRFactory_CommentTracker) hasPendingCommentBefore(pos *SourcePositio
 }
 
 type IRFactory_TransformDispatcher struct {
-	outer_ *IRFactory
-	classScope *IRFactory_TransformDispatcher_ScopeTracker
+	outer_                *IRFactory
+	classScope            *IRFactory_TransformDispatcher_ScopeTracker
 	privateIdLhsOfInScope *IRFactory_TransformDispatcher_ScopeTracker
 }
 
@@ -1549,7 +1603,7 @@ func (this *IRFactory_TransformDispatcher) newStringNodeFromIdentifier(type_ *To
 	}
 	var value string
 	if identifierToken.isPrivateIdentifier() {
-		if (identifierType == IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE) {
+		if identifierType == IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE {
 			this.outer_.maybeWarnForFeatureToken(identifierToken.up_Token_parser(), FeatureSet_Feature_PRIVATE_ELEMENTS)
 		} else {
 			this.outer_.errorReporter.error("Private identifiers may not be used in this context", this.outer_.sourceName_, IRFactory_linenoToken(identifierToken.up_Token_parser()), IRFactory_charnoToken(identifierToken.up_Token_parser()))
@@ -1559,17 +1613,17 @@ func (this *IRFactory_TransformDispatcher) newStringNodeFromIdentifier(type_ *To
 		value = identifierToken.getValue()
 	}
 	var node Node = this.outer_.newStringNode_2(type_, value)
-	if ((identifierType == IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE) && identifierToken.isPrivateIdentifier()) {
+	if (identifierType == IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE) && identifierToken.isPrivateIdentifier() {
 		node.setPrivateIdentifier()
 	}
 	return node
 }
 
 func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_parser, output *Token_rhino, identifierType *IRFactory_TransformDispatcher_IdentifierType) Node {
-	if (input == nil) {
+	if input == nil {
 		return this.createMissingExpressionNode()
 	}
-	if (input.type__ == TokenType_IDENTIFIER) {
+	if input.type__ == TokenType_IDENTIFIER {
 		return this.processName_3(input.asIdentifier(), output, identifierType)
 	}
 	var literal *LiteralToken = input.asLiteral()
@@ -1586,10 +1640,10 @@ func (this *IRFactory_TransformDispatcher) processObjectLitKey(input *Token_pars
 		}
 		panic("unreachable")
 	}()
-	if (jsDocInfo != nil) {
+	if jsDocInfo != nil {
 		node.setJSDocInfo(jsDocInfo)
 	}
-	if (comment != nil) {
+	if comment != nil {
 		node.setNonJSDocComment(comment)
 	}
 	this.outer_.setSourceInfoToken(node, literal.up_Token_parser())
@@ -1679,7 +1733,7 @@ func (this *IRFactory_TransformDispatcher) processObjectPatternPropertyNameAssig
 	var key Node = this.processObjectLitKey(propertyNameAssignment.name_, Token_rhino_STRING_KEY, IRFactory_TransformDispatcher_IdentifierType_STANDARD)
 	var targetTree *ParseTree = propertyNameAssignment.value_
 	var valueNode Node
-	if (targetTree == nil) {
+	if targetTree == nil {
 		valueNode = this.processNameWithInlineComments(propertyNameAssignment.name_.asIdentifier(), IRFactory_TransformDispatcher_IdentifierType_STANDARD)
 		key.setShorthandProperty(true)
 	} else {
@@ -1691,9 +1745,9 @@ func (this *IRFactory_TransformDispatcher) processObjectPatternPropertyNameAssig
 
 func (this *IRFactory_TransformDispatcher) processDestructuringElementTarget(targetTree *ParseTree) Node {
 	var valueNode Node
-	if (targetTree.type__ == ParseTreeType_DEFAULT_PARAMETER) {
+	if targetTree.type__ == ParseTreeType_DEFAULT_PARAMETER {
 		valueNode = this.processDefaultParameter(targetTree.asDefaultParameter())
-	} else if (targetTree.type__ == ParseTreeType_IDENTIFIER_EXPRESSION) {
+	} else if targetTree.type__ == ParseTreeType_IDENTIFIER_EXPRESSION {
 		valueNode = this.processNameWithInlineCommentsIdentifierExpressionTree(targetTree.asIdentifierExpression(), IRFactory_TransformDispatcher_IdentifierType_STANDARD)
 	} else {
 		valueNode = this.outer_.transformNodeWithInlineComments(targetTree)
@@ -1720,7 +1774,7 @@ func (this *IRFactory_TransformDispatcher) processAstRoot(rootNode *ProgramTree)
 	}
 	this.parseDirectives(scriptNode)
 	var isGoogModule bool = this.isGoogModuleFile(scriptNode)
-	if (isGoogModule || this.outer_.features_.has(FeatureSet_Feature_MODULES)) {
+	if isGoogModule || this.outer_.features_.has(FeatureSet_Feature_MODULES) {
 		var moduleNode Node = this.outer_.newNode(Token_rhino_MODULE_BODY)
 		this.outer_.setSourceInfo(moduleNode, rootNode.up_ParseTree())
 		moduleNode.addChildrenToBack(scriptNode.removeChildren())
@@ -1754,11 +1808,11 @@ func (this *IRFactory_TransformDispatcher) parseDirectives(node Node) {
 	var useStrict bool = false
 	for {
 		var statement Node = node.getFirstChild()
-		if ((statement == 0) || !statement.isExprResult()) {
+		if (statement == 0) || !statement.isExprResult() {
 			break
 		}
 		var directive Node = statement.getFirstChild()
-		if (!directive.isStringLit() || !(directive.getString() == "use strict")) {
+		if !directive.isStringLit() || !(directive.getString() == "use strict") {
 			break
 		}
 		useStrict = true
@@ -1860,7 +1914,7 @@ func (this *IRFactory_TransformDispatcher) processForLoop(loopNode *ForStatement
 }
 
 func (this *IRFactory_TransformDispatcher) transformOrEmpty(tree *ParseTree, parent *ParseTree) Node {
-	if (tree == nil) {
+	if tree == nil {
 		var n Node = this.outer_.newNode(Token_rhino_EMPTY)
 		this.outer_.setSourceInfo(n, parent)
 		return n
@@ -1869,7 +1923,7 @@ func (this *IRFactory_TransformDispatcher) transformOrEmpty(tree *ParseTree, par
 }
 
 func (this *IRFactory_TransformDispatcher) transformOrEmptyIdentifierToken(token *IdentifierToken, parent *ParseTree) Node {
-	if (token == nil) {
+	if token == nil {
 		var n Node = this.outer_.newNode(Token_rhino_EMPTY)
 		this.outer_.setSourceInfo(n, parent)
 		return n
@@ -1902,9 +1956,9 @@ func (this *IRFactory_TransformDispatcher) annotateCalls(n Node) {
 	}
 	if !this.isNormalOrOptChainGet(callee) {
 		n.putBooleanProp(Node_FREE_CALL, true)
-		if (callee.isName() && (callee.getString() == "eval")) {
+		if callee.isName() && (callee.getString() == "eval") {
 			callee.putBooleanProp(Node_DIRECT_EVAL, true)
-		} else if (callee.isComma() && callee.getFirstChild().isNumber()) {
+		} else if callee.isComma() && callee.getFirstChild().isNumber() {
 			var realCallee Node = callee.getSecondChild()
 			callee.replaceWith(realCallee.detach())
 		}
@@ -1921,9 +1975,9 @@ func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args Immutabl
 	it_1 := foreach_(obj_(args))
 	for it_1.next() {
 		var arg *ParseTree = to_ParseTree(it_1.v)
-		if (args.size() > (commaCount + 1)) {
+		if args.size() > (commaCount + 1) {
 			var nextParam *ParseTree = to_ParseTree(args.get((commaCount + 1)))
-			if (nextParam.location_.start_.line_ > arg.location_.end_.line_) {
+			if nextParam.location_.start_.line_ > arg.location_.end_.line_ {
 				var tempSourcePos *SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), arg.location_.end_.line_, int32(2147483647))
 				zones.add(obj_(tempSourcePos))
 			} else {
@@ -1940,7 +1994,7 @@ func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args Immutabl
 
 func (this *IRFactory_TransformDispatcher) attachPossibleTrailingCommentsForArg(paramNode Node, endZone *SourcePosition_util) {
 	var trailingComment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(endZone, true)
-	if (trailingComment == nil) {
+	if trailingComment == nil {
 		return
 	}
 	paramNode.setTrailingNonJSDocComment(trailingComment)
@@ -1949,14 +2003,14 @@ func (this *IRFactory_TransformDispatcher) attachPossibleTrailingCommentsForArg(
 func (this *IRFactory_TransformDispatcher) attachPossibleTrailingComment(node Node, tokenEnd *SourcePosition_util) {
 	var nextLine *SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), (tokenEnd.line_ + 1), 0)
 	var trailingComment *NonJSDocComment = this.outer_.parseTrailingNonJSDocCommentAt(tokenEnd, nextLine)
-	if (trailingComment == nil) {
+	if trailingComment == nil {
 		return
 	}
 	node.setTrailingNonJSDocComment(trailingComment)
 }
 
 func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, lastComment *NonJSDocComment) {
-	if (lastComment == nil) {
+	if lastComment == nil {
 		return
 	}
 	if !node.hasChildren() {
@@ -1965,7 +2019,7 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 	}
 	var lastChild Node = node.getLastChild()
 	var currentComment *NonJSDocComment = lastChild.getTrailingNonJSDocComment()
-	if (currentComment == nil) {
+	if currentComment == nil {
 		var newStart *SourcePosition_util = new_SourcePosition_util(nil, (lastComment.getEndPosition().offset - 1), (lastComment.getEndPosition().line_ - 1), 0)
 		var newlineComment *NonJSDocComment = new_NonJSDocComment(newStart, lastComment.getEndPosition(), ("\n" + sstr_(lastComment.getCommentString())))
 		node.getLastChild().setTrailingNonJSDocComment(newlineComment)
@@ -1973,14 +2027,14 @@ func (this *IRFactory_TransformDispatcher) addExtraTrailingComment(node Node, la
 	}
 	var blankLines int32 = (lastComment.getStartPosition().line_ - currentComment.getEndPosition().line_)
 	var numWhiteSpace int32 = 0
-	if (blankLines == 0) {
+	if blankLines == 0 {
 		numWhiteSpace = ((lastComment.getStartPosition().column_ - currentComment.getEndPosition().column_) - 1)
 	}
 	var comment *StringBuilder = new_StringBuilder().append(currentComment.getCommentString())
-	for i := int32(0); (i < numWhiteSpace); i++ {
+	for i := int32(0); i < numWhiteSpace; i++ {
 		comment.append(" ")
 	}
-	for i := int32(0); (i < blankLines); i++ {
+	for i := int32(0); i < blankLines; i++ {
 		comment.append("\n")
 	}
 	comment.append(lastComment.getCommentString())
@@ -2011,7 +2065,12 @@ func (this *IRFactory_TransformDispatcher) processFunction(functionTree *Functio
 	var isAsync bool = functionTree.isAsync
 	var isGenerator bool = functionTree.isGenerator
 	var isSignature bool = (functionTree.functionBody.type__ == ParseTreeType_EMPTY_STATEMENT)
-	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType { if functionTree.isClassMember { return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE }; return IRFactory_TransformDispatcher_IdentifierType_STANDARD }()
+	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType {
+		if functionTree.isClassMember {
+			return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
+		}
+		return IRFactory_TransformDispatcher_IdentifierType_STANDARD
+	}()
 	if isGenerator {
 		this.outer_.maybeWarnForFeature(functionTree.up_ParseTree(), FeatureSet_Feature_GENERATORS)
 	}
@@ -2024,15 +2083,15 @@ func (this *IRFactory_TransformDispatcher) processFunction(functionTree *Functio
 	if isAsync {
 		this.outer_.maybeWarnForFeature(functionTree.up_ParseTree(), FeatureSet_Feature_ASYNC_FUNCTIONS)
 	}
-	if (isGenerator && isAsync) {
+	if isGenerator && isAsync {
 		this.outer_.maybeWarnForFeature(functionTree.up_ParseTree(), FeatureSet_Feature_ASYNC_GENERATORS)
 	}
 	var name *IdentifierToken = functionTree.name_
 	var newName Node
-	if (name != nil) {
+	if name != nil {
 		newName = this.processNameWithInlineComments(name, identifierType)
 	} else {
-		if (isDeclaration || isMember) {
+		if isDeclaration || isMember {
 			this.outer_.errorReporter.error("unnamed function statement", this.outer_.sourceName_, IRFactory_lineno(functionTree.up_ParseTree()), IRFactory_charnoParseTree(functionTree.up_ParseTree()))
 			newName = this.createMissingNameNode()
 		} else {
@@ -2047,7 +2106,7 @@ func (this *IRFactory_TransformDispatcher) processFunction(functionTree *Functio
 	node.addChildToBack(newName)
 	node.addChildToBack(this.outer_.transform(functionTree.formalParameterList.up_ParseTree()))
 	var bodyNode Node = this.outer_.transform(functionTree.functionBody)
-	if ((!isArrow && !isSignature) && !bodyNode.isBlock()) {
+	if (!isArrow && !isSignature) && !bodyNode.isBlock() {
 		Preconditions_checkState((this.outer_.config.runMode() == Config_RunMode_KEEP_GOING))
 		bodyNode = IR_block_0()
 	}
@@ -2079,7 +2138,7 @@ func (this *IRFactory_TransformDispatcher) processField(tree *FieldDeclarationTr
 		this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
 	}
 	var node Node = this.outer_.maybeAddNonJsDocComment(this.newStringNodeFromIdentifier(Token_rhino_MEMBER_FIELD_DEF, IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE, tree.name_), tree.getStart())
-	if (tree.initializer != nil) {
+	if tree.initializer != nil {
 		var initializer Node = this.outer_.transform(tree.initializer)
 		node.addChildToBack(initializer)
 		this.outer_.setLength(node, tree.location_.start_, tree.location_.end_)
@@ -2091,7 +2150,12 @@ func (this *IRFactory_TransformDispatcher) processField(tree *FieldDeclarationTr
 func (this *IRFactory_TransformDispatcher) processComputedPropertyField(tree *ComputedPropertyFieldTree) Node {
 	this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_PUBLIC_CLASS_FIELDS)
 	var key Node = this.outer_.transform(tree.property_)
-	var node Node = func() Node { if (tree.initializer != nil) { return this.outer_.newNode_3(Token_rhino_COMPUTED_FIELD_DEF, key, this.outer_.transform(tree.initializer)) }; return this.outer_.newNode_2(Token_rhino_COMPUTED_FIELD_DEF, key) }()
+	var node Node = func() Node {
+		if tree.initializer != nil {
+			return this.outer_.newNode_3(Token_rhino_COMPUTED_FIELD_DEF, key, this.outer_.transform(tree.initializer))
+		}
+		return this.outer_.newNode_2(Token_rhino_COMPUTED_FIELD_DEF, key)
+	}()
 	node.putBooleanProp(Node_STATIC_MEMBER, tree.isStatic)
 	return node
 }
@@ -2130,7 +2194,7 @@ func (this *IRFactory_TransformDispatcher) processDefaultParameter(tree *Default
 	this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_DEFAULT_PARAMETERS)
 	var targetTree *ParseTree = tree.lhs
 	var targetNode Node
-	if (targetTree.type__ == ParseTreeType_IDENTIFIER_EXPRESSION) {
+	if targetTree.type__ == ParseTreeType_IDENTIFIER_EXPRESSION {
 		targetNode = this.processNameWithInlineCommentsIdentifierExpressionTree(targetTree.asIdentifierExpression(), IRFactory_TransformDispatcher_IdentifierType_STANDARD)
 	} else {
 		targetNode = this.outer_.transformNodeWithInlineComments(targetTree)
@@ -2161,7 +2225,7 @@ func (this *IRFactory_TransformDispatcher) processIfStatement(statementNode *IfS
 	var node Node = this.outer_.newNode(Token_rhino_IF)
 	node.addChildToBack(this.outer_.transform(statementNode.condition))
 	node.addChildToBack(this.outer_.transformBlock(statementNode.ifClause))
-	if (statementNode.elseClause != nil) {
+	if statementNode.elseClause != nil {
 		node.addChildToBack(this.outer_.transformBlock(statementNode.elseClause))
 	}
 	return node
@@ -2183,7 +2247,7 @@ func (this *IRFactory_TransformDispatcher) markBinaryExpressionFeatures(exprNode
 }
 
 func (this *IRFactory_TransformDispatcher) processBinaryExpression(exprNode *BinaryOperatorTree) Node {
-	if (this.outer_.jsdocTracker.hasPendingCommentBefore(exprNode.right.location_.start_) || this.outer_.nonJsdocTracker.hasPendingCommentBefore(exprNode.right.location_.start_)) {
+	if this.outer_.jsdocTracker.hasPendingCommentBefore(exprNode.right.location_.start_) || this.outer_.nonJsdocTracker.hasPendingCommentBefore(exprNode.right.location_.start_) {
 		this.markBinaryExpressionFeatures(exprNode)
 		return this.outer_.newNode_3(IRFactory_transformBinaryTokenType(exprNode.operator.type__), this.transformLhsOfBinaryTree(exprNode), this.outer_.transform(exprNode.right))
 	} else {
@@ -2196,24 +2260,31 @@ func (this *IRFactory_TransformDispatcher) processBinaryExpressionHelper(exprTre
 	var root Node = 0
 	var current Node = 0
 	var previous Node = 0
-	for (exprTree != nil) {
+	for exprTree != nil {
 		this.markBinaryExpressionFeatures(exprTree)
 		previous = current
 		current = this.outer_.newNode_2(IRFactory_transformBinaryTokenType(exprTree.operator.type__), this.outer_.transform(exprTree.right))
 		this.outer_.setSourceInfo(current, exprTree.up_ParseTree())
-		if (previous != 0) {
+		if previous != 0 {
 			previous.addChildToFront(current)
 		}
 		var binaryOperatorTree *BinaryOperatorTree
 		_ = binaryOperatorTree
-		if func() bool { v_ := exprTree.left.self(); if !is_[*BinaryOperatorTree](v_) { return false }; binaryOperatorTree = cast_[*BinaryOperatorTree](v_); return true }() {
+		if func() bool {
+			v_ := exprTree.left.self()
+			if !is_[*BinaryOperatorTree](v_) {
+				return false
+			}
+			binaryOperatorTree = cast_[*BinaryOperatorTree](v_)
+			return true
+		}() {
 			exprTree = binaryOperatorTree
 		} else {
 			var leftNode Node = this.transformLhsOfBinaryTree(exprTree)
 			current.addChildToFront(leftNode)
 			exprTree = nil
 		}
-		if (root == 0) {
+		if root == 0 {
 			root = current
 		}
 	}
@@ -2246,7 +2317,7 @@ func (this *IRFactory_TransformDispatcher) processThisExpression(unused *ThisExp
 
 func (this *IRFactory_TransformDispatcher) processLabeledStatement(labelTree *LabelledStatementTree) Node {
 	var statement Node = this.outer_.transform(labelTree.statement)
-	if (((statement.isFunction() || statement.isClass()) || statement.isLet()) || statement.isConst()) {
+	if ((statement.isFunction() || statement.isClass()) || statement.isLet()) || statement.isConst() {
 		this.outer_.errorReporter.error("Lexical declarations are only allowed at top level or inside a block.", this.outer_.sourceName_, IRFactory_lineno(labelTree.up_ParseTree()), IRFactory_charnoParseTree(labelTree.up_ParseTree()))
 		return statement
 	}
@@ -2260,14 +2331,14 @@ func (this *IRFactory_TransformDispatcher) processName(nameNode *IdentifierExpre
 func (this *IRFactory_TransformDispatcher) processName_3(identifierToken *IdentifierToken, output *Token_rhino, identifierType *IRFactory_TransformDispatcher_IdentifierType) Node {
 	var comment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(identifierToken.getStart(), true)
 	var node Node = this.newStringNodeFromIdentifier(output, identifierType, identifierToken)
-	if (output == Token_rhino_NAME) {
+	if output == Token_rhino_NAME {
 		this.maybeWarnReservedKeyword(identifierToken)
 		var info *JSDocInfo = this.outer_.parseJSDocInfoOnToken(identifierToken.up_Token_parser())
-		if (info != nil) {
+		if info != nil {
 			node.setJSDocInfo(info)
 		}
 	}
-	if (comment != nil) {
+	if comment != nil {
 		node.setNonJSDocComment(comment)
 	}
 	this.outer_.setSourceInfoToken(node, identifierToken.up_Token_parser())
@@ -2278,7 +2349,7 @@ func (this *IRFactory_TransformDispatcher) processString(token *LiteralToken) No
 	Preconditions_checkArgument((token.type__ == TokenType_STRING))
 	var comment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(token.getStart(), true)
 	var node Node = this.outer_.newStringNode_2(Token_rhino_STRINGLIT, this.outer_.normalizeString(token, false))
-	if (comment != nil) {
+	if comment != nil {
 		node.setNonJSDocComment(comment)
 	}
 	this.outer_.setSourceInfoToken(node, token.up_Token_parser())
@@ -2306,10 +2377,10 @@ func (this *IRFactory_TransformDispatcher) processNameWithInlineComments(identif
 	var comment *NonJSDocComment = this.outer_.parseNonJSDocCommentAt(identifierToken.getStart(), false)
 	this.maybeWarnReservedKeyword(identifierToken)
 	var node Node = this.newStringNodeFromIdentifier(Token_rhino_NAME, identifierType, identifierToken)
-	if (info != nil) {
+	if info != nil {
 		node.setJSDocInfo(info)
 	}
-	if (comment != nil) {
+	if comment != nil {
 		node.setNonJSDocComment(comment)
 	}
 	this.outer_.setSourceInfoToken(node, identifierToken.up_Token_parser())
@@ -2324,7 +2395,7 @@ func (this *IRFactory_TransformDispatcher) maybeWarnKeywordProperty(node Node) {
 		return
 	}
 	this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_KEYWORDS_AS_PROPERTIES)
-	if (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3) {
+	if this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3 {
 		this.outer_.errorReporter.warning(IRFactory_INVALID_ES3_PROP_NAME, this.outer_.sourceName_, node.getLineno(), node.getCharno())
 	}
 }
@@ -2336,7 +2407,7 @@ func (this *IRFactory_TransformDispatcher) maybeWarnReservedKeyword(token *Ident
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_ES3_KEYWORDS_AS_IDENTIFIERS)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}
-	if ((this.outer_.reservedKeywords != nil) && Collection_contains_s(this.outer_.reservedKeywords, identifier)) {
+	if (this.outer_.reservedKeywords != nil) && Collection_contains_s(this.outer_.reservedKeywords, identifier) {
 		this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_KEYWORDS_AS_PROPERTIES)
 		isIdentifier = (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3)
 	}
@@ -2348,7 +2419,7 @@ func (this *IRFactory_TransformDispatcher) maybeWarnReservedKeyword(token *Ident
 func (this *IRFactory_TransformDispatcher) processNewExpression(exprNode *NewExpressionTree) Node {
 	var node Node = this.outer_.newNode_2(Token_rhino_NEW, this.outer_.transform(exprNode.operand))
 	node.setTrailingComma(exprNode.hasTrailingComma_)
-	if (exprNode.arguments != nil) {
+	if exprNode.arguments != nil {
 		it_1 := foreach_(obj_(exprNode.arguments.arguments))
 		for it_1.next() {
 			var arg *ParseTree = to_ParseTree(it_1.v)
@@ -2380,16 +2451,16 @@ func (this *IRFactory_TransformDispatcher) processObjectLiteral(objTree *ObjectL
 	it_1 := foreach_(obj_(objTree.propertyNameAndValues))
 	for it_1.next() {
 		var el *ParseTree = to_ParseTree(it_1.v)
-		if (el.type__ == ParseTreeType_DEFAULT_PARAMETER) {
+		if el.type__ == ParseTreeType_DEFAULT_PARAMETER {
 			this.outer_.errorReporter.error("Default value cannot appear at top level of an object literal.", this.outer_.sourceName_, IRFactory_lineno(el), 0)
 			continue
-		} else if ((el.type__ == ParseTreeType_GET_ACCESSOR) && this.maybeReportGetter(el)) {
+		} else if (el.type__ == ParseTreeType_GET_ACCESSOR) && this.maybeReportGetter(el) {
 			continue
-		} else if ((el.type__ == ParseTreeType_SET_ACCESSOR) && this.maybeReportSetter(el)) {
+		} else if (el.type__ == ParseTreeType_SET_ACCESSOR) && this.maybeReportSetter(el) {
 			continue
 		}
 		var key Node = this.outer_.transform(el)
-		if (((!key.isComputedProp() && !key.isQuotedStringKey()) && !key.isSpread()) && !this.outer_.currentFileIsExterns) {
+		if ((!key.isComputedProp() && !key.isQuotedStringKey()) && !key.isSpread()) && !this.outer_.currentFileIsExterns {
 			this.maybeWarnKeywordProperty(key)
 		}
 		if key.isShorthandProperty() {
@@ -2445,7 +2516,12 @@ func (this *IRFactory_TransformDispatcher) processComputedPropertySetter(tree *C
 }
 
 func (this *IRFactory_TransformDispatcher) processGetAccessor(tree *GetAccessorTree) Node {
-	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_GETTER_DEF, func() *IRFactory_TransformDispatcher_IdentifierType { if tree.isClassMember { return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE }; return IRFactory_TransformDispatcher_IdentifierType_STANDARD }())
+	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_GETTER_DEF, func() *IRFactory_TransformDispatcher_IdentifierType {
+		if tree.isClassMember {
+			return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
+		}
+		return IRFactory_TransformDispatcher_IdentifierType_STANDARD
+	}())
 	var body Node = this.outer_.transform(tree.body.up_ParseTree())
 	var dummyName Node = this.outer_.newStringNode_2(Token_rhino_NAME, "")
 	this.outer_.setSourceInfo(dummyName, tree.body.up_ParseTree())
@@ -2459,7 +2535,12 @@ func (this *IRFactory_TransformDispatcher) processGetAccessor(tree *GetAccessorT
 }
 
 func (this *IRFactory_TransformDispatcher) processSetAccessor(tree *SetAccessorTree) Node {
-	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_SETTER_DEF, func() *IRFactory_TransformDispatcher_IdentifierType { if tree.isClassMember { return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE }; return IRFactory_TransformDispatcher_IdentifierType_STANDARD }())
+	var key Node = this.processObjectLitKey(tree.propertyName_, Token_rhino_SETTER_DEF, func() *IRFactory_TransformDispatcher_IdentifierType {
+		if tree.isClassMember {
+			return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
+		}
+		return IRFactory_TransformDispatcher_IdentifierType_STANDARD
+	}())
 	var paramList Node = this.processFormalParameterList(tree.parameter)
 	this.outer_.setSourceInfo(paramList, tree.parameter.up_ParseTree())
 	var body Node = this.outer_.transform(tree.body.up_ParseTree())
@@ -2474,7 +2555,7 @@ func (this *IRFactory_TransformDispatcher) processSetAccessor(tree *SetAccessorT
 
 func (this *IRFactory_TransformDispatcher) processPropertyNameAssignment(tree *PropertyNameAssignmentTree) Node {
 	var key Node = this.processObjectLitKey(tree.name_, Token_rhino_STRING_KEY, IRFactory_TransformDispatcher_IdentifierType_STANDARD)
-	if (tree.value_ != nil) {
+	if tree.value_ != nil {
 		key.addChildToFront(this.outer_.transform(tree.value_))
 	} else {
 		var value Node = this.outer_.maybeAddNonJsDocComment(this.outer_.newStringNode_2(Token_rhino_NAME, key.getString()), tree.name_.getStart()).srcref(key)
@@ -2485,10 +2566,10 @@ func (this *IRFactory_TransformDispatcher) processPropertyNameAssignment(tree *P
 }
 
 func (this *IRFactory_TransformDispatcher) checkParenthesizedExpression(exprNode *ParenExpressionTree) {
-	if (exprNode.expression.type__ == ParseTreeType_COMMA_EXPRESSION) {
+	if exprNode.expression.type__ == ParseTreeType_COMMA_EXPRESSION {
 		var commaNodes ImmutableListOf[*ParseTree] = exprNode.expression.asCommaExpression().expressions
 		var lastChild *ParseTree = to_ParseTree(Iterables_getLast(icast_Iterable(obj_(commaNodes))))
-		if (lastChild.type__ == ParseTreeType_ITER_REST) {
+		if lastChild.type__ == ParseTreeType_ITER_REST {
 			this.outer_.errorReporter.error("A rest parameter must be in a parameter list.", this.outer_.sourceName_, IRFactory_lineno(lastChild), IRFactory_charnoParseTree(lastChild))
 		}
 	}
@@ -2504,10 +2585,15 @@ func (this *IRFactory_TransformDispatcher) processParenthesizedExpression(exprNo
 func (this *IRFactory_TransformDispatcher) processPropertyGet(getNode *MemberExpressionTree) Node {
 	var leftChild Node = this.outer_.transform(getNode.operand)
 	var propName *IdentifierToken = getNode.memberName
-	if (propName == nil) {
+	if propName == nil {
 		return leftChild
 	}
-	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType { if leftChild.isSuper() { return IRFactory_TransformDispatcher_IdentifierType_STANDARD }; return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE }()
+	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType {
+		if leftChild.isSuper() {
+			return IRFactory_TransformDispatcher_IdentifierType_STANDARD
+		}
+		return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
+	}()
 	var getProp Node = this.outer_.maybeAddNonJsDocComment(this.newStringNodeFromIdentifier(Token_rhino_GETPROP, identifierType, propName), getNode.memberName.getStart())
 	getProp.addChildToBack(leftChild)
 	this.outer_.setSourceInfoToken(getProp, propName.up_Token_parser())
@@ -2519,10 +2605,15 @@ func (this *IRFactory_TransformDispatcher) processOptChainPropertyGet(getNode *O
 	this.outer_.maybeWarnForFeature(getNode.up_ParseTree(), FeatureSet_Feature_OPTIONAL_CHAINING)
 	var leftChild Node = this.outer_.transform(getNode.operand)
 	var propName *IdentifierToken = getNode.memberName
-	if (propName == nil) {
+	if propName == nil {
 		return leftChild
 	}
-	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType { if leftChild.isSuper() { return IRFactory_TransformDispatcher_IdentifierType_STANDARD }; return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE }()
+	var identifierType *IRFactory_TransformDispatcher_IdentifierType = func() *IRFactory_TransformDispatcher_IdentifierType {
+		if leftChild.isSuper() {
+			return IRFactory_TransformDispatcher_IdentifierType_STANDARD
+		}
+		return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
+	}()
 	var getProp Node = this.outer_.maybeAddNonJsDocComment(this.newStringNodeFromIdentifier(Token_rhino_OPTCHAIN_GETPROP, identifierType, propName), getNode.memberName.getStart())
 	getProp.addChildToBack(leftChild)
 	getProp.setIsOptionalChainStart(getNode.isStartOfOptionalChain)
@@ -2539,7 +2630,7 @@ func (this *IRFactory_TransformDispatcher) processRegExpLiteral(literalTree *Lit
 	var rawRegex string = token.value_
 	var lastSlash int32 = String_lastIndexOf(rawRegex, 47)
 	var flags string = ""
-	if (lastSlash < String_length(rawRegex)) {
+	if lastSlash < String_length(rawRegex) {
 		flags = String_substring_int(rawRegex, (lastSlash + 1))
 	}
 	this.validateRegExpFlags(literalTree, flags)
@@ -2558,7 +2649,12 @@ func (this *IRFactory_TransformDispatcher) validateRegExpFlags(tree *LiteralExpr
 		switch flag {
 		case 'g', 'i', 'm':
 		case 'u', 'y':
-			var feature *FeatureSet_Feature = func() *FeatureSet_Feature { if (flag == 'u') { return FeatureSet_Feature_REGEXP_FLAG_U }; return FeatureSet_Feature_REGEXP_FLAG_Y }()
+			var feature *FeatureSet_Feature = func() *FeatureSet_Feature {
+				if flag == 'u' {
+					return FeatureSet_Feature_REGEXP_FLAG_U
+				}
+				return FeatureSet_Feature_REGEXP_FLAG_Y
+			}()
 			this.outer_.maybeWarnForFeature(tree.up_ParseTree(), feature)
 		case 's':
 			this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_REGEXP_FLAG_S)
@@ -2572,7 +2668,7 @@ func (this *IRFactory_TransformDispatcher) validateRegExpFlags(tree *LiteralExpr
 
 func (this *IRFactory_TransformDispatcher) processReturnStatement(statementNode *ReturnStatementTree) Node {
 	var node Node = this.outer_.newNode(Token_rhino_RETURN)
-	if (statementNode.expression != nil) {
+	if statementNode.expression != nil {
 		node.addChildToBack(this.outer_.transform(statementNode.expression))
 	}
 	return node
@@ -2587,7 +2683,12 @@ func (this *IRFactory_TransformDispatcher) processTemplateLiteral(tree *Template
 	this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_TEMPLATE_LITERALS)
 	var templateLitNode Node = this.outer_.newNode(Token_rhino_TEMPLATELIT)
 	this.outer_.setSourceInfo(templateLitNode, tree.up_ParseTree())
-	var node Node = func() Node { if (tree.operand == nil) { return templateLitNode }; return this.outer_.newNode_3(Token_rhino_TAGGED_TEMPLATELIT, this.outer_.transform(tree.operand), templateLitNode) }()
+	var node Node = func() Node {
+		if tree.operand == nil {
+			return templateLitNode
+		}
+		return this.outer_.newNode_3(Token_rhino_TAGGED_TEMPLATELIT, this.outer_.transform(tree.operand), templateLitNode)
+	}()
 	it_1 := foreach_(obj_(tree.elements_))
 	for it_1.next() {
 		var child *ParseTree = to_ParseTree(it_1.v)
@@ -2613,7 +2714,7 @@ func (this *IRFactory_TransformDispatcher) processSwitchCase(caseNode *CaseClaus
 	var block Node = this.outer_.newNode(Token_rhino_BLOCK)
 	block.setIsAddedBlock(true)
 	this.outer_.setSourceInfo(block, caseNode.up_ParseTree())
-	if (caseNode.statements != nil) {
+	if caseNode.statements != nil {
 		it_1 := foreach_(obj_(caseNode.statements))
 		for it_1.next() {
 			var child *ParseTree = to_ParseTree(it_1.v)
@@ -2629,7 +2730,7 @@ func (this *IRFactory_TransformDispatcher) processSwitchDefault(caseNode *Defaul
 	var block Node = this.outer_.newNode(Token_rhino_BLOCK)
 	block.setIsAddedBlock(true)
 	this.outer_.setSourceInfo(block, caseNode.up_ParseTree())
-	if (caseNode.statements != nil) {
+	if caseNode.statements != nil {
 		it_1 := foreach_(obj_(caseNode.statements))
 		for it_1.next() {
 			var child *ParseTree = to_ParseTree(it_1.v)
@@ -2662,24 +2763,24 @@ func (this *IRFactory_TransformDispatcher) processTryStatement(statementNode *Tr
 	var block Node = this.outer_.newNode(Token_rhino_BLOCK)
 	var lineSet bool = false
 	var cc *ParseTree = statementNode.catchBlock
-	if (cc != nil) {
+	if cc != nil {
 		this.outer_.setSourceInfo(block, cc)
 		lineSet = true
 		block.addChildToBack(this.outer_.transform(cc))
 	}
 	node.addChildToBack(block)
 	var finallyBlock *ParseTree = statementNode.finallyBlock
-	if (finallyBlock != nil) {
+	if finallyBlock != nil {
 		node.addChildToBack(this.outer_.transformBlock(finallyBlock))
 	}
-	if (!lineSet && (finallyBlock != nil)) {
+	if !lineSet && (finallyBlock != nil) {
 		this.outer_.setSourceInfo(block, finallyBlock)
 	}
 	return node
 }
 
 func (this *IRFactory_TransformDispatcher) processCatchClause(clauseNode *CatchTree) Node {
-	if (clauseNode.exception.type__ == ParseTreeType_EMPTY_STATEMENT) {
+	if clauseNode.exception.type__ == ParseTreeType_EMPTY_STATEMENT {
 		this.outer_.maybeWarnForFeature(clauseNode.up_ParseTree(), FeatureSet_Feature_OPTIONAL_CATCH_BINDING)
 	}
 	return this.outer_.newNode_3(Token_rhino_CATCH, this.outer_.transform(clauseNode.exception), this.outer_.transformBlock(clauseNode.catchBody))
@@ -2714,9 +2815,24 @@ func (this *IRFactory_TransformDispatcher) processUpdateExpression(updateExpr *U
 }
 
 func (this *IRFactory_TransformDispatcher) createUpdateNode(type_ *Token_rhino, postfix bool, operand Node) Node {
-	var assignTarget Node = func() Node { if operand.isCast() { return operand.getFirstChild() }; return operand }()
+	var assignTarget Node = func() Node {
+		if operand.isCast() {
+			return operand.getFirstChild()
+		}
+		return operand
+	}()
 	if !assignTarget.isValidAssignmentTarget() {
-		this.outer_.errorReporter.error(String_format("Invalid %s %s operand.", []any{func() any { if postfix { return strobj_("postfix") }; return strobj_("prefix") }(), func() any { if (type_ == Token_rhino_INC) { return strobj_("increment") }; return strobj_("decrement") }()}), this.outer_.sourceName_, operand.getLineno(), operand.getCharno())
+		this.outer_.errorReporter.error(String_format("Invalid %s %s operand.", []any{func() any {
+			if postfix {
+				return strobj_("postfix")
+			}
+			return strobj_("prefix")
+		}(), func() any {
+			if type_ == Token_rhino_INC {
+				return strobj_("increment")
+			}
+			return strobj_("decrement")
+		}()}), this.outer_.sourceName_, operand.getLineno(), operand.getCharno())
 	}
 	var node Node = this.outer_.newNode_2(type_, operand)
 	node.putBooleanProp(Node_INCRDECR_PROP, postfix)
@@ -2753,8 +2869,13 @@ func (this *IRFactory_TransformDispatcher) processVariableDeclarationList(decl *
 
 func (this *IRFactory_TransformDispatcher) processVariableDeclaration(decl *VariableDeclarationTree) Node {
 	var node Node = this.outer_.transformNodeWithInlineComments(decl.lvalue)
-	var lhs Node = func() Node { if node.isDestructuringPattern() { return this.outer_.newNode_2(Token_rhino_DESTRUCTURING_LHS, node) }; return node }()
-	if (decl.initializer != nil) {
+	var lhs Node = func() Node {
+		if node.isDestructuringPattern() {
+			return this.outer_.newNode_2(Token_rhino_DESTRUCTURING_LHS, node)
+		}
+		return node
+	}()
+	if decl.initializer != nil {
 		var initializer Node = this.outer_.transform(decl.initializer)
 		lhs.addChildToBack(initializer)
 		this.outer_.setLength(lhs, decl.location_.start_, decl.location_.end_)
@@ -2789,7 +2910,7 @@ func (this *IRFactory_TransformDispatcher) processIllegalToken(node *ParseTree) 
 
 func (this *IRFactory_TransformDispatcher) maybeReportGetter(node *ParseTree) bool {
 	this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_GETTER)
-	if (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3) {
+	if this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3 {
 		this.outer_.errorReporter.error(IRFactory_GETTER_ERROR_MESSAGE, this.outer_.sourceName_, IRFactory_lineno(node), 0)
 		return true
 	}
@@ -2798,7 +2919,7 @@ func (this *IRFactory_TransformDispatcher) maybeReportGetter(node *ParseTree) bo
 
 func (this *IRFactory_TransformDispatcher) maybeReportSetter(node *ParseTree) bool {
 	this.outer_.features_ = this.outer_.features_.with(FeatureSet_Feature_SETTER)
-	if (this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3) {
+	if this.outer_.config.languageMode() == Config_LanguageMode_ECMASCRIPT3 {
 		this.outer_.errorReporter.error(IRFactory_SETTER_ERROR_MESSAGE, this.outer_.sourceName_, IRFactory_lineno(node), 0)
 		return true
 	}
@@ -2826,7 +2947,7 @@ func (this *IRFactory_TransformDispatcher) processCommaExpression(tree *CommaExp
 	for it_1.next() {
 		var expr *ParseTree = to_ParseTree(it_1.v)
 		var count int32 = root.getChildCount()
-		if (count < 2) {
+		if count < 2 {
 			root.addChildToBack(this.outer_.transform(expr))
 		} else {
 			end = expr.location_.end_
@@ -2885,13 +3006,18 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 	SequencedCollection_addLast(icast_SequencedCollection(obj_(visitStack)), classMembers.getFirstChild().box_())
 	for !visitStack.isEmpty() {
 		var node Node = Node_of_(SequencedCollection_removeLast(icast_SequencedCollection(obj_(visitStack))))
-		if ((node.isPrivateIdentifier() && ((node.isGetProp() || node.isOptChainGetProp()) || ((node.isName() && node.hasParent()) && node.getParent().isIn()))) && !Collection_contains_s(privatePropNames, node.getString())) {
-			var propType string = func() string { if node.getParent().isCall() { return "methods" }; return "fields" }()
+		if (node.isPrivateIdentifier() && ((node.isGetProp() || node.isOptChainGetProp()) || ((node.isName() && node.hasParent()) && node.getParent().isIn()))) && !Collection_contains_s(privatePropNames, node.getString()) {
+			var propType string = func() string {
+				if node.getParent().isCall() {
+					return "methods"
+				}
+				return "fields"
+			}()
 			this.outer_.errorReporter.error(("Private " + sstr_(propType) + " must be declared in an enclosing class"), this.outer_.sourceName_, node.getLineno(), node.getCharno())
 		}
 		if node.isDelProp() {
 			var firstChild Node = Node_of_(Preconditions_checkNotNull(node.getFirstChild().box_()))
-			if (firstChild.isPrivateIdentifier() && (firstChild.isGetProp() || firstChild.isOptChainGetProp())) {
+			if firstChild.isPrivateIdentifier() && (firstChild.isGetProp() || firstChild.isOptChainGetProp()) {
 				this.outer_.errorReporter.error("Private fields cannot be deleted", this.outer_.sourceName_, node.getLineno(), node.getCharno())
 			}
 		}
@@ -2900,7 +3026,7 @@ func (this *IRFactory_TransformDispatcher) validatePrivatePropertyUsage(privateP
 			innerClassPrivatePropNames.addAll(Collection(privatePropNames))
 			this.validatePrivatePropertyUsage(Collections_unmodifiableSet(innerClassPrivatePropNames), node)
 		} else {
-			if (node.getNext() != 0) {
+			if node.getNext() != 0 {
 				SequencedCollection_addLast(icast_SequencedCollection(obj_(visitStack)), node.getNext().box_())
 			}
 			if node.hasChildren() {
@@ -2919,7 +3045,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 	var privatePropNames SetOf[string] = icast_Set(obj_(new_TreeSet()))
 	{
 		var curNode Node = classMembers.getFirstChild()
-		for ; (curNode != 0); curNode = curNode.getNext() {
+		for ; curNode != 0; curNode = curNode.getNext() {
 			if !curNode.isPrivateIdentifier() {
 				continue
 			}
@@ -2930,8 +3056,18 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 			switch curNode.getToken() {
 			case Token_rhino_GETTER_DEF:
 				if alreadyDeclared {
-					var alreadyDeclaredIsOtherThanItsSetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateGetterNames, propName)) || Collection_contains_s(privateStaticGetterNames, propName)) || func() bool { if isStatic { return Collection_contains_s(privateSetterNames, propName) }; return Collection_contains_s(privateStaticSetterNames, propName) }())
-					Preconditions_checkState((alreadyDeclaredIsOtherThanItsSetter || func() bool { if isStatic { return Collection_contains_s(privateStaticSetterNames, propName) }; return Collection_contains_s(privateSetterNames, propName) }()))
+					var alreadyDeclaredIsOtherThanItsSetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateGetterNames, propName)) || Collection_contains_s(privateStaticGetterNames, propName)) || func() bool {
+						if isStatic {
+							return Collection_contains_s(privateSetterNames, propName)
+						}
+						return Collection_contains_s(privateStaticSetterNames, propName)
+					}())
+					Preconditions_checkState((alreadyDeclaredIsOtherThanItsSetter || func() bool {
+						if isStatic {
+							return Collection_contains_s(privateStaticSetterNames, propName)
+						}
+						return Collection_contains_s(privateSetterNames, propName)
+					}()))
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsSetter
 				}
 				if isStatic {
@@ -2941,8 +3077,18 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 				}
 			case Token_rhino_SETTER_DEF:
 				if alreadyDeclared {
-					var alreadyDeclaredIsOtherThanItsGetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateSetterNames, propName)) || Collection_contains_s(privateStaticSetterNames, propName)) || func() bool { if isStatic { return Collection_contains_s(privateGetterNames, propName) }; return Collection_contains_s(privateStaticGetterNames, propName) }())
-					Preconditions_checkState((alreadyDeclaredIsOtherThanItsGetter || func() bool { if isStatic { return Collection_contains_s(privateStaticGetterNames, propName) }; return Collection_contains_s(privateGetterNames, propName) }()))
+					var alreadyDeclaredIsOtherThanItsGetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateSetterNames, propName)) || Collection_contains_s(privateStaticSetterNames, propName)) || func() bool {
+						if isStatic {
+							return Collection_contains_s(privateGetterNames, propName)
+						}
+						return Collection_contains_s(privateStaticGetterNames, propName)
+					}())
+					Preconditions_checkState((alreadyDeclaredIsOtherThanItsGetter || func() bool {
+						if isStatic {
+							return Collection_contains_s(privateStaticGetterNames, propName)
+						}
+						return Collection_contains_s(privateGetterNames, propName)
+					}()))
 					alreadyDeclared = alreadyDeclaredIsOtherThanItsGetter
 				}
 				if curNode.isStaticMember() {
@@ -2989,7 +3135,7 @@ func (this *IRFactory_TransformDispatcher) validateClassConstructorMember(member
 	if isStatic {
 		return false
 	}
-	if (!Object_equals(obj_(memberName.type__), obj_(TokenType_IDENTIFIER)) || !memberName.asIdentifier().valueEquals("constructor")) {
+	if !Object_equals(obj_(memberName.type__), obj_(TokenType_IDENTIFIER)) || !memberName.asIdentifier().valueEquals("constructor") {
 		return false
 	}
 	if hasIllegalModifier {
@@ -3011,7 +3157,7 @@ func (this *IRFactory_TransformDispatcher) processNewTarget(tree *NewTargetExpre
 
 func (this *IRFactory_TransformDispatcher) processYield(tree *YieldExpressionTree) Node {
 	var yield Node = this.outer_.newNode(Token_rhino_YIELD)
-	if (tree.expression != nil) {
+	if tree.expression != nil {
 		yield.addChildToBack(this.outer_.transform(tree.expression))
 	}
 	yield.setYieldAll(tree.isYieldAll_)
@@ -3030,18 +3176,18 @@ func (this *IRFactory_TransformDispatcher) processExportDecl(tree *ExportDeclara
 	var decls Node = 0
 	if tree.isExportAll {
 		Preconditions_checkState(((tree.declaration_ == nil) && (tree.exportSpecifierList == nil)))
-	} else if (tree.declaration_ != nil) {
+	} else if tree.declaration_ != nil {
 		Preconditions_checkState((tree.exportSpecifierList == nil))
 		decls = this.outer_.transform(tree.declaration_)
 	} else {
 		decls = this.transformList(Token_rhino_EXPORT_SPECS, tree.exportSpecifierList)
 	}
-	if (decls == 0) {
+	if decls == 0 {
 		decls = this.outer_.newNode(Token_rhino_EMPTY)
 	}
 	this.outer_.setSourceInfo(decls, tree.up_ParseTree())
 	var export Node = this.outer_.newNode_2(Token_rhino_EXPORT, decls)
-	if (tree.from != nil) {
+	if tree.from != nil {
 		var from Node = this.processString(tree.from)
 		export.addChildToBack(from)
 	}
@@ -3053,7 +3199,7 @@ func (this *IRFactory_TransformDispatcher) processExportDecl(tree *ExportDeclara
 func (this *IRFactory_TransformDispatcher) processExportSpec(tree *ExportSpecifierTree) Node {
 	var importedName Node = this.processName_3(tree.importedName, Token_rhino_NAME, IRFactory_TransformDispatcher_IdentifierType_STANDARD)
 	var exportSpec Node = this.outer_.newNode_2(Token_rhino_EXPORT_SPEC, importedName)
-	if (tree.destinationName == nil) {
+	if tree.destinationName == nil {
 		exportSpec.setShorthandProperty(true)
 		exportSpec.addChildToBack(importedName.cloneTree())
 	} else {
@@ -3067,7 +3213,7 @@ func (this *IRFactory_TransformDispatcher) processImportDecl(tree *ImportDeclara
 	this.outer_.maybeWarnForFeature(tree.up_ParseTree(), FeatureSet_Feature_MODULES)
 	var firstChild Node = this.transformOrEmptyIdentifierToken(tree.defaultBindingIdentifier, tree.up_ParseTree())
 	var secondChild Node
-	if (tree.nameSpaceImportIdentifier == nil) {
+	if tree.nameSpaceImportIdentifier == nil {
 		secondChild = this.transformListOrEmpty(Token_rhino_IMPORT_SPECS, tree.importSpecifierList)
 		this.outer_.setSourceInfo(secondChild, tree.up_ParseTree())
 	} else {
@@ -3081,7 +3227,7 @@ func (this *IRFactory_TransformDispatcher) processImportDecl(tree *ImportDeclara
 func (this *IRFactory_TransformDispatcher) processImportSpec(tree *ImportSpecifierTree) Node {
 	var importedName Node = this.processName_3(tree.importedName, Token_rhino_NAME, IRFactory_TransformDispatcher_IdentifierType_STANDARD)
 	var importSpec Node = this.outer_.newNode_2(Token_rhino_IMPORT_SPEC, importedName)
-	if (tree.destinationName == nil) {
+	if tree.destinationName == nil {
 		importSpec.setShorthandProperty(true)
 		importSpec.addChildToBack(importedName.cloneTree())
 	} else {
@@ -3105,10 +3251,10 @@ func (this *IRFactory_TransformDispatcher) processImportMeta(tree *ImportMetaExp
 func (this *IRFactory_TransformDispatcher) checkParameters(tree *FormalParameterListTree) bool {
 	var params ImmutableListOf[*ParseTree] = tree.parameters
 	var good bool = true
-	for i := int32(0); (i < params.size()); i++ {
+	for i := int32(0); i < params.size(); i++ {
 		var param *ParseTree = to_ParseTree(params.get(i))
-		if (param.type__ == ParseTreeType_ITER_REST) {
-			if (i != (params.size() - 1)) {
+		if param.type__ == ParseTreeType_ITER_REST {
+			if i != (params.size() - 1) {
 				this.outer_.errorReporter.error("A rest parameter must be last in a parameter list.", this.outer_.sourceName_, IRFactory_lineno(param), IRFactory_charnoParseTree(param))
 				good = false
 			} else if tree.hasTrailingComma_ {
@@ -3131,7 +3277,7 @@ func (this *IRFactory_TransformDispatcher) transformList(type_ *Token_rhino, lis
 }
 
 func (this *IRFactory_TransformDispatcher) transformListOrEmpty(type_ *Token_rhino, list ImmutableListOf[*ParseTree]) Node {
-	if ((list == nil) || list.isEmpty()) {
+	if (list == nil) || list.isEmpty() {
 		return this.outer_.newNode(Token_rhino_EMPTY)
 	} else {
 		return this.transformList(type_, list)
@@ -3224,7 +3370,12 @@ func (this *IRFactory_TransformDispatcher) process(node *ParseTree) Node {
 	case ParseTreeType_PAREN_EXPRESSION:
 		return this.processParenthesizedExpression(node.asParenExpression())
 	case ParseTreeType_IDENTIFIER_EXPRESSION:
-		return this.processName(node.asIdentifierExpression(), func() *IRFactory_TransformDispatcher_IdentifierType { if this.privateIdLhsOfInScope.inScope() { return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE }; return IRFactory_TransformDispatcher_IdentifierType_STANDARD }())
+		return this.processName(node.asIdentifierExpression(), func() *IRFactory_TransformDispatcher_IdentifierType {
+			if this.privateIdLhsOfInScope.inScope() {
+				return IRFactory_TransformDispatcher_IdentifierType_CAN_BE_PRIVATE
+			}
+			return IRFactory_TransformDispatcher_IdentifierType_STANDARD
+		}())
 	case ParseTreeType_NEW_EXPRESSION:
 		return this.processNewExpression(node.asNewExpression())
 	case ParseTreeType_OBJECT_LITERAL_EXPRESSION:
@@ -3428,9 +3579,9 @@ func IRFactory_TransformDispatcher_IdentifierType_clinit() {
 }
 
 type IRFactory_TransformDispatcher_ScopeTracker_1 struct {
-	outer_ *IRFactory_TransformDispatcher_ScopeTracker
+	outer_        *IRFactory_TransformDispatcher_ScopeTracker
 	cap_condition bool
-	closed bool
+	closed        bool
 }
 
 func (this *IRFactory_TransformDispatcher_ScopeTracker_1) finit_IRFactory_TransformDispatcher_ScopeTracker_1() {
@@ -3457,4 +3608,3 @@ func (this *IRFactory_TransformDispatcher_ScopeTracker_1) close() {
 	}
 	this.closed = true
 }
-

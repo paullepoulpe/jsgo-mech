@@ -4,11 +4,11 @@ package closure
 
 type CreateSyntheticBlocks struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_       *AbstractCompiler
 	startMarkerName string
-	endMarkerName string
-	markerStack DequeOf[Node]
-	validMarkers ListOf[*CreateSyntheticBlocks_Marker]
+	endMarkerName   string
+	markerStack     DequeOf[Node]
+	validMarkers    ListOf[*CreateSyntheticBlocks_Marker]
 }
 
 func (this *CreateSyntheticBlocks) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -76,7 +76,7 @@ func (this *CreateSyntheticBlocks) rewriteFunctionDeclarationsInBlock(block Node
 	var next Node = 0
 	{
 		var current Node = block.getFirstChild()
-		for ; (current != 0); current = next {
+		for ; current != 0; current = next {
 			next = current.getNext()
 			if NodeUtil_isFunctionDeclaration(current) {
 				this.rewriteFunctionDeclaration(current)
@@ -104,19 +104,19 @@ func (this *CreateSyntheticBlocks) addBlocks(marker *CreateSyntheticBlocks_Marke
 func (this *CreateSyntheticBlocks) moveSiblingExclusive(dest Node, start Node, end Node) {
 	Preconditions_checkNotNull(start.box_())
 	Preconditions_checkNotNull(end.box_())
-	for (start.getNext() != end) {
+	for start.getNext() != end {
 		var child Node = start.getNext().detach()
 		dest.addChildToBack(child)
 	}
 }
 
 func (this *CreateSyntheticBlocks) visit_impl(unused *NodeTraversal, n Node, parent Node) {
-	if (!n.isCall() || !n.getFirstChild().isName()) {
+	if !n.isCall() || !n.getFirstChild().isName() {
 		return
 	}
 	var callTarget Node = n.getFirstChild()
 	var callName string = callTarget.getString()
-	if (this.startMarkerName == callName) {
+	if this.startMarkerName == callName {
 		if !parent.isExprResult() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_INVALID_MARKER_USAGE, []string{this.startMarkerName}))
 			return
@@ -137,7 +137,7 @@ func (this *CreateSyntheticBlocks) visit_impl(unused *NodeTraversal, n Node, par
 		return
 	}
 	var startMarkerNode Node = Node_of_(this.markerStack.pop())
-	if (endMarkerNode.getParent() != startMarkerNode.getParent()) {
+	if endMarkerNode.getParent() != startMarkerNode.getParent() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_UNMATCHED_END_MARKER, []string{this.startMarkerName, this.endMarkerName}))
 		return
 	}
@@ -163,7 +163,7 @@ func CreateSyntheticBlocks_clinit() {
 
 type CreateSyntheticBlocks_Marker struct {
 	startMarker Node
-	endMarker Node
+	endMarker   Node
 }
 
 func (this *CreateSyntheticBlocks_Marker) init_CreateSyntheticBlocks_Marker(startMarker Node, endMarker Node) {
@@ -176,4 +176,3 @@ func new_CreateSyntheticBlocks_Marker(startMarker Node, endMarker Node) *CreateS
 	this.init_CreateSyntheticBlocks_Marker(startMarker, endMarker)
 	return this
 }
-

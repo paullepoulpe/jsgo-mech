@@ -3,9 +3,9 @@
 package closure
 
 type ConvertChunksToESModules struct {
-	compiler_ *AbstractCompiler
-	crossChunkExports MapOf[*JSChunk, SetOf[string]]
-	crossChunkImports MapOf[*JSChunk, MapOf[*JSChunk, SetOf[string]]]
+	compiler_              *AbstractCompiler
+	crossChunkExports      MapOf[*JSChunk, SetOf[string]]
+	crossChunkImports      MapOf[*JSChunk, MapOf[*JSChunk, SetOf[string]]]
 	dynamicImportCallbacks ListOf[Node]
 }
 
@@ -31,7 +31,7 @@ func (this *ConvertChunksToESModules) process_2(externs Node, root Node) {
 	it_1 := foreach_(any(this.compiler_.getChunkGraph().getAllChunks()))
 	for it_1.next() {
 		var chunk *JSChunk = cast_[*JSChunk](it_1.v)
-		if ((!this.crossChunkExports.containsKey(obj_(chunk)) && !this.crossChunkImports.containsKey(obj_(chunk))) && !chunk.getInputs().isEmpty()) {
+		if (!this.crossChunkExports.containsKey(obj_(chunk)) && !this.crossChunkImports.containsKey(obj_(chunk))) && !chunk.getInputs().isEmpty() {
 			this.crossChunkExports.put(obj_(chunk), obj_(new_LinkedHashSet()))
 		}
 	}
@@ -56,7 +56,7 @@ func (this *ConvertChunksToESModules) convertChunkSourcesToModules() {
 			var astRoot Node = input.getAstRoot(this.compiler_)
 			var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(astRoot)
 			Preconditions_checkState(!scriptFeatures.containsFeatureSet(FeatureSet_ES2015_MODULES))
-			if (firstInput == nil) {
+			if firstInput == nil {
 				firstInput = input
 				scriptFeatures = scriptFeatures.union(FeatureSet_ES2015_MODULES)
 				astRoot.setFeatureSet(obj_(scriptFeatures))
@@ -98,7 +98,7 @@ func (this *ConvertChunksToESModules) addExportStatements() {
 			exportSpecs.addChildToBack(exportSpec)
 		}
 		var importsByChunk MapOf[*JSChunk, SetOf[string]] = icast_Map(this.crossChunkImports.get(jsModuleExports.getKey()))
-		if ((exportSpecs.hasChildren() || (importsByChunk == nil)) || importsByChunk.isEmpty()) {
+		if (exportSpecs.hasChildren() || (importsByChunk == nil)) || importsByChunk.isEmpty() {
 			var export Node = IR_export(exportSpecs).srcrefTree(moduleBody)
 			moduleBody.addChildToBack(export)
 			this.compiler_.reportChangeToEnclosingScope(moduleBody)
@@ -163,14 +163,14 @@ func (this *ConvertChunksToESModules) addImportStatements() {
 func ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(compiler *AbstractCompiler, call Node) Node {
 	Preconditions_checkState(call.isCall())
 	var callbackFn Node = NodeUtil_getArgumentForCallOrNew(call, 0)
-	if (((callbackFn == 0) || !callbackFn.isFunction()) || NodeUtil_getFunctionParameters(callbackFn).hasChildren()) {
+	if ((callbackFn == 0) || !callbackFn.isFunction()) || NodeUtil_getFunctionParameters(callbackFn).hasChildren() {
 		compiler.report(JSError_make_Node_DiagnosticType_StringArr(call, ConvertChunksToESModules_UNRECOGNIZED_DYNAMIC_IMPORT_CALLBACK, []string{" Unable to find valid callback function."}))
 		return 0
 	}
 	var callbackBody Node = NodeUtil_getFunctionBody(callbackFn)
 	if callbackBody.isName() {
 		return callbackBody
-	} else if ((((callbackBody.isBlock() && callbackBody.hasOneChild()) && callbackBody.getFirstChild().isReturn()) && callbackBody.getFirstChild().hasOneChild()) && callbackBody.getFirstFirstChild().isName()) {
+	} else if (((callbackBody.isBlock() && callbackBody.hasOneChild()) && callbackBody.getFirstChild().isReturn()) && callbackBody.getFirstChild().hasOneChild()) && callbackBody.getFirstFirstChild().isName() {
 		return callbackBody.getFirstFirstChild()
 	}
 	compiler.report(JSError_make_Node_DiagnosticType_StringArr(call, ConvertChunksToESModules_UNRECOGNIZED_DYNAMIC_IMPORT_CALLBACK, []string{" Unable to find valid namespace reference."}))
@@ -184,7 +184,7 @@ func (this *ConvertChunksToESModules) rewriteDynamicImportCallbacks() {
 		var dynamicImportCallback Node = Node_of_(it_1.v)
 		Preconditions_checkState(dynamicImportCallback.isCall())
 		var moduleNamespace Node = ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(this.compiler_, dynamicImportCallback)
-		if (moduleNamespace == 0) {
+		if moduleNamespace == 0 {
 			continue
 		}
 		var callbackFn Node = NodeUtil_getArgumentForCallOrNew(dynamicImportCallback, 0)
@@ -217,7 +217,7 @@ func (this *ConvertChunksToESModules) visitCallAndTraverse(t *NodeTraversal, cal
 		return true
 	}
 	var moduleNamespace Node = ConvertChunksToESModules_getDynamicImportCallbackModuleNamespace(this.compiler_, call)
-	if (moduleNamespace == 0) {
+	if moduleNamespace == 0 {
 		return true
 	}
 	var isValidModuleNamespace bool = this.visitName(t, moduleNamespace, ConvertChunksToESModules_ImportType_DYNAMIC)
@@ -237,16 +237,16 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 	}
 	var s *Scope = t.getScope()
 	var v *Var = cast_[*Var](s.getVar(name).self())
-	if ((v == nil) || !v.isGlobal()) {
+	if (v == nil) || !v.isGlobal() {
 		return false
 	}
 	var input *CompilerInput = v.getInput()
-	if (input == nil) {
+	if input == nil {
 		return false
 	}
 	var definingChunk *JSChunk = input.getChunk()
 	var referencingChunk *JSChunk = t.getChunk()
-	if (definingChunk != referencingChunk) {
+	if definingChunk != referencingChunk {
 		if NodeUtil_isLhsOfAssign(nameNode) {
 			t.report(nameNode, ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT, []string{nameNode.getString(), ConvertChunksToESModules_getChunkName(referencingChunk), ConvertChunksToESModules_getChunkName(definingChunk)})
 		}
@@ -261,7 +261,7 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 			_ = k
 			return obj_(new_LinkedHashMap())
 		}}))
-		if (importType == ConvertChunksToESModules_ImportType_STATIC) {
+		if importType == ConvertChunksToESModules_ImportType_STATIC {
 			var importsForChunk SetOf[string] = icast_Set(Map_computeIfAbsent(namesToImportByChunk, obj_(definingChunk), &Function_fn{func(k_ any) any {
 				var k *JSChunk = cast_[*JSChunk](k_)
 				_ = k
@@ -274,6 +274,7 @@ func (this *ConvertChunksToESModules) visitName(t *NodeTraversal, nameNode Node,
 }
 
 const ConvertChunksToESModules_DYNAMIC_IMPORT_CALLBACK_FN string = "jscomp$DynamicImportCallback"
+
 var ConvertChunksToESModules_ASSIGNMENT_TO_IMPORT *DiagnosticType
 var ConvertChunksToESModules_UNABLE_TO_COMPUTE_RELATIVE_PATH *DiagnosticType
 var ConvertChunksToESModules_UNRECOGNIZED_DYNAMIC_IMPORT_CALLBACK *DiagnosticType
@@ -403,4 +404,3 @@ func (this *ConvertChunksToESModules_FindCrossChunkReferences) visitScript(t *No
 		}
 	}
 }
-

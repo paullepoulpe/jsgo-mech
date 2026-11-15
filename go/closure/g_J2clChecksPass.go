@@ -35,30 +35,30 @@ func (this *J2clChecksPass) visit_impl(unused *NodeTraversal, n Node, parent Nod
 }
 
 func (this *J2clChecksPass) checkReferenceEquality(n Node, typeName string, fileName string) {
-	if (((n.isSHEQ() || n.isEQ()) || n.isSHNE()) || n.isNE()) {
+	if ((n.isSHEQ() || n.isEQ()) || n.isSHNE()) || n.isNE() {
 		var firstJsType *JSType = n.getFirstChild().getJSType()
 		var lastJsType *JSType = n.getLastChild().getJSType()
 		var hasType bool = (this.isType(firstJsType, fileName) || this.isType(lastJsType, fileName))
 		var hasNullType bool = (this.isNullType(firstJsType) || this.isNullType(lastJsType))
-		if (hasType && !hasNullType) {
+		if hasType && !hasNullType {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, J2clChecksPass_J2CL_REFERENCE_EQUALITY, []string{typeName}))
 		}
 	}
 }
 
 func (this *J2clChecksPass) isNullType(jsType *JSType) bool {
-	if (jsType == nil) {
+	if jsType == nil {
 		return false
 	}
 	return (jsType.isNullType() || jsType.isVoidType())
 }
 
 func (this *J2clChecksPass) isType(jsType *JSType, fileName string) bool {
-	if (jsType == nil) {
+	if jsType == nil {
 		return false
 	}
 	jsType = jsType.restrictByNotNullOrUndefined()
-	if (jsType.toMaybeObjectType() == nil) {
+	if jsType.toMaybeObjectType() == nil {
 		return false
 	}
 	var sourceName OptionalOf[string] = this.getSourceName(jsType)
@@ -67,7 +67,7 @@ func (this *J2clChecksPass) isType(jsType *JSType, fileName string) bool {
 
 func (this *J2clChecksPass) getSourceName(jsType *JSType) OptionalOf[string] {
 	var constructor *FunctionType = jsType.toMaybeObjectType().getConstructor()
-	if (constructor == nil) {
+	if constructor == nil {
 		return Optional_of(strobj_(""))
 	}
 	return Optional_of(strobj_(NodeUtil_getSourceName(constructor.getSource()))).filter(&Predicate_fn{func(s_ any) bool {
@@ -95,4 +95,3 @@ func J2clChecksPass_clinit() {
 	J2clChecksPass_REFERENCE_EQUALITY_TYPE_PATTERNS = ImmutableMap_of_Object_Object_Object_Object_Object_Object(strobj_("java.lang.Integer"), strobj_("java/lang/Integer.impl.java.js"), strobj_("java.lang.Float"), strobj_("java/lang/Float.impl.java.js"), strobj_("goog.math.Long"), strobj_("javascript/closure/math/long.js"))
 
 }
-

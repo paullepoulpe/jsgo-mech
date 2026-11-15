@@ -29,11 +29,11 @@ func JsIterables_getElementType(iterableOrIterator *JSType, typeRegistry *JSType
 		return templateTypeMap.getResolvedTemplateType(typeRegistry.getAsyncIteratorValueTemplate())
 	}
 	var nextProperty *JSType = iterableOrIterator.findPropertyType("next")
-	if (nextProperty != nil) {
+	if nextProperty != nil {
 		var nextFn *FunctionType = nextProperty.toMaybeFunctionType()
-		if ((nextFn != nil) && (nextFn.getReturnType() != nil)) {
+		if (nextFn != nil) && (nextFn.getReturnType() != nil) {
 			var valueProperty *JSType = nextFn.getReturnType().findPropertyType("value")
-			if (valueProperty != nil) {
+			if valueProperty != nil {
 				return valueProperty
 			}
 		}
@@ -75,23 +75,43 @@ func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeReg
 		it_1 := foreach_(obj_(type_.toMaybeUnionType().getAlternates()))
 		for it_1.next() {
 			var alt *JSType = to_JSType(it_1.v)
-			alt = func() *JSType { if alt.isBoxableScalar() { return alt.autoboxesTo() }; return alt }()
+			alt = func() *JSType {
+				if alt.isBoxableScalar() {
+					return alt.autoboxesTo()
+				}
+				return alt
+			}()
 			var isIterable bool = alt.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ITERABLE_TYPE))
 			var isAsyncIterable bool = (includeAsyncIterable && alt.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ASYNC_ITERABLE_TYPE)))
-			if (!isIterable && !isAsyncIterable) {
+			if !isIterable && !isAsyncIterable {
 				return new_JsIterables_MaybeBoxedType(nil, alt)
 			}
-			var valueTemplate *TemplateType = func() *TemplateType { if isAsyncIterable { return typeRegistry.getAsyncIterableValueTemplate() }; return typeRegistry.getIterableValueTemplate() }()
+			var valueTemplate *TemplateType = func() *TemplateType {
+				if isAsyncIterable {
+					return typeRegistry.getAsyncIterableValueTemplate()
+				}
+				return typeRegistry.getIterableValueTemplate()
+			}()
 			templatedTypes.add(alt.getTemplateTypeMap().getResolvedTemplateType(valueTemplate).self())
 		}
 	} else {
-		var autoboxedType *JSType = func() *JSType { if type_.isBoxableScalar() { return type_.autoboxesTo() }; return type_ }()
+		var autoboxedType *JSType = func() *JSType {
+			if type_.isBoxableScalar() {
+				return type_.autoboxesTo()
+			}
+			return type_
+		}()
 		var isIterable bool = autoboxedType.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ITERABLE_TYPE))
 		var isAsyncIterable bool = (includeAsyncIterable && autoboxedType.isSubtypeOf(typeRegistry.getNativeType(JSTypeNative_ASYNC_ITERABLE_TYPE)))
-		if (!isIterable && !isAsyncIterable) {
+		if !isIterable && !isAsyncIterable {
 			return new_JsIterables_MaybeBoxedType(nil, autoboxedType)
 		}
-		var templateType *TemplateType = func() *TemplateType { if isAsyncIterable { return typeRegistry.getAsyncIterableValueTemplate() }; return typeRegistry.getIterableValueTemplate() }()
+		var templateType *TemplateType = func() *TemplateType {
+			if isAsyncIterable {
+				return typeRegistry.getAsyncIterableValueTemplate()
+			}
+			return typeRegistry.getIterableValueTemplate()
+		}()
 		templatedTypes.add(autoboxedType.getTemplateTypeMap().getResolvedTemplateType(templateType).self())
 	}
 	return new_JsIterables_MaybeBoxedType(typeRegistry.createUnionTypeList(templatedTypes), nil)
@@ -99,7 +119,7 @@ func JsIterables_maybeBoxIterableAndPossiblyAsyncIterable(type_ *JSType, typeReg
 
 type JsIterables_MaybeBoxedType struct {
 	templatedType *JSType
-	mismatchType *JSType
+	mismatchType  *JSType
 }
 
 func (this *JsIterables_MaybeBoxedType) init_JsIterables_MaybeBoxedType(templatedType *JSType, mismatchType *JSType) {
@@ -134,4 +154,3 @@ func (this *JsIterables_MaybeBoxedType) orElse(type_ *JSType) *JSType {
 func (this *JsIterables_MaybeBoxedType) isMatch() bool {
 	return (this.templatedType != nil)
 }
-

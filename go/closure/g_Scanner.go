@@ -3,14 +3,14 @@
 package closure
 
 type Scanner_parser struct {
-	errorReporter *ErrorReporter_util
-	source *SourceFile_parser
-	lineNumberScanner *LineNumberScanner
-	contents string
-	contentsLength int32
-	currentTokens ArrayListOf[*Token_parser]
-	index_ int32
-	commentRecorder Scanner_CommentRecorder
+	errorReporter      *ErrorReporter_util
+	source             *SourceFile_parser
+	lineNumberScanner  *LineNumberScanner
+	contents           string
+	contentsLength     int32
+	currentTokens      ArrayListOf[*Token_parser]
+	index_             int32
+	commentRecorder    Scanner_CommentRecorder
 	typeParameterLevel int32
 }
 
@@ -46,7 +46,12 @@ func (this *Scanner_parser) getFile() *SourceFile_parser {
 }
 
 func (this *Scanner_parser) getOffset() int32 {
-	return func() int32 { if this.currentTokens.isEmpty() { return this.index_ }; return this.peekToken().location_.start_.offset }()
+	return func() int32 {
+		if this.currentTokens.isEmpty() {
+			return this.index_
+		}
+		return this.peekToken().location_.start_.offset
+	}()
 }
 
 func (this *Scanner_parser) setPosition(position *SourcePosition_util) {
@@ -56,7 +61,12 @@ func (this *Scanner_parser) setPosition(position *SourcePosition_util) {
 }
 
 func (this *Scanner_parser) getPosition() *SourcePosition_util {
-	return func() *SourcePosition_util { if this.currentTokens.isEmpty() { return this.getPosition_1(this.index_) }; return this.peekToken().location_.start_ }()
+	return func() *SourcePosition_util {
+		if this.currentTokens.isEmpty() {
+			return this.getPosition_1(this.index_)
+		}
+		return this.peekToken().location_.start_
+	}()
 }
 
 func (this *Scanner_parser) getPosition_1(offset int32) *SourcePosition_util {
@@ -90,7 +100,7 @@ func (this *Scanner_parser) nextRegularExpressionLiteralToken() *LiteralToken {
 	if !this.skipRegularExpressionBody() {
 		return new_LiteralToken(TokenType_REGULAR_EXPRESSION, this.getTokenString(beginToken), this.getTokenRange(beginToken))
 	}
-	if (this.peekChar() != '/') {
+	if this.peekChar() != '/' {
 		this.reportError("Expected '/' in regular expression literal", []any{})
 		return new_LiteralToken(TokenType_REGULAR_EXPRESSION, this.getTokenString(beginToken), this.getTokenRange(beginToken))
 	}
@@ -103,7 +113,7 @@ func (this *Scanner_parser) nextRegularExpressionLiteralToken() *LiteralToken {
 
 func (this *Scanner_parser) nextTemplateLiteralToken() *TemplateLiteralToken {
 	var token *Token_parser = this.nextToken()
-	if (this.isAtEnd() || (token.type__ != TokenType_CLOSE_CURLY)) {
+	if this.isAtEnd() || (token.type__ != TokenType_CLOSE_CURLY) {
 		this.reportError_3(this.getPosition_1(this.index_), "Expected '}' after expression in template literal", []any{})
 	}
 	return this.nextTemplateLiteralTokenShared(TokenType_TEMPLATE_TAIL, TokenType_TEMPLATE_MIDDLE)
@@ -117,7 +127,7 @@ func (this *Scanner_parser) skipRegularExpressionBody() bool {
 	if !this.skipRegularExpressionChar() {
 		return false
 	}
-	for (!this.isAtEnd() && Scanner_parser_isRegularExpressionChar(this.peekChar())) {
+	for !this.isAtEnd() && Scanner_parser_isRegularExpressionChar(this.peekChar()) {
 		if !this.skipRegularExpressionChar() {
 			return false
 		}
@@ -152,12 +162,12 @@ func (this *Scanner_parser) skipRegularExpressionBackslashSequence() bool {
 
 func (this *Scanner_parser) skipRegularExpressionClass() bool {
 	this.nextChar()
-	for (!this.isAtEnd() && this.peekRegularExpressionClassChar()) {
+	for !this.isAtEnd() && this.peekRegularExpressionClassChar() {
 		if !this.skipRegularExpressionClassChar() {
 			return false
 		}
 	}
-	if (this.peekChar() != ']') {
+	if this.peekChar() != ']' {
 		this.reportError("']' expected", []any{})
 		return false
 	}
@@ -200,7 +210,7 @@ func (this *Scanner_parser) peekToken() *Token_parser {
 }
 
 func (this *Scanner_parser) peekToken_1(index int32) *Token_parser {
-	for (this.currentTokens.size() <= index) {
+	for this.currentTokens.size() <= index {
 		this.currentTokens.add(this.scanToken().self())
 	}
 	return to_Token_parser(this.currentTokens.get(index))
@@ -216,7 +226,7 @@ func (this *Scanner_parser) isValidIndex(index int32) bool {
 
 func (this *Scanner_parser) skipWhitespace() bool {
 	var foundLineTerminator bool = false
-	for (!this.isAtEnd() && this.peekWhitespace()) {
+	for !this.isAtEnd() && this.peekWhitespace() {
 		if Scanner_parser_isLineTerminator(this.nextChar()) {
 			foundLineTerminator = true
 		}
@@ -284,19 +294,19 @@ func (this *Scanner_parser) skipComment() bool {
 			default:
 			}
 		case '<':
-			if (((this.peekChar_1(1) == '!') && (this.peekChar_1(2) == '-')) && (this.peekChar_1(3) == '-')) {
+			if ((this.peekChar_1(1) == '!') && (this.peekChar_1(2) == '-')) && (this.peekChar_1(3) == '-') {
 				this.reportHtmlCommentWarning()
 				this.skipSingleLineComment()
 				return true
 			}
 		case '-':
-			if ((isStartOfLine && (this.peekChar_1(1) == '-')) && (this.peekChar_1(2) == '>')) {
+			if (isStartOfLine && (this.peekChar_1(1) == '-')) && (this.peekChar_1(2) == '>') {
 				this.reportHtmlCommentWarning()
 				this.skipSingleLineComment()
 				return true
 			}
 		case '#':
-			if ((this.index_ == 0) && (this.peekChar_1(1) == '!')) {
+			if (this.index_ == 0) && (this.peekChar_1(1) == '!') {
 				this.skipSingleLineComment_1(Comment_Type_SHEBANG)
 				return true
 			}
@@ -316,7 +326,7 @@ func (this *Scanner_parser) skipSingleLineComment() {
 
 func (this *Scanner_parser) skipSingleLineComment_1(type_ *Comment_Type) {
 	var startOffset int32 = this.index_
-	for (!this.isAtEnd() && !Scanner_parser_isLineTerminator(this.peekChar())) {
+	for !this.isAtEnd() && !Scanner_parser_isLineTerminator(this.peekChar()) {
 		this.nextChar()
 	}
 	var range_ *SourceRange = this.lineNumberScanner.getSourceRange(startOffset, this.index_)
@@ -332,17 +342,17 @@ func (this *Scanner_parser) skipMultiLineComment() {
 	var startOffset int32 = this.index_
 	this.nextChar()
 	this.nextChar()
-	for (!this.isAtEnd() && ((this.peekChar() != '*') || (this.peekChar_1(1) != '/'))) {
+	for !this.isAtEnd() && ((this.peekChar() != '*') || (this.peekChar_1(1) != '/')) {
 		this.nextChar()
 	}
 	if !this.isAtEnd() {
 		this.nextChar()
 		this.nextChar()
 		var type_ *Comment_Type = Comment_Type_BLOCK
-		if ((this.index_ - startOffset) > 4) {
-			if (String_charAt(this.contents, (startOffset + 2)) == '*') {
+		if (this.index_ - startOffset) > 4 {
+			if String_charAt(this.contents, (startOffset+2)) == '*' {
 				type_ = Comment_Type_JSDOC
-			} else if (String_charAt(this.contents, (startOffset + 2)) == '!') {
+			} else if String_charAt(this.contents, (startOffset+2)) == '!' {
 				type_ = Comment_Type_IMPORTANT
 			}
 		}
@@ -378,7 +388,7 @@ func (this *Scanner_parser) scanToken() *Token_parser {
 		if Scanner_parser_isDecimalDigit(this.peekChar()) {
 			return this.scanNumberPostPeriod(beginToken)
 		}
-		if (this.peek('.') && (this.peekChar_1(1) == '.')) {
+		if this.peek('.') && (this.peekChar_1(1) == '.') {
 			this.nextChar()
 			this.nextChar()
 			return this.createToken(TokenType_ELLIPSIS, beginToken)
@@ -424,7 +434,7 @@ func (this *Scanner_parser) scanToken() *Token_parser {
 			return this.createToken(TokenType_OPEN_ANGLE, beginToken)
 		}
 	case '>':
-		if (this.typeParameterLevel > 0) {
+		if this.typeParameterLevel > 0 {
 			return this.createToken(TokenType_CLOSE_ANGLE, beginToken)
 		}
 		switch this.peekChar() {
@@ -608,21 +618,31 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType { if isBigInt { return TokenType_BIGINT }; return TokenType_NUMBER }(), this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
+			return new_LiteralToken(func() *TokenType {
+				if isBigInt {
+					return TokenType_BIGINT
+				}
+				return TokenType_NUMBER
+			}(), this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
 		case 'o', 'O':
 			this.nextChar()
 			if !Scanner_parser_isOctalDigit(this.peekChar()) {
 				this.reportError("Octal Integer Literal must contain at least one digit", []any{})
 			}
 			this.skipOctalDigits()
-			if (this.peek('8') || this.peek('9')) {
+			if this.peek('8') || this.peek('9') {
 				this.reportError("Invalid octal digit in octal literal.", []any{})
 			}
 			isBigInt = this.peek('n')
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType { if isBigInt { return TokenType_BIGINT }; return TokenType_NUMBER }(), this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
+			return new_LiteralToken(func() *TokenType {
+				if isBigInt {
+					return TokenType_BIGINT
+				}
+				return TokenType_NUMBER
+			}(), this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
 		case 'x', 'X':
 			this.nextChar()
 			if !this.peekHexDigit() {
@@ -633,7 +653,12 @@ func (this *Scanner_parser) scanPostZero(beginToken int32) *Token_parser {
 			if isBigInt {
 				this.nextChar()
 			}
-			return new_LiteralToken(func() *TokenType { if isBigInt { return TokenType_BIGINT }; return TokenType_NUMBER }(), this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
+			return new_LiteralToken(func() *TokenType {
+				if isBigInt {
+					return TokenType_BIGINT
+				}
+				return TokenType_NUMBER
+			}(), this.getTokenString(beginToken), this.getTokenRange(beginToken)).up_Token_parser()
 		case 'e', 'E':
 			return this.scanExponentOfNumericLiteral(beginToken).up_Token_parser()
 		case '.':
@@ -667,19 +692,24 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 	var containsUnicodeEscape bool = (ch == '\\')
 	var bracedUnicodeEscape bool = false
 	var isPrivateIdentifier bool = (ch == '#')
-	var unicodeEscapeLen int32 = func() int32 { if containsUnicodeEscape { return 1 }; return 0 }()
+	var unicodeEscapeLen int32 = func() int32 {
+		if containsUnicodeEscape {
+			return 1
+		}
+		return 0
+	}()
 	ch = this.peekChar()
-	for (((Identifiers_isIdentifierPart(ch) || (ch == '\\')) || ((ch == '{') && (unicodeEscapeLen == 2))) || ((ch == '}') && bracedUnicodeEscape)) {
-		if (ch == '\\') {
+	for ((Identifiers_isIdentifierPart(ch) || (ch == '\\')) || ((ch == '{') && (unicodeEscapeLen == 2))) || ((ch == '}') && bracedUnicodeEscape) {
+		if ch == '\\' {
 			containsUnicodeEscape = true
 		}
-		if ((ch == '\\') || (unicodeEscapeLen > 0)) {
+		if (ch == '\\') || (unicodeEscapeLen > 0) {
 			unicodeEscapeLen++
 		}
-		if (ch == '{') {
+		if ch == '{' {
 			bracedUnicodeEscape = true
 		}
-		if ((ch == '}') || ((unicodeEscapeLen >= 6) && !bracedUnicodeEscape)) {
+		if (ch == '}') || ((unicodeEscapeLen >= 6) && !bracedUnicodeEscape) {
 			bracedUnicodeEscape = false
 			unicodeEscapeLen = 0
 		}
@@ -687,7 +717,7 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		ch = this.peekChar()
 	}
 	var value OptionalOf[string] = Optional_of(strobj_(String_substring(this.contents, valueStartIndex, this.index_)))
-	if (isPrivateIdentifier && (str_(value.get()) == "#")) {
+	if isPrivateIdentifier && (str_(value.get()) == "#") {
 		this.reportError_3(this.getPosition_1(beginToken), "Invalid usage of #", []any{})
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
@@ -707,7 +737,7 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
 	var k *Keywords = Keywords_getString(str_(value.orElseThrow()))
-	if ((k != nil) && !containsUnicodeEscape) {
+	if (k != nil) && !containsUnicodeEscape {
 		return new_Token_parser(k.type__, this.getTokenRange(beginToken))
 	}
 	return new_IdentifierToken(this.getTokenRange(beginToken), str_(value.get())).up_Token_parser()
@@ -732,15 +762,15 @@ func Scanner_parser_processUnicodeEscapes(value OptionalOf[string]) OptionalOf[s
 					panic(r_)
 				}
 			}()
-			if (String_charAt(str_(value.get()), (escapeStart + 1)) != 'u') {
+			if String_charAt(str_(value.get()), (escapeStart+1)) != 'u' {
 				ret_2 = Optional_empty()
 				return 1
 			}
 			var hexDigits string
 			var escapeEnd int32
-			if (String_charAt(str_(value.get()), (escapeStart + 2)) != '{') {
+			if String_charAt(str_(value.get()), (escapeStart+2)) != '{' {
 				escapeEnd = (escapeStart + 6)
-				if (escapeEnd > String_length(str_(value.get()))) {
+				if escapeEnd > String_length(str_(value.get())) {
 					ret_2 = Optional_empty()
 					return 1
 				}
@@ -750,7 +780,7 @@ func Scanner_parser_processUnicodeEscapes(value OptionalOf[string]) OptionalOf[s
 				for Scanner_parser_isHexDigit(String_charAt(str_(value.get()), escapeEnd)) {
 					escapeEnd++
 				}
-				if (String_charAt(str_(value.get()), escapeEnd) != '}') {
+				if String_charAt(str_(value.get()), escapeEnd) != '}' {
 					ret_2 = Optional_empty()
 					return 1
 				}
@@ -758,7 +788,7 @@ func Scanner_parser_processUnicodeEscapes(value OptionalOf[string]) OptionalOf[s
 				escapeEnd++
 			}
 			var codePoint int32 = Integer_parseInt(hexDigits, 16)
-			if (codePoint > 65535) {
+			if codePoint > 65535 {
 				ret_2 = Optional_empty()
 				return 1
 			}
@@ -787,7 +817,7 @@ func (this *Scanner_parser) scanStringLiteral(beginIndex int32, terminator uint1
 			return new_StringLiteralToken(this.getTokenString(beginIndex), this.getTokenRangeSourcePosition(startingPosition), hasUnescapedUnicodeLineOrParagraphSeparator).up_Token_parser()
 		}
 	}
-	if (this.peekChar() != terminator) {
+	if this.peekChar() != terminator {
 		this.reportError_3(startingPosition, "Unterminated string literal", []any{})
 	} else {
 		this.nextChar()
@@ -850,13 +880,13 @@ func (this *Scanner_parser) skipTemplateCharacters() *Scanner_SkipTemplateCharac
 			return result
 		case '\\':
 			var newError *Scanner_SkipTemplateCharactersResult = this.skipTemplateLiteralEscapeSequence()
-			if (newError != nil) {
-				if (!result.hasMessage() || (!result.hasError() && newError.hasError())) {
+			if newError != nil {
+				if !result.hasMessage() || (!result.hasError() && newError.hasError()) {
 					result = newError
 				}
 			}
 		case '$':
-			if (this.peekChar_1(1) == '{') {
+			if this.peekChar_1(1) == '{' {
 				return result
 			}
 			fallthrough
@@ -899,7 +929,7 @@ func (this *Scanner_parser) skipTemplateLiteralEscapeSequence() *Scanner_SkipTem
 				return this.createSkipTemplateCharactersResult(Optional_of(strobj_("Empty unicode escape")), TemplateLiteralToken_ErrorLevel_ERROR)
 			}
 			var allHexDigits bool = true
-			for (!(this.peek('}')) && allHexDigits) {
+			for !(this.peek('}')) && allHexDigits {
 				allHexDigits = (allHexDigits && this.skipHexDigit())
 			}
 			if !allHexDigits {
@@ -952,7 +982,7 @@ func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
 				return false
 			}
 			var allHexDigits bool = true
-			for (!(this.peek('}')) && allHexDigits) {
+			for !(this.peek('}')) && allHexDigits {
 				allHexDigits = (allHexDigits && this.skipHexDigit())
 			}
 			if !allHexDigits {
@@ -969,7 +999,7 @@ func (this *Scanner_parser) skipStringLiteralEscapeSequence() bool {
 		}
 	default:
 	}
-	if (next == '/') {
+	if next == '/' {
 	} else {
 		this.reportWarning("Unnecessary escape: '\\%s' is equivalent to just '%s'", []any{any(uint16(next)), any(uint16(next))})
 	}
@@ -986,7 +1016,7 @@ func (this *Scanner_parser) skipHexDigit() bool {
 
 func (this *Scanner_parser) skipLineTerminator() {
 	var first uint16 = this.nextChar()
-	if ((first == '\r') && this.peek('\n')) {
+	if (first == '\r') && this.peek('\n') {
 		this.nextChar()
 	}
 }
@@ -1024,10 +1054,10 @@ func (this *Scanner_parser) skipDecimalDigits() {
 func (this *Scanner_parser) skipDecimalDigits_1(hasLeadingDigit bool) {
 	var hasDigit bool = hasLeadingDigit
 	var ch uint16 = this.peekChar()
-	for (Scanner_parser_isDecimalDigit(ch) || (ch == '_')) {
+	for Scanner_parser_isDecimalDigit(ch) || (ch == '_') {
 		this.nextChar()
-		if (ch == '_') {
-			if (hasDigit && Scanner_parser_isDecimalDigit(this.peekChar())) {
+		if ch == '_' {
+			if hasDigit && Scanner_parser_isDecimalDigit(this.peekChar()) {
 				this.nextChar()
 			} else {
 				this.reportError("Trailing numeric separator", []any{})
@@ -1061,9 +1091,9 @@ func Scanner_parser_isHexDigit(ch uint16) bool {
 
 func (this *Scanner_parser) skipHexDigits() {
 	var ch uint16 = this.peekChar()
-	for (Scanner_parser_isHexDigit(ch) || (ch == '_')) {
+	for Scanner_parser_isHexDigit(ch) || (ch == '_') {
 		this.nextChar()
-		if (ch == '_') {
+		if ch == '_' {
 			if this.peekHexDigit() {
 				this.nextChar()
 			} else {
@@ -1076,9 +1106,9 @@ func (this *Scanner_parser) skipHexDigits() {
 
 func (this *Scanner_parser) skipOctalDigits() {
 	var ch uint16 = this.peekChar()
-	for (Scanner_parser_isOctalDigit(ch) || (ch == '_')) {
+	for Scanner_parser_isOctalDigit(ch) || (ch == '_') {
 		this.nextChar()
-		if (ch == '_') {
+		if ch == '_' {
 			if Scanner_parser_isOctalDigit(this.peekChar()) {
 				this.nextChar()
 			} else {
@@ -1107,9 +1137,9 @@ func Scanner_parser_valueOfOctalDigit(ch uint16) int32 {
 
 func (this *Scanner_parser) skipBinaryDigits() {
 	var ch uint16 = this.peekChar()
-	for (Scanner_parser_isBinaryDigit(ch) || (ch == '_')) {
+	for Scanner_parser_isBinaryDigit(ch) || (ch == '_') {
 		this.nextChar()
-		if (ch == '_') {
+		if ch == '_' {
 			if Scanner_parser_isBinaryDigit(this.peekChar()) {
 				this.nextChar()
 			} else {
@@ -1156,7 +1186,12 @@ func (this *Scanner_parser) peekChar() uint16 {
 }
 
 func (this *Scanner_parser) peekChar_1(offset int32) uint16 {
-	return func() uint16 { if !this.isValidIndex((this.index_ + offset)) { return 0x0000 }; return String_charAt(this.contents, (this.index_ + offset)) }()
+	return func() uint16 {
+		if !this.isValidIndex((this.index_ + offset)) {
+			return 0x0000
+		}
+		return String_charAt(this.contents, (this.index_ + offset))
+	}()
 }
 
 func (this *Scanner_parser) reportError(format string, arguments []any) {
@@ -1197,8 +1232,8 @@ func (this *Scanner_CommentRecorder_fn) recordComment(p0 *Comment_Type, p1 *Sour
 
 type Scanner_SkipTemplateCharactersResult struct {
 	errorMessage_ OptionalOf[string]
-	position *SourcePosition_util
-	errorLevel *TemplateLiteralToken_ErrorLevel
+	position      *SourcePosition_util
+	errorLevel    *TemplateLiteralToken_ErrorLevel
 }
 
 func (this *Scanner_SkipTemplateCharactersResult) init_Scanner_SkipTemplateCharactersResult(message OptionalOf[string], errorLevel *TemplateLiteralToken_ErrorLevel, position *SourcePosition_util) {
@@ -1232,4 +1267,3 @@ func (this *Scanner_SkipTemplateCharactersResult) hasMessage() bool {
 func (this *Scanner_SkipTemplateCharactersResult) hasError() bool {
 	return Objects_equals(obj_(this.errorLevel), obj_(TemplateLiteralToken_ErrorLevel_ERROR))
 }
-

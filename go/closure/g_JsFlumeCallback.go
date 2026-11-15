@@ -3,10 +3,10 @@
 package closure
 
 type JsFlumeCallback struct {
-	scanner *Scanner_refactoring
+	scanner            *Scanner_refactoring
 	includeFilePattern *Pattern
-	matches_ ListOf[*Match]
-	fixes ListOf[*SuggestedFix]
+	matches_           ListOf[*Match]
+	fixes              ListOf[*SuggestedFix]
 }
 
 func (this *JsFlumeCallback) finit_JsFlumeCallback() {
@@ -40,7 +40,7 @@ func (this *JsFlumeCallback) shouldTraverse(nodeTraversal *NodeTraversal, n Node
 	}
 	if n.isScript() {
 		var filename string = n.getSourceFileName()
-		if (((this.includeFilePattern != nil) && !String_isEmpty(this.includeFilePattern.pattern())) && !String_isEmpty(filename)) {
+		if ((this.includeFilePattern != nil) && !String_isEmpty(this.includeFilePattern.pattern())) && !String_isEmpty(filename) {
 			return this.includeFilePattern.matcher(strobj_(filename)).find()
 		}
 	}
@@ -55,4 +55,3 @@ func (this *JsFlumeCallback) visit(t *NodeTraversal, n Node, parent Node) {
 		this.matches_.add(obj_(match))
 	}
 }
-

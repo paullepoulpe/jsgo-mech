@@ -3,10 +3,10 @@
 package closure
 
 type CrossChunkReferenceCollector struct {
-	topLevelStatements ListOf[*CrossChunkReferenceCollector_TopLevelStatement]
-	compiler_ *AbstractCompiler
-	referenceCollector *ReferenceCollector
-	statementCounter int32
+	topLevelStatements     ListOf[*CrossChunkReferenceCollector_TopLevelStatement]
+	compiler_              *AbstractCompiler
+	referenceCollector     *ReferenceCollector
+	statementCounter       int32
 	topLevelStatementDraft *CrossChunkReferenceCollector_TopLevelStatementDraft
 }
 
@@ -76,7 +76,7 @@ func (this *CrossChunkReferenceCollector) initializeDraftStatement(chunk *JSChun
 			if lhs.isName() {
 				draft.declaredNameNode = lhs
 				draft.declaredValueNode = rhs
-			} else if (lhs.isGetProp() || CrossChunkReferenceCollector_isPotentiallyMoveableGetElem(lhs)) {
+			} else if lhs.isGetProp() || CrossChunkReferenceCollector_isPotentiallyMoveableGetElem(lhs) {
 				var nameNode Node = Node_of_(Preconditions_checkNotNull(lhs.getFirstChild().box_()))
 				for nameNode.isGetProp() {
 					nameNode = Node_of_(Preconditions_checkNotNull(nameNode.getFirstChild().box_()))
@@ -90,12 +90,12 @@ func (this *CrossChunkReferenceCollector) initializeDraftStatement(chunk *JSChun
 			var nameNode Node = 0
 			var valueNode Node = 0
 			var relationship *CodingConvention_SubclassRelationship = this.compiler_.getCodingConvention().getClassesDefinedByCall(expr)
-			if (relationship != nil) {
+			if relationship != nil {
 				var declaredName string = str_(relationship.subclassName.orElseThrow())
 				{
 					var callArg Node = expr.getSecondChild()
-					for ; (callArg != 0); callArg = callArg.getNext() {
-						if (callArg.isName() && (declaredName == callArg.getString())) {
+					for ; callArg != 0; callArg = callArg.getNext() {
+						if callArg.isName() && (declaredName == callArg.getString()) {
 							nameNode = callArg
 							break
 						}
@@ -103,10 +103,15 @@ func (this *CrossChunkReferenceCollector) initializeDraftStatement(chunk *JSChun
 				}
 			} else if NodeUtil_isObjectDefinePropertiesDefinition(expr) {
 				var targetObject Node = expr.getSecondChild()
-				nameNode = func() Node { if targetObject.isName() { return targetObject }; return targetObject.getFirstChild() }()
+				nameNode = func() Node {
+					if targetObject.isName() {
+						return targetObject
+					}
+					return targetObject.getFirstChild()
+				}()
 				valueNode = targetObject.getNext()
 			}
-			if (nameNode != 0) {
+			if nameNode != 0 {
 				draft.declaredNameNode = nameNode
 				draft.declaredValueNode = valueNode
 			}
@@ -132,11 +137,11 @@ func (this *CrossChunkReferenceCollector) getTopLevelStatements() ListOf[*CrossC
 }
 
 func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode Node) bool {
-	if (((valueNode == 0) || NodeUtil_isLiteralValue(valueNode, true)) || valueNode.isFunction()) {
+	if ((valueNode == 0) || NodeUtil_isLiteralValue(valueNode, true)) || valueNode.isFunction() {
 		return true
 	}
 	var jsDocInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(valueNode)
-	if ((jsDocInfo != nil) && jsDocInfo.isPureOrBreakMyCode()) {
+	if (jsDocInfo != nil) && jsDocInfo.isPureOrBreakMyCode() {
 		return true
 	}
 	switch valueNode.getToken() {
@@ -144,7 +149,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		var classMembers Node = valueNode.getLastChild()
 		{
 			var member Node = classMembers.getFirstChild()
-			for ; (member != 0); member = member.getNext() {
+			for ; member != 0; member = member.getNext() {
 				if member.isComputedProp() {
 					var keyExpr Node = member.getFirstChild()
 					var method Node = member.getLastChild()
@@ -158,7 +163,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 						return false
 					}
 				} else if member.isMemberFieldDef() {
-					if (member.isStaticMember() && !this.canMoveValue(scope, member.getFirstChild())) {
+					if member.isStaticMember() && !this.canMoveValue(scope, member.getFirstChild()) {
 						return false
 					}
 				} else if member.isBlock() {
@@ -175,7 +180,7 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 	case Token_rhino_ARRAYLIT:
 		{
 			var child Node = valueNode.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				if !this.canMoveValue(scope, child) {
 					return false
 				}
@@ -185,11 +190,11 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 	case Token_rhino_OBJECTLIT:
 		{
 			var child Node = valueNode.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				switch child.getToken() {
 				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF:
 				case Token_rhino_COMPUTED_PROP:
-					if (!this.canMoveValue(scope, child.getFirstChild()) || !this.canMoveValue(scope, child.getLastChild())) {
+					if !this.canMoveValue(scope, child.getFirstChild()) || !this.canMoveValue(scope, child.getLastChild()) {
 						return false
 					}
 				case Token_rhino_STRING_KEY, Token_rhino_OBJECT_SPREAD:
@@ -204,16 +209,16 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		return true
 	case Token_rhino_NAME:
 		var v *Var = cast_[*Var](scope.getVar(valueNode.getString()).self())
-		if ((v != nil) && v.isGlobal()) {
+		if (v != nil) && v.isGlobal() {
 			var refCollection *ReferenceCollection = this.getReferences(v)
-			if (((refCollection != nil) && refCollection.isWellDefined()) && refCollection.isAssignedOnceInLifetime()) {
+			if ((refCollection != nil) && refCollection.isWellDefined()) && refCollection.isAssignedOnceInLifetime() {
 				return true
 			}
 		}
 	case Token_rhino_TEMPLATELIT:
 		{
 			var child Node = valueNode.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				if child.isTemplateLitSub() {
 					if !this.canMoveValue(scope, child.getFirstChild()) {
 						return false
@@ -226,9 +231,9 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 		return true
 	case Token_rhino_GETPROP:
 		var child Node = valueNode.getFirstChild()
-		if ((child != 0) && child.isName()) {
+		if (child != 0) && child.isName() {
 			var symbol OptionalOf[string] = Optional_of(strobj_(child.getString()))
-			if (symbol.isPresent() && (str_(symbol.get()) == "Symbol")) {
+			if symbol.isPresent() && (str_(symbol.get()) == "Symbol") {
 				return true
 			}
 		}
@@ -254,20 +259,20 @@ func new_CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior(outer_
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) beforeTraverseNode(t *NodeTraversal, n Node, parent Node) {
-	if ((parent != 0) && NodeUtil_isTopLevel(parent)) {
+	if (parent != 0) && NodeUtil_isTopLevel(parent) {
 		Preconditions_checkState_boolean_Object((this.outer_.topLevelStatementDraft == nil), n.box_())
 		this.outer_.topLevelStatementDraft = this.outer_.initializeDraftStatement(t.getChunk(), n)
 	}
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) afterVisitNode(t *NodeTraversal, n Node, parent Node, addedReference *Reference) {
-	if (this.outer_.topLevelStatementDraft == nil) {
+	if this.outer_.topLevelStatementDraft == nil {
 		return
 	}
 	if Object_equals(n.box_(), this.outer_.topLevelStatementDraft.statementNode.box_()) {
 		this.outer_.topLevelStatements.add(obj_(new_CrossChunkReferenceCollector_TopLevelStatement(this.outer_, this.outer_.topLevelStatementDraft)))
 		this.outer_.topLevelStatementDraft = nil
-	} else if ((addedReference != nil) && n.isName()) {
+	} else if (addedReference != nil) && n.isName() {
 		if JSCompObjects_identical(addedReference.getNode().box_(), this.outer_.topLevelStatementDraft.declaredNameNode.box_()) {
 			this.outer_.topLevelStatementDraft.declaredNameReference = addedReference
 		} else {
@@ -281,13 +286,13 @@ func (this *CrossChunkReferenceCollector_TopLevelStatementCollectingBehavior) af
 }
 
 type CrossChunkReferenceCollector_TopLevelStatement struct {
-	outer_ *CrossChunkReferenceCollector
-	originalOrder int32
-	chunk_ *JSChunk
-	statementNode Node
+	outer_                   *CrossChunkReferenceCollector
+	originalOrder            int32
+	chunk_                   *JSChunk
+	statementNode            Node
 	nonDeclarationReferences ListOf[*Reference]
-	declaredNameReference *Reference
-	declaredValueNode Node
+	declaredNameReference    *Reference
+	declaredValueNode        Node
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatement) init_CrossChunkReferenceCollector_TopLevelStatement(draft *CrossChunkReferenceCollector_TopLevelStatementDraft) {
@@ -339,13 +344,13 @@ func (this *CrossChunkReferenceCollector_TopLevelStatement) isMovableDeclaration
 }
 
 type CrossChunkReferenceCollector_TopLevelStatementDraft struct {
-	originalOrder int32
-	chunk_ *JSChunk
-	statementNode Node
+	originalOrder            int32
+	chunk_                   *JSChunk
+	statementNode            Node
 	nonDeclarationReferences ListOf[*Reference]
-	declaredValueNode Node
-	declaredNameNode Node
-	declaredNameReference *Reference
+	declaredValueNode        Node
+	declaredNameNode         Node
+	declaredNameReference    *Reference
 }
 
 func (this *CrossChunkReferenceCollector_TopLevelStatementDraft) finit_CrossChunkReferenceCollector_TopLevelStatementDraft() {
@@ -367,4 +372,3 @@ func new_CrossChunkReferenceCollector_TopLevelStatementDraft(originalOrder int32
 	this.init_CrossChunkReferenceCollector_TopLevelStatementDraft(originalOrder, chunk, statementNode)
 	return this
 }
-

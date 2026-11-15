@@ -3,12 +3,12 @@
 package closure
 
 type FlowSensitiveInlineVariables struct {
-	compiler_ *AbstractCompiler
+	compiler_           *AbstractCompiler
 	sideEffectPredicate *FlowSensitiveInlineVariables_SideEffectPredicate
-	cfg *ControlFlowGraph
-	candidates SetOf[*FlowSensitiveInlineVariables_Candidate]
-	reachingDef *MustBeReachingVariableDef
-	reachingUses *MaybeReachingVariableUse
+	cfg                 *ControlFlowGraph
+	candidates          SetOf[*FlowSensitiveInlineVariables_Candidate]
+	reachingDef         *MustBeReachingVariableDef
+	reachingUses        *MaybeReachingVariableUse
 }
 
 func (this *FlowSensitiveInlineVariables) init_FlowSensitiveInlineVariables(compiler *AbstractCompiler) {
@@ -45,7 +45,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 	if !this.isCandidateFunction(functionScopeRoot) {
 		return
 	}
-	if (LiveVariablesAnalysis_MAX_VARIABLES_TO_ANALYZE < t.getScope().getVarCount()) {
+	if LiveVariablesAnalysis_MAX_VARIABLES_TO_ANALYZE < t.getScope().getVarCount() {
 		return
 	}
 	var scopeCreator *SyntacticScopeCreator = cast_[*SyntacticScopeCreator](t.getScopeCreator())
@@ -72,7 +72,7 @@ func (this *FlowSensitiveInlineVariables) enterScope(t *NodeTraversal) {
 					var it IteratorOf[*FlowSensitiveInlineVariables_Candidate] = this.candidates.iterator()
 					for it.hasNext() {
 						var other *FlowSensitiveInlineVariables_Candidate = cast_[*FlowSensitiveInlineVariables_Candidate](it.next())
-						if (other.defMetadata.depends.contains(t.getScope().getVar(c.varName_).self()) && !other.defMetadata.depends.containsAll(Collection(c.defMetadata.depends))) {
+						if other.defMetadata.depends.contains(t.getScope().getVar(c.varName_).self()) && !other.defMetadata.depends.containsAll(Collection(c.defMetadata.depends)) {
 							Iterator_remove(it)
 						}
 					}
@@ -93,14 +93,14 @@ func FlowSensitiveInlineVariables_containsCandidateExpressions(n Node) bool {
 	if n.isFunction() {
 		return false
 	}
-	if (NodeUtil_isNameDeclaration(n) || FlowSensitiveInlineVariables_isAssignmentToName(n)) {
+	if NodeUtil_isNameDeclaration(n) || FlowSensitiveInlineVariables_isAssignmentToName(n) {
 		if n.getFirstChild().isName() {
 			return true
 		}
 	}
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
+		for ; c != 0; c = c.getNext() {
 			if FlowSensitiveInlineVariables_containsCandidateExpressions(c) {
 				return true
 			}
@@ -110,7 +110,7 @@ func FlowSensitiveInlineVariables_containsCandidateExpressions(n Node) bool {
 }
 
 func FlowSensitiveInlineVariables_isAssignmentToName(n Node) bool {
-	if ((NodeUtil_isAssignmentOp(n) || n.isDec()) || n.isInc()) {
+	if (NodeUtil_isAssignmentOp(n) || n.isDec()) || n.isInc() {
 		return n.getFirstChild().isName()
 	}
 	return false
@@ -131,10 +131,10 @@ func (this *FlowSensitiveInlineVariables) visit(t *NodeTraversal, n Node, parent
 func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
 	{
 		var p Node = n
-		for ; (p != expressionRoot); p = p.getParent() {
+		for ; p != expressionRoot; p = p.getParent() {
 			{
 				var cur Node = p.getNext()
-				for ; (cur != 0); cur = cur.getNext() {
+				for ; cur != 0; cur = cur.getNext() {
 					if predicate.apply(cur.box_()) {
 						return true
 					}
@@ -148,11 +148,11 @@ func FlowSensitiveInlineVariables_checkPostExpressions(n Node, expressionRoot No
 func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Node, predicate Predicate_baseOf[Node]) bool {
 	{
 		var p Node = n
-		for ; (p != expressionRoot); p = p.getParent() {
+		for ; p != expressionRoot; p = p.getParent() {
 			var oldestSibling Node = p.getParent().getFirstChild()
 			if oldestSibling.isDestructuringPattern() {
 				if p.isDestructuringPattern() {
-					if ((p.getNext() != 0) && predicate.apply(p.getNext().box_())) {
+					if (p.getNext() != 0) && predicate.apply(p.getNext().box_()) {
 						return true
 					}
 				}
@@ -160,7 +160,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 			}
 			{
 				var cur Node = oldestSibling
-				for ; (cur != p); cur = cur.getNext() {
+				for ; cur != p; cur = cur.getNext() {
 					if predicate.apply(cur.box_()) {
 						return true
 					}
@@ -172,7 +172,7 @@ func FlowSensitiveInlineVariables_checkPreExpressions(n Node, expressionRoot Nod
 }
 
 type FlowSensitiveInlineVariables_SideEffectPredicate struct {
-	outer_ *FlowSensitiveInlineVariables
+	outer_       *FlowSensitiveInlineVariables
 	namesToCheck SetOf[string]
 }
 
@@ -201,29 +201,29 @@ func new_FlowSensitiveInlineVariables_SideEffectPredicate_Set(outer_ *FlowSensit
 func (this *FlowSensitiveInlineVariables_SideEffectPredicate) apply(n_ any) bool {
 	var n Node = Node_of_(n_)
 	_ = n
-	if (n == 0) {
+	if n == 0 {
 		return false
 	}
-	if ((((this.namesToCheck != nil) && n.isName()) && Collection_contains_s(this.namesToCheck, n.getString())) && NodeUtil_isLValue(n)) {
+	if (((this.namesToCheck != nil) && n.isName()) && Collection_contains_s(this.namesToCheck, n.getString())) && NodeUtil_isLValue(n) {
 		return !FlowSensitiveInlineVariables_isTopLevelAssignTarget(n)
 	}
 	var astAnalyzer *AstAnalyzer = this.outer_.compiler_.getAstAnalyzer()
-	if (((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()) && astAnalyzer.functionCallHasSideEffects(n)) {
+	if ((n.isCall() || n.isOptChainCall()) || n.isTaggedTemplateLit()) && astAnalyzer.functionCallHasSideEffects(n) {
 		return true
 	}
-	if (n.isNew() && astAnalyzer.constructorCallHasSideEffects(n)) {
+	if n.isNew() && astAnalyzer.constructorCallHasSideEffects(n) {
 		return true
 	}
 	if n.isDelProp() {
 		return true
 	}
-	if ((n.isGetProp() || n.isGetElem()) && NodeUtil_isLValue(n)) {
+	if (n.isGetProp() || n.isGetElem()) && NodeUtil_isLValue(n) {
 		return ((this.namesToCheck == nil) || !FlowSensitiveInlineVariables_isTopLevelAssignTarget(n))
 	}
 	{
 		var c Node = n.getFirstChild()
-		for ; (c != 0); c = c.getNext() {
-			if (!ControlFlowGraph_isEnteringNewCfgNode(c) && this.apply(c.box_())) {
+		for ; c != 0; c = c.getNext() {
+			if !ControlFlowGraph_isEnteringNewCfgNode(c) && this.apply(c.box_()) {
 				return true
 			}
 		}
@@ -237,7 +237,7 @@ func (this *FlowSensitiveInlineVariables_SideEffectPredicate) test(p0 any) bool 
 
 type FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback struct {
 	ControlFlowGraph_AbstractCfgNodeTraversalCallback
-	outer_ *FlowSensitiveInlineVariables
+	outer_  *FlowSensitiveInlineVariables
 	cfgNode Node
 }
 
@@ -271,10 +271,10 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) setCfg
 
 func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
-		if (parent == 0) {
+		if parent == 0 {
 			return
 		}
-		if (((((((NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n)) || NodeUtil_isNameDeclaration(parent)) || parent.isInc()) || parent.isDec()) || parent.isParamList()) || parent.isCatch()) || NodeUtil_isLhsByDestructuring(n)) {
+		if ((((((NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n)) || NodeUtil_isNameDeclaration(parent)) || parent.isInc()) || parent.isDec()) || parent.isParamList()) || parent.isCatch()) || NodeUtil_isLhsByDestructuring(n) {
 			return
 		}
 		var name string = n.getString()
@@ -282,7 +282,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit_
 			return
 		}
 		var def *MustBeReachingVariableDef_Definition = this.outer_.reachingDef.getDef(name, this.cfgNode)
-		if ((def != nil) && !this.outer_.reachingDef.dependsOnOuterScopeVars(def)) {
+		if (def != nil) && !this.outer_.reachingDef.dependsOnOuterScopeVars(def) {
 			this.outer_.candidates.add(obj_(new_FlowSensitiveInlineVariables_Candidate(this.outer_, name, def, n, this.cfgNode)))
 		}
 	}
@@ -290,7 +290,7 @@ func (this *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback) visit_
 
 type FlowSensitiveInlineVariables_GatherCandidates struct {
 	NodeTraversal_AbstractShallowCallback
-	outer_ *FlowSensitiveInlineVariables
+	outer_   *FlowSensitiveInlineVariables
 	gatherCb *FlowSensitiveInlineVariables_GatherCandidatesCfgNodeCallback
 }
 
@@ -320,7 +320,7 @@ func new_FlowSensitiveInlineVariables_GatherCandidates(outer_ *FlowSensitiveInli
 
 func (this *FlowSensitiveInlineVariables_GatherCandidates) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var graphNode DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(this.outer_.cfg.getNode(n.box_()))
-	if (graphNode == nil) {
+	if graphNode == nil {
 		return
 	}
 	var cfgNode Node = n
@@ -329,12 +329,12 @@ func (this *FlowSensitiveInlineVariables_GatherCandidates) visit_impl(t *NodeTra
 }
 
 type FlowSensitiveInlineVariables_Candidate struct {
-	outer_ *FlowSensitiveInlineVariables
-	varName_ string
-	def Node
-	defMetadata *MustBeReachingVariableDef_Definition
-	use Node
-	useCfgNode Node
+	outer_               *FlowSensitiveInlineVariables
+	varName_             string
+	def                  Node
+	defMetadata          *MustBeReachingVariableDef_Definition
+	use                  Node
+	useCfgNode           Node
 	numUsesWithinCfgNode int32
 }
 
@@ -368,14 +368,14 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	}
 	this.getDefinition(this.getDefCfgNode())
 	this.getNumUseInUseCfgNode(this.useCfgNode)
-	if (this.def == 0) {
+	if this.def == 0 {
 		return false
 	}
-	if (this.def.isAssign() && !NodeUtil_isExprAssign(this.def.getParent())) {
+	if this.def.isAssign() && !NodeUtil_isExprAssign(this.def.getParent()) {
 		return false
 	}
 	var namesToCheck SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
-	if (this.defMetadata.depends != nil) {
+	if this.defMetadata.depends != nil {
 		it_1 := foreach_(any(this.defMetadata.depends))
 		for it_1.next() {
 			var var_ *Var = cast_[*Var](it_1.v)
@@ -392,7 +392,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	if this.outer_.compiler_.getAstAnalyzer().mayHaveSideEffects(this.def.getLastChild()) {
 		return false
 	}
-	if (this.numUsesWithinCfgNode != 1) {
+	if this.numUsesWithinCfgNode != 1 {
 		return false
 	}
 	if NodeUtil_isWithinLoop(this.use) {
@@ -404,7 +404,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) canInline(scope *Scope) bool
 	if !this.isRhsSafeToInline(scope) {
 		return false
 	}
-	if (NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode)) {
+	if NodeUtil_isStatementBlock(this.getDefCfgNode().getParent()) && (this.getDefCfgNode().getNext() != this.useCfgNode) {
 		var pathCheck *CheckPathsBetweenNodes = new_CheckPathsBetweenNodes_DiGraph_DiGraphNode_DiGraphNode_Predicate_Predicate_boolean(this.outer_.cfg.up_DiGraph(), icast_DiGraph_DiGraphNode(this.outer_.cfg.getNode(this.getDefCfgNode().box_())), icast_DiGraph_DiGraphNode(this.outer_.cfg.getNode(this.useCfgNode.box_())), icast_Predicate_base(obj_(this.outer_.sideEffectPredicate)), Predicates_alwaysTrue(), false)
 		if pathCheck.somePathsSatisfyPredicate() {
 			return false
@@ -486,7 +486,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 		_ = input
 		if input.isName() {
 			var name string = input.getString()
-			if (!String_isEmpty(name) && !usageScope.hasSlot(name)) {
+			if !String_isEmpty(name) && !usageScope.hasSlot(name) {
 				return true
 			}
 		}
@@ -525,13 +525,13 @@ func new_FlowSensitiveInlineVariables_Candidate_1(outer_ *FlowSensitiveInlineVar
 func (this *FlowSensitiveInlineVariables_Candidate_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_NAME:
-		if ((n.getString() == this.outer_.varName_) && n.hasChildren()) {
+		if (n.getString() == this.outer_.varName_) && n.hasChildren() {
 			this.outer_.def = n
 		}
 		return
 	case Token_rhino_ASSIGN:
 		var lhs Node = n.getFirstChild()
-		if (lhs.isName() && (lhs.getString() == this.outer_.varName_)) {
+		if lhs.isName() && (lhs.getString() == this.outer_.varName_) {
 			this.outer_.def = n
 		}
 		return
@@ -541,7 +541,7 @@ func (this *FlowSensitiveInlineVariables_Candidate_1) visit_impl(t *NodeTraversa
 
 type FlowSensitiveInlineVariables_Candidate_2 struct {
 	ControlFlowGraph_AbstractCfgNodeTraversalCallback
-	outer_ *FlowSensitiveInlineVariables_Candidate
+	outer_      *FlowSensitiveInlineVariables_Candidate
 	cap_cfgNode Node
 }
 
@@ -566,8 +566,8 @@ func new_FlowSensitiveInlineVariables_Candidate_2(outer_ *FlowSensitiveInlineVar
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate_2) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (n.isName() && (n.getString() == this.outer_.varName_)) {
-		if ((parent.isAssign() && (parent.getFirstChild() == n)) && this.isAssignChain(parent, this.cap_cfgNode)) {
+	if n.isName() && (n.getString() == this.outer_.varName_) {
+		if (parent.isAssign() && (parent.getFirstChild() == n)) && this.isAssignChain(parent, this.cap_cfgNode) {
 			return
 		} else {
 			this.outer_.numUsesWithinCfgNode++
@@ -578,7 +578,7 @@ func (this *FlowSensitiveInlineVariables_Candidate_2) visit_impl(t *NodeTraversa
 func (this *FlowSensitiveInlineVariables_Candidate_2) isAssignChain(child Node, ancestor Node) bool {
 	{
 		var n Node = child
-		for ; (n != ancestor); n = n.getParent() {
+		for ; n != ancestor; n = n.getParent() {
 			if !n.isAssign() {
 				return false
 			}
@@ -586,4 +586,3 @@ func (this *FlowSensitiveInlineVariables_Candidate_2) isAssignChain(child Node, 
 	}
 	return true
 }
-

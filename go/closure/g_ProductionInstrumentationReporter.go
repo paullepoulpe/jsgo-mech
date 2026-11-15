@@ -3,9 +3,9 @@
 package closure
 
 type ProductionInstrumentationReporter struct {
-	instrumentationMappingLocation string
+	instrumentationMappingLocation  string
 	instrumentationReportsDirectory string
-	finalResultOutput string
+	finalResultOutput               string
 }
 
 func (this *ProductionInstrumentationReporter) zero_ProductionInstrumentationReporter() {
@@ -67,7 +67,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 	}
 	var document *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
 	var map_ MapOf[string, BoxedOf[int64]] = icast_Map(obj_(new_LinkedHashMap()))
-	if (document.kind() == SimpleJsonValue_Kind_OBJECT) {
+	if document.kind() == SimpleJsonValue_Kind_OBJECT {
 		it_1 := foreach_(any(document.members().entrySet()))
 		for it_1.next() {
 			var member Map_Entry = icast_Map_Entry(it_1.v)
@@ -78,13 +78,13 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			Map_put_s(map_, str_(member.getKey()), value.get())
 		}
 		return Outcome_base_ok_Object(any(map_))
-	} else if (document.kind() != SimpleJsonValue_Kind_ARRAY) {
+	} else if document.kind() != SimpleJsonValue_Kind_ARRAY {
 		return Outcome_base_err(new_SimpleJsonException("Malformed report: expected a JSON object").up_Throwable())
 	}
 	it_3 := foreach_(any(document.elements()))
 	for it_3.next() {
 		var pair *SimpleJsonValue = cast_[*SimpleJsonValue](it_3.v)
-		if ((pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2)) {
+		if (pair.kind() != SimpleJsonValue_Kind_ARRAY) || (pair.elements().size() != 2) {
 			return Outcome_base_err(new_SimpleJsonException("Malformed report: expected a [name, value]").up_Throwable())
 		}
 		var key *Outcome_base = cast_[*SimpleJsonValue](pair.elements().get(0)).asString()
@@ -96,7 +96,7 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 			return Outcome_base_err(value.error())
 		}
 		var replaced any = Map_put_s(map_, str_(key.get()), value.get())
-		if (replaced != nil) {
+		if replaced != nil {
 			return Outcome_base_err(new_SimpleJsonException(("duplicate key: " + sstr_(str_(key.get())))).up_Throwable())
 		}
 	}
@@ -104,12 +104,17 @@ func ProductionInstrumentationReporter_parseJsonStringToLongMap(json string) *Ou
 }
 
 func ProductionInstrumentationReporter_readJsonLong(value *SimpleJsonValue) *Outcome_base {
-	if (value.kind() == SimpleJsonValue_Kind_NULL) {
+	if value.kind() == SimpleJsonValue_Kind_NULL {
 		return Outcome_base_ok_Object(nil)
 	}
 	var text *Outcome_base = value.asString()
-	var result any = func() any { if text.isErr() { return nil }; return Longs_tryParse(str_(text.get())) }()
-	if (result == nil) {
+	var result any = func() any {
+		if text.isErr() {
+			return nil
+		}
+		return Longs_tryParse(str_(text.get()))
+	}()
+	if result == nil {
 		return Outcome_base_err(new_SimpleJsonException("Malformed report: expected an integer").up_Throwable())
 	}
 	return Outcome_base_ok_Object(result)
@@ -164,4 +169,3 @@ func (this *ProductionInstrumentationReporter) parseCmdLineArguments(args []stri
 		return
 	}
 }
-

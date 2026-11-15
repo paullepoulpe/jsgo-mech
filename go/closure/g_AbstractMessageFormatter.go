@@ -3,22 +3,28 @@
 package closure
 
 type AbstractMessageFormatter struct {
-	self_ any
-	source SourceExcerptProvider
+	self_    any
+	source   SourceExcerptProvider
 	colorize bool
 }
 
-func (this *AbstractMessageFormatter) as_AbstractMessageFormatter() *AbstractMessageFormatter { return this }
+func (this *AbstractMessageFormatter) as_AbstractMessageFormatter() *AbstractMessageFormatter {
+	return this
+}
 
 func to_AbstractMessageFormatter(v any) *AbstractMessageFormatter {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_AbstractMessageFormatter() *AbstractMessageFormatter }).as_AbstractMessageFormatter()
+	return v.(interface {
+		as_AbstractMessageFormatter() *AbstractMessageFormatter
+	}).as_AbstractMessageFormatter()
 }
 
 func is_AbstractMessageFormatter(v any) bool {
-	_, ok := v.(interface{ as_AbstractMessageFormatter() *AbstractMessageFormatter })
+	_, ok := v.(interface {
+		as_AbstractMessageFormatter() *AbstractMessageFormatter
+	})
 	return ok
 }
 
@@ -163,4 +169,3 @@ func AbstractMessageFormatter_Color_clinit() {
 	registerEnum_("com.google.javascript.jscomp.AbstractMessageFormatter.Color", enumValues_(AbstractMessageFormatter_Color_values_))
 
 }
-

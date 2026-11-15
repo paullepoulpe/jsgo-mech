@@ -23,4 +23,3 @@ func new_BlackHoleErrorManager() *BlackHoleErrorManager {
 	this.init_BlackHoleErrorManager()
 	return this
 }
-

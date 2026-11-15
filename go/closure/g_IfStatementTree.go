@@ -4,8 +4,8 @@ package closure
 
 type IfStatementTree struct {
 	ParseTree
-	condition *ParseTree
-	ifClause *ParseTree
+	condition  *ParseTree
+	ifClause   *ParseTree
 	elseClause *ParseTree
 }
 
@@ -29,4 +29,3 @@ func new_IfStatementTree(location *SourceRange, condition *ParseTree, ifClause *
 	this.init_IfStatementTree(location, condition, ifClause, elseClause)
 	return this
 }
-

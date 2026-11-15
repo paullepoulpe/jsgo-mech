@@ -785,4 +785,3 @@ func IR_mayBeExpression(n Node) bool {
 		panic("unreachable")
 	}()
 }
-

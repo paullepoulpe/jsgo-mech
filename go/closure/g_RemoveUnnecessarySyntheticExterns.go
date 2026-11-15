@@ -3,7 +3,7 @@
 package closure
 
 type RemoveUnnecessarySyntheticExterns struct {
-	compiler_ *AbstractCompiler
+	compiler_     *AbstractCompiler
 	nodesToDetach LinkedHashSetOf[Node]
 }
 
@@ -62,8 +62,7 @@ func (this *RemoveUnnecessarySyntheticExterns_RedeclarationCheckHandler) onRedec
 		if n.getParent().isSynthesizedUnfulfilledNameDeclaration() {
 			this.outer_.nodesToDetach.add(n.getParent().box_())
 		}
-	} else if ((origNode != 0) && origNode.getParent().isSynthesizedUnfulfilledNameDeclaration()) {
+	} else if (origNode != 0) && origNode.getParent().isSynthesizedUnfulfilledNameDeclaration() {
 		this.outer_.nodesToDetach.add(origNode.getParent().box_())
 	}
 }
-

@@ -25,4 +25,3 @@ func new_IterRestTree(location *SourceRange, assignmentTarget *ParseTree) *IterR
 	this.init_IterRestTree(location, assignmentTarget)
 	return this
 }
-

@@ -18,4 +18,3 @@ func new_ParserConfiguration() *ParserConfiguration {
 func ParserConfiguration_getString(name string) string {
 	return ResourceBundle_getBundle("com.google.javascript.jscomp.parsing.ParserConfig").getString(name)
 }
-

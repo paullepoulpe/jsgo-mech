@@ -39,7 +39,12 @@ func (this *Outcome_rhino) init_Outcome_rhino(name_ string, ordinal_ int32) {
 }
 
 func Outcome_rhino_forBoolean(val bool) *Outcome_rhino {
-	return func() *Outcome_rhino { if val { return Outcome_rhino_TRUE }; return Outcome_rhino_FALSE }()
+	return func() *Outcome_rhino {
+		if val {
+			return Outcome_rhino_TRUE
+		}
+		return Outcome_rhino_FALSE
+	}()
 }
 
 func (this *Outcome_rhino) isTruthy() bool {
@@ -360,4 +365,3 @@ func Outcome_4_clinit() {
 	registerEnum_("<anonymous com.google.javascript.rhino.Outcome>", enumValues_(Outcome_4_values_))
 
 }
-

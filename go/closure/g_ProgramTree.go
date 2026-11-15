@@ -27,4 +27,3 @@ func new_ProgramTree(location *SourceRange, sourceElements ImmutableListOf[*Pars
 	this.init_ProgramTree(location, sourceElements, sourceComments)
 	return this
 }
-

@@ -25,4 +25,3 @@ func new_DefaultClauseTree(location *SourceRange, statements ImmutableListOf[*Pa
 	this.init_DefaultClauseTree(location, statements)
 	return this
 }
-

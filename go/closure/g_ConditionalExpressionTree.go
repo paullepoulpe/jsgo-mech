@@ -5,8 +5,8 @@ package closure
 type ConditionalExpressionTree struct {
 	ParseTree
 	condition *ParseTree
-	left *ParseTree
-	right *ParseTree
+	left      *ParseTree
+	right     *ParseTree
 }
 
 func (this *ConditionalExpressionTree) up_ParseTree() *ParseTree {
@@ -29,4 +29,3 @@ func new_ConditionalExpressionTree(location *SourceRange, condition *ParseTree, 
 	this.init_ConditionalExpressionTree(location, condition, left, right)
 	return this
 }
-

@@ -32,4 +32,3 @@ func ResourceLoader_resourceExists(name string) bool {
 }
 
 const ResourceLoader_JSCOMP string = "com/google/javascript/jscomp/"
-

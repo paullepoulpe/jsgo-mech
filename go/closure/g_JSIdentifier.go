@@ -17,14 +17,13 @@ func new_JSIdentifier() *JSIdentifier {
 
 func JSIdentifier_isJSIdentifier(s string) bool {
 	var length int32 = String_length(s)
-	if (((length == 0) || Character_isIdentifierIgnorable(String_charAt(s, 0))) || !Character_isJavaIdentifierStart(String_charAt(s, 0))) {
+	if ((length == 0) || Character_isIdentifierIgnorable(String_charAt(s, 0))) || !Character_isJavaIdentifierStart(String_charAt(s, 0)) {
 		return false
 	}
-	for i := int32(1); (i < length); i++ {
-		if (Character_isIdentifierIgnorable(String_charAt(s, i)) || !Character_isJavaIdentifierPart(String_charAt(s, i))) {
+	for i := int32(1); i < length; i++ {
+		if Character_isIdentifierIgnorable(String_charAt(s, i)) || !Character_isJavaIdentifierPart(String_charAt(s, i)) {
 			return false
 		}
 	}
 	return true
 }
-

@@ -3,7 +3,7 @@
 package closure
 
 type GraphReachability struct {
-	graph *DiGraph
+	graph         *DiGraph
 	edgePredicate Predicate_baseOf[*GraphReachability_EdgeTuple]
 }
 
@@ -42,9 +42,9 @@ func (this *GraphReachability) recompute(reachableNode any) {
 }
 
 func (this *GraphReachability) traverseEdge(source any, e any, destination any) bool {
-	if ((Annotatable_getAnnotation(Annotatable(this.graph.getNode(source))) == GraphReachability_REACHABLE) && ((this.edgePredicate == nil) || this.edgePredicate.apply(obj_(new_GraphReachability_EdgeTuple(source, e, destination))))) {
+	if (Annotatable_getAnnotation(Annotatable(this.graph.getNode(source))) == GraphReachability_REACHABLE) && ((this.edgePredicate == nil) || this.edgePredicate.apply(obj_(new_GraphReachability_EdgeTuple(source, e, destination)))) {
 		var destNode GraphNode = this.graph.getNode(destination)
-		if (Annotatable_getAnnotation(Annotatable(destNode)) != GraphReachability_REACHABLE) {
+		if Annotatable_getAnnotation(Annotatable(destNode)) != GraphReachability_REACHABLE {
 			destNode.setAnnotation(GraphReachability_REACHABLE)
 			return true
 		}
@@ -67,7 +67,7 @@ func GraphReachability_clinit() {
 
 type GraphReachability_EdgeTuple struct {
 	sourceNode_ any
-	edge any
+	edge        any
 }
 
 func (this *GraphReachability_EdgeTuple) init_GraphReachability_EdgeTuple(sourceNode any, edge any, destNode any) {
@@ -93,4 +93,3 @@ func new_GraphReachability_1() *GraphReachability_1 {
 	this.init_GraphReachability_1()
 	return this
 }
-

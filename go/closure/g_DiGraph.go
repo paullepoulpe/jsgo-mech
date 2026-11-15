@@ -75,7 +75,9 @@ func (this *DiGraph) getDirectedPredNodes(p0 any) List {
 }
 
 func (this *DiGraph) getDirectedPredNodesDiGraphNode(p0 DiGraph_DiGraphNode) List {
-	return this.self_.(interface{ getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) List }).getDirectedPredNodesDiGraphNode_impl(p0)
+	return this.self_.(interface {
+		getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) List
+	}).getDirectedPredNodesDiGraphNode_impl(p0)
 }
 
 func (this *DiGraph) getDirectedSuccNodes(p0 any) List {
@@ -83,7 +85,9 @@ func (this *DiGraph) getDirectedSuccNodes(p0 any) List {
 }
 
 func (this *DiGraph) getDirectedSuccNodesDiGraphNode(p0 DiGraph_DiGraphNode) List {
-	return this.self_.(interface{ getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) List }).getDirectedSuccNodesDiGraphNode_impl(p0)
+	return this.self_.(interface {
+		getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) List
+	}).getDirectedSuccNodesDiGraphNode_impl(p0)
 }
 
 type DiGraph_DiGraphNode interface {
@@ -100,4 +104,3 @@ type DiGraph_DiGraphEdge interface {
 	getSource() DiGraph_DiGraphNode
 	getDestination() DiGraph_DiGraphNode
 }
-

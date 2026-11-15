@@ -61,8 +61,8 @@ func RefactoringDriver_getCompilerOptions() *CompilerOptions {
 }
 
 type RefactoringDriver_Builder struct {
-	inputs ImmutableList_BuilderOf[*SourceFile_jscomp]
-	externs ImmutableList_BuilderOf[*SourceFile_jscomp]
+	inputs          ImmutableList_BuilderOf[*SourceFile_jscomp]
+	externs         ImmutableList_BuilderOf[*SourceFile_jscomp]
 	compilerOptions *CompilerOptions
 }
 
@@ -151,4 +151,3 @@ func RefactoringDriver_Builder_clinit() {
 	}}
 
 }
-

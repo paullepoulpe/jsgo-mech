@@ -4,9 +4,9 @@ package closure
 
 type ArgumentListTree struct {
 	ParseTree
-	arguments ImmutableListOf[*ParseTree]
+	arguments         ImmutableListOf[*ParseTree]
 	hasTrailingComma_ bool
-	commaPositions ImmutableListOf[*SourcePosition_util]
+	commaPositions    ImmutableListOf[*SourcePosition_util]
 }
 
 func (this *ArgumentListTree) up_ParseTree() *ParseTree {
@@ -29,4 +29,3 @@ func new_ArgumentListTree(location *SourceRange, arguments ImmutableListOf[*Pars
 	this.init_ArgumentListTree(location, arguments, hasTrailingComma, commaPositions)
 	return this
 }
-

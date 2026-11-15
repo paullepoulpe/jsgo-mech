@@ -4,17 +4,17 @@ package closure
 
 type TypeInference struct {
 	DataFlowAnalysis
-	compiler_ *AbstractCompiler
-	registry *JSTypeRegistry
-	reverseInterpreter ReverseAbstractInterpreter
-	bottomScope FlowScope
-	containerScope *TypedScope
-	scopeCreator *TypedScopeCreator
+	compiler_               *AbstractCompiler
+	registry                *JSTypeRegistry
+	reverseInterpreter      ReverseAbstractInterpreter
+	bottomScope             FlowScope
+	containerScope          *TypedScope
+	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
-	moduleImportResolver *ModuleImportResolver
-	optChainArrayDeque ArrayDequeOf[*TypeInference_OptChainInfo]
-	inferredUnboundVars SetOf[*TypedScope]
-	unknownType *ObjectType
+	moduleImportResolver    *ModuleImportResolver
+	optChainArrayDeque      ArrayDequeOf[*TypeInference_OptChainInfo]
+	inferredUnboundVars     SetOf[*TypedScope]
+	unknownType             *ObjectType
 	numberAdditionSupertype *JSType
 }
 
@@ -83,21 +83,26 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 	}
 	var functionType *FunctionType = JSType_toMaybeFunctionType(functionNode.getJSType())
 	var parameterTypes IteratorOf[*FunctionType_Parameter] = functionType.getParameters().iterator()
-	var parameter *FunctionType_Parameter = func() *FunctionType_Parameter { if parameterTypes.hasNext() { return cast_[*FunctionType_Parameter](parameterTypes.next()) }; return nil }()
+	var parameter *FunctionType_Parameter = func() *FunctionType_Parameter {
+		if parameterTypes.hasNext() {
+			return cast_[*FunctionType_Parameter](parameterTypes.next())
+		}
+		return nil
+	}()
 	{
 		var astParamItr Node = astParameters.getFirstChild()
-		for ; (astParamItr != 0); astParamItr = astParamItr.getNext() {
+		for ; astParamItr != 0; astParamItr = astParamItr.getNext() {
 			var astParam Node = astParamItr
-			if ((iifeArgumentNode != 0) && iifeArgumentNode.isSpread()) {
+			if (iifeArgumentNode != 0) && iifeArgumentNode.isSpread() {
 				iifeArgumentNode = 0
 			}
 			var inferredType *JSType = this.getJSType(astParam)
-			if (iifeArgumentNode != 0) {
-				if (iifeArgumentNode.getJSType() != nil) {
+			if iifeArgumentNode != 0 {
+				if iifeArgumentNode.getJSType() != nil {
 					inferredType = iifeArgumentNode.getJSType()
 				}
-			} else if (parameter != nil) {
-				if (parameter.getJSType() != nil) {
+			} else if parameter != nil {
+				if parameter.getJSType() != nil {
 					inferredType = parameter.getJSType()
 				}
 			}
@@ -110,7 +115,7 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 				astParam = astParam.getOnlyChild()
 				inferredType = this.registry.createTemplatizedType(this.registry.getNativeObjectType(JSTypeNative_ARRAY_TYPE), []*JSType{inferredType}).up_JSType()
 			}
-			if (defaultValue != 0) {
+			if defaultValue != 0 {
 				inferredType = this.registry.createUnionType([]*JSType{inferredType.restrictByNotUndefined(), this.getJSType(defaultValue)})
 			}
 			if astParam.isDestructuringPattern() {
@@ -118,8 +123,18 @@ func (this *TypeInference) inferParameters(entryFlowScope FlowScope) FlowScope {
 			} else {
 				entryFlowScope = this.updateNamedParameter(astParam, (defaultValue != 0), inferredType, entryFlowScope)
 			}
-			parameter = func() *FunctionType_Parameter { if parameterTypes.hasNext() { return cast_[*FunctionType_Parameter](parameterTypes.next()) }; return nil }()
-			iifeArgumentNode = func() Node { if (iifeArgumentNode != 0) { return iifeArgumentNode.getNext() }; return 0 }()
+			parameter = func() *FunctionType_Parameter {
+				if parameterTypes.hasNext() {
+					return cast_[*FunctionType_Parameter](parameterTypes.next())
+				}
+				return nil
+			}()
+			iifeArgumentNode = func() Node {
+				if iifeArgumentNode != 0 {
+					return iifeArgumentNode.getNext()
+				}
+				return 0
+			}()
 		}
 	}
 	return entryFlowScope
@@ -168,13 +183,13 @@ func (this *TypeInference) flowThrough_impl(n_ any, input_ LatticeElement) Latti
 	_ = n
 	var input FlowScope = icast_FlowScope(input_)
 	_ = input
-	if (input == this.bottomScope) {
+	if input == this.bottomScope {
 		return LatticeElement(input)
 	}
 	var root Node = NodeUtil_getEnclosingScopeRoot(n)
 	var module *Module = ModuleImportResolver_getModuleFromScopeRoot(this.compiler_.getModuleMap(), icast_CompilerInputProvider(this.compiler_.self()), root)
 	var syntacticBlockScope *TypedScope = this.scopeCreator.createScope(root)
-	if ((module != nil) && module.metadata().isEs6Module()) {
+	if (module != nil) && module.metadata().isEs6Module() {
 		this.moduleImportResolver.declareEsModuleImports(module, syntacticBlockScope, this.compiler_.getInput(NodeUtil_getInputId(n)))
 	}
 	var output FlowScope = input.withSyntacticScope(icast_StaticTypedScope(obj_(syntacticBlockScope)))
@@ -185,7 +200,7 @@ func (this *TypeInference) flowThrough_impl(n_ any, input_ LatticeElement) Latti
 }
 
 func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope *TypedScope) {
-	if (module == nil) {
+	if module == nil {
 		return
 	}
 	switch module.metadata().moduleType() {
@@ -194,7 +209,12 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 		return
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 		var exportsVar *TypedVar = cast_[*TypedVar](Preconditions_checkNotNull_Object_String_Object(syntacticBlockScope.getVar("exports").self(), "Missing exports var for %s", obj_(module.metadata())))
-		var exportsType *JSType = func() *JSType { if (exportsVar.getType() != nil) { return exportsVar.getType() }; return this.unknownType.up_JSType() }()
+		var exportsType *JSType = func() *JSType {
+			if exportsVar.getType() != nil {
+				return exportsVar.getType()
+			}
+			return this.unknownType.up_JSType()
+		}()
 		var rootNode Node = syntacticBlockScope.getRootNode()
 		if rootNode.isModuleBody() {
 			rootNode.setJSType(exportsType)
@@ -203,7 +223,7 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 			var paramList Node = NodeUtil_getFunctionParameters(rootNode.getParent())
 			paramList.getOnlyChild().setJSType(exportsType)
 		}
-		if (!module.metadata().isLegacyGoogModule() || (exportsVar.getType() == nil)) {
+		if !module.metadata().isLegacyGoogModule() || (exportsVar.getType() == nil) {
 			break
 		}
 		var moduleId OptionalOf[string] = module.closureNamespace()
@@ -215,8 +235,13 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 		var moduleQname *QualifiedName = QualifiedName_of(str_(moduleId.get()))
 		if !moduleQname.isSimple() {
 			var parentType *JSType = globalScope.lookupQualifiedName(moduleQname.getOwner())
-			var parentObjectType *ObjectType = func() *ObjectType { if (parentType != nil) { return parentType.toMaybeObjectType() }; return nil }()
-			if ((parentObjectType != nil) && !parentObjectType.isPropertyTypeDeclared(moduleQname.getComponent())) {
+			var parentObjectType *ObjectType = func() *ObjectType {
+				if parentType != nil {
+					return parentType.toMaybeObjectType()
+				}
+				return nil
+			}()
+			if (parentObjectType != nil) && !parentObjectType.isPropertyTypeDeclared(moduleQname.getComponent()) {
 				parentObjectType.defineInferredProperty(moduleQname.getComponent(), exportsType, exportsVar.getNode())
 			}
 		}
@@ -318,7 +343,7 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 		if n.getFirstChild().isGetProp() {
 			var getprop Node = n.getFirstChild()
 			var ownerType *ObjectType = ObjectType_cast(this.getJSType(getprop.getFirstChild()).restrictByNotNullOrUndefined())
-			if (ownerType != nil) {
+			if ownerType != nil {
 				this.ensurePropertyDeclaredHelper(getprop, ownerType, scope)
 			}
 		}
@@ -377,7 +402,7 @@ func (this *TypeInference) traverse(n Node, scope FlowScope) FlowScope {
 	default:
 		panic(new_IllegalStateException_String(("Type inference doesn't know to handle token " + objstr_(obj_(n.getToken())))).self())
 	}
-	if ((isTypeable && (n.getJSType() == nil)) && !TypeInference_TOKENS_ALLOWING_NULL_TYPES.contains(obj_(n.getToken()))) {
+	if (isTypeable && (n.getJSType() == nil)) && !TypeInference_TOKENS_ALLOWING_NULL_TYPES.contains(obj_(n.getToken())) {
 		panic(new_IllegalStateException_String(("Failed to infer JSType for " + objstr_(n.box_()))).self())
 	}
 	return scope
@@ -403,7 +428,7 @@ func (this *TypeInference) initializeEnhancedForScope(source Node, output FlowSc
 		var iterKeyType *JSType = this.getNativeType(JSTypeNative_STRING_TYPE)
 		var objType *JSType = this.getJSType(obj).autobox()
 		var objIndexType *JSType = objType.getTemplateTypeMap().getResolvedTemplateType(this.registry.getObjectIndexKey())
-		if ((objIndexType != nil) && !objIndexType.isUnknownType()) {
+		if (objIndexType != nil) && !objIndexType.isUnknownType() {
 			var narrowedKeyType *JSType = iterKeyType.getGreatestSubtype(objIndexType)
 			if !narrowedKeyType.isEmptyType() {
 				iterKeyType = narrowedKeyType
@@ -429,7 +454,7 @@ func (this *TypeInference) initializeEnhancedForScope(source Node, output FlowSc
 
 func (this *TypeInference) traverseUnsignedRightShift(n Node, scope FlowScope) FlowScope {
 	scope = this.traverseChildren(n, scope)
-	if ((TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild())) != TypeInference_BigIntPresence_NO_BIGINT) || (TypeInference_getBigIntPresence(this.getJSType(n.getLastChild())) != TypeInference_BigIntPresence_NO_BIGINT)) {
+	if (TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild())) != TypeInference_BigIntPresence_NO_BIGINT) || (TypeInference_getBigIntPresence(this.getJSType(n.getLastChild())) != TypeInference_BigIntPresence_NO_BIGINT) {
 		n.setJSType(this.getNativeType(JSTypeNative_NO_TYPE))
 	} else {
 		n.setJSType(this.getNativeType(JSTypeNative_NUMBER_TYPE))
@@ -454,7 +479,7 @@ func (this *TypeInference) traverseTaggedTemplateLit(tagTempLitNode Node, origin
 	Preconditions_checkArgument_boolean_Object(tagTempLitNode.isTaggedTemplateLit(), tagTempLitNode.box_())
 	var scopeAfterChildren FlowScope = this.traverseChildren(tagTempLitNode, originalScope)
 	var scopeAfterExecution FlowScope = this.setCallNodeTypeAfterChildrenTraversed(tagTempLitNode, scopeAfterChildren)
-	if (tagTempLitNode.getJSType() == nil) {
+	if tagTempLitNode.getJSType() == nil {
 		tagTempLitNode.setJSType(this.unknownType.up_JSType())
 	}
 	return scopeAfterExecution
@@ -465,15 +490,15 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 	switch superNode.getParent().getToken() {
 	case Token_rhino_CALL:
 		var scope *TypedScope = this.containerScope
-		for ((scope != nil) && !NodeUtil_isNonArrowFunction(scope.getRootNode())) {
+		for (scope != nil) && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
 			scope = cast_[*TypedScope](scope.getParent().self())
 		}
-		if (scope == nil) {
+		if scope == nil {
 			superNode.setJSType(this.unknownType.up_JSType())
 			return
 		}
 		var enclosingFunctionType *FunctionType = JSType_toMaybeFunctionType(scope.getRootNode().getJSType())
-		if ((enclosingFunctionType != nil) && enclosingFunctionType.isConstructor()) {
+		if (enclosingFunctionType != nil) && enclosingFunctionType.isConstructor() {
 			superNodeType = enclosingFunctionType.getSuperClassConstructor().up_ObjectType()
 		}
 	case Token_rhino_GETELEM, Token_rhino_GETPROP:
@@ -482,22 +507,32 @@ func (this *TypeInference) traverseSuper(superNode Node, currentScope FlowScope)
 	default:
 		panic(new_IllegalStateException_String(("Unexpected parent of SUPER: " + sstr_(superNode.getParent().toStringTree()))).self())
 	}
-	superNode.setJSType(func() *JSType { if (superNodeType != nil) { return superNodeType.up_JSType() }; return this.unknownType.up_JSType() }())
+	superNode.setJSType(func() *JSType {
+		if superNodeType != nil {
+			return superNodeType.up_JSType()
+		}
+		return this.unknownType.up_JSType()
+	}())
 }
 
 func (this *TypeInference) traverseNewTarget(newTargetNode Node) {
 	var scope *TypedScope = this.containerScope
-	for ((scope != nil) && !NodeUtil_isNonArrowFunction(scope.getRootNode())) {
+	for (scope != nil) && !NodeUtil_isNonArrowFunction(scope.getRootNode()) {
 		scope = cast_[*TypedScope](scope.getParent().self())
 	}
-	if (scope == nil) {
+	if scope == nil {
 		newTargetNode.setJSType(this.unknownType.up_JSType())
 		return
 	}
 	var root Node = scope.getRootNode()
 	var parent Node = root.getParent()
 	if parent.getGrandparent().isClass() {
-		var type_ *JSTypeNative = func() *JSTypeNative { if NodeUtil_isEs6ConstructorMemberFunctionDef(parent) { return JSTypeNative_FUNCTION_TYPE }; return JSTypeNative_VOID_TYPE }()
+		var type_ *JSTypeNative = func() *JSTypeNative {
+			if NodeUtil_isEs6ConstructorMemberFunctionDef(parent) {
+				return JSTypeNative_FUNCTION_TYPE
+			}
+			return JSTypeNative_VOID_TYPE
+		}()
 		newTargetNode.setJSType(this.registry.getNativeType(type_))
 	} else {
 		newTargetNode.setJSType(this.registry.createUnionType([]*JSType{this.registry.getNativeType(JSTypeNative_FUNCTION_TYPE), this.registry.getNativeType(JSTypeNative_VOID_TYPE)}))
@@ -507,11 +542,11 @@ func (this *TypeInference) traverseNewTarget(newTargetNode Node) {
 func (this *TypeInference) traverseReturn(n Node, scope FlowScope) FlowScope {
 	scope = this.traverseChildren(n, scope)
 	var retValue Node = n.getFirstChild()
-	if (retValue != 0) {
+	if retValue != 0 {
 		var type_ *JSType = this.containerScope.getRootNode().getJSType()
-		if (type_ != nil) {
+		if type_ != nil {
 			var fnType *FunctionType = type_.toMaybeFunctionType()
-			if (fnType != nil) {
+			if fnType != nil {
 				TypeInference_inferPropertyTypesToMatchConstraint(retValue.getJSType(), fnType.getReturnType())
 			}
 		}
@@ -532,7 +567,7 @@ func (this *TypeInference) traverseCatch(catchNode Node, scope FlowScope) FlowSc
 	if catchTarget.isName() {
 		var name Node = catchNode.getFirstChild()
 		var type_ *JSType = name.getJSType()
-		if (type_ == nil) {
+		if type_ == nil {
 			type_ = this.unknownType.up_JSType()
 			name.setJSType(this.unknownType.up_JSType())
 		}
@@ -583,7 +618,7 @@ func TypeInference_isPossibleMixinApplication(lvalue Node, rvalue Node) bool {
 }
 
 func TypeInference_addMissingInterfaceProperties(constructor *JSType) {
-	if ((constructor == nil) || !constructor.isConstructor()) {
+	if (constructor == nil) || !constructor.isConstructor() {
 		return
 	}
 	var f *FunctionType = constructor.toMaybeFunctionType()
@@ -617,7 +652,12 @@ func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target No
 	case Token_rhino_NAME:
 		var varName string = target.getString()
 		var var_ *TypedVar = TypeInference_getDeclaredVar(scope, varName)
-		var varType *JSType = func() *JSType { if (var_ == nil) { return nil }; return var_.getType() }()
+		var varType *JSType = func() *JSType {
+			if var_ == nil {
+				return nil
+			}
+			return var_.getType()
+		}()
 		var isVarDeclaration bool = ((((type_ == TypeInference_AssignmentType_DECLARATION) && (var_ != nil)) && !var_.isTypeInferred()) && (var_.getNameNode() != 0))
 		var isTypelessConstDecl bool = ((((isVarDeclaration && var_.getNameNode().isName()) && NodeUtil_isConstantDeclaration(var_.getJSDocInfo(), var_.getNameNode())) && !((var_.getJSDocInfo() != nil) && var_.getJSDocInfo().containsDeclarationExcludingTypelessConst())) && !((var_.getType() != nil) && var_.getType().isNoResolvedType()))
 		var isVarTypeBetter bool = (((isVarDeclaration && !resultType.isNullType()) && !resultType.isVoidType()) && !isTypelessConstDecl)
@@ -626,12 +666,17 @@ func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target No
 		} else {
 			scope = this.redeclareSimpleVar(scope, target, resultType)
 		}
-		if (updateNode != 0) {
+		if updateNode != 0 {
 			updateNode.setJSType(resultType)
 		}
-		if (((var_ != nil) && var_.isTypeInferred()) && !(target.getParent().isLet() && !target.hasChildren())) {
+		if ((var_ != nil) && var_.isTypeInferred()) && !(target.getParent().isLet() && !target.hasChildren()) {
 			var oldType *JSType = var_.getType()
-			var_.setType(func() *JSType { if (oldType == nil) { return resultType }; return oldType.getLeastSupertype(resultType) }())
+			var_.setType(func() *JSType {
+				if oldType == nil {
+					return resultType
+				}
+				return oldType.getLeastSupertype(resultType)
+			}())
 		} else if isTypelessConstDecl {
 			var_.setType(resultType)
 		}
@@ -640,17 +685,22 @@ func (this *TypeInference) updateScopeForAssignment_5(scope FlowScope, target No
 			var qualifiedName string = target.getQualifiedName()
 			var declaredSlotType bool = false
 			var rawObjType *JSType = target.getFirstChild().getJSType()
-			if (rawObjType != nil) {
+			if rawObjType != nil {
 				var objType *ObjectType = ObjectType_cast(rawObjType.restrictByNotNullOrUndefined())
-				if (objType != nil) {
+				if objType != nil {
 					var propName string = target.getString()
 					declaredSlotType = objType.isPropertyTypeDeclared(propName)
 				}
 			}
-			var safeLeftType *JSType = func() *JSType { if (targetType == nil) { return this.unknownType.up_JSType() }; return targetType }()
+			var safeLeftType *JSType = func() *JSType {
+				if targetType == nil {
+					return this.unknownType.up_JSType()
+				}
+				return targetType
+			}()
 			scope = scope.inferQualifiedSlot(target, qualifiedName, safeLeftType, resultType, declaredSlotType)
 		}
-		if (updateNode != 0) {
+		if updateNode != 0 {
 			updateNode.setJSType(resultType)
 		}
 		this.ensurePropertyDefined(target, resultType, scope)
@@ -665,20 +715,20 @@ func (this *TypeInference) ensurePropertyDefined(getprop Node, rightType *JSType
 	var nodeType *JSType = this.getJSType(obj)
 	var objectType *ObjectType = ObjectType_cast(nodeType.restrictByNotNullOrUndefined())
 	var propCreationInConstructor bool = (obj.isThis() && this.getJSType(this.containerScope.getRootNode()).isConstructor())
-	if (objectType == nil) {
+	if objectType == nil {
 		this.registry.registerPropertyOnType(propName, nodeType)
 	} else {
-		if (nodeType.isStruct() && !objectType.hasProperty(propName)) {
+		if nodeType.isStruct() && !objectType.hasProperty(propName) {
 			var staticPropCreation bool = false
 			var maybeAssignStm Node = getprop.getGrandparent()
-			if (this.containerScope.isGlobal() && NodeUtil_isPrototypePropertyDeclaration(maybeAssignStm)) {
+			if this.containerScope.isGlobal() && NodeUtil_isPrototypePropertyDeclaration(maybeAssignStm) {
 				var propCreationFilename string = maybeAssignStm.getSourceFileName()
 				var ctor Node = objectType.getOwnerFunction().getSource()
-				if ((ctor != 0) && (ctor.getSourceFileName() == propCreationFilename)) {
+				if (ctor != 0) && (ctor.getSourceFileName() == propCreationFilename) {
 					staticPropCreation = true
 				}
 			}
-			if (!propCreationInConstructor && !staticPropCreation) {
+			if !propCreationInConstructor && !staticPropCreation {
 				return
 			}
 		}
@@ -686,8 +736,8 @@ func (this *TypeInference) ensurePropertyDefined(getprop Node, rightType *JSType
 			return
 		}
 		if !objectType.isPropertyTypeDeclared(propName) {
-			if (objectType.hasProperty(propName) || !objectType.isInstanceType()) {
-				if ("prototype" == propName) {
+			if objectType.hasProperty(propName) || !objectType.isInstanceType() {
+				if "prototype" == propName {
 					this.defineDeclaredProperty(objectType, propName, rightType, getprop)
 				} else {
 					objectType.defineInferredProperty(propName, rightType, getprop)
@@ -702,9 +752,9 @@ func (this *TypeInference) ensurePropertyDefined(getprop Node, rightType *JSType
 }
 
 func (this *TypeInference) defineDeclaredProperty(objectType *ObjectType, propName string, rightType *JSType, getprop Node) bool {
-	if ((propName == "prototype") && !getprop.getParent().isExprResult()) {
+	if (propName == "prototype") && !getprop.getParent().isExprResult() {
 		var functionType *FunctionType = objectType.toMaybeFunctionType()
-		if (((functionType != nil) && (functionType.getSource() != 0)) && functionType.getSource().isClass()) {
+		if ((functionType != nil) && (functionType.getSource() != 0)) && functionType.getSource().isClass() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(getprop.getParent(), TypeInference_REASSIGN_CLASS_PROTOTYPE, []string{}))
 			return true
 		}
@@ -717,8 +767,8 @@ func (this *TypeInference) ensurePropertyDeclaredHelper(getprop Node, objectType
 		var propName string = getprop.getString()
 		var qName string = getprop.getQualifiedName()
 		var var_ *TypedVar = TypeInference_getDeclaredVar(scope, qName)
-		if ((var_ != nil) && !var_.isTypeInferred()) {
-			if ((propName == "prototype") || (!objectType.hasOwnProperty(propName) && (!objectType.isInstanceType() || (var_.isExtern() && !objectType.isNativeObjectType())))) {
+		if (var_ != nil) && !var_.isTypeInferred() {
+			if (propName == "prototype") || (!objectType.hasOwnProperty(propName) && (!objectType.isInstanceType() || (var_.isExtern() && !objectType.isNativeObjectType()))) {
 				return this.defineDeclaredProperty(objectType, propName, var_.getType(), getprop)
 			}
 		}
@@ -729,7 +779,7 @@ func (this *TypeInference) ensurePropertyDeclaredHelper(getprop Node, objectType
 func (this *TypeInference) traverseDeclaration(n Node, scope FlowScope) FlowScope {
 	{
 		var declarationChild Node = n.getFirstChild()
-		for ; (declarationChild != 0); declarationChild = declarationChild.getNext() {
+		for ; declarationChild != 0; declarationChild = declarationChild.getNext() {
 			scope = this.traverseDeclarationChild(declarationChild, scope)
 		}
 	}
@@ -747,7 +797,12 @@ func (this *TypeInference) traverseDeclarationChild(n Node, scope FlowScope) Flo
 
 func (this *TypeInference) traverseDestructuringPattern(pattern Node, scope FlowScope, patternType *JSType, assignmentType *TypeInference_AssignmentType) FlowScope {
 	return this.traverseDestructuringPatternHelper(pattern, scope, patternType, &TypeInference_TypeDeclaringCallback_fn{func(flowScope FlowScope, targetNode Node, targetType *JSType) FlowScope {
-		targetType = func() *JSType { if (targetType != nil) { return targetType }; return this.getNativeType(JSTypeNative_UNKNOWN_TYPE) }()
+		targetType = func() *JSType {
+			if targetType != nil {
+				return targetType
+			}
+			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+		}()
 		return this.updateScopeForAssignment(flowScope, targetNode, targetType, assignmentType)
 		panic("unreachable")
 	}})
@@ -768,7 +823,12 @@ func (this *TypeInference) traverseDestructuringPatternHelper(pattern Node, scop
 				this.traverse(target.getDefaultValue(), scope)
 			}
 			var targetType *JSType = target.inferType()
-			targetType = func() *JSType { if (targetType != nil) { return targetType }; return this.getNativeType(JSTypeNative_UNKNOWN_TYPE) }()
+			targetType = func() *JSType {
+				if targetType != nil {
+					return targetType
+				}
+				return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
+			}()
 			scope = this.traverseDestructuringPatternHelper(targetNode, scope, targetType, declarer)
 		} else {
 			scope = this.traverse(targetNode, scope)
@@ -786,27 +846,37 @@ func (this *TypeInference) traverseName(n Node, scope FlowScope) FlowScope {
 	var varName string = n.getString()
 	var value Node = n.getFirstChild()
 	var type_ *JSType = n.getJSType()
-	if (value != 0) {
+	if value != 0 {
 		scope = this.traverse(value, scope)
 		return this.updateScopeForAssignment(scope, n, this.getJSType(value), TypeInference_AssignmentType_DECLARATION)
 	}
-	if (NodeUtil_isNameDeclaration(n.getParent()) && TypeInference_isPossibleMixinApplication(n, 0)) {
+	if NodeUtil_isNameDeclaration(n.getParent()) && TypeInference_isPossibleMixinApplication(n, 0) {
 		TypeInference_addMissingInterfaceProperties(type_)
 	}
 	if n.getParent().isLet() {
-		var resultType *JSType = func() *JSType { if (type_ != nil) { return type_ }; return this.getNativeType(JSTypeNative_VOID_TYPE) }()
+		var resultType *JSType = func() *JSType {
+			if type_ != nil {
+				return type_
+			}
+			return this.getNativeType(JSTypeNative_VOID_TYPE)
+		}()
 		scope = this.updateScopeForAssignment(scope, n, resultType, TypeInference_AssignmentType_DECLARATION)
 		type_ = resultType
 	} else {
 		var var_ StaticTypedSlot = icast_StaticTypedSlot(scope.getSlot(varName))
-		if (var_ != nil) {
+		if var_ != nil {
 			var isInferred bool = var_.isTypeInferred()
 			var unflowable bool = (isInferred && this.isUnflowable(TypeInference_getDeclaredVar(scope, varName)))
-			var maybeOuterVar *TypedVar = func() *TypedVar { if (isInferred && this.containerScope.isLocal()) { return cast_[*TypedVar](cast_[*TypedScope](this.containerScope.getParent().self()).getVar(varName).self()) }; return nil }()
+			var maybeOuterVar *TypedVar = func() *TypedVar {
+				if isInferred && this.containerScope.isLocal() {
+					return cast_[*TypedVar](cast_[*TypedScope](this.containerScope.getParent().self()).getVar(varName).self())
+				}
+				return nil
+			}()
 			var nonLocalInferredSlot bool = (Object_equals(any(var_), obj_(maybeOuterVar)) && !maybeOuterVar.isMarkedAssignedExactlyOnce())
-			if (!unflowable && !nonLocalInferredSlot) {
+			if !unflowable && !nonLocalInferredSlot {
 				type_ = var_.getType()
-				if (type_ == nil) {
+				if type_ == nil {
 					type_ = this.unknownType.up_JSType()
 				}
 			}
@@ -829,20 +899,20 @@ func TypeInference_getBigIntPresence(type_ *JSType) *TypeInference_BigIntPresenc
 		return TypeInference_BigIntPresence_ALL_BIGINT
 	}
 	var typeAsEnumElement *EnumElementType = type_.toMaybeEnumElementType()
-	if (typeAsEnumElement != nil) {
+	if typeAsEnumElement != nil {
 		return TypeInference_getBigIntPresence(typeAsEnumElement.getPrimitiveType())
 	}
 	var typeAsUnion *UnionType = type_.toMaybeUnionType()
-	if (typeAsUnion != nil) {
+	if typeAsUnion != nil {
 		var containsBigInt bool = false
 		var containsNumber bool = false
 		var containsOther bool = false
 		it_1 := foreach_(obj_(typeAsUnion.getAlternates()))
 		for it_1.next() {
 			var alternate *JSType = to_JSType(it_1.v)
-			if (TypeInference_getBigIntPresence(alternate) != TypeInference_BigIntPresence_NO_BIGINT) {
+			if TypeInference_getBigIntPresence(alternate) != TypeInference_BigIntPresence_NO_BIGINT {
 				containsBigInt = true
-			} else if (alternate.isNumber() && !alternate.isUnknownType()) {
+			} else if alternate.isNumber() && !alternate.isUnknownType() {
 				containsNumber = true
 			} else {
 				containsOther = true
@@ -864,7 +934,7 @@ func TypeInference_getBigIntPresence(type_ *JSType) *TypeInference_BigIntPresenc
 func (this *TypeInference) traverseUnaryPlus(n Node, scope FlowScope) FlowScope {
 	scope = this.traverseChildren(n, scope)
 	var bigintPresenceInOperand *TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild()))
-	if (bigintPresenceInOperand != TypeInference_BigIntPresence_NO_BIGINT) {
+	if bigintPresenceInOperand != TypeInference_BigIntPresence_NO_BIGINT {
 		n.setJSType(this.getNativeType(JSTypeNative_NO_TYPE))
 	} else {
 		n.setJSType(this.getNativeType(JSTypeNative_NUMBER_TYPE))
@@ -889,7 +959,7 @@ func (this *TypeInference) traverseBigIntCompatibleBinaryOperator(n Node, scope 
 	scope = this.traverseChildren(n, scope)
 	var leftBigIntPresence *TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getFirstChild()))
 	var rightBigIntPresence *TypeInference_BigIntPresence = TypeInference_getBigIntPresence(this.getJSType(n.getLastChild()))
-	if (leftBigIntPresence != rightBigIntPresence) {
+	if leftBigIntPresence != rightBigIntPresence {
 		n.setJSType(this.getNativeType(JSTypeNative_NO_TYPE))
 	} else {
 		switch leftBigIntPresence {
@@ -911,15 +981,15 @@ func (this *TypeInference) traverseClass(n Node, scope FlowScope) FlowScope {
 	var classMembers Node = NodeUtil_getClassMembers(n)
 	{
 		var member Node = classMembers.getFirstChild()
-		for ; (member != 0); member = member.getNext() {
-			if (member.isComputedProp() || member.isComputedFieldDef()) {
+		for ; member != 0; member = member.getNext() {
+			if member.isComputedProp() || member.isComputedFieldDef() {
 				scope = this.traverse(member.getFirstChild(), scope)
 			}
 		}
 	}
 	{
 		var member Node = classMembers.getFirstChild()
-		for ; (member != 0); member = member.getNext() {
+		for ; member != 0; member = member.getNext() {
 			scope = this.traverseClassMemberRhs(member, scope)
 		}
 	}
@@ -931,7 +1001,7 @@ func (this *TypeInference) traverseClassMemberRhs(member Node, scope FlowScope) 
 		switch member.getToken() {
 		case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_FIELD_DEF:
 			var rhs Node = TypeInference_getRhsOfField(member)
-			if (rhs != 0) {
+			if rhs != 0 {
 				var computedFieldDefTypedScope *TypedScope = this.scopeCreator.createScope(member)
 				var computedFieldDefFlowScope FlowScope = scope.withSyntacticScope(icast_StaticTypedScope(obj_(computedFieldDefTypedScope)))
 				var rhsScope FlowScope = this.traverse(rhs, computedFieldDefFlowScope).withSyntacticScope(scope.getDeclarationScope())
@@ -981,19 +1051,19 @@ func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowSc
 	var spreadOperatorSeen bool = false
 	{
 		var name Node = n.getFirstChild()
-		for ; (name != 0); name = name.getNext() {
+		for ; name != 0; name = name.getNext() {
 			spreadOperatorSeen = bor_(spreadOperatorSeen, name.isSpread())
 			scope = this.traverseChildren(name, scope)
 		}
 	}
 	var objectType *ObjectType = ObjectType_cast(type_)
-	if (((objectType == nil) || n.getBooleanProp(Node_REFLECTED_OBJECT)) || objectType.isEnumType()) {
+	if ((objectType == nil) || n.getBooleanProp(Node_REFLECTED_OBJECT)) || objectType.isEnumType() {
 		return scope
 	}
 	var qObjName OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	{
 		var key Node = n.getFirstChild()
-		for ; (key != 0); key = key.getNext() {
+		for ; key != 0; key = key.getNext() {
 			if key.isComputedProp() {
 				continue
 			}
@@ -1005,20 +1075,35 @@ func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowSc
 			if memberName.isPresent() {
 				var rawValueType *JSType = key.getFirstChild().getJSType()
 				var valueType *JSType = TypeCheck_getObjectLitKeyTypeFromValueType(key, rawValueType)
-				if (valueType == nil) {
+				if valueType == nil {
 					valueType = this.unknownType.up_JSType()
 				}
-				if (!spreadOperatorSeen || !n.getJSType().isNativeObjectType()) {
+				if !spreadOperatorSeen || !n.getJSType().isNativeObjectType() {
 					objectType.defineInferredProperty(str_(memberName.get()), valueType, key)
 				}
-				if (qObjName.isPresent() && key.isStringKey()) {
+				if qObjName.isPresent() && key.isStringKey() {
 					var qKeyName string = (sstr_(str_(qObjName.get())) + "." + sstr_(str_(memberName.get())))
 					var var_ *TypedVar = TypeInference_getDeclaredVar(scope, qKeyName)
-					var oldType *JSType = func() *JSType { if (var_ == nil) { return nil }; return var_.getType() }()
-					if ((var_ != nil) && var_.isTypeInferred()) {
-						var_.setType(func() *JSType { if (oldType == nil) { return valueType }; return oldType.getLeastSupertype(oldType) }())
+					var oldType *JSType = func() *JSType {
+						if var_ == nil {
+							return nil
+						}
+						return var_.getType()
+					}()
+					if (var_ != nil) && var_.isTypeInferred() {
+						var_.setType(func() *JSType {
+							if oldType == nil {
+								return valueType
+							}
+							return oldType.getLeastSupertype(oldType)
+						}())
 					}
-					scope = scope.inferQualifiedSlot(key, qKeyName, func() *JSType { if (oldType == nil) { return this.unknownType.up_JSType() }; return oldType }(), valueType, false)
+					scope = scope.inferQualifiedSlot(key, qKeyName, func() *JSType {
+						if oldType == nil {
+							return this.unknownType.up_JSType()
+						}
+						return oldType
+					}(), valueType, false)
 				}
 			} else {
 				n.setJSType(this.unknownType.up_JSType())
@@ -1035,16 +1120,16 @@ func (this *TypeInference) traverseAdd(n Node, scope FlowScope) FlowScope {
 	var leftType *JSType = left.getJSType()
 	var rightType *JSType = right.getJSType()
 	var type_ *JSType = this.unknownType.up_JSType()
-	if ((leftType != nil) && (rightType != nil)) {
+	if (leftType != nil) && (rightType != nil) {
 		var leftIsUnknown bool = leftType.isUnknownType()
 		var rightIsUnknown bool = rightType.isUnknownType()
-		if ((!leftIsUnknown && leftType.isString()) || (!rightIsUnknown && rightType.isString())) {
+		if (!leftIsUnknown && leftType.isString()) || (!rightIsUnknown && rightType.isString()) {
 			type_ = this.getNativeType(JSTypeNative_STRING_TYPE)
-		} else if ((TypeInference_getBigIntPresence(leftType) != TypeInference_BigIntPresence_NO_BIGINT) || (TypeInference_getBigIntPresence(rightType) != TypeInference_BigIntPresence_NO_BIGINT)) {
+		} else if (TypeInference_getBigIntPresence(leftType) != TypeInference_BigIntPresence_NO_BIGINT) || (TypeInference_getBigIntPresence(rightType) != TypeInference_BigIntPresence_NO_BIGINT) {
 			return this.traverseBigIntCompatibleBinaryOperator(n, scope)
-		} else if (leftIsUnknown || rightIsUnknown) {
+		} else if leftIsUnknown || rightIsUnknown {
 			type_ = this.unknownType.up_JSType()
-		} else if (this.isAddedAsNumber(leftType) && this.isAddedAsNumber(rightType)) {
+		} else if this.isAddedAsNumber(leftType) && this.isAddedAsNumber(rightType) {
 			type_ = this.getNativeType(JSTypeNative_NUMBER_TYPE)
 		} else {
 			type_ = this.getNativeType(JSTypeNative_NUMBER_STRING)
@@ -1072,7 +1157,7 @@ func (this *TypeInference) traverseHook(n Node, scope FlowScope) FlowScope {
 	this.traverse(falseNode, falseScope)
 	var trueType *JSType = trueNode.getJSType()
 	var falseType *JSType = falseNode.getJSType()
-	if ((trueType != nil) && (falseType != nil)) {
+	if (trueType != nil) && (falseType != nil) {
 		n.setJSType(trueType.getLeastSupertype(falseType))
 	} else {
 		n.setJSType(this.unknownType.up_JSType())
@@ -1090,10 +1175,10 @@ func (this *TypeInference) traverseNullishCoalesce(n Node, scope FlowScope) Flow
 	var leftType *JSType = left.getJSType()
 	var rightType *JSType = right.getJSType()
 	var type_ *JSType = this.unknownType.up_JSType()
-	if (leftType != nil) {
-		if (!leftType.isNullable() && !leftType.isVoidable()) {
+	if leftType != nil {
+		if !leftType.isNullable() && !leftType.isVoidable() {
 			type_ = leftType
-		} else if (rightType != nil) {
+		} else if rightType != nil {
 			type_ = this.registry.createUnionType([]*JSType{leftType.restrictByNotNullOrUndefined(), rightType})
 			scope = icast_FlowScope(this.join(LatticeElement(scope), LatticeElement(scopeAfterTraverseRight)))
 			if n.isAssignNullishCoalesce() {
@@ -1106,7 +1191,7 @@ func (this *TypeInference) traverseNullishCoalesce(n Node, scope FlowScope) Flow
 }
 
 func (this *TypeInference) setCallNodeTypeAfterChildrenTraversed(n Node, scopeAfterChildren FlowScope) FlowScope {
-	if ((n.isCall() && NodeUtil_isExpressionResultUsed(n)) && ModuleImportResolver_isGoogModuleDependencyCall(n)) {
+	if (n.isCall() && NodeUtil_isExpressionResultUsed(n)) && ModuleImportResolver_isGoogModuleDependencyCall(n) {
 		var calleeNode Node = n.getFirstChild()
 		if calleeNode.matchesQualifiedName(TypeInference_GOOG_REQUIREDYNAMIC_NAME) {
 			n.setJSType(Promises_wrapInIThenable(this.registry, this.getGoogModuleDependencyCallResultType(n)))
@@ -1125,7 +1210,7 @@ func (this *TypeInference) setCallNodeTypeAfterChildrenTraversed(n Node, scopeAf
 		this.backwardsInferenceFromCallSite(n, fnType, scopeAfterChildren)
 	} else if functionType.equals(this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE).self()) {
 		n.setJSType(this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE))
-	} else if ((left.getJSType() != nil) && left.getJSType().isUnknownType()) {
+	} else if (left.getJSType() != nil) && left.getJSType().isUnknownType() {
 		n.setJSType(this.unknownType.up_JSType())
 	}
 	return scopeAfterChildren
@@ -1134,17 +1219,27 @@ func (this *TypeInference) setCallNodeTypeAfterChildrenTraversed(n Node, scopeAf
 func (this *TypeInference) getGoogModuleDependencyCallResultType(callNode Node) *JSType {
 	var moduleId string = callNode.getSecondChild().getString()
 	var module *Module = this.compiler_.getModuleMap().getClosureModule(moduleId)
-	if (module == nil) {
+	if module == nil {
 		return this.unknownType.up_JSType()
 	}
 	var name *ScopedName = this.moduleImportResolver.getClosureNamespaceTypeFromCall(callNode)
-	if (name != nil) {
+	if name != nil {
 		var otherModuleScope *TypedScope = cast_[*TypedScope](this.scopeCreator.getNodeToScopeMapper().apply(name.getScopeRoot().box_()))
-		var otherVar *TypedVar = func() *TypedVar { if (otherModuleScope != nil) { return cast_[*TypedVar](otherModuleScope.getSlot(name.getName())) }; return nil }()
-		if (otherVar != nil) {
-			return func() *JSType { if (otherVar.getType() != nil) { return otherVar.getType() }; return this.unknownType.up_JSType() }()
+		var otherVar *TypedVar = func() *TypedVar {
+			if otherModuleScope != nil {
+				return cast_[*TypedVar](otherModuleScope.getSlot(name.getName()))
+			}
+			return nil
+		}()
+		if otherVar != nil {
+			return func() *JSType {
+				if otherVar.getType() != nil {
+					return otherVar.getType()
+				}
+				return this.unknownType.up_JSType()
+			}()
 		}
-		if ((otherModuleScope != nil) && (module.metadata().moduleType() == ModuleMetadataMap_ModuleType_GOOG_PROVIDE)) {
+		if (otherModuleScope != nil) && (module.metadata().moduleType() == ModuleMetadataMap_ModuleType_GOOG_PROVIDE) {
 			return otherModuleScope.getTypeThroughNamespace(moduleId)
 		}
 	}
@@ -1154,15 +1249,15 @@ func (this *TypeInference) getGoogModuleDependencyCallResultType(callNode Node) 
 func (this *TypeInference) tightenTypesAfterAssertions(scope FlowScope, callNode Node) FlowScope {
 	var left Node = callNode.getFirstChild()
 	var firstParam Node = left.getNext()
-	if (firstParam == 0) {
+	if firstParam == 0 {
 		return scope
 	}
 	var assertionFunctionSpec *CodingConvention_AssertionFunctionSpec = this.assertionFunctionLookup.lookupByCallee(left)
-	if (assertionFunctionSpec == nil) {
+	if assertionFunctionSpec == nil {
 		return scope
 	}
 	var assertedNode Node = assertionFunctionSpec.getAssertedArg(firstParam)
-	if (assertedNode == 0) {
+	if assertedNode == 0 {
 		return scope
 	}
 	var assertedNodeName string = assertedNode.getQualifiedName()
@@ -1173,16 +1268,21 @@ func (this *TypeInference) tightenTypesAfterAssertions(scope FlowScope, callNode
 		callNode.setJSType(truthyType)
 	case CodingConvention_AssertionFunctionSpec_AssertionKind_MATCHES_RETURN_TYPE:
 		var callType *FunctionType = JSType_toMaybeFunctionType(left.getJSType())
-		var assertedType *JSType = func() *JSType { if (callType != nil) { return callType.getReturnType() }; return this.unknownType.up_JSType() }()
+		var assertedType *JSType = func() *JSType {
+			if callType != nil {
+				return callType.getReturnType()
+			}
+			return this.unknownType.up_JSType()
+		}()
 		var type_ *JSType = this.getJSType(assertedNode)
 		var narrowed *JSType
-		if (assertedType.isUnknownType() || type_.isUnknownType()) {
+		if assertedType.isUnknownType() || type_.isUnknownType() {
 			narrowed = assertedType
 		} else {
 			narrowed = type_.getGreatestSubtype(assertedType)
 		}
 		callNode.setJSType(narrowed)
-		if (!String_isEmpty(assertedNodeName) && type_.differsFrom(narrowed)) {
+		if !String_isEmpty(assertedNodeName) && type_.differsFrom(narrowed) {
 			scope = this.narrowScope(scope, assertedNode, narrowed)
 		}
 	}
@@ -1210,24 +1310,24 @@ func (this *TypeInference) backwardsInferenceFromCallSite(n Node, fnType *Functi
 
 func (this *TypeInference) updateBind(n Node) {
 	var bind *CodingConvention_Bind = this.compiler_.getCodingConvention().describeFunctionBind(n, true)
-	if (bind == nil) {
+	if bind == nil {
 		return
 	}
 	var target Node = bind.target
 	var callTargetFn *FunctionType = this.getJSType(target).restrictByNotNullOrUndefined().toMaybeFunctionType()
-	if (callTargetFn == nil) {
+	if callTargetFn == nil {
 		return
 	}
-	if ((bind.thisValue != 0) && target.isFunction()) {
+	if (bind.thisValue != 0) && target.isFunction() {
 		var thisType *JSType = this.getJSType(bind.thisValue)
-		if (((thisType.toObjectType() != nil) && !thisType.isUnknownType()) && callTargetFn.getTypeOfThis().isUnknownType()) {
+		if ((thisType.toObjectType() != nil) && !thisType.isUnknownType()) && callTargetFn.getTypeOfThis().isUnknownType() {
 			callTargetFn = callTargetFn.toBuilder().withTypeOfThis(thisType.toObjectType().up_JSType()).withSourceNode(0).buildAndResolve()
 			target.setJSType(callTargetFn.up_JSType())
 		}
 	}
 	var returnType *JSType = callTargetFn.getBindReturnType((bind.getBoundParameterCount() + 1)).up_JSType()
 	var bindType *FunctionType = this.getJSType(n.getFirstChild()).toMaybeFunctionType()
-	if ((bindType != nil) && (n.getFirstChild() != target)) {
+	if (bindType != nil) && (n.getFirstChild() != target) {
 		bindType = bindType.toBuilder().withReturnType(returnType).withSourceNode(0).buildAndResolve()
 		n.getFirstChild().setJSType(bindType.up_JSType())
 	}
@@ -1246,11 +1346,16 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 	var arguments IteratorOf[Node] = NodeUtil_getInvocationArgsAsIterable(n).iterator()
 	var iParameter *FunctionType_Parameter
 	var iArgument Node
-	for (parameters.hasNext() && arguments.hasNext()) {
+	for parameters.hasNext() && arguments.hasNext() {
 		iArgument = Node_of_(arguments.next())
 		var iArgumentType *JSType = this.getJSType(iArgument)
 		iParameter = cast_[*FunctionType_Parameter](parameters.next())
-		var iParameterType *JSType = func() *JSType { if (iParameter.getJSType() != nil) { return iParameter.getJSType() }; return this.unknownType.up_JSType() }()
+		var iParameterType *JSType = func() *JSType {
+			if iParameter.getJSType() != nil {
+				return iParameter.getJSType()
+			}
+			return this.unknownType.up_JSType()
+		}()
 		TypeInference_inferPropertyTypesToMatchConstraint(iArgumentType, iParameterType)
 		var restrictedParameter *FunctionType = nil
 		if iParameterType.isUnionType() {
@@ -1266,7 +1371,7 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 		} else {
 			restrictedParameter = iParameterType.toMaybeFunctionType()
 		}
-		if (((restrictedParameter != nil) && iArgument.isFunction()) && iArgumentType.isFunctionType()) {
+		if ((restrictedParameter != nil) && iArgument.isFunction()) && iArgumentType.isFunctionType() {
 			var argFnType *FunctionType = iArgumentType.toMaybeFunctionType()
 			var argJsdoc *JSDocInfo = iArgument.getJSDocInfo()
 			var declared bool = (((argJsdoc != nil) && argJsdoc.containsDeclaration()) || NodeUtil_functionHasInlineJsdocs(iArgument))
@@ -1277,11 +1382,11 @@ func (this *TypeInference) updateTypeOfArguments(n Node, fnType *FunctionType) {
 
 func (this *TypeInference) matchFunction(expectedType *FunctionType, currentType *FunctionType, declared bool) *FunctionType {
 	if declared {
-		if (currentType.getTypeOfThis().isUnknownType() && !expectedType.getTypeOfThis().isUnknownType()) {
+		if currentType.getTypeOfThis().isUnknownType() && !expectedType.getTypeOfThis().isUnknownType() {
 			return currentType.toBuilder().withTypeOfThis(expectedType.getTypeOfThis()).buildAndResolve()
 		}
 	} else {
-		if (currentType.getMaxArity() <= expectedType.getMaxArity()) {
+		if currentType.getMaxArity() <= expectedType.getMaxArity() {
 			return expectedType
 		}
 	}
@@ -1308,7 +1413,7 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableLi
 	for it_1.next() {
 		var type_ *TemplateType = cast_[*TemplateType](it_1.v)
 		if type_.isTypeTransformation() {
-			if (ttlObj == nil) {
+			if ttlObj == nil {
 				ttlObj = new_TypeTransformation(this.compiler_, scope.getDeclarationScope())
 				typeVars = this.buildTypeVariables(inferredTypes)
 				result = icast_Map(obj_(new_LinkedHashMap()))
@@ -1338,10 +1443,15 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 		_ = k
 		var v *JSType = to_JSType(v_)
 		_ = v
-		return func() any { if v.isSubtypeOf(k.getBound()) { return v.self() }; return k.getBound().self() }()
+		return func() any {
+			if v.isSubtypeOf(k.getBound()) {
+				return v.self()
+			}
+			return k.getBound().self()
+		}()
 	}})
 	var typeTransformations MapOf[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
-	if (typeTransformations != nil) {
+	if typeTransformations != nil {
 		inferred.putAll(typeTransformations)
 	}
 	var replacer *TemplateTypeReplacer = TemplateTypeReplacer_forInference(this.registry, inferred)
@@ -1361,7 +1471,7 @@ func (this *TypeInference) traverseNew(n Node, scope FlowScope) FlowScope {
 }
 
 func (this *TypeInference) traverseInstantiation(n Node, ctorType *JSType, scope FlowScope) FlowScope {
-	if ((ctorType == nil) || ctorType.isUnknownType()) {
+	if (ctorType == nil) || ctorType.isUnknownType() {
 		n.setJSType(this.unknownType.up_JSType())
 		return scope
 	}
@@ -1369,16 +1479,23 @@ func (this *TypeInference) traverseInstantiation(n Node, ctorType *JSType, scope
 	var ctorFnType *FunctionType = ctorType.toMaybeFunctionType()
 	var functionType *FunctionType
 	_ = functionType
-	if ((ctorFnType == nil) && func() bool { v_ := ctorType.self(); if !is_FunctionType(v_) { return false }; functionType = to_FunctionType(v_); return true }()) {
+	if (ctorFnType == nil) && func() bool {
+		v_ := ctorType.self()
+		if !is_FunctionType(v_) {
+			return false
+		}
+		functionType = to_FunctionType(v_)
+		return true
+	}() {
 		ctorFnType = functionType
 	}
-	if ((ctorFnType == nil) || !ctorFnType.isConstructor()) {
+	if (ctorFnType == nil) || !ctorFnType.isConstructor() {
 		n.setJSType(this.unknownType.up_JSType())
 		return scope
 	}
 	this.backwardsInferenceFromCallSite(n, ctorFnType, scope)
 	var instantiatedType *ObjectType = ctorFnType.getInstanceType()
-	if (ctorFnType.up_JSType() == this.registry.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE)) {
+	if ctorFnType.up_JSType() == this.registry.getNativeType(JSTypeNative_OBJECT_FUNCTION_TYPE) {
 	} else if ctorFnType.hasAnyTemplateTypes() {
 		if instantiatedType.isTemplatizedType() {
 			instantiatedType = instantiatedType.toMaybeTemplatizedType().getRawType()
@@ -1386,7 +1503,12 @@ func (this *TypeInference) traverseInstantiation(n Node, ctorType *JSType, scope
 		var inferredTypes ImmutableMapOf[*TemplateType, *JSType] = new_InvocationTemplateTypeMatcher(this.registry, ctorFnType, scope.getTypeOfThis(), n).match()
 		instantiatedType = this.registry.createTemplatizedTypeMap(instantiatedType, icast_Map(obj_(inferredTypes))).toMaybeObjectType()
 	}
-	n.setJSType(func() *JSType { if (instantiatedType != nil) { return instantiatedType.up_JSType() }; return this.unknownType.up_JSType() }())
+	n.setJSType(func() *JSType {
+		if instantiatedType != nil {
+			return instantiatedType.up_JSType()
+		}
+		return this.unknownType.up_JSType()
+	}())
 	return scope
 }
 
@@ -1399,7 +1521,7 @@ func (this *TypeInference) traverseAnd(n Node, scope FlowScope) *TypeInference_B
 func (this *TypeInference) traverseChildren(n Node, scope FlowScope) FlowScope {
 	{
 		var el Node = n.getFirstChild()
-		for ; (el != 0); el = el.getNext() {
+		for ; el != 0; el = el.getNext() {
 			scope = this.traverse(el, scope)
 		}
 	}
@@ -1430,33 +1552,53 @@ func (this *TypeInference) inferGetElemType(n Node) {
 	} else {
 		inferredType = this.dereferenceIndexSignature(objType)
 	}
-	n.setJSType(func() *JSType { if (inferredType != nil) { return inferredType }; return this.unknownType.up_JSType() }())
+	n.setJSType(func() *JSType {
+		if inferredType != nil {
+			return inferredType
+		}
+		return this.unknownType.up_JSType()
+	}())
 }
 
 func (this *TypeInference) dereferenceKnownSymbolProp(obj *JSType, indexSymbol *KnownSymbolType) *JSType {
 	var argumentTypes *UnionType_Builder = UnionType_builder(this.registry)
-	var alternates CollectionOf[*JSType] = func() Collection { if obj.isUnionType() { return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates())) }; return icast_Collection(obj_(ImmutableList_of_Object(obj.self()))) }()
+	var alternates CollectionOf[*JSType] = func() Collection {
+		if obj.isUnionType() {
+			return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates()))
+		}
+		return icast_Collection(obj_(ImmutableList_of_Object(obj.self())))
+	}()
 	var key Property_Key = icast_Property_Key(obj_(new_Property_SymbolKey(indexSymbol)))
 	it_1 := foreach_(any(alternates))
 	for it_1.next() {
 		var option *JSType = to_JSType(it_1.v)
-		if (option.toMaybeObjectType() == nil) {
+		if option.toMaybeObjectType() == nil {
 			argumentTypes = nil
 			break
 		}
 		var propertyType *JSType = option.toMaybeObjectType().findPropertyTypeKey(key)
-		if (propertyType == nil) {
+		if propertyType == nil {
 			argumentTypes = nil
 			break
 		}
 		argumentTypes.addAlternate(propertyType)
 	}
-	return func() *JSType { if (argumentTypes == nil) { return nil }; return argumentTypes.build() }()
+	return func() *JSType {
+		if argumentTypes == nil {
+			return nil
+		}
+		return argumentTypes.build()
+	}()
 }
 
 func (this *TypeInference) dereferenceIndexSignature(obj *JSType) *JSType {
 	var argumentTypes *UnionType_Builder = UnionType_builder(this.registry)
-	var alternates CollectionOf[*JSType] = func() Collection { if obj.isUnionType() { return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates())) }; return icast_Collection(obj_(ImmutableList_of_Object(obj.self()))) }()
+	var alternates CollectionOf[*JSType] = func() Collection {
+		if obj.isUnionType() {
+			return icast_Collection(obj_(obj.toMaybeUnionType().getAlternates()))
+		}
+		return icast_Collection(obj_(ImmutableList_of_Object(obj.self())))
+	}()
 	it_1 := foreach_(any(alternates))
 	for it_1.next() {
 		var option *JSType = to_JSType(it_1.v)
@@ -1467,7 +1609,12 @@ func (this *TypeInference) dereferenceIndexSignature(obj *JSType) *JSType {
 		}
 		argumentTypes.addAlternate(typeMap.getResolvedTemplateType(this.registry.getObjectElementKey()))
 	}
-	return func() *JSType { if (argumentTypes == nil) { return nil }; return argumentTypes.build() }()
+	return func() *JSType {
+		if argumentTypes == nil {
+			return nil
+		}
+		return argumentTypes.build()
+	}()
 }
 
 func (this *TypeInference) traverseGetProp(n Node, scope FlowScope) FlowScope {
@@ -1511,12 +1658,12 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	}
 	var aboutToExecuteScope FlowScope = lhsScope
 	var nextChild Node = n.getSecondChild()
-	for (nextChild != 0) {
+	for nextChild != 0 {
 		aboutToExecuteScope = this.traverse(nextChild, aboutToExecuteScope)
 		nextChild = nextChild.getNext()
 	}
 	var executedScope FlowScope = this.setOptChainNodeTypeAfterChildrenTraversed(n, aboutToExecuteScope)
-	if (n.getJSType() == nil) {
+	if n.getJSType() == nil {
 		n.setJSType(this.unknownType.up_JSType())
 	}
 	if NodeUtil_isEndOfOptChainSegment(n) {
@@ -1537,7 +1684,7 @@ func (this *TypeInference) updateTypeWhenEndOfOptChain(optChain Node, startNode 
 	if startType.isUnknownType() {
 		optChain.setJSType(this.unknownType.up_JSType())
 		return icast_FlowScope(this.join(LatticeElement(executedScope), LatticeElement(currentChain.unconditionalScope)))
-	} else if (startType.isNullType() || startType.isVoidType()) {
+	} else if startType.isNullType() || startType.isVoidType() {
 		optChain.setJSType(this.registry.getNativeType(JSTypeNative_VOID_TYPE))
 		return currentChain.unconditionalScope
 	} else if !startType.isNullable() {
@@ -1551,7 +1698,7 @@ func (this *TypeInference) updateTypeWhenEndOfOptChain(optChain Node, startNode 
 }
 
 func TypeInference_inferPropertyTypesToMatchConstraint(type_ *JSType, constraint *JSType) {
-	if ((type_ == nil) || (constraint == nil)) {
+	if (type_ == nil) || (constraint == nil) {
 		return
 	}
 	type_.matchConstraint(constraint)
@@ -1572,32 +1719,37 @@ func (this *TypeInference) getPropertyType(objType *JSType, propName string, n N
 	var propertyType *JSType = nil
 	var isLocallyInferred bool = false
 	var qualifiedName string = n.getQualifiedName()
-	var var_ StaticTypedSlot = func() StaticTypedSlot { if !String_isEmpty(qualifiedName) { return icast_StaticTypedSlot(scope.getSlot(qualifiedName)) }; return nil }()
-	if (var_ != nil) {
+	var var_ StaticTypedSlot = func() StaticTypedSlot {
+		if !String_isEmpty(qualifiedName) {
+			return icast_StaticTypedSlot(scope.getSlot(qualifiedName))
+		}
+		return nil
+	}()
+	if var_ != nil {
 		var varType *JSType = var_.getType()
-		if (varType != nil) {
+		if varType != nil {
 			var isDeclared bool = !var_.isTypeInferred()
 			isLocallyInferred = (any(var_) != obj_(TypeInference_getDeclaredVar(scope, qualifiedName)))
-			if (isDeclared || isLocallyInferred) {
+			if isDeclared || isLocallyInferred {
 				propertyType = varType
 			}
 		}
 	}
-	if ((propertyType == nil) && (objType != nil)) {
+	if (propertyType == nil) && (objType != nil) {
 		var foundType *JSType = objType.findPropertyType(propName)
-		if (foundType != nil) {
+		if foundType != nil {
 			propertyType = foundType
 		}
 	}
-	if (((propertyType == nil) || propertyType.isUnknownType()) && !String_isEmpty(qualifiedName)) {
+	if ((propertyType == nil) || propertyType.isUnknownType()) && !String_isEmpty(qualifiedName) {
 		var regType *ObjectType = ObjectType_cast(this.registry.getType(StaticScope(scope.getDeclarationScope()), qualifiedName))
-		if (regType != nil) {
+		if regType != nil {
 			propertyType = regType.getConstructor().up_JSType()
 		}
 	}
-	if (propertyType == nil) {
+	if propertyType == nil {
 		return this.unknownType.up_JSType()
-	} else if (propertyType.equals(this.unknownType.self()) && isLocallyInferred) {
+	} else if propertyType.equals(this.unknownType.self()) && isLocallyInferred {
 		return this.getNativeType(JSTypeNative_CHECKED_UNKNOWN_TYPE)
 	} else {
 		return propertyType
@@ -1617,7 +1769,7 @@ func (this *TypeInference) traverseShortCircuitingBinOpAssignment(n Node, scope 
 	var leftOutcome *TypeInference_BooleanOutcomePair = this.traverseWithinShortCircuitingBinOp(left, scope)
 	var outcome *TypeInference_BooleanOutcomePair = this.traverseShortCircuitingBinOp(n, left, leftOutcome)
 	var outcomeJoinedFlowScope FlowScope = outcome.getJoinedFlowScope()
-	if (leftOutcome.toBooleanOutcomes == BooleanLiteralSet_get(!nIsAnd)) {
+	if leftOutcome.toBooleanOutcomes == BooleanLiteralSet_get(!nIsAnd) {
 		return outcomeJoinedFlowScope
 	}
 	return this.updateScopeForAssignment(outcomeJoinedFlowScope, n.getFirstChild(), n.getJSType(), TypeInference_AssignmentType_ASSIGN)
@@ -1633,16 +1785,16 @@ func (this *TypeInference) traverseShortCircuitingBinOp(n Node, left Node, leftO
 	var rightType *JSType = right.getJSType()
 	var type_ *JSType
 	var outcome *TypeInference_BooleanOutcomePair
-	if ((leftType != nil) && (rightType != nil)) {
+	if (leftType != nil) && (rightType != nil) {
 		leftType = leftType.getRestrictedTypeGivenOutcome(Outcome_rhino_forBoolean(!nIsAnd))
-		if (leftOutcome.toBooleanOutcomes == BooleanLiteralSet_get(!nIsAnd)) {
+		if leftOutcome.toBooleanOutcomes == BooleanLiteralSet_get(!nIsAnd) {
 			type_ = leftType
 			outcome = leftOutcome
 		} else {
 			type_ = leftType.getLeastSupertype(rightType)
 			outcome = new_TypeInference_BooleanOutcomePair(this, TypeInference_joinBooleanOutcomes(nIsAnd, leftOutcome.toBooleanOutcomes, rightOutcome.toBooleanOutcomes), TypeInference_joinBooleanOutcomes(nIsAnd, leftOutcome.booleanValues, rightOutcome.booleanValues), leftOutcome.getJoinedFlowScope(), rightOutcome.getJoinedFlowScope())
 		}
-		if ((outcome.booleanValues == BooleanLiteralSet_EMPTY) && this.getNativeType(JSTypeNative_BOOLEAN_TYPE).isSubtypeOf(type_)) {
+		if (outcome.booleanValues == BooleanLiteralSet_EMPTY) && this.getNativeType(JSTypeNative_BOOLEAN_TYPE).isSubtypeOf(type_) {
 			if type_.isUnionType() {
 				type_ = type_.toMaybeUnionType().getRestrictedUnion(this.getNativeType(JSTypeNative_BOOLEAN_TYPE))
 			}
@@ -1683,18 +1835,28 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	var moduleMap *ModuleMap = this.compiler_.getModuleMap()
 	var importSpecifier Node = dynamicImport.getFirstChild()
 	var input *CompilerInput = this.compiler_.getInput(NodeUtil_getInputId(dynamicImport))
-	if ((importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil)) {
+	if (importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil) {
 		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of(strobj_(importSpecifier.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
 		}}), importSpecifier.getLineno(), importSpecifier.getCharno())
-		var targetModule *Module = func() *Module { if (targetPath != nil) { return moduleMap.getModule(targetPath) }; return nil }()
-		if (targetModule != nil) {
+		var targetModule *Module = func() *Module {
+			if targetPath != nil {
+				return moduleMap.getModule(targetPath)
+			}
+			return nil
+		}()
+		if targetModule != nil {
 			var scriptNode Node = targetModule.metadata().rootNode()
-			if (scriptNode.hasOneChild() && scriptNode.getFirstChild().isModuleBody()) {
-				var exportNamespaceType *JSType = func() *JSType { if (scriptNode != 0) { return scriptNode.getOnlyChild().getJSType() }; return nil }()
-				if (exportNamespaceType != nil) {
+			if scriptNode.hasOneChild() && scriptNode.getFirstChild().isModuleBody() {
+				var exportNamespaceType *JSType = func() *JSType {
+					if scriptNode != 0 {
+						return scriptNode.getOnlyChild().getJSType()
+					}
+					return nil
+				}()
+				if exportNamespaceType != nil {
 					templateType = exportNamespaceType
 				}
 			} else {
@@ -1703,7 +1865,7 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 					_ = node
 					return node.matchesQualifiedName(targetPath.toModuleName())
 				}}, Predicates_alwaysTrue())
-				if ((moduleName != 0) && (moduleName.getJSType() != nil)) {
+				if (moduleName != 0) && (moduleName.getJSType() != nil) {
 					templateType = moduleName.getJSType()
 				}
 			}
@@ -1718,16 +1880,21 @@ func TypeInference_joinBooleanOutcomes(isAnd bool, left *BooleanLiteralSet, righ
 }
 
 func (this *TypeInference) newBooleanOutcomePair(jsType *JSType, flowScope FlowScope) *TypeInference_BooleanOutcomePair {
-	if (jsType == nil) {
+	if jsType == nil {
 		return new_TypeInference_BooleanOutcomePair(this, BooleanLiteralSet_BOTH, BooleanLiteralSet_BOTH, flowScope, flowScope)
 	}
-	return new_TypeInference_BooleanOutcomePair(this, jsType.getPossibleToBooleanOutcomes(), func() *BooleanLiteralSet { if this.registry.getNativeType(JSTypeNative_BOOLEAN_TYPE).isSubtypeOf(jsType) { return BooleanLiteralSet_BOTH }; return BooleanLiteralSet_EMPTY }(), flowScope, flowScope)
+	return new_TypeInference_BooleanOutcomePair(this, jsType.getPossibleToBooleanOutcomes(), func() *BooleanLiteralSet {
+		if this.registry.getNativeType(JSTypeNative_BOOLEAN_TYPE).isSubtypeOf(jsType) {
+			return BooleanLiteralSet_BOTH
+		}
+		return BooleanLiteralSet_EMPTY
+	}(), flowScope, flowScope)
 }
 
 func (this *TypeInference) redeclareSimpleVar(scope FlowScope, nameNode Node, varType *JSType) FlowScope {
 	Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())
 	var varName string = nameNode.getString()
-	if (varType == nil) {
+	if varType == nil {
 		varType = this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	}
 	if this.isUnflowable(TypeInference_getDeclaredVar(scope, varName)) {
@@ -1742,7 +1909,7 @@ func (this *TypeInference) isUnflowable(v *TypedVar) bool {
 
 func (this *TypeInference) getJSType(n Node) *JSType {
 	var jsType *JSType = n.getJSType()
-	if (jsType == nil) {
+	if jsType == nil {
 		return this.unknownType.up_JSType()
 	} else {
 		return jsType
@@ -1759,7 +1926,9 @@ func TypeInference_getDeclaredVar(scope FlowScope, name string) *TypedVar {
 }
 
 var TypeInference_REASSIGN_CLASS_PROTOTYPE *DiagnosticType
+
 const TypeInference_GOOG_REQUIREDYNAMIC_NAME string = "goog.requireDynamic"
+
 var TypeInference_TOKENS_ALLOWING_NULL_TYPES *ImmutableSet
 
 var TypeInference_clinit_done bool
@@ -1897,8 +2066,8 @@ func TypeInference_BigIntPresence_clinit() {
 }
 
 type TypeInference_OptChainInfo struct {
-	endOfChain Node
-	startOfChain Node
+	endOfChain         Node
+	startOfChain       Node
 	unconditionalScope FlowScope
 }
 
@@ -1915,12 +2084,12 @@ func new_TypeInference_OptChainInfo(endOfChain Node, startOfChain Node) *TypeInf
 }
 
 type TypeInference_BooleanOutcomePair struct {
-	outer_ *TypeInference
+	outer_            *TypeInference
 	toBooleanOutcomes *BooleanLiteralSet
-	booleanValues *BooleanLiteralSet
-	leftScope FlowScope
-	rightScope FlowScope
-	joinedScope FlowScope
+	booleanValues     *BooleanLiteralSet
+	leftScope         FlowScope
+	rightScope        FlowScope
+	joinedScope       FlowScope
 }
 
 func (this *TypeInference_BooleanOutcomePair) finit_TypeInference_BooleanOutcomePair() {
@@ -1943,8 +2112,8 @@ func new_TypeInference_BooleanOutcomePair(outer_ *TypeInference, toBooleanOutcom
 }
 
 func (this *TypeInference_BooleanOutcomePair) getJoinedFlowScope() FlowScope {
-	if (this.joinedScope == nil) {
-		if (this.leftScope == this.rightScope) {
+	if this.joinedScope == nil {
+		if this.leftScope == this.rightScope {
 			this.joinedScope = this.rightScope
 		} else {
 			this.joinedScope = icast_FlowScope(this.outer_.join(LatticeElement(this.leftScope), LatticeElement(this.rightScope)))
@@ -1954,7 +2123,7 @@ func (this *TypeInference_BooleanOutcomePair) getJoinedFlowScope() FlowScope {
 }
 
 func (this *TypeInference_BooleanOutcomePair) getOutcomeFlowScope(nodeType *Token_rhino, outcome bool) FlowScope {
-	if (((nodeType == Token_rhino_AND) && outcome) || ((nodeType == Token_rhino_OR) && !outcome)) {
+	if ((nodeType == Token_rhino_AND) && outcome) || ((nodeType == Token_rhino_OR) && !outcome) {
 		return this.rightScope
 	} else {
 		return this.getJoinedFlowScope()
@@ -1963,12 +2132,12 @@ func (this *TypeInference_BooleanOutcomePair) getOutcomeFlowScope(nodeType *Toke
 }
 
 type TypeInference_1 struct {
-	outer_ *TypeInference
-	cap_source Node
-	cap_output FlowScope
-	condition Node
+	outer_             *TypeInference
+	cap_source         Node
+	cap_output         FlowScope
+	condition          Node
 	conditionFlowScope FlowScope
-	conditionOutcomes *TypeInference_BooleanOutcomePair
+	conditionOutcomes  *TypeInference_BooleanOutcomePair
 }
 
 func (this *TypeInference_1) finit_TypeInference_1() {
@@ -1998,24 +2167,29 @@ func (this *TypeInference_1) branchFlow(branch *ControlFlowGraph_Branch) any {
 		}
 		fallthrough
 	case ControlFlowGraph_Branch_ON_FALSE:
-		if (this.condition == 0) {
+		if this.condition == 0 {
 			if this.cap_source.isCase() {
 				this.condition = this.cap_source
 				this.conditionFlowScope = this.outer_.traverse(this.condition.getFirstChild(), this.cap_output)
 			} else {
 				this.condition = NodeUtil_getConditionExpression(this.cap_source)
-				if (this.condition == 0) {
+				if this.condition == 0 {
 					return any(this.cap_output)
 				}
 			}
 		}
-		if (this.condition.isAnd() || this.condition.isOr()) {
-			if (this.conditionOutcomes == nil) {
-				this.conditionOutcomes = func() *TypeInference_BooleanOutcomePair { if this.condition.isAnd() { return this.outer_.traverseAnd(this.condition, this.cap_output) }; return this.outer_.traverseOr(this.condition, this.cap_output) }()
+		if this.condition.isAnd() || this.condition.isOr() {
+			if this.conditionOutcomes == nil {
+				this.conditionOutcomes = func() *TypeInference_BooleanOutcomePair {
+					if this.condition.isAnd() {
+						return this.outer_.traverseAnd(this.condition, this.cap_output)
+					}
+					return this.outer_.traverseOr(this.condition, this.cap_output)
+				}()
 			}
 			return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionOutcomes.getOutcomeFlowScope(this.condition.getToken(), (branch == ControlFlowGraph_Branch_ON_TRUE)), Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE)))))
 		}
-		if (this.conditionFlowScope == nil) {
+		if this.conditionFlowScope == nil {
 			this.conditionFlowScope = this.outer_.traverse(this.condition, this.cap_output)
 		}
 		return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionFlowScope, Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE)))))
@@ -2024,4 +2198,3 @@ func (this *TypeInference_1) branchFlow(branch *ControlFlowGraph_Branch) any {
 	}
 	panic("unreachable")
 }
-

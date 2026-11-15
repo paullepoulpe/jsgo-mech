@@ -17,7 +17,7 @@ func new_DeadPropertyAssignmentElimination(compiler *AbstractCompiler) *DeadProp
 }
 
 func (this *DeadPropertyAssignmentElimination) process_2(externs Node, root Node) {
-	if ((this.compiler_.getExternProperties() == nil) || (this.compiler_.getAccessorSummary() == nil)) {
+	if (this.compiler_.getExternProperties() == nil) || (this.compiler_.getAccessorSummary() == nil) {
 		return
 	}
 	var skiplistedPropNames SetOf[string] = icast_Set(obj_(Sets_union(this.compiler_.getAccessorSummary().getAccessors().keySet(), icast_Set(obj_(this.compiler_.getExternProperties())))))
@@ -68,13 +68,13 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 	it_1 := foreach_(any(traversal.propertyMap.values()))
 	for it_1.next() {
 		var property *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](it_1.v)
-		if (property.writes.size() <= 1) {
+		if property.writes.size() <= 1 {
 			continue
 		}
 		var iter PeekingIteratorOf[*DeadPropertyAssignmentElimination_PropertyWrite] = Iterators_peekingIterator(property.writes.iterator())
 		for iter.hasNext() {
 			var propertyWrite *DeadPropertyAssignmentElimination_PropertyWrite = cast_[*DeadPropertyAssignmentElimination_PropertyWrite](iter.next())
-			if (iter.hasNext() && propertyWrite.isSafeToRemove(cast_[*DeadPropertyAssignmentElimination_PropertyWrite](iter.peek()))) {
+			if iter.hasNext() && propertyWrite.isSafeToRemove(cast_[*DeadPropertyAssignmentElimination_PropertyWrite](iter.peek())) {
 				var lhs Node = propertyWrite.assignedAt
 				var rhs Node = lhs.getNext()
 				var assignNode Node = lhs.getParent()
@@ -94,8 +94,8 @@ func (this *DeadPropertyAssignmentElimination_FunctionVisitor) enterChangedScope
 }
 
 type DeadPropertyAssignmentElimination_Property struct {
-	name_ string
-	writes DequeOf[*DeadPropertyAssignmentElimination_PropertyWrite]
+	name_     string
+	writes    DequeOf[*DeadPropertyAssignmentElimination_PropertyWrite]
 	children_ SetOf[*DeadPropertyAssignmentElimination_Property]
 }
 
@@ -153,8 +153,8 @@ func (this *DeadPropertyAssignmentElimination_Property) toString() string {
 }
 
 type DeadPropertyAssignmentElimination_PropertyWrite struct {
-	assignedAt Node
-	isRead bool
+	assignedAt     Node
+	isRead         bool
 	qualifiedName_ OptionalOf[string]
 }
 
@@ -188,7 +188,7 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) markRead() {
 }
 
 type DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal struct {
-	propertyMap MapOf[string, *DeadPropertyAssignmentElimination_Property]
+	propertyMap         MapOf[string, *DeadPropertyAssignmentElimination_Property]
 	skiplistedPropNames SetOf[string]
 }
 
@@ -211,15 +211,20 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if !propNode.isQualifiedName() {
 		return nil
 	}
-	var propName OptionalOf[string] = func() *Optional { if propNode.isGetProp() { return Optional_of(strobj_(propNode.getString())) }; return Optional_of(strobj_(propNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}) }()
+	var propName OptionalOf[string] = func() *Optional {
+		if propNode.isGetProp() {
+			return Optional_of(strobj_(propNode.getString()))
+		}
+		return Optional_of(strobj_(propNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+			var s string = str_(s_)
+			_ = s
+			return !String_isEmpty(s)
+		}})
+	}()
 	var property *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](Map_computeIfAbsent_s(this.propertyMap, str_(propName.orElse(nil)), &Function_fn{func(p0 any) any { return obj_(new_DeadPropertyAssignmentElimination_Property(str_(p0))) }}))
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
-		if (parentProperty != nil) {
+		if parentProperty != nil {
 			parentProperty.children_.add(obj_(property))
 		}
 	}
@@ -234,7 +239,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if NodeUtil_isAssignmentOp(n) {
 		this.visitAssignmentLhs(n.getFirstChild())
 	}
-	if ((NodeUtil_isInvocation(n) || n.isYield()) || n.isAwait()) {
+	if (NodeUtil_isInvocation(n) || n.isYield()) || n.isAwait() {
 		this.markAllPropsRead()
 	}
 	if n.isBlock() {
@@ -263,7 +268,7 @@ func DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal_isCondit
 
 func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) visitAssignmentLhs(lhs Node) {
 	var property *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(lhs)
-	if (property == nil) {
+	if property == nil {
 		return
 	}
 	if !lhs.isGetProp() {
@@ -278,9 +283,9 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	property.markChildrenRead()
 	property.addWrite(lhs)
 	var child Node = lhs.getFirstChild()
-	for (child != 0) {
+	for child != 0 {
 		var childProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(child)
-		if (childProperty == nil) {
+		if childProperty == nil {
 			break
 		}
 		childProperty.markLastWriteRead()
@@ -292,15 +297,15 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	return func() bool {
 		switch n.getToken() {
 		case Token_rhino_GETPROP:
-			if (n.isGetProp() && Collection_contains_s(this.skiplistedPropNames, n.getString())) {
+			if n.isGetProp() && Collection_contains_s(this.skiplistedPropNames, n.getString()) {
 				this.markAllPropsRead()
 				return true
 			}
-			if (NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n)) {
+			if NodeUtil_isAssignmentOp(parent) && (parent.getFirstChild() == n) {
 				return true
 			}
 			var property *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(n)
-			if (property != nil) {
+			if property != nil {
 				property.markLastWriteRead()
 				if !parent.isGetProp() {
 					property.markChildrenRead()
@@ -320,11 +325,11 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 		case Token_rhino_OBJECT_PATTERN:
 			{
 				var child Node = n.getFirstChild()
-				for ; (child != 0); child = child.getNext() {
+				for ; child != 0; child = child.getNext() {
 					if child.isStringKey() {
 						var propName string = child.getString()
 						var property *DeadPropertyAssignmentElimination_Property = cast_[*DeadPropertyAssignmentElimination_Property](Map_get_s(this.propertyMap, propName))
-						if (property != nil) {
+						if property != nil {
 							property.markLastWriteRead()
 							property.markChildrenRead()
 						}
@@ -359,4 +364,3 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 		property.markLastWriteRead()
 	}
 }
-

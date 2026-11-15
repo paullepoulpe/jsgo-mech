@@ -3,9 +3,9 @@
 package closure
 
 type SimpleMultiset struct {
-	counts MapOf[any, BoxedOf[int32]]
+	counts     MapOf[any, BoxedOf[int32]]
 	totalCount int32
-	frozen bool
+	frozen     bool
 }
 
 func (this *SimpleMultiset) finit_SimpleMultiset() {
@@ -60,7 +60,7 @@ func (this *SimpleMultiset) add_2(element any, occurrences int32) int32 {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	Preconditions_checkArgument((occurrences >= 0))
 	var oldCount int32 = this.count(element)
-	if (occurrences > 0) {
+	if occurrences > 0 {
 		this.counts.put(element, any(int32((oldCount + occurrences))))
 		this.totalCount += occurrences
 	}
@@ -78,10 +78,10 @@ func (this *SimpleMultiset) addAll(elements IterableOf[any]) {
 func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCount int32) bool {
 	Preconditions_checkState_boolean_Object(!this.frozen, strobj_("immutable"))
 	Preconditions_checkArgument(((expectedOldCount >= 0) && (newCount >= 0)))
-	if (this.count(element) != expectedOldCount) {
+	if this.count(element) != expectedOldCount {
 		return false
 	}
-	if (newCount == 0) {
+	if newCount == 0 {
 		this.counts.remove(element)
 	} else {
 		this.counts.put(element, any(int32(newCount)))
@@ -92,7 +92,7 @@ func (this *SimpleMultiset) setCount(element any, expectedOldCount int32, newCou
 
 func (this *SimpleMultiset) remove(element any) bool {
 	var oldCount int32 = this.count(element)
-	return ((oldCount > 0) && this.setCount(element, oldCount, (oldCount - 1)))
+	return ((oldCount > 0) && this.setCount(element, oldCount, (oldCount-1)))
 }
 
 func (this *SimpleMultiset) removeAll(elements IterableOf[any]) bool {
@@ -101,7 +101,7 @@ func (this *SimpleMultiset) removeAll(elements IterableOf[any]) bool {
 	for it_1.next() {
 		var element any = it_1.v
 		var oldCount int32 = this.count(element)
-		if (oldCount > 0) {
+		if oldCount > 0 {
 			this.setCount(element, oldCount, 0)
 			changed = true
 		}
@@ -111,7 +111,12 @@ func (this *SimpleMultiset) removeAll(elements IterableOf[any]) bool {
 
 func (this *SimpleMultiset) count(element any) int32 {
 	var count any = this.counts.get(element)
-	return func() int32 { if (count == nil) { return 0 }; return unbox_[int32](count) }()
+	return func() int32 {
+		if count == nil {
+			return 0
+		}
+		return unbox_[int32](count)
+	}()
 }
 
 func (this *SimpleMultiset) contains(element any) bool {
@@ -139,7 +144,7 @@ func (this *SimpleMultiset) asList() ImmutableListOf[any] {
 	it_1 := foreach_(any(this.counts.entrySet()))
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
-		for i := int32(0); (i < unbox_[int32](e.getValue())); i++ {
+		for i := int32(0); i < unbox_[int32](e.getValue()); i++ {
 			list.add(e.getKey())
 		}
 	}
@@ -153,7 +158,14 @@ func (this *SimpleMultiset) iterator() IteratorOf[any] {
 func (this *SimpleMultiset) equals(o any) bool {
 	var that *SimpleMultiset
 	_ = that
-	return (func() bool { v_ := o; if !is_[*SimpleMultiset](v_) { return false }; that = cast_[*SimpleMultiset](v_); return true }() && Object_equals(any(this.counts), any(that.counts)))
+	return (func() bool {
+		v_ := o
+		if !is_[*SimpleMultiset](v_) {
+			return false
+		}
+		that = cast_[*SimpleMultiset](v_)
+		return true
+	}() && Object_equals(any(this.counts), any(that.counts)))
 }
 
 func (this *SimpleMultiset) hashCode() int32 {
@@ -166,8 +178,12 @@ func (this *SimpleMultiset) toString() string {
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		var element string = String_valueOf_Object(e.getKey())
-		parts.add(func() any { if (unbox_[int32](e.getValue()) == 1) { return strobj_(element) }; return strobj_((sstr_(element) + " x " + objstr_(e.getValue()))) }())
+		parts.add(func() any {
+			if unbox_[int32](e.getValue()) == 1 {
+				return strobj_(element)
+			}
+			return strobj_((sstr_(element) + " x " + objstr_(e.getValue())))
+		}())
 	}
 	return Object_toString(any(parts))
 }
-

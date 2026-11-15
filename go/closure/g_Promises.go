@@ -52,7 +52,12 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 	var unknownType *JSType = registry.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 	var iThenableType *ObjectType = registry.getNativeObjectType(JSTypeNative_I_THENABLE_TYPE)
 	var iThenableOfUnknownType *JSType = registry.createTemplatizedType(iThenableType, []*JSType{unknownType}).up_JSType()
-	var alternates ImmutableListOf[*JSType] = func() *ImmutableList { if maybeThenable.isUnionType() { return maybeThenable.toMaybeUnionType().getAlternates() }; return ImmutableList_of_Object(maybeThenable.self()) }()
+	var alternates ImmutableListOf[*JSType] = func() *ImmutableList {
+		if maybeThenable.isUnionType() {
+			return maybeThenable.toMaybeUnionType().getAlternates()
+		}
+		return ImmutableList_of_Object(maybeThenable.self())
+	}()
 	var asyncTemplateAlternatesBuilder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
 	it_1 := foreach_(obj_(alternates))
 	for it_1.next() {
@@ -68,4 +73,3 @@ func Promises_createAsyncReturnableType(registry *JSTypeRegistry, maybeThenable 
 	var asyncTemplateUnion *JSType = registry.createUnionTypeList(icast_List(obj_(asyncTemplateAlternates)))
 	return registry.createUnionType([]*JSType{asyncTemplateUnion, registry.createTemplatizedType(iThenableType, []*JSType{asyncTemplateUnion}).up_JSType()})
 }
-

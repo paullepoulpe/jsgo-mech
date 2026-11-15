@@ -4,7 +4,7 @@ package closure
 
 type MapDiagnosticToSuppression struct {
 	output *DiagnosticToSuppressionMapper_OutputFormat
-	help bool
+	help   bool
 }
 
 func (this *MapDiagnosticToSuppression) finit_MapDiagnosticToSuppression() {
@@ -57,4 +57,3 @@ func (this *MapDiagnosticToSuppression) printSuppressions(args []string) {
 	}
 	new_DiagnosticToSuppressionMapper(icast_Set(obj_(ParserRunner_getSuppressionNames())), DiagnosticGroups_getRegisteredGroups()).printSuppressions(this.output)
 }
-

@@ -26,7 +26,7 @@ func SimpleTable_create() *SimpleTable {
 
 func (this *SimpleTable) put(rowKey any, columnKey any, value any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
-	if (row == nil) {
+	if row == nil {
 		row = icast_Map(obj_(new_LinkedHashMap()))
 		this.rows.put(rowKey, any(row))
 	}
@@ -35,7 +35,12 @@ func (this *SimpleTable) put(rowKey any, columnKey any, value any) any {
 
 func (this *SimpleTable) get(rowKey any, columnKey any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
-	return func() any { if (row == nil) { return nil }; return row.get(columnKey) }()
+	return func() any {
+		if row == nil {
+			return nil
+		}
+		return row.get(columnKey)
+	}()
 }
 
 func (this *SimpleTable) contains(rowKey any, columnKey any) bool {
@@ -49,7 +54,7 @@ func (this *SimpleTable) containsRow(rowKey any) bool {
 
 func (this *SimpleTable) remove(rowKey any, columnKey any) any {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
-	if (row == nil) {
+	if row == nil {
 		return nil
 	}
 	var value any = row.remove(columnKey)
@@ -61,7 +66,12 @@ func (this *SimpleTable) remove(rowKey any, columnKey any) any {
 
 func (this *SimpleTable) row(rowKey any) MapOf[any, any] {
 	var row MapOf[any, any] = icast_Map(this.rows.get(rowKey))
-	return func() Map { if (row == nil) { return icast_Map(obj_(ImmutableMap_of())) }; return Collections_unmodifiableMap(row) }()
+	return func() Map {
+		if row == nil {
+			return icast_Map(obj_(ImmutableMap_of()))
+		}
+		return Collections_unmodifiableMap(row)
+	}()
 }
 
 func (this *SimpleTable) rowKeySet() SetOf[any] {
@@ -79,4 +89,3 @@ func (this *SimpleTable) isEmpty() bool {
 func (this *SimpleTable) toString() string {
 	return Object_toString(obj_(this.rows))
 }
-

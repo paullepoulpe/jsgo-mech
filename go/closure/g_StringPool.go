@@ -4,7 +4,7 @@ package closure
 
 type StringPool struct {
 	maxLength int32
-	pool *RhinoStringPool_LazyInternedStringList
+	pool      *RhinoStringPool_LazyInternedStringList
 }
 
 func (this *StringPool) init_StringPool(maxLength int32, pool ArrayListOf[string]) {
@@ -24,7 +24,7 @@ func StringPool_fromProto(proto *StringPoolProto) *StringPool {
 	var pool ArrayListOf[string] = new_ArrayList_0()
 	pool.add(strobj_(""))
 	var stringsList ListOf[*ByteString] = proto.getStringsList()
-	for i := int32(0); (i < stringsList.size()); i++ {
+	for i := int32(0); i < stringsList.size(); i++ {
 		var s *ByteString = cast_[*ByteString](stringsList.get(i))
 		pool.add(strobj_(decoder.decode(s)))
 	}
@@ -46,7 +46,7 @@ func (this *StringPool) getInternedStrings() *RhinoStringPool_LazyInternedString
 func (this *StringPool) toProto() *StringPoolProto {
 	var builder *StringPoolProto_Builder = StringPoolProto_newBuilder().setMaxLength(this.maxLength)
 	var strings ListOf[string] = this.pool.asList()
-	for i := int32(1); (i < strings.size()); i++ {
+	for i := int32(1); i < strings.size(); i++ {
 		builder.addStrings(Wtf8_encodeToWtf8(str_(strings.get(i))))
 	}
 	return cast_[*StringPoolProto](builder.build())
@@ -71,7 +71,7 @@ func StringPool_clinit() {
 
 type StringPool_Builder struct {
 	maxLength int32
-	pool LinkedHashMapOf[string, BoxedOf[int32]]
+	pool      LinkedHashMapOf[string, BoxedOf[int32]]
 }
 
 func (this *StringPool_Builder) finit_StringPool_Builder() {
@@ -91,7 +91,7 @@ func new_StringPool_Builder() *StringPool_Builder {
 }
 
 func (this *StringPool_Builder) put(string_ string) int32 {
-	if (String_length(string_) > this.maxLength) {
+	if String_length(string_) > this.maxLength {
 		this.maxLength = String_length(string_)
 	}
 	return unbox_[int32](Map_computeIfAbsent_s(this.pool, string_, &Function_fn{func(unused_ any) any {
@@ -109,4 +109,3 @@ func (this *StringPool_Builder) putAnd(string_ string) *StringPool_Builder {
 func (this *StringPool_Builder) build() *StringPool {
 	return new_StringPool(this.maxLength, new_ArrayList_Collection(Collection(this.pool.keySet())))
 }
-

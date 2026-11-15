@@ -28,17 +28,23 @@ type Visitor_WithDefaultCase struct {
 	self_ any
 }
 
-func (this *Visitor_WithDefaultCase) as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase { return this }
+func (this *Visitor_WithDefaultCase) as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase {
+	return this
+}
 
 func to_Visitor_WithDefaultCase(v any) *Visitor_WithDefaultCase {
 	if v == nil {
 		return nil
 	}
-	return v.(interface{ as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase }).as_Visitor_WithDefaultCase()
+	return v.(interface {
+		as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase
+	}).as_Visitor_WithDefaultCase()
 }
 
 func is_Visitor_WithDefaultCase(v any) bool {
-	_, ok := v.(interface{ as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase })
+	_, ok := v.(interface {
+		as_Visitor_WithDefaultCase() *Visitor_WithDefaultCase
+	})
 	return ok
 }
 
@@ -156,4 +162,3 @@ func (this *Visitor_WithDefaultCase) caseTemplatizedType(p0 *TemplatizedType) an
 func (this *Visitor_WithDefaultCase) caseTemplateType(p0 *TemplateType) any {
 	return this.self_.(interface{ caseTemplateType_impl(*TemplateType) any }).caseTemplateType_impl(p0)
 }
-

@@ -4,7 +4,7 @@ package closure
 
 type TranspilationException struct {
 	RuntimeException
-	errorsField ImmutableListOf[*JSError]
+	errorsField   ImmutableListOf[*JSError]
 	warningsField ImmutableListOf[*JSError]
 }
 
@@ -71,7 +71,12 @@ func (this *TranspilationException) warnings() ImmutableListOf[*JSError] {
 
 func TranspilationException_format(source SourceExcerptProvider, errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError]) string {
 	var sb *StringBuilder = new_StringBuilder().append("Transpilation failed:\n")
-	var formatter MessageFormatter = func() MessageFormatter { if (source != nil) { return ErrorFormat_SINGLELINE.toFormatter(source, false) }; return ErrorFormat_SOURCELESS.toFormatter(source, false) }()
+	var formatter MessageFormatter = func() MessageFormatter {
+		if source != nil {
+			return ErrorFormat_SINGLELINE.toFormatter(source, false)
+		}
+		return ErrorFormat_SOURCELESS.toFormatter(source, false)
+	}()
 	it_1 := foreach_(obj_(errors))
 	for it_1.next() {
 		var error_ *JSError = cast_[*JSError](it_1.v)
@@ -88,9 +93,15 @@ func TranspilationException_format(source SourceExcerptProvider, errors Immutabl
 func TranspilationException_tryCastToTranspilationException(t *Throwable) *TranspilationException {
 	var transpilationException *TranspilationException
 	_ = transpilationException
-	if func() bool { v_ := t.self(); if !is_[*TranspilationException](v_) { return false }; transpilationException = cast_[*TranspilationException](v_); return true }() {
+	if func() bool {
+		v_ := t.self()
+		if !is_[*TranspilationException](v_) {
+			return false
+		}
+		transpilationException = cast_[*TranspilationException](v_)
+		return true
+	}() {
 		return transpilationException
 	}
 	return nil
 }
-

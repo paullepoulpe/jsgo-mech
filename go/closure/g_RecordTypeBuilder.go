@@ -3,9 +3,9 @@
 package closure
 
 type RecordTypeBuilder struct {
-	isEmpty_ bool
+	isEmpty_   bool
 	isDeclared bool
-	registry *JSTypeRegistry
+	registry   *JSTypeRegistry
 	properties LinkedHashMapOf[string, *RecordTypeBuilder_RecordProperty]
 }
 
@@ -46,7 +46,7 @@ func (this *RecordTypeBuilder) build() *JSType {
 }
 
 type RecordTypeBuilder_RecordProperty struct {
-	type__ *JSType
+	type__       *JSType
 	propertyNode Node
 }
 
@@ -72,4 +72,3 @@ func (this *RecordTypeBuilder_RecordProperty) getPropertyNode() Node {
 func (this *RecordTypeBuilder_RecordProperty) toString() string {
 	return ("RecordProperty{type: " + objstr_(this.type__.self()) + ", node: " + objstr_(this.propertyNode.box_()) + "}")
 }
-

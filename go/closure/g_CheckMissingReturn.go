@@ -4,7 +4,7 @@ package closure
 
 type CheckMissingReturn struct {
 	NodeTraversal_AbstractCfgCallback
-	compiler_ *AbstractCompiler
+	compiler_  *AbstractCompiler
 	convention CodingConvention
 }
 
@@ -30,13 +30,13 @@ func new_CheckMissingReturn(compiler *AbstractCompiler) *CheckMissingReturn {
 
 func CheckMissingReturn_goesThroughTrueCondition(input DiGraph_DiGraphEdge) bool {
 	var branch *ControlFlowGraph_Branch = cast_[*ControlFlowGraph_Branch](input.getValue())
-	if (branch == ControlFlowGraph_Branch_ON_EX) {
+	if branch == ControlFlowGraph_Branch_ON_EX {
 		return false
 	} else if branch.isConditional() {
 		var condition Node = NodeUtil_getConditionExpression(Node_of_(input.getSource().getValue()))
-		if (condition != 0) {
+		if condition != 0 {
 			var val *Tri = NodeUtil_getBooleanValue(condition)
-			if (val != Tri_UNKNOWN) {
+			if val != Tri_UNKNOWN {
 				return (val.toBoolean(true) == (branch == ControlFlowGraph_Branch_ON_TRUE))
 			}
 		}
@@ -47,7 +47,7 @@ func CheckMissingReturn_goesThroughTrueCondition(input DiGraph_DiGraphEdge) bool
 func (this *CheckMissingReturn) enterScopeWithCfg_impl(t *NodeTraversal) {
 	var n Node = t.getScopeRoot()
 	var returnType *JSType = this.getExplicitReturnTypeIfExpected(n)
-	if (returnType == nil) {
+	if returnType == nil {
 		return
 	}
 	if n.isArrowFunction() {
@@ -75,7 +75,7 @@ func (this *CheckMissingReturn) fastAllPathsReturnCheck(cfg *ControlFlowGraph) b
 	for it_1.next() {
 		var s DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
 		var n Node = Node_of_(s.getSource().getValue())
-		if (!n.isReturn() && !this.convention.isFunctionCallThatAlwaysThrows(n)) {
+		if !n.isReturn() && !this.convention.isFunctionCallThatAlwaysThrows(n) {
 			return false
 		}
 	}
@@ -95,7 +95,7 @@ func (this *CheckMissingReturn) getExplicitReturnTypeIfExpected(scopeRoot Node) 
 		return nil
 	}
 	var scopeType *FunctionType = JSType_toMaybeFunctionType(scopeRoot.getJSType())
-	if (scopeType == nil) {
+	if scopeType == nil {
 		return nil
 	}
 	if CheckMissingReturn_isEmptyFunction(scopeRoot) {
@@ -105,7 +105,7 @@ func (this *CheckMissingReturn) getExplicitReturnTypeIfExpected(scopeRoot Node) 
 		return nil
 	}
 	var returnType *JSType = scopeType.getReturnType()
-	if (returnType == nil) {
+	if returnType == nil {
 		return nil
 	}
 	if scopeRoot.isAsyncFunction() {
@@ -140,4 +140,3 @@ func CheckMissingReturn_clinit() {
 	CheckMissingReturn_MISSING_RETURN_STATEMENT = DiagnosticType_warning("JSC_MISSING_RETURN_STATEMENT", "Missing return statement. Function expected to return {0}.")
 
 }
-

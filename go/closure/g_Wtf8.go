@@ -18,22 +18,22 @@ func new_Wtf8() *Wtf8 {
 func Wtf8_encodeToWtf8(s string) *ByteString {
 	var length int32 = String_length(s)
 	var output *ByteString_Output = ByteString_newOutput(length)
-	for i := int32(0); (i < length); i++ {
+	for i := int32(0); i < length; i++ {
 		var codepoint int32 = String_codePointAt(s, i)
-		if (codepoint < 128) {
+		if codepoint < 128 {
 			output.write(codepoint)
-		} else if (codepoint < 2048) {
-			output.write((192 | (31 & int32(uint32(codepoint) >> 6))))
+		} else if codepoint < 2048 {
+			output.write((192 | (31 & int32(uint32(codepoint)>>6))))
 			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & codepoint)))
-		} else if (codepoint < 65536) {
-			output.write((224 | (15 & int32(uint32(codepoint) >> 12))))
-			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & int32(uint32(codepoint) >> 6))))
+		} else if codepoint < 65536 {
+			output.write((224 | (15 & int32(uint32(codepoint)>>12))))
+			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & int32(uint32(codepoint)>>6))))
 			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & codepoint)))
 		} else {
 			i++
-			output.write((240 | (7 & int32(uint32(codepoint) >> 18))))
-			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & int32(uint32(codepoint) >> 12))))
-			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & int32(uint32(codepoint) >> 6))))
+			output.write((240 | (7 & int32(uint32(codepoint)>>18))))
+			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & int32(uint32(codepoint)>>12))))
+			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & int32(uint32(codepoint)>>6))))
 			output.write((128 | (int32(Wtf8_CONTINUATION_MASK) & codepoint)))
 		}
 	}
@@ -63,24 +63,24 @@ func new_Wtf8_Decoder(maxLength int32) *Wtf8_Decoder {
 func (this *Wtf8_Decoder) decode(encoded *ByteString) string {
 	var encodedByteCount int32 = encoded.size()
 	var codepointCount int32 = 0
-	for i := int32(0); (i < encodedByteCount); i++ {
+	for i := int32(0); i < encodedByteCount; i++ {
 		var b int8 = encoded.byteAt(i)
 		var codepoint int32
-		if ((int32(b) & 128) == 0) {
+		if (int32(b) & 128) == 0 {
 			codepoint = int32(b)
-		} else if ((int32(b) & 224) == 192) {
+		} else if (int32(b) & 224) == 192 {
 			var firstByte int32 = (31 & int32(b))
 			i++
 			var secondByte int32 = (int32(encoded.byteAt(i)) & int32(Wtf8_CONTINUATION_MASK))
 			codepoint = ((firstByte << 6) | secondByte)
-		} else if ((int32(b) & 240) == 224) {
+		} else if (int32(b) & 240) == 224 {
 			var firstByte int32 = (15 & int32(b))
 			i++
 			var secondByte int32 = (int32(encoded.byteAt(i)) & int32(Wtf8_CONTINUATION_MASK))
 			i++
 			var thirdByte int32 = (int32(encoded.byteAt(i)) & int32(Wtf8_CONTINUATION_MASK))
 			codepoint = (((firstByte << 12) | (secondByte << 6)) | thirdByte)
-		} else if ((int32(b) & 248) == 240) {
+		} else if (int32(b) & 248) == 240 {
 			var firstByte int32 = (7 & int32(b))
 			i++
 			var secondByte int32 = (int32(encoded.byteAt(i)) & int32(Wtf8_CONTINUATION_MASK))
@@ -97,4 +97,3 @@ func (this *Wtf8_Decoder) decode(encoded *ByteString) string {
 	}
 	return new_String_intArr_int_int(this.codepointBuffer, 0, codepointCount)
 }
-

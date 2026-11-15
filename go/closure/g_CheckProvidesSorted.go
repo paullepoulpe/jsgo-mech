@@ -3,13 +3,13 @@
 package closure
 
 type CheckProvidesSorted struct {
-	mode_ *CheckProvidesSorted_Mode
+	mode_            *CheckProvidesSorted_Mode
 	originalProvides ListOf[string]
-	firstNode Node
-	lastNode Node
-	finished bool
-	replacement_ OptionalOf[string]
-	needsFixField bool
+	firstNode        Node
+	lastNode         Node
+	finished         bool
+	replacement_     OptionalOf[string]
+	needsFixField    bool
 }
 
 func (this *CheckProvidesSorted) finit_CheckProvidesSorted() {
@@ -57,9 +57,9 @@ func (this *CheckProvidesSorted) visit(t *NodeTraversal, n Node, parent Node) {
 		this.checkCanonical(t)
 		return
 	}
-	if (NodeUtil_isGoogProvideCall(n) && CheckProvidesSorted_areProvideArgumentsValid(n.getFirstChild())) {
+	if NodeUtil_isGoogProvideCall(n) && CheckProvidesSorted_areProvideArgumentsValid(n.getFirstChild()) {
 		this.originalProvides.add(strobj_(CheckProvidesSorted_getNamespace(n)))
-		if (this.firstNode == 0) {
+		if this.firstNode == 0 {
 			this.lastNode = n
 			this.firstNode = n
 		} else {
@@ -93,7 +93,7 @@ func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
 	if !Object_equals(any(this.originalProvides), obj_(canonicalProvides)) {
 		this.needsFixField = true
 		this.replacement_ = Optional_of(strobj_(String_join(strobj_("\n"), Iterables_transform(icast_Iterable(obj_(canonicalProvides)), &Function_base_fn{func(p0 any) any { return strobj_(CheckProvidesSorted_formatProvide(str_(p0))) }}))))
-		if (this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT) {
+		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{str_(this.replacement_.orElse(strobj_("null")))})
 		}
 	}
@@ -164,4 +164,3 @@ func CheckProvidesSorted_Mode_clinit() {
 	registerEnum_("com.google.javascript.jscomp.lint.CheckProvidesSorted.Mode", enumValues_(CheckProvidesSorted_Mode_values_))
 
 }
-

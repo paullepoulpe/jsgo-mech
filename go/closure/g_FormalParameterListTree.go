@@ -4,9 +4,9 @@ package closure
 
 type FormalParameterListTree struct {
 	ParseTree
-	parameters ImmutableListOf[*ParseTree]
+	parameters        ImmutableListOf[*ParseTree]
 	hasTrailingComma_ bool
-	commaPositions ImmutableListOf[*SourcePosition_util]
+	commaPositions    ImmutableListOf[*SourcePosition_util]
 }
 
 func (this *FormalParameterListTree) up_ParseTree() *ParseTree {
@@ -32,4 +32,3 @@ func new_FormalParameterListTree(location *SourceRange, parameters ImmutableList
 	this.init_FormalParameterListTree(location, parameters, hasTrailingComma, commaPositions)
 	return this
 }
-

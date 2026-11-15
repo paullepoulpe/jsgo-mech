@@ -4,7 +4,7 @@ package closure
 
 type ChromePass struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_      *AbstractCompiler
 	createdObjects SetOf[string]
 }
 
@@ -37,7 +37,7 @@ func (this *ChromePass) visit_impl(t *NodeTraversal, node Node, parent Node) {
 		var callee Node = node.getFirstChild()
 		if callee.matchesQualifiedName(ChromePass_CR_DEFINE) {
 			this.visitNamespaceDefinition(node, parent)
-		} else if (callee.matchesQualifiedName(ChromePass_OBJECT_DEFINE_PROPERTY) || callee.matchesQualifiedName(ChromePass_CR_DEFINE_PROPERTY)) {
+		} else if callee.matchesQualifiedName(ChromePass_OBJECT_DEFINE_PROPERTY) || callee.matchesQualifiedName(ChromePass_CR_DEFINE_PROPERTY) {
 			this.visitPropertyDefinition(node, parent)
 		}
 	}
@@ -47,26 +47,26 @@ func (this *ChromePass) visitPropertyDefinition(call Node, parent Node) {
 	var callee Node = call.getFirstChild()
 	var isCrDefinePropertyCall bool = callee.matchesQualifiedName(ChromePass_CR_DEFINE_PROPERTY)
 	if isCrDefinePropertyCall {
-		if (call.getChildCount() < 3) {
+		if call.getChildCount() < 3 {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, ChromePass_CR_DEFINE_PROPERTY_TOO_FEW_ARGUMENTS, []string{}))
 			return
 		}
-	} else if (call.getChildCount() < 4) {
+	} else if call.getChildCount() < 4 {
 		return
 	}
 	var target string = call.getSecondChild().getQualifiedName()
-	if (isCrDefinePropertyCall && !String_endsWith(target, ".prototype")) {
+	if isCrDefinePropertyCall && !String_endsWith(target, ".prototype") {
 		target += ".prototype"
 	}
 	var property Node = call.getChildAtIndex(2)
 	var getPropNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, (sstr_(target) + "." + sstr_(property.getString()))).srcrefTree(call)
 	if isCrDefinePropertyCall {
 		var propertyType Node = this.getTypeByCrPropertyKind(call.getChildAtIndex(3))
-		if (propertyType != 0) {
+		if propertyType != 0 {
 			ChromePass_setJsDocWithType(getPropNode, propertyType)
 		} else {
 			var sourceJsDocInfo *JSDocInfo = call.getJSDocInfo()
-			if ((sourceJsDocInfo != nil) && sourceJsDocInfo.hasType()) {
+			if (sourceJsDocInfo != nil) && sourceJsDocInfo.hasType() {
 				getPropNode.setJSDocInfo(sourceJsDocInfo)
 			} else {
 				ChromePass_setJsDocWithType(getPropNode, new_Node_Token(Token_rhino_QMARK))
@@ -78,11 +78,16 @@ func (this *ChromePass) visitPropertyDefinition(call Node, parent Node) {
 	}
 	var definitionNode Node = IR_exprResult(getPropNode).srcref(parent)
 	definitionNode.insertAfter(parent)
-	this.compiler_.reportChangeToEnclosingScope(func() Node { if isCrDefinePropertyCall { return call }; return getPropNode }())
+	this.compiler_.reportChangeToEnclosingScope(func() Node {
+		if isCrDefinePropertyCall {
+			return call
+		}
+		return getPropNode
+	}())
 }
 
 func (this *ChromePass) getTypeByCrPropertyKind(propertyKind Node) Node {
-	if ((propertyKind == 0) || ChromePass_CR_PROPERTYKIND_JS.matches(propertyKind)) {
+	if (propertyKind == 0) || ChromePass_CR_PROPERTYKIND_JS.matches(propertyKind) {
 		return 0
 	}
 	if ChromePass_CR_PROPERTYKIND_ATTR.matches(propertyKind) {
@@ -114,7 +119,7 @@ func (this *ChromePass) createAndInsertObjectsForQualifiedName(scriptChild Node,
 }
 
 func (this *ChromePass) visitNamespaceDefinition(crDefineCallNode Node, parent Node) {
-	if (crDefineCallNode.getChildCount() != 3) {
+	if crDefineCallNode.getChildCount() != 3 {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(crDefineCallNode, ChromePass_CR_DEFINE_WRONG_NUMBER_OF_ARGUMENTS, []string{}))
 	}
 	var namespaceArg Node = crDefineCallNode.getSecondChild()
@@ -133,12 +138,12 @@ func (this *ChromePass) visitNamespaceDefinition(crDefineCallNode Node, parent N
 	var objectLit Node
 	var functionBlock Node = function.getLastChild()
 	returnNode = functionBlock.getLastChild()
-	if ((returnNode == 0) || !returnNode.isReturn()) {
+	if (returnNode == 0) || !returnNode.isReturn() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(namespaceArg, ChromePass_CR_DEFINE_INVALID_RETURN_IN_FUNCTION, []string{}))
 		return
 	}
 	objectLit = returnNode.getFirstChild()
-	if ((objectLit == 0) || !objectLit.isObjectLit()) {
+	if (objectLit == 0) || !objectLit.isObjectLit() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(namespaceArg, ChromePass_CR_DEFINE_INVALID_RETURN_IN_FUNCTION, []string{}))
 		return
 	}
@@ -150,7 +155,7 @@ func ChromePass_objectLitToMap(objectLit Node) MapOf[string, string] {
 	var res MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
 	{
 		var keyNode Node = objectLit.getFirstChild()
-		for ; (keyNode != 0); keyNode = keyNode.getNext() {
+		for ; keyNode != 0; keyNode = keyNode.getNext() {
 			var key string = keyNode.getString()
 			var valueNode Node = keyNode.getFirstChild()
 			if valueNode.isName() {
@@ -166,9 +171,9 @@ func (this *ChromePass) createObjectsForQualifiedName(namespace string) ListOf[N
 	var objects ListOf[Node] = icast_List(new_ArrayList_0().self())
 	var parts []string = ChromePass_DOT_PATTERN.split(namespace)
 	this.createObjectIfNew(objects, parts[0], true)
-	if (int32(len(parts)) >= 2) {
+	if int32(len(parts)) >= 2 {
 		var currPrefix *StringBuilder = new_StringBuilder().append(parts[0])
-		for i := int32(1); (i < int32(len(parts))); i++ {
+		for i := int32(1); i < int32(len(parts)); i++ {
 			currPrefix.append(".").append(parts[i])
 			this.createObjectIfNew(objects, Object_toString(obj_(currPrefix)), false)
 		}
@@ -183,19 +188,28 @@ func (this *ChromePass) createObjectIfNew(objects ListOf[Node], name string, nee
 	Collection_add_s(this.createdObjects, name)
 	var v Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, name)
 	var lhs Node = IR_or(v.cloneTree(), IR_objectlit([]Node{}))
-	objects.add(func() any { if needVar { return IR_var_Node_Node(v, lhs).box_() }; return IR_exprResult(IR_assign(v, lhs)).box_() }())
+	objects.add(func() any {
+		if needVar {
+			return IR_var_Node_Node(v, lhs).box_()
+		}
+		return IR_exprResult(IR_assign(v, lhs)).box_()
+	}())
 }
 
 var ChromePass_DOT_PATTERN *Pattern
+
 const ChromePass_CR_DEFINE string = "cr.define"
 const ChromePass_OBJECT_DEFINE_PROPERTY string = "Object.defineProperty"
 const ChromePass_CR_DEFINE_PROPERTY string = "cr.defineProperty"
 const ChromePass_VIRTUAL_FILE string = "<ChromePass.java>"
+
 var ChromePass_VIRTUAL_NODE Node
 var ChromePass_CR_PROPERTYKIND_JS *QualifiedName
 var ChromePass_CR_PROPERTYKIND_ATTR *QualifiedName
 var ChromePass_CR_PROPERTYKIND_BOOL_ATTR *QualifiedName
+
 const ChromePass_CR_DEFINE_COMMON_EXPLANATION string = "It should be called like this: cr.define('name.space', function() '{ ... return {Export: Internal}; }');"
+
 var ChromePass_CR_DEFINE_WRONG_NUMBER_OF_ARGUMENTS *DiagnosticType
 var ChromePass_CR_DEFINE_INVALID_FIRST_ARGUMENT *DiagnosticType
 var ChromePass_CR_DEFINE_INVALID_SECOND_ARGUMENT *DiagnosticType
@@ -226,9 +240,9 @@ func ChromePass_clinit() {
 
 type ChromePass_RenameInternalsToExternalsCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	outer_ *ChromePass
-	namespaceName string
-	exports MapOf[string, string]
+	outer_         *ChromePass
+	namespaceName  string
+	exports        MapOf[string, string]
 	namespaceBlock Node
 }
 
@@ -260,7 +274,7 @@ func new_ChromePass_RenameInternalsToExternalsCallback(outer_ *ChromePass, names
 }
 
 func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (((n.isFunction() || n.isClass()) && (parent == this.namespaceBlock)) && Map_containsKey_s(this.exports, n.getFirstChild().getString())) {
+	if ((n.isFunction() || n.isClass()) && (parent == this.namespaceBlock)) && Map_containsKey_s(this.exports, n.getFirstChild().getString()) {
 		var clone Node = n.cloneTree()
 		if clone.isClass() {
 			var className Node = clone.getFirstChild()
@@ -268,24 +282,24 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTra
 		}
 		NodeUtil_markNewScopesChanged(clone, this.outer_.compiler_)
 		var exprResult Node = IR_exprResult(IR_assign(this.buildQualifiedName(n.getFirstChild()), clone).srcref(n)).srcref(n)
-		if (n.getJSDocInfo() != nil) {
+		if n.getJSDocInfo() != nil {
 			exprResult.getFirstChild().setJSDocInfo(n.getJSDocInfo())
 			clone.setJSDocInfo(nil)
 		}
 		n.replaceWith(exprResult)
 		NodeUtil_markFunctionsDeleted(n, this.outer_.compiler_)
 		this.outer_.compiler_.reportChangeToEnclosingScope(exprResult)
-	} else if (((n.isName() && Map_containsKey_s(this.exports, n.getString())) && !parent.isFunction()) && !parent.isClass()) {
+	} else if ((n.isName() && Map_containsKey_s(this.exports, n.getString())) && !parent.isFunction()) && !parent.isClass() {
 		if NodeUtil_isNameDeclaration(parent) {
-			if (parent.getParent() == this.namespaceBlock) {
+			if parent.getParent() == this.namespaceBlock {
 				var varContent Node = n.removeFirstChild()
 				var exprResult Node
-				if (varContent == 0) {
+				if varContent == 0 {
 					exprResult = IR_exprResult(this.buildQualifiedName(n)).srcref(parent)
 				} else {
 					exprResult = IR_exprResult(IR_assign(this.buildQualifiedName(n), varContent).srcref(parent)).srcref(parent)
 				}
-				if (parent.getJSDocInfo() != nil) {
+				if parent.getJSDocInfo() != nil {
 					exprResult.getFirstChild().setJSDocInfo(cast_[*JSDocInfo](parent.getJSDocInfo().clone()))
 				}
 				parent.replaceWith(exprResult)
@@ -293,7 +307,7 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) visit_impl(t *NodeTra
 			}
 		} else {
 			var newNode Node = this.buildQualifiedName(n)
-			if (n.getJSDocInfo() != nil) {
+			if n.getJSDocInfo() != nil {
 				newNode.setJSDocInfo(cast_[*JSDocInfo](n.getJSDocInfo().clone()))
 			}
 			if parent.isCall() {
@@ -309,4 +323,3 @@ func (this *ChromePass_RenameInternalsToExternalsCallback) buildQualifiedName(in
 	var externalName string = str_(Map_get_s(this.exports, internalName.getString()))
 	return NodeUtil_newQName_AbstractCompiler_String(this.outer_.compiler_, (sstr_(this.namespaceName) + "." + sstr_(externalName))).srcrefTree(internalName)
 }
-

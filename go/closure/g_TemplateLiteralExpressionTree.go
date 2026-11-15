@@ -4,7 +4,7 @@ package closure
 
 type TemplateLiteralExpressionTree struct {
 	ParseTree
-	operand *ParseTree
+	operand   *ParseTree
 	elements_ ImmutableListOf[*ParseTree]
 }
 
@@ -27,4 +27,3 @@ func new_TemplateLiteralExpressionTree(location *SourceRange, operand *ParseTree
 	this.init_TemplateLiteralExpressionTree(location, operand, elements)
 	return this
 }
-

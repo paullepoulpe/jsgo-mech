@@ -4,8 +4,8 @@ package closure
 
 type FieldDeclarationTree struct {
 	ParseTree
-	name_ *IdentifierToken
-	isStatic bool
+	name_       *IdentifierToken
+	isStatic    bool
 	initializer *ParseTree
 }
 
@@ -29,4 +29,3 @@ func new_FieldDeclarationTree(location *SourceRange, name *IdentifierToken, isSt
 	this.init_FieldDeclarationTree(location, name, isStatic, initializer)
 	return this
 }
-

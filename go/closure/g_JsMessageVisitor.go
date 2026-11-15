@@ -4,11 +4,11 @@ package closure
 
 type JsMessageVisitor struct {
 	NodeTraversal_AbstractPostOrderCallback
-	idGenerator_ JsMessage_IdGenerator
-	compiler_ *AbstractCompiler
-	messageNames MapOf[string, *JsMessageVisitor_MessageLocation]
+	idGenerator_    JsMessage_IdGenerator
+	compiler_       *AbstractCompiler
+	messageNames    MapOf[string, *JsMessageVisitor_MessageLocation]
 	unnamedMessages MapOf[*Var, *JsMessage]
-	googMsgNodes SetOf[Node]
+	googMsgNodes    SetOf[Node]
 }
 
 func (this *JsMessageVisitor) as_JsMessageVisitor() *JsMessageVisitor { return this }
@@ -74,7 +74,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 	var jsDocInfo *JSDocInfo
 	switch node.getToken() {
 	case Token_rhino_NAME:
-		if ((parent == 0) || !NodeUtil_isNameDeclaration(parent)) {
+		if (parent == 0) || !NodeUtil_isNameDeclaration(parent) {
 			return
 		}
 		possiblyObfuscatedMessageKey = node.getString()
@@ -91,7 +91,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		msgNode = node.getLastChild()
 		jsDocInfo = node.getJSDocInfo()
 	case Token_rhino_STRING_KEY:
-		if ((node.isQuotedStringKey() || !node.hasChildren()) || parent.isObjectPattern()) {
+		if (node.isQuotedStringKey() || !node.hasChildren()) || parent.isObjectPattern() {
 			return
 		}
 		Preconditions_checkState_boolean_Object(parent.isObjectLit(), parent.box_())
@@ -107,12 +107,17 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 	default:
 		return
 	}
-	var messageKeyFromLhs string = func() string { if !String_isEmpty(originalMessageKey) { return originalMessageKey }; return possiblyObfuscatedMessageKey }()
+	var messageKeyFromLhs string = func() string {
+		if !String_isEmpty(originalMessageKey) {
+			return originalMessageKey
+		}
+		return possiblyObfuscatedMessageKey
+	}()
 	var msgNodeIsACall bool = ((msgNode != 0) && msgNode.isCall())
 	if !this.isMessageName(messageKeyFromLhs) {
 		return
 	}
-	if (msgNode == 0) {
+	if msgNode == 0 {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_HAS_NO_VALUE, []string{messageKeyFromLhs}))
 		return
 	}
@@ -127,7 +132,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 	}
 	var mapping *Mapping_OriginalMapping = this.compiler_.getSourceMapping_Optional_int_int(traversal.getSourceName(), node.getLineno(), node.getCharno())
 	var sourceName string
-	if (mapping != nil) {
+	if mapping != nil {
 		sourceName = (sstr_(mapping.getOriginalFile()) + ":" + istr_(int64(mapping.getLineNumber())))
 	} else {
 		sourceName = (sstr_(str_(traversal.getSourceName().orElse(strobj_("null")))) + ":" + istr_(int64(node.getLineno())))
@@ -158,7 +163,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		this.trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage)
 		this.reportErrorIfEmptyMessage(node, extractedMessage)
 		var desc OptionalOf[string] = extractedMessage.getDesc()
-		if ((desc.isEmpty() || String_isEmpty(String_trim(str_(desc.get())))) && !extractedMessage.isExternal()) {
+		if (desc.isEmpty() || String_isEmpty(String_trim(str_(desc.get())))) && !extractedMessage.isExternal() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION, []string{extractedMessage.getKey()}))
 		}
 		this.processJsMessageDefinition(jsMessageDefinition)
@@ -201,13 +206,18 @@ func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuil
 				meaningForIdGeneration = Optional_of(strobj_(JsMessageVisitor_removeScopedAliasesPrefix(messageKeyFromLhs)))
 			}
 		}
-		messageId = func() *Optional { if (this.idGenerator_ == nil) { return meaningForIdGeneration }; return Optional_of(strobj_(this.idGenerator_.generateId(meaningForIdGeneration, icast_List(obj_(messageParts))))) }()
+		messageId = func() *Optional {
+			if this.idGenerator_ == nil {
+				return meaningForIdGeneration
+			}
+			return Optional_of(strobj_(this.idGenerator_.generateId(meaningForIdGeneration, icast_List(obj_(messageParts)))))
+		}()
 	}
 	return new_JsMessage_Builder().appendParts(icast_List(obj_(messageParts))).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()
 }
 
 func (this *JsMessageVisitor) trackMessage(traversal *NodeTraversal, possiblyObfuscatedMessageKey string, msgNode Node, extractedMessage *JsMessage) {
-	if (!extractedMessage.isAnonymous() && !extractedMessage.isExternal()) {
+	if !extractedMessage.isAnonymous() && !extractedMessage.isExternal() {
 		this.checkIfMessageDuplicated(extractedMessage.getKey(), msgNode)
 	}
 	if extractedMessage.isAnonymous() {
@@ -227,13 +237,13 @@ func JsMessageVisitor_getExternalMessageId(messageKey string) OptionalOf[string]
 	if String_startsWith(messageKey, JsMessageVisitor_MSG_EXTERNAL_PREFIX) {
 		var start int32 = String_length(JsMessageVisitor_MSG_EXTERNAL_PREFIX)
 		var end int32 = start
-		for ; (end < String_length(messageKey)); end++ {
+		for ; end < String_length(messageKey); end++ {
 			var c uint16 = String_charAt(messageKey, end)
-			if ((int32(c) > 57) || (int32(c) < 48)) {
+			if (int32(c) > 57) || (int32(c) < 48) {
 				break
 			}
 		}
-		if (end > start) {
+		if end > start {
 			return Optional_of(strobj_(String_substring(messageKey, start, end)))
 		}
 	}
@@ -250,7 +260,7 @@ func (this *JsMessageVisitor) collectGetMsgCall(traversal *NodeTraversal, call N
 		return
 	}
 	var callee Node = call.getFirstChild()
-	if (callee.matchesQualifiedName(JsMessageVisitor_MSG_FUNCTION_QNAME) || this.isDeclareIcuTemplateCallee(callee)) {
+	if callee.matchesQualifiedName(JsMessageVisitor_MSG_FUNCTION_QNAME) || this.isDeclareIcuTemplateCallee(callee) {
 		this.googMsgNodes.add(call.box_())
 	} else if callee.matchesQualifiedName(JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME) {
 		this.visitFallbackFunctionCall(traversal, call)
@@ -264,19 +274,24 @@ func (this *JsMessageVisitor) trackNormalMessage(message *JsMessage, msgName str
 
 func (this *JsMessageVisitor) trackUnnamedMessage(t *NodeTraversal, message *JsMessage, msgNameInScope string) {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
-	if (var_ != nil) {
+	if var_ != nil {
 		this.unnamedMessages.put(obj_(var_), obj_(message))
 	}
 }
 
 func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
-	if ((msgNode.isGetProp() && msgNode.isQualifiedName()) && String_startsWith(msgNode.getString(), JsMessageVisitor_MSG_PREFIX)) {
+	if (msgNode.isGetProp() && msgNode.isQualifiedName()) && String_startsWith(msgNode.getString(), JsMessageVisitor_MSG_PREFIX) {
 		return true
 	}
 	if !msgNode.isName() {
 		return false
 	}
-	var originalName string = func() string { if !String_isEmpty(msgNode.getOriginalName()) { return msgNode.getOriginalName() }; return msgNode.getString() }()
+	var originalName string = func() string {
+		if !String_isEmpty(msgNode.getOriginalName()) {
+			return msgNode.getOriginalName()
+		}
+		return msgNode.getString()
+	}()
 	if String_startsWith(originalName, JsMessageVisitor_MSG_PREFIX) {
 		return true
 	}
@@ -285,7 +300,7 @@ func JsMessageVisitor_isLegalMessageVarAlias(msgNode Node) bool {
 
 func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgNameInScope string) *JsMessage {
 	var var_ *Var = cast_[*Var](t.getScope().getVar(msgNameInScope).self())
-	if (var_ != nil) {
+	if var_ != nil {
 		return cast_[*JsMessage](this.unnamedMessages.get(obj_(var_)))
 	}
 	return nil
@@ -293,7 +308,12 @@ func (this *JsMessageVisitor) getTrackedUnnamedMessage(t *NodeTraversal, msgName
 
 func (this *JsMessageVisitor) getTrackedNormalMessage(msgName string) *JsMessage {
 	var location *JsMessageVisitor_MessageLocation = cast_[*JsMessageVisitor_MessageLocation](Map_get_s(this.messageNames, msgName))
-	return func() *JsMessage { if (location == nil) { return nil }; return location.message_ }()
+	return func() *JsMessage {
+		if location == nil {
+			return nil
+		}
+		return location.message_
+	}()
 }
 
 func (this *JsMessageVisitor) checkIfMessageDuplicated(msgName string, msgNode Node) {
@@ -317,7 +337,7 @@ func JsMessageVisitor_extractStringFromStringExprNode(node Node) *Outcome_base {
 		var sb *StringBuilder = new_StringBuilder()
 		{
 			var child Node = node.getFirstChild()
-			for ; (child != 0); child = child.getNext() {
+			for ; child != 0; child = child.getNext() {
 				var childString *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(child)
 				if childString.isErr() {
 					return Outcome_base_err(childString.error())
@@ -336,7 +356,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 	var description OptionalOf[string]
 	var meaning OptionalOf[string]
 	var alternateMessageId OptionalOf[string]
-	if (jsDocInfo == nil) {
+	if jsDocInfo == nil {
 		description = Optional_empty()
 		meaning = Optional_empty()
 		alternateMessageId = Optional_empty()
@@ -346,13 +366,23 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 		alternateMessageId = jsDocInfo.getAlternateMessageId()
 	}
 	var msgTextNode Node = msgNode.getSecondChild()
-	if (msgTextNode == 0) {
+	if msgTextNode == 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("Message string literal expected", msgNode).up_Throwable())
 	}
 	var valuesObjLit Node = msgTextNode.getNext()
-	var optionsBagArgument Node = func() Node { if (valuesObjLit == 0) { return 0 }; return valuesObjLit.getNext() }()
-	var unexpectedArgument Node = func() Node { if (optionsBagArgument == 0) { return 0 }; return optionsBagArgument.getNext() }()
-	if (unexpectedArgument != 0) {
+	var optionsBagArgument Node = func() Node {
+		if valuesObjLit == 0 {
+			return 0
+		}
+		return valuesObjLit.getNext()
+	}()
+	var unexpectedArgument Node = func() Node {
+		if optionsBagArgument == 0 {
+			return 0
+		}
+		return optionsBagArgument.getNext()
+	}()
+	if unexpectedArgument != 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
 	}
 	var msgTextStringOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(msgTextNode)
@@ -403,7 +433,7 @@ func (this *JsMessageVisitor) extractJsMessageDefinition(msgNode Node, jsDocInfo
 }
 
 func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocInfo *JSDocInfo, messageKeyFromLhs string, sourceName string) *Outcome_base {
-	if (jsDocInfo != nil) {
+	if jsDocInfo != nil {
 		if jsDocInfo.getAlternateMessageId().isPresent() {
 			return Outcome_base_err(new_JsMessageVisitor_MalformedException("Use the 'alternate_message_id' option, not the '@alternateMessageId' annotation", msgNode).up_Throwable())
 		}
@@ -415,7 +445,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 		}
 	}
 	var stringLiteralExpression Node = msgNode.getSecondChild()
-	if (stringLiteralExpression == 0) {
+	if stringLiteralExpression == 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("message string argument expected", msgNode).up_Throwable())
 	}
 	var icuMessageTemplateStringOutcome *Outcome_base = this.extractIcuMessageTemplateString(stringLiteralExpression)
@@ -424,7 +454,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 	}
 	var icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString = cast_[*JsMessageVisitor_IcuMessageTemplateString](icuMessageTemplateStringOutcome.get())
 	var optionsBagNode Node = stringLiteralExpression.getNext()
-	if (optionsBagNode == 0) {
+	if optionsBagNode == 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("options argument expected", msgNode).up_Throwable())
 	}
 	var icuTemplateOptionsOutcome *Outcome_base = this.extractIcuTemplateOptions(optionsBagNode)
@@ -438,7 +468,7 @@ func (this *JsMessageVisitor) extractIcuTemplateDefinition(msgNode Node, jsDocIn
 		return Outcome_base_err(unknownPlaceholdersChecked.error())
 	}
 	var unexpectedArgument Node = optionsBagNode.getNext()
-	if (unexpectedArgument != 0) {
+	if unexpectedArgument != 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("too many arguments", unexpectedArgument).up_Throwable())
 	}
 	var extractedMessage *JsMessage = this.buildJsMessage(icast_JsMessageVisitor_InputForBuildJsMsg(obj_(new_JsMessageVisitor_3(this, messageKeyFromLhs, sourceName, icuMessageTemplateString, extractedIcuTemplateParts, icuTemplateOptions))))
@@ -520,7 +550,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 		return Outcome_base_err(unexpectedKeysChecked.error())
 	}
 	var descriptionNode Node = objectLiteralMap.getValueNode("description")
-	if (descriptionNode == 0) {
+	if descriptionNode == 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("'description' option field is missing", optionsBag).up_Throwable())
 	}
 	var descriptionOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(descriptionNode)
@@ -530,7 +560,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	var description string = str_(descriptionOutcome.get())
 	var meaningNode Node = objectLiteralMap.getValueNode("meaning")
 	var meaning OptionalOf[string]
-	if (meaningNode == 0) {
+	if meaningNode == 0 {
 		meaning = Optional_empty()
 	} else {
 		var meaningOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(meaningNode)
@@ -541,7 +571,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 	}
 	var alternateMessageIdNode Node = objectLiteralMap.getValueNode("alternate_message_id")
 	var alternateMessageId OptionalOf[string]
-	if (alternateMessageIdNode == 0) {
+	if alternateMessageIdNode == 0 {
 		alternateMessageId = Optional_empty()
 	} else {
 		var alternateMessageIdOutcome *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(alternateMessageIdNode)
@@ -585,7 +615,7 @@ func (this *JsMessageVisitor) extractIcuTemplateOptions(optionsBag Node) *Outcom
 }
 
 func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_base {
-	if (stringKeyNode == 0) {
+	if stringKeyNode == 0 {
 		return Outcome_base_ok_Object(any(bool(false)))
 	} else {
 		var valueNode Node = stringKeyNode.getOnlyChild()
@@ -601,7 +631,7 @@ func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_
 }
 
 func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base {
-	if (objLit == 0) {
+	if objLit == 0 {
 		return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(icast_Map(obj_(ImmutableMap_of())))))
 	}
 	if !objLit.isObjectLit() {
@@ -610,7 +640,7 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base {
 	var stringToStringKeyMap LinkedHashMapOf[string, Node] = new_LinkedHashMap()
 	{
 		var stringKey Node = objLit.getFirstChild()
-		for ; (stringKey != 0); stringKey = stringKey.getNext() {
+		for ; stringKey != 0; stringKey = stringKey.getNext() {
 			if !stringKey.isStringKey() {
 				return Outcome_base_err(new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
 			}
@@ -639,15 +669,15 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 	var placeholderNamesBuilder ImmutableSet_BuilderOf[string] = ImmutableSet_builder()
 	for {
 		var phBegin int32 = String_indexOf_String(msgText, JsMessage_PH_JS_PREFIX)
-		if (phBegin < 0) {
+		if phBegin < 0 {
 			partsBuilder.add(obj_(JsMessage_StringPart_create(msgText)))
 			break
 		} else {
-			if (phBegin > 0) {
+			if phBegin > 0 {
 				partsBuilder.add(obj_(JsMessage_StringPart_create(String_substring(msgText, 0, phBegin))))
 			}
 			var phEnd int32 = String_indexOf_String_int(msgText, JsMessage_PH_JS_SUFFIX, phBegin)
-			if (phEnd < 0) {
+			if phEnd < 0 {
 				return Outcome_base_err(new_JsMessage_PlaceholderFormatException("Placeholder incorrectly formatted").up_Throwable())
 			}
 			var phName string = String_substring(msgText, (phBegin + String_length(JsMessage_PH_JS_PREFIX)), phEnd)
@@ -657,7 +687,7 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 			placeholderNamesBuilder.add(strobj_(phName))
 			partsBuilder.add(obj_(JsMessage_PlaceholderReference_createForJsName(phName)))
 			var nextPos int32 = (phEnd + String_length(JsMessage_PH_JS_SUFFIX))
-			if (nextPos < String_length(msgText)) {
+			if nextPos < String_length(msgText) {
 				msgText = String_substring_int(msgText, nextPos)
 			} else {
 				break
@@ -671,19 +701,19 @@ func JsMessageVisitor_extractGoogGetMsgParsedText(originalMsgText string) *Outco
 }
 
 func (this *JsMessageVisitor) visitFallbackFunctionCall(t *NodeTraversal, call Node) {
-	if ((!call.hasXChildren(3) || !JsMessageVisitor_isMessageIdentifier(call.getSecondChild())) || !JsMessageVisitor_isMessageIdentifier(call.getLastChild())) {
+	if (!call.hasXChildren(3) || !JsMessageVisitor_isMessageIdentifier(call.getSecondChild())) || !JsMessageVisitor_isMessageIdentifier(call.getLastChild()) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(call, JsMessageVisitor_BAD_FALLBACK_SYNTAX, []string{}))
 		return
 	}
 	var firstArg Node = call.getSecondChild()
 	var firstMessage *JsMessage = this.getJsMessageFromNode(t, firstArg)
-	if (firstMessage == nil) {
+	if firstMessage == nil {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(firstArg, JsMessageVisitor_FALLBACK_ARG_ERROR, []string{firstArg.getQualifiedName()}))
 		return
 	}
 	var secondArg Node = firstArg.getNext()
 	var secondMessage *JsMessage = this.getJsMessageFromNode(t, secondArg)
-	if (secondMessage == nil) {
+	if secondMessage == nil {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(secondArg, JsMessageVisitor_FALLBACK_ARG_ERROR, []string{secondArg.getQualifiedName()}))
 		return
 	}
@@ -705,7 +735,7 @@ func JsMessageVisitor_isMessageIdentifier(node Node) bool {
 
 func (this *JsMessageVisitor) getJsMessageFromNode(t *NodeTraversal, node Node) *JsMessage {
 	var messageName string = node.getQualifiedName()
-	if (String_isEmpty(messageName) || !String_contains(messageName, strobj_(JsMessageVisitor_MSG_PREFIX))) {
+	if String_isEmpty(messageName) || !String_contains(messageName, strobj_(JsMessageVisitor_MSG_PREFIX)) {
 		return nil
 	}
 	var messageKey string = String_substring_int(messageName, String_indexOf_String(messageName, JsMessageVisitor_MSG_PREFIX))
@@ -722,10 +752,10 @@ func JsMessageVisitor_isUnnamedMessageName(identifier string) bool {
 }
 
 func (this *JsMessageVisitor) checkNode(node Node, type_ *Token_rhino) *Outcome_base {
-	if (node == 0) {
+	if node == 0 {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException(("Expected node type " + objstr_(obj_(type_)) + "; found: null"), node).up_Throwable())
 	}
-	if (node.getToken() != type_) {
+	if node.getToken() != type_ {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException(("Expected node type " + objstr_(obj_(type_)) + "; found: " + objstr_(obj_(node.getToken()))), node).up_Throwable())
 	}
 	return Outcome_base_ok_0()
@@ -752,7 +782,9 @@ func (this *JsMessageVisitor) process_2(p0 Node, p1 Node) {
 }
 
 func (this *JsMessageVisitor) processMessageFallback(p0 Node, p1 *JsMessage, p2 *JsMessage) {
-	this.self_.(interface{ processMessageFallback_impl(Node, *JsMessage, *JsMessage) }).processMessageFallback_impl(p0, p1, p2)
+	this.self_.(interface {
+		processMessageFallback_impl(Node, *JsMessage, *JsMessage)
+	}).processMessageFallback_impl(p0, p1, p2)
 }
 
 const JsMessageVisitor_MSG_FUNCTION_NAME string = "getMsg"
@@ -760,8 +792,11 @@ const JsMessageVisitor_MSG_FUNCTION_QNAME string = "goog.getMsg"
 const JsMessageVisitor_ICU_MSG_FUNCTION_NAME string = "declareIcuTemplate"
 const JsMessageVisitor_ICU_MSG_FUNCTION_QNAME string = "goog.i18n.messages.declareIcuTemplate"
 const JsMessageVisitor_MSG_FALLBACK_FUNCTION_NAME string = "goog.getMsgWithFallback"
+
 var JsMessageVisitor_FUNCTIONS_USED_IN_MESSAGE_EXTRACTION List
+
 const JsMessageVisitor_MSG_EXTERNAL_PREFIX string = "MSG_EXTERNAL_"
+
 var JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION *DiagnosticType
 var JsMessageVisitor_MESSAGE_HAS_NO_TEXT *DiagnosticType
 var JsMessageVisitor_MESSAGE_TREE_MALFORMED *DiagnosticType
@@ -771,7 +806,9 @@ var JsMessageVisitor_MESSAGE_NODE_IS_ORPHANED *DiagnosticType
 var JsMessageVisitor_MESSAGE_NOT_INITIALIZED_CORRECTLY *DiagnosticType
 var JsMessageVisitor_BAD_FALLBACK_SYNTAX *DiagnosticType
 var JsMessageVisitor_FALLBACK_ARG_ERROR *DiagnosticType
+
 const JsMessageVisitor_MSG_PREFIX string = "MSG_"
+
 var JsMessageVisitor_SCOPED_ALIASES_PREFIX_PATTERN *Pattern
 var JsMessageVisitor_MSG_UNNAMED_PATTERN *Pattern
 var JsMessageVisitor_ICU_PLACEHOLDER_RE *Pattern
@@ -849,7 +886,7 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 			partsBuilder.add(obj_(JsMessage_PlaceholderReference_createForCanonicalName(placeholderName)))
 		}
 	}
-	if (remainingTemplateStartIndex < String_length(this.template)) {
+	if remainingTemplateStartIndex < String_length(this.template) {
 		var remainingTemplate string = String_substring_int(this.template, remainingTemplateStartIndex)
 		partsBuilder.add(obj_(JsMessage_StringPart_create(remainingTemplate)))
 	}
@@ -858,7 +895,7 @@ func (this *JsMessageVisitor_IcuMessageTemplateString) extractParts(placholderNa
 
 type JsMessageVisitor_ExtractedIcuTemplateParts struct {
 	extractedPlaceholderNames ImmutableSetOf[string]
-	extractedParts ImmutableListOf[JsMessage_Part]
+	extractedParts            ImmutableListOf[JsMessage_Part]
 }
 
 func (this *JsMessageVisitor_ExtractedIcuTemplateParts) init_JsMessageVisitor_ExtractedIcuTemplateParts(extractedPlaceholderNames ImmutableSetOf[string], extractedParts ImmutableListOf[JsMessage_Part]) {
@@ -901,8 +938,8 @@ type JsMessageVisitor_ObjectLiteralMap interface {
 
 type JsMessageVisitor_ObjectLiteralMapImpl struct {
 	stringToStringKeyMap MapOf[string, Node]
-	valueMap ImmutableMapOf[string, Node]
-	stringMap ImmutableMapOf[string, string]
+	valueMap             ImmutableMapOf[string, Node]
+	stringMap            ImmutableMapOf[string, string]
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) finit_JsMessageVisitor_ObjectLiteralMapImpl() {
@@ -923,7 +960,12 @@ func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap MapOf[string
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node {
 	var stringKeyNode Node = Node_of_(Map_get_s(this.stringToStringKeyMap, key))
-	return func() Node { if (stringKeyNode == 0) { return 0 }; return stringKeyNode.getOnlyChild() }()
+	return func() Node {
+		if stringKeyNode == 0 {
+			return 0
+		}
+		return stringKeyNode.getOnlyChild()
+	}()
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base {
@@ -932,7 +974,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key st
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() ImmutableMapOf[string, Node] {
-	if (this.valueMap == nil) {
+	if this.valueMap == nil {
 		var builder ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
 		it_1 := foreach_(any(this.stringToStringKeyMap.entrySet()))
 		for it_1.next() {
@@ -945,7 +987,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() Immutable
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base {
-	if (this.stringMap == nil) {
+	if this.stringMap == nil {
 		var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
 		it_1 := foreach_(any(this.stringToStringKeyMap.entrySet()))
 		for it_1.next() {
@@ -1020,7 +1062,7 @@ func (this *JsMessageVisitor_MalformedException) getNode() Node {
 const JsMessageVisitor_MalformedException_serialVersionUID int64 = 1
 
 type JsMessageVisitor_MessageLocation struct {
-	message_ *JsMessage
+	message_     *JsMessage
 	messageNode_ Node
 }
 
@@ -1036,14 +1078,14 @@ func new_JsMessageVisitor_MessageLocation(message *JsMessage, messageNode Node) 
 }
 
 type JsMessageVisitor_1 struct {
-	outer_ *JsMessageVisitor
-	cap_messageKeyFromLhs string
-	cap_sourceName string
+	outer_                   *JsMessageVisitor
+	cap_messageKeyFromLhs    string
+	cap_sourceName           string
 	cap_googGetMsgParsedText JsMessageVisitor_GoogGetMsgParsedText
-	cap_jsMessageOptions JsMessageVisitor_JsMessageOptions
-	cap_description *Optional
-	cap_meaning *Optional
-	cap_alternateMessageId *Optional
+	cap_jsMessageOptions     JsMessageVisitor_JsMessageOptions
+	cap_description          *Optional
+	cap_meaning              *Optional
+	cap_alternateMessageId   *Optional
 }
 
 func (this *JsMessageVisitor_1) init_JsMessageVisitor_1() {
@@ -1101,13 +1143,13 @@ func (this *JsMessageVisitor_1) getAlternateMessageId() OptionalOf[string] {
 }
 
 type JsMessageVisitor_2 struct {
-	outer_ *JsMessageVisitor
-	cap_jsExtractedMessage *JsMessage
-	cap_msgNode Node
-	cap_msgTextNode Node
-	cap_valuesObjLit Node
+	outer_                   *JsMessageVisitor
+	cap_jsExtractedMessage   *JsMessage
+	cap_msgNode              Node
+	cap_msgTextNode          Node
+	cap_valuesObjLit         Node
 	cap_placeholderValuesMap *ImmutableMap
-	cap_jsMessageOptions JsMessageVisitor_JsMessageOptions
+	cap_jsMessageOptions     JsMessageVisitor_JsMessageOptions
 }
 
 func (this *JsMessageVisitor_2) init_JsMessageVisitor_2() {
@@ -1156,12 +1198,12 @@ func (this *JsMessageVisitor_2) shouldUnescapeHtmlEntities() bool {
 }
 
 type JsMessageVisitor_3 struct {
-	outer_ *JsMessageVisitor
-	cap_messageKeyFromLhs string
-	cap_sourceName string
-	cap_icuMessageTemplateString *JsMessageVisitor_IcuMessageTemplateString
+	outer_                        *JsMessageVisitor
+	cap_messageKeyFromLhs         string
+	cap_sourceName                string
+	cap_icuMessageTemplateString  *JsMessageVisitor_IcuMessageTemplateString
 	cap_extractedIcuTemplateParts *JsMessageVisitor_ExtractedIcuTemplateParts
-	cap_icuTemplateOptions JsMessageVisitor_IcuTemplateOptions
+	cap_icuTemplateOptions        JsMessageVisitor_IcuTemplateOptions
 }
 
 func (this *JsMessageVisitor_3) init_JsMessageVisitor_3() {
@@ -1217,9 +1259,9 @@ func (this *JsMessageVisitor_3) getAlternateMessageId() OptionalOf[string] {
 }
 
 type JsMessageVisitor_4 struct {
-	outer_ *JsMessageVisitor
-	cap_extractedMessage *JsMessage
-	cap_msgNode Node
+	outer_                      *JsMessageVisitor
+	cap_extractedMessage        *JsMessage
+	cap_msgNode                 Node
 	cap_stringLiteralExpression Node
 }
 
@@ -1250,12 +1292,12 @@ func (this *JsMessageVisitor_4) getTemplateTextNode() Node {
 }
 
 type JsMessageVisitor_5 struct {
-	outer_ *JsMessageVisitor
-	cap_isEscapeLessThan bool
-	cap_isUnescapeHtmlEntities bool
-	cap_placeholderExamplesMap *ImmutableMap
-	cap_placeholderOriginalCodeMap *ImmutableMap
-	cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
+	outer_                           *JsMessageVisitor
+	cap_isEscapeLessThan             bool
+	cap_isUnescapeHtmlEntities       bool
+	cap_placeholderExamplesMap       *ImmutableMap
+	cap_placeholderOriginalCodeMap   *ImmutableMap
+	cap_exampleObjectLiteralMap      JsMessageVisitor_ObjectLiteralMap
 	cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
 }
 
@@ -1309,14 +1351,14 @@ func (this *JsMessageVisitor_5) checkForUnknownPlaceholders(knownPlaceholders Se
 }
 
 type JsMessageVisitor_6 struct {
-	outer_ *JsMessageVisitor
-	cap_description string
-	cap_meaning *Optional
-	cap_alternateMessageId *Optional
-	cap_placeholderExamplesMap *ImmutableMap
-	cap_placeholderOriginalCodeMap *ImmutableMap
-	cap_placeholderNames *ImmutableSet
-	cap_exampleObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
+	outer_                           *JsMessageVisitor
+	cap_description                  string
+	cap_meaning                      *Optional
+	cap_alternateMessageId           *Optional
+	cap_placeholderExamplesMap       *ImmutableMap
+	cap_placeholderOriginalCodeMap   *ImmutableMap
+	cap_placeholderNames             *ImmutableSet
+	cap_exampleObjectLiteralMap      JsMessageVisitor_ObjectLiteralMap
 	cap_originalCodeObjectLiteralMap JsMessageVisitor_ObjectLiteralMap
 }
 
@@ -1380,9 +1422,9 @@ func (this *JsMessageVisitor_6) checkForUnknownPlaceholders(knownPlaceholders Se
 }
 
 type JsMessageVisitor_7 struct {
-	cap_originalMsgText string
+	cap_originalMsgText  string
 	cap_placeholderNames *ImmutableSet
-	cap_parts *ImmutableList
+	cap_parts            *ImmutableList
 }
 
 func (this *JsMessageVisitor_7) init_JsMessageVisitor_7() {
@@ -1409,4 +1451,3 @@ func (this *JsMessageVisitor_7) getPlaceholderNames() ImmutableSetOf[string] {
 func (this *JsMessageVisitor_7) getParts() ImmutableListOf[JsMessage_Part] {
 	return this.cap_parts
 }
-

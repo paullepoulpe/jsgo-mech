@@ -3,11 +3,11 @@
 package closure
 
 type PropertyClustering struct {
-	name_ string
-	useSites LinkedHashMapOf[Node, *ColorGraphNode]
-	clusters *StandardUnionFind
+	name_                  string
+	useSites               LinkedHashMapOf[Node, *ColorGraphNode]
+	clusters               *StandardUnionFind
 	originalNameClusterRep *ColorGraphNode
-	lastInvalidation *Invalidation
+	lastInvalidation       *Invalidation
 }
 
 func (this *PropertyClustering) zero_PropertyClustering() {
@@ -45,7 +45,12 @@ func (this *PropertyClustering) getClusters() *StandardUnionFind {
 
 func (this *PropertyClustering) getOriginalNameClusterRep() *ColorGraphNode {
 	Preconditions_checkState(!this.isInvalidated())
-	return func() *ColorGraphNode { if (this.originalNameClusterRep == nil) { return nil }; return cast_[*ColorGraphNode](this.clusters.find(obj_(this.originalNameClusterRep))) }()
+	return func() *ColorGraphNode {
+		if this.originalNameClusterRep == nil {
+			return nil
+		}
+		return cast_[*ColorGraphNode](this.clusters.find(obj_(this.originalNameClusterRep)))
+	}()
 }
 
 func (this *PropertyClustering) isInvalidated() bool {
@@ -63,7 +68,7 @@ func (this *PropertyClustering) getLastInvalidation() *Invalidation {
 
 func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) {
 	Preconditions_checkState(!this.isInvalidated())
-	if (this.originalNameClusterRep == nil) {
+	if this.originalNameClusterRep == nil {
 		this.originalNameClusterRep = type_
 	}
 	this.clusters.union(obj_(this.originalNameClusterRep), obj_(type_))
@@ -72,4 +77,3 @@ func (this *PropertyClustering) registerOriginalNameType(type_ *ColorGraphNode) 
 func (this *PropertyClustering) toString() string {
 	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("name", strobj_(this.name_))))
 }
-

@@ -28,10 +28,15 @@ func (this *J2clSuppressWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
 	if !J2clSourceUtils_isJ2clSourceString(error_.sourceName()) {
 		return nil
 	}
-	if (DiagnosticGroups_DEPRECATED.matches(error_) && String_contains(error_.description(), strobj_("forwardDeclare"))) {
+	if DiagnosticGroups_DEPRECATED.matches(error_) && String_contains(error_.description(), strobj_("forwardDeclare")) {
 		return CheckLevel_OFF
 	}
-	return func() *CheckLevel { if J2clSuppressWarningsGuard_DEFAULT_J2CL_SUPRRESIONS.matches(error_) { return CheckLevel_OFF }; return nil }()
+	return func() *CheckLevel {
+		if J2clSuppressWarningsGuard_DEFAULT_J2CL_SUPRRESIONS.matches(error_) {
+			return CheckLevel_OFF
+		}
+		return nil
+	}()
 }
 
 func (this *J2clSuppressWarningsGuard) getPriority_impl() int32 {
@@ -50,4 +55,3 @@ func J2clSuppressWarningsGuard_clinit() {
 	J2clSuppressWarningsGuard_DEFAULT_J2CL_SUPRRESIONS = DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_of(strobj_("j2clIncomaptible")), []*DiagnosticGroup{DiagnosticGroups_CHECK_STATIC_OVERRIDES, DiagnosticGroups_CHECK_USELESS_CODE, DiagnosticGroups_CONST, DiagnosticGroups_EXTRA_REQUIRE, DiagnosticGroups_INVALID_CASTS, DiagnosticGroups_LATE_PROVIDE, DiagnosticGroups_MISSING_OVERRIDE, DiagnosticGroups_MISSING_REQUIRE, DiagnosticGroups_STRICT_MODULE_DEP_CHECK, DiagnosticGroups_SUSPICIOUS_CODE, DiagnosticGroups_UNUSED_LOCAL_VARIABLE, DiagnosticGroups_STRICT_MISSING_PROPERTIES, DiagnosticGroups_forName("transitionalSuspiciousCodeWarnings")})
 
 }
-

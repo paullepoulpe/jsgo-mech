@@ -4,20 +4,20 @@ package closure
 
 type JsFileRegexParser struct {
 	JsFileLineParser
-	googMatcher *Matcher_re2j
-	es6Matcher *Matcher_re2j
-	googMatcherBuffer string
-	provides ListOf[string]
-	requires ListOf[*DependencyInfo_Require]
-	typeRequires ListOf[string]
+	googMatcher               *Matcher_re2j
+	es6Matcher                *Matcher_re2j
+	googMatcherBuffer         string
+	provides                  ListOf[string]
+	requires                  ListOf[*DependencyInfo_Require]
+	typeRequires              ListOf[string]
 	fileHasProvidesOrRequires bool
-	hasExternsAnnotation bool
-	hasNoCompileAnnotation bool
-	loader *ModuleLoader
-	file *ModuleLoader_ModulePath
-	moduleType_ *JsFileRegexParser_ModuleType
-	seenLoadModule bool
-	includeGoogBase bool
+	hasExternsAnnotation      bool
+	hasNoCompileAnnotation    bool
+	loader                    *ModuleLoader
+	file                      *ModuleLoader_ModulePath
+	moduleType_               *JsFileRegexParser_ModuleType
+	seenLoadModule            bool
+	includeGoogBase           bool
 }
 
 func (this *JsFileRegexParser) up_JsFileLineParser() *JsFileLineParser {
@@ -83,7 +83,7 @@ func (this *JsFileRegexParser) parseReader(filePath string, closureRelativePath 
 		JsFileRegexParser_logger.fine(("Parsing Source: " + sstr_(filePath)))
 	}
 	this.doParse(filePath, fileContents)
-	if (this.moduleType_ == JsFileRegexParser_ModuleType_ES6_MODULE) {
+	if this.moduleType_ == JsFileRegexParser_ModuleType_ES6_MODULE {
 		this.provides.add(strobj_(this.file.toModuleName()))
 	}
 	var loadFlags MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
@@ -105,14 +105,14 @@ func (this *JsFileRegexParser) setModuleType(type_ *JsFileRegexParser_ModuleType
 	var provide bool = ((type_ == JsFileRegexParser_ModuleType_GOOG_PROVIDE) || (this.moduleType_ == JsFileRegexParser_ModuleType_GOOG_PROVIDE))
 	var es6Module bool = ((type_ == JsFileRegexParser_ModuleType_ES6_MODULE) || (this.moduleType_ == JsFileRegexParser_ModuleType_ES6_MODULE))
 	var googModule bool = ((type_ == JsFileRegexParser_ModuleType_GOOG_MODULE) || (this.moduleType_ == JsFileRegexParser_ModuleType_GOOG_MODULE))
-	if ((googModule && provide) && this.seenLoadModule) {
+	if (googModule && provide) && this.seenLoadModule {
 		this.moduleType_ = JsFileRegexParser_ModuleType_GOOG_PROVIDE
 		return true
 	}
 	var provideGoogModuleConflict bool = ((googModule && provide) && !this.seenLoadModule)
 	var provideEs6ModuleConflict bool = (es6Module && provide)
 	var googEs6ModuleConflict bool = ((googModule || this.seenLoadModule) && es6Module)
-	if ((provideGoogModuleConflict || provideEs6ModuleConflict) || googEs6ModuleConflict) {
+	if (provideGoogModuleConflict || provideEs6ModuleConflict) || googEs6ModuleConflict {
 		this.errorManager.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.file.toString())), -1, -1, ModuleLoader_MODULE_CONFLICT, []string{this.file.toString()}))
 		return false
 	}
@@ -121,7 +121,7 @@ func (this *JsFileRegexParser) setModuleType(type_ *JsFileRegexParser_ModuleType
 }
 
 func (this *JsFileRegexParser) parseJsDocCommentLine_impl(line string) bool {
-	if (this.includeGoogBase && String_contains(line, strobj_(JsFileRegexParser_PROVIDES_GOOG_COMMENT))) {
+	if this.includeGoogBase && String_contains(line, strobj_(JsFileRegexParser_PROVIDES_GOOG_COMMENT)) {
 		this.provides.add(strobj_("goog"))
 		return false
 	} else if String_contains(line, strobj_(JsFileRegexParser_EXTERNS_COMMENT)) {
@@ -139,7 +139,7 @@ func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base {
 	this.googMatcher.reset(strobj_(line))
 	for this.googMatcher.find() {
 		lineHasProvidesOrRequires = true
-		if (this.includeGoogBase && !this.fileHasProvidesOrRequires) {
+		if this.includeGoogBase && !this.fileHasProvidesOrRequires {
 			this.fileHasProvidesOrRequires = true
 			this.requires.add(obj_(DependencyInfo_Require_BASE))
 		}
@@ -150,20 +150,20 @@ func (this *JsFileRegexParser) applyGoogMatcher(line string) *Outcome_base {
 		var isProvide bool = (firstChar == 'p')
 		var providesNamespace bool = ((isProvide || isModule) || isDeclareModuleNamespace)
 		var isRequire bool = ((firstChar == 'r') || (firstChar == 'f'))
-		if (isModule && !this.seenLoadModule) {
+		if isModule && !this.seenLoadModule {
 			providesNamespace = this.setModuleType(JsFileRegexParser_ModuleType_GOOG_MODULE)
 		}
 		if isProvide {
 			providesNamespace = this.setModuleType(JsFileRegexParser_ModuleType_GOOG_PROVIDE)
 		}
-		if (providesNamespace || isRequire) {
+		if providesNamespace || isRequire {
 			var argOutcome *Outcome_base = this.parseJsString(this.googMatcher.group_String("args"))
 			if argOutcome.isErr() {
 				return Outcome_base_err(argOutcome.error())
 			}
 			var arg string = str_(argOutcome.get())
 			if isRequire {
-				if (("requireType" == methodName) || ("forwardDeclare" == methodName)) {
+				if ("requireType" == methodName) || ("forwardDeclare" == methodName) {
 					this.typeRequires.add(strobj_(arg))
 				} else if !("goog" == arg) {
 					var require *DependencyInfo_Require = DependencyInfo_Require_googRequireSymbol(arg)
@@ -190,19 +190,19 @@ func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 		}
 		lineHasProvidesOrRequires = unbox_[bool](applied.get())
 	}
-	if (!lineHasProvidesOrRequires && lineHasProvidesOrRequiresWords) {
+	if !lineHasProvidesOrRequires && lineHasProvidesOrRequiresWords {
 		var applied *Outcome_base = this.applyGoogMatcher(line)
 		if applied.isErr() {
 			return Outcome_base_err(applied.error())
 		}
 		lineHasProvidesOrRequires = unbox_[bool](applied.get())
 	}
-	if (!lineHasProvidesOrRequires && lineHasProvidesOrRequiresWords) {
+	if !lineHasProvidesOrRequires && lineHasProvidesOrRequiresWords {
 		this.googMatcherBuffer = line
 	} else {
 		this.googMatcherBuffer = ""
 	}
-	if (String_startsWith(line, "import") || String_startsWith(line, "export")) {
+	if String_startsWith(line, "import") || String_startsWith(line, "export") {
 		this.es6Matcher.reset(strobj_(line))
 		for this.es6Matcher.find() {
 			this.setModuleType(JsFileRegexParser_ModuleType_ES6_MODULE)
@@ -213,14 +213,14 @@ func (this *JsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 					this.requires.add(obj_(DependencyInfo_Require_googRequireSymbol(String_substring_int(str_(arg.get()), 5))))
 				} else {
 					var path *ModuleLoader_ModulePath = this.file.resolveJsModule(str_(arg.get()), this.filePath, this.lineNum, this.es6Matcher.start())
-					if (path == nil) {
+					if path == nil {
 						path = this.file.resolveModuleAsPath(str_(arg.get()))
 					}
 					this.requires.add(obj_(DependencyInfo_Require_es6Import(path.toModuleName(), str_(arg.get()))))
 				}
 			}
 		}
-		if ((this.moduleType_ != JsFileRegexParser_ModuleType_ES6_MODULE) && JsFileRegexParser_ES6_EXPORT_PATTERN.matcher(strobj_(line)).lookingAt()) {
+		if (this.moduleType_ != JsFileRegexParser_ModuleType_ES6_MODULE) && JsFileRegexParser_ES6_EXPORT_PATTERN.matcher(strobj_(line)).lookingAt() {
 			this.setModuleType(JsFileRegexParser_ModuleType_ES6_MODULE)
 		}
 	}
@@ -235,6 +235,7 @@ var JsFileRegexParser_logger *Logger
 var JsFileRegexParser_GOOG_PROVIDE_REQUIRE_PATTERN *Pattern
 var JsFileRegexParser_ES6_MODULE_PATTERN *Pattern
 var JsFileRegexParser_ES6_EXPORT_PATTERN *Pattern
+
 const JsFileRegexParser_PROVIDES_GOOG_COMMENT string = "@provideGoog"
 const JsFileRegexParser_EXTERNS_COMMENT string = "@externs"
 const JsFileRegexParser_NOCOMPILE_COMMENT string = "@nocompile"
@@ -310,4 +311,3 @@ func JsFileRegexParser_ModuleType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.deps.JsFileRegexParser.ModuleType", enumValues_(JsFileRegexParser_ModuleType_values_))
 
 }
-

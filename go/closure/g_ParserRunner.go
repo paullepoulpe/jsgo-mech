@@ -22,7 +22,7 @@ func ParserRunner_createConfig_LanguageMode_Set_StrictMode(languageMode *Config_
 func ParserRunner_createConfig_LanguageMode_JsDocParsing_RunMode_Set_boolean_StrictMode(languageMode *Config_LanguageMode, jsdocParsingMode *Config_JsDocParsing, runMode *Config_RunMode, extraAnnotationNames SetOf[string], parseInlineSourceMaps bool, strictMode *Config_StrictMode) *Config {
 	ParserRunner_initResourceConfig()
 	var effectiveAnnotationNames SetOf[string]
-	if (extraAnnotationNames == nil) {
+	if extraAnnotationNames == nil {
 		effectiveAnnotationNames = icast_Set(obj_(ParserRunner_annotationNames))
 	} else {
 		effectiveAnnotationNames = icast_Set(obj_(new_LinkedHashSet_Collection(icast_Collection(obj_(ParserRunner_annotationNames)))))
@@ -42,7 +42,7 @@ func ParserRunner_getSuppressionNames() ImmutableSetOf[string] {
 }
 
 func ParserRunner_initResourceConfig() {
-	if (ParserRunner_annotationNames != nil) {
+	if ParserRunner_annotationNames != nil {
 		return
 	}
 	ParserRunner_annotationNames = ParserRunner_extractList(ParserConfiguration_getString("jsdoc.annotations"))
@@ -80,7 +80,7 @@ func ParserRunner_parse(sourceFile StaticSourceFile, sourceString string, config
 		var comments ListOf[*Comment] = icast_List(obj_(ImmutableList_of()))
 		var topLevelStatementRanges ImmutableListOf[*SourceRange] = ImmutableList_of()
 		var features *FeatureSet = p.getFeatures()
-		if ((tree != nil) && (!es6ErrorReporter.hadError() || keepGoing)) {
+		if (tree != nil) && (!es6ErrorReporter.hadError() || keepGoing) {
 			var factory *IRFactory = IRFactory_transformTree(tree, sourceFile, config, errorReporter, file)
 			root = factory.getResultNode()
 			features = features.union(factory.getFeatures())
@@ -146,8 +146,8 @@ func ParserRunner_clinit() {
 
 type ParserRunner_Es6ErrorReporter struct {
 	ErrorReporter_util
-	reporter ErrorReporter_rhino
-	errorSeen bool
+	reporter        ErrorReporter_rhino
+	errorSeen       bool
 	reportAllErrors bool
 }
 
@@ -177,7 +177,7 @@ func new_ParserRunner_Es6ErrorReporter(reporter ErrorReporter_rhino, reportAllEr
 }
 
 func (this *ParserRunner_Es6ErrorReporter) reportError_impl(location *SourcePosition_util, message string) {
-	if (this.reportAllErrors || !this.errorSeen) {
+	if this.reportAllErrors || !this.errorSeen {
 		this.errorSeen = true
 		this.reporter.error(message, Optional_of(strobj_(location.source.name_)), (location.line_ + 1), location.column_)
 	}
@@ -188,11 +188,11 @@ func (this *ParserRunner_Es6ErrorReporter) reportWarning_impl(location *SourcePo
 }
 
 type ParserRunner_ParseResult struct {
-	ast Node
-	comments ListOf[*Comment]
+	ast                     Node
+	comments                ListOf[*Comment]
 	topLevelStatementRanges ImmutableListOf[*SourceRange]
-	features_ *FeatureSet
-	sourceMapURL OptionalOf[string]
+	features_               *FeatureSet
+	sourceMapURL            OptionalOf[string]
 }
 
 func (this *ParserRunner_ParseResult) init_ParserRunner_ParseResult_Node_List_FeatureSet_String(ast Node, comments ListOf[*Comment], features *FeatureSet, sourceMapURL string) {
@@ -218,4 +218,3 @@ func new_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(as
 	this.init_ParserRunner_ParseResult_Node_List_ImmutableList_FeatureSet_Optional(ast, comments, topLevelStatementRanges, features, sourceMapURL)
 	return this
 }
-

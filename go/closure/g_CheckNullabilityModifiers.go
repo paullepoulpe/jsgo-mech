@@ -4,11 +4,11 @@ package closure
 
 type CheckNullabilityModifiers struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
-	redundantCandidates LinkedHashSetOf[Node]
-	missingCandidates LinkedHashSetOf[Node]
+	compiler_             *AbstractCompiler
+	redundantCandidates   LinkedHashSetOf[Node]
+	missingCandidates     LinkedHashSetOf[Node]
 	nullMissingCandidates LinkedHashSetOf[Node]
-	templateTypeNames LinkedHashSetOf[string]
+	templateTypeNames     LinkedHashSetOf[string]
 }
 
 func (this *CheckNullabilityModifiers) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -44,7 +44,7 @@ func (this *CheckNullabilityModifiers) process_2(externs Node, root Node) {
 
 func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	var info *JSDocInfo = n.getJSDocInfo()
-	if (info != nil) {
+	if info != nil {
 		this.templateTypeNames.addAll(icast_Collection(obj_(info.getTemplateTypeNames())))
 		this.templateTypeNames.addAll(Collection(info.getTypeTransformations().keySet()))
 		if info.hasType() {
@@ -83,7 +83,7 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 func (this *CheckNullabilityModifiers) handleHasType(expr *JSTypeExpression, n Node) {
 	if NodeUtil_isNameDeclOrSimpleAssignLhs(n.getFirstChild(), n) {
 		var rValue Node = NodeUtil_getRValueOfLValue(n.getFirstChild())
-		if ((rValue != 0) && rValue.isNull()) {
+		if (rValue != 0) && rValue.isNull() {
 			this.visitTypeExpression_3(expr, false, rValue)
 			return
 		}
@@ -135,13 +135,13 @@ func (this *CheckNullabilityModifiers) visitTypeExpression_3(expr *JSTypeExpress
 		var isNewOrThis bool = ((parent != 0) && (parent.isNew() || parent.isThis()))
 		var isTypeOfType bool = ((parent != 0) && parent.isTypeOf())
 		var isAppliedToRValue bool = ((node == root) || ((parent != 0) && (parent.getToken() == Token_rhino_PIPE)))
-		if ((((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType) {
-			if ((isAppliedToRValue && (rValue != 0)) && rValue.isNull()) {
+		if (((isReference && !hasBang) && !hasQmark) && !isNewOrThis) && !isTypeOfType {
+			if (isAppliedToRValue && (rValue != 0)) && rValue.isNull() {
 				this.nullMissingCandidates.add(node.box_())
 			} else {
 				this.missingCandidates.add(node.box_())
 			}
-		} else if (isPrimitiveOrLiteral && hasNonArtificialBang) {
+		} else if isPrimitiveOrLiteral && hasNonArtificialBang {
 			this.redundantCandidates.add(node.box_())
 		}
 	}})
@@ -192,4 +192,3 @@ func CheckNullabilityModifiers_clinit() {
 	CheckNullabilityModifiers_PRIMITIVE_TYPE_NAMES = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("boolean"), strobj_("number"), strobj_("bigint"), strobj_("string"), strobj_("symbol"), strobj_("undefined"), []any{strobj_("void"), strobj_("null")})
 
 }
-

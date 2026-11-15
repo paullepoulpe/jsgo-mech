@@ -3,10 +3,10 @@
 package closure
 
 type PotentialDeclaration struct {
-	self_ any
+	self_              any
 	fullyQualifiedName string
-	lhs Node
-	rhs Node
+	lhs                Node
+	rhs                Node
 }
 
 func (this *PotentialDeclaration) as_PotentialDeclaration() *PotentialDeclaration { return this }
@@ -67,9 +67,9 @@ func PotentialDeclaration_fromStringKey(stringKeyNode Node) *PotentialDeclaratio
 	Preconditions_checkArgument(stringKeyNode.isStringKey())
 	Preconditions_checkArgument(stringKeyNode.getParent().isObjectLit())
 	var name string = ("this." + sstr_(stringKeyNode.getString()))
-	if (stringKeyNode.getString() == "properties") {
+	if stringKeyNode.getString() == "properties" {
 		var objLitJsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(stringKeyNode.getParent())
-		if ((objLitJsDoc != nil) && objLitJsDoc.isPolymerBehavior()) {
+		if (objLitJsDoc != nil) && objLitJsDoc.isPolymerBehavior() {
 			return new_PotentialDeclaration_PolymerBehaviorPropertiesDeclaration(name, stringKeyNode).up_PotentialDeclaration()
 		}
 	}
@@ -105,7 +105,7 @@ func (this *PotentialDeclaration) getJsDoc() *JSDocInfo {
 func (this *PotentialDeclaration) isDetached() bool {
 	{
 		var current Node = this.lhs
-		for ; (current != 0); current = current.getParent() {
+		for ; current != 0; current = current.getParent() {
 			if current.isScript() {
 				return false
 			}
@@ -132,18 +132,18 @@ func (this *PotentialDeclaration) breakDownDestructure_impl(compiler *AbstractCo
 }
 
 func (this *PotentialDeclaration) simplifyEnumValues(compiler *AbstractCompiler) {
-	if (this.getRhs().isObjectLit() && this.getRhs().hasChildren()) {
+	if this.getRhs().isObjectLit() && this.getRhs().hasChildren() {
 		var changed bool = false
 		{
 			var key Node = this.getRhs().getFirstChild()
-			for ; (key != 0); key = key.getNext() {
+			for ; key != 0; key = key.getNext() {
 				var value Node = key.getOnlyChild()
 				if !value.isStringLit() {
 					PotentialDeclaration_removeStringKeyValue(key)
 					changed = true
 				} else {
 					var content string = value.getString()
-					if (String_length(content) > PotentialDeclaration_STRING_ENUM_RETAIN_CAP) {
+					if String_length(content) > PotentialDeclaration_STRING_ENUM_RETAIN_CAP {
 						PotentialDeclaration_truncateStringKeyValue(key)
 						changed = true
 					}
@@ -204,7 +204,7 @@ func PotentialDeclaration_isExportLhs(lhs Node) bool {
 }
 
 func PotentialDeclaration_isImportRhs(rhs Node) bool {
-	if ((rhs == 0) || !rhs.isCall()) {
+	if (rhs == 0) || !rhs.isCall() {
 		return false
 	}
 	var callee Node = rhs.getFirstChild()
@@ -267,6 +267,7 @@ func (this *PotentialDeclaration) isDefiniteDeclaration(p0 *AbstractCompiler) bo
 }
 
 const PotentialDeclaration_STRING_ENUM_RETAIN_CAP int32 = 10
+
 var PotentialDeclaration_GOOG_ABSTRACTMETHOD *QualifiedName
 var PotentialDeclaration_GOOG_REQUIRE *QualifiedName
 var PotentialDeclaration_GOOG_REQUIRETYPE *QualifiedName
@@ -334,12 +335,12 @@ func (this *PotentialDeclaration_NameDeclaration) simplifySymbol(compiler *Abstr
 }
 
 func (this *PotentialDeclaration_NameDeclaration) simplify_impl(compiler *AbstractCompiler) {
-	if ((this.getRhs() == 0) || this.shouldPreserve()) {
+	if (this.getRhs() == 0) || this.shouldPreserve() {
 		return
 	}
 	var nameNode Node = this.getLhs()
 	var jsdoc *JSDocInfo = this.getJsDoc()
-	if ((jsdoc != nil) && jsdoc.hasEnumParameterType()) {
+	if (jsdoc != nil) && jsdoc.hasEnumParameterType() {
 		this.PotentialDeclaration.simplifyEnumValues(compiler)
 		return
 	}
@@ -389,7 +390,7 @@ func (this *PotentialDeclaration_NameDeclaration) breakDownDestructure_impl(comp
 		var n Node = Node_of_(it_1.v)
 		n.detach()
 		var temp Node = IR_var_Node(n)
-		if (prev == 0) {
+		if prev == 0 {
 			definitionNode.replaceWith(temp)
 			compiler.reportChangeToEnclosingScope(temp)
 		} else {
@@ -492,9 +493,9 @@ func new_PotentialDeclaration_DefineDeclaration(qualifiedName string, lhs Node, 
 
 func (this *PotentialDeclaration_DefineDeclaration) simplify_impl(compiler *AbstractCompiler) {
 	var info *JSDocInfo = this.getJsDoc()
-	if ((info != nil) && (info.getType() != nil)) {
+	if (info != nil) && (info.getType() != nil) {
 		var newRhs Node = PotentialDeclaration_DefineDeclaration_makeEmptyValueNode(info.getType())
-		if (newRhs != 0) {
+		if newRhs != 0 {
 			this.getRhs().replaceWith(newRhs)
 			compiler.reportChangeToEnclosingScope(newRhs)
 			return
@@ -523,11 +524,16 @@ func PotentialDeclaration_DefineDeclaration_from(callNode Node) *PotentialDeclar
 
 func PotentialDeclaration_DefineDeclaration_makeEmptyValueNode(type_ *JSTypeExpression) Node {
 	var n Node = type_.getRoot()
-	for (((n != 0) && !n.isStringLit()) && !n.isName()) {
+	for ((n != 0) && !n.isStringLit()) && !n.isName() {
 		n = n.getFirstChild()
 	}
 	return func() Node {
-		switch func() string { if (n != 0) { return n.getString() }; return "" }() {
+		switch func() string {
+			if n != 0 {
+				return n.getString()
+			}
+			return ""
+		}() {
 		case "boolean":
 			return new_Node_Token(Token_rhino_FALSE)
 		case "number":
@@ -605,7 +611,7 @@ func new_PotentialDeclaration_MemberFieldDeclaration(name OptionalOf[string], lh
 
 func (this *PotentialDeclaration_MemberFieldDeclaration) simplify_impl(compiler *AbstractCompiler) {
 	var rhs Node = this.getRhs()
-	if (rhs != 0) {
+	if rhs != 0 {
 		NodeUtil_deleteNode(rhs, compiler)
 	}
 }
@@ -646,14 +652,14 @@ func (this *PotentialDeclaration_StringKeyDeclaration) simplify_impl(compiler *A
 		return
 	}
 	var jsdoc *JSDocInfo = this.getJsDoc()
-	if ((jsdoc != nil) && jsdoc.hasEnumParameterType()) {
+	if (jsdoc != nil) && jsdoc.hasEnumParameterType() {
 		this.PotentialDeclaration.simplifyEnumValues(compiler)
 		return
 	}
 	var key Node = this.getLhs()
 	PotentialDeclaration_removeStringKeyValue(key)
 	compiler.reportChangeToEnclosingScope(key)
-	if (((jsdoc == nil) || !jsdoc.containsDeclaration()) || this.isConstToBeInferred()) {
+	if ((jsdoc == nil) || !jsdoc.containsDeclaration()) || this.isConstToBeInferred() {
 		key.setJSDocInfo(JsdocUtil_getUnusableTypeJSDoc(jsdoc))
 	}
 }
@@ -666,7 +672,7 @@ func (this *PotentialDeclaration_StringKeyDeclaration) isInNamespace() bool {
 	var stringKey Node = this.getLhs()
 	var objLit Node = stringKey.getParent()
 	var lvalue Node = NodeUtil_getBestLValue(objLit)
-	if (lvalue == 0) {
+	if lvalue == 0 {
 		return false
 	}
 	var jsdoc *JSDocInfo = NodeUtil_getBestJSDocInfo(lvalue)
@@ -709,19 +715,19 @@ func (this *PotentialDeclaration_PolymerBehaviorPropertiesDeclaration) simplify_
 		return
 	}
 	var propertiesObject Node = this.getRhs()
-	if (!propertiesObject.isObjectLit() || !propertiesObject.hasChildren()) {
+	if !propertiesObject.isObjectLit() || !propertiesObject.hasChildren() {
 		return
 	}
 	{
 		var propKey Node = propertiesObject.getFirstChild()
-		for ; (propKey != 0); propKey = propKey.getNext() {
+		for ; propKey != 0; propKey = propKey.getNext() {
 			var propDef Node = propKey.getOnlyChild()
 			if propDef.isObjectLit() {
 				{
 					var subProp Node = propDef.getFirstChild()
-					for (subProp != 0) {
+					for subProp != 0 {
 						var next Node = subProp.getNext()
-						if (!(subProp.getString() == "type") && !(subProp.getString() == "readOnly")) {
+						if !(subProp.getString() == "type") && !(subProp.getString() == "readOnly") {
 							NodeUtil_deleteNode(subProp, compiler)
 						}
 						subProp = next
@@ -773,10 +779,10 @@ func (this *PotentialDeclaration_AliasDeclaration) simplify_impl(compiler *Abstr
 
 func (this *PotentialDeclaration_AliasDeclaration) getRemovableNode_impl() Node {
 	var lhs Node = this.getLhs()
-	if (lhs.getParent().isArrayPattern() && lhs.getParent().hasMoreThanOneChild()) {
+	if lhs.getParent().isArrayPattern() && lhs.getParent().hasMoreThanOneChild() {
 		return lhs
 	}
-	if (lhs.getGrandparent().isObjectPattern() && lhs.getGrandparent().hasMoreThanOneChild()) {
+	if lhs.getGrandparent().isObjectPattern() && lhs.getGrandparent().hasMoreThanOneChild() {
 		return lhs.getParent()
 	}
 	return NodeUtil_getEnclosingStatement(lhs)
@@ -789,4 +795,3 @@ func (this *PotentialDeclaration_AliasDeclaration) isDefiniteDeclaration_impl(co
 func (this *PotentialDeclaration_AliasDeclaration) shouldPreserve_impl() bool {
 	return true
 }
-

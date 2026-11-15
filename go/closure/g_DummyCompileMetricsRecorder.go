@@ -30,4 +30,3 @@ func (this *DummyCompileMetricsRecorder) recordStartState(compiler *AbstractComp
 func (this *DummyCompileMetricsRecorder) recordResultMetrics(compiler *AbstractCompiler, result *Result) {
 
 }
-

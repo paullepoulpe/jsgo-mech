@@ -4,8 +4,8 @@ package closure
 
 type NominalTypeBuilder struct {
 	constructorField *FunctionType
-	instanceField *ObjectType
-	prototype *ObjectType
+	instanceField    *ObjectType
+	prototype        *ObjectType
 }
 
 func (this *NominalTypeBuilder) init_NominalTypeBuilder(constructor *FunctionType, instance *ObjectType) {
@@ -34,7 +34,7 @@ func (this *NominalTypeBuilder) declareConstructorProperty(name string, type_ *J
 
 func (this *NominalTypeBuilder) superClass() *NominalTypeBuilder {
 	var ctor *FunctionType = this.instanceField.getSuperClassConstructor()
-	if (ctor == nil) {
+	if ctor == nil {
 		return nil
 	}
 	return new_NominalTypeBuilder(ctor, ctor.getInstanceType())
@@ -51,4 +51,3 @@ func (this *NominalTypeBuilder) instance() *ObjectType {
 func (this *NominalTypeBuilder) prototypeOrInstance() *ObjectType {
 	return this.prototype
 }
-

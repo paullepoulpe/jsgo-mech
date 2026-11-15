@@ -4,9 +4,9 @@ package closure
 
 type CodeReplacement struct {
 	getStartPosition_ int32
-	getLength_ int32
-	getNewContent_ string
-	getSortKey_ string
+	getLength_        int32
+	getNewContent_    string
+	getSortKey_       string
 }
 
 func (this *CodeReplacement) zero_CodeReplacement() {
@@ -95,4 +95,3 @@ func CodeReplacement_clinit() {
 	CodeReplacement_APPLICATION_ORDER = Comparator_thenComparing(Comparator_thenComparing(Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getStartPosition() }}), &ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getLength() }}), &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getSortKey()) }}), &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getNewContent()) }})
 
 }
-

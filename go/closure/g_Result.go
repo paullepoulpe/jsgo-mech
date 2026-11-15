@@ -3,19 +3,19 @@
 package closure
 
 type Result struct {
-	success_ bool
-	errors_ ImmutableListOf[*JSError]
-	warnings_ ImmutableListOf[*JSError]
-	variableMap *VariableMap
-	propertyMap *VariableMap
-	namedAnonFunctionMap *VariableMap
-	stringMap *VariableMap
+	success_                bool
+	errors_                 ImmutableListOf[*JSError]
+	warnings_               ImmutableListOf[*JSError]
+	variableMap             *VariableMap
+	propertyMap             *VariableMap
+	namedAnonFunctionMap    *VariableMap
+	stringMap               *VariableMap
 	instrumentationMappings *VariableMap
-	sourceMap_ *SourceMap
-	cssNames SetOf[string]
-	externExport OptionalOf[string]
-	idGeneratorMap OptionalOf[string]
-	transpiledFiles bool
+	sourceMap_              *SourceMap
+	cssNames                SetOf[string]
+	externExport            OptionalOf[string]
+	idGeneratorMap          OptionalOf[string]
+	transpiledFiles         bool
 }
 
 func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, stringMap *VariableMap, instrumentationMappings *VariableMap, sourceMap *SourceMap, externExport OptionalOf[string], cssNames SetOf[string], idGeneratorMap OptionalOf[string], transpiledFiles bool) {
@@ -54,4 +54,3 @@ func Result_pruneResultForPartialCompilation(result *Result) *Result {
 	var emptyVariableMap *VariableMap = new_VariableMap(icast_Map(obj_(ImmutableMap_of())))
 	return new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(result.errors_, result.warnings_, emptyVariableMap, emptyVariableMap, emptyVariableMap, nil, emptyVariableMap, nil, Optional_of(strobj_("")), nil, Optional_empty(), false)
 }
-

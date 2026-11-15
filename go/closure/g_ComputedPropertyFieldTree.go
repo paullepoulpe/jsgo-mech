@@ -4,8 +4,8 @@ package closure
 
 type ComputedPropertyFieldTree struct {
 	ParseTree
-	property_ *ParseTree
-	isStatic bool
+	property_   *ParseTree
+	isStatic    bool
 	initializer *ParseTree
 }
 
@@ -29,4 +29,3 @@ func new_ComputedPropertyFieldTree(location *SourceRange, property *ParseTree, i
 	this.init_ComputedPropertyFieldTree(location, property, isStatic, initializer)
 	return this
 }
-

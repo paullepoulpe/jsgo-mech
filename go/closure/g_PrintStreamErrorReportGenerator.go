@@ -3,8 +3,8 @@
 package closure
 
 type PrintStreamErrorReportGenerator struct {
-	formatter MessageFormatter
-	stream *Output
+	formatter          MessageFormatter
+	stream             *Output
 	summaryDetailLevel int32
 }
 
@@ -34,12 +34,11 @@ func (this *PrintStreamErrorReportGenerator) println(level *CheckLevel, error_ *
 }
 
 func (this *PrintStreamErrorReportGenerator) printSummary(manager ErrorManager) {
-	if (((this.summaryDetailLevel >= 3) || ((this.summaryDetailLevel >= 1) && ((manager.getErrorCount() + manager.getWarningCount()) > 0))) || ((this.summaryDetailLevel >= 2) && (manager.getTypedPercent() > 0.0))) {
-		if (manager.getTypedPercent() > 0.0) {
+	if ((this.summaryDetailLevel >= 3) || ((this.summaryDetailLevel >= 1) && ((manager.getErrorCount() + manager.getWarningCount()) > 0))) || ((this.summaryDetailLevel >= 2) && (manager.getTypedPercent() > 0.0)) {
+		if manager.getTypedPercent() > 0.0 {
 			this.stream.print(String_format("%d error(s), %d warning(s), %.1f%% typed\n", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount())), any(float64(manager.getTypedPercent()))}))
 		} else {
 			this.stream.print(String_format("%d error(s), %d warning(s)\n", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount()))}))
 		}
 	}
 }
-

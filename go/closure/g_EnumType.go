@@ -4,9 +4,9 @@ package closure
 
 type EnumType struct {
 	PrototypeObjectType
-	elementType *EnumElementType
-	elements_ SetOf[string]
-	source Node
+	elementType  *EnumElementType
+	elements_    SetOf[string]
+	source       Node
 	googModuleId string
 }
 
@@ -91,14 +91,24 @@ func (this *EnumType) getEnumeratedTypeOfEnumObject_impl() *JSType {
 
 func (this *EnumType) testForEquality_impl(that *JSType) *Tri {
 	var result *Tri = this.PrototypeObjectType.testForEquality_impl(that)
-	if (result != nil) {
+	if result != nil {
 		return result
 	}
-	return func() *Tri { if this.equals(that.self()) { return Tri_TRUE }; return Tri_FALSE }()
+	return func() *Tri {
+		if this.equals(that.self()) {
+			return Tri_TRUE
+		}
+		return Tri_FALSE
+	}()
 }
 
 func (this *EnumType) appendTo_impl(sb *TypeStringBuilder) {
-	sb.append(func() string { if sb.isForAnnotations() { return "!Object" }; return str_(this.getReferenceName().orElse(nil)) }())
+	sb.append(func() string {
+		if sb.isForAnnotations() {
+			return "!Object"
+		}
+		return str_(this.getReferenceName().orElse(nil))
+	}())
 }
 
 func (this *EnumType) getDisplayName_impl() OptionalOf[string] {
@@ -157,10 +167,10 @@ func EnumType_clinit() {
 
 type EnumType_Builder struct {
 	PrototypeObjectType_Builder
-	elementName OptionalOf[string]
-	source Node
+	elementName  OptionalOf[string]
+	source       Node
 	googModuleId string
-	elementType *JSType
+	elementType  *JSType
 }
 
 func (this *EnumType_Builder) up_PrototypeObjectType_Builder() *PrototypeObjectType_Builder {
@@ -216,4 +226,3 @@ func (this *EnumType_Builder) setElementType(x *JSType) *EnumType_Builder {
 func (this *EnumType_Builder) build_impl() *PrototypeObjectType {
 	return new_EnumType(this).up_PrototypeObjectType()
 }
-

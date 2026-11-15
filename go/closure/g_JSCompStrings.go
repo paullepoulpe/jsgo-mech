@@ -24,31 +24,35 @@ func JSCompStrings_linesIterable(lines IterableOf[string]) string {
 }
 
 func JSCompStrings_parseIntOrNull(s OptionalOf[string]) any {
-	if (s.isEmpty() || String_isEmpty(str_(s.get()))) {
+	if s.isEmpty() || String_isEmpty(str_(s.get())) {
 		return nil
 	}
 	var negative bool = (String_charAt(str_(s.get()), 0) == '-')
-	var start int32 = func() int32 { if (negative || (String_charAt(str_(s.get()), 0) == '+')) { return 1 }; return 0 }()
-	if (start == String_length(str_(s.get()))) {
+	var start int32 = func() int32 {
+		if negative || (String_charAt(str_(s.get()), 0) == '+') {
+			return 1
+		}
+		return 0
+	}()
+	if start == String_length(str_(s.get())) {
 		return nil
 	}
 	var value int64 = 0
-	for i := int32(start); (i < String_length(str_(s.get()))); i++ {
+	for i := int32(start); i < String_length(str_(s.get())); i++ {
 		var digit int32 = Character_digit(String_charAt(str_(s.get()), i), 10)
-		if (digit < 0) {
+		if digit < 0 {
 			return nil
 		}
 		value = ((value * 10) + int64(digit))
-		if (value > 2147483648) {
+		if value > 2147483648 {
 			return nil
 		}
 	}
 	if negative {
 		value = (-value)
 	}
-	if (value > int64(int32(2147483647))) {
+	if value > int64(int32(2147483647)) {
 		return nil
 	}
 	return any(int32(int32(value)))
 }
-

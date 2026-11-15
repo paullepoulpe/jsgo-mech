@@ -4,7 +4,7 @@ package closure
 
 type AngularPass struct {
 	NodeTraversal_AbstractPostOrderCallback
-	compiler_ *AbstractCompiler
+	compiler_   *AbstractCompiler
 	injectables ListOf[*AngularPass_NodeContext]
 }
 
@@ -52,7 +52,7 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 		statement.getFirstChild().setJSDocInfo(newPropertyDoc.build())
 		var insertionPoint Node = entry.getTarget()
 		var next Node = insertionPoint.getNext()
-		for (((next != 0) && NodeUtil_isExprCall(next)) && (this.compiler_.getCodingConvention().getClassesDefinedByCall(next.getFirstChild()) != nil)) {
+		for ((next != 0) && NodeUtil_isExprCall(next)) && (this.compiler_.getCodingConvention().getClassesDefinedByCall(next.getFirstChild()) != nil) {
 			insertionPoint = next
 			next = insertionPoint.getNext()
 		}
@@ -64,7 +64,7 @@ func (this *AngularPass) process_2(externs Node, root Node) {
 func (this *AngularPass) createDependenciesList(n Node) ListOf[Node] {
 	Preconditions_checkArgument(n.isFunction())
 	var params Node = NodeUtil_getFunctionParameters(n)
-	if (params != 0) {
+	if params != 0 {
 		return this.createStringsFromParamList(params)
 	}
 	return icast_List(new_ArrayList_0().self())
@@ -73,7 +73,7 @@ func (this *AngularPass) createDependenciesList(n Node) ListOf[Node] {
 func (this *AngularPass) createStringsFromParamList(params Node) ListOf[Node] {
 	var param Node = params.getFirstChild()
 	var names ArrayListOf[Node] = new_ArrayList_0()
-	for (param != 0) {
+	for param != 0 {
 		if param.isName() {
 			names.add(IR_string(param.getString()).srcref(param).box_())
 		} else if param.isDestructuringPattern() {
@@ -90,7 +90,7 @@ func (this *AngularPass) createStringsFromParamList(params Node) ListOf[Node] {
 
 func (this *AngularPass) visit_impl(unused *NodeTraversal, n Node, parent Node) {
 	var docInfo *JSDocInfo = n.getJSDocInfo()
-	if ((docInfo != nil) && docInfo.isNgInject()) {
+	if (docInfo != nil) && docInfo.isNgInject() {
 		this.addNode(n)
 	}
 }
@@ -123,7 +123,7 @@ func (this *AngularPass) addNode(n Node) {
 		}})
 		fn = n
 		injectAfter = n
-		if (n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject()) {
+		if n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject() {
 			return
 		}
 	case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
@@ -134,7 +134,12 @@ func (this *AngularPass) addNode(n Node) {
 		var parent Node = n.getParent()
 		if parent.isClassMembers() {
 			var classNode Node = parent.getParent()
-			var midPart string = func() string { if n.isStaticMember() { return "." }; return ".prototype." }()
+			var midPart string = func() string {
+				if n.isStaticMember() {
+					return "."
+				}
+				return ".prototype."
+			}()
 			name = Optional_of(strobj_((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString()))))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
 				name = Optional_of(strobj_(NodeUtil_getName(classNode))).filter(&Predicate_fn{func(s_ any) bool {
@@ -148,7 +153,7 @@ func (this *AngularPass) addNode(n Node) {
 		}
 	default:
 	}
-	if ((fn == 0) || !fn.isFunction()) {
+	if (fn == 0) || !fn.isFunction() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECT_NON_FUNCTION_ERROR, []string{}))
 		return
 	}
@@ -167,7 +172,7 @@ func AngularPass_getDeclarationRValue(n Node) Node {
 	Preconditions_checkNotNull(n.box_())
 	Preconditions_checkArgument(NodeUtil_isNameDeclaration(n))
 	n = n.getFirstFirstChild()
-	if (n == 0) {
+	if n == 0 {
 		return 0
 	}
 	for n.isAssign() {
@@ -177,6 +182,7 @@ func AngularPass_getDeclarationRValue(n Node) Node {
 }
 
 const AngularPass_INJECT_PROPERTY_NAME string = "$inject"
+
 var AngularPass_INJECT_IN_NON_GLOBAL_OR_BLOCK_ERROR *DiagnosticType
 var AngularPass_INJECT_NON_FUNCTION_ERROR *DiagnosticType
 var AngularPass_INJECTED_FUNCTION_HAS_DESTRUCTURED_PARAM *DiagnosticType
@@ -199,10 +205,10 @@ func AngularPass_clinit() {
 }
 
 type AngularPass_NodeContext struct {
-	name_ string
-	node_ Node
+	name_        string
+	node_        Node
 	functionNode Node
-	target Node
+	target       Node
 }
 
 func (this *AngularPass_NodeContext) zero_AngularPass_NodeContext() {
@@ -238,4 +244,3 @@ func (this *AngularPass_NodeContext) getFunctionNode() Node {
 func (this *AngularPass_NodeContext) getTarget() Node {
 	return this.target
 }
-

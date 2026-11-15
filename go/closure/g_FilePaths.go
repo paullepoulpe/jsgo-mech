@@ -17,13 +17,13 @@ func new_FilePaths() *FilePaths {
 
 func FilePaths_clean(path string) string {
 	var plain *StringBuilder = new_StringBuilder_int(String_length(path))
-	for i := int32(0); (i < String_length(path)); i++ {
+	for i := int32(0); i < String_length(path); i++ {
 		var c uint16 = String_charAt(path, i)
-		if (((c != '/') || (plain.length() == 0)) || (plain.charAt((plain.length() - 1)) != '/')) {
+		if ((c != '/') || (plain.length() == 0)) || (plain.charAt((plain.length() - 1)) != '/') {
 			plain.append_char(c)
 		}
 	}
-	if ((plain.length() > 1) && (plain.charAt((plain.length() - 1)) == '/')) {
+	if (plain.length() > 1) && (plain.charAt((plain.length() - 1)) == '/') {
 		plain.setLength((plain.length() - 1))
 	}
 	return Object_toString(obj_(plain))
@@ -33,7 +33,7 @@ func FilePaths_join(first string, more []string) string {
 	var path *StringBuilder = new_StringBuilder_String(first)
 	for _, part := range more {
 		if !String_isEmpty(part) {
-			if (path.length() > 0) {
+			if path.length() > 0 {
 				path.append_char('/')
 			}
 			path.append(part)
@@ -54,21 +54,31 @@ func FilePaths_fileName(path string) string {
 func FilePaths_parent(path string) OptionalOf[string] {
 	var plain string = FilePaths_clean(path)
 	var slash int32 = String_lastIndexOf(plain, 47)
-	if ((slash < 0) || (plain == "/")) {
+	if (slash < 0) || (plain == "/") {
 		return Optional_empty()
 	}
-	return Optional_of(func() any { if (slash == 0) { return strobj_("/") }; return strobj_(String_substring(plain, 0, slash)) }())
+	return Optional_of(func() any {
+		if slash == 0 {
+			return strobj_("/")
+		}
+		return strobj_(String_substring(plain, 0, slash))
+	}())
 }
 
 func FilePaths_names(plain string) ListOf[string] {
 	var names ListOf[string] = icast_List(new_ArrayList_0().self())
-	if (plain == "/") {
+	if plain == "/" {
 		return names
 	}
-	var start int32 = func() int32 { if String_startsWith(plain, "/") { return 1 }; return 0 }()
+	var start int32 = func() int32 {
+		if String_startsWith(plain, "/") {
+			return 1
+		}
+		return 0
+	}()
 	for {
 		var slash int32 = String_indexOf_int_int(plain, 47, start)
-		if (slash < 0) {
+		if slash < 0 {
 			names.add(strobj_(String_substring_int(plain, start)))
 			return names
 		}
@@ -80,8 +90,8 @@ func FilePaths_names(plain string) ListOf[string] {
 
 func FilePaths_joinNames(names ListOf[string], from int32) string {
 	var path *StringBuilder = new_StringBuilder()
-	for i := int32(from); (i < names.size()); i++ {
-		if (i > from) {
+	for i := int32(from); i < names.size(); i++ {
+		if i > from {
 			path.append_char('/')
 		}
 		path.append(str_(names.get(i)))
@@ -96,48 +106,58 @@ func FilePaths_normalize(path string) string {
 	it_1 := foreach_(any(FilePaths_names(plain)))
 	for it_1.next() {
 		var name string = str_(it_1.v)
-		if (name == ".") {
+		if name == "." {
 			continue
 		}
 		if !(name == "..") {
 			kept.add(strobj_(name))
-		} else if (!kept.isEmpty() && !(str_(kept.get((kept.size() - 1))) == "..")) {
+		} else if !kept.isEmpty() && !(str_(kept.get((kept.size() - 1))) == "..") {
 			kept.remove((kept.size() - 1))
 		} else if !absolute {
 			kept.add(strobj_(name))
 		}
 	}
-	return (sstr_(func() string { if absolute { return "/" }; return "" }()) + sstr_(FilePaths_joinNames(kept, 0)))
+	return (sstr_(func() string {
+		if absolute {
+			return "/"
+		}
+		return ""
+	}()) + sstr_(FilePaths_joinNames(kept, 0)))
 }
 
 func FilePaths_resolve(path string, other string) string {
 	var base string = FilePaths_clean(path)
 	var target string = FilePaths_clean(other)
-	if (FilePaths_isAbsolute(target) || String_isEmpty(base)) {
+	if FilePaths_isAbsolute(target) || String_isEmpty(base) {
 		return target
 	}
 	if String_isEmpty(target) {
 		return base
 	}
-	return func() string { if (base == "/") { return ("/" + sstr_(target)) }; return (sstr_(base) + "/" + sstr_(target)) }()
+	return func() string {
+		if base == "/" {
+			return ("/" + sstr_(target))
+		}
+		return (sstr_(base) + "/" + sstr_(target))
+	}()
 }
 
 func FilePaths_relativize(path string, other string) OptionalOf[string] {
 	var base string = FilePaths_clean(path)
 	var target string = FilePaths_clean(other)
-	if (FilePaths_isAbsolute(base) != FilePaths_isAbsolute(target)) {
+	if FilePaths_isAbsolute(base) != FilePaths_isAbsolute(target) {
 		return Optional_empty()
 	}
-	if (base == target) {
+	if base == target {
 		return Optional_of(strobj_(""))
 	}
 	if String_isEmpty(base) {
 		return Optional_of(strobj_(target))
 	}
-	if (FilePaths_hasDots(base) || FilePaths_hasDots(target)) {
+	if FilePaths_hasDots(base) || FilePaths_hasDots(target) {
 		base = FilePaths_normalize(base)
 		target = FilePaths_normalize(target)
-		if (base == target) {
+		if base == target {
 			return Optional_of(strobj_(""))
 		}
 		if String_isEmpty(base) {
@@ -145,20 +165,30 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 		}
 	}
 	var from ListOf[string] = FilePaths_names(base)
-	var to ListOf[string] = func() List { if String_isEmpty(target) { return icast_List(new_ArrayList_0().self()) }; return FilePaths_names(target) }()
+	var to ListOf[string] = func() List {
+		if String_isEmpty(target) {
+			return icast_List(new_ArrayList_0().self())
+		}
+		return FilePaths_names(target)
+	}()
 	var common int32 = 0
-	for (((common < from.size()) && (common < to.size())) && (str_(from.get(common)) == str_(to.get(common)))) {
+	for ((common < from.size()) && (common < to.size())) && (str_(from.get(common)) == str_(to.get(common))) {
 		common++
 	}
 	var result *StringBuilder = new_StringBuilder()
-	for i := int32(common); (i < from.size()); i++ {
-		if (str_(from.get(i)) == "..") {
+	for i := int32(common); i < from.size(); i++ {
+		if str_(from.get(i)) == ".." {
 			return Optional_empty()
 		}
-		result.append(func() string { if (result.length() > 0) { return "/.." }; return ".." }())
+		result.append(func() string {
+			if result.length() > 0 {
+				return "/.."
+			}
+			return ".."
+		}())
 	}
 	var rest string = FilePaths_joinNames(to, common)
-	if ((result.length() > 0) && !String_isEmpty(rest)) {
+	if (result.length() > 0) && !String_isEmpty(rest) {
 		result.append_char('/')
 	}
 	return Optional_of(strobj_(Object_toString(obj_(result.append(rest)))))
@@ -168,7 +198,7 @@ func FilePaths_hasDots(plain string) bool {
 	it_1 := foreach_(any(FilePaths_names(plain)))
 	for it_1.next() {
 		var name string = str_(it_1.v)
-		if ((name == ".") || (name == "..")) {
+		if (name == ".") || (name == "..") {
 			return true
 		}
 	}
@@ -180,4 +210,3 @@ func FilePaths_toAbsolute(path string) string {
 }
 
 const FilePaths_SEPARATOR string = "/"
-

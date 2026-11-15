@@ -46,7 +46,7 @@ func (this *NodeIterators_FunctionlessLocalScope) hasNext() bool {
 
 func (this *NodeIterators_FunctionlessLocalScope) next() any {
 	var current Node = Node_of_(SequencedCollection_removeLast(SequencedCollection(this.ancestors)))
-	if (current.getNext() == 0) {
+	if current.getNext() == 0 {
 		current = Node_of_(this.ancestors.peekLast())
 		if current.isFunction() {
 			return this.next()
@@ -77,7 +77,12 @@ func (this *NodeIterators_FunctionlessLocalScope) current() Node {
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) currentParent() Node {
-	return func() Node { if (this.ancestors.size() >= 2) { return this.current().getParent() }; return 0 }()
+	return func() Node {
+		if this.ancestors.size() >= 2 {
+			return this.current().getParent()
+		}
+		return 0
+	}()
 }
 
 func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() ListOf[Node] {
@@ -87,11 +92,11 @@ func (this *NodeIterators_FunctionlessLocalScope) currentAncestors() ListOf[Node
 }
 
 type NodeIterators_LocalVarMotion struct {
-	compiler_ *AbstractCompiler
+	compiler_           *AbstractCompiler
 	valueHasSideEffects bool
-	iterator_ *NodeIterators_FunctionlessLocalScope
-	varName_ string
-	lookAhead Node
+	iterator_           *NodeIterators_FunctionlessLocalScope
+	varName_            string
+	lookAhead           Node
 }
 
 func (this *NodeIterators_LocalVarMotion) zero_NodeIterators_LocalVarMotion() {
@@ -143,11 +148,11 @@ func (this *NodeIterators_LocalVarMotion) remove() {
 
 func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 	if !atStart {
-		if (this.lookAhead == 0) {
+		if this.lookAhead == 0 {
 			return
 		}
 		var curNode Node = this.iterator_.current()
-		if (curNode.isName() && (this.varName_ == curNode.getString())) {
+		if curNode.isName() && (this.varName_ == curNode.getString()) {
 			this.lookAhead = 0
 			return
 		}
@@ -161,11 +166,11 @@ func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 	var type_ *Token_rhino = nextNode.getToken()
 	if this.valueHasSideEffects {
 		var readsState bool = false
-		if ((nextNode.isName() && !(this.varName_ == nextNode.getString())) || (((nextNode.isGetProp() || nextNode.isGetElem()) || nextNode.isOptChainGetProp()) || nextNode.isOptChainGetElem())) {
-			if ((nextParent == 0) || !NodeUtil_isNameDeclOrSimpleAssignLhs(nextNode, nextParent)) {
+		if (nextNode.isName() && !(this.varName_ == nextNode.getString())) || (((nextNode.isGetProp() || nextNode.isGetElem()) || nextNode.isOptChainGetProp()) || nextNode.isOptChainGetElem()) {
+			if (nextParent == 0) || !NodeUtil_isNameDeclOrSimpleAssignLhs(nextNode, nextParent) {
 				readsState = true
 			}
-		} else if ((nextNode.isCall() || nextNode.isNew()) || nextNode.isOptChainCall()) {
+		} else if (nextNode.isCall() || nextNode.isNew()) || nextNode.isOptChainCall() {
 			readsState = true
 		}
 		if readsState {
@@ -173,10 +178,9 @@ func (this *NodeIterators_LocalVarMotion) advanceLookAhead(atStart bool) {
 			return
 		}
 	}
-	if ((this.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(nextNode) && (type_ != Token_rhino_NAME)) || ((type_ == Token_rhino_NAME) && nextParent.isCatch())) {
+	if (this.compiler_.getAstAnalyzer().nodeTypeMayHaveSideEffects(nextNode) && (type_ != Token_rhino_NAME)) || ((type_ == Token_rhino_NAME) && nextParent.isCatch()) {
 		this.lookAhead = 0
 		return
 	}
 	this.lookAhead = nextNode
 }
-

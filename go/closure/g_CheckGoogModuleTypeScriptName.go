@@ -4,7 +4,7 @@ package closure
 
 type CheckGoogModuleTypeScriptName struct {
 	compiler_ *AbstractCompiler
-	finished bool
+	finished  bool
 }
 
 func (this *CheckGoogModuleTypeScriptName) finit_CheckGoogModuleTypeScriptName() {
@@ -40,13 +40,13 @@ func (this *CheckGoogModuleTypeScriptName) visit(t *NodeTraversal, n Node, paren
 func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTraversal, n Node) {
 	var originalNamespace OptionalOf[string] = Optional_of(strobj_(n.getFirstChild().getSecondChild().getString()))
 	var sourceName OptionalOf[string] = t.getSourceName()
-	if (originalNamespace.isEmpty() || sourceName.isEmpty()) {
+	if originalNamespace.isEmpty() || sourceName.isEmpty() {
 		return
 	}
 	var google3Index int32 = String_indexOf_String(str_(sourceName.get()), "google3")
-	if (google3Index == -1) {
+	if google3Index == -1 {
 		sourceName = Optional_of(strobj_(("google3/" + sstr_(str_(sourceName.get())))))
-	} else if (google3Index != 0) {
+	} else if google3Index != 0 {
 		sourceName = Optional_of(strobj_(String_substring_int(str_(sourceName.get()), google3Index)))
 	}
 	var replacementNamespace string = String_substring(String_replace_char_char(str_(sourceName.get()), '/', '.'), 0, (String_length(str_(sourceName.get())) - String_length(".js")))
@@ -81,4 +81,3 @@ func CheckGoogModuleTypeScriptName_clinit() {
 	}
 
 }
-

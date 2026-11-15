@@ -4,9 +4,9 @@ package closure
 
 type ClassDeclarationTree struct {
 	ParseTree
-	name_ *IdentifierToken
+	name_       *IdentifierToken
 	superClass_ *ParseTree
-	elements_ ImmutableListOf[*ParseTree]
+	elements_   ImmutableListOf[*ParseTree]
 }
 
 func (this *ClassDeclarationTree) up_ParseTree() *ParseTree {
@@ -29,4 +29,3 @@ func new_ClassDeclarationTree(location *SourceRange, name *IdentifierToken, supe
 	this.init_ClassDeclarationTree(location, name, superClass, elements)
 	return this
 }
-

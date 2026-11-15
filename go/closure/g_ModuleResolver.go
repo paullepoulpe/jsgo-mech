@@ -3,11 +3,11 @@
 package closure
 
 type ModuleResolver struct {
-	self_ any
-	modulePaths ImmutableSetOf[string]
+	self_           any
+	modulePaths     ImmutableSetOf[string]
 	moduleRootPaths ImmutableListOf[string]
-	errorHandler ErrorHandler
-	pathEscaper *ModuleLoader_PathEscaper
+	errorHandler    ErrorHandler
+	pathEscaper     *ModuleLoader_PathEscaper
 }
 
 func (this *ModuleResolver) as_ModuleResolver() *ModuleResolver { return this }
@@ -50,7 +50,7 @@ func (this *ModuleResolver) resolveModuleAsPath_impl(scriptAddress string, modul
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
 		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex + String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
+		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
 	}
 	return ModuleLoader_normalize(path, icast_Iterable(obj_(this.moduleRootPaths)))
 }
@@ -80,7 +80,7 @@ func (this *ModuleResolver) canonicalizePath(scriptAddress string, moduleAddress
 	if ModuleLoader_isRelativeIdentifier(moduleAddress) {
 		var ourPath string = scriptAddress
 		var lastIndex int32 = String_lastIndexOf_String(ourPath, ModuleLoader_MODULE_SLASH)
-		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex + String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
+		path = ModuleNames_canonicalizePath((sstr_(String_substring(ourPath, 0, (lastIndex+String_length(ModuleLoader_MODULE_SLASH)))) + sstr_(path)))
 	}
 	return path
 }
@@ -90,11 +90,15 @@ func (this *ModuleResolver) setErrorHandler(errorHandler ErrorHandler) {
 }
 
 func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 *Optional, p3 int32, p4 int32) *Optional {
-	return this.self_.(interface{ resolveJsModule_impl(string, string, *Optional, int32, int32) *Optional }).resolveJsModule_impl(p0, p1, p2, p3, p4)
+	return this.self_.(interface {
+		resolveJsModule_impl(string, string, *Optional, int32, int32) *Optional
+	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) *Optional {
-	return this.self_.(interface{ resolveJsModuleSilently_impl(string, string) *Optional }).resolveJsModuleSilently_impl(p0, p1)
+	return this.self_.(interface {
+		resolveJsModuleSilently_impl(string, string) *Optional
+	}).resolveJsModuleSilently_impl(p0, p1)
 }
 
 func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
@@ -104,4 +108,3 @@ func (this *ModuleResolver) resolveModuleAsPath(p0 string, p1 string) string {
 func (this *ModuleResolver) getPackageJsonMainEntries() Map {
 	return this.self_.(interface{ getPackageJsonMainEntries_impl() Map }).getPackageJsonMainEntries_impl()
 }
-

@@ -3,11 +3,11 @@
 package closure
 
 type SerializeTypesToPointers struct {
-	compiler_ *AbstractCompiler
-	jstypeReconserializer *JSTypeReconserializer
+	compiler_                 *AbstractCompiler
+	jstypeReconserializer     *JSTypeReconserializer
 	propertiesReferencedInAst LinkedHashSetOf[string]
-	typePointersByJstype *LinkedIdentityHashMap
-	typePool *TypePool
+	typePointersByJstype      *LinkedIdentityHashMap
+	typePool                  *TypePool
 }
 
 func (this *SerializeTypesToPointers) finit_SerializeTypesToPointers() {
@@ -156,11 +156,11 @@ func (this *SerializeTypesToPointers_TypeSearchCallback) visit(t *NodeTraversal,
 		return
 	}
 	var type_ *JSType = n.getJSType()
-	if (type_ != nil) {
+	if type_ != nil {
 		this.outer_.typePointersByJstype.computeIfAbsent(type_.self(), &Function_fn{func(p0 any) any { return any(int32(this.outer_.jstypeReconserializer.serializeType(to_JSType(p0)))) }})
 	}
 	var shadow Node = n.getClosureUnawareShadow()
-	if (shadow != 0) {
+	if shadow != 0 {
 		NodeTraversal_traverse(this.outer_.compiler_, shadow.getFirstFirstChild().getFirstChild(), icast_NodeTraversal_Callback(obj_(new_SerializeTypesToPointers_TypeSearchCallback(this.outer_))))
 	}
 }
@@ -204,8 +204,8 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 }
 
 type SerializeTypesToPointers_TypeMismatchJson struct {
-	location_ string
-	foundColorId string
+	location_       string
+	foundColorId    string
 	requiredColorId string
 }
 
@@ -268,4 +268,3 @@ func (this *SerializeTypesToPointers_TypeMismatchJson) compareTo(x_ any) int32 {
 	_ = x
 	return ComparisonChain_start().compare(strobj_(this.foundColorId), strobj_(x.foundColorId)).compare(strobj_(this.requiredColorId), strobj_(x.requiredColorId)).compare(strobj_(this.location_), strobj_(x.location_)).result()
 }
-

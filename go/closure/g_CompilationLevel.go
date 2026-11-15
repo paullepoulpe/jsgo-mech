@@ -208,4 +208,3 @@ func CompilationLevel_clinit() {
 	registerEnum_("com.google.javascript.jscomp.CompilationLevel", enumValues_(CompilationLevel_values_))
 
 }
-

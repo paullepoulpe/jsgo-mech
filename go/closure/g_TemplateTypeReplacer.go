@@ -3,16 +3,16 @@
 package closure
 
 type TemplateTypeReplacer struct {
-	registry *JSTypeRegistry
-	bindings *TemplateTypeMap
-	visitProperties bool
-	useUnknownForMissingKeys bool
+	registry                   *JSTypeRegistry
+	bindings                   *TemplateTypeMap
+	visitProperties            bool
+	useUnknownForMissingKeys   bool
 	useUnknownForMissingValues bool
-	hasMadeReplacementField bool
-	keyType *TemplateType
-	ownSubMapBoundary int32
-	seenTypes SetOf[*JSType]
-	visitedObjectTypes IdentityHashMapOf[*JSType, *JSType]
+	hasMadeReplacementField    bool
+	keyType                    *TemplateType
+	ownSubMapBoundary          int32
+	seenTypes                  SetOf[*JSType]
+	visitedObjectTypes         IdentityHashMapOf[*JSType, *JSType]
 }
 
 func (this *TemplateTypeReplacer) finit_TemplateTypeReplacer() {
@@ -44,7 +44,12 @@ func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings MapOf[
 	for it_1.next() {
 		var key *TemplateType = cast_[*TemplateType](it_1.v)
 		var value *JSType = to_JSType(bindings.get(obj_(key)))
-		values.add(func() any { if (value != nil) { return value.self() }; return registry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self() }())
+		values.add(func() any {
+			if value != nil {
+				return value.self()
+			}
+			return registry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()
+		}())
 	}
 	var map_ *TemplateTypeMap = registry.getEmptyTemplateTypeMap().copyWithExtension_2(keys, cast_[*ImmutableList](obj_(values.build())))
 	return new_TemplateTypeReplacer(registry, map_, true, true, true)
@@ -63,7 +68,7 @@ func (this *TemplateTypeReplacer) hasMadeReplacement() bool {
 }
 
 func (this *TemplateTypeReplacer) initSeenTypes() {
-	if (this.seenTypes == nil) {
+	if this.seenTypes == nil {
 		this.seenTypes = Sets_newIdentityHashSet()
 	}
 }
@@ -96,7 +101,7 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 	if this.isNativeFunctionType(type_) {
 		return type_.up_JSType()
 	}
-	if (!type_.isOrdinaryFunction() && !type_.isConstructor()) {
+	if !type_.isOrdinaryFunction() && !type_.isConstructor() {
 		return type_.up_JSType()
 	}
 	var changed bool = false
@@ -112,8 +117,13 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 	}
 	var paramsChanged bool = false
 	var numParams int32 = type_.getParameters().size()
-	var paramBuilder *FunctionParamBuilder = func() *FunctionParamBuilder { if (numParams == 0) { return nil }; return new_FunctionParamBuilder_JSTypeRegistry_int(this.registry, numParams) }()
-	for i := int32(0); (i < numParams); i++ {
+	var paramBuilder *FunctionParamBuilder = func() *FunctionParamBuilder {
+		if numParams == 0 {
+			return nil
+		}
+		return new_FunctionParamBuilder_JSTypeRegistry_int(this.registry, numParams)
+	}()
+	for i := int32(0); i < numParams; i++ {
 		var parameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](type_.getParameters().get(i))
 		var beforeParamType *JSType = parameter.getJSType()
 		var afterParamType *JSType = to_JSType(beforeParamType.visit(icast_Visitor(any(this))))
@@ -132,13 +142,23 @@ func (this *TemplateTypeReplacer) caseFunctionTypeUnguarded(type_ *FunctionType)
 		}
 	}
 	if changed {
-		return type_.toBuilder().withParameters_1(func() List { if paramsChanged { return icast_List(obj_(paramBuilder.build())) }; return icast_List(obj_(type_.getParameters())) }()).withReturnType(afterReturn).withTypeOfThis(afterThis).withIsAbstract(false).build().up_JSType()
+		return type_.toBuilder().withParameters_1(func() List {
+			if paramsChanged {
+				return icast_List(obj_(paramBuilder.build()))
+			}
+			return icast_List(obj_(type_.getParameters()))
+		}()).withReturnType(afterReturn).withTypeOfThis(afterThis).withIsAbstract(false).build().up_JSType()
 	}
 	return type_.up_JSType()
 }
 
 func (this *TemplateTypeReplacer) coerseToThisType(type_ *JSType) *JSType {
-	return func() *JSType { if (type_ != nil) { return type_ }; return this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE).up_JSType() }()
+	return func() *JSType {
+		if type_ != nil {
+			return type_
+		}
+		return this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE).up_JSType()
+	}()
 }
 
 func (this *TemplateTypeReplacer) caseObjectType(objType *ObjectType) any {
@@ -146,11 +166,11 @@ func (this *TemplateTypeReplacer) caseObjectType(objType *ObjectType) any {
 }
 
 func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *JSType {
-	if (((!this.visitProperties || objType.isNominalType()) || is_ProxyObjectType(objType.self())) || !objType.isRecordType()) {
+	if ((!this.visitProperties || objType.isNominalType()) || is_ProxyObjectType(objType.self())) || !objType.isRecordType() {
 		return objType.up_JSType()
 	}
 	var cached *JSType = this.getVisitedObjectTypeOrNull(objType.up_JSType())
-	if (cached != nil) {
+	if cached != nil {
 		return cached
 	}
 	var changed bool = false
@@ -166,7 +186,12 @@ func (this *TemplateTypeReplacer) caseObjectTypeUnguarded(objType *ObjectType) *
 		}
 		builder.addProperty(prop, afterType, propertyNode)
 	}
-	var result *JSType = func() *JSType { if changed { return builder.build() }; return objType.up_JSType() }()
+	var result *JSType = func() *JSType {
+		if changed {
+			return builder.build()
+		}
+		return objType.up_JSType()
+	}()
 	this.visitedObjectTypes.put(objType.self(), result.self())
 	return result
 }
@@ -235,7 +260,7 @@ func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSTy
 	var results ListOf[*JSType] = icast_List(new_ArrayList_0().self())
 	var alternates ImmutableListOf[*JSType] = type_.getAlternates()
 	var alternateCount int32 = alternates.size()
-	for i := int32(0); (i < alternateCount); i++ {
+	for i := int32(0); i < alternateCount; i++ {
 		var alternative *JSType = to_JSType(alternates.get(i))
 		var replacement *JSType = to_JSType(alternative.visit(icast_Visitor(any(this))))
 		if !JSCompObjects_identical(replacement.self(), alternative.self()) {
@@ -251,17 +276,27 @@ func (this *TemplateTypeReplacer) caseUnionTypeUnguarded(type_ *UnionType) *JSTy
 
 func (this *TemplateTypeReplacer) caseTemplateType(type_ *TemplateType) any {
 	this.hasMadeReplacementField = true
-	if (!JSCompObjects_identical(obj_(type_), obj_(this.keyType)) && !this.bindings.hasTemplateKey_2(type_, this.ownSubMapBoundary)) {
-		return func() any { if this.useUnknownForMissingKeys { return this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self() }; return obj_(type_) }()
+	if !JSCompObjects_identical(obj_(type_), obj_(this.keyType)) && !this.bindings.hasTemplateKey_2(type_, this.ownSubMapBoundary) {
+		return func() any {
+			if this.useUnknownForMissingKeys {
+				return this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()
+			}
+			return obj_(type_)
+		}()
 	}
 	this.initSeenTypes()
 	if this.seenTypes.contains(obj_(type_)) {
 		return obj_(type_)
 	} else if !this.bindings.hasTemplateType(type_) {
-		return func() any { if this.useUnknownForMissingValues { return this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self() }; return obj_(type_) }()
+		return func() any {
+			if this.useUnknownForMissingValues {
+				return this.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()
+			}
+			return obj_(type_)
+		}()
 	}
 	var replacement *JSType = this.bindings.getUnresolvedOriginalTemplateType(type_)
-	if (JSCompObjects_identical(replacement.self(), obj_(this.keyType)) || this.seenTypes.contains(replacement.self())) {
+	if JSCompObjects_identical(replacement.self(), obj_(this.keyType)) || this.seenTypes.contains(replacement.self()) {
 		return obj_(type_)
 	}
 	this.seenTypes.add(obj_(type_))
@@ -322,10 +357,9 @@ func (this *TemplateTypeReplacer) guardAgainstCycles(type_ *JSType, mapper Funct
 }
 
 func (this *TemplateTypeReplacer) getVisitedObjectTypeOrNull(type_ *JSType) *JSType {
-	if (this.visitedObjectTypes == nil) {
+	if this.visitedObjectTypes == nil {
 		this.visitedObjectTypes = new_IdentityHashMap()
 		return nil
 	}
 	return to_JSType(this.visitedObjectTypes.get(type_.self()))
 }
-

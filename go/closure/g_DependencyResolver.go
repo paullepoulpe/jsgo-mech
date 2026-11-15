@@ -8,4 +8,3 @@ type DependencyResolver interface {
 	getDependencies_3(string, Set, bool) Collection
 	getDependencies_2(Collection, Set) Collection
 }
-

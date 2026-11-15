@@ -3,8 +3,8 @@
 package closure
 
 type ReplaceToggles struct {
-	compiler_ *AbstractCompiler
-	astFactory_ *AstFactory
+	compiler_      *AbstractCompiler
+	astFactory_    *AstFactory
 	ordinalMapping ImmutableMapOf[string, BoxedOf[int32]]
 }
 
@@ -30,9 +30,11 @@ func (this *ReplaceToggles) process_2(externs Node, root Node) {
 
 var ReplaceToggles_INVALID_TOGGLE_PARAMETER *DiagnosticType
 var ReplaceToggles_INVALID_ORDINAL_MAPPING *DiagnosticType
+
 const ReplaceToggles_TRUE_VALUE int32 = -2
 const ReplaceToggles_FALSE_VALUE int32 = -1
 const ReplaceToggles_ORDINAL_VAR_NAME string = "CLOSURE_TOGGLE_ORDINALS"
+
 var ReplaceToggles_readToggleFunctionName *QualifiedName
 
 var ReplaceToggles_clinit_done bool
@@ -73,14 +75,14 @@ func new_ReplaceToggles_Traversal(outer_ *ReplaceToggles) *ReplaceToggles_Traver
 }
 
 func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	if (NodeUtil_isNameDeclaration(n) && n.getFirstChild().matchesName(ReplaceToggles_ORDINAL_VAR_NAME)) {
+	if NodeUtil_isNameDeclaration(n) && n.getFirstChild().matchesName(ReplaceToggles_ORDINAL_VAR_NAME) {
 		var rhs Node = n.getFirstFirstChild()
-		if ((rhs == 0) && n.isVar()) {
+		if (rhs == 0) && n.isVar() {
 			return
 		} else if !rhs.isObjectLit() {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"not an object literal"}))
 			return
-		} else if (this.outer_.ordinalMapping != nil) {
+		} else if this.outer_.ordinalMapping != nil {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"multiple initialized copies"}))
 			return
 		}
@@ -88,8 +90,8 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 		var ordinals SetOf[BoxedOf[int32]] = icast_Set(obj_(new_LinkedHashSet()))
 		{
 			var c Node = rhs.getFirstChild()
-			for ; (c != 0); c = c.getNext() {
-				if (!c.isStringKey() && !c.isStringLit()) {
+			for ; c != 0; c = c.getNext() {
+				if !c.isStringKey() && !c.isStringLit() {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"non-string key"}))
 					return
 				}
@@ -100,10 +102,20 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 				}
 				var child Node = c.getFirstChild()
 				var doubleValue any = NodeUtil_getNumberValue(child)
-				var intValue int32 = func() int32 { if (doubleValue != nil) { return Double_intValue(doubleValue) }; return -1 }()
-				if (child.isTrue() || child.isFalse()) {
-					intValue = func() int32 { if child.isTrue() { return ReplaceToggles_TRUE_VALUE }; return ReplaceToggles_FALSE_VALUE }()
-				} else if ((!child.isNumber() || (intValue < 0)) || (float64(intValue) != unbox_[float64](doubleValue))) {
+				var intValue int32 = func() int32 {
+					if doubleValue != nil {
+						return Double_intValue(doubleValue)
+					}
+					return -1
+				}()
+				if child.isTrue() || child.isFalse() {
+					intValue = func() int32 {
+						if child.isTrue() {
+							return ReplaceToggles_TRUE_VALUE
+						}
+						return ReplaceToggles_FALSE_VALUE
+					}()
+				} else if (!child.isNumber() || (intValue < 0)) || (float64(intValue) != unbox_[float64](doubleValue)) {
 					this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(c, ReplaceToggles_INVALID_ORDINAL_MAPPING, []string{"value not a boolean or whole number literal"}))
 					return
 				} else if ordinals.contains(any(int32(intValue))) {
@@ -125,12 +137,17 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 		return
 	}
 	var arg Node = n.getSecondChild()
-	if (((arg == 0) || !arg.isStringLit()) || !n.hasTwoChildren()) {
+	if ((arg == 0) || !arg.isStringLit()) || !n.hasTwoChildren() {
 		this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceToggles_INVALID_TOGGLE_PARAMETER, []string{}))
 		return
 	}
-	var ordinal any = func() any { if (this.outer_.ordinalMapping != nil) { return Map_get_s(this.outer_.ordinalMapping, arg.getString()) }; return nil }()
-	if ((ordinal == nil) || (unbox_[int32](ordinal) < 0)) {
+	var ordinal any = func() any {
+		if this.outer_.ordinalMapping != nil {
+			return Map_get_s(this.outer_.ordinalMapping, arg.getString())
+		}
+		return nil
+	}()
+	if (ordinal == nil) || (unbox_[int32](ordinal) < 0) {
 		n.replaceWith(this.outer_.astFactory_.createBoolean(((ordinal != nil) && (unbox_[int32](ordinal) == ReplaceToggles_TRUE_VALUE))).srcrefTreeIfMissing(n))
 		t.reportCodeChange()
 		return
@@ -139,7 +156,7 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	var bit int32 = (unbox_[int32](ordinal) % 30)
 	var getElem Node = this.outer_.astFactory_.createGetElem(this.outer_.astFactory_.createQNameWithUnknownType("goog.TOGGLES_"), this.outer_.astFactory_.createNumber(float64(index)))
 	var bitAnd Node
-	if (bit < 14) {
+	if bit < 14 {
 		bitAnd = this.outer_.astFactory_.createBitwiseAnd(getElem, this.outer_.astFactory_.createNumber(float64((int32(1) << (uint32(bit) & 31)))))
 	} else {
 		bitAnd = this.outer_.astFactory_.createBitwiseAnd(this.outer_.astFactory_.createRightShift(getElem, this.outer_.astFactory_.createNumber(float64(bit))), this.outer_.astFactory_.createNumber(1))
@@ -147,4 +164,3 @@ func (this *ReplaceToggles_Traversal) visit_impl(t *NodeTraversal, n Node, paren
 	n.replaceWith(this.outer_.astFactory_.createNot(this.outer_.astFactory_.createNot(bitAnd)).srcrefTreeIfMissing(n))
 	t.reportCodeChange()
 }
-

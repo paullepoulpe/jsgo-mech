@@ -16,7 +16,7 @@ func new_SourceMapResolver() *SourceMapResolver {
 }
 
 func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL string, parseInlineSourceMaps bool) *SourceFile_jscomp {
-	if (parseInlineSourceMaps && String_startsWith(sourceMapURL, SourceMapResolver_BASE64_URL_PREFIX)) {
+	if parseInlineSourceMaps && String_startsWith(sourceMapURL, SourceMapResolver_BASE64_URL_PREFIX) {
 		var extractedString OptionalOf[string] = SourceMapResolver_extractBase64String(sourceMapURL)
 		if extractedString.isPresent() {
 			return SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(jsFile.getName()) + ".inline.map"), str_(extractedString.get()), StaticSourceFile_SourceKind_NON_CODE)
@@ -30,7 +30,7 @@ func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL 
 }
 
 func SourceMapResolver_extractBase64String(url string) OptionalOf[string] {
-	if (String_startsWith(url, SourceMapResolver_BASE64_URL_PREFIX) && String_contains(url, strobj_(SourceMapResolver_BASE64_START))) {
+	if String_startsWith(url, SourceMapResolver_BASE64_URL_PREFIX) && String_contains(url, strobj_(SourceMapResolver_BASE64_START)) {
 		var base64StartIndex int32 = String_indexOf_String(url, SourceMapResolver_BASE64_START)
 		var mediaType string = String_substring(url, String_length(SourceMapResolver_BASE64_URL_PREFIX), base64StartIndex)
 		if Collection_contains_s(SourceMapResolver_ACCEPTED_MEDIA_TYPES, mediaType) {
@@ -54,7 +54,12 @@ func SourceMapResolver_getRelativePath(baseFilePath string, relativePath string)
 
 func SourceMapResolver_resolveSibling(baseFilePath string, path string) string {
 	var directory OptionalOf[string] = FilePaths_parent(baseFilePath)
-	return func() string { if directory.isEmpty() { return FilePaths_clean(path) }; return FilePaths_resolve(str_(directory.get()), path) }()
+	return func() string {
+		if directory.isEmpty() {
+			return FilePaths_clean(path)
+		}
+		return FilePaths_resolve(str_(directory.get()), path)
+	}()
 }
 
 func SourceMapResolver_addBase64PrefixToEncodedSourceMap(encoded string) string {
@@ -63,6 +68,7 @@ func SourceMapResolver_addBase64PrefixToEncodedSourceMap(encoded string) string 
 
 const SourceMapResolver_BASE64_URL_PREFIX string = "data:"
 const SourceMapResolver_BASE64_START string = "base64,"
+
 var SourceMapResolver_ACCEPTED_MEDIA_TYPES *ImmutableSet
 
 var SourceMapResolver_clinit_done bool
@@ -75,4 +81,3 @@ func SourceMapResolver_clinit() {
 	SourceMapResolver_ACCEPTED_MEDIA_TYPES = ImmutableSet_of_Object_Object(strobj_("application/json;charset=utf-8;"), strobj_("application/json;"))
 
 }
-
