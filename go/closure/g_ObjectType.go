@@ -726,3 +726,111 @@ func (this *ObjectType_1) computeNext() any {
 		return this.endOfData()
 	}()
 }
+
+// getJSDocInfo: an object that is exactly a ObjectType calls its getJSDocInfo_impl directly (post-flip); others dispatch.
+func (this *ObjectType) getJSDocInfo() *JSDocInfo {
+	if this.self_ == any(this) {
+		return this.getJSDocInfo_impl()
+	}
+	return this.self_.(interface{ getJSDocInfo_impl() *JSDocInfo }).getJSDocInfo_impl()
+}
+
+// getDisplayName: an object that is exactly a ObjectType calls its getDisplayName_impl directly (post-flip); others dispatch.
+func (this *ObjectType) getDisplayName() Optional {
+	if this.self_ == any(this) {
+		return this.getDisplayName_impl()
+	}
+	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+}
+
+// testForEquality: an object that is exactly a ObjectType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *ObjectType) testForEquality(p0 *JSType) *Tri {
+	if this.self_ == any(this) {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+}
+
+// findPropertyTypeWithoutConsideringTemplateTypes: an object that is exactly a ObjectType calls its findPropertyTypeWithoutConsideringTemplateTypes_impl directly (post-flip); others dispatch.
+func (this *ObjectType) findPropertyTypeWithoutConsideringTemplateTypes(p0 Property_Key) *JSType {
+	if this.self_ == any(this) {
+		return this.findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+	}
+	return this.self_.(interface{ findPropertyTypeWithoutConsideringTemplateTypes_impl(Property_Key) *JSType }).findPropertyTypeWithoutConsideringTemplateTypes_impl(p0)
+}
+
+// getPropertyKind_2: an object that is exactly a ObjectType calls its getPropertyKind_2_impl directly (post-flip); others dispatch.
+func (this *ObjectType) getPropertyKind_2(p0 Property_Key, p1 bool) *JSType_HasPropertyKind {
+	if this.self_ == any(this) {
+		return this.getPropertyKind_2_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getPropertyKind_2_impl(Property_Key, bool) *JSType_HasPropertyKind
+	}).getPropertyKind_2_impl(p0, p1)
+}
+
+// isStructuralType: an object that is exactly a ObjectType calls its isStructuralType_impl directly (post-flip); others dispatch.
+func (this *ObjectType) isStructuralType() bool {
+	if this.self_ == any(this) {
+		return this.isStructuralType_impl()
+	}
+	return this.self_.(interface{ isStructuralType_impl() bool }).isStructuralType_impl()
+}
+
+// visitUntyped: an object that is exactly a ObjectType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *ObjectType) visitUntyped(p0 Visitor) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+}
+
+// visitUntyped_2: an object that is exactly a ObjectType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *ObjectType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
+	}).visitUntyped_2_impl(p0, p1)
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a ObjectType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *ObjectType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+	if this.self_ == any(this) {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+}
+
+// isUnknownType: an object that is exactly a ObjectType calls its isUnknownType_impl directly (post-flip); others dispatch.
+func (this *ObjectType) isUnknownType() bool {
+	if this.self_ == any(this) {
+		return this.isUnknownType_impl()
+	}
+	return this.self_.(interface{ isUnknownType_impl() bool }).isUnknownType_impl()
+}
+
+// isObject: an object that is exactly a ObjectType calls its isObject_impl directly (post-flip); others dispatch.
+func (this *ObjectType) isObject() bool {
+	if this.self_ == any(this) {
+		return this.isObject_impl()
+	}
+	return this.self_.(interface{ isObject_impl() bool }).isObject_impl()
+}
+
+// isNativeObjectType: an object that is exactly a ObjectType calls its isNativeObjectType_impl directly (post-flip); others dispatch.
+func (this *ObjectType) isNativeObjectType() bool {
+	if this.self_ == any(this) {
+		return this.isNativeObjectType_impl()
+	}
+	return this.self_.(interface{ isNativeObjectType_impl() bool }).isNativeObjectType_impl()
+}
+
+// isFunctionPrototypeType: an object that is exactly a ObjectType calls its isFunctionPrototypeType_impl directly (post-flip); others dispatch.
+func (this *ObjectType) isFunctionPrototypeType() bool {
+	if this.self_ == any(this) {
+		return this.isFunctionPrototypeType_impl()
+	}
+	return this.self_.(interface{ isFunctionPrototypeType_impl() bool }).isFunctionPrototypeType_impl()
+}

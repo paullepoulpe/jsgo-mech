@@ -2789,3 +2789,146 @@ func (this *JSDocInfo_Builder) populateBit(bit *JSDocInfo_Bit, value bool) bool 
 	}
 	return false
 }
+
+// equalValues: an object that is exactly a JSDocInfo_MarkerListProperty calls its equalValues_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_MarkerListProperty) equalValues(p0 any, p1 any) bool {
+	if this.self_ == any(this) {
+		return this.equalValues_impl(p0, p1)
+	}
+	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+}
+
+// clone: an object that is exactly a JSDocInfo_TypeProperty calls its clone_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+	if this.self_ == any(this) {
+		return this.clone_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		clone_impl(any, JSDocInfo_TypeTransform) any
+	}).clone_impl(p0, p1)
+}
+
+// equalValues: an object that is exactly a JSDocInfo_TypeProperty calls its equalValues_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeProperty) equalValues(p0 any, p1 any) bool {
+	if this.self_ == any(this) {
+		return this.equalValues_impl(p0, p1)
+	}
+	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+}
+
+// getTypeExpressions: an object that is exactly a JSDocInfo_TypeProperty calls its getTypeExpressions_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeProperty) getTypeExpressions(p0 any) Iterable {
+	if this.self_ == any(this) {
+		return this.getTypeExpressions_impl(p0)
+	}
+	return this.self_.(interface{ getTypeExpressions_impl(any) Iterable }).getTypeExpressions_impl(p0)
+}
+
+// clone: an object that is exactly a JSDocInfo_TypeListProperty calls its clone_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeListProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+	if this.self_ == any(this) {
+		return this.clone_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		clone_impl(any, JSDocInfo_TypeTransform) any
+	}).clone_impl(p0, p1)
+}
+
+// equalValues: an object that is exactly a JSDocInfo_TypeListProperty calls its equalValues_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeListProperty) equalValues(p0 any, p1 any) bool {
+	if this.self_ == any(this) {
+		return this.equalValues_impl(p0, p1)
+	}
+	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+}
+
+// getTypeExpressions: an object that is exactly a JSDocInfo_TypeListProperty calls its getTypeExpressions_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeListProperty) getTypeExpressions(p0 any) Iterable {
+	if this.self_ == any(this) {
+		return this.getTypeExpressions_impl(p0)
+	}
+	return this.self_.(interface{ getTypeExpressions_impl(any) Iterable }).getTypeExpressions_impl(p0)
+}
+
+// clone: an object that is exactly a JSDocInfo_TypeMapProperty calls its clone_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeMapProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+	if this.self_ == any(this) {
+		return this.clone_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		clone_impl(any, JSDocInfo_TypeTransform) any
+	}).clone_impl(p0, p1)
+}
+
+// equalValues: an object that is exactly a JSDocInfo_TypeMapProperty calls its equalValues_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeMapProperty) equalValues(p0 any, p1 any) bool {
+	if this.self_ == any(this) {
+		return this.equalValues_impl(p0, p1)
+	}
+	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+}
+
+// getTypeExpressions: an object that is exactly a JSDocInfo_TypeMapProperty calls its getTypeExpressions_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypeMapProperty) getTypeExpressions(p0 any) Iterable {
+	if this.self_ == any(this) {
+		return this.getTypeExpressions_impl(p0)
+	}
+	return this.self_.(interface{ getTypeExpressions_impl(any) Iterable }).getTypeExpressions_impl(p0)
+}
+
+// clone: an object that is exactly a JSDocInfo_NodeMapProperty calls its clone_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_NodeMapProperty) clone(p0 any, p1 JSDocInfo_TypeTransform) any {
+	if this.self_ == any(this) {
+		return this.clone_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		clone_impl(any, JSDocInfo_TypeTransform) any
+	}).clone_impl(p0, p1)
+}
+
+// equalValues: an object that is exactly a JSDocInfo_NodeMapProperty calls its equalValues_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_NodeMapProperty) equalValues(p0 any, p1 any) bool {
+	if this.self_ == any(this) {
+		return this.equalValues_impl(p0, p1)
+	}
+	return this.self_.(interface{ equalValues_impl(any, any) bool }).equalValues_impl(p0, p1)
+}
+
+// isEquivalentTo: an object that is exactly a JSDocInfo_StringPosition calls its isEquivalentTo_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_StringPosition) isEquivalentTo(p0 *SourcePosition_rhino) bool {
+	if this.self_ == any(this) {
+		return this.isEquivalentTo_impl(p0)
+	}
+	return this.self_.(interface {
+		isEquivalentTo_impl(*SourcePosition_rhino) bool
+	}).isEquivalentTo_impl(p0)
+}
+
+// setItem: an object that is exactly a JSDocInfo_TrimmedStringPosition calls its setItem_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TrimmedStringPosition) setItem(p0 any) {
+	if this.self_ == any(this) {
+		this.setItem_impl(p0)
+		return
+	}
+	this.self_.(interface{ setItem_impl(any) }).setItem_impl(p0)
+}
+
+// isEquivalentTo: an object that is exactly a JSDocInfo_NamePosition calls its isEquivalentTo_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_NamePosition) isEquivalentTo(p0 *SourcePosition_rhino) bool {
+	if this.self_ == any(this) {
+		return this.isEquivalentTo_impl(p0)
+	}
+	return this.self_.(interface {
+		isEquivalentTo_impl(*SourcePosition_rhino) bool
+	}).isEquivalentTo_impl(p0)
+}
+
+// isEquivalentTo: an object that is exactly a JSDocInfo_TypePosition calls its isEquivalentTo_impl directly (post-flip); others dispatch.
+func (this *JSDocInfo_TypePosition) isEquivalentTo(p0 *SourcePosition_rhino) bool {
+	if this.self_ == any(this) {
+		return this.isEquivalentTo_impl(p0)
+	}
+	return this.self_.(interface {
+		isEquivalentTo_impl(*SourcePosition_rhino) bool
+	}).isEquivalentTo_impl(p0)
+}

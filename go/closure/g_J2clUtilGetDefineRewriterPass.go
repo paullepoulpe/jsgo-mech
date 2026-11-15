@@ -182,3 +182,25 @@ func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_getDefineNameParameter(ca
 func J2clUtilGetDefineRewriterPass_CheckGetDefineCalls_isAddSystemPropertyFromGoogDefine(n Node) bool {
 	return ((n.isCall() && !String_isEmpty(n.getFirstChild().getQualifiedName())) && String_endsWith(n.getFirstChild().getQualifiedName(), "addSystemPropertyFromGoogDefine"))
 }
+
+// visit: an object that is exactly a J2clUtilGetDefineRewriterPass calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clUtilGetDefineRewriterPass) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a J2clUtilGetDefineRewriterPass_CheckGetDefineCalls calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clUtilGetDefineRewriterPass_CheckGetDefineCalls) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

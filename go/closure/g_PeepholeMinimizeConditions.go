@@ -743,3 +743,11 @@ func PeepholeMinimizeConditions_clinit() {
 	PeepholeMinimizeConditions_AND_PRECEDENCE = NodeUtil_precedence(Token_rhino_AND)
 
 }
+
+// optimizeSubtree: an object that is exactly a PeepholeMinimizeConditions calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *PeepholeMinimizeConditions) optimizeSubtree(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+}

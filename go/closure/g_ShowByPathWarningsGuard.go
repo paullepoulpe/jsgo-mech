@@ -114,3 +114,19 @@ func ShowByPathWarningsGuard_ShowType_clinit() {
 	registerEnum_("com.google.javascript.jscomp.ShowByPathWarningsGuard.ShowType", enumValues_(ShowByPathWarningsGuard_ShowType_values_))
 
 }
+
+// level: an object that is exactly a ShowByPathWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *ShowByPathWarningsGuard) level(p0 *JSError) *CheckLevel {
+	if this.self_ == any(this) {
+		return this.level_impl(p0)
+	}
+	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+}
+
+// getPriority: an object that is exactly a ShowByPathWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
+func (this *ShowByPathWarningsGuard) getPriority() int32 {
+	if this.self_ == any(this) {
+		return this.getPriority_impl()
+	}
+	return this.self_.(interface{ getPriority_impl() int32 }).getPriority_impl()
+}

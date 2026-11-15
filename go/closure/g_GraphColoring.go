@@ -172,3 +172,11 @@ func (this *GraphColoring_GreedyGraphColoring) color_impl() int32 {
 	this.colorToNodeMap = map_
 	return count
 }
+
+// color: an object that is exactly a GraphColoring_GreedyGraphColoring calls its color_impl directly (post-flip); others dispatch.
+func (this *GraphColoring_GreedyGraphColoring) color() int32 {
+	if this.self_ == any(this) {
+		return this.color_impl()
+	}
+	return this.self_.(*GraphColoring_GreedyGraphColoring).color_impl()
+}

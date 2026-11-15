@@ -622,3 +622,244 @@ func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge) getAnnotationUntyped
 func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge) setAnnotation_impl(data Annotation_graph) {
 	this.annotation = data
 }
+
+// newSubGraph: an object that is exactly a LinkedDirectedGraph calls its newSubGraph_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) newSubGraph() SubGraph {
+	if this.self_ == any(this) {
+		return this.newSubGraph_impl()
+	}
+	return this.self_.(interface{ newSubGraph_impl() SubGraph }).newSubGraph_impl()
+}
+
+// connect: an object that is exactly a LinkedDirectedGraph calls its connect_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) connect(p0 any, p1 any, p2 any) {
+	if this.self_ == any(this) {
+		this.connect_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface{ connect_impl(any, any, any) }).connect_impl(p0, p1, p2)
+}
+
+// disconnect: an object that is exactly a LinkedDirectedGraph calls its disconnect_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) disconnect(p0 any, p1 any) {
+	if this.self_ == any(this) {
+		this.disconnect_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ disconnect_impl(any, any) }).disconnect_impl(p0, p1)
+}
+
+// disconnectInDirection: an object that is exactly a LinkedDirectedGraph calls its disconnectInDirection_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) disconnectInDirection(p0 any, p1 any) {
+	if this.self_ == any(this) {
+		this.disconnectInDirection_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ disconnectInDirection_impl(any, any) }).disconnectInDirection_impl(p0, p1)
+}
+
+// getNodes: an object that is exactly a LinkedDirectedGraph calls its getNodes_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getNodes() Collection {
+	if this.self_ == any(this) {
+		return this.getNodes_impl()
+	}
+	return this.self_.(interface{ getNodes_impl() Collection }).getNodes_impl()
+}
+
+// getNode: an object that is exactly a LinkedDirectedGraph calls its getNode_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getNode(p0 any) GraphNode {
+	if this.self_ == any(this) {
+		return this.getNode_impl(p0)
+	}
+	return this.self_.(interface{ getNode_impl(any) GraphNode }).getNode_impl(p0)
+}
+
+// getInEdges: an object that is exactly a LinkedDirectedGraph calls its getInEdges_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getInEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
+	if this.self_ == any(this) {
+		return this.getInEdges_impl(p0)
+	}
+	return this.self_.(interface {
+		getInEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	}).getInEdges_impl(p0)
+}
+
+// getOutEdges: an object that is exactly a LinkedDirectedGraph calls its getOutEdges_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getOutEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
+	if this.self_ == any(this) {
+		return this.getOutEdges_impl(p0)
+	}
+	return this.self_.(interface {
+		getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	}).getOutEdges_impl(p0)
+}
+
+// createNode: an object that is exactly a LinkedDirectedGraph calls its createNode_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) createNode(p0 any) GraphNode {
+	if this.self_ == any(this) {
+		return this.createNode_impl(p0)
+	}
+	return this.self_.(interface{ createNode_impl(any) GraphNode }).createNode_impl(p0)
+}
+
+// getEdges_2: an object that is exactly a LinkedDirectedGraph calls its getEdges_2_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getEdges_2(p0 any, p1 any) *TList[UndiGraph_UndiGraphEdge] {
+	if this.self_ == any(this) {
+		return this.getEdges_2_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getEdges_2_impl(any, any) *TList[UndiGraph_UndiGraphEdge]
+	}).getEdges_2_impl(p0, p1)
+}
+
+// getEdges: an object that is exactly a LinkedDirectedGraph calls its getEdges_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getEdges() *TList[Graph_GraphEdge] {
+	if this.self_ == any(this) {
+		return this.getEdges_impl()
+	}
+	return this.self_.(interface {
+		getEdges_impl() *TList[Graph_GraphEdge]
+	}).getEdges_impl()
+}
+
+// getFirstEdge: an object that is exactly a LinkedDirectedGraph calls its getFirstEdge_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getFirstEdge(p0 any, p1 any) Graph_GraphEdge {
+	if this.self_ == any(this) {
+		return this.getFirstEdge_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getFirstEdge_impl(any, any) Graph_GraphEdge
+	}).getFirstEdge_impl(p0, p1)
+}
+
+// getEdgesInDirection: an object that is exactly a LinkedDirectedGraph calls its getEdgesInDirection_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getEdgesInDirection(p0 any, p1 any) *TList[*LinkedDirectedGraph_LinkedDiGraphEdge] {
+	if this.self_ == any(this) {
+		return this.getEdgesInDirection_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		getEdgesInDirection_impl(any, any) *TList[*LinkedDirectedGraph_LinkedDiGraphEdge]
+	}).getEdgesInDirection_impl(p0, p1)
+}
+
+// isConnectedInDirection: an object that is exactly a LinkedDirectedGraph calls its isConnectedInDirection_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) isConnectedInDirection(p0 any, p1 any) bool {
+	if this.self_ == any(this) {
+		return this.isConnectedInDirection_impl(p0, p1)
+	}
+	return this.self_.(interface{ isConnectedInDirection_impl(any, any) bool }).isConnectedInDirection_impl(p0, p1)
+}
+
+// isConnectedInDirection_3: an object that is exactly a LinkedDirectedGraph calls its isConnectedInDirection_3_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) isConnectedInDirection_3(p0 any, p1 any, p2 any) bool {
+	if this.self_ == any(this) {
+		return this.isConnectedInDirection_3_impl(p0, p1, p2)
+	}
+	return this.self_.(interface{ isConnectedInDirection_3_impl(any, any, any) bool }).isConnectedInDirection_3_impl(p0, p1, p2)
+}
+
+// getDirectedPredNodes: an object that is exactly a LinkedDirectedGraph calls its getDirectedPredNodes_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getDirectedPredNodes(p0 any) *TList[DiGraph_DiGraphNode] {
+	if this.self_ == any(this) {
+		return this.getDirectedPredNodes_impl(p0)
+	}
+	return this.self_.(interface {
+		getDirectedPredNodes_impl(any) *TList[DiGraph_DiGraphNode]
+	}).getDirectedPredNodes_impl(p0)
+}
+
+// getDirectedPredNodesDiGraphNode: an object that is exactly a LinkedDirectedGraph calls its getDirectedPredNodesDiGraphNode_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode(p0 DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {
+	if this.self_ == any(this) {
+		return this.getDirectedPredNodesDiGraphNode_impl(p0)
+	}
+	return this.self_.(interface {
+		getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode]
+	}).getDirectedPredNodesDiGraphNode_impl(p0)
+}
+
+// getDirectedSuccNodes: an object that is exactly a LinkedDirectedGraph calls its getDirectedSuccNodes_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getDirectedSuccNodes(p0 any) *TList[DiGraph_DiGraphNode] {
+	if this.self_ == any(this) {
+		return this.getDirectedSuccNodes_impl(p0)
+	}
+	return this.self_.(interface {
+		getDirectedSuccNodes_impl(any) *TList[DiGraph_DiGraphNode]
+	}).getDirectedSuccNodes_impl(p0)
+}
+
+// getDirectedSuccNodesDiGraphNode: an object that is exactly a LinkedDirectedGraph calls its getDirectedSuccNodesDiGraphNode_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getDirectedSuccNodesDiGraphNode(p0 DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode] {
+	if this.self_ == any(this) {
+		return this.getDirectedSuccNodesDiGraphNode_impl(p0)
+	}
+	return this.self_.(interface {
+		getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) *TList[DiGraph_DiGraphNode]
+	}).getDirectedSuccNodesDiGraphNode_impl(p0)
+}
+
+// getNodeCount: an object that is exactly a LinkedDirectedGraph calls its getNodeCount_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getNodeCount() int32 {
+	if this.self_ == any(this) {
+		return this.getNodeCount_impl()
+	}
+	return this.self_.(interface{ getNodeCount_impl() int32 }).getNodeCount_impl()
+}
+
+// getNeighborNodes: an object that is exactly a LinkedDirectedGraph calls its getNeighborNodes_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getNeighborNodes(p0 any) *TList[GraphNode] {
+	if this.self_ == any(this) {
+		return this.getNeighborNodes_impl(p0)
+	}
+	return this.self_.(interface{ getNeighborNodes_impl(any) *TList[GraphNode] }).getNeighborNodes_impl(p0)
+}
+
+// getNodeDegree: an object that is exactly a LinkedDirectedGraph calls its getNodeDegree_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph) getNodeDegree(p0 any) int32 {
+	if this.self_ == any(this) {
+		return this.getNodeDegree_impl(p0)
+	}
+	return this.self_.(interface{ getNodeDegree_impl(any) int32 }).getNodeDegree_impl(p0)
+}
+
+// getAnnotationUntyped: an object that is exactly a LinkedDirectedGraph_AnnotatedLinkedDiGraphNode calls its getAnnotationUntyped_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode) getAnnotationUntyped() Annotation_graph {
+	if this.self_ == any(this) {
+		return this.getAnnotationUntyped_impl()
+	}
+	return this.self_.(interface{ getAnnotationUntyped_impl() Annotation_graph }).getAnnotationUntyped_impl()
+}
+
+// setAnnotation: an object that is exactly a LinkedDirectedGraph_AnnotatedLinkedDiGraphNode calls its setAnnotation_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode) setAnnotation(p0 Annotation_graph) {
+	if this.self_ == any(this) {
+		this.setAnnotation_impl(p0)
+		return
+	}
+	this.self_.(interface{ setAnnotation_impl(Annotation_graph) }).setAnnotation_impl(p0)
+}
+
+// getLabel: an object that is exactly a LinkedDirectedGraph_AnnotatedLinkedDiGraphNode calls its getLabel_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphNode) getLabel() string {
+	if this.self_ == any(this) {
+		return this.getLabel_impl()
+	}
+	return this.self_.(interface{ getLabel_impl() string }).getLabel_impl()
+}
+
+// getAnnotationUntyped: an object that is exactly a LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge calls its getAnnotationUntyped_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge) getAnnotationUntyped() Annotation_graph {
+	if this.self_ == any(this) {
+		return this.getAnnotationUntyped_impl()
+	}
+	return this.self_.(interface{ getAnnotationUntyped_impl() Annotation_graph }).getAnnotationUntyped_impl()
+}
+
+// setAnnotation: an object that is exactly a LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge calls its setAnnotation_impl directly (post-flip); others dispatch.
+func (this *LinkedDirectedGraph_AnnotatedLinkedDiGraphEdge) setAnnotation(p0 Annotation_graph) {
+	if this.self_ == any(this) {
+		this.setAnnotation_impl(p0)
+		return
+	}
+	this.self_.(interface{ setAnnotation_impl(Annotation_graph) }).setAnnotation_impl(p0)
+}

@@ -130,3 +130,194 @@ func (this *UnknownType) resolveInternal_impl(reporter ErrorReporter_rhino) *JST
 func (this *UnknownType) recursionUnsafeHashCode_impl() int32 {
 	return System_identityHashCode(obj_(this))
 }
+
+// getTypeClass: an object that is exactly a UnknownType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *UnknownType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// isUnknownType: an object that is exactly a UnknownType calls its isUnknownType_impl directly (post-flip); others dispatch.
+func (this *UnknownType) isUnknownType() bool {
+	if this.self_ == any(this) {
+		return this.isUnknownType_impl()
+	}
+	return this.self_.(interface{ isUnknownType_impl() bool }).isUnknownType_impl()
+}
+
+// isCheckedUnknownType: an object that is exactly a UnknownType calls its isCheckedUnknownType_impl directly (post-flip); others dispatch.
+func (this *UnknownType) isCheckedUnknownType() bool {
+	if this.self_ == any(this) {
+		return this.isCheckedUnknownType_impl()
+	}
+	return this.self_.(interface{ isCheckedUnknownType_impl() bool }).isCheckedUnknownType_impl()
+}
+
+// canBeCalled: an object that is exactly a UnknownType calls its canBeCalled_impl directly (post-flip); others dispatch.
+func (this *UnknownType) canBeCalled() bool {
+	if this.self_ == any(this) {
+		return this.canBeCalled_impl()
+	}
+	return this.self_.(interface{ canBeCalled_impl() bool }).canBeCalled_impl()
+}
+
+// matchesNumberContext: an object that is exactly a UnknownType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *UnknownType) matchesNumberContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a UnknownType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *UnknownType) matchesObjectContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a UnknownType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *UnknownType) matchesStringContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+}
+
+// matchesSymbolContext: an object that is exactly a UnknownType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
+func (this *UnknownType) matchesSymbolContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesSymbolContext_impl()
+	}
+	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+}
+
+// testForEquality: an object that is exactly a UnknownType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *UnknownType) testForEquality(p0 *JSType) *Tri {
+	if this.self_ == any(this) {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+}
+
+// isNullable: an object that is exactly a UnknownType calls its isNullable_impl directly (post-flip); others dispatch.
+func (this *UnknownType) isNullable() bool {
+	if this.self_ == any(this) {
+		return this.isNullable_impl()
+	}
+	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+}
+
+// isVoidable: an object that is exactly a UnknownType calls its isVoidable_impl directly (post-flip); others dispatch.
+func (this *UnknownType) isVoidable() bool {
+	if this.self_ == any(this) {
+		return this.isVoidable_impl()
+	}
+	return this.self_.(interface{ isVoidable_impl() bool }).isVoidable_impl()
+}
+
+// visitUntyped: an object that is exactly a UnknownType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *UnknownType) visitUntyped(p0 Visitor) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+}
+
+// visitUntyped_2: an object that is exactly a UnknownType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *UnknownType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
+	}).visitUntyped_2_impl(p0, p1)
+}
+
+// appendTo: an object that is exactly a UnknownType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *UnknownType) appendTo(p0 *TypeStringBuilder) {
+	if this.self_ == any(this) {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+}
+
+// defineProperty: an object that is exactly a UnknownType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *UnknownType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if this.self_ == any(this) {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.(interface {
+		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	}).defineProperty_impl(p0, p1, p2, p3)
+}
+
+// getImplicitPrototype: an object that is exactly a UnknownType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
+func (this *UnknownType) getImplicitPrototype() *ObjectType {
+	if this.self_ == any(this) {
+		return this.getImplicitPrototype_impl()
+	}
+	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+}
+
+// getConstructor: an object that is exactly a UnknownType calls its getConstructor_impl directly (post-flip); others dispatch.
+func (this *UnknownType) getConstructor() *FunctionType {
+	if this.self_ == any(this) {
+		return this.getConstructor_impl()
+	}
+	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+}
+
+// getReferenceName: an object that is exactly a UnknownType calls its getReferenceName_impl directly (post-flip); others dispatch.
+func (this *UnknownType) getReferenceName() Optional {
+	if this.self_ == any(this) {
+		return this.getReferenceName_impl()
+	}
+	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+}
+
+// getDisplayName: an object that is exactly a UnknownType calls its getDisplayName_impl directly (post-flip); others dispatch.
+func (this *UnknownType) getDisplayName() Optional {
+	if this.self_ == any(this) {
+		return this.getDisplayName_impl()
+	}
+	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+}
+
+// hasDisplayName: an object that is exactly a UnknownType calls its hasDisplayName_impl directly (post-flip); others dispatch.
+func (this *UnknownType) hasDisplayName() bool {
+	if this.self_ == any(this) {
+		return this.hasDisplayName_impl()
+	}
+	return this.self_.(interface{ hasDisplayName_impl() bool }).hasDisplayName_impl()
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a UnknownType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *UnknownType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+	if this.self_ == any(this) {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+}
+
+// resolveInternal: an object that is exactly a UnknownType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *UnknownType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.(interface {
+		resolveInternal_impl(ErrorReporter_rhino) *JSType
+	}).resolveInternal_impl(p0)
+}
+
+// recursionUnsafeHashCode: an object that is exactly a UnknownType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *UnknownType) recursionUnsafeHashCode() int32 {
+	if this.self_ == any(this) {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+}

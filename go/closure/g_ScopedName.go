@@ -106,3 +106,19 @@ func (this *ScopedName_Simple) getName_impl() string {
 func (this *ScopedName_Simple) getScopeRoot_impl() Node {
 	return this.scopeRoot
 }
+
+// getName: an object that is exactly a ScopedName_Simple calls its getName_impl directly (post-flip); others dispatch.
+func (this *ScopedName_Simple) getName() string {
+	if this.self_ == any(this) {
+		return this.getName_impl()
+	}
+	return this.self_.(interface{ getName_impl() string }).getName_impl()
+}
+
+// getScopeRoot: an object that is exactly a ScopedName_Simple calls its getScopeRoot_impl directly (post-flip); others dispatch.
+func (this *ScopedName_Simple) getScopeRoot() Node {
+	if this.self_ == any(this) {
+		return this.getScopeRoot_impl()
+	}
+	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+}

@@ -931,3 +931,91 @@ func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder_impl(fileName st
 }
 
 const SourceFile_CodeLoader_AtZip_serialVersionUID int64 = 1
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_Preloaded calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_Preloaded) loadUncachedCode() *Outcome_base {
+	if this.self_ == any(this) {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.(interface{ loadUncachedCode_impl() *Outcome_base }).loadUncachedCode_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_Preloaded calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_Preloaded) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if this.self_ == any(this) {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.(interface {
+		toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
+	}).toProtoLocationBuilder_impl(p0)
+}
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_StubSourceFileCodeLoader calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) loadUncachedCode() *Outcome_base {
+	if this.self_ == any(this) {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.(interface{ loadUncachedCode_impl() *Outcome_base }).loadUncachedCode_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_StubSourceFileCodeLoader calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_StubSourceFileCodeLoader) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if this.self_ == any(this) {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.(interface {
+		toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
+	}).toProtoLocationBuilder_impl(p0)
+}
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedCode() *Outcome_base {
+	if this.self_ == any(this) {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.(interface{ loadUncachedCode_impl() *Outcome_base }).loadUncachedCode_impl()
+}
+
+// loadUncachedText: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its loadUncachedText_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_OnDisk) loadUncachedText() *Outcome_base {
+	if this.self_ == any(this) {
+		return this.loadUncachedText_impl()
+	}
+	return this.self_.(interface{ loadUncachedText_impl() *Outcome_base }).loadUncachedText_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_OnDisk calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_OnDisk) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if this.self_ == any(this) {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.(interface {
+		toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
+	}).toProtoLocationBuilder_impl(p0)
+}
+
+// loadUncachedCode: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedCode_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedCode() *Outcome_base {
+	if this.self_ == any(this) {
+		return this.loadUncachedCode_impl()
+	}
+	return this.self_.(interface{ loadUncachedCode_impl() *Outcome_base }).loadUncachedCode_impl()
+}
+
+// loadUncachedText: an object that is exactly a SourceFile_CodeLoader_AtZip calls its loadUncachedText_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_AtZip) loadUncachedText() *Outcome_base {
+	if this.self_ == any(this) {
+		return this.loadUncachedText_impl()
+	}
+	return this.self_.(interface{ loadUncachedText_impl() *Outcome_base }).loadUncachedText_impl()
+}
+
+// toProtoLocationBuilder: an object that is exactly a SourceFile_CodeLoader_AtZip calls its toProtoLocationBuilder_impl directly (post-flip); others dispatch.
+func (this *SourceFile_CodeLoader_AtZip) toProtoLocationBuilder(p0 string) *SourceFileProto_Builder {
+	if this.self_ == any(this) {
+		return this.toProtoLocationBuilder_impl(p0)
+	}
+	return this.self_.(interface {
+		toProtoLocationBuilder_impl(string) *SourceFileProto_Builder
+	}).toProtoLocationBuilder_impl(p0)
+}

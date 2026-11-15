@@ -55,3 +55,11 @@ func new_LiteralToken(type_ *TokenType, value string, location *SourceRange) *Li
 func (this *LiteralToken) toString_impl() string {
 	return this.value_
 }
+
+// toString: an object that is exactly a LiteralToken calls its toString_impl directly (post-flip); others dispatch.
+func (this *LiteralToken) toString() string {
+	if this.self_ == any(this) {
+		return this.toString_impl()
+	}
+	return this.self_.(interface{ toString_impl() string }).toString_impl()
+}

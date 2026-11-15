@@ -99,3 +99,78 @@ func (this *WritingLogFile) close_impl() {
 func (this *WritingLogFile) isLogging_impl() bool {
 	return true
 }
+
+// logObject: an object that is exactly a WritingLogFile calls its logObject_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) logObject(p0 any) *LogFile {
+	if this.self_ == any(this) {
+		return this.logObject_impl(p0)
+	}
+	return this.self_.(interface{ logObject_impl(any) *LogFile }).logObject_impl(p0)
+}
+
+// logString: an object that is exactly a WritingLogFile calls its logString_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) logString(p0 string) *LogFile {
+	if this.self_ == any(this) {
+		return this.logString_impl(p0)
+	}
+	return this.self_.(interface{ logString_impl(string) *LogFile }).logString_impl(p0)
+}
+
+// log: an object that is exactly a WritingLogFile calls its log_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) log(p0 Supplier) *LogFile {
+	if this.self_ == any(this) {
+		return this.log_impl(p0)
+	}
+	return this.self_.(interface{ log_impl(Supplier) *LogFile }).log_impl(p0)
+}
+
+// log_2: an object that is exactly a WritingLogFile calls its log_2_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) log_2(p0 string, p1 []any) *LogFile {
+	if this.self_ == any(this) {
+		return this.log_2_impl(p0, p1)
+	}
+	return this.self_.(interface{ log_2_impl(string, []any) *LogFile }).log_2_impl(p0, p1)
+}
+
+// logJsonObject: an object that is exactly a WritingLogFile calls its logJsonObject_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) logJsonObject(p0 any) *LogFile {
+	if this.self_ == any(this) {
+		return this.logJsonObject_impl(p0)
+	}
+	return this.self_.(interface{ logJsonObject_impl(any) *LogFile }).logJsonObject_impl(p0)
+}
+
+// logJsonSupplier: an object that is exactly a WritingLogFile calls its logJsonSupplier_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) logJsonSupplier(p0 Supplier) *LogFile {
+	if this.self_ == any(this) {
+		return this.logJsonSupplier_impl(p0)
+	}
+	return this.self_.(interface{ logJsonSupplier_impl(Supplier) *LogFile }).logJsonSupplier_impl(p0)
+}
+
+// logJson: an object that is exactly a WritingLogFile calls its logJson_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) logJson(p0 LogFile_StreamedJsonProducer) *LogFile {
+	if this.self_ == any(this) {
+		return this.logJson_impl(p0)
+	}
+	return this.self_.(interface {
+		logJson_impl(LogFile_StreamedJsonProducer) *LogFile
+	}).logJson_impl(p0)
+}
+
+// close: an object that is exactly a WritingLogFile calls its close_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) close() {
+	if this.self_ == any(this) {
+		this.close_impl()
+		return
+	}
+	this.self_.(interface{ close_impl() }).close_impl()
+}
+
+// isLogging: an object that is exactly a WritingLogFile calls its isLogging_impl directly (post-flip); others dispatch.
+func (this *WritingLogFile) isLogging() bool {
+	if this.self_ == any(this) {
+		return this.isLogging_impl()
+	}
+	return this.self_.(interface{ isLogging_impl() bool }).isLogging_impl()
+}

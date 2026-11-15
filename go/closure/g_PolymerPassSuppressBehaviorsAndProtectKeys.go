@@ -121,3 +121,14 @@ func (this *PolymerPassSuppressBehaviorsAndProtectKeys) addSuppressionJsDocAnnot
 	suppressDoc.recordSuppressions(icast_Set(obj_(ImmutableSet_of_Object_Object_Object(strobj_("checkTypes"), strobj_("globalThis"), strobj_("visibility")))))
 	node.setJSDocInfo(suppressDoc.build())
 }
+
+// visit: an object that is exactly a PolymerPassSuppressBehaviorsAndProtectKeys calls its visit_impl directly (post-flip); others dispatch.
+func (this *PolymerPassSuppressBehaviorsAndProtectKeys) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

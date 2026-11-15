@@ -76,3 +76,23 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 	}
 	return new_WebpackModuleResolver(modulePaths, moduleRootPaths, normalizedPathsById, errorHandler, pathEscaper).up_ModuleResolver()
 }
+
+// resolveJsModule: an object that is exactly a WebpackModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
+func (this *WebpackModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional, p3 int32, p4 int32) Optional {
+	if this.self_ == any(this) {
+		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
+	}
+	return this.self_.(interface {
+		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
+	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
+}
+
+// resolveJsModuleSilently: an object that is exactly a WebpackModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
+func (this *WebpackModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional {
+	if this.self_ == any(this) {
+		return this.resolveJsModuleSilently_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		resolveJsModuleSilently_impl(string, string) Optional
+	}).resolveJsModuleSilently_impl(p0, p1)
+}

@@ -1270,3 +1270,11 @@ func new_PeepholeReplaceKnownMethods_1(callNode Node, calleeNode Node, firstArgu
 	this.init_PeepholeReplaceKnownMethods_1(callNode, calleeNode, firstArgumentNode)
 	return this
 }
+
+// optimizeSubtree: an object that is exactly a PeepholeReplaceKnownMethods calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *PeepholeReplaceKnownMethods) optimizeSubtree(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+}

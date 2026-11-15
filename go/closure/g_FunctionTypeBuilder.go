@@ -1015,3 +1015,19 @@ func (this *FunctionTypeBuilder_AstFunctionContents) mayHaveSingleThrow() bool {
 	var block Node = this.n.getLastChild()
 	return (block.hasOneChild() && block.getFirstChild().isThrow())
 }
+
+// apply: an object that is exactly a FunctionTypeBuilder_ExtendedTypeValidator calls its apply_impl directly (post-flip); others dispatch.
+func (this *FunctionTypeBuilder_ExtendedTypeValidator) apply(p0 any) bool {
+	if this.self_ == any(this) {
+		return this.apply_impl(p0)
+	}
+	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+}
+
+// apply: an object that is exactly a FunctionTypeBuilder_ImplementedTypeValidator calls its apply_impl directly (post-flip); others dispatch.
+func (this *FunctionTypeBuilder_ImplementedTypeValidator) apply(p0 any) bool {
+	if this.self_ == any(this) {
+		return this.apply_impl(p0)
+	}
+	return this.self_.(interface{ apply_impl(any) bool }).apply_impl(p0)
+}

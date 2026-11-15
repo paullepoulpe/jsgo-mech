@@ -137,3 +137,43 @@ func ContainsUpperBoundSuperTypeVisitor_Result_clinit() {
 	registerEnum_("com.google.javascript.rhino.jstype.ContainsUpperBoundSuperTypeVisitor.Result", enumValues_(ContainsUpperBoundSuperTypeVisitor_Result_values_))
 
 }
+
+// caseDefault: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseDefault_impl directly (post-flip); others dispatch.
+func (this *ContainsUpperBoundSuperTypeVisitor) caseDefault(p0 *JSType) any {
+	if this.self_ == any(this) {
+		return this.caseDefault_impl(p0)
+	}
+	return this.self_.(interface{ caseDefault_impl(*JSType) any }).caseDefault_impl(p0)
+}
+
+// caseTemplateType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseTemplateType_impl directly (post-flip); others dispatch.
+func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplateType(p0 *TemplateType) any {
+	if this.self_ == any(this) {
+		return this.caseTemplateType_impl(p0)
+	}
+	return this.self_.(interface{ caseTemplateType_impl(*TemplateType) any }).caseTemplateType_impl(p0)
+}
+
+// caseNamedType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseNamedType_impl directly (post-flip); others dispatch.
+func (this *ContainsUpperBoundSuperTypeVisitor) caseNamedType(p0 *NamedType) any {
+	if this.self_ == any(this) {
+		return this.caseNamedType_impl(p0)
+	}
+	return this.self_.(interface{ caseNamedType_impl(*NamedType) any }).caseNamedType_impl(p0)
+}
+
+// caseTemplatizedType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseTemplatizedType_impl directly (post-flip); others dispatch.
+func (this *ContainsUpperBoundSuperTypeVisitor) caseTemplatizedType(p0 *TemplatizedType) any {
+	if this.self_ == any(this) {
+		return this.caseTemplatizedType_impl(p0)
+	}
+	return this.self_.(interface{ caseTemplatizedType_impl(*TemplatizedType) any }).caseTemplatizedType_impl(p0)
+}
+
+// caseUnionType: an object that is exactly a ContainsUpperBoundSuperTypeVisitor calls its caseUnionType_impl directly (post-flip); others dispatch.
+func (this *ContainsUpperBoundSuperTypeVisitor) caseUnionType(p0 *UnionType) any {
+	if this.self_ == any(this) {
+		return this.caseUnionType_impl(p0)
+	}
+	return this.self_.(interface{ caseUnionType_impl(*UnionType) any }).caseUnionType_impl(p0)
+}

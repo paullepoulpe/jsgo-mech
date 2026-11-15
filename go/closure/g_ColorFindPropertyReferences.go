@@ -200,3 +200,14 @@ type ColorFindPropertyReferences_IsPropertyReflector_fn struct {
 func (this *ColorFindPropertyReferences_IsPropertyReflector_fn) test(p0 Node) bool {
 	return this.f(p0)
 }
+
+// visit: an object that is exactly a ColorFindPropertyReferences calls its visit_impl directly (post-flip); others dispatch.
+func (this *ColorFindPropertyReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

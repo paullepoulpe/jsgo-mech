@@ -763,3 +763,14 @@ func (this *AnalyzePrototypeProperties_NameInfo) getDeepestCommonChunkRef() *JSC
 func (this *AnalyzePrototypeProperties_NameInfo) getDeclarations() DequeOf[AnalyzePrototypeProperties_Symbol] {
 	return this.declarations
 }
+
+// visit: an object that is exactly a AnalyzePrototypeProperties_ProcessExternProperties calls its visit_impl directly (post-flip); others dispatch.
+func (this *AnalyzePrototypeProperties_ProcessExternProperties) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

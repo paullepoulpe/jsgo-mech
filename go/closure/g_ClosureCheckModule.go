@@ -485,3 +485,36 @@ func (this *ClosureCheckModule_1) visit(node Node) {
 		qname = String_substring(qname, 0, lastDot)
 	}
 }
+
+// enterModule: an object that is exactly a ClosureCheckModule calls its enterModule_impl directly (post-flip); others dispatch.
+func (this *ClosureCheckModule) enterModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
+	if this.self_ == any(this) {
+		this.enterModule_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		enterModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	}).enterModule_impl(p0, p1)
+}
+
+// exitModule: an object that is exactly a ClosureCheckModule calls its exitModule_impl directly (post-flip); others dispatch.
+func (this *ClosureCheckModule) exitModule(p0 *ModuleMetadataMap_ModuleMetadata, p1 Node) {
+	if this.self_ == any(this) {
+		this.exitModule_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		exitModule_impl(*ModuleMetadataMap_ModuleMetadata, Node)
+	}).exitModule_impl(p0, p1)
+}
+
+// visit_4: an object that is exactly a ClosureCheckModule calls its visit_4_impl directly (post-flip); others dispatch.
+func (this *ClosureCheckModule) visit_4(p0 *NodeTraversal, p1 Node, p2 *ModuleMetadataMap_ModuleMetadata, p3 Node) {
+	if this.self_ == any(this) {
+		this.visit_4_impl(p0, p1, p2, p3)
+		return
+	}
+	this.self_.(interface {
+		visit_4_impl(*NodeTraversal, Node, *ModuleMetadataMap_ModuleMetadata, Node)
+	}).visit_4_impl(p0, p1, p2, p3)
+}

@@ -140,3 +140,11 @@ func DepsFileRegexParser_clinit() {
 	DepsFileRegexParser_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.deps.DepsFileRegexParser").getName())
 
 }
+
+// parseLine: an object that is exactly a DepsFileRegexParser calls its parseLine_impl directly (post-flip); others dispatch.
+func (this *DepsFileRegexParser) parseLine(p0 string) *Outcome_base {
+	if this.self_ == any(this) {
+		return this.parseLine_impl(p0)
+	}
+	return this.self_.(interface{ parseLine_impl(string) *Outcome_base }).parseLine_impl(p0)
+}

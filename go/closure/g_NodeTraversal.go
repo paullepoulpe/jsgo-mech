@@ -1702,3 +1702,24 @@ func new_NodeTraversal_Builder_1(outer_ *NodeTraversal_Builder, cap_x NodeTraver
 func (this *NodeTraversal_Builder_1) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	this.cap_x.visit(t, n, parent)
 }
+
+// shouldTraverse: an object that is exactly a NodeTraversal_AbstractChangedScopeCallback calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *NodeTraversal_AbstractChangedScopeCallback) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if this.self_ == any(this) {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.(interface {
+		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
+	}).shouldTraverse_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a NodeTraversal_Builder_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *NodeTraversal_Builder_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

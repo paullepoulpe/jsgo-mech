@@ -85,3 +85,14 @@ func CheckPrimitiveAsObject_clinit() {
 	CheckPrimitiveAsObject_PRIMITIVE_OBJECT_CONSTRUCTORS = ImmutableSet_of_Object_Object_Object(strobj_("Boolean"), strobj_("Number"), strobj_("String"))
 
 }
+
+// visit: an object that is exactly a CheckPrimitiveAsObject calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckPrimitiveAsObject) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

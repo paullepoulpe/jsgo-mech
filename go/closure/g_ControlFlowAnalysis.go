@@ -803,3 +803,11 @@ func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_i
 		return Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(p0 any) int32 { return icast_DiGraph_DiGraphNode(p0).getPriority() }}))
 	}()
 }
+
+// getOptionalNodeComparator: an object that is exactly a ControlFlowAnalysis_AstControlFlowGraph calls its getOptionalNodeComparator_impl directly (post-flip); others dispatch.
+func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator(p0 bool) Comparator {
+	if this.self_ == any(this) {
+		return this.getOptionalNodeComparator_impl(p0)
+	}
+	return this.self_.(interface{ getOptionalNodeComparator_impl(bool) Comparator }).getOptionalNodeComparator_impl(p0)
+}

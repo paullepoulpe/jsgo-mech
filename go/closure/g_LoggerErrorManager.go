@@ -69,3 +69,21 @@ func (this *LoggerErrorManager) printSummary_impl() {
 		this.logger.log_Level_String(level, String_format("%d error(s), %d warning(s)", []any{any(int32(this.getErrorCount())), any(int32(this.getWarningCount()))}))
 	}
 }
+
+// println: an object that is exactly a LoggerErrorManager calls its println_impl directly (post-flip); others dispatch.
+func (this *LoggerErrorManager) println(p0 *CheckLevel, p1 *JSError) {
+	if this.self_ == any(this) {
+		this.println_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ println_impl(*CheckLevel, *JSError) }).println_impl(p0, p1)
+}
+
+// printSummary: an object that is exactly a LoggerErrorManager calls its printSummary_impl directly (post-flip); others dispatch.
+func (this *LoggerErrorManager) printSummary() {
+	if this.self_ == any(this) {
+		this.printSummary_impl()
+		return
+	}
+	this.self_.(interface{ printSummary_impl() }).printSummary_impl()
+}

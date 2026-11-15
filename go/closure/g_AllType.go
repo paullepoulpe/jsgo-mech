@@ -84,3 +84,128 @@ func (this *AllType) isNullable_impl() bool {
 func (this *AllType) isVoidable_impl() bool {
 	return true
 }
+
+// getTypeClass: an object that is exactly a AllType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *AllType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// isAllType: an object that is exactly a AllType calls its isAllType_impl directly (post-flip); others dispatch.
+func (this *AllType) isAllType() bool {
+	if this.self_ == any(this) {
+		return this.isAllType_impl()
+	}
+	return this.self_.(interface{ isAllType_impl() bool }).isAllType_impl()
+}
+
+// matchesStringContext: an object that is exactly a AllType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *AllType) matchesStringContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a AllType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *AllType) matchesObjectContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+}
+
+// testForEquality: an object that is exactly a AllType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *AllType) testForEquality(p0 *JSType) *Tri {
+	if this.self_ == any(this) {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+}
+
+// appendTo: an object that is exactly a AllType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *AllType) appendTo(p0 *TypeStringBuilder) {
+	if this.self_ == any(this) {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+}
+
+// getDisplayName: an object that is exactly a AllType calls its getDisplayName_impl directly (post-flip); others dispatch.
+func (this *AllType) getDisplayName() Optional {
+	if this.self_ == any(this) {
+		return this.getDisplayName_impl()
+	}
+	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+}
+
+// hasDisplayName: an object that is exactly a AllType calls its hasDisplayName_impl directly (post-flip); others dispatch.
+func (this *AllType) hasDisplayName() bool {
+	if this.self_ == any(this) {
+		return this.hasDisplayName_impl()
+	}
+	return this.self_.(interface{ hasDisplayName_impl() bool }).hasDisplayName_impl()
+}
+
+// visitUntyped: an object that is exactly a AllType calls its visitUntyped_impl directly (post-flip); others dispatch.
+func (this *AllType) visitUntyped(p0 Visitor) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_impl(p0)
+	}
+	return this.self_.(interface{ visitUntyped_impl(Visitor) any }).visitUntyped_impl(p0)
+}
+
+// visitUntyped_2: an object that is exactly a AllType calls its visitUntyped_2_impl directly (post-flip); others dispatch.
+func (this *AllType) visitUntyped_2(p0 RelationshipVisitor, p1 *JSType) any {
+	if this.self_ == any(this) {
+		return this.visitUntyped_2_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		visitUntyped_2_impl(RelationshipVisitor, *JSType) any
+	}).visitUntyped_2_impl(p0, p1)
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a AllType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *AllType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+	if this.self_ == any(this) {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+}
+
+// resolveInternal: an object that is exactly a AllType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *AllType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.(interface {
+		resolveInternal_impl(ErrorReporter_rhino) *JSType
+	}).resolveInternal_impl(p0)
+}
+
+// recursionUnsafeHashCode: an object that is exactly a AllType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *AllType) recursionUnsafeHashCode() int32 {
+	if this.self_ == any(this) {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+}
+
+// isNullable: an object that is exactly a AllType calls its isNullable_impl directly (post-flip); others dispatch.
+func (this *AllType) isNullable() bool {
+	if this.self_ == any(this) {
+		return this.isNullable_impl()
+	}
+	return this.self_.(interface{ isNullable_impl() bool }).isNullable_impl()
+}
+
+// isVoidable: an object that is exactly a AllType calls its isVoidable_impl directly (post-flip); others dispatch.
+func (this *AllType) isVoidable() bool {
+	if this.self_ == any(this) {
+		return this.isVoidable_impl()
+	}
+	return this.self_.(interface{ isVoidable_impl() bool }).isVoidable_impl()
+}

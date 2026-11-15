@@ -85,3 +85,20 @@ func J2clUndefinedChecksRewriterPass_isUtilCall(node Node, methodName string) bo
 	var qualifiedName string = node.getFirstChild().getOriginalQualifiedName()
 	return (String_contains(qualifiedName, strobj_("nativebootstrap$Util")) && String_endsWith(qualifiedName, methodName))
 }
+
+// beginTraversal: an object that is exactly a J2clUndefinedChecksRewriterPass calls its beginTraversal_impl directly (post-flip); others dispatch.
+func (this *J2clUndefinedChecksRewriterPass) beginTraversal(p0 *AbstractCompiler) {
+	if this.self_ == any(this) {
+		this.beginTraversal_impl(p0)
+		return
+	}
+	this.self_.(interface{ beginTraversal_impl(*AbstractCompiler) }).beginTraversal_impl(p0)
+}
+
+// optimizeSubtree: an object that is exactly a J2clUndefinedChecksRewriterPass calls its optimizeSubtree_impl directly (post-flip); others dispatch.
+func (this *J2clUndefinedChecksRewriterPass) optimizeSubtree(p0 Node) Node {
+	if this.self_ == any(this) {
+		return this.optimizeSubtree_impl(p0)
+	}
+	return this.self_.(interface{ optimizeSubtree_impl(Node) Node }).optimizeSubtree_impl(p0)
+}

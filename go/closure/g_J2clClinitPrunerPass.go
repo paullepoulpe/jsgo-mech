@@ -452,3 +452,36 @@ func (this *J2clClinitPrunerPass_1) visit_impl(t *NodeTraversal, node Node, pare
 		this.cap_clinitReferences.put(clinitName.get(), node.box_())
 	}
 }
+
+// visit: an object that is exactly a J2clClinitPrunerPass_LookAheadRedundantClinitPruner calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clClinitPrunerPass_LookAheadRedundantClinitPruner) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a J2clClinitPrunerPass_EmptyClinitPruner calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clClinitPrunerPass_EmptyClinitPruner) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a J2clClinitPrunerPass_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *J2clClinitPrunerPass_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
