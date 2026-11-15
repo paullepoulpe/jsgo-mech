@@ -164,7 +164,7 @@ func (this *ModuleImportResolver) updateAstForExport(bindingSourceNode Node, exp
 }
 
 func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *ScopedName {
-	var name OptionalOf[string] = func() *Optional {
+	var name OptionalOf[string] = func() Optional {
 		if binding.isModuleNamespace() {
 			return Optional_of(strobj_(Export_NAMESPACE))
 		}

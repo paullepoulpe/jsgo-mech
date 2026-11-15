@@ -122,7 +122,7 @@ func (this *JSError) toString() string {
 }
 
 func (this *JSError) format(level *CheckLevel, formatter MessageFormatter) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		switch level {
 		case CheckLevel_ERROR:
 			return Optional_of(strobj_(formatter.formatError(this)))
@@ -156,7 +156,7 @@ func (this *JSError) description() string {
 	return this.description_
 }
 
-func (this *JSError) sourceName() *Optional {
+func (this *JSError) sourceName() Optional {
 	return this.sourceName_
 }
 
@@ -210,7 +210,7 @@ const JSError_DEFAULT_LINENO int32 = -1
 const JSError_DEFAULT_CHARNO int32 = -1
 const JSError_DEFAULT_LENGTH int32 = 0
 
-var JSError_DEFAULT_SOURCENAME *Optional
+var JSError_DEFAULT_SOURCENAME Optional
 var JSError_DEFAULT_NODE Node
 var JSError_DEFAULT_REQUIREMENT *Requirement
 

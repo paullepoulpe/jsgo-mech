@@ -479,7 +479,7 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 		}
 	}
 	var unwrapped *ObjectType = SubtypeChecker_getObjectTypeIfNative(type_)
-	var unwrappedTypeName OptionalOf[string] = func() *Optional {
+	var unwrappedTypeName OptionalOf[string] = func() Optional {
 		if unwrapped == nil {
 			return Optional_empty()
 		}

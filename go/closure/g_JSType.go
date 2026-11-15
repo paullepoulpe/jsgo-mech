@@ -979,8 +979,8 @@ func (this *JSType) appendTo(p0 *TypeStringBuilder) {
 	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
 }
 
-func (this *JSType) getDisplayName() *Optional {
-	return this.self_.(interface{ getDisplayName_impl() *Optional }).getDisplayName_impl()
+func (this *JSType) getDisplayName() Optional {
+	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
 }
 
 func (this *JSType) hasDisplayName() bool {

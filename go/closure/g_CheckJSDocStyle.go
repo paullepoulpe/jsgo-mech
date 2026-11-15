@@ -138,7 +138,7 @@ func (this *CheckJSDocStyle) isFunctionThatShouldHaveJsDoc(t *NodeTraversal, fun
 
 func (this *CheckJSDocStyle) isTestMethod(function Node) bool {
 	var bestLValue Node = NodeUtil_getBestLValue(function)
-	var name OptionalOf[string] = func() *Optional {
+	var name OptionalOf[string] = func() Optional {
 		if bestLValue != 0 {
 			return NodeUtil_getBestLValueName(bestLValue)
 		}

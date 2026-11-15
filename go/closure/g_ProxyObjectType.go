@@ -120,7 +120,7 @@ func (this *ProxyObjectType) setValidator_impl(validator Predicate_baseOf[*JSTyp
 }
 
 func (this *ProxyObjectType) getReferenceName_impl() OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if this.referencedObjType == nil {
 			return Optional_of(strobj_(""))
 		}

@@ -306,7 +306,7 @@ func PolymerBehaviorExtractor_getBehaviorFunctionsToCopy(behaviorObjLit Node) Im
 func PolymerBehaviorExtractor_getQualifiedNameThroughCast(node Node) OptionalOf[string] {
 	if node.isName() {
 		var name string = node.getString()
-		return func() *Optional {
+		return func() Optional {
 			if String_isEmpty(name) {
 				return Optional_empty()
 			}

@@ -58,7 +58,7 @@ func (this *Module) localNameToLocalExport() *ImmutableMap {
 	return this.localNameToLocalExport_
 }
 
-func (this *Module) closureNamespace() *Optional {
+func (this *Module) closureNamespace() Optional {
 	return this.closureNamespace_
 }
 

@@ -4,7 +4,7 @@ package closure
 
 type CssRenamingMap interface {
 	RenamingMap
-	get(string) *Optional
+	get(string) Optional
 	getStyle() *CssRenamingMap_Style
 }
 
@@ -72,7 +72,7 @@ func (this *CssRenamingMap_ByPart) getStyle() *CssRenamingMap_Style {
 	return CssRenamingMap_Style_BY_PART
 }
 
-func (this *CssRenamingMap_ByPart) get(p0 string) *Optional {
+func (this *CssRenamingMap_ByPart) get(p0 string) Optional {
 	panic("abstract method CssRenamingMap_ByPart.get")
 }
 
@@ -87,6 +87,6 @@ func (this *CssRenamingMap_ByWhole) getStyle() *CssRenamingMap_Style {
 	return CssRenamingMap_Style_BY_WHOLE
 }
 
-func (this *CssRenamingMap_ByWhole) get(p0 string) *Optional {
+func (this *CssRenamingMap_ByWhole) get(p0 string) Optional {
 	panic("abstract method CssRenamingMap_ByWhole.get")
 }

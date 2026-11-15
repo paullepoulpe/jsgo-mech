@@ -47,19 +47,19 @@ func (this *Export) mutatedCopy() *Export {
 	return this.toBuilder().mutated(true).autoBuild()
 }
 
-func (this *Export) exportName() *Optional {
+func (this *Export) exportName() Optional {
 	return this.exportName_
 }
 
-func (this *Export) moduleRequest() *Optional {
+func (this *Export) moduleRequest() Optional {
 	return this.moduleRequest_
 }
 
-func (this *Export) importName() *Optional {
+func (this *Export) importName() Optional {
 	return this.importName_
 }
 
-func (this *Export) localName() *Optional {
+func (this *Export) localName() Optional {
 	return this.localName_
 }
 
@@ -79,7 +79,7 @@ func (this *Export) moduleMetadata() *ModuleMetadataMap_ModuleMetadata {
 	return this.moduleMetadata_
 }
 
-func (this *Export) closureNamespace() *Optional {
+func (this *Export) closureNamespace() Optional {
 	return this.closureNamespace_
 }
 

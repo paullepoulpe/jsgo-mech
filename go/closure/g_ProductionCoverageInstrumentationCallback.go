@@ -37,7 +37,7 @@ func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTra
 	}
 	if n.isFunction() {
 		var fnName OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		fnName = func() *Optional {
+		fnName = func() Optional {
 			if fnName.isEmpty() {
 				return Optional_of(strobj_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME))
 			}

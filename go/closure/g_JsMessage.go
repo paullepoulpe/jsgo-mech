@@ -200,7 +200,7 @@ func JsMessage_isCanonicalPlaceholderNameFormat(name string) bool {
 	return JsMessage_CANONICAL_PLACEHOLDER_NAME_RE.matcher(strobj_(name)).matches()
 }
 
-func (this *JsMessage) getSourceName() *Optional {
+func (this *JsMessage) getSourceName() Optional {
 	return this.getSourceName_
 }
 
@@ -228,15 +228,15 @@ func (this *JsMessage) getGenderedMessagesMap() *ImmutableMap {
 	return this.getGenderedMessagesMap_
 }
 
-func (this *JsMessage) getAlternateId() *Optional {
+func (this *JsMessage) getAlternateId() Optional {
 	return this.getAlternateId_
 }
 
-func (this *JsMessage) getDesc() *Optional {
+func (this *JsMessage) getDesc() Optional {
 	return this.getDesc_
 }
 
-func (this *JsMessage) getMeaning() *Optional {
+func (this *JsMessage) getMeaning() Optional {
 	return this.getMeaning_
 }
 
@@ -952,13 +952,13 @@ const JsMessage_Hash_SEED64 int64 = 3141592653589793238
 const JsMessage_Hash_CONSTANT64 int64 = -2266404186210603134
 
 type JsMessage_IdGenerator interface {
-	generateId(*Optional, *TList[JsMessage_Part]) string
+	generateId(Optional, *TList[JsMessage_Part]) string
 }
 
 type JsMessage_IdGenerator_fn struct {
-	f func(*Optional, List) string
+	f func(Optional, List) string
 }
 
-func (this *JsMessage_IdGenerator_fn) generateId(p0 *Optional, p1 *TList[JsMessage_Part]) string {
+func (this *JsMessage_IdGenerator_fn) generateId(p0 Optional, p1 *TList[JsMessage_Part]) string {
 	return this.f(p0, p1.asList())
 }

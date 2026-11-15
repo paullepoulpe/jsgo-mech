@@ -529,45 +529,58 @@ func (this *Optional_base) toString() string {
 
 // ---- java.util.Optional_base
 
+// Optional is a value: the zero Optional is Java's null (a field never assigned), so that
+// Optional.of and Optional.empty allocate nothing; every method of a null Optional throws
+// NullPointerException as a call on null does.
 type Optional struct {
 	value any
+	set   bool // not null
 }
 
-var optionalUtilEmpty_ = &Optional{}
+var optionalUtilEmpty_ = Optional{set: true}
 
-func Optional_empty() *Optional { return optionalUtilEmpty_ }
+func (this Optional) nn_() {
+	if !this.set {
+		panic(new_NullPointerException_0().self())
+	}
+}
 
-func Optional_of(v any) *Optional {
+func Optional_empty() Optional { return optionalUtilEmpty_ }
+
+func Optional_of(v any) Optional {
 	if v == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	return &Optional{v}
+	return Optional{v, true}
 }
 
-func (this *Optional) get() any {
+func (this Optional) get() any {
+	this.nn_()
 	if this.value == nil {
 		panic(new_NoSuchElementException_String("No value present").self())
 	}
 	return this.value
 }
 
-func Optional_ofNullable(v any) *Optional {
+func Optional_ofNullable(v any) Optional {
 	if v == nil {
 		return optionalUtilEmpty_
 	}
-	return &Optional{v}
+	return Optional{v, true}
 }
 
-func (this *Optional) orElse(other any) any {
+func (this Optional) orElse(other any) any {
+	this.nn_()
 	if this.value == nil {
 		return other
 	}
 	return this.value
 }
 
-func (this *Optional) orElseThrow() any { return this.get() }
+func (this Optional) orElseThrow() any { return this.get() }
 
-func (this *Optional) filter(p Predicate) *Optional {
+func (this Optional) filter(p Predicate) Optional {
+	this.nn_()
 	if p == nil {
 		panic(new_NullPointerException_0().self())
 	}
@@ -577,23 +590,26 @@ func (this *Optional) filter(p Predicate) *Optional {
 	return optionalUtilEmpty_
 }
 
-func (this *Optional) ifPresent(c Consumer) {
+func (this Optional) ifPresent(c Consumer) {
+	this.nn_()
 	if this.value != nil {
 		c.accept(this.value)
 	}
 }
 
-func (this *Optional) isEmpty() bool   { return this.value == nil }
-func (this *Optional) isPresent() bool { return this.value != nil }
+func (this Optional) isEmpty() bool   { this.nn_(); return this.value == nil }
+func (this Optional) isPresent() bool { this.nn_(); return this.value != nil }
 
-func (this *Optional) equals(o any) bool {
-	x, ok := o.(*Optional)
-	return ok && x != nil && objequals_(this.value, x.value)
+func (this Optional) equals(o any) bool {
+	this.nn_()
+	x, ok := o.(Optional)
+	return ok && x.set && objequals_(this.value, x.value)
 }
 
-func (this *Optional) hashCode() int32 { return objhash_(this.value) }
+func (this Optional) hashCode() int32 { this.nn_(); return objhash_(this.value) }
 
-func (this *Optional) toString() string {
+func (this Optional) toString() string {
+	this.nn_()
 	if this.value == nil {
 		return "Optional.empty"
 	}

@@ -2194,7 +2194,7 @@ func GlobalNamespace_ObjLitStringKeyAnalysis_forNonReference() *GlobalNamespace_
 	return new_GlobalNamespace_ObjLitStringKeyAnalysis(Optional_empty(), GlobalNamespace_NameProp_OTHER_OBJECT)
 }
 
-func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameString() *Optional {
+func (this *GlobalNamespace_ObjLitStringKeyAnalysis) nameString() Optional {
 	return this.nameString_
 }
 

@@ -99,7 +99,7 @@ func ioShow_(v any) string {
 		return strconv.FormatBool(x)
 	case int64:
 		return strconv.FormatInt(x, 10)
-	case *Optional:
+	case Optional:
 		return ioShow_(x.orElse(nil))
 	case *SimpleJsonValue:
 		return ioEsc_(x.toString())

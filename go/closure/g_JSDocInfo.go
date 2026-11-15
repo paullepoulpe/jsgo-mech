@@ -626,7 +626,7 @@ func (this *JSDocInfo) hasDescriptionForParameter(name string) bool {
 
 func (this *JSDocInfo) getDescriptionForParameter(name string) OptionalOf[string] {
 	var params LinkedHashMapOf[string, string] = cast_[*LinkedHashMap](JSDocInfo_PARAMETER_DESCRIPTIONS.get(this))
-	return func() *Optional {
+	return func() Optional {
 		if params != nil {
 			return Optional_ofNullable(Map_get_s(params, name))
 		}

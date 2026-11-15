@@ -367,7 +367,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldStringToUpperCase(subtree Node, 
 }
 
 func (this *PeepholeReplaceKnownMethods) tryFoldStringTrim(subtree Node, stringNode Node, functionName string) Node {
-	var result OptionalOf[string] = func() *Optional {
+	var result OptionalOf[string] = func() Optional {
 		switch functionName {
 		case "trim":
 			return Optional_ofNullable(strobj_(PeepholeReplaceKnownMethods_TRIM_BOTH_PATTERN.matcher(strobj_(stringNode.getString())).replaceAll("")))
@@ -756,7 +756,7 @@ func (this *PeepholeReplaceKnownMethods) tryFoldArrayJoin(n Node) Node {
 		right.detach()
 		this.reportChangeToEnclosingScope(n)
 	}
-	var joinString OptionalOf[string] = func() *Optional {
+	var joinString OptionalOf[string] = func() Optional {
 		if (right == 0) || NodeUtil_isUndefined(right) {
 			return Optional_of(strobj_(","))
 		}

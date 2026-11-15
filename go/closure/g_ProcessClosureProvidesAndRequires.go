@@ -195,10 +195,10 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 	if !t.inGlobalHoistScope() {
 		return
 	}
-	var name OptionalOf[string] = func() *Optional {
+	var name OptionalOf[string] = func() Optional {
 		switch n.getParent().getToken() {
 		case Token_rhino_LET, Token_rhino_CONST:
-			return func() *Optional {
+			return func() Optional {
 				if t.inGlobalScope() {
 					return Optional_of(strobj_(n.getString()))
 				}
@@ -207,7 +207,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		case Token_rhino_VAR:
 			return Optional_of(strobj_(n.getString()))
 		case Token_rhino_EXPR_RESULT:
-			return func() *Optional {
+			return func() Optional {
 				if n.isAssign() {
 					return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
 						var s string = str_(s_)

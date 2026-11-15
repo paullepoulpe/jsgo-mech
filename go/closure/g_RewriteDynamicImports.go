@@ -81,7 +81,7 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 			}
 			return this.compiler_.getModuleMap().getModule(targetPath)
 		}()
-		var targetModuleVarName OptionalOf[string] = func() *Optional {
+		var targetModuleVarName OptionalOf[string] = func() Optional {
 			if module == nil {
 				return Optional_empty()
 			}

@@ -421,7 +421,7 @@ func (this *Es6RewriteModules) maybeAddAliasToSymbolTable(n Node, module Optiona
 		return
 	}
 	n.putBooleanProp(Node_MODULE_ALIAS, true)
-	var nodeName OptionalOf[string] = func() *Optional {
+	var nodeName OptionalOf[string] = func() Optional {
 		if n.isStringLit() || n.isImportStar() {
 			return Optional_of(strobj_(n.getString()))
 		}

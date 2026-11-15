@@ -327,7 +327,7 @@ func TypedScopeCreator_containingGoogModuleIdOf(scope *TypedScope) OptionalOf[st
 	var module *Module = scope.getModule()
 	if module == nil {
 		var parent *TypedScope = cast_[*TypedScope](scope.getParent().self())
-		return func() *Optional {
+		return func() Optional {
 			if parent != nil {
 				return TypedScopeCreator_containingGoogModuleIdOf(parent)
 			}
@@ -1303,7 +1303,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) createFunctionTypeFromNodes(
 		if !lvalueNode.isStaticMember() && (ownerType != nil) {
 			ownerType = to_FunctionType(ownerType.self()).getPrototype()
 		}
-		propName = func() *Optional {
+		propName = func() Optional {
 			if lvalueNode.isComputedProp() {
 				return Optional_empty()
 			}
