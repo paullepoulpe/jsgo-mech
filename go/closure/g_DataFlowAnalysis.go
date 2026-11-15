@@ -315,12 +315,12 @@ func (this *DataFlowAnalysis_LinearFlowState) toString() string {
 }
 
 type DataFlowAnalysis_UniqueQueue struct {
-	seenSet LinkedHashSetOf[any]
+	seenSet map[any]struct{} // membership only, never iterated: a Go map (graph nodes compare by identity)
 	queue   QueueOf[any]
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) finit_DataFlowAnalysis_UniqueQueue() {
-	this.seenSet = new_LinkedHashSet()
+	this.seenSet = map[any]struct{}{}
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) init_DataFlowAnalysis_UniqueQueue(priority ComparatorOf[any]) {
@@ -345,18 +345,19 @@ func (this *DataFlowAnalysis_UniqueQueue) isEmpty() bool {
 
 func (this *DataFlowAnalysis_UniqueQueue) removeFirst() any {
 	var t any = this.queue.poll()
-	this.seenSet.remove_Object(t)
+	delete(this.seenSet, t)
 	return t
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) add(t any) {
-	if this.seenSet.add(t) {
+	if _, seen := this.seenSet[t]; !seen {
+		this.seenSet[t] = struct{}{}
 		this.queue.add(t)
 	}
 }
 
 func (this *DataFlowAnalysis_UniqueQueue) clear() {
-	this.seenSet.clear()
+	clear(this.seenSet)
 	this.queue.clear()
 }
 

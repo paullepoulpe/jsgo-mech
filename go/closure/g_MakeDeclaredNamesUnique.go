@@ -251,9 +251,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) exitScope(t *NodeT
 		return
 	}
 	var scopeContext *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext](Preconditions_checkNotNull(this.scopeContextStack.pop()))
-	it_1 := foreach_(any(scopeContext.referencedVariables))
-	for it_1.next() {
-		var referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(it_1.v)
+	for referencedVariable := range scopeContext.referencedVariables { // conflicts go into sets: order-free
 		scopeContext.recordPotentialConflicts(referencedVariable)
 	}
 	it_3 := foreach_(obj_(scopeContext.declaredVariableInfos))
@@ -292,7 +290,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createUndeclaredVa
 type MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo struct {
 	outer_                   *MakeDeclaredNamesUnique_ContextualRenameInverter
 	referenceNodes           []Node
-	potentialShadowVariables SetOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	potentialShadowVariables map[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]struct{}
 	currentName              string
 	preferredName            string
 }
@@ -304,7 +302,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) zero_
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo() {
 	this.referenceNodes = []Node{}
-	this.potentialShadowVariables = icast_Set(obj_(new_LinkedHashSet()))
+	this.potentialShadowVariables = map[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]struct{}{}
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) init_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo(currentName string, preferredName string) {
@@ -322,15 +320,13 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo(outer_ *M
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) addPotentialShadowVariable(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	this.potentialShadowVariables.add(any(variableInfo))
+	this.potentialShadowVariables[variableInfo] = struct{}{}
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_RenamingInfo) attemptRename() string {
 	var disallowedNames map[string]struct{} = map[string]struct{}{}
 	disallowedNames[MakeDeclaredNamesUnique_ARGUMENTS] = struct{}{}
-	it_1 := foreach_(any(this.potentialShadowVariables))
-	for it_1.next() {
-		var potentialShadowVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo = icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(it_1.v)
+	for potentialShadowVariable := range this.potentialShadowVariables { // the names go into a set: order-free
 		var potentialShadowName string = potentialShadowVariable.getName()
 		disallowedNames[potentialShadowName] = struct{}{}
 	}
@@ -413,11 +409,11 @@ type MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext struct {
 	parent                *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext
 	scope_                *Scope
 	declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo]
-	referencedVariables   SetOf[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]
+	referencedVariables   map[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]struct{}
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) finit_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext() {
-	this.referencedVariables = icast_Set(obj_(new_LinkedHashSet()))
+	this.referencedVariables = map[MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo]struct{}{}
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) init_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Scope, declaredVariableInfos ImmutableListOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo], parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) {
@@ -434,7 +430,7 @@ func new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope *Sc
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) addReferencedVariableInfo(variableInfo MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
-	this.referencedVariables.add(any(variableInfo))
+	this.referencedVariables[variableInfo] = struct{}{}
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext) recordPotentialConflicts(referencedVariable MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo) {
