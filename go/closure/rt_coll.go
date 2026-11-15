@@ -588,6 +588,13 @@ func SequencedCollection_addFirst(c SequencedCollection, v any) {
 }
 func SequencedCollection_addLast(c SequencedCollection, v any) { c.add(v) }
 func SequencedCollection_getFirst(c SequencedCollection) any {
+	if t := hashSetOf_(c); t != nil { // a runtime hash set or key view: no iterator, start at the hint
+		i := t.firstLive()
+		if i < 0 {
+			panic(new_NoSuchElementException_0().self())
+		}
+		return t.keys[i]
+	}
 	it := c.iterator()
 	if !it.hasNext() {
 		panic(new_NoSuchElementException_0().self())
@@ -688,7 +695,21 @@ type htable_ struct {
 	x        *hindex_ // nil until needed
 	live     int32
 	identity bool
-	indexed  bool // x holds the index of all keys
+	indexed  bool  // x holds the index of all keys
+	head     int32 // every position below head is a removed entry (a hint for getFirst)
+}
+
+// firstLive returns the position of the first entry, or -1 if the table is empty. Entries are
+// only appended and a removed one never comes back, so the hint head stays right until keys is
+// rebuilt (compact, clear, empty), which resets it.
+func (t *htable_) firstLive() int {
+	for i := int(t.head); i < len(t.keys); i++ {
+		if t.keys[i] != dead_ {
+			t.head = int32(i)
+			return i
+		}
+	}
+	return -1
 }
 
 // hsmall_ is the number of entries (removed ones included) up to which a table is searched
@@ -961,6 +982,7 @@ func (t *htable_) removeAt(i int) (moved bool) {
 	t.live--
 	if t.live == 0 {
 		// Empty: start again at position 0 (an index stays, empty, for the next entries).
+		t.head = 0
 		t.keys = t.keys[:0]
 		if t.vals != nil {
 			t.vals = t.vals[:0]
@@ -986,6 +1008,7 @@ func (t *htable_) compact() {
 		ents = t.x.ents
 	}
 	t.keys = make([]any, 0, t.live)
+	t.head = 0
 	if vals != nil {
 		t.vals = make([]any, 0, t.live)
 	}
@@ -1041,7 +1064,7 @@ func (t *htable_) clear() {
 			}
 		}
 	}
-	t.keys, t.vals, t.x, t.live, t.indexed = nil, nil, nil, 0, false
+	t.keys, t.vals, t.x, t.live, t.indexed, t.head = nil, nil, nil, 0, false, 0
 }
 
 // entry returns the entry object of the mapping at position i.
