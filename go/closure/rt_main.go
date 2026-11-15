@@ -31,12 +31,6 @@ func Main(args []string) (code int) {
 			code = 70
 		}
 	}()
-	// The heap may grow to three times the live data between collections (Go's default is
-	// two): the compiler's live heap is well under the JVM's footprint, so trading some of
-	// that headroom for fewer collections is cheap. An explicit GOGC still wins.
-	if os.Getenv("GOGC") == "" {
-		debug.SetGCPercent(200)
-	}
 	// Measuring hooks, each writing a file when the program exits:
 	//   JSGO_MEMSTATS=<file>     runtime.MemStats totals as one line of JSON
 	//   JSGO_MEM_PROFILE=<file>  pprof allocation profile (every 4096 bytes sampled; read it with
