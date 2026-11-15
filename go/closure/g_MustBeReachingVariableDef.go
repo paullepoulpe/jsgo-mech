@@ -198,12 +198,13 @@ func (this *MustBeReachingVariableDef) addToDefIfLocal(name string, node Node, r
 	if var_ == nil {
 		return
 	}
-	for i_, otherDef := range def.reachingDef.vals {
+	for i_ := range def.reachingDef.ents {
+		otherDef := def.reachingDef.ents[i_].val
 		if otherDef == nil {
 			continue
 		}
 		if otherDef.depends.contains(obj_(var_)) {
-			def.reachingDef.vals[i_] = nil
+			def.reachingDef.ents[i_].val = nil
 		}
 	}
 	if !this.escaped.contains(obj_(var_)) {
@@ -227,7 +228,8 @@ func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVa
 			output.reachingDef.put(v, nil)
 		}
 	}
-	for i_, value := range output.reachingDef.vals {
+	for i_ := range output.reachingDef.ents {
+		value := output.reachingDef.ents[i_].val
 		if value == nil {
 			continue
 		}
@@ -235,7 +237,7 @@ func (this *MustBeReachingVariableDef) escapeParameters(output *MustBeReachingVa
 		for it_5.next() {
 			var dep *Var = cast_[*Var](it_5.v)
 			if MustBeReachingVariableDef_isParameter(dep) {
-				output.reachingDef.vals[i_] = nil
+				output.reachingDef.ents[i_].val = nil
 				break
 			}
 		}
@@ -254,7 +256,10 @@ func (this *MustBeReachingVariableDef) getDef(name string, useNode Node) *MustBe
 	Preconditions_checkArgument(this.getCfg().hasNode(useNode.box_()))
 	var n GraphNode = this.getCfg().getNode(useNode.box_())
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
-	return func() *MustBeReachingVariableDef_Definition { d, _ := cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name)); return d }()
+	return func() *MustBeReachingVariableDef_Definition {
+		d, _ := cast_[*MustBeReachingVariableDef_MustDef](state.getIn()).reachingDef.get(this.allVarsInFn.get(name))
+		return d
+	}()
 }
 
 func (this *MustBeReachingVariableDef) getDefNode(name string, useNode Node) Node {
@@ -405,8 +410,8 @@ func new_MustBeReachingVariableDef_MustDefJoin() *MustBeReachingVariableDef_Must
 func (this *MustBeReachingVariableDef_MustDefJoin) joinFlow(input_ any) {
 	var input *MustBeReachingVariableDef_MustDef = cast_[*MustBeReachingVariableDef_MustDef](input_)
 	_ = input
-	for i_, v := range input.reachingDef.vars {
-		this.mergeVarDef(v, input.reachingDef.vals[i_])
+	for i_ := range input.reachingDef.ents {
+		this.mergeVarDef(input.reachingDef.ents[i_].v, input.reachingDef.ents[i_].val)
 	}
 }
 
