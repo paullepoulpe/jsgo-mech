@@ -70,21 +70,21 @@ func (this *ModuleLoader) createRootPaths(roots IterableOf[string]) ImmutableLis
 }
 
 func (this *ModuleLoader) resolvePaths(inputs IterableOf[DependencyInfo]) ImmutableSetOf[string] {
-	var sortedModulePaths ListOf[string] = icast_List(new_ArrayList_0().self())
+	var sortedModulePaths *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(any(inputs))
 	for it_1.next() {
 		var input DependencyInfo = icast_DependencyInfo(it_1.v)
 		var p string = this.pathEscaper.escape(str_(this.pathResolver.apply(strobj_(input.getName()))))
 		var n string = ModuleLoader_normalize(p, icast_Iterable(obj_(this.moduleRootPaths)))
-		sortedModulePaths.add(func() any {
+		sortedModulePaths.add(str_(func() any {
 			if ModuleLoader_isAmbiguousIdentifier(n) {
 				return strobj_((sstr_(ModuleLoader_MODULE_SLASH) + sstr_(n)))
 			}
 			return strobj_(n)
-		}())
+		}()))
 	}
-	List_sort(sortedModulePaths, ModuleLoader_BEST_MATCH_PATH_ORDERING)
-	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths))
+	List_sort(sortedModulePaths.asList(), ModuleLoader_BEST_MATCH_PATH_ORDERING)
+	var dupeModulePaths *SimpleMultiset = SimpleMultiset_copyOf(Iterable(sortedModulePaths.asList()))
 	Preconditions_checkState_boolean_String_Object((dupeModulePaths.size() == dupeModulePaths.elementSet().size()), "Duplicate module paths after resolving: %s", obj_(dupeModulePaths))
 	return ImmutableSet_copyOf(Collection(dupeModulePaths.elementSet()))
 }

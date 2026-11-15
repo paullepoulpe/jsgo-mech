@@ -1415,7 +1415,7 @@ func (this *RemoveUnusedCode_Continuation) apply() {
 type RemoveUnusedCode_Removable struct {
 	self_                                any
 	outer_                               *RemoveUnusedCode
-	continuations                        ListOf[*RemoveUnusedCode_Continuation]
+	continuations                        *TList[*RemoveUnusedCode_Continuation]
 	propertyName_                        OptionalOf[string]
 	targetNode                           Node
 	isPrototypeDotPropertyReferenceField bool
@@ -1479,9 +1479,9 @@ func (this *RemoveUnusedCode_Removable) remove(compiler *AbstractCompiler) {
 func (this *RemoveUnusedCode_Removable) applyContinuations() {
 	if !this.continuationsAreApplied {
 		this.continuationsAreApplied = true
-		it_1 := foreach_(any(this.continuations))
+		it_1 := this.continuations.each()
 		for it_1.next() {
-			var c *RemoveUnusedCode_Continuation = cast_[*RemoveUnusedCode_Continuation](it_1.v)
+			var c *RemoveUnusedCode_Continuation = it_1.v
 			this.outer_.worklist.add(obj_(c))
 		}
 		this.continuations.clear()
@@ -1594,14 +1594,14 @@ func (this *RemoveUnusedCode_Removable) isPrototypeProperty() bool {
 
 type RemoveUnusedCode_RemovableBuilder struct {
 	outer_                           *RemoveUnusedCode
-	continuations                    ListOf[*RemoveUnusedCode_Continuation]
+	continuations                    *TList[*RemoveUnusedCode_Continuation]
 	propertyName_                    OptionalOf[string]
 	isPrototypeDotPropertyReference_ bool
 	isThisDotPropertyReference_      bool
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) finit_RemoveUnusedCode_RemovableBuilder() {
-	this.continuations = icast_List(new_ArrayList_0().self())
+	this.continuations = newTList_(tc_p_RemoveUnusedCode_Continuation)
 	this.propertyName_ = Optional_empty()
 	this.isPrototypeDotPropertyReference_ = false
 	this.isThisDotPropertyReference_ = false
@@ -1619,7 +1619,7 @@ func new_RemoveUnusedCode_RemovableBuilder(outer_ *RemoveUnusedCode) *RemoveUnus
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) addContinuation(continuation *RemoveUnusedCode_Continuation) *RemoveUnusedCode_RemovableBuilder {
-	this.continuations.add(obj_(continuation))
+	this.continuations.add(continuation)
 	return this
 }
 
@@ -2763,7 +2763,7 @@ func (this *RemoveUnusedCode_RealVarInfo) setIsExplicitlyNotRemovable(reasonSupp
 			this.outer_.considerForIndependentRemoval(r)
 		}
 		clear(this.removables)
-this.removables = this.removables[:0]
+		this.removables = this.removables[:0]
 	}
 }
 
@@ -2783,7 +2783,7 @@ func (this *RemoveUnusedCode_RealVarInfo) removeAllRemovables() {
 		removable.remove(this.outer_.compiler_)
 	}
 	clear(this.removables)
-this.removables = this.removables[:0]
+	this.removables = this.removables[:0]
 }
 
 type RemoveUnusedCode_PolyfillInfo struct {

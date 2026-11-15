@@ -70,7 +70,7 @@ func (this *AliasStrings) visit(t *NodeTraversal, n Node, parent Node) {
 		}
 		var occurrence Node = n
 		var info *AliasStrings_StringInfo = this.getOrCreateStringInfo(str)
-		info.occurrences.add(occurrence.box_())
+		info.occurrences.add(occurrence)
 		var chunk *JSChunk = t.getChunk()
 		if info.occurrences.size() != 1 {
 			if ((chunk != nil) && (info.chunkToContainDecl != nil)) && (chunk != info.chunkToContainDecl) {
@@ -102,9 +102,9 @@ func (this *AliasStrings) replaceStringsWithAliases() {
 		var literal string = str_(entry.getKey())
 		var info *AliasStrings_StringInfo = cast_[*AliasStrings_StringInfo](entry.getValue())
 		if this.shouldReplaceWithAlias(literal, info) {
-			it_3 := foreach_(info.occurrences.self())
+			it_3 := info.occurrences.each()
 			for it_3.next() {
-				var node Node = Node_of_(it_3.v)
+				var node Node = it_3.v
 				this.replaceStringWithAliasName(node, str_(info.getVariableName(literal).get()), info)
 			}
 		}
@@ -121,7 +121,7 @@ func (this *AliasStrings) addAliasDeclarationNodes() {
 		}
 		var alias OptionalOf[string] = info.getVariableName(str_(entry.getKey()))
 		var var_ Node = IR_var_Node_Node(IR_name(str_(alias.get())), IR_string(str_(entry.getKey())))
-		var firstUse Node = Node_of_(info.occurrences.get(0))
+		var firstUse Node = info.occurrences.get(0)
 		var_.srcrefTree(firstUse)
 		if info.siblingToInsertVarDeclBefore == 0 {
 			info.parentForNewVarDecl.addChildToFront(var_)
@@ -188,7 +188,7 @@ type AliasStrings_StringInfo struct {
 	outer_                       *AliasStrings
 	id                           int32
 	isAliased                    bool
-	occurrences                  ArrayListOf[Node]
+	occurrences                  *TList[Node]
 	chunkToContainDecl           *JSChunk
 	parentForNewVarDecl          Node
 	siblingToInsertVarDeclBefore Node
@@ -196,7 +196,7 @@ type AliasStrings_StringInfo struct {
 }
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
-	this.occurrences = new_ArrayList_0()
+	this.occurrences = newTList_(tc_Node)
 	this.aliasName_ = Optional_empty()
 }
 

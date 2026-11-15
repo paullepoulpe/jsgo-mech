@@ -832,13 +832,13 @@ func (this Node) setNodePropertySideEffectFlags(propSet int64, sideEffectFlags i
 
 func (this Node) getPropListDebugString() string {
 	var propListItem *Node_PropListItem = this.ps_().propListHead
-	var propListStrRepr ListOf[string] = icast_List(new_ArrayList_0().self())
+	var propListStrRepr *TList[string] = newTList_(tc_string)
 	for propListItem != nil {
-		propListStrRepr.add(strobj_(Node_Prop_values()[propListItem.propType].name()))
+		propListStrRepr.add(Node_Prop_values()[propListItem.propType].name())
 		propListItem = propListItem.next_
 	}
 	var joiner *Joiner = Joiner_on("->")
-	return joiner.join(Iterable(propListStrRepr))
+	return joiner.join(Iterable(propListStrRepr.asList()))
 }
 
 func (this Node) deserializeProperties(propSet int64, isInClosureUnawareSubtree bool) {

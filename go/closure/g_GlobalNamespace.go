@@ -12,7 +12,7 @@ type GlobalNamespace struct {
 	sourceKind                    *GlobalNamespace_SourceKind
 	generated                     bool
 	decisionsLog                  *LogFile
-	globalNames                   ListOf[*GlobalNamespace_Name]
+	globalNames                   *TList[*GlobalNamespace_Name]
 	nameMap                       MapOf[string, *GlobalNamespace_Name]
 	nameMapByModule               *SimpleTable
 	shouldTraverseScript          PredicateOf[Node]
@@ -22,7 +22,7 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalRoot = IR_root([]Node{})
 	this.spreadSiblingCache = map[Node]BoxedOf[bool]{}
 	this.generated = false
-	this.globalNames = icast_List(new_ArrayList_0().self())
+	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = icast_Map(obj_(new_LinkedHashMap()))
 	this.nameMapByModule = SimpleTable_create()
 	this.shouldTraverseScript = &Predicate_fn{func(n_ any) bool {
@@ -140,7 +140,7 @@ func (this *GlobalNamespace) ensureGenerated() {
 	}
 }
 
-func (this *GlobalNamespace) getNameForest() ListOf[*GlobalNamespace_Name] {
+func (this *GlobalNamespace) getNameForest() *TList[*GlobalNamespace_Name] {
 	this.ensureGenerated()
 	return this.globalNames
 }
@@ -938,7 +938,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) getOrCreateName(name string, m
 		} else {
 			node = new_GlobalNamespace_Name(this.outer_, name, nil, this.outer_.sourceKind)
 			if metadata == nil {
-				this.outer_.globalNames.add(obj_(node))
+				this.outer_.globalNames.add(node)
 				Map_put_s(this.outer_.nameMap, name, obj_(node))
 			} else {
 				this.outer_.nameMapByModule.put(obj_(metadata), strobj_(name), obj_(node))
@@ -1027,7 +1027,7 @@ type GlobalNamespace_Name struct {
 	outer_                                          *GlobalNamespace
 	baseName                                        string
 	parent                                          *GlobalNamespace_Name
-	props                                           ListOf[*GlobalNamespace_Name]
+	props                                           *TList[*GlobalNamespace_Name]
 	declaration_                                    *GlobalNamespace_Ref
 	initialization                                  *GlobalNamespace_Ref
 	refsForNode                                     any
@@ -1084,10 +1084,10 @@ func new_GlobalNamespace_Name(outer_ *GlobalNamespace, name string, parent *Glob
 
 func (this *GlobalNamespace_Name) addProperty(name string, sourceKind *GlobalNamespace_SourceKind) *GlobalNamespace_Name {
 	if this.props == nil {
-		this.props = icast_List(new_ArrayList_0().self())
+		this.props = newTList_(tc_p_GlobalNamespace_Name)
 	}
 	var node *GlobalNamespace_Name = new_GlobalNamespace_Name(this.outer_, name, this, sourceKind)
-	this.props.add(obj_(node))
+	this.props.add(node)
 	return node
 }
 
@@ -1477,9 +1477,9 @@ func (this *GlobalNamespace_Name) canEliminate() bool {
 		return false
 	}
 	if this.props != nil {
-		it_1 := foreach_(any(this.props))
+		it_1 := this.props.each()
 		for it_1.next() {
-			var n *GlobalNamespace_Name = cast_[*GlobalNamespace_Name](it_1.v)
+			var n *GlobalNamespace_Name = it_1.v
 			if !n.canCollapse() {
 				return false
 			}

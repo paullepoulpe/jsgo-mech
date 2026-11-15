@@ -295,16 +295,16 @@ func DependencyInfo_Util_writeAddDependency(out Appendable, info DependencyInfo)
 }
 
 func DependencyInfo_Util_writeJsObject(out Appendable, map_ MapOf[string, string]) {
-	var entries ListOf[string] = icast_List(new_ArrayList_0().self())
+	var entries *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(any(map_.entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var key string = String_replace(str_(entry.getKey()), strobj_("'"), strobj_("\\'"))
 		var value string = String_replace(str_(entry.getValue()), strobj_("'"), strobj_("\\'"))
-		entries.add(strobj_(("'" + sstr_(key) + "': '" + sstr_(value) + "'")))
+		entries.add(("'" + sstr_(key) + "': '" + sstr_(value) + "'"))
 	}
 	out.append_CharSequence(strobj_("{"))
-	out.append_CharSequence(strobj_(Joiner_on(", ").join(Iterable(entries))))
+	out.append_CharSequence(strobj_(Joiner_on(", ").join(Iterable(entries.asList()))))
 	out.append_CharSequence(strobj_("}"))
 }
 

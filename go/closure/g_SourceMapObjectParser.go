@@ -316,7 +316,7 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 		lexer.pos += 4
 		return Outcome_base_ok_Object(nil)
 	}
-	var list ListOf[string] = icast_List(new_ArrayList_0().self())
+	var list *TList[string] = newTList_(tc_string)
 	var begun *Outcome_base = lexer.beginArray()
 	if begun.isErr() {
 		return Outcome_base_err(begun.error())
@@ -326,7 +326,7 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 		if item.isErr() {
 			return Outcome_base_err(item.error())
 		}
-		list.add(item.get())
+		list.add(str_(item.get()))
 		var comma *Outcome_base = lexer.checkComma()
 		if comma.isErr() {
 			return Outcome_base_err(comma.error())
@@ -336,5 +336,5 @@ func SourceMapObjectParser_readStringArray(lexer *SourceMapJsonLexer) *Outcome_b
 	if ended.isErr() {
 		return Outcome_base_err(ended.error())
 	}
-	return Outcome_base_ok_Object(any(arrmap_(list.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
+	return Outcome_base_ok_Object(any(arrmap_(list.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
 }

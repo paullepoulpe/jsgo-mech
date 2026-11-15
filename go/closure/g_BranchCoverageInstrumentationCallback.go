@@ -63,9 +63,9 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	if node.isIf() {
 		var cfg *ControlFlowGraph = this.getControlFlowGraph(this.compiler_)
 		var hasDefaultBlock bool = false
-		it_1 := foreach_(any(cfg.getOutEdges(node.box_())))
+		it_1 := cfg.getOutEdges(node.box_()).each()
 		for it_1.next() {
-			var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_1.v)
+			var outEdge DiGraph_DiGraphEdge = it_1.v
 			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = Node_of_(outEdge.getDestination().getValue())
 				if (((destination != 0) && destination.isBlock()) && (destination.getParent() != 0)) && destination.getParent().isIf() {
@@ -89,15 +89,15 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 			return nil
 		}(), this.getChildrenBlocks(node))
 	} else if NodeUtil_isLoopStructure(node) {
-		var blocks ListOf[Node] = this.getChildrenBlocks(node)
+		var blocks *TList[Node] = this.getChildrenBlocks(node)
 		var cfg *ControlFlowGraph = this.getControlFlowGraph(this.compiler_)
-		it_3 := foreach_(any(cfg.getOutEdges(node.box_())))
+		it_3 := cfg.getOutEdges(node.box_()).each()
 		for it_3.next() {
-			var outEdge DiGraph_DiGraphEdge = icast_DiGraph_DiGraphEdge(it_3.v)
+			var outEdge DiGraph_DiGraphEdge = it_3.v
 			if cast_[*ControlFlowGraph_Branch](outEdge.getValue()) == ControlFlowGraph_Branch_ON_FALSE {
 				var destination Node = Node_of_(outEdge.getDestination().getValue())
 				if (destination != 0) && destination.isBlock() {
-					blocks.add(destination.box_())
+					blocks.add(destination)
 				} else {
 					var exitBlock Node = IR_block_0()
 					if (destination != 0) && destination.getParent().isBlock() {
@@ -105,7 +105,7 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 					} else {
 						exitBlock.insertAfter(Node_of_(outEdge.getSource().getValue()))
 					}
-					blocks.add(exitBlock.box_())
+					blocks.add(exitBlock)
 				}
 			}
 		}
@@ -123,13 +123,13 @@ func (this *BranchCoverageInstrumentationCallback) visit_impl(traversal *NodeTra
 	}
 }
 
-func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) ListOf[Node] {
-	var blocks ListOf[Node] = icast_List(new_ArrayList_0().self())
+func (this *BranchCoverageInstrumentationCallback) getChildrenBlocks(node Node) *TList[Node] {
+	var blocks *TList[Node] = newTList_(tc_Node)
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isBlock() {
-				blocks.add(child.box_())
+				blocks.add(child)
 			}
 		}
 	}
@@ -165,13 +165,13 @@ func (this *BranchCoverageInstrumentationCallback) newBranchInstrumentationNode(
 	return exprNode.srcrefTreeIfMissing(node)
 }
 
-func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks ListOf[Node]) {
+func (this *BranchCoverageInstrumentationCallback) processBranchInfo(branchNode Node, data *FileInstrumentationData, blocks *TList[Node]) {
 	var lineNumber int32 = branchNode.getLineno()
 	data.setBranchPresent(lineNumber)
 	var numBranches int32 = 0
-	it_1 := foreach_(any(blocks))
+	it_1 := blocks.each()
 	for it_1.next() {
-		var child Node = Node_of_(it_1.v)
+		var child Node = it_1.v
 		data.putBranchNode(lineNumber, (numBranches + 1), child)
 		numBranches++
 	}
@@ -194,13 +194,13 @@ func (this *BranchCoverageInstrumentationCallback) newHeaderNode(traversal *Node
 	}()
 	Preconditions_checkNotNull(obj_(data))
 	var objName string = CoverageInstrumentationPass_JS_INSTRUMENTATION_OBJECT_NAME
-	var nodes ListOf[Node] = icast_List(new_ArrayList_0().self())
-	nodes.add(this.newArrayDeclarationNode(traversal).box_())
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})).box_())
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})).box_())
-	nodes.add(this.newBranchesInLineNode("JSCompiler_lcov_branchesInLine", data).box_())
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesInLine")), "push"), []Node{IR_name("JSCompiler_lcov_branchesInLine")})).box_())
-	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(str_(fileName.get()))})).box_())
+	var nodes *TList[Node] = newTList_(tc_Node)
+	nodes.add(this.newArrayDeclarationNode(traversal))
+	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesTaken")), "push"), []Node{IR_name(BranchCoverageInstrumentationCallback_createArrayName(traversal))})))
+	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchPresent")), "push"), []Node{IR_string(data.getBranchPresentAsHexString())})))
+	nodes.add(this.newBranchesInLineNode("JSCompiler_lcov_branchesInLine", data))
+	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("branchesInLine")), "push"), []Node{IR_name("JSCompiler_lcov_branchesInLine")})))
+	nodes.add(IR_exprResult(IR_call(IR_getprop_Node_String(IR_getelem(IR_name(objName), IR_string("fileNames")), "push"), []Node{IR_string(str_(fileName.get()))})))
 	return IR_blockList(nodes).srcrefTreeIfMissing(srcref)
 }
 
@@ -209,15 +209,15 @@ func (this *BranchCoverageInstrumentationCallback) newArrayDeclarationNode(trave
 }
 
 func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name string, data *FileInstrumentationData) Node {
-	var assignments ListOf[Node] = icast_List(new_ArrayList_0().self())
-	assignments.add(IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})).box_())
+	var assignments *TList[Node] = newTList_(tc_Node)
+	assignments.add(IR_var_Node_Node(IR_name(name), IR_arraylit([]Node{})))
 	var lineWithBranch int32 = 0
 	for lineIdx := int32(1); lineIdx <= data.maxBranchPresentLine(); lineIdx++ {
 		var numBranches any = any(int32(data.getNumBranches(lineIdx)))
 		if (numBranches != nil) && (unbox_[int32](numBranches) > 0) {
 			var assignment Node = IR_exprResult(IR_assign(IR_getelem(IR_name(name), IR_number(float64(lineWithBranch))), IR_number(unbox_[float64](numBranches))))
 			lineWithBranch++
-			assignments.add(assignment.srcrefTreeIfMissing(assignment).box_())
+			assignments.add(assignment.srcrefTreeIfMissing(assignment))
 		}
 	}
 	return IR_blockList(assignments)

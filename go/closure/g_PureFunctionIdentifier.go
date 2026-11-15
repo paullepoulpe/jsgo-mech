@@ -68,15 +68,15 @@ func (this *PureFunctionIdentifier) validateArtificialPurity() {
 			if summary.name_ == ".constructor" {
 				continue
 			}
-			var sortedReasons ListOf[Node] = icast_List(new_ArrayList_Collection(icast_Collection(obj_(summary.impureFunctionReasonsForDebugging))).self())
-			List_sort(sortedReasons, PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
-			var formattedReasons ListOf[string] = icast_List(new_ArrayList_0().self())
-			it_5 := foreach_(any(sortedReasons))
+			var sortedReasons *TList[Node] = tlistFrom_(tc_Node, icast_Collection(obj_(summary.impureFunctionReasonsForDebugging)))
+			List_sort(sortedReasons.asList(), PureFunctionIdentifier_SOURCE_LOCATION_COMPARATOR)
+			var formattedReasons *TList[string] = newTList_(tc_string)
+			it_5 := sortedReasons.each()
 			for it_5.next() {
-				var reason Node = Node_of_(it_5.v)
-				formattedReasons.add(strobj_(PureFunctionIdentifier_formatSourceLocation(reason)))
+				var reason Node = it_5.v
+				formattedReasons.add(PureFunctionIdentifier_formatSourceLocation(reason))
 			}
-			var sideEffectfulDefinitions string = String_join(strobj_("\n  "), Iterable(formattedReasons))
+			var sideEffectfulDefinitions string = String_join(strobj_("\n  "), Iterable(formattedReasons.asList()))
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(function, PureFunctionIdentifier_UNUSED_ARTIFICIAL_PURE_ANNOTATION, []string{summary.name_, sideEffectfulDefinitions}))
 		}
 	}

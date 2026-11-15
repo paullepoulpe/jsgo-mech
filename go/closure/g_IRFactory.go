@@ -1935,14 +1935,14 @@ func (this *IRFactory_TransformDispatcher) processFunctionCall(callNode *CallExp
 	var node Node = this.outer_.newNode_2(Token_rhino_CALL, this.outer_.transform(callNode.operand))
 	node.setTrailingComma(callNode.arguments.hasTrailingComma_)
 	var argumentsTree *ArgumentListTree = callNode.arguments
-	var zones ListOf[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
+	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(argumentsTree.arguments, argumentsTree.commaPositions, argumentsTree.location_.end_)
 	var argCount int32 = 0
 	it_1 := foreach_(obj_(callNode.arguments.arguments))
 	for it_1.next() {
 		var child *ParseTree = to_ParseTree(it_1.v)
 		var childNode Node = this.outer_.transform(child)
 		node.addChildToBack(childNode)
-		this.attachPossibleTrailingCommentsForArg(childNode, cast_[*SourcePosition_util](zones.get(argCount)))
+		this.attachPossibleTrailingCommentsForArg(childNode, zones.get(argCount))
 	}
 	this.annotateCalls(node)
 	return node
@@ -1969,7 +1969,7 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 	return (((n.isGetProp() || n.isGetElem()) || n.isOptChainGetProp()) || n.isOptChainGetElem())
 }
 
-func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args ImmutableListOf[*ParseTree], commaPositions ImmutableListOf[*SourcePosition_util], argListEndPosition *SourcePosition_util) ListOf[*SourcePosition_util] {
+func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args ImmutableListOf[*ParseTree], commaPositions ImmutableListOf[*SourcePosition_util], argListEndPosition *SourcePosition_util) *TList[*SourcePosition_util] {
 	var zones ImmutableList_BuilderOf[*SourcePosition_util] = ImmutableList_builder()
 	var commaCount int32 = 0
 	it_1 := foreach_(obj_(args))
@@ -1989,7 +1989,7 @@ func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args Immutabl
 		}
 		commaCount++
 	}
-	return icast_List(obj_(zones.build()))
+	return tlistImm_(tc_p_SourcePosition_util, zones.build())
 }
 
 func (this *IRFactory_TransformDispatcher) attachPossibleTrailingCommentsForArg(paramNode Node, endZone *SourcePosition_util) {
@@ -2167,7 +2167,7 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 		return params
 	}
 	var parameters ImmutableListOf[*ParseTree] = tree.parameters
-	var zones ListOf[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
+	var zones *TList[*SourcePosition_util] = this.getEndOfArgCommentZones(parameters, tree.commaPositions, tree.location_.end_)
 	var argCount int32 = 0
 	it_1 := foreach_(obj_(tree.parameters))
 	for it_1.next() {
@@ -2181,7 +2181,7 @@ func (this *IRFactory_TransformDispatcher) processFormalParameterList(tree *Form
 			paramNode = this.outer_.transformNodeWithInlineComments(param)
 		default:
 			paramNode = this.outer_.transformNodeWithInlineComments(param)
-			this.attachPossibleTrailingCommentsForArg(paramNode, cast_[*SourcePosition_util](zones.get(argCount)))
+			this.attachPossibleTrailingCommentsForArg(paramNode, zones.get(argCount))
 		}
 		Preconditions_checkState(((((paramNode.isName() || paramNode.isRest()) || paramNode.isArrayPattern()) || paramNode.isObjectPattern()) || paramNode.isDefaultValue()))
 		params.addChildToBack(paramNode)

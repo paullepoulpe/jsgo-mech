@@ -115,8 +115,8 @@ func (this *AbstractCompiler) isDebugLoggingEnabled() bool {
 	return this.self_.(interface{ isDebugLoggingEnabled_impl() bool }).isDebugLoggingEnabled_impl()
 }
 
-func (this *AbstractCompiler) getDebugLogFilterList() List {
-	return this.self_.(interface{ getDebugLogFilterList_impl() List }).getDebugLogFilterList_impl()
+func (this *AbstractCompiler) getDebugLogFilterList() *TList[string] {
+	return this.self_.(interface{ getDebugLogFilterList_impl() *TList[string] }).getDebugLogFilterList_impl()
 }
 
 func (this *AbstractCompiler) createOrReopenLog(p0 *Class, p1 string, p2 []string) *LogFile {

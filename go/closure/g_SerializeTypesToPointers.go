@@ -186,16 +186,16 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		jsonWriter.name(str_(entry.getKey()))
 		jsonWriter.beginArray()
-		var jstypes ArrayListOf[string] = new_ArrayList_0()
+		var jstypes *TList[string] = newTList_(tc_string)
 		it_3 := foreach_(any(icast_List(entry.getValue())))
 		for it_3.next() {
 			var jstype *JSType = to_JSType(it_3.v)
-			jstypes.add(strobj_(jstype.toString()))
+			jstypes.add(jstype.toString())
 		}
-		Collections_sort(icast_List(jstypes.self()))
-		it_5 := foreach_(jstypes.self())
+		Collections_sort(jstypes.asList())
+		it_5 := jstypes.each()
 		for it_5.next() {
-			var typeName string = str_(it_5.v)
+			var typeName string = it_5.v
 			jsonWriter.stringValue(Optional_of(strobj_(typeName)))
 		}
 		jsonWriter.endArray()

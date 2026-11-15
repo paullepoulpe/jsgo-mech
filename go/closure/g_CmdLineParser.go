@@ -3,7 +3,7 @@
 package closure
 
 type CmdLineParser struct {
-	options_      ListOf[*CmdLineParser_Option]
+	options_      *TList[*CmdLineParser_Option]
 	optionsSorted bool
 	argumentField *CmdLineParser_Option
 	usageWidth    int32
@@ -11,7 +11,7 @@ type CmdLineParser struct {
 }
 
 func (this *CmdLineParser) finit_CmdLineParser() {
-	this.options_ = icast_List(new_ArrayList_0().self())
+	this.options_ = newTList_(tc_p_CmdLineParser_Option)
 	this.optionsSorted = true
 	this.argumentField = nil
 	this.usageWidth = 80
@@ -31,7 +31,7 @@ func new_CmdLineParser() *CmdLineParser {
 func (this *CmdLineParser) option(name string) *CmdLineParser_Option {
 	this.checkOptionNotDefined(name)
 	var option *CmdLineParser_Option = new_CmdLineParser_Option(this, name, false)
-	this.options_.add(obj_(option))
+	this.options_.add(option)
 	this.optionsSorted = false
 	return option
 }
@@ -50,9 +50,9 @@ func (this *CmdLineParser) checkOptionNotDefined(name string) {
 	}
 }
 
-func (this *CmdLineParser) sortedOptions() ListOf[*CmdLineParser_Option] {
+func (this *CmdLineParser) sortedOptions() *TList[*CmdLineParser_Option] {
 	if !this.optionsSorted {
-		Collections_sort_List_Comparator(this.options_, &Comparator_fn{func(o1_ any, o2_ any) int32 {
+		Collections_sort_List_Comparator(this.options_.asList(), &Comparator_fn{func(o1_ any, o2_ any) int32 {
 			var o1 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o1_)
 			_ = o1
 			var o2 *CmdLineParser_Option = cast_[*CmdLineParser_Option](o2_)
@@ -74,9 +74,9 @@ func (this *CmdLineParser) setUsageWidth(usageWidth int32) {
 func (this *CmdLineParser) printUsage(out *StringBuilder, filter PredicateOf[*CmdLineParser_Option]) {
 	var w *StringBuilder = out
 	var len_ int32 = 0
-	it_1 := foreach_(any(this.sortedOptions()))
+	it_1 := this.sortedOptions().each()
 	for it_1.next() {
-		var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](it_1.v)
+		var option *CmdLineParser_Option = it_1.v
 		var curLen int32 = func() int32 {
 			if String_length(option.usageField) == 0 {
 				return 0
@@ -85,9 +85,9 @@ func (this *CmdLineParser) printUsage(out *StringBuilder, filter PredicateOf[*Cm
 		}()
 		len_ = Math_max(len_, curLen)
 	}
-	it_3 := foreach_(any(this.sortedOptions()))
+	it_3 := this.sortedOptions().each()
 	for it_3.next() {
-		var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](it_3.v)
+		var option *CmdLineParser_Option = it_3.v
 		this.printOption(w, option, len_, filter)
 	}
 }
@@ -99,20 +99,20 @@ func (this *CmdLineParser) printOption(out *StringBuilder, option *CmdLineParser
 	var widthMetadata int32 = Math_min(len_, ((this.usageWidth - 4) / 2))
 	var widthUsage int32 = ((this.usageWidth - 4) - widthMetadata)
 	var defaultValuePart string = CmdLineParser_createDefaultValuePart(option)
-	var namesAndMetas ListOf[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
-	var usages ListOf[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
+	var namesAndMetas *TList[string] = CmdLineParser_wrapLines(option.getNameAndMeta(), widthMetadata)
+	var usages *TList[string] = CmdLineParser_wrapLines((sstr_(option.usageField) + sstr_(defaultValuePart)), widthUsage)
 	for i := int32(0); i < Math_max(namesAndMetas.size(), usages.size()); i++ {
 		var nameAndMeta string = func() string {
 			if i >= namesAndMetas.size() {
 				return ""
 			}
-			return str_(namesAndMetas.get(i))
+			return namesAndMetas.get(i)
 		}()
 		var usage string = func() string {
 			if i >= usages.size() {
 				return ""
 			}
-			return str_(usages.get(i))
+			return usages.get(i)
 		}()
 		var separator string = func() string {
 			if (String_length(nameAndMeta) > 0) && (i == 0) {
@@ -134,8 +134,8 @@ func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
 	return ""
 }
 
-func CmdLineParser_wrapLines(line string, maxLength int32) ListOf[string] {
-	var rv ListOf[string] = icast_List(new_ArrayList_0().self())
+func CmdLineParser_wrapLines(line string, maxLength int32) *TList[string] {
+	var rv *TList[string] = newTList_(tc_string)
 	for _, restOfLine := range CmdLineParser_NEWLINE_PATTERN.split(line) {
 		for String_length(restOfLine) > maxLength {
 			var lineLength int32
@@ -146,10 +146,10 @@ func CmdLineParser_wrapLines(line string, maxLength int32) ListOf[string] {
 			} else {
 				lineLength = maxLength
 			}
-			rv.add(strobj_(String_substring(restOfLine, 0, lineLength)))
+			rv.add(String_substring(restOfLine, 0, lineLength))
 			restOfLine = String_trim(String_substring_int(restOfLine, lineLength))
 		}
-		rv.add(strobj_(restOfLine))
+		rv.add(restOfLine)
 	}
 	return rv
 }
@@ -196,9 +196,9 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 		cmdLine.proceed(unbox_[int32](diff.get()))
 		present[this.currentOption] = struct{}{}
 	}
-	it_2 := foreach_(any(this.sortedOptions()))
+	it_2 := this.sortedOptions().each()
 	for it_2.next() {
-		var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](it_2.v)
+		var option *CmdLineParser_Option = it_2.v
 		if option.requiredField && !has_(present, option) {
 			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this, ("Option \"" + objstr_(obj_(option)) + "\" is required")).up_Throwable())
 		}
@@ -207,7 +207,7 @@ func (this *CmdLineParser) parseArgument(args []string) *Outcome_base {
 }
 
 func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base {
-	var result ListOf[string] = icast_List(new_ArrayList_0().self())
+	var result *TList[string] = newTList_(tc_string)
 	for _, arg := range args {
 		if String_startsWith(arg, "@") {
 			var file string = FilePaths_clean(String_substring_int(arg, 1))
@@ -218,12 +218,12 @@ func (this *CmdLineParser) expandAtFiles(args []string) *Outcome_base {
 			if text.isErr() {
 				return Outcome_base_err(new_CmdLineException_CmdLineParser_String_Throwable(this, ("Failed to parse " + sstr_(file)), text.error()).up_Throwable())
 			}
-			result.addAll(Collection(TextFiles_splitLines(str_(text.get()))))
+			result.asList().addAll(Collection(TextFiles_splitLines(str_(text.get())).asList()))
 		} else {
-			result.add(strobj_(arg))
+			result.add(arg)
 		}
 	}
-	return Outcome_base_ok_Object(any(arrmap_(result.toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
+	return Outcome_base_ok_Object(any(arrmap_(result.asList().toArray(arrmap_(newstrarr_(0), func(v_ string) any { return strobj_(v_) })), func(v_ any) string { return str_(v_) })))
 }
 
 func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_Option {
@@ -238,9 +238,9 @@ func (this *CmdLineParser) findOptionOfKeyValuePair(name string) *CmdLineParser_
 }
 
 func (this *CmdLineParser) findOptionByName(name string) *CmdLineParser_Option {
-	it_1 := foreach_(any(this.options_))
+	it_1 := this.options_.each()
 	for it_1.next() {
-		var option *CmdLineParser_Option = cast_[*CmdLineParser_Option](it_1.v)
+		var option *CmdLineParser_Option = it_1.v
 		if name == option.nameField {
 			return option
 		}

@@ -55,7 +55,7 @@ func (this *CheckUnusedPrivateProperties) shouldTraverse(t *NodeTraversal, n Nod
 		clear(this.used)
 		this.used["constructor"] = struct{}{}
 		clear(this.candidates)
-this.candidates = this.candidates[:0]
+		this.candidates = this.candidates[:0]
 	}
 	return true
 }

@@ -2801,15 +2801,15 @@ func NodeUtil_isValidQualifiedName(mode *FeatureSet, name string) bool {
 	if String_endsWith(name, ".") || String_startsWith(name, ".") {
 		return false
 	}
-	var parts ListOf[string] = Splitter_on('.').splitToList(strobj_(name))
-	it_1 := foreach_(any(parts))
+	var parts *TList[string] = tlistImm_(tc_string, Splitter_on('.').splitToList(strobj_(name)))
+	it_1 := parts.each()
 	for it_1.next() {
-		var part string = str_(it_1.v)
+		var part string = it_1.v
 		if !NodeUtil_isValidPropertyName(mode, part) {
 			return false
 		}
 	}
-	return NodeUtil_isValidSimpleName(str_(parts.get(0)))
+	return NodeUtil_isValidSimpleName(parts.get(0))
 }
 
 func NodeUtil_isValidPropertyName(mode *FeatureSet, name string) bool {
@@ -2917,7 +2917,7 @@ func NodeUtil_isObjectDefinePropertyDefinition(n Node) bool {
 
 func NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall Node) IterableOf[Node] {
 	Preconditions_checkArgument(NodeUtil_isObjectDefinePropertiesDefinition(definePropertiesCall))
-	var properties ListOf[Node] = icast_List(new_ArrayList_0().self())
+	var properties *TList[Node] = newTList_(tc_Node)
 	var objectLiteral Node = definePropertiesCall.getLastChild()
 	{
 		var key Node = objectLiteral.getFirstChild()
@@ -2925,10 +2925,10 @@ func NodeUtil_getObjectDefinedPropertiesKeys(definePropertiesCall Node) Iterable
 			if !key.isStringKey() {
 				continue
 			}
-			properties.add(key.box_())
+			properties.add(key)
 		}
 	}
-	return Iterable(properties)
+	return Iterable(properties.asList())
 }
 
 func NodeUtil_isPrototypePropertyDeclaration(n Node) bool {
@@ -4073,21 +4073,21 @@ func NodeUtil_markFunctionsDeletedChangeTracker(node Node, changeTracker *Change
 	}
 }
 
-func NodeUtil_getParentChangeScopeNodes(scopeNodes ListOf[Node]) ListOf[Node] {
-	var parentScopeNodes SetOf[Node] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(scopeNodes))))
-	it_1 := foreach_(any(scopeNodes))
+func NodeUtil_getParentChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
+	var parentScopeNodes SetOf[Node] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(scopeNodes.asList()))))
+	it_1 := scopeNodes.each()
 	for it_1.next() {
-		var scopeNode Node = Node_of_(it_1.v)
+		var scopeNode Node = it_1.v
 		parentScopeNodes.add(ChangeTracker_getEnclosingChangeScopeRoot(scopeNode).box_())
 	}
-	return icast_List(new_ArrayList_Collection(Collection(parentScopeNodes)).self())
+	return tlistFrom_(tc_Node, Collection(parentScopeNodes))
 }
 
-func NodeUtil_removeNestedChangeScopeNodes(scopeNodes ListOf[Node]) ListOf[Node] {
-	var uniqueScopeNodes SetOf[Node] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(scopeNodes))))
-	it_1 := foreach_(any(scopeNodes))
+func NodeUtil_removeNestedChangeScopeNodes(scopeNodes *TList[Node]) *TList[Node] {
+	var uniqueScopeNodes SetOf[Node] = icast_Set(obj_(new_LinkedHashSet_Collection(Collection(scopeNodes.asList()))))
+	it_1 := scopeNodes.each()
 	for it_1.next() {
-		var scopeNode Node = Node_of_(it_1.v)
+		var scopeNode Node = it_1.v
 		{
 			var ancestor Node = scopeNode.getParent()
 			for ; ancestor != 0; ancestor = ancestor.getParent() {
@@ -4098,7 +4098,7 @@ func NodeUtil_removeNestedChangeScopeNodes(scopeNodes ListOf[Node]) ListOf[Node]
 			}
 		}
 	}
-	return icast_List(new_ArrayList_Collection(Collection(uniqueScopeNodes)).self())
+	return tlistFrom_(tc_Node, Collection(uniqueScopeNodes))
 }
 
 func NodeUtil_getInvocationArgsAsIterable(invocation Node) IterableOf[Node] {
@@ -4141,7 +4141,7 @@ func NodeUtil_getAllVarNamesDeclaredInModule(moduleNode Node, compiler *Abstract
 func NodeUtil_getAllVarsDeclaredInFunction(compiler *AbstractCompiler, scopeCreator ScopeCreator, scope *Scope) *NodeUtil_AllVarsDeclaredInFunction {
 	Preconditions_checkState_boolean_Object(scope.isFunctionScope(), obj_(scope))
 	var nameVarMap MapOf[string, *Var] = icast_Map(obj_(new_LinkedHashMap()))
-	var orderedVars ListOf[*Var] = icast_List(new_ArrayList_0().self())
+	var orderedVars *TList[*Var] = newTList_(tc_p_Var)
 	var finder NodeTraversal_ScopedCallback = icast_NodeTraversal_ScopedCallback(obj_(new_NodeUtil_2(nameVarMap, orderedVars, scope)))
 	NodeTraversal_builder().setCompiler(compiler).setCallback(NodeTraversal_Callback(finder)).setScopeCreator(scopeCreator).traverseAtScope(scope.up_AbstractScope())
 	return new_NodeUtil_AllVarsDeclaredInFunction(nameVarMap, orderedVars)
@@ -4661,16 +4661,16 @@ func (this *NodeUtil_TemplateArgsIterable) iterator() IteratorOf[Node] {
 
 type NodeUtil_AllVarsDeclaredInFunction struct {
 	allVarsInFn MapOf[string, *Var]
-	orderedVars ListOf[*Var]
+	orderedVars *TList[*Var]
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn MapOf[string, *Var], orderedVars ListOf[*Var]) {
+func (this *NodeUtil_AllVarsDeclaredInFunction) init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn MapOf[string, *Var], orderedVars *TList[*Var]) {
 	Preconditions_checkState((allVarsInFn.isEmpty() == orderedVars.isEmpty()))
 	this.allVarsInFn = allVarsInFn
 	this.orderedVars = orderedVars
 }
 
-func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn MapOf[string, *Var], orderedVars ListOf[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
+func new_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn MapOf[string, *Var], orderedVars *TList[*Var]) *NodeUtil_AllVarsDeclaredInFunction {
 	this := &NodeUtil_AllVarsDeclaredInFunction{}
 	this.init_NodeUtil_AllVarsDeclaredInFunction(allVarsInFn, orderedVars)
 	return this
@@ -4680,7 +4680,7 @@ func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariables() MapOf[string, 
 	return this.allVarsInFn
 }
 
-func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() ListOf[*Var] {
+func (this *NodeUtil_AllVarsDeclaredInFunction) getAllVariablesInOrder() *TList[*Var] {
 	return this.orderedVars
 }
 
@@ -4787,7 +4787,7 @@ func (this *NodeUtil_1) visit(t *NodeTraversal, n Node, parent Node) {
 
 type NodeUtil_2 struct {
 	cap_nameVarMap  Map
-	cap_orderedVars List
+	cap_orderedVars *TList[*Var]
 	cap_scope       *Scope
 }
 
@@ -4795,7 +4795,7 @@ func (this *NodeUtil_2) init_NodeUtil_2() {
 
 }
 
-func new_NodeUtil_2(cap_nameVarMap Map, cap_orderedVars List, cap_scope *Scope) *NodeUtil_2 {
+func new_NodeUtil_2(cap_nameVarMap Map, cap_orderedVars *TList[*Var], cap_scope *Scope) *NodeUtil_2 {
 	this := &NodeUtil_2{}
 	this.cap_nameVarMap = cap_nameVarMap
 	this.cap_orderedVars = cap_orderedVars
@@ -4810,7 +4810,7 @@ func (this *NodeUtil_2) enterScope(t *NodeTraversal) {
 	for it_1.next() {
 		var v *Var = cast_[*Var](it_1.v)
 		Map_put_s(this.cap_nameVarMap, v.getName(), obj_(v))
-		this.cap_orderedVars.add(obj_(v))
+		this.cap_orderedVars.add(v)
 	}
 }
 

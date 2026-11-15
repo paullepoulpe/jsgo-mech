@@ -50,7 +50,7 @@ func (this *CheckConstPrivateProperties) reportMissingConst(t *NodeTraversal) {
 		}
 	}
 	clear(this.candidates)
-this.candidates = this.candidates[:0]
+	this.candidates = this.candidates[:0]
 	clear(this.modified)
 }
 

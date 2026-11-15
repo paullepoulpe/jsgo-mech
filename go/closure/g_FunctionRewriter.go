@@ -19,7 +19,7 @@ func new_FunctionRewriter(compiler *AbstractCompiler) *FunctionRewriter {
 func (this *FunctionRewriter) process_2(externs Node, root Node) {
 	var reducers ImmutableListOf[*FunctionRewriter_Reducer] = ImmutableList_of_Object_Object_Object_Object_Object(obj_(new_FunctionRewriter_ReturnConstantReducer()), obj_(new_FunctionRewriter_GetterReducer()), obj_(new_FunctionRewriter_SetterReducer()), obj_(new_FunctionRewriter_EmptyFunctionReducer()), obj_(new_FunctionRewriter_IdentityReducer()))
 	var reductionMap *SimpleSetMultimap = SimpleSetMultimap_createInsertionOrdered()
-	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_FunctionRewriter_ReductionGatherer(this, icast_List(obj_(reducers)), reductionMap))))
+	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_FunctionRewriter_ReductionGatherer(this, tlistImm_(tc_p_FunctionRewriter_Reducer, reducers), reductionMap))))
 	it_1 := foreach_(obj_(reducers))
 	for it_1.next() {
 		var reducer *FunctionRewriter_Reducer = to_FunctionRewriter_Reducer(it_1.v)
@@ -103,12 +103,12 @@ type FunctionRewriter_ReductionGatherer struct {
 	reductions *SimpleSetMultimap
 }
 
-func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers ListOf[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) {
-	this.reducers = arrmap_(reducers.toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), func(v_ *FunctionRewriter_Reducer) any { return v_.self() })), func(v_ any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v_) })
+func (this *FunctionRewriter_ReductionGatherer) init_FunctionRewriter_ReductionGatherer(reducers *TList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) {
+	this.reducers = arrmap_(reducers.asList().toArray(arrmap_(make([]*FunctionRewriter_Reducer, 0), func(v_ *FunctionRewriter_Reducer) any { return v_.self() })), func(v_ any) *FunctionRewriter_Reducer { return to_FunctionRewriter_Reducer(v_) })
 	this.reductions = reductions
 }
 
-func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers ListOf[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) *FunctionRewriter_ReductionGatherer {
+func new_FunctionRewriter_ReductionGatherer(outer_ *FunctionRewriter, reducers *TList[*FunctionRewriter_Reducer], reductions *SimpleSetMultimap) *FunctionRewriter_ReductionGatherer {
 	this := &FunctionRewriter_ReductionGatherer{}
 	this.outer_ = outer_
 	this.init_FunctionRewriter_ReductionGatherer(reducers, reductions)

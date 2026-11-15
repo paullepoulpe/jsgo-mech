@@ -169,7 +169,7 @@ type CompilerOptions struct {
 	lineLengthThreshold                          int32
 	useOriginalNamesInOutput                     bool
 	externExportsPath                            OptionalOf[string]
-	extraReportGenerators                        ListOf[SortingErrorManager_ErrorReportGenerator]
+	extraReportGenerators                        *TList[SortingErrorManager_ErrorReportGenerator]
 	sourceMapOutputPath                          OptionalOf[string]
 	shouldAlwaysGatherSourceMapInfo_             bool
 	sourceMapDetailLevel                         *SourceMap_DetailLevel
@@ -198,7 +198,7 @@ type CompilerOptions struct {
 	moduleResolutionMode                         *ModuleLoader_ResolutionMode
 	browserResolverPrefixReplacements            ImmutableMapOf[string, string]
 	pathEscaper                                  *ModuleLoader_PathEscaper
-	packageJsonEntryNames                        ListOf[string]
+	packageJsonEntryNames                        *TList[string]
 	allowDynamicImport                           bool
 	dynamicImportAlias                           OptionalOf[string]
 	chunkOutputType                              *CompilerOptions_ChunkOutputType
@@ -270,7 +270,7 @@ func (this *CompilerOptions) finit_CompilerOptions() {
 	this.lineLengthThreshold = CompilerOptions_DEFAULT_LINE_LENGTH_THRESHOLD
 	this.useOriginalNamesInOutput = false
 	this.externExportsPath = Optional_empty()
-	this.extraReportGenerators = icast_List(new_ArrayList_0().self())
+	this.extraReportGenerators = newTList_(tc_SortingErrorManager_ErrorReportGenerator)
 	this.sourceMapOutputPath = Optional_empty()
 	this.shouldAlwaysGatherSourceMapInfo_ = false
 	this.sourceMapDetailLevel = SourceMap_DetailLevel_ALL
@@ -306,7 +306,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.environment = CompilerOptions_Environment_BROWSER
 	this.browserResolverPrefixReplacements = ImmutableMap_of()
 	this.moduleResolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.packageJsonEntryNames = icast_List(obj_(ImmutableList_of_Object_Object_Object(strobj_("browser"), strobj_("module"), strobj_("main"))))
+	this.packageJsonEntryNames = tlistImm_(tc_string, ImmutableList_of_Object_Object_Object(strobj_("browser"), strobj_("module"), strobj_("main")))
 	this.pathEscaper = ModuleLoader_PathEscaper_ESCAPE
 	this.rewriteModulesBeforeTypechecking = false
 	this.enableModuleRewriting = true
@@ -670,12 +670,12 @@ func (this *CompilerOptions) setTracerOutput(out OptionalOf[string]) {
 	this.tracerOutput = out
 }
 
-func (this *CompilerOptions) getExtraReportGenerators() ListOf[SortingErrorManager_ErrorReportGenerator] {
+func (this *CompilerOptions) getExtraReportGenerators() *TList[SortingErrorManager_ErrorReportGenerator] {
 	return this.extraReportGenerators
 }
 
 func (this *CompilerOptions) addReportGenerator(generator SortingErrorManager_ErrorReportGenerator) {
-	this.extraReportGenerators.add(any(generator))
+	this.extraReportGenerators.add(generator)
 }
 
 func (this *CompilerOptions) setProtectHiddenSideEffects(enable bool) {
@@ -1021,9 +1021,9 @@ func (this *CompilerOptions) shouldRemoveUnusedLocalVariables() bool {
 	return this.removeUnusedLocalVars
 }
 
-func (this *CompilerOptions) setReplaceStringsConfiguration(placeholderToken string, functionDescriptors ListOf[string]) {
+func (this *CompilerOptions) setReplaceStringsConfiguration(placeholderToken string, functionDescriptors *TList[string]) {
 	this.replaceStringsPlaceholderToken = placeholderToken
-	this.replaceStringsFunctionDescriptions = ImmutableList_copyOf(Collection(functionDescriptors))
+	this.replaceStringsFunctionDescriptions = ImmutableList_copyOf(Collection(functionDescriptors.asList()))
 }
 
 func (this *CompilerOptions) setRemoveAbstractMethods(remove bool) {
@@ -1959,8 +1959,8 @@ func (this *CompilerOptions) getCssRenamingSkiplist() ImmutableSetOf[string] {
 	return this.cssRenamingSkiplist
 }
 
-func (this *CompilerOptions) setReplaceStringsFunctionDescriptions(replaceStringsFunctionDescriptions ListOf[string]) {
-	this.replaceStringsFunctionDescriptions = ImmutableList_copyOf(Collection(replaceStringsFunctionDescriptions))
+func (this *CompilerOptions) setReplaceStringsFunctionDescriptions(replaceStringsFunctionDescriptions *TList[string]) {
+	this.replaceStringsFunctionDescriptions = ImmutableList_copyOf(Collection(replaceStringsFunctionDescriptions.asList()))
 }
 
 func (this *CompilerOptions) getReplaceStringsFunctionDescriptions() ImmutableListOf[string] {
@@ -2146,8 +2146,8 @@ func (this *CompilerOptions) getSourceMapFormat() *SourceMap_Format {
 	return this.sourceMapFormat
 }
 
-func (this *CompilerOptions) setSourceMapLocationMappings(sourceMapLocationMappings ListOf[SourceMap_LocationMapping]) {
-	this.sourceMapLocationMappings = ImmutableList_copyOf(Collection(sourceMapLocationMappings))
+func (this *CompilerOptions) setSourceMapLocationMappings(sourceMapLocationMappings *TList[SourceMap_LocationMapping]) {
+	this.sourceMapLocationMappings = ImmutableList_copyOf(Collection(sourceMapLocationMappings.asList()))
 }
 
 func (this *CompilerOptions) getSourceMapLocationMappings() ImmutableListOf[SourceMap_LocationMapping] {
@@ -2280,11 +2280,11 @@ func (this *CompilerOptions) getConformanceConfigs() ImmutableListOf[*Conformanc
 }
 
 func (this *CompilerOptions) setConformanceConfig(conformanceConfig *ConformanceConfig) {
-	this.setConformanceConfigs(icast_List(obj_(ImmutableList_of_Object(obj_(conformanceConfig)))))
+	this.setConformanceConfigs(tlistImm_(tc_p_ConformanceConfig, ImmutableList_of_Object(obj_(conformanceConfig))))
 }
 
-func (this *CompilerOptions) setConformanceConfigs(configs ListOf[*ConformanceConfig]) {
-	this.conformanceConfigs = ImmutableList_copyOf(Collection(configs))
+func (this *CompilerOptions) setConformanceConfigs(configs *TList[*ConformanceConfig]) {
+	this.conformanceConfigs = ImmutableList_copyOf(Collection(configs.asList()))
 }
 
 func (this *CompilerOptions) clearConformanceConfigs() {
@@ -2324,11 +2324,11 @@ func (this *CompilerOptions) getPathEscaper() *ModuleLoader_PathEscaper {
 	return this.pathEscaper
 }
 
-func (this *CompilerOptions) getPackageJsonEntryNames() ListOf[string] {
+func (this *CompilerOptions) getPackageJsonEntryNames() *TList[string] {
 	return this.packageJsonEntryNames
 }
 
-func (this *CompilerOptions) setPackageJsonEntryNames(names ListOf[string]) {
+func (this *CompilerOptions) setPackageJsonEntryNames(names *TList[string]) {
 	this.packageJsonEntryNames = names
 }
 

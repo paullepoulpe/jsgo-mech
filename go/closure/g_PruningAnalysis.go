@@ -52,15 +52,15 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 			Map_put_s(bottleneckBlame, node, any(int32(retainedCount)))
 		}
 	}
-	var sortedBlame ListOf[Map_EntryOf[string, BoxedOf[int32]]] = icast_List(new_ArrayList_Collection(Collection(bottleneckBlame.entrySet())).self())
-	List_sort(sortedBlame, Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(entry_ any) int32 {
+	var sortedBlame *TList[Map_EntryOf[string, BoxedOf[int32]]] = tlistFrom_(tc_Map_EntryOf_string__BoxedOf_int32__, Collection(bottleneckBlame.entrySet()))
+	List_sort(sortedBlame.asList(), Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(entry_ any) int32 {
 		var entry Map_Entry = icast_Map_Entry(entry_)
 		_ = entry
 		return unbox_[int32](entry.getValue())
 	}})))
 	var result ImmutableMap_BuilderOf[string, BoxedOf[int32]] = ImmutableMap_builder()
 	for i := int32(0); (i < sortedBlame.size()) && (i < PruningAnalysis_BOTTLENECK_THRESHOLD); i++ {
-		var entry Map_EntryOf[string, BoxedOf[int32]] = icast_Map_Entry(sortedBlame.get(i))
+		var entry Map_EntryOf[string, BoxedOf[int32]] = sortedBlame.get(i)
 		result.put(entry.getKey(), entry.getValue())
 	}
 	return result.buildOrThrow()
@@ -69,9 +69,9 @@ func (this *PruningAnalysis) calculateBottlenecks() ImmutableMapOf[string, Boxed
 func (this *PruningAnalysis) buildGraph() *DiGraph {
 	var graph *DiGraph = LinkedDirectedGraph_create().up_DiGraph()
 	graph.createNode(strobj_(PruningAnalysis_VIRTUAL_ROOT))
-	it_1 := foreach_(any(this.sorter_.getSortedList()))
+	it_1 := this.sorter_.getSortedList().each()
 	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+		var input *CompilerInput = it_1.v
 		graph.createNode(strobj_(input.getName()))
 	}
 	it_3 := foreach_(obj_(this.entryPoints_))
@@ -79,9 +79,9 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 		var input *CompilerInput = cast_[*CompilerInput](it_3.v)
 		graph.connect(strobj_(PruningAnalysis_VIRTUAL_ROOT), nil, strobj_(input.getName()))
 	}
-	it_5 := foreach_(any(this.sorter_.getSortedList()))
+	it_5 := this.sorter_.getSortedList().each()
 	for it_5.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_5.v)
+		var input *CompilerInput = it_5.v
 		var name string = input.getName()
 		var depSymbols SetOf[string] = icast_Set(obj_(new_LinkedHashSet()))
 		it_7 := foreach_(obj_(input.getRequires()))

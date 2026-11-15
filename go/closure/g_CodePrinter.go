@@ -43,8 +43,8 @@ func CodePrinter_toSource(root Node, outputFormat *CodePrinter_Format, options *
 type CodePrinter_MappedCodePrinter struct {
 	CodeConsumer
 	mappings                    DequeOf[*SourceMap_Mapping]
-	allMappings                 ListOf[*SourceMap_Mapping]
-	completeMappings            ListOf[*SourceMap_Mapping]
+	allMappings                 *TList[*SourceMap_Mapping]
+	completeMappings            *TList[*SourceMap_Mapping]
 	firstCandidateMappingForCut int32
 	createSrcMap                bool
 	sourceMapDetailLevel        *SourceMap_DetailLevel
@@ -114,15 +114,15 @@ func (this *CodePrinter_MappedCodePrinter) init_CodePrinter_MappedCodePrinter(li
 		}
 		return nil
 	}()
-	this.allMappings = func() List {
+	this.allMappings = func() *TList[*SourceMap_Mapping] {
 		if createSrcMap {
-			return icast_List(new_ArrayList_0().self())
+			return newTList_(tc_p_SourceMap_Mapping)
 		}
 		return nil
 	}()
-	this.completeMappings = func() List {
+	this.completeMappings = func() *TList[*SourceMap_Mapping] {
 		if createSrcMap {
-			return icast_List(new_ArrayList_0().self())
+			return newTList_(tc_p_SourceMap_Mapping)
 		}
 		return nil
 	}()
@@ -151,7 +151,7 @@ func (this *CodePrinter_MappedCodePrinter) startSourceMapping_impl(node Node) {
 		mapping.node_ = node
 		mapping.start_ = new_FilePosition(line, index)
 		this.mappings.push(obj_(mapping))
-		this.allMappings.add(obj_(mapping))
+		this.allMappings.add(mapping)
 	}
 }
 
@@ -162,24 +162,24 @@ func (this *CodePrinter_MappedCodePrinter) endSourceMapping_impl(node Node) {
 		var index int32 = this.getCurrentCharIndex()
 		Preconditions_checkState((line >= 0))
 		mapping.end_ = new_FilePosition(line, index)
-		this.completeMappings.add(obj_(mapping))
+		this.completeMappings.add(mapping)
 	}
 }
 
-func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) ListOf[*SourceMap_Mapping] {
+func (this *CodePrinter_MappedCodePrinter) getSourceMappings(code string) *TList[*SourceMap_Mapping] {
 	if !this.createSrcMap {
 		return nil
 	}
 	var lineLengths ImmutableListOf[BoxedOf[int32]] = CodePrinter_MappedCodePrinter_computeLineLengths(code)
-	var fixedMappings ListOf[*SourceMap_Mapping] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(this.allMappings))
+	var fixedMappings *TList[*SourceMap_Mapping] = newTList_(tc_p_SourceMap_Mapping)
+	it_1 := this.allMappings.each()
 	for it_1.next() {
-		var mapping *SourceMap_Mapping = cast_[*SourceMap_Mapping](it_1.v)
+		var mapping *SourceMap_Mapping = it_1.v
 		var adjusted *SourceMap_Mapping = new_SourceMap_Mapping()
 		adjusted.node_ = mapping.node_
 		adjusted.start_ = mapping.start_
 		adjusted.end_ = CodePrinter_MappedCodePrinter_adjustEndPosition(icast_List(obj_(lineLengths)), mapping.end_)
-		fixedMappings.add(obj_(adjusted))
+		fixedMappings.add(adjusted)
 	}
 	return fixedMappings
 }
@@ -188,13 +188,13 @@ func (this *CodePrinter_MappedCodePrinter) reportLineCut(lineIndex int32, charIn
 	if this.createSrcMap {
 		var mappingCount int32 = this.allMappings.size()
 		for i := int32(this.firstCandidateMappingForCut); i < mappingCount; i++ {
-			var mapping *SourceMap_Mapping = cast_[*SourceMap_Mapping](this.allMappings.get(i))
+			var mapping *SourceMap_Mapping = this.allMappings.get(i)
 			mapping.start_ = CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(mapping.start_, lineIndex, charIndex)
 		}
 		this.firstCandidateMappingForCut = mappingCount
-		it_2 := foreach_(any(this.completeMappings))
+		it_2 := this.completeMappings.each()
 		for it_2.next() {
-			var mapping *SourceMap_Mapping = cast_[*SourceMap_Mapping](it_2.v)
+			var mapping *SourceMap_Mapping = it_2.v
 			mapping.end_ = CodePrinter_MappedCodePrinter_convertPositionAfterLineCut(mapping.end_, lineIndex, charIndex)
 		}
 		this.completeMappings.clear()
@@ -750,7 +750,7 @@ func CodePrinter_Format_clinit() {
 
 type CodePrinter_SourceAndMappings struct {
 	source   string
-	mappings ListOf[*SourceMap_Mapping]
+	mappings *TList[*SourceMap_Mapping]
 }
 
 func (this *CodePrinter_SourceAndMappings) zero_CodePrinter_SourceAndMappings() {

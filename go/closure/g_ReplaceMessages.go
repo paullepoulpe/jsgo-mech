@@ -187,7 +187,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 			continue
 		}
 		var condition Node = this.createConditionForGrammaticalGender(type_, grammaticalGender, nodeToReplace)
-		var genderedMessageNode *Outcome_base = this.buildMessageNode(icast_List(obj_(msg.getGenderedMessageParts(grammaticalGender))), options, nodeToReplace, placeholderNodeProvider, true)
+		var genderedMessageNode *Outcome_base = this.buildMessageNode(tlistImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(grammaticalGender)), options, nodeToReplace, placeholderNodeProvider, true)
 		if genderedMessageNode.isErr() {
 			return Outcome_base_err(genderedMessageNode.error())
 		}
@@ -202,7 +202,7 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 			placeholderHook = currentHook.getLastChild()
 		}
 	}
-	var otherMessageNode *Outcome_base = this.buildMessageNode(icast_List(obj_(msg.getGenderedMessageParts(JsMessage_GrammaticalGenderCase_OTHER))), options, nodeToReplace, placeholderNodeProvider, true)
+	var otherMessageNode *Outcome_base = this.buildMessageNode(tlistImm_(tc_JsMessage_Part, msg.getGenderedMessageParts(JsMessage_GrammaticalGenderCase_OTHER)), options, nodeToReplace, placeholderNodeProvider, true)
 	if otherMessageNode.isErr() {
 		return Outcome_base_err(otherMessageNode.error())
 	}
@@ -210,15 +210,15 @@ func (this *ReplaceMessages) createHookExpressionForGenderedMsg(type_ AstFactory
 	return Outcome_base_ok_Object(hookHead.box_())
 }
 
-func (this *ReplaceMessages) buildMessageNode(msgParts ListOf[JsMessage_Part], options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider, isGenderedMsg bool) *Outcome_base {
-	var parts ListOf[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
+func (this *ReplaceMessages) buildMessageNode(msgParts *TList[JsMessage_Part], options *ReplaceMessages_MsgOptions, nodeToReplace Node, placeholderNodeProvider ReplaceMessages_PlaceholderNodeProvider, isGenderedMsg bool) *Outcome_base {
+	var parts *TList[JsMessage_Part] = ReplaceMessages_mergeStringParts(msgParts)
 	if parts.isEmpty() {
 		return Outcome_base_ok_Object(this.astFactory_.createString("").box_())
 	}
 	var message Node = 0
-	it_1 := foreach_(any(parts))
+	it_1 := parts.each()
 	for it_1.next() {
-		var msgPart JsMessage_Part = icast_JsMessage_Part(it_1.v)
+		var msgPart JsMessage_Part = it_1.v
 		var partNode Node
 		if msgPart.isPlaceholder() {
 			var jsPlaceholderName string = msgPart.getJsPlaceholderName()
@@ -270,7 +270,7 @@ func (this *ReplaceMessages) constructNonGenderedMsgNode(message *JsMessage, pla
 			}
 		}
 	}
-	return this.buildMessageNode(icast_List(obj_(message.getParts())), options, nodeToReplace, &ReplaceMessages_PlaceholderNodeProvider_fn{func(p0 string) Node { return Node_of_(Map_get_s(placeholderMap, p0)) }}, false)
+	return this.buildMessageNode(tlistImm_(tc_JsMessage_Part, message.getParts()), options, nodeToReplace, &ReplaceMessages_PlaceholderNodeProvider_fn{func(p0 string) Node { return Node_of_(Map_get_s(placeholderMap, p0)) }}, false)
 }
 
 func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_MsgOptions, s string) Node {
@@ -283,24 +283,24 @@ func (this *ReplaceMessages) createNodeForMsgString(options *ReplaceMessages_Msg
 	return this.astFactory_.createString(s)
 }
 
-func ReplaceMessages_mergeStringParts(parts ListOf[JsMessage_Part]) ListOf[JsMessage_Part] {
-	var result ListOf[JsMessage_Part] = icast_List(new_ArrayList_0().self())
-	it_1 := foreach_(any(parts))
+func ReplaceMessages_mergeStringParts(parts *TList[JsMessage_Part]) *TList[JsMessage_Part] {
+	var result *TList[JsMessage_Part] = newTList_(tc_JsMessage_Part)
+	it_1 := parts.each()
 	for it_1.next() {
-		var part JsMessage_Part = icast_JsMessage_Part(it_1.v)
+		var part JsMessage_Part = it_1.v
 		if part.isPlaceholder() {
-			result.add(any(part))
+			result.add(part)
 		} else {
 			var lastPart JsMessage_Part = func() JsMessage_Part {
 				if result.isEmpty() {
 					return nil
 				}
-				return icast_JsMessage_Part(Iterables_getLast(Iterable(result)))
+				return icast_JsMessage_Part(Iterables_getLast(Iterable(result.asList())))
 			}()
 			if (lastPart == nil) || lastPart.isPlaceholder() {
-				result.add(any(part))
+				result.add(part)
 			} else {
-				result.set((result.size() - 1), obj_(JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString())))))
+				result.set((result.size() - 1), icast_JsMessage_Part(obj_(JsMessage_StringPart_create((sstr_(lastPart.getString()) + sstr_(part.getString()))))))
 			}
 		}
 	}

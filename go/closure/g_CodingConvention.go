@@ -21,7 +21,7 @@ type CodingConvention interface {
 	extractClassNameIfRequire(Node, Node) *Optional
 	getExportPropertyFunction() string
 	getExportSymbolFunction() string
-	identifyTypeDeclarationCall(Node) List
+	identifyTypeDeclarationCall(Node) *TList[string]
 	applySubclassRelationship(*NominalTypeBuilder, *NominalTypeBuilder, *CodingConvention_SubclassType)
 	getAbstractMethodName() string
 	getSingletonGetterClassName(Node) string

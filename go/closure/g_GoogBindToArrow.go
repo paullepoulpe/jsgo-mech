@@ -44,7 +44,7 @@ func (this *GoogBindToArrow) matches_impl(node Node, metadata *NodeMetadata) boo
 	return (((secondArg != 0) && secondArg.isThis()) && (secondArg.getNext() == 0))
 }
 
-func (this *GoogBindToArrow) processMatch_impl(match *Match) List {
+func (this *GoogBindToArrow) processMatch_impl(match *Match) *TList[*SuggestedFix] {
 	var compiler *AbstractCompiler = match.getMetadata().getCompiler()
 	var googBindCall Node = match.getNode()
 	var function Node = googBindCall.getFirstChild().getNext()
@@ -59,7 +59,7 @@ func (this *GoogBindToArrow) processMatch_impl(match *Match) List {
 	}
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder()
 	fix.replace(googBindCall, arrowFunction, compiler)
-	return icast_List(obj_(ImmutableList_of_Object(obj_(fix.build()))))
+	return tlistImm_(tc_p_SuggestedFix, ImmutableList_of_Object(obj_(fix.build())))
 }
 
 var GoogBindToArrow_GOOG_BIND_NAME *QualifiedName

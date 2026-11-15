@@ -312,11 +312,11 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 
 type VarCheck_RedeclarationCheckHandler struct {
 	outer_       *VarCheck
-	dupDeclNodes ArrayListOf[Node]
+	dupDeclNodes *TList[Node]
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) finit_VarCheck_RedeclarationCheckHandler() {
-	this.dupDeclNodes = new_ArrayList_0()
+	this.dupDeclNodes = newTList_(tc_Node)
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) init_VarCheck_RedeclarationCheckHandler() {
@@ -365,7 +365,7 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 		}
 		var allowDupe bool = VarCheck_hasDuplicateDeclarationSuppression(this.outer_.compiler_, n, origVar.getNameNode())
 		if VarCheck_isExternNamespace(n) {
-			this.dupDeclNodes.add(parent.box_())
+			this.dupDeclNodes.add(parent)
 			return
 		}
 		if !allowDupe {
@@ -377,9 +377,9 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 }
 
 func (this *VarCheck_RedeclarationCheckHandler) removeDuplicates() {
-	it_1 := foreach_(this.dupDeclNodes.self())
+	it_1 := this.dupDeclNodes.each()
 	for it_1.next() {
-		var n Node = Node_of_(it_1.v)
+		var n Node = it_1.v
 		var parent Node = n.getParent()
 		if parent != 0 {
 			n.detach()

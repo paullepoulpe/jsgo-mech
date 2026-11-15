@@ -302,13 +302,13 @@ func (this *PolyfillUsageFinder_Polyfills) init_PolyfillUsageFinder_Polyfills(me
 	this.methods = methods
 	this.statics = statics
 	this.byNativeVersion = byNativeVersion
-	var suffixList ListOf[string] = icast_List(new_ArrayList_0().self())
+	var suffixList *TList[string] = newTList_(tc_string)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](statics.keySet())))
 	for it_1.next() {
 		var arg string = str_(it_1.v)
-		suffixList.add(strobj_(String_substring_int(arg, (String_lastIndexOf(arg, 46) + 1))))
+		suffixList.add(String_substring_int(arg, (String_lastIndexOf(arg, 46) + 1)))
 	}
-	this.suffixes = ImmutableSet_copyOf(Collection(suffixList))
+	this.suffixes = ImmutableSet_copyOf(Collection(suffixList.asList()))
 }
 
 func new_PolyfillUsageFinder_Polyfills(methods *SimpleListMultimap, statics ImmutableMapOf[string, *PolyfillUsageFinder_Polyfill], byNativeVersion *SimpleListMultimap) *PolyfillUsageFinder_Polyfills {
@@ -324,19 +324,19 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 	it_1 := foreach_(any(Splitter_on('\n').omitEmptyStrings().split(strobj_(table))))
 	for it_1.next() {
 		var line string = str_(it_1.v)
-		var tokens ListOf[string] = Splitter_on(' ').omitEmptyStrings().splitToList(strobj_(String_trim(line)))
-		if (tokens.size() == 1) && String_isEmpty(str_(tokens.get(0))) {
+		var tokens *TList[string] = tlistImm_(tc_string, Splitter_on(' ').omitEmptyStrings().splitToList(strobj_(String_trim(line))))
+		if (tokens.size() == 1) && String_isEmpty(tokens.get(0)) {
 			continue
 		} else if tokens.size() < 3 {
 			panic(new_IllegalArgumentException_String(("Invalid table: too few tokens on line: " + sstr_(line))).self())
 		}
-		var symbol string = str_(tokens.get(0))
+		var symbol string = tokens.get(0)
 		var isPrototypeMethod bool = String_contains(symbol, strobj_(".prototype."))
-		var nativeVersionStr string = str_(tokens.get(1))
-		var polyfillVersionStr string = str_(tokens.get(2))
+		var nativeVersionStr string = tokens.get(1)
+		var polyfillVersionStr string = tokens.get(2)
 		var polyfill *PolyfillUsageFinder_Polyfill = new_PolyfillUsageFinder_Polyfill(symbol, nativeVersionStr, polyfillVersionStr, func() string {
 			if tokens.size() > 3 {
-				return str_(tokens.get(3))
+				return tokens.get(3)
 			}
 			return ""
 		}(), func() *PolyfillUsageFinder_Polyfill_Kind {

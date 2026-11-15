@@ -1371,16 +1371,16 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			properties.putAll(icast_Map(obj_(currentProperties)))
 		}
 	}
-	var loopPath ListOf[*FunctionType] = functionType.checkExtendsLoop()
+	var loopPath *TList[*FunctionType] = functionType.checkExtendsLoop()
 	if loopPath != nil {
-		var displayNames ListOf[string] = icast_List(new_ArrayList_0().self())
-		it_5 := foreach_(any(loopPath))
+		var displayNames *TList[string] = newTList_(tc_string)
+		it_5 := loopPath.each()
 		for it_5.next() {
-			var loopType *FunctionType = to_FunctionType(it_5.v)
-			displayNames.add(loopType.getDisplayName().orElse(nil))
+			var loopType *FunctionType = it_5.v
+			displayNames.add(str_(loopType.getDisplayName().orElse(nil)))
 		}
-		var strPath string = String_join(strobj_(" -> "), Iterable(displayNames))
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{str_(to_FunctionType(loopPath.get(0)).getDisplayName().orElse(strobj_("null"))), strPath}))
+		var strPath string = String_join(strobj_(" -> "), Iterable(displayNames.asList()))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{str_(loopPath.get(0).getDisplayName().orElse(strobj_("null"))), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
 }

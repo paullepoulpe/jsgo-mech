@@ -55,7 +55,7 @@ func (this *RescopeGlobalSymbols) process_2(externs Node, root Node) {
 	var renameHelperBuilder *RescopeGlobalSymbolsRenameHelper_HelperBuilder = new_RescopeGlobalSymbolsRenameHelper_HelperBuilder(this.compiler_, this.globalSymbolNamespace_, this.optimizeLocalAccess)
 	var findCrossChunkNames *RescopeGlobalSymbols_FindCrossChunkNamesCallback = new_RescopeGlobalSymbols_FindCrossChunkNamesCallback(this.compiler_, this.assumeCrossChunkNames, this.optimizeLocalAccess.shouldOptimize(), renameHelperBuilder)
 	var findNamesReferencingThis *RescopeGlobalSymbols_FindNamesReferencingThis = new_RescopeGlobalSymbols_FindNamesReferencingThis()
-	CombinedCompilerPass_traverse(this.compiler_, root, icast_List(obj_(ImmutableList_of_Object_Object(obj_(findCrossChunkNames), obj_(findNamesReferencingThis)))))
+	CombinedCompilerPass_traverse(this.compiler_, root, tlistImm_(tc_NodeTraversal_Callback, ImmutableList_of_Object_Object(obj_(findCrossChunkNames), obj_(findNamesReferencingThis))))
 	var externNames ImmutableSetOf[string] = NodeUtil_collectExternVariableNames(this.compiler_, externs)
 	var symbolInfo *RescopeGlobalSymbolsInfo = new_RescopeGlobalSymbolsInfo_String_Set_Set_Set_Set_Set_Set_Set_Set(this.globalSymbolNamespace_, icast_Set(obj_(externNames)), findCrossChunkNames.crossChunkNames_, findCrossChunkNames.crossChunkNamesWithWriteFromOtherChunk_, findCrossChunkNames.crossChunkNamesUsedInNonDependentChunk_, findCrossChunkNames.globalNamesWithReadInDefiningChunk_, findCrossChunkNames.globalNamesWithInnerScopeWriteInDefiningChunk_, findCrossChunkNames.globalNamesWithUnsafeWriteForLocalAliasInDefiningChunk_, findNamesReferencingThis.maybeReferencesThis_)
 	var renameHelper *RescopeGlobalSymbolsRenameHelper = renameHelperBuilder.build(symbolInfo)
@@ -329,11 +329,11 @@ func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) visit_impl(t *NodeTrav
 		return
 	}
 	if NodeUtil_isAnyFor(parent) && (parent.getFirstChild() == n) {
-		var commas ListOf[Node] = icast_List(new_ArrayList_0().self())
+		var commas *TList[Node] = newTList_(tc_Node)
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {
-				commas.add(c.cloneTree().box_())
+				commas.add(c.cloneTree())
 			}
 		}
 		if !commas.isEmpty() {
@@ -386,10 +386,10 @@ func RescopeGlobalSymbols_RemoveGlobalVarCallback_hasOnlyNameOrDestructuringChil
 	return n.hasChildren()
 }
 
-func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas ListOf[Node], source Node) Node {
-	var comma Node = Node_of_(commas.get(0))
+func (this *RescopeGlobalSymbols_RemoveGlobalVarCallback) joinOnComma(commas *TList[Node], source Node) Node {
+	var comma Node = commas.get(0)
 	for i := int32(1); i < commas.size(); i++ {
-		var nextComma Node = IR_comma(comma, Node_of_(commas.get(i)))
+		var nextComma Node = IR_comma(comma, commas.get(i))
 		nextComma.srcrefIfMissing(source)
 		comma = nextComma
 	}
