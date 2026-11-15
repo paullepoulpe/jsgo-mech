@@ -104,3 +104,12 @@ func (m *varMap_[V]) hashWith(h func(V) int32) int32 {
 	}
 	return s
 }
+
+// varList is keySet() as an erased list of the variables, in insertion order.
+func (m *varMap_[V]) varList() List {
+	items := make([]any, len(m.vars))
+	for i, v := range m.vars {
+		items[i] = v.self()
+	}
+	return listOf_(items)
+}
