@@ -132,7 +132,7 @@ func (this *ProcessConstJsdocCallback) processDeclarationWithRhs(t *NodeTraversa
 }
 
 func (this *ProcessConstJsdocCallback) processConstWithRhs(p0 *NodeTraversal, p1 Node) {
-	this.self_.(interface{ processConstWithRhs_impl(*NodeTraversal, Node) }).processConstWithRhs_impl(p0, p1)
+	this.self_.(*ConvertToTypedInterface_PropagateConstJsdoc).processConstWithRhs_impl(p0, p1)
 }
 
 var ProcessConstJsdocCallback_GOOG_DEFINE *QualifiedName
