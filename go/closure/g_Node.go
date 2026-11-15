@@ -4,21 +4,32 @@ package closure
 
 type Node uint32
 
+// Node_ns_ is what a traversal reads: 16 bytes, four nodes to a cache line.
 type Node_ns_ struct {
-	self_        uint32
-	next_        Node
-	previous     Node
-	first        Node
-	parent       Node
-	linenoCharno int32
-	length_      int32
-	token        uint8
+	next_  Node
+	first  Node
+	parent Node
+	token  uint8
 }
 
 var Node_ns_chunks_ [handleChunks_]*[handleChunkSize_]Node_ns_
 
 func (this Node) ns_() *Node_ns_ {
 	return &Node_ns_chunks_[this>>handleShift_][uint16(this)]
+}
+
+// Node_cs_ holds the pointer-free fields that a traversal does not read.
+type Node_cs_ struct {
+	self_        uint32
+	previous     Node
+	linenoCharno int32
+	length_      int32
+}
+
+var Node_cs_chunks_ [handleChunks_]*[handleChunkSize_]Node_cs_
+
+func (this Node) cs_() *Node_cs_ {
+	return &Node_cs_chunks_[this>>handleShift_][uint16(this)]
 }
 
 type Node_ps_ struct {
@@ -90,12 +101,13 @@ func Node_alloc_() Node {
 	if uint16(h) == 0 {
 		handleGrow_(h)
 		Node_ns_chunks_[h>>handleShift_] = new([handleChunkSize_]Node_ns_)
+		Node_cs_chunks_[h>>handleShift_] = new([handleChunkSize_]Node_cs_)
 		Node_ps_chunks_[h>>handleShift_] = new([handleChunkSize_]Node_ps_)
 		Node_str_chunks_[h>>handleShift_] = new([handleChunkSize_]string)
 		Node_pm_chunks_[h>>handleShift_] = new([handleChunkSize_]uint64)
 	}
 	Node_count_ = h + 1
-	Node(h).ns_().self_ = h
+	Node(h).cs_().self_ = h
 	return Node(h)
 }
 
@@ -109,7 +121,7 @@ func (this Node) box_() any {
 	if this == 0 {
 		return nil
 	}
-	return handleBox_(Node_proto_, &this.ns_().self_)
+	return handleBox_(Node_proto_, &this.cs_().self_)
 }
 
 func Node_of_(v any) Node {
@@ -126,7 +138,7 @@ func init() {
 			if !(h.ns_().next_ == 0) {
 				c[0]++
 			}
-			if !(h.ns_().previous == 0) {
+			if !(h.cs_().previous == 0) {
 				c[1]++
 			}
 			if !(h.ns_().first == 0) {
@@ -135,10 +147,10 @@ func init() {
 			if !(h.ns_().parent == 0) {
 				c[3]++
 			}
-			if !(h.ns_().linenoCharno == 0) {
+			if !(h.cs_().linenoCharno == 0) {
 				c[4]++
 			}
-			if !(h.ns_().length_ == 0) {
+			if !(h.cs_().length_ == 0) {
 				c[5]++
 			}
 			if !(h.ns_().token == 0) {
@@ -167,7 +179,7 @@ func (this Node) zero_Node() {
 }
 
 func (this Node) finit_Node() {
-	this.ns_().linenoCharno = -1
+	this.cs_().linenoCharno = -1
 	this.ps_().originalName = ""
 }
 
@@ -187,7 +199,7 @@ func (this Node) init_Node_Token_Node(token *Token_rhino, child Node) {
 	this.init_Node_Token(token)
 	this.ns_().first = child
 	child.checkDetached()
-	child.ns_().previous = child
+	child.cs_().previous = child
 	child.ns_().parent = this
 }
 
@@ -203,10 +215,10 @@ func (this Node) init_Node_Token_Node_Node(token *Token_rhino, left Node, right 
 	this.ns_().first = left
 	left.checkDetached()
 	left.ns_().next_ = right
-	left.ns_().previous = right
+	left.cs_().previous = right
 	left.ns_().parent = this
 	right.checkDetached()
-	right.ns_().previous = left
+	right.cs_().previous = left
 	right.ns_().parent = this
 }
 
@@ -222,14 +234,14 @@ func (this Node) init_Node_Token_Node_Node_Node(token *Token_rhino, left Node, m
 	this.ns_().first = left
 	left.checkDetached()
 	left.ns_().next_ = mid
-	left.ns_().previous = right
+	left.cs_().previous = right
 	left.ns_().parent = this
 	mid.checkDetached()
 	mid.ns_().next_ = right
-	mid.ns_().previous = left
+	mid.cs_().previous = left
 	mid.ns_().parent = this
 	right.checkDetached()
-	right.ns_().previous = mid
+	right.cs_().previous = mid
 	right.ns_().parent = this
 }
 
@@ -365,7 +377,7 @@ func (this Node) getSecondChild() Node {
 func (this Node) getLastChild() Node {
 	return func() Node {
 		if this.ns_().first != 0 {
-			return this.ns_().first.ns_().previous
+			return this.ns_().first.cs_().previous
 		}
 		return 0
 	}()
@@ -380,7 +392,7 @@ func (this Node) getPrevious() Node {
 		if this == this.ns_().parent.ns_().first {
 			return 0
 		}
-		return this.ns_().previous
+		return this.cs_().previous
 	}()
 }
 
@@ -433,16 +445,16 @@ func (this Node) getIndexOfChild(child Node) int32 {
 func (this Node) addChildToFront(child Node) {
 	Preconditions_checkArgument((child.ns_().parent == 0))
 	Preconditions_checkArgument((child.ns_().next_ == 0))
-	Preconditions_checkArgument((child.ns_().previous == 0))
+	Preconditions_checkArgument((child.cs_().previous == 0))
 	child.ns_().parent = this
 	child.ns_().next_ = this.ns_().first
 	if this.ns_().first == 0 {
-		child.ns_().previous = child
+		child.cs_().previous = child
 	} else {
-		var last Node = this.ns_().first.ns_().previous
-		child.ns_().previous = last
+		var last Node = this.ns_().first.cs_().previous
+		child.cs_().previous = last
 		child.ns_().next_ = this.ns_().first
-		this.ns_().first.ns_().previous = child
+		this.ns_().first.cs_().previous = child
 	}
 	this.ns_().first = child
 }
@@ -450,15 +462,15 @@ func (this Node) addChildToFront(child Node) {
 func (this Node) addChildToBack(child Node) {
 	Preconditions_checkArgument_boolean_String_Object_Object_Object((child.ns_().parent == 0), "Cannot add already-owned child node.\nChild: %s\nExisting parent: %s\nNew parent: %s", child.box_(), child.ns_().parent.box_(), this.box_())
 	Preconditions_checkArgument((child.ns_().next_ == 0))
-	Preconditions_checkArgument((child.ns_().previous == 0))
+	Preconditions_checkArgument((child.cs_().previous == 0))
 	if this.ns_().first == 0 {
-		child.ns_().previous = child
+		child.cs_().previous = child
 		this.ns_().first = child
 	} else {
-		var last Node = this.ns_().first.ns_().previous
+		var last Node = this.ns_().first.cs_().previous
 		last.ns_().next_ = child
-		child.ns_().previous = last
-		this.ns_().first.ns_().previous = child
+		child.cs_().previous = last
+		this.ns_().first.cs_().previous = child
 	}
 	child.ns_().parent = this
 }
@@ -467,7 +479,7 @@ func (this Node) addChildrenToFront(children Node) {
 	if children == 0 {
 		return
 	}
-	Preconditions_checkNotNull_Object_Object(children.ns_().previous.box_(), children.box_())
+	Preconditions_checkNotNull_Object_Object(children.cs_().previous.box_(), children.box_())
 	{
 		var child Node = children
 		for ; child != 0; child = child.ns_().next_ {
@@ -475,12 +487,12 @@ func (this Node) addChildrenToFront(children Node) {
 			child.ns_().parent = this
 		}
 	}
-	var lastSib Node = children.ns_().previous
+	var lastSib Node = children.cs_().previous
 	if this.ns_().first != 0 {
-		var last Node = this.ns_().first.ns_().previous
-		children.ns_().previous = last
+		var last Node = this.ns_().first.cs_().previous
+		children.cs_().previous = last
 		lastSib.ns_().next_ = this.ns_().first
-		this.ns_().first.ns_().previous = lastSib
+		this.ns_().first.cs_().previous = lastSib
 	}
 	this.ns_().first = children
 }
@@ -496,11 +508,11 @@ func (this Node) insertAfter(existing Node) {
 	var existingNext Node = existing.ns_().next_
 	this.ns_().parent = existingParent
 	existing.ns_().next_ = this
-	this.ns_().previous = existing
+	this.cs_().previous = existing
 	if existingNext == 0 {
-		existingParent.ns_().first.ns_().previous = this
+		existingParent.ns_().first.cs_().previous = this
 	} else {
-		existingNext.ns_().previous = this
+		existingNext.cs_().previous = this
 		this.ns_().next_ = existingNext
 	}
 }
@@ -509,11 +521,11 @@ func (this Node) insertBefore(existing Node) {
 	existing.checkAttached()
 	this.checkDetached()
 	var existingParent Node = existing.ns_().parent
-	var existingPrevious Node = existing.ns_().previous
+	var existingPrevious Node = existing.cs_().previous
 	this.ns_().parent = existingParent
 	this.ns_().next_ = existing
-	existing.ns_().previous = this
-	this.ns_().previous = existingPrevious
+	existing.cs_().previous = this
+	this.cs_().previous = existingPrevious
 	if existingPrevious.ns_().next_ == 0 {
 		existingParent.ns_().first = this
 	} else {
@@ -526,7 +538,7 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 		return
 	}
 	Preconditions_checkArgument(((node == 0) || (node.ns_().parent == this)))
-	Preconditions_checkNotNull_Object_Object(children.ns_().previous.box_(), children.box_())
+	Preconditions_checkNotNull_Object_Object(children.cs_().previous.box_(), children.box_())
 	if node == 0 {
 		this.addChildrenToFront(children)
 		return
@@ -538,16 +550,16 @@ func (this Node) addChildrenAfter(children Node, node Node) {
 			child.ns_().parent = this
 		}
 	}
-	var lastSibling Node = children.ns_().previous
+	var lastSibling Node = children.cs_().previous
 	var nodeAfter Node = node.ns_().next_
 	lastSibling.ns_().next_ = nodeAfter
 	if nodeAfter == 0 {
-		this.ns_().first.ns_().previous = lastSibling
+		this.ns_().first.cs_().previous = lastSibling
 	} else {
-		nodeAfter.ns_().previous = lastSibling
+		nodeAfter.cs_().previous = lastSibling
 	}
 	node.ns_().next_ = children
-	children.ns_().previous = node
+	children.cs_().previous = node
 }
 
 func (this Node) replaceWith(replacement Node) {
@@ -555,22 +567,22 @@ func (this Node) replaceWith(replacement Node) {
 	replacement.checkDetached()
 	var existingParent Node = this.ns_().parent
 	var existingNext Node = this.ns_().next_
-	var existingPrevious Node = this.ns_().previous
+	var existingPrevious Node = this.cs_().previous
 	replacement.srcrefIfMissing(this)
 	this.ns_().parent = 0
 	replacement.ns_().parent = existingParent
-	this.ns_().previous = 0
-	replacement.ns_().previous = existingPrevious
+	this.cs_().previous = 0
+	replacement.cs_().previous = existingPrevious
 	if existingPrevious.ns_().next_ == 0 {
 		existingParent.ns_().first = replacement
 	} else {
 		existingPrevious.ns_().next_ = replacement
 	}
 	if existingNext == 0 {
-		existingParent.ns_().first.ns_().previous = replacement
+		existingParent.ns_().first.cs_().previous = replacement
 	} else {
 		this.ns_().next_ = 0
-		existingNext.ns_().previous = replacement
+		existingNext.cs_().previous = replacement
 		replacement.ns_().next_ = existingNext
 	}
 }
@@ -579,15 +591,15 @@ func (this Node) detach() Node {
 	this.checkAttached()
 	var existingParent Node = this.ns_().parent
 	var existingNext Node = this.ns_().next_
-	var existingPrevious Node = this.ns_().previous
+	var existingPrevious Node = this.cs_().previous
 	this.ns_().parent = 0
 	if existingNext == 0 {
-		existingParent.ns_().first.ns_().previous = existingPrevious
+		existingParent.ns_().first.cs_().previous = existingPrevious
 	} else {
 		this.ns_().next_ = 0
-		existingNext.ns_().previous = existingPrevious
+		existingNext.cs_().previous = existingPrevious
 	}
-	this.ns_().previous = 0
+	this.cs_().previous = 0
 	if existingPrevious.ns_().next_ == 0 {
 		existingParent.ns_().first = existingNext
 	} else {
@@ -603,7 +615,7 @@ func (this Node) checkAttached() {
 func (this Node) checkDetached() {
 	Preconditions_checkState_boolean_String_Object((this.ns_().parent == 0), "Has parent: %s", this.box_())
 	Preconditions_checkState_boolean_String_Object((this.ns_().next_ == 0), "Has next: %s", this.box_())
-	Preconditions_checkState_boolean_String_Object((this.ns_().previous == 0), "Has previous: %s", this.box_())
+	Preconditions_checkState_boolean_String_Object((this.cs_().previous == 0), "Has previous: %s", this.box_())
 }
 
 func (this Node) removeFirstChild() Node {
@@ -633,7 +645,7 @@ func (this Node) detachChildren() {
 			var nextChild Node = child.ns_().next_
 			child.ns_().parent = 0
 			child.ns_().next_ = 0
-			child.ns_().previous = 0
+			child.cs_().previous = 0
 			child = nextChild
 		}
 	}
@@ -1151,9 +1163,9 @@ func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotation
 			sb.append_int(this.getCharno())
 			sb.append_char(' ')
 		}
-		if this.ns_().length_ != 0 {
+		if this.cs_().length_ != 0 {
 			sb.append(" [length: ")
-			sb.append_int(this.ns_().length_)
+			sb.append_int(this.cs_().length_)
 			sb.append_char(']')
 		}
 	}
@@ -1216,9 +1228,9 @@ func (this Node) toJson(sb Appendable) {
 		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("line", String_valueOf(lineno))))
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("col", String_valueOf(this.getCharno()))))
-		if this.ns_().length_ != 0 {
+		if this.cs_().length_ != 0 {
 			sb.append_char(',')
-			sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("length", String_valueOf(this.ns_().length_))))
+			sb.append_CharSequence(strobj_(Node_createJsonPairRawValue("length", String_valueOf(this.cs_().length_))))
 		}
 		sb.append_CharSequence(strobj_("}"))
 	}
@@ -1421,27 +1433,27 @@ func (this Node) isClosureUnawareCode() bool {
 }
 
 func (this Node) getLength() int32 {
-	return this.ns_().length_
+	return this.cs_().length_
 }
 
 func (this Node) setLength(length int32) {
-	this.ns_().length_ = length
+	this.cs_().length_ = length
 }
 
 func (this Node) getLineno() int32 {
-	if this.ns_().linenoCharno == -1 {
+	if this.cs_().linenoCharno == -1 {
 		return -1
 	} else {
-		return int32(uint32(this.ns_().linenoCharno) >> 12)
+		return int32(uint32(this.cs_().linenoCharno) >> 12)
 	}
 	panic("unreachable")
 }
 
 func (this Node) getCharno() int32 {
-	if this.ns_().linenoCharno == -1 {
+	if this.cs_().linenoCharno == -1 {
 		return -1
 	} else {
-		return (this.ns_().linenoCharno & Node_MAX_COLUMN_NUMBER)
+		return (this.cs_().linenoCharno & Node_MAX_COLUMN_NUMBER)
 	}
 	panic("unreachable")
 }
@@ -1463,18 +1475,18 @@ func (this Node) getSourceOffset() int32 {
 }
 
 func (this Node) getSourcePosition() int32 {
-	return this.ns_().linenoCharno
+	return this.cs_().linenoCharno
 }
 
 func (this Node) setLinenoCharno(lineno int32, charno int32) Node {
 	if (lineno < 0) || (charno < 0) {
-		this.ns_().linenoCharno = -1
+		this.cs_().linenoCharno = -1
 		return this
 	}
 	if charno > Node_MAX_COLUMN_NUMBER {
 		charno = Node_MAX_COLUMN_NUMBER
 	}
-	this.ns_().linenoCharno = ((lineno << 12) | charno)
+	this.cs_().linenoCharno = ((lineno << 12) | charno)
 	return this
 }
 
@@ -2055,8 +2067,8 @@ func (this Node) cloneNode_1(cloneTypeExprs bool) Node {
 }
 
 func Node_copyBaseNodeFields(source Node, dest Node, cloneTypeExprs bool) {
-	dest.ns_().linenoCharno = source.ns_().linenoCharno
-	dest.ns_().length_ = source.ns_().length_
+	dest.cs_().linenoCharno = source.cs_().linenoCharno
+	dest.cs_().length_ = source.cs_().length_
 	dest.ps_().jstypeOrColor = source.ps_().jstypeOrColor
 	dest.ps_().originalName = source.ps_().originalName
 	dest.setPropList_(source.ps_().propListHead)
@@ -2087,12 +2099,12 @@ func (this Node) cloneTree_1(cloneTypeExprs bool) Node {
 					lastChild = firstChild
 				} else {
 					lastChild.ns_().next_ = n2clone
-					n2clone.ns_().previous = lastChild
+					n2clone.cs_().previous = lastChild
 					lastChild = n2clone
 				}
 			}
 		}
-		firstChild.ns_().previous = lastChild
+		firstChild.cs_().previous = lastChild
 		lastChild.ns_().next_ = 0
 		result.ns_().first = firstChild
 	}
@@ -2106,8 +2118,8 @@ func (this Node) cloneTree_1(cloneTypeExprs bool) Node {
 func (this Node) srcref(other Node) Node {
 	this.setStaticSourceFileFrom(other)
 	this.ps_().originalName = other.ps_().originalName
-	this.ns_().linenoCharno = other.ns_().linenoCharno
-	this.ns_().length_ = other.ns_().length_
+	this.cs_().linenoCharno = other.cs_().linenoCharno
+	this.cs_().length_ = other.cs_().length_
 	return this
 }
 
@@ -2125,8 +2137,8 @@ func (this Node) srcrefTree(other Node) Node {
 func (this Node) srcrefIfMissing(other Node) Node {
 	if this.getStaticSourceFile() == nil {
 		this.setStaticSourceFileFrom(other)
-		this.ns_().linenoCharno = other.ns_().linenoCharno
-		this.ns_().length_ = other.ns_().length_
+		this.cs_().linenoCharno = other.cs_().linenoCharno
+		this.cs_().length_ = other.cs_().length_
 	}
 	if String_isEmpty(this.ps_().originalName) {
 		this.ps_().originalName = other.ps_().originalName
