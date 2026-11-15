@@ -431,3 +431,32 @@ func CoalesceVariableNames_LiveRangeChecker_isAssignTo(var_ *Var, n Node, parent
 func CoalesceVariableNames_LiveRangeChecker_isReadFrom(var_ *Var, name Node) bool {
 	return ((name.isName() && (var_.getName() == name.getString())) && !NodeUtil_isNameDeclOrSimpleAssignLhs(name, name.getParent()))
 }
+
+// enterScopeWithCfg: an object that is exactly a CoalesceVariableNames calls its enterScopeWithCfg_impl directly (post-flip); others dispatch.
+func (this *CoalesceVariableNames) enterScopeWithCfg(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.enterScopeWithCfg_impl(p0)
+		return
+	}
+	this.self_.(interface{ enterScopeWithCfg_impl(*NodeTraversal) }).enterScopeWithCfg_impl(p0)
+}
+
+// exitScopeWithCfg: an object that is exactly a CoalesceVariableNames calls its exitScopeWithCfg_impl directly (post-flip); others dispatch.
+func (this *CoalesceVariableNames) exitScopeWithCfg(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.exitScopeWithCfg_impl(p0)
+		return
+	}
+	this.self_.(interface{ exitScopeWithCfg_impl(*NodeTraversal) }).exitScopeWithCfg_impl(p0)
+}
+
+// visit: an object that is exactly a CoalesceVariableNames calls its visit_impl directly (post-flip); others dispatch.
+func (this *CoalesceVariableNames) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

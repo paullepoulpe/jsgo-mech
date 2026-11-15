@@ -405,3 +405,14 @@ func (this *DataFlowAnalysis_1) visit_impl(t *NodeTraversal, n Node, parent Node
 		this.cap_escaped.add(obj_(var_))
 	}
 }
+
+// visit: an object that is exactly a DataFlowAnalysis_1 calls its visit_impl directly (post-flip); others dispatch.
+func (this *DataFlowAnalysis_1) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

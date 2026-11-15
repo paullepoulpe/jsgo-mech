@@ -69,3 +69,21 @@ func (this *PrintStreamErrorManager) printSummary_impl() {
 		}
 	}
 }
+
+// println: an object that is exactly a PrintStreamErrorManager calls its println_impl directly (post-flip); others dispatch.
+func (this *PrintStreamErrorManager) println(p0 *CheckLevel, p1 *JSError) {
+	if this.self_ == any(this) {
+		this.println_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ println_impl(*CheckLevel, *JSError) }).println_impl(p0, p1)
+}
+
+// printSummary: an object that is exactly a PrintStreamErrorManager calls its printSummary_impl directly (post-flip); others dispatch.
+func (this *PrintStreamErrorManager) printSummary() {
+	if this.self_ == any(this) {
+		this.printSummary_impl()
+		return
+	}
+	this.self_.(interface{ printSummary_impl() }).printSummary_impl()
+}

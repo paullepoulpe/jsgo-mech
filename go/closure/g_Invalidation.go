@@ -159,3 +159,11 @@ func (this *Invalidation_WithReceiverType) toLogsGson_impl() any {
 	Map_put_s(json, "reason", obj_(this.reason))
 	return obj_(json)
 }
+
+// toLogsGson: an object that is exactly a Invalidation_WithReceiverType calls its toLogsGson_impl directly (post-flip); others dispatch.
+func (this *Invalidation_WithReceiverType) toLogsGson() any {
+	if this.self_ == any(this) {
+		return this.toLogsGson_impl()
+	}
+	return this.self_.(interface{ toLogsGson_impl() any }).toLogsGson_impl()
+}

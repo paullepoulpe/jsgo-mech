@@ -102,3 +102,14 @@ func CheckRegExp_clinit() {
 	CheckRegExp_REGEXP_PROPERTY_SKIPLIST = ImmutableSet_of_Object_Object_Object_Object_Object_Object_ObjectArr(strobj_("$1"), strobj_("$2"), strobj_("$3"), strobj_("$4"), strobj_("$5"), strobj_("$6"), []any{strobj_("$7"), strobj_("$8"), strobj_("$9"), strobj_("$_"), strobj_("$input"), strobj_("input"), strobj_("lastMatch"), strobj_("lastParen"), strobj_("leftContext"), strobj_("rightContext"), strobj_("global"), strobj_("ignoreCase"), strobj_("lastIndex"), strobj_("multiline"), strobj_("source")})
 
 }
+
+// visit: an object that is exactly a CheckRegExp calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckRegExp) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

@@ -592,3 +592,14 @@ func (this *CheckJSDoc_CheckJsdocTypes) visit(typeRefNode Node) {
 		typeRefNode.setString(("UnrecognizedType_" + sstr_(typeName)))
 	}
 }
+
+// visit: an object that is exactly a CheckJSDoc calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckJSDoc) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

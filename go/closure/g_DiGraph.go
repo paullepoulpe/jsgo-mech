@@ -114,3 +114,19 @@ type DiGraph_DiGraphEdge interface {
 	getSource() DiGraph_DiGraphNode
 	getDestination() DiGraph_DiGraphNode
 }
+
+// isConnected: an object that is exactly a DiGraph calls its isConnected_impl directly (post-flip); others dispatch.
+func (this *DiGraph) isConnected(p0 any, p1 any) bool {
+	if this.self_ == any(this) {
+		return this.isConnected_impl(p0, p1)
+	}
+	return this.self_.(interface{ isConnected_impl(any, any) bool }).isConnected_impl(p0, p1)
+}
+
+// isConnected_3: an object that is exactly a DiGraph calls its isConnected_3_impl directly (post-flip); others dispatch.
+func (this *DiGraph) isConnected_3(p0 any, p1 any, p2 any) bool {
+	if this.self_ == any(this) {
+		return this.isConnected_3_impl(p0, p1, p2)
+	}
+	return this.self_.(interface{ isConnected_3_impl(any, any, any) bool }).isConnected_3_impl(p0, p1, p2)
+}

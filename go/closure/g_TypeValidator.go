@@ -781,3 +781,59 @@ func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType
 func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType_impl(templateType *TemplateType) any {
 	return any(bool((!templateType.containsCycle() && unbox_[bool](templateType.getBound().visit(icast_Visitor(obj_(this)))))))
 }
+
+// caseDefault: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseDefault_impl directly (post-flip); others dispatch.
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseDefault(p0 *JSType) any {
+	if this.self_ == any(this) {
+		return this.caseDefault_impl(p0)
+	}
+	return this.self_.(interface{ caseDefault_impl(*JSType) any }).caseDefault_impl(p0)
+}
+
+// caseEnumElementType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseEnumElementType_impl directly (post-flip); others dispatch.
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseEnumElementType(p0 *EnumElementType) any {
+	if this.self_ == any(this) {
+		return this.caseEnumElementType_impl(p0)
+	}
+	return this.self_.(interface{ caseEnumElementType_impl(*EnumElementType) any }).caseEnumElementType_impl(p0)
+}
+
+// caseFunctionType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseFunctionType_impl directly (post-flip); others dispatch.
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseFunctionType(p0 *FunctionType) any {
+	if this.self_ == any(this) {
+		return this.caseFunctionType_impl(p0)
+	}
+	return this.self_.(interface{ caseFunctionType_impl(*FunctionType) any }).caseFunctionType_impl(p0)
+}
+
+// caseNamedType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseNamedType_impl directly (post-flip); others dispatch.
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseNamedType(p0 *NamedType) any {
+	if this.self_ == any(this) {
+		return this.caseNamedType_impl(p0)
+	}
+	return this.self_.(interface{ caseNamedType_impl(*NamedType) any }).caseNamedType_impl(p0)
+}
+
+// caseUnionType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseUnionType_impl directly (post-flip); others dispatch.
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseUnionType(p0 *UnionType) any {
+	if this.self_ == any(this) {
+		return this.caseUnionType_impl(p0)
+	}
+	return this.self_.(interface{ caseUnionType_impl(*UnionType) any }).caseUnionType_impl(p0)
+}
+
+// caseTemplatizedType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseTemplatizedType_impl directly (post-flip); others dispatch.
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplatizedType(p0 *TemplatizedType) any {
+	if this.self_ == any(this) {
+		return this.caseTemplatizedType_impl(p0)
+	}
+	return this.self_.(interface{ caseTemplatizedType_impl(*TemplatizedType) any }).caseTemplatizedType_impl(p0)
+}
+
+// caseTemplateType: an object that is exactly a TypeValidator_WellFormedTemplatizedTypeVerifier calls its caseTemplateType_impl directly (post-flip); others dispatch.
+func (this *TypeValidator_WellFormedTemplatizedTypeVerifier) caseTemplateType(p0 *TemplateType) any {
+	if this.self_ == any(this) {
+		return this.caseTemplateType_impl(p0)
+	}
+	return this.self_.(interface{ caseTemplateType_impl(*TemplateType) any }).caseTemplateType_impl(p0)
+}

@@ -186,3 +186,13 @@ func CheckEs6ModuleFileStructure_OrderedStatement_clinit() {
 	registerEnum_("com.google.javascript.jscomp.lint.CheckEs6ModuleFileStructure.OrderedStatement", enumValues_(CheckEs6ModuleFileStructure_OrderedStatement_values_))
 
 }
+
+// shouldTraverse: an object that is exactly a CheckEs6ModuleFileStructure calls its shouldTraverse_impl directly (post-flip); others dispatch.
+func (this *CheckEs6ModuleFileStructure) shouldTraverse(p0 *NodeTraversal, p1 Node, p2 Node) bool {
+	if this.self_ == any(this) {
+		return this.shouldTraverse_impl(p0, p1, p2)
+	}
+	return this.self_.(interface {
+		shouldTraverse_impl(*NodeTraversal, Node, Node) bool
+	}).shouldTraverse_impl(p0, p1, p2)
+}

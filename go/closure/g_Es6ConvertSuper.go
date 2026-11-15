@@ -206,3 +206,14 @@ func Es6ConvertSuper_clinit() {
 	Es6ConvertSuper_FEATURES_TO_RUN_FOR = FeatureSet_BARE_MINIMUM.withFeatureVarargs([]*FeatureSet_Feature{FeatureSet_Feature_SUPER, FeatureSet_Feature_CLASSES})
 
 }
+
+// visit: an object that is exactly a Es6ConvertSuper calls its visit_impl directly (post-flip); others dispatch.
+func (this *Es6ConvertSuper) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

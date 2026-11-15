@@ -1336,3 +1336,36 @@ func (this *InlineFunctions_ShouldRequireInlining) hashCode() int32 {
 func (this *InlineFunctions_ShouldRequireInlining) toString() string {
 	return "ShouldRequireInlining[" + "shouldValidate=" + objstr_(any(bool(this.shouldValidate_))) + ", optMessage=" + objstr_(strobj_(this.optMessage_)) + "]"
 }
+
+// visit: an object that is exactly a InlineFunctions_FindCandidateFunctions calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineFunctions_FindCandidateFunctions) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineFunctions_CallVisitor calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineFunctions_CallVisitor) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// visit: an object that is exactly a InlineFunctions_FindCandidatesReferences calls its visit_impl directly (post-flip); others dispatch.
+func (this *InlineFunctions_FindCandidatesReferences) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

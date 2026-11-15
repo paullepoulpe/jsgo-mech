@@ -591,3 +591,65 @@ func ClosureBundler_EscapeMode_2_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ClosureBundler.EscapeMode>", enumValues_(ClosureBundler_EscapeMode_2_values_))
 
 }
+
+// appendTraditional: an object that is exactly a ClosureBundler_EvalMode_1 calls its appendTraditional_impl directly (post-flip); others dispatch.
+func (this *ClosureBundler_EvalMode_1) appendTraditional(p0 string, p1 Appendable, p2 Optional) {
+	if this.self_ == any(this) {
+		this.appendTraditional_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		appendTraditional_impl(string, Appendable, Optional)
+	}).appendTraditional_impl(p0, p1, p2)
+}
+
+// appendGoogModule: an object that is exactly a ClosureBundler_EvalMode_1 calls its appendGoogModule_impl directly (post-flip); others dispatch.
+func (this *ClosureBundler_EvalMode_1) appendGoogModule(p0 string, p1 Appendable, p2 Optional) {
+	if this.self_ == any(this) {
+		this.appendGoogModule_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		appendGoogModule_impl(string, Appendable, Optional)
+	}).appendGoogModule_impl(p0, p1, p2)
+}
+
+// appendTraditional: an object that is exactly a ClosureBundler_EvalMode_2 calls its appendTraditional_impl directly (post-flip); others dispatch.
+func (this *ClosureBundler_EvalMode_2) appendTraditional(p0 string, p1 Appendable, p2 Optional) {
+	if this.self_ == any(this) {
+		this.appendTraditional_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		appendTraditional_impl(string, Appendable, Optional)
+	}).appendTraditional_impl(p0, p1, p2)
+}
+
+// appendGoogModule: an object that is exactly a ClosureBundler_EvalMode_2 calls its appendGoogModule_impl directly (post-flip); others dispatch.
+func (this *ClosureBundler_EvalMode_2) appendGoogModule(p0 string, p1 Appendable, p2 Optional) {
+	if this.self_ == any(this) {
+		this.appendGoogModule_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		appendGoogModule_impl(string, Appendable, Optional)
+	}).appendGoogModule_impl(p0, p1, p2)
+}
+
+// append: an object that is exactly a ClosureBundler_EscapeMode_1 calls its append_impl directly (post-flip); others dispatch.
+func (this *ClosureBundler_EscapeMode_1) append(p0 string, p1 Appendable) {
+	if this.self_ == any(this) {
+		this.append_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ append_impl(string, Appendable) }).append_impl(p0, p1)
+}
+
+// append: an object that is exactly a ClosureBundler_EscapeMode_2 calls its append_impl directly (post-flip); others dispatch.
+func (this *ClosureBundler_EscapeMode_2) append(p0 string, p1 Appendable) {
+	if this.self_ == any(this) {
+		this.append_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ append_impl(string, Appendable) }).append_impl(p0, p1)
+}

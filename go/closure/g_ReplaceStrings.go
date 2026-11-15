@@ -361,3 +361,14 @@ func new_ReplaceStrings_Result(original string, replacement string) *ReplaceStri
 	this.init_ReplaceStrings_Result(original, replacement)
 	return this
 }
+
+// visit: an object that is exactly a ReplaceStrings calls its visit_impl directly (post-flip); others dispatch.
+func (this *ReplaceStrings) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

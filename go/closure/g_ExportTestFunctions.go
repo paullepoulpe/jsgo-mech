@@ -261,3 +261,14 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) isNameDeclaredClass(no
 	var grandchild Node = this.getNameDeclaredGrandchild(node)
 	return ((grandchild != 0) && grandchild.isClass())
 }
+
+// visit: an object that is exactly a ExportTestFunctions_ExportTestFunctionsNodes calls its visit_impl directly (post-flip); others dispatch.
+func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

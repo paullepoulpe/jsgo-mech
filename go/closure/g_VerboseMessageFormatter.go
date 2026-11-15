@@ -58,3 +58,19 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 		return strobj_(".")
 	}()})
 }
+
+// formatError: an object that is exactly a VerboseMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.
+func (this *VerboseMessageFormatter) formatError(p0 *JSError) string {
+	if this.self_ == any(this) {
+		return this.formatError_impl(p0)
+	}
+	return this.self_.(interface{ formatError_impl(*JSError) string }).formatError_impl(p0)
+}
+
+// formatWarning: an object that is exactly a VerboseMessageFormatter calls its formatWarning_impl directly (post-flip); others dispatch.
+func (this *VerboseMessageFormatter) formatWarning(p0 *JSError) string {
+	if this.self_ == any(this) {
+		return this.formatWarning_impl(p0)
+	}
+	return this.self_.(interface{ formatWarning_impl(*JSError) string }).formatWarning_impl(p0)
+}

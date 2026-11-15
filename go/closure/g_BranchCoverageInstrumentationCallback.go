@@ -224,3 +224,14 @@ func (this *BranchCoverageInstrumentationCallback) newBranchesInLineNode(name st
 }
 
 const BranchCoverageInstrumentationCallback_BRANCH_ARRAY_NAME_PREFIX string = "JSCompiler_lcov_branch_data_"
+
+// visit: an object that is exactly a BranchCoverageInstrumentationCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *BranchCoverageInstrumentationCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

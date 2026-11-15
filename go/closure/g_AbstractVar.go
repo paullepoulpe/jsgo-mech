@@ -291,3 +291,19 @@ func AbstractVar_clinit() {
 	AbstractVar_DECLARATION_TYPES = Sets_immutableEnumSet(Token_rhino_VAR.up_Enum(), []*Enum{Token_rhino_LET.up_Enum(), Token_rhino_CONST.up_Enum(), Token_rhino_FUNCTION.up_Enum(), Token_rhino_CLASS.up_Enum(), Token_rhino_CATCH.up_Enum(), Token_rhino_IMPORT.up_Enum(), Token_rhino_PARAM_LIST.up_Enum()})
 
 }
+
+// getName: an object that is exactly a AbstractVar calls its getName_impl directly (post-flip); others dispatch.
+func (this *AbstractVar) getName() string {
+	if this.self_ == any(this) {
+		return this.getName_impl()
+	}
+	return this.self_.(interface{ getName_impl() string }).getName_impl()
+}
+
+// getScopeRoot: an object that is exactly a AbstractVar calls its getScopeRoot_impl directly (post-flip); others dispatch.
+func (this *AbstractVar) getScopeRoot() Node {
+	if this.self_ == any(this) {
+		return this.getScopeRoot_impl()
+	}
+	return this.self_.(interface{ getScopeRoot_impl() Node }).getScopeRoot_impl()
+}

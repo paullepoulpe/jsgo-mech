@@ -581,3 +581,12 @@ func (this *PolyfillUsageFinder_Traverser) visitGetPropChain(traversal *NodeTrav
 		}
 	}
 }
+
+// visitGuarded: an object that is exactly a PolyfillUsageFinder_Traverser calls its visitGuarded_impl directly (post-flip); others dispatch.
+func (this *PolyfillUsageFinder_Traverser) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visitGuarded_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(*PolyfillUsageFinder_Traverser).visitGuarded_impl(p0, p1, p2)
+}

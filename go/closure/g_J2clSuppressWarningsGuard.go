@@ -55,3 +55,19 @@ func J2clSuppressWarningsGuard_clinit() {
 	J2clSuppressWarningsGuard_DEFAULT_J2CL_SUPRRESIONS = DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_of(strobj_("j2clIncomaptible")), []*DiagnosticGroup{DiagnosticGroups_CHECK_STATIC_OVERRIDES, DiagnosticGroups_CHECK_USELESS_CODE, DiagnosticGroups_CONST, DiagnosticGroups_EXTRA_REQUIRE, DiagnosticGroups_INVALID_CASTS, DiagnosticGroups_LATE_PROVIDE, DiagnosticGroups_MISSING_OVERRIDE, DiagnosticGroups_MISSING_REQUIRE, DiagnosticGroups_STRICT_MODULE_DEP_CHECK, DiagnosticGroups_SUSPICIOUS_CODE, DiagnosticGroups_UNUSED_LOCAL_VARIABLE, DiagnosticGroups_STRICT_MISSING_PROPERTIES, DiagnosticGroups_forName("transitionalSuspiciousCodeWarnings")})
 
 }
+
+// level: an object that is exactly a J2clSuppressWarningsGuard calls its level_impl directly (post-flip); others dispatch.
+func (this *J2clSuppressWarningsGuard) level(p0 *JSError) *CheckLevel {
+	if this.self_ == any(this) {
+		return this.level_impl(p0)
+	}
+	return this.self_.(interface{ level_impl(*JSError) *CheckLevel }).level_impl(p0)
+}
+
+// getPriority: an object that is exactly a J2clSuppressWarningsGuard calls its getPriority_impl directly (post-flip); others dispatch.
+func (this *J2clSuppressWarningsGuard) getPriority() int32 {
+	if this.self_ == any(this) {
+		return this.getPriority_impl()
+	}
+	return this.self_.(interface{ getPriority_impl() int32 }).getPriority_impl()
+}

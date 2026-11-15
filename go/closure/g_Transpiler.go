@@ -61,3 +61,19 @@ func Transpiler_bundle_clinit() {
 	Transpiler_bundle_TO_ES5 = new_Transpiler_bundle(new_CompilerBasedTransformer_CompilerSupplier(), "es6_runtime")
 
 }
+
+// getRuntime: an object that is exactly a Transpiler_bundle calls its getRuntime_impl directly (post-flip); others dispatch.
+func (this *Transpiler_bundle) getRuntime() Optional {
+	if this.self_ == any(this) {
+		return this.getRuntime_impl()
+	}
+	return this.self_.(interface{ getRuntime_impl() Optional }).getRuntime_impl()
+}
+
+// getTranformationName: an object that is exactly a Transpiler_bundle calls its getTranformationName_impl directly (post-flip); others dispatch.
+func (this *Transpiler_bundle) getTranformationName() string {
+	if this.self_ == any(this) {
+		return this.getTranformationName_impl()
+	}
+	return this.self_.(interface{ getTranformationName_impl() string }).getTranformationName_impl()
+}

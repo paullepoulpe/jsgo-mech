@@ -868,3 +868,42 @@ func (this *MakeDeclaredNamesUnique_TargettedRenamer) createForChildScope(scopeR
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) getHoistRenamer() MakeDeclaredNamesUnique_Renamer {
 	return this.delegate.getHoistRenamer()
 }
+
+// enterScope: an object that is exactly a MakeDeclaredNamesUnique calls its enterScope_impl directly (post-flip); others dispatch.
+func (this *MakeDeclaredNamesUnique) enterScope(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.enterScope_impl(p0)
+		return
+	}
+	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+}
+
+// exitScope: an object that is exactly a MakeDeclaredNamesUnique calls its exitScope_impl directly (post-flip); others dispatch.
+func (this *MakeDeclaredNamesUnique) exitScope(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.exitScope_impl(p0)
+		return
+	}
+	this.self_.(interface{ exitScope_impl(*NodeTraversal) }).exitScope_impl(p0)
+}
+
+// visit: an object that is exactly a MakeDeclaredNamesUnique calls its visit_impl directly (post-flip); others dispatch.
+func (this *MakeDeclaredNamesUnique) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// createForChildScope: an object that is exactly a MakeDeclaredNamesUnique_BoilerplateRenamer calls its createForChildScope_impl directly (post-flip); others dispatch.
+func (this *MakeDeclaredNamesUnique_BoilerplateRenamer) createForChildScope(p0 Node, p1 bool) MakeDeclaredNamesUnique_Renamer {
+	if this.self_ == any(this) {
+		return this.createForChildScope_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		createForChildScope_impl(Node, bool) MakeDeclaredNamesUnique_Renamer
+	}).createForChildScope_impl(p0, p1)
+}

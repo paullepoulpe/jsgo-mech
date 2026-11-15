@@ -749,3 +749,35 @@ func ModuleLoader_PathResolver_2_clinit() {
 	registerEnum_("<anonymous com.google.javascript.jscomp.deps.ModuleLoader.PathResolver>", enumValues_(ModuleLoader_PathResolver_2_values_))
 
 }
+
+// escape: an object that is exactly a ModuleLoader_PathEscaper_1 calls its escape_impl directly (post-flip); others dispatch.
+func (this *ModuleLoader_PathEscaper_1) escape(p0 string) string {
+	if this.self_ == any(this) {
+		return this.escape_impl(p0)
+	}
+	return this.self_.(interface{ escape_impl(string) string }).escape_impl(p0)
+}
+
+// escape: an object that is exactly a ModuleLoader_PathEscaper_2 calls its escape_impl directly (post-flip); others dispatch.
+func (this *ModuleLoader_PathEscaper_2) escape(p0 string) string {
+	if this.self_ == any(this) {
+		return this.escape_impl(p0)
+	}
+	return this.self_.(interface{ escape_impl(string) string }).escape_impl(p0)
+}
+
+// apply: an object that is exactly a ModuleLoader_PathResolver_1 calls its apply_impl directly (post-flip); others dispatch.
+func (this *ModuleLoader_PathResolver_1) apply(p0 any) any {
+	if this.self_ == any(this) {
+		return this.apply_impl(p0)
+	}
+	return this.self_.(interface{ apply_impl(any) any }).apply_impl(p0)
+}
+
+// apply: an object that is exactly a ModuleLoader_PathResolver_2 calls its apply_impl directly (post-flip); others dispatch.
+func (this *ModuleLoader_PathResolver_2) apply(p0 any) any {
+	if this.self_ == any(this) {
+		return this.apply_impl(p0)
+	}
+	return this.self_.(interface{ apply_impl(any) any }).apply_impl(p0)
+}

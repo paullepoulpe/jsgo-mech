@@ -1451,3 +1451,14 @@ func (this *JsMessageVisitor_7) getPlaceholderNames() ImmutableSetOf[string] {
 func (this *JsMessageVisitor_7) getParts() ImmutableListOf[JsMessage_Part] {
 	return this.cap_parts
 }
+
+// visit: an object that is exactly a JsMessageVisitor calls its visit_impl directly (post-flip); others dispatch.
+func (this *JsMessageVisitor) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

@@ -116,3 +116,32 @@ func (this *PeepholeOptimizationsPass_PeepCallback) updateFeatures(t *NodeTraver
 		optim.clearNewFeatures()
 	}
 }
+
+// visit: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its visit_impl directly (post-flip); others dispatch.
+func (this *PeepholeOptimizationsPass_PeepCallback) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}
+
+// enterScope: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its enterScope_impl directly (post-flip); others dispatch.
+func (this *PeepholeOptimizationsPass_PeepCallback) enterScope(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.enterScope_impl(p0)
+		return
+	}
+	this.self_.(interface{ enterScope_impl(*NodeTraversal) }).enterScope_impl(p0)
+}
+
+// exitScope: an object that is exactly a PeepholeOptimizationsPass_PeepCallback calls its exitScope_impl directly (post-flip); others dispatch.
+func (this *PeepholeOptimizationsPass_PeepCallback) exitScope(p0 *NodeTraversal) {
+	if this.self_ == any(this) {
+		this.exitScope_impl(p0)
+		return
+	}
+	this.self_.(interface{ exitScope_impl(*NodeTraversal) }).exitScope_impl(p0)
+}

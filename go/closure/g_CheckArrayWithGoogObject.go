@@ -90,3 +90,14 @@ func CheckArrayWithGoogObject_clinit() {
 	CheckArrayWithGoogObject_ARRAY_PASSED_TO_GOOG_OBJECT = DiagnosticType_warning("JSC_ARRAY_PASSED_TO_GOOG_OBJECT", "{0} expects an object, not an array. Did you mean to use goog.array?")
 
 }
+
+// visit: an object that is exactly a CheckArrayWithGoogObject calls its visit_impl directly (post-flip); others dispatch.
+func (this *CheckArrayWithGoogObject) visit(p0 *NodeTraversal, p1 Node, p2 Node) {
+	if this.self_ == any(this) {
+		this.visit_impl(p0, p1, p2)
+		return
+	}
+	this.self_.(interface {
+		visit_impl(*NodeTraversal, Node, Node)
+	}).visit_impl(p0, p1, p2)
+}

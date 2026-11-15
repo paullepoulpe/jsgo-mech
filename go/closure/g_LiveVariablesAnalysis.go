@@ -324,3 +324,47 @@ func (this *LiveVariablesAnalysis_LiveVariableLattice) nextSetBit(fromIndex int3
 func (this *LiveVariablesAnalysis_LiveVariableLattice) hashCode() int32 {
 	return Object_hashCode(obj_(this.liveSet))
 }
+
+// isForward: an object that is exactly a LiveVariablesAnalysis calls its isForward_impl directly (post-flip); others dispatch.
+func (this *LiveVariablesAnalysis) isForward() bool {
+	if this.self_ == any(this) {
+		return this.isForward_impl()
+	}
+	return this.self_.(interface{ isForward_impl() bool }).isForward_impl()
+}
+
+// createEntryLattice: an object that is exactly a LiveVariablesAnalysis calls its createEntryLattice_impl directly (post-flip); others dispatch.
+func (this *LiveVariablesAnalysis) createEntryLattice() LatticeElement {
+	if this.self_ == any(this) {
+		return this.createEntryLattice_impl()
+	}
+	return this.self_.(interface{ createEntryLattice_impl() LatticeElement }).createEntryLattice_impl()
+}
+
+// createInitialEstimateLattice: an object that is exactly a LiveVariablesAnalysis calls its createInitialEstimateLattice_impl directly (post-flip); others dispatch.
+func (this *LiveVariablesAnalysis) createInitialEstimateLattice() LatticeElement {
+	if this.self_ == any(this) {
+		return this.createInitialEstimateLattice_impl()
+	}
+	return this.self_.(interface{ createInitialEstimateLattice_impl() LatticeElement }).createInitialEstimateLattice_impl()
+}
+
+// createFlowJoiner: an object that is exactly a LiveVariablesAnalysis calls its createFlowJoiner_impl directly (post-flip); others dispatch.
+func (this *LiveVariablesAnalysis) createFlowJoiner() DataFlowAnalysis_FlowJoiner {
+	if this.self_ == any(this) {
+		return this.createFlowJoiner_impl()
+	}
+	return this.self_.(interface {
+		createFlowJoiner_impl() DataFlowAnalysis_FlowJoiner
+	}).createFlowJoiner_impl()
+}
+
+// flowThrough: an object that is exactly a LiveVariablesAnalysis calls its flowThrough_impl directly (post-flip); others dispatch.
+func (this *LiveVariablesAnalysis) flowThrough(p0 any, p1 LatticeElement) LatticeElement {
+	if this.self_ == any(this) {
+		return this.flowThrough_impl(p0, p1)
+	}
+	return this.self_.(interface {
+		flowThrough_impl(any, LatticeElement) LatticeElement
+	}).flowThrough_impl(p0, p1)
+}

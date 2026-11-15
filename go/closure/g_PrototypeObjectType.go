@@ -564,3 +564,190 @@ func (this *PrototypeObjectType_PropertyForPrettyPrinting) hashCode() int32 {
 func (this *PrototypeObjectType_PropertyForPrettyPrinting) toString() string {
 	return "PropertyForPrettyPrinting[" + "key=" + objstr_(any(this.key_)) + ", type=" + objstr_(this.type__.self()) + "]"
 }
+
+// getTypeClass: an object that is exactly a PrototypeObjectType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// getPropertyMap: an object that is exactly a PrototypeObjectType calls its getPropertyMap_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getPropertyMap() *PropertyMap {
+	if this.self_ == any(this) {
+		return this.getPropertyMap_impl()
+	}
+	return this.self_.(interface{ getPropertyMap_impl() *PropertyMap }).getPropertyMap_impl()
+}
+
+// defineProperty: an object that is exactly a PrototypeObjectType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if this.self_ == any(this) {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.(interface {
+		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	}).defineProperty_impl(p0, p1, p2, p3)
+}
+
+// setPropertyJSDocInfoKey: an object that is exactly a PrototypeObjectType calls its setPropertyJSDocInfoKey_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo) {
+	if this.self_ == any(this) {
+		this.setPropertyJSDocInfoKey_impl(p0, p1)
+		return
+	}
+	this.self_.(interface {
+		setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo)
+	}).setPropertyJSDocInfoKey_impl(p0, p1)
+}
+
+// setPropertyNode: an object that is exactly a PrototypeObjectType calls its setPropertyNode_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) setPropertyNode(p0 Property_Key, p1 Node) {
+	if this.self_ == any(this) {
+		this.setPropertyNode_impl(p0, p1)
+		return
+	}
+	this.self_.(interface{ setPropertyNode_impl(Property_Key, Node) }).setPropertyNode_impl(p0, p1)
+}
+
+// matchesNumberContext: an object that is exactly a PrototypeObjectType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesNumberContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesNumberContext_impl()
+	}
+	return this.self_.(interface{ matchesNumberContext_impl() bool }).matchesNumberContext_impl()
+}
+
+// matchesStringContext: an object that is exactly a PrototypeObjectType calls its matchesStringContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesStringContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesStringContext_impl()
+	}
+	return this.self_.(interface{ matchesStringContext_impl() bool }).matchesStringContext_impl()
+}
+
+// matchesSymbolContext: an object that is exactly a PrototypeObjectType calls its matchesSymbolContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesSymbolContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesSymbolContext_impl()
+	}
+	return this.self_.(interface{ matchesSymbolContext_impl() bool }).matchesSymbolContext_impl()
+}
+
+// matchesObjectContext: an object that is exactly a PrototypeObjectType calls its matchesObjectContext_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchesObjectContext() bool {
+	if this.self_ == any(this) {
+		return this.matchesObjectContext_impl()
+	}
+	return this.self_.(interface{ matchesObjectContext_impl() bool }).matchesObjectContext_impl()
+}
+
+// appendTo: an object that is exactly a PrototypeObjectType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) appendTo(p0 *TypeStringBuilder) {
+	if this.self_ == any(this) {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+}
+
+// getConstructor: an object that is exactly a PrototypeObjectType calls its getConstructor_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getConstructor() *FunctionType {
+	if this.self_ == any(this) {
+		return this.getConstructor_impl()
+	}
+	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+}
+
+// getImplicitPrototype: an object that is exactly a PrototypeObjectType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getImplicitPrototype() *ObjectType {
+	if this.self_ == any(this) {
+		return this.getImplicitPrototype_impl()
+	}
+	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+}
+
+// getTemplateParamCount: an object that is exactly a PrototypeObjectType calls its getTemplateParamCount_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getTemplateParamCount() int32 {
+	if this.self_ == any(this) {
+		return this.getTemplateParamCount_impl()
+	}
+	return this.self_.(interface{ getTemplateParamCount_impl() int32 }).getTemplateParamCount_impl()
+}
+
+// getReferenceName: an object that is exactly a PrototypeObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getReferenceName() Optional {
+	if this.self_ == any(this) {
+		return this.getReferenceName_impl()
+	}
+	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+}
+
+// isNativeObjectType: an object that is exactly a PrototypeObjectType calls its isNativeObjectType_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) isNativeObjectType() bool {
+	if this.self_ == any(this) {
+		return this.isNativeObjectType_impl()
+	}
+	return this.self_.(interface{ isNativeObjectType_impl() bool }).isNativeObjectType_impl()
+}
+
+// setOwnerFunction: an object that is exactly a PrototypeObjectType calls its setOwnerFunction_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) setOwnerFunction(p0 *FunctionType) {
+	if this.self_ == any(this) {
+		this.setOwnerFunction_impl(p0)
+		return
+	}
+	this.self_.(interface{ setOwnerFunction_impl(*FunctionType) }).setOwnerFunction_impl(p0)
+}
+
+// getOwnerFunction: an object that is exactly a PrototypeObjectType calls its getOwnerFunction_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getOwnerFunction() *FunctionType {
+	if this.self_ == any(this) {
+		return this.getOwnerFunction_impl()
+	}
+	return this.self_.(interface{ getOwnerFunction_impl() *FunctionType }).getOwnerFunction_impl()
+}
+
+// getCtorImplementedInterfaces: an object that is exactly a PrototypeObjectType calls its getCtorImplementedInterfaces_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getCtorImplementedInterfaces() Iterable {
+	if this.self_ == any(this) {
+		return this.getCtorImplementedInterfaces_impl()
+	}
+	return this.self_.(interface{ getCtorImplementedInterfaces_impl() Iterable }).getCtorImplementedInterfaces_impl()
+}
+
+// getCtorExtendedInterfaces: an object that is exactly a PrototypeObjectType calls its getCtorExtendedInterfaces_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) getCtorExtendedInterfaces() Iterable {
+	if this.self_ == any(this) {
+		return this.getCtorExtendedInterfaces_impl()
+	}
+	return this.self_.(interface{ getCtorExtendedInterfaces_impl() Iterable }).getCtorExtendedInterfaces_impl()
+}
+
+// resolveInternal: an object that is exactly a PrototypeObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.(interface {
+		resolveInternal_impl(ErrorReporter_rhino) *JSType
+	}).resolveInternal_impl(p0)
+}
+
+// matchConstraint: an object that is exactly a PrototypeObjectType calls its matchConstraint_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) matchConstraint(p0 *JSType) {
+	if this.self_ == any(this) {
+		this.matchConstraint_impl(p0)
+		return
+	}
+	this.self_.(interface{ matchConstraint_impl(*JSType) }).matchConstraint_impl(p0)
+}
+
+// recursionUnsafeHashCode: an object that is exactly a PrototypeObjectType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *PrototypeObjectType) recursionUnsafeHashCode() int32 {
+	if this.self_ == any(this) {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+}

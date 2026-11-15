@@ -88,3 +88,104 @@ func (this *NoResolvedType) appendTo_impl(sb *TypeStringBuilder) {
 		return ("NoResolvedType<" + sstr_(str_(this.referenceName.orElse(strobj_("null")))) + ">")
 	}())
 }
+
+// getTypeClass: an object that is exactly a NoResolvedType calls its getTypeClass_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) getTypeClass() *JSTypeClass {
+	if this.self_ == any(this) {
+		return this.getTypeClass_impl()
+	}
+	return this.self_.(interface{ getTypeClass_impl() *JSTypeClass }).getTypeClass_impl()
+}
+
+// getReferenceName: an object that is exactly a NoResolvedType calls its getReferenceName_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) getReferenceName() Optional {
+	if this.self_ == any(this) {
+		return this.getReferenceName_impl()
+	}
+	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+}
+
+// getTemplateTypes: an object that is exactly a NoResolvedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) getTemplateTypes() *ImmutableList {
+	if this.self_ == any(this) {
+		return this.getTemplateTypes_impl()
+	}
+	return this.self_.(interface{ getTemplateTypes_impl() *ImmutableList }).getTemplateTypes_impl()
+}
+
+// isNoResolvedType: an object that is exactly a NoResolvedType calls its isNoResolvedType_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) isNoResolvedType() bool {
+	if this.self_ == any(this) {
+		return this.isNoResolvedType_impl()
+	}
+	return this.self_.(interface{ isNoResolvedType_impl() bool }).isNoResolvedType_impl()
+}
+
+// getPossibleToBooleanOutcomes: an object that is exactly a NoResolvedType calls its getPossibleToBooleanOutcomes_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) getPossibleToBooleanOutcomes() *BooleanLiteralSet {
+	if this.self_ == any(this) {
+		return this.getPossibleToBooleanOutcomes_impl()
+	}
+	return this.self_.(interface{ getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet }).getPossibleToBooleanOutcomes_impl()
+}
+
+// testForEquality: an object that is exactly a NoResolvedType calls its testForEquality_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) testForEquality(p0 *JSType) *Tri {
+	if this.self_ == any(this) {
+		return this.testForEquality_impl(p0)
+	}
+	return this.self_.(interface{ testForEquality_impl(*JSType) *Tri }).testForEquality_impl(p0)
+}
+
+// resolveInternal: an object that is exactly a NoResolvedType calls its resolveInternal_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) resolveInternal(p0 ErrorReporter_rhino) *JSType {
+	if this.self_ == any(this) {
+		return this.resolveInternal_impl(p0)
+	}
+	return this.self_.(interface {
+		resolveInternal_impl(ErrorReporter_rhino) *JSType
+	}).resolveInternal_impl(p0)
+}
+
+// getConstructor: an object that is exactly a NoResolvedType calls its getConstructor_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) getConstructor() *FunctionType {
+	if this.self_ == any(this) {
+		return this.getConstructor_impl()
+	}
+	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+}
+
+// getImplicitPrototype: an object that is exactly a NoResolvedType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) getImplicitPrototype() *ObjectType {
+	if this.self_ == any(this) {
+		return this.getImplicitPrototype_impl()
+	}
+	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+}
+
+// recursionUnsafeHashCode: an object that is exactly a NoResolvedType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) recursionUnsafeHashCode() int32 {
+	if this.self_ == any(this) {
+		return this.recursionUnsafeHashCode_impl()
+	}
+	return this.self_.(interface{ recursionUnsafeHashCode_impl() int32 }).recursionUnsafeHashCode_impl()
+}
+
+// defineProperty: an object that is exactly a NoResolvedType calls its defineProperty_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
+	if this.self_ == any(this) {
+		return this.defineProperty_impl(p0, p1, p2, p3)
+	}
+	return this.self_.(interface {
+		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
+	}).defineProperty_impl(p0, p1, p2, p3)
+}
+
+// appendTo: an object that is exactly a NoResolvedType calls its appendTo_impl directly (post-flip); others dispatch.
+func (this *NoResolvedType) appendTo(p0 *TypeStringBuilder) {
+	if this.self_ == any(this) {
+		this.appendTo_impl(p0)
+		return
+	}
+	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
+}
