@@ -266,14 +266,14 @@ func (this *VarCheck_NameRefInExternsCheck) shouldTraverse(t *NodeTraversal, n N
 
 func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() {
-		switch parent.getToken() {
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_FUNCTION, Token_rhino_CLASS, Token_rhino_PARAM_LIST, Token_rhino_DEFAULT_VALUE, Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_ARRAY_PATTERN:
+		switch parent.ns_().token {
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_FUNCTION, tokOrd1_CLASS, tokOrd1_PARAM_LIST, tokOrd1_DEFAULT_VALUE, tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_ARRAY_PATTERN:
 			return
-		case Token_rhino_STRING_KEY:
+		case tokOrd1_STRING_KEY:
 			if parent.getParent().isObjectPattern() {
 				return
 			}
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			if n == parent.getFirstChild() {
 				var scope *Scope = t.getScope()
 				var var_ *Var = cast_[*Var](scope.getVar(n.getString()).self())
@@ -287,15 +287,15 @@ func (this *VarCheck_NameRefInExternsCheck) visit(t *NodeTraversal, n Node, pare
 				this.outer_.undefinedNamesFromExterns.add(n.getString())
 			}
 			return
-		case Token_rhino_ASSIGN:
+		case tokOrd1_ASSIGN:
 			if ((n == parent.getLastChild()) && n.isQualifiedName()) && parent.getFirstChild().isQualifiedName() {
 				return
 			}
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			if NodeUtil_isNameDeclaration(parent.getParent()) {
 				return
 			}
-		case Token_rhino_OR:
+		case tokOrd1_OR:
 			if NodeUtil_isNamespaceDecl(parent.getParent()) {
 				return
 			}
@@ -340,18 +340,18 @@ func (this *VarCheck_RedeclarationCheckHandler) onRedeclaration(s *Scope, name s
 		}
 		return NodeUtil_getDeclaringParent(origNode)
 	}()
-	switch parent.getToken() {
-	case Token_rhino_CLASS, Token_rhino_CONST, Token_rhino_LET:
+	switch parent.ns_().token {
+	case tokOrd1_CLASS, tokOrd1_CONST, tokOrd1_LET:
 		this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 		return
 	default:
 	}
 	if origParent != 0 {
-		switch origParent.getToken() {
-		case Token_rhino_CLASS, Token_rhino_CONST, Token_rhino_LET:
+		switch origParent.ns_().token {
+		case tokOrd1_CLASS, tokOrd1_CONST, tokOrd1_LET:
 			this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 			return
-		case Token_rhino_FUNCTION:
+		case tokOrd1_FUNCTION:
 			if !s.isGlobal() && parent.isFunction() {
 				this.outer_.reportBlockScopedMultipleDeclaration(n, name, origNode)
 				return

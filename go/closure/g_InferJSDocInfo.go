@@ -36,14 +36,14 @@ func (this *InferJSDocInfo) process_2(externs Node, root Node) {
 }
 
 func (this *InferJSDocInfo) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		this.inferJSDocForName(n, parent)
 		return
-	case Token_rhino_STRING_KEY, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
+	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 		this.inferJSDocForObjectKeyOrClassField(n, parent)
 		return
-	case Token_rhino_GETPROP:
+	case tokOrd1_GETPROP:
 		this.inferJSDocForProperty(n, parent)
 		return
 	default:

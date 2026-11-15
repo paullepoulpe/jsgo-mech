@@ -259,7 +259,7 @@ func (this *IRFactory) validateReturn(n Node) {
 }
 
 func (this *IRFactory) validateNewDotTarget(n Node) {
-	if n.getToken() != Token_rhino_NEW_TARGET {
+	if n.ns_().token != tokOrd1_NEW_TARGET {
 		return
 	}
 	var child Node = n
@@ -328,8 +328,8 @@ func (this *IRFactory) validateBreakContinue(n Node) {
 
 func IRFactory_isBreakTarget(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE, Token_rhino_DO, Token_rhino_SWITCH:
+		switch n.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE, tokOrd1_DO, tokOrd1_SWITCH:
 			return true
 		default:
 			return false
@@ -340,8 +340,8 @@ func IRFactory_isBreakTarget(n Node) bool {
 
 func IRFactory_isContinueTarget(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_WHILE, Token_rhino_DO:
+		switch n.ns_().token {
+		case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE, tokOrd1_DO:
 			return true
 		default:
 			return false
@@ -3053,8 +3053,8 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 			Preconditions_checkState_boolean_String_Object_Object((((curNode.isGetterDef() || curNode.isSetterDef()) || curNode.isMemberFieldDef()) || curNode.isMemberFunctionDef()), "Private property '%s' has an unsupported token type: %s", strobj_(propName), obj_(curNode.getToken()))
 			var isStatic bool = curNode.isStaticMember()
 			var alreadyDeclared bool = Collection_contains_s(privatePropNames, propName)
-			switch curNode.getToken() {
-			case Token_rhino_GETTER_DEF:
+			switch curNode.ns_().token {
+			case tokOrd1_GETTER_DEF:
 				if alreadyDeclared {
 					var alreadyDeclaredIsOtherThanItsSetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateGetterNames, propName)) || Collection_contains_s(privateStaticGetterNames, propName)) || func() bool {
 						if isStatic {
@@ -3075,7 +3075,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 				} else {
 					Collection_add_s(privateGetterNames, propName)
 				}
-			case Token_rhino_SETTER_DEF:
+			case tokOrd1_SETTER_DEF:
 				if alreadyDeclared {
 					var alreadyDeclaredIsOtherThanItsGetter bool = (((Collection_contains_s(privateFieldAndMethodNames, propName) || Collection_contains_s(privateSetterNames, propName)) || Collection_contains_s(privateStaticSetterNames, propName)) || func() bool {
 						if isStatic {
@@ -3096,7 +3096,7 @@ func (this *IRFactory_TransformDispatcher) getPrivatePropsAndValidateUniqueness(
 				} else {
 					Collection_add_s(privateSetterNames, propName)
 				}
-			case Token_rhino_MEMBER_FIELD_DEF, Token_rhino_MEMBER_FUNCTION_DEF:
+			case tokOrd1_MEMBER_FIELD_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
 				Collection_add_s(privateFieldAndMethodNames, propName)
 			default:
 			}

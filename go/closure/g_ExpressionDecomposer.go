@@ -90,9 +90,9 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 			if this.isSafeAssign(expressionParent, state.sideEffects) {
 			} else if !expressionToExpose.isFirstChildOf(expressionParent) {
 				var left Node = expressionParent.getFirstChild()
-				switch left.getToken() {
-				case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
-				case Token_rhino_GETELEM, Token_rhino_GETPROP:
+				switch left.ns_().token {
+				case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
+				case tokOrd1_GETELEM, tokOrd1_GETPROP:
 					exposedSomething = (this.decomposeSubExpressions(left.getFirstChild(), 0, state) || exposedSomething)
 				default:
 					panic(new_IllegalStateException_String(("Expected a property access or destructuring pattern: " + sstr_(left.toStringTree()))).self())
@@ -222,18 +222,18 @@ func (this *ExpressionDecomposer) extractConditional(expr Node, injectionPoint N
 	var cond Node = 0
 	var trueExpr Node = this.astFactory_.createBlock([]Node{}).srcref(expr)
 	var falseExpr Node = this.astFactory_.createBlock([]Node{}).srcref(expr)
-	switch expr.getToken() {
-	case Token_rhino_HOOK:
+	switch expr.ns_().token {
+	case tokOrd1_HOOK:
 		cond = first
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(second, needResult, tempName)))
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
-	case Token_rhino_AND:
+	case tokOrd1_AND:
 		cond = ExpressionDecomposer_buildResultExpression(first, needResult, tempName)
 		trueExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
-	case Token_rhino_OR:
+	case tokOrd1_OR:
 		cond = ExpressionDecomposer_buildResultExpression(first, needResult, tempName)
 		falseExpr.addChildToFront(this.astFactory_.exprResult(ExpressionDecomposer_buildResultExpression(last, needResult, tempName)))
-	case Token_rhino_COALESCE:
+	case tokOrd1_COALESCE:
 		var tempNameAssign string = this.getTempValueName()
 		var tempVarNodeAssign Node = this.astFactory_.createSingleVarNameDeclaration(tempNameAssign).srcrefTreeIfMissing(expr)
 		tempVarNodeAssign.insertBefore(injectionPoint)
@@ -315,10 +315,10 @@ func (this *ExpressionDecomposer) extractExpression(expr Node, injectionPoint No
 		spreadCopy.addChildToBack(replacementValueNode)
 		expr.replaceWith(spreadCopy)
 		tempNameValue = func() Node {
-			switch parent.getToken() {
-			case Token_rhino_ARRAYLIT, Token_rhino_CALL, Token_rhino_NEW:
+			switch parent.ns_().token {
+			case tokOrd1_ARRAYLIT, tokOrd1_CALL, tokOrd1_NEW:
 				return this.astFactory_.createArraylit([]Node{expr}).srcref(expr.getOnlyChild())
-			case Token_rhino_OBJECTLIT:
+			case tokOrd1_OBJECTLIT:
 				return this.astFactory_.createObjectLit([]Node{expr}).srcref(expr.getOnlyChild())
 			default:
 				panic(new_IllegalStateException_String(("Unexpected parent of SPREAD:" + sstr_(parent.toStringTree()))).self())
@@ -421,8 +421,8 @@ func ExpressionDecomposer_findInjectionPoint(subExpression Node) Node {
 
 func ExpressionDecomposer_isConditionalOp(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_HOOK, Token_rhino_AND, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_CALL:
+		switch n.ns_().token {
+		case tokOrd1_HOOK, tokOrd1_AND, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_CALL:
 			return true
 		default:
 			return false
@@ -437,21 +437,21 @@ func ExpressionDecomposer_findExpressionRoot(subExpression Node) Node {
 	for it_1.next() {
 		var current Node = Node_of_(it_1.v)
 		var parent Node = current.getParent()
-		switch current.getToken() {
-		case Token_rhino_EXPR_RESULT, Token_rhino_IF, Token_rhino_SWITCH, Token_rhino_RETURN, Token_rhino_THROW:
+		switch current.ns_().token {
+		case tokOrd1_EXPR_RESULT, tokOrd1_IF, tokOrd1_SWITCH, tokOrd1_RETURN, tokOrd1_THROW:
 			Preconditions_checkState(child.isFirstChildOf(current))
 			return current
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST:
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 			if NodeUtil_isAnyFor(parent) {
 				break
 			}
 			return current
-		case Token_rhino_FOR:
+		case tokOrd1_FOR:
 			if child.isFirstChildOf(current) {
 				return current
 			}
 			fallthrough
-		case Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_DO, Token_rhino_WHILE, Token_rhino_SCRIPT, Token_rhino_BLOCK, Token_rhino_LABEL, Token_rhino_CASE, Token_rhino_SWITCH_BODY, Token_rhino_DEFAULT_CASE, Token_rhino_DEFAULT_VALUE, Token_rhino_PARAM_LIST, Token_rhino_CLASS:
+		case tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_DO, tokOrd1_WHILE, tokOrd1_SCRIPT, tokOrd1_BLOCK, tokOrd1_LABEL, tokOrd1_CASE, tokOrd1_SWITCH_BODY, tokOrd1_DEFAULT_CASE, tokOrd1_DEFAULT_VALUE, tokOrd1_PARAM_LIST, tokOrd1_CLASS:
 			return 0
 		default:
 		}
@@ -524,8 +524,8 @@ func (this *ExpressionDecomposer) isSubexpressionMovable(expressionRoot Node, su
 }
 
 func ExpressionDecomposer_getEvaluationDirection(node Node) *ExpressionDecomposer_EvaluationDirection {
-	switch node.getToken() {
-	case Token_rhino_DESTRUCTURING_LHS, Token_rhino_ASSIGN, Token_rhino_DEFAULT_VALUE:
+	switch node.ns_().token {
+	case tokOrd1_DESTRUCTURING_LHS, tokOrd1_ASSIGN, tokOrd1_DEFAULT_VALUE:
 		if node.getFirstChild().isDestructuringPattern() {
 			return ExpressionDecomposer_EvaluationDirection_REVERSE
 		}
@@ -557,12 +557,12 @@ func (this *ExpressionDecomposer) getNextEvaluatedSibling(node Node, direction *
 func (this *ExpressionDecomposer) isSafeAssign(n Node, seenSideEffects bool) bool {
 	if n.isAssign() {
 		var lhs Node = n.getFirstChild()
-		switch lhs.getToken() {
-		case Token_rhino_NAME:
+		switch lhs.ns_().token {
+		case tokOrd1_NAME:
 			return true
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			return !this.isExpressionTreeUnsafe(lhs.getFirstChild(), seenSideEffects)
-		case Token_rhino_GETELEM:
+		case tokOrd1_GETELEM:
 			return (!this.isExpressionTreeUnsafe(lhs.getFirstChild(), seenSideEffects) && !this.isExpressionTreeUnsafe(lhs.getLastChild(), seenSideEffects))
 		default:
 		}

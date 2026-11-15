@@ -45,7 +45,7 @@ func (this *FunctionInjector) doesFunctionMeetMinimumRequirements(fnName string,
 		_ = n
 		if n.isName() {
 			return (((n.getString() == "eval") || (!String_isEmpty(fnName) && (n.getString() == fnName))) || (!String_isEmpty(fnRecursionName) && (n.getString() == fnRecursionName)))
-		} else if n.isSuper() || (n.getToken() == Token_rhino_NEW_TARGET) {
+		} else if n.isSuper() || (n.ns_().token == tokOrd1_NEW_TARGET) {
 			return true
 		}
 		return false

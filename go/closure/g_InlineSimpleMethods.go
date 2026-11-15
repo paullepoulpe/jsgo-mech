@@ -270,12 +270,12 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 		{
 			var key Node = n.getFirstChild()
 			for ; key != 0; key = key.getNext() {
-				switch key.getToken() {
-				case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_MEMBER_FIELD_DEF, Token_rhino_STRING_KEY:
+				switch key.ns_().token {
+				case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_MEMBER_FIELD_DEF, tokOrd1_STRING_KEY:
 					this.outer_.addPossibleSignature(key.getString(), key.getFirstChild())
-				case Token_rhino_SETTER_DEF, Token_rhino_GETTER_DEF:
+				case tokOrd1_SETTER_DEF, tokOrd1_GETTER_DEF:
 					this.outer_.nonInlineableProperties.add(key.getString())
-				case Token_rhino_COMPUTED_PROP, Token_rhino_OBJECT_SPREAD, Token_rhino_COMPUTED_FIELD_DEF, Token_rhino_BLOCK:
+				case tokOrd1_COMPUTED_PROP, tokOrd1_OBJECT_SPREAD, tokOrd1_COMPUTED_FIELD_DEF, tokOrd1_BLOCK:
 				default:
 					panic(new_IllegalStateException_String(("Unexpected " + objstr_(obj_(n.getToken())) + " key: " + objstr_(key.box_()))).self())
 				}
@@ -290,8 +290,8 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 }
 
 func (this *InlineSimpleMethods_GatherSignatures) processPrototypeParent(n Node) {
-	switch n.getToken() {
-	case Token_rhino_GETPROP, Token_rhino_GETELEM:
+	switch n.ns_().token {
+	case tokOrd1_GETPROP, tokOrd1_GETELEM:
 		var grandparent Node = n.getGrandparent()
 		var name OptionalOf[string] = InlineSimpleMethods_getPropName(n)
 		if name.isPresent() && grandparent.isAssign() {

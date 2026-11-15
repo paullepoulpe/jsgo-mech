@@ -47,10 +47,10 @@ func (this *AliasStrings) process_2(externs Node, root Node) {
 
 func (this *AliasStrings) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_TEMPLATELIT, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_TEMPLATELIT_SUB:
+		switch n.ns_().token {
+		case tokOrd1_TEMPLATELIT, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_TEMPLATELIT_SUB:
 			return false
-		case Token_rhino_CALL:
+		case tokOrd1_CALL:
 			return !ReplaceMessagesConstants_isProtectedMessage(n)
 		default:
 			return true

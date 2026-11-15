@@ -17,15 +17,15 @@ func new_ParsingUtil() *ParsingUtil {
 
 func ParsingUtil_getParamOrPatternNames(n Node, cb ConsumerOf[Node]) {
 	Preconditions_checkNotNull(n.box_())
-	switch n.getToken() {
-	case Token_rhino_EMPTY, Token_rhino_GETELEM, Token_rhino_GETPROP:
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_EMPTY, tokOrd1_GETELEM, tokOrd1_GETPROP:
+	case tokOrd1_NAME:
 		cb.accept(n.box_())
-	case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST, Token_rhino_STRING_KEY, Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST, tokOrd1_STRING_KEY, tokOrd1_DEFAULT_VALUE:
 		ParsingUtil_getParamOrPatternNames(n.getFirstChild(), cb)
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		ParsingUtil_getParamOrPatternNames(n.getSecondChild(), cb)
-	case Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_PARAM_LIST:
+	case tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_PARAM_LIST:
 		{
 			var c Node = n.getFirstChild()
 			for ; c != 0; c = c.getNext() {

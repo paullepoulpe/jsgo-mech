@@ -38,7 +38,7 @@ func (this *Es6RewriteRestParameters) process_2(externs Node, root Node) {
 }
 
 func (this *Es6RewriteRestParameters) visit_impl(traversal *NodeTraversal, current Node, parent Node) {
-	if current.getToken() == Token_rhino_ITER_REST {
+	if current.ns_().token == tokOrd1_ITER_REST {
 		this.visitRestParam(traversal, current, parent)
 	}
 }

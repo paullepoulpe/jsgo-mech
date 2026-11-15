@@ -380,11 +380,11 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 
 func RemoveUnusedCode_isJscompPolyfill(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_NAME:
+		switch n.ns_().token {
+		case tokOrd1_NAME:
 			var name string = n.getString()
 			return ((((name == "$jscomp$polyfill") || (name == "$jscomp$patch")) || (name == "$jscomp$polyfillTypedArrayMethod")) && n.getNext().isStringLit())
-		case Token_rhino_GETPROP:
+		case tokOrd1_GETPROP:
 			var propertyName string = n.getString()
 			return ((((((propertyName == "polyfill") || (propertyName == "patch")) || (propertyName == "polyfillTypedArrayMethod")) && n.getFirstChild().isName()) && (n.getFirstChild().getString() == "$jscomp")) && n.getNext().isStringLit())
 		default:
@@ -705,15 +705,15 @@ func (this *RemoveUnusedCode) traverseObjectPattern(pattern Node, scope *Scope) 
 	{
 		var elem Node = pattern.getFirstChild()
 		for ; elem != 0; elem = elem.getNext() {
-			switch elem.getToken() {
-			case Token_rhino_COMPUTED_PROP:
+			switch elem.ns_().token {
+			case tokOrd1_COMPUTED_PROP:
 				this.traverseIndirectAssignment(elem, elem.getSecondChild(), scope)
-			case Token_rhino_STRING_KEY:
+			case tokOrd1_STRING_KEY:
 				if !elem.isQuotedStringKey() {
 					this.markPropertyNameAsPinned(elem.getString())
 				}
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
-			case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
 				panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(pattern.getToken())) + ": " + sstr_(elem.toStringTree()))).self())
@@ -727,11 +727,11 @@ func (this *RemoveUnusedCode) traverseIndirectAssignmentList(list Node, scope *S
 	{
 		var elem Node = list.getFirstChild()
 		for ; elem != 0; elem = elem.getNext() {
-			switch elem.getToken() {
-			case Token_rhino_EMPTY:
-			case Token_rhino_ARRAY_PATTERN, Token_rhino_DEFAULT_VALUE, Token_rhino_GETELEM, Token_rhino_GETPROP, Token_rhino_NAME, Token_rhino_OBJECT_PATTERN:
+			switch elem.ns_().token {
+			case tokOrd1_EMPTY:
+			case tokOrd1_ARRAY_PATTERN, tokOrd1_DEFAULT_VALUE, tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_NAME, tokOrd1_OBJECT_PATTERN:
 				this.traverseIndirectAssignment(elem, elem, scope)
-			case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+			case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 				this.traverseIndirectAssignment(elem, elem.getOnlyChild(), scope)
 			default:
 				panic(new_IllegalStateException_String(("Unexpected child of " + objstr_(obj_(list.getToken())) + ": " + sstr_(elem.toStringTree()))).self())
@@ -835,19 +835,19 @@ func (this *RemoveUnusedCode) traverseClassMembers(node Node, scope *Scope) {
 	{
 		var member Node = node.getFirstChild()
 		for ; member != 0; member = member.getNext() {
-			switch member.getToken() {
-			case Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_MEMBER_FUNCTION_DEF:
+			switch member.ns_().token {
+			case tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_MEMBER_FUNCTION_DEF:
 				this.considerForIndependentRemoval(new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, member, scope)).buildClassOrPrototypeNamedProperty(member).up_RemoveUnusedCode_Removable())
-			case Token_rhino_MEMBER_FIELD_DEF:
+			case tokOrd1_MEMBER_FIELD_DEF:
 				if !member.hasChildren() || !this.mayHaveSideEffects(member.getFirstChild()) {
 					this.considerForIndependentRemoval(new_RemoveUnusedCode_RemovableBuilder(this).addContinuation(new_RemoveUnusedCode_Continuation(this, member, scope)).buildClassOrPrototypeNamedProperty(member).up_RemoveUnusedCode_Removable())
 				}
 				if member.hasChildren() {
 					this.traverseChildren(member, scope)
 				}
-			case Token_rhino_COMPUTED_PROP, Token_rhino_COMPUTED_FIELD_DEF:
+			case tokOrd1_COMPUTED_PROP, tokOrd1_COMPUTED_FIELD_DEF:
 				this.traverseChildren(member, scope)
-			case Token_rhino_BLOCK:
+			case tokOrd1_BLOCK:
 				this.traverseChildren(member, this.scopeCreator.createScope(member, scope))
 			default:
 				panic(new_IllegalStateException_String(("Unexpected child of CLASS_MEMBERS: " + sstr_(member.toStringTree()))).self())
@@ -1033,14 +1033,14 @@ func (this *RemoveUnusedCode) traverseVar(var_ *Var) RemoveUnusedCode_VarInfo {
 
 func RemoveUnusedCode_nameOfParam(param Node) Node {
 	return func() Node {
-		switch param.getToken() {
-		case Token_rhino_NAME:
+		switch param.ns_().token {
+		case tokOrd1_NAME:
 			return param
-		case Token_rhino_DEFAULT_VALUE:
+		case tokOrd1_DEFAULT_VALUE:
 			return RemoveUnusedCode_nameOfParam(param.getFirstChild())
-		case Token_rhino_ITER_REST:
+		case tokOrd1_ITER_REST:
 			return RemoveUnusedCode_nameOfParam(param.getOnlyChild())
-		case Token_rhino_ARRAY_PATTERN, Token_rhino_OBJECT_PATTERN:
+		case tokOrd1_ARRAY_PATTERN, tokOrd1_OBJECT_PATTERN:
 			return 0
 		default:
 			panic(new_IllegalStateException_String(("Unexpected child of PARAM_LIST: " + sstr_(param.toStringTree()))).self())
@@ -1970,8 +1970,8 @@ func (this *RemoveUnusedCode_IndirectAssign) removeInternal_impl(compiler *Abstr
 
 func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 	var rootParent Node = this.root.getParent()
-	switch rootParent.getToken() {
-	case Token_rhino_ARRAY_PATTERN:
+	switch rootParent.ns_().token {
+	case tokOrd1_ARRAY_PATTERN:
 		this.outer_.replaceNodeWith(this.root, IR_empty().srcref(this.root))
 		{
 			var maybeEmpty Node = rootParent.getLastChild()
@@ -1980,7 +1980,7 @@ func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 			}
 		}
 		this.outer_.compiler_.reportChangeToEnclosingScope(rootParent)
-	case Token_rhino_PARAM_LIST:
+	case tokOrd1_PARAM_LIST:
 		if !this.root.isDefaultValue() {
 			return
 		}
@@ -1993,7 +1993,7 @@ func (this *RemoveUnusedCode_IndirectAssign) removeRoot() {
 			this.root.replaceWith(name.detach())
 		}
 		NodeUtil_markFunctionsDeleted(this.root, this.outer_.compiler_)
-	case Token_rhino_OBJECT_PATTERN:
+	case tokOrd1_OBJECT_PATTERN:
 		NodeUtil_deleteNode(this.root, this.outer_.compiler_)
 	default:
 		panic(new_IllegalStateException_String(("Unexpected parent of indirect assignment: " + sstr_(rootParent.toStringTree()))).self())

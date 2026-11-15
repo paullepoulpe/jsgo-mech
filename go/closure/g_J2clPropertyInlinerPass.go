@@ -370,10 +370,10 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_GatherJ2CLCla
 			if !memberFunction.isStaticMember() {
 				continue
 			}
-			switch memberFunction.getToken() {
-			case Token_rhino_GETTER_DEF:
+			switch memberFunction.ns_().token {
+			case tokOrd1_GETTER_DEF:
 				getterDefByName.put(memberFunction.getString(), memberFunction)
-			case Token_rhino_SETTER_DEF:
+			case tokOrd1_SETTER_DEF:
 				setterDefByName[memberFunction.getString()] = memberFunction
 			default:
 			}

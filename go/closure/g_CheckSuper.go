@@ -28,11 +28,11 @@ func (this *CheckSuper) process_2(externs Node, root Node) {
 }
 
 func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	switch n.getToken() {
-	case Token_rhino_ROOT:
+	switch n.ns_().token {
+	case tokOrd1_ROOT:
 		Preconditions_checkState(this.contextStack.isEmpty())
 		this.contextStack.push(obj_(new_CheckSuper_SuperNotAllowedContext(n)))
-	case Token_rhino_FUNCTION:
+	case tokOrd1_FUNCTION:
 		{
 			var currentContext *CheckSuper_Context = to_CheckSuper_Context(this.contextStack.peek())
 			var newContext *CheckSuper_Context = this.getContextForFunctionNode(currentContext, n)
@@ -40,10 +40,10 @@ func (this *CheckSuper) shouldTraverse(t *NodeTraversal, n Node, parent Node) bo
 				this.contextStack.push(newContext.self())
 			}
 		}
-	case Token_rhino_MEMBER_FIELD_DEF:
+	case tokOrd1_MEMBER_FIELD_DEF:
 		var fieldContext *CheckSuper_Context = this.createMemberFieldDefContext(n)
 		this.contextStack.push(fieldContext.self())
-	case Token_rhino_BLOCK:
+	case tokOrd1_BLOCK:
 		if NodeUtil_isClassStaticBlock(n) {
 			var newContext *CheckSuper_Context = this.createStaticBlockContext(n)
 			this.contextStack.push(newContext.self())
@@ -73,24 +73,24 @@ func (this *CheckSuper) getContextForFunctionNode(currentContext *CheckSuper_Con
 
 func (this *CheckSuper) visit(t *NodeTraversal, n Node, parent Node) {
 	var currentContext *CheckSuper_Context = to_CheckSuper_Context(Preconditions_checkNotNull(this.contextStack.peek()))
-	switch n.getToken() {
-	case Token_rhino_SUPER:
+	switch n.ns_().token {
+	case tokOrd1_SUPER:
 		if this.isSuperConstructorCall(n) {
 		} else if this.isSuperPropertyAccess(n) {
 			currentContext.visitSuperPropertyAccess(t, n)
 		} else {
 			t.report(n, CheckSuper_INVALID_SUPER_USAGE, []string{})
 		}
-	case Token_rhino_CALL:
+	case tokOrd1_CALL:
 		var callee Node = n.getFirstChild()
 		if callee.isSuper() {
 			currentContext.visitSuperConstructorCall(t, callee)
 		}
-	case Token_rhino_THIS:
+	case tokOrd1_THIS:
 		currentContext.visitThis(t, n)
-	case Token_rhino_RETURN:
+	case tokOrd1_RETURN:
 		currentContext.visitReturn(t, n)
-	case Token_rhino_ROOT:
+	case tokOrd1_ROOT:
 		Preconditions_checkState((this.contextStack.size() == 1))
 	default:
 	}

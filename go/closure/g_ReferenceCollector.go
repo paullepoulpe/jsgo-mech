@@ -136,10 +136,10 @@ func (this *ReferenceCollector) popLastBlock(root Node) {
 
 func ReferenceCollector_isBlockBoundary(n Node, parent Node) bool {
 	if parent != 0 {
-		switch parent.getToken() {
-		case Token_rhino_DO, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_TRY, Token_rhino_WHILE, Token_rhino_WITH, Token_rhino_CLASS, Token_rhino_SWITCH_BODY:
+		switch parent.ns_().token {
+		case tokOrd1_DO, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_TRY, tokOrd1_WHILE, tokOrd1_WITH, tokOrd1_CLASS, tokOrd1_SWITCH_BODY:
 			return true
-		case Token_rhino_AND, Token_rhino_HOOK, Token_rhino_IF, Token_rhino_OR, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_CALL, Token_rhino_DEFAULT_VALUE:
+		case tokOrd1_AND, tokOrd1_HOOK, tokOrd1_IF, tokOrd1_OR, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_CALL, tokOrd1_DEFAULT_VALUE:
 			return (n != parent.getFirstChild())
 		default:
 		}

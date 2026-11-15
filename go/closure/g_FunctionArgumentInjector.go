@@ -196,13 +196,13 @@ func (this *FunctionArgumentInjector) gatherCallArgumentsNeedingTemps(compiler *
 		} else if NodeUtil_canBeSideEffected_Node(cArg) && Collection_contains_s(namesAfterSideEffects, parameterName) {
 			requiresTemporary = true
 		} else if references > 1 {
-			switch cArg.getToken() {
-			case Token_rhino_NAME:
+			switch cArg.ns_().token {
+			case tokOrd1_NAME:
 				var name string = cArg.getString()
 				requiresTemporary = (convention.isExported_2(name, true) || convention.isExported_2(name, false))
-			case Token_rhino_THIS:
+			case tokOrd1_THIS:
 				requiresTemporary = false
-			case Token_rhino_STRINGLIT:
+			case tokOrd1_STRINGLIT:
 				requiresTemporary = (String_length(cArg.getString()) >= 2)
 			default:
 				requiresTemporary = !NodeUtil_isImmutableValue(cArg)
@@ -241,8 +241,8 @@ func (this *FunctionArgumentInjector) mayHaveConditionalCode(n Node) bool {
 	{
 		var c Node = n.getFirstChild()
 		for ; c != 0; c = c.getNext() {
-			switch c.getToken() {
-			case Token_rhino_FUNCTION, Token_rhino_AND, Token_rhino_OR, Token_rhino_HOOK, Token_rhino_COALESCE, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP:
+			switch c.ns_().token {
+			case tokOrd1_FUNCTION, tokOrd1_AND, tokOrd1_OR, tokOrd1_HOOK, tokOrd1_COALESCE, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP:
 				return true
 			default:
 				if NodeUtil_isNonStaticClassFieldInitializer(c) {
@@ -272,8 +272,8 @@ func FunctionArgumentInjector_gatherLocalNames(n Node, names *TSet[string]) {
 		}
 		return
 	} else if n.isName() {
-		switch n.getParent().getToken() {
-		case Token_rhino_VAR, Token_rhino_LET, Token_rhino_CONST, Token_rhino_CATCH:
+		switch n.getParent().ns_().token {
+		case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST, tokOrd1_CATCH:
 			names.add(n.getString())
 		default:
 		}

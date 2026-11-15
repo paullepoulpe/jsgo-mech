@@ -211,8 +211,8 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) shouldTr
 
 func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t *NodeTraversal, n Node, parent Node) {
 	var fnName string
-	switch n.getToken() {
-	case Token_rhino_ASSIGN:
+	switch n.ns_().token {
+	case tokOrd1_ASSIGN:
 		if !n.getLastChild().isFunction() {
 			return
 		}
@@ -221,7 +221,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			return
 		}
 		fnName = qualifiedNameNode.getString()
-	case Token_rhino_MEMBER_FUNCTION_DEF:
+	case tokOrd1_MEMBER_FUNCTION_DEF:
 		fnName = n.getString()
 	default:
 		return
@@ -234,14 +234,14 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 		}
 		var inlinableFunction *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = new_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(n.getLastChild(), inlineSpec.inliningMode_)
 		var qualifiedFnName OptionalOf[string] = func() Optional {
-			switch n.getToken() {
-			case Token_rhino_ASSIGN:
+			switch n.ns_().token {
+			case tokOrd1_ASSIGN:
 				return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)
 				}})
-			case Token_rhino_MEMBER_FUNCTION_DEF:
+			case tokOrd1_MEMBER_FUNCTION_DEF:
 				return NodeUtil_getBestLValueName(n)
 			default:
 				panic(new_AssertionError_0().self())

@@ -62,7 +62,7 @@ func IR_paramList(params []Node) Node {
 func IR_root(rootChildren []Node) Node {
 	var root Node = new_Node_Token(Token_rhino_ROOT)
 	for _, child := range rootChildren {
-		Preconditions_checkState(((child.getToken() == Token_rhino_ROOT) || (child.getToken() == Token_rhino_SCRIPT)))
+		Preconditions_checkState(((child.ns_().token == tokOrd1_ROOT) || (child.ns_().token == tokOrd1_SCRIPT)))
 		root.addChildToBack(child)
 	}
 	return root
@@ -541,8 +541,8 @@ func IR_rightShift(expr1 Node, expr2 Node) Node {
 func IR_objectlit(propdefs []Node) Node {
 	var objectlit Node = new_Node_Token(Token_rhino_OBJECTLIT)
 	for _, propdef := range propdefs {
-		switch propdef.getToken() {
-		case Token_rhino_STRING_KEY, Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_OBJECT_SPREAD, Token_rhino_COMPUTED_PROP:
+		switch propdef.ns_().token {
+		case tokOrd1_STRING_KEY, tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_OBJECT_SPREAD, tokOrd1_COMPUTED_PROP:
 		default:
 			panic(new_IllegalStateException_String(("Unexpected OBJECTLIT child: " + objstr_(propdef.box_()))).self())
 		}
@@ -753,10 +753,10 @@ func IR_mayBeExpressionOrEmpty(n Node) bool {
 
 func IR_mayBeStatementNoReturn(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_EMPTY, Token_rhino_FUNCTION:
+		switch n.ns_().token {
+		case tokOrd1_EMPTY, tokOrd1_FUNCTION:
 			return true
-		case Token_rhino_BLOCK, Token_rhino_BREAK, Token_rhino_CLASS, Token_rhino_CONST, Token_rhino_CONTINUE, Token_rhino_DEBUGGER, Token_rhino_DO, Token_rhino_ENUM, Token_rhino_EXPR_RESULT, Token_rhino_FOR, Token_rhino_FOR_IN, Token_rhino_FOR_OF, Token_rhino_FOR_AWAIT_OF, Token_rhino_IF, Token_rhino_INTERFACE, Token_rhino_LABEL, Token_rhino_LET, Token_rhino_SWITCH, Token_rhino_THROW, Token_rhino_TRY, Token_rhino_VAR, Token_rhino_WHILE, Token_rhino_WITH:
+		case tokOrd1_BLOCK, tokOrd1_BREAK, tokOrd1_CLASS, tokOrd1_CONST, tokOrd1_CONTINUE, tokOrd1_DEBUGGER, tokOrd1_DO, tokOrd1_ENUM, tokOrd1_EXPR_RESULT, tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_IF, tokOrd1_INTERFACE, tokOrd1_LABEL, tokOrd1_LET, tokOrd1_SWITCH, tokOrd1_THROW, tokOrd1_TRY, tokOrd1_VAR, tokOrd1_WHILE, tokOrd1_WITH:
 			return true
 		default:
 			return false
@@ -774,10 +774,10 @@ func IR_mayBeStatement(n Node) bool {
 
 func IR_mayBeExpression(n Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_FUNCTION, Token_rhino_CLASS:
+		switch n.ns_().token {
+		case tokOrd1_FUNCTION, tokOrd1_CLASS:
 			return true
-		case Token_rhino_ADD, Token_rhino_AND, Token_rhino_ARRAYLIT, Token_rhino_ASSIGN, Token_rhino_ASSIGN_BITOR, Token_rhino_ASSIGN_BITXOR, Token_rhino_ASSIGN_BITAND, Token_rhino_ASSIGN_LSH, Token_rhino_ASSIGN_RSH, Token_rhino_ASSIGN_URSH, Token_rhino_ASSIGN_ADD, Token_rhino_ASSIGN_SUB, Token_rhino_ASSIGN_MUL, Token_rhino_ASSIGN_EXPONENT, Token_rhino_ASSIGN_DIV, Token_rhino_ASSIGN_MOD, Token_rhino_ASSIGN_OR, Token_rhino_ASSIGN_AND, Token_rhino_ASSIGN_COALESCE, Token_rhino_AWAIT, Token_rhino_BIGINT, Token_rhino_BITAND, Token_rhino_BITOR, Token_rhino_BITNOT, Token_rhino_BITXOR, Token_rhino_CALL, Token_rhino_CAST, Token_rhino_COALESCE, Token_rhino_COMMA, Token_rhino_DEC, Token_rhino_DELPROP, Token_rhino_DIV, Token_rhino_DYNAMIC_IMPORT, Token_rhino_EQ, Token_rhino_EXPONENT, Token_rhino_FALSE, Token_rhino_GE, Token_rhino_GETPROP, Token_rhino_GETELEM, Token_rhino_GT, Token_rhino_HOOK, Token_rhino_IMPORT_META, Token_rhino_IN, Token_rhino_INC, Token_rhino_INSTANCEOF, Token_rhino_LE, Token_rhino_LSH, Token_rhino_LT, Token_rhino_MOD, Token_rhino_MUL, Token_rhino_NAME, Token_rhino_NE, Token_rhino_NEG, Token_rhino_NEW, Token_rhino_NEW_TARGET, Token_rhino_NOT, Token_rhino_NUMBER, Token_rhino_NULL, Token_rhino_OBJECTLIT, Token_rhino_OPTCHAIN_CALL, Token_rhino_OPTCHAIN_GETELEM, Token_rhino_OPTCHAIN_GETPROP, Token_rhino_OR, Token_rhino_POS, Token_rhino_REGEXP, Token_rhino_RSH, Token_rhino_SHEQ, Token_rhino_SHNE, Token_rhino_STRINGLIT, Token_rhino_SUB, Token_rhino_SUPER, Token_rhino_TEMPLATELIT, Token_rhino_TAGGED_TEMPLATELIT, Token_rhino_THIS, Token_rhino_TYPEOF, Token_rhino_TRUE, Token_rhino_URSH, Token_rhino_VOID, Token_rhino_YIELD:
+		case tokOrd1_ADD, tokOrd1_AND, tokOrd1_ARRAYLIT, tokOrd1_ASSIGN, tokOrd1_ASSIGN_BITOR, tokOrd1_ASSIGN_BITXOR, tokOrd1_ASSIGN_BITAND, tokOrd1_ASSIGN_LSH, tokOrd1_ASSIGN_RSH, tokOrd1_ASSIGN_URSH, tokOrd1_ASSIGN_ADD, tokOrd1_ASSIGN_SUB, tokOrd1_ASSIGN_MUL, tokOrd1_ASSIGN_EXPONENT, tokOrd1_ASSIGN_DIV, tokOrd1_ASSIGN_MOD, tokOrd1_ASSIGN_OR, tokOrd1_ASSIGN_AND, tokOrd1_ASSIGN_COALESCE, tokOrd1_AWAIT, tokOrd1_BIGINT, tokOrd1_BITAND, tokOrd1_BITOR, tokOrd1_BITNOT, tokOrd1_BITXOR, tokOrd1_CALL, tokOrd1_CAST, tokOrd1_COALESCE, tokOrd1_COMMA, tokOrd1_DEC, tokOrd1_DELPROP, tokOrd1_DIV, tokOrd1_DYNAMIC_IMPORT, tokOrd1_EQ, tokOrd1_EXPONENT, tokOrd1_FALSE, tokOrd1_GE, tokOrd1_GETPROP, tokOrd1_GETELEM, tokOrd1_GT, tokOrd1_HOOK, tokOrd1_IMPORT_META, tokOrd1_IN, tokOrd1_INC, tokOrd1_INSTANCEOF, tokOrd1_LE, tokOrd1_LSH, tokOrd1_LT, tokOrd1_MOD, tokOrd1_MUL, tokOrd1_NAME, tokOrd1_NE, tokOrd1_NEG, tokOrd1_NEW, tokOrd1_NEW_TARGET, tokOrd1_NOT, tokOrd1_NUMBER, tokOrd1_NULL, tokOrd1_OBJECTLIT, tokOrd1_OPTCHAIN_CALL, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OR, tokOrd1_POS, tokOrd1_REGEXP, tokOrd1_RSH, tokOrd1_SHEQ, tokOrd1_SHNE, tokOrd1_STRINGLIT, tokOrd1_SUB, tokOrd1_SUPER, tokOrd1_TEMPLATELIT, tokOrd1_TAGGED_TEMPLATELIT, tokOrd1_THIS, tokOrd1_TYPEOF, tokOrd1_TRUE, tokOrd1_URSH, tokOrd1_VOID, tokOrd1_YIELD:
 			return true
 		default:
 			return false

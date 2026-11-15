@@ -65,8 +65,8 @@ func (this *MakeDeclaredNamesUnique) exitScope_impl(t *NodeTraversal) {
 }
 
 func (this *MakeDeclaredNamesUnique) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME, Token_rhino_IMPORT_STAR:
+	switch n.ns_().token {
+	case tokOrd1_NAME, tokOrd1_IMPORT_STAR:
 		this.visitNameOrImportStar(t, n, parent)
 	default:
 	}

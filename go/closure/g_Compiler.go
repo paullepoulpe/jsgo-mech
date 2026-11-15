@@ -2626,7 +2626,6 @@ func (this *Compiler) getNumberOfInputs_impl() int32 {
 	}()
 }
 
-
 func (this *Compiler) getExternsInOrder() ListOf[*CompilerInput] {
 	return Collections_unmodifiableList(icast_List(this.externs.self()))
 }

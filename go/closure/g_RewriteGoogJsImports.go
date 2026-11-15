@@ -304,8 +304,8 @@ func (this *RewriteGoogJsImports_ReferenceReplacer) maybeRewriteBadGoogJsImportR
 }
 
 func (this *RewriteGoogJsImports_ReferenceReplacer) visit_impl(t *NodeTraversal, n Node, parent Node) {
-	switch n.getToken() {
-	case Token_rhino_NAME:
+	switch n.ns_().token {
+	case tokOrd1_NAME:
 		this.maybeRewriteBadGoogJsImportRef(t, n, parent)
 	default:
 	}
@@ -351,13 +351,13 @@ func (this *RewriteGoogJsImports_FindReexports) checkIfNameFowardedExport(t *Nod
 
 func (this *RewriteGoogJsImports_FindReexports) shouldTraverse_impl(t *NodeTraversal, n Node, parent Node) bool {
 	return func() bool {
-		switch n.getToken() {
-		case Token_rhino_ROOT, Token_rhino_SCRIPT, Token_rhino_MODULE_BODY, Token_rhino_EXPORT_SPECS, Token_rhino_EXPORT_SPEC:
+		switch n.ns_().token {
+		case tokOrd1_ROOT, tokOrd1_SCRIPT, tokOrd1_MODULE_BODY, tokOrd1_EXPORT_SPECS, tokOrd1_EXPORT_SPEC:
 			return true
-		case Token_rhino_EXPORT:
+		case tokOrd1_EXPORT:
 			this.checkIfForwardingExport(t, n)
 			return true
-		case Token_rhino_NAME:
+		case tokOrd1_NAME:
 			this.checkIfNameFowardedExport(t, n, parent)
 			return false
 		default:

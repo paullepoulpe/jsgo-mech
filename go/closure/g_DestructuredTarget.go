@@ -76,8 +76,8 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 	Preconditions_checkArgument_boolean_Object(destructuringChild.getParent().isDestructuringPattern(), destructuringChild.box_())
 	var builder *DestructuredTarget_Builder = new_DestructuredTarget_Builder(registry, destructuringChild.getParent(), destructuringPatternType)
 	var value Node
-	switch destructuringChild.getToken() {
-	case Token_rhino_STRING_KEY:
+	switch destructuringChild.ns_().token {
+	case tokOrd1_STRING_KEY:
 		builder.setObjectPatternKey(destructuringChild)
 		value = destructuringChild.getFirstChild()
 		if value.isDefaultValue() {
@@ -86,7 +86,7 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 		} else {
 			builder.setNode(value)
 		}
-	case Token_rhino_COMPUTED_PROP:
+	case tokOrd1_COMPUTED_PROP:
 		builder.setObjectPatternKey(destructuringChild)
 		value = destructuringChild.getSecondChild()
 		if value.isDefaultValue() {
@@ -95,12 +95,12 @@ func DestructuredTarget_createTarget(registry *JSTypeRegistry, destructuringPatt
 		} else {
 			builder.setNode(value)
 		}
-	case Token_rhino_OBJECT_PATTERN, Token_rhino_ARRAY_PATTERN, Token_rhino_NAME, Token_rhino_GETELEM, Token_rhino_GETPROP:
+	case tokOrd1_OBJECT_PATTERN, tokOrd1_ARRAY_PATTERN, tokOrd1_NAME, tokOrd1_GETELEM, tokOrd1_GETPROP:
 		builder.setNode(destructuringChild)
-	case Token_rhino_DEFAULT_VALUE:
+	case tokOrd1_DEFAULT_VALUE:
 		builder.setNode(destructuringChild.getFirstChild())
 		builder.setDefaultValue(destructuringChild.getSecondChild())
-	case Token_rhino_ITER_REST, Token_rhino_OBJECT_REST:
+	case tokOrd1_ITER_REST, tokOrd1_OBJECT_REST:
 		builder.setNode(destructuringChild.getFirstChild())
 		builder.setIsRest(true)
 	default:

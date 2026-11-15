@@ -55,11 +55,11 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 	var fileName OptionalOf[string] = traversal.getSourceName()
 	var sourceFileName string = node.getSourceFileName()
 	var functionName string = str_(this.functionNameStack.peek())
-	switch node.getToken() {
-	case Token_rhino_FUNCTION:
+	switch node.ns_().token {
+	case tokOrd1_FUNCTION:
 		this.functionNameStack.pop()
 		this.instrumentBlockNode(node.getLastChild(), str_(fileName.orElse(nil)), functionName, ProductionCoverageInstrumentationCallback_Type_FUNCTION)
-	case Token_rhino_IF:
+	case tokOrd1_IF:
 		var ifTrueNode Node = node.getSecondChild()
 		this.instrumentBlockNode(ifTrueNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		if node.getChildCount() == 2 {
@@ -69,7 +69,7 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 		if NodeUtil_isEmptyBlock(ifFalseNode) || (ifFalseNode.hasChildren() && !ifFalseNode.getFirstChild().isIf()) {
 			this.instrumentBlockNode(ifFalseNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 		}
-	case Token_rhino_SWITCH:
+	case tokOrd1_SWITCH:
 		var hasDefaultCase bool = false
 		var switchBody Node = node.getSecondChild()
 		{
@@ -90,13 +90,13 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 			switchBody.addChildToBack(defaultCase)
 			this.instrumentBlockNode(defaultBlock, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH_DEFAULT)
 		}
-	case Token_rhino_HOOK:
+	case tokOrd1_HOOK:
 		var ifTernaryIsTrueExpression Node = node.getSecondChild()
 		var ifTernaryIsFalseExpression Node = node.getLastChild()
 		this.addInstrumentationNodeWithComma(ifTernaryIsTrueExpression, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		this.addInstrumentationNodeWithComma(ifTernaryIsFalseExpression, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		this.compiler_.reportChangeToEnclosingScope(node)
-	case Token_rhino_OR, Token_rhino_AND, Token_rhino_COALESCE:
+	case tokOrd1_OR, tokOrd1_AND, tokOrd1_COALESCE:
 		var secondExpression Node = node.getLastChild()
 		this.addInstrumentationNodeWithComma(secondExpression, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
 		this.compiler_.reportChangeToEnclosingScope(node)

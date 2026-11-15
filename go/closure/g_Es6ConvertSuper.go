@@ -53,8 +53,8 @@ func (this *Es6ConvertSuper) visitSuper(node Node, parent Node) {
 		var n Node = Node_of_(n_)
 		_ = n
 		return func() bool {
-			switch n.getToken() {
-			case Token_rhino_MEMBER_FUNCTION_DEF, Token_rhino_GETTER_DEF, Token_rhino_SETTER_DEF, Token_rhino_COMPUTED_PROP:
+			switch n.ns_().token {
+			case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF, tokOrd1_COMPUTED_PROP:
 				return true
 			default:
 				return false
