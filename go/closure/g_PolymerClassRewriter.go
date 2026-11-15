@@ -340,9 +340,9 @@ func (this *PolymerClassRewriter) parseReadOnlyProperties(cls *PolymerClassDefin
 		}
 	}
 	if cls.behaviorProps != nil {
-		it_3 := foreach_(any(cls.behaviorProps.keySet()))
+		it_3 := cls.behaviorProps.each()
 		for it_3.next() {
-			var prop *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_3.v)
+			var prop *PolymerPass_MemberDefinition = it_3.k
 			if prop.value_.isObjectLit() {
 				var readOnlyValue Node = NodeUtil_getFirstPropMatchingKey(prop.value_, "readOnly")
 				if (readOnlyValue != 0) && readOnlyValue.isTrue() {
@@ -415,7 +415,7 @@ func (this *PolymerClassRewriter) appendBehaviorPropertiesToBlock(cls *PolymerCl
 	if ((cls.behaviors == nil) || cls.behaviors.isEmpty()) || (cls.behaviorProps == nil) {
 		return
 	}
-	it_1 := foreach_(any(cls.behaviorProps.entrySet()))
+	it_1 := foreach_(any(cls.behaviorProps.asMap().entrySet()))
 	for it_1.next() {
 		var itr Map_Entry = icast_Map_Entry(it_1.v)
 		var behavior *PolymerBehaviorExtractor_BehaviorDefinition = cast_[*PolymerBehaviorExtractor_BehaviorDefinition](itr.getValue())
@@ -639,7 +639,7 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 	var interfaceBasePath string = (sstr_(str_(interfaceName.orElse(strobj_("null")))) + ".prototype.")
 	this.appendBehaviorPropertiesToBlock(cls, block, interfaceBasePath, true)
 	this.appendPropertiesToBlock(cls.props, block, interfaceBasePath, true)
-	var uniqueMethods LinkedHashMapOf[string, *PolymerPass_MemberDefinition] = new_LinkedHashMap()
+	var uniqueMethods *TMap[string, *PolymerPass_MemberDefinition] = newTMap_(tc_string, tc_p_PolymerPass_MemberDefinition)
 	if cls.behaviors != nil {
 		it_1 := foreach_(obj_(cls.behaviors))
 		for it_1.next() {
@@ -647,18 +647,18 @@ func (this *PolymerClassRewriter) createExportsAndExterns(cls *PolymerClassDefin
 			it_3 := behavior.functionsToCopy.each()
 			for it_3.next() {
 				var method *PolymerPass_MemberDefinition = it_3.v
-				Map_put_s(uniqueMethods, method.name_.getString(), obj_(method))
+				uniqueMethods.put(method.name_.getString(), method)
 			}
 		}
 	}
 	it_5 := cls.methods.each()
 	for it_5.next() {
 		var method *PolymerPass_MemberDefinition = it_5.v
-		Map_put_s(uniqueMethods, method.name_.getString(), obj_(method))
+		uniqueMethods.put(method.name_.getString(), method)
 	}
-	it_7 := foreach_(any(uniqueMethods.values()))
+	it_7 := uniqueMethods.each()
 	for it_7.next() {
-		var method *PolymerPass_MemberDefinition = cast_[*PolymerPass_MemberDefinition](it_7.v)
+		var method *PolymerPass_MemberDefinition = it_7.v
 		this.addMethodToObjectExternsUsingExportAnnotation(cls, method)
 	}
 	it_9 := readOnlyProps.each()

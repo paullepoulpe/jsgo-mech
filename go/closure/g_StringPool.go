@@ -71,12 +71,12 @@ func StringPool_clinit() {
 
 type StringPool_Builder struct {
 	maxLength int32
-	pool      LinkedHashMapOf[string, BoxedOf[int32]]
+	pool      *TMap[string, any]
 }
 
 func (this *StringPool_Builder) finit_StringPool_Builder() {
 	this.maxLength = 0
-	this.pool = new_LinkedHashMap()
+	this.pool = newTMap_(tc_string, tc_any)
 }
 
 func (this *StringPool_Builder) init_StringPool_Builder() {
@@ -94,7 +94,7 @@ func (this *StringPool_Builder) put(string_ string) int32 {
 	if String_length(string_) > this.maxLength {
 		this.maxLength = String_length(string_)
 	}
-	return unbox_[int32](Map_computeIfAbsent_s(this.pool, string_, &Function_fn{func(unused_ any) any {
+	return unbox_[int32](this.pool.computeIfAbsent(string_, &Function_fn{func(unused_ any) any {
 		var unused string = str_(unused_)
 		_ = unused
 		return any(int32(this.pool.size()))
@@ -107,5 +107,5 @@ func (this *StringPool_Builder) putAnd(string_ string) *StringPool_Builder {
 }
 
 func (this *StringPool_Builder) build() *StringPool {
-	return new_StringPool(this.maxLength, tlistFrom_(tc_string, Collection(this.pool.keySet())))
+	return new_StringPool(this.maxLength, tlistFrom_(tc_string, Collection(this.pool.asMap().keySet())))
 }

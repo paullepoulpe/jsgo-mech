@@ -133,11 +133,11 @@ func (this *FunctionInjector) inlineReturnValue(ref *FunctionInjector_Reference,
 	var callNode Node = ref.callNode_
 	var block Node = fnNode.getLastChild()
 	var paramToArgMap ImmutableMapOf[string, *FunctionArgumentInjector_ParamArgPair] = this.functionArgumentInjector_.getFunctionCallParameterMap(fnNode, callNode, this.safeNameIdSupplier_)
-	var paramReplacements MapOf[string, Node] = icast_Map(obj_(new_LinkedHashMap()))
+	var paramReplacements *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	it_1 := foreach_(obj_(cast_[*ImmutableSet](paramToArgMap.entrySet())))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
-		Map_put_s(paramReplacements, str_(entry.getKey()), cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg().box_())
+		paramReplacements.put(str_(entry.getKey()), cast_[*FunctionArgumentInjector_ParamArgPair](entry.getValue()).arg())
 	}
 	var newExpression Node
 	if !block.hasChildren() {

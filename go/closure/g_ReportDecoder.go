@@ -102,14 +102,14 @@ func ReportDecoder_decodeReport(mapping MapOf[string, *InstrumentationPoint], fr
 	return ReportDecoder_createReportProfile(instrumentationPoints)
 }
 
-func ReportDecoder_createProfileOfStaticallyUsedCode(mapping MapOf[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
+func ReportDecoder_createProfileOfStaticallyUsedCode(mapping *TMap[string, *InstrumentationPoint], fileContent string, instrumentationArrayName string) *ReportProfile {
 	var matcher *Matcher_re2j = Pattern_compile((sstr_(instrumentationArrayName) + "\\.push\\(['\"](" + sstr_(JavaRegex_DOT) + "*?)['\"]\\)")).matcher(strobj_(fileContent))
 	var encodedPoints map[string]struct{} = map[string]struct{}{}
 	for matcher.find() {
 		encodedPoints[matcher.group(1)] = struct{}{}
 	}
 	var instrumentationPoints *TList[*InstrumentationPointStats] = newTList_(tc_p_InstrumentationPointStats)
-	it_2 := foreach_(any(mapping.entrySet()))
+	it_2 := foreach_(any(mapping.asMap().entrySet()))
 	for it_2.next() {
 		var entry Map_Entry = icast_Map_Entry(it_2.v)
 		instrumentationPoints.add(cast_[*InstrumentationPointStats](any(InstrumentationPointStats_newBuilder().setPoint(cast_[*InstrumentationPoint](entry.getValue())).setTimesExecuted(0).setPointPresence(func() *InstrumentationPointStats_Presence {
@@ -179,18 +179,18 @@ func ReportDecoder_createReportProfile(instrumentationPoints *TList[*Instrumenta
 		_ = pointStats
 		return pointStats.getPoint().getLineNumber()
 	}}))
-	var pointsByFileName LinkedHashMapOf[string, ListOf[*InstrumentationPointStats]] = new_LinkedHashMap()
+	var pointsByFileName *TMap[string, ListOf[*InstrumentationPointStats]] = newTMap_(tc_string, tc_ListOf_p_InstrumentationPointStats_)
 	it_1 := sortedPoints.each()
 	for it_1.next() {
 		var pointStats *InstrumentationPointStats = it_1.v
-		icast_List(Map_computeIfAbsent_s(pointsByFileName, pointStats.getPoint().getFileName(), &Function_fn{func(k_ any) any {
+		pointsByFileName.computeIfAbsent(pointStats.getPoint().getFileName(), &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return new_ArrayList_0().self()
-		}})).add(obj_(pointStats))
+		}}).add(obj_(pointStats))
 	}
 	var fileProfiles *TList[*FileProfile] = newTList_(tc_p_FileProfile)
-	it_3 := foreach_(any(pointsByFileName.entrySet()))
+	it_3 := foreach_(any(pointsByFileName.asMap().entrySet()))
 	for it_3.next() {
 		var entry Map_Entry = icast_Map_Entry(it_3.v)
 		fileProfiles.add(cast_[*FileProfile](any(FileProfile_newBuilder().setFileName(str_(entry.getKey())).addAllInstrumentationPointsStats(icast_Iterable(entry.getValue())).build())))

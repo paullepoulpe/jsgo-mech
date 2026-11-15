@@ -4,7 +4,7 @@ package closure
 
 type JSChunk struct {
 	name_  string
-	inputs MapOf[string, *CompilerInput]
+	inputs *TMap[string, *CompilerInput]
 	deps   *TList[*JSChunk]
 	depth  int32
 	index_ int32
@@ -15,7 +15,7 @@ func (this *JSChunk) zero_JSChunk() {
 }
 
 func (this *JSChunk) finit_JSChunk() {
-	this.inputs = icast_Map(obj_(new_LinkedHashMap()))
+	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
 	this.deps = newTList_(tc_p_JSChunk)
 }
 
@@ -85,7 +85,7 @@ func (this *JSChunk) add(file *SourceFile_jscomp) {
 
 func (this *JSChunk) addCompilerInput(input *CompilerInput) {
 	var inputName string = input.getName()
-	var previous *CompilerInput = cast_[*CompilerInput](Map_put_s(this.inputs, inputName, obj_(input)))
+	var previous *CompilerInput = this.inputs.put(inputName, input)
 	Preconditions_checkState_boolean_String_Object_Object((previous == nil), "%s already exist in chunk %s", strobj_(inputName), strobj_(this.getName()))
 	input.setChunk(this)
 }
@@ -98,13 +98,13 @@ func (this *JSChunk) addDependency(dep *JSChunk) {
 
 func (this *JSChunk) remove(input *CompilerInput) {
 	input.setChunk(nil)
-	Map_remove_s(this.inputs, input.getName())
+	this.inputs.remove(input.getName())
 }
 
 func (this *JSChunk) removeAll() {
-	it_1 := foreach_(any(this.inputs.values()))
+	it_1 := this.inputs.each()
 	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+		var input *CompilerInput = it_1.v
 		input.setChunk(nil)
 	}
 	this.inputs.clear()
@@ -154,23 +154,23 @@ func (this *JSChunk) getInputCount() int32 {
 }
 
 func (this *JSChunk) getFirst() *CompilerInput {
-	return cast_[*CompilerInput](this.inputs.values().iterator().next())
+	return cast_[*CompilerInput](this.inputs.asMap().values().iterator().next())
 }
 
 func (this *JSChunk) getInputs() ImmutableListOf[*CompilerInput] {
-	return ImmutableList_copyOf(this.inputs.values())
+	return ImmutableList_copyOf(this.inputs.asMap().values())
 }
 
 func (this *JSChunk) getInputsIterable() IterableOf[*CompilerInput] {
-	return Iterable(this.inputs.values())
+	return Iterable(this.inputs.asMap().values())
 }
 
 func (this *JSChunk) getByName(name string) *CompilerInput {
-	return cast_[*CompilerInput](Map_get_s(this.inputs, name))
+	return this.inputs.get(name)
 }
 
 func (this *JSChunk) removeByName(name string) bool {
-	var value *CompilerInput = cast_[*CompilerInput](Map_remove_s(this.inputs, name))
+	var value *CompilerInput = this.inputs.remove(name)
 	return (value != nil)
 }
 
@@ -187,9 +187,9 @@ func (this *JSChunk) toString() string {
 }
 
 func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
-	it_1 := foreach_(any(this.inputs.values()))
+	it_1 := this.inputs.each()
 	for it_1.next() {
-		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
+		var input *CompilerInput = it_1.v
 		input.setCompiler(compiler)
 	}
 	var sortedList *TList[*CompilerInput] = new_SortedDependencies(icast_List(obj_(this.getInputs()))).getSortedList()
@@ -197,7 +197,7 @@ func (this *JSChunk) sortInputsByDeps(compiler *AbstractCompiler) {
 	it_3 := sortedList.each()
 	for it_3.next() {
 		var input *CompilerInput = it_3.v
-		Map_put_s(this.inputs, input.getName(), obj_(input))
+		this.inputs.put(input.getName(), input)
 	}
 }
 
@@ -221,7 +221,7 @@ func (this *JSChunk) getIndex() int32 {
 
 func (this *JSChunk) readObject(in *ObjectInputStream) {
 	in.defaultReadObject()
-	this.inputs = icast_Map(obj_(new_LinkedHashMap()))
+	this.inputs = newTMap_(tc_string, tc_p_CompilerInput)
 }
 
 func (this *JSChunk) getRequiredSymbols() *ImmutableList {

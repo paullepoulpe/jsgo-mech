@@ -12,7 +12,7 @@ type TypedScopeCreator struct {
 	metadataMap                  *ModuleMetadataMap
 	moduleImportResolver         *ModuleImportResolver
 	processClosurePrimitives     bool
-	memoized                     MapOf[Node, *TypedScope]
+	memoized                     *TMap[Node, *TypedScope]
 	reservedNamesForScope        *SimpleListMultimap
 	functionsWithNonEmptyReturns map[Node]struct{}
 	escapedVarNames              SetOf[*ScopedName]
@@ -26,7 +26,7 @@ type TypedScopeCreator struct {
 }
 
 func (this *TypedScopeCreator) finit_TypedScopeCreator() {
-	this.memoized = icast_Map(obj_(new_LinkedHashMap()))
+	this.memoized = newTMap_(tc_Node, tc_p_TypedScope)
 	this.stage = TypedScopeCreator_Stage_BUILDING
 }
 
@@ -52,7 +52,7 @@ func (this *TypedScopeCreator) init_TypedScopeCreator_AbstractCompiler_CodingCon
 		if compiler.getModuleMetadataMap() != nil {
 			return compiler.getModuleMetadataMap()
 		}
-		return new_ModuleMetadataMap(icast_Map(obj_(ImmutableMap_of())), icast_Map(obj_(ImmutableMap_of())))
+		return new_ModuleMetadataMap(tmapFrom_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, ImmutableMap_of(), true), tmapFrom_(tc_string, tc_p_ModuleMetadataMap_ModuleMetadata, ImmutableMap_of(), true))
 	}()
 	this.moduleMap = compiler.getModuleMap()
 	this.moduleImportResolver = new_ModuleImportResolver(this.moduleMap, this.getNodeToScopeMapper(), this.typeRegistry)
@@ -84,24 +84,24 @@ func (this *TypedScopeCreator) getScope(var__ StaticSlot) StaticScope {
 
 func (this *TypedScopeCreator) getAllSymbols() IterableOf[*TypedVar] {
 	var vars *TList[*TypedVar] = newTList_(tc_p_TypedVar)
-	it_1 := foreach_(any(this.memoized.values()))
+	it_1 := this.memoized.each()
 	for it_1.next() {
-		var s *TypedScope = cast_[*TypedScope](it_1.v)
+		var s *TypedScope = it_1.v
 		Iterables_addAll(Collection(vars.asList()), s.getAllSymbols())
 	}
 	return Iterable(vars.asList())
 }
 
 func (this *TypedScopeCreator) getNodeToScopeMapper() FunctionOf[Node, *TypedScope] {
-	return &Function_fn{func(p0 any) any { return this.memoized.get(Node_of_(p0).box_()) }}
+	return &Function_fn{func(p0 any) any { return obj_(this.memoized.get(Node_of_(p0))) }}
 }
 
 func (this *TypedScopeCreator) getAllMemoizedScopes() CollectionOf[*TypedScope] {
-	return Collection(Lists_reverse(icast_List(obj_(ImmutableList_copyOf(this.memoized.values())))))
+	return Collection(Lists_reverse(icast_List(obj_(ImmutableList_copyOf(this.memoized.asMap().values())))))
 }
 
 func (this *TypedScopeCreator) createScope(n Node) *TypedScope {
-	var s *TypedScope = cast_[*TypedScope](this.memoized.get(n.box_()))
+	var s *TypedScope = this.memoized.get(n)
 	return func() *TypedScope {
 		if s != nil {
 			return s
@@ -113,12 +113,12 @@ func (this *TypedScopeCreator) createScope(n Node) *TypedScope {
 func (this *TypedScopeCreator) createScopeAbstractScope(root Node, parent *AbstractScope) *AbstractScope {
 	Preconditions_checkArgument(((parent == nil) || is_[*TypedScope](parent.self())))
 	var typedParent *TypedScope = cast_[*TypedScope](parent.self())
-	var scope *TypedScope = cast_[*TypedScope](this.memoized.get(root.box_()))
+	var scope *TypedScope = this.memoized.get(root)
 	if scope != nil {
 		Preconditions_checkState((typedParent == cast_[*TypedScope](scope.getParent().self())))
 	} else {
 		scope = this.createScopeInternal(root, typedParent)
-		this.memoized.put(root.box_(), obj_(scope))
+		this.memoized.put(root, scope)
 	}
 	return scope.up_AbstractScope()
 }
@@ -202,10 +202,10 @@ func (this *TypedScopeCreator) gatherAllProvides(root Node) {
 	}
 	var externs Node = root.getFirstChild()
 	var js Node = root.getSecondChild()
-	var providedNames MapOf[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
-	it_1 := foreach_(any(providedNames.values()))
+	var providedNames *TMap[string, *ProcessClosureProvidesAndRequires_ProvidedName] = new_ProcessClosureProvidesAndRequires(this.compiler_, true).collectProvidedNames(externs, js)
+	it_1 := providedNames.each()
 	for it_1.next() {
-		var name *ProcessClosureProvidesAndRequires_ProvidedName = cast_[*ProcessClosureProvidesAndRequires_ProvidedName](it_1.v)
+		var name *ProcessClosureProvidesAndRequires_ProvidedName = it_1.v
 		if name.hasImplicitInitialization() {
 			continue
 		}
@@ -245,7 +245,7 @@ func (this *TypedScopeCreator) createInitialScope(root Node) *TypedScope {
 	this.declareNativeValueType(s, "undefined", JSTypeNative_VOID_TYPE)
 	this.addWellKnownSymbols(s)
 	this.gatherAllProvides(root)
-	this.memoized.put(root.box_(), obj_(s))
+	this.memoized.put(root, s)
 	return s
 }
 
@@ -460,7 +460,7 @@ func new_TypedScopeCreator_WeakModuleImport(outer_ *TypedScopeCreator, moduleLoc
 }
 
 func (this *TypedScopeCreator_WeakModuleImport) resolve() {
-	var resolvedScope *TypedScope = cast_[*TypedScope](this.outer_.memoized.get(this.scopedImport.getScopeRoot().box_()))
+	var resolvedScope *TypedScope = this.outer_.memoized.get(this.scopedImport.getScopeRoot())
 	var requiredVar *TypedVar = func() *TypedVar {
 		if resolvedScope != nil {
 			return cast_[*TypedVar](resolvedScope.getSlot(this.scopedImport.getName()))
@@ -1100,7 +1100,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 	}
 	var exportScope *TypedScope = func() *TypedScope {
 		if exportedName.getScopeRoot() != 0 {
-			return cast_[*TypedScope](this.outer_.memoized.get(exportedName.getScopeRoot().box_()))
+			return this.outer_.memoized.get(exportedName.getScopeRoot())
 		}
 		return nil
 	}()
@@ -1238,10 +1238,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getCtorForGoogModuleGet(exte
 		call = call.getFirstChild()
 	}
 	var extendsCall *ScopedName = this.outer_.moduleImportResolver.getClosureNamespaceTypeFromCall(call)
-	if (extendsCall == nil) || !this.outer_.memoized.containsKey(extendsCall.getScopeRoot().box_()) {
+	if (extendsCall == nil) || !this.outer_.memoized.containsKey(extendsCall.getScopeRoot()) {
 		return nil
 	}
-	var moduleScope *TypedScope = cast_[*TypedScope](this.outer_.memoized.get(extendsCall.getScopeRoot().box_()))
+	var moduleScope *TypedScope = this.outer_.memoized.get(extendsCall.getScopeRoot())
 	properties.add_int_Object(0, strobj_(extendsCall.getName()))
 	var superclassName *QualifiedName = QualifiedName_of(Joiner_on_char('.').join(icast_Iterable(properties.self())))
 	return moduleScope.lookupQualifiedName(superclassName)

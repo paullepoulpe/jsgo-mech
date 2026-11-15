@@ -69,7 +69,7 @@ func (this *ChangeVerifier) verifyDeletedScopeNodes(passNameMsg string, deletedS
 	it_1 := foreach_(any(deletedScopeNodes))
 	for it_1.next() {
 		var snapshotScopeNode Node = Node_of_(it_1.v)
-		var currentNode Node = Node_of_(this.clonesByCurrent.inverse().get(snapshotScopeNode.box_()))
+		var currentNode Node = Node_of_(strobj_(this.clonesByCurrent.inverse().get(str_(snapshotScopeNode.box_()))))
 		if currentNode.isDeleted() {
 			continue
 		}

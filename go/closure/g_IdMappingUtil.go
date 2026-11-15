@@ -15,9 +15,9 @@ func new_IdMappingUtil() *IdMappingUtil {
 	return this
 }
 
-func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps MapOf[string, MapOf[string, string]]) string {
+func IdMappingUtil_generateSerializedIdMappings(idGeneratorMaps *TMap[string, MapOf[string, string]]) string {
 	var sb *StringBuilder = new_StringBuilder()
-	it_1 := foreach_(any(idGeneratorMaps.entrySet()))
+	it_1 := foreach_(any(idGeneratorMaps.asMap().entrySet()))
 	for it_1.next() {
 		var replacements Map_Entry = icast_Map_Entry(it_1.v)
 		if !icast_Map(replacements.getValue()).isEmpty() {
@@ -52,8 +52,8 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 	return mapBuilder.buildKeepingLast()
 }
 
-func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) MapOf[string, *SimpleBiMap] {
-	var resultMap MapOf[string, *SimpleBiMap] = icast_Map(obj_(new_LinkedHashMap()))
+func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) *TMap[string, *SimpleBiMap] {
+	var resultMap *TMap[string, *SimpleBiMap] = newTMap_(tc_string, tc_p_SimpleBiMap)
 	var mr *IdMappingUtil_MappingReader = new_IdMappingUtil_MappingReader(idMappings)
 	var currentSectionMap *SimpleBiMap = nil
 	var sectionNames map[string]struct{} = map[string]struct{}{}
@@ -64,7 +64,7 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) MapOf[string
 				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map: Duplicate section %s\n lineIndex: %d", []any{sectionName.orElse(strobj_("null")), any(int32(mr.getLineIndex()))})).self())
 			}
 			currentSectionMap = SimpleBiMap_create()
-			Map_put_s(resultMap, str_(sectionName.orElse(nil)), obj_(currentSectionMap))
+			resultMap.put(str_(sectionName.orElse(nil)), currentSectionMap)
 		} else {
 			if currentSectionMap == nil {
 				panic(new_IllegalArgumentException_String("Mapping entry outside of section").self())
@@ -75,9 +75,9 @@ func IdMappingUtil_parseSerializedIdMappingsText(idMappings string) MapOf[string
 	return resultMap
 }
 
-func IdMappingUtil_parseSerializedIdMappings(idMappings string) MapOf[string, *SimpleBiMap] {
+func IdMappingUtil_parseSerializedIdMappings(idMappings string) *TMap[string, *SimpleBiMap] {
 	if Strings_isNullOrEmpty(idMappings) {
-		return icast_Map(obj_(ImmutableMap_of()))
+		return tmapFrom_(tc_string, tc_p_SimpleBiMap, ImmutableMap_of(), true)
 	}
 	return IdMappingUtil_parseSerializedIdMappingsText(idMappings)
 }

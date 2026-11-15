@@ -6,7 +6,7 @@ type PureFunctionIdentifier struct {
 	compiler_                            *AbstractCompiler
 	astAnalyzer                          *AstAnalyzer
 	validateArtificialPurityField        bool
-	summariesByName                      MapOf[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
+	summariesByName                      *TMap[string, *PureFunctionIdentifier_AmbiguatedFunctionSummary]
 	summariesForAllNamesOfFunctionByNode *SimpleListMultimap
 	artificiallyPureLiteralsForDebugging LinkedHashSetOf[Node]
 	allFunctionCalls                     []Node
@@ -17,7 +17,7 @@ type PureFunctionIdentifier struct {
 }
 
 func (this *PureFunctionIdentifier) finit_PureFunctionIdentifier() {
-	this.summariesByName = icast_Map(obj_(new_LinkedHashMap()))
+	this.summariesByName = newTMap_(tc_string, tc_p_PureFunctionIdentifier_AmbiguatedFunctionSummary)
 	this.summariesForAllNamesOfFunctionByNode = SimpleListMultimap_create()
 	this.artificiallyPureLiteralsForDebugging = new_LinkedHashSet()
 	this.allFunctionCalls = []Node{}
@@ -201,7 +201,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) Immut
 			var calleeName OptionalOf[string] = PureFunctionIdentifier_nameForReference(callee)
 			results.add(func() any {
 				if calleeName.isPresent() {
-					return Map_getOrDefault_s(this.summariesByName, str_(calleeName.get()), obj_(this.unknownFunctionSummary))
+					return obj_(this.summariesByName.getOrDefault(str_(calleeName.get()), this.unknownFunctionSummary))
 				}
 				return obj_(this.unknownFunctionSummary)
 			}())
@@ -227,14 +227,14 @@ func (this *PureFunctionIdentifier) populateDatastructuresForAnalysisTraversal(r
 	it_5 := foreach_(any(referencesByName.keySet()))
 	for it_5.next() {
 		var name string = str_(it_5.v)
-		Map_put_s(this.summariesByName, name, obj_(PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name)))
+		this.summariesByName.put(name, PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), name))
 	}
 	Map_forEach(referencesByName.asMap(), &BiConsumer_fn{func(p0 any, p1 any) { this.populateFunctionDefinitions(str_(p0), icast_List(p1)) }})
 	this.summariesForAllNamesOfFunctionByNode.put(PureFunctionIdentifier_IMPLICIT_PURE_FN.box_(), obj_(PureFunctionIdentifier_AmbiguatedFunctionSummary_createInGraph(this.reverseCallGraph.up_DiGraph(), "<implicit pure class ctor")))
 }
 
 func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, references ListOf[Node]) {
-	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](Preconditions_checkNotNull(Map_get_s(this.summariesByName, name)))
+	var summaryForName *PureFunctionIdentifier_AmbiguatedFunctionSummary = cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](Preconditions_checkNotNull(obj_(this.summariesByName.get(name))))
 	var invalid bool = false
 	var rvaluesAssignedToName ListOf[ImmutableListOf[Node]] = icast_List(new_ArrayList_0().self())
 	it_1 := foreach_(any(references))
@@ -283,7 +283,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					var rvalueName OptionalOf[string] = PureFunctionIdentifier_nameForReference(rvalue)
 					var rvalueSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = func() *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 						if rvalueName.isPresent() {
-							return cast_[*PureFunctionIdentifier_AmbiguatedFunctionSummary](Map_getOrDefault_s(this.summariesByName, str_(rvalueName.get()), obj_(this.unknownFunctionSummary)))
+							return this.summariesByName.getOrDefault(str_(rvalueName.get()), this.unknownFunctionSummary)
 						}
 						return this.unknownFunctionSummary
 					}()

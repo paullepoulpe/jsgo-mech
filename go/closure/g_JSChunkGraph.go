@@ -184,10 +184,10 @@ func (this *JSChunkGraph) getChunkByName(name string) *JSChunk {
 	return nil
 }
 
-func (this *JSChunkGraph) getChunksByName() MapOf[string, *JSChunk] {
-	var result MapOf[string, *JSChunk] = icast_Map(obj_(new_LinkedHashMap()))
+func (this *JSChunkGraph) getChunksByName() *TMap[string, *JSChunk] {
+	var result *TMap[string, *JSChunk] = newTMap_(tc_string, tc_p_JSChunk)
 	for _, m := range this.chunks {
-		Map_put_s(result, m.getName(), obj_(m))
+		result.put(m.getName(), m)
 	}
 	return result
 }
@@ -329,27 +329,27 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		return Outcome_base_err(entryPointInputsRes.error())
 	}
 	var entryPointInputs SetOf[*CompilerInput] = icast_Set(entryPointInputsRes.get())
-	var inputsByProvide LinkedHashMapOf[string, SetOf[*CompilerInput]] = new_LinkedHashMap()
+	var inputsByProvide *TMap[string, SetOf[*CompilerInput]] = newTMap_(tc_string, tc_SetOf_p_CompilerInput_)
 	it_1 := foreach_(obj_(originalInputs))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
 		it_3 := foreach_(obj_(input.getKnownProvides()))
 		for it_3.next() {
 			var provide string = str_(it_3.v)
-			Map_computeIfAbsent_s(inputsByProvide, provide, &Function_fn{func(k_ any) any {
+			inputsByProvide.computeIfAbsent(provide, &Function_fn{func(k_ any) any {
 				var k string = str_(k_)
 				_ = k
 				return obj_(new_LinkedHashSet())
 			}})
-			icast_Set(Map_get_s(inputsByProvide, provide)).add(obj_(input))
+			inputsByProvide.get(provide).add(obj_(input))
 		}
 		var chunkName string = input.getPath().toModuleName()
-		Map_computeIfAbsent_s(inputsByProvide, chunkName, &Function_fn{func(k_ any) any {
+		inputsByProvide.computeIfAbsent(chunkName, &Function_fn{func(k_ any) any {
 			var k string = str_(k_)
 			_ = k
 			return obj_(new_LinkedHashSet())
 		}})
-		icast_Set(Map_get_s(inputsByProvide, chunkName)).add(obj_(input))
+		inputsByProvide.get(chunkName).add(obj_(input))
 	}
 	it_5 := foreach_(obj_(originalInputs))
 	for it_5.next() {
@@ -357,8 +357,8 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		it_7 := foreach_(obj_(input.getDynamicRequires()))
 		for it_7.next() {
 			var require string = str_(it_7.v)
-			if Map_containsKey_s(inputsByProvide, require) {
-				entryPointInputs.addAll(icast_Collection(Map_get_s(inputsByProvide, require)))
+			if inputsByProvide.containsKey(require) {
+				entryPointInputs.addAll(icast_Collection(any(inputsByProvide.get(require))))
 			}
 		}
 	}
@@ -368,8 +368,8 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 		it_11 := foreach_(obj_(input.getRequireDynamicImports()))
 		for it_11.next() {
 			var require string = str_(it_11.v)
-			if Map_containsKey_s(inputsByProvide, require) {
-				entryPointInputs.addAll(icast_Collection(Map_get_s(inputsByProvide, require)))
+			if inputsByProvide.containsKey(require) {
+				entryPointInputs.addAll(icast_Collection(any(inputsByProvide.get(require))))
 			}
 		}
 	}
@@ -397,7 +397,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 			it_18 := foreach_(any(entryPointInputsPerChunk.get(obj_(chunk))))
 			for it_18.next() {
 				var entryPoint *CompilerInput = cast_[*CompilerInput](it_18.v)
-				transitiveClosure.asList().addAll(Collection(this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, icast_Map(obj_(inputsByProvide))).asList()))
+				transitiveClosure.asList().addAll(Collection(this.getDepthFirstDependenciesOf(entryPoint, inputsNotYetReached, inputsByProvide).asList()))
 			}
 			it_20 := transitiveClosure.each()
 			for it_20.next() {
@@ -453,7 +453,7 @@ func (this *JSChunkGraph) manageDependencies(compiler *AbstractCompiler, depende
 	return Outcome_base_ok_Object(obj_(new_JSChunkGraph_DependencyManagementResult(ImmutableList_copyOf(Collection(orderedInputs)), sorter, ImmutableSet_copyOf(Collection(entryPointInputs)))))
 }
 
-func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs SetOf[*CompilerInput], inputsByProvide MapOf[string, SetOf[*CompilerInput]]) *TList[*CompilerInput] {
+func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, unreachedInputs SetOf[*CompilerInput], inputsByProvide *TMap[string, SetOf[*CompilerInput]]) *TList[*CompilerInput] {
 	var orderedInputs *TList[*CompilerInput] = newTList_(tc_p_CompilerInput)
 	if !unreachedInputs.remove_Object(obj_(rootInput)) {
 		return orderedInputs
@@ -461,8 +461,8 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 	it_1 := foreach_(obj_(rootInput.getRequiredSymbols()))
 	for it_1.next() {
 		var importedNamespace string = str_(it_1.v)
-		if Map_containsKey_s(inputsByProvide, importedNamespace) {
-			it_3 := foreach_(any(icast_Set(Map_get_s(inputsByProvide, importedNamespace))))
+		if inputsByProvide.containsKey(importedNamespace) {
+			it_3 := foreach_(any(inputsByProvide.get(importedNamespace)))
 			for it_3.next() {
 				var input *CompilerInput = cast_[*CompilerInput](it_3.v)
 				if unreachedInputs.contains(obj_(input)) {
@@ -477,7 +477,7 @@ func (this *JSChunkGraph) getDepthFirstDependenciesOf(rootInput *CompilerInput, 
 
 func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dependencyOptions *DependencyOptions, inputs IterableOf[*CompilerInput], sorter *SortedDependencies) *Outcome_base {
 	var entryPointInputs SetOf[*CompilerInput] = icast_Set(obj_(new_LinkedHashSet()))
-	var chunksByName MapOf[string, *JSChunk] = this.getChunksByName()
+	var chunksByName *TMap[string, *JSChunk] = this.getChunksByName()
 	if dependencyOptions.shouldPrune() {
 		var baseJs *CompilerInput = cast_[*CompilerInput](sorter.maybeGetInputProviding("goog"))
 		if baseJs != nil {
@@ -508,7 +508,7 @@ func (this *JSChunkGraph) createEntryPointInputs(compiler *AbstractCompiler, dep
 					entryPointInput = cast_[*CompilerInput](inputRes.get())
 				}
 			} else {
-				var chunk *JSChunk = cast_[*JSChunk](Map_get_s(chunksByName, entryPoint.moduleName()))
+				var chunk *JSChunk = chunksByName.get(entryPoint.moduleName())
 				if chunk == nil {
 					return Outcome_base_err(new_JSChunkGraph_MissingChunkException(entryPoint.moduleName()).up_Throwable())
 				} else {

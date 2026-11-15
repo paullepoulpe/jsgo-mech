@@ -12,10 +12,10 @@ type SourceMapObject struct {
 	sourcesContent []string
 	names_         []string
 	sections       ListOf[*SourceMapSection]
-	extensions     MapOf[string, any]
+	extensions     *TMap[string, any]
 }
 
-func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot OptionalOf[string], file OptionalOf[string], mappings OptionalOf[string], sources []string, sourcesContent []string, names []string, sections ListOf[*SourceMapSection], extensions MapOf[string, any]) {
+func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32, sourceRoot OptionalOf[string], file OptionalOf[string], mappings OptionalOf[string], sources []string, sourcesContent []string, names []string, sections ListOf[*SourceMapSection], extensions *TMap[string, any]) {
 	this.version_ = version
 	this.lineCount = lineCount
 	this.sourceRoot = sourceRoot
@@ -28,7 +28,7 @@ func (this *SourceMapObject) init_SourceMapObject(version int32, lineCount int32
 	this.extensions = extensions
 }
 
-func new_SourceMapObject(version int32, lineCount int32, sourceRoot OptionalOf[string], file OptionalOf[string], mappings OptionalOf[string], sources []string, sourcesContent []string, names []string, sections ListOf[*SourceMapSection], extensions MapOf[string, any]) *SourceMapObject {
+func new_SourceMapObject(version int32, lineCount int32, sourceRoot OptionalOf[string], file OptionalOf[string], mappings OptionalOf[string], sources []string, sourcesContent []string, names []string, sections ListOf[*SourceMapSection], extensions *TMap[string, any]) *SourceMapObject {
 	this := &SourceMapObject{}
 	this.init_SourceMapObject(version, lineCount, sourceRoot, file, mappings, sources, sourcesContent, names, sections, extensions)
 	return this
@@ -70,7 +70,7 @@ func (this *SourceMapObject) getSections() ListOf[*SourceMapSection] {
 	return this.sections
 }
 
-func (this *SourceMapObject) getExtensions() MapOf[string, any] {
+func (this *SourceMapObject) getExtensions() *TMap[string, any] {
 	return this.extensions
 }
 
@@ -88,7 +88,7 @@ type SourceMapObject_Builder struct {
 	sourcesContent []string
 	names_         []string
 	sections       ListOf[*SourceMapSection]
-	extensions     MapOf[string, any]
+	extensions     *TMap[string, any]
 }
 
 func (this *SourceMapObject_Builder) finit_SourceMapObject_Builder() {
@@ -152,7 +152,7 @@ func (this *SourceMapObject_Builder) setSections(sections ListOf[*SourceMapSecti
 	return this
 }
 
-func (this *SourceMapObject_Builder) setExtensions(extensions MapOf[string, any]) *SourceMapObject_Builder {
+func (this *SourceMapObject_Builder) setExtensions(extensions *TMap[string, any]) *SourceMapObject_Builder {
 	this.extensions = extensions
 	return this
 }

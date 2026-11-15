@@ -632,12 +632,12 @@ func JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode Node) *Outcome_
 
 func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base {
 	if objLit == 0 {
-		return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(icast_Map(obj_(ImmutableMap_of())))))
+		return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(tmapFrom_(tc_string, tc_Node, ImmutableMap_of(), true))))
 	}
 	if !objLit.isObjectLit() {
 		return Outcome_base_err(new_JsMessageVisitor_MalformedException("object literal expected", objLit).up_Throwable())
 	}
-	var stringToStringKeyMap LinkedHashMapOf[string, Node] = new_LinkedHashMap()
+	var stringToStringKeyMap *TMap[string, Node] = newTMap_(tc_string, tc_Node)
 	{
 		var stringKey Node = objLit.getFirstChild()
 		for ; stringKey != 0; stringKey = stringKey.getNext() {
@@ -645,13 +645,13 @@ func JsMessageVisitor_extractObjectLiteralMap(objLit Node) *Outcome_base {
 				return Outcome_base_err(new_JsMessageVisitor_MalformedException("string key expected", stringKey).up_Throwable())
 			}
 			var key string = stringKey.getString()
-			if Map_containsKey_s(stringToStringKeyMap, key) {
+			if stringToStringKeyMap.containsKey(key) {
 				return Outcome_base_err(new_JsMessageVisitor_MalformedException(("duplicate string key: " + sstr_(key)), stringKey).up_Throwable())
 			}
-			Map_put_s(stringToStringKeyMap, stringKey.getString(), stringKey.box_())
+			stringToStringKeyMap.put(stringKey.getString(), stringKey)
 		}
 	}
-	return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(icast_Map(obj_(stringToStringKeyMap)))))
+	return Outcome_base_ok_Object(obj_(new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)))
 }
 
 func JsMessageVisitor_parseJsMessageTextIntoParts(originalMsgText string) *Outcome_base {
@@ -845,8 +845,8 @@ type JsMessageVisitor_InputForBuildJsMsg interface {
 	getSourceName() string
 	getMessageText() string
 	getMessageParts() *ImmutableList
-	getPlaceholderExampleMap() Map
-	getPlaceholderOriginalCodeMap() Map
+	getPlaceholderExampleMap() *TMap[string, string]
+	getPlaceholderOriginalCodeMap() *TMap[string, string]
 	getDescription() *Optional
 	getMeaning() *Optional
 	getAlternateMessageId() *Optional
@@ -937,7 +937,7 @@ type JsMessageVisitor_ObjectLiteralMap interface {
 }
 
 type JsMessageVisitor_ObjectLiteralMapImpl struct {
-	stringToStringKeyMap MapOf[string, Node]
+	stringToStringKeyMap *TMap[string, Node]
 	valueMap             ImmutableMapOf[string, Node]
 	stringMap            ImmutableMapOf[string, string]
 }
@@ -947,19 +947,19 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) finit_JsMessageVisitor_Object
 	this.stringMap = nil
 }
 
-func (this *JsMessageVisitor_ObjectLiteralMapImpl) init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap MapOf[string, Node]) {
+func (this *JsMessageVisitor_ObjectLiteralMapImpl) init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string, Node]) {
 	this.finit_JsMessageVisitor_ObjectLiteralMapImpl()
 	this.stringToStringKeyMap = stringToStringKeyMap
 }
 
-func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap MapOf[string, Node]) *JsMessageVisitor_ObjectLiteralMapImpl {
+func new_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap *TMap[string, Node]) *JsMessageVisitor_ObjectLiteralMapImpl {
 	this := &JsMessageVisitor_ObjectLiteralMapImpl{}
 	this.init_JsMessageVisitor_ObjectLiteralMapImpl(stringToStringKeyMap)
 	return this
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node {
-	var stringKeyNode Node = Node_of_(Map_get_s(this.stringToStringKeyMap, key))
+	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
 	return func() Node {
 		if stringKeyNode == 0 {
 			return 0
@@ -969,14 +969,14 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) getValueNode(key string) Node
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) getBooleanValueOrFalse(key string) *Outcome_base {
-	var stringKeyNode Node = Node_of_(Map_get_s(this.stringToStringKeyMap, key))
+	var stringKeyNode Node = this.stringToStringKeyMap.get(key)
 	return JsMessageVisitor_extractBooleanStringKeyValue(stringKeyNode)
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() ImmutableMapOf[string, Node] {
 	if this.valueMap == nil {
 		var builder ImmutableMap_BuilderOf[string, Node] = ImmutableMap_builder()
-		it_1 := foreach_(any(this.stringToStringKeyMap.entrySet()))
+		it_1 := foreach_(any(this.stringToStringKeyMap.asMap().entrySet()))
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			builder.put(entry.getKey(), Node_of_(entry.getValue()).getOnlyChild().box_())
@@ -989,7 +989,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsValueMap() Immutable
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() *Outcome_base {
 	if this.stringMap == nil {
 		var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-		it_1 := foreach_(any(this.stringToStringKeyMap.entrySet()))
+		it_1 := foreach_(any(this.stringToStringKeyMap.asMap().entrySet()))
 		for it_1.next() {
 			var entry Map_Entry = icast_Map_Entry(it_1.v)
 			var value *Outcome_base = JsMessageVisitor_extractStringFromStringExprNode(Node_of_(entry.getValue()).getOnlyChild())
@@ -1004,11 +1004,11 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) extractAsStringToStringMap() 
 }
 
 func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForUnexpectedKeys(expectedKeys SetOf[string], createErrorMessage FunctionOf[string, string]) *Outcome_base {
-	it_1 := foreach_(any(this.stringToStringKeyMap.keySet()))
+	it_1 := this.stringToStringKeyMap.each()
 	for it_1.next() {
-		var key string = str_(it_1.v)
+		var key string = it_1.k
 		if !Collection_contains_s(expectedKeys, key) {
-			return Outcome_base_err(new_JsMessageVisitor_MalformedException(str_(createErrorMessage.apply(strobj_(key))), Node_of_(Map_get_s(this.stringToStringKeyMap, key))).up_Throwable())
+			return Outcome_base_err(new_JsMessageVisitor_MalformedException(str_(createErrorMessage.apply(strobj_(key))), this.stringToStringKeyMap.get(key)).up_Throwable())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -1018,7 +1018,7 @@ func (this *JsMessageVisitor_ObjectLiteralMapImpl) checkForRequiredKeys(required
 	it_1 := foreach_(any(requiredKeys))
 	for it_1.next() {
 		var requiredKey string = str_(it_1.v)
-		if !Map_containsKey_s(this.stringToStringKeyMap, requiredKey) {
+		if !this.stringToStringKeyMap.containsKey(requiredKey) {
 			return Outcome_base_err(to_Throwable(createException.apply(strobj_(requiredKey))))
 		}
 	}
@@ -1122,12 +1122,12 @@ func (this *JsMessageVisitor_1) getMessageParts() ImmutableListOf[JsMessage_Part
 	return this.cap_googGetMsgParsedText.getParts()
 }
 
-func (this *JsMessageVisitor_1) getPlaceholderExampleMap() Map {
-	return icast_Map(obj_(this.cap_jsMessageOptions.getPlaceholderExampleMap()))
+func (this *JsMessageVisitor_1) getPlaceholderExampleMap() *TMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, this.cap_jsMessageOptions.getPlaceholderExampleMap(), true)
 }
 
-func (this *JsMessageVisitor_1) getPlaceholderOriginalCodeMap() Map {
-	return icast_Map(obj_(this.cap_jsMessageOptions.getPlaceholderOriginalCodeMap()))
+func (this *JsMessageVisitor_1) getPlaceholderOriginalCodeMap() *TMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, this.cap_jsMessageOptions.getPlaceholderOriginalCodeMap(), true)
 }
 
 func (this *JsMessageVisitor_1) getDescription() OptionalOf[string] {
@@ -1238,12 +1238,12 @@ func (this *JsMessageVisitor_3) getMessageParts() ImmutableListOf[JsMessage_Part
 	return this.cap_extractedIcuTemplateParts.extractedParts
 }
 
-func (this *JsMessageVisitor_3) getPlaceholderExampleMap() Map {
-	return icast_Map(obj_(this.cap_icuTemplateOptions.getPlaceholderExampleMap()))
+func (this *JsMessageVisitor_3) getPlaceholderExampleMap() *TMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, this.cap_icuTemplateOptions.getPlaceholderExampleMap(), true)
 }
 
-func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap() Map {
-	return icast_Map(obj_(this.cap_icuTemplateOptions.getPlaceholderOriginalCodeMap()))
+func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap() *TMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, this.cap_icuTemplateOptions.getPlaceholderOriginalCodeMap(), true)
 }
 
 func (this *JsMessageVisitor_3) getDescription() OptionalOf[string] {

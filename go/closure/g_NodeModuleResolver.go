@@ -36,7 +36,7 @@ func (this *NodeModuleResolver) up_ModuleResolver() *ModuleResolver {
 	return &this.ModuleResolver
 }
 
-func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries MapOf[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
+func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) {
 	this.ModuleResolver.init_ModuleResolver(modulePaths, moduleRootPaths, errorHandler, pathEscaper)
 	this.nodeModulesFolders = NodeModuleResolver_buildNodeModulesFoldersRegistry(icast_Iterable(obj_(modulePaths)), icast_Iterable(obj_(moduleRootPaths)))
 	if packageJsonMainEntries == nil {
@@ -46,7 +46,7 @@ func (this *NodeModuleResolver) init_NodeModuleResolver(modulePaths ImmutableSet
 	}
 }
 
-func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries MapOf[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *NodeModuleResolver {
+func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], packageJsonMainEntries *TMap[string, string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper) *NodeModuleResolver {
 	this := &NodeModuleResolver{}
 	this.self_ = this
 	this.init_NodeModuleResolver(modulePaths, moduleRootPaths, packageJsonMainEntries, errorHandler, pathEscaper)
@@ -90,9 +90,9 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[s
 	return ImmutableSortedSet_copyOfSorted(registry)
 }
 
-func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries MapOf[string, string]) ImmutableMapOf[string, string] {
+func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) ImmutableMapOf[string, string] {
 	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(packageJsonMainEntries.entrySet()))
+	it_1 := foreach_(any(packageJsonMainEntries.asMap().entrySet()))
 	for it_1.next() {
 		var packageJsonMainEntry Map_Entry = icast_Map_Entry(it_1.v)
 		var entryKey string = str_(packageJsonMainEntry.getKey())
@@ -104,8 +104,8 @@ func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntri
 	return builder.buildOrThrow()
 }
 
-func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() MapOf[string, string] {
-	return icast_Map(obj_(this.packageJsonMainEntries))
+func (this *NodeModuleResolver) getPackageJsonMainEntries_impl() *TMap[string, string] {
+	return tmapFrom_(tc_string, tc_string, this.packageJsonMainEntries, true)
 }
 
 func (this *NodeModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
@@ -219,7 +219,7 @@ func NodeModuleResolver_clinit() {
 }
 
 type NodeModuleResolver_Factory struct {
-	packageJsonMainEntries MapOf[string, string]
+	packageJsonMainEntries *TMap[string, string]
 }
 
 func (this *NodeModuleResolver_Factory) init_NodeModuleResolver_Factory_0() {
@@ -232,11 +232,11 @@ func new_NodeModuleResolver_Factory_0() *NodeModuleResolver_Factory {
 	return this
 }
 
-func (this *NodeModuleResolver_Factory) init_NodeModuleResolver_Factory_Map(packageJsonMainEntries MapOf[string, string]) {
+func (this *NodeModuleResolver_Factory) init_NodeModuleResolver_Factory_Map(packageJsonMainEntries *TMap[string, string]) {
 	this.packageJsonMainEntries = packageJsonMainEntries
 }
 
-func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries MapOf[string, string]) *NodeModuleResolver_Factory {
+func new_NodeModuleResolver_Factory_Map(packageJsonMainEntries *TMap[string, string]) *NodeModuleResolver_Factory {
 	this := &NodeModuleResolver_Factory{}
 	this.init_NodeModuleResolver_Factory_Map(packageJsonMainEntries)
 	return this

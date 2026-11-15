@@ -24,7 +24,7 @@ func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs 
 	Preconditions_checkState((externs.getParent() == root.getParent()))
 	var accessorSummary *AccessorSummary
 	if compiler.getOptions().getAssumePropertiesAreStaticallyAnalyzable() {
-		accessorSummary = AccessorSummary_create(icast_Map(obj_(GatherGetterAndSetterProperties_gather(compiler, externs.getParent()))))
+		accessorSummary = AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, GatherGetterAndSetterProperties_gather(compiler, externs.getParent()), true))
 	} else {
 		accessorSummary = AccessorSummary_createAssumingAlwaysGetterAndSetter()
 	}
@@ -34,12 +34,12 @@ func GatherGetterAndSetterProperties_update(compiler *AbstractCompiler, externs 
 func GatherGetterAndSetterProperties_gather(compiler *AbstractCompiler, root Node) ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind] {
 	var gatherCallback *GatherGetterAndSetterProperties_GatherCallback = new_GatherGetterAndSetterProperties_GatherCallback()
 	NodeTraversal_traverse(compiler, root, icast_NodeTraversal_Callback(obj_(gatherCallback)))
-	return ImmutableMap_copyOf(icast_Map(obj_(gatherCallback.properties)))
+	return ImmutableMap_copyOf(gatherCallback.properties.asMap())
 }
 
 type GatherGetterAndSetterProperties_GatherCallback struct {
 	NodeTraversal_AbstractPostOrderCallback
-	properties LinkedHashMapOf[string, *AccessorSummary_PropertyAccessKind]
+	properties *TMap[string, *AccessorSummary_PropertyAccessKind]
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -50,7 +50,7 @@ func (this *GatherGetterAndSetterProperties_GatherCallback) up_NodeTraversal_Abs
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) finit_GatherGetterAndSetterProperties_GatherCallback() {
-	this.properties = new_LinkedHashMap()
+	this.properties = newTMap_(tc_string, tc_p_AccessorSummary_PropertyAccessKind)
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) init_GatherGetterAndSetterProperties_GatherCallback() {
@@ -66,7 +66,7 @@ func new_GatherGetterAndSetterProperties_GatherCallback() *GatherGetterAndSetter
 }
 
 func (this *GatherGetterAndSetterProperties_GatherCallback) record(property string, kind *AccessorSummary_PropertyAccessKind) {
-	Map_merge(icast_Map(obj_(this.properties)), strobj_(property), obj_(kind), &BiFunction_fn{func(p0 any, p1 any) any {
+	Map_merge(this.properties.asMap(), strobj_(property), obj_(kind), &BiFunction_fn{func(p0 any, p1 any) any {
 		return obj_(cast_[*AccessorSummary_PropertyAccessKind](p0).unionWith(cast_[*AccessorSummary_PropertyAccessKind](p1)))
 	}})
 }

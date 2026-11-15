@@ -25,10 +25,10 @@ func (this *ProcessTweaks) process_2(externs Node, root Node) {
 	}
 }
 
-func (this *ProcessTweaks) stripAllCalls(tweakInfos MapOf[string, *ProcessTweaks_TweakInfo]) {
-	it_1 := foreach_(any(tweakInfos.values()))
+func (this *ProcessTweaks) stripAllCalls(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
+	it_1 := tweakInfos.each()
 	for it_1.next() {
-		var tweakInfo *ProcessTweaks_TweakInfo = cast_[*ProcessTweaks_TweakInfo](it_1.v)
+		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
 		var isRegistered bool = tweakInfo.isRegistered()
 		it_3 := eachOf_(&tweakInfo.functionCalls)
 		for it_3.next() {
@@ -57,10 +57,10 @@ func (this *ProcessTweaks) stripAllCalls(tweakInfos MapOf[string, *ProcessTweaks
 func (this *ProcessTweaks) collectTweaks(root Node) *ProcessTweaks_CollectTweaksResult {
 	var pass *ProcessTweaks_CollectTweaks = new_ProcessTweaks_CollectTweaks(this)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(pass)))
-	var tweakInfos MapOf[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
-	it_1 := foreach_(any(tweakInfos.values()))
+	var tweakInfos *TMap[string, *ProcessTweaks_TweakInfo] = pass.allTweaks
+	it_1 := tweakInfos.each()
 	for it_1.next() {
-		var tweakInfo *ProcessTweaks_TweakInfo = cast_[*ProcessTweaks_TweakInfo](it_1.v)
+		var tweakInfo *ProcessTweaks_TweakInfo = it_1.v
 		tweakInfo.emitAllWarnings()
 	}
 	return new_ProcessTweaks_CollectTweaksResult(tweakInfos)
@@ -250,14 +250,14 @@ func ProcessTweaks_TweakFunction_clinit() {
 }
 
 type ProcessTweaks_CollectTweaksResult struct {
-	tweakInfos MapOf[string, *ProcessTweaks_TweakInfo]
+	tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]
 }
 
-func (this *ProcessTweaks_CollectTweaksResult) init_ProcessTweaks_CollectTweaksResult(tweakInfos MapOf[string, *ProcessTweaks_TweakInfo]) {
+func (this *ProcessTweaks_CollectTweaksResult) init_ProcessTweaks_CollectTweaksResult(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) {
 	this.tweakInfos = tweakInfos
 }
 
-func new_ProcessTweaks_CollectTweaksResult(tweakInfos MapOf[string, *ProcessTweaks_TweakInfo]) *ProcessTweaks_CollectTweaksResult {
+func new_ProcessTweaks_CollectTweaksResult(tweakInfos *TMap[string, *ProcessTweaks_TweakInfo]) *ProcessTweaks_CollectTweaksResult {
 	this := &ProcessTweaks_CollectTweaksResult{}
 	this.init_ProcessTweaks_CollectTweaksResult(tweakInfos)
 	return this
@@ -266,7 +266,7 @@ func new_ProcessTweaks_CollectTweaksResult(tweakInfos MapOf[string, *ProcessTwea
 type ProcessTweaks_CollectTweaks struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_    *ProcessTweaks
-	allTweaks MapOf[string, *ProcessTweaks_TweakInfo]
+	allTweaks *TMap[string, *ProcessTweaks_TweakInfo]
 }
 
 func (this *ProcessTweaks_CollectTweaks) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -277,7 +277,7 @@ func (this *ProcessTweaks_CollectTweaks) up_NodeTraversal_AbstractPostOrderCallb
 }
 
 func (this *ProcessTweaks_CollectTweaks) finit_ProcessTweaks_CollectTweaks() {
-	this.allTweaks = icast_Map(obj_(new_LinkedHashMap()))
+	this.allTweaks = newTMap_(tc_string, tc_p_ProcessTweaks_TweakInfo)
 }
 
 func (this *ProcessTweaks_CollectTweaks) init_ProcessTweaks_CollectTweaks() {
@@ -308,7 +308,7 @@ func (this *ProcessTweaks_CollectTweaks) visit_impl(t *NodeTraversal, n Node, pa
 		return
 	}
 	var tweakId string = tweakIdNode.getString()
-	var tweakInfo *ProcessTweaks_TweakInfo = cast_[*ProcessTweaks_TweakInfo](Map_computeIfAbsent_s(this.allTweaks, tweakId, &Function_fn{func(p0 any) any { return obj_(new_ProcessTweaks_TweakInfo(this.outer_, str_(p0))) }}))
+	var tweakInfo *ProcessTweaks_TweakInfo = this.allTweaks.computeIfAbsent(tweakId, &Function_fn{func(p0 any) any { return obj_(new_ProcessTweaks_TweakInfo(this.outer_, str_(p0))) }})
 	switch tweakFunc {
 	case ProcessTweaks_TweakFunction_REGISTER_BOOLEAN, ProcessTweaks_TweakFunction_REGISTER_NUMBER, ProcessTweaks_TweakFunction_REGISTER_STRING:
 		if !ProcessTweaks_ID_MATCHER.matchesAllOf(strobj_(tweakId)) {

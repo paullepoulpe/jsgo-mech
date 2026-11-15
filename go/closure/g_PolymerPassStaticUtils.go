@@ -168,7 +168,7 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerC
 	if properties == 0 {
 		return ImmutableList_of()
 	}
-	var constructorPropertyJsDoc MapOf[string, *JSDocInfo] = icast_Map(obj_(new_LinkedHashMap()))
+	var constructorPropertyJsDoc *TMap[string, *JSDocInfo] = newTMap_(tc_string, tc_p_JSDocInfo)
 	if constructor != 0 {
 		PolymerPassStaticUtils_collectConstructorPropertyJsDoc(constructor, constructorPropertyJsDoc)
 	}
@@ -177,7 +177,7 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerC
 	{
 		var keyNode Node = properties.getFirstChild()
 		for ; keyNode != 0; keyNode = keyNode.getNext() {
-			var constructorJsDoc *JSDocInfo = cast_[*JSDocInfo](Map_get_s(constructorPropertyJsDoc, keyNode.getString()))
+			var constructorJsDoc *JSDocInfo = constructorPropertyJsDoc.get(keyNode.getString())
 			var propertiesConfigJsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(keyNode)
 			var bestJsDoc *JSDocInfo
 			if constructorJsDoc != nil {
@@ -194,13 +194,13 @@ func PolymerPassStaticUtils_extractProperties(descriptor Node, defType *PolymerC
 	return cast_[*ImmutableList](obj_(members.build()))
 }
 
-func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ MapOf[string, *JSDocInfo]) {
+func PolymerPassStaticUtils_collectConstructorPropertyJsDoc(node Node, map_ *TMap[string, *JSDocInfo]) {
 	Preconditions_checkNotNull(node.box_())
 	{
 		var child Node = node.getFirstChild()
 		for ; child != 0; child = child.getNext() {
 			if child.isGetProp() && child.getFirstChild().isThis() {
-				Map_put_s(map_, child.getString(), obj_(NodeUtil_getBestJSDocInfo(child)))
+				map_.put(child.getString(), NodeUtil_getBestJSDocInfo(child))
 			} else {
 				PolymerPassStaticUtils_collectConstructorPropertyJsDoc(child, map_)
 			}

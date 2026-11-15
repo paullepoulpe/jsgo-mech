@@ -13,8 +13,8 @@ type AnalyzePrototypeProperties struct {
 	globalNode             *AnalyzePrototypeProperties_NameInfo
 	externNode             *AnalyzePrototypeProperties_NameInfo
 	anonymousNode          *AnalyzePrototypeProperties_NameInfo
-	propertyNameInfo       MapOf[string, *AnalyzePrototypeProperties_NameInfo]
-	varNameInfo            MapOf[string, *AnalyzePrototypeProperties_NameInfo]
+	propertyNameInfo       *TMap[string, *AnalyzePrototypeProperties_NameInfo]
+	varNameInfo            *TMap[string, *AnalyzePrototypeProperties_NameInfo]
 }
 
 func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
@@ -22,8 +22,8 @@ func (this *AnalyzePrototypeProperties) finit_AnalyzePrototypeProperties() {
 	this.globalNode = new_AnalyzePrototypeProperties_NameInfo(this, "[global]")
 	this.externNode = new_AnalyzePrototypeProperties_NameInfo(this, "[extern]")
 	this.anonymousNode = new_AnalyzePrototypeProperties_NameInfo(this, "[anonymous]")
-	this.propertyNameInfo = icast_Map(obj_(new_LinkedHashMap()))
-	this.varNameInfo = icast_Map(obj_(new_LinkedHashMap()))
+	this.propertyNameInfo = newTMap_(tc_string, tc_p_AnalyzePrototypeProperties_NameInfo)
+	this.varNameInfo = newTMap_(tc_string, tc_p_AnalyzePrototypeProperties_NameInfo)
 }
 
 func (this *AnalyzePrototypeProperties) init_AnalyzePrototypeProperties(compiler *AbstractCompiler, chunkGraph *JSChunkGraph, canModifyExterns bool, anchorUnusedVars bool, rootScopeUsesAreGlobal bool) {
@@ -75,23 +75,23 @@ func (this *AnalyzePrototypeProperties) process_2(externRoot Node, root Node) {
 }
 
 func (this *AnalyzePrototypeProperties) getAllNameInfo() CollectionOf[*AnalyzePrototypeProperties_NameInfo] {
-	var result *TList[*AnalyzePrototypeProperties_NameInfo] = tlistFrom_(tc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.values())
-	result.asList().addAll(this.varNameInfo.values())
+	var result *TList[*AnalyzePrototypeProperties_NameInfo] = tlistFrom_(tc_p_AnalyzePrototypeProperties_NameInfo, this.propertyNameInfo.asMap().values())
+	result.asList().addAll(this.varNameInfo.asMap().values())
 	return Collection(result.asList())
 }
 
 func (this *AnalyzePrototypeProperties) getNameInfoForName(name string, type_ *AnalyzePrototypeProperties_SymbolType) *AnalyzePrototypeProperties_NameInfo {
-	var map_ MapOf[string, *AnalyzePrototypeProperties_NameInfo] = func() Map {
+	var map_ *TMap[string, *AnalyzePrototypeProperties_NameInfo] = func() *TMap[string, *AnalyzePrototypeProperties_NameInfo] {
 		if type_ == AnalyzePrototypeProperties_PROPERTY {
 			return this.propertyNameInfo
 		}
 		return this.varNameInfo
 	}()
-	if Map_containsKey_s(map_, name) {
-		return cast_[*AnalyzePrototypeProperties_NameInfo](Map_get_s(map_, name))
+	if map_.containsKey(name) {
+		return map_.get(name)
 	} else {
 		var nameInfo *AnalyzePrototypeProperties_NameInfo = new_AnalyzePrototypeProperties_NameInfo(this, name)
-		Map_put_s(map_, name, obj_(nameInfo))
+		map_.put(name, nameInfo)
 		this.symbolGraph.createNode(obj_(nameInfo))
 		return nameInfo
 	}

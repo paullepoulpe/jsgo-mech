@@ -6,13 +6,13 @@ type RecordTypeBuilder struct {
 	isEmpty_   bool
 	isDeclared bool
 	registry   *JSTypeRegistry
-	properties LinkedHashMapOf[string, *RecordTypeBuilder_RecordProperty]
+	properties *TMap[string, *RecordTypeBuilder_RecordProperty]
 }
 
 func (this *RecordTypeBuilder) finit_RecordTypeBuilder() {
 	this.isEmpty_ = true
 	this.isDeclared = true
-	this.properties = new_LinkedHashMap()
+	this.properties = newTMap_(tc_string, tc_p_RecordTypeBuilder_RecordProperty)
 }
 
 func (this *RecordTypeBuilder) init_RecordTypeBuilder(registry *JSTypeRegistry) {
@@ -32,7 +32,7 @@ func (this *RecordTypeBuilder) setSynthesized(synthesized bool) {
 
 func (this *RecordTypeBuilder) addProperty(name string, type_ *JSType, propertyNode Node) *RecordTypeBuilder {
 	this.isEmpty_ = false
-	Map_put_s(this.properties, name, obj_(new_RecordTypeBuilder_RecordProperty(type_, propertyNode)))
+	this.properties.put(name, new_RecordTypeBuilder_RecordProperty(type_, propertyNode))
 	return this
 }
 
@@ -41,8 +41,8 @@ func (this *RecordTypeBuilder) build() *JSType {
 		return this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE).up_JSType()
 	}
 	var m ImmutableSortedMap_BuilderOf[string, *RecordTypeBuilder_RecordProperty] = ImmutableSortedMap_naturalOrder()
-	m.putAll(icast_Map(obj_(this.properties)))
-	return new_RecordType(this.registry, icast_Map(obj_(m.buildOrThrow())), this.isDeclared).up_JSType()
+	m.putAll(this.properties.asMap())
+	return new_RecordType(this.registry, tmapFrom_(tc_string, tc_p_RecordTypeBuilder_RecordProperty, m.buildOrThrow(), true), this.isDeclared).up_JSType()
 }
 
 type RecordTypeBuilder_RecordProperty struct {

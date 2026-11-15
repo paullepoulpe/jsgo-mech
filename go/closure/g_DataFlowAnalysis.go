@@ -185,13 +185,13 @@ func (this *DataFlowAnalysis) getInputFromEdge(edge DiGraph_DiGraphEdge) Lattice
 	panic("unreachable")
 }
 
-func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped SetOf[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn MapOf[string, *Var]) {
+func DataFlowAnalysis_computeEscaped(jsScope *Scope, escaped SetOf[*Var], compiler *AbstractCompiler, scopeCreator ScopeCreator, allVarsInFn *TMap[string, *Var]) {
 	Preconditions_checkArgument(jsScope.isFunctionScope())
 	var finder *NodeTraversal_AbstractPostOrderCallback = new_DataFlowAnalysis_1(jsScope, escaped).up_NodeTraversal_AbstractPostOrderCallback()
 	NodeTraversal_builder().setCompiler(compiler).setCallback(icast_NodeTraversal_Callback(finder.self())).setScopeCreator(scopeCreator).traverseAtScope(jsScope.up_AbstractScope())
-	it_1 := foreach_(any(allVarsInFn.values()))
+	it_1 := allVarsInFn.each()
 	for it_1.next() {
-		var var_ *Var = cast_[*Var](it_1.v)
+		var var_ *Var = it_1.v
 		if var_.getParentNode().isCatch() || compiler.getCodingConvention().isExported(var_.getName()) {
 			escaped.add(obj_(var_))
 		}

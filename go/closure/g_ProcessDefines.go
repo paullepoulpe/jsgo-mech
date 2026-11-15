@@ -14,8 +14,8 @@ type ProcessDefines struct {
 	unknownDefinesToIgnore              ImmutableSetOf[string]
 	knownDefineJsdocs                   map[*JSDocInfo]struct{}
 	knownGoogDefineCalls                map[Node]struct{}
-	defineByDefineName                  LinkedHashMapOf[string, *ProcessDefines_Define]
-	replacementValuesFromClosureDefines LinkedHashMapOf[string, Node]
+	defineByDefineName                  *TMap[string, *ProcessDefines_Define]
+	replacementValuesFromClosureDefines *TMap[string, Node]
 	validDefineValueExpressions         map[Node]struct{}
 	hasZoneInput                        bool
 	namespace_                          *GlobalNamespace
@@ -24,8 +24,8 @@ type ProcessDefines struct {
 func (this *ProcessDefines) finit_ProcessDefines() {
 	this.knownDefineJsdocs = map[*JSDocInfo]struct{}{}
 	this.knownGoogDefineCalls = map[Node]struct{}{}
-	this.defineByDefineName = new_LinkedHashMap()
-	this.replacementValuesFromClosureDefines = new_LinkedHashMap()
+	this.defineByDefineName = newTMap_(tc_string, tc_p_ProcessDefines_Define)
+	this.replacementValuesFromClosureDefines = newTMap_(tc_string, tc_Node)
 	this.validDefineValueExpressions = map[Node]struct{}{}
 	this.hasZoneInput = false
 }
@@ -40,7 +40,7 @@ func (this *ProcessDefines) init_ProcessDefines(builder *ProcessDefines_Builder)
 		}
 		return nil
 	}()
-	this.replacementValuesFromFlags = ImmutableMap_copyOf(builder.replacementValues)
+	this.replacementValuesFromFlags = ImmutableMap_copyOf(builder.replacementValues.asMap())
 	this.namespaceSupplier = builder.namespaceSupplier
 	this.recognizeClosureDefines = builder.recognizeClosureDefines
 	this.enableZonesDefineName = builder.enableZonesDefineName
@@ -75,9 +75,9 @@ func (this *ProcessDefines) initNamespace(externs Node, root Node) {
 
 func (this *ProcessDefines) overrideDefines() {
 	if this.mode_.optimize {
-		it_1 := foreach_(any(this.defineByDefineName.values()))
+		it_1 := this.defineByDefineName.each()
 		for it_1.next() {
-			var define *ProcessDefines_Define = cast_[*ProcessDefines_Define](it_1.v)
+			var define *ProcessDefines_Define = it_1.v
 			if define.valueParent == 0 {
 				continue
 			}
@@ -113,7 +113,7 @@ func (this *ProcessDefines) overrideDefines() {
 		}
 	}
 	if this.mode_.optimize {
-		var unusedReplacements SetOf[string] = icast_Set(obj_(Sets_difference(icast_Set(obj_(Sets_union(this.replacementValuesFromFlags.keySet(), this.replacementValuesFromClosureDefines.keySet()))), icast_Set(obj_(Sets_union(icast_Set(obj_(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES)), this.defineByDefineName.keySet()))), icast_Set(obj_(this.unknownDefinesToIgnore))))))))
+		var unusedReplacements SetOf[string] = icast_Set(obj_(Sets_difference(icast_Set(obj_(Sets_union(this.replacementValuesFromFlags.keySet(), this.replacementValuesFromClosureDefines.asMap().keySet()))), icast_Set(obj_(Sets_union(icast_Set(obj_(Sets_union(icast_Set(obj_(ProcessDefines_KNOWN_DEFINES)), this.defineByDefineName.asMap().keySet()))), icast_Set(obj_(this.unknownDefinesToIgnore))))))))
 		it_3 := foreach_(any(unusedReplacements))
 		for it_3.next() {
 			var unknownDefine string = str_(it_3.v)
@@ -152,7 +152,7 @@ func (this *ProcessDefines) getReplacementForDefineName(defineName OptionalOf[st
 	}
 	var replacementFromClosureDefines Node = func() Node {
 		if defineName.isPresent() {
-			return Node_of_(Map_get_s(this.replacementValuesFromClosureDefines, str_(defineName.get())))
+			return this.replacementValuesFromClosureDefines.get(str_(defineName.get()))
 		}
 		return 0
 	}()
@@ -193,7 +193,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 		} else {
 			defineName = name.getFullName()
 		}
-		var existingDefine *ProcessDefines_Define = cast_[*ProcessDefines_Define](Map_putIfAbsent_s(this.defineByDefineName, defineName, obj_(new_ProcessDefines_Define(defineName, name, declaration, valueParent, value))))
+		var existingDefine *ProcessDefines_Define = this.defineByDefineName.putIfAbsent(defineName, new_ProcessDefines_Define(defineName, name, declaration, valueParent, value))
 		if existingDefine != nil {
 			declaration = existingDefine.declaration_
 			totalSets += existingDefine.name_.getTotalSets()
@@ -208,7 +208,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 			}
 		}
 	}
-	this.compiler_.setDefineNames(icast_Collection(obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(ProcessDefines_KNOWN_DEFINES))))).addAll(Iterable(this.defineByDefineName.keySet())))).build())))
+	this.compiler_.setDefineNames(icast_Collection(obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(icast_Iterable(obj_(ProcessDefines_KNOWN_DEFINES))))).addAll(Iterable(this.defineByDefineName.asMap().keySet())))).build())))
 }
 
 func (this *ProcessDefines) selectDefineDeclaration(name *GlobalNamespace_Name) *GlobalNamespace_Ref {
@@ -253,9 +253,9 @@ func (this *ProcessDefines) collectValidDefineValueExpressions() {
 			namesToCheck.add(obj_(name))
 		}
 	}
-	it_3 := foreach_(any(this.defineByDefineName.values()))
+	it_3 := this.defineByDefineName.each()
 	for it_3.next() {
-		var define *ProcessDefines_Define = cast_[*ProcessDefines_Define](it_3.v)
+		var define *ProcessDefines_Define = it_3.v
 		namesToCheck.remove_Object(obj_(define.name_))
 		it_5 := foreach_(any(define.name_.getRefs()))
 		for it_5.next() {
@@ -295,9 +295,9 @@ func (this *ProcessDefines) validateDefineDeclarations() {
 	if !this.mode_.check_ {
 		return
 	}
-	it_1 := foreach_(any(this.defineByDefineName.values()))
+	it_1 := this.defineByDefineName.each()
 	for it_1.next() {
-		var define *ProcessDefines_Define = cast_[*ProcessDefines_Define](it_1.v)
+		var define *ProcessDefines_Define = it_1.v
 		var declarationNode Node = define.declaration_.getNode()
 		if (!this.isGoogDefineCall(define.value_) && !Collection_contains_s(ProcessDefines_KNOWN_DEFINES, define.defineName_)) && !String_startsWith(define.defineName_, "$jscomp.") {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(Node_of_(MoreObjects_firstNonNull(define.value_.box_(), MoreObjects_firstNonNull(define.valueParent.box_(), declarationNode.box_()))), ProcessDefines_DEFINE_WITHOUT_GOOG_DEFINE, []string{define.defineName_, "go/js-practices/locals#defines"}))
@@ -333,10 +333,10 @@ func (this *ProcessDefines) reportInvalidDefineLocations(root Node) {
 func (this *ProcessDefines) handleClosureDefinesValue(stringNode Node, valueNode Node, errorNode Node) {
 	if (stringNode.isStringKey() || stringNode.isStringLit()) && ProcessDefines_isValidClosureDefinesValue(valueNode) {
 		var key string = stringNode.getString()
-		if Map_containsKey_s(this.replacementValuesFromClosureDefines, key) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, Node_of_(Map_get_s(this.replacementValuesFromClosureDefines, key)).getLocation()}))
+		if this.replacementValuesFromClosureDefines.containsKey(key) {
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_MULTIPLE, []string{key, this.replacementValuesFromClosureDefines.get(key).getLocation()}))
 		}
-		Map_put_s(this.replacementValuesFromClosureDefines, key, valueNode.box_())
+		this.replacementValuesFromClosureDefines.put(key, valueNode)
 	} else if this.mode_.check_ {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(errorNode, ProcessDefines_CLOSURE_DEFINES_ERROR, []string{}))
 	}
@@ -631,7 +631,7 @@ func ProcessDefines_Mode_clinit() {
 
 type ProcessDefines_Builder struct {
 	compiler_               *AbstractCompiler
-	replacementValues       MapOf[string, Node]
+	replacementValues       *TMap[string, Node]
 	mode_                   *ProcessDefines_Mode
 	namespaceSupplier       SupplierOf[*GlobalNamespace]
 	recognizeClosureDefines bool
@@ -641,7 +641,7 @@ type ProcessDefines_Builder struct {
 }
 
 func (this *ProcessDefines_Builder) finit_ProcessDefines_Builder() {
-	this.replacementValues = icast_Map(obj_(new_LinkedHashMap()))
+	this.replacementValues = newTMap_(tc_string, tc_Node)
 	this.recognizeClosureDefines = true
 	this.enableZonesDefineName = Optional_empty()
 	this.zoneInputPattern = nil
@@ -659,8 +659,8 @@ func new_ProcessDefines_Builder(compiler *AbstractCompiler) *ProcessDefines_Buil
 	return this
 }
 
-func (this *ProcessDefines_Builder) putReplacements(replacementValues MapOf[string, Node]) *ProcessDefines_Builder {
-	this.replacementValues.putAll(replacementValues)
+func (this *ProcessDefines_Builder) putReplacements(replacementValues *TMap[string, Node]) *ProcessDefines_Builder {
+	this.replacementValues.asMap().putAll(replacementValues.asMap())
 	return this
 }
 

@@ -9,16 +9,16 @@ type SourceMapConsumerV3 struct {
 	file                 OptionalOf[string]
 	lineCount            int32
 	mappings             *SourceMapConsumerV3_Mappings
-	reverseSourceMapping MapOf[string, MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]]
+	reverseSourceMapping *TMap[string, MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]]]
 	sourceRoot           OptionalOf[string]
-	extensions           MapOf[string, any]
+	extensions           *TMap[string, any]
 }
 
 func (this *SourceMapConsumerV3) finit_SourceMapConsumerV3() {
 	this.file = Optional_empty()
 	this.mappings = nil
 	this.sourceRoot = Optional_empty()
-	this.extensions = icast_Map(obj_(new_LinkedHashMap()))
+	this.extensions = newTMap_(tc_string, tc_any)
 }
 
 func (this *SourceMapConsumerV3) init_SourceMapConsumerV3() {
@@ -65,7 +65,7 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 	if sourceMapObject.getMappings().isPresent() {
 		estimatedEntries = Math_max(estimatedEntries, (String_length(str_(sourceMapObject.getMappings().get())) / 6))
 	}
-	this.extensions.putAll(sourceMapObject.getExtensions())
+	this.extensions.asMap().putAll(sourceMapObject.getExtensions().asMap())
 	var built *Outcome_base = new_SourceMapConsumerV3_MappingBuilder(this, str_(sourceMapObject.getMappings().get()), this.lineCount, useCompactMappings, estimatedEntries).build()
 	if built.isErr() {
 		return Outcome_base_err(built.error())
@@ -175,7 +175,7 @@ func (this *SourceMapConsumerV3) getReverseMapping(originalFile string, line int
 	if this.reverseSourceMapping == nil {
 		this.createReverseMapping()
 	}
-	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = icast_Map(Map_get_s(this.reverseSourceMapping, originalFile))
+	var sourceLineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.get(originalFile)
 	if sourceLineToCollectionMap == nil {
 		return Collection(Collections_emptyList())
 	} else {
@@ -193,7 +193,7 @@ func (this *SourceMapConsumerV3) getSourceRoot() OptionalOf[string] {
 	return this.sourceRoot
 }
 
-func (this *SourceMapConsumerV3) getExtensions() MapOf[string, any] {
+func (this *SourceMapConsumerV3) getExtensions() *TMap[string, any] {
 	return this.extensions
 }
 
@@ -246,7 +246,7 @@ func (this *SourceMapConsumerV3) getOriginalMappingForEntry(index int32, precisi
 }
 
 func (this *SourceMapConsumerV3) createReverseMapping() {
-	this.reverseSourceMapping = icast_Map(obj_(new_LinkedHashMap()))
+	this.reverseSourceMapping = newTMap_(tc_string, tc_MapOf_BoxedOf_int32___CollectionOf_p_Mapping_OriginalMapping__)
 	for targetLine := int32(0); targetLine < this.mappings.getParsedLineCount(); targetLine++ {
 		var start int32 = this.mappings.getLineStart(targetLine)
 		var end int32 = this.mappings.getLineStart((targetLine + 1))
@@ -255,11 +255,11 @@ func (this *SourceMapConsumerV3) createReverseMapping() {
 			var sourceLine int32 = this.mappings.getSourceLine(i)
 			if (sourceFileId != SourceMapConsumerV3_UNMAPPED) && (sourceLine != SourceMapConsumerV3_UNMAPPED) {
 				var originalFile string = this.sources[sourceFileId]
-				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = icast_Map(Map_computeIfAbsent_s(this.reverseSourceMapping, originalFile, &Function_fn{func(k_ any) any {
+				var lineToCollectionMap MapOf[BoxedOf[int32], CollectionOf[*Mapping_OriginalMapping]] = this.reverseSourceMapping.computeIfAbsent(originalFile, &Function_fn{func(k_ any) any {
 					var k string = str_(k_)
 					_ = k
 					return obj_(new_LinkedHashMap())
-				}}))
+				}})
 				if !lineToCollectionMap.containsKey(any(int32(sourceLine))) {
 					lineToCollectionMap.put(any(int32(sourceLine)), new_ArrayList_int(1).self())
 				}

@@ -24,13 +24,13 @@ func (this *ClusterPropagator) traverseEdge(src_ any, unused any, dest_ any) boo
 		return false
 	}
 	var startDestPropCount int32 = dest.getAssociatedProps().size()
-	it_1 := foreach_(any(src.getAssociatedProps().keySet()))
+	it_1 := src.getAssociatedProps().each()
 	for it_1.next() {
-		var prop *PropertyClustering = cast_[*PropertyClustering](it_1.v)
+		var prop *PropertyClustering = it_1.k
 		if prop.isInvalidated() {
 			continue
 		}
-		Map_putIfAbsent(icast_Map(obj_(dest.getAssociatedProps())), obj_(prop), obj_(ColorGraphNode_PropAssociation_SUPERTYPE))
+		Map_putIfAbsent(dest.getAssociatedProps().asMap(), obj_(prop), obj_(ColorGraphNode_PropAssociation_SUPERTYPE))
 		prop.getClusters().union(obj_(src), obj_(dest))
 	}
 	return (startDestPropCount < dest.getAssociatedProps().size())

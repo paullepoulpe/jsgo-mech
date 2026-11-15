@@ -64,7 +64,7 @@ type Compiler struct {
 	syntheticExternsInput          *CompilerInput
 	syntheticTypeSummaryFile       *SourceFile_jscomp
 	syntheticTypeSummaryInput      *CompilerInput
-	indexProvidersByType           MapOf[ClassOf[any], IndexProvider]
+	indexProvidersByType           *TMap[ClassOf[any], IndexProvider]
 	crossChunkIdGenerator          *IdGenerator
 	cssNames                       SetOf[string]
 	variableMap                    *VariableMap
@@ -131,7 +131,7 @@ func (this *Compiler) finit_Compiler() {
 	this.preferRegexParserField = false
 	this.SYNTHETIC_EXTERNS_FILE = SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(Compiler_SYNTHETIC_FILE_NAME_PREFIX) + "externs] "), "", StaticSourceFile_SourceKind_EXTERN)
 	this.syntheticTypeSummaryFile = SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(Compiler_SYNTHETIC_FILE_NAME_PREFIX) + "typeSummary] "), "", StaticSourceFile_SourceKind_EXTERN)
-	this.indexProvidersByType = icast_Map(obj_(new_LinkedHashMap()))
+	this.indexProvidersByType = newTMap_(tc_ClassOf_any_, tc_IndexProvider)
 	this.crossChunkIdGenerator = new_IdGenerator()
 	this.cssNames = nil
 	this.variableMap = nil
@@ -320,7 +320,7 @@ func (this *Compiler) logToFile(logFileName string, logStringSupplier SupplierOf
 
 func (this *Compiler) initWarningsGuard(warningsGuard *WarningsGuard) {
 	var guards ImmutableList_BuilderOf[*WarningsGuard] = ImmutableList_builder()
-	cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(guards.add(obj_(new_J2clSuppressWarningsGuard())))).add(obj_(new_ClosureUnawareCodeWarningsGuard())))).add(obj_(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), icast_Map(obj_(DiagnosticGroups_getRegisteredGroups()))))))).add(warningsGuard.self())
+	cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(cast_[*ImmutableList_Builder](obj_(guards.add(obj_(new_J2clSuppressWarningsGuard())))).add(obj_(new_ClosureUnawareCodeWarningsGuard())))).add(obj_(new_SuppressDocWarningsGuard(this.up_AbstractCompiler(), tmapFrom_(tc_string, tc_p_DiagnosticGroup, DiagnosticGroups_getRegisteredGroups(), true)))))).add(warningsGuard.self())
 	this.warningsGuard = new_ComposeWarningsGuard(tlistImm_(tc_p_WarningsGuard, guards.build())).up_WarningsGuard()
 }
 
@@ -431,17 +431,17 @@ func (this *Compiler) initRuntimeLibraryTypedAsts_impl(colorPoolBuilder Optional
 		panic(new_IllegalArgumentException_String("Cannot read from TypedAST input stream").self())
 	}
 	var astData *TypedAstDeserializer_DeserializedAst = TypedAstDeserializer_deserializeRuntimeLibraries(this.up_AbstractCompiler(), this.SYNTHETIC_EXTERNS_FILE, colorPoolBuilder, cast_[[]int8](typedAsts.get()), this.getOptions().getResolveSourceMapAnnotations(), this.getOptions().getParseInlineSourceMaps())
-	var runtimeLibraryTypedAsts LinkedHashMapOf[string, SupplierOf[Node]] = new_LinkedHashMap()
+	var runtimeLibraryTypedAsts *TMap[string, SupplierOf[Node]] = newTMap_(tc_string, tc_SupplierOf_Node_)
 	it_1 := foreach_(any(astData.getFilesystem().entrySet()))
 	for it_1.next() {
 		var library Map_Entry = icast_Map_Entry(it_1.v)
-		Map_computeIfAbsent_s(runtimeLibraryTypedAsts, cast_[*SourceFile_jscomp](library.getKey()).getName(), &Function_fn{func(f_ any) any {
+		runtimeLibraryTypedAsts.computeIfAbsent(cast_[*SourceFile_jscomp](library.getKey()).getName(), &Function_fn{func(f_ any) any {
 			var f string = str_(f_)
 			_ = f
 			return library.getValue()
 		}})
 	}
-	this.runtimeLibraryTypedAsts = ImmutableMap_copyOf(icast_Map(obj_(runtimeLibraryTypedAsts)))
+	this.runtimeLibraryTypedAsts = ImmutableMap_copyOf(runtimeLibraryTypedAsts.asMap())
 }
 
 func (this *Compiler) init(externs ListOf[*SourceFile_jscomp], sources ListOf[*SourceFile_jscomp], options *CompilerOptions) {
@@ -1445,7 +1445,7 @@ func (this *Compiler) initializeModuleLoader() {
 		case ModuleLoader_ResolutionMode_NODE:
 			return icast_ModuleLoader_ModuleResolverFactory(obj_(new_NodeModuleResolver_Factory_Map(this.processJsonInputs(this.chunkGraph.getAllInputs()))))
 		case ModuleLoader_ResolutionMode_WEBPACK:
-			return icast_ModuleLoader_ModuleResolverFactory(obj_(new_WebpackModuleResolver_Factory(icast_Map(obj_(this.inputPathByWebpackId)))))
+			return icast_ModuleLoader_ModuleResolverFactory(obj_(new_WebpackModuleResolver_Factory(tmapFrom_(tc_string, tc_string, this.inputPathByWebpackId, true))))
 		case ModuleLoader_ResolutionMode_BROWSER_WITH_TRANSFORMED_PREFIXES:
 			return icast_ModuleLoader_ModuleResolverFactory(obj_(new_BrowserWithTransformedPrefixesModuleResolver_Factory(this.options_.getBrowserResolverPrefixReplacements())))
 		}
@@ -1501,21 +1501,21 @@ func (this *Compiler) parseInputs() Node {
 					inputModuleIdentifiers[modPath.toModuleName()] = input
 				}
 			}
-			var inputsToRewrite MapOf[string, *CompilerInput] = icast_Map(obj_(new_LinkedHashMap()))
+			var inputsToRewrite *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
 			it_6 := foreach_(any(this.chunkGraph.getAllInputs()))
 			for it_6.next() {
 				var input *CompilerInput = cast_[*CompilerInput](it_6.v)
 				it_8 := foreach_(obj_(input.getKnownRequiredSymbols()))
 				for it_8.next() {
 					var require string = str_(it_8.v)
-					if has_(inputModuleIdentifiers, require) && !Map_containsKey_s(inputsToRewrite, require) {
-						Map_put_s(inputsToRewrite, require, obj_(inputModuleIdentifiers[require]))
+					if has_(inputModuleIdentifiers, require) && !inputsToRewrite.containsKey(require) {
+						inputsToRewrite.put(require, inputModuleIdentifiers[require])
 					}
 				}
 			}
-			it_10 := foreach_(any(inputsToRewrite.values()))
+			it_10 := inputsToRewrite.each()
 			for it_10.next() {
-				var input *CompilerInput = cast_[*CompilerInput](it_10.v)
+				var input *CompilerInput = it_10.v
 				input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
 			}
 		}
@@ -1633,8 +1633,8 @@ func (this *Compiler) orderInputs() {
 func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, supportCommonJSModules bool) {
 	this.maybeDoThreadedParsing()
 	var entryPoints []*CompilerInput = []*CompilerInput{}
-	var inputsByProvide MapOf[string, *CompilerInput] = icast_Map(obj_(new_LinkedHashMap()))
-	var inputsByIdentifier MapOf[string, *CompilerInput] = icast_Map(obj_(new_LinkedHashMap()))
+	var inputsByProvide *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
+	var inputsByIdentifier *TMap[string, *CompilerInput] = newTMap_(tc_string, tc_p_CompilerInput)
 	it_1 := foreach_(any(this.chunkGraph.getAllInputs()))
 	for it_1.next() {
 		var input *CompilerInput = cast_[*CompilerInput](it_1.v)
@@ -1646,19 +1646,19 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 		if !this.options_.getDependencyOptions().shouldDropMoochers() && Iterables_isEmpty(provides) {
 			entryPoints = append(entryPoints, input)
 		}
-		Map_put_s(inputsByIdentifier, ModuleIdentifier_forFile(input.getPath().toString()).toString(), obj_(input))
+		inputsByIdentifier.put(ModuleIdentifier_forFile(input.getPath().toString()).toString(), input)
 		it_3 := foreach_(any(provides))
 		for it_3.next() {
 			var provide string = str_(it_3.v)
-			Map_put_s(inputsByProvide, provide, obj_(input))
+			inputsByProvide.put(provide, input)
 		}
 	}
 	it_5 := foreach_(obj_(this.options_.getDependencyOptions().entryPoints()))
 	for it_5.next() {
 		var moduleIdentifier *ModuleIdentifier = cast_[*ModuleIdentifier](it_5.v)
-		var input *CompilerInput = cast_[*CompilerInput](Map_get_s(inputsByProvide, moduleIdentifier.toString()))
+		var input *CompilerInput = inputsByProvide.get(moduleIdentifier.toString())
 		if input == nil {
-			input = cast_[*CompilerInput](Map_get_s(inputsByIdentifier, moduleIdentifier.toString()))
+			input = inputsByIdentifier.get(moduleIdentifier.toString())
 		}
 		if input != nil {
 			entryPoints = append(entryPoints, input)
@@ -1677,7 +1677,7 @@ func (this *Compiler) findModulesFromEntryPoints(supportEs6Modules bool, support
 	}
 }
 
-func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs SetOf[*CompilerInput], inputsByIdentifier MapOf[string, *CompilerInput], inputsByProvide MapOf[string, *CompilerInput], supportEs6Modules bool, supportCommonJSModules bool) {
+func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByModule bool, inputs SetOf[*CompilerInput], inputsByIdentifier *TMap[string, *CompilerInput], inputsByProvide *TMap[string, *CompilerInput], supportEs6Modules bool, supportCommonJSModules bool) {
 	if !inputs.remove_Object(obj_(input)) {
 		if wasImportedByModule && (input.getJsModuleType() == CompilerInput_ModuleType_NONE) {
 			input.setJsModuleType(CompilerInput_ModuleType_IMPORTED_SCRIPT)
@@ -1696,11 +1696,11 @@ func (this *Compiler) findModulesFromInput(input *CompilerInput, wasImportedByMo
 		var requiredNamespace string = str_(it_1.v)
 		var requiredInput *CompilerInput = nil
 		var requiredByModuleImport bool = false
-		if Map_containsKey_s(inputsByProvide, requiredNamespace) {
-			requiredInput = cast_[*CompilerInput](Map_get_s(inputsByProvide, requiredNamespace))
-		} else if Map_containsKey_s(inputsByIdentifier, requiredNamespace) {
+		if inputsByProvide.containsKey(requiredNamespace) {
+			requiredInput = inputsByProvide.get(requiredNamespace)
+		} else if inputsByIdentifier.containsKey(requiredNamespace) {
 			requiredByModuleImport = true
-			requiredInput = cast_[*CompilerInput](Map_get_s(inputsByIdentifier, requiredNamespace))
+			requiredInput = inputsByIdentifier.get(requiredNamespace)
 		}
 		if requiredInput != nil {
 			this.findModulesFromInput(requiredInput, requiredByModuleImport, inputs, inputsByIdentifier, inputsByProvide, supportEs6Modules, supportCommonJSModules)
@@ -1787,7 +1787,7 @@ func (this *Compiler) repartitionInputs() {
 	this.rebuildInputsFromChunks()
 }
 
-func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInput]) MapOf[string, string] {
+func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInput]) *TMap[string, string] {
 	var rewriteJson *RewriteJsonToModule = new_RewriteJsonToModule(this.up_AbstractCompiler())
 	it_1 := foreach_(any(inputsToProcess))
 	for it_1.next() {
@@ -1805,7 +1805,7 @@ func (this *Compiler) processJsonInputs(inputsToProcess IterableOf[*CompilerInpu
 		input.setJsModuleType(CompilerInput_ModuleType_JSON)
 		rewriteJson.process_2(0, root)
 	}
-	return icast_Map(obj_(rewriteJson.getPackageJsonMainEntries()))
+	return tmapFrom_(tc_string, tc_string, rewriteJson.getPackageJsonMainEntries(), true)
 }
 
 func (this *Compiler) parsePotentialModules(inputsToProcess IterableOf[*CompilerInput]) {
@@ -2166,13 +2166,13 @@ func (this *Compiler) getChangeTracker_impl() *ChangeTracker {
 
 func (this *Compiler) addIndexProvider_impl(indexProvider IndexProvider) {
 	var type_ ClassOf[any] = indexProvider.getType()
-	if icast_IndexProvider(this.indexProvidersByType.put(obj_(type_), any(indexProvider))) != nil {
+	if this.indexProvidersByType.put(type_, indexProvider) != nil {
 		panic(new_IllegalStateException_String(("A provider is already registered for index of type " + sstr_(type_.getSimpleName()))).self())
 	}
 }
 
 func (this *Compiler) getIndexUntyped_impl(key ClassOf[any]) any {
-	var indexProvider IndexProvider = icast_IndexProvider(this.indexProvidersByType.get(obj_(key)))
+	var indexProvider IndexProvider = this.indexProvidersByType.get(key)
 	if indexProvider == nil {
 		return nil
 	}
@@ -2915,11 +2915,11 @@ func Compiler_fromProto(stage *LifeCycleStageProto) *AbstractCompiler_LifeCycleS
 }
 
 func Compiler_fromVariableMapEntries(entries ListOf[*VariableMapEntryProto]) *VariableMap {
-	var map_ MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+	var map_ *TMap[string, string] = newTMap_(tc_string, tc_string)
 	it_1 := foreach_(any(entries))
 	for it_1.next() {
 		var entry *VariableMapEntryProto = cast_[*VariableMapEntryProto](it_1.v)
-		Map_put_s(map_, entry.getOriginalName(), strobj_(entry.getNewName()))
+		map_.put(entry.getOriginalName(), entry.getNewName())
 	}
 	return new_VariableMap(map_)
 }

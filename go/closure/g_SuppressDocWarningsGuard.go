@@ -15,24 +15,24 @@ func (this *SuppressDocWarningsGuard) up_WarningsGuard() *WarningsGuard {
 	return &this.WarningsGuard
 }
 
-func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors MapOf[string, *DiagnosticGroup]) {
+func (this *SuppressDocWarningsGuard) init_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) {
 	this.WarningsGuard.init_WarningsGuard()
 	this.compiler_ = compiler
 	this.suppressors = SuppressDocWarningsGuard_createSuppressors(suppressors)
 }
 
-func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors MapOf[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
+func new_SuppressDocWarningsGuard(compiler *AbstractCompiler, suppressors *TMap[string, *DiagnosticGroup]) *SuppressDocWarningsGuard {
 	this := &SuppressDocWarningsGuard{}
 	this.self_ = this
 	this.init_SuppressDocWarningsGuard(compiler, suppressors)
 	return this
 }
 
-func SuppressDocWarningsGuard_createSuppressors(suppressors MapOf[string, *DiagnosticGroup]) ImmutableMapOf[string, *DiagnosticGroup] {
-	var builder LinkedHashMapOf[string, *DiagnosticGroup] = new_LinkedHashMap_Map(suppressors)
-	Map_put_s(builder, "missingProperties", obj_(DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES})))
-	Map_put_s(builder, "checkTypes", obj_(DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES})))
-	return ImmutableMap_copyOf(icast_Map(obj_(builder)))
+func SuppressDocWarningsGuard_createSuppressors(suppressors *TMap[string, *DiagnosticGroup]) ImmutableMapOf[string, *DiagnosticGroup] {
+	var builder *TMap[string, *DiagnosticGroup] = tmapFrom_(tc_string, tc_p_DiagnosticGroup, suppressors.asMap(), false)
+	builder.put("missingProperties", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_MISSING_PROPERTIES, DiagnosticGroups_STRICT_MISSING_PROPERTIES}))
+	builder.put("checkTypes", DiagnosticGroup_createFromGroups_DiagnosticGroupArr([]*DiagnosticGroup{DiagnosticGroups_CHECK_TYPES, DiagnosticGroups_STRICT_CHECK_TYPES}))
+	return ImmutableMap_copyOf(builder.asMap())
 }
 
 func (this *SuppressDocWarningsGuard) level_impl(error_ *JSError) *CheckLevel {

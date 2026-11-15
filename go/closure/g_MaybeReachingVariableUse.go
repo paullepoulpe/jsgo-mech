@@ -5,7 +5,7 @@ package closure
 type MaybeReachingVariableUse struct {
 	DataFlowAnalysis
 	escaped     SetOf[*Var]
-	allVarsInFn MapOf[string, *Var]
+	allVarsInFn *TMap[string, *Var]
 }
 
 func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis {
@@ -15,13 +15,13 @@ func (this *MaybeReachingVariableUse) up_DataFlowAnalysis() *DataFlowAnalysis {
 	return &this.DataFlowAnalysis
 }
 
-func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped SetOf[*Var], allVarsInFn MapOf[string, *Var]) {
+func (this *MaybeReachingVariableUse) init_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) {
 	this.DataFlowAnalysis.init_DataFlowAnalysis(cfg)
 	this.escaped = escaped
 	this.allVarsInFn = allVarsInFn
 }
 
-func new_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped SetOf[*Var], allVarsInFn MapOf[string, *Var]) *MaybeReachingVariableUse {
+func new_MaybeReachingVariableUse(cfg *ControlFlowGraph, escaped SetOf[*Var], allVarsInFn *TMap[string, *Var]) *MaybeReachingVariableUse {
 	this := &MaybeReachingVariableUse{}
 	this.self_ = this
 	this.init_MaybeReachingVariableUse(cfg, escaped, allVarsInFn)
@@ -168,7 +168,7 @@ func (this *MaybeReachingVariableUse) computeMayUse(n Node, cfgNode Node, output
 }
 
 func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = cast_[*Var](Map_get_s(this.allVarsInFn, name))
+	var var_ *Var = this.allVarsInFn.get(name)
 	if var_ == nil {
 		return
 	}
@@ -178,7 +178,7 @@ func (this *MaybeReachingVariableUse) addToUseIfLocal(name string, node Node, us
 }
 
 func (this *MaybeReachingVariableUse) removeFromUseIfLocal(name string, use *MaybeReachingVariableUse_ReachingUses) {
-	var var_ *Var = cast_[*Var](Map_get_s(this.allVarsInFn, name))
+	var var_ *Var = this.allVarsInFn.get(name)
 	if var_ == nil {
 		return
 	}
@@ -191,7 +191,7 @@ func (this *MaybeReachingVariableUse) getUses(name string, defNode Node) Iterabl
 	var n GraphNode = this.getCfg().getNode(defNode.box_())
 	Preconditions_checkNotNull(any(n))
 	var state *DataFlowAnalysis_LinearFlowState = cast_[*DataFlowAnalysis_LinearFlowState](Annotatable_getAnnotation(Annotatable(n)))
-	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(cast_[*Var](Map_get_s(this.allVarsInFn, name)))
+	return cast_[*MaybeReachingVariableUse_ReachingUses](state.getOut()).get(this.allVarsInFn.get(name))
 }
 
 type MaybeReachingVariableUse_ReachingUses struct {

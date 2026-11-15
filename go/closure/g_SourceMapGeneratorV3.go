@@ -4,28 +4,28 @@ package closure
 
 type SourceMapGeneratorV3 struct {
 	mappings             []*SourceMapGeneratorV3_Mapping
-	sourceFileMap        LinkedHashMapOf[string, BoxedOf[int32]]
+	sourceFileMap        *TMap[string, any]
 	sourceFileContentMap map[string]string
-	originalNameMap      LinkedHashMapOf[string, BoxedOf[int32]]
+	originalNameMap      *TMap[string, any]
 	lastSourceFile       OptionalOf[string]
 	lastSourceFileIndex  int32
 	lastMapping          *SourceMapGeneratorV3_Mapping
 	offsetPosition       *FilePosition
 	prefixPosition       *FilePosition
-	extensions           LinkedHashMapOf[string, any]
+	extensions           *TMap[string, any]
 	sourceRootPath       OptionalOf[string]
 }
 
 func (this *SourceMapGeneratorV3) finit_SourceMapGeneratorV3() {
 	this.mappings = []*SourceMapGeneratorV3_Mapping{}
-	this.sourceFileMap = new_LinkedHashMap()
+	this.sourceFileMap = newTMap_(tc_string, tc_any)
 	this.sourceFileContentMap = map[string]string{}
-	this.originalNameMap = new_LinkedHashMap()
+	this.originalNameMap = newTMap_(tc_string, tc_any)
 	this.lastSourceFile = Optional_empty()
 	this.lastSourceFileIndex = -1
 	this.offsetPosition = new_FilePosition(0, 0)
 	this.prefixPosition = new_FilePosition(0, 0)
-	this.extensions = new_LinkedHashMap()
+	this.extensions = newTMap_(tc_string, tc_any)
 	this.sourceRootPath = Optional_empty()
 }
 
@@ -134,14 +134,14 @@ func (this *SourceMapGeneratorV3) mergeMapSection_4(line int32, column int32, ma
 		return Outcome_base_err(parsed.error())
 	}
 	section.visitMappings(icast_SourceMapConsumerV3_EntryVisitor(obj_(new_SourceMapGeneratorV3_ConsumerEntryVisitor(this))))
-	it_1 := foreach_(any(section.getExtensions().entrySet()))
+	it_1 := foreach_(any(section.getExtensions().asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var extensionKey string = str_(entry.getKey())
-		if Map_containsKey_s(this.extensions, extensionKey) {
-			Map_put_s(this.extensions, extensionKey, mergeAction.merge(extensionKey, Map_get_s(this.extensions, extensionKey), entry.getValue()))
+		if this.extensions.containsKey(extensionKey) {
+			this.extensions.put(extensionKey, mergeAction.merge(extensionKey, this.extensions.get(extensionKey), entry.getValue()))
 		} else {
-			Map_put_s(this.extensions, extensionKey, entry.getValue())
+			this.extensions.put(extensionKey, entry.getValue())
 		}
 	}
 	return Outcome_base_ok_0()
@@ -172,10 +172,10 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 	this.addSymbolNameMap(out)
 	out.append_CharSequence(strobj_("]"))
 	SourceMapGeneratorV3_appendFieldEnd(out)
-	it_1 := foreach_(any(this.extensions.keySet()))
+	it_1 := this.extensions.each()
 	for it_1.next() {
-		var key string = str_(it_1.v)
-		var objValue any = Map_get_s(this.extensions, key)
+		var key string = it_1.k
+		var objValue any = this.extensions.get(key)
 		var value string
 		var string_ string
 		_ = string_
@@ -204,26 +204,26 @@ func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome
 	if !String_startsWith(name, "x_") {
 		return Outcome_base_err(new_SourceMapParseException(("Extension '" + sstr_(name) + "' must start with 'x_'")).up_Throwable())
 	}
-	Map_put_s(this.extensions, name, object)
+	this.extensions.put(name, object)
 	return Outcome_base_ok_0()
 }
 
 func (this *SourceMapGeneratorV3) removeExtension(name string) {
-	if Map_containsKey_s(this.extensions, name) {
-		Map_remove_s(this.extensions, name)
+	if this.extensions.containsKey(name) {
+		this.extensions.remove(name)
 	}
 }
 
 func (this *SourceMapGeneratorV3) hasExtension(name string) bool {
-	return Map_containsKey_s(this.extensions, name)
+	return this.extensions.containsKey(name)
 }
 
 func (this *SourceMapGeneratorV3) getExtension(name string) any {
-	return Map_get_s(this.extensions, name)
+	return this.extensions.get(name)
 }
 
 func (this *SourceMapGeneratorV3) addSourceNameMap(out Appendable) {
-	SourceMapGeneratorV3_addNameMap(out, icast_Map(obj_(this.sourceFileMap)))
+	SourceMapGeneratorV3_addNameMap(out, this.sourceFileMap)
 }
 
 func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
@@ -231,7 +231,7 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 	var size int32 = this.sourceFileMap.size()
 	var contents *TList[string] = newTListN_(tc_string, size)
 	contents.asList().addAll(Collection(Collections_nCopies(size, strobj_(""))))
-	it_1 := foreach_(any(this.sourceFileMap.entrySet()))
+	it_1 := foreach_(any(this.sourceFileMap.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var index any = entry.getValue()
@@ -259,12 +259,12 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 }
 
 func (this *SourceMapGeneratorV3) addSymbolNameMap(out Appendable) {
-	SourceMapGeneratorV3_addNameMap(out, icast_Map(obj_(this.originalNameMap)))
+	SourceMapGeneratorV3_addNameMap(out, this.originalNameMap)
 }
 
-func SourceMapGeneratorV3_addNameMap(out Appendable, map_ MapOf[string, BoxedOf[int32]]) {
+func SourceMapGeneratorV3_addNameMap(out Appendable, map_ *TMap[string, any]) {
 	var i int32 = 0
-	it_1 := foreach_(any(map_.entrySet()))
+	it_1 := foreach_(any(map_.asMap().entrySet()))
 	for it_1.next() {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var key string = str_(entry.getKey())
@@ -367,12 +367,12 @@ func SourceMapGeneratorV3_appendOffsetValue(out Appendable, line int32, column i
 func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 	if !(this.lastSourceFile.isPresent() && (str_(this.lastSourceFile.get()) == sourceName)) {
 		this.lastSourceFile = Optional_of(strobj_(sourceName))
-		var index any = Map_get_s(this.sourceFileMap, sourceName)
+		var index any = this.sourceFileMap.get(sourceName)
 		if index != nil {
 			this.lastSourceFileIndex = unbox_[int32](index)
 		} else {
 			this.lastSourceFileIndex = this.sourceFileMap.size()
-			Map_put_s(this.sourceFileMap, sourceName, any(int32(this.lastSourceFileIndex)))
+			this.sourceFileMap.put(sourceName, any(int32(this.lastSourceFileIndex)))
 		}
 	}
 	return this.lastSourceFileIndex
@@ -380,12 +380,12 @@ func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
 
 func (this *SourceMapGeneratorV3) getNameId(symbolName string) int32 {
 	var originalNameIndex int32
-	var index any = Map_get_s(this.originalNameMap, symbolName)
+	var index any = this.originalNameMap.get(symbolName)
 	if index != nil {
 		originalNameIndex = unbox_[int32](index)
 	} else {
 		originalNameIndex = this.originalNameMap.size()
-		Map_put_s(this.originalNameMap, symbolName, any(int32(originalNameIndex)))
+		this.originalNameMap.put(symbolName, any(int32(originalNameIndex)))
 	}
 	return originalNameIndex
 }

@@ -3,13 +3,13 @@
 package closure
 
 type PreprocessorSymbolTable struct {
-	symbols MapOf[string, *SimpleSlot]
+	symbols *TMap[string, *SimpleSlot]
 	refs    *SimpleListMultimap
 	root    Node
 }
 
 func (this *PreprocessorSymbolTable) finit_PreprocessorSymbolTable() {
-	this.symbols = icast_Map(obj_(new_LinkedHashMap()))
+	this.symbols = newTMap_(tc_string, tc_p_SimpleSlot)
 	this.refs = SimpleListMultimap_create()
 }
 
@@ -37,7 +37,7 @@ func (this *PreprocessorSymbolTable) getParentScope() StaticScope {
 }
 
 func (this *PreprocessorSymbolTable) getSlot(name string) StaticSlot {
-	return icast_StaticSlot(Map_get_s(this.symbols, name))
+	return icast_StaticSlot(this.symbols.get(name).self())
 }
 
 func (this *PreprocessorSymbolTable) getOwnSlot(name string) StaticSlot {
@@ -51,7 +51,7 @@ func (this *PreprocessorSymbolTable) getReferences_StaticSlot(symbol_ StaticSlot
 }
 
 func (this *PreprocessorSymbolTable) getAllSymbols() IterableOf[*SimpleSlot] {
-	return Iterable(Collections_unmodifiableCollection(this.symbols.values()))
+	return Iterable(Collections_unmodifiableCollection(this.symbols.asMap().values()))
 }
 
 func (this *PreprocessorSymbolTable) getScope(slot_ StaticSlot) StaticScope {
@@ -65,12 +65,12 @@ func (this *PreprocessorSymbolTable) addReference(node Node) {
 }
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
-	Map_computeIfAbsent_s(this.symbols, name, &Function_fn{func(k_ any) any {
+	this.symbols.computeIfAbsent(name, &Function_fn{func(k_ any) any {
 		var k string = str_(k_)
 		_ = k
 		return new_SimpleSlot(k, nil, true).self()
 	}})
-	this.refs.put(strobj_(name), obj_(new_PreprocessorSymbolTable_Reference(to_SimpleSlot(Map_get_s(this.symbols, name)), node)))
+	this.refs.put(strobj_(name), obj_(new_PreprocessorSymbolTable_Reference(this.symbols.get(name), node)))
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) OptionalOf[string] {

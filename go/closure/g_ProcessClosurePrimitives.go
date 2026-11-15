@@ -347,7 +347,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	if !ProcessClosurePrimitives_verifySetCssNameMapping(compiler, left, arg) {
 		return nil
 	}
-	var cssNames MapOf[string, string] = icast_Map(obj_(new_LinkedHashMap()))
+	var cssNames *TMap[string, string] = newTMap_(tc_string, tc_string)
 	{
 		var key Node = arg.getFirstChild()
 		for ; key != 0; key = key.getNext() {
@@ -356,7 +356,7 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 				compiler.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_NON_STRING_PASSED_TO_SET_CSS_NAME_MAPPING_ERROR, []string{}))
 				return nil
 			}
-			Map_put_s(cssNames, key.getString(), strobj_(value.getString()))
+			cssNames.put(key.getString(), value.getString())
 		}
 	}
 	var styleStr string = "BY_PART"
@@ -377,9 +377,9 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 	var style *CssRenamingMap_Style = styleOrNull
 	if style == CssRenamingMap_Style_BY_PART {
 		var errors ListOf[string] = icast_List(new_ArrayList_0().self())
-		it_3 := foreach_(any(cssNames.keySet()))
+		it_3 := cssNames.each()
 		for it_3.next() {
-			var key string = str_(it_3.v)
+			var key string = it_3.k
 			if String_contains(key, strobj_("-")) && !String_startsWith(key, "--") {
 				errors.add(strobj_(key))
 			}
@@ -389,16 +389,16 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 		}
 	} else if style == CssRenamingMap_Style_BY_WHOLE {
 		var errors ListOf[string] = icast_List(new_ArrayList_0().self())
-		it_5 := foreach_(any(cssNames.entrySet()))
+		it_5 := foreach_(any(cssNames.asMap().entrySet()))
 		for it_5.next() {
 			var b Map_Entry = icast_Map_Entry(it_5.v)
 			if String_length(str_(b.getKey())) > 10 {
 				continue
 			}
-			it_7 := foreach_(any(cssNames.entrySet()))
+			it_7 := foreach_(any(cssNames.asMap().entrySet()))
 			for it_7.next() {
 				var a Map_Entry = icast_Map_Entry(it_7.v)
-				var combined OptionalOf[string] = Optional_ofNullable(Map_get_s(cssNames, (sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())))))
+				var combined OptionalOf[string] = Optional_ofNullable(strobj_(cssNames.get((sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey()))))))
 				if combined.isPresent() && !(str_(combined.get()) == (sstr_(str_(a.getValue())) + "-" + sstr_(str_(b.getValue())))) {
 					errors.add(strobj_(("map(" + sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())) + ") != map(" + sstr_(str_(a.getKey())) + ")-map(" + sstr_(str_(b.getKey())) + ")")))
 				}
@@ -533,7 +533,7 @@ func ProcessClosurePrimitives_clinit() {
 }
 
 type ProcessClosurePrimitives_1 struct {
-	cap_cssNames Map
+	cap_cssNames *TMap[string, string]
 	cap_style    *CssRenamingMap_Style
 }
 
@@ -541,7 +541,7 @@ func (this *ProcessClosurePrimitives_1) init_ProcessClosurePrimitives_1() {
 
 }
 
-func new_ProcessClosurePrimitives_1(cap_cssNames Map, cap_style *CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
+func new_ProcessClosurePrimitives_1(cap_cssNames *TMap[string, string], cap_style *CssRenamingMap_Style) *ProcessClosurePrimitives_1 {
 	this := &ProcessClosurePrimitives_1{}
 	this.cap_cssNames = cap_cssNames
 	this.cap_style = cap_style
@@ -550,8 +550,8 @@ func new_ProcessClosurePrimitives_1(cap_cssNames Map, cap_style *CssRenamingMap_
 }
 
 func (this *ProcessClosurePrimitives_1) get(value string) OptionalOf[string] {
-	if Map_containsKey_s(this.cap_cssNames, value) {
-		return Optional_ofNullable(Map_get_s(this.cap_cssNames, value))
+	if this.cap_cssNames.containsKey(value) {
+		return Optional_ofNullable(strobj_(this.cap_cssNames.get(value)))
 	} else {
 		return Optional_of(strobj_(value))
 	}

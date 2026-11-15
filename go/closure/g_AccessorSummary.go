@@ -18,8 +18,8 @@ func new_AccessorSummary(accessors ImmutableMapOf[string, *AccessorSummary_Prope
 	return this
 }
 
-func AccessorSummary_create(accessors MapOf[string, *AccessorSummary_PropertyAccessKind]) *AccessorSummary {
-	return new_AccessorSummary(ImmutableMap_copyOf(accessors), false)
+func AccessorSummary_create(accessors *TMap[string, *AccessorSummary_PropertyAccessKind]) *AccessorSummary {
+	return new_AccessorSummary(ImmutableMap_copyOf(accessors.asMap()), false)
 }
 
 func (this *AccessorSummary) getAccessors() ImmutableMapOf[string, *AccessorSummary_PropertyAccessKind] {
@@ -77,7 +77,7 @@ func AccessorSummary_fromProto(proto *AccessorSummaryProto) *AccessorSummary {
 		var entry *AccessorSummaryEntryProto = cast_[*AccessorSummaryEntryProto](it_1.v)
 		builder.put(strobj_(entry.getName()), obj_(AccessorSummary_fromProtoPropertyAccessKindProto(entry.getKind())))
 	}
-	return AccessorSummary_create(icast_Map(obj_(builder.buildOrThrow())))
+	return AccessorSummary_create(tmapFrom_(tc_string, tc_p_AccessorSummary_PropertyAccessKind, builder.buildOrThrow(), true))
 }
 
 func AccessorSummary_fromProtoPropertyAccessKindProto(kind *PropertyAccessKindProto) *AccessorSummary_PropertyAccessKind {

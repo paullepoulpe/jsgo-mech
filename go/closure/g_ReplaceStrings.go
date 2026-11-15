@@ -8,7 +8,7 @@ type ReplaceStrings struct {
 	compiler_        *AbstractCompiler
 	functions        map[string]*ReplaceStrings_Config
 	nameGenerator    *DefaultNameGenerator
-	results          MapOf[string, *ReplaceStrings_Result]
+	results          *TMap[string, *ReplaceStrings_Result]
 }
 
 func (this *ReplaceStrings) up_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {
@@ -24,7 +24,7 @@ func (this *ReplaceStrings) zero_ReplaceStrings() {
 
 func (this *ReplaceStrings) finit_ReplaceStrings() {
 	this.functions = map[string]*ReplaceStrings_Config{}
-	this.results = icast_Map(obj_(new_LinkedHashMap()))
+	this.results = newTMap_(tc_string, tc_p_ReplaceStrings_Result)
 }
 
 func (this *ReplaceStrings) init_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, functionsToInspect *TList[string]) {
@@ -50,17 +50,17 @@ func new_ReplaceStrings(compiler *AbstractCompiler, placeholderToken string, fun
 }
 
 func (this *ReplaceStrings) getResult() *TList[*ReplaceStrings_Result] {
-	return tlistImm_(tc_p_ReplaceStrings_Result, ImmutableList_copyOf_Iterable(Iterables_filter(Iterable(this.results.values()), ReplaceStrings_USED_RESULTS)))
+	return tlistImm_(tc_p_ReplaceStrings_Result, ImmutableList_copyOf_Iterable(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
 }
 
 func (this *ReplaceStrings) getStringMap() *VariableMap {
 	var map_ ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()
-	it_1 := foreach_(any(Iterables_filter(Iterable(this.results.values()), ReplaceStrings_USED_RESULTS)))
+	it_1 := foreach_(any(Iterables_filter(Iterable(this.results.asMap().values()), ReplaceStrings_USED_RESULTS)))
 	for it_1.next() {
 		var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](it_1.v)
 		map_.put(strobj_(result.replacement_), strobj_(result.original_))
 	}
-	return new_VariableMap(icast_Map(obj_(map_.buildOrThrow())))
+	return new_VariableMap(tmapFrom_(tc_string, tc_string, map_.buildOrThrow(), true))
 }
 
 func (this *ReplaceStrings) process_2(externs Node, root Node) {
@@ -158,18 +158,18 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 }
 
 func (this *ReplaceStrings) getReplacement(key string) string {
-	var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](Map_get_s(this.results, key))
+	var result *ReplaceStrings_Result = this.results.get(key)
 	if result != nil {
 		return result.replacement_
 	}
 	var replacement string = this.nameGenerator.generateNextName()
 	result = new_ReplaceStrings_Result(key, replacement)
-	Map_put_s(this.results, key, obj_(result))
+	this.results.put(key, result)
 	return replacement
 }
 
 func (this *ReplaceStrings) recordReplacement(key string) {
-	var result *ReplaceStrings_Result = cast_[*ReplaceStrings_Result](Map_get_s(this.results, key))
+	var result *ReplaceStrings_Result = this.results.get(key)
 	Preconditions_checkState((result != nil))
 	result.didReplacement = true
 }
