@@ -2092,13 +2092,11 @@ func (this *AbstractCommandLineRunner) constructRootRelativePathsMap() *TMap[str
 }
 
 func (this *AbstractCommandLineRunner) getVersionText() string {
-	return this.self_.(interface{ getVersionText_impl() string }).getVersionText_impl()
+	return this.self_.(*CommandLineRunner).getVersionText_impl()
 }
 
 func (this *AbstractCommandLineRunner) addAllowlistWarningsGuard(p0 *CompilerOptions, p1 string) {
-	this.self_.(interface {
-		addAllowlistWarningsGuard_impl(*CompilerOptions, string)
-	}).addAllowlistWarningsGuard_impl(p0, p1)
+	this.self_.(*CommandLineRunner).addAllowlistWarningsGuard_impl(p0, p1)
 }
 
 func (this *AbstractCommandLineRunner) checkChunkName(p0 string) *Outcome_base {
@@ -2106,23 +2104,19 @@ func (this *AbstractCommandLineRunner) checkChunkName(p0 string) *Outcome_base {
 }
 
 func (this *AbstractCommandLineRunner) createOptions() *Outcome_base {
-	return this.self_.(interface{ createOptions_impl() *Outcome_base }).createOptions_impl()
+	return this.self_.(*CommandLineRunner).createOptions_impl()
 }
 
 func (this *AbstractCommandLineRunner) createCompiler() *Compiler {
-	return this.self_.(interface{ createCompiler_impl() *Compiler }).createCompiler_impl()
+	return this.self_.(*CommandLineRunner).createCompiler_impl()
 }
 
 func (this *AbstractCommandLineRunner) prepForBundleAndAppendTo(p0 Appendable, p1 *CompilerInput, p2 string) *Outcome_base {
-	return this.self_.(interface {
-		prepForBundleAndAppendTo_impl(Appendable, *CompilerInput, string) *Outcome_base
-	}).prepForBundleAndAppendTo_impl(p0, p1, p2)
+	return this.self_.(*CommandLineRunner).prepForBundleAndAppendTo_impl(p0, p1, p2)
 }
 
 func (this *AbstractCommandLineRunner) appendRuntimeTo(p0 Appendable) *Outcome_base {
-	return this.self_.(interface {
-		appendRuntimeTo_impl(Appendable) *Outcome_base
-	}).appendRuntimeTo_impl(p0)
+	return this.self_.(*CommandLineRunner).appendRuntimeTo_impl(p0)
 }
 
 func (this *AbstractCommandLineRunner) createExterns(p0 *CompilerOptions) *Outcome_base {

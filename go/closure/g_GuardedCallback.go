@@ -116,9 +116,7 @@ func GuardedCallback_isPropertyTestFunction(compiler *AbstractCompiler, n Node) 
 }
 
 func (this *GuardedCallback) visitGuarded(p0 *NodeTraversal, p1 Node, p2 Node) {
-	this.self_.(interface {
-		visitGuarded_impl(*NodeTraversal, Node, Node)
-	}).visitGuarded_impl(p0, p1, p2)
+	this.self_.(*PolyfillUsageFinder_Traverser).visitGuarded_impl(p0, p1, p2)
 }
 
 var GuardedCallback_CAN_HAVE_GUARDS *ImmutableSet

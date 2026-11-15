@@ -1536,7 +1536,7 @@ func (this *NodeTraversal_AbstractChangedScopeCallback) shouldTraverse_impl(t *N
 }
 
 func (this *NodeTraversal_AbstractChangedScopeCallback) enterChangedScopeRoot(p0 *AbstractCompiler, p1 Node) {
-	this.self_.(interface{ enterChangedScopeRoot_impl(*AbstractCompiler, Node) }).enterChangedScopeRoot_impl(p0, p1)
+	this.self_.(*DeadPropertyAssignmentElimination_FunctionVisitor).enterChangedScopeRoot_impl(p0, p1)
 }
 
 type NodeTraversal_Builder struct {

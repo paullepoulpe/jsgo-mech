@@ -60,7 +60,7 @@ func (this *GraphColoring) getGraph() AdjacencyGraph {
 }
 
 func (this *GraphColoring) color() int32 {
-	return this.self_.(interface{ color_impl() int32 }).color_impl()
+	return this.self_.(*GraphColoring_GreedyGraphColoring).color_impl()
 }
 
 type GraphColoring_Color struct {
