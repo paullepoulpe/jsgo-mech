@@ -1088,9 +1088,9 @@ func (this *RemoveUnusedCode) getVarInfo(var_ *Var) RemoveUnusedCode_VarInfo {
 }
 
 func (this *RemoveUnusedCode) removeUnreferencedVarsAndPolyfills() {
-	for i_ := 0; i_ < len(this.varInfoMap.vars); i_++ {
-		var var_ *Var = this.varInfoMap.vars[i_]
-		var varInfo RemoveUnusedCode_VarInfo = this.varInfoMap.vals[i_]
+	for i_ := 0; i_ < len(this.varInfoMap.ents); i_++ {
+		var var_ *Var = this.varInfoMap.ents[i_].v
+		var varInfo RemoveUnusedCode_VarInfo = this.varInfoMap.ents[i_].val
 		if !varInfo.isRemovable() {
 			continue
 		}
