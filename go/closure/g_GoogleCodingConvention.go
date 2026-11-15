@@ -97,7 +97,7 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 		return Optional_ofNullable(strobj_(m.group(1)))
 	} else {
 		var lastSlash int32 = String_lastIndexOf(name, 47)
-		return func() *Optional {
+		return func() Optional {
 			if lastSlash == -1 {
 				return Optional_of(strobj_(""))
 			}

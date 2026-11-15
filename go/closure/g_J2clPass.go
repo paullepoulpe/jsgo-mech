@@ -233,7 +233,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 			continue
 		}
 		var inlinableFunction *J2clPass_ClassStaticFunctionsInliner_InlinableFunction = new_J2clPass_ClassStaticFunctionsInliner_InlinableFunction(n.getLastChild(), inlineSpec.inliningMode_)
-		var qualifiedFnName OptionalOf[string] = func() *Optional {
+		var qualifiedFnName OptionalOf[string] = func() Optional {
 			switch n.getToken() {
 			case Token_rhino_ASSIGN:
 				return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {

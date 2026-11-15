@@ -132,7 +132,7 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	var baseExterns Node = this.polymerElementExterns.cloneTree()
 	var polymerElementType string = PolymerPassStaticUtils_getPolymerElementType(def)
 	baseExterns.getFirstChild().setString(polymerElementType)
-	var elementType OptionalOf[string] = func() *Optional {
+	var elementType OptionalOf[string] = func() Optional {
 		if def.nativeBaseElement.isPresent() {
 			return Optional_ofNullable(Map_get_s(this.tagNameMap, str_(def.nativeBaseElement.get())))
 		}

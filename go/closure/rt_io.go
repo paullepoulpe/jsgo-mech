@@ -99,7 +99,7 @@ func Io_utf8String(bytes []int8) string {
 	return string(out)
 }
 
-func Io_utf8StringStrict(bytes []int8) *Optional {
+func Io_utf8StringStrict(bytes []int8) Optional {
 	if b := u8_(bytes); utf8.Valid(b) {
 		return Optional_of(string(b))
 	}
@@ -303,7 +303,7 @@ func Io_base64Decode(text string) []int8 {
 // ---- Files bundled with the compiler; the report of an unexpected failure
 
 // Io_readResource reads from the files embedded in the binary (rt_io_resources.go).
-func Io_readResource(name string) *Optional {
+func Io_readResource(name string) Optional {
 	if b, ok := resourceBytes_(name); ok {
 		return Optional_of(i8_(b))
 	}

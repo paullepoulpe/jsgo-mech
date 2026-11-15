@@ -60,8 +60,8 @@ func (this *CompilerBasedTransformer) transform(input *Source) *Source {
 	return builder.build()
 }
 
-func (this *CompilerBasedTransformer) getRuntime() *Optional {
-	return this.self_.(interface{ getRuntime_impl() *Optional }).getRuntime_impl()
+func (this *CompilerBasedTransformer) getRuntime() Optional {
+	return this.self_.(interface{ getRuntime_impl() Optional }).getRuntime_impl()
 }
 
 func (this *CompilerBasedTransformer) getTranformationName() string {

@@ -500,9 +500,9 @@ func (this *PrototypeObjectType_Builder) build_impl() *PrototypeObjectType {
 	return new_PrototypeObjectType(this)
 }
 
-func (this *PrototypeObjectType_Builder) setName(p0 *Optional) *PrototypeObjectType_Builder {
+func (this *PrototypeObjectType_Builder) setName(p0 Optional) *PrototypeObjectType_Builder {
 	return this.self_.(interface {
-		setName_impl(*Optional) *PrototypeObjectType_Builder
+		setName_impl(Optional) *PrototypeObjectType_Builder
 	}).setName_impl(p0)
 }
 

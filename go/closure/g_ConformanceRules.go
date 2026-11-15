@@ -261,11 +261,11 @@ func ConformanceRules_AllowList_createFromEntry(allowlistEntry *RequirementScope
 }
 
 func (this *ConformanceRules_AllowList) matches(path string) bool {
-	var tsPath OptionalOf[string] = func() *Optional {
+	var tsPath OptionalOf[string] = func() Optional {
 		if String_endsWith(path, ".closure.js") {
 			return Optional_of(strobj_((sstr_(String_substring(path, 0, (String_length(path)-String_length(".closure.js")))) + ".ts")))
 		}
-		return func() *Optional {
+		return func() Optional {
 			if String_endsWith(path, ".tsx.cl.js") {
 				return Optional_of(strobj_(String_substring(path, 0, (String_length(path) - String_length(".cl.js")))))
 			}
@@ -1181,13 +1181,13 @@ func (this *ConformanceRules_BannedProperty) extractType(n Node) *JSType {
 }
 
 func (this *ConformanceRules_BannedProperty) extractName(n Node) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		switch n.getToken() {
 		case Token_rhino_GETPROP, Token_rhino_STRING_KEY:
 			return Optional_of(strobj_(n.getString()))
 		case Token_rhino_GETELEM:
 			var string_ Node = n.getSecondChild()
-			return func() *Optional {
+			return func() Optional {
 				if string_.isStringLit() {
 					return Optional_of(strobj_(string_.getString()))
 				}
@@ -1195,7 +1195,7 @@ func (this *ConformanceRules_BannedProperty) extractName(n Node) OptionalOf[stri
 			}()
 		case Token_rhino_COMPUTED_PROP:
 			var string_ Node = n.getFirstChild()
-			return func() *Optional {
+			return func() Optional {
 				if string_.isStringLit() {
 					return Optional_of(strobj_(string_.getString()))
 				}

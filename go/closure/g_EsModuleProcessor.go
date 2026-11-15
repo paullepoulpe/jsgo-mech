@@ -434,7 +434,7 @@ func (this *EsModuleProcessor_UnresolvedEsModule) resolveImportImpl(moduleReques
 				this.outer_.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.path_.toString())), i.importNode().getLineno(), i.importNode().getCharno(), EsModuleProcessor_NAMESPACE_IMPORT_CANNOT_USE_STAR, []string{i.localName(), i.moduleRequest()}))
 				return ResolveExportResult_ERROR
 			}
-			var closureNamespace OptionalOf[string] = func() *Optional {
+			var closureNamespace OptionalOf[string] = func() Optional {
 				if GoogEsImports_isGoogImportSpecifier(i.moduleRequest()) {
 					return Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(i.moduleRequest())))
 				}

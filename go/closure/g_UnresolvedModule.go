@@ -47,21 +47,21 @@ func (this *UnresolvedModule) hashCode() int32 {
 	return identityHash_(this.self())
 }
 
-func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 *Optional) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport(p0 ModuleRequestResolver, p1 Optional) *ResolveExportResult {
 	return this.self_.(interface {
-		resolveExport_impl(ModuleRequestResolver, *Optional) *ResolveExportResult
+		resolveExport_impl(ModuleRequestResolver, Optional) *ResolveExportResult
 	}).resolveExport_impl(p0, p1)
 }
 
-func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 *Optional, p2 *Optional, p3 Set, p4 Set) *ResolveExportResult {
+func (this *UnresolvedModule) resolveExport_5(p0 ModuleRequestResolver, p1 Optional, p2 Optional, p3 Set, p4 Set) *ResolveExportResult {
 	return this.self_.(interface {
-		resolveExport_5_impl(ModuleRequestResolver, *Optional, *Optional, Set, Set) *ResolveExportResult
+		resolveExport_5_impl(ModuleRequestResolver, Optional, Optional, Set, Set) *ResolveExportResult
 	}).resolveExport_5_impl(p0, p1, p2, p3, p4)
 }
 
-func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 *Optional) *Module {
+func (this *UnresolvedModule) resolve_2(p0 ModuleRequestResolver, p1 Optional) *Module {
 	return this.self_.(interface {
-		resolve_2_impl(ModuleRequestResolver, *Optional) *Module
+		resolve_2_impl(ModuleRequestResolver, Optional) *Module
 	}).resolve_2_impl(p0, p1)
 }
 

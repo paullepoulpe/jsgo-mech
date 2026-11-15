@@ -274,7 +274,7 @@ func CmdLineParser_clinit() {
 
 type CmdLineParser_Parameters interface {
 	getParameter(int32) *Outcome_base
-	getParameterOrNull(int32) *Optional
+	getParameterOrNull(int32) Optional
 }
 
 type CmdLineParser_Handler interface {

@@ -1649,7 +1649,7 @@ func new_DefaultPassConfig_3(outer_ *DefaultPassConfig, cap_compiler *AbstractCo
 }
 
 func (this *DefaultPassConfig_3) process_2(externs Node, jsRoot Node) {
-	var cssNames OptionalOf[ImmutableSet_BuilderOf[string]] = func() *Optional {
+	var cssNames OptionalOf[ImmutableSet_BuilderOf[string]] = func() Optional {
 		if this.outer_.options_.shouldGatherCssNames() {
 			return Optional_of(obj_(ImmutableSet_builder()))
 		}

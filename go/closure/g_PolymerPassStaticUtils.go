@@ -145,7 +145,7 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *TS
 
 func PolymerPassStaticUtils_extractMethodName(signature string) OptionalOf[string] {
 	var openParenIndex int32 = String_indexOf(signature, 40)
-	return func() *Optional {
+	return func() Optional {
 		if openParenIndex > 0 {
 			return Optional_of(strobj_(String_trim(String_substring(signature, 0, openParenIndex))))
 		}

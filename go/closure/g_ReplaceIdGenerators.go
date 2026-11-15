@@ -194,7 +194,7 @@ func ReplaceIdGenerators_RenameStrategy_clinit() {
 }
 
 type ReplaceIdGenerators_NameSupplier interface {
-	getName(string, string) *Optional
+	getName(string, string) Optional
 	getRenameStrategy() *ReplaceIdGenerators_RenameStrategy
 }
 

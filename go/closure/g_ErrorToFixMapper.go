@@ -162,7 +162,7 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 		fix.addGoogRequire(match, fullName, scriptMetadata)
 		shortName = scriptMetadata.getAlias(fullName)
 	}
-	var oldName OptionalOf[string] = func() *Optional {
+	var oldName OptionalOf[string] = func() Optional {
 		if error_.node().isQualifiedName() {
 			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
@@ -234,7 +234,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var regexMatcher *Matcher_re2j = ErrorToFixMapper_MISSING_REQUIRE.matcher(strobj_(error_.description()))
 	Preconditions_checkState_boolean_String_Object(regexMatcher.matches(), "Unexpected error description: %s", strobj_(error_.description()))
 	var namespaceToRequire string = regexMatcher.group(1)
-	var qName OptionalOf[string] = func() *Optional {
+	var qName OptionalOf[string] = func() Optional {
 		if error_.node().isQualifiedName() {
 			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)

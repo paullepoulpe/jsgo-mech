@@ -211,7 +211,7 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if !propNode.isQualifiedName() {
 		return nil
 	}
-	var propName OptionalOf[string] = func() *Optional {
+	var propName OptionalOf[string] = func() Optional {
 		if propNode.isGetProp() {
 			return Optional_of(strobj_(propNode.getString()))
 		}

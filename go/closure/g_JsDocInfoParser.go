@@ -115,7 +115,7 @@ func (this *JsDocInfoParser) getSourceFile() StaticSourceFile {
 
 func (this *JsDocInfoParser) getSourceName() OptionalOf[string] {
 	var sourceFile StaticSourceFile = this.getSourceFile()
-	return func() *Optional {
+	return func() Optional {
 		if sourceFile == nil {
 			return Optional_empty()
 		}
@@ -768,7 +768,7 @@ func (this *JsDocInfoParser) parseAnnotation(token *JsDocToken, extendedTypes *T
 			if !this.match(JsDocToken_COLON) {
 				for do_3 := true; do_3; do_3 = this.eatIfMatch(JsDocToken_COMMA) {
 					var nameNode Node = this.parseNameExpression(this.next())
-					var templateName OptionalOf[string] = func() *Optional {
+					var templateName OptionalOf[string] = func() Optional {
 						if nameNode == 0 {
 							return Optional_empty()
 						}

@@ -383,7 +383,7 @@ func PureFunctionIdentifier_isCallOrTaggedTemplateLit(invocation Node) bool {
 }
 
 func PureFunctionIdentifier_nameForReference(nameRef Node) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		switch nameRef.getToken() {
 		case Token_rhino_NAME:
 			return Optional_of(strobj_(nameRef.getString()))

@@ -53,7 +53,7 @@ func (this *Outcome_base) error() *Throwable {
 }
 
 func (this *Outcome_base) errorMessage() OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if this.errorField == nil {
 			return Optional_empty()
 		}

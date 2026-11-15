@@ -299,7 +299,7 @@ func (this *NodeTraversal) getCompiler() *AbstractCompiler {
 
 func (this *NodeTraversal) getSourceName() OptionalOf[string] {
 	if this.sourceName_.isEmpty() {
-		this.sourceName_ = func() *Optional {
+		this.sourceName_ = func() Optional {
 			if this.currentScript != 0 {
 				return Optional_of(strobj_(this.currentScript.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
@@ -902,7 +902,7 @@ func (this *NodeTraversal) getInputId() *InputId {
 }
 
 func (this *NodeTraversal) getBestSourceFileName(n Node) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if n == 0 {
 			return this.getSourceName()
 		}

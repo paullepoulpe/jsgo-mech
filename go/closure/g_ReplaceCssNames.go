@@ -425,7 +425,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[str
 	Preconditions_checkNotNull_Object_String_Object(this.callNode_.getParent().box_(), "already replaced: %s", this.callNode_.box_())
 	var childCount int32 = this.callNode_.getChildCount()
 	var firstArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(this.callNode_.getSecondChild().box_(), this.callNode_.box_()))
-	return func() *Optional {
+	return func() Optional {
 		switch childCount {
 		case 2:
 			Preconditions_checkState_boolean_String_Object(firstArg.isStringLit(), "not a string literal: %s", firstArg.box_())

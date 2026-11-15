@@ -2670,7 +2670,7 @@ func (this *RegExpTree_1Parser) parseRepetition(body *RegExpTree) *RegExpTree {
 		var counts string = String_substring(this.cap_pattern, start, end)
 		this.pos = (end + 1)
 		var comma int32 = String_indexOf(counts, 44)
-		var parsedMin any = JSCompStrings_parseIntOrNull(func() *Optional {
+		var parsedMin any = JSCompStrings_parseIntOrNull(func() Optional {
 			if comma >= 0 {
 				return Optional_of(strobj_(String_substring(counts, 0, comma)))
 			}

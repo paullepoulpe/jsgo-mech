@@ -3,13 +3,13 @@
 package closure
 
 type RenamingMap interface {
-	get(string) *Optional
+	get(string) Optional
 }
 
 type RenamingMap_fn struct {
-	f func(string) *Optional
+	f func(string) Optional
 }
 
-func (this *RenamingMap_fn) get(p0 string) *Optional {
+func (this *RenamingMap_fn) get(p0 string) Optional {
 	return this.f(p0)
 }

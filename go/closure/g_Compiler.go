@@ -2382,7 +2382,7 @@ func (this *Compiler) addInputSourceMap_impl(sourceFileName string, inputSourceM
 
 func (this *Compiler) getBase64SourceMapContents_impl(sourceFileName OptionalOf[string]) OptionalOf[string] {
 	var sourceMapInput *SourceMapInput = cast_[*SourceMapInput](Map_getOrDefault_s(this.inputSourceMaps, str_(sourceFileName.orElse(nil)), nil))
-	var sourceMappingURL OptionalOf[string] = func() *Optional {
+	var sourceMappingURL OptionalOf[string] = func() Optional {
 		if sourceMapInput != nil {
 			return Optional_of(strobj_(sourceMapInput.getOriginalPath()))
 		}

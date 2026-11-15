@@ -83,7 +83,7 @@ func (this *Binding) isModuleNamespace() bool {
 	return this.isModuleNamespace_
 }
 
-func (this *Binding) closureNamespace() *Optional {
+func (this *Binding) closureNamespace() Optional {
 	return this.closureNamespace_
 }
 

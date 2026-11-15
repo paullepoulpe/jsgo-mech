@@ -94,7 +94,7 @@ func (this *Es6NormalizeClasses) shouldTraverse(t *NodeTraversal, n Node, parent
 		var scriptFeatures *FeatureSet = NodeUtil_getFeatureSetOfScript(n)
 		return (((((scriptFeatures == nil) || scriptFeatures.contains(FeatureSet_Feature_CLASSES)) || scriptFeatures.contains(FeatureSet_Feature_CLASS_STATIC_BLOCK)) || scriptFeatures.contains(FeatureSet_Feature_PUBLIC_CLASS_FIELDS)) || scriptFeatures.contains(FeatureSet_Feature_PRIVATE_ELEMENTS))
 	case Token_rhino_CLASS:
-		var bindingIdentifier OptionalOf[Node] = func() *Optional {
+		var bindingIdentifier OptionalOf[Node] = func() Optional {
 			if n.getFirstChild().isName() {
 				return Optional_of(n.getFirstChild().box_())
 			}
@@ -398,7 +398,7 @@ func (this *Es6NormalizeClasses) rewritePrivateIn(t *NodeTraversal, inNode Node)
 	var right Node = inNode.getLastChild().detach()
 	var record *Es6NormalizeClasses_ClassRecord = resolved.classRecord()
 	var isStatic bool = resolved.privateMember().isStatic
-	var mapVarName OptionalOf[string] = func() *Optional {
+	var mapVarName OptionalOf[string] = func() Optional {
 		if isStatic {
 			return record.getStaticPrivateMapVarName(this.compiler_, t)
 		}
@@ -430,7 +430,7 @@ func (this *Es6NormalizeClasses) rewritePrivateGetProp(t *NodeTraversal, getProp
 
 func (this *Es6NormalizeClasses) rewritePrivateMemberAccess(t *NodeTraversal, getPropNode Node, record *Es6NormalizeClasses_ClassRecord, pm *Es6NormalizeClasses_ClassRecord_PrivateMember, parent Node) {
 	var isStatic bool = pm.isStatic
-	var mapVarName OptionalOf[string] = func() *Optional {
+	var mapVarName OptionalOf[string] = func() Optional {
 		if isStatic {
 			return record.getStaticPrivateMapVarName(this.compiler_, t)
 		}
@@ -1231,7 +1231,7 @@ func (this *Es6NormalizeClasses) generateNormalizedClassNames(t *NodeTraversal, 
 		var name string = this.generateUniqueClassExtendsVarName(t)
 		superClass = Optional_of(this.astFactory_.createName(name, AstFactory_type_Node(extendsClause)).box_())
 	} else {
-		superClass = func() *Optional {
+		superClass = func() Optional {
 			if extendsClause.isEmpty() {
 				return Optional_empty()
 			}
@@ -1653,7 +1653,7 @@ func (this *Es6NormalizeClasses_NormalizedNames) classNameNode() Node {
 	return this.classNameNode_
 }
 
-func (this *Es6NormalizeClasses_NormalizedNames) superClassNode() *Optional {
+func (this *Es6NormalizeClasses_NormalizedNames) superClassNode() Optional {
 	return this.superClassNode_
 }
 

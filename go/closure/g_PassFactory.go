@@ -130,7 +130,7 @@ func (this *PassFactory_PreconditionResult) success() bool {
 	return this.success_
 }
 
-func (this *PassFactory_PreconditionResult) message() *Optional {
+func (this *PassFactory_PreconditionResult) message() Optional {
 	return this.message_
 }
 

@@ -3,10 +3,10 @@
 package closure
 
 type SourceExcerptProvider interface {
-	getSourceLine(*Optional, int32) *Optional
-	getSourceLines(*Optional, int32, int32) Region
-	getSourceRegion(*Optional, int32) Region
-	getSourceMapping_Optional_int_int(*Optional, int32, int32) *Mapping_OriginalMapping
+	getSourceLine(Optional, int32) Optional
+	getSourceLines(Optional, int32, int32) Region
+	getSourceRegion(Optional, int32) Region
+	getSourceMapping_Optional_int_int(Optional, int32, int32) *Mapping_OriginalMapping
 }
 
 type SourceExcerptProvider_SourceExcerpt struct {
@@ -55,9 +55,9 @@ func (this *SourceExcerptProvider_SourceExcerpt) get(source SourceExcerptProvide
 	return this.get_5(source, sourceName, lineNumber, -1, formatter)
 }
 
-func (this *SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 *Optional, p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) *Optional {
+func (this *SourceExcerptProvider_SourceExcerpt) get_5(p0 SourceExcerptProvider, p1 Optional, p2 int32, p3 int32, p4 SourceExcerptProvider_ExcerptFormatter) Optional {
 	return this.self_.(interface {
-		get_5_impl(SourceExcerptProvider, *Optional, int32, int32, SourceExcerptProvider_ExcerptFormatter) *Optional
+		get_5_impl(SourceExcerptProvider, Optional, int32, int32, SourceExcerptProvider_ExcerptFormatter) Optional
 	}).get_5_impl(p0, p1, p2, p3, p4)
 }
 
@@ -95,8 +95,8 @@ func SourceExcerptProvider_SourceExcerpt_clinit() {
 }
 
 type SourceExcerptProvider_ExcerptFormatter interface {
-	formatLine(*Optional, int32) *Optional
-	formatRegion(Region) *Optional
+	formatLine(Optional, int32) Optional
+	formatRegion(Region) Optional
 }
 
 type SourceExcerptProvider_SourceExcerpt_1 struct {

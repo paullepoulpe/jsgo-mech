@@ -170,7 +170,7 @@ func (this *MakeDeclaredNamesUnique_Builder) build() *MakeDeclaredNamesUnique {
 
 type MakeDeclaredNamesUnique_Renamer interface {
 	addDeclaredName(string, bool)
-	getReplacementName(string) *Optional
+	getReplacementName(string) Optional
 	stripConstIfReplaced() bool
 	createForChildScope(Node, bool) MakeDeclaredNamesUnique_Renamer
 	getHoistRenamer() MakeDeclaredNamesUnique_Renamer
@@ -670,7 +670,7 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name stri
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenamer) getReplacementName(oldName string) OptionalOf[string] {
-	return cast_[*Optional](Map_getOrDefault_s(this.declarations, oldName, obj_(Optional_empty())))
+	return cast_[Optional](Map_getOrDefault_s(this.declarations, oldName, obj_(Optional_empty())))
 }
 
 func MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name string, id int32) string {
@@ -837,7 +837,7 @@ func (this *MakeDeclaredNamesUnique_TargettedRenamer) addDeclaredName(name strin
 }
 
 func (this *MakeDeclaredNamesUnique_TargettedRenamer) getReplacementName(oldName string) OptionalOf[string] {
-	return func() *Optional {
+	return func() Optional {
 		if this.targets.contains(oldName) {
 			return this.delegate.getReplacementName(oldName)
 		}
