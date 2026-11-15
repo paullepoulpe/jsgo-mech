@@ -1116,13 +1116,18 @@ final class Ctx {
   }
 
   String goSig(List<TypeMirror> params, TypeMirror ret) {
+    return goSig(params, ret, false);
+  }
+
+  /** goSig; with decl, parameterized library types are spelled through their aliases (declType). */
+  String goSig(List<TypeMirror> params, TypeMirror ret, boolean decl) {
     StringBuilder sb = new StringBuilder("(");
     for (int i = 0; i < params.size(); i++) {
       if (i > 0) sb.append(", ");
-      sb.append(goType(params.get(i)));
+      sb.append(decl ? declType(params.get(i)) : goType(params.get(i)));
     }
     sb.append(")");
-    String r = goType(ret);
+    String r = decl ? declType(ret) : goType(ret);
     if (!r.isEmpty()) sb.append(" ").append(r);
     return sb.toString();
   }

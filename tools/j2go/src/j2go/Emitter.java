@@ -106,7 +106,7 @@ final class Emitter extends StmtEmitter {
       if (!Ctx.isInstanceMethod(e) || e.getModifiers().contains(Modifier.PRIVATE)) continue;
       ExecutableElement m = (ExecutableElement) e;
       if (rootIsObject(m)) continue;
-      sb.append("\t").append(cx.methodName(m)).append(cx.goSig(cx.groupParams(m), cx.groupReturn(m))).append("\n");
+      sb.append("\t").append(cx.methodName(m)).append(cx.goSig(cx.groupParams(m), cx.groupReturn(m), true)).append("\n");
     }
     sb.append("}\n\n");
     file.append(sb);
@@ -155,13 +155,13 @@ final class Emitter extends StmtEmitter {
     StringBuilder sb = new StringBuilder("(");
     for (int i = 0; i < ps.size(); i++) {
       if (i > 0) sb.append(", ");
-      sb.append("p").append(i).append(" ").append(cx.goType(ps.get(i)));
+      sb.append("p").append(i).append(" ").append(cx.declType(ps.get(i)));
     }
     return sb.append(")").toString();
   }
 
   String retSuffix(TypeMirror ret) {
-    String r = cx.goType(ret);
+    String r = cx.declType(ret);
     return r.isEmpty() ? "" : " " + r;
   }
 
@@ -583,7 +583,10 @@ final class Emitter extends StmtEmitter {
       b.append("panic(\"unreachable\")\n");
     }
     String own = cx.initGuards && isStatic && cx.hasClinit(te) ? n + "_clinit()\n" : "";
-    file.append(head).append(retSuffix(ret)).append(" {\n").append(indent(own + guards() + finish(b.toString()), "\t")).append("\n}\n\n");
+    // The method's own return type where it is the same Go type: its type arguments are the precise ones.
+    TypeMirror own_ = cx.erase(e.getReturnType());
+    String rs = !mc.isVoid && cx.goType(own_).equals(cx.goType(ret)) ? " " + cx.declType(e.getReturnType()) : retSuffix(ret);
+    file.append(head).append(rs).append(" {\n").append(indent(own + guards() + finish(b.toString()), "\t")).append("\n}\n\n");
     mc = null;
   }
 
