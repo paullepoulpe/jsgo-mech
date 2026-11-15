@@ -8,13 +8,17 @@ import (
 // varMap_ is a LinkedHashMap<Var, V> (post-flip manual step): insertion order, keyed by
 // what Var.equals compares (ScopedName: the name and the scope root), so a lookup compares
 // a string and a handle instead of calling ScopedName.hashCode and equals through an
-// interface. Up to tsmall_ entries it is searched linearly; above, a Go map indexes it.
+// interface. Up to varSmall_ entries it is searched linearly (a key compares a string and a
+// handle); above, a Go map indexes it. The threshold is higher than the runtime tables' because
+// data-flow analysis copies these maps at every step, and a copy must clone the index.
 type varMap_[V any] struct {
 	keys []varKey_
 	vars []*Var
 	vals []V
 	idx  map[varKey_]int32
 }
+
+const varSmall_ = 32
 
 type varKey_ struct {
 	name string
@@ -67,7 +71,7 @@ func (m *varMap_[V]) put(v *Var, x V) {
 	m.vals = append(m.vals, x)
 	if m.idx != nil {
 		m.idx[k] = int32(len(m.keys) - 1)
-	} else if len(m.keys) > tsmall_ {
+	} else if len(m.keys) > varSmall_ {
 		m.idx = make(map[varKey_]int32, len(m.keys))
 		for i, x := range m.keys {
 			m.idx[x] = int32(i)
