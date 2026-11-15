@@ -15,7 +15,7 @@ gate() {
   fi
   echo "$1: gates pass"
 }
-commit() { git add -A go/closure tools/postflip; git add -f go/closure/g_zconv_*.go 2>/dev/null || true; git commit -q -m "$1$trailer"; git log --oneline -1; }
+commit() { git add -A go/closure tools/postflip; git add -f go/closure/g_zconv_*.go 2>/dev/null || true; git commit -q -m "$(printf "%s" "$1" | sed "1a\\\\")$trailer"; git log --oneline -1; }
 
 cp "$rt/rt_tlist.go" "$rt/rt_tmap.go" go/closure/
 out=$(cd $P && go run ./colls -kind list ../../go/closure 2>&1 | grep become); echo "$out"; gate "step 3"
