@@ -26,8 +26,6 @@ type Node_ps_ struct {
 	originalName  string
 	propListHead  *Node_PropListItem
 	payload       any
-	payload_s_    string
-	propMask_     uint64 // bit i set when the property list has an item of Prop ordinal i
 }
 
 var Node_ps_chunks_ [handleChunks_]*[handleChunkSize_]Node_ps_
@@ -36,26 +34,40 @@ func (this Node) ps_() *Node_ps_ {
 	return &Node_ps_chunks_[this>>handleShift_][uint16(this)]
 }
 
+// The string payload and the property mask are columns of their own: they are
+// read on most nodes a pass looks at (names, property names, property checks),
+// so they are kept dense rather than inside the larger Node_ps_ record.
+var Node_str_chunks_ [handleChunks_]*[handleChunkSize_]string
+
+func (this Node) str_() *string {
+	return &Node_str_chunks_[this>>handleShift_][uint16(this)]
+}
+
+// bit i set when the property list has an item of Prop ordinal i
+var Node_pm_chunks_ [handleChunks_]*[handleChunkSize_]uint64
+
+func (this Node) pm_() *uint64 {
+	return &Node_pm_chunks_[this>>handleShift_][uint16(this)]
+}
+
 func (this Node) payload_get_() any {
-	p := this.ps_()
-	if p.payload_s_ != nullstr_ {
-		return p.payload_s_
+	if s := *this.str_(); s != nullstr_ {
+		return s
 	}
-	return p.payload
+	return this.ps_().payload
 }
 
 func (this Node) payload_set_(v any) {
 	p := this.ps_()
 	if s, ok := v.(string); ok {
-		p.payload_s_, p.payload = s, nil
+		*this.str_(), p.payload = s, nil
 	} else {
-		p.payload_s_, p.payload = nullstr_, v
+		*this.str_(), p.payload = nullstr_, v
 	}
 }
 
 func (this Node) payload_sets_(s string) {
-	p := this.ps_()
-	p.payload_s_, p.payload = s, nil
+	*this.str_(), this.ps_().payload = s, nil
 }
 
 func (this Node) payload_str_() string {
@@ -63,12 +75,12 @@ func (this Node) payload_str_() string {
 	if p.payload != nil {
 		return str_(p.payload)
 	}
-	return p.payload_s_
+	return *this.str_()
 }
 
 func (this Node) payload_copy_(o Node) {
 	p, q := this.ps_(), o.ps_()
-	p.payload_s_, p.payload = q.payload_s_, q.payload
+	*this.str_(), p.payload = *o.str_(), q.payload
 }
 
 var Node_count_ uint32 = handleChunkSize_
@@ -79,6 +91,8 @@ func Node_alloc_() Node {
 		handleGrow_(h)
 		Node_ns_chunks_[h>>handleShift_] = new([handleChunkSize_]Node_ns_)
 		Node_ps_chunks_[h>>handleShift_] = new([handleChunkSize_]Node_ps_)
+		Node_str_chunks_[h>>handleShift_] = new([handleChunkSize_]string)
+		Node_pm_chunks_[h>>handleShift_] = new([handleChunkSize_]uint64)
 	}
 	Node_count_ = h + 1
 	Node(h).ns_().self_ = h
@@ -149,7 +163,7 @@ func init() {
 
 func (this Node) zero_Node() {
 	this.ps_().originalName = nullstr_
-	this.ps_().payload_s_ = nullstr_
+	(*this.str_()) = nullstr_
 }
 
 func (this Node) finit_Node() {
@@ -628,11 +642,10 @@ func (this Node) detachChildren() {
 
 func (this Node) lookupProperty(prop *Node_Prop) *Node_PropListItem {
 	var propType int8 = int8(prop.ordinal())
-	ps := this.ps_()
-	if ps.propMask_&(1<<uint(propType)) == 0 { // most lookups are of properties a node does not have
+	if *this.pm_()&(1<<uint(propType)) == 0 { // most lookups are of properties a node does not have
 		return nil
 	}
-	var x *Node_PropListItem = ps.propListHead
+	var x *Node_PropListItem = this.ps_().propListHead
 	for (x != nil) && (propType != x.propType) {
 		x = x.next_
 	}
@@ -1042,11 +1055,11 @@ func (this Node) setBigInt(number *BigInteger) {
 }
 
 func (this Node) hasStringPayload() bool {
-	return (this.ps_().payload_s_ != nullstr_)
+	return ((*this.str_()) != nullstr_)
 }
 
 func (this Node) getString() string {
-	str := this.ps_().payload_s_
+	str := (*this.str_())
 	if str == nullstr_ {
 		panic(this.payloadKindMismatch("string").self())
 	}
@@ -1054,14 +1067,14 @@ func (this Node) getString() string {
 }
 
 func (this Node) setString(str string) {
-	if !(this.ps_().payload_s_ != nullstr_) {
+	if !((*this.str_()) != nullstr_) {
 		panic(this.payloadKindMismatch("string").self())
 	}
 	this.payload_sets_(RhinoStringPool_addOrGet(str))
 }
 
 func (this Node) setStringFromStringPool(stringPool *RhinoStringPool_LazyInternedStringList, offset int32) {
-	if !(this.ps_().payload_s_ != nullstr_) {
+	if !((*this.str_()) != nullstr_) {
 		panic(this.payloadKindMismatch("string").self())
 	}
 	this.payload_sets_(stringPool.get(offset))
@@ -1115,7 +1128,7 @@ func (this Node) toString_3(printSource bool, printAnnotations bool, printType b
 
 func (this Node) toString_4(sb *StringBuilder, printSource bool, printAnnotations bool, printType bool) {
 	sb.append_Object(obj_(Token_rhino_byOrd1_[this.ns_().token]))
-	if this.ps_().payload_s_ != nullstr_ {
+	if (*this.str_()) != nullstr_ {
 		sb.append_char(' ')
 		sb.append(this.getString())
 	} else if this.ns_().token == tokOrd1_FUNCTION {
@@ -1182,7 +1195,7 @@ func Node_createJsonPairRawValue(name string, value string) string {
 func (this Node) toJson(sb Appendable) {
 	sb.append_char('{')
 	sb.append_CharSequence(strobj_(Node_createJsonPair("token", Object_toString(obj_(Token_rhino_byOrd1_[this.ns_().token])))))
-	if this.ps_().payload_s_ != nullstr_ {
+	if (*this.str_()) != nullstr_ {
 		sb.append_char(',')
 		sb.append_CharSequence(strobj_(Node_createJsonPair("string", this.getString())))
 	} else if this.ns_().token == tokOrd1_FUNCTION {
@@ -1782,7 +1795,7 @@ func (this Node) isEquivalentTo_5(node Node, recursion *Node_RecursionMode, type
 	var str string
 	_ = str
 	if func() bool {
-		v_ := this.ps_().payload_s_
+		v_ := (*this.str_())
 		if v_ == nullstr_ {
 			return false
 		}
@@ -2433,20 +2446,20 @@ func (this Node) setInferredConstantVar(value bool) {
 }
 
 func (this Node) isQuotedStringKey() bool {
-	return ((this.ps_().payload_s_ != nullstr_) && this.getBooleanProp(Node_Prop_QUOTED))
+	return (((*this.str_()) != nullstr_) && this.getBooleanProp(Node_Prop_QUOTED))
 }
 
 func (this Node) setQuotedStringKey() {
-	Preconditions_checkState_boolean_Object((this.ps_().payload_s_ != nullstr_), this.box_())
+	Preconditions_checkState_boolean_Object(((*this.str_()) != nullstr_), this.box_())
 	this.putBooleanProp(Node_Prop_QUOTED, true)
 }
 
 func (this Node) isPrivateIdentifier() bool {
-	return ((this.ps_().payload_s_ != nullstr_) && this.getBooleanProp(Node_Prop_PRIVATE_IDENTIFIER))
+	return (((*this.str_()) != nullstr_) && this.getBooleanProp(Node_Prop_PRIVATE_IDENTIFIER))
 }
 
 func (this Node) setPrivateIdentifier() {
-	Preconditions_checkState_boolean_Object((this.ps_().payload_s_ != nullstr_), this.box_())
+	Preconditions_checkState_boolean_Object(((*this.str_()) != nullstr_), this.box_())
 	Preconditions_checkState(String_startsWith(this.getString(), "#"))
 	this.putBooleanProp(Node_Prop_PRIVATE_IDENTIFIER, true)
 }
@@ -3796,7 +3809,7 @@ func (this Node) setPropList_(head *Node_PropListItem) {
 	for x := head; x != nil; x = x.next_ {
 		m |= 1 << uint(x.propType)
 	}
-	ps.propMask_ = m
+	*this.pm_() = m
 }
 
 // getIntValue: an object that is exactly a Node_ObjectPropListItem calls its getIntValue_impl directly (post-flip); others dispatch.
