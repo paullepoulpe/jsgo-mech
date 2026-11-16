@@ -133,14 +133,14 @@ func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.originalRoot_.box_(), o.originalRoot_.box_()) && Objects_equals(this.callNode_.box_(), o.callNode_.box_()) && Objects_equals(this.script_.box_(), o.script_.box_())
+	return true && this.originalRoot_ == o.originalRoot_ && this.callNode_ == o.callNode_ && this.script_ == o.script_
 }
 
 func (this *TranspileAndOptimizeClosureUnaware_ShadowAst) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.originalRoot_.box_())
-	h = h*31 + Objects_hashCode(this.callNode_.box_())
-	h = h*31 + Objects_hashCode(this.script_.box_())
+	h = h*31 + objhashId_(this.originalRoot_)
+	h = h*31 + objhashId_(this.callNode_)
+	h = h*31 + objhashId_(this.script_)
 	return h
 }
 

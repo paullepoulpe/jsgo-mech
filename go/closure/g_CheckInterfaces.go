@@ -76,7 +76,7 @@ func CheckInterfaces_checkClassMethods(t *NodeTraversal, classNode Node, ctorDef
 	{
 		var memberFuncDef Node = classMembers.getFirstChild()
 		for ; memberFuncDef != 0; memberFuncDef = memberFuncDef.getNext() {
-			if Object_equals(memberFuncDef.box_(), ctorDef.box_()) {
+			if equalsId_(memberFuncDef, ctorDef) {
 				continue
 			}
 			if memberFuncDef.isStaticMember() {

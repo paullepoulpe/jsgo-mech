@@ -379,16 +379,16 @@ func (this *ReplaceMessages_MsgProtectionData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.message_), obj_(o.message_)) && Objects_equals(this.messageNode_.box_(), o.messageNode_.box_()) && Objects_equals(this.templateTextNode_.box_(), o.templateTextNode_.box_()) && Objects_equals(this.placeholderValuesNode_.box_(), o.placeholderValuesNode_.box_()) && Objects_equals(obj_(this.messageOptions_), obj_(o.messageOptions_))
+	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && this.templateTextNode_ == o.templateTextNode_ && this.placeholderValuesNode_ == o.placeholderValuesNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals)
 }
 
 func (this *ReplaceMessages_MsgProtectionData) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.message_))
-	h = h*31 + Objects_hashCode(this.messageNode_.box_())
-	h = h*31 + Objects_hashCode(this.templateTextNode_.box_())
-	h = h*31 + Objects_hashCode(this.placeholderValuesNode_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.messageOptions_))
+	h = h*31 + objhashBy_(this.message_, (*JsMessage).hashCode)
+	h = h*31 + objhashId_(this.messageNode_)
+	h = h*31 + objhashId_(this.templateTextNode_)
+	h = h*31 + objhashId_(this.placeholderValuesNode_)
+	h = h*31 + objhashBy_(this.messageOptions_, (*ReplaceMessages_MsgOptions).hashCode)
 	return h
 }
 
@@ -691,15 +691,15 @@ func (this *ReplaceMessages_FullReplacementMsgData) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.message_), obj_(o.message_)) && Objects_equals(this.messageNode_.box_(), o.messageNode_.box_()) && Objects_equals(obj_(this.messageOptions_), obj_(o.messageOptions_)) && Objects_equals(obj_(this.placeholderValueMap_), obj_(o.placeholderValueMap_))
+	return true && objequalsBy_(this.message_, obj_(o.message_), (*JsMessage).equals) && this.messageNode_ == o.messageNode_ && objequalsBy_(this.messageOptions_, obj_(o.messageOptions_), (*ReplaceMessages_MsgOptions).equals) && objequalsBy_(this.placeholderValueMap_, obj_(o.placeholderValueMap_), (ImmutableMapOf[string, Node]).equals)
 }
 
 func (this *ReplaceMessages_FullReplacementMsgData) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.message_))
-	h = h*31 + Objects_hashCode(this.messageNode_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.messageOptions_))
-	h = h*31 + Objects_hashCode(obj_(this.placeholderValueMap_))
+	h = h*31 + objhashBy_(this.message_, (*JsMessage).hashCode)
+	h = h*31 + objhashId_(this.messageNode_)
+	h = h*31 + objhashBy_(this.messageOptions_, (*ReplaceMessages_MsgOptions).hashCode)
+	h = h*31 + objhashBy_(this.placeholderValueMap_, (ImmutableMapOf[string, Node]).hashCode)
 	return h
 }
 
@@ -844,9 +844,9 @@ func (this *ReplaceMessages_MsgOptions) equals(p0 any) bool {
 
 func (this *ReplaceMessages_MsgOptions) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.isIcuTemplate_)))
-	h = h*31 + Objects_hashCode(any(bool(this.escapeLessThan_)))
-	h = h*31 + Objects_hashCode(any(bool(this.unescapeHtmlEntities_)))
+	h = h*31 + Boolean_hashCode(bool(this.isIcuTemplate_))
+	h = h*31 + Boolean_hashCode(bool(this.escapeLessThan_))
+	h = h*31 + Boolean_hashCode(bool(this.unescapeHtmlEntities_))
 	return h
 }
 

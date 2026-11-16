@@ -1496,8 +1496,8 @@ func (this *FunctionType_Parameter) equals(p0 any) bool {
 func (this *FunctionType_Parameter) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(this.getJSType_.self())
-	h = h*31 + Objects_hashCode(any(bool(this.isOptional_)))
-	h = h*31 + Objects_hashCode(any(bool(this.isVariadic_)))
+	h = h*31 + Boolean_hashCode(bool(this.isOptional_))
+	h = h*31 + Boolean_hashCode(bool(this.isVariadic_))
 	return h
 }
 

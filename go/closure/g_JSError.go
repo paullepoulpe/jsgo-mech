@@ -189,20 +189,20 @@ func (this *JSError) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.type__), obj_(o.type__)) && this.description_ == o.description_ && Objects_equals(obj_(optErase_(this.sourceName_)), obj_(optErase_(o.sourceName_))) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && Objects_equals(this.node_.box_(), o.node_.box_()) && Objects_equals(obj_(this.defaultLevel_), obj_(o.defaultLevel_)) && Objects_equals(obj_(this.requirement_), obj_(o.requirement_))
+	return true && objequalsBy_(this.type__, obj_(o.type__), (*DiagnosticType).equals) && this.description_ == o.description_ && Objects_equals(obj_(optErase_(this.sourceName_)), obj_(optErase_(o.sourceName_))) && this.lineno_ == o.lineno_ && this.charno_ == o.charno_ && this.length_ == o.length_ && this.node_ == o.node_ && Objects_equals(obj_(this.defaultLevel_), obj_(o.defaultLevel_)) && objequalsBy_(this.requirement_, obj_(o.requirement_), (*Requirement).equals)
 }
 
 func (this *JSError) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.type__))
-	h = h*31 + Objects_hashCode(strobj_(this.description_))
+	h = h*31 + objhashBy_(this.type__, (*DiagnosticType).hashCode)
+	h = h*31 + objhashStr_(this.description_)
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.sourceName_)))
-	h = h*31 + Objects_hashCode(any(int32(this.lineno_)))
-	h = h*31 + Objects_hashCode(any(int32(this.charno_)))
-	h = h*31 + Objects_hashCode(any(int32(this.length_)))
-	h = h*31 + Objects_hashCode(this.node_.box_())
+	h = h*31 + int32(this.lineno_)
+	h = h*31 + int32(this.charno_)
+	h = h*31 + int32(this.length_)
+	h = h*31 + objhashId_(this.node_)
 	h = h*31 + Objects_hashCode(obj_(this.defaultLevel_))
-	h = h*31 + Objects_hashCode(obj_(this.requirement_))
+	h = h*31 + objhashBy_(this.requirement_, (*Requirement).hashCode)
 	return h
 }
 

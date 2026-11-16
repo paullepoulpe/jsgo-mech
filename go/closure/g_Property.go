@@ -261,7 +261,7 @@ func (this *Property_StringKey) equals(p0 any) bool {
 
 func (this *Property_StringKey) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.string_))
+	h = h*31 + objhashStr_(this.string_)
 	return h
 }
 
@@ -309,12 +309,12 @@ func (this *Property_SymbolKey) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.symbol_), obj_(o.symbol_))
+	return true && objequalsBy_(this.symbol_, obj_(o.symbol_), (*KnownSymbolType).equals)
 }
 
 func (this *Property_SymbolKey) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.symbol_))
+	h = h*31 + objhashBy_(this.symbol_, (*KnownSymbolType).hashCode)
 	return h
 }
 

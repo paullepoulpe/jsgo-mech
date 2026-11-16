@@ -1528,8 +1528,8 @@ func (this *IRFactory_LineAndColumn) equals(p0 any) bool {
 
 func (this *IRFactory_LineAndColumn) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(int32(this.lineNo_)))
-	h = h*31 + Objects_hashCode(any(int32(this.column_)))
+	h = h*31 + int32(this.lineNo_)
+	h = h*31 + int32(this.column_)
 	return h
 }
 

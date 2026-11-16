@@ -522,13 +522,13 @@ func (this *FunctionArgumentInjector_ParamArgPair) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.paramNode_.box_(), o.paramNode_.box_()) && Objects_equals(this.arg_.box_(), o.arg_.box_())
+	return true && this.paramNode_ == o.paramNode_ && this.arg_ == o.arg_
 }
 
 func (this *FunctionArgumentInjector_ParamArgPair) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.paramNode_.box_())
-	h = h*31 + Objects_hashCode(this.arg_.box_())
+	h = h*31 + objhashId_(this.paramNode_)
+	h = h*31 + objhashId_(this.arg_)
 	return h
 }
 

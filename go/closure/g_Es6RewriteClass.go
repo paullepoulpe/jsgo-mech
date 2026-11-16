@@ -414,15 +414,15 @@ func (this *Es6RewriteClass_ClassProperty) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.propertyKey_ == o.propertyKey_ && Objects_equals(obj_(this.kind_), obj_(o.kind_)) && Objects_equals(obj_(this.jsDocInfo_), obj_(o.jsDocInfo_)) && Objects_equals(obj_(this.propertyType_), obj_(o.propertyType_))
+	return true && this.propertyKey_ == o.propertyKey_ && Objects_equals(obj_(this.kind_), obj_(o.kind_)) && this.jsDocInfo_ == o.jsDocInfo_ && objequalsBy_(this.propertyType_, obj_(o.propertyType_), (*Color).equals)
 }
 
 func (this *Es6RewriteClass_ClassProperty) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.propertyKey_))
+	h = h*31 + objhashStr_(this.propertyKey_)
 	h = h*31 + Objects_hashCode(obj_(this.kind_))
-	h = h*31 + Objects_hashCode(obj_(this.jsDocInfo_))
-	h = h*31 + Objects_hashCode(obj_(this.propertyType_))
+	h = h*31 + objhashId_(this.jsDocInfo_)
+	h = h*31 + objhashBy_(this.propertyType_, (*Color).hashCode)
 	return h
 }
 

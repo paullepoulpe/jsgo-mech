@@ -47,7 +47,7 @@ func (this *ExportTrace) equals(p0 any) bool {
 func (this *ExportTrace) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(this.module_.self())
-	h = h*31 + Objects_hashCode(strobj_(this.exportName_))
+	h = h*31 + objhashStr_(this.exportName_)
 	return h
 }
 

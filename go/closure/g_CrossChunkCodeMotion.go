@@ -208,7 +208,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCollector) processDeclarationStatem
 	for it_1.next() {
 		var ref *Reference = it_1.v
 		var refSymbol *CrossChunkCodeMotion_GlobalSymbol = this.getGlobalSymbol(cast_[*Var](ref.getSymbol()))
-		if Object_equals(obj_(refSymbol), obj_(declaredSymbol)) {
+		if equalsId_(refSymbol, declaredSymbol) {
 			continue
 		}
 		if this.outer_.parentChunkCanSeeSymbolsDeclaredInChildren {
@@ -286,7 +286,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbol) addDeclarationStatement(statement
 		this.dsgStack.push(obj_(lastDsg))
 	}
 	var statementDsg *CrossChunkCodeMotion_DeclarationStatementGroup
-	if Object_equals(obj_(chunk), obj_(lastDsg.currentChunk)) {
+	if equalsId_(chunk, lastDsg.currentChunk) {
 		statementDsg = lastDsg
 	} else {
 		statementDsg = new_CrossChunkCodeMotion_DeclarationStatementGroup(this, chunk)
@@ -304,7 +304,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbol) declarationsCoverChunk(chunk *JSC
 	it_1 := foreach_(any(this.dsgStack))
 	for it_1.next() {
 		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](it_1.v)
-		if Object_equals(obj_(chunk), obj_(dsg.currentChunk)) || this.outer_.graph.dependsOn(chunk, dsg.currentChunk) {
+		if equalsId_(chunk, dsg.currentChunk) || this.outer_.graph.dependsOn(chunk, dsg.currentChunk) {
 			return true
 		}
 	}
@@ -363,7 +363,7 @@ func (this *CrossChunkCodeMotion_GlobalSymbolCycle) getDsgCyclesLatestFirst() []
 	it_1 := foreach_(any(dsgsLatestFirst))
 	for it_1.next() {
 		var dsg *CrossChunkCodeMotion_DeclarationStatementGroup = cast_[*CrossChunkCodeMotion_DeclarationStatementGroup](it_1.v)
-		if (cycle == nil) || !Object_equals(obj_(cycle.currentChunk), obj_(dsg.currentChunk)) {
+		if (cycle == nil) || !equalsId_(cycle.currentChunk, dsg.currentChunk) {
 			cycle = new_CrossChunkCodeMotion_DeclarationStatementGroupCycle(this.outer_, dsg.currentChunk)
 			cyclesLatestFirst = append(cyclesLatestFirst, cycle)
 		}
@@ -514,11 +514,11 @@ func (this *CrossChunkCodeMotion_OrderAndCombineGlobalSymbols) processGlobalSymb
 			}
 		}
 	}
-	if Object_equals(obj_(slicePeekTop_(tc_p_CrossChunkCodeMotion_GlobalSymbol, this.componentRoots)), obj_(symbol)) {
+	if equalsId_(slicePeekTop_(tc_p_CrossChunkCodeMotion_GlobalSymbol, this.componentRoots), symbol) {
 		slicePop_(tc_p_CrossChunkCodeMotion_GlobalSymbol, &this.componentRoots)
 		var cycle *CrossChunkCodeMotion_GlobalSymbolCycle = new_CrossChunkCodeMotion_GlobalSymbolCycle(this.outer_)
 		var connectedSymbol *CrossChunkCodeMotion_GlobalSymbol
-		for do_5 := true; do_5; do_5 = !Object_equals(obj_(connectedSymbol), obj_(symbol)) {
+		for do_5 := true; do_5; do_5 = !equalsId_(connectedSymbol, symbol) {
 			connectedSymbol = slicePop_(tc_p_CrossChunkCodeMotion_GlobalSymbol, &this.componentContents)
 			cycle.addSymbol(connectedSymbol)
 			connectedSymbol.hasBeenAssignedToAStronglyConnectedComponent = true
@@ -547,7 +547,7 @@ func new_CrossChunkCodeMotion_DeclarationStatementGroupCycle(outer_ *CrossChunkC
 
 func (this *CrossChunkCodeMotion_DeclarationStatementGroupCycle) moveToPreferredChunk(chunksWithImmovableReferences *BitSet) {
 	var preferredChunk *JSChunk = this.getPreferredChunk(chunksWithImmovableReferences)
-	if !Object_equals(obj_(preferredChunk), obj_(this.currentChunk)) {
+	if !equalsId_(preferredChunk, this.currentChunk) {
 		if this.outer_.cccmLog.isLogging() {
 			this.outer_.cccmLog.logString("start DSG Cycle move")
 			for _, globalSymbolName := range this.getGlobalSymbolNames() {

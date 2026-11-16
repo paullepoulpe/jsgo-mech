@@ -44,7 +44,7 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	if this.mapping != nil {
 		var sourceMapping *Mapping_OriginalMapping = this.mapping.getSourceMapping_Optional_int_int(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
-		} else if Object_equals(obj_(sourceMapping), obj_(Mapping_OriginalMapping_getDefaultInstance())) {
+		} else if equalsBy_(sourceMapping, obj_(Mapping_OriginalMapping_getDefaultInstance()), (*Mapping_OriginalMapping).equals) {
 			return
 		} else {
 			sourceFileName = Optional_ofNullable[string](sourceMapping.getOriginalFile())

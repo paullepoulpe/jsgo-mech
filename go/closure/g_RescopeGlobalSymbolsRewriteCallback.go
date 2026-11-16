@@ -482,7 +482,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) declareLocalAliasesAndWrappersF
 			var name string = str_(it_1.v)
 			var assignmentChunk *JSChunk = wrapperAssignmentChunks[name]
 			var usingChunks SetOf[*JSChunk] = this.chunksUsingWrappedReassignableSymbols[name]
-			if Object_equals(obj_(chunk), obj_(assignmentChunk)) {
+			if equalsId_(chunk, assignmentChunk) {
 				if (usingChunks != nil) && usingChunks.contains(obj_(chunk)) {
 					RescopeGlobalSymbolsRewriteCallback_addDeclaration(script, insertionPoint, IR_var_Node_Node(IR_name(name), IR_assign(IR_getprop_Node_String(IR_name(this.symbolInfo.globalSymbolNamespace()), name), IR_objectlit([]Node{}))))
 				} else {
@@ -561,7 +561,7 @@ func (this *RescopeGlobalSymbolsRewriteCallback) canDeleteFromGlobalNamespace(cu
 	it_1 := foreach_(any(usingChunks))
 	for it_1.next() {
 		var otherChunk *JSChunk = cast_[*JSChunk](it_1.v)
-		if !Object_equals(obj_(otherChunk), obj_(currentChunk)) && !chunkGraph.dependsOn(currentChunk, otherChunk) {
+		if !equalsId_(otherChunk, currentChunk) && !chunkGraph.dependsOn(currentChunk, otherChunk) {
 			return false
 		}
 	}

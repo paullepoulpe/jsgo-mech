@@ -66,7 +66,7 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		this.hasSuper[t.getEnclosingFunction()] = struct{}{}
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
-	} else if Object_equals(n.box_(), slicePeekTop_(tc_Node, this.tryFunctionStack).box_()) {
+	} else if equalsId_(n, slicePeekTop_(tc_Node, this.tryFunctionStack)) {
 		slicePop_(tc_Node, &this.tryFunctionStack)
 		if has_(this.alreadyInstrumented, n) {
 			return
@@ -465,16 +465,16 @@ func (this *InstrumentAsyncContext_FunctionContext) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.uniqueSuffix_ == o.uniqueSuffix_ && Objects_equals(this.suspendName_.box_(), o.suspendName_.box_()) && Objects_equals(this.resumeName_.box_(), o.resumeName_.box_()) && Objects_equals(this.factoryName_.box_(), o.factoryName_.box_()) && Objects_equals(obj_(this.astFactory_), obj_(o.astFactory_))
+	return true && this.uniqueSuffix_ == o.uniqueSuffix_ && this.suspendName_ == o.suspendName_ && this.resumeName_ == o.resumeName_ && this.factoryName_ == o.factoryName_ && this.astFactory_ == o.astFactory_
 }
 
 func (this *InstrumentAsyncContext_FunctionContext) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.uniqueSuffix_))
-	h = h*31 + Objects_hashCode(this.suspendName_.box_())
-	h = h*31 + Objects_hashCode(this.resumeName_.box_())
-	h = h*31 + Objects_hashCode(this.factoryName_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.astFactory_))
+	h = h*31 + objhashStr_(this.uniqueSuffix_)
+	h = h*31 + objhashId_(this.suspendName_)
+	h = h*31 + objhashId_(this.resumeName_)
+	h = h*31 + objhashId_(this.factoryName_)
+	h = h*31 + objhashId_(this.astFactory_)
 	return h
 }
 

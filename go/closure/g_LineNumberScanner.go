@@ -50,7 +50,7 @@ func (this *LineNumberScanner) getSourceRange(startOffset int32, endOffset int32
 }
 
 func (this *LineNumberScanner) rewindTo(position *SourcePosition_util) {
-	Preconditions_checkArgument(Objects_equals(obj_(position.source), obj_(this.sourceFile)))
+	Preconditions_checkArgument(position.source == this.sourceFile)
 	if position.offset < this.lastLineStart {
 		this.lastLine = (position.line_ - 1)
 		this.nextLineStart = (position.offset - position.column_)

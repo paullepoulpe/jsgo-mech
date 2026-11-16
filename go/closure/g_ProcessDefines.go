@@ -204,7 +204,7 @@ func (this *ProcessDefines) collectDefines(root Node) {
 			it_3 := foreach_(any(name.getRefs()))
 			for it_3.next() {
 				var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_3.v)
-				if ref.isSet() && !Object_equals(obj_(ref), obj_(declaration)) {
+				if ref.isSet() && !equalsId_(ref, declaration) {
 					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ref.getNode(), ProcessDefines_NON_CONST_DEFINE, []string{defineName, declaration.getNode().getLocation()}))
 				}
 			}

@@ -464,9 +464,9 @@ func (this *CheckRequiresSorted_DestructuringBinding) equals(p0 any) bool {
 
 func (this *CheckRequiresSorted_DestructuringBinding) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.exportedName_))
-	h = h*31 + Objects_hashCode(strobj_(this.localName_))
-	h = h*31 + Objects_hashCode(any(bool(this.isShorthandProperty_)))
+	h = h*31 + objhashStr_(this.exportedName_)
+	h = h*31 + objhashStr_(this.localName_)
+	h = h*31 + Boolean_hashCode(bool(this.isShorthandProperty_))
 	return h
 }
 
@@ -622,7 +622,7 @@ func (this *CheckRequiresSorted_ImportStatement) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(obj_(this.nodes_))
 	h = h*31 + Objects_hashCode(obj_(this.primitive_))
-	h = h*31 + Objects_hashCode(strobj_(this.namespace_))
+	h = h*31 + objhashStr_(this.namespace_)
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.alias_)))
 	h = h*31 + Objects_hashCode(obj_(this.destructures_))
 	return h

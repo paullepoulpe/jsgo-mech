@@ -1100,17 +1100,17 @@ func (this *CheckAccessControls_PropertyReference) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.sourceNode_.box_(), o.sourceNode_.box_()) && this.name_ == o.name_ && Objects_equals(this.receiverType_.self(), o.receiverType_.self()) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && Objects_equals(any(this.readableTypeName_), any(o.readableTypeName_))
+	return true && this.sourceNode_ == o.sourceNode_ && this.name_ == o.name_ && Objects_equals(this.receiverType_.self(), o.receiverType_.self()) && this.mutation_ == o.mutation_ && this.declaration_ == o.declaration_ && this.override_ == o.override_ && Objects_equals(any(this.readableTypeName_), any(o.readableTypeName_))
 }
 
 func (this *CheckAccessControls_PropertyReference) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.sourceNode_.box_())
-	h = h*31 + Objects_hashCode(strobj_(this.name_))
+	h = h*31 + objhashId_(this.sourceNode_)
+	h = h*31 + objhashStr_(this.name_)
 	h = h*31 + Objects_hashCode(this.receiverType_.self())
-	h = h*31 + Objects_hashCode(any(bool(this.mutation_)))
-	h = h*31 + Objects_hashCode(any(bool(this.declaration_)))
-	h = h*31 + Objects_hashCode(any(bool(this.override_)))
+	h = h*31 + Boolean_hashCode(bool(this.mutation_))
+	h = h*31 + Boolean_hashCode(bool(this.declaration_))
+	h = h*31 + Boolean_hashCode(bool(this.override_))
 	h = h*31 + Objects_hashCode(any(this.readableTypeName_))
 	return h
 }

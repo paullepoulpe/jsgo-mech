@@ -106,7 +106,7 @@ func (this *ColorGraphBuilder) addInternalColorGraphNode(node *ColorGraphNode) *
 }
 
 func (this *ColorGraphBuilder) connectSourceToDest(source *LinkedDirectedGraph_LinkedDiGraphNode, reason ColorGraphBuilder_EdgeReason, dest *LinkedDirectedGraph_LinkedDiGraphNode) {
-	if Object_equals(source.self(), dest.self()) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, lambda_ColorGraphBuilder_connectSourceToDest_1_, dest) {
+	if equalsId_(source, dest) || this.colorHoldsInstanceGraph.isConnectedInDirectionLinkedDiGraphNode(source, lambda_ColorGraphBuilder_connectSourceToDest_1_, dest) {
 		return
 	}
 	this.colorHoldsInstanceGraph.connectDiGraphNode(icast_DiGraph_DiGraphNode(source.self()), obj_(reason), icast_DiGraph_DiGraphNode(dest.self()))

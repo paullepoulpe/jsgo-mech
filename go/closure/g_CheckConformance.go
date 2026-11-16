@@ -125,7 +125,7 @@ func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompile
 				var baseRuleId string = requirement.getExtends()
 				if has_(baseRequirementBehaviors, baseRuleId) {
 					var baseBehavior *ConformanceConfig_LibraryLevelNonAllowlistedConformanceViolationsBehavior = baseRequirementBehaviors[baseRuleId]
-					if !Object_equals(obj_(baseBehavior), obj_(extendingBehavior)) {
+					if !equalsId_(baseBehavior, extendingBehavior) {
 						CheckConformance_reportInvalidRequirement(compiler, requirement, "extending rule's config may not specify a different value of 'library_level_non_allowlisted_conformance_violations_behavior' than the base rule's config. Skipping all conformance checks.")
 						return false
 					}

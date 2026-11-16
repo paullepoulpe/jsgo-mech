@@ -118,13 +118,13 @@ func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) equals(
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.callNode_.box_(), o.callNode_.box_()) && Objects_equals(this.closureUnawareFunction_.box_(), o.closureUnawareFunction_.box_())
+	return true && this.callNode_ == o.callNode_ && this.closureUnawareFunction_ == o.closureUnawareFunction_
 }
 
 func (this *InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.callNode_.box_())
-	h = h*31 + Objects_hashCode(this.closureUnawareFunction_.box_())
+	h = h*31 + objhashId_(this.callNode_)
+	h = h*31 + objhashId_(this.closureUnawareFunction_)
 	return h
 }
 

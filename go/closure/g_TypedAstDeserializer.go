@@ -386,13 +386,13 @@ func (this *TypedAstDeserializer_DeserializedAst) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(any(this.getFilesystem_), any(o.getFilesystem_)) && Objects_equals(obj_(this.getColorRegistry_), obj_(o.getColorRegistry_)) && Objects_equals(obj_(this.getExternProperties_), obj_(o.getExternProperties_)) && Objects_equals(obj_(this.getRuntimeLibraries_), obj_(o.getRuntimeLibraries_))
+	return true && Objects_equals(any(this.getFilesystem_), any(o.getFilesystem_)) && objequalsBy_(this.getColorRegistry_, obj_(o.getColorRegistry_), (Optional_baseOf[*ColorRegistry]).equals) && Objects_equals(obj_(this.getExternProperties_), obj_(o.getExternProperties_)) && Objects_equals(obj_(this.getRuntimeLibraries_), obj_(o.getRuntimeLibraries_))
 }
 
 func (this *TypedAstDeserializer_DeserializedAst) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(any(this.getFilesystem_))
-	h = h*31 + Objects_hashCode(obj_(this.getColorRegistry_))
+	h = h*31 + objhashBy_(this.getColorRegistry_, (Optional_baseOf[*ColorRegistry]).hashCode)
 	h = h*31 + Objects_hashCode(obj_(this.getExternProperties_))
 	h = h*31 + Objects_hashCode(obj_(this.getRuntimeLibraries_))
 	return h

@@ -1729,13 +1729,13 @@ func (this *JSTypeRegistry_ClosureNamespace) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.isLegacy_ == o.isLegacy_ && Objects_equals(this.definitionNode_.box_(), o.definitionNode_.box_()) && Objects_equals(this.type__.self(), o.type__.self())
+	return true && this.isLegacy_ == o.isLegacy_ && this.definitionNode_ == o.definitionNode_ && Objects_equals(this.type__.self(), o.type__.self())
 }
 
 func (this *JSTypeRegistry_ClosureNamespace) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.isLegacy_)))
-	h = h*31 + Objects_hashCode(this.definitionNode_.box_())
+	h = h*31 + Boolean_hashCode(bool(this.isLegacy_))
+	h = h*31 + objhashId_(this.definitionNode_)
 	h = h*31 + Objects_hashCode(this.type__.self())
 	return h
 }

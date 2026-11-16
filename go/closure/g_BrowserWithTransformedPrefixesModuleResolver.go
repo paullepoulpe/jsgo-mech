@@ -185,8 +185,8 @@ func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) equa
 
 func (this *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.prefix_))
-	h = h*31 + Objects_hashCode(strobj_(this.replacement_))
+	h = h*31 + objhashStr_(this.prefix_)
+	h = h*31 + objhashStr_(this.replacement_)
 	return h
 }
 

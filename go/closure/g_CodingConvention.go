@@ -290,7 +290,7 @@ func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.getFunctionName_)))
 	h = h*31 + Objects_hashCode(obj_(this.getClosurePrimitive_))
 	h = h*31 + Objects_hashCode(obj_(this.getAssertionKind_))
-	h = h*31 + Objects_hashCode(any(int32(this.getParamIndex_)))
+	h = h*31 + int32(this.getParamIndex_)
 	return h
 }
 

@@ -382,11 +382,15 @@ func (this *MustBeReachingVariableDef_MustDef) equals(other any) bool {
 		}
 		mustDef = cast_[*MustBeReachingVariableDef_MustDef](v_)
 		return true
-	}() && mustDef.reachingDef.equalsWith(&this.reachingDef, func(a, b *MustBeReachingVariableDef_Definition) bool { return Objects_equals(obj_(a), obj_(b)) }))
+	}() && mustDef.reachingDef.equalsWith(&this.reachingDef, func(a, b *MustBeReachingVariableDef_Definition) bool {
+		return objequalsBy_(a, obj_(b), (*MustBeReachingVariableDef_Definition).equals)
+	}))
 }
 
 func (this *MustBeReachingVariableDef_MustDef) hashCode() int32 {
-	return this.reachingDef.hashWith(func(d *MustBeReachingVariableDef_Definition) int32 { return objhash_(obj_(d)) })
+	return this.reachingDef.hashWith(func(d *MustBeReachingVariableDef_Definition) int32 {
+		return objhashBy_(d, (*MustBeReachingVariableDef_Definition).hashCode)
+	})
 }
 
 type MustBeReachingVariableDef_MustDefJoin struct {

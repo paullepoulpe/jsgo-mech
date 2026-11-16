@@ -38,7 +38,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 		case Token_rhino_NUMBER:
 			return Tri_forBoolean((n.getDouble() != 0))
 		case Token_rhino_BIGINT:
-			return Tri_forBoolean(!Object_equals(obj_(n.getBigInt()), obj_(BigInteger_ZERO)))
+			return Tri_forBoolean(!equalsBy_(n.getBigInt(), obj_(BigInteger_ZERO), (*BigInteger).equals))
 		case Token_rhino_NOT:
 			return NodeUtil_getBooleanValue(n.getLastChild()).not()
 		case Token_rhino_NAME:
@@ -61,7 +61,7 @@ func NodeUtil_getBooleanValue(n Node) Tri {
 			}
 			var bigintVal *BigInteger = NodeUtil_getBigIntValue(n)
 			if bigintVal != nil {
-				var isFalsey bool = Object_equals(obj_(bigintVal), obj_(BigInteger_ZERO))
+				var isFalsey bool = equalsBy_(bigintVal, obj_(BigInteger_ZERO), (*BigInteger).equals)
 				return Tri_forBoolean(!isFalsey)
 			}
 			return Tri_UNKNOWN
@@ -1642,7 +1642,7 @@ func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, 
 	}
 	var segmentNodes []Node = []Node{}
 	var segmentNode Node = endOfOptChainSegment
-	for (segmentNode != 0) && !Object_equals(segmentNode.box_(), stopNode.box_()) {
+	for (segmentNode != 0) && !equalsId_(segmentNode, stopNode) {
 		if NodeUtil_isOptChainNode(segmentNode) {
 			segmentNodes = append(segmentNodes, segmentNode)
 		}
@@ -4901,9 +4901,9 @@ func (this *NodeUtil_GoogRequire) equals(p0 any) bool {
 
 func (this *NodeUtil_GoogRequire) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.namespace_))
+	h = h*31 + objhashStr_(this.namespace_)
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.property_)))
-	h = h*31 + Objects_hashCode(any(bool(this.isStrongRequire_)))
+	h = h*31 + Boolean_hashCode(bool(this.isStrongRequire_))
 	return h
 }
 

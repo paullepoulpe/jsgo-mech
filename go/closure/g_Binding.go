@@ -98,15 +98,15 @@ func (this *Binding) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.metadata_), obj_(o.metadata_)) && Objects_equals(this.sourceNode_.box_(), o.sourceNode_.box_()) && Objects_equals(obj_(this.originatingExport_), obj_(o.originatingExport_)) && this.isModuleNamespace_ == o.isModuleNamespace_ && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_))) && Objects_equals(obj_(this.createdBy_), obj_(o.createdBy_))
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.sourceNode_ == o.sourceNode_ && objequalsBy_(this.originatingExport_, obj_(o.originatingExport_), (*Export).equals) && this.isModuleNamespace_ == o.isModuleNamespace_ && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_))) && Objects_equals(obj_(this.createdBy_), obj_(o.createdBy_))
 }
 
 func (this *Binding) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.metadata_))
-	h = h*31 + Objects_hashCode(this.sourceNode_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.originatingExport_))
-	h = h*31 + Objects_hashCode(any(bool(this.isModuleNamespace_)))
+	h = h*31 + objhashBy_(this.metadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
+	h = h*31 + objhashId_(this.sourceNode_)
+	h = h*31 + objhashBy_(this.originatingExport_, (*Export).hashCode)
+	h = h*31 + Boolean_hashCode(bool(this.isModuleNamespace_))
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.closureNamespace_)))
 	h = h*31 + Objects_hashCode(obj_(this.createdBy_))
 	return h

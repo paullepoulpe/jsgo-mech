@@ -77,7 +77,7 @@ func (this *J2clPass_InlineSpec) equals(p0 any) bool {
 
 func (this *J2clPass_InlineSpec) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.classFileName_))
+	h = h*31 + objhashStr_(this.classFileName_)
 	h = h*31 + Objects_hashCode(any(this.fnNamesToInline_.asSet()))
 	h = h*31 + Objects_hashCode(obj_(this.inliningMode_))
 	return h
@@ -167,12 +167,12 @@ func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) equals(p0 an
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.impl_.box_(), o.impl_.box_()) && Objects_equals(obj_(this.inliningMode_), obj_(o.inliningMode_))
+	return true && this.impl_ == o.impl_ && Objects_equals(obj_(this.inliningMode_), obj_(o.inliningMode_))
 }
 
 func (this *J2clPass_ClassStaticFunctionsInliner_InlinableFunction) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.impl_.box_())
+	h = h*31 + objhashId_(this.impl_)
 	h = h*31 + Objects_hashCode(obj_(this.inliningMode_))
 	return h
 }

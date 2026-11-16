@@ -121,8 +121,8 @@ func (this *DependencyInfo_Require) equals(p0 any) bool {
 
 func (this *DependencyInfo_Require) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.getSymbol_))
-	h = h*31 + Objects_hashCode(strobj_(this.getRawText_))
+	h = h*31 + objhashStr_(this.getSymbol_)
+	h = h*31 + objhashStr_(this.getRawText_)
 	h = h*31 + Objects_hashCode(obj_(this.getType_))
 	return h
 }
