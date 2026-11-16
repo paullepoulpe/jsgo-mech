@@ -20,7 +20,7 @@ func RhinoStringPool_uncheckedEquals(a string, b string) bool {
 }
 
 func RhinoStringPool_addOrGet(s string) string {
-	return str_(RhinoStringPool_INTERNER.intern(strobj_(s)))
+	return Interner_intern_s(RhinoStringPool_INTERNER, s) // post-flip manual step: no boxing to look up
 }
 
 var RhinoStringPool_INTERNER Interner
