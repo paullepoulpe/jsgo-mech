@@ -225,7 +225,7 @@ func (this *InstanceObjectType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 // getImplicitPrototype: an object that is exactly a InstanceObjectType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
@@ -233,7 +233,7 @@ func (this *InstanceObjectType) getImplicitPrototype() *ObjectType {
 	if this.self_ == any(this) {
 		return this.getImplicitPrototype_impl()
 	}
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 // getConstructor: an object that is exactly a InstanceObjectType calls its getConstructor_impl directly (post-flip); others dispatch.
@@ -241,7 +241,7 @@ func (this *InstanceObjectType) getConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getConstructor_impl()
 	}
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 // defineProperty: an object that is exactly a InstanceObjectType calls its defineProperty_impl directly (post-flip); others dispatch.
@@ -249,9 +249,7 @@ func (this *InstanceObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 b
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // appendTo: an object that is exactly a InstanceObjectType calls its appendTo_impl directly (post-flip); others dispatch.
@@ -372,7 +370,7 @@ func (this *InstanceObjectType) getCtorImplementedInterfaces() Iterable {
 	if this.self_ == any(this) {
 		return this.getCtorImplementedInterfaces_impl()
 	}
-	return this.self_.(interface{ getCtorImplementedInterfaces_impl() Iterable }).getCtorImplementedInterfaces_impl()
+	return this.self_.getCtorImplementedInterfaces_impl()
 }
 
 // getCtorExtendedInterfaces: an object that is exactly a InstanceObjectType calls its getCtorExtendedInterfaces_impl directly (post-flip); others dispatch.
@@ -380,7 +378,7 @@ func (this *InstanceObjectType) getCtorExtendedInterfaces() Iterable {
 	if this.self_ == any(this) {
 		return this.getCtorExtendedInterfaces_impl()
 	}
-	return this.self_.(interface{ getCtorExtendedInterfaces_impl() Iterable }).getCtorExtendedInterfaces_impl()
+	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
 // resolveInternal: an object that is exactly a InstanceObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.

@@ -594,95 +594,91 @@ func (this *ObjectType) getEnumeratedTypeOfEnumObject_impl() *JSType {
 }
 
 func (this *ObjectType) getPropertyMap() *PropertyMap {
-	return this.self_.(interface{ getPropertyMap_impl() *PropertyMap }).getPropertyMap_impl()
+	return this.self_.getPropertyMap_impl()
 }
 
 func (this *ObjectType) getReferenceName() OptionalOf[string] {
-	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 func (this *ObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 func (this *ObjectType) getImplicitPrototype() *ObjectType {
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 func (this *ObjectType) getConstructor() *FunctionType {
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 func (this *ObjectType) getEnumeratedTypeOfEnumObject() *JSType {
-	return this.self_.(interface{ getEnumeratedTypeOfEnumObject_impl() *JSType }).getEnumeratedTypeOfEnumObject_impl()
+	return this.self_.getEnumeratedTypeOfEnumObject_impl()
 }
 
 func (this *ObjectType) getSlot(p0 Property_Key) *Property {
-	return this.self_.(interface{ getSlot_impl(Property_Key) *Property }).getSlot_impl(p0)
+	return this.self_.getSlot_impl(p0)
 }
 
 func (this *ObjectType) getOwnPropertyNames() Set {
-	return this.self_.(interface{ getOwnPropertyNames_impl() Set }).getOwnPropertyNames_impl()
+	return this.self_.getOwnPropertyNames_impl()
 }
 
 func (this *ObjectType) getPropertyTypeKey(p0 Property_Key) *JSType {
-	return this.self_.(interface{ getPropertyTypeKey_impl(Property_Key) *JSType }).getPropertyTypeKey_impl(p0)
+	return this.self_.getPropertyTypeKey_impl(p0)
 }
 
 func (this *ObjectType) getSuperClassConstructor() *FunctionType {
-	return this.self_.(interface{ getSuperClassConstructor_impl() *FunctionType }).getSuperClassConstructor_impl()
+	return this.self_.getSuperClassConstructor_impl()
 }
 
 func (this *ObjectType) getTypeOfThis() *JSType {
-	return this.self_.(interface{ getTypeOfThis_impl() *JSType }).getTypeOfThis_impl()
+	return this.self_.getTypeOfThis_impl()
 }
 
 func (this *ObjectType) clearCachedValues() {
-	this.self_.(interface{ clearCachedValues_impl() }).clearCachedValues_impl()
+	this.self_.clearCachedValues_impl()
 }
 
 func (this *ObjectType) hasCachedValues() bool {
-	return this.self_.(interface{ hasCachedValues_impl() bool }).hasCachedValues_impl()
+	return this.self_.hasCachedValues_impl()
 }
 
 func (this *ObjectType) getPropertyTypeMap() *TMap[string, *JSType] {
-	return this.self_.(interface{ getPropertyTypeMap_impl() *TMap[string, *JSType] }).getPropertyTypeMap_impl()
+	return this.self_.getPropertyTypeMap_impl()
 }
 
 func (this *ObjectType) getCtorImplementedInterfaces() Iterable {
-	return this.self_.(interface{ getCtorImplementedInterfaces_impl() Iterable }).getCtorImplementedInterfaces_impl()
+	return this.self_.getCtorImplementedInterfaces_impl()
 }
 
 func (this *ObjectType) getCtorExtendedInterfaces() Iterable {
-	return this.self_.(interface{ getCtorExtendedInterfaces_impl() Iterable }).getCtorExtendedInterfaces_impl()
+	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
 func (this *ObjectType) getTemplateTypes() *ImmutableList {
-	return this.self_.(interface{ getTemplateTypes_impl() *ImmutableList }).getTemplateTypes_impl()
+	return this.self_.getTemplateTypes_impl()
 }
 
 func (this *ObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo) {
-	this.self_.(interface {
-		setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo)
-	}).setPropertyJSDocInfoKey_impl(p0, p1)
+	this.self_.setPropertyJSDocInfoKey_impl(p0, p1)
 }
 
 func (this *ObjectType) setPropertyNode(p0 Property_Key, p1 Node) {
-	this.self_.(interface{ setPropertyNode_impl(Property_Key, Node) }).setPropertyNode_impl(p0, p1)
+	this.self_.setPropertyNode_impl(p0, p1)
 }
 
 func (this *ObjectType) setOwnerFunction(p0 *FunctionType) {
-	this.self_.(interface{ setOwnerFunction_impl(*FunctionType) }).setOwnerFunction_impl(p0)
+	this.self_.setOwnerFunction_impl(p0)
 }
 
 func (this *ObjectType) getOwnerFunction() *FunctionType {
-	return this.self_.(interface{ getOwnerFunction_impl() *FunctionType }).getOwnerFunction_impl()
+	return this.self_.getOwnerFunction_impl()
 }
 
 func (this *ObjectType) setJSDocInfo(p0 *JSDocInfo) {
-	this.self_.(interface{ setJSDocInfo_impl(*JSDocInfo) }).setJSDocInfo_impl(p0)
+	this.self_.setJSDocInfo_impl(p0)
 }
 
 type ObjectType_1 struct {

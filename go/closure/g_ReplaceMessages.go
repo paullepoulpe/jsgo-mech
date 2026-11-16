@@ -1021,7 +1021,7 @@ func (this *ReplaceMessages_MsgProtectionPass) process_2(p0 Node, p1 Node) {
 		this.process_2_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ process_2_impl(Node, Node) }).process_2_impl(p0, p1)
+	this.self_.process_2_impl(p0, p1)
 }
 
 // processIcuTemplateDefinition: an object that is exactly a ReplaceMessages_MsgProtectionPass calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
@@ -1030,7 +1030,7 @@ func (this *ReplaceMessages_MsgProtectionPass) processIcuTemplateDefinition(p0 I
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processIcuTemplateDefinition_impl(IcuTemplateDefinition) }).processIcuTemplateDefinition_impl(p0)
+	this.self_.processIcuTemplateDefinition_impl(p0)
 }
 
 // processJsMessageDefinition: an object that is exactly a ReplaceMessages_MsgProtectionPass calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
@@ -1039,7 +1039,7 @@ func (this *ReplaceMessages_MsgProtectionPass) processJsMessageDefinition(p0 JsM
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processJsMessageDefinition_impl(JsMessageDefinition) }).processJsMessageDefinition_impl(p0)
+	this.self_.processJsMessageDefinition_impl(p0)
 }
 
 // processMessageFallback: an object that is exactly a ReplaceMessages_MsgProtectionPass calls its processMessageFallback_impl directly (post-flip); others dispatch.
@@ -1048,9 +1048,7 @@ func (this *ReplaceMessages_MsgProtectionPass) processMessageFallback(p0 Node, p
 		this.processMessageFallback_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		processMessageFallback_impl(Node, *JsMessage, *JsMessage)
-	}).processMessageFallback_impl(p0, p1, p2)
+	this.self_.processMessageFallback_impl(p0, p1, p2)
 }
 
 // processMessageFallback: an object that is exactly a ReplaceMessages_FullReplacementPass calls its processMessageFallback_impl directly (post-flip); others dispatch.
@@ -1059,9 +1057,7 @@ func (this *ReplaceMessages_FullReplacementPass) processMessageFallback(p0 Node,
 		this.processMessageFallback_impl(p0, p1, p2)
 		return
 	}
-	this.self_.(interface {
-		processMessageFallback_impl(Node, *JsMessage, *JsMessage)
-	}).processMessageFallback_impl(p0, p1, p2)
+	this.self_.processMessageFallback_impl(p0, p1, p2)
 }
 
 // processIcuTemplateDefinition: an object that is exactly a ReplaceMessages_FullReplacementPass calls its processIcuTemplateDefinition_impl directly (post-flip); others dispatch.
@@ -1070,7 +1066,7 @@ func (this *ReplaceMessages_FullReplacementPass) processIcuTemplateDefinition(p0
 		this.processIcuTemplateDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processIcuTemplateDefinition_impl(IcuTemplateDefinition) }).processIcuTemplateDefinition_impl(p0)
+	this.self_.processIcuTemplateDefinition_impl(p0)
 }
 
 // processJsMessageDefinition: an object that is exactly a ReplaceMessages_FullReplacementPass calls its processJsMessageDefinition_impl directly (post-flip); others dispatch.
@@ -1079,7 +1075,7 @@ func (this *ReplaceMessages_FullReplacementPass) processJsMessageDefinition(p0 J
 		this.processJsMessageDefinition_impl(p0)
 		return
 	}
-	this.self_.(interface{ processJsMessageDefinition_impl(JsMessageDefinition) }).processJsMessageDefinition_impl(p0)
+	this.self_.processJsMessageDefinition_impl(p0)
 }
 
 // visit: an object that is exactly a ReplaceMessages_ReplacementCompletionPass_1 calls its visit_impl directly (post-flip); others dispatch.

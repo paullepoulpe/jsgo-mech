@@ -828,5 +828,5 @@ func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator(p
 	if this.self_ == any(this) {
 		return this.getOptionalNodeComparator_impl(p0)
 	}
-	return this.self_.(interface{ getOptionalNodeComparator_impl(bool) Comparator }).getOptionalNodeComparator_impl(p0)
+	return this.self_.getOptionalNodeComparator_impl(p0)
 }

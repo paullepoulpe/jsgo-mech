@@ -25,6 +25,55 @@ type Graph_I interface {
 	isConnected_3_impl(any, any, any) bool
 	isConnected_impl(any, any) bool
 	newSubGraph_impl() SubGraph
+	disconnectInDirection_impl(any, any)
+	getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode
+	getDirectedPredNodes_impl(any) []DiGraph_DiGraphNode
+	getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode
+	getDirectedSuccNodes_impl(any) []DiGraph_DiGraphNode
+	getEdgesInDirection_impl(any, any) []*LinkedDirectedGraph_LinkedDiGraphEdge
+	getInEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	getOptionalNodeComparator_impl(bool) Comparator
+	getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge]
+	isConnectedInDirection_3_impl(any, any, any) bool
+	isConnectedInDirection_impl(any, any) bool
+}
+
+// Bodies of the methods that only the subclasses of ControlFlowGraph (1) and DiGraph (10) implement. They put the
+// methods in Graph_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *Graph) disconnectInDirection_impl(any, any) {
+	panic("disconnectInDirection_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
+	panic("getDirectedPredNodesDiGraphNode_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getDirectedPredNodes_impl(any) []DiGraph_DiGraphNode {
+	panic("getDirectedPredNodes_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
+	panic("getDirectedSuccNodesDiGraphNode_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getDirectedSuccNodes_impl(any) []DiGraph_DiGraphNode {
+	panic("getDirectedSuccNodes_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getEdgesInDirection_impl(any, any) []*LinkedDirectedGraph_LinkedDiGraphEdge {
+	panic("getEdgesInDirection_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getInEdges_impl(any) *TList[DiGraph_DiGraphEdge] {
+	panic("getInEdges_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getOptionalNodeComparator_impl(bool) Comparator {
+	panic("getOptionalNodeComparator_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge] {
+	panic("getOutEdges_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) isConnectedInDirection_3_impl(any, any, any) bool {
+	panic("isConnectedInDirection_3_impl called on a " + goTypeName_(this.self_))
+}
+func (this *Graph) isConnectedInDirection_impl(any, any) bool {
+	panic("isConnectedInDirection_impl called on a " + goTypeName_(this.self_))
 }
 
 func (this *Graph) as_Graph() *Graph { return this }
