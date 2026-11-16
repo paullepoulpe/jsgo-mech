@@ -942,6 +942,27 @@ type NodeTraversal_AbstractPostOrderCallback struct {
 // object (self_); every class of the hierarchy implements them (post-flip).
 type NodeTraversal_AbstractPostOrderCallback_I interface {
 	visit_impl(*NodeTraversal, Node, Node)
+	processIcuTemplateDefinition_impl(IcuTemplateDefinition)
+	processJsMessageDefinition_impl(JsMessageDefinition)
+	processMessageFallback_impl(Node, *JsMessage, *JsMessage)
+	process_2_impl(Node, Node)
+}
+
+// Bodies of the methods that only the subclasses of JsMessageVisitor (4) implement. They put the
+// methods in NodeTraversal_AbstractPostOrderCallback_I, so that the dispatchers of those classes call them through self_ without
+// an assertion. They are never run (a dispatcher's object is of a subclass of its class,
+// which has the method) and panic where the assertion would have (post-flip).
+func (this *NodeTraversal_AbstractPostOrderCallback) processIcuTemplateDefinition_impl(IcuTemplateDefinition) {
+	panic("processIcuTemplateDefinition_impl called on a " + goTypeName_(this.self_))
+}
+func (this *NodeTraversal_AbstractPostOrderCallback) processJsMessageDefinition_impl(JsMessageDefinition) {
+	panic("processJsMessageDefinition_impl called on a " + goTypeName_(this.self_))
+}
+func (this *NodeTraversal_AbstractPostOrderCallback) processMessageFallback_impl(Node, *JsMessage, *JsMessage) {
+	panic("processMessageFallback_impl called on a " + goTypeName_(this.self_))
+}
+func (this *NodeTraversal_AbstractPostOrderCallback) process_2_impl(Node, Node) {
+	panic("process_2_impl called on a " + goTypeName_(this.self_))
 }
 
 func (this *NodeTraversal_AbstractPostOrderCallback) as_NodeTraversal_AbstractPostOrderCallback() *NodeTraversal_AbstractPostOrderCallback {

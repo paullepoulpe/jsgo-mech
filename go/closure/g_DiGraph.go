@@ -52,57 +52,43 @@ func (this *DiGraph) isConnected_3_impl(n1 any, e any, n2 any) bool {
 }
 
 func (this *DiGraph) disconnectInDirection(p0 any, p1 any) {
-	this.self_.(interface{ disconnectInDirection_impl(any, any) }).disconnectInDirection_impl(p0, p1)
+	this.self_.disconnectInDirection_impl(p0, p1)
 }
 
 func (this *DiGraph) getInEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
-	return this.self_.(interface {
-		getInEdges_impl(any) *TList[DiGraph_DiGraphEdge]
-	}).getInEdges_impl(p0)
+	return this.self_.getInEdges_impl(p0)
 }
 
 func (this *DiGraph) getOutEdges(p0 any) *TList[DiGraph_DiGraphEdge] {
-	return this.self_.(interface {
-		getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge]
-	}).getOutEdges_impl(p0)
+	return this.self_.getOutEdges_impl(p0)
 }
 
 func (this *DiGraph) getEdgesInDirection(p0 any, p1 any) []*LinkedDirectedGraph_LinkedDiGraphEdge {
-	return this.self_.(interface {
-		getEdgesInDirection_impl(any, any) []*LinkedDirectedGraph_LinkedDiGraphEdge
-	}).getEdgesInDirection_impl(p0, p1)
+	return this.self_.getEdgesInDirection_impl(p0, p1)
 }
 
 func (this *DiGraph) isConnectedInDirection(p0 any, p1 any) bool {
-	return this.self_.(interface{ isConnectedInDirection_impl(any, any) bool }).isConnectedInDirection_impl(p0, p1)
+	return this.self_.isConnectedInDirection_impl(p0, p1)
 }
 
 func (this *DiGraph) isConnectedInDirection_3(p0 any, p1 any, p2 any) bool {
-	return this.self_.(interface{ isConnectedInDirection_3_impl(any, any, any) bool }).isConnectedInDirection_3_impl(p0, p1, p2)
+	return this.self_.isConnectedInDirection_3_impl(p0, p1, p2)
 }
 
 func (this *DiGraph) getDirectedPredNodes(p0 any) []DiGraph_DiGraphNode {
-	return this.self_.(interface {
-		getDirectedPredNodes_impl(any) []DiGraph_DiGraphNode
-	}).getDirectedPredNodes_impl(p0)
+	return this.self_.getDirectedPredNodes_impl(p0)
 }
 
 func (this *DiGraph) getDirectedPredNodesDiGraphNode(p0 DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
-	return this.self_.(interface {
-		getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode
-	}).getDirectedPredNodesDiGraphNode_impl(p0)
+	return this.self_.getDirectedPredNodesDiGraphNode_impl(p0)
 }
 
 func (this *DiGraph) getDirectedSuccNodes(p0 any) []DiGraph_DiGraphNode {
-	return this.self_.(interface {
-		getDirectedSuccNodes_impl(any) []DiGraph_DiGraphNode
-	}).getDirectedSuccNodes_impl(p0)
+	return this.self_.getDirectedSuccNodes_impl(p0)
 }
 
 func (this *DiGraph) getDirectedSuccNodesDiGraphNode(p0 DiGraph_DiGraphNode) []DiGraph_DiGraphNode {
-	return this.self_.(interface {
-		getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode
-	}).getDirectedSuccNodesDiGraphNode_impl(p0)
+	return this.self_.getDirectedSuccNodesDiGraphNode_impl(p0)
 }
 
 type DiGraph_DiGraphNode interface {

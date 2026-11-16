@@ -114,7 +114,7 @@ func (this *ControlFlowGraph) toString() string {
 }
 
 func (this *ControlFlowGraph) getOptionalNodeComparator(p0 bool) Comparator {
-	return this.self_.(interface{ getOptionalNodeComparator_impl(bool) Comparator }).getOptionalNodeComparator_impl(p0)
+	return this.self_.getOptionalNodeComparator_impl(p0)
 }
 
 type ControlFlowGraph_Branch struct {

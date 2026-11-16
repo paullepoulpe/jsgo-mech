@@ -55,11 +55,11 @@ func (this *BasicErrorManager) generateReport_impl() {
 }
 
 func (this *BasicErrorManager) println(p0 *CheckLevel, p1 *JSError) {
-	this.self_.(interface{ println_impl(*CheckLevel, *JSError) }).println_impl(p0, p1)
+	this.self_.println_impl(p0, p1)
 }
 
 func (this *BasicErrorManager) printSummary() {
-	this.self_.(interface{ printSummary_impl() }).printSummary_impl()
+	this.self_.printSummary_impl()
 }
 
 // generateReport: an object that is exactly a BasicErrorManager calls its generateReport_impl directly (post-flip); others dispatch.

@@ -102,7 +102,7 @@ func (this *NoResolvedType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 // getTemplateTypes: an object that is exactly a NoResolvedType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
@@ -110,7 +110,7 @@ func (this *NoResolvedType) getTemplateTypes() *ImmutableList {
 	if this.self_ == any(this) {
 		return this.getTemplateTypes_impl()
 	}
-	return this.self_.(interface{ getTemplateTypes_impl() *ImmutableList }).getTemplateTypes_impl()
+	return this.self_.getTemplateTypes_impl()
 }
 
 // isNoResolvedType: an object that is exactly a NoResolvedType calls its isNoResolvedType_impl directly (post-flip); others dispatch.
@@ -150,7 +150,7 @@ func (this *NoResolvedType) getConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getConstructor_impl()
 	}
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 // getImplicitPrototype: an object that is exactly a NoResolvedType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.
@@ -158,7 +158,7 @@ func (this *NoResolvedType) getImplicitPrototype() *ObjectType {
 	if this.self_ == any(this) {
 		return this.getImplicitPrototype_impl()
 	}
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 // recursionUnsafeHashCode: an object that is exactly a NoResolvedType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -174,9 +174,7 @@ func (this *NoResolvedType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool,
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // appendTo: an object that is exactly a NoResolvedType calls its appendTo_impl directly (post-flip); others dispatch.

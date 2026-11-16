@@ -179,7 +179,7 @@ func (this *NoObjectType) getImplicitPrototype() *ObjectType {
 	if this.self_ == any(this) {
 		return this.getImplicitPrototype_impl()
 	}
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 // getReferenceName: an object that is exactly a NoObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
@@ -187,7 +187,7 @@ func (this *NoObjectType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 // matchesNumberContext: an object that is exactly a NoObjectType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
@@ -235,9 +235,7 @@ func (this *NoObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // setPropertyJSDocInfoKey: an object that is exactly a NoObjectType calls its setPropertyJSDocInfoKey_impl directly (post-flip); others dispatch.
@@ -246,9 +244,7 @@ func (this *NoObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocInfo
 		this.setPropertyJSDocInfoKey_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo)
-	}).setPropertyJSDocInfoKey_impl(p0, p1)
+	this.self_.setPropertyJSDocInfoKey_impl(p0, p1)
 }
 
 // visitUntyped: an object that is exactly a NoObjectType calls its visitUntyped_impl directly (post-flip); others dispatch.
@@ -281,7 +277,7 @@ func (this *NoObjectType) getConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getConstructor_impl()
 	}
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 // resolveInternal: an object that is exactly a NoObjectType calls its resolveInternal_impl directly (post-flip); others dispatch.

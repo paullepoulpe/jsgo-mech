@@ -431,7 +431,7 @@ func (this *ProxyObjectType) getPropertyMap() *PropertyMap {
 	if this.self_ == any(this) {
 		return this.getPropertyMap_impl()
 	}
-	return this.self_.(interface{ getPropertyMap_impl() *PropertyMap }).getPropertyMap_impl()
+	return this.self_.getPropertyMap_impl()
 }
 
 // loosenTypecheckingDueToForwardReferencedSupertype: an object that is exactly a ProxyObjectType calls its loosenTypecheckingDueToForwardReferencedSupertype_impl directly (post-flip); others dispatch.
@@ -455,7 +455,7 @@ func (this *ProxyObjectType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 // matchesNumberContext: an object that is exactly a ProxyObjectType calls its matchesNumberContext_impl directly (post-flip); others dispatch.
@@ -695,7 +695,7 @@ func (this *ProxyObjectType) getOwnerFunction() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getOwnerFunction_impl()
 	}
-	return this.self_.(interface{ getOwnerFunction_impl() *FunctionType }).getOwnerFunction_impl()
+	return this.self_.getOwnerFunction_impl()
 }
 
 // getCtorImplementedInterfaces: an object that is exactly a ProxyObjectType calls its getCtorImplementedInterfaces_impl directly (post-flip); others dispatch.
@@ -703,7 +703,7 @@ func (this *ProxyObjectType) getCtorImplementedInterfaces() Iterable {
 	if this.self_ == any(this) {
 		return this.getCtorImplementedInterfaces_impl()
 	}
-	return this.self_.(interface{ getCtorImplementedInterfaces_impl() Iterable }).getCtorImplementedInterfaces_impl()
+	return this.self_.getCtorImplementedInterfaces_impl()
 }
 
 // getCtorExtendedInterfaces: an object that is exactly a ProxyObjectType calls its getCtorExtendedInterfaces_impl directly (post-flip); others dispatch.
@@ -711,7 +711,7 @@ func (this *ProxyObjectType) getCtorExtendedInterfaces() Iterable {
 	if this.self_ == any(this) {
 		return this.getCtorExtendedInterfaces_impl()
 	}
-	return this.self_.(interface{ getCtorExtendedInterfaces_impl() Iterable }).getCtorExtendedInterfaces_impl()
+	return this.self_.getCtorExtendedInterfaces_impl()
 }
 
 // recursionUnsafeHashCode: an object that is exactly a ProxyObjectType calls its recursionUnsafeHashCode_impl directly (post-flip); others dispatch.
@@ -736,7 +736,7 @@ func (this *ProxyObjectType) getImplicitPrototype() *ObjectType {
 	if this.self_ == any(this) {
 		return this.getImplicitPrototype_impl()
 	}
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 // defineProperty: an object that is exactly a ProxyObjectType calls its defineProperty_impl directly (post-flip); others dispatch.
@@ -744,9 +744,7 @@ func (this *ProxyObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // findPropertyTypeWithoutConsideringTemplateTypes: an object that is exactly a ProxyObjectType calls its findPropertyTypeWithoutConsideringTemplateTypes_impl directly (post-flip); others dispatch.
@@ -771,7 +769,7 @@ func (this *ProxyObjectType) setJSDocInfo(p0 *JSDocInfo) {
 		this.setJSDocInfo_impl(p0)
 		return
 	}
-	this.self_.(interface{ setJSDocInfo_impl(*JSDocInfo) }).setJSDocInfo_impl(p0)
+	this.self_.setJSDocInfo_impl(p0)
 }
 
 // setPropertyJSDocInfoKey: an object that is exactly a ProxyObjectType calls its setPropertyJSDocInfoKey_impl directly (post-flip); others dispatch.
@@ -780,9 +778,7 @@ func (this *ProxyObjectType) setPropertyJSDocInfoKey(p0 Property_Key, p1 *JSDocI
 		this.setPropertyJSDocInfoKey_impl(p0, p1)
 		return
 	}
-	this.self_.(interface {
-		setPropertyJSDocInfoKey_impl(Property_Key, *JSDocInfo)
-	}).setPropertyJSDocInfoKey_impl(p0, p1)
+	this.self_.setPropertyJSDocInfoKey_impl(p0, p1)
 }
 
 // getConstructor: an object that is exactly a ProxyObjectType calls its getConstructor_impl directly (post-flip); others dispatch.
@@ -790,7 +786,7 @@ func (this *ProxyObjectType) getConstructor() *FunctionType {
 	if this.self_ == any(this) {
 		return this.getConstructor_impl()
 	}
-	return this.self_.(interface{ getConstructor_impl() *FunctionType }).getConstructor_impl()
+	return this.self_.getConstructor_impl()
 }
 
 // getTemplateTypes: an object that is exactly a ProxyObjectType calls its getTemplateTypes_impl directly (post-flip); others dispatch.
@@ -798,7 +794,7 @@ func (this *ProxyObjectType) getTemplateTypes() *ImmutableList {
 	if this.self_ == any(this) {
 		return this.getTemplateTypes_impl()
 	}
-	return this.self_.(interface{ getTemplateTypes_impl() *ImmutableList }).getTemplateTypes_impl()
+	return this.self_.getTemplateTypes_impl()
 }
 
 // getTemplateParamCount: an object that is exactly a ProxyObjectType calls its getTemplateParamCount_impl directly (post-flip); others dispatch.
@@ -838,7 +834,7 @@ func (this *ProxyObjectType) getTypeOfThis() *JSType {
 	if this.self_ == any(this) {
 		return this.getTypeOfThis_impl()
 	}
-	return this.self_.(interface{ getTypeOfThis_impl() *JSType }).getTypeOfThis_impl()
+	return this.self_.getTypeOfThis_impl()
 }
 
 // collapseUnion: an object that is exactly a ProxyObjectType calls its collapseUnion_impl directly (post-flip); others dispatch.

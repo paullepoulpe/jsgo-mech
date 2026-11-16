@@ -168,7 +168,7 @@ func (this *RecordType) getImplicitPrototype() *ObjectType {
 	if this.self_ == any(this) {
 		return this.getImplicitPrototype_impl()
 	}
-	return this.self_.(interface{ getImplicitPrototype_impl() *ObjectType }).getImplicitPrototype_impl()
+	return this.self_.getImplicitPrototype_impl()
 }
 
 // defineProperty: an object that is exactly a RecordType calls its defineProperty_impl directly (post-flip); others dispatch.
@@ -176,9 +176,7 @@ func (this *RecordType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 
 	if this.self_ == any(this) {
 		return this.defineProperty_impl(p0, p1, p2, p3)
 	}
-	return this.self_.(interface {
-		defineProperty_impl(Property_Key, *JSType, bool, Node) bool
-	}).defineProperty_impl(p0, p1, p2, p3)
+	return this.self_.defineProperty_impl(p0, p1, p2, p3)
 }
 
 // toMaybeRecordType: an object that is exactly a RecordType calls its toMaybeRecordType_impl directly (post-flip); others dispatch.

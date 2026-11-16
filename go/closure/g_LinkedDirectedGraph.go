@@ -723,7 +723,7 @@ func (this *LinkedDirectedGraph) disconnectInDirection(p0 any, p1 any) {
 		this.disconnectInDirection_impl(p0, p1)
 		return
 	}
-	this.self_.(interface{ disconnectInDirection_impl(any, any) }).disconnectInDirection_impl(p0, p1)
+	this.self_.disconnectInDirection_impl(p0, p1)
 }
 
 // getNodes: an object that is exactly a LinkedDirectedGraph calls its getNodes_impl directly (post-flip); others dispatch.
@@ -747,9 +747,7 @@ func (this *LinkedDirectedGraph) getInEdges(p0 any) *TList[DiGraph_DiGraphEdge] 
 	if this.self_ == any(this) {
 		return this.getInEdges_impl(p0)
 	}
-	return this.self_.(interface {
-		getInEdges_impl(any) *TList[DiGraph_DiGraphEdge]
-	}).getInEdges_impl(p0)
+	return this.self_.getInEdges_impl(p0)
 }
 
 // getOutEdges: an object that is exactly a LinkedDirectedGraph calls its getOutEdges_impl directly (post-flip); others dispatch.
@@ -757,9 +755,7 @@ func (this *LinkedDirectedGraph) getOutEdges(p0 any) *TList[DiGraph_DiGraphEdge]
 	if this.self_ == any(this) {
 		return this.getOutEdges_impl(p0)
 	}
-	return this.self_.(interface {
-		getOutEdges_impl(any) *TList[DiGraph_DiGraphEdge]
-	}).getOutEdges_impl(p0)
+	return this.self_.getOutEdges_impl(p0)
 }
 
 // createNode: an object that is exactly a LinkedDirectedGraph calls its createNode_impl directly (post-flip); others dispatch.
@@ -799,9 +795,7 @@ func (this *LinkedDirectedGraph) getEdgesInDirection(p0 any, p1 any) []*LinkedDi
 	if this.self_ == any(this) {
 		return this.getEdgesInDirection_impl(p0, p1)
 	}
-	return this.self_.(interface {
-		getEdgesInDirection_impl(any, any) []*LinkedDirectedGraph_LinkedDiGraphEdge
-	}).getEdgesInDirection_impl(p0, p1)
+	return this.self_.getEdgesInDirection_impl(p0, p1)
 }
 
 // isConnectedInDirection: an object that is exactly a LinkedDirectedGraph calls its isConnectedInDirection_impl directly (post-flip); others dispatch.
@@ -809,7 +803,7 @@ func (this *LinkedDirectedGraph) isConnectedInDirection(p0 any, p1 any) bool {
 	if this.self_ == any(this) {
 		return this.isConnectedInDirection_impl(p0, p1)
 	}
-	return this.self_.(interface{ isConnectedInDirection_impl(any, any) bool }).isConnectedInDirection_impl(p0, p1)
+	return this.self_.isConnectedInDirection_impl(p0, p1)
 }
 
 // isConnectedInDirection_3: an object that is exactly a LinkedDirectedGraph calls its isConnectedInDirection_3_impl directly (post-flip); others dispatch.
@@ -817,7 +811,7 @@ func (this *LinkedDirectedGraph) isConnectedInDirection_3(p0 any, p1 any, p2 any
 	if this.self_ == any(this) {
 		return this.isConnectedInDirection_3_impl(p0, p1, p2)
 	}
-	return this.self_.(interface{ isConnectedInDirection_3_impl(any, any, any) bool }).isConnectedInDirection_3_impl(p0, p1, p2)
+	return this.self_.isConnectedInDirection_3_impl(p0, p1, p2)
 }
 
 // getDirectedPredNodes: an object that is exactly a LinkedDirectedGraph calls its getDirectedPredNodes_impl directly (post-flip); others dispatch.
@@ -825,9 +819,7 @@ func (this *LinkedDirectedGraph) getDirectedPredNodes(p0 any) []DiGraph_DiGraphN
 	if this.self_ == any(this) {
 		return this.getDirectedPredNodes_impl(p0)
 	}
-	return this.self_.(interface {
-		getDirectedPredNodes_impl(any) []DiGraph_DiGraphNode
-	}).getDirectedPredNodes_impl(p0)
+	return this.self_.getDirectedPredNodes_impl(p0)
 }
 
 // getDirectedPredNodesDiGraphNode: an object that is exactly a LinkedDirectedGraph calls its getDirectedPredNodesDiGraphNode_impl directly (post-flip); others dispatch.
@@ -835,9 +827,7 @@ func (this *LinkedDirectedGraph) getDirectedPredNodesDiGraphNode(p0 DiGraph_DiGr
 	if this.self_ == any(this) {
 		return this.getDirectedPredNodesDiGraphNode_impl(p0)
 	}
-	return this.self_.(interface {
-		getDirectedPredNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode
-	}).getDirectedPredNodesDiGraphNode_impl(p0)
+	return this.self_.getDirectedPredNodesDiGraphNode_impl(p0)
 }
 
 // getDirectedSuccNodes: an object that is exactly a LinkedDirectedGraph calls its getDirectedSuccNodes_impl directly (post-flip); others dispatch.
@@ -845,9 +835,7 @@ func (this *LinkedDirectedGraph) getDirectedSuccNodes(p0 any) []DiGraph_DiGraphN
 	if this.self_ == any(this) {
 		return this.getDirectedSuccNodes_impl(p0)
 	}
-	return this.self_.(interface {
-		getDirectedSuccNodes_impl(any) []DiGraph_DiGraphNode
-	}).getDirectedSuccNodes_impl(p0)
+	return this.self_.getDirectedSuccNodes_impl(p0)
 }
 
 // getDirectedSuccNodesDiGraphNode: an object that is exactly a LinkedDirectedGraph calls its getDirectedSuccNodesDiGraphNode_impl directly (post-flip); others dispatch.
@@ -855,9 +843,7 @@ func (this *LinkedDirectedGraph) getDirectedSuccNodesDiGraphNode(p0 DiGraph_DiGr
 	if this.self_ == any(this) {
 		return this.getDirectedSuccNodesDiGraphNode_impl(p0)
 	}
-	return this.self_.(interface {
-		getDirectedSuccNodesDiGraphNode_impl(DiGraph_DiGraphNode) []DiGraph_DiGraphNode
-	}).getDirectedSuccNodesDiGraphNode_impl(p0)
+	return this.self_.getDirectedSuccNodesDiGraphNode_impl(p0)
 }
 
 // getNodeCount: an object that is exactly a LinkedDirectedGraph calls its getNodeCount_impl directly (post-flip); others dispatch.

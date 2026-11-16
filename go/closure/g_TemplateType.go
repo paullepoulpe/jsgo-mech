@@ -176,7 +176,7 @@ func (this *TemplateType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
+	return this.self_.getReferenceName_impl()
 }
 
 // appendTo: an object that is exactly a TemplateType calls its appendTo_impl directly (post-flip); others dispatch.
