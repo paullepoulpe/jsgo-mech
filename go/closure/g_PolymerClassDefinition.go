@@ -20,7 +20,7 @@ type PolymerClassDefinition struct {
 }
 
 func (this *PolymerClassDefinition) finit_PolymerClassDefinition() {
-	this.interfaceName = Optional_empty()
+	this.interfaceName = Optional_empty[string]()
 }
 
 func (this *PolymerClassDefinition) init_PolymerClassDefinition(defType *PolymerClassDefinition_DefinitionType, definition Node, target Node, hasGeneratedLhs bool, descriptor Node, classInfo *JSDocInfo, constructor *PolymerPass_MemberDefinition, nativeBaseElement OptionalOf[string], props *TList[*PolymerPass_MemberDefinition], behaviorProps *TMap[*PolymerPass_MemberDefinition, *PolymerBehaviorExtractor_BehaviorDefinition], methods *TList[*PolymerPass_MemberDefinition], behaviors []*PolymerBehaviorExtractor_BehaviorDefinition, features *FeatureSet, input *CompilerInput) {
@@ -97,11 +97,11 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 		ctorInfo = NodeUtil_getBestJSDocInfo(constructor)
 	}
 	var baseClass Node = NodeUtil_getFirstPropMatchingKey(descriptor, "extends")
-	var nativeBaseElement OptionalOf[string] = func() Optional {
+	var nativeBaseElement OptionalOf[string] = func() OptionalOf[string] {
 		if baseClass == 0 {
-			return Optional_empty()
+			return Optional_empty[string]()
 		}
-		return Optional_of(strobj_(baseClass.getString()))
+		return Optional_of[string](baseClass.getString())
 	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
 	var behaviors []*PolymerBehaviorExtractor_BehaviorDefinition = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
@@ -202,7 +202,7 @@ func PolymerClassDefinition_extractFromClassNode(classNode Node, compiler *Abstr
 		PolymerClassDefinition_addFunctionAssignmentsFromConstructor(constructor, enclosingModule, methods)
 	}
 	var input *CompilerInput = compiler.getInput(NodeUtil_getEnclosingScript(classNode).getInputId())
-	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty(), tlistImm_(tc_p_PolymerPass_MemberDefinition, sliceView_(tc_p_PolymerPass_MemberDefinition, properties)), nil, methods, nil, nil, input)
+	return new_PolymerClassDefinition(PolymerClassDefinition_DefinitionType_ES6Class, classNode, target, false, propertiesDescriptor, classInfo, new_PolymerPass_MemberDefinition(ctorInfo, 0, constructor, enclosingModule), Optional_empty[string](), tlistImm_(tc_p_PolymerPass_MemberDefinition, sliceView_(tc_p_PolymerPass_MemberDefinition, properties)), nil, methods, nil, nil, input)
 }
 
 func PolymerClassDefinition_extractClassMethods(classNode Node, enclosingModule Node) *TList[*PolymerPass_MemberDefinition] {
@@ -295,7 +295,7 @@ func PolymerClassDefinition_removeBehaviorPropsOverlappingWithElementProps(behav
 func (this *PolymerClassDefinition) toString() string {
 	return Object_toString(obj_(MoreObjects_toStringHelper(any(this)).add("defType", obj_(this.defType)).add("definition", this.definition.box_()).add("target", this.target.box_()).add("nativeBaseElement", func() any {
 		if this.nativeBaseElement.isPresent() {
-			return this.nativeBaseElement.get()
+			return strobj_(this.nativeBaseElement.get())
 		}
 		return nil
 	}()).omitNullValues()))
@@ -303,7 +303,7 @@ func (this *PolymerClassDefinition) toString() string {
 
 func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) OptionalOf[string] {
 	if this.interfaceName.isEmpty() {
-		this.interfaceName = Optional_of(strobj_(("Polymer" + sstr_(String_replace_char_char(this.target.getQualifiedName(), '.', '_')) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input)))))
+		this.interfaceName = Optional_of[string](("Polymer" + sstr_(String_replace_char_char(this.target.getQualifiedName(), '.', '_')) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
 	}
 	return this.interfaceName
 }

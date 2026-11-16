@@ -464,7 +464,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		}
 	}
 	var existingType *ModuleMetadataMap_ModuleType = nil
-	var existingFileSource OptionalOf[string] = Optional_empty()
+	var existingFileSource OptionalOf[string] = Optional_empty[string]()
 	if module.googNamespaces_.contains(strobj_(namespace)) {
 		existingType = module.metadataBuilder.moduleType()
 		existingFileSource = t.getSourceName()
@@ -472,11 +472,10 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
-			existingFileSource = Optional_of(strobj_(existingModule.rootNode().getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
+			existingFileSource = Optional_of[string](existingModule.rootNode().getSourceFileName()).filterFn_(func(s string) bool {
 				_ = s
 				return !String_isEmpty(s)
-			}})
+			})
 		}
 	}
 	this.outer_.currentModule.googNamespaces_.add(strobj_(namespace))
@@ -489,7 +488,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_MODULE
 			}()
-			t.report(n, diagnostic, []string{namespace, str_(existingFileSource.orElse(strobj_("null")))})
+			t.report(n, diagnostic, []string{namespace, existingFileSource.orElse("null")})
 			return
 		case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
 			var diagnostic *DiagnosticType = func() *DiagnosticType {
@@ -498,7 +497,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE
 			}()
-			t.report(n, diagnostic, []string{namespace, str_(existingFileSource.orElse(strobj_("null")))})
+			t.report(n, diagnostic, []string{namespace, existingFileSource.orElse("null")})
 			return
 		case ModuleMetadataMap_ModuleType_COMMON_JS, ModuleMetadataMap_ModuleType_SCRIPT:
 		}

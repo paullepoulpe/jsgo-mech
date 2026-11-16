@@ -529,91 +529,130 @@ func (this *Optional_base) toString() string {
 
 // ---- java.util.Optional_base
 
-// Optional is a value: the zero Optional is Java's null (a field never assigned), so that
-// Optional.of and Optional.empty allocate nothing; every method of a null Optional throws
-// NullPointerException as a call on null does.
-type Optional struct {
-	value any
-	set   bool // not null
+// Optional is java.util.Optional<T> with its type argument: a value whose zero value is
+// Java's null (a field never assigned), so that Optional.of and Optional.empty allocate
+// nothing, and whose content is held as a T, so that an Optional<String> holds its string
+// without boxing it. Every method of a null Optional throws NullPointerException as a call on
+// null does. Erased code (raw types, wildcards) uses Optional[any]; optConv_ converts between
+// instantiations, which in Java are the same object.
+type Optional[T any] struct {
+	value   T
+	present bool
+	set     bool // not null
 }
 
-var optionalUtilEmpty_ = Optional{set: true}
-
-func (this Optional) nn_() {
+func (this Optional[T]) nn_() {
 	if !this.set {
 		panic(new_NullPointerException_0().self())
 	}
 }
 
-func Optional_empty() Optional { return optionalUtilEmpty_ }
+func Optional_empty[T any]() Optional[T] { return Optional[T]{set: true} }
 
-func Optional_of(v any) Optional {
-	if v == nil {
+func Optional_of[T any](v T) Optional[T] {
+	if isnull_(v) {
 		panic(new_NullPointerException_0().self())
 	}
-	return Optional{v, true}
+	return Optional[T]{v, true, true}
 }
 
-func (this Optional) get() any {
+func Optional_ofNullable[T any](v T) Optional[T] {
+	if isnull_(v) {
+		return Optional[T]{set: true}
+	}
+	return Optional[T]{v, true, true}
+}
+
+// optConv_ is an Optional<S> seen as an Optional<T> (a cast or a widening in Java, where both
+// are the same object): f converts the content.
+func optConv_[S, T any](o Optional[S], f func(S) T) Optional[T] {
+	if !o.present {
+		return Optional[T]{set: o.set}
+	}
+	return Optional[T]{f(o.value), true, true}
+}
+
+// optErase_ is an Optional<T> seen as a raw Optional, its content boxed as erased code boxes it.
+func optErase_[T any](o Optional[T]) Optional[any] { return optConv_(o, boxValue_[T]) }
+
+// content_ is the content as an object, nil when empty.
+func (this Optional[T]) content_() any {
+	if !this.present {
+		return nil
+	}
+	return boxValue_(this.value)
+}
+
+// optional_ is any instantiation of Optional, for equals across instantiations.
+type optional_ interface {
+	content_() any
+	isSet_() bool
+}
+
+func (this Optional[T]) isSet_() bool { return this.set }
+
+func (this Optional[T]) get() T {
 	this.nn_()
-	if this.value == nil {
+	if !this.present {
 		panic(new_NoSuchElementException_String("No value present").self())
 	}
 	return this.value
 }
 
-func Optional_ofNullable(v any) Optional {
-	if v == nil {
-		return optionalUtilEmpty_
-	}
-	return Optional{v, true}
-}
-
-func (this Optional) orElse(other any) any {
+func (this Optional[T]) orElse(other T) T {
 	this.nn_()
-	if this.value == nil {
+	if !this.present {
 		return other
 	}
 	return this.value
 }
 
-func (this Optional) orElseThrow() any { return this.get() }
+func (this Optional[T]) orElseThrow() T { return this.get() }
 
-func (this Optional) filter(p Predicate) Optional {
+func (this Optional[T]) filter(p Predicate) Optional[T] {
 	this.nn_()
 	if p == nil {
 		panic(new_NullPointerException_0().self())
 	}
-	if this.value == nil || p.test(this.value) {
+	if !this.present || p.test(this.content_()) {
 		return this
 	}
-	return optionalUtilEmpty_
+	return Optional[T]{set: true}
 }
 
-func (this Optional) ifPresent(c Consumer) {
+// filterFn_ is filter with a predicate that takes the content unboxed.
+func (this Optional[T]) filterFn_(p func(T) bool) Optional[T] {
 	this.nn_()
-	if this.value != nil {
-		c.accept(this.value)
+	if !this.present || p(this.value) {
+		return this
+	}
+	return Optional[T]{set: true}
+}
+
+func (this Optional[T]) ifPresent(c Consumer) {
+	this.nn_()
+	if this.present {
+		c.accept(this.content_())
 	}
 }
 
-func (this Optional) isEmpty() bool   { this.nn_(); return this.value == nil }
-func (this Optional) isPresent() bool { this.nn_(); return this.value != nil }
+func (this Optional[T]) isEmpty() bool   { this.nn_(); return !this.present }
+func (this Optional[T]) isPresent() bool { this.nn_(); return this.present }
 
-func (this Optional) equals(o any) bool {
+func (this Optional[T]) equals(o any) bool {
 	this.nn_()
-	x, ok := o.(Optional)
-	return ok && x.set && objequals_(this.value, x.value)
+	x, ok := o.(optional_)
+	return ok && x.isSet_() && objequals_(this.content_(), x.content_())
 }
 
-func (this Optional) hashCode() int32 { this.nn_(); return objhash_(this.value) }
+func (this Optional[T]) hashCode() int32 { this.nn_(); return objhash_(this.content_()) }
 
-func (this Optional) toString() string {
+func (this Optional[T]) toString() string {
 	this.nn_()
-	if this.value == nil {
+	if !this.present {
 		return "Optional.empty"
 	}
-	return "Optional[" + objstr_(this.value) + "]"
+	return "Optional[" + objstr_(this.content_()) + "]"
 }
 
 // ---- Predicates, Functions, Suppliers

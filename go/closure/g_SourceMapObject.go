@@ -92,9 +92,9 @@ type SourceMapObject_Builder struct {
 }
 
 func (this *SourceMapObject_Builder) finit_SourceMapObject_Builder() {
-	this.sourceRoot = Optional_empty()
-	this.file = Optional_empty()
-	this.mappings = Optional_empty()
+	this.sourceRoot = Optional_empty[string]()
+	this.file = Optional_empty[string]()
+	this.mappings = Optional_empty[string]()
 }
 
 func (this *SourceMapObject_Builder) init_SourceMapObject_Builder() {

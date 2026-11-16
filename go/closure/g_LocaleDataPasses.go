@@ -123,7 +123,7 @@ func (this *LocaleDataPasses_LocaleSubstitutions) init_LocaleDataPasses_LocaleSu
 	this.finit_LocaleDataPasses_LocaleSubstitutions()
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
-	this.locale = str_(locale.orElse(strobj_(LocaleDataPasses_LocaleSubstitutions_DEFAULT_LOCALE)))
+	this.locale = locale.orElse(LocaleDataPasses_LocaleSubstitutions_DEFAULT_LOCALE)
 }
 
 func new_LocaleDataPasses_LocaleSubstitutions(compiler *AbstractCompiler, locale OptionalOf[string]) *LocaleDataPasses_LocaleSubstitutions {

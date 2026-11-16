@@ -200,7 +200,7 @@ func JsMessage_isCanonicalPlaceholderNameFormat(name string) bool {
 	return JsMessage_CANONICAL_PLACEHOLDER_NAME_RE.matcher(strobj_(name)).matches()
 }
 
-func (this *JsMessage) getSourceName() Optional {
+func (this *JsMessage) getSourceName() OptionalOf[string] {
 	return this.getSourceName_
 }
 
@@ -228,15 +228,15 @@ func (this *JsMessage) getGenderedMessagesMap() *ImmutableMap {
 	return this.getGenderedMessagesMap_
 }
 
-func (this *JsMessage) getAlternateId() Optional {
+func (this *JsMessage) getAlternateId() OptionalOf[string] {
 	return this.getAlternateId_
 }
 
-func (this *JsMessage) getDesc() Optional {
+func (this *JsMessage) getDesc() OptionalOf[string] {
 	return this.getDesc_
 }
 
-func (this *JsMessage) getMeaning() Optional {
+func (this *JsMessage) getMeaning() OptionalOf[string] {
 	return this.getMeaning_
 }
 
@@ -261,21 +261,21 @@ func (this *JsMessage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.getSourceName_), obj_(o.getSourceName_)) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(obj_(this.getParts_), obj_(o.getParts_)) && Objects_equals(obj_(this.getGenderedMessagesMap_), obj_(o.getGenderedMessagesMap_)) && Objects_equals(obj_(this.getAlternateId_), obj_(o.getAlternateId_)) && Objects_equals(obj_(this.getDesc_), obj_(o.getDesc_)) && Objects_equals(obj_(this.getMeaning_), obj_(o.getMeaning_)) && Objects_equals(obj_(this.getPlaceholderNameToExampleMap_), obj_(o.getPlaceholderNameToExampleMap_)) && Objects_equals(obj_(this.getPlaceholderNameToOriginalCodeMap_), obj_(o.getPlaceholderNameToOriginalCodeMap_)) && Objects_equals(obj_(this.jsPlaceholderNames_), obj_(o.jsPlaceholderNames_)) && Objects_equals(obj_(this.canonicalPlaceholderNames_), obj_(o.canonicalPlaceholderNames_))
+	return true && Objects_equals(obj_(optErase_(this.getSourceName_)), obj_(optErase_(o.getSourceName_))) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(obj_(this.getParts_), obj_(o.getParts_)) && Objects_equals(obj_(this.getGenderedMessagesMap_), obj_(o.getGenderedMessagesMap_)) && Objects_equals(obj_(optErase_(this.getAlternateId_)), obj_(optErase_(o.getAlternateId_))) && Objects_equals(obj_(optErase_(this.getDesc_)), obj_(optErase_(o.getDesc_))) && Objects_equals(obj_(optErase_(this.getMeaning_)), obj_(optErase_(o.getMeaning_))) && Objects_equals(obj_(this.getPlaceholderNameToExampleMap_), obj_(o.getPlaceholderNameToExampleMap_)) && Objects_equals(obj_(this.getPlaceholderNameToOriginalCodeMap_), obj_(o.getPlaceholderNameToOriginalCodeMap_)) && Objects_equals(obj_(this.jsPlaceholderNames_), obj_(o.jsPlaceholderNames_)) && Objects_equals(obj_(this.canonicalPlaceholderNames_), obj_(o.canonicalPlaceholderNames_))
 }
 
 func (this *JsMessage) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.getSourceName_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.getSourceName_)))
 	h = h*31 + Objects_hashCode(strobj_(this.getKey_))
 	h = h*31 + Objects_hashCode(any(bool(this.isAnonymous_)))
 	h = h*31 + Objects_hashCode(any(bool(this.isExternal_)))
 	h = h*31 + Objects_hashCode(strobj_(this.getId_))
 	h = h*31 + Objects_hashCode(obj_(this.getParts_))
 	h = h*31 + Objects_hashCode(obj_(this.getGenderedMessagesMap_))
-	h = h*31 + Objects_hashCode(obj_(this.getAlternateId_))
-	h = h*31 + Objects_hashCode(obj_(this.getDesc_))
-	h = h*31 + Objects_hashCode(obj_(this.getMeaning_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.getAlternateId_)))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.getDesc_)))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.getMeaning_)))
 	h = h*31 + Objects_hashCode(obj_(this.getPlaceholderNameToExampleMap_))
 	h = h*31 + Objects_hashCode(obj_(this.getPlaceholderNameToOriginalCodeMap_))
 	h = h*31 + Objects_hashCode(obj_(this.jsPlaceholderNames_))
@@ -284,7 +284,7 @@ func (this *JsMessage) hashCode() int32 {
 }
 
 func (this *JsMessage) toString() string {
-	return "JsMessage[" + "getSourceName=" + objstr_(obj_(this.getSourceName_)) + ", getKey=" + objstr_(strobj_(this.getKey_)) + ", isAnonymous=" + objstr_(any(bool(this.isAnonymous_))) + ", isExternal=" + objstr_(any(bool(this.isExternal_))) + ", getId=" + objstr_(strobj_(this.getId_)) + ", getParts=" + objstr_(obj_(this.getParts_)) + ", getGenderedMessagesMap=" + objstr_(obj_(this.getGenderedMessagesMap_)) + ", getAlternateId=" + objstr_(obj_(this.getAlternateId_)) + ", getDesc=" + objstr_(obj_(this.getDesc_)) + ", getMeaning=" + objstr_(obj_(this.getMeaning_)) + ", getPlaceholderNameToExampleMap=" + objstr_(obj_(this.getPlaceholderNameToExampleMap_)) + ", getPlaceholderNameToOriginalCodeMap=" + objstr_(obj_(this.getPlaceholderNameToOriginalCodeMap_)) + ", jsPlaceholderNames=" + objstr_(obj_(this.jsPlaceholderNames_)) + ", canonicalPlaceholderNames=" + objstr_(obj_(this.canonicalPlaceholderNames_)) + "]"
+	return "JsMessage[" + "getSourceName=" + objstr_(obj_(optErase_(this.getSourceName_))) + ", getKey=" + objstr_(strobj_(this.getKey_)) + ", isAnonymous=" + objstr_(any(bool(this.isAnonymous_))) + ", isExternal=" + objstr_(any(bool(this.isExternal_))) + ", getId=" + objstr_(strobj_(this.getId_)) + ", getParts=" + objstr_(obj_(this.getParts_)) + ", getGenderedMessagesMap=" + objstr_(obj_(this.getGenderedMessagesMap_)) + ", getAlternateId=" + objstr_(obj_(optErase_(this.getAlternateId_))) + ", getDesc=" + objstr_(obj_(optErase_(this.getDesc_))) + ", getMeaning=" + objstr_(obj_(optErase_(this.getMeaning_))) + ", getPlaceholderNameToExampleMap=" + objstr_(obj_(this.getPlaceholderNameToExampleMap_)) + ", getPlaceholderNameToOriginalCodeMap=" + objstr_(obj_(this.getPlaceholderNameToOriginalCodeMap_)) + ", jsPlaceholderNames=" + objstr_(obj_(this.jsPlaceholderNames_)) + ", canonicalPlaceholderNames=" + objstr_(obj_(this.canonicalPlaceholderNames_)) + "]"
 }
 
 const JsMessage_PH_JS_PREFIX string = "{$"
@@ -564,20 +564,20 @@ type JsMessage_Builder struct {
 }
 
 func (this *JsMessage_Builder) finit_JsMessage_Builder() {
-	this.key_ = Optional_empty()
-	this.meaning = Optional_empty()
-	this.desc = Optional_empty()
+	this.key_ = Optional_empty[string]()
+	this.meaning = Optional_empty[string]()
+	this.desc = Optional_empty[string]()
 	this.isAnonymous_ = false
 	this.isExternal_ = false
-	this.id = Optional_empty()
-	this.alternateId = Optional_empty()
+	this.id = Optional_empty[string]()
+	this.alternateId = Optional_empty[string]()
 	this.parts = newTList_(tc_JsMessage_Part)
 	this.genderedMessageMap = newTMap_(tc_p_JsMessage_GrammaticalGenderCase, tc_ListOf_JsMessage_Part_)
 	this.jsPlaceholderNames_ = newTSet_(tc_string)
 	this.canonicalPlaceholderNames_ = newTSet_(tc_string)
 	this.placeholderNameToExampleMap = ImmutableMap_of()
 	this.placeholderNameToOriginalCodeMap = ImmutableMap_of()
-	this.sourceName_ = Optional_empty()
+	this.sourceName_ = Optional_empty[string]()
 }
 
 func (this *JsMessage_Builder) init_JsMessage_Builder() {
@@ -595,12 +595,12 @@ func (this *JsMessage_Builder) getKey() OptionalOf[string] {
 }
 
 func (this *JsMessage_Builder) setKey(key string) *JsMessage_Builder {
-	this.key_ = Optional_of(strobj_(key))
+	this.key_ = Optional_of[string](key)
 	return this
 }
 
 func (this *JsMessage_Builder) setSourceName(sourceName string) *JsMessage_Builder {
-	this.sourceName_ = Optional_of(strobj_(sourceName))
+	this.sourceName_ = Optional_of[string](sourceName)
 	return this
 }
 
@@ -697,7 +697,7 @@ func (this *JsMessage_Builder) setIsAnonymous(isAnonymous bool) *JsMessage_Build
 }
 
 func (this *JsMessage_Builder) setId(id OptionalOf[string]) *JsMessage_Builder {
-	Preconditions_checkState_boolean_String_Object_Object(this.id.isEmpty(), "id already set to '%s': cannot change it to '%s'", this.id.orElse(strobj_("null")), id.orElse(strobj_("null")))
+	Preconditions_checkState_boolean_String_Object_Object(this.id.isEmpty(), "id already set to '%s': cannot change it to '%s'", strobj_(this.id.orElse("null")), strobj_(id.orElse("null")))
 	this.id = id
 	return this
 }
@@ -723,8 +723,8 @@ func (this *JsMessage_Builder) build() *JsMessage {
 	Preconditions_checkState_boolean_Object(this.key_.isPresent(), strobj_("key has not been set"))
 	Preconditions_checkState_boolean_Object(this.id.isPresent(), strobj_("id has not been set"))
 	Preconditions_checkState_boolean_Object((!this.isExternal_ || !this.isAnonymous_), strobj_("a message cannot be both anonymous and external"))
-	if this.alternateId.isPresent() && Object_equals(obj_(this.alternateId), obj_(this.id)) {
-		this.alternateId = Optional_empty()
+	if this.alternateId.isPresent() && Object_equals(obj_(optErase_(this.alternateId)), obj_(optErase_(this.id))) {
+		this.alternateId = Optional_empty[string]()
 	}
 	var immutableGenderedPartsBuilder ImmutableMap_BuilderOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = ImmutableMap_builder()
 	it_1 := foreach_(any(this.genderedMessageMap.asMap().entrySet()))
@@ -733,7 +733,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 		immutableGenderedPartsBuilder.put(entry.getKey(), obj_(ImmutableList_copyOf(icast_Collection(entry.getValue()))))
 	}
 	var immutableGenderedMessageMap ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = immutableGenderedPartsBuilder.buildOrThrow()
-	return new_JsMessage(this.sourceName_, str_(this.key_.get()), this.isAnonymous_, this.isExternal_, str_(this.id.get()), ImmutableList_copyOf(Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, ImmutableSet_copyOf(Collection(this.jsPlaceholderNames_.asSet())), ImmutableSet_copyOf(Collection(this.canonicalPlaceholderNames_.asSet())))
+	return new_JsMessage(this.sourceName_, this.key_.get(), this.isAnonymous_, this.isExternal_, this.id.get(), ImmutableList_copyOf(Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, ImmutableSet_copyOf(Collection(this.jsPlaceholderNames_.asSet())), ImmutableSet_copyOf(Collection(this.canonicalPlaceholderNames_.asSet())))
 }
 
 type JsMessage_Hash struct {
@@ -757,7 +757,7 @@ func JsMessage_Hash_hash64String(value OptionalOf[string], seed int64) int64 {
 	if value.isEmpty() {
 		return JsMessage_Hash_hash64_byteArr_int_int_long(nil, 0, 0, seed)
 	}
-	return JsMessage_Hash_hash64_byteArr_long(Io_utf8Bytes(str_(value.get())), seed)
+	return JsMessage_Hash_hash64_byteArr_long(Io_utf8Bytes(value.get()), seed)
 }
 
 func JsMessage_Hash_hash64_byteArr_long(value []int8, seed int64) int64 {
@@ -952,13 +952,13 @@ const JsMessage_Hash_SEED64 int64 = 3141592653589793238
 const JsMessage_Hash_CONSTANT64 int64 = -2266404186210603134
 
 type JsMessage_IdGenerator interface {
-	generateId(Optional, *TList[JsMessage_Part]) string
+	generateId(OptionalOf[string], *TList[JsMessage_Part]) string
 }
 
 type JsMessage_IdGenerator_fn struct {
-	f func(Optional, List) string
+	f func(Optional[any], List) string
 }
 
-func (this *JsMessage_IdGenerator_fn) generateId(p0 Optional, p1 *TList[JsMessage_Part]) string {
-	return this.f(p0, p1.asList())
+func (this *JsMessage_IdGenerator_fn) generateId(p0 OptionalOf[string], p1 *TList[JsMessage_Part]) string {
+	return this.f(optErase_(p0), p1.asList())
 }

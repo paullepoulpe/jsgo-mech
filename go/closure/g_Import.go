@@ -96,9 +96,9 @@ type Import_Builder struct {
 }
 
 func (this *Import_Builder) finit_Import_Builder() {
-	this.moduleRequestField = Optional_empty()
-	this.importNameField = Optional_empty()
-	this.localNameField = Optional_empty()
+	this.moduleRequestField = Optional_empty[string]()
+	this.importNameField = Optional_empty[string]()
+	this.localNameField = Optional_empty[string]()
 }
 
 func (this *Import_Builder) init_Import_Builder() {
@@ -112,17 +112,17 @@ func new_Import_Builder() *Import_Builder {
 }
 
 func (this *Import_Builder) moduleRequest(value string) *Import_Builder {
-	this.moduleRequestField = Optional_of(strobj_(value))
+	this.moduleRequestField = Optional_of[string](value)
 	return this
 }
 
 func (this *Import_Builder) importName(value string) *Import_Builder {
-	this.importNameField = Optional_of(strobj_(value))
+	this.importNameField = Optional_of[string](value)
 	return this
 }
 
 func (this *Import_Builder) localName(value string) *Import_Builder {
-	this.localNameField = Optional_of(strobj_(value))
+	this.localNameField = Optional_of[string](value)
 	return this
 }
 
@@ -167,5 +167,5 @@ func (this *Import_Builder) build() *Import {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
-	return new_Import(str_(this.moduleRequestField.get()), str_(this.importNameField.get()), str_(this.localNameField.get()), this.modulePathField, this.importNodeField, this.nameNodeField)
+	return new_Import(this.moduleRequestField.get(), this.importNameField.get(), this.localNameField.get(), this.modulePathField, this.importNodeField, this.nameNodeField)
 }

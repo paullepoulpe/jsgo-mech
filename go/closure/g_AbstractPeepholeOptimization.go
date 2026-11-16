@@ -105,7 +105,7 @@ func (this *AbstractPeepholeOptimization) getSideEffectFreeBigIntValue(n Node) *
 func (this *AbstractPeepholeOptimization) getSideEffectFreeStringValue(n Node) OptionalOf[string] {
 	var value OptionalOf[string] = NodeUtil_getStringValue(n)
 	if value.isPresent() && this.astAnalyzer.mayHaveSideEffects(n) {
-		value = Optional_empty()
+		value = Optional_empty[string]()
 	}
 	return value
 }

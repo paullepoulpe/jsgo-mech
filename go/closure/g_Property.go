@@ -54,7 +54,7 @@ func (this *Property) getName() string {
 				return s
 			case is_[*KnownSymbolType](sel_):
 				var s *KnownSymbolType = cast_[*KnownSymbolType](sel_)
-				return str_(s.getDisplayName().orElseThrow())
+				return s.getDisplayName().orElseThrow()
 			default:
 				panic(new_AssertionError_0().self())
 			}
@@ -282,7 +282,7 @@ func (this *Property_SymbolKey) kind() *Property_KeyKind {
 }
 
 func (this *Property_SymbolKey) humanReadableName() string {
-	return str_(this.symbol().getDisplayName().orElseThrow())
+	return this.symbol().getDisplayName().orElseThrow()
 }
 
 func (this *Property_SymbolKey) matches(p0 string) bool {

@@ -479,7 +479,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 			var functionCall Node = IR_call(IR_name("inlined_j2cl_getter"), []Node{})
 			n.replaceWith(functionCall)
 			var reference *FunctionInjector_Reference = new_FunctionInjector_Reference(functionCall, t.getScope(), t.getChunk(), FunctionInjector_InliningMode_DIRECT)
-			var inlinedCall Node = injector.inline(reference, Optional_empty(), prop.getKey_.getFirstChild())
+			var inlinedCall Node = injector.inline(reference, Optional_empty[string](), prop.getKey_.getFirstChild())
 			t.getCompiler().reportChangeToEnclosingScope(inlinedCall)
 		}
 	}
@@ -496,7 +496,7 @@ func (this *J2clPropertyInlinerPass_StaticFieldGetterSetterInliner_InlinePropert
 				n.replaceWith(functionCall)
 				var reference *FunctionInjector_Reference = new_FunctionInjector_Reference(functionCall, t.getScope(), t.getChunk(), FunctionInjector_InliningMode_BLOCK)
 				injector.maybePrepareCall(reference)
-				var inlinedCall Node = injector.inline(reference, Optional_empty(), prop.setKey_.getFirstChild())
+				var inlinedCall Node = injector.inline(reference, Optional_empty[string](), prop.setKey_.getFirstChild())
 				t.getCompiler().reportChangeToEnclosingScope(inlinedCall)
 			}
 		}

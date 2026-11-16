@@ -85,7 +85,7 @@ func (this *DepsFileRegexParser) parseLine_impl(line string) *Outcome_base {
 				return Outcome_base_err(providesOutcome.error())
 			}
 			var provides ListOf[string] = icast_List(providesOutcome.get())
-			var loadFlagsOutcome *Outcome_base = this.parseLoadFlags(Optional_ofNullable(strobj_(this.depArgsMatch.group(4))))
+			var loadFlagsOutcome *Outcome_base = this.parseLoadFlags(Optional_ofNullable[string](this.depArgsMatch.group(4)))
 			if loadFlagsOutcome.isErr() {
 				return Outcome_base_err(loadFlagsOutcome.error())
 			}
@@ -118,12 +118,12 @@ func DepsFileRegexParser_requiresParsedFromDeps(symbols ListOf[string]) Immutabl
 }
 
 func (this *DepsFileRegexParser) parseLoadFlags(loadFlags OptionalOf[string]) *Outcome_base {
-	if loadFlags.isEmpty() || (str_(loadFlags.get()) == "false") {
+	if loadFlags.isEmpty() || (loadFlags.get() == "false") {
 		return Outcome_base_ok_Object(obj_(ImmutableMap_of()))
-	} else if str_(loadFlags.get()) == "true" {
+	} else if loadFlags.get() == "true" {
 		return Outcome_base_ok_Object(obj_(ImmutableMap_of_Object_Object(strobj_("module"), strobj_("goog"))))
 	} else {
-		return this.parseJsStringMap(str_(loadFlags.get()))
+		return this.parseJsStringMap(loadFlags.get())
 	}
 	panic("unreachable")
 }

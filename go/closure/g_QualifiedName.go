@@ -73,7 +73,7 @@ func (this *QualifiedName) buildComponents(builder ImmutableList_BuilderOf[strin
 }
 
 func (this *QualifiedName) join_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.join_1(any(uint16('.')))))
+	return Optional_of[string](this.join_1(any(uint16('.'))))
 }
 
 func (this *QualifiedName) join_1(separator any) string {
@@ -114,8 +114,8 @@ func (this *QualifiedName) matches(p0 Node) bool {
 	return this.self_.(interface{ matches_impl(Node) bool }).matches_impl(p0)
 }
 
-func (this *QualifiedName) join() Optional {
-	return this.self_.(interface{ join_impl() Optional }).join_impl()
+func (this *QualifiedName) join() OptionalOf[string] {
+	return this.self_.(interface{ join_impl() OptionalOf[string] }).join_impl()
 }
 
 var QualifiedName_THIS string
@@ -339,11 +339,10 @@ func (this *QualifiedName_NodeQname) appendTo_impl(sb *StringBuilder, separator 
 }
 
 func (this *QualifiedName_NodeQname) join_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.node_.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	return Optional_of[string](this.node_.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
+	})
 }
 
 func (this *QualifiedName_NodeQname) matches_impl(n Node) bool {
@@ -500,11 +499,11 @@ func (this *QualifiedName_NodeQname) appendTo(p0 *StringBuilder, p1 any) {
 }
 
 // join: an object that is exactly a QualifiedName_NodeQname calls its join_impl directly (post-flip); others dispatch.
-func (this *QualifiedName_NodeQname) join() Optional {
+func (this *QualifiedName_NodeQname) join() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.join_impl()
 	}
-	return this.self_.(interface{ join_impl() Optional }).join_impl()
+	return this.self_.(interface{ join_impl() OptionalOf[string] }).join_impl()
 }
 
 // matches: an object that is exactly a QualifiedName_NodeQname calls its matches_impl directly (post-flip); others dispatch.

@@ -5,20 +5,20 @@ package closure
 type CodingConvention interface {
 	isConstant(string) bool
 	isConstantKey(string) bool
-	isValidEnumKey(Optional) bool
+	isValidEnumKey(OptionalOf[string]) bool
 	isOptionalParameter(Node) bool
 	isVarArgsParameter(Node) bool
 	isFunctionCallThatAlwaysThrows(Node) bool
 	isExported_2(string, bool) bool
 	isExported(string) bool
 	blockRenamingForProperty(string) bool
-	getPackageName(StaticSourceFile) Optional
+	getPackageName(StaticSourceFile) OptionalOf[string]
 	getClassesDefinedByCall(Node) *CodingConvention_SubclassRelationship
 	isClassFactoryCall(Node) bool
 	isSuperClassReference(string) bool
 	extractIsModuleFile(Node, Node) bool
-	extractClassNameIfProvide(Node, Node) Optional
-	extractClassNameIfRequire(Node, Node) Optional
+	extractClassNameIfProvide(Node, Node) OptionalOf[string]
+	extractClassNameIfRequire(Node, Node) OptionalOf[string]
 	getExportPropertyFunction() string
 	getExportSymbolFunction() string
 	identifyTypeDeclarationCall(Node) []string
@@ -152,16 +152,14 @@ func (this *CodingConvention_SubclassRelationship) init_CodingConvention_Subclas
 	Preconditions_checkArgument_boolean_String_Object(subclassNode.isQualifiedName(), "Expected qualified name, found: %s", subclassNode.box_())
 	Preconditions_checkArgument_boolean_String_Object(superclassNode.isQualifiedName(), "Expected qualified name, found: %s", superclassNode.box_())
 	this.type__ = type_
-	this.subclassName = Optional_of(strobj_(subclassNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	this.subclassName = Optional_of[string](subclassNode.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
-	this.superclassName = Optional_of(strobj_(superclassNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	})
+	this.superclassName = Optional_of[string](superclassNode.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
+	})
 }
 
 func new_CodingConvention_SubclassRelationship(type_ *CodingConvention_SubclassType, subclassNode Node, superclassNode Node) *CodingConvention_SubclassRelationship {
@@ -210,7 +208,7 @@ func new_CodingConvention_AssertionFunctionSpec(getFunctionName OptionalOf[strin
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) toString() string {
-	return ("AssertionFunctionSpec{functionName=" + sstr_(str_(this.getFunctionName_.orElse(strobj_("null")))) + ", closurePrimitive=" + objstr_(obj_(this.getClosurePrimitive_)) + ", assertionKind=" + objstr_(obj_(this.getAssertionKind_)) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
+	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElse("null")) + ", closurePrimitive=" + objstr_(obj_(this.getClosurePrimitive_)) + ", assertionKind=" + objstr_(obj_(this.getAssertionKind_)) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
 }
 
 func CodingConvention_AssertionFunctionSpec_builder() *CodingConvention_AssertionFunctionSpec_Builder {
@@ -230,7 +228,7 @@ func (this *CodingConvention_AssertionFunctionSpec) getId() any {
 		if this.getClosurePrimitive() != nil {
 			return obj_(this.getClosurePrimitive())
 		}
-		return this.getFunctionName().orElse(nil)
+		return strobj_(this.getFunctionName().orElse(nullstr_))
 	}()
 }
 
@@ -244,7 +242,7 @@ func (this *CodingConvention_AssertionFunctionSpec) getAssertedArg(firstArg Node
 	return firstArg
 }
 
-func (this *CodingConvention_AssertionFunctionSpec) getFunctionName() Optional {
+func (this *CodingConvention_AssertionFunctionSpec) getFunctionName() OptionalOf[string] {
 	return this.getFunctionName_
 }
 
@@ -265,12 +263,12 @@ func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.getFunctionName_), obj_(o.getFunctionName_)) && Objects_equals(obj_(this.getClosurePrimitive_), obj_(o.getClosurePrimitive_)) && Objects_equals(obj_(this.getAssertionKind_), obj_(o.getAssertionKind_)) && this.getParamIndex_ == o.getParamIndex_
+	return true && Objects_equals(obj_(optErase_(this.getFunctionName_)), obj_(optErase_(o.getFunctionName_))) && Objects_equals(obj_(this.getClosurePrimitive_), obj_(o.getClosurePrimitive_)) && Objects_equals(obj_(this.getAssertionKind_), obj_(o.getAssertionKind_)) && this.getParamIndex_ == o.getParamIndex_
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.getFunctionName_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.getFunctionName_)))
 	h = h*31 + Objects_hashCode(obj_(this.getClosurePrimitive_))
 	h = h*31 + Objects_hashCode(obj_(this.getAssertionKind_))
 	h = h*31 + Objects_hashCode(any(int32(this.getParamIndex_)))
@@ -339,7 +337,7 @@ type CodingConvention_AssertionFunctionSpec_Builder struct {
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) finit_CodingConvention_AssertionFunctionSpec_Builder() {
-	this.functionName = Optional_empty()
+	this.functionName = Optional_empty[string]()
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) init_CodingConvention_AssertionFunctionSpec_Builder() {
@@ -353,7 +351,7 @@ func new_CodingConvention_AssertionFunctionSpec_Builder() *CodingConvention_Asse
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) setFunctionName(name string) *CodingConvention_AssertionFunctionSpec_Builder {
-	this.functionName = Optional_of(strobj_(name))
+	this.functionName = Optional_of[string](name)
 	return this
 }
 

@@ -62,17 +62,17 @@ func (this *ModuleResolver) locate(scriptAddress string, name string) OptionalOf
 		normalizedPath = (sstr_(ModuleLoader_MODULE_SLASH) + sstr_(canonicalizedPath))
 	}
 	if Collection_contains_s(this.modulePaths, normalizedPath) {
-		return Optional_of(strobj_(canonicalizedPath))
+		return Optional_of[string](canonicalizedPath)
 	}
 	it_1 := foreach_(obj_(this.moduleRootPaths))
 	for it_1.next() {
 		var rootPath string = str_(it_1.v)
 		var modulePath string = (sstr_(rootPath) + sstr_(normalizedPath))
 		if Collection_contains_s(this.modulePaths, modulePath) {
-			return Optional_of(strobj_(canonicalizedPath))
+			return Optional_of[string](canonicalizedPath)
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *ModuleResolver) canonicalizePath(scriptAddress string, moduleAddress string) string {
@@ -89,15 +89,15 @@ func (this *ModuleResolver) setErrorHandler(errorHandler ErrorHandler) {
 	this.errorHandler = errorHandler
 }
 
-func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional, p3 int32, p4 int32) Optional {
+func (this *ModuleResolver) resolveJsModule(p0 string, p1 string, p2 OptionalOf[string], p3 int32, p4 int32) OptionalOf[string] {
 	return this.self_.(interface {
-		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
+		resolveJsModule_impl(string, string, OptionalOf[string], int32, int32) OptionalOf[string]
 	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
-func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional {
+func (this *ModuleResolver) resolveJsModuleSilently(p0 string, p1 string) OptionalOf[string] {
 	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) Optional
+		resolveJsModuleSilently_impl(string, string) OptionalOf[string]
 	}).resolveJsModuleSilently_impl(p0, p1)
 }
 

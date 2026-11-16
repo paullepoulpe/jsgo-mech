@@ -88,7 +88,7 @@ func (this *XtbMessageBundle_Handler) zero_XtbMessageBundle_Handler() {
 }
 
 func (this *XtbMessageBundle_Handler) finit_XtbMessageBundle_Handler() {
-	this.lang = Optional_empty()
+	this.lang = Optional_empty[string]()
 }
 
 func (this *XtbMessageBundle_Handler) init_XtbMessageBundle_Handler() {
@@ -127,13 +127,13 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 	switch qName {
 	case XtbMessageBundle_Handler_BUNDLE_ELEM_NAME:
 		Preconditions_checkState(this.lang.isEmpty())
-		this.lang = Optional_ofNullable(strobj_(atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME)))
-		Preconditions_checkState((this.lang.isPresent() && !String_isEmpty(str_(this.lang.get()))))
+		this.lang = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME))
+		Preconditions_checkState((this.lang.isPresent() && !String_isEmpty(this.lang.get())))
 	case XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME:
 		Preconditions_checkState((this.msgBuilder == nil))
-		var id OptionalOf[string] = Optional_ofNullable(strobj_(atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME)))
-		Preconditions_checkState((id.isPresent() && !String_isEmpty(str_(id.get()))))
-		this.msgBuilder = new_JsMessage_Builder().setKey(str_(id.get())).setId(id)
+		var id OptionalOf[string] = Optional_ofNullable[string](atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME))
+		Preconditions_checkState((id.isPresent() && !String_isEmpty(id.get())))
+		this.msgBuilder = new_JsMessage_Builder().setKey(id.get()).setId(id)
 	case XtbMessageBundle_Handler_PLACEHOLDER_ELEM_NAME:
 		Preconditions_checkState((this.msgBuilder != nil))
 		var phRef string = atts.getValue(XtbMessageBundle_Handler_PLACEHOLDER_NAME_ATT_NAME)
@@ -162,7 +162,7 @@ func (this *XtbMessageBundle_Handler) endElement(uri string, localName string, q
 			this.msgBuilder.appendStringPart("")
 		}
 		var key OptionalOf[string] = this.msgBuilder.getKey()
-		this.outer_.messages.put(str_(key.orElse(nil)), this.msgBuilder.build())
+		this.outer_.messages.put(key.orElse(nullstr_), this.msgBuilder.build())
 		this.msgBuilder = nil
 	}
 }

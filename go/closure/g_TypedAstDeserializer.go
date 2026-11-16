@@ -188,8 +188,8 @@ func (this *TypedAstDeserializer) initLazyAstDeserializer(lazyAst *LazyAst, file
 func TypedAstDeserializer_addInputSourceMap(deserializer *ScriptNodeDeserializer, compiler *AbstractCompiler, resolveSourceMapAnnotations bool, parseInlineSourceMaps bool) {
 	var sourceFile *SourceFile_jscomp = deserializer.getSourceFile()
 	var sourceMappingURL OptionalOf[string] = deserializer.getSourceMappingURL()
-	if (sourceMappingURL.isPresent() && (String_length(str_(sourceMappingURL.get())) > 0)) && resolveSourceMapAnnotations {
-		var base64EncodedSourceMap string = SourceMapResolver_addBase64PrefixToEncodedSourceMap(str_(sourceMappingURL.get()))
+	if (sourceMappingURL.isPresent() && (String_length(sourceMappingURL.get()) > 0)) && resolveSourceMapAnnotations {
+		var base64EncodedSourceMap string = SourceMapResolver_addBase64PrefixToEncodedSourceMap(sourceMappingURL.get())
 		var sourceMapSourceFile *SourceFile_jscomp = SourceMapResolver_extractSourceMap(sourceFile, base64EncodedSourceMap, parseInlineSourceMaps)
 		if sourceMapSourceFile != nil {
 			compiler.addInputSourceMap(sourceFile.getName(), new_SourceMapInput(sourceMapSourceFile))

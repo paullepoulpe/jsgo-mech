@@ -358,9 +358,9 @@ func (this *ControlFlowAnalysis) handleCatch(node Node) {
 }
 
 func (this *ControlFlowAnalysis) handleBreak(node Node) {
-	var label OptionalOf[string] = Optional_empty()
+	var label OptionalOf[string] = Optional_empty[string]()
 	if node.hasChildren() {
-		label = Optional_of(strobj_(node.getFirstChild().getString()))
+		label = Optional_of[string](node.getFirstChild().getString())
 	}
 	var cur Node
 	var previous Node = 0
@@ -404,9 +404,9 @@ func (this *ControlFlowAnalysis) handleBreak(node Node) {
 }
 
 func (this *ControlFlowAnalysis) handleContinue(node Node) {
-	var label OptionalOf[string] = Optional_empty()
+	var label OptionalOf[string] = Optional_empty[string]()
 	if node.hasChildren() {
-		label = Optional_of(strobj_(node.getFirstChild().getString()))
+		label = Optional_of[string](node.getFirstChild().getString())
 	}
 	var cur Node
 	var previous Node = 0
@@ -645,7 +645,7 @@ func ControlFlowAnalysis_matchLabel(target Node, label OptionalOf[string]) bool 
 		return true
 	}
 	for target.isLabel() {
-		if target.getFirstChild().getString() == str_(label.get()) {
+		if target.getFirstChild().getString() == label.get() {
 			return true
 		}
 		target = target.getParent()

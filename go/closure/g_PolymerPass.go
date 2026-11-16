@@ -125,24 +125,24 @@ func (this *PolymerPass) normalizePolymerExport(nameDecl Node, export Node) {
 }
 
 func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition) {
-	if !setAdd_(this.nativeExternsAdded, str_(def.nativeBaseElement.orElse(nil))) {
+	if !setAdd_(this.nativeExternsAdded, def.nativeBaseElement.orElse(nullstr_)) {
 		return
 	}
 	var block Node = IR_block_0()
 	var baseExterns Node = this.polymerElementExterns.cloneTree()
 	var polymerElementType string = PolymerPassStaticUtils_getPolymerElementType(def)
 	baseExterns.getFirstChild().setString(polymerElementType)
-	var elementType OptionalOf[string] = func() Optional {
+	var elementType OptionalOf[string] = func() OptionalOf[string] {
 		if def.nativeBaseElement.isPresent() {
-			return Optional_ofNullable(Map_get_s(this.tagNameMap, str_(def.nativeBaseElement.get())))
+			return Optional_ofNullable[string](str_(Map_get_s(this.tagNameMap, def.nativeBaseElement.get())))
 		}
-		return Optional_empty()
+		return Optional_empty[string]()
 	}()
 	if elementType.isEmpty() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(def.descriptor, PolymerPassErrors_POLYMER_INVALID_EXTENDS, []string{str_(def.nativeBaseElement.orElse(strobj_("null")))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(def.descriptor, PolymerPassErrors_POLYMER_INVALID_EXTENDS, []string{def.nativeBaseElement.orElse("null")}))
 		return
 	}
-	var elementBaseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(str_(elementType.get())).srcrefTree(this.polymerElementExterns)), PolymerPass_VIRTUAL_FILE)
+	var elementBaseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(elementType.get()).srcrefTree(this.polymerElementExterns)), PolymerPass_VIRTUAL_FILE)
 	var baseDocs *JSDocInfo_Builder = JSDocInfo_Builder_copyFrom(baseExterns.getJSDocInfo())
 	baseDocs.changeBaseType(elementBaseType)
 	baseExterns.setJSDocInfo(baseDocs.build())

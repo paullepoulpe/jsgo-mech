@@ -34,36 +34,35 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	if (sourceFile == nil) || (node.getLineno() < 0) {
 		return
 	}
-	var sourceFileName OptionalOf[string] = Optional_of(strobj_(sourceFile.getName()))
+	var sourceFileName OptionalOf[string] = Optional_of[string](sourceFile.getName())
 	var lineNo int32 = node.getLineno()
 	var charNo int32 = node.getCharno()
-	var originalName OptionalOf[string] = Optional_of(strobj_(SourceMap_getOriginalName(node))).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	var originalName OptionalOf[string] = Optional_of[string](SourceMap_getOriginalName(node)).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
+	})
 	if this.mapping != nil {
 		var sourceMapping *Mapping_OriginalMapping = this.mapping.getSourceMapping_Optional_int_int(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
 		} else if Object_equals(obj_(sourceMapping), obj_(Mapping_OriginalMapping_getDefaultInstance())) {
 			return
 		} else {
-			sourceFileName = Optional_ofNullable(strobj_(sourceMapping.getOriginalFile()))
+			sourceFileName = Optional_ofNullable[string](sourceMapping.getOriginalFile())
 			lineNo = sourceMapping.getLineNumber()
 			charNo = sourceMapping.getColumnPosition()
 			var identifier string = sourceMapping.getIdentifier()
 			if sourceMapping.hasIdentifier() && !String_isEmpty(identifier) {
-				originalName = Optional_of(strobj_(identifier))
+				originalName = Optional_of[string](identifier)
 			}
 		}
 	}
 	sourceFileName = this.fixupSourceLocation(sourceFileName)
 	var lineBaseOffset int32 = 1
-	this.generator.addMapping(str_(sourceFileName.orElse(strobj_(""))), str_(originalName.orElse(strobj_(""))), new_FilePosition((lineNo-lineBaseOffset), charNo), outputStartPosition, outputEndPosition)
+	this.generator.addMapping(sourceFileName.orElse(""), originalName.orElse(""), new_FilePosition((lineNo-lineBaseOffset), charNo), outputStartPosition, outputEndPosition)
 }
 
 func (this *SourceMap) addSourceFile(name string, code string) {
-	this.generator.addSourcesContent(str_(this.fixupSourceLocation(Optional_of(strobj_(name))).orElse(nil)), code)
+	this.generator.addSourcesContent(this.fixupSourceLocation(Optional_of[string](name)).orElse(nullstr_), code)
 }
 
 func SourceMap_getOriginalName(node Node) string {
@@ -86,11 +85,11 @@ func (this *SourceMap) fixupSourceLocation(sourceFile OptionalOf[string]) Option
 	if len(this.prefixMappings) == 0 {
 		return sourceFile
 	}
-	var fixed OptionalOf[string] = func() Optional {
+	var fixed OptionalOf[string] = func() OptionalOf[string] {
 		if sourceFile.isPresent() {
-			return Optional_ofNullable(strobj_(mapStr_(this.sourceLocationFixupCache, str_(sourceFile.get()))))
+			return Optional_ofNullable[string](mapStr_(this.sourceLocationFixupCache, sourceFile.get()))
 		}
-		return Optional_empty()
+		return Optional_empty[string]()
 	}()
 	if fixed.isPresent() {
 		return fixed
@@ -104,7 +103,7 @@ func (this *SourceMap) fixupSourceLocation(sourceFile OptionalOf[string]) Option
 	if fixed.isEmpty() {
 		fixed = sourceFile
 	}
-	this.sourceLocationFixupCache[str_(sourceFile.orElse(nil))] = str_(fixed.orElse(nil))
+	this.sourceLocationFixupCache[sourceFile.orElse(nullstr_)] = fixed.orElse(nullstr_)
 	return fixed
 }
 
@@ -284,15 +283,15 @@ func SourceMap_DetailLevel_clinit() {
 }
 
 type SourceMap_LocationMapping interface {
-	map_(Optional) Optional
+	map_(OptionalOf[string]) OptionalOf[string]
 }
 
 type SourceMap_LocationMapping_fn struct {
-	f func(Optional) Optional
+	f func(Optional[any]) Optional[any]
 }
 
-func (this *SourceMap_LocationMapping_fn) map_(p0 Optional) Optional {
-	return this.f(p0)
+func (this *SourceMap_LocationMapping_fn) map_(p0 OptionalOf[string]) OptionalOf[string] {
+	return optConv_(this.f(optErase_(p0)), func(v any) string { return str_(v) })
 }
 
 type SourceMap_PrefixLocationMapping struct {
@@ -318,10 +317,10 @@ func new_SourceMap_PrefixLocationMapping(prefix string, replacement string) *Sou
 }
 
 func (this *SourceMap_PrefixLocationMapping) map_(location OptionalOf[string]) OptionalOf[string] {
-	if String_startsWith(str_(location.get()), this.prefix_) {
-		return Optional_of(strobj_((sstr_(this.replacement_) + sstr_(String_substring_int(str_(location.get()), String_length(this.prefix_))))))
+	if String_startsWith(location.get(), this.prefix_) {
+		return Optional_of[string]((sstr_(this.replacement_) + sstr_(String_substring_int(location.get(), String_length(this.prefix_)))))
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *SourceMap_PrefixLocationMapping) toString() string {

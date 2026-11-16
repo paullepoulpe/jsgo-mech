@@ -128,15 +128,15 @@ func (this *ObjectType) hasReferenceName() bool {
 func (this *ObjectType) getNormalizedReferenceName() OptionalOf[string] {
 	var name OptionalOf[string] = this.getReferenceName()
 	if name.isPresent() {
-		var start int32 = String_indexOf(str_(name.get()), 40)
+		var start int32 = String_indexOf(name.get(), 40)
 		if start != -1 {
-			var end int32 = String_lastIndexOf(str_(name.get()), 41)
-			var prefix string = String_substring(str_(name.get()), 0, start)
-			return func() Optional {
-				if (end + (1 % String_length(str_(name.get())))) == 0 {
-					return Optional_of(strobj_(prefix))
+			var end int32 = String_lastIndexOf(name.get(), 41)
+			var prefix string = String_substring(name.get(), 0, start)
+			return func() OptionalOf[string] {
+				if (end + (1 % String_length(name.get()))) == 0 {
+					return Optional_of[string](prefix)
 				}
-				return Optional_of(strobj_((sstr_(prefix) + sstr_(String_substring_int(str_(name.get()), (end+1))))))
+				return Optional_of[string]((sstr_(prefix) + sstr_(String_substring_int(name.get(), (end+1)))))
 			}()
 		}
 	}
@@ -597,8 +597,8 @@ func (this *ObjectType) getPropertyMap() *PropertyMap {
 	return this.self_.(interface{ getPropertyMap_impl() *PropertyMap }).getPropertyMap_impl()
 }
 
-func (this *ObjectType) getReferenceName() Optional {
-	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+func (this *ObjectType) getReferenceName() OptionalOf[string] {
+	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
 }
 
 func (this *ObjectType) defineProperty(p0 Property_Key, p1 *JSType, p2 bool, p3 Node) bool {
@@ -736,11 +736,11 @@ func (this *ObjectType) getJSDocInfo() *JSDocInfo {
 }
 
 // getDisplayName: an object that is exactly a ObjectType calls its getDisplayName_impl directly (post-flip); others dispatch.
-func (this *ObjectType) getDisplayName() Optional {
+func (this *ObjectType) getDisplayName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getDisplayName_impl()
 	}
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+	return this.self_.(interface{ getDisplayName_impl() OptionalOf[string] }).getDisplayName_impl()
 }
 
 // testForEquality: an object that is exactly a ObjectType calls its testForEquality_impl directly (post-flip); others dispatch.

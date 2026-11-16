@@ -128,7 +128,7 @@ func CmdLineParser_createDefaultValuePart(option *CmdLineParser_Option) string {
 	if !option.requiredField && (option.defaultValues != nil) {
 		var v OptionalOf[string] = option.printDefaultValue()
 		if v.isPresent() {
-			return (" (default: " + sstr_(str_(v.get())) + ")")
+			return (" (default: " + sstr_(v.get()) + ")")
 		}
 	}
 	return ""
@@ -272,7 +272,7 @@ func CmdLineParser_clinit() {
 
 type CmdLineParser_Parameters interface {
 	getParameter(int32) *Outcome_base
-	getParameterOrNull(int32) Optional
+	getParameterOrNull(int32) OptionalOf[string]
 }
 
 type CmdLineParser_Handler interface {
@@ -310,7 +310,7 @@ func (this *CmdLineParser_Option) finit_CmdLineParser_Option() {
 	this.usageField = ""
 	this.hiddenField = false
 	this.requiredField = false
-	this.metaVariable = Optional_empty()
+	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = nil
 	this.handler = nil
 }
@@ -362,7 +362,7 @@ func (this *CmdLineParser_Option) required(required bool) *CmdLineParser_Option 
 }
 
 func (this *CmdLineParser_Option) string(get SupplierOf[string], set ConsumerOf[string]) {
-	this.metaVariable = Optional_of(strobj_("VAL"))
+	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = &Supplier_fn{func() any {
 		return any(CmdLineParser_Option_asList(get.get()))
 	}}
@@ -378,7 +378,7 @@ func (this *CmdLineParser_Option) string(get SupplierOf[string], set ConsumerOf[
 }
 
 func (this *CmdLineParser_Option) stringList(get SupplierOf[ListOf[string]], set ConsumerOf[ListOf[string]]) {
-	this.metaVariable = Optional_of(strobj_("VAL"))
+	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = &Supplier_fn{func() any {
 		return get.get()
 	}}
@@ -394,7 +394,7 @@ func (this *CmdLineParser_Option) stringList(get SupplierOf[ListOf[string]], set
 }
 
 func (this *CmdLineParser_Option) stringEach(add ConsumerOf[string]) {
-	this.metaVariable = Optional_of(strobj_("VAL"))
+	this.metaVariable = Optional_of[string]("VAL")
 	this.defaultValues = nil
 	this.handler = &CmdLineParser_Handler_fn{func(params CmdLineParser_Parameters) *Outcome_base {
 		var value *Outcome_base = params.getParameter(0)
@@ -408,7 +408,7 @@ func (this *CmdLineParser_Option) stringEach(add ConsumerOf[string]) {
 }
 
 func (this *CmdLineParser_Option) integer(get SupplierOf[BoxedOf[int32]], set ConsumerOf[BoxedOf[int32]]) {
-	this.metaVariable = Optional_of(strobj_("N"))
+	this.metaVariable = Optional_of[string]("N")
 	this.defaultValues = &Supplier_fn{func() any {
 		return any(CmdLineParser_Option_asList(get.get()))
 	}}
@@ -418,7 +418,7 @@ func (this *CmdLineParser_Option) integer(get SupplierOf[BoxedOf[int32]], set Co
 			return Outcome_base_err(tokenOutcome.error())
 		}
 		var token string = str_(tokenOutcome.get())
-		var value any = JSCompStrings_parseIntOrNull(Optional_of(strobj_(token)))
+		var value any = JSCompStrings_parseIntOrNull(Optional_of[string](token))
 		if value == nil {
 			var flagName *Outcome_base = params.getParameter(-1)
 			if flagName.isErr() {
@@ -433,7 +433,7 @@ func (this *CmdLineParser_Option) integer(get SupplierOf[BoxedOf[int32]], set Co
 }
 
 func (this *CmdLineParser_Option) flag(get SupplierOf[BoxedOf[bool]], set ConsumerOf[BoxedOf[bool]]) {
-	this.metaVariable = Optional_empty()
+	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = &Supplier_fn{func() any {
 		return any(CmdLineParser_Option_asList(get.get()))
 	}}
@@ -445,7 +445,7 @@ func (this *CmdLineParser_Option) flag(get SupplierOf[BoxedOf[bool]], set Consum
 }
 
 func (this *CmdLineParser_Option) bool(get SupplierOf[BoxedOf[bool]], set ConsumerOf[BoxedOf[bool]]) {
-	this.metaVariable = Optional_empty()
+	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = &Supplier_fn{func() any {
 		return any(CmdLineParser_Option_asList(get.get()))
 	}}
@@ -455,7 +455,7 @@ func (this *CmdLineParser_Option) bool(get SupplierOf[BoxedOf[bool]], set Consum
 			set.accept(any(bool(true)))
 			return Outcome_base_ok_Object(any(int32(0)))
 		} else {
-			var lowerParam string = Ascii_toLowerCase(str_(param.get()))
+			var lowerParam string = Ascii_toLowerCase(param.get())
 			if Collection_contains_s(CmdLineParser_TRUES, lowerParam) {
 				set.accept(any(bool(true)))
 			} else if Collection_contains_s(CmdLineParser_FALSES, lowerParam) {
@@ -471,7 +471,7 @@ func (this *CmdLineParser_Option) bool(get SupplierOf[BoxedOf[bool]], set Consum
 }
 
 func (this *CmdLineParser_Option) enumValue(values []*Enum, get SupplierOf[any], set ConsumerOf[any]) {
-	this.metaVariable = Optional_of(strobj_(CmdLineParser_Option_enumMetaVariable(values)))
+	this.metaVariable = Optional_of[string](CmdLineParser_Option_enumMetaVariable(values))
 	this.defaultValues = &Supplier_fn{func() any {
 		return any(CmdLineParser_Option_asList(get.get()))
 	}}
@@ -487,7 +487,7 @@ func (this *CmdLineParser_Option) enumValue(values []*Enum, get SupplierOf[any],
 }
 
 func (this *CmdLineParser_Option) enumList(values []*Enum, get SupplierOf[ListOf[any]], set ConsumerOf[ListOf[any]]) {
-	this.metaVariable = Optional_of(strobj_(CmdLineParser_Option_enumMetaVariable(values)))
+	this.metaVariable = Optional_of[string](CmdLineParser_Option_enumMetaVariable(values))
 	this.defaultValues = &Supplier_fn{func() any {
 		return get.get()
 	}}
@@ -503,7 +503,7 @@ func (this *CmdLineParser_Option) enumList(values []*Enum, get SupplierOf[ListOf
 }
 
 func (this *CmdLineParser_Option) map_(get SupplierOf[MapOf[string, string]], set ConsumerOf[MapOf[string, string]]) {
-	this.metaVariable = Optional_empty()
+	this.metaVariable = Optional_empty[string]()
 	this.defaultValues = &Supplier_fn{func() any {
 		return any(CmdLineParser_Option_asList(get.get()))
 	}}
@@ -523,14 +523,14 @@ func (this *CmdLineParser_Option) map_(get SupplierOf[MapOf[string, string]], se
 			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.owner_, "An argument for setting a Map must contain a \"=\"").up_Throwable())
 		}
 		var mapKey string = String_substring(argument, 0, idx)
-		var mapValue OptionalOf[string] = Optional_of(strobj_(String_substring_int(argument, (idx + 1))))
-		if String_length(str_(mapValue.get())) == 0 {
-			mapValue = Optional_empty()
+		var mapValue OptionalOf[string] = Optional_of[string](String_substring_int(argument, (idx + 1)))
+		if String_length(mapValue.get()) == 0 {
+			mapValue = Optional_empty[string]()
 		}
 		if String_length(mapKey) == 0 {
 			return Outcome_base_err(new_CmdLineException_CmdLineParser_String(this.owner_, "A key must be set.").up_Throwable())
 		}
-		Map_put_s(map_, mapKey, mapValue.orElse(nil))
+		Map_put_s(map_, mapKey, strobj_(mapValue.orElse(nullstr_)))
 		return Outcome_base_ok_Object(any(int32(1)))
 		panic("unreachable")
 	}}
@@ -601,7 +601,7 @@ func (this *CmdLineParser_Option) getNameAndMeta() string {
 		if String_length(str) > 0 {
 			str += " "
 		}
-		str += sstr_(str_(this.metaVariable.get()))
+		str += sstr_(this.metaVariable.get())
 	}
 	return str
 }
@@ -626,9 +626,9 @@ func (this *CmdLineParser_Option) printDefaultValue() OptionalOf[string] {
 		} else {
 			buf.append(String_valueOf_Object(values.get(0)))
 		}
-		return Optional_of(strobj_(Object_toString(obj_(buf))))
+		return Optional_of[string](Object_toString(obj_(buf)))
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 type CmdLineParser_CmdLineImpl struct {
@@ -670,9 +670,9 @@ func (this *CmdLineParser_CmdLineImpl) getParameter(idx int32) *Outcome_base {
 
 func (this *CmdLineParser_CmdLineImpl) getParameterOrNull(idx int32) OptionalOf[string] {
 	if ((this.pos + idx) >= int32(len(this.args))) || ((this.pos + idx) < 0) {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_of(strobj_(this.args[(this.pos + idx)]))
+	return Optional_of[string](this.args[(this.pos + idx)])
 }
 
 func (this *CmdLineParser_CmdLineImpl) splitToken() {

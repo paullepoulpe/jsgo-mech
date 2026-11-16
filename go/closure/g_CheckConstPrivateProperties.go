@@ -86,7 +86,7 @@ func (this *CheckConstPrivateProperties) visit_impl(t *NodeTraversal, n Node, pa
 func (this *CheckConstPrivateProperties) recordConstructorOrInterface(n Node) {
 	var className OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	if className.isPresent() {
-		this.constructorsAndInterfaces[str_(className.get())] = struct{}{}
+		this.constructorsAndInterfaces[className.get()] = struct{}{}
 	}
 }
 

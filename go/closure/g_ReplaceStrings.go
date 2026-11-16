@@ -129,28 +129,28 @@ func (this *ReplaceStrings) doSubstitutions(t *NodeTraversal, config *ReplaceStr
 
 func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node {
 	var replacement Node
-	var key OptionalOf[string] = Optional_empty()
+	var key OptionalOf[string] = Optional_empty[string]()
 	var replacementString string
 	switch expr.ns_().token {
 	case tokOrd1_STRINGLIT:
-		key = Optional_of(strobj_(expr.getString()))
-		replacementString = this.getReplacement(str_(key.orElse(nil)))
+		key = Optional_of[string](expr.getString())
+		replacementString = this.getReplacement(key.orElse(nullstr_))
 		replacement = IR_string(replacementString)
 	case tokOrd1_TEMPLATELIT, tokOrd1_ADD, tokOrd1_NAME:
 		var keyBuilder *StringBuilder = new_StringBuilder()
 		var keyNode Node = IR_string("")
 		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
-		key = Optional_of(strobj_(Object_toString(obj_(keyBuilder))))
-		if str_(key.get()) == this.placeholderToken {
+		key = Optional_of[string](Object_toString(obj_(keyBuilder)))
+		if key.get() == this.placeholderToken {
 			return expr
 		}
-		replacementString = this.getReplacement(str_(key.orElse(nil)))
+		replacementString = this.getReplacement(key.orElse(nullstr_))
 		keyNode.setString(replacementString)
 	default:
 		return expr
 	}
 	Preconditions_checkState(key.isPresent())
-	this.recordReplacement(str_(key.get()))
+	this.recordReplacement(key.get())
 	replacement.srcrefTreeIfMissing(expr)
 	expr.replaceWith(replacement)
 	t.reportCodeChange()
@@ -187,7 +187,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 			for ; child != 0; child = child.getNext() {
 				switch child.ns_().token {
 				case tokOrd1_TEMPLATELIT_STRING:
-					keyBuilder.append(str_(child.getCookedString().orElse(strobj_("null"))))
+					keyBuilder.append(child.getCookedString().orElse("null"))
 				case tokOrd1_TEMPLATELIT_SUB:
 					prefix = this.buildReplacement(t, child.getFirstChild(), prefix, keyBuilder)
 				default:

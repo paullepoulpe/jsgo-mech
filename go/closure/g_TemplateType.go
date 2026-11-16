@@ -93,7 +93,7 @@ func (this *TemplateType) getTypeClass_impl() *JSTypeClass {
 }
 
 func (this *TemplateType) getReferenceName_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.name_))
+	return Optional_of[string](this.name_)
 }
 
 func (this *TemplateType) appendTo_impl(sb *TypeStringBuilder) {
@@ -172,11 +172,11 @@ func (this *TemplateType) getTypeClass() *JSTypeClass {
 }
 
 // getReferenceName: an object that is exactly a TemplateType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *TemplateType) getReferenceName() Optional {
+func (this *TemplateType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
 }
 
 // appendTo: an object that is exactly a TemplateType calls its appendTo_impl directly (post-flip); others dispatch.

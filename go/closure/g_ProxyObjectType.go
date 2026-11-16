@@ -120,9 +120,9 @@ func (this *ProxyObjectType) setValidator_impl(validator Predicate_baseOf[*JSTyp
 }
 
 func (this *ProxyObjectType) getReferenceName_impl() OptionalOf[string] {
-	return func() Optional {
+	return func() OptionalOf[string] {
 		if this.referencedObjType == nil {
-			return Optional_of(strobj_(""))
+			return Optional_of[string]("")
 		}
 		return this.referencedObjType.getReferenceName()
 	}()
@@ -446,11 +446,11 @@ func (this *ProxyObjectType) setValidator(p0 Predicate_base) bool {
 }
 
 // getReferenceName: an object that is exactly a ProxyObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *ProxyObjectType) getReferenceName() Optional {
+func (this *ProxyObjectType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
 }
 
 // matchesNumberContext: an object that is exactly a ProxyObjectType calls its matchesNumberContext_impl directly (post-flip); others dispatch.

@@ -105,7 +105,7 @@ func (this *AliasStrings) replaceStringsWithAliases() {
 			it_3 := eachOf_(&info.occurrences)
 			for it_3.next() {
 				var node Node = it_3.v
-				this.replaceStringWithAliasName(node, str_(info.getVariableName(literal).get()), info)
+				this.replaceStringWithAliasName(node, info.getVariableName(literal).get(), info)
 			}
 		}
 	}
@@ -120,7 +120,7 @@ func (this *AliasStrings) addAliasDeclarationNodes() {
 			continue
 		}
 		var alias OptionalOf[string] = info.getVariableName(str_(entry.getKey()))
-		var var_ Node = IR_var_Node_Node(IR_name(str_(alias.get())), IR_string(str_(entry.getKey())))
+		var var_ Node = IR_var_Node_Node(IR_name(alias.get()), IR_string(str_(entry.getKey())))
 		var firstUse Node = sliceAt_(info.occurrences, 0)
 		var_.srcrefTree(firstUse)
 		if info.siblingToInsertVarDeclBefore == 0 {
@@ -197,7 +197,7 @@ type AliasStrings_StringInfo struct {
 
 func (this *AliasStrings_StringInfo) finit_AliasStrings_StringInfo() {
 	this.occurrences = []Node{}
-	this.aliasName_ = Optional_empty()
+	this.aliasName_ = Optional_empty[string]()
 }
 
 func (this *AliasStrings_StringInfo) init_AliasStrings_StringInfo(id int32) {
@@ -215,7 +215,7 @@ func new_AliasStrings_StringInfo(outer_ *AliasStrings, id int32) *AliasStrings_S
 
 func (this *AliasStrings_StringInfo) getVariableName(stringLiteral string) OptionalOf[string] {
 	if this.aliasName_.isEmpty() {
-		this.aliasName_ = Optional_of(strobj_(this.encodeStringAsIdentifier(AliasStrings_STRING_ALIAS_PREFIX, stringLiteral)))
+		this.aliasName_ = Optional_of[string](this.encodeStringAsIdentifier(AliasStrings_STRING_ALIAS_PREFIX, stringLiteral))
 	}
 	return this.aliasName_
 }

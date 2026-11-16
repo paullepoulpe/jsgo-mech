@@ -72,7 +72,7 @@ func (this *PolyfillUsageFinder) maybeCreateStaticPolyfillUsageForGetPropChain(t
 	var fullName string = String_join(strobj_("."), icast_Iterable(obj_(components)))
 	var globalPrefix OptionalOf[string] = PolyfillUsageFinder_findGlobalPrefix(fullName)
 	if globalPrefix.isPresent() {
-		var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.polyfills.statics, String_substring_int(fullName, String_length(str_(globalPrefix.get())))))
+		var polyfill *PolyfillUsageFinder_Polyfill = cast_[*PolyfillUsageFinder_Polyfill](Map_get_s(this.polyfills.statics, String_substring_int(fullName, String_length(globalPrefix.get()))))
 		if polyfill != nil {
 			return PolyfillUsageFinder_PolyfillUsage_createExplicit(polyfill, getPropNode, polyfill.nativeSymbol)
 		}
@@ -96,22 +96,22 @@ func PolyfillUsageFinder_findGlobalPrefix(qualifiedName string) OptionalOf[strin
 	for it_1.next() {
 		var global string = str_(it_1.v)
 		if String_startsWith(qualifiedName, global) {
-			return Optional_of(strobj_(global))
+			return Optional_of[string](global)
 		}
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func PolyfillUsageFinder_getMethodOwner(nativeSymbol string) OptionalOf[string] {
 	var protoIdx int32 = String_indexOf_String(nativeSymbol, ".prototype.")
 	if protoIdx != -1 {
-		return Optional_of(strobj_(String_substring(nativeSymbol, 0, protoIdx)))
+		return Optional_of[string](String_substring(nativeSymbol, 0, protoIdx))
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *PolyfillUsageFinder) isDisjointFromIterator_2(getPropNode Node, ownerName OptionalOf[string]) bool {
-	if !("Iterator" == str_(ownerName.orElse(strobj_("")))) {
+	if !("Iterator" == ownerName.orElse("")) {
 		return false
 	}
 	if this.registry == nil {

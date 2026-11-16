@@ -66,12 +66,12 @@ func (this *JSType) getJSDocInfo_impl() *JSDocInfo {
 }
 
 func (this *JSType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 func (this *JSType) hasDisplayName_impl() bool {
 	var displayName OptionalOf[string] = this.getDisplayName()
-	return (displayName.isPresent() && !String_isEmpty(str_(displayName.get())))
+	return (displayName.isPresent() && !String_isEmpty(displayName.get()))
 }
 
 func (this *JSType) getPropertyKindKey(pname Property_Key) *JSType_HasPropertyKind {
@@ -979,8 +979,8 @@ func (this *JSType) appendTo(p0 *TypeStringBuilder) {
 	this.self_.(interface{ appendTo_impl(*TypeStringBuilder) }).appendTo_impl(p0)
 }
 
-func (this *JSType) getDisplayName() Optional {
-	return this.self_.(interface{ getDisplayName_impl() Optional }).getDisplayName_impl()
+func (this *JSType) getDisplayName() OptionalOf[string] {
+	return this.self_.(interface{ getDisplayName_impl() OptionalOf[string] }).getDisplayName_impl()
 }
 
 func (this *JSType) hasDisplayName() bool {

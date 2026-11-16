@@ -74,11 +74,11 @@ func (this *InstanceObjectType) appendTo_impl(sb *TypeStringBuilder) {
 		this.PrototypeObjectType.appendTo_impl(sb)
 		return
 	} else if sb.isForAnnotations() {
-		sb.append(str_(this.constructor_.getNormalizedReferenceName().orElseThrow()))
+		sb.append(this.constructor_.getNormalizedReferenceName().orElseThrow())
 		return
 	}
 	var name OptionalOf[string] = this.constructor_.getReferenceName()
-	if String_isEmpty(str_(name.get())) {
+	if String_isEmpty(name.get()) {
 		var n Node = this.constructor_.getSource()
 		sb.append("<anonymous@").append(func() string {
 			if n != 0 {
@@ -92,11 +92,11 @@ func (this *InstanceObjectType) appendTo_impl(sb *TypeStringBuilder) {
 			return 0
 		}())).append(">")
 	}
-	sb.append(str_(name.orElse(nil)))
+	sb.append(name.orElse(nullstr_))
 }
 
 func (this *InstanceObjectType) isTheObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Object" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("Object" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isInstanceType_impl() bool {
@@ -104,39 +104,39 @@ func (this *InstanceObjectType) isInstanceType_impl() bool {
 }
 
 func (this *InstanceObjectType) isArrayType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Array" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("Array" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isReadonlyArrayType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("ReadonlyArray" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("ReadonlyArray" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isBigIntObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("BigInt" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("BigInt" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isStringObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("String" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("String" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isSymbolObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Symbol" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("Symbol" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isBooleanObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Boolean" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("Boolean" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isNumberObjectType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Number" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("Number" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isDateType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("Date" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("Date" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isRegexpType_impl() bool {
-	return (this.getConstructor().isNativeObjectType() && ("RegExp" == str_(this.getReferenceName().orElse(strobj_("")))))
+	return (this.getConstructor().isNativeObjectType() && ("RegExp" == this.getReferenceName().orElse("")))
 }
 
 func (this *InstanceObjectType) isNominalType_impl() bool {
@@ -221,11 +221,11 @@ func (this *InstanceObjectType) getTypeClass() *JSTypeClass {
 }
 
 // getReferenceName: an object that is exactly a InstanceObjectType calls its getReferenceName_impl directly (post-flip); others dispatch.
-func (this *InstanceObjectType) getReferenceName() Optional {
+func (this *InstanceObjectType) getReferenceName() OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getReferenceName_impl()
 	}
-	return this.self_.(interface{ getReferenceName_impl() Optional }).getReferenceName_impl()
+	return this.self_.(interface{ getReferenceName_impl() OptionalOf[string] }).getReferenceName_impl()
 }
 
 // getImplicitPrototype: an object that is exactly a InstanceObjectType calls its getImplicitPrototype_impl directly (post-flip); others dispatch.

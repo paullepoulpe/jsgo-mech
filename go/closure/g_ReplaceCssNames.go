@@ -36,10 +36,10 @@ func (this *ReplaceCssNames) process_2(externs Node, root Node) {
 		var getCssNameInstance *ReplaceCssNames_GetCssNameInstance = it_1.v
 		var cssClassName OptionalOf[string] = getCssNameInstance.getCssClassName()
 		if getCssNameInstance.isCssClosureFileClassesMember() {
-			this.cssNamesBySymbol[str_(getCssNameInstance.getCssClosureClassesMemberName().orElse(nil))] = str_(cssClassName.orElse(nil))
-			this.classesObjectsQualifiedNames[str_(getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow())] = struct{}{}
+			this.cssNamesBySymbol[getCssNameInstance.getCssClosureClassesMemberName().orElse(nullstr_)] = cssClassName.orElse(nullstr_)
+			this.classesObjectsQualifiedNames[getCssNameInstance.getCssClosureClassesQualifiedName().orElseThrow()] = struct{}{}
 		} else {
-			this.cssNameCollector.add(str_(cssClassName.orElse(nil)))
+			this.cssNameCollector.add(cssClassName.orElse(nullstr_))
 		}
 		getCssNameInstance.replaceWithExpression()
 	}
@@ -111,7 +111,7 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 	}
 	var parts []string = ReplaceCssNames_DASH_PATTERN.split(name)
 	if this.symbolMap != nil {
-		var replacement OptionalOf[string] = Optional_empty()
+		var replacement OptionalOf[string] = Optional_empty[string]()
 		if String_startsWith(name, "--") {
 			replacement = this.symbolMap.get(name)
 			if replacement.isEmpty() {
@@ -134,12 +134,12 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{parts[i], name}))
 						return
 					}
-					replaced[i] = str_(part.get())
+					replaced[i] = part.get()
 				}
-				replacement = Optional_of(strobj_(Joiner_on("-").join_ObjectArr(arrmap_(replaced, func(v_ string) any { return strobj_(v_) }))))
+				replacement = Optional_of[string](Joiner_on("-").join_ObjectArr(arrmap_(replaced, func(v_ string) any { return strobj_(v_) })))
 			}
 		}
-		n.setString(str_(replacement.get()))
+		n.setString(replacement.get())
 	}
 }
 
@@ -256,9 +256,9 @@ func (this *ReplaceCssNames_GatherCssNamesTraversal) shouldTraverse(t *NodeTrave
 	}
 	if n.isScript() {
 		this.traversalState.inSassGeneratedCssTsScript = sassGeneratedCssTsExpert.hasSassGeneratedCssTsJsDoc
-		this.traversalState.cssClosureClassesQualifiedName = Optional_empty()
+		this.traversalState.cssClosureClassesQualifiedName = Optional_empty[string]()
 	} else if this.traversalState.inSassGeneratedCssTsScript && sassGeneratedCssTsExpert.isCssClosureClassesAssignment {
-		this.traversalState.cssClosureClassesQualifiedName = Optional_of(strobj_(sassGeneratedCssTsExpert.cssClosureClassesQualifiedName))
+		this.traversalState.cssClosureClassesQualifiedName = Optional_of[string](sassGeneratedCssTsExpert.cssClosureClassesQualifiedName)
 	}
 	return true
 }
@@ -321,7 +321,7 @@ type ReplaceCssNames_GatherCssNamesTraversal_TraversalState struct {
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal_TraversalState) finit_ReplaceCssNames_GatherCssNamesTraversal_TraversalState() {
-	this.cssClosureClassesQualifiedName = Optional_empty()
+	this.cssClosureClassesQualifiedName = Optional_empty[string]()
 }
 
 func (this *ReplaceCssNames_GatherCssNamesTraversal_TraversalState) init_ReplaceCssNames_GatherCssNamesTraversal_TraversalState() {
@@ -414,7 +414,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 	for it_1.next() {
 		var ancestor Node = Node_of_(it_1.v)
 		if ancestor.isStringKey() {
-			return Optional_of(strobj_((sstr_(str_(this.cssClosureClassesQualifiedName.get())) + "." + sstr_(ancestor.getString()))))
+			return Optional_of[string]((sstr_(this.cssClosureClassesQualifiedName.get()) + "." + sstr_(ancestor.getString())))
 		}
 	}
 	panic(new_IllegalStateException_String(String_format("No css closure classes member name found: %s", []any{this.callNode_.box_()})).self())
@@ -425,15 +425,15 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[str
 	Preconditions_checkNotNull_Object_String_Object(this.callNode_.getParent().box_(), "already replaced: %s", this.callNode_.box_())
 	var childCount int32 = this.callNode_.getChildCount()
 	var firstArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(this.callNode_.getSecondChild().box_(), this.callNode_.box_()))
-	return func() Optional {
+	return func() OptionalOf[string] {
 		switch childCount {
 		case 2:
 			Preconditions_checkState_boolean_String_Object(firstArg.isStringLit(), "not a string literal: %s", firstArg.box_())
-			return Optional_of(strobj_(firstArg.getString()))
+			return Optional_of[string](firstArg.getString())
 		case 3:
 			var secondArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(firstArg.getNext().box_(), firstArg.box_()))
 			Preconditions_checkState_boolean_String_Object(secondArg.isStringLit(), "not a string literal: %s", secondArg.box_())
-			return Optional_of(strobj_(secondArg.getString()))
+			return Optional_of[string](secondArg.getString())
 		default:
 			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())
 		}

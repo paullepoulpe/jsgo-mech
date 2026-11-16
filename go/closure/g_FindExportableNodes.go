@@ -50,16 +50,15 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		}
 	}
 	var mode *FindExportableNodes_Mode = nil
-	var export OptionalOf[string] = Optional_empty()
+	var export OptionalOf[string] = Optional_empty[string]()
 	var context Node = 0
 	switch n.ns_().token {
 	case tokOrd1_FUNCTION, tokOrd1_CLASS:
 		if parent.isScript() {
-			export = Optional_of(strobj_(NodeUtil_getName(n))).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
+			export = Optional_of[string](NodeUtil_getName(n)).filterFn_(func(s string) bool {
 				_ = s
 				return !String_isEmpty(s)
-			}})
+			})
 			context = n
 			mode = FindExportableNodes_Mode_EXPORT
 		}
@@ -68,22 +67,21 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		var child Node = n.getFirstChild()
 		if parent.isExprResult() && !n.getLastChild().isAssign() {
 			if ((grandparent != 0) && grandparent.isScript()) && child.isQualifiedName() {
-				export = Optional_of(strobj_(child.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
+				export = Optional_of[string](child.getQualifiedName()).filterFn_(func(s string) bool {
 					_ = s
 					return !String_isEmpty(s)
-				}})
+				})
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
 			} else if this.allowLocalExports && child.isGetProp() {
-				export = Optional_of(strobj_(child.getString()))
+				export = Optional_of[string](child.getString())
 				mode = FindExportableNodes_Mode_EXTERN
 			}
 		}
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
 		if parent.isScript() {
 			if n.getFirstChild().hasChildren() && !n.getFirstFirstChild().isAssign() {
-				export = Optional_of(strobj_(n.getFirstChild().getString()))
+				export = Optional_of[string](n.getFirstChild().getString())
 				context = n
 				mode = FindExportableNodes_Mode_EXPORT
 			}
@@ -91,7 +89,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	case tokOrd1_GETPROP:
 		{
 			if this.allowLocalExports && parent.isExprResult() {
-				export = Optional_of(strobj_(n.getString()))
+				export = Optional_of[string](n.getString())
 				mode = FindExportableNodes_Mode_EXTERN
 			}
 			break
@@ -104,11 +102,11 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				t.report(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{})
 				return
 			}
-			export = Optional_of(strobj_((sstr_(className) + "." + sstr_(n.getString()))))
+			export = Optional_of[string]((sstr_(className) + "." + sstr_(n.getString())))
 			mode = FindExportableNodes_Mode_EXPORT
 			context = n
 		} else if this.allowLocalExports {
-			export = Optional_of(strobj_(n.getString()))
+			export = Optional_of[string](n.getString())
 			mode = FindExportableNodes_Mode_EXTERN
 		}
 	case tokOrd1_MEMBER_FUNCTION_DEF:
@@ -118,7 +116,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 				t.report(n, FindExportableNodes_EXPORT_ANNOTATION_NOT_ALLOWED, []string{})
 				return
 			}
-			this.es6ClassExports.put(n, (sstr_(str_(methodOwnerName.get())) + sstr_(func() string {
+			this.es6ClassExports.put(n, (sstr_(methodOwnerName.get()) + sstr_(func() string {
 				if n.isStaticMember() {
 					return ""
 				}
@@ -129,7 +127,7 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 		fallthrough
 	case tokOrd1_STRING_KEY, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if this.allowLocalExports {
-			export = Optional_of(strobj_(n.getString()))
+			export = Optional_of[string](n.getString())
 			mode = FindExportableNodes_Mode_EXTERN
 		}
 	default:
@@ -137,12 +135,12 @@ func (this *FindExportableNodes) visit_impl(t *NodeTraversal, n Node, parent Nod
 	if export.isPresent() {
 		if mode == FindExportableNodes_Mode_EXPORT {
 			Preconditions_checkNotNull(context.box_())
-			this.exports.put(str_(export.get()), context)
+			this.exports.put(export.get(), context)
 		} else {
 			Preconditions_checkState((context == 0))
 			Preconditions_checkState((mode == FindExportableNodes_Mode_EXTERN))
-			Preconditions_checkState(!String_isEmpty(str_(export.get())))
-			this.localExports.add(str_(export.get()))
+			Preconditions_checkState(!String_isEmpty(export.get()))
+			this.localExports.add(export.get())
 		}
 	} else if !(n.isGetProp() && parent.isExprResult()) {
 		if !n.isFunction() || !NodeUtil_mayBeObjectLitKey(parent) {

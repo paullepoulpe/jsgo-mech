@@ -3,13 +3,13 @@
 package closure
 
 type SourceFileMapping interface {
-	getSourceMapping_Optional_int_int(Optional, int32, int32) *Mapping_OriginalMapping
+	getSourceMapping_Optional_int_int(OptionalOf[string], int32, int32) *Mapping_OriginalMapping
 }
 
 type SourceFileMapping_fn struct {
-	f func(Optional, int32, int32) *Mapping_OriginalMapping
+	f func(Optional[any], int32, int32) *Mapping_OriginalMapping
 }
 
-func (this *SourceFileMapping_fn) getSourceMapping_Optional_int_int(p0 Optional, p1 int32, p2 int32) *Mapping_OriginalMapping {
-	return this.f(p0, p1, p2)
+func (this *SourceFileMapping_fn) getSourceMapping_Optional_int_int(p0 OptionalOf[string], p1 int32, p2 int32) *Mapping_OriginalMapping {
+	return this.f(optErase_(p0), p1, p2)
 }

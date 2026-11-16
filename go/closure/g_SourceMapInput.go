@@ -30,7 +30,7 @@ func (this *SourceMapInput) getSourceMap(errorManager ErrorManager) *SourceMapCo
 		var sourceMapPath string = this.sourceFile.getName()
 		var codeRes *Outcome_base = this.sourceFile.readCode()
 		if codeRes.isErr() {
-			var error_ *JSError = JSError_make_DiagnosticType_StringArr(SourceMapInput_SOURCEMAP_RESOLVE_FAILED, []string{sourceMapPath, str_(codeRes.errorMessage().orElse(strobj_("null")))})
+			var error_ *JSError = JSError_make_DiagnosticType_StringArr(SourceMapInput_SOURCEMAP_RESOLVE_FAILED, []string{sourceMapPath, codeRes.errorMessage().orElse("null")})
 			errorManager.report_2(error_.defaultLevel(), error_)
 			return this.parsedSourceMap
 		}
@@ -43,7 +43,7 @@ func (this *SourceMapInput) getSourceMap(errorManager ErrorManager) *SourceMapCo
 			errorManager.report_2(error_.defaultLevel(), error_)
 			return this.parsedSourceMap
 		}
-		if (((((consumer.getFile().isPresent() && !String_isEmpty(str_(consumer.getFile().get()))) && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(consumer.getOriginalSources(), str_(consumer.getFile().get()))) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1) {
+		if (((((consumer.getFile().isPresent() && !String_isEmpty(consumer.getFile().get())) && (consumer.getOriginalSources().size() == 1)) && Collection_contains_s(consumer.getOriginalSources(), consumer.getFile().get())) && (consumer.getOriginalSourcesContent().size() == 1)) && consumer.getOriginalNames().isEmpty()) && (consumer.getLineCount() == -1) {
 			consumer = nil
 		}
 		this.parsedSourceMap = consumer
@@ -58,9 +58,9 @@ func (this *SourceMapInput) getOriginalPath() string {
 func (this *SourceMapInput) getRawSourceMapContents() OptionalOf[string] {
 	var codeRes *Outcome_base = this.sourceFile.readCode()
 	if codeRes.isErr() {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_ofNullable(codeRes.get())
+	return Optional_ofNullable[string](str_(codeRes.get()))
 }
 
 var SourceMapInput_SOURCEMAP_RESOLVE_FAILED *DiagnosticType

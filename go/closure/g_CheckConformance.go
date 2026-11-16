@@ -43,7 +43,7 @@ func (this *CheckConformance) process_2(externs Node, root Node) {
 }
 
 func (this *CheckConformance) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	return (!n.isScript() || (this.isScriptOfInterest(t.getInput().getSourceFile()) && !String_endsWith(str_(t.getSourceName().get()), "tsmes.closure.js")))
+	return (!n.isScript() || (this.isScriptOfInterest(t.getInput().getSourceFile()) && !String_endsWith(t.getSourceName().get(), "tsmes.closure.js")))
 }
 
 func (this *CheckConformance) isScriptOfInterest(sf *SourceFile_jscomp) bool {

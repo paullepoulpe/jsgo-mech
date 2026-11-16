@@ -19,7 +19,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 	var builder *SourceMapObject_Builder = SourceMapObject_builder()
 	var parsed *Outcome_base = Json_parse(contents)
 	if parsed.isErr() {
-		return Outcome_base_err(new_SourceMapParseException(("JSON parse exception: " + sstr_(str_(parsed.errorMessage().orElse(strobj_("null")))))).up_Throwable())
+		return Outcome_base_err(new_SourceMapParseException(("JSON parse exception: " + sstr_(parsed.errorMessage().orElse("null")))).up_Throwable())
 	}
 	var sourceMapRoot *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
 	if sourceMapRoot.kind() != SimpleJsonValue_Kind_OBJECT {
@@ -34,7 +34,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 	if file.isErr() {
 		return Outcome_base_err(file.error())
 	}
-	builder.setFile(Optional_ofNullable(file.get()))
+	builder.setFile(Optional_ofNullable[string](str_(file.get())))
 	var lineCount int32 = -1
 	if sourceMapRoot.get("lineCount") != nil {
 		var lineCountOutcome *Outcome_base = SourceMapObjectParser_getInt(sourceMapRoot, "lineCount")
@@ -48,12 +48,12 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 	if mappings.isErr() {
 		return Outcome_base_err(mappings.error())
 	}
-	builder.setMappings(Optional_ofNullable(mappings.get()))
+	builder.setMappings(Optional_ofNullable[string](str_(mappings.get())))
 	var sourceRoot *Outcome_base = SourceMapObjectParser_getStringOrNull(sourceMapRoot, "sourceRoot")
 	if sourceRoot.isErr() {
 		return Outcome_base_err(sourceRoot.error())
 	}
-	builder.setSourceRoot(Optional_ofNullable(sourceRoot.get()))
+	builder.setSourceRoot(Optional_ofNullable[string](str_(sourceRoot.get())))
 	if sourceMapRoot.get("sections") != nil {
 		var sections *Outcome_base = SourceMapObjectParser_buildSections(sourceMapRoot.get("sections"))
 		if sections.isErr() {
@@ -123,7 +123,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if file.isErr() {
 				return Outcome_base_err(file.error())
 			}
-			builder.setFile(Optional_ofNullable(file.get()))
+			builder.setFile(Optional_ofNullable[string](str_(file.get())))
 		case "lineCount":
 			var lineCount *Outcome_base = lexer.nextInt()
 			if lineCount.isErr() {
@@ -135,13 +135,13 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			if mappings.isErr() {
 				return Outcome_base_err(mappings.error())
 			}
-			builder.setMappings(Optional_ofNullable(mappings.get()))
+			builder.setMappings(Optional_ofNullable[string](str_(mappings.get())))
 		case "sourceRoot":
 			var sourceRoot *Outcome_base = lexer.nextStringOrNull()
 			if sourceRoot.isErr() {
 				return Outcome_base_err(sourceRoot.error())
 			}
-			builder.setSourceRoot(Optional_ofNullable(sourceRoot.get()))
+			builder.setSourceRoot(Optional_ofNullable[string](str_(sourceRoot.get())))
 		case "sections":
 			var rawSections *Outcome_base = lexer.nextRawValue()
 			if rawSections.isErr() {
@@ -149,7 +149,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 			}
 			var sectionsArray *Outcome_base = Json_parse(str_(rawSections.get()))
 			if sectionsArray.isErr() {
-				return Outcome_base_err(new_SourceMapParseException(str_(sectionsArray.errorMessage().orElse(nil))).up_Throwable())
+				return Outcome_base_err(new_SourceMapParseException(sectionsArray.errorMessage().orElse(nullstr_)).up_Throwable())
 			}
 			var sections *Outcome_base = SourceMapObjectParser_buildSections(cast_[*SimpleJsonValue](sectionsArray.get()))
 			if sections.isErr() {
@@ -182,7 +182,7 @@ func SourceMapObjectParser_parseFastInto(builder *SourceMapObject_Builder, conte
 				}
 				var value *Outcome_base = Json_parse(str_(rawValue.get()))
 				if value.isErr() {
-					return Outcome_base_err(new_SourceMapParseException(str_(value.errorMessage().orElse(nil))).up_Throwable())
+					return Outcome_base_err(new_SourceMapParseException(value.errorMessage().orElse(nullstr_)).up_Throwable())
 				}
 				extensions.put(name, value.get())
 			} else {

@@ -74,20 +74,20 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 }
 
 func ClosureCodingConvention_typeofClassDefiningName(callName Node) *CodingConvention_SubclassType {
-	var methodName OptionalOf[string] = Optional_empty()
+	var methodName OptionalOf[string] = Optional_empty[string]()
 	if callName.isGetProp() {
-		methodName = Optional_of(strobj_(callName.getString()))
+		methodName = Optional_of[string](callName.getString())
 	} else if callName.isName() {
 		var name string = callName.getString()
 		var dollarIndex int32 = String_lastIndexOf(name, 36)
 		if dollarIndex != -1 {
-			methodName = Optional_of(strobj_(String_substring_int(name, (dollarIndex + 1))))
+			methodName = Optional_of[string](String_substring_int(name, (dollarIndex + 1)))
 		}
 	}
 	if methodName.isPresent() {
-		if str_(methodName.get()) == "inherits" {
+		if methodName.get() == "inherits" {
 			return CodingConvention_SubclassType_INHERITS
-		} else if str_(methodName.get()) == "mixin" {
+		} else if methodName.get() == "mixin" {
 			return CodingConvention_SubclassType_MIXIN
 		}
 	}
@@ -120,13 +120,13 @@ func (this *ClosureCodingConvention) extractClassNameIfRequire_impl(node Node, p
 }
 
 func ClosureCodingConvention_extractClassNameIfGoog(node Node, parent Node, functionName string) OptionalOf[string] {
-	var className OptionalOf[string] = Optional_empty()
+	var className OptionalOf[string] = Optional_empty[string]()
 	if NodeUtil_isExprCall(parent) {
 		var callee Node = node.getFirstChild()
 		if ((callee != 0) && callee.isGetProp()) && callee.matchesQualifiedName(functionName) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				className = Optional_of(strobj_(target.getString()))
+				className = Optional_of[string](target.getString())
 			}
 		}
 	}
@@ -210,13 +210,12 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	}
 	var objectNode Node = typeNode.getNext()
 	if !objectNode.isObjectLit() {
-		return new_CodingConvention_ObjectLiteralCast(Optional_empty(), 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
+		return new_CodingConvention_ObjectLiteralCast(Optional_empty[string](), 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
 	}
-	return new_CodingConvention_ObjectLiteralCast(Optional_of(strobj_(typeNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	return new_CodingConvention_ObjectLiteralCast(Optional_of[string](typeNode.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}}), typeNode.getNext(), nil)
+	}), typeNode.getNext(), nil)
 }
 
 func (this *ClosureCodingConvention) getAssertionFunctions_impl() Collection {
@@ -362,19 +361,23 @@ func (this *ClosureCodingConvention) extractIsModuleFile(p0 Node, p1 Node) bool 
 }
 
 // extractClassNameIfProvide: an object that is exactly a ClosureCodingConvention calls its extractClassNameIfProvide_impl directly (post-flip); others dispatch.
-func (this *ClosureCodingConvention) extractClassNameIfProvide(p0 Node, p1 Node) Optional {
+func (this *ClosureCodingConvention) extractClassNameIfProvide(p0 Node, p1 Node) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.extractClassNameIfProvide_impl(p0, p1)
 	}
-	return this.self_.(interface{ extractClassNameIfProvide_impl(Node, Node) Optional }).extractClassNameIfProvide_impl(p0, p1)
+	return this.self_.(interface {
+		extractClassNameIfProvide_impl(Node, Node) OptionalOf[string]
+	}).extractClassNameIfProvide_impl(p0, p1)
 }
 
 // extractClassNameIfRequire: an object that is exactly a ClosureCodingConvention calls its extractClassNameIfRequire_impl directly (post-flip); others dispatch.
-func (this *ClosureCodingConvention) extractClassNameIfRequire(p0 Node, p1 Node) Optional {
+func (this *ClosureCodingConvention) extractClassNameIfRequire(p0 Node, p1 Node) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.extractClassNameIfRequire_impl(p0, p1)
 	}
-	return this.self_.(interface{ extractClassNameIfRequire_impl(Node, Node) Optional }).extractClassNameIfRequire_impl(p0, p1)
+	return this.self_.(interface {
+		extractClassNameIfRequire_impl(Node, Node) OptionalOf[string]
+	}).extractClassNameIfRequire_impl(p0, p1)
 }
 
 // getExportPropertyFunction: an object that is exactly a ClosureCodingConvention calls its getExportPropertyFunction_impl directly (post-flip); others dispatch.

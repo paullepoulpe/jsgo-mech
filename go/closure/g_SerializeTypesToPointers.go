@@ -194,7 +194,7 @@ func (this *SerializeTypesToPointers_StreamObjectUuidsJson) writeJson(jsonWriter
 		}
 		Collections_sort(sliceView_(tc_string, jstypes))
 		for _, typeName := range jstypes {
-			jsonWriter.stringValue(Optional_of(strobj_(typeName)))
+			jsonWriter.stringValue(Optional_of[string](typeName))
 		}
 		jsonWriter.endArray()
 	}
@@ -228,9 +228,9 @@ func new_SerializeTypesToPointers_TypeMismatchJson(x *TypeMismatch, found *Color
 
 func (this *SerializeTypesToPointers_TypeMismatchJson) writeJson(writer *SimpleJsonWriter) {
 	writer.beginObject()
-	writer.name("location").stringValue(Optional_of(strobj_(this.location_)))
-	writer.name("foundColorId").stringValue(Optional_of(strobj_(this.foundColorId)))
-	writer.name("requiredColorId").stringValue(Optional_of(strobj_(this.requiredColorId)))
+	writer.name("location").stringValue(Optional_of[string](this.location_))
+	writer.name("foundColorId").stringValue(Optional_of[string](this.foundColorId))
+	writer.name("requiredColorId").stringValue(Optional_of[string](this.requiredColorId))
 	writer.endObject()
 }
 

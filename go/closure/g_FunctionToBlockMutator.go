@@ -254,7 +254,7 @@ func FunctionToBlockMutator_replaceReturns(block Node, resultName OptionalOf[str
 		}
 	}
 	if (resultMustBeSet && !hasReturnAtExit) && resultName.isPresent() {
-		FunctionToBlockMutator_addDummyAssignment(block, str_(resultName.get()))
+		FunctionToBlockMutator_addDummyAssignment(block, resultName.get())
 	}
 	return root
 }
@@ -301,7 +301,7 @@ func FunctionToBlockMutator_getReplacementReturnStatement(node Node, resultName 
 			var srcLocation Node = node
 			retVal = NodeUtil_newUndefinedNode(srcLocation)
 		}
-		resultNode = FunctionToBlockMutator_createAssignStatementNode(str_(resultName.get()), retVal)
+		resultNode = FunctionToBlockMutator_createAssignStatementNode(resultName.get(), retVal)
 	}
 	return resultNode
 }

@@ -53,8 +53,8 @@ func (this *CheckNullabilityModifiers) visit_impl(t *NodeTraversal, n Node, pare
 		it_1 := info.getParameterNames().each()
 		for it_1.next() {
 			var param string = it_1.v
-			if info.hasParameterType(Optional_of(strobj_(param))) {
-				this.visitTypeExpression(info.getParameterType(Optional_of(strobj_(param))), false)
+			if info.hasParameterType(Optional_of[string](param)) {
+				this.visitTypeExpression(info.getParameterType(Optional_of[string](param)), false)
 			}
 		}
 		if info.hasReturnType() {

@@ -166,11 +166,10 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAs
 	this.finit_DeadPropertyAssignmentElimination_PropertyWrite()
 	Preconditions_checkArgument(assignedAt.isQualifiedName())
 	this.assignedAt = assignedAt
-	this.qualifiedName_ = Optional_of(strobj_(assignedAt.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
+	this.qualifiedName_ = Optional_of[string](assignedAt.getQualifiedName()).filterFn_(func(s string) bool {
 		_ = s
 		return !String_isEmpty(s)
-	}})
+	})
 }
 
 func new_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) *DeadPropertyAssignmentElimination_PropertyWrite {
@@ -180,7 +179,7 @@ func new_DeadPropertyAssignmentElimination_PropertyWrite(assignedAt Node) *DeadP
 }
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) isSafeToRemove(nextWrite *DeadPropertyAssignmentElimination_PropertyWrite) bool {
-	return ((!this.isRead && (nextWrite != nil)) && Object_equals(obj_(this.qualifiedName_), obj_(nextWrite.qualifiedName_)))
+	return ((!this.isRead && (nextWrite != nil)) && Object_equals(obj_(optErase_(this.qualifiedName_)), obj_(optErase_(nextWrite.qualifiedName_))))
 }
 
 func (this *DeadPropertyAssignmentElimination_PropertyWrite) markRead() {
@@ -211,17 +210,16 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	if !propNode.isQualifiedName() {
 		return nil
 	}
-	var propName OptionalOf[string] = func() Optional {
+	var propName OptionalOf[string] = func() OptionalOf[string] {
 		if propNode.isGetProp() {
-			return Optional_of(strobj_(propNode.getString()))
+			return Optional_of[string](propNode.getString())
 		}
-		return Optional_of(strobj_(propNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		return Optional_of[string](propNode.getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}})
+		})
 	}()
-	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(str_(propName.orElse(nil)), &Function_fn{func(p0 any) any { return obj_(new_DeadPropertyAssignmentElimination_Property(str_(p0))) }})
+	var property *DeadPropertyAssignmentElimination_Property = this.propertyMap.computeIfAbsent(propName.orElse(nullstr_), &Function_fn{func(p0 any) any { return obj_(new_DeadPropertyAssignmentElimination_Property(str_(p0))) }})
 	if propNode.isGetProp() {
 		var parentProperty *DeadPropertyAssignmentElimination_Property = this.getOrCreateProperty(propNode.getFirstChild())
 		if parentProperty != nil {

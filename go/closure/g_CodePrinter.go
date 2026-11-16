@@ -309,7 +309,7 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	var parsed any = Doubles_tryParse(String_trim(str_(numberFromSource.get())))
+	var parsed any = Doubles_tryParse(String_trim(numberFromSource.get()))
 	if parsed == nil {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
@@ -319,7 +319,7 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	this.addConstant(str_(numberFromSource.get()))
+	this.addConstant(numberFromSource.get())
 }
 
 func (this *CodePrinter_PrettyCodePrinter) startNewLine_impl() {
@@ -456,7 +456,7 @@ func (this *CodePrinter_PrettyCodePrinter) endFile_impl() {
 
 func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string] {
 	if !n.isNumber() {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	var staticSrc StaticSourceFile = NodeUtil_getSourceFile(n)
 	var src *SourceFile_jscomp
@@ -469,26 +469,26 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string
 		src = cast_[*SourceFile_jscomp](v_)
 		return true
 	}()) {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	if src.isStubSourceFileForAlreadyProvidedInput() {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	var codeRes *Outcome_base = src.readCode()
 	if codeRes.isErr() {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	var srcCode string = str_(codeRes.get())
 	var lineno int32 = n.getLineno()
 	if (lineno != -1) && !src.isValidLineNumber(lineno) {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	var offset int32 = n.getSourceOffset()
 	var endOffset int32 = (offset + n.getLength())
 	if (offset < 0) || (endOffset > String_length(srcCode)) {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
-	return Optional_of(strobj_(String_substring(srcCode, offset, endOffset)))
+	return Optional_of[string](String_substring(srcCode, offset, endOffset))
 }
 
 const CodePrinter_PrettyCodePrinter_INDENT string = "  "

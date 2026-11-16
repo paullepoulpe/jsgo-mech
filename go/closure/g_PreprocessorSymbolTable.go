@@ -61,7 +61,7 @@ func (this *PreprocessorSymbolTable) getScope(slot_ StaticSlot) StaticScope {
 }
 
 func (this *PreprocessorSymbolTable) addReference(node Node) {
-	this.addReference_2(node, str_(this.getQualifiedName(node).orElseThrow()))
+	this.addReference_2(node, this.getQualifiedName(node).orElseThrow())
 }
 
 func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
@@ -74,15 +74,14 @@ func (this *PreprocessorSymbolTable) addReference_2(node Node, name string) {
 }
 
 func (this *PreprocessorSymbolTable) getQualifiedName(n Node) OptionalOf[string] {
-	return func() Optional {
+	return func() OptionalOf[string] {
 		if n.isStringLit() {
-			return Optional_of(strobj_(n.getString()))
+			return Optional_of[string](n.getString())
 		}
-		return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		return Optional_of[string](n.getQualifiedName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}})
+		})
 	}()
 }
 

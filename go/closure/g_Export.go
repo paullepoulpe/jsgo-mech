@@ -47,19 +47,19 @@ func (this *Export) mutatedCopy() *Export {
 	return this.toBuilder().mutated(true).autoBuild()
 }
 
-func (this *Export) exportName() Optional {
+func (this *Export) exportName() OptionalOf[string] {
 	return this.exportName_
 }
 
-func (this *Export) moduleRequest() Optional {
+func (this *Export) moduleRequest() OptionalOf[string] {
 	return this.moduleRequest_
 }
 
-func (this *Export) importName() Optional {
+func (this *Export) importName() OptionalOf[string] {
 	return this.importName_
 }
 
-func (this *Export) localName() Optional {
+func (this *Export) localName() OptionalOf[string] {
 	return this.localName_
 }
 
@@ -79,7 +79,7 @@ func (this *Export) moduleMetadata() *ModuleMetadataMap_ModuleMetadata {
 	return this.moduleMetadata_
 }
 
-func (this *Export) closureNamespace() Optional {
+func (this *Export) closureNamespace() OptionalOf[string] {
 	return this.closureNamespace_
 }
 
@@ -92,26 +92,26 @@ func (this *Export) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.exportName_), obj_(o.exportName_)) && Objects_equals(obj_(this.moduleRequest_), obj_(o.moduleRequest_)) && Objects_equals(obj_(this.importName_), obj_(o.importName_)) && Objects_equals(obj_(this.localName_), obj_(o.localName_)) && Objects_equals(obj_(this.modulePath_), obj_(o.modulePath_)) && Objects_equals(this.exportNode_.box_(), o.exportNode_.box_()) && Objects_equals(this.nameNode_.box_(), o.nameNode_.box_()) && Objects_equals(obj_(this.moduleMetadata_), obj_(o.moduleMetadata_)) && Objects_equals(obj_(this.closureNamespace_), obj_(o.closureNamespace_)) && this.mutated_ == o.mutated_
+	return true && Objects_equals(obj_(optErase_(this.exportName_)), obj_(optErase_(o.exportName_))) && Objects_equals(obj_(optErase_(this.moduleRequest_)), obj_(optErase_(o.moduleRequest_))) && Objects_equals(obj_(optErase_(this.importName_)), obj_(optErase_(o.importName_))) && Objects_equals(obj_(optErase_(this.localName_)), obj_(optErase_(o.localName_))) && Objects_equals(obj_(this.modulePath_), obj_(o.modulePath_)) && Objects_equals(this.exportNode_.box_(), o.exportNode_.box_()) && Objects_equals(this.nameNode_.box_(), o.nameNode_.box_()) && Objects_equals(obj_(this.moduleMetadata_), obj_(o.moduleMetadata_)) && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_))) && this.mutated_ == o.mutated_
 }
 
 func (this *Export) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.exportName_))
-	h = h*31 + Objects_hashCode(obj_(this.moduleRequest_))
-	h = h*31 + Objects_hashCode(obj_(this.importName_))
-	h = h*31 + Objects_hashCode(obj_(this.localName_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.exportName_)))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.moduleRequest_)))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.importName_)))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.localName_)))
 	h = h*31 + Objects_hashCode(obj_(this.modulePath_))
 	h = h*31 + Objects_hashCode(this.exportNode_.box_())
 	h = h*31 + Objects_hashCode(this.nameNode_.box_())
 	h = h*31 + Objects_hashCode(obj_(this.moduleMetadata_))
-	h = h*31 + Objects_hashCode(obj_(this.closureNamespace_))
+	h = h*31 + Objects_hashCode(obj_(optErase_(this.closureNamespace_)))
 	h = h*31 + Objects_hashCode(any(bool(this.mutated_)))
 	return h
 }
 
 func (this *Export) toString() string {
-	return "Export[" + "exportName=" + objstr_(obj_(this.exportName_)) + ", moduleRequest=" + objstr_(obj_(this.moduleRequest_)) + ", importName=" + objstr_(obj_(this.importName_)) + ", localName=" + objstr_(obj_(this.localName_)) + ", modulePath=" + objstr_(obj_(this.modulePath_)) + ", exportNode=" + objstr_(this.exportNode_.box_()) + ", nameNode=" + objstr_(this.nameNode_.box_()) + ", moduleMetadata=" + objstr_(obj_(this.moduleMetadata_)) + ", closureNamespace=" + objstr_(obj_(this.closureNamespace_)) + ", mutated=" + objstr_(any(bool(this.mutated_))) + "]"
+	return "Export[" + "exportName=" + objstr_(obj_(optErase_(this.exportName_))) + ", moduleRequest=" + objstr_(obj_(optErase_(this.moduleRequest_))) + ", importName=" + objstr_(obj_(optErase_(this.importName_))) + ", localName=" + objstr_(obj_(optErase_(this.localName_))) + ", modulePath=" + objstr_(obj_(this.modulePath_)) + ", exportNode=" + objstr_(this.exportNode_.box_()) + ", nameNode=" + objstr_(this.nameNode_.box_()) + ", moduleMetadata=" + objstr_(obj_(this.moduleMetadata_)) + ", closureNamespace=" + objstr_(obj_(optErase_(this.closureNamespace_))) + ", mutated=" + objstr_(any(bool(this.mutated_))) + "]"
 }
 
 const Export_DEFAULT_EXPORT_NAME string = "*default*"
@@ -133,11 +133,11 @@ type Export_Builder struct {
 }
 
 func (this *Export_Builder) finit_Export_Builder() {
-	this.exportNameField = Optional_empty()
-	this.moduleRequestField = Optional_empty()
-	this.importNameField = Optional_empty()
-	this.localNameField = Optional_empty()
-	this.closureNamespaceField = Optional_empty()
+	this.exportNameField = Optional_empty[string]()
+	this.moduleRequestField = Optional_empty[string]()
+	this.importNameField = Optional_empty[string]()
+	this.localNameField = Optional_empty[string]()
+	this.closureNamespaceField = Optional_empty[string]()
 }
 
 func (this *Export_Builder) init_Export_Builder_0() {
@@ -253,7 +253,7 @@ func (this *Export_Builder) build() *Export {
 
 func (this *Export_Builder) validateEsModule(e *Export) {
 	Preconditions_checkState(e.closureNamespace().isEmpty())
-	Preconditions_checkState_boolean_Object((!("*" == str_(e.importName().orElse(strobj_("")))) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())), strobj_("Star exports should not have exported / local names."))
+	Preconditions_checkState_boolean_Object((!("*" == e.importName().orElse("")) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())), strobj_("Star exports should not have exported / local names."))
 	Preconditions_checkState_boolean_Object((e.localName().isEmpty() || e.moduleRequest().isEmpty()), strobj_("Local exports should not have module requests."))
 	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.localName().isEmpty()), strobj_("Reexports should not have local names."))
 	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.importName().isPresent()), strobj_("Reexports should have import names."))

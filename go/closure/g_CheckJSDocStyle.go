@@ -138,11 +138,11 @@ func (this *CheckJSDocStyle) isFunctionThatShouldHaveJsDoc(t *NodeTraversal, fun
 
 func (this *CheckJSDocStyle) isTestMethod(function Node) bool {
 	var bestLValue Node = NodeUtil_getBestLValue(function)
-	var name OptionalOf[string] = func() Optional {
+	var name OptionalOf[string] = func() OptionalOf[string] {
 		if bestLValue != 0 {
 			return NodeUtil_getBestLValueName(bestLValue)
 		}
-		return Optional_empty()
+		return Optional_empty[string]()
 	}()
 	return (name.isPresent() && ExportTestFunctions_isTestFunction(name))
 }
@@ -180,8 +180,8 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 				t.report(param, CheckJSDocStyle_MIXED_PARAM_JSDOC_STYLES, []string{})
 			}
 			var name string = s
-			var paramType *JSTypeExpression = jsDoc.getParameterType(Optional_of(strobj_(name)))
-			if this.checkParam(t, param, Optional_of(strobj_(name)), paramType) {
+			var paramType *JSTypeExpression = jsDoc.getParameterType(Optional_of[string](name))
+			if this.checkParam(t, param, Optional_of[string](name), paramType) {
 				return
 			}
 			param = param.getNext()
@@ -211,7 +211,7 @@ func (this *CheckJSDocStyle) checkInlineParams(t *NodeTraversal, function Node, 
 			} else {
 				var paramType *JSTypeExpression = jsDoc.getType()
 				Preconditions_checkNotNull_Object_Object(obj_(paramType), strobj_("Inline JSDoc info should always have a type"))
-				this.checkParam(t, param, Optional_empty(), paramType)
+				this.checkParam(t, param, Optional_empty[string](), paramType)
 			}
 		}
 	}
@@ -230,8 +230,8 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		nameOptional = false
 	}
 	if name.isEmpty() || !nodeToCheck.isName() {
-		name = Optional_of(strobj_("<unknown name>"))
-	} else if !nodeToCheck.matchesQualifiedName(str_(name.get())) {
+		name = Optional_of[string]("<unknown name>")
+	} else if !nodeToCheck.matchesQualifiedName(name.get()) {
 		t.report(nodeToCheck, CheckJSDocStyle_INCORRECT_PARAM_NAME, []string{})
 		return true
 	}
@@ -248,7 +248,7 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		}
 		return nodeToCheck
 	}()
-	t.report(errorSource, CheckJSDocStyle_OPTIONAL_PARAM_NOT_MARKED_OPTIONAL, []string{str_(name.orElse(strobj_("null")))})
+	t.report(errorSource, CheckJSDocStyle_OPTIONAL_PARAM_NOT_MARKED_OPTIONAL, []string{name.orElse("null")})
 	return true
 }
 
@@ -302,7 +302,7 @@ func (this *CheckJSDocStyle) checkLicenseComment(t *NodeTraversal, n Node) {
 	if (n.getJSDocInfo() == nil) || n.getJSDocInfo().getLicense().isEmpty() {
 		return
 	}
-	var license string = str_(n.getJSDocInfo().getLicense().get())
+	var license string = n.getJSDocInfo().getLicense().get()
 	if String_contains(license, strobj_("@externs")) {
 		t.report(n, CheckJSDocStyle_LICENSE_CONTAINS_AT_EXTERNS, []string{})
 	}

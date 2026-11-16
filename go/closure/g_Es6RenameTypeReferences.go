@@ -57,10 +57,10 @@ func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Nod
 	var endPos int32 = String_indexOf(fullName, 46)
 	if endPos == -1 {
 		rootName = fullName
-		rest = Optional_empty()
+		rest = Optional_empty[string]()
 	} else {
 		rootName = String_substring(fullName, 0, endPos)
-		rest = Optional_of(strobj_(String_substring_int(fullName, endPos)))
+		rest = Optional_of[string](String_substring_int(fullName, endPos))
 	}
 	this.renameReference(t, n, rootName, rest)
 }
@@ -69,14 +69,14 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 	var current *Scope = t.getScope()
 	for current != nil {
 		var currentRootNode Node = current.getRootNode()
-		var newName OptionalOf[string] = Optional_ofNullable(this.renameTable.get(currentRootNode.box_(), strobj_(oldName)))
+		var newName OptionalOf[string] = Optional_ofNullable[string](str_(this.renameTable.get(currentRootNode.box_(), strobj_(oldName))))
 		if newName.isPresent() {
 			Preconditions_checkState_boolean_String_Object(((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)), "Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", currentRootNode.box_())
 			var newFullName string = func() string {
 				if rest.isEmpty() {
-					return str_(newName.get())
+					return newName.get()
 				}
-				return (sstr_(str_(newName.get())) + sstr_(str_(rest.get())))
+				return (sstr_(newName.get()) + sstr_(rest.get()))
 			}()
 			n.setString(newFullName)
 			return

@@ -17,7 +17,7 @@ func (this *Parser) finit_Parser() {
 	this.commentRecorder = new_Parser_CommentRecorder(this)
 	this.functionContextStack = new_ArrayDeque()
 	this.features_ = FeatureSet_BARE_MINIMUM
-	this.sourceMapURL = Optional_empty()
+	this.sourceMapURL = Optional_empty[string]()
 }
 
 func (this *Parser) init_Parser(config *Parser_Config, errorReporter *ErrorReporter_util, source *SourceFile_parser) {
@@ -2905,7 +2905,7 @@ func (this *Parser_CommentRecorder) recordComment(type_ *Comment_Type, range_ *S
 	if (this.lastCommentEndPosition == nil) || (range_.end_.offset > this.lastCommentEndPosition.offset) {
 		value = String_trim(value)
 		if String_startsWith(value, Parser_SOURCE_MAPPING_URL_PREFIX) {
-			this.outer_.sourceMapURL = Optional_of(strobj_(String_substring_int(value, String_length(Parser_SOURCE_MAPPING_URL_PREFIX))))
+			this.outer_.sourceMapURL = Optional_of[string](String_substring_int(value, String_length(Parser_SOURCE_MAPPING_URL_PREFIX)))
 		}
 		this.comments.add(obj_(new_Comment(value, range_, type_)))
 		this.lastCommentEndPosition = range_.end_

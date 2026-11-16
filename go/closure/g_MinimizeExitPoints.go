@@ -28,21 +28,21 @@ func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
 	Preconditions_checkState_boolean_Object(this.isASTNormalized(), strobj_("MinimizeExitPoints requires the AST to be normalized"))
 	switch n.ns_().token {
 	case tokOrd1_LABEL:
-		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_of(strobj_(n.getFirstChild().getString())))
+		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_of[string](n.getFirstChild().getString()))
 	case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE:
-		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty())
+		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
 	case tokOrd1_DO:
-		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty())
+		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty[string]())
 		var cond Node = NodeUtil_getConditionExpression(n)
 		if this.getSideEffectFreeBooleanValue(cond) == Tri_FALSE {
-			this.tryMinimizeExits(n.getFirstChild(), Token_rhino_BREAK, Optional_empty())
+			this.tryMinimizeExits(n.getFirstChild(), Token_rhino_BREAK, Optional_empty[string]())
 		}
 	case tokOrd1_BLOCK:
 		if n.hasParent() && n.getParent().isFunction() {
-			this.tryMinimizeExits(n, Token_rhino_RETURN, Optional_empty())
+			this.tryMinimizeExits(n, Token_rhino_RETURN, Optional_empty[string]())
 		}
 	case tokOrd1_SWITCH:
-		this.tryMinimizeSwitchExits(n, Token_rhino_BREAK, Optional_empty())
+		this.tryMinimizeSwitchExits(n, Token_rhino_BREAK, Optional_empty[string]())
 	default:
 	}
 	return n
@@ -193,7 +193,7 @@ func MinimizeExitPoints_matchingExitNode(n Node, type_ *Token_rhino, labelName O
 			if labelName.isEmpty() {
 				return !n.hasChildren()
 			} else {
-				return (n.hasChildren() && (str_(labelName.get()) == n.getFirstChild().getString()))
+				return (n.hasChildren() && (labelName.get() == n.getFirstChild().getString()))
 			}
 		}
 	}

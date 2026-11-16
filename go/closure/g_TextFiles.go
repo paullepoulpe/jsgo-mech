@@ -32,7 +32,7 @@ func TextFiles_readStrict(path string, charset string) *Outcome_base {
 	if text.isEmpty() {
 		return Outcome_base_err(new_TextFiles_DecodingException(("Failed to read: " + sstr_(path) + ", is this input UTF-8 encoded?")).up_Throwable())
 	}
-	return Outcome_base_ok_Object(text.get())
+	return Outcome_base_ok_Object(strobj_(text.get()))
 }
 
 func TextFiles_isDecodingError(error_ *Throwable) bool {

@@ -228,11 +228,11 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 		}
 		var moduleId OptionalOf[string] = module.closureNamespace()
 		var globalScope *TypedScope = cast_[*TypedScope](syntacticBlockScope.getGlobalScope().self())
-		var globalVar *TypedVar = cast_[*TypedVar](globalScope.getVar(str_(moduleId.get())).self())
+		var globalVar *TypedVar = cast_[*TypedVar](globalScope.getVar(moduleId.get()).self())
 		if globalVar.isTypeInferred() {
 			globalVar.setType(exportsType)
 		}
-		var moduleQname *QualifiedName = QualifiedName_of(str_(moduleId.get()))
+		var moduleQname *QualifiedName = QualifiedName_of(moduleId.get())
 		if !moduleQname.isSimple() {
 			var parentType *JSType = globalScope.lookupQualifiedName(moduleQname.getOwner())
 			var parentObjectType *ObjectType = func() *ObjectType {
@@ -1077,10 +1077,10 @@ func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowSc
 					valueType = this.unknownType.up_JSType()
 				}
 				if !spreadOperatorSeen || !n.getJSType().isNativeObjectType() {
-					objectType.defineInferredProperty(str_(memberName.get()), valueType, key)
+					objectType.defineInferredProperty(memberName.get(), valueType, key)
 				}
 				if qObjName.isPresent() && key.isStringKey() {
-					var qKeyName string = (sstr_(str_(qObjName.get())) + "." + sstr_(str_(memberName.get())))
+					var qKeyName string = (sstr_(qObjName.get()) + "." + sstr_(memberName.get()))
 					var var_ *TypedVar = TypeInference_getDeclaredVar(scope, qKeyName)
 					var oldType *JSType = func() *JSType {
 						if var_ == nil {
@@ -1397,7 +1397,7 @@ func (this *TypeInference) buildTypeVariables(inferredTypes MapOf[*TemplateType,
 	for it_1.next() {
 		var e Map_Entry = icast_Map_Entry(it_1.v)
 		if !cast_[*TemplateType](e.getKey()).isTypeTransformation() {
-			typeVars.put(str_(cast_[*TemplateType](e.getKey()).getReferenceName().orElseThrow()), to_JSType(e.getValue()))
+			typeVars.put(cast_[*TemplateType](e.getKey()).getReferenceName().orElseThrow(), to_JSType(e.getValue()))
 		}
 	}
 	return typeVars
@@ -1418,7 +1418,7 @@ func (this *TypeInference) evaluateTypeTransformations(templateTypes ImmutableLi
 			}
 			var transformedType *JSType = ttlObj.eval(type_.getTypeTransformation(), ImmutableMap_copyOf(typeVars.asMap()))
 			result.put(obj_(type_), transformedType.self())
-			typeVars.put(str_(type_.getReferenceName().orElse(nil)), transformedType)
+			typeVars.put(type_.getReferenceName().orElse(nullstr_), transformedType)
 		}
 	}
 	return result
@@ -1834,11 +1834,10 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	var importSpecifier Node = dynamicImport.getFirstChild()
 	var input *CompilerInput = this.compiler_.getInput(NodeUtil_getInputId(dynamicImport))
 	if (importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil) {
-		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of(strobj_(importSpecifier.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of[string](importSpecifier.getSourceFileName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), importSpecifier.getLineno(), importSpecifier.getCharno())
+		}), importSpecifier.getLineno(), importSpecifier.getCharno())
 		var targetModule *Module = func() *Module {
 			if targetPath != nil {
 				return moduleMap.getModule(targetPath)

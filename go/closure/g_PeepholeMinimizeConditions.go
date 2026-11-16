@@ -172,7 +172,7 @@ func PeepholeMinimizeConditions_statementMustExitParent(n Node) bool {
 func (this *PeepholeMinimizeConditions) tryReplaceExitWithBreak(n Node) Node {
 	var result Node = n.getFirstChild()
 	var breakTarget Node = n
-	for ; !ControlFlowAnalysis_isBreakTarget(breakTarget, Optional_empty()); breakTarget = breakTarget.getParent() {
+	for ; !ControlFlowAnalysis_isBreakTarget(breakTarget, Optional_empty[string]()); breakTarget = breakTarget.getParent() {
 		if breakTarget.isFunction() || breakTarget.isScript() {
 			return n
 		}

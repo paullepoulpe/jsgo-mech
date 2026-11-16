@@ -22,7 +22,7 @@ type NodeTraversal struct {
 
 func (this *NodeTraversal) finit_NodeTraversal() {
 	this.scopes = make([]any, 0, 8)
-	this.sourceName_ = Optional_empty()
+	this.sourceName_ = Optional_empty[string]()
 }
 
 func (this *NodeTraversal) init_NodeTraversal(builder *NodeTraversal_Builder) {
@@ -150,9 +150,9 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 	var columnNumber int32 = n.getCharno()
 	var src OptionalOf[string] = this.compiler_.getSourceLine(sourceFileName, lineNumber)
 	if src.isEmpty() {
-		src = Optional_of(strobj_(NodeTraversal_MISSING_SOURCE))
+		src = Optional_of[string](NodeTraversal_MISSING_SOURCE)
 	}
-	return (sstr_(str_(sourceFileName.get())) + ":" + istr_(int64(lineNumber)) + ":" + istr_(int64(columnNumber)) + "\n" + sstr_(str_(src.orElse(strobj_("null")))) + "\n")
+	return (sstr_(sourceFileName.get()) + ":" + istr_(int64(lineNumber)) + ":" + istr_(int64(columnNumber)) + "\n" + sstr_(src.orElse("null")) + "\n")
 }
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
@@ -299,15 +299,14 @@ func (this *NodeTraversal) getCompiler() *AbstractCompiler {
 
 func (this *NodeTraversal) getSourceName() OptionalOf[string] {
 	if this.sourceName_.isEmpty() {
-		this.sourceName_ = func() Optional {
+		this.sourceName_ = func() OptionalOf[string] {
 			if this.currentScript != 0 {
-				return Optional_of(strobj_(this.currentScript.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
+				return Optional_of[string](this.currentScript.getSourceFileName()).filterFn_(func(s string) bool {
 					_ = s
 					return !String_isEmpty(s)
-				}})
+				})
 			}
-			return Optional_of(strobj_(""))
+			return Optional_of[string]("")
 		}()
 	}
 	return this.sourceName_
@@ -891,7 +890,7 @@ func (this *NodeTraversal) isScopeRoot(n Node) bool {
 
 func (this *NodeTraversal) clearScriptState() {
 	this.inputId = nil
-	this.sourceName_ = Optional_empty()
+	this.sourceName_ = Optional_empty[string]()
 	this.compilerInput = nil
 }
 
@@ -903,15 +902,14 @@ func (this *NodeTraversal) getInputId() *InputId {
 }
 
 func (this *NodeTraversal) getBestSourceFileName(n Node) OptionalOf[string] {
-	return func() Optional {
+	return func() OptionalOf[string] {
 		if n == 0 {
 			return this.getSourceName()
 		}
-		return Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		return Optional_of[string](n.getSourceFileName()).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}})
+		})
 	}()
 }
 

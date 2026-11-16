@@ -91,7 +91,7 @@ func TypeDeclarationsIR_functionType(returnType Node, requiredParams LinkedHashM
 		node.addChildToBack(TypeDeclarationsIR_maybeAddType(name, Node_of_(param.getValue())))
 	}
 	if restName.isPresent() {
-		var rest Node = new_Node_Token_Node(Token_rhino_ITER_REST, IR_name(str_(restName.get())))
+		var rest Node = new_Node_Token_Node(Token_rhino_ITER_REST, IR_name(restName.get()))
 		node.addChildToBack(TypeDeclarationsIR_maybeAddType(rest, restType))
 	}
 	return node

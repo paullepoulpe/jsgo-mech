@@ -68,16 +68,15 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 			break
 		}
 		var lhs string = n.getFirstFirstChild().getQualifiedName()
-		this.checkPossibleGoogProvideInit(Optional_of(strobj_(lhs)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		this.checkPossibleGoogProvideInit(Optional_of[string](lhs).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), n.getFirstChild().getJSDocInfo(), n)
+		}), n.getFirstChild().getJSDocInfo(), n)
 	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		if !n.getFirstChild().isName() {
 			break
 		}
-		this.checkPossibleGoogProvideInit(Optional_of(strobj_(n.getFirstChild().getString())), n.getJSDocInfo(), n)
+		this.checkPossibleGoogProvideInit(Optional_of[string](n.getFirstChild().getString()), n.getJSDocInfo(), n)
 	default:
 	}
 }
@@ -88,7 +87,7 @@ func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace Opt
 	}
 	var metadata *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 		if namespace.isPresent() {
-			return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, str_(namespace.get())))
+			return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.closureModules, namespace.get()))
 		}
 		return nil
 	}()
@@ -181,15 +180,14 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var enclosingFnNameNode Node = ProcessClosurePrimitives_getEnclosingDeclNameNode(n)
 	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
 		if has_(this.knownClosureSubclasses, baseContainer) {
-			this.reportBadBaseMethodUse(n, Optional_of(strobj_(baseContainer)).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
+			this.reportBadBaseMethodUse(n, Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 				_ = s
 				return !String_isEmpty(s)
-			}}), "Could not find enclosing method.")
+			}), "Could not find enclosing method.")
 		} else if ProcessClosurePrimitives_baseUsedInClass(n) {
 			var clazz Node = NodeUtil_getEnclosingClass(n)
 			if (clazz.getFirstChild().isName() && (clazz.getFirstChild().getString() == baseContainer)) || (clazz.getSecondChild().isName() && (clazz.getSecondChild().getString() == baseContainer)) {
-				this.reportBadBaseMethodUse(n, Optional_of(strobj_(clazz.getFirstChild().getString())), "base method is not allowed in ES6 class. Use super instead.")
+				this.reportBadBaseMethodUse(n, Optional_of[string](clazz.getFirstChild().getString()), "base method is not allowed in ES6 class. Use super instead.")
 			}
 		}
 		return
@@ -202,28 +200,25 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	}
 	var enclosingQname string = enclosingFnNameNode.getQualifiedName()
 	if !String_contains(enclosingQname, strobj_(".prototype.")) {
-		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of(strobj_(baseContainer)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), n, enclosingFnNameNode)
+		}), n, enclosingFnNameNode)
 	} else {
-		this.rewriteBaseCallInMethod(Optional_of(strobj_(enclosingQname)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		this.rewriteBaseCallInMethod(Optional_of[string](enclosingQname).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), Optional_of(strobj_(baseContainer)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
+		}), Optional_of[string](baseContainer).filterFn_(func(s string) bool {
 			_ = s
 			return !String_isEmpty(s)
-		}}), n, enclosingFnNameNode)
+		}), n, enclosingFnNameNode)
 	}
 }
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQname string, baseContainer OptionalOf[string], n Node, enclosingFnNameNode Node) {
-	if !Object_equals(obj_(Optional_of(strobj_(enclosingQname))), obj_(baseContainer)) {
-		if baseContainer.isPresent() && has_(this.knownClosureSubclasses, str_(baseContainer.get())) {
-			this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(str_(baseContainer.orElse(strobj_("null")))) + " methods"))
+	if !Object_equals(obj_(Optional_of(strobj_(enclosingQname))), obj_(optErase_(baseContainer))) {
+		if baseContainer.isPresent() && has_(this.knownClosureSubclasses, baseContainer.get()) {
+			this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(baseContainer.orElse("null")) + " methods"))
 		}
 		return
 	}
@@ -254,13 +249,13 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQnam
 }
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname OptionalOf[string], baseContainer OptionalOf[string], n Node, enclosingFnNameNode Node) {
-	if !(baseContainer.isPresent() && has_(this.knownClosureSubclasses, str_(baseContainer.get()))) {
-		this.reportPossibleBadBaseMethodUse(n, baseContainer, ("base used outside a known Closure subclass, in: " + sstr_(str_(baseContainer.orElse(strobj_("null")))) + "\nIf " + sstr_(str_(baseContainer.orElse(strobj_("null")))) + " is actually a Closure subclass, the compiler is unable to statically determine this. This can happen when calling .base off of some import or other alias of the original Closure subclass, such as from a goog.require in another file. Instead of using .base, rewrite this call as ParentClass.prototype.method.call(this)"))
+	if !(baseContainer.isPresent() && has_(this.knownClosureSubclasses, baseContainer.get())) {
+		this.reportPossibleBadBaseMethodUse(n, baseContainer, ("base used outside a known Closure subclass, in: " + sstr_(baseContainer.orElse("null")) + "\nIf " + sstr_(baseContainer.orElse("null")) + " is actually a Closure subclass, the compiler is unable to statically determine this. This can happen when calling .base off of some import or other alias of the original Closure subclass, such as from a goog.require in another file. Instead of using .base, rewrite this call as ParentClass.prototype.method.call(this)"))
 		return
 	}
-	var misuseOfBase bool = !enclosingFnNameNode.getFirstFirstChild().matchesQualifiedName(str_(baseContainer.get()))
+	var misuseOfBase bool = !enclosingFnNameNode.getFirstFirstChild().matchesQualifiedName(baseContainer.get())
 	if misuseOfBase {
-		this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(str_(baseContainer.orElse(strobj_("null")))) + " methods"))
+		this.reportBadBaseMethodUse(n, baseContainer, ("Must be used within " + sstr_(baseContainer.orElse("null")) + " methods"))
 		return
 	}
 	var callee Node = n.getFirstChild()
@@ -276,12 +271,12 @@ func (this *ProcessClosurePrimitives) rewriteBaseCallInMethod(enclosingQname Opt
 	}
 	var methodName string = methodNameNode.getString()
 	var ending string = (".prototype." + sstr_(methodName))
-	if enclosingQname.isEmpty() || !String_endsWith(str_(enclosingQname.get()), ending) {
+	if enclosingQname.isEmpty() || !String_endsWith(enclosingQname.get(), ending) {
 		this.reportBadBaseMethodUse(n, baseContainer, ("Enclosing method does not match " + sstr_(methodName)))
 		return
 	}
 	var className Node = enclosingFnNameNode.getFirstFirstChild()
-	callee.replaceWith(NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(className.getQualifiedName()) + ".superClass_." + sstr_(methodName) + ".call"), callee, (sstr_(str_(enclosingQname.get())) + ".base")))
+	callee.replaceWith(NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(className.getQualifiedName()) + ".superClass_." + sstr_(methodName) + ".call"), callee, (sstr_(enclosingQname.get()) + ".base")))
 	methodNameNode.detach()
 	this.compiler_.reportChangeToEnclosingScope(n)
 }
@@ -334,11 +329,11 @@ func ProcessClosurePrimitives_baseUsedInClass(n Node) bool {
 }
 
 func (this *ProcessClosurePrimitives) reportBadBaseMethodUse(n Node, className OptionalOf[string], extraMessage string) {
-	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_BASE_CLASS_ERROR, []string{str_(className.orElse(strobj_("null"))), extraMessage}))
+	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_BASE_CLASS_ERROR, []string{className.orElse("null"), extraMessage}))
 }
 
 func (this *ProcessClosurePrimitives) reportPossibleBadBaseMethodUse(n Node, className OptionalOf[string], extraMessage string) {
-	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_POSSIBLE_BASE_CLASS_ERROR, []string{str_(className.orElse(strobj_("null"))), extraMessage}))
+	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ProcessClosurePrimitives_POSSIBLE_BASE_CLASS_ERROR, []string{className.orElse("null"), extraMessage}))
 }
 
 func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompiler, n Node, parent Node) CssRenamingMap {
@@ -398,8 +393,8 @@ func ProcessClosurePrimitives_processSetCssNameMapping(compiler *AbstractCompile
 			it_7 := foreach_(any(cssNames.asMap().entrySet()))
 			for it_7.next() {
 				var a Map_Entry = icast_Map_Entry(it_7.v)
-				var combined OptionalOf[string] = Optional_ofNullable(strobj_(cssNames.get((sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey()))))))
-				if combined.isPresent() && !(str_(combined.get()) == (sstr_(str_(a.getValue())) + "-" + sstr_(str_(b.getValue())))) {
+				var combined OptionalOf[string] = Optional_ofNullable[string](cssNames.get((sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())))))
+				if combined.isPresent() && !(combined.get() == (sstr_(str_(a.getValue())) + "-" + sstr_(str_(b.getValue())))) {
 					errors.add(strobj_(("map(" + sstr_(str_(a.getKey())) + "-" + sstr_(str_(b.getKey())) + ") != map(" + sstr_(str_(a.getKey())) + ")-map(" + sstr_(str_(b.getKey())) + ")")))
 				}
 			}
@@ -422,7 +417,7 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 		return
 	}
 	var convention CodingConvention = this.compiler_.getCodingConvention()
-	var typeDeclaration OptionalOf[string] = Optional_empty()
+	var typeDeclaration OptionalOf[string] = Optional_empty[string]()
 	_ = func() (code_ int) {
 		defer func() {
 			if r_ := recover(); r_ != nil {
@@ -436,11 +431,11 @@ func (this *ProcessClosurePrimitives) processForwardDeclare(n Node) {
 				panic(r_)
 			}
 		}()
-		typeDeclaration = Optional_ofNullable(Iterables_getOnlyElement(Iterable(sliceView_(tc_string, convention.identifyTypeDeclarationCall(n)))))
+		typeDeclaration = Optional_ofNullable[string](str_(Iterables_getOnlyElement(Iterable(sliceView_(tc_string, convention.identifyTypeDeclarationCall(n))))))
 		return 0
 	}()
 	if typeDeclaration.isPresent() {
-		this.compiler_.forwardDeclareType(str_(typeDeclaration.get()))
+		this.compiler_.forwardDeclareType(typeDeclaration.get())
 	}
 }
 
@@ -551,9 +546,9 @@ func new_ProcessClosurePrimitives_1(cap_cssNames *TMap[string, string], cap_styl
 
 func (this *ProcessClosurePrimitives_1) get(value string) OptionalOf[string] {
 	if this.cap_cssNames.containsKey(value) {
-		return Optional_ofNullable(strobj_(this.cap_cssNames.get(value)))
+		return Optional_ofNullable[string](this.cap_cssNames.get(value))
 	} else {
-		return Optional_of(strobj_(value))
+		return Optional_of[string](value)
 	}
 	panic("unreachable")
 }

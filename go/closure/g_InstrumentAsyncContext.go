@@ -212,7 +212,7 @@ func (this *InstrumentAsyncContext) instrumentGeneratorMethod(t *NodeTraversal, 
 	NodeTraversal_traverse(this.compiler_, generatorBody, icast_NodeTraversal_Callback(obj_(renamer)))
 	if renamer.argumentsName.isPresent() {
 		argumentsReference = this.astFactory_.createArgumentsReference()
-		argumentsParam = this.astFactory_.createName(str_(renamer.argumentsName.get()), AstFactory_type_Node(argumentsReference))
+		argumentsParam = this.astFactory_.createName(renamer.argumentsName.get(), AstFactory_type_Node(argumentsReference))
 		argumentsParam.insertAfter(innerFactoryName)
 	}
 	var outerBody Node = IR_block_0()
@@ -363,7 +363,7 @@ type InstrumentAsyncContext_ArgumentsRenamer struct {
 }
 
 func (this *InstrumentAsyncContext_ArgumentsRenamer) finit_InstrumentAsyncContext_ArgumentsRenamer() {
-	this.argumentsName = Optional_empty()
+	this.argumentsName = Optional_empty[string]()
 }
 
 func (this *InstrumentAsyncContext_ArgumentsRenamer) init_InstrumentAsyncContext_ArgumentsRenamer() {
@@ -384,9 +384,9 @@ func (this *InstrumentAsyncContext_ArgumentsRenamer) shouldTraverse(t *NodeTrave
 func (this *InstrumentAsyncContext_ArgumentsRenamer) visit(t *NodeTraversal, n Node, parent Node) {
 	if n.isName() && (n.getString() == "arguments") {
 		if this.argumentsName.isEmpty() {
-			this.argumentsName = Optional_of(strobj_(("$jscomp$arguments$" + sstr_(this.outer_.uniqueIdSupplier.getUniqueId(t.getInput())))))
+			this.argumentsName = Optional_of[string](("$jscomp$arguments$" + sstr_(this.outer_.uniqueIdSupplier.getUniqueId(t.getInput()))))
 		}
-		n.setString(str_(this.argumentsName.get()))
+		n.setString(this.argumentsName.get())
 		if this.outer_.compiler_.getOptions().preservesDetailedSourceInfo() {
 			n.setOriginalName("arguments")
 		}

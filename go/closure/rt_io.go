@@ -99,11 +99,11 @@ func Io_utf8String(bytes []int8) string {
 	return string(out)
 }
 
-func Io_utf8StringStrict(bytes []int8) Optional {
+func Io_utf8StringStrict(bytes []int8) Optional[string] {
 	if b := u8_(bytes); utf8.Valid(b) {
 		return Optional_of(string(b))
 	}
-	return Optional_empty()
+	return Optional_empty[string]()
 }
 
 // ---- Files and directories
@@ -303,11 +303,11 @@ func Io_base64Decode(text string) []int8 {
 // ---- Files bundled with the compiler; the report of an unexpected failure
 
 // Io_readResource reads from the files embedded in the binary (rt_io_resources.go).
-func Io_readResource(name string) Optional {
+func Io_readResource(name string) Optional[[]int8] {
 	if b, ok := resourceBytes_(name); ok {
 		return Optional_of(i8_(b))
 	}
-	return Optional_empty()
+	return Optional_empty[[]int8]()
 }
 
 // Io_stackTraceText is the throwable and its causes, as the JVM

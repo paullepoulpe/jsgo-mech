@@ -32,18 +32,18 @@ func new_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, i
 }
 
 func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if !n.isRoot() && !(str_(t.getSourceName().orElse(strobj_(""))) == n.getSourceFileName()) {
+	if !n.isRoot() && !(t.getSourceName().orElse("") == n.getSourceFileName()) {
 		return false
 	}
 	if n.isFunction() {
 		var fnName OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		fnName = func() Optional {
+		fnName = func() OptionalOf[string] {
 			if fnName.isEmpty() {
-				return Optional_of(strobj_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME))
+				return Optional_of[string](ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
 			}
 			return fnName
 		}()
-		this.functionNameStack.push(fnName.orElse(nil))
+		this.functionNameStack.push(strobj_(fnName.orElse(nullstr_)))
 	}
 	if this.functionNameStack.isEmpty() {
 		this.functionNameStack.push(strobj_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME))
@@ -58,7 +58,7 @@ func (this *ProductionCoverageInstrumentationCallback) visit(traversal *NodeTrav
 	switch node.ns_().token {
 	case tokOrd1_FUNCTION:
 		this.functionNameStack.pop()
-		this.instrumentBlockNode(node.getLastChild(), str_(fileName.orElse(nil)), functionName, ProductionCoverageInstrumentationCallback_Type_FUNCTION)
+		this.instrumentBlockNode(node.getLastChild(), fileName.orElse(nullstr_), functionName, ProductionCoverageInstrumentationCallback_Type_FUNCTION)
 	case tokOrd1_IF:
 		var ifTrueNode Node = node.getSecondChild()
 		this.instrumentBlockNode(ifTrueNode, sourceFileName, functionName, ProductionCoverageInstrumentationCallback_Type_BRANCH)
@@ -298,7 +298,7 @@ func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(stri
 	it_1 := foreach_(any(strings))
 	for it_1.next() {
 		var string_ string = str_(it_1.v)
-		writer.stringValue(Optional_of(strobj_(string_)))
+		writer.stringValue(Optional_of[string](string_))
 	}
 	writer.endArray()
 	return writer.toString()

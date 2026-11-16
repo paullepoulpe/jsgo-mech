@@ -17,11 +17,11 @@ func new_VariableMap(map_ *TMap[string, string]) *VariableMap {
 }
 
 func (this *VariableMap) lookupNewName(sourceName string) OptionalOf[string] {
-	return Optional_ofNullable(this.map__.get(strobj_(sourceName)))
+	return Optional_ofNullable[string](str_(this.map__.get(strobj_(sourceName))))
 }
 
 func (this *VariableMap) lookupSourceName(newName OptionalOf[string]) string {
-	return this.map__.inverse().get(str_(newName.orElse(nil)))
+	return this.map__.inverse().get(newName.orElse(nullstr_))
 }
 
 func (this *VariableMap) getOriginalNameToNewNameMap() ImmutableMapOf[string, string] {

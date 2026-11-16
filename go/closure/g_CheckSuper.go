@@ -334,7 +334,7 @@ func (this *CheckSuper_MethodContext) visitSuperConstructorCall_impl(t *NodeTrav
 	if this.isClassMethod {
 		var propName OptionalOf[string] = this.getPropertyName()
 		if propName.isPresent() {
-			t.report(superNode, CheckSuper_INVALID_SUPER_CALL_WITH_SUGGESTION, []string{str_(propName.get())})
+			t.report(superNode, CheckSuper_INVALID_SUPER_CALL_WITH_SUGGESTION, []string{propName.get()})
 		} else {
 			t.report(superNode, CheckSuper_INVALID_SUPER_CALL, []string{})
 		}
@@ -346,9 +346,9 @@ func (this *CheckSuper_MethodContext) visitSuperConstructorCall_impl(t *NodeTrav
 func (this *CheckSuper_MethodContext) getPropertyName() OptionalOf[string] {
 	var parent Node = Node_of_(Preconditions_checkNotNull(this.getContextNode().getParent().box_()))
 	if (parent.isMemberFunctionDef() || parent.isGetterDef()) || parent.isSetterDef() {
-		return Optional_of(strobj_(parent.getString()))
+		return Optional_of[string](parent.getString())
 	} else {
-		return Optional_empty()
+		return Optional_empty[string]()
 	}
 	panic("unreachable")
 }

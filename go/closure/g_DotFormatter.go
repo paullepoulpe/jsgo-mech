@@ -136,14 +136,14 @@ func (this *DotFormatter) traverseNodes(parent Node) {
 		for i := int32(0); i < int32(len(edgeList)); i++ {
 			var edge DiGraph_DiGraphEdge = outEdges.get(i)
 			var succ DiGraph_DiGraphNode = edge.getDestination()
-			var toNode OptionalOf[string] = Optional_empty()
+			var toNode OptionalOf[string] = Optional_empty[string]()
 			if succ == this.cfg.getImplicitReturn() {
-				toNode = Optional_of(strobj_("RETURN"))
+				toNode = Optional_of[string]("RETURN")
 			} else {
 				var keySucc int32 = this.key(Node_of_(succ.getValue()))
-				toNode = Optional_of(strobj_(DotFormatter_formatNodeName(any(int32(keySucc)))))
+				toNode = Optional_of[string](DotFormatter_formatNodeName(any(int32(keySucc))))
 			}
-			edgeList[i] = (sstr_(DotFormatter_formatNodeName(any(int32(keyParent)))) + sstr_(DotFormatter_ARROW) + sstr_(str_(toNode.orElse(strobj_("null")))) + " [label=\"" + objstr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
+			edgeList[i] = (sstr_(DotFormatter_formatNodeName(any(int32(keyParent)))) + sstr_(DotFormatter_ARROW) + sstr_(toNode.orElse("null")) + " [label=\"" + objstr_(edge.getValue()) + "\", fontcolor=\"red\", weight=0.01, color=\"red\"];\n")
 		}
 		func() {
 			arr_3 := edgeList

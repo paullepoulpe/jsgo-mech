@@ -29,7 +29,7 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 		builder.addKind(JsdocTag_JSDOC_FILEOVERVIEW)
 	}
 	if jsdoc.getLicense().isPresent() {
-		builder.setLicenseTextPointer(stringPool.put(str_(jsdoc.getLicense().get())))
+		builder.setLicenseTextPointer(stringPool.put(jsdoc.getLicense().get()))
 	}
 	if jsdoc.isSassGeneratedCssTs() {
 		builder.addKind(JsdocTag_JSDOC_SASS_GENERATED_CSS_TS)
@@ -112,13 +112,13 @@ func JSDocSerializer_serializeJsdoc(jsdoc *JSDocInfo, stringPool *StringPool_Bui
 		builder.addKind(JsdocTag_JSDOC_ABSTRACT)
 	}
 	if jsdoc.getDescription().isPresent() {
-		builder.setDescriptionPointer(stringPool.put(str_(jsdoc.getDescription().get())))
+		builder.setDescriptionPointer(stringPool.put(jsdoc.getDescription().get()))
 	}
 	if jsdoc.getAlternateMessageId().isPresent() {
-		builder.setAlternateMessageIdPointer(stringPool.put(str_(jsdoc.getAlternateMessageId().get())))
+		builder.setAlternateMessageIdPointer(stringPool.put(jsdoc.getAlternateMessageId().get()))
 	}
 	if jsdoc.getMeaning().isPresent() {
-		builder.setMeaningPointer(stringPool.put(str_(jsdoc.getMeaning().get())))
+		builder.setMeaningPointer(stringPool.put(jsdoc.getMeaning().get()))
 	}
 	if Collection_contains_s(jsdoc.getSuppressions(), "messageConventions") {
 		builder.addKind(JsdocTag_JSDOC_SUPPRESS_MESSAGE_CONVENTION)

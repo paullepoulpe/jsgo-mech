@@ -28,9 +28,9 @@ func ClosurePrimitive_fromStringId(id OptionalOf[string]) *ClosurePrimitive {
 	if id.isEmpty() {
 		return nil
 	}
-	var primitive *ClosurePrimitive = cast_[*ClosurePrimitive](Map_get_s(ClosurePrimitive_ID_TO_ENUM, str_(id.get())))
+	var primitive *ClosurePrimitive = cast_[*ClosurePrimitive](Map_get_s(ClosurePrimitive_ID_TO_ENUM, id.get()))
 	if primitive == nil {
-		panic(new_IllegalArgumentException_String(("String id " + sstr_(str_(id.get())) + " does not match any ClosurePrimitive")).self())
+		panic(new_IllegalArgumentException_String(("String id " + sstr_(id.get()) + " does not match any ClosurePrimitive")).self())
 	}
 	return primitive
 }

@@ -164,9 +164,9 @@ func (this *ModuleImportResolver) updateAstForExport(bindingSourceNode Node, exp
 }
 
 func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *ScopedName {
-	var name OptionalOf[string] = func() Optional {
+	var name OptionalOf[string] = func() OptionalOf[string] {
 		if binding.isModuleNamespace() {
-			return Optional_of(strobj_(Export_NAMESPACE))
+			return Optional_of[string](Export_NAMESPACE)
 		}
 		return binding.boundName()
 	}()
@@ -181,23 +181,23 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 		case ModuleMetadataMap_ModuleType_ES6_MODULE:
 			var scriptNode Node = originalMetadata.rootNode()
 			Preconditions_checkState_boolean_Object(((scriptNode == 0) || scriptNode.isScript()), scriptNode.box_())
-			return ScopedName_of(str_(name.orElse(nil)), func() Node {
+			return ScopedName_of(name.orElse(nullstr_), func() Node {
 				if scriptNode != 0 {
 					return scriptNode.getOnlyChild()
 				}
 				return 0
 			}())
 		case ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
-			var closureModuleObject *ScopedName = this.getScopedNameForClosureNamespace(str_(binding.closureNamespace().orElse(nil)))
+			var closureModuleObject *ScopedName = this.getScopedNameForClosureNamespace(binding.closureNamespace().orElse(nullstr_))
 			if closureModuleObject == nil {
-				return ScopedName_of(str_(binding.closureNamespace().orElse(nil)), 0)
+				return ScopedName_of(binding.closureNamespace().orElse(nullstr_), 0)
 			}
 			if binding.isModuleNamespace() {
 				return closureModuleObject
 			}
-			return ScopedName_of((sstr_(closureModuleObject.getName()) + "." + sstr_(str_(binding.originatingExport().exportName().orElse(strobj_("null"))))), closureModuleObject.getScopeRoot())
+			return ScopedName_of((sstr_(closureModuleObject.getName()) + "." + sstr_(binding.originatingExport().exportName().orElse("null"))), closureModuleObject.getScopeRoot())
 		case ModuleMetadataMap_ModuleType_SCRIPT:
-			return ScopedName_of(str_(name.orElse(strobj_(""))), 0)
+			return ScopedName_of(name.orElse(""), 0)
 		case ModuleMetadataMap_ModuleType_COMMON_JS:
 			panic(new_IllegalStateException_String("Typechecking CommonJS modules is not supported").self())
 		}

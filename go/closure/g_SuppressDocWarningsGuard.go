@@ -99,7 +99,7 @@ func (this *SuppressDocWarningsGuard) getScriptNodeBySourceName(error_ *JSError)
 	if error_.sourceName().isEmpty() {
 		return 0
 	}
-	var scriptNode Node = this.compiler_.getScriptNode(str_(error_.sourceName().get()))
+	var scriptNode Node = this.compiler_.getScriptNode(error_.sourceName().get())
 	if scriptNode == 0 {
 		return 0
 	}

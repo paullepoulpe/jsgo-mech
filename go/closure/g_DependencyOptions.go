@@ -105,7 +105,7 @@ func DependencyOptions_fromFlags(dependencyModeFlag *DependencyOptions_Dependenc
 	}
 	var entryPointsBuilder ImmutableList_BuilderOf[*ModuleIdentifier] = ImmutableList_builder()
 	if commonJsEntryModuleFlag.isPresent() {
-		entryPointsBuilder.add(obj_(ModuleIdentifier_forFile(str_(commonJsEntryModuleFlag.get()))))
+		entryPointsBuilder.add(obj_(ModuleIdentifier_forFile(commonJsEntryModuleFlag.get())))
 	}
 	it_1 := foreach_(any(entryPointFlag))
 	for it_1.next() {

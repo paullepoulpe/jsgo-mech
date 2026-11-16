@@ -19,7 +19,7 @@ func new_DiagnosticGroup_Optional_DiagnosticTypeArr(name OptionalOf[string], typ
 }
 
 func (this *DiagnosticGroup) init_DiagnosticGroup_DiagnosticTypeArr(types []*DiagnosticType) {
-	this.init_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_empty(), types)
+	this.init_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_empty[string](), types)
 }
 
 func new_DiagnosticGroup_DiagnosticTypeArr(types []*DiagnosticType) *DiagnosticGroup {
@@ -29,11 +29,11 @@ func new_DiagnosticGroup_DiagnosticTypeArr(types []*DiagnosticType) *DiagnosticG
 }
 
 func DiagnosticGroup_createFromType(type_ *DiagnosticType) *DiagnosticGroup {
-	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_empty(), []*DiagnosticType{type_})
+	return new_DiagnosticGroup_Optional_DiagnosticTypeArr(Optional_empty[string](), []*DiagnosticType{type_})
 }
 
 func DiagnosticGroup_createFromGroups_DiagnosticGroupArr(groups []*DiagnosticGroup) *DiagnosticGroup {
-	return DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_empty(), groups)
+	return DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(Optional_empty[string](), groups)
 }
 
 func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name OptionalOf[string], groups []*DiagnosticGroup) *DiagnosticGroup {
@@ -70,7 +70,7 @@ func (this *DiagnosticGroup) toString() string {
 		if this.name_.isEmpty() {
 			return defaultToString_(any(this))
 		}
-		return ("DiagnosticGroup<" + sstr_(str_(this.name_.get())) + ">")
+		return ("DiagnosticGroup<" + sstr_(this.name_.get()) + ">")
 	}()
 }
 

@@ -34,7 +34,7 @@ func new_WebpackModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPat
 }
 
 func (this *WebpackModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
-	var loadAddress OptionalOf[string] = Optional_ofNullable(Map_get_s(this.modulesById, moduleAddress))
+	var loadAddress OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(this.modulesById, moduleAddress)))
 	if loadAddress.isEmpty() {
 		return this.NodeModuleResolver.resolveJsModule_impl(scriptAddress, moduleAddress, sourcename, lineno, colno)
 	}
@@ -42,7 +42,7 @@ func (this *WebpackModuleResolver) resolveJsModule_impl(scriptAddress string, mo
 }
 
 func (this *WebpackModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) OptionalOf[string] {
-	var loadAddress OptionalOf[string] = Optional_ofNullable(Map_get_s(this.modulesById, moduleAddress))
+	var loadAddress OptionalOf[string] = Optional_ofNullable[string](str_(Map_get_s(this.modulesById, moduleAddress)))
 	if loadAddress.isEmpty() {
 		return this.NodeModuleResolver.resolveJsModuleSilently_impl(scriptAddress, moduleAddress)
 	}
@@ -78,21 +78,21 @@ func (this *WebpackModuleResolver_Factory) create(modulePaths ImmutableSetOf[str
 }
 
 // resolveJsModule: an object that is exactly a WebpackModuleResolver calls its resolveJsModule_impl directly (post-flip); others dispatch.
-func (this *WebpackModuleResolver) resolveJsModule(p0 string, p1 string, p2 Optional, p3 int32, p4 int32) Optional {
+func (this *WebpackModuleResolver) resolveJsModule(p0 string, p1 string, p2 OptionalOf[string], p3 int32, p4 int32) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.resolveJsModule_impl(p0, p1, p2, p3, p4)
 	}
 	return this.self_.(interface {
-		resolveJsModule_impl(string, string, Optional, int32, int32) Optional
+		resolveJsModule_impl(string, string, OptionalOf[string], int32, int32) OptionalOf[string]
 	}).resolveJsModule_impl(p0, p1, p2, p3, p4)
 }
 
 // resolveJsModuleSilently: an object that is exactly a WebpackModuleResolver calls its resolveJsModuleSilently_impl directly (post-flip); others dispatch.
-func (this *WebpackModuleResolver) resolveJsModuleSilently(p0 string, p1 string) Optional {
+func (this *WebpackModuleResolver) resolveJsModuleSilently(p0 string, p1 string) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.resolveJsModuleSilently_impl(p0, p1)
 	}
 	return this.self_.(interface {
-		resolveJsModuleSilently_impl(string, string) Optional
+		resolveJsModuleSilently_impl(string, string) OptionalOf[string]
 	}).resolveJsModuleSilently_impl(p0, p1)
 }

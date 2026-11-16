@@ -66,7 +66,7 @@ func GoogleCodingConvention_isConstantKey(name string, start int32, end int32) b
 }
 
 func (this *GoogleCodingConvention) isValidEnumKey_impl(key OptionalOf[string]) bool {
-	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher(key.get()).matches()
+	return GoogleCodingConvention_ENUM_KEY_PATTERN.matcher(strobj_(key.get())).matches()
 }
 
 func (this *GoogleCodingConvention) isOptionalParameter_impl(parameter Node) bool {
@@ -94,14 +94,14 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 	}
 	var m *Matcher_re2j = GoogleCodingConvention_PACKAGE_WITH_TEST_DIR.matcher(strobj_(name))
 	if m.find() {
-		return Optional_ofNullable(strobj_(m.group(1)))
+		return Optional_ofNullable[string](m.group(1))
 	} else {
 		var lastSlash int32 = String_lastIndexOf(name, 47)
-		return func() Optional {
+		return func() OptionalOf[string] {
 			if lastSlash == -1 {
-				return Optional_of(strobj_(""))
+				return Optional_of[string]("")
 			}
-			return Optional_of(strobj_(String_substring(name, 0, lastSlash)))
+			return Optional_of[string](String_substring(name, 0, lastSlash))
 		}()
 	}
 	panic("unreachable")
@@ -145,11 +145,11 @@ func (this *GoogleCodingConvention) isConstantKey(p0 string) bool {
 }
 
 // isValidEnumKey: an object that is exactly a GoogleCodingConvention calls its isValidEnumKey_impl directly (post-flip); others dispatch.
-func (this *GoogleCodingConvention) isValidEnumKey(p0 Optional) bool {
+func (this *GoogleCodingConvention) isValidEnumKey(p0 OptionalOf[string]) bool {
 	if this.self_ == any(this) {
 		return this.isValidEnumKey_impl(p0)
 	}
-	return this.self_.(interface{ isValidEnumKey_impl(Optional) bool }).isValidEnumKey_impl(p0)
+	return this.self_.(interface{ isValidEnumKey_impl(OptionalOf[string]) bool }).isValidEnumKey_impl(p0)
 }
 
 // isOptionalParameter: an object that is exactly a GoogleCodingConvention calls its isOptionalParameter_impl directly (post-flip); others dispatch.
@@ -185,11 +185,11 @@ func (this *GoogleCodingConvention) isClassFactoryCall(p0 Node) bool {
 }
 
 // getPackageName: an object that is exactly a GoogleCodingConvention calls its getPackageName_impl directly (post-flip); others dispatch.
-func (this *GoogleCodingConvention) getPackageName(p0 StaticSourceFile) Optional {
+func (this *GoogleCodingConvention) getPackageName(p0 StaticSourceFile) OptionalOf[string] {
 	if this.self_ == any(this) {
 		return this.getPackageName_impl(p0)
 	}
 	return this.self_.(interface {
-		getPackageName_impl(StaticSourceFile) Optional
+		getPackageName_impl(StaticSourceFile) OptionalOf[string]
 	}).getPackageName_impl(p0)
 }
