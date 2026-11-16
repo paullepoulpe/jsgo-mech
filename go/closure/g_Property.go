@@ -2,6 +2,8 @@
 
 package closure
 
+import "unsafe"
+
 type Property struct {
 	name_        any
 	type__       *JSType
@@ -214,11 +216,29 @@ func (this *Property_StringKey) init_Property_StringKey(string_ string) {
 }
 
 func new_Property_StringKey(string_ string) *Property_StringKey {
+	// A StringKey is an immutable record compared by value: the key made last for a string at
+	// this address is handed out again (post-flip manual step: a key was made for every
+	// property lookup by name). The cache entry is the key itself, so a miss costs nothing more.
+	if len(string_) > 0 && string_ != nullstr_ {
+		p := unsafe.StringData(string_)
+		e := &propertyKeys_[(uintptr(unsafe.Pointer(p))>>3^uintptr(len(string_)))&uintptr(len(propertyKeys_)-1)]
+		if k := *e; k != nil && len(k.string_) == len(string_) && unsafe.StringData(k.string_) == p {
+			return k
+		}
+		this := &Property_StringKey{}
+		this.zero_Property_StringKey()
+		this.init_Property_StringKey(string_)
+		*e = this
+		return this
+	}
 	this := &Property_StringKey{}
 	this.zero_Property_StringKey()
 	this.init_Property_StringKey(string_)
 	return this
 }
+
+// propertyKeys_ is a direct-mapped cache of StringKeys (the program runs on one goroutine).
+var propertyKeys_ [4096]*Property_StringKey
 
 func (this *Property_StringKey) symbol() *KnownSymbolType {
 	panic(new_UnsupportedOperationException_0().self())
