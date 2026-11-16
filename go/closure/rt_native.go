@@ -42,3 +42,316 @@ func mapStr_[K comparable](m map[K]string, k K) string {
 	}
 	return nullstr_
 }
+
+// Lists that are slices (tools/postflip/native): what TList does on its items, for a slice.
+
+// sliceAt_ is List.get: an index out of range throws IndexOutOfBoundsException with
+// ArrayList's message, as TList.get does.
+func sliceAt_[T any](s []T, i int32) T {
+	if i < 0 || int(i) >= len(s) {
+		throwIndex_(i, len(s))
+	}
+	return s[i]
+}
+
+func throwIndex_(i int32, n int) {
+	panic(new_IndexOutOfBoundsException_String("Index " + istr_(int64(i)) + " out of bounds for length " + istr_(int64(n))).self())
+}
+
+// sliceInsert_ is List.add(i, v).
+func sliceInsert_[T any](s *[]T, i int32, v T) {
+	if i < 0 || int(i) > len(*s) {
+		panic(new_IndexOutOfBoundsException_String("Index: " + istr_(int64(i)) + ", Size: " + istr_(int64(len(*s)))).self())
+	}
+	var z T
+	*s = append(*s, z)
+	copy((*s)[i+1:], (*s)[i:])
+	(*s)[i] = v
+}
+
+// sliceRemoveAt_ is List.remove(int): it returns the element removed.
+func sliceRemoveAt_[T any](s *[]T, i int32) T {
+	old := sliceAt_(*s, i)
+	var z T
+	if i == 0 {
+		(*s)[0] = z
+		*s = (*s)[1:]
+		return old
+	}
+	copy((*s)[i:], (*s)[i+1:])
+	(*s)[len(*s)-1] = z
+	*s = (*s)[:len(*s)-1]
+	return old
+}
+
+// sliceClear_ is List.clear.
+func sliceClear_[T any](s *[]T) {
+	clear(*s)
+	*s = (*s)[:0]
+}
+
+// sliceFrom_ is new ArrayList<>(from) as a slice.
+func sliceFrom_[T any](c *tconv_[T], from Collection) []T { return tlistFrom_(c, from).items }
+
+// sliceImm_ is an ImmutableList (or nil) as a slice: the items of its typed copy, which nothing
+// changes.
+func sliceImm_[T any](c *tconv_[T], from Collection) []T {
+	if l := tlistImm_(c, from); l != nil {
+		return l.items
+	}
+	return nil
+}
+
+// sliceView_ is s as an erased List for one call that reads it, or sorts it in place: a typed
+// list over the same items (it does not see later changes of the slice's length).
+func sliceView_[T any](c *tconv_[T], s []T) List {
+	if s == nil {
+		return nil
+	}
+	return (&TList[T]{items: s, c: c}).asList()
+}
+
+// sliceAddAll_ is List.addAll(from).
+func sliceAddAll_[T any](c *tconv_[T], s *[]T, from Collection) bool {
+	src := toSlice_(from)
+	for _, x := range src {
+		*s = append(*s, c.unbox(x))
+	}
+	return len(src) > 0
+}
+
+// sliceRemoveObject_ is List.remove(Object): the first element equal to x goes.
+func sliceRemoveObject_[T any](c *tconv_[T], s *[]T, x any) bool {
+	for i, y := range *s {
+		if objequals_(x, c.box(y)) {
+			sliceRemoveAt_(s, int32(i))
+			return true
+		}
+	}
+	return false
+}
+
+// sliceRemoveAll_ is List.removeAll(from).
+func sliceRemoveAll_[T any](c *tconv_[T], s *[]T, from Collection) bool {
+	out := (*s)[:0]
+	for _, x := range *s {
+		if !from.contains(c.box(x)) {
+			out = append(out, x)
+		}
+	}
+	changed := len(out) != len(*s)
+	clear((*s)[len(out):])
+	*s = out
+	return changed
+}
+
+// Typed maps and sets that are Go maps (tools/postflip/native -kind map|set): what TMap and
+// TSet do, for a Go map that nothing iterates. c is the value conversion; its null is Java's
+// null for the value type.
+
+// mapPut_ is Map.put used as a value: the previous value, or null.
+func mapPut_[K comparable, V any](c *tconv_[V], m map[K]V, k K, v V) V {
+	old, ok := m[k]
+	m[k] = v
+	if !ok {
+		return c.null
+	}
+	return old
+}
+
+// mapRemove_ is Map.remove used as a value: the value removed, or null.
+func mapRemove_[K comparable, V any](c *tconv_[V], m map[K]V, k K) V {
+	old, ok := m[k]
+	if !ok {
+		return c.null
+	}
+	delete(m, k)
+	return old
+}
+
+// mapGetOr_ is Map.getOrDefault.
+func mapGetOr_[K comparable, V any](m map[K]V, k K, def V) V {
+	if v, ok := m[k]; ok {
+		return v
+	}
+	return def
+}
+
+// mapPutIfAbsent_ is Map.putIfAbsent: a key mapped to null counts as absent.
+func mapPutIfAbsent_[K comparable, V any](c *tconv_[V], m map[K]V, k K, v V) V {
+	old, ok := m[k]
+	if ok && !c.isNull(old) {
+		return old
+	}
+	m[k] = v
+	if !ok {
+		return c.null
+	}
+	return old
+}
+
+// mapComputeIfAbsent_ is Map.computeIfAbsent with an erased function.
+func mapComputeIfAbsent_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k K, f Function) V {
+	if v, ok := m[k]; ok && !vc.isNull(v) {
+		return v
+	}
+	r := f.apply(kc.box(k))
+	if r == nil {
+		return vc.null
+	}
+	v := vc.unbox(r)
+	m[k] = v
+	return v
+}
+
+// setRemove_ is Set.remove used as a value: whether k was there.
+func setRemove_[K comparable](m map[K]struct{}, k K) bool {
+	if _, ok := m[k]; !ok {
+		return false
+	}
+	delete(m, k)
+	return true
+}
+
+// setAddAll_ is Set.addAll of another set: the result does not depend on either's order.
+func setAddAll_[K comparable](m, from map[K]struct{}) bool {
+	n := len(m)
+	for k := range from { // order-independent: only membership changes
+		m[k] = struct{}{}
+	}
+	return len(m) != n
+}
+
+// mapFrom_ is new LinkedHashMap<>(from) as a Go map.
+func mapFrom_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) map[K]V {
+	m := map[K]V{}
+	for it := from.entrySet().iterator(); it.hasNext(); {
+		e := it.next().(Map_Entry)
+		m[kc.unbox(e.getKey())] = vc.unbox(e.getValue())
+	}
+	return m
+}
+
+// mapImm_ is an ImmutableMap (or nil) as a Go map that nothing changes, made once per map.
+func mapImm_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], from Map) map[K]V {
+	if isNil_(from) {
+		return nil
+	}
+	slot := immSlot_(from)
+	if slot != nil && slot.conv == any(vc) {
+		if m, ok := slot.v.(map[K]V); ok {
+			return m
+		}
+	}
+	m := mapFrom_(kc, vc, from)
+	if slot != nil {
+		*slot = immTyped_{vc, m}
+	}
+	return m
+}
+
+// setFrom_ is new LinkedHashSet<>(from) as a Go map.
+func setFrom_[K comparable](kc *tconv_[K], from Collection) map[K]struct{} {
+	src := toSlice_(from)
+	m := make(map[K]struct{}, len(src))
+	for _, x := range src {
+		m[kc.unbox(x)] = struct{}{}
+	}
+	return m
+}
+
+// setImm_ is an ImmutableSet (or nil) as a Go map that nothing changes, made once per set.
+func setImm_[K comparable](kc *tconv_[K], from Collection) map[K]struct{} {
+	if isNil_(from) {
+		return nil
+	}
+	slot := immSlot_(from)
+	if slot != nil && slot.conv == any(kc) {
+		if m, ok := slot.v.(map[K]struct{}); ok {
+			return m
+		}
+	}
+	m := setFrom_(kc, from)
+	if slot != nil {
+		*slot = immTyped_{kc, m}
+	}
+	return m
+}
+
+// mapComputeIfAbsentObj_ is Map_computeIfAbsent(m.asMap(), k, f) on a Go map: boxed key and
+// result, as through the typed map's view.
+func mapComputeIfAbsentObj_[K comparable, V any](kc *tconv_[K], vc *tconv_[V], m map[K]V, k any, f Function) any {
+	if kk, ok := kc.try(k); ok {
+		if old, ok := m[kk]; ok {
+			if b := vc.box(old); b != nil {
+				return b
+			}
+		}
+	}
+	v := f.apply(k)
+	if v != nil {
+		m[kc.unbox(k)] = vc.unbox(v)
+	}
+	return v
+}
+
+// setAddAllFrom_ is Set.addAll of an erased collection.
+func setAddAllFrom_[K comparable](kc *tconv_[K], m map[K]struct{}, from Collection) bool {
+	changed := false
+	for _, x := range toSlice_(from) {
+		if setAdd_(m, kc.unbox(x)) {
+			changed = true
+		}
+	}
+	return changed
+}
+
+// sliceOf_ is ImmutableList.of(items...) as a slice: a null element throws as Guava does.
+func sliceOf_[T any](c *tconv_[T], items ...T) []T {
+	for i, v := range items {
+		if c.box(v) == nil {
+			throwNPE_("at index " + istr_(int64(i)))
+		}
+	}
+	return items
+}
+
+// sliceContains_ is ImmutableList.contains(o).
+func sliceContains_[T any](c *tconv_[T], s []T, o any) bool {
+	if s == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if o == nil {
+		return false // an ImmutableList has no null
+	}
+	for _, x := range s {
+		if objequals_(o, c.box(x)) {
+			return true
+		}
+	}
+	return false
+}
+
+// sliceHasStr_ is Collection_contains_s on an ImmutableList of strings that is a slice.
+func sliceHasStr_(s []string, k string) bool {
+	if s == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	if k == nullstr_ {
+		return false // an ImmutableList has no null
+	}
+	for _, x := range s {
+		if x == k {
+			return true
+		}
+	}
+	return false
+}
+
+// sliceObj_ stands for slice s in a null check: nil if s is, else a value that is not nil.
+func sliceObj_[T any](s []T) any {
+	if s == nil {
+		return nil
+	}
+	return true
+}
