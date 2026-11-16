@@ -116,7 +116,7 @@ type ImmutableCollection struct {
 	hash_  int32 // plain set: the hash code, once computed (Guava computes it at construction)
 	hashed bool
 	typed_ immTyped_ // its typed copy (post-flip typed collections), made on first use
-	byOrd  []any // immutable enum set: the element with ordinal i at i (nil where absent)
+	byOrd  []any     // immutable enum set: the element with ordinal i at i (nil where absent)
 }
 
 type ImmutableList = ImmutableCollection
@@ -249,7 +249,7 @@ func (this *ImmutableCollection) size() int32 {
 	return int32(len(this.items))
 }
 
-func (this *ImmutableCollection) isEmpty() bool       { return len(this.items) == 0 }
+func (this *ImmutableCollection) isEmpty() bool { return len(this.items) == 0 }
 func (this *ImmutableCollection) contains(v any) bool {
 	if this.byOrd != nil {
 		// Enum constants are equal only to themselves.
