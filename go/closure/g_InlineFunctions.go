@@ -38,12 +38,15 @@ func new_InlineFunctions(compiler *AbstractCompiler, safeNameIdSupplier Supplier
 }
 
 func (this *InlineFunctions) getOrCreateFunctionState(fnName string) *InlineFunctions_FunctionState {
-	return this.fns.computeIfAbsent(fnName, &Function_fn{func(k_ any) any {
-		var k string = str_(k_)
-		_ = k
-		return obj_(new_InlineFunctions_FunctionState())
-	}})
+	return this.fns.computeIfAbsent(fnName, lambda_InlineFunctions_getOrCreateFunctionState_1_)
 }
+
+// lambda_InlineFunctions_getOrCreateFunctionState_1_ is a lambda of InlineFunctions_getOrCreateFunctionState that captures nothing (post-flip step lambdas).
+var lambda_InlineFunctions_getOrCreateFunctionState_1_ = &Function_fn{func(k_ any) any {
+	var k string = str_(k_)
+	_ = k
+	return obj_(new_InlineFunctions_FunctionState())
+}}
 
 func (this *InlineFunctions) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.compiler_.getLifeCycleStage().isNormalized())
@@ -131,7 +134,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 			if NodeUtil_referencesEnclosingReceiver(block) {
 				functionState.setReferencesThis(true)
 			}
-			if NodeUtil_has(block, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(Node_of_(p0)) }}, Predicates_alwaysTrue()) {
+			if NodeUtil_has(block, lambda_InlineFunctions_updateFunctionStateForInlining_1_, Predicates_alwaysTrue()) {
 				functionState.setHasInnerClosures(true)
 				if InlineFunctions_hasLocalNames(fnNode) {
 					functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_HAS_LOCAL_NAMES)
@@ -140,11 +143,7 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 		if fnNode.getGrandparent().isVar() {
 			var block Node = functionState.getFn().getDeclaringBlock()
-			if ((block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, &Predicate_base_fn{func(n_ any) bool {
-				var n Node = Node_of_(n_)
-				_ = n
-				return (n.isLet() || n.isConst())
-			}}, Predicates_alwaysTrue())) {
+			if (block.isBlock() && !block.getParent().isFunction()) && NodeUtil_has(block, lambda_InlineFunctions_updateFunctionStateForInlining_2_, Predicates_alwaysTrue()) {
 				functionState.disallowInlining(this.compiler_, InlineFunctions_DisallowInliningReason_CAPTURED_VARIABLE_NOT_IN_SCOPE)
 			}
 		}
@@ -156,6 +155,16 @@ func (this *InlineFunctions) updateFunctionStateForInlining(fn InlineFunctions_F
 		}
 	}
 }
+
+// lambda_InlineFunctions_updateFunctionStateForInlining_1_ is a lambda of InlineFunctions_updateFunctionStateForInlining that captures nothing (post-flip step lambdas).
+var lambda_InlineFunctions_updateFunctionStateForInlining_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isFunctionOrNonStaticClassFieldInitializer(Node_of_(p0)) }}
+
+// lambda_InlineFunctions_updateFunctionStateForInlining_2_ is a lambda of InlineFunctions_updateFunctionStateForInlining that captures nothing (post-flip step lambdas).
+var lambda_InlineFunctions_updateFunctionStateForInlining_2_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (n.isLet() || n.isConst())
+}}
 
 func (this *InlineFunctions) hasNoInlineAnnotation(fnNode Node) bool {
 	var jsDocInfo *JSDocInfo = NodeUtil_getBestJSDocInfo(fnNode)
@@ -267,13 +276,16 @@ func (this *InlineFunctions) resolveInlineConflicts() {
 
 func InlineFunctions_hasNonInlinableParam(node Node) bool {
 	Preconditions_checkNotNull(node.box_())
-	var pred Predicate_baseOf[Node] = &Predicate_base_fn{func(input_ any) bool {
-		var input Node = Node_of_(input_)
-		_ = input
-		return (input.isDefaultValue() || input.isDestructuringPattern())
-	}}
+	var pred Predicate_baseOf[Node] = lambda_InlineFunctions_hasNonInlinableParam_1_
 	return NodeUtil_has(node, pred, Predicates_alwaysTrue())
 }
+
+// lambda_InlineFunctions_hasNonInlinableParam_1_ is a lambda of InlineFunctions_hasNonInlinableParam that captures nothing (post-flip step lambdas).
+var lambda_InlineFunctions_hasNonInlinableParam_1_ = &Predicate_base_fn{func(input_ any) bool {
+	var input Node = Node_of_(input_)
+	_ = input
+	return (input.isDefaultValue() || input.isDestructuringPattern())
+}}
 
 func (this *InlineFunctions) resolveInlineConflictsForFunction(functionState *InlineFunctions_FunctionState) {
 	if !functionState.hasReferences() || !functionState.canInline() {

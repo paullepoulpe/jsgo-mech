@@ -53,7 +53,7 @@ func (this *AmbiguateProperties) getRenamingMap() MapOf[string, string] {
 func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.graphNodeFactory = ColorGraphNodeFactory_createFactory(this.colorRegistry)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_AmbiguateProperties_ProcessPropertiesAndConstructors(this))))
-	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, &LowestCommonAncestorFinder_Factory_fn{func(p0 *DiGraph) *LowestCommonAncestorFinder { return new_LowestCommonAncestorFinder(p0) }}, this.colorRegistry)
+	var graphBuilder *ColorGraphBuilder = new_ColorGraphBuilder(this.graphNodeFactory, lambda_AmbiguateProperties_process_2_1_, this.colorRegistry)
 	graphBuilder.addAll(icast_Collection(obj_(this.graphNodeFactory.getAllKnownTypes())))
 	var colorGraph *LinkedDirectedGraph = graphBuilder.build()
 	_ = func() (code_ int) {
@@ -67,20 +67,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var node *ColorGraphNode = cast_[*ColorGraphNode](it_2.v)
 		node.getSubtypeIndices().set(node.getIndex())
 	}
-	FixedPointGraphTraversal_newReverseTraversal(&FixedPointGraphTraversal_EdgeCallback_fn{func(subtype_ any, e any, supertype_ any) bool {
-		var subtype *ColorGraphNode = cast_[*ColorGraphNode](subtype_)
-		_ = subtype
-		var supertype *ColorGraphNode = cast_[*ColorGraphNode](supertype_)
-		_ = supertype
-		if subtype.getSubtypeIndices().size() > supertype.getSubtypeIndices().size() {
-			supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
-			return true
-		}
-		var startSize int32 = supertype.getSubtypeIndices().cardinality()
-		supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
-		return (supertype.getSubtypeIndices().cardinality() > startSize)
-		panic("unreachable")
-	}}).computeFixedPoint(colorGraph.up_DiGraph())
+	FixedPointGraphTraversal_newReverseTraversal(lambda_AmbiguateProperties_process_2_2_).computeFixedPoint(colorGraph.up_DiGraph())
 	it_4 := this.propertyMap.each()
 	for it_4.next() {
 		var prop *AmbiguateProperties_Property = it_4.v
@@ -150,6 +137,25 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	this.compiler_.reportAmbiguatePropertiesSummary(summarySupplier)
 }
 
+// lambda_AmbiguateProperties_process_2_1_ is a lambda of AmbiguateProperties_process_2 that captures nothing (post-flip step lambdas).
+var lambda_AmbiguateProperties_process_2_1_ = &LowestCommonAncestorFinder_Factory_fn{func(p0 *DiGraph) *LowestCommonAncestorFinder { return new_LowestCommonAncestorFinder(p0) }}
+
+// lambda_AmbiguateProperties_process_2_2_ is a lambda of AmbiguateProperties_process_2 that captures nothing (post-flip step lambdas).
+var lambda_AmbiguateProperties_process_2_2_ = &FixedPointGraphTraversal_EdgeCallback_fn{func(subtype_ any, e any, supertype_ any) bool {
+	var subtype *ColorGraphNode = cast_[*ColorGraphNode](subtype_)
+	_ = subtype
+	var supertype *ColorGraphNode = cast_[*ColorGraphNode](supertype_)
+	_ = supertype
+	if subtype.getSubtypeIndices().size() > supertype.getSubtypeIndices().size() {
+		supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
+		return true
+	}
+	var startSize int32 = supertype.getSubtypeIndices().cardinality()
+	supertype.getSubtypeIndices().or(subtype.getSubtypeIndices())
+	return (supertype.getSubtypeIndices().cardinality() > startSize)
+	panic("unreachable")
+}}
+
 func (this *AmbiguateProperties) getProperty(name string) *AmbiguateProperties_Property {
 	return this.propertyMap.computeIfAbsent(name, &Function_fn{func(p0 any) any { return obj_(new_AmbiguateProperties_Property(this, str_(p0))) }})
 }
@@ -175,19 +181,22 @@ func AmbiguateProperties_clinit() {
 	}
 	AmbiguateProperties_clinit_done = true
 	AmbiguateProperties_logger = Logger_getLogger(classOf_("com.google.javascript.jscomp.disambiguate.AmbiguateProperties").getName())
-	AmbiguateProperties_FREQUENCY_COMPARATOR = &Comparator_fn{func(p1_ any, p2_ any) int32 {
-		var p1 *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](p1_)
-		_ = p1
-		var p2 *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](p2_)
-		_ = p2
-		if p1.numOccurrences != p2.numOccurrences {
-			return (p2.numOccurrences - p1.numOccurrences)
-		}
-		return String_compareTo(p1.oldName, p2.oldName)
-		panic("unreachable")
-	}}
+	AmbiguateProperties_FREQUENCY_COMPARATOR = lambda_AmbiguateProperties_clinit_1_
 
 }
+
+// lambda_AmbiguateProperties_clinit_1_ is a lambda of AmbiguateProperties_clinit that captures nothing (post-flip step lambdas).
+var lambda_AmbiguateProperties_clinit_1_ = &Comparator_fn{func(p1_ any, p2_ any) int32 {
+	var p1 *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](p1_)
+	_ = p1
+	var p2 *AmbiguateProperties_Property = cast_[*AmbiguateProperties_Property](p2_)
+	_ = p2
+	if p1.numOccurrences != p2.numOccurrences {
+		return (p2.numOccurrences - p1.numOccurrences)
+	}
+	return String_compareTo(p1.oldName, p2.oldName)
+	panic("unreachable")
+}}
 
 type AmbiguateProperties_PropertyGraph struct {
 	nodes_ ArrayListOf[*AmbiguateProperties_PropertyGraphNode]

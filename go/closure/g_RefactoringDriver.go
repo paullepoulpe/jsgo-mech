@@ -144,10 +144,13 @@ func RefactoringDriver_Builder_clinit() {
 		return
 	}
 	RefactoringDriver_Builder_clinit_done = true
-	RefactoringDriver_Builder_TO_SOURCE_FILE_FN = &Function_base_fn{func(file_ any) any {
-		var file string = str_(file_)
-		_ = file
-		return obj_(SourceFile_jscomp_builder().withPath(file).build())
-	}}
+	RefactoringDriver_Builder_TO_SOURCE_FILE_FN = lambda_RefactoringDriver_Builder_clinit_1_
 
 }
+
+// lambda_RefactoringDriver_Builder_clinit_1_ is a lambda of RefactoringDriver_Builder_clinit that captures nothing (post-flip step lambdas).
+var lambda_RefactoringDriver_Builder_clinit_1_ = &Function_base_fn{func(file_ any) any {
+	var file string = str_(file_)
+	_ = file
+	return obj_(SourceFile_jscomp_builder().withPath(file).build())
+}}

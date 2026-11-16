@@ -27,13 +27,7 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		sortedReplacements.add(BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement_of(str_(entry.getKey()), str_(entry.getValue())))
 	}
-	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(&ToIntFunction_fn{func(r_ any) int32 {
-		var r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](r_)
-		_ = r
-		return String_length(r.prefix())
-	}})), &Function_fn{func(p0 any) any {
-		return strobj_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0).prefix())
-	}}))
+	List_sort(sortedReplacements.asList(), Comparator_thenComparing(Comparator_reversed(Comparator_comparingInt(lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_1_)), lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_2_))
 	this.prefixReplacements = ImmutableSet_copyOf(Collection(sortedReplacements.asList()))
 	var sortedPrefixes *TList[string] = newTList_(tc_string)
 	it_3 := foreach_(obj_(this.prefixReplacements))
@@ -44,6 +38,18 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) init_BrowserWithTransf
 	Collections_sort(sortedPrefixes.asList())
 	this.expectedPrefixes = String_join(strobj_(", "), Iterable(sortedPrefixes.asList()))
 }
+
+// lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_1_ is a lambda of BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver that captures nothing (post-flip step lambdas).
+var lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_1_ = &ToIntFunction_fn{func(r_ any) int32 {
+	var r *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](r_)
+	_ = r
+	return String_length(r.prefix())
+}}
+
+// lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_2_ is a lambda of BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver that captures nothing (post-flip step lambdas).
+var lambda_BrowserWithTransformedPrefixesModuleResolver_init_BrowserWithTransformedPrefixesModuleResolver_2_ = &Function_fn{func(p0 any) any {
+	return strobj_(cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](p0).prefix())
+}}
 
 func new_BrowserWithTransformedPrefixesModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths ImmutableListOf[string], errorHandler ErrorHandler, pathEscaper *ModuleLoader_PathEscaper, prefixReplacements ImmutableMapOf[string, string]) *BrowserWithTransformedPrefixesModuleResolver {
 	this := &BrowserWithTransformedPrefixesModuleResolver{}

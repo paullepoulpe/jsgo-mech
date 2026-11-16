@@ -870,7 +870,7 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		if precedenceOfFirst == precedence {
 			precedence = (precedence + 1)
 		}
-		if (NodeUtil_has(first, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isCall() }}, NodeUtil_MATCH_NOT_FUNCTION) || NodeUtil_isOptChainNode(first)) {
+		if NodeUtil_has(first, lambda_CodeGenerator_add_3_1_, NodeUtil_MATCH_NOT_FUNCTION) || NodeUtil_isOptChainNode(first) {
 			precedence = (NodeUtil_precedence(first.getToken()) + 1)
 		}
 		this.addExpr(first, precedence, CodeGenerator_Context_OTHER)
@@ -1126,6 +1126,9 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 	this.printTrailingComment(node)
 	this.cc.endSourceMapping(node)
 }
+
+// lambda_CodeGenerator_add_3_1_ is a lambda of CodeGenerator_add_3 that captures nothing (post-flip step lambdas).
+var lambda_CodeGenerator_add_3_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isCall() }}
 
 func (this *CodeGenerator) addIdentifier(identifier string) {
 	this.cc.addIdentifier(CodeGenerator_identifierEscape(identifier))

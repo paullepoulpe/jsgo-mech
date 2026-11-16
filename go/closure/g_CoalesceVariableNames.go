@@ -167,9 +167,7 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	func() {
 		arr_1 := interferenceBitSet
 		tmp_2 := arrmap_(arr_1, func(v_ *BitSet) any { return obj_(v_) })
-		Arrays_setAll(tmp_2, &IntFunction_fn{func(i int32) any {
-			return obj_(new_BitSet())
-		}})
+		Arrays_setAll(tmp_2, lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_)
 		for i_ := range tmp_2 {
 			arr_1[i_] = cast_[*BitSet](tmp_2[i_])
 		}
@@ -235,12 +233,17 @@ func (this *CoalesceVariableNames) computeVariableNamesInterferenceGraph(cfg *Co
 	return interferenceGraph
 }
 
+// lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_ is a lambda of CoalesceVariableNames_computeVariableNamesInterferenceGraph that captures nothing (post-flip step lambdas).
+var lambda_CoalesceVariableNames_computeVariableNamesInterferenceGraph_1_ = &IntFunction_fn{func(i int32) any {
+	return obj_(new_BitSet())
+}}
+
 func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 	var declarationType *Token_rhino = v.declarationType()
 	return func() bool {
 		switch declarationType {
 		case Token_rhino_LET, Token_rhino_CONST, Token_rhino_VAR:
-			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }})
+			var nameDecl Node = NodeUtil_getEnclosingNode(v.getNode(), lambda_CoalesceVariableNames_isInMultipleLvalueDecl_1_)
 			var count []int32 = []int32{0}
 			NodeUtil_visitLhsNodesInNode(nameDecl, &Consumer_fn{func(lhs_ any) {
 				var lhs Node = Node_of_(lhs_)
@@ -255,8 +258,11 @@ func (this *CoalesceVariableNames) isInMultipleLvalueDecl(v *Var) bool {
 	}()
 }
 
+// lambda_CoalesceVariableNames_isInMultipleLvalueDecl_1_ is a lambda of CoalesceVariableNames_isInMultipleLvalueDecl that captures nothing (post-flip step lambdas).
+var lambda_CoalesceVariableNames_isInMultipleLvalueDecl_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }}
+
 func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *Var) {
-	var var_ Node = NodeUtil_getEnclosingNode(name, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }})
+	var var_ Node = NodeUtil_getEnclosingNode(name, lambda_CoalesceVariableNames_removeVarDeclaration_1_)
 	var parent Node = var_.getParent()
 	if var_.getFirstChild().isDestructuringLhs() {
 		var destructuringLhs Node = var_.getFirstChild()
@@ -293,6 +299,9 @@ func (this *CoalesceVariableNames) removeVarDeclaration(name Node, originalVar *
 	}
 }
 
+// lambda_CoalesceVariableNames_removeVarDeclaration_1_ is a lambda of CoalesceVariableNames_removeVarDeclaration that captures nothing (post-flip step lambdas).
+var lambda_CoalesceVariableNames_removeVarDeclaration_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }}
+
 func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 	if coalescedName.isConst() || coalescedName.isLet() {
 		var nameNode Node = Node_of_(Preconditions_checkNotNull_Object_Object(coalescedName.getNameNode().box_(), obj_(coalescedName)))
@@ -300,10 +309,13 @@ func (this *CoalesceVariableNames) makeDeclarationVar(coalescedName *Var) {
 			var undefinedValue Node = this.astFactory_.createUndefinedValue().srcrefTree(nameNode)
 			nameNode.addChildToFront(undefinedValue)
 		}
-		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }})
+		var declNode Node = NodeUtil_getEnclosingNode(nameNode.getParent(), lambda_CoalesceVariableNames_makeDeclarationVar_1_)
 		declNode.setToken(Token_rhino_VAR)
 	}
 }
+
+// lambda_CoalesceVariableNames_makeDeclarationVar_1_ is a lambda of CoalesceVariableNames_makeDeclarationVar that captures nothing (post-flip step lambdas).
+var lambda_CoalesceVariableNames_makeDeclarationVar_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNameDeclaration(Node_of_(p0)) }}
 
 func CoalesceVariableNames_isUninitializedLetNameInLoopBody(nameNode Node) bool {
 	Preconditions_checkState_boolean_Object(nameNode.isName(), nameNode.box_())

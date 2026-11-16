@@ -235,11 +235,7 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 			var instance *ExtractPrototypeMemberDeclarations_ExtractionInstance = new_ExtractPrototypeMemberDeclarations_ExtractionInstance(this.outer_, prototypeMember, n)
 			cur = cast_[*ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration](Iterables_getLast(Iterable(instance.declarations.asList()))).node_
 			if instance.isFavorable() {
-				Map_computeIfAbsent(this.instancesByChunk.asMap(), obj_(t.getChunk()), &Function_fn{func(k_ any) any {
-					var k *JSChunk = cast_[*JSChunk](k_)
-					_ = k
-					return obj_(new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo())
-				}})
+				Map_computeIfAbsent(this.instancesByChunk.asMap(), obj_(t.getChunk()), lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1_)
 				var instanceInfo *ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo = this.instancesByChunk.get(t.getChunk())
 				instanceInfo.instances.add(instance)
 				instanceInfo.totalDelta += instance.delta
@@ -247,6 +243,13 @@ func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) visit_impl(
 		}
 	}
 }
+
+// lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1_ is a lambda of ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ExtractPrototypeMemberDeclarations_GatherExtractionInfo_visit_impl_1_ = &Function_fn{func(k_ any) any {
+	var k *JSChunk = cast_[*JSChunk](k_)
+	_ = k
+	return obj_(new_ExtractPrototypeMemberDeclarations_ExtractionInstanceInfo())
+}}
 
 func (this *ExtractPrototypeMemberDeclarations_GatherExtractionInfo) shouldExtractGlobal() bool {
 	var allModulesDelta int32 = 0
@@ -328,13 +331,16 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)
 	this.node_ = node
 	var classNode Node = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(lhs)
-	this.qualifiedClassName = Optional_of(strobj_(classNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	this.qualifiedClassName = Optional_of(strobj_(classNode.getQualifiedName())).filter(lambda_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_init_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_1_)
 	this.constant = classNode.getBooleanProp(Node_IS_CONSTANT_NAME)
 }
+
+// lambda_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_init_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_1_ is a lambda of ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_init_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration that captures nothing (post-flip step lambdas).
+var lambda_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_init_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func new_ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration(lhs Node, node Node) *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration {
 	this := &ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration{}

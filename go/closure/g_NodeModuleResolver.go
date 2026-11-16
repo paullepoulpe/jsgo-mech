@@ -54,18 +54,7 @@ func new_NodeModuleResolver(modulePaths ImmutableSetOf[string], moduleRootPaths 
 }
 
 func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[string], moduleRootPaths IterableOf[string]) ImmutableSortedSetOf[string] {
-	var registry SortedSetOf[string] = icast_SortedSet(obj_(new_TreeSet_Comparator(&Comparator_fn{func(a_ any, b_ any) int32 {
-		var a string = str_(a_)
-		_ = a
-		var b string = str_(b_)
-		_ = b
-		var comparison int32 = Integer_compare(String_length(b), String_length(a))
-		if comparison != 0 {
-			return comparison
-		}
-		return String_compareTo(a, b)
-		panic("unreachable")
-	}})))
+	var registry SortedSetOf[string] = icast_SortedSet(obj_(new_TreeSet_Comparator(lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_)))
 	it_1 := foreach_(any(modulePaths))
 	for it_1.next() {
 		var modulePath string = str_(it_1.v)
@@ -89,6 +78,20 @@ func NodeModuleResolver_buildNodeModulesFoldersRegistry(modulePaths IterableOf[s
 	}
 	return ImmutableSortedSet_copyOfSorted(registry)
 }
+
+// lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_ is a lambda of NodeModuleResolver_buildNodeModulesFoldersRegistry that captures nothing (post-flip step lambdas).
+var lambda_NodeModuleResolver_buildNodeModulesFoldersRegistry_1_ = &Comparator_fn{func(a_ any, b_ any) int32 {
+	var a string = str_(a_)
+	_ = a
+	var b string = str_(b_)
+	_ = b
+	var comparison int32 = Integer_compare(String_length(b), String_length(a))
+	if comparison != 0 {
+		return comparison
+	}
+	return String_compareTo(a, b)
+	panic("unreachable")
+}}
 
 func (this *NodeModuleResolver) buildPackageJsonMainEntries(packageJsonMainEntries *TMap[string, string]) ImmutableMapOf[string, string] {
 	var builder ImmutableMap_BuilderOf[string, string] = ImmutableMap_builder()

@@ -1438,18 +1438,7 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 		var key *TemplateType = cast_[*TemplateType](it_1.v)
 		inferred.put(obj_(key), Map_getOrDefault(icast_Map(obj_(bindings)), obj_(key), this.unknownType.self()))
 	}
-	Map_replaceAll(inferred, &BiFunction_fn{func(k_ any, v_ any) any {
-		var k *TemplateType = cast_[*TemplateType](k_)
-		_ = k
-		var v *JSType = to_JSType(v_)
-		_ = v
-		return func() any {
-			if v.isSubtypeOf(k.getBound()) {
-				return v.self()
-			}
-			return k.getBound().self()
-		}()
-	}})
+	Map_replaceAll(inferred, lambda_TypeInference_inferTemplatedTypesForCall_1_)
 	var typeTransformations MapOf[*TemplateType, *JSType] = this.evaluateTypeTransformations(keys, inferred, scope)
 	if typeTransformations != nil {
 		inferred.putAll(typeTransformations)
@@ -1462,6 +1451,20 @@ func (this *TypeInference) inferTemplatedTypesForCall(n Node, fnType *FunctionTy
 	n.setJSType(replacementFnType.getReturnType())
 	return replacer.hasMadeReplacement()
 }
+
+// lambda_TypeInference_inferTemplatedTypesForCall_1_ is a lambda of TypeInference_inferTemplatedTypesForCall that captures nothing (post-flip step lambdas).
+var lambda_TypeInference_inferTemplatedTypesForCall_1_ = &BiFunction_fn{func(k_ any, v_ any) any {
+	var k *TemplateType = cast_[*TemplateType](k_)
+	_ = k
+	var v *JSType = to_JSType(v_)
+	_ = v
+	return func() any {
+		if v.isSubtypeOf(k.getBound()) {
+			return v.self()
+		}
+		return k.getBound().self()
+	}()
+}}
 
 func (this *TypeInference) traverseNew(n Node, scope FlowScope) FlowScope {
 	scope = this.traverseChildren(n, scope)
@@ -1836,11 +1839,7 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	var importSpecifier Node = dynamicImport.getFirstChild()
 	var input *CompilerInput = this.compiler_.getInput(NodeUtil_getInputId(dynamicImport))
 	if (importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil) {
-		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of(strobj_(importSpecifier.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), importSpecifier.getLineno(), importSpecifier.getCharno())
+		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of(strobj_(importSpecifier.getSourceFileName())).filter(lambda_TypeInference_traverseDynamicImport_1_), importSpecifier.getLineno(), importSpecifier.getCharno())
 		var targetModule *Module = func() *Module {
 			if targetPath != nil {
 				return moduleMap.getModule(targetPath)
@@ -1874,6 +1873,13 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	dynamicImport.setJSType(this.registry.createTemplatizedType(this.registry.getNativeObjectType(JSTypeNative_PROMISE_TYPE), []*JSType{templateType}).up_JSType())
 	return this.traverseChildren(dynamicImport, scope)
 }
+
+// lambda_TypeInference_traverseDynamicImport_1_ is a lambda of TypeInference_traverseDynamicImport that captures nothing (post-flip step lambdas).
+var lambda_TypeInference_traverseDynamicImport_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func TypeInference_joinBooleanOutcomes(isAnd bool, left *BooleanLiteralSet, right *BooleanLiteralSet) *BooleanLiteralSet {
 	return right.union(left.intersection(BooleanLiteralSet_get(!isAnd)))

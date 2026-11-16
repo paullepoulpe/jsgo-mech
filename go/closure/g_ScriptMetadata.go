@@ -129,17 +129,20 @@ func (this *ScriptMetadata_FillerCallback) maybeCollectRequirelikeAlias(n Node) 
 	if !this.isRequirelikeCall(requirelikeCall) {
 		return
 	}
-	var alias OptionalOf[string] = Optional_of(strobj_(aliasNode.getOriginalName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	var alias OptionalOf[string] = Optional_of(strobj_(aliasNode.getOriginalName())).filter(lambda_ScriptMetadata_FillerCallback_maybeCollectRequirelikeAlias_1_)
 	if alias.isEmpty() {
 		alias = Optional_of(strobj_(aliasNode.getString()))
 	}
 	var namespace string = requirelikeCall.getSecondChild().getString()
 	this.toFill.requireAliases[namespace] = str_(alias.orElse(nil))
 }
+
+// lambda_ScriptMetadata_FillerCallback_maybeCollectRequirelikeAlias_1_ is a lambda of ScriptMetadata_FillerCallback_maybeCollectRequirelikeAlias that captures nothing (post-flip step lambdas).
+var lambda_ScriptMetadata_FillerCallback_maybeCollectRequirelikeAlias_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ScriptMetadata_FillerCallback) isRequirelikeCall(call Node) bool {
 	if (((call == 0) || !call.isCall()) || (call.getChildCount() != 2)) || !call.getSecondChild().isStringLit() {

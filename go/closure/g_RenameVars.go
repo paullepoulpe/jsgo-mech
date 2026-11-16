@@ -78,9 +78,7 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 	clear(this.originalNameByNode)
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(new_RenameVars_ProcessVars(this))))
 	this.reservedNames.addAll(icast_Collection(obj_(this.externNames_)))
-	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(&Comparator_fn{func(p0 any, p1 any) int32 {
-		return RenameVars_frequencyComparator(cast_[*RenameVars_Assignment](p0), cast_[*RenameVars_Assignment](p1))
-	}})))
+	var varsByFrequency SortedSetOf[*RenameVars_Assignment] = icast_SortedSet(obj_(new_TreeSet_Comparator(lambda_RenameVars_process_2_1_)))
 	varsByFrequency.addAll(this.assignments.asMap().values())
 	if this.prevUsedRenameMap != nil {
 		this.reusePreviouslyUsedVariableMap(varsByFrequency)
@@ -97,6 +95,11 @@ func (this *RenameVars) process_2(externs Node, root Node) {
 		this.setNameAndReport(n, this.getNewLocalName(n))
 	}
 }
+
+// lambda_RenameVars_process_2_1_ is a lambda of RenameVars_process_2 that captures nothing (post-flip step lambdas).
+var lambda_RenameVars_process_2_1_ = &Comparator_fn{func(p0 any, p1 any) int32 {
+	return RenameVars_frequencyComparator(cast_[*RenameVars_Assignment](p0), cast_[*RenameVars_Assignment](p1))
+}}
 
 func (this *RenameVars) setNameAndReport(n Node, newName OptionalOf[string]) {
 	if newName.isPresent() && !(str_(newName.get()) == n.getString()) {
@@ -255,13 +258,16 @@ func RenameVars_clinit() {
 		return
 	}
 	RenameVars_clinit_done = true
-	RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR = Comparator_comparingInt(&ToIntFunction_fn{func(arg_ any) int32 {
-		var arg *RenameVars_Assignment = cast_[*RenameVars_Assignment](arg_)
-		_ = arg
-		return arg.orderOfOccurrence
-	}})
+	RenameVars_ORDER_OF_OCCURRENCE_COMPARATOR = Comparator_comparingInt(lambda_RenameVars_clinit_1_)
 
 }
+
+// lambda_RenameVars_clinit_1_ is a lambda of RenameVars_clinit that captures nothing (post-flip step lambdas).
+var lambda_RenameVars_clinit_1_ = &ToIntFunction_fn{func(arg_ any) int32 {
+	var arg *RenameVars_Assignment = cast_[*RenameVars_Assignment](arg_)
+	_ = arg
+	return arg.orderOfOccurrence
+}}
 
 type RenameVars_Assignment struct {
 	outer_            *RenameVars

@@ -824,11 +824,7 @@ func (this *FunctionType) resolveTypeListHelper(list ImmutableListOf[*ObjectType
 		var type_ *ObjectType = to_ObjectType(it_1.v)
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
-			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of(strobj_(this.source.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), this.source.getLineno(), this.source.getCharno())
+			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of(strobj_(this.source.getSourceFileName())).filter(lambda_FunctionType_resolveTypeListHelper_1_), this.source.getLineno(), this.source.getCharno())
 			continue
 		}
 		var resolved *ObjectType = rt.toObjectType()
@@ -842,6 +838,13 @@ func (this *FunctionType) resolveTypeListHelper(list ImmutableListOf[*ObjectType
 		return nil
 	}()
 }
+
+// lambda_FunctionType_resolveTypeListHelper_1_ is a lambda of FunctionType_resolveTypeListHelper that captures nothing (post-flip step lambdas).
+var lambda_FunctionType_resolveTypeListHelper_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *FunctionType) hasAnyTemplateTypesInternal_impl() bool {
 	return (((this.getTemplateParamCount() > 0) || this.typeOfThis.hasAnyTemplateTypes()) || this.call.hasAnyTemplateTypes())

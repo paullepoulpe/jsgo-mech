@@ -37,11 +37,7 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	var sourceFileName OptionalOf[string] = Optional_of(strobj_(sourceFile.getName()))
 	var lineNo int32 = node.getLineno()
 	var charNo int32 = node.getCharno()
-	var originalName OptionalOf[string] = Optional_of(strobj_(SourceMap_getOriginalName(node))).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	var originalName OptionalOf[string] = Optional_of(strobj_(SourceMap_getOriginalName(node))).filter(lambda_SourceMap_addMapping_3_1_)
 	if this.mapping != nil {
 		var sourceMapping *Mapping_OriginalMapping = this.mapping.getSourceMapping_Optional_int_int(sourceFileName, lineNo, charNo)
 		if sourceMapping == nil {
@@ -61,6 +57,13 @@ func (this *SourceMap) addMapping_3(node Node, outputStartPosition *FilePosition
 	var lineBaseOffset int32 = 1
 	this.generator.addMapping(str_(sourceFileName.orElse(strobj_(""))), str_(originalName.orElse(strobj_(""))), new_FilePosition((lineNo-lineBaseOffset), charNo), outputStartPosition, outputEndPosition)
 }
+
+// lambda_SourceMap_addMapping_3_1_ is a lambda of SourceMap_addMapping_3 that captures nothing (post-flip step lambdas).
+var lambda_SourceMap_addMapping_3_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *SourceMap) addSourceFile(name string, code string) {
 	this.generator.addSourcesContent(str_(this.fixupSourceLocation(Optional_of(strobj_(name))).orElse(nil)), code)

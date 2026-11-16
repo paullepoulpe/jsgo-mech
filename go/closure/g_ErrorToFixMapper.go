@@ -164,16 +164,19 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	}
 	var oldName OptionalOf[string] = func() Optional {
 		if error_.node().isQualifiedName() {
-			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}})
+			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(lambda_ErrorToFixMapper_getFixForReferenceToShortImportByLongName_1_)
 		}
 		return Optional_of(strobj_(error_.node().getString()))
 	}()
 	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(str_(oldName.get()), strobj_(fullName), shortName.get())), this.compiler_).build()
 }
+
+// lambda_ErrorToFixMapper_getFixForReferenceToShortImportByLongName_1_ is a lambda of ErrorToFixMapper_getFixForReferenceToShortImportByLongName that captures nothing (post-flip step lambdas).
+var lambda_ErrorToFixMapper_getFixForReferenceToShortImportByLongName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
 	if String_isEmpty(error_.node().getSourceFileName()) {
@@ -236,11 +239,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var namespaceToRequire string = regexMatcher.group(1)
 	var qName OptionalOf[string] = func() Optional {
 		if error_.node().isQualifiedName() {
-			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}})
+			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(lambda_ErrorToFixMapper_getFixForMissingRequire_1_)
 		}
 		return Optional_of(strobj_(error_.node().getString()))
 	}()
@@ -256,6 +255,13 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	}
 	return fix.build()
 }
+
+// lambda_ErrorToFixMapper_getFixForMissingRequire_1_ is a lambda of ErrorToFixMapper_getFixForMissingRequire that captures nothing (post-flip step lambdas).
+var lambda_ErrorToFixMapper_getFixForMissingRequire_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ErrorToFixMapper) getFixForExtraRequire(error_ *JSError) *SuggestedFix {
 	var node Node = error_.node()

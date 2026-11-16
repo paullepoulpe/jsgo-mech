@@ -781,12 +781,18 @@ func NodeUtil_isLiteralValue(n Node, includeFunctions bool) bool {
 
 func NodeUtil_findClosureUnawareScriptRoot(script Node) Node {
 	Preconditions_checkArgument_boolean_Object((script.isScript() && script.getIsInClosureUnawareSubtree()), script.box_())
-	return NodeUtil_findPreorder(script, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isBlock() }}, &Predicate_base_fn{func(c_ any) bool {
-		var c Node = Node_of_(c_)
-		_ = c
-		return true
-	}})
+	return NodeUtil_findPreorder(script, lambda_NodeUtil_findClosureUnawareScriptRoot_1_, lambda_NodeUtil_findClosureUnawareScriptRoot_2_)
 }
+
+// lambda_NodeUtil_findClosureUnawareScriptRoot_1_ is a lambda of NodeUtil_findClosureUnawareScriptRoot that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_findClosureUnawareScriptRoot_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isBlock() }}
+
+// lambda_NodeUtil_findClosureUnawareScriptRoot_2_ is a lambda of NodeUtil_findClosureUnawareScriptRoot that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_findClosureUnawareScriptRoot_2_ = &Predicate_base_fn{func(c_ any) bool {
+	var c Node = Node_of_(c_)
+	_ = c
+	return true
+}}
 
 func NodeUtil_getInsertionPointAfterAllInnerFunctionDeclarations(block Node) Node {
 	Preconditions_checkState(block.isBlock())
@@ -1382,40 +1388,67 @@ func NodeUtil_getEnclosingType(n Node, type_ *Token_rhino) Node {
 }
 
 func NodeUtil_getEnclosingNonArrowFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNonArrowFunction(Node_of_(p0)) }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingNonArrowFunction_1_)
 }
+
+// lambda_NodeUtil_getEnclosingNonArrowFunction_1_ is a lambda of NodeUtil_getEnclosingNonArrowFunction that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingNonArrowFunction_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isNonArrowFunction(Node_of_(p0)) }}
 
 func NodeUtil_getEnclosingClass(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isClass() }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingClass_1_)
 }
+
+// lambda_NodeUtil_getEnclosingClass_1_ is a lambda of NodeUtil_getEnclosingClass that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingClass_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isClass() }}
 
 func NodeUtil_getEnclosingModuleIfPresent(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isModuleBody() }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingModuleIfPresent_1_)
 }
+
+// lambda_NodeUtil_getEnclosingModuleIfPresent_1_ is a lambda of NodeUtil_getEnclosingModuleIfPresent that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingModuleIfPresent_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isModuleBody() }}
 
 func NodeUtil_getEnclosingFunction(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isFunction() }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingFunction_1_)
 }
+
+// lambda_NodeUtil_getEnclosingFunction_1_ is a lambda of NodeUtil_getEnclosingFunction that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingFunction_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isFunction() }}
 
 func NodeUtil_getEnclosingScript(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isScript() }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingScript_1_)
 }
+
+// lambda_NodeUtil_getEnclosingScript_1_ is a lambda of NodeUtil_getEnclosingScript that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingScript_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isScript() }}
 
 func NodeUtil_getEnclosingBlock(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isBlock() }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingBlock_1_)
 }
+
+// lambda_NodeUtil_getEnclosingBlock_1_ is a lambda of NodeUtil_getEnclosingBlock that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingBlock_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isBlock() }}
 
 func NodeUtil_getEnclosingBlockScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_createsBlockScope(Node_of_(p0)) }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingBlockScopeRoot_1_)
 }
+
+// lambda_NodeUtil_getEnclosingBlockScopeRoot_1_ is a lambda of NodeUtil_getEnclosingBlockScopeRoot that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingBlockScopeRoot_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_createsBlockScope(Node_of_(p0)) }}
 
 func NodeUtil_getEnclosingScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_createsScope(Node_of_(p0)) }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingScopeRoot_1_)
 }
 
+// lambda_NodeUtil_getEnclosingScopeRoot_1_ is a lambda of NodeUtil_getEnclosingScopeRoot that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingScopeRoot_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_createsScope(Node_of_(p0)) }}
+
 func NodeUtil_getEnclosingHoistScopeRoot(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isHoistScopeRoot(Node_of_(p0)) }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingHoistScopeRoot_1_)
 }
+
+// lambda_NodeUtil_getEnclosingHoistScopeRoot_1_ is a lambda of NodeUtil_getEnclosingHoistScopeRoot that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingHoistScopeRoot_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isHoistScopeRoot(Node_of_(p0)) }}
 
 func NodeUtil_isHoistScopeRoot(n Node) bool {
 	return ((n.isFunction() || n.isModuleBody()) || NodeUtil_isClassStaticBlock(n))
@@ -1426,8 +1459,11 @@ func NodeUtil_isInFunction(n Node) bool {
 }
 
 func NodeUtil_getEnclosingStatement(n Node) Node {
-	return NodeUtil_getEnclosingNode(n, &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isStatement(Node_of_(p0)) }})
+	return NodeUtil_getEnclosingNode(n, lambda_NodeUtil_getEnclosingStatement_1_)
 }
+
+// lambda_NodeUtil_getEnclosingStatement_1_ is a lambda of NodeUtil_getEnclosingStatement that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getEnclosingStatement_1_ = &Predicate_base_fn{func(p0 any) bool { return NodeUtil_isStatement(Node_of_(p0)) }}
 
 func NodeUtil_getEnclosingNode(n Node, pred Predicate_baseOf[Node]) Node {
 	var curr Node = n
@@ -1474,27 +1510,36 @@ func NodeUtil_referencesOwnReceiver(fn Node) bool {
 }
 
 func NodeUtil_referencesEnclosingReceiver(n Node) bool {
-	return NodeUtil_has(n, &Predicate_base_fn{func(c_ any) bool {
-		var c Node = Node_of_(c_)
-		_ = c
-		return (c.isThis() || c.isSuper())
-	}}, NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
+	return NodeUtil_has(n, lambda_NodeUtil_referencesEnclosingReceiver_1_, NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION)
 }
+
+// lambda_NodeUtil_referencesEnclosingReceiver_1_ is a lambda of NodeUtil_referencesEnclosingReceiver that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_referencesEnclosingReceiver_1_ = &Predicate_base_fn{func(c_ any) bool {
+	var c Node = Node_of_(c_)
+	_ = c
+	return (c.isThis() || c.isSuper())
+}}
 
 func NodeUtil_referencesSuper(n Node) bool {
 	var curr Node = n.getFirstChild()
 	for curr != 0 {
-		if NodeUtil_has(curr, &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isSuper() }}, &Predicate_base_fn{func(node_ any) bool {
-			var node Node = Node_of_(node_)
-			_ = node
-			return !node.isClass()
-		}}) {
+		if NodeUtil_has(curr, lambda_NodeUtil_referencesSuper_1_, lambda_NodeUtil_referencesSuper_2_) {
 			return true
 		}
 		curr = curr.getNext()
 	}
 	return false
 }
+
+// lambda_NodeUtil_referencesSuper_1_ is a lambda of NodeUtil_referencesSuper that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_referencesSuper_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isSuper() }}
+
+// lambda_NodeUtil_referencesSuper_2_ is a lambda of NodeUtil_referencesSuper that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_referencesSuper_2_ = &Predicate_base_fn{func(node_ any) bool {
+	var node Node = Node_of_(node_)
+	_ = node
+	return !node.isClass()
+}}
 
 func NodeUtil_isNormalOrOptChainGet(n Node) bool {
 	return (NodeUtil_isNormalGet(n) || NodeUtil_isOptChainGet(n))
@@ -3679,12 +3724,15 @@ func NodeUtil_getBestLValueName(lValue Node) OptionalOf[string] {
 		}
 		return Optional_empty()
 	}
-	return Optional_of(strobj_(lValue.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	return Optional_of(strobj_(lValue.getQualifiedName())).filter(lambda_NodeUtil_getBestLValueName_1_)
 }
+
+// lambda_NodeUtil_getBestLValueName_1_ is a lambda of NodeUtil_getBestLValueName that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_getBestLValueName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func NodeUtil_getBestLValueRoot(lValue Node) Node {
 	if lValue == 0 {
@@ -4374,20 +4422,26 @@ func NodeUtil_clinit() {
 	NodeUtil_IS_STATEMENT_PARENT = Sets_immutableEnumSet(Token_rhino_SCRIPT.up_Enum(), []*Enum{Token_rhino_MODULE_BODY.up_Enum(), Token_rhino_BLOCK.up_Enum(), Token_rhino_LABEL.up_Enum(), Token_rhino_NAMESPACE_ELEMENTS.up_Enum(), Token_rhino_INTERFACE_MEMBERS.up_Enum()})
 	NodeUtil_GLOBAL_OBJECT = QualifiedName_of("$jscomp.global.Object")
 	NodeUtil_GLOBAL_OBJECT_MANGLED = QualifiedName_of("$jscomp$global.Object")
-	NodeUtil_MATCH_NOT_FUNCTION = &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return !n.isFunction()
-	}}
-	NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION = &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return !NodeUtil_isNonArrowFunction(n)
-	}}
+	NodeUtil_MATCH_NOT_FUNCTION = lambda_NodeUtil_clinit_1_
+	NodeUtil_MATCH_ANYTHING_BUT_NON_ARROW_FUNCTION = lambda_NodeUtil_clinit_2_
 	NodeUtil_NUMBER_NAN = IR_getprop_Node_String(IR_name("Number"), "NaN")
 	NodeUtil_GOOG_LOADMODULE = QualifiedName_of("goog.loadModule")
 
 }
+
+// lambda_NodeUtil_clinit_1_ is a lambda of NodeUtil_clinit that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_clinit_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return !n.isFunction()
+}}
+
+// lambda_NodeUtil_clinit_2_ is a lambda of NodeUtil_clinit that captures nothing (post-flip step lambdas).
+var lambda_NodeUtil_clinit_2_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return !NodeUtil_isNonArrowFunction(n)
+}}
 
 type NodeUtil_ValueType struct {
 	Enum

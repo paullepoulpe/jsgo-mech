@@ -100,11 +100,7 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		return
 	}
 	if call.getParent().isExprResult() {
-		if (!call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of(strobj_(call.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}))) {
+		if !call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of(strobj_(call.getSourceFileName())).filter(lambda_ExtraRequireRemover_removeExtraRequire_1_)) {
 			this.compiler_.reportChangeToEnclosingScope(call.getParent())
 			call.getParent().detach()
 		}
@@ -129,6 +125,13 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 	this.compiler_.reportChangeToEnclosingScope(call.getGrandparent())
 	call.getParent().detach()
 }
+
+// lambda_ExtraRequireRemover_removeExtraRequire_1_ is a lambda of ExtraRequireRemover_removeExtraRequire that captures nothing (post-flip step lambdas).
+var lambda_ExtraRequireRemover_removeExtraRequire_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ExtraRequireRemover) visitRequire(localName string, namespace string, node Node) {
 	if Collection_contains_s(ExtraRequireRemover_DEFAULT_EXTRA_NAMESPACES, namespace) {

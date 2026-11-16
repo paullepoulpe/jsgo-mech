@@ -965,11 +965,7 @@ func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Nod
 	if !getProp.isGetProp() {
 		return
 	}
-	var name OptionalOf[string] = Optional_of(strobj_(sourceName.getOriginalName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	var name OptionalOf[string] = Optional_of(strobj_(sourceName.getOriginalName())).filter(lambda_ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable_1_)
 	if name.isEmpty() {
 		name = Optional_of(strobj_(sourceName.getString()))
 	}
@@ -977,6 +973,13 @@ func ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable(assign Nod
 	sourceName.setLength(String_length(str_(name.get())))
 	getProp.srcrefTree(sourceName)
 }
+
+// lambda_ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable_1_ is a lambda of ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable that captures nothing (post-flip step lambdas).
+var lambda_ClosureRewriteModule_updateSourceInfoForExportedTopLevelVariable_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ClosureRewriteModule) isTopLevel(t *NodeTraversal, n Node, scopeType *ClosureRewriteModule_ScopeType) bool {
 	if scopeType == ClosureRewriteModule_ScopeType_EXEC_CONTEXT {

@@ -301,17 +301,20 @@ func (this *NodeTraversal) getSourceName() OptionalOf[string] {
 	if this.sourceName_.isEmpty() {
 		this.sourceName_ = func() Optional {
 			if this.currentScript != 0 {
-				return Optional_of(strobj_(this.currentScript.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})
+				return Optional_of(strobj_(this.currentScript.getSourceFileName())).filter(lambda_NodeTraversal_getSourceName_1_)
 			}
 			return Optional_of(strobj_(""))
 		}()
 	}
 	return this.sourceName_
 }
+
+// lambda_NodeTraversal_getSourceName_1_ is a lambda of NodeTraversal_getSourceName that captures nothing (post-flip step lambdas).
+var lambda_NodeTraversal_getSourceName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *NodeTraversal) getInput() *CompilerInput {
 	var inputId *InputId = this.getInputId()
@@ -907,13 +910,16 @@ func (this *NodeTraversal) getBestSourceFileName(n Node) OptionalOf[string] {
 		if n == 0 {
 			return this.getSourceName()
 		}
-		return Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		return Optional_of(strobj_(n.getSourceFileName())).filter(lambda_NodeTraversal_getBestSourceFileName_1_)
 	}()
 }
+
+// lambda_NodeTraversal_getBestSourceFileName_1_ is a lambda of NodeTraversal_getBestSourceFileName that captures nothing (post-flip step lambdas).
+var lambda_NodeTraversal_getBestSourceFileName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 const NodeTraversal_MISSING_SOURCE string = "[source unknown]"
 

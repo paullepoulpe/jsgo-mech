@@ -706,11 +706,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldTraverse(t *NodeTraver
 	this.inputId = t.getInputId()
 	if (n.isFunction() || n.isScript()) || ((parent == 0) && (this.inputId != nil)) {
 		Preconditions_checkNotNull(obj_(this.inputId))
-		this.sourceName_ = Optional_of(strobj_(NodeUtil_getSourceName(n))).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		this.sourceName_ = Optional_of(strobj_(NodeUtil_getSourceName(n))).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_shouldTraverse_1_)
 	}
 	if (parent == 0) || this.inCurrentScope(t) {
 		this.visitPreorder(t, n, parent)
@@ -724,6 +720,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) shouldTraverse(t *NodeTraver
 	return false
 }
 
+// lambda_TypedScopeCreator_AbstractScopeBuilder_shouldTraverse_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_shouldTraverse that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_shouldTraverse_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
 func (this *TypedScopeCreator_AbstractScopeBuilder) inCurrentScope(t *NodeTraversal) bool {
 	return (t.getScopeRoot() == this.currentScope.getRootNode())
 }
@@ -736,11 +739,17 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) visit(t *NodeTraversal, n No
 		this.visitPostorder(t, n, parent)
 	}
 	if !isScopeRoot && this.deferredActions.containsKey(n.box_()) {
-		Iterable_forEach(Iterable(this.deferredActions.removeAll(n.box_())), &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }})
+		Iterable_forEach(Iterable(this.deferredActions.removeAll(n.box_())), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_)
 	} else if isScopeRoot && !this.deferredActions.isEmpty() {
-		Iterable_forEach(Iterable(this.deferredActions.values()), &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }})
+		Iterable_forEach(Iterable(this.deferredActions.values()), lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_)
 	}
 }
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_visit_1_ = &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }}
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_visit that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_visit_2_ = &Consumer_fn{func(p0 any) { icast_Runnable(p0).run() }}
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) visitPreorder_impl(t *NodeTraversal, n Node, parent Node) {
 
@@ -1081,11 +1090,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 	if importedModuleObject == nil {
 		var fallbackType *JSType = func() *JSType {
 			if this.outer_.compiler_.getOptions().assumeForwardDeclaredForMissingTypes() {
-				return this.outer_.typeRegistry.createNamedType(icast_StaticTypedScope(obj_(this.currentScope)), localNameNode.getString(), Optional_of(strobj_(localNameNode.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}}), localNameNode.getLineno(), localNameNode.getCharno()).up_JSType()
+				return this.outer_.typeRegistry.createNamedType(icast_StaticTypedScope(obj_(this.currentScope)), localNameNode.getString(), Optional_of(strobj_(localNameNode.getSourceFileName())).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_defineModuleImport_1_), localNameNode.getLineno(), localNameNode.getCharno()).up_JSType()
 			}
 			return this.outer_.unknownType.up_JSType()
 		}()
@@ -1114,6 +1119,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) defineModuleImport(localName
 	}
 	this.outer_.weakImports = append(this.outer_.weakImports, new_TypedScopeCreator_WeakModuleImport(this.outer_, localNameNode, exportedName, scopeToDeclareIn))
 }
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_defineModuleImport_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_defineModuleImport that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_defineModuleImport_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) shouldUseFunctionLiteralType(type_ *FunctionType, info *JSDocInfo, lValue Node) bool {
 	if info != nil {
@@ -1195,11 +1207,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findSuperClassFromNodes(exte
 				}()
 			}
 			if ctorType == nil {
-				return ObjectType_cast(this.outer_.typeRegistry.getType_5(icast_StaticTypedScope(obj_(this.currentScope)), superclass, Optional_of(strobj_(extendsNode.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}}), extendsNode.getLineno(), extendsNode.getCharno()))
+				return ObjectType_cast(this.outer_.typeRegistry.getType_5(icast_StaticTypedScope(obj_(this.currentScope)), superclass, Optional_of(strobj_(extendsNode.getSourceFileName())).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_findSuperClassFromNodes_1_), extendsNode.getLineno(), extendsNode.getCharno()))
 			}
 		} else if this.isGoogModuleGetProperty(extendsNode) {
 			ctorType = this.getCtorForGoogModuleGet(extendsNode)
@@ -1218,6 +1226,13 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) findSuperClassFromNodes(exte
 	}
 	return nil
 }
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_findSuperClassFromNodes_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_findSuperClassFromNodes that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_findSuperClassFromNodes_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) isGoogModuleGetProperty(extendsClause Node) bool {
 	if extendsClause.isCall() {
@@ -1541,18 +1556,10 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 			if (rValue != 0) && rValue.isObjectLit() {
 				return rValue.getJSType()
 			} else {
-				return this.createEnumTypeFromNodes(rValue, Optional_of(strobj_(lValue.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}}), lValue, info).up_JSType()
+				return this.createEnumTypeFromNodes(rValue, Optional_of(strobj_(lValue.getQualifiedName())).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_1_), lValue, info).up_JSType()
 			}
 		} else if info.isConstructorOrInterface() {
-			var fnType *FunctionType = this.createFunctionTypeFromNodes(rValue, Optional_of(strobj_(lValue.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), info, lValue)
+			var fnType *FunctionType = this.createFunctionTypeFromNodes(rValue, Optional_of(strobj_(lValue.getQualifiedName())).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_2_), info, lValue)
 			if (rValue == 0) && !lValue.isFromExterns() {
 				this.outer_.report(JSError_make_Node_DiagnosticType_StringArr(lValue, func() *DiagnosticType {
 					if fnType.isConstructor() {
@@ -1586,11 +1593,7 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 	}
 	if (info != nil) && FunctionTypeBuilder_isFunctionTypeDeclaration(info) {
 		var fnName string = lValue.getQualifiedName()
-		return this.createFunctionTypeFromNodes(0, Optional_of(strobj_(fnName)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), info, lValue).up_JSType()
+		return this.createFunctionTypeFromNodes(0, Optional_of(strobj_(fnName)).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_3_), info, lValue).up_JSType()
 	}
 	if this.isValidTypedefDeclaration(lValue, info) {
 		return this.outer_.getNativeType(JSTypeNative_NO_TYPE)
@@ -1598,13 +1601,37 @@ func (this *TypedScopeCreator_AbstractScopeBuilder) getDeclaredType(info *JSDocI
 	return nil
 }
 
+// lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_getDeclaredType that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_2_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_getDeclaredType that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_3_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_getDeclaredType that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_getDeclaredType_3_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
 func (this *TypedScopeCreator_AbstractScopeBuilder) declareAliasTypeIfRvalueIsAliasable(lValue Node, rValue *QualifiedName, rValueType *JSType, rValueLookupScope *TypedScope) {
-	this.declareAliasTypeIfRvalueIsAliasable_6(Optional_of(strobj_(lValue.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), lValue, rValue, rValueType, rValueLookupScope, this.currentScope)
+	this.declareAliasTypeIfRvalueIsAliasable_6(Optional_of(strobj_(lValue.getQualifiedName())).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_declareAliasTypeIfRvalueIsAliasable_1_), lValue, rValue, rValueType, rValueLookupScope, this.currentScope)
 }
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_declareAliasTypeIfRvalueIsAliasable_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_declareAliasTypeIfRvalueIsAliasable that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_declareAliasTypeIfRvalueIsAliasable_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *TypedScopeCreator_AbstractScopeBuilder) declareAliasTypeIfRvalueIsAliasable_6(lValueName OptionalOf[string], actualLvalueNode Node, rValue *QualifiedName, rValueType *JSType, rValueLookupScope *TypedScope, aliasDeclarationScope *TypedScope) {
 	if rValue == nil {
@@ -2033,13 +2060,16 @@ func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) readVariableName
 	} else {
 		Preconditions_checkArgument((this.declarationNode.isGetProp() && (parent.isAssign() || parent.isExprResult())))
 	}
-	this.variableName = Optional_of(strobj_(this.declarationNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	this.variableName = Optional_of(strobj_(this.declarationNode.getQualifiedName())).filter(lambda_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner_readVariableNameFromDeclarationNode_1_)
 	return this
 }
+
+// lambda_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner_readVariableNameFromDeclarationNode_1_ is a lambda of TypedScopeCreator_AbstractScopeBuilder_SlotDefiner_readVariableNameFromDeclarationNode that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_AbstractScopeBuilder_SlotDefiner_readVariableNameFromDeclarationNode_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner) forVariableName(variableName OptionalOf[string]) *TypedScopeCreator_AbstractScopeBuilder_SlotDefiner {
 	this.variableName = variableName
@@ -2311,15 +2341,18 @@ func (this *TypedScopeCreator_FunctionScopeBuilder) declareTemplatesInFunctionBo
 	for it_3.next() {
 		var name string = it_3.v
 		if !this.currentScope.canDeclare(name) {
-			this.outer_.validator.expectUndeclaredVariable(Optional_of(strobj_(NodeUtil_getSourceName(functionNode))).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), input, functionNode, functionNode.getParent(), cast_[*TypedVar](this.currentScope.getVar(name).self()), name, voidType)
+			this.outer_.validator.expectUndeclaredVariable(Optional_of(strobj_(NodeUtil_getSourceName(functionNode))).filter(lambda_TypedScopeCreator_FunctionScopeBuilder_declareTemplatesInFunctionBody_1_), input, functionNode, functionNode.getParent(), cast_[*TypedVar](this.currentScope.getVar(name).self()), name, voidType)
 		}
 		this.currentScope.declare(name, functionNode, voidType, input, false)
 	}
 }
+
+// lambda_TypedScopeCreator_FunctionScopeBuilder_declareTemplatesInFunctionBody_1_ is a lambda of TypedScopeCreator_FunctionScopeBuilder_declareTemplatesInFunctionBody that captures nothing (post-flip step lambdas).
+var lambda_TypedScopeCreator_FunctionScopeBuilder_declareTemplatesInFunctionBody_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *TypedScopeCreator_FunctionScopeBuilder) declareNamesInPositionalParameter(astParameter Node, declaredParameterType *JSType, iifeArgumentNode Node) {
 	var paramType *JSType = declaredParameterType

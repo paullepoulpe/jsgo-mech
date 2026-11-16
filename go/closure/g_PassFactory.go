@@ -41,16 +41,22 @@ func (this *PassFactory) toBuilder() *PassFactory_Builder {
 }
 
 func PassFactory_builder() *PassFactory_Builder {
-	return new_PassFactory_Builder_0().setRunInFixedPointLoop(false).setCondition(&Function_fn{func(o_ any) any {
-		var o *CompilerOptions = cast_[*CompilerOptions](o_)
-		_ = o
-		return any(bool(true))
-	}}).setPreconditionCheck(&Function_fn{func(o_ any) any {
-		var o *CompilerOptions = cast_[*CompilerOptions](o_)
-		_ = o
-		return obj_(PassFactory_PreconditionResult_SUCCESS)
-	}})
+	return new_PassFactory_Builder_0().setRunInFixedPointLoop(false).setCondition(lambda_PassFactory_builder_1_).setPreconditionCheck(lambda_PassFactory_builder_2_)
 }
+
+// lambda_PassFactory_builder_1_ is a lambda of PassFactory_builder that captures nothing (post-flip step lambdas).
+var lambda_PassFactory_builder_1_ = &Function_fn{func(o_ any) any {
+	var o *CompilerOptions = cast_[*CompilerOptions](o_)
+	_ = o
+	return any(bool(true))
+}}
+
+// lambda_PassFactory_builder_2_ is a lambda of PassFactory_builder that captures nothing (post-flip step lambdas).
+var lambda_PassFactory_builder_2_ = &Function_fn{func(o_ any) any {
+	var o *CompilerOptions = cast_[*CompilerOptions](o_)
+	_ = o
+	return obj_(PassFactory_PreconditionResult_SUCCESS)
+}}
 
 func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
 	var canRun *PassFactory_PreconditionResult = cast_[*PassFactory_PreconditionResult](this.getPreconditionCheck().apply(obj_(options)))
@@ -60,13 +66,19 @@ func (this *PassFactory) validatePreconditions(options *CompilerOptions) {
 }
 
 func PassFactory_createEmptyPass(name string) *PassFactory {
-	return PassFactory_builder().setName(name).setInternalFactory(&Function_fn{func(c_ any) any {
-		var c *AbstractCompiler = to_AbstractCompiler(c_)
-		_ = c
-		return any(&CompilerPass_fn{func(externs Node, root Node) {
-		}})
-	}}).build()
+	return PassFactory_builder().setName(name).setInternalFactory(lambda_PassFactory_createEmptyPass_1_).build()
 }
+
+// lambda_PassFactory_createEmptyPass_1_ is a lambda of PassFactory_createEmptyPass that captures nothing (post-flip step lambdas).
+var lambda_PassFactory_createEmptyPass_1_ = &Function_fn{func(c_ any) any {
+	var c *AbstractCompiler = to_AbstractCompiler(c_)
+	_ = c
+	return any(lambda_PassFactory_createEmptyPass_2_)
+}}
+
+// lambda_PassFactory_createEmptyPass_2_ is a lambda of PassFactory_createEmptyPass that captures nothing (post-flip step lambdas).
+var lambda_PassFactory_createEmptyPass_2_ = &CompilerPass_fn{func(externs Node, root Node) {
+}}
 
 func (this *PassFactory) create(compiler *AbstractCompiler) CompilerPass {
 	return icast_CompilerPass(this.getInternalFactory().apply(compiler.self()))

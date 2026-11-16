@@ -79,8 +79,11 @@ func (this *SimpleTable) rowKeySet() SetOf[any] {
 }
 
 func (this *SimpleTable) values() IterableOf[any] {
-	return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterables_transform(Iterable(this.rows.values()), &Function_base_fn{func(p0 any) any { return any(icast_Map(p0).values()) }})))
+	return Iterables_unmodifiableIterable(Iterables_concat_Iterable(Iterables_transform(Iterable(this.rows.values()), lambda_SimpleTable_values_1_)))
 }
+
+// lambda_SimpleTable_values_1_ is a lambda of SimpleTable_values that captures nothing (post-flip step lambdas).
+var lambda_SimpleTable_values_1_ = &Function_base_fn{func(p0 any) any { return any(icast_Map(p0).values()) }}
 
 func (this *SimpleTable) isEmpty() bool {
 	return this.rows.isEmpty()

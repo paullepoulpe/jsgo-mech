@@ -45,9 +45,12 @@ func DiagnosticGroup_createFromGroups_Optional_DiagnosticGroupArr(name OptionalO
 }
 
 func DiagnosticGroup_forType(type_ *DiagnosticType) *DiagnosticGroup {
-	Map_computeIfAbsent(DiagnosticGroup_singletons, obj_(type_), &Function_fn{func(p0 any) any { return obj_(DiagnosticGroup_createFromType(cast_[*DiagnosticType](p0))) }})
+	Map_computeIfAbsent(DiagnosticGroup_singletons, obj_(type_), lambda_DiagnosticGroup_forType_1_)
 	return cast_[*DiagnosticGroup](DiagnosticGroup_singletons.get(obj_(type_)))
 }
+
+// lambda_DiagnosticGroup_forType_1_ is a lambda of DiagnosticGroup_forType that captures nothing (post-flip step lambdas).
+var lambda_DiagnosticGroup_forType_1_ = &Function_fn{func(p0 any) any { return obj_(DiagnosticGroup_createFromType(cast_[*DiagnosticType](p0))) }}
 
 func (this *DiagnosticGroup) matches(error_ *JSError) bool {
 	return this.matchesDiagnosticType(error_.type_())

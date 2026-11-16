@@ -3,7 +3,7 @@
 package closure
 
 type JSTypeRegistry struct {
-	subtypeCheckerFree_ []*SubtypeChecker // checkers whose check is done (post-flip manual step)
+	subtypeCheckerFree_             []*SubtypeChecker // checkers whose check is done (post-flip manual step)
 	iObjectIndexTemplateKey         *TemplateType
 	iObjectElementTemplateKey       *TemplateType
 	iterableValueTemplate           *TemplateType
@@ -959,11 +959,7 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 		}
 	}
 	if n.isQualifiedName() {
-		return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		return Optional_of(strobj_(n.getQualifiedName())).filter(lambda_JSTypeRegistry_getReadableJSTypeName_1_)
 	} else if type_.isFunctionType() {
 		return Optional_of(strobj_("function"))
 	} else {
@@ -971,6 +967,13 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 	}
 	panic("unreachable")
 }
+
+// lambda_JSTypeRegistry_getReadableJSTypeName_1_ is a lambda of JSTypeRegistry_getReadableJSTypeName that captures nothing (post-flip step lambdas).
+var lambda_JSTypeRegistry_getReadableJSTypeName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func JSTypeRegistry_isReadableObjectType(type_ *ObjectType) bool {
 	if type_ == nil {
@@ -1254,12 +1257,15 @@ func (this *JSTypeRegistry) isNonNullableName(scope StaticScope, name string) bo
 }
 
 func (this *JSTypeRegistry) evaluateTypeExpression(expr *JSTypeExpression, scope StaticTypedScope) *JSType {
-	return this.createTypeFromCommentNode_3(expr.getRoot(), Optional_of(strobj_(expr.getSourceName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), scope)
+	return this.createTypeFromCommentNode_3(expr.getRoot(), Optional_of(strobj_(expr.getSourceName())).filter(lambda_JSTypeRegistry_evaluateTypeExpression_1_), scope)
 }
+
+// lambda_JSTypeRegistry_evaluateTypeExpression_1_ is a lambda of JSTypeRegistry_evaluateTypeExpression that captures nothing (post-flip step lambdas).
+var lambda_JSTypeRegistry_evaluateTypeExpression_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *JSTypeRegistry) createTypeFromCommentNode(n Node) *JSType {
 	return this.createTypeFromCommentNode_3(n, Optional_of(strobj_("[internal]")), nil)

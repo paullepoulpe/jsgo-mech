@@ -85,11 +85,7 @@ func CheckRequiresSorted_isValidImportCall(n Node) bool {
 }
 
 func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportStatement {
-	var primitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of(strobj_(callNode.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}))
+	var primitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of(strobj_(callNode.getFirstChild().getQualifiedName())).filter(lambda_CheckRequiresSorted_parseImport_1_))
 	var namespace string = callNode.getSecondChild().getString()
 	var parent Node = callNode.getParent()
 	if parent.isExprResult() {
@@ -113,16 +109,26 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 	return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(grandparent.box_()), primitive, namespace, Optional_empty(), cast_[*ImmutableList](obj_(destructures.build())))
 }
 
+// lambda_CheckRequiresSorted_parseImport_1_ is a lambda of CheckRequiresSorted_parseImport that captures nothing (post-flip step lambdas).
+var lambda_CheckRequiresSorted_parseImport_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
 func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports ListOf[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
 	if !Object_equals(any(this.originalImports), any(canonicalImports)) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of(strobj_(String_join(strobj_("\n"), Iterables_transform(Iterable(canonicalImports), &Function_base_fn{func(p0 any) any { return strobj_(cast_[*CheckRequiresSorted_ImportStatement](p0).format()) }}))))
+		this.replacement_ = Optional_of(strobj_(String_join(strobj_("\n"), Iterables_transform(Iterable(canonicalImports), lambda_CheckRequiresSorted_checkCanonical_1_))))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
 			t.report(this.firstNode, CheckRequiresSorted_REQUIRES_NOT_SORTED, []string{str_(this.replacement_.orElse(strobj_("null")))})
 		}
 	}
 }
+
+// lambda_CheckRequiresSorted_checkCanonical_1_ is a lambda of CheckRequiresSorted_checkCanonical that captures nothing (post-flip step lambdas).
+var lambda_CheckRequiresSorted_checkCanonical_1_ = &Function_base_fn{func(p0 any) any { return strobj_(cast_[*CheckRequiresSorted_ImportStatement](p0).format()) }}
 
 func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMultimap) ListOf[*CheckRequiresSorted_ImportStatement] {
 	var canonicalImports ListOf[*CheckRequiresSorted_ImportStatement] = icast_List(new_ArrayList_0().self())
@@ -137,7 +143,7 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 			strongestPrimitive = CheckRequiresSorted_ImportPrimitive_stronger(strongestPrimitive, i.primitive())
 		}
 		var hasAliasing bool = false
-		it_5 := foreach_(any(Iterables_filter(Iterable(allImports), &Predicate_base_fn{func(p0 any) bool { return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing() }})))
+		it_5 := foreach_(any(Iterables_filter(Iterable(allImports), lambda_CheckRequiresSorted_canonicalizeImports_1_)))
 		for it_5.next() {
 			var stmt *CheckRequiresSorted_ImportStatement = cast_[*CheckRequiresSorted_ImportStatement](it_5.v)
 			canonicalImports.add(obj_(stmt.upgrade(strongestPrimitive)))
@@ -195,6 +201,9 @@ func CheckRequiresSorted_canonicalizeImports(importsByNamespace *SimpleListMulti
 	Collections_sort(canonicalImports)
 	return canonicalImports
 }
+
+// lambda_CheckRequiresSorted_canonicalizeImports_1_ is a lambda of CheckRequiresSorted_canonicalizeImports that captures nothing (post-flip step lambdas).
+var lambda_CheckRequiresSorted_canonicalizeImports_1_ = &Predicate_base_fn{func(p0 any) bool { return cast_[*CheckRequiresSorted_ImportStatement](p0).isAliasing() }}
 
 var CheckRequiresSorted_REQUIRES_NOT_SORTED *DiagnosticType
 var CheckRequiresSorted_GOOG_REQUIRE *QualifiedName

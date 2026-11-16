@@ -46,8 +46,11 @@ func (this *CheckUnreachableCode) shouldTraverse_impl(t *NodeTraversal, n Node, 
 }
 
 func (this *CheckUnreachableCode) initScope(controlFlowGraph *ControlFlowGraph) {
-	new_GraphReachability_DiGraph_Predicate(controlFlowGraph.up_DiGraph(), &Predicate_base_fn{func(p0 any) bool { return CheckUnreachableCode_isReachable(cast_[*GraphReachability_EdgeTuple](p0)) }}).compute(controlFlowGraph.getEntry().getValue())
+	new_GraphReachability_DiGraph_Predicate(controlFlowGraph.up_DiGraph(), lambda_CheckUnreachableCode_initScope_1_).compute(controlFlowGraph.getEntry().getValue())
 }
+
+// lambda_CheckUnreachableCode_initScope_1_ is a lambda of CheckUnreachableCode_initScope that captures nothing (post-flip step lambdas).
+var lambda_CheckUnreachableCode_initScope_1_ = &Predicate_base_fn{func(p0 any) bool { return CheckUnreachableCode_isReachable(cast_[*GraphReachability_EdgeTuple](p0)) }}
 
 func CheckUnreachableCode_isReachable(input *GraphReachability_EdgeTuple) bool {
 	var branch *ControlFlowGraph_Branch = cast_[*ControlFlowGraph_Branch](input.edge)

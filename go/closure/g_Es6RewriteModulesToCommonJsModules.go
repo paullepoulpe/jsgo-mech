@@ -312,11 +312,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 	var child Node = export.getFirstChild()
 	var name OptionalOf[string] = Optional_empty()
 	if child.isFunction() || child.isClass() {
-		name = Optional_of(strobj_(NodeUtil_getName(child))).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		name = Optional_of(strobj_(NodeUtil_getName(child))).filter(lambda_Es6RewriteModulesToCommonJsModules_Rewriter_visitExportDefault_1_)
 	}
 	if name.isPresent() {
 		var decl Node = child.detach()
@@ -330,6 +326,13 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 	Map_put_s(this.exportedNameToLocalQName, "default", obj_(new_Es6RewriteModulesToCommonJsModules_LocalQName(str_(name.orElse(nil)), export)))
 	t.reportCodeChange()
 }
+
+// lambda_Es6RewriteModulesToCommonJsModules_Rewriter_visitExportDefault_1_ is a lambda of Es6RewriteModulesToCommonJsModules_Rewriter_visitExportDefault that captures nothing (post-flip step lambdas).
+var lambda_Es6RewriteModulesToCommonJsModules_Rewriter_visitExportDefault_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportFrom(t *NodeTraversal, export Node, parent Node) {
 	var moduleIdentifier Node = export.getLastChild()

@@ -96,13 +96,19 @@ func InlineVariables_Mode_clinit() {
 		return
 	}
 	InlineVariables_Mode_clinit_done = true
-	InlineVariables_Mode_CONSTANTS_ONLY = new_InlineVariables_Mode("CONSTANTS_ONLY", 0, &Predicate_base_fn{func(p0 any) bool { return cast_[*Var](p0).isDeclaredOrInferredConst() }})
-	InlineVariables_Mode_LOCALS_ONLY = new_InlineVariables_Mode("LOCALS_ONLY", 1, &Predicate_base_fn{func(p0 any) bool { return cast_[*Var](p0).isLocal() }})
+	InlineVariables_Mode_CONSTANTS_ONLY = new_InlineVariables_Mode("CONSTANTS_ONLY", 0, lambda_InlineVariables_Mode_clinit_1_)
+	InlineVariables_Mode_LOCALS_ONLY = new_InlineVariables_Mode("LOCALS_ONLY", 1, lambda_InlineVariables_Mode_clinit_2_)
 	InlineVariables_Mode_ALL = new_InlineVariables_Mode("ALL", 2, Predicates_alwaysTrue())
 	InlineVariables_Mode_values_ = []*InlineVariables_Mode{InlineVariables_Mode_CONSTANTS_ONLY, InlineVariables_Mode_LOCALS_ONLY, InlineVariables_Mode_ALL}
 	registerEnum_("com.google.javascript.jscomp.InlineVariables.Mode", enumValues_(InlineVariables_Mode_values_))
 
 }
+
+// lambda_InlineVariables_Mode_clinit_1_ is a lambda of InlineVariables_Mode_clinit that captures nothing (post-flip step lambdas).
+var lambda_InlineVariables_Mode_clinit_1_ = &Predicate_base_fn{func(p0 any) bool { return cast_[*Var](p0).isDeclaredOrInferredConst() }}
+
+// lambda_InlineVariables_Mode_clinit_2_ is a lambda of InlineVariables_Mode_clinit that captures nothing (post-flip step lambdas).
+var lambda_InlineVariables_Mode_clinit_2_ = &Predicate_base_fn{func(p0 any) bool { return cast_[*Var](p0).isLocal() }}
 
 type InlineVariables_VarExpert struct {
 	self_ any

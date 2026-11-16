@@ -332,12 +332,15 @@ func (this *NamedType) setValidator_impl(validator Predicate_baseOf[*JSType]) bo
 }
 
 func (this *NamedType) warning(reporter ErrorReporter_rhino, message string) {
-	reporter.warning(message, Optional_of(strobj_(this.sourceName_)).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), this.lineno_, this.charno_)
+	reporter.warning(message, Optional_of(strobj_(this.sourceName_)).filter(lambda_NamedType_warning_1_), this.lineno_, this.charno_)
 }
+
+// lambda_NamedType_warning_1_ is a lambda of NamedType_warning that captures nothing (post-flip step lambdas).
+var lambda_NamedType_warning_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *NamedType) isObject_impl() bool {
 	if this.isEnumElementType() {

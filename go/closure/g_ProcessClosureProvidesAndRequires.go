@@ -209,11 +209,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		case tokOrd1_EXPR_RESULT:
 			return func() Optional {
 				if n.isAssign() {
-					return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-						var s string = str_(s_)
-						_ = s
-						return !String_isEmpty(s)
-					}})
+					return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(lambda_ProcessClosureProvidesAndRequires_handleCandidateProvideDefinition_1_)
 				}
 				return Optional_empty()
 			}()
@@ -232,6 +228,13 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		pn.addDefinition(parent, t.getChunk(), this.chunkGraph)
 	}
 }
+
+// lambda_ProcessClosureProvidesAndRequires_handleCandidateProvideDefinition_1_ is a lambda of ProcessClosureProvidesAndRequires_handleCandidateProvideDefinition that captures nothing (post-flip step lambdas).
+var lambda_ProcessClosureProvidesAndRequires_handleCandidateProvideDefinition_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ProcessClosureProvidesAndRequires) processForwardDeclare(n Node, parent Node) {
 	var convention CodingConvention = this.compiler_.getCodingConvention()

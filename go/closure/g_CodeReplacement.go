@@ -92,6 +92,18 @@ func CodeReplacement_clinit() {
 		return
 	}
 	CodeReplacement_clinit_done = true
-	CodeReplacement_APPLICATION_ORDER = Comparator_thenComparing(Comparator_thenComparing(Comparator_thenComparingInt(Comparator_comparingInt(&ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getStartPosition() }}), &ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getLength() }}), &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getSortKey()) }}), &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getNewContent()) }})
+	CodeReplacement_APPLICATION_ORDER = Comparator_thenComparing(Comparator_thenComparing(Comparator_thenComparingInt(Comparator_comparingInt(lambda_CodeReplacement_clinit_1_), lambda_CodeReplacement_clinit_2_), lambda_CodeReplacement_clinit_3_), lambda_CodeReplacement_clinit_4_)
 
 }
+
+// lambda_CodeReplacement_clinit_1_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
+var lambda_CodeReplacement_clinit_1_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getStartPosition() }}
+
+// lambda_CodeReplacement_clinit_2_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
+var lambda_CodeReplacement_clinit_2_ = &ToIntFunction_fn{func(p0 any) int32 { return cast_[*CodeReplacement](p0).getLength() }}
+
+// lambda_CodeReplacement_clinit_3_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
+var lambda_CodeReplacement_clinit_3_ = &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getSortKey()) }}
+
+// lambda_CodeReplacement_clinit_4_ is a lambda of CodeReplacement_clinit that captures nothing (post-flip step lambdas).
+var lambda_CodeReplacement_clinit_4_ = &Function_fn{func(p0 any) any { return strobj_(cast_[*CodeReplacement](p0).getNewContent()) }}
