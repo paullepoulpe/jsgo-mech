@@ -629,6 +629,9 @@ func (this *ImmutableCollection_Builder) add(p0 any) *ImmutableCollection_Builde
 	if p0 == nil {
 		throwNPE_("at index " + istr_(int64(len(this.items))))
 	}
+	if cap(this.items) == 0 {
+		this.items = make([]any, 0, 4) // as Guava's builder starts
+	}
 	this.items = append(this.items, p0)
 	return this
 }
@@ -641,14 +644,16 @@ func (this *ImmutableCollection_Builder) add_ObjectArr(p0 []any) *ImmutableColle
 }
 
 func (this *ImmutableCollection_Builder) addAll(p0 Iterable) *ImmutableCollection_Builder {
-	for _, v := range toSlice_(p0) {
+	for _, v := range readSlice_(p0) {
 		this.add(v)
 	}
 	return this
 }
 
+// build shares the elements so far with the collection built, as Guava's builder does: the
+// builder only appends, and the capacity is cut so that later adds never reach it.
 func (this *ImmutableCollection_Builder) build() *ImmutableCollection {
-	items := append([]any(nil), this.items...)
+	items := this.items[:len(this.items):len(this.items)]
 	switch this.kind {
 	case icSet_:
 		return immSet_(items)

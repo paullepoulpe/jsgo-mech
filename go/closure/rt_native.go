@@ -92,15 +92,130 @@ func sliceClear_[T any](s *[]T) {
 }
 
 // sliceFrom_ is new ArrayList<>(from) as a slice.
-func sliceFrom_[T any](c *tconv_[T], from Collection) []T { return tlistFrom_(c, from).items }
+func sliceFrom_[T any](c *tconv_[T], from Collection) []T { return unboxAll_(c, readSlice_(from)) }
 
-// sliceImm_ is an ImmutableList (or nil) as a slice: the items of its typed copy, which nothing
-// changes.
+// sliceImm_ is an ImmutableList (or nil) as a slice, which nothing changes. The typed copy is
+// kept on an immutable list from its second conversion to T on (the first one only notes T):
+// a list made to be converted once is copied once, a long-lived one is copied twice at most.
+// An empty list is an empty slice, not nil (Java's null).
 func sliceImm_[T any](c *tconv_[T], from Collection) []T {
-	if l := tlistImm_(c, from); l != nil {
-		return l.items
+	ic, ok := from.(*ImmutableCollection)
+	if !ok || ic == nil {
+		if l := tlistImm_(c, from); l != nil {
+			return l.items
+		}
+		return nil
 	}
-	return nil
+	slot := &ic.typed_
+	seen := slot.conv == any(c)
+	if seen {
+		if l, ok := slot.v.(*TList[T]); ok {
+			return l.items
+		}
+	}
+	src := ic.elems_()
+	if len(src) == 0 {
+		return []T{}
+	}
+	s := unboxAll_(c, src)
+	if seen {
+		*slot = immTyped_{c, &TList[T]{items: s, c: c, imm: true}}
+	} else {
+		*slot = immTyped_{conv: c}
+	}
+	return s
+}
+
+// unboxAll_ is a new slice of the unboxed elements of src.
+func unboxAll_[T any](c *tconv_[T], src []any) []T {
+	s := make([]T, len(src))
+	for i, x := range src {
+		s[i] = c.unbox(x)
+	}
+	return s
+}
+
+// ---- ImmutableList.Builder as the slice it builds (step immbuild)
+
+// immAdd_ is ImmutableList.Builder.add(x) on a builder kept as the slice it builds: a null
+// element throws NullPointerException as the builder does. The first element makes room for
+// four, as Guava's builder starts.
+func immAdd_[T any](c *tconv_[T], s []T, x T) []T {
+	if c.box(x) == nil {
+		throwNPE_("at index " + istr_(int64(len(s))))
+	}
+	if cap(s) == 0 {
+		s = make([]T, 0, 4)
+	}
+	return append(s, x)
+}
+
+// immAddObj_ is immAdd_ of a boxed element.
+func immAddObj_[T any](c *tconv_[T], s []T, x any) []T {
+	if x == nil {
+		throwNPE_("at index " + istr_(int64(len(s))))
+	}
+	if cap(s) == 0 {
+		s = make([]T, 0, 4)
+	}
+	return append(s, c.unbox(x))
+}
+
+// immAddAll_ is ImmutableList.Builder.addAll(from): each element is added as by add.
+func immAddAll_[T any](c *tconv_[T], s []T, from Iterable) []T {
+	for _, x := range readSlice_(from) {
+		s = immAddObj_(c, s, x)
+	}
+	return s
+}
+
+// immBuilt_ is ImmutableList.Builder.build() of a builder kept as the slice s: the elements so
+// far, with the capacity cut to them so that later adds to the builder never reach the list
+// built. An empty list is an empty slice, not nil (Java's null).
+func immBuilt_[T any](s []T) []T {
+	if s == nil {
+		return []T{}
+	}
+	return s[:len(s):len(s)]
+}
+
+// immCopyOf_ is ImmutableList.copyOf(from) as a slice: an immutable collection is converted as
+// sliceImm_ converts its asList(); any other is copied, and a null element throws
+// NullPointerException as copyOf does.
+func immCopyOf_[T any](c *tconv_[T], from Iterable) []T {
+	if ic, ok := from.(*ImmutableCollection); ok {
+		return sliceImm_(c, Collection(ic.asList()))
+	}
+	src := toSlice_(from)
+	if len(src) == 0 {
+		return []T{}
+	}
+	checkNoNulls_(src)
+	return unboxAll_(c, src)
+}
+
+// immCopySlice_ is ImmutableList.copyOf(sliceView_(c, s)) of a slice s seen as a list: a null
+// list throws NullPointerException, as its view did; the elements are checked and copied.
+func immCopySlice_[T any](c *tconv_[T], s []T) []T {
+	if s == nil {
+		panic(new_NullPointerException_0().self())
+	}
+	return immCopyArr_(c, s)
+}
+
+// immCopyArr_ is ImmutableList.copyOf(a) of an array a as a slice: the elements, checked for
+// null as copyOf does, are copied (the array can change later). An empty or null array is an
+// empty list, as ImmutableList_copyOf_ObjectArr makes it.
+func immCopyArr_[T any](c *tconv_[T], a []T) []T {
+	if len(a) == 0 {
+		return []T{}
+	}
+	for i, x := range a {
+		if c.box(x) == nil {
+			throwNPE_("at index " + istr_(int64(i)))
+		}
+	}
+	return append([]T(nil), a...)
 }
 
 // sliceView_ is s as an erased List for one call that reads it, or sorts it in place: a typed

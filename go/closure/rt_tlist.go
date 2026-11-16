@@ -36,7 +36,9 @@ func tlistImm_[T any](c *tconv_[T], from Collection) *TList[T] {
 	}
 	slot := immSlot_(from)
 	if slot != nil && slot.conv == any(c) {
-		return slot.v.(*TList[T])
+		if l, ok := slot.v.(*TList[T]); ok {
+			return l
+		}
 	}
 	l := tlistFrom_(c, from)
 	l.imm = true
@@ -67,12 +69,16 @@ func immSlot_(from any) *immTyped_ {
 
 // tlistFrom_ is new ArrayList<>(from) as a typed list.
 func tlistFrom_[T any](c *tconv_[T], from Collection) *TList[T] {
-	src := toSlice_(from)
-	l := &TList[T]{c: c, items: make([]T, len(src))}
-	for i, x := range src {
-		l.items[i] = c.unbox(x)
+	return &TList[T]{c: c, items: unboxAll_(c, readSlice_(from))}
+}
+
+// readSlice_ is the elements of c for a caller that only reads them: those of an immutable
+// collection are not copied.
+func readSlice_(c Iterable) []any {
+	if ic, ok := c.(*ImmutableCollection); ok && ic != nil {
+		return ic.elems_()
 	}
-	return l
+	return toSlice_(c)
 }
 
 func (l *TList[T]) size() int32   { return int32(len(l.items)) }
