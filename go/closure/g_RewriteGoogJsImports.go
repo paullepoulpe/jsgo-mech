@@ -58,11 +58,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 					googImportNode = child
 				} else {
 					valid = false
-					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(scriptRoot.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-						var s string = str_(s_)
-						_ = s
-						return !String_isEmpty(s)
-					}}), child.getLineno(), child.getCharno(), RewriteGoogJsImports_GOOG_JS_IMPORT_MUST_BE_GOOG_STAR, []string{}))
+					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(scriptRoot.getSourceFileName())).filter(lambda_RewriteGoogJsImports_findGoogImportNode_1_), child.getLineno(), child.getCharno(), RewriteGoogJsImports_GOOG_JS_IMPORT_MUST_BE_GOOG_STAR, []string{}))
 				}
 			}
 		}
@@ -75,14 +71,24 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 	var moduleScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(scriptRoot.getFirstChild(), Scope_createGlobalScope(scriptRoot))
 	var googVar *Var = cast_[*Var](moduleScope.getVar("goog").self())
 	if (googVar != nil) && (googVar.getNameNode() != 0) {
-		this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(scriptRoot.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), googVar.getNameNode().getLineno(), googVar.getNameNode().getCharno(), RewriteGoogJsImports_CANNOT_HAVE_MODULE_VAR_NAMED_GOOG, []string{}))
+		this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(scriptRoot.getSourceFileName())).filter(lambda_RewriteGoogJsImports_findGoogImportNode_2_), googVar.getNameNode().getLineno(), googVar.getNameNode().getCharno(), RewriteGoogJsImports_CANNOT_HAVE_MODULE_VAR_NAMED_GOOG, []string{}))
 	}
 	return 0
 }
+
+// lambda_RewriteGoogJsImports_findGoogImportNode_1_ is a lambda of RewriteGoogJsImports_findGoogImportNode that captures nothing (post-flip step lambdas).
+var lambda_RewriteGoogJsImports_findGoogImportNode_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_RewriteGoogJsImports_findGoogImportNode_2_ is a lambda of RewriteGoogJsImports_findGoogImportNode that captures nothing (post-flip step lambdas).
+var lambda_RewriteGoogJsImports_findGoogImportNode_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *RewriteGoogJsImports) rewriteImports(scriptRoot Node) {
 	if Es6RewriteModules_isEs6ModuleRoot(scriptRoot) {
@@ -117,11 +123,7 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 				if this.compiler_.getInput(script.getInputId()).getPath().equalsIgnoreLeadingSlash(expectedGoogPath) {
 					googScriptNode = script
 				} else if String_endsWith(script.getSourceFileName(), "/goog.js") {
-					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(script.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-						var s string = str_(s_)
-						_ = s
-						return !String_isEmpty(s)
-					}}), -1, -1, RewriteGoogJsImports_CANNOT_NAME_FILE_GOOG, []string{}))
+					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(script.getSourceFileName())).filter(lambda_RewriteGoogJsImports_findGoogJsScriptNode_1_), -1, -1, RewriteGoogJsImports_CANNOT_NAME_FILE_GOOG, []string{}))
 				}
 			}
 		}
@@ -129,6 +131,13 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 	}
 	return 0
 }
+
+// lambda_RewriteGoogJsImports_findGoogJsScriptNode_1_ is a lambda of RewriteGoogJsImports_findGoogJsScriptNode that captures nothing (post-flip step lambdas).
+var lambda_RewriteGoogJsImports_findGoogJsScriptNode_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func RewriteGoogJsImports_allFromGoog(bindings CollectionOf[*Binding], googJsPath *ModuleLoader_ModulePath) bool {
 	it_1 := foreach_(any(bindings))

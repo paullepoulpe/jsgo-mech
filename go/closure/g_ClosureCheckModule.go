@@ -114,11 +114,7 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 		} else {
 			if !parent.isGetProp() && n.isQualifiedName() {
 				var node Node = n
-				for this.checkImproperReferenceToImport(t, node, Optional_of(strobj_(node.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}}), func() Optional {
+				for this.checkImproperReferenceToImport(t, node, Optional_of(strobj_(node.getQualifiedName())).filter(lambda_ClosureCheckModule_visit_4_impl_1_), func() Optional {
 					if node.getParent().isGetProp() {
 						return Optional_of(strobj_(node.getParent().getString()))
 					}
@@ -137,6 +133,13 @@ func (this *ClosureCheckModule) visit_4_impl(t *NodeTraversal, n Node, currentMo
 	default:
 	}
 }
+
+// lambda_ClosureCheckModule_visit_4_impl_1_ is a lambda of ClosureCheckModule_visit_4_impl that captures nothing (post-flip step lambdas).
+var lambda_ClosureCheckModule_visit_4_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ClosureCheckModule) checkJSDoc(t *NodeTraversal, jsDoc *JSDocInfo) {
 	it_1 := foreach_(any(jsDoc.getTypeNodes()))

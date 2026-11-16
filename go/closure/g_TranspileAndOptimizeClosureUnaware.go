@@ -76,11 +76,7 @@ func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass
 	it_1 := foreach_(any(shadowAsts))
 	for it_1.next() {
 		var shadowAst *TranspileAndOptimizeClosureUnaware_ShadowAst = cast_[*TranspileAndOptimizeClosureUnaware_ShadowAst](it_1.v)
-		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isFunction() }}, &Predicate_base_fn{func(childToVisit_ any) bool {
-			var childToVisit Node = Node_of_(childToVisit_)
-			_ = childToVisit
-			return true
-		}})
+		var closureUnawareFunction Node = NodeUtil_findPreorder(shadowAst.script(), lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_, lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_2_)
 		callSites.add(obj_(new_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite(shadowAst.callNode(), closureUnawareFunction)))
 	}
 	return PassFactory_builder().setName("injectClosureUnawareRuntimeLibs").setInternalFactory(&Function_fn{func(compiler_ any) any {
@@ -89,6 +85,16 @@ func (this *TranspileAndOptimizeClosureUnaware) createInjectRuntimeLibrariesPass
 		return obj_(new_InjectClosureUnawareRuntimeLibraries(this.original_, compiler, tlistImm_(tc_p_InjectClosureUnawareRuntimeLibraries_ClosureUnawareCallSite, callSites.build())))
 	}}).build()
 }
+
+// lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_ is a lambda of TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass that captures nothing (post-flip step lambdas).
+var lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_1_ = &Predicate_base_fn{func(p0 any) bool { return Node_of_(p0).isFunction() }}
+
+// lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_2_ is a lambda of TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass that captures nothing (post-flip step lambdas).
+var lambda_TranspileAndOptimizeClosureUnaware_createInjectRuntimeLibrariesPass_2_ = &Predicate_base_fn{func(childToVisit_ any) bool {
+	var childToVisit Node = Node_of_(childToVisit_)
+	_ = childToVisit
+	return true
+}}
 
 type TranspileAndOptimizeClosureUnaware_ShadowAst struct {
 	originalRoot_ Node

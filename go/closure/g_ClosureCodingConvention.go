@@ -212,12 +212,15 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	if !objectNode.isObjectLit() {
 		return new_CodingConvention_ObjectLiteralCast(Optional_empty(), 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
 	}
-	return new_CodingConvention_ObjectLiteralCast(Optional_of(strobj_(typeNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}}), typeNode.getNext(), nil)
+	return new_CodingConvention_ObjectLiteralCast(Optional_of(strobj_(typeNode.getQualifiedName())).filter(lambda_ClosureCodingConvention_getObjectLiteralCast_impl_1_), typeNode.getNext(), nil)
 }
+
+// lambda_ClosureCodingConvention_getObjectLiteralCast_impl_1_ is a lambda of ClosureCodingConvention_getObjectLiteralCast_impl that captures nothing (post-flip step lambdas).
+var lambda_ClosureCodingConvention_getObjectLiteralCast_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ClosureCodingConvention) getAssertionFunctions_impl() Collection {
 	return icast_Collection(obj_(cast_[*ImmutableSet_Builder](obj_(cast_[*ImmutableSet_Builder](obj_(ImmutableSet_builder().addAll(Iterable(this.CodingConventions_Proxy.getAssertionFunctions_impl())))).add_ObjectArr([]any{obj_(CodingConvention_AssertionFunctionSpec_forTruthy().setFunctionName("goog.asserts.assert").build()), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Array")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Boolean")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Element")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Function")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Instanceof")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Number")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("Object")), obj_(ClosureCodingConvention_createGoogAssertOnReturn("String"))}))).build()))

@@ -25,12 +25,15 @@ func (this *GlobalNamespace) finit_GlobalNamespace() {
 	this.globalNames = newTList_(tc_p_GlobalNamespace_Name)
 	this.nameMap = newTMap_(tc_string, tc_p_GlobalNamespace_Name)
 	this.nameMapByModule = SimpleTable_create()
-	this.shouldTraverseScript = &Predicate_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return true
-	}}
+	this.shouldTraverseScript = lambda_GlobalNamespace_finit_GlobalNamespace_1_
 }
+
+// lambda_GlobalNamespace_finit_GlobalNamespace_1_ is a lambda of GlobalNamespace_finit_GlobalNamespace that captures nothing (post-flip step lambdas).
+var lambda_GlobalNamespace_finit_GlobalNamespace_1_ = &Predicate_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return true
+}}
 
 func (this *GlobalNamespace) init_GlobalNamespace_AbstractCompiler_Node(compiler *AbstractCompiler, root Node) {
 	this.init_GlobalNamespace_LogFile_AbstractCompiler_Node_Node(nil, compiler, 0, root)
@@ -589,11 +592,7 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 		if !n.isQualifiedName() {
 			return
 		}
-		name = Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		name = Optional_of(strobj_(n.getQualifiedName())).filter(lambda_GlobalNamespace_BuildGlobalNamespace_collect_1_)
 	case Token_rhino_CALL:
 		if (parent.isExprResult() && GlobalNamespace_GOOG_PROVIDE.matches(n.getFirstChild())) && n.getSecondChild().isStringLit() {
 			this.createNamesFromProvide(n.getSecondChild().getString())
@@ -627,6 +626,13 @@ func (this *GlobalNamespace_BuildGlobalNamespace) collect(scope *Scope, chunk *J
 		this.handleGet(chunk, scope, n, str_(name.get()), nameMetadata)
 	}
 }
+
+// lambda_GlobalNamespace_BuildGlobalNamespace_collect_1_ is a lambda of GlobalNamespace_BuildGlobalNamespace_collect that captures nothing (post-flip step lambdas).
+var lambda_GlobalNamespace_BuildGlobalNamespace_collect_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *GlobalNamespace_BuildGlobalNamespace) createObjLitStringKeyAnalysis(stringKeyNode Node) *GlobalNamespace_ObjLitStringKeyAnalysis {
 	var nameString OptionalOf[string] = NodeUtil_getBestLValueName(stringKeyNode)

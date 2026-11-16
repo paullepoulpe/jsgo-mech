@@ -117,11 +117,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 			Preconditions_checkState(((m.isEs6Module() || m.isGoogModule()) || m.isGoogProvide()))
 		}
 	} else {
-		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of(strobj_(importDecl.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), importDecl.getLineno(), importDecl.getCharno())
+		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of(strobj_(importDecl.getSourceFileName())).filter(lambda_Es6RewriteModules_visitImport_1_), importDecl.getLineno(), importDecl.getCharno())
 		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)
 		}
@@ -146,6 +142,13 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 	importDecl.detach()
 	t.reportCodeChange()
 }
+
+// lambda_Es6RewriteModules_visitImport_1_ is a lambda of Es6RewriteModules_visitImport that captures nothing (post-flip step lambdas).
+var lambda_Es6RewriteModules_visitImport_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *Es6RewriteModules) visitExport(t *NodeTraversal, export Node, parent Node) {
 	Preconditions_checkArgument_boolean_Object(parent.isModuleBody(), parent.box_())

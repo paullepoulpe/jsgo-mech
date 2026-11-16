@@ -129,12 +129,15 @@ func (this *Es6RewriteClass) reportPrimitiveReturns(constructor Node) {
 		if ((n.isReturn() && n.hasChildren()) && NodeUtil_isImmutableValue(n.getFirstChild())) && (NodeUtil_getKnownValueType(n.getFirstChild()) != NodeUtil_ValueType_VOID) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, Es6RewriteClass_CONSTRUCTOR_PRIMITIVE_RETURN, []string{}))
 		}
-	}}, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return !n.isFunction()
-	}})
+	}}, lambda_Es6RewriteClass_reportPrimitiveReturns_1_)
 }
+
+// lambda_Es6RewriteClass_reportPrimitiveReturns_1_ is a lambda of Es6RewriteClass_reportPrimitiveReturns that captures nothing (post-flip step lambdas).
+var lambda_Es6RewriteClass_reportPrimitiveReturns_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return !n.isFunction()
+}}
 
 func (this *Es6RewriteClass) createObjectDotDefineProperties() Node {
 	return this.astFactory_.createJSCompDotGlobalAccess(this.transpilationNamespace, "Object.defineProperties")

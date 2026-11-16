@@ -57,11 +57,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName OptionalOf[string]) {
 
 func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
-		this.checkJsDocInBlockComments(Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}))
+		this.checkJsDocInBlockComments(Optional_of(strobj_(n.getSourceFileName())).filter(lambda_CheckJSDoc_visit_impl_1_))
 	}
 	var info *JSDocInfo = n.getJSDocInfo()
 	this.validateTypeAnnotations(n, info)
@@ -86,6 +82,13 @@ func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	this.validateIsUsedViaDotConstructor(n, info)
 	this.validateLegacyNamedTsExport(n, info)
 }
+
+// lambda_CheckJSDoc_visit_impl_1_ is a lambda of CheckJSDoc_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_CheckJSDoc_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *CheckJSDoc) validateSuppress(n Node, info *JSDocInfo) {
 	if (info == nil) || info.getSuppressions().isEmpty() {

@@ -70,11 +70,7 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 	var moduleMap *ModuleMap = this.compiler_.getModuleMap()
 	var importSpecifier Node = n.getFirstChild()
 	if importSpecifier.isStringLit() && (moduleMap != nil) {
-		var targetPath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importSpecifier.getString(), Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), n.getLineno(), n.getCharno())
+		var targetPath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importSpecifier.getString(), Optional_of(strobj_(n.getSourceFileName())).filter(lambda_RewriteDynamicImports_visit_impl_1_), n.getLineno(), n.getCharno())
 		var module *Module = func() *Module {
 			if targetPath == nil {
 				return nil
@@ -114,6 +110,13 @@ func (this *RewriteDynamicImports) visit_impl(t *NodeTraversal, n Node, parent N
 		t.report(n, RewriteDynamicImports_DYNAMIC_IMPORT_ALIASING_REQUIRED, []string{})
 	}
 }
+
+// lambda_RewriteDynamicImports_visit_impl_1_ is a lambda of RewriteDynamicImports_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_RewriteDynamicImports_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *RewriteDynamicImports) replaceDynamicImportWithPromise(t *NodeTraversal, dynamicImport Node, targetModuleNS *Var) {
 	var registry *JSTypeRegistry = this.compiler_.getTypeRegistry()

@@ -70,12 +70,15 @@ func (this *J2clChecksPass) getSourceName(jsType *JSType) OptionalOf[string] {
 	if constructor == nil {
 		return Optional_of(strobj_(""))
 	}
-	return Optional_of(strobj_(NodeUtil_getSourceName(constructor.getSource()))).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	return Optional_of(strobj_(NodeUtil_getSourceName(constructor.getSource()))).filter(lambda_J2clChecksPass_getSourceName_1_)
 }
+
+// lambda_J2clChecksPass_getSourceName_1_ is a lambda of J2clChecksPass_getSourceName that captures nothing (post-flip step lambdas).
+var lambda_J2clChecksPass_getSourceName_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *J2clChecksPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))

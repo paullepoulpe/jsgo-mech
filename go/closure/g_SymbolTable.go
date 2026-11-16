@@ -871,25 +871,28 @@ func (this *SymbolTable) addRefsInGoogRequireStatement(n Node, googModuleScopes 
 func (this *SymbolTable) fillGoogProvideModuleRequires(externs Node, root Node) {
 	var declaredNamespaces *TMap[string, *SymbolTable_Symbol] = newTMap_(tc_string, tc_p_SymbolTable_Symbol)
 	var moduleScopes *TMap[string, *SymbolTable_SymbolScope] = newTMap_(tc_string, tc_p_SymbolTable_SymbolScope)
-	var looksLikeGoogCall PredicateOf[Node] = &Predicate_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		if !n.isCall() {
-			return false
-		}
-		var left Node = n.getFirstChild()
-		var arg Node = n.getSecondChild()
-		if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
-			return false
-		}
-		return true
-		panic("unreachable")
-	}}
+	var looksLikeGoogCall PredicateOf[Node] = lambda_SymbolTable_fillGoogProvideModuleRequires_1_
 	var collectModuleScopes NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_3(this, looksLikeGoogCall, declaredNamespaces, moduleScopes)))
 	var processRequireStatements NodeTraversal_Callback = icast_NodeTraversal_Callback(obj_(new_SymbolTable_4(this, looksLikeGoogCall, moduleScopes, declaredNamespaces)))
 	NodeTraversal_traverseRoots(this.compiler_, collectModuleScopes, externs, root)
 	NodeTraversal_traverseRoots(this.compiler_, processRequireStatements, externs, root)
 }
+
+// lambda_SymbolTable_fillGoogProvideModuleRequires_1_ is a lambda of SymbolTable_fillGoogProvideModuleRequires that captures nothing (post-flip step lambdas).
+var lambda_SymbolTable_fillGoogProvideModuleRequires_1_ = &Predicate_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	if !n.isCall() {
+		return false
+	}
+	var left Node = n.getFirstChild()
+	var arg Node = n.getSecondChild()
+	if (!((left.isGetProp() && left.getFirstChild().isName()) && (left.getFirstChild().getString() == "goog")) || (arg == 0)) || !arg.isStringLit() {
+		return false
+	}
+	return true
+	panic("unreachable")
+}}
 
 func (this *SymbolTable) flattenGoogModuleExports() {
 	it_1 := foreach_(any(this.getAllScopes()))
@@ -1502,11 +1505,7 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 		}
 		if (propNodeDecl != 0) && (propNodeDecl.isGetProp() || propNodeDecl.isOptChainGetProp()) {
 			var namespace Node = propNodeDecl.getFirstChild()
-			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, Optional_of(strobj_(namespace.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}))
+			var namespaceSym *SymbolTable_Symbol = this.outer_.getSymbolForName(namespace, Optional_of(strobj_(namespace.getQualifiedName())).filter(lambda_SymbolTable_PropertyRefCollector_maybeDefineTypedReference_1_))
 			if (namespaceSym != nil) && (namespaceSym.getPropertyScope() != nil) {
 				var propSym *SymbolTable_Symbol = namespaceSym.getPropertyScope().getSlot(propName)
 				if (propSym != nil) && (propSym.getDeclarationNode() != n) {
@@ -1528,25 +1527,24 @@ func (this *SymbolTable_PropertyRefCollector) maybeDefineTypedReference(n Node, 
 	return false
 }
 
+// lambda_SymbolTable_PropertyRefCollector_maybeDefineTypedReference_1_ is a lambda of SymbolTable_PropertyRefCollector_maybeDefineTypedReference that captures nothing (post-flip step lambdas).
+var lambda_SymbolTable_PropertyRefCollector_maybeDefineTypedReference_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
 func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isGetProp() || n.isOptChainGetProp() {
 		var owner *JSType = n.getFirstChild().getJSType()
 		if owner != nil {
 			var defined bool = this.maybeDefineTypedReference(n, n.getString(), owner)
 			if defined {
-				this.tryRemoveLexicalQualifiedNameRef(Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}}), n)
+				this.tryRemoveLexicalQualifiedNameRef(Optional_of(strobj_(n.getQualifiedName())).filter(lambda_SymbolTable_PropertyRefCollector_visit_impl_1_), n)
 				return
 			}
 		}
-		this.tryDefineLexicalQualifiedNameRef(Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), n)
+		this.tryDefineLexicalQualifiedNameRef(Optional_of(strobj_(n.getQualifiedName())).filter(lambda_SymbolTable_PropertyRefCollector_visit_impl_2_), n)
 	} else if n.isStringKey() {
 		var owner *JSType = parent.getJSType()
 		if owner != nil {
@@ -1559,6 +1557,20 @@ func (this *SymbolTable_PropertyRefCollector) visit_impl(t *NodeTraversal, n Nod
 		this.tryDefineLexicalQualifiedNameRef(NodeUtil_getBestLValueName(n), n)
 	}
 }
+
+// lambda_SymbolTable_PropertyRefCollector_visit_impl_1_ is a lambda of SymbolTable_PropertyRefCollector_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_SymbolTable_PropertyRefCollector_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_SymbolTable_PropertyRefCollector_visit_impl_2_ is a lambda of SymbolTable_PropertyRefCollector_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_SymbolTable_PropertyRefCollector_visit_impl_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 type SymbolTable_ThisRefCollector struct {
 	NodeTraversal_AbstractScopedCallback

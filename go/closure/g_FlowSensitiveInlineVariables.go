@@ -464,21 +464,7 @@ func (this *FlowSensitiveInlineVariables_Candidate) getNumUseInUseCfgNode(cfgNod
 }
 
 func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope *Scope) bool {
-	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_fn{func(input_ any) bool {
-		var input Node = Node_of_(input_)
-		_ = input
-		switch input.ns_().token {
-		case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_CLASS, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP, tokOrd1_NEW:
-			return true
-		default:
-		}
-		return false
-		panic("unreachable")
-	}}, &Predicate_base_fn{func(input_ any) bool {
-		var input Node = Node_of_(input_)
-		_ = input
-		return !input.isFunction()
-	}}) {
+	if NodeUtil_has(this.def.getLastChild(), lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_, lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_2_) {
 		return false
 	}
 	if NodeUtil_has(this.def.getLastChild(), &Predicate_base_fn{func(input_ any) bool {
@@ -497,6 +483,26 @@ func (this *FlowSensitiveInlineVariables_Candidate) isRhsSafeToInline(usageScope
 	}
 	return true
 }
+
+// lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_ is a lambda of FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline that captures nothing (post-flip step lambdas).
+var lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_1_ = &Predicate_base_fn{func(input_ any) bool {
+	var input Node = Node_of_(input_)
+	_ = input
+	switch input.ns_().token {
+	case tokOrd1_GETELEM, tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP, tokOrd1_OPTCHAIN_GETELEM, tokOrd1_CLASS, tokOrd1_ARRAYLIT, tokOrd1_OBJECTLIT, tokOrd1_REGEXP, tokOrd1_NEW:
+		return true
+	default:
+	}
+	return false
+	panic("unreachable")
+}}
+
+// lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_2_ is a lambda of FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline that captures nothing (post-flip step lambdas).
+var lambda_FlowSensitiveInlineVariables_Candidate_isRhsSafeToInline_2_ = &Predicate_base_fn{func(input_ any) bool {
+	var input Node = Node_of_(input_)
+	_ = input
+	return !input.isFunction()
+}}
 
 type FlowSensitiveInlineVariables_Candidate_1 struct {
 	ControlFlowGraph_AbstractCfgNodeTraversalCallback

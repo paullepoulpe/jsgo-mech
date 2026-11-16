@@ -362,11 +362,7 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	}
 	var name OptionalOf[string] = Optional_empty()
 	if n.isAssign() {
-		name = Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		name = Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(lambda_ReplaceIdGenerators_GatherGenerators_visit_impl_1_)
 	} else if NodeUtil_isNameDeclaration(n) {
 		name = Optional_of(strobj_(n.getFirstChild().getString()))
 	} else if n.isFunction() {
@@ -424,6 +420,13 @@ func (this *ReplaceIdGenerators_GatherGenerators) visit_impl(unused *NodeTravers
 	this.outer_.idGeneratorMaps.put(str_(name.orElse(nil)), icast_Map(obj_(new_LinkedHashMap())))
 }
 
+// lambda_ReplaceIdGenerators_GatherGenerators_visit_impl_1_ is a lambda of ReplaceIdGenerators_GatherGenerators_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ReplaceIdGenerators_GatherGenerators_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
 type ReplaceIdGenerators_ReplaceGenerators struct {
 	NodeTraversal_AbstractPostOrderCallback
 	outer_ *ReplaceIdGenerators
@@ -473,19 +476,25 @@ func (this *ReplaceIdGenerators_ReplaceGenerators) visit_impl(t *NodeTraversal, 
 		}
 	}
 	if n.isCall() {
-		this.maybeReplaceCall(t, n, Optional_of(strobj_(callName)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), nameGenerator)
+		this.maybeReplaceCall(t, n, Optional_of(strobj_(callName)).filter(lambda_ReplaceIdGenerators_ReplaceGenerators_visit_impl_1_), nameGenerator)
 	} else {
-		this.maybeReplaceTaggedTemplateLit(t, n, Optional_of(strobj_(callName)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), nameGenerator)
+		this.maybeReplaceTaggedTemplateLit(t, n, Optional_of(strobj_(callName)).filter(lambda_ReplaceIdGenerators_ReplaceGenerators_visit_impl_2_), nameGenerator)
 	}
 }
+
+// lambda_ReplaceIdGenerators_ReplaceGenerators_visit_impl_1_ is a lambda of ReplaceIdGenerators_ReplaceGenerators_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ReplaceIdGenerators_ReplaceGenerators_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ReplaceIdGenerators_ReplaceGenerators_visit_impl_2_ is a lambda of ReplaceIdGenerators_ReplaceGenerators_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ReplaceIdGenerators_ReplaceGenerators_visit_impl_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ReplaceIdGenerators_ReplaceGenerators) maybeReplaceTaggedTemplateLit(t *NodeTraversal, n Node, callName OptionalOf[string], nameGenerator ReplaceIdGenerators_NameSupplier) {
 	var arg Node = n.getLastChild()

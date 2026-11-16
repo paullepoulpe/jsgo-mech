@@ -71,12 +71,15 @@ func (this *J2clUtilGetDefineRewriterPass) getDefineReplacement(firstExpr Node, 
 }
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineCall(n Node) bool {
-	return (n.isCall() && J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})))
+	return (n.isCall() && J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(lambda_J2clUtilGetDefineRewriterPass_isUtilGetDefineCall_1_)))
 }
+
+// lambda_J2clUtilGetDefineRewriterPass_isUtilGetDefineCall_1_ is a lambda of J2clUtilGetDefineRewriterPass_isUtilGetDefineCall that captures nothing (post-flip step lambdas).
+var lambda_J2clUtilGetDefineRewriterPass_isUtilGetDefineCall_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func J2clUtilGetDefineRewriterPass_isUtilGetDefineMethodName(fnName OptionalOf[string]) bool {
 	return ((fnName.isPresent() && String_endsWith(str_(fnName.get()), ".$getDefine")) && String_contains(str_(fnName.get()), strobj_("Util")))

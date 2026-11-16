@@ -105,22 +105,14 @@ func (this *AngularPass) addNode(n Node) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECTED_FUNCTION_ON_NON_QNAME, []string{}))
 			return
 		}
-		name = Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		name = Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(lambda_AngularPass_addNode_1_)
 		fn = n
 		for fn.isAssign() {
 			fn = fn.getLastChild()
 		}
 		injectAfter = n.getParent()
 	case tokOrd1_FUNCTION:
-		name = Optional_of(strobj_(NodeUtil_getName(n))).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}})
+		name = Optional_of(strobj_(NodeUtil_getName(n))).filter(lambda_AngularPass_addNode_2_)
 		fn = n
 		injectAfter = n
 		if n.getParent().isAssign() && n.getParent().getJSDocInfo().isNgInject() {
@@ -142,11 +134,7 @@ func (this *AngularPass) addNode(n Node) {
 			}()
 			name = Optional_of(strobj_((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString()))))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
-				name = Optional_of(strobj_(NodeUtil_getName(classNode))).filter(&Predicate_fn{func(s_ any) bool {
-					var s string = str_(s_)
-					_ = s
-					return !String_isEmpty(s)
-				}})
+				name = Optional_of(strobj_(NodeUtil_getName(classNode))).filter(lambda_AngularPass_addNode_3_)
 			}
 			fn = n.getFirstChild()
 			injectAfter = NodeUtil_getEnclosingStatement(classNode)
@@ -167,6 +155,27 @@ func (this *AngularPass) addNode(n Node) {
 	Preconditions_checkState(name.isPresent())
 	this.injectables = append(this.injectables, new_AngularPass_NodeContext(str_(name.get()), n, fn, injectAfter))
 }
+
+// lambda_AngularPass_addNode_1_ is a lambda of AngularPass_addNode that captures nothing (post-flip step lambdas).
+var lambda_AngularPass_addNode_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_AngularPass_addNode_2_ is a lambda of AngularPass_addNode that captures nothing (post-flip step lambdas).
+var lambda_AngularPass_addNode_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_AngularPass_addNode_3_ is a lambda of AngularPass_addNode that captures nothing (post-flip step lambdas).
+var lambda_AngularPass_addNode_3_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func AngularPass_getDeclarationRValue(n Node) Node {
 	Preconditions_checkNotNull(n.box_())

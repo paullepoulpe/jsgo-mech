@@ -176,11 +176,7 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 			return
 		}
 		if target.getString() == CheckSideEffects_J2CL_PROTECTOR_FN {
-			Preconditions_checkState_boolean_Object(J2clSourceUtils_isJ2clSourceString(Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}})), strobj_("Only allowed for J2CL code"))
+			Preconditions_checkState_boolean_Object(J2clSourceUtils_isJ2clSourceString(Optional_of(strobj_(n.getSourceFileName())).filter(lambda_CheckSideEffects_StripProtection_visit_impl_1_)), strobj_("Only allowed for J2CL code"))
 			NodeUtil_deleteFunctionCall(n, this.compiler_)
 			return
 		}
@@ -192,6 +188,13 @@ func (this *CheckSideEffects_StripProtection) visit_impl(t *NodeTraversal, n Nod
 		}
 	}
 }
+
+// lambda_CheckSideEffects_StripProtection_visit_impl_1_ is a lambda of CheckSideEffects_StripProtection_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_CheckSideEffects_StripProtection_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 type CheckSideEffects_GetNoSideEffectExterns struct {
 	NodeTraversal_AbstractPostOrderCallback

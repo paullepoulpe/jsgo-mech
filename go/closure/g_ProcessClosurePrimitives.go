@@ -68,11 +68,7 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 			break
 		}
 		var lhs string = n.getFirstFirstChild().getQualifiedName()
-		this.checkPossibleGoogProvideInit(Optional_of(strobj_(lhs)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), n.getFirstChild().getJSDocInfo(), n)
+		this.checkPossibleGoogProvideInit(Optional_of(strobj_(lhs)).filter(lambda_ProcessClosurePrimitives_visit_impl_1_), n.getFirstChild().getJSDocInfo(), n)
 	case tokOrd1_VAR, tokOrd1_CONST, tokOrd1_LET:
 		if !n.getFirstChild().isName() {
 			break
@@ -81,6 +77,13 @@ func (this *ProcessClosurePrimitives) visit_impl(t *NodeTraversal, n Node, paren
 	default:
 	}
 }
+
+// lambda_ProcessClosurePrimitives_visit_impl_1_ is a lambda of ProcessClosurePrimitives_visit_impl that captures nothing (post-flip step lambdas).
+var lambda_ProcessClosurePrimitives_visit_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ProcessClosurePrimitives) checkPossibleGoogProvideInit(namespace OptionalOf[string], info *JSDocInfo, definition Node) {
 	if (info == nil) || definition.isFromExterns() {
@@ -181,11 +184,7 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	var enclosingFnNameNode Node = ProcessClosurePrimitives_getEnclosingDeclNameNode(n)
 	if (enclosingFnNameNode == 0) || !enclosingFnNameNode.isUnscopedQualifiedName() {
 		if has_(this.knownClosureSubclasses, baseContainer) {
-			this.reportBadBaseMethodUse(n, Optional_of(strobj_(baseContainer)).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), "Could not find enclosing method.")
+			this.reportBadBaseMethodUse(n, Optional_of(strobj_(baseContainer)).filter(lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_1_), "Could not find enclosing method.")
 		} else if ProcessClosurePrimitives_baseUsedInClass(n) {
 			var clazz Node = NodeUtil_getEnclosingClass(n)
 			if (clazz.getFirstChild().isName() && (clazz.getFirstChild().getString() == baseContainer)) || (clazz.getSecondChild().isName() && (clazz.getSecondChild().getString() == baseContainer)) {
@@ -202,23 +201,39 @@ func (this *ProcessClosurePrimitives) maybeProcessClassBaseCall(n Node) {
 	}
 	var enclosingQname string = enclosingFnNameNode.getQualifiedName()
 	if !String_contains(enclosingQname, strobj_(".prototype.")) {
-		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of(strobj_(baseContainer)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), n, enclosingFnNameNode)
+		this.rewriteBaseCallInConstructor(enclosingQname, Optional_of(strobj_(baseContainer)).filter(lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_2_), n, enclosingFnNameNode)
 	} else {
-		this.rewriteBaseCallInMethod(Optional_of(strobj_(enclosingQname)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), Optional_of(strobj_(baseContainer)).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), n, enclosingFnNameNode)
+		this.rewriteBaseCallInMethod(Optional_of(strobj_(enclosingQname)).filter(lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_3_), Optional_of(strobj_(baseContainer)).filter(lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_4_), n, enclosingFnNameNode)
 	}
 }
+
+// lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_1_ is a lambda of ProcessClosurePrimitives_maybeProcessClassBaseCall that captures nothing (post-flip step lambdas).
+var lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_2_ is a lambda of ProcessClosurePrimitives_maybeProcessClassBaseCall that captures nothing (post-flip step lambdas).
+var lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_2_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_3_ is a lambda of ProcessClosurePrimitives_maybeProcessClassBaseCall that captures nothing (post-flip step lambdas).
+var lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_3_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
+// lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_4_ is a lambda of ProcessClosurePrimitives_maybeProcessClassBaseCall that captures nothing (post-flip step lambdas).
+var lambda_ProcessClosurePrimitives_maybeProcessClassBaseCall_4_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *ProcessClosurePrimitives) rewriteBaseCallInConstructor(enclosingQname string, baseContainer OptionalOf[string], n Node, enclosingFnNameNode Node) {
 	if !Object_equals(obj_(Optional_of(strobj_(enclosingQname))), obj_(baseContainer)) {

@@ -339,12 +339,15 @@ func (this *QualifiedName_NodeQname) appendTo_impl(sb *StringBuilder, separator 
 }
 
 func (this *QualifiedName_NodeQname) join_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.node_.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	return Optional_of(strobj_(this.node_.getQualifiedName())).filter(lambda_QualifiedName_NodeQname_join_impl_1_)
 }
+
+// lambda_QualifiedName_NodeQname_join_impl_1_ is a lambda of QualifiedName_NodeQname_join_impl that captures nothing (post-flip step lambdas).
+var lambda_QualifiedName_NodeQname_join_impl_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *QualifiedName_NodeQname) matches_impl(n Node) bool {
 	return n.matchesQualifiedNameNode(this.node_)

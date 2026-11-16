@@ -472,11 +472,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		var existingModule *ModuleMetadataMap_ModuleMetadata = this.outer_.modulesByGoogNamespace.get(namespace)
 		if existingModule != nil {
 			existingType = existingModule.moduleType()
-			existingFileSource = Optional_of(strobj_(existingModule.rootNode().getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}})
+			existingFileSource = Optional_of(strobj_(existingModule.rootNode().getSourceFileName())).filter(lambda_GatherModuleMetadata_Finder_addNamespace_1_)
 		}
 	}
 	this.outer_.currentModule.googNamespaces_.add(strobj_(namespace))
@@ -505,3 +501,10 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		panic(new_IllegalStateException_String(("Unexpected module type: " + objstr_(obj_(existingType)))).self())
 	}
 }
+
+// lambda_GatherModuleMetadata_Finder_addNamespace_1_ is a lambda of GatherModuleMetadata_Finder_addNamespace that captures nothing (post-flip step lambdas).
+var lambda_GatherModuleMetadata_Finder_addNamespace_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}

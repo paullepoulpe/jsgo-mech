@@ -93,11 +93,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 			this.moduleType_ = CompilerInput_ModuleType_COMMONJS
 		} else if ProcessCommonJSModules_isCommonJsImport(n, resolutionMode) {
 			var path string = ProcessCommonJSModules_getCommonJsImportPath(n, resolutionMode)
-			var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(path, Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-				var s string = str_(s_)
-				_ = s
-				return !String_isEmpty(s)
-			}}), n.getLineno(), n.getCharno())
+			var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(path, Optional_of(strobj_(n.getSourceFileName())).filter(lambda_FindModuleDependencies_visit_1_), n.getLineno(), n.getCharno())
 			if modulePath != nil {
 				if (this.dynamicImportScope != nil) || ProcessCommonJSModules_isCommonJsDynamicImportCallback(NodeUtil_getEnclosingFunction(n), resolutionMode) {
 					t.getInput().addDynamicRequire(modulePath.toModuleName())
@@ -115,6 +111,13 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 		t.getInput().addOrderedRequire(DependencyInfo_Require_googRequireSymbol(namespace))
 	}
 }
+
+// lambda_FindModuleDependencies_visit_1_ is a lambda of FindModuleDependencies_visit that captures nothing (post-flip step lambdas).
+var lambda_FindModuleDependencies_visit_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *FindModuleDependencies) enterScope(t *NodeTraversal) {
 
@@ -140,11 +143,7 @@ func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraver
 	if isNamespaceImport {
 		return String_substring_int(importName, String_length("goog:"))
 	} else {
-		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-			var s string = str_(s_)
-			_ = s
-			return !String_isEmpty(s)
-		}}), n.getLineno(), n.getCharno())
+		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of(strobj_(n.getSourceFileName())).filter(lambda_FindModuleDependencies_getEs6ModuleNameFromImportNode_1_), n.getLineno(), n.getCharno())
 		if modulePath == nil {
 			modulePath = t.getInput().getPath().resolveModuleAsPath(importName)
 		}
@@ -152,6 +151,13 @@ func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraver
 	}
 	panic("unreachable")
 }
+
+// lambda_FindModuleDependencies_getEs6ModuleNameFromImportNode_1_ is a lambda of FindModuleDependencies_getEs6ModuleNameFromImportNode that captures nothing (post-flip step lambdas).
+var lambda_FindModuleDependencies_getEs6ModuleNameFromImportNode_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *FindModuleDependencies) convertToEs6Module(root Node, skipGoogProvideModuleCheck bool) bool {
 	if Es6RewriteModules_isEs6ModuleRoot(root) {

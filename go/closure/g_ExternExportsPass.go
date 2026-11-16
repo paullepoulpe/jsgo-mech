@@ -59,7 +59,7 @@ func (this *ExternExportsPass) initExportMethods() {
 
 func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
-	var sorted SetOf[*ExternExportsPass_Export] = icast_Set(obj_(new_TreeSet_Comparator(Comparator_comparing(&Function_fn{func(p0 any) any { return strobj_(to_ExternExportsPass_Export(p0).getExportedPath()) }}))))
+	var sorted SetOf[*ExternExportsPass_Export] = icast_Set(obj_(new_TreeSet_Comparator(Comparator_comparing(lambda_ExternExportsPass_process_2_1_))))
 	sorted.addAll(Collection(this.exports.asList()))
 	it_1 := foreach_(any(sorted))
 	for it_1.next() {
@@ -68,6 +68,9 @@ func (this *ExternExportsPass) process_2(externs Node, root Node) {
 	}
 	this.setGeneratedExternsOnCompiler()
 }
+
+// lambda_ExternExportsPass_process_2_1_ is a lambda of ExternExportsPass_process_2 that captures nothing (post-flip step lambdas).
+var lambda_ExternExportsPass_process_2_1_ = &Function_fn{func(p0 any) any { return strobj_(to_ExternExportsPass_Export(p0).getExportedPath()) }}
 
 func (this *ExternExportsPass) setGeneratedExternsOnCompiler() {
 	var builder *CodePrinter_Builder = new_CodePrinter_Builder(this.externsRoot).setPrettyPrint(true).setOutputTypes(true).setTypeRegistry(this.compiler_.getTypeRegistry())

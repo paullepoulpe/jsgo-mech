@@ -264,25 +264,24 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = n
-	this.sourceName_ = Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	this.sourceName_ = Optional_of(strobj_(n.getSourceFileName())).filter(lambda_JSError_Builder_setNode_1_)
 	this.lineno_ = n.getLineno()
 	this.charno_ = n.getCharno()
 	this.length_ = n.getLength()
 	return this
 }
 
+// lambda_JSError_Builder_setNode_1_ is a lambda of JSError_Builder_setNode that captures nothing (post-flip step lambdas).
+var lambda_JSError_Builder_setNode_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
+
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
 	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = start
-	this.sourceName_ = Optional_of(strobj_(this.n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
-		var s string = str_(s_)
-		_ = s
-		return !String_isEmpty(s)
-	}})
+	this.sourceName_ = Optional_of(strobj_(this.n.getSourceFileName())).filter(lambda_JSError_Builder_setNodeRange_1_)
 	this.lineno_ = this.n.getLineno()
 	this.charno_ = this.n.getCharno()
 	var endOffset int32 = end.getSourceOffset()
@@ -292,6 +291,13 @@ func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder
 	}
 	return this
 }
+
+// lambda_JSError_Builder_setNodeRange_1_ is a lambda of JSError_Builder_setNodeRange that captures nothing (post-flip step lambdas).
+var lambda_JSError_Builder_setNodeRange_1_ = &Predicate_fn{func(s_ any) bool {
+	var s string = str_(s_)
+	_ = s
+	return !String_isEmpty(s)
+}}
 
 func (this *JSError_Builder) setLevel(level *CheckLevel) *JSError_Builder {
 	this.level_ = cast_[*CheckLevel](Preconditions_checkNotNull(obj_(level)))

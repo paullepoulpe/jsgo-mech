@@ -300,11 +300,7 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	if cached != nil {
 		return unbox_[bool](cached)
 	}
-	var result bool = NodeUtil_has(fn, &Predicate_base_fn{func(n_ any) bool {
-		var n Node = Node_of_(n_)
-		_ = n
-		return (n.isName() && (n.getString() == "eval"))
-	}}, &Predicate_base_fn{func(n_ any) bool {
+	var result bool = NodeUtil_has(fn, lambda_FunctionInjector_referencesEval_1_, &Predicate_base_fn{func(n_ any) bool {
 		var n Node = Node_of_(n_)
 		_ = n
 		return (!n.isFunction() || Object_equals(n.box_(), fn.box_()))
@@ -312,6 +308,13 @@ func (this *FunctionInjector) referencesEval(fn Node) bool {
 	this.referencesEvalCache[fn] = any(bool(result))
 	return result
 }
+
+// lambda_FunctionInjector_referencesEval_1_ is a lambda of FunctionInjector_referencesEval that captures nothing (post-flip step lambdas).
+var lambda_FunctionInjector_referencesEval_1_ = &Predicate_base_fn{func(n_ any) bool {
+	var n Node = Node_of_(n_)
+	_ = n
+	return (n.isName() && (n.getString() == "eval"))
+}}
 
 func (this *FunctionInjector) innerFunctionOf(containerFn Node) Node {
 	Preconditions_checkState(containerFn.isFunction())
