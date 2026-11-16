@@ -4,7 +4,7 @@ package closure
 
 type AbstractScope struct {
 	self_        AbstractScope_I
-	vars         *TMap[string, *AbstractVar] // nil until the first declaration (Java: an empty ImmutableMap)
+	vars         *scopeVars_ // nil until the first declaration (Java: an empty ImmutableMap)
 	implicitVars MapOf[*AbstractScope_ImplicitVar, any]
 	rootNode_    Node
 }
@@ -113,13 +113,13 @@ func (this *AbstractScope) declareInternal(name string, var_ *AbstractVar) {
 		Preconditions_checkState_boolean_String_Object(false, "Illegal shadow: %s", a1_.box_())
 	}
 	if this.vars == nil {
-		this.vars = newTMap_(tc_string, tc_p_AbstractVar)
+		this.vars = newScopeVars_()
 	}
 	this.vars.put(name, var_)
 }
 
 func (this *AbstractScope) clearVarsInternal() {
-	if this.vars != nil && !this.vars.isEmpty() {
+	if this.vars.size() != 0 {
 		this.vars.clear()
 	}
 }
@@ -129,7 +129,7 @@ func (this *AbstractScope) hasOwnImplicitSlot_impl(name *AbstractScope_ImplicitV
 }
 
 func (this *AbstractScope) hasOwnSlot(name string) bool {
-	return ((this.vars != nil && this.vars.containsKey(name)) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
+	return (this.vars.containsKey(name) || this.hasOwnImplicitSlot(AbstractScope_ImplicitVar_of(name)))
 }
 
 func (this *AbstractScope) hasSlot(name string) bool {
@@ -225,17 +225,11 @@ func (this *AbstractScope) getAllSymbols() IterableOf[any] {
 }
 
 func (this *AbstractScope) getVarCount() int32 {
-	if this.vars == nil {
-		return 0
-	}
 	return this.vars.size()
 }
 
 // ownVar_ is vars.get(name), nil if the scope declares no such variable.
 func (this *AbstractScope) ownVar_(name string) *AbstractVar {
-	if this.vars == nil {
-		return nil
-	}
 	return this.vars.get(name)
 }
 
@@ -244,7 +238,7 @@ func (this *AbstractScope) varValues_() Collection {
 	if this.vars == nil {
 		return Collection(emptyImmList_)
 	}
-	return this.vars.asMap().values()
+	return this.vars.values()
 }
 
 func (this *AbstractScope) isGlobal() bool {
