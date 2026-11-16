@@ -28,6 +28,10 @@ percent between runs, so only ratios within one run are comparable.
 | plus the seven measured hand edits (d12f878..3d4d302) | 1.18x | 1.30x |
 | plus the allocation and lookup steps through 20896bb (3 runs) | **1.045x** (30.1s / 28.8s) | **1.19x** (63.3s / 53.2s) |
 | plus the two CFG steps (2 runs; Java not in that run) | ~1.03x (29.7s) | ~1.16x (61.7s) |
+| plus the SubtypeChecker free list, e86bef7 (3 runs) | 1.025x (29.95s / 29.22s) | 1.14x (61.7s / 54.3s) |
+
+After e86bef7 the commits were measured against the commit before them (below), not against
+Java; together they took bundle -2.7% and typed-full -4.4% (medians, 5 runs).
 
 jsgo, the hand-written port, takes 8.1s on bundle and 18.1s on typed-full on the same machine,
 on one core. It allocates 0.8M objects on bundle where this branch allocates 125M.
@@ -58,6 +62,7 @@ wall-clock time (run-to-run noise is about 2%).
 | TreeMap by string | runtime | a naturally ordered TreeMap of strings is looked up by an unboxed string | typed-full: 4.3M boxed keys fewer |
 | Node keys | runtime | a Node key of a hash table hashes as its handle value | bundle -2.8% |
 | charAt | runtime | ASCII checked eight bytes at a time; the last string index is checked first | typed-full parseInputs 4.9s -> 4.1-4.4s (tracer) |
+| 93ecb59 | runtime | for-each over ArrayDeque, LinkedList and PriorityQueue walks their items, no iterator object | with eb573b6 |
 
 ### Manual steps
 
@@ -89,6 +94,10 @@ nodes (+0.6s), the typed reference list (+0.7s) and the property mask (+0.6s).
 | 20896bb | `varMap_` indexed by slots holding the key's hash; a Var hashes its key once (a field of AbstractVar) | the five passes using it, typed-full (tracer): 17.6s -> 17.2s, 18.4s -> 16.5s |
 | a3cb96f | `LinkedDirectedGraph.createNode` gets or creates a node without a function object | with fbb901b |
 | fbb901b | `ControlFlowAnalysis.createEdge` looks each graph node up once (six lookups before) | the four CFG passes, bundle (tracer): 7.65s -> 6.91s, 6.90s -> 6.70s |
+| e86bef7 | `JSType.isSubtypeOf` takes a SubtypeChecker from a free list on the registry, reset to the constructor's state | typed-full median 68.2s -> 66.3s (5 runs); bundle 33.4s -> 31.7s |
+| eb573b6 | data-flow analysis and CFG prioritization walk a node's edges, not a new list of its neighbours (5.3M lists) | with 93ecb59: bundle 31.0s -> 30.2s, typed-full 65.4s -> 63.6s; objects 125.4M -> 117.8M, 272.1M -> 262.1M |
+| 0788ad4 | NodeTraversal's scope stack is a `[]any` with room for 8 | with bdfed15 |
+| bdfed15 | a ReferenceCollection's list starts with room for four (4.5M growth allocations) | with 0788ad4: typed-full 64.9s -> 63.8s, bundle neutral; objects 262.1M -> 257.8M, 117.8M -> 114.4M |
 
 The allocation batches were measured as batches (interleaved, 3 runs):
 - 13c7e5b..7786eef: bundle 35.1s -> 33.9s (-3.6%), 12M objects fewer.
@@ -108,6 +117,9 @@ Each was measured as neutral or slower and reverted:
 - A source range and its two positions in one allocation: 6.7M objects fewer, but slower.
 - `computeIfAbsent` with a lambda taking a Go function value (25 sites): within noise.
 - A direct priority comparator for the data-flow worklists: neutral.
+- `Optional<String>` holding its string unboxed (runtime `Optional_ofStr_` etc. and the tool
+  step `tools/postflip/optstr/optstr.py`, 1,899 sites; branch `postflip4-wip7`): typed-full
+  2.9M objects fewer, wall time neutral (64.9s -> 65.1s, bundle 30.5s -> 30.7s).
 - GOGC=200 and PGO: against the plan's rules.
 
 ## Where the remaining time goes
@@ -137,7 +149,5 @@ behind them are shared:
 - Type inference: the translated lattice code itself.
 
 Still open:
-- A string-specialized `Optional`: prep step 10's `Optional<String>` boxes the string at 912
-  sites (about 5.5M boxings on typed-full).
 - Scope lookups that do not create empty block scopes: 48% of the 3.3M scopes built on bundle
   are empty.
