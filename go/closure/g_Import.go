@@ -68,17 +68,17 @@ func (this *Import) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.moduleRequest_ == o.moduleRequest_ && this.importName_ == o.importName_ && this.localName_ == o.localName_ && Objects_equals(obj_(this.modulePath_), obj_(o.modulePath_)) && Objects_equals(this.importNode_.box_(), o.importNode_.box_()) && Objects_equals(this.nameNode_.box_(), o.nameNode_.box_())
+	return true && this.moduleRequest_ == o.moduleRequest_ && this.importName_ == o.importName_ && this.localName_ == o.localName_ && this.modulePath_ == o.modulePath_ && this.importNode_ == o.importNode_ && this.nameNode_ == o.nameNode_
 }
 
 func (this *Import) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.moduleRequest_))
-	h = h*31 + Objects_hashCode(strobj_(this.importName_))
-	h = h*31 + Objects_hashCode(strobj_(this.localName_))
-	h = h*31 + Objects_hashCode(obj_(this.modulePath_))
-	h = h*31 + Objects_hashCode(this.importNode_.box_())
-	h = h*31 + Objects_hashCode(this.nameNode_.box_())
+	h = h*31 + objhashStr_(this.moduleRequest_)
+	h = h*31 + objhashStr_(this.importName_)
+	h = h*31 + objhashStr_(this.localName_)
+	h = h*31 + objhashId_(this.modulePath_)
+	h = h*31 + objhashId_(this.importNode_)
+	h = h*31 + objhashId_(this.nameNode_)
 	return h
 }
 

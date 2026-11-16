@@ -100,7 +100,7 @@ func (this *PruningAnalysis) buildGraph() *DiGraph {
 			if depRes.isErr() {
 			} else {
 				var dep *CompilerInput = cast_[*CompilerInput](depRes.get())
-				if !Object_equals(obj_(dep), obj_(input)) {
+				if !equalsId_(dep, input) {
 					graph.connectIfNotFound(strobj_(name), nil, strobj_(dep.getName()))
 				}
 			}
@@ -141,13 +141,13 @@ func (this *PruningAnalysis_Result) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.entryPointDependencyCount_), obj_(o.entryPointDependencyCount_)) && Objects_equals(obj_(this.bottleneckBlame_), obj_(o.bottleneckBlame_))
+	return true && objequalsBy_(this.entryPointDependencyCount_, obj_(o.entryPointDependencyCount_), (ImmutableMapOf[string, BoxedOf[int32]]).equals) && objequalsBy_(this.bottleneckBlame_, obj_(o.bottleneckBlame_), (ImmutableMapOf[string, BoxedOf[int32]]).equals)
 }
 
 func (this *PruningAnalysis_Result) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.entryPointDependencyCount_))
-	h = h*31 + Objects_hashCode(obj_(this.bottleneckBlame_))
+	h = h*31 + objhashBy_(this.entryPointDependencyCount_, (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
+	h = h*31 + objhashBy_(this.bottleneckBlame_, (ImmutableMapOf[string, BoxedOf[int32]]).hashCode)
 	return h
 }
 

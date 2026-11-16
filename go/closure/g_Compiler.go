@@ -198,7 +198,7 @@ func (this *Compiler) createMessageFormatter() MessageFormatter {
 
 func (this *Compiler) initExperimentalOutputFeatureSetOptions(options *CompilerOptions) {
 	var featureSet *FeatureSet = options.getOutputFeatureSet()
-	if Objects_equals(obj_(featureSet), obj_(FeatureSet_ES5)) || Objects_equals(obj_(featureSet), obj_(FeatureSet_ES3)) {
+	if objequalsBy_(featureSet, obj_(FeatureSet_ES5), (*FeatureSet).equals) || objequalsBy_(featureSet, obj_(FeatureSet_ES3), (*FeatureSet).equals) {
 		return
 	}
 	if options.getExperimentalOutputFeatureSet().isPresent() {
@@ -354,7 +354,7 @@ func (this *Compiler) reconcileOptionsWithGuards() {
 	if this.options_.getSkipNonTranspilationPasses() && !this.options_.enables(DiagnosticGroups_MISSING_PROVIDE) {
 		this.options_.setWarningLevel(DiagnosticGroups_MISSING_PROVIDE, CheckLevel_OFF)
 	}
-	if this.options_.shouldDisambiguateProperties() && Object_equals(obj_(this.options_.getWarningsGuard().mustRunChecks(DiagnosticGroups_ARTIFICIAL_FUNCTION_PURITY_VALIDATION)), obj_(Tri_UNKNOWN)) {
+	if this.options_.shouldDisambiguateProperties() && equalsId_(this.options_.getWarningsGuard().mustRunChecks(DiagnosticGroups_ARTIFICIAL_FUNCTION_PURITY_VALIDATION), Tri_UNKNOWN) {
 		this.options_.setWarningLevel(DiagnosticGroups_ARTIFICIAL_FUNCTION_PURITY_VALIDATION, CheckLevel_ERROR)
 	}
 }
@@ -1579,7 +1579,7 @@ func (this *Compiler) parseInputs() Node {
 			}
 			if (this.options_.shouldGatherSourceMapInfo() || this.options_.getExternExportsPath().isPresent()) || !this.options_.getReplaceStringsFunctionDescriptions().isEmpty() {
 				var sia *SourceInformationAnnotator = func() *SourceInformationAnnotator {
-					if Objects_equals(obj_(this.options_.getDevMode()), obj_(CompilerOptions_DevMode_OFF)) {
+					if this.options_.getDevMode() == CompilerOptions_DevMode_OFF {
 						return SourceInformationAnnotator_create()
 					}
 					return SourceInformationAnnotator_createWithAnnotationChecks(input.getName())
@@ -2306,7 +2306,7 @@ func (this *Compiler) getParserConfig_impl(context *AbstractCompiler_ConfigConte
 				}()
 				this.parserConfig = this.createConfig(configLanguageMode, strictMode)
 				this.externsParserConfig = func() *Config {
-					if Object_equals(obj_(configLanguageMode), obj_(Config_LanguageMode_ECMASCRIPT3)) {
+					if equalsId_(configLanguageMode, Config_LanguageMode_ECMASCRIPT3) {
 						return this.createConfig(Config_LanguageMode_ECMASCRIPT5, strictMode)
 					}
 					return this.parserConfig

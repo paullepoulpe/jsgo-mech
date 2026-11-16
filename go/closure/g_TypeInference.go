@@ -2207,12 +2207,12 @@ func (this *TypeInference_1) branchFlow(branch *ControlFlowGraph_Branch) any {
 					return this.outer_.traverseOr(this.condition, this.cap_output)
 				}()
 			}
-			return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionOutcomes.getOutcomeFlowScope(this.condition.getToken(), (branch == ControlFlowGraph_Branch_ON_TRUE)), Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE)))))
+			return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionOutcomes.getOutcomeFlowScope(this.condition.getToken(), (branch == ControlFlowGraph_Branch_ON_TRUE)), Outcome_rhino_forBoolean(equalsId_(branch, ControlFlowGraph_Branch_ON_TRUE))))
 		}
 		if this.conditionFlowScope == nil {
 			this.conditionFlowScope = this.outer_.traverse(this.condition, this.cap_output)
 		}
-		return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionFlowScope, Outcome_rhino_forBoolean(Object_equals(obj_(branch), obj_(ControlFlowGraph_Branch_ON_TRUE)))))
+		return any(this.outer_.reverseInterpreter.getPreciserScopeKnowingConditionOutcome(this.condition, this.conditionFlowScope, Outcome_rhino_forBoolean(equalsId_(branch, ControlFlowGraph_Branch_ON_TRUE))))
 	default:
 		return any(this.cap_output)
 	}

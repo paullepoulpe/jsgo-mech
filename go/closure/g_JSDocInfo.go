@@ -1266,7 +1266,7 @@ func (this *JSDocInfo_TypeMapProperty) equalValues_impl(left_ any, right_ any) b
 }
 
 func (this *JSDocInfo_TypeMapProperty) areEquivalent(expr1 *JSTypeExpression, expr2 *JSTypeExpression) bool {
-	return (Objects_equals(obj_(expr1), obj_(expr2)) || ((expr1 != nil) && expr1.isEquivalentTo(expr2)))
+	return (expr1 == expr2 || ((expr1 != nil) && expr1.isEquivalentTo(expr2)))
 }
 
 func (this *JSDocInfo_TypeMapProperty) getTypeExpressions_impl(map__ any) IterableOf[*JSTypeExpression] {

@@ -351,10 +351,10 @@ func (this *AstAnalyzer_Options) equals(p0 any) bool {
 
 func (this *AstAnalyzer_Options) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.useTypesForLocalOptimization_)))
-	h = h*31 + Objects_hashCode(any(bool(this.assumeGettersArePure_)))
-	h = h*31 + Objects_hashCode(any(bool(this.hasRegexpGlobalReferences_)))
-	h = h*31 + Objects_hashCode(any(bool(this.assumeKnownBuiltinsArePure_)))
+	h = h*31 + Boolean_hashCode(bool(this.useTypesForLocalOptimization_))
+	h = h*31 + Boolean_hashCode(bool(this.assumeGettersArePure_))
+	h = h*31 + Boolean_hashCode(bool(this.hasRegexpGlobalReferences_))
+	h = h*31 + Boolean_hashCode(bool(this.assumeKnownBuiltinsArePure_))
 	return h
 }
 

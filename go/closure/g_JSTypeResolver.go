@@ -55,14 +55,14 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClas
 }
 
 func (this *JSTypeResolver) openForDefinition() *JSTypeResolver_Closer {
-	Preconditions_checkState(Object_equals(obj_(this.state), obj_(JSTypeResolver_State_CLOSED)))
+	Preconditions_checkState(equalsId_(this.state, JSTypeResolver_State_CLOSED))
 	Preconditions_checkState(this.captureStack.isEmpty())
 	this.state = JSTypeResolver_State_OPEN
 	return new_JSTypeResolver_Closer(this)
 }
 
 func (this *JSTypeResolver) resolveAll() {
-	Preconditions_checkState(Object_equals(obj_(this.state), obj_(JSTypeResolver_State_OPEN)))
+	Preconditions_checkState(equalsId_(this.state, JSTypeResolver_State_OPEN))
 	Preconditions_checkState(this.captureStack.isEmpty())
 	this.state = JSTypeResolver_State_CLOSING
 	for !this.resolutionQueue.isEmpty() {
@@ -87,7 +87,7 @@ func (this *JSTypeResolver) doResolve(type_ *JSType) {
 }
 
 func (this *JSTypeResolver) assertLegalToResolveTypes() {
-	Preconditions_checkState_boolean_Object(!Object_equals(obj_(this.state), obj_(JSTypeResolver_State_OPEN)), strobj_("Types cannot be resolved while the registry is open"))
+	Preconditions_checkState_boolean_Object(!equalsId_(this.state, JSTypeResolver_State_OPEN), strobj_("Types cannot be resolved while the registry is open"))
 }
 
 type JSTypeResolver_Closer struct {

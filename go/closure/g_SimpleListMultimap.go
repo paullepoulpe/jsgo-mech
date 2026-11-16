@@ -150,7 +150,7 @@ func (this *SimpleListMultimap) equals(o any) bool {
 		}
 		that = cast_[*SimpleListMultimap](v_)
 		return true
-	}() && Object_equals(obj_(this.map__), obj_(that.map__)))
+	}() && equalsBy_(this.map__, obj_(that.map__), (LinkedHashMapOf[any, ListOf[any]]).equals))
 }
 
 func (this *SimpleListMultimap) hashCode() int32 {

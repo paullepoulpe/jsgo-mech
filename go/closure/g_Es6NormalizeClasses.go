@@ -455,7 +455,7 @@ func (this *Es6NormalizeClasses) rewritePrivateMemberAccess(t *NodeTraversal, ge
 		}
 		return 0
 	}()
-	var isDirectCall bool = ((parent.isCall() || parent.isOptChainCall()) && Objects_equals(parent.getFirstChild().box_(), getPropNode.box_()))
+	var isDirectCall bool = ((parent.isCall() || parent.isOptChainCall()) && parent.getFirstChild() == getPropNode)
 	if isDirectCall {
 		var isOptionalCall bool = (parent.isOptChainCall() && parent.isOptionalChainStart())
 		parent.setIsOptionalChainStart(false)
@@ -551,7 +551,7 @@ func (this *Es6NormalizeClasses) wrapOptionalChainStartIfNecessary(receiver Node
 		}
 		return accessExpr
 	}()
-	if !Objects_equals(segmentRoot.box_(), accessExpr.box_()) {
+	if segmentRoot != accessExpr {
 		NodeUtil_convertToNonOptionalChainSegmentDownTo(segmentRoot, accessExpr)
 	}
 	var placeholder Node = IR_empty()
@@ -565,7 +565,7 @@ func (this *Es6NormalizeClasses) wrapOptionalChainStartIfNecessary(receiver Node
 	var hookParent Node = hook.getParent()
 	if (hookParent != 0) && (hookParent.isCall() || hookParent.isOptChainCall()) {
 		hook.setIsParenthesized(true)
-		if Objects_equals(hookParent.getFirstChild().box_(), hook.box_()) {
+		if hookParent.getFirstChild() == hook {
 			hookParent.putBooleanProp(Node_FREE_CALL, true)
 		}
 	}
@@ -647,7 +647,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 					target = this.astFactory_.createPrototypeAccess(record.createNewSuperclassReferenceNode()).srcrefTree(n)
 				}
 				var grandParent Node = parent.getParent()
-				if ((grandParent != 0) && grandParent.isCall()) && Objects_equals(grandParent.getFirstChild().box_(), parent.box_()) {
+				if ((grandParent != 0) && grandParent.isCall()) && grandParent.getFirstChild() == parent {
 					n.replaceWith(target)
 					if !isStatic || !this.compiler_.getOptions().getAssumeStaticInheritanceIsNotUsed() {
 						var callCallee Node = this.astFactory_.createGetPropWithUnknownType(parent.detach(), "call")
@@ -655,7 +655,7 @@ func (this *Es6NormalizeClasses) rewriteSuperReferencesInPrivateMember(memberNod
 						var thisArg Node = this.astFactory_.createThis(AstFactory_typeColor(StandardColors_UNKNOWN)).srcref(n)
 						thisArg.insertAfter(callCallee)
 					}
-				} else if ((grandParent != 0) && grandParent.isAssign()) && Objects_equals(grandParent.getFirstChild().box_(), parent.box_()) {
+				} else if ((grandParent != 0) && grandParent.isAssign()) && grandParent.getFirstChild() == parent {
 					var rhs Node = grandParent.getSecondChild().detach()
 					var propKey Node = func() Node {
 						if parent.isGetProp() {
@@ -1360,13 +1360,13 @@ func (this *Es6NormalizeClasses_ResolvedPrivateMember) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.classRecord_), obj_(o.classRecord_)) && Objects_equals(obj_(this.privateMember_), obj_(o.privateMember_))
+	return true && this.classRecord_ == o.classRecord_ && this.privateMember_ == o.privateMember_
 }
 
 func (this *Es6NormalizeClasses_ResolvedPrivateMember) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.classRecord_))
-	h = h*31 + Objects_hashCode(obj_(this.privateMember_))
+	h = h*31 + objhashId_(this.classRecord_)
+	h = h*31 + objhashId_(this.privateMember_)
 	return h
 }
 
@@ -1721,15 +1721,15 @@ func (this *Es6NormalizeClasses_NormalizedNames) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.classNameNode_.box_(), o.classNameNode_.box_()) && Objects_equals(obj_(optErase_(this.superClassNode_)), obj_(optErase_(o.superClassNode_))) && this.shouldExtractClass_ == o.shouldExtractClass_ && this.shouldExtractExtends_ == o.shouldExtractExtends_
+	return true && this.classNameNode_ == o.classNameNode_ && Objects_equals(obj_(optErase_(this.superClassNode_)), obj_(optErase_(o.superClassNode_))) && this.shouldExtractClass_ == o.shouldExtractClass_ && this.shouldExtractExtends_ == o.shouldExtractExtends_
 }
 
 func (this *Es6NormalizeClasses_NormalizedNames) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.classNameNode_.box_())
+	h = h*31 + objhashId_(this.classNameNode_)
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.superClassNode_)))
-	h = h*31 + Objects_hashCode(any(bool(this.shouldExtractClass_)))
-	h = h*31 + Objects_hashCode(any(bool(this.shouldExtractExtends_)))
+	h = h*31 + Boolean_hashCode(bool(this.shouldExtractClass_))
+	h = h*31 + Boolean_hashCode(bool(this.shouldExtractExtends_))
 	return h
 }
 

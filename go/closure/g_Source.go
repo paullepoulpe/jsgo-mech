@@ -104,18 +104,18 @@ func (this *Source) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && Objects_equals(obj_(this.runtimes_), obj_(o.runtimes_)) && Objects_equals(obj_(this.loadFlags_), obj_(o.loadFlags_)) && this.estimatedSize_ == o.estimatedSize_ && Objects_equals(this.codeSupplier_.self(), o.codeSupplier_.self()) && Objects_equals(this.originalCodeSupplier_.self(), o.originalCodeSupplier_.self())
+	return true && this.path_ == o.path_ && this.sourceMap_ == o.sourceMap_ && this.sourceUrl_ == o.sourceUrl_ && this.sourceMappingUrl_ == o.sourceMappingUrl_ && Objects_equals(obj_(this.runtimes_), obj_(o.runtimes_)) && objequalsBy_(this.loadFlags_, obj_(o.loadFlags_), (ImmutableMapOf[string, string]).equals) && this.estimatedSize_ == o.estimatedSize_ && Objects_equals(this.codeSupplier_.self(), o.codeSupplier_.self()) && Objects_equals(this.originalCodeSupplier_.self(), o.originalCodeSupplier_.self())
 }
 
 func (this *Source) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.path_))
-	h = h*31 + Objects_hashCode(strobj_(this.sourceMap_))
-	h = h*31 + Objects_hashCode(strobj_(this.sourceUrl_))
-	h = h*31 + Objects_hashCode(strobj_(this.sourceMappingUrl_))
+	h = h*31 + objhashStr_(this.path_)
+	h = h*31 + objhashStr_(this.sourceMap_)
+	h = h*31 + objhashStr_(this.sourceUrl_)
+	h = h*31 + objhashStr_(this.sourceMappingUrl_)
 	h = h*31 + Objects_hashCode(obj_(this.runtimes_))
-	h = h*31 + Objects_hashCode(obj_(this.loadFlags_))
-	h = h*31 + Objects_hashCode(any(int32(this.estimatedSize_)))
+	h = h*31 + objhashBy_(this.loadFlags_, (ImmutableMapOf[string, string]).hashCode)
+	h = h*31 + int32(this.estimatedSize_)
 	h = h*31 + Objects_hashCode(this.codeSupplier_.self())
 	h = h*31 + Objects_hashCode(this.originalCodeSupplier_.self())
 	return h

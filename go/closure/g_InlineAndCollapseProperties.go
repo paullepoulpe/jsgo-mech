@@ -642,7 +642,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) inlineGlobalAli
 		if aliasingName == nil {
 			return
 		}
-		if Object_equals(obj_(name), obj_(aliasingName)) && aliasParent.isAssign() {
+		if equalsId_(name, aliasingName) && aliasParent.isAssign() {
 			return
 		}
 		var aliasInlinability *GlobalNamespace_Inlinability = aliasingName.calculateInlinability()
@@ -686,7 +686,7 @@ func (this *InlineAndCollapseProperties_AggressiveInlineAliases) rewriteAliasRef
 	}()
 	for _, ref := range refs {
 		if ref.isSetFromGlobal() {
-			if !(Object_equals(obj_(ref.getChunk()), obj_(initializationChunk)) || ref.isUninitializedDeclaration()) {
+			if !(equalsId_(ref.getChunk(), initializationChunk) || ref.isUninitializedDeclaration()) {
 				Preconditions_checkState_boolean_Object(false, obj_(ref))
 			}
 			continue

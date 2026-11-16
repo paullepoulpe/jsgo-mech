@@ -227,7 +227,7 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 	if JSCompObjects_identical(left.self(), right.self()) {
 		return true
 	}
-	if !Objects_equals(obj_(left.getKind()), obj_(right.getKind())) {
+	if left.getKind() != right.getKind() {
 		return false
 	}
 	return func() bool {
@@ -235,7 +235,7 @@ func (this *EqualityChecker) areFunctionEqual(left *FunctionType, right *Functio
 		case FunctionType_Kind_CONSTRUCTOR, FunctionType_Kind_INTERFACE:
 			return false
 		case FunctionType_Kind_ORDINARY:
-			return ((this.areEqualCaching(left.getTypeOfThis(), right.getTypeOfThis()) && this.areEqualCaching(left.getInternalArrowType().up_JSType(), right.getInternalArrowType().up_JSType())) && Objects_equals(obj_(left.getClosurePrimitive()), obj_(right.getClosurePrimitive())))
+			return ((this.areEqualCaching(left.getTypeOfThis(), right.getTypeOfThis()) && this.areEqualCaching(left.getInternalArrowType().up_JSType(), right.getInternalArrowType().up_JSType())) && left.getClosurePrimitive() == right.getClosurePrimitive())
 		default:
 			panic(new_AssertionError_0().self())
 		}

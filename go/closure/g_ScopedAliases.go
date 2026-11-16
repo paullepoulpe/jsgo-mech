@@ -191,7 +191,7 @@ func new_ScopedAliases_InvalidModuleGetHandling(name_ string, ordinal_ int32) *S
 }
 
 func (this *ScopedAliases_InvalidModuleGetHandling) shouldGiveUniqueName() bool {
-	return Object_equals(obj_(this), obj_(ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME))
+	return this == ScopedAliases_InvalidModuleGetHandling_GIVE_UNIQUE_NAME
 }
 
 func ScopedAliases_InvalidModuleGetHandling_values() []*ScopedAliases_InvalidModuleGetHandling {

@@ -378,14 +378,14 @@ func (this *GlobalNamespace_SimpleAstChange) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(this.node_.box_(), o.node_.box_()) && Objects_equals(obj_(this.chunk_), obj_(o.chunk_)) && Objects_equals(obj_(this.scope_), obj_(o.scope_))
+	return true && this.node_ == o.node_ && this.chunk_ == o.chunk_ && this.scope_ == o.scope_
 }
 
 func (this *GlobalNamespace_SimpleAstChange) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(this.node_.box_())
-	h = h*31 + Objects_hashCode(obj_(this.chunk_))
-	h = h*31 + Objects_hashCode(obj_(this.scope_))
+	h = h*31 + objhashId_(this.node_)
+	h = h*31 + objhashId_(this.chunk_)
+	h = h*31 + objhashId_(this.scope_)
 	return h
 }
 
@@ -430,13 +430,13 @@ func (this *GlobalNamespace_RefBasedAstChange) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.ref_), obj_(o.ref_)) && Objects_equals(this.node_.box_(), o.node_.box_())
+	return true && this.ref_ == o.ref_ && this.node_ == o.node_
 }
 
 func (this *GlobalNamespace_RefBasedAstChange) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.ref_))
-	h = h*31 + Objects_hashCode(this.node_.box_())
+	h = h*31 + objhashId_(this.ref_)
+	h = h*31 + objhashId_(this.node_)
 	return h
 }
 
@@ -1083,7 +1083,7 @@ func (this *GlobalNamespace_Name) init_GlobalNamespace_Name(name string, parent 
 	this.parent = parent
 	this.setBooleanProperty(GlobalNamespace_NameProp_NOT_A_TYPE)
 	this.setBooleanProperty(GlobalNamespace_NameProp_OTHER_OBJECT)
-	if Object_equals(obj_(sourceKind), obj_(GlobalNamespace_SourceKind_EXTERN)) {
+	if equalsId_(sourceKind, GlobalNamespace_SourceKind_EXTERN) {
 		this.setBooleanProperty(GlobalNamespace_NameProp_IS_EXTERN)
 	}
 }
@@ -1292,7 +1292,7 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 			this.firstDeclarationJSDocInfo = this.getDocInfoForDeclaration(ref)
 		}
 		this.globalSets++
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL) {
 			this.aliasingGets++
 			this.totalGets++
 		}
@@ -1307,7 +1307,7 @@ func (this *GlobalNamespace_Name) updateStateForAddedRef(ref *GlobalNamespace_Re
 		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse++
 		}
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
 			this.aliasingGets++
 			this.totalGets++
 		}
@@ -1409,7 +1409,7 @@ func (this *GlobalNamespace_Name) removeRefAndUpdateState(ref *GlobalNamespace_R
 		if (info != nil) && info.isNoCollapse() {
 			this.localSetsWithNoCollapse--
 		}
-		if Object_equals(obj_(ref.type__), obj_(GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL)) {
+		if equalsId_(ref.type__, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_LOCAL) {
 			this.aliasingGets--
 			this.totalGets--
 		}
@@ -1557,7 +1557,7 @@ L_2:
 		var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](it_1.v)
 		switch ref.type__ {
 		case GlobalNamespace_Ref_Type_SET_FROM_GLOBAL, GlobalNamespace_Ref_Type_GET_AND_SET_FROM_GLOBAL:
-			if !(ref.isUninitializedDeclaration() || Object_equals(obj_(ref.getChunk()), obj_(initialChunk))) {
+			if !(ref.isUninitializedDeclaration() || equalsId_(ref.getChunk(), initialChunk)) {
 				Preconditions_checkState_boolean_Object(false, obj_(ref))
 			}
 			continue L_2
@@ -2249,13 +2249,13 @@ func (this *GlobalNamespace_ObjLitStringKeyAnalysis) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(optErase_(this.nameString_)), obj_(optErase_(o.nameString_))) && Objects_equals(obj_(this.nameType_), obj_(o.nameType_))
+	return true && Objects_equals(obj_(optErase_(this.nameString_)), obj_(optErase_(o.nameString_))) && this.nameType_ == o.nameType_
 }
 
 func (this *GlobalNamespace_ObjLitStringKeyAnalysis) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.nameString_)))
-	h = h*31 + Objects_hashCode(obj_(this.nameType_))
+	h = h*31 + objhashId_(this.nameType_)
 	return h
 }
 

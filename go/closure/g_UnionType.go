@@ -179,7 +179,7 @@ func (this *UnionType) testForEquality_impl(that *JSType) *Tri {
 		var test *Tri = t.testForEquality(that)
 		if result == nil {
 			result = test
-		} else if !Object_equals(obj_(result), obj_(test)) {
+		} else if !equalsId_(result, test) {
 			return Tri_UNKNOWN
 		}
 	}

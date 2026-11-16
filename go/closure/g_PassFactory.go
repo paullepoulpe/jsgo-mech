@@ -114,10 +114,10 @@ func (this *PassFactory) equals(p0 any) bool {
 
 func (this *PassFactory) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.getName_))
+	h = h*31 + objhashStr_(this.getName_)
 	h = h*31 + Objects_hashCode(any(this.getCondition_))
 	h = h*31 + Objects_hashCode(any(this.getPreconditionCheck_))
-	h = h*31 + Objects_hashCode(any(bool(this.isRunInFixedPointLoop_)))
+	h = h*31 + Boolean_hashCode(bool(this.isRunInFixedPointLoop_))
 	h = h*31 + Objects_hashCode(any(this.getInternalFactory_))
 	return h
 }
@@ -156,7 +156,7 @@ func (this *PassFactory_PreconditionResult) equals(p0 any) bool {
 
 func (this *PassFactory_PreconditionResult) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.success_)))
+	h = h*31 + Boolean_hashCode(bool(this.success_))
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.message_)))
 	return h
 }

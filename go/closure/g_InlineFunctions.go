@@ -402,7 +402,7 @@ func InlineFunctions_checkOptimizationLevelSupportsRequireInlining(options *Comp
 	if options.getInstrumentForCoverageOption() != CompilerOptions_InstrumentOption_NONE {
 		problems = append(problems, "instrumentForCoverageOption enabled")
 	}
-	if !Object_equals(obj_(options.getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) {
+	if !equalsId_(options.getPropertyCollapseLevel(), CompilerOptions_PropertyCollapseLevel_ALL) {
 		problems = append(problems, "missing property collapsing")
 	}
 	if !options.shouldRemoveClosureAsserts() {
@@ -743,7 +743,7 @@ func (this *InlineFunctions_Inline) inlineFunction(t *NodeTraversal, ref *Inline
 	var fnName string = fn.getName()
 	var fnNode Node = functionState.getSafeFnNode()
 	var newExpr Node = this.injector.inline(ref.up_FunctionInjector_Reference(), Optional_of[string](fnName), fnNode)
-	if !Object_equals(newExpr.box_(), ref.callNode_.box_()) {
+	if !equalsId_(newExpr, ref.callNode_) {
 		t.getCompiler().reportChangeToEnclosingScope(newExpr)
 	}
 }
@@ -1351,8 +1351,8 @@ func (this *InlineFunctions_ShouldRequireInlining) equals(p0 any) bool {
 
 func (this *InlineFunctions_ShouldRequireInlining) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.shouldValidate_)))
-	h = h*31 + Objects_hashCode(strobj_(this.optMessage_))
+	h = h*31 + Boolean_hashCode(bool(this.shouldValidate_))
+	h = h*31 + objhashStr_(this.optMessage_)
 	return h
 }
 

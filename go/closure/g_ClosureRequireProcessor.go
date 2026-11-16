@@ -147,14 +147,14 @@ func (this *ClosureRequireProcessor_Require) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.localName_ == o.localName_ && Objects_equals(obj_(this.importRecord_), obj_(o.importRecord_)) && Objects_equals(obj_(this.createdBy_), obj_(o.createdBy_))
+	return true && this.localName_ == o.localName_ && objequalsBy_(this.importRecord_, obj_(o.importRecord_), (*Import).equals) && this.createdBy_ == o.createdBy_
 }
 
 func (this *ClosureRequireProcessor_Require) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.localName_))
-	h = h*31 + Objects_hashCode(obj_(this.importRecord_))
-	h = h*31 + Objects_hashCode(obj_(this.createdBy_))
+	h = h*31 + objhashStr_(this.localName_)
+	h = h*31 + objhashBy_(this.importRecord_, (*Import).hashCode)
+	h = h*31 + objhashId_(this.createdBy_)
 	return h
 }
 

@@ -115,7 +115,7 @@ func (this *RescopeGlobalSymbolsInfo) equals(p0 any) bool {
 
 func (this *RescopeGlobalSymbolsInfo) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.globalSymbolNamespace_))
+	h = h*31 + objhashStr_(this.globalSymbolNamespace_)
 	h = h*31 + Objects_hashCode(obj_(this.externNames_))
 	h = h*31 + Objects_hashCode(obj_(this.crossChunkNames_))
 	h = h*31 + Objects_hashCode(obj_(this.crossChunkNamesWithWriteFromOtherChunk_))

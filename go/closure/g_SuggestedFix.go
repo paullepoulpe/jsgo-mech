@@ -715,10 +715,10 @@ func (this *SuggestedFix_MatchedNodeInfo) equals(p0 any) bool {
 
 func (this *SuggestedFix_MatchedNodeInfo) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.sourceFilename_))
-	h = h*31 + Objects_hashCode(any(int32(this.lineno_)))
-	h = h*31 + Objects_hashCode(any(int32(this.charno_)))
-	h = h*31 + Objects_hashCode(any(bool(this.inClosurizedFile_)))
+	h = h*31 + objhashStr_(this.sourceFilename_)
+	h = h*31 + int32(this.lineno_)
+	h = h*31 + int32(this.charno_)
+	h = h*31 + Boolean_hashCode(bool(this.inClosurizedFile_))
 	return h
 }
 

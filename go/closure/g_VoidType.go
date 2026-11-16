@@ -44,7 +44,7 @@ func (this *VoidType) restrictByNotUndefined_impl() *JSType {
 }
 
 func (this *VoidType) testForEquality_impl(that *JSType) *Tri {
-	if Object_equals(obj_(Tri_UNKNOWN), obj_(this.ValueType.testForEquality_impl(that))) {
+	if equalsId_(Tri_UNKNOWN, this.ValueType.testForEquality_impl(that)) {
 		return Tri_UNKNOWN
 	}
 	if that.isSubtypeOf(this.up_JSType()) || that.isSubtypeOf(this.getNativeType(JSTypeNative_NULL_TYPE)) {

@@ -67,16 +67,16 @@ func (this *Module) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.metadata_), obj_(o.metadata_)) && Objects_equals(obj_(this.path_), obj_(o.path_)) && Objects_equals(obj_(this.namespace_), obj_(o.namespace_)) && Objects_equals(obj_(this.boundNames_), obj_(o.boundNames_)) && Objects_equals(obj_(this.localNameToLocalExport_), obj_(o.localNameToLocalExport_)) && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_)))
+	return true && objequalsBy_(this.metadata_, obj_(o.metadata_), (*ModuleMetadataMap_ModuleMetadata).equals) && this.path_ == o.path_ && objequalsBy_(this.namespace_, obj_(o.namespace_), (ImmutableMapOf[string, *Binding]).equals) && objequalsBy_(this.boundNames_, obj_(o.boundNames_), (ImmutableMapOf[string, *Binding]).equals) && objequalsBy_(this.localNameToLocalExport_, obj_(o.localNameToLocalExport_), (ImmutableMapOf[string, *Export]).equals) && Objects_equals(obj_(optErase_(this.closureNamespace_)), obj_(optErase_(o.closureNamespace_)))
 }
 
 func (this *Module) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.metadata_))
-	h = h*31 + Objects_hashCode(obj_(this.path_))
-	h = h*31 + Objects_hashCode(obj_(this.namespace_))
-	h = h*31 + Objects_hashCode(obj_(this.boundNames_))
-	h = h*31 + Objects_hashCode(obj_(this.localNameToLocalExport_))
+	h = h*31 + objhashBy_(this.metadata_, (*ModuleMetadataMap_ModuleMetadata).hashCode)
+	h = h*31 + objhashId_(this.path_)
+	h = h*31 + objhashBy_(this.namespace_, (ImmutableMapOf[string, *Binding]).hashCode)
+	h = h*31 + objhashBy_(this.boundNames_, (ImmutableMapOf[string, *Binding]).hashCode)
+	h = h*31 + objhashBy_(this.localNameToLocalExport_, (ImmutableMapOf[string, *Export]).hashCode)
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.closureNamespace_)))
 	return h
 }

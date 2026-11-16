@@ -47,8 +47,8 @@ func (this *SerializationOptions) equals(p0 any) bool {
 
 func (this *SerializationOptions) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.includeDebugInfo_)))
-	h = h*31 + Objects_hashCode(any(bool(this.runValidation_)))
+	h = h*31 + Boolean_hashCode(bool(this.includeDebugInfo_))
+	h = h*31 + Boolean_hashCode(bool(this.runValidation_))
 	h = h*31 + Objects_hashCode(obj_(this.runtimeLibraries_))
 	return h
 }

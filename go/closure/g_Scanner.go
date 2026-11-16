@@ -1265,5 +1265,5 @@ func (this *Scanner_SkipTemplateCharactersResult) hasMessage() bool {
 }
 
 func (this *Scanner_SkipTemplateCharactersResult) hasError() bool {
-	return Objects_equals(obj_(this.errorLevel), obj_(TemplateLiteralToken_ErrorLevel_ERROR))
+	return this.errorLevel == TemplateLiteralToken_ErrorLevel_ERROR
 }

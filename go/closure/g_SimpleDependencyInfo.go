@@ -97,19 +97,19 @@ func (this *SimpleDependencyInfo) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && Objects_equals(obj_(this.getProvides_), obj_(o.getProvides_)) && Objects_equals(obj_(this.getRequires_), obj_(o.getRequires_)) && Objects_equals(obj_(this.getTypeRequires_), obj_(o.getTypeRequires_)) && Objects_equals(obj_(this.getLoadFlags_), obj_(o.getLoadFlags_)) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
+	return true && this.getName_ == o.getName_ && this.getPathRelativeToClosureBase_ == o.getPathRelativeToClosureBase_ && Objects_equals(obj_(this.getProvides_), obj_(o.getProvides_)) && Objects_equals(obj_(this.getRequires_), obj_(o.getRequires_)) && Objects_equals(obj_(this.getTypeRequires_), obj_(o.getTypeRequires_)) && objequalsBy_(this.getLoadFlags_, obj_(o.getLoadFlags_), (ImmutableMapOf[string, string]).equals) && this.getHasExternsAnnotation_ == o.getHasExternsAnnotation_ && this.getHasNoCompileAnnotation_ == o.getHasNoCompileAnnotation_
 }
 
 func (this *SimpleDependencyInfo) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.getName_))
-	h = h*31 + Objects_hashCode(strobj_(this.getPathRelativeToClosureBase_))
+	h = h*31 + objhashStr_(this.getName_)
+	h = h*31 + objhashStr_(this.getPathRelativeToClosureBase_)
 	h = h*31 + Objects_hashCode(obj_(this.getProvides_))
 	h = h*31 + Objects_hashCode(obj_(this.getRequires_))
 	h = h*31 + Objects_hashCode(obj_(this.getTypeRequires_))
-	h = h*31 + Objects_hashCode(obj_(this.getLoadFlags_))
-	h = h*31 + Objects_hashCode(any(bool(this.getHasExternsAnnotation_)))
-	h = h*31 + Objects_hashCode(any(bool(this.getHasNoCompileAnnotation_)))
+	h = h*31 + objhashBy_(this.getLoadFlags_, (ImmutableMapOf[string, string]).hashCode)
+	h = h*31 + Boolean_hashCode(bool(this.getHasExternsAnnotation_))
+	h = h*31 + Boolean_hashCode(bool(this.getHasNoCompileAnnotation_))
 	return h
 }
 

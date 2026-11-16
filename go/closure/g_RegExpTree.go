@@ -2000,14 +2000,14 @@ func (this *RegExpTree_DecomposedCharset) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.inverted_ == o.inverted_ && Objects_equals(obj_(this.ranges_), obj_(o.ranges_)) && this.namedGroups_ == o.namedGroups_
+	return true && this.inverted_ == o.inverted_ && objequalsBy_(this.ranges_, obj_(o.ranges_), (*CharRanges).equals) && this.namedGroups_ == o.namedGroups_
 }
 
 func (this *RegExpTree_DecomposedCharset) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(any(bool(this.inverted_)))
-	h = h*31 + Objects_hashCode(obj_(this.ranges_))
-	h = h*31 + Objects_hashCode(strobj_(this.namedGroups_))
+	h = h*31 + Boolean_hashCode(bool(this.inverted_))
+	h = h*31 + objhashBy_(this.ranges_, (*CharRanges).hashCode)
+	h = h*31 + objhashStr_(this.namedGroups_)
 	return h
 }
 

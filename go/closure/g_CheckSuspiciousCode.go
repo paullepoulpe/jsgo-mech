@@ -141,7 +141,7 @@ func (this *CheckSuspiciousCode) getBooleanValueWithTypes(n Node) *Tri {
 		var trueValue *Tri = this.getBooleanValueWithTypes(n.getSecondChild())
 		var falseValue *Tri = this.getBooleanValueWithTypes(n.getLastChild())
 		return func() *Tri {
-			if Object_equals(obj_(trueValue), obj_(falseValue)) {
+			if equalsId_(trueValue, falseValue) {
 				return trueValue
 			}
 			return Tri_UNKNOWN

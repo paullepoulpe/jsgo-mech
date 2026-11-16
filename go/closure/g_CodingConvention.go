@@ -267,15 +267,15 @@ func (this *CodingConvention_AssertionFunctionSpec) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(optErase_(this.getFunctionName_)), obj_(optErase_(o.getFunctionName_))) && Objects_equals(obj_(this.getClosurePrimitive_), obj_(o.getClosurePrimitive_)) && Objects_equals(obj_(this.getAssertionKind_), obj_(o.getAssertionKind_)) && this.getParamIndex_ == o.getParamIndex_
+	return true && Objects_equals(obj_(optErase_(this.getFunctionName_)), obj_(optErase_(o.getFunctionName_))) && this.getClosurePrimitive_ == o.getClosurePrimitive_ && this.getAssertionKind_ == o.getAssertionKind_ && this.getParamIndex_ == o.getParamIndex_
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.getFunctionName_)))
-	h = h*31 + Objects_hashCode(obj_(this.getClosurePrimitive_))
-	h = h*31 + Objects_hashCode(obj_(this.getAssertionKind_))
-	h = h*31 + Objects_hashCode(any(int32(this.getParamIndex_)))
+	h = h*31 + objhashId_(this.getClosurePrimitive_)
+	h = h*31 + objhashId_(this.getAssertionKind_)
+	h = h*31 + int32(this.getParamIndex_)
 	return h
 }
 

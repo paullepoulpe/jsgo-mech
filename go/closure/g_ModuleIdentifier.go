@@ -97,8 +97,8 @@ func (this *ModuleIdentifier) equals(p0 any) bool {
 
 func (this *ModuleIdentifier) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.name_))
-	h = h*31 + Objects_hashCode(strobj_(this.closureNamespace_))
-	h = h*31 + Objects_hashCode(strobj_(this.moduleName_))
+	h = h*31 + objhashStr_(this.name_)
+	h = h*31 + objhashStr_(this.closureNamespace_)
+	h = h*31 + objhashStr_(this.moduleName_)
 	return h
 }

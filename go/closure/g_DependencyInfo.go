@@ -116,14 +116,14 @@ func (this *DependencyInfo_Require) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && this.getSymbol_ == o.getSymbol_ && this.getRawText_ == o.getRawText_ && Objects_equals(obj_(this.getType_), obj_(o.getType_))
+	return true && this.getSymbol_ == o.getSymbol_ && this.getRawText_ == o.getRawText_ && this.getType_ == o.getType_
 }
 
 func (this *DependencyInfo_Require) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.getSymbol_))
-	h = h*31 + Objects_hashCode(strobj_(this.getRawText_))
-	h = h*31 + Objects_hashCode(obj_(this.getType_))
+	h = h*31 + objhashStr_(this.getSymbol_)
+	h = h*31 + objhashStr_(this.getRawText_)
+	h = h*31 + objhashId_(this.getType_)
 	return h
 }
 

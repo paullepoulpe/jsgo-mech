@@ -660,7 +660,7 @@ func (this *FunctionType) recursionUnsafeHashCode_impl() int32 {
 		case FunctionType_Kind_ORDINARY:
 			hc = ((31 * hc) + this.typeOfThis.hashCode())
 			hc = ((31 * hc) + this.call.hashCode())
-			hc = ((31 * hc) + Objects_hashCode(obj_(this.getClosurePrimitive())))
+			hc = ((31 * hc) + objhashId_(this.getClosurePrimitive()))
 			return hc
 		default:
 			panic(new_AssertionError_0().self())
@@ -1459,8 +1459,8 @@ func (this *FunctionType_Parameter) equals(p0 any) bool {
 func (this *FunctionType_Parameter) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(this.getJSType_.self())
-	h = h*31 + Objects_hashCode(any(bool(this.isOptional_)))
-	h = h*31 + Objects_hashCode(any(bool(this.isVariadic_)))
+	h = h*31 + Boolean_hashCode(bool(this.isOptional_))
+	h = h*31 + Boolean_hashCode(bool(this.isVariadic_))
 	return h
 }
 

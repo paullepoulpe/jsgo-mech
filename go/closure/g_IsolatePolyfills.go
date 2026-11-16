@@ -31,7 +31,7 @@ func (this *IsolatePolyfills) init_IsolatePolyfills_AbstractCompiler_Polyfills(c
 	this.finit_IsolatePolyfills()
 	this.compiler_ = compiler
 	this.polyfills = polyfills
-	var hasPropertyCollapsingRun bool = Object_equals(obj_(compiler.getOptions().getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL))
+	var hasPropertyCollapsingRun bool = equalsId_(compiler.getOptions().getPropertyCollapseLevel(), CompilerOptions_PropertyCollapseLevel_ALL)
 	this.jscompPolyfillsObject = func() Node {
 		if hasPropertyCollapsingRun {
 			return IsolatePolyfills_createCollapsedName()
@@ -88,7 +88,7 @@ func (this *IsolatePolyfills) isJSCompPolyfillCall(call Node) bool {
 		return false
 	}
 	var jscompPolyfillName string = func() string {
-		if Object_equals(obj_(this.compiler_.getOptions().getPropertyCollapseLevel()), obj_(CompilerOptions_PropertyCollapseLevel_ALL)) {
+		if equalsId_(this.compiler_.getOptions().getPropertyCollapseLevel(), CompilerOptions_PropertyCollapseLevel_ALL) {
 			return "$jscomp$polyfill"
 		}
 		return "$jscomp.polyfill"
@@ -110,7 +110,7 @@ func (this *IsolatePolyfills) rewritePolyfill(polyfillUsage *PolyfillUsageFinder
 		return
 	}
 	var name string = polyfillUsage.name()
-	var isGlobalClass bool = ((String_indexOf(name, 46) == -1) && Object_equals(obj_(polyfill.kind_), obj_(PolyfillUsageFinder_Polyfill_Kind_STATIC)))
+	var isGlobalClass bool = ((String_indexOf(name, 46) == -1) && equalsId_(polyfill.kind_, PolyfillUsageFinder_Polyfill_Kind_STATIC))
 	if isGlobalClass {
 		polyfillAccess.replaceWith(IR_getelem(this.jscompPolyfillsObject.cloneTree(), IR_string(name)).srcrefTree(polyfillAccess))
 	} else if (parent.isCall() || parent.isOptChainCall()) && polyfillAccess.isFirstChildOf(parent) {

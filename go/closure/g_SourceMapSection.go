@@ -72,15 +72,15 @@ func (this *SourceMapSection) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.type__), obj_(o.type__)) && this.value_ == o.value_ && this.line_ == o.line_ && this.column_ == o.column_
+	return true && this.type__ == o.type__ && this.value_ == o.value_ && this.line_ == o.line_ && this.column_ == o.column_
 }
 
 func (this *SourceMapSection) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.type__))
-	h = h*31 + Objects_hashCode(strobj_(this.value_))
-	h = h*31 + Objects_hashCode(any(int32(this.line_)))
-	h = h*31 + Objects_hashCode(any(int32(this.column_)))
+	h = h*31 + objhashId_(this.type__)
+	h = h*31 + objhashStr_(this.value_)
+	h = h*31 + int32(this.line_)
+	h = h*31 + int32(this.column_)
 	return h
 }
 

@@ -600,7 +600,7 @@ func (this *TypeCheck) checkPropCreation(lvalue Node) {
 		if !objType.isEmptyType() && !objType.isUnknownType() {
 			var propName string = lvalue.getString()
 			var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objType, propName)
-			if !Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_KNOWN)) {
+			if !equalsId_(kind, JSTypeRegistry_PropDefinitionKind_KNOWN) {
 				if objType.isStruct() {
 					if objType.restrictByNotNullOrUndefined().isUnionType() {
 						this.report(lvalue, TypeCheck_ILLEGAL_PROPERTY_CREATION_ON_UNION_TYPE, []string{})
@@ -1081,10 +1081,10 @@ func (this *TypeCheck) checkPropertyAccessHelper(objectType *JSType, propNode No
 		return
 	}
 	var kind *JSTypeRegistry_PropDefinitionKind = this.typeRegistry.canPropertyBeDefined(objectType, propName)
-	if Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_KNOWN)) {
+	if equalsId_(kind, JSTypeRegistry_PropDefinitionKind_KNOWN) {
 		return
 	}
-	var isLooselyAssociated bool = (Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE)) || Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE_UNION)))
+	var isLooselyAssociated bool = (equalsId_(kind, JSTypeRegistry_PropDefinitionKind_LOOSE) || equalsId_(kind, JSTypeRegistry_PropDefinitionKind_LOOSE_UNION))
 	var isUnknownType bool = objectType.isUnknownType()
 	if isLooselyAssociated && isUnknownType {
 		return
@@ -1100,7 +1100,7 @@ func (this *TypeCheck) reportMissingProperty(objNode Node, objectType *JSType, p
 	var propName string = propNode.getString()
 	var isObjectType bool = objectType.equals(this.getNativeType(JSTypeNative_OBJECT_TYPE).self())
 	var lowConfidence bool = ((objectType.isUnknownType() || objectType.isAllType()) || isObjectType)
-	var isKnownToUnionMember bool = Object_equals(obj_(kind), obj_(JSTypeRegistry_PropDefinitionKind_LOOSE_UNION))
+	var isKnownToUnionMember bool = equalsId_(kind, JSTypeRegistry_PropDefinitionKind_LOOSE_UNION)
 	var pair *TypeCheck_SuggestionPair = nil
 	if !lowConfidence && !isKnownToUnionMember {
 		pair = TypeCheck_getClosestPropertySuggestion(objectType, propName, ((String_length(propName) - 1) / 4))

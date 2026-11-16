@@ -248,5 +248,5 @@ func (this *SortingErrorManager_ErrorWithLevel) equals(obj any) bool {
 	}()) {
 		return false
 	}
-	return ((((Objects_equals(obj_(this.level_), obj_(e.level_)) && (this.error_.description() == e.error_.description())) && Object_equals(obj_(optErase_(this.error_.sourceName())), obj_(optErase_(e.error_.sourceName())))) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
+	return ((((this.level_ == e.level_ && (this.error_.description() == e.error_.description())) && Object_equals(obj_(optErase_(this.error_.sourceName())), obj_(optErase_(e.error_.sourceName())))) && (this.error_.getLineNumber() == e.error_.getLineNumber())) && (this.error_.charno() == e.error_.charno()))
 }

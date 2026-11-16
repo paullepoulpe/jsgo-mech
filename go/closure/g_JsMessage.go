@@ -261,23 +261,23 @@ func (this *JsMessage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(optErase_(this.getSourceName_)), obj_(optErase_(o.getSourceName_))) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(obj_(this.getParts_), obj_(o.getParts_)) && Objects_equals(obj_(this.getGenderedMessagesMap_), obj_(o.getGenderedMessagesMap_)) && Objects_equals(obj_(optErase_(this.getAlternateId_)), obj_(optErase_(o.getAlternateId_))) && Objects_equals(obj_(optErase_(this.getDesc_)), obj_(optErase_(o.getDesc_))) && Objects_equals(obj_(optErase_(this.getMeaning_)), obj_(optErase_(o.getMeaning_))) && Objects_equals(obj_(this.getPlaceholderNameToExampleMap_), obj_(o.getPlaceholderNameToExampleMap_)) && Objects_equals(obj_(this.getPlaceholderNameToOriginalCodeMap_), obj_(o.getPlaceholderNameToOriginalCodeMap_)) && Objects_equals(obj_(this.jsPlaceholderNames_), obj_(o.jsPlaceholderNames_)) && Objects_equals(obj_(this.canonicalPlaceholderNames_), obj_(o.canonicalPlaceholderNames_))
+	return true && Objects_equals(obj_(optErase_(this.getSourceName_)), obj_(optErase_(o.getSourceName_))) && this.getKey_ == o.getKey_ && this.isAnonymous_ == o.isAnonymous_ && this.isExternal_ == o.isExternal_ && this.getId_ == o.getId_ && Objects_equals(obj_(this.getParts_), obj_(o.getParts_)) && objequalsBy_(this.getGenderedMessagesMap_, obj_(o.getGenderedMessagesMap_), (ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).equals) && Objects_equals(obj_(optErase_(this.getAlternateId_)), obj_(optErase_(o.getAlternateId_))) && Objects_equals(obj_(optErase_(this.getDesc_)), obj_(optErase_(o.getDesc_))) && Objects_equals(obj_(optErase_(this.getMeaning_)), obj_(optErase_(o.getMeaning_))) && objequalsBy_(this.getPlaceholderNameToExampleMap_, obj_(o.getPlaceholderNameToExampleMap_), (ImmutableMapOf[string, string]).equals) && objequalsBy_(this.getPlaceholderNameToOriginalCodeMap_, obj_(o.getPlaceholderNameToOriginalCodeMap_), (ImmutableMapOf[string, string]).equals) && Objects_equals(obj_(this.jsPlaceholderNames_), obj_(o.jsPlaceholderNames_)) && Objects_equals(obj_(this.canonicalPlaceholderNames_), obj_(o.canonicalPlaceholderNames_))
 }
 
 func (this *JsMessage) hashCode() int32 {
 	var h int32
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.getSourceName_)))
-	h = h*31 + Objects_hashCode(strobj_(this.getKey_))
-	h = h*31 + Objects_hashCode(any(bool(this.isAnonymous_)))
-	h = h*31 + Objects_hashCode(any(bool(this.isExternal_)))
-	h = h*31 + Objects_hashCode(strobj_(this.getId_))
+	h = h*31 + objhashStr_(this.getKey_)
+	h = h*31 + Boolean_hashCode(bool(this.isAnonymous_))
+	h = h*31 + Boolean_hashCode(bool(this.isExternal_))
+	h = h*31 + objhashStr_(this.getId_)
 	h = h*31 + Objects_hashCode(obj_(this.getParts_))
-	h = h*31 + Objects_hashCode(obj_(this.getGenderedMessagesMap_))
+	h = h*31 + objhashBy_(this.getGenderedMessagesMap_, (ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]]).hashCode)
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.getAlternateId_)))
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.getDesc_)))
 	h = h*31 + Objects_hashCode(obj_(optErase_(this.getMeaning_)))
-	h = h*31 + Objects_hashCode(obj_(this.getPlaceholderNameToExampleMap_))
-	h = h*31 + Objects_hashCode(obj_(this.getPlaceholderNameToOriginalCodeMap_))
+	h = h*31 + objhashBy_(this.getPlaceholderNameToExampleMap_, (ImmutableMapOf[string, string]).hashCode)
+	h = h*31 + objhashBy_(this.getPlaceholderNameToOriginalCodeMap_, (ImmutableMapOf[string, string]).hashCode)
 	h = h*31 + Objects_hashCode(obj_(this.jsPlaceholderNames_))
 	h = h*31 + Objects_hashCode(obj_(this.canonicalPlaceholderNames_))
 	return h
@@ -444,7 +444,7 @@ func (this *JsMessage_StringPart) equals(p0 any) bool {
 
 func (this *JsMessage_StringPart) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.string_))
+	h = h*31 + objhashStr_(this.string_)
 	return h
 }
 
@@ -541,8 +541,8 @@ func (this *JsMessage_PlaceholderReference) equals(p0 any) bool {
 
 func (this *JsMessage_PlaceholderReference) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.storedPlaceholderName_))
-	h = h*31 + Objects_hashCode(any(bool(this.canonicalFormat_)))
+	h = h*31 + objhashStr_(this.storedPlaceholderName_)
+	h = h*31 + Boolean_hashCode(bool(this.canonicalFormat_))
 	return h
 }
 

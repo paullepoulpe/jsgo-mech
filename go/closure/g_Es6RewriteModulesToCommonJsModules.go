@@ -113,8 +113,8 @@ func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) equals(p0 any) boo
 
 func (this *Es6RewriteModulesToCommonJsModules_ModuleRequest) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(strobj_(this.specifier_))
-	h = h*31 + Objects_hashCode(strobj_(this.varName_))
+	h = h*31 + objhashStr_(this.specifier_)
+	h = h*31 + objhashStr_(this.varName_)
 	return h
 }
 

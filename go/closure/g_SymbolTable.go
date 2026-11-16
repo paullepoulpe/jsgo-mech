@@ -499,7 +499,7 @@ func (this *SymbolTable) mergeSymbol(from *SymbolTable_Symbol, to *SymbolTable_S
 	it_1 := from.references.each()
 	for it_1.next() {
 		var nodeToMove Node = it_1.k
-		if !Object_equals(nodeToMove.box_(), from.getDeclarationNode().box_()) {
+		if !equalsId_(nodeToMove, from.getDeclarationNode()) {
 			to.defineReferenceAt(nodeToMove)
 		}
 	}
@@ -1115,7 +1115,7 @@ func (this *SymbolTable_Symbol) equals(o any) bool {
 	}()) {
 		return false
 	}
-	return ((((this.isTypeInferred() == other.isTypeInferred()) && (this.getName() == other.getName())) && Objects_equals(this.getType().self(), other.getType().self())) && Objects_equals(obj_(this.scope_), obj_(other.scope_)))
+	return ((((this.isTypeInferred() == other.isTypeInferred()) && (this.getName() == other.getName())) && Objects_equals(this.getType().self(), other.getType().self())) && this.scope_ == other.scope_)
 }
 
 func (this *SymbolTable_Symbol) hashCode() int32 {

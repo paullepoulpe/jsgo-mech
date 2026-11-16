@@ -103,19 +103,19 @@ func (this *Config) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.languageMode_), obj_(o.languageMode_)) && Objects_equals(obj_(this.strictMode_), obj_(o.strictMode_)) && Objects_equals(obj_(this.jsDocParsingMode_), obj_(o.jsDocParsingMode_)) && Objects_equals(obj_(this.runMode_), obj_(o.runMode_)) && Objects_equals(obj_(this.annotations_), obj_(o.annotations_)) && Objects_equals(obj_(this.suppressionNames_), obj_(o.suppressionNames_)) && Objects_equals(obj_(this.closurePrimitiveNames_), obj_(o.closurePrimitiveNames_)) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
+	return true && this.languageMode_ == o.languageMode_ && this.strictMode_ == o.strictMode_ && this.jsDocParsingMode_ == o.jsDocParsingMode_ && this.runMode_ == o.runMode_ && objequalsBy_(this.annotations_, obj_(o.annotations_), (ImmutableMapOf[string, *Annotation_parsing]).equals) && Objects_equals(obj_(this.suppressionNames_), obj_(o.suppressionNames_)) && Objects_equals(obj_(this.closurePrimitiveNames_), obj_(o.closurePrimitiveNames_)) && this.parseInlineSourceMaps_ == o.parseInlineSourceMaps_
 }
 
 func (this *Config) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.languageMode_))
-	h = h*31 + Objects_hashCode(obj_(this.strictMode_))
-	h = h*31 + Objects_hashCode(obj_(this.jsDocParsingMode_))
-	h = h*31 + Objects_hashCode(obj_(this.runMode_))
-	h = h*31 + Objects_hashCode(obj_(this.annotations_))
+	h = h*31 + objhashId_(this.languageMode_)
+	h = h*31 + objhashId_(this.strictMode_)
+	h = h*31 + objhashId_(this.jsDocParsingMode_)
+	h = h*31 + objhashId_(this.runMode_)
+	h = h*31 + objhashBy_(this.annotations_, (ImmutableMapOf[string, *Annotation_parsing]).hashCode)
 	h = h*31 + Objects_hashCode(obj_(this.suppressionNames_))
 	h = h*31 + Objects_hashCode(obj_(this.closurePrimitiveNames_))
-	h = h*31 + Objects_hashCode(any(bool(this.parseInlineSourceMaps_)))
+	h = h*31 + Boolean_hashCode(bool(this.parseInlineSourceMaps_))
 	return h
 }
 

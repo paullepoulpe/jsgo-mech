@@ -427,15 +427,15 @@ func (this *PolyfillUsageFinder_PolyfillUsage) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.polyfill_), obj_(o.polyfill_)) && Objects_equals(this.node_.box_(), o.node_.box_()) && this.name_ == o.name_ && this.isExplicitGlobal_ == o.isExplicitGlobal_
+	return true && this.polyfill_ == o.polyfill_ && this.node_ == o.node_ && this.name_ == o.name_ && this.isExplicitGlobal_ == o.isExplicitGlobal_
 }
 
 func (this *PolyfillUsageFinder_PolyfillUsage) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.polyfill_))
-	h = h*31 + Objects_hashCode(this.node_.box_())
-	h = h*31 + Objects_hashCode(strobj_(this.name_))
-	h = h*31 + Objects_hashCode(any(bool(this.isExplicitGlobal_)))
+	h = h*31 + objhashId_(this.polyfill_)
+	h = h*31 + objhashId_(this.node_)
+	h = h*31 + objhashStr_(this.name_)
+	h = h*31 + Boolean_hashCode(bool(this.isExplicitGlobal_))
 	return h
 }
 

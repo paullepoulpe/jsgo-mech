@@ -453,12 +453,12 @@ func (this *GatherModuleMetadata_Finder) addToggle(t *NodeTraversal, n Node, nam
 }
 
 func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetadata_ModuleMetadataBuilder, moduleType *ModuleMetadataMap_ModuleType, namespace string, t *NodeTraversal, n Node) {
-	if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_PROVIDE)) || Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE)) {
+	if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_PROVIDE) || equalsId_(moduleType, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE) {
 		if !NodeUtil_isValidQualifiedName(this.outer_.compiler_.getOptions().getLanguageIn().toFeatureSet(), namespace) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, GatherModuleMetadata_INVALID_NAMESPACE_OR_MODULE_ID, []string{namespace}))
 		}
 	}
-	if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_MODULE)) || Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE)) {
+	if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_MODULE) || equalsId_(moduleType, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE) {
 		if !GatherModuleMetadata_isValidModuleId(namespace) {
 			this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, GatherModuleMetadata_INVALID_NAMESPACE_OR_MODULE_ID, []string{namespace}))
 		}
@@ -483,7 +483,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 		switch existingType {
 		case ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_GOOG_MODULE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
 			var diagnostic *DiagnosticType = func() *DiagnosticType {
-				if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_PROVIDE)) {
+				if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_PROVIDE) {
 					return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_MODULE
@@ -492,7 +492,7 @@ func (this *GatherModuleMetadata_Finder) addNamespace(module *GatherModuleMetada
 			return
 		case ModuleMetadataMap_ModuleType_GOOG_PROVIDE:
 			var diagnostic *DiagnosticType = func() *DiagnosticType {
-				if Object_equals(obj_(moduleType), obj_(ModuleMetadataMap_ModuleType_GOOG_PROVIDE)) {
+				if equalsId_(moduleType, ModuleMetadataMap_ModuleType_GOOG_PROVIDE) {
 					return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE
 				}
 				return ClosurePrimitiveErrors_DUPLICATE_NAMESPACE_AND_MODULE

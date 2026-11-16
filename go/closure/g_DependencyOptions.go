@@ -146,12 +146,12 @@ func (this *DependencyOptions) equals(p0 any) bool {
 	if !ok || o == nil {
 		return false
 	}
-	return true && Objects_equals(obj_(this.mode_), obj_(o.mode_)) && Objects_equals(obj_(this.entryPoints_), obj_(o.entryPoints_))
+	return true && this.mode_ == o.mode_ && Objects_equals(obj_(this.entryPoints_), obj_(o.entryPoints_))
 }
 
 func (this *DependencyOptions) hashCode() int32 {
 	var h int32
-	h = h*31 + Objects_hashCode(obj_(this.mode_))
+	h = h*31 + objhashId_(this.mode_)
 	h = h*31 + Objects_hashCode(obj_(this.entryPoints_))
 	return h
 }
