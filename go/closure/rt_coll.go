@@ -514,13 +514,24 @@ type ArrayDeque struct {
 	buf []any
 }
 
+// new_ArrayDeque starts with room for 16 elements, as java.util.ArrayDeque() does, so that a
+// stack or queue of a few elements does not grow through 1, 2, 4 and 8. The array is buf, so
+// that push can use it too.
 func new_ArrayDeque() *ArrayDeque {
 	this := &ArrayDeque{}
 	this.self_ = this
+	this.buf = make([]any, 16)
+	this.items = this.buf[:0]
 	return this
 }
 
-func new_ArrayDeque_int(n int32) *ArrayDeque { return new_ArrayDeque() }
+func new_ArrayDeque_int(n int32) *ArrayDeque {
+	this := &ArrayDeque{}
+	this.self_ = this
+	this.buf = make([]any, max(int(n), 2))
+	this.items = this.buf[:0]
+	return this
+}
 
 func new_ArrayDeque_Collection(c Collection) *ArrayDeque {
 	this := new_ArrayDeque()
@@ -542,13 +553,44 @@ func (this *ArrayDeque) peekLast() any {
 	return this.items[len(this.items)-1]
 }
 func (this *ArrayDeque) poll() any {
-	if len(this.items) == 0 {
+	n := len(this.items)
+	if n == 0 {
 		return nil
 	}
 	v := this.items[0]
 	this.items[0] = nil
-	this.items = this.items[1:]
+	if n > 1 {
+		this.items = this.items[1:]
+		return v
+	}
+	// Empty now: start again at the front of the array, so that a queue filled and emptied
+	// in turn keeps its array (java.util.ArrayDeque is circular). The front is buf's when
+	// items lies in it; otherwise it is this slot, and buf becomes the array from here on.
+	if _, ok := this.offInBuf_(); ok {
+		this.items = this.buf[:0]
+		return v
+	}
+	this.buf = this.items[:cap(this.items)]
+	this.items = this.buf[:0]
 	return v
+}
+
+// offInBuf_ is the position of items in buf when items is a suffix of buf.
+func (this *ArrayDeque) offInBuf_() (int, bool) {
+	if cap(this.buf) == 0 || cap(this.items) == 0 {
+		return 0, false
+	}
+	base := uintptr(unsafe.Pointer(unsafe.SliceData(this.buf)))
+	start := uintptr(unsafe.Pointer(unsafe.SliceData(this.items)))
+	size := unsafe.Sizeof(any(nil))
+	if start < base || (start-base)%size != 0 {
+		return 0, false
+	}
+	off := int((start - base) / size)
+	if off >= cap(this.buf) || off+cap(this.items) != cap(this.buf) {
+		return 0, false
+	}
+	return off, true
 }
 func (this *ArrayDeque) pollFirst() any { return this.poll() }
 func (this *ArrayDeque) pop() any {
@@ -560,17 +602,17 @@ func (this *ArrayDeque) pop() any {
 func (this *ArrayDeque) remove_0() any { return this.pop() }
 func (this *ArrayDeque) push(v any) {
 	n := len(this.items)
-	if n > 0 && cap(this.buf) > 0 {
-		base := uintptr(unsafe.Pointer(unsafe.SliceData(this.buf)))
-		start := uintptr(unsafe.Pointer(&this.items[0]))
-		size := unsafe.Sizeof(v)
-		if start > base && (start-base)%size == 0 {
-			if off := int((start - base) / size); off < cap(this.buf) && off+cap(this.items) == cap(this.buf) {
-				// items is buf[off:]: room in front.
-				this.buf[off-1] = v
-				this.items = this.buf[off-1 : off+n]
-				return
-			}
+	if off, ok := this.offInBuf_(); ok {
+		if n > 0 && off > 0 { // items is buf[off:]: room in front.
+			this.buf[off-1] = v
+			this.items = this.buf[off-1 : off+n]
+			return
+		}
+		if n == 0 && cap(this.buf) >= 2 { // empty: start in the middle, room on both sides
+			mid := cap(this.buf) / 2
+			this.buf[mid] = v
+			this.items = this.buf[mid : mid+1]
+			return
 		}
 	}
 	// Rebuild with as much room in front as there are elements (at least 4).
@@ -591,6 +633,10 @@ func (this *ArrayDeque) descendingIterator() Iterator {
 }
 
 func SequencedCollection_addFirst(c SequencedCollection, v any) {
+	if d, ok := c.(*ArrayDeque); ok { // into the room at the head, as ArrayDeque.addFirst
+		d.push(v)
+		return
+	}
 	c.(interface{ add_int_Object(int32, any) }).add_int_Object(0, v)
 }
 func SequencedCollection_addLast(c SequencedCollection, v any) { c.add(v) }
@@ -623,6 +669,9 @@ func SequencedCollection_getLast(c SequencedCollection) any {
 	return s[len(s)-1]
 }
 func SequencedCollection_removeFirst(c SequencedCollection) any {
+	if d, ok := c.(*ArrayDeque); ok {
+		return d.pop()
+	}
 	v := SequencedCollection_getFirst(c)
 	if l, ok := c.(interface{ remove(int32) any }); ok {
 		l.remove(0)
