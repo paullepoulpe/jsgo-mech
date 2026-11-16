@@ -152,12 +152,12 @@ func (this *CodingConvention_SubclassRelationship) init_CodingConvention_Subclas
 	Preconditions_checkArgument_boolean_String_Object(subclassNode.isQualifiedName(), "Expected qualified name, found: %s", subclassNode.box_())
 	Preconditions_checkArgument_boolean_String_Object(superclassNode.isQualifiedName(), "Expected qualified name, found: %s", superclassNode.box_())
 	this.type__ = type_
-	this.subclassName = Optional_of(strobj_(subclassNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+	this.subclassName = Optional_ofStr_(subclassNode.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
 	}})
-	this.superclassName = Optional_of(strobj_(superclassNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+	this.superclassName = Optional_ofStr_(superclassNode.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -210,7 +210,7 @@ func new_CodingConvention_AssertionFunctionSpec(getFunctionName OptionalOf[strin
 }
 
 func (this *CodingConvention_AssertionFunctionSpec) toString() string {
-	return ("AssertionFunctionSpec{functionName=" + sstr_(str_(this.getFunctionName_.orElse(strobj_("null")))) + ", closurePrimitive=" + objstr_(obj_(this.getClosurePrimitive_)) + ", assertionKind=" + objstr_(obj_(this.getAssertionKind_)) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
+	return ("AssertionFunctionSpec{functionName=" + sstr_(this.getFunctionName_.orElseStr_("null")) + ", closurePrimitive=" + objstr_(obj_(this.getClosurePrimitive_)) + ", assertionKind=" + objstr_(obj_(this.getAssertionKind_)) + ", paramIndex=" + istr_(int64(this.getParamIndex_)) + "}")
 }
 
 func CodingConvention_AssertionFunctionSpec_builder() *CodingConvention_AssertionFunctionSpec_Builder {
@@ -353,7 +353,7 @@ func new_CodingConvention_AssertionFunctionSpec_Builder() *CodingConvention_Asse
 }
 
 func (this *CodingConvention_AssertionFunctionSpec_Builder) setFunctionName(name string) *CodingConvention_AssertionFunctionSpec_Builder {
-	this.functionName = Optional_of(strobj_(name))
+	this.functionName = Optional_ofStr_(name)
 	return this
 }
 

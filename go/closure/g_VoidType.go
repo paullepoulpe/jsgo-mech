@@ -78,7 +78,7 @@ func (this *VoidType) isExplicitlyVoidable_impl() bool {
 }
 
 func (this *VoidType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("undefined"))
+	return Optional_ofStr_("undefined")
 }
 
 func (this *VoidType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {

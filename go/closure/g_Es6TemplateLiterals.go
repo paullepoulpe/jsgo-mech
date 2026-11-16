@@ -32,7 +32,7 @@ func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) 
 	} else {
 		var first Node = n.removeFirstChild()
 		Preconditions_checkState((first.isTemplateLitString() && first.getCookedString().isPresent()))
-		var firstStr Node = this.astFactory_.createString(str_(first.getCookedString().get()))
+		var firstStr Node = this.astFactory_.createString(first.getCookedString().getStr_())
 		if length == 1 {
 			n.replaceWith(firstStr)
 		} else {
@@ -41,15 +41,15 @@ func (this *Es6TemplateLiterals) visitTemplateLiteral(t *NodeTraversal, n Node) 
 				var child Node = n.removeFirstChild()
 				if child.isTemplateLitString() {
 					Preconditions_checkState(child.getCookedString().isPresent())
-					if String_isEmpty(str_(child.getCookedString().get())) {
+					if String_isEmpty(child.getCookedString().getStr_()) {
 						continue
-					} else if (i == 2) && String_isEmpty(str_(first.getCookedString().get())) {
+					} else if (i == 2) && String_isEmpty(first.getCookedString().getStr_()) {
 						add = add.getSecondChild().detach()
 					}
 				}
 				add = this.astFactory_.createAdd(add, func() Node {
 					if child.isTemplateLitString() {
-						return this.astFactory_.createString(str_(child.getCookedString().get()))
+						return this.astFactory_.createString(child.getCookedString().getStr_())
 					}
 					return child.removeFirstChild()
 				}())
@@ -120,7 +120,7 @@ func (this *Es6TemplateLiterals) createCookedStringArray(n Node) Node {
 		for ; child != 0; child = child.getNext() {
 			if child.isTemplateLitString() {
 				if child.getCookedString().isPresent() {
-					array.addChildToBack(this.astFactory_.createString(str_(child.getCookedString().get())))
+					array.addChildToBack(this.astFactory_.createString(child.getCookedString().getStr_()))
 				} else {
 					array.addChildToBack(this.astFactory_.createVoid(this.astFactory_.createNumber(0)))
 				}
@@ -137,7 +137,7 @@ func Es6TemplateLiterals_cookedAndRawStringsSame(n Node) bool {
 			if !child.isTemplateLitString() {
 				continue
 			}
-			if child.getCookedString().isEmpty() || !(str_(child.getCookedString().get()) == child.getRawString()) {
+			if child.getCookedString().isEmpty() || !(child.getCookedString().getStr_() == child.getRawString()) {
 				return false
 			}
 		}

@@ -63,7 +63,7 @@ func (this *BigIntType) matchesObjectContext_impl() bool {
 }
 
 func (this *BigIntType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("bigint"))
+	return Optional_ofStr_("bigint")
 }
 
 func (this *BigIntType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {

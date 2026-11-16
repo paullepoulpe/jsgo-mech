@@ -498,7 +498,7 @@ func SubtypeChecker_getTemplateKeyIfCovariantType(type_ *JSType) *TemplateType {
 		return nil
 	}
 	return func() *TemplateType {
-		switch str_(unwrappedTypeName.get()) {
+		switch unwrappedTypeName.getStr_() {
 		case "ReadonlyArray":
 			return unwrapped.registry.getReadonlyArrayElementKey()
 		case "IteratorLike":

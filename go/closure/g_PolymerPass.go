@@ -134,15 +134,15 @@ func (this *PolymerPass) appendPolymerElementExterns(def *PolymerClassDefinition
 	baseExterns.getFirstChild().setString(polymerElementType)
 	var elementType OptionalOf[string] = func() Optional {
 		if def.nativeBaseElement.isPresent() {
-			return Optional_ofNullable(Map_get_s(this.tagNameMap, str_(def.nativeBaseElement.get())))
+			return Optional_ofNullable(Map_get_s(this.tagNameMap, def.nativeBaseElement.getStr_()))
 		}
 		return Optional_empty()
 	}()
 	if elementType.isEmpty() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(def.descriptor, PolymerPassErrors_POLYMER_INVALID_EXTENDS, []string{str_(def.nativeBaseElement.orElse(strobj_("null")))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(def.descriptor, PolymerPassErrors_POLYMER_INVALID_EXTENDS, []string{def.nativeBaseElement.orElseStr_("null")}))
 		return
 	}
-	var elementBaseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(str_(elementType.get())).srcrefTree(this.polymerElementExterns)), PolymerPass_VIRTUAL_FILE)
+	var elementBaseType *JSTypeExpression = new_JSTypeExpression(new_Node_Token_Node(Token_rhino_BANG, IR_string(elementType.getStr_()).srcrefTree(this.polymerElementExterns)), PolymerPass_VIRTUAL_FILE)
 	var baseDocs *JSDocInfo_Builder = JSDocInfo_Builder_copyFrom(baseExterns.getJSDocInfo())
 	baseDocs.changeBaseType(elementBaseType)
 	baseExterns.setJSDocInfo(baseDocs.build())

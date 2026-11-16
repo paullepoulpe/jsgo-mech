@@ -182,8 +182,8 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 				t.report(param, CheckJSDocStyle_MIXED_PARAM_JSDOC_STYLES, []string{})
 			}
 			var name string = s
-			var paramType *JSTypeExpression = jsDoc.getParameterType(Optional_of(strobj_(name)))
-			if this.checkParam(t, param, Optional_of(strobj_(name)), paramType) {
+			var paramType *JSTypeExpression = jsDoc.getParameterType(Optional_ofStr_(name))
+			if this.checkParam(t, param, Optional_ofStr_(name), paramType) {
 				return
 			}
 			param = param.getNext()
@@ -232,8 +232,8 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		nameOptional = false
 	}
 	if name.isEmpty() || !nodeToCheck.isName() {
-		name = Optional_of(strobj_("<unknown name>"))
-	} else if !nodeToCheck.matchesQualifiedName(str_(name.get())) {
+		name = Optional_ofStr_("<unknown name>")
+	} else if !nodeToCheck.matchesQualifiedName(name.getStr_()) {
 		t.report(nodeToCheck, CheckJSDocStyle_INCORRECT_PARAM_NAME, []string{})
 		return true
 	}
@@ -250,7 +250,7 @@ func (this *CheckJSDocStyle) checkParam(t *NodeTraversal, param Node, name Optio
 		}
 		return nodeToCheck
 	}()
-	t.report(errorSource, CheckJSDocStyle_OPTIONAL_PARAM_NOT_MARKED_OPTIONAL, []string{str_(name.orElse(strobj_("null")))})
+	t.report(errorSource, CheckJSDocStyle_OPTIONAL_PARAM_NOT_MARKED_OPTIONAL, []string{name.orElseStr_("null")})
 	return true
 }
 
@@ -304,7 +304,7 @@ func (this *CheckJSDocStyle) checkLicenseComment(t *NodeTraversal, n Node) {
 	if (n.getJSDocInfo() == nil) || n.getJSDocInfo().getLicense().isEmpty() {
 		return
 	}
-	var license string = str_(n.getJSDocInfo().getLicense().get())
+	var license string = n.getJSDocInfo().getLicense().getStr_()
 	if String_contains(license, strobj_("@externs")) {
 		t.report(n, CheckJSDocStyle_LICENSE_CONTAINS_AT_EXTERNS, []string{})
 	}

@@ -106,7 +106,7 @@ func (this *ExternExportsPass) lookForQnameDefinition(n Node) {
 	} else if n.isMemberFunctionDef() {
 		var lvalueName OptionalOf[string] = NodeUtil_getBestLValueName(n)
 		if lvalueName.isPresent() {
-			this.definitionMap[str_(lvalueName.get())] = n.getOnlyChild()
+			this.definitionMap[lvalueName.getStr_()] = n.getOnlyChild()
 		}
 	}
 }
@@ -512,11 +512,11 @@ func (this *ExternExportsPass_PropertyExport) getExportedPath_impl() string {
 	for it_1.next() {
 		var currentPath string = str_(it_1.v)
 		Preconditions_checkState((String_length(currentPath) > 0))
-		var mappedPath OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.outer_.mappedPaths, currentPath)))
+		var mappedPath OptionalOf[string] = Optional_ofNullableStr_(mapStr_(this.outer_.mappedPaths, currentPath))
 		if mappedPath.isEmpty() {
 			continue
 		}
-		mappedPath = Optional_of(strobj_((sstr_(str_(mappedPath.get())) + sstr_(String_substring_int(this.exportPath, String_length(currentPath))))))
+		mappedPath = Optional_ofStr_((sstr_(mappedPath.getStr_()) + sstr_(String_substring_int(this.exportPath, String_length(currentPath)))))
 		return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(mappedPath.get(), strobj_(this.symbolName), []any{})
 	}
 	return ExternExportsPass_Q_NAME_JOINER.join_Object_Object_ObjectArr(strobj_(this.exportPath), strobj_(this.symbolName), []any{})

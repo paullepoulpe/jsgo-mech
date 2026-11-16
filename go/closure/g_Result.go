@@ -41,7 +41,7 @@ func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_
 }
 
 func (this *Result) init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_SourceMap_String(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, sourceMap *SourceMap, externExport string) {
-	this.init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors, warnings, variableMap, propertyMap, namedAnonFunctionMap, nil, nil, sourceMap, Optional_of(strobj_(externExport)), nil, Optional_empty(), false)
+	this.init_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(errors, warnings, variableMap, propertyMap, namedAnonFunctionMap, nil, nil, sourceMap, Optional_ofStr_(externExport), nil, Optional_empty(), false)
 }
 
 func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_SourceMap_String(errors ImmutableListOf[*JSError], warnings ImmutableListOf[*JSError], variableMap *VariableMap, propertyMap *VariableMap, namedAnonFunctionMap *VariableMap, sourceMap *SourceMap, externExport string) *Result {
@@ -52,5 +52,5 @@ func new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_
 
 func Result_pruneResultForPartialCompilation(result *Result) *Result {
 	var emptyVariableMap *VariableMap = new_VariableMap(tmapFrom_(tc_string, tc_string, ImmutableMap_of(), true))
-	return new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(result.errors_, result.warnings_, emptyVariableMap, emptyVariableMap, emptyVariableMap, nil, emptyVariableMap, nil, Optional_of(strobj_("")), nil, Optional_empty(), false)
+	return new_Result_ImmutableList_ImmutableList_VariableMap_VariableMap_VariableMap_VariableMap_VariableMap_SourceMap_Optional_Set_Optional_boolean(result.errors_, result.warnings_, emptyVariableMap, emptyVariableMap, emptyVariableMap, nil, emptyVariableMap, nil, Optional_ofStr_(""), nil, Optional_empty(), false)
 }

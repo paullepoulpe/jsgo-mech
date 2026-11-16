@@ -105,14 +105,14 @@ func (this *UnknownType) getConstructor_impl() *FunctionType {
 func (this *UnknownType) getReferenceName_impl() OptionalOf[string] {
 	return func() Optional {
 		if this.isChecked {
-			return Optional_of(strobj_("??"))
+			return Optional_ofStr_("??")
 		}
-		return Optional_of(strobj_("?"))
+		return Optional_ofStr_("?")
 	}()
 }
 
 func (this *UnknownType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("Unknown"))
+	return Optional_ofStr_("Unknown")
 }
 
 func (this *UnknownType) hasDisplayName_impl() bool {

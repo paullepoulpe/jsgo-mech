@@ -43,7 +43,7 @@ func (this *CompilerExecutor) setTimeout(timeout int32) {
 }
 
 func (this *CompilerExecutor) setDebugMessage(debugMessage string) {
-	this.debugMessage = Optional_of(strobj_(debugMessage))
+	this.debugMessage = Optional_ofStr_(debugMessage)
 }
 
 func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dumpTraceReport bool) any {
@@ -129,7 +129,7 @@ func (this *CompilerExecutor) runInCompilerThread(callable CallableOf[any], dump
 	}
 	if exception[0] != nil {
 		if this.debugMessage.isPresent() {
-			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(str_(this.debugMessage.get()))), exception[0]).self())
+			panic(new_RuntimeException_String_Throwable(("Exception during compilation: " + sstr_(this.debugMessage.getStr_())), exception[0]).self())
 		}
 		Throwables_throwIfUnchecked(exception[0])
 		panic(new_RuntimeException_Throwable(exception[0]).self())

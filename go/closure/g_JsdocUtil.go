@@ -96,7 +96,7 @@ func JsdocUtil_replaceAnnotatedTypesWithUnusableType(jsdoc *JSDocInfo) *JSDocInf
 		} else if original.isVarArgs() {
 			newType = JSTypeExpression_makeVarArgs(newType)
 		}
-		builder.recordParameter(str_(name.get()), newType)
+		builder.recordParameter(name.getStr_(), newType)
 	}
 	if jsdoc.hasThisType() {
 		builder.recordThisType(JsdocUtil_replaceWithUnusableType(jsdoc.getThisType()))

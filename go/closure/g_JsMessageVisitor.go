@@ -135,7 +135,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 	if mapping != nil {
 		sourceName = (sstr_(mapping.getOriginalFile()) + ":" + istr_(int64(mapping.getLineNumber())))
 	} else {
-		sourceName = (sstr_(str_(traversal.getSourceName().orElse(strobj_("null")))) + ":" + istr_(int64(node.getLineno())))
+		sourceName = (sstr_(traversal.getSourceName().orElseStr_("null")) + ":" + istr_(int64(node.getLineno())))
 	}
 	Preconditions_checkState(msgNode.isCall())
 	var fnNameNode Node = msgNode.getFirstChild()
@@ -163,7 +163,7 @@ func (this *JsMessageVisitor) checkMessageInitialization(traversal *NodeTraversa
 		this.trackMessage(traversal, possiblyObfuscatedMessageKey, msgNode, extractedMessage)
 		this.reportErrorIfEmptyMessage(node, extractedMessage)
 		var desc OptionalOf[string] = extractedMessage.getDesc()
-		if (desc.isEmpty() || String_isEmpty(String_trim(str_(desc.get())))) && !extractedMessage.isExternal() {
+		if (desc.isEmpty() || String_isEmpty(String_trim(desc.getStr_()))) && !extractedMessage.isExternal() {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, JsMessageVisitor_MESSAGE_HAS_NO_DESCRIPTION, []string{extractedMessage.getKey()}))
 		}
 		this.processJsMessageDefinition(jsMessageDefinition)
@@ -197,20 +197,20 @@ func (this *JsMessageVisitor) buildJsMessage(input JsMessageVisitor_InputForBuil
 			isAnonymous = true
 			messageKeyFinal = this.generateKeyFromMessageText(input.getMessageText())
 			if meaningForIdGeneration.isEmpty() {
-				meaningForIdGeneration = Optional_of(strobj_(messageKeyFinal))
+				meaningForIdGeneration = Optional_ofStr_(messageKeyFinal)
 			}
 		} else {
 			isAnonymous = false
 			messageKeyFinal = messageKeyFromLhs
 			if meaningForIdGeneration.isEmpty() {
-				meaningForIdGeneration = Optional_of(strobj_(JsMessageVisitor_removeScopedAliasesPrefix(messageKeyFromLhs)))
+				meaningForIdGeneration = Optional_ofStr_(JsMessageVisitor_removeScopedAliasesPrefix(messageKeyFromLhs))
 			}
 		}
 		messageId = func() Optional {
 			if this.idGenerator_ == nil {
 				return meaningForIdGeneration
 			}
-			return Optional_of(strobj_(this.idGenerator_.generateId(meaningForIdGeneration, tlistImm_(tc_JsMessage_Part, messageParts))))
+			return Optional_ofStr_(this.idGenerator_.generateId(meaningForIdGeneration, tlistImm_(tc_JsMessage_Part, messageParts)))
 		}()
 	}
 	return new_JsMessage_Builder().appendParts(icast_List(obj_(messageParts))).setPlaceholderNameToExampleMap(input.getPlaceholderExampleMap()).setPlaceholderNameToOriginalCodeMap(input.getPlaceholderOriginalCodeMap()).setIsAnonymous(isAnonymous).setIsExternalMsg(isExternal).setKey(messageKeyFinal).setSourceName(input.getSourceName()).setDesc(input.getDescription()).setMeaning(input.getMeaning()).setAlternateId(input.getAlternateMessageId()).setId(messageId).build()
@@ -244,14 +244,14 @@ func JsMessageVisitor_getExternalMessageId(messageKey string) OptionalOf[string]
 			}
 		}
 		if end > start {
-			return Optional_of(strobj_(String_substring(messageKey, start, end)))
+			return Optional_ofStr_(String_substring(messageKey, start, end))
 		}
 	}
 	return Optional_empty()
 }
 
 func (this *JsMessageVisitor) generateKeyFromMessageText(msgText string) string {
-	var nonnegativeHash int64 = (int64(9223372036854775807) & JsMessage_Hash_hash64_Optional(Optional_of(strobj_(msgText))))
+	var nonnegativeHash int64 = (int64(9223372036854775807) & JsMessage_Hash_hash64_Optional(Optional_ofStr_(msgText)))
 	return (sstr_(JsMessageVisitor_MSG_PREFIX) + sstr_(Ascii_toUpperCase(Long_toString_long_int(nonnegativeHash, 36))))
 }
 
@@ -1247,7 +1247,7 @@ func (this *JsMessageVisitor_3) getPlaceholderOriginalCodeMap() *TMap[string, st
 }
 
 func (this *JsMessageVisitor_3) getDescription() OptionalOf[string] {
-	return Optional_of(strobj_(this.cap_icuTemplateOptions.getDescription()))
+	return Optional_ofStr_(this.cap_icuTemplateOptions.getDescription())
 }
 
 func (this *JsMessageVisitor_3) getMeaning() OptionalOf[string] {

@@ -88,7 +88,7 @@ func (this *SymbolType) matchesObjectContext_impl() bool {
 }
 
 func (this *SymbolType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("symbol"))
+	return Optional_ofStr_("symbol")
 }
 
 func (this *SymbolType) autoboxesTo_impl() *JSType {

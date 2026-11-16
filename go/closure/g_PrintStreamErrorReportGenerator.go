@@ -30,7 +30,7 @@ func (this *PrintStreamErrorReportGenerator) generateReport(manager *SortingErro
 }
 
 func (this *PrintStreamErrorReportGenerator) println(level *CheckLevel, error_ *JSError) {
-	this.stream.println(str_(error_.format(level, this.formatter).get()))
+	this.stream.println(error_.format(level, this.formatter).getStr_())
 }
 
 func (this *PrintStreamErrorReportGenerator) printSummary(manager ErrorManager) {

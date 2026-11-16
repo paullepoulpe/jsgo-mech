@@ -13,7 +13,7 @@ type NonJSDocComment struct {
 func (this *NonJSDocComment) init_NonJSDocComment(start *SourcePosition_util, end *SourcePosition_util, s string) {
 	this.startPosition = start
 	this.endPosition = end
-	this.contents = Optional_of(strobj_(s))
+	this.contents = Optional_ofStr_(s)
 	this.endsAsLineComment = false
 	this.isInlineField = false
 }
@@ -28,7 +28,7 @@ func (this *NonJSDocComment) getCommentString() string {
 	if this.contents.isEmpty() {
 		return ""
 	}
-	return str_(this.contents.get())
+	return this.contents.getStr_()
 }
 
 func (this *NonJSDocComment) getStartPosition() *SourcePosition_util {

@@ -121,7 +121,7 @@ func (this *ProcessTweaks_TweakFunction) zero_ProcessTweaks_TweakFunction() {
 }
 
 func (this *ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, Optional_of(strobj_(expectedTypeName)), validNodeTypeA, Token_rhino_EMPTY, nil)
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, Optional_ofStr_(expectedTypeName), validNodeTypeA, Token_rhino_EMPTY, nil)
 }
 
 func new_ProcessTweaks_TweakFunction_String_String_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino) *ProcessTweaks_TweakFunction {
@@ -133,7 +133,7 @@ func new_ProcessTweaks_TweakFunction_String_String_Token(name_ string, ordinal_ 
 }
 
 func (this *ProcessTweaks_TweakFunction) init_ProcessTweaks_TweakFunction_String_String_Token_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino, validNodeTypeB *Token_rhino) {
-	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, Optional_of(strobj_(expectedTypeName)), validNodeTypeA, validNodeTypeB, nil)
+	this.init_ProcessTweaks_TweakFunction_String_Optional_Token_Token_TweakFunction(name_, ordinal_, name, Optional_ofStr_(expectedTypeName), validNodeTypeA, validNodeTypeB, nil)
 }
 
 func new_ProcessTweaks_TweakFunction_String_String_Token_Token(name_ string, ordinal_ int32, name string, expectedTypeName string, validNodeTypeA *Token_rhino, validNodeTypeB *Token_rhino) *ProcessTweaks_TweakFunction {
@@ -397,7 +397,7 @@ func (this *ProcessTweaks_TweakInfo) emitAllTypeWarnings() {
 		var registerFunc *ProcessTweaks_TweakFunction = this.registerCall.tweakFunc
 		if valueNode != 0 {
 			if !registerFunc.isValidNodeType(valueNode.getToken()) {
-				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(valueNode, ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING, []string{this.tweakId, registerFunc.getName(), str_(registerFunc.getExpectedTypeName().orElse(strobj_("null")))}))
+				this.outer_.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(valueNode, ProcessTweaks_INVALID_TWEAK_DEFAULT_VALUE_WARNING, []string{this.tweakId, registerFunc.getName(), registerFunc.getExpectedTypeName().orElseStr_("null")}))
 			}
 		} else if tweakFunc.isGetterFunction() {
 			if !tweakFunc.isCorrectRegisterFunction(registerFunc) {

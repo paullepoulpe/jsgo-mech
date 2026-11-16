@@ -80,20 +80,20 @@ func (this *Es6RelativizeImportPaths_Rewriter) visitImport(t *NodeTraversal, imp
 			return
 		}
 	}
-	var scriptPath OptionalOf[string] = Optional_of(strobj_(t.getInput().getPath().toString()))
-	if !Uris_isValid(str_(scriptPath.get())) {
+	var scriptPath OptionalOf[string] = Optional_ofStr_(t.getInput().getPath().toString())
+	if !Uris_isValid(scriptPath.getStr_()) {
 		return
 	}
-	scriptPath = Optional_of(strobj_(Uris_path(str_(scriptPath.get()))))
+	scriptPath = Optional_ofStr_(Uris_path(scriptPath.getStr_()))
 	var newSpecifier string = t.getInput().getPath().resolveModuleAsPath(specifier).toString()
 	if !String_startsWith(newSpecifier, "/") {
 		newSpecifier = ("/" + sstr_(newSpecifier))
 	}
-	var relativeSpecifier OptionalOf[string] = FilePaths_relativize(str_(FilePaths_parent(str_(scriptPath.get())).get()), newSpecifier)
+	var relativeSpecifier OptionalOf[string] = FilePaths_relativize(FilePaths_parent(str_(scriptPath.get())).getStr_(), newSpecifier)
 	if relativeSpecifier.isEmpty() {
-		panic(new_IllegalArgumentException_String(("No relative path from " + sstr_(str_(scriptPath.get())) + " to " + sstr_(newSpecifier))).self())
+		panic(new_IllegalArgumentException_String(("No relative path from " + sstr_(scriptPath.getStr_()) + " to " + sstr_(newSpecifier))).self())
 	}
-	newSpecifier = str_(relativeSpecifier.get())
+	newSpecifier = relativeSpecifier.getStr_()
 	if ModuleLoader_isAmbiguousIdentifier(newSpecifier) {
 		newSpecifier = ("./" + sstr_(newSpecifier))
 	}

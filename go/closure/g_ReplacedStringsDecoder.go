@@ -22,7 +22,7 @@ func (this *ReplacedStringsDecoder) decode(encodedStr string) string {
 	if originalStr.isEmpty() {
 		return encodedStr
 	}
-	var originalBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(str_(originalStr.get()), -1)
+	var originalBits []string = ReplacedStringsDecoder_ARGUMENT_PLACE_HOLDER_PATTERN.split_String_int(originalStr.getStr_(), -1)
 	var sb *StringBuilder = new_StringBuilder_String(originalBits[0])
 	for i := int32(1); i < Math_max(int32(len(originalBits)), int32(len(suppliedBits))); i++ {
 		sb.append(func() string {

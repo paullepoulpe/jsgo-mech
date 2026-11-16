@@ -157,22 +157,22 @@ func (this *ErrorToFixMapper) getFixForReferenceToShortImportByLongName(error_ *
 	var shortNameMatcher *Matcher_re2j = ErrorToFixMapper_USE_SHORT_NAME.matcher(strobj_(error_.description()))
 	var shortName OptionalOf[string]
 	if shortNameMatcher.matches() {
-		shortName = Optional_ofNullable(strobj_(shortNameMatcher.group(1)))
+		shortName = Optional_ofNullableStr_(shortNameMatcher.group(1))
 	} else {
 		fix.addGoogRequire(match, fullName, scriptMetadata)
 		shortName = scriptMetadata.getAlias(fullName)
 	}
 	var oldName OptionalOf[string] = func() Optional {
 		if error_.node().isQualifiedName() {
-			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+			return Optional_ofStr_(error_.node().getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
 				_ = s
 				return !String_isEmpty(s)
 			}})
 		}
-		return Optional_of(strobj_(error_.node().getString()))
+		return Optional_ofStr_(error_.node().getString())
 	}()
-	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(str_(oldName.get()), strobj_(fullName), shortName.get())), this.compiler_).build()
+	return fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(oldName.getStr_(), strobj_(fullName), shortName.get())), this.compiler_).build()
 }
 
 func (this *ErrorToFixMapper) getFixesForImplicitNullabilityErrors(error_ *JSError) ImmutableListOf[*SuggestedFix] {
@@ -215,7 +215,7 @@ func (this *ErrorToFixMapper) getFixForMissingSuper(error_ *JSError) *SuggestedF
 func (this *ErrorToFixMapper) getFixForInvalidSuper(error_ *JSError) *SuggestedFix {
 	var m *Matcher_re2j = ErrorToFixMapper_DID_YOU_MEAN.matcher(strobj_(error_.description()))
 	if m.matches() {
-		var superDotSuggestion string = str_(Optional_ofNullable(strobj_(m.group(1))).orElseThrow())
+		var superDotSuggestion string = str_(Optional_ofNullableStr_(m.group(1)).orElseThrow())
 		return new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).setDescription(("Call '" + sstr_(superDotSuggestion) + "' instead")).replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, superDotSuggestion), this.compiler_).build()
 	}
 	return nil
@@ -236,15 +236,15 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var namespaceToRequire string = regexMatcher.group(1)
 	var qName OptionalOf[string] = func() Optional {
 		if error_.node().isQualifiedName() {
-			return Optional_of(strobj_(error_.node().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+			return Optional_ofStr_(error_.node().getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
 				_ = s
 				return !String_isEmpty(s)
 			}})
 		}
-		return Optional_of(strobj_(error_.node().getString()))
+		return Optional_ofStr_(error_.node().getString())
 	}()
-	Preconditions_checkState_boolean_String_Object_Object(String_startsWith(str_(qName.get()), namespaceToRequire), "Expected error location %s to start with namespace <%s>", error_.node().box_(), strobj_(namespaceToRequire))
+	Preconditions_checkState_boolean_String_Object_Object(String_startsWith(qName.getStr_(), namespaceToRequire), "Expected error location %s to start with namespace <%s>", error_.node().box_(), strobj_(namespaceToRequire))
 	var script Node = this.compiler_.getScriptNode(str_(error_.sourceName().orElseThrow()))
 	var scriptMetadata *ScriptMetadata = this.getMetadataForScript(script)
 	var metadata *NodeMetadata = new_NodeMetadata_AbstractCompiler(this.compiler_)
@@ -252,7 +252,7 @@ func (this *ErrorToFixMapper) getFixForMissingRequire(error_ *JSError, importTyp
 	var fix *SuggestedFix_Builder = new_SuggestedFix_Builder().attachMatchedNodeInfo(error_.node(), this.compiler_).addImport(match, namespaceToRequire, importType, scriptMetadata)
 	var alias OptionalOf[string] = scriptMetadata.getAlias(namespaceToRequire)
 	if alias.isPresent() {
-		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(str_(qName.get()), strobj_(namespaceToRequire), alias.get())), this.compiler_)
+		fix.replace(error_.node(), NodeUtil_newQName_AbstractCompiler_String(this.compiler_, String_replace(qName.getStr_(), strobj_(namespaceToRequire), alias.get())), this.compiler_)
 	}
 	return fix.build()
 }

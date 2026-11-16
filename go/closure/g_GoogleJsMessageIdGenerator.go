@@ -30,12 +30,12 @@ func (this *GoogleJsMessageIdGenerator) generateId(meaning OptionalOf[string], m
 	}
 	var tcValue string = Object_toString(obj_(sb))
 	var projectScopedMeaning string = (sstr_(func() string {
-		if String_isEmpty(str_(this.projectId.orElse(strobj_("")))) {
+		if String_isEmpty(this.projectId.orElseStr_("")) {
 			return ""
 		}
-		return (sstr_(str_(this.projectId.get())) + ": ")
-	}()) + sstr_(str_(meaning.get())))
-	return String_valueOf_long(GoogleJsMessageIdGenerator_MessageId_generateId(tcValue, Optional_of(strobj_(projectScopedMeaning))))
+		return (sstr_(this.projectId.getStr_()) + ": ")
+	}()) + sstr_(meaning.getStr_()))
+	return String_valueOf_long(GoogleJsMessageIdGenerator_MessageId_generateId(tcValue, Optional_ofStr_(projectScopedMeaning)))
 }
 
 type GoogleJsMessageIdGenerator_FP struct {
@@ -185,8 +185,8 @@ func new_GoogleJsMessageIdGenerator_MessageId() *GoogleJsMessageIdGenerator_Mess
 
 func GoogleJsMessageIdGenerator_MessageId_generateId(message string, meaning OptionalOf[string]) int64 {
 	var fp int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(message)
-	if meaning.isPresent() && (String_length(str_(meaning.get())) > 0) {
-		var fp2 int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(str_(meaning.get()))
+	if meaning.isPresent() && (String_length(meaning.getStr_()) > 0) {
+		var fp2 int64 = GoogleJsMessageIdGenerator_FP_fingerprint_String(meaning.getStr_())
 		fp = ((fp2 + (fp << 1)) + int64(func() int32 {
 			if fp < 0 {
 				return 1

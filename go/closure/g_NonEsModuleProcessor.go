@@ -53,13 +53,13 @@ func (this *NonEsModuleProcessor_NonEsModule) resolveExport_impl(moduleRequestRe
 
 func (this *NonEsModuleProcessor_NonEsModule) resolveExport_5_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string], exportName OptionalOf[string], resolveSet SetOf[*ExportTrace], exportStarSet SetOf[*UnresolvedModule]) *ResolveExportResult {
 	var namespace OptionalOf[string] = Optional_empty()
-	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get())) {
-		namespace = Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(str_(moduleSpecifier.get()))))
+	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.getStr_()) {
+		namespace = Optional_ofStr_(GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.getStr_()))
 	} else if this.metadataField.isGoogProvide() {
 		namespace = moduleSpecifier
 	}
 	if this.metadataField.isCommonJs() {
-		if !(str_(exportName.get()) == "default") {
+		if !(exportName.getStr_() == "default") {
 			return ResolveExportResult_NOT_FOUND
 		}
 	}
@@ -72,8 +72,8 @@ func (this *NonEsModuleProcessor_NonEsModule) reset_impl() {
 
 func (this *NonEsModuleProcessor_NonEsModule) resolve_2_impl(moduleRequestResolver ModuleRequestResolver, moduleSpecifier OptionalOf[string]) *Module {
 	var namespace OptionalOf[string] = Optional_empty()
-	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(str_(moduleSpecifier.get())) {
-		namespace = Optional_of(strobj_(GoogEsImports_getClosureIdFromGoogImportSpecifier(str_(moduleSpecifier.get()))))
+	if moduleSpecifier.isPresent() && GoogEsImports_isGoogImportSpecifier(moduleSpecifier.getStr_()) {
+		namespace = Optional_ofStr_(GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleSpecifier.getStr_()))
 	}
 	return Module_builder().path(this.path_).metadata(this.metadataField).namespace(ImmutableMap_of()).boundNames(ImmutableMap_of()).localNameToLocalExport(ImmutableMap_of()).closureNamespace(namespace).build()
 }

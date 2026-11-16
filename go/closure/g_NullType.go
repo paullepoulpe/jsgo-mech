@@ -78,7 +78,7 @@ func (this *NullType) testForEquality_impl(that *JSType) *Tri {
 }
 
 func (this *NullType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("null"))
+	return Optional_ofStr_("null")
 }
 
 func (this *NullType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {

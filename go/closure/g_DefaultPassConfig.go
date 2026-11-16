@@ -194,11 +194,11 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
 		var convention CodingConvention = compiler.getCodingConvention()
-		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_of(strobj_(convention.getExportSymbolFunction())).filter(&Predicate_fn{func(s_ any) bool {
+		var pass *GenerateExports = new_GenerateExports(compiler, this.options_.shouldExportLocalPropertyDefinitions(), Optional_ofStr_(convention.getExportSymbolFunction()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
-		}}), Optional_of(strobj_(convention.getExportPropertyFunction())).filter(&Predicate_fn{func(s_ any) bool {
+		}}), Optional_ofStr_(convention.getExportPropertyFunction()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -248,7 +248,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	this.replaceMessagesForChrome = PassFactory_builder().setName(PassNames_REPLACE_MESSAGES).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
 		_ = compiler
-		return obj_(new_ReplaceMessagesForChrome(compiler, icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(Optional_of(strobj_(this.options_.getTcProjectId())))))))
+		return obj_(new_ReplaceMessagesForChrome(compiler, icast_JsMessage_IdGenerator(obj_(new_GoogleJsMessageIdGenerator(Optional_ofStr_(this.options_.getTcProjectId()))))))
 	}}).build()
 	this.closureGoogScopeAliasesForIjs = PassFactory_builder().setName("closureGoogScopeAliasesForIjs").setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -501,7 +501,7 @@ func (this *DefaultPassConfig) finit_DefaultPassConfig() {
 	}}).setPreconditionCheck(&Function_fn{func(options_ any) any {
 		var options *CompilerOptions = cast_[*CompilerOptions](options_)
 		_ = options
-		return obj_(new_PassFactory_PreconditionResult(((options.getPropertyCollapseLevel() == CompilerOptions_PropertyCollapseLevel_NONE) || options.getAssumePropertiesAreStaticallyAnalyzable()), Optional_of(strobj_("requires assumePropertiesAreStaticallyAnalyzable to be enabled"))))
+		return obj_(new_PassFactory_PreconditionResult(((options.getPropertyCollapseLevel() == CompilerOptions_PropertyCollapseLevel_NONE) || options.getAssumePropertiesAreStaticallyAnalyzable()), Optional_ofStr_("requires assumePropertiesAreStaticallyAnalyzable to be enabled")))
 	}}).build()
 	this.collapseObjectLiterals = PassFactory_builder().setName(PassNames_COLLAPSE_OBJECT_LITERALS).setRunInFixedPointLoop(true).setInternalFactory(&Function_fn{func(compiler_ any) any {
 		var compiler *AbstractCompiler = to_AbstractCompiler(compiler_)
@@ -1078,7 +1078,7 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 		passes.maybeAdd(this.renameProperties)
 		if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
 			if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(this.options_.getRenamePrefixNamespace().get()).matches() {
-				panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(str_(this.options_.getRenamePrefixNamespace().get())))).self())
+				panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().getStr_()))).self())
 			}
 			passes.maybeAdd(this.rescopeGlobalSymbols)
 		}
@@ -1177,7 +1177,7 @@ func (this *DefaultPassConfig) getFinalizations_impl() *PassListBuilder {
 	}
 	if this.options_.getRenamePrefixNamespace().isPresent() && (this.options_.getChunkOutputType() == CompilerOptions_ChunkOutputType_GLOBAL_NAMESPACE) {
 		if !DefaultPassConfig_GLOBAL_SYMBOL_NAMESPACE_PATTERN.matcher(this.options_.getRenamePrefixNamespace().get()).matches() {
-			panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(str_(this.options_.getRenamePrefixNamespace().get())))).self())
+			panic(new_IllegalArgumentException_String(("Illegal character in renamePrefixNamespace name: " + sstr_(this.options_.getRenamePrefixNamespace().getStr_()))).self())
 		}
 		passes.maybeAdd(this.rescopeGlobalSymbols)
 	}
@@ -1513,7 +1513,7 @@ func (this *DefaultPassConfig) runVariableRenaming(compiler *AbstractCompiler, p
 	var reservedChars SetOf[BoxedOf[uint16]] = icast_Set(obj_(ImmutableSet_of()))
 	var reservedNames *TSet[string] = newTSet_(tc_string)
 	if this.options_.getRenamePrefixNamespace().isPresent() {
-		reservedNames.add(str_(this.options_.getRenamePrefixNamespace().get()))
+		reservedNames.add(this.options_.getRenamePrefixNamespace().getStr_())
 	}
 	reservedNames.asSet().addAll(Collection(compiler.getExportedNames()))
 	reservedNames.asSet().addAll(icast_Collection(obj_(ParserRunner_getReservedVars())))
@@ -1548,13 +1548,13 @@ func DefaultPassConfig_getAdditionalReplacements(options *CompilerOptions) *TMap
 		additionalReplacements.put(DefaultPassConfig_COMPILED_CONSTANT_NAME, IR_trueNode())
 	}
 	if (options.getClosurePass() && options.getLocale().isPresent()) && !options.doLateLocalization() {
-		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(str_(options.getLocale().get())))
+		additionalReplacements.put(DefaultPassConfig_CLOSURE_LOCALE_CONSTANT_NAME, IR_string(options.getLocale().getStr_()))
 	}
 	return additionalReplacements
 }
 
 func DefaultPassConfig_requirePropertiesAreStaticallyAnalyzable(options *CompilerOptions) *PassFactory_PreconditionResult {
-	return new_PassFactory_PreconditionResult(options.getAssumePropertiesAreStaticallyAnalyzable(), Optional_of(strobj_("requires assumePropertiesAreStaticallyAnalyzable to be enabled")))
+	return new_PassFactory_PreconditionResult(options.getAssumePropertiesAreStaticallyAnalyzable(), Optional_ofStr_("requires assumePropertiesAreStaticallyAnalyzable to be enabled"))
 }
 
 const DefaultPassConfig_COMPILED_CONSTANT_NAME string = "COMPILED"

@@ -362,7 +362,7 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 				classVarName = subclassRelationship.subclassName
 				classDefiningCall = true
 			} else {
-				classVarName = Optional_of(strobj_(this.codingConvention.getSingletonGetterClassName(callNode))).filter(&Predicate_fn{func(s_ any) bool {
+				classVarName = Optional_ofStr_(this.codingConvention.getSingletonGetterClassName(callNode)).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)
@@ -370,8 +370,8 @@ func (this *RemoveUnusedCode) traverseCall(callNode Node, scope *Scope) {
 			}
 		}
 		var classVar *Var = nil
-		if classVarName.isPresent() && NodeUtil_isValidSimpleName(str_(classVarName.get())) {
-			classVar = cast_[*Var](Preconditions_checkNotNull_Object_Object(scope.getVar(str_(classVarName.get())).self(), classVarName.get()))
+		if classVarName.isPresent() && NodeUtil_isValidSimpleName(classVarName.getStr_()) {
+			classVar = cast_[*Var](Preconditions_checkNotNull_Object_Object(scope.getVar(classVarName.getStr_()).self(), classVarName.get()))
 		}
 		if (classVar == nil) || !classVar.isGlobal() {
 			this.traverseChildren(callNode, scope)
@@ -1566,7 +1566,7 @@ func (this *RemoveUnusedCode_Removable) getLocalAssignedValue_impl() Node {
 }
 
 func (this *RemoveUnusedCode_Removable) isPrototypeAssignment() bool {
-	return (this.isNamedPropertyAssignment() && (str_(this.propertyName_.get()) == "prototype"))
+	return (this.isNamedPropertyAssignment() && (this.propertyName_.getStr_() == "prototype"))
 }
 
 func (this *RemoveUnusedCode_Removable) isPrototypeDotPropertyReference() bool {
@@ -1708,12 +1708,12 @@ func (this *RemoveUnusedCode_RemovableBuilder) buildNamedClassExpression(classNo
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildClassOrPrototypeNamedProperty(propertyNode Node) *RemoveUnusedCode_ClassOrPrototypeNamedProperty {
 	Preconditions_checkArgument_boolean_Object((((propertyNode.isMemberFunctionDef() || propertyNode.isMemberFieldDef()) || NodeUtil_isGetOrSetKey(propertyNode)) || (propertyNode.isStringKey() && !propertyNode.isQuotedStringKey())), propertyNode.box_())
-	this.propertyName_ = Optional_of(strobj_(propertyNode.getString()))
+	this.propertyName_ = Optional_ofStr_(propertyNode.getString())
 	return new_RemoveUnusedCode_ClassOrPrototypeNamedProperty(this.outer_, this, propertyNode)
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildObjectDefinePropertiesDefinition(propertyNode Node) *RemoveUnusedCode_ObjectDefinePropertiesDefinition {
-	this.propertyName_ = Optional_of(strobj_(propertyNode.getString()))
+	this.propertyName_ = Optional_ofStr_(propertyNode.getString())
 	return new_RemoveUnusedCode_ObjectDefinePropertiesDefinition(this.outer_, this, propertyNode)
 }
 
@@ -1730,7 +1730,7 @@ func (this *RemoveUnusedCode_RemovableBuilder) buildNamedPropertyAssign(assignNo
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildNamedPropertyAssign_3(assignNode Node, propertyNode Node, varInfo RemoveUnusedCode_VarInfo) *RemoveUnusedCode_Assign {
-	this.propertyName_ = Optional_of(strobj_(propertyNode.getString()))
+	this.propertyName_ = Optional_ofStr_(propertyNode.getString())
 	return new_RemoveUnusedCode_Assign(this.outer_, this, assignNode, RemoveUnusedCode_Kind_NAMED_PROPERTY, propertyNode, varInfo)
 }
 
@@ -1755,17 +1755,17 @@ func (this *RemoveUnusedCode_RemovableBuilder) buildVanillaForNameDeclaration(na
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildAnonymousPrototypeNamedPropertyAssign(assignNode Node, propertyName string) *RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign {
-	this.propertyName_ = Optional_of(strobj_(propertyName))
+	this.propertyName_ = Optional_ofStr_(propertyName)
 	return new_RemoveUnusedCode_AnonymousPrototypeNamedPropertyAssign(this.outer_, this, assignNode)
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildIncOrDepOp(incOrDecOp Node, propertyNode Node, toPreseve Node) *RemoveUnusedCode_IncOrDecOp {
-	this.propertyName_ = Optional_of(strobj_(propertyNode.getString()))
+	this.propertyName_ = Optional_ofStr_(propertyNode.getString())
 	return new_RemoveUnusedCode_IncOrDecOp(this.outer_, this, incOrDecOp, toPreseve)
 }
 
 func (this *RemoveUnusedCode_RemovableBuilder) buildUnusedReadReference(referenceNode Node, propertyNode Node) *RemoveUnusedCode_UnusedReadReference {
-	this.propertyName_ = Optional_of(strobj_(propertyNode.getString()))
+	this.propertyName_ = Optional_ofStr_(propertyNode.getString())
 	return new_RemoveUnusedCode_UnusedReadReference(this.outer_, this, referenceNode)
 }
 
@@ -3040,7 +3040,7 @@ func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) getName_impl() strin
 
 func (this *RemoveUnusedCode_PrototypePropertyPolyfillInfo) considerPossibleReferenceInternal_impl(possiblyReferencingNode Node) {
 	if NodeUtil_isNormalOrOptChainGetProp(possiblyReferencingNode) {
-		if this.outer_.disambiguateProperties_ && this.outer_.polyfillUsageFinder.isDisjointFromIterator_2(possiblyReferencingNode, Optional_of(strobj_(this.polyfillOwnerName))) {
+		if this.outer_.disambiguateProperties_ && this.outer_.polyfillUsageFinder.isDisjointFromIterator_2(possiblyReferencingNode, Optional_ofStr_(this.polyfillOwnerName)) {
 			return
 		}
 		this.isRemovable_ = false

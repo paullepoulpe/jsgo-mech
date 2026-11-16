@@ -83,8 +83,8 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 		var p *RenameProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
 			Preconditions_checkState((oldName == p.oldName))
-			n.setString(str_(p.newName.get()))
-			if !(str_(p.newName.get()) == oldName) {
+			n.setString(p.newName.getStr_())
+			if !(p.newName.getStr_() == oldName) {
 				this.compiler_.reportChangeToEnclosingScope(n)
 			}
 		}
@@ -105,7 +105,7 @@ func (this *RenameProperties) process_2(externs Node, root Node) {
 				if has_(this.filteredOutNames, oldName) {
 					replacement = oldName
 				} else {
-					replacement = str_(p.newName.get())
+					replacement = p.newName.getStr_()
 				}
 			} else {
 				replacement = oldName
@@ -139,11 +139,11 @@ func (this *RenameProperties) reusePropertyNames(reservedNames SetOf[string], al
 		var prop *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
 		var prevName OptionalOf[string] = this.prevUsedPropertyMap.lookupNewName(prop.oldName)
 		if !this.generatePseudoNames && prevName.isPresent() {
-			if Collection_contains_s(reservedNames, str_(prevName.get())) {
+			if Collection_contains_s(reservedNames, prevName.getStr_()) {
 				continue
 			}
 			prop.newName = prevName
-			Collection_add_s(reservedNames, str_(prevName.get()))
+			Collection_add_s(reservedNames, prevName.getStr_())
 		}
 	}
 }
@@ -154,10 +154,10 @@ func (this *RenameProperties) generateNames(props SetOf[*RenameProperties_Proper
 	for it_1.next() {
 		var p *RenameProperties_Property = cast_[*RenameProperties_Property](it_1.v)
 		if this.generatePseudoNames {
-			p.newName = Optional_of(strobj_(("$" + sstr_(p.oldName) + "$")))
+			p.newName = Optional_ofStr_(("$" + sstr_(p.oldName) + "$"))
 		} else {
 			if p.newName.isEmpty() {
-				p.newName = Optional_of(strobj_(this.nameGenerator.generateNextName()))
+				p.newName = Optional_ofStr_(this.nameGenerator.generateNextName())
 			}
 		}
 		Collection_add_s(reservedNames, str_(p.newName.orElse(nil)))

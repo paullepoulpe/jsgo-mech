@@ -58,7 +58,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 					googImportNode = child
 				} else {
 					valid = false
-					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(scriptRoot.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_ofStr_(scriptRoot.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 						var s string = str_(s_)
 						_ = s
 						return !String_isEmpty(s)
@@ -75,7 +75,7 @@ func (this *RewriteGoogJsImports) findGoogImportNode(scriptRoot Node) Node {
 	var moduleScope *Scope = new_SyntacticScopeCreator_AbstractCompiler(this.compiler_).createScope(scriptRoot.getFirstChild(), Scope_createGlobalScope(scriptRoot))
 	var googVar *Var = cast_[*Var](moduleScope.getVar("goog").self())
 	if (googVar != nil) && (googVar.getNameNode() != 0) {
-		this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(scriptRoot.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+		this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_ofStr_(scriptRoot.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -117,7 +117,7 @@ func (this *RewriteGoogJsImports) findGoogJsScriptNode(root Node) Node {
 				if this.compiler_.getInput(script.getInputId()).getPath().equalsIgnoreLeadingSlash(expectedGoogPath) {
 					googScriptNode = script
 				} else if String_endsWith(script.getSourceFileName(), "/goog.js") {
-					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(script.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+					this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_ofStr_(script.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 						var s string = str_(s_)
 						_ = s
 						return !String_isEmpty(s)

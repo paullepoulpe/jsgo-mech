@@ -65,7 +65,7 @@ func (this *FunctionTypeBuilder) finit_FunctionTypeBuilder() {
 func (this *FunctionTypeBuilder) init_FunctionTypeBuilder(fnName OptionalOf[string], compiler *AbstractCompiler, errorRoot Node, scope *TypedScope) {
 	this.finit_FunctionTypeBuilder()
 	Preconditions_checkNotNull(errorRoot.box_())
-	this.fnName = str_(fnName.orElse(strobj_("")))
+	this.fnName = fnName.orElseStr_("")
 	this.codingConvention = compiler.getCodingConvention()
 	this.typeRegistry = compiler.getTypeRegistry()
 	this.errorRoot = errorRoot
@@ -98,7 +98,7 @@ func (this *FunctionTypeBuilder) formatFnName() string {
 }
 
 func (this *FunctionTypeBuilder) setSyntacticFunctionName(syntacticFnName OptionalOf[string]) *FunctionTypeBuilder {
-	this.syntacticFnName = str_(syntacticFnName.orElse(strobj_("")))
+	this.syntacticFnName = syntacticFnName.orElseStr_("")
 	return this
 }
 
@@ -362,7 +362,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 			}
 			var paramName OptionalOf[string] = Optional_empty()
 			if paramLhs.isName() {
-				paramName = Optional_of(strobj_(paramLhs.getString()))
+				paramName = Optional_ofStr_(paramLhs.getString())
 			} else {
 				Preconditions_checkState(paramLhs.isDestructuringPattern())
 				if info != nil {
@@ -370,7 +370,7 @@ func (this *FunctionTypeBuilder) inferParameterTypes_2(paramsParent Node, info *
 				}
 			}
 			if paramName.isPresent() {
-				allJsDocParams.remove(str_(paramName.get()))
+				allJsDocParams.remove(paramName.getStr_())
 			}
 			var parameterType *JSType = nil
 			if (info != nil) && info.hasParameterType(paramName) {
@@ -528,7 +528,7 @@ func (this *FunctionTypeBuilder) buildTemplateTypesFromJSDocInfo(info *JSDocInfo
 	for it_9.next() {
 		var template *TemplateType = cast_[*TemplateType](it_9.v)
 		if template.containsCycle() {
-			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(str_(template.getReferenceName().orElse(strobj_("null")))))})
+			this.reportError(RhinoErrorReporter_CYCLIC_INHERITANCE_ERROR, []string{("Cycle detected in inheritance chain of type " + sstr_(template.getReferenceName().orElseStr_("null")))})
 		}
 	}
 	return builtTemplates
@@ -639,7 +639,7 @@ func (this *FunctionTypeBuilder) maybeSetBaseType(fnType *FunctionType) {
 }
 
 func (this *FunctionTypeBuilder) createDefaultBuilder() *FunctionType_Builder {
-	return FunctionType_builder(this.typeRegistry).withName(Optional_of(strobj_(this.fnName))).withSourceNode(this.contents.getSourceNode()).withTemplateKeysImmutableList(this.templateTypeNames).setIsKnownAmbiguous(this.isKnownAmbiguous).setGoogModuleId(str_(TypedScopeCreator_containingGoogModuleIdOf(this.declarationScope).orElse(strobj_(""))))
+	return FunctionType_builder(this.typeRegistry).withName(Optional_ofStr_(this.fnName)).withSourceNode(this.contents.getSourceNode()).withTemplateKeysImmutableList(this.templateTypeNames).setIsKnownAmbiguous(this.isKnownAmbiguous).setGoogModuleId(TypedScopeCreator_containingGoogModuleIdOf(this.declarationScope).orElseStr_(""))
 }
 
 func (this *FunctionTypeBuilder) getOrCreateConstructor() *FunctionType {

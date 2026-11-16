@@ -146,7 +146,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveImport(i *Import)
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve(e *Export) *UnresolvedModule {
-	return this.resolve_3(str_(e.moduleRequest().get()), e.modulePath(), e.exportNode())
+	return this.resolve_3(e.moduleRequest().getStr_(), e.modulePath(), e.exportNode())
 }
 
 func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolveForClosure(namespace string) *UnresolvedModule {
@@ -158,7 +158,7 @@ func (this *ModuleMapCreator_ModuleRequestResolverImpl) resolve_3(moduleRequest 
 		var namespace string = GoogEsImports_getClosureIdFromGoogImportSpecifier(moduleRequest)
 		return this.resolveForClosure(namespace)
 	}
-	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_of(strobj_(forLineInfo.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+	var requestedPath *ModuleLoader_ModulePath = modulePath.resolveJsModule(moduleRequest, Optional_ofStr_(forLineInfo.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)

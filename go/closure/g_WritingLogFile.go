@@ -29,7 +29,7 @@ func new_WritingLogFile(writer *Output) *WritingLogFile {
 func WritingLogFile_create(file string) *LogFile {
 	var directory OptionalOf[string] = FilePaths_parent(file)
 	if directory.isPresent() {
-		Io_mkdirs(str_(directory.get()))
+		Io_mkdirs(directory.getStr_())
 	}
 	var writer *Outcome_base = Output_open(file, Charsets_UTF_8, true)
 	if writer.isErr() {

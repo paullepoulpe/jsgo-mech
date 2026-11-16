@@ -86,7 +86,7 @@ func (this *SimpleJsonValue) asString() *Outcome_base {
 func (this *SimpleJsonValue) asInt() *Outcome_base {
 	var parsed any = func() any {
 		if (this.tag == SimpleJsonValue_Kind_STRING) || (this.tag == SimpleJsonValue_Kind_NUMBER) {
-			return JSCompStrings_parseIntOrNull(Optional_of(strobj_(this.text)))
+			return JSCompStrings_parseIntOrNull(Optional_ofStr_(this.text))
 		}
 		return nil
 	}()
@@ -179,11 +179,11 @@ func (this *SimpleJsonValue) writeTo(writer *SimpleJsonWriter) {
 		}
 		writer.endArray()
 	case SimpleJsonValue_Kind_STRING:
-		writer.stringValue(Optional_of(strobj_(this.text)))
+		writer.stringValue(Optional_ofStr_(this.text))
 	case SimpleJsonValue_Kind_NULL:
 		writer.nullValue()
 	case SimpleJsonValue_Kind_NUMBER, SimpleJsonValue_Kind_BOOLEAN:
-		writer.rawValue(Optional_of(strobj_(this.text)))
+		writer.rawValue(Optional_ofStr_(this.text))
 	}
 }
 

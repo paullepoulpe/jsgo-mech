@@ -101,7 +101,7 @@ func PolymerClassDefinition_extractFromCallNode(callNode Node, compiler *Abstrac
 		if baseClass == 0 {
 			return Optional_empty()
 		}
-		return Optional_of(strobj_(baseClass.getString()))
+		return Optional_ofStr_(baseClass.getString())
 	}()
 	var behaviorArray Node = NodeUtil_getFirstPropMatchingKey(descriptor, "behaviors")
 	var behaviors ImmutableListOf[*PolymerBehaviorExtractor_BehaviorDefinition] = behaviorExtractor.extractBehaviors(behaviorArray, moduleMetadata)
@@ -309,7 +309,7 @@ func (this *PolymerClassDefinition) toString() string {
 
 func (this *PolymerClassDefinition) getInterfaceName(uniqueIdSupplier *UniqueIdSupplier) OptionalOf[string] {
 	if this.interfaceName.isEmpty() {
-		this.interfaceName = Optional_of(strobj_(("Polymer" + sstr_(String_replace_char_char(this.target.getQualifiedName(), '.', '_')) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input)))))
+		this.interfaceName = Optional_ofStr_(("Polymer" + sstr_(String_replace_char_char(this.target.getQualifiedName(), '.', '_')) + "Interface$" + sstr_(uniqueIdSupplier.getUniqueId(this.input))))
 	}
 	return this.interfaceName
 }

@@ -134,12 +134,12 @@ func (this *ReplaceCssNames) processStringNode(n Node) {
 						this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, ReplaceCssNames_UNKNOWN_SYMBOL_WARNING, []string{parts[i], name}))
 						return
 					}
-					replaced[i] = str_(part.get())
+					replaced[i] = part.getStr_()
 				}
-				replacement = Optional_of(strobj_(Joiner_on("-").join_ObjectArr(arrmap_(replaced, func(v_ string) any { return strobj_(v_) }))))
+				replacement = Optional_ofStr_(Joiner_on("-").join_ObjectArr(arrmap_(replaced, func(v_ string) any { return strobj_(v_) })))
 			}
 		}
-		n.setString(str_(replacement.get()))
+		n.setString(replacement.getStr_())
 	}
 }
 
@@ -258,7 +258,7 @@ func (this *ReplaceCssNames_GatherCssNamesTraversal) shouldTraverse(t *NodeTrave
 		this.traversalState.inSassGeneratedCssTsScript = sassGeneratedCssTsExpert.hasSassGeneratedCssTsJsDoc
 		this.traversalState.cssClosureClassesQualifiedName = Optional_empty()
 	} else if this.traversalState.inSassGeneratedCssTsScript && sassGeneratedCssTsExpert.isCssClosureClassesAssignment {
-		this.traversalState.cssClosureClassesQualifiedName = Optional_of(strobj_(sassGeneratedCssTsExpert.cssClosureClassesQualifiedName))
+		this.traversalState.cssClosureClassesQualifiedName = Optional_ofStr_(sassGeneratedCssTsExpert.cssClosureClassesQualifiedName)
 	}
 	return true
 }
@@ -414,7 +414,7 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClosureClassesMemberName()
 	for it_1.next() {
 		var ancestor Node = Node_of_(it_1.v)
 		if ancestor.isStringKey() {
-			return Optional_of(strobj_((sstr_(str_(this.cssClosureClassesQualifiedName.get())) + "." + sstr_(ancestor.getString()))))
+			return Optional_ofStr_((sstr_(this.cssClosureClassesQualifiedName.getStr_()) + "." + sstr_(ancestor.getString())))
 		}
 	}
 	panic(new_IllegalStateException_String(String_format("No css closure classes member name found: %s", []any{this.callNode_.box_()})).self())
@@ -429,11 +429,11 @@ func (this *ReplaceCssNames_GetCssNameInstance) getCssClassName() OptionalOf[str
 		switch childCount {
 		case 2:
 			Preconditions_checkState_boolean_String_Object(firstArg.isStringLit(), "not a string literal: %s", firstArg.box_())
-			return Optional_of(strobj_(firstArg.getString()))
+			return Optional_ofStr_(firstArg.getString())
 		case 3:
 			var secondArg Node = Node_of_(Preconditions_checkNotNull_Object_Object(firstArg.getNext().box_(), firstArg.box_()))
 			Preconditions_checkState_boolean_String_Object(secondArg.isStringLit(), "not a string literal: %s", secondArg.box_())
-			return Optional_of(strobj_(secondArg.getString()))
+			return Optional_ofStr_(secondArg.getString())
 		default:
 			panic(new_IllegalStateException_String(String_format("invalid number of children: %s for: %s", []any{any(int32(childCount)), this.callNode_.box_()})).self())
 		}

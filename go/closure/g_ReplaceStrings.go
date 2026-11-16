@@ -133,15 +133,15 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 	var replacementString string
 	switch expr.ns_().token {
 	case tokOrd1_STRINGLIT:
-		key = Optional_of(strobj_(expr.getString()))
+		key = Optional_ofStr_(expr.getString())
 		replacementString = this.getReplacement(str_(key.orElse(nil)))
 		replacement = IR_string(replacementString)
 	case tokOrd1_TEMPLATELIT, tokOrd1_ADD, tokOrd1_NAME:
 		var keyBuilder *StringBuilder = new_StringBuilder()
 		var keyNode Node = IR_string("")
 		replacement = this.buildReplacement(t, expr, keyNode, keyBuilder)
-		key = Optional_of(strobj_(Object_toString(obj_(keyBuilder))))
-		if str_(key.get()) == this.placeholderToken {
+		key = Optional_ofStr_(Object_toString(obj_(keyBuilder)))
+		if key.getStr_() == this.placeholderToken {
 			return expr
 		}
 		replacementString = this.getReplacement(str_(key.orElse(nil)))
@@ -150,7 +150,7 @@ func (this *ReplaceStrings) replaceExpression(t *NodeTraversal, expr Node) Node 
 		return expr
 	}
 	Preconditions_checkState(key.isPresent())
-	this.recordReplacement(str_(key.get()))
+	this.recordReplacement(key.getStr_())
 	replacement.srcrefTreeIfMissing(expr)
 	expr.replaceWith(replacement)
 	t.reportCodeChange()
@@ -187,7 +187,7 @@ func (this *ReplaceStrings) buildReplacement(t *NodeTraversal, expr Node, prefix
 			for ; child != 0; child = child.getNext() {
 				switch child.ns_().token {
 				case tokOrd1_TEMPLATELIT_STRING:
-					keyBuilder.append(str_(child.getCookedString().orElse(strobj_("null"))))
+					keyBuilder.append(child.getCookedString().orElseStr_("null"))
 				case tokOrd1_TEMPLATELIT_SUB:
 					prefix = this.buildReplacement(t, child.getFirstChild(), prefix, keyBuilder)
 				default:

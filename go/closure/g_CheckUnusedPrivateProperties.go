@@ -108,7 +108,7 @@ func (this *CheckUnusedPrivateProperties) visit(t *NodeTraversal, n Node, parent
 func (this *CheckUnusedPrivateProperties) recordConstructorOrInterface(n Node) {
 	var className OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	if className.isPresent() {
-		this.constructorsAndInterfaces[str_(className.get())] = struct{}{}
+		this.constructorsAndInterfaces[className.getStr_()] = struct{}{}
 	}
 }
 

@@ -426,7 +426,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	var className string
 	if (nameNode != 0) && nameNode.isQualifiedName() {
 		className = nameNode.getQualifiedName()
-		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(className)).filter(&Predicate_fn{func(s_ any) bool {
+		if this.qualifiedNameBeginsWithStripTypeString(Optional_ofStr_(className).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -448,7 +448,7 @@ func (this *StripCode_Strip) maybeEliminateClassByNameOrExtends(t *NodeTraversal
 	var superclassNode Node = classNode.getSecondChild()
 	if (superclassNode != 0) && superclassNode.isQualifiedName() {
 		var superclassName string = superclassNode.getQualifiedName()
-		if this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(superclassName)).filter(&Predicate_fn{func(s_ any) bool {
+		if this.qualifiedNameBeginsWithStripTypeString(Optional_ofStr_(superclassName).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -468,7 +468,7 @@ func (this *StripCode_Strip) isCallWhoseReturnValueShouldBeStripped(n Node) bool
 
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripType(n Node) bool {
 	var name string = n.getQualifiedName()
-	return this.qualifiedNameBeginsWithStripTypeString(Optional_of(strobj_(name)).filter(&Predicate_fn{func(s_ any) bool {
+	return this.qualifiedNameBeginsWithStripTypeString(Optional_ofStr_(name).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -478,13 +478,13 @@ func (this *StripCode_Strip) qualifiedNameBeginsWithStripType(n Node) bool {
 func (this *StripCode_Strip) qualifiedNameBeginsWithStripTypeString(name OptionalOf[string]) bool {
 	if name.isPresent() {
 		for _, type_ := range this.outer_.stripTypesList {
-			if str_(name.get()) == type_ {
+			if name.getStr_() == type_ {
 				this.logStripName(name, "equals strip type")
 				return true
 			}
 		}
 		for _, type_ := range this.outer_.stripTypePrefixesList {
-			if String_startsWith(str_(name.get()), type_) {
+			if String_startsWith(name.getStr_(), type_) {
 				this.logStripName(name, "starts with strip type prefix")
 				return true
 			}
@@ -557,7 +557,7 @@ func (this *StripCode_Strip) actsOnStripType(t *NodeTraversal, callNode Node) bo
 			return true
 		}
 		if this.qualifiedNameBeginsWithStripTypeString(classes.superclassName) {
-			t.report(callNode, StripCode_STRIP_TYPE_INHERIT_ERROR, []string{str_(classes.subclassName.orElse(strobj_("null"))), str_(classes.superclassName.orElse(strobj_("null")))})
+			t.report(callNode, StripCode_STRIP_TYPE_INHERIT_ERROR, []string{classes.subclassName.orElseStr_("null"), classes.superclassName.orElseStr_("null")})
 		}
 	}
 	return false
@@ -565,15 +565,15 @@ func (this *StripCode_Strip) actsOnStripType(t *NodeTraversal, callNode Node) bo
 
 func (this *StripCode_Strip) isStripName(name string) bool {
 	if Collection_contains_s(this.outer_.stripNameSuffixes, name) {
-		this.logStripName(Optional_of(strobj_(name)), "matches a suffix")
+		this.logStripName(Optional_ofStr_(name), "matches a suffix")
 		return true
 	}
 	if Collection_contains_s(this.outer_.stripNamePrefixes, name) {
-		this.logStripName(Optional_of(strobj_(name)), "matches a prefix")
+		this.logStripName(Optional_ofStr_(name), "matches a prefix")
 		return true
 	}
 	if String_isEmpty(name) || Character_isUpperCase(String_charAt(name, 0)) {
-		this.logNotAStripName(Optional_of(strobj_(name)), "empty or starts with uppercase")
+		this.logNotAStripName(Optional_ofStr_(name), "empty or starts with uppercase")
 		return false
 	}
 	var lcName string = String_toLowerCase(name, Locale_ROOT)
@@ -593,14 +593,14 @@ func (this *StripCode_Strip) isStripName(name string) bool {
 			return true
 		}
 	}
-	this.logNotAStripName(Optional_of(strobj_(name)), "no matches")
+	this.logNotAStripName(Optional_ofStr_(name), "no matches")
 	return false
 }
 
 func (this *StripCode_Strip) logNotAStripName(name OptionalOf[string], reason string) {
 	if this.decisionsLog.isLogging() {
 		this.decisionsLog.log(&Supplier_fn{func() any {
-			return strobj_((sstr_(str_(name.orElse(strobj_("null")))) + "\tnot a strip name: " + sstr_(reason)))
+			return strobj_((sstr_(name.orElseStr_("null")) + "\tnot a strip name: " + sstr_(reason)))
 		}})
 	}
 }
@@ -608,7 +608,7 @@ func (this *StripCode_Strip) logNotAStripName(name OptionalOf[string], reason st
 func (this *StripCode_Strip) logStripName(name OptionalOf[string], reason string) {
 	if this.decisionsLog.isLogging() {
 		this.decisionsLog.log(&Supplier_fn{func() any {
-			return strobj_((sstr_(str_(name.orElse(strobj_("null")))) + "\tstrip name: " + sstr_(reason)))
+			return strobj_((sstr_(name.orElseStr_("null")) + "\tstrip name: " + sstr_(reason)))
 		}})
 	}
 }

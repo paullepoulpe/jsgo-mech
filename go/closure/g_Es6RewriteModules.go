@@ -117,7 +117,7 @@ func (this *Es6RewriteModules) visitImport(t *NodeTraversal, importDecl Node, pa
 			Preconditions_checkState(((m.isEs6Module() || m.isGoogModule()) || m.isGoogProvide()))
 		}
 	} else {
-		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of(strobj_(importDecl.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_ofStr_(importDecl.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -323,7 +323,7 @@ func (this *Es6RewriteModules) inlineAliasedTypes(t *NodeTraversal, typeNode Nod
 					rest = ("." + sstr_(split.get(1)))
 				}
 				typeNode.setOriginalName(name)
-				typeNode.setString((sstr_(str_(replacement.aliasName().join().orElse(strobj_("null")))) + sstr_(rest)))
+				typeNode.setString((sstr_(replacement.aliasName().join().orElseStr_("null")) + sstr_(rest)))
 				t.reportCodeChange()
 			}
 		}
@@ -384,12 +384,12 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 					var child Node = parent.getFirstFirstChild()
 					for ; child != 0; child = child.getNext() {
 						Preconditions_checkState_boolean_Object((child.isStringKey() && child.getFirstChild().isName()), child.box_())
-						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of(strobj_(namespace)), isFromFallbackMetadata).getprop(child.getString())
+						var rep *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_ofStr_(namespace), isFromFallbackMetadata).getprop(child.getString())
 						this.namesToInlineByAlias[child.getFirstChild().getString()] = rep
 					}
 				}
 			} else if parent.isName() {
-				var alias *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of(strobj_(namespace)), isFromFallbackMetadata)
+				var alias *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_ofStr_(namespace), isFromFallbackMetadata)
 				this.namesToInlineByAlias[parent.getString()] = alias
 				toDetach = parent.getParent()
 			} else {
@@ -398,7 +398,7 @@ func (this *Es6RewriteModules) visitRequireOrGet(t *NodeTraversal, requireCall N
 			}
 			toDetach.detach()
 		} else {
-			var name *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_of(strobj_(namespace)), isFromFallbackMetadata)
+			var name *ModuleRenaming_GlobalizedModuleName = this.getGlobalNameAndType(m, Optional_ofStr_(namespace), isFromFallbackMetadata)
 			var replacement Node = name.toQname(this.astFactory_).srcrefTree(requireCall)
 			requireCall.replaceWith(replacement)
 		}
@@ -423,11 +423,11 @@ func (this *Es6RewriteModules) maybeAddAliasToSymbolTable(n Node, module Optiona
 	n.putBooleanProp(Node_MODULE_ALIAS, true)
 	var nodeName OptionalOf[string] = func() Optional {
 		if n.isStringLit() || n.isImportStar() {
-			return Optional_of(strobj_(n.getString()))
+			return Optional_ofStr_(n.getString())
 		}
 		return this.preprocessorSymbolTable.getQualifiedName(n)
 	}()
-	var name string = ("alias_" + sstr_(str_(module.orElse(strobj_("null")))) + "_" + sstr_(str_(nodeName.orElse(strobj_("null")))))
+	var name string = ("alias_" + sstr_(module.orElseStr_("null")) + "_" + sstr_(nodeName.orElseStr_("null")))
 	this.preprocessorSymbolTable.addReference_2(n, name)
 }
 
@@ -573,7 +573,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					for ; child != 0; child = child.getNext() {
 						Preconditions_checkState(child.isStringKey())
 						Preconditions_checkState(child.getFirstChild().isName())
-						this.renameTable.put(t.getScopeRoot().box_(), strobj_(child.getFirstChild().getString()), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of(strobj_(name))).getprop(child.getString()).join().orElse(nil))
+						this.renameTable.put(t.getScopeRoot().box_(), strobj_(child.getFirstChild().getString()), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_ofStr_(name)).getprop(child.getString()).join().orElse(nil))
 					}
 				}
 			} else {
@@ -582,7 +582,7 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					for ; child != 0; child = child.getNext() {
 						Preconditions_checkState(child.isStringKey())
 						Preconditions_checkState(child.getFirstChild().isName())
-						var globalName *ModuleRenaming_GlobalizedModuleName = this.outer_.getGlobalNameAndType(moduleMetadata, Optional_of(strobj_(name)), false).getprop(child.getString())
+						var globalName *ModuleRenaming_GlobalizedModuleName = this.outer_.getGlobalNameAndType(moduleMetadata, Optional_ofStr_(name), false).getprop(child.getString())
 						var constNode Node = this.outer_.astFactory_.createSingleConstNameDeclaration(child.getFirstChild().getString(), globalName.toQname(this.outer_.astFactory_))
 						constNode.srcrefTree(child)
 						constNode.insertBefore(statementNode)
@@ -603,23 +603,23 @@ func (this *Es6RewriteModules_RewriteRequiresForEs6Modules) visit_impl(t *NodeTr
 					t.report(statementNode, diagnostic, []string{})
 					return
 				}
-				this.renameTable.put(t.getScopeRoot().box_(), strobj_(statementNode.getFirstChild().getString()), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of(strobj_(name))).join().orElse(nil))
+				this.renameTable.put(t.getScopeRoot().box_(), strobj_(statementNode.getFirstChild().getString()), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_ofStr_(name)).join().orElse(nil))
 				statementNode.detach()
 				t.reportCodeChange()
 			} else {
-				n.replaceWith(this.outer_.astFactory_.createName(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of(strobj_(name))).getRoot(), AstFactory_type_Node(n)).srcrefTree(n))
+				n.replaceWith(this.outer_.astFactory_.createName(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_ofStr_(name)).getRoot(), AstFactory_type_Node(n)).srcrefTree(n))
 				t.reportCodeChange()
 			}
 		}
 	} else {
 		if isForwardDeclare || isRequireType {
-			this.renameTable.put(t.getScopeRoot().box_(), strobj_(name), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of(strobj_(name))).join().orElse(nil))
+			this.renameTable.put(t.getScopeRoot().box_(), strobj_(name), ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_ofStr_(name)).join().orElse(nil))
 			statementNode.detach()
 		} else {
 			if statementNode.isExprResult() && (statementNode.getFirstChild() == n) {
 				statementNode.detach()
 			} else {
-				n.replaceWith(this.outer_.astFactory_.createName(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_of(strobj_(name))).getRoot(), AstFactory_type_Node(n)).srcrefTree(n))
+				n.replaceWith(this.outer_.astFactory_.createName(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_ofStr_(name)).getRoot(), AstFactory_type_Node(n)).srcrefTree(n))
 			}
 		}
 		t.reportCodeChange()
@@ -665,8 +665,8 @@ func (this *Es6RewriteModules_RenameGlobalVars) visit_impl(t *NodeTraversal, n N
 		var name string = n.getString()
 		var var_ *Var = cast_[*Var](t.getScope().getVar(name).self())
 		if (var_ != nil) && var_.isGlobal() {
-			var newName OptionalOf[string] = ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(this.thisModule.metadata(), Optional_of(strobj_(name))).join()
-			n.setString(str_(newName.get()))
+			var newName OptionalOf[string] = ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(this.thisModule.metadata(), Optional_ofStr_(name)).join()
+			n.setString(newName.getStr_())
 			n.setOriginalName(name)
 			t.reportCodeChange_1(n)
 			if NodeUtil_isDeclarationLValue(n) {
@@ -705,9 +705,9 @@ func (this *Es6RewriteModules_RenameGlobalVars) replace(n Node, binding *Binding
 		var root string = globalName.getRoot()
 		newNode = func() Node {
 			if (this.outer_.globalTypedScope != nil) && this.outer_.globalTypedScope.hasSlot(root) {
-				return this.outer_.astFactory_.createQNameUsingJSTypeInfo(this.outer_.globalTypedScope, str_(globalName.join().get()))
+				return this.outer_.astFactory_.createQNameUsingJSTypeInfo(this.outer_.globalTypedScope, globalName.join().getStr_())
 			}
-			return this.outer_.astFactory_.createQNameWithUnknownType(str_(globalName.join().get()))
+			return this.outer_.astFactory_.createQNameWithUnknownType(globalName.join().getStr_())
 		}()
 	} else {
 		newNode = this.outer_.astFactory_.createName(globalName.getRoot(), AstFactory_type_Node(n))
@@ -730,11 +730,11 @@ func (this *Es6RewriteModules_RenameGlobalVars) fixTypeNode(t *NodeTraversal, ty
 		}
 		var var_ *Var = cast_[*Var](t.getScope().getVar(baseName).self())
 		if (var_ != nil) && var_.isGlobal() {
-			this.maybeSetNewName(t, typeNode, name, (sstr_(str_(ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(thisModule.metadata(), Optional_of(strobj_(baseName))).join().orElse(strobj_("null")))) + sstr_(rest)))
+			this.maybeSetNewName(t, typeNode, name, (sstr_(ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(thisModule.metadata(), Optional_ofStr_(baseName)).join().orElseStr_("null")) + sstr_(rest)))
 		} else if (var_ == nil) && Map_containsKey_s(thisModule.boundNames(), baseName) {
 			var binding *Binding = cast_[*Binding](Map_get_s(thisModule.boundNames(), baseName))
 			var globalName OptionalOf[string] = ModuleRenaming_getGlobalNameForJsDoc(this.outer_.moduleMap, binding, splitted.asList().subList(1, splitted.size()))
-			this.maybeSetNewName(t, typeNode, name, str_(globalName.get()))
+			this.maybeSetNewName(t, typeNode, name, globalName.getStr_())
 			if this.outer_.preprocessorSymbolTable != nil {
 				var onlyBaseName Node = Node_newString_String(baseName).srcref(typeNode)
 				onlyBaseName.setLength(String_length(baseName))

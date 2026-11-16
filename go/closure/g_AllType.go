@@ -50,7 +50,7 @@ func (this *AllType) appendTo_impl(sb *TypeStringBuilder) {
 }
 
 func (this *AllType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("<Any Type>"))
+	return Optional_ofStr_("<Any Type>")
 }
 
 func (this *AllType) hasDisplayName_impl() bool {

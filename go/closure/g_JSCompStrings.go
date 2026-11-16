@@ -24,22 +24,22 @@ func JSCompStrings_linesIterable(lines IterableOf[string]) string {
 }
 
 func JSCompStrings_parseIntOrNull(s OptionalOf[string]) any {
-	if s.isEmpty() || String_isEmpty(str_(s.get())) {
+	if s.isEmpty() || String_isEmpty(s.getStr_()) {
 		return nil
 	}
-	var negative bool = (String_charAt(str_(s.get()), 0) == '-')
+	var negative bool = (String_charAt(s.getStr_(), 0) == '-')
 	var start int32 = func() int32 {
-		if negative || (String_charAt(str_(s.get()), 0) == '+') {
+		if negative || (String_charAt(s.getStr_(), 0) == '+') {
 			return 1
 		}
 		return 0
 	}()
-	if start == String_length(str_(s.get())) {
+	if start == String_length(s.getStr_()) {
 		return nil
 	}
 	var value int64 = 0
-	for i := int32(start); i < String_length(str_(s.get())); i++ {
-		var digit int32 = Character_digit(String_charAt(str_(s.get()), i), 10)
+	for i := int32(start); i < String_length(s.getStr_()); i++ {
+		var digit int32 = Character_digit(String_charAt(s.getStr_(), i), 10)
 		if digit < 0 {
 			return nil
 		}

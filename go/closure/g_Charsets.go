@@ -19,7 +19,7 @@ func Charsets_canonicalName(name string) OptionalOf[string] {
 	var lower string = Ascii_toLowerCase(name)
 	for i := int32(0); i < int32(len(Charsets_NAMES)); i += 2 {
 		if Charsets_NAMES[i] == lower {
-			return Optional_of(strobj_(Charsets_NAMES[(i + 1)]))
+			return Optional_ofStr_(Charsets_NAMES[(i + 1)])
 		}
 	}
 	return Optional_empty()
@@ -34,7 +34,7 @@ func Charsets_name(name string) string {
 	if canonical.isEmpty() {
 		panic(new_IllegalArgumentException_String(("Unsupported charset: " + sstr_(name))).self())
 	}
-	return str_(canonical.get())
+	return canonical.getStr_()
 }
 
 func Charsets_decode(bytes []int8, charset string) string {
@@ -73,7 +73,7 @@ func Charsets_decodeOther(bytes []int8, canonical string, strict bool) OptionalO
 		}
 		text.append_char(c)
 	}
-	return Optional_of(strobj_(Object_toString(obj_(text))))
+	return Optional_ofStr_(Object_toString(obj_(text)))
 }
 
 func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) OptionalOf[string] {
@@ -118,7 +118,7 @@ func Charsets_decodeUtf16(bytes []int8, canonical string, strict bool) OptionalO
 	if strict && !valid {
 		return Optional_empty()
 	}
-	return Optional_of(strobj_(Object_toString(obj_(text))))
+	return Optional_ofStr_(Object_toString(obj_(text)))
 }
 
 func Charsets_encode(text string, charset string) []int8 {

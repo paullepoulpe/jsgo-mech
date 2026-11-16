@@ -70,7 +70,7 @@ func (this *DiagnosticGroup) toString() string {
 		if this.name_.isEmpty() {
 			return defaultToString_(any(this))
 		}
-		return ("DiagnosticGroup<" + sstr_(str_(this.name_.get())) + ">")
+		return ("DiagnosticGroup<" + sstr_(this.name_.getStr_()) + ">")
 	}()
 }
 

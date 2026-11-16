@@ -201,7 +201,7 @@ func (this *PureFunctionIdentifier) getSummariesForCallee(invocation Node) Immut
 			var calleeName OptionalOf[string] = PureFunctionIdentifier_nameForReference(callee)
 			results.add(func() any {
 				if calleeName.isPresent() {
-					return obj_(this.summariesByName.getOrDefault(str_(calleeName.get()), this.unknownFunctionSummary))
+					return obj_(this.summariesByName.getOrDefault(calleeName.getStr_(), this.unknownFunctionSummary))
 				}
 				return obj_(this.unknownFunctionSummary)
 			}())
@@ -283,7 +283,7 @@ func (this *PureFunctionIdentifier) populateFunctionDefinitions(name string, ref
 					var rvalueName OptionalOf[string] = PureFunctionIdentifier_nameForReference(rvalue)
 					var rvalueSummary *PureFunctionIdentifier_AmbiguatedFunctionSummary = func() *PureFunctionIdentifier_AmbiguatedFunctionSummary {
 						if rvalueName.isPresent() {
-							return this.summariesByName.getOrDefault(str_(rvalueName.get()), this.unknownFunctionSummary)
+							return this.summariesByName.getOrDefault(rvalueName.getStr_(), this.unknownFunctionSummary)
 						}
 						return this.unknownFunctionSummary
 					}()
@@ -386,9 +386,9 @@ func PureFunctionIdentifier_nameForReference(nameRef Node) OptionalOf[string] {
 	return func() Optional {
 		switch nameRef.ns_().token {
 		case tokOrd1_NAME:
-			return Optional_of(strobj_(nameRef.getString()))
+			return Optional_ofStr_(nameRef.getString())
 		case tokOrd1_GETPROP, tokOrd1_OPTCHAIN_GETPROP:
-			return Optional_of(strobj_((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString()))))
+			return Optional_ofStr_((sstr_(PureFunctionIdentifier_PROP_NAME_PREFIX) + sstr_(nameRef.getString())))
 		default:
 			panic(new_IllegalStateException_String(("Unexpected name reference: " + objstr_(nameRef.box_()))).self())
 		}

@@ -127,13 +127,13 @@ func (this *XtbMessageBundle_Handler) startElement(uri string, localName string,
 	switch qName {
 	case XtbMessageBundle_Handler_BUNDLE_ELEM_NAME:
 		Preconditions_checkState(this.lang.isEmpty())
-		this.lang = Optional_ofNullable(strobj_(atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME)))
-		Preconditions_checkState((this.lang.isPresent() && !String_isEmpty(str_(this.lang.get()))))
+		this.lang = Optional_ofNullableStr_(atts.getValue(XtbMessageBundle_Handler_LANG_ATT_NAME))
+		Preconditions_checkState((this.lang.isPresent() && !String_isEmpty(this.lang.getStr_())))
 	case XtbMessageBundle_Handler_TRANSLATION_ELEM_NAME:
 		Preconditions_checkState((this.msgBuilder == nil))
-		var id OptionalOf[string] = Optional_ofNullable(strobj_(atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME)))
-		Preconditions_checkState((id.isPresent() && !String_isEmpty(str_(id.get()))))
-		this.msgBuilder = new_JsMessage_Builder().setKey(str_(id.get())).setId(id)
+		var id OptionalOf[string] = Optional_ofNullableStr_(atts.getValue(XtbMessageBundle_Handler_MESSAGE_ID_ATT_NAME))
+		Preconditions_checkState((id.isPresent() && !String_isEmpty(id.getStr_())))
+		this.msgBuilder = new_JsMessage_Builder().setKey(id.getStr_()).setId(id)
 	case XtbMessageBundle_Handler_PLACEHOLDER_ELEM_NAME:
 		Preconditions_checkState((this.msgBuilder != nil))
 		var phRef string = atts.getValue(XtbMessageBundle_Handler_PLACEHOLDER_NAME_ATT_NAME)

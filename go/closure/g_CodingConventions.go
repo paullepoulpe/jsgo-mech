@@ -340,7 +340,7 @@ func (this *CodingConventions_DefaultCodingConvention) isConstantKey(variableNam
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isValidEnumKey(key OptionalOf[string]) bool {
-	return (key.isPresent() && (String_length(str_(key.get())) > 0))
+	return (key.isPresent() && (String_length(key.getStr_()) > 0))
 }
 
 func (this *CodingConventions_DefaultCodingConvention) isOptionalParameter(parameter Node) bool {
@@ -364,9 +364,9 @@ func (this *CodingConventions_DefaultCodingConvention) getPackageName(source Sta
 	var lastSlash int32 = String_lastIndexOf(name, 47)
 	return func() Optional {
 		if lastSlash == -1 {
-			return Optional_of(strobj_(""))
+			return Optional_ofStr_("")
 		}
-		return Optional_of(strobj_(String_substring(name, 0, lastSlash)))
+		return Optional_ofStr_(String_substring(name, 0, lastSlash))
 	}()
 }
 

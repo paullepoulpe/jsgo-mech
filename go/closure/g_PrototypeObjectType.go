@@ -259,7 +259,7 @@ func (this *PrototypeObjectType) getReferenceName_impl() OptionalOf[string] {
 	if this.className.isPresent() {
 		return this.className
 	} else if this.ownerFunction != nil {
-		return Optional_of(strobj_((sstr_(str_(this.ownerFunction.getReferenceName().orElse(strobj_("null")))) + ".prototype")))
+		return Optional_ofStr_((sstr_(this.ownerFunction.getReferenceName().orElseStr_("null")) + ".prototype"))
 	} else {
 		return Optional_empty()
 	}

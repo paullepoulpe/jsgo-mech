@@ -31,20 +31,20 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			jsonWriter.beginObject()
 			jsonWriter.name("level").stringValue(func() Optional {
 				if message.level_ == CheckLevel_ERROR {
-					return Optional_of(strobj_("error"))
+					return Optional_ofStr_("error")
 				}
-				return Optional_of(strobj_("warning"))
+				return Optional_ofStr_("warning")
 			}())
-			jsonWriter.name("description").stringValue(Optional_of(strobj_(message.error_.description())))
-			jsonWriter.name("key").stringValue(Optional_of(strobj_(message.error_.type_().key_)))
+			jsonWriter.name("description").stringValue(Optional_ofStr_(message.error_.description()))
+			jsonWriter.name("key").stringValue(Optional_ofStr_(message.error_.type_().key_))
 			if message.error_.requirement() != nil {
 				jsonWriter.name("requirement").beginObject()
-				jsonWriter.name("ruleId").stringValue(Optional_ofNullable(strobj_(message.error_.requirement().getRuleId())))
+				jsonWriter.name("ruleId").stringValue(Optional_ofNullableStr_(message.error_.requirement().getRuleId()))
 				jsonWriter.name("configFiles").beginArray()
 				it_3 := foreach_(any(icast_ProtocolStringList(message.error_.requirement().getConfigFileList())))
 				for it_3.next() {
 					var configFile string = str_(it_3.v)
-					jsonWriter.stringValue(Optional_of(strobj_(configFile)))
+					jsonWriter.stringValue(Optional_ofStr_(configFile))
 				}
 				jsonWriter.endArray()
 				jsonWriter.endObject()
@@ -59,11 +59,11 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			}
 			var sourceExcerpt OptionalOf[string] = SourceExcerptProvider_SourceExcerpt_LINE.get(this.sourceExcerptProvider, sourceName, lineNumber, icast_SourceExcerptProvider_ExcerptFormatter(obj_(JsonErrorReportGenerator_excerptFormatter)))
 			if sourceExcerpt.isPresent() {
-				var b *StringBuilder = new_StringBuilder_String(str_(sourceExcerpt.get()))
+				var b *StringBuilder = new_StringBuilder_String(sourceExcerpt.getStr_())
 				b.append("\n")
-				if (0 <= charno) && (charno <= String_length(str_(sourceExcerpt.get()))) {
+				if (0 <= charno) && (charno <= String_length(sourceExcerpt.getStr_())) {
 					for i := int32(0); i < charno; i++ {
-						var c uint16 = String_charAt(str_(sourceExcerpt.get()), i)
+						var c uint16 = String_charAt(sourceExcerpt.getStr_(), i)
 						if TokenUtil_isWhitespace(int32(c)) {
 							b.append_char(c)
 						} else {
@@ -73,18 +73,18 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 					if node == 0 {
 						b.append("^")
 					} else {
-						var length int32 = Math_max(1, Math_min(regionLength, (String_length(str_(sourceExcerpt.get()))-charno)))
+						var length int32 = Math_max(1, Math_min(regionLength, (String_length(sourceExcerpt.getStr_())-charno)))
 						for i := int32(0); i < length; i++ {
 							b.append("^")
 						}
 					}
 				}
-				jsonWriter.name("context").stringValue(Optional_of(strobj_(Object_toString(obj_(b)))))
+				jsonWriter.name("context").stringValue(Optional_ofStr_(Object_toString(obj_(b))))
 			}
 			var mapping *Mapping_OriginalMapping = this.sourceExcerptProvider.getSourceMapping_Optional_int_int(sourceName, message.error_.getLineNumber(), message.error_.charno())
 			if mapping != nil {
 				jsonWriter.name("originalLocation").beginObject()
-				jsonWriter.name("source").stringValue(Optional_ofNullable(strobj_(mapping.getOriginalFile())))
+				jsonWriter.name("source").stringValue(Optional_ofNullableStr_(mapping.getOriginalFile()))
 				jsonWriter.name("line").longValue(int64(mapping.getLineNumber()))
 				jsonWriter.name("column").longValue(int64(mapping.getColumnPosition()))
 				jsonWriter.endObject()
@@ -98,8 +98,8 @@ func (this *JsonErrorReportGenerator) generateReport(manager *SortingErrorManage
 			summaryBuilder.append(String_format("%d error(s), %d warning(s)", []any{any(int32(manager.getErrorCount())), any(int32(manager.getWarningCount()))}))
 		}
 		jsonWriter.beginObject()
-		jsonWriter.name("level").stringValue(Optional_of(strobj_("info")))
-		jsonWriter.name("description").stringValue(Optional_of(strobj_(Object_toString(obj_(summaryBuilder)))))
+		jsonWriter.name("level").stringValue(Optional_ofStr_("info"))
+		jsonWriter.name("description").stringValue(Optional_ofStr_(Object_toString(obj_(summaryBuilder))))
 		jsonWriter.endObject()
 		jsonWriter.endArray()
 	}

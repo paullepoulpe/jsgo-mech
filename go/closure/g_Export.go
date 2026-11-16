@@ -253,7 +253,7 @@ func (this *Export_Builder) build() *Export {
 
 func (this *Export_Builder) validateEsModule(e *Export) {
 	Preconditions_checkState(e.closureNamespace().isEmpty())
-	Preconditions_checkState_boolean_Object((!("*" == str_(e.importName().orElse(strobj_("")))) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())), strobj_("Star exports should not have exported / local names."))
+	Preconditions_checkState_boolean_Object((!("*" == e.importName().orElseStr_("")) || ((e.moduleRequest().isPresent() && e.exportName().isEmpty()) && e.localName().isEmpty())), strobj_("Star exports should not have exported / local names."))
 	Preconditions_checkState_boolean_Object((e.localName().isEmpty() || e.moduleRequest().isEmpty()), strobj_("Local exports should not have module requests."))
 	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.localName().isEmpty()), strobj_("Reexports should not have local names."))
 	Preconditions_checkState_boolean_Object((e.moduleRequest().isEmpty() || e.importName().isPresent()), strobj_("Reexports should have import names."))

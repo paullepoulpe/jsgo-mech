@@ -34,7 +34,7 @@ func new_DiagnosticGroupPathSuppressingWarningsGuard(group *DiagnosticGroup, par
 }
 
 func (this *DiagnosticGroupPathSuppressingWarningsGuard) level_impl(error_ *JSError) *CheckLevel {
-	if error_.sourceName().isEmpty() || !String_contains(str_(error_.sourceName().get()), strobj_(this.part)) {
+	if error_.sourceName().isEmpty() || !String_contains(error_.sourceName().getStr_(), strobj_(this.part)) {
 		return nil
 	}
 	return func() *CheckLevel {

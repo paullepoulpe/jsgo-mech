@@ -97,7 +97,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 	if this.includeLocation {
 		if mapping != nil {
 			LightweightMessageFormatter_appendPosition(b, sourceName, lineNumber, charno)
-			sourceName = Optional_ofNullable(strobj_(mapping.getOriginalFile()))
+			sourceName = Optional_ofNullableStr_(mapping.getOriginalFile())
 			lineNumber = mapping.getLineNumber()
 			charno = mapping.getColumnPosition()
 			b.append("\nOriginally at:\n")
@@ -125,7 +125,7 @@ func (this *LightweightMessageFormatter) format(error_ *JSError, warning bool) s
 		return this.defaultFormat
 	}())
 	if sourceExcerptWithPosition.isPresent() {
-		b.append(str_(sourceExcerptWithPosition.get()))
+		b.append(sourceExcerptWithPosition.getStr_())
 	}
 	return Object_toString(obj_(b))
 }
@@ -136,7 +136,7 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition(error_ *JSError)
 
 func (this *LightweightMessageFormatter) getExcerptWithPosition_5(error_ *JSError, sourceName OptionalOf[string], lineNumber int32, charno int32, format *SourceExcerptProvider_SourceExcerpt) OptionalOf[string] {
 	var nodeLength int32 = error_.length()
-	return Optional_of(strobj_(this.getExcerptWithPosition_6(error_, sourceName, lineNumber, charno, nodeLength, format)))
+	return Optional_ofStr_(this.getExcerptWithPosition_6(error_, sourceName, lineNumber, charno, nodeLength, format))
 }
 
 func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSError, sourceName OptionalOf[string], lineNumber int32, charno int32, length int32, format *SourceExcerptProvider_SourceExcerpt) string {
@@ -157,7 +157,7 @@ func (this *LightweightMessageFormatter) getExcerptWithPosition_6(error_ *JSErro
 	if sourceExcerpt.isEmpty() {
 		return ""
 	}
-	var success bool = this.padSourceExcerpt(error_, str_(sourceExcerpt.get()), charno, length, format, b)
+	var success bool = this.padSourceExcerpt(error_, sourceExcerpt.getStr_(), charno, length, format, b)
 	if success {
 		return Object_toString(obj_(b))
 	}
@@ -191,7 +191,7 @@ func (this *LightweightMessageFormatter) padSourceExcerpt(error_ *JSError, sourc
 
 func LightweightMessageFormatter_appendPosition(b *StringBuilder, sourceName OptionalOf[string], lineNumber int32, charno int32) {
 	if sourceName.isPresent() {
-		b.append(str_(sourceName.get()))
+		b.append(sourceName.getStr_())
 		if lineNumber > 0 {
 			cast_[*StringBuilder](b.append_char(':')).append_int(lineNumber)
 			if charno >= 0 {
@@ -310,7 +310,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 		if end < 0 {
 			line = String_substring_int(code, start)
 			if String_isEmpty(line) {
-				return Optional_of(strobj_(builder.substring(0, (builder.length() - 1))))
+				return Optional_ofStr_(builder.substring(0, (builder.length() - 1)))
 			}
 		} else {
 			line = String_substring(code, start, end)
@@ -331,7 +331,7 @@ func (this *LightweightMessageFormatter_LineNumberingFormatter) formatRegion(reg
 			lineNumber++
 		}
 	}
-	return Optional_of(strobj_(Object_toString(obj_(builder))))
+	return Optional_ofStr_(Object_toString(obj_(builder)))
 }
 
 // formatError: an object that is exactly a LightweightMessageFormatter calls its formatError_impl directly (post-flip); others dispatch.

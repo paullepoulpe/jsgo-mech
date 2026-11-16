@@ -44,7 +44,7 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 		return Outcome_base_err(new_SourceMapParseException(("Unknown version: " + istr_(int64(sourceMapObject.getVersion())))).up_Throwable())
 	}
 	this.file = sourceMapObject.getFile()
-	if this.file.isPresent() && String_isEmpty(str_(this.file.get())) {
+	if this.file.isPresent() && String_isEmpty(this.file.getStr_()) {
 		return Outcome_base_err(new_SourceMapParseException("File entry is empty").up_Throwable())
 	}
 	if sourceMapObject.getSections() != nil {
@@ -63,10 +63,10 @@ func (this *SourceMapConsumerV3) parse_2(sourceMapObject *SourceMapObject, secti
 		return 1000
 	}()
 	if sourceMapObject.getMappings().isPresent() {
-		estimatedEntries = Math_max(estimatedEntries, (String_length(str_(sourceMapObject.getMappings().get())) / 6))
+		estimatedEntries = Math_max(estimatedEntries, (String_length(sourceMapObject.getMappings().getStr_()) / 6))
 	}
 	this.extensions.asMap().putAll(sourceMapObject.getExtensions().asMap())
-	var built *Outcome_base = new_SourceMapConsumerV3_MappingBuilder(this, str_(sourceMapObject.getMappings().get()), this.lineCount, useCompactMappings, estimatedEntries).build()
+	var built *Outcome_base = new_SourceMapConsumerV3_MappingBuilder(this, sourceMapObject.getMappings().getStr_(), this.lineCount, useCompactMappings, estimatedEntries).build()
 	if built.isErr() {
 		return Outcome_base_err(built.error())
 	}
@@ -101,7 +101,7 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 		it_2 := foreach_(any(sourceMapObject.getSections()))
 		for it_2.next() {
 			var section *SourceMapSection = cast_[*SourceMapSection](it_2.v)
-			var mapSectionContents OptionalOf[string] = Optional_of(strobj_(section.getSectionValue()))
+			var mapSectionContents OptionalOf[string] = Optional_ofStr_(section.getSectionValue())
 			if section.getSectionType() == SourceMapSection_SectionType_URL {
 				mapSectionContents = sectionSupplier.getSourceMap(section.getSectionValue())
 			}
@@ -109,7 +109,7 @@ func (this *SourceMapConsumerV3) parseMetaMap(sourceMapObject *SourceMapObject, 
 				ret_1 = Outcome_base_err(new_SourceMapParseException(("Unable to retrieve: " + sstr_(section.getSectionValue()))).up_Throwable())
 				return 1
 			}
-			var merged *Outcome_base = generator.mergeMapSection(section.getLine(), section.getColumn(), str_(mapSectionContents.get()))
+			var merged *Outcome_base = generator.mergeMapSection(section.getLine(), section.getColumn(), mapSectionContents.getStr_())
 			if merged.isErr() {
 				ret_1 = Outcome_base_err(merged.error())
 				return 1
@@ -284,17 +284,17 @@ func (this *SourceMapConsumerV3) visitMappings(visitor SourceMapConsumerV3_Entry
 			for j := int32(start); j < end; j += this.mappings.getEntrySize() {
 				if pending {
 					var endPosition *FilePosition = new_FilePosition(i, this.mappings.getGeneratedColumn(j))
-					visitor.visit(str_(sourceName.orElse(strobj_(""))), str_(symbolName.orElse(strobj_(""))), sourceStartPosition, startPosition, endPosition)
+					visitor.visit(sourceName.orElseStr_(""), symbolName.orElseStr_(""), sourceStartPosition, startPosition, endPosition)
 					pending = false
 				}
 				var sourceFileId int32 = this.mappings.getSourceFileId(j)
 				if sourceFileId != SourceMapConsumerV3_UNMAPPED {
 					pending = true
-					sourceName = Optional_of(strobj_(this.sources[sourceFileId]))
+					sourceName = Optional_ofStr_(this.sources[sourceFileId])
 					var nameId int32 = this.mappings.getNameId(j)
 					symbolName = func() Optional {
 						if nameId != SourceMapConsumerV3_UNMAPPED {
-							return Optional_of(strobj_(this.names_[nameId]))
+							return Optional_ofStr_(this.names_[nameId])
 						}
 						return Optional_empty()
 					}()
@@ -306,7 +306,7 @@ func (this *SourceMapConsumerV3) visitMappings(visitor SourceMapConsumerV3_Entry
 	}
 	if pending {
 		var endPosition *FilePosition = new_FilePosition(startPosition.getLine(), (startPosition.getColumn() + 1))
-		visitor.visit(str_(sourceName.orElse(strobj_(""))), str_(symbolName.orElse(strobj_(""))), sourceStartPosition, startPosition, endPosition)
+		visitor.visit(sourceName.orElseStr_(""), symbolName.orElseStr_(""), sourceStartPosition, startPosition, endPosition)
 	}
 }
 

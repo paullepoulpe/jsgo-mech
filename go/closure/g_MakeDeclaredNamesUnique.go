@@ -81,7 +81,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 		return
 	}
 	if this.assertOnChange_ {
-		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(str_(newName.get())) + " for " + objstr_(n.box_()))).self())
+		panic(new_IllegalStateException_String(("Unexpected renaming in MakeDeclaredNamesUnique. new name: " + sstr_(newName.getStr_()) + " for " + objstr_(n.box_()))).self())
 	}
 	var renamer MakeDeclaredNamesUnique_Renamer = icast_MakeDeclaredNamesUnique_Renamer(this.renamerStack.peek())
 	if renamer.stripConstIfReplaced() {
@@ -93,7 +93,7 @@ func (this *MakeDeclaredNamesUnique) visitNameOrImportStar(t *NodeTraversal, n N
 			jsDocInfoNode.setJSDocInfo(builder.build())
 		}
 	}
-	n.setString(str_(newName.get()))
+	n.setString(newName.getStr_())
 	if this.markChanges {
 		t.reportCodeChange()
 		if parent.isFunction() && NodeUtil_isFunctionDeclaration(parent) {
@@ -661,16 +661,16 @@ func (this *MakeDeclaredNamesUnique_ContextualRenamer) addDeclaredName(name stri
 	} else {
 		if !(name == MakeDeclaredNamesUnique_ARGUMENTS) {
 			if this.global {
-				this.reserveName(Optional_of(strobj_(name)))
+				this.reserveName(Optional_ofStr_(name))
 			} else {
 				if !Map_containsKey_s(this.declarations, name) {
-					var id int32 = this.incrementNameCount(Optional_of(strobj_(name)))
+					var id int32 = this.incrementNameCount(Optional_ofStr_(name))
 					var newName OptionalOf[string] = Optional_empty()
 					if id != 0 {
-						newName = Optional_of(strobj_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id)))
+						newName = Optional_ofStr_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
 						for newName.isPresent() && this.nameUsage.contains(newName.get()) {
 							id = this.incrementNameCount(newName)
-							newName = Optional_of(strobj_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id)))
+							newName = Optional_ofStr_(MakeDeclaredNamesUnique_ContextualRenamer_getUniqueName(name, id))
 						}
 						this.reserveName(newName)
 					}
@@ -774,7 +774,7 @@ func (this *MakeDeclaredNamesUnique_InlineRenamer) getUniqueName(name string) st
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) getReplacementName(oldName string) OptionalOf[string] {
-	return Optional_ofNullable(strobj_(this.declarations.get(oldName)))
+	return Optional_ofNullableStr_(this.declarations.get(oldName))
 }
 
 func (this *MakeDeclaredNamesUnique_InlineRenamer) createForChildScope(scopeRoot Node, hoistingTargetScope bool) MakeDeclaredNamesUnique_Renamer {

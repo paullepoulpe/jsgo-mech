@@ -88,7 +88,7 @@ func PolymerPassStaticUtils_protectObserverAndPropertyFunctionKeys(behaviorObjLi
 				continue
 			}
 			var keyName OptionalOf[string] = NodeUtil_getObjectOrClassLitKeyName(keyNode)
-			if !(keyName.isPresent() && methodsToProtect.contains(str_(keyName.get()))) {
+			if !(keyName.isPresent() && methodsToProtect.contains(keyName.getStr_())) {
 				continue
 			}
 			PolymerPassStaticUtils_addExportAndNoCollapseToKey(keyNode)
@@ -108,7 +108,7 @@ func PolymerPassStaticUtils_addObserverMethodsToProtect(behaviorObjLit Node) *TS
 				}
 				var name OptionalOf[string] = PolymerPassStaticUtils_extractMethodName(child.getString())
 				if name.isPresent() {
-					methodsToProtect.add(str_(name.get()))
+					methodsToProtect.add(name.getStr_())
 				}
 			}
 		}
@@ -134,7 +134,7 @@ func PolymerPassStaticUtils_addPropertyMethodsToProtect(behaviorObjLit Node) *TS
 				if (computed != 0) && computed.isStringLit() {
 					var name OptionalOf[string] = PolymerPassStaticUtils_extractMethodName(computed.getString())
 					if name.isPresent() {
-						methodsToProtect.add(str_(name.get()))
+						methodsToProtect.add(name.getStr_())
 					}
 				}
 			}
@@ -147,7 +147,7 @@ func PolymerPassStaticUtils_extractMethodName(signature string) OptionalOf[strin
 	var openParenIndex int32 = String_indexOf(signature, 40)
 	return func() Optional {
 		if openParenIndex > 0 {
-			return Optional_of(strobj_(String_trim(String_substring(signature, 0, openParenIndex))))
+			return Optional_ofStr_(String_trim(String_substring(signature, 0, openParenIndex)))
 		}
 		return Optional_empty()
 	}()
@@ -248,7 +248,7 @@ func PolymerPassStaticUtils_getPolymerElementType(cls *PolymerClassDefinition) s
 		if cls.nativeBaseElement.isEmpty() {
 			return ""
 		}
-		return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, str_(cls.nativeBaseElement.get()))
+		return CaseFormat_LOWER_HYPHEN.to(CaseFormat_UPPER_CAMEL, cls.nativeBaseElement.getStr_())
 	}()
 	return String_format("Polymer%sElement", []any{strobj_(nativeElementName)})
 }

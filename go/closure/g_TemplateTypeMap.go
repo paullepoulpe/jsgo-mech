@@ -191,7 +191,7 @@ func (this *TemplateTypeMap) getLastTemplateTypeKeyByName(keyName string) *Templ
 	var size int32 = this.templateKeys.size()
 	for i := int32((size - 1)); i >= 0; i-- {
 		var key *TemplateType = cast_[*TemplateType](this.templateKeys.get(i))
-		if str_(key.getReferenceName().get()) == keyName {
+		if key.getReferenceName().getStr_() == keyName {
 			return key
 		}
 	}

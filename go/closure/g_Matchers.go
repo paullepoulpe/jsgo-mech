@@ -60,7 +60,7 @@ func Matchers_functionCallWithNumArgs_int(numArgs int32) Matcher {
 }
 
 func Matchers_functionCallWithNumArgs_String_int(name string, numArgs int32) Matcher {
-	return Matchers_allOf([]Matcher{Matchers_functionCallWithNumArgs_int(numArgs), Matchers_functionCall_Optional(Optional_of(strobj_(name)))})
+	return Matchers_allOf([]Matcher{Matchers_functionCallWithNumArgs_int(numArgs), Matchers_functionCall_Optional(Optional_ofStr_(name))})
 }
 
 func Matchers_googRequirelike_String(namespace string) Matcher {
@@ -74,23 +74,23 @@ func Matchers_googRequirelike_0() Matcher {
 }
 
 func Matchers_googRequire() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.require")))
+	return Matchers_functionCall_Optional(Optional_ofStr_("goog.require"))
 }
 
 func Matchers_googRequireType() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.requireType")))
+	return Matchers_functionCall_Optional(Optional_ofStr_("goog.requireType"))
 }
 
 func Matchers_googForwardDeclare() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.forwardDeclare")))
+	return Matchers_functionCall_Optional(Optional_ofStr_("goog.forwardDeclare"))
 }
 
 func Matchers_googModule() Matcher {
-	return Matchers_functionCall_Optional(Optional_of(strobj_("goog.module")))
+	return Matchers_functionCall_Optional(Optional_ofStr_("goog.module"))
 }
 
 func Matchers_googModuleOrProvide() Matcher {
-	return Matchers_anyOf([]Matcher{Matchers_googModule(), Matchers_functionCall_Optional(Optional_of(strobj_("goog.provide")))})
+	return Matchers_anyOf([]Matcher{Matchers_googModule(), Matchers_functionCall_Optional(Optional_ofStr_("goog.provide"))})
 }
 
 func Matchers_propertyAccess_0() Matcher {
@@ -301,7 +301,7 @@ func (this *Matchers_5) matches(node Node, metadata *NodeMetadata) bool {
 		if this.cap_name.isEmpty() {
 			return true
 		}
-		if (firstChild.isGetProp() || firstChild.isName()) && firstChild.matchesQualifiedName(str_(this.cap_name.get())) {
+		if (firstChild.isGetProp() || firstChild.isName()) && firstChild.matchesQualifiedName(this.cap_name.getStr_()) {
 			return true
 		}
 	}
@@ -414,10 +414,10 @@ func (this *Matchers_10) matches(node Node, metadata *NodeMetadata) bool {
 		if this.cap_name.isEmpty() {
 			return true
 		}
-		if node.matchesQualifiedName(str_(this.cap_name.get())) {
+		if node.matchesQualifiedName(this.cap_name.getStr_()) {
 			return true
-		} else if String_contains(str_(this.cap_name.get()), strobj_(".prototype.")) {
-			return Matchers_matchesPrototypeInstanceVar(node, metadata, str_(this.cap_name.get()))
+		} else if String_contains(this.cap_name.getStr_(), strobj_(".prototype.")) {
+			return Matchers_matchesPrototypeInstanceVar(node, metadata, this.cap_name.getStr_())
 		}
 	}
 	return false

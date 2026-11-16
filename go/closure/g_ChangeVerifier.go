@@ -122,9 +122,9 @@ func (this *ChangeVerifier) getNameForNode(n Node) string {
 		case tokOrd1_FUNCTION:
 			var fnName OptionalOf[string] = NodeUtil_getNearestFunctionName(n)
 			if fnName.isEmpty() {
-				fnName = Optional_of(strobj_(("anonymous@" + istr_(int64(n.getLineno())) + ":" + istr_(int64(n.getCharno())))))
+				fnName = Optional_ofStr_(("anonymous@" + istr_(int64(n.getLineno())) + ":" + istr_(int64(n.getCharno()))))
 			}
-			return ("FUNCTION: " + sstr_(str_(fnName.orElse(strobj_("null")))) + " in " + sstr_(sourceName))
+			return ("FUNCTION: " + sstr_(fnName.orElseStr_("null")) + " in " + sstr_(sourceName))
 		default:
 			panic(new_IllegalStateException_String("unexpected Node type").self())
 		}

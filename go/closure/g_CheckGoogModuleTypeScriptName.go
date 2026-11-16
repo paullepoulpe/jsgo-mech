@@ -38,23 +38,23 @@ func (this *CheckGoogModuleTypeScriptName) visit(t *NodeTraversal, n Node, paren
 }
 
 func (this *CheckGoogModuleTypeScriptName) checkGoogModuleNamespace(t *NodeTraversal, n Node) {
-	var originalNamespace OptionalOf[string] = Optional_of(strobj_(n.getFirstChild().getSecondChild().getString()))
+	var originalNamespace OptionalOf[string] = Optional_ofStr_(n.getFirstChild().getSecondChild().getString())
 	var sourceName OptionalOf[string] = t.getSourceName()
 	if originalNamespace.isEmpty() || sourceName.isEmpty() {
 		return
 	}
-	var google3Index int32 = String_indexOf_String(str_(sourceName.get()), "google3")
+	var google3Index int32 = String_indexOf_String(sourceName.getStr_(), "google3")
 	if google3Index == -1 {
-		sourceName = Optional_of(strobj_(("google3/" + sstr_(str_(sourceName.get())))))
+		sourceName = Optional_ofStr_(("google3/" + sstr_(sourceName.getStr_())))
 	} else if google3Index != 0 {
-		sourceName = Optional_of(strobj_(String_substring_int(str_(sourceName.get()), google3Index)))
+		sourceName = Optional_ofStr_(String_substring_int(sourceName.getStr_(), google3Index))
 	}
-	var replacementNamespace string = String_substring(String_replace_char_char(str_(sourceName.get()), '/', '.'), 0, (String_length(str_(sourceName.get())) - String_length(".js")))
-	if !(str_(originalNamespace.get()) == replacementNamespace) {
+	var replacementNamespace string = String_substring(String_replace_char_char(sourceName.getStr_(), '/', '.'), 0, (String_length(sourceName.getStr_()) - String_length(".js")))
+	if !(originalNamespace.getStr_() == replacementNamespace) {
 		it_1 := foreach_(any(CheckGoogModuleTypeScriptName_allowedDirectories))
 		for it_1.next() {
 			var allowedDirectory string = str_(it_1.v)
-			if String_startsWith(str_(sourceName.get()), allowedDirectory) {
+			if String_startsWith(sourceName.getStr_(), allowedDirectory) {
 				t.report(n, CheckGoogModuleTypeScriptName_MODULE_NAMESPACE_MISMATCHES_TYPESCRIPT_NAMESPACE, []string{replacementNamespace})
 				return
 			}

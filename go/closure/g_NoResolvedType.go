@@ -24,7 +24,7 @@ func (this *NoResolvedType) up_JSType() *JSType {
 
 func (this *NoResolvedType) init_NoResolvedType(registry *JSTypeRegistry, referenceName string, templateTypes ImmutableListOf[*JSType]) {
 	this.ObjectType.init_ObjectType_JSTypeRegistry(registry)
-	this.referenceName = Optional_of(strobj_(referenceName))
+	this.referenceName = Optional_ofStr_(referenceName)
 	this.templateTypes = templateTypes
 	this.eagerlyResolveToSelf()
 }
@@ -85,7 +85,7 @@ func (this *NoResolvedType) appendTo_impl(sb *TypeStringBuilder) {
 		if sb.isForAnnotations() {
 			return "?"
 		}
-		return ("NoResolvedType<" + sstr_(str_(this.referenceName.orElse(strobj_("null")))) + ">")
+		return ("NoResolvedType<" + sstr_(this.referenceName.orElseStr_("null")) + ">")
 	}())
 }
 

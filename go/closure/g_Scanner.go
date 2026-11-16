@@ -716,8 +716,8 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 		this.nextChar()
 		ch = this.peekChar()
 	}
-	var value OptionalOf[string] = Optional_of(strobj_(String_substring(this.contents, valueStartIndex, this.index_)))
-	if isPrivateIdentifier && (str_(value.get()) == "#") {
+	var value OptionalOf[string] = Optional_ofStr_(String_substring(this.contents, valueStartIndex, this.index_))
+	if isPrivateIdentifier && (value.getStr_() == "#") {
 		this.reportError_3(this.getPosition_1(beginToken), "Invalid usage of #", []any{})
 		return this.createToken(TokenType_ERROR, beginToken)
 	}
@@ -728,9 +728,9 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 			return this.createToken(TokenType_ERROR, beginToken)
 		}
 	}
-	var start uint16 = String_charAt(str_(value.get()), 0)
+	var start uint16 = String_charAt(value.getStr_(), 0)
 	if isPrivateIdentifier {
-		start = String_charAt(str_(value.get()), 1)
+		start = String_charAt(value.getStr_(), 1)
 	}
 	if !Identifiers_isIdentifierStart(start) {
 		this.reportError_3(this.getPosition_1(beginToken), "Character '%c' (U+%04X) is not a valid identifier start char", []any{any(uint16(start)), any(int32(int32(start)))})
@@ -740,12 +740,12 @@ func (this *Scanner_parser) scanIdentifierOrKeyword(beginToken int32, ch uint16)
 	if (k != nil) && !containsUnicodeEscape {
 		return new_Token_parser(k.type__, this.getTokenRange(beginToken))
 	}
-	return new_IdentifierToken(this.getTokenRange(beginToken), str_(value.get())).up_Token_parser()
+	return new_IdentifierToken(this.getTokenRange(beginToken), value.getStr_()).up_Token_parser()
 }
 
 func Scanner_parser_processUnicodeEscapes(value OptionalOf[string]) OptionalOf[string] {
-	for String_contains(str_(value.get()), strobj_("\\")) {
-		var escapeStart int32 = String_indexOf(str_(value.get()), 92)
+	for String_contains(value.getStr_(), strobj_("\\")) {
+		var escapeStart int32 = String_indexOf(value.getStr_(), 92)
 		var ret_2 Optional
 		code_2 := func() (code_ int) {
 			defer func() {
@@ -762,29 +762,29 @@ func Scanner_parser_processUnicodeEscapes(value OptionalOf[string]) OptionalOf[s
 					panic(r_)
 				}
 			}()
-			if String_charAt(str_(value.get()), (escapeStart+1)) != 'u' {
+			if String_charAt(value.getStr_(), (escapeStart+1)) != 'u' {
 				ret_2 = Optional_empty()
 				return 1
 			}
 			var hexDigits string
 			var escapeEnd int32
-			if String_charAt(str_(value.get()), (escapeStart+2)) != '{' {
+			if String_charAt(value.getStr_(), (escapeStart+2)) != '{' {
 				escapeEnd = (escapeStart + 6)
-				if escapeEnd > String_length(str_(value.get())) {
+				if escapeEnd > String_length(value.getStr_()) {
 					ret_2 = Optional_empty()
 					return 1
 				}
-				hexDigits = String_substring(str_(value.get()), (escapeStart + 2), escapeEnd)
+				hexDigits = String_substring(value.getStr_(), (escapeStart + 2), escapeEnd)
 			} else {
 				escapeEnd = (escapeStart + 3)
-				for Scanner_parser_isHexDigit(String_charAt(str_(value.get()), escapeEnd)) {
+				for Scanner_parser_isHexDigit(String_charAt(value.getStr_(), escapeEnd)) {
 					escapeEnd++
 				}
-				if String_charAt(str_(value.get()), escapeEnd) != '}' {
+				if String_charAt(value.getStr_(), escapeEnd) != '}' {
 					ret_2 = Optional_empty()
 					return 1
 				}
-				hexDigits = String_substring(str_(value.get()), (escapeStart + 3), escapeEnd)
+				hexDigits = String_substring(value.getStr_(), (escapeStart + 3), escapeEnd)
 				escapeEnd++
 			}
 			var codePoint int32 = Integer_parseInt(hexDigits, 16)
@@ -797,7 +797,7 @@ func Scanner_parser_processUnicodeEscapes(value OptionalOf[string]) OptionalOf[s
 				ret_2 = Optional_empty()
 				return 1
 			}
-			value = Optional_of(strobj_((sstr_(String_substring(str_(value.get()), 0, escapeStart)) + chrstr_(ch) + sstr_(String_substring_int(str_(value.get()), escapeEnd)))))
+			value = Optional_ofStr_((sstr_(String_substring(value.getStr_(), 0, escapeStart)) + chrstr_(ch) + sstr_(String_substring_int(value.getStr_(), escapeEnd))))
 			return 0
 		}()
 		if code_2 == 1 {
@@ -844,13 +844,13 @@ func (this *Scanner_parser) nextTemplateLiteralTokenShared(endType *TokenType, m
 		switch this.peekChar() {
 		case '`':
 			this.nextChar()
-			return new_TemplateLiteralToken(endType, value, str_(skipTemplateCharactersResult.getErrorMessage().orElse(strobj_(""))), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
+			return new_TemplateLiteralToken(endType, value, skipTemplateCharactersResult.getErrorMessage().orElseStr_(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		case '$':
 			this.nextChar()
 			this.nextChar()
-			return new_TemplateLiteralToken(middleType, value, str_(skipTemplateCharactersResult.getErrorMessage().orElse(strobj_(""))), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
+			return new_TemplateLiteralToken(middleType, value, skipTemplateCharactersResult.getErrorMessage().orElseStr_(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		default:
-			return new_TemplateLiteralToken(endType, value, str_(skipTemplateCharactersResult.getErrorMessage().orElse(strobj_(""))), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
+			return new_TemplateLiteralToken(endType, value, skipTemplateCharactersResult.getErrorMessage().orElseStr_(""), skipTemplateCharactersResult.getErrorLevel(), skipTemplateCharactersResult.getPosition(), this.getTokenRangeSourcePosition(startingPosition))
 		}
 		panic("unreachable")
 	}()
@@ -911,45 +911,45 @@ func (this *Scanner_parser) skipTemplateLiteralEscapeSequence() *Scanner_SkipTem
 	switch next {
 	case '0':
 		if Scanner_parser_isDecimalDigit(this.peekChar()) {
-			return this.createSkipTemplateCharactersResult(Optional_of(strobj_("Invalid escape sequence")), TemplateLiteralToken_ErrorLevel_ERROR)
+			return this.createSkipTemplateCharactersResult(Optional_ofStr_("Invalid escape sequence"), TemplateLiteralToken_ErrorLevel_ERROR)
 		}
 		return nil
 	case '1', '2', '3', '4', '5', '6', '7', '8', '9':
-		return this.createSkipTemplateCharactersResult(Optional_of(strobj_("Invalid escape sequence")), TemplateLiteralToken_ErrorLevel_ERROR)
+		return this.createSkipTemplateCharactersResult(Optional_ofStr_("Invalid escape sequence"), TemplateLiteralToken_ErrorLevel_ERROR)
 	case 'x':
 		var doubleHexDigit bool = (this.skipHexDigit() && this.skipHexDigit())
 		if !doubleHexDigit {
-			return this.createSkipTemplateCharactersResult(Optional_of(strobj_("Hex digit expected")), TemplateLiteralToken_ErrorLevel_ERROR)
+			return this.createSkipTemplateCharactersResult(Optional_ofStr_("Hex digit expected"), TemplateLiteralToken_ErrorLevel_ERROR)
 		}
 		return nil
 	case 'u':
 		if this.peek('{') {
 			this.nextChar()
 			if this.peek('}') {
-				return this.createSkipTemplateCharactersResult(Optional_of(strobj_("Empty unicode escape")), TemplateLiteralToken_ErrorLevel_ERROR)
+				return this.createSkipTemplateCharactersResult(Optional_ofStr_("Empty unicode escape"), TemplateLiteralToken_ErrorLevel_ERROR)
 			}
 			var allHexDigits bool = true
 			for !(this.peek('}')) && allHexDigits {
 				allHexDigits = (allHexDigits && this.skipHexDigit())
 			}
 			if !allHexDigits {
-				return this.createSkipTemplateCharactersResult(Optional_of(strobj_("Hex digit expected")), TemplateLiteralToken_ErrorLevel_ERROR)
+				return this.createSkipTemplateCharactersResult(Optional_ofStr_("Hex digit expected"), TemplateLiteralToken_ErrorLevel_ERROR)
 			}
 			this.nextChar()
 			return nil
 		} else {
 			var quadHexDigit bool = (((this.skipHexDigit() && this.skipHexDigit()) && this.skipHexDigit()) && this.skipHexDigit())
 			if !quadHexDigit {
-				return this.createSkipTemplateCharactersResult(Optional_of(strobj_("Hex digit expected")), TemplateLiteralToken_ErrorLevel_ERROR)
+				return this.createSkipTemplateCharactersResult(Optional_ofStr_("Hex digit expected"), TemplateLiteralToken_ErrorLevel_ERROR)
 			}
 			return nil
 		}
 	case '\\', 'b', 'f', 'n', 'r', 't', 'v', '$', '`':
 		return nil
 	case '\'':
-		return this.createSkipTemplateCharactersResult(Optional_of(strobj_(Strings_lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", []any{any(uint16(next)), any(uint16(next))}))), TemplateLiteralToken_ErrorLevel_WARNING)
+		return this.createSkipTemplateCharactersResult(Optional_ofStr_(Strings_lenientFormat("Unnecessary escape: \"\\%s\" is equivalent to just \"%s\"", []any{any(uint16(next)), any(uint16(next))})), TemplateLiteralToken_ErrorLevel_WARNING)
 	default:
-		return this.createSkipTemplateCharactersResult(Optional_of(strobj_(Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", []any{any(uint16(next)), any(uint16(next))}))), TemplateLiteralToken_ErrorLevel_WARNING)
+		return this.createSkipTemplateCharactersResult(Optional_ofStr_(Strings_lenientFormat("Unnecessary escape: '\\%s' is equivalent to just '%s'", []any{any(uint16(next)), any(uint16(next))})), TemplateLiteralToken_ErrorLevel_WARNING)
 	}
 	panic("unreachable")
 }

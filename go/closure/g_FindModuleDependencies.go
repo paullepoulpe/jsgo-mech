@@ -93,7 +93,7 @@ func (this *FindModuleDependencies) visit(t *NodeTraversal, n Node, parent Node)
 			this.moduleType_ = CompilerInput_ModuleType_COMMONJS
 		} else if ProcessCommonJSModules_isCommonJsImport(n, resolutionMode) {
 			var path string = ProcessCommonJSModules_getCommonJsImportPath(n, resolutionMode)
-			var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(path, Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+			var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(path, Optional_ofStr_(n.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
 				_ = s
 				return !String_isEmpty(s)
@@ -140,7 +140,7 @@ func (this *FindModuleDependencies) getEs6ModuleNameFromImportNode(t *NodeTraver
 	if isNamespaceImport {
 		return String_substring_int(importName, String_length("goog:"))
 	} else {
-		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+		var modulePath *ModuleLoader_ModulePath = t.getInput().getPath().resolveJsModule(importName, Optional_ofStr_(n.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)

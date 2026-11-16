@@ -437,7 +437,7 @@ func (this *CompilerOptions) getSourceMapOutputPath() OptionalOf[string] {
 }
 
 func (this *CompilerOptions) shouldGatherSourceMapInfo() bool {
-	return (this.shouldAlwaysGatherSourceMapInfo_ || !String_isEmpty(str_(this.sourceMapOutputPath.orElse(strobj_("")))))
+	return (this.shouldAlwaysGatherSourceMapInfo_ || !String_isEmpty(this.sourceMapOutputPath.orElseStr_("")))
 }
 
 func (this *CompilerOptions) setAlwaysGatherSourceMapInfo(shouldAlwaysGatherSourceMapInfo bool) {
@@ -1132,7 +1132,7 @@ func (this *CompilerOptions) isJ2clMinifierEnabled() bool {
 }
 
 func (this *CompilerOptions) setJ2clMinifierPruningManifest(j2clMinifierPruningManifest string) {
-	this.j2clMinifierPruningManifest = Optional_of(strobj_(j2clMinifierPruningManifest))
+	this.j2clMinifierPruningManifest = Optional_ofStr_(j2clMinifierPruningManifest)
 }
 
 func (this *CompilerOptions) getJ2clMinifierPruningManifest() OptionalOf[string] {
@@ -1783,11 +1783,11 @@ func (this *CompilerOptions) shouldExportTestFunctions() bool {
 }
 
 func (this *CompilerOptions) setSyntheticBlockStartMarker(syntheticBlockStartMarker string) {
-	this.syntheticBlockStartMarker = Optional_of(strobj_(syntheticBlockStartMarker))
+	this.syntheticBlockStartMarker = Optional_ofStr_(syntheticBlockStartMarker)
 }
 
 func (this *CompilerOptions) setSyntheticBlockEndMarker(syntheticBlockEndMarker string) {
-	this.syntheticBlockEndMarker = Optional_of(strobj_(syntheticBlockEndMarker))
+	this.syntheticBlockEndMarker = Optional_ofStr_(syntheticBlockEndMarker)
 }
 
 func (this *CompilerOptions) getSyntheticBlockStartMarker() OptionalOf[string] {
@@ -1799,7 +1799,7 @@ func (this *CompilerOptions) getSyntheticBlockEndMarker() OptionalOf[string] {
 }
 
 func (this *CompilerOptions) setLocale(locale string) {
-	this.locale = Optional_of(strobj_(locale))
+	this.locale = Optional_ofStr_(locale)
 }
 
 func (this *CompilerOptions) getLocale() OptionalOf[string] {
@@ -3123,7 +3123,7 @@ func CompilerOptions_InstrumentOption_fromString(value OptionalOf[string]) *Comp
 		return nil
 	}
 	return func() *CompilerOptions_InstrumentOption {
-		switch str_(value.get()) {
+		switch value.getStr_() {
 		case "NONE":
 			return CompilerOptions_InstrumentOption_NONE
 		case "LINE":
@@ -3373,7 +3373,7 @@ func CompilerOptions_LanguageMode_fromString(value OptionalOf[string]) *Compiler
 	if value.isEmpty() {
 		return nil
 	}
-	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher(strobj_(Ascii_toUpperCase(String_trim(str_(value.get()))))).replaceFirst("ECMASCRIPT")
+	var canonicalizedName string = CompilerOptions_LEADING_ES_PATTERN.matcher(strobj_(Ascii_toUpperCase(String_trim(value.getStr_())))).replaceFirst("ECMASCRIPT")
 	if (canonicalizedName == "ECMASCRIPT6") || (canonicalizedName == "ECMASCRIPT6_STRICT") {
 		return CompilerOptions_LanguageMode_ECMASCRIPT_2015
 	}

@@ -95,7 +95,7 @@ func (this *ClosureBundler) useEval(useEval bool) *ClosureBundler {
 }
 
 func (this *ClosureBundler) withSourceUrl(newSourceUrl string) *ClosureBundler {
-	return new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(this.transpiler, this.es6ModuleTranspiler, this.mode_, Optional_of(strobj_(newSourceUrl)), this.path_, this.minifier, this.sourceMapCache, this.embedSourcemapField)
+	return new_ClosureBundler_Transpiler_Transpiler_EvalMode_Optional_String_Object_Map_boolean(this.transpiler, this.es6ModuleTranspiler, this.mode_, Optional_ofStr_(newSourceUrl), this.path_, this.minifier, this.sourceMapCache, this.embedSourcemapField)
 }
 
 func (this *ClosureBundler) withPath(newPath string) *ClosureBundler {
@@ -139,7 +139,7 @@ func (this *ClosureBundler) appendRuntimeTo(out Appendable) {
 }
 
 func (this *ClosureBundler) getSourceMap(path string) string {
-	return str_(Optional_ofNullable(Map_get_s(this.sourceMapCache, path)).orElse(strobj_("")))
+	return Optional_ofNullable(Map_get_s(this.sourceMapCache, path)).orElseStr_("")
 }
 
 func (this *ClosureBundler) transpile_2(s string, t Transpiler_transpile) string {
@@ -168,7 +168,7 @@ func ClosureBundler_appendSourceUrl(out Appendable, mode *ClosureBundler_EscapeM
 	if sourceUrl.isEmpty() {
 		return
 	}
-	var toAppend string = ("\n//# sourceURL=" + sstr_(str_(sourceUrl.get())) + "\n")
+	var toAppend string = ("\n//# sourceURL=" + sstr_(sourceUrl.getStr_()) + "\n")
 	mode.append(toAppend, out)
 }
 

@@ -19,7 +19,7 @@ func SourceMapResolver_extractSourceMap(jsFile *SourceFile_jscomp, sourceMapURL 
 	if parseInlineSourceMaps && String_startsWith(sourceMapURL, SourceMapResolver_BASE64_URL_PREFIX) {
 		var extractedString OptionalOf[string] = SourceMapResolver_extractBase64String(sourceMapURL)
 		if extractedString.isPresent() {
-			return SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(jsFile.getName()) + ".inline.map"), str_(extractedString.get()), StaticSourceFile_SourceKind_NON_CODE)
+			return SourceFile_jscomp_fromCode_String_String_SourceKind((sstr_(jsFile.getName()) + ".inline.map"), extractedString.getStr_(), StaticSourceFile_SourceKind_NON_CODE)
 		}
 		return nil
 	}
@@ -35,7 +35,7 @@ func SourceMapResolver_extractBase64String(url string) OptionalOf[string] {
 		var mediaType string = String_substring(url, String_length(SourceMapResolver_BASE64_URL_PREFIX), base64StartIndex)
 		if Collection_contains_s(SourceMapResolver_ACCEPTED_MEDIA_TYPES, mediaType) {
 			var data []int8 = Io_base64Decode(String_substring_int(url, (base64StartIndex + String_length(SourceMapResolver_BASE64_START))))
-			return Optional_of(strobj_(Io_utf8String(data)))
+			return Optional_ofStr_(Io_utf8String(data))
 		}
 	}
 	return Optional_empty()
@@ -58,7 +58,7 @@ func SourceMapResolver_resolveSibling(baseFilePath string, path string) string {
 		if directory.isEmpty() {
 			return FilePaths_clean(path)
 		}
-		return FilePaths_resolve(str_(directory.get()), path)
+		return FilePaths_resolve(directory.getStr_(), path)
 	}()
 }
 

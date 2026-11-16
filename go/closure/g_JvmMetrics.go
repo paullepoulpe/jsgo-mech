@@ -21,7 +21,7 @@ func JvmMetrics_maybeWriteJvmMetrics(out *Output, options OptionalOf[string]) {
 	}
 	var verboseMode bool = false
 	var prettyMode bool = false
-	var st *StringTokenizer = new_StringTokenizer(str_(options.get()), ":")
+	var st *StringTokenizer = new_StringTokenizer(options.getStr_(), ":")
 	if st.hasMoreTokens() {
 		var mode string = st.nextToken()
 		if String_equalsIgnoreCase(mode, "verbose") {
@@ -122,7 +122,7 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 				out.println(("\tPool " + sstr_(mpBean.getName())))
 				JvmMetrics_writePoolMemoryUsage(out, currentUsage, peakUsage, Optional_empty(), true)
 			} else {
-				JvmMetrics_writePoolMemoryUsage(out, currentUsage, peakUsage, Optional_of(strobj_(("mem-pool-" + sstr_(JvmMetrics_normalizeName(mpBean.getName()))))), false)
+				JvmMetrics_writePoolMemoryUsage(out, currentUsage, peakUsage, Optional_ofStr_(("mem-pool-" + sstr_(JvmMetrics_normalizeName(mpBean.getName())))), false)
 			}
 		}
 	} else {
@@ -145,7 +145,7 @@ func JvmMetrics_writeMemoryMetrics(out *Output, verbose bool, pretty bool) {
 			out.print(String_format("\tAggregate of %d memory pools\n", []any{any(int32(mpBeans.size()))}))
 			JvmMetrics_writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional_empty(), true)
 		} else {
-			JvmMetrics_writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional_of(strobj_("mem")), false)
+			JvmMetrics_writePoolMemoryUsage(out, summaryUsage, summaryPeakUsage, Optional_ofStr_("mem"), false)
 		}
 	}
 }

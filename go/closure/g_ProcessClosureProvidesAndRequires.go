@@ -200,16 +200,16 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 		case tokOrd1_LET, tokOrd1_CONST:
 			return func() Optional {
 				if t.inGlobalScope() {
-					return Optional_of(strobj_(n.getString()))
+					return Optional_ofStr_(n.getString())
 				}
 				return Optional_empty()
 			}()
 		case tokOrd1_VAR:
-			return Optional_of(strobj_(n.getString()))
+			return Optional_ofStr_(n.getString())
 		case tokOrd1_EXPR_RESULT:
 			return func() Optional {
 				if n.isAssign() {
-					return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+					return Optional_ofStr_(n.getFirstChild().getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 						var s string = str_(s_)
 						_ = s
 						return !String_isEmpty(s)
@@ -227,7 +227,7 @@ func (this *ProcessClosureProvidesAndRequires) handleCandidateProvideDefinition(
 	if name.isEmpty() {
 		return
 	}
-	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(str_(name.get()))
+	var pn *ProcessClosureProvidesAndRequires_ProvidedName = this.providedNames.get(name.getStr_())
 	if pn != nil {
 		pn.addDefinition(parent, t.getChunk(), this.chunkGraph)
 	}

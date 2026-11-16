@@ -152,11 +152,11 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 	out.append_CharSequence(strobj_("{\n"))
 	SourceMapGeneratorV3_appendFirstField(out, "version", strobj_("3"))
 	if name.isPresent() {
-		SourceMapGeneratorV3_appendField(out, "file", strobj_(SourceMapGeneratorV3_escapeString(str_(name.get()))))
+		SourceMapGeneratorV3_appendField(out, "file", strobj_(SourceMapGeneratorV3_escapeString(name.getStr_())))
 	}
 	SourceMapGeneratorV3_appendField(out, "lineCount", strobj_(String_valueOf(maxLine)))
-	if this.sourceRootPath.isPresent() && !String_isEmpty(str_(this.sourceRootPath.get())) {
-		SourceMapGeneratorV3_appendField(out, "sourceRoot", strobj_(SourceMapGeneratorV3_escapeString(str_(this.sourceRootPath.get()))))
+	if this.sourceRootPath.isPresent() && !String_isEmpty(this.sourceRootPath.getStr_()) {
+		SourceMapGeneratorV3_appendField(out, "sourceRoot", strobj_(SourceMapGeneratorV3_escapeString(this.sourceRootPath.getStr_())))
 	}
 	SourceMapGeneratorV3_appendFieldStart_Appendable_String(out, "mappings")
 	new_SourceMapGeneratorV3_LineMapper(this, out, maxLine).appendLineMappings()
@@ -197,7 +197,7 @@ func (this *SourceMapGeneratorV3) appendTo(out Appendable, name OptionalOf[strin
 }
 
 func (this *SourceMapGeneratorV3) setSourceRoot(path string) {
-	this.sourceRootPath = Optional_of(strobj_(path))
+	this.sourceRootPath = Optional_ofStr_(path)
 }
 
 func (this *SourceMapGeneratorV3) addExtension(name string, object any) *Outcome_base {
@@ -236,9 +236,9 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		var entry Map_Entry = icast_Map_Entry(it_1.v)
 		var index any = entry.getValue()
 		Preconditions_checkState((unbox_[int32](index) < size))
-		var content OptionalOf[string] = Optional_ofNullable(strobj_(mapStr_(this.sourceFileContentMap, str_(entry.getKey()))))
+		var content OptionalOf[string] = Optional_ofNullableStr_(mapStr_(this.sourceFileContentMap, str_(entry.getKey())))
 		if content.isPresent() {
-			contents.set(unbox_[int32](index), str_(content.get()))
+			contents.set(unbox_[int32](index), content.getStr_())
 			found = true
 		}
 	}
@@ -251,8 +251,8 @@ func (this *SourceMapGeneratorV3) addSourcesContentMap(out Appendable) {
 		if i != 0 {
 			out.append_CharSequence(strobj_(","))
 		}
-		var sourceContent OptionalOf[string] = Optional_ofNullable(strobj_(contents.get(i)))
-		out.append_CharSequence(strobj_(SourceMapGeneratorV3_escapeString(str_(sourceContent.orElse(strobj_(""))))))
+		var sourceContent OptionalOf[string] = Optional_ofNullableStr_(contents.get(i))
+		out.append_CharSequence(strobj_(SourceMapGeneratorV3_escapeString(sourceContent.orElseStr_(""))))
 	}
 	out.append_CharSequence(strobj_("]"))
 	SourceMapGeneratorV3_appendFieldEnd(out)
@@ -365,8 +365,8 @@ func SourceMapGeneratorV3_appendOffsetValue(out Appendable, line int32, column i
 }
 
 func (this *SourceMapGeneratorV3) getSourceId(sourceName string) int32 {
-	if !(this.lastSourceFile.isPresent() && (str_(this.lastSourceFile.get()) == sourceName)) {
-		this.lastSourceFile = Optional_of(strobj_(sourceName))
+	if !(this.lastSourceFile.isPresent() && (this.lastSourceFile.getStr_() == sourceName)) {
+		this.lastSourceFile = Optional_ofStr_(sourceName)
 		var index any = this.sourceFileMap.get(sourceName)
 		if index != nil {
 			this.lastSourceFileIndex = unbox_[int32](index)

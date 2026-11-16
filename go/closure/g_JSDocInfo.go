@@ -303,7 +303,7 @@ func (this *JSDocInfo) isAtSignCodePresent() bool {
 		if entireComment.isEmpty() {
 			return false
 		}
-		return String_contains(str_(entireComment.get()), strobj_("@code"))
+		return String_contains(entireComment.getStr_(), strobj_("@code"))
 	}()
 }
 
@@ -323,7 +323,7 @@ func (this *JSDocInfo) getParameterType(parameter OptionalOf[string]) *JSTypeExp
 		if params != nil {
 			return func() *JSTypeExpression {
 				if parameter.isPresent() {
-					return cast_[*JSTypeExpression](Map_get_s(params, str_(parameter.get())))
+					return cast_[*JSTypeExpression](Map_get_s(params, parameter.getStr_()))
 				}
 				return nil
 			}()
@@ -2417,7 +2417,7 @@ func (this *JSDocInfo_Builder) addLicense(license string) bool {
 		return false
 	}
 	var txt OptionalOf[string] = Optional_ofNullable(this.getProp(JSDocInfo_LICENSE))
-	return this.recordLicense(RhinoStringPool_addOrGet((sstr_(str_(txt.orElse(strobj_("")))) + sstr_(license))))
+	return this.recordLicense(RhinoStringPool_addOrGet((sstr_(txt.orElseStr_("")) + sstr_(license))))
 }
 
 func (this *JSDocInfo_Builder) recordNoCompile() bool {
@@ -2562,7 +2562,7 @@ func (this *JSDocInfo_Builder) isInterfaceRecorded() bool {
 
 func (this *JSDocInfo_Builder) hasParameter(name OptionalOf[string]) bool {
 	var params MapOf[string, *JSTypeExpression] = icast_Map(this.getProp(JSDocInfo_PARAMETERS.up_JSDocInfo_Property()))
-	return (((params != nil) && name.isPresent()) && Map_containsKey_s(params, str_(name.get())))
+	return (((params != nil) && name.isPresent()) && Map_containsKey_s(params, name.getStr_()))
 }
 
 func (this *JSDocInfo_Builder) recordImplementedInterface(interfaceType *JSTypeExpression) bool {

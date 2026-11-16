@@ -318,7 +318,7 @@ func (this *FunctionType) getPrototype() *ObjectType {
 		if refName.isEmpty() {
 			this.setPrototypeNoCheck(this.registry.getNativeObjectType(JSTypeNative_UNKNOWN_TYPE), 0)
 		} else {
-			this.setPrototype(PrototypeObjectType_builder(this.registry).setName(Optional_of(strobj_((sstr_(str_(this.getReferenceName().orElse(strobj_("null")))) + ".prototype")))).setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE)).setNative(this.isNativeObjectType()).build().up_ObjectType(), 0)
+			this.setPrototype(PrototypeObjectType_builder(this.registry).setName(Optional_ofStr_((sstr_(this.getReferenceName().orElseStr_("null")) + ".prototype"))).setImplicitPrototype(this.registry.getNativeObjectType(JSTypeNative_OBJECT_TYPE)).setNative(this.isNativeObjectType()).build().up_ObjectType(), 0)
 		}
 	}
 	return to_ObjectType(this.prototypeSlot.getType().self())
@@ -343,7 +343,7 @@ func (this *FunctionType) setPrototypeBasedOn_2(baseType *ObjectType, propertyNo
 		if ((this.prototypeSlot != nil) && this.hasInstanceType()) && baseType.equals(this.getInstanceType().self()) {
 			return
 		}
-		baseType = PrototypeObjectType_builder(this.registry).setName(Optional_of(strobj_((sstr_(str_(this.getReferenceName().orElse(strobj_("null")))) + ".prototype")))).setImplicitPrototype(baseType).build().up_ObjectType()
+		baseType = PrototypeObjectType_builder(this.registry).setName(Optional_ofStr_((sstr_(this.getReferenceName().orElseStr_("null")) + ".prototype"))).setImplicitPrototype(baseType).build().up_ObjectType()
 	}
 	this.setPrototype(baseType, propertyNode)
 }
@@ -824,7 +824,7 @@ func (this *FunctionType) resolveTypeListHelper(list ImmutableListOf[*ObjectType
 		var type_ *ObjectType = to_ObjectType(it_1.v)
 		var rt *JSType = type_.resolve(reporter)
 		if !rt.isObjectType() {
-			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_of(strobj_(this.source.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+			reporter.warning(("not an object type: " + objstr_(rt.self()) + " (at " + sstr_(this.toString()) + ")"), Optional_ofStr_(this.source.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
 				_ = s
 				return !String_isEmpty(s)
@@ -1001,7 +1001,7 @@ func (this *FunctionType) calculateConstructorAmbiguity() *FunctionType_Construc
 }
 
 func (this *FunctionType) isDelegateProxy() bool {
-	return (this.hasReferenceName() && String_endsWith(str_(this.getReferenceName().get()), FunctionType_DELEGATE_SUFFIX))
+	return (this.hasReferenceName() && String_endsWith(this.getReferenceName().getStr_(), FunctionType_DELEGATE_SUFFIX))
 }
 
 func (this *FunctionType) getClosurePrimitive() *ClosurePrimitive {

@@ -92,9 +92,9 @@ func (this *CheckProvidesSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalProvides ImmutableListOf[string] = ImmutableList_copyOf(icast_Collection(obj_(new_LinkedHashSet_Collection(Collection(sortedProvides.asList())))))
 	if !Object_equals(any(this.originalProvides), obj_(canonicalProvides)) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of(strobj_(String_join(strobj_("\n"), Iterables_transform(icast_Iterable(obj_(canonicalProvides)), &Function_base_fn{func(p0 any) any { return strobj_(CheckProvidesSorted_formatProvide(str_(p0))) }}))))
+		this.replacement_ = Optional_ofStr_(String_join(strobj_("\n"), Iterables_transform(icast_Iterable(obj_(canonicalProvides)), &Function_base_fn{func(p0 any) any { return strobj_(CheckProvidesSorted_formatProvide(str_(p0))) }})))
 		if this.mode_ == CheckProvidesSorted_Mode_COLLECT_AND_REPORT {
-			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{str_(this.replacement_.orElse(strobj_("null")))})
+			t.report(this.firstNode, CheckProvidesSorted_PROVIDES_NOT_SORTED, []string{this.replacement_.orElseStr_("null")})
 		}
 	}
 }

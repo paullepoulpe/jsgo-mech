@@ -61,7 +61,7 @@ func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *Extrac
 	var first *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration = instance.declarations.get(0)
 	var className OptionalOf[string] = first.qualifiedClassName
 	if (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_GLOBAL_TEMP) || (this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_CHUNK_TEMP) {
-		var classNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, str_(className.get()))
+		var classNameNode Node = NodeUtil_newQName_AbstractCompiler_String(this.compiler_, className.getStr_())
 		classNameNode.putBooleanProp(Node_IS_CONSTANT_NAME, first.constant)
 		var stmt Node = IR_exprResult(IR_assign(IR_name(alias), IR_getprop_Node_String(classNameNode, "prototype"))).srcrefTreeIfMissing(first.node_)
 		stmt.insertBefore(first.node_)
@@ -69,7 +69,7 @@ func (this *ExtractPrototypeMemberDeclarations) extractInstance(instance *Extrac
 	} else if this.pattern == ExtractPrototypeMemberDeclarations_Pattern_USE_IIFE {
 		var block Node = IR_block_0()
 		var func_ Node = IR_function(IR_name(""), IR_paramList([]Node{IR_name(alias)}), block)
-		var call Node = IR_call(func_, []Node{NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(str_(className.orElse(strobj_("null")))) + ".prototype"), instance.parent, (sstr_(str_(className.orElse(strobj_("null")))) + ".prototype"))})
+		var call Node = IR_call(func_, []Node{NodeUtil_newQName_AbstractCompiler_String_Node_String(this.compiler_, (sstr_(className.orElseStr_("null")) + ".prototype"), instance.parent, (sstr_(className.orElseStr_("null")) + ".prototype"))})
 		call.putIntProp(Node_FREE_CALL, 1)
 		var stmt Node = IR_exprResult(call)
 		stmt.srcrefTreeIfMissing(first.node_)
@@ -328,7 +328,7 @@ func (this *ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration) init_
 	this.memberName = NodeUtil_getPrototypePropertyName(lhs)
 	this.node_ = node
 	var classNode Node = ExtractPrototypeMemberDeclarations_PrototypeMemberDeclaration_getPrototypeClassName(lhs)
-	this.qualifiedClassName = Optional_of(strobj_(classNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+	this.qualifiedClassName = Optional_ofStr_(classNode.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)

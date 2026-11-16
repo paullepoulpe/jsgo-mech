@@ -166,7 +166,7 @@ func (this *ModuleImportResolver) updateAstForExport(bindingSourceNode Node, exp
 func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *ScopedName {
 	var name OptionalOf[string] = func() Optional {
 		if binding.isModuleNamespace() {
-			return Optional_of(strobj_(Export_NAMESPACE))
+			return Optional_ofStr_(Export_NAMESPACE)
 		}
 		return binding.boundName()
 	}()
@@ -195,9 +195,9 @@ func (this *ModuleImportResolver) getScopedNameFromEsBinding(binding *Binding) *
 			if binding.isModuleNamespace() {
 				return closureModuleObject
 			}
-			return ScopedName_of((sstr_(closureModuleObject.getName()) + "." + sstr_(str_(binding.originatingExport().exportName().orElse(strobj_("null"))))), closureModuleObject.getScopeRoot())
+			return ScopedName_of((sstr_(closureModuleObject.getName()) + "." + sstr_(binding.originatingExport().exportName().orElseStr_("null"))), closureModuleObject.getScopeRoot())
 		case ModuleMetadataMap_ModuleType_SCRIPT:
-			return ScopedName_of(str_(name.orElse(strobj_(""))), 0)
+			return ScopedName_of(name.orElseStr_(""), 0)
 		case ModuleMetadataMap_ModuleType_COMMON_JS:
 			panic(new_IllegalStateException_String("Typechecking CommonJS modules is not supported").self())
 		}

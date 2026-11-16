@@ -1072,7 +1072,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) logDecisionForNameSu
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenSimpleStubDeclaration(name *GlobalNamespace_Name, alias string) {
 	var ref *GlobalNamespace_Ref = cast_[*GlobalNamespace_Ref](Iterables_getOnlyElement(Iterable(name.getRefs())))
-	var nameNode Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, ref.getNode(), Optional_of(strobj_(name.getFullName())))
+	var nameNode Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, ref.getNode(), Optional_ofStr_(name.getFullName()))
 	var varNode Node = IR_var_Node(nameNode).srcrefIfMissing(nameNode)
 	Preconditions_checkState(ref.getNode().getParent().isExprResult())
 	var parent Node = ref.getNode().getParent()
@@ -1159,7 +1159,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) flattenNameRefAtDept
 
 func (this *InlineAndCollapseProperties_CollapseProperties) flattenNameRef(alias string, n Node, parent Node, originalName string, isConstantName bool) {
 	Preconditions_checkArgument_boolean_String_Object_Object(n.isGetProp(), "Expected GETPROP, found %s. Node: %s", obj_(n.getToken()), n.box_())
-	var ref Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, n, Optional_of(strobj_(originalName))).copyTypeFrom(n)
+	var ref Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, n, Optional_ofStr_(originalName)).copyTypeFrom(n)
 	NodeUtil_copyNameAnnotations(n, ref)
 	if isConstantName {
 		ref.putBooleanProp(Node_IS_CONSTANT_NAME, isConstantName)
@@ -1211,7 +1211,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateTwinnedDeclara
 	if (rvalue != 0) && rvalue.isFunction() {
 		this.checkForReceiverAffectedByCollapse(rvalue, refName.getJSDocInfo(), refName)
 	}
-	var nameNode Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, grandparent.getFirstChild(), Optional_of(strobj_(refName.getFullName())))
+	var nameNode Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, grandparent.getFirstChild(), Optional_ofStr_(refName.getFullName()))
 	NodeUtil_copyNameAnnotations(ref.getNode(), nameNode)
 	var current Node = grandparent
 	var currentParent Node = grandparent.getParent()
@@ -1312,7 +1312,7 @@ func (this *InlineAndCollapseProperties_CollapseProperties) updateGlobalNameDecl
 		}
 		this.outer_.compiler_.reportChangeToEnclosingScope(rvalue)
 		rvalue.detach()
-		var nameNode Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, ref.getNode().getAncestor(2), Optional_of(strobj_(n.getFullName())))
+		var nameNode Node = NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, alias, ref.getNode().getAncestor(2), Optional_ofStr_(n.getFullName()))
 		nameNode.putBooleanProp(Node_IS_CONSTANT_NAME, this.shouldAddConstantName(ref.getNode(), alias))
 		var info *JSDocInfo = NodeUtil_getBestJSDocInfo(ref.getNode().getParent())
 		if info != nil {

@@ -88,10 +88,10 @@ func new_ClosureModuleProcessor_UnresolvedGoogModule(metadata *ModuleMetadataMap
 }
 
 func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveExport_impl(moduleRequestResolver ModuleRequestResolver, exportName OptionalOf[string]) *ResolveExportResult {
-	if exportName.isPresent() && Map_containsKey_s(this.namespace_, str_(exportName.get())) {
+	if exportName.isPresent() && Map_containsKey_s(this.namespace_, exportName.getStr_()) {
 		return ResolveExportResult_of(func() *Binding {
 			if exportName.isPresent() {
-				return cast_[*Binding](Map_get_s(this.namespace_, str_(exportName.get())))
+				return cast_[*Binding](Map_get_s(this.namespace_, exportName.getStr_()))
 			}
 			return nil
 		}())
@@ -133,7 +133,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) resolveImport(moduleReq
 	} else if importRecord.importName() == Export_NAMESPACE {
 		return ResolveExportResult_of(Binding_from_ModuleMetadata_Node_String_CreatedBy(requested.metadata(), importRecord.nameNode(), importRecord.moduleRequest(), require.createdBy()))
 	} else {
-		var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, Optional_of(strobj_(importRecord.moduleRequest())), Optional_of(strobj_(importRecord.importName())), icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
+		var result *ResolveExportResult = requested.resolveExport_5(moduleRequestResolver, Optional_ofStr_(importRecord.moduleRequest()), Optional_ofStr_(importRecord.importName()), icast_Set(obj_(new_LinkedHashSet())), icast_Set(obj_(new_LinkedHashSet())))
 		if !result.found() && !result.hadError() {
 			this.reportInvalidDestructuringRequire(requested, importRecord)
 			return ResolveExportResult_ERROR
@@ -185,7 +185,7 @@ func (this *ClosureModuleProcessor_UnresolvedGoogModule) reportInvalidDestructur
 			}
 		}
 	}
-	this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_of(strobj_(this.srcFileName)), importRecord.importNode().getLineno(), importRecord.importNode().getCharno(), ModuleMapCreator_DOES_NOT_HAVE_EXPORT_WITH_DETAILS, []string{importRecord.importName(), additionalInfo}))
+	this.compiler_.report(JSError_make_Optional_int_int_DiagnosticType_StringArr(Optional_ofStr_(this.srcFileName), importRecord.importNode().getLineno(), importRecord.importNode().getCharno(), ModuleMapCreator_DOES_NOT_HAVE_EXPORT_WITH_DETAILS, []string{importRecord.importName(), additionalInfo}))
 }
 
 type ClosureModuleProcessor_ModuleProcessingCallback struct {
@@ -274,7 +274,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeExpo
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) markExportsAssignmentInNamespace(exportsNode Node) {
-	this.namespace_.put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(Optional_of(strobj_(Export_NAMESPACE))).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of(strobj_(this.closureNamespace_))).modulePath(this.metadata_.path()).build(), exportsNode))
+	this.namespace_.put(Export_NAMESPACE, Binding_from_Export_Node(Export_builder().exportName(Optional_ofStr_(Export_NAMESPACE)).exportNode(exportsNode).moduleMetadata(this.metadata_).closureNamespace(Optional_ofStr_(this.closureNamespace_)).modulePath(this.metadata_.path()).build(), exportsNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) initializeNamedExportsLiteral(objectLit Node) {
@@ -292,7 +292,7 @@ func (this *ClosureModuleProcessor_ModuleProcessingCallback) addPropertyExport(e
 	} else if this.namespace_.containsKey(exportedId) {
 		return
 	}
-	this.namespace_.put(exportedId, Binding_from_Export_Node(Export_builder().exportName(Optional_of(strobj_(exportedId))).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(Optional_of(strobj_(this.closureNamespace_))).modulePath(this.metadata_.path()).build(), propNode))
+	this.namespace_.put(exportedId, Binding_from_Export_Node(Export_builder().exportName(Optional_ofStr_(exportedId)).exportNode(propNode).moduleMetadata(this.metadata_).closureNamespace(Optional_ofStr_(this.closureNamespace_)).modulePath(this.metadata_.path()).build(), propNode))
 }
 
 func (this *ClosureModuleProcessor_ModuleProcessingCallback) maybeInitializeRequire(nameDeclaration Node) {

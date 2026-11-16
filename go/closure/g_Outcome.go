@@ -57,6 +57,6 @@ func (this *Outcome_base) errorMessage() OptionalOf[string] {
 		if this.errorField == nil {
 			return Optional_empty()
 		}
-		return Optional_of(strobj_(this.errorField.getMessage()))
+		return Optional_ofStr_(this.errorField.getMessage())
 	}()
 }

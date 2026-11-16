@@ -165,8 +165,8 @@ func (this *NodeModuleResolver) resolveJsModuleNodeDirectory(scriptAddress strin
 		var loadAddress OptionalOf[string] = this.locate(scriptAddress, (sstr_(moduleAddress) + sstr_(NodeModuleResolver_FILES_TO_SEARCH[i])))
 		if loadAddress.isPresent() {
 			if NodeModuleResolver_FILES_TO_SEARCH[i] == (sstr_(ModuleLoader_MODULE_SLASH) + "package.json") {
-				if Map_containsKey_s(this.packageJsonMainEntries, str_(loadAddress.get())) {
-					return this.resolveJsModuleFile(scriptAddress, str_(Map_get_s(this.packageJsonMainEntries, str_(loadAddress.get()))))
+				if Map_containsKey_s(this.packageJsonMainEntries, loadAddress.getStr_()) {
+					return this.resolveJsModuleFile(scriptAddress, str_(Map_get_s(this.packageJsonMainEntries, loadAddress.getStr_())))
 				}
 			} else {
 				return loadAddress

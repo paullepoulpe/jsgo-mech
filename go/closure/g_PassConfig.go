@@ -56,7 +56,7 @@ func (this *PassConfig) getPassGraph() GraphvizGraph {
 		}
 		graph.createNode(strobj_(passName))
 		if loopStart.isEmpty() && pass.isRunInFixedPointLoop() {
-			loopStart = Optional_of(strobj_(passName))
+			loopStart = Optional_ofStr_(passName)
 		} else if loopStart.isPresent() && !pass.isRunInFixedPointLoop() {
 			graph.connect(lastPass.orElse(nil), strobj_("loop"), loopStart.get())
 			loopStart = Optional_empty()
@@ -64,7 +64,7 @@ func (this *PassConfig) getPassGraph() GraphvizGraph {
 		if lastPass.isPresent() {
 			graph.connect(lastPass.get(), strobj_(""), strobj_(passName))
 		}
-		lastPass = Optional_of(strobj_(passName))
+		lastPass = Optional_ofStr_(passName)
 	}
 	return icast_GraphvizGraph(graph.self())
 }

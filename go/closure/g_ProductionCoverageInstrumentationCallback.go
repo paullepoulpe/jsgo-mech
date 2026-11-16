@@ -32,14 +32,14 @@ func new_ProductionCoverageInstrumentationCallback(compiler *AbstractCompiler, i
 }
 
 func (this *ProductionCoverageInstrumentationCallback) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
-	if !n.isRoot() && !(str_(t.getSourceName().orElse(strobj_(""))) == n.getSourceFileName()) {
+	if !n.isRoot() && !(t.getSourceName().orElseStr_("") == n.getSourceFileName()) {
 		return false
 	}
 	if n.isFunction() {
 		var fnName OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 		fnName = func() Optional {
 			if fnName.isEmpty() {
-				return Optional_of(strobj_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME))
+				return Optional_ofStr_(ProductionCoverageInstrumentationCallback_ANONYMOUS_FUNCTION_NAME)
 			}
 			return fnName
 		}()
@@ -298,7 +298,7 @@ func ProductionCoverageInstrumentationCallback_ParameterMapping_toJsonArray(stri
 	it_1 := foreach_(any(strings))
 	for it_1.next() {
 		var string_ string = str_(it_1.v)
-		writer.stringValue(Optional_of(strobj_(string_)))
+		writer.stringValue(Optional_ofStr_(string_))
 	}
 	writer.endArray()
 	return writer.toString()

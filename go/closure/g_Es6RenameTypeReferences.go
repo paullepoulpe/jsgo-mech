@@ -60,7 +60,7 @@ func (this *Es6RenameTypeReferences) renameTypeReference(t *NodeTraversal, n Nod
 		rest = Optional_empty()
 	} else {
 		rootName = String_substring(fullName, 0, endPos)
-		rest = Optional_of(strobj_(String_substring_int(fullName, endPos)))
+		rest = Optional_ofStr_(String_substring_int(fullName, endPos))
 	}
 	this.renameReference(t, n, rootName, rest)
 }
@@ -74,9 +74,9 @@ func (this *Es6RenameTypeReferences) renameReference(t *NodeTraversal, n Node, o
 			Preconditions_checkState_boolean_String_Object(((currentRootNode.isModuleBody() || currentRootNode.isScript()) || NodeUtil_isFunctionBlock(currentRootNode)), "Not a MODULE_BODY or SCRIPT or goog.loadModule root: %s", currentRootNode.box_())
 			var newFullName string = func() string {
 				if rest.isEmpty() {
-					return str_(newName.get())
+					return newName.getStr_()
 				}
-				return (sstr_(str_(newName.get())) + sstr_(str_(rest.get())))
+				return (sstr_(newName.getStr_()) + sstr_(rest.getStr_()))
 			}()
 			n.setString(newFullName)
 			return

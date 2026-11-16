@@ -73,7 +73,7 @@ func (this *RuntimeJsLibManager) createField(fieldName string) *RuntimeJsLibMana
 	if resource.isEmpty() {
 		panic(new_NullPointerException_String(("Cannot find definition of " + sstr_(fieldName))).self())
 	}
-	var resourceName string = str_(resource.get())
+	var resourceName string = resource.getStr_()
 	var compiledName string = func() string {
 		switch this.mode_ {
 		case RuntimeJsLibManager_RuntimeLibraryMode_EXTERN_FIELD_NAMES:

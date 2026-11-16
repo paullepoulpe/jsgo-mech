@@ -29,7 +29,7 @@ func CompilationLevel_fromString(value OptionalOf[string]) *CompilationLevel {
 		return nil
 	}
 	return func() *CompilationLevel {
-		switch str_(value.get()) {
+		switch value.getStr_() {
 		case "BUNDLE":
 			return CompilationLevel_BUNDLE
 		case "WHITESPACE_ONLY", "WHITESPACE":

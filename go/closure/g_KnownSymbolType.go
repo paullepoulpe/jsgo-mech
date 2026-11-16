@@ -50,7 +50,7 @@ func (this *KnownSymbolType) getTypeClass_impl() *JSTypeClass {
 }
 
 func (this *KnownSymbolType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.name_))
+	return Optional_ofStr_(this.name_)
 }
 
 func (this *KnownSymbolType) isKnownSymbolValueType_impl() bool {

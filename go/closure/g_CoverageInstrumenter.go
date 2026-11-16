@@ -76,7 +76,7 @@ func (this *CoverageInstrumenter_CompilerSupplier) setOptions_impl(options *Comp
 	options.setLanguageOut(CompilerOptions_LanguageMode_ECMASCRIPT5)
 	options.setLanguageIn(CompilerOptions_LanguageMode_ECMASCRIPT_NEXT)
 	options.setStrictModeInput(false)
-	options.setSourceMapOutputPath(Optional_of(strobj_("/dev/null")))
+	options.setSourceMapOutputPath(Optional_ofStr_("/dev/null"))
 	options.setVariableRenaming(VariableRenamingPolicy_OFF)
 	options.setInstrumentForCoverageOption(CompilerOptions_InstrumentOption_LINE_ONLY)
 	options.setInstrumentForCoverageOnly(true)

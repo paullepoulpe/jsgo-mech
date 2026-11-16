@@ -63,7 +63,7 @@ func (this *NumberType) matchesObjectContext_impl() bool {
 }
 
 func (this *NumberType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("number"))
+	return Optional_ofStr_("number")
 }
 
 func (this *NumberType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {

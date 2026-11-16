@@ -76,18 +76,18 @@ func (this *ClosureCodingConvention) getClassesDefinedByCall_impl(callNode Node)
 func ClosureCodingConvention_typeofClassDefiningName(callName Node) *CodingConvention_SubclassType {
 	var methodName OptionalOf[string] = Optional_empty()
 	if callName.isGetProp() {
-		methodName = Optional_of(strobj_(callName.getString()))
+		methodName = Optional_ofStr_(callName.getString())
 	} else if callName.isName() {
 		var name string = callName.getString()
 		var dollarIndex int32 = String_lastIndexOf(name, 36)
 		if dollarIndex != -1 {
-			methodName = Optional_of(strobj_(String_substring_int(name, (dollarIndex + 1))))
+			methodName = Optional_ofStr_(String_substring_int(name, (dollarIndex + 1)))
 		}
 	}
 	if methodName.isPresent() {
-		if str_(methodName.get()) == "inherits" {
+		if methodName.getStr_() == "inherits" {
 			return CodingConvention_SubclassType_INHERITS
-		} else if str_(methodName.get()) == "mixin" {
+		} else if methodName.getStr_() == "mixin" {
 			return CodingConvention_SubclassType_MIXIN
 		}
 	}
@@ -126,7 +126,7 @@ func ClosureCodingConvention_extractClassNameIfGoog(node Node, parent Node, func
 		if ((callee != 0) && callee.isGetProp()) && callee.matchesQualifiedName(functionName) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				className = Optional_of(strobj_(target.getString()))
+				className = Optional_ofStr_(target.getString())
 			}
 		}
 	}
@@ -212,7 +212,7 @@ func (this *ClosureCodingConvention) getObjectLiteralCast_impl(callNode Node) *C
 	if !objectNode.isObjectLit() {
 		return new_CodingConvention_ObjectLiteralCast(Optional_empty(), 0, ClosureCodingConvention_OBJECTLIT_EXPECTED)
 	}
-	return new_CodingConvention_ObjectLiteralCast(Optional_of(strobj_(typeNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+	return new_CodingConvention_ObjectLiteralCast(Optional_ofStr_(typeNode.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)

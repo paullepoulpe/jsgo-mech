@@ -37,7 +37,7 @@ func (this *Es6RenameReferences) renameReference(t *NodeTraversal, n Node, oldNa
 	for current != nil {
 		var newName OptionalOf[string] = Optional_ofNullable(this.renameTable.get(current.getRootNode().box_(), strobj_(oldName)))
 		if newName.isPresent() {
-			n.setString(str_(newName.get()))
+			n.setString(newName.getStr_())
 			t.reportCodeChange()
 			return
 		} else if current.hasOwnSlot(oldName) {

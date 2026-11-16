@@ -236,7 +236,7 @@ func (this *J2clPass_ClassStaticFunctionsInliner_FunctionDefsCollector) visit(t 
 		var qualifiedFnName OptionalOf[string] = func() Optional {
 			switch n.ns_().token {
 			case tokOrd1_ASSIGN:
-				return Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+				return Optional_ofStr_(n.getFirstChild().getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)

@@ -191,7 +191,7 @@ func new_PassFactory_Builder_0() *PassFactory_Builder {
 
 func (this *PassFactory_Builder) init_PassFactory_Builder_PassFactory(source *PassFactory) {
 	this.finit_PassFactory_Builder()
-	this.name_ = Optional_of(strobj_(source.getName()))
+	this.name_ = Optional_ofStr_(source.getName())
 	this.condition = source.getCondition()
 	this.preconditionCheck = source.getPreconditionCheck()
 	this.runInFixedPointLoop = source.isRunInFixedPointLoop()
@@ -206,7 +206,7 @@ func new_PassFactory_Builder_PassFactory(source *PassFactory) *PassFactory_Build
 }
 
 func (this *PassFactory_Builder) setName(x string) *PassFactory_Builder {
-	this.name_ = Optional_of(strobj_(x))
+	this.name_ = Optional_ofStr_(x)
 	return this
 }
 
@@ -260,7 +260,7 @@ func (this *PassFactory_Builder) autoBuild() *PassFactory {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
-	return new_PassFactory(str_(this.name_.get()), this.condition, this.preconditionCheck, this.runInFixedPointLoop, this.internalFactory)
+	return new_PassFactory(this.name_.getStr_(), this.condition, this.preconditionCheck, this.runInFixedPointLoop, this.internalFactory)
 }
 
 func (this *PassFactory_Builder) build() *PassFactory {

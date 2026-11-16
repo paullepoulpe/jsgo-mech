@@ -157,9 +157,9 @@ func (this *InlineSimpleMethods) addSignature(name string, function Node) {
 
 func InlineSimpleMethods_getPropName(getPropElem Node) OptionalOf[string] {
 	if getPropElem.isGetProp() {
-		return Optional_of(strobj_(getPropElem.getString()))
+		return Optional_ofStr_(getPropElem.getString())
 	} else if getPropElem.getSecondChild().isStringLit() {
-		return Optional_of(strobj_(getPropElem.getSecondChild().getString()))
+		return Optional_ofStr_(getPropElem.getSecondChild().getString())
 	} else {
 		return Optional_empty()
 	}
@@ -259,11 +259,11 @@ func (this *InlineSimpleMethods_GatherSignatures) visit_impl(t *NodeTraversal, n
 		if name.isEmpty() {
 			return
 		}
-		if str_(name.get()) == "prototype" {
+		if name.getStr_() == "prototype" {
 			this.processPrototypeParent(parent)
 		} else {
 			if parent.isAssign() && n.isFirstChildOf(parent) {
-				this.outer_.addPossibleSignature(str_(name.get()), n.getNext())
+				this.outer_.addPossibleSignature(name.getStr_(), n.getNext())
 			}
 		}
 	case Token_rhino_OBJECTLIT, Token_rhino_CLASS_MEMBERS:
@@ -296,7 +296,7 @@ func (this *InlineSimpleMethods_GatherSignatures) processPrototypeParent(n Node)
 		var name OptionalOf[string] = InlineSimpleMethods_getPropName(n)
 		if name.isPresent() && grandparent.isAssign() {
 			var assignee Node = grandparent.getSecondChild()
-			this.outer_.addPossibleSignature(str_(name.get()), assignee)
+			this.outer_.addPossibleSignature(name.getStr_(), assignee)
 		}
 	default:
 	}

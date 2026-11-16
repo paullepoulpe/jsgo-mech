@@ -85,7 +85,7 @@ func (this *CheckEnums) checkName(t *NodeTraversal, prop Node) {
 	if prop.isStringKey() && prop.isShorthandProperty() {
 		t.report(prop, CheckEnums_SHORTHAND_ASSIGNMENT_IN_ENUM, []string{})
 	}
-	if !this.compiler_.getCodingConvention().isValidEnumKey(Optional_of(strobj_(prop.getString()))) {
+	if !this.compiler_.getCodingConvention().isValidEnumKey(Optional_ofStr_(prop.getString())) {
 		t.report(prop, CheckEnums_ENUM_PROP_NOT_CONSTANT, []string{})
 	}
 }

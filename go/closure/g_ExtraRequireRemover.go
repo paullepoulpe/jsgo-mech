@@ -38,7 +38,7 @@ func (this *ExtraRequireRemover) extractNamespace(call Node, primitiveNames []*Q
 		if primitiveName.matches(callee) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				return Optional_of(strobj_(target.getString()))
+				return Optional_ofStr_(target.getString())
 			}
 		}
 	}
@@ -100,7 +100,7 @@ func (this *ExtraRequireRemover) removeExtraRequire(call Node, require string) {
 		return
 	}
 	if call.getParent().isExprResult() {
-		if (!call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_of(strobj_(call.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+		if (!call.getGrandparent().isModuleBody() || J2clSourceUtils_isJ2clHeaderSource(Optional_ofStr_(call.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -160,7 +160,7 @@ func (this *ExtraRequireRemover) visitGoogRequire(namespace string, googRequireC
 func (this *ExtraRequireRemover) visitCallNode(call Node, parent Node) {
 	var required OptionalOf[string] = this.extractNamespaceIfRequire(call)
 	if required.isPresent() {
-		this.visitGoogRequire(str_(required.get()), call, parent)
+		this.visitGoogRequire(required.getStr_(), call, parent)
 		return
 	}
 	var callee Node = call.getFirstChild()

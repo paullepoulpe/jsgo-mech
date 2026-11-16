@@ -96,7 +96,7 @@ func (this *InferJSDocInfo) inferJSDocForName(n Node, parent Node) {
 	}
 	var objType *ObjectType = InferJSDocInfo_dereferenced(inferredType)
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(objType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, Optional_of(strobj_(n.getString())))
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(objType, typeDoc, Optional_ofStr_(n.getString()))
 	}
 }
 
@@ -170,7 +170,7 @@ func (this *InferJSDocInfo) inferJSDocForProperty(n Node, parent Node) {
 	}
 	var propType *ObjectType = InferJSDocInfo_dereferenced(lhsType.getPropertyType(propName))
 	if InferJSDocInfo_shouldAttachJSDocToNominalTypeOrShape(propType, aliasedType) {
-		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+		InferJSDocInfo_attachJSDocInfoToNominalTypeOrShape(propType, typeDoc, Optional_ofStr_(n.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)

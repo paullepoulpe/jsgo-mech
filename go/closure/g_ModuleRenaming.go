@@ -16,11 +16,11 @@ func new_ModuleRenaming() *ModuleRenaming {
 }
 
 func ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(moduleMetadata *ModuleMetadataMap_ModuleMetadata, variableName OptionalOf[string]) *QualifiedName {
-	return QualifiedName_of((sstr_(str_(variableName.orElse(strobj_("null")))) + "$$" + sstr_(str_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_empty()).join().orElse(strobj_("null"))))))
+	return QualifiedName_of((sstr_(variableName.orElseStr_("null")) + "$$" + sstr_(ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata, Optional_empty()).join().orElseStr_("null"))))
 }
 
 func ModuleRenaming_getGlobalNameOfAnonymousDefaultExport(moduleMetadata *ModuleMetadataMap_ModuleMetadata) *QualifiedName {
-	return ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(moduleMetadata, Optional_of(strobj_(ModuleRenaming_DEFAULT_EXPORT_VAR_PREFIX)))
+	return ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(moduleMetadata, Optional_ofStr_(ModuleRenaming_DEFAULT_EXPORT_VAR_PREFIX))
 }
 
 func ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata *ModuleMetadataMap_ModuleMetadata, googNamespace OptionalOf[string]) *QualifiedName {
@@ -29,12 +29,12 @@ func ModuleRenaming_getGlobalName_ModuleMetadata_Optional(moduleMetadata *Module
 
 func ModuleRenaming_getGlobalNameExport(export *Export) *QualifiedName {
 	if export.moduleMetadata().isEs6Module() {
-		if str_(export.localName().get()) == Export_DEFAULT_EXPORT_NAME {
+		if export.localName().getStr_() == Export_DEFAULT_EXPORT_NAME {
 			return ModuleRenaming_getGlobalNameOfAnonymousDefaultExport(export.moduleMetadata())
 		}
 		return ModuleRenaming_getGlobalNameOfEsModuleLocalVariable(export.moduleMetadata(), export.localName())
 	}
-	return ModuleRenaming_getGlobalName_ModuleMetadata_Optional(export.moduleMetadata(), export.closureNamespace()).getprop(str_(export.exportName().get()))
+	return ModuleRenaming_getGlobalName_ModuleMetadata_Optional(export.moduleMetadata(), export.closureNamespace()).getprop(export.exportName().getStr_())
 }
 
 func ModuleRenaming_getGlobalName_Binding(binding *Binding) *QualifiedName {
@@ -113,9 +113,9 @@ func ModuleRenaming_GlobalizedModuleName_create_ModuleMetadata_Optional_TypedSco
 	switch moduleMetadata.moduleType() {
 	case ModuleMetadataMap_ModuleType_GOOG_MODULE:
 		var moduleBody Node = moduleMetadata.rootNode().getFirstChild()
-		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(ClosureRewriteModule_getBinaryModuleNamespace(str_(googNamespace.get()))), moduleBody.getJSType())
+		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(ClosureRewriteModule_getBinaryModuleNamespace(googNamespace.getStr_())), moduleBody.getJSType())
 	case ModuleMetadataMap_ModuleType_GOOG_PROVIDE, ModuleMetadataMap_ModuleType_LEGACY_GOOG_MODULE:
-		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(str_(googNamespace.get())), ModuleRenaming_getNameRootType(str_(googNamespace.get()), globalTypedScope))
+		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(googNamespace.getStr_()), ModuleRenaming_getNameRootType(googNamespace.getStr_(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_ES6_MODULE, ModuleMetadataMap_ModuleType_COMMON_JS:
 		return new_ModuleRenaming_GlobalizedModuleName(QualifiedName_of(moduleMetadata.path().toModuleName()), ModuleRenaming_getNameRootType(moduleMetadata.path().toModuleName(), globalTypedScope))
 	case ModuleMetadataMap_ModuleType_SCRIPT:

@@ -128,7 +128,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 	if parent.isScript() || parent.isModuleBody() {
 		if NodeUtil_isFunctionDeclaration(n) {
 			var functionName string = NodeUtil_getName(n)
-			if ExportTestFunctions_isTestFunction(Optional_of(strobj_(functionName)).filter(&Predicate_fn{func(s_ any) bool {
+			if ExportTestFunctions_isTestFunction(Optional_ofStr_(functionName).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
 				_ = s
 				return !String_isEmpty(s)
@@ -138,7 +138,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 		} else if this.isNameDeclaredFunction(n) {
 			var functionNode Node = n.getFirstFirstChild()
 			var functionName string = NodeUtil_getName(functionNode)
-			if ExportTestFunctions_isTestFunction(Optional_of(strobj_(functionName)).filter(&Predicate_fn{func(s_ any) bool {
+			if ExportTestFunctions_isTestFunction(Optional_ofStr_(functionName).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
 				_ = s
 				return !String_isEmpty(s)
@@ -148,7 +148,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 		} else if this.isNameDeclaredClass(n) {
 			var classNode Node = n.getFirstFirstChild()
 			var className string = NodeUtil_getName(classNode)
-			this.exportClass_3(classNode, Optional_of(strobj_(className)).filter(&Predicate_fn{func(s_ any) bool {
+			this.exportClass_3(classNode, Optional_ofStr_(className).filter(&Predicate_fn{func(s_ any) bool {
 				var s string = str_(s_)
 				_ = s
 				return !String_isEmpty(s)
@@ -163,7 +163,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 			var lastChild Node = n.getLastChild()
 			var nodeName string = firstChild.getQualifiedName()
 			if lastChild.isFunction() {
-				if ExportTestFunctions_isTestFunction(Optional_of(strobj_(nodeName)).filter(&Predicate_fn{func(s_ any) bool {
+				if ExportTestFunctions_isTestFunction(Optional_ofStr_(nodeName).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)
@@ -175,7 +175,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 					}
 				}
 			} else if lastChild.isClass() {
-				this.exportClass_3(lastChild, Optional_of(strobj_(nodeName)).filter(&Predicate_fn{func(s_ any) bool {
+				this.exportClass_3(lastChild, Optional_ofStr_(nodeName).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)
@@ -201,7 +201,7 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) visit_impl(t *NodeTrav
 
 func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass(classNode Node) {
 	var className string = NodeUtil_getName(classNode)
-	this.exportClass_3(classNode, Optional_of(strobj_(className)).filter(&Predicate_fn{func(s_ any) bool {
+	this.exportClass_3(classNode, Optional_ofStr_(className).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -215,9 +215,9 @@ func (this *ExportTestFunctions_ExportTestFunctionsNodes) exportClass_3(classNod
 		for ; maybeMemberFunctionDef != 0; maybeMemberFunctionDef = maybeMemberFunctionDef.getNext() {
 			if maybeMemberFunctionDef.isMemberFunctionDef() {
 				var methodName string = maybeMemberFunctionDef.getString()
-				if ExportTestFunctions_isTestFunction(Optional_of(strobj_(methodName))) {
-					var functionRef string = (sstr_(str_(className.orElse(strobj_("null")))) + ".prototype." + sstr_(methodName))
-					var classRef string = (sstr_(str_(className.orElse(strobj_("null")))) + ".prototype")
+				if ExportTestFunctions_isTestFunction(Optional_ofStr_(methodName)) {
+					var functionRef string = (sstr_(className.orElseStr_("null")) + ".prototype." + sstr_(methodName))
+					var classRef string = (sstr_(className.orElseStr_("null")) + ".prototype")
 					var exportCallTarget Node = NodeUtil_newQName_AbstractCompiler_String_Node_String(this.outer_.compiler_, this.outer_.exportPropertyFunction, maybeMemberFunctionDef, methodName)
 					var call Node = IR_call(exportCallTarget, []Node{})
 					if exportCallTarget.isName() {

@@ -595,12 +595,12 @@ func (this *JsMessage_Builder) getKey() OptionalOf[string] {
 }
 
 func (this *JsMessage_Builder) setKey(key string) *JsMessage_Builder {
-	this.key_ = Optional_of(strobj_(key))
+	this.key_ = Optional_ofStr_(key)
 	return this
 }
 
 func (this *JsMessage_Builder) setSourceName(sourceName string) *JsMessage_Builder {
-	this.sourceName_ = Optional_of(strobj_(sourceName))
+	this.sourceName_ = Optional_ofStr_(sourceName)
 	return this
 }
 
@@ -733,7 +733,7 @@ func (this *JsMessage_Builder) build() *JsMessage {
 		immutableGenderedPartsBuilder.put(entry.getKey(), obj_(ImmutableList_copyOf(icast_Collection(entry.getValue()))))
 	}
 	var immutableGenderedMessageMap ImmutableMapOf[*JsMessage_GrammaticalGenderCase, ImmutableListOf[JsMessage_Part]] = immutableGenderedPartsBuilder.buildOrThrow()
-	return new_JsMessage(this.sourceName_, str_(this.key_.get()), this.isAnonymous_, this.isExternal_, str_(this.id.get()), ImmutableList_copyOf(Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, ImmutableSet_copyOf(Collection(this.jsPlaceholderNames_.asSet())), ImmutableSet_copyOf(Collection(this.canonicalPlaceholderNames_.asSet())))
+	return new_JsMessage(this.sourceName_, this.key_.getStr_(), this.isAnonymous_, this.isExternal_, this.id.getStr_(), ImmutableList_copyOf(Collection(this.parts.asList())), immutableGenderedMessageMap, this.alternateId, this.desc, this.meaning, this.placeholderNameToExampleMap, this.placeholderNameToOriginalCodeMap, ImmutableSet_copyOf(Collection(this.jsPlaceholderNames_.asSet())), ImmutableSet_copyOf(Collection(this.canonicalPlaceholderNames_.asSet())))
 }
 
 type JsMessage_Hash struct {
@@ -757,7 +757,7 @@ func JsMessage_Hash_hash64String(value OptionalOf[string], seed int64) int64 {
 	if value.isEmpty() {
 		return JsMessage_Hash_hash64_byteArr_int_int_long(nil, 0, 0, seed)
 	}
-	return JsMessage_Hash_hash64_byteArr_long(Io_utf8Bytes(str_(value.get())), seed)
+	return JsMessage_Hash_hash64_byteArr_long(Io_utf8Bytes(value.getStr_()), seed)
 }
 
 func JsMessage_Hash_hash64_byteArr_long(value []int8, seed int64) int64 {

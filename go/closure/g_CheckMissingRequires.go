@@ -114,8 +114,8 @@ func (this *CheckMissingRequires) visitJsDocInfo(t *NodeTraversal, currentModule
 	it_1 := info.getParameterNames().each()
 	for it_1.next() {
 		var param string = it_1.v
-		if info.hasParameterType(Optional_of(strobj_(param))) {
-			this.visitJsDocExpr(t, currentModule, info.getParameterType(Optional_of(strobj_(param))), CheckMissingRequires_Strength_WEAK_TYPE)
+		if info.hasParameterType(Optional_ofStr_(param)) {
+			this.visitJsDocExpr(t, currentModule, info.getParameterType(Optional_ofStr_(param)), CheckMissingRequires_Strength_WEAK_TYPE)
 		}
 	}
 	if info.hasReturnType() {
@@ -201,7 +201,7 @@ func (this *CheckMissingRequires) visitMaybeDeclaration(t *NodeTraversal, n Node
 		if (requiredFile == nil) || !requiredFile.hasLegacyGoogNamespaces() {
 			return
 		}
-		var reference string = (sstr_(require.namespace()) + "." + sstr_(str_(require.property().get())))
+		var reference string = (sstr_(require.namespace()) + "." + sstr_(require.property().getStr_()))
 		if !currentFile.googNamespaces().contains(strobj_(reference)) {
 			var alternateFile *ModuleMetadataMap_ModuleMetadata = cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, reference))
 			if (alternateFile != nil) && (alternateFile != requiredFile) {
@@ -273,7 +273,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughShortNameInGoogScope
 				var joined OptionalOf[string] = subName.join()
 				var imported *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 					if joined.isPresent() {
-						return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, str_(joined.get())))
+						return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, joined.getStr_()))
 					}
 					return nil
 				}()
@@ -325,12 +325,12 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 		var subName *QualifiedName = normalizedQualifiedName
 		for ; subName != nil; subName = subName.getOwner() {
 			var namespace OptionalOf[string] = subName.join()
-			if this.isAllowedNamespace(currentFile, str_(namespace.get())) {
+			if this.isAllowedNamespace(currentFile, namespace.getStr_()) {
 				return
 			}
 			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 				if namespace.isPresent() {
-					return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, str_(namespace.get())))
+					return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, namespace.getStr_()))
 				}
 				return nil
 			}()
@@ -360,7 +360,7 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 					for i := int32(0); (i < diff) && errorNode.isGetProp(); i++ {
 						errorNode = errorNode.getFirstChild()
 					}
-					t.report_4(NodeUtil_getRootOfQualifiedName(errorNode), errorNode, toReport, []string{str_(namespace.orElse(strobj_("null")))})
+					t.report_4(NodeUtil_getRootOfQualifiedName(errorNode), errorNode, toReport, []string{namespace.orElseStr_("null")})
 				} else {
 					var errorQName *QualifiedName = originalQualifiedName
 					for i := int32(0); i < diff; i++ {
@@ -368,9 +368,9 @@ func (this *CheckMissingRequires) checkNormalizedShortNameImport(t *NodeTraversa
 					}
 					var correctName OptionalOf[string] = errorQName.join()
 					var newErrorNode Node = n.cloneNode()
-					newErrorNode.setString(str_(correctName.get()))
-					newErrorNode.setLength(String_length(str_(correctName.get())))
-					t.report(newErrorNode, toReport, []string{str_(namespace.orElse(strobj_("null")))})
+					newErrorNode.setString(correctName.getStr_())
+					newErrorNode.setLength(String_length(correctName.getStr_()))
+					t.report(newErrorNode, toReport, []string{namespace.orElseStr_("null")})
 				}
 			}
 			return
@@ -383,12 +383,12 @@ func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t
 		var subName *QualifiedName = qualifiedName
 		for ; subName != nil; subName = subName.getOwner() {
 			var namespace OptionalOf[string] = subName.join()
-			if this.isAllowedNamespace(currentFile, str_(namespace.get())) {
+			if this.isAllowedNamespace(currentFile, namespace.getStr_()) {
 				return
 			}
 			var requiredFile *ModuleMetadataMap_ModuleMetadata = func() *ModuleMetadataMap_ModuleMetadata {
 				if namespace.isPresent() {
-					return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, str_(namespace.get())))
+					return cast_[*ModuleMetadataMap_ModuleMetadata](Map_get_s(this.moduleByNamespace, namespace.getStr_()))
 				}
 				return nil
 			}()
@@ -416,7 +416,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t
 			} else {
 				return
 			}
-			t.report(n, toReport, []string{str_(namespace.orElse(strobj_("null"))), fileName})
+			t.report(n, toReport, []string{namespace.orElseStr_("null"), fileName})
 			return
 		}
 	}
@@ -425,7 +425,7 @@ func (this *CheckMissingRequires) checkMissingRequireThroughFullyQualifiedName(t
 func (this *CheckMissingRequires) normalizeQualifiedNamePlusImport(qualifiedName *QualifiedName, imported *NodeUtil_GoogRequire) *QualifiedName {
 	var newQName *QualifiedName = QualifiedName_of(imported.namespace())
 	if imported.property().isPresent() {
-		newQName = newQName.getprop(str_(imported.property().get()))
+		newQName = newQName.getprop(imported.property().getStr_())
 	}
 	return CheckMissingRequires_swapRootOfQualifiedName(qualifiedName, newQName)
 }
@@ -461,7 +461,7 @@ func CheckMissingRequires_hasAcceptableRequire(rdep *ModuleMetadataMap_ModuleMet
 		var parent *QualifiedName = namespace
 		for ; parent != nil; parent = parent.getOwner() {
 			var joined OptionalOf[string] = parent.join()
-			if joined.isPresent() && Collection_contains_s(acceptableRequires, str_(joined.get())) {
+			if joined.isPresent() && Collection_contains_s(acceptableRequires, joined.getStr_()) {
 				return true
 			}
 		}

@@ -405,7 +405,7 @@ func (this *TypeCheck) visit(t *NodeTraversal, n Node, parent Node) {
 
 func (this *TypeCheck) visitUnaryPlus(n Node) {
 	if this.getJSType(n).isNoType() {
-		this.report(n, TypeCheck_UNARY_OPERATION, []string{str_(NodeUtil_opToStr(n.getToken()).orElse(strobj_("null"))), this.getJSType(n.getFirstChild()).toString()})
+		this.report(n, TypeCheck_UNARY_OPERATION, []string{NodeUtil_opToStr(n.getToken()).orElseStr_("null"), this.getJSType(n.getFirstChild()).toString()})
 	} else {
 		this.ensureTyped_2(n, JSTypeNative_NUMBER_TYPE)
 	}
@@ -427,7 +427,7 @@ func (this *TypeCheck) visitBitwiseNOT(n Node) {
 	var childType *JSType = this.getJSType(n.getFirstChild())
 	if operatorType.isNumber() {
 		if !childType.matchesNumberContext() {
-			this.report(n, TypeCheck_BIT_OPERATION, []string{str_(NodeUtil_opToStr(n.getToken()).orElse(strobj_("null"))), childType.toString()})
+			this.report(n, TypeCheck_BIT_OPERATION, []string{NodeUtil_opToStr(n.getToken()).orElseStr_("null"), childType.toString()})
 		} else {
 			this.validator.expectNumberStrict(n, childType, "bitwise NOT")
 		}
@@ -558,7 +558,7 @@ func (this *TypeCheck) checkCanAssignToNameGetpropOrGetelem(t *NodeTraversal, no
 		this.checkPropertyInheritanceOnAssignment(nodeToWarn, object, icast_Property_Key(obj_(new_Property_StringKey(pname))), info, expectedPropertyType)
 		if !expectedPropertyType.isUnknownType() {
 			if !TypeCheck_propertyIsImplicitCast(objectCastType, pname) {
-				this.validator.expectCanAssignToPropertyOf(nodeToWarn, rightType, expectedPropertyType, object, Optional_of(strobj_(pname)))
+				this.validator.expectCanAssignToPropertyOf(nodeToWarn, rightType, expectedPropertyType, object, Optional_ofStr_(pname))
 			}
 			return
 		}
@@ -783,7 +783,7 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 			var superClassHasDeclaredProperty bool = !propSlot.getValue().isTypeInferred()
 			if superClassHasDeclaredProperty {
 				if TypeCheck_isDeclaredLocally(ctorType, propertyName) && !TypeCheck_declaresOverride(info) {
-					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_HIDDEN_SUPERCLASS_PROPERTY, []string{propertyName.humanReadableName(), str_(superClass.getReferenceName().orElse(strobj_("null")))}))
+					this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_HIDDEN_SUPERCLASS_PROPERTY, []string{propertyName.humanReadableName(), superClass.getReferenceName().orElseStr_("null")}))
 				}
 				this.validator.checkPropertyType(n, ctorType.getTypeOfThis(), superClass, propertyName, propertyType)
 			}
@@ -800,11 +800,11 @@ func (this *TypeCheck) checkDeclaredPropertyAgainstNominalInheritance(n Node, ct
 		var interfaceHasProperty bool = (propSlot != nil)
 		foundProperty = bor_(foundProperty, interfaceHasProperty)
 		if interfaceHasProperty && !TypeCheck_declaresOverride(info) {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_HIDDEN_INTERFACE_PROPERTY, []string{propertyName.humanReadableName(), str_(propSlot.getOwnerInstanceType().getReferenceName().orElse(strobj_("null")))}))
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_HIDDEN_INTERFACE_PROPERTY, []string{propertyName.humanReadableName(), propSlot.getOwnerInstanceType().getReferenceName().orElseStr_("null")}))
 		}
 	}
 	if !foundProperty && TypeCheck_declaresOverride(info) {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_UNKNOWN_OVERRIDE, []string{propertyName.humanReadableName(), str_(ctorType.getInstanceType().getReferenceName().orElse(strobj_("null")))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_UNKNOWN_OVERRIDE, []string{propertyName.humanReadableName(), ctorType.getInstanceType().getReferenceName().orElseStr_("null")}))
 	}
 }
 
@@ -1022,11 +1022,11 @@ func (this *TypeCheck) checkAbstractPropertyAccess(method Node) {
 	}
 	var objectNode Node = method.getFirstChild()
 	if objectNode.isSuper() {
-		this.report(method, TypeCheck_ABSTRACT_SUPER_METHOD_NOT_USABLE, []string{str_(methodType.getDisplayName().orElse(strobj_("null")))})
+		this.report(method, TypeCheck_ABSTRACT_SUPER_METHOD_NOT_USABLE, []string{methodType.getDisplayName().orElseStr_("null")})
 	} else if objectNode.isGetProp() {
 		var objectProp string = objectNode.getString()
 		if (objectProp == "prototype") || this.compiler_.getCodingConvention().isSuperClassReference(objectProp) {
-			this.report(method, TypeCheck_ABSTRACT_SUPER_METHOD_NOT_USABLE, []string{str_(methodType.getDisplayName().orElse(strobj_("null")))})
+			this.report(method, TypeCheck_ABSTRACT_SUPER_METHOD_NOT_USABLE, []string{methodType.getDisplayName().orElseStr_("null")})
 		}
 	}
 }
@@ -1303,7 +1303,7 @@ func (this *TypeCheck) checkConstructor(n Node, functionType *FunctionType) {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_CONFLICTING_EXTENDED_TYPE, []string{"constructor", this.getBestFunctionName(n)}))
 	} else {
 		if (((n.isFunction() && (baseConstructor != nil)) && (baseConstructor.getSource() != 0)) && baseConstructor.getSource().isClass()) && !functionType.getSource().isClass() {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_ES5_CLASS_EXTENDING_ES6_CLASS, []string{str_(functionType.getDisplayName().orElse(strobj_("null"))), str_(baseConstructor.getDisplayName().orElse(strobj_("null")))}))
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_ES5_CLASS_EXTENDING_ES6_CLASS, []string{functionType.getDisplayName().orElseStr_("null"), baseConstructor.getDisplayName().orElseStr_("null")}))
 		}
 		if baseConstructor != nil {
 			this.checkStructDictSubtyping(n, functionType, baseConstructor)
@@ -1346,9 +1346,9 @@ func (this *TypeCheck) normalizeTemplatizedType(maybeTemplatizedType *JSType) *J
 
 func (this *TypeCheck) checkStructDictSubtyping(n Node, subtype *FunctionType, supertype *FunctionType) {
 	if subtype.makesDicts() && supertype.makesStructs() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_DICT_EXTEND_STRUCT_TYPE, []string{str_(subtype.getDisplayName().orElse(strobj_("null"))), str_(supertype.getDisplayName().orElse(strobj_("null")))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_DICT_EXTEND_STRUCT_TYPE, []string{subtype.getDisplayName().orElseStr_("null"), supertype.getDisplayName().orElseStr_("null")}))
 	} else if subtype.makesStructs() && supertype.makesDicts() {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_STRUCT_EXTEND_DICT_TYPE, []string{str_(subtype.getDisplayName().orElse(strobj_("null"))), str_(supertype.getDisplayName().orElse(strobj_("null")))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_STRUCT_EXTEND_DICT_TYPE, []string{subtype.getDisplayName().orElseStr_("null"), supertype.getDisplayName().orElseStr_("null")}))
 	}
 }
 
@@ -1380,7 +1380,7 @@ func (this *TypeCheck) checkInterface(n Node, functionType *FunctionType) {
 			displayNames.add(str_(loopType.getDisplayName().orElse(nil)))
 		}
 		var strPath string = String_join(strobj_(" -> "), Iterable(displayNames.asList()))
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{str_(loopPath.get(0).getDisplayName().orElse(strobj_("null"))), strPath}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, TypeCheck_INTERFACE_EXTENDS_LOOP, []string{loopPath.get(0).getDisplayName().orElseStr_("null"), strPath}))
 	}
 	this.validator.expectAllInterfaceProperties(n, functionType)
 }
@@ -1390,7 +1390,7 @@ func (this *TypeCheck) getBestFunctionName(n Node) string {
 	var name OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
 	return func() string {
 		if name.isPresent() {
-			return str_(name.get())
+			return name.getStr_()
 		}
 		return ("<anonymous@" + sstr_(n.getSourceFileName()) + ":" + istr_(int64(n.getLineno())) + ">")
 	}()
@@ -1400,9 +1400,9 @@ func (this *TypeCheck) checkCallConventions(t *NodeTraversal, n Node) {
 	var relationship *CodingConvention_SubclassRelationship = this.compiler_.getCodingConvention().getClassesDefinedByCall(n)
 	var scope *TypedScope = t.getTypedScope()
 	if relationship != nil {
-		var superClass *JSType = scope.lookupQualifiedName(QualifiedName_of(str_(relationship.superclassName.get())))
+		var superClass *JSType = scope.lookupQualifiedName(QualifiedName_of(relationship.superclassName.getStr_()))
 		var superClassInstanceType *ObjectType = TypeValidator_getInstanceOfCtor(superClass)
-		var subClass *JSType = scope.lookupQualifiedName(QualifiedName_of(str_(relationship.subclassName.get())))
+		var subClass *JSType = scope.lookupQualifiedName(QualifiedName_of(relationship.subclassName.getStr_()))
 		var subClassInstance *ObjectType = TypeValidator_getInstanceOfCtor(subClass)
 		if ((((relationship.type__ == CodingConvention_SubclassType_INHERITS) && (superClassInstanceType != nil)) && !superClassInstanceType.isEmptyType()) && (subClassInstance != nil)) && !subClassInstance.isEmptyType() {
 			if (((n.getFirstChild().isQualifiedName() && TypeCheck_GOOG_INHERITS.matches(n.getFirstChild())) && (subClass.toMaybeFunctionType() != nil)) && (subClass.toMaybeFunctionType().getSource() != 0)) && subClass.toMaybeFunctionType().getSource().isClass() {
@@ -1478,7 +1478,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 	var maxArity int32 = functionType.getMaxArity()
 	if spreadArgumentCount > 0 {
 		if normalArgumentCount > maxArity {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{str_(this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse(strobj_("null"))), ("at least " + istr_(int64(normalArgumentCount))), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElseStr_("null"), ("at least " + istr_(int64(normalArgumentCount))), String_valueOf(minArity), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1487,7 +1487,7 @@ func (this *TypeCheck) checkArgumentsMatchParameters(call Node, functionType *Fu
 		}
 	} else {
 		if (minArity > normalArgumentCount) || (maxArity < normalArgumentCount) {
-			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{str_(this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElse(strobj_("null"))), String_valueOf(normalArgumentCount), String_valueOf(minArity), func() string {
+			this.report(call, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(call.getFirstChild()).orElseStr_("null"), String_valueOf(normalArgumentCount), String_valueOf(minArity), func() string {
 				if maxArity == int32(2147483647) {
 					return ""
 				}
@@ -1595,7 +1595,7 @@ func (this *TypeCheck) visitTaggedTemplateLit(n Node) {
 	var tagFnType *FunctionType = tagType.toMaybeFunctionType()
 	var parameters IteratorOf[*FunctionType_Parameter] = tagFnType.getParameters().iterator()
 	if !parameters.hasNext() {
-		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{str_(this.typeRegistry.getReadableTypeNameNoDeref(tag).orElse(strobj_("null"))), String_valueOf(NodeUtil_getInvocationArgsCount(n)), "0", " and no more than 0 argument(s)"})
+		this.report(n, TypeCheck_WRONG_ARGUMENT_COUNT, []string{this.typeRegistry.getReadableTypeNameNoDeref(tag).orElseStr_("null"), String_valueOf(NodeUtil_getInvocationArgsCount(n)), "0", " and no more than 0 argument(s)"})
 		return
 	}
 	var firstParameter *FunctionType_Parameter = cast_[*FunctionType_Parameter](parameters.next())
@@ -1613,7 +1613,7 @@ func (this *TypeCheck) visitBinaryOperator(op *Token_rhino, n Node) {
 	var right Node = n.getLastChild()
 	var rightType *JSType = this.getJSType(right)
 	if operatorType.isNoType() {
-		this.report(n, TypeCheck_BINARY_OPERATION, []string{str_(NodeUtil_opToStr(n.getToken()).orElse(strobj_("null"))), leftType.toString(), rightType.toString()})
+		this.report(n, TypeCheck_BINARY_OPERATION, []string{NodeUtil_opToStr(n.getToken()).orElseStr_("null"), leftType.toString(), rightType.toString()})
 		return
 	}
 	switch op {
@@ -1621,14 +1621,14 @@ func (this *TypeCheck) visitBinaryOperator(op *Token_rhino, n Node) {
 		if operatorType.isNumber() {
 			var opStr OptionalOf[string] = NodeUtil_opToStr(n.getToken())
 			if !leftType.matchesNumberContext() {
-				this.report(left, TypeCheck_BIT_OPERATION, []string{str_(opStr.orElse(strobj_("null"))), leftType.toString()})
+				this.report(left, TypeCheck_BIT_OPERATION, []string{opStr.orElseStr_("null"), leftType.toString()})
 			} else {
-				this.validator.expectNumberStrict(n, leftType, ("operator " + sstr_(str_(opStr.orElse(strobj_("null"))))))
+				this.validator.expectNumberStrict(n, leftType, ("operator " + sstr_(opStr.orElseStr_("null"))))
 			}
 			if !rightType.matchesNumberContext() {
-				this.report(right, TypeCheck_BIT_OPERATION, []string{str_(opStr.orElse(strobj_("null"))), rightType.toString()})
+				this.report(right, TypeCheck_BIT_OPERATION, []string{opStr.orElseStr_("null"), rightType.toString()})
 			} else {
-				this.validator.expectNumberStrict(n, rightType, ("operator " + sstr_(str_(opStr.orElse(strobj_("null"))))))
+				this.validator.expectNumberStrict(n, rightType, ("operator " + sstr_(opStr.orElseStr_("null"))))
 			}
 		} else {
 			this.validator.expectBigIntOrNumber(left, leftType, "left operand")
@@ -1664,10 +1664,10 @@ func (this *TypeCheck) visitModuleBody(t *NodeTraversal, moduleBody Node) {
 	if !associatedModule.metadata().isLegacyGoogModule() {
 		return
 	}
-	var moduleName *QualifiedName = QualifiedName_of(str_(associatedModule.closureNamespace().get()))
+	var moduleName *QualifiedName = QualifiedName_of(associatedModule.closureNamespace().getStr_())
 	var googModuleCall Node = moduleBody.getFirstChild()
 	if moduleName.isSimple() {
-		var globalVar *TypedVar = cast_[*TypedVar](this.topScope.getVar(str_(moduleName.join().get())).self())
+		var globalVar *TypedVar = cast_[*TypedVar](this.topScope.getVar(moduleName.join().getStr_()).self())
 		this.validator.expectCanAssignTo(googModuleCall, moduleBody.getJSType(), globalVar.getType(), "legacy goog.module export")
 	} else {
 		var parentType *JSType = this.topScope.lookupQualifiedName(moduleName.getOwner())
@@ -1682,7 +1682,7 @@ func (this *TypeCheck) visitModuleBody(t *NodeTraversal, moduleBody Node) {
 		}
 		this.validator.expectCanAssignToPropertyOf_6(googModuleCall, moduleBody.getJSType(), parentObjectType.getPropertyType(moduleName.getComponent()), parentObjectType.up_JSType(), &Supplier_base_fn{func() any {
 			return moduleName.getOwner().join().orElse(nil)
-		}}, Optional_of(strobj_(moduleName.getComponent())))
+		}}, Optional_ofStr_(moduleName.getComponent()))
 	}
 }
 
@@ -1764,7 +1764,7 @@ func (this *TypeCheck) checkJsdocInfoContainsObjectWithBadKey(n Node) {
 		it_1 := info.getParameterNames().each()
 		for it_1.next() {
 			var param string = it_1.v
-			this.checkTypeContainsObjectWithBadKey(n, info.getParameterType(Optional_of(strobj_(param))))
+			this.checkTypeContainsObjectWithBadKey(n, info.getParameterType(Optional_ofStr_(param)))
 		}
 	}
 }

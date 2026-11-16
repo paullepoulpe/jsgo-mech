@@ -166,7 +166,7 @@ func (this *DeadPropertyAssignmentElimination_PropertyWrite) init_DeadPropertyAs
 	this.finit_DeadPropertyAssignmentElimination_PropertyWrite()
 	Preconditions_checkArgument(assignedAt.isQualifiedName())
 	this.assignedAt = assignedAt
-	this.qualifiedName_ = Optional_of(strobj_(assignedAt.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+	this.qualifiedName_ = Optional_ofStr_(assignedAt.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -213,9 +213,9 @@ func (this *DeadPropertyAssignmentElimination_FindCandidateAssignmentTraversal) 
 	}
 	var propName OptionalOf[string] = func() Optional {
 		if propNode.isGetProp() {
-			return Optional_of(strobj_(propNode.getString()))
+			return Optional_ofStr_(propNode.getString())
 		}
-		return Optional_of(strobj_(propNode.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+		return Optional_ofStr_(propNode.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)

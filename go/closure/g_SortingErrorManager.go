@@ -175,7 +175,7 @@ func (this *SortingErrorManager_LeveledJSErrorComparator) compare(p1_ any, p2_ a
 	var source1 OptionalOf[string] = p1.error_.sourceName()
 	var source2 OptionalOf[string] = p2.error_.sourceName()
 	if source1.isPresent() && source2.isPresent() {
-		var sourceCompare int32 = String_compareTo(str_(source1.get()), str_(source2.get()))
+		var sourceCompare int32 = String_compareTo(source1.getStr_(), source2.getStr_())
 		if sourceCompare != 0 {
 			return sourceCompare
 		}

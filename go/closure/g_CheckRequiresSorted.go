@@ -85,7 +85,7 @@ func CheckRequiresSorted_isValidImportCall(n Node) bool {
 }
 
 func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportStatement {
-	var primitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_of(strobj_(callNode.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+	var primitive *CheckRequiresSorted_ImportPrimitive = CheckRequiresSorted_ImportPrimitive_fromName(Optional_ofStr_(callNode.getFirstChild().getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -98,7 +98,7 @@ func CheckRequiresSorted_parseImport(callNode Node) *CheckRequiresSorted_ImportS
 	var grandparent Node = parent.getParent()
 	if parent.isName() {
 		var alias string = parent.getString()
-		return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(grandparent.box_()), primitive, namespace, Optional_of(strobj_(alias)), nil)
+		return CheckRequiresSorted_ImportStatement_of(ImmutableList_of_Object(grandparent.box_()), primitive, namespace, Optional_ofStr_(alias), nil)
 	}
 	var destructures ImmutableList_BuilderOf[*CheckRequiresSorted_DestructuringBinding] = ImmutableList_builder()
 	{
@@ -117,9 +117,9 @@ func (this *CheckRequiresSorted) checkCanonical(t *NodeTraversal) {
 	var canonicalImports ListOf[*CheckRequiresSorted_ImportStatement] = CheckRequiresSorted_canonicalizeImports(this.importsByNamespace)
 	if !Object_equals(any(this.originalImports), any(canonicalImports)) {
 		this.needsFixField = true
-		this.replacement_ = Optional_of(strobj_(String_join(strobj_("\n"), Iterables_transform(Iterable(canonicalImports), &Function_base_fn{func(p0 any) any { return strobj_(cast_[*CheckRequiresSorted_ImportStatement](p0).format()) }}))))
+		this.replacement_ = Optional_ofStr_(String_join(strobj_("\n"), Iterables_transform(Iterable(canonicalImports), &Function_base_fn{func(p0 any) any { return strobj_(cast_[*CheckRequiresSorted_ImportStatement](p0).format()) }})))
 		if this.mode_ == CheckRequiresSorted_Mode_COLLECT_AND_REPORT {
-			t.report(this.firstNode, CheckRequiresSorted_REQUIRES_NOT_SORTED, []string{str_(this.replacement_.orElse(strobj_("null")))})
+			t.report(this.firstNode, CheckRequiresSorted_REQUIRES_NOT_SORTED, []string{this.replacement_.orElseStr_("null")})
 		}
 	}
 }
@@ -299,11 +299,11 @@ func new_CheckRequiresSorted_ImportPrimitive(name_ string, ordinal_ int32, name 
 
 func CheckRequiresSorted_ImportPrimitive_fromName(name OptionalOf[string]) *CheckRequiresSorted_ImportPrimitive {
 	for _, primitive := range CheckRequiresSorted_ImportPrimitive_values() {
-		if Object_equals(obj_(Optional_of(strobj_(primitive.nameField))), obj_(name)) {
+		if Object_equals(obj_(Optional_ofStr_(primitive.nameField)), obj_(name)) {
 			return primitive
 		}
 	}
-	panic(new_IllegalArgumentException_String(("Invalid primitive name " + sstr_(str_(name.orElse(strobj_("null")))))).self())
+	panic(new_IllegalArgumentException_String(("Invalid primitive name " + sstr_(name.orElseStr_("null")))).self())
 }
 
 func CheckRequiresSorted_ImportPrimitive_stronger(p1 *CheckRequiresSorted_ImportPrimitive, p2 *CheckRequiresSorted_ImportPrimitive) *CheckRequiresSorted_ImportPrimitive {
@@ -493,7 +493,7 @@ func (this *CheckRequiresSorted_ImportStatement) formatWithoutDoc() string {
 		sb.append("const ")
 	}
 	if this.alias().isPresent() {
-		sb.append(str_(this.alias().get()))
+		sb.append(this.alias().getStr_())
 	}
 	if this.destructures() != nil {
 		sb.append("{")
@@ -537,7 +537,7 @@ func (this *CheckRequiresSorted_ImportStatement) format() string {
 		}
 		var jsDoc *JSDocInfo = NodeUtil_getBestJSDocInfo(node)
 		if jsDoc != nil {
-			sb.append(str_(jsDoc.getOriginalCommentString().orElse(strobj_("null")))).append("\n")
+			sb.append(jsDoc.getOriginalCommentString().orElseStr_("null")).append("\n")
 		}
 	}
 	sb.append(this.formatWithoutDoc())

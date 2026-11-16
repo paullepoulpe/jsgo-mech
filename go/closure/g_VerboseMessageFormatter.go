@@ -39,10 +39,10 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 	var sourceRegion Region = this.getSource().getSourceRegion(sourceName, lineNumber)
 	var lineSource OptionalOf[string] = Optional_empty()
 	if sourceRegion != nil {
-		lineSource = Optional_of(strobj_(sourceRegion.getSourceExcerpt()))
+		lineSource = Optional_ofStr_(sourceRegion.getSourceExcerpt())
 	}
 	return String_format("%s at %s line %s %s", []any{strobj_(description), func() any {
-		if String_isEmpty(str_(sourceName.orElse(strobj_("")))) {
+		if String_isEmpty(sourceName.orElseStr_("")) {
 			return strobj_("(unknown source)")
 		}
 		return sourceName.get()
@@ -53,7 +53,7 @@ func (this *VerboseMessageFormatter) format(message *JSError) string {
 		return strobj_(String_valueOf(lineNumber))
 	}(), func() any {
 		if lineSource.isPresent() {
-			return strobj_((":\n\n" + sstr_(str_(lineSource.get()))))
+			return strobj_((":\n\n" + sstr_(lineSource.getStr_())))
 		}
 		return strobj_(".")
 	}()})

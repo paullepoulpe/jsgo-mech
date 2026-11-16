@@ -28,7 +28,7 @@ func (this *MinimizeExitPoints) optimizeSubtree_impl(n Node) Node {
 	Preconditions_checkState_boolean_Object(this.isASTNormalized(), strobj_("MinimizeExitPoints requires the AST to be normalized"))
 	switch n.ns_().token {
 	case tokOrd1_LABEL:
-		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_of(strobj_(n.getFirstChild().getString())))
+		this.tryMinimizeExits(n.getLastChild(), Token_rhino_BREAK, Optional_ofStr_(n.getFirstChild().getString()))
 	case tokOrd1_FOR, tokOrd1_FOR_IN, tokOrd1_FOR_OF, tokOrd1_FOR_AWAIT_OF, tokOrd1_WHILE:
 		this.tryMinimizeExits(NodeUtil_getLoopCodeBlock(n), Token_rhino_CONTINUE, Optional_empty())
 	case tokOrd1_DO:
@@ -193,7 +193,7 @@ func MinimizeExitPoints_matchingExitNode(n Node, type_ *Token_rhino, labelName O
 			if labelName.isEmpty() {
 				return !n.hasChildren()
 			} else {
-				return (n.hasChildren() && (str_(labelName.get()) == n.getFirstChild().getString()))
+				return (n.hasChildren() && (labelName.getStr_() == n.getFirstChild().getString()))
 			}
 		}
 	}

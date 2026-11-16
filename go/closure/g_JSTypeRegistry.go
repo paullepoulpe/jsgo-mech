@@ -234,17 +234,17 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.mapValueTemplateKey = new_TemplateType_JSTypeRegistry_String(this, "V")
 	this.iThenableTemplateKey = new_TemplateType_JSTypeRegistry_String(this, "TYPE")
 	this.promiseTemplateKey = new_TemplateType_JSTypeRegistry_String(this, "TYPE")
-	var functionPrototype *PrototypeObjectType = PrototypeObjectType_builder(this).setName(Optional_of(strobj_("Function.prototype"))).setNative(true).build()
+	var functionPrototype *PrototypeObjectType = PrototypeObjectType_builder(this).setName(Optional_ofStr_("Function.prototype")).setNative(true).build()
 	this.registerNativeType(JSTypeNative_FUNCTION_PROTOTYPE, functionPrototype.up_JSType())
-	var functionInstancePrototype *PrototypeObjectType = PrototypeObjectType_builder(this).setName(Optional_of(strobj_("?.prototype"))).setNative(true).build()
+	var functionInstancePrototype *PrototypeObjectType = PrototypeObjectType_builder(this).setName(Optional_ofStr_("?.prototype")).setNative(true).build()
 	this.registerNativeType(JSTypeNative_FUNCTION_INSTANCE_PROTOTYPE, functionInstancePrototype.up_JSType())
-	var functionType *FunctionType = to_FunctionType(FunctionType_builder(this).withName(Optional_of(strobj_("Function"))).forConstructor().forNativeType().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.createParametersWithVarArgs([]*JSType{unknownType.up_JSType()}))).withTypeOfThis(unknownType.up_JSType()).withReturnType(unknownType.up_JSType()).build().self())
+	var functionType *FunctionType = to_FunctionType(FunctionType_builder(this).withName(Optional_ofStr_("Function")).forConstructor().forNativeType().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.createParametersWithVarArgs([]*JSType{unknownType.up_JSType()}))).withTypeOfThis(unknownType.up_JSType()).withReturnType(unknownType.up_JSType()).build().self())
 	functionType.setPrototype(functionInstancePrototype.up_ObjectType(), 0)
 	this.registerNativeType(JSTypeNative_FUNCTION_TYPE, functionType.up_JSType())
-	var functionFunctionType *FunctionType = to_FunctionType(FunctionType_builder(this).withName(Optional_of(strobj_("Function"))).forConstructor().forNativeType().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.createParametersWithVarArgs([]*JSType{allType.up_JSType()}))).withTypeOfThis(functionType.up_JSType()).build().self())
+	var functionFunctionType *FunctionType = to_FunctionType(FunctionType_builder(this).withName(Optional_ofStr_("Function")).forConstructor().forNativeType().withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.createParametersWithVarArgs([]*JSType{allType.up_JSType()}))).withTypeOfThis(functionType.up_JSType()).build().self())
 	functionFunctionType.setPrototype(functionPrototype.up_ObjectType(), 0)
 	this.registerNativeType(JSTypeNative_FUNCTION_FUNCTION_TYPE, functionFunctionType.up_JSType())
-	var objectPrototype *ObjectType = PrototypeObjectType_builder(this).setName(Optional_of(strobj_("Object.prototype"))).setNative(true).setImplicitPrototype(nil).build().up_ObjectType()
+	var objectPrototype *ObjectType = PrototypeObjectType_builder(this).setName(Optional_ofStr_("Object.prototype")).setNative(true).setImplicitPrototype(nil).build().up_ObjectType()
 	this.registerNativeType(JSTypeNative_OBJECT_PROTOTYPE, objectPrototype.up_JSType())
 	var objectFunctionType *FunctionType = to_FunctionType(this.nativeConstructorBuilder("Object").withParameters_1(tlistImm_(tc_p_FunctionType_Parameter, this.createOptionalParameters([]*JSType{allType.up_JSType()}))).withReturnsOwnInstanceType().withTemplateKeys([]*TemplateType{this.iObjectIndexTemplateKey, this.iObjectElementTemplateKey}).build().self())
 	objectFunctionType.setPrototype(objectPrototype, 0)
@@ -317,7 +317,7 @@ func (this *JSTypeRegistry) initializeBuiltInTypes() {
 	this.registerNativeType(JSTypeNative_ARRAY_TYPE, arrayType.up_JSType())
 	var arrayOfString *ObjectType = this.createTemplatizedType(arrayType, []*JSType{stringType.up_JSType()}).up_ObjectType()
 	var iTemplateArrayFunctionType *FunctionType = to_FunctionType(this.nativeConstructorBuilder("ITemplateArray").withParameters().build().self())
-	var iTemplateArrayPrototype *ObjectType = PrototypeObjectType_builder(this).setName(Optional_of(strobj_("ITemplateArray.prototype"))).setNative(true).setImplicitPrototype(arrayOfString).build().up_ObjectType()
+	var iTemplateArrayPrototype *ObjectType = PrototypeObjectType_builder(this).setName(Optional_ofStr_("ITemplateArray.prototype")).setNative(true).setImplicitPrototype(arrayOfString).build().up_ObjectType()
 	iTemplateArrayFunctionType.setPrototype(iTemplateArrayPrototype, 0)
 	iTemplateArrayFunctionType.getInstanceType().mergeSupertypeTemplateTypes(arrayOfString)
 	this.registerNativeType(JSTypeNative_I_TEMPLATE_ARRAY_TYPE, iTemplateArrayFunctionType.getInstanceType().up_JSType())
@@ -896,11 +896,11 @@ func (this *JSTypeRegistry) getReadableTypeNameNoDeref(n Node) OptionalOf[string
 
 func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) OptionalOf[string] {
 	if is_[*AllType](type_.self()) {
-		return Optional_of(strobj_(type_.toString()))
+		return Optional_ofStr_(type_.toString())
 	} else if is_ValueType(type_.self()) {
-		return Optional_of(strobj_(type_.toString()))
+		return Optional_ofStr_(type_.toString())
 	} else if type_.isFunctionPrototypeType() {
-		return Optional_of(strobj_(type_.toString()))
+		return Optional_ofStr_(type_.toString())
 	} else if is_ObjectType(type_.self()) {
 		if !JSTypeRegistry_isReadableObjectType(type_.toMaybeObjectType()) {
 			return Optional_empty()
@@ -910,10 +910,10 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) OptionalOf[string
 			Preconditions_checkState_boolean_Object((source.isFunction() || source.isClass()), source.box_())
 			var readable string = source.getFirstChild().getOriginalName()
 			if !String_isEmpty(readable) {
-				return Optional_of(strobj_(readable))
+				return Optional_ofStr_(readable)
 			}
 		}
-		return Optional_of(strobj_(type_.toString()))
+		return Optional_ofStr_(type_.toString())
 	} else if is_[*UnionType](type_.self()) {
 		var unionType *UnionType = type_.toMaybeUnionType()
 		var union OptionalOf[string] = Optional_empty()
@@ -925,12 +925,12 @@ func JSTypeRegistry_getSimpleReadableJSTypeName(type_ *JSType) OptionalOf[string
 				return Optional_empty()
 			}
 			if union.isEmpty() {
-				union = Optional_of(strobj_(("(" + sstr_(str_(name.get())))))
+				union = Optional_ofStr_(("(" + sstr_(name.getStr_())))
 			} else {
-				union = Optional_of(strobj_((sstr_(str_(union.get())) + "|" + sstr_(str_(name.get())))))
+				union = Optional_ofStr_((sstr_(union.getStr_()) + "|" + sstr_(name.getStr_())))
 			}
 		}
-		union = Optional_of(strobj_((sstr_(str_(union.orElse(strobj_("null")))) + ")")))
+		union = Optional_ofStr_((sstr_(union.orElseStr_("null")) + ")"))
 		return union
 	}
 	return Optional_empty()
@@ -954,20 +954,20 @@ func (this *JSTypeRegistry) getReadableJSTypeName(n Node, dereference bool) Opti
 			var propName string = n.getString()
 			objectType = objectType.getClosestDefiningType(propName)
 			if JSTypeRegistry_isReadableObjectType(objectType) {
-				return Optional_of(strobj_((objstr_(objectType.self()) + "." + sstr_(propName))))
+				return Optional_ofStr_((objstr_(objectType.self()) + "." + sstr_(propName)))
 			}
 		}
 	}
 	if n.isQualifiedName() {
-		return Optional_of(strobj_(n.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+		return Optional_ofStr_(n.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
 		}})
 	} else if type_.isFunctionType() {
-		return Optional_of(strobj_("function"))
+		return Optional_ofStr_("function")
 	} else {
-		return Optional_of(strobj_(type_.toString()))
+		return Optional_ofStr_(type_.toString())
 	}
 	panic("unreachable")
 }
@@ -1202,7 +1202,7 @@ func (this *JSTypeRegistry) resetImplicitPrototype(type_ *JSType, newImplicitPro
 
 func (this *JSTypeRegistry) createConstructorType(name string, source Node, parameters *TList[*FunctionType_Parameter], returnType *JSType, templateKeys ImmutableListOf[*TemplateType], isAbstract bool) *FunctionType {
 	Preconditions_checkArgument((((source == 0) || source.isFunction()) || source.isClass()))
-	return to_FunctionType(FunctionType_builder(this).forConstructor().withName(Optional_of(strobj_(name))).withSourceNode(source).withParameters_1(parameters).withReturnType(returnType).withTemplateKeysImmutableList(templateKeys).withIsAbstract(isAbstract).build().self())
+	return to_FunctionType(FunctionType_builder(this).forConstructor().withName(Optional_ofStr_(name)).withSourceNode(source).withParameters_1(parameters).withReturnType(returnType).withTemplateKeysImmutableList(templateKeys).withIsAbstract(isAbstract).build().self())
 }
 
 func (this *JSTypeRegistry) createTemplateType(name string) *TemplateType {
@@ -1240,7 +1240,7 @@ func (this *JSTypeRegistry) createTemplatizedType(baseType *ObjectType, templati
 }
 
 func (this *JSTypeRegistry) createNamedType(scope StaticTypedScope, reference string, sourceName OptionalOf[string], lineno int32, charno int32) *NamedType {
-	return NamedType_builder(this, reference).setScope(scope).setResolutionKind(NamedType_ResolutionKind_TYPE_NAME).setErrorReportingLocation(str_(sourceName.orElse(strobj_(""))), lineno, charno).build()
+	return NamedType_builder(this, reference).setScope(scope).setResolutionKind(NamedType_ResolutionKind_TYPE_NAME).setErrorReportingLocation(sourceName.orElseStr_(""), lineno, charno).build()
 }
 
 func (this *JSTypeRegistry) identifyNonNullableName(scope StaticScope, name string) {
@@ -1254,7 +1254,7 @@ func (this *JSTypeRegistry) isNonNullableName(scope StaticScope, name string) bo
 }
 
 func (this *JSTypeRegistry) evaluateTypeExpression(expr *JSTypeExpression, scope StaticTypedScope) *JSType {
-	return this.createTypeFromCommentNode_3(expr.getRoot(), Optional_of(strobj_(expr.getSourceName())).filter(&Predicate_fn{func(s_ any) bool {
+	return this.createTypeFromCommentNode_3(expr.getRoot(), Optional_ofStr_(expr.getSourceName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -1262,7 +1262,7 @@ func (this *JSTypeRegistry) evaluateTypeExpression(expr *JSTypeExpression, scope
 }
 
 func (this *JSTypeRegistry) createTypeFromCommentNode(n Node) *JSType {
-	return this.createTypeFromCommentNode_3(n, Optional_of(strobj_("[internal]")), nil)
+	return this.createTypeFromCommentNode_3(n, Optional_ofStr_("[internal]"), nil)
 }
 
 func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName OptionalOf[string], scope StaticTypedScope) *JSType {
@@ -1496,11 +1496,11 @@ func (this *JSTypeRegistry) createScopeWithTemplates(scope StaticTypedScope, tem
 }
 
 func (this *JSTypeRegistry) nativeConstructorBuilder(name string) *FunctionType_Builder {
-	return FunctionType_builder(this).forNativeType().forConstructor().withName(Optional_of(strobj_(name)))
+	return FunctionType_builder(this).forNativeType().forConstructor().withName(Optional_ofStr_(name))
 }
 
 func (this *JSTypeRegistry) nativeInterface(name string, templateKeys []*TemplateType) *FunctionType {
-	var builder *FunctionType_Builder = FunctionType_builder(this).forNativeType().forInterface().withName(Optional_of(strobj_(name)))
+	var builder *FunctionType_Builder = FunctionType_builder(this).forNativeType().forInterface().withName(Optional_ofStr_(name))
 	if int32(len(templateKeys)) > 0 {
 		builder.withTemplateKeys(templateKeys)
 	}

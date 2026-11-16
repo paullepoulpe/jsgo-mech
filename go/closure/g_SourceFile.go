@@ -106,7 +106,7 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	if localCode.isEmpty() {
 		var codeRes *Outcome_base = this.readCode()
 		if codeRes.isErr() {
-			localCode = Optional_of(strobj_(""))
+			localCode = Optional_ofStr_("")
 			this.lineOffsets = make([]int32, 1)
 			return
 		}
@@ -114,7 +114,7 @@ func (this *SourceFile_jscomp) findLineOffsets() {
 	}
 	var offsets []int32 = make([]int32, this.numLines)
 	var index int32 = 1
-	SourceFile_lineEnds_(str_(localCode.get()), func(next int32) {
+	SourceFile_lineEnds_(localCode.getStr_(), func(next int32) {
 		offsets[index] = next
 		index++
 	})
@@ -138,7 +138,7 @@ func (this *SourceFile_jscomp) readCode() *Outcome_base {
 }
 
 func (this *SourceFile_jscomp) setCodeDeprecated(code string) {
-	this.setCodeAndDoBookkeeping(Optional_of(strobj_(code)))
+	this.setCodeAndDoBookkeeping(Optional_ofStr_(code))
 }
 
 func (this *SourceFile_jscomp) readCodeWithoutCaching() *Outcome_base {
@@ -159,10 +159,10 @@ func (this *SourceFile_jscomp) setCodeAndDoBookkeeping(sourceCode OptionalOf[str
 	this.code_ = Optional_empty()
 	this.lineOffsets = nil
 	if sourceCode.isPresent() {
-		if String_startsWith(str_(sourceCode.get()), SourceFile_jscomp_UTF8_BOM) {
-			sourceCode = Optional_of(strobj_(String_substring_int(str_(sourceCode.get()), String_length(SourceFile_jscomp_UTF8_BOM))))
+		if String_startsWith(sourceCode.getStr_(), SourceFile_jscomp_UTF8_BOM) {
+			sourceCode = Optional_ofStr_(String_substring_int(sourceCode.getStr_(), String_length(SourceFile_jscomp_UTF8_BOM)))
 		}
-		code := str_(sourceCode.get())
+		code := sourceCode.getStr_()
 		this.numBytes = String_length(code)
 		var numLines int32 = 1
 		SourceFile_lineEnds_(code, func(int32) { numLines++ })
@@ -241,12 +241,12 @@ func (this *SourceFile_jscomp) getLine(lineNumber int32) OptionalOf[string] {
 		if ((String_charAt(js, endPos) == '\n') && (endPos > pos)) && (String_charAt(js, (endPos-1)) == '\r') {
 			endPos--
 		}
-		return Optional_of(strobj_(String_substring(js, pos, endPos)))
+		return Optional_ofStr_(String_substring(js, pos, endPos))
 	} else {
 		if pos >= String_length(js) {
 			return Optional_empty()
 		} else {
-			return Optional_of(strobj_(String_substring_int(js, pos)))
+			return Optional_ofStr_(String_substring_int(js, pos))
 		}
 	}
 	panic("unreachable")
@@ -628,13 +628,13 @@ func (this *SourceFile_Builder) withContent(x string) *SourceFile_Builder {
 }
 
 func (this *SourceFile_Builder) withZipEntryPath(zipPath string, entryPath string) *SourceFile_Builder {
-	this.path_ = Optional_of(strobj_(zipPath))
-	this.zipEntryPath = Optional_of(strobj_(entryPath))
+	this.path_ = Optional_ofStr_(zipPath)
+	this.zipEntryPath = Optional_ofStr_(entryPath)
 	return this
 }
 
 func (this *SourceFile_Builder) withOriginalPath(originalPath string) *SourceFile_Builder {
-	this.originalPath = Optional_of(strobj_(originalPath))
+	this.originalPath = Optional_ofStr_(originalPath)
 	return this
 }
 
@@ -652,11 +652,11 @@ func (this *SourceFile_Builder) build() *SourceFile_jscomp {
 			if this.zipEntryPath.isEmpty() {
 				return this.path_
 			}
-			return Optional_of(strobj_((sstr_(str_(this.path_.orElse(strobj_("null")))) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(str_(this.zipEntryPath.get())))))
+			return Optional_ofStr_((sstr_(this.path_.orElseStr_("null")) + sstr_(SourceFile_jscomp_BANG_SLASH) + sstr_(this.zipEntryPath.getStr_())))
 		}()
 	}()
 	if this.isStubSourceFileForAlreadyProvidedInput_ {
-		var file *SourceFile_jscomp = new_SourceFile_jscomp(new_SourceFile_CodeLoader_StubSourceFileCodeLoader().up_SourceFile_CodeLoader(), str_(displayPath.get()), this.kind_)
+		var file *SourceFile_jscomp = new_SourceFile_jscomp(new_SourceFile_CodeLoader_StubSourceFileCodeLoader().up_SourceFile_CodeLoader(), displayPath.getStr_(), this.kind_)
 		file.setIsStubSourceFileForAlreadyProvidedInput(true)
 		return file
 	}
@@ -664,9 +664,9 @@ func (this *SourceFile_Builder) build() *SourceFile_jscomp {
 		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_Preloaded(str_(this.lazyContent.get())).up_SourceFile_CodeLoader(), str_(displayPath.get()), this.kind_)
 	}
 	if this.zipEntryPath.isPresent() {
-		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_AtZip(str_(this.path_.orElse(nil)), str_(this.zipEntryPath.get()), this.charset).up_SourceFile_CodeLoader(), str_(displayPath.get()), this.kind_)
+		return new_SourceFile_jscomp(new_SourceFile_CodeLoader_AtZip(str_(this.path_.orElse(nil)), this.zipEntryPath.getStr_(), this.charset).up_SourceFile_CodeLoader(), displayPath.getStr_(), this.kind_)
 	}
-	return new_SourceFile_jscomp(new_SourceFile_CodeLoader_OnDisk(FilePaths_clean(str_(this.path_.get())), this.charset).up_SourceFile_CodeLoader(), str_(displayPath.get()), this.kind_)
+	return new_SourceFile_jscomp(new_SourceFile_CodeLoader_OnDisk(FilePaths_clean(this.path_.getStr_()), this.charset).up_SourceFile_CodeLoader(), displayPath.getStr_(), this.kind_)
 }
 
 func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builder {
@@ -678,7 +678,7 @@ func (this *SourceFile_Builder) withPathInternal(path string) *SourceFile_Builde
 			return this.withZipEntryPath(zipPath, entryPath)
 		}
 	}
-	this.path_ = Optional_of(strobj_(path))
+	this.path_ = Optional_ofStr_(path)
 	return this
 }
 

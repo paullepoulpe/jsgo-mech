@@ -326,7 +326,7 @@ func (this *DisambiguateProperties_PropertyReferenceIndexJson) compareTo(x_ any)
 func (this *DisambiguateProperties_PropertyReferenceIndexJson) writeJson(writer *SimpleJsonWriter) {
 	writer.name(this.name_)
 	writer.beginObject()
-	writer.name("name").stringValue(Optional_of(strobj_(this.name_)))
+	writer.name("name").stringValue(Optional_ofStr_(this.name_))
 	writer.name("refs").beginArray()
 	it_1 := foreach_(obj_(this.refs))
 	for it_1.next() {
@@ -364,7 +364,7 @@ func (this *DisambiguateProperties_PropertyReferenceJson) writeJson(writer *Simp
 	writer.setHtmlSafe(true)
 	writer.setSerializeNulls(false)
 	writer.beginObject()
-	writer.name("location").stringValue(Optional_of(strobj_(this.location_)))
+	writer.name("location").stringValue(Optional_ofStr_(this.location_))
 	writer.name("receiverIndex").longValue(int64(this.receiverIndex))
 	writer.endObject()
 	writer.setHtmlSafe(oldHtmlSafe)

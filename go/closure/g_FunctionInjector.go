@@ -115,7 +115,7 @@ func (this *FunctionInjector) inline(ref *FunctionInjector_Reference, fnName Opt
 }
 
 func (this *FunctionInjector) unsafeInline(ref *FunctionInjector_Reference, fnName string, fnNode Node) Node {
-	return this.internalInline(ref, Optional_of(strobj_(fnName)), fnNode)
+	return this.internalInline(ref, Optional_ofStr_(fnName), fnNode)
 }
 
 func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fnName OptionalOf[string], fnNode Node) Node {
@@ -123,7 +123,7 @@ func (this *FunctionInjector) internalInline(ref *FunctionInjector_Reference, fn
 	if ref.mode_ == FunctionInjector_InliningMode_DIRECT {
 		result = this.inlineReturnValue(ref, fnNode)
 	} else {
-		result = this.inlineFunction(ref, fnNode, str_(fnName.orElse(strobj_(""))))
+		result = this.inlineFunction(ref, fnNode, fnName.orElseStr_(""))
 	}
 	this.compiler_.reportChangeToEnclosingScope(result)
 	return result
@@ -208,11 +208,11 @@ func (this *FunctionInjector) inlineFunction(ref *FunctionInjector_Reference, fn
 	var needsDefaultReturnResult bool = true
 	switch callSiteType {
 	case FunctionInjector_CallSiteType_SIMPLE_ASSIGNMENT:
-		resultName = Optional_of(strobj_(parent.getFirstChild().getString()))
-		FunctionInjector_removeConstantVarAnnotation(ref.scope_, str_(resultName.get()))
+		resultName = Optional_ofStr_(parent.getFirstChild().getString())
+		FunctionInjector_removeConstantVarAnnotation(ref.scope_, resultName.getStr_())
 	case FunctionInjector_CallSiteType_VAR_DECL_SIMPLE_ASSIGNMENT:
-		resultName = Optional_of(strobj_(parent.getString()))
-		FunctionInjector_removeConstantVarAnnotation(ref.scope_, str_(resultName.get()))
+		resultName = Optional_ofStr_(parent.getString())
+		FunctionInjector_removeConstantVarAnnotation(ref.scope_, resultName.getStr_())
 	case FunctionInjector_CallSiteType_SIMPLE_CALL:
 		resultName = Optional_empty()
 		needsDefaultReturnResult = false

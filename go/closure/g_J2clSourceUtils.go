@@ -16,12 +16,12 @@ func new_J2clSourceUtils() *J2clSourceUtils {
 }
 
 func J2clSourceUtils_isJ2clSourceString(sourceFileName OptionalOf[string]) bool {
-	return (sourceFileName.isPresent() && String_endsWith(str_(sourceFileName.get()), ".java.js"))
+	return (sourceFileName.isPresent() && String_endsWith(sourceFileName.getStr_(), ".java.js"))
 }
 
 func J2clSourceUtils_isJ2clSource(scriptNode Node) bool {
 	Preconditions_checkArgument(scriptNode.isScript())
-	return J2clSourceUtils_isJ2clSourceString(Optional_of(strobj_(scriptNode.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+	return J2clSourceUtils_isJ2clSourceString(Optional_ofStr_(scriptNode.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -42,5 +42,5 @@ func J2clSourceUtils_isInsideJ2clSource(node Node) bool {
 }
 
 func J2clSourceUtils_isJ2clHeaderSource(sourceFileName OptionalOf[string]) bool {
-	return ((sourceFileName.isPresent() && String_endsWith(str_(sourceFileName.get()), ".java.js")) && !String_endsWith(str_(sourceFileName.get()), ".impl.java.js"))
+	return ((sourceFileName.isPresent() && String_endsWith(sourceFileName.getStr_(), ".java.js")) && !String_endsWith(sourceFileName.getStr_(), ".impl.java.js"))
 }

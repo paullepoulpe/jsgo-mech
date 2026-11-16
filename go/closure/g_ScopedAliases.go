@@ -586,7 +586,7 @@ func (this *ScopedAliases_Traversal) findAliases(scope *Scope) {
 				this.outer_.compiler_.reportChangeToEnclosingScope(newDecl)
 			}
 			this.injectedDecls[newDecl] = struct{}{}
-			v.getNameNode().addChildToFront(NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, globalName, n, Optional_of(strobj_(name))))
+			v.getNameNode().addChildToFront(NodeUtil_newName_AbstractCompiler_String_Node_Optional(this.outer_.compiler_, globalName, n, Optional_ofStr_(name)))
 			this.recordAlias(v)
 		} else {
 			this.report(n, ScopedAliases_GOOG_SCOPE_NON_ALIAS_LOCAL, []string{n.getString()})

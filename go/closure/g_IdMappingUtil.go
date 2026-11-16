@@ -42,7 +42,7 @@ func IdMappingUtil_parseSectionOfBytes(idMappings []int8, sectionFilter string) 
 			if inSection {
 				break
 			}
-			if str_(mr.getSection().get()) == sectionFilter {
+			if mr.getSection().getStr_() == sectionFilter {
 				inSection = true
 			}
 		} else if inSection {
@@ -125,15 +125,15 @@ func (this *IdMappingUtil_MappingReader) next() bool {
 			continue
 		}
 		if String_charAt(line, 0) == '[' {
-			this.currentSection = Optional_of(strobj_(String_substring(line, 1, (String_length(line) - 1))))
+			this.currentSection = Optional_ofStr_(String_substring(line, 1, (String_length(line) - 1)))
 			this.currentKey = Optional_empty()
 			this.currentValue = Optional_empty()
 			return true
 		} else {
 			var split int32 = String_indexOf(line, 58)
 			if split != -1 {
-				this.currentKey = Optional_of(strobj_(String_substring(line, 0, split)))
-				this.currentValue = Optional_of(strobj_(String_substring_int(line, (split + 1))))
+				this.currentKey = Optional_ofStr_(String_substring(line, 0, split))
+				this.currentValue = Optional_ofStr_(String_substring_int(line, (split + 1)))
 				return true
 			} else {
 				panic(new_IllegalArgumentException_String(String_format("Cannot parse id map.\n Line: %s, lineIndex: %d", []any{strobj_(line), any(int32(this.lineIndex))})).self())

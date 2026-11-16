@@ -105,7 +105,7 @@ func (this *AngularPass) addNode(n Node) {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, AngularPass_INJECTED_FUNCTION_ON_NON_QNAME, []string{}))
 			return
 		}
-		name = Optional_of(strobj_(n.getFirstChild().getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+		name = Optional_ofStr_(n.getFirstChild().getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -116,7 +116,7 @@ func (this *AngularPass) addNode(n Node) {
 		}
 		injectAfter = n.getParent()
 	case tokOrd1_FUNCTION:
-		name = Optional_of(strobj_(NodeUtil_getName(n))).filter(&Predicate_fn{func(s_ any) bool {
+		name = Optional_ofStr_(NodeUtil_getName(n)).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -127,7 +127,7 @@ func (this *AngularPass) addNode(n Node) {
 			return
 		}
 	case tokOrd1_VAR, tokOrd1_LET, tokOrd1_CONST:
-		name = Optional_of(strobj_(n.getFirstChild().getString()))
+		name = Optional_ofStr_(n.getFirstChild().getString())
 		fn = AngularPass_getDeclarationRValue(n)
 		injectAfter = n
 	case tokOrd1_MEMBER_FUNCTION_DEF:
@@ -140,9 +140,9 @@ func (this *AngularPass) addNode(n Node) {
 				}
 				return ".prototype."
 			}()
-			name = Optional_of(strobj_((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString()))))
+			name = Optional_ofStr_((sstr_(NodeUtil_getName(classNode)) + sstr_(midPart) + sstr_(n.getString())))
 			if NodeUtil_isEs6ConstructorMemberFunctionDef(n) {
-				name = Optional_of(strobj_(NodeUtil_getName(classNode))).filter(&Predicate_fn{func(s_ any) bool {
+				name = Optional_ofStr_(NodeUtil_getName(classNode)).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)
@@ -165,7 +165,7 @@ func (this *AngularPass) addNode(n Node) {
 		return
 	}
 	Preconditions_checkState(name.isPresent())
-	this.injectables = append(this.injectables, new_AngularPass_NodeContext(str_(name.get()), n, fn, injectAfter))
+	this.injectables = append(this.injectables, new_AngularPass_NodeContext(name.getStr_(), n, fn, injectAfter))
 }
 
 func AngularPass_getDeclarationRValue(n Node) Node {

@@ -317,7 +317,7 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 	NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	if record.hasInstancePrivateMembers {
 		this.compiler_.getRuntimeJsLibManager().injectLibForField("$jscomp.PrivateMap")
-		var mapVar Node = this.astFactory_.createSingleConstNameDeclaration(str_(record.getPrivateMapVarName(this.compiler_, t).get()), this.astFactory_.createNewNode(this.astFactory_.createQNameWithUnknownTypeJsLibField(this.jscompPrivateMap), []Node{})).srcrefTreeIfMissing(record.classNode)
+		var mapVar Node = this.astFactory_.createSingleConstNameDeclaration(record.getPrivateMapVarName(this.compiler_, t).getStr_(), this.astFactory_.createNewNode(this.astFactory_.createQNameWithUnknownTypeJsLibField(this.jscompPrivateMap), []Node{})).srcrefTreeIfMissing(record.classNode)
 		mapVar.insertBefore(classInsertionPoint)
 		if record.hasInstancePrivateMethodsOrAccessors {
 			var descriptorsLit Node = this.astFactory_.createObjectLit([]Node{})
@@ -362,7 +362,7 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 			}
 			var createProp Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createNameWithUnknownType("Object"), "create")
 			var protoCall Node = this.astFactory_.createCallWithUnknownType(createProp, []Node{this.astFactory_.createNull(), descriptorsLit})
-			var protoVar Node = this.astFactory_.createSingleConstNameDeclaration(str_(record.getPrivateProtoVarName(this.compiler_, t).get()), protoCall).srcrefTreeIfMissing(record.classNode)
+			var protoVar Node = this.astFactory_.createSingleConstNameDeclaration(record.getPrivateProtoVarName(this.compiler_, t).getStr_(), protoCall).srcrefTreeIfMissing(record.classNode)
 			protoVar.insertBefore(classInsertionPoint)
 			this.compiler_.reportChangeToEnclosingScope(protoVar)
 			t.reportCodeChange()
@@ -370,7 +370,7 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 	}
 	if record.hasStaticPrivateMembers {
 		this.compiler_.getRuntimeJsLibManager().injectLibForField("$jscomp.PrivateMap")
-		var staticMapVar Node = this.astFactory_.createSingleConstNameDeclaration(str_(record.getStaticPrivateMapVarName(this.compiler_, t).get()), this.astFactory_.createNewNode(this.astFactory_.createQNameWithUnknownTypeJsLibField(this.jscompPrivateMap), []Node{})).srcrefTreeIfMissing(record.classNode)
+		var staticMapVar Node = this.astFactory_.createSingleConstNameDeclaration(record.getStaticPrivateMapVarName(this.compiler_, t).getStr_(), this.astFactory_.createNewNode(this.astFactory_.createQNameWithUnknownTypeJsLibField(this.jscompPrivateMap), []Node{})).srcrefTreeIfMissing(record.classNode)
 		staticMapVar.insertBefore(classInsertionPoint)
 	}
 }
@@ -404,7 +404,7 @@ func (this *Es6NormalizeClasses) rewritePrivateIn(t *NodeTraversal, inNode Node)
 		}
 		return record.getPrivateMapVarName(this.compiler_, t)
 	}()
-	var mapNameNode Node = this.astFactory_.createNameWithUnknownType(str_(mapVarName.get()))
+	var mapNameNode Node = this.astFactory_.createNameWithUnknownType(mapVarName.getStr_())
 	var hasCallee Node = this.astFactory_.createGetPropWithUnknownType(mapNameNode, "has")
 	var hasCall Node = this.astFactory_.createCallWithUnknownType(hasCallee, []Node{right})
 	inNode.replaceWith(hasCall.srcrefTree(inNode))
@@ -438,7 +438,7 @@ func (this *Es6NormalizeClasses) rewritePrivateMemberAccess(t *NodeTraversal, ge
 	}()
 	var memberPropName string = pm.propertyName()
 	var receiver Node = getPropNode.getFirstChild().detach()
-	var mapNameNode Node = this.astFactory_.createNameWithUnknownType(str_(mapVarName.get()))
+	var mapNameNode Node = this.astFactory_.createNameWithUnknownType(mapVarName.getStr_())
 	var getCallee Node = this.astFactory_.createGetPropWithUnknownType(mapNameNode, "get")
 	var isOptChain bool = getPropNode.isOptChainGetProp()
 	var endOfSegment Node = func() Node {
@@ -710,23 +710,23 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 		var privName OptionalOf[string] = record.getPrivateVarName(this.compiler_, t)
 		var privInit Node
 		if record.hasInstancePrivateMethodsOrAccessors {
-			var protoName Node = this.astFactory_.createNameWithUnknownType(str_(record.getPrivateProtoVarName(this.compiler_, t).get()))
+			var protoName Node = this.astFactory_.createNameWithUnknownType(record.getPrivateProtoVarName(this.compiler_, t).getStr_())
 			var createProp Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createNameWithUnknownType("Object"), "create")
 			privInit = this.astFactory_.createCallWithUnknownType(createProp, []Node{protoName})
 		} else {
 			var createProp Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createNameWithUnknownType("Object"), "create")
 			privInit = this.astFactory_.createCallWithUnknownType(createProp, []Node{this.astFactory_.createNull()})
 		}
-		var privDecl Node = this.astFactory_.createSingleConstNameDeclaration(str_(privName.get()), privInit).srcrefTreeIfMissing(record.classNode)
+		var privDecl Node = this.astFactory_.createSingleConstNameDeclaration(privName.getStr_(), privInit).srcrefTreeIfMissing(record.classNode)
 		privDecl.insertBefore(insertionPoint)
 		if record.needsInstanceSelf {
-			var privSelf Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(str_(privName.get()), AstFactory_typeColor(StandardColors_UNKNOWN)), "$self")
+			var privSelf Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(privName.getStr_(), AstFactory_typeColor(StandardColors_UNKNOWN)), "$self")
 			var assignSelf Node = this.astFactory_.createAssignStatement(privSelf, this.astFactory_.createThisForEs6Class(record.classNode)).srcrefTreeIfMissing(record.classNode)
 			assignSelf.insertBefore(insertionPoint)
 		}
-		var mapNameNode Node = this.astFactory_.createNameWithUnknownType(str_(mapName.get()))
+		var mapNameNode Node = this.astFactory_.createNameWithUnknownType(mapName.getStr_())
 		var mapSetCallee Node = this.astFactory_.createGetPropWithUnknownType(mapNameNode, "set")
-		var mapSetCall Node = this.astFactory_.createCallWithUnknownType(mapSetCallee, []Node{this.astFactory_.createThisForEs6Class(record.classNode), this.astFactory_.createConstantName(str_(privName.get()), AstFactory_typeColor(StandardColors_UNKNOWN))})
+		var mapSetCall Node = this.astFactory_.createCallWithUnknownType(mapSetCallee, []Node{this.astFactory_.createThisForEs6Class(record.classNode), this.astFactory_.createConstantName(privName.getStr_(), AstFactory_typeColor(StandardColors_UNKNOWN))})
 		var mapSetStmt Node = this.astFactory_.exprResult(mapSetCall).srcrefTreeIfMissing(record.classNode)
 		mapSetStmt.insertBefore(insertionPoint)
 	}
@@ -737,7 +737,7 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 			if this.transpilePrivateClassFields {
 				var privName OptionalOf[string] = record.getPrivateVarName(this.compiler_, t)
 				var propName string = String_substring_int(instanceMember.getString(), 1)
-				var lhs Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(str_(privName.get()), AstFactory_typeColor(StandardColors_UNKNOWN)), propName)
+				var lhs Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(privName.getStr_(), AstFactory_typeColor(StandardColors_UNKNOWN)), propName)
 				var fieldValue Node = func() Node {
 					if instanceMember.hasChildren() {
 						return instanceMember.removeFirstChild()
@@ -919,7 +919,7 @@ func (this *Es6NormalizeClasses) convCompFieldToGetElem(receiver Node, computedF
 	} else {
 		compFieldNameExpr = computedField.getFirstChild().cloneTree()
 	}
-	if "__proto__" == str_(NodeUtil_getStringValue(compFieldNameExpr).orElse(strobj_(""))) {
+	if "__proto__" == NodeUtil_getStringValue(compFieldNameExpr).orElseStr_("") {
 		return this.createFieldDefineProperty(computedField, fieldValue, receiver, compFieldNameExpr)
 	}
 	return this.createFieldAssignment(computedField, fieldValue, &Supplier_fn{func() any {
@@ -990,19 +990,19 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 		}
 		var createProp Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createNameWithUnknownType("Object"), "create")
 		var staticPrivInit Node = this.astFactory_.createCallWithUnknownType(createProp, []Node{this.astFactory_.createNull()})
-		var privDecl Node = this.astFactory_.createSingleConstNameDeclaration(str_(privName.get()), staticPrivInit).srcrefTreeIfMissing(record.classNode)
+		var privDecl Node = this.astFactory_.createSingleConstNameDeclaration(privName.getStr_(), staticPrivInit).srcrefTreeIfMissing(record.classNode)
 		staticInitTempParent.addChildToBack(privDecl)
 		if record.needsStaticSelf {
-			var privSelf Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(str_(privName.get()), AstFactory_typeColor(StandardColors_UNKNOWN)), "$self")
+			var privSelf Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(privName.getStr_(), AstFactory_typeColor(StandardColors_UNKNOWN)), "$self")
 			var assignSelf Node = this.astFactory_.createAssignStatement(privSelf, record.createNewNameReferenceNode().srcrefTreeIfMissing(record.classNode)).srcrefTreeIfMissing(record.classNode)
 			staticInitTempParent.addChildToBack(assignSelf)
 		}
-		var mapNameNode Node = this.astFactory_.createNameWithUnknownType(str_(staticMapName.get()))
+		var mapNameNode Node = this.astFactory_.createNameWithUnknownType(staticMapName.getStr_())
 		var mapSetCallee Node = this.astFactory_.createGetPropWithUnknownType(mapNameNode, "set")
-		var mapSetCall Node = this.astFactory_.createCallWithUnknownType(mapSetCallee, []Node{record.createNewNameReferenceNode().srcrefTreeIfMissing(record.classNode), this.astFactory_.createConstantName(str_(privName.get()), AstFactory_typeColor(StandardColors_UNKNOWN))})
+		var mapSetCall Node = this.astFactory_.createCallWithUnknownType(mapSetCallee, []Node{record.createNewNameReferenceNode().srcrefTreeIfMissing(record.classNode), this.astFactory_.createConstantName(privName.getStr_(), AstFactory_typeColor(StandardColors_UNKNOWN))})
 		var mapSetStmt Node = this.astFactory_.exprResult(mapSetCall).srcrefTreeIfMissing(record.classNode)
 		staticInitTempParent.addChildToBack(mapSetStmt)
-		this.addStaticPrivateMembers(record, str_(privName.get()), staticInitTempParent)
+		this.addStaticPrivateMembers(record, privName.getStr_(), staticInitTempParent)
 	}
 	for !staticMembers.isEmpty() {
 		var staticMember Node = Node_of_(staticMembers.remove_0())
@@ -1010,7 +1010,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 			if this.transpilePrivateClassFields {
 				var privName OptionalOf[string] = record.getStaticPrivateVarName(this.compiler_, t)
 				var propName string = String_substring_int(staticMember.getString(), 1)
-				var lhs Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(str_(privName.get()), AstFactory_typeColor(StandardColors_UNKNOWN)), propName)
+				var lhs Node = this.astFactory_.createGetPropWithUnknownType(this.astFactory_.createConstantName(privName.getStr_(), AstFactory_typeColor(StandardColors_UNKNOWN)), propName)
 				var fieldValue Node = func() Node {
 					if staticMember.hasChildren() {
 						return staticMember.removeFirstChild()
@@ -1438,35 +1438,35 @@ func (this *Es6NormalizeClasses_ClassRecord) getPrivateMember(name string) *Es6N
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateMapVarName(compiler *AbstractCompiler, t *NodeTraversal) OptionalOf[string] {
 	if this.privateMapVarName.isEmpty() {
-		this.privateMapVarName = Optional_of(strobj_(Es6NormalizeClasses_generateUniquePrivateMapVarName(compiler, t)))
+		this.privateMapVarName = Optional_ofStr_(Es6NormalizeClasses_generateUniquePrivateMapVarName(compiler, t))
 	}
 	return this.privateMapVarName
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateProtoVarName(compiler *AbstractCompiler, t *NodeTraversal) OptionalOf[string] {
 	if this.privateProtoVarName.isEmpty() {
-		this.privateProtoVarName = Optional_of(strobj_(Es6NormalizeClasses_generateUniquePrivateProtoVarName(compiler, t)))
+		this.privateProtoVarName = Optional_ofStr_(Es6NormalizeClasses_generateUniquePrivateProtoVarName(compiler, t))
 	}
 	return this.privateProtoVarName
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getStaticPrivateMapVarName(compiler *AbstractCompiler, t *NodeTraversal) OptionalOf[string] {
 	if this.staticPrivateMapVarName.isEmpty() {
-		this.staticPrivateMapVarName = Optional_of(strobj_(Es6NormalizeClasses_generateUniqueStaticPrivateMapVarName(compiler, t)))
+		this.staticPrivateMapVarName = Optional_ofStr_(Es6NormalizeClasses_generateUniqueStaticPrivateMapVarName(compiler, t))
 	}
 	return this.staticPrivateMapVarName
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getPrivateVarName(compiler *AbstractCompiler, t *NodeTraversal) OptionalOf[string] {
 	if this.privateVarName.isEmpty() {
-		this.privateVarName = Optional_of(strobj_(Es6NormalizeClasses_generateUniquePrivateVarName(compiler, t)))
+		this.privateVarName = Optional_ofStr_(Es6NormalizeClasses_generateUniquePrivateVarName(compiler, t))
 	}
 	return this.privateVarName
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) getStaticPrivateVarName(compiler *AbstractCompiler, t *NodeTraversal) OptionalOf[string] {
 	if this.staticPrivateVarName.isEmpty() {
-		this.staticPrivateVarName = Optional_of(strobj_(Es6NormalizeClasses_generateUniquePrivateVarName(compiler, t)))
+		this.staticPrivateVarName = Optional_ofStr_(Es6NormalizeClasses_generateUniquePrivateVarName(compiler, t))
 	}
 	return this.staticPrivateVarName
 }

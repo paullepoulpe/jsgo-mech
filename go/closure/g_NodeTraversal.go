@@ -150,9 +150,9 @@ func (this *NodeTraversal) formatNodePosition(n Node) string {
 	var columnNumber int32 = n.getCharno()
 	var src OptionalOf[string] = this.compiler_.getSourceLine(sourceFileName, lineNumber)
 	if src.isEmpty() {
-		src = Optional_of(strobj_(NodeTraversal_MISSING_SOURCE))
+		src = Optional_ofStr_(NodeTraversal_MISSING_SOURCE)
 	}
-	return (sstr_(str_(sourceFileName.get())) + ":" + istr_(int64(lineNumber)) + ":" + istr_(int64(columnNumber)) + "\n" + sstr_(str_(src.orElse(strobj_("null")))) + "\n")
+	return (sstr_(sourceFileName.getStr_()) + ":" + istr_(int64(lineNumber)) + ":" + istr_(int64(columnNumber)) + "\n" + sstr_(src.orElseStr_("null")) + "\n")
 }
 
 func (this *NodeTraversal) traverseWithScope(root Node, s *AbstractScope) {
@@ -301,13 +301,13 @@ func (this *NodeTraversal) getSourceName() OptionalOf[string] {
 	if this.sourceName_.isEmpty() {
 		this.sourceName_ = func() Optional {
 			if this.currentScript != 0 {
-				return Optional_of(strobj_(this.currentScript.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+				return Optional_ofStr_(this.currentScript.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 					var s string = str_(s_)
 					_ = s
 					return !String_isEmpty(s)
 				}})
 			}
-			return Optional_of(strobj_(""))
+			return Optional_ofStr_("")
 		}()
 	}
 	return this.sourceName_
@@ -907,7 +907,7 @@ func (this *NodeTraversal) getBestSourceFileName(n Node) OptionalOf[string] {
 		if n == 0 {
 			return this.getSourceName()
 		}
-		return Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+		return Optional_ofStr_(n.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)

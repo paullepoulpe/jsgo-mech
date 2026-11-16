@@ -132,7 +132,7 @@ func (this *JSTypeExpression) isVarArgs() bool {
 }
 
 func (this *JSTypeExpression) evaluate(scope StaticTypedScope, registry *JSTypeRegistry) *JSType {
-	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_of(strobj_(this.sourceName_)).filter(&Predicate_fn{func(s_ any) bool {
+	var type_ *JSType = registry.createTypeFromCommentNode_3(this.root, Optional_ofStr_(this.sourceName_).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)

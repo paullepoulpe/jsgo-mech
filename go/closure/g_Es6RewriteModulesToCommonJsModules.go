@@ -205,7 +205,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeGetNameOfImportedV
 	Preconditions_checkState(nameNode.isName())
 	var var_ *Var = cast_[*Var](s.getVar(nameNode.getString()).self())
 	if (((var_ != nil) && (var_.getNameNode() != 0)) && NodeUtil_isImportedName(var_.getNameNode())) && (nameNode != var_.getNameNode()) {
-		return Optional_of(strobj_(this.getNameOfImportedValue(var_.getNameNode())))
+		return Optional_ofStr_(this.getNameOfImportedValue(var_.getNameNode()))
 	}
 	return Optional_empty()
 }
@@ -218,7 +218,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) maybeRenameImportedValu
 	}
 	var qName OptionalOf[string] = this.maybeGetNameOfImportedValue(t.getScope(), n)
 	if qName.isPresent() {
-		n.replaceWith(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, str_(qName.get())))
+		n.replaceWith(NodeUtil_newQName_AbstractCompiler_String(this.compiler_, qName.getStr_()))
 		t.reportCodeChange()
 	}
 }
@@ -312,7 +312,7 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 	var child Node = export.getFirstChild()
 	var name OptionalOf[string] = Optional_empty()
 	if child.isFunction() || child.isClass() {
-		name = Optional_of(strobj_(NodeUtil_getName(child))).filter(&Predicate_fn{func(s_ any) bool {
+		name = Optional_ofStr_(NodeUtil_getName(child)).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -322,8 +322,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportDefault(t *N
 		var decl Node = child.detach()
 		export.replaceWith(decl)
 	} else {
-		name = Optional_of(strobj_(Es6RewriteModulesToCommonJsModules_JSCOMP_DEFAULT_EXPORT))
-		var var_ Node = IR_constNode(IR_name(str_(name.get())), export.removeFirstChild())
+		name = Optional_ofStr_(Es6RewriteModulesToCommonJsModules_JSCOMP_DEFAULT_EXPORT)
+		var var_ Node = IR_constNode(IR_name(name.getStr_()), export.removeFirstChild())
 		export.replaceWith(var_.srcrefTreeIfMissing(export))
 		NodeUtil_addFeatureToScript(t.getCurrentScript(), FeatureSet_Feature_CONST_DECLARATIONS, this.compiler_)
 	}
@@ -352,8 +352,8 @@ func (this *Es6RewriteModulesToCommonJsModules_Rewriter) visitExportSpecs(t *Nod
 	{
 		var exportSpec Node = export.getFirstFirstChild()
 		for ; exportSpec != 0; exportSpec = exportSpec.getNext() {
-			var localName OptionalOf[string] = Optional_of(strobj_(exportSpec.getFirstChild().getString()))
-			var var_ *Var = cast_[*Var](t.getScope().getVar(str_(localName.get())).self())
+			var localName OptionalOf[string] = Optional_ofStr_(exportSpec.getFirstChild().getString())
+			var var_ *Var = cast_[*Var](t.getScope().getVar(localName.getStr_()).self())
 			if (var_ != nil) && NodeUtil_isImportedName(var_.getNameNode()) {
 				localName = this.maybeGetNameOfImportedValue(t.getScope(), exportSpec.getFirstChild())
 				Preconditions_checkState(localName.isPresent())

@@ -315,7 +315,7 @@ func Node_newTemplateLitString_Optional_String(cooked OptionalOf[string], raw st
 		if cooked.isEmpty() {
 			return Optional_empty()
 		}
-		return Optional_of(strobj_(RhinoStringPool_addOrGet(str_(cooked.get()))))
+		return Optional_ofStr_(RhinoStringPool_addOrGet(cooked.getStr_()))
 	}(), RhinoStringPool_addOrGet(raw))))
 	return n
 }
@@ -326,7 +326,7 @@ func Node_newTemplateLitString_LazyInternedStringList_int_int(stringPool *RhinoS
 		if cookedOffsetOrNegativeOne == -1 {
 			return Optional_empty()
 		}
-		return Optional_of(strobj_(stringPool.get(cookedOffsetOrNegativeOne)))
+		return Optional_ofStr_(stringPool.get(cookedOffsetOrNegativeOne))
 	}(), stringPool.get(rawOffset))))
 	return n
 }

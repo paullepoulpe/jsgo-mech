@@ -19,7 +19,7 @@ func SourceMapObjectParser_parse(contents string) *Outcome_base {
 	var builder *SourceMapObject_Builder = SourceMapObject_builder()
 	var parsed *Outcome_base = Json_parse(contents)
 	if parsed.isErr() {
-		return Outcome_base_err(new_SourceMapParseException(("JSON parse exception: " + sstr_(str_(parsed.errorMessage().orElse(strobj_("null")))))).up_Throwable())
+		return Outcome_base_err(new_SourceMapParseException(("JSON parse exception: " + sstr_(parsed.errorMessage().orElseStr_("null")))).up_Throwable())
 	}
 	var sourceMapRoot *SimpleJsonValue = cast_[*SimpleJsonValue](parsed.get())
 	if sourceMapRoot.kind() != SimpleJsonValue_Kind_OBJECT {

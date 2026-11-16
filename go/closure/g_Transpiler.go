@@ -36,7 +36,7 @@ func Transpiler_bundle_compilerSupplier() *CompilerBasedTransformer_CompilerSupp
 }
 
 func (this *Transpiler_bundle) getRuntime_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.runtimeLibraryName))
+	return Optional_ofStr_(this.runtimeLibraryName)
 }
 
 func (this *Transpiler_bundle) getTranformationName_impl() string {

@@ -263,7 +263,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 	var propsToDeleteForRest *TList[Node] = nil
 	if objectPattern.hasChildren() && objectPattern.getLastChild().isRest() {
 		propsToDeleteForRest = newTList_(tc_Node)
-		restTempVarName = Optional_of(strobj_(this.getTempVariableName()))
+		restTempVarName = Optional_ofStr_(this.getTempVariableName())
 	} else if this.rewriteMode == Es6RewriteDestructuring_ObjectDestructuringRewriteMode_REWRITE_OBJECT_REST {
 		if !cast_[*Es6RewriteDestructuring_PatternNestingLevel](this.patternNestingStack.peekLast()).hasNestedObjectRest {
 			this.destructuringVarCounter--
@@ -349,7 +349,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 					}
 					return this.astFactory_.createObjectDotAssignCall(this.namespace_, AstFactory_typeColor(StandardColors_TOP_OBJECT), []Node{this.astFactory_.createObjectLit([]Node{}), this.createTempVarNameNode(tempVarName, tempVarType)})
 				}()
-				var restTempDecl Node = IR_var_Node_Node(this.createTempVarNameNode(str_(restTempVarName.get()), tempVarType), assignCall)
+				var restTempDecl Node = IR_var_Node_Node(this.createTempVarNameNode(restTempVarName.getStr_(), tempVarType), assignCall)
 				restTempDecl.srcrefTreeIfMissing(objectPattern)
 				restTempDecl.insertBefore(nodeToDetach)
 				var restName Node = child.getOnlyChild()
@@ -359,7 +359,7 @@ func (this *Es6RewriteDestructuring) replaceObjectPattern(t *NodeTraversal, obje
 				} else {
 					newLHS = restName.detach()
 				}
-				newRHS = this.objectPatternRestRHS(objectPattern, child, str_(restTempVarName.get()), propsToDeleteForRest)
+				newRHS = this.objectPatternRestRHS(objectPattern, child, restTempVarName.getStr_(), propsToDeleteForRest)
 			} else {
 				panic(new_IllegalStateException_String("unexpected child").self())
 			}

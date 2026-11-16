@@ -93,7 +93,7 @@ func (this *TemplateType) getTypeClass_impl() *JSTypeClass {
 }
 
 func (this *TemplateType) getReferenceName_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.name_))
+	return Optional_ofStr_(this.name_)
 }
 
 func (this *TemplateType) appendTo_impl(sb *TypeStringBuilder) {

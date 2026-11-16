@@ -57,7 +57,7 @@ func (this *CheckJSDoc) checkJsDocInBlockComments(fileName OptionalOf[string]) {
 
 func (this *CheckJSDoc) visit_impl(t *NodeTraversal, n Node, parent Node) {
 	if n.isScript() {
-		this.checkJsDocInBlockComments(Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+		this.checkJsDocInBlockComments(Optional_ofStr_(n.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)
@@ -401,7 +401,7 @@ func (this *CheckJSDoc) validateRestParameter(restParam Node) {
 	} else if functionInfo != nil {
 		if restParam.getFirstChild().isName() {
 			var paramName string = restParam.getFirstChild().getString()
-			paramTypeAnnotation = functionInfo.getParameterType(Optional_of(strobj_(paramName)))
+			paramTypeAnnotation = functionInfo.getParameterType(Optional_ofStr_(paramName))
 		} else {
 			var indexOfRest int32 = paramList.getIndexOfChild(restParam)
 			paramTypeAnnotation = func() *JSTypeExpression {

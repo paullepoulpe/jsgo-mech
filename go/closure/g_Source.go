@@ -155,10 +155,10 @@ func new_Source_Builder_0() *Source_Builder {
 
 func (this *Source_Builder) init_Source_Builder_Source(source *Source) {
 	this.finit_Source_Builder()
-	this.path_ = Optional_of(strobj_(source.path()))
-	this.sourceMap_ = Optional_of(strobj_(source.sourceMap()))
-	this.sourceUrl_ = Optional_of(strobj_(source.sourceUrl()))
-	this.sourceMappingUrl_ = Optional_of(strobj_(source.sourceMappingUrl()))
+	this.path_ = Optional_ofStr_(source.path())
+	this.sourceMap_ = Optional_ofStr_(source.sourceMap())
+	this.sourceUrl_ = Optional_ofStr_(source.sourceUrl())
+	this.sourceMappingUrl_ = Optional_ofStr_(source.sourceMappingUrl())
 	this.runtimesField = source.runtimes()
 	this.loadFlags_ = source.loadFlags()
 	this.estimatedSize_ = source.estimatedSize()
@@ -174,22 +174,22 @@ func new_Source_Builder_Source(source *Source) *Source_Builder {
 }
 
 func (this *Source_Builder) setPath(path string) *Source_Builder {
-	this.path_ = Optional_of(strobj_(FilePaths_clean(path)))
+	this.path_ = Optional_ofStr_(FilePaths_clean(path))
 	return this
 }
 
 func (this *Source_Builder) setSourceMap(sourceMap string) *Source_Builder {
-	this.sourceMap_ = Optional_of(strobj_(sourceMap))
+	this.sourceMap_ = Optional_ofStr_(sourceMap)
 	return this
 }
 
 func (this *Source_Builder) setSourceUrl(sourceUrl string) *Source_Builder {
-	this.sourceUrl_ = Optional_of(strobj_(sourceUrl))
+	this.sourceUrl_ = Optional_ofStr_(sourceUrl)
 	return this
 }
 
 func (this *Source_Builder) setSourceMappingUrl(sourceMappingUrl string) *Source_Builder {
-	this.sourceMappingUrl_ = Optional_of(strobj_(sourceMappingUrl))
+	this.sourceMappingUrl_ = Optional_ofStr_(sourceMappingUrl)
 	return this
 }
 
@@ -298,7 +298,7 @@ func (this *Source_Builder) autoBuild() *Source {
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
-	return new_Source(str_(this.path_.get()), str_(this.sourceMap_.get()), str_(this.sourceUrl_.get()), str_(this.sourceMappingUrl_.get()), this.runtimesField, this.loadFlags_, this.estimatedSize_, this.codeSupplierField, this.originalCodeSupplierField)
+	return new_Source(this.path_.getStr_(), this.sourceMap_.getStr_(), this.sourceUrl_.getStr_(), this.sourceMappingUrl_.getStr_(), this.runtimesField, this.loadFlags_, this.estimatedSize_, this.codeSupplierField, this.originalCodeSupplierField)
 }
 
 func (this *Source_Builder) originalCodeSupplier() *Source_Lazy {

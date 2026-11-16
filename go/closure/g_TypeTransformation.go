@@ -618,7 +618,7 @@ func (this *TypeTransformation) evalTypeOfVar(ttlAst Node) *JSType {
 func (this *TypeTransformation) evalInstanceOf(ttlAst Node, nameResolver *TypeTransformation_NameResolver) *JSType {
 	var type_ *JSType = this.evalInternal(this.getCallArgument(ttlAst, 0), nameResolver)
 	if type_.isUnknownType() || !type_.isConstructor() {
-		this.reportWarning(ttlAst, TypeTransformation_INVALID_CTOR, []string{str_(type_.getDisplayName().orElse(strobj_("null")))})
+		this.reportWarning(ttlAst, TypeTransformation_INVALID_CTOR, []string{type_.getDisplayName().orElseStr_("null")})
 		return this.getUnknownType()
 	}
 	return type_.toMaybeFunctionType().getInstanceType().up_JSType()

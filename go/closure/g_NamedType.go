@@ -131,7 +131,7 @@ func (this *NamedType) getReferencedType() *JSType {
 }
 
 func (this *NamedType) getReferenceName_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.reference))
+	return Optional_ofStr_(this.reference)
 }
 
 func (this *NamedType) appendTo_impl(sb *TypeStringBuilder) {
@@ -332,7 +332,7 @@ func (this *NamedType) setValidator_impl(validator Predicate_baseOf[*JSType]) bo
 }
 
 func (this *NamedType) warning(reporter ErrorReporter_rhino, message string) {
-	reporter.warning(message, Optional_of(strobj_(this.sourceName_)).filter(&Predicate_fn{func(s_ any) bool {
+	reporter.warning(message, Optional_ofStr_(this.sourceName_).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)

@@ -50,7 +50,7 @@ func (this *CheckExtraRequires) extractNamespace(call Node, primitiveNames []str
 		if callee.matchesQualifiedName(primitiveName) {
 			var target Node = callee.getNext()
 			if (target != 0) && target.isStringLit() {
-				return Optional_of(strobj_(target.getString()))
+				return Optional_ofStr_(target.getString())
 			}
 		}
 	}
@@ -165,12 +165,12 @@ func (this *CheckExtraRequires) visitGoogRequire(namespace string, googRequireCa
 func (this *CheckExtraRequires) visitCallNode(call Node, parent Node) {
 	var required OptionalOf[string] = this.extractNamespaceIfRequire(call)
 	if required.isPresent() {
-		this.visitGoogRequire(str_(required.get()), call, parent)
+		this.visitGoogRequire(required.getStr_(), call, parent)
 		return
 	}
 	var declare OptionalOf[string] = this.extractNamespaceIfForwardDeclare(call)
 	if declare.isPresent() {
-		this.visitForwardDeclare(str_(declare.get()), call, parent)
+		this.visitForwardDeclare(declare.getStr_(), call, parent)
 		return
 	}
 	var callee Node = call.getFirstChild()

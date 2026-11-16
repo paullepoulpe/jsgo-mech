@@ -54,7 +54,7 @@ func PotentialDeclaration_fromMemberFieldDef(fieldNode Node) *PotentialDeclarati
 	Preconditions_checkArgument(fieldNode.isMemberFieldDef())
 	var rhs Node = NodeUtil_getRValueOfLValue(fieldNode)
 	var name string = ClassUtil_getFullyQualifiedNameOfMemberFieldDef(fieldNode)
-	return new_PotentialDeclaration_MemberFieldDeclaration(Optional_of(strobj_(name)), fieldNode, rhs).up_PotentialDeclaration()
+	return new_PotentialDeclaration_MemberFieldDeclaration(Optional_ofStr_(name), fieldNode, rhs).up_PotentialDeclaration()
 }
 
 func PotentialDeclaration_fromMethod(functionNode Node) *PotentialDeclaration {

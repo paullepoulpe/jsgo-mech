@@ -130,7 +130,7 @@ func ProcessDefines_getGlobalDefineAlias(defineName string) string {
 }
 
 func (this *ProcessDefines) getReplacementForDefine(define *ProcessDefines_Define) Node {
-	var replacement Node = this.getReplacementForDefineName(Optional_of(strobj_(define.defineName_)))
+	var replacement Node = this.getReplacementForDefineName(Optional_ofStr_(define.defineName_))
 	if replacement != 0 {
 		return replacement
 	}
@@ -143,7 +143,7 @@ func (this *ProcessDefines) getReplacementForDefine(define *ProcessDefines_Defin
 func (this *ProcessDefines) getReplacementForDefineName(defineName OptionalOf[string]) Node {
 	var replacementFromFlags Node = func() Node {
 		if defineName.isPresent() {
-			return Node_of_(Map_get_s(this.replacementValuesFromFlags, str_(defineName.get())))
+			return Node_of_(Map_get_s(this.replacementValuesFromFlags, defineName.getStr_()))
 		}
 		return 0
 	}()
@@ -152,7 +152,7 @@ func (this *ProcessDefines) getReplacementForDefineName(defineName OptionalOf[st
 	}
 	var replacementFromClosureDefines Node = func() Node {
 		if defineName.isPresent() {
-			return this.replacementValuesFromClosureDefines.get(str_(defineName.get()))
+			return this.replacementValuesFromClosureDefines.get(defineName.getStr_())
 		}
 		return 0
 	}()

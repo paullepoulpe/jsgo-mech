@@ -73,7 +73,7 @@ func (this *QualifiedName) buildComponents(builder ImmutableList_BuilderOf[strin
 }
 
 func (this *QualifiedName) join_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.join_1(any(uint16('.')))))
+	return Optional_ofStr_(this.join_1(any(uint16('.'))))
 }
 
 func (this *QualifiedName) join_1(separator any) string {
@@ -339,7 +339,7 @@ func (this *QualifiedName_NodeQname) appendTo_impl(sb *StringBuilder, separator 
 }
 
 func (this *QualifiedName_NodeQname) join_impl() OptionalOf[string] {
-	return Optional_of(strobj_(this.node_.getQualifiedName())).filter(&Predicate_fn{func(s_ any) bool {
+	return Optional_ofStr_(this.node_.getQualifiedName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)

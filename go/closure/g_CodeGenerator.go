@@ -98,10 +98,10 @@ func (this *CodeGenerator) printJsDocComment(node Node, jsDocInfo *JSDocInfo) {
 	if this.gentsMode {
 		jsdocAsString = jsDocInfo.getOriginalCommentString()
 	} else {
-		jsdocAsString = Optional_of(strobj_(this.jsDocInfoPrinter.print(jsDocInfo)))
+		jsdocAsString = Optional_ofStr_(this.jsDocInfoPrinter.print(jsDocInfo))
 	}
-	if jsdocAsString.isPresent() && !(str_(jsdocAsString.get()) == "/** */ ") {
-		this.add(str_(jsdocAsString.get()))
+	if jsdocAsString.isPresent() && !(jsdocAsString.getStr_() == "/** */ ") {
+		this.add(jsdocAsString.getStr_())
 		if !node.isCast() {
 			this.cc.endLine()
 		}
@@ -203,10 +203,10 @@ func (this *CodeGenerator) add_3(node Node, context *CodeGenerator_Context, prin
 		}
 		if NodeUtil_isAssignmentOp(node) || (type_ == Token_rhino_EXPONENT) {
 			this.addExpr(first, (p + 1), context)
-			this.cc.addOp(str_(opstr.get()), true)
+			this.cc.addOp(opstr.getStr_(), true)
 			this.addExpr(last, p, rhsContext)
 		} else {
-			this.unrollBinaryOperator(node, type_, str_(opstr.get()), context, rhsContext, p, (p + 1))
+			this.unrollBinaryOperator(node, type_, opstr.getStr_(), context, rhsContext, p, (p + 1))
 		}
 		if node.isAssign() && needsParens {
 			this.add(")")

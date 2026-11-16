@@ -117,14 +117,14 @@ func ModuleLoader_relativePathFrom(fromUriPath string, toUriPath string) *Outcom
 	} else if fromFolder.isEmpty() {
 		return Outcome_base_err(new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
-	var calculatedPath OptionalOf[string] = FilePaths_relativize(str_(fromFolder.get()), toUriPath)
+	var calculatedPath OptionalOf[string] = FilePaths_relativize(fromFolder.getStr_(), toUriPath)
 	if calculatedPath.isEmpty() {
 		return Outcome_base_err(new_IllegalArgumentException_String("Relative path between URIs cannot be calculated").up_Throwable())
 	}
-	if String_startsWith(str_(calculatedPath.get()), ".") || String_startsWith(str_(calculatedPath.get()), "/") {
+	if String_startsWith(calculatedPath.getStr_(), ".") || String_startsWith(calculatedPath.getStr_(), "/") {
 		return Outcome_base_ok_Object(calculatedPath.get())
 	}
-	return Outcome_base_ok_Object(strobj_(("./" + sstr_(str_(calculatedPath.get())))))
+	return Outcome_base_ok_Object(strobj_(("./" + sstr_(calculatedPath.getStr_()))))
 }
 
 func (this *ModuleLoader) setErrorHandler(errorHandler ErrorHandler) {
@@ -266,7 +266,7 @@ func (this *ModuleLoader_ModulePath) toModuleName() string {
 func (this *ModuleLoader_ModulePath) resolveJsModule(moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) *ModuleLoader_ModulePath {
 	var loadAddress OptionalOf[string] = this.outer_.moduleResolver.resolveJsModule(this.path_, moduleAddress, sourcename, lineno, colno)
 	if loadAddress.isPresent() {
-		return new_ModuleLoader_ModulePath(this.outer_, str_(loadAddress.get()))
+		return new_ModuleLoader_ModulePath(this.outer_, loadAddress.getStr_())
 	}
 	return nil
 }
@@ -274,7 +274,7 @@ func (this *ModuleLoader_ModulePath) resolveJsModule(moduleAddress string, sourc
 func (this *ModuleLoader_ModulePath) resolveJsModuleSilently(moduleAddress string) *ModuleLoader_ModulePath {
 	var loadAddress OptionalOf[string] = this.outer_.moduleResolver.resolveJsModuleSilently(this.path_, moduleAddress)
 	if loadAddress.isPresent() {
-		return new_ModuleLoader_ModulePath(this.outer_, str_(loadAddress.get()))
+		return new_ModuleLoader_ModulePath(this.outer_, loadAddress.getStr_())
 	}
 	return nil
 }

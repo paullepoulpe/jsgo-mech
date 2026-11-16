@@ -228,11 +228,11 @@ func (this *TypeInference) updateModuleScope(module *Module, syntacticBlockScope
 		}
 		var moduleId OptionalOf[string] = module.closureNamespace()
 		var globalScope *TypedScope = cast_[*TypedScope](syntacticBlockScope.getGlobalScope().self())
-		var globalVar *TypedVar = cast_[*TypedVar](globalScope.getVar(str_(moduleId.get())).self())
+		var globalVar *TypedVar = cast_[*TypedVar](globalScope.getVar(moduleId.getStr_()).self())
 		if globalVar.isTypeInferred() {
 			globalVar.setType(exportsType)
 		}
-		var moduleQname *QualifiedName = QualifiedName_of(str_(moduleId.get()))
+		var moduleQname *QualifiedName = QualifiedName_of(moduleId.getStr_())
 		if !moduleQname.isSimple() {
 			var parentType *JSType = globalScope.lookupQualifiedName(moduleQname.getOwner())
 			var parentObjectType *ObjectType = func() *ObjectType {
@@ -1079,10 +1079,10 @@ func (this *TypeInference) traverseObjectLiteral(n Node, scope FlowScope) FlowSc
 					valueType = this.unknownType.up_JSType()
 				}
 				if !spreadOperatorSeen || !n.getJSType().isNativeObjectType() {
-					objectType.defineInferredProperty(str_(memberName.get()), valueType, key)
+					objectType.defineInferredProperty(memberName.getStr_(), valueType, key)
 				}
 				if qObjName.isPresent() && key.isStringKey() {
-					var qKeyName string = (sstr_(str_(qObjName.get())) + "." + sstr_(str_(memberName.get())))
+					var qKeyName string = (sstr_(qObjName.getStr_()) + "." + sstr_(memberName.getStr_()))
 					var var_ *TypedVar = TypeInference_getDeclaredVar(scope, qKeyName)
 					var oldType *JSType = func() *JSType {
 						if var_ == nil {
@@ -1836,7 +1836,7 @@ func (this *TypeInference) traverseDynamicImport(dynamicImport Node, scope FlowS
 	var importSpecifier Node = dynamicImport.getFirstChild()
 	var input *CompilerInput = this.compiler_.getInput(NodeUtil_getInputId(dynamicImport))
 	if (importSpecifier.isStringLit() && (moduleMap != nil)) && (input != nil) {
-		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_of(strobj_(importSpecifier.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+		var targetPath *ModuleLoader_ModulePath = input.getPath().resolveJsModule(importSpecifier.getString(), Optional_ofStr_(importSpecifier.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 			var s string = str_(s_)
 			_ = s
 			return !String_isEmpty(s)

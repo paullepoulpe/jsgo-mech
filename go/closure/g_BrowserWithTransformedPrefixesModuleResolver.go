@@ -57,35 +57,35 @@ func (this *BrowserWithTransformedPrefixesModuleResolver) replacePathPrefixes(mo
 	if moduleAddress.isEmpty() {
 		return Optional_empty()
 	}
-	var transformedAddress string = str_(moduleAddress.get())
+	var transformedAddress string = moduleAddress.getStr_()
 	it_1 := foreach_(obj_(this.prefixReplacements))
 	for it_1.next() {
 		var prefixReplacement *BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement = cast_[*BrowserWithTransformedPrefixesModuleResolver_PrefixReplacement](it_1.v)
-		if String_startsWith(str_(moduleAddress.get()), prefixReplacement.prefix()) {
-			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(str_(moduleAddress.get()), String_length(prefixReplacement.prefix()))))
+		if String_startsWith(moduleAddress.getStr_(), prefixReplacement.prefix()) {
+			transformedAddress = (sstr_(prefixReplacement.replacement()) + sstr_(String_substring_int(moduleAddress.getStr_(), String_length(prefixReplacement.prefix()))))
 			break
 		}
 	}
-	return Optional_of(strobj_(transformedAddress))
+	return Optional_ofStr_(transformedAddress)
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModule_impl(scriptAddress string, moduleAddress string, sourcename OptionalOf[string], lineno int32, colno int32) OptionalOf[string] {
-	var transformedAddress OptionalOf[string] = this.replacePathPrefixes(Optional_of(strobj_(moduleAddress)))
-	var replaced bool = (transformedAddress.isPresent() && !(str_(transformedAddress.get()) == moduleAddress))
-	if !replaced && ModuleLoader_isAmbiguousIdentifier(str_(transformedAddress.get())) {
-		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, BrowserWithTransformedPrefixesModuleResolver_INVALID_AMBIGUOUS_PATH, []string{str_(transformedAddress.orElse(strobj_("null"))), this.expectedPrefixes}))
+	var transformedAddress OptionalOf[string] = this.replacePathPrefixes(Optional_ofStr_(moduleAddress))
+	var replaced bool = (transformedAddress.isPresent() && !(transformedAddress.getStr_() == moduleAddress))
+	if !replaced && ModuleLoader_isAmbiguousIdentifier(transformedAddress.getStr_()) {
+		this.errorHandler.report_2(CheckLevel_WARNING, JSError_make_Optional_int_int_DiagnosticType_StringArr(sourcename, lineno, colno, BrowserWithTransformedPrefixesModuleResolver_INVALID_AMBIGUOUS_PATH, []string{transformedAddress.orElseStr_("null"), this.expectedPrefixes}))
 		return Optional_empty()
 	}
-	return this.locate(scriptAddress, str_(transformedAddress.get()))
+	return this.locate(scriptAddress, transformedAddress.getStr_())
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveJsModuleSilently_impl(scriptAddress string, moduleAddress string) OptionalOf[string] {
-	var transformedAddress OptionalOf[string] = this.replacePathPrefixes(Optional_of(strobj_(moduleAddress)))
-	var replaced bool = (transformedAddress.isPresent() && !(str_(transformedAddress.get()) == moduleAddress))
-	if !replaced && ModuleLoader_isAmbiguousIdentifier(str_(transformedAddress.get())) {
+	var transformedAddress OptionalOf[string] = this.replacePathPrefixes(Optional_ofStr_(moduleAddress))
+	var replaced bool = (transformedAddress.isPresent() && !(transformedAddress.getStr_() == moduleAddress))
+	if !replaced && ModuleLoader_isAmbiguousIdentifier(transformedAddress.getStr_()) {
 		return Optional_empty()
 	}
-	return this.locate(scriptAddress, str_(transformedAddress.get()))
+	return this.locate(scriptAddress, transformedAddress.getStr_())
 }
 
 func (this *BrowserWithTransformedPrefixesModuleResolver) resolveModuleAsPath_impl(scriptAddress string, moduleAddress string) string {

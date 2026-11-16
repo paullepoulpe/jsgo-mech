@@ -94,14 +94,14 @@ func (this *GoogleCodingConvention) getPackageName_impl(source StaticSourceFile)
 	}
 	var m *Matcher_re2j = GoogleCodingConvention_PACKAGE_WITH_TEST_DIR.matcher(strobj_(name))
 	if m.find() {
-		return Optional_ofNullable(strobj_(m.group(1)))
+		return Optional_ofNullableStr_(m.group(1))
 	} else {
 		var lastSlash int32 = String_lastIndexOf(name, 47)
 		return func() Optional {
 			if lastSlash == -1 {
-				return Optional_of(strobj_(""))
+				return Optional_ofStr_("")
 			}
-			return Optional_of(strobj_(String_substring(name, 0, lastSlash)))
+			return Optional_ofStr_(String_substring(name, 0, lastSlash))
 		}()
 	}
 	panic("unreachable")

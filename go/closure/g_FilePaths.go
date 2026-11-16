@@ -149,19 +149,19 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 		return Optional_empty()
 	}
 	if base == target {
-		return Optional_of(strobj_(""))
+		return Optional_ofStr_("")
 	}
 	if String_isEmpty(base) {
-		return Optional_of(strobj_(target))
+		return Optional_ofStr_(target)
 	}
 	if FilePaths_hasDots(base) || FilePaths_hasDots(target) {
 		base = FilePaths_normalize(base)
 		target = FilePaths_normalize(target)
 		if base == target {
-			return Optional_of(strobj_(""))
+			return Optional_ofStr_("")
 		}
 		if String_isEmpty(base) {
-			return Optional_of(strobj_(target))
+			return Optional_ofStr_(target)
 		}
 	}
 	var from *TList[string] = FilePaths_names(base)
@@ -191,7 +191,7 @@ func FilePaths_relativize(path string, other string) OptionalOf[string] {
 	if (result.length() > 0) && !String_isEmpty(rest) {
 		result.append_char('/')
 	}
-	return Optional_of(strobj_(Object_toString(obj_(result.append(rest)))))
+	return Optional_ofStr_(Object_toString(obj_(result.append(rest))))
 }
 
 func FilePaths_hasDots(plain string) bool {

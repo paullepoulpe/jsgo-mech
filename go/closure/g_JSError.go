@@ -101,10 +101,10 @@ func JSError_builder(type_ *DiagnosticType, arguments []string) *JSError_Builder
 
 func (this *JSError) toString() string {
 	var sourceName string = func() string {
-		if String_isEmpty(str_(this.sourceName().orElse(strobj_("")))) {
+		if String_isEmpty(this.sourceName().orElseStr_("")) {
 			return "(unknown source)"
 		}
-		return str_(this.sourceName().get())
+		return this.sourceName().getStr_()
 	}()
 	var lineno string = func() string {
 		if this.lineno() != JSError_DEFAULT_LINENO {
@@ -125,9 +125,9 @@ func (this *JSError) format(level *CheckLevel, formatter MessageFormatter) Optio
 	return func() Optional {
 		switch level {
 		case CheckLevel_ERROR:
-			return Optional_of(strobj_(formatter.formatError(this)))
+			return Optional_ofStr_(formatter.formatError(this))
 		case CheckLevel_WARNING:
-			return Optional_of(strobj_(formatter.formatWarning(this)))
+			return Optional_ofStr_(formatter.formatWarning(this))
 		default:
 			return Optional_empty()
 		}
@@ -264,7 +264,7 @@ func new_JSError_Builder(type_ *DiagnosticType, args []string) *JSError_Builder 
 func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = n
-	this.sourceName_ = Optional_of(strobj_(n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+	this.sourceName_ = Optional_ofStr_(n.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)
@@ -278,7 +278,7 @@ func (this *JSError_Builder) setNode(n Node) *JSError_Builder {
 func (this *JSError_Builder) setNodeRange(start Node, end Node) *JSError_Builder {
 	Preconditions_checkState_boolean_Object(Object_equals(obj_(JSError_DEFAULT_SOURCENAME), obj_(this.sourceName_)), strobj_("Cannot provide a Node when there's already a source name"))
 	this.n = start
-	this.sourceName_ = Optional_of(strobj_(this.n.getSourceFileName())).filter(&Predicate_fn{func(s_ any) bool {
+	this.sourceName_ = Optional_ofStr_(this.n.getSourceFileName()).filter(&Predicate_fn{func(s_ any) bool {
 		var s string = str_(s_)
 		_ = s
 		return !String_isEmpty(s)

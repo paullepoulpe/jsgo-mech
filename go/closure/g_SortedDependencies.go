@@ -146,7 +146,7 @@ func (this *SortedDependencies) processInputs() {
 		var userOrderedInput DependencyInfo = icast_DependencyInfo(obj_(it_1.v))
 		var provides ImmutableListOf[string] = userOrderedInput.getProvides()
 		var firstProvide OptionalOf[string] = Optional_ofNullable(Iterables_getFirst(icast_Iterable(obj_(provides)), nil))
-		if firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(str_(firstProvide.get()), "module$")) && !userOrderedInput.isEs6Module()) {
+		if firstProvide.isEmpty() || (((provides.size() == 1) && String_startsWith(firstProvide.getStr_(), "module$")) && !userOrderedInput.isEs6Module()) {
 			this.nonExportingInputs.put(ModuleNames_fileToModuleName(userOrderedInput.getName()), any(userOrderedInput))
 		}
 		it_3 := foreach_(obj_(userOrderedInput.getProvides()))

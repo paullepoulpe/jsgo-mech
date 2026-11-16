@@ -453,8 +453,8 @@ func (this *PeepholeSubstituteAlternateSyntax) tryMinimizeStringArrayLiteral(n N
 	}
 	var delimiter OptionalOf[string] = PeepholeSubstituteAlternateSyntax_pickDelimiter(strings)
 	if delimiter.isPresent() {
-		var template string = Joiner_on(str_(delimiter.get())).join_ObjectArr(arrmap_(strings, func(v_ string) any { return strobj_(v_) }))
-		var call Node = IR_call(IR_getprop_Node_String(IR_string(template), "split"), []Node{IR_string(("" + sstr_(str_(delimiter.get()))))})
+		var template string = Joiner_on(delimiter.getStr_()).join_ObjectArr(arrmap_(strings, func(v_ string) any { return strobj_(v_) }))
+		var call Node = IR_call(IR_getprop_Node_String(IR_string(template), "split"), []Node{IR_string(("" + sstr_(delimiter.getStr_())))})
 		call.srcrefTreeIfMissing(n)
 		n.replaceWith(call)
 		this.reportChangeToEnclosingScope(call)
@@ -472,7 +472,7 @@ func (this *PeepholeSubstituteAlternateSyntax) tryTurnTemplateStringsToStrings(n
 	if string_.isEmpty() {
 		return n
 	}
-	var stringNode Node = IR_string(str_(string_.get())).srcref(n)
+	var stringNode Node = IR_string(string_.getStr_()).srcref(n)
 	n.replaceWith(stringNode)
 	this.reportChangeToEnclosingScope(stringNode)
 	return stringNode
@@ -487,7 +487,7 @@ func PeepholeSubstituteAlternateSyntax_pickDelimiter(strings []string) OptionalO
 		}
 	}
 	if allLength1 {
-		return Optional_of(strobj_(""))
+		return Optional_ofStr_("")
 	}
 	var delimiters []string = []string{" ", ";", ",", "{", "}", nullstr_}
 	var i int32 = 0
@@ -500,7 +500,7 @@ NEXT_DELIMITER_:
 		}
 		break
 	}
-	return Optional_of(strobj_(delimiters[i]))
+	return Optional_ofStr_(delimiters[i])
 }
 
 var PeepholeSubstituteAlternateSyntax_STRING_SPLIT_OVERHEAD int32

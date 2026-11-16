@@ -309,7 +309,7 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	var parsed any = Doubles_tryParse(String_trim(str_(numberFromSource.get())))
+	var parsed any = Doubles_tryParse(String_trim(numberFromSource.getStr_()))
 	if parsed == nil {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
@@ -319,7 +319,7 @@ func (this *CodePrinter_PrettyCodePrinter) addNumber_impl(x float64, n Node) {
 		this.CodePrinter_MappedCodePrinter.addNumber_impl(x, n)
 		return
 	}
-	this.addConstant(str_(numberFromSource.get()))
+	this.addConstant(numberFromSource.getStr_())
 }
 
 func (this *CodePrinter_PrettyCodePrinter) startNewLine_impl() {
@@ -488,7 +488,7 @@ func CodePrinter_PrettyCodePrinter_getNumberFromSource(n Node) OptionalOf[string
 	if (offset < 0) || (endOffset > String_length(srcCode)) {
 		return Optional_empty()
 	}
-	return Optional_of(strobj_(String_substring(srcCode, offset, endOffset)))
+	return Optional_ofStr_(String_substring(srcCode, offset, endOffset))
 }
 
 const CodePrinter_PrettyCodePrinter_INDENT string = "  "

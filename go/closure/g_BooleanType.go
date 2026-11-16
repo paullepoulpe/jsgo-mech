@@ -67,7 +67,7 @@ func (this *BooleanType) autoboxesTo_impl() *JSType {
 }
 
 func (this *BooleanType) getDisplayName_impl() OptionalOf[string] {
-	return Optional_of(strobj_("boolean"))
+	return Optional_ofStr_("boolean")
 }
 
 func (this *BooleanType) getPossibleToBooleanOutcomes_impl() *BooleanLiteralSet {

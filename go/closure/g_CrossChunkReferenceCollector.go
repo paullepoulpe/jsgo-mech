@@ -232,8 +232,8 @@ func (this *CrossChunkReferenceCollector) canMoveValue(scope *Scope, valueNode N
 	case Token_rhino_GETPROP:
 		var child Node = valueNode.getFirstChild()
 		if (child != 0) && child.isName() {
-			var symbol OptionalOf[string] = Optional_of(strobj_(child.getString()))
-			if symbol.isPresent() && (str_(symbol.get()) == "Symbol") {
+			var symbol OptionalOf[string] = Optional_ofStr_(child.getString())
+			if symbol.isPresent() && (symbol.getStr_() == "Symbol") {
 				return true
 			}
 		}

@@ -203,7 +203,7 @@ func new_EnumType_Builder(registry *JSTypeRegistry) *EnumType_Builder {
 }
 
 func (this *EnumType_Builder) setName_impl(x OptionalOf[string]) *PrototypeObjectType_Builder {
-	this.PrototypeObjectType_Builder.setName_impl(Optional_of(strobj_(("enum{" + sstr_(str_(x.orElse(strobj_("null")))) + "}"))))
+	this.PrototypeObjectType_Builder.setName_impl(Optional_ofStr_(("enum{" + sstr_(x.orElseStr_("null")) + "}")))
 	this.elementName = x
 	return this.up_PrototypeObjectType_Builder()
 }

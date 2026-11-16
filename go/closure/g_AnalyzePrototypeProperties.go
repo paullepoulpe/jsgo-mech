@@ -142,7 +142,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 	if root.isFunction() {
 		var propName OptionalOf[string] = this.getPrototypePropertyNameFromRValue(n)
 		if propName.isPresent() {
-			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(str_(propName.get()), AnalyzePrototypeProperties_PROPERTY), scope)))
+			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.getStr_(), AnalyzePrototypeProperties_PROPERTY), scope)))
 		} else if this.isGlobalFunctionDeclaration(t, n) {
 			var parent Node = n.getParent()
 			var name string = func() string {
@@ -171,7 +171,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) shouldTraverse(t *Node
 	if !this.outer_.rootScopeUsesAreGlobal {
 		var propName OptionalOf[string] = this.processNonFunctionPrototypeAssign(n, parent)
 		if propName.isPresent() {
-			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(str_(propName.get()), AnalyzePrototypeProperties_PROPERTY), nil)))
+			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.getStr_(), AnalyzePrototypeProperties_PROPERTY), nil)))
 		}
 	}
 	return true
@@ -212,7 +212,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 		this.addSymbolUse(propName, t.getChunk(), AnalyzePrototypeProperties_PROPERTY)
 	case Token_rhino_OBJECTLIT:
 		var lValueName OptionalOf[string] = NodeUtil_getBestLValueName(NodeUtil_getBestLValue(n))
-		if lValueName.isPresent() && String_endsWith(str_(lValueName.get()), ".prototype") {
+		if lValueName.isPresent() && String_endsWith(lValueName.getStr_(), ".prototype") {
 			return
 		}
 		fallthrough
@@ -316,15 +316,15 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) getPrototypePropertyNa
 	if lValueName.isEmpty() {
 		return Optional_empty()
 	}
-	var lastDot int32 = String_lastIndexOf(str_(lValueName.get()), 46)
+	var lastDot int32 = String_lastIndexOf(lValueName.getStr_(), 46)
 	if lastDot == -1 {
 		return Optional_empty()
 	}
-	var firstPart string = String_substring(str_(lValueName.get()), 0, lastDot)
+	var firstPart string = String_substring(lValueName.getStr_(), 0, lastDot)
 	if !String_endsWith(firstPart, ".prototype") {
 		return Optional_empty()
 	}
-	return Optional_of(strobj_(String_substring_int(str_(lValueName.get()), (lastDot + 1))))
+	return Optional_ofStr_(String_substring_int(lValueName.getStr_(), (lastDot + 1)))
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) processGlobalFunctionDeclaration(t *NodeTraversal, nameNode Node, v *Var) bool {

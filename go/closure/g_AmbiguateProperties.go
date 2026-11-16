@@ -122,7 +122,7 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 	it_11 := foreach_(any(icast_List(propertyGraph.getNodes())))
 	for it_11.next() {
 		var node *AmbiguateProperties_PropertyGraphNode = cast_[*AmbiguateProperties_PropertyGraphNode](it_11.v)
-		cast_[*AmbiguateProperties_Property](node.getValue()).newName = Optional_of(strobj_(colorMap[Object_hashCode(any(Annotatable_getAnnotation(icast_Annotatable(obj_(node)))))]))
+		cast_[*AmbiguateProperties_Property](node.getValue()).newName = Optional_ofStr_(colorMap[Object_hashCode(any(Annotatable_getAnnotation(icast_Annotatable(obj_(node)))))])
 		if this.renamingMap != nil {
 			Map_put_s(this.renamingMap, cast_[*AmbiguateProperties_Property](node.getValue()).oldName, cast_[*AmbiguateProperties_Property](node.getValue()).newName.orElse(nil))
 		}
@@ -134,8 +134,8 @@ func (this *AmbiguateProperties) process_2(externs Node, root Node) {
 		var p *AmbiguateProperties_Property = this.propertyMap.get(oldName)
 		if (p != nil) && p.newName.isPresent() {
 			Preconditions_checkState((oldName == p.oldName))
-			if !(str_(p.newName.get()) == oldName) {
-				n.setString(str_(p.newName.get()))
+			if !(p.newName.getStr_() == oldName) {
+				n.setString(p.newName.getStr_())
 				this.compiler_.reportChangeToEnclosingScope(n)
 			}
 		}

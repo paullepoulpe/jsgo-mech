@@ -180,12 +180,12 @@ func (this *CheckAccessControls) checkTypeDeprecation(t *NodeTraversal, n Node) 
 		return
 	}
 	var message *DiagnosticType = func() *DiagnosticType {
-		if String_isEmpty(str_(deprecationInfo.get())) {
+		if String_isEmpty(deprecationInfo.getStr_()) {
 			return CheckAccessControls_DEPRECATED_CLASS
 		}
 		return CheckAccessControls_DEPRECATED_CLASS_REASON
 	}()
-	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, message, []string{instanceType.toString(), str_(deprecationInfo.get())}))
+	this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, message, []string{instanceType.toString(), deprecationInfo.getStr_()}))
 }
 
 func (this *CheckAccessControls) checkNameDeprecation(t *NodeTraversal, n Node) {
@@ -204,7 +204,7 @@ func (this *CheckAccessControls) checkNameDeprecation(t *NodeTraversal, n Node) 
 	}()
 	if (docInfo != nil) && docInfo.isDeprecated() {
 		if docInfo.getDeprecationReason().isPresent() {
-			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckAccessControls_DEPRECATED_NAME_REASON, []string{n.getString(), str_(docInfo.getDeprecationReason().get())}))
+			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckAccessControls_DEPRECATED_NAME_REASON, []string{n.getString(), docInfo.getDeprecationReason().getStr_()}))
 		} else {
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CheckAccessControls_DEPRECATED_NAME, []string{n.getString()}))
 		}
@@ -223,8 +223,8 @@ func (this *CheckAccessControls) checkPropertyDeprecation(t *NodeTraversal, prop
 	if objectType != nil {
 		var deprecationInfo OptionalOf[string] = CheckAccessControls_getPropertyDeprecationInfo(objectType, propertyName)
 		if deprecationInfo.isPresent() {
-			if !String_isEmpty(str_(deprecationInfo.get())) {
-				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP_REASON, []string{propertyName, propRef.getReadableTypeNameOrDefault(), str_(deprecationInfo.get())}))
+			if !String_isEmpty(deprecationInfo.getStr_()) {
+				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP_REASON, []string{propertyName, propRef.getReadableTypeNameOrDefault(), deprecationInfo.getStr_()}))
 			} else {
 				this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(propRef.sourceNode(), CheckAccessControls_DEPRECATED_PROP, []string{propertyName, propRef.getReadableTypeNameOrDefault()}))
 			}
@@ -298,7 +298,7 @@ func (this *CheckAccessControls) checkFinalClassOverrides(ctor Node) {
 	}
 	var finalParentClass *ObjectType = CheckAccessControls_getSuperClassInstanceIfFinal(ctorType)
 	if finalParentClass != nil {
-		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ctor, CheckAccessControls_EXTEND_FINAL_CLASS, []string{str_(ctorType.getDisplayName().orElse(strobj_("null"))), str_(finalParentClass.getDisplayName().orElse(strobj_("null")))}))
+		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(ctor, CheckAccessControls_EXTEND_FINAL_CLASS, []string{ctorType.getDisplayName().orElseStr_("null"), finalParentClass.getDisplayName().orElseStr_("null")}))
 	}
 }
 
@@ -589,7 +589,7 @@ func CheckAccessControls_getDeprecationReason(info *JSDocInfo) OptionalOf[string
 		if info.getDeprecationReason().isPresent() {
 			return info.getDeprecationReason()
 		}
-		return Optional_of(strobj_(""))
+		return Optional_ofStr_("")
 	}
 	return Optional_empty()
 }
@@ -1116,7 +1116,7 @@ func (this *CheckAccessControls_PropertyReference_Builder) setSourceNode(node No
 }
 
 func (this *CheckAccessControls_PropertyReference_Builder) setName(name string) *CheckAccessControls_PropertyReference_Builder {
-	this.name_ = Optional_of(strobj_(name))
+	this.name_ = Optional_ofStr_(name)
 	return this
 }
 
@@ -1180,5 +1180,5 @@ func (this *CheckAccessControls_PropertyReference_Builder) build() *CheckAccessC
 		}
 		panic(new_IllegalStateException_String(("Missing required properties:" + objstr_(obj_(missing)))).self())
 	}
-	return new_CheckAccessControls_PropertyReference(this.sourceNode_, str_(this.name_.get()), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
+	return new_CheckAccessControls_PropertyReference(this.sourceNode_, this.name_.getStr_(), this.receiverType_, this.mutation_, this.declaration_, this.override_, this.readableTypeName_)
 }
