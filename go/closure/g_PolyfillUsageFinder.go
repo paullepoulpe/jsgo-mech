@@ -359,16 +359,16 @@ func PolyfillUsageFinder_Polyfills_fromTable(table string) *PolyfillUsageFinder_
 
 func (this *PolyfillUsageFinder_Polyfills) getPolyfillsNewerThan(languageMode *CompilerOptions_LanguageMode) []*PolyfillUsageFinder_Polyfill {
 	var featureSet *FeatureSet = languageMode.toFeatureSet()
-	var result ImmutableList_BuilderOf[*PolyfillUsageFinder_Polyfill] = ImmutableList_builder()
+	var result []*PolyfillUsageFinder_Polyfill
 	it_1 := foreach_(any(this.byNativeVersion.keySet()))
 	for it_1.next() {
 		var nativeVersionStr string = str_(it_1.v)
 		var polyfillNativeFeatureSet *FeatureSet = PolyfillUsageFinder_getPolyfillSupportedFeatureSet(nativeVersionStr)
 		if !featureSet.containsFeatureSet(polyfillNativeFeatureSet) {
-			result.addAll(Iterable(this.byNativeVersion.get(strobj_(nativeVersionStr))))
+			result = immAddAll_(tc_p_PolyfillUsageFinder_Polyfill, result, Iterable(this.byNativeVersion.get(strobj_(nativeVersionStr))))
 		}
 	}
-	return sliceImm_(tc_p_PolyfillUsageFinder_Polyfill, result.build())
+	return immBuilt_(result)
 }
 
 type PolyfillUsageFinder_PolyfillUsage struct {

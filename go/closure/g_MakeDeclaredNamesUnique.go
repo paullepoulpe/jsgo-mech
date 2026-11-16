@@ -223,16 +223,16 @@ func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) enterScope(t *Node
 		return
 	}
 	var scope *Scope = t.getScope()
-	var declaredVariablesBuilder ImmutableList_BuilderOf[*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo] = ImmutableList_builder()
+	var declaredVariablesBuilder []*MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo
 	it_1 := foreach_(any(scope.getVarIterable()))
 	for it_1.next() {
 		var var_ *Var = cast_[*Var](it_1.v)
 		var variableInfo *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo = this.createDeclaredVariableInfo(var_)
-		declaredVariablesBuilder.add(obj_(variableInfo))
+		declaredVariablesBuilder = immAdd_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, declaredVariablesBuilder, variableInfo)
 		this.variablesStackedByName.pushVariableInfo(icast_MakeDeclaredNamesUnique_ContextualRenameInverter_VariableInfo(obj_(variableInfo)))
 	}
 	var parent *MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext = cast_[*MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext](this.scopeContextStack.peek())
-	this.scopeContextStack.push(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, sliceImm_(tc_p_MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo, declaredVariablesBuilder.build()), parent)))
+	this.scopeContextStack.push(obj_(new_MakeDeclaredNamesUnique_ContextualRenameInverter_ScopeContext(scope, immBuilt_(declaredVariablesBuilder), parent)))
 }
 
 func (this *MakeDeclaredNamesUnique_ContextualRenameInverter) createDeclaredVariableInfo(var_ *Var) *MakeDeclaredNamesUnique_ContextualRenameInverter_DeclaredVariableInfo {

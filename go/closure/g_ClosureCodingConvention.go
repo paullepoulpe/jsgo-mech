@@ -146,7 +146,7 @@ func (this *ClosureCodingConvention) identifyTypeDeclarationCall_impl(n Node) []
 	if ClosureCodingConvention_GOOG_FORWARDDECLARE.matches(callName) && n.hasTwoChildren() {
 		var typeDeclaration Node = n.getSecondChild()
 		if typeDeclaration.isStringLit() {
-			return sliceImm_(tc_string, ImmutableList_of_Object(strobj_(typeDeclaration.getString())))
+			return sliceOf_(tc_string, typeDeclaration.getString())
 		}
 	}
 	return this.CodingConventions_Proxy.identifyTypeDeclarationCall_impl(n)

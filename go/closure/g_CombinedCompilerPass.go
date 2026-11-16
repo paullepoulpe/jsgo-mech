@@ -22,7 +22,7 @@ func new_CombinedCompilerPass(compiler *AbstractCompiler, callbacks []NodeTraver
 }
 
 func CombinedCompilerPass_createFromCallbacks(compiler *AbstractCompiler, callbacks []NodeTraversal_Callback) *CombinedCompilerPass {
-	return new_CombinedCompilerPass(compiler, sliceImm_(tc_NodeTraversal_Callback, ImmutableList_copyOf_ObjectArr(arrmap_(callbacks, func(v_ NodeTraversal_Callback) any { return any(v_) }))))
+	return new_CombinedCompilerPass(compiler, immCopyArr_(tc_NodeTraversal_Callback, callbacks))
 }
 
 func CombinedCompilerPass_traverse(compiler *AbstractCompiler, root Node, callbacks []NodeTraversal_Callback) {

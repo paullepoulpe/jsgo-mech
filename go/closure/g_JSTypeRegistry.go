@@ -625,7 +625,7 @@ func (this *JSTypeRegistry) resolveViaProperties(declarationScope StaticTypedSco
 	if slot == nil {
 		return nil
 	}
-	var componentNames []string = sliceImm_(tc_string, ImmutableList_copyOf_Iterable(Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split(strobj_(qualifiedName)), 1)))
+	var componentNames []string = immCopyOf_(tc_string, Iterables_skip(JSTypeRegistry_DOT_SPLITTER.split(strobj_(qualifiedName)), 1))
 	var slotType *JSType = slot.getType()
 	return this.resolveViaPropertyGivenSlot(slotType, 0, componentNames)
 }
@@ -1078,7 +1078,7 @@ func (this *JSTypeRegistry) createOptionalNullableType(type_ *JSType) *JSType {
 }
 
 func (this *JSTypeRegistry) createUnionType(variants []*JSType) *JSType {
-	return this.createUnionTypeList(sliceImm_(tc_p_JSType, ImmutableList_copyOf_ObjectArr(arrmap_(variants, func(v_ *JSType) any { return v_.self() }))))
+	return this.createUnionTypeList(immCopyArr_(tc_p_JSType, variants))
 }
 
 func (this *JSTypeRegistry) createUnionTypeList(variants []*JSType) *JSType {
@@ -1302,14 +1302,14 @@ func (this *JSTypeRegistry) createTypeFromCommentNode_3(n Node, sourceName Optio
 		case tokOrd1_STAR:
 			return this.getNativeType(JSTypeNative_ALL_TYPE)
 		case tokOrd1_PIPE:
-			var builder ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
+			var builder []*JSType
 			{
 				var child Node = n.getFirstChild()
 				for ; child != 0; child = child.getNext() {
-					builder.add(this.createTypeFromCommentNode_3(child, sourceName, scope).self())
+					builder = immAdd_(tc_p_JSType, builder, this.createTypeFromCommentNode_3(child, sourceName, scope))
 				}
 			}
-			return this.createUnionTypeList(sliceImm_(tc_p_JSType, builder.build()))
+			return this.createUnionTypeList(immBuilt_(builder))
 		case tokOrd1_EMPTY:
 			return this.getNativeType(JSTypeNative_UNKNOWN_TYPE)
 		case tokOrd1_VOID:

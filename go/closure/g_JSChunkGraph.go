@@ -310,7 +310,7 @@ var lambda_JSChunkGraph_getTransitiveDeps_1_ = &Function_fn{func(p0 any) any { r
 
 func JSChunkGraph_moveMarkedWeakSources(weakChunk *JSChunk, inputs IterableOf[*CompilerInput]) {
 	Preconditions_checkNotNull(obj_(weakChunk))
-	var allInputs []*CompilerInput = sliceImm_(tc_p_CompilerInput, ImmutableList_copyOf_Iterable(inputs))
+	var allInputs []*CompilerInput = immCopyOf_(tc_p_CompilerInput, inputs)
 	for _, i := range allInputs {
 		if i.getSourceFile().isWeak() {
 			var existingChunk *JSChunk = i.getChunk()

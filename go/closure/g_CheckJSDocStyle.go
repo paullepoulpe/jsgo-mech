@@ -157,9 +157,9 @@ func (this *CheckJSDocStyle) checkParams(t *NodeTraversal, function Node, jsDoc 
 	}
 	var paramsFromJsDoc []string = func() []string {
 		if jsDoc == nil {
-			return sliceImm_(tc_string, ImmutableList_of())
+			return []string{}
 		}
-		return sliceImm_(tc_string, ImmutableList_copyOf(Collection(jsDoc.getParameterNames().asSet())))
+		return immCopyOf_(tc_string, Collection(jsDoc.getParameterNames().asSet()))
 	}()
 	if len(paramsFromJsDoc) == 0 {
 		this.checkInlineParams(t, function, jsDoc)

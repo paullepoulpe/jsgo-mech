@@ -306,7 +306,7 @@ func (this *CompilerOptions) init_CompilerOptions() {
 	this.environment = CompilerOptions_Environment_BROWSER
 	this.browserResolverPrefixReplacements = ImmutableMap_of()
 	this.moduleResolutionMode = ModuleLoader_ResolutionMode_BROWSER
-	this.packageJsonEntryNames = sliceImm_(tc_string, ImmutableList_of_Object_Object_Object(strobj_("browser"), strobj_("module"), strobj_("main")))
+	this.packageJsonEntryNames = sliceOf_(tc_string, "browser", "module", "main")
 	this.pathEscaper = ModuleLoader_PathEscaper_ESCAPE
 	this.rewriteModulesBeforeTypechecking = false
 	this.enableModuleRewriting = true
@@ -2282,7 +2282,7 @@ func (this *CompilerOptions) getConformanceConfigs() ImmutableListOf[*Conformanc
 }
 
 func (this *CompilerOptions) setConformanceConfig(conformanceConfig *ConformanceConfig) {
-	this.setConformanceConfigs(sliceImm_(tc_p_ConformanceConfig, ImmutableList_of_Object(obj_(conformanceConfig))))
+	this.setConformanceConfigs(sliceOf_(tc_p_ConformanceConfig, conformanceConfig))
 }
 
 func (this *CompilerOptions) setConformanceConfigs(configs []*ConformanceConfig) {

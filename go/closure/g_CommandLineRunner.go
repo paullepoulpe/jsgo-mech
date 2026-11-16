@@ -281,7 +281,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 		this.reportError("ERROR - renaming cannot be disabled when ADVANCED_OPTIMIZATIONS is used.")
 	}
 	var dependencyOptions *DependencyOptions = nil
-	var dependencyOptionsRes *Outcome_base = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, sliceImm_(tc_string, ImmutableList_of()), Optional_empty[string](), false, false)
+	var dependencyOptionsRes *Outcome_base = DependencyOptions_fromFlags(this.flags.dependencyMode, this.flags.entryPoint, []string{}, Optional_empty[string](), false, false)
 	if dependencyOptionsRes.isErr() {
 		this.reportError(dependencyOptionsRes.errorMessage().orElseThrow())
 	} else {
@@ -294,7 +294,7 @@ func (this *CommandLineRunner) initConfigFromFlags(args []string, out *Output, e
 	} else {
 		this.runCompiler = true
 		var config *AbstractCommandLineRunner_CommandLineConfig = this.getCommandLineConfig()
-		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceImm_(tc_string, ImmutableList_of_Object(strobj_(this.flags.outputManifest_)))).setOutputBundle(tlistImm_(tc_string, sliceView_(tc_string, bundleFiles))).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
+		config.setPrintVersion(this.flags.version_).setPrintTree(this.flags.printTree).setPrintTreeJson(this.flags.printTreeJson).setPrintAst(this.flags.printAst).setJscompDevMode(this.flags.jscompDevMode).setLoggingLevel(this.flags.loggingLevel).setExterns(this.flags.externs).setMixedJsSources(mixedSources).setDefaultToStdin().setJsOutputFile(this.flags.jsOutputFile).setChunk(this.flags.chunk_).setVariableMapOutputFile(this.flags.variableMapOutputFile).setCreateNameMapFiles(this.flags.createNameMapFiles).setPropertyMapOutputFile(this.flags.propertyMapOutputFile).setExpectedDiagnostics(this.flags.expectedDiagnostics).setPropertyMapInputFile(this.flags.propertyMapInputFile).setVariableMapInputFile(this.flags.variableMapInputFile).setInstrumentationMappingFile(this.flags.instrumentationMappingOutputFile).setCodingConvention(conv).setSummaryDetailLevel(this.flags.summaryDetailLevel).setOutputWrapper(this.flags.outputWrapper.orElse(nullstr_)).setChunkWrapper(this.flags.chunkWrapper).setChunkOutputPathPrefix(this.flags.chunkOutputPathPrefix).setCreateSourceMap(this.flags.createSourceMap).setSourceMapFormat(this.flags.sourceMapFormat).setSourceMapLocationMappings(mappings).setSourceMapInputFiles(tmapFrom_(tc_string, tc_string, sourceMapInputs, true)).setParseInlineSourceMaps(parseInlineSourceMaps).setApplyInputSourceMaps(applyInputSourceMaps).setWarningGuards(this.flags.guardLevels).setDefine(this.flags.define).setBrowserFeaturesetYear(this.flags.browserFeaturesetYear).setCharset(this.flags.charset).setDependencyOptions(dependencyOptions).setOutputManifest(sliceOf_(tc_string, this.flags.outputManifest_)).setOutputBundle(tlistImm_(tc_string, sliceView_(tc_string, bundleFiles))).setSkipNormalOutputs(skipNormalOutputs).setOutputChunkDependencies(this.flags.outputChunkDependencies).setProcessCommonJSModules(this.flags.processCommonJsModules).setModuleRoots(this.flags.moduleRoot).setWarningsAllowlistFile(this.flags.warningsAllowlistFile).setHideWarningsFor(this.flags.hideWarningsFor).setAngularPass(this.flags.angularPass).setJsonStreamMode(this.flags.jsonStreamMode).setErrorFormat(this.flags.errorFormat)
 		var segmentOfCompilationToRun *CompilerOptions_SegmentOfCompilationToRun = this.flags.segmentOfCompilationToRun
 		switch segmentOfCompilationToRun {
 		case CompilerOptions_SegmentOfCompilationToRun_CHECKS:
@@ -529,7 +529,7 @@ func (this *CommandLineRunner) createExterns_impl(options *CompilerOptions) *Out
 }
 
 func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*ConformanceConfig {
-	var configs ImmutableList_BuilderOf[*ConformanceConfig] = ImmutableList_builder()
+	var configs []*ConformanceConfig
 	it_1 := foreach_(any(configPaths))
 	for it_1.next() {
 		var configPath string = str_(it_1.v)
@@ -537,9 +537,9 @@ func CommandLineRunner_loadConformanceConfigs(configPaths ListOf[string]) []*Con
 		if config.isErr() {
 			panic(new_RuntimeException_String_Throwable("Error loading conformance config", config.error()).self())
 		}
-		configs.add(config.get())
+		configs = immAddObj_(tc_p_ConformanceConfig, configs, config.get())
 	}
-	return sliceImm_(tc_p_ConformanceConfig, configs.build())
+	return immBuilt_(configs)
 }
 
 func CommandLineRunner_loadConformanceConfig(configFile string) *Outcome_base {

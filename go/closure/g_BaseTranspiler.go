@@ -176,7 +176,7 @@ func (this *BaseTranspiler_CompilerSupplier) setOptions(options *CompilerOptions
 	options.setApplyInputSourceMaps(true)
 	options.setSourceMapOutputPath(Optional_of[string]("/dev/null"))
 	options.setSourceMapIncludeSourcesContent(true)
-	options.setSourceMapLocationMappings(sliceImm_(tc_SourceMap_LocationMapping, ImmutableList_of_Object(any(lambda_BaseTranspiler_CompilerSupplier_setOptions_1_))))
+	options.setSourceMapLocationMappings(sliceOf_(tc_SourceMap_LocationMapping, icast_SourceMap_LocationMapping(any(lambda_BaseTranspiler_CompilerSupplier_setOptions_1_))))
 }
 
 // lambda_BaseTranspiler_CompilerSupplier_setOptions_1_ is a lambda of BaseTranspiler_CompilerSupplier_setOptions that captures nothing (post-flip step lambdas).

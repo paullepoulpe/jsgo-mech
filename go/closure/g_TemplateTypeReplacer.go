@@ -39,19 +39,19 @@ func new_TemplateTypeReplacer(registry *JSTypeRegistry, bindings *TemplateTypeMa
 
 func TemplateTypeReplacer_forInference(registry *JSTypeRegistry, bindings MapOf[*TemplateType, *JSType]) *TemplateTypeReplacer {
 	var keys ImmutableListOf[*TemplateType] = ImmutableList_copyOf(Collection(bindings.keySet()))
-	var values ImmutableList_BuilderOf[*JSType] = ImmutableList_builder()
+	var values []*JSType
 	it_1 := foreach_(obj_(keys))
 	for it_1.next() {
 		var key *TemplateType = cast_[*TemplateType](it_1.v)
 		var value *JSType = to_JSType(bindings.get(obj_(key)))
-		values.add(func() any {
+		values = immAddObj_(tc_p_JSType, values, func() any {
 			if value != nil {
 				return value.self()
 			}
 			return registry.getNativeType(JSTypeNative_UNKNOWN_TYPE).self()
 		}())
 	}
-	var map_ *TemplateTypeMap = registry.getEmptyTemplateTypeMap().copyWithExtension_2(keys, sliceImm_(tc_p_JSType, values.build()))
+	var map_ *TemplateTypeMap = registry.getEmptyTemplateTypeMap().copyWithExtension_2(keys, immBuilt_(values))
 	return new_TemplateTypeReplacer(registry, map_, true, true, true)
 }
 

@@ -1978,7 +1978,7 @@ func (this *IRFactory_TransformDispatcher) isNormalOrOptChainGet(n Node) bool {
 }
 
 func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args ImmutableListOf[*ParseTree], commaPositions ImmutableListOf[*SourcePosition_util], argListEndPosition *SourcePosition_util) []*SourcePosition_util {
-	var zones ImmutableList_BuilderOf[*SourcePosition_util] = ImmutableList_builder()
+	var zones []*SourcePosition_util
 	var commaCount int32 = 0
 	it_1 := foreach_(obj_(args))
 	for it_1.next() {
@@ -1987,17 +1987,17 @@ func (this *IRFactory_TransformDispatcher) getEndOfArgCommentZones(args Immutabl
 			var nextParam *ParseTree = to_ParseTree(args.get((commaCount + 1)))
 			if nextParam.location_.start_.line_ > arg.location_.end_.line_ {
 				var tempSourcePos *SourcePosition_util = new_SourcePosition_util(nil, int32(2147483647), arg.location_.end_.line_, int32(2147483647))
-				zones.add(obj_(tempSourcePos))
+				zones = immAdd_(tc_p_SourcePosition_util, zones, tempSourcePos)
 			} else {
 				var commaPosition *SourcePosition_util = cast_[*SourcePosition_util](commaPositions.get(commaCount))
-				zones.add(obj_(commaPosition))
+				zones = immAdd_(tc_p_SourcePosition_util, zones, commaPosition)
 			}
 		} else {
-			zones.add(obj_(argListEndPosition))
+			zones = immAdd_(tc_p_SourcePosition_util, zones, argListEndPosition)
 		}
 		commaCount++
 	}
-	return sliceImm_(tc_p_SourcePosition_util, zones.build())
+	return immBuilt_(zones)
 }
 
 func (this *IRFactory_TransformDispatcher) attachPossibleTrailingCommentsForArg(paramNode Node, endZone *SourcePosition_util) {

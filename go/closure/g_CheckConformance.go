@@ -84,13 +84,13 @@ func (this *CheckConformance) initRules(compiler *AbstractCompiler, configs Immu
 			this.ruleToBehavior.put(any(rule), obj_(behavior))
 		}
 	}
-	var result ImmutableList_BuilderOf[*CheckConformance_Category] = ImmutableList_builder()
+	var result []*CheckConformance_Category
 	it_3 := foreach_(any(builder.asMap().entrySet()))
 	for it_3.next() {
 		var e Map_Entry = icast_Map_Entry(it_3.v)
-		result.add(obj_(new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), sliceImm_(tc_CheckConformance_Rule, ImmutableList_copyOf(icast_Collection(e.getValue()))))))
+		result = immAdd_(tc_p_CheckConformance_Category, result, new_CheckConformance_Category(icast_CheckConformance_Precondition(e.getKey()), immCopyOf_(tc_CheckConformance_Rule, icast_Collection(e.getValue()))))
 	}
-	return sliceImm_(tc_p_CheckConformance_Category, result.build())
+	return immBuilt_(result)
 }
 
 func CheckConformance_validateBehaviorSettingOfConfigs(compiler *AbstractCompiler, configs ImmutableListOf[*ConformanceConfig], reportingMode *CompilerOptions_ConformanceReportingMode) bool {

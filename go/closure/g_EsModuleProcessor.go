@@ -295,25 +295,25 @@ func (this *EsModuleProcessor_UnresolvedModuleBuilder) add(e *Export) bool {
 
 func (this *EsModuleProcessor_UnresolvedModuleBuilder) build() *UnresolvedModule {
 	var localExports *TList[*Export] = newTList_(tc_p_Export)
-	var indirectExportsBuilder ImmutableList_BuilderOf[*Export] = new_ImmutableList_Builder()
-	var starExportsBuilder ImmutableList_BuilderOf[*Export] = new_ImmutableList_Builder()
+	var indirectExportsBuilder []*Export
+	var starExportsBuilder []*Export
 	it_1 := eachOf_(&this.exports)
 	for it_1.next() {
 		var ee *Export = it_1.v
 		if ee.moduleRequest().isEmpty() {
 			if ee.localName().isPresent() && this.importsByLocalName.containsKey(ee.localName().get()) {
-				indirectExportsBuilder.add(obj_(ee))
+				indirectExportsBuilder = immAdd_(tc_p_Export, indirectExportsBuilder, ee)
 			} else {
 				localExports.add(ee)
 			}
 		} else if "*" == ee.importName().orElse("") {
-			starExportsBuilder.add(obj_(ee))
+			starExportsBuilder = immAdd_(tc_p_Export, starExportsBuilder, ee)
 		} else {
-			indirectExportsBuilder.add(obj_(ee))
+			indirectExportsBuilder = immAdd_(tc_p_Export, indirectExportsBuilder, ee)
 		}
 	}
 	NodeTraversal_traverse(this.outer_.compiler_, this.root, icast_NodeTraversal_Callback(obj_(new_EsModuleProcessor_FindMutableExports(localExports))))
-	return new_EsModuleProcessor_UnresolvedEsModule(this.outer_, this.outer_.metadata_, this.path_, ImmutableMap_copyOf(this.importsByLocalName.asMap()), sliceImm_(tc_p_Export, ImmutableList_copyOf(Collection(localExports.asList()))), sliceImm_(tc_p_Export, indirectExportsBuilder.build()), sliceImm_(tc_p_Export, starExportsBuilder.build())).up_UnresolvedModule()
+	return new_EsModuleProcessor_UnresolvedEsModule(this.outer_, this.outer_.metadata_, this.path_, ImmutableMap_copyOf(this.importsByLocalName.asMap()), immCopyOf_(tc_p_Export, Collection(localExports.asList())), immBuilt_(indirectExportsBuilder), immBuilt_(starExportsBuilder)).up_UnresolvedModule()
 }
 
 type EsModuleProcessor_UnresolvedEsModule struct {

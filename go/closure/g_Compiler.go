@@ -2660,7 +2660,7 @@ func (this *Compiler) getExternsInOrder() ListOf[*CompilerInput] {
 func (this *Compiler) getInputsForTesting() []*CompilerInput {
 	return func() []*CompilerInput {
 		if this.chunkGraph != nil {
-			return sliceImm_(tc_p_CompilerInput, ImmutableList_copyOf_Iterable(this.chunkGraph.getAllInputs()))
+			return immCopyOf_(tc_p_CompilerInput, this.chunkGraph.getAllInputs())
 		}
 		return nil
 	}()

@@ -115,7 +115,7 @@ func (this *JSChunk) removeAll() {
 }
 
 func (this *JSChunk) getDependencies() []*JSChunk {
-	return sliceImm_(tc_p_JSChunk, ImmutableList_copyOf(Collection(this.deps.asList())))
+	return immCopyOf_(tc_p_JSChunk, Collection(this.deps.asList()))
 }
 
 func (this *JSChunk) getSortedDependencyNames() *TList[string] {

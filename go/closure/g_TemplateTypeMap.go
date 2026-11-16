@@ -67,7 +67,7 @@ func (this *TemplateTypeMap) copyFilledWithValues(values ImmutableListOf[*JSType
 	extendedValues.addAll(sliceView_(tc_p_JSType, this.templateValues))
 	extendedValues.addAll(icast_Collection(obj_(values)))
 	this.padToSameLength(this.templateKeys, extendedValues)
-	return new_TemplateTypeMap(this.registry, this.templateKeys, sliceImm_(tc_p_JSType, ImmutableList_copyOf(icast_Collection(extendedValues.self()))), this.subMapStarts)
+	return new_TemplateTypeMap(this.registry, this.templateKeys, immCopyOf_(tc_p_JSType, icast_Collection(extendedValues.self())), this.subMapStarts)
 }
 
 func (this *TemplateTypeMap) copyWithExtension(extension *TemplateTypeMap) *TemplateTypeMap {
@@ -101,7 +101,7 @@ func (this *TemplateTypeMap) copyWithExtension_3(keys ImmutableListOf[*TemplateT
 	for i := int32(0); i < keys.size(); i++ {
 		extendedsubMapStarts.set_int_boolean((i + this.templateKeys.size()), newsubMapStarts.get(i))
 	}
-	return new_TemplateTypeMap(this.registry, extendedKeys, sliceImm_(tc_p_JSType, ImmutableList_copyOf(icast_Collection(extendedValues.self()))), extendedsubMapStarts)
+	return new_TemplateTypeMap(this.registry, extendedKeys, immCopyOf_(tc_p_JSType, icast_Collection(extendedValues.self())), extendedsubMapStarts)
 }
 
 func (this *TemplateTypeMap) copyWithoutKeys(removals SetOf[*TemplateType]) *TemplateTypeMap {

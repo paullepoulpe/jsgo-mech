@@ -193,7 +193,7 @@ func (this *CompilerInput) addDynamicRequire(require string) bool {
 }
 
 func (this *CompilerInput) getRequireDynamicImports() []string {
-	return sliceImm_(tc_string, ImmutableList_copyOf(Collection(sliceView_(tc_string, this.requireDynamicImports))))
+	return immCopySlice_(tc_string, this.requireDynamicImports)
 }
 
 func (this *CompilerInput) addRequireDynamicImports(require string) {

@@ -67,7 +67,7 @@ func ColorPool_createTrimmedOffsetToId(typePool *TypePool) []*ColorId {
 		var proto *TypeProto = typePool.getType(i)
 		MalformedTypedAstException_checkWellFormed_boolean_String_Object(seenIds.add(obj_(ids[i])), "Duplicate ID in single shard", obj_(proto))
 	}
-	return sliceImm_(tc_p_ColorId, ImmutableList_copyOf_ObjectArr(arrmap_(ids, func(v_ *ColorId) any { return obj_(v_) })))
+	return immCopyArr_(tc_p_ColorId, ids)
 }
 
 func ColorPool_createUnionColorId(proto *TypeProto, allObjectIds []*ColorId) *ColorId {
@@ -274,13 +274,13 @@ func (this *ColorPool_Builder) forEachShard(fn func(any)) {
 }
 
 func (this *ColorPool_Builder) reconcilationDebugStackProtos() []ImmutableMapOf[*ColorPool_ShardView, *TypeProto] {
-	var result ImmutableList_BuilderOf[ImmutableMapOf[*ColorPool_ShardView, *TypeProto]] = ImmutableList_builder()
+	var result []ImmutableMapOf[*ColorPool_ShardView, *TypeProto]
 	it_1 := foreach_(obj_(this.reconcilationDebugStack))
 	for it_1.next() {
 		var stackId *ColorId = cast_[*ColorId](it_1.v)
-		result.add(obj_(ImmutableMap_copyOf(this.idToProto.row(obj_(stackId)))))
+		result = immAdd_(tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_, result, ImmutableMap_copyOf(this.idToProto.row(obj_(stackId))))
 	}
-	return sliceImm_(tc_ImmutableMapOf_p_ColorPool_ShardView__p_TypeProto_, result.build())
+	return immBuilt_(result)
 }
 
 func (this *ColorPool_Builder) lookupOrReconcileColor(id *ColorId) *Color {

@@ -50,11 +50,11 @@ func ApplySuggestedFixes_applyAllSuggestedFixChoicesToCode(fixChoices IterableOf
 	}
 	var alternativeCount int32 = cast_[*SuggestedFix](Iterables_getFirst(fixChoices, nil)).getAlternatives().size()
 	Preconditions_checkArgument_boolean_Object(ApplySuggestedFixes_allHaveAlternativeCount(fixChoices, alternativeCount), strobj_("All SuggestedFixAlternatives must offer an equal number of choices for this utility to make sense"))
-	var result ImmutableList_BuilderOf[ImmutableMapOf[string, string]] = ImmutableList_builder()
+	var result []ImmutableMapOf[string, string]
 	for i := int32(0); i < alternativeCount; i++ {
-		result.add(obj_(ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap)))
+		result = immAdd_(tc_ImmutableMapOf_string__string_, result, ApplySuggestedFixes_applySuggestedFixChoicesToCode(fixChoices, i, fileNameToCodeMap))
 	}
-	return sliceImm_(tc_ImmutableMapOf_string__string_, result.build())
+	return immBuilt_(result)
 }
 
 func ApplySuggestedFixes_allHaveAlternativeCount(fixChoices IterableOf[*SuggestedFix], alternativeCount int32) bool {

@@ -102,11 +102,11 @@ func RandomNameGenerator_shuffleAndCopyAlphabet(input SetOf[BoxedOf[uint16]], ra
 
 func (this *RandomNameGenerator) shuffleAlphabets() {
 	this.shuffledFirst = RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.firstChars)), this.random)
-	var builder ImmutableList_BuilderOf[string] = ImmutableList_builder()
+	var builder []string
 	for i := int32(0); i < RandomNameGenerator_NUM_SHUFFLES; i++ {
-		builder.add(strobj_(RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.nonFirstChars)), this.random)))
+		builder = immAdd_(tc_string, builder, RandomNameGenerator_shuffleAndCopyAlphabet(icast_Set(obj_(this.nonFirstChars)), this.random))
 	}
-	this.shuffledNonFirst = sliceImm_(tc_string, builder.build())
+	this.shuffledNonFirst = immBuilt_(builder)
 }
 
 func (this *RandomNameGenerator) getNameLength(position int32, nameIdx int32) int32 {
