@@ -504,20 +504,20 @@ func new_SourceMapGeneratorV3_MappingTraversal(outer_ *SourceMapGeneratorV3) *So
 }
 
 func (this *SourceMapGeneratorV3_MappingTraversal) traverse(v SourceMapGeneratorV3_MappingVisitor) {
-	var stack DequeOf[*SourceMapGeneratorV3_Mapping] = icast_Deque(obj_(new_ArrayDeque()))
+	var stack *TList[*SourceMapGeneratorV3_Mapping] = newTList_(tc_p_SourceMapGeneratorV3_Mapping)
 	it_1 := eachOf_(&this.outer_.mappings)
 	for it_1.next() {
 		var m *SourceMapGeneratorV3_Mapping = it_1.v
-		for !stack.isEmpty() && !this.isOverlapped(cast_[*SourceMapGeneratorV3_Mapping](stack.peek()), m) {
-			var previous *SourceMapGeneratorV3_Mapping = cast_[*SourceMapGeneratorV3_Mapping](stack.pop())
+		for !stack.isEmpty() && !this.isOverlapped(stack.peekTop_(), m) {
+			var previous *SourceMapGeneratorV3_Mapping = stack.pop_()
 			this.maybeVisit(v, previous)
 		}
-		var parent *SourceMapGeneratorV3_Mapping = cast_[*SourceMapGeneratorV3_Mapping](stack.peek())
+		var parent *SourceMapGeneratorV3_Mapping = stack.peekTop_()
 		this.maybeVisitParent(v, parent, m)
-		stack.push(obj_(m))
+		stack.push_(m)
 	}
 	for !stack.isEmpty() {
-		var m *SourceMapGeneratorV3_Mapping = cast_[*SourceMapGeneratorV3_Mapping](stack.pop())
+		var m *SourceMapGeneratorV3_Mapping = stack.pop_()
 		this.maybeVisit(v, m)
 	}
 }

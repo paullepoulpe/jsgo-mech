@@ -6,8 +6,8 @@ type CoalesceVariableNames struct {
 	NodeTraversal_AbstractCfgCallback
 	compiler_                *AbstractCompiler
 	scopeCreator             *MemoizedScopeCreator
-	colorings                DequeOf[*GraphColoring]
-	liveAnalyses             DequeOf[*LiveVariablesAnalysis]
+	colorings                *TList[*GraphColoring]
+	liveAnalyses             *TList[*LiveVariablesAnalysis]
 	usePseudoNames           bool
 	astFactory_              *AstFactory
 	liveness                 *LiveVariablesAnalysis
@@ -36,8 +36,8 @@ func (this *CoalesceVariableNames) init_CoalesceVariableNames(compiler *Abstract
 	this.finit_CoalesceVariableNames()
 	Preconditions_checkState(compiler.getLifeCycleStage().isNormalized())
 	this.compiler_ = compiler
-	this.colorings = icast_Deque(obj_(new_ArrayDeque()))
-	this.liveAnalyses = icast_Deque(obj_(new_ArrayDeque()))
+	this.colorings = newTList_(tc_p_GraphColoring)
+	this.liveAnalyses = newTList_(tc_p_LiveVariablesAnalysis)
 	this.usePseudoNames = usePseudoNames
 	this.astFactory_ = compiler.createAstFactory()
 	this.scopeCreator = new_MemoizedScopeCreator(icast_ScopeCreator(obj_(new_SyntacticScopeCreator_AbstractCompiler(compiler))))
@@ -87,20 +87,20 @@ func (this *CoalesceVariableNames) enterScopeWithCfg_impl(t *NodeTraversal) {
 		}
 	}
 	this.liveness.analyze()
-	this.liveAnalyses.push(obj_(this.liveness))
+	this.liveAnalyses.push_(this.liveness)
 	var interferenceGraph *UndiGraph = this.computeVariableNamesInterferenceGraph(cfg, this.liveness.getEscapedLocals())
 	var coloring *GraphColoring = new_GraphColoring_GreedyGraphColoring_AdjacencyGraph_Comparator(icast_AdjacencyGraph(interferenceGraph.self()), this.coloringTieBreaker).up_GraphColoring()
 	coloring.color()
-	this.colorings.push(coloring.self())
+	this.colorings.push_(coloring)
 }
 
 func (this *CoalesceVariableNames) exitScopeWithCfg_impl(t *NodeTraversal) {
 	if !unbox_[bool](this.shouldOptimizeScopeStack.pop()) {
 		return
 	}
-	this.colorings.pop()
-	this.liveAnalyses.pop()
-	this.liveness = cast_[*LiveVariablesAnalysis](this.liveAnalyses.peek())
+	this.colorings.pop_()
+	this.liveAnalyses.pop_()
+	this.liveness = this.liveAnalyses.peekTop_()
 }
 
 func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent Node) {
@@ -108,11 +108,11 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		return
 	}
 	var var_ *Var = this.liveness.getAllVariables().get(n.getString())
-	var vNode GraphNode = to_GraphColoring(this.colorings.peek()).getGraph().getNode(obj_(var_))
+	var vNode GraphNode = this.colorings.peekTop_().getGraph().getNode(obj_(var_))
 	if vNode == nil {
 		return
 	}
-	var coalescedVar *Var = cast_[*Var](to_GraphColoring(this.colorings.peek()).getPartitionSuperNode(obj_(var_)))
+	var coalescedVar *Var = cast_[*Var](this.colorings.peekTop_().getPartitionSuperNode(obj_(var_)))
 	if !this.usePseudoNames {
 		if cast_[*Var](vNode.getValue()).equals(obj_(coalescedVar)) {
 			return
@@ -125,7 +125,7 @@ func (this *CoalesceVariableNames) visit_impl(t *NodeTraversal, n Node, parent N
 		it_1 := this.liveness.getAllVariablesInOrder().each()
 		for it_1.next() {
 			var iVar *Var = it_1.v
-			if (to_GraphColoring(this.colorings.peek()).getGraph().getNode(obj_(iVar)) != nil) && to_GraphColoring(this.colorings.peek()).haveSameColor(obj_(iVar), obj_(coalescedVar)) {
+			if (this.colorings.peekTop_().getGraph().getNode(obj_(iVar)) != nil) && this.colorings.peekTop_().haveSameColor(obj_(iVar), obj_(coalescedVar)) {
 				Collection_add_s(allMergedNames, iVar.getName())
 			}
 		}

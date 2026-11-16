@@ -4,14 +4,14 @@ package closure
 
 type JSTypeResolver struct {
 	registry        *JSTypeRegistry
-	captureStack    ArrayDequeOf[*JSType]
-	resolutionQueue ArrayDequeOf[*JSType]
+	captureStack    *TList[*JSType]
+	resolutionQueue *TList[*JSType]
 	state           *JSTypeResolver_State
 }
 
 func (this *JSTypeResolver) finit_JSTypeResolver() {
-	this.captureStack = new_ArrayDeque()
-	this.resolutionQueue = new_ArrayDeque()
+	this.captureStack = newTList_(tc_p_JSType)
+	this.resolutionQueue = newTList_(tc_p_JSType)
 	this.state = JSTypeResolver_State_CLOSED
 }
 
@@ -35,14 +35,14 @@ func JSTypeResolver_create(registry *JSTypeRegistry) *JSTypeResolver {
 
 func (this *JSTypeResolver) addUnresolved(captured *JSType) {
 	Preconditions_checkState(!captured.isResolved())
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.captureStack)), captured.self())
+	this.captureStack.push_(captured)
 }
 
 func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClass) {
 	if !caller.isTypeOf(captured) {
 		return
 	}
-	var expected *JSType = to_JSType(SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.captureStack))))
+	var expected *JSType = this.captureStack.pop_()
 	if !JSCompObjects_identical(captured.self(), expected.self()) {
 		Preconditions_checkState_boolean_String_Object_Object(false, "Captured %s; Expected %s", captured.self(), expected.self())
 	}
@@ -50,7 +50,7 @@ func (this *JSTypeResolver) resolveIfClosed(captured *JSType, caller *JSTypeClas
 	case JSTypeResolver_State_CLOSED, JSTypeResolver_State_CLOSING:
 		this.doResolve(captured)
 	case JSTypeResolver_State_OPEN:
-		SequencedCollection_addLast(icast_SequencedCollection(obj_(this.resolutionQueue)), captured.self())
+		this.resolutionQueue.push_(captured)
 	}
 }
 
@@ -66,9 +66,9 @@ func (this *JSTypeResolver) resolveAll() {
 	Preconditions_checkState(this.captureStack.isEmpty())
 	this.state = JSTypeResolver_State_CLOSING
 	for !this.resolutionQueue.isEmpty() {
-		this.doResolve(to_JSType(SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.resolutionQueue)))))
+		this.doResolve(this.resolutionQueue.popFirst_())
 	}
-	this.resolutionQueue = new_ArrayDeque()
+	this.resolutionQueue = newTList_(tc_p_JSType)
 	this.state = JSTypeResolver_State_CLOSED
 	var globalThis *PrototypeObjectType = to_PrototypeObjectType(this.registry.getNativeType(JSTypeNative_GLOBAL_THIS).self())
 	var windowType *JSType = this.registry.getGlobalType("Window")

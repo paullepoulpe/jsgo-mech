@@ -9,7 +9,7 @@ type ClosureRewriteModule struct {
 	preserveSugar                     bool
 	syntheticExterns                  *TMap[string, Node]
 	globalScope                       *Scope
-	scriptStack                       DequeOf[*ClosureRewriteModule_ScriptDescription]
+	scriptStack                       *TList[*ClosureRewriteModule_ScriptDescription]
 	currentScript                     *ClosureRewriteModule_ScriptDescription
 	rewriteState                      *ClosureRewriteModule_GlobalRewriteState
 	legacyScriptNamespacesAndPrefixes map[string]struct{}
@@ -22,7 +22,7 @@ type ClosureRewriteModule struct {
 func (this *ClosureRewriteModule) finit_ClosureRewriteModule() {
 	this.syntheticExterns = newTMap_(tc_string, tc_Node)
 	this.globalScope = nil
-	this.scriptStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.scriptStack = newTList_(tc_p_ClosureRewriteModule_ScriptDescription)
 	this.currentScript = nil
 	this.rewriteState = new_ClosureRewriteModule_GlobalRewriteState()
 	this.legacyScriptNamespacesAndPrefixes = map[string]struct{}{}
@@ -74,7 +74,7 @@ func (this *ClosureRewriteModule) isUnrequiredWeakNamespace(call Node, namespace
 }
 
 func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
-	var scriptDescriptions DequeOf[*ClosureRewriteModule_ScriptDescription] = icast_Deque(obj_(new_ArrayDeque()))
+	var scriptDescriptions *TList[*ClosureRewriteModule_ScriptDescription] = newTList_(tc_p_ClosureRewriteModule_ScriptDescription)
 	it_1 := foreach_(obj_(ImmutableList_of_Object_Object(externs.box_(), root.box_())))
 	for it_1.next() {
 		var parent Node = Node_of_(it_1.v)
@@ -87,7 +87,7 @@ func (this *ClosureRewriteModule) process_2(externs Node, root Node) {
 				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_UnwrapGoogLoadModule(this))))
 				this.pushScript(new_ClosureRewriteModule_ScriptDescription())
 				this.currentScript.rootNode_ = script
-				SequencedCollection_addLast(SequencedCollection(scriptDescriptions), obj_(this.currentScript))
+				scriptDescriptions.push_(this.currentScript)
 				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptPreprocessor(this))))
 				NodeTraversal_traverse(this.compiler_, script, icast_NodeTraversal_Callback(obj_(new_ClosureRewriteModule_ScriptRecorder(this))))
 				this.popScript()
@@ -786,15 +786,15 @@ func (this *ClosureRewriteModule) updateModuleBody(moduleBody Node) {
 func (this *ClosureRewriteModule) pushScript(newCurrentScript *ClosureRewriteModule_ScriptDescription) {
 	this.currentScript = newCurrentScript
 	if !this.scriptStack.isEmpty() {
-		var parentScript *ClosureRewriteModule_ScriptDescription = cast_[*ClosureRewriteModule_ScriptDescription](this.scriptStack.peek())
+		var parentScript *ClosureRewriteModule_ScriptDescription = this.scriptStack.peekTop_()
 		parentScript.addChildScript(this.currentScript)
 	}
-	SequencedCollection_addFirst(SequencedCollection(this.scriptStack), obj_(this.currentScript))
+	this.scriptStack.push_(this.currentScript)
 }
 
 func (this *ClosureRewriteModule) popScript() {
-	SequencedCollection_removeFirst(SequencedCollection(this.scriptStack))
-	this.currentScript = cast_[*ClosureRewriteModule_ScriptDescription](this.scriptStack.peekFirst())
+	this.scriptStack.pop_()
+	this.currentScript = this.scriptStack.peekTop_()
 }
 
 func (this *ClosureRewriteModule) exportTheEmptyBinaryNamespaceAt(atNode Node, addAt *ClosureRewriteModule_AddAt, t *NodeTraversal) {
@@ -1397,7 +1397,7 @@ type ClosureRewriteModule_ScriptDescription struct {
 	namespaceId             OptionalOf[string]
 	contentsPrefix          string
 	topLevelNames           map[string]struct{}
-	childScripts            DequeOf[*ClosureRewriteModule_ScriptDescription]
+	childScripts            *TList[*ClosureRewriteModule_ScriptDescription]
 	namesToInlineByAlias    map[string]*ClosureRewriteModule_AliasName
 	willCreateExportsObject bool
 	hasCreatedExportObject  bool
@@ -1415,7 +1415,7 @@ func (this *ClosureRewriteModule_ScriptDescription) zero_ClosureRewriteModule_Sc
 func (this *ClosureRewriteModule_ScriptDescription) finit_ClosureRewriteModule_ScriptDescription() {
 	this.namespaceId = Optional_empty[string]()
 	this.topLevelNames = map[string]struct{}{}
-	this.childScripts = icast_Deque(obj_(new_ArrayDeque()))
+	this.childScripts = newTList_(tc_p_ClosureRewriteModule_ScriptDescription)
 	this.namesToInlineByAlias = map[string]*ClosureRewriteModule_AliasName{}
 	this.defaultExportLocalName = Optional_empty[string]()
 	this.namedExports = map[string]struct{}{}
@@ -1434,11 +1434,11 @@ func new_ClosureRewriteModule_ScriptDescription() *ClosureRewriteModule_ScriptDe
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) addChildScript(childScript *ClosureRewriteModule_ScriptDescription) {
-	SequencedCollection_addLast(SequencedCollection(this.childScripts), obj_(childScript))
+	this.childScripts.push_(childScript)
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) removeFirstChildScript() *ClosureRewriteModule_ScriptDescription {
-	return cast_[*ClosureRewriteModule_ScriptDescription](SequencedCollection_removeFirst(SequencedCollection(this.childScripts)))
+	return this.childScripts.popFirst_()
 }
 
 func (this *ClosureRewriteModule_ScriptDescription) getBinaryNamespace() OptionalOf[string] {
@@ -1572,14 +1572,14 @@ func (this *ClosureRewriteModule_ScriptRecorder) visit(t *NodeTraversal, n Node,
 
 type ClosureRewriteModule_ScriptUpdater struct {
 	outer_             *ClosureRewriteModule
-	scriptDescriptions DequeOf[*ClosureRewriteModule_ScriptDescription]
+	scriptDescriptions *TList[*ClosureRewriteModule_ScriptDescription]
 }
 
-func (this *ClosureRewriteModule_ScriptUpdater) init_ClosureRewriteModule_ScriptUpdater(scriptDescriptions DequeOf[*ClosureRewriteModule_ScriptDescription]) {
+func (this *ClosureRewriteModule_ScriptUpdater) init_ClosureRewriteModule_ScriptUpdater(scriptDescriptions *TList[*ClosureRewriteModule_ScriptDescription]) {
 	this.scriptDescriptions = scriptDescriptions
 }
 
-func new_ClosureRewriteModule_ScriptUpdater(outer_ *ClosureRewriteModule, scriptDescriptions DequeOf[*ClosureRewriteModule_ScriptDescription]) *ClosureRewriteModule_ScriptUpdater {
+func new_ClosureRewriteModule_ScriptUpdater(outer_ *ClosureRewriteModule, scriptDescriptions *TList[*ClosureRewriteModule_ScriptDescription]) *ClosureRewriteModule_ScriptUpdater {
 	this := &ClosureRewriteModule_ScriptUpdater{}
 	this.outer_ = outer_
 	this.init_ClosureRewriteModule_ScriptUpdater(scriptDescriptions)
@@ -1589,7 +1589,7 @@ func new_ClosureRewriteModule_ScriptUpdater(outer_ *ClosureRewriteModule, script
 func (this *ClosureRewriteModule_ScriptUpdater) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	switch n.ns_().token {
 	case tokOrd1_SCRIPT:
-		var currentDescription *ClosureRewriteModule_ScriptDescription = cast_[*ClosureRewriteModule_ScriptDescription](SequencedCollection_removeFirst(SequencedCollection(this.scriptDescriptions)))
+		var currentDescription *ClosureRewriteModule_ScriptDescription = this.scriptDescriptions.popFirst_()
 		Preconditions_checkState((currentDescription.rootNode_ == n))
 		if n.isFromExterns() && !NodeUtil_isFromTypeSummary(n) {
 			return false

@@ -131,23 +131,23 @@ func (this *ExpressionDecomposer) exposeExpression_2(expressionRoot Node, subExp
 
 func (this *ExpressionDecomposer) rewriteAllContainingOptionalChains(subExpression Node) {
 	var optChainRewriterBuilder *OptionalChainRewriter_Builder = OptionalChainRewriter_builder(this.compiler_).setTmpVarNameCreator(&OptionalChainRewriter_TmpVarNameCreator_fn{func() string { return this.getTempConstantValueName() }}).setScope(this.scope_)
-	var rewriters ArrayDequeOf[*OptionalChainRewriter] = new_ArrayDeque()
+	var rewriters *TList[*OptionalChainRewriter] = newTList_(tc_p_OptionalChainRewriter)
 	{
 		var exprParent Node = subExpression.getParent()
 		for ; !NodeUtil_isStatement(exprParent); exprParent = exprParent.getParent() {
 			if NodeUtil_isEndOfFullOptChain(exprParent) {
-				SequencedCollection_addFirst(icast_SequencedCollection(obj_(rewriters)), obj_(optChainRewriterBuilder.build(exprParent)))
+				rewriters.push_(optChainRewriterBuilder.build(exprParent))
 			} else if exprParent.isCall() {
 				var callee Node = exprParent.getFirstChild()
 				if NodeUtil_isOptChainGet(callee) {
-					SequencedCollection_addFirst(icast_SequencedCollection(obj_(rewriters)), obj_(optChainRewriterBuilder.build(callee)))
+					rewriters.push_(optChainRewriterBuilder.build(callee))
 				}
 			}
 		}
 	}
-	it_2 := foreach_(obj_(rewriters))
+	it_2 := rewriters.eachRev()
 	for it_2.next() {
-		var rewriter *OptionalChainRewriter = cast_[*OptionalChainRewriter](it_2.v)
+		var rewriter *OptionalChainRewriter = it_2.v
 		rewriter.rewrite()
 	}
 }

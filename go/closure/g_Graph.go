@@ -4,8 +4,8 @@ package closure
 
 type Graph struct {
 	self_               Graph_I
-	nodeAnnotationStack DequeOf[*Graph_GraphAnnotationState]
-	edgeAnnotationStack DequeOf[*Graph_GraphAnnotationState]
+	nodeAnnotationStack *TList[*Graph_GraphAnnotationState]
+	edgeAnnotationStack *TList[*Graph_GraphAnnotationState]
 }
 
 // Graph_I holds the methods the dispatchers of Graph's hierarchy call on the most derived
@@ -99,40 +99,40 @@ func (this *Graph) clearEdgeAnnotations() {
 
 func (this *Graph) pushNodeAnnotations() {
 	if this.nodeAnnotationStack == nil {
-		this.nodeAnnotationStack = icast_Deque(obj_(new_ArrayDeque()))
+		this.nodeAnnotationStack = newTList_(tc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.nodeAnnotationStack, this.getNodes())
 }
 
 func (this *Graph) popNodeAnnotations() {
-	Preconditions_checkNotNull_Object_Object(any(this.nodeAnnotationStack), strobj_("Popping node annotations without pushing."))
+	Preconditions_checkNotNull_Object_Object(obj_(this.nodeAnnotationStack), strobj_("Popping node annotations without pushing."))
 	Graph_popAnnotations(this.nodeAnnotationStack)
 }
 
 func (this *Graph) pushEdgeAnnotations() {
 	if this.edgeAnnotationStack == nil {
-		this.edgeAnnotationStack = icast_Deque(obj_(new_ArrayDeque()))
+		this.edgeAnnotationStack = newTList_(tc_p_Graph_GraphAnnotationState)
 	}
 	Graph_pushAnnotations(this.edgeAnnotationStack, Collection(this.getEdges().asList()))
 }
 
 func (this *Graph) popEdgeAnnotations() {
-	Preconditions_checkNotNull_Object_Object(any(this.edgeAnnotationStack), strobj_("Popping edge annotations without pushing."))
+	Preconditions_checkNotNull_Object_Object(obj_(this.edgeAnnotationStack), strobj_("Popping edge annotations without pushing."))
 	Graph_popAnnotations(this.edgeAnnotationStack)
 }
 
-func Graph_pushAnnotations(stack DequeOf[*Graph_GraphAnnotationState], haveAnnotations CollectionOf[Annotatable]) {
-	stack.push(obj_(new_Graph_GraphAnnotationState(haveAnnotations.size())))
+func Graph_pushAnnotations(stack *TList[*Graph_GraphAnnotationState], haveAnnotations CollectionOf[Annotatable]) {
+	stack.push_(new_Graph_GraphAnnotationState(haveAnnotations.size()))
 	it_1 := foreach_(any(haveAnnotations))
 	for it_1.next() {
 		var h Annotatable = icast_Annotatable(it_1.v)
-		cast_[*Graph_GraphAnnotationState](stack.peek()).add(obj_(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h))))
+		stack.peekTop_().add(obj_(new_Graph_AnnotationState(h, Annotatable_getAnnotation(h))))
 		h.setAnnotation(nil)
 	}
 }
 
-func Graph_popAnnotations(stack DequeOf[*Graph_GraphAnnotationState]) {
-	it_1 := foreach_(obj_(cast_[*Graph_GraphAnnotationState](stack.pop())))
+func Graph_popAnnotations(stack *TList[*Graph_GraphAnnotationState]) {
+	it_1 := foreach_(obj_(stack.pop_()))
 	for it_1.next() {
 		var as *Graph_AnnotationState = cast_[*Graph_AnnotationState](it_1.v)
 		as.first.setAnnotation(as.second)

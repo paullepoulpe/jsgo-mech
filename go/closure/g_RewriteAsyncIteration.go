@@ -10,7 +10,7 @@ type RewriteAsyncIteration struct {
 	actionEnumYieldStar   RuntimeJsLibManager_JsLibField
 	nextForAwaitId        int32
 	compiler_             *AbstractCompiler
-	contextStack          ArrayDequeOf[*RewriteAsyncIteration_LexicalContext]
+	contextStack          *TList[*RewriteAsyncIteration_LexicalContext]
 	astFactory_           *AstFactory
 	namespace_            StaticScope
 }
@@ -24,7 +24,7 @@ func (this *RewriteAsyncIteration) init_RewriteAsyncIteration(compiler *Abstract
 	this.compiler_ = to_AbstractCompiler(Preconditions_checkNotNull(compiler.self()))
 	this.astFactory_ = cast_[*AstFactory](Preconditions_checkNotNull(obj_(astFactory)))
 	this.namespace_ = icast_StaticScope(Preconditions_checkNotNull(any(namespace)))
-	this.contextStack = new_ArrayDeque()
+	this.contextStack = newTList_(tc_p_RewriteAsyncIteration_LexicalContext)
 	var runtimeLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.asyncGeneratorWrapper = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper")
 	this.actionRecordName = runtimeLibManager.getJsLibField("$jscomp.AsyncGeneratorWrapper$ActionRecord")
@@ -47,38 +47,38 @@ func RewriteAsyncIteration_create(compiler *AbstractCompiler) *RewriteAsyncItera
 
 func (this *RewriteAsyncIteration) process_2(externs Node, root Node) {
 	Preconditions_checkState(this.contextStack.isEmpty())
-	this.contextStack.push(obj_(RewriteAsyncIteration_LexicalContext_newGlobalContext(root)))
+	this.contextStack.push_(RewriteAsyncIteration_LexicalContext_newGlobalContext(root))
 	TranspilationPasses_processTranspile(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures, []NodeTraversal_Callback{icast_NodeTraversal_Callback(any(this))})
 	TranspilationPasses_maybeMarkFeaturesAsTranspiledAway(this.compiler_, root, RewriteAsyncIteration_transpiledFeatures)
-	Preconditions_checkState((cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(icast_SequencedCollection(obj_(this.contextStack)))).function == 0))
-	this.contextStack.remove_0()
+	Preconditions_checkState((this.contextStack.getTop_().function == 0))
+	this.contextStack.pop_()
 	Preconditions_checkState(this.contextStack.isEmpty())
 }
 
 func (this *RewriteAsyncIteration) shouldTraverse(nodeTraversal *NodeTraversal, n Node, parent Node) bool {
 	if n.isFunction() {
-		this.contextStack.push(obj_(RewriteAsyncIteration_LexicalContext_newContextForFunction(cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(icast_SequencedCollection(obj_(this.contextStack)))), n, this.compiler_)))
+		this.contextStack.push_(RewriteAsyncIteration_LexicalContext_newContextForFunction(this.contextStack.getTop_(), n, this.compiler_))
 	} else if n.isParamList() {
-		this.contextStack.push(obj_(RewriteAsyncIteration_LexicalContext_newContextForParamList(cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(icast_SequencedCollection(obj_(this.contextStack)))), n, this.compiler_)))
+		this.contextStack.push_(RewriteAsyncIteration_LexicalContext_newContextForParamList(this.contextStack.getTop_(), n, this.compiler_))
 	}
 	return true
 }
 
 func (this *RewriteAsyncIteration) visit(t *NodeTraversal, n Node, parent Node) {
-	var ctx *RewriteAsyncIteration_LexicalContext = cast_[*RewriteAsyncIteration_LexicalContext](SequencedCollection_getFirst(icast_SequencedCollection(obj_(this.contextStack))))
+	var ctx *RewriteAsyncIteration_LexicalContext = this.contextStack.getTop_()
 	switch n.ns_().token {
 	case tokOrd1_PARAM_LIST:
 		if !Object_equals(n.box_(), ctx.contextRoot.box_()) {
 			Preconditions_checkState_boolean_Object(false, n.box_())
 		}
-		this.contextStack.pop()
+		this.contextStack.pop_()
 	case tokOrd1_FUNCTION:
 		Preconditions_checkState(Object_equals(n.box_(), ctx.contextRoot.box_()))
 		if n.isAsyncGeneratorFunction() {
 			this.convertAsyncGenerator(n)
 			this.prependTempVarDeclarations(ctx, t)
 		}
-		this.contextStack.pop()
+		this.contextStack.pop_()
 	case tokOrd1_AWAIT:
 		Preconditions_checkNotNull(ctx.function.box_())
 		if ctx.function.isAsyncGeneratorFunction() {

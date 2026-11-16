@@ -33,7 +33,7 @@ type PerformanceTracker struct {
 	astDiff                        int32
 	diff                           int32
 	gzDiff                         int32
-	currentPass                    DequeOf[*PerformanceTracker_Stats]
+	currentPass                    *TList[*PerformanceTracker_Stats]
 	passSummary                    ImmutableMapOf[string, *PerformanceTracker_Stats]
 	astManifest                    *SimpleMultiset
 	log_                           []*PerformanceTracker_Stats
@@ -74,7 +74,7 @@ func (this *PerformanceTracker) finit_PerformanceTracker() {
 	this.astDiff = 0
 	this.diff = 0
 	this.gzDiff = 0
-	this.currentPass = icast_Deque(obj_(new_ArrayDeque()))
+	this.currentPass = newTList_(tc_p_PerformanceTracker_Stats)
 	this.log_ = []*PerformanceTracker_Stats{}
 	this.pruningAnalysisSummary = "not executed"
 	this.disambiguatePropertiesSummary = "not executed"
@@ -102,7 +102,7 @@ func (this *PerformanceTracker) getCodeChangeHandler() CodeChangeHandler {
 }
 
 func (this *PerformanceTracker) recordPassStart(passName string, isOneTime bool) {
-	this.currentPass.push(obj_(new_PerformanceTracker_Stats(passName, isOneTime)))
+	this.currentPass.push_(new_PerformanceTracker_Stats(passName, isOneTime))
 	if !(passName == "toSource") {
 		this.codeChange.reset()
 	}
@@ -132,7 +132,7 @@ func (this *PerformanceTracker) updateAfterDeserialize(jsRoot Node) {
 
 func (this *PerformanceTracker) recordPassStop(passName string, runtime int64) {
 	var allocMem int32 = this.getAllocatedMegabytes()
-	var logStats *PerformanceTracker_Stats = cast_[*PerformanceTracker_Stats](this.currentPass.pop())
+	var logStats *PerformanceTracker_Stats = this.currentPass.pop_()
 	Preconditions_checkState((passName == logStats.pass))
 	this.log_ = append(this.log_, logStats)
 	logStats.runtime_ = runtime

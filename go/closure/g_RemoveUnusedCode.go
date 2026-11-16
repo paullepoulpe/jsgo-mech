@@ -9,7 +9,7 @@ type RemoveUnusedCode struct {
 	removeLocalVars_                               bool
 	removeGlobals_                                 bool
 	preserveFunctionExpressionNames_               bool
-	worklist                                       DequeOf[*RemoveUnusedCode_Continuation]
+	worklist                                       *TList[*RemoveUnusedCode_Continuation]
 	varInfoMap                                     varMap_[RemoveUnusedCode_VarInfo]
 	pinnedPropertyNames                            map[string]struct{}
 	removablesForPropertyNames                     *SimpleSetMultimap
@@ -31,7 +31,7 @@ type RemoveUnusedCode struct {
 }
 
 func (this *RemoveUnusedCode) finit_RemoveUnusedCode() {
-	this.worklist = icast_Deque(obj_(new_ArrayDeque()))
+	this.worklist = newTList_(tc_p_RemoveUnusedCode_Continuation)
 	this.pinnedPropertyNames = setFrom_(tc_string, icast_Collection(obj_(RemoveUnusedCode_IMPLICITLY_USED_PROPERTIES)))
 	this.removablesForPropertyNames = SimpleSetMultimap_createInsertionOrdered()
 	this.allFunctionParamScopes = []*Scope{}
@@ -90,9 +90,9 @@ func (this *RemoveUnusedCode) traverseAndRemoveUnusedReferences(root Node) {
 		scope.declare(NodeUtil_JSC_PROPERTY_NAME_FN, 0, nil)
 	}
 	this.polyfillUsageFinder.traverseOnlyGuarded(root, &Consumer_fn{func(p0 any) { this.storePolyfill(cast_[*PolyfillUsageFinder_PolyfillUsage](p0)) }})
-	this.worklist.add(obj_(new_RemoveUnusedCode_Continuation(this, root, scope)))
+	this.worklist.push_(new_RemoveUnusedCode_Continuation(this, root, scope))
 	for !this.worklist.isEmpty() {
-		var continuation *RemoveUnusedCode_Continuation = cast_[*RemoveUnusedCode_Continuation](this.worklist.remove_0())
+		var continuation *RemoveUnusedCode_Continuation = this.worklist.popFirst_()
 		continuation.apply()
 	}
 	this.removeUnreferencedVarsAndPolyfills()
@@ -1627,7 +1627,7 @@ func (this *RemoveUnusedCode_Removable) applyContinuations() {
 		it_1 := this.continuations.each()
 		for it_1.next() {
 			var c *RemoveUnusedCode_Continuation = it_1.v
-			this.outer_.worklist.add(obj_(c))
+			this.outer_.worklist.push_(c)
 		}
 		this.continuations.clear()
 	}

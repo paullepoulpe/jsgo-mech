@@ -6,7 +6,7 @@ type Es6ConvertSuperConstructorCalls struct {
 	jscompInherits           RuntimeJsLibManager_JsLibField
 	jscompConstruct          RuntimeJsLibManager_JsLibField
 	compiler_                *AbstractCompiler
-	constructorDataStack     DequeOf[*Es6ConvertSuperConstructorCalls_ConstructorData]
+	constructorDataStack     *TList[*Es6ConvertSuperConstructorCalls_ConstructorData]
 	astFactory_              *AstFactory
 	globalNamespace          *GlobalNamespace
 	transpilationNamespace   StaticScope
@@ -18,7 +18,7 @@ func (this *Es6ConvertSuperConstructorCalls) init_Es6ConvertSuperConstructorCall
 	this.compiler_ = compiler
 	this.astFactory_ = compiler.createAstFactory()
 	this.transpilationNamespace = compiler.getTranspilationNamespace()
-	this.constructorDataStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.constructorDataStack = newTList_(tc_p_Es6ConvertSuperConstructorCalls_ConstructorData)
 	this.uniqueIdSupplier = compiler.getUniqueIdSupplier()
 	var runtimeJsLibManager *RuntimeJsLibManager = compiler.getRuntimeJsLibManager()
 	this.jscompInherits = runtimeJsLibManager.getJsLibField("$jscomp.inherits")
@@ -37,7 +37,7 @@ func (this *Es6ConvertSuperConstructorCalls) shouldTraverse(t *NodeTraversal, n 
 		return false
 	}
 	if n.isFunction() {
-		this.constructorDataStack.push(obj_(new_Es6ConvertSuperConstructorCalls_ConstructorData(n)))
+		this.constructorDataStack.push_(new_Es6ConvertSuperConstructorCalls_ConstructorData(n))
 	} else if n.isSuper() {
 		if !n.isFirstChildOf(parent) {
 			Preconditions_checkState_boolean_Object(false, parent.box_())
@@ -49,16 +49,16 @@ func (this *Es6ConvertSuperConstructorCalls) shouldTraverse(t *NodeTraversal, n 
 		if !parent.isCall() {
 			Preconditions_checkState_boolean_Object(false, parent.box_())
 		}
-		var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = cast_[*Es6ConvertSuperConstructorCalls_ConstructorData](Preconditions_checkNotNull(this.constructorDataStack.peek()))
+		var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = cast_[*Es6ConvertSuperConstructorCalls_ConstructorData](Preconditions_checkNotNull(obj_(this.constructorDataStack.peekTop_())))
 		constructorData.superCalls.add(parent)
 	}
 	return true
 }
 
 func (this *Es6ConvertSuperConstructorCalls) visit(t *NodeTraversal, n Node, parent Node) {
-	var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = cast_[*Es6ConvertSuperConstructorCalls_ConstructorData](this.constructorDataStack.peek())
+	var constructorData *Es6ConvertSuperConstructorCalls_ConstructorData = this.constructorDataStack.peekTop_()
 	if (constructorData != nil) && (n == constructorData.constructor_) {
-		this.constructorDataStack.pop()
+		this.constructorDataStack.pop_()
 		this.visitSuper(t, constructorData)
 	}
 }

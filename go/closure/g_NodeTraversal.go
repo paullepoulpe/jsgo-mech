@@ -184,14 +184,14 @@ func (this *NodeTraversal) traverseAtScope(s *AbstractScope) {
 	var n Node = s.getRootNode()
 	this.initTraversal(n)
 	this.currentNode = n
-	var parentScopes DequeOf[*AbstractScope] = icast_Deque(obj_(new_ArrayDeque()))
+	var parentScopes *TList[*AbstractScope] = newTList_(tc_p_AbstractScope)
 	var temp *AbstractScope = s.getParent()
 	for temp != nil {
-		parentScopes.push(temp.self())
+		parentScopes.push_(temp)
 		temp = temp.getParent()
 	}
 	for !parentScopes.isEmpty() {
-		this.pushScope_2(to_AbstractScope(parentScopes.pop()), true)
+		this.pushScope_2(parentScopes.pop_(), true)
 	}
 	switch n.ns_().token {
 	case tokOrd1_FUNCTION:
@@ -871,16 +871,16 @@ func (this *NodeTraversal) initTraversal(traversalRoot Node) {
 }
 
 func (this *NodeTraversal) initScopeRoots(n Node) {
-	var queuedScopeRoots DequeOf[Node] = icast_Deque(obj_(new_ArrayDeque()))
+	var queuedScopeRoots *TList[Node] = newTList_(tc_Node)
 	for n != 0 {
 		if this.isScopeRoot(n) {
-			SequencedCollection_addFirst(SequencedCollection(queuedScopeRoots), n.box_())
+			queuedScopeRoots.push_(n)
 		}
 		n = n.getParent()
 	}
-	it_2 := foreach_(any(queuedScopeRoots))
+	it_2 := queuedScopeRoots.eachRev()
 	for it_2.next() {
-		var queuedScopeRoot Node = Node_of_(it_2.v)
+		var queuedScopeRoot Node = it_2.v
 		this.pushScope(queuedScopeRoot)
 	}
 }

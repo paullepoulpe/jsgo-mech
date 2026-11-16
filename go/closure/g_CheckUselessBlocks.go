@@ -4,12 +4,12 @@ package closure
 
 type CheckUselessBlocks struct {
 	compiler_  *AbstractCompiler
-	loneBlocks DequeOf[Node]
+	loneBlocks *TList[Node]
 }
 
 func (this *CheckUselessBlocks) init_CheckUselessBlocks(compiler *AbstractCompiler) {
 	this.compiler_ = compiler
-	this.loneBlocks = icast_Deque(obj_(new_ArrayDeque()))
+	this.loneBlocks = newTList_(tc_Node)
 }
 
 func new_CheckUselessBlocks(compiler *AbstractCompiler) *CheckUselessBlocks {
@@ -34,8 +34,8 @@ func (this *CheckUselessBlocks) allowLoneBlock(parent Node) {
 	if this.loneBlocks.isEmpty() {
 		return
 	}
-	if Node_of_(this.loneBlocks.peek()) == parent {
-		this.loneBlocks.pop()
+	if this.loneBlocks.peekTop_() == parent {
+		this.loneBlocks.pop_()
 	}
 }
 
@@ -43,7 +43,7 @@ func (this *CheckUselessBlocks) shouldTraverse(t *NodeTraversal, n Node, parent 
 	switch n.ns_().token {
 	case tokOrd1_BLOCK:
 		if this.isLoneBlock(n) {
-			this.loneBlocks.push(n.box_())
+			this.loneBlocks.push_(n)
 		}
 	case tokOrd1_LET, tokOrd1_CONST:
 		this.allowLoneBlock(parent)
@@ -61,8 +61,8 @@ func (this *CheckUselessBlocks) shouldTraverse(t *NodeTraversal, n Node, parent 
 }
 
 func (this *CheckUselessBlocks) visit(t *NodeTraversal, n Node, parent Node) {
-	if (n.isBlock() && !this.loneBlocks.isEmpty()) && (Node_of_(this.loneBlocks.peek()) == n) {
-		this.loneBlocks.pop()
+	if (n.isBlock() && !this.loneBlocks.isEmpty()) && (this.loneBlocks.peekTop_() == n) {
+		this.loneBlocks.pop_()
 		t.report(n, CheckUselessBlocks_USELESS_BLOCK, []string{})
 	}
 }

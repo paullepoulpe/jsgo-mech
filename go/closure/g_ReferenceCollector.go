@@ -4,7 +4,7 @@ package closure
 
 type ReferenceCollector struct {
 	referenceMap                            varMap_[*ReferenceCollection]
-	blockStack                              ArrayDequeOf[*BasicBlock]
+	blockStack                              *TList[*BasicBlock]
 	behavior                                ReferenceCollector_Behavior
 	scopeCreator                            ScopeCreator
 	compiler_                               *AbstractCompiler
@@ -16,7 +16,7 @@ type ReferenceCollector struct {
 }
 
 func (this *ReferenceCollector) finit_ReferenceCollector() {
-	this.blockStack = new_ArrayDeque()
+	this.blockStack = newTList_(tc_p_BasicBlock)
 	this.callback = new_ReferenceCollector_CollectorCallback(this)
 	this.collectedHoistedFunctions = map[Node]struct{}{}
 }
@@ -102,15 +102,15 @@ func (this *ReferenceCollector) maybeJumpToHoistedFunction(var_ *Var, t *NodeTra
 	if (((fnNode == 0) || !NodeUtil_isHoistedFunctionDeclaration(fnNode)) || ((this.narrowScope_ != nil) && (this.narrowScope_.getDepth() > varScope.getDepth()))) || has_(this.collectedHoistedFunctions, fnNode) {
 		return
 	}
-	var oldBlockStack ArrayDequeOf[*BasicBlock] = this.blockStack
-	this.blockStack = new_ArrayDeque()
+	var oldBlockStack *TList[*BasicBlock] = this.blockStack
+	this.blockStack = newTList_(tc_p_BasicBlock)
 	if varScope.isGlobal() {
-		SequencedCollection_addLast(icast_SequencedCollection(obj_(this.blockStack)), SequencedCollection_getFirst(icast_SequencedCollection(obj_(oldBlockStack))))
+		this.blockStack.push_(cast_[*BasicBlock](obj_(oldBlockStack.getFirst_())))
 	} else {
-		it_1 := foreach_(obj_(oldBlockStack))
+		it_1 := oldBlockStack.each()
 		for it_1.next() {
-			var b *BasicBlock = cast_[*BasicBlock](it_1.v)
-			SequencedCollection_addLast(icast_SequencedCollection(obj_(this.blockStack)), obj_(b))
+			var b *BasicBlock = it_1.v
+			this.blockStack.push_(b)
 			if b.getRoot() == varScope.getRootNode() {
 				break
 			}
@@ -126,11 +126,11 @@ func ReferenceCollector_isNonLocalModuleSpecifierName(n Node, parent Node) bool 
 }
 
 func (this *ReferenceCollector) pushNewBlock(root Node) {
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.blockStack)), obj_(new_BasicBlock(cast_[*BasicBlock](this.blockStack.peekLast()), root)))
+	this.blockStack.push_(new_BasicBlock(this.blockStack.peekTop_(), root))
 }
 
 func (this *ReferenceCollector) popLastBlock(root Node) {
-	var last *BasicBlock = cast_[*BasicBlock](SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.blockStack))))
+	var last *BasicBlock = this.blockStack.pop_()
 	if !JSCompObjects_identical(root.box_(), last.getRoot().box_()) {
 		Preconditions_checkState_boolean_Object(false, root.box_())
 	}
@@ -158,7 +158,7 @@ func (this *ReferenceCollector) addReference(v *Var, n Node, t *NodeTraversal) *
 		collection = new_ReferenceCollection()
 		this.referenceMap.put(v, collection)
 	}
-	var reference *Reference = new_Reference_Node_NodeTraversal_BasicBlock(n, t, cast_[*BasicBlock](SequencedCollection_getLast(icast_SequencedCollection(obj_(this.blockStack)))))
+	var reference *Reference = new_Reference_Node_NodeTraversal_BasicBlock(n, t, this.blockStack.getTop_())
 	collection.add(reference)
 	return reference
 }

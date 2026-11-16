@@ -7,7 +7,7 @@ type CreateSyntheticBlocks struct {
 	compiler_       *AbstractCompiler
 	startMarkerName string
 	endMarkerName   string
-	markerStack     DequeOf[Node]
+	markerStack     *TList[Node]
 	validMarkers    []*CreateSyntheticBlocks_Marker
 }
 
@@ -24,7 +24,7 @@ func (this *CreateSyntheticBlocks) zero_CreateSyntheticBlocks() {
 }
 
 func (this *CreateSyntheticBlocks) finit_CreateSyntheticBlocks() {
-	this.markerStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.markerStack = newTList_(tc_Node)
 	this.validMarkers = []*CreateSyntheticBlocks_Marker{}
 }
 
@@ -46,9 +46,9 @@ func new_CreateSyntheticBlocks(compiler *AbstractCompiler, startMarkerName strin
 
 func (this *CreateSyntheticBlocks) process_2(externs Node, root Node) {
 	NodeTraversal_traverse(this.compiler_, root, icast_NodeTraversal_Callback(obj_(this)))
-	it_1 := foreach_(any(this.markerStack))
+	it_1 := this.markerStack.eachRev()
 	for it_1.next() {
-		var node Node = Node_of_(it_1.v)
+		var node Node = it_1.v
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(node, CreateSyntheticBlocks_UNMATCHED_START_MARKER, []string{this.startMarkerName}))
 	}
 	it_3 := eachOf_(&this.validMarkers)
@@ -123,7 +123,7 @@ func (this *CreateSyntheticBlocks) visit_impl(unused *NodeTraversal, n Node, par
 			this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_INVALID_MARKER_USAGE, []string{this.startMarkerName}))
 			return
 		}
-		this.markerStack.push(parent.box_())
+		this.markerStack.push_(parent)
 		return
 	}
 	if !(this.endMarkerName == callName) {
@@ -138,7 +138,7 @@ func (this *CreateSyntheticBlocks) visit_impl(unused *NodeTraversal, n Node, par
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_UNMATCHED_END_MARKER, []string{this.startMarkerName, this.endMarkerName}))
 		return
 	}
-	var startMarkerNode Node = Node_of_(this.markerStack.pop())
+	var startMarkerNode Node = this.markerStack.pop_()
 	if endMarkerNode.getParent() != startMarkerNode.getParent() {
 		this.compiler_.report(JSError_make_Node_DiagnosticType_StringArr(n, CreateSyntheticBlocks_UNMATCHED_END_MARKER, []string{this.startMarkerName, this.endMarkerName}))
 		return

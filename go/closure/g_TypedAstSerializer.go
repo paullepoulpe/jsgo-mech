@@ -8,14 +8,14 @@ type TypedAstSerializer struct {
 	stringPool         *StringPool_Builder
 	previousLine       int32
 	previousColumn     int32
-	subtreeSourceFiles ArrayDequeOf[*SourceFile_jscomp]
+	subtreeSourceFiles *TList[*SourceFile_jscomp]
 	sourceFilePointers *TMap[*SourceFile_jscomp, any]
 	typeSerializer     TypedAstSerializer_TypeSerializer
 }
 
 func (this *TypedAstSerializer) finit_TypedAstSerializer() {
 	this.stringPool = StringPool_builder()
-	this.subtreeSourceFiles = new_ArrayDeque()
+	this.subtreeSourceFiles = newTList_(tc_p_SourceFile_jscomp)
 	this.sourceFilePointers = newTMap_(tc_p_SourceFile_jscomp, tc_any)
 	this.typeSerializer = nil
 }
@@ -135,7 +135,7 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 		builder.addChild(this.visit(shadowedCode.getFirstFirstChild().getFirstChild()))
 	}
 	if sourceFile != 0 {
-		SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.subtreeSourceFiles)))
+		this.subtreeSourceFiles.pop_()
 	}
 	this.setOriginalName(builder, n)
 	return cast_[*AstNode](builder.build())
@@ -144,15 +144,15 @@ func (this *TypedAstSerializer) visit(n Node) *AstNode {
 func (this *TypedAstSerializer) getSourceFilePointer(n Node) int32 {
 	var sourceFile *SourceFile_jscomp = cast_[*SourceFile_jscomp](n.getStaticSourceFile())
 	if sourceFile == nil {
-		if ok_, a1_, a2_ := cast_[*SourceFile_jscomp](this.subtreeSourceFiles.peekLast()).isExtern(), n.toStringTree(), n.getParent(); !ok_ {
+		if ok_, a1_, a2_ := this.subtreeSourceFiles.peekTop_().isExtern(), n.toStringTree(), n.getParent(); !ok_ {
 			Preconditions_checkState_boolean_String_Object_Object(false, "Unexpected null SourceFile for node %s with parent %s", strobj_(a1_), a2_.box_())
 		}
 		return 0
 	}
-	if Object_equals(obj_(sourceFile), this.subtreeSourceFiles.peekLast()) {
+	if Object_equals(obj_(sourceFile), obj_(this.subtreeSourceFiles.peekTop_())) {
 		return 0
 	}
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.subtreeSourceFiles)), obj_(sourceFile))
+	this.subtreeSourceFiles.push_(sourceFile)
 	return unbox_[int32](Map_computeIfAbsent_f(this.sourceFilePointers.asMap(), obj_(sourceFile), func(f_ any) any {
 		var f *SourceFile_jscomp = cast_[*SourceFile_jscomp](f_)
 		_ = f

@@ -117,11 +117,11 @@ func AnalyzePrototypeProperties_clinit() {
 
 type AnalyzePrototypeProperties_ProcessProperties struct {
 	outer_      *AnalyzePrototypeProperties
-	symbolStack DequeOf[*AnalyzePrototypeProperties_NameContext]
+	symbolStack *TList[*AnalyzePrototypeProperties_NameContext]
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) finit_AnalyzePrototypeProperties_ProcessProperties() {
-	this.symbolStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.symbolStack = newTList_(tc_p_AnalyzePrototypeProperties_NameContext)
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) init_AnalyzePrototypeProperties_ProcessProperties() {
@@ -142,7 +142,7 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 	if root.isFunction() {
 		var propName OptionalOf[string] = this.getPrototypePropertyNameFromRValue(n)
 		if propName.isPresent() {
-			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.get(), AnalyzePrototypeProperties_PROPERTY), scope)))
+			this.symbolStack.push_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.get(), AnalyzePrototypeProperties_PROPERTY), scope))
 		} else if this.isGlobalFunctionDeclaration(t, n) {
 			var parent Node = n.getParent()
 			var name string = func() string {
@@ -151,29 +151,29 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) enterScope(t *NodeTrav
 				}
 				return n.getFirstChild().getString()
 			}()
-			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_VAR), cast_[*Scope](scope.getClosestHoistScope().self()))))
+			this.symbolStack.push_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(name, AnalyzePrototypeProperties_VAR), cast_[*Scope](scope.getClosestHoistScope().self())))
 		} else {
-			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope)))
+			this.symbolStack.push_(new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope))
 		}
 	} else if t.inGlobalScope() {
-		this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.globalNode, scope)))
+		this.symbolStack.push_(new_AnalyzePrototypeProperties_NameContext(this.outer_.globalNode, scope))
 	} else {
 		if !(((NodeUtil_createsBlockScope(root) || root.isModuleBody()) || root.isComputedFieldDef()) || root.isMemberFieldDef()) {
 			Preconditions_checkState_boolean_Object(false, obj_(scope))
 		}
-		this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope)))
+		this.symbolStack.push_(new_AnalyzePrototypeProperties_NameContext(this.outer_.anonymousNode, scope))
 	}
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) exitScope(t *NodeTraversal) {
-	this.symbolStack.pop()
+	this.symbolStack.pop_()
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if !this.outer_.rootScopeUsesAreGlobal {
 		var propName OptionalOf[string] = this.processNonFunctionPrototypeAssign(n, parent)
 		if propName.isPresent() {
-			this.symbolStack.push(obj_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.get(), AnalyzePrototypeProperties_PROPERTY), nil)))
+			this.symbolStack.push_(new_AnalyzePrototypeProperties_NameContext(this.outer_.getNameInfoForName(propName.get(), AnalyzePrototypeProperties_PROPERTY), nil))
 		}
 	}
 	return true
@@ -182,9 +182,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) shouldTraverse(t *Node
 func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal, n Node, parent Node) {
 	switch n.getToken() {
 	case Token_rhino_SUPER:
-		it_2 := foreach_(any(this.symbolStack))
+		it_2 := this.symbolStack.eachRev()
 		for it_2.next() {
-			var context *AnalyzePrototypeProperties_NameContext = cast_[*AnalyzePrototypeProperties_NameContext](it_2.v)
+			var context *AnalyzePrototypeProperties_NameContext = it_2.v
 			context.name_.referencesSuperField = true
 			if NodeUtil_isMethodDeclaration(context.scope_.getRootNode()) {
 				break
@@ -258,9 +258,9 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 					}
 				}
 			} else if cast_[*Scope](var_.getScope()) != t.getScope() {
-				it_7 := foreach_(any(this.symbolStack))
+				it_7 := this.symbolStack.eachRev()
 				for it_7.next() {
-					var context *AnalyzePrototypeProperties_NameContext = cast_[*AnalyzePrototypeProperties_NameContext](it_7.v)
+					var context *AnalyzePrototypeProperties_NameContext = it_7.v
 					if context.scope_ == cast_[*Scope](var_.getScope()) {
 						break
 					}
@@ -271,16 +271,16 @@ func (this *AnalyzePrototypeProperties_ProcessProperties) visit(t *NodeTraversal
 	default:
 	}
 	if !this.outer_.rootScopeUsesAreGlobal && this.processNonFunctionPrototypeAssign(n, parent).isPresent() {
-		this.symbolStack.pop()
+		this.symbolStack.pop_()
 	}
 }
 
 func (this *AnalyzePrototypeProperties_ProcessProperties) addSymbolUse(name string, chunk *JSChunk, type_ *AnalyzePrototypeProperties_SymbolType) {
 	var info *AnalyzePrototypeProperties_NameInfo = this.outer_.getNameInfoForName(name, type_)
 	var def *AnalyzePrototypeProperties_NameInfo = nil
-	it_1 := foreach_(any(this.symbolStack))
+	it_1 := this.symbolStack.eachRev()
 	for it_1.next() {
-		var context *AnalyzePrototypeProperties_NameContext = cast_[*AnalyzePrototypeProperties_NameContext](it_1.v)
+		var context *AnalyzePrototypeProperties_NameContext = it_1.v
 		def = context.name_
 		if def != this.outer_.anonymousNode {
 			break

@@ -7,7 +7,7 @@ type Parser struct {
 	errorReporter        *ErrorReporter_util
 	config               *Parser_Config
 	commentRecorder      *Parser_CommentRecorder
-	functionContextStack ArrayDequeOf[*Parser_FunctionFlavor]
+	functionContextStack *TList[*Parser_FunctionFlavor]
 	features_            *FeatureSet
 	lastSourcePosition   *SourcePosition_util
 	sourceMapURL         OptionalOf[string]
@@ -15,7 +15,7 @@ type Parser struct {
 
 func (this *Parser) finit_Parser() {
 	this.commentRecorder = new_Parser_CommentRecorder(this)
-	this.functionContextStack = new_ArrayDeque()
+	this.functionContextStack = newTList_(tc_p_Parser_FunctionFlavor)
 	this.features_ = FeatureSet_BARE_MINIMUM
 	this.sourceMapURL = Optional_empty[string]()
 }
@@ -25,7 +25,7 @@ func (this *Parser) init_Parser(config *Parser_Config, errorReporter *ErrorRepor
 	this.config = config
 	this.errorReporter = errorReporter
 	this.scanner = new_Scanner_parser(errorReporter, icast_Scanner_CommentRecorder(obj_(this.commentRecorder)), source, 0)
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.functionContextStack)), obj_(Parser_FunctionFlavor_NORMAL))
+	this.functionContextStack.push_(Parser_FunctionFlavor_NORMAL)
 	this.lastSourcePosition = this.scanner.getPosition()
 }
 
@@ -482,9 +482,9 @@ func (this *Parser) parseClassStaticInitializerBlock() *ParseTree {
 }
 
 func (this *Parser) parseFunctionTail(builder *FunctionDeclarationTree_Builder, functionFlavor *Parser_FunctionFlavor) {
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.functionContextStack)), obj_(functionFlavor))
+	this.functionContextStack.push_(functionFlavor)
 	builder.setGenerator(functionFlavor.isGenerator).setFormalParameterList(this.parseFormalParameterList()).setFunctionBody(this.parseFunctionBody().up_ParseTree())
-	SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.functionContextStack)))
+	this.functionContextStack.pop_()
 }
 
 func (this *Parser) parseSourceElement() *ParseTree {
@@ -1756,14 +1756,14 @@ func (this *Parser) parseAsyncArrowFunction(expressionIn *Parser_Expression) *Pa
 }
 
 func (this *Parser) parseArrowFunctionBody(expressionIn *Parser_Expression, functionFlavor *Parser_FunctionFlavor) *ParseTree {
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.functionContextStack)), obj_(functionFlavor))
+	this.functionContextStack.push_(functionFlavor)
 	var arrowFunctionBody *ParseTree
 	if this.peek(TokenType_OPEN_CURLY) {
 		arrowFunctionBody = this.parseFunctionBody().up_ParseTree()
 	} else {
 		arrowFunctionBody = this.parseAssignment(expressionIn)
 	}
-	SequencedCollection_removeLast(icast_SequencedCollection(obj_(this.functionContextStack)))
+	this.functionContextStack.pop_()
 	return arrowFunctionBody
 }
 
@@ -1815,7 +1815,7 @@ func (this *Parser) peekAssignmentOperator() bool {
 }
 
 func (this *Parser) inGeneratorContext() bool {
-	return cast_[*Parser_FunctionFlavor](this.functionContextStack.peekLast()).isGenerator
+	return this.functionContextStack.peekTop_().isGenerator
 }
 
 func (this *Parser) parseYield(expressionIn *Parser_Expression) *ParseTree {

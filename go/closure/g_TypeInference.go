@@ -12,7 +12,7 @@ type TypeInference struct {
 	scopeCreator            *TypedScopeCreator
 	assertionFunctionLookup *CodingConvention_AssertionFunctionLookup
 	moduleImportResolver    *ModuleImportResolver
-	optChainArrayDeque      ArrayDequeOf[*TypeInference_OptChainInfo]
+	optChainArrayDeque      *TList[*TypeInference_OptChainInfo]
 	inferredUnboundVars     map[*TypedScope]struct{}
 	unknownType             *ObjectType
 	numberAdditionSupertype *JSType
@@ -26,7 +26,7 @@ func (this *TypeInference) up_DataFlowAnalysis() *DataFlowAnalysis {
 }
 
 func (this *TypeInference) finit_TypeInference() {
-	this.optChainArrayDeque = new_ArrayDeque()
+	this.optChainArrayDeque = newTList_(tc_p_TypeInference_OptChainInfo)
 	this.inferredUnboundVars = map[*TypedScope]struct{}{}
 }
 
@@ -1669,11 +1669,11 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
 		var optChainInfo *TypeInference_OptChainInfo = new_TypeInference_OptChainInfo(n, startOfChain)
-		SequencedCollection_addFirst(icast_SequencedCollection(obj_(this.optChainArrayDeque)), obj_(optChainInfo))
+		this.optChainArrayDeque.push_(optChainInfo)
 	}
 	var lhsScope FlowScope = this.traverse(n.getFirstChild(), scope)
 	if n.isOptionalChainStart() {
-		cast_[*TypeInference_OptChainInfo](this.optChainArrayDeque.peekFirst()).unconditionalScope = lhsScope
+		this.optChainArrayDeque.peekTop_().unconditionalScope = lhsScope
 	}
 	var aboutToExecuteScope FlowScope = lhsScope
 	var nextChild Node = n.getSecondChild()
@@ -1687,7 +1687,7 @@ func (this *TypeInference) traverseOptChain(n Node, scope FlowScope) FlowScope {
 	}
 	if NodeUtil_isEndOfOptChainSegment(n) {
 		var startOfChain Node = NodeUtil_getStartOfOptChainSegment(n)
-		var currentChain *TypeInference_OptChainInfo = cast_[*TypeInference_OptChainInfo](SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.optChainArrayDeque))))
+		var currentChain *TypeInference_OptChainInfo = this.optChainArrayDeque.pop_()
 		Preconditions_checkState((currentChain.endOfChain == n))
 		Preconditions_checkState((currentChain.startOfChain == startOfChain))
 		var startNode Node = Node_of_(Preconditions_checkNotNull(startOfChain.getFirstChild().box_()))

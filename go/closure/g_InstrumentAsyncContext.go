@@ -8,14 +8,14 @@ type InstrumentAsyncContext struct {
 	astFactory_           *AstFactory
 	uniqueIdSupplier      *UniqueIdSupplier
 	shouldInstrumentAwait bool
-	tryFunctionStack      DequeOf[Node]
+	tryFunctionStack      *TList[Node]
 	needsInstrumentation  map[Node]*InstrumentAsyncContext_FunctionContext
 	alreadyInstrumented   map[Node]struct{}
 	hasSuper              map[Node]struct{}
 }
 
 func (this *InstrumentAsyncContext) finit_InstrumentAsyncContext() {
-	this.tryFunctionStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.tryFunctionStack = newTList_(tc_Node)
 	this.needsInstrumentation = map[Node]*InstrumentAsyncContext_FunctionContext{}
 	this.alreadyInstrumented = map[Node]struct{}{}
 	this.hasSuper = map[Node]struct{}{}
@@ -45,7 +45,7 @@ func (this *InstrumentAsyncContext) process_2(externs Node, root Node) {
 
 func (this *InstrumentAsyncContext) shouldTraverse(t *NodeTraversal, n Node, parent Node) bool {
 	if n.isTry() || n.isFunction() {
-		this.tryFunctionStack.push(n.box_())
+		this.tryFunctionStack.push_(n)
 	}
 	return true
 }
@@ -66,8 +66,8 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 		this.hasSuper[t.getEnclosingFunction()] = struct{}{}
 	} else if this.isReentrance(n) {
 		this.instrumentReentrance(t, n, parent)
-	} else if Object_equals(n.box_(), this.tryFunctionStack.peek()) {
-		this.tryFunctionStack.pop()
+	} else if Object_equals(n.box_(), this.tryFunctionStack.peekTop_().box_()) {
+		this.tryFunctionStack.pop_()
 		if has_(this.alreadyInstrumented, n) {
 			return
 		}
@@ -96,7 +96,7 @@ func (this *InstrumentAsyncContext) visit(t *NodeTraversal, n Node, parent Node)
 }
 
 func (this *InstrumentAsyncContext) instrumentReentrance(t *NodeTraversal, n Node, parent Node) {
-	var enclosingTry Node = Node_of_(this.tryFunctionStack.peek())
+	var enclosingTry Node = this.tryFunctionStack.peekTop_()
 	if (enclosingTry != 0) && !enclosingTry.isTry() {
 		enclosingTry = 0
 	}

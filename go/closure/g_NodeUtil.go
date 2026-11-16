@@ -1640,17 +1640,17 @@ func NodeUtil_convertToNonOptionalChainSegmentDownTo(endOfOptChainSegment Node, 
 	if !NodeUtil_isEndOfOptChainSegment(endOfOptChainSegment) {
 		Preconditions_checkArgument_boolean_Object(false, endOfOptChainSegment.box_())
 	}
-	var segmentNodes ArrayDequeOf[Node] = new_ArrayDeque()
+	var segmentNodes *TList[Node] = newTList_(tc_Node)
 	var segmentNode Node = endOfOptChainSegment
 	for (segmentNode != 0) && !Object_equals(segmentNode.box_(), stopNode.box_()) {
 		if NodeUtil_isOptChainNode(segmentNode) {
-			segmentNodes.add(segmentNode.box_())
+			segmentNodes.push_(segmentNode)
 		}
 		segmentNode = segmentNode.getFirstChild()
 	}
-	it_2 := foreach_(obj_(segmentNodes))
+	it_2 := segmentNodes.each()
 	for it_2.next() {
-		var n Node = Node_of_(it_2.v)
+		var n Node = it_2.v
 		n.setIsOptionalChainStart(false)
 		n.setToken(NodeUtil_getNonOptChainToken(n.getToken()))
 	}

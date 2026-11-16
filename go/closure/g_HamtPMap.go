@@ -558,19 +558,19 @@ func HamtPMap_clinit() {
 }
 
 type HamtPMap_Iter struct {
-	queue       DequeOf[*HamtPMap]
+	queue       *TList[*HamtPMap]
 	transformer Function_baseOf[*HamtPMap, any]
 }
 
 func (this *HamtPMap_Iter) finit_HamtPMap_Iter() {
-	this.queue = icast_Deque(obj_(new_ArrayDeque()))
+	this.queue = newTList_(tc_p_HamtPMap)
 }
 
 func (this *HamtPMap_Iter) init_HamtPMap_Iter(map_ *HamtPMap, transformer Function_baseOf[*HamtPMap, any]) {
 	this.finit_HamtPMap_Iter()
 	this.transformer = transformer
 	if !map_.isEmpty() {
-		this.queue.add(obj_(map_))
+		this.queue.push_(map_)
 	}
 }
 
@@ -585,9 +585,9 @@ func (this *HamtPMap_Iter) hasNext() bool {
 }
 
 func (this *HamtPMap_Iter) next() any {
-	var top *HamtPMap = cast_[*HamtPMap](SequencedCollection_removeFirst(SequencedCollection(this.queue)))
+	var top *HamtPMap = this.queue.popFirst_()
 	for i := int32((int32(len(top.children_)) - 1)); i >= 0; i-- {
-		this.queue.add(obj_(top.children_[i]))
+		this.queue.push_(top.children_[i])
 	}
 	return this.transformer.apply(obj_(top))
 }

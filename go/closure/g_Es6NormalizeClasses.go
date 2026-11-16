@@ -12,11 +12,11 @@ type Es6NormalizeClasses struct {
 	doStaticInheritanceRewrites bool
 	doStaticSuperRewrites       bool
 	jscompPrivateMap            RuntimeJsLibManager_JsLibField
-	classStack                  DequeOf[*Es6NormalizeClasses_ClassRecord]
+	classStack                  *TList[*Es6NormalizeClasses_ClassRecord]
 }
 
 func (this *Es6NormalizeClasses) finit_Es6NormalizeClasses() {
-	this.classStack = icast_Deque(obj_(new_ArrayDeque()))
+	this.classStack = newTList_(tc_p_Es6NormalizeClasses_ClassRecord)
 }
 
 func (this *Es6NormalizeClasses) init_Es6NormalizeClasses(compiler *AbstractCompiler) {
@@ -113,15 +113,15 @@ func (this *Es6NormalizeClasses) shouldTraverse(t *NodeTraversal, n Node, parent
 				}
 			}
 		}
-		SequencedCollection_addFirst(SequencedCollection(this.classStack), obj_(record))
+		this.classStack.push_(record)
 	case tokOrd1_COMPUTED_FIELD_DEF:
 		Preconditions_checkState(!this.classStack.isEmpty())
-		var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
+		var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
 		classRecord.maybeRecordComputedPropWithSideEffects(n)
 		classRecord.recordField(n)
 	case tokOrd1_MEMBER_FIELD_DEF:
 		Preconditions_checkState(!this.classStack.isEmpty())
-		var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
+		var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
 		if n.isPrivateIdentifier() {
 			classRecord.recordPrivateMember(n)
 		}
@@ -129,20 +129,20 @@ func (this *Es6NormalizeClasses) shouldTraverse(t *NodeTraversal, n Node, parent
 	case tokOrd1_MEMBER_FUNCTION_DEF, tokOrd1_GETTER_DEF, tokOrd1_SETTER_DEF:
 		if n.isPrivateIdentifier() {
 			Preconditions_checkState(!this.classStack.isEmpty())
-			cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek()).recordPrivateMember(n)
+			this.classStack.peekTop_().recordPrivateMember(n)
 		}
 	case tokOrd1_BLOCK:
 		if !NodeUtil_isClassStaticBlock(n) {
 			break
 		}
 		Preconditions_checkState(!this.classStack.isEmpty())
-		cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek()).recordStaticBlock(n)
+		this.classStack.peekTop_().recordStaticBlock(n)
 	case tokOrd1_COMPUTED_PROP:
 		if !n.getParent().isClassMembers() {
 			break
 		}
 		Preconditions_checkState(!this.classStack.isEmpty())
-		cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek()).maybeRecordComputedPropWithSideEffects(n)
+		this.classStack.peekTop_().maybeRecordComputedPropWithSideEffects(n)
 	default:
 	}
 	return true
@@ -254,7 +254,7 @@ func (this *Es6NormalizeClasses) getStatementDeclaringClass(classNode Node, clas
 func (this *Es6NormalizeClasses) enterScope(t *NodeTraversal) {
 	var scopeRoot Node = t.getScopeRoot()
 	if NodeUtil_isFunctionBlock(scopeRoot) && NodeUtil_isEs6Constructor(scopeRoot.getParent()) {
-		cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek()).recordConstructorScope(t.getScope())
+		this.classStack.peekTop_().recordConstructorScope(t.getScope())
 	}
 }
 
@@ -273,7 +273,7 @@ func (this *Es6NormalizeClasses) visit(t *NodeTraversal, n Node, parent Node) {
 			this.rewritePrivateGetProp(t, n)
 		}
 	case tokOrd1_CLASS:
-		var currClassRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](SequencedCollection_removeFirst(SequencedCollection(this.classStack)))
+		var currClassRecord *Es6NormalizeClasses_ClassRecord = this.classStack.pop_()
 		if !(currClassRecord.classNode == n) {
 			Preconditions_checkState_boolean_String_Object(false, "unexpected node: %s", n.box_())
 		}
@@ -382,9 +382,9 @@ func (this *Es6NormalizeClasses) insertPrivateDeclarations(t *NodeTraversal, rec
 }
 
 func (this *Es6NormalizeClasses) findPrivateMember(name string) *Es6NormalizeClasses_ResolvedPrivateMember {
-	it_1 := foreach_(any(this.classStack))
+	it_1 := this.classStack.eachRev()
 	for it_1.next() {
-		var record *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](it_1.v)
+		var record *Es6NormalizeClasses_ClassRecord = it_1.v
 		if record.hasPrivateMember(name) {
 			return new_Es6NormalizeClasses_ResolvedPrivateMember(record, record.getPrivateMember(name))
 		}
@@ -689,12 +689,12 @@ var lambda_Es6NormalizeClasses_rewriteSuperReferencesInPrivateMember_1_ = &Predi
 }}
 
 func (this *Es6NormalizeClasses) rewriteSideEffectedComputedProps(t *NodeTraversal, record *Es6NormalizeClasses_ClassRecord, insertionPoint Node) {
-	var computedPropsWithSideEffects DequeOf[Node] = record.computedPropsWithSideEffects
+	var computedPropsWithSideEffects *TList[Node] = record.computedPropsWithSideEffects
 	if computedPropsWithSideEffects.isEmpty() {
 		return
 	}
 	for !computedPropsWithSideEffects.isEmpty() {
-		var computedPropMember Node = Node_of_(computedPropsWithSideEffects.remove_0())
+		var computedPropMember Node = computedPropsWithSideEffects.popFirst_()
 		this.extractExpressionFromCompField(t, record, computedPropMember, insertionPoint)
 	}
 	t.reportCodeChange()
@@ -713,7 +713,7 @@ func (this *Es6NormalizeClasses) extractExpressionFromCompField(t *NodeTraversal
 }
 
 func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record *Es6NormalizeClasses_ClassRecord) {
-	var instanceMembers DequeOf[Node] = record.instanceMembers
+	var instanceMembers *TList[Node] = record.instanceMembers
 	var hasPriv bool = (this.transpilePrivateClassFields && record.hasInstancePrivateMembers)
 	if instanceMembers.isEmpty() && !hasPriv {
 		return
@@ -750,7 +750,7 @@ func (this *Es6NormalizeClasses) rewriteInstanceMembers(t *NodeTraversal, record
 		mapSetStmt.insertBefore(insertionPoint)
 	}
 	for !instanceMembers.isEmpty() {
-		var instanceMember Node = Node_of_(instanceMembers.remove_0())
+		var instanceMember Node = instanceMembers.popFirst_()
 		if !(instanceMember.isMemberFieldDef() || instanceMember.isComputedFieldDef()) {
 			Preconditions_checkState_boolean_Object(false, instanceMember.box_())
 		}
@@ -1000,7 +1000,7 @@ func (this *Es6NormalizeClasses) createFieldInitializationStatement(field Node, 
 }
 
 func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *Es6NormalizeClasses_ClassRecord, insertionPoint Node) {
-	var staticMembers DequeOf[Node] = record.staticMembers
+	var staticMembers *TList[Node] = record.staticMembers
 	var hasPriv bool = (this.transpilePrivateClassFields && record.hasStaticPrivateMembers)
 	if staticMembers.isEmpty() && !hasPriv {
 		return
@@ -1038,7 +1038,7 @@ func (this *Es6NormalizeClasses) rewriteStaticMembers(t *NodeTraversal, record *
 		this.addStaticPrivateMembers(record, privName.get(), staticInitTempParent)
 	}
 	for !staticMembers.isEmpty() {
-		var staticMember Node = Node_of_(staticMembers.remove_0())
+		var staticMember Node = staticMembers.popFirst_()
 		if staticMember.isPrivateIdentifier() {
 			if this.transpilePrivateClassFields {
 				var privName OptionalOf[string] = record.getStaticPrivateVarName(this.compiler_, t)
@@ -1181,9 +1181,9 @@ func (this *Es6NormalizeClasses) addStaticPrivateMembers(record *Es6NormalizeCla
 }
 
 func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameNode Node) {
-	it_1 := foreach_(any(this.classStack))
+	it_1 := this.classStack.eachRev()
 	for it_1.next() {
-		var klass *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](it_1.v)
+		var klass *Es6NormalizeClasses_ClassRecord = it_1.v
 		if klass.bindingIdentifier.isEmpty() {
 			continue
 		}
@@ -1204,7 +1204,7 @@ func (this *Es6NormalizeClasses) maybeUpdateClassSelfRef(t *NodeTraversal, nameN
 
 func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 	if Es6NormalizeClasses_isSuperCall(n.getParent()) {
-		var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
+		var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
 		classRecord.superCalls = append(classRecord.superCalls, n.getParent())
 		return
 	}
@@ -1222,7 +1222,7 @@ func (this *Es6NormalizeClasses) visitThisAndSuper(t *NodeTraversal, n Node) {
 		return
 	}
 	var classNode Node = rootNode.getGrandparent()
-	var classRecord *Es6NormalizeClasses_ClassRecord = cast_[*Es6NormalizeClasses_ClassRecord](this.classStack.peek())
+	var classRecord *Es6NormalizeClasses_ClassRecord = this.classStack.peekTop_()
 	if ok_, a1_, a2_ := (classRecord.classNode == classNode), classRecord.classNode, classNode; !ok_ {
 		Preconditions_checkState_boolean_String_Object_Object(false, "wrong class node: %s != %s", a1_.box_(), a2_.box_())
 	}
@@ -1390,9 +1390,9 @@ type Es6NormalizeClasses_ClassRecord struct {
 	bindingIdentifier                    OptionalOf[Node]
 	classNode                            Node
 	normalizedNames                      *Es6NormalizeClasses_NormalizedNames
-	instanceMembers                      DequeOf[Node]
-	staticMembers                        DequeOf[Node]
-	computedPropsWithSideEffects         DequeOf[Node]
+	instanceMembers                      *TList[Node]
+	staticMembers                        *TList[Node]
+	computedPropsWithSideEffects         *TList[Node]
 	constructorVars                      ImmutableSetOf[*Var]
 	superCalls                           []Node
 }
@@ -1410,9 +1410,9 @@ func (this *Es6NormalizeClasses_ClassRecord) finit_Es6NormalizeClasses_ClassReco
 	this.privateVarName = Optional_empty[string]()
 	this.staticPrivateVarName = Optional_empty[string]()
 	this.privateProtoVarName = Optional_empty[string]()
-	this.instanceMembers = icast_Deque(obj_(new_ArrayDeque()))
-	this.staticMembers = icast_Deque(obj_(new_ArrayDeque()))
-	this.computedPropsWithSideEffects = icast_Deque(obj_(new_ArrayDeque()))
+	this.instanceMembers = newTList_(tc_Node)
+	this.staticMembers = newTList_(tc_Node)
+	this.computedPropsWithSideEffects = newTList_(tc_Node)
 	this.constructorVars = ImmutableSet_of()
 	this.superCalls = []Node{}
 }
@@ -1517,22 +1517,22 @@ func (this *Es6NormalizeClasses_ClassRecord) getStaticPrivateVarName(compiler *A
 func (this *Es6NormalizeClasses_ClassRecord) recordField(field Node) {
 	Preconditions_checkArgument((field.isComputedFieldDef() || field.isMemberFieldDef()))
 	if field.isStaticMember() {
-		this.staticMembers.add(field.box_())
+		this.staticMembers.push_(field)
 	} else {
-		this.instanceMembers.add(field.box_())
+		this.instanceMembers.push_(field)
 	}
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) maybeRecordComputedPropWithSideEffects(computedProp Node) {
 	Preconditions_checkArgument((computedProp.isComputedProp() || computedProp.isComputedFieldDef()))
 	if NodeUtil_canBeSideEffected_Node(computedProp.getFirstChild()) {
-		this.computedPropsWithSideEffects.add(computedProp.box_())
+		this.computedPropsWithSideEffects.push_(computedProp)
 	}
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) recordStaticBlock(block Node) {
 	Preconditions_checkArgument(NodeUtil_isClassStaticBlock(block))
-	this.staticMembers.add(block.box_())
+	this.staticMembers.push_(block)
 }
 
 func (this *Es6NormalizeClasses_ClassRecord) recordConstructorScope(s *Scope) {

@@ -5,12 +5,12 @@ package closure
 type LowestCommonAncestorFinder struct {
 	graph          *DiGraph
 	searchColoring *TMap[DiGraph_DiGraphNode, *LowestCommonAncestorFinder_Color]
-	searchQueue    ArrayDequeOf[DiGraph_DiGraphNode]
+	searchQueue    *TList[DiGraph_DiGraphNode]
 }
 
 func (this *LowestCommonAncestorFinder) finit_LowestCommonAncestorFinder() {
 	this.searchColoring = newTMap_(tc_DiGraph_DiGraphNode, tc_p_LowestCommonAncestorFinder_Color)
-	this.searchQueue = new_ArrayDeque()
+	this.searchQueue = newTList_(tc_DiGraph_DiGraphNode)
 }
 
 func (this *LowestCommonAncestorFinder) init_LowestCommonAncestorFinder(graph *DiGraph) {
@@ -72,9 +72,9 @@ var lambda_LowestCommonAncestorFinder_findAll_1_ = &BiFunction_fn{func(p0 any, p
 
 func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode, color *LowestCommonAncestorFinder_Color) {
 	Preconditions_checkState(this.searchQueue.isEmpty())
-	SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), any(root))
+	this.searchQueue.push_(root)
 	for !this.searchQueue.isEmpty() {
-		var curr DiGraph_DiGraphNode = icast_DiGraph_DiGraphNode(SequencedCollection_removeFirst(icast_SequencedCollection(obj_(this.searchQueue))))
+		var curr DiGraph_DiGraphNode = this.searchQueue.popFirst_()
 		var parentEdges *TList[DiGraph_DiGraphEdge] = curr.getInEdges()
 		it_2 := parentEdges.each()
 		for it_2.next() {
@@ -85,7 +85,7 @@ func (this *LowestCommonAncestorFinder) paintAncestors(root DiGraph_DiGraphNode,
 			}
 			var oldColor *LowestCommonAncestorFinder_Color = cast_[*LowestCommonAncestorFinder_Color](Map_getOrDefault(this.searchColoring.asMap(), any(parent), obj_(LowestCommonAncestorFinder_Color_BLANK)))
 			if !oldColor.contains(color) {
-				SequencedCollection_addLast(icast_SequencedCollection(obj_(this.searchQueue)), any(parent))
+				this.searchQueue.push_(parent)
 				this.searchColoring.put(parent, oldColor.mix(color))
 			}
 		}
