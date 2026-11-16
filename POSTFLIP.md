@@ -120,6 +120,17 @@ Each was measured as neutral or slower and reverted:
 - `Optional<String>` holding its string unboxed (runtime `Optional_ofStr_` etc. and the tool
   step `tools/postflip/optstr/optstr.py`, 1,899 sites; branch `postflip4-wip7`): typed-full
   2.9M objects fewer, wall time neutral (64.9s -> 65.1s, bundle 30.5s -> 30.7s).
+- ArrayDeque with room for 16 from the start, reusing its array when emptied, and addFirst /
+  removeFirst on its head room (runtime; `postflip4-wip8`): 0.4M-0.9M objects fewer, neutral.
+- A batch of three, measured together against the branch and pre-flip Java (5 runs;
+  `postflip4-wip12`): removing the first element of a short list shifts the rest as
+  `java.util.ArrayList` does (runtime; the parser's token lookahead regrew its list on almost
+  every token); a graph node has room for its first in- and out-edge (manual); and the step
+  `tools/postflip/lambdas`, which makes each of 516 lambdas that capture nothing once, as
+  HotSpot does. Objects 257.8M -> 238.6M on typed-full (-7.4%) and 114.4M -> 107.5M on bundle,
+  bytes almost unchanged; wall and CPU time unchanged (typed-full 61.75s -> 61.86s, bundle
+  31.44s -> 31.25s; Java 55.17s and 29.97s in the same run). Fewer objects alone no longer buy
+  time.
 - GOGC=200 and PGO: against the plan's rules.
 
 ## Where the remaining time goes
