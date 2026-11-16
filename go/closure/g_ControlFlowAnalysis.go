@@ -818,10 +818,14 @@ func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator_i
 }
 
 // lambda_ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl_1_ is a lambda of ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl that captures nothing (post-flip step lambdas).
-var lambda_ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl_1_ = &ToIntFunction_fn{func(p0 any) int32 { return icast_DiGraph_DiGraphNode(p0).getPriority() }}
+// The node is a LinkedDiGraphNode, the only DiGraphNode class, so getPriority is called on it
+// directly (post-flip manual step).
+var lambda_ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl_1_ = &ToIntFunction_fn{func(p0 any) int32 { return to_LinkedDirectedGraph_LinkedDiGraphNode(p0).getPriority() }}
 
 // lambda_ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl_2_ is a lambda of ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl that captures nothing (post-flip step lambdas).
-var lambda_ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl_2_ = &ToIntFunction_fn{func(p0 any) int32 { return icast_DiGraph_DiGraphNode(p0).getPriority() }}
+// The node is a LinkedDiGraphNode, the only DiGraphNode class, so getPriority is called on it
+// directly (post-flip manual step).
+var lambda_ControlFlowAnalysis_AstControlFlowGraph_getOptionalNodeComparator_impl_2_ = &ToIntFunction_fn{func(p0 any) int32 { return to_LinkedDirectedGraph_LinkedDiGraphNode(p0).getPriority() }}
 
 // getOptionalNodeComparator: an object that is exactly a ControlFlowAnalysis_AstControlFlowGraph calls its getOptionalNodeComparator_impl directly (post-flip); others dispatch.
 func (this *ControlFlowAnalysis_AstControlFlowGraph) getOptionalNodeComparator(p0 bool) Comparator {
