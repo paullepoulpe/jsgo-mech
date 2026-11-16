@@ -288,7 +288,19 @@ func run(report bool) {
 		if !strings.HasPrefix(rw.Fset.Position(f.Pos()).Filename[strings.LastIndex(rw.Fset.Position(f.Pos()).Filename, "/")+1:], "g_") {
 			continue
 		}
+		topVar := map[*ast.GenDecl]bool{}
+		for _, d := range f.Decls {
+			if g, ok := d.(*ast.GenDecl); ok {
+				topVar[g] = true
+			}
+		}
 		ast.Inspect(f, func(n ast.Node) bool {
+			// Package-level variable initializers are left alone: a direct method reference
+			// there (the hash and eq of a key conversion, tch_*) would put the variable in an
+			// initialization cycle with every method that reaches it.
+			if g, ok := n.(*ast.GenDecl); ok && g.Tok == token.VAR && topVar[g] {
+				return false
+			}
 			c, ok := n.(*ast.CallExpr)
 			if !ok {
 				return true
